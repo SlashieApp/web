@@ -1,78 +1,75 @@
 import { createSystem, defaultConfig, defineConfig, mergeConfigs } from '@chakra-ui/react'
 
-// Warm “local trades” theme:
-// - warm neutrals + soft green accent
-// - glass / translucent panels
-// - rounded corners
+// HandyBox theme (Notion-like):
+// - clean black/white base
+// - solid accent colors: Notion link blue + warm mustard
+// - soft borders, gentle shadows, rounded corners
+// - subtle motion
 export const customConfig = defineConfig({
   theme: {
     tokens: {
       colors: {
-        brand: {
-          50: { value: '#fff7ed' },
-          100: { value: '#ffedd5' },
-          200: { value: '#fed7aa' },
-          300: { value: '#fdba74' },
-          400: { value: '#fb923c' },
-          500: { value: '#f97316' },
-          600: { value: '#ea580c' },
-          700: { value: '#c2410c' },
-          800: { value: '#9a3412' },
-          900: { value: '#7c2d12' }
+        ink: {
+          50: { value: '#f7f7f7' },
+          100: { value: '#eaeaea' },
+          200: { value: '#d6d6d6' },
+          300: { value: '#bdbdbd' },
+          400: { value: '#9b9b9b' },
+          500: { value: '#6b6b6b' },
+          600: { value: '#3c3c3c' },
+          700: { value: '#222222' },
+          800: { value: '#161616' },
+          900: { value: '#0f0f0f' }
         },
-        moss: {
-          50: { value: '#f0fdf4' },
-          100: { value: '#dcfce7' },
-          200: { value: '#bbf7d0' },
-          300: { value: '#86efac' },
-          400: { value: '#4ade80' },
-          500: { value: '#22c55e' },
-          600: { value: '#16a34a' },
-          700: { value: '#15803d' },
-          800: { value: '#166534' },
-          900: { value: '#14532d' }
+        linkBlue: {
+          50: { value: '#eef6ff' },
+          100: { value: '#dbeafe' },
+          200: { value: '#bfdbfe' },
+          300: { value: '#93c5fd' },
+          400: { value: '#60a5fa' },
+          500: { value: '#3b82f6' },
+          600: { value: '#2563eb' },
+          700: { value: '#1d4ed8' },
+          800: { value: '#1e40af' },
+          900: { value: '#1e3a8a' }
+        },
+        mustard: {
+          50: { value: '#fffbe6' },
+          100: { value: '#fff4bf' },
+          200: { value: '#ffe58f' },
+          300: { value: '#ffd666' },
+          400: { value: '#ffc53d' },
+          500: { value: '#d4a72c' },
+          600: { value: '#b38622' },
+          700: { value: '#8f6619' },
+          800: { value: '#6b4a10' },
+          900: { value: '#4d350a' }
         }
       },
       radii: {
         sm: { value: '10px' },
         md: { value: '14px' },
         lg: { value: '18px' },
-        xl: { value: '24px' }
+        xl: { value: '22px' }
       },
       shadows: {
-        glass: {
-          value:
-            '0 10px 30px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.25) inset'
+        card: {
+          value: '0 10px 30px rgba(0,0,0,0.08)'
         }
       }
     },
     semanticTokens: {
       colors: {
-        bg: {
-          value: {
-            base: '#fffaf5'
-          }
-        },
-        fg: {
-          value: {
-            base: '#1f2937'
-          }
-        },
-        muted: {
-          value: {
-            base: 'rgba(31,41,55,0.70)'
-          }
-        },
-        glassBg: {
-          value: {
-            base: 'rgba(255,255,255,0.55)'
-          }
-        },
-        glassBorder: {
-          value: {
-            base: 'rgba(31,41,55,0.10)'
-          }
-        }
+        bg: { value: { base: '#ffffff' } },
+        fg: { value: { base: '#111111' } },
+        muted: { value: { base: 'rgba(17,17,17,0.70)' } },
+
+        surface: { value: { base: '#ffffff' } },
+        border: { value: { base: 'rgba(17,17,17,0.12)' } },
+
+        // Keep naming compatible with existing components
+        glassBg: { value: { base: 'rgba(255,255,255,0.72)' } },
+        glassBorder: { value: { base: 'rgba(17,17,17,0.12)' } }
       }
     }
   }

@@ -8,9 +8,9 @@ export function UiButton(props: UiButtonProps) {
   return (
     <Button
       borderRadius="xl"
-      transition="all 150ms ease"
+      transition="all 160ms ease"
       _hover={{ transform: 'translateY(-1px)' }}
-      _active={{ transform: 'translateY(0px)', opacity: 0.9 }}
+      _active={{ transform: 'translateY(0px)', opacity: 0.92 }}
       {...props}
     />
   )

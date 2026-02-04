@@ -14,23 +14,30 @@ export default meta
 
 type Story = StoryObj<typeof UiButton>
 
-export const Primary: Story = {
+export const PrimaryBlue: Story = {
   args: {
-    colorPalette: 'orange',
+    colorPalette: 'linkBlue',
+  },
+}
+
+export const AccentMustard: Story = {
+  args: {
+    background: 'mustard.500',
+    color: 'black',
   },
 }
 
 export const Outline: Story = {
   args: {
     variant: 'outline',
+    borderColor: 'border',
   },
 }
 
-export const Glass: Story = {
+export const Surface: Story = {
   args: {
     variant: 'outline',
     background: 'glassBg',
     borderColor: 'glassBorder',
-    backdropFilter: 'blur(10px)',
   },
 }

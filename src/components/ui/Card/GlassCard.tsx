@@ -11,8 +11,7 @@ export function GlassCard(props: GlassCardProps) {
       borderWidth="1px"
       borderColor="glassBorder"
       bg="glassBg"
-      backdropFilter="blur(12px)"
-      boxShadow="glass"
+      boxShadow="card"
       transition="all 180ms ease"
       _hover={{ transform: 'translateY(-2px)' }}
       {...props}

@@ -10,10 +10,9 @@ export function TextInput(props: TextInputProps) {
       borderRadius="xl"
       bg="glassBg"
       borderColor="glassBorder"
-      backdropFilter="blur(10px)"
       _focusVisible={{
-        borderColor: 'brand.400',
-        boxShadow: '0 0 0 4px rgba(249,115,22,0.20)',
+        borderColor: 'linkBlue.600',
+        boxShadow: '0 0 0 4px rgba(29,78,216,0.15)',
       }}
       {...props}
     />
