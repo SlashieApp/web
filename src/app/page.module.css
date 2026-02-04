@@ -95,6 +95,30 @@
   font-size: 14px;
 }
 
+.linksRow {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: rgba(243, 244, 246, 0.86);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.link:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 @media (max-width: 600px) {
   .main {
     padding: 34px 18px;

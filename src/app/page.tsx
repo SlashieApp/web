@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 import styles from './page.module.css'
 
 export default function Home() {
@@ -34,6 +36,17 @@ export default function Home() {
           <p className={styles.small}>
             We’re building the MVP right now. Check back soon.
           </p>
+          <div className={styles.linksRow}>
+            <Link className={styles.link} href="/register">
+              Register
+            </Link>
+            <Link className={styles.link} href="/login">
+              Log in
+            </Link>
+            <Link className={styles.link} href="/dashboard">
+              Dashboard
+            </Link>
+          </div>
         </footer>
       </main>
     </div>
