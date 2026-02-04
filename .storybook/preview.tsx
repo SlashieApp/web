@@ -1,12 +1,14 @@
 import React from 'react'
 import type { Preview } from '@storybook/nextjs-vite'
 
-import { ChakraProvider, defaultSystem } from '@chakra-ui/react'
+import { ChakraProvider } from '@chakra-ui/react'
+
+import { system } from '../src/theme/system'
 
 const preview: Preview = {
   decorators: [
     (Story) => (
-      <ChakraProvider value={defaultSystem}>
+      <ChakraProvider value={system}>
         <Story />
       </ChakraProvider>
     ),
