@@ -2,7 +2,9 @@
 
 import { Button, type ButtonProps } from '@chakra-ui/react'
 
-export type UiButtonProps = ButtonProps
+export type UiButtonProps = ButtonProps & {
+  href?: string
+}
 
 export function UiButton(props: UiButtonProps) {
   return (
