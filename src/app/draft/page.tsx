@@ -1,7 +1,5 @@
-'use client'
-
-import { DesignDraft } from '@/components/draft/DesignDraft'
+import { LandingPage } from '@/components/ui'
 
 export default function DraftPage() {
-  return <DesignDraft />
+  return <LandingPage />
 }
