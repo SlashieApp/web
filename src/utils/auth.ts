@@ -11,6 +11,6 @@ export function clearAuthToken() {
 }
 
 export function getAuthToken() {
-  const match = RegExp('auth=([^;]+)').exec(document.cookie)
+  const match = /auth=([^;]+)/.exec(document.cookie)
   return match?.[1] ?? null
 }

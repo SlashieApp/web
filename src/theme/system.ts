@@ -1,4 +1,9 @@
-import { createSystem, defaultConfig, defineConfig, mergeConfigs } from '@chakra-ui/react'
+import {
+  createSystem,
+  defaultConfig,
+  defineConfig,
+  mergeConfigs,
+} from '@chakra-ui/react'
 
 // HandyBox theme (Notion-like):
 // - clean black/white base
@@ -19,7 +24,7 @@ export const customConfig = defineConfig({
           600: { value: '#3c3c3c' },
           700: { value: '#222222' },
           800: { value: '#161616' },
-          900: { value: '#0f0f0f' }
+          900: { value: '#0f0f0f' },
         },
         linkBlue: {
           50: { value: '#eef6ff' },
@@ -31,7 +36,7 @@ export const customConfig = defineConfig({
           600: { value: '#2563eb' },
           700: { value: '#1d4ed8' },
           800: { value: '#1e40af' },
-          900: { value: '#1e3a8a' }
+          900: { value: '#1e3a8a' },
         },
         mustard: {
           50: { value: '#fffbe6' },
@@ -43,20 +48,20 @@ export const customConfig = defineConfig({
           600: { value: '#b38622' },
           700: { value: '#8f6619' },
           800: { value: '#6b4a10' },
-          900: { value: '#4d350a' }
-        }
+          900: { value: '#4d350a' },
+        },
       },
       radii: {
         sm: { value: '10px' },
         md: { value: '14px' },
         lg: { value: '18px' },
-        xl: { value: '22px' }
+        xl: { value: '22px' },
       },
       shadows: {
         card: {
-          value: '0 10px 30px rgba(0,0,0,0.08)'
-        }
-      }
+          value: '0 10px 30px rgba(0,0,0,0.08)',
+        },
+      },
     },
     semanticTokens: {
       colors: {
@@ -69,10 +74,10 @@ export const customConfig = defineConfig({
 
         // Keep naming compatible with existing components
         glassBg: { value: { base: 'rgba(255,255,255,0.72)' } },
-        glassBorder: { value: { base: 'rgba(17,17,17,0.12)' } }
-      }
-    }
-  }
+        glassBorder: { value: { base: 'rgba(17,17,17,0.12)' } },
+      },
+    },
+  },
 })
 
 export const system = createSystem(mergeConfigs(defaultConfig, customConfig))

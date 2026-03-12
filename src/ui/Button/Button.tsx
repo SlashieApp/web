@@ -1,16 +1,17 @@
 'use client'
 
-import { Button, type ButtonProps } from '@chakra-ui/react'
+import { type ButtonProps, Button as ChakraButton } from '@chakra-ui/react'
 
 export type UiButtonProps = ButtonProps & {
   href?: string
 }
 
-export function UiButton(props: UiButtonProps) {
+export function Button(props: UiButtonProps) {
   return (
-    <Button
+    <ChakraButton
       borderRadius="xl"
       transition="all 160ms ease"
+      px={4}
       _hover={{ transform: 'translateY(-1px)' }}
       _active={{ transform: 'translateY(0px)', opacity: 0.92 }}
       {...props}

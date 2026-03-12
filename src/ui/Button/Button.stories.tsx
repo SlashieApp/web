@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { UiButton } from './Button'
+import { Button } from './Button'
 
-const meta: Meta<typeof UiButton> = {
+const meta: Meta<typeof Button> = {
   title: 'UI/Atoms/Button',
-  component: UiButton,
+  component: Button,
   args: {
     children: 'Button',
   },
@@ -12,7 +12,7 @@ const meta: Meta<typeof UiButton> = {
 
 export default meta
 
-type Story = StoryObj<typeof UiButton>
+type Story = StoryObj<typeof Button>
 
 export const PrimaryBlue: Story = {
   args: {

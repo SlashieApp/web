@@ -19,7 +19,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@ui": ["./src/ui/index.ts"],
+      "@ui/*": ["./src/ui/*"],
+      "@codegen/*": ["./.codegen/*"],
+      "@codegen/schema": ["./.codegen/schema.ts"]
     }
   },
   "include": [

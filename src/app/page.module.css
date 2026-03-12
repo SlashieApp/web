@@ -12,10 +12,16 @@
   place-items: center;
   padding: 40px 16px;
   font-family: var(--font-geist-sans);
-  background:
-    radial-gradient(1000px 600px at 20% 20%, rgba(59, 130, 246, 0.25), transparent 60%),
-    radial-gradient(900px 500px at 80% 30%, rgba(16, 185, 129, 0.18), transparent 60%),
-    var(--bg);
+  background: radial-gradient(
+      1000px 600px at 20% 20%,
+      rgba(59, 130, 246, 0.25),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 80% 30%,
+      rgba(16, 185, 129, 0.18),
+      transparent 60%
+    ), var(--bg);
   color: var(--text);
 }
 

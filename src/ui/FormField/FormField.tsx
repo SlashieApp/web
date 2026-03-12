@@ -1,6 +1,6 @@
 'use client'
 
-import { FieldRoot, FieldLabel, FieldErrorText, Text } from '@chakra-ui/react'
+import { FieldErrorText, FieldLabel, FieldRoot, Text } from '@chakra-ui/react'
 
 export type FormFieldProps = {
   label: string

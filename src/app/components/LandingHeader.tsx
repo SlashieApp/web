@@ -3,7 +3,7 @@
 import { Box, HStack, Heading, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { UiButton } from '../Button/Button'
+import { Button } from '@/ui/Button/Button'
 
 const navLinks = [
   { label: 'Tasks', href: '/tasks' },
@@ -40,17 +40,17 @@ export function LandingHeader() {
             {link.label}
           </Link>
         ))}
-        <UiButton as={NextLink} href="/login" variant="ghost">
+        <Button as={NextLink} href="/login" variant="ghost">
           Log in
-        </UiButton>
-        <UiButton
+        </Button>
+        <Button
           as={NextLink}
           href="/#post-task"
           background="linkBlue.600"
           color="white"
         >
           Post a job
-        </UiButton>
+        </Button>
       </HStack>
     </Stack>
   )
