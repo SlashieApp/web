@@ -29,10 +29,15 @@ export const JOBS_QUERY = gql`
       description
       location
       photos
+      createdByUserId
+      createdAt
       quotes {
         id
+        jobId
+        handymanUserId
         pricePence
         message
+        createdAt
       }
     }
   }
