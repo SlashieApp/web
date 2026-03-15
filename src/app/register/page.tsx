@@ -5,8 +5,8 @@ import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
 import { Container, Input } from '@ui'
 import NextLink from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { LandingHeader } from '../components'
 
 import { REGISTER_MUTATION } from '@/graphql/auth'
@@ -15,19 +15,25 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [nextPath, setNextPath] = useState('/dashboard')
 
   const [register, { loading }] =
     useMutation<RegisterMutation>(REGISTER_MUTATION)
 
-  const requestedNextPath = searchParams.get('next')
-  const hasSafeNextPath =
-    requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
-  const nextPath =
-    hasSafeNextPath && requestedNextPath ? requestedNextPath : '/dashboard'
+  useEffect(() => {
+    const requestedNextPath = new URLSearchParams(window.location.search).get(
+      'next',
+    )
+    const hasSafeNextPath =
+      requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
+
+    if (hasSafeNextPath && requestedNextPath) {
+      setNextPath(requestedNextPath)
+    }
+  }, [])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()

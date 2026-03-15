@@ -5,8 +5,8 @@ import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import type { ResetPasswordMutation } from '@codegen/schema'
 import { Container, Input } from '@ui'
 import NextLink from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 import { LandingHeader } from '@/app/components'
 import { RESET_PASSWORD_MUTATION } from '@/graphql/auth'
@@ -15,14 +15,20 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const [token, setToken] = useState(searchParams.get('token') ?? '')
+  const [token, setToken] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const [resetPassword, { loading }] = useMutation<ResetPasswordMutation>(
     RESET_PASSWORD_MUTATION,
   )
+
+  useEffect(() => {
+    const resetToken = new URLSearchParams(window.location.search).get('token')
+    if (resetToken) {
+      setToken(resetToken)
+    }
+  }, [])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
