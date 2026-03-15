@@ -21,4 +21,3 @@
 - **Playwright browsers** must be installed before running Vitest (`npx playwright install chromium`). Tests use `@vitest/browser-playwright` to run Storybook component tests in headless Chromium.
 - **GraphQL codegen** introspects the remote API schema. The URL is baked into `codegen.ts`. If the remote API is unreachable, codegen will fail, but the dev server can still start (the generated types in `.codegen/schema.ts` are only needed at build time or for type-checking).
 - The `LandingPage.stories.tsx` test (`Default`) fails because the story renders components that call `useMutation` without an `ApolloProvider` wrapper. This is a pre-existing issue, not an environment problem.
-- The `NEXT_PUBLIC_GRAPHQL_URL` env var is optional for dev — the Apollo client falls back to `http://localhost:4000/graphql`, but the codegen config has the production URL hardcoded, so codegen works without it.

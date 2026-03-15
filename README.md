@@ -37,7 +37,7 @@ Then open <http://localhost:6006>.
 
 ```bash
 # Full GraphQL endpoint (include /graphql)
-NEXT_PUBLIC_GRAPHQL_URL=https://handyman-apollo.onrender.com/graphql
+NEXT_PUBLIC_GRAPHQL_URL=https://handyman-apollo.onrender.com
 ```
 
 ## Lint / Format
