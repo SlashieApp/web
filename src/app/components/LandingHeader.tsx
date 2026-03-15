@@ -1,17 +1,33 @@
 'use client'
 
+import { useApolloClient, useQuery } from '@apollo/client/react'
 import { Box, HStack, Heading, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { ME_QUERY } from '@/graphql/auth'
 import { Button } from '@/ui/Button/Button'
+import { clearAuthToken, getAuthToken } from '@/utils/auth'
+import type { MeQuery } from '@codegen/schema'
 
 const navLinks = [
   { label: 'Tasks', href: '/tasks' },
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Register', href: '/register' },
 ]
 
 export function LandingHeader() {
+  const apolloClient = useApolloClient()
+  const hasToken = Boolean(getAuthToken())
+  const { data, loading } = useQuery<MeQuery>(ME_QUERY, {
+    skip: !hasToken,
+    fetchPolicy: 'network-only',
+  })
+  const isAuthenticated = Boolean(data?.me)
+  const isCheckingSession = hasToken && loading && !isAuthenticated
+
+  function onLogout() {
+    clearAuthToken()
+    void apolloClient.clearStore()
+  }
+
   return (
     <Stack
       direction={{ base: 'column', md: 'row' }}
@@ -40,9 +56,25 @@ export function LandingHeader() {
             {link.label}
           </Link>
         ))}
-        <Button as={NextLink} href="/login" variant="ghost">
-          Log in
-        </Button>
+        {isAuthenticated || isCheckingSession ? (
+          <>
+            <Button as={NextLink} href="/dashboard" variant="ghost">
+              Account
+            </Button>
+            <Button variant="outline" onClick={onLogout}>
+              Log out
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button as={NextLink} href="/login" variant="ghost">
+              Log in
+            </Button>
+            <Button as={NextLink} href="/register" variant="outline">
+              Register
+            </Button>
+          </>
+        )}
         <Button
           as={NextLink}
           href="/#post-task"

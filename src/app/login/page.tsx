@@ -1,17 +1,19 @@
 'use client'
 
 import { LandingHeader } from '@/app/components'
+import { ME_QUERY } from '@/graphql/auth'
 import { useMutation } from '@apollo/client/react'
 import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import type { LoginMutation } from '@codegen/schema'
+import type { LoginMutation, MeQuery } from '@codegen/schema'
 import { Container, Input } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { LOGIN_MUTATION } from '@/graphql/auth'
-import { setAuthToken } from '@/utils/auth'
+import { getAuthToken, setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import { useQuery } from '@apollo/client/react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,6 +22,11 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [nextPath, setNextPath] = useState('/dashboard')
 
+  const hasAuthToken = Boolean(getAuthToken())
+  const { data: meData } = useQuery<MeQuery>(ME_QUERY, {
+    skip: !hasAuthToken,
+    fetchPolicy: 'network-only',
+  })
   const [login, { loading }] = useMutation<LoginMutation>(LOGIN_MUTATION)
 
   useEffect(() => {
@@ -33,6 +40,11 @@ export default function LoginPage() {
       setNextPath(requestedNextPath)
     }
   }, [])
+
+  useEffect(() => {
+    if (!meData?.me) return
+    router.replace(nextPath)
+  }, [meData?.me, nextPath, router])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
