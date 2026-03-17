@@ -3,16 +3,19 @@
 import { useQuery } from '@apollo/client/react'
 import { HStack, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import { useState } from 'react'
 
 import { TASKS_QUERY } from '@/graphql/jobs'
 import { Badge } from '@/ui/Badge/Badge'
 import { Button } from '@/ui/Button/Button'
-import type { TasksQuery } from '@codegen/schema'
+import type { TasksQuery, TasksQueryVariables } from '@codegen/schema'
 import { GlassCard } from '../../ui/Card/GlassCard'
 
 export type TaskBoardProps = {
   title?: string
 }
+
+const PAGE_SIZE = 6
 
 function formatBudget(offers: { pricePence: number }[]) {
   if (offers.length === 0) return 'No offers yet'
@@ -24,8 +27,18 @@ function formatBudget(offers: { pricePence: number }[]) {
 }
 
 export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
-  const { data, loading, error } = useQuery<TasksQuery>(TASKS_QUERY)
+  const [page, setPage] = useState(1)
+  const offset = (page - 1) * PAGE_SIZE
+  const { data, loading, error } = useQuery<TasksQuery, TasksQueryVariables>(
+    TASKS_QUERY,
+    {
+      variables: { limit: PAGE_SIZE, offset },
+      notifyOnNetworkStatusChange: true,
+    },
+  )
   const tasks = data?.tasks ?? []
+  const canGoBack = page > 1
+  const canGoForward = tasks.length === PAGE_SIZE && !loading
 
   return (
     <GlassCard p={6}>
@@ -97,6 +110,34 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
             ))}
           </SimpleGrid>
         )}
+
+        {!error && !loading && (canGoBack || canGoForward) ? (
+          <HStack justify="space-between" flexWrap="wrap" gap={3}>
+            <Text color="muted" fontSize="sm">
+              Page {page}
+            </Text>
+            <HStack gap={2}>
+              <Button
+                size="sm"
+                variant="outline"
+                borderColor="border"
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                disabled={!canGoBack}
+              >
+                Previous
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                borderColor="border"
+                onClick={() => setPage((current) => current + 1)}
+                disabled={!canGoForward}
+              >
+                Next
+              </Button>
+            </HStack>
+          </HStack>
+        ) : null}
       </Stack>
     </GlassCard>
   )

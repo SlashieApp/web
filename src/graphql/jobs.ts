@@ -22,8 +22,8 @@ export const ADD_OFFER = gql`
 `
 
 export const TASKS_QUERY = gql`
-  query Tasks {
-    tasks {
+  query Tasks($limit: Int, $offset: Int) {
+    tasks(limit: $limit, offset: $offset) {
       id
       title
       description
