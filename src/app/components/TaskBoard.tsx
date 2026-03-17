@@ -3,16 +3,19 @@
 import { useQuery } from '@apollo/client/react'
 import { HStack, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import { useState } from 'react'
 
 import { TASKS_QUERY } from '@/graphql/jobs'
 import { Badge } from '@/ui/Badge/Badge'
 import { Button } from '@/ui/Button/Button'
-import type { TasksQuery } from '@codegen/schema'
+import type { TasksQuery, TasksQueryVariables } from '@codegen/schema'
 import { GlassCard } from '../../ui/Card/GlassCard'
 
 export type TaskBoardProps = {
   title?: string
 }
+
+const PAGE_SIZE = 6
 
 function formatBudget(offers: { pricePence: number }[]) {
   if (offers.length === 0) return 'No offers yet'
@@ -24,8 +27,21 @@ function formatBudget(offers: { pricePence: number }[]) {
 }
 
 export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
-  const { data, loading, error } = useQuery<TasksQuery>(TASKS_QUERY)
+  const [page, setPage] = useState(0)
+  const offset = page * PAGE_SIZE
+  const { data, loading, error } = useQuery<TasksQuery, TasksQueryVariables>(
+    TASKS_QUERY,
+    {
+      variables: {
+        limit: PAGE_SIZE,
+        offset,
+      },
+      notifyOnNetworkStatusChange: true,
+    },
+  )
   const tasks = data?.tasks ?? []
+  const hasPreviousPage = page > 0
+  const hasNextPage = tasks.length === PAGE_SIZE
 
   return (
     <GlassCard p={6}>
@@ -39,7 +55,7 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
           </HStack>
         </HStack>
 
-        {loading ? (
+        {loading && !data ? (
           <Text color="muted">Loading tasks…</Text>
         ) : error ? (
           <Text color="red.400" fontSize="sm">
@@ -47,7 +63,9 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
           </Text>
         ) : tasks.length === 0 ? (
           <Text color="muted">
-            No tasks posted yet. Be the first to post one.
+            {page === 0
+              ? 'No tasks posted yet. Be the first to post one.'
+              : 'No more tasks available on this page.'}
           </Text>
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
@@ -96,6 +114,34 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
               </GlassCard>
             ))}
           </SimpleGrid>
+        )}
+
+        {!error && (
+          <HStack justify="space-between" flexWrap="wrap" gap={3}>
+            <Text color="muted" fontSize="sm">
+              Page {page + 1}
+            </Text>
+            <HStack gap={2}>
+              <Button
+                size="sm"
+                variant="outline"
+                borderColor="border"
+                disabled={!hasPreviousPage || loading}
+                onClick={() => setPage((currentPage) => Math.max(currentPage - 1, 0))}
+              >
+                Previous
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                borderColor="border"
+                disabled={!hasNextPage || loading}
+                onClick={() => setPage((currentPage) => currentPage + 1)}
+              >
+                Next
+              </Button>
+            </HStack>
+          </HStack>
         )}
       </Stack>
     </GlassCard>
