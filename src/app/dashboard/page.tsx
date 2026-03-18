@@ -184,7 +184,7 @@ export default function DashboardPage() {
                       </Button>
                       <Button
                         as={NextLink}
-                        href="/#post-task"
+                        href="/tasks/create"
                         background="mustard.500"
                         color="black"
                       >
