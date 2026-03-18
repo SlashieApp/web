@@ -121,7 +121,9 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
                 variant="outline"
                 borderColor="border"
                 disabled={!hasPreviousPage || loading}
-                onClick={() => setPage((currentPage) => Math.max(currentPage - 1, 0))}
+                onClick={() =>
+                  setPage((currentPage) => Math.max(currentPage - 1, 0))
+                }
               >
                 Previous
               </Button>
