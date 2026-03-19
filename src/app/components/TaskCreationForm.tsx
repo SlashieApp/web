@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Select, Stack, Text, Textarea } from '@chakra-ui/react'
+import { NativeSelect, Stack, Text, Textarea } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -167,19 +167,19 @@ export function TaskCreationForm() {
         </FormField>
 
         <FormField label="Payment method">
-          <Select
-            bg="glassBg"
-            borderColor="glassBorder"
+          <NativeSelect.Root
             value={paymentMethod}
-            onChange={(event) =>
-              setPaymentMethod(event.target.value as TaskPaymentMethod)
+            onValueChange={(details) =>
+              setPaymentMethod(details.value[0] as TaskPaymentMethod)
             }
           >
-            <option value={TaskPaymentMethod.Cash}>Cash</option>
-            <option value={TaskPaymentMethod.BankTransfer}>
-              Bank transfer
-            </option>
-          </Select>
+            <NativeSelect.Field>
+              <option value={TaskPaymentMethod.Cash}>Cash</option>
+              <option value={TaskPaymentMethod.BankTransfer}>
+                Bank transfer
+              </option>
+            </NativeSelect.Field>
+          </NativeSelect.Root>
         </FormField>
 
         <FormField label="Preferred contact method">
