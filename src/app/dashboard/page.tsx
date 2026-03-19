@@ -63,7 +63,7 @@ export default function DashboardPage() {
     fetchPolicy: 'network-only',
     skip: !me,
   })
-  const tasks = tasksData?.tasks ?? []
+  const tasks = tasksData?.tasks.items ?? []
   const meErrorMessage = meError
     ? getFriendlyErrorMessage(meError, 'Could not load account details.')
     : null
@@ -74,10 +74,10 @@ export default function DashboardPage() {
   const { myPostedTasks, myOffers, offerCountOnMyTasks } = useMemo(() => {
     if (!me) {
       return {
-        myPostedTasks: [] as TasksQuery['tasks'],
+        myPostedTasks: [] as TasksQuery['tasks']['items'],
         myOffers: [] as Array<{
-          task: TasksQuery['tasks'][number]
-          offer: TasksQuery['tasks'][number]['offers'][number]
+          task: TasksQuery['tasks']['items'][number]
+          offer: TasksQuery['tasks']['items'][number]['offers'][number]
         }>,
         offerCountOnMyTasks: 0,
       }
@@ -184,7 +184,7 @@ export default function DashboardPage() {
                       </Button>
                       <Button
                         as={NextLink}
-                        href="/#post-task"
+                        href="/tasks/create"
                         background="mustard.500"
                         color="black"
                       >

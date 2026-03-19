@@ -29,11 +29,20 @@ enum OfferStatus {
   REJECTED
 }
 
+enum TaskPaymentMethod {
+  CASH
+  BANK_TRANSFER
+}
+
 input CreateTaskInput {
   title: String!
   description: String!
   location: String
-  photos: [String!]
+  dateTime: DateTime!
+  category: String!
+  priceOfferPence: Int!
+  paymentMethod: TaskPaymentMethod!
+  contactMethod: String!
 }
 
 input AddOfferInput {
@@ -57,11 +66,29 @@ type Task {
   title: String!
   description: String!
   location: String
-  photos: [String!]!
   status: TaskStatus!
   createdByUserId: ID!
   createdAt: DateTime!
+  dateTime: DateTime
+  category: String
+  priceOfferPence: Int
+  paymentMethod: TaskPaymentMethod
+  contactMethod: String
   offers: [Offer!]!
+}
+
+type PageInfo {
+  page: Int!
+  pageSize: Int!
+  totalItems: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type TaskPage {
+  items: [Task!]!
+  pageInfo: PageInfo!
 }
 
 type Job {
@@ -73,7 +100,7 @@ type Job {
 type Query {
   health: String!
   me: User
-  tasks: [Task!]!
+  tasks: TaskPage!
   task(id: ID!): Task
   job(id: ID!): Job
   myJobs: [Job!]!

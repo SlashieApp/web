@@ -75,7 +75,7 @@ export function LandingHeader() {
         )}
         <Button
           as={NextLink}
-          href="/#post-task"
+          href="/tasks/create"
           background="linkBlue.600"
           color="white"
         >

@@ -32,7 +32,7 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
   const { data, loading, error } = useQuery<TasksQuery>(TASKS_QUERY, {
     notifyOnNetworkStatusChange: true,
   })
-  const allTasks = data?.tasks ?? []
+  const allTasks = data?.tasks.items ?? []
   const tasks = allTasks.slice(offset, offset + PAGE_SIZE)
   const hasPreviousPage = page > 0
   const hasNextPage = offset + PAGE_SIZE < allTasks.length

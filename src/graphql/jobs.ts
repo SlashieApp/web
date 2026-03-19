@@ -7,6 +7,11 @@ export const CREATE_TASK = gql`
       title
       description
       location
+      dateTime
+      category
+      priceOfferPence
+      paymentMethod
+      contactMethod
     }
   }
 `
@@ -24,22 +29,36 @@ export const ADD_OFFER = gql`
 export const TASKS_QUERY = gql`
   query Tasks {
     tasks {
-      id
-      title
-      description
-      location
-      photos
-      status
-      createdByUserId
-      createdAt
-      offers {
+      items {
         id
-        taskId
-        workerUserId
-        pricePence
-        message
+        title
+        description
+        location
         status
+        createdByUserId
         createdAt
+        dateTime
+        category
+        priceOfferPence
+        paymentMethod
+        contactMethod
+        offers {
+          id
+          taskId
+          workerUserId
+          pricePence
+          message
+          status
+          createdAt
+        }
+      }
+      pageInfo {
+        page
+        pageSize
+        totalItems
+        totalPages
+        hasNextPage
+        hasPreviousPage
       }
     }
   }
@@ -52,13 +71,22 @@ export const TASK_QUERY = gql`
       title
       description
       location
-      photos
+      status
+      createdByUserId
       createdAt
+      dateTime
+      category
+      priceOfferPence
+      paymentMethod
+      contactMethod
       offers {
         id
+        taskId
         pricePence
         message
         workerUserId
+        status
+        createdAt
       }
     }
   }

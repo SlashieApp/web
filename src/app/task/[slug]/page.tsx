@@ -13,6 +13,18 @@ import type { AddOfferMutation, TaskQuery } from '@codegen/schema'
 import { Badge, Button, Container, GlassCard, TextInput } from '@ui'
 import { useState } from 'react'
 
+function formatDateTime(isoDateTime: string) {
+  return new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(isoDateTime))
+}
+
+function formatPaymentMethod(paymentMethod: string) {
+  const normalised = paymentMethod.replaceAll('_', ' ').toLowerCase()
+  return normalised.charAt(0).toUpperCase() + normalised.slice(1)
+}
+
 function Section({
   id,
   children,
@@ -163,9 +175,19 @@ export default function TaskDetailPage() {
                       )}
                     </HStack>
                     <Text color="muted">{task.description}</Text>
-                    {task.location && (
-                      <Badge variant="outline">{task.location}</Badge>
-                    )}
+                    <HStack gap={2} flexWrap="wrap">
+                      {task.location ? (
+                        <Badge variant="outline">{task.location}</Badge>
+                      ) : null}
+                      {task.category ? (
+                        <Badge variant="outline">{task.category}</Badge>
+                      ) : null}
+                      {task.priceOfferPence ? (
+                        <Badge bg="mustard.200" color="black" px={2}>
+                          £{(task.priceOfferPence / 100).toFixed(0)}
+                        </Badge>
+                      ) : null}
+                    </HStack>
                   </Stack>
 
                   <GlassCard p={6}>
@@ -176,6 +198,35 @@ export default function TaskDetailPage() {
                         {task.location && (
                           <Text>
                             <strong>Location:</strong> {task.location}
+                          </Text>
+                        )}
+                        {task.dateTime && (
+                          <Text>
+                            <strong>Date & time:</strong>{' '}
+                            {formatDateTime(task.dateTime)}
+                          </Text>
+                        )}
+                        {task.category && (
+                          <Text>
+                            <strong>Category:</strong> {task.category}
+                          </Text>
+                        )}
+                        {task.priceOfferPence && (
+                          <Text>
+                            <strong>Expected price:</strong> £
+                            {(task.priceOfferPence / 100).toFixed(0)}
+                          </Text>
+                        )}
+                        {task.paymentMethod && (
+                          <Text>
+                            <strong>Payment method:</strong>{' '}
+                            {formatPaymentMethod(task.paymentMethod)}
+                          </Text>
+                        )}
+                        {task.contactMethod && (
+                          <Text>
+                            <strong>Contact method:</strong>{' '}
+                            {task.contactMethod}
                           </Text>
                         )}
                         {task.offers.length > 0 && (

@@ -7,7 +7,7 @@ import { GlassCard } from '../../ui/Card/GlassCard'
 const highlights = [
   {
     title: 'Post in minutes',
-    body: 'Share a small job with photos, location, and timing.',
+    body: 'Share a small job with location, timing, and budget.',
   },
   {
     title: 'Get clear offers',
