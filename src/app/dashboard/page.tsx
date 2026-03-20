@@ -136,10 +136,10 @@ export default function DashboardPage() {
                     You need an account to manage your posted tasks and quotes.
                   </Text>
                   <HStack gap={3} flexWrap="wrap">
-                    <Button as={NextLink} href="/login" colorPalette="blue">
+                    <Button as={NextLink} href="/login">
                       Log in
                     </Button>
-                    <Button as={NextLink} href="/register" variant="outline">
+                    <Button as={NextLink} href="/register" variant="subtle">
                       Register
                     </Button>
                   </HStack>
@@ -157,7 +157,9 @@ export default function DashboardPage() {
                         <Text>{me.email}</Text>
                       </Stack>
                       <HStack gap={2}>
-                        <Badge variant="outline">Member since</Badge>
+                        <Badge bg="surfaceContainerLow" color="fg">
+                          Member since
+                        </Badge>
                         <Text fontSize="sm" color="muted">
                           {formatDate(me.createdAt)}
                         </Text>
@@ -165,7 +167,8 @@ export default function DashboardPage() {
                     </HStack>
                     <HStack gap={3} flexWrap="wrap">
                       <Button
-                        variant="outline"
+                        variant="subtle"
+                        bg="surfaceContainerLow"
                         onClick={() => {
                           clearAuthToken()
                           router.push('/login')
@@ -174,7 +177,6 @@ export default function DashboardPage() {
                         Log out
                       </Button>
                       <Button
-                        colorPalette="blue"
                         onClick={() => {
                           void refetchMe()
                           void refetchTasks()
@@ -182,12 +184,7 @@ export default function DashboardPage() {
                       >
                         Refresh
                       </Button>
-                      <Button
-                        as={NextLink}
-                        href="/tasks/create"
-                        background="mustard.500"
-                        color="black"
-                      >
+                      <Button as={NextLink} href="/tasks/create" variant="tool">
                         Post a new task
                       </Button>
                     </HStack>
@@ -268,20 +265,16 @@ export default function DashboardPage() {
                                       </Stack>
                                       <HStack gap={2} flexWrap="wrap">
                                         {task.location ? (
-                                          <Badge variant="outline">
+                                          <Badge bg="surfaceContainerLow" color="fg">
                                             {task.location}
                                           </Badge>
                                         ) : null}
-                                        <Badge variant="outline">
+                                        <Badge bg="surfaceContainerLow" color="fg">
                                           {task.offers.length} offer
                                           {task.offers.length === 1 ? '' : 's'}
                                         </Badge>
                                         {offerRange ? (
-                                          <Badge
-                                            bg="mustard.200"
-                                            color="black"
-                                            px={2}
-                                          >
+                                          <Badge px={2}>
                                             {offerRange}
                                           </Badge>
                                         ) : null}
@@ -301,9 +294,8 @@ export default function DashboardPage() {
                                           <HStack
                                             key={offer.id}
                                             justify="space-between"
-                                            borderWidth="1px"
-                                            borderColor="border"
                                             borderRadius="lg"
+                                            bg="surfaceContainerLow"
                                             px={3}
                                             py={2}
                                           >
@@ -335,7 +327,8 @@ export default function DashboardPage() {
                                         as={NextLink}
                                         href={`/task/${task.id}`}
                                         size="sm"
-                                        variant="outline"
+                                        variant="subtle"
+                                        bg="surfaceContainerLow"
                                       >
                                         View task
                                       </Button>
@@ -373,11 +366,7 @@ export default function DashboardPage() {
                                         Submitted {formatDate(offer.createdAt)}
                                       </Text>
                                     </Stack>
-                                    <Badge
-                                      bg="mustard.200"
-                                      color="black"
-                                      px={2}
-                                    >
+                                    <Badge px={2}>
                                       {formatPounds(offer.pricePence)}
                                     </Badge>
                                   </HStack>
@@ -389,7 +378,8 @@ export default function DashboardPage() {
                                       as={NextLink}
                                       href={`/task/${task.id}`}
                                       size="sm"
-                                      variant="outline"
+                                      variant="subtle"
+                                      bg="surfaceContainerLow"
                                     >
                                       View task
                                     </Button>

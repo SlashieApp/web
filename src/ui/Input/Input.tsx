@@ -8,13 +8,14 @@ export function Input(props: InputComponentProps) {
   return (
     <ChakraInput
       px={{ base: 3, md: 4 }}
-      py={2}
-      borderRadius="xl"
-      borderWidth="1px"
-      borderColor="border"
+      py={2.5}
+      bg="surfaceContainerLowest"
+      borderRadius="lg"
+      borderWidth="0"
+      boxShadow="ghostBorder"
       _focusVisible={{
-        borderColor: 'linkBlue.600',
-        boxShadow: '0 0 0 4px rgba(29,78,216,0.15)',
+        boxShadow:
+          'inset 0 -2px 0 #003fb1, 0 0 0 3px rgba(0, 63, 177, 0.15), inset 0 0 0 1px rgba(195, 197, 215, 0.15)',
       }}
       {...props}
     />

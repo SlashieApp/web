@@ -24,15 +24,17 @@ function Section({
 
 export default function TasksPage() {
   return (
-    <Box bg="bg" color="fg" minH="100vh">
+    <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
           <LandingHeader />
         </Section>
-        <Section>
+        <Section bg="surfaceContainerLow">
           <Stack gap={10}>
             <Stack gap={3}>
-              <Heading size="lg">Open tasks</Heading>
+              <Heading size="xl" letterSpacing="-0.02em">
+                Browse local jobs
+              </Heading>
               <Text color="muted">
                 Browse the latest jobs posted by local homeowners and
                 businesses.

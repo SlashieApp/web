@@ -69,12 +69,12 @@ function SelectChip({ active, label, onClick }: ChipProps) {
     <Button
       type="button"
       size="sm"
-      variant="outline"
-      borderColor={active ? 'linkBlue.600' : 'glassBorder'}
-      bg={active ? 'linkBlue.50' : 'transparent'}
-      color={active ? 'linkBlue.700' : 'fg'}
+      variant="subtle"
+      bg={active ? 'secondaryFixed' : 'surfaceContainerHigh'}
+      color={active ? 'onSecondaryFixed' : 'fg'}
+      boxShadow="none"
       _hover={{
-        bg: active ? 'linkBlue.100' : 'ink.50',
+        bg: active ? 'secondaryFixed' : 'surfaceContainerLowest',
       }}
       onClick={onClick}
     >
@@ -118,15 +118,15 @@ export function PostJobForm({
 }: PostJobFormProps) {
   return (
     <Stack gap={5}>
-      <GlassCard p={{ base: 4, md: 6 }}>
+      <GlassCard p={{ base: 4, md: 6 }} bg="surfaceContainerHighest">
         <Stack gap={2}>
           <Text
             width="fit-content"
             px={3}
             py={1}
             borderRadius="full"
-            bg="linkBlue.50"
-            color="linkBlue.700"
+            bg="surfaceContainerLowest"
+            color="primary.700"
             fontSize="xs"
             fontWeight={700}
             textTransform="uppercase"
@@ -144,7 +144,7 @@ export function PostJobForm({
       </GlassCard>
 
       <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4}>
-        <GlassCard p={{ base: 4, md: 5 }}>
+        <GlassCard p={{ base: 4, md: 5 }} bg="surfaceContainerLowest">
           <Stack gap={4}>
             <Text fontSize="lg" fontWeight={700}>
               Job details
@@ -165,9 +165,10 @@ export function PostJobForm({
               <Textarea
                 minH="130px"
                 placeholder="Describe the job clearly so professionals can quote accurately."
-                bg="glassBg"
-                borderColor="glassBorder"
-                borderRadius="xl"
+                bg="surfaceContainerLowest"
+                borderWidth={0}
+                boxShadow="ghostBorder"
+                borderRadius="lg"
                 value={description}
                 onChange={(event) => onDescriptionChange(event.target.value)}
               />
@@ -195,7 +196,7 @@ export function PostJobForm({
           </Stack>
         </GlassCard>
 
-        <GlassCard p={{ base: 4, md: 5 }}>
+        <GlassCard p={{ base: 4, md: 5 }} bg="surfaceContainerLowest">
           <Stack gap={4}>
             <Text fontSize="lg" fontWeight={700}>
               Location, schedule and budget
@@ -273,12 +274,10 @@ export function PostJobForm({
         </GlassCard>
       </SimpleGrid>
 
-      <GlassCard p={{ base: 4, md: 5 }}>
+      <GlassCard p={{ base: 4, md: 5 }} bg="surfaceContainerLowest">
         <Stack gap={3}>
           <Box
-            borderLeftWidth="4px"
-            borderLeftColor="mustard.500"
-            bg="mustard.50"
+            bg="surfaceContainerLow"
             borderRadius="md"
             px={4}
             py={3}
@@ -289,8 +288,6 @@ export function PostJobForm({
           </Box>
 
           <Button
-            background="mustard.500"
-            color="black"
             loading={isSubmitting}
             onClick={onSubmit}
             size="lg"

@@ -61,7 +61,7 @@ export function LandingWorkerActions() {
   }
 
   return (
-    <GlassCard p={6}>
+    <GlassCard p={6} bg="surfaceContainerLowest">
       <Stack gap={4}>
         <Heading size="md">Handyman: submit an offer</Heading>
         <Text color="muted">
@@ -87,8 +87,6 @@ export function LandingWorkerActions() {
             />
             <Button
               size="sm"
-              background="linkBlue.600"
-              color="white"
               loading={quoting}
               onClick={() => void onAddOffer()}
             >
@@ -106,7 +104,7 @@ export function LandingWorkerActions() {
             ) : null}
           </Stack>
         </Grid>
-        <Box borderBottomWidth="1px" borderColor="border" />
+        <Box h="8px" />
         <Text color="muted" fontSize="sm">
           Note: these actions require an authenticated user session (JWT in
           cookie).

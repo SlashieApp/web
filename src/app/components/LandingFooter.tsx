@@ -17,8 +17,10 @@ export function LandingFooter() {
     <Stack
       gap={4}
       pt={6}
-      borderTopWidth="1px"
-      borderColor="border"
+      px={4}
+      pb={4}
+      borderRadius="lg"
+      bg="surfaceContainerLow"
       fontSize="sm"
     >
       <Text color="muted">
@@ -32,7 +34,7 @@ export function LandingFooter() {
             as={NextLink}
             href={link.href}
             fontWeight={600}
-            _hover={{ textDecoration: 'none', color: 'linkBlue.700' }}
+            _hover={{ textDecoration: 'none', color: 'primary.600' }}
           >
             {link.label}
           </Link>

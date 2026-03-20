@@ -18,7 +18,9 @@ export function FormField({
 }: FormFieldProps) {
   return (
     <FieldRoot invalid={Boolean(errorText)} {...props}>
-      <FieldLabel>{label}</FieldLabel>
+      <FieldLabel fontSize="sm" fontWeight={700} color="fg">
+        {label}
+      </FieldLabel>
       {children}
       {helperText ? (
         <Text fontSize="sm" color="muted">

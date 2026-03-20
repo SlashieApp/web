@@ -1,9 +1,9 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
-import { Container, Input } from '@ui'
+import { Button, Container, Input } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -96,7 +96,7 @@ export default function RegisterPage() {
                     </Text>
                   ) : null}
 
-                  <Button type="submit" loading={loading} colorPalette="green">
+                  <Button type="submit" loading={loading}>
                     Register
                   </Button>
                 </Stack>

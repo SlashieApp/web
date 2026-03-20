@@ -9,7 +9,10 @@ import { Button } from '@/ui/Button/Button'
 import { clearAuthToken, getAuthToken } from '@/utils/auth'
 import type { MeQuery } from '@codegen/schema'
 
-const navLinks = [{ label: 'Tasks', href: '/tasks' }]
+const navLinks = [
+  { label: 'Tasks', href: '/tasks' },
+  { label: 'Stitch Preview', href: '/stitch-preview' },
+]
 
 export function LandingHeader() {
   const apolloClient = useApolloClient()
@@ -31,10 +34,21 @@ export function LandingHeader() {
       direction={{ base: 'column', md: 'row' }}
       justify="space-between"
       align={{ base: 'flex-start', md: 'center' }}
-      gap={{ base: 4, md: 8 }}
+      gap={{ base: 4, md: 6 }}
+      px={{ base: 4, md: 5 }}
+      py={{ base: 3, md: 3.5 }}
+      borderRadius="xl"
+      bg="surfaceBright"
+      backdropFilter="blur(20px)"
+      boxShadow="ambient"
     >
       <HStack gap={3}>
-        <Box w="36px" h="36px" borderRadius="12px" bg="mustard.400" />
+        <Box
+          w="36px"
+          h="36px"
+          borderRadius="12px"
+          bg="linear-gradient(130deg, #003fb1 0%, #1a56db 100%)"
+        />
         <Heading size="md">
           <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
             HandyBox
@@ -49,7 +63,7 @@ export function LandingHeader() {
             as={NextLink}
             href={link.href}
             fontWeight={600}
-            _hover={{ textDecoration: 'none', color: 'linkBlue.700' }}
+            _hover={{ textDecoration: 'none', color: 'primary.600' }}
           >
             {link.label}
           </Link>
@@ -59,7 +73,7 @@ export function LandingHeader() {
             <Button as={NextLink} href="/dashboard" variant="ghost">
               Account
             </Button>
-            <Button variant="outline" onClick={onLogout}>
+            <Button variant="subtle" bg="surfaceContainerLow" onClick={onLogout}>
               Log out
             </Button>
           </>
@@ -68,7 +82,7 @@ export function LandingHeader() {
             <Button as={NextLink} href="/login" variant="ghost">
               Log in
             </Button>
-            <Button as={NextLink} href="/register" variant="outline">
+            <Button as={NextLink} href="/register" variant="subtle" bg="surfaceContainerLow">
               Register
             </Button>
           </>
@@ -76,8 +90,7 @@ export function LandingHeader() {
         <Button
           as={NextLink}
           href="/tasks/create"
-          background="linkBlue.600"
-          color="white"
+          size="sm"
         >
           Post a job
         </Button>

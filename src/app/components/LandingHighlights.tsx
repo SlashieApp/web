@@ -23,7 +23,7 @@ export function LandingHighlights() {
   return (
     <SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
       {highlights.map((card) => (
-        <GlassCard key={card.title} p={5}>
+        <GlassCard key={card.title} p={5} bg="surfaceContainerLowest">
           <Stack gap={2}>
             <Heading size="sm">{card.title}</Heading>
             <Text color="muted">{card.body}</Text>

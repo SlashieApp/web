@@ -3,9 +3,9 @@
 import { LandingHeader } from '@/app/components'
 import { ME_QUERY } from '@/graphql/auth'
 import { useMutation } from '@apollo/client/react'
-import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import type { LoginMutation, MeQuery } from '@codegen/schema'
-import { Container, Input } from '@ui'
+import { Button, Container, Input } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -105,7 +105,7 @@ export default function LoginPage() {
                     </Text>
                   ) : null}
 
-                  <Button type="submit" loading={loading} colorPalette="blue">
+                  <Button type="submit" loading={loading}>
                     Log in
                   </Button>
                 </Stack>

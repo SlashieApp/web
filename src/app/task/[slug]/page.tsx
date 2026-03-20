@@ -140,7 +140,7 @@ export default function TaskDetailPage() {
                 as={NextLink}
                 href="/tasks"
                 fontWeight={600}
-                color="linkBlue.700"
+                color="primary.700"
                 _hover={{ textDecoration: 'none' }}
               >
                 ← Back to tasks
@@ -160,7 +160,7 @@ export default function TaskDetailPage() {
                     <HStack justify="space-between" flexWrap="wrap" gap={3}>
                       <Heading size="lg">{task.title}</Heading>
                       {task.offers.length > 0 && (
-                        <Badge bg="mustard.200" color="black" px={2}>
+                        <Badge px={2}>
                           £
                           {(
                             Math.min(...task.offers.map((o) => o.pricePence)) /
@@ -177,13 +177,17 @@ export default function TaskDetailPage() {
                     <Text color="muted">{task.description}</Text>
                     <HStack gap={2} flexWrap="wrap">
                       {task.location ? (
-                        <Badge variant="outline">{task.location}</Badge>
+                        <Badge bg="surfaceContainerLow" color="fg">
+                          {task.location}
+                        </Badge>
                       ) : null}
                       {task.category ? (
-                        <Badge variant="outline">{task.category}</Badge>
+                        <Badge bg="surfaceContainerLow" color="fg">
+                          {task.category}
+                        </Badge>
                       ) : null}
                       {task.priceOfferPence ? (
-                        <Badge bg="mustard.200" color="black" px={2}>
+                        <Badge px={2}>
                           £{(task.priceOfferPence / 100).toFixed(0)}
                         </Badge>
                       ) : null}

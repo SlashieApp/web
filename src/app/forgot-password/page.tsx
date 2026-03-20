@@ -1,9 +1,9 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import type { ForgotPasswordMutation } from '@codegen/schema'
-import { Container, Input } from '@ui'
+import { Button, Container, Input } from '@ui'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
@@ -87,7 +87,7 @@ export default function ForgotPasswordPage() {
                     </Text>
                   ) : null}
 
-                  <Button type="submit" loading={loading} colorPalette="blue">
+                  <Button type="submit" loading={loading}>
                     Send reset link
                   </Button>
                 </Stack>

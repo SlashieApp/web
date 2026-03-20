@@ -29,25 +29,29 @@ function Section({
 
 export default function CreateTaskPage() {
   return (
-    <Box bg="bg" color="fg" minH="100vh">
+    <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
           <LandingHeader />
         </Section>
 
-        <Section>
+        <Section bg="surfaceContainerLow">
           <Stack gap={8}>
             <Stack gap={2}>
               <Link
                 as={NextLink}
                 href="/tasks"
                 fontWeight={600}
-                color="linkBlue.700"
+                color="primary.700"
                 _hover={{ textDecoration: 'none' }}
               >
                 ← Back to tasks
               </Link>
-              <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight={800}>
+              <Text
+                fontSize={{ base: '2xl', md: '3xl' }}
+                fontWeight={800}
+                letterSpacing="-0.02em"
+              >
                 Post a job request
               </Text>
               <Text color="muted">
