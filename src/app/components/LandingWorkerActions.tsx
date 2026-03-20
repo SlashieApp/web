@@ -8,8 +8,8 @@ import { useState } from 'react'
 import { ADD_OFFER } from '@/graphql/jobs'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Button, GlassCard, Heading, Text, TextInput } from '@ui'
 import type { AddOfferMutation } from '@codegen/schema'
+import { Button, GlassCard, Heading, Text, TextInput } from '@ui'
 
 export function LandingWorkerActions() {
   const router = useRouter()

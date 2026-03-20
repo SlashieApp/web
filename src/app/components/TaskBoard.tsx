@@ -6,8 +6,8 @@ import NextLink from 'next/link'
 import { useState } from 'react'
 
 import { TASKS_QUERY } from '@/graphql/jobs'
-import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 import type { TasksQuery } from '@codegen/schema'
+import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 
 export type TaskBoardProps = {
   title?: string

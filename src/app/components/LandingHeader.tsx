@@ -5,9 +5,9 @@ import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { Button, Heading } from '@ui'
 import { clearAuthToken, getAuthToken } from '@/utils/auth'
 import type { MeQuery } from '@codegen/schema'
+import { Button, Heading } from '@ui'
 
 const navLinks = [
   { label: 'Tasks', href: '/tasks' },
@@ -68,7 +68,11 @@ export function LandingHeader() {
             <Button as={NextLink} href="/dashboard" variant="ghost">
               Account
             </Button>
-            <Button variant="subtle" bg="surfaceContainerLow" onClick={onLogout}>
+            <Button
+              variant="subtle"
+              bg="surfaceContainerLow"
+              onClick={onLogout}
+            >
               Log out
             </Button>
           </>

@@ -26,9 +26,7 @@ export function TaskCreationForm() {
   const [dateTimeLocal, setDateTimeLocal] = useState('')
   const [category, setCategory] = useState('Plumbing')
   const [priceOfferPence, setPriceOfferPence] = useState('4500')
-  const [paymentMethod, setPaymentMethod] = useState<TaskPaymentMethod>(
-    'CASH',
-  )
+  const [paymentMethod, setPaymentMethod] = useState<TaskPaymentMethod>('CASH')
   const [contactMethod, setContactMethod] = useState('Phone')
   const [error, setError] = useState<string | null>(null)
 

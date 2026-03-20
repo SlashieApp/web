@@ -1,13 +1,7 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import {
-  Box,
-  HStack,
-  Link,
-  SimpleGrid,
-  Stack,
-} from '@chakra-ui/react'
+import { Box, HStack, Link, SimpleGrid, Stack } from '@chakra-ui/react'
 import type { MeQuery, TasksQuery } from '@codegen/schema'
 import { Badge, Button, Container, GlassCard, Header, Heading, Text } from '@ui'
 import NextLink from 'next/link'
