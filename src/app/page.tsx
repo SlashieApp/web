@@ -3,47 +3,34 @@
 import { Box, Stack } from '@chakra-ui/react'
 
 import {
-  LandingFooter,
-  LandingHeader,
-  LandingHero,
-  LandingHighlights,
-  LandingWorkerActions,
-  TaskBoard,
+  HomeHeroSection,
+  HomeHowItWorksSection,
+  HomePageHeader,
+  HomeTrustSection,
 } from './components'
 
-import { Header, Section } from '@ui'
+import { Section } from '@ui'
 
 export default function HomePage() {
   return (
     <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
-        <Section id="header" py={{ base: 6, md: 8 }}>
-          <Header>
-            <LandingHeader />
-          </Header>
+        <Section id="header" py={{ base: 4, md: 5 }}>
+          <HomePageHeader />
+        </Section>
+        <Section id="hero" py={{ base: 8, md: 12 }} bg="surfaceContainerLow">
+          <HomeHeroSection />
+        </Section>
+        <Section id="how-it-works" py={{ base: 8, md: 12 }}>
+          <HomeHowItWorksSection />
         </Section>
         <Section
-          id="post-task"
-          py={{ base: 8, md: 12 }}
+          id="trust"
+          py={{ base: 10, md: 14 }}
+          pb={{ base: 14, md: 20 }}
           bg="surfaceContainerLow"
         >
-          <LandingHero />
-        </Section>
-        <Section id="tasks" py={{ base: 8, md: 12 }}>
-          <TaskBoard />
-        </Section>
-        <Section
-          id="worker-actions"
-          py={{ base: 8, md: 12 }}
-          bg="surfaceContainerLow"
-        >
-          <LandingWorkerActions />
-        </Section>
-        <Section id="highlights" py={{ base: 8, md: 12 }}>
-          <LandingHighlights />
-        </Section>
-        <Section id="footer" py={{ base: 8, md: 12 }} pb={{ base: 12, md: 16 }}>
-          <LandingFooter />
+          <HomeTrustSection />
         </Section>
       </Stack>
     </Box>

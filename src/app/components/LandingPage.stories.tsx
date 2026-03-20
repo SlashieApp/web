@@ -1,51 +1,28 @@
 import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Container } from '../../ui/Container'
-import { Header } from '../../ui/Header'
-import { LandingFooter } from './LandingFooter'
-import { LandingHeader } from './LandingHeader'
-import { LandingHero } from './LandingHero'
-import { LandingHighlights } from './LandingHighlights'
-import { LandingWorkerActions } from './LandingWorkerActions'
-import { TaskBoard } from './TaskBoard'
+import { Section } from '../../ui/Layout'
+import { HomeHeroSection } from './HomeHeroSection'
+import { HomeHowItWorksSection } from './HomeHowItWorksSection'
+import { HomePageHeader } from './HomePageHeader'
+import { HomeTrustSection } from './HomeTrustSection'
 
 function LandingStory() {
   return (
-    <Box bg="bg" color="fg" minH="100vh">
+    <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
-        <Box as="section" py={{ base: 6, md: 8 }}>
-          <Container>
-            <Header>
-              <LandingHeader />
-            </Header>
-          </Container>
-        </Box>
-        <Box as="section" py={{ base: 8, md: 12 }}>
-          <Container>
-            <LandingHero />
-          </Container>
-        </Box>
-        <Box as="section" py={{ base: 8, md: 12 }}>
-          <Container>
-            <TaskBoard />
-          </Container>
-        </Box>
-        <Box as="section" py={{ base: 8, md: 12 }}>
-          <Container>
-            <LandingWorkerActions />
-          </Container>
-        </Box>
-        <Box as="section" py={{ base: 8, md: 12 }}>
-          <Container>
-            <LandingHighlights />
-          </Container>
-        </Box>
-        <Box as="section" py={{ base: 8, md: 12 }} pb={{ base: 12, md: 16 }}>
-          <Container>
-            <LandingFooter />
-          </Container>
-        </Box>
+        <Section id="header" py={{ base: 4, md: 5 }}>
+          <HomePageHeader />
+        </Section>
+        <Section id="hero" py={{ base: 8, md: 12 }} bg="surfaceContainerLow">
+          <HomeHeroSection />
+        </Section>
+        <Section id="how-it-works" py={{ base: 8, md: 12 }}>
+          <HomeHowItWorksSection />
+        </Section>
+        <Section id="trust" py={{ base: 10, md: 14 }} bg="surfaceContainerLow">
+          <HomeTrustSection />
+        </Section>
       </Stack>
     </Box>
   )
