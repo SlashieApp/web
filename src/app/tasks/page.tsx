@@ -1,33 +1,18 @@
 'use client'
 
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 
 import { LandingFooter, LandingHeader, TaskBoard } from '@/app/components'
-import { Container } from '@ui'
-
-function Section({
-  id,
-  children,
-  py = { base: 8, md: 12 },
-  ...props
-}: {
-  id?: string
-  children: React.ReactNode
-  py?: { base: number; md: number }
-} & React.ComponentProps<typeof Box>) {
-  return (
-    <Box as="section" id={id} py={py} {...props}>
-      <Container>{children}</Container>
-    </Box>
-  )
-}
+import { Header, Heading, Section, Text } from '@ui'
 
 export default function TasksPage() {
   return (
     <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
-          <LandingHeader />
+          <Header>
+            <LandingHeader />
+          </Header>
         </Section>
         <Section bg="surfaceContainerLow">
           <Stack gap={10}>

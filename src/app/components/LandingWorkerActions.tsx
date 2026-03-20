@@ -1,17 +1,15 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Grid, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Grid, Stack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { ADD_OFFER } from '@/graphql/jobs'
-import { Button } from '@/ui/Button/Button'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import { Button, GlassCard, Heading, Text, TextInput } from '@ui'
 import type { AddOfferMutation } from '@codegen/schema'
-import { GlassCard } from '../../ui/Card/GlassCard'
-import { TextInput } from '../../ui/Input/TextInput'
 
 export function LandingWorkerActions() {
   const router = useRouter()

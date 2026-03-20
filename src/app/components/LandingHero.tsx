@@ -1,9 +1,7 @@
 'use client'
 
-import { Badge } from '@/ui/Badge/Badge'
-import { Button } from '@/ui/Button/Button'
-import { GlassCard } from '@/ui/Card/GlassCard'
-import { Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Grid, HStack, Stack } from '@chakra-ui/react'
+import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 import NextLink from 'next/link'
 
 export function LandingHero() {
@@ -14,9 +12,7 @@ export function LandingHero() {
       alignItems="center"
     >
       <Stack gap={5} pl={{ base: 0, md: 6 }}>
-        <Badge alignSelf="flex-start">
-          Local trades, sorted
-        </Badge>
+        <Badge alignSelf="flex-start">Local trades, sorted</Badge>
         <Heading
           size={{ base: '2xl', md: '4xl' }}
           letterSpacing="-0.02em"
@@ -29,11 +25,7 @@ export function LandingHero() {
           your job details, messages, and updates in one place.
         </Text>
         <HStack gap={3} flexWrap="wrap">
-          <Button
-            as={NextLink}
-            href="/register"
-            size="lg"
-          >
+          <Button as={NextLink} href="/register" size="lg">
             Get started
           </Button>
           <Button

@@ -1,9 +1,9 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Link, Stack } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
-import { Button, Container, Input } from '@ui'
+import { Button, Container, Header, Heading, Input, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -63,7 +63,9 @@ export default function RegisterPage() {
     <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }}>
       <Container>
         <Stack gap={10}>
-          <LandingHeader />
+          <Header>
+            <LandingHeader />
+          </Header>
           <Box maxW="md">
             <Stack gap={6}>
               <Box>

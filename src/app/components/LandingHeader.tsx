@@ -1,11 +1,11 @@
 'use client'
 
 import { useApolloClient, useQuery } from '@apollo/client/react'
-import { Box, HStack, Heading, Link, Stack } from '@chakra-ui/react'
+import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { Button } from '@/ui/Button/Button'
+import { Button, Heading } from '@ui'
 import { clearAuthToken, getAuthToken } from '@/utils/auth'
 import type { MeQuery } from '@codegen/schema'
 
@@ -35,12 +35,7 @@ export function LandingHeader() {
       justify="space-between"
       align={{ base: 'flex-start', md: 'center' }}
       gap={{ base: 4, md: 6 }}
-      px={{ base: 4, md: 5 }}
-      py={{ base: 3, md: 3.5 }}
-      borderRadius="xl"
-      bg="surfaceBright"
-      backdropFilter="blur(20px)"
-      boxShadow="ambient"
+      py={2}
     >
       <HStack gap={3}>
         <Box
@@ -82,16 +77,17 @@ export function LandingHeader() {
             <Button as={NextLink} href="/login" variant="ghost">
               Log in
             </Button>
-            <Button as={NextLink} href="/register" variant="subtle" bg="surfaceContainerLow">
+            <Button
+              as={NextLink}
+              href="/register"
+              variant="subtle"
+              bg="surfaceContainerLow"
+            >
               Register
             </Button>
           </>
         )}
-        <Button
-          as={NextLink}
-          href="/tasks/create"
-          size="sm"
-        >
+        <Button as={NextLink} href="/tasks/create" size="sm">
           Post a job
         </Button>
       </HStack>

@@ -2,12 +2,12 @@
 
 import {
   Box,
+  type BoxProps,
   Grid,
-  Heading,
   HStack,
+  Heading,
   Stack,
   Text,
-  type BoxProps,
 } from '@chakra-ui/react'
 
 import { GlassCard } from '../Card/GlassCard'

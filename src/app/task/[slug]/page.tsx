@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 
@@ -10,7 +10,16 @@ import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { useMutation, useQuery } from '@apollo/client/react'
 import type { AddOfferMutation, TaskQuery } from '@codegen/schema'
-import { Badge, Button, Container, GlassCard, TextInput } from '@ui'
+import {
+  Badge,
+  Button,
+  GlassCard,
+  Header,
+  Heading,
+  Section,
+  Text,
+  TextInput,
+} from '@ui'
 import { useState } from 'react'
 
 function formatDateTime(isoDateTime: string) {
@@ -23,23 +32,6 @@ function formatDateTime(isoDateTime: string) {
 function formatPaymentMethod(paymentMethod: string) {
   const normalised = paymentMethod.replaceAll('_', ' ').toLowerCase()
   return normalised.charAt(0).toUpperCase() + normalised.slice(1)
-}
-
-function Section({
-  id,
-  children,
-  py = { base: 8, md: 12 },
-  ...props
-}: {
-  id?: string
-  children: React.ReactNode
-  py?: { base: number; md: number }
-} & React.ComponentProps<typeof Box>) {
-  return (
-    <Box as="section" id={id} py={py} {...props}>
-      <Container>{children}</Container>
-    </Box>
-  )
 }
 
 export default function TaskDetailPage() {
@@ -101,14 +93,16 @@ export default function TaskDetailPage() {
       <Box bg="bg" color="fg" minH="100vh">
         <Stack gap={0}>
           <Section id="header" py={{ base: 6, md: 8 }}>
-            <LandingHeader />
+            <Header>
+              <LandingHeader />
+            </Header>
           </Section>
           <Section>
             <Link
               as={NextLink}
               href="/tasks"
               fontWeight={600}
-              color="linkBlue.700"
+              color="primary.700"
               _hover={{ textDecoration: 'none' }}
             >
               ← Back to tasks
@@ -131,7 +125,9 @@ export default function TaskDetailPage() {
     <Box bg="bg" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
-          <LandingHeader />
+          <Header>
+            <LandingHeader />
+          </Header>
         </Section>
         <Section>
           <Stack gap={10}>

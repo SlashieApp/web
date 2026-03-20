@@ -2,6 +2,7 @@ import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Container } from '../../ui/Container'
+import { Header } from '../../ui/Header'
 import { LandingFooter } from './LandingFooter'
 import { LandingHeader } from './LandingHeader'
 import { LandingHero } from './LandingHero'
@@ -15,7 +16,9 @@ function LandingStory() {
       <Stack gap={0}>
         <Box as="section" py={{ base: 6, md: 8 }}>
           <Container>
-            <LandingHeader />
+            <Header>
+              <LandingHeader />
+            </Header>
           </Container>
         </Box>
         <Box as="section" py={{ base: 8, md: 12 }}>

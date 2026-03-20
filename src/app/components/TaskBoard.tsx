@@ -1,15 +1,13 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import { HStack, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { HStack, SimpleGrid, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
 import { TASKS_QUERY } from '@/graphql/jobs'
-import { Badge } from '@/ui/Badge/Badge'
-import { Button } from '@/ui/Button/Button'
+import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 import type { TasksQuery } from '@codegen/schema'
-import { GlassCard } from '../../ui/Card/GlassCard'
 
 export type TaskBoardProps = {
   title?: string
@@ -43,9 +41,7 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
         <HStack justify="space-between" flexWrap="wrap" gap={3}>
           <Heading size="md">{title}</Heading>
           <HStack gap={2} flexWrap="wrap">
-            <Badge px={2}>
-              Live
-            </Badge>
+            <Badge px={2}>Live</Badge>
           </HStack>
         </HStack>
 
@@ -68,9 +64,7 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
                 <Stack gap={3}>
                   <HStack justify="space-between">
                     <Heading size="sm">{task.title}</Heading>
-                    <Badge px={2}>
-                      {formatBudget(task.offers)}
-                    </Badge>
+                    <Badge px={2}>{formatBudget(task.offers)}</Badge>
                   </HStack>
                   <Text color="muted">{task.description}</Text>
                   <HStack gap={2} flexWrap="wrap">

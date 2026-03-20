@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import {
@@ -8,31 +8,16 @@ import {
   LandingHeader,
   TaskCreationForm,
 } from '@/app/components'
-import { Container } from '@ui'
-
-function Section({
-  id,
-  children,
-  py = { base: 8, md: 12 },
-  ...props
-}: {
-  id?: string
-  children: React.ReactNode
-  py?: { base: number; md: number }
-} & React.ComponentProps<typeof Box>) {
-  return (
-    <Box as="section" id={id} py={py} {...props}>
-      <Container>{children}</Container>
-    </Box>
-  )
-}
+import { Header, Heading, Section, Text } from '@ui'
 
 export default function CreateTaskPage() {
   return (
     <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
-          <LandingHeader />
+          <Header>
+            <LandingHeader />
+          </Header>
         </Section>
 
         <Section bg="surfaceContainerLow">
@@ -47,13 +32,9 @@ export default function CreateTaskPage() {
               >
                 ← Back to tasks
               </Link>
-              <Text
-                fontSize={{ base: '2xl', md: '3xl' }}
-                fontWeight={800}
-                letterSpacing="-0.02em"
-              >
+              <Heading size={{ base: '2xl', md: '3xl' }} fontWeight={800}>
                 Post a job request
-              </Text>
+              </Heading>
               <Text color="muted">
                 Follow the guided form to share your job details, preferred
                 timing, and budget in one place.

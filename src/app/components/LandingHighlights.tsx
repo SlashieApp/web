@@ -1,6 +1,7 @@
 'use client'
 
-import { Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { SimpleGrid, Stack } from '@chakra-ui/react'
+import { Heading, Text } from '@ui'
 
 import { GlassCard } from '../../ui/Card/GlassCard'
 

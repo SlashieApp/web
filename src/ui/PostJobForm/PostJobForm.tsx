@@ -276,22 +276,13 @@ export function PostJobForm({
 
       <GlassCard p={{ base: 4, md: 5 }} bg="surfaceContainerLowest">
         <Stack gap={3}>
-          <Box
-            bg="surfaceContainerLow"
-            borderRadius="md"
-            px={4}
-            py={3}
-          >
+          <Box bg="surfaceContainerLow" borderRadius="md" px={4} py={3}>
             <Text fontWeight={600} fontSize="sm">
               Tip: clear details usually get faster and better quotes.
             </Text>
           </Box>
 
-          <Button
-            loading={isSubmitting}
-            onClick={onSubmit}
-            size="lg"
-          >
+          <Button loading={isSubmitting} onClick={onSubmit} size="lg">
             Post job request
           </Button>
 

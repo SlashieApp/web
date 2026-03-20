@@ -1,7 +1,8 @@
 'use client'
 
-import { HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import { Text } from '@ui'
 
 const footerLinks = [
   { label: 'Home', href: '/' },

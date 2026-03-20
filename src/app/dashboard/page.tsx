@@ -4,14 +4,12 @@ import { useQuery } from '@apollo/client/react'
 import {
   Box,
   HStack,
-  Heading,
   Link,
   SimpleGrid,
   Stack,
-  Text,
 } from '@chakra-ui/react'
 import type { MeQuery, TasksQuery } from '@codegen/schema'
-import { Badge, Button, Container, GlassCard } from '@ui'
+import { Badge, Button, Container, GlassCard, Header, Heading, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
@@ -112,7 +110,9 @@ export default function DashboardPage() {
     <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }}>
       <Container>
         <Stack gap={10}>
-          <LandingHeader />
+          <Header>
+            <LandingHeader />
+          </Header>
           <Stack gap={8}>
             <Box>
               <Heading size="lg">Dashboard</Heading>
@@ -265,18 +265,22 @@ export default function DashboardPage() {
                                       </Stack>
                                       <HStack gap={2} flexWrap="wrap">
                                         {task.location ? (
-                                          <Badge bg="surfaceContainerLow" color="fg">
+                                          <Badge
+                                            bg="surfaceContainerLow"
+                                            color="fg"
+                                          >
                                             {task.location}
                                           </Badge>
                                         ) : null}
-                                        <Badge bg="surfaceContainerLow" color="fg">
+                                        <Badge
+                                          bg="surfaceContainerLow"
+                                          color="fg"
+                                        >
                                           {task.offers.length} offer
                                           {task.offers.length === 1 ? '' : 's'}
                                         </Badge>
                                         {offerRange ? (
-                                          <Badge px={2}>
-                                            {offerRange}
-                                          </Badge>
+                                          <Badge px={2}>{offerRange}</Badge>
                                         ) : null}
                                       </HStack>
                                     </HStack>

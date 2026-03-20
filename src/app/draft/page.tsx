@@ -10,31 +10,16 @@ import {
   LandingWorkerActions,
   TaskBoard,
 } from '@/app/components'
-import { Container } from '@ui'
-
-function Section({
-  id,
-  children,
-  py = { base: 8, md: 12 },
-  ...props
-}: {
-  id?: string
-  children: React.ReactNode
-  py?: { base: number; md: number }
-} & React.ComponentProps<typeof Box>) {
-  return (
-    <Box as="section" id={id} py={py} {...props}>
-      <Container>{children}</Container>
-    </Box>
-  )
-}
+import { Header, Section } from '@ui'
 
 export default function DraftPage() {
   return (
-    <Box bg="bg" color="fg" minH="100vh">
+    <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
-          <LandingHeader />
+          <Header>
+            <LandingHeader />
+          </Header>
         </Section>
         <Section id="post-task" py={{ base: 8, md: 12 }}>
           <LandingHero />
