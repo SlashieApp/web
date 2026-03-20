@@ -3,11 +3,19 @@
 import { useQuery } from '@apollo/client/react'
 import { Box, HStack, Link, SimpleGrid, Stack } from '@chakra-ui/react'
 import type { MeQuery, TasksQuery } from '@codegen/schema'
-import { Badge, Button, Container, GlassCard, Header, Heading, Text } from '@ui'
+import {
+  Badge,
+  Button,
+  Container,
+  GlassCard,
+  Header,
+  Heading,
+  SiteHeader,
+  Text,
+} from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-import { LandingHeader } from '../components'
 
 import { ME_QUERY } from '@/graphql/auth'
 import { TASKS_QUERY } from '@/graphql/jobs'
@@ -105,7 +113,7 @@ export default function DashboardPage() {
       <Container>
         <Stack gap={10}>
           <Header>
-            <LandingHeader />
+            <SiteHeader activeItem="my-jobs" />
           </Header>
           <Stack gap={8}>
             <Box>

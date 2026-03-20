@@ -3,14 +3,12 @@
 import { Box, Stack } from '@chakra-ui/react'
 
 import {
-  LandingFooter,
-  LandingHeader,
   LandingHero,
   LandingHighlights,
   LandingWorkerActions,
   TaskBoard,
 } from '@/app/components'
-import { Header, Section } from '@ui'
+import { Header, Section, SiteFooter, SiteHeader } from '@ui'
 
 export default function DraftPage() {
   return (
@@ -18,7 +16,7 @@ export default function DraftPage() {
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
           <Header>
-            <LandingHeader />
+            <SiteHeader activeItem="none" />
           </Header>
         </Section>
         <Section id="post-task" py={{ base: 8, md: 12 }}>
@@ -33,9 +31,7 @@ export default function DraftPage() {
         <Section id="highlights" py={{ base: 8, md: 12 }}>
           <LandingHighlights />
         </Section>
-        <Section id="footer" py={{ base: 8, md: 12 }} pb={{ base: 12, md: 16 }}>
-          <LandingFooter />
-        </Section>
+        <SiteFooter />
       </Stack>
     </Box>
   )

@@ -1,7 +1,14 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, HStack, NativeSelect, SimpleGrid, Stack, Textarea } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  NativeSelect,
+  SimpleGrid,
+  Stack,
+  Textarea,
+} from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -48,7 +55,8 @@ export function TaskCreationForm() {
   const [description, setDescription] = useState('Tap leaking under the sink')
   const [location, setLocation] = useState('Hackney, London')
   const [preferredDate, setPreferredDate] = useState('')
-  const [preferredTimeSlot, setPreferredTimeSlot] = useState<TimeSlot>('MORNING')
+  const [preferredTimeSlot, setPreferredTimeSlot] =
+    useState<TimeSlot>('MORNING')
   const [category, setCategory] = useState('Plumbing')
   const [priceOfferPence, setPriceOfferPence] = useState('4500')
   const [paymentMethod, setPaymentMethod] = useState<TaskPaymentMethod>(
@@ -201,7 +209,8 @@ export function TaskCreationForm() {
               <Stack gap={1}>
                 <Heading size="2xl">Step 1: Task basics</Heading>
                 <Text color="muted">
-                  Start with the essentials so we can match you with the right professionals.
+                  Start with the essentials so we can match you with the right
+                  professionals.
                 </Text>
               </Stack>
 
@@ -230,7 +239,11 @@ export function TaskCreationForm() {
                       type="button"
                       size="sm"
                       variant="subtle"
-                      bg={category === option ? 'secondaryFixed' : 'surfaceContainerLow'}
+                      bg={
+                        category === option
+                          ? 'secondaryFixed'
+                          : 'surfaceContainerLow'
+                      }
                       color={category === option ? 'onSecondaryFixed' : 'fg'}
                       boxShadow="none"
                       onClick={() => setCategory(option)}
@@ -248,7 +261,8 @@ export function TaskCreationForm() {
               <Stack gap={1}>
                 <Heading size="2xl">Job Details &amp; Scope</Heading>
                 <Text color="muted">
-                  Help professionals understand exactly what you need by providing clear details and visuals of the task.
+                  Help professionals understand exactly what you need by
+                  providing clear details and visuals of the task.
                 </Text>
               </Stack>
 
@@ -271,7 +285,8 @@ export function TaskCreationForm() {
                     <Stack gap={1} gridColumn={{ base: 'auto', md: 'span 1' }}>
                       <Heading size="sm">Add Photos</Heading>
                       <Text fontSize="sm" color="muted">
-                        Visuals help pros provide more accurate quotes. Up to 5 photos.
+                        Visuals help pros provide more accurate quotes. Up to 5
+                        photos.
                       </Text>
                     </Stack>
                     <Box
@@ -305,7 +320,9 @@ export function TaskCreationForm() {
                       <TextInput
                         type="date"
                         value={preferredDate}
-                        onChange={(event) => setPreferredDate(event.target.value)}
+                        onChange={(event) =>
+                          setPreferredDate(event.target.value)
+                        }
                       />
                     </FormField>
                     <FormField label="Preferred Time">
@@ -351,7 +368,9 @@ export function TaskCreationForm() {
                       <Text fontSize="xs" color="muted" fontWeight={700}>
                         SELECTED CATEGORY
                       </Text>
-                      <Heading size="sm">{category || 'Choose category'}</Heading>
+                      <Heading size="sm">
+                        {category || 'Choose category'}
+                      </Heading>
                     </Stack>
                   </HStack>
                   <Button
@@ -372,7 +391,8 @@ export function TaskCreationForm() {
               <Stack gap={1}>
                 <Heading size="2xl">Step 3: Budget &amp; contact</Heading>
                 <Text color="muted">
-                  Finalise budget and payment preferences before posting your task.
+                  Finalise budget and payment preferences before posting your
+                  task.
                 </Text>
               </Stack>
 

@@ -4,7 +4,6 @@ import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 
-import { LandingFooter, LandingHeader } from '@/app/components'
 import { ADD_OFFER, TASK_QUERY } from '@/graphql/jobs'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -17,6 +16,8 @@ import {
   Header,
   Heading,
   Section,
+  SiteFooter,
+  SiteHeader,
   Text,
   TextInput,
 } from '@ui'
@@ -94,7 +95,7 @@ export default function TaskDetailPage() {
         <Stack gap={0}>
           <Section id="header" py={{ base: 6, md: 8 }}>
             <Header>
-              <LandingHeader />
+              <SiteHeader activeItem="my-jobs" />
             </Header>
           </Section>
           <Section>
@@ -109,13 +110,7 @@ export default function TaskDetailPage() {
             </Link>
             <Text color="muted">No task ID provided.</Text>
           </Section>
-          <Section
-            id="footer"
-            py={{ base: 8, md: 12 }}
-            pb={{ base: 12, md: 16 }}
-          >
-            <LandingFooter />
-          </Section>
+          <SiteFooter />
         </Stack>
       </Box>
     )
@@ -126,7 +121,7 @@ export default function TaskDetailPage() {
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
           <Header>
-            <LandingHeader />
+            <SiteHeader activeItem="my-jobs" />
           </Header>
         </Section>
         <Section>
@@ -282,9 +277,7 @@ export default function TaskDetailPage() {
             </Stack>
           </Stack>
         </Section>
-        <Section id="footer" py={{ base: 8, md: 12 }} pb={{ base: 12, md: 16 }}>
-          <LandingFooter />
-        </Section>
+        <SiteFooter />
       </Stack>
     </Box>
   )

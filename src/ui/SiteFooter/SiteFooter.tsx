@@ -3,7 +3,8 @@
 import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { Container, Text } from '@ui'
+import { Container } from '../Container'
+import { Text } from '../Typography'
 
 const links = [
   { label: 'Support', href: '/tasks' },
@@ -13,9 +14,14 @@ const links = [
   { label: 'Safety', href: '/dashboard' },
 ] as const
 
-export function HomePageFooter() {
+export function SiteFooter() {
   return (
-    <Box as="footer" borderTopWidth="1px" borderColor="border" bg="surfaceContainerLowest">
+    <Box
+      as="footer"
+      borderTopWidth="1px"
+      borderColor="border"
+      bg="surfaceContainerLowest"
+    >
       <Container py={{ base: 8, md: 10 }}>
         <Stack
           direction={{ base: 'column', md: 'row' }}

@@ -48,18 +48,22 @@ export function HomeDesignLibrarySection() {
   return (
     <Stack gap={8}>
       <Stack gap={3}>
-        <Heading size="2xl">HandyBox Design Library &amp; Element Breakdown</Heading>
+        <Heading size="2xl">
+          HandyBox Design Library &amp; Element Breakdown
+        </Heading>
         <Text color="muted">
           Design Philosophy: <b>The Master Craftsman</b>. The HandyBox visual
           identity is built on trust, precision, and utility. It mimics the
-          aesthetic of a high-end architectural blueprint combined with the warmth
-          of a job well done.
+          aesthetic of a high-end architectural blueprint combined with the
+          warmth of a job well done.
         </Text>
       </Stack>
 
       <GlassCard p={{ base: 5, md: 7 }} bg="surfaceContainerLowest">
         <Stack gap={5}>
-          <Heading size="lg">Global Style Tokens (Blueprint &amp; Amber)</Heading>
+          <Heading size="lg">
+            Global Style Tokens (Blueprint &amp; Amber)
+          </Heading>
           <Stack gap={2}>
             <Text fontWeight={700}>Colors</Text>
             {colors.map((line) => (
@@ -87,7 +91,8 @@ export function HomeDesignLibrarySection() {
                 approachable.
               </Text>
               <Text color="muted" fontSize="sm">
-                • Shadows: subtle shadow-sm for cards so the UI remains blueprint-like.
+                • Shadows: subtle shadow-sm for cards so the UI remains
+                blueprint-like.
               </Text>
             </Stack>
           </SimpleGrid>

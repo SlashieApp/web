@@ -3,11 +3,10 @@
 import { useMutation } from '@apollo/client/react'
 import { Box, Link, Stack } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
-import { Button, Container, Header, Heading, Input, Text } from '@ui'
+import { Button, Container, Header, Heading, Input, SiteHeader, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { LandingHeader } from '../components'
 
 import { REGISTER_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
@@ -64,7 +63,7 @@ export default function RegisterPage() {
       <Container>
         <Stack gap={10}>
           <Header>
-            <LandingHeader />
+            <SiteHeader activeItem="none" />
           </Header>
           <Box maxW="md">
             <Stack gap={6}>

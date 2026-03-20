@@ -3,22 +3,21 @@
 import { Box, Stack } from '@chakra-ui/react'
 
 import {
-  HomeDesignLibrarySection,
   HomeHeroSection,
   HomeHowItWorksSection,
-  HomePageFooter,
-  HomePageHeader,
   HomeTrustSection,
 } from './components'
 
-import { Section } from '@ui'
+import { Header, Section, SiteFooter, SiteHeader } from '@ui'
 
 export default function HomePage() {
   return (
     <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 4, md: 5 }}>
-          <HomePageHeader />
+          <Header>
+            <SiteHeader activeItem="post-job" />
+          </Header>
         </Section>
         <Section id="hero" py={{ base: 8, md: 12 }} bg="surfaceContainerLow">
           <HomeHeroSection />
@@ -34,10 +33,7 @@ export default function HomePage() {
         >
           <HomeTrustSection />
         </Section>
-        <Section id="design-library" py={{ base: 10, md: 14 }}>
-          <HomeDesignLibrarySection />
-        </Section>
-        <HomePageFooter />
+        <SiteFooter />
       </Stack>
     </Box>
   )
