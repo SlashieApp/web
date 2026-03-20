@@ -6,20 +6,66 @@ alwaysApply: false
 
 # Repo Structure Maintenance
 
-Keep this repository's module structure consistent by maintaining `tsconfig.json` path aliases and updating export barrels via `scripts/generate-exports.ts`.
+## Goal
 
-## Repository Rules
+Guarantee two things stay stable:
+1. **Folder/module import structure** (via `tsconfig.json` aliases)
+2. **Export generation behaviour** (via `scripts/generate-exports.ts`)
 
-- **Runtime & Tooling:** Use `bun` commands.
-- **Alias Source of Truth:** Defined in `tsconfig.json` under `compilerOptions.paths`.
-- **Export Generator Source of Truth:** `scripts/generate-exports.ts` (specifically `EXPORT_CONFIGS`).
-- **Generated Files:** Folder `index.ts` files within configured module roots.
-- **Command:** Run `bun run exports-gen` to regenerate barrels.
+The skill is designed so it can be moved to another repo and still work after a short adaptation step.
 
-## Current Configurations
+## Hard Invariants (Do Not Change)
 
-### Current Alias Map (from `tsconfig.json`)
+When editing or recreating the export generator, preserve these behaviours exactly:
 
+1. Script runtime:
+   - shebang is `#!/usr/bin/env bun`
+   - script runs with bun (`bun run ...`)
+
+2. Input/output model:
+   - source directories are declared in one central `EXPORT_CONFIGS` array
+   - output file for each configured directory is `<dir>/index.ts`
+
+3. File filtering:
+   - include only `.ts` and `.tsx`
+   - ignore dot-files
+   - ignore files with extra dots in basename (e.g. `foo.examples.tsx`)
+   - ignore configured exclude patterns (`.stories`, `.test`, `.spec`)
+   - ignore the output index file itself
+
+4. Export extraction:
+   - collect value exports (`const`, `let`, `var`, `function`, `class`, `enum`)
+   - collect type exports (`interface`, `type`)
+   - support `export { ... }`, `export { ... } from ...`, `export * as ...`
+   - de-duplicate export names
+
+5. Fallback behaviour:
+   - if no named/type exports are detected, emit:
+     - `export { FileName } from './FileName';`
+
+6. Generated file format:
+   - include auto-generated header comment
+   - include `export type { ... }` for type-only symbols
+   - end with trailing newline
+
+7. CLI feedback:
+   - print discovered module files per configured path
+   - print success summary for all configs
+   - exit with non-zero status on failure
+
+## Required Repository Shape
+
+This skill assumes:
+- aliases are in `tsconfig.json -> compilerOptions.paths`
+- export generator is at `scripts/generate-exports.ts`
+- package scripts include an export generation command (e.g. `exports-gen`)
+- generated barrels are folder-level `index.ts` files
+
+If any of these differ in a target repo, adapt the paths but keep the invariant behaviour above.
+
+## Current Alias Map
+
+From `tsconfig.json`:
 - `@/*` -> `./*`
 - `@ui` -> `./components/ui`
 - `@form` -> `./components/form`
@@ -29,64 +75,99 @@ Keep this repository's module structure consistent by maintaining `tsconfig.json
 - `@layout` -> `./components/layout`
 - `@constant` -> `./libs/constant`
 
-### Current Export Generator Scope
+## Current Export Generator Scope
 
-The `EXPORT_CONFIGS` currently covers:
+From `scripts/generate-exports.ts`, `EXPORT_CONFIGS` currently includes:
 - `components/ui`
 - `libs/helper`
 - `components/form`
 - `components/section`
 - `components/layout`
 
-## Modifying Structure
+## Change Workflow (Same Repo)
 
-### Adding a New Module Folder
-When a new top-level reusable module folder is introduced (e.g., a new library inside `components/`):
-1. Add/update the path alias in `tsconfig.json`.
-2. Add a folder entry to `EXPORT_CONFIGS` in `scripts/generate-exports.ts`.
+If adding a new shared module folder:
+1. Add/update alias in `tsconfig.json` if needed.
+2. Add folder entry to `EXPORT_CONFIGS`.
 3. Run `bun run exports-gen`.
-4. Verify the generated `index.ts` files.
-5. Run lint and type checks on the touched files.
+4. Verify generated `index.ts`.
+5. Fix imports and run lint/type checks.
 
-### Removing or Renaming a Folder
-1. Remove/update the corresponding alias in `tsconfig.json`.
-2. Remove/update the matching entry in `EXPORT_CONFIGS`.
-3. Regenerate exports using `bun run exports-gen`.
-4. Fix any broken imports throughout the codebase.
+If removing/renaming a folder:
+1. Remove/update alias in `tsconfig.json`.
+2. Remove/update matching `EXPORT_CONFIGS` entry.
+3. Regenerate exports.
+4. Fix imports.
 
-## Authoring `generate-exports.ts`
+## Porting This Skill To Another Repo
 
-- Keep the script executable by Bun using `#!/usr/bin/env bun`.
-- Use one shared config object for defaults.
-- Use the `EXPORT_CONFIGS` array as the single place to register folders.
-- Exclude stories, tests, and specs via `excludePatterns`.
-- **Preserve Behavior:**
-  - Parse named exports and type exports.
-  - Fallback to `export { <filename> } from './<filename>'` when no named exports are found.
-  - Write `<folder>/index.ts` files containing an auto-generated header warning.
+When this skill is copied to a different repository, do this in order:
+
+1. Discover actual module roots:
+   - inspect `tsconfig.json` aliases
+   - list current reusable folders (e.g. `components/*`, `libs/*`)
+
+2. Align generator paths:
+   - create or edit `scripts/generate-exports.ts`
+   - set `EXPORT_CONFIGS` to the target repo folder roots
+   - keep invariant behaviour unchanged
+
+3. Align npm/bun script:
+   - ensure `package.json` has an export generation script
+   - recommended: `"exports-gen": "bun run scripts/generate-exports.ts"`
+
+4. First generation:
+   - run `bun run exports-gen`
+   - inspect generated `index.ts` files for each configured folder
+
+5. Verify imports:
+   - confirm aliases resolve
+   - confirm no broken `@...` imports
+
+## Function-Compatibility Checklist For `generate-exports.ts`
+
+Use this checklist whenever modifying or recreating the script:
+- [ ] Has central `EXPORT_CONFIGS`
+- [ ] Reads directory with fs and path utilities
+- [ ] Extracts both value exports and type exports
+- [ ] Handles `export { a as b }` aliasing
+- [ ] Ignores stories/tests/specs and dot-files
+- [ ] Generates one `index.ts` per configured folder
+- [ ] Uses fallback export if no named exports found
+- [ ] Logs scan summary and success/failure state
+- [ ] Exits with `process.exit(1)` on fatal failure
 
 ## Validation Checklist
-After making any edits to these configurations, ensure:
-- [ ] `bun run exports-gen` completes successfully.
-- [ ] Generated `index.ts` files correctly match the expected folders.
-- [ ] Path aliases in `tsconfig.json` are valid and resolve to existing directories.
-- [ ] No broken imports exist for mapped paths (`@ui`, `@section`, `@layout`, etc.).
-- [ ] Linters pass on touched files.
 
-## Prompt Template
-Use this template when requesting export generation refactoring:
+After edits:
+- [ ] `bun run exports-gen` succeeds
+- [ ] generated `index.ts` files match expected folders
+- [ ] aliases in `tsconfig.json` are valid and point to existing paths
+- [ ] no broken imports using `@ui`, `@section`, `@layout`, etc.
+- [ ] lints pass on touched files
 
-```
-Update `scripts/generate-exports.ts` for this repository.
+## Strong Prompt Template (Portable)
+
+Use this prompt to recreate/maintain the same behaviour in any repo:
+
+```markdown
+Scan this repository and implement/maintain `scripts/generate-exports.ts` with behaviour equivalent to the Parfetts generator.
 
 Requirements:
-1. Keep bun runtime (`#!/usr/bin/env bun`) and TypeScript script style.
-2. Generate `index.ts` barrel files for configured module folders.
-3. Ignore story/test/spec files and dot-files.
-4. Export named symbols and `export type` symbols when present.
-5. Fallback to `export { FileName } from './FileName'` if no named exports are found.
-6. Keep folder registration centralised in an `EXPORT_CONFIGS` array.
-7. After changes, run `bun run exports-gen` and ensure generated files are updated.
+1) Use bun runtime with `#!/usr/bin/env bun`.
+2) Keep a central `EXPORT_CONFIGS` array for target folders.
+3) Generate `<folder>/index.ts` barrel files.
+4) Include only `.ts`/`.tsx`; exclude dot-files, story/test/spec files, and index output files.
+5) Extract named exports and type exports.
+6) Emit `export type { ... }` for type-only symbols.
+7) If no named/type exports found in a file, fallback to `export { FileName } from './FileName';`.
+8) Keep generated header comments.
+9) Log scan results and success summary.
+10) Exit non-zero on fatal error.
 
-Also check `tsconfig.json` path aliases and keep them consistent with exported module roots.
+Then:
+- align `tsconfig.json` aliases with module roots
+- ensure `package.json` has `"exports-gen": "bun run scripts/generate-exports.ts"`
+- run `bun run exports-gen`
+- report what folders were generated and any mismatches found
 ```
