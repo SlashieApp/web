@@ -47,9 +47,12 @@ export default function CreateTaskPage() {
               >
                 ← Back to tasks
               </Link>
+              <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight={800}>
+                Post a job request
+              </Text>
               <Text color="muted">
-                Post your job with schedule and budget details to collect offers
-                from local handymen.
+                Follow the guided form to share your job details, preferred
+                timing, and budget in one place.
               </Text>
             </Stack>
             <TaskCreationForm />
