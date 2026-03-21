@@ -8,14 +8,10 @@ export { AvailableJobsHeader } from './AvailableJobsHeader/AvailableJobsHeader'
 export { Badge } from './Badge'
 export { Button } from './Button'
 export { Container } from './Container'
+export { DashboardShell } from './DashboardShell/DashboardShell'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
-export {
-  IconClock,
-  IconMapPin,
-  IconSliders,
-  IconWrench,
-} from './TaskBrowse/TaskBrowseMetaIcons'
+export { IconClock, IconMapPin, IconSliders, IconWrench } from './TaskBrowse/TaskBrowseMetaIcons'
 export { Input, TextInput } from './Input'
 export { TaskBrowseFilters } from './TaskBrowseFilters/TaskBrowseFilters'
 export { TaskListPagination } from './TaskListPagination/TaskListPagination'
@@ -24,18 +20,10 @@ export * from './Header'
 export * from './Layout'
 export * from './PostJobForm'
 export * from './Typography'
-export type {
-  AvailableJobCardProps,
-  JobCardBadgeVariant,
-} from './AvailableJobCard/AvailableJobCard'
-export type {
-  AvailableJobsHeaderProps,
-  SortOption,
-} from './AvailableJobsHeader/AvailableJobsHeader'
+export type { AvailableJobCardProps, JobCardBadgeVariant } from './AvailableJobCard/AvailableJobCard'
+export type { AvailableJobsHeaderProps, SortOption } from './AvailableJobsHeader/AvailableJobsHeader'
+export type { DashboardNavKey, DashboardShellProps } from './DashboardShell/DashboardShell'
 export type { FormFieldProps } from './FormField/FormField'
 export type { GlassCardProps } from './Card/GlassCard'
-export type {
-  TaskBrowseFiltersProps,
-  UrgencyFilter,
-} from './TaskBrowseFilters/TaskBrowseFilters'
+export type { TaskBrowseFiltersProps, UrgencyFilter } from './TaskBrowseFilters/TaskBrowseFilters'
 export type { TaskListPaginationProps } from './TaskListPagination/TaskListPagination'
