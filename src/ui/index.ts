@@ -11,10 +11,18 @@ export { Container } from './Container'
 export { DashboardShell } from './DashboardShell/DashboardShell'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
-export { IconClock, IconMapPin, IconSliders, IconWrench } from './TaskBrowse/TaskBrowseMetaIcons'
+export {
+  IconCalendar,
+  IconClock,
+  IconDocument,
+  IconMapPin,
+  IconSliders,
+  IconWrench,
+} from './TaskBrowse/TaskBrowseMetaIcons'
 export { Input, TextInput } from './Input'
 export { TaskBrowseFilters } from './TaskBrowseFilters/TaskBrowseFilters'
 export { TaskListPagination } from './TaskListPagination/TaskListPagination'
+export { TaskOfferCard } from './TaskOfferCard/TaskOfferCard'
 export * from './Footer'
 export * from './Header'
 export * from './Layout'
@@ -27,3 +35,4 @@ export type { FormFieldProps } from './FormField/FormField'
 export type { GlassCardProps } from './Card/GlassCard'
 export type { TaskBrowseFiltersProps, UrgencyFilter } from './TaskBrowseFilters/TaskBrowseFilters'
 export type { TaskListPaginationProps } from './TaskListPagination/TaskListPagination'
+export type { TaskOfferCardProps } from './TaskOfferCard/TaskOfferCard'
