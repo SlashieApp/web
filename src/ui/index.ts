@@ -11,7 +11,9 @@ export { Container } from './Container'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
 export {
+  IconCalendar,
   IconClock,
+  IconDocument,
   IconMapPin,
   IconSliders,
   IconWrench,
@@ -19,6 +21,7 @@ export {
 export { Input, TextInput } from './Input'
 export { TaskBrowseFilters } from './TaskBrowseFilters/TaskBrowseFilters'
 export { TaskListPagination } from './TaskListPagination/TaskListPagination'
+export { TaskOfferCard } from './TaskOfferCard/TaskOfferCard'
 export * from './Footer'
 export * from './Header'
 export * from './Layout'
@@ -39,3 +42,4 @@ export type {
   UrgencyFilter,
 } from './TaskBrowseFilters/TaskBrowseFilters'
 export type { TaskListPaginationProps } from './TaskListPagination/TaskListPagination'
+export type { TaskOfferCardProps } from './TaskOfferCard/TaskOfferCard'
