@@ -11,8 +11,8 @@ import {
 import { clearAuthToken } from '@/utils/auth'
 import {
   Button,
-  DashboardShell,
   type DashboardNavKey,
+  DashboardShell,
   GlassCard,
   Heading,
   Text,
@@ -25,7 +25,8 @@ function resolveActiveNav(pathname: string): DashboardNavKey {
   if (pathname.startsWith('/dashboard/history')) return 'history'
   if (pathname.startsWith('/dashboard/messages')) return 'messages'
   if (pathname.startsWith('/dashboard/profile')) return 'profile'
-  if (pathname.startsWith('/dashboard/worker/register')) return 'worker-register'
+  if (pathname.startsWith('/dashboard/worker/register'))
+    return 'worker-register'
   return 'overview'
 }
 
@@ -100,7 +101,9 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
       onSearchChange={setSearch}
       userLabel={displayName}
       userInitial={userInitial}
-      userStatus={workerEnabled ? 'Verified worker workspace' : 'Customer dashboard'}
+      userStatus={
+        workerEnabled ? 'Verified worker workspace' : 'Customer dashboard'
+      }
       userMeta={me?.email ?? ''}
       workerEnabled={workerEnabled}
       headerAction={

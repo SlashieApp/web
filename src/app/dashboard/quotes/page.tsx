@@ -47,10 +47,13 @@ export default function DashboardQuotesPage() {
   const {
     workerEnabled,
     tasksLoading,
+    tasksBootstrapping,
     filteredOffers,
     awardedQuotes,
     quotesInProgress,
   } = useDashboardData()
+
+  const isLoadingQuotes = tasksLoading || tasksBootstrapping
 
   if (!workerEnabled) {
     return (
@@ -96,9 +99,11 @@ export default function DashboardQuotesPage() {
         />
       </Grid>
 
-      {tasksLoading ? <Text color="muted">Loading quote activity…</Text> : null}
+      {isLoadingQuotes ? (
+        <Text color="muted">Loading quote activity…</Text>
+      ) : null}
 
-      {filteredOffers.length === 0 ? (
+      {!isLoadingQuotes && filteredOffers.length === 0 ? (
         <GlassCard p={6}>
           <Stack gap={4}>
             <Heading size="md">No quotes sent yet</Heading>
@@ -111,7 +116,7 @@ export default function DashboardQuotesPage() {
             </Button>
           </Stack>
         </GlassCard>
-      ) : (
+      ) : !isLoadingQuotes ? (
         <Stack gap={4}>
           {filteredOffers.map(({ task, offer }) => {
             const visual = getCategoryVisual(task.category)
@@ -147,10 +152,12 @@ export default function DashboardQuotesPage() {
                       {formatRelativePosted(offer.createdAt)}
                     </Text>
                     <Text fontSize="sm">
-                      Quote value: <strong>{formatPounds(offer.pricePence)}</strong>
+                      Quote value:{' '}
+                      <strong>{formatPounds(offer.pricePence)}</strong>
                     </Text>
                     <Text fontSize="sm" color="muted">
-                      {offer.message?.trim() || 'No message included with this quote.'}
+                      {offer.message?.trim() ||
+                        'No message included with this quote.'}
                     </Text>
                   </Stack>
                   <Stack gap={3} align={{ base: 'flex-start', md: 'flex-end' }}>
@@ -173,7 +180,7 @@ export default function DashboardQuotesPage() {
             )
           })}
         </Stack>
-      )}
+      ) : null}
     </Stack>
   )
 }

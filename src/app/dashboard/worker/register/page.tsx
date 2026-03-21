@@ -1,14 +1,20 @@
 'use client'
 
-import { Box, Grid, HStack, Input as ChakraInput, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Input as ChakraInput,
+  Grid,
+  HStack,
+  Stack,
+} from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { useDashboardData } from '@/features/dashboard/DashboardDataContext'
 import {
   DASHBOARD_TRADE_OPTIONS,
   type DashboardTrade,
 } from '@/features/dashboard/dashboardDemo'
-import { useDashboardData } from '@/features/dashboard/DashboardDataContext'
 import { formatDate, formatPounds } from '@/features/dashboard/dashboardHelpers'
 import { Badge, Button, GlassCard, Heading, Text, TextInput } from '@ui'
 
@@ -89,7 +95,9 @@ export default function WorkerRegistrationPage() {
           {workerEnabled ? (
             <Badge bg="primary.50" color="primary.700">
               Active since{' '}
-              {workerProfile.joinedAt ? formatDate(workerProfile.joinedAt) : 'today'}
+              {workerProfile.joinedAt
+                ? formatDate(workerProfile.joinedAt)
+                : 'today'}
             </Badge>
           ) : null}
         </HStack>
@@ -100,7 +108,11 @@ export default function WorkerRegistrationPage() {
         </Text>
       </Stack>
 
-      <Grid templateColumns={{ base: '1fr', xl: '1.2fr 0.8fr' }} gap={6} alignItems="start">
+      <Grid
+        templateColumns={{ base: '1fr', xl: '1.2fr 0.8fr' }}
+        gap={6}
+        alignItems="start"
+      >
         <Stack gap={5}>
           <GlassCard p={{ base: 5, md: 6 }}>
             <Stack gap={4}>
@@ -111,7 +123,10 @@ export default function WorkerRegistrationPage() {
               <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
                 <Stack gap={2}>
                   <Text fontWeight={700}>Full name</Text>
-                  <TextInput value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                  <TextInput
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
                 </Stack>
                 <Stack gap={2}>
                   <Text fontWeight={700}>Phone number</Text>
@@ -215,8 +230,8 @@ export default function WorkerRegistrationPage() {
                   </Text>
                   <Heading size="sm">Upload Government ID</Heading>
                   <Text fontSize="sm" color="muted" maxW="md">
-                    We only store the filename in this demo, but the flow mirrors
-                    the production worker verification step.
+                    We only store the filename in this demo, but the flow
+                    mirrors the production worker verification step.
                   </Text>
                   <ChakraInput
                     type="file"
@@ -256,7 +271,8 @@ export default function WorkerRegistrationPage() {
                   Earnings workspace with forecasted payouts and quote tracking.
                 </Text>
                 <Text color="whiteAlpha.900">
-                  Service profile that unlocks quote sending across the platform.
+                  Service profile that unlocks quote sending across the
+                  platform.
                 </Text>
               </Stack>
             </Stack>
@@ -266,8 +282,8 @@ export default function WorkerRegistrationPage() {
             <Stack gap={4}>
               <Heading size="sm">Final step</Heading>
               <Text fontSize="sm" color="muted">
-                By continuing, you save the worker profile locally and unlock the
-                dashboard quote + earnings sections immediately.
+                By continuing, you save the worker profile locally and unlock
+                the dashboard quote + earnings sections immediately.
               </Text>
               <Stack gap={2}>
                 <HStack justify="space-between">

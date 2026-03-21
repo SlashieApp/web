@@ -84,7 +84,11 @@ export default function DashboardOverviewPage() {
               </Button>
               <Button
                 as={NextLink}
-                href={workerEnabled ? '/dashboard/quotes' : '/dashboard/worker/register'}
+                href={
+                  workerEnabled
+                    ? '/dashboard/quotes'
+                    : '/dashboard/worker/register'
+                }
                 variant="outline"
               >
                 {workerEnabled ? 'Open worker tools' : 'Become a worker'}
@@ -139,7 +143,12 @@ export default function DashboardOverviewPage() {
       <Grid templateColumns={{ base: '1fr', xl: '1.2fr 0.8fr' }} gap={6}>
         <GlassCard p={6}>
           <Stack gap={4}>
-            <HStack justify="space-between" align="flex-start" gap={3} flexWrap="wrap">
+            <HStack
+              justify="space-between"
+              align="flex-start"
+              gap={3}
+              flexWrap="wrap"
+            >
               <Stack gap={1}>
                 <Heading size="md">Bookings & live job activity</Heading>
                 <Text color="muted" fontSize="sm">
@@ -175,8 +184,14 @@ export default function DashboardOverviewPage() {
                       <HStack justify="space-between" gap={3} flexWrap="wrap">
                         <Heading size="sm">{task.title}</Heading>
                         <Badge
-                          bg={task.offers.length > 0 ? 'secondaryFixed' : 'surfaceContainerHigh'}
-                          color={task.offers.length > 0 ? 'onSecondaryFixed' : 'fg'}
+                          bg={
+                            task.offers.length > 0
+                              ? 'secondaryFixed'
+                              : 'surfaceContainerHigh'
+                          }
+                          color={
+                            task.offers.length > 0 ? 'onSecondaryFixed' : 'fg'
+                          }
                         >
                           {task.offers.length > 0
                             ? `${task.offers.length} quotes`
@@ -261,7 +276,11 @@ export default function DashboardOverviewPage() {
             </Stack>
             <Button
               as={NextLink}
-              href={workerEnabled ? '/dashboard/quotes' : '/dashboard/worker/register'}
+              href={
+                workerEnabled
+                  ? '/dashboard/quotes'
+                  : '/dashboard/worker/register'
+              }
             >
               {workerEnabled ? 'Go to worker tools' : 'Become a worker'}
             </Button>
@@ -352,7 +371,9 @@ export default function DashboardOverviewPage() {
                   <Stack gap={1}>
                     <HStack justify="space-between" gap={3} flexWrap="wrap">
                       <Heading size="sm">{entry.title}</Heading>
-                      <Text fontWeight={800}>{formatPounds(entry.valuePence)}</Text>
+                      <Text fontWeight={800}>
+                        {formatPounds(entry.valuePence)}
+                      </Text>
                     </HStack>
                     <Text fontSize="sm" color="muted">
                       {entry.location} · {formatDate(entry.completedAt)}

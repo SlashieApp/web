@@ -66,7 +66,8 @@ export default function DashboardEarningsPage() {
   const projectedPipelinePence =
     filteredOffers
       .filter(({ offer }) => !/reject|declin|cancel/i.test(offer.status))
-      .reduce((sum, { offer }) => sum + offer.pricePence, 0) || averageQuotePence
+      .reduce((sum, { offer }) => sum + offer.pricePence, 0) ||
+    averageQuotePence
 
   const payoutRows =
     awardedQuotes.length > 0
@@ -129,15 +130,25 @@ export default function DashboardEarningsPage() {
                   borderWidth="1px"
                   borderColor="border"
                 >
-                  <HStack justify="space-between" align="flex-start" gap={4} flexWrap="wrap">
+                  <HStack
+                    justify="space-between"
+                    align="flex-start"
+                    gap={4}
+                    flexWrap="wrap"
+                  >
                     <Stack gap={1}>
                       <Heading size="sm">{row.title}</Heading>
                       <Text fontSize="sm" color="muted">
                         Expected {formatDate(row.payoutAt.toISOString())}
                       </Text>
                     </Stack>
-                    <Stack gap={2} align={{ base: 'flex-start', md: 'flex-end' }}>
-                      <Text fontWeight={800}>{formatPounds(row.amountPence)}</Text>
+                    <Stack
+                      gap={2}
+                      align={{ base: 'flex-start', md: 'flex-end' }}
+                    >
+                      <Text fontWeight={800}>
+                        {formatPounds(row.amountPence)}
+                      </Text>
                       <Badge
                         bg={
                           row.status === 'Processing'

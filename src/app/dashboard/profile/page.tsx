@@ -3,11 +3,11 @@
 import { Grid, HStack, Stack, Textarea } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
+import { useDashboardData } from '@/features/dashboard/DashboardDataContext'
 import {
   DASHBOARD_TRADE_OPTIONS,
   type DashboardTrade,
 } from '@/features/dashboard/dashboardDemo'
-import { useDashboardData } from '@/features/dashboard/DashboardDataContext'
 import { Badge, Button, GlassCard, Heading, Text, TextInput } from '@ui'
 
 export default function DashboardProfilePage() {
@@ -17,7 +17,9 @@ export default function DashboardProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber)
   const [location, setLocation] = useState(profile.location)
   const [bio, setBio] = useState(profile.bio)
-  const [preferredTrades, setPreferredTrades] = useState(profile.preferredTrades)
+  const [preferredTrades, setPreferredTrades] = useState(
+    profile.preferredTrades,
+  )
   const [savedMessage, setSavedMessage] = useState('')
 
   useEffect(() => {
@@ -63,7 +65,10 @@ export default function DashboardProfilePage() {
             <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
               <Stack gap={2}>
                 <Text fontWeight={700}>Full name</Text>
-                <TextInput value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                <TextInput
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
               </Stack>
               <Stack gap={2}>
                 <Text fontWeight={700}>Phone number</Text>
@@ -131,7 +136,10 @@ export default function DashboardProfilePage() {
             <Heading size="md">Account summary</Heading>
             <HStack justify="space-between">
               <Text color="muted">Mode</Text>
-              <Badge bg={workerEnabled ? 'primary.50' : 'surfaceContainerHigh'} color={workerEnabled ? 'primary.700' : 'fg'}>
+              <Badge
+                bg={workerEnabled ? 'primary.50' : 'surfaceContainerHigh'}
+                color={workerEnabled ? 'primary.700' : 'fg'}
+              >
                 {workerEnabled ? 'Worker unlocked' : 'Customer only'}
               </Badge>
             </HStack>
@@ -141,8 +149,8 @@ export default function DashboardProfilePage() {
             </HStack>
             <Text fontSize="sm" color="muted">
               Your saved profile details feed the dashboard overview and worker
-              registration flow, making the FE demo feel consistent even when the
-              backend profile schema is still minimal.
+              registration flow, making the FE demo feel consistent even when
+              the backend profile schema is still minimal.
             </Text>
           </Stack>
         </GlassCard>

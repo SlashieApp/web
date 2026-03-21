@@ -11,14 +11,7 @@ export { Container } from './Container'
 export { DashboardShell } from './DashboardShell/DashboardShell'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
-export {
-  IconCalendar,
-  IconClock,
-  IconDocument,
-  IconMapPin,
-  IconSliders,
-  IconWrench,
-} from './TaskBrowse/TaskBrowseMetaIcons'
+export { IconCalendar, IconClock, IconDocument, IconMapPin, IconSliders, IconWrench } from './TaskBrowse/TaskBrowseMetaIcons'
 export { Input, TextInput } from './Input'
 export { TaskBrowseFilters } from './TaskBrowseFilters/TaskBrowseFilters'
 export { TaskListPagination } from './TaskListPagination/TaskListPagination'

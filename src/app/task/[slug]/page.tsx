@@ -581,6 +581,7 @@ export default function TaskDetailPage() {
                                 fill="none"
                                 aria-hidden
                               >
+                                <title>Offers stage</title>
                                 <path
                                   d="M7 18.5 3 21v-3.5A4 4 0 0 1 5 9a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4 4 4 0 0 1-4 4H9l-2 1.5Z"
                                   stroke="currentColor"
@@ -628,7 +629,11 @@ export default function TaskDetailPage() {
                               </Stack>
                             </GlassCard>
                           ) : me && !canAccessWorkerTools ? (
-                            <GlassCard p={6} bg="primary.50" borderColor="primary.100">
+                            <GlassCard
+                              p={6}
+                              bg="primary.50"
+                              borderColor="primary.100"
+                            >
                               <Stack gap={4}>
                                 <Heading size="md">
                                   Become a worker to send a quote

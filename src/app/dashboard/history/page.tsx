@@ -39,7 +39,12 @@ export default function DashboardHistoryPage() {
       <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
         <GlassCard p={5}>
           <Stack gap={2}>
-            <Text fontSize="10px" fontWeight={800} letterSpacing="0.08em" color="muted">
+            <Text
+              fontSize="10px"
+              fontWeight={800}
+              letterSpacing="0.08em"
+              color="muted"
+            >
               HISTORY ITEMS
             </Text>
             <Heading size="lg">{filteredHistory.length}</Heading>
@@ -50,7 +55,12 @@ export default function DashboardHistoryPage() {
         </GlassCard>
         <GlassCard p={5}>
           <Stack gap={2}>
-            <Text fontSize="10px" fontWeight={800} letterSpacing="0.08em" color="muted">
+            <Text
+              fontSize="10px"
+              fontWeight={800}
+              letterSpacing="0.08em"
+              color="muted"
+            >
               TOTAL VALUE
             </Text>
             <Heading size="lg">{formatPounds(totalHistoryValue)}</Heading>
@@ -61,7 +71,12 @@ export default function DashboardHistoryPage() {
         </GlassCard>
         <GlassCard p={5}>
           <Stack gap={2}>
-            <Text fontSize="10px" fontWeight={800} letterSpacing="0.08em" color="muted">
+            <Text
+              fontSize="10px"
+              fontWeight={800}
+              letterSpacing="0.08em"
+              color="muted"
+            >
               EXPORT STATUS
             </Text>
             <Heading size="lg">Ready</Heading>
@@ -83,15 +98,26 @@ export default function DashboardHistoryPage() {
         <Stack gap={4}>
           {filteredHistory.map((entry) => (
             <GlassCard key={entry.id} p={5}>
-              <HStack justify="space-between" align="flex-start" gap={4} flexWrap="wrap">
+              <HStack
+                justify="space-between"
+                align="flex-start"
+                gap={4}
+                flexWrap="wrap"
+              >
                 <Stack gap={2} maxW="3xl">
                   <HStack gap={2} flexWrap="wrap">
                     <Heading size="sm">{entry.title}</Heading>
                     <Badge
-                      bg={entry.role === 'worker' ? 'primary.50' : 'surfaceContainerHigh'}
+                      bg={
+                        entry.role === 'worker'
+                          ? 'primary.50'
+                          : 'surfaceContainerHigh'
+                      }
                       color={entry.role === 'worker' ? 'primary.700' : 'fg'}
                     >
-                      {entry.role === 'worker' ? 'Worker record' : 'Customer record'}
+                      {entry.role === 'worker'
+                        ? 'Worker record'
+                        : 'Customer record'}
                     </Badge>
                   </HStack>
                   <Text fontSize="sm" color="muted">

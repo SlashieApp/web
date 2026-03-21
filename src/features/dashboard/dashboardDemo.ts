@@ -111,7 +111,9 @@ function buildDefaultHistory(): DashboardHistoryEntry[] {
       id: 'history-bathroom',
       title: 'Bathroom extractor fan service',
       location: 'Manchester',
-      completedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 18).toISOString(),
+      completedAt: new Date(
+        Date.now() - 1000 * 60 * 60 * 24 * 18,
+      ).toISOString(),
       valuePence: 18500,
       summary: 'Completed with parts supplied and safety check recorded.',
       role: 'customer',
@@ -120,7 +122,9 @@ function buildDefaultHistory(): DashboardHistoryEntry[] {
       id: 'history-garden',
       title: 'Garden gate hinge replacement',
       location: 'Leeds',
-      completedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 39).toISOString(),
+      completedAt: new Date(
+        Date.now() - 1000 * 60 * 60 * 24 * 39,
+      ).toISOString(),
       valuePence: 9200,
       summary: 'Same-day repair with photo proof and invoice delivered.',
       role: 'customer',
@@ -172,8 +176,8 @@ function mergeDashboardState(
   if (!raw || typeof raw !== 'object') return fallback
 
   const input = raw as Partial<DashboardDemoState>
-  const profile = input.profile ?? {}
-  const worker = input.worker ?? {}
+  const profile = (input.profile ?? {}) as Partial<DashboardProfile>
+  const worker = (input.worker ?? {}) as Partial<DashboardWorkerProfile>
 
   return {
     profile: {
@@ -201,27 +205,25 @@ function mergeDashboardState(
           : fallback.worker.joinedAt,
     },
     messages: Array.isArray(input.messages)
-      ? input.messages.filter(
-          (item): item is DashboardMessage =>
-            Boolean(
-              item &&
-                typeof item === 'object' &&
-                typeof item.id === 'string' &&
-                typeof item.counterpart === 'string' &&
-                typeof item.preview === 'string',
-            ),
+      ? input.messages.filter((item): item is DashboardMessage =>
+          Boolean(
+            item &&
+              typeof item === 'object' &&
+              typeof item.id === 'string' &&
+              typeof item.counterpart === 'string' &&
+              typeof item.preview === 'string',
+          ),
         )
       : fallback.messages,
     history: Array.isArray(input.history)
-      ? input.history.filter(
-          (item): item is DashboardHistoryEntry =>
-            Boolean(
-              item &&
-                typeof item === 'object' &&
-                typeof item.id === 'string' &&
-                typeof item.title === 'string' &&
-                typeof item.location === 'string',
-            ),
+      ? input.history.filter((item): item is DashboardHistoryEntry =>
+          Boolean(
+            item &&
+              typeof item === 'object' &&
+              typeof item.id === 'string' &&
+              typeof item.title === 'string' &&
+              typeof item.location === 'string',
+          ),
         )
       : fallback.history,
   }

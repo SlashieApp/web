@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text as ChakraText } from '@chakra-ui/react'
+import { Box, Text as ChakraText, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { Button } from '../Button'
@@ -258,7 +258,7 @@ function SidebarNavLink({
       borderLeftWidth="3px"
       borderLeftColor={active ? 'primary.500' : 'transparent'}
       bg={active ? 'primary.50' : 'transparent'}
-      color={active ? 'primary.700' : locked ? 'fg.subtle' : 'muted'}
+      color={active ? 'primary.700' : locked ? 'muted' : 'muted'}
       fontWeight={active ? 700 : 600}
       fontSize="sm"
       transition="background 0.15s ease, color 0.15s ease"
@@ -436,7 +436,9 @@ export function DashboardShell({
                   letterSpacing="0.08em"
                   color={workerEnabled ? 'whiteAlpha.800' : 'primary.700'}
                 >
-                  {workerEnabled ? 'WORKER MODE ACTIVE' : 'WORKER FEATURES LOCKED'}
+                  {workerEnabled
+                    ? 'WORKER MODE ACTIVE'
+                    : 'WORKER FEATURES LOCKED'}
                 </Text>
                 <Heading size="sm" color={workerEnabled ? 'white' : undefined}>
                   {workerEnabled

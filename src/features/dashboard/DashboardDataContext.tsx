@@ -1,7 +1,7 @@
 'use client'
 
-import type { MeQuery } from '@codegen/schema'
 import { useQuery } from '@apollo/client/react'
+import type { MeQuery } from '@codegen/schema'
 import {
   createContext,
   useCallback,
@@ -28,13 +28,13 @@ import {
   writeDashboardDemoState,
 } from './dashboardDemo'
 import {
+  type MyOfferItem,
+  type TaskItem,
   formatPounds,
   isOfferAwarded,
   isTaskCompleted,
   matchesSearch,
   timeFromUnknown,
-  type MyOfferItem,
-  type TaskItem,
 } from './dashboardHelpers'
 
 type LiveHistoryItem =
@@ -62,6 +62,7 @@ type DashboardDataContextValue = {
   meLoading: boolean
   meErrorMessage: string | null
   tasksLoading: boolean
+  tasksBootstrapping: boolean
   tasksErrorMessage: string | null
   refetchDashboardData: () => void
   search: string
@@ -92,13 +93,17 @@ type DashboardDataContextValue = {
   markAllMessagesRead: () => void
 }
 
-const DashboardDataContext = createContext<DashboardDataContextValue | null>(null)
+const DashboardDataContext = createContext<DashboardDataContextValue | null>(
+  null,
+)
 
 type DashboardDataProviderProps = {
   children: React.ReactNode
 }
 
 function toHistoryEntry(item: LiveHistoryItem): DashboardHistoryEntry {
+  const completedAtMs = timeFromUnknown(item.completedAt)
+
   return {
     id: item.id,
     title: item.title,
@@ -106,7 +111,7 @@ function toHistoryEntry(item: LiveHistoryItem): DashboardHistoryEntry {
     completedAt:
       typeof item.completedAt === 'string'
         ? item.completedAt
-        : new Date(item.completedAt ?? Date.now()).toISOString(),
+        : new Date(completedAtMs || Date.now()).toISOString(),
     valuePence: item.valuePence,
     summary: item.summary,
     role: item.role,
@@ -160,6 +165,7 @@ export function DashboardDataProvider({
   )
 
   const tasks = tasksData?.tasks.items ?? []
+  const tasksBootstrapping = Boolean(me && !tasksData && !tasksError)
   const meErrorMessage = meError
     ? getFriendlyErrorMessage(meError, 'Could not load account details.')
     : null
@@ -291,7 +297,10 @@ export function DashboardDataProvider({
 
   const totalEarningsPence = useMemo(
     () =>
-      awardedQuotes.reduce((sum, { offer }) => sum + (offer.pricePence ?? 0), 0),
+      awardedQuotes.reduce(
+        (sum, { offer }) => sum + (offer.pricePence ?? 0),
+        0,
+      ),
     [awardedQuotes],
   )
 
@@ -302,14 +311,19 @@ export function DashboardDataProvider({
 
   const userInitial = displayName.charAt(0)?.toUpperCase() || '?'
 
-  const workerEnabled = Boolean(demoState?.worker.isActive || myOffers.length > 0)
+  const workerEnabled = Boolean(
+    demoState?.worker.isActive || myOffers.length > 0,
+  )
 
   const serviceHistory = useMemo(() => {
     const liveEntries = completedHistoryItems.map(toHistoryEntry)
     const demoEntries = demoState?.history ?? []
 
     const combined = [...liveEntries, ...demoEntries]
-      .sort((a, b) => timeFromUnknown(b.completedAt) - timeFromUnknown(a.completedAt))
+      .sort(
+        (a, b) =>
+          timeFromUnknown(b.completedAt) - timeFromUnknown(a.completedAt),
+      )
       .slice(0, 8)
 
     return combined
@@ -401,32 +415,31 @@ export function DashboardDataProvider({
       meLoading,
       meErrorMessage,
       tasksLoading,
+      tasksBootstrapping,
       tasksErrorMessage,
       refetchDashboardData,
       search,
       setSearch,
       displayName,
       userInitial,
-      profile:
-        demoState?.profile ?? {
-          fullName: displayName,
-          bio: '',
-          phoneNumber: '',
-          location: '',
-          preferredTrades: [],
-        },
-      workerProfile:
-        demoState?.worker ?? {
-          isActive: false,
-          businessName: '',
-          tagline: '',
-          serviceArea: '',
-          yearsExperience: '3',
-          hourlyRatePence: 4500,
-          skills: [],
-          verificationDocumentName: '',
-          joinedAt: null,
-        },
+      profile: demoState?.profile ?? {
+        fullName: displayName,
+        bio: '',
+        phoneNumber: '',
+        location: '',
+        preferredTrades: [],
+      },
+      workerProfile: demoState?.worker ?? {
+        isActive: false,
+        businessName: '',
+        tagline: '',
+        serviceArea: '',
+        yearsExperience: '3',
+        hourlyRatePence: 4500,
+        skills: [],
+        verificationDocumentName: '',
+        joinedAt: null,
+      },
       workerEnabled,
       messages: demoState?.messages ?? [],
       serviceHistory,
@@ -475,6 +488,7 @@ export function DashboardDataProvider({
       tasks,
       tasksErrorMessage,
       tasksLoading,
+      tasksBootstrapping,
       totalEarningsPence,
       totalSpendPence,
       updateProfile,
@@ -493,7 +507,9 @@ export function DashboardDataProvider({
 export function useDashboardData() {
   const context = useContext(DashboardDataContext)
   if (!context) {
-    throw new Error('useDashboardData must be used inside DashboardDataProvider.')
+    throw new Error(
+      'useDashboardData must be used inside DashboardDataProvider.',
+    )
   }
 
   return context

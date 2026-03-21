@@ -17,7 +17,11 @@ export function WorkerAccessGate({
       <Stack gap={4} maxW="2xl">
         <Heading size="lg">{title}</Heading>
         <Text color="muted">{description}</Text>
-        <Button as={NextLink} href="/dashboard/worker/register" alignSelf="flex-start">
+        <Button
+          as={NextLink}
+          href="/dashboard/worker/register"
+          alignSelf="flex-start"
+        >
           Become a worker
         </Button>
       </Stack>

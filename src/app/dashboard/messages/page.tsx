@@ -20,7 +20,9 @@ export default function DashboardMessagesPage() {
     )
   })
 
-  const unreadCount = filteredMessages.filter((message) => message.unread).length
+  const unreadCount = filteredMessages.filter(
+    (message) => message.unread,
+  ).length
 
   return (
     <Stack gap={8}>
@@ -62,7 +64,12 @@ export default function DashboardMessagesPage() {
           {filteredMessages.map((message) => (
             <GlassCard key={message.id} p={5}>
               <Stack gap={3}>
-                <HStack justify="space-between" align="flex-start" gap={3} flexWrap="wrap">
+                <HStack
+                  justify="space-between"
+                  align="flex-start"
+                  gap={3}
+                  flexWrap="wrap"
+                >
                   <Stack gap={1}>
                     <HStack gap={2} flexWrap="wrap">
                       <Heading size="sm">{message.counterpart}</Heading>

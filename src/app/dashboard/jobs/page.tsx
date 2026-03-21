@@ -65,11 +65,14 @@ function OfferAvatarStack({ count }: { count: number }) {
 export default function DashboardJobsPage() {
   const {
     tasksLoading,
+    tasksBootstrapping,
     tasksErrorMessage,
     filteredPostedTasks,
     customerBookings,
     offerCountOnMyTasks,
   } = useDashboardData()
+
+  const isLoadingTaskBoard = tasksLoading || tasksBootstrapping
 
   return (
     <Stack gap={8}>
@@ -88,7 +91,11 @@ export default function DashboardJobsPage() {
         </HStack>
       </Stack>
 
-      <Grid templateColumns={{ base: '1fr', xl: '1fr 320px' }} gap={6} alignItems="start">
+      <Grid
+        templateColumns={{ base: '1fr', xl: '1fr 320px' }}
+        gap={6}
+        alignItems="start"
+      >
         <Stack gap={4}>
           <HStack gap={3} flexWrap="wrap" align="center">
             <Heading size="md">Active listings</Heading>
@@ -97,14 +104,16 @@ export default function DashboardJobsPage() {
             </Badge>
           </HStack>
 
-          {tasksLoading ? <Text color="muted">Loading tasks…</Text> : null}
+          {isLoadingTaskBoard ? (
+            <Text color="muted">Loading tasks…</Text>
+          ) : null}
           {tasksErrorMessage ? (
             <Text color="red.400" fontSize="sm">
               {tasksErrorMessage}
             </Text>
           ) : null}
 
-          {!tasksLoading && !tasksErrorMessage ? (
+          {!isLoadingTaskBoard && !tasksErrorMessage ? (
             filteredPostedTasks.length === 0 ? (
               <GlassCard p={6}>
                 <Stack gap={3}>
@@ -113,7 +122,11 @@ export default function DashboardJobsPage() {
                     Post your first job to start receiving quotes and booking
                     responses from local pros.
                   </Text>
-                  <Button as={NextLink} href="/tasks/create" alignSelf="flex-start">
+                  <Button
+                    as={NextLink}
+                    href="/tasks/create"
+                    alignSelf="flex-start"
+                  >
                     Post a new job
                   </Button>
                 </Stack>
@@ -166,7 +179,9 @@ export default function DashboardJobsPage() {
                                     ? 'secondaryFixed'
                                     : 'surfaceContainerHigh'
                                 }
-                                color={offerCount > 0 ? 'onSecondaryFixed' : 'fg'}
+                                color={
+                                  offerCount > 0 ? 'onSecondaryFixed' : 'fg'
+                                }
                               >
                                 {offerCount > 0
                                   ? `${offerCount} quote${offerCount === 1 ? '' : 's'}`
@@ -176,7 +191,11 @@ export default function DashboardJobsPage() {
                                 <OfferAvatarStack count={offerCount} />
                               ) : null}
                             </HStack>
-                            <Button as={NextLink} href={`/task/${task.id}`} size="sm">
+                            <Button
+                              as={NextLink}
+                              href={`/task/${task.id}`}
+                              size="sm"
+                            >
                               {offerCount > 0 ? 'View quotes' : 'View job'}
                             </Button>
                           </Stack>
@@ -252,7 +271,8 @@ export default function DashboardJobsPage() {
                       <Stack gap={1}>
                         <Heading size="sm">{task.title}</Heading>
                         <Text fontSize="sm" color="muted">
-                          {task.offers.length} quotes · {task.location ?? 'Location TBC'}
+                          {task.offers.length} quotes ·{' '}
+                          {task.location ?? 'Location TBC'}
                         </Text>
                         <Link
                           as={NextLink}
