@@ -25,9 +25,9 @@ type NavItem = {
 const navItems: readonly NavItem[] = [
   { key: 'home', label: 'Home', href: '/' },
   { key: 'tasks', label: 'Tasks', href: '/tasks' },
-  { key: 'my-jobs', label: 'My Jobs', href: '/dashboard' },
+  { key: 'my-jobs', label: 'My Jobs', href: '/dashboard/jobs' },
   { key: 'post-job', label: 'Post a Job', href: '/tasks/create' },
-  { key: 'profile', label: 'Profile', href: '/dashboard' },
+  { key: 'profile', label: 'Profile', href: '/dashboard/profile' },
 ]
 
 export type HeaderProps = {

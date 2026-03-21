@@ -5,8 +5,9 @@ import { Box, Grid, HStack, Link, Stack, VStack } from '@chakra-ui/react'
 import type { AddOfferMutation, MeQuery, TaskQuery } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import { readDashboardDemoState } from '@/features/dashboard/dashboardDemo'
 import { ME_QUERY } from '@/graphql/auth'
 import { ACCEPT_OFFER_MUTATION, ADD_OFFER, TASK_QUERY } from '@/graphql/jobs'
 import { getAuthToken } from '@/utils/auth'
@@ -122,6 +123,7 @@ export default function TaskDetailPage() {
   const [offerSuccess, setOfferSuccess] = useState<string | null>(null)
   const [acceptError, setAcceptError] = useState<string | null>(null)
   const [acceptingOfferId, setAcceptingOfferId] = useState<string | null>(null)
+  const [workerProfileEnabled, setWorkerProfileEnabled] = useState(false)
 
   const hasToken = typeof window !== 'undefined' && Boolean(getAuthToken())
 
@@ -151,6 +153,16 @@ export default function TaskDetailPage() {
     return task.offers.find((o) => o.workerUserId === me.id) ?? null
   }, [me, task])
 
+  useEffect(() => {
+    if (!me) {
+      setWorkerProfileEnabled(false)
+      return
+    }
+
+    const state = readDashboardDemoState(me.id, me.email)
+    setWorkerProfileEnabled(Boolean(state.worker.isActive))
+  }, [me])
+
   const sortedOffers = useMemo(() => {
     if (!task) return []
     return [...task.offers].sort((a, b) => a.pricePence - b.pricePence)
@@ -173,6 +185,12 @@ export default function TaskDetailPage() {
     if (!getAuthToken()) {
       setOfferError('Please log in before submitting an offer.')
       router.push(`/login?next=${encodeURIComponent(`/task/${task.id}#offer`)}`)
+      return
+    }
+
+    if (!workerProfileEnabled && !myOffer) {
+      setOfferError('Create a worker profile before submitting quotes.')
+      router.push('/dashboard/worker/register')
       return
     }
 
@@ -221,6 +239,7 @@ export default function TaskDetailPage() {
     isOwner &&
     task &&
     ['OPEN', 'POSTED', 'PUBLISHED'].includes(task.status.toUpperCase())
+  const canAccessWorkerTools = Boolean(workerProfileEnabled || myOffer)
 
   if (!taskId) {
     return (
@@ -606,6 +625,27 @@ export default function TaskDetailPage() {
                                 >
                                   Status: {normaliseStatus(myOffer.status)}
                                 </Badge>
+                              </Stack>
+                            </GlassCard>
+                          ) : me && !canAccessWorkerTools ? (
+                            <GlassCard p={6} bg="primary.50" borderColor="primary.100">
+                              <Stack gap={4}>
+                                <Heading size="md">
+                                  Become a worker to send a quote
+                                </Heading>
+                                <Text color="muted">
+                                  Worker features are blocked by default. Create
+                                  your worker profile to unlock quote
+                                  submission, earnings, and worker-side job
+                                  tools.
+                                </Text>
+                                <Button
+                                  as={NextLink}
+                                  href="/dashboard/worker/register"
+                                  alignSelf="flex-start"
+                                >
+                                  Create worker profile
+                                </Button>
                               </Stack>
                             </GlassCard>
                           ) : (

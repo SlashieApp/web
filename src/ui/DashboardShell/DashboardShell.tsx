@@ -1,19 +1,22 @@
 'use client'
 
-import { Box, HStack, Link, Stack } from '@chakra-ui/react'
+import { Box, HStack, Link, Stack, Text as ChakraText } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { Button } from '../Button'
+import { GlassCard } from '../Card/GlassCard'
 import { TextInput } from '../Input'
 import { Heading, Text } from '../Typography'
 
 export type DashboardNavKey =
-  | 'dashboard'
-  | 'my-jobs'
+  | 'overview'
+  | 'jobs'
   | 'quotes'
+  | 'earnings'
+  | 'history'
   | 'messages'
-  | 'payments'
-  | 'settings'
-  | 'support'
+  | 'profile'
+  | 'worker-register'
 
 export type DashboardShellProps = {
   activeNav?: DashboardNavKey
@@ -22,6 +25,11 @@ export type DashboardShellProps = {
   onSearchChange: (value: string) => void
   userLabel: string
   userInitial: string
+  userStatus?: string
+  userMeta?: string
+  workerEnabled?: boolean
+  workerCtaHref?: string
+  headerAction?: React.ReactNode
   children: React.ReactNode
 }
 
@@ -53,14 +61,15 @@ const navPrimary: Array<{
   label: string
   href: string
   icon: React.ReactNode
+  workerOnly?: boolean
 }> = [
   {
-    key: 'dashboard',
-    label: 'Dashboard',
-    href: '/',
+    key: 'overview',
+    label: 'Overview',
+    href: '/dashboard',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>Dashboard</title>
+        <title>Overview</title>
         <path
           d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
           stroke="currentColor"
@@ -71,9 +80,9 @@ const navPrimary: Array<{
     ),
   },
   {
-    key: 'my-jobs',
+    key: 'jobs',
     label: 'My Jobs',
-    href: '/dashboard',
+    href: '/dashboard/jobs',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
         <title>My Jobs</title>
@@ -89,7 +98,8 @@ const navPrimary: Array<{
   {
     key: 'quotes',
     label: 'Quotes',
-    href: '/dashboard?view=quotes',
+    href: '/dashboard/quotes',
+    workerOnly: true,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
         <title>Quotes</title>
@@ -103,28 +113,13 @@ const navPrimary: Array<{
     ),
   },
   {
-    key: 'messages',
-    label: 'Messages',
-    href: '/dashboard',
+    key: 'earnings',
+    label: 'Earnings',
+    href: '/dashboard/earnings',
+    workerOnly: true,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>Messages</title>
-        <path
-          d="M5 19.5 8.25 17H18a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12.5Z"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    key: 'payments',
-    label: 'Payments',
-    href: '/dashboard',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>Payments</title>
+        <title>Earnings</title>
         <rect
           x="3"
           y="5"
@@ -144,6 +139,68 @@ const navPrimary: Array<{
       </svg>
     ),
   },
+  {
+    key: 'history',
+    label: 'History',
+    href: '/dashboard/history',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
+        <title>History</title>
+        <path
+          d="M12 8v5l3 2"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+        />
+        <path
+          d="M4.93 4.93A9.97 9.97 0 0 1 12 2a10 10 0 1 1-7.07 2.93M3 8V3h5"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    key: 'messages',
+    label: 'Messages',
+    href: '/dashboard/messages',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
+        <title>Messages</title>
+        <path
+          d="M5 19.5 8.25 17H18a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12.5Z"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    key: 'profile',
+    label: 'Profile',
+    href: '/dashboard/profile',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
+        <title>Profile</title>
+        <circle
+          cx="12"
+          cy="8"
+          r="3.25"
+          stroke="currentColor"
+          strokeWidth="1.75"
+        />
+        <path
+          d="M5 20a7 7 0 0 1 14 0"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+  },
 ]
 
 const navSecondary: Array<{
@@ -153,51 +210,22 @@ const navSecondary: Array<{
   icon: React.ReactNode
 }> = [
   {
-    key: 'settings',
-    label: 'Settings',
-    href: '/dashboard',
+    key: 'worker-register',
+    label: 'Worker setup',
+    href: '/dashboard/worker/register',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>Settings</title>
+        <title>Worker setup</title>
         <path
-          d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+          d="m12 4 7 4v8l-7 4-7-4V8l7-4Z"
           stroke="currentColor"
           strokeWidth="1.75"
         />
         <path
-          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1-1.51V13a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 8 12.6a1.65 1.65 0 0 0-1.82-.33l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 12 8.6V8a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V15c.26.6.74 1.08 1.34 1.34V17a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.51-1Z"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    key: 'support',
-    label: 'Support',
-    href: '/dashboard',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>Support</title>
-        <path
-          d="M9.09 9a3 3 0 1 1 5.83 1c0 2-3 2-3 4"
+          d="M9.5 12h5M12 9.5V14.5"
           stroke="currentColor"
           strokeWidth="1.75"
           strokeLinecap="round"
-        />
-        <path
-          d="M12 17h.01"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r="9"
-          stroke="currentColor"
-          strokeWidth="1.75"
         />
       </svg>
     ),
@@ -209,11 +237,13 @@ function SidebarNavLink({
   label,
   icon,
   active,
+  locked,
 }: {
   href: string
   label: string
   icon: React.ReactNode
   active: boolean
+  locked?: boolean
 }) {
   return (
     <Link
@@ -228,7 +258,7 @@ function SidebarNavLink({
       borderLeftWidth="3px"
       borderLeftColor={active ? 'primary.500' : 'transparent'}
       bg={active ? 'primary.50' : 'transparent'}
-      color={active ? 'primary.700' : 'muted'}
+      color={active ? 'primary.700' : locked ? 'fg.subtle' : 'muted'}
       fontWeight={active ? 700 : 600}
       fontSize="sm"
       transition="background 0.15s ease, color 0.15s ease"
@@ -239,18 +269,30 @@ function SidebarNavLink({
       }}
     >
       <NavIcon>{icon}</NavIcon>
-      {label}
+      <HStack gap={2} justify="space-between" flex="1">
+        <ChakraText>{label}</ChakraText>
+        {locked ? (
+          <ChakraText fontSize="10px" color="primary.700" fontWeight={800}>
+            LOCKED
+          </ChakraText>
+        ) : null}
+      </HStack>
     </Link>
   )
 }
 
 export function DashboardShell({
-  activeNav = 'my-jobs',
-  searchPlaceholder = 'Search your jobs…',
+  activeNav = 'overview',
+  searchPlaceholder = 'Search jobs, quotes, or records…',
   searchValue,
   onSearchChange,
   userLabel,
   userInitial,
+  userStatus,
+  userMeta,
+  workerEnabled = false,
+  workerCtaHref = '/dashboard/worker/register',
+  headerAction,
   children,
 }: DashboardShellProps) {
   return (
@@ -263,7 +305,7 @@ export function DashboardShell({
       >
         <Box
           as="aside"
-          w={{ base: 'full', md: '260px' }}
+          w={{ base: 'full', md: '280px' }}
           flexShrink={0}
           borderRightWidth={{ base: 0, md: '1px' }}
           borderBottomWidth={{ base: '1px', md: 0 }}
@@ -273,7 +315,7 @@ export function DashboardShell({
           py={{ base: 4, md: 8 }}
         >
           <Stack
-            gap={8}
+            gap={6}
             maxH={{ md: '100vh' }}
             position={{ md: 'sticky' }}
             top={{ md: 0 }}
@@ -313,10 +355,45 @@ export function DashboardShell({
                   color="muted"
                   textTransform="uppercase"
                 >
-                  Master Craftsman Portal
+                  Dashboard workspace
                 </Text>
               </Stack>
             </HStack>
+
+            <GlassCard p={4} bg="surfaceContainerLow">
+              <Stack gap={1}>
+                <HStack gap={3}>
+                  <Box
+                    w={10}
+                    h={10}
+                    borderRadius="full"
+                    bg="primary.500"
+                    color="white"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    fontWeight={800}
+                    fontSize="sm"
+                    flexShrink={0}
+                  >
+                    {userInitial}
+                  </Box>
+                  <Stack gap={0}>
+                    <Heading size="sm">{userLabel}</Heading>
+                    {userStatus ? (
+                      <Text fontSize="xs" color="primary.700" fontWeight={700}>
+                        {userStatus}
+                      </Text>
+                    ) : null}
+                  </Stack>
+                </HStack>
+                {userMeta ? (
+                  <Text fontSize="xs" color="muted">
+                    {userMeta}
+                  </Text>
+                ) : null}
+              </Stack>
+            </GlassCard>
 
             <Stack gap={1} flex="1">
               {navPrimary.map((item) => (
@@ -326,6 +403,7 @@ export function DashboardShell({
                   label={item.label}
                   icon={item.icon}
                   active={item.key === activeNav}
+                  locked={Boolean(item.workerOnly && !workerEnabled)}
                 />
               ))}
             </Stack>
@@ -341,6 +419,51 @@ export function DashboardShell({
                 />
               ))}
             </Stack>
+
+            <GlassCard
+              p={4}
+              bg={
+                workerEnabled
+                  ? 'linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)'
+                  : 'primary.50'
+              }
+              color={workerEnabled ? 'white' : 'fg'}
+            >
+              <Stack gap={3}>
+                <Text
+                  fontSize="10px"
+                  fontWeight={800}
+                  letterSpacing="0.08em"
+                  color={workerEnabled ? 'whiteAlpha.800' : 'primary.700'}
+                >
+                  {workerEnabled ? 'WORKER MODE ACTIVE' : 'WORKER FEATURES LOCKED'}
+                </Text>
+                <Heading size="sm" color={workerEnabled ? 'white' : undefined}>
+                  {workerEnabled
+                    ? 'Quotes and earnings are unlocked.'
+                    : 'Become a worker to send quotes.'}
+                </Heading>
+                <Text
+                  fontSize="sm"
+                  color={workerEnabled ? 'whiteAlpha.900' : 'muted'}
+                >
+                  {workerEnabled
+                    ? 'Track active quotes, monitor payout totals, and keep your professional profile ready for new work.'
+                    : 'Create your worker profile to unlock quoting, job intake, and payout tracking in the dashboard.'}
+                </Text>
+                <Button
+                  as={NextLink}
+                  href={workerCtaHref}
+                  size="sm"
+                  variant={workerEnabled ? 'subtle' : 'solid'}
+                  bg={workerEnabled ? 'whiteAlpha.200' : undefined}
+                  color={workerEnabled ? 'white' : undefined}
+                  alignSelf="flex-start"
+                >
+                  {workerEnabled ? 'Manage worker profile' : 'Become a worker'}
+                </Button>
+              </Stack>
+            </GlassCard>
           </Stack>
         </Box>
 
@@ -393,6 +516,7 @@ export function DashboardShell({
                 aria-label="Search jobs"
               />
             </Box>
+            {headerAction ? <Box>{headerAction}</Box> : null}
             <HStack gap={2} ml={{ base: 0, md: 'auto' }}>
               <Box
                 as="button"
