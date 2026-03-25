@@ -23,11 +23,14 @@ function readCookieValue(cookieName: string) {
   return decoded.length > 0 ? decoded : null
 }
 
-export function setAuthToken(token: string) {
+export function setAuthToken(
+  token: string,
+  maxAgeSeconds: number = 60 * 60 * 24 * 7,
+) {
   const safeToken = token.trim()
   if (!safeToken) return
-  // Basic cookie storage (7 days). For production, consider Secure + SameSite.
-  const maxAge = 60 * 60 * 24 * 7
+  // Basic cookie storage. For production, consider Secure + SameSite.
+  const maxAge = maxAgeSeconds
   const encodedToken = encodeURIComponent(safeToken)
   document.cookie = `${AUTH_COOKIE_NAME}=${encodedToken}; Path=/; Max-Age=${maxAge}; SameSite=Lax`
 }

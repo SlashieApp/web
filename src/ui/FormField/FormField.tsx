@@ -1,9 +1,11 @@
 'use client'
 
+import type { ReactNode } from 'react'
+
 import { FieldErrorText, FieldLabel, FieldRoot, Text } from '@chakra-ui/react'
 
 export type FormFieldProps = {
-  label: string
+  label: ReactNode
   helperText?: string
   errorText?: string
   children: React.ReactNode
