@@ -12,9 +12,17 @@ export { DashboardShell } from './DashboardShell/DashboardShell'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
 export { HandyBoxWordmark } from './HandyBoxWordmark/HandyBoxWordmark'
-export { IconCalendar, IconClock, IconDocument, IconMapPin, IconSliders, IconWrench } from './TaskBrowse/TaskBrowseMetaIcons'
+export {
+  IconCalendar,
+  IconClock,
+  IconDocument,
+  IconMapPin,
+  IconSliders,
+  IconWrench,
+} from './TaskBrowse/TaskBrowseMetaIcons'
 export { Input, TextInput } from './Input'
 export { LoginMarketingPanel } from './LoginMarketingPanel/LoginMarketingPanel'
+export { NavDrawer } from './NavDrawer/NavDrawer'
 export { RegisterMarketingPanel } from './RegisterMarketingPanel/RegisterMarketingPanel'
 export { TaskBrowseFilters } from './TaskBrowseFilters/TaskBrowseFilters'
 export { TaskListPagination } from './TaskListPagination/TaskListPagination'
@@ -24,12 +32,25 @@ export * from './Header'
 export * from './Layout'
 export * from './PostJobForm'
 export * from './Typography'
-export type { AvailableJobCardProps, JobCardBadgeVariant } from './AvailableJobCard/AvailableJobCard'
-export type { AvailableJobsHeaderProps, SortOption } from './AvailableJobsHeader/AvailableJobsHeader'
-export type { DashboardNavKey, DashboardShellProps } from './DashboardShell/DashboardShell'
+export type {
+  AvailableJobCardProps,
+  JobCardBadgeVariant,
+} from './AvailableJobCard/AvailableJobCard'
+export type {
+  AvailableJobsHeaderProps,
+  SortOption,
+} from './AvailableJobsHeader/AvailableJobsHeader'
+export type {
+  DashboardNavKey,
+  DashboardShellProps,
+} from './DashboardShell/DashboardShell'
 export type { FormFieldProps } from './FormField/FormField'
 export type { GlassCardProps } from './Card/GlassCard'
 export type { HandyBoxWordmarkProps } from './HandyBoxWordmark/HandyBoxWordmark'
-export type { TaskBrowseFiltersProps, UrgencyFilter } from './TaskBrowseFilters/TaskBrowseFilters'
+export type { NavDrawerLink, NavDrawerProps } from './NavDrawer/NavDrawer'
+export type {
+  TaskBrowseFiltersProps,
+  UrgencyFilter,
+} from './TaskBrowseFilters/TaskBrowseFilters'
 export type { TaskListPaginationProps } from './TaskListPagination/TaskListPagination'
 export type { TaskOfferCardProps } from './TaskOfferCard/TaskOfferCard'
