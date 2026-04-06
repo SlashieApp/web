@@ -1,6 +1,6 @@
 /**
- * Types for `TASKS_QUERY` in `tasks.ts`. Replace with `@codegen/schema` once
- * `bun run codegen` succeeds against the production GraphQL endpoint.
+ * Types for task list operations in `tasks.ts`. Prefer `@codegen/schema` once
+ * `bun run codegen` succeeds against the GraphQL endpoint.
  */
 export type TaskOfferListItem = {
   id: string
@@ -17,6 +17,8 @@ export type TaskListItem = {
   title: string
   description: string
   location?: string | null
+  locationLat?: number | null
+  locationLng?: number | null
   status: string
   createdByUserId: string
   createdAt: unknown
@@ -29,15 +31,9 @@ export type TaskListItem = {
 }
 
 export type TasksQueryData = {
-  tasks: {
-    items: TaskListItem[]
-    pageInfo: {
-      page: number
-      pageSize: number
-      totalItems: number
-      totalPages: number
-      hasNextPage: boolean
-      hasPreviousPage: boolean
-    }
-  }
+  tasks: TaskListItem[]
+}
+
+export type MyTasksQueryData = {
+  myTasks: TaskListItem[]
 }

@@ -12,8 +12,8 @@ import {
 } from 'react'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { TASKS_QUERY } from '@/graphql/tasks'
-import type { TasksQueryData } from '@/graphql/tasks-query.types'
+import { MY_TASKS_QUERY } from '@/graphql/tasks'
+import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
 import {
   type MyOfferItem,
   type TaskItem,
@@ -152,7 +152,7 @@ export function DashboardDataProvider({
     loading: tasksLoading,
     error: tasksError,
     refetch: refetchTasks,
-  } = useQuery<TasksQueryData>(TASKS_QUERY, {
+  } = useQuery<MyTasksQueryData>(MY_TASKS_QUERY, {
     fetchPolicy: 'network-only',
     skip: !me,
   })
@@ -178,7 +178,7 @@ export function DashboardDataProvider({
     })
   }, [me])
 
-  const tasks = tasksData?.tasks.items ?? []
+  const tasks = tasksData?.myTasks ?? []
   const tasksBootstrapping = Boolean(me && !tasksData && !tasksError)
   const meErrorMessage = meError
     ? getFriendlyErrorMessage(meError, 'Could not load account details.')

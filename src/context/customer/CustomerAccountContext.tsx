@@ -5,8 +5,8 @@ import type { MeQuery } from '@codegen/schema'
 import { createContext, useCallback, useContext, useMemo } from 'react'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { TASKS_QUERY } from '@/graphql/tasks'
-import type { TasksQueryData } from '@/graphql/tasks-query.types'
+import { MY_TASKS_QUERY } from '@/graphql/tasks'
+import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 import {
@@ -56,12 +56,12 @@ export function CustomerAccountProvider({
     loading: tasksLoading,
     error: tasksError,
     refetch: refetchTasks,
-  } = useQuery<TasksQueryData>(TASKS_QUERY, {
+  } = useQuery<MyTasksQueryData>(MY_TASKS_QUERY, {
     fetchPolicy: 'network-only',
     skip: !me,
   })
 
-  const tasks = tasksData?.tasks.items ?? []
+  const tasks = tasksData?.myTasks ?? []
 
   const { myPostedTasks, incomingQuotes } = useMemo(() => {
     if (!me) {

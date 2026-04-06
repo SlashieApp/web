@@ -29,38 +29,50 @@ export const ADD_OFFER = gql`
 `
 
 export const TASKS_QUERY = gql`
-  query Tasks {
-    tasks {
-      items {
+  query Tasks(
+    $lat: Float
+    $lng: Float
+    $radiusMiles: Float
+    $search: String
+    $category: String
+    $minPricePence: Int
+    $maxPricePence: Int
+    $dateTimeFrom: DateTime
+    $dateTimeTo: DateTime
+  ) {
+    tasks(
+      lat: $lat
+      lng: $lng
+      radiusMiles: $radiusMiles
+      search: $search
+      category: $category
+      minPricePence: $minPricePence
+      maxPricePence: $maxPricePence
+      dateTimeFrom: $dateTimeFrom
+      dateTimeTo: $dateTimeTo
+    ) {
+      id
+      title
+      description
+      location
+      locationLat
+      locationLng
+      status
+      createdByUserId
+      createdAt
+      dateTime
+      category
+      priceOfferPence
+      paymentMethod
+      contactMethod
+      offers {
         id
-        title
-        description
-        location
+        taskId
+        workerUserId
+        pricePence
+        message
         status
-        createdByUserId
         createdAt
-        dateTime
-        category
-        priceOfferPence
-        paymentMethod
-        contactMethod
-        offers {
-          id
-          taskId
-          workerUserId
-          pricePence
-          message
-          status
-          createdAt
-        }
-      }
-      pageInfo {
-        page
-        pageSize
-        totalItems
-        totalPages
-        hasNextPage
-        hasPreviousPage
       }
     }
   }
@@ -94,20 +106,39 @@ export const TASK_QUERY = gql`
   }
 `
 
-// Alias browse-style filtering to the current tasks resolver shape.
 export const BROWSE_TASKS_QUERY = gql`
-  query BrowseTasks($category: String, $minPricePence: Int, $maxPricePence: Int) {
-    tasks(category: $category, minPricePence: $minPricePence, maxPricePence: $maxPricePence) {
-      items {
-        id
-        title
-        description
-        location
-        status
-        priceOfferPence
-        createdAt
-        category
-      }
+  query BrowseTasks(
+    $lat: Float
+    $lng: Float
+    $radiusMiles: Float
+    $search: String
+    $category: String
+    $minPricePence: Int
+    $maxPricePence: Int
+    $dateTimeFrom: DateTime
+    $dateTimeTo: DateTime
+  ) {
+    tasks(
+      lat: $lat
+      lng: $lng
+      radiusMiles: $radiusMiles
+      search: $search
+      category: $category
+      minPricePence: $minPricePence
+      maxPricePence: $maxPricePence
+      dateTimeFrom: $dateTimeFrom
+      dateTimeTo: $dateTimeTo
+    ) {
+      id
+      title
+      description
+      location
+      locationLat
+      locationLng
+      status
+      priceOfferPence
+      createdAt
+      category
     }
   }
 `
@@ -118,8 +149,26 @@ export const MY_TASKS_QUERY = gql`
       id
       title
       description
+      location
+      locationLat
+      locationLng
       status
+      createdByUserId
       createdAt
+      dateTime
+      category
+      priceOfferPence
+      paymentMethod
+      contactMethod
+      offers {
+        id
+        taskId
+        workerUserId
+        pricePence
+        message
+        status
+        createdAt
+      }
     }
   }
 `

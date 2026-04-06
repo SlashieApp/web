@@ -1,6 +1,6 @@
 'use client'
 
-import type { TasksQueryData } from '@/graphql/tasks-query.types'
+import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
 
 export function getDisplayNameFromEmail(email: string | null | undefined) {
   const localPart = (email ?? '').split('@')[0]?.trim()
@@ -13,7 +13,7 @@ export function getDisplayNameFromEmail(email: string | null | undefined) {
     .join(' ')
 }
 
-export type TaskItem = TasksQueryData['tasks']['items'][number]
+export type TaskItem = MyTasksQueryData['myTasks'][number]
 export type TaskOfferItem = TaskItem['offers'][number]
 export type MyOfferItem = {
   task: TaskItem
