@@ -2,7 +2,7 @@
 
 import { HStack, NativeSelect, Stack } from '@chakra-ui/react'
 
-import { IconSliders } from '../TaskBrowse/TaskBrowseMetaIcons'
+import { IconSliders } from '../TaskBrowseMetaIcons'
 import { Heading, Text } from '../Typography'
 
 export type SortOption = {

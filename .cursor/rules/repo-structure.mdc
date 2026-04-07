@@ -83,6 +83,13 @@ From `scripts/generate-exports.ts`, `EXPORT_CONFIGS` in this repo includes:
 
 **Context, store, `src/utils`, and `src/components` (outside `app/components`) are not in `EXPORT_CONFIGS`** unless you add them and want generated barrels.
 
+## App Router Page Composition
+
+- Keep `src/app/**/page.tsx` as **Server Components** by default (do not add `'use client'` in page files).
+- Fetch route data in the page on the server whenever possible (GraphQL/fetch/DB), then pass serializable props to client components.
+- If interactive UI is needed, create a separate client component file (for example in `src/app/components` or `src/ui`) and render it from the server page.
+- Reserve client-only page files for hard requirements only; prefer server-first composition for SEO, first paint, and predictable data loading.
+
 ## Change Workflow (Same Repo)
 
 If adding a new shared module folder:

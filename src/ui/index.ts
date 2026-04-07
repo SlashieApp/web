@@ -4,7 +4,6 @@
  */
 
 export { AppDrawer } from './AppDrawer/AppDrawer'
-export { AvailableJobCard } from './AvailableJobCard/AvailableJobCard'
 export { AvailableJobsHeader } from './AvailableJobsHeader/AvailableJobsHeader'
 export { Badge } from './Badge'
 export { Button } from './Button'
@@ -20,23 +19,32 @@ export {
   IconMapPin,
   IconSliders,
   IconWrench,
-} from './TaskBrowse/TaskBrowseMetaIcons'
+} from './TaskBrowseMetaIcons'
 export { Input, TextInput } from './Input'
 export { LoginMarketingPanel } from './LoginMarketingPanel/LoginMarketingPanel'
+export {
+  MAP_HERO_SEARCH_AREA_BUTTON_LEFT_INSET,
+  MAP_HERO_SIDE_RAIL_WIDTH,
+} from './taskBrowseMapHeroLayout'
 export { RegisterMarketingPanel } from './RegisterMarketingPanel/RegisterMarketingPanel'
-export { TaskBrowseFilters } from './TaskBrowseFilters/TaskBrowseFilters'
+export { TaskBrowseFloatingPanel } from './TaskBrowseFloatingPanel/TaskBrowseFloatingPanel'
+export { TaskBrowseListItem } from './TaskBrowseListItem/TaskBrowseListItem'
+export { TaskBrowseMapHeroBackdrop } from './TaskBrowseMapHeroBackdrop/TaskBrowseMapHeroBackdrop'
+export { TaskBrowseMapHeroDesktopSplit } from './TaskBrowseMapHeroDesktopSplit/TaskBrowseMapHeroDesktopSplit'
+export { TaskBrowseMapHeroFiltersIconButton } from './TaskBrowseMapHeroFiltersIconButton/TaskBrowseMapHeroFiltersIconButton'
+export { TaskBrowseMapHeroMobileColumn } from './TaskBrowseMapHeroMobileColumn/TaskBrowseMapHeroMobileColumn'
+export { TaskBrowseMapHeroSideRail } from './TaskBrowseMapHeroSideRail/TaskBrowseMapHeroSideRail'
+export { TaskBrowseMobileFiltersBar } from './TaskBrowseMobileFiltersBar/TaskBrowseMobileFiltersBar'
+export { TaskFilter } from './TaskFilter/TaskFilter'
 export { TaskListPagination } from './TaskListPagination/TaskListPagination'
+export { TaskListPanel } from './TaskListPanel/TaskListPanel'
 export { TaskOfferCard } from './TaskOfferCard/TaskOfferCard'
+export { ViewSwitch } from './ViewSwitch/ViewSwitch'
 export * from './Footer'
 export * from './Header'
 export * from './Layout'
-export * from './PostJobForm'
 export * from './Typography'
 export type { AppDrawerPlacement, AppDrawerProps } from './AppDrawer/AppDrawer'
-export type {
-  AvailableJobCardProps,
-  JobCardBadgeVariant,
-} from './AvailableJobCard/AvailableJobCard'
 export type {
   AvailableJobsHeaderProps,
   SortOption,
@@ -49,8 +57,21 @@ export type { FormFieldProps } from './FormField/FormField'
 export type { GlassCardProps } from './Card/GlassCard'
 export type { HandyBoxWordmarkProps } from './HandyBoxWordmark/HandyBoxWordmark'
 export type {
-  TaskBrowseFiltersProps,
-  UrgencyFilter,
-} from './TaskBrowseFilters/TaskBrowseFilters'
+  JobCardBadgeVariant,
+  TaskBrowseListItemProps,
+} from './TaskBrowseListItem/TaskBrowseListItem'
+export type { TaskBrowseFloatingPanelProps } from './TaskBrowseFloatingPanel/TaskBrowseFloatingPanel'
+export type { TaskBrowseMapHeroBackdropProps } from './TaskBrowseMapHeroBackdrop/TaskBrowseMapHeroBackdrop'
+export type { TaskBrowseMapHeroDesktopSplitProps } from './TaskBrowseMapHeroDesktopSplit/TaskBrowseMapHeroDesktopSplit'
+export type { TaskBrowseMapHeroFiltersIconButtonProps } from './TaskBrowseMapHeroFiltersIconButton/TaskBrowseMapHeroFiltersIconButton'
+export type { TaskBrowseMapHeroMobileColumnProps } from './TaskBrowseMapHeroMobileColumn/TaskBrowseMapHeroMobileColumn'
+export type { TaskBrowseMapHeroSideRailProps } from './TaskBrowseMapHeroSideRail/TaskBrowseMapHeroSideRail'
+export type {
+  TaskBrowseMapView,
+  ViewSwitchProps,
+} from './ViewSwitch/ViewSwitch'
+export type { TaskBrowseMobileFiltersBarProps } from './TaskBrowseMobileFiltersBar/TaskBrowseMobileFiltersBar'
+export type { TaskFilterProps } from './TaskFilter/TaskFilter'
 export type { TaskListPaginationProps } from './TaskListPagination/TaskListPagination'
+export type { TaskListPanelProps } from './TaskListPanel/TaskListPanel'
 export type { TaskOfferCardProps } from './TaskOfferCard/TaskOfferCard'
