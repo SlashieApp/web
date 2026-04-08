@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react'
 
+import { useDashboardSearchStore } from '@/app/dashboard/store/dashboardSearchStore'
 import { ME_QUERY } from '@/graphql/auth'
 import { MY_TASKS_QUERY } from '@/graphql/tasks'
 import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
@@ -32,7 +33,6 @@ import type {
 } from '@/utils/dashboardTypes'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { getWorkerRegistered, setWorkerRegistered } from '@/utils/workerSession'
-import { useDashboardSearchStore } from '@store/dashboardSearchStore'
 
 type LiveHistoryItem =
   | {

@@ -128,13 +128,6 @@ export function TaskBrowseFilters({
         boxShadow="ghostBorder"
       >
         <Stack gap={4}>
-          <Box>
-            <Heading size="md">Find work near you</Heading>
-            <Text mt={1} fontSize="xs" color="muted">
-              Discover and claim local service jobs.
-            </Text>
-          </Box>
-
           <Stack gap={2}>
             <FilterSectionTitle mb={1}>Search radius</FilterSectionTitle>
             <Slider.Root

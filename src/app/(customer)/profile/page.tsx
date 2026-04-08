@@ -8,8 +8,8 @@ import {
   DASHBOARD_TRADE_OPTIONS,
   type DashboardTrade,
 } from '@/utils/dashboardTypes'
-import { useCustomerAccount } from '@context/customer'
 import { Badge, Button, GlassCard, Heading, Text, TextInput } from '@ui'
+import { useCustomerAccount } from '../context'
 
 export default function CustomerProfilePage() {
   const { me } = useCustomerAccount()

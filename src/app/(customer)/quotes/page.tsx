@@ -8,8 +8,8 @@ import {
   formatPounds,
   getCategoryVisual,
 } from '@/utils/dashboardHelpers'
-import { useCustomerAccount } from '@context/customer'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
+import { useCustomerAccount } from '../context/CustomerAccountContext'
 
 export default function CustomerQuotesPage() {
   const { incomingQuotes, tasksLoading, tasksErrorMessage } =

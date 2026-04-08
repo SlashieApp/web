@@ -3,7 +3,7 @@
 import { Box, HStack, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { Text } from '../Typography'
+import { Text } from './Typography'
 
 type DockItem = {
   key: string
@@ -80,7 +80,7 @@ function ProfileIcon() {
   )
 }
 
-export function MobileActionDock() {
+export function Dock() {
   const items: DockItem[] = [
     {
       key: 'browse',
@@ -107,7 +107,8 @@ export function MobileActionDock() {
 
   return (
     <Box
-      position="absolute"
+      display={{ base: 'block', md: 'none' }}
+      position="fixed"
       left={2}
       right={2}
       bottom={2}
@@ -123,41 +124,41 @@ export function MobileActionDock() {
     >
       <HStack justify="space-between" align="stretch" gap={1}>
         {items.map((item) => (
-          <Box
-            as={NextLink}
+          <NextLink
             key={item.key}
             href={item.href}
-            flex={1}
-            borderRadius="xl"
-            bg={item.active ? 'primary.50' : 'transparent'}
-            color={item.active ? 'primary.600' : 'muted'}
-            textDecoration="none"
-            py={1}
-            _hover={{
-              textDecoration: 'none',
-              bg: item.active ? 'primary.100' : 'surfaceContainerLow',
-            }}
+            style={{ flex: 1, textDecoration: 'none' }}
           >
-            <Stack align="center" gap={1} position="relative">
-              <Box position="relative" display="inline-flex">
-                {item.icon}
-                {item.hasDot ? (
-                  <Box
-                    position="absolute"
-                    top="-1px"
-                    right="-3px"
-                    w="6px"
-                    h="6px"
-                    borderRadius="full"
-                    bg="red.500"
-                  />
-                ) : null}
-              </Box>
-              <Text fontSize="xs" fontWeight={700}>
-                {item.label}
-              </Text>
-            </Stack>
-          </Box>
+            <Box
+              borderRadius="xl"
+              bg={item.active ? 'primary.50' : 'transparent'}
+              color={item.active ? 'primary.600' : 'muted'}
+              py={1}
+              _hover={{
+                bg: item.active ? 'primary.100' : 'surfaceContainerLow',
+              }}
+            >
+              <Stack align="center" gap={1} position="relative">
+                <Box position="relative" display="inline-flex">
+                  {item.icon}
+                  {item.hasDot ? (
+                    <Box
+                      position="absolute"
+                      top="-1px"
+                      right="-3px"
+                      w="6px"
+                      h="6px"
+                      borderRadius="full"
+                      bg="red.500"
+                    />
+                  ) : null}
+                </Box>
+                <Text fontSize="xs" fontWeight={700}>
+                  {item.label}
+                </Text>
+              </Stack>
+            </Box>
+          </NextLink>
         ))}
       </HStack>
     </Box>

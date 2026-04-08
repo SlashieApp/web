@@ -1,0 +1,30 @@
+---
+description: Enforce repo structure and exports registration workflow
+alwaysApply: true
+---
+
+# Repo Structure and Exports Registration
+
+When adding or reorganizing folders that rely on barrel exports, keep structure and export registration in sync.
+
+## Required workflow
+
+- Keep feature code grouped by route/domain (for example: `src/app/(task)`).
+- If a folder is expected to have an auto-generated `index.ts`, register that folder in `EXPORT_CONFIGS` inside `scripts/generate-exports.ts`.
+- Run `bun run exports-gen` after adding a new registered folder or moving files between registered folders.
+- Do not manually maintain generated barrel files if they are marked auto-generated.
+
+## Reference example
+
+Current registered folders include:
+
+- `src/ui`
+- `src/app/(task)/components`
+
+These are configured in `scripts/generate-exports.ts` under `EXPORT_CONFIGS`.
+
+## Change checklist
+
+- [ ] New folder location is added to `EXPORT_CONFIGS` when needed.
+- [ ] Exports are regenerated.
+- [ ] Imports in affected files are updated to use the new barrel path.

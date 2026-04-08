@@ -794,17 +794,18 @@ export function TaskMap({
       {showSearchThisArea && onSearchThisAreaConfirm && visible ? (
         <Box
           position="absolute"
-          top={
-            searchAreaButtonPosition === 'top' ? { base: 16, md: 5 } : undefined
-          }
+          top={searchAreaButtonPosition === 'top' ? { base: 3 } : undefined}
           bottom={
             searchAreaButtonPosition === 'bottom'
-              ? { base: 20, md: 5 }
+              ? { base: 5, md: 5 }
               : undefined
           }
           left={
             searchAreaButtonLeftInset
-              ? `calc(50% + (${searchAreaButtonLeftInset}) / 2)`
+              ? {
+                  base: '50%',
+                  lg: `calc(50% + (${searchAreaButtonLeftInset}) / 2)`,
+                }
               : '50%'
           }
           transform={`translateX(calc(-50% + ${searchAreaButtonOffsetX}))`}

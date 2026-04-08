@@ -7,15 +7,12 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { TaskLocationMapPicker } from '@/app/(task)/components'
-import {
-  CreateTaskDetailsPanel,
-  CreateTaskSubmitPanel,
-} from '@/app/tasks/create/components'
 import { CREATE_TASK } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { type CreateTaskMutation, TaskPaymentMethod } from '@codegen/schema'
 import { Button, Footer, Header, Heading, Section, Text } from '@ui'
+import { CreateTaskDetailsPanel, CreateTaskSubmitPanel } from './components'
 
 const CATEGORY_OPTIONS = [
   'Plumbing',

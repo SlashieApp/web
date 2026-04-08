@@ -20,7 +20,7 @@ const DEFAULT_CONFIG = {
 
 const EXPORT_CONFIGS: ExportConfig[] = [
   { folder: 'src/ui' },
-  { folder: 'src/app/components' },
+  { folder: 'src/app/(task)/components' },
 ]
 
 const AUTOGEN_HEADER = `/**

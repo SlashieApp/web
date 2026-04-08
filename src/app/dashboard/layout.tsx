@@ -9,14 +9,12 @@ import {
   useDashboardData,
 } from '@/app/dashboard/context'
 import { clearAuthToken } from '@/utils/auth'
+import { Button, GlassCard, Heading, Text } from '@ui'
+
 import {
-  Button,
   type DashboardNavKey,
   DashboardShell,
-  GlassCard,
-  Heading,
-  Text,
-} from '@ui'
+} from './components/DashboardShell'
 
 function resolveActiveNav(pathname: string): DashboardNavKey {
   if (pathname.startsWith('/dashboard/quotes')) return 'quotes'

@@ -3,10 +3,7 @@
 import { Box, Text as ChakraText, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { Button } from '../../Button'
-import { GlassCard } from '../../Card/GlassCard'
-import { TextInput } from '../../Input'
-import { Heading, Text } from '../../Typography'
+import { Button, GlassCard, Heading, Text, TextInput } from '@ui'
 
 export type DashboardNavKey =
   | 'overview'

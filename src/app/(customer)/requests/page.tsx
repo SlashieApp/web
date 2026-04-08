@@ -14,8 +14,8 @@ import {
   isOfferAwarded,
   isTaskCompleted,
 } from '@/utils/dashboardHelpers'
-import { useCustomerAccount } from '@context/customer'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
+import { useCustomerAccount } from '../context'
 
 type RequestsTab = 'active' | 'archived'
 type RequestFilter = 'all' | 'draft' | 'open' | 'awarded' | 'completed'

@@ -23,7 +23,7 @@
       "@ui": ["./src/ui/index.ts"],
       "@ui/*": ["./src/ui/*"],
       "@context/*": ["./src/context/*"],
-      "@store/*": ["./src/store/*"],
+      "@store/*": ["./src/app/store/*"],
       "@utils/*": ["./src/utils/*"],
       "@codegen/*": ["./.codegen/*"],
       "@codegen/schema": ["./.codegen/schema.ts"]

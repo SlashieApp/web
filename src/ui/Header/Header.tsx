@@ -3,8 +3,10 @@
 import { Box, type BoxProps, HStack, IconButton, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { clearAuthToken, getAuthToken } from '@/utils/auth'
+import { AppDrawer } from '../AppDrawer/AppDrawer'
 import { Button } from '../Button'
 import { Container } from '../Container'
 import { Heading } from '../Typography'
@@ -50,6 +52,22 @@ function IconUser() {
   )
 }
 
+function IconMenu() {
+  return (
+    <Box as="span" display="flex" color="currentColor" aria-hidden>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <title>Menu</title>
+        <path
+          d="M4 7h16M4 12h16M4 17h16"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </Box>
+  )
+}
+
 export type HeaderActiveItem =
   | 'home'
   | 'tasks'
@@ -67,6 +85,7 @@ export type HeaderProps = {
 function SiteNavigation() {
   const router = useRouter()
   const isLoggedIn = Boolean(getAuthToken())
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const taskerHref = isLoggedIn
     ? '/dashboard'
     : `/login?next=${encodeURIComponent('/dashboard')}`
@@ -77,7 +96,7 @@ function SiteNavigation() {
       align="center"
       gap={4}
       py={2}
-      flexWrap="wrap"
+      flexWrap={{ base: 'nowrap', md: 'wrap' }}
       w="full"
     >
       <HStack
@@ -93,7 +112,11 @@ function SiteNavigation() {
           </Link>
         </Heading>
 
-        <HStack gap={{ base: 2, md: 3 }} flexWrap="wrap">
+        <HStack
+          gap={{ base: 2, md: 3 }}
+          flexWrap="wrap"
+          display={{ base: 'none', md: 'flex' }}
+        >
           <Link as={NextLink} href="/" {...navLinkProps}>
             Browse tasks
           </Link>
@@ -118,10 +141,21 @@ function SiteNavigation() {
         justify="flex-end"
         flexShrink={0}
       >
-        <Button as={NextLink} href="/tasks/create" size="sm" variant="outline">
+        <Button
+          as={NextLink}
+          href="/tasks/create"
+          size="sm"
+          variant="outline"
+          display={{ base: 'none', md: 'inline-flex' }}
+        >
           Post a task
         </Button>
-        <Button as={NextLink} href={taskerHref} size="sm">
+        <Button
+          as={NextLink}
+          href={taskerHref}
+          size="sm"
+          display={{ base: 'none', md: 'inline-flex' }}
+        >
           Become a tasker
         </Button>
         {isLoggedIn ? (
@@ -139,6 +173,7 @@ function SiteNavigation() {
               asChild
               variant="ghost"
               size="sm"
+              display={{ base: 'none', md: 'inline-flex' }}
               colorPalette="blue"
               color="primary.600"
               _hover={{ bg: 'rgba(0, 63, 177, 0.06)' }}
@@ -151,6 +186,7 @@ function SiteNavigation() {
               asChild
               variant="ghost"
               size="sm"
+              display={{ base: 'none', md: 'inline-flex' }}
               colorPalette="blue"
               color="primary.600"
               _hover={{ bg: 'rgba(0, 63, 177, 0.06)' }}
@@ -162,6 +198,7 @@ function SiteNavigation() {
             <Button
               size="sm"
               variant="subtle"
+              display={{ base: 'none', md: 'inline-flex' }}
               onClick={() => {
                 clearAuthToken()
                 router.push('/')
@@ -171,7 +208,85 @@ function SiteNavigation() {
             </Button>
           </>
         ) : null}
+        <IconButton
+          aria-label="Open menu"
+          variant="ghost"
+          size="sm"
+          display={{ base: 'inline-flex', md: 'none' }}
+          colorPalette="blue"
+          color="primary.600"
+          _hover={{ bg: 'rgba(0, 63, 177, 0.06)' }}
+          onClick={() => setMobileMenuOpen(true)}
+        >
+          <IconMenu />
+        </IconButton>
       </HStack>
+      <AppDrawer
+        open={mobileMenuOpen}
+        onOpenChange={setMobileMenuOpen}
+        title="Menu"
+        placement="end"
+        size="xs"
+      >
+        <HStack as="nav" align="stretch" gap={2} flexDirection="column">
+          <Link
+            as={NextLink}
+            href="/"
+            {...navLinkProps}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Browse tasks
+          </Link>
+          <Link
+            as={NextLink}
+            href="/tasks/create"
+            {...navLinkProps}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Post a task
+          </Link>
+          <Link
+            as={NextLink}
+            href={taskerHref}
+            {...navLinkProps}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Become a tasker
+          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link
+                as={NextLink}
+                href="/quotes"
+                {...navLinkProps}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Quotes
+              </Link>
+              <Link
+                as={NextLink}
+                href="/requests"
+                {...navLinkProps}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Requests
+              </Link>
+              <Button
+                size="sm"
+                variant="subtle"
+                alignSelf="flex-start"
+                onClick={() => {
+                  clearAuthToken()
+                  setMobileMenuOpen(false)
+                  router.push('/')
+                }}
+              >
+                Log out
+              </Button>
+            </>
+          ) : null}
+        </HStack>
+      </AppDrawer>
     </HStack>
   )
 }

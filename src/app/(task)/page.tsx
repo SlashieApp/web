@@ -1,20 +1,17 @@
-import { Box } from '@chakra-ui/react'
+'use client'
+import { useBreakpointValue } from '@chakra-ui/react'
 
-import { TaskBrowse } from '@/app/(task)/components'
-import { Footer, Header } from '@ui'
+import { MobileLayout } from './components/(mobile)/MobileLayout'
+import { WebLayout } from './components/(web)/WebLayout'
+import { TaskBrowseProvider } from './context/TaskBrowseProvider'
 
 export default function HomePage() {
+  const isDesktopSplit =
+    useBreakpointValue({ base: false, md: true }, { fallback: 'base' }) ?? false
+
   return (
-    <Box
-      bg="surface"
-      color="fg"
-      display="flex"
-      flexDirection="column"
-      position="relative"
-    >
-      <Header />
-      <TaskBrowse />
-      {/* <Footer /> */}
-    </Box>
+    <TaskBrowseProvider initialTasks={[]} isDesktop={isDesktopSplit}>
+      {isDesktopSplit ? <WebLayout /> : <MobileLayout />}
+    </TaskBrowseProvider>
   )
 }

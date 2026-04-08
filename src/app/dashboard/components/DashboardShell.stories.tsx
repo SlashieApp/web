@@ -2,7 +2,7 @@ import { Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 
-import { Heading, Text } from '../../Typography'
+import { Heading, Text } from '@ui'
 import { DashboardShell } from './DashboardShell'
 
 function DashboardShellStory() {

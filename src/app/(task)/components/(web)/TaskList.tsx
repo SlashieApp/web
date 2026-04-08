@@ -4,21 +4,17 @@ import { Box, Stack } from '@chakra-ui/react'
 import { useEffect, useRef } from 'react'
 
 import { Text } from '@ui'
-import { AvailableJobsHeader } from './components/AvailableJobsHeader'
-import { TaskBrowseListItem } from './components/TaskBrowseListItem'
-import { TaskListPagination } from './components/TaskListPagination'
+import { TaskBrowseListItem } from './TaskBrowseListItem'
 
-import { useTaskBrowseData } from './taskBrowseDataContext'
+import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { SORT_OPTIONS, formatBudget, inferBadge } from './taskBrowseHelpers'
 
 export type TaskListProps = {
   /** Map-hero: header + scroll inside the floating list card. Classic: list body only (header is a sibling). */
   variant: 'mapHeroColumn' | 'classic'
-  headerTitle: string
-  subtitle: string
 }
 
-export function TaskList({ variant, headerTitle, subtitle }: TaskListProps) {
+export function TaskList({ variant }: TaskListProps) {
   const {
     sort,
     setSort,
@@ -83,16 +79,6 @@ export function TaskList({ variant, headerTitle, subtitle }: TaskListProps) {
           )
         })
       )}
-
-      {!error && filteredSorted.length > 0 ? (
-        <TaskListPagination
-          page={safePage}
-          totalPages={totalPages}
-          onPrevious={() => setPage((p) => Math.max(0, p - 1))}
-          onNext={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-          onSelectPage={setPage}
-        />
-      ) : null}
     </>
   )
 
@@ -112,15 +98,7 @@ export function TaskList({ variant, headerTitle, subtitle }: TaskListProps) {
         borderWidth="1px"
         borderColor="border"
         boxShadow="0 6px 20px rgba(15,23,42,0.16)"
-      >
-        <AvailableJobsHeader
-          title={headerTitle}
-          subtitle={subtitle}
-          sortValue={sort}
-          sortOptions={SORT_OPTIONS}
-          onSortChange={setSort}
-        />
-      </Box>
+      ></Box>
       <Box
         flex={1}
         minH={0}

@@ -3,7 +3,7 @@
 import { Grid, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { WorkerAccessGate } from '@/app/dashboard/_components/WorkerAccessGate'
+import { WorkerAccessGate } from '@/app/dashboard/components/WorkerAccessGate'
 import { useDashboardData } from '@/app/dashboard/context'
 import {
   formatPounds,
