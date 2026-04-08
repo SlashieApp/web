@@ -1,7 +1,7 @@
 'use client'
 
-import { Box, IconButton } from '@chakra-ui/react'
-import { Text } from '@ui'
+import { Box, HStack, IconButton, Input } from '@chakra-ui/react'
+import { Button } from '@ui'
 
 import { TaskBrowseFilters } from '../(web)/TaskBrowseFilters'
 import { TaskMap } from '../(web)/TaskMap'
@@ -57,8 +57,28 @@ export function MobileLayout() {
       location: task.location?.trim() || 'Location on request',
       priceLabel: main,
       badgeText: badge.text,
+      imageSeed: task.id,
     }
   })
+
+  const activeFilterTags: string[] = []
+  if (areaLocationInput.trim()) activeFilterTags.push(areaLocationInput.trim())
+  if (
+    selectedCategorySet.size > 0 &&
+    selectedCategorySet.size < categories.length
+  ) {
+    activeFilterTags.push(...[...selectedCategorySet].slice(0, 3))
+  }
+  if (urgency !== 'any') {
+    activeFilterTags.push(
+      urgency === 'emergency'
+        ? 'Emergency'
+        : urgency === 'today'
+          ? 'Today'
+          : 'This week',
+    )
+  }
+  activeFilterTags.push(`${radiusMiles}mi`)
 
   return (
     <Box w="full" h="full" borderRadius="2xl" overflow="hidden">
@@ -73,37 +93,67 @@ export function MobileLayout() {
         tasksLoaded
         leftViewportPadding={0}
         onSearchThisAreaConfirm={confirmSearchThisAreaFromMap}
-        searchAreaButtonPosition="top"
-        searchAreaButtonOffsetX="-40px"
+        searchAreaButtonPosition="bottom"
         onMapClick={() => setIsFilterOpen(false)}
         onReadyChange={markMapReadyForQuery}
         selectedTaskId={selectedTaskId}
         onSelectTask={setSelectedTaskId}
       />
 
-      <Box position="absolute" top={3} right={3} zIndex={4}>
-        <IconButton
-          aria-label={isFilterOpen ? 'Show tasks' : 'Open filters'}
-          size="sm"
-          variant={isFilterOpen ? 'solid' : 'surface'}
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden
-          >
-            <title>Filters</title>
-            <path
-              d="M4 7H20M7 12H17M10 17H14"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </IconButton>
+      <Box
+        position="absolute"
+        top={3}
+        left={3}
+        right={3}
+        zIndex={4}
+        pointerEvents="none"
+      >
+        <Box mr={12}>
+          <Input
+            pointerEvents="auto"
+            value={areaLocationInput}
+            onChange={(e) => setAreaLocationInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commitAreaLocationSearch()
+            }}
+            onBlur={commitAreaLocationSearch}
+            placeholder="Find pros or jobs near you..."
+            borderRadius="lg"
+            bg="surfaceContainerLowest"
+            ps={10}
+            type="search"
+            h={10}
+          />
+          <HStack mt={2} gap={2} flexWrap="wrap">
+            <Button
+              type="button"
+              size="sm"
+              variant={isFilterOpen ? 'solid' : 'subtle'}
+              borderRadius="full"
+              px={2.5}
+              py={1}
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              pointerEvents="auto"
+            >
+              Filters
+            </Button>
+            {activeFilterTags.map((tag) => (
+              <Box
+                pointerEvents="auto"
+                key={tag}
+                px={2.5}
+                py={1}
+                borderRadius="full"
+                bg="primary.600"
+                color="white"
+                fontSize="xs"
+                fontWeight={700}
+              >
+                {tag}
+              </Box>
+            ))}
+          </HStack>
+        </Box>
       </Box>
 
       {isFilterOpen ? (
@@ -111,7 +161,7 @@ export function MobileLayout() {
           position="absolute"
           left={3}
           right={3}
-          top={14}
+          top={28}
           bottom={3}
           zIndex={4}
           overflowY="auto"
@@ -141,10 +191,7 @@ export function MobileLayout() {
           />
         </Box>
       ) : (
-        <Box position="absolute" left={0} right={0} bottom={0} zIndex={4}>
-          <Text mb={2} px={3} fontWeight={700} color="block">
-            Find work near you
-          </Text>
+        <Box position="absolute" left={0} right={0} bottom={0} zIndex={3}>
           <MobileTaskCarousel
             tasks={mobileCards}
             selectedTaskId={selectedTaskId}

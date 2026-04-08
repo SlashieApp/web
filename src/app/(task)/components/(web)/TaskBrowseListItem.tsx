@@ -83,7 +83,7 @@ export function TaskBrowseListItem({
           style={{ objectFit: 'cover' }}
         />
       </Box>
-      <Stack flex={1} minW={0} gap={1.5}>
+      <Stack flex={1} minW={0} gap={1} h="84px">
         <HStack justify="space-between" align="flex-start" gap={2}>
           <Heading size="sm" color="fg" lineHeight="1.25" flex={1} minW={0}>
             <Text

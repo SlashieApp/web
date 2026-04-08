@@ -1,12 +1,13 @@
 'use client'
 
-import { Box, HStack, Stack } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 import useEmblaCarousel from 'embla-carousel-react'
 import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
-import NextLink from 'next/link'
+import { motion } from 'motion/react'
 import { useEffect } from 'react'
 
-import { Button, Heading, Text } from '@ui'
+import { Text } from '@ui'
+import { TaskBrowseListItem } from '../(web)/TaskBrowseListItem'
 
 type MobileTaskCard = {
   id: string
@@ -15,6 +16,7 @@ type MobileTaskCard = {
   location: string
   priceLabel: string
   badgeText?: string
+  imageSeed?: string
 }
 
 export type MobileTaskCarouselProps = {
@@ -29,7 +31,7 @@ export function MobileTaskCarousel({
   onSelectTask,
 }: MobileTaskCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { align: 'start', containScroll: 'trimSnaps', dragFree: false },
+    { align: 'center', containScroll: 'trimSnaps', dragFree: false },
     [WheelGesturesPlugin()],
   )
 
@@ -59,7 +61,20 @@ export function MobileTaskCarousel({
   }
 
   return (
-    <Box ref={emblaRef} overflow="hidden" px={3} pb={20} mb={1}>
+    <Box
+      ref={emblaRef}
+      overflow="hidden"
+      px={3}
+      pb={20}
+      mb={1}
+      position="relative"
+      style={{
+        maskImage:
+          'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 24px, rgba(0,0,0,1) calc(100% - 24px), rgba(0,0,0,0) 100%)',
+        WebkitMaskImage:
+          'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 24px, rgba(0,0,0,1) calc(100% - 24px), rgba(0,0,0,0) 100%)',
+      }}
+    >
       <HStack
         gap={3}
         align="stretch"
@@ -68,71 +83,33 @@ export function MobileTaskCarousel({
         }}
       >
         {tasks.map((task) => {
-          const active = selectedTaskId === task.id
           return (
-            <Box
-              as="button"
+            <motion.div
               key={task.id}
-              textAlign="left"
-              onClick={() => onSelectTask(task.id)}
-              flex="0 0 calc(100% - 52px)"
-              maxW="calc(100% - 52px)"
-              minW="0"
-              bg="surfaceContainerLowest/97"
-              borderRadius="2xl"
-              borderWidth="1px"
-              borderColor={active ? 'primary.500' : 'border'}
-              boxShadow="0 10px 30px rgba(15,23,42,0.22)"
-              px={4}
-              py={3}
+              initial={{ opacity: 0, y: 26 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                flex: '0 0 min(420px, calc(100% - 52px))',
+                maxWidth: '420px',
+                minWidth: '0',
+              }}
             >
-              <Stack gap={2.5}>
-                <HStack justify="space-between" align="flex-start" gap={2}>
-                  {task.badgeText ? (
-                    <Text
-                      fontSize="2xs"
-                      fontWeight={800}
-                      textTransform="uppercase"
-                      letterSpacing="0.05em"
-                      bg="secondaryFixed"
-                      color="onSecondaryFixed"
-                      borderRadius="full"
-                      px={2}
-                      py={0.5}
-                    >
-                      {task.badgeText}
-                    </Text>
-                  ) : (
-                    <Box />
-                  )}
-                  <Text fontSize="xl" fontWeight={800} color="primary.700">
-                    {task.priceLabel}
-                  </Text>
-                </HStack>
-
-                <Stack gap={1}>
-                  <Heading size="sm" color="fg">
-                    {task.title}
-                  </Heading>
-                  <Text fontSize="sm" color="muted" lineClamp={2}>
-                    {task.description}
-                  </Text>
-                </Stack>
-
-                <Text fontSize="xs" color="muted">
-                  {task.location}
-                </Text>
-
-                <Button
-                  as={NextLink}
-                  href={`/task/${task.id}`}
-                  size="sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View details
-                </Button>
-              </Stack>
-            </Box>
+              <Box minW="0">
+                <TaskBrowseListItem
+                  title={task.title}
+                  description={task.description}
+                  priceLabel={task.priceLabel}
+                  metaLine={task.location}
+                  imageSeed={task.imageSeed}
+                  detailsHref={`/task/${task.id}`}
+                  badgeVariant={task.badgeText ? 'featured' : 'none'}
+                  badgeText={task.badgeText}
+                  isActive={selectedTaskId === task.id}
+                  onActivate={() => onSelectTask(task.id)}
+                />
+              </Box>
+            </motion.div>
           )
         })}
       </HStack>

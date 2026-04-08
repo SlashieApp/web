@@ -172,7 +172,8 @@ export function WebLayout() {
                   size="sm"
                   variant={isFilterOpen ? 'solid' : 'subtle'}
                   borderRadius="full"
-                  px={4}
+                  px={3}
+                  py={1.5}
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                 >
                   Filters
