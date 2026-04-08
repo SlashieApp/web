@@ -4,7 +4,7 @@ import { Box, Text } from '@chakra-ui/react'
 import type { GeoJSONSource, Map as MapboxMap, Marker, Popup } from 'mapbox-gl'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { Button } from '@ui'
+import type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -28,8 +28,6 @@ export type TaskMapProps = {
   centerLng: number
   radiusMiles: number
   tasks: TaskMapTask[]
-  /** Fills the positioned parent (`position: relative` + height). */
-  variant?: 'panel' | 'fullscreen'
   /**
    * When false, the map may be `display:none` (e.g. mobile list tab). Toggle to
    * true so Mapbox can `resize()` after becoming visible.
@@ -40,7 +38,7 @@ export type TaskMapProps = {
   /** Extra left padding (px) for fitBounds in fullscreen (floating list panel). */
   leftViewportPadding?: number
   /** Called when the user taps “Search this area” after panning the map. */
-  onSearchThisAreaConfirm?: (lat: number, lng: number) => void
+  onSearchThisAreaConfirm?: (lat: number, lng: number, zoom: number) => void
   /**
    * Horizontal inset of the left task list (margin + width). When set, the
    * button is centered in the map pane: `calc(50% + ${inset} / 2)`.
@@ -56,6 +54,7 @@ export type TaskMapProps = {
   onReadyChange?: (ready: boolean) => void
   selectedTaskId?: string | null
   onSelectTask?: (taskId: string) => void
+  onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
 }
 
 function bumpMapResize(map: MapboxMap) {
@@ -83,6 +82,21 @@ function milesToLngDegrees(miles: number, atLatDeg: number) {
   const cosLat = Math.cos((atLatDeg * Math.PI) / 180)
   const denom = 69 * Math.max(Math.abs(cosLat), 0.2)
   return miles / denom
+}
+
+function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const toRad = (d: number) => (d * Math.PI) / 180
+  const R = 3958.8
+  const dLat = toRad(lat2 - lat1)
+  const dLng = toRad(lng2 - lng1)
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
 }
 
 function circlePolygonRing(
@@ -282,7 +296,6 @@ export function TaskMap({
   centerLng,
   radiusMiles,
   tasks,
-  variant = 'panel',
   visible = true,
   tasksLoaded = true,
   leftViewportPadding = 48,
@@ -294,6 +307,7 @@ export function TaskMap({
   onReadyChange,
   selectedTaskId = null,
   onSelectTask,
+  onSearchThisAreaUiChange,
 }: TaskMapProps) {
   const selectTaskRef = useRef(onSelectTask)
   selectTaskRef.current = onSelectTask
@@ -428,21 +442,15 @@ export function TaskMap({
     const map = mapRef.current
     if (!mapReady || !map?.isStyleLoaded()) return
     const c = map.getCenter()
-    const offset =
-      variant === 'fullscreen'
-        ? fullscreenCenterOffsetPx(leftViewportPadding)
-        : ([0, 0] as [number, number])
 
     const geoMatch =
       Math.abs(c.lat - centerLat) < 5e-5 && Math.abs(c.lng - centerLng) < 5e-5
 
-    if (geoMatch && variant !== 'fullscreen') return
-
-    if (geoMatch && variant === 'fullscreen') {
+    if (geoMatch) {
       map.easeTo({
         center: [centerLng, centerLat],
         duration: 0,
-        offset,
+        offset: fullscreenCenterOffsetPx(leftViewportPadding),
       })
       return
     }
@@ -451,12 +459,12 @@ export function TaskMap({
     map.easeTo({
       center: [centerLng, centerLat],
       duration: 450,
-      offset,
+      offset: fullscreenCenterOffsetPx(leftViewportPadding),
     })
     map.once('moveend', () => {
       programmaticMoveRef.current = false
     })
-  }, [mapReady, centerLat, centerLng, variant, leftViewportPadding])
+  }, [mapReady, centerLat, centerLng, leftViewportPadding])
 
   useEffect(() => {
     const map = mapRef.current
@@ -484,10 +492,9 @@ export function TaskMap({
           return
         }
         const c = map.getCenter()
-        const differs =
-          Math.abs(c.lat - centerLat) > 8e-5 ||
-          Math.abs(c.lng - centerLng) > 8e-5
-        if (differs) {
+        const movedOutsideSearchArea =
+          distanceMiles(centerLat, centerLng, c.lat, c.lng) > radiusMiles
+        if (movedOutsideSearchArea) {
           pendingViewRef.current = { lat: c.lat, lng: c.lng }
           setShowSearchThisArea(true)
         } else {
@@ -502,7 +509,7 @@ export function TaskMap({
       map.off('moveend', run)
       if (moveEndDebounceRef.current) clearTimeout(moveEndDebounceRef.current)
     }
-  }, [mapReady, centerLat, centerLng, onSearchThisAreaConfirm])
+  }, [mapReady, centerLat, centerLng, radiusMiles, onSearchThisAreaConfirm])
 
   useEffect(() => {
     const map = mapRef.current
@@ -527,16 +534,11 @@ export function TaskMap({
     onReadyChange?.(mapReady)
   }, [mapReady, onReadyChange])
 
-  // On first visible paint, force a zero-duration camera sync with offset so
-  // the initial center is already aligned with the left rail.
+  // On first visible paint, force a zero-duration camera sync with offset.
   useEffect(() => {
     const map = mapRef.current
     if (!mapReady || !map || !visible) return
     if (didApplyStartupOffsetRef.current) return
-    if (variant !== 'fullscreen') {
-      didApplyStartupOffsetRef.current = true
-      return
-    }
 
     const id = requestAnimationFrame(() => {
       if (!mapRef.current?.isStyleLoaded()) return
@@ -548,7 +550,7 @@ export function TaskMap({
       didApplyStartupOffsetRef.current = true
     })
     return () => cancelAnimationFrame(id)
-  }, [mapReady, visible, variant, centerLng, centerLat, leftViewportPadding])
+  }, [mapReady, visible, centerLng, centerLat, leftViewportPadding])
 
   useEffect(() => {
     const map = mapRef.current
@@ -616,15 +618,12 @@ export function TaskMap({
         const tasksChanged = sig !== prevTasksSigRef.current
         prevTasksSigRef.current = sig
 
-        const fitPadding =
-          variant === 'fullscreen'
-            ? {
-                top: 80,
-                right: 80,
-                bottom: 80,
-                left: Math.max(80, leftViewportPadding),
-              }
-            : 48
+        const fitPadding = {
+          top: 80,
+          right: 80,
+          bottom: 80,
+          left: Math.max(80, leftViewportPadding),
+        }
 
         if (tasksChanged && withCoords.length > 0) {
           const b = new mapbox.LngLatBounds()
@@ -638,15 +637,11 @@ export function TaskMap({
             duration: 500,
           })
         } else if (tasksChanged && withCoords.length === 0) {
-          const offset =
-            variant === 'fullscreen'
-              ? fullscreenCenterOffsetPx(leftViewportPadding)
-              : ([0, 0] as [number, number])
           current.easeTo({
             center: [centerLng, centerLat],
             zoom: 11,
             duration: 400,
-            offset,
+            offset: fullscreenCenterOffsetPx(leftViewportPadding),
           })
         }
 
@@ -674,7 +669,6 @@ export function TaskMap({
     tasks,
     centerLat,
     centerLng,
-    variant,
     visible,
     tasksLoaded,
     leftViewportPadding,
@@ -704,24 +698,14 @@ export function TaskMap({
     map.flyTo({
       center: [ll.lng, ll.lat],
       zoom: Math.max(map.getZoom(), 13.5),
-      offset:
-        variant === 'fullscreen'
-          ? fullscreenCenterOffsetPx(leftViewportPadding)
-          : [0, 0],
+      offset: fullscreenCenterOffsetPx(leftViewportPadding),
       duration: 650,
       essential: true,
     })
     map.once('moveend', () => {
       programmaticMoveRef.current = false
     })
-  }, [
-    mapReady,
-    selectedTaskId,
-    tasks,
-    variant,
-    leftViewportPadding,
-    attachTaskPopup,
-  ])
+  }, [mapReady, selectedTaskId, tasks, leftViewportPadding, attachTaskPopup])
 
   useEffect(() => {
     for (const row of markersRef.current) {
@@ -732,24 +716,20 @@ export function TaskMap({
   if (!accessToken?.trim()) {
     return (
       <Box
-        borderRadius={variant === 'fullscreen' ? '0' : 'xl'}
-        position={variant === 'fullscreen' ? 'absolute' : { lg: 'sticky' }}
-        inset={variant === 'fullscreen' ? 0 : undefined}
-        top={variant === 'fullscreen' ? 0 : { lg: 6 }}
-        h={
-          variant === 'fullscreen'
-            ? 'full'
-            : { base: '280px', lg: 'min(70vh, 560px)' }
-        }
+        borderRadius="0"
+        position="absolute"
+        inset={0}
+        top={0}
+        h="full"
         bg="surfaceContainerLow"
-        boxShadow={variant === 'fullscreen' ? 'none' : 'ghostBorder'}
-        borderWidth={variant === 'fullscreen' ? 0 : '1px'}
+        boxShadow="none"
+        borderWidth={0}
         borderColor="border"
         display="flex"
         alignItems="center"
         justifyContent="center"
         px={6}
-        zIndex={variant === 'fullscreen' ? 0 : undefined}
+        zIndex={0}
       >
         <Text color="muted" fontSize="sm" textAlign="center">
           Set{' '}
@@ -762,28 +742,47 @@ export function TaskMap({
     )
   }
 
-  const isFull = variant === 'fullscreen'
-
-  const handleSearchThisAreaClick = () => {
+  const handleSearchThisAreaClick = useCallback(() => {
     const p = pendingViewRef.current
     if (!p || !onSearchThisAreaConfirm) return
-    onSearchThisAreaConfirm(p.lat, p.lng)
+    const zoom = mapRef.current?.getZoom() ?? 11
+    onSearchThisAreaConfirm(p.lat, p.lng, zoom)
     setShowSearchThisArea(false)
     pendingViewRef.current = null
-  }
+  }, [onSearchThisAreaConfirm])
+
+  useEffect(() => {
+    onSearchThisAreaUiChange?.({
+      visible: showSearchThisArea && visible,
+      enabled: Boolean(onSearchThisAreaConfirm),
+      position: searchAreaButtonPosition,
+      leftInset: searchAreaButtonLeftInset,
+      offsetX: searchAreaButtonOffsetX,
+      onClick: handleSearchThisAreaClick,
+    })
+  }, [
+    onSearchThisAreaUiChange,
+    showSearchThisArea,
+    visible,
+    onSearchThisAreaConfirm,
+    searchAreaButtonPosition,
+    searchAreaButtonLeftInset,
+    searchAreaButtonOffsetX,
+    handleSearchThisAreaClick,
+  ])
 
   return (
     <Box
-      position={isFull ? 'absolute' : { lg: 'sticky' }}
-      inset={isFull ? 0 : undefined}
-      top={isFull ? 0 : { lg: 6 }}
-      h={isFull ? 'full' : { base: '280px', lg: 'min(70vh, 560px)' }}
+      position="absolute"
+      inset={0}
+      top={0}
+      h="full"
       overflow="hidden"
-      borderRadius={isFull ? '0' : 'xl'}
-      boxShadow={isFull ? 'none' : 'ghostBorder'}
-      borderWidth={isFull ? 0 : '1px'}
+      borderRadius="0"
+      boxShadow="none"
+      borderWidth={0}
       borderColor="border"
-      zIndex={isFull ? 0 : undefined}
+      zIndex={0}
     >
       <Box
         ref={containerRef}
@@ -791,39 +790,6 @@ export function TaskMap({
         h="full"
         aria-label="Map of tasks near the search area"
       />
-      {showSearchThisArea && onSearchThisAreaConfirm && visible ? (
-        <Box
-          position="absolute"
-          top={searchAreaButtonPosition === 'top' ? { base: 3 } : undefined}
-          bottom={
-            searchAreaButtonPosition === 'bottom'
-              ? { base: 5, md: 5 }
-              : undefined
-          }
-          left={
-            searchAreaButtonLeftInset
-              ? {
-                  base: '50%',
-                  lg: `calc(50% + (${searchAreaButtonLeftInset}) / 2)`,
-                }
-              : '50%'
-          }
-          transform={`translateX(calc(-50% + ${searchAreaButtonOffsetX}))`}
-          zIndex={10}
-          pointerEvents="auto"
-        >
-          <Button
-            type="button"
-            size="sm"
-            boxShadow="0 8px 28px rgba(15,23,42,0.22)"
-            borderRadius="full"
-            px={5}
-            onClick={handleSearchThisAreaClick}
-          >
-            Search this area
-          </Button>
-        </Box>
-      ) : null}
     </Box>
   )
 }

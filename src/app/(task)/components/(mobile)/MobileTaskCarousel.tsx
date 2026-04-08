@@ -30,6 +30,7 @@ export function MobileTaskCarousel({
   selectedTaskId,
   onSelectTask,
 }: MobileTaskCarouselProps) {
+  const isSingleItem = tasks.length === 1
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { align: 'center', containScroll: 'trimSnaps', dragFree: false },
     [WheelGesturesPlugin()],
@@ -49,6 +50,9 @@ export function MobileTaskCarousel({
         borderRadius="2xl"
         borderWidth="1px"
         borderColor="border"
+        maxWidth="420px"
+        mx="auto"
+        w="full"
         boxShadow="0 8px 24px rgba(15,23,42,0.2)"
         px={4}
         py={3}
@@ -65,9 +69,7 @@ export function MobileTaskCarousel({
       ref={emblaRef}
       overflow="hidden"
       px={3}
-      pb={20}
       mb={1}
-      position="relative"
       style={{
         maskImage:
           'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 24px, rgba(0,0,0,1) calc(100% - 24px), rgba(0,0,0,0) 100%)',
@@ -78,6 +80,7 @@ export function MobileTaskCarousel({
       <HStack
         gap={3}
         align="stretch"
+        justify={isSingleItem ? 'center' : 'flex-start'}
         css={{
           touchAction: 'pan-y pinch-zoom',
         }}
@@ -86,29 +89,29 @@ export function MobileTaskCarousel({
           return (
             <motion.div
               key={task.id}
-              initial={{ opacity: 0, y: 26 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
               style={{
                 flex: '0 0 min(420px, calc(100% - 52px))',
                 maxWidth: '420px',
                 minWidth: '0',
+                marginLeft: isSingleItem ? 'auto' : undefined,
+                marginRight: isSingleItem ? 'auto' : undefined,
               }}
             >
-              <Box minW="0">
-                <TaskBrowseListItem
-                  title={task.title}
-                  description={task.description}
-                  priceLabel={task.priceLabel}
-                  metaLine={task.location}
-                  imageSeed={task.imageSeed}
-                  detailsHref={`/task/${task.id}`}
-                  badgeVariant={task.badgeText ? 'featured' : 'none'}
-                  badgeText={task.badgeText}
-                  isActive={selectedTaskId === task.id}
-                  onActivate={() => onSelectTask(task.id)}
-                />
-              </Box>
+              <TaskBrowseListItem
+                title={task.title}
+                description={task.description}
+                priceLabel={task.priceLabel}
+                metaLine={task.location}
+                imageSeed={task.imageSeed}
+                detailsHref={`/task/${task.id}`}
+                badgeVariant={task.badgeText ? 'featured' : 'none'}
+                badgeText={task.badgeText}
+                isActive={selectedTaskId === task.id}
+                onActivate={() => onSelectTask(task.id)}
+              />
             </motion.div>
           )
         })}

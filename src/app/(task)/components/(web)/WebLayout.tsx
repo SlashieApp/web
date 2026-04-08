@@ -5,8 +5,11 @@ import { Button, Text } from '@ui'
 
 import {
   useTaskBrowseData,
+  useTaskBrowseFiltersProps,
   useTaskBrowseLayout,
+  useTaskMapBindings,
 } from '../../context/TaskBrowseProvider'
+import { SearchThisAreaButton } from './SearchThisAreaButton'
 import { TaskBrowseFilters } from './TaskBrowseFilters'
 import { TaskList } from './TaskList'
 import { TaskMap } from './TaskMap'
@@ -15,32 +18,23 @@ import { SORT_OPTIONS } from './taskBrowseHelpers'
 const SINGLE_PANEL_BUTTON_LEFT_INSET = '1.25rem + min(420px, 38vw)'
 
 export function WebLayout() {
-  const { isFilterOpen, setIsFilterOpen, windowOffsetWidth } =
+  const { isFilterOpen, setIsFilterOpen, searchThisAreaUi, windowOffsetWidth } =
     useTaskBrowseLayout()
+  const mapBindings = useTaskMapBindings()
+  const filterProps = useTaskBrowseFiltersProps('compact')
   const {
     sort,
-    setSort,
     categories,
     selectedCategorySet,
-    toggleCategory,
     searchInput,
     setSearchInput,
     areaLocationInput,
     setAreaLocationInput,
     commitAreaLocationSearch,
     radiusMiles,
-    setRadiusMiles,
     minBudget,
-    setMinBudget,
     maxBudget,
-    setMaxBudget,
     urgency,
-    setUrgency,
-    searchCenterLat,
-    searchCenterLng,
-    effectiveMapTasksForBox,
-    confirmSearchThisAreaFromMap,
-    markMapReadyForQuery,
     selectedTaskId,
     setSelectedTaskId,
   } = useTaskBrowseData()
@@ -78,20 +72,9 @@ export function WebLayout() {
     <Box w="full" h="full">
       <Box position="absolute" inset={0} zIndex={0}>
         <TaskMap
-          accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-          centerLat={searchCenterLat}
-          centerLng={searchCenterLng}
-          radiusMiles={radiusMiles}
-          tasks={effectiveMapTasksForBox}
-          variant="fullscreen"
-          visible
-          tasksLoaded
+          {...mapBindings}
           leftViewportPadding={windowOffsetWidth}
-          onSearchThisAreaConfirm={confirmSearchThisAreaFromMap}
           searchAreaButtonLeftInset={SINGLE_PANEL_BUTTON_LEFT_INSET}
-          onMapClick={() => setIsFilterOpen(false)}
-          onReadyChange={markMapReadyForQuery}
-          selectedTaskId={selectedTaskId}
           onSelectTask={(taskId) => {
             setIsFilterOpen(false)
             setSelectedTaskId(taskId)
@@ -199,34 +182,23 @@ export function WebLayout() {
         <Box flex={1} minH={0} mb={6}>
           {isFilterOpen ? (
             <Box h="full" overflowY="auto" pr={{ base: 1, md: 0 }}>
-              <TaskBrowseFilters
-                categories={categories}
-                selectedCategories={selectedCategorySet}
-                onToggleCategory={toggleCategory}
-                searchQuery={searchInput}
-                onSearchChange={setSearchInput}
-                areaLocationInput={areaLocationInput}
-                onAreaLocationChange={setAreaLocationInput}
-                onAreaLocationCommit={commitAreaLocationSearch}
-                radiusMiles={radiusMiles}
-                onRadiusChange={setRadiusMiles}
-                minBudgetPounds={minBudget}
-                maxBudgetPounds={maxBudget}
-                onMinBudgetChange={setMinBudget}
-                onMaxBudgetChange={setMaxBudget}
-                urgency={urgency}
-                onUrgencyChange={setUrgency}
-                sortValue={sort}
-                sortOptions={SORT_OPTIONS}
-                onSortChange={setSort}
-                showMapPromo={false}
-                variant="compact"
-              />
+              <TaskBrowseFilters {...filterProps} />
             </Box>
           ) : (
             <TaskList />
           )}
         </Box>
+      </Box>
+
+      <Box
+        position="absolute"
+        bottom={6}
+        left={0}
+        right={0}
+        zIndex={3}
+        display="flex"
+      >
+        <SearchThisAreaButton {...searchThisAreaUi} />
       </Box>
     </Box>
   )

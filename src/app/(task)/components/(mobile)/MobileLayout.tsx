@@ -2,49 +2,34 @@
 
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react'
 import { Button } from '@ui'
-
+import { SearchThisAreaButton } from '../(web)/SearchThisAreaButton'
 import { TaskBrowseFilters } from '../(web)/TaskBrowseFilters'
 import { TaskMap } from '../(web)/TaskMap'
-import {
-  SORT_OPTIONS,
-  formatBudget,
-  inferBadge,
-} from '../(web)/taskBrowseHelpers'
+import { formatBudget, inferBadge } from '../(web)/taskBrowseHelpers'
 import {
   useTaskBrowseData,
+  useTaskBrowseFiltersProps,
   useTaskBrowseLayout,
+  useTaskMapBindings,
 } from '../../context/TaskBrowseProvider'
 import { MobileTaskCarousel } from './MobileTaskCarousel'
 
 export function MobileLayout() {
-  const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
+  const { isFilterOpen, setIsFilterOpen, searchThisAreaUi } =
+    useTaskBrowseLayout()
+  const mapBindings = useTaskMapBindings()
+  const filterProps = useTaskBrowseFiltersProps('compact')
   const {
-    sort,
-    setSort,
-    categories,
     selectedCategorySet,
-    toggleCategory,
-    searchInput,
-    setSearchInput,
     areaLocationInput,
     setAreaLocationInput,
     commitAreaLocationSearch,
     radiusMiles,
-    setRadiusMiles,
-    minBudget,
-    setMinBudget,
-    maxBudget,
-    setMaxBudget,
     urgency,
-    setUrgency,
-    searchCenterLat,
-    searchCenterLng,
-    effectiveMapTasksForBox,
-    confirmSearchThisAreaFromMap,
-    markMapReadyForQuery,
     selectedTaskId,
     setSelectedTaskId,
     pageItems,
+    categories,
   } = useTaskBrowseData()
 
   const mobileCards = pageItems.map((task) => {
@@ -62,7 +47,6 @@ export function MobileLayout() {
   })
 
   const activeFilterTags: string[] = []
-  if (areaLocationInput.trim()) activeFilterTags.push(areaLocationInput.trim())
   if (
     selectedCategorySet.size > 0 &&
     selectedCategorySet.size < categories.length
@@ -81,24 +65,8 @@ export function MobileLayout() {
   activeFilterTags.push(`${radiusMiles}mi`)
 
   return (
-    <Box w="full" h="full" borderRadius="2xl" overflow="hidden">
-      <TaskMap
-        accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-        centerLat={searchCenterLat}
-        centerLng={searchCenterLng}
-        radiusMiles={radiusMiles}
-        tasks={effectiveMapTasksForBox}
-        variant="fullscreen"
-        visible
-        tasksLoaded
-        leftViewportPadding={0}
-        onSearchThisAreaConfirm={confirmSearchThisAreaFromMap}
-        searchAreaButtonPosition="bottom"
-        onMapClick={() => setIsFilterOpen(false)}
-        onReadyChange={markMapReadyForQuery}
-        selectedTaskId={selectedTaskId}
-        onSelectTask={setSelectedTaskId}
-      />
+    <>
+      <TaskMap {...mapBindings} />
 
       <Box
         position="absolute"
@@ -166,32 +134,21 @@ export function MobileLayout() {
           zIndex={4}
           overflowY="auto"
         >
-          <TaskBrowseFilters
-            categories={categories}
-            selectedCategories={selectedCategorySet}
-            onToggleCategory={toggleCategory}
-            searchQuery={searchInput}
-            onSearchChange={setSearchInput}
-            areaLocationInput={areaLocationInput}
-            onAreaLocationChange={setAreaLocationInput}
-            onAreaLocationCommit={commitAreaLocationSearch}
-            radiusMiles={radiusMiles}
-            onRadiusChange={setRadiusMiles}
-            minBudgetPounds={minBudget}
-            maxBudgetPounds={maxBudget}
-            onMinBudgetChange={setMinBudget}
-            onMaxBudgetChange={setMaxBudget}
-            urgency={urgency}
-            onUrgencyChange={setUrgency}
-            sortValue={sort}
-            sortOptions={SORT_OPTIONS}
-            onSortChange={setSort}
-            showMapPromo={false}
-            variant="compact"
-          />
+          <TaskBrowseFilters {...filterProps} />
         </Box>
       ) : (
-        <Box position="absolute" left={0} right={0} bottom={0} zIndex={3}>
+        <Box
+          position="absolute"
+          left={0}
+          right={0}
+          bottom={20}
+          zIndex={3}
+          display="flex"
+          flexDirection="column"
+          gap={2}
+        >
+          <SearchThisAreaButton {...searchThisAreaUi} />
+
           <MobileTaskCarousel
             tasks={mobileCards}
             selectedTaskId={selectedTaskId}
@@ -199,6 +156,6 @@ export function MobileLayout() {
           />
         </Box>
       )}
-    </Box>
+    </>
   )
 }

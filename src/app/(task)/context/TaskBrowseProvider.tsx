@@ -17,7 +17,10 @@ import {
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
 
+import type { SearchThisAreaButtonProps } from '../components/(web)/SearchThisAreaButton'
 import type { UrgencyFilter } from '../components/(web)/TaskBrowseFilters'
+import type { TaskBrowseFiltersProps } from '../components/(web)/TaskBrowseFilters'
+import type { TaskMapProps } from '../components/(web)/TaskMap'
 import {
   PAGE_SIZE,
   SORT_OPTIONS,
@@ -59,7 +62,7 @@ type TaskBrowseDataContextValue = {
   commitAreaLocationSearch: () => void
   searchCenterLat: number
   searchCenterLng: number
-  confirmSearchThisAreaFromMap: (lat: number, lng: number) => void
+  confirmSearchThisAreaFromMap: (lat: number, lng: number, zoom: number) => void
   selectedTaskId: string | null
   setSelectedTaskId: (v: string | null) => void
   loading: boolean
@@ -89,6 +92,8 @@ type TaskBrowseLayoutContextValue = {
   isFilterOpen: boolean
   setIsFilterOpen: (v: boolean) => void
   windowOffsetWidth: number
+  searchThisAreaUi: SearchThisAreaButtonProps
+  setSearchThisAreaUi: (ui: SearchThisAreaButtonProps) => void
 }
 
 const TaskBrowseDataContext = createContext<TaskBrowseDataContextValue | null>(
@@ -99,6 +104,12 @@ const TaskBrowseLayoutContext =
 
 const DEFAULT_SEARCH_LAT = 51.5074
 const DEFAULT_SEARCH_LNG = -0.1278
+
+function zoomToRadiusMiles(zoom: number): number {
+  const normalized = Number.isFinite(zoom) ? zoom : 11
+  const miles = 10 * 2 ** (11 - normalized)
+  return Math.min(500, Math.max(1, Math.round(miles)))
+}
 
 type TaskBrowseProviderProps = {
   children: React.ReactNode
@@ -115,6 +126,15 @@ export function TaskBrowseProvider({
   const hasMapboxToken = Boolean(mapboxToken?.trim())
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [searchThisAreaUi, setSearchThisAreaUi] =
+    useState<SearchThisAreaButtonProps>({
+      visible: false,
+      enabled: false,
+      position: 'bottom',
+      leftInset: undefined,
+      offsetX: '0px',
+      onClick: () => {},
+    })
   const [sort, setSort] = useState<string>('nearest')
   const [page, setPage] = useState(0)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
@@ -306,8 +326,9 @@ export function TaskBrowseProvider({
   }, [])
 
   const confirmSearchThisAreaFromMap = useCallback(
-    (lat: number, lng: number) => {
+    (lat: number, lng: number, zoom: number) => {
       setSearchCenter(lat, lng)
+      setRadiusMiles(zoomToRadiusMiles(zoom))
       const token = mapboxToken?.trim()
       if (token) {
         void mapboxReverseGeocode(lat, lng, token).then((name) => {
@@ -428,8 +449,10 @@ export function TaskBrowseProvider({
       isFilterOpen,
       setIsFilterOpen,
       windowOffsetWidth: isDesktop ? 540 : 80,
+      searchThisAreaUi,
+      setSearchThisAreaUi,
     }),
-    [isDesktop, isFilterOpen],
+    [isDesktop, isFilterOpen, searchThisAreaUi],
   )
 
   return (
@@ -457,4 +480,70 @@ export function useTaskBrowseLayout() {
     )
   }
   return ctx
+}
+
+export function useTaskBrowseFiltersProps(
+  variant: 'default' | 'compact' = 'compact',
+): TaskBrowseFiltersProps {
+  const data = useTaskBrowseData()
+  return {
+    categories: data.categories,
+    selectedCategories: data.selectedCategorySet,
+    onToggleCategory: data.toggleCategory,
+    searchQuery: data.searchInput,
+    onSearchChange: data.setSearchInput,
+    areaLocationInput: data.areaLocationInput,
+    onAreaLocationChange: data.setAreaLocationInput,
+    onAreaLocationCommit: data.commitAreaLocationSearch,
+    radiusMiles: data.radiusMiles,
+    onRadiusChange: data.setRadiusMiles,
+    minBudgetPounds: data.minBudget,
+    maxBudgetPounds: data.maxBudget,
+    onMinBudgetChange: data.setMinBudget,
+    onMaxBudgetChange: data.setMaxBudget,
+    urgency: data.urgency,
+    onUrgencyChange: data.setUrgency,
+    sortValue: data.sort,
+    sortOptions: SORT_OPTIONS,
+    onSortChange: data.setSort,
+    showMapPromo: false,
+    variant,
+  }
+}
+
+type SharedTaskMapBindings = Pick<
+  TaskMapProps,
+  | 'accessToken'
+  | 'centerLat'
+  | 'centerLng'
+  | 'radiusMiles'
+  | 'tasks'
+  | 'visible'
+  | 'tasksLoaded'
+  | 'onSearchThisAreaConfirm'
+  | 'onMapClick'
+  | 'onReadyChange'
+  | 'selectedTaskId'
+  | 'onSelectTask'
+  | 'onSearchThisAreaUiChange'
+>
+
+export function useTaskMapBindings(): SharedTaskMapBindings {
+  const data = useTaskBrowseData()
+  const layout = useTaskBrowseLayout()
+  return {
+    accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN,
+    centerLat: data.searchCenterLat,
+    centerLng: data.searchCenterLng,
+    radiusMiles: data.radiusMiles,
+    tasks: data.effectiveMapTasksForBox,
+    visible: true,
+    tasksLoaded: true,
+    onSearchThisAreaConfirm: data.confirmSearchThisAreaFromMap,
+    onMapClick: () => layout.setIsFilterOpen(false),
+    onReadyChange: data.markMapReadyForQuery,
+    selectedTaskId: data.selectedTaskId,
+    onSelectTask: data.setSelectedTaskId,
+    onSearchThisAreaUiChange: layout.setSearchThisAreaUi,
+  }
 }
