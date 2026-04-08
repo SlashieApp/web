@@ -4,8 +4,11 @@ import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
+import {
+  DashboardDataProvider,
+  useDashboardData,
+} from '@/app/dashboard/context'
 import { clearAuthToken } from '@/utils/auth'
-import { DashboardDataProvider, useDashboardData } from '@context/dashboard'
 import {
   Button,
   type DashboardNavKey,

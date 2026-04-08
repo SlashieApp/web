@@ -3,8 +3,8 @@
 import { Grid, HStack, Link, SimpleGrid, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { useDashboardData } from '@/app/dashboard/context'
 import { formatPounds } from '@/utils/dashboardHelpers'
-import { useDashboardData } from '@context/dashboard'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 
 function MetricCard({

@@ -3,7 +3,8 @@
 import { Box, HStack, Stack } from '@chakra-ui/react'
 import { useSelectedLayoutSegment } from 'next/navigation'
 
-import { LoginMarketingPanel, RegisterMarketingPanel } from '@ui'
+import { LoginMarketingPanel } from './components/LoginMarketingPanel'
+import { RegisterMarketingPanel } from './components/RegisterMarketingPanel'
 
 export default function AuthLayout({
   children,

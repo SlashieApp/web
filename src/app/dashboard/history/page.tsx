@@ -2,8 +2,8 @@
 
 import { Grid, HStack, Stack } from '@chakra-ui/react'
 
+import { useDashboardData } from '@/app/dashboard/context'
 import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
-import { useDashboardData } from '@context/dashboard'
 import { Badge, GlassCard, Heading, Text } from '@ui'
 
 export default function DashboardHistoryPage() {

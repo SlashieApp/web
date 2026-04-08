@@ -22,12 +22,12 @@ export function Footer() {
       borderColor="border"
       bg="surfaceContainerLowest"
     >
-      <Container py={{ base: 8, md: 10 }}>
+      <Container py={{ base: 4, md: 5 }}>
         <Stack
           direction={{ base: 'column', md: 'row' }}
           align={{ base: 'flex-start', md: 'center' }}
           justify="space-between"
-          gap={5}
+          gap={3}
         >
           <Stack gap={1}>
             <Text fontWeight={700}>HandyBox</Text>

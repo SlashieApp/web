@@ -59,7 +59,6 @@ export type HeaderActiveItem =
   | 'none'
 
 export type HeaderProps = {
-  float?: boolean
   /** When omitted and `children` is omitted, renders the default site navigation. */
   activeItem?: HeaderActiveItem
   children?: React.ReactNode
@@ -98,9 +97,7 @@ function SiteNavigation() {
           <Link as={NextLink} href="/" {...navLinkProps}>
             Browse tasks
           </Link>
-          <Link as={NextLink} href="/#how-it-works" {...navLinkProps}>
-            How it works
-          </Link>
+
           {isLoggedIn ? (
             <>
               <Link as={NextLink} href="/quotes" {...navLinkProps}>
@@ -180,7 +177,6 @@ function SiteNavigation() {
 }
 
 export function Header({
-  float = false,
   activeItem: _activeItem = 'none',
   children,
   ...props
@@ -188,7 +184,6 @@ export function Header({
   return (
     <Box
       as="header"
-      position={float ? 'fixed' : 'relative'}
       top={2}
       left={2}
       right={24}

@@ -4,13 +4,13 @@ import { Grid, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { WorkerAccessGate } from '@/app/dashboard/_components/WorkerAccessGate'
+import { useDashboardData } from '@/app/dashboard/context'
 import {
   formatPounds,
   formatRelativePosted,
   getCategoryVisual,
   isOfferAwarded,
 } from '@/utils/dashboardHelpers'
-import { useDashboardData } from '@context/dashboard'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 
 function QuoteMetric({

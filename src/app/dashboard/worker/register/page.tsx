@@ -10,12 +10,12 @@ import {
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { useDashboardData } from '@/app/dashboard/context'
 import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
 import {
   DASHBOARD_TRADE_OPTIONS,
   type DashboardTrade,
 } from '@/utils/dashboardTypes'
-import { useDashboardData } from '@context/dashboard'
 import { Badge, Button, GlassCard, Heading, Text, TextInput } from '@ui'
 
 export default function WorkerRegistrationPage() {
