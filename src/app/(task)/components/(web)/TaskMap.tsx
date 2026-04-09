@@ -4,8 +4,6 @@ import { Box, Text } from '@chakra-ui/react'
 import type { GeoJSONSource, Map as MapboxMap, Marker, Popup } from 'mapbox-gl'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
-
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 export type TaskMapTask = {
@@ -37,24 +35,12 @@ export type TaskMapProps = {
   tasksLoaded?: boolean
   /** Extra left padding (px) for fitBounds in fullscreen (floating list panel). */
   leftViewportPadding?: number
-  /** Called when the user taps “Search this area” after panning the map. */
-  onSearchThisAreaConfirm?: (lat: number, lng: number, zoom: number) => void
-  /**
-   * Horizontal inset of the left task list (margin + width). When set, the
-   * button is centered in the map pane: `calc(50% + ${inset} / 2)`.
-   */
-  searchAreaButtonLeftInset?: string
-  /** Position of the “Search this area” button overlay. */
-  searchAreaButtonPosition?: 'top' | 'bottom'
-  /** Horizontal offset applied from the centered button anchor. */
-  searchAreaButtonOffsetX?: string
   /** Called when the base map surface is clicked. */
   onMapClick?: () => void
   /** Emits map style readiness state for parent loading orchestration. */
   onReadyChange?: (ready: boolean) => void
   selectedTaskId?: string | null
-  onSelectTask?: (taskId: string) => void
-  onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
+  onSelectTask?: (taskId: string | null) => void
 }
 
 function bumpMapResize(map: MapboxMap) {
@@ -84,21 +70,6 @@ function milesToLngDegrees(miles: number, atLatDeg: number) {
   return miles / denom
 }
 
-function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
-  const toRad = (d: number) => (d * Math.PI) / 180
-  const R = 3958.8
-  const dLat = toRad(lat2 - lat1)
-  const dLng = toRad(lng2 - lng1)
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return R * c
-}
-
 function circlePolygonRing(
   centerLng: number,
   centerLat: number,
@@ -115,30 +86,6 @@ function circlePolygonRing(
   return ring
 }
 
-function radiusFeature(
-  centerLng: number,
-  centerLat: number,
-  radiusMiles: number,
-) {
-  const ring = circlePolygonRing(centerLng, centerLat, radiusMiles)
-  return {
-    type: 'Feature' as const,
-    properties: {},
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [ring],
-    },
-  }
-}
-
-function escapeHtml(s: string) {
-  return s
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-}
-
 const POPUP_DESC_MAX = 240
 
 function truncateDescription(text: string, max: number): string {
@@ -147,8 +94,8 @@ function truncateDescription(text: string, max: number): string {
   return `${t.slice(0, Math.max(0, max - 1)).trim()}…`
 }
 
-/** Shared HTML for hover + selected task popup (Mapbox `.setHTML`). */
-function buildTaskPopupHtml(task: TaskMapTask): string {
+/** Shared popup DOM for hover + selected task popup (Mapbox `.setDOMContent`). */
+function buildTaskPopupContent(task: TaskMapTask): HTMLDivElement {
   const loc = (task.location ?? '').trim() || 'Location on map'
   const detail = (task.detailLine ?? '').trim()
   const cat = (task.category ?? '').trim()
@@ -156,18 +103,90 @@ function buildTaskPopupHtml(task: TaskMapTask): string {
   const desc =
     rawDesc.length > 0 ? truncateDescription(rawDesc, POPUP_DESC_MAX) : ''
 
-  const cta = `<a href="/task/${escapeHtml(task.id)}" style="display:inline-block;margin-top:12px;padding:9px 16px;background:linear-gradient(95deg,#003fb1 0%,#1a56db 100%);color:#fff;text-decoration:none;border-radius:999px;font-weight:600;font-size:13px;box-shadow:0 1px 4px rgba(15,23,42,0.2);">View details</a>`
+  const root = document.createElement('div')
+  Object.assign(root.style, {
+    padding: '10px 6px 6px',
+    minWidth: '220px',
+    maxWidth: '320px',
+    fontFamily: 'system-ui,-apple-system,sans-serif',
+    fontSize: '13px',
+    lineHeight: '1.4',
+  })
 
-  return `
-    <div style="padding:8px 4px 4px;min-width:200px;max-width:300px;font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.4;">
-      ${cat ? `<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748b;margin-bottom:4px;">${escapeHtml(cat)}</div>` : ''}
-      <div style="font-weight:700;color:#0f172a;margin-bottom:6px;font-size:14px;">${escapeHtml(task.title)}</div>
-      <div style="color:#64748b;font-size:12px;margin-bottom:4px;">${escapeHtml(loc)}</div>
-      ${detail ? `<div style="color:#1e293b;font-size:12px;font-weight:600;margin-bottom:6px;">${escapeHtml(detail)}</div>` : ''}
-      ${desc ? `<div style="color:#475569;font-size:12px;line-height:1.45;">${escapeHtml(desc)}</div>` : ''}
-      ${cta}
-    </div>
-  `
+  if (cat) {
+    const catEl = document.createElement('div')
+    catEl.textContent = cat
+    Object.assign(catEl.style, {
+      fontSize: '10px',
+      fontWeight: '700',
+      letterSpacing: '0.06em',
+      textTransform: 'uppercase',
+      color: '#64748b',
+      marginBottom: '4px',
+    })
+    root.appendChild(catEl)
+  }
+
+  const titleEl = document.createElement('div')
+  titleEl.textContent = task.title
+  Object.assign(titleEl.style, {
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: '6px',
+    fontSize: '14px',
+  })
+  root.appendChild(titleEl)
+
+  const locEl = document.createElement('div')
+  locEl.textContent = loc
+  Object.assign(locEl.style, {
+    color: '#64748b',
+    fontSize: '12px',
+    marginBottom: '4px',
+  })
+  root.appendChild(locEl)
+
+  if (detail) {
+    const detailEl = document.createElement('div')
+    detailEl.textContent = detail
+    Object.assign(detailEl.style, {
+      color: '#1e293b',
+      fontSize: '12px',
+      fontWeight: '600',
+      marginBottom: '6px',
+    })
+    root.appendChild(detailEl)
+  }
+
+  if (desc) {
+    const descEl = document.createElement('div')
+    descEl.textContent = desc
+    Object.assign(descEl.style, {
+      color: '#475569',
+      fontSize: '12px',
+      lineHeight: '1.45',
+    })
+    root.appendChild(descEl)
+  }
+
+  const cta = document.createElement('a')
+  cta.href = `/task/${task.id}`
+  cta.textContent = 'View details'
+  Object.assign(cta.style, {
+    display: 'inline-block',
+    marginTop: '14px',
+    padding: '9px 16px',
+    background: 'linear-gradient(95deg,#003fb1 0%,#1a56db 100%)',
+    color: '#fff',
+    textDecoration: 'none',
+    borderRadius: '999px',
+    fontWeight: '600',
+    fontSize: '13px',
+    boxShadow: '0 1px 4px rgba(15,23,42,0.2)',
+  })
+  root.appendChild(cta)
+
+  return root
 }
 
 /** GraphQL / JSON often returns coordinates as strings; Mapbox needs finite numbers. */
@@ -204,6 +223,7 @@ function taskMarkerElement(
 ): {
   el: HTMLButtonElement
   setSelected: (v: boolean) => void
+  setPopupVisible: (v: boolean) => void
 } {
   const btn = document.createElement('button')
   btn.type = 'button'
@@ -246,7 +266,10 @@ function taskMarkerElement(
 
   pill.textContent = pinPriceText(task)
 
-  const apply = (isSel: boolean) => {
+  let isSelected = selected
+  let isPopupVisible = false
+  const apply = () => {
+    const isSel = isSelected
     const dotPx = isSel ? 30 : 26
     Object.assign(pill.style, {
       display: 'inline-block',
@@ -263,6 +286,14 @@ function taskMarkerElement(
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       border: isSel ? '2px solid #ea580c' : '1px solid rgba(226,232,240,0.9)',
+      opacity: isPopupVisible ? '0' : '1',
+      transform: isPopupVisible
+        ? 'translateY(4px) scale(0.94)'
+        : 'translateY(0) scale(1)',
+      transformOrigin: 'center bottom',
+      pointerEvents: isPopupVisible ? 'none' : 'auto',
+      transition:
+        'opacity 0.18s ease, transform 0.18s ease, border-color 0.15s ease, box-shadow 0.15s ease',
     })
     Object.assign(ring.style, {
       display: 'flex',
@@ -277,16 +308,26 @@ function taskMarkerElement(
       boxShadow: isSel
         ? '0 2px 10px rgba(234,88,12,0.45)'
         : '0 1px 4px rgba(0,0,0,0.25)',
+      transform: isPopupVisible
+        ? 'translateY(-2px) scale(1.05)'
+        : 'translateY(0) scale(1)',
       transition:
-        'width 0.15s ease, height 0.15s ease, background 0.15s ease, box-shadow 0.15s ease',
+        'width 0.15s ease, height 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.18s ease',
     })
   }
 
-  apply(selected)
+  apply()
 
   return {
     el: btn,
-    setSelected: (v: boolean) => apply(v),
+    setSelected: (v: boolean) => {
+      isSelected = v
+      apply()
+    },
+    setPopupVisible: (v: boolean) => {
+      isPopupVisible = v
+      apply()
+    },
   }
 }
 
@@ -299,15 +340,10 @@ export function TaskMap({
   visible = true,
   tasksLoaded = true,
   leftViewportPadding = 48,
-  onSearchThisAreaConfirm,
-  searchAreaButtonLeftInset,
-  searchAreaButtonPosition = 'bottom',
-  searchAreaButtonOffsetX = '0px',
   onMapClick,
   onReadyChange,
   selectedTaskId = null,
   onSelectTask,
-  onSearchThisAreaUiChange,
 }: TaskMapProps) {
   const selectTaskRef = useRef(onSelectTask)
   selectTaskRef.current = onSelectTask
@@ -318,20 +354,35 @@ export function TaskMap({
   const mapRef = useRef<MapboxMap | null>(null)
   const mapboxRef = useRef<typeof import('mapbox-gl')['default'] | null>(null)
   const markersRef = useRef<
-    { marker: Marker; taskId: string; setSelected: (v: boolean) => void }[]
+    {
+      marker: Marker
+      taskId: string
+      setSelected: (v: boolean) => void
+      setPopupVisible: (v: boolean) => void
+    }[]
   >([])
   const taskPopupRef = useRef<Popup | null>(null)
+  const popupTaskIdRef = useRef<string | null>(null)
+  const popupOpenReasonRef = useRef<'hover' | 'active' | null>(null)
   const [mapReady, setMapReady] = useState(false)
-  const [showSearchThisArea, setShowSearchThisArea] = useState(false)
   const prevTasksSigRef = useRef<string>('')
-  const moveEndDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pendingViewRef = useRef<{ lat: number; lng: number } | null>(null)
   const programmaticMoveRef = useRef(false)
-  const suppressSearchPromptUntilRef = useRef(0)
   const didApplyStartupOffsetRef = useRef(false)
 
   const attachTaskPopup = useCallback(
-    (map: MapboxMap, task: TaskMapTask, lng: number, lat: number) => {
+    (
+      map: MapboxMap,
+      task: TaskMapTask,
+      lng: number,
+      lat: number,
+      reason: 'hover' | 'active',
+    ) => {
+      const setPopupMarker = (taskId: string | null) => {
+        popupTaskIdRef.current = taskId
+        for (const row of markersRef.current) {
+          row.setPopupVisible(row.taskId === taskId)
+        }
+      }
       const mapbox = mapboxRef.current
       if (!mapbox) return
       taskPopupRef.current?.remove()
@@ -344,8 +395,44 @@ export function TaskMap({
         className: 'task-browse-map-popup',
       })
         .setLngLat([lng, lat])
-        .setHTML(buildTaskPopupHtml(task))
+        .setDOMContent(buildTaskPopupContent(task))
         .addTo(map)
+      const popupEl = popup.getElement()
+      if (popupEl) {
+        const contentEl = popupEl.querySelector('.mapboxgl-popup-content')
+        if (contentEl instanceof HTMLElement) {
+          Object.assign(contentEl.style, {
+            borderRadius: '14px',
+            padding: '10px 12px 8px',
+            boxShadow: '0 10px 28px rgba(15,23,42,0.22)',
+            border: '1px solid rgba(226,232,240,0.95)',
+          })
+        }
+        const closeEl = popupEl.querySelector('.mapboxgl-popup-close-button')
+        if (closeEl instanceof HTMLElement) {
+          Object.assign(closeEl.style, {
+            top: '6px',
+            right: '6px',
+            width: '26px',
+            height: '26px',
+            borderRadius: '999px',
+            lineHeight: '26px',
+            fontSize: '16px',
+            color: '#334155',
+            background: '#f8fafc',
+          })
+        }
+      }
+      setPopupMarker(task.id)
+      popupOpenReasonRef.current = reason
+      popup.on('close', () => {
+        const wasActivePopup = popupOpenReasonRef.current === 'active'
+        if (popupTaskIdRef.current === task.id) setPopupMarker(null)
+        if (popupTaskIdRef.current === task.id)
+          popupOpenReasonRef.current = null
+        if (taskPopupRef.current === popup) taskPopupRef.current = null
+        if (wasActivePopup) selectTaskRef.current?.(null)
+      })
       taskPopupRef.current = popup
     },
     [],
@@ -389,29 +476,6 @@ export function TaskMap({
 
       map.on('load', () => {
         if (cancelled) return
-        map.addSource('search-radius', {
-          type: 'geojson',
-          data: radiusFeature(centerLng, centerLat, radiusMiles),
-        })
-        map.addLayer({
-          id: 'search-radius-fill',
-          type: 'fill',
-          source: 'search-radius',
-          paint: {
-            'fill-color': '#1A56DB',
-            'fill-opacity': 0.08,
-          },
-        })
-        map.addLayer({
-          id: 'search-radius-line',
-          type: 'line',
-          source: 'search-radius',
-          paint: {
-            'line-color': '#1A56DB',
-            'line-width': 2,
-            'line-opacity': 0.35,
-          },
-        })
         bumpMapResize(map)
         setMapReady(true)
       })
@@ -429,14 +493,6 @@ export function TaskMap({
       mapRef.current = null
     }
   }, [accessToken])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map?.isStyleLoaded()) return
-
-    const source = map.getSource('search-radius') as GeoJSONSource | undefined
-    source?.setData(radiusFeature(centerLng, centerLat, radiusMiles))
-  }, [mapReady, centerLat, centerLng, radiusMiles])
 
   useEffect(() => {
     const map = mapRef.current
@@ -465,51 +521,6 @@ export function TaskMap({
       programmaticMoveRef.current = false
     })
   }, [mapReady, centerLat, centerLng, leftViewportPadding])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map?.isStyleLoaded()) return
-    const c = map.getCenter()
-    if (
-      Math.abs(c.lat - centerLat) < 8e-5 &&
-      Math.abs(c.lng - centerLng) < 8e-5
-    ) {
-      setShowSearchThisArea(false)
-      pendingViewRef.current = null
-    }
-  }, [mapReady, centerLat, centerLng])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map || !onSearchThisAreaConfirm) return
-
-    const run = () => {
-      if (moveEndDebounceRef.current) clearTimeout(moveEndDebounceRef.current)
-      moveEndDebounceRef.current = setTimeout(() => {
-        if (programmaticMoveRef.current) return
-        if (Date.now() < suppressSearchPromptUntilRef.current) {
-          setShowSearchThisArea(false)
-          return
-        }
-        const c = map.getCenter()
-        const movedOutsideSearchArea =
-          distanceMiles(centerLat, centerLng, c.lat, c.lng) > radiusMiles
-        if (movedOutsideSearchArea) {
-          pendingViewRef.current = { lat: c.lat, lng: c.lng }
-          setShowSearchThisArea(true)
-        } else {
-          pendingViewRef.current = null
-          setShowSearchThisArea(false)
-        }
-      }, 400)
-    }
-
-    map.on('moveend', run)
-    return () => {
-      map.off('moveend', run)
-      if (moveEndDebounceRef.current) clearTimeout(moveEndDebounceRef.current)
-    }
-  }, [mapReady, centerLat, centerLng, radiusMiles, onSearchThisAreaConfirm])
 
   useEffect(() => {
     const map = mapRef.current
@@ -565,6 +576,7 @@ export function TaskMap({
 
       taskPopupRef.current?.remove()
       taskPopupRef.current = null
+      popupTaskIdRef.current = null
       for (const { marker } of markersRef.current) marker.remove()
       markersRef.current = []
 
@@ -580,7 +592,10 @@ export function TaskMap({
         if (!current?.isStyleLoaded() || !mapboxRef.current) return
 
         for (const { task, lat, lng } of withCoords) {
-          const { el, setSelected } = taskMarkerElement(task, false)
+          const { el, setSelected, setPopupVisible } = taskMarkerElement(
+            task,
+            false,
+          )
           el.setAttribute(
             'aria-label',
             `${task.title}, ${pinPriceText(task)}. Select to highlight in list.`,
@@ -593,12 +608,16 @@ export function TaskMap({
           let enterTimer: ReturnType<typeof setTimeout> | undefined
           el.addEventListener('mouseenter', () => {
             enterTimer = setTimeout(() => {
-              attachTaskPopup(current, task, lng, lat)
+              attachTaskPopup(current, task, lng, lat, 'hover')
             }, 120)
           })
           el.addEventListener('mouseleave', () => {
             if (enterTimer) clearTimeout(enterTimer)
             if (selectedTaskIdRef.current === task.id) return
+            const popupOpenedByHover =
+              popupOpenReasonRef.current === 'hover' &&
+              popupTaskIdRef.current === task.id
+            if (!popupOpenedByHover) return
             taskPopupRef.current?.remove()
             taskPopupRef.current = null
           })
@@ -609,7 +628,12 @@ export function TaskMap({
           })
             .setLngLat([lng, lat])
             .addTo(current)
-          markersRef.current.push({ marker, taskId: task.id, setSelected })
+          markersRef.current.push({
+            marker,
+            taskId: task.id,
+            setSelected,
+            setPopupVisible,
+          })
         }
 
         const sig = withCoords
@@ -682,6 +706,9 @@ export function TaskMap({
 
     taskPopupRef.current?.remove()
     taskPopupRef.current = null
+    popupTaskIdRef.current = null
+    popupOpenReasonRef.current = null
+    for (const row of markersRef.current) row.setPopupVisible(false)
     if (!selectedTaskId) return
 
     const task = tasks.find((t) => t.id === selectedTaskId)
@@ -690,11 +717,9 @@ export function TaskMap({
       return
     }
 
-    attachTaskPopup(map, task, ll.lng, ll.lat)
+    attachTaskPopup(map, task, ll.lng, ll.lat, 'active')
     bumpMapResize(map)
     programmaticMoveRef.current = true
-    suppressSearchPromptUntilRef.current = Date.now() + 2000
-    setShowSearchThisArea(false)
     map.flyTo({
       center: [ll.lng, ll.lat],
       zoom: Math.max(map.getZoom(), 13.5),
@@ -741,35 +766,6 @@ export function TaskMap({
       </Box>
     )
   }
-
-  const handleSearchThisAreaClick = useCallback(() => {
-    const p = pendingViewRef.current
-    if (!p || !onSearchThisAreaConfirm) return
-    const zoom = mapRef.current?.getZoom() ?? 11
-    onSearchThisAreaConfirm(p.lat, p.lng, zoom)
-    setShowSearchThisArea(false)
-    pendingViewRef.current = null
-  }, [onSearchThisAreaConfirm])
-
-  useEffect(() => {
-    onSearchThisAreaUiChange?.({
-      visible: showSearchThisArea && visible,
-      enabled: Boolean(onSearchThisAreaConfirm),
-      position: searchAreaButtonPosition,
-      leftInset: searchAreaButtonLeftInset,
-      offsetX: searchAreaButtonOffsetX,
-      onClick: handleSearchThisAreaClick,
-    })
-  }, [
-    onSearchThisAreaUiChange,
-    showSearchThisArea,
-    visible,
-    onSearchThisAreaConfirm,
-    searchAreaButtonPosition,
-    searchAreaButtonLeftInset,
-    searchAreaButtonOffsetX,
-    handleSearchThisAreaClick,
-  ])
 
   return (
     <Box

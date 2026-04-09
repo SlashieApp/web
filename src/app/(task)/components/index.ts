@@ -15,6 +15,7 @@ export {
 } from './(web)/taskBrowseHelpers'
 export { MobileLayout } from './(mobile)/MobileLayout'
 export { MobileTaskCarousel } from './(mobile)/MobileTaskCarousel'
+export { SearchThisAreaButton } from './(web)/SearchThisAreaButton'
 export { TaskBrowseFilters } from './(web)/TaskBrowseFilters'
 export { TaskBrowseListItem } from './(web)/TaskBrowseListItem'
 export { TaskList } from './(web)/TaskList'
@@ -26,6 +27,7 @@ export type {
   TaskBrowseListItemProps,
 } from './(web)/TaskBrowseListItem'
 export type { MobileTaskCarouselProps } from './(mobile)/MobileTaskCarousel'
+export type { SearchThisAreaButtonProps } from './(web)/SearchThisAreaButton'
 export type {
   TaskBrowseFiltersProps,
   UrgencyFilter,
