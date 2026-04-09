@@ -45,3 +45,30 @@ HandyBox is a high-trust marketplace connecting homeowners with local handyman p
 
 - Implement and iterate the redesign page-by-page, starting from homepage flows.
 - Keep UX aligned to Stitch design output while preserving role-based app behavior.
+
+## Cursor Cloud specific instructions
+
+### Architecture
+
+Single Next.js 16 frontend app (no local backend/DB). All data comes from an external GraphQL API. Standard dev commands are documented in `README.md` § Setup / Run / Lint.
+
+### Key gotchas
+
+- **Bun is the package manager.** The lockfile is `bun.lock`. Always use `bun install` and `bun run <script>`.
+- **`lefthook install` fails** if `core.hooksPath` is set by the agent environment. Use `bun install --ignore-scripts` when you only need dependencies, then run `lefthook install --force` separately if git hooks are needed.
+- **`.codegen/schema.ts` is gitignored** and the `.codegen/` directory ships empty. The remote codegen endpoint requires an `apollo-require-preflight` header that the current `codegen.ts` config does not send, so `bun run codegen` may fail with a CSRF error. Workaround: restore the schema from git history (`git show 7c39d98:.codegen/schema.ts > .codegen/schema.ts`). When codegen is fixed upstream, prefer running `bun run codegen`.
+- **`.env` is gitignored.** The update script recreates it from injected environment secrets (`NEXT_PUBLIC_GRAPHQL_URL`, `SCHEMA_ACCESS_TOKEN`, `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`). See `.env.example` for the full list.
+- **`bun run dev`** runs `exports-gen` (barrel file generation) automatically before starting Next.js, so you don't need to run it separately for dev.
+- **`bun run lint`** runs Biome with `--write` (auto-fix + format). It modifies files in place.
+
+### Running services
+
+| Service | Command | Port |
+|---------|---------|------|
+| Next.js dev | `bun run dev` | 3000 |
+| Storybook | `bun run storybook` | 6006 |
+
+### Testing
+
+- Vitest + Playwright for Storybook-driven browser tests (run via `npx vitest` or through Storybook addon).
+- No standalone backend tests — this is a frontend-only codebase.
