@@ -1,4 +1,4 @@
-# HandyBox (web MVP)
+# Slashie (web)
 
 Next.js front end for a local task marketplace: task hunters browse open work on the home page; customers post tasks and review quotes; workers run quotes and earnings from the dashboard. Backed by a GraphQL API.
 

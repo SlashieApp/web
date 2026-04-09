@@ -113,7 +113,7 @@ function SiteNavigation() {
       >
         <Heading size="md" flexShrink={0}>
           <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
-            HandyBox
+            Slashie
           </Link>
         </Heading>
 

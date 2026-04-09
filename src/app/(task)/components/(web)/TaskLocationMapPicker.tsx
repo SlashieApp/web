@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Map as MapboxMap } from 'mapbox-gl'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -8,7 +8,7 @@ import {
   mapboxForwardGeocode,
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
-import { FormField, TextInput } from '@ui'
+import { TextInput } from '@ui'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -46,9 +46,6 @@ export function TaskLocationMapPicker({
   const moveEndCountRef = useRef(0)
   const moveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const locationGeocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  )
-  const coordGeocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   )
 
@@ -112,7 +109,6 @@ export function TaskLocationMapPicker({
     }
   }, [accessToken, onLocationLatChange, onLocationLngChange])
 
-  // Sync map center when coordinates are edited via text fields (or external reset).
   useEffect(() => {
     const map = mapRef.current
     if (!mapReady || !map?.isStyleLoaded()) return
@@ -144,8 +140,6 @@ export function TaskLocationMapPicker({
         }
 
         moveEndCountRef.current += 1
-        // Skip reverse on the first moveend (Mapbox often fires after load);
-        // keep the address field empty until the user pans/zooms or searches.
         if (moveEndCountRef.current < 2) return
 
         void mapboxReverseGeocode(c.lat, c.lng, accessToken).then((name) => {
@@ -171,8 +165,6 @@ export function TaskLocationMapPicker({
     return () => {
       if (locationGeocodeTimerRef.current)
         clearTimeout(locationGeocodeTimerRef.current)
-      if (coordGeocodeTimerRef.current)
-        clearTimeout(coordGeocodeTimerRef.current)
     }
   }, [])
 
@@ -209,24 +201,6 @@ export function TaskLocationMapPicker({
     }, 600)
   }
 
-  const suggestFromCoordFields = useCallback(() => {
-    if (!accessToken?.trim()) return
-    const lat = parseCoordString(locationLat)
-    const lng = parseCoordString(locationLng)
-    if (lat == null || lng == null) return
-    skipReverseAfterForwardRef.current = true
-    applyCenter(lat, lng)
-    void mapboxReverseGeocode(lat, lng, accessToken).then((name) => {
-      if (name) onLocationChange(name)
-    })
-  }, [accessToken, applyCenter, locationLat, locationLng, onLocationChange])
-
-  const coordSummary =
-    parseCoordString(locationLat) != null &&
-    parseCoordString(locationLng) != null
-      ? `${locationLat.trim()}, ${locationLng.trim()}`
-      : '—'
-
   const token = accessToken?.trim()
 
   return (
@@ -244,6 +218,20 @@ export function TaskLocationMapPicker({
         {token ? (
           <>
             <Box ref={containerRef} w="full" h="full" aria-hidden />
+            <Box position="absolute" left={3} right={3} top={3} zIndex={2}>
+              <TextInput
+                value={location}
+                onChange={(e) => onLocationInputChange(e.target.value)}
+                placeholder="Search for your location..."
+                bg="surfaceContainerLowest/95"
+                backdropFilter="blur(8px)"
+                borderWidth="1px"
+                borderColor="border"
+                borderRadius="lg"
+                boxShadow="sm"
+                aria-label="Search for your location"
+              />
+            </Box>
             <Box
               pointerEvents="none"
               position="absolute"
@@ -287,7 +275,8 @@ export function TaskLocationMapPicker({
               textAlign="center"
               pointerEvents="none"
             >
-              Drag the map to place the pin — the centre is your task location.
+              Drag the map or search — the pin marks where workers will find
+              your task.
             </Text>
           </>
         ) : (
@@ -303,61 +292,17 @@ export function TaskLocationMapPicker({
               <Text as="span" fontWeight={700} color="fg">
                 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
               </Text>{' '}
-              to pick a location on the map. You can still enter an address or
-              coordinates below.
+              to pick a location on the map.
             </Text>
           </Box>
         )}
       </Box>
 
-      <FormField
-        label="Address or place name"
-        helperText="Search updates the map and suggested coordinates. Coordinates: use decimal degrees (shown when you move the map)."
-      >
-        <TextInput
-          value={location}
-          onChange={(e) => onLocationInputChange(e.target.value)}
-          placeholder="e.g. Hackney, London"
-        />
-      </FormField>
-
-      <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
-        <FormField
-          label="Latitude"
-          helperText={`Suggested from search / map: ${coordSummary}`}
-        >
-          <TextInput
-            type="text"
-            inputMode="decimal"
-            value={locationLat}
-            onChange={(e) => onLocationLatChange(e.target.value)}
-            onBlur={() => {
-              if (coordGeocodeTimerRef.current)
-                clearTimeout(coordGeocodeTimerRef.current)
-              coordGeocodeTimerRef.current = setTimeout(() => {
-                suggestFromCoordFields()
-              }, 200)
-            }}
-            placeholder="e.g. 51.5074"
-          />
-        </FormField>
-        <FormField label="Longitude">
-          <TextInput
-            type="text"
-            inputMode="decimal"
-            value={locationLng}
-            onChange={(e) => onLocationLngChange(e.target.value)}
-            onBlur={() => {
-              if (coordGeocodeTimerRef.current)
-                clearTimeout(coordGeocodeTimerRef.current)
-              coordGeocodeTimerRef.current = setTimeout(() => {
-                suggestFromCoordFields()
-              }, 200)
-            }}
-            placeholder="e.g. -0.1278"
-          />
-        </FormField>
-      </SimpleGrid>
+      <Text fontSize="sm" color="muted">
+        Adjust the map or use the search box. Map coordinates and the place
+        label from Mapbox are saved for matching only — workers see approximate
+        area, not your full street address, until you accept an offer.
+      </Text>
     </Stack>
   )
 }
