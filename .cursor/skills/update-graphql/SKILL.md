@@ -22,8 +22,9 @@ When requested to update the GraphQL schema or run codegen, follow these steps t
    - `Cannot query field ... on type Mutation/Query` -> replace deprecated operations with current ones.
    - Use the file/line hints in the error output to patch the exact operation.
 
-3. **Analyze the Schema**
-   Read `.codegen/schema.ts` (or schema SDL if available) and confirm the correct `Query`, `Mutation`, and object field names before editing operations.
+3. **Analyze the Generated Schema**
+   Read `.codegen/schema.ts` from the latest codegen output (or schema SDL if available) and confirm the correct `Query`, `Mutation`, and object field names before editing operations.
+   - Do **not** rely on `git diff` for this step, because `.codegen/schema.ts` is not be committed or tracked in some repositories.
 
 4. **Update GraphQL Operations (Full Audit)**
    Review **every** operation file in `src/graphql/` (for example: `tasks.ts`, `auth.ts`, `users.ts`, `categories.ts`, `reviews.ts`) and compare each operation against the latest schema inputs/outputs:
