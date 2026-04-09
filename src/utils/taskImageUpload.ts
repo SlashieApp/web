@@ -26,14 +26,20 @@ export async function uploadTaskImageWithPresign(
 
   const { data, error } = await client.query<GetS3UploadUrlQuery>({
     query: GET_S3_UPLOAD_URL_QUERY,
-    variables: { bucket: Bucket.TaskImages, key, index },
+    variables: { bucket: Bucket.Task, key, index },
     fetchPolicy: 'network-only',
   })
 
   if (error) throw error
 
-  const presigned = data?.getS3UploadUrl?.url
-  if (!presigned?.trim()) {
+  const rows = data?.getS3UploadUrl ?? []
+  const fromIndex =
+    typeof index === 'number' && index >= 0 ? rows[index]?.url : undefined
+  const presigned =
+    (fromIndex?.trim() ? fromIndex : undefined) ??
+    rows.map((r) => r.url).find((u) => Boolean(u?.trim())) ??
+    ''
+  if (!presigned.trim()) {
     throw new Error('Could not get upload URL. Please try again.')
   }
 
