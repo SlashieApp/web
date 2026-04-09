@@ -22,7 +22,7 @@ type MobileTaskCard = {
 export type MobileTaskCarouselProps = {
   tasks: MobileTaskCard[]
   selectedTaskId: string | null
-  onSelectTask: (taskId: string) => void
+  onSelectTask: (taskId: string | null) => void
 }
 
 export function MobileTaskCarousel({
@@ -42,6 +42,17 @@ export function MobileTaskCarousel({
     if (selectedIndex < 0) return
     emblaApi.scrollTo(selectedIndex)
   }, [emblaApi, selectedTaskId, tasks])
+
+  const handleSelectTask = (taskId: string) => {
+    if (selectedTaskId === taskId) {
+      onSelectTask(null)
+      requestAnimationFrame(() => {
+        onSelectTask(taskId)
+      })
+      return
+    }
+    onSelectTask(taskId)
+  }
 
   if (tasks.length === 0) {
     return (
@@ -110,7 +121,7 @@ export function MobileTaskCarousel({
                 badgeVariant={task.badgeText ? 'featured' : 'none'}
                 badgeText={task.badgeText}
                 isActive={selectedTaskId === task.id}
-                onActivate={() => onSelectTask(task.id)}
+                onActivate={() => handleSelectTask(task.id)}
               />
             </motion.div>
           )

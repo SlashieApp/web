@@ -104,11 +104,21 @@ const TaskBrowseLayoutContext =
 
 const DEFAULT_SEARCH_LAT = 51.5074
 const DEFAULT_SEARCH_LNG = -0.1278
+const MIN_RADIUS_MILES = 1
+const MAX_RADIUS_MILES = 50
+
+function clampRadiusMiles(value: number): number {
+  if (!Number.isFinite(value)) return 10
+  return Math.min(
+    MAX_RADIUS_MILES,
+    Math.max(MIN_RADIUS_MILES, Math.round(value)),
+  )
+}
 
 function zoomToRadiusMiles(zoom: number): number {
   const normalized = Number.isFinite(zoom) ? zoom : 11
   const miles = 10 * 2 ** (11 - normalized)
-  return Math.min(500, Math.max(1, Math.round(miles)))
+  return clampRadiusMiles(miles)
 }
 
 type TaskBrowseProviderProps = {
@@ -120,7 +130,7 @@ type TaskBrowseProviderProps = {
 export function TaskBrowseProvider({
   children,
   initialTasks,
-  isDesktop,
+  isDesktop: _isDesktop,
 }: TaskBrowseProviderProps) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const hasMapboxToken = Boolean(mapboxToken?.trim())
@@ -174,7 +184,7 @@ export function TaskBrowseProvider({
     const maxStr = maxBudget.trim()
     const minP = minStr === '' ? undefined : Number.parseFloat(minStr) * 100
     const maxP = maxStr === '' ? undefined : Number.parseFloat(maxStr) * 100
-    const radius = Math.min(500, Math.max(1, radiusMiles))
+    const radius = clampRadiusMiles(radiusMiles)
     const singleCategory =
       selectedCategories.length === 1 ? selectedCategories[0] : undefined
 
@@ -328,7 +338,7 @@ export function TaskBrowseProvider({
   const confirmSearchThisAreaFromMap = useCallback(
     (lat: number, lng: number, zoom: number) => {
       setSearchCenter(lat, lng)
-      setRadiusMiles(zoomToRadiusMiles(zoom))
+      setRadiusMiles(clampRadiusMiles(zoomToRadiusMiles(zoom)))
       const token = mapboxToken?.trim()
       if (token) {
         void mapboxReverseGeocode(lat, lng, token).then((name) => {
@@ -448,11 +458,11 @@ export function TaskBrowseProvider({
     () => ({
       isFilterOpen,
       setIsFilterOpen,
-      windowOffsetWidth: isDesktop ? 540 : 80,
+      windowOffsetWidth: 300,
       searchThisAreaUi,
       setSearchThisAreaUi,
     }),
-    [isDesktop, isFilterOpen, searchThisAreaUi],
+    [isFilterOpen, searchThisAreaUi],
   )
 
   return (

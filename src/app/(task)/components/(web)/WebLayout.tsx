@@ -14,8 +14,6 @@ import { TaskList } from './TaskList'
 import { TaskMap } from './TaskMap'
 import { SORT_OPTIONS } from './taskBrowseHelpers'
 
-const MAP_CENTER_OFFSET_REDUCTION_PX = 96
-
 export function WebLayout() {
   const { isFilterOpen, setIsFilterOpen, windowOffsetWidth } =
     useTaskBrowseLayout()
@@ -72,10 +70,7 @@ export function WebLayout() {
       <Box position="absolute" inset={0} zIndex={0}>
         <TaskMap
           {...mapBindings}
-          leftViewportPadding={Math.max(
-            0,
-            windowOffsetWidth - MAP_CENTER_OFFSET_REDUCTION_PX,
-          )}
+          leftViewportPadding={windowOffsetWidth}
           onSelectTask={(taskId) => {
             if (taskId) setIsFilterOpen(false)
             setSelectedTaskId(taskId)

@@ -42,6 +42,17 @@ export function TaskList() {
     setAnimationCycle((v) => v + 1)
   }, [loading, dataLoaded])
 
+  const handleActivateTask = (taskId: string) => {
+    if (selectedTaskId === taskId) {
+      setSelectedTaskId(null)
+      requestAnimationFrame(() => {
+        setSelectedTaskId(taskId)
+      })
+      return
+    }
+    setSelectedTaskId(taskId)
+  }
+
   const listBody = (
     <>
       {!loading && pageItems.length > 0
@@ -76,7 +87,7 @@ export function TaskList() {
                     badgeVariant={badge.variant}
                     badgeText={badge.text}
                     isActive={selectedTaskId === task.id}
-                    onActivate={() => setSelectedTaskId(task.id)}
+                    onActivate={() => handleActivateTask(task.id)}
                   />
                 </Box>
               </motion.div>
