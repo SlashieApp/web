@@ -1,6 +1,6 @@
 'use client'
 
-const PREFIX = 'handybox.worker.registered.v1:'
+const PREFIX = 'slashie.worker.registered.v1:'
 
 function key(userId: string) {
   return `${PREFIX}${userId}`

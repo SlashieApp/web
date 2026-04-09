@@ -5,7 +5,7 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 export function getDisplayNameFromEmail(email: string | null | undefined) {
   const localPart = (email ?? '').split('@')[0]?.trim()
-  if (!localPart) return 'HandyBox Member'
+  if (!localPart) return 'Slashie member'
 
   return localPart
     .split(/[._-]+/)

@@ -15,8 +15,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'HandyBox',
-  description: 'UK handyman marketplace',
+  title: 'Slashie',
+  description: 'Local trades and home tasks marketplace',
 }
 
 export default function RootLayout({
