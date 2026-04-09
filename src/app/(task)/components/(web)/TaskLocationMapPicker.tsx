@@ -28,6 +28,8 @@ export type TaskLocationMapPickerProps = {
   onLocationChange: (value: string) => void
   onLocationLatChange: (value: string) => void
   onLocationLngChange: (value: string) => void
+  /** When false, omits the paragraph under the map (parent can supply copy). */
+  showCoordinateHelpText?: boolean
 }
 
 export function TaskLocationMapPicker({
@@ -38,6 +40,7 @@ export function TaskLocationMapPicker({
   onLocationChange,
   onLocationLatChange,
   onLocationLngChange,
+  showCoordinateHelpText = true,
 }: TaskLocationMapPickerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<MapboxMap | null>(null)
@@ -48,6 +51,13 @@ export function TaskLocationMapPicker({
   const locationGeocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   )
+
+  const onLocationChangeRef = useRef(onLocationChange)
+  const onLocationLatChangeRef = useRef(onLocationLatChange)
+  const onLocationLngChangeRef = useRef(onLocationLngChange)
+  onLocationChangeRef.current = onLocationChange
+  onLocationLatChangeRef.current = onLocationLatChange
+  onLocationLngChangeRef.current = onLocationLngChange
 
   const applyCenter = useCallback(
     (lat: number, lng: number, opts?: { animate?: boolean }) => {
@@ -93,8 +103,8 @@ export function TaskLocationMapPicker({
       map.on('load', () => {
         if (cancelled) return
         const c = map.getCenter()
-        onLocationLatChange(c.lat.toFixed(6))
-        onLocationLngChange(c.lng.toFixed(6))
+        onLocationLatChangeRef.current(c.lat.toFixed(6))
+        onLocationLngChangeRef.current(c.lng.toFixed(6))
         setMapReady(true)
       })
     })
@@ -107,7 +117,7 @@ export function TaskLocationMapPicker({
       mapRef.current = null
       setMapReady(false)
     }
-  }, [accessToken, onLocationLatChange, onLocationLngChange])
+  }, [accessToken])
 
   useEffect(() => {
     const map = mapRef.current
@@ -131,8 +141,8 @@ export function TaskLocationMapPicker({
         const c = map.getCenter()
         const latStr = c.lat.toFixed(6)
         const lngStr = c.lng.toFixed(6)
-        onLocationLatChange(latStr)
-        onLocationLngChange(lngStr)
+        onLocationLatChangeRef.current(latStr)
+        onLocationLngChangeRef.current(lngStr)
 
         if (skipReverseAfterForwardRef.current) {
           skipReverseAfterForwardRef.current = false
@@ -143,7 +153,7 @@ export function TaskLocationMapPicker({
         if (moveEndCountRef.current < 2) return
 
         void mapboxReverseGeocode(c.lat, c.lng, accessToken).then((name) => {
-          if (name) onLocationChange(name)
+          if (name) onLocationChangeRef.current(name)
         })
       }, 350)
     }
@@ -153,13 +163,7 @@ export function TaskLocationMapPicker({
       map.off('moveend', onMoveEnd)
       if (moveDebounceRef.current) clearTimeout(moveDebounceRef.current)
     }
-  }, [
-    mapReady,
-    accessToken,
-    onLocationChange,
-    onLocationLatChange,
-    onLocationLngChange,
-  ])
+  }, [mapReady, accessToken])
 
   useEffect(() => {
     return () => {
@@ -177,23 +181,17 @@ export function TaskLocationMapPicker({
       void mapboxForwardGeocode(q, accessToken).then((hit) => {
         if (!hit) return
         skipReverseAfterForwardRef.current = true
-        onLocationLatChange(hit.lat.toFixed(6))
-        onLocationLngChange(hit.lng.toFixed(6))
-        onLocationChange(hit.placeName)
+        onLocationLatChangeRef.current(hit.lat.toFixed(6))
+        onLocationLngChangeRef.current(hit.lng.toFixed(6))
+        onLocationChangeRef.current(hit.placeName)
         applyCenter(hit.lat, hit.lng)
       })
     },
-    [
-      accessToken,
-      applyCenter,
-      onLocationChange,
-      onLocationLatChange,
-      onLocationLngChange,
-    ],
+    [accessToken, applyCenter],
   )
 
   const onLocationInputChange = (value: string) => {
-    onLocationChange(value)
+    onLocationChangeRef.current(value)
     if (locationGeocodeTimerRef.current)
       clearTimeout(locationGeocodeTimerRef.current)
     locationGeocodeTimerRef.current = setTimeout(() => {
@@ -298,11 +296,14 @@ export function TaskLocationMapPicker({
         )}
       </Box>
 
-      <Text fontSize="sm" color="muted">
-        Adjust the map or use the search box. Map coordinates and the place
-        label from Mapbox are saved for matching only — workers see approximate
-        area, not your full street address, until you accept an offer.
-      </Text>
+      {showCoordinateHelpText ? (
+        <Text fontSize="sm" color="muted">
+          Adjust the map or use the search box. Map coordinates and the place
+          label from Mapbox are saved for matching only — workers see
+          approximate area, not your full street address, until you accept an
+          offer.
+        </Text>
+      ) : null}
     </Stack>
   )
 }

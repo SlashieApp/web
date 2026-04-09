@@ -108,9 +108,8 @@ export default function LoginPage() {
   const [login, { loading }] = useMutation<LoginMutation>(LOGIN_MUTATION)
 
   useEffect(() => {
-    const requestedNextPath = new URLSearchParams(window.location.search).get(
-      'next',
-    )
+    const params = new URLSearchParams(window.location.search)
+    const requestedNextPath = params.get('redirect') ?? params.get('next')
     const hasSafeNextPath =
       requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
 

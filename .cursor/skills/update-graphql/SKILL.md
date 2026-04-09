@@ -9,6 +9,10 @@ When requested to update the GraphQL schema or run codegen, follow these steps t
 
 ## Workflow
 
+0. **Repository policy (default)**
+   - Do **not** commit `.codegen/schema.ts` or other files under `.codegen/`, and do **not** add a committed `schema.graphql` snapshot unless the project explicitly opts in.
+   - Do **not** change `codegen.ts` unless the user explicitly requests it; schema is fetched from `${NEXT_PUBLIC_GRAPHQL_URL}/schema` with `SCHEMA_ACCESS_TOKEN`.
+
 1. **Run Codegen**
    Execute the codegen script to fetch the latest schema from the backend and generate updated TypeScript definitions:
    ```bash
@@ -23,8 +27,8 @@ When requested to update the GraphQL schema or run codegen, follow these steps t
    - Use the file/line hints in the error output to patch the exact operation.
 
 3. **Analyze the Generated Schema**
-   Read `.codegen/schema.ts` from the latest codegen output (or schema SDL if available) and confirm the correct `Query`, `Mutation`, and object field names before editing operations.
-   - Do **not** rely on `git diff` for this step, because `.codegen/schema.ts` is not be committed or tracked in some repositories.
+   Read `.codegen/schema.ts` from the latest codegen output and confirm the correct `Query`, `Mutation`, and object field names before editing operations.
+   - This file is **generated locally** (typically gitignored); regenerate with `bun run codegen` rather than expecting it in version control.
 
 4. **Update GraphQL Operations (Full Audit)**
    Review **every** operation file in `src/graphql/` (for example: `tasks.ts`, `auth.ts`, `users.ts`, `categories.ts`, `reviews.ts`) and compare each operation against the latest schema inputs/outputs:

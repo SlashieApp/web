@@ -6,8 +6,9 @@ import { DayOfWeek } from '@codegen/schema'
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
 import { Heading, TextInput } from '@ui'
+import type { TimeSlotTemplate } from '../createTaskFormSchema'
 
-export type TimeSlotTemplate = { value: string; label: string }
+export type { TimeSlotTemplate } from '../createTaskFormSchema'
 
 const WEEKDAY_FROM_JS: DayOfWeek[] = [
   DayOfWeek.Sun,
@@ -69,6 +70,11 @@ export type CreateTaskScheduleSectionProps = {
   onPreferredDateChange: (value: string) => void
   onPreferredTimeChange: (value: string) => void
   onToggleSlot: (day: DayOfWeek, slotValue: string) => void
+  fieldErrors?: {
+    preferredDate?: string
+    preferredTime?: string
+    slotsByDay?: string
+  }
 }
 
 export function CreateTaskScheduleSection({
@@ -79,6 +85,7 @@ export function CreateTaskScheduleSection({
   onPreferredDateChange,
   onPreferredTimeChange,
   onToggleSlot,
+  fieldErrors,
 }: CreateTaskScheduleSectionProps) {
   const weekAnchor = preferredDate
     ? new Date(`${preferredDate}T12:00:00`)
@@ -91,11 +98,11 @@ export function CreateTaskScheduleSection({
       <Stack gap={5}>
         <Stack gap={1}>
           <Heading size="lg" color="primary.700">
-            5. Availability
+            Timing & availability
           </Heading>
           <Text fontSize="sm" color="muted">
-            Pick your default date and time for offers, then add weekly windows
-            when you are usually free.
+            Pick your preferred window and weekly slots. Professionals will try
+            to accommodate your schedule when they quote.
           </Text>
         </Stack>
 
@@ -140,6 +147,11 @@ export function CreateTaskScheduleSection({
               )
             })}
           </HStack>
+          {fieldErrors?.preferredDate ? (
+            <Text fontSize="sm" color="red.500" mt={1}>
+              {fieldErrors.preferredDate}
+            </Text>
+          ) : null}
         </Stack>
 
         <Box>
@@ -152,6 +164,11 @@ export function CreateTaskScheduleSection({
             value={preferredTime}
             onChange={(e) => onPreferredTimeChange(e.target.value)}
           />
+          {fieldErrors?.preferredTime ? (
+            <Text fontSize="sm" color="red.500" mt={1}>
+              {fieldErrors.preferredTime}
+            </Text>
+          ) : null}
         </Box>
 
         <Stack gap={3}>
@@ -162,6 +179,11 @@ export function CreateTaskScheduleSection({
             Workers can align with these slots when they quote. Select at least
             one window on any day.
           </Text>
+          {fieldErrors?.slotsByDay ? (
+            <Text fontSize="sm" color="red.500">
+              {fieldErrors.slotsByDay}
+            </Text>
+          ) : null}
           <Stack gap={4}>
             {DAY_ORDER.map((day) => {
               const selected = slotsByDay[day] ?? []

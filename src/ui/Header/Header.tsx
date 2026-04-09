@@ -2,7 +2,7 @@
 
 import { Box, type BoxProps, HStack, IconButton, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { clearAuthToken, getAuthToken } from '@/utils/auth'
@@ -82,14 +82,29 @@ export type HeaderProps = {
   children?: React.ReactNode
 } & Omit<BoxProps, 'children'>
 
-function SiteNavigation() {
+function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     setIsLoggedIn(Boolean(getAuthToken()))
   }, [])
+
+  const resolvedActive: HeaderActiveItem =
+    activeItem !== 'none'
+      ? activeItem
+      : pathname?.startsWith('/tasks/create')
+        ? 'post-task'
+        : pathname === '/' || pathname?.startsWith('/tasks')
+          ? 'home'
+          : 'none'
+
+  const browseTasksLinkProps =
+    resolvedActive === 'home' || resolvedActive === 'tasks'
+      ? { ...navLinkProps, color: 'primary.700' as const, fontWeight: 700 }
+      : navLinkProps
 
   const workerHref = isLoggedIn
     ? '/dashboard'
@@ -122,7 +137,7 @@ function SiteNavigation() {
           flexWrap="wrap"
           display={{ base: 'none', md: 'flex' }}
         >
-          <Link as={NextLink} href="/" {...navLinkProps}>
+          <Link as={NextLink} href="/" {...browseTasksLinkProps}>
             Browse tasks
           </Link>
 
@@ -150,7 +165,7 @@ function SiteNavigation() {
           as={NextLink}
           href="/tasks/create"
           size="sm"
-          variant="outline"
+          variant={resolvedActive === 'post-task' ? 'solid' : 'outline'}
           display={{ base: 'none', md: 'inline-flex' }}
         >
           Post a task
@@ -237,7 +252,7 @@ function SiteNavigation() {
           <Link
             as={NextLink}
             href="/"
-            {...navLinkProps}
+            {...browseTasksLinkProps}
             onClick={() => setMobileMenuOpen(false)}
           >
             Browse tasks
@@ -245,7 +260,13 @@ function SiteNavigation() {
           <Link
             as={NextLink}
             href="/tasks/create"
-            {...navLinkProps}
+            {...(resolvedActive === 'post-task'
+              ? {
+                  ...navLinkProps,
+                  color: 'primary.700' as const,
+                  fontWeight: 700,
+                }
+              : navLinkProps)}
             onClick={() => setMobileMenuOpen(false)}
           >
             Post a task
@@ -297,7 +318,7 @@ function SiteNavigation() {
 }
 
 export function Header({
-  activeItem: _activeItem = 'none',
+  activeItem = 'none',
   children,
   ...props
 }: HeaderProps) {
@@ -316,7 +337,9 @@ export function Header({
       py={1}
       {...props}
     >
-      <Container>{children ?? <SiteNavigation />}</Container>
+      <Container>
+        {children ?? <SiteNavigation activeItem={activeItem} />}
+      </Container>
     </Box>
   )
 }

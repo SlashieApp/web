@@ -2,20 +2,22 @@
 
 import { HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
 import { BudgetUnit, TaskPaymentMethod } from '@codegen/schema'
+import type { UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
 import { TextInput } from '@/ui/Input'
 import { Heading } from '@ui'
+import type { CreateTaskFormValues } from '../createTaskFormSchema'
 
 export type CreateTaskBudgetSectionProps = {
-  budgetMajor: string
+  register: UseFormRegister<CreateTaskFormValues>
   budgetUnit: BudgetUnit
   paymentMethod: TaskPaymentMethod
-  onBudgetMajorChange: (value: string) => void
   onBudgetUnitChange: (value: BudgetUnit) => void
   onPaymentMethodChange: (value: TaskPaymentMethod) => void
+  budgetMajorError?: string
 }
 
 const UNIT_PREFIX: Record<BudgetUnit, string> = {
@@ -24,21 +26,21 @@ const UNIT_PREFIX: Record<BudgetUnit, string> = {
 }
 
 export function CreateTaskBudgetSection({
-  budgetMajor,
+  register,
   budgetUnit,
   paymentMethod,
-  onBudgetMajorChange,
   onBudgetUnitChange,
   onPaymentMethodChange,
+  budgetMajorError,
 }: CreateTaskBudgetSectionProps) {
   return (
     <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLowest">
       <Stack gap={5}>
         <Heading size="lg" color="primary.700">
-          4. Budget & payment
+          3. Budget & payment
         </Heading>
 
-        <FormField label="Budget amount">
+        <FormField label="Budget amount" errorText={budgetMajorError}>
           <HStack gap={2} align="stretch" maxW={{ base: 'full', md: '380px' }}>
             <NativeSelect.Root w="108px" flexShrink={0}>
               <NativeSelect.Field
@@ -73,8 +75,7 @@ export function CreateTaskBudgetSection({
                 type="number"
                 min={1}
                 step="0.01"
-                value={budgetMajor}
-                onChange={(e) => onBudgetMajorChange(e.target.value)}
+                {...register('budgetMajor')}
                 placeholder="0.00"
                 borderWidth={0}
                 boxShadow="none"

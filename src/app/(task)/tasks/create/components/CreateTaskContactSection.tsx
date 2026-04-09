@@ -21,7 +21,7 @@ export function CreateTaskContactSection({
     <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLowest">
       <Stack gap={4}>
         <Heading size="lg" color="primary.700">
-          6. Preferred contact
+          4. Preferred contact
         </Heading>
         <Text fontSize="sm" color="muted">
           We share contact details from your Slashie profile using the method

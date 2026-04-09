@@ -401,6 +401,7 @@ export function TaskMap({
   const programmaticMoveRef = useRef(false)
   const suppressSearchPromptUntilRef = useRef(0)
   const didApplyStartupOffsetRef = useRef(false)
+  const prevSearchCenterKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
     const el = containerRef.current
@@ -486,18 +487,18 @@ export function TaskMap({
     })
   }, [mapReady, centerLat, centerLng, leftViewportPadding])
 
+  // When geolocation / location search updates the query center, clear the prompt:
+  // the map eases afterward; until then getCenter() still reflects the old view, so
+  // the old "close enough to center" effect never ran again after the animation.
   useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map?.isStyleLoaded()) return
-    const c = map.getCenter()
-    if (
-      Math.abs(c.lat - centerLat) < 8e-5 &&
-      Math.abs(c.lng - centerLng) < 8e-5
-    ) {
-      setShowSearchThisArea(false)
-      pendingViewRef.current = null
-    }
-  }, [mapReady, centerLat, centerLng])
+    const key = `${centerLat},${centerLng}`
+    const prev = prevSearchCenterKeyRef.current
+    prevSearchCenterKeyRef.current = key
+    if (prev == null || prev === key) return
+    setShowSearchThisArea(false)
+    pendingViewRef.current = null
+    suppressSearchPromptUntilRef.current = Date.now() + 1600
+  }, [centerLat, centerLng])
 
   useEffect(() => {
     const map = mapRef.current

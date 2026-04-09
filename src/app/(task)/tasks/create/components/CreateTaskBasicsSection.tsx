@@ -8,6 +8,7 @@ import {
   Textarea,
 } from '@chakra-ui/react'
 import type { TaskCategory } from '@codegen/schema'
+import type { UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
@@ -15,25 +16,25 @@ import { FormField } from '@/ui/FormField/FormField'
 import { TextInput } from '@/ui/Input'
 import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
 import { Heading } from '@ui'
+import type { CreateTaskFormValues } from '../createTaskFormSchema'
 
 export type CreateTaskBasicsSectionProps = {
-  title: string
-  description: string
+  register: UseFormRegister<CreateTaskFormValues>
   category: TaskCategory
   categoryOptions: readonly TaskCategory[]
-  onTitleChange: (value: string) => void
-  onDescriptionChange: (value: string) => void
   onCategoryChange: (value: TaskCategory) => void
+  fieldErrors?: {
+    title?: string
+    description?: string
+  }
 }
 
 export function CreateTaskBasicsSection({
-  title,
-  description,
+  register,
   category,
   categoryOptions,
-  onTitleChange,
-  onDescriptionChange,
   onCategoryChange,
+  fieldErrors,
 }: CreateTaskBasicsSectionProps) {
   return (
     <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLowest">
@@ -43,10 +44,9 @@ export function CreateTaskBasicsSection({
         </Heading>
 
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-          <FormField label="Task title">
+          <FormField label="Task title" errorText={fieldErrors?.title}>
             <TextInput
-              value={title}
-              onChange={(event) => onTitleChange(event.target.value)}
+              {...register('title')}
               placeholder="e.g., Fix leaking pipe in master bathroom"
             />
           </FormField>
@@ -57,10 +57,7 @@ export function CreateTaskBasicsSection({
                 borderWidth="1px"
                 borderColor="border"
                 borderRadius="lg"
-                value={category}
-                onChange={(event) =>
-                  onCategoryChange(event.target.value as TaskCategory)
-                }
+                {...register('category')}
               >
                 {categoryOptions.map((option) => (
                   <option key={option} value={option}>
@@ -72,10 +69,9 @@ export function CreateTaskBasicsSection({
           </FormField>
         </SimpleGrid>
 
-        <FormField label="Description">
+        <FormField label="Description" errorText={fieldErrors?.description}>
           <Textarea
-            value={description}
-            onChange={(event) => onDescriptionChange(event.target.value)}
+            {...register('description')}
             placeholder="Describe the specific problem or work needed..."
             minH="120px"
             bg="surfaceContainerLowest"

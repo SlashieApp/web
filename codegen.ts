@@ -1,9 +1,18 @@
 import 'dotenv/config'
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
-/** Local SDL committed in-repo; keeps builds working when remote schema fetch fails. */
+const schemaUrl = `${process.env.NEXT_PUBLIC_GRAPHQL_URL}/schema`
 const config: CodegenConfig = {
-  schema: 'schema.graphql',
+  schema: [
+    {
+      [schemaUrl]: {
+        headers: {
+          'X-Schema-Token': process.env.SCHEMA_ACCESS_TOKEN || '',
+        },
+        handleAsSDL: true,
+      },
+    },
+  ],
   documents: ['src/graphql/**/*.ts', 'src/app/**/page.tsx'],
   ignoreNoDocuments: true,
   generates: {

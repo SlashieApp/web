@@ -1,0 +1,17 @@
+---
+description: GraphQL schema is remote-only; run codegen when touching operations
+alwaysApply: true
+---
+
+# GraphQL and codegen
+
+- **Do not commit** generated schema output (`.codegen/**`) or a local SDL file (`schema.graphql`) to git. They stay local / CI-generated from the API.
+- **Do not edit `codegen.ts`** unless the user explicitly asks. Schema URL and `SCHEMA_ACCESS_TOKEN` come from environment variables.
+- **Run codegen often:** whenever you add or change operations under `src/graphql/` or need types from the latest API, run:
+
+  ```bash
+  bun run codegen
+  ```
+
+  Requires `.env` with `NEXT_PUBLIC_GRAPHQL_URL` and `SCHEMA_ACCESS_TOKEN` (see `.env.example`).
+- If codegen fails with document validation errors, follow the **update-graphql** skill: fix operations in `src/graphql/` and re-run `bun run codegen` until it succeeds, then `bun run lint`.
