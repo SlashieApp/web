@@ -16,6 +16,7 @@ import {
   mapboxForwardGeocode,
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 import type { SearchThisAreaButtonProps } from '../components/(web)/SearchThisAreaButton'
 import type { UrgencyFilter } from '../components/(web)/TaskBrowseFilters'
@@ -31,11 +32,13 @@ import {
   taskCreatedTime,
 } from '../components/(web)/taskBrowseHelpers'
 
-export const TASK_BROWSE_FILTER_CATEGORIES = [
-  'Plumbing',
-  'Electrical',
-  'Carpentry',
-  'HVAC',
+import { TaskCategory } from '@codegen/schema'
+
+export const TASK_BROWSE_FILTER_CATEGORIES: readonly TaskCategory[] = [
+  TaskCategory.Plumbing,
+  TaskCategory.Electrical,
+  TaskCategory.Painting,
+  TaskCategory.Gardening,
 ] as const
 
 type TaskBrowseDataContextValue = {
@@ -44,9 +47,9 @@ type TaskBrowseDataContextValue = {
   cycleSort: () => void
   page: number
   setPage: (v: number | ((prev: number) => number)) => void
-  selectedCategories: string[]
-  selectedCategorySet: Set<string>
-  toggleCategory: (category: string, checked: boolean) => void
+  selectedCategories: TaskCategory[]
+  selectedCategorySet: Set<TaskCategory>
+  toggleCategory: (category: TaskCategory, checked: boolean) => void
   radiusMiles: number
   setRadiusMiles: (v: number) => void
   minBudget: string
@@ -85,7 +88,7 @@ type TaskBrowseDataContextValue = {
   }[]
   shouldWaitForMap: boolean
   markMapReadyForQuery: (ready: boolean) => void
-  categories: readonly string[]
+  categories: readonly TaskCategory[]
 }
 
 type TaskBrowseLayoutContextValue = {
@@ -147,7 +150,7 @@ export function TaskBrowseProvider({
     })
   const [sort, setSort] = useState<string>('nearest')
   const [page, setPage] = useState(0)
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
+  const [selectedCategories, setSelectedCategories] = useState<TaskCategory[]>([
     ...TASK_BROWSE_FILTER_CATEGORIES,
   ])
   const [radiusMiles, setRadiusMiles] = useState(10)
@@ -175,7 +178,7 @@ export function TaskBrowseProvider({
   }, [hasMapboxToken])
 
   const selectedCategorySet = useMemo(
-    () => new Set<string>(selectedCategories),
+    () => new Set<TaskCategory>(selectedCategories),
     [selectedCategories],
   )
 
@@ -185,7 +188,7 @@ export function TaskBrowseProvider({
     const minP = minStr === '' ? undefined : Number.parseFloat(minStr) * 100
     const maxP = maxStr === '' ? undefined : Number.parseFloat(maxStr) * 100
     const radius = clampRadiusMiles(radiusMiles)
-    const singleCategory =
+    const singleCategory: TaskCategory | undefined =
       selectedCategories.length === 1 ? selectedCategories[0] : undefined
 
     let dateTimeFrom: string | undefined
@@ -236,7 +239,7 @@ export function TaskBrowseProvider({
 
     return items.filter((task) => {
       if (selectedCategories.length > 0) {
-        const cat = (task.category ?? '').trim()
+        const cat = task.category
         if (cat && !selectedCategorySet.has(cat)) return false
       }
       if (urgency === 'emergency' && !matchesUrgency(task, urgency))
@@ -291,7 +294,7 @@ export function TaskBrowseProvider({
           title: task.title,
           description: task.description,
           category: task.category,
-          location: task.location,
+          location: taskPublicLocationLabel(task),
           locationLat: task.locationLat,
           locationLng: task.locationLng,
           priceLabel: main,
@@ -310,7 +313,7 @@ export function TaskBrowseProvider({
           title: task.title,
           description: task.description,
           category: task.category,
-          location: task.location,
+          location: taskPublicLocationLabel(task),
           locationLat: task.locationLat,
           locationLng: task.locationLng,
           priceLabel: main,
@@ -320,15 +323,18 @@ export function TaskBrowseProvider({
     [initialTasks],
   )
 
-  const toggleCategory = useCallback((category: string, checked: boolean) => {
-    setSelectedCategories((prev) => {
-      const next = new Set(prev)
-      if (checked) next.add(category)
-      else next.delete(category)
-      return [...next]
-    })
-    setPage(0)
-  }, [])
+  const toggleCategory = useCallback(
+    (category: TaskCategory, checked: boolean) => {
+      setSelectedCategories((prev) => {
+        const next = new Set(prev)
+        if (checked) next.add(category)
+        else next.delete(category)
+        return [...next]
+      })
+      setPage(0)
+    },
+    [],
+  )
 
   const setSearchCenter = useCallback((lat: number, lng: number) => {
     setSearchCenterLat(lat)

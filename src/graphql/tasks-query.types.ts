@@ -1,3 +1,5 @@
+import type { TaskCategory } from '@codegen/schema'
+
 /**
  * Types for task list operations in `tasks.ts`. Prefer `@codegen/schema` once
  * `bun run codegen` succeeds against the GraphQL endpoint.
@@ -12,18 +14,26 @@ export type TaskOfferListItem = {
   createdAt: unknown
 }
 
+export type TaskMapLocationFields = {
+  lat?: number | null
+  lng?: number | null
+  name?: string | null
+}
+
 export type TaskListItem = {
   id: string
   title: string
   description: string
-  location?: string | null
+  address?: string | null
+  locationName?: string | null
+  location?: TaskMapLocationFields | null
   locationLat?: number | null
   locationLng?: number | null
   status: string
   createdByUserId: string
   createdAt: unknown
   dateTime?: unknown
-  category?: string | null
+  category?: TaskCategory | null
   priceOfferPence?: number | null
   paymentMethod?: string | null
   contactMethod?: string | null

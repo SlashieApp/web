@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { TaskBrowseListItem } from './TaskBrowseListItem'
 
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { formatBudget, inferBadge } from './taskBrowseHelpers'
 
@@ -59,7 +60,8 @@ export function TaskList() {
         ? pageItems.map((task, index) => {
             const { main } = formatBudget(task)
             const badge = inferBadge(task)
-            const loc = task.location?.trim() || 'Location on request'
+            const loc =
+              taskPublicLocationLabel(task).trim() || 'Location on request'
             return (
               <motion.div
                 key={`${animationCycle}-${task.id}`}

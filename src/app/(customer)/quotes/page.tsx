@@ -8,6 +8,7 @@ import {
   formatPounds,
   getCategoryVisual,
 } from '@/utils/dashboardHelpers'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 import { useCustomerAccount } from '../context/CustomerAccountContext'
 
@@ -70,7 +71,7 @@ export default function CustomerQuotesPage() {
                   <Stack gap={2} flex="1" minW="200px">
                     <Heading size="sm">{task.title}</Heading>
                     <Text fontSize="sm" color="muted">
-                      {task.location ?? 'Location TBC'}
+                      {taskPublicLocationLabel(task) || 'Location TBC'}
                     </Text>
                     <HStack gap={2} flexWrap="wrap">
                       <Badge bg="primary.50" color="primary.700">

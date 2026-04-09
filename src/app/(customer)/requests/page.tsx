@@ -14,6 +14,7 @@ import {
   isOfferAwarded,
   isTaskCompleted,
 } from '@/utils/dashboardHelpers'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 import { useCustomerAccount } from '../context'
 
@@ -83,7 +84,8 @@ function TaskCard({ task }: { task: TaskItem }) {
         <Stack gap={1}>
           <Heading size="sm">{task.title}</Heading>
           <Text fontSize="sm" color="muted">
-            {formatDate(task.createdAt)} {'•'} {task.location ?? 'Metro Area'}
+            {formatDate(task.createdAt)} {'•'}{' '}
+            {taskPublicLocationLabel(task) || 'Metro Area'}
           </Text>
         </Stack>
 
@@ -308,7 +310,7 @@ export default function CustomerRequestsPage() {
                       <Heading size="sm">{task.title}</Heading>
                       <Text fontSize="sm" color="muted">
                         {task.offers.length} quotes {'•'}{' '}
-                        {task.location ?? 'Location TBC'}
+                        {taskPublicLocationLabel(task) || 'Location TBC'}
                       </Text>
                       <Link
                         as={NextLink}

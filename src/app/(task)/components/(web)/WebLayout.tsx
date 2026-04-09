@@ -3,6 +3,7 @@
 import { Badge, Box, HStack, Input, Stack } from '@chakra-ui/react'
 import { Button, Text } from '@ui'
 
+import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
 import {
   useTaskBrowseData,
   useTaskBrowseFiltersProps,
@@ -56,7 +57,9 @@ export function WebLayout() {
     selectedCategorySet.size < categories.length
   ) {
     activeFilterTags.push(
-      ...[...selectedCategorySet].map((cat) => `Category: ${cat}`),
+      ...[...selectedCategorySet].map(
+        (cat) => `Category: ${formatTaskCategoryLabel(cat)}`,
+      ),
     )
   }
   if (sort !== 'nearest') {

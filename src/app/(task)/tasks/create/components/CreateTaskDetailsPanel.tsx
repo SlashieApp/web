@@ -1,13 +1,19 @@
 'use client'
 
+import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
 import {
   HStack,
   NativeSelect,
   SimpleGrid,
   Stack,
+  Text,
   Textarea,
 } from '@chakra-ui/react'
-import { TaskPaymentMethod } from '@codegen/schema'
+import {
+  type TaskCategory,
+  TaskContactMethod,
+  TaskPaymentMethod,
+} from '@codegen/schema'
 
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
@@ -23,42 +29,46 @@ type TimeSlotOption = {
 export type CreateTaskDetailsPanelProps = {
   title: string
   description: string
-  category: string
+  streetAddress: string
+  category: TaskCategory
   preferredDate: string
   preferredTimeSlot: string
-  priceOfferPence: string
-  contactMethod: string
+  budgetMajor: string
+  preferredContactMethod: TaskContactMethod
   paymentMethod: TaskPaymentMethod
-  categoryOptions: readonly string[]
+  categoryOptions: readonly TaskCategory[]
   timeSlotOptions: readonly TimeSlotOption[]
   onTitleChange: (value: string) => void
   onDescriptionChange: (value: string) => void
-  onCategoryChange: (value: string) => void
+  onStreetAddressChange: (value: string) => void
+  onCategoryChange: (value: TaskCategory) => void
   onPreferredDateChange: (value: string) => void
   onPreferredTimeSlotChange: (value: string) => void
-  onPriceOfferPenceChange: (value: string) => void
-  onContactMethodChange: (value: string) => void
+  onBudgetMajorChange: (value: string) => void
+  onPreferredContactMethodChange: (value: TaskContactMethod) => void
   onPaymentMethodChange: (value: TaskPaymentMethod) => void
 }
 
 export function CreateTaskDetailsPanel({
   title,
   description,
+  streetAddress,
   category,
   preferredDate,
   preferredTimeSlot,
-  priceOfferPence,
-  contactMethod,
+  budgetMajor,
+  preferredContactMethod,
   paymentMethod,
   categoryOptions,
   timeSlotOptions,
   onTitleChange,
   onDescriptionChange,
+  onStreetAddressChange,
   onCategoryChange,
   onPreferredDateChange,
   onPreferredTimeSlotChange,
-  onPriceOfferPenceChange,
-  onContactMethodChange,
+  onBudgetMajorChange,
+  onPreferredContactMethodChange,
   onPaymentMethodChange,
 }: CreateTaskDetailsPanelProps) {
   return (
@@ -77,11 +87,24 @@ export function CreateTaskDetailsPanel({
             />
           </FormField>
           <FormField label="Category">
-            <TextInput
-              value={category}
-              onChange={(event) => onCategoryChange(event.target.value)}
-              placeholder="e.g. Plumbing"
-            />
+            <NativeSelect.Root>
+              <NativeSelect.Field
+                bg="surfaceContainerLowest"
+                borderWidth="1px"
+                borderColor="border"
+                borderRadius="lg"
+                value={category}
+                onChange={(event) =>
+                  onCategoryChange(event.target.value as TaskCategory)
+                }
+              >
+                {categoryOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {formatTaskCategoryLabel(option)}
+                  </option>
+                ))}
+              </NativeSelect.Field>
+            </NativeSelect.Root>
           </FormField>
         </SimpleGrid>
 
@@ -95,6 +118,14 @@ export function CreateTaskDetailsPanel({
             borderWidth="1px"
             borderColor="border"
             borderRadius="lg"
+          />
+        </FormField>
+
+        <FormField label="Property address (shared with your tradesperson)">
+          <TextInput
+            value={streetAddress}
+            onChange={(event) => onStreetAddressChange(event.target.value)}
+            placeholder="e.g. 12 Example Street, London E2"
           />
         </FormField>
 
@@ -113,7 +144,7 @@ export function CreateTaskDetailsPanel({
                 boxShadow="none"
                 onClick={() => onCategoryChange(option)}
               >
-                {option}
+                {formatTaskCategoryLabel(option)}
               </Button>
             ))}
           </HStack>
@@ -150,23 +181,88 @@ export function CreateTaskDetailsPanel({
         </SimpleGrid>
 
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-          <FormField label="Expected budget (pence)">
+          <FormField label="Expected budget (£)">
             <TextInput
               type="number"
               min={1}
-              value={priceOfferPence}
-              onChange={(event) => onPriceOfferPenceChange(event.target.value)}
-              placeholder="e.g. 4500"
-            />
-          </FormField>
-          <FormField label="Preferred contact method">
-            <TextInput
-              value={contactMethod}
-              onChange={(event) => onContactMethodChange(event.target.value)}
-              placeholder="Phone, WhatsApp, Email"
+              step="0.01"
+              value={budgetMajor}
+              onChange={(event) => onBudgetMajorChange(event.target.value)}
+              placeholder="e.g. 45"
             />
           </FormField>
         </SimpleGrid>
+
+        <FormField label="How should workers reach you?">
+          <Text fontSize="sm" color="muted" mb={2}>
+            We use the contact details saved on your profile when you post.
+          </Text>
+          <HStack gap={2} flexWrap="wrap">
+            <Button
+              type="button"
+              size="sm"
+              variant="subtle"
+              bg={
+                preferredContactMethod === TaskContactMethod.Phone
+                  ? 'secondaryFixed'
+                  : 'surfaceContainerLow'
+              }
+              color={
+                preferredContactMethod === TaskContactMethod.Phone
+                  ? 'onSecondaryFixed'
+                  : 'fg'
+              }
+              boxShadow="none"
+              onClick={() =>
+                onPreferredContactMethodChange(TaskContactMethod.Phone)
+              }
+            >
+              Phone
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="subtle"
+              bg={
+                preferredContactMethod === TaskContactMethod.Email
+                  ? 'secondaryFixed'
+                  : 'surfaceContainerLow'
+              }
+              color={
+                preferredContactMethod === TaskContactMethod.Email
+                  ? 'onSecondaryFixed'
+                  : 'fg'
+              }
+              boxShadow="none"
+              onClick={() =>
+                onPreferredContactMethodChange(TaskContactMethod.Email)
+              }
+            >
+              Email
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="subtle"
+              bg={
+                preferredContactMethod === TaskContactMethod.InApp
+                  ? 'secondaryFixed'
+                  : 'surfaceContainerLow'
+              }
+              color={
+                preferredContactMethod === TaskContactMethod.InApp
+                  ? 'onSecondaryFixed'
+                  : 'fg'
+              }
+              boxShadow="none"
+              onClick={() =>
+                onPreferredContactMethodChange(TaskContactMethod.InApp)
+              }
+            >
+              In app only
+            </Button>
+          </HStack>
+        </FormField>
 
         <FormField label="Payment method">
           <HStack gap={2} flexWrap="wrap">

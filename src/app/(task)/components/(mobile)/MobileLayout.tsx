@@ -1,5 +1,9 @@
 'use client'
 
+import {
+  formatTaskCategoryLabel,
+  taskPublicLocationLabel,
+} from '@/utils/taskLocationDisplay'
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react'
 import { Button } from '@ui'
 import { SearchThisAreaButton } from '../(web)/SearchThisAreaButton'
@@ -39,7 +43,7 @@ export function MobileLayout() {
       id: task.id,
       title: task.title,
       description: task.description,
-      location: task.location?.trim() || 'Location on request',
+      location: taskPublicLocationLabel(task).trim() || 'Location on request',
       priceLabel: main,
       badgeText: badge.text,
       imageSeed: task.id,
@@ -51,7 +55,11 @@ export function MobileLayout() {
     selectedCategorySet.size > 0 &&
     selectedCategorySet.size < categories.length
   ) {
-    activeFilterTags.push(...[...selectedCategorySet].slice(0, 3))
+    activeFilterTags.push(
+      ...[...selectedCategorySet]
+        .slice(0, 3)
+        .map((c) => formatTaskCategoryLabel(c)),
+    )
   }
   if (urgency !== 'any') {
     activeFilterTags.push(

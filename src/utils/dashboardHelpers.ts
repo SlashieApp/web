@@ -1,6 +1,7 @@
 'use client'
 
 import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 export function getDisplayNameFromEmail(email: string | null | undefined) {
   const localPart = (email ?? '').split('@')[0]?.trim()
@@ -88,7 +89,7 @@ export function matchesSearch(task: TaskItem, q: string) {
   return (
     task.title.toLowerCase().includes(search) ||
     (task.description ?? '').toLowerCase().includes(search) ||
-    (task.location ?? '').toLowerCase().includes(search) ||
+    taskPublicLocationLabel(task).toLowerCase().includes(search) ||
     (task.category ?? '').toLowerCase().includes(search)
   )
 }
@@ -126,6 +127,13 @@ export function getCategoryVisual(category: string | null | undefined) {
     return {
       glyph: '🎨',
       bg: 'linear-gradient(135deg, #fff4e4 0%, #ffddb8 100%)',
+    }
+  }
+
+  if (key.includes('garden')) {
+    return {
+      glyph: '🌿',
+      bg: 'linear-gradient(135deg, #e8fff0 0%, #b8f0c8 100%)',
     }
   }
 

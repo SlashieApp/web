@@ -1,5 +1,6 @@
 'use client'
 
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { useQuery } from '@apollo/client/react'
 import type { MeQuery } from '@codegen/schema'
 import {
@@ -266,7 +267,7 @@ export function DashboardDataProvider({
     const posterItems: LiveHistoryItem[] = completedAsPoster.map((task) => ({
       id: `poster-${task.id}`,
       title: task.title,
-      location: task.location ?? 'Location TBC',
+      location: taskPublicLocationLabel(task) || 'Location TBC',
       completedAt: task.createdAt,
       valuePence: task.priceOfferPence ?? 0,
       summary: 'Posted task completed and archived in your customer history.',
@@ -277,7 +278,7 @@ export function DashboardDataProvider({
       ({ task, offer }) => ({
         id: `worker-${offer.id}`,
         title: task.title,
-        location: task.location ?? 'Location TBC',
+        location: taskPublicLocationLabel(task) || 'Location TBC',
         completedAt: offer.createdAt,
         valuePence: offer.pricePence,
         summary: 'Quote progressed to a completed worker engagement.',

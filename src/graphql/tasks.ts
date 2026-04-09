@@ -6,9 +6,15 @@ export const CREATE_TASK = gql`
       id
       title
       description
-      location
+      address
+      location {
+        lat
+        lng
+        name
+      }
       locationLat
       locationLng
+      locationName
       dateTime
       category
       priceOfferPence
@@ -34,7 +40,7 @@ export const TASKS_QUERY = gql`
     $lng: Float
     $radiusMiles: Float
     $search: String
-    $category: String
+    $category: TaskCategory
     $minPricePence: Int
     $maxPricePence: Int
     $dateTimeFrom: DateTime
@@ -54,9 +60,15 @@ export const TASKS_QUERY = gql`
       id
       title
       description
-      location
+      address
+      location {
+        lat
+        lng
+        name
+      }
       locationLat
       locationLng
+      locationName
       status
       createdByUserId
       createdAt
@@ -84,7 +96,15 @@ export const TASK_QUERY = gql`
       id
       title
       description
-      location
+      address
+      location {
+        lat
+        lng
+        name
+      }
+      locationLat
+      locationLng
+      locationName
       status
       createdByUserId
       createdAt
@@ -112,7 +132,7 @@ export const BROWSE_TASKS_QUERY = gql`
     $lng: Float
     $radiusMiles: Float
     $search: String
-    $category: String
+    $category: TaskCategory
     $minPricePence: Int
     $maxPricePence: Int
     $dateTimeFrom: DateTime
@@ -132,9 +152,15 @@ export const BROWSE_TASKS_QUERY = gql`
       id
       title
       description
-      location
+      address
+      location {
+        lat
+        lng
+        name
+      }
       locationLat
       locationLng
+      locationName
       status
       priceOfferPence
       createdAt
@@ -149,9 +175,15 @@ export const MY_TASKS_QUERY = gql`
       id
       title
       description
-      location
+      address
+      location {
+        lat
+        lng
+        name
+      }
       locationLat
       locationLng
+      locationName
       status
       createdByUserId
       createdAt
@@ -254,17 +286,6 @@ export const MARK_TASK_COMPLETE_MUTATION = gql`
       id
       status
       completedAt
-    }
-  }
-`
-
-export const POST_TASK_MUTATION = gql`
-  mutation PostTask($input: PostTaskInput!) {
-    postTask(input: $input) {
-      id
-      title
-      description
-      status
     }
   }
 `

@@ -1,5 +1,6 @@
 'use client'
 
+import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
 import {
   Box,
   Checkbox,
@@ -9,6 +10,7 @@ import {
   Slider,
   Stack,
 } from '@chakra-ui/react'
+import type { TaskCategory } from '@codegen/schema'
 import { Button, Heading, Text, TextInput } from '@ui'
 
 const FILTER_LABEL = {
@@ -22,9 +24,9 @@ const FILTER_LABEL = {
 export type UrgencyFilter = 'any' | 'emergency' | 'today' | 'week'
 
 export type TaskBrowseFiltersProps = {
-  categories: readonly string[]
-  selectedCategories: Set<string>
-  onToggleCategory: (category: string, checked: boolean) => void
+  categories: readonly TaskCategory[]
+  selectedCategories: Set<TaskCategory>
+  onToggleCategory: (category: TaskCategory, checked: boolean) => void
   searchQuery: string
   onSearchChange: (value: string) => void
   areaLocationInput?: string
@@ -185,7 +187,7 @@ export function TaskBrowseFilters({
                     justifyContent="flex-start"
                     onClick={() => onToggleCategory(cat, !active)}
                   >
-                    {cat}
+                    {formatTaskCategoryLabel(cat)}
                   </Button>
                 )
               })}
@@ -276,7 +278,9 @@ export function TaskBrowseFilters({
                 <Checkbox.HiddenInput />
                 <HStack gap={3} align="center">
                   <Checkbox.Control />
-                  <Checkbox.Label>{cat}</Checkbox.Label>
+                  <Checkbox.Label>
+                    {formatTaskCategoryLabel(cat)}
+                  </Checkbox.Label>
                 </HStack>
               </Checkbox.Root>
             ))}

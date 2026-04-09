@@ -2,6 +2,14 @@
 
 import { useMutation } from '@apollo/client/react'
 import { Box, HStack, Link, SimpleGrid, Stack } from '@chakra-ui/react'
+import {
+  BudgetUnit,
+  type CreateTaskMutation,
+  DayOfWeek,
+  TaskCategory,
+  TaskContactMethod,
+  TaskPaymentMethod,
+} from '@codegen/schema'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -10,16 +18,14 @@ import { TaskLocationMapPicker } from '@/app/(task)/components'
 import { CREATE_TASK } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { type CreateTaskMutation, TaskPaymentMethod } from '@codegen/schema'
 import { Button, Footer, Header, Heading, Section, Text } from '@ui'
 import { CreateTaskDetailsPanel, CreateTaskSubmitPanel } from './components'
 
 const CATEGORY_OPTIONS = [
-  'Plumbing',
-  'Electrical',
-  'Carpentry',
-  'Painting',
-  'Gardening',
+  TaskCategory.Plumbing,
+  TaskCategory.Electrical,
+  TaskCategory.Painting,
+  TaskCategory.Gardening,
 ] as const
 
 const TIME_SLOT_OPTIONS = [
@@ -28,6 +34,16 @@ const TIME_SLOT_OPTIONS = [
   { value: 'EVENING', label: 'Evening (4pm - 8pm)', hour: '18:00:00' },
   { value: 'ANYTIME', label: 'Anytime', hour: '12:00:00' },
 ] as const
+
+const WEEKDAY_FROM_JS: DayOfWeek[] = [
+  DayOfWeek.Sun,
+  DayOfWeek.Mon,
+  DayOfWeek.Tue,
+  DayOfWeek.Wed,
+  DayOfWeek.Thu,
+  DayOfWeek.Fri,
+  DayOfWeek.Sat,
+]
 
 type MobileStep = 1 | 2 | 3
 
@@ -42,6 +58,12 @@ function toIsoDateTime(preferredDate: string, preferredTimeSlot: string) {
   return parsedDate.toISOString()
 }
 
+function dayOfWeekFromPreferredDate(preferredDate: string): DayOfWeek | null {
+  const parsedDate = new Date(`${preferredDate}T12:00:00`)
+  if (Number.isNaN(parsedDate.getTime())) return null
+  return WEEKDAY_FROM_JS[parsedDate.getDay()] ?? null
+}
+
 export default function CreateTaskPage() {
   const router = useRouter()
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
@@ -49,17 +71,21 @@ export default function CreateTaskPage() {
   const [mobileStep, setMobileStep] = useState<MobileStep>(1)
   const [title, setTitle] = useState('Fix a leaky tap')
   const [description, setDescription] = useState('Tap leaking under the sink')
-  const [category, setCategory] = useState('Plumbing')
-  const [location, setLocation] = useState('Hackney, London')
+  const [category, setCategory] = useState<TaskCategory>(TaskCategory.Plumbing)
+  const [streetAddress, setStreetAddress] = useState(
+    '12 Example Street, London',
+  )
+  const [mapPlaceName, setMapPlaceName] = useState('Hackney, London')
   const [locationLat, setLocationLat] = useState('51.5416')
   const [locationLng, setLocationLng] = useState('-0.0572')
   const [preferredDate, setPreferredDate] = useState('')
   const [preferredTimeSlot, setPreferredTimeSlot] = useState('MORNING')
-  const [priceOfferPence, setPriceOfferPence] = useState('4500')
+  const [budgetMajor, setBudgetMajor] = useState('45')
   const [paymentMethod, setPaymentMethod] = useState<TaskPaymentMethod>(
     TaskPaymentMethod.Cash,
   )
-  const [contactMethod, setContactMethod] = useState('Phone')
+  const [preferredContactMethod, setPreferredContactMethod] =
+    useState<TaskContactMethod>(TaskContactMethod.Phone)
   const [error, setError] = useState<string | null>(null)
 
   const [runCreateTask, { loading: creating }] =
@@ -71,35 +97,31 @@ export default function CreateTaskPage() {
       setError('Please add a task title.')
       return false
     }
-    if (!category.trim()) {
-      setError('Please choose a category.')
-      return false
-    }
     if (!description.trim()) {
       setError('Please describe what needs to be done.')
+      return false
+    }
+    if (!streetAddress.trim()) {
+      setError('Please add the property address for the tradesperson.')
       return false
     }
     if (!preferredDate) {
       setError('Please provide a preferred date.')
       return false
     }
-    if (!contactMethod.trim()) {
-      setError('Please add a contact method.')
-      return false
-    }
-    const parsedPriceOfferPence = Number.parseInt(priceOfferPence, 10)
-    if (
-      !Number.isFinite(parsedPriceOfferPence) ||
-      Number.isNaN(parsedPriceOfferPence) ||
-      parsedPriceOfferPence <= 0
-    ) {
-      setError('Please provide a valid expected price in pence.')
+    const parsedBudget = Number.parseFloat(budgetMajor)
+    if (!Number.isFinite(parsedBudget) || parsedBudget <= 0) {
+      setError('Please provide a valid budget in pounds.')
       return false
     }
     return true
   }
 
   function validateLocation() {
+    if (!mapPlaceName.trim()) {
+      setError('Please confirm a location on the map (place name).')
+      return false
+    }
     const parsedLocationLat = Number.parseFloat(locationLat)
     const parsedLocationLng = Number.parseFloat(locationLng)
     if (
@@ -129,11 +151,24 @@ export default function CreateTaskPage() {
       return
     }
 
+    const day = dayOfWeekFromPreferredDate(preferredDate)
+    if (!day) {
+      setError('Please provide a valid preferred date.')
+      return
+    }
+
+    const slotConfig = TIME_SLOT_OPTIONS.find(
+      (slot) => slot.value === preferredTimeSlot,
+    )
+    const slotLabel = slotConfig?.label ?? 'Anytime'
+
     if (!getAuthToken()) {
       setError('Please log in before posting a task.')
       router.push(`/login?next=${encodeURIComponent('/tasks/create')}`)
       return
     }
+
+    const parsedBudget = Number.parseFloat(budgetMajor)
 
     try {
       const res = await runCreateTask({
@@ -141,14 +176,20 @@ export default function CreateTaskPage() {
           input: {
             title: title.trim(),
             description: description.trim(),
-            location: location.trim(),
-            locationLat: Number.parseFloat(locationLat),
-            locationLng: Number.parseFloat(locationLng),
-            dateTime: isoDateTime,
-            category: category.trim(),
-            priceOfferPence: Number.parseInt(priceOfferPence, 10),
+            budget: parsedBudget,
+            budgetUnit: BudgetUnit.Gbp,
             paymentMethod,
-            contactMethod: contactMethod.trim(),
+            address: streetAddress.trim(),
+            location: {
+              lat: Number.parseFloat(locationLat),
+              lng: Number.parseFloat(locationLng),
+              name: mapPlaceName.trim(),
+            },
+            category,
+            availability: [{ day, slots: [slotLabel] }],
+            preferredDateTime: isoDateTime,
+            preferredContactMethod,
+            images: [],
           },
         },
       })
@@ -211,30 +252,32 @@ export default function CreateTaskPage() {
                 <CreateTaskDetailsPanel
                   title={title}
                   description={description}
+                  streetAddress={streetAddress}
                   category={category}
                   preferredDate={preferredDate}
                   preferredTimeSlot={preferredTimeSlot}
-                  priceOfferPence={priceOfferPence}
-                  contactMethod={contactMethod}
+                  budgetMajor={budgetMajor}
+                  preferredContactMethod={preferredContactMethod}
                   paymentMethod={paymentMethod}
                   categoryOptions={CATEGORY_OPTIONS}
                   timeSlotOptions={TIME_SLOT_OPTIONS}
                   onTitleChange={setTitle}
                   onDescriptionChange={setDescription}
+                  onStreetAddressChange={setStreetAddress}
                   onCategoryChange={setCategory}
                   onPreferredDateChange={setPreferredDate}
                   onPreferredTimeSlotChange={setPreferredTimeSlot}
-                  onPriceOfferPenceChange={setPriceOfferPence}
-                  onContactMethodChange={setContactMethod}
+                  onBudgetMajorChange={setBudgetMajor}
+                  onPreferredContactMethodChange={setPreferredContactMethod}
                   onPaymentMethodChange={setPaymentMethod}
                 />
                 <Stack gap={6}>
                   <TaskLocationMapPicker
                     accessToken={mapboxAccessToken}
-                    location={location}
+                    location={mapPlaceName}
                     locationLat={locationLat}
                     locationLng={locationLng}
-                    onLocationChange={setLocation}
+                    onLocationChange={setMapPlaceName}
                     onLocationLatChange={setLocationLat}
                     onLocationLngChange={setLocationLng}
                   />
@@ -273,21 +316,23 @@ export default function CreateTaskPage() {
                 <CreateTaskDetailsPanel
                   title={title}
                   description={description}
+                  streetAddress={streetAddress}
                   category={category}
                   preferredDate={preferredDate}
                   preferredTimeSlot={preferredTimeSlot}
-                  priceOfferPence={priceOfferPence}
-                  contactMethod={contactMethod}
+                  budgetMajor={budgetMajor}
+                  preferredContactMethod={preferredContactMethod}
                   paymentMethod={paymentMethod}
                   categoryOptions={CATEGORY_OPTIONS}
                   timeSlotOptions={TIME_SLOT_OPTIONS}
                   onTitleChange={setTitle}
                   onDescriptionChange={setDescription}
+                  onStreetAddressChange={setStreetAddress}
                   onCategoryChange={setCategory}
                   onPreferredDateChange={setPreferredDate}
                   onPreferredTimeSlotChange={setPreferredTimeSlot}
-                  onPriceOfferPenceChange={setPriceOfferPence}
-                  onContactMethodChange={setContactMethod}
+                  onBudgetMajorChange={setBudgetMajor}
+                  onPreferredContactMethodChange={setPreferredContactMethod}
                   onPaymentMethodChange={setPaymentMethod}
                 />
               ) : null}
@@ -295,10 +340,10 @@ export default function CreateTaskPage() {
               {mobileStep === 2 ? (
                 <TaskLocationMapPicker
                   accessToken={mapboxAccessToken}
-                  location={location}
+                  location={mapPlaceName}
                   locationLat={locationLat}
                   locationLng={locationLng}
-                  onLocationChange={setLocation}
+                  onLocationChange={setMapPlaceName}
                   onLocationLatChange={setLocationLat}
                   onLocationLngChange={setLocationLng}
                 />

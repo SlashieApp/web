@@ -1,5 +1,10 @@
 'use client'
 
+import {
+  formatTaskCategoryLabel,
+  formatTaskContactMethodLabel,
+  taskPublicLocationLabel,
+} from '@/utils/taskLocationDisplay'
 import { useMutation, useQuery } from '@apollo/client/react'
 import { Box, Grid, HStack, Link, Stack, VStack } from '@chakra-ui/react'
 import type { AddOfferMutation, MeQuery, TaskQuery } from '@codegen/schema'
@@ -108,6 +113,8 @@ function categoryGradient(category: string): string {
     return 'linear-gradient(135deg, #cb7f08 0%, #855300 100%)'
   if (key.includes('hvac') || key.includes('heat'))
     return 'linear-gradient(135deg, #059669 0%, #047857 100%)'
+  if (key.includes('garden'))
+    return 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)'
   return 'linear-gradient(135deg, #dfe8f7 0%, #b5ceff 100%)'
 }
 
@@ -342,14 +349,14 @@ export default function TaskDetailPage() {
                           <HStack gap={2} color="muted">
                             <IconWrench />
                             <Text fontSize="sm" fontWeight={600} color="fg">
-                              {task.category?.trim() || 'General'}
+                              {formatTaskCategoryLabel(task.category)}
                             </Text>
                           </HStack>
-                          {task.location ? (
+                          {taskPublicLocationLabel(task) ? (
                             <HStack gap={2} color="muted">
                               <IconMapPin />
                               <Text fontSize="sm" fontWeight={600} color="fg">
-                                {task.location}
+                                {taskPublicLocationLabel(task)}
                               </Text>
                             </HStack>
                           ) : null}
@@ -446,7 +453,9 @@ export default function TaskDetailPage() {
                                 <Text as="span" fontWeight={600} color="fg">
                                   Contact:{' '}
                                 </Text>
-                                {task.contactMethod}
+                                {formatTaskContactMethodLabel(
+                                  task.contactMethod,
+                                )}
                               </Text>
                             ) : null}
                           </Stack>
@@ -467,9 +476,7 @@ export default function TaskDetailPage() {
                             gridRow={{ base: 'auto', md: '1 / -1' }}
                             borderRadius="xl"
                             minH={{ base: '160px', md: 'auto' }}
-                            bg={categoryGradient(
-                              task.category?.trim() || 'General',
-                            )}
+                            bg={categoryGradient(task.category)}
                             opacity={0.85}
                             display="flex"
                             alignItems="center"

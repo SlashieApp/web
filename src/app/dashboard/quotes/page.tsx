@@ -11,6 +11,7 @@ import {
   getCategoryVisual,
   isOfferAwarded,
 } from '@/utils/dashboardHelpers'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 
 function QuoteMetric({
@@ -148,7 +149,7 @@ export default function DashboardQuotesPage() {
                       </Badge>
                     </HStack>
                     <Text fontSize="sm" color="muted">
-                      {task.location ?? 'Location TBC'} ·{' '}
+                      {taskPublicLocationLabel(task) || 'Location TBC'} ·{' '}
                       {formatRelativePosted(offer.createdAt)}
                     </Text>
                     <Text fontSize="sm">
