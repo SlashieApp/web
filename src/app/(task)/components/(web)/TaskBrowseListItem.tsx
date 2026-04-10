@@ -16,7 +16,7 @@ export type TaskBrowseListCardTask = {
   location: string
   priceLabel: string
   badgeText?: string
-  imageSeed?: string
+  thumbnailSrc?: string
 }
 
 type TaskBrowseListItemWithTask = {
@@ -33,7 +33,7 @@ type TaskBrowseListItemLegacy = {
   description: string
   priceLabel: string
   metaLine: string
-  imageSeed?: string
+  thumbnailSrc?: string
   detailsHref: string
   detailsCtaLabel?: string
   badgeVariant?: JobCardBadgeVariant
@@ -65,7 +65,7 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
   let title: string
   let priceLabel: string
   let metaLine: string
-  let imageSeed: string | undefined
+  let thumbnailSrc: string | undefined
   let detailsHref: string
   let badgeVariant: JobCardBadgeVariant
   let badgeText: string | undefined
@@ -75,7 +75,7 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
     title = task.title
     priceLabel = task.priceLabel
     metaLine = task.location
-    imageSeed = task.imageSeed
+    thumbnailSrc = task.thumbnailSrc
     detailsHref = props.detailsHref ?? `/task/${task.id}`
     badgeVariant = props.badgeVariant ?? (task.badgeText ? 'featured' : 'none')
     badgeText = task.badgeText
@@ -83,15 +83,12 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
     title = props.title
     priceLabel = props.priceLabel
     metaLine = props.metaLine
-    imageSeed = props.imageSeed
+    thumbnailSrc = props.thumbnailSrc
     detailsHref = props.detailsHref
     badgeVariant = props.badgeVariant ?? 'none'
     badgeText = props.badgeText
   }
 
-  const thumbnailSrc = imageSeed
-    ? `https://picsum.photos/seed/${encodeURIComponent(imageSeed)}/200/300`
-    : 'https://picsum.photos/200/300'
   const showBadge = badgeVariant !== 'none' && Boolean(badgeText?.trim())
   const { bg: badgeBg, color: badgeColor } = badgeStyles(badgeVariant)
 
@@ -124,13 +121,15 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
         overflow="hidden"
         bg="surfaceContainerHigh"
       >
-        <Image
-          src={thumbnailSrc}
-          alt={`${title} thumbnail`}
-          fill
-          sizes="84px"
-          style={{ objectFit: 'cover' }}
-        />
+        {thumbnailSrc ? (
+          <Image
+            src={thumbnailSrc}
+            alt={`${title} thumbnail`}
+            fill
+            sizes="84px"
+            style={{ objectFit: 'cover' }}
+          />
+        ) : null}
       </Box>
       <Stack flex={1} minW={0} gap={1} h="84px">
         <HStack justify="space-between" align="flex-start" gap={2}>

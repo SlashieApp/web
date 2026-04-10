@@ -20,6 +20,7 @@ export const CREATE_TASK = gql`
       priceOfferPence
       paymentMethod
       contactMethod
+      images
     }
   }
 `
@@ -77,6 +78,7 @@ export const TASKS_QUERY = gql`
       priceOfferPence
       paymentMethod
       contactMethod
+      images
       offers {
         id
         taskId
@@ -165,6 +167,7 @@ export const BROWSE_TASKS_QUERY = gql`
       priceOfferPence
       createdAt
       category
+      images
     }
   }
 `
@@ -192,6 +195,7 @@ export const MY_TASKS_QUERY = gql`
       priceOfferPence
       paymentMethod
       contactMethod
+      images
       offers {
         id
         taskId

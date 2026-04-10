@@ -200,8 +200,6 @@ export default function CreateTaskPage() {
     const availability = buildAvailabilityPayload(values)
 
     try {
-      const imageUrls = await uploadTaskImagesWithPresign(apollo, imageFiles)
-
       const res = await runCreateTask({
         variables: {
           input: {
@@ -220,13 +218,18 @@ export default function CreateTaskPage() {
             availability,
             preferredDateTime: isoDateTime,
             preferredContactMethod: values.preferredContactMethod,
-            images: imageUrls,
+            images: [],
           },
         },
       })
 
       const createdTaskId = res.data?.createTask?.id
       if (!createdTaskId) throw new Error('Task creation failed.')
+
+      if (imageFiles.length > 0) {
+        await uploadTaskImagesWithPresign(apollo, createdTaskId, imageFiles)
+      }
+
       router.push(`/task/${createdTaskId}`)
     } catch (err: unknown) {
       setServerError(getFriendlyErrorMessage(err, 'Task creation failed.'))

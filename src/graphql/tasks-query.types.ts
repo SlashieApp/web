@@ -37,6 +37,7 @@ export type TaskListItem = {
   priceOfferPence?: number | null
   paymentMethod?: string | null
   contactMethod?: string | null
+  images?: string[] | null
   offers: TaskOfferListItem[]
 }
 

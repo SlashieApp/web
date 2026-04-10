@@ -4,6 +4,7 @@
  */
 
 export {
+  effectiveTaskPricePenceForFilter,
   endOfLocalDay,
   formatBudget,
   inferBadge,

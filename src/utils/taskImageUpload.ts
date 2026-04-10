@@ -1,6 +1,5 @@
 import type { ApolloClient } from '@apollo/client'
-import type { GetS3UploadUrlQuery } from '@codegen/schema'
-import { Bucket } from '@codegen/schema'
+import type { GetTaskS3UploadQuery } from '@codegen/schema'
 
 import { GET_S3_UPLOAD_URL_QUERY } from '@/graphql/storage'
 
@@ -13,34 +12,24 @@ function objectUrlFromPresignedPut(presignedUrl: string): string {
   }
 }
 
-function buildTaskImageObjectKey(file: File, index: number): string {
-  const safeName = file.name.replace(/[^\w.-]+/g, '_').slice(0, 120)
-  return `task-images/${Date.now()}-${index}-${safeName}`
-}
-
 /**
- * Calls `getS3UploadUrl` and returns a presigned PUT URL (or throws).
+ * Calls `getTaskS3Upload` and returns a presigned PUT URL (or throws).
  */
 export async function getS3PresignedPutUrlForTaskImage(
   client: ApolloClient,
-  key: string,
-  index: number,
+  taskId: string,
+  index: string,
 ): Promise<string> {
-  const { data, error } = await client.query<GetS3UploadUrlQuery>({
+  const { data, error } = await client.query<GetTaskS3UploadQuery>({
     query: GET_S3_UPLOAD_URL_QUERY,
-    variables: { bucket: Bucket.Task, key, index },
+    variables: { taskId, index },
     fetchPolicy: 'network-only',
   })
 
   if (error) throw error
 
-  const rows = data?.getS3UploadUrl ?? []
-  const fromIndex =
-    typeof index === 'number' && index >= 0 ? rows[index]?.url : undefined
-  const presigned =
-    (fromIndex?.trim() ? fromIndex : undefined) ??
-    rows.map((r) => r.url).find((u) => Boolean(u?.trim())) ??
-    ''
+  const rows = data?.getTaskS3Upload ?? []
+  const presigned = rows.map((r) => r.url).find((u) => Boolean(u?.trim())) ?? ''
   if (!presigned.trim()) {
     throw new Error('Could not get upload URL. Please try again.')
   }
@@ -55,17 +44,30 @@ export async function putTaskImageToPresignedUrl(
   presignedUrl: string,
   file: File,
 ): Promise<string> {
-  const putRes = await fetch(presignedUrl, {
-    method: 'PUT',
-    body: file,
-    headers: {
-      'Content-Type': file.type || 'application/octet-stream',
-    },
-  })
+  let putRes: Response
+  try {
+    //front-end
+    putRes = await fetch(presignedUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+        'Cache-Control': 'public,max-age=31536000,immutable',
+        'x-amz-acl': 'public-read',
+      },
+      body: file,
+    })
+  } catch {
+    throw new Error(
+      'Upload failed before reaching storage. Check storage CORS for PUT from this origin and try again.',
+    )
+  }
 
   if (!putRes.ok) {
+    const responseText = await putRes.text().catch(() => '')
     throw new Error(
-      'Upload failed. Please check your connection and try again.',
+      `Upload failed (${putRes.status}). ${
+        responseText || 'Please check storage permissions/CORS and try again.'
+      }`,
     )
   }
 
@@ -77,25 +79,32 @@ export async function putTaskImageToPresignedUrl(
  */
 export async function uploadTaskImageWithPresign(
   client: ApolloClient,
+  taskId: string,
   file: File,
   index: number,
 ): Promise<string> {
-  const key = buildTaskImageObjectKey(file, index)
-  const presigned = await getS3PresignedPutUrlForTaskImage(client, key, index)
+  const extension = file.name.split('.').pop()?.trim().toLowerCase()
+  const indexWithExtension = extension ? `${index}.${extension}` : `${index}`
+  const presigned = await getS3PresignedPutUrlForTaskImage(
+    client,
+    taskId,
+    indexWithExtension,
+  )
   return putTaskImageToPresignedUrl(presigned, file)
 }
 
 /**
- * For each file: `getS3UploadUrl` → presigned PUT → object URL. Empty input returns `[]`.
+ * For each file: `getTaskS3Upload` → presigned PUT → object URL. Empty input returns `[]`.
  */
 export async function uploadTaskImagesWithPresign(
   client: ApolloClient,
+  taskId: string,
   files: File[],
 ): Promise<string[]> {
   if (files.length === 0) return []
   const urls: string[] = []
   for (let i = 0; i < files.length; i += 1) {
-    urls.push(await uploadTaskImageWithPresign(client, files[i], i))
+    urls.push(await uploadTaskImageWithPresign(client, taskId, files[i], i))
   }
   return urls
 }

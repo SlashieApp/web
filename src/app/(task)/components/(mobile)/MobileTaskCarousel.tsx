@@ -27,7 +27,7 @@ export function MobileTaskCarousel() {
             taskPublicLocationLabel(task).trim() || 'Location on request',
           priceLabel: main,
           badgeText: badge.text,
-          imageSeed: task.id,
+          thumbnailSrc: task.images?.[0] ?? undefined,
         }
       }),
     [pageItems],

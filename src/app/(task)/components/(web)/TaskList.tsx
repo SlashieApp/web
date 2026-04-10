@@ -11,8 +11,13 @@ import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { formatBudget, inferBadge } from './taskBrowseHelpers'
 
 export function TaskList() {
-  const { loading, dataLoaded, pageItems, selectedTaskId, setSelectedTaskId } =
-    useTaskBrowseData()
+  const {
+    loading,
+    dataLoaded,
+    filteredSorted,
+    selectedTaskId,
+    setSelectedTaskId,
+  } = useTaskBrowseData()
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const [animationCycle, setAnimationCycle] = useState(0)
@@ -20,13 +25,13 @@ export function TaskList() {
 
   useEffect(() => {
     if (!selectedTaskId) return
-    if (!pageItems.some((t) => t.id === selectedTaskId)) return
+    if (!filteredSorted.some((t) => t.id === selectedTaskId)) return
     const scroller = scrollRef.current
     const el = cardRefs.current.get(selectedTaskId)
     if (!el || !scroller) return
 
-    const firstCard = pageItems[0]
-      ? cardRefs.current.get(pageItems[0].id)
+    const firstCard = filteredSorted[0]
+      ? cardRefs.current.get(filteredSorted[0].id)
       : null
     const gapPx = 12
     const slotHeight = firstCard?.offsetHeight ?? 0
@@ -34,7 +39,7 @@ export function TaskList() {
 
     const targetTop = Math.max(0, el.offsetTop - positionTwoOffset)
     scroller.scrollTo({ top: targetTop, behavior: 'smooth' })
-  }, [selectedTaskId, pageItems])
+  }, [selectedTaskId, filteredSorted])
 
   useEffect(() => {
     const justFinishedFetch = prevLoadingRef.current && !loading && dataLoaded
@@ -56,8 +61,8 @@ export function TaskList() {
 
   const listBody = (
     <>
-      {!loading && pageItems.length > 0
-        ? pageItems.map((task, index) => {
+      {!loading && filteredSorted.length > 0
+        ? filteredSorted.map((task, index) => {
             const { main } = formatBudget(task)
             const badge = inferBadge(task)
             const loc =
@@ -84,7 +89,7 @@ export function TaskList() {
                     description={task.description}
                     priceLabel={main}
                     metaLine={loc}
-                    imageSeed={task.id}
+                    thumbnailSrc={task.images?.[0] ?? undefined}
                     detailsHref={`/task/${task.id}`}
                     badgeVariant={badge.variant}
                     badgeText={badge.text}
