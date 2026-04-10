@@ -11,14 +11,7 @@ export { Dock } from './Dock'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
 export { HandyBoxWordmark } from './HandyBoxWordmark/HandyBoxWordmark'
-export {
-  IconCalendar,
-  IconClock,
-  IconDocument,
-  IconMapPin,
-  IconSliders,
-  IconWrench,
-} from './TaskBrowseMetaIcons'
+export { IconCalendar, IconClock, IconDocument, IconMapPin, IconSliders, IconWrench } from './TaskBrowseMetaIcons'
 export { Input, TextInput } from './Input'
 export * from './Footer'
 export * from './Header'
