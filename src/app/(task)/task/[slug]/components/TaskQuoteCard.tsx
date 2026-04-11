@@ -11,6 +11,8 @@ export type TaskQuoteCardProps = {
   message?: string | null
   ratingSummary?: string | null
   trustBadge?: 'pro' | 'verified'
+  /** Owner task page: prominent quote amount and layout. */
+  ownerQuoteEmphasis?: boolean
   acceptPrimary?: boolean
   messageHref: string
   isOwnQuote?: boolean
@@ -34,6 +36,7 @@ export function TaskQuoteCard({
   message,
   ratingSummary,
   trustBadge,
+  ownerQuoteEmphasis = false,
   acceptPrimary = false,
   messageHref,
   isOwnQuote = false,
@@ -48,6 +51,26 @@ export function TaskQuoteCard({
         : message
       : 'No message provided with this quote.'
 
+  const priceBlock = ownerQuoteEmphasis ? (
+    <Stack align="flex-end" gap={0} flexShrink={0} textAlign="right">
+      <Text
+        fontSize="10px"
+        fontWeight={800}
+        color="muted"
+        letterSpacing="0.12em"
+      >
+        QUOTE
+      </Text>
+      <Text fontWeight={800} fontSize="xl" color="secondary.700">
+        {priceLabel}
+      </Text>
+    </Stack>
+  ) : (
+    <Text fontWeight={800} fontSize="lg" color="fg" flexShrink={0}>
+      {priceLabel}
+    </Text>
+  )
+
   return (
     <Stack
       gap={3}
@@ -58,24 +81,24 @@ export function TaskQuoteCard({
       borderColor="border"
       boxShadow="ghostBorder"
     >
-      <HStack align="flex-start" gap={3}>
-        <Box
-          flexShrink={0}
-          boxSize="52px"
-          borderRadius="lg"
-          bg={avatarGradient(name + avatarLabel)}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          color="white"
-          fontWeight={800}
-          fontSize="sm"
-          letterSpacing="0.02em"
-        >
-          {avatarLabel.slice(0, 2).toUpperCase()}
-        </Box>
-        <Stack gap={1} flex={1} minW={0}>
-          <HStack justify="space-between" align="flex-start" gap={2}>
+      <HStack align="flex-start" gap={3} justify="space-between">
+        <HStack align="flex-start" gap={3} flex={1} minW={0}>
+          <Box
+            flexShrink={0}
+            boxSize="52px"
+            borderRadius="lg"
+            bg={avatarGradient(name + avatarLabel)}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            color="white"
+            fontWeight={800}
+            fontSize="sm"
+            letterSpacing="0.02em"
+          >
+            {avatarLabel.slice(0, 2).toUpperCase()}
+          </Box>
+          <Stack gap={1} flex={1} minW={0}>
             <HStack gap={2} flexWrap="wrap" align="center">
               <Heading size="sm" lineHeight="short">
                 {name}
@@ -92,21 +115,26 @@ export function TaskQuoteCard({
                 </Badge>
               ) : null}
               {trustBadge === 'verified' ? (
-                <Text fontSize="xs" fontWeight={600} color="primary.600">
-                  ✓ Verified
-                </Text>
+                <Badge
+                  px={2}
+                  py={0.5}
+                  fontSize="10px"
+                  bg="primary.600"
+                  color="white"
+                  fontWeight={700}
+                >
+                  VERIFIED
+                </Badge>
               ) : null}
             </HStack>
-            <Text fontWeight={800} fontSize="lg" color="fg" flexShrink={0}>
-              {priceLabel}
-            </Text>
-          </HStack>
-          {ratingSummary ? (
-            <Text fontSize="sm" color="secondary.500" fontWeight={600}>
-              ★ {ratingSummary}
-            </Text>
-          ) : null}
-        </Stack>
+            {ratingSummary ? (
+              <Text fontSize="sm" color="secondary.600" fontWeight={600}>
+                ★ {ratingSummary}
+              </Text>
+            ) : null}
+          </Stack>
+        </HStack>
+        {priceBlock}
       </HStack>
       <Text fontSize="sm" color="muted" fontStyle="italic" lineHeight="tall">
         "{snippet}"

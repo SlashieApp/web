@@ -113,8 +113,17 @@ export const TASK_QUERY = gql`
       dateTime
       category
       priceQuotePence
+      budgetRange {
+        min
+        max
+      }
       paymentMethod
       contactMethod
+      images
+      availability {
+        day
+        slots
+      }
       quotes {
         id
         taskId

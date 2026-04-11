@@ -1,80 +1,50 @@
 'use client'
 
-import {
-  formatTaskCategoryLabel,
-  formatTaskContactMethodLabel,
-  taskPublicLocationLabel,
-} from '@/utils/taskLocationDisplay'
 import { useMutation, useQuery } from '@apollo/client/react'
-import { Box, Grid, HStack, Link, Stack, VStack } from '@chakra-ui/react'
+import { Box, Grid, Link, Stack } from '@chakra-ui/react'
 import type {
   AcceptQuoteMutation,
   AddQuoteMutation,
+  CancelTaskMutation,
   MeQuery,
   TaskQuery,
 } from '@codegen/schema'
+import { TaskStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { ACCEPT_QUOTE_MUTATION, ADD_QUOTE, TASK_QUERY } from '@/graphql/tasks'
+import {
+  ACCEPT_QUOTE_MUTATION,
+  ADD_QUOTE,
+  CANCEL_TASK_MUTATION,
+  TASK_QUERY,
+} from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
-import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { getWorkerRegistered } from '@/utils/workerSession'
+import { Footer, Heading, Section, Text } from '@ui'
+
+import { TaskDetailApproximateLocation } from './components/TaskDetailApproximateLocation'
+import { TaskDetailDescriptionCard } from './components/TaskDetailDescriptionCard'
+import { TaskDetailHero } from './components/TaskDetailHero'
+import { TaskDetailOwnerHelpCard } from './components/TaskDetailOwnerHelpCard'
+import { TaskDetailOwnerPerformanceCard } from './components/TaskDetailOwnerPerformanceCard'
+import { TaskDetailOwnerQuickInfo } from './components/TaskDetailOwnerQuickInfo'
+import { TaskDetailOwnerQuotesSection } from './components/TaskDetailOwnerQuotesSection'
+import { TaskDetailOwnerToolbar } from './components/TaskDetailOwnerToolbar'
+import { TaskDetailPhotoGrid } from './components/TaskDetailPhotoGrid'
+import { TaskDetailPostedMeta } from './components/TaskDetailPostedMeta'
+import { TaskDetailPreferredAvailability } from './components/TaskDetailPreferredAvailability'
 import {
-  Badge,
-  Button,
-  Footer,
-  GlassCard,
-  Header,
-  Heading,
-  IconCalendar,
-  IconDocument,
-  IconMapPin,
-  IconWrench,
-  Section,
-  Text,
-  TextInput,
-} from '@ui'
-import { TaskQuoteCard } from './components/TaskQuoteCard'
-
-function formatDateTime(isoDateTime: string) {
-  return new Intl.DateTimeFormat('en-GB', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(isoDateTime))
-}
-
-function formatTimelineStamp(iso: unknown) {
-  const d =
-    typeof iso === 'string' || typeof iso === 'number'
-      ? new Date(iso)
-      : iso instanceof Date
-        ? iso
-        : null
-  if (!d || Number.isNaN(d.getTime())) return '—'
-  const now = new Date()
-  const isSameDay =
-    d.getDate() === now.getDate() &&
-    d.getMonth() === now.getMonth() &&
-    d.getFullYear() === now.getFullYear()
-  const time = new Intl.DateTimeFormat('en-GB', {
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(d)
-  if (isSameDay) return `Today at ${time}`
-  return new Intl.DateTimeFormat('en-GB', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(d)
-}
-
-function formatPaymentMethod(paymentMethod: string) {
-  const normalised = paymentMethod.replaceAll('_', ' ').toLowerCase()
-  return normalised.charAt(0).toUpperCase() + normalised.slice(1)
-}
+  TaskDetailWorkerCtas,
+  TaskDetailWorkerQuotePanel,
+} from './components/TaskDetailWorkerSidebar'
+import {
+  type TaskDetailRecord,
+  mapboxStaticMapUrl,
+} from './components/taskDetailUtils'
 
 function formatPounds(pricePence: number) {
   return `£${(pricePence / 100).toFixed(0)}`
@@ -84,12 +54,9 @@ function normaliseStatus(status: string) {
   return status.replaceAll('_', ' ').toUpperCase()
 }
 
-function statusBannerLabel(status: string, quoteCount: number) {
+function taskStatusBadgeLabel(status: string) {
   const s = status.toUpperCase()
-  if (s === 'OPEN' || s === 'POSTED' || s === 'PUBLISHED') {
-    const n = quoteCount
-    return `OPEN — ${n} QUOTE${n === 1 ? '' : 'S'} RECEIVED`
-  }
+  if (s === 'OPEN' || s === 'POSTED' || s === 'PUBLISHED') return 'OPEN'
   return normaliseStatus(status)
 }
 
@@ -98,21 +65,6 @@ function workerAvatarLabel(workerUserId: string) {
   if (alnum.length >= 2) return alnum.slice(0, 2)
   if (alnum.length === 1) return `${alnum}P`
   return 'PR'
-}
-
-function categoryGradient(category: string): string {
-  const key = category.toLowerCase()
-  if (key.includes('plumb'))
-    return 'linear-gradient(135deg, #1A56DB 0%, #003fb1 100%)'
-  if (key.includes('electr'))
-    return 'linear-gradient(135deg, #5f88e8 0%, #1A56DB 100%)'
-  if (key.includes('carpent') || key.includes('wood'))
-    return 'linear-gradient(135deg, #cb7f08 0%, #855300 100%)'
-  if (key.includes('hvac') || key.includes('heat'))
-    return 'linear-gradient(135deg, #059669 0%, #047857 100%)'
-  if (key.includes('garden'))
-    return 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)'
-  return 'linear-gradient(135deg, #dfe8f7 0%, #b5ceff 100%)'
 }
 
 export default function TaskDetailPage() {
@@ -127,6 +79,7 @@ export default function TaskDetailPage() {
   const [quoteSuccess, setQuoteSuccess] = useState<string | null>(null)
   const [acceptError, setAcceptError] = useState<string | null>(null)
   const [acceptingQuoteId, setAcceptingQuoteId] = useState<string | null>(null)
+  const [cancelError, setCancelError] = useState<string | null>(null)
   const [workerProfileEnabled, setWorkerProfileEnabled] = useState(false)
 
   const hasToken = typeof window !== 'undefined' && Boolean(getAuthToken())
@@ -146,6 +99,9 @@ export default function TaskDetailPage() {
     useMutation<AddQuoteMutation>(ADD_QUOTE)
 
   const [acceptQuote] = useMutation<AcceptQuoteMutation>(ACCEPT_QUOTE_MUTATION)
+
+  const [cancelTask, { loading: cancelingTask }] =
+    useMutation<CancelTaskMutation>(CANCEL_TASK_MUTATION)
 
   const task = data?.task
 
@@ -174,6 +130,54 @@ export default function TaskDetailPage() {
     return sortedQuotes[0]?.pricePence ?? null
   }, [sortedQuotes])
 
+  const mapImageUrl = useMemo(() => {
+    if (!task) return null
+    const lat = task.location?.lat ?? task.locationLat
+    const lng = task.location?.lng ?? task.locationLng
+    if (lat == null || lng == null) return null
+    return mapboxStaticMapUrl({
+      lat,
+      lng,
+      accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN,
+      width: 440,
+      height: 220,
+    })
+  }, [task])
+
+  const scrollToQuoteForm = useCallback(() => {
+    document.getElementById('task-quote')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }, [])
+
+  const scrollToOwnerPerformance = useCallback(() => {
+    document.getElementById('owner-task-performance')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }, [])
+
+  async function onCancelTask() {
+    if (!task) return
+    setCancelError(null)
+    const ok = window.confirm(
+      'Cancel this task? Professionals will no longer be able to send quotes.',
+    )
+    if (!ok) return
+    try {
+      const res = await cancelTask({ variables: { taskId: task.id } })
+      if (!res.data?.cancelTask?.id) {
+        throw new Error('Could not cancel this task.')
+      }
+      await refetch()
+    } catch (err: unknown) {
+      setCancelError(
+        getFriendlyErrorMessage(err, 'Could not cancel this task.'),
+      )
+    }
+  }
+
   async function onSubmitQuote() {
     setQuoteError(null)
     setQuoteSuccess(null)
@@ -185,7 +189,9 @@ export default function TaskDetailPage() {
 
     if (!getAuthToken()) {
       setQuoteError('Please log in before submitting a quote.')
-      router.push(`/login?next=${encodeURIComponent(`/task/${task.id}#quote`)}`)
+      router.push(
+        `/login?next=${encodeURIComponent(`/task/${task.id}#task-quote`)}`,
+      )
       return
     }
 
@@ -236,27 +242,65 @@ export default function TaskDetailPage() {
     }
   }
 
-  const canAcceptQuotes =
-    isOwner &&
-    task &&
-    ['OPEN', 'POSTED', 'PUBLISHED'].includes(task.status.toUpperCase())
+  const canAcceptQuotes = Boolean(
+    isOwner && task && task.status === TaskStatus.Open,
+  )
   const canAccessWorkerTools = Boolean(workerProfileEnabled || myQuote)
+
+  const introSubtitle = useMemo(() => {
+    if (!taskId) return null
+    if (loading) return 'Fetching task information…'
+    if (error) return null
+    if (!task) {
+      return 'This task could not be found or may have been removed.'
+    }
+    if (isOwner) {
+      return null
+    }
+    return 'Review the scope, budget, photos, and availability before you send a quote.'
+  }, [taskId, loading, error, task, isOwner])
+
+  function visitorMainColumn(t: TaskDetailRecord) {
+    return (
+      <Stack gap={{ base: 6, lg: 8 }}>
+        <TaskDetailHero
+          task={t}
+          statusBadgeLabel={taskStatusBadgeLabel(t.status)}
+        />
+        <TaskDetailPhotoGrid task={t} />
+        <TaskDetailDescriptionCard task={t} />
+        <TaskDetailPreferredAvailability task={t} />
+      </Stack>
+    )
+  }
+
+  function ownerMainColumn(t: TaskDetailRecord) {
+    return (
+      <Stack gap={{ base: 6, lg: 8 }}>
+        <TaskDetailOwnerQuickInfo task={t} />
+        <TaskDetailPhotoGrid task={t} sectionTitle="SITE PHOTOS" />
+        <TaskDetailDescriptionCard task={t} />
+      </Stack>
+    )
+  }
 
   if (!taskId) {
     return (
-      <Box bg="bg" color="fg" minH="100vh">
+      <Box bg="surface" color="fg" minH="100vh">
         <Stack gap={0}>
-          <Section>
-            <Link
-              as={NextLink}
-              href="/"
-              fontWeight={600}
-              color="primary.700"
-              _hover={{ textDecoration: 'none' }}
-            >
-              ← Back to Job Board
-            </Link>
-            <Text color="muted">No task ID provided.</Text>
+          <Section bg="surfaceContainerLow" py={{ base: 8, md: 10 }}>
+            <Stack gap={6} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
+              <Link
+                as={NextLink}
+                href="/"
+                fontWeight={600}
+                color="primary.700"
+                _hover={{ textDecoration: 'none' }}
+              >
+                ← Back to tasks
+              </Link>
+              <Text color="muted">No task ID provided.</Text>
+            </Stack>
           </Section>
           <Footer />
         </Stack>
@@ -265,517 +309,139 @@ export default function TaskDetailPage() {
   }
 
   return (
-    <Box bg="bg" color="fg" minH="100vh">
+    <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
-        <Section id="header" py={{ base: 6, md: 8 }}>
-          <Header activeItem="home" />
-        </Section>
-        <Box as="section" py={{ base: 8, md: 10 }}>
-          <Box maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-            <Stack gap={10}>
-              <Stack gap={4}>
+        <Section bg="surfaceContainerLow" py={{ base: 8, md: 10 }}>
+          <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
+            {isOwner && task ? (
+              <TaskDetailOwnerToolbar
+                task={task}
+                openStatusLabel={taskStatusBadgeLabel(task.status)}
+                quotesReceivedLabel={`${task.quotes.length} quote${task.quotes.length === 1 ? '' : 's'} received`}
+                onViewStats={scrollToOwnerPerformance}
+                onCancelTask={() => void onCancelTask()}
+                cancelLoading={cancelingTask}
+                cancelDisabled={
+                  task.status === TaskStatus.Cancelled ||
+                  task.status === TaskStatus.Completed ||
+                  task.status === TaskStatus.Confirmed
+                }
+              />
+            ) : (
+              <Stack gap={2}>
                 <Link
                   as={NextLink}
                   href="/"
                   fontWeight={600}
-                  fontSize="sm"
-                  color="primary.600"
-                  _hover={{ color: 'primary.700', textDecoration: 'none' }}
+                  color="primary.700"
+                  _hover={{ textDecoration: 'none' }}
                 >
-                  ← Back to Job Board
+                  ← Back to tasks
                 </Link>
-
-                {loading ? (
-                  <Text color="muted">Loading task…</Text>
-                ) : error ? (
-                  <Text color="red.400" fontSize="sm">
-                    {error.message}
+                <Heading size={{ base: '2xl', md: '3xl' }} fontWeight={800}>
+                  {task?.title ?? 'Task details'}
+                </Heading>
+                {introSubtitle ? (
+                  <Text color="muted" fontSize="sm">
+                    {introSubtitle}
                   </Text>
-                ) : !task ? (
-                  <Text color="muted">Task not found.</Text>
-                ) : (
-                  <Grid
-                    templateColumns={{
-                      base: '1fr',
-                      xl: 'minmax(0, 1fr) 400px',
-                    }}
-                    gap={{ base: 10, xl: 10 }}
-                    alignItems="flex-start"
-                  >
-                    <Stack gap={8}>
-                      <Stack gap={4}>
-                        <Box
-                          as="span"
-                          display="inline-flex"
-                          alignSelf="flex-start"
-                          alignItems="center"
-                          gap={2}
-                          px={4}
-                          py={1.5}
-                          borderRadius="full"
-                          bg="#F2994A"
-                          color="white"
-                          fontSize="11px"
-                          fontWeight={800}
-                          letterSpacing="0.08em"
-                        >
-                          <Box
-                            as="span"
-                            w="6px"
-                            h="6px"
-                            borderRadius="full"
-                            bg="white"
-                            aria-hidden
-                          />
-                          {statusBannerLabel(task.status, task.quotes.length)}
-                        </Box>
-                        <Heading
-                          size="xl"
-                          color="ink.900"
-                          lineHeight="shorter"
-                          fontWeight={800}
-                        >
-                          {task.title}
-                        </Heading>
-                        <HStack gap={{ base: 4, md: 8 }} flexWrap="wrap">
-                          <HStack gap={2} color="muted">
-                            <IconWrench />
-                            <Text fontSize="sm" fontWeight={600} color="fg">
-                              {formatTaskCategoryLabel(task.category)}
-                            </Text>
-                          </HStack>
-                          {taskPublicLocationLabel(task) ? (
-                            <HStack gap={2} color="muted">
-                              <IconMapPin />
-                              <Text fontSize="sm" fontWeight={600} color="fg">
-                                {taskPublicLocationLabel(task)}
-                              </Text>
-                            </HStack>
-                          ) : null}
-                          <HStack gap={2} color="muted">
-                            <IconCalendar />
-                            <Text fontSize="sm" fontWeight={600} color="fg">
-                              {formatRelativeTime(task.createdAt)}
-                            </Text>
-                          </HStack>
-                        </HStack>
-                      </Stack>
-
-                      <GlassCard p={{ base: 5, md: 6 }} borderColor="border">
-                        <Stack gap={4}>
-                          <HStack gap={2}>
-                            <IconDocument color="primary.600" />
-                            <Heading size="md">Job description</Heading>
-                          </HStack>
-                          <Text color="muted" lineHeight="tall">
-                            {task.description}
-                          </Text>
-                          <Grid
-                            templateColumns={{
-                              base: '1fr',
-                              sm: 'repeat(2, minmax(0, 1fr))',
-                            }}
-                            gap={3}
-                          >
-                            {task.dateTime ? (
-                              <Box
-                                borderRadius="lg"
-                                bg="primary.50"
-                                px={4}
-                                py={3}
-                                borderWidth="1px"
-                                borderColor="primary.100"
-                              >
-                                <Text
-                                  fontSize="10px"
-                                  fontWeight={800}
-                                  letterSpacing="0.1em"
-                                  color="primary.700"
-                                  mb={1}
-                                >
-                                  PREFERRED WINDOW
-                                </Text>
-                                <Text fontWeight={700} color="fg">
-                                  {formatDateTime(task.dateTime)}
-                                </Text>
-                              </Box>
-                            ) : null}
-                            {task.priceQuotePence != null &&
-                            task.priceQuotePence > 0 ? (
-                              <Box
-                                borderRadius="lg"
-                                bg="primary.50"
-                                px={4}
-                                py={3}
-                                borderWidth="1px"
-                                borderColor="primary.100"
-                              >
-                                <Text
-                                  fontSize="10px"
-                                  fontWeight={800}
-                                  letterSpacing="0.1em"
-                                  color="primary.700"
-                                  mb={1}
-                                >
-                                  CLIENT BUDGET
-                                </Text>
-                                <Text fontWeight={700} color="fg">
-                                  {formatPounds(task.priceQuotePence)}
-                                </Text>
-                              </Box>
-                            ) : null}
-                          </Grid>
-                          <Stack
-                            gap={2}
-                            fontSize="sm"
-                            pt={2}
-                            borderTopWidth="1px"
-                            borderColor="border"
-                          >
-                            {task.paymentMethod ? (
-                              <Text color="muted">
-                                <Text as="span" fontWeight={600} color="fg">
-                                  Payment:{' '}
-                                </Text>
-                                {formatPaymentMethod(task.paymentMethod)}
-                              </Text>
-                            ) : null}
-                            {task.contactMethod ? (
-                              <Text color="muted">
-                                <Text as="span" fontWeight={600} color="fg">
-                                  Contact:{' '}
-                                </Text>
-                                {formatTaskContactMethodLabel(
-                                  task.contactMethod,
-                                )}
-                              </Text>
-                            ) : null}
-                          </Stack>
-                        </Stack>
-                      </GlassCard>
-
-                      <Stack gap={3}>
-                        <Heading size="md">Job photos</Heading>
-                        <Grid
-                          templateColumns={{ base: '1fr', md: '1.4fr 1fr' }}
-                          templateRows={{
-                            base: 'repeat(3, minmax(120px, 160px))',
-                            md: 'repeat(2, minmax(100px, 140px))',
-                          }}
-                          gap={3}
-                        >
-                          <Box
-                            gridRow={{ base: 'auto', md: '1 / -1' }}
-                            borderRadius="xl"
-                            minH={{ base: '160px', md: 'auto' }}
-                            bg={categoryGradient(task.category)}
-                            opacity={0.85}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            color="white"
-                            fontWeight={800}
-                            fontSize="sm"
-                            letterSpacing="0.06em"
-                            textAlign="center"
-                            px={4}
-                          >
-                            Photo preview unavailable for this task
-                          </Box>
-                          <Box
-                            borderRadius="xl"
-                            bg="surfaceContainerLow"
-                            borderWidth="1px"
-                            borderColor="border"
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            color="muted"
-                            fontSize="sm"
-                            fontWeight={600}
-                          >
-                            Attachments are not shown on the web yet
-                          </Box>
-                          <Box
-                            borderRadius="xl"
-                            bg="surfaceContainerHigh"
-                            borderWidth="1px"
-                            borderColor="border"
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            color="muted"
-                            fontSize="sm"
-                            fontWeight={600}
-                          >
-                            More photos on mobile soon
-                          </Box>
-                        </Grid>
-                      </Stack>
-
-                      <Box
-                        borderRadius="xl"
-                        bg="surfaceContainerLow"
-                        px={{ base: 5, md: 6 }}
-                        py={5}
-                        borderWidth="1px"
-                        borderColor="border"
-                      >
-                        <Heading size="md" mb={5}>
-                          Job timeline
-                        </Heading>
-                        <Stack gap={0} position="relative">
-                          <HStack align="flex-start" gap={4} pb={6}>
-                            <VStack gap={0} flexShrink={0} align="center">
-                              <Box
-                                boxSize="36px"
-                                borderRadius="full"
-                                bg="primary.600"
-                                color="white"
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                fontSize="sm"
-                                fontWeight={800}
-                              >
-                                ✓
-                              </Box>
-                              <Box
-                                flex={1}
-                                w="2px"
-                                minH="32px"
-                                bg={
-                                  task.quotes.length > 0
-                                    ? '#F2994A'
-                                    : 'outlineVariant'
-                                }
-                                borderRadius="full"
-                                mt={1}
-                              />
-                            </VStack>
-                            <Stack gap={0.5} pt={1}>
-                              <Text fontWeight={700}>Job posted</Text>
-                              <Text fontSize="sm" color="muted">
-                                {formatTimelineStamp(task.createdAt)}
-                              </Text>
-                            </Stack>
-                          </HStack>
-                          <HStack align="flex-start" gap={4}>
-                            <Box
-                              flexShrink={0}
-                              boxSize="36px"
-                              borderRadius="full"
-                              bg="#F2994A"
-                              color="white"
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="center"
-                              aria-hidden
-                            >
-                              <svg
-                                viewBox="0 0 24 24"
-                                width="18"
-                                height="18"
-                                fill="none"
-                                aria-hidden
-                              >
-                                <title>Quotes stage</title>
-                                <path
-                                  d="M7 18.5 3 21v-3.5A4 4 0 0 1 5 9a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4 4 4 0 0 1-4 4H9l-2 1.5Z"
-                                  stroke="currentColor"
-                                  strokeWidth="1.75"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </Box>
-                            <Stack gap={0.5} pt={1}>
-                              <Text fontWeight={700}>
-                                {task.quotes.length > 0
-                                  ? 'Reviewing quotes'
-                                  : 'Waiting for quotes'}
-                              </Text>
-                              <Text fontSize="sm" color="muted">
-                                {task.quotes.length > 0
-                                  ? `${task.quotes.length} professional${task.quotes.length === 1 ? '' : 's'} interested`
-                                  : 'Share this task to attract quotes faster.'}
-                              </Text>
-                            </Stack>
-                          </HStack>
-                        </Stack>
-                      </Box>
-
-                      {!isOwner ? (
-                        <Stack gap={6} id="quote">
-                          {myQuote ? (
-                            <GlassCard p={6}>
-                              <Stack gap={3}>
-                                <Heading size="md">Your quote</Heading>
-                                <Text color="muted">
-                                  You submitted{' '}
-                                  {formatPounds(myQuote.pricePence)}
-                                  {myQuote.message
-                                    ? ` — “${myQuote.message}”`
-                                    : '.'}
-                                </Text>
-                                <Badge
-                                  bg="surfaceContainerLow"
-                                  color="fg"
-                                  w="fit-content"
-                                >
-                                  Status: {normaliseStatus(myQuote.status)}
-                                </Badge>
-                              </Stack>
-                            </GlassCard>
-                          ) : me && !canAccessWorkerTools ? (
-                            <GlassCard
-                              p={6}
-                              bg="primary.50"
-                              borderColor="primary.100"
-                            >
-                              <Stack gap={4}>
-                                <Heading size="md">
-                                  Become a worker to send a quote
-                                </Heading>
-                                <Text color="muted">
-                                  Worker features are blocked by default. Create
-                                  your worker profile to unlock quote
-                                  submission, earnings, and worker-side task
-                                  tools.
-                                </Text>
-                                <Button
-                                  as={NextLink}
-                                  href="/dashboard/worker/register"
-                                  alignSelf="flex-start"
-                                >
-                                  Create worker profile
-                                </Button>
-                              </Stack>
-                            </GlassCard>
-                          ) : (
-                            <GlassCard p={6}>
-                              <Stack gap={4}>
-                                <Heading size="md">Submit a quote</Heading>
-                                <Text color="muted">
-                                  Share your price and any message for the
-                                  client.
-                                </Text>
-                                <Stack gap={3}>
-                                  <TextInput
-                                    placeholder="Quote price (pence)"
-                                    value={pricePence}
-                                    onChange={(e) =>
-                                      setPricePence(e.target.value)
-                                    }
-                                  />
-                                  <TextInput
-                                    placeholder="Short message to the client"
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                  />
-                                  <Button
-                                    background="linkBlue.600"
-                                    color="white"
-                                    loading={quoting}
-                                    onClick={() => void onSubmitQuote()}
-                                  >
-                                    Submit quote
-                                  </Button>
-                                  {quoteError ? (
-                                    <Text color="red.400" fontSize="sm">
-                                      {quoteError}
-                                    </Text>
-                                  ) : null}
-                                  {quoteSuccess ? (
-                                    <Text color="green.600" fontSize="sm">
-                                      {quoteSuccess}
-                                    </Text>
-                                  ) : null}
-                                </Stack>
-                              </Stack>
-                            </GlassCard>
-                          )}
-                        </Stack>
-                      ) : null}
-                    </Stack>
-
-                    {isOwner ? (
-                      <Box
-                        position={{ base: 'static', xl: 'sticky' }}
-                        top={{ xl: '88px' }}
-                        w="full"
-                      >
-                        <Stack gap={4} id="quotes">
-                          <HStack justify="space-between" align="center">
-                            <Heading size="md">
-                              Quotes ({task.quotes.length})
-                            </Heading>
-                            {task.quotes.length > 3 ? (
-                              <Link
-                                as={NextLink}
-                                href="#quotes-list"
-                                fontSize="sm"
-                                fontWeight={700}
-                                color="primary.600"
-                                _hover={{ color: 'primary.700' }}
-                              >
-                                View all
-                              </Link>
-                            ) : null}
-                          </HStack>
-                          {acceptError ? (
-                            <Text color="red.400" fontSize="sm">
-                              {acceptError}
-                            </Text>
-                          ) : null}
-                          {task.quotes.length === 0 ? (
-                            <GlassCard p={6}>
-                              <Text color="muted">
-                                No quotes yet. Share your task link to get
-                                quotes from professionals.
-                              </Text>
-                            </GlassCard>
-                          ) : (
-                            <Stack
-                              gap={4}
-                              id="quotes-list"
-                              maxH={{ xl: 'calc(100vh - 140px)' }}
-                              overflowY={{ xl: 'auto' }}
-                              pr={{ xl: 1 }}
-                              style={{ scrollbarGutter: 'stable' }}
-                            >
-                              {sortedQuotes.map((quote) => (
-                                <TaskQuoteCard
-                                  key={quote.id}
-                                  name="Professional"
-                                  avatarLabel={workerAvatarLabel(
-                                    quote.workerUserId,
-                                  )}
-                                  priceLabel={formatPounds(quote.pricePence)}
-                                  message={quote.message}
-                                  acceptPrimary={
-                                    quote.pricePence === lowestPricePence
-                                  }
-                                  messageHref="/dashboard"
-                                  isOwnQuote={false}
-                                  onAccept={
-                                    canAcceptQuotes
-                                      ? () => void onAcceptQuote(quote.id)
-                                      : undefined
-                                  }
-                                  acceptLoading={acceptingQuoteId === quote.id}
-                                />
-                              ))}
-                            </Stack>
-                          )}
-                        </Stack>
-                      </Box>
-                    ) : null}
-                  </Grid>
-                )}
+                ) : null}
               </Stack>
-            </Stack>
-          </Box>
-        </Box>
+            )}
+
+            {loading ? null : error ? (
+              <Text color="red.400" fontSize="sm">
+                {error.message}
+              </Text>
+            ) : !task ? null : (
+              <Stack gap={{ base: 8, lg: 10 }} w="full">
+                <Grid
+                  w="full"
+                  templateColumns={{
+                    base: '1fr',
+                    lg: 'minmax(0, 1fr) minmax(300px, 380px)',
+                  }}
+                  gap={{ base: 8, lg: 10 }}
+                  alignItems="start"
+                >
+                  <Box
+                    gridColumn={{ base: '1', lg: '1' }}
+                    order={{ base: 2, lg: 1 }}
+                  >
+                    {isOwner ? ownerMainColumn(task) : visitorMainColumn(task)}
+                  </Box>
+                  {isOwner ? (
+                    <Box
+                      gridColumn={{ base: '1', lg: '2' }}
+                      order={{ base: 1, lg: 2 }}
+                      position={{ base: 'static', lg: 'sticky' }}
+                      top={{ lg: 4 }}
+                      alignSelf="start"
+                      w="full"
+                    >
+                      <Stack gap={4}>
+                        <TaskDetailApproximateLocation
+                          task={task}
+                          mapImageUrl={mapImageUrl}
+                          variant="owner"
+                        />
+                        <TaskDetailOwnerPerformanceCard task={task} />
+                        <TaskDetailOwnerHelpCard />
+                      </Stack>
+                    </Box>
+                  ) : (
+                    <Box
+                      gridColumn={{ base: '1', lg: '2' }}
+                      order={{ base: 1, lg: 2 }}
+                      position={{ base: 'static', lg: 'sticky' }}
+                      top={{ lg: 4 }}
+                      alignSelf="start"
+                      w="full"
+                    >
+                      <Stack gap={4}>
+                        <TaskDetailWorkerCtas
+                          onScrollToQuoteForm={scrollToQuoteForm}
+                        />
+                        <TaskDetailPostedMeta createdAt={task.createdAt} />
+                        <TaskDetailApproximateLocation
+                          task={task}
+                          mapImageUrl={mapImageUrl}
+                        />
+                        <TaskDetailWorkerQuotePanel
+                          myQuote={myQuote}
+                          canAccessWorkerTools={canAccessWorkerTools}
+                          mePresent={Boolean(me)}
+                          pricePence={pricePence}
+                          message={message}
+                          onPriceChange={setPricePence}
+                          onMessageChange={setMessage}
+                          onSubmitQuote={onSubmitQuote}
+                          quoting={quoting}
+                          quoteError={quoteError}
+                          quoteSuccess={quoteSuccess}
+                        />
+                      </Stack>
+                    </Box>
+                  )}
+                </Grid>
+                {isOwner ? (
+                  <TaskDetailOwnerQuotesSection
+                    task={task}
+                    sortedQuotes={sortedQuotes}
+                    lowestPricePence={lowestPricePence}
+                    canAcceptQuotes={canAcceptQuotes}
+                    acceptError={acceptError}
+                    cancelError={cancelError}
+                    acceptingQuoteId={acceptingQuoteId}
+                    onAcceptQuote={onAcceptQuote}
+                    formatPounds={formatPounds}
+                    workerAvatarLabel={workerAvatarLabel}
+                  />
+                ) : null}
+              </Stack>
+            )}
+          </Stack>
+        </Section>
         <Footer />
       </Stack>
     </Box>

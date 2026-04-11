@@ -51,9 +51,6 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
 
   return (
     <Box bg="surface" color="fg" minH="100vh">
-      <Section id="header" py={{ base: 6, md: 8 }}>
-        <Header />
-      </Section>
       <Section
         px={{ base: 4, md: 6 }}
         pb={{ base: 10, md: 12 }}

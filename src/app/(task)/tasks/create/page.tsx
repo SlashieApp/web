@@ -13,7 +13,13 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
@@ -56,6 +62,8 @@ export default function CreateTaskPage() {
 
   const [sessionOk, setSessionOk] = useState(false)
   const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
+  const imagePreviewUrlsUnmountRef = useRef<string[]>([])
   const [serverError, setServerError] = useState<string | null>(null)
 
   const {
@@ -107,20 +115,28 @@ export default function CreateTaskPage() {
     setSessionOk(true)
   }, [router])
 
-  const imagePreviewUrls = useMemo(
-    () => imageFiles.map((f) => URL.createObjectURL(f)),
-    [imageFiles],
-  )
+  useLayoutEffect(() => {
+    const next = imageFiles.map((file) => URL.createObjectURL(file))
+    imagePreviewUrlsUnmountRef.current = next
+    setImagePreviewUrls((prev) => {
+      for (const u of prev) {
+        URL.revokeObjectURL(u)
+      }
+      return next
+    })
+  }, [imageFiles])
 
   useEffect(() => {
     return () => {
-      for (const u of imagePreviewUrls) URL.revokeObjectURL(u)
+      for (const u of imagePreviewUrlsUnmountRef.current) {
+        URL.revokeObjectURL(u)
+      }
     }
-  }, [imagePreviewUrls])
+  }, [])
 
-  const onFilesAdded = useCallback((list: FileList | null) => {
-    if (!list?.length) return
-    setImageFiles((prev) => [...prev, ...Array.from(list)])
+  const onFilesAdded = useCallback((picked: File[]) => {
+    if (picked.length === 0) return
+    setImageFiles((prev) => [...prev, ...picked])
   }, [])
 
   const onRemoveFile = useCallback((index: number) => {
@@ -236,13 +252,8 @@ export default function CreateTaskPage() {
     }
   }
 
-  const mapScheduleColumn = (
-    <Stack
-      gap={6}
-      position={{ base: 'static', lg: 'sticky' }}
-      top={{ lg: 4 }}
-      alignSelf="start"
-    >
+  const mapScheduleStack = (
+    <Stack gap={6}>
       <CreateTaskMapLocationPanel
         mapboxAccessToken={mapboxAccessToken}
         mapPlaceName={mapPlaceName}
@@ -283,77 +294,108 @@ export default function CreateTaskPage() {
     </Stack>
   )
 
-  const mainFormColumn = (
+  const createTaskForm = (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <Stack gap={6}>
-        <CreateTaskBasicsSection
-          register={register}
-          category={category}
-          categoryOptions={CATEGORY_OPTIONS}
-          onCategoryChange={(c) =>
-            setValue('category', c, {
-              shouldValidate: true,
-              shouldDirty: true,
-            })
-          }
-          fieldErrors={{
-            title: errors.title?.message,
-            description: errors.description?.message,
-          }}
-        />
-
-        <CreateTaskVisualsSection
-          files={imageFiles}
-          previews={imagePreviewUrls}
-          onFilesAdded={onFilesAdded}
-          onRemoveFile={onRemoveFile}
-        />
-
-        <CreateTaskBudgetSection
-          register={register}
-          budgetUnit={budgetUnit}
-          paymentMethod={paymentMethod}
-          onBudgetUnitChange={(u) =>
-            setValue('budgetUnit', u, {
-              shouldValidate: true,
-              shouldDirty: true,
-            })
-          }
-          onPaymentMethodChange={(m) =>
-            setValue('paymentMethod', m, {
-              shouldValidate: true,
-              shouldDirty: true,
-            })
-          }
-          budgetMajorError={errors.budgetMajor?.message}
-        />
-
-        <CreateTaskContactSection
-          preferredContactMethod={preferredContactMethod}
-          onPreferredContactMethodChange={(m) =>
-            setValue('preferredContactMethod', m, {
-              shouldValidate: true,
-              shouldDirty: true,
-            })
-          }
-        />
-
-        <Stack gap={3} pt={2}>
-          <HStack justify="space-between" flexWrap="wrap" gap={3}>
-            <Button type="button" variant="ghost" disabled opacity={0.5}>
-              Save as draft
-            </Button>
-            <Button type="submit" size="lg" loading={creating || isSubmitting}>
-              Publish task
-            </Button>
-          </HStack>
-          {serverError ? (
-            <Text color="red.500" fontSize="sm">
-              {serverError}
-            </Text>
-          ) : null}
-        </Stack>
-      </Stack>
+      <Grid
+        w="full"
+        templateColumns={{
+          base: '1fr',
+          lg: 'minmax(0,1fr) minmax(300px,380px)',
+        }}
+        templateRows={{ base: 'repeat(3, auto)', lg: 'auto auto' }}
+        gap={{ base: 8, lg: 10 }}
+        alignItems="start"
+      >
+        {/* Mobile: basics → map & schedule → rest. Desktop: basics + rest | sticky map. */}
+        <Box
+          gridColumn={{ base: '1', lg: '1' }}
+          gridRow={{ base: '1', lg: '1' }}
+        >
+          <CreateTaskBasicsSection
+            register={register}
+            category={category}
+            categoryOptions={CATEGORY_OPTIONS}
+            onCategoryChange={(c) =>
+              setValue('category', c, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            fieldErrors={{
+              title: errors.title?.message,
+              description: errors.description?.message,
+            }}
+          />
+        </Box>
+        <Box
+          gridColumn={{ base: '1', lg: '2' }}
+          gridRow={{ base: '2', lg: '1 / span 2' }}
+          position={{ base: 'static', lg: 'sticky' }}
+          top={{ lg: 4 }}
+          alignSelf="start"
+        >
+          {mapScheduleStack}
+        </Box>
+        <Box
+          gridColumn={{ base: '1', lg: '1' }}
+          gridRow={{ base: '3', lg: '2' }}
+        >
+          <Stack gap={6}>
+            <CreateTaskVisualsSection
+              files={imageFiles}
+              previews={imagePreviewUrls}
+              onFilesAdded={onFilesAdded}
+              onRemoveFile={onRemoveFile}
+            />
+            <CreateTaskBudgetSection
+              register={register}
+              budgetUnit={budgetUnit}
+              paymentMethod={paymentMethod}
+              onBudgetUnitChange={(u) =>
+                setValue('budgetUnit', u, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+              onPaymentMethodChange={(m) =>
+                setValue('paymentMethod', m, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+              budgetMajorError={errors.budgetMajor?.message}
+            />
+            <CreateTaskContactSection
+              preferredContactMethod={preferredContactMethod}
+              onPreferredContactMethodChange={(m) =>
+                setValue('preferredContactMethod', m, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+            />
+            <Stack gap={3} pt={2}>
+              <HStack justify="space-between" flexWrap="wrap" gap={3}>
+                <Button type="button" variant="ghost" disabled opacity={0.5}>
+                  Save as draft
+                </Button>
+                <Button
+                  type="submit"
+                  size="lg"
+                  loading={creating || isSubmitting}
+                >
+                  Publish task
+                </Button>
+              </HStack>
+              {serverError ? (
+                <Text color="red.500" fontSize="sm">
+                  {serverError}
+                </Text>
+              ) : null}
+            </Stack>
+          </Stack>
+        </Box>
+      </Grid>
     </form>
   )
 
@@ -398,17 +440,7 @@ export default function CreateTaskPage() {
               </Text>
             </Stack>
 
-            <Grid
-              templateColumns={{
-                base: '1fr',
-                lg: 'minmax(0,1fr) minmax(300px,380px)',
-              }}
-              gap={{ base: 8, lg: 10 }}
-              alignItems="start"
-            >
-              <Box order={{ base: 2, lg: 1 }}>{mainFormColumn}</Box>
-              <Box order={{ base: 1, lg: 2 }}>{mapScheduleColumn}</Box>
-            </Grid>
+            {createTaskForm}
           </Stack>
         </Section>
         <Footer />
