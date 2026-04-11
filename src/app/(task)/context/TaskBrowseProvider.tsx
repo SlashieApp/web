@@ -24,7 +24,7 @@ import type { TaskMapProps } from '../components/TaskMap'
 import type {
   TaskBrowseFiltersProps,
   UrgencyFilter,
-} from '../components/taskBrowseFilters.types'
+} from '../helpers/taskBrowseFilters.types'
 import {
   PAGE_SIZE,
   SORT_OPTIONS,
@@ -32,7 +32,7 @@ import {
   formatBudget,
   matchesUrgency,
   taskCreatedTime,
-} from '../components/taskBrowseHelpers'
+} from '../helpers/taskBrowseHelpers'
 
 import { TaskCategory } from '@codegen/schema'
 

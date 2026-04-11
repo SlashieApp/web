@@ -23,6 +23,7 @@ export function SearchThisAreaButton({
 
   return (
     <Button
+      pointerEvents="auto"
       type="button"
       size="sm"
       boxShadow="0 8px 28px rgba(15,23,42,0.22)"

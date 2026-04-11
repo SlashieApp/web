@@ -3,7 +3,7 @@ import { Box, useBreakpointValue } from '@chakra-ui/react'
 
 import { MobileLayout } from './components/(mobile)/MobileLayout'
 import { WebLayout } from './components/(web)/WebLayout'
-import { TaskBrowseMapLayer } from './components/TaskBrowseMapLayer'
+import { TaskBrowseMapLayer } from './components/TaskMap'
 import { TaskBrowseProvider } from './context/TaskBrowseProvider'
 
 export default function HomePage() {

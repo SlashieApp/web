@@ -8,4 +8,4 @@ alwaysApply: false
 
 - Keep **`page.tsx`** focused on route wiring: providers, layout choice (e.g. breakpoint), and one-off composition.
 - Prefer **colocated `components/`** (or `components/(web)` / `(mobile)`) for feature UI instead of bloating `page.tsx`.
-- Long-lived clients (e.g. **Mapbox `TaskMap`**) should mount **once** at the route level when switching layouts would otherwise unmount them (see `TaskBrowseMapLayer` on the home task browse page).
+- Long-lived clients (e.g. **Mapbox `TaskMap`**) should mount **once** at the route level when switching layouts would otherwise unmount them (see `TaskBrowseMapLayer` in `TaskMap.tsx` on the home task browse page).

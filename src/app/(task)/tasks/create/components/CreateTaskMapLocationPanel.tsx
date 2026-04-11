@@ -3,13 +3,13 @@
 import { HStack, Stack } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
-import { TaskLocationMapPicker } from '@/app/(task)/components'
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
 import { TextInput } from '@/ui/Input'
 import { Heading, Text } from '@ui'
 import type { CreateTaskFormValues } from '../createTaskFormSchema'
+import { TaskLocationMapPicker } from './TaskLocationMapPicker'
 
 export type CreateTaskMapLocationPanelProps = {
   mapboxAccessToken: string | undefined

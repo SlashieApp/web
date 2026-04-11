@@ -10,7 +10,7 @@ import { useEffect, useMemo } from 'react'
 import { Text } from '@ui'
 import { TaskBrowseListItem } from '../(web)/TaskBrowseListItem'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import { formatBudget, inferBadge } from '../taskBrowseHelpers'
+import { formatBudget, inferBadge } from '../../helpers/taskBrowseHelpers'
 
 export function MobileTaskCarousel() {
   const { pageItems, selectedTaskId, setSelectedTaskId } = useTaskBrowseData()

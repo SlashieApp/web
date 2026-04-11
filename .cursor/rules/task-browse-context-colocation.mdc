@@ -1,0 +1,42 @@
+---
+description: Task browse layouts use context inside leaf components, not parent shells
+globs: src/app/(task)/components/**/*.tsx
+alwaysApply: false
+---
+
+# Task browse: colocate context with consumers
+
+`TaskBrowseProvider` exposes **data** (`useTaskBrowseData`) and **layout** (`useTaskBrowseLayout`) so feature UI can avoid prop drilling.
+
+## Shell layouts stay thin
+
+Files like `MobileLayout.tsx` and `WebLayout.tsx` should **compose** structure (positioning, z-index, flex) and mount children. They should **not** call `useTaskBrowseData` / `useTaskBrowseLayout` only to forward values into children.
+
+## Where hooks belong
+
+- **Leaf or focused components** that render a specific control or summary should call the hook(s) they need.
+- Prefer **small wrappers** next to the feature (e.g. `TaskBrowseSearchThisAreaButton`, `TaskBrowseFilterTags`) over passing `searchThisAreaUi`, filter tag lists, or `isFilterOpen` from the layout.
+
+## Examples (this repo)
+
+| Concern | Consumer reads context |
+|--------|-------------------------|
+| “Search this area” button props | `TaskBrowseSearchThisAreaButton` → `useTaskBrowseLayout().searchThisAreaUi` (pass `overlay` on web for bottom-centered shell) |
+| Web filter toggle | `WebTaskBrowseFiltersToggle` → `useTaskBrowseLayout()` |
+| Web active filter badges | `WebTaskBrowseActiveFilterTags` in `TaskBrowseFilterTags.tsx` → `useTaskBrowseData()` |
+| Mobile filter trigger + chips | `MobileTaskBrowseFilterTagsRow` in `TaskBrowseFilterTags.tsx` + `MobileTaskBrowseFiltersTrigger` / drawer |
+| Area location field | `TaskBrowseAreaLocationInput` → `useTaskBrowseData()` |
+| Web list vs filters panel | `WebTaskBrowseFiltersBlock` in `TaskBrowseFilters.tsx` → layout + filter props hooks |
+
+## Anti-pattern
+
+```tsx
+// ❌ Layout fetches context only to pass down
+const { searchThisAreaUi } = useTaskBrowseLayout()
+return <SearchThisAreaButton {...searchThisAreaUi} />
+```
+
+```tsx
+// ✅ Wrapper next to the button owns the hook
+return <TaskBrowseSearchThisAreaButton />
+```

@@ -7,9 +7,11 @@ alwaysApply: false
 # `src/app/**/components/` layout
 
 - **`(web)/`** — Desktop / split-view-only UI (e.g. `WebLayout`, `TaskList`, wide filter panels).
-- **`(mobile)/`** — Mobile-only UI (e.g. `MobileLayout`, `MobileTaskCarousel`, `MobileTaskBrowseFilters`).
-- **Root of `components/`** — Shared across breakpoints: map shell, cross-layout buttons, hooks-friendly shells, shared types/helpers (e.g. `TaskMap`, `SearchThisAreaButton`, `taskBrowseHelpers.ts`, `TaskBrowseMapLayer`).
+- **`(mobile)/`** — Mobile-only UI (e.g. `MobileLayout`, `MobileTaskCarousel`, `MobileTaskBrowseFiltersDrawer`).
+- **Root of `components/`** — Shared across breakpoints: map shell, context-wired buttons (e.g. `TaskBrowseSearchThisAreaButton`), filter summary UI (`TaskBrowseFilterTags.tsx`: `MobileTaskBrowseFilterTagsRow`, `WebTaskBrowseActiveFilterTags`), primitives (`SearchThisAreaButton`), helpers (e.g. `TaskMap` / `TaskBrowseMapLayer`, `(task)/helpers/taskBrowseHelpers.ts`). Prefer colocating `useTaskBrowseData` / `useTaskBrowseLayout` in those wrappers, not in `MobileLayout` / `WebLayout` (see `task-browse-context-colocation.mdc`).
 
-Do not duplicate shared pieces under `(web)` and `(mobile)` unless the markup genuinely diverges; extract shared markup (e.g. `taskBrowseFiltersShared.tsx`) when both need the same fields.
+- **`(web)/`** — Web-only task browse filter UI (`TaskBrowseFilters.tsx`: wrapper, compact/default panels, and `WebTaskBrowseFiltersBlock` list/filters slot) plus **`taskBrowseFilters.types.ts`** at the components root. Mobile filter sheet uses `useTaskBrowseFiltersProps` and may import types from the root types file only where needed.
+
+Do not duplicate shared pieces under `(web)` and `(mobile)` unless the markup genuinely diverges; extract shared markup at the components root when both breakpoints need the same UI.
 
 After adding or moving files in a registered `components` folder, run `bun run exports-gen` (see repo export rules).
