@@ -9,8 +9,8 @@ import { useEffect, useMemo } from 'react'
 
 import { Text } from '@ui'
 import { TaskBrowseListItem } from '../(web)/TaskBrowseListItem'
-import { formatBudget, inferBadge } from '../(web)/taskBrowseHelpers'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
+import { formatBudget, inferBadge } from '../taskBrowseHelpers'
 
 export function MobileTaskCarousel() {
   const { pageItems, selectedTaskId, setSelectedTaskId } = useTaskBrowseData()
@@ -80,6 +80,7 @@ export function MobileTaskCarousel() {
   return (
     <Box
       ref={emblaRef}
+      pointerEvents="auto"
       overflow="hidden"
       px={3}
       mb={1}

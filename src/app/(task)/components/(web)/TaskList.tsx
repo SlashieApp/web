@@ -8,7 +8,7 @@ import { TaskBrowseListItem } from './TaskBrowseListItem'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import { formatBudget, inferBadge } from './taskBrowseHelpers'
+import { formatBudget, inferBadge } from '../taskBrowseHelpers'
 
 export function TaskList() {
   const {

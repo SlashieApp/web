@@ -19,10 +19,12 @@ import {
 } from '@/utils/mapboxGeocode'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
-import type { SearchThisAreaButtonProps } from '../components/(web)/SearchThisAreaButton'
-import type { UrgencyFilter } from '../components/(web)/TaskBrowseFilters'
-import type { TaskBrowseFiltersProps } from '../components/(web)/TaskBrowseFilters'
-import type { TaskMapProps } from '../components/(web)/TaskMap'
+import type { SearchThisAreaButtonProps } from '../components/SearchThisAreaButton'
+import type { TaskMapProps } from '../components/TaskMap'
+import type {
+  TaskBrowseFiltersProps,
+  UrgencyFilter,
+} from '../components/taskBrowseFilters.types'
 import {
   PAGE_SIZE,
   SORT_OPTIONS,
@@ -30,7 +32,7 @@ import {
   formatBudget,
   matchesUrgency,
   taskCreatedTime,
-} from '../components/(web)/taskBrowseHelpers'
+} from '../components/taskBrowseHelpers'
 
 import { TaskCategory } from '@codegen/schema'
 

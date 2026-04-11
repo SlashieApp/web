@@ -1,43 +1,31 @@
 'use client'
 
-import { Badge, Box, HStack, Input, Stack } from '@chakra-ui/react'
+import { Badge, Box, HStack, Stack } from '@chakra-ui/react'
 import { Button, Text } from '@ui'
 
 import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
 import {
   useTaskBrowseData,
-  useTaskBrowseFiltersProps,
   useTaskBrowseLayout,
-  useTaskMapBindings,
 } from '../../context/TaskBrowseProvider'
-import { SearchThisAreaButton } from './SearchThisAreaButton'
-import { TaskBrowseFilters } from './TaskBrowseFilters'
-import { TaskList } from './TaskList'
-import { TaskMap } from './TaskMap'
-import { SORT_OPTIONS } from './taskBrowseHelpers'
-
-const SINGLE_PANEL_BUTTON_LEFT_INSET = '1.25rem + min(420px, 38vw)'
+import { SearchThisAreaButton } from '../SearchThisAreaButton'
+import { TaskBrowseAreaLocationInput } from '../TaskBrowseAreaLocationInput'
+import { SORT_OPTIONS } from '../taskBrowseHelpers'
+import { WebTaskBrowseFiltersBlock } from './WebTaskBrowseFiltersBlock'
 
 export function WebLayout() {
-  const { isFilterOpen, setIsFilterOpen, windowOffsetWidth, searchThisAreaUi } =
+  const { isFilterOpen, setIsFilterOpen, searchThisAreaUi } =
     useTaskBrowseLayout()
-  const mapBindings = useTaskMapBindings()
-  const filterProps = useTaskBrowseFiltersProps('compact')
   const {
     sort,
     categories,
     selectedCategorySet,
     searchInput,
     setSearchInput,
-    areaLocationInput,
-    setAreaLocationInput,
-    commitAreaLocationSearch,
     radiusMiles,
     minBudget,
     maxBudget,
     urgency,
-    selectedTaskId,
-    setSelectedTaskId,
   } = useTaskBrowseData()
 
   const activeFilterTags: string[] = []
@@ -73,18 +61,6 @@ export function WebLayout() {
 
   return (
     <Box flex={1} minH={0} w="full" position="relative">
-      <Box position="absolute" inset={0} zIndex={1}>
-        <TaskMap
-          {...mapBindings}
-          leftViewportPadding={windowOffsetWidth}
-          searchAreaButtonLeftInset={SINGLE_PANEL_BUTTON_LEFT_INSET}
-          onSelectTask={(taskId) => {
-            if (taskId) setIsFilterOpen(false)
-            setSelectedTaskId(taskId)
-          }}
-        />
-      </Box>
-
       <Box
         position="absolute"
         zIndex={2}
@@ -105,56 +81,7 @@ export function WebLayout() {
         >
           <Box borderRadius="xl" px={2} py={1.5} w="full">
             <Stack gap={2}>
-              <Box position="relative">
-                <Box
-                  position="absolute"
-                  left={3}
-                  top="50%"
-                  transform="translateY(-50%)"
-                  color="muted"
-                  pointerEvents="none"
-                  zIndex={1}
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden
-                  >
-                    <title>Search</title>
-                    <path
-                      d="M11 19a8 8 0 1 1 5.3-14l5.1 5.1"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="m20 20-3.3-3.3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </Box>
-                <Input
-                  value={areaLocationInput}
-                  onChange={(e) => setAreaLocationInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      e.currentTarget.blur()
-                    }
-                  }}
-                  type="search"
-                  bg="surfaceContainerLowest"
-                  onBlur={commitAreaLocationSearch}
-                  placeholder="Find pros or jobs near you..."
-                  borderRadius="xl"
-                  h={11}
-                  ps={10}
-                />
-              </Box>
+              <TaskBrowseAreaLocationInput />
               <HStack gap={1.5} flexWrap="wrap">
                 <Button
                   type="button"
@@ -185,15 +112,7 @@ export function WebLayout() {
             </Stack>
           </Box>
         </Box>
-        <Box flex={1} minH={0} mb={6}>
-          {isFilterOpen ? (
-            <Box h="full" overflowY="auto" pr={{ base: 1, md: 0 }}>
-              <TaskBrowseFilters {...filterProps} />
-            </Box>
-          ) : (
-            <TaskList />
-          )}
-        </Box>
+        <WebTaskBrowseFiltersBlock />
       </Box>
 
       <Box

@@ -1,33 +1,22 @@
 'use client'
 
 import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
-import { Box, HStack, Input } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 import { Button } from '@ui'
-import { SearchThisAreaButton } from '../(web)/SearchThisAreaButton'
-import { TaskBrowseFilters } from '../(web)/TaskBrowseFilters'
-import { TaskMap } from '../(web)/TaskMap'
 import {
   useTaskBrowseData,
-  useTaskBrowseFiltersProps,
   useTaskBrowseLayout,
-  useTaskMapBindings,
 } from '../../context/TaskBrowseProvider'
+import { SearchThisAreaButton } from '../SearchThisAreaButton'
+import { TaskBrowseAreaLocationInput } from '../TaskBrowseAreaLocationInput'
+import { MobileTaskBrowseFiltersDrawer } from './MobileTaskBrowseFiltersDrawer'
 import { MobileTaskCarousel } from './MobileTaskCarousel'
 
 export function MobileLayout() {
   const { isFilterOpen, setIsFilterOpen, searchThisAreaUi } =
     useTaskBrowseLayout()
-  const mapBindings = useTaskMapBindings()
-  const filterProps = useTaskBrowseFiltersProps('compact')
-  const {
-    selectedCategorySet,
-    areaLocationInput,
-    setAreaLocationInput,
-    commitAreaLocationSearch,
-    radiusMiles,
-    urgency,
-    categories,
-  } = useTaskBrowseData()
+  const { selectedCategorySet, radiusMiles, urgency, categories } =
+    useTaskBrowseData()
 
   const activeFilterTags: string[] = []
   if (
@@ -52,11 +41,14 @@ export function MobileLayout() {
   activeFilterTags.push(`${radiusMiles}mi`)
 
   return (
-    <Box flex={1} minH={0} w="full" position="relative" minW={0}>
-      <Box position="absolute" inset={0} zIndex={0}>
-        <TaskMap {...mapBindings} />
-      </Box>
-
+    <Box
+      flex={1}
+      minH={0}
+      w="full"
+      position="relative"
+      minW={0}
+      pointerEvents="none"
+    >
       <Box
         position="absolute"
         top={3}
@@ -66,21 +58,7 @@ export function MobileLayout() {
         pointerEvents="none"
       >
         <Box mr={12}>
-          <Input
-            pointerEvents="auto"
-            value={areaLocationInput}
-            onChange={(e) => setAreaLocationInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') commitAreaLocationSearch()
-            }}
-            onBlur={commitAreaLocationSearch}
-            placeholder="Find pros or jobs near you..."
-            borderRadius="lg"
-            bg="surfaceContainerLowest"
-            ps={10}
-            type="search"
-            h={10}
-          />
+          <TaskBrowseAreaLocationInput />
           <HStack mt={2} gap={2} flexWrap="wrap">
             <Button
               type="button"
@@ -113,34 +91,22 @@ export function MobileLayout() {
         </Box>
       </Box>
 
-      {isFilterOpen ? (
-        <Box
-          position="absolute"
-          left={3}
-          right={3}
-          top={28}
-          bottom={3}
-          zIndex={4}
-          overflowY="auto"
-        >
-          <TaskBrowseFilters {...filterProps} />
-        </Box>
-      ) : (
-        <Box
-          position="absolute"
-          left={0}
-          right={0}
-          bottom={20}
-          zIndex={3}
-          display="flex"
-          flexDirection="column"
-          gap={2}
-        >
-          <SearchThisAreaButton {...searchThisAreaUi} />
+      <Box
+        position="absolute"
+        left={0}
+        right={0}
+        bottom={20}
+        zIndex={3}
+        display="flex"
+        flexDirection="column"
+        gap={2}
+      >
+        <SearchThisAreaButton {...searchThisAreaUi} />
 
-          <MobileTaskCarousel />
-        </Box>
-      )}
+        <MobileTaskCarousel />
+      </Box>
+
+      <MobileTaskBrowseFiltersDrawer />
     </Box>
   )
 }

@@ -1,0 +1,15 @@
+---
+description: Organize route components under src/app/**/components (web, mobile, shared)
+globs: src/app/**/components/**/*
+alwaysApply: false
+---
+
+# `src/app/**/components/` layout
+
+- **`(web)/`** — Desktop / split-view-only UI (e.g. `WebLayout`, `TaskList`, wide filter panels).
+- **`(mobile)/`** — Mobile-only UI (e.g. `MobileLayout`, `MobileTaskCarousel`, `MobileTaskBrowseFilters`).
+- **Root of `components/`** — Shared across breakpoints: map shell, cross-layout buttons, hooks-friendly shells, shared types/helpers (e.g. `TaskMap`, `SearchThisAreaButton`, `taskBrowseHelpers.ts`, `TaskBrowseMapLayer`).
+
+Do not duplicate shared pieces under `(web)` and `(mobile)` unless the markup genuinely diverges; extract shared markup (e.g. `taskBrowseFiltersShared.tsx`) when both need the same fields.
+
+After adding or moving files in a registered `components` folder, run `bun run exports-gen` (see repo export rules).

@@ -3,6 +3,7 @@ import { Box, useBreakpointValue } from '@chakra-ui/react'
 
 import { MobileLayout } from './components/(mobile)/MobileLayout'
 import { WebLayout } from './components/(web)/WebLayout'
+import { TaskBrowseMapLayer } from './components/TaskBrowseMapLayer'
 import { TaskBrowseProvider } from './context/TaskBrowseProvider'
 
 export default function HomePage() {
@@ -20,6 +21,7 @@ export default function HomePage() {
         display="flex"
         flexDirection="column"
       >
+        <TaskBrowseMapLayer isDesktop={isDesktopSplit} />
         {isDesktopSplit ? <WebLayout /> : <MobileLayout />}
       </Box>
     </TaskBrowseProvider>

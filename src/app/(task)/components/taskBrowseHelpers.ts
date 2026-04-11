@@ -1,6 +1,6 @@
 import type { TaskListItem } from '@/graphql/tasks-query.types'
-import type { UrgencyFilter } from './TaskBrowseFilters'
-import type { JobCardBadgeVariant } from './TaskBrowseListItem'
+import type { JobCardBadgeVariant } from './(web)/TaskBrowseListItem'
+import type { UrgencyFilter } from './taskBrowseFilters.types'
 
 export const PAGE_SIZE = 5
 
