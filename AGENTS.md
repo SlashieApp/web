@@ -1,8 +1,8 @@
-# Project Overview: HandyBox Web MVP
+# Project Overview: Slashie Web MVP
 
 ## 1. Project Mission
 
-HandyBox is a high-trust marketplace connecting homeowners with local handyman professionals. The product goal is to make home maintenance simple: post a task, compare quotes, complete the work, and leave feedback.
+Slashie is a high-trust local task marketplace connecting people who need work done with **workers** who can do it. The product goal is to make hiring and earning straightforward: post a task, compare **quotes**, complete the work, and leave feedback—with **map-first discovery** as a core experience.
 
 ## 2. Primary Personas
 
@@ -15,7 +15,7 @@ HandyBox is a high-trust marketplace connecting homeowners with local handyman p
 ### Worker
 
 - Need: discover nearby tasks and manage work as a business.
-- Core flow: browse tasks -> open detail -> make offer -> deliver work -> build reputation.
+- Core flow: browse tasks -> open detail -> send quote -> deliver work -> build reputation.
 - App surfaces: `/dashboard/*` for worker-focused tools and analytics.
 
 ## 3. Product Behavior in MVP
@@ -23,7 +23,7 @@ HandyBox is a high-trust marketplace connecting homeowners with local handyman p
 - Homepage defaults to the task-hunter experience.
 - Users can browse tasks on map/list and apply filters to find relevant tasks.
 - Task detail is publicly readable.
-- Unauthenticated users are read-only; login is required to submit quotes or perform account actions.
+- Unauthenticated users are read-only; login is required to submit **quotes** or perform account actions.
 - The app supports two intents:
   - become a worker (worker flow and dashboard), or
   - post a task (client flow for requesting help and managing quotes/requests).
@@ -31,7 +31,7 @@ HandyBox is a high-trust marketplace connecting homeowners with local handyman p
 ## 4. Core Feature Areas
 
 - Marketplace discovery: map-based browsing and task filters.
-- Job lifecycle: post, offer/quote, status progression, completion.
+- Job lifecycle: post, quote, status progression, completion.
 - Trust signals: worker profile details, ratings, endorsements, and review history.
 - Role-based navigation: lightweight client pages vs full worker dashboard.
 
@@ -50,7 +50,7 @@ HandyBox is a high-trust marketplace connecting homeowners with local handyman p
 
 ### Architecture
 
-Single Next.js 16 frontend app (no local backend/DB). All data comes from an external GraphQL API. Standard dev commands are documented in `README.md` § Setup / Run / Lint.
+Single Next.js 16 frontend app (no local backend/DB). All data comes from an external GraphQL API. Standard dev commands are documented in `README.md` (Setup / Run / Lint).
 
 ### Key gotchas
 
