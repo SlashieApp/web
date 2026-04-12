@@ -180,15 +180,6 @@ bun run storybook
 
 Then open <http://localhost:6006>.
 
-## Environment (example)
-
-```bash
-# API base URL (client uses …/graphql; codegen uses …/schema)
-NEXT_PUBLIC_GRAPHQL_URL=https://handyman-apollo.onrender.com
-
-# Server-side / codegen only — do not prefix with NEXT_PUBLIC_
-SCHEMA_ACCESS_TOKEN=your_token_here
-```
 
 ## Lint / format
 
