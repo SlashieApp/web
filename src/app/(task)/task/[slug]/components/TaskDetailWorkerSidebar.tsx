@@ -87,6 +87,8 @@ export type TaskDetailWorkerQuotePanelProps = {
     message?: string | null
     status: QuoteStatus
   } | null
+  /** Used when the visitor is not signed in: primary CTA to authenticate before quoting. */
+  signInHref: string
   canAccessWorkerTools: boolean
   mePresent: boolean
   pricePence: string
@@ -101,6 +103,7 @@ export type TaskDetailWorkerQuotePanelProps = {
 
 export function TaskDetailWorkerQuotePanel({
   myQuote,
+  signInHref,
   canAccessWorkerTools,
   mePresent,
   pricePence,
@@ -125,6 +128,24 @@ export function TaskDetailWorkerQuotePanel({
             <Badge bg="surfaceContainerLow" color="fg" w="fit-content">
               Status: {normaliseStatus(myQuote.status)}
             </Badge>
+          </Stack>
+        </GlassCard>
+      ) : !mePresent ? (
+        <GlassCard
+          p={6}
+          bg="surfaceContainerLow"
+          borderColor="border"
+          boxShadow="ambient"
+        >
+          <Stack gap={4}>
+            <Heading size="md">Sign in to submit a quote</Heading>
+            <Text color="muted">
+              Log in with a worker account to send your price and message to the
+              client.
+            </Text>
+            <Button as={NextLink} href={signInHref} w="full">
+              Sign in
+            </Button>
           </Stack>
         </GlassCard>
       ) : mePresent && !canAccessWorkerTools ? (
@@ -153,7 +174,7 @@ export function TaskDetailWorkerQuotePanel({
             </Text>
             <Stack gap={3}>
               <TextInput
-                placeholder="Quote price (pence)"
+                placeholder="Quote in pence (e.g. 5000 = £50)"
                 value={pricePence}
                 onChange={(e) => onPriceChange(e.target.value)}
               />

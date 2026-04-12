@@ -184,12 +184,18 @@ export default function TaskDetailPage() {
       return
     }
 
+    const parsedPence = Number.parseInt(pricePence.trim(), 10)
+    if (!Number.isFinite(parsedPence) || parsedPence < 1) {
+      setQuoteError('Enter a valid quote in whole pence (minimum 1).')
+      return
+    }
+
     try {
       const res = await addQuote({
         variables: {
           input: {
             taskId: task.id,
-            pricePence: Number(pricePence) || 0,
+            pricePence: parsedPence,
             message: message || undefined,
           },
         },
@@ -388,6 +394,9 @@ export default function TaskDetailPage() {
                         <TaskDetailApproximateLocation task={task} />
                         <TaskDetailWorkerQuotePanel
                           myQuote={myQuote}
+                          signInHref={`/login?next=${encodeURIComponent(
+                            `/task/${task.id}#task-quote`,
+                          )}`}
                           canAccessWorkerTools={canAccessWorkerTools}
                           mePresent={Boolean(me)}
                           pricePence={pricePence}
