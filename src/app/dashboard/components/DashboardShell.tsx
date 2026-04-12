@@ -23,6 +23,8 @@ export type DashboardShellProps = {
   userStatus?: string
   userMeta?: string
   workerEnabled?: boolean
+  /** When set, sidebar promo reflects onboarding; nav locking still uses workerEnabled. */
+  workerProfileComplete?: boolean
   workerCtaHref?: string
   headerAction?: React.ReactNode
   children: React.ReactNode
@@ -247,10 +249,13 @@ export function DashboardShell({
   userStatus,
   userMeta,
   workerEnabled = false,
+  workerProfileComplete,
   workerCtaHref = '/dashboard/worker/register',
   headerAction,
   children,
 }: DashboardShellProps) {
+  const workerOnboardingDone = workerProfileComplete ?? workerEnabled
+
   return (
     <Box minH="100vh" bg="bg" color="fg">
       <Stack
@@ -379,33 +384,38 @@ export function DashboardShell({
             <GlassCard
               p={4}
               bg={
-                workerEnabled
+                workerOnboardingDone
                   ? 'linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)'
                   : 'primary.50'
               }
-              color={workerEnabled ? 'white' : 'fg'}
+              color={workerOnboardingDone ? 'white' : 'fg'}
             >
               <Stack gap={3}>
                 <Text
                   fontSize="10px"
                   fontWeight={800}
                   letterSpacing="0.08em"
-                  color={workerEnabled ? 'whiteAlpha.800' : 'primary.700'}
+                  color={
+                    workerOnboardingDone ? 'whiteAlpha.800' : 'primary.700'
+                  }
                 >
-                  {workerEnabled
+                  {workerOnboardingDone
                     ? 'WORKER MODE ACTIVE'
                     : 'WORKER FEATURES LOCKED'}
                 </Text>
-                <Heading size="sm" color={workerEnabled ? 'white' : undefined}>
-                  {workerEnabled
-                    ? 'Quotes and earnings are unlocked.'
+                <Heading
+                  size="sm"
+                  color={workerOnboardingDone ? 'white' : undefined}
+                >
+                  {workerOnboardingDone
+                    ? 'Your worker profile is set up.'
                     : 'Become a worker to send quotes.'}
                 </Heading>
                 <Text
                   fontSize="sm"
-                  color={workerEnabled ? 'whiteAlpha.900' : 'muted'}
+                  color={workerOnboardingDone ? 'whiteAlpha.900' : 'muted'}
                 >
-                  {workerEnabled
+                  {workerOnboardingDone
                     ? 'Track active quotes, monitor payout totals, and keep your professional profile ready for new work.'
                     : 'Create your worker profile to unlock quoting, task intake, and payout tracking in the dashboard.'}
                 </Text>
@@ -413,12 +423,14 @@ export function DashboardShell({
                   as={NextLink}
                   href={workerCtaHref}
                   size="sm"
-                  variant={workerEnabled ? 'subtle' : 'solid'}
-                  bg={workerEnabled ? 'whiteAlpha.200' : undefined}
-                  color={workerEnabled ? 'white' : undefined}
+                  variant={workerOnboardingDone ? 'subtle' : 'solid'}
+                  bg={workerOnboardingDone ? 'whiteAlpha.200' : undefined}
+                  color={workerOnboardingDone ? 'white' : undefined}
                   alignSelf="flex-start"
                 >
-                  {workerEnabled ? 'Manage worker profile' : 'Become a worker'}
+                  {workerOnboardingDone
+                    ? 'Manage worker profile'
+                    : 'Become a worker'}
                 </Button>
               </Stack>
             </GlassCard>

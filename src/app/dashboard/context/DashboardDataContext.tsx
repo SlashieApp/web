@@ -98,6 +98,8 @@ type DashboardDataContextValue = {
   userInitial: string
   profile: DashboardProfile
   workerProfile: DashboardWorkerProfile
+  /** Session/onboarding worker profile is complete (not inferred from quote activity). */
+  workerProfileComplete: boolean
   workerEnabled: boolean
   serviceHistory: ServiceHistoryEntry[]
   workerServiceHistory: ServiceHistoryEntry[]
@@ -326,11 +328,11 @@ export function DashboardDataProvider({
 
   const userInitial = displayName.charAt(0)?.toUpperCase() || '?'
 
-  const workerEnabled = Boolean(
-    workerProfile.isActive ||
-      myQuotes.length > 0 ||
-      (me ? getWorkerRegistered(me.id) : false),
+  const workerProfileComplete = Boolean(
+    workerProfile.isActive || (me ? getWorkerRegistered(me.id) : false),
   )
+
+  const workerEnabled = Boolean(workerProfileComplete || myQuotes.length > 0)
 
   const serviceHistory = useMemo(
     () => completedHistoryItems.map(toHistoryEntry),
@@ -412,6 +414,7 @@ export function DashboardDataProvider({
         preferredTrades: [],
       },
       workerProfile,
+      workerProfileComplete,
       workerEnabled,
       serviceHistory,
       workerServiceHistory,
@@ -464,6 +467,7 @@ export function DashboardDataProvider({
       userInitial,
       workerEnabled,
       workerProfile,
+      workerProfileComplete,
       setSearch,
     ],
   )

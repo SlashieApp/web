@@ -43,6 +43,7 @@ export default function DashboardOverviewPage() {
     tasksErrorMessage,
     displayName,
     workerEnabled,
+    workerProfileComplete,
     workerProfile,
     myQuotes,
     quotesInProgress,
@@ -91,7 +92,11 @@ export default function DashboardOverviewPage() {
                 {workerProfile.serviceArea?.trim() || 'Set service area'}
               </Badge>
               <Badge bg="primary.50" color="primary.700">
-                {workerEnabled ? 'Quoting enabled' : 'Complete worker setup'}
+                {workerProfileComplete
+                  ? 'Quoting enabled'
+                  : workerEnabled
+                    ? 'Finish worker profile'
+                    : 'Complete worker setup'}
               </Badge>
             </HStack>
           </Stack>

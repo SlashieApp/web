@@ -20,8 +20,13 @@ import { Badge, Button, GlassCard, Heading, Text, TextInput } from '@ui'
 
 export default function WorkerRegistrationPage() {
   const router = useRouter()
-  const { profile, workerProfile, registerWorker, saveProfile, workerEnabled } =
-    useDashboardData()
+  const {
+    profile,
+    workerProfile,
+    registerWorker,
+    saveProfile,
+    workerProfileComplete,
+  } = useDashboardData()
 
   const [fullName, setFullName] = useState(profile.fullName)
   const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber)
@@ -90,9 +95,11 @@ export default function WorkerRegistrationPage() {
       <Stack gap={2}>
         <HStack gap={3} flexWrap="wrap">
           <Heading size="xl">
-            {workerEnabled ? 'Manage worker profile' : 'Become a worker'}
+            {workerProfileComplete
+              ? 'Manage worker profile'
+              : 'Become a worker'}
           </Heading>
-          {workerEnabled ? (
+          {workerProfileComplete ? (
             <Badge bg="primary.50" color="primary.700">
               Active since{' '}
               {workerProfile.joinedAt
@@ -312,7 +319,9 @@ export default function WorkerRegistrationPage() {
                 </HStack>
               </Stack>
               <Button onClick={() => handleSubmit()}>
-                {workerEnabled ? 'Update worker profile' : 'Join HandyBox'}
+                {workerProfileComplete
+                  ? 'Update worker profile'
+                  : 'Join HandyBox'}
               </Button>
             </Stack>
           </GlassCard>

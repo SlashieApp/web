@@ -39,6 +39,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
     displayName,
     userInitial,
     workerEnabled,
+    workerProfileComplete,
   } = useDashboardData()
 
   if (!meLoading && !me) {
@@ -98,10 +99,15 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
       userLabel={displayName}
       userInitial={userInitial}
       userStatus={
-        workerEnabled ? 'Worker tools unlocked' : 'Complete worker setup'
+        workerProfileComplete
+          ? 'Worker tools unlocked'
+          : workerEnabled
+            ? 'Finish worker profile'
+            : 'Complete worker setup'
       }
       userMeta={me?.email ?? ''}
       workerEnabled={workerEnabled}
+      workerProfileComplete={workerProfileComplete}
       headerAction={
         <HStack gap={2} flexWrap="wrap">
           <Button

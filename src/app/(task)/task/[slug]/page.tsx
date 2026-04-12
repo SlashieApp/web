@@ -12,7 +12,7 @@ import type {
 import { TaskStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { ME_QUERY } from '@/graphql/auth'
 import {
@@ -77,8 +77,6 @@ export default function TaskDetailPage() {
   const [acceptError, setAcceptError] = useState<string | null>(null)
   const [acceptingQuoteId, setAcceptingQuoteId] = useState<string | null>(null)
   const [cancelError, setCancelError] = useState<string | null>(null)
-  const [workerProfileEnabled, setWorkerProfileEnabled] = useState(false)
-
   const hasToken = typeof window !== 'undefined' && Boolean(getAuthToken())
 
   const { data: meData } = useQuery<MeQuery>(ME_QUERY, {
@@ -110,18 +108,7 @@ export default function TaskDetailPage() {
     return task.quotes.find((o) => o.workerUserId === me.id) ?? null
   }, [me, task])
 
-  useEffect(() => {
-    if (!me) {
-      setWorkerProfileEnabled(false)
-      return
-    }
-
-    setWorkerProfileEnabled(
-      getWorkerRegistered(me.id) ||
-        Boolean(myQuote) ||
-        Boolean(task && me && task.workerUserId === me.id),
-    )
-  }, [me, myQuote, task])
+  const workerOnboardingDone = Boolean(me && getWorkerRegistered(me.id))
 
   const sortedQuotes = useMemo(() => {
     if (!task) return []
@@ -184,7 +171,7 @@ export default function TaskDetailPage() {
       return
     }
 
-    if (!workerProfileEnabled && !myQuote) {
+    if (!workerOnboardingDone && !myQuote) {
       setQuoteError('Create a worker profile before submitting quotes.')
       router.push('/dashboard/worker/register')
       return
@@ -236,7 +223,7 @@ export default function TaskDetailPage() {
   )
   const isAssignedWorker = Boolean(me && task && task.workerUserId === me.id)
   const canAccessWorkerTools = Boolean(
-    workerProfileEnabled || myQuote || isAssignedWorker,
+    workerOnboardingDone || myQuote || isAssignedWorker,
   )
 
   const introSubtitle = useMemo(() => {
