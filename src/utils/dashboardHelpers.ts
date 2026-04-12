@@ -15,7 +15,7 @@ export function getDisplayNameFromEmail(email: string | null | undefined) {
 }
 
 export type TaskItem = MyTasksQueryData['myTasks'][number]
-export type TaskQuoteItem = TaskItem['quotes'][number]
+export type TaskQuoteItem = NonNullable<TaskItem['quotes']>[number]
 export type MyQuoteItem = {
   task: TaskItem
   quote: TaskQuoteItem

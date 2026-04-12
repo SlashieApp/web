@@ -7,19 +7,27 @@ import {
 import { Box, Grid, Stack } from '@chakra-ui/react'
 import { GlassCard, Text } from '@ui'
 
-import { type TaskDetailRecord, taskBudgetDisplayLine } from './taskDetailUtils'
+import {
+  type TaskBudgetViewerContext,
+  type TaskDetailRecord,
+  taskBudgetDisplayLine,
+} from './taskDetailUtils'
 
 export type TaskDetailHeroProps = {
   task: TaskDetailRecord
   statusBadgeLabel: string
+  budgetViewer: TaskBudgetViewerContext
+  viewerUserId?: string | null
 }
 
 export function TaskDetailHero({
   task,
   statusBadgeLabel,
+  budgetViewer,
+  viewerUserId,
 }: TaskDetailHeroProps) {
   const locationLine = taskPublicLocationLabel(task)
-  const budgetLine = taskBudgetDisplayLine(task)
+  const budgetLine = taskBudgetDisplayLine(task, budgetViewer, viewerUserId)
 
   return (
     <GlassCard p={{ base: 5, md: 6 }} borderColor="border" boxShadow="ambient">

@@ -258,6 +258,8 @@ export default function TaskDetailPage() {
         <TaskDetailHero
           task={t}
           statusBadgeLabel={taskStatusBadgeLabel(t.status)}
+          budgetViewer="visitor"
+          viewerUserId={me?.id ?? null}
         />
         <TaskDetailPhotoGrid task={t} />
         <TaskDetailDescriptionCard task={t} />

@@ -205,7 +205,7 @@ export function DashboardDataProvider({
 
     const submitted = tasks
       .flatMap((task) =>
-        task.quotes
+        (task.quotes ?? [])
           .filter((quote) => quote.workerUserId === me.id)
           .map((quote) => ({ task, quote })),
       )
@@ -216,7 +216,7 @@ export function DashboardDataProvider({
       )
 
     const quoteCount = posted.reduce(
-      (count, task) => count + task.quotes.length,
+      (count, task) => count + (task.quotes ?? []).length,
       0,
     )
 
@@ -294,7 +294,7 @@ export function DashboardDataProvider({
   const customerBookings = useMemo(
     () =>
       activePostedTasks
-        .filter((task) => task.quotes.length > 0)
+        .filter((task) => (task.quotes ?? []).length > 0)
         .sort(
           (a, b) => timeFromUnknown(b.createdAt) - timeFromUnknown(a.createdAt),
         ),

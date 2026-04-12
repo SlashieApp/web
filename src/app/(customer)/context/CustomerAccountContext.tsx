@@ -11,13 +11,14 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 import {
   type TaskItem,
+  type TaskQuoteItem,
   isTaskCompleted,
   timeFromUnknown,
 } from '@/utils/dashboardHelpers'
 
 export type IncomingQuoteRow = {
   task: TaskItem
-  quote: TaskItem['quotes'][number]
+  quote: TaskQuoteItem
 }
 
 type CustomerAccountContextValue = {
@@ -75,7 +76,7 @@ export function CustomerAccountProvider({
       )
 
     const rows: IncomingQuoteRow[] = posted.flatMap((task) =>
-      task.quotes.map((quote) => ({ task, quote })),
+      (task.quotes ?? []).map((quote) => ({ task, quote })),
     )
     rows.sort(
       (a, b) =>

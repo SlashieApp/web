@@ -20,7 +20,7 @@ You sign up as a **worker**, add skills and profile details, then **browse tasks
 
 ### Connections and membership
 
-Unlike marketplaces that charge a **service fee on every job**, Slashie lets workers **reach customers for free within a monthly time-limited allowance** (the allowance **renews each month**). Workers who need more volume can **subscribe to a membership** for **unlimited connections**.
+Unlike marketplaces that charge a **service fee on every job**, Slashie lets workers **reach customers for free within a monthly time-limited allowance** (the allowance **renews each month**, measured in **UTC**; the free tier currently allows **3 quote connections per calendar month** unless you have paid membership or Worker Pro). Workers who need more volume can **subscribe to a membership** for **unlimited connections**.
 
 ### Map-first discovery
 

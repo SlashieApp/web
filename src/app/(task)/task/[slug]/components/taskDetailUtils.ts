@@ -17,9 +17,24 @@ function formatMajorGbp(amount: number) {
   return `£${amount.toFixed(0)}`
 }
 
-/** Hero budget line: quote range, posted budget range, fixed quote pence, or open. */
-export function taskBudgetDisplayLine(task: TaskDetailRecord): string {
-  const { quotes } = task
+export type TaskBudgetViewerContext = 'owner' | 'visitor'
+
+/**
+ * Hero budget line: quote range (role-aware), posted budget range, fixed quote pence, or open.
+ * For visitors, only the signed-in worker's own quotes count toward the range so competitor
+ * prices are not inferred from `task.quotes`.
+ */
+export function taskBudgetDisplayLine(
+  task: TaskDetailRecord,
+  viewer: TaskBudgetViewerContext,
+  viewerUserId?: string | null,
+): string {
+  const quotes =
+    viewer === 'owner'
+      ? task.quotes
+      : viewerUserId
+        ? task.quotes.filter((q) => q.workerUserId === viewerUserId)
+        : []
   if (quotes.length > 0) {
     const prices = quotes.map((q) => q.pricePence)
     const min = Math.min(...prices)

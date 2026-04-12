@@ -12,7 +12,12 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   INVALID_CREDENTIALS: 'Email or password is incorrect.',
   WEAK_PASSWORD: 'Password must meet the minimum complexity requirements.',
   INVALID_OR_EXPIRED_RESET_TOKEN: 'This reset link is invalid or has expired.',
+  MONTHLY_CONNECTION_LIMIT_REACHED:
+    "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade your membership or Worker Pro for unlimited connections, or try again next month.",
 }
+
+export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =
+  'MONTHLY_CONNECTION_LIMIT_REACHED' as const
 
 function normaliseMessage(message: string) {
   return message.trim().toUpperCase()
@@ -42,8 +47,23 @@ export function isUnauthenticatedError(error: unknown) {
   return normaliseMessage(graphQLError.message) === 'UNAUTHENTICATED'
 }
 
+export function isMonthlyConnectionLimitError(error: unknown) {
+  const graphQLError = pickGraphQLError(error)
+  if (graphQLError?.extensions?.code === MONTHLY_CONNECTION_LIMIT_ERROR_CODE)
+    return true
+  if (!graphQLError?.message) return false
+  return (
+    normaliseMessage(graphQLError.message) ===
+    MONTHLY_CONNECTION_LIMIT_ERROR_CODE
+  )
+}
+
 export function getFriendlyErrorMessage(error: unknown, fallback: string) {
   const graphQLError = pickGraphQLError(error)
+  const code = graphQLError?.extensions?.code
+  if (code === MONTHLY_CONNECTION_LIMIT_ERROR_CODE) {
+    return FRIENDLY_ERROR_BY_MESSAGE[MONTHLY_CONNECTION_LIMIT_ERROR_CODE]
+  }
   if (graphQLError?.message) {
     const normalisedMessage = normaliseMessage(graphQLError.message)
     const mappedMessage = FRIENDLY_ERROR_BY_MESSAGE[normalisedMessage]

@@ -40,7 +40,7 @@ const FILTER_LABELS: Record<RequestFilter, string> = {
 function getTaskStage(task: TaskItem): TaskStage {
   if (isTaskCompleted(task.status)) return 'completed'
   if (isQuoteAwarded(task.status)) return 'awarded'
-  if (task.quotes.length === 0) return 'draft'
+  if ((task.quotes ?? []).length === 0) return 'draft'
   return 'open'
 }
 
@@ -48,7 +48,7 @@ function TaskCard({ task }: { task: TaskItem }) {
   const stage = getTaskStage(task)
   const visual = getCategoryVisual(task.category)
   const amount =
-    getQuoteRange(task.quotes) ?? formatPounds(task.priceQuotePence ?? 0)
+    getQuoteRange(task.quotes ?? []) ?? formatPounds(task.priceQuotePence ?? 0)
 
   const badgeByStage: Record<TaskStage, { bg: string; color: string }> = {
     draft: { bg: 'surfaceContainerHigh', color: 'muted' },
@@ -163,11 +163,11 @@ export default function CustomerRequestsPage() {
   )
 
   const quoteActivityCount = useMemo(
-    () => activeTasks.filter((t) => t.quotes.length > 0).length,
+    () => activeTasks.filter((t) => (t.quotes ?? []).length > 0).length,
     [activeTasks],
   )
   const totalQuotes = useMemo(
-    () => myPostedTasks.reduce((n, t) => n + t.quotes.length, 0),
+    () => myPostedTasks.reduce((n, t) => n + (t.quotes ?? []).length, 0),
     [myPostedTasks],
   )
 
@@ -297,7 +297,7 @@ export default function CustomerRequestsPage() {
               </Heading>
               <Stack gap={3}>
                 {activeTasks
-                  .filter((task) => task.quotes.length > 0)
+                  .filter((task) => (task.quotes ?? []).length > 0)
                   .slice(0, 3)
                   .map((task) => (
                     <GlassCard
@@ -309,7 +309,7 @@ export default function CustomerRequestsPage() {
                     >
                       <Heading size="sm">{task.title}</Heading>
                       <Text fontSize="sm" color="muted">
-                        {task.quotes.length} quotes {'•'}{' '}
+                        {(task.quotes ?? []).length} quotes {'•'}{' '}
                         {taskPublicLocationLabel(task) || 'Location TBC'}
                       </Text>
                       <Link

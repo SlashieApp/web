@@ -39,8 +39,11 @@ export type TaskListItem = {
   paymentMethod?: string | null
   contactMethod?: string | null
   images?: string[] | null
-  /** Visitor-shaped `tasks` hits return an empty list; poster views include quotes. */
-  quotes: TaskQuoteListItem[]
+  /**
+   * Only present when the operation selects `quotes` (e.g. `myTasks`).
+   * Public `tasks` browse does not fetch quotes.
+   */
+  quotes?: TaskQuoteListItem[]
 }
 
 export type TasksQueryData = {

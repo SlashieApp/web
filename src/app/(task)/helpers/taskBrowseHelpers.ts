@@ -31,7 +31,7 @@ export function formatBudget(task: TaskListItem): {
       sub: 'Fixed price',
     }
   }
-  const quotes = task.quotes
+  const quotes = task.quotes ?? []
   if (quotes.length === 0) {
     return { main: 'Open', sub: 'Estimated budget' }
   }
@@ -88,7 +88,7 @@ export function effectiveTaskPricePenceForFilter(
 ): number | null {
   const fixed = task.priceQuotePence
   if (fixed != null && fixed > 0) return fixed
-  const quotes = task.quotes
+  const quotes = task.quotes ?? []
   if (!quotes.length) return null
   return Math.min(...quotes.map((o) => o.pricePence))
 }

@@ -76,15 +76,6 @@ export const TASKS_QUERY = gql`
       priceQuotePence
       paymentMethod
       images
-      quotes {
-        id
-        taskId
-        workerUserId
-        pricePence
-        message
-        status
-        createdAt
-      }
     }
   }
 `
