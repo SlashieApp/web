@@ -17,7 +17,10 @@ export const CREATE_TASK = gql`
       locationName
       dateTime
       category
-      priceQuotePence
+      budget {
+        currency
+        amount
+      }
       paymentMethod
       contactMethod
       images
@@ -29,7 +32,10 @@ export const ADD_QUOTE = gql`
   mutation AddQuote($input: AddQuoteInput!) {
     addQuote(input: $input) {
       id
-      pricePence
+      price {
+        currency
+        amount
+      }
       message
     }
   }
@@ -73,7 +79,10 @@ export const TASKS_QUERY = gql`
       createdAt
       dateTime
       category
-      priceQuotePence
+      budget {
+        currency
+        amount
+      }
       paymentMethod
       images
     }
@@ -104,10 +113,19 @@ export const TASK_QUERY = gql`
       confirmedAt
       dateTime
       category
-      priceQuotePence
+      budget {
+        currency
+        amount
+      }
       budgetRange {
-        min
-        max
+        min {
+          currency
+          amount
+        }
+        max {
+          currency
+          amount
+        }
       }
       paymentMethod
       contactMethod
@@ -126,7 +144,10 @@ export const TASK_QUERY = gql`
       }
       selectedQuote {
         id
-        pricePence
+        price {
+          currency
+          amount
+        }
         message
         workerUserId
         status
@@ -156,11 +177,23 @@ export const TASK_QUERY = gql`
       quotes {
         id
         taskId
-        pricePence
+        price {
+          currency
+          amount
+        }
         message
         workerUserId
         status
         createdAt
+        professional {
+          id
+          firstName
+          lastName
+          profile {
+            name
+            avatarUrl
+          }
+        }
       }
     }
   }
@@ -202,7 +235,10 @@ export const BROWSE_TASKS_QUERY = gql`
       locationLng
       locationName
       status
-      priceQuotePence
+      budget {
+        currency
+        amount
+      }
       createdAt
       category
       images
@@ -230,7 +266,10 @@ export const MY_TASKS_QUERY = gql`
       createdAt
       dateTime
       category
-      priceQuotePence
+      budget {
+        currency
+        amount
+      }
       paymentMethod
       contactMethod
       images
@@ -238,7 +277,10 @@ export const MY_TASKS_QUERY = gql`
         id
         taskId
         workerUserId
-        pricePence
+        price {
+          currency
+          amount
+        }
         message
         status
         createdAt
@@ -258,10 +300,13 @@ export const ACCEPT_QUOTE_MUTATION = gql`
 `
 
 export const MAKE_QUOTE_MUTATION = gql`
-  mutation MakeQuote($amount: Float!, $taskId: ID!, $message: String) {
-    makeQuote(amount: $amount, taskId: $taskId, message: $message) {
+  mutation MakeQuote($taskId: ID!, $price: PriceInput!, $message: String) {
+    makeQuote(taskId: $taskId, price: $price, message: $message) {
       id
-      pricePence
+      price {
+        currency
+        amount
+      }
       message
       status
     }

@@ -1,4 +1,5 @@
 import type { TaskListItem } from '@/graphql/tasks-query.types'
+import { priceToPence } from '@/utils/price'
 import type { JobCardBadgeVariant } from '../components/(web)/TaskBrowseListItem'
 import type { UrgencyFilter } from './taskBrowseFilters.types'
 
@@ -24,7 +25,7 @@ export function formatBudget(task: TaskListItem): {
   main: string
   sub: string
 } {
-  const fixed = task.priceQuotePence
+  const fixed = priceToPence(task.budget)
   if (fixed != null && fixed > 0) {
     return {
       main: `£${(fixed / 100).toFixed(0)}`,
@@ -35,7 +36,10 @@ export function formatBudget(task: TaskListItem): {
   if (quotes.length === 0) {
     return { main: 'Open', sub: 'Estimated budget' }
   }
-  const prices = quotes.map((o) => o.pricePence)
+  const prices = quotes
+    .map((o) => priceToPence(o.price))
+    .filter((price): price is number => price != null)
+  if (prices.length === 0) return { main: 'Open', sub: 'Estimated budget' }
   const min = Math.min(...prices)
   const max = Math.max(...prices)
   if (min === max) {
@@ -66,14 +70,12 @@ export function inferBadge(task: TaskListItem): {
   variant: JobCardBadgeVariant
   text?: string
 } {
+  const fixed = priceToPence(task.budget)
   const t = `${task.title} ${task.description}`.toLowerCase()
   if (t.includes('emergency') || t.includes('urgent') || t.includes('burst')) {
     return { variant: 'emergency', text: 'EMERGENCY' }
   }
-  if (
-    task.description.length > 280 ||
-    (task.priceQuotePence != null && task.priceQuotePence >= 50_000)
-  ) {
+  if (task.description.length > 280 || (fixed != null && fixed >= 50_000)) {
     return { variant: 'featured', text: 'BIG PROJECT' }
   }
   return { variant: 'none' }
@@ -86,11 +88,15 @@ export function inferBadge(task: TaskListItem): {
 export function effectiveTaskPricePenceForFilter(
   task: TaskListItem,
 ): number | null {
-  const fixed = task.priceQuotePence
+  const fixed = priceToPence(task.budget)
   if (fixed != null && fixed > 0) return fixed
   const quotes = task.quotes ?? []
   if (!quotes.length) return null
-  return Math.min(...quotes.map((o) => o.pricePence))
+  const prices = quotes
+    .map((o) => priceToPence(o.price))
+    .filter((price): price is number => price != null)
+  if (prices.length === 0) return null
+  return Math.min(...prices)
 }
 
 export function matchesUrgency(

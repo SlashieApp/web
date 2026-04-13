@@ -10,6 +10,7 @@ import {
   formatRelativePosted,
   getCategoryVisual,
   isQuoteAwarded,
+  quotePricePence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
@@ -154,7 +155,7 @@ export default function DashboardQuotesPage() {
                     </Text>
                     <Text fontSize="sm">
                       Quote value:{' '}
-                      <strong>{formatPounds(quote.pricePence)}</strong>
+                      <strong>{formatPounds(quotePricePence(quote))}</strong>
                     </Text>
                     <Text fontSize="sm" color="muted">
                       {quote.message?.trim() ||

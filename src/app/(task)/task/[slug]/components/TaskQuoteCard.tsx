@@ -7,6 +7,7 @@ import NextLink from 'next/link'
 export type TaskQuoteCardProps = {
   name: string
   avatarLabel: string
+  avatarUrl?: string | null
   priceLabel: string
   message?: string | null
   ratingSummary?: string | null
@@ -14,7 +15,7 @@ export type TaskQuoteCardProps = {
   /** Owner task page: prominent quote amount and layout. */
   ownerQuoteEmphasis?: boolean
   acceptPrimary?: boolean
-  messageHref: string
+  messageHref?: string
   isOwnQuote?: boolean
   onAccept?: () => void
   acceptLoading?: boolean
@@ -32,6 +33,7 @@ function avatarGradient(seed: string): string {
 export function TaskQuoteCard({
   name,
   avatarLabel,
+  avatarUrl,
   priceLabel,
   message,
   ratingSummary,
@@ -71,6 +73,8 @@ export function TaskQuoteCard({
     </Text>
   )
 
+  const showActions = Boolean(messageHref || isOwnQuote || onAccept)
+
   return (
     <Stack
       gap={3}
@@ -95,8 +99,20 @@ export function TaskQuoteCard({
             fontWeight={800}
             fontSize="sm"
             letterSpacing="0.02em"
+            overflow="hidden"
           >
-            {avatarLabel.slice(0, 2).toUpperCase()}
+            {avatarUrl ? (
+              <Box
+                as="img"
+                src={avatarUrl}
+                alt={`${name} avatar`}
+                w="full"
+                h="full"
+                objectFit="cover"
+              />
+            ) : (
+              avatarLabel.slice(0, 2).toUpperCase()
+            )}
           </Box>
           <Stack gap={1} flex={1} minW={0}>
             <HStack gap={2} flexWrap="wrap" align="center">
@@ -139,55 +155,59 @@ export function TaskQuoteCard({
       <Text fontSize="sm" color="muted" fontStyle="italic" lineHeight="tall">
         "{snippet}"
       </Text>
-      <HStack gap={2} flexWrap="wrap">
-        <Button
-          as={NextLink}
-          href={messageHref}
-          size="sm"
-          variant="outline"
-          borderColor="primary.200"
-          color="primary.700"
-          bg="primary.50"
-          px={4}
-          flex={1}
-          minW="120px"
-        >
-          Message
-        </Button>
-        {isOwnQuote ? (
-          <Button
-            size="sm"
-            variant="outline"
-            borderColor="border"
-            color="muted"
-            flex={1}
-            minW="120px"
-            disabled
-          >
-            Your quote
-          </Button>
-        ) : onAccept ? (
-          <Button
-            size="sm"
-            px={4}
-            flex={1}
-            minW="120px"
-            loading={acceptLoading}
-            disabled={acceptDisabled}
-            onClick={onAccept}
-            {...(acceptPrimary
-              ? {}
-              : {
-                  variant: 'outline' as const,
-                  borderColor: 'primary.200',
-                  color: 'primary.700',
-                  bg: 'primary.50',
-                })}
-          >
-            Accept quote
-          </Button>
-        ) : null}
-      </HStack>
+      {showActions ? (
+        <HStack gap={2} flexWrap="wrap">
+          {messageHref ? (
+            <Button
+              as={NextLink}
+              href={messageHref}
+              size="sm"
+              variant="outline"
+              borderColor="primary.200"
+              color="primary.700"
+              bg="primary.50"
+              px={4}
+              flex={1}
+              minW="120px"
+            >
+              Message
+            </Button>
+          ) : null}
+          {isOwnQuote ? (
+            <Button
+              size="sm"
+              variant="outline"
+              borderColor="border"
+              color="muted"
+              flex={1}
+              minW="120px"
+              disabled
+            >
+              Your quote
+            </Button>
+          ) : onAccept ? (
+            <Button
+              size="sm"
+              px={4}
+              flex={1}
+              minW="120px"
+              loading={acceptLoading}
+              disabled={acceptDisabled}
+              onClick={onAccept}
+              {...(acceptPrimary
+                ? {}
+                : {
+                    variant: 'outline' as const,
+                    borderColor: 'primary.200',
+                    color: 'primary.700',
+                    bg: 'primary.50',
+                  })}
+            >
+              Accept quote
+            </Button>
+          ) : null}
+        </HStack>
+      ) : null}
     </Stack>
   )
 }

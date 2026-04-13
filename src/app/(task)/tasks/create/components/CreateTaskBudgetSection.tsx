@@ -1,7 +1,7 @@
 'use client'
 
 import { HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
-import { BudgetUnit, TaskPaymentMethod } from '@codegen/schema'
+import { Currency, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/Button'
@@ -13,23 +13,23 @@ import type { CreateTaskFormValues } from '../createTaskFormSchema'
 
 export type CreateTaskBudgetSectionProps = {
   register: UseFormRegister<CreateTaskFormValues>
-  budgetUnit: BudgetUnit
+  budgetCurrency: Currency
   paymentMethod: TaskPaymentMethod
-  onBudgetUnitChange: (value: BudgetUnit) => void
+  onBudgetCurrencyChange: (value: Currency) => void
   onPaymentMethodChange: (value: TaskPaymentMethod) => void
   budgetMajorError?: string
 }
 
-const UNIT_PREFIX: Record<BudgetUnit, string> = {
-  [BudgetUnit.Usd]: 'USD',
-  [BudgetUnit.Gbp]: 'GBP',
+const CURRENCY_PREFIX: Record<Currency, string> = {
+  [Currency.Usd]: 'USD',
+  [Currency.Gdp]: 'GBP',
 }
 
 export function CreateTaskBudgetSection({
   register,
-  budgetUnit,
+  budgetCurrency,
   paymentMethod,
-  onBudgetUnitChange,
+  onBudgetCurrencyChange,
   onPaymentMethodChange,
   budgetMajorError,
 }: CreateTaskBudgetSectionProps) {
@@ -48,13 +48,13 @@ export function CreateTaskBudgetSection({
                 borderWidth="1px"
                 borderColor="border"
                 borderRadius="lg"
-                value={budgetUnit}
+                value={budgetCurrency}
                 onChange={(e) =>
-                  onBudgetUnitChange(e.target.value as BudgetUnit)
+                  onBudgetCurrencyChange(e.target.value as Currency)
                 }
               >
-                <option value={BudgetUnit.Usd}>USD</option>
-                <option value={BudgetUnit.Gbp}>GBP</option>
+                <option value={Currency.Usd}>USD</option>
+                <option value={Currency.Gdp}>GBP</option>
               </NativeSelect.Field>
             </NativeSelect.Root>
             <HStack
@@ -68,7 +68,7 @@ export function CreateTaskBudgetSection({
               minH="44px"
             >
               <Text fontWeight={700} fontSize="sm" color="muted" flexShrink={0}>
-                {UNIT_PREFIX[budgetUnit]}
+                {CURRENCY_PREFIX[budgetCurrency]}
               </Text>
               <TextInput
                 flex={1}

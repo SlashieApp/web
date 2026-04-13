@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import {
-  BudgetUnit,
+  Currency,
   DayOfWeek,
   TaskCategory,
   TaskContactMethod,
@@ -77,7 +77,7 @@ export const createTaskFormSchema = z
         const n = Number.parseFloat(s)
         return Number.isFinite(n) && n > 0
       }, 'Please provide a valid budget amount.'),
-    budgetUnit: z.nativeEnum(BudgetUnit),
+    budgetCurrency: z.nativeEnum(Currency),
     paymentMethod: z.nativeEnum(TaskPaymentMethod),
     preferredContactMethod: z.nativeEnum(TaskContactMethod),
   })

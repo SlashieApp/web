@@ -1,4 +1,4 @@
-import type { TaskCategory } from '@codegen/schema'
+import type { Price, TaskCategory } from '@codegen/schema'
 
 /**
  * Types for task list operations in `tasks.ts`. Prefer `@codegen/schema` once
@@ -8,7 +8,7 @@ export type TaskQuoteListItem = {
   id: string
   taskId: string
   workerUserId: string
-  pricePence: number
+  price: Price
   message?: string | null
   status: string
   createdAt: unknown
@@ -35,7 +35,7 @@ export type TaskListItem = {
   createdAt: unknown
   dateTime?: unknown
   category?: TaskCategory | null
-  priceQuotePence?: number | null
+  budget?: Price | null
   paymentMethod?: string | null
   contactMethod?: string | null
   images?: string[] | null

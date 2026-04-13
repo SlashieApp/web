@@ -13,6 +13,7 @@ import {
   getQuoteRange,
   isQuoteAwarded,
   isTaskCompleted,
+  taskBudgetPence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
@@ -48,7 +49,7 @@ function TaskCard({ task }: { task: TaskItem }) {
   const stage = getTaskStage(task)
   const visual = getCategoryVisual(task.category)
   const amount =
-    getQuoteRange(task.quotes ?? []) ?? formatPounds(task.priceQuotePence ?? 0)
+    getQuoteRange(task.quotes ?? []) ?? formatPounds(taskBudgetPence(task))
 
   const badgeByStage: Record<TaskStage, { bg: string; color: string }> = {
     draft: { bg: 'surfaceContainerHigh', color: 'muted' },

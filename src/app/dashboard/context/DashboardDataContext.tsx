@@ -24,6 +24,8 @@ import {
   isQuoteAwarded,
   isTaskCompleted,
   matchesSearch,
+  quotePricePence,
+  taskBudgetPence,
   timeFromUnknown,
 } from '@/utils/dashboardHelpers'
 import type {
@@ -271,7 +273,7 @@ export function DashboardDataProvider({
       title: task.title,
       location: taskPublicLocationLabel(task) || 'Location TBC',
       completedAt: task.createdAt,
-      valuePence: task.priceQuotePence ?? 0,
+      valuePence: taskBudgetPence(task),
       summary: 'Posted task completed and archived in your customer history.',
       role: 'customer',
     }))
@@ -282,7 +284,7 @@ export function DashboardDataProvider({
         title: task.title,
         location: taskPublicLocationLabel(task) || 'Location TBC',
         completedAt: quote.createdAt,
-        valuePence: quote.pricePence,
+        valuePence: quotePricePence(quote),
         summary: 'Quote progressed to a completed worker engagement.',
         role: 'worker',
       }),
@@ -305,19 +307,13 @@ export function DashboardDataProvider({
 
   const totalSpendPence = useMemo(
     () =>
-      completedAsPoster.reduce(
-        (sum, task) => sum + (task.priceQuotePence ?? 0),
-        0,
-      ),
+      completedAsPoster.reduce((sum, task) => sum + taskBudgetPence(task), 0),
     [completedAsPoster],
   )
 
   const totalEarningsPence = useMemo(
     () =>
-      awardedQuotes.reduce(
-        (sum, { quote }) => sum + (quote.pricePence ?? 0),
-        0,
-      ),
+      awardedQuotes.reduce((sum, { quote }) => sum + quotePricePence(quote), 0),
     [awardedQuotes],
   )
 

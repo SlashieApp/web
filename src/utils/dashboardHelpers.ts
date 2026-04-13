@@ -1,6 +1,7 @@
 'use client'
 
 import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
+import { priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 export function getDisplayNameFromEmail(email: string | null | undefined) {
@@ -23,6 +24,14 @@ export type MyQuoteItem = {
 
 export function formatPounds(pricePence: number) {
   return `£${(pricePence / 100).toFixed(0)}`
+}
+
+export function quotePricePence(quote: { price?: { amount: number } | null }) {
+  return priceToPence(quote.price) ?? 0
+}
+
+export function taskBudgetPence(task: { budget?: { amount: number } | null }) {
+  return priceToPence(task.budget) ?? 0
 }
 
 export function timeFromUnknown(value: unknown): number {
@@ -94,10 +103,14 @@ export function matchesSearch(task: TaskItem, q: string) {
   )
 }
 
-export function getQuoteRange(quotes: Array<{ pricePence: number }>) {
-  if (quotes.length === 0) return null
+export function getQuoteRange(
+  quotes: Array<{ price?: { amount: number } | null }>,
+) {
+  const prices = quotes
+    .map((quote) => priceToPence(quote.price))
+    .filter((price): price is number => price != null)
+  if (prices.length === 0) return null
 
-  const prices = quotes.map((quote) => quote.pricePence)
   const min = Math.min(...prices)
   const max = Math.max(...prices)
 

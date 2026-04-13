@@ -4,7 +4,11 @@ import { Grid, HStack, Stack } from '@chakra-ui/react'
 
 import { WorkerAccessGate } from '@/app/dashboard/components/WorkerAccessGate'
 import { useDashboardData } from '@/app/dashboard/context'
-import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
+import {
+  formatDate,
+  formatPounds,
+  quotePricePence,
+} from '@/utils/dashboardHelpers'
 import { Badge, GlassCard, Heading, Text } from '@ui'
 
 function EarningsCard({
@@ -59,7 +63,7 @@ export default function DashboardEarningsPage() {
     filteredMyQuotes.length > 0
       ? Math.round(
           filteredMyQuotes.reduce(
-            (sum, { quote }) => sum + quote.pricePence,
+            (sum, { quote }) => sum + quotePricePence(quote),
             0,
           ) / filteredMyQuotes.length,
         )
@@ -68,7 +72,7 @@ export default function DashboardEarningsPage() {
   const projectedPipelinePence =
     filteredMyQuotes
       .filter(({ quote }) => !/reject|declin|cancel/i.test(quote.status))
-      .reduce((sum, { quote }) => sum + quote.pricePence, 0) ||
+      .reduce((sum, { quote }) => sum + quotePricePence(quote), 0) ||
     averageQuotePence
 
   const payoutRows =
@@ -76,7 +80,7 @@ export default function DashboardEarningsPage() {
       ? awardedQuotes.slice(0, 4).map(({ task, quote }, index) => ({
           id: quote.id,
           title: task.title,
-          amountPence: quote.pricePence,
+          amountPence: quotePricePence(quote),
           status: index === 0 ? 'Processing' : 'Scheduled',
           payoutAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * (index + 2)),
         }))

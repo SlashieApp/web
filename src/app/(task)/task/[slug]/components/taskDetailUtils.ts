@@ -1,3 +1,4 @@
+import { formatPrice, priceToPence } from '@/utils/price'
 import { DayOfWeek, type TaskQuery } from '@codegen/schema'
 
 export type TaskDetailRecord = NonNullable<TaskQuery['task']>
@@ -36,20 +37,27 @@ export function taskBudgetDisplayLine(
         ? task.quotes.filter((q) => q.workerUserId === viewerUserId)
         : []
   if (quotes.length > 0) {
-    const prices = quotes.map((q) => q.pricePence)
+    const prices = quotes
+      .map((q) => priceToPence(q.price))
+      .filter((price): price is number => price != null)
+    if (prices.length === 0) return 'Open to quotes'
     const min = Math.min(...prices)
     const max = Math.max(...prices)
     if (min === max) return formatPoundsFromPence(min)
     return `${formatPoundsFromPence(min)} — ${formatPoundsFromPence(max)}`
   }
   const br = task.budgetRange
-  if (br?.min != null && br?.max != null && br.min !== br.max) {
-    return `${formatMajorGbp(br.min)} — ${formatMajorGbp(br.max)}`
+  if (br?.min != null && br?.max != null) {
+    if (
+      br.min.currency === br.max.currency &&
+      Math.abs(br.min.amount - br.max.amount) < Number.EPSILON
+    ) {
+      return formatPrice(br.min)
+    }
+    return `${formatPrice(br.min)} — ${formatPrice(br.max)}`
   }
-  if (br?.min != null) return formatMajorGbp(br.min)
-  if (task.priceQuotePence != null && task.priceQuotePence > 0) {
-    return formatPoundsFromPence(task.priceQuotePence)
-  }
+  if (br?.min != null) return formatPrice(br.min)
+  if (task.budget) return formatPrice(task.budget)
   return 'Open to quotes'
 }
 
@@ -132,13 +140,17 @@ export function buildAvailabilityChips(
 /** Budget shown on the owner quick-info card (posted budget, not quote range). */
 export function taskOwnerPostedBudgetLine(task: TaskDetailRecord): string {
   const br = task.budgetRange
-  if (br?.min != null && br?.max != null && br.min !== br.max) {
-    return `${formatMajorGbp(br.min)} — ${formatMajorGbp(br.max)}`
+  if (br?.min != null && br?.max != null) {
+    if (
+      br.min.currency === br.max.currency &&
+      Math.abs(br.min.amount - br.max.amount) < Number.EPSILON
+    ) {
+      return formatPrice(br.min)
+    }
+    return `${formatPrice(br.min)} — ${formatPrice(br.max)}`
   }
-  if (br?.min != null) return formatMajorGbp(br.min)
-  if (task.priceQuotePence != null && task.priceQuotePence > 0) {
-    return formatPoundsFromPence(task.priceQuotePence)
-  }
+  if (br?.min != null) return formatPrice(br.min)
+  if (task.budget) return formatPrice(task.budget)
   return 'Open to quotes'
 }
 

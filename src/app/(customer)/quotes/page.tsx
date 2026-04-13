@@ -7,6 +7,7 @@ import {
   formatDate,
   formatPounds,
   getCategoryVisual,
+  quotePricePence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
@@ -75,7 +76,7 @@ export default function CustomerQuotesPage() {
                     </Text>
                     <HStack gap={2} flexWrap="wrap">
                       <Badge bg="primary.50" color="primary.700">
-                        {formatPounds(quote.pricePence)}
+                        {formatPounds(quotePricePence(quote))}
                       </Badge>
                       <Text fontSize="xs" color="muted">
                         {formatDate(quote.createdAt)}

@@ -3,8 +3,8 @@
 import { useApolloClient, useMutation } from '@apollo/client/react'
 import { Box, Grid, HStack, Link, Stack } from '@chakra-ui/react'
 import {
-  BudgetUnit,
   type CreateTaskMutation,
+  Currency,
   type DayOfWeek,
   TaskCategory,
   TaskContactMethod,
@@ -87,7 +87,7 @@ export default function CreateTaskPage() {
       preferredTime: '09:00',
       slotsByDay: emptySlotsByDay(),
       budgetMajor: '',
-      budgetUnit: BudgetUnit.Gbp,
+      budgetCurrency: Currency.Gdp,
       paymentMethod: TaskPaymentMethod.Cash,
       preferredContactMethod: TaskContactMethod.InApp,
     },
@@ -100,7 +100,7 @@ export default function CreateTaskPage() {
   const preferredDate = watch('preferredDate')
   const preferredTime = watch('preferredTime')
   const slotsByDay = watch('slotsByDay')
-  const budgetUnit = watch('budgetUnit')
+  const budgetCurrency = watch('budgetCurrency')
   const paymentMethod = watch('paymentMethod')
   const preferredContactMethod = watch('preferredContactMethod')
 
@@ -221,8 +221,10 @@ export default function CreateTaskPage() {
           input: {
             title: values.title.trim(),
             description: values.description.trim(),
-            budget: parsedBudget,
-            budgetUnit: values.budgetUnit,
+            budget: {
+              amount: parsedBudget,
+              currency: values.budgetCurrency,
+            },
             paymentMethod: values.paymentMethod,
             address: values.streetAddress.trim(),
             location: {
@@ -349,10 +351,10 @@ export default function CreateTaskPage() {
             />
             <CreateTaskBudgetSection
               register={register}
-              budgetUnit={budgetUnit}
+              budgetCurrency={budgetCurrency}
               paymentMethod={paymentMethod}
-              onBudgetUnitChange={(u) =>
-                setValue('budgetUnit', u, {
+              onBudgetCurrencyChange={(currency) =>
+                setValue('budgetCurrency', currency, {
                   shouldValidate: true,
                   shouldDirty: true,
                 })

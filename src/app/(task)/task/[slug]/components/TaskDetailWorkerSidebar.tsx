@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, HStack, Stack } from '@chakra-ui/react'
-import type { QuoteStatus } from '@codegen/schema'
+import type { Price, QuoteStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
@@ -15,6 +15,7 @@ import {
   TextInput,
 } from '@ui'
 
+import { priceToPence } from '@/utils/price'
 import { formatPoundsFromPence } from './taskDetailUtils'
 
 function IconBookmark(props: { size?: number }) {
@@ -83,12 +84,13 @@ export function TaskDetailWorkerCtas({
 
 export type TaskDetailWorkerQuotePanelProps = {
   myQuote: {
-    pricePence: number
+    price: Price
     message?: string | null
     status: QuoteStatus
   } | null
   canAccessWorkerTools: boolean
   mePresent: boolean
+  loginHref: string
   pricePence: string
   message: string
   onPriceChange: (v: string) => void
@@ -103,6 +105,7 @@ export function TaskDetailWorkerQuotePanel({
   myQuote,
   canAccessWorkerTools,
   mePresent,
+  loginHref,
   pricePence,
   message,
   onPriceChange,
@@ -114,12 +117,25 @@ export function TaskDetailWorkerQuotePanel({
 }: TaskDetailWorkerQuotePanelProps) {
   return (
     <Box id="task-quote" scrollMarginTop="96px">
-      {myQuote ? (
+      {!mePresent ? (
+        <GlassCard p={6} borderColor="border" boxShadow="ambient">
+          <Stack gap={4}>
+            <Heading size="md">Log in to make a quote</Heading>
+            <Text color="muted">
+              Sign in to send your quote and message to the task owner.
+            </Text>
+            <Button as={NextLink} href={loginHref} w="full">
+              Log in
+            </Button>
+          </Stack>
+        </GlassCard>
+      ) : myQuote ? (
         <GlassCard p={6} borderColor="border" boxShadow="ambient">
           <Stack gap={3}>
             <Heading size="md">Your quote</Heading>
             <Text color="muted">
-              You submitted {formatPoundsFromPence(myQuote.pricePence)}
+              You submitted{' '}
+              {formatPoundsFromPence(priceToPence(myQuote.price) ?? 0)}
               {myQuote.message ? ` — “${myQuote.message}”` : '.'}
             </Text>
             <Badge bg="surfaceContainerLow" color="fg" w="fit-content">
@@ -127,7 +143,7 @@ export function TaskDetailWorkerQuotePanel({
             </Badge>
           </Stack>
         </GlassCard>
-      ) : mePresent && !canAccessWorkerTools ? (
+      ) : !canAccessWorkerTools ? (
         <GlassCard
           p={6}
           bg="primary.50"

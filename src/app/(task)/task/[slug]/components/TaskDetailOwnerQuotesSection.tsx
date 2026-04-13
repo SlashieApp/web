@@ -3,6 +3,7 @@
 import { HStack, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { priceToPence } from '@/utils/price'
 import { GlassCard, Heading } from '@ui'
 
 import { TaskQuoteCard } from './TaskQuoteCard'
@@ -12,6 +13,7 @@ export type TaskDetailOwnerQuotesSectionProps = {
   task: TaskDetailRecord
   sortedQuotes: TaskDetailRecord['quotes']
   lowestPricePence: number | null
+  isOwner: boolean
   canAcceptQuotes: boolean
   acceptError: string | null
   cancelError: string | null
@@ -25,6 +27,7 @@ export function TaskDetailOwnerQuotesSection({
   task,
   sortedQuotes,
   lowestPricePence,
+  isOwner,
   canAcceptQuotes,
   acceptError,
   cancelError,
@@ -38,7 +41,7 @@ export function TaskDetailOwnerQuotesSection({
   return (
     <Stack gap={4} w="full" pt={{ base: 2, lg: 4 }} id="owner-quotes">
       <HStack justify="space-between" align="center" flexWrap="wrap" gap={3}>
-        <Heading size="md">Recent quotes</Heading>
+        <Heading size="md">Worker quotes</Heading>
         {n > 0 ? (
           <Link
             as={NextLink}
@@ -65,29 +68,42 @@ export function TaskDetailOwnerQuotesSection({
       {n === 0 ? (
         <GlassCard p={6} borderColor="border" boxShadow="ambient">
           <Text color="muted">
-            No quotes yet. Share your task link to get quotes from
-            professionals.
+            No quotes yet. Check back for worker responses.
           </Text>
         </GlassCard>
       ) : (
         <Stack gap={4} id="owner-quotes-list">
-          {sortedQuotes.map((quote) => (
-            <TaskQuoteCard
-              key={quote.id}
-              name="Professional"
-              avatarLabel={workerAvatarLabel(quote.workerUserId)}
-              priceLabel={formatPounds(quote.pricePence)}
-              message={quote.message}
-              ownerQuoteEmphasis
-              acceptPrimary={quote.pricePence === lowestPricePence}
-              messageHref="/dashboard"
-              isOwnQuote={false}
-              onAccept={
-                canAcceptQuotes ? () => void onAcceptQuote(quote.id) : undefined
-              }
-              acceptLoading={acceptingQuoteId === quote.id}
-            />
-          ))}
+          {sortedQuotes.map((quote) => {
+            const quotePence = priceToPence(quote.price) ?? 0
+            const professionalName =
+              quote.professional?.profile?.name?.trim() ||
+              `${quote.professional?.firstName ?? ''} ${quote.professional?.lastName ?? ''}`.trim() ||
+              'Professional'
+            return (
+              <TaskQuoteCard
+                key={quote.id}
+                name={professionalName}
+                avatarLabel={workerAvatarLabel(quote.workerUserId)}
+                avatarUrl={quote.professional?.profile?.avatarUrl}
+                priceLabel={
+                  isOwner
+                    ? formatPounds(quotePence)
+                    : 'Price visible to task owner'
+                }
+                message={quote.message}
+                ownerQuoteEmphasis={isOwner}
+                acceptPrimary={quotePence === lowestPricePence}
+                messageHref={isOwner ? '/dashboard/messages' : undefined}
+                isOwnQuote={false}
+                onAccept={
+                  isOwner && canAcceptQuotes
+                    ? () => void onAcceptQuote(quote.id)
+                    : undefined
+                }
+                acceptLoading={acceptingQuoteId === quote.id}
+              />
+            )
+          })}
         </Stack>
       )}
     </Stack>
