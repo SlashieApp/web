@@ -9,8 +9,8 @@ import {
   formatDate,
   formatPounds,
   formatRelativePosted,
-  getCategoryVisual,
   getQuoteRange,
+  getTaskCardVisual,
   isQuoteAwarded,
   isTaskCompleted,
   taskBudgetPence,
@@ -47,7 +47,7 @@ function getTaskStage(task: TaskItem): TaskStage {
 
 function TaskCard({ task }: { task: TaskItem }) {
   const stage = getTaskStage(task)
-  const visual = getCategoryVisual(task.category)
+  const visual = getTaskCardVisual(task)
   const amount =
     getQuoteRange(task.quotes ?? []) ?? formatPounds(taskBudgetPence(task))
 

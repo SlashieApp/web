@@ -1,14 +1,14 @@
-import type { Price, TaskCategory } from '@codegen/schema'
+import type { Price, TaskBudget, TaskDateTime } from '@codegen/schema'
 
 /**
  * Types for task list operations in `tasks.ts`. Prefer `@codegen/schema` once
- * `bun run codegen` succeeds against the GraphQL endpoint.
+ * codegen succeeds against the GraphQL endpoint.
  */
 export type TaskQuoteListItem = {
   id: string
   taskId: string
   workerUserId: string
-  price: Price
+  price?: Price | null
   message?: string | null
   status: string
   createdAt: unknown
@@ -18,27 +18,22 @@ export type TaskMapLocationFields = {
   lat?: number | null
   lng?: number | null
   name?: string | null
+  postcode?: string | null
+  address?: string | null
 }
 
 export type TaskListItem = {
   id: string
   title: string
   description: string
-  address?: string | null
-  locationName?: string | null
   location?: TaskMapLocationFields | null
-  locationLat?: number | null
-  locationLng?: number | null
   status: string
-  /** Present for poster-owned rows; omitted/redacted on public `tasks` list hits. */
-  createdByUserId?: string | null
   createdAt: unknown
-  dateTime?: unknown
-  category?: TaskCategory | null
-  budget?: Price | null
-  paymentMethod?: string | null
+  datetime?: TaskDateTime | null
+  budget?: TaskBudget | null
   contactMethod?: string | null
-  images?: string[] | null
+  images?: string[]
+  poster?: { id: string } | null
   /**
    * Only present when the operation selects `quotes` (e.g. `myTasks`).
    * Public `tasks` browse does not fetch quotes.

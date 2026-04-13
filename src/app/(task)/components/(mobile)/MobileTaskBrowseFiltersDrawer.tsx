@@ -2,7 +2,6 @@
 
 import type { ReactNode } from 'react'
 
-import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
 import {
   Box,
   Button as ChakraButton,
@@ -23,8 +22,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { TaskCategory } from '@codegen/schema'
-import { Button, IconCalendar, IconWrench, TextInput } from '@ui'
+import { Button, IconCalendar, TextInput } from '@ui'
 
 import {
   useTaskBrowseFiltersProps,
@@ -47,85 +45,6 @@ function CloseIcon() {
       />
     </svg>
   )
-}
-
-function CategoryFilterIcon({ category }: { category: TaskCategory }) {
-  const stroke = 'currentColor'
-  const common = { width: '22px', height: '22px', flexShrink: 0 } as const
-  switch (category) {
-    case TaskCategory.Plumbing:
-      return (
-        <Box as="span" {...common} display="inline-flex" alignItems="center">
-          <IconWrench w="22px" h="22px" color="inherit" />
-        </Box>
-      )
-    case TaskCategory.Electrical:
-      return (
-        <Box as="span" {...common} display="inline-flex" alignItems="center">
-          <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-            <title>Electrical</title>
-            <path
-              d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z"
-              stroke={stroke}
-              strokeWidth="1.75"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Box>
-      )
-    case TaskCategory.Painting:
-      return (
-        <Box as="span" {...common} display="inline-flex" alignItems="center">
-          <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-            <title>Painting</title>
-            <path
-              d="M4 21h10a2 2 0 0 0 2-2v-3H4v5Z"
-              stroke={stroke}
-              strokeWidth="1.75"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M18 3v6a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3"
-              stroke={stroke}
-              strokeWidth="1.75"
-              strokeLinecap="round"
-            />
-            <path
-              d="M12 3v8M9 6h6"
-              stroke={stroke}
-              strokeWidth="1.75"
-              strokeLinecap="round"
-            />
-          </svg>
-        </Box>
-      )
-    case TaskCategory.Gardening:
-      return (
-        <Box as="span" {...common} display="inline-flex" alignItems="center">
-          <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-            <title>Gardening</title>
-            <path
-              d="M12 22c-4-4-6-8-6-12a6 6 0 0 1 12 0c0 4-2 8-6 12Z"
-              stroke={stroke}
-              strokeWidth="1.75"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12 22V10"
-              stroke={stroke}
-              strokeWidth="1.75"
-              strokeLinecap="round"
-            />
-          </svg>
-        </Box>
-      )
-    default:
-      return (
-        <Box as="span" {...common} display="inline-flex" alignItems="center">
-          <IconWrench w="22px" h="22px" color="inherit" />
-        </Box>
-      )
-  }
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
@@ -240,9 +159,6 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
     sortValue: _sort,
     sortOptions: _sortOptions,
     onSortChange: _onSortChange,
-    categories,
-    selectedCategories,
-    onToggleCategory,
     radiusMiles,
     onRadiusChange,
     minBudgetPounds,
@@ -253,54 +169,10 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
     onUrgencyChange,
   } = props
 
-  const compactCategories = categories.slice(0, 4)
   const radius = Math.min(50, Math.max(1, radiusMiles))
 
   return (
     <Stack gap={6} pb={2}>
-      <Stack gap={3}>
-        <SectionLabel>Categories</SectionLabel>
-        <SimpleGrid columns={2} gap={2.5}>
-          {compactCategories.map((cat) => {
-            const active = selectedCategories.has(cat)
-            return (
-              <Button
-                key={cat}
-                type="button"
-                size="lg"
-                h="auto"
-                minH="72px"
-                py={3}
-                px={3}
-                borderRadius="xl"
-                justifyContent="flex-start"
-                fontWeight={700}
-                fontSize="sm"
-                gap={2.5}
-                boxShadow="none"
-                bg={active ? 'primary.600' : 'surfaceContainerHigh'}
-                color={active ? 'white' : 'primary.600'}
-                borderWidth={0}
-                _hover={{
-                  bg: active ? 'primary.700' : 'surfaceContainerHighest',
-                }}
-                onClick={() => onToggleCategory(cat, !active)}
-              >
-                <Box
-                  color="inherit"
-                  opacity={active ? 1 : 0.85}
-                  display="flex"
-                  alignItems="center"
-                >
-                  <CategoryFilterIcon category={cat} />
-                </Box>
-                {formatTaskCategoryLabel(cat)}
-              </Button>
-            )
-          })}
-        </SimpleGrid>
-      </Stack>
-
       <Stack gap={3}>
         <HStack justify="space-between" align="baseline">
           <SectionLabel>Discovery radius</SectionLabel>

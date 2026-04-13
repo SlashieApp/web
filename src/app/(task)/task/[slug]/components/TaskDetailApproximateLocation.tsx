@@ -20,7 +20,7 @@ export function TaskDetailApproximateLocation({
 }: TaskDetailApproximateLocationProps) {
   const place = taskPublicLocationLabel(task)
   const ownerLine =
-    variant === 'owner' ? task.address?.trim() || place || null : null
+    variant === 'owner' ? task.location?.address?.trim() || place || null : null
   const heading =
     variant === 'owner' ? 'Service location' : 'Approximate location'
   const coords = taskMapCoordinates(task)

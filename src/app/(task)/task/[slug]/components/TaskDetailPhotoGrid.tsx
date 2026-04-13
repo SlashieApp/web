@@ -5,8 +5,8 @@ import { useState } from 'react'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
 
-function categoryGradient(category: string): string {
-  const key = category.toLowerCase()
+function accentGradient(seed: string): string {
+  const key = seed.toLowerCase()
   if (key.includes('plumb'))
     return 'linear-gradient(135deg, #1A56DB 0%, #003fb1 100%)'
   if (key.includes('electr'))
@@ -18,13 +18,13 @@ function categoryGradient(category: string): string {
   return 'linear-gradient(135deg, #dfe8f7 0%, #b5ceff 100%)'
 }
 
-function Placeholder({ label, category }: { label: string; category: string }) {
+function Placeholder({ label, seed }: { label: string; seed: string }) {
   return (
     <Box
       w="full"
       h="full"
       minH={{ base: '140px', md: '120px' }}
-      bg={categoryGradient(category)}
+      bg={accentGradient(seed)}
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -43,14 +43,14 @@ function Placeholder({ label, category }: { label: string; category: string }) {
 type CellProps = {
   src?: string | null
   alt: string
-  category: string
+  accentSeed: string
   emptyLabel: string
 }
 
-function PhotoCell({ src, alt, category, emptyLabel }: CellProps) {
+function PhotoCell({ src, alt, accentSeed, emptyLabel }: CellProps) {
   const [broken, setBroken] = useState(false)
   if (!src || broken) {
-    return <Placeholder label={emptyLabel} category={category} />
+    return <Placeholder label={emptyLabel} seed={accentSeed} />
   }
   return (
     <Image
@@ -78,6 +78,7 @@ export function TaskDetailPhotoGrid({
   const images = task.images ?? []
   const [main, second, third] = [images[0], images[1], images[2]]
   const extra = Math.max(0, images.length - 3)
+  const accentSeed = `${task.title} ${task.description}`
 
   return (
     <Stack gap={3}>
@@ -108,7 +109,7 @@ export function TaskDetailPhotoGrid({
           <PhotoCell
             src={main}
             alt={task.title}
-            category={task.category}
+            accentSeed={accentSeed}
             emptyLabel="No photos yet"
           />
         </Box>
@@ -123,7 +124,7 @@ export function TaskDetailPhotoGrid({
           <PhotoCell
             src={second}
             alt=""
-            category={task.category}
+            accentSeed={accentSeed}
             emptyLabel="Add angles in the app"
           />
         </Box>
@@ -139,7 +140,7 @@ export function TaskDetailPhotoGrid({
           <PhotoCell
             src={third}
             alt=""
-            category={task.category}
+            accentSeed={accentSeed}
             emptyLabel="More soon"
           />
           {extra > 0 ? (

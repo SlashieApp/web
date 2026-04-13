@@ -70,7 +70,7 @@ export function CustomerAccountProvider({
     }
 
     const posted = tasks
-      .filter((task) => task.createdByUserId === me.id)
+      .filter((task) => task.poster?.id === me.id)
       .sort(
         (a, b) => timeFromUnknown(b.createdAt) - timeFromUnknown(a.createdAt),
       )

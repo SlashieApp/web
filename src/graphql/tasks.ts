@@ -6,24 +6,41 @@ export const CREATE_TASK = gql`
       id
       title
       description
-      address
+      budget {
+        amount
+        currency
+        type
+        paymentMethod
+      }
+      datetime {
+        date
+        time
+        type
+      }
+      contactMethod
+      images
+      status
+      completedAt
+      confirmedAt
+      createdAt
       location {
         lat
         lng
         name
+        postcode
+        address
       }
-      locationLat
-      locationLng
-      locationName
-      dateTime
-      category
-      budget {
-        currency
-        amount
+      poster {
+        id
+        firstName
+        lastName
+        profile {
+          name
+        }
       }
-      paymentMethod
-      contactMethod
-      images
+      quotes {
+        id
+      }
     }
   }
 `
@@ -32,59 +49,58 @@ export const ADD_QUOTE = gql`
   mutation AddQuote($input: AddQuoteInput!) {
     addQuote(input: $input) {
       id
+      taskId
+      workerUserId
       price {
         currency
         amount
       }
       message
+      status
+      createdAt
+      professional {
+        id
+        firstName
+        lastName
+        profile {
+          name
+          avatarUrl
+        }
+      }
     }
   }
 `
 
 export const TASKS_QUERY = gql`
-  query Tasks(
-    $lat: Float
-    $lng: Float
-    $radiusMiles: Float
-    $search: String
-    $category: TaskCategory
-    $minPricePence: Int
-    $maxPricePence: Int
-    $dateTimeFrom: DateTime
-    $dateTimeTo: DateTime
-  ) {
-    tasks(
-      lat: $lat
-      lng: $lng
-      radiusMiles: $radiusMiles
-      search: $search
-      category: $category
-      minPricePence: $minPricePence
-      maxPricePence: $maxPricePence
-      dateTimeFrom: $dateTimeFrom
-      dateTimeTo: $dateTimeTo
-    ) {
+  query Tasks($lat: Float, $lng: Float, $radiusMiles: Float, $search: String) {
+    tasks(lat: $lat, lng: $lng, radiusMiles: $radiusMiles, search: $search) {
       id
       title
       description
+      budget {
+        amount
+        currency
+        type
+        paymentMethod
+      }
+      datetime {
+        date
+        time
+        type
+      }
+      contactMethod
+      images
+      status
+      completedAt
+      confirmedAt
+      createdAt
       location {
         lat
         lng
         name
+        postcode
+        address
       }
-      locationLat
-      locationLng
-      locationName
-      status
-      createdAt
-      dateTime
-      category
-      budget {
-        currency
-        amount
-      }
-      paymentMethod
-      images
     }
   }
 `
@@ -95,44 +111,29 @@ export const TASK_QUERY = gql`
       id
       title
       description
-      address
+      budget {
+        amount
+        currency
+        type
+        paymentMethod
+      }
+      datetime {
+        date
+        time
+        type
+      }
+      contactMethod
+      images
+      status
+      completedAt
+      confirmedAt
+      createdAt
       location {
         lat
         lng
         name
-      }
-      locationLat
-      locationLng
-      locationName
-      status
-      workerUserId
-      selectedQuoteId
-      createdByUserId
-      createdAt
-      completedAt
-      confirmedAt
-      dateTime
-      category
-      budget {
-        currency
-        amount
-      }
-      budgetRange {
-        min {
-          currency
-          amount
-        }
-        max {
-          currency
-          amount
-        }
-      }
-      paymentMethod
-      contactMethod
-      images
-      availability {
-        day
-        slots
+        postcode
+        address
       }
       poster {
         id
@@ -142,47 +143,15 @@ export const TASK_QUERY = gql`
           name
         }
       }
-      selectedQuote {
-        id
-        price {
-          currency
-          amount
-        }
-        message
-        workerUserId
-        status
-        createdAt
-      }
-      review {
-        id
-        rating
-        comment
-        createdAt
-        workerUserId
-        reviewer {
-          id
-          firstName
-          lastName
-          profile {
-            name
-          }
-        }
-      }
-      comments {
-        id
-        body
-        createdAt
-        userId
-      }
       quotes {
         id
         taskId
+        workerUserId
         price {
           currency
           amount
         }
         message
-        workerUserId
         status
         createdAt
         professional {
@@ -199,80 +168,39 @@ export const TASK_QUERY = gql`
   }
 `
 
-export const BROWSE_TASKS_QUERY = gql`
-  query BrowseTasks(
-    $lat: Float
-    $lng: Float
-    $radiusMiles: Float
-    $search: String
-    $category: TaskCategory
-    $minPricePence: Int
-    $maxPricePence: Int
-    $dateTimeFrom: DateTime
-    $dateTimeTo: DateTime
-  ) {
-    tasks(
-      lat: $lat
-      lng: $lng
-      radiusMiles: $radiusMiles
-      search: $search
-      category: $category
-      minPricePence: $minPricePence
-      maxPricePence: $maxPricePence
-      dateTimeFrom: $dateTimeFrom
-      dateTimeTo: $dateTimeTo
-    ) {
-      id
-      title
-      description
-      address
-      location {
-        lat
-        lng
-        name
-      }
-      locationLat
-      locationLng
-      locationName
-      status
-      budget {
-        currency
-        amount
-      }
-      createdAt
-      category
-      images
-    }
-  }
-`
-
 export const MY_TASKS_QUERY = gql`
   query MyTasks($status: [TaskStatus!]) {
     myTasks(status: $status) {
       id
       title
       description
-      address
+      budget {
+        amount
+        currency
+        type
+        paymentMethod
+      }
+      datetime {
+        date
+        time
+        type
+      }
+      contactMethod
+      images
+      status
+      completedAt
+      confirmedAt
+      createdAt
       location {
         lat
         lng
         name
+        postcode
+        address
       }
-      locationLat
-      locationLng
-      locationName
-      status
-      createdByUserId
-      createdAt
-      dateTime
-      category
-      budget {
-        currency
-        amount
+      poster {
+        id
       }
-      paymentMethod
-      contactMethod
-      images
       quotes {
         id
         taskId
@@ -290,11 +218,10 @@ export const MY_TASKS_QUERY = gql`
 `
 
 export const ACCEPT_QUOTE_MUTATION = gql`
-  mutation AcceptQuote($input: AcceptQuoteInput, $quoteId: ID) {
-    acceptQuote(input: $input, quoteId: $quoteId) {
+  mutation AcceptQuote($quoteId: ID, $input: AcceptQuoteInput) {
+    acceptQuote(quoteId: $quoteId, input: $input) {
       id
       status
-      selectedQuoteId
     }
   }
 `
@@ -309,17 +236,6 @@ export const MAKE_QUOTE_MUTATION = gql`
       }
       message
       status
-    }
-  }
-`
-
-export const ADD_TASK_COMMENT_MUTATION = gql`
-  mutation AddTaskComment($input: AddTaskCommentInput!) {
-    addTaskComment(input: $input) {
-      id
-      body
-      createdAt
-      userId
     }
   }
 `
