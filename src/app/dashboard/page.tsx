@@ -165,18 +165,7 @@ export default function DashboardOverviewPage() {
         <Stack gap={2}>
           <Heading size="sm">Customer tools</Heading>
           <Text fontSize="sm" color="muted">
-            Quotes on your own tasks, request tracking, and your customer
-            profile are on the main site:{' '}
-            <Link
-              as={NextLink}
-              href="/quotes"
-              color="primary.600"
-              fontWeight={700}
-              _hover={{ color: 'primary.700' }}
-            >
-              Quotes
-            </Link>
-            ,{' '}
+            Request tracking and your customer profile are on the main site:{' '}
             <Link
               as={NextLink}
               href="/requests"

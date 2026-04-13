@@ -11,15 +11,9 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 import {
   type TaskItem,
-  type TaskQuoteItem,
   isTaskCompleted,
   timeFromUnknown,
 } from '@/utils/dashboardHelpers'
-
-export type IncomingQuoteRow = {
-  task: TaskItem
-  quote: TaskQuoteItem
-}
 
 type CustomerAccountContextValue = {
   me: MeQuery['me'] | null
@@ -30,7 +24,6 @@ type CustomerAccountContextValue = {
   refetchCustomerAccount: () => void
   myPostedTasks: TaskItem[]
   activePostedTasks: TaskItem[]
-  incomingQuotes: IncomingQuoteRow[]
 }
 
 const CustomerAccountContext =
@@ -64,26 +57,16 @@ export function CustomerAccountProvider({
 
   const tasks = tasksData?.myTasks ?? []
 
-  const { myPostedTasks, incomingQuotes } = useMemo(() => {
+  const myPostedTasks = useMemo(() => {
     if (!me) {
-      return { myPostedTasks: [] as TaskItem[], incomingQuotes: [] }
+      return [] as TaskItem[]
     }
 
-    const posted = tasks
+    return tasks
       .filter((task) => task.poster?.id === me.id)
       .sort(
         (a, b) => timeFromUnknown(b.createdAt) - timeFromUnknown(a.createdAt),
       )
-
-    const rows: IncomingQuoteRow[] = posted.flatMap((task) =>
-      (task.quotes ?? []).map((quote) => ({ task, quote })),
-    )
-    rows.sort(
-      (a, b) =>
-        timeFromUnknown(b.quote.createdAt) - timeFromUnknown(a.quote.createdAt),
-    )
-
-    return { myPostedTasks: posted, incomingQuotes: rows }
   }, [tasks, me])
 
   const activePostedTasks = useMemo(
@@ -113,11 +96,9 @@ export function CustomerAccountProvider({
       refetchCustomerAccount,
       myPostedTasks,
       activePostedTasks,
-      incomingQuotes,
     }),
     [
       activePostedTasks,
-      incomingQuotes,
       me,
       meErrorMessage,
       meLoading,

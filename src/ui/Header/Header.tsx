@@ -155,14 +155,9 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           </Link>
 
           {isLoggedIn ? (
-            <>
-              <Link as={NextLink} href="/quotes" {...navLinkProps}>
-                Quotes
-              </Link>
-              <Link as={NextLink} href="/requests" {...navLinkProps}>
-                Requests
-              </Link>
-            </>
+            <Link as={NextLink} href="/requests" {...navLinkProps}>
+              Requests
+            </Link>
           ) : null}
         </HStack>
       </HStack>
@@ -294,14 +289,6 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           </Link>
           {isLoggedIn ? (
             <>
-              <Link
-                as={NextLink}
-                href="/quotes"
-                {...navLinkProps}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Quotes
-              </Link>
               <Link
                 as={NextLink}
                 href="/requests"
