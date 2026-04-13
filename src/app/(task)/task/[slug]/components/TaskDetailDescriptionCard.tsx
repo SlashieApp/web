@@ -29,7 +29,7 @@ export function TaskDetailDescriptionCard({
         <Text color="muted" lineHeight="tall">
           {task.description}
         </Text>
-        {task.paymentMethod || task.contactMethod ? (
+        {task.budget?.paymentMethod || task.contactMethod ? (
           <Stack
             gap={2}
             fontSize="sm"
@@ -41,12 +41,12 @@ export function TaskDetailDescriptionCard({
               templateColumns={{ base: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }}
               gap={3}
             >
-              {task.paymentMethod ? (
+              {task.budget?.paymentMethod ? (
                 <Text color="muted">
                   <Text as="span" fontWeight={600} color="fg">
                     Payment:{' '}
                   </Text>
-                  {formatPaymentMethod(task.paymentMethod)}
+                  {formatPaymentMethod(task.budget.paymentMethod)}
                 </Text>
               ) : null}
               {task.contactMethod ? (

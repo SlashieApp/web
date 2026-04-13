@@ -1,5 +1,5 @@
-import { formatPrice, priceToPence } from '@/utils/price'
-import { DayOfWeek, type TaskQuery } from '@codegen/schema'
+import { formatBudgetAmount, priceToPence } from '@/utils/price'
+import type { TaskQuery } from '@codegen/schema'
 
 export type TaskDetailRecord = NonNullable<TaskQuery['task']>
 
@@ -14,16 +14,19 @@ export function formatPoundsFromPence(pricePence: number) {
   return `£${(pricePence / 100).toFixed(0)}`
 }
 
-function formatMajorGbp(amount: number) {
-  return `£${amount.toFixed(0)}`
-}
-
 export type TaskBudgetViewerContext = 'owner' | 'visitor'
 
+function formatTaskDateTimeType(type: string): string {
+  const t = type.trim().toUpperCase()
+  if (t === 'EXACT') return 'Exact time'
+  if (t === 'BEFORE') return 'Before'
+  if (t === 'FLEXIBLE') return 'Flexible'
+  return type
+}
+
 /**
- * Hero budget line: quote range (role-aware), posted budget range, fixed quote pence, or open.
- * For visitors, only the signed-in worker's own quotes count toward the range so competitor
- * prices are not inferred from `task.quotes`.
+ * Hero budget line: quote range when prices are visible, else posted budget.
+ * Quote `price` is owner-only; visitors only see their own quote amounts.
  */
 export function taskBudgetDisplayLine(
   task: TaskDetailRecord,
@@ -40,133 +43,91 @@ export function taskBudgetDisplayLine(
     const prices = quotes
       .map((q) => priceToPence(q.price))
       .filter((price): price is number => price != null)
-    if (prices.length === 0) return 'Open to quotes'
+    if (prices.length === 0) {
+      if (task.budget) return formatBudgetAmount(task.budget)
+      return 'Open to quotes'
+    }
     const min = Math.min(...prices)
     const max = Math.max(...prices)
     if (min === max) return formatPoundsFromPence(min)
     return `${formatPoundsFromPence(min)} — ${formatPoundsFromPence(max)}`
   }
-  const br = task.budgetRange
-  if (br?.min != null && br?.max != null) {
-    if (
-      br.min.currency === br.max.currency &&
-      Math.abs(br.min.amount - br.max.amount) < Number.EPSILON
-    ) {
-      return formatPrice(br.min)
-    }
-    return `${formatPrice(br.min)} — ${formatPrice(br.max)}`
-  }
-  if (br?.min != null) return formatPrice(br.min)
-  if (task.budget) return formatPrice(task.budget)
+  if (task.budget) return formatBudgetAmount(task.budget)
   return 'Open to quotes'
 }
 
-const DAY_SORT: Record<DayOfWeek, number> = {
-  [DayOfWeek.Mon]: 1,
-  [DayOfWeek.Tue]: 2,
-  [DayOfWeek.Wed]: 3,
-  [DayOfWeek.Thu]: 4,
-  [DayOfWeek.Fri]: 5,
-  [DayOfWeek.Sat]: 6,
-  [DayOfWeek.Sun]: 7,
-}
-
-const DAY_SHORT: Record<DayOfWeek, string> = {
-  [DayOfWeek.Mon]: 'MON',
-  [DayOfWeek.Tue]: 'TUE',
-  [DayOfWeek.Wed]: 'WED',
-  [DayOfWeek.Thu]: 'THU',
-  [DayOfWeek.Fri]: 'FRI',
-  [DayOfWeek.Sat]: 'SAT',
-  [DayOfWeek.Sun]: 'SUN',
-}
-
-const DAY_LONG: Record<DayOfWeek, string> = {
-  [DayOfWeek.Mon]: 'Monday',
-  [DayOfWeek.Tue]: 'Tuesday',
-  [DayOfWeek.Wed]: 'Wednesday',
-  [DayOfWeek.Thu]: 'Thursday',
-  [DayOfWeek.Fri]: 'Friday',
-  [DayOfWeek.Sat]: 'Saturday',
-  [DayOfWeek.Sun]: 'Sunday',
-}
-
-function slotSubtitle(slot: string) {
-  const trimmed = slot.trim()
-  if (/^\d{2}:\d{2}/.test(trimmed)) return trimmed.replace('-', ' – ')
-  return trimmed
-}
-
-/** Flatten `availability` into scrollable chips; falls back to `dateTime` when empty. */
+/** Single chip row from nested `datetime` (replaces weekly availability). */
 export function buildAvailabilityChips(
   task: TaskDetailRecord,
 ): AvailabilityChip[] {
-  const rows = [...task.availability].sort(
-    (a, b) => DAY_SORT[a.day] - DAY_SORT[b.day],
-  )
-  const out: AvailabilityChip[] = []
-  for (const row of rows) {
-    for (const slot of row.slots) {
-      out.push({
-        key: `${row.day}-${slot}`,
-        monthDay: DAY_SHORT[row.day],
-        title: DAY_LONG[row.day],
-        subtitle: slotSubtitle(slot),
-      })
-      if (out.length >= 8) return out
-    }
-  }
+  const dt = task.datetime
+  if (!dt) return []
 
-  if (out.length === 0 && task.dateTime) {
-    const d = new Date(task.dateTime)
-    if (!Number.isNaN(d.getTime())) {
-      const monthDay = d
-        .toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })
-        .toUpperCase()
-      out.push({
-        key: 'preferred-datetime',
+  const typeLabel = formatTaskDateTimeType(dt.type)
+  const datePart = dt.date?.trim()
+  const timePart = dt.time?.trim()
+
+  if (datePart && timePart) {
+    const d = new Date(`${datePart}T12:00:00`)
+    const monthDay = Number.isNaN(d.getTime())
+      ? 'DATE'
+      : d
+          .toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })
+          .toUpperCase()
+    return [
+      {
+        key: 'datetime',
         monthDay,
-        title: d.toLocaleDateString('en-GB', { weekday: 'long' }),
-        subtitle: d.toLocaleTimeString('en-GB', {
-          hour: 'numeric',
-          minute: '2-digit',
-        }),
-      })
-    }
+        title: datePart,
+        subtitle: `${timePart} · ${typeLabel}`,
+      },
+    ]
   }
-  return out
+  if (datePart) {
+    const d = new Date(`${datePart}T12:00:00`)
+    const monthDay = Number.isNaN(d.getTime())
+      ? 'DATE'
+      : d
+          .toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })
+          .toUpperCase()
+    return [
+      {
+        key: 'datetime-date',
+        monthDay,
+        title: datePart,
+        subtitle: typeLabel,
+      },
+    ]
+  }
+  return [
+    {
+      key: 'datetime-type',
+      monthDay: 'WHEN',
+      title: typeLabel,
+      subtitle: 'Preferred timing',
+    },
+  ]
 }
 
 /** Budget shown on the owner quick-info card (posted budget, not quote range). */
 export function taskOwnerPostedBudgetLine(task: TaskDetailRecord): string {
-  const br = task.budgetRange
-  if (br?.min != null && br?.max != null) {
-    if (
-      br.min.currency === br.max.currency &&
-      Math.abs(br.min.amount - br.max.amount) < Number.EPSILON
-    ) {
-      return formatPrice(br.min)
-    }
-    return `${formatPrice(br.min)} — ${formatPrice(br.max)}`
-  }
-  if (br?.min != null) return formatPrice(br.min)
-  if (task.budget) return formatPrice(task.budget)
+  if (task.budget) return formatBudgetAmount(task.budget)
   return 'Open to quotes'
 }
 
-/** Short label for quick info, e.g. "MON – WED" or "Flexible". */
+/** Short label for quick info from `datetime`. */
 export function taskAvailabilityRangeLabel(task: TaskDetailRecord): string {
-  const rows = [...task.availability].sort(
-    (a, b) => DAY_SORT[a.day] - DAY_SORT[b.day],
-  )
-  if (rows.length === 0) {
-    if (!task.dateTime) return 'Flexible'
-    const d = new Date(task.dateTime)
-    if (Number.isNaN(d.getTime())) return 'Flexible'
-    return d.toLocaleDateString('en-GB', { weekday: 'short' })
+  const dt = task.datetime
+  if (!dt) return 'Flexible'
+  const datePart = dt.date?.trim()
+  if (datePart) {
+    const d = new Date(`${datePart}T12:00:00`)
+    if (!Number.isNaN(d.getTime())) {
+      return d.toLocaleDateString('en-GB', { weekday: 'short' })
+    }
+    return datePart
   }
-  if (rows.length === 1) return DAY_SHORT[rows[0].day]
-  return `${DAY_SHORT[rows[0].day]} – ${DAY_SHORT[rows[rows.length - 1].day]}`
+  return formatTaskDateTimeType(dt.type)
 }
 
 export function ownerProInterestLabel(quoteCount: number): string {
@@ -208,12 +169,12 @@ function parseCoord(value: unknown): number | null {
   return null
 }
 
-/** Task centre for map display; prefers `location` then falls back to flat lat/lng fields. */
+/** Task centre for map display from `location`. */
 export function taskMapCoordinates(
   task: TaskDetailRecord,
 ): { lat: number; lng: number } | null {
-  const lat = parseCoord(task.location?.lat) ?? parseCoord(task.locationLat)
-  const lng = parseCoord(task.location?.lng) ?? parseCoord(task.locationLng)
+  const lat = parseCoord(task.location?.lat)
+  const lng = parseCoord(task.location?.lng)
   if (lat == null || lng == null) return null
   return { lat, lng }
 }

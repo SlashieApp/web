@@ -6,29 +6,21 @@ export const PROFESSIONAL_PROFILE_QUERY = gql`
       id
       bio
       isVerified
-      rating
-      reviewCount
       yearsExperience
       location {
         address
         lat
         lng
       }
-      skills {
-        id
-        name
-      }
     }
   }
 `
 
 export const SEARCH_PROFESSIONALS_QUERY = gql`
-  query SearchProfessionals($location: String, $skill: String) {
-    searchProfessionals(location: $location, skill: $skill) {
+  query SearchProfessionals($location: String) {
+    searchProfessionals(location: $location) {
       id
       bio
-      rating
-      reviewCount
       user {
         id
         firstName
@@ -42,8 +34,6 @@ export const WORKER_QUERY = gql`
   query Worker($id: ID!) {
     worker(id: $id) {
       userId
-      rating
-      reviewCount
     }
   }
 `
@@ -52,17 +42,7 @@ export const REGISTER_AS_PRO_MUTATION = gql`
   mutation RegisterAsPro($input: ProRegistrationInput!) {
     registerAsPro(input: $input) {
       id
-      isProMember
-    }
-  }
-`
-
-export const UPDATE_MY_MEMBERSHIP_MUTATION = gql`
-  mutation UpdateMyMembership($input: UpdateMyMembershipInput!) {
-    updateMyMembership(input: $input) {
-      isPaid
-      tier
-      renewsAt
+      userId
     }
   }
 `
@@ -87,15 +67,6 @@ export const UPDATE_MY_SETTINGS_MUTATION = gql`
         isProfilePrivate
         marketingEmails
       }
-    }
-  }
-`
-
-export const UPGRADE_TO_PRO_MEMBERSHIP_MUTATION = gql`
-  mutation UpgradeToProMembership {
-    upgradeToProMembership {
-      id
-      isProMember
     }
   }
 `

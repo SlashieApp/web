@@ -34,24 +34,12 @@ import {
   taskCreatedTime,
 } from '../helpers/taskBrowseHelpers'
 
-import { TaskCategory } from '@codegen/schema'
-
-export const TASK_BROWSE_FILTER_CATEGORIES: readonly TaskCategory[] = [
-  TaskCategory.Plumbing,
-  TaskCategory.Electrical,
-  TaskCategory.Painting,
-  TaskCategory.Gardening,
-] as const
-
 type TaskBrowseDataContextValue = {
   sort: string
   setSort: (v: string) => void
   cycleSort: () => void
   page: number
   setPage: (v: number | ((prev: number) => number)) => void
-  selectedCategories: TaskCategory[]
-  selectedCategorySet: Set<TaskCategory>
-  toggleCategory: (category: TaskCategory, checked: boolean) => void
   radiusMiles: number
   setRadiusMiles: (v: number) => void
   minBudget: string
@@ -81,7 +69,7 @@ type TaskBrowseDataContextValue = {
     id: string
     title: string
     description: string | null | undefined
-    category: string | null | undefined
+    category?: string | null | undefined
     location: string | null | undefined
     locationLat: number | null | undefined
     locationLng: number | null | undefined
@@ -90,7 +78,6 @@ type TaskBrowseDataContextValue = {
   }[]
   shouldWaitForMap: boolean
   markMapReadyForQuery: (ready: boolean) => void
-  categories: readonly TaskCategory[]
 }
 
 type TaskBrowseLayoutContextValue = {
@@ -176,9 +163,6 @@ export function TaskBrowseProvider({
     })
   const [sort, setSort] = useState<string>('nearest')
   const [page, setPage] = useState(0)
-  const [selectedCategories, setSelectedCategories] = useState<TaskCategory[]>([
-    ...TASK_BROWSE_FILTER_CATEGORIES,
-  ])
   const [radiusMiles, setRadiusMiles] = useState(10)
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
@@ -204,11 +188,6 @@ export function TaskBrowseProvider({
   useEffect(() => {
     setIsMapReadyForQuery(!hasMapboxToken)
   }, [hasMapboxToken])
-
-  const selectedCategorySet = useMemo(
-    () => new Set<TaskCategory>(selectedCategories),
-    [selectedCategories],
-  )
 
   const queryVariables = useMemo(() => {
     const radius = clampRadiusMiles(radiusMiles)
@@ -239,10 +218,6 @@ export function TaskBrowseProvider({
         const hay = `${task.title} ${task.description}`.toLowerCase()
         if (!hay.includes(text)) return false
       }
-      if (selectedCategories.length > 0) {
-        const cat = task.category
-        if (cat && !selectedCategorySet.has(cat)) return false
-      }
       if (!matchesUrgency(task, urgency)) return false
 
       const eff = effectiveTaskPricePenceForFilter(task)
@@ -254,16 +229,7 @@ export function TaskBrowseProvider({
       }
       return true
     })
-  }, [
-    data,
-    debouncedSearch,
-    initialTasks,
-    maxBudget,
-    minBudget,
-    selectedCategories,
-    selectedCategorySet,
-    urgency,
-  ])
+  }, [data, debouncedSearch, initialTasks, maxBudget, minBudget, urgency])
 
   const filteredSorted = useMemo(() => {
     let next = filtered
@@ -310,10 +276,9 @@ export function TaskBrowseProvider({
           id: task.id,
           title: task.title,
           description: task.description,
-          category: task.category,
           location: taskPublicLocationLabel(task),
-          locationLat: task.locationLat,
-          locationLng: task.locationLng,
+          locationLat: task.location?.lat ?? null,
+          locationLng: task.location?.lng ?? null,
           priceLabel: main,
           detailLine: `${main} · ${sub}`,
         }
@@ -329,28 +294,14 @@ export function TaskBrowseProvider({
           id: task.id,
           title: task.title,
           description: task.description,
-          category: task.category,
           location: taskPublicLocationLabel(task),
-          locationLat: task.locationLat,
-          locationLng: task.locationLng,
+          locationLat: task.location?.lat ?? null,
+          locationLng: task.location?.lng ?? null,
           priceLabel: main,
           detailLine: `${main} · ${sub}`,
         }
       }),
     [initialTasks],
-  )
-
-  const toggleCategory = useCallback(
-    (category: TaskCategory, checked: boolean) => {
-      setSelectedCategories((prev) => {
-        const next = new Set(prev)
-        if (checked) next.add(category)
-        else next.delete(category)
-        return [...next]
-      })
-      setPage(0)
-    },
-    [],
   )
 
   const setSearchCenter = useCallback((lat: number, lng: number) => {
@@ -409,9 +360,6 @@ export function TaskBrowseProvider({
       cycleSort,
       page,
       setPage,
-      selectedCategories,
-      selectedCategorySet,
-      toggleCategory,
       radiusMiles,
       setRadiusMiles,
       minBudget,
@@ -443,7 +391,6 @@ export function TaskBrowseProvider({
       markMapReadyForQuery: (ready) => {
         if (ready) setIsMapReadyForQuery(true)
       },
-      categories: TASK_BROWSE_FILTER_CATEGORIES,
     }),
     [
       areaLocationInput,
@@ -464,12 +411,9 @@ export function TaskBrowseProvider({
       searchCenterLat,
       searchCenterLng,
       searchInput,
-      selectedCategories,
-      selectedCategorySet,
       selectedTaskId,
       shouldWaitForMap,
       sort,
-      toggleCategory,
       totalPages,
       urgency,
       initialMapTasksForBox,
@@ -519,9 +463,6 @@ export function useTaskBrowseFiltersProps(
 ): TaskBrowseFiltersProps {
   const data = useTaskBrowseData()
   return {
-    categories: data.categories,
-    selectedCategories: data.selectedCategorySet,
-    onToggleCategory: data.toggleCategory,
     searchQuery: data.searchInput,
     onSearchChange: data.setSearchInput,
     areaLocationInput: data.areaLocationInput,

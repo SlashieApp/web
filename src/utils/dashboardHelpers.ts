@@ -1,7 +1,7 @@
 'use client'
 
 import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
-import { priceToPence } from '@/utils/price'
+import { budgetToPence, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 export function getDisplayNameFromEmail(email: string | null | undefined) {
@@ -31,7 +31,7 @@ export function quotePricePence(quote: { price?: { amount: number } | null }) {
 }
 
 export function taskBudgetPence(task: { budget?: { amount: number } | null }) {
-  return priceToPence(task.budget) ?? 0
+  return budgetToPence(task.budget) ?? 0
 }
 
 export function timeFromUnknown(value: unknown): number {
@@ -98,9 +98,16 @@ export function matchesSearch(task: TaskItem, q: string) {
   return (
     task.title.toLowerCase().includes(search) ||
     (task.description ?? '').toLowerCase().includes(search) ||
-    taskPublicLocationLabel(task).toLowerCase().includes(search) ||
-    (task.category ?? '').toLowerCase().includes(search)
+    taskPublicLocationLabel(task).toLowerCase().includes(search)
   )
+}
+
+/** Card accent from task copy (categories were removed from the API). */
+export function getTaskCardVisual(task: {
+  title: string
+  description?: string | null
+}) {
+  return getCategoryVisual(`${task.title} ${task.description ?? ''}`)
 }
 
 export function getQuoteRange(

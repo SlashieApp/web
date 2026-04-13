@@ -8,7 +8,7 @@ import { useDashboardData } from '@/app/dashboard/context'
 import {
   formatPounds,
   formatRelativePosted,
-  getCategoryVisual,
+  getTaskCardVisual,
   isQuoteAwarded,
   quotePricePence,
 } from '@/utils/dashboardHelpers'
@@ -121,7 +121,7 @@ export default function DashboardQuotesPage() {
       ) : !isLoadingQuotes ? (
         <Stack gap={4}>
           {filteredMyQuotes.map(({ task, quote }) => {
-            const visual = getCategoryVisual(task.category)
+            const visual = getTaskCardVisual(task)
             const awarded = isQuoteAwarded(quote.status)
 
             return (

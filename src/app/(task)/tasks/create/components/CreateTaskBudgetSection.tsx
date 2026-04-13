@@ -1,7 +1,7 @@
 'use client'
 
 import { HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
-import { Currency, TaskPaymentMethod } from '@codegen/schema'
+import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/Button'
@@ -14,8 +14,10 @@ import type { CreateTaskFormValues } from '../createTaskFormSchema'
 export type CreateTaskBudgetSectionProps = {
   register: UseFormRegister<CreateTaskFormValues>
   budgetCurrency: Currency
+  budgetType: TaskBudgetType
   paymentMethod: TaskPaymentMethod
   onBudgetCurrencyChange: (value: Currency) => void
+  onBudgetTypeChange: (value: TaskBudgetType) => void
   onPaymentMethodChange: (value: TaskPaymentMethod) => void
   budgetMajorError?: string
 }
@@ -28,8 +30,10 @@ const CURRENCY_PREFIX: Record<Currency, string> = {
 export function CreateTaskBudgetSection({
   register,
   budgetCurrency,
+  budgetType,
   paymentMethod,
   onBudgetCurrencyChange,
+  onBudgetTypeChange,
   onPaymentMethodChange,
   budgetMajorError,
 }: CreateTaskBudgetSectionProps) {
@@ -84,6 +88,64 @@ export function CreateTaskBudgetSection({
                 py={2}
               />
             </HStack>
+          </HStack>
+        </FormField>
+
+        <FormField label="Budget type">
+          <HStack gap={2} flexWrap="wrap">
+            <Button
+              type="button"
+              size="sm"
+              variant="subtle"
+              bg={
+                budgetType === TaskBudgetType.OneOff
+                  ? 'secondaryFixed'
+                  : 'surfaceContainerLow'
+              }
+              color={
+                budgetType === TaskBudgetType.OneOff ? 'onSecondaryFixed' : 'fg'
+              }
+              boxShadow="none"
+              onClick={() => onBudgetTypeChange(TaskBudgetType.OneOff)}
+            >
+              One-off
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="subtle"
+              bg={
+                budgetType === TaskBudgetType.PerDay
+                  ? 'secondaryFixed'
+                  : 'surfaceContainerLow'
+              }
+              color={
+                budgetType === TaskBudgetType.PerDay ? 'onSecondaryFixed' : 'fg'
+              }
+              boxShadow="none"
+              onClick={() => onBudgetTypeChange(TaskBudgetType.PerDay)}
+            >
+              Per day
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="subtle"
+              bg={
+                budgetType === TaskBudgetType.PerHour
+                  ? 'secondaryFixed'
+                  : 'surfaceContainerLow'
+              }
+              color={
+                budgetType === TaskBudgetType.PerHour
+                  ? 'onSecondaryFixed'
+                  : 'fg'
+              }
+              boxShadow="none"
+              onClick={() => onBudgetTypeChange(TaskBudgetType.PerHour)}
+            >
+              Per hour
+            </Button>
           </HStack>
         </FormField>
 

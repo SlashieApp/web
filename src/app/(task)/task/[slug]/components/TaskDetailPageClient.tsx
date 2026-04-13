@@ -6,10 +6,7 @@ import NextLink from 'next/link'
 import { useCallback, useMemo } from 'react'
 
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
-import {
-  formatTaskCategoryLabel,
-  taskPublicLocationLabel,
-} from '@/utils/taskLocationDisplay'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Footer, Heading, Section, Text } from '@ui'
 
 import {
@@ -92,8 +89,6 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
 
   const offersCount = task?.quotes.length ?? 0
   const locationLabel = task ? taskPublicLocationLabel(task) : null
-  const categoryLabel = task ? formatTaskCategoryLabel(task.category) : null
-
   const scrollToQuoteForm = useCallback(() => {
     document.getElementById('task-quote')?.scrollIntoView({
       behavior: 'smooth',
@@ -177,7 +172,6 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                   color="muted"
                   fontSize="sm"
                 >
-                  {categoryLabel ? <Text>{categoryLabel}</Text> : null}
                   {locationLabel ? <Text>{locationLabel}</Text> : null}
                   <Text>{formatRelativeTime(task.createdAt)}</Text>
                 </Stack>

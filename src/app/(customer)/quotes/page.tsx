@@ -6,7 +6,7 @@ import NextLink from 'next/link'
 import {
   formatDate,
   formatPounds,
-  getCategoryVisual,
+  getTaskCardVisual,
   quotePricePence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
@@ -52,7 +52,7 @@ export default function CustomerQuotesPage() {
       {!tasksLoading && incomingQuotes.length > 0 ? (
         <Stack gap={4}>
           {incomingQuotes.map(({ task, quote }) => {
-            const visual = getCategoryVisual(task.category)
+            const visual = getTaskCardVisual(task)
             return (
               <GlassCard key={quote.id} p={5}>
                 <HStack align="flex-start" gap={4} flexWrap="wrap">

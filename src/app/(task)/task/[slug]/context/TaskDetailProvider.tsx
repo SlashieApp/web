@@ -9,7 +9,7 @@ import type {
   MeQuery,
   TaskQuery,
 } from '@codegen/schema'
-import { TaskStatus } from '@codegen/schema'
+import { QuoteStatus, TaskStatus } from '@codegen/schema'
 import { useRouter } from 'next/navigation'
 import {
   createContext,
@@ -108,12 +108,7 @@ export function TaskDetailProvider({
   }, [apollo, taskId])
 
   const isOwner = useMemo(
-    () =>
-      Boolean(
-        me &&
-          task &&
-          (me.id === task.createdByUserId || me.id === task.poster?.id),
-      ),
+    () => Boolean(me && task && me.id === task.poster?.id),
     [me, task],
   )
 
@@ -123,7 +118,13 @@ export function TaskDetailProvider({
   }, [me, task])
 
   const workerOnboardingDone = Boolean(me && getWorkerRegistered(me.id))
-  const isAssignedWorker = Boolean(me && task && task.workerUserId === me.id)
+  const isAssignedWorker = Boolean(
+    me &&
+      task &&
+      task.quotes.some(
+        (q) => q.workerUserId === me.id && q.status === QuoteStatus.Accepted,
+      ),
+  )
 
   const sortedQuotes = useMemo(() => {
     if (!task) return []
@@ -215,7 +216,7 @@ export function TaskDetailProvider({
 
       try {
         const result = await acceptQuote({
-          variables: { quoteId },
+          variables: { input: { quoteId } },
         })
         if (!result.data?.acceptQuote?.id) {
           throw new Error('Could not accept this quote.')

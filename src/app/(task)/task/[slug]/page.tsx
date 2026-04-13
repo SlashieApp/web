@@ -13,44 +13,29 @@ const TASK_DETAIL_SSR_QUERY = `
       id
       title
       description
-      address
+      budget {
+        amount
+        currency
+        type
+        paymentMethod
+      }
+      datetime {
+        date
+        time
+        type
+      }
+      contactMethod
+      images
+      status
+      completedAt
+      confirmedAt
+      createdAt
       location {
         lat
         lng
         name
-      }
-      locationLat
-      locationLng
-      locationName
-      status
-      workerUserId
-      selectedQuoteId
-      createdByUserId
-      createdAt
-      completedAt
-      confirmedAt
-      dateTime
-      category
-      budget {
-        currency
-        amount
-      }
-      budgetRange {
-        min {
-          currency
-          amount
-        }
-        max {
-          currency
-          amount
-        }
-      }
-      paymentMethod
-      contactMethod
-      images
-      availability {
-        day
-        slots
+        postcode
+        address
       }
       poster {
         id
@@ -60,47 +45,15 @@ const TASK_DETAIL_SSR_QUERY = `
           name
         }
       }
-      selectedQuote {
-        id
-        price {
-          currency
-          amount
-        }
-        message
-        workerUserId
-        status
-        createdAt
-      }
-      review {
-        id
-        rating
-        comment
-        createdAt
-        workerUserId
-        reviewer {
-          id
-          firstName
-          lastName
-          profile {
-            name
-          }
-        }
-      }
-      comments {
-        id
-        body
-        createdAt
-        userId
-      }
       quotes {
         id
         taskId
+        workerUserId
         price {
           currency
           amount
         }
         message
-        workerUserId
         status
         createdAt
         professional {

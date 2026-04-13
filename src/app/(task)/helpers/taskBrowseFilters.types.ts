@@ -1,11 +1,6 @@
-import type { TaskCategory } from '@codegen/schema'
-
 export type UrgencyFilter = 'any' | 'emergency' | 'today' | 'week'
 
 export type TaskBrowseFiltersProps = {
-  categories: readonly TaskCategory[]
-  selectedCategories: Set<TaskCategory>
-  onToggleCategory: (category: TaskCategory, checked: boolean) => void
   searchQuery: string
   onSearchChange: (value: string) => void
   areaLocationInput?: string

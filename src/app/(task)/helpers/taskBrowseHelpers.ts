@@ -1,5 +1,5 @@
 import type { TaskListItem } from '@/graphql/tasks-query.types'
-import { priceToPence } from '@/utils/price'
+import { budgetToPence, priceToPence } from '@/utils/price'
 import type { JobCardBadgeVariant } from '../components/(web)/TaskBrowseListItem'
 import type { UrgencyFilter } from './taskBrowseFilters.types'
 
@@ -25,7 +25,7 @@ export function formatBudget(task: TaskListItem): {
   main: string
   sub: string
 } {
-  const fixed = priceToPence(task.budget)
+  const fixed = budgetToPence(task.budget)
   if (fixed != null && fixed > 0) {
     return {
       main: `£${(fixed / 100).toFixed(0)}`,
@@ -70,7 +70,7 @@ export function inferBadge(task: TaskListItem): {
   variant: JobCardBadgeVariant
   text?: string
 } {
-  const fixed = priceToPence(task.budget)
+  const fixed = budgetToPence(task.budget)
   const t = `${task.title} ${task.description}`.toLowerCase()
   if (t.includes('emergency') || t.includes('urgent') || t.includes('burst')) {
     return { variant: 'emergency', text: 'EMERGENCY' }
@@ -88,7 +88,7 @@ export function inferBadge(task: TaskListItem): {
 export function effectiveTaskPricePenceForFilter(
   task: TaskListItem,
 ): number | null {
-  const fixed = priceToPence(task.budget)
+  const fixed = budgetToPence(task.budget)
   if (fixed != null && fixed > 0) return fixed
   const quotes = task.quotes ?? []
   if (!quotes.length) return null

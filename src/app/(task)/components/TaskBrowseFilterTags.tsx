@@ -1,32 +1,18 @@
 'use client'
 
-import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Box, Button, HStack } from '@chakra-ui/react'
+import { Box, Button, HStack } from '@chakra-ui/react'
 
 import {
   useTaskBrowseData,
   useTaskBrowseLayout,
 } from '../context/TaskBrowseProvider'
 
-import { SORT_OPTIONS } from '../helpers/taskBrowseHelpers'
-
 /** Mobile: filter trigger + compact active summary chips (task browse data context). */
 export function TaskBrowseActiveFilterTags() {
-  const { selectedCategorySet, radiusMiles, urgency, categories } =
-    useTaskBrowseData()
+  const { radiusMiles, urgency } = useTaskBrowseData()
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
 
   const activeFilterTags: string[] = []
-  if (
-    selectedCategorySet.size > 0 &&
-    selectedCategorySet.size < categories.length
-  ) {
-    activeFilterTags.push(
-      ...[...selectedCategorySet]
-        .slice(0, 3)
-        .map((c) => formatTaskCategoryLabel(c)),
-    )
-  }
   if (urgency !== 'any') {
     activeFilterTags.push(
       urgency === 'emergency'

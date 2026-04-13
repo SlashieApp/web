@@ -5,9 +5,9 @@ import { Box, Grid, HStack, Link, Stack } from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
-  type DayOfWeek,
-  TaskCategory,
+  TaskBudgetType,
   TaskContactMethod,
+  TaskDateTimeType,
   TaskPaymentMethod,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -38,22 +38,12 @@ import {
   CreateTaskVisualsSection,
 } from './components'
 import {
-  TIME_SLOT_OPTIONS,
-  buildAvailabilityPayload,
+  buildDatetimePayload,
   createTaskFormSchema,
-  emptySlotsByDay,
-  toPreferredDateTimeIso,
   toYmd,
 } from './createTaskFormSchema'
 
 const POST_TASK_PATH = '/tasks/create'
-
-const CATEGORY_OPTIONS = [
-  TaskCategory.Plumbing,
-  TaskCategory.Electrical,
-  TaskCategory.Painting,
-  TaskCategory.Gardening,
-] as const
 
 export default function CreateTaskPage() {
   const router = useRouter()
@@ -79,28 +69,29 @@ export default function CreateTaskPage() {
       title: '',
       description: '',
       streetAddress: '',
+      postcode: '',
       mapPlaceName: '',
       locationLat: '51.5074',
       locationLng: '-0.1278',
-      category: TaskCategory.Plumbing,
+      datetimeType: TaskDateTimeType.Flexible,
       preferredDate: toYmd(new Date()),
       preferredTime: '09:00',
-      slotsByDay: emptySlotsByDay(),
       budgetMajor: '',
       budgetCurrency: Currency.Gdp,
+      budgetType: TaskBudgetType.OneOff,
       paymentMethod: TaskPaymentMethod.Cash,
       preferredContactMethod: TaskContactMethod.InApp,
     },
   })
 
-  const category = watch('category')
   const mapPlaceName = watch('mapPlaceName')
   const locationLat = watch('locationLat')
   const locationLng = watch('locationLng')
   const preferredDate = watch('preferredDate')
   const preferredTime = watch('preferredTime')
-  const slotsByDay = watch('slotsByDay')
+  const datetimeType = watch('datetimeType')
   const budgetCurrency = watch('budgetCurrency')
+  const budgetType = watch('budgetType')
   const paymentMethod = watch('paymentMethod')
   const preferredContactMethod = watch('preferredContactMethod')
 
@@ -142,23 +133,6 @@ export default function CreateTaskPage() {
   const onRemoveFile = useCallback((index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index))
   }, [])
-
-  const toggleSlot = useCallback(
-    (day: DayOfWeek, slotValue: string) => {
-      const prev = getValues('slotsByDay')
-      const cur = prev[day] ?? []
-      const has = cur.includes(slotValue)
-      const nextSlots = has
-        ? cur.filter((s) => s !== slotValue)
-        : [...cur, slotValue]
-      setValue(
-        'slotsByDay',
-        { ...prev, [day]: nextSlots },
-        { shouldValidate: true, shouldDirty: true },
-      )
-    },
-    [getValues, setValue],
-  )
 
   const onMapPlaceNameChange = useCallback(
     (v: string) => {
@@ -211,9 +185,8 @@ export default function CreateTaskPage() {
       return
     }
 
-    const isoDateTime = toPreferredDateTimeIso(values)
     const parsedBudget = Number.parseFloat(values.budgetMajor)
-    const availability = buildAvailabilityPayload(values)
+    const datetime = buildDatetimePayload(values)
 
     try {
       const res = await runCreateTask({
@@ -224,17 +197,17 @@ export default function CreateTaskPage() {
             budget: {
               amount: parsedBudget,
               currency: values.budgetCurrency,
+              type: values.budgetType,
+              paymentMethod: values.paymentMethod,
             },
-            paymentMethod: values.paymentMethod,
-            address: values.streetAddress.trim(),
             location: {
               lat: Number.parseFloat(values.locationLat),
               lng: Number.parseFloat(values.locationLng),
               name: values.mapPlaceName.trim(),
+              postcode: values.postcode.trim(),
+              address: values.streetAddress.trim(),
             },
-            category: values.category,
-            availability,
-            preferredDateTime: isoDateTime,
+            datetime,
             preferredContactMethod: values.preferredContactMethod,
             images: [],
           },
@@ -263,6 +236,7 @@ export default function CreateTaskPage() {
         locationLng={locationLng}
         register={register}
         streetAddressError={errors.streetAddress?.message}
+        postcodeError={errors.postcode?.message}
         onCopyMapPlaceToAddress={onCopyMapPlaceToAddress}
         locationError={locationError}
         onLocationChange={onMapPlaceNameChange}
@@ -270,10 +244,15 @@ export default function CreateTaskPage() {
         onLocationLngChange={onLocationLngChange}
       />
       <CreateTaskScheduleSection
+        datetimeType={datetimeType}
+        onDatetimeTypeChange={(v) =>
+          setValue('datetimeType', v, {
+            shouldValidate: true,
+            shouldDirty: true,
+          })
+        }
         preferredDate={preferredDate}
         preferredTime={preferredTime}
-        slotsByDay={slotsByDay}
-        slotTemplates={TIME_SLOT_OPTIONS}
         onPreferredDateChange={(v) =>
           setValue('preferredDate', v, {
             shouldValidate: true,
@@ -286,11 +265,9 @@ export default function CreateTaskPage() {
             shouldDirty: true,
           })
         }
-        onToggleSlot={toggleSlot}
         fieldErrors={{
           preferredDate: errors.preferredDate?.message,
           preferredTime: errors.preferredTime?.message,
-          slotsByDay: errors.slotsByDay?.message as string | undefined,
         }}
       />
     </Stack>
@@ -308,21 +285,12 @@ export default function CreateTaskPage() {
         gap={{ base: 8, lg: 10 }}
         alignItems="start"
       >
-        {/* Mobile: basics → map & schedule → rest. Desktop: basics + rest | sticky map. */}
         <Box
           gridColumn={{ base: '1', lg: '1' }}
           gridRow={{ base: '1', lg: '1' }}
         >
           <CreateTaskBasicsSection
             register={register}
-            category={category}
-            categoryOptions={CATEGORY_OPTIONS}
-            onCategoryChange={(c) =>
-              setValue('category', c, {
-                shouldValidate: true,
-                shouldDirty: true,
-              })
-            }
             fieldErrors={{
               title: errors.title?.message,
               description: errors.description?.message,
@@ -352,9 +320,16 @@ export default function CreateTaskPage() {
             <CreateTaskBudgetSection
               register={register}
               budgetCurrency={budgetCurrency}
+              budgetType={budgetType}
               paymentMethod={paymentMethod}
               onBudgetCurrencyChange={(currency) =>
                 setValue('budgetCurrency', currency, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+              onBudgetTypeChange={(t) =>
+                setValue('budgetType', t, {
                   shouldValidate: true,
                   shouldDirty: true,
                 })

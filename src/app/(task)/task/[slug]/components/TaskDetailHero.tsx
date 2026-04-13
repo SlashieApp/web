@@ -1,10 +1,7 @@
 'use client'
 
-import {
-  formatTaskCategoryLabel,
-  taskPublicLocationLabel,
-} from '@/utils/taskLocationDisplay'
-import { Box, Grid, Stack } from '@chakra-ui/react'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
+import { Box, Stack } from '@chakra-ui/react'
 import { GlassCard, Text } from '@ui'
 
 import {
@@ -58,46 +55,23 @@ export function TaskDetailHero({
           {statusBadgeLabel}
         </Box>
 
-        <Grid
-          templateColumns={{ base: '1fr', sm: '1fr 1fr' }}
-          gap={{ base: 4, sm: 8 }}
-          pt={1}
-        >
-          <Stack gap={1}>
-            <Text
-              fontSize="xs"
-              fontWeight={700}
-              color="muted"
-              letterSpacing="0.06em"
-            >
-              BUDGET RANGE
-            </Text>
-            <Text
-              fontSize={{ base: 'xl', md: '2xl' }}
-              fontWeight={800}
-              color="primary.600"
-            >
-              {budgetLine}
-            </Text>
-          </Stack>
-          <Stack gap={1}>
-            <Text
-              fontSize="xs"
-              fontWeight={700}
-              color="muted"
-              letterSpacing="0.06em"
-            >
-              CATEGORY
-            </Text>
-            <Text
-              fontSize={{ base: 'lg', md: 'xl' }}
-              fontWeight={700}
-              color="fg"
-            >
-              {formatTaskCategoryLabel(task.category)}
-            </Text>
-          </Stack>
-        </Grid>
+        <Stack gap={1} pt={1}>
+          <Text
+            fontSize="xs"
+            fontWeight={700}
+            color="muted"
+            letterSpacing="0.06em"
+          >
+            BUDGET
+          </Text>
+          <Text
+            fontSize={{ base: 'xl', md: '2xl' }}
+            fontWeight={800}
+            color="primary.600"
+          >
+            {budgetLine}
+          </Text>
+        </Stack>
 
         {locationLine ? (
           <Text fontSize="sm" color="muted">

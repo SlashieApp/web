@@ -1,9 +1,7 @@
 'use client'
 
-import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
 import {
   Box,
-  Checkbox,
   HStack,
   NativeSelect,
   SimpleGrid,
@@ -93,9 +91,6 @@ function UrgencyPill({
 
 /** Compact filter panel (web sidebar). */
 export function TaskBrowseFiltersCompactPanel({
-  categories,
-  selectedCategories,
-  onToggleCategory,
   radiusMiles,
   onRadiusChange,
   minBudgetPounds,
@@ -106,7 +101,6 @@ export function TaskBrowseFiltersCompactPanel({
   sortOptions = [],
   onSortChange,
 }: TaskBrowseFiltersPanelProps) {
-  const compactCategories = categories.slice(0, 4)
   const budgetPresets = ['50', '100', '500']
   return (
     <Stack gap={4}>
@@ -154,27 +148,6 @@ export function TaskBrowseFiltersCompactPanel({
       </Stack>
 
       <Stack gap={2}>
-        <FilterSectionTitle mb={1}>Category</FilterSectionTitle>
-        <SimpleGrid columns={2} gap={2}>
-          {compactCategories.map((cat) => {
-            const active = selectedCategories.has(cat)
-            return (
-              <Button
-                key={cat}
-                type="button"
-                size="sm"
-                variant={active ? 'solid' : 'subtle'}
-                justifyContent="flex-start"
-                onClick={() => onToggleCategory(cat, !active)}
-              >
-                {formatTaskCategoryLabel(cat)}
-              </Button>
-            )
-          })}
-        </SimpleGrid>
-      </Stack>
-
-      <Stack gap={2}>
         <FilterSectionTitle mb={1}>Budget range</FilterSectionTitle>
         <SimpleGrid columns={2} gap={2}>
           <TextInput
@@ -213,9 +186,6 @@ export function TaskBrowseFiltersCompactPanel({
 
 /** Full default filter panel (web). */
 export function TaskBrowseFiltersDefaultPanel({
-  categories,
-  selectedCategories,
-  onToggleCategory,
   searchQuery,
   onSearchChange,
   areaLocationInput = '',
@@ -254,27 +224,6 @@ export function TaskBrowseFiltersDefaultPanel({
             if (e.key === 'Enter') onAreaLocationCommit?.()
           }}
         />
-      </Stack>
-
-      <Stack gap={3}>
-        <FilterSectionTitle>Category</FilterSectionTitle>
-        <Stack gap={2.5}>
-          {categories.map((cat) => (
-            <Checkbox.Root
-              key={cat}
-              checked={selectedCategories.has(cat)}
-              onCheckedChange={(detail) =>
-                onToggleCategory(cat, Boolean(detail.checked))
-              }
-            >
-              <Checkbox.HiddenInput />
-              <HStack gap={3} align="center">
-                <Checkbox.Control />
-                <Checkbox.Label>{formatTaskCategoryLabel(cat)}</Checkbox.Label>
-              </HStack>
-            </Checkbox.Root>
-          ))}
-        </Stack>
       </Stack>
 
       <Stack gap={3}>

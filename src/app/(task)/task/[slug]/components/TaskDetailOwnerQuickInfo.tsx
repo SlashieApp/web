@@ -1,9 +1,8 @@
 'use client'
 
-import { Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Grid, Stack, Text } from '@chakra-ui/react'
 
-import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
-import { GlassCard, IconWrench } from '@ui'
+import { GlassCard } from '@ui'
 
 import {
   type TaskDetailRecord,
@@ -19,14 +18,13 @@ export function TaskDetailOwnerQuickInfo({
   task,
 }: TaskDetailOwnerQuickInfoProps) {
   const budget = taskOwnerPostedBudgetLine(task)
-  const category = formatTaskCategoryLabel(task.category)
   const availability = taskAvailabilityRangeLabel(task)
 
   return (
     <Grid
       templateColumns={{
         base: '1fr',
-        sm: 'repeat(3, minmax(0, 1fr))',
+        sm: 'repeat(2, minmax(0, 1fr))',
       }}
       gap={3}
     >
@@ -38,29 +36,11 @@ export function TaskDetailOwnerQuickInfo({
             color="muted"
             letterSpacing="0.08em"
           >
-            BUDGET RANGE
+            BUDGET
           </Text>
           <Text fontSize="lg" fontWeight={800} color="primary.600">
             {budget}
           </Text>
-        </Stack>
-      </GlassCard>
-      <GlassCard p={4} borderColor="border" boxShadow="ambient">
-        <Stack gap={2}>
-          <Text
-            fontSize="10px"
-            fontWeight={800}
-            color="muted"
-            letterSpacing="0.08em"
-          >
-            CATEGORY
-          </Text>
-          <HStack gap={2}>
-            <IconWrench />
-            <Text fontSize="md" fontWeight={700} color="fg">
-              {category}
-            </Text>
-          </HStack>
         </Stack>
       </GlassCard>
       <GlassCard p={4} borderColor="border" boxShadow="ambient">
@@ -71,7 +51,7 @@ export function TaskDetailOwnerQuickInfo({
             color="muted"
             letterSpacing="0.08em"
           >
-            AVAILABILITY
+            TIMING
           </Text>
           <Text fontSize="md" fontWeight={700} color="fg">
             {availability}
