@@ -129,18 +129,25 @@ export function TaskDetailProvider({
   const sortedQuotes = useMemo(() => {
     if (!task) return []
     if (!isOwner) return [...task.quotes]
-    return [...task.quotes].sort(
-      (a, b) => (priceToPence(a.price) ?? 0) - (priceToPence(b.price) ?? 0),
-    )
+    return [...task.quotes].sort((a, b) => {
+      const ap = priceToPence(a.price)
+      const bp = priceToPence(b.price)
+      if (ap == null && bp == null) return 0
+      if (ap == null) return 1
+      if (bp == null) return -1
+      return ap - bp
+    })
   }, [isOwner, task])
 
   const lowestPricePence = useMemo(() => {
     if (!isOwner || sortedQuotes.length === 0) return null
+    let min: number | null = null
     for (const quote of sortedQuotes) {
       const pence = priceToPence(quote.price)
-      if (pence != null) return pence
+      if (pence == null) continue
+      if (min == null || pence < min) min = pence
     }
-    return null
+    return min
   }, [isOwner, sortedQuotes])
 
   const canAcceptQuotes = Boolean(
@@ -320,3 +327,6 @@ export function useTaskDetail() {
   }
   return context
 }
+
+/** Alias for {@link useTaskDetail} (task detail route context). */
+export const useTask = useTaskDetail

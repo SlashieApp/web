@@ -38,10 +38,14 @@ function normaliseStatus(status: string) {
 }
 
 export type TaskDetailWorkerCtasProps = {
+  isAuthenticated: boolean
+  loginHref: string
   onScrollToQuoteForm: () => void
 }
 
 export function TaskDetailWorkerCtas({
+  isAuthenticated,
+  loginHref,
   onScrollToQuoteForm,
 }: TaskDetailWorkerCtasProps) {
   const [saveNote, setSaveNote] = useState<string | null>(null)
@@ -49,12 +53,35 @@ export function TaskDetailWorkerCtas({
   return (
     <GlassCard p={{ base: 5, md: 5 }} borderColor="border" boxShadow="ambient">
       <Stack gap={3}>
-        <Button type="button" w="full" onClick={onScrollToQuoteForm}>
-          <HStack gap={2} justify="center">
-            <IconDocument />
-            <span>Make a quote</span>
-          </HStack>
-        </Button>
+        {isAuthenticated ? (
+          <Button type="button" w="full" onClick={onScrollToQuoteForm}>
+            <HStack gap={2} justify="center">
+              <IconDocument />
+              <span>Make a quote</span>
+            </HStack>
+          </Button>
+        ) : (
+          <>
+            <Text fontSize="sm" color="muted">
+              Log in with your worker account to send a quote and message the
+              client.
+            </Text>
+            <Button as={NextLink} href={loginHref} w="full">
+              Log in to make a quote
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              w="full"
+              borderColor="primary.200"
+              color="primary.700"
+              bg="primary.50"
+              onClick={onScrollToQuoteForm}
+            >
+              Preview quote form
+            </Button>
+          </>
+        )}
         <Button
           type="button"
           variant="outline"

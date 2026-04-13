@@ -23,6 +23,7 @@ import { TaskDetailOwnerQuotesSection } from './TaskDetailOwnerQuotesSection'
 import { TaskDetailOwnerToolbar } from './TaskDetailOwnerToolbar'
 import { TaskDetailPhotoGrid } from './TaskDetailPhotoGrid'
 import { TaskDetailPostedMeta } from './TaskDetailPostedMeta'
+import { TaskDetailPosterSummary } from './TaskDetailPosterSummary'
 import { TaskDetailPreferredAvailability } from './TaskDetailPreferredAvailability'
 import {
   TaskDetailWorkerCtas,
@@ -115,6 +116,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
         <TaskDetailPhotoGrid task={t} />
         <TaskDetailDescriptionCard task={t} />
         <TaskDetailPreferredAvailability task={t} />
+        <TaskDetailPosterSummary task={t} />
       </Stack>
     )
   }
@@ -268,7 +270,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                   ) : (
                     <Box
                       gridColumn={{ base: '1', lg: '2' }}
-                      order={{ base: 2, lg: 2 }}
+                      order={{ base: 1, lg: 2 }}
                       position={{ base: 'static', lg: 'sticky' }}
                       top={{ lg: 4 }}
                       alignSelf="start"
@@ -276,6 +278,8 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                     >
                       <Stack gap={4}>
                         <TaskDetailWorkerCtas
+                          isAuthenticated={isAuthenticated}
+                          loginHref={`/login?next=${encodeURIComponent(`/task/${task.id}#task-quote`)}`}
                           onScrollToQuoteForm={scrollToQuoteForm}
                         />
                         <TaskDetailPostedMeta createdAt={task.createdAt} />
@@ -315,7 +319,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
             )}
           </Stack>
         </Section>
-        {!isOwner ? (
+        {!isOwner && task ? (
           <Box
             display={{ base: 'block', md: 'none' }}
             position="sticky"
@@ -341,11 +345,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                   Save
                 </Box>
               </Link>
-              <Link
-                as={NextLink}
-                href={task ? '#task-quote' : '#'}
-                _hover={{ textDecoration: 'none' }}
-              >
+              {isAuthenticated ? (
                 <Box
                   as="button"
                   w="full"
@@ -354,10 +354,32 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                   bg="secondary.500"
                   color="white"
                   fontWeight={800}
+                  onClick={scrollToQuoteForm}
                 >
                   Make a quote
                 </Box>
-              </Link>
+              ) : (
+                <Link
+                  as={NextLink}
+                  href={`/login?next=${encodeURIComponent(`/task/${task.id}#task-quote`)}`}
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  <Box
+                    as="span"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    w="full"
+                    h="48px"
+                    borderRadius="lg"
+                    bg="secondary.500"
+                    color="white"
+                    fontWeight={800}
+                  >
+                    Log in to quote
+                  </Box>
+                </Link>
+              )}
             </Grid>
           </Box>
         ) : null}

@@ -74,7 +74,7 @@ export function TaskDetailOwnerQuotesSection({
       ) : (
         <Stack gap={4} id="owner-quotes-list">
           {sortedQuotes.map((quote) => {
-            const quotePence = priceToPence(quote.price) ?? 0
+            const quotePence = priceToPence(quote.price)
             const professionalName =
               quote.professional?.profile?.name?.trim() ||
               `${quote.professional?.firstName ?? ''} ${quote.professional?.lastName ?? ''}`.trim() ||
@@ -87,12 +87,16 @@ export function TaskDetailOwnerQuotesSection({
                 avatarUrl={quote.professional?.profile?.avatarUrl}
                 priceLabel={
                   isOwner
-                    ? formatPounds(quotePence)
-                    : 'Price visible to task owner'
+                    ? quotePence != null
+                      ? formatPounds(quotePence)
+                      : '—'
+                    : 'Hidden until you own this task'
                 }
                 message={quote.message}
                 ownerQuoteEmphasis={isOwner}
-                acceptPrimary={quotePence === lowestPricePence}
+                acceptPrimary={
+                  quotePence != null && quotePence === lowestPricePence
+                }
                 messageHref={isOwner ? '/dashboard/messages' : undefined}
                 isOwnQuote={false}
                 onAccept={
