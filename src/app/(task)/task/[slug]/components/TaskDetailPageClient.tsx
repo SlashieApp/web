@@ -348,7 +348,6 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
               {isAuthenticated ? (
                 <Box
                   as="button"
-                  type="button"
                   w="full"
                   h="48px"
                   borderRadius="lg"
