@@ -1,16 +1,12 @@
 ---
-name: handybox-design
+name: slashie-design
 description: >-
-  Applies HandyBox UI design tokens, component patterns, interactions, and
+  Applies slashie UI design tokens, component patterns, interactions, and
   accessibility rules (blueprint + amber identity). Use when building or
   changing UI, styling pages, adding components, landing sections, dashboards,
-  task cards, forms, badges, navigation, or when the user mentions HandyBox
+  task cards, forms, badges, navigation, or when the user mentions slashie
   design, DESIGN.md, or brand look-and-feel.
 ---
-
-# HandyBox design
-
-Read [DESIGN.md](../../../DESIGN.md) when details matter or the spec changes.
 
 ## Philosophy
 

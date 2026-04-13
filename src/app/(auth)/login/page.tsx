@@ -1,7 +1,5 @@
 'use client'
 
-import { ME_QUERY } from '@/graphql/auth'
-import { useMutation, useQuery } from '@apollo/client/react'
 import {
   Box,
   Checkbox,
@@ -10,18 +8,14 @@ import {
   Link,
   Stack,
 } from '@chakra-ui/react'
-import type { LoginMutation, MeQuery } from '@codegen/schema'
 import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-import { LOGIN_MUTATION } from '@/graphql/auth'
-import { getAuthToken, setAuthToken } from '@/utils/auth'
+import { useUserStore } from '@/app/(auth)/store/user'
+import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-
-const REMEMBER_MAX_AGE = 60 * 60 * 24 * 30
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7
 
 function SocialIconGoogle() {
   return (
@@ -94,18 +88,14 @@ function IconShield() {
 
 export default function LoginPage() {
   const router = useRouter()
+  const login = useUserStore((state) => state.login)
+  const getUser = useUserStore((state) => state.getUser)
+  const loading = useUserStore((state) => state.isLoading)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [nextPath, setNextPath] = useState('/dashboard')
-
-  const hasAuthToken = Boolean(getAuthToken())
-  const { data: meData } = useQuery<MeQuery>(ME_QUERY, {
-    skip: !hasAuthToken,
-    fetchPolicy: 'network-only',
-  })
-  const [login, { loading }] = useMutation<LoginMutation>(LOGIN_MUTATION)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -119,25 +109,25 @@ export default function LoginPage() {
   }, [])
 
   useEffect(() => {
-    if (!meData?.me) return
-    router.replace(nextPath)
-  }, [meData?.me, nextPath, router])
+    if (!getAuthToken()) return
+
+    void getUser().then((user) => {
+      if (user) {
+        router.replace(nextPath)
+      }
+    })
+  }, [getUser, nextPath, router])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
 
     try {
-      const res = await login({
-        variables: { email, password },
+      await login({
+        email,
+        password,
+        rememberMe,
       })
-
-      const token = res.data?.login?.token
-      if (!token) {
-        throw new Error('Login succeeded but no session token was returned.')
-      }
-
-      setAuthToken(token, rememberMe ? REMEMBER_MAX_AGE : SESSION_MAX_AGE)
       router.push(nextPath)
     } catch (err: unknown) {
       const message = getFriendlyErrorMessage(err, 'Login failed')

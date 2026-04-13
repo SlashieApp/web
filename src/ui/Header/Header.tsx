@@ -5,7 +5,8 @@ import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-import { clearAuthToken, getAuthToken } from '@/utils/auth'
+import { useUserStore } from '@/app/(auth)/store/user'
+import { getAuthToken } from '@/utils/auth'
 import { AppDrawer } from '../AppDrawer/AppDrawer'
 import { Button } from '../Button'
 import { Container } from '../Container'
@@ -85,14 +86,19 @@ export type HeaderProps = {
 function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const user = useUserStore((state) => state.user)
+  const getUser = useUserStore((state) => state.getUser)
+  const logout = useUserStore((state) => state.logout)
   const [hasMounted, setHasMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const isLoggedIn = Boolean(user)
 
   useEffect(() => {
     setHasMounted(true)
-    setIsLoggedIn(Boolean(getAuthToken()))
-  }, [])
+    if (!getAuthToken()) return
+
+    void getUser()
+  }, [getUser])
 
   // Pathname from `usePathname()` can disagree between SSR and the first client
   // paint (e.g. null vs real path). Defer route-derived highlighting until after
@@ -227,7 +233,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               variant="subtle"
               display={{ base: 'none', md: 'inline-flex' }}
               onClick={() => {
-                clearAuthToken()
+                logout()
                 router.push('/')
               }}
             >
@@ -309,7 +315,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
                 variant="subtle"
                 alignSelf="flex-start"
                 onClick={() => {
-                  clearAuthToken()
+                  logout()
                   setMobileMenuOpen(false)
                   router.push('/')
                 }}
