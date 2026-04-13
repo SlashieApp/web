@@ -34,7 +34,6 @@ const TASK_DETAIL_SSR_QUERY = `
         lat
         lng
         name
-        postcode
         address
       }
       poster {

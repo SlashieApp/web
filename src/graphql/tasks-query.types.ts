@@ -18,7 +18,6 @@ export type TaskMapLocationFields = {
   lat?: number | null
   lng?: number | null
   name?: string | null
-  postcode?: string | null
   address?: string | null
 }
 

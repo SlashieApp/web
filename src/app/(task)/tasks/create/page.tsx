@@ -69,7 +69,6 @@ export default function CreateTaskPage() {
       title: '',
       description: '',
       streetAddress: '',
-      postcode: '',
       mapPlaceName: '',
       locationLat: '51.5074',
       locationLng: '-0.1278',
@@ -204,7 +203,6 @@ export default function CreateTaskPage() {
               lat: Number.parseFloat(values.locationLat),
               lng: Number.parseFloat(values.locationLng),
               name: values.mapPlaceName.trim(),
-              postcode: values.postcode.trim(),
               address: values.streetAddress.trim(),
             },
             datetime,
@@ -236,7 +234,6 @@ export default function CreateTaskPage() {
         locationLng={locationLng}
         register={register}
         streetAddressError={errors.streetAddress?.message}
-        postcodeError={errors.postcode?.message}
         onCopyMapPlaceToAddress={onCopyMapPlaceToAddress}
         locationError={locationError}
         onLocationChange={onMapPlaceNameChange}

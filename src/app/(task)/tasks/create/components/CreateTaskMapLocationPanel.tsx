@@ -21,7 +21,6 @@ export type CreateTaskMapLocationPanelProps = {
   onLocationLngChange: (value: string) => void
   register: UseFormRegister<CreateTaskFormValues>
   streetAddressError?: string
-  postcodeError?: string
   onCopyMapPlaceToAddress: () => void
   /** First relevant map/location validation message from the form. */
   locationError?: string
@@ -37,7 +36,6 @@ export function CreateTaskMapLocationPanel({
   onLocationLngChange,
   register,
   streetAddressError,
-  postcodeError,
   onCopyMapPlaceToAddress,
   locationError,
 }: CreateTaskMapLocationPanelProps) {
@@ -87,10 +85,6 @@ export function CreateTaskMapLocationPanel({
               </Text>
             </HStack>
           </Stack>
-        </FormField>
-
-        <FormField label="Postcode" errorText={postcodeError}>
-          <TextInput {...register('postcode')} placeholder="e.g. SW1A 1AA" />
         </FormField>
 
         <Text fontSize="sm" color="muted">

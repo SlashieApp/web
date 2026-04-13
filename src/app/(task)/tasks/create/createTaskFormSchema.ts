@@ -19,7 +19,6 @@ export const createTaskFormSchema = z
       .string()
       .trim()
       .min(1, 'Please add your property address.'),
-    postcode: z.string().trim().min(1, 'Please add your postcode.'),
     mapPlaceName: z
       .string()
       .trim()

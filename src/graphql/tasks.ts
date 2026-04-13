@@ -27,7 +27,6 @@ export const CREATE_TASK = gql`
         lat
         lng
         name
-        postcode
         address
       }
       poster {
@@ -98,7 +97,6 @@ export const TASKS_QUERY = gql`
         lat
         lng
         name
-        postcode
         address
       }
     }
@@ -132,7 +130,6 @@ export const TASK_QUERY = gql`
         lat
         lng
         name
-        postcode
         address
       }
       poster {
@@ -195,7 +192,6 @@ export const MY_TASKS_QUERY = gql`
         lat
         lng
         name
-        postcode
         address
       }
       poster {
