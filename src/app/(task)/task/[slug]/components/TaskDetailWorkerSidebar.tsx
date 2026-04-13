@@ -84,7 +84,7 @@ export function TaskDetailWorkerCtas({
 
 export type TaskDetailWorkerQuotePanelProps = {
   myQuote: {
-    price: Price
+    price?: Price | null
     message?: string | null
     status: QuoteStatus
   } | null

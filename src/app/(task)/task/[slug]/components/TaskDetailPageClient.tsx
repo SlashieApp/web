@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Grid, Link, Stack } from '@chakra-ui/react'
+import { Box, Grid, Image, Link, Stack } from '@chakra-ui/react'
 import { type TaskQuery, TaskStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useCallback, useMemo } from 'react'
@@ -201,8 +201,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                   borderColor="border"
                 >
                   {task.images?.[0] ? (
-                    <Box
-                      as="img"
+                    <Image
                       src={task.images[0]}
                       alt={task.title}
                       w="full"

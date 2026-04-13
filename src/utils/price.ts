@@ -1,13 +1,14 @@
 import type { Currency, Price } from '@codegen/schema'
 
 type PriceLike = Pick<Price, 'amount' | 'currency'> | null | undefined
+type PriceAmountLike = { amount: number } | PriceLike | null | undefined
 
 function toIsoCurrency(currency: Currency | string) {
   if (currency === 'GDP') return 'GBP'
   return currency
 }
 
-export function priceToPence(price: PriceLike): number | null {
+export function priceToPence(price: PriceAmountLike): number | null {
   const amount = price?.amount
   if (typeof amount !== 'number' || !Number.isFinite(amount)) return null
   return Math.round(amount * 100)

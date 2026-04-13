@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack, Stack } from '@chakra-ui/react'
+import { Box, HStack, Image, Stack } from '@chakra-ui/react'
 import { Badge, Button, Heading, Text } from '@ui'
 import NextLink from 'next/link'
 
@@ -102,8 +102,7 @@ export function TaskQuoteCard({
             overflow="hidden"
           >
             {avatarUrl ? (
-              <Box
-                as="img"
+              <Image
                 src={avatarUrl}
                 alt={`${name} avatar`}
                 w="full"
