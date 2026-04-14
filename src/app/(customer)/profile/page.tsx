@@ -10,7 +10,7 @@ import {
   Stack,
   Textarea,
 } from '@chakra-ui/react'
-import type { UpdateMyProfileMutation } from '@codegen/schema'
+import { LoginMethod, type UpdateMyProfileMutation } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -255,9 +255,8 @@ export default function CustomerProfilePage() {
     [completedPosted],
   )
 
-  const googleConnected = Boolean(me?.enabledLoginMethods?.includes('GOOGLE'))
   const passwordConnected = Boolean(
-    me?.enabledLoginMethods?.includes('PASSWORD'),
+    me?.enabledLoginMethods?.includes(LoginMethod.Password),
   )
 
   const avatarSrc =
@@ -563,7 +562,8 @@ export default function CustomerProfilePage() {
       <Stack gap={4}>
         <Heading size="md">Account Security</Heading>
         <GlassCard p={0} overflow="hidden">
-          <SecurityRow
+          {/* Google login method is intentionally hidden until rollout is ready. */}
+          {/* <SecurityRow
             icon={<IconGoogle />}
             title="Google"
             status={<ConnectedBadge />}
@@ -579,7 +579,7 @@ export default function CustomerProfilePage() {
               )
             }
           />
-          <Box h="1px" bg="border" />
+          <Box h="1px" bg="border" /> */}
           <SecurityRow
             icon={<IconEnvelope />}
             title="Email Address"
@@ -804,7 +804,6 @@ function InfoRow({
       {!expanded ? (
         <Box
           as="button"
-          type="button"
           w="full"
           cursor="pointer"
           textAlign="left"
