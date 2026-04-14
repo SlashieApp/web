@@ -13,13 +13,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
@@ -97,13 +91,15 @@ export default function CreateTaskPage() {
   const [runCreateTask, { loading: creating }] =
     useMutation<CreateTaskMutation>(CREATE_TASK)
 
-  useEffect(() => {
+  const sessionGateRef = useRef(false)
+  if (!sessionGateRef.current) {
+    sessionGateRef.current = true
     if (!getAuthToken()) {
       router.replace(`/login?redirect=${encodeURIComponent(POST_TASK_PATH)}`)
-      return
+    } else {
+      setSessionOk(true)
     }
-    setSessionOk(true)
-  }, [router])
+  }
 
   useLayoutEffect(() => {
     const next = imageFiles.map((file) => URL.createObjectURL(file))
@@ -114,15 +110,12 @@ export default function CreateTaskPage() {
       }
       return next
     })
-  }, [imageFiles])
-
-  useEffect(() => {
     return () => {
       for (const u of imagePreviewUrlsUnmountRef.current) {
         URL.revokeObjectURL(u)
       }
     }
-  }, [])
+  }, [imageFiles])
 
   const onFilesAdded = useCallback((picked: File[]) => {
     if (picked.length === 0) return

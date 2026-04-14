@@ -13,7 +13,7 @@ import {
 import { LoginMethod, type UpdateMyProfileMutation } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { ME_QUERY } from '@/graphql/auth'
@@ -225,15 +225,18 @@ export default function CustomerProfilePage() {
       awaitRefetchQueries: true,
     })
 
-  useEffect(() => {
-    if (!me) return
-    const extras = loadCustomerProfileExtras(me.id)
-    setLocation(extras.location)
-    setBio(extras.bio)
-    setAvatarPreview(extras.avatarOverride ?? null)
-    setFullName(displayNameFromMe(me))
-    setPhoneNumber(me.profile?.contactNumber?.trim() ?? '')
-  }, [me])
+  const prevMeRef = useRef<typeof me | undefined>(undefined)
+  if (me !== prevMeRef.current) {
+    prevMeRef.current = me
+    if (me) {
+      const extras = loadCustomerProfileExtras(me.id)
+      setLocation(extras.location)
+      setBio(extras.bio)
+      setAvatarPreview(extras.avatarOverride ?? null)
+      setFullName(displayNameFromMe(me))
+      setPhoneNumber(me.profile?.contactNumber?.trim() ?? '')
+    }
+  }
 
   const persistExtras = useCallback(() => {
     if (!me) return

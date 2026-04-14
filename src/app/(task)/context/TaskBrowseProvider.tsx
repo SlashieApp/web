@@ -5,10 +5,10 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react'
 
 import { TASKS_QUERY } from '@/graphql/tasks'
@@ -128,6 +128,12 @@ function desktopListPanelLeftInsetPx(): number {
   return Math.round(marginGutter + panel)
 }
 
+function subscribeWindowResize(onStoreChange: () => void) {
+  if (typeof window === 'undefined') return () => {}
+  window.addEventListener('resize', onStoreChange)
+  return () => window.removeEventListener('resize', onStoreChange)
+}
+
 export function TaskBrowseProvider({
   children,
   initialTasks,
@@ -136,20 +142,11 @@ export function TaskBrowseProvider({
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const hasMapboxToken = Boolean(mapboxToken?.trim())
 
-  const [windowOffsetWidth, setWindowOffsetWidth] = useState(() =>
-    typeof window !== 'undefined' && isDesktop
-      ? desktopListPanelLeftInsetPx()
-      : 320,
+  const windowOffsetWidth = useSyncExternalStore(
+    isDesktop ? subscribeWindowResize : () => () => {},
+    () => (isDesktop ? desktopListPanelLeftInsetPx() : 320),
+    () => 320,
   )
-
-  useEffect(() => {
-    if (!isDesktop) return
-    const sync = () => setWindowOffsetWidth(desktopListPanelLeftInsetPx())
-    sync()
-    if (typeof window === 'undefined') return
-    window.addEventListener('resize', sync)
-    return () => window.removeEventListener('resize', sync)
-  }, [isDesktop])
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchThisAreaUi, setSearchThisAreaUi] =
@@ -167,8 +164,18 @@ export function TaskBrowseProvider({
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
   const [urgency, setUrgency] = useState<UrgencyFilter>('any')
-  const [searchInput, setSearchInput] = useState('')
+  const [searchInput, setSearchInputRaw] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const searchDebounceRef = useRef<number | null>(null)
+
+  const setSearchInput = useCallback((v: string) => {
+    setSearchInputRaw(v)
+    if (searchDebounceRef.current)
+      window.clearTimeout(searchDebounceRef.current)
+    searchDebounceRef.current = window.setTimeout(() => {
+      setDebouncedSearch(v.trim())
+    }, 300)
+  }, [])
   const [searchCenterLat, setSearchCenterLat] = useState(DEFAULT_SEARCH_LAT)
   const [searchCenterLng, setSearchCenterLng] = useState(DEFAULT_SEARCH_LNG)
   const [areaLocationInput, setAreaLocationInput] = useState('')
@@ -177,17 +184,11 @@ export function TaskBrowseProvider({
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [isMapReadyForQuery, setIsMapReadyForQuery] = useState(!hasMapboxToken)
 
-  useEffect(() => {
-    const t = window.setTimeout(
-      () => setDebouncedSearch(searchInput.trim()),
-      300,
-    )
-    return () => window.clearTimeout(t)
-  }, [searchInput])
-
-  useEffect(() => {
+  const prevHasMapboxTokenRef = useRef(hasMapboxToken)
+  if (hasMapboxToken !== prevHasMapboxTokenRef.current) {
+    prevHasMapboxTokenRef.current = hasMapboxToken
     setIsMapReadyForQuery(!hasMapboxToken)
-  }, [hasMapboxToken])
+  }
 
   const queryVariables = useMemo(() => {
     const radius = clampRadiusMiles(radiusMiles)
@@ -244,29 +245,41 @@ export function TaskBrowseProvider({
   }, [filtered, sort])
 
   const totalPages = Math.max(1, Math.ceil(filteredSorted.length / PAGE_SIZE))
-  useEffect(() => {
-    setPage((p) => Math.min(p, Math.max(0, totalPages - 1)))
-  }, [totalPages])
+  const maxPageIndex = Math.max(0, totalPages - 1)
+  if (page > maxPageIndex) {
+    setPage(maxPageIndex)
+  }
 
-  const safePage = Math.min(page, totalPages - 1)
+  const safePage = Math.min(page, maxPageIndex)
   const pageItems = filteredSorted.slice(
     safePage * PAGE_SIZE,
     safePage * PAGE_SIZE + PAGE_SIZE,
   )
 
-  useEffect(() => {
-    if (!selectedTaskId) return
-    if (!filteredSorted.some((t) => t.id === selectedTaskId)) {
-      setSelectedTaskId(null)
-    }
-  }, [filteredSorted, selectedTaskId])
+  if (selectedTaskId && !filteredSorted.some((t) => t.id === selectedTaskId)) {
+    setSelectedTaskId(null)
+  }
 
-  useEffect(() => {
-    if (!selectedTaskId) return
-    const idx = filteredSorted.findIndex((t) => t.id === selectedTaskId)
-    if (idx < 0) return
-    setPage(Math.floor(idx / PAGE_SIZE))
-  }, [selectedTaskId, filteredSorted])
+  const selectionPageSyncRef = useRef<{
+    selectedTaskId: string | null
+    filteredSorted: TaskListItem[]
+  }>({ selectedTaskId: null, filteredSorted: [] })
+
+  if (
+    selectedTaskId !== selectionPageSyncRef.current.selectedTaskId ||
+    filteredSorted !== selectionPageSyncRef.current.filteredSorted
+  ) {
+    selectionPageSyncRef.current = { selectedTaskId, filteredSorted }
+    if (selectedTaskId) {
+      const idx = filteredSorted.findIndex((t) => t.id === selectedTaskId)
+      if (idx >= 0) {
+        const desiredPage = Math.floor(idx / PAGE_SIZE)
+        if (page !== desiredPage) {
+          setPage(desiredPage)
+        }
+      }
+    }
+  }
 
   const mapTasksForBox = useMemo(
     () =>
@@ -411,6 +424,7 @@ export function TaskBrowseProvider({
       searchCenterLat,
       searchCenterLng,
       searchInput,
+      setSearchInput,
       selectedTaskId,
       shouldWaitForMap,
       sort,

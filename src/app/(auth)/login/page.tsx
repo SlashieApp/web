@@ -11,7 +11,7 @@ import {
 import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { getAuthToken } from '@/utils/auth'
@@ -95,28 +95,28 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [nextPath, setNextPath] = useState('/dashboard')
-
-  useEffect(() => {
+  const authGuardCheckedRef = useRef(false)
+  const nextPath = useMemo(() => {
+    if (typeof window === 'undefined') return '/dashboard'
     const params = new URLSearchParams(window.location.search)
     const requestedNextPath = params.get('redirect') ?? params.get('next')
     const hasSafeNextPath =
       requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
-
-    if (hasSafeNextPath && requestedNextPath) {
-      setNextPath(requestedNextPath)
-    }
+    return hasSafeNextPath && requestedNextPath
+      ? requestedNextPath
+      : '/dashboard'
   }, [])
-
-  useEffect(() => {
-    if (!getAuthToken()) return
-
-    void getUser().then((user) => {
-      if (user) {
-        router.replace(nextPath)
-      }
-    })
-  }, [getUser, nextPath, router])
+  const onMountAuthGuard = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node || authGuardCheckedRef.current) return
+      authGuardCheckedRef.current = true
+      if (!getAuthToken()) return
+      void getUser().then((user) => {
+        if (user) router.replace(nextPath)
+      })
+    },
+    [getUser, nextPath, router],
+  )
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -136,7 +136,7 @@ export default function LoginPage() {
   }
 
   return (
-    <>
+    <div ref={onMountAuthGuard}>
       <Stack gap={6}>
         <Link
           as={NextLink}
@@ -375,6 +375,6 @@ export default function LoginPage() {
           </HStack>
         </HStack>
       </Box>
-    </>
+    </div>
   )
 }

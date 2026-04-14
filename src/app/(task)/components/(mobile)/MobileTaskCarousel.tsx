@@ -5,14 +5,7 @@ import { Box, HStack } from '@chakra-ui/react'
 import useEmblaCarousel from 'embla-carousel-react'
 import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
 import { motion } from 'motion/react'
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { Text } from '@ui'
 import { TaskBrowseListItem } from '../(web)/TaskBrowseListItem'
@@ -50,44 +43,75 @@ export function MobileTaskCarousel() {
   )
 
   const viewportElRef = useRef<HTMLDivElement | null>(null)
-  const setViewportRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      viewportElRef.current = node
-      emblaRef(node)
-    },
-    [emblaRef],
-  )
+  const resizeObserverRef = useRef<ResizeObserver | null>(null)
+  const emblaApiRef = useRef(emblaApi)
+  emblaApiRef.current = emblaApi
+
+  const selectedTaskIdRef = useRef(selectedTaskId)
+  selectedTaskIdRef.current = selectedTaskId
+  const taskIdsRef = useRef<string[]>([])
+  taskIdsRef.current = tasks.map((t) => t.id)
+
+  const lastEmblaLayoutRef = useRef<{
+    pad: number
+    selectedId: string | null
+    taskIds: string
+    api: NonNullable<typeof emblaApi> | null
+  }>({ pad: -1, selectedId: null, taskIds: '', api: null })
 
   /** Half of leftover width so first/last slides can sit in the viewport centre (matches slide flex-basis). */
   const [centeringPadPx, setCenteringPadPx] = useState(0)
 
-  useLayoutEffect(() => {
-    const el = viewportElRef.current
-    if (!el) return
-    const measure = () => {
-      const w = el.clientWidth
-      const slideW = Math.min(420, Math.max(0, w - 52))
-      setCenteringPadPx(Math.max(0, Math.round((w - slideW) / 2)))
+  const setViewportRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      resizeObserverRef.current?.disconnect()
+      resizeObserverRef.current = null
+      viewportElRef.current = node
+      emblaRef(node)
+      if (!node) return
+
+      const measure = () => {
+        const w = node.clientWidth
+        const slideW = Math.min(420, Math.max(0, w - 52))
+        setCenteringPadPx(Math.max(0, Math.round((w - slideW) / 2)))
+      }
+      measure()
+      const ro = new ResizeObserver(measure)
+      ro.observe(node)
+      resizeObserverRef.current = ro
+    },
+    [emblaRef],
+  )
+
+  const pad = centeringPadPx
+  const taskIdsKey = taskIdsRef.current.join(',')
+  const api = emblaApi
+  if (api) {
+    const prev = lastEmblaLayoutRef.current
+    if (
+      prev.api !== api ||
+      prev.pad !== pad ||
+      prev.selectedId !== selectedTaskId ||
+      prev.taskIds !== taskIdsKey
+    ) {
+      lastEmblaLayoutRef.current = {
+        api,
+        pad,
+        selectedId: selectedTaskId,
+        taskIds: taskIdsKey,
+      }
+      const sel = selectedTaskId
+      const idOrder = [...taskIdsRef.current]
+      queueMicrotask(() => {
+        const live = emblaApiRef.current
+        if (!live) return
+        live.reInit()
+        if (!sel) return
+        const idx = idOrder.indexOf(sel)
+        if (idx >= 0) live.scrollTo(idx)
+      })
     }
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
-
-  useEffect(() => {
-    if (!emblaApi) return
-    void centeringPadPx
-    emblaApi.reInit()
-  }, [emblaApi, centeringPadPx])
-
-  useEffect(() => {
-    if (!emblaApi || !selectedTaskId) return
-    void centeringPadPx
-    const selectedIndex = tasks.findIndex((task) => task.id === selectedTaskId)
-    if (selectedIndex < 0) return
-    emblaApi.scrollTo(selectedIndex)
-  }, [emblaApi, selectedTaskId, tasks, centeringPadPx])
+  }
 
   const handleSelectTask = (taskId: string) => {
     if (selectedTaskId === taskId) {

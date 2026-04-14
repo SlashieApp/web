@@ -14,7 +14,7 @@ import type { RegisterMutation } from '@codegen/schema'
 import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { REGISTER_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
@@ -161,28 +161,25 @@ export default function RegisterPage() {
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [role, setRole] = useState<AccountRole>('homeowner')
   const [error, setError] = useState<string | null>(null)
-  const [explicitNextPath, setExplicitNextPath] = useState<string | null>(null)
 
   const [register, { loading }] =
     useMutation<RegisterMutation>(REGISTER_MUTATION)
+
+  const explicitNextPath = useMemo(() => {
+    if (typeof window === 'undefined') return null
+    const requestedNextPath = new URLSearchParams(window.location.search).get(
+      'next',
+    )
+    const hasSafeNextPath =
+      requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
+    return hasSafeNextPath && requestedNextPath ? requestedNextPath : null
+  }, [])
 
   const postRegisterPath = useMemo(
     () =>
       role === 'professional' ? '/dashboard/worker/register' : '/dashboard',
     [role],
   )
-
-  useEffect(() => {
-    const requestedNextPath = new URLSearchParams(window.location.search).get(
-      'next',
-    )
-    const hasSafeNextPath =
-      requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
-
-    if (hasSafeNextPath && requestedNextPath) {
-      setExplicitNextPath(requestedNextPath)
-    }
-  }, [])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()

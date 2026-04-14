@@ -2,7 +2,7 @@
 
 import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Map as MapboxMap } from 'mapbox-gl'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import {
   mapboxForwardGeocode,
@@ -42,15 +42,20 @@ export function TaskLocationMapPicker({
   onLocationLngChange,
   showCoordinateHelpText = true,
 }: TaskLocationMapPickerProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<MapboxMap | null>(null)
   const [mapReady, setMapReady] = useState(false)
   const skipReverseAfterForwardRef = useRef(false)
   const moveEndCountRef = useRef(0)
-  const moveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const locationGeocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  )
+  const moveDebounceRef = useRef<number | null>(null)
+  const locationGeocodeTimerRef = useRef<number | null>(null)
+
+  const accessTokenRef = useRef(accessToken)
+  accessTokenRef.current = accessToken
+
+  const locationLatRef = useRef(locationLat)
+  const locationLngRef = useRef(locationLng)
+  locationLatRef.current = locationLat
+  locationLngRef.current = locationLng
 
   const onLocationChangeRef = useRef(onLocationChange)
   const onLocationLatChangeRef = useRef(onLocationLatChange)
@@ -73,25 +78,34 @@ export function TaskLocationMapPicker({
     [],
   )
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: map mounts once per token; centre updates use a separate effect
-  useEffect(() => {
-    if (!accessToken?.trim() || !containerRef.current) {
-      setMapReady(false)
-      return
+  const attachMapContainer = useCallback((el: HTMLDivElement | null) => {
+    if (locationGeocodeTimerRef.current) {
+      window.clearTimeout(locationGeocodeTimerRef.current)
+      locationGeocodeTimerRef.current = null
     }
+    if (moveDebounceRef.current) {
+      window.clearTimeout(moveDebounceRef.current)
+      moveDebounceRef.current = null
+    }
+    mapRef.current?.remove()
+    mapRef.current = null
+    moveEndCountRef.current = 0
+    setMapReady(false)
 
-    let cancelled = false
-    const container = containerRef.current
+    if (!el) return
+
+    const token = accessTokenRef.current?.trim()
+    if (!token) return
 
     void import('mapbox-gl').then((mapboxgl) => {
-      if (cancelled || !container) return
-      mapboxgl.default.accessToken = accessToken
+      if (!el.isConnected) return
+      mapboxgl.default.accessToken = token
 
-      const lat = parseCoordString(locationLat) ?? DEFAULT_LAT
-      const lng = parseCoordString(locationLng) ?? DEFAULT_LNG
+      const lat = parseCoordString(locationLatRef.current) ?? DEFAULT_LAT
+      const lng = parseCoordString(locationLngRef.current) ?? DEFAULT_LNG
 
       const map = new mapboxgl.default.Map({
-        container,
+        container: el,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [lng, lat],
         zoom: 12,
@@ -100,77 +114,64 @@ export function TaskLocationMapPicker({
       map.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
       mapRef.current = map
 
+      const onMoveEnd = () => {
+        if (moveDebounceRef.current)
+          window.clearTimeout(moveDebounceRef.current)
+        moveDebounceRef.current = window.setTimeout(() => {
+          const c = map.getCenter()
+          const latStr = c.lat.toFixed(6)
+          const lngStr = c.lng.toFixed(6)
+          onLocationLatChangeRef.current(latStr)
+          onLocationLngChangeRef.current(lngStr)
+
+          if (skipReverseAfterForwardRef.current) {
+            skipReverseAfterForwardRef.current = false
+            return
+          }
+
+          moveEndCountRef.current += 1
+          if (moveEndCountRef.current < 2) return
+
+          const geocodeToken = accessTokenRef.current?.trim()
+          if (!geocodeToken) return
+          void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then((name) => {
+            if (name) onLocationChangeRef.current(name)
+          })
+        }, 350)
+      }
+
+      map.on('moveend', onMoveEnd)
+
       map.on('load', () => {
-        if (cancelled) return
+        if (!el.isConnected) return
         const c = map.getCenter()
         onLocationLatChangeRef.current(c.lat.toFixed(6))
         onLocationLngChangeRef.current(c.lng.toFixed(6))
         setMapReady(true)
       })
     })
+  }, [])
 
-    return () => {
-      cancelled = true
-      moveEndCountRef.current = 0
-      if (moveDebounceRef.current) clearTimeout(moveDebounceRef.current)
-      mapRef.current?.remove()
-      mapRef.current = null
-      setMapReady(false)
-    }
-  }, [accessToken])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map?.isStyleLoaded()) return
+  const prevCoordsKeyRef = useRef<string | null>(null)
+  const coordsKey = `${locationLat}|${locationLng}`
+  if (
+    mapReady &&
+    mapRef.current?.isStyleLoaded() &&
+    coordsKey !== prevCoordsKeyRef.current
+  ) {
     const lat = parseCoordString(locationLat)
     const lng = parseCoordString(locationLng)
-    if (lat == null || lng == null) return
-    const current = map.getCenter()
-    const delta = Math.abs(current.lat - lat) + Math.abs(current.lng - lng)
-    if (delta < 1e-7) return
-    map.jumpTo({ center: [lng, lat] })
-  }, [mapReady, locationLat, locationLng])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map || !accessToken?.trim()) return
-
-    const onMoveEnd = () => {
-      if (moveDebounceRef.current) clearTimeout(moveDebounceRef.current)
-      moveDebounceRef.current = setTimeout(() => {
-        const c = map.getCenter()
-        const latStr = c.lat.toFixed(6)
-        const lngStr = c.lng.toFixed(6)
-        onLocationLatChangeRef.current(latStr)
-        onLocationLngChangeRef.current(lngStr)
-
-        if (skipReverseAfterForwardRef.current) {
-          skipReverseAfterForwardRef.current = false
-          return
-        }
-
-        moveEndCountRef.current += 1
-        if (moveEndCountRef.current < 2) return
-
-        void mapboxReverseGeocode(c.lat, c.lng, accessToken).then((name) => {
-          if (name) onLocationChangeRef.current(name)
+    prevCoordsKeyRef.current = coordsKey
+    if (lat != null && lng != null) {
+      const current = mapRef.current.getCenter()
+      const delta = Math.abs(current.lat - lat) + Math.abs(current.lng - lng)
+      if (delta >= 1e-7) {
+        queueMicrotask(() => {
+          mapRef.current?.jumpTo({ center: [lng, lat] })
         })
-      }, 350)
+      }
     }
-
-    map.on('moveend', onMoveEnd)
-    return () => {
-      map.off('moveend', onMoveEnd)
-      if (moveDebounceRef.current) clearTimeout(moveDebounceRef.current)
-    }
-  }, [mapReady, accessToken])
-
-  useEffect(() => {
-    return () => {
-      if (locationGeocodeTimerRef.current)
-        clearTimeout(locationGeocodeTimerRef.current)
-    }
-  }, [])
+  }
 
   const suggestFromLocationQuery = useCallback(
     (query: string) => {
@@ -193,8 +194,8 @@ export function TaskLocationMapPicker({
   const onLocationInputChange = (value: string) => {
     onLocationChangeRef.current(value)
     if (locationGeocodeTimerRef.current)
-      clearTimeout(locationGeocodeTimerRef.current)
-    locationGeocodeTimerRef.current = setTimeout(() => {
+      window.clearTimeout(locationGeocodeTimerRef.current)
+    locationGeocodeTimerRef.current = window.setTimeout(() => {
       suggestFromLocationQuery(value)
     }, 600)
   }
@@ -215,7 +216,7 @@ export function TaskLocationMapPicker({
       >
         {token ? (
           <>
-            <Box ref={containerRef} w="full" h="full" aria-hidden />
+            <Box ref={attachMapContainer} w="full" h="full" aria-hidden />
             <Box position="absolute" left={3} right={3} top={3} zIndex={2}>
               <TextInput
                 value={location}

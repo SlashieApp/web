@@ -7,7 +7,7 @@ import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { RESET_PASSWORD_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
@@ -183,7 +183,10 @@ function IconArrowRight() {
 
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const [token, setToken] = useState('')
+  const [token, setToken] = useState(() => {
+    if (typeof window === 'undefined') return ''
+    return new URLSearchParams(window.location.search).get('token') ?? ''
+  })
   const [showTokenField, setShowTokenField] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -194,13 +197,6 @@ export default function ResetPasswordPage() {
   const [resetPassword, { loading }] = useMutation<ResetPasswordMutation>(
     RESET_PASSWORD_MUTATION,
   )
-
-  useEffect(() => {
-    const resetToken = new URLSearchParams(window.location.search).get('token')
-    if (resetToken) {
-      setToken(resetToken)
-    }
-  }, [])
 
   const hasMinLength = newPassword.length >= 8
   const hasNumberOrSymbol = /[\d!@#$%^&*(),.?":{}|<>[\]\\/_+=-]/.test(

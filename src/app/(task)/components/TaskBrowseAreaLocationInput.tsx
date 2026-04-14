@@ -1,7 +1,6 @@
 'use client'
 
 import { Box, Input } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
 
 import { useTaskBrowseData } from '../context/TaskBrowseProvider'
 
@@ -13,11 +12,6 @@ import { useTaskBrowseData } from '../context/TaskBrowseProvider'
 export function TaskBrowseAreaLocationInput() {
   const { areaLocationInput, setAreaLocationInput, commitAreaLocationSearch } =
     useTaskBrowseData()
-  const [hasMounted, setHasMounted] = useState(false)
-
-  useEffect(() => {
-    setHasMounted(true)
-  }, [])
 
   return (
     <Box position="relative">
@@ -48,7 +42,7 @@ export function TaskBrowseAreaLocationInput() {
         </svg>
       </Box>
       <Input
-        value={hasMounted ? areaLocationInput : ''}
+        value={areaLocationInput}
         onChange={(e) => setAreaLocationInput(e.target.value)}
         onKeyDown={(e) => {
           if (e.key !== 'Enter') return
@@ -59,7 +53,6 @@ export function TaskBrowseAreaLocationInput() {
         bg="surfaceContainerLowest"
         onBlur={commitAreaLocationSearch}
         placeholder="Find pros or jobs near you..."
-        suppressHydrationWarning
         borderRadius={{ base: 'lg', md: 'xl' }}
         h={{ base: 10, md: 11 }}
         ps={10}

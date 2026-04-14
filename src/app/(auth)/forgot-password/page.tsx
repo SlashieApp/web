@@ -6,7 +6,7 @@ import type { ForgotPasswordMutation } from '@codegen/schema'
 import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 
 import { FORGOT_PASSWORD_MUTATION } from '@/graphql/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -75,16 +75,14 @@ function IconArrowRight() {
 
 function ForgotPasswordContent() {
   const searchParams = useSearchParams()
-  const [email, setEmail] = useState('')
+  const initialEmail = useMemo(
+    () => searchParams.get('email')?.trim() ?? '',
+    [searchParams],
+  )
+  const [email, setEmail] = useState(initialEmail)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [resetToken, setResetToken] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fromQuery = searchParams.get('email')?.trim()
-    if (!fromQuery) return
-    setEmail((prev) => (prev.trim() === '' ? fromQuery : prev))
-  }, [searchParams])
 
   const [forgotPassword, { loading }] = useMutation<ForgotPasswordMutation>(
     FORGOT_PASSWORD_MUTATION,

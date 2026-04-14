@@ -1,0 +1,32 @@
+---
+description: Prefer callback/ref patterns instead of useEffect
+alwaysApply: true
+---
+
+# Avoid useEffect by default
+
+- Do not introduce `useEffect` in new code unless the user explicitly asks for it.
+- Prefer direct event-driven logic with `useCallback` and explicit function calls.
+- For mount-time element setup, use callback refs (`ref={(node) => { ... }}`) or a stable callback + ref guard instead of `useEffect`.
+- Keep side effects close to the triggering action (handlers, async actions, mutation callbacks) instead of lifecycle effects.
+- If existing code uses `useEffect`, do not refactor it unless the current task requires touching that behavior.
+
+## Preferred patterns
+
+```tsx
+// Mount/setup without useEffect
+const initializedRef = useRef(false)
+const onContainerRef = useCallback((node: HTMLDivElement | null) => {
+  if (!node || initializedRef.current) return
+  initializedRef.current = true
+  setupMap(node)
+}, [setupMap])
+```
+
+```tsx
+// Action-driven updates
+const handleSave = useCallback(async () => {
+  await saveTask(formState)
+  toast.success('Saved')
+}, [formState, saveTask])
+```

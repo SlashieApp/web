@@ -3,7 +3,7 @@
 import { Box, type BoxProps, HStack, IconButton, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { getAuthToken } from '@/utils/auth'
@@ -92,13 +92,15 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   const [hasMounted, setHasMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isLoggedIn = Boolean(user)
-
-  useEffect(() => {
-    setHasMounted(true)
-    if (!getAuthToken()) return
-
-    void getUser()
-  }, [getUser])
+  const onMountNavigation = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node || hasMounted) return
+      setHasMounted(true)
+      if (!getAuthToken()) return
+      void getUser()
+    },
+    [getUser, hasMounted],
+  )
 
   // Pathname from `usePathname()` can disagree between SSR and the first client
   // paint (e.g. null vs real path). Defer route-derived highlighting until after
@@ -125,6 +127,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
 
   return (
     <HStack
+      ref={onMountNavigation}
       justify="space-between"
       align="center"
       gap={4}

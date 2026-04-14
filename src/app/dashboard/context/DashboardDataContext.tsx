@@ -7,8 +7,8 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 
@@ -162,26 +162,27 @@ export function DashboardDataProvider({
     skip: !me,
   })
 
-  useEffect(() => {
+  const prevMeRef = useRef<typeof me | undefined>(undefined)
+  if (me !== prevMeRef.current) {
+    prevMeRef.current = me
     if (!me) {
       setProfile(null)
       setWorkerProfile(defaultWorkerProfile())
-      return
+    } else {
+      setProfile({
+        fullName: getDisplayNameFromEmail(me.email),
+        bio: '',
+        phoneNumber: '',
+        location: '',
+        preferredTrades: [],
+      })
+
+      setWorkerProfile({
+        ...defaultWorkerProfile(),
+        isActive: getWorkerRegistered(me.id),
+      })
     }
-
-    setProfile({
-      fullName: getDisplayNameFromEmail(me.email),
-      bio: '',
-      phoneNumber: '',
-      location: '',
-      preferredTrades: [],
-    })
-
-    setWorkerProfile({
-      ...defaultWorkerProfile(),
-      isActive: getWorkerRegistered(me.id),
-    })
-  }, [me])
+  }
 
   const tasks = tasksData?.myTasks ?? []
   const tasksBootstrapping = Boolean(me && !tasksData && !tasksError)

@@ -2,7 +2,7 @@
 
 import { Box, Stack } from '@chakra-ui/react'
 import { motion } from 'motion/react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
 import { TaskBrowseListItem } from './TaskBrowseListItem'
 
@@ -20,33 +20,26 @@ export function TaskList() {
   } = useTaskBrowseData()
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const scrollRef = useRef<HTMLDivElement | null>(null)
-  const [animationCycle, setAnimationCycle] = useState(0)
-  const prevLoadingRef = useRef(loading)
 
-  useEffect(() => {
-    if (!selectedTaskId) return
-    if (!filteredSorted.some((t) => t.id === selectedTaskId)) return
-    const scroller = scrollRef.current
-    const el = cardRefs.current.get(selectedTaskId)
-    if (!el || !scroller) return
+  const scrollTaskCardIntoView = useCallback(
+    (taskId: string) => {
+      if (!filteredSorted.some((t) => t.id === taskId)) return
+      const scroller = scrollRef.current
+      const el = cardRefs.current.get(taskId)
+      if (!el || !scroller) return
 
-    const firstCard = filteredSorted[0]
-      ? cardRefs.current.get(filteredSorted[0].id)
-      : null
-    const gapPx = 12
-    const slotHeight = firstCard?.offsetHeight ?? 0
-    const positionTwoOffset = slotHeight > 0 ? slotHeight + gapPx : 140
+      const firstCard = filteredSorted[0]
+        ? cardRefs.current.get(filteredSorted[0].id)
+        : null
+      const gapPx = 12
+      const slotHeight = firstCard?.offsetHeight ?? 0
+      const positionTwoOffset = slotHeight > 0 ? slotHeight + gapPx : 140
 
-    const targetTop = Math.max(0, el.offsetTop - positionTwoOffset)
-    scroller.scrollTo({ top: targetTop, behavior: 'smooth' })
-  }, [selectedTaskId, filteredSorted])
-
-  useEffect(() => {
-    const justFinishedFetch = prevLoadingRef.current && !loading && dataLoaded
-    prevLoadingRef.current = loading
-    if (!justFinishedFetch) return
-    setAnimationCycle((v) => v + 1)
-  }, [loading, dataLoaded])
+      const targetTop = Math.max(0, el.offsetTop - positionTwoOffset)
+      scroller.scrollTo({ top: targetTop, behavior: 'smooth' })
+    },
+    [filteredSorted],
+  )
 
   const handleActivateTask = (taskId: string) => {
     if (selectedTaskId === taskId) {
@@ -57,7 +50,12 @@ export function TaskList() {
       return
     }
     setSelectedTaskId(taskId)
+    requestAnimationFrame(() => {
+      scrollTaskCardIntoView(taskId)
+    })
   }
+
+  const animationKey = loading ? 'loading' : dataLoaded ? 'ready' : 'idle'
 
   const listBody = (
     <>
@@ -69,7 +67,7 @@ export function TaskList() {
               taskPublicLocationLabel(task).trim() || 'Location on request'
             return (
               <motion.div
-                key={`${animationCycle}-${task.id}`}
+                key={`${animationKey}-${task.id}`}
                 initial={{ opacity: 0, x: -18 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
@@ -82,6 +80,11 @@ export function TaskList() {
                   ref={(node: HTMLDivElement | null) => {
                     if (node) cardRefs.current.set(task.id, node)
                     else cardRefs.current.delete(task.id)
+                    if (node && task.id === selectedTaskId) {
+                      requestAnimationFrame(() => {
+                        scrollTaskCardIntoView(task.id)
+                      })
+                    }
                   }}
                 >
                   <TaskBrowseListItem

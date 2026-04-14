@@ -8,7 +8,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { useDashboardData } from '@/app/dashboard/context'
 import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
@@ -45,7 +45,14 @@ export default function WorkerRegistrationPage() {
     workerProfile.verificationDocumentName,
   )
 
-  useEffect(() => {
+  const prevProfileRef = useRef(profile)
+  const prevWorkerProfileRef = useRef(workerProfile)
+  if (
+    profile !== prevProfileRef.current ||
+    workerProfile !== prevWorkerProfileRef.current
+  ) {
+    prevProfileRef.current = profile
+    prevWorkerProfileRef.current = workerProfile
     setFullName(profile.fullName)
     setPhoneNumber(profile.phoneNumber)
     setLocation(profile.location)
@@ -56,7 +63,7 @@ export default function WorkerRegistrationPage() {
     setHourlyRate(String(workerProfile.hourlyRatePence / 100))
     setSkills(workerProfile.skills)
     setVerificationFileName(workerProfile.verificationDocumentName)
-  }, [profile, workerProfile])
+  }
 
   function toggleSkill(skill: DashboardTrade) {
     setSkills((current) =>

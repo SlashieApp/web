@@ -2,7 +2,7 @@
 
 import { Box, Text } from '@chakra-ui/react'
 import type { Map as MapboxMap, Marker } from 'mapbox-gl'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import {
   useTaskBrowseData,
@@ -63,6 +63,10 @@ export type TaskMapProps = {
   onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
 }
 
+type TaskMapPropsSnapshot = TaskMapProps & {
+  effectiveSearchRadiusMiles: number
+}
+
 function bumpMapResize(map: MapboxMap) {
   map.resize()
   requestAnimationFrame(() => {
@@ -116,6 +120,7 @@ const POPUP_DESC_MAX = 240
 const MAX_SEARCH_RADIUS_MILES = 50
 const MAP_MIN_ZOOM = 10
 const MAP_MAX_ZOOM = 17
+const DEFAULT_MAPBOX_STYLE = 'mapbox://styles/mapbox/streets-v12'
 
 function truncateDescription(text: string, max: number): string {
   const t = text.trim()
@@ -391,6 +396,445 @@ function taskMarkerElement(
   }
 }
 
+type MarkerRow = {
+  marker: Marker
+  taskId: string
+  setSelected: (v: boolean) => void
+  setExpanded: (v: boolean) => void
+}
+
+type TaskMapController = {
+  sync: () => void
+  destroy: () => void
+  scheduleSync: () => void
+}
+
+function createTaskMapController(args: {
+  container: HTMLDivElement
+  accessToken: string
+  getProps: () => TaskMapPropsSnapshot
+  getSelectTask: () => TaskMapProps['onSelectTask']
+  getSelectedTaskId: () => string | null
+  setShowSearchThisArea: (v: boolean) => void
+  getShowSearchThisArea: () => boolean
+}): TaskMapController {
+  const {
+    getProps,
+    getSelectTask,
+    getSelectedTaskId,
+    setShowSearchThisArea,
+    getShowSearchThisArea,
+  } = args
+
+  let cancelled = false
+  let map: MapboxMap | null = null
+  let mapboxMod: typeof import('mapbox-gl').default | null = null
+  const markersRef: MarkerRow[] = []
+  let moveEndDebounce: ReturnType<typeof setTimeout> | null = null
+  let pendingView: { lat: number; lng: number } | null = null
+  let programmaticMove = false
+  let suppressSearchPromptUntil = 0
+  let prevSearchCenterKey: string | null = null
+  let didApplyStartupOffset = false
+  let prevTasksSig = ''
+  let prevVisible = false
+  let moveEndRun: (() => void) | null = null
+  let mapClickRun: (() => void) | null = null
+
+  let lastQueryCenterKey = ''
+  let lastMarkerFrameKey = ''
+  let lastSelectionFlyKey = ''
+  let lastPinSelectedKey = ''
+  let lastSearchThisAreaUiSig: string | null = null
+
+  const scheduleReapplyInsetAfterResize = (leftPad: number) => {
+    requestAnimationFrame(() => {
+      if (!map || cancelled || programmaticMove) return
+      if (!(getProps().visible ?? true)) return
+      reapplyMapCenterOffsetForLeftInset(map, leftPad)
+    })
+  }
+
+  const resizeObserver = new ResizeObserver(() => {
+    if (map) {
+      map.resize()
+      scheduleReapplyInsetAfterResize(getProps().leftViewportPadding ?? 48)
+    }
+  })
+  resizeObserver.observe(args.container)
+
+  const onWindowResize = () => {
+    map?.resize()
+    scheduleReapplyInsetAfterResize(getProps().leftViewportPadding ?? 48)
+  }
+  window.addEventListener('resize', onWindowResize)
+
+  let syncQueued = false
+  const scheduleSync = () => {
+    if (syncQueued) return
+    syncQueued = true
+    queueMicrotask(() => {
+      syncQueued = false
+      sync()
+    })
+  }
+
+  const handleSearchThisAreaButtonClick = () => {
+    const pr = getProps()
+    const pv = pendingView
+    if (!pv || !pr.onSearchThisAreaConfirm || !map) return
+    const zoom = map.getZoom() ?? 11
+    pr.onSearchThisAreaConfirm(pv.lat, pv.lng, zoom)
+    setShowSearchThisArea(false)
+    pendingView = null
+    scheduleSync()
+  }
+
+  const syncMarkersAndBounds = () => {
+    if (!map?.isStyleLoaded() || !mapboxMod) return
+    const p = getProps()
+    if (!(p.visible ?? true) || !(p.tasksLoaded ?? true)) return
+
+    bumpMapResize(map)
+
+    for (const { marker } of markersRef) marker.remove()
+    markersRef.length = 0
+
+    const withCoords = p.tasks
+      .map((t) => {
+        const ll = taskLngLat(t)
+        return ll ? { task: t, ...ll } : null
+      })
+      .filter((x): x is NonNullable<typeof x> => x != null)
+
+    const runAddMarkersAndBounds = () => {
+      const current = map
+      if (!current?.isStyleLoaded() || !mapboxMod) return
+
+      const leftPad = p.leftViewportPadding ?? 48
+
+      for (const { task, lat, lng } of withCoords) {
+        const { el, setSelected, setExpanded } = taskMarkerElement(
+          task,
+          false,
+          () => getSelectTask()?.(null),
+        )
+        el.setAttribute(
+          'aria-label',
+          `${task.title}, ${pinPriceText(task)}. Select to highlight in list.`,
+        )
+        el.addEventListener('click', (e) => {
+          e.stopPropagation()
+          getSelectTask()?.(task.id)
+        })
+
+        let enterTimer: ReturnType<typeof setTimeout> | undefined
+        el.addEventListener('mouseenter', () => {
+          enterTimer = setTimeout(() => {
+            if (getSelectedTaskId() === task.id) return
+            setExpanded(true)
+          }, 120)
+        })
+        el.addEventListener('mouseleave', () => {
+          if (enterTimer) clearTimeout(enterTimer)
+          if (getSelectedTaskId() === task.id) return
+          setExpanded(false)
+        })
+
+        const marker = new mapboxMod.Marker({
+          element: el,
+          anchor: 'bottom',
+        })
+          .setLngLat([lng, lat])
+          .addTo(current)
+        markersRef.push({
+          marker,
+          taskId: task.id,
+          setSelected,
+          setExpanded,
+        })
+      }
+
+      const sig = withCoords
+        .map((row) => `${row.task.id}:${row.lat},${row.lng}`)
+        .join('|')
+      const tasksChanged = sig !== prevTasksSig
+      prevTasksSig = sig
+
+      const fitPadding = {
+        top: 80,
+        right: 80,
+        bottom: 80,
+        left: Math.max(80, leftPad),
+      }
+
+      if (tasksChanged && withCoords.length > 0) {
+        const b = new mapboxMod.LngLatBounds()
+        for (const row of withCoords) {
+          b.extend([row.lng, row.lat])
+        }
+        b.extend([p.centerLng, p.centerLat])
+        current.fitBounds(b, {
+          padding: fitPadding,
+          maxZoom: MAP_MAX_ZOOM,
+          duration: 500,
+        })
+      } else if (tasksChanged && withCoords.length === 0) {
+        current.easeTo({
+          center: [p.centerLng, p.centerLat],
+          zoom: 11,
+          duration: 400,
+          offset: fullscreenCenterOffsetPx(leftPad),
+        })
+      }
+
+      current.once('idle', () => {
+        map?.resize()
+      })
+
+      const curSel = getSelectedTaskId()
+      lastPinSelectedKey = curSel ?? ''
+      for (const row of markersRef) {
+        row.setSelected(row.taskId === curSel)
+      }
+    }
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(runAddMarkersAndBounds)
+    })
+  }
+
+  const sync = () => {
+    if (!map?.isStyleLoaded()) return
+    const p = getProps()
+    const leftPad = p.leftViewportPadding ?? 48
+
+    const searchKey = `${p.centerLat},${p.centerLng}`
+    if (prevSearchCenterKey !== searchKey) {
+      if (prevSearchCenterKey !== null) {
+        setShowSearchThisArea(false)
+        pendingView = null
+        suppressSearchPromptUntil = Date.now() + 1600
+      }
+      prevSearchCenterKey = searchKey
+    }
+
+    const queryCenterKey = `${p.centerLat}|${p.centerLng}|${leftPad}`
+    if (queryCenterKey !== lastQueryCenterKey) {
+      lastQueryCenterKey = queryCenterKey
+      const c = map.getCenter()
+      const geoMatch =
+        Math.abs(c.lat - p.centerLat) < 5e-5 &&
+        Math.abs(c.lng - p.centerLng) < 5e-5
+
+      if (geoMatch) {
+        map.easeTo({
+          center: [p.centerLng, p.centerLat],
+          duration: 0,
+          offset: fullscreenCenterOffsetPx(leftPad),
+        })
+      } else {
+        programmaticMove = true
+        map.easeTo({
+          center: [p.centerLng, p.centerLat],
+          duration: 450,
+          offset: fullscreenCenterOffsetPx(leftPad),
+        })
+        map.once('moveend', () => {
+          programmaticMove = false
+        })
+      }
+    }
+
+    if ((p.visible ?? true) && !prevVisible) {
+      requestAnimationFrame(() => {
+        if (map) bumpMapResize(map)
+      })
+    }
+    prevVisible = p.visible ?? true
+
+    if ((p.visible ?? true) && !didApplyStartupOffset) {
+      requestAnimationFrame(() => {
+        if (!map?.isStyleLoaded()) return
+        map.easeTo({
+          center: [p.centerLng, p.centerLat],
+          duration: 0,
+          offset: fullscreenCenterOffsetPx(leftPad),
+        })
+        didApplyStartupOffset = true
+      })
+    }
+
+    const withCoordsSig = p.tasks
+      .map((t) => {
+        const ll = taskLngLat(t)
+        return ll ? `${t.id}:${ll.lat},${ll.lng}` : ''
+      })
+      .filter(Boolean)
+      .join('|')
+    const markerFrameKey = `${withCoordsSig}|${p.visible ?? true}|${p.tasksLoaded ?? true}|${leftPad}|${p.centerLat}|${p.centerLng}`
+    const markerFrameChanged = markerFrameKey !== lastMarkerFrameKey
+    if (markerFrameChanged) {
+      lastMarkerFrameKey = markerFrameKey
+      syncMarkersAndBounds()
+    }
+
+    const selectedId = p.selectedTaskId ?? null
+    for (const row of markersRef) row.setExpanded(false)
+
+    const selectedTask = selectedId
+      ? p.tasks.find((t) => t.id === selectedId)
+      : null
+    const selLl = selectedTask ? taskLngLat(selectedTask) : null
+    const selectionFlyKey =
+      selectedId && selLl
+        ? `${selectedId}|${selLl.lat}|${selLl.lng}|${leftPad}`
+        : `__none__|${leftPad}`
+
+    if (selectionFlyKey !== lastSelectionFlyKey) {
+      lastSelectionFlyKey = selectionFlyKey
+      if (selectedId && selectedTask && selLl) {
+        bumpMapResize(map)
+        programmaticMove = true
+        suppressSearchPromptUntil = Date.now() + 2000
+        setShowSearchThisArea(false)
+        map.flyTo({
+          center: [selLl.lng, selLl.lat],
+          zoom: Math.min(
+            MAP_MAX_ZOOM,
+            Math.max(MAP_MIN_ZOOM, Math.max(map.getZoom(), 13.5)),
+          ),
+          offset: fullscreenCenterOffsetPx(leftPad),
+          duration: 650,
+          essential: true,
+        })
+        map.once('moveend', () => {
+          programmaticMove = false
+        })
+        for (const row of markersRef) {
+          row.setExpanded(row.taskId === selectedId)
+        }
+      }
+    }
+
+    if (!markerFrameChanged) {
+      const pinKey = selectedId ?? ''
+      if (pinKey !== lastPinSelectedKey) {
+        lastPinSelectedKey = pinKey
+        for (const row of markersRef) {
+          row.setSelected(row.taskId === selectedId)
+        }
+      }
+    }
+
+    const nextVisible = Boolean(getShowSearchThisArea() && (p.visible ?? true))
+    const nextEnabled = Boolean(p.onSearchThisAreaConfirm)
+    const nextPosition = p.searchAreaButtonPosition ?? ''
+    const nextLeftInset = p.searchAreaButtonLeftInset ?? ''
+    const nextOffsetX = p.searchAreaButtonOffsetX ?? '0px'
+    const uiSig = `${nextVisible}|${nextEnabled}|${nextPosition}|${nextLeftInset}|${nextOffsetX}`
+
+    if (uiSig !== lastSearchThisAreaUiSig) {
+      lastSearchThisAreaUiSig = uiSig
+      p.onSearchThisAreaUiChange?.({
+        visible: nextVisible,
+        enabled: nextEnabled,
+        position: p.searchAreaButtonPosition,
+        leftInset: p.searchAreaButtonLeftInset,
+        offsetX: p.searchAreaButtonOffsetX,
+        onClick: handleSearchThisAreaButtonClick,
+      })
+    }
+  }
+
+  void import('mapbox-gl').then((mapboxgl) => {
+    if (cancelled || !args.container) return
+    mapboxgl.default.accessToken = args.accessToken
+    mapboxMod = mapboxgl.default
+
+    const styleUrl =
+      process.env.NEXT_PUBLIC_MAPBOX_STYLE?.trim() || DEFAULT_MAPBOX_STYLE
+
+    const m = new mapboxgl.default.Map({
+      container: args.container,
+      style: styleUrl,
+      center: [getProps().centerLng, getProps().centerLat],
+      zoom: 11,
+      minZoom: MAP_MIN_ZOOM,
+      maxZoom: MAP_MAX_ZOOM,
+    })
+
+    m.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
+    map = m
+
+    m.on('load', () => {
+      if (cancelled) return
+      bumpMapResize(m)
+      getProps().onReadyChange?.(true)
+      scheduleSync()
+    })
+
+    moveEndRun = () => {
+      if (!map || !getProps().onSearchThisAreaConfirm) return
+      if (moveEndDebounce) clearTimeout(moveEndDebounce)
+      moveEndDebounce = setTimeout(() => {
+        if (cancelled) return
+        if (programmaticMove) return
+        if (Date.now() < suppressSearchPromptUntil) {
+          setShowSearchThisArea(false)
+          scheduleSync()
+          return
+        }
+        const mm = map
+        if (!mm) return
+        const cc = mm.getCenter()
+        const pr = getProps()
+        const movedOutsideSearchArea =
+          distanceMiles(pr.centerLat, pr.centerLng, cc.lat, cc.lng) >
+          pr.effectiveSearchRadiusMiles
+        if (movedOutsideSearchArea) {
+          pendingView = { lat: cc.lat, lng: cc.lng }
+          setShowSearchThisArea(true)
+        } else {
+          pendingView = null
+          setShowSearchThisArea(false)
+        }
+        scheduleSync()
+      }, 400)
+    }
+    m.on('moveend', moveEndRun)
+
+    mapClickRun = () => {
+      const pr = getProps()
+      if (getSelectedTaskId()) {
+        getSelectTask()?.(null)
+      }
+      pr.onMapClick?.()
+    }
+    m.on('click', mapClickRun)
+  })
+
+  return {
+    scheduleSync,
+    sync,
+    destroy: () => {
+      cancelled = true
+      if (moveEndDebounce) clearTimeout(moveEndDebounce)
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', onWindowResize)
+      if (map && moveEndRun) map.off('moveend', moveEndRun)
+      if (map && mapClickRun) map.off('click', mapClickRun)
+      for (const { marker } of markersRef) marker.remove()
+      markersRef.length = 0
+      map?.remove()
+      map = null
+      mapboxMod = null
+      lastSearchThisAreaUiSig = null
+      getProps().onReadyChange?.(false)
+    },
+  }
+}
+
 export function TaskMap({
   accessToken,
   centerLat,
@@ -414,444 +858,116 @@ export function TaskMap({
     0,
     Math.min(radiusMiles, MAX_SEARCH_RADIUS_MILES),
   )
-  const selectTaskRef = useRef(onSelectTask)
-  selectTaskRef.current = onSelectTask
-  const selectedTaskIdRef = useRef<string | null>(null)
-  selectedTaskIdRef.current = selectedTaskId
 
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const mapRef = useRef<MapboxMap | null>(null)
-  const mapboxRef = useRef<typeof import('mapbox-gl')['default'] | null>(null)
-  const markersRef = useRef<
-    {
-      marker: Marker
-      taskId: string
-      setSelected: (v: boolean) => void
-      setExpanded: (v: boolean) => void
-    }[]
-  >([])
-  const [mapReady, setMapReady] = useState(false)
   const [showSearchThisArea, setShowSearchThisArea] = useState(false)
-  const prevTasksSigRef = useRef<string>('')
-  const moveEndDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pendingViewRef = useRef<{ lat: number; lng: number } | null>(null)
-  const programmaticMoveRef = useRef(false)
-  const suppressSearchPromptUntilRef = useRef(0)
-  const didApplyStartupOffsetRef = useRef(false)
-  const prevSearchCenterKeyRef = useRef<string | null>(null)
 
-  const leftViewportPaddingRef = useRef(leftViewportPadding)
-  leftViewportPaddingRef.current = leftViewportPadding
-  const mapReadyRef = useRef(false)
-  mapReadyRef.current = mapReady
-  const visibleRef = useRef(visible)
-  visibleRef.current = visible
-
-  const scheduleReapplyInsetAfterResize = useCallback(() => {
-    requestAnimationFrame(() => {
-      const map = mapRef.current
-      if (!map || !mapReadyRef.current || !visibleRef.current) return
-      if (programmaticMoveRef.current) return
-      reapplyMapCenterOffsetForLeftInset(map, leftViewportPaddingRef.current)
-    })
-  }, [])
-
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    const ro = new ResizeObserver(() => {
-      const map = mapRef.current
-      if (map) {
-        map.resize()
-        scheduleReapplyInsetAfterResize()
-      }
-    })
-    ro.observe(el)
-    const onWindowResize = () => {
-      mapRef.current?.resize()
-      scheduleReapplyInsetAfterResize()
-    }
-    window.addEventListener('resize', onWindowResize)
-    return () => {
-      ro.disconnect()
-      window.removeEventListener('resize', onWindowResize)
-    }
-  }, [scheduleReapplyInsetAfterResize])
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: init once per token; centre/radius sync in later effects
-  useEffect(() => {
-    if (!accessToken?.trim() || !containerRef.current) {
-      setMapReady(false)
-      return
-    }
-
-    let cancelled = false
-    const container = containerRef.current
-
-    void import('mapbox-gl').then((mapboxgl) => {
-      if (cancelled || !container) return
-
-      mapboxgl.default.accessToken = accessToken
-      mapboxRef.current = mapboxgl.default
-
-      const styleUrl =
-        process.env.NEXT_PUBLIC_MAPBOX_STYLE?.trim() ||
-        'mapbox://styles/mapbox/streets-v12'
-
-      const map = new mapboxgl.default.Map({
-        container,
-        style: styleUrl,
-        center: [centerLng, centerLat],
-        zoom: 11,
-        minZoom: MAP_MIN_ZOOM,
-        maxZoom: MAP_MAX_ZOOM,
-      })
-
-      map.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
-      mapRef.current = map
-
-      map.on('load', () => {
-        if (cancelled) return
-        bumpMapResize(map)
-        setMapReady(true)
-      })
-    })
-
-    return () => {
-      cancelled = true
-      setMapReady(false)
-      mapboxRef.current = null
-      for (const { marker } of markersRef.current) marker.remove()
-      markersRef.current = []
-      mapRef.current?.remove()
-      mapRef.current = null
-    }
-  }, [accessToken])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map?.isStyleLoaded()) return
-    const c = map.getCenter()
-
-    const geoMatch =
-      Math.abs(c.lat - centerLat) < 5e-5 && Math.abs(c.lng - centerLng) < 5e-5
-
-    if (geoMatch) {
-      map.easeTo({
-        center: [centerLng, centerLat],
-        duration: 0,
-        offset: fullscreenCenterOffsetPx(leftViewportPadding),
-      })
-      return
-    }
-
-    programmaticMoveRef.current = true
-    map.easeTo({
-      center: [centerLng, centerLat],
-      duration: 450,
-      offset: fullscreenCenterOffsetPx(leftViewportPadding),
-    })
-    map.once('moveend', () => {
-      programmaticMoveRef.current = false
-    })
-  }, [mapReady, centerLat, centerLng, leftViewportPadding])
-
-  // When geolocation / location search updates the query center, clear the prompt:
-  // the map eases afterward; until then getCenter() still reflects the old view, so
-  // the old "close enough to center" effect never ran again after the animation.
-  useEffect(() => {
-    const key = `${centerLat},${centerLng}`
-    const prev = prevSearchCenterKeyRef.current
-    prevSearchCenterKeyRef.current = key
-    if (prev == null || prev === key) return
-    setShowSearchThisArea(false)
-    pendingViewRef.current = null
-    suppressSearchPromptUntilRef.current = Date.now() + 1600
-  }, [centerLat, centerLng])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map || !onSearchThisAreaConfirm) return
-
-    const run = () => {
-      if (moveEndDebounceRef.current) clearTimeout(moveEndDebounceRef.current)
-      moveEndDebounceRef.current = setTimeout(() => {
-        if (programmaticMoveRef.current) return
-        if (Date.now() < suppressSearchPromptUntilRef.current) {
-          setShowSearchThisArea(false)
-          return
-        }
-        const c = map.getCenter()
-        const movedOutsideSearchArea =
-          distanceMiles(centerLat, centerLng, c.lat, c.lng) >
-          effectiveSearchRadiusMiles
-        if (movedOutsideSearchArea) {
-          pendingViewRef.current = { lat: c.lat, lng: c.lng }
-          setShowSearchThisArea(true)
-        } else {
-          pendingViewRef.current = null
-          setShowSearchThisArea(false)
-        }
-      }, 400)
-    }
-
-    map.on('moveend', run)
-    return () => {
-      map.off('moveend', run)
-      if (moveEndDebounceRef.current) clearTimeout(moveEndDebounceRef.current)
-    }
-  }, [
-    mapReady,
+  const propsRef = useRef<TaskMapPropsSnapshot>({
+    accessToken,
     centerLat,
     centerLng,
-    effectiveSearchRadiusMiles,
-    onSearchThisAreaConfirm,
-  ])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map || !onMapClick) return
-    const handle = () => {
-      if (selectedTaskIdRef.current) {
-        selectTaskRef.current?.(null)
-      }
-      onMapClick()
-    }
-    map.on('click', handle)
-    return () => {
-      map.off('click', handle)
-    }
-  }, [mapReady, onMapClick])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map || !visible) return
-    const id = requestAnimationFrame(() => {
-      bumpMapResize(map)
-    })
-    return () => cancelAnimationFrame(id)
-  }, [mapReady, visible])
-
-  useEffect(() => {
-    onReadyChange?.(mapReady)
-  }, [mapReady, onReadyChange])
-
-  // On first visible paint, force a zero-duration camera sync with offset.
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map || !visible) return
-    if (didApplyStartupOffsetRef.current) return
-
-    const id = requestAnimationFrame(() => {
-      if (!mapRef.current?.isStyleLoaded()) return
-      mapRef.current.easeTo({
-        center: [centerLng, centerLat],
-        duration: 0,
-        offset: fullscreenCenterOffsetPx(leftViewportPadding),
-      })
-      didApplyStartupOffsetRef.current = true
-    })
-    return () => cancelAnimationFrame(id)
-  }, [mapReady, visible, centerLng, centerLat, leftViewportPadding])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map || !visible || !tasksLoaded) return
-
-    const syncMarkers = () => {
-      if (!map.isStyleLoaded()) return
-      const mapbox = mapboxRef.current
-      if (!mapbox) return
-
-      bumpMapResize(map)
-
-      for (const { marker } of markersRef.current) marker.remove()
-      markersRef.current = []
-
-      const withCoords = tasks
-        .map((t) => {
-          const ll = taskLngLat(t)
-          return ll ? { task: t, ...ll } : null
-        })
-        .filter((x): x is NonNullable<typeof x> => x != null)
-
-      const runAddMarkersAndBounds = () => {
-        const current = mapRef.current
-        if (!current?.isStyleLoaded() || !mapboxRef.current) return
-
-        for (const { task, lat, lng } of withCoords) {
-          const { el, setSelected, setExpanded } = taskMarkerElement(
-            task,
-            false,
-            () => selectTaskRef.current?.(null),
-          )
-          el.setAttribute(
-            'aria-label',
-            `${task.title}, ${pinPriceText(task)}. Select to highlight in list.`,
-          )
-          el.addEventListener('click', (e) => {
-            e.stopPropagation()
-            selectTaskRef.current?.(task.id)
-          })
-
-          let enterTimer: ReturnType<typeof setTimeout> | undefined
-          el.addEventListener('mouseenter', () => {
-            enterTimer = setTimeout(() => {
-              if (selectedTaskIdRef.current === task.id) return
-              setExpanded(true)
-            }, 120)
-          })
-          el.addEventListener('mouseleave', () => {
-            if (enterTimer) clearTimeout(enterTimer)
-            if (selectedTaskIdRef.current === task.id) return
-            setExpanded(false)
-          })
-
-          const marker = new mapbox.Marker({
-            element: el,
-            anchor: 'bottom',
-          })
-            .setLngLat([lng, lat])
-            .addTo(current)
-          markersRef.current.push({
-            marker,
-            taskId: task.id,
-            setSelected,
-            setExpanded,
-          })
-        }
-
-        const sig = withCoords
-          .map((row) => `${row.task.id}:${row.lat},${row.lng}`)
-          .join('|')
-        const tasksChanged = sig !== prevTasksSigRef.current
-        prevTasksSigRef.current = sig
-
-        const fitPadding = {
-          top: 80,
-          right: 80,
-          bottom: 80,
-          left: Math.max(80, leftViewportPadding),
-        }
-
-        if (tasksChanged && withCoords.length > 0) {
-          const b = new mapbox.LngLatBounds()
-          for (const row of withCoords) {
-            b.extend([row.lng, row.lat])
-          }
-          b.extend([centerLng, centerLat])
-          current.fitBounds(b, {
-            padding: fitPadding,
-            maxZoom: MAP_MAX_ZOOM,
-            duration: 500,
-          })
-        } else if (tasksChanged && withCoords.length === 0) {
-          current.easeTo({
-            center: [centerLng, centerLat],
-            zoom: 11,
-            duration: 400,
-            offset: fullscreenCenterOffsetPx(leftViewportPadding),
-          })
-        }
-
-        current.once('idle', () => {
-          mapRef.current?.resize()
-        })
-      }
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(runAddMarkersAndBounds)
-      })
-    }
-
-    if (map.isStyleLoaded()) {
-      syncMarkers()
-    } else {
-      map.once('load', syncMarkers)
-    }
-
-    return () => {
-      map.off('load', syncMarkers)
-    }
-  }, [
-    mapReady,
+    radiusMiles,
     tasks,
-    centerLat,
-    centerLng,
     visible,
     tasksLoaded,
     leftViewportPadding,
-  ])
-
-  useEffect(() => {
-    const map = mapRef.current
-    if (!mapReady || !map?.isStyleLoaded()) return
-
-    for (const row of markersRef.current) row.setExpanded(false)
-    if (!selectedTaskId) return
-
-    const task = tasks.find((t) => t.id === selectedTaskId)
-    const ll = task ? taskLngLat(task) : null
-    if (!task || !ll) {
-      return
-    }
-
-    bumpMapResize(map)
-    programmaticMoveRef.current = true
-    suppressSearchPromptUntilRef.current = Date.now() + 2000
-    setShowSearchThisArea(false)
-    map.flyTo({
-      center: [ll.lng, ll.lat],
-      zoom: Math.min(
-        MAP_MAX_ZOOM,
-        Math.max(MAP_MIN_ZOOM, Math.max(map.getZoom(), 13.5)),
-      ),
-      offset: fullscreenCenterOffsetPx(leftViewportPadding),
-      duration: 650,
-      essential: true,
-    })
-    map.once('moveend', () => {
-      programmaticMoveRef.current = false
-    })
-    for (const row of markersRef.current) {
-      row.setExpanded(row.taskId === selectedTaskId)
-    }
-  }, [mapReady, selectedTaskId, tasks, leftViewportPadding])
-
-  useEffect(() => {
-    for (const row of markersRef.current) {
-      row.setSelected(row.taskId === selectedTaskId)
-    }
-  }, [selectedTaskId])
-
-  const handleSearchThisAreaClick = useCallback(() => {
-    const p = pendingViewRef.current
-    if (!p || !onSearchThisAreaConfirm) return
-    const zoom = mapRef.current?.getZoom() ?? 11
-    onSearchThisAreaConfirm(p.lat, p.lng, zoom)
-    setShowSearchThisArea(false)
-    pendingViewRef.current = null
-  }, [onSearchThisAreaConfirm])
-
-  useEffect(() => {
-    onSearchThisAreaUiChange?.({
-      visible: showSearchThisArea && visible,
-      enabled: Boolean(onSearchThisAreaConfirm),
-      position: searchAreaButtonPosition,
-      leftInset: searchAreaButtonLeftInset,
-      offsetX: searchAreaButtonOffsetX,
-      onClick: handleSearchThisAreaClick,
-    })
-  }, [
-    onSearchThisAreaUiChange,
-    showSearchThisArea,
-    visible,
     onSearchThisAreaConfirm,
-    searchAreaButtonPosition,
     searchAreaButtonLeftInset,
+    searchAreaButtonPosition,
     searchAreaButtonOffsetX,
-    handleSearchThisAreaClick,
-  ])
+    onMapClick,
+    onReadyChange,
+    selectedTaskId,
+    onSelectTask,
+    onSearchThisAreaUiChange,
+    effectiveSearchRadiusMiles,
+  })
+
+  propsRef.current = {
+    accessToken,
+    centerLat,
+    centerLng,
+    radiusMiles,
+    tasks,
+    visible,
+    tasksLoaded,
+    leftViewportPadding,
+    onSearchThisAreaConfirm,
+    searchAreaButtonLeftInset,
+    searchAreaButtonPosition,
+    searchAreaButtonOffsetX,
+    onMapClick,
+    onReadyChange,
+    selectedTaskId,
+    onSelectTask,
+    onSearchThisAreaUiChange,
+    effectiveSearchRadiusMiles,
+  }
+
+  const selectTaskRef = useRef(onSelectTask)
+  selectTaskRef.current = onSelectTask
+  const selectedTaskIdRef = useRef(selectedTaskId)
+  selectedTaskIdRef.current = selectedTaskId
+
+  const controllerRef = useRef<TaskMapController | null>(null)
+  const syncDriverRef = useRef<string | null>(null)
+  const showSearchRef = useRef(showSearchThisArea)
+  showSearchRef.current = showSearchThisArea
+
+  const mapContainerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      controllerRef.current?.destroy()
+      controllerRef.current = null
+
+      if (!node) {
+        syncDriverRef.current = null
+        return
+      }
+
+      const token = accessToken?.trim()
+      if (!token) return
+
+      controllerRef.current = createTaskMapController({
+        container: node,
+        accessToken: token,
+        getProps: () => propsRef.current,
+        getSelectTask: () => selectTaskRef.current,
+        getSelectedTaskId: () => selectedTaskIdRef.current ?? null,
+        setShowSearchThisArea,
+        getShowSearchThisArea: () => showSearchRef.current,
+      })
+      controllerRef.current.scheduleSync()
+    },
+    [accessToken],
+  )
+
+  const tasksSig = tasks
+    .map((t) => {
+      const ll = taskLngLat(t)
+      return ll ? `${t.id}:${ll.lat},${ll.lng}` : `${t.id}:`
+    })
+    .join('|')
+  const syncDriver = [
+    accessToken ?? '',
+    centerLat,
+    centerLng,
+    radiusMiles,
+    visible,
+    tasksLoaded,
+    leftViewportPadding ?? '',
+    selectedTaskId ?? '',
+    showSearchThisArea,
+    effectiveSearchRadiusMiles,
+    searchAreaButtonLeftInset ?? '',
+    searchAreaButtonPosition ?? '',
+    searchAreaButtonOffsetX ?? '',
+    tasksSig,
+    Boolean(onSearchThisAreaConfirm),
+  ].join('\x1e')
+
+  if (controllerRef.current && syncDriverRef.current !== syncDriver) {
+    syncDriverRef.current = syncDriver
+    queueMicrotask(() => controllerRef.current?.scheduleSync())
+  }
 
   if (!accessToken?.trim()) {
     return (
@@ -896,7 +1012,7 @@ export function TaskMap({
       zIndex={0}
     >
       <Box
-        ref={containerRef}
+        ref={mapContainerRef}
         w="full"
         h="full"
         aria-label="Map of tasks near the search area"
