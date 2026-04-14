@@ -42,6 +42,14 @@ export const ME_QUERY = gql`
       id
       email
       createdAt
+      firstName
+      lastName
+      enabledLoginMethods
+      profile {
+        name
+        contactNumber
+        avatarUrl
+      }
     }
   }
 `
