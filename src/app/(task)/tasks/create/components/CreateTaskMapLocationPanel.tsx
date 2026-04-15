@@ -1,13 +1,11 @@
 'use client'
 
-import { HStack, Stack } from '@chakra-ui/react'
+import { HStack, Heading, Input, Stack, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
-import { TextInput } from '@/ui/Input'
-import { Heading, Text } from '@ui'
 import type { CreateTaskFormValues } from '../createTaskFormSchema'
 import { TaskLocationMapPicker } from './TaskLocationMapPicker'
 
@@ -42,7 +40,7 @@ export function CreateTaskMapLocationPanel({
   const canCopyPlace = Boolean(mapPlaceName.trim())
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLowest">
+    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={4}>
         <Heading size="lg" color="primary.700">
           Task location
@@ -64,9 +62,15 @@ export function CreateTaskMapLocationPanel({
           errorText={streetAddressError}
         >
           <Stack gap={2}>
-            <TextInput
+            <Input
               {...register('streetAddress')}
               placeholder="Apt, street, unit number…"
+              bg="neutral.100"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="formControlBorder"
+              _placeholder={{ color: 'formControlPlaceholder' }}
+              _focusVisible={{ borderColor: 'formControlFocusBorder' }}
             />
             <HStack gap={2} flexWrap="wrap" align="stretch">
               <Button
@@ -79,7 +83,13 @@ export function CreateTaskMapLocationPanel({
               >
                 Copy map place to address
               </Button>
-              <Text fontSize="xs" color="muted" flex={1} minW="0" py={1}>
+              <Text
+                fontSize="xs"
+                color="formLabelMuted"
+                flex={1}
+                minW="0"
+                py={1}
+              >
                 Fills the field with the map search label (you can edit it
                 afterward).
               </Text>
@@ -87,7 +97,7 @@ export function CreateTaskMapLocationPanel({
           </Stack>
         </FormField>
 
-        <Text fontSize="sm" color="muted">
+        <Text fontSize="sm" color="formLabelMuted">
           Workers see the map area for search only. Your exact address stays
           private until you hire someone.
         </Text>

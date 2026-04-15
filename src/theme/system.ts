@@ -5,60 +5,72 @@ import {
   mergeConfigs,
 } from '@chakra-ui/react'
 
-export const customConfig = defineConfig({
+const sharedTheme = {
   theme: {
     tokens: {
       colors: {
         primary: {
-          50: { value: '#edf3ff' },
-          100: { value: '#d9e6ff' },
-          200: { value: '#b5ceff' },
-          300: { value: '#8fb4ff' },
-          400: { value: '#5f88e8' },
-          500: { value: '#1a56db' },
-          600: { value: '#003fb1' },
-          700: { value: '#00358f' },
-          800: { value: '#012b73' },
-          900: { value: '#03225a' },
+          50: { value: '#ecfdf5' },
+          100: { value: '#d1fae5' },
+          200: { value: '#a7f3d0' },
+          300: { value: '#6ee7b7' },
+          400: { value: '#34d399' },
+          500: { value: '#00dc82' },
+          600: { value: '#10b981' },
+          700: { value: '#059669' },
+          800: { value: '#047857' },
+          900: { value: '#065f46' },
         },
         secondary: {
-          50: { value: '#fff4e4' },
-          100: { value: '#ffddb8' },
-          200: { value: '#ffcd91' },
-          300: { value: '#ffbc66' },
-          400: { value: '#fea619' },
-          500: { value: '#cb7f08' },
-          600: { value: '#855300' },
-          700: { value: '#6a4300' },
-          800: { value: '#513200' },
-          900: { value: '#3a2400' },
+          50: { value: '#f0fdf9' },
+          100: { value: '#ccfbf1' },
+          200: { value: '#99f6e4' },
+          300: { value: '#5eead4' },
+          400: { value: '#2dd4bf' },
+          500: { value: '#10b981' },
+          600: { value: '#0d9f71' },
+          700: { value: '#0f766e' },
+          800: { value: '#115e59' },
+          900: { value: '#134e4a' },
+        },
+        tertiary: {
+          50: { value: '#f1fcfc' },
+          100: { value: '#d9f7f7' },
+          200: { value: '#bceeee' },
+          300: { value: '#93e0e0' },
+          400: { value: '#6aced0' },
+          500: { value: '#54bbbb' },
+          600: { value: '#3f9b9b' },
+          700: { value: '#337d7d' },
+          800: { value: '#2d6565' },
+          900: { value: '#285454' },
         },
         neutral: {
           50: { value: '#ffffff' },
-          100: { value: '#f8f9ff' },
-          200: { value: '#eef4ff' },
-          300: { value: '#e6edf9' },
-          400: { value: '#dfe8f7' },
-          500: { value: '#d1dbec' },
-          600: { value: '#c3c5d7' },
+          100: { value: '#f7f8f7' },
+          200: { value: '#eff1f0' },
+          300: { value: '#e4e7e5' },
+          400: { value: '#d5dad8' },
+          500: { value: '#b9c0bd' },
+          600: { value: '#777777' },
         },
         ink: {
-          700: { value: '#263445' },
-          800: { value: '#1a2533' },
-          900: { value: '#121c28' },
+          700: { value: '#2b332f' },
+          800: { value: '#1f2623' },
+          900: { value: '#151a18' },
         },
         // Compatibility aliases for existing code paths.
         linkBlue: {
-          50: { value: '#edf3ff' },
-          100: { value: '#d9e6ff' },
-          200: { value: '#b5ceff' },
-          300: { value: '#8fb4ff' },
-          400: { value: '#5f88e8' },
-          500: { value: '#1a56db' },
-          600: { value: '#003fb1' },
-          700: { value: '#00358f' },
-          800: { value: '#012b73' },
-          900: { value: '#03225a' },
+          50: { value: '#ecfdf5' },
+          100: { value: '#d1fae5' },
+          200: { value: '#a7f3d0' },
+          300: { value: '#6ee7b7' },
+          400: { value: '#34d399' },
+          500: { value: '#00dc82' },
+          600: { value: '#10b981' },
+          700: { value: '#059669' },
+          800: { value: '#047857' },
+          900: { value: '#065f46' },
         },
         mustard: {
           50: { value: '#fff4e4' },
@@ -74,43 +86,147 @@ export const customConfig = defineConfig({
         },
       },
       fonts: {
-        heading: { value: 'var(--font-plus-jakarta), Inter, sans-serif' },
-        body: { value: 'var(--font-inter), Inter, sans-serif' },
+        heading: {
+          value:
+            'var(--font-plus-jakarta), "Plus Jakarta Sans", Inter, system-ui, sans-serif',
+        },
+        body: {
+          value: 'var(--font-inter), "Inter", Inter, system-ui, sans-serif',
+        },
       },
       radii: {
-        sm: { value: '10px' },
-        md: { value: '12px' },
-        lg: { value: '16px' },
-        xl: { value: '24px' },
+        sm: { value: '6px' },
+        md: { value: '8px' },
+        lg: { value: '12px' },
+        xl: { value: '16px' },
       },
       shadows: {
-        card: { value: '0 10px 22px rgba(18, 28, 40, 0.05)' },
-        ambient: { value: '0px 20px 40px rgba(18, 28, 40, 0.06)' },
-        ghostBorder: { value: 'inset 0 0 0 1px rgba(195, 197, 215, 0.15)' },
+        card: { value: '0 8px 24px rgba(0, 0, 0, 0.08)' },
+        ambient: { value: '0 24px 48px rgba(0, 0, 0, 0.4)' },
+        ghostBorder: { value: 'inset 0 0 0 1px rgba(119, 119, 119, 0.15)' },
+        primary: { value: '0 14px 36px rgba(0, 220, 130, 0.25)' },
       },
     },
+  },
+}
+
+export const lightConfig = defineConfig({
+  ...sharedTheme,
+  theme: {
+    ...sharedTheme.theme,
     semanticTokens: {
       colors: {
-        bg: { value: { base: '#f8f9ff' } },
-        fg: { value: { base: '#121c28' } },
-        muted: { value: { base: 'rgba(18, 28, 40, 0.72)' } },
-        surface: { value: { base: '#f8f9ff' } },
-        surfaceContainerLow: { value: { base: '#eef4ff' } },
-        surfaceContainerLowest: { value: { base: '#ffffff' } },
-        surfaceContainerHigh: { value: { base: '#e6edf9' } },
-        surfaceContainerHighest: { value: { base: '#dfe8f7' } },
-        surfaceBright: { value: { base: 'rgba(255, 255, 255, 0.8)' } },
-        outlineVariant: { value: { base: '#c3c5d7' } },
-        primaryContainer: { value: { base: '#1a56db' } },
-        secondaryContainer: { value: { base: '#fea619' } },
-        secondaryFixed: { value: { base: '#ffddb8' } },
-        onSecondaryFixed: { value: { base: '#2a1700' } },
-        border: { value: { base: 'rgba(195, 197, 215, 0.22)' } },
-        glassBg: { value: { base: 'rgba(255, 255, 255, 0.8)' } },
-        glassBorder: { value: { base: 'rgba(195, 197, 215, 0.15)' } },
+        bg: { value: { base: '#f7f8f7' } },
+        primary: {
+          value: {
+            base: 'linear-gradient(to top right, #00DC82 0%, #00e69d 100%)',
+          },
+        },
+        primaryHover: {
+          value: {
+            base: 'linear-gradient(to top right, #00DC82 0%, #00e69d 50%)',
+          },
+        },
+        secondary: { value: { base: '#00A572' } },
+        tertiary: { value: { base: '#54BBBB' } },
+        // Tag / status pills (light: pale fill + dark label)
+        tagActiveFg: { value: { base: '#166534' } },
+        tagActiveBg: { value: { base: '#ecfdf5' } },
+        tagActiveBorder: { value: { base: '#86efac' } },
+        tagPendingFg: { value: { base: '#1e3a5f' } },
+        tagPendingBg: { value: { base: '#eff6ff' } },
+        tagPendingBorder: { value: { base: '#93c5fd' } },
+        tagUrgentFg: { value: { base: '#991b1b' } },
+        tagUrgentBg: { value: { base: '#fef2f2' } },
+        tagUrgentBorder: { value: { base: '#fecaca' } },
+        // Metadata chip (e.g. timestamps)
+        badgeBg: { value: { base: '#e4e7e5' } },
+        badgeFg: { value: { base: '#4f5854' } },
+        // Job / task marketplace card
+        jobCardBg: { value: { base: '#ffffff' } },
+        jobCardBorder: { value: { base: 'rgba(0, 0, 0, 0.08)' } },
+        jobCardTitle: { value: { base: '#151a18' } },
+        jobCardDescription: { value: { base: '#1f2623' } },
+        jobCardDivider: { value: { base: '#e4e7e5' } },
+        jobCardIconPodBg: { value: { base: '#ecfdf5' } },
+        jobCardIconPodColor: { value: { base: '#059669' } },
+        jobCardEstimate: { value: { base: '#00A572' } },
+        jobCardAvatarEmpty: { value: { base: '#eff1f0' } },
+        jobCardAvatarMore: { value: { base: '#e4e7e5' } },
+        jobCardOverflowText: { value: { base: '#1f2623' } },
+        // Form controls (Slashie / Stitch-style fields; light + dark via system)
+        formLabelMuted: { value: { base: '#64748b' } },
+        formControlBg: { value: { base: '#ffffff' } },
+        formControlFg: { value: { base: '#1f2623' } },
+        formControlBorder: { value: { base: 'rgba(0, 0, 0, 0.14)' } },
+        formControlPlaceholder: { value: { base: '#6b7280' } },
+        formControlIcon: { value: { base: '#64748b' } },
+        formControlFocusBorder: { value: { base: '#00A572' } },
+        formHelperMuted: { value: { base: '#5f6665' } },
       },
     },
   },
 })
 
-export const system = createSystem(mergeConfigs(defaultConfig, customConfig))
+export const darkConfig = defineConfig({
+  ...sharedTheme,
+  theme: {
+    ...sharedTheme.theme,
+    semanticTokens: {
+      colors: {
+        bg: { value: { base: '#222222' } },
+        primary: {
+          value: {
+            base: 'linear-gradient(to top right, #00DC82 0%, #00A572 100%)',
+          },
+        },
+        primaryHover: {
+          value: {
+            base: 'linear-gradient(to top right, #00DC82 0%, #00A572 50%)',
+          },
+        },
+        secondary: { value: { base: '#00A572' } },
+        tertiary: { value: { base: '#54BBBB' } },
+        // Tag / status pills (dark: kinetic label + tinted wash on charcoal)
+        tagActiveFg: { value: { base: '#00DC82' } },
+        tagActiveBg: { value: { base: 'rgba(0, 220, 130, 0.16)' } },
+        tagActiveBorder: { value: { base: '#00DC82' } },
+        tagPendingFg: { value: { base: '#7dd3fc' } },
+        tagPendingBg: { value: { base: 'rgba(56, 189, 248, 0.14)' } },
+        tagPendingBorder: { value: { base: '#7dd3fc' } },
+        tagUrgentFg: { value: { base: '#fda4af' } },
+        tagUrgentBg: { value: { base: 'rgba(251, 113, 133, 0.14)' } },
+        tagUrgentBorder: { value: { base: '#fda4af' } },
+        badgeBg: { value: { base: '#333333' } },
+        badgeFg: { value: { base: '#a8b4c4' } },
+        jobCardBg: { value: { base: '#2a2a2a' } },
+        jobCardBorder: { value: { base: 'rgba(255, 255, 255, 0.12)' } },
+        jobCardTitle: { value: { base: '#ffffff' } },
+        jobCardDescription: { value: { base: 'rgba(255, 255, 255, 0.62)' } },
+        jobCardDivider: { value: { base: 'rgba(255, 255, 255, 0.12)' } },
+        jobCardIconPodBg: { value: { base: '#14532d' } },
+        jobCardIconPodColor: { value: { base: '#34d399' } },
+        jobCardEstimate: { value: { base: '#00DC82' } },
+        jobCardAvatarEmpty: { value: { base: 'rgba(255, 255, 255, 0.14)' } },
+        jobCardAvatarMore: { value: { base: 'rgba(255, 255, 255, 0.1)' } },
+        jobCardOverflowText: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
+        formLabelMuted: { value: { base: '#94a3b8' } },
+        formControlBg: { value: { base: '#333333' } },
+        formControlFg: { value: { base: '#ffffff' } },
+        formControlBorder: { value: { base: '#333333' } },
+        formControlPlaceholder: { value: { base: '#94a3b8' } },
+        formControlIcon: { value: { base: '#94a3b8' } },
+        formControlFocusBorder: { value: { base: '#94a3b8' } },
+        formHelperMuted: { value: { base: '#94a3b8' } },
+      },
+    },
+  },
+})
+
+export const lightSystem = createSystem(
+  mergeConfigs(defaultConfig, lightConfig),
+)
+export const darkSystem = createSystem(mergeConfigs(defaultConfig, darkConfig))
+
+// Backward-compatible default system for current providers.
+export const system = lightSystem

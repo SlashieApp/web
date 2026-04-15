@@ -1,6 +1,6 @@
 'use client'
 
-import { Grid, HStack, Stack } from '@chakra-ui/react'
+import { Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
 import { WorkerAccessGate } from '@/app/dashboard/components/WorkerAccessGate'
 import { useDashboardData } from '@/app/dashboard/context'
@@ -9,7 +9,7 @@ import {
   formatPounds,
   quotePricePence,
 } from '@/utils/dashboardHelpers'
-import { Badge, GlassCard, Heading, Text } from '@ui'
+import { Badge, GlassCard } from '@ui'
 
 function EarningsCard({
   label,
@@ -27,13 +27,13 @@ function EarningsCard({
           fontSize="10px"
           fontWeight={800}
           letterSpacing="0.08em"
-          color="muted"
+          color="formLabelMuted"
           textTransform="uppercase"
         >
           {label}
         </Text>
         <Heading size="lg">{value}</Heading>
-        <Text fontSize="sm" color="muted">
+        <Text fontSize="sm" color="formLabelMuted">
           {helper}
         </Text>
       </Stack>
@@ -98,7 +98,7 @@ export default function DashboardEarningsPage() {
     <Stack gap={8}>
       <Stack gap={2}>
         <Heading size="xl">Earnings</Heading>
-        <Text color="muted" maxW="3xl">
+        <Text color="formLabelMuted" maxW="3xl">
           This worker workspace mixes live awarded quote data with demo payout
           forecasting so the frontend can showcase earnings flow even while the
           backend payout APIs are still limited.
@@ -132,9 +132,9 @@ export default function DashboardEarningsPage() {
                 <GlassCard
                   key={row.id}
                   p={4}
-                  bg="surfaceContainerLow"
+                  bg="jobCardBg"
                   borderWidth="1px"
-                  borderColor="border"
+                  borderColor="jobCardBorder"
                 >
                   <HStack
                     justify="space-between"
@@ -144,7 +144,7 @@ export default function DashboardEarningsPage() {
                   >
                     <Stack gap={1}>
                       <Heading size="sm">{row.title}</Heading>
-                      <Text fontSize="sm" color="muted">
+                      <Text fontSize="sm" color="formLabelMuted">
                         Expected {formatDate(row.payoutAt.toISOString())}
                       </Text>
                     </Stack>
@@ -158,17 +158,17 @@ export default function DashboardEarningsPage() {
                       <Badge
                         bg={
                           row.status === 'Processing'
-                            ? 'secondaryFixed'
+                            ? 'jobCardBg'
                             : row.status === 'Scheduled'
                               ? 'primary.50'
-                              : 'surfaceContainerHigh'
+                              : 'badgeBg'
                         }
                         color={
                           row.status === 'Processing'
-                            ? 'onSecondaryFixed'
+                            ? 'jobCardTitle'
                             : row.status === 'Scheduled'
                               ? 'primary.700'
-                              : 'fg'
+                              : 'jobCardTitle'
                         }
                       >
                         {row.status}

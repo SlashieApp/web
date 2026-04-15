@@ -1,14 +1,18 @@
 'use client'
 
+import { AuthBrandMark } from '@/app/(auth)/components/AuthBrandMark'
 import {
   Box,
   Checkbox,
   HStack,
+  Heading,
+  Input,
   InputGroup,
   Link,
   Stack,
+  Text,
 } from '@chakra-ui/react'
-import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
+import { Button, FormField } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -143,14 +147,14 @@ export default function LoginPage() {
           href="/"
           _hover={{ textDecoration: 'none', opacity: 0.9 }}
         >
-          <HandyBoxWordmark size="lg" />
+          <AuthBrandMark size="lg" />
         </Link>
 
         <Box>
-          <Heading size="2xl" color="fg">
+          <Heading size="2xl" color="jobCardTitle">
             Welcome Back
           </Heading>
-          <Text mt={2} color="muted" fontSize="sm">
+          <Text mt={2} color="formLabelMuted" fontSize="sm">
             Enter your credentials to manage your tasks.
           </Text>
         </Box>
@@ -162,14 +166,14 @@ export default function LoginPage() {
               variant="outline"
               flex={1}
               borderRadius="lg"
-              borderColor="outlineVariant"
-              bg="surfaceContainerLowest"
-              color="fg"
+              borderColor="formControlBorder"
+              bg="neutral.100"
+              color="jobCardTitle"
               fontWeight={600}
               disabled
               title="Coming soon"
               opacity={0.85}
-              _hover={{ bg: 'surfaceContainerLow' }}
+              _hover={{ bg: 'jobCardBg' }}
             >
               <HStack gap={2} justify="center" w="full">
                 <SocialIconGoogle />
@@ -181,14 +185,14 @@ export default function LoginPage() {
               variant="outline"
               flex={1}
               borderRadius="lg"
-              borderColor="outlineVariant"
-              bg="surfaceContainerLowest"
-              color="fg"
+              borderColor="formControlBorder"
+              bg="neutral.100"
+              color="jobCardTitle"
               fontWeight={600}
               disabled
               title="Coming soon"
               opacity={0.85}
-              _hover={{ bg: 'surfaceContainerLow' }}
+              _hover={{ bg: 'jobCardBg' }}
             >
               <HStack gap={2} justify="center" w="full">
                 <SocialIconApple />
@@ -198,18 +202,18 @@ export default function LoginPage() {
           </HStack>
 
           <HStack gap={3} align="center" py={1}>
-            <Box flex={1} h="1px" bg="outlineVariant" />
+            <Box flex={1} h="1px" bg="formControlBorder" />
             <Text
               fontSize="2xs"
               fontWeight={700}
               letterSpacing="0.08em"
-              color="muted"
+              color="formLabelMuted"
               textTransform="uppercase"
               whiteSpace="nowrap"
             >
               Or continue with email
             </Text>
-            <Box flex={1} h="1px" bg="outlineVariant" />
+            <Box flex={1} h="1px" bg="formControlBorder" />
           </HStack>
         </Stack>
 
@@ -219,13 +223,15 @@ export default function LoginPage() {
               <InputGroup>
                 <Input
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEmail(e.target.value)
+                  }
                   type="email"
                   autoComplete="email"
                   required
                   borderRadius="lg"
                   borderWidth="1px"
-                  borderColor="outlineVariant"
+                  borderColor="formControlBorder"
                 />
               </InputGroup>
             </FormField>
@@ -250,13 +256,15 @@ export default function LoginPage() {
               <InputGroup>
                 <Input
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setPassword(e.target.value)
+                  }
                   type="password"
                   autoComplete="current-password"
                   required
                   borderRadius="lg"
                   borderWidth="1px"
-                  borderColor="outlineVariant"
+                  borderColor="formControlBorder"
                 />
               </InputGroup>
             </FormField>
@@ -273,8 +281,8 @@ export default function LoginPage() {
                 <Checkbox.Control
                   borderRadius="md"
                   borderWidth="1px"
-                  borderColor="outlineVariant"
-                  bg="surfaceContainerLowest"
+                  borderColor="formControlBorder"
+                  bg="neutral.100"
                   _checked={{
                     bg: 'primary.500',
                     borderColor: 'primary.500',
@@ -283,7 +291,7 @@ export default function LoginPage() {
                 >
                   <Checkbox.Indicator color="inherit" />
                 </Checkbox.Control>
-                <Checkbox.Label fontWeight={500} color="fg">
+                <Checkbox.Label fontWeight={500} color="jobCardTitle">
                   Remember me
                 </Checkbox.Label>
               </HStack>
@@ -308,7 +316,7 @@ export default function LoginPage() {
           </Stack>
         </Box>
 
-        <Text fontSize="sm" color="muted" textAlign="center">
+        <Text fontSize="sm" color="formLabelMuted" textAlign="center">
           Don’t have an account?{' '}
           <Link
             as={NextLink}
@@ -322,7 +330,12 @@ export default function LoginPage() {
         </Text>
       </Stack>
 
-      <Box mt="auto" pt={6} borderTopWidth="1px" borderColor="outlineVariant">
+      <Box
+        mt="auto"
+        pt={6}
+        borderTopWidth="1px"
+        borderColor="formControlBorder"
+      >
         <HStack
           flexWrap="wrap"
           gap={{ base: 3, md: 4 }}
@@ -337,7 +350,7 @@ export default function LoginPage() {
                 borderRadius="full"
                 bg={bg}
                 borderWidth="2px"
-                borderColor="surfaceContainerLowest"
+                borderColor="neutral.100"
                 ml={i === 0 ? 0 : -3}
               />
             ))}
@@ -352,7 +365,7 @@ export default function LoginPage() {
               alignItems="center"
               justifyContent="center"
               borderWidth="2px"
-              borderColor="surfaceContainerLowest"
+              borderColor="neutral.100"
               ml={-3}
             >
               +5k
@@ -362,7 +375,7 @@ export default function LoginPage() {
             fontSize="2xs"
             fontWeight={700}
             letterSpacing="0.06em"
-            color="muted"
+            color="formLabelMuted"
             textTransform="uppercase"
           >
             Trusted by professionals

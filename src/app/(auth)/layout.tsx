@@ -18,7 +18,7 @@ export default function AuthLayout({
 
       <Box
         flex={1}
-        bg="surfaceContainerLowest"
+        bg="neutral.100"
         display="flex"
         flexDirection="column"
         minH={{ base: '100vh', lg: 'auto' }}

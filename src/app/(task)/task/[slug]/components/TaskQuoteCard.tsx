@@ -1,8 +1,9 @@
 'use client'
 
-import { Box, HStack, Image, Stack } from '@chakra-ui/react'
-import { Badge, Button, Heading, Text } from '@ui'
+import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
+
+import { Badge, Button } from '@ui'
 
 export type TaskQuoteCardProps = {
   name: string
@@ -58,7 +59,7 @@ export function TaskQuoteCard({
       <Text
         fontSize="10px"
         fontWeight={800}
-        color="muted"
+        color="formLabelMuted"
         letterSpacing="0.12em"
       >
         QUOTE
@@ -68,7 +69,7 @@ export function TaskQuoteCard({
       </Text>
     </Stack>
   ) : (
-    <Text fontWeight={800} fontSize="lg" color="fg" flexShrink={0}>
+    <Text fontWeight={800} fontSize="lg" color="jobCardTitle" flexShrink={0}>
       {priceLabel}
     </Text>
   )
@@ -80,9 +81,9 @@ export function TaskQuoteCard({
       gap={3}
       p={4}
       borderRadius="xl"
-      bg="surfaceContainerLowest"
+      bg="neutral.100"
       borderWidth="1px"
-      borderColor="border"
+      borderColor="jobCardBorder"
       boxShadow="ghostBorder"
     >
       <HStack align="flex-start" gap={3} justify="space-between">
@@ -151,33 +152,39 @@ export function TaskQuoteCard({
         </HStack>
         {priceBlock}
       </HStack>
-      <Text fontSize="sm" color="muted" fontStyle="italic" lineHeight="tall">
+      <Text
+        fontSize="sm"
+        color="formLabelMuted"
+        fontStyle="italic"
+        lineHeight="tall"
+      >
         "{snippet}"
       </Text>
       {showActions ? (
         <HStack gap={2} flexWrap="wrap">
           {messageHref ? (
-            <Button
-              as={NextLink}
-              href={messageHref}
-              size="sm"
-              variant="outline"
-              borderColor="primary.200"
-              color="primary.700"
-              bg="primary.50"
-              px={4}
-              flex={1}
-              minW="120px"
-            >
-              Message
-            </Button>
+            <NextLink href={messageHref} passHref legacyBehavior>
+              <Button
+                as="a"
+                size="sm"
+                variant="outline"
+                borderColor="primary.200"
+                color="primary.700"
+                bg="primary.50"
+                px={4}
+                flex={1}
+                minW="120px"
+              >
+                Message
+              </Button>
+            </NextLink>
           ) : null}
           {isOwnQuote ? (
             <Button
               size="sm"
               variant="outline"
-              borderColor="border"
-              color="muted"
+              borderColor="jobCardBorder"
+              color="formLabelMuted"
               flex={1}
               minW="120px"
               disabled

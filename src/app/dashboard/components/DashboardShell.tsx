@@ -1,9 +1,17 @@
 'use client'
 
-import { Box, Text as ChakraText, HStack, Link, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Heading,
+  Input,
+  Link,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { Button, GlassCard, Heading, Text, TextInput } from '@ui'
+import { Button, GlassCard } from '@ui'
 
 export type DashboardNavKey =
   | 'overview'
@@ -216,23 +224,25 @@ function SidebarNavLink({
       borderLeftWidth="3px"
       borderLeftColor={active ? 'primary.500' : 'transparent'}
       bg={active ? 'primary.50' : 'transparent'}
-      color={active ? 'primary.700' : locked ? 'muted' : 'muted'}
+      color={
+        active ? 'primary.700' : locked ? 'formLabelMuted' : 'formLabelMuted'
+      }
       fontWeight={active ? 700 : 600}
       fontSize="sm"
       transition="background 0.15s ease, color 0.15s ease"
       _hover={{
         textDecoration: 'none',
-        bg: active ? 'primary.50' : 'surfaceContainerLow',
+        bg: active ? 'primary.50' : 'jobCardBg',
         color: 'primary.700',
       }}
     >
       <NavIcon>{icon}</NavIcon>
       <HStack gap={2} justify="space-between" flex="1">
-        <ChakraText>{label}</ChakraText>
+        <Text>{label}</Text>
         {locked ? (
-          <ChakraText fontSize="10px" color="primary.700" fontWeight={800}>
+          <Text fontSize="10px" color="primary.700" fontWeight={800}>
             LOCKED
-          </ChakraText>
+          </Text>
         ) : null}
       </HStack>
     </Link>
@@ -257,7 +267,7 @@ export function DashboardShell({
   const workerOnboardingDone = workerProfileComplete ?? workerEnabled
 
   return (
-    <Box minH="100vh" bg="bg" color="fg">
+    <Box minH="100vh" bg="bg" color="jobCardTitle">
       <Stack
         direction={{ base: 'column', md: 'row' }}
         align="stretch"
@@ -270,8 +280,8 @@ export function DashboardShell({
           flexShrink={0}
           borderRightWidth={{ base: 0, md: '1px' }}
           borderBottomWidth={{ base: '1px', md: 0 }}
-          borderColor="border"
-          bg="surfaceContainerLowest"
+          borderColor="jobCardBorder"
+          bg="bg"
           px={{ base: 4, md: 5 }}
           py={{ base: 4, md: 8 }}
         >
@@ -313,7 +323,7 @@ export function DashboardShell({
                   fontSize="10px"
                   fontWeight={700}
                   letterSpacing="0.08em"
-                  color="muted"
+                  color="formLabelMuted"
                   textTransform="uppercase"
                 >
                   Worker workspace
@@ -321,7 +331,7 @@ export function DashboardShell({
               </Stack>
             </HStack>
 
-            <GlassCard p={4} bg="surfaceContainerLow">
+            <GlassCard p={4} bg="jobCardBg">
               <Stack gap={1}>
                 <HStack gap={3}>
                   <Box
@@ -349,7 +359,7 @@ export function DashboardShell({
                   </Stack>
                 </HStack>
                 {userMeta ? (
-                  <Text fontSize="xs" color="muted">
+                  <Text fontSize="xs" color="formLabelMuted">
                     {userMeta}
                   </Text>
                 ) : null}
@@ -369,7 +379,12 @@ export function DashboardShell({
               ))}
             </Stack>
 
-            <Stack gap={1} pt={4} borderTopWidth="1px" borderColor="border">
+            <Stack
+              gap={1}
+              pt={4}
+              borderTopWidth="1px"
+              borderColor="jobCardBorder"
+            >
               {navSecondary.map((item) => (
                 <SidebarNavLink
                   key={item.key}
@@ -388,7 +403,7 @@ export function DashboardShell({
                   ? 'linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)'
                   : 'primary.50'
               }
-              color={workerOnboardingDone ? 'white' : 'fg'}
+              color={workerOnboardingDone ? 'white' : 'jobCardTitle'}
             >
               <Stack gap={3}>
                 <Text
@@ -413,25 +428,24 @@ export function DashboardShell({
                 </Heading>
                 <Text
                   fontSize="sm"
-                  color={workerOnboardingDone ? 'whiteAlpha.900' : 'muted'}
+                  color={
+                    workerOnboardingDone ? 'whiteAlpha.900' : 'formLabelMuted'
+                  }
                 >
                   {workerOnboardingDone
                     ? 'Track active quotes, monitor payout totals, and keep your professional profile ready for new work.'
                     : 'Create your worker profile to unlock quoting, task intake, and payout tracking in the dashboard.'}
                 </Text>
-                <Button
+                <Link
                   as={NextLink}
                   href={workerCtaHref}
-                  size="sm"
-                  variant={workerOnboardingDone ? 'subtle' : 'solid'}
-                  bg={workerOnboardingDone ? 'whiteAlpha.200' : undefined}
-                  color={workerOnboardingDone ? 'white' : undefined}
-                  alignSelf="flex-start"
+                  color="formLabelMuted"
+                  _hover={{ color: 'jobCardTitle' }}
                 >
                   {workerOnboardingDone
                     ? 'Manage worker profile'
                     : 'Become a worker'}
-                </Button>
+                </Link>
               </Stack>
             </GlassCard>
           </Stack>
@@ -443,8 +457,8 @@ export function DashboardShell({
             px={{ base: 4, md: 8 }}
             py={4}
             borderBottomWidth="1px"
-            borderColor="border"
-            bg="surfaceContainerLowest"
+            borderColor="jobCardBorder"
+            bg="bg"
             gap={4}
             flexWrap="wrap"
             align="center"
@@ -455,7 +469,7 @@ export function DashboardShell({
                 left={3}
                 top="50%"
                 transform="translateY(-50%)"
-                color="muted"
+                color="formLabelMuted"
                 pointerEvents="none"
                 zIndex={1}
               >
@@ -476,12 +490,14 @@ export function DashboardShell({
                   />
                 </svg>
               </Box>
-              <TextInput
+              <Input
                 pl={10}
                 placeholder={searchPlaceholder}
                 value={searchValue}
-                onChange={(e) => onSearchChange(e.target.value)}
-                bg="surfaceContainerLow"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onSearchChange(e.target.value)
+                }
+                bg="jobCardBg"
                 borderRadius="full"
                 aria-label="Search tasks"
               />
@@ -493,7 +509,7 @@ export function DashboardShell({
                 w={10}
                 h={10}
                 borderRadius="full"
-                bg="surfaceContainerLow"
+                bg="jobCardBg"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -507,7 +523,7 @@ export function DashboardShell({
                 w={10}
                 h={10}
                 borderRadius="full"
-                bg="surfaceContainerLow"
+                bg="jobCardBg"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"

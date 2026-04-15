@@ -1,7 +1,8 @@
 'use client'
 
-import { Box, HStack, Stack } from '@chakra-ui/react'
-import { Badge, Heading, Text } from '@ui'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+
+import { Badge } from '@ui'
 import type { ReactNode } from 'react'
 
 function StatCard({ children }: { children: ReactNode }) {

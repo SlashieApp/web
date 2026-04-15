@@ -2,7 +2,9 @@
 
 import { Box, HStack, Stack } from '@chakra-ui/react'
 
-import { GlassCard, Heading, Text } from '@ui'
+import { Heading, Text } from '@chakra-ui/react'
+
+import { GlassCard } from '@ui'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
 
@@ -25,7 +27,11 @@ export function TaskDetailPosterSummary({
   const name = posterDisplayName(task)
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} borderColor="border" boxShadow="ambient">
+    <GlassCard
+      p={{ base: 5, md: 6 }}
+      borderColor="jobCardBorder"
+      boxShadow="ambient"
+    >
       <HStack align="flex-start" gap={4}>
         <Box
           flexShrink={0}
@@ -50,7 +56,7 @@ export function TaskDetailPosterSummary({
           <Text
             fontSize="xs"
             fontWeight={700}
-            color="muted"
+            color="formLabelMuted"
             letterSpacing="0.06em"
           >
             TASK OWNER

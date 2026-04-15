@@ -8,8 +8,8 @@ export function GlassCard(props: GlassCardProps) {
   return (
     <Box
       borderRadius="xl"
-      bg="surfaceContainerLowest"
-      boxShadow="ghostBorder"
+      bg="bg"
+      boxShadow="none"
       transition="all 180ms ease"
       _hover={{ transform: 'translateY(-1px)' }}
       {...props}

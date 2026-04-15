@@ -440,6 +440,7 @@ function createTaskMapController(args: {
   let prevVisible = false
   let moveEndRun: (() => void) | null = null
   let mapClickRun: (() => void) | null = null
+  let resizeFrameRequested = false
 
   let lastQueryCenterKey = ''
   let lastMarkerFrameKey = ''
@@ -447,27 +448,26 @@ function createTaskMapController(args: {
   let lastPinSelectedKey = ''
   let lastSearchThisAreaUiSig: string | null = null
 
-  const scheduleReapplyInsetAfterResize = (leftPad: number) => {
+  const scheduleResizeAndRecenter = () => {
+    if (resizeFrameRequested) return
+    resizeFrameRequested = true
     requestAnimationFrame(() => {
-      if (!map || cancelled || programmaticMove) return
+      resizeFrameRequested = false
+      if (!map || cancelled) return
+      map.resize()
+      if (programmaticMove) return
       if (!(getProps().visible ?? true)) return
-      reapplyMapCenterOffsetForLeftInset(map, leftPad)
+      reapplyMapCenterOffsetForLeftInset(
+        map,
+        getProps().leftViewportPadding ?? 48,
+      )
     })
   }
 
   const resizeObserver = new ResizeObserver(() => {
-    if (map) {
-      map.resize()
-      scheduleReapplyInsetAfterResize(getProps().leftViewportPadding ?? 48)
-    }
+    scheduleResizeAndRecenter()
   })
   resizeObserver.observe(args.container)
-
-  const onWindowResize = () => {
-    map?.resize()
-    scheduleReapplyInsetAfterResize(getProps().leftViewportPadding ?? 48)
-  }
-  window.addEventListener('resize', onWindowResize)
 
   let syncQueued = false
   const scheduleSync = () => {
@@ -821,7 +821,6 @@ function createTaskMapController(args: {
       cancelled = true
       if (moveEndDebounce) clearTimeout(moveEndDebounce)
       resizeObserver.disconnect()
-      window.removeEventListener('resize', onWindowResize)
       if (map && moveEndRun) map.off('moveend', moveEndRun)
       if (map && mapClickRun) map.off('click', mapClickRun)
       for (const { marker } of markersRef) marker.remove()
@@ -977,19 +976,19 @@ export function TaskMap({
         inset={0}
         top={0}
         h="full"
-        bg="surfaceContainerLow"
+        bg="jobCardBg"
         boxShadow="none"
         borderWidth={0}
-        borderColor="border"
+        borderColor="jobCardBorder"
         display="flex"
         alignItems="center"
         justifyContent="center"
         px={6}
         zIndex={0}
       >
-        <Text color="muted" fontSize="sm" textAlign="center">
+        <Text color="formLabelMuted" fontSize="sm" textAlign="center">
           Set{' '}
-          <Text as="span" fontWeight={700} color="fg">
+          <Text as="span" fontWeight={700} color="jobCardTitle">
             NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
           </Text>{' '}
           in your environment to load the map.
@@ -1008,7 +1007,7 @@ export function TaskMap({
       borderRadius="0"
       boxShadow="none"
       borderWidth={0}
-      borderColor="border"
+      borderColor="jobCardBorder"
       zIndex={0}
     >
       <Box

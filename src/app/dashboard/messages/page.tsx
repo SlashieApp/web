@@ -1,15 +1,15 @@
 'use client'
 
-import { Stack } from '@chakra-ui/react'
+import { Heading, Stack, Text } from '@chakra-ui/react'
 
-import { GlassCard, Heading, Text } from '@ui'
+import { GlassCard } from '@ui'
 
 export default function DashboardMessagesPage() {
   return (
     <Stack gap={8}>
       <Stack gap={1} maxW="3xl">
         <Heading size="xl">Messages</Heading>
-        <Text color="muted">
+        <Text color="formLabelMuted">
           In-app messaging will appear here when chat is connected to the API.
           For now, use the email and phone details on each task to coordinate
           with customers.
@@ -17,7 +17,7 @@ export default function DashboardMessagesPage() {
       </Stack>
 
       <GlassCard p={6}>
-        <Text color="muted">
+        <Text color="formLabelMuted">
           No conversations yet. This workspace is reserved for worker–customer
           threads once messaging ships.
         </Text>

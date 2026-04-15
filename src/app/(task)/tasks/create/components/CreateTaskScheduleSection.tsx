@@ -4,9 +4,16 @@ import type { ReactNode } from 'react'
 
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
-import { Box, HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Heading,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import { TaskDateTimeType } from '@codegen/schema'
-import { Heading, TextInput } from '@ui'
 import type { CreateTaskFormValues } from '../createTaskFormSchema'
 
 function toYmd(d: Date): string {
@@ -61,13 +68,13 @@ export function CreateTaskScheduleSection({
   const showTimePicker = datetimeType === TaskDateTimeType.Exact
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLowest">
+    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={5}>
         <Stack gap={1}>
           <Heading size="lg" color="primary.700">
             Timing
           </Heading>
-          <Text fontSize="sm" color="muted">
+          <Text fontSize="sm" color="formLabelMuted">
             Tell workers when you need the work done. You can keep it flexible
             or pin an exact slot.
           </Text>
@@ -76,9 +83,9 @@ export function CreateTaskScheduleSection({
         <FormFieldRow label="When do you need this?">
           <NativeSelect.Root maxW={{ base: 'full', md: '320px' }}>
             <NativeSelect.Field
-              bg="surfaceContainerLowest"
+              bg="neutral.100"
               borderWidth="1px"
-              borderColor="border"
+              borderColor="jobCardBorder"
               borderRadius="lg"
               value={datetimeType}
               onChange={(e) =>
@@ -116,8 +123,8 @@ export function CreateTaskScheduleSection({
                     variant="subtle"
                     flexShrink={0}
                     minW="56px"
-                    bg={isSelected ? 'primary.600' : 'surfaceContainerLow'}
-                    color={isSelected ? 'white' : 'fg'}
+                    bg={isSelected ? 'primary.600' : 'jobCardBg'}
+                    color={isSelected ? 'white' : 'jobCardTitle'}
                     boxShadow="none"
                     onClick={() => onPreferredDateChange(ymd)}
                   >
@@ -146,11 +153,18 @@ export function CreateTaskScheduleSection({
             <Text fontSize="sm" fontWeight={700} mb={2}>
               Preferred time
             </Text>
-            <TextInput
+            <Input
               type="time"
               maxW={{ base: 'full', md: '240px' }}
               value={preferredTime}
-              onChange={(e) => onPreferredTimeChange(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onPreferredTimeChange(e.target.value)
+              }
+              bg="neutral.100"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="formControlBorder"
+              _focusVisible={{ borderColor: 'formControlFocusBorder' }}
             />
             {fieldErrors?.preferredTime ? (
               <Text fontSize="sm" color="red.500" mt={1}>

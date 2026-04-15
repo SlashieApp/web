@@ -1,6 +1,14 @@
 'use client'
 
-import { Box, type BoxProps, HStack, IconButton, Link } from '@chakra-ui/react'
+import {
+  Box,
+  type BoxProps,
+  Container,
+  HStack,
+  Heading,
+  IconButton,
+  Link,
+} from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
@@ -9,13 +17,11 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { getAuthToken } from '@/utils/auth'
 import { AppDrawer } from '../AppDrawer/AppDrawer'
 import { Button } from '../Button'
-import { Container } from '../Container'
-import { Heading } from '../Typography'
 
 const navLinkProps = {
   fontSize: 'sm',
   fontWeight: 600,
-  color: 'muted',
+  color: 'secondary.700',
   _hover: { textDecoration: 'none', color: 'primary.700' },
 } as const
 
@@ -173,20 +179,13 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
         flexShrink={0}
       >
         <Button
-          as={NextLink}
-          href="/tasks/create"
           size="sm"
-          variant={resolvedActive === 'post-task' ? 'solid' : 'outline'}
+          variant={resolvedActive === 'post-task' ? 'primary' : 'secondary'}
           display={{ base: 'none', md: 'inline-flex' }}
         >
           Post a task
         </Button>
-        <Button
-          as={NextLink}
-          href={workerHref}
-          size="sm"
-          display={{ base: 'none', md: 'inline-flex' }}
-        >
+        <Button size="sm" display={{ base: 'none', md: 'inline-flex' }}>
           Become a worker
         </Button>
         {isLoggedIn ? (
@@ -196,7 +195,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               alignSelf="stretch"
               w="1px"
               minH={6}
-              bg="border"
+              bg="secondary.200"
               my="auto"
               aria-hidden
             />
@@ -207,7 +206,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               display={{ base: 'none', md: 'inline-flex' }}
               colorPalette="blue"
               color="primary.600"
-              _hover={{ bg: 'rgba(0, 63, 177, 0.06)' }}
+              _hover={{ bg: 'secondary.100' }}
             >
               <NextLink href="/dashboard" aria-label="Notifications">
                 <IconBell />
@@ -220,7 +219,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               display={{ base: 'none', md: 'inline-flex' }}
               colorPalette="blue"
               color="primary.600"
-              _hover={{ bg: 'rgba(0, 63, 177, 0.06)' }}
+              _hover={{ bg: 'secondary.100' }}
             >
               <NextLink href="/profile" aria-label="Profile">
                 <IconUser />
@@ -228,7 +227,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
             </IconButton>
             <Button
               size="sm"
-              variant="subtle"
+              variant="secondary"
               display={{ base: 'none', md: 'inline-flex' }}
               onClick={() => {
                 logout()
@@ -246,7 +245,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           display={{ base: 'inline-flex', md: 'none' }}
           colorPalette="blue"
           color="primary.600"
-          _hover={{ bg: 'rgba(0, 63, 177, 0.06)' }}
+          _hover={{ bg: 'secondary.100' }}
           onClick={() => setMobileMenuOpen(true)}
         >
           <IconMenu />
@@ -302,7 +301,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               </Link>
               <Button
                 size="sm"
-                variant="subtle"
+                variant="secondary"
                 alignSelf="flex-start"
                 onClick={() => {
                   logout()
@@ -332,10 +331,10 @@ export function Header({
       left={2}
       right={24}
       zIndex={30}
-      bg="surfaceBright"
+      bg="bg"
       borderRadius="xl"
-      backdropFilter="blur(20px)"
-      boxShadow="ambient"
+      backdropFilter="blur(10px)"
+      boxShadow="none"
       px={{ base: 2, md: 0 }}
       py={1}
       {...props}

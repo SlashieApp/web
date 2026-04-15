@@ -1,8 +1,7 @@
-import { HStack } from '@chakra-ui/react'
+import { HStack, Heading } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Button } from '../Button'
-import { Heading } from '../Typography'
 import { Header } from './Header'
 
 function HeaderCustomChildrenStory() {
@@ -11,7 +10,7 @@ function HeaderCustomChildrenStory() {
       <HStack justify="space-between" py={2}>
         <Heading size="md">HandyBox</Heading>
         <HStack gap={2}>
-          <Button size="sm" variant="subtle" bg="surfaceContainerLow">
+          <Button size="sm" variant="secondary">
             Log in
           </Button>
           <Button size="sm">Post a task</Button>

@@ -18,30 +18,18 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const PrimaryBlue: Story = {
+export const Primary: Story = {
+  args: {},
+}
+
+export const Secondary: Story = {
   args: {
-    colorPalette: 'linkBlue',
+    variant: 'secondary',
   },
 }
 
-export const AccentMustard: Story = {
+export const Tertiary: Story = {
   args: {
-    background: 'mustard.500',
-    color: 'black',
-  },
-}
-
-export const Outline: Story = {
-  args: {
-    variant: 'outline',
-    borderColor: 'border',
-  },
-}
-
-export const Surface: Story = {
-  args: {
-    variant: 'outline',
-    background: 'glassBg',
-    borderColor: 'glassBorder',
+    variant: 'tertiary',
   },
 }

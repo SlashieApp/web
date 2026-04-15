@@ -1,10 +1,7 @@
 'use client'
 
-import { Box, HStack, Link, Stack } from '@chakra-ui/react'
+import { Box, Container, HStack, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
-
-import { Container } from '../Container'
-import { Text } from '../Typography'
 
 const links = [
   { label: 'Support', href: '/' },
@@ -16,13 +13,8 @@ const links = [
 
 export function Footer() {
   return (
-    <Box
-      as="footer"
-      borderTopWidth="1px"
-      borderColor="border"
-      bg="surfaceContainerLowest"
-    >
-      <Container py={{ base: 4, md: 5 }}>
+    <Box as="footer" borderTopWidth="1px" borderColor="secondary.200" bg="bg">
+      <Container>
         <Stack
           direction={{ base: 'column', md: 'row' }}
           align={{ base: 'flex-start', md: 'center' }}
@@ -31,11 +23,11 @@ export function Footer() {
         >
           <Stack gap={1}>
             <Text fontWeight={700}>Slashie</Text>
-            <Text fontSize="sm" color="muted">
+            <Text fontSize="sm" color="secondary.700">
               Connecting skilled tradespeople with homeowners who value quality
               workmanship.
             </Text>
-            <Text fontSize="sm" color="muted">
+            <Text fontSize="sm" color="secondary.700">
               © 2024 Slashie. Built for trusted local work.
             </Text>
           </Stack>

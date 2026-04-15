@@ -28,12 +28,12 @@ export function TaskDetailOwnerQuickInfo({
       }}
       gap={3}
     >
-      <GlassCard p={4} borderColor="border" boxShadow="ambient">
+      <GlassCard p={4} borderColor="jobCardBorder" boxShadow="ambient">
         <Stack gap={1}>
           <Text
             fontSize="10px"
             fontWeight={800}
-            color="muted"
+            color="formLabelMuted"
             letterSpacing="0.08em"
           >
             BUDGET
@@ -43,17 +43,17 @@ export function TaskDetailOwnerQuickInfo({
           </Text>
         </Stack>
       </GlassCard>
-      <GlassCard p={4} borderColor="border" boxShadow="ambient">
+      <GlassCard p={4} borderColor="jobCardBorder" boxShadow="ambient">
         <Stack gap={1}>
           <Text
             fontSize="10px"
             fontWeight={800}
-            color="muted"
+            color="formLabelMuted"
             letterSpacing="0.08em"
           >
             TIMING
           </Text>
-          <Text fontSize="md" fontWeight={700} color="fg">
+          <Text fontSize="md" fontWeight={700} color="jobCardTitle">
             {availability}
           </Text>
         </Stack>

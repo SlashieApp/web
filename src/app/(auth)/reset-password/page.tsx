@@ -1,9 +1,19 @@
 'use client'
 
+import { AuthBrandMark } from '@/app/(auth)/components/AuthBrandMark'
 import { useMutation } from '@apollo/client/react'
-import { Box, HStack, IconButton, Link, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Heading,
+  IconButton,
+  Input,
+  Link,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import type { ResetPasswordMutation } from '@codegen/schema'
-import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
+import { Button, FormField } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -43,7 +53,7 @@ function IconLockReset() {
 
 function IconEye({ open }: { open: boolean }) {
   return (
-    <Box as="span" display="flex" color="muted" aria-hidden>
+    <Box as="span" display="flex" color="formLabelMuted" aria-hidden>
       {open ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <title>Show password</title>
@@ -94,7 +104,7 @@ function PasswordToggleButton({
       minW="var(--input-height)"
       h="var(--input-height)"
       borderRadius="md"
-      color="muted"
+      color="formLabelMuted"
       _hover={{ bg: 'rgba(0, 63, 177, 0.06)' }}
     >
       <IconEye open={!visible} />
@@ -115,7 +125,7 @@ function ReqRow({
         boxSize={5}
         borderRadius="full"
         borderWidth="1.5px"
-        borderColor={met ? 'primary.500' : 'outlineVariant'}
+        borderColor={met ? 'primary.500' : 'formControlBorder'}
         bg={met ? 'primary.500' : 'transparent'}
         display="flex"
         alignItems="center"
@@ -141,7 +151,11 @@ function ReqRow({
           </svg>
         ) : null}
       </Box>
-      <Text fontSize="sm" fontWeight={500} color={met ? 'fg' : 'muted'}>
+      <Text
+        fontSize="sm"
+        fontWeight={500}
+        color={met ? 'jobCardTitle' : 'formLabelMuted'}
+      >
         {children}
       </Text>
     </HStack>
@@ -150,7 +164,7 @@ function ReqRow({
 
 function IconShieldSmall() {
   return (
-    <Box color="muted" display="flex" aria-hidden>
+    <Box color="formLabelMuted" display="flex" aria-hidden>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
         <title>Security</title>
         <path
@@ -252,12 +266,12 @@ export default function ResetPasswordPage() {
         href="/"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}
       >
-        <HandyBoxWordmark size="lg" />
+        <AuthBrandMark size="lg" />
       </Link>
 
       <Box
         w="full"
-        bg="surfaceContainerLowest"
+        bg="neutral.100"
         borderRadius="2xl"
         boxShadow="ambient"
         px={{ base: 6, md: 10 }}
@@ -276,10 +290,10 @@ export default function ResetPasswordPage() {
           </Box>
 
           <Box>
-            <Heading size="xl" color="fg">
+            <Heading size="xl" color="jobCardTitle">
               Reset Password
             </Heading>
-            <Text mt={2} color="muted" fontSize="sm">
+            <Text mt={2} color="formLabelMuted" fontSize="sm">
               Create a new, strong password for your account.
             </Text>
           </Box>
@@ -291,7 +305,9 @@ export default function ResetPasswordPage() {
                   <Input
                     placeholder="Paste token from your email"
                     value={token}
-                    onChange={(e) => setToken(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setToken(e.target.value)
+                    }
                     required
                     borderRadius="lg"
                     bg="primary.50"
@@ -306,7 +322,7 @@ export default function ResetPasswordPage() {
               )}
 
               {token && !showTokenField ? (
-                <Text fontSize="xs" color="muted" textAlign="center">
+                <Text fontSize="xs" color="formLabelMuted" textAlign="center">
                   <Box
                     asChild
                     display="inline"
@@ -337,7 +353,9 @@ export default function ResetPasswordPage() {
                   <Input
                     placeholder="••••••••"
                     value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setNewPassword(e.target.value)
+                    }
                     type={showNew ? 'text' : 'password'}
                     autoComplete="new-password"
                     pr={12}
@@ -365,7 +383,9 @@ export default function ResetPasswordPage() {
                   <Input
                     placeholder="••••••••"
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setConfirmPassword(e.target.value)
+                    }
                     type={showConfirm ? 'text' : 'password'}
                     autoComplete="new-password"
                     pr={12}
@@ -403,7 +423,7 @@ export default function ResetPasswordPage() {
                   fontSize="2xs"
                   fontWeight={700}
                   letterSpacing="0.12em"
-                  color="muted"
+                  color="formLabelMuted"
                   textTransform="uppercase"
                 >
                   Security standards
@@ -447,11 +467,11 @@ export default function ResetPasswordPage() {
         </Stack>
       </Box>
 
-      <HStack gap={2} color="muted" justify="center">
+      <HStack gap={2} color="formLabelMuted" justify="center">
         <IconShieldSmall />
         <IconShieldSmall />
       </HStack>
-      <Text fontSize="xs" color="muted" textAlign="center">
+      <Text fontSize="xs" color="formLabelMuted" textAlign="center">
         © 2024 HandyBox Technologies. Secure Infrastructure v2.4.0
       </Text>
     </Stack>

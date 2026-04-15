@@ -1,13 +1,12 @@
 'use client'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, HStack, Text } from '@chakra-ui/react'
 import useEmblaCarousel from 'embla-carousel-react'
 import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
 import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
-import { Text } from '@ui'
 import { TaskBrowseListItem } from '../(web)/TaskBrowseListItem'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { formatBudget, inferBadge } from '../../helpers/taskBrowseHelpers'
@@ -127,10 +126,10 @@ export function MobileTaskCarousel() {
   if (tasks.length === 0) {
     return (
       <Box
-        bg="surfaceContainerLowest/96"
+        bg="whiteAlpha.960"
         borderRadius="2xl"
         borderWidth="1px"
-        borderColor="border"
+        borderColor="jobCardBorder"
         maxWidth="420px"
         mx="auto"
         w="full"
@@ -138,7 +137,7 @@ export function MobileTaskCarousel() {
         px={4}
         py={3}
       >
-        <Text fontSize="sm" color="muted">
+        <Text fontSize="sm" color="formLabelMuted">
           No tasks match current filters.
         </Text>
       </Box>

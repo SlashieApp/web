@@ -8,63 +8,249 @@ description: >-
   design, DESIGN.md, or brand look-and-feel.
 ---
 
-## Philosophy
+# Slashie UI Design
 
-Trust, precision, utility. Visual tone: high-end architectural blueprint with approachable warmth. Prefer flat, blueprint-like surfaces over heavy depth.
+## Theme support requirement
 
-## Tokens
+Slashie UI supports both **light theme** and **dark theme**.
 
-| Role | Value | Usage |
-|------|--------|--------|
-| Primary (blueprint blue) | `#1A56DB` | Primary actions, brand, verified states |
-| Accent (construction amber) | `#F2994A` | Value highlights, emergency/urgent, Pro tier |
-| Success | `#059669` | Completed tasks, positive ratings |
-| Surfaces | `bg-slate-50` | Page/surface background |
-| Dividers | `bg-slate-100` | Borders, separators |
-| Body text | `text-slate-600` | Paragraphs, secondary copy |
-| Headings | `text-slate-900` | Titles |
+Every UI component must have **two design-ready versions**:
 
-**Typography:** Headings — Plus Jakarta Sans (bold/extra bold). Body — Inter or Plus Jakarta Sans (regular/medium).
+- a light-theme version
+- a dark-theme version
 
-**Shape:** `border-radius: 8px` (or Tailwind `rounded-lg` where 8px matches the project).
+When creating or updating components, always define and verify both variants (tokens, states, contrast, and interaction feedback).
 
-**Elevation:** `shadow-sm` on cards; avoid heavy stacked shadows.
+## 1) Executive summary
 
-## Atoms
+Slashie UI is a map-first, high-legibility design system for a local task marketplace.
 
-- **Primary button:** High-contrast primary blue, ~8px radius, white label text.
-- **Secondary button:** Ghost or slate fill; optional blue border for outline style.
-- **Status badges:** Emergency → amber + icon; Verified → primary blue + check; Completed → success green.
-- **Inputs:** White field, 1px slate border; placeholder in Jakarta Sans.
+It is built to make task discovery, quote comparison, and account actions fast and clear on mobile and desktop.
 
-## Molecules & organisms (patterns)
+The design direction combines:
 
-Match these compositions when implementing features:
+- **Architectural structure** (clean hierarchy, disciplined layout)
 
-- **Job summary card:** Title, location (+ icon), budget, relative time.
-- **Pro endorsement:** Avatar, name, skill badge, short quote.
-- **Rating summary:** Stars + numeric average + review count.
-- **Filter chips:** Toggleable category pills (e.g. Plumbing, Electrical).
-- **Top nav:** Logo, search, profile actions.
-- **Pro sidebar:** Marketplace, Earnings, Messages (vertical nav).
-- **Offers list:** Rows with Accept and Message.
-- **Review form:** Star group, textarea, highlight chips (e.g. “Fair Price”).
+- **Editorial rhythm** (scale contrast + negative space)
 
-## Interaction
+- **Operational clarity** (clear actions, fast scanability)
 
-- **Hover:** Links → primary blue; cards → slight lift + shadow transition.
-- **Loading:** Skeleton/shimmer aligned to real card layout (especially task cards).
-- **Feedback:** Toasts for actions like offer sent or task completed.
+The UI should feel premium and modern without visual clutter.
 
-## Accessibility
+## 2) Design north star
 
-- Text contrast ≥ 4.5:1.
-- Tap targets ≥ 44×44px where touch applies.
-- Forms (e.g. Post a Job): clear validation and error states.
+The product treats the screen as a **digital viewport**:
 
-## Checklist (before shipping UI)
+- the map is foundational context
 
-- [ ] Colors and typography match tokens above (or semantic equivalents in the codebase).
-- [ ] Radius and card shadow stay subtle (blueprint-flat).
-- [ ] Status colors map to Emergency / Verified / Completed as specified.
-- [ ] Hover, loading, and feedback patterns are consistent with existing screens.
+- interface elements are purposeful overlays/sheets
+
+- typography and spacing do most of the communication work
+
+Core principle: clarity over decoration.
+
+## 3) Brand expression
+
+### Identity system
+
+- Primary brand mark: forward **slash** motif
+
+- Wordmark style: lowercase `slashie`
+
+- Tone: precise, technical, approachable
+
+### Brand usage intent
+
+- Use mark/wordmark lockup in major navigation and brand moments
+
+- Use compact mark in constrained UI surfaces
+
+- Keep brand geometry consistent and avoid arbitrary distortion
+
+## 4) Color and tonal architecture
+
+The palette uses a neutral technical base with a kinetic mint accent.
+
+### Core colors
+
+| Token | Value | Use |
+
+|---|---|---|
+
+| Primary kinetic | `#00DC82` | Primary action emphasis, active highlights |
+
+| Primary deep | `#10B981` | CTA gradient depth |
+
+| Tertiary accent | `#54BBBB` | Secondary highlight moments |
+
+| Brand dark | `#07172A` | Dark surfaces/brand scenes |
+
+| Text dark (ink) | `#0B1020` | Primary text on light backgrounds |
+
+| White | `#FFFFFF` | Text on dark surfaces |
+
+| Neutral base reference | `#777777` | Tonal anchoring concept |
+
+### Surface hierarchy
+
+Use tonal layering for separation:
+
+- `surface` (base, light + dark variants)
+
+- `surface-container-low/lowest` (inset, light + dark variants)
+
+- `surface-container-high/highest` (elevated focus, light + dark variants)
+
+- `primary-container` (action emphasis, light + dark variants)
+
+### The no-line rule
+
+- Do not use 1px borders for sectioning by default.
+
+- Section boundaries should be perceived via tonal shifts and spacing.
+
+- If a boundary is required for accessibility, use low-opacity outline fallback.
+
+### Glass and gradient behavior
+
+- Floating-over-map elements: translucent surface + backdrop blur (20px)
+
+- Primary CTA polish: linear gradient from `#00DC82` to `#10B981` (approx. 135deg)
+
+## 5) Typography system
+
+Typography balances expressive hierarchy and utility reading.
+
+### Font roles
+
+- **Plus Jakarta Sans**: display/headline emphasis
+
+- **Inter**: body text, labels, dense utility content
+
+### Hierarchy behavior
+
+- Display text creates strong section anchors
+
+- Body text remains compact and readable
+
+- Labels are concise and support scanability
+
+### Editorial rhythm
+
+- Pair larger headlines with smaller uppercase metadata labels
+
+- Use spacing and contrast to define hierarchy before adding UI chrome
+
+## 6) Elevation and depth
+
+Depth is mostly tonal, not shadow-heavy.
+
+- Prefer stacked tonal surfaces for hierarchy
+
+- Use shadows only for truly floating/high-priority surfaces
+
+- Keep contours moderately rounded for approachable precision
+
+Recommended floating shadow profile (when needed):
+
+- Y offset ~24px
+
+- Blur ~48px
+
+- Dark neutral alpha shadow (soft edge)
+
+## 7) Component behavior
+
+All component behaviors below must be implemented for both light and dark theme versions.
+
+### Buttons
+
+- **Primary:** high-contrast kinetic CTA treatment
+
+- **Secondary:** quiet supporting action (surface-based)
+
+- **Tertiary:** text-forward action for low-emphasis interactions
+
+### Inputs
+
+- Minimal shell with tonal background
+
+- Focus indicated by strong bottom accent stroke
+
+- Error shown clearly in text/state, avoiding visual over-noise
+
+### Cards and lists
+
+- Avoid divider-line dependency
+
+- Use vertical spacing (12px/16px) and tonal changes between items
+
+- Keep information hierarchy strict and predictable
+
+### Map-native surfaces
+
+- Floating search/actions should feel integrated with map context
+
+- Overlay elements remain legible without obscuring spatial orientation
+
+## 8) Interaction and motion
+
+Motion must be purposeful:
+
+- orient users (navigation/state shifts)
+
+- confirm actions (submit/accept/complete)
+
+- reduce uncertainty in high-frequency flows
+
+Avoid decorative animation in dense task flows.
+
+## 9) Accessibility requirements
+
+- Text contrast target: WCAG AA minimum
+
+- Verify WCAG AA contrast in **both** light and dark themes for every component/state
+
+- Touch targets: 44x44 minimum where applicable
+
+- Form states: clear success/error feedback
+
+- Accent colors must preserve readability on both light and dark surfaces
+
+## 10) Content style and microcopy
+
+- Use short, direct action language
+
+- Prefer operational terms users already see in product:
+
+- task
+
+- quote
+
+- worker
+
+- request
+
+- Reduce cognitive load by keeping labels and status wording consistent
+
+## 11) Do and don't
+
+### Do
+
+- Use whitespace deliberately to create premium clarity
+
+- Maintain strong typography hierarchy
+
+- Trust tonal layering for structure
+
+- Keep roundedness moderate and consistent
+
+### Don't
+
+- Don't overuse borders or visual separators
+
+- Don't crowd cards/actions in dense clusters
+
+- Don't introduce random greys/greens outside token intent
+
+- Don't rely on icons when text can be clearer

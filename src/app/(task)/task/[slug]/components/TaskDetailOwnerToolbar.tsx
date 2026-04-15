@@ -1,9 +1,9 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { Button, Heading } from '@ui'
+import { Button } from '@ui'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
 
@@ -72,7 +72,7 @@ export function TaskDetailOwnerToolbar({
 }: TaskDetailOwnerToolbarProps) {
   return (
     <Stack gap={5} w="full">
-      <HStack gap={2} fontSize="sm" color="muted" flexWrap="wrap">
+      <HStack gap={2} fontSize="sm" color="formLabelMuted" flexWrap="wrap">
         <Link
           as={NextLink}
           href="/requests"
@@ -83,7 +83,7 @@ export function TaskDetailOwnerToolbar({
           My tasks
         </Link>
         <Text aria-hidden>/</Text>
-        <Text fontWeight={500} color="fg">
+        <Text fontWeight={500} color="jobCardTitle">
           Details
         </Text>
       </HStack>
@@ -126,8 +126,8 @@ export function TaskDetailOwnerToolbar({
               px={3}
               py={1.5}
               borderRadius="full"
-              bg="surfaceContainerHigh"
-              color="fg"
+              bg="badgeBg"
+              color="jobCardTitle"
               fontSize="11px"
               fontWeight={700}
               letterSpacing="0.04em"
@@ -146,26 +146,27 @@ export function TaskDetailOwnerToolbar({
         </Stack>
 
         <HStack gap={2} flexWrap="wrap" flexShrink={0}>
-          <Button
-            as={NextLink}
-            href="/requests"
-            variant="outline"
-            borderColor="border"
-            color="fg"
-            bg="white"
-            size="sm"
-            borderRadius="lg"
-          >
-            <HStack gap={2}>
-              <IconPencil />
-              <span>Edit task</span>
-            </HStack>
-          </Button>
+          <NextLink href="/requests" passHref legacyBehavior>
+            <Button
+              as="a"
+              variant="outline"
+              borderColor="jobCardBorder"
+              color="jobCardTitle"
+              bg="white"
+              size="sm"
+              borderRadius="lg"
+            >
+              <HStack gap={2}>
+                <IconPencil />
+                <span>Edit task</span>
+              </HStack>
+            </Button>
+          </NextLink>
           <Button
             type="button"
             variant="outline"
-            borderColor="border"
-            color="fg"
+            borderColor="jobCardBorder"
+            color="jobCardTitle"
             bg="white"
             size="sm"
             borderRadius="lg"

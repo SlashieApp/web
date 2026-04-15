@@ -67,28 +67,21 @@ export function AppDrawer({
       <DrawerBackdrop bg="blackAlpha.600" />
       <DrawerPositioner>
         <DrawerContent
-          bg="surfaceContainerLowest"
-          boxShadow="ambient"
+          bg="bg"
+          boxShadow="none"
           display="flex"
           flexDirection="column"
           maxH="100dvh"
           {...radius}
         >
-          <DrawerHeader
-            px={drawerGutterX}
-            pt={4}
-            pb={4}
-            flexShrink={0}
-            borderBottomWidth="1px"
-            borderColor="border"
-          >
+          <DrawerHeader px={drawerGutterX} pt={4} pb={4} flexShrink={0}>
             <Stack gap={description ? 2 : 0} align="stretch">
               <HStack align="center" justify="space-between" gap={3} minH={11}>
                 <DrawerTitle
                   fontFamily="heading"
                   fontSize="lg"
                   fontWeight={800}
-                  color="ink.900"
+                  color="secondary.900"
                   lineHeight="short"
                   letterSpacing="-0.02em"
                   flex={1}
@@ -100,14 +93,14 @@ export function AppDrawer({
                   <IconButton
                     aria-label="Close drawer"
                     variant="ghost"
-                    borderRadius="full"
+                    borderRadius="lg"
                     minW={11}
                     h={11}
                     fontSize="xl"
                     lineHeight={1}
-                    color="fg"
+                    color="secondary.900"
                     flexShrink={0}
-                    _hover={{ bg: 'surfaceContainerHigh' }}
+                    _hover={{ bg: 'secondary.100' }}
                   >
                     ×
                   </IconButton>
@@ -115,7 +108,7 @@ export function AppDrawer({
               </HStack>
               {description ? (
                 <DrawerDescription
-                  color="muted"
+                  color="secondary.700"
                   fontSize="sm"
                   lineHeight="tall"
                   fontWeight={500}
@@ -141,11 +134,9 @@ export function AppDrawer({
               pt={3}
               pb="calc(16px + env(safe-area-inset-bottom, 0px))"
               flexShrink={0}
-              borderTopWidth="1px"
-              borderColor="border"
             >
               <Button
-                variant="solid"
+                variant="primary"
                 w="full"
                 size="lg"
                 borderRadius="xl"

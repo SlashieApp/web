@@ -1,10 +1,10 @@
 'use client'
 
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Button, Footer, GlassCard, Header, Heading, Section, Text } from '@ui'
+import { Button, Footer, GlassCard, Header } from '@ui'
 import { CustomerAccountProvider, useCustomerAccount } from './context'
 
 function CustomerShell({ children }: { children: React.ReactNode }) {
@@ -15,53 +15,63 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
     const nextPath = pathname?.startsWith('/') ? pathname : '/requests'
 
     return (
-      <Box bg="surface" color="fg" minH="100vh">
-        <Section id="header" py={{ base: 6, md: 8 }}>
-          <Header />
-        </Section>
-        <Section px={4} pb={12}>
-          <GlassCard p={8} maxW="lg" mx="auto">
-            <Stack gap={4}>
-              <Heading size="lg">Sign in to continue</Heading>
-              <Text color="muted">
-                Log in to manage quotes on your tasks, track requests, and edit
-                your customer profile.
-              </Text>
-              {meErrorMessage ? (
-                <Text color="red.400" fontSize="sm">
-                  {meErrorMessage}
+      <Box bg="bg" color="jobCardTitle" minH="100vh">
+        <Box as="section" id="header" py={{ base: 6, md: 8 }}>
+          <Container>
+            <Header />
+          </Container>
+        </Box>
+        <Box as="section" px={4} pb={12}>
+          <Container>
+            <GlassCard p={8} maxW="lg" mx="auto">
+              <Stack gap={4}>
+                <Heading size="lg">Sign in to continue</Heading>
+                <Text color="formLabelMuted">
+                  Log in to manage quotes on your tasks, track requests, and
+                  edit your customer profile.
                 </Text>
-              ) : null}
-              <Button
-                as={NextLink}
-                href={`/login?next=${encodeURIComponent(nextPath)}`}
-              >
-                Log in
-              </Button>
-              <Button as={NextLink} href="/register" variant="subtle">
-                Create account
-              </Button>
-            </Stack>
-          </GlassCard>
-        </Section>
+                {meErrorMessage ? (
+                  <Text color="red.400" fontSize="sm">
+                    {meErrorMessage}
+                  </Text>
+                ) : null}
+                <NextLink
+                  href={`/login?next=${encodeURIComponent(nextPath)}`}
+                  passHref
+                  legacyBehavior
+                >
+                  <Button as="a">Log in</Button>
+                </NextLink>
+                <NextLink href="/register" passHref legacyBehavior>
+                  <Button as="a" variant="subtle">
+                    Create account
+                  </Button>
+                </NextLink>
+              </Stack>
+            </GlassCard>
+          </Container>
+        </Box>
         <Footer />
       </Box>
     )
   }
 
   return (
-    <Box bg="surface" color="fg" minH="100vh">
-      <Section
+    <Box bg="bg" color="jobCardTitle" minH="100vh">
+      <Box
+        as="section"
         px={{ base: 4, md: 6 }}
         pb={{ base: 10, md: 12 }}
-        bg="surfaceContainerLow"
+        bg="jobCardBg"
       >
-        {meLoading ? (
-          <Text color="muted">Loading your account…</Text>
-        ) : (
-          children
-        )}
-      </Section>
+        <Container>
+          {meLoading ? (
+            <Text color="formLabelMuted">Loading your account…</Text>
+          ) : (
+            children
+          )}
+        </Container>
+      </Box>
       <Footer />
     </Box>
   )

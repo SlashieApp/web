@@ -138,8 +138,8 @@ export function TaskDetailLocationMap({
       borderRadius="lg"
       overflow="hidden"
       borderWidth="1px"
-      borderColor="border"
-      bg="surfaceContainerLow"
+      borderColor="jobCardBorder"
+      bg="jobCardBg"
     />
   )
 }

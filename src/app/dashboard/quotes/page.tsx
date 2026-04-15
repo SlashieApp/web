@@ -1,6 +1,6 @@
 'use client'
 
-import { Grid, HStack, Link, Stack } from '@chakra-ui/react'
+import { Grid, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { WorkerAccessGate } from '@/app/dashboard/components/WorkerAccessGate'
@@ -13,7 +13,7 @@ import {
   quotePricePence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Button, GlassCard, Heading, Text } from '@ui'
+import { Badge, Button, GlassCard } from '@ui'
 
 function QuoteMetric({
   label,
@@ -31,13 +31,13 @@ function QuoteMetric({
           fontSize="10px"
           fontWeight={800}
           letterSpacing="0.08em"
-          color="muted"
+          color="formLabelMuted"
           textTransform="uppercase"
         >
           {label}
         </Text>
         <Heading size="lg">{value}</Heading>
-        <Text fontSize="sm" color="muted">
+        <Text fontSize="sm" color="formLabelMuted">
           {helper}
         </Text>
       </Stack>
@@ -72,14 +72,14 @@ export default function DashboardQuotesPage() {
         <HStack justify="space-between" gap={4} flexWrap="wrap">
           <Stack gap={1} maxW="3xl">
             <Heading size="xl">Worker Quotes</Heading>
-            <Text color="muted">
+            <Text color="formLabelMuted">
               Review sent quotes, track awarded work, and jump back into the
               relevant task details whenever you need context.
             </Text>
           </Stack>
-          <Button as={NextLink} href="/">
-            Browse tasks
-          </Button>
+          <NextLink href="/" passHref legacyBehavior>
+            <Button as="a">Browse tasks</Button>
+          </NextLink>
         </HStack>
       </Stack>
 
@@ -102,20 +102,22 @@ export default function DashboardQuotesPage() {
       </Grid>
 
       {isLoadingQuotes ? (
-        <Text color="muted">Loading quote activity…</Text>
+        <Text color="formLabelMuted">Loading quote activity…</Text>
       ) : null}
 
       {!isLoadingQuotes && filteredMyQuotes.length === 0 ? (
         <GlassCard p={6}>
           <Stack gap={4}>
             <Heading size="md">No quotes sent yet</Heading>
-            <Text color="muted">
+            <Text color="formLabelMuted">
               Your worker profile is ready. Browse available tasks and send your
               first quote to populate this workspace.
             </Text>
-            <Button as={NextLink} href="/" alignSelf="flex-start">
-              Browse open tasks
-            </Button>
+            <NextLink href="/" passHref legacyBehavior>
+              <Button as="a" alignSelf="flex-start">
+                Browse open tasks
+              </Button>
+            </NextLink>
           </Stack>
         </GlassCard>
       ) : !isLoadingQuotes ? (
@@ -143,13 +145,13 @@ export default function DashboardQuotesPage() {
                     <HStack justify="space-between" gap={3} flexWrap="wrap">
                       <Heading size="sm">{task.title}</Heading>
                       <Badge
-                        bg={awarded ? 'secondaryFixed' : 'surfaceContainerHigh'}
-                        color={awarded ? 'onSecondaryFixed' : 'fg'}
+                        bg={awarded ? 'jobCardBg' : 'badgeBg'}
+                        color={awarded ? 'jobCardTitle' : 'jobCardTitle'}
                       >
                         {awarded ? 'Awarded' : 'Pending'}
                       </Badge>
                     </HStack>
-                    <Text fontSize="sm" color="muted">
+                    <Text fontSize="sm" color="formLabelMuted">
                       {taskPublicLocationLabel(task) || 'Location TBC'} ·{' '}
                       {formatRelativePosted(quote.createdAt)}
                     </Text>
@@ -157,15 +159,17 @@ export default function DashboardQuotesPage() {
                       Quote value:{' '}
                       <strong>{formatPounds(quotePricePence(quote))}</strong>
                     </Text>
-                    <Text fontSize="sm" color="muted">
+                    <Text fontSize="sm" color="formLabelMuted">
                       {quote.message?.trim() ||
                         'No message included with this quote.'}
                     </Text>
                   </Stack>
                   <Stack gap={3} align={{ base: 'flex-start', md: 'flex-end' }}>
-                    <Button as={NextLink} href={`/task/${task.id}`} size="sm">
-                      View task
-                    </Button>
+                    <NextLink href={`/task/${task.id}`} passHref legacyBehavior>
+                      <Button as="a" size="sm">
+                        View task
+                      </Button>
+                    </NextLink>
                     <Link
                       as={NextLink}
                       href="/dashboard/messages"

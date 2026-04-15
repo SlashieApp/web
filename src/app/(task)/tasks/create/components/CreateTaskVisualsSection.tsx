@@ -1,11 +1,10 @@
 'use client'
 
-import { Box, HStack, Image, Stack } from '@chakra-ui/react'
+import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { useRef } from 'react'
 
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
-import { Heading, Text } from '@ui'
 
 export type CreateTaskVisualsSectionProps = {
   files: File[]
@@ -24,25 +23,25 @@ export function CreateTaskVisualsSection({
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLowest">
+    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={4}>
         <Heading size="lg" color="primary.700">
           3. Visuals
         </Heading>
-        <Text fontSize="sm" color="muted">
+        <Text fontSize="sm" color="formLabelMuted">
           Photos help contractors give more accurate quotes.
         </Text>
 
         <Box
           borderWidth="2px"
           borderStyle="dashed"
-          borderColor="border"
+          borderColor="jobCardBorder"
           borderRadius="xl"
           p={6}
-          bg="surfaceContainerLow"
+          bg="jobCardBg"
         >
           <Stack align="center" gap={3}>
-            <Text fontSize="sm" color="muted" textAlign="center">
+            <Text fontSize="sm" color="formLabelMuted" textAlign="center">
               Upload images of the job area or problem (optional).
             </Text>
             <input
@@ -89,7 +88,7 @@ export function CreateTaskVisualsSection({
                     objectFit="cover"
                     borderRadius="lg"
                     borderWidth="1px"
-                    borderColor="border"
+                    borderColor="jobCardBorder"
                   />
                   <Button
                     type="button"

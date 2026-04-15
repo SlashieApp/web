@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Badge } from './Badge'
@@ -10,7 +11,7 @@ const meta = {
     layout: 'padded',
   },
   args: {
-    children: 'Verified Pro',
+    children: '2 hours ago',
   },
 } satisfies Meta<typeof Badge>
 

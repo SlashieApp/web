@@ -1,9 +1,8 @@
 'use client'
 
-import { Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Link, Stack, Text } from '@chakra-ui/react'
 
-import { Button, GlassCard } from '@ui'
+import { GlassCard } from '@ui'
 
 export function TaskDetailOwnerHelpCard() {
   return (
@@ -23,18 +22,25 @@ export function TaskDetailOwnerHelpCard() {
             Our team can help with quotes, payments, or disputes.
           </Text>
         </Stack>
-        <Button
-          as={NextLink}
+        <Link
           href="mailto:support@handybox.com"
-          size="sm"
+          alignSelf="flex-start"
+          display="inline-flex"
+          alignItems="center"
+          justifyContent="center"
+          px={4}
+          py={2}
+          borderRadius="lg"
+          fontSize="sm"
+          fontWeight={700}
+          fontFamily="heading"
           bg="white"
           color="primary.800"
-          _hover={{ bg: 'primary.50' }}
-          alignSelf="flex-start"
-          borderRadius="lg"
+          textDecoration="none"
+          _hover={{ bg: 'primary.50', textDecoration: 'none' }}
         >
           Chat with support
-        </Button>
+        </Link>
       </Stack>
     </GlassCard>
   )

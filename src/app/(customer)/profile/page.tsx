@@ -5,9 +5,12 @@ import {
   Box,
   Grid,
   HStack,
+  Heading,
   IconButton,
+  Input,
   Link,
   Stack,
+  Text,
   Textarea,
 } from '@chakra-ui/react'
 import { LoginMethod, type UpdateMyProfileMutation } from '@codegen/schema'
@@ -18,6 +21,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { ME_QUERY } from '@/graphql/auth'
 import { UPDATE_MY_PROFILE_MUTATION } from '@/graphql/users'
+import { IconCalendar } from '@/icons/taskMeta'
 import {
   loadCustomerProfileExtras,
   saveCustomerProfileExtras,
@@ -29,8 +33,7 @@ import {
   taskBudgetPence,
 } from '@/utils/dashboardHelpers'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Badge, Button, GlassCard, Heading, Text, TextInput } from '@ui'
-import { IconCalendar } from '@ui'
+import { Badge, Button, GlassCard } from '@ui'
 
 import { useCustomerAccount } from '../context'
 
@@ -350,7 +353,7 @@ export default function CustomerProfilePage() {
               color="primary.800"
               overflow="hidden"
               borderWidth="3px"
-              borderColor="surfaceContainerLowest"
+              borderColor="neutral.100"
               boxShadow="sm"
             >
               {avatarSrc ? (
@@ -394,8 +397,8 @@ export default function CustomerProfilePage() {
                 {me ? displayNameFromMe(me) : 'Account'}
               </Heading>
               <Badge
-                bg="secondaryFixed"
-                color="onSecondaryFixed"
+                bg="jobCardBg"
+                color="jobCardTitle"
                 px={2}
                 py={0.5}
                 borderRadius="full"
@@ -406,9 +409,9 @@ export default function CustomerProfilePage() {
                 CUSTOMER
               </Badge>
             </HStack>
-            <Text color="muted">{me?.email}</Text>
+            <Text color="formLabelMuted">{me?.email}</Text>
             {joinMonthYear(me?.createdAt) ? (
-              <HStack gap={2} color="muted" fontSize="sm">
+              <HStack gap={2} color="formLabelMuted" fontSize="sm">
                 <IconCalendar w="16px" h="16px" />
                 <Text>Joined {joinMonthYear(me?.createdAt)}</Text>
               </HStack>
@@ -423,7 +426,7 @@ export default function CustomerProfilePage() {
         </Text>
       ) : null}
 
-      <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLow">
+      <GlassCard p={{ base: 5, md: 6 }} bg="jobCardBg">
         <Stack gap={5}>
           <HStack
             justify="space-between"
@@ -474,10 +477,16 @@ export default function CustomerProfilePage() {
                 setSaveError(null)
               }}
             >
-              <TextInput
+              <Input
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFullName(e.target.value)
+                }
                 aria-label="Full name"
+                bg="neutral.100"
+                borderRadius="lg"
+                borderWidth="1px"
+                borderColor="formControlBorder"
               />
             </InfoRow>
             <InfoRow
@@ -491,11 +500,17 @@ export default function CustomerProfilePage() {
                 setSaveError(null)
               }}
             >
-              <TextInput
+              <Input
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setLocation(e.target.value)
+                }
                 placeholder="City or region"
                 aria-label="Location"
+                bg="neutral.100"
+                borderRadius="lg"
+                borderWidth="1px"
+                borderColor="formControlBorder"
               />
             </InfoRow>
           </Grid>
@@ -515,8 +530,8 @@ export default function CustomerProfilePage() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Tell workers a little about what you are looking for."
-              bg="surfaceContainerLowest"
-              borderColor="border"
+              bg="neutral.100"
+              borderColor="jobCardBorder"
               borderRadius="lg"
             />
           </InfoRow>
@@ -530,12 +545,18 @@ export default function CustomerProfilePage() {
               setSaveError(null)
             }}
           >
-            <TextInput
+            <Input
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPhoneNumber(e.target.value)
+              }
               placeholder="+44 7000 000000"
               inputMode="tel"
               aria-label="Phone number"
+              bg="neutral.100"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="formControlBorder"
             />
           </InfoRow>
 
@@ -572,17 +593,17 @@ export default function CustomerProfilePage() {
             status={<ConnectedBadge />}
             action={
               googleConnected ? (
-                <Text fontSize="sm" color="muted">
+                <Text fontSize="sm" color="formLabelMuted">
                   Managed in Slashie settings soon
                 </Text>
               ) : (
-                <Text fontSize="sm" color="muted">
+                <Text fontSize="sm" color="formLabelMuted">
                   Not connected
                 </Text>
               )
             }
           />
-          <Box h="1px" bg="border" /> */}
+          <Box h="1px" bg="jobCardBorder" /> */}
           <SecurityRow
             icon={<IconEnvelope />}
             title="Email Address"
@@ -600,20 +621,21 @@ export default function CustomerProfilePage() {
           />
         </GlassCard>
 
-        <GlassCard p={4} bg="surfaceContainerLow">
-          <Button
-            as={NextLink}
-            href={forgotHref}
-            variant="outline"
-            width="full"
-            justifyContent="center"
-            gap={2}
-          >
-            <IconLockOutline />
-            Change Password
-          </Button>
+        <GlassCard p={4} bg="jobCardBg">
+          <NextLink href={forgotHref} passHref legacyBehavior>
+            <Button
+              as="a"
+              variant="outline"
+              width="full"
+              justifyContent="center"
+              gap={2}
+            >
+              <IconLockOutline />
+              Change Password
+            </Button>
+          </NextLink>
           {!passwordConnected ? (
-            <Text fontSize="sm" color="muted" mt={3}>
+            <Text fontSize="sm" color="formLabelMuted" mt={3}>
               Password sign-in is not enabled on this account. Use your
               connected provider, or contact support to add a password.
             </Text>
@@ -656,25 +678,20 @@ export default function CustomerProfilePage() {
             📋
           </Box>
         </GlassCard>
-        <GlassCard
-          p={6}
-          bg="surfaceContainerHigh"
-          position="relative"
-          overflow="hidden"
-        >
+        <GlassCard p={6} bg="badgeBg" position="relative" overflow="hidden">
           <Stack gap={1} position="relative" zIndex={1}>
             <Text
               fontSize="xs"
               fontWeight={800}
               letterSpacing="0.08em"
-              color="muted"
+              color="formLabelMuted"
             >
               TOTAL SPENT
             </Text>
             <Text fontSize="3xl" fontWeight={800} color="primary.800">
               {tasksLoading ? '…' : formatPounds(totalSpendPence)}
             </Text>
-            <Text fontSize="xs" color="muted">
+            <Text fontSize="xs" color="formLabelMuted">
               Based on completed tasks you posted.
             </Text>
           </Stack>
@@ -714,7 +731,7 @@ export default function CustomerProfilePage() {
             <Heading size="md" color="primary.900">
               My Requests
             </Heading>
-            <Text color="muted" mt={2} maxW="sm">
+            <Text color="formLabelMuted" mt={2} maxW="sm">
               Track your ongoing and completed service requests.
             </Text>
             <Box
@@ -736,18 +753,18 @@ export default function CustomerProfilePage() {
         >
           <GlassCard
             p={6}
-            bg="secondaryFixed"
-            borderColor="secondaryFixed"
+            bg="jobCardBg"
+            borderColor="jobCardBg"
             borderWidth="1px"
             position="relative"
             overflow="hidden"
             display="block"
             _hover={{ boxShadow: 'md' }}
           >
-            <Heading size="md" color="onSecondaryFixed">
+            <Heading size="md" color="jobCardTitle">
               Switch to Worker Mode
             </Heading>
-            <Text color="onSecondaryFixed" opacity={0.9} mt={2} maxW="sm">
+            <Text color="jobCardTitle" opacity={0.9} mt={2} maxW="sm">
               Start earning by offering your skills to the community.
             </Text>
             <Box
@@ -825,7 +842,11 @@ function InfoRow({
               >
                 {label}
               </Text>
-              <Text fontWeight={600} color="fg" wordBreak="break-word">
+              <Text
+                fontWeight={600}
+                color="jobCardTitle"
+                wordBreak="break-word"
+              >
                 {value}
               </Text>
             </Stack>

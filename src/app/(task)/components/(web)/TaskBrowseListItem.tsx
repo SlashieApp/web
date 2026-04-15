@@ -1,10 +1,9 @@
 'use client'
 
-import { Box, HStack, Stack } from '@chakra-ui/react'
+import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import Image from 'next/image'
-import NextLink from 'next/link'
 
-import { Button, Heading, IconMapPin, Text } from '@ui'
+import { Button } from '@ui'
 
 export type JobCardBadgeVariant = 'emergency' | 'featured' | 'none'
 
@@ -55,7 +54,7 @@ function isTaskBrowseListItemWithTask(
 function badgeStyles(variant: JobCardBadgeVariant) {
   if (variant === 'emergency') return { bg: 'red.50', color: 'red.700' }
   if (variant === 'featured') return { bg: 'primary.100', color: 'primary.700' }
-  return { bg: 'surfaceContainerHigh', color: 'muted' }
+  return { bg: 'badgeBg', color: 'formLabelMuted' }
 }
 
 export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
@@ -97,7 +96,7 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
       gap={3}
       p={2.5}
       align="stretch"
-      bg="surfaceContainerLowest"
+      bg="neutral.100"
       borderRadius="2xl"
       boxShadow="0 4px 14px rgba(15,23,42,0.08)"
       borderWidth="1px"
@@ -119,7 +118,7 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
         flexShrink={0}
         borderRadius="lg"
         overflow="hidden"
-        bg="surfaceContainerHigh"
+        bg="badgeBg"
       >
         {thumbnailSrc ? (
           <Image
@@ -133,7 +132,13 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
       </Box>
       <Stack flex={1} minW={0} gap={1} h="84px">
         <HStack justify="space-between" align="flex-start" gap={2}>
-          <Heading size="sm" color="fg" lineHeight="1.25" flex={1} minW={0}>
+          <Heading
+            size="sm"
+            color="jobCardTitle"
+            lineHeight="1.25"
+            flex={1}
+            minW={0}
+          >
             <Text
               as="span"
               display="block"
@@ -158,8 +163,7 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
         </HStack>
 
         <HStack gap={1.5} minW={0}>
-          <IconMapPin />
-          <Text fontSize="sm" color="muted" truncate>
+          <Text fontSize="sm" color="formLabelMuted" truncate>
             {metaLine}
           </Text>
         </HStack>
@@ -185,18 +189,18 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
           ) : (
             <Box />
           )}
-          <Button
-            as={NextLink}
-            href={detailsHref}
-            px={2}
-            mt="auto"
-            h="auto"
-            fontSize="xs"
-            fontWeight={600}
-            onClick={(e) => e.stopPropagation()}
-          >
-            View details
-          </Button>
+          <Link href={detailsHref}>
+            <Button
+              px={2}
+              mt="auto"
+              h="auto"
+              fontSize="xs"
+              fontWeight={600}
+              onClick={(e) => e.stopPropagation()}
+            >
+              View details
+            </Button>
+          </Link>
         </HStack>
       </Stack>
     </HStack>

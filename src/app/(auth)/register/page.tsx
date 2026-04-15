@@ -1,17 +1,21 @@
 'use client'
 
+import { AuthBrandMark } from '@/app/(auth)/components/AuthBrandMark'
 import { useMutation } from '@apollo/client/react'
 import {
   Box,
   Checkbox,
   HStack,
+  Heading,
   IconButton,
+  Input,
   InputGroup,
   Link,
   Stack,
+  Text,
 } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
-import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
+import { Button, FormField } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -24,7 +28,7 @@ type AccountRole = 'homeowner' | 'professional'
 
 function FieldIconMail() {
   return (
-    <Box as="span" color="muted" display="flex" aria-hidden>
+    <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <title>Email</title>
         <path
@@ -41,7 +45,7 @@ function FieldIconMail() {
 
 function FieldIconLock() {
   return (
-    <Box as="span" color="muted" display="flex" aria-hidden>
+    <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <title>Password</title>
         <path
@@ -91,7 +95,7 @@ function IconTools() {
 
 function IconEye({ open }: { open: boolean }) {
   return (
-    <Box as="span" display="flex" color="muted" aria-hidden>
+    <Box as="span" display="flex" color="formLabelMuted" aria-hidden>
       {open ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <title>Show password</title>
@@ -142,8 +146,8 @@ function PasswordToggleButton({
       minW="var(--input-height)"
       h="var(--input-height)"
       borderRadius="md"
-      color="muted"
-      _hover={{ bg: 'surfaceContainerHigh' }}
+      color="formLabelMuted"
+      _hover={{ bg: 'badgeBg' }}
     >
       <IconEye open={!visible} />
     </IconButton>
@@ -225,14 +229,14 @@ export default function RegisterPage() {
         href="/"
         _hover={{ textDecoration: 'none', opacity: 0.9 }}
       >
-        <HandyBoxWordmark size="lg" />
+        <AuthBrandMark size="lg" />
       </Link>
 
       <Box>
-        <Heading size="2xl" color="fg">
+        <Heading size="2xl" color="jobCardTitle">
           Create your account
         </Heading>
-        <Text mt={2} color="muted" fontSize="sm">
+        <Text mt={2} color="formLabelMuted" fontSize="sm">
           Start your journey with HandyBox today.
         </Text>
       </Box>
@@ -244,19 +248,23 @@ export default function RegisterPage() {
           variant="outline"
           borderRadius="lg"
           borderWidth="2px"
-          borderColor={role === 'homeowner' ? 'primary.500' : 'outlineVariant'}
-          bg={role === 'homeowner' ? 'primary.50' : 'surfaceContainerLowest'}
-          color={role === 'homeowner' ? 'primary.700' : 'fg'}
+          borderColor={
+            role === 'homeowner' ? 'primary.500' : 'formControlBorder'
+          }
+          bg={role === 'homeowner' ? 'primary.50' : 'neutral.100'}
+          color={role === 'homeowner' ? 'primary.700' : 'jobCardTitle'}
           fontWeight={700}
           py={6}
           h="auto"
           onClick={() => setRole('homeowner')}
           _hover={{
-            bg: role === 'homeowner' ? 'primary.100' : 'surfaceContainerLow',
+            bg: role === 'homeowner' ? 'primary.100' : 'jobCardBg',
           }}
         >
           <Stack gap={2} align="center" w="full">
-            <Box color={role === 'homeowner' ? 'primary.600' : 'muted'}>
+            <Box
+              color={role === 'homeowner' ? 'primary.600' : 'formLabelMuted'}
+            >
               <IconHouse />
             </Box>
             <Box as="span">Homeowner</Box>
@@ -269,20 +277,22 @@ export default function RegisterPage() {
           borderRadius="lg"
           borderWidth="2px"
           borderColor={
-            role === 'professional' ? 'primary.500' : 'outlineVariant'
+            role === 'professional' ? 'primary.500' : 'formControlBorder'
           }
-          bg={role === 'professional' ? 'primary.50' : 'surfaceContainerLowest'}
-          color={role === 'professional' ? 'primary.700' : 'fg'}
+          bg={role === 'professional' ? 'primary.50' : 'neutral.100'}
+          color={role === 'professional' ? 'primary.700' : 'jobCardTitle'}
           fontWeight={700}
           py={6}
           h="auto"
           onClick={() => setRole('professional')}
           _hover={{
-            bg: role === 'professional' ? 'primary.100' : 'surfaceContainerLow',
+            bg: role === 'professional' ? 'primary.100' : 'jobCardBg',
           }}
         >
           <Stack gap={2} align="center" w="full">
-            <Box color={role === 'professional' ? 'primary.600' : 'muted'}>
+            <Box
+              color={role === 'professional' ? 'primary.600' : 'formLabelMuted'}
+            >
               <IconTools />
             </Box>
             <Box as="span">Professional</Box>
@@ -296,12 +306,14 @@ export default function RegisterPage() {
             <Input
               placeholder="e.g. John Doe"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setFullName(e.target.value)
+              }
               autoComplete="name"
               required
               borderRadius="lg"
               borderWidth="1px"
-              borderColor="outlineVariant"
+              borderColor="formControlBorder"
             />
           </FormField>
 
@@ -310,13 +322,15 @@ export default function RegisterPage() {
               <Input
                 placeholder="name@company.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEmail(e.target.value)
+                }
                 type="email"
                 autoComplete="email"
                 required
                 borderRadius="lg"
                 borderWidth="1px"
-                borderColor="outlineVariant"
+                borderColor="formControlBorder"
               />
             </InputGroup>
           </FormField>
@@ -344,14 +358,16 @@ export default function RegisterPage() {
                 <Input
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setPassword(e.target.value)
+                  }
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
                   minLength={8}
                   borderRadius="lg"
                   borderWidth="1px"
-                  borderColor="outlineVariant"
+                  borderColor="formControlBorder"
                 />
               </InputGroup>
             </FormField>
@@ -377,14 +393,16 @@ export default function RegisterPage() {
                 <Input
                   placeholder="••••••••"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setConfirmPassword(e.target.value)
+                  }
                   type={showConfirm ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
                   minLength={8}
                   borderRadius="lg"
                   borderWidth="1px"
-                  borderColor="outlineVariant"
+                  borderColor="formControlBorder"
                 />
               </InputGroup>
             </FormField>
@@ -403,8 +421,8 @@ export default function RegisterPage() {
                 mt={0.5}
                 borderRadius="md"
                 borderWidth="1px"
-                borderColor="outlineVariant"
-                bg="surfaceContainerLowest"
+                borderColor="formControlBorder"
+                bg="neutral.100"
                 _checked={{
                   bg: 'primary.500',
                   borderColor: 'primary.500',
@@ -416,7 +434,7 @@ export default function RegisterPage() {
               <Checkbox.Label
                 fontSize="sm"
                 fontWeight={500}
-                color="fg"
+                color="jobCardTitle"
                 lineHeight="1.5"
               >
                 I agree to the{' '}
@@ -463,8 +481,8 @@ export default function RegisterPage() {
         </Stack>
       </Box>
 
-      <Box pt={2} borderTopWidth="1px" borderColor="outlineVariant">
-        <Text fontSize="sm" color="muted" textAlign="center">
+      <Box pt={2} borderTopWidth="1px" borderColor="formControlBorder">
+        <Text fontSize="sm" color="formLabelMuted" textAlign="center">
           Already have an account?{' '}
           <Link
             as={NextLink}

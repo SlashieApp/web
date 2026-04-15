@@ -2,7 +2,9 @@
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Box, Stack } from '@chakra-ui/react'
-import { GlassCard, Text } from '@ui'
+import { Text } from '@chakra-ui/react'
+
+import { GlassCard } from '@ui'
 
 import {
   type TaskBudgetViewerContext,
@@ -27,7 +29,11 @@ export function TaskDetailHero({
   const budgetLine = taskBudgetDisplayLine(task, budgetViewer, viewerUserId)
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} borderColor="border" boxShadow="ambient">
+    <GlassCard
+      p={{ base: 5, md: 6 }}
+      borderColor="jobCardBorder"
+      boxShadow="ambient"
+    >
       <Stack gap={4}>
         <Box
           as="span"
@@ -59,7 +65,7 @@ export function TaskDetailHero({
           <Text
             fontSize="xs"
             fontWeight={700}
-            color="muted"
+            color="formLabelMuted"
             letterSpacing="0.06em"
           >
             BUDGET
@@ -74,7 +80,7 @@ export function TaskDetailHero({
         </Stack>
 
         {locationLine ? (
-          <Text fontSize="sm" color="muted">
+          <Text fontSize="sm" color="formLabelMuted">
             {locationLine}
           </Text>
         ) : null}

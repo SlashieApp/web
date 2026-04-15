@@ -1,19 +1,17 @@
 'use client'
 
-import { Box, HStack, type StackProps } from '@chakra-ui/react'
+import { Box, HStack, Heading, type StackProps } from '@chakra-ui/react'
 
-import { Heading } from '../Typography'
-
-export type HandyBoxWordmarkProps = StackProps & {
-  /** Larger logo tile for auth headers */
+export type AuthBrandMarkProps = StackProps & {
   size?: 'md' | 'lg'
 }
 
-export function HandyBoxWordmark({
+/** Slashie logo row for auth screens (not exported from `@ui`). */
+export function AuthBrandMark({
   size = 'md',
   gap = 3,
   ...props
-}: HandyBoxWordmarkProps) {
+}: AuthBrandMarkProps) {
   const tile =
     size === 'lg'
       ? { boxSize: 11, iconW: 22, iconH: 22 }
@@ -55,7 +53,12 @@ export function HandyBoxWordmark({
           />
         </svg>
       </Box>
-      <Heading size={size === 'lg' ? 'lg' : 'md'} color="primary.600" mb={0}>
+      <Heading
+        size={size === 'lg' ? 'lg' : 'md'}
+        color="primary.600"
+        mb={0}
+        fontFamily="heading"
+      >
         Slashie
       </Heading>
     </HStack>

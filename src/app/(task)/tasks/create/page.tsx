@@ -1,7 +1,16 @@
 'use client'
 
 import { useApolloClient, useMutation } from '@apollo/client/react'
-import { Box, Grid, HStack, Link, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Container,
+  Grid,
+  HStack,
+  Heading,
+  Link,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
@@ -21,7 +30,7 @@ import { CREATE_TASK } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
-import { Button, Footer, Heading, Section, Text } from '@ui'
+import { Button, Footer } from '@ui'
 
 import {
   CreateTaskBasicsSection,
@@ -369,14 +378,14 @@ export default function CreateTaskPage() {
   if (!sessionOk) {
     return (
       <Box
-        bg="surface"
-        color="fg"
+        bg="bg"
+        color="jobCardTitle"
         minH="50vh"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="muted" fontSize="sm">
+        <Text color="formLabelMuted" fontSize="sm">
           Checking your session…
         </Text>
       </Box>
@@ -384,32 +393,34 @@ export default function CreateTaskPage() {
   }
 
   return (
-    <Box bg="surface" color="fg" minH="100vh">
+    <Box bg="bg" color="jobCardTitle" minH="100vh">
       <Stack gap={0}>
-        <Section bg="surfaceContainerLow" py={{ base: 8, md: 10 }}>
-          <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-            <Stack gap={2}>
-              <Link
-                as={NextLink}
-                href="/"
-                fontWeight={600}
-                color="primary.700"
-                _hover={{ textDecoration: 'none' }}
-              >
-                ← Back to tasks
-              </Link>
-              <Heading size={{ base: '2xl', md: '3xl' }} fontWeight={800}>
-                Post a new task
-              </Heading>
-              <Text color="muted">
-                Detail your requirements, set your budget, and find the right
-                professional for your project.
-              </Text>
-            </Stack>
+        <Box as="section" bg="jobCardBg" py={{ base: 8, md: 10 }}>
+          <Container>
+            <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
+              <Stack gap={2}>
+                <Link
+                  as={NextLink}
+                  href="/"
+                  fontWeight={600}
+                  color="primary.700"
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  ← Back to tasks
+                </Link>
+                <Heading size={{ base: '2xl', md: '3xl' }} fontWeight={800}>
+                  Post a new task
+                </Heading>
+                <Text color="formLabelMuted">
+                  Detail your requirements, set your budget, and find the right
+                  professional for your project.
+                </Text>
+              </Stack>
 
-            {createTaskForm}
-          </Stack>
-        </Section>
+              {createTaskForm}
+            </Stack>
+          </Container>
+        </Box>
         <Footer />
       </Stack>
     </Box>

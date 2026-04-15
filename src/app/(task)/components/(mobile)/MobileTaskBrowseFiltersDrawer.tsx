@@ -16,13 +16,14 @@ import {
   DrawerTitle,
   HStack,
   IconButton,
+  Input,
   InputGroup,
   SimpleGrid,
   Slider,
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { Button, IconCalendar, TextInput } from '@ui'
+import { Button } from '@ui'
 
 import {
   useTaskBrowseFiltersProps,
@@ -49,7 +50,7 @@ function CloseIcon() {
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <Text fontSize="sm" fontWeight={600} color="muted">
+    <Text fontSize="sm" fontWeight={600} color="formLabelMuted">
       {children}
     </Text>
   )
@@ -113,18 +114,16 @@ function UrgencyCard({
       whiteSpace="normal"
       lineHeight="1.1"
       borderWidth="1px"
-      bg={
-        active
-          ? isEmergency
-            ? 'secondaryFixed'
-            : 'primary.50'
-          : 'surfaceContainerHigh'
-      }
+      bg={active ? (isEmergency ? 'jobCardBg' : 'primary.50') : 'badgeBg'}
       borderColor={
         active ? (isEmergency ? 'secondary.400' : 'primary.500') : 'transparent'
       }
       color={
-        active ? (isEmergency ? 'onSecondaryFixed' : 'primary.600') : 'muted'
+        active
+          ? isEmergency
+            ? 'jobCardTitle'
+            : 'primary.600'
+          : 'formLabelMuted'
       }
       boxShadow="none"
       _hover={{
@@ -132,7 +131,7 @@ function UrgencyCard({
           ? isEmergency
             ? 'secondary.100'
             : 'primary.100'
-          : 'surfaceContainerHighest',
+          : 'jobCardDivider',
       }}
       onClick={onClick}
       aria-pressed={active}
@@ -192,7 +191,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
           }}
         >
           <Slider.Control>
-            <Slider.Track bg="surfaceContainerHighest">
+            <Slider.Track bg="jobCardDivider">
               <Slider.Range bg="primary.600" />
             </Slider.Track>
             <Slider.Thumbs />
@@ -203,7 +202,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
             fontSize="10px"
             fontWeight={700}
             letterSpacing="0.08em"
-            color="muted"
+            color="formLabelMuted"
           >
             1 MILES
           </Text>
@@ -211,7 +210,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
             fontSize="10px"
             fontWeight={700}
             letterSpacing="0.08em"
-            color="muted"
+            color="formLabelMuted"
           >
             50 MILES
           </Text>
@@ -223,12 +222,17 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
         <SimpleGrid columns={2} gap={3}>
           <InputGroup
             startElement={
-              <Text color="muted" fontSize="sm" fontWeight={600} ps={3}>
+              <Text
+                color="formLabelMuted"
+                fontSize="sm"
+                fontWeight={600}
+                ps={3}
+              >
                 £
               </Text>
             }
           >
-            <TextInput
+            <Input
               inputMode="decimal"
               placeholder="Min"
               value={minBudgetPounds}
@@ -236,18 +240,23 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
               h={12}
               borderRadius="lg"
               borderWidth="1px"
-              borderColor="outlineVariant"
+              borderColor="formControlBorder"
               ps="2.25rem"
             />
           </InputGroup>
           <InputGroup
             startElement={
-              <Text color="muted" fontSize="sm" fontWeight={600} ps={3}>
+              <Text
+                color="formLabelMuted"
+                fontSize="sm"
+                fontWeight={600}
+                ps={3}
+              >
                 £
               </Text>
             }
           >
-            <TextInput
+            <Input
               inputMode="decimal"
               placeholder="Max"
               value={maxBudgetPounds}
@@ -255,7 +264,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
               h={12}
               borderRadius="lg"
               borderWidth="1px"
-              borderColor="outlineVariant"
+              borderColor="formControlBorder"
               ps="2.25rem"
             />
           </InputGroup>
@@ -272,32 +281,6 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
             onClick={() => onUrgencyChange(cycleUrgency(urgency, 'emergency'))}
             icon={<IconEmergencyDiamond />}
           />
-          <UrgencyCard
-            label="TODAY"
-            active={urgency === 'today'}
-            onClick={() => onUrgencyChange(cycleUrgency(urgency, 'today'))}
-            icon={
-              <IconCalendar
-                w="22px"
-                h="22px"
-                color="inherit"
-                opacity={urgency === 'today' ? 1 : 0.7}
-              />
-            }
-          />
-          <UrgencyCard
-            label="THIS WEEK"
-            active={urgency === 'week'}
-            onClick={() => onUrgencyChange(cycleUrgency(urgency, 'week'))}
-            icon={
-              <IconCalendar
-                w="22px"
-                h="22px"
-                color="inherit"
-                opacity={urgency === 'week' ? 1 : 0.7}
-              />
-            }
-          />
         </HStack>
       </Stack>
     </Stack>
@@ -311,8 +294,7 @@ export function MobileTaskBrowseFiltersTrigger() {
     <Button
       type="button"
       size="sm"
-      variant={isFilterOpen ? 'solid' : 'subtle'}
-      borderRadius="full"
+      variant={isFilterOpen ? 'primary' : 'secondary'}
       px={2.5}
       py={1}
       onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -343,7 +325,7 @@ export function MobileTaskBrowseFiltersDrawer() {
         <DrawerContent
           borderTopLeftRadius="3xl"
           borderTopRightRadius="3xl"
-          bg="surfaceContainerLowest"
+          bg="neutral.100"
           maxH="96dvh"
           display="flex"
           flexDirection="column"
@@ -363,7 +345,7 @@ export function MobileTaskBrowseFiltersDrawer() {
               w="40px"
               h="4px"
               borderRadius="full"
-              bg="outlineVariant"
+              bg="formControlBorder"
             />
             <Box
               display="flex"
@@ -376,7 +358,7 @@ export function MobileTaskBrowseFiltersDrawer() {
                 fontFamily="heading"
                 fontSize="xl"
                 fontWeight={800}
-                color="fg"
+                color="jobCardTitle"
                 lineHeight="short"
               >
                 Filters

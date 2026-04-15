@@ -82,7 +82,12 @@ export function TaskDetailPhotoGrid({
 
   return (
     <Stack gap={3}>
-      <Text fontSize="sm" fontWeight={700} color="muted" letterSpacing="0.06em">
+      <Text
+        fontSize="sm"
+        fontWeight={700}
+        color="formLabelMuted"
+        letterSpacing="0.06em"
+      >
         {sectionTitle}
       </Text>
       <Grid
@@ -103,8 +108,8 @@ export function TaskDetailPhotoGrid({
           borderRadius="xl"
           overflow="hidden"
           borderWidth="1px"
-          borderColor="border"
-          bg="surfaceContainerLow"
+          borderColor="jobCardBorder"
+          bg="jobCardBg"
         >
           <PhotoCell
             src={main}
@@ -119,7 +124,7 @@ export function TaskDetailPhotoGrid({
           borderRadius="xl"
           overflow="hidden"
           borderWidth="1px"
-          borderColor="border"
+          borderColor="jobCardBorder"
         >
           <PhotoCell
             src={second}
@@ -134,7 +139,7 @@ export function TaskDetailPhotoGrid({
           borderRadius="xl"
           overflow="hidden"
           borderWidth="1px"
-          borderColor="border"
+          borderColor="jobCardBorder"
           position="relative"
         >
           <PhotoCell

@@ -1,12 +1,11 @@
 'use client'
 
-import { HStack, Stack } from '@chakra-ui/react'
+import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { TaskContactMethod } from '@codegen/schema'
 
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
-import { Heading, Text } from '@ui'
 
 export type CreateTaskContactSectionProps = {
   preferredContactMethod: TaskContactMethod
@@ -18,12 +17,12 @@ export function CreateTaskContactSection({
   onPreferredContactMethodChange,
 }: CreateTaskContactSectionProps) {
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLowest">
+    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={4}>
         <Heading size="lg" color="primary.700">
           4. Preferred contact
         </Heading>
-        <Text fontSize="sm" color="muted">
+        <Text fontSize="sm" color="formLabelMuted">
           We share contact details from your Slashie profile using the method
           you choose below. Update your phone, email, or in-app preferences in
           account settings if needed.
@@ -37,13 +36,13 @@ export function CreateTaskContactSection({
               variant="subtle"
               bg={
                 preferredContactMethod === TaskContactMethod.InApp
-                  ? 'secondaryFixed'
-                  : 'surfaceContainerLow'
+                  ? 'jobCardBg'
+                  : 'jobCardBg'
               }
               color={
                 preferredContactMethod === TaskContactMethod.InApp
-                  ? 'onSecondaryFixed'
-                  : 'fg'
+                  ? 'jobCardTitle'
+                  : 'jobCardTitle'
               }
               boxShadow="none"
               onClick={() =>
@@ -58,13 +57,13 @@ export function CreateTaskContactSection({
               variant="subtle"
               bg={
                 preferredContactMethod === TaskContactMethod.Phone
-                  ? 'secondaryFixed'
-                  : 'surfaceContainerLow'
+                  ? 'jobCardBg'
+                  : 'jobCardBg'
               }
               color={
                 preferredContactMethod === TaskContactMethod.Phone
-                  ? 'onSecondaryFixed'
-                  : 'fg'
+                  ? 'jobCardTitle'
+                  : 'jobCardTitle'
               }
               boxShadow="none"
               onClick={() =>
@@ -79,13 +78,13 @@ export function CreateTaskContactSection({
               variant="subtle"
               bg={
                 preferredContactMethod === TaskContactMethod.Email
-                  ? 'secondaryFixed'
-                  : 'surfaceContainerLow'
+                  ? 'jobCardBg'
+                  : 'jobCardBg'
               }
               color={
                 preferredContactMethod === TaskContactMethod.Email
-                  ? 'onSecondaryFixed'
-                  : 'fg'
+                  ? 'jobCardTitle'
+                  : 'jobCardTitle'
               }
               boxShadow="none"
               onClick={() =>

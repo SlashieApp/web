@@ -1,0 +1,26 @@
+---
+description: Slashie UI and Storybook demos must work in light and dark without hardcoded canvas wrappers.
+globs:
+  - "**/*.stories.tsx"
+  - "**/theme/system.ts"
+alwaysApply: false
+---
+
+# Dual theme: components and Storybook
+
+## Product components
+
+- New UI that reflects brand layouts (forms, cards, tags, etc.) must be **readable in both themes** by driving colors from **`lightConfig` / `darkConfig`** semantic tokens in `src/theme/system.ts` (or Chakra tokens that already differ per system). Avoid inferring theme from `useToken` string hacks unless there is no token path.
+- When adding a surface (inputs, labels, icons, helpers), prefer **`formControl*`, `jobCard*`, `tag*`, `badge*`, etc.** so `ChakraProvider` **lightSystem** vs **darkSystem** (and Storybook’s theme toolbar) switch the look automatically.
+
+## Storybook stories
+
+- **Do not** wrap demos in a `Box` with a hardcoded background (e.g. `#222222`) to “force” dark mode. The preview already swaps the Chakra system; use **`bg="bg"`** only when you must show something on the app canvas—and prefer **no extra wrapper** when the story is already on the padded canvas.
+- **Do not** import from `@ui` inside `src/ui/**` implementation files or colocated stories when that pulls the barrel and re-exports the same module (use **relative imports** to the concrete file, e.g. `../Badge/Badge`).
+- Stories for themed controls should reuse the same **semantic token names** as production (e.g. `formControlBg`, `formLabelMuted`) so **one story** looks correct under **both** toolbar theme values.
+
+## Checklist
+
+- [ ] Semantic tokens exist for both `lightConfig` and `darkConfig` where colors must differ.
+- [ ] Story has no fixed hex page background unless documenting an exception.
+- [ ] No `@ui` barrel imports from colocated `src/ui` modules that create circular chunks.

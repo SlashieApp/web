@@ -1,9 +1,7 @@
 'use client'
 
-import { Box, HStack, Stack } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
-
-import { Text } from './Typography'
 
 type DockItem = {
   key: string
@@ -113,10 +111,10 @@ export function Dock() {
       right={2}
       bottom={2}
       zIndex={6}
-      bg="surfaceBright/95"
+      bg="bg"
       borderRadius="2xl"
       borderWidth="1px"
-      borderColor="border"
+      borderColor="secondary.200"
       boxShadow="0 10px 32px rgba(15,23,42,0.24)"
       px={2}
       py={2}
@@ -132,10 +130,10 @@ export function Dock() {
             <Box
               borderRadius="xl"
               bg={item.active ? 'primary.50' : 'transparent'}
-              color={item.active ? 'primary.600' : 'muted'}
+              color={item.active ? 'primary.600' : 'secondary.700'}
               py={1}
               _hover={{
-                bg: item.active ? 'primary.100' : 'surfaceContainerLow',
+                bg: item.active ? 'primary.100' : 'secondary.100',
               }}
             >
               <Stack align="center" gap={1} position="relative">

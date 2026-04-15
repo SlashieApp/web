@@ -3,12 +3,14 @@
 import {
   Box,
   HStack,
+  Input,
   NativeSelect,
   SimpleGrid,
   Slider,
   Stack,
+  Text,
 } from '@chakra-ui/react'
-import { Button, Text, TextInput } from '@ui'
+import { Button } from '@ui'
 
 import {
   useTaskBrowseFiltersProps,
@@ -35,7 +37,7 @@ const FILTER_LABEL = {
   fontSize: 'xs',
   fontWeight: 700,
   letterSpacing: '0.06em',
-  color: 'muted',
+  color: 'formLabelMuted',
   textTransform: 'uppercase' as const,
 }
 
@@ -67,21 +69,15 @@ function UrgencyPill({
     <Button
       type="button"
       size="sm"
-      variant="subtle"
+      variant="secondary"
       flex="1"
       minW="0"
       fontSize="sm"
       fontWeight={600}
       borderRadius="full"
       boxShadow="none"
-      bg={
-        active
-          ? isEmergency
-            ? 'secondaryFixed'
-            : 'primary.500'
-          : 'surfaceContainerHigh'
-      }
-      color={active ? (isEmergency ? 'onSecondaryFixed' : 'white') : 'fg'}
+      bg={active ? (isEmergency ? 'jobCardBg' : 'primary.500') : 'badgeBg'}
+      color={active ? (isEmergency ? 'jobCardTitle' : 'white') : 'jobCardTitle'}
       onClick={onClick}
     >
       {label}
@@ -132,9 +128,9 @@ export function TaskBrowseFiltersCompactPanel({
             aria-label="Sort tasks"
             value={sortValue}
             onChange={(e) => onSortChange?.(e.target.value)}
-            bg="surfaceContainerLowest"
+            bg="neutral.100"
             borderWidth="1px"
-            borderColor="border"
+            borderColor="jobCardBorder"
             borderRadius="lg"
             fontSize="sm"
           >
@@ -150,13 +146,13 @@ export function TaskBrowseFiltersCompactPanel({
       <Stack gap={2}>
         <FilterSectionTitle mb={1}>Budget range</FilterSectionTitle>
         <SimpleGrid columns={2} gap={2}>
-          <TextInput
+          <Input
             inputMode="decimal"
             placeholder="$50"
             value={minBudgetPounds}
             onChange={(e) => onMinBudgetChange(e.target.value)}
           />
-          <TextInput
+          <Input
             inputMode="decimal"
             placeholder="$500+"
             value={maxBudgetPounds}
@@ -169,7 +165,7 @@ export function TaskBrowseFiltersCompactPanel({
               key={value}
               type="button"
               size="xs"
-              variant="subtle"
+              variant="secondary"
               onClick={() => {
                 onMinBudgetChange(value)
                 onMaxBudgetChange('')
@@ -204,7 +200,7 @@ export function TaskBrowseFiltersDefaultPanel({
     <Stack gap={6}>
       <Stack gap={3}>
         <FilterSectionTitle>Search</FilterSectionTitle>
-        <TextInput
+        <Input
           type="search"
           placeholder="Title, description, keywords..."
           value={searchQuery}
@@ -214,7 +210,7 @@ export function TaskBrowseFiltersDefaultPanel({
 
       <Stack gap={3}>
         <FilterSectionTitle>Search area</FilterSectionTitle>
-        <TextInput
+        <Input
           type="search"
           placeholder="e.g. Shoreditch, London or postcode"
           value={areaLocationInput}
@@ -255,13 +251,13 @@ export function TaskBrowseFiltersDefaultPanel({
       <Stack gap={3}>
         <FilterSectionTitle>Budget range</FilterSectionTitle>
         <SimpleGrid columns={2} gap={3}>
-          <TextInput
+          <Input
             inputMode="decimal"
             placeholder="0"
             value={minBudgetPounds}
             onChange={(e) => onMinBudgetChange(e.target.value)}
           />
-          <TextInput
+          <Input
             inputMode="decimal"
             placeholder="Any"
             value={maxBudgetPounds}
@@ -306,7 +302,7 @@ export function TaskBrowseFilters({
     return (
       <Box
         borderRadius="xl"
-        bg="surfaceContainerLow"
+        bg="jobCardBg"
         p={{ base: 3, md: 4 }}
         boxShadow="ghostBorder"
       >
@@ -318,7 +314,7 @@ export function TaskBrowseFilters({
   return (
     <Box
       borderRadius="xl"
-      bg="surfaceContainerLow"
+      bg="jobCardBg"
       p={{ base: 5, md: 6 }}
       boxShadow="ghostBorder"
     >

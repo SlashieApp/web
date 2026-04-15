@@ -1,11 +1,19 @@
 'use client'
 
-import { Grid, HStack, Link, SimpleGrid, Stack } from '@chakra-ui/react'
+import {
+  Grid,
+  HStack,
+  Heading,
+  Link,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { useDashboardData } from '@/app/dashboard/context'
 import { formatPounds } from '@/utils/dashboardHelpers'
-import { Badge, Button, GlassCard, Heading, Text } from '@ui'
+import { Badge, Button, GlassCard } from '@ui'
 
 function MetricCard({
   label,
@@ -23,13 +31,13 @@ function MetricCard({
           fontSize="10px"
           fontWeight={800}
           letterSpacing="0.08em"
-          color="muted"
+          color="formLabelMuted"
           textTransform="uppercase"
         >
           {label}
         </Text>
         <Heading size="lg">{value}</Heading>
-        <Text fontSize="sm" color="muted">
+        <Text fontSize="sm" color="formLabelMuted">
           {helper}
         </Text>
       </Stack>
@@ -62,33 +70,37 @@ export default function DashboardOverviewPage() {
             <Badge alignSelf="flex-start">Worker overview</Badge>
             <Stack gap={2}>
               <Heading size="xl">Welcome back, {displayName}.</Heading>
-              <Text color="muted" maxW="3xl">
+              <Text color="formLabelMuted" maxW="3xl">
                 Your dashboard is for running a tasking business: browse open
                 work on the home page, send quotes, and track payouts here. Jobs
                 you post as a customer live under Requests on the main site.
               </Text>
             </Stack>
             <HStack gap={3} flexWrap="wrap">
-              <Button as={NextLink} href="/">
-                Browse open tasks
-              </Button>
-              <Button
-                as={NextLink}
+              <NextLink href="/" passHref legacyBehavior>
+                <Button as="a">Browse open tasks</Button>
+              </NextLink>
+              <NextLink
                 href={
                   workerEnabled
                     ? '/dashboard/quotes'
                     : '/dashboard/worker/register'
                 }
-                variant="outline"
+                passHref
+                legacyBehavior
               >
-                {workerEnabled ? 'My quotes' : 'Worker setup'}
-              </Button>
-              <Button as={NextLink} href="/requests" variant="subtle">
-                My posted tasks (customer)
-              </Button>
+                <Button as="a" variant="outline">
+                  {workerEnabled ? 'My quotes' : 'Worker setup'}
+                </Button>
+              </NextLink>
+              <NextLink href="/requests" passHref legacyBehavior>
+                <Button as="a" variant="subtle">
+                  My posted tasks (customer)
+                </Button>
+              </NextLink>
             </HStack>
             <HStack gap={3} flexWrap="wrap">
-              <Badge bg="surfaceContainerHigh" color="fg">
+              <Badge bg="badgeBg" color="jobCardTitle">
                 {workerProfile.serviceArea?.trim() || 'Set service area'}
               </Badge>
               <Badge bg="primary.50" color="primary.700">
@@ -130,7 +142,9 @@ export default function DashboardOverviewPage() {
         </SimpleGrid>
       </Grid>
 
-      {tasksLoading ? <Text color="muted">Loading task data…</Text> : null}
+      {tasksLoading ? (
+        <Text color="formLabelMuted">Loading task data…</Text>
+      ) : null}
       {tasksErrorMessage ? (
         <Text color="red.400" fontSize="sm">
           {tasksErrorMessage}
@@ -146,17 +160,15 @@ export default function DashboardOverviewPage() {
         >
           <Stack gap={3}>
             <Heading size="md">Finish worker setup</Heading>
-            <Text color="muted" fontSize="sm">
+            <Text color="formLabelMuted" fontSize="sm">
               You can browse tasks without it, but you need a worker profile
               before sending quotes.
             </Text>
-            <Button
-              as={NextLink}
-              href="/dashboard/worker/register"
-              alignSelf="flex-start"
-            >
-              Become a worker
-            </Button>
+            <NextLink href="/dashboard/worker/register" passHref legacyBehavior>
+              <Button as="a" alignSelf="flex-start">
+                Become a worker
+              </Button>
+            </NextLink>
           </Stack>
         </GlassCard>
       ) : null}
@@ -164,7 +176,7 @@ export default function DashboardOverviewPage() {
       <GlassCard p={6}>
         <Stack gap={2}>
           <Heading size="sm">Customer tools</Heading>
-          <Text fontSize="sm" color="muted">
+          <Text fontSize="sm" color="formLabelMuted">
             Request tracking and your customer profile are on the main site:{' '}
             <Link
               as={NextLink}

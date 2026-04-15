@@ -2,10 +2,12 @@
 
 import {
   Box,
-  Input as ChakraInput,
   Grid,
   HStack,
+  Heading,
+  Input,
   Stack,
+  Text,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
@@ -16,7 +18,7 @@ import {
   DASHBOARD_TRADE_OPTIONS,
   type DashboardTrade,
 } from '@/utils/dashboardTypes'
-import { Badge, Button, GlassCard, Heading, Text, TextInput } from '@ui'
+import { Badge, Button, GlassCard } from '@ui'
 
 export default function WorkerRegistrationPage() {
   const router = useRouter()
@@ -115,7 +117,7 @@ export default function WorkerRegistrationPage() {
             </Badge>
           ) : null}
         </HStack>
-        <Text color="muted" maxW="3xl">
+        <Text color="formLabelMuted" maxW="3xl">
           Complete worker onboarding to unlock quote submission and earnings
           tools in your dashboard. This flow is stored in your browser session
           until dedicated worker profile APIs ship.
@@ -137,41 +139,71 @@ export default function WorkerRegistrationPage() {
               <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
                 <Stack gap={2}>
                   <Text fontWeight={700}>Full name</Text>
-                  <TextInput
+                  <Input
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setFullName(e.target.value)
+                    }
+                    bg="neutral.100"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="formControlBorder"
                   />
                 </Stack>
                 <Stack gap={2}>
                   <Text fontWeight={700}>Phone number</Text>
-                  <TextInput
+                  <Input
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setPhoneNumber(e.target.value)
+                    }
                     placeholder="+44 7000 000000"
+                    bg="neutral.100"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="formControlBorder"
                   />
                 </Stack>
                 <Stack gap={2}>
                   <Text fontWeight={700}>Business name</Text>
-                  <TextInput
+                  <Input
                     value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setBusinessName(e.target.value)
+                    }
                     placeholder="Master Craftsman Ltd"
+                    bg="neutral.100"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="formControlBorder"
                   />
                 </Stack>
                 <Stack gap={2}>
                   <Text fontWeight={700}>Service area</Text>
-                  <TextInput
+                  <Input
                     value={serviceArea}
-                    onChange={(e) => setServiceArea(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setServiceArea(e.target.value)
+                    }
                     placeholder="City or postcode"
+                    bg="neutral.100"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="formControlBorder"
                   />
                 </Stack>
                 <Stack gap={2} gridColumn={{ md: '1 / -1' }}>
                   <Text fontWeight={700}>Tagline</Text>
-                  <TextInput
+                  <Input
                     value={tagline}
-                    onChange={(e) => setTagline(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setTagline(e.target.value)
+                    }
                     placeholder="Trusted repairs, clean finishes, reliable communication."
+                    bg="neutral.100"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="formControlBorder"
                   />
                 </Stack>
               </Grid>
@@ -184,7 +216,7 @@ export default function WorkerRegistrationPage() {
                 <Badge>2</Badge>
                 <Heading size="md">Select Your Skills</Heading>
               </HStack>
-              <Text color="muted" fontSize="sm">
+              <Text color="formLabelMuted" fontSize="sm">
                 Choose the categories where you have verified experience.
               </Text>
               <HStack gap={3} flexWrap="wrap">
@@ -206,18 +238,30 @@ export default function WorkerRegistrationPage() {
               <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
                 <Stack gap={2}>
                   <Text fontWeight={700}>Years of experience</Text>
-                  <TextInput
+                  <Input
                     value={yearsExperience}
-                    onChange={(e) => setYearsExperience(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setYearsExperience(e.target.value)
+                    }
                     placeholder="3"
+                    bg="neutral.100"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="formControlBorder"
                   />
                 </Stack>
                 <Stack gap={2}>
                   <Text fontWeight={700}>Target hourly rate</Text>
-                  <TextInput
+                  <Input
                     value={hourlyRate}
-                    onChange={(e) => setHourlyRate(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setHourlyRate(e.target.value)
+                    }
                     placeholder="45"
+                    bg="neutral.100"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="formControlBorder"
                   />
                 </Stack>
               </Grid>
@@ -236,23 +280,23 @@ export default function WorkerRegistrationPage() {
                 borderStyle="dashed"
                 borderColor="primary.200"
                 p={6}
-                bg="surfaceContainerLow"
+                bg="jobCardBg"
               >
                 <Stack gap={3} align="center" textAlign="center">
                   <Text fontSize="4xl" aria-hidden>
                     ☁️
                   </Text>
                   <Heading size="sm">Upload Government ID</Heading>
-                  <Text fontSize="sm" color="muted" maxW="md">
+                  <Text fontSize="sm" color="formLabelMuted" maxW="md">
                     Filename only for now; production will handle secure ID
                     checks.
                   </Text>
-                  <ChakraInput
+                  <Input
                     type="file"
                     maxW="sm"
-                    bg="surfaceContainerLowest"
-                    borderColor="border"
-                    onChange={(e) =>
+                    bg="neutral.100"
+                    borderColor="jobCardBorder"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setVerificationFileName(e.target.files?.[0]?.name ?? '')
                     }
                   />
@@ -292,21 +336,21 @@ export default function WorkerRegistrationPage() {
             </Stack>
           </GlassCard>
 
-          <GlassCard p={6} bg="surfaceContainerLow">
+          <GlassCard p={6} bg="jobCardBg">
             <Stack gap={4}>
               <Heading size="sm">Final step</Heading>
-              <Text fontSize="sm" color="muted">
+              <Text fontSize="sm" color="formLabelMuted">
                 Continuing unlocks quoting and earnings in this browser session.
               </Text>
               <Stack gap={2}>
                 <HStack justify="space-between">
-                  <Text color="muted" fontSize="sm">
+                  <Text color="formLabelMuted" fontSize="sm">
                     Skills selected
                   </Text>
                   <Text fontWeight={700}>{skills.length}</Text>
                 </HStack>
                 <HStack justify="space-between">
-                  <Text color="muted" fontSize="sm">
+                  <Text color="formLabelMuted" fontSize="sm">
                     Rate target
                   </Text>
                   <Text fontWeight={700}>
@@ -317,7 +361,7 @@ export default function WorkerRegistrationPage() {
                   </Text>
                 </HStack>
                 <HStack justify="space-between">
-                  <Text color="muted" fontSize="sm">
+                  <Text color="formLabelMuted" fontSize="sm">
                     Verification
                   </Text>
                   <Text fontWeight={700}>

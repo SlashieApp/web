@@ -18,7 +18,7 @@ export type TaskDetailOwnerPerformanceCardProps = {
 function StatCell({
   label,
   value,
-  valueColor = 'fg',
+  valueColor = 'jobCardTitle',
 }: {
   label: string
   value: string
@@ -36,7 +36,7 @@ function StatCell({
       <Text
         fontSize="10px"
         fontWeight={800}
-        color="muted"
+        color="formLabelMuted"
         letterSpacing="0.08em"
       >
         {label}
@@ -60,11 +60,11 @@ export function TaskDetailOwnerPerformanceCard({
       id="owner-task-performance"
       scrollMarginTop="96px"
       p={5}
-      borderColor="border"
+      borderColor="jobCardBorder"
       bg="primary.50"
       boxShadow="ambient"
     >
-      <Text fontSize="sm" fontWeight={700} color="fg" mb={4}>
+      <Text fontSize="sm" fontWeight={700} color="jobCardTitle" mb={4}>
         Task performance
       </Text>
       <Grid templateColumns="1fr 1fr" gap={3}>
@@ -80,7 +80,7 @@ export function TaskDetailOwnerPerformanceCard({
           valueColor="secondary.700"
         />
       </Grid>
-      <Text fontSize="xs" color="muted" mt={3} lineHeight="short">
+      <Text fontSize="xs" color="formLabelMuted" mt={3} lineHeight="short">
         View counts are not tracked on web yet. Response time is averaged from
         quote timestamps.
       </Text>

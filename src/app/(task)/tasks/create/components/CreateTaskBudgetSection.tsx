@@ -1,14 +1,19 @@
 'use client'
 
-import { HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
+import {
+  HStack,
+  Heading,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
-import { TextInput } from '@/ui/Input'
-import { Heading } from '@ui'
 import type { CreateTaskFormValues } from '../createTaskFormSchema'
 
 export type CreateTaskBudgetSectionProps = {
@@ -38,7 +43,7 @@ export function CreateTaskBudgetSection({
   budgetMajorError,
 }: CreateTaskBudgetSectionProps) {
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="surfaceContainerLowest">
+    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={5}>
         <Heading size="lg" color="primary.700">
           3. Budget & payment
@@ -48,9 +53,9 @@ export function CreateTaskBudgetSection({
           <HStack gap={2} align="stretch" maxW={{ base: 'full', md: '380px' }}>
             <NativeSelect.Root w="108px" flexShrink={0}>
               <NativeSelect.Field
-                bg="surfaceContainerLowest"
+                bg="neutral.100"
                 borderWidth="1px"
-                borderColor="border"
+                borderColor="jobCardBorder"
                 borderRadius="lg"
                 value={budgetCurrency}
                 onChange={(e) =>
@@ -65,16 +70,21 @@ export function CreateTaskBudgetSection({
               flex={1}
               align="center"
               gap={2}
-              bg="surfaceContainerLowest"
+              bg="neutral.100"
               borderRadius="lg"
               boxShadow="ghostBorder"
               px={3}
               minH="44px"
             >
-              <Text fontWeight={700} fontSize="sm" color="muted" flexShrink={0}>
+              <Text
+                fontWeight={700}
+                fontSize="sm"
+                color="formLabelMuted"
+                flexShrink={0}
+              >
                 {CURRENCY_PREFIX[budgetCurrency]}
               </Text>
-              <TextInput
+              <Input
                 flex={1}
                 type="number"
                 min={1}
@@ -86,6 +96,8 @@ export function CreateTaskBudgetSection({
                 h="auto"
                 minH={0}
                 py={2}
+                bg="transparent"
+                _focusVisible={{ boxShadow: 'none' }}
               />
             </HStack>
           </HStack>
@@ -98,12 +110,12 @@ export function CreateTaskBudgetSection({
               size="sm"
               variant="subtle"
               bg={
-                budgetType === TaskBudgetType.OneOff
-                  ? 'secondaryFixed'
-                  : 'surfaceContainerLow'
+                budgetType === TaskBudgetType.OneOff ? 'jobCardBg' : 'jobCardBg'
               }
               color={
-                budgetType === TaskBudgetType.OneOff ? 'onSecondaryFixed' : 'fg'
+                budgetType === TaskBudgetType.OneOff
+                  ? 'jobCardTitle'
+                  : 'jobCardTitle'
               }
               boxShadow="none"
               onClick={() => onBudgetTypeChange(TaskBudgetType.OneOff)}
@@ -115,12 +127,12 @@ export function CreateTaskBudgetSection({
               size="sm"
               variant="subtle"
               bg={
-                budgetType === TaskBudgetType.PerDay
-                  ? 'secondaryFixed'
-                  : 'surfaceContainerLow'
+                budgetType === TaskBudgetType.PerDay ? 'jobCardBg' : 'jobCardBg'
               }
               color={
-                budgetType === TaskBudgetType.PerDay ? 'onSecondaryFixed' : 'fg'
+                budgetType === TaskBudgetType.PerDay
+                  ? 'jobCardTitle'
+                  : 'jobCardTitle'
               }
               boxShadow="none"
               onClick={() => onBudgetTypeChange(TaskBudgetType.PerDay)}
@@ -133,13 +145,13 @@ export function CreateTaskBudgetSection({
               variant="subtle"
               bg={
                 budgetType === TaskBudgetType.PerHour
-                  ? 'secondaryFixed'
-                  : 'surfaceContainerLow'
+                  ? 'jobCardBg'
+                  : 'jobCardBg'
               }
               color={
                 budgetType === TaskBudgetType.PerHour
-                  ? 'onSecondaryFixed'
-                  : 'fg'
+                  ? 'jobCardTitle'
+                  : 'jobCardTitle'
               }
               boxShadow="none"
               onClick={() => onBudgetTypeChange(TaskBudgetType.PerHour)}
@@ -157,13 +169,13 @@ export function CreateTaskBudgetSection({
               variant="subtle"
               bg={
                 paymentMethod === TaskPaymentMethod.Cash
-                  ? 'secondaryFixed'
-                  : 'surfaceContainerLow'
+                  ? 'jobCardBg'
+                  : 'jobCardBg'
               }
               color={
                 paymentMethod === TaskPaymentMethod.Cash
-                  ? 'onSecondaryFixed'
-                  : 'fg'
+                  ? 'jobCardTitle'
+                  : 'jobCardTitle'
               }
               boxShadow="none"
               onClick={() => onPaymentMethodChange(TaskPaymentMethod.Cash)}
@@ -176,13 +188,13 @@ export function CreateTaskBudgetSection({
               variant="subtle"
               bg={
                 paymentMethod === TaskPaymentMethod.BankTransfer
-                  ? 'secondaryFixed'
-                  : 'surfaceContainerLow'
+                  ? 'jobCardBg'
+                  : 'jobCardBg'
               }
               color={
                 paymentMethod === TaskPaymentMethod.BankTransfer
-                  ? 'onSecondaryFixed'
-                  : 'fg'
+                  ? 'jobCardTitle'
+                  : 'jobCardTitle'
               }
               boxShadow="none"
               onClick={() =>

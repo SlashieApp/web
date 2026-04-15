@@ -1,19 +1,12 @@
 'use client'
 
-import { Box, HStack, Stack } from '@chakra-ui/react'
+import { Box, HStack, Heading, Input, Stack, Text } from '@chakra-ui/react'
 import type { Price, QuoteStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
-import {
-  Badge,
-  Button,
-  GlassCard,
-  Heading,
-  IconDocument,
-  Text,
-  TextInput,
-} from '@ui'
+import { IconDocument } from '@/icons/taskMeta'
+import { Badge, Button, GlassCard } from '@ui'
 
 import { priceToPence } from '@/utils/price'
 import { formatPoundsFromPence } from './taskDetailUtils'
@@ -51,7 +44,11 @@ export function TaskDetailWorkerCtas({
   const [saveNote, setSaveNote] = useState<string | null>(null)
 
   return (
-    <GlassCard p={{ base: 5, md: 5 }} borderColor="border" boxShadow="ambient">
+    <GlassCard
+      p={{ base: 5, md: 5 }}
+      borderColor="jobCardBorder"
+      boxShadow="ambient"
+    >
       <Stack gap={3}>
         {isAuthenticated ? (
           <Button type="button" w="full" onClick={onScrollToQuoteForm}>
@@ -62,13 +59,15 @@ export function TaskDetailWorkerCtas({
           </Button>
         ) : (
           <>
-            <Text fontSize="sm" color="muted">
+            <Text fontSize="sm" color="formLabelMuted">
               Log in with your worker account to send a quote and message the
               client.
             </Text>
-            <Button as={NextLink} href={loginHref} w="full">
-              Log in to make a quote
-            </Button>
+            <NextLink href={loginHref} passHref legacyBehavior>
+              <Button as="a" w="full">
+                Log in to make a quote
+              </Button>
+            </NextLink>
             <Button
               type="button"
               variant="outline"
@@ -86,10 +85,10 @@ export function TaskDetailWorkerCtas({
           type="button"
           variant="outline"
           w="full"
-          borderColor="border"
-          color="fg"
+          borderColor="jobCardBorder"
+          color="jobCardTitle"
           bg="white"
-          _hover={{ bg: 'surfaceContainerLow' }}
+          _hover={{ bg: 'jobCardBg' }}
           onClick={() => {
             setSaveNote('Task watchlists are not available on web yet.')
           }}
@@ -100,7 +99,7 @@ export function TaskDetailWorkerCtas({
           </HStack>
         </Button>
         {saveNote ? (
-          <Text fontSize="xs" color="muted">
+          <Text fontSize="xs" color="formLabelMuted">
             {saveNote}
           </Text>
         ) : null}
@@ -145,27 +144,29 @@ export function TaskDetailWorkerQuotePanel({
   return (
     <Box id="task-quote" scrollMarginTop="96px">
       {!mePresent ? (
-        <GlassCard p={6} borderColor="border" boxShadow="ambient">
+        <GlassCard p={6} borderColor="jobCardBorder" boxShadow="ambient">
           <Stack gap={4}>
             <Heading size="md">Log in to make a quote</Heading>
-            <Text color="muted">
+            <Text color="formLabelMuted">
               Sign in to send your quote and message to the task owner.
             </Text>
-            <Button as={NextLink} href={loginHref} w="full">
-              Log in
-            </Button>
+            <NextLink href={loginHref} passHref legacyBehavior>
+              <Button as="a" w="full">
+                Log in
+              </Button>
+            </NextLink>
           </Stack>
         </GlassCard>
       ) : myQuote ? (
-        <GlassCard p={6} borderColor="border" boxShadow="ambient">
+        <GlassCard p={6} borderColor="jobCardBorder" boxShadow="ambient">
           <Stack gap={3}>
             <Heading size="md">Your quote</Heading>
-            <Text color="muted">
+            <Text color="formLabelMuted">
               You submitted{' '}
               {formatPoundsFromPence(priceToPence(myQuote.price) ?? 0)}
               {myQuote.message ? ` — “${myQuote.message}”` : '.'}
             </Text>
-            <Badge bg="surfaceContainerLow" color="fg" w="fit-content">
+            <Badge bg="jobCardBg" color="jobCardTitle" w="fit-content">
               Status: {normaliseStatus(myQuote.status)}
             </Badge>
           </Stack>
@@ -179,31 +180,37 @@ export function TaskDetailWorkerQuotePanel({
         >
           <Stack gap={4}>
             <Heading size="md">Become a worker to send a quote</Heading>
-            <Text color="muted">
+            <Text color="formLabelMuted">
               Create your worker profile to unlock quoting and worker tools.
             </Text>
-            <Button as={NextLink} href="/dashboard/worker/register" w="full">
-              Create worker profile
-            </Button>
+            <NextLink href="/dashboard/worker/register" passHref legacyBehavior>
+              <Button as="a" w="full">
+                Create worker profile
+              </Button>
+            </NextLink>
           </Stack>
         </GlassCard>
       ) : (
-        <GlassCard p={6} borderColor="border" boxShadow="ambient">
+        <GlassCard p={6} borderColor="jobCardBorder" boxShadow="ambient">
           <Stack gap={4}>
             <Heading size="md">Submit a quote</Heading>
-            <Text color="muted">
+            <Text color="formLabelMuted">
               Share your price and a short message for the client.
             </Text>
             <Stack gap={3}>
-              <TextInput
+              <Input
                 placeholder="Quote price (pence)"
                 value={pricePence}
-                onChange={(e) => onPriceChange(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onPriceChange(e.target.value)
+                }
               />
-              <TextInput
+              <Input
                 placeholder="Short message to the client"
                 value={message}
-                onChange={(e) => onMessageChange(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onMessageChange(e.target.value)
+                }
               />
               <Button
                 background="linkBlue.600"

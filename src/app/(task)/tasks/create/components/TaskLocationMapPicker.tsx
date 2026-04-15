@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Box, Input, Stack, Text } from '@chakra-ui/react'
 import type { Map as MapboxMap } from 'mapbox-gl'
 import { useCallback, useRef, useState } from 'react'
 
@@ -8,8 +8,6 @@ import {
   mapboxForwardGeocode,
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
-import { TextInput } from '@ui'
-
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 const DEFAULT_LAT = 51.5074
@@ -210,22 +208,24 @@ export function TaskLocationMapPicker({
         overflow="hidden"
         boxShadow="ghostBorder"
         borderWidth="1px"
-        borderColor="border"
+        borderColor="jobCardBorder"
         h={{ base: '240px', md: '320px' }}
-        bg="surfaceContainerLow"
+        bg="jobCardBg"
       >
         {token ? (
           <>
             <Box ref={attachMapContainer} w="full" h="full" aria-hidden />
             <Box position="absolute" left={3} right={3} top={3} zIndex={2}>
-              <TextInput
+              <Input
                 value={location}
-                onChange={(e) => onLocationInputChange(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onLocationInputChange(e.target.value)
+                }
                 placeholder="Search for your location..."
-                bg="surfaceContainerLowest/95"
+                bg="whiteAlpha.950"
                 backdropFilter="blur(8px)"
                 borderWidth="1px"
-                borderColor="border"
+                borderColor="jobCardBorder"
                 borderRadius="lg"
                 boxShadow="sm"
                 aria-label="Search for your location"
@@ -265,8 +265,8 @@ export function TaskLocationMapPicker({
               left={2}
               right={2}
               fontSize="xs"
-              color="fg"
-              bg="surfaceContainerLowest/90"
+              color="jobCardTitle"
+              bg="whiteAlpha.900"
               backdropFilter="blur(6px)"
               borderRadius="md"
               px={2}
@@ -286,9 +286,9 @@ export function TaskLocationMapPicker({
             h="full"
             px={4}
           >
-            <Text color="muted" fontSize="sm" textAlign="center">
+            <Text color="formLabelMuted" fontSize="sm" textAlign="center">
               Set{' '}
-              <Text as="span" fontWeight={700} color="fg">
+              <Text as="span" fontWeight={700} color="jobCardTitle">
                 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
               </Text>{' '}
               to pick a location on the map.
@@ -298,7 +298,7 @@ export function TaskLocationMapPicker({
       </Box>
 
       {showCoordinateHelpText ? (
-        <Text fontSize="sm" color="muted">
+        <Text fontSize="sm" color="formLabelMuted">
           Adjust the map or use the search box. Map coordinates and the place
           label from Mapbox are saved for matching only — workers see
           approximate area, not your full street address, until you accept a

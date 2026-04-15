@@ -15,7 +15,7 @@ const meta = {
   args: {
     title: 'Filters',
     description: 'Refine results by category and budget.',
-    placement: 'bottom' as const,
+    placement: 'start' as const,
     size: 'md' as const,
     primaryActionLabel: 'Apply',
   },
@@ -39,7 +39,7 @@ export const Default: Story = {
           Open drawer
         </Button>
         <AppDrawer {...args} open={open} onOpenChange={setOpen}>
-          <Text fontSize="sm" color="muted">
+          <Text fontSize="sm" color="secondary.700">
             Drawer body content goes here.
           </Text>
         </AppDrawer>

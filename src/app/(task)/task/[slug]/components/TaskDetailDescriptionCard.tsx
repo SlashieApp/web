@@ -3,7 +3,10 @@
 import { Grid, HStack, Stack } from '@chakra-ui/react'
 
 import { formatTaskContactMethodLabel } from '@/utils/taskLocationDisplay'
-import { GlassCard, Heading, IconDocument, Text } from '@ui'
+import { Heading, Text } from '@chakra-ui/react'
+
+import { IconDocument } from '@/icons/taskMeta'
+import { GlassCard } from '@ui'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
 
@@ -20,13 +23,17 @@ export function TaskDetailDescriptionCard({
   task,
 }: TaskDetailDescriptionCardProps) {
   return (
-    <GlassCard p={{ base: 5, md: 6 }} borderColor="border" boxShadow="ambient">
+    <GlassCard
+      p={{ base: 5, md: 6 }}
+      borderColor="jobCardBorder"
+      boxShadow="ambient"
+    >
       <Stack gap={4}>
         <HStack gap={2}>
           <IconDocument color="primary.600" />
           <Heading size="md">Description</Heading>
         </HStack>
-        <Text color="muted" lineHeight="tall">
+        <Text color="formLabelMuted" lineHeight="tall">
           {task.description}
         </Text>
         {task.budget?.paymentMethod || task.contactMethod ? (
@@ -35,23 +42,23 @@ export function TaskDetailDescriptionCard({
             fontSize="sm"
             pt={2}
             borderTopWidth="1px"
-            borderColor="border"
+            borderColor="jobCardBorder"
           >
             <Grid
               templateColumns={{ base: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }}
               gap={3}
             >
               {task.budget?.paymentMethod ? (
-                <Text color="muted">
-                  <Text as="span" fontWeight={600} color="fg">
+                <Text color="formLabelMuted">
+                  <Text as="span" fontWeight={600} color="jobCardTitle">
                     Payment:{' '}
                   </Text>
                   {formatPaymentMethod(task.budget.paymentMethod)}
                 </Text>
               ) : null}
               {task.contactMethod ? (
-                <Text color="muted">
-                  <Text as="span" fontWeight={600} color="fg">
+                <Text color="formLabelMuted">
+                  <Text as="span" fontWeight={600} color="jobCardTitle">
                     Contact:{' '}
                   </Text>
                   {formatTaskContactMethodLabel(task.contactMethod)}

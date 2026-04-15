@@ -2,8 +2,9 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
+import { IconMapPin } from '@/icons/taskMeta'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { GlassCard, IconMapPin } from '@ui'
+import { GlassCard } from '@ui'
 
 import { TaskDetailLocationMap } from './TaskDetailLocationMap'
 import { type TaskDetailRecord, taskMapCoordinates } from './taskDetailUtils'
@@ -28,11 +29,15 @@ export function TaskDetailApproximateLocation({
   if (!place && !coords && !ownerLine) return null
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} borderColor="border" boxShadow="ambient">
+    <GlassCard
+      p={{ base: 5, md: 6 }}
+      borderColor="jobCardBorder"
+      boxShadow="ambient"
+    >
       <Stack gap={4}>
         <HStack gap={2}>
           <IconMapPin color="primary.600" />
-          <Text fontSize="md" fontWeight={700} color="fg">
+          <Text fontSize="md" fontWeight={700} color="jobCardTitle">
             {heading}
           </Text>
         </HStack>
@@ -47,15 +52,15 @@ export function TaskDetailApproximateLocation({
             <Box
               borderRadius="lg"
               borderWidth="1px"
-              borderColor="border"
-              bg="surfaceContainerLow"
+              borderColor="jobCardBorder"
+              bg="jobCardBg"
               minH="140px"
               display="flex"
               alignItems="center"
               justifyContent="center"
               px={4}
             >
-              <Text fontSize="sm" color="muted" textAlign="center">
+              <Text fontSize="sm" color="formLabelMuted" textAlign="center">
                 Map preview needs a Mapbox token in the environment.
               </Text>
             </Box>
@@ -74,16 +79,16 @@ export function TaskDetailApproximateLocation({
           <Text fontSize="lg" lineHeight={1} aria-hidden>
             ℹ️
           </Text>
-          <Text fontSize="sm" color="muted" lineHeight="tall">
+          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
             {variant === 'owner' && ownerLine ? (
               <>
-                <Text as="span" fontWeight={600} color="fg">
+                <Text as="span" fontWeight={600} color="jobCardTitle">
                   {ownerLine}.
                 </Text>{' '}
               </>
             ) : place ? (
               <>
-                <Text as="span" fontWeight={600} color="fg">
+                <Text as="span" fontWeight={600} color="jobCardTitle">
                   {place}.
                 </Text>{' '}
               </>

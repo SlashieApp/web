@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Grid, HStack, Link, Stack } from '@chakra-ui/react'
+import { Box, Grid, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useMemo, useState } from 'react'
 
@@ -16,7 +16,7 @@ import {
   taskBudgetPence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Button, GlassCard, Heading, Text } from '@ui'
+import { Badge, Button, GlassCard } from '@ui'
 import { useCustomerAccount } from '../context'
 
 type RequestsTab = 'active' | 'archived'
@@ -52,9 +52,9 @@ function TaskCard({ task }: { task: TaskItem }) {
     getQuoteRange(task.quotes ?? []) ?? formatPounds(taskBudgetPence(task))
 
   const badgeByStage: Record<TaskStage, { bg: string; color: string }> = {
-    draft: { bg: 'surfaceContainerHigh', color: 'muted' },
+    draft: { bg: 'badgeBg', color: 'formLabelMuted' },
     open: { bg: 'primary.100', color: 'primary.700' },
-    awarded: { bg: 'secondaryFixed', color: 'onSecondaryFixed' },
+    awarded: { bg: 'jobCardBg', color: 'jobCardTitle' },
     completed: { bg: 'green.100', color: 'green.700' },
   }
 
@@ -62,7 +62,7 @@ function TaskCard({ task }: { task: TaskItem }) {
     <GlassCard
       p={5}
       borderWidth="1px"
-      borderColor="border"
+      borderColor="jobCardBorder"
       _hover={{ boxShadow: 'md' }}
     >
       <Stack gap={4}>
@@ -84,7 +84,7 @@ function TaskCard({ task }: { task: TaskItem }) {
 
         <Stack gap={1}>
           <Heading size="sm">{task.title}</Heading>
-          <Text fontSize="sm" color="muted">
+          <Text fontSize="sm" color="formLabelMuted">
             {formatDate(task.createdAt)} {'•'}{' '}
             {taskPublicLocationLabel(task) || 'Metro Area'}
           </Text>
@@ -98,25 +98,26 @@ function TaskCard({ task }: { task: TaskItem }) {
             overflow: 'hidden',
           }}
         >
-          <Text fontSize="sm" color="muted">
+          <Text fontSize="sm" color="formLabelMuted">
             {task.description}
           </Text>
         </Box>
 
         <HStack justify="space-between">
           <Heading size="sm">{amount}</Heading>
-          <Button
-            as={NextLink}
-            href={`/task/${task.id}`}
-            size="sm"
-            variant={stage === 'open' ? 'solid' : 'ghost'}
-          >
-            {stage === 'open'
-              ? 'View Quotes'
-              : stage === 'draft'
-                ? 'Edit Draft'
-                : 'View Details'}
-          </Button>
+          <NextLink href={`/task/${task.id}`} passHref legacyBehavior>
+            <Button
+              as="a"
+              size="sm"
+              variant={stage === 'open' ? 'solid' : 'ghost'}
+            >
+              {stage === 'open'
+                ? 'View Quotes'
+                : stage === 'draft'
+                  ? 'Edit Draft'
+                  : 'View Details'}
+            </Button>
+          </NextLink>
         </HStack>
       </Stack>
     </GlassCard>
@@ -183,13 +184,13 @@ export default function CustomerRequestsPage() {
         >
           <Stack gap={1}>
             <Heading size="xl">My Requests</Heading>
-            <Text color="muted">
+            <Text color="formLabelMuted">
               Manage your project history and track active job bids.
             </Text>
           </Stack>
-          <Button as={NextLink} href="/tasks/create">
-            Post a Job
-          </Button>
+          <NextLink href="/tasks/create" passHref legacyBehavior>
+            <Button as="a">Post a Job</Button>
+          </NextLink>
         </HStack>
 
         <HStack gap={2}>
@@ -233,7 +234,9 @@ export default function CustomerRequestsPage() {
         ))}
       </HStack>
 
-      {tasksLoading ? <Text color="muted">Loading requests...</Text> : null}
+      {tasksLoading ? (
+        <Text color="formLabelMuted">Loading requests...</Text>
+      ) : null}
       {tasksErrorMessage ? (
         <Text color="red.400">{tasksErrorMessage}</Text>
       ) : null}
@@ -259,12 +262,14 @@ export default function CustomerRequestsPage() {
               textAlign="center"
             >
               <Heading size="sm">Post a New Job</Heading>
-              <Text color="muted">
+              <Text color="formLabelMuted">
                 Get quotes from local experts in minutes.
               </Text>
-              <Button as={NextLink} href="/tasks/create" size="sm">
-                Create Request
-              </Button>
+              <NextLink href="/tasks/create" passHref legacyBehavior>
+                <Button as="a" size="sm">
+                  Create Request
+                </Button>
+              </NextLink>
             </GlassCard>
           </Grid>
 
@@ -292,7 +297,7 @@ export default function CustomerRequestsPage() {
               </Text>
             </GlassCard>
 
-            <GlassCard p={5} bg="surfaceContainerLow">
+            <GlassCard p={5} bg="jobCardBg">
               <Heading size="sm" mb={3}>
                 Needs attention
               </Heading>
@@ -304,12 +309,12 @@ export default function CustomerRequestsPage() {
                     <GlassCard
                       key={task.id}
                       p={4}
-                      bg="surfaceContainerLowest"
+                      bg="neutral.100"
                       borderWidth="1px"
-                      borderColor="border"
+                      borderColor="jobCardBorder"
                     >
                       <Heading size="sm">{task.title}</Heading>
-                      <Text fontSize="sm" color="muted">
+                      <Text fontSize="sm" color="formLabelMuted">
                         {(task.quotes ?? []).length} quotes {'•'}{' '}
                         {taskPublicLocationLabel(task) || 'Location TBC'}
                       </Text>
@@ -334,7 +339,7 @@ export default function CustomerRequestsPage() {
         overflow="hidden"
         borderRadius="xl"
         borderWidth="1px"
-        borderColor="border"
+        borderColor="jobCardBorder"
         bg="primary.700"
         color="white"
       >

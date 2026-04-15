@@ -1,9 +1,10 @@
 'use client'
 
+import { AuthBrandMark } from '@/app/(auth)/components/AuthBrandMark'
 import { useMutation } from '@apollo/client/react'
-import { Box, Link, Stack } from '@chakra-ui/react'
+import { Box, Heading, Input, Link, Stack, Text } from '@chakra-ui/react'
 import type { ForgotPasswordMutation } from '@codegen/schema'
-import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
+import { Button, FormField } from '@ui'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useMemo, useState } from 'react'
@@ -13,7 +14,7 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 function FieldIconMail() {
   return (
-    <Box as="span" color="muted" display="flex" aria-hidden>
+    <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <title>Email</title>
         <path
@@ -121,12 +122,12 @@ function ForgotPasswordContent() {
         href="/"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}
       >
-        <HandyBoxWordmark size="lg" />
+        <AuthBrandMark size="lg" />
       </Link>
 
       <Box
         w="full"
-        bg="surfaceContainerLowest"
+        bg="neutral.100"
         borderRadius="xl"
         boxShadow="card"
         borderTopWidth="4px"
@@ -147,10 +148,16 @@ function ForgotPasswordContent() {
           </Box>
 
           <Box>
-            <Heading size="xl" color="fg">
+            <Heading size="xl" color="jobCardTitle">
               Forgot Password?
             </Heading>
-            <Text mt={2} color="muted" fontSize="sm" maxW="xs" mx="auto">
+            <Text
+              mt={2}
+              color="formLabelMuted"
+              fontSize="sm"
+              maxW="xs"
+              mx="auto"
+            >
               No worries, we&apos;ll send you reset instructions.
             </Text>
           </Box>
@@ -172,7 +179,9 @@ function ForgotPasswordContent() {
                   <Input
                     placeholder="name@company.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setEmail(e.target.value)
+                    }
                     type="email"
                     autoComplete="email"
                     required
@@ -231,7 +240,7 @@ function ForgotPasswordContent() {
         </Stack>
       </Box>
 
-      <Text fontSize="sm" color="muted" textAlign="center">
+      <Text fontSize="sm" color="formLabelMuted" textAlign="center">
         Facing issues?{' '}
         <Link
           as={NextLink}

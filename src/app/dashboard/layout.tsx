@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack, Link, Stack } from '@chakra-ui/react'
+import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -9,7 +9,7 @@ import {
   useDashboardData,
 } from '@/app/dashboard/context'
 import { clearAuthToken } from '@/utils/auth'
-import { Button, GlassCard, Heading, Text } from '@ui'
+import { Button, GlassCard } from '@ui'
 
 import {
   type DashboardNavKey,
@@ -44,11 +44,17 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
 
   if (!meLoading && !me) {
     return (
-      <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }} px={4}>
+      <Box
+        bg="bg"
+        color="jobCardTitle"
+        minH="100vh"
+        py={{ base: 8, md: 12 }}
+        px={4}
+      >
         <Stack gap={8} maxW="lg" mx="auto">
           <Box>
             <Heading size="lg">Worker dashboard</Heading>
-            <Text color="muted" mt={2}>
+            <Text color="formLabelMuted" mt={2}>
               Sign in to manage quotes, earnings, and your worker workspace.
             </Text>
           </Box>
@@ -60,18 +66,18 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
           <GlassCard p={6}>
             <Stack gap={4}>
               <Heading size="md">Sign in to open your dashboard</Heading>
-              <Text color="muted">
+              <Text color="formLabelMuted">
                 You need an account for the worker workspace. Posting tasks and
                 customer tools use the main site under Quotes, Requests, and
                 Profile.
               </Text>
               <HStack gap={3} flexWrap="wrap">
-                <Button as={NextLink} href="/login">
-                  Log in
-                </Button>
-                <Button as={NextLink} href="/register" variant="subtle">
-                  Register
-                </Button>
+                <Link href="/login">
+                  <Button>Log in</Button>
+                </Link>
+                <Link href="/register">
+                  <Button>Register</Button>
+                </Link>
               </HStack>
             </Stack>
           </GlassCard>
@@ -79,8 +85,8 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
             as={NextLink}
             href="/"
             fontSize="sm"
-            color="muted"
-            _hover={{ color: 'fg' }}
+            color="formLabelMuted"
+            _hover={{ color: 'jobCardTitle' }}
           >
             ← Back to home
           </Link>
@@ -110,23 +116,23 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
       workerProfileComplete={workerProfileComplete}
       headerAction={
         <HStack gap={2} flexWrap="wrap">
-          <Button
-            size="sm"
-            variant="outline"
+          <Link
+            as={NextLink}
+            href="/dashboard"
             onClick={() => refetchDashboardData()}
+            color="formLabelMuted"
+            _hover={{ color: 'jobCardTitle' }}
           >
             Refresh
-          </Button>
-          <Button
-            size="sm"
-            variant="subtle"
-            onClick={() => {
-              clearAuthToken()
-              router.push('/login')
-            }}
+          </Link>
+          <Link
+            as={NextLink}
+            href="/logout"
+            color="formLabelMuted"
+            _hover={{ color: 'jobCardTitle' }}
           >
             Log out
-          </Button>
+          </Link>
         </HStack>
       }
     >

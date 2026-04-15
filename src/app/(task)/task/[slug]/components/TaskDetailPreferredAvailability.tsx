@@ -3,7 +3,8 @@
 import { HStack, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
-import { Button, GlassCard, IconCalendar } from '@ui'
+import { IconCalendar } from '@/icons/taskMeta'
+import { Button, GlassCard } from '@ui'
 
 import {
   type TaskDetailRecord,
@@ -23,11 +24,15 @@ export function TaskDetailPreferredAvailability({
   if (chips.length === 0) return null
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} borderColor="border" boxShadow="ambient">
+    <GlassCard
+      p={{ base: 5, md: 6 }}
+      borderColor="jobCardBorder"
+      boxShadow="ambient"
+    >
       <Stack gap={4}>
         <HStack gap={2}>
           <IconCalendar color="primary.600" />
-          <Text fontSize="md" fontWeight={700} color="fg">
+          <Text fontSize="md" fontWeight={700} color="jobCardTitle">
             Preferred availability
           </Text>
         </HStack>
@@ -52,7 +57,7 @@ export function TaskDetailPreferredAvailability({
                 borderRadius="lg"
                 borderWidth="2px"
                 borderColor={selected ? 'primary.500' : 'border'}
-                bg={selected ? 'primary.50' : 'surfaceContainerLow'}
+                bg={selected ? 'primary.50' : 'jobCardBg'}
                 px={4}
                 py={3}
                 minW="140px"
@@ -77,10 +82,10 @@ export function TaskDetailPreferredAvailability({
                   >
                     {c.monthDay}
                   </Text>
-                  <Text fontWeight={700} color="fg" fontSize="sm">
+                  <Text fontWeight={700} color="jobCardTitle" fontSize="sm">
                     {c.title}
                   </Text>
-                  <Text fontSize="xs" color="muted">
+                  <Text fontSize="xs" color="formLabelMuted">
                     {c.subtitle}
                   </Text>
                 </Stack>

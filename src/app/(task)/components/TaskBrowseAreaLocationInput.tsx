@@ -21,7 +21,7 @@ export function TaskBrowseAreaLocationInput() {
         left={3}
         top="50%"
         transform="translateY(-50%)"
-        color="muted"
+        color="formLabelMuted"
         pointerEvents="none"
         zIndex={1}
       >
@@ -50,7 +50,7 @@ export function TaskBrowseAreaLocationInput() {
           e.currentTarget.blur()
         }}
         type="search"
-        bg="surfaceContainerLowest"
+        bg="neutral.100"
         onBlur={commitAreaLocationSearch}
         placeholder="Find pros or jobs near you..."
         borderRadius={{ base: 'lg', md: 'xl' }}
