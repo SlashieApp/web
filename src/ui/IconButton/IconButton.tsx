@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, Link, Stack, Text } from '@chakra-ui/react'
+import NextLink from 'next/link'
 
 export type IconButtonProps = {
   href: string
@@ -17,6 +18,7 @@ export function IconButton({
 }: IconButtonProps) {
   return (
     <Link
+      as={NextLink}
       href={href}
       style={{
         textDecoration: 'none',

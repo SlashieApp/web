@@ -191,6 +191,7 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
           )}
           <Link href={detailsHref}>
             <Button
+              as="span"
               px={2}
               mt="auto"
               h="auto"

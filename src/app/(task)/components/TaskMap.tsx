@@ -456,11 +456,13 @@ function createTaskMapController(args: {
   const darkStyle = process.env.NEXT_PUBLIC_MAPBOX_STYLE_DARK?.trim()
 
   const getStyleUrlForMode = (mode: 'light' | 'dark' | null | undefined) => {
-    const useDark = mode === 'dark'
-    return (
-      (useDark ? darkStyle || lightStyle : lightStyle || darkStyle) ||
-      DEFAULT_MAPBOX_STYLE
-    )
+    if (mode === 'dark') {
+      return darkStyle || DEFAULT_MAPBOX_STYLE
+    }
+    if (mode === 'light') {
+      return lightStyle || DEFAULT_MAPBOX_STYLE
+    }
+    return DEFAULT_MAPBOX_STYLE
   }
 
   const scheduleResizeAndRecenter = () => {
