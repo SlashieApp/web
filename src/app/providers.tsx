@@ -1,22 +1,19 @@
 'use client'
 
 import { ApolloProvider } from '@apollo/client/react'
-import { ChakraProvider } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 
-import { system } from '@/theme/system'
 import { apolloClient } from '@/utils/apolloClient'
 
-import { EmotionRegistry } from './EmotionRegistry'
 import { PostHogProvider } from './PostHogProvider'
+import { ThemeProvider } from './ThemeProvider'
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children: ReactNode }) {
   return (
     <ApolloProvider client={apolloClient}>
-      <EmotionRegistry>
-        <ChakraProvider value={system}>
-          <PostHogProvider>{children}</PostHogProvider>
-        </ChakraProvider>
-      </EmotionRegistry>
+      <ThemeProvider>
+        <PostHogProvider>{children}</PostHogProvider>
+      </ThemeProvider>
     </ApolloProvider>
   )
 }

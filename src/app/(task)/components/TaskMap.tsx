@@ -4,6 +4,8 @@ import { Box, Text } from '@chakra-ui/react'
 import type { Map as MapboxMap, Marker } from 'mapbox-gl'
 import { useCallback, useRef, useState } from 'react'
 
+import { useAppTheme } from '@/app/ThemeProvider'
+
 import {
   useTaskBrowseData,
   useTaskBrowseLayout,
@@ -65,6 +67,7 @@ export type TaskMapProps = {
 
 type TaskMapPropsSnapshot = TaskMapProps & {
   effectiveSearchRadiusMiles: number
+  themeMode: 'light' | 'dark'
 }
 
 function bumpMapResize(map: MapboxMap) {
@@ -447,6 +450,18 @@ function createTaskMapController(args: {
   let lastSelectionFlyKey = ''
   let lastPinSelectedKey = ''
   let lastSearchThisAreaUiSig: string | null = null
+  let lastThemeMode: 'light' | 'dark' | null = null
+
+  const lightStyle = process.env.NEXT_PUBLIC_MAPBOX_STYLE_LIGHT?.trim()
+  const darkStyle = process.env.NEXT_PUBLIC_MAPBOX_STYLE_DARK?.trim()
+
+  const getStyleUrlForMode = (mode: 'light' | 'dark' | null | undefined) => {
+    const useDark = mode === 'dark'
+    return (
+      (useDark ? darkStyle || lightStyle : lightStyle || darkStyle) ||
+      DEFAULT_MAPBOX_STYLE
+    )
+  }
 
   const scheduleResizeAndRecenter = () => {
     if (resizeFrameRequested) return
@@ -607,6 +622,11 @@ function createTaskMapController(args: {
   const sync = () => {
     if (!map?.isStyleLoaded()) return
     const p = getProps()
+    if (p.themeMode && p.themeMode !== lastThemeMode && map) {
+      lastThemeMode = p.themeMode
+      const nextStyle = getStyleUrlForMode(p.themeMode)
+      map.setStyle(nextStyle)
+    }
     const leftPad = p.leftViewportPadding ?? 48
 
     const searchKey = `${p.centerLat},${p.centerLng}`
@@ -752,8 +772,7 @@ function createTaskMapController(args: {
     mapboxgl.default.accessToken = args.accessToken
     mapboxMod = mapboxgl.default
 
-    const styleUrl =
-      process.env.NEXT_PUBLIC_MAPBOX_STYLE?.trim() || DEFAULT_MAPBOX_STYLE
+    const styleUrl = getStyleUrlForMode(getProps().themeMode)
 
     const m = new mapboxgl.default.Map({
       container: args.container,
@@ -853,6 +872,7 @@ export function TaskMap({
   onSelectTask,
   onSearchThisAreaUiChange,
 }: TaskMapProps) {
+  const { mode } = useAppTheme()
   const effectiveSearchRadiusMiles = Math.max(
     0,
     Math.min(radiusMiles, MAX_SEARCH_RADIUS_MILES),
@@ -879,6 +899,7 @@ export function TaskMap({
     onSelectTask,
     onSearchThisAreaUiChange,
     effectiveSearchRadiusMiles,
+    themeMode: mode,
   })
 
   propsRef.current = {
@@ -900,6 +921,7 @@ export function TaskMap({
     onSelectTask,
     onSearchThisAreaUiChange,
     effectiveSearchRadiusMiles,
+    themeMode: mode,
   }
 
   const selectTaskRef = useRef(onSelectTask)
@@ -950,6 +972,7 @@ export function TaskMap({
     centerLat,
     centerLng,
     radiusMiles,
+    mode,
     visible,
     tasksLoaded,
     leftViewportPadding ?? '',

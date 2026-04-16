@@ -16,14 +16,9 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
 
     return (
       <Box bg="bg" color="jobCardTitle" minH="100vh">
-        <Box as="section" id="header" py={{ base: 6, md: 8 }}>
-          <Container>
-            <Header />
-          </Container>
-        </Box>
         <Box as="section" px={4} pb={12}>
           <Container>
-            <GlassCard p={8} maxW="lg" mx="auto">
+            <Box p={8} maxW="lg" mx="auto">
               <Stack gap={4}>
                 <Heading size="lg">Sign in to continue</Heading>
                 <Text color="formLabelMuted">
@@ -48,7 +43,7 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
                   </Button>
                 </NextLink>
               </Stack>
-            </GlassCard>
+            </Box>
           </Container>
         </Box>
         <Footer />

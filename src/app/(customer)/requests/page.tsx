@@ -16,7 +16,7 @@ import {
   taskBudgetPence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Button, GlassCard } from '@ui'
+import { Badge, Button } from '@ui'
 import { useCustomerAccount } from '../context'
 
 type RequestsTab = 'active' | 'archived'
@@ -59,7 +59,7 @@ function TaskCard({ task }: { task: TaskItem }) {
   }
 
   return (
-    <GlassCard
+    <Box
       p={5}
       borderWidth="1px"
       borderColor="jobCardBorder"
@@ -120,7 +120,7 @@ function TaskCard({ task }: { task: TaskItem }) {
           </NextLink>
         </HStack>
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }
 
@@ -254,7 +254,7 @@ export default function CustomerRequestsPage() {
             {visibleTasks.map((task) => (
               <TaskCard key={task.id} task={task} />
             ))}
-            <GlassCard
+            <Box
               p={8}
               borderWidth="1px"
               borderStyle="dashed"
@@ -270,11 +270,11 @@ export default function CustomerRequestsPage() {
                   Create Request
                 </Button>
               </NextLink>
-            </GlassCard>
+            </Box>
           </Grid>
 
           <Stack gap={4} position={{ xl: 'sticky' }} top={{ xl: 4 }}>
-            <GlassCard
+            <Box
               p={5}
               bg="linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)"
               color="white"
@@ -295,9 +295,9 @@ export default function CustomerRequestsPage() {
                 {formatRelativePosted(myPostedTasks[0]?.createdAt ?? null)} most
                 recent task update.
               </Text>
-            </GlassCard>
+            </Box>
 
-            <GlassCard p={5} bg="jobCardBg">
+            <Box p={5} bg="jobCardBg">
               <Heading size="sm" mb={3}>
                 Needs attention
               </Heading>
@@ -330,12 +330,12 @@ export default function CustomerRequestsPage() {
                     </GlassCard>
                   ))}
               </Stack>
-            </GlassCard>
+            </Box>
           </Stack>
         </Grid>
       ) : null}
 
-      <GlassCard
+      <Box
         overflow="hidden"
         borderRadius="xl"
         borderWidth="1px"
@@ -361,7 +361,7 @@ export default function CustomerRequestsPage() {
             bg="linear-gradient(135deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.04) 45%, rgba(1,43,115,0.4) 100%)"
           />
         </Grid>
-      </GlassCard>
+      </Box>
     </Stack>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, HStack } from '@chakra-ui/react'
+import { useCallback, useState } from 'react'
 
 import { IconButton } from './IconButton/IconButton'
 
@@ -79,12 +80,14 @@ function ProfileIcon() {
 }
 
 export function Dock() {
+  const [hasMounted, setHasMounted] = useState(false)
+  const [currentPathname, setCurrentPathname] = useState<string | null>(null)
+
   const items: DockItem[] = [
     {
       key: 'browse',
       caption: 'Discovery',
       href: '/',
-      active: true,
       icon: <BrowseIcon />,
     },
     {
@@ -107,8 +110,29 @@ export function Dock() {
     },
   ]
 
+  const onMountDock = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node || hasMounted) return
+      setHasMounted(true)
+      if (typeof window !== 'undefined') {
+        setCurrentPathname(window.location.pathname)
+      }
+    },
+    [hasMounted],
+  )
+
+  const isHrefActive = useCallback(
+    (href: string): boolean => {
+      if (!currentPathname) return false
+      if (href === '/') return currentPathname === '/'
+      return currentPathname.startsWith(href)
+    },
+    [currentPathname],
+  )
+
   return (
     <Box
+      ref={onMountDock}
       display="flex"
       position="fixed"
       left={{ base: 2, md: 0 }}
@@ -146,7 +170,7 @@ export function Dock() {
             href={item.href}
             icon={item.icon}
             caption={item.caption}
-            active={item.active}
+            active={isHrefActive(item.href)}
           />
         ))}
       </HStack>

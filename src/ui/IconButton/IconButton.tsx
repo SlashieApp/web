@@ -24,8 +24,8 @@ export function IconButton({
       }}
     >
       <Box
-        w={{ base: '72px', md: '60px' }}
-        h={{ base: '72px', md: '60px' }}
+        w={{ base: 'auto', md: '60px' }}
+        h={{ base: 'auto', md: '60px' }}
         borderRadius="xl"
         bg={{
           base: active ? 'primary.50' : 'transparent',
@@ -51,7 +51,6 @@ export function IconButton({
         <Stack
           align="center"
           justify="center"
-          h="full"
           gap={caption ? 1 : 0}
           position="relative"
         >

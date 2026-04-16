@@ -2,18 +2,22 @@
 
 import { Box, Image, type ImageProps } from '@chakra-ui/react'
 
+import { useAppTheme } from '@/app/ThemeProvider'
+
 export type LogoProps = Omit<ImageProps, 'src' | 'alt'>
 
 /** Slashie brand logo with light/dark asset switching. */
 export function Logo(props: LogoProps) {
+  const { mode } = useAppTheme()
+  const src =
+    mode === 'light'
+      ? '/images/slashie-logo-light.png'
+      : '/images/slashie-logo-dark.png'
+
   return (
-    <Box as="picture" display="inline-block" lineHeight={0}>
-      <source
-        srcSet="/images/slashie-logo-light.png"
-        media="(prefers-color-scheme: dark)"
-      />
+    <Box as="span" display="inline-block" lineHeight={0}>
       <Image
-        src="/images/slashie-logo-dark.png"
+        src={src}
         alt="Slashie"
         h={{ base: '20px', md: '22px' }}
         w="auto"
