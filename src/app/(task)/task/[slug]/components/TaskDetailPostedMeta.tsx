@@ -3,7 +3,7 @@
 import { Text } from '@chakra-ui/react'
 
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
-import { GlassCard } from '@ui'
+import { Box } from '@chakra-ui/react'
 
 export type TaskDetailPostedMetaProps = {
   createdAt: string | number | Date
@@ -11,10 +11,10 @@ export type TaskDetailPostedMetaProps = {
 
 export function TaskDetailPostedMeta({ createdAt }: TaskDetailPostedMetaProps) {
   return (
-    <GlassCard p={4} borderColor="jobCardBorder" boxShadow="ambient">
+    <Box p={4} borderColor="jobCardBorder" boxShadow="ambient">
       <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
         {formatRelativeTime(createdAt)}
       </Text>
-    </GlassCard>
+    </Box>
   )
 }

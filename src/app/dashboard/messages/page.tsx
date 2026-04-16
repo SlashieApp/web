@@ -1,8 +1,6 @@
 'use client'
 
-import { Heading, Stack, Text } from '@chakra-ui/react'
-
-import { GlassCard } from '@ui'
+import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 
 export default function DashboardMessagesPage() {
   return (
@@ -16,12 +14,12 @@ export default function DashboardMessagesPage() {
         </Text>
       </Stack>
 
-      <GlassCard p={6}>
+      <Box p={6}>
         <Text color="formLabelMuted">
           No conversations yet. This workspace is reserved for worker–customer
           threads once messaging ships.
         </Text>
-      </GlassCard>
+      </Box>
     </Stack>
   )
 }

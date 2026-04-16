@@ -1,6 +1,6 @@
 'use client'
 
-import { Grid, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Grid, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { WorkerAccessGate } from '@/app/dashboard/components/WorkerAccessGate'
@@ -13,7 +13,7 @@ import {
   quotePricePence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Button, GlassCard } from '@ui'
+import { Badge, Button } from '@ui'
 
 function QuoteMetric({
   label,
@@ -25,7 +25,7 @@ function QuoteMetric({
   helper: string
 }) {
   return (
-    <GlassCard p={5}>
+    <Box p={5}>
       <Stack gap={2}>
         <Text
           fontSize="10px"
@@ -41,7 +41,7 @@ function QuoteMetric({
           {helper}
         </Text>
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }
 
@@ -106,7 +106,7 @@ export default function DashboardQuotesPage() {
       ) : null}
 
       {!isLoadingQuotes && filteredMyQuotes.length === 0 ? (
-        <GlassCard p={6}>
+        <Box p={6}>
           <Stack gap={4}>
             <Heading size="md">No quotes sent yet</Heading>
             <Text color="formLabelMuted">
@@ -119,7 +119,7 @@ export default function DashboardQuotesPage() {
               </Button>
             </NextLink>
           </Stack>
-        </GlassCard>
+        </Box>
       ) : !isLoadingQuotes ? (
         <Stack gap={4}>
           {filteredMyQuotes.map(({ task, quote }) => {
@@ -127,7 +127,7 @@ export default function DashboardQuotesPage() {
             const awarded = isQuoteAwarded(quote.status)
 
             return (
-              <GlassCard key={quote.id} p={5}>
+              <Box key={quote.id} p={5}>
                 <HStack align="flex-start" gap={4} flexWrap="wrap">
                   <Stack
                     w={14}
@@ -182,7 +182,7 @@ export default function DashboardQuotesPage() {
                     </Link>
                   </Stack>
                 </HStack>
-              </GlassCard>
+              </Box>
             )
           })}
         </Stack>

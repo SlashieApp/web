@@ -3,7 +3,6 @@
 import type { ReactNode } from 'react'
 
 import { Button } from '@/ui/Button'
-import { GlassCard } from '@/ui/Card/GlassCard'
 import {
   Box,
   HStack,
@@ -68,7 +67,7 @@ export function CreateTaskScheduleSection({
   const showTimePicker = datetimeType === TaskDateTimeType.Exact
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
+    <Box p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={5}>
         <Stack gap={1}>
           <Heading size="lg" color="primary.700">
@@ -174,7 +173,7 @@ export function CreateTaskScheduleSection({
           </Box>
         ) : null}
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }
 

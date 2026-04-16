@@ -4,7 +4,6 @@ import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { useRef } from 'react'
 
 import { Button } from '@/ui/Button'
-import { GlassCard } from '@/ui/Card/GlassCard'
 
 export type CreateTaskVisualsSectionProps = {
   files: File[]
@@ -23,7 +22,7 @@ export function CreateTaskVisualsSection({
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
+    <Box p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={4}>
         <Heading size="lg" color="primary.700">
           3. Visuals
@@ -107,6 +106,6 @@ export function CreateTaskVisualsSection({
           </HStack>
         ) : null}
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }

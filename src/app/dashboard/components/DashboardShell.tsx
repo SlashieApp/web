@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { Button, GlassCard } from '@ui'
+import { Button } from '@ui'
 
 export type DashboardNavKey =
   | 'overview'
@@ -331,7 +331,7 @@ export function DashboardShell({
               </Stack>
             </HStack>
 
-            <GlassCard p={4} bg="jobCardBg">
+            <Box p={4} bg="jobCardBg">
               <Stack gap={1}>
                 <HStack gap={3}>
                   <Box
@@ -364,7 +364,7 @@ export function DashboardShell({
                   </Text>
                 ) : null}
               </Stack>
-            </GlassCard>
+            </Box>
 
             <Stack gap={1} flex="1">
               {navPrimary.map((item) => (
@@ -396,7 +396,7 @@ export function DashboardShell({
               ))}
             </Stack>
 
-            <GlassCard
+            <Box
               p={4}
               bg={
                 workerOnboardingDone
@@ -447,7 +447,7 @@ export function DashboardShell({
                     : 'Become a worker'}
                 </Link>
               </Stack>
-            </GlassCard>
+            </Box>
           </Stack>
         </Box>
 

@@ -18,7 +18,7 @@ import {
   DASHBOARD_TRADE_OPTIONS,
   type DashboardTrade,
 } from '@/utils/dashboardTypes'
-import { Badge, Button, GlassCard } from '@ui'
+import { Badge, Button } from '@ui'
 
 export default function WorkerRegistrationPage() {
   const router = useRouter()
@@ -130,7 +130,7 @@ export default function WorkerRegistrationPage() {
         alignItems="start"
       >
         <Stack gap={5}>
-          <GlassCard p={{ base: 5, md: 6 }}>
+          <Box p={{ base: 5, md: 6 }}>
             <Stack gap={4}>
               <HStack gap={3}>
                 <Badge>1</Badge>
@@ -208,9 +208,9 @@ export default function WorkerRegistrationPage() {
                 </Stack>
               </Grid>
             </Stack>
-          </GlassCard>
+          </Box>
 
-          <GlassCard p={{ base: 5, md: 6 }}>
+          <Box p={{ base: 5, md: 6 }}>
             <Stack gap={4}>
               <HStack gap={3}>
                 <Badge>2</Badge>
@@ -266,9 +266,9 @@ export default function WorkerRegistrationPage() {
                 </Stack>
               </Grid>
             </Stack>
-          </GlassCard>
+          </Box>
 
-          <GlassCard p={{ base: 5, md: 6 }}>
+          <Box p={{ base: 5, md: 6 }}>
             <Stack gap={4}>
               <HStack gap={3}>
                 <Badge>3</Badge>
@@ -308,11 +308,11 @@ export default function WorkerRegistrationPage() {
                 </Stack>
               </Box>
             </Stack>
-          </GlassCard>
+          </Box>
         </Stack>
 
         <Stack gap={4} position={{ xl: 'sticky' }} top={{ xl: 4 }}>
-          <GlassCard
+          <Box
             p={6}
             bg="linear-gradient(160deg, #1a56db 0%, #244bc5 70%, #1236a8 100%)"
             color="white"
@@ -334,9 +334,9 @@ export default function WorkerRegistrationPage() {
                 </Text>
               </Stack>
             </Stack>
-          </GlassCard>
+          </Box>
 
-          <GlassCard p={6} bg="jobCardBg">
+          <Box p={6} bg="jobCardBg">
             <Stack gap={4}>
               <Heading size="sm">Final step</Heading>
               <Text fontSize="sm" color="formLabelMuted">
@@ -375,7 +375,7 @@ export default function WorkerRegistrationPage() {
                   : 'Join HandyBox'}
               </Button>
             </Stack>
-          </GlassCard>
+          </Box>
         </Stack>
       </Grid>
     </Stack>

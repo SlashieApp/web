@@ -8,8 +8,8 @@ import {
   DashboardDataProvider,
   useDashboardData,
 } from '@/app/dashboard/context'
-import { clearAuthToken } from '@/utils/auth'
-import { Button, GlassCard } from '@ui'
+
+import { Button } from '@ui'
 
 import {
   type DashboardNavKey,
@@ -63,7 +63,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
               {meErrorMessage}
             </Text>
           ) : null}
-          <GlassCard p={6}>
+          <Box p={6}>
             <Stack gap={4}>
               <Heading size="md">Sign in to open your dashboard</Heading>
               <Text color="formLabelMuted">
@@ -80,7 +80,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
                 </Link>
               </HStack>
             </Stack>
-          </GlassCard>
+          </Box>
           <Link
             as={NextLink}
             href="/"

@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Box,
   Grid,
   HStack,
   Heading,
@@ -13,7 +14,7 @@ import NextLink from 'next/link'
 
 import { useDashboardData } from '@/app/dashboard/context'
 import { formatPounds } from '@/utils/dashboardHelpers'
-import { Badge, Button, GlassCard } from '@ui'
+import { Badge, Button } from '@ui'
 
 function MetricCard({
   label,
@@ -25,7 +26,7 @@ function MetricCard({
   helper: string
 }) {
   return (
-    <GlassCard p={5}>
+    <Box p={5}>
       <Stack gap={2}>
         <Text
           fontSize="10px"
@@ -41,7 +42,7 @@ function MetricCard({
           {helper}
         </Text>
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }
 
@@ -62,7 +63,7 @@ export default function DashboardOverviewPage() {
   return (
     <Stack gap={8}>
       <Grid templateColumns={{ base: '1fr', xl: '1.5fr 1fr' }} gap={6}>
-        <GlassCard
+        <Box
           p={{ base: 6, md: 7 }}
           bg="linear-gradient(160deg, #f7f9ff 0%, #ffffff 100%)"
         >
@@ -112,7 +113,7 @@ export default function DashboardOverviewPage() {
               </Badge>
             </HStack>
           </Stack>
-        </GlassCard>
+        </Box>
 
         <SimpleGrid columns={{ base: 1, sm: 2, xl: 1 }} gap={4}>
           <MetricCard
@@ -152,12 +153,7 @@ export default function DashboardOverviewPage() {
       ) : null}
 
       {!workerEnabled ? (
-        <GlassCard
-          p={6}
-          bg="primary.50"
-          borderWidth="1px"
-          borderColor="primary.100"
-        >
+        <Box p={6} bg="primary.50" borderWidth="1px" borderColor="primary.100">
           <Stack gap={3}>
             <Heading size="md">Finish worker setup</Heading>
             <Text color="formLabelMuted" fontSize="sm">
@@ -170,10 +166,10 @@ export default function DashboardOverviewPage() {
               </Button>
             </NextLink>
           </Stack>
-        </GlassCard>
+        </Box>
       ) : null}
 
-      <GlassCard p={6}>
+      <Box p={6}>
         <Stack gap={2}>
           <Heading size="sm">Customer tools</Heading>
           <Text fontSize="sm" color="formLabelMuted">
@@ -200,7 +196,7 @@ export default function DashboardOverviewPage() {
             .
           </Text>
         </Stack>
-      </GlassCard>
+      </Box>
     </Stack>
   )
 }

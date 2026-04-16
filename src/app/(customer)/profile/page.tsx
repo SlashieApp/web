@@ -33,7 +33,7 @@ import {
   taskBudgetPence,
 } from '@/utils/dashboardHelpers'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Badge, Button, GlassCard } from '@ui'
+import { Badge, Button } from '@ui'
 
 import { useCustomerAccount } from '../context'
 
@@ -426,7 +426,7 @@ export default function CustomerProfilePage() {
         </Text>
       ) : null}
 
-      <GlassCard p={{ base: 5, md: 6 }} bg="jobCardBg">
+      <Box p={{ base: 5, md: 6 }} bg="jobCardBg">
         <Stack gap={5}>
           <HStack
             justify="space-between"
@@ -581,11 +581,11 @@ export default function CustomerProfilePage() {
             </HStack>
           ) : null}
         </Stack>
-      </GlassCard>
+      </Box>
 
       <Stack gap={4}>
         <Heading size="md">Account Security</Heading>
-        <GlassCard p={0} overflow="hidden">
+        <Box p={0} overflow="hidden">
           {/* Google login method is intentionally hidden until rollout is ready. */}
           {/* <SecurityRow
             icon={<IconGoogle />}
@@ -619,9 +619,9 @@ export default function CustomerProfilePage() {
               </Link>
             }
           />
-        </GlassCard>
+        </Box>
 
-        <GlassCard p={4} bg="jobCardBg">
+        <Box p={4} bg="jobCardBg">
           <NextLink href={forgotHref} passHref legacyBehavior>
             <Button
               as="a"
@@ -640,14 +640,14 @@ export default function CustomerProfilePage() {
               connected provider, or contact support to add a password.
             </Text>
           ) : null}
-        </GlassCard>
+        </Box>
       </Stack>
 
       <Grid
         templateColumns={{ base: '1fr', md: 'repeat(2, minmax(0, 1fr))' }}
         gap={4}
       >
-        <GlassCard
+        <Box
           p={6}
           bg="primary.700"
           color="white"
@@ -677,8 +677,8 @@ export default function CustomerProfilePage() {
           >
             📋
           </Box>
-        </GlassCard>
-        <GlassCard p={6} bg="badgeBg" position="relative" overflow="hidden">
+        </Box>
+        <Box p={6} bg="badgeBg" position="relative" overflow="hidden">
           <Stack gap={1} position="relative" zIndex={1}>
             <Text
               fontSize="xs"
@@ -705,7 +705,7 @@ export default function CustomerProfilePage() {
           >
             💷
           </Box>
-        </GlassCard>
+        </Box>
       </Grid>
 
       <Grid
@@ -718,7 +718,7 @@ export default function CustomerProfilePage() {
           textDecoration="none"
           color="inherit"
         >
-          <GlassCard
+          <Box
             p={6}
             bg="primary.50"
             borderColor="primary.100"
@@ -743,7 +743,7 @@ export default function CustomerProfilePage() {
             >
               📋
             </Box>
-          </GlassCard>
+          </Box>
         </Link>
         <Link
           as={NextLink}
@@ -751,7 +751,7 @@ export default function CustomerProfilePage() {
           textDecoration="none"
           color="inherit"
         >
-          <GlassCard
+          <Box
             p={6}
             bg="jobCardBg"
             borderColor="jobCardBg"
@@ -776,7 +776,7 @@ export default function CustomerProfilePage() {
             >
               👷
             </Box>
-          </GlassCard>
+          </Box>
         </Link>
       </Grid>
 
@@ -814,7 +814,7 @@ function InfoRow({
   children: React.ReactNode
 }) {
   return (
-    <GlassCard
+    <Box
       gridColumn={fullWidth ? { base: '1 / -1', md: '1 / -1' } : undefined}
       p={4}
       bg="primary.50"
@@ -869,7 +869,7 @@ function InfoRow({
           {children}
         </Stack>
       )}
-    </GlassCard>
+    </Box>
   )
 }
 

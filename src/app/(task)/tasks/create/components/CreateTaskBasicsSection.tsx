@@ -1,9 +1,8 @@
 'use client'
 
-import { Heading, Input, Stack, Textarea } from '@chakra-ui/react'
+import { Box, Heading, Input, Stack, Textarea } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
-import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
 import type { CreateTaskFormValues } from '../createTaskFormSchema'
 
@@ -20,7 +19,7 @@ export function CreateTaskBasicsSection({
   fieldErrors,
 }: CreateTaskBasicsSectionProps) {
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
+    <Box p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={5}>
         <Heading size="lg" color="primary.700">
           1. Task basics
@@ -51,6 +50,6 @@ export function CreateTaskBasicsSection({
           />
         </FormField>
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Box,
   HStack,
   Heading,
   Input,
@@ -12,7 +13,6 @@ import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/Button'
-import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
 import type { CreateTaskFormValues } from '../createTaskFormSchema'
 
@@ -43,7 +43,7 @@ export function CreateTaskBudgetSection({
   budgetMajorError,
 }: CreateTaskBudgetSectionProps) {
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
+    <Box p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={5}>
         <Heading size="lg" color="primary.700">
           3. Budget & payment
@@ -206,6 +206,6 @@ export function CreateTaskBudgetSection({
           </HStack>
         </FormField>
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }

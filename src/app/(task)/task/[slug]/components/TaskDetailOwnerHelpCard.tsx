@@ -1,12 +1,10 @@
 'use client'
 
-import { Link, Stack, Text } from '@chakra-ui/react'
-
-import { GlassCard } from '@ui'
+import { Box, Link, Stack, Text } from '@chakra-ui/react'
 
 export function TaskDetailOwnerHelpCard() {
   return (
-    <GlassCard
+    <Box
       p={6}
       borderWidth="0"
       bg="linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)"
@@ -42,6 +40,6 @@ export function TaskDetailOwnerHelpCard() {
           Chat with support
         </Link>
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }

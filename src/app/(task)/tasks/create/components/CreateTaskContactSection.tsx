@@ -1,10 +1,9 @@
 'use client'
 
-import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { TaskContactMethod } from '@codegen/schema'
 
 import { Button } from '@/ui/Button'
-import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
 
 export type CreateTaskContactSectionProps = {
@@ -17,7 +16,7 @@ export function CreateTaskContactSection({
   onPreferredContactMethodChange,
 }: CreateTaskContactSectionProps) {
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
+    <Box p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={4}>
         <Heading size="lg" color="primary.700">
           4. Preferred contact
@@ -96,6 +95,6 @@ export function CreateTaskContactSection({
           </HStack>
         </FormField>
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }

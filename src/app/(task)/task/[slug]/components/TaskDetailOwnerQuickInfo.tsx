@@ -1,8 +1,6 @@
 'use client'
 
-import { Grid, Stack, Text } from '@chakra-ui/react'
-
-import { GlassCard } from '@ui'
+import { Box, Grid, Stack, Text } from '@chakra-ui/react'
 
 import {
   type TaskDetailRecord,
@@ -28,7 +26,7 @@ export function TaskDetailOwnerQuickInfo({
       }}
       gap={3}
     >
-      <GlassCard p={4} borderColor="jobCardBorder" boxShadow="ambient">
+      <Box p={4} borderColor="jobCardBorder" boxShadow="ambient">
         <Stack gap={1}>
           <Text
             fontSize="10px"
@@ -42,8 +40,8 @@ export function TaskDetailOwnerQuickInfo({
             {budget}
           </Text>
         </Stack>
-      </GlassCard>
-      <GlassCard p={4} borderColor="jobCardBorder" boxShadow="ambient">
+      </Box>
+      <Box p={4} borderColor="jobCardBorder" boxShadow="ambient">
         <Stack gap={1}>
           <Text
             fontSize="10px"
@@ -57,7 +55,7 @@ export function TaskDetailOwnerQuickInfo({
             {availability}
           </Text>
         </Stack>
-      </GlassCard>
+      </Box>
     </Grid>
   )
 }

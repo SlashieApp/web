@@ -1,12 +1,11 @@
 'use client'
 
-import { Grid, HStack, Stack } from '@chakra-ui/react'
+import { Box, Grid, HStack, Stack } from '@chakra-ui/react'
 
 import { formatTaskContactMethodLabel } from '@/utils/taskLocationDisplay'
 import { Heading, Text } from '@chakra-ui/react'
 
 import { IconDocument } from '@/icons/taskMeta'
-import { GlassCard } from '@ui'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
 
@@ -23,11 +22,7 @@ export function TaskDetailDescriptionCard({
   task,
 }: TaskDetailDescriptionCardProps) {
   return (
-    <GlassCard
-      p={{ base: 5, md: 6 }}
-      borderColor="jobCardBorder"
-      boxShadow="ambient"
-    >
+    <Box p={{ base: 5, md: 6 }} borderColor="jobCardBorder" boxShadow="ambient">
       <Stack gap={4}>
         <HStack gap={2}>
           <IconDocument color="primary.600" />
@@ -68,6 +63,6 @@ export function TaskDetailDescriptionCard({
           </Stack>
         ) : null}
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }

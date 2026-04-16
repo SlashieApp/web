@@ -4,7 +4,7 @@ import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Button, Footer, GlassCard, Header } from '@ui'
+import { Button, Footer } from '@ui'
 import { CustomerAccountProvider, useCustomerAccount } from './context'
 
 function CustomerShell({ children }: { children: React.ReactNode }) {

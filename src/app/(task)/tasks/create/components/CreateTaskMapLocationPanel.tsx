@@ -1,10 +1,9 @@
 'use client'
 
-import { HStack, Heading, Input, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Input, Stack, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/Button'
-import { GlassCard } from '@/ui/Card/GlassCard'
 import { FormField } from '@/ui/FormField/FormField'
 import type { CreateTaskFormValues } from '../createTaskFormSchema'
 import { TaskLocationMapPicker } from './TaskLocationMapPicker'
@@ -40,7 +39,7 @@ export function CreateTaskMapLocationPanel({
   const canCopyPlace = Boolean(mapPlaceName.trim())
 
   return (
-    <GlassCard p={{ base: 5, md: 6 }} bg="neutral.100">
+    <Box p={{ base: 5, md: 6 }} bg="neutral.100">
       <Stack gap={4}>
         <Heading size="lg" color="primary.700">
           Task location
@@ -107,6 +106,6 @@ export function CreateTaskMapLocationPanel({
           </Text>
         ) : null}
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }

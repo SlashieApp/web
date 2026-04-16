@@ -1,10 +1,10 @@
 'use client'
 
-import { Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
 import { useDashboardData } from '@/app/dashboard/context'
 import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
-import { Badge, GlassCard } from '@ui'
+import { Badge } from '@ui'
 
 export default function DashboardHistoryPage() {
   const { search, workerServiceHistory } = useDashboardData()
@@ -38,7 +38,7 @@ export default function DashboardHistoryPage() {
       </Stack>
 
       <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
-        <GlassCard p={5}>
+        <Box p={5}>
           <Stack gap={2}>
             <Text
               fontSize="10px"
@@ -53,8 +53,8 @@ export default function DashboardHistoryPage() {
               Records matching the current dashboard search.
             </Text>
           </Stack>
-        </GlassCard>
-        <GlassCard p={5}>
+        </Box>
+        <Box p={5}>
           <Stack gap={2}>
             <Text
               fontSize="10px"
@@ -69,8 +69,8 @@ export default function DashboardHistoryPage() {
               Combined value from worker-role history on this page.
             </Text>
           </Stack>
-        </GlassCard>
-        <GlassCard p={5}>
+        </Box>
+        <Box p={5}>
           <Stack gap={2}>
             <Text
               fontSize="10px"
@@ -85,20 +85,20 @@ export default function DashboardHistoryPage() {
               Demo-ready record summaries can be exported from future API work.
             </Text>
           </Stack>
-        </GlassCard>
+        </Box>
       </Grid>
 
       {filteredHistory.length === 0 ? (
-        <GlassCard p={6}>
+        <Box p={6}>
           <Text color="formLabelMuted">
             No worker history matches your current search. Try a task title or
             location.
           </Text>
-        </GlassCard>
+        </Box>
       ) : (
         <Stack gap={4}>
           {filteredHistory.map((entry) => (
-            <GlassCard key={entry.id} p={5}>
+            <Box key={entry.id} p={5}>
               <HStack
                 justify="space-between"
                 align="flex-start"
@@ -119,7 +119,7 @@ export default function DashboardHistoryPage() {
                 </Stack>
                 <Text fontWeight={800}>{formatPounds(entry.valuePence)}</Text>
               </HStack>
-            </GlassCard>
+            </Box>
           ))}
         </Stack>
       )}

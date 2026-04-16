@@ -1,6 +1,6 @@
 'use client'
 
-import { Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
 import { WorkerAccessGate } from '@/app/dashboard/components/WorkerAccessGate'
 import { useDashboardData } from '@/app/dashboard/context'
@@ -9,7 +9,7 @@ import {
   formatPounds,
   quotePricePence,
 } from '@/utils/dashboardHelpers'
-import { Badge, GlassCard } from '@ui'
+import { Badge } from '@ui'
 
 function EarningsCard({
   label,
@@ -21,7 +21,7 @@ function EarningsCard({
   helper: string
 }) {
   return (
-    <GlassCard p={5}>
+    <Box p={5}>
       <Stack gap={2}>
         <Text
           fontSize="10px"
@@ -37,7 +37,7 @@ function EarningsCard({
           {helper}
         </Text>
       </Stack>
-    </GlassCard>
+    </Box>
   )
 }
 
@@ -124,12 +124,12 @@ export default function DashboardEarningsPage() {
       </Grid>
 
       <Grid templateColumns={{ base: '1fr', xl: '1.2fr 0.8fr' }} gap={6}>
-        <GlassCard p={6}>
+        <Box p={6}>
           <Stack gap={4}>
             <Heading size="md">Payout queue</Heading>
             <Stack gap={3}>
               {payoutRows.map((row) => (
-                <GlassCard
+                <Box
                   key={row.id}
                   p={4}
                   bg="jobCardBg"
@@ -175,13 +175,13 @@ export default function DashboardEarningsPage() {
                       </Badge>
                     </Stack>
                   </HStack>
-                </GlassCard>
+                </Box>
               ))}
             </Stack>
           </Stack>
-        </GlassCard>
+        </Box>
 
-        <GlassCard
+        <Box
           p={6}
           bg="linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)"
           color="white"
@@ -213,7 +213,7 @@ export default function DashboardEarningsPage() {
               </Text>
             </HStack>
           </Stack>
-        </GlassCard>
+        </Box>
       </Grid>
     </Stack>
   )

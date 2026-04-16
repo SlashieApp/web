@@ -306,7 +306,7 @@ export default function CustomerRequestsPage() {
                   .filter((task) => (task.quotes ?? []).length > 0)
                   .slice(0, 3)
                   .map((task) => (
-                    <GlassCard
+                    <Box
                       key={task.id}
                       p={4}
                       bg="neutral.100"
@@ -327,7 +327,7 @@ export default function CustomerRequestsPage() {
                       >
                         Open task
                       </Link>
-                    </GlassCard>
+                    </Box>
                   ))}
               </Stack>
             </Box>

@@ -1,8 +1,6 @@
 'use client'
 
-import { Grid, Stack, Text } from '@chakra-ui/react'
-
-import { GlassCard } from '@ui'
+import { Box, Grid, Stack, Text } from '@chakra-ui/react'
 
 import {
   type TaskDetailRecord,
@@ -56,7 +54,7 @@ export function TaskDetailOwnerPerformanceCard({
   const interest = ownerProInterestLabel(n)
 
   return (
-    <GlassCard
+    <Box
       id="owner-task-performance"
       scrollMarginTop="96px"
       p={5}
@@ -84,6 +82,6 @@ export function TaskDetailOwnerPerformanceCard({
         View counts are not tracked on web yet. Response time is averaged from
         quote timestamps.
       </Text>
-    </GlassCard>
+    </Box>
   )
 }
