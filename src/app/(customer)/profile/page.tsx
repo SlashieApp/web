@@ -569,7 +569,7 @@ export default function CustomerProfilePage() {
                 Save changes
               </Button>
               <Button
-                variant="subtle"
+                variant="ghost"
                 onClick={() => {
                   setEditingSection('none')
                   setSaveError(null)
@@ -625,7 +625,7 @@ export default function CustomerProfilePage() {
           <NextLink href={forgotHref} passHref legacyBehavior>
             <Button
               as="a"
-              variant="outline"
+              variant="secondary"
               width="full"
               justifyContent="center"
               gap={2}

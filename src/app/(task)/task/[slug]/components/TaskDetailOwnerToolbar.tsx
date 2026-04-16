@@ -149,7 +149,7 @@ export function TaskDetailOwnerToolbar({
           <NextLink href="/requests" passHref legacyBehavior>
             <Button
               as="a"
-              variant="outline"
+              variant="secondary"
               borderColor="jobCardBorder"
               color="jobCardTitle"
               bg="white"
@@ -164,7 +164,7 @@ export function TaskDetailOwnerToolbar({
           </NextLink>
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             borderColor="jobCardBorder"
             color="jobCardTitle"
             bg="white"
@@ -179,7 +179,7 @@ export function TaskDetailOwnerToolbar({
           </Button>
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             borderColor="red.200"
             color="red.700"
             bg="red.50"

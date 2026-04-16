@@ -108,7 +108,7 @@ export function CreateTaskBudgetSection({
             <Button
               type="button"
               size="sm"
-              variant="subtle"
+              variant="ghost"
               bg={
                 budgetType === TaskBudgetType.OneOff ? 'jobCardBg' : 'jobCardBg'
               }
@@ -125,7 +125,7 @@ export function CreateTaskBudgetSection({
             <Button
               type="button"
               size="sm"
-              variant="subtle"
+              variant="ghost"
               bg={
                 budgetType === TaskBudgetType.PerDay ? 'jobCardBg' : 'jobCardBg'
               }
@@ -142,7 +142,7 @@ export function CreateTaskBudgetSection({
             <Button
               type="button"
               size="sm"
-              variant="subtle"
+              variant="ghost"
               bg={
                 budgetType === TaskBudgetType.PerHour
                   ? 'jobCardBg'
@@ -166,7 +166,7 @@ export function CreateTaskBudgetSection({
             <Button
               type="button"
               size="sm"
-              variant="subtle"
+              variant="ghost"
               bg={
                 paymentMethod === TaskPaymentMethod.Cash
                   ? 'jobCardBg'
@@ -185,7 +185,7 @@ export function CreateTaskBudgetSection({
             <Button
               type="button"
               size="sm"
-              variant="subtle"
+              variant="ghost"
               bg={
                 paymentMethod === TaskPaymentMethod.BankTransfer
                   ? 'jobCardBg'

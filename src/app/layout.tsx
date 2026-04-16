@@ -14,8 +14,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Slashie',
-  description: 'Local trades and home tasks marketplace',
+  title: 'Slashie App - Local Trades and Home Tasks Marketplace',
+  description:
+    'Slashie is a local trades and home tasks marketplace that connects homeowners with skilled professionals for home repairs, maintenance, and improvements.',
+  manifest: '/manifest.json',
+  themeColor: '#00dc82',
 }
 
 export default function RootLayout({

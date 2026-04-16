@@ -17,8 +17,8 @@ export function Badge(props: UiBadgeProps) {
       fontWeight={600}
       letterSpacing="0.07em"
       textTransform="uppercase"
-      px={4}
-      py={1.5}
+      px={2.5}
+      py={1}
       {...props}
     />
   )

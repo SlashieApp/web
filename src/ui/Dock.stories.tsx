@@ -23,7 +23,7 @@ export const Default: Story = {
     },
   },
   render: () => (
-    <Box minH="100vh" bg="bg">
+    <Box minH="100vh" bg="bg" position="relative">
       <Dock />
       <Box pt={6} px={4} pl={{ base: 4, md: '88px' }}>
         <Text color="jobCardTitle" fontWeight={700}>

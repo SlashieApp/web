@@ -32,7 +32,7 @@ export function CreateTaskContactSection({
             <Button
               type="button"
               size="sm"
-              variant="subtle"
+              variant="ghost"
               bg={
                 preferredContactMethod === TaskContactMethod.InApp
                   ? 'jobCardBg'
@@ -53,7 +53,7 @@ export function CreateTaskContactSection({
             <Button
               type="button"
               size="sm"
-              variant="subtle"
+              variant="ghost"
               bg={
                 preferredContactMethod === TaskContactMethod.Phone
                   ? 'jobCardBg'
@@ -74,7 +74,7 @@ export function CreateTaskContactSection({
             <Button
               type="button"
               size="sm"
-              variant="subtle"
+              variant="ghost"
               bg={
                 preferredContactMethod === TaskContactMethod.Email
                   ? 'jobCardBg'

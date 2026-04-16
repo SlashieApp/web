@@ -1,7 +1,7 @@
 'use client'
 
-import { Box, Button, HStack } from '@chakra-ui/react'
-
+import { Box, HStack } from '@chakra-ui/react'
+import { Button } from '@ui'
 import {
   useTaskBrowseData,
   useTaskBrowseLayout,
@@ -9,33 +9,13 @@ import {
 
 /** Mobile: filter trigger + compact active summary chips (task browse data context). */
 export function TaskBrowseActiveFilterTags() {
-  const { radiusMiles, urgency } = useTaskBrowseData()
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
 
   const activeFilterTags: string[] = []
-  if (urgency !== 'any') {
-    activeFilterTags.push(
-      urgency === 'emergency'
-        ? 'Emergency'
-        : urgency === 'today'
-          ? 'Today'
-          : 'This week',
-    )
-  }
-  activeFilterTags.push(`${radiusMiles}mi`)
 
   return (
     <HStack mt={2} gap={2} flexWrap="wrap">
-      <Button
-        type="button"
-        pointerEvents="auto"
-        size="sm"
-        variant={isFilterOpen ? 'solid' : 'subtle'}
-        borderRadius="full"
-        px={3}
-        py={1.5}
-        onClick={() => setIsFilterOpen(!isFilterOpen)}
-      >
+      <Button variant="primary" onClick={() => setIsFilterOpen(!isFilterOpen)}>
         Filters
       </Button>
       {activeFilterTags.map((tag) => (

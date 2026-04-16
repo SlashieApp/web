@@ -93,54 +93,13 @@ function UrgencyCard({
   icon,
   accent,
 }: UrgencyCardProps) {
-  const isEmergency = accent === 'emergency'
   return (
-    <ChakraButton
-      type="button"
-      variant="outline"
-      flex="1"
-      minW={0}
-      h="auto"
-      py={3}
-      px={2}
-      borderRadius="lg"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      gap={1.5}
-      fontWeight={800}
-      fontSize="10px"
-      letterSpacing="0.04em"
-      whiteSpace="normal"
-      lineHeight="1.1"
-      borderWidth="1px"
-      bg={active ? (isEmergency ? 'jobCardBg' : 'primary.50') : 'badgeBg'}
-      borderColor={
-        active ? (isEmergency ? 'secondary.400' : 'primary.500') : 'transparent'
-      }
-      color={
-        active
-          ? isEmergency
-            ? 'jobCardTitle'
-            : 'primary.600'
-          : 'formLabelMuted'
-      }
-      boxShadow="none"
-      _hover={{
-        bg: active
-          ? isEmergency
-            ? 'secondary.100'
-            : 'primary.100'
-          : 'jobCardDivider',
-      }}
-      onClick={onClick}
-      aria-pressed={active}
-    >
+    <Button variant="secondary" size="sm" onClick={onClick}>
       {icon}
       <Text as="span" textAlign="center">
         {label}
       </Text>
-    </ChakraButton>
+    </Button>
   )
 }
 

@@ -214,7 +214,7 @@ export default function CustomerRequestsPage() {
           >
             Archived
           </Button>
-          <Button size="sm" variant="subtle" onClick={refetchCustomerAccount}>
+          <Button size="sm" variant="ghost" onClick={refetchCustomerAccount}>
             Refresh
           </Button>
         </HStack>

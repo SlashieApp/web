@@ -16,10 +16,7 @@ import {
   useTaskBrowseFiltersProps,
   useTaskBrowseLayout,
 } from '../../context/TaskBrowseProvider'
-import type {
-  TaskBrowseFiltersProps,
-  UrgencyFilter,
-} from '../../helpers/taskBrowseFilters.types'
+import type { TaskBrowseFiltersProps } from '../../helpers/taskBrowseFilters.types'
 
 import { TaskList } from './TaskList'
 
@@ -52,36 +49,6 @@ function FilterSectionTitle({
     <Text {...FILTER_LABEL} mb={mb}>
       {children}
     </Text>
-  )
-}
-
-function UrgencyPill({
-  active,
-  label,
-  onClick,
-}: {
-  active: boolean
-  label: string
-  onClick: () => void
-}) {
-  const isEmergency = label === 'Emergency'
-  return (
-    <Button
-      type="button"
-      size="sm"
-      variant="secondary"
-      flex="1"
-      minW="0"
-      fontSize="sm"
-      fontWeight={600}
-      borderRadius="full"
-      boxShadow="none"
-      bg={active ? (isEmergency ? 'jobCardBg' : 'primary.500') : 'badgeBg'}
-      color={active ? (isEmergency ? 'jobCardTitle' : 'white') : 'jobCardTitle'}
-      onClick={onClick}
-    >
-      {label}
-    </Button>
   )
 }
 
@@ -264,31 +231,6 @@ export function TaskBrowseFiltersDefaultPanel({
             onChange={(e) => onMaxBudgetChange(e.target.value)}
           />
         </SimpleGrid>
-      </Stack>
-
-      <Stack gap={3}>
-        <FilterSectionTitle>Urgency</FilterSectionTitle>
-        <HStack gap={2} flexWrap="wrap">
-          <UrgencyPill
-            label="Emergency"
-            active={urgency === 'emergency'}
-            onClick={() =>
-              onUrgencyChange(urgency === 'emergency' ? 'any' : 'emergency')
-            }
-          />
-          <UrgencyPill
-            label="Today"
-            active={urgency === 'today'}
-            onClick={() =>
-              onUrgencyChange(urgency === 'today' ? 'any' : 'today')
-            }
-          />
-          <UrgencyPill
-            label="This week"
-            active={urgency === 'week'}
-            onClick={() => onUrgencyChange(urgency === 'week' ? 'any' : 'week')}
-          />
-        </HStack>
       </Stack>
     </Stack>
   )

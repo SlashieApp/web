@@ -167,7 +167,7 @@ export function TaskQuoteCard({
               <Button
                 as="a"
                 size="sm"
-                variant="outline"
+                variant="secondary"
                 borderColor="primary.200"
                 color="primary.700"
                 bg="primary.50"
@@ -182,7 +182,7 @@ export function TaskQuoteCard({
           {isOwnQuote ? (
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               borderColor="jobCardBorder"
               color="formLabelMuted"
               flex={1}

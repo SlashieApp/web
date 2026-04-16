@@ -38,7 +38,7 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
                   <Button as="a">Log in</Button>
                 </NextLink>
                 <NextLink href="/register" passHref legacyBehavior>
-                  <Button as="a" variant="subtle">
+                  <Button as="a" variant="ghost">
                     Create account
                   </Button>
                 </NextLink>

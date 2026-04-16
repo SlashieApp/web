@@ -66,22 +66,8 @@ export function Button(props: UiButtonProps) {
         fontWeight: 700,
       }
       break
-    case 'outline':
-      visualProps = {
-        bg: 'transparent',
-        color: 'jobCardTitle',
-        borderWidth: '1px',
-        borderColor: 'formControlBorder',
-      }
-      break
+
     case 'ghost':
-      visualProps = {
-        bg: 'transparent',
-        color: 'secondary.500',
-        borderWidth: '0px',
-      }
-      break
-    case 'subtle':
       visualProps = {
         bg: 'transparent',
         color: 'secondary.600',
@@ -95,6 +81,8 @@ export function Button(props: UiButtonProps) {
 
   return (
     <ChakraButton
+      type="button"
+      pointerEvents="auto"
       variant={chakraVariant}
       fontFamily="heading"
       fontWeight={700}

@@ -66,7 +66,7 @@ export function TaskDetailWorkerCtas({
             </NextLink>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               w="full"
               borderColor="primary.200"
               color="primary.700"
@@ -79,7 +79,7 @@ export function TaskDetailWorkerCtas({
         )}
         <Button
           type="button"
-          variant="outline"
+          variant="secondary"
           w="full"
           borderColor="jobCardBorder"
           color="jobCardTitle"

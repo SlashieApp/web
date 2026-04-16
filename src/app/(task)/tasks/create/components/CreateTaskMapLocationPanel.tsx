@@ -75,7 +75,7 @@ export function CreateTaskMapLocationPanel({
               <Button
                 type="button"
                 size="sm"
-                variant="subtle"
+                variant="ghost"
                 flexShrink={0}
                 disabled={!canCopyPlace}
                 onClick={onCopyMapPlaceToAddress}

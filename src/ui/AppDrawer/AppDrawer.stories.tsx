@@ -10,7 +10,7 @@ const meta = {
   component: AppDrawer,
   tags: ['autodocs'],
   parameters: {
-    layout: 'padded',
+    layout: 'fullscreen',
   },
   args: {
     title: 'Filters',

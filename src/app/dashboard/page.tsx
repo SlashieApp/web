@@ -90,12 +90,12 @@ export default function DashboardOverviewPage() {
                 passHref
                 legacyBehavior
               >
-                <Button as="a" variant="outline">
+                <Button as="a" variant="secondary">
                   {workerEnabled ? 'My quotes' : 'Worker setup'}
                 </Button>
               </NextLink>
               <NextLink href="/requests" passHref legacyBehavior>
-                <Button as="a" variant="subtle">
+                <Button as="a" variant="ghost">
                   My posted tasks (customer)
                 </Button>
               </NextLink>

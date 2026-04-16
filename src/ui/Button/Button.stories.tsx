@@ -33,3 +33,8 @@ export const Tertiary: Story = {
     variant: 'tertiary',
   },
 }
+export const Ghost: Story = {
+  args: {
+    variant: 'ghost',
+  },
+}

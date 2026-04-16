@@ -163,7 +163,7 @@ export default function LoginPage() {
           <HStack gap={3}>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               flex={1}
               borderRadius="lg"
               borderColor="formControlBorder"
@@ -182,7 +182,7 @@ export default function LoginPage() {
             </Button>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               flex={1}
               borderRadius="lg"
               borderColor="formControlBorder"

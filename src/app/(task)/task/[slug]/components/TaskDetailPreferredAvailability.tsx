@@ -47,7 +47,7 @@ export function TaskDetailPreferredAvailability({
               <Button
                 key={c.key}
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={() => setActiveKey(c.key)}
                 flexShrink={0}
                 borderRadius="lg"

@@ -245,7 +245,7 @@ export default function RegisterPage() {
         <Button
           type="button"
           flex={1}
-          variant="outline"
+          variant="secondary"
           borderRadius="lg"
           borderWidth="2px"
           borderColor={
@@ -273,7 +273,7 @@ export default function RegisterPage() {
         <Button
           type="button"
           flex={1}
-          variant="outline"
+          variant="secondary"
           borderRadius="lg"
           borderWidth="2px"
           borderColor={

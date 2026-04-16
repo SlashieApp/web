@@ -62,7 +62,7 @@ export function CreateTaskVisualsSection({
             />
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => inputRef.current?.click()}
             >
               Upload
@@ -92,7 +92,7 @@ export function CreateTaskVisualsSection({
                   <Button
                     type="button"
                     size="xs"
-                    variant="subtle"
+                    variant="ghost"
                     position="absolute"
                     top={1}
                     right={1}

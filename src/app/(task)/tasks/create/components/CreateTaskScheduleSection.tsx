@@ -119,7 +119,7 @@ export function CreateTaskScheduleSection({
                     key={ymd}
                     type="button"
                     size="sm"
-                    variant="subtle"
+                    variant="ghost"
                     flexShrink={0}
                     minW="56px"
                     bg={isSelected ? 'primary.600' : 'jobCardBg'}

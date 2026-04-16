@@ -135,6 +135,9 @@ export function Dock() {
       ref={onMountDock}
       display="flex"
       position={{ base: 'fixed', md: 'relative' }}
+      alignSelf={{ base: 'auto', md: 'stretch' }}
+      h={{ base: 'auto', md: 'full' }}
+      minH={{ base: 'auto', md: 'full' }}
       left={{ base: 2, md: 0 }}
       right={{ base: 2, md: 'auto' }}
       bottom={{ base: 2, md: 0 }}
