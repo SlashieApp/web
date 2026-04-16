@@ -94,6 +94,9 @@ const sharedTheme = {
           value: 'var(--font-inter), "Inter", Inter, system-ui, sans-serif',
         },
       },
+      fontSizes: {
+        xs: { value: '10px' },
+      },
       radii: {
         sm: { value: '6px' },
         md: { value: '8px' },

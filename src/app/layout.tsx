@@ -39,10 +39,11 @@ export default function RootLayout({
             position="relative"
             display="flex"
             flexDirection="column"
+            pl={{ base: 0, md: '76px' }}
           >
+            <Dock />
             {children}
           </Box>
-          <Dock />
         </Providers>
       </body>
     </html>

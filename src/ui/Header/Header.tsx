@@ -5,24 +5,28 @@ import {
   type BoxProps,
   Container,
   HStack,
-  Heading,
   IconButton,
   Link,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { getAuthToken } from '@/utils/auth'
 import { AppDrawer } from '../AppDrawer/AppDrawer'
 import { Button } from '../Button'
+import { Logo } from '../Logo/Logo'
 
 const navLinkProps = {
-  fontSize: 'sm',
+  fontSize: '14px',
   fontWeight: 600,
-  color: 'secondary.700',
-  _hover: { textDecoration: 'none', color: 'primary.700' },
+  color: 'formLabelMuted',
+  h: '44px',
+  px: 2,
+  borderBottomWidth: '2px',
+  borderBottomColor: 'transparent',
+  borderRadius: 0,
+  _hover: { textDecoration: 'none', color: 'jobCardTitle' },
 } as const
 
 function IconBell() {
@@ -90,18 +94,18 @@ export type HeaderProps = {
 } & Omit<BoxProps, 'children'>
 
 function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
-  const router = useRouter()
-  const pathname = usePathname()
   const user = useUserStore((state) => state.user)
   const getUser = useUserStore((state) => state.getUser)
   const logout = useUserStore((state) => state.logout)
   const [hasMounted, setHasMounted] = useState(false)
+  const [currentPathname, setCurrentPathname] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isLoggedIn = Boolean(user)
   const onMountNavigation = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node || hasMounted) return
       setHasMounted(true)
+      setCurrentPathname(window.location.pathname)
       if (!getAuthToken()) return
       void getUser()
     },
@@ -116,9 +120,9 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
       ? activeItem
       : !hasMounted
         ? 'none'
-        : pathname?.startsWith('/tasks/create')
+        : currentPathname?.startsWith('/tasks/create')
           ? 'post-task'
-          : pathname === '/' || pathname?.startsWith('/tasks')
+          : currentPathname === '/' || currentPathname?.startsWith('/tasks')
             ? 'home'
             : 'none'
 
@@ -131,6 +135,10 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
     ? '/dashboard'
     : `/login?next=${encodeURIComponent('/dashboard')}`
 
+  const navigateTo = useCallback((href: string) => {
+    if (typeof window === 'undefined') return
+    window.location.assign(href)
+  }, [])
   return (
     <HStack
       ref={onMountNavigation}
@@ -142,25 +150,40 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
       w="full"
     >
       <HStack
-        gap={{ base: 2, md: 4 }}
+        gap={{ base: 3, md: 6 }}
         flexWrap="wrap"
         align="center"
         flex="1"
         minW={0}
       >
-        <Heading size="md" flexShrink={0}>
-          <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
-            Slashie
-          </Link>
-        </Heading>
+        <Link
+          as={NextLink}
+          href="/"
+          _hover={{ textDecoration: 'none' }}
+          flexShrink={0}
+        >
+          <Logo />
+        </Link>
 
         <HStack
-          gap={{ base: 2, md: 3 }}
+          gap={{ base: 3, md: 6 }}
           flexWrap="wrap"
           display={{ base: 'none', md: 'flex' }}
         >
-          <Link as={NextLink} href="/" {...browseTasksLinkProps}>
+          <Link
+            as={NextLink}
+            href="/"
+            {...browseTasksLinkProps}
+            borderBottomColor={
+              resolvedActive === 'home' || resolvedActive === 'tasks'
+                ? 'primary.500'
+                : 'transparent'
+            }
+          >
             Browse tasks
+          </Link>
+          <Link as={NextLink} href="/tasks" {...navLinkProps}>
+            How it Works
           </Link>
 
           {isLoggedIn ? (
@@ -172,22 +195,31 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
       </HStack>
 
       <HStack
-        gap={{ base: 2, md: 3 }}
+        gap={{ base: 2, md: 2.5 }}
         flexWrap="wrap"
         align="center"
         justify="flex-end"
         flexShrink={0}
       >
-        <Button
-          size="sm"
-          variant={resolvedActive === 'post-task' ? 'primary' : 'secondary'}
-          display={{ base: 'none', md: 'inline-flex' }}
-        >
-          Post a task
-        </Button>
-        <Button size="sm" display={{ base: 'none', md: 'inline-flex' }}>
-          Become a worker
-        </Button>
+        <NextLink href="/tasks/create" passHref legacyBehavior>
+          <Button
+            as="a"
+            size="sm"
+            variant={resolvedActive === 'post-task' ? 'primary' : 'secondary'}
+            display={{ base: 'none', md: 'inline-flex' }}
+          >
+            Post a task
+          </Button>
+        </NextLink>
+        <NextLink href={workerHref} passHref legacyBehavior>
+          <Button
+            as="a"
+            size="sm"
+            display={{ base: 'none', md: 'inline-flex' }}
+          >
+            Become a worker
+          </Button>
+        </NextLink>
         {isLoggedIn ? (
           <>
             <Box
@@ -204,9 +236,10 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               variant="ghost"
               size="sm"
               display={{ base: 'none', md: 'inline-flex' }}
-              colorPalette="blue"
-              color="primary.600"
-              _hover={{ bg: 'secondary.100' }}
+              color="formLabelMuted"
+              bg="badgeBg"
+              borderRadius="full"
+              _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
             >
               <NextLink href="/dashboard" aria-label="Notifications">
                 <IconBell />
@@ -217,9 +250,10 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               variant="ghost"
               size="sm"
               display={{ base: 'none', md: 'inline-flex' }}
-              colorPalette="blue"
-              color="primary.600"
-              _hover={{ bg: 'secondary.100' }}
+              color="formLabelMuted"
+              bg="badgeBg"
+              borderRadius="full"
+              _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
             >
               <NextLink href="/profile" aria-label="Profile">
                 <IconUser />
@@ -231,7 +265,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               display={{ base: 'none', md: 'inline-flex' }}
               onClick={() => {
                 logout()
-                router.push('/')
+                navigateTo('/')
               }}
             >
               Log out
@@ -243,9 +277,10 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           variant="ghost"
           size="sm"
           display={{ base: 'inline-flex', md: 'none' }}
-          colorPalette="blue"
-          color="primary.600"
-          _hover={{ bg: 'secondary.100' }}
+          color="formLabelMuted"
+          bg="badgeBg"
+          borderRadius="full"
+          _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
           onClick={() => setMobileMenuOpen(true)}
         >
           <IconMenu />
@@ -283,6 +318,14 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           </Link>
           <Link
             as={NextLink}
+            href="/tasks"
+            {...navLinkProps}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            How it Works
+          </Link>
+          <Link
+            as={NextLink}
             href={workerHref}
             {...navLinkProps}
             onClick={() => setMobileMenuOpen(false)}
@@ -306,7 +349,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
                 onClick={() => {
                   logout()
                   setMobileMenuOpen(false)
-                  router.push('/')
+                  navigateTo('/')
                 }}
               >
                 Log out
@@ -332,10 +375,12 @@ export function Header({
       right={24}
       zIndex={30}
       bg="bg"
-      borderRadius="xl"
-      backdropFilter="blur(10px)"
+      color="jobCardTitle"
+      backdropFilter="blur(20px)"
       boxShadow="none"
-      px={{ base: 2, md: 0 }}
+      borderWidth="1px"
+      borderColor="jobCardBorder"
+      px={{ base: 2, md: 3 }}
       py={1}
       {...props}
     >

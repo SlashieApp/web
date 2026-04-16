@@ -1,15 +1,15 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack } from '@chakra-ui/react'
+
+import { IconButton } from './IconButton/IconButton'
 
 type DockItem = {
   key: string
-  label: string
+  caption?: string
   href: string
   active?: boolean
   icon: React.ReactNode
-  hasDot?: boolean
 }
 
 function BrowseIcon() {
@@ -82,81 +82,72 @@ export function Dock() {
   const items: DockItem[] = [
     {
       key: 'browse',
-      label: 'Browse',
+      caption: 'Discovery',
       href: '/',
       active: true,
       icon: <BrowseIcon />,
     },
-    { key: 'jobs', label: 'Jobs', href: '/dashboard', icon: <JobsIcon /> },
     {
-      key: 'chat',
-      label: 'Chat',
-      href: '/dashboard/messages',
-      icon: <ChatIcon />,
-      hasDot: true,
+      key: 'jobs',
+      caption: 'My Tasks',
+      href: '/requests',
+      icon: <JobsIcon />,
     },
     {
       key: 'profile',
-      label: 'Profile',
+      caption: 'Account',
       href: '/profile',
       icon: <ProfileIcon />,
+    },
+    {
+      key: 'chat',
+      caption: 'Chat',
+      href: '/dashboard/messages',
+      icon: <ChatIcon />,
     },
   ]
 
   return (
     <Box
-      display={{ base: 'block', md: 'none' }}
+      display="flex"
       position="fixed"
-      left={2}
-      right={2}
-      bottom={2}
-      zIndex={6}
+      left={{ base: 2, md: 0 }}
+      right={{ base: 2, md: 'auto' }}
+      top={{ base: 'auto', md: '64px' }}
+      bottom={{ base: 2, md: 0 }}
+      zIndex={20}
       bg="bg"
-      borderRadius="2xl"
-      borderWidth="1px"
-      borderColor="secondary.200"
-      boxShadow="0 10px 32px rgba(15,23,42,0.24)"
+      borderWidth={{ base: '1px', md: 0 }}
+      borderColor={{ base: 'jobCardBorder', md: 'transparent' }}
+      borderRightWidth={{ base: 0, md: '1px' }}
+      borderRightColor={{ base: 'transparent', md: 'jobCardBorder' }}
+      w={{ base: 'auto', md: '76px' }}
+      justifyContent="flex-start"
+      pt={{ base: 2, md: 6 }}
       px={2}
-      py={2}
-      backdropFilter="blur(10px)"
+      borderRadius={{ base: '2xl', md: 0 }}
+      boxShadow={{
+        base: '0 10px 32px rgba(15,23,42,0.24)',
+        md: 'none',
+      }}
+      backdropFilter={{ base: 'blur(10px)', md: 'none' }}
     >
-      <HStack justify="space-between" align="stretch" gap={1}>
+      <HStack
+        as="nav"
+        align="stretch"
+        gap={{ base: 1, md: 2 }}
+        flexDirection={{ base: 'row', md: 'column' }}
+        justify={{ base: 'space-between', md: 'flex-start' }}
+        w="full"
+      >
         {items.map((item) => (
-          <NextLink
+          <IconButton
             key={item.key}
             href={item.href}
-            style={{ flex: 1, textDecoration: 'none' }}
-          >
-            <Box
-              borderRadius="xl"
-              bg={item.active ? 'primary.50' : 'transparent'}
-              color={item.active ? 'primary.600' : 'secondary.700'}
-              py={1}
-              _hover={{
-                bg: item.active ? 'primary.100' : 'secondary.100',
-              }}
-            >
-              <Stack align="center" gap={1} position="relative">
-                <Box position="relative" display="inline-flex">
-                  {item.icon}
-                  {item.hasDot ? (
-                    <Box
-                      position="absolute"
-                      top="-1px"
-                      right="-3px"
-                      w="6px"
-                      h="6px"
-                      borderRadius="full"
-                      bg="red.500"
-                    />
-                  ) : null}
-                </Box>
-                <Text fontSize="xs" fontWeight={700}>
-                  {item.label}
-                </Text>
-              </Stack>
-            </Box>
-          </NextLink>
+            icon={item.icon}
+            caption={item.caption}
+            active={item.active}
+          />
         ))}
       </HStack>
     </Box>
