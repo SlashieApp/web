@@ -2,6 +2,8 @@
 
 import { type ButtonProps, Button as ChakraButton } from '@chakra-ui/react'
 
+import { useUserStore } from '@/app/(auth)/store/user'
+
 export type UiButtonVariant =
   | 'primary'
   | 'secondary'
@@ -13,10 +15,14 @@ export type UiButtonVariant =
 
 export type UiButtonProps = Omit<ButtonProps, 'variant'> & {
   variant?: UiButtonVariant
+  /** When true, render only for authenticated users. */
+  auth?: boolean
 }
 
 export function Button(props: UiButtonProps) {
-  const { variant, ...restProps } = props
+  const { variant, auth = false, ...restProps } = props
+  const user = useUserStore((state) => state.user)
+  if (auth && !user) return null
   const resolvedVariant = variant ?? 'primary'
   const isPrimary = resolvedVariant === 'primary' || resolvedVariant === 'solid'
   const isSecondary = resolvedVariant === 'secondary'

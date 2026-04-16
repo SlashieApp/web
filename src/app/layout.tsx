@@ -1,4 +1,3 @@
-import { Box } from '@chakra-ui/react'
 import type { Metadata } from 'next'
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
@@ -26,25 +25,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} ${plusJakartaSans.variable}`}
-        style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
-      >
-        <Providers>
-          <Header />
-          <Box
-            as="main"
-            flex={1}
-            minH={0}
-            position="relative"
-            display="flex"
-            flexDirection="column"
-            pl={{ base: 0, md: '76px' }}
-          >
-            <Dock />
-            {children}
-          </Box>
-        </Providers>
+      <body className={`${inter.variable} ${plusJakartaSans.variable}`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

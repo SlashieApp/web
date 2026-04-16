@@ -12,11 +12,11 @@ import NextLink from 'next/link'
 import { useCallback, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import { useAppTheme } from '@/app/ThemeProvider'
 import { getAuthToken } from '@/utils/auth'
 import { AppDrawer } from '../AppDrawer/AppDrawer'
 import { Button } from '../Button'
 import { Logo } from '../Logo/Logo'
+import { ColorModeButton } from '../color-mode'
 
 const navLinkProps = {
   fontSize: '14px',
@@ -98,7 +98,6 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   const user = useUserStore((state) => state.user)
   const getUser = useUserStore((state) => state.getUser)
   const logout = useUserStore((state) => state.logout)
-  const { mode, toggle } = useAppTheme()
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -136,8 +135,6 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   const workerHref = isLoggedIn
     ? '/dashboard'
     : `/login?next=${encodeURIComponent('/dashboard')}`
-
-  const isDarkMode = mode === 'dark'
 
   const navigateTo = useCallback((href: string) => {
     if (typeof window === 'undefined') return
@@ -227,6 +224,13 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
             Become a worker
           </Button>
         </Link>
+        <ColorModeButton
+          color="formLabelMuted"
+          bg="badgeBg"
+          borderRadius="full"
+          display={{ base: 'none', md: 'inline-flex' }}
+          _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
+        />
         {isLoggedIn ? (
           <>
             <Box
@@ -266,64 +270,30 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
                 <IconUser />
               </NextLink>
             </IconButton>
-            <IconButton
-              aria-label="Toggle theme"
-              variant="ghost"
-              size="sm"
-              color="formLabelMuted"
-              bg="badgeBg"
-              borderRadius="full"
-              _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
-              onClick={toggle}
-              display={{ base: 'none', md: 'inline-flex' }}
-            >
-              {isDarkMode ? (
-                <Box as="span" display="flex" aria-hidden>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <title>Light mode</title>
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="4"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                    />
-                    <path
-                      d="M12 3v2.5M12 18.5V21M4.22 4.22 5.99 6M18.01 18.01 19.78 19.78M3 12h2.5M18.5 12H21M4.22 19.78 5.99 18.01M18.01 5.99 19.78 4.22"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </Box>
-              ) : (
-                <Box as="span" display="flex" aria-hidden>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <title>Dark mode</title>
-                    <path
-                      d="M20 13a7.5 7.5 0 1 1-7.5-7.5 5.5 5.5 0 0 0 7.5 7.5Z"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </Box>
-              )}
-            </IconButton>
-            <Button
-              size="sm"
-              variant="secondary"
-              display={{ base: 'none', md: 'inline-flex' }}
-              onClick={() => {
-                logout()
-                navigateTo('/')
-              }}
-            >
-              Log out
-            </Button>
           </>
         ) : null}
+        <Button
+          auth
+          size="sm"
+          variant="secondary"
+          display={{ base: 'none', md: 'inline-flex' }}
+          onClick={() => {
+            logout()
+            navigateTo('/')
+          }}
+        >
+          Log out
+        </Button>
+        <Link as={NextLink} href="/login" _hover={{ textDecoration: 'none' }}>
+          <Button
+            hidden={isLoggedIn}
+            size="sm"
+            variant="secondary"
+            display={{ base: 'none', md: 'inline-flex' }}
+          >
+            Login
+          </Button>
+        </Link>
         <IconButton
           aria-label="Open menu"
           variant="ghost"
@@ -385,29 +355,28 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
             Become a worker
           </Link>
           {isLoggedIn ? (
-            <>
-              <Link
-                as={NextLink}
-                href="/requests"
-                {...navLinkProps}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Requests
-              </Link>
-              <Button
-                size="sm"
-                variant="secondary"
-                alignSelf="flex-start"
-                onClick={() => {
-                  logout()
-                  setMobileMenuOpen(false)
-                  navigateTo('/')
-                }}
-              >
-                Log out
-              </Button>
-            </>
+            <Link
+              as={NextLink}
+              href="/requests"
+              {...navLinkProps}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Requests
+            </Link>
           ) : null}
+          <Button
+            auth
+            size="sm"
+            variant="secondary"
+            alignSelf="flex-start"
+            onClick={() => {
+              logout()
+              setMobileMenuOpen(false)
+              navigateTo('/')
+            }}
+          >
+            Log out
+          </Button>
         </HStack>
       </AppDrawer>
     </HStack>
@@ -422,10 +391,6 @@ export function Header({
   return (
     <Box
       as="header"
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
       zIndex={30}
       bg="bg"
       color="jobCardTitle"

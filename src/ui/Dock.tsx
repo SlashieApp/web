@@ -134,10 +134,9 @@ export function Dock() {
     <Box
       ref={onMountDock}
       display="flex"
-      position="fixed"
+      position={{ base: 'fixed', md: 'relative' }}
       left={{ base: 2, md: 0 }}
       right={{ base: 2, md: 'auto' }}
-      top={{ base: 'auto', md: '64px' }}
       bottom={{ base: 2, md: 0 }}
       zIndex={20}
       bg="bg"

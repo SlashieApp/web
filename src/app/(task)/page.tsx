@@ -14,7 +14,7 @@ export default function HomePage() {
     <TaskBrowseProvider initialTasks={[]} isDesktop={isDesktopSplit}>
       <Box
         flex={1}
-        minH={0}
+        height="100%"
         w="full"
         minW={0}
         position="relative"

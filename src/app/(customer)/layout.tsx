@@ -4,7 +4,7 @@ import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Button, Footer } from '@ui'
+import { Button, Dock, Footer, Header } from '@ui'
 import { CustomerAccountProvider, useCustomerAccount } from './context'
 
 function CustomerShell({ children }: { children: React.ReactNode }) {
@@ -52,22 +52,12 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <Box bg="bg" color="jobCardTitle" minH="100vh">
-      <Box
-        as="section"
-        px={{ base: 4, md: 6 }}
-        pb={{ base: 10, md: 12 }}
-        bg="jobCardBg"
-      >
-        <Container>
-          {meLoading ? (
-            <Text color="formLabelMuted">Loading your account…</Text>
-          ) : (
-            children
-          )}
-        </Container>
+    <Box display="flex" flexDirection="column" height="100dvh">
+      <Header />
+      <Box as="main" flex={1} display="flex">
+        <Dock />
+        {children}
       </Box>
-      <Footer />
     </Box>
   )
 }

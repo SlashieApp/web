@@ -6,6 +6,15 @@
 export { AppDrawer } from './AppDrawer/AppDrawer'
 export { Badge } from './Badge'
 export { Button } from './Button'
+export {
+  ColorModeButton,
+  ColorModeIcon,
+  ColorModeProvider,
+  DarkMode,
+  LightMode,
+  useColorMode,
+  useColorModeValue,
+} from './color-mode'
 export { Dock } from './Dock'
 export { FormField } from './FormField/FormField'
 export { IconButton } from './IconButton/IconButton'
@@ -15,6 +24,11 @@ export { Tag } from './Tag'
 export * from './Footer'
 export * from './Header'
 export type { AppDrawerPlacement, AppDrawerProps } from './AppDrawer/AppDrawer'
+export type {
+  ColorMode,
+  ColorModeProviderProps,
+  UseColorModeReturn,
+} from './color-mode'
 export type { FormFieldProps } from './FormField/FormField'
 export type { IconButtonProps } from './IconButton/IconButton'
 export type { JobCardProps, JobCardResponder } from './Card/JobCard'

@@ -1,0 +1,31 @@
+---
+description: Use Chakra Link with NextLink for navigation
+alwaysApply: true
+---
+
+# Chakra + Next Link Rule
+
+- For in-app navigation, use Chakra UI `Link` with `as={NextLink}`.
+- Do not use plain `<a href="...">` for internal routes.
+- Do not use `legacyBehavior` or `passHref` patterns.
+
+## Preferred Pattern
+
+```tsx
+import { Link } from '@chakra-ui/react'
+import NextLink from 'next/link'
+
+<Link as={NextLink} href="/tasks" _hover={{ textDecoration: 'none' }}>
+  Browse tasks
+</Link>
+```
+
+## Buttons That Navigate
+
+- Prefer wrapping the button with Chakra `Link` using `as={NextLink}`.
+
+```tsx
+<Link as={NextLink} href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+  <Button size="sm">Post a task</Button>
+</Link>
+```

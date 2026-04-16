@@ -4,7 +4,7 @@ import { Box, Text } from '@chakra-ui/react'
 import type { Map as MapboxMap, Marker } from 'mapbox-gl'
 import { useCallback, useRef, useState } from 'react'
 
-import { useAppTheme } from '@/app/ThemeProvider'
+import { useColorMode } from '@/ui/color-mode'
 
 import {
   useTaskBrowseData,
@@ -874,7 +874,7 @@ export function TaskMap({
   onSelectTask,
   onSearchThisAreaUiChange,
 }: TaskMapProps) {
-  const { mode } = useAppTheme()
+  const { colorMode } = useColorMode()
   const effectiveSearchRadiusMiles = Math.max(
     0,
     Math.min(radiusMiles, MAX_SEARCH_RADIUS_MILES),
@@ -901,7 +901,7 @@ export function TaskMap({
     onSelectTask,
     onSearchThisAreaUiChange,
     effectiveSearchRadiusMiles,
-    themeMode: mode,
+    themeMode: colorMode,
   })
 
   propsRef.current = {
@@ -923,7 +923,7 @@ export function TaskMap({
     onSelectTask,
     onSearchThisAreaUiChange,
     effectiveSearchRadiusMiles,
-    themeMode: mode,
+    themeMode: colorMode,
   }
 
   const selectTaskRef = useRef(onSelectTask)
@@ -974,7 +974,7 @@ export function TaskMap({
     centerLat,
     centerLng,
     radiusMiles,
-    mode,
+    colorMode,
     visible,
     tasksLoaded,
     leftViewportPadding ?? '',
