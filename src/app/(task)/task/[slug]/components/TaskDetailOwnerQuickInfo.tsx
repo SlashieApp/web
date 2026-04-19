@@ -51,7 +51,7 @@ export function TaskDetailOwnerQuickInfo({
           >
             TIMING
           </Text>
-          <Text fontSize="md" fontWeight={700} color="jobCardTitle">
+          <Text fontSize="md" fontWeight={700} color="cardFg">
             {availability}
           </Text>
         </Stack>

@@ -151,7 +151,7 @@ export default function LoginPage() {
         </Link>
 
         <Box>
-          <Heading size="2xl" color="jobCardTitle">
+          <Heading size="2xl" color="cardFg">
             Welcome Back
           </Heading>
           <Text mt={2} color="formLabelMuted" fontSize="sm">
@@ -168,7 +168,7 @@ export default function LoginPage() {
               borderRadius="lg"
               borderColor="formControlBorder"
               bg="neutral.100"
-              color="jobCardTitle"
+              color="cardFg"
               fontWeight={600}
               disabled
               title="Coming soon"
@@ -187,7 +187,7 @@ export default function LoginPage() {
               borderRadius="lg"
               borderColor="formControlBorder"
               bg="neutral.100"
-              color="jobCardTitle"
+              color="cardFg"
               fontWeight={600}
               disabled
               title="Coming soon"
@@ -291,7 +291,7 @@ export default function LoginPage() {
                 >
                   <Checkbox.Indicator color="inherit" />
                 </Checkbox.Control>
-                <Checkbox.Label fontWeight={500} color="jobCardTitle">
+                <Checkbox.Label fontWeight={500} color="cardFg">
                   Remember me
                 </Checkbox.Label>
               </HStack>

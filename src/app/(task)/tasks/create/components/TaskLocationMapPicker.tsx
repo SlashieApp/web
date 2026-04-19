@@ -265,7 +265,7 @@ export function TaskLocationMapPicker({
               left={2}
               right={2}
               fontSize="xs"
-              color="jobCardTitle"
+              color="cardFg"
               bg="whiteAlpha.900"
               backdropFilter="blur(6px)"
               borderRadius="md"
@@ -288,7 +288,7 @@ export function TaskLocationMapPicker({
           >
             <Text color="formLabelMuted" fontSize="sm" textAlign="center">
               Set{' '}
-              <Text as="span" fontWeight={700} color="jobCardTitle">
+              <Text as="span" fontWeight={700} color="cardFg">
                 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
               </Text>{' '}
               to pick a location on the map.

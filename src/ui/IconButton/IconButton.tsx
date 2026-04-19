@@ -31,22 +31,22 @@ export function IconButton({
         borderRadius="xl"
         bg={{
           base: active ? 'primary.50' : 'transparent',
-          md: active ? 'tagActiveBg' : 'transparent',
+          md: active ? 'intentPrimaryBg' : 'transparent',
         }}
         color={{
           base: active ? 'primary.600' : 'secondary.700',
-          md: active ? 'tagActiveFg' : 'formLabelMuted',
+          md: active ? 'intentPrimaryFg' : 'formLabelMuted',
         }}
         py={1.5}
         px={1}
         _hover={{
           bg: {
             base: active ? 'primary.100' : 'secondary.100',
-            md: active ? 'tagActiveBg' : 'badgeBg',
+            md: active ? 'intentPrimaryBg' : 'badgeBg',
           },
           color: {
             base: active ? 'primary.600' : 'secondary.800',
-            md: active ? 'tagActiveFg' : 'jobCardTitle',
+            md: active ? 'intentPrimaryFg' : 'cardFg',
           },
         }}
       >
@@ -65,7 +65,7 @@ export function IconButton({
               fontWeight={700}
               color={{
                 base: active ? 'primary.600' : 'secondary.700',
-                md: active ? 'tagActiveFg' : 'formLabelMuted',
+                md: active ? 'intentPrimaryFg' : 'formLabelMuted',
               }}
               textAlign="center"
               lineHeight="short"

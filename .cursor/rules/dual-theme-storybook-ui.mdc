@@ -11,7 +11,7 @@ alwaysApply: false
 ## Product components
 
 - New UI that reflects brand layouts (forms, cards, tags, etc.) must be **readable in both themes** by driving colors from **`lightConfig` / `darkConfig`** semantic tokens in `src/theme/system.ts` (or Chakra tokens that already differ per system). Avoid inferring theme from `useToken` string hacks unless there is no token path.
-- When adding a surface (inputs, labels, icons, helpers), prefer **`formControl*`, `jobCard*`, `tag*`, `badge*`, etc.** so `ChakraProvider` **lightSystem** vs **darkSystem** (and Storybook’s theme toolbar) switch the look automatically.
+- When adding a surface (inputs, labels, icons, helpers), prefer **`formControl*` / `formLabel*` / `formHelper*` (from `src/theme/formPalette.ts`), `card*` (surfaces + on-card text), `intent*` (primary / tertiary / danger roles), `badge*`, etc.** so `ChakraProvider` **lightSystem** vs **darkSystem** (and Storybook’s theme toolbar) switch the look automatically.
 
 ## Storybook stories
 

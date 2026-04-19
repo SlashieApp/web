@@ -154,7 +154,7 @@ function ReqRow({
       <Text
         fontSize="sm"
         fontWeight={500}
-        color={met ? 'jobCardTitle' : 'formLabelMuted'}
+        color={met ? 'cardFg' : 'formLabelMuted'}
       >
         {children}
       </Text>
@@ -290,7 +290,7 @@ export default function ResetPasswordPage() {
           </Box>
 
           <Box>
-            <Heading size="xl" color="jobCardTitle">
+            <Heading size="xl" color="cardFg">
               Reset Password
             </Heading>
             <Text mt={2} color="formLabelMuted" fontSize="sm">

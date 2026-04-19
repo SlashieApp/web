@@ -49,7 +49,7 @@ function GalleryImage({
         w="full"
         h="full"
         minH="inherit"
-        bg="jobCardAvatarEmpty"
+        bg="cardAvatarEmpty"
         display="flex"
         alignItems="center"
         justifyContent="center"
@@ -83,7 +83,7 @@ function EmptySlot({
       w="full"
       h="full"
       minH="inherit"
-      bg="jobCardAvatarEmpty"
+      bg="cardAvatarEmpty"
       borderRadius={borderRadius}
       aria-hidden
     />

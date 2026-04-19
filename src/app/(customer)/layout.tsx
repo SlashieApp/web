@@ -15,7 +15,7 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
     const nextPath = pathname?.startsWith('/') ? pathname : '/requests'
 
     return (
-      <Box bg="bg" color="jobCardTitle" minH="100vh">
+      <Box bg="bg" color="cardFg" minH="100vh">
         <Box as="section" px={4} pb={12}>
           <Container>
             <Box p={8} maxW="lg" mx="auto">

@@ -110,11 +110,7 @@ export function CreateTaskBudgetSection({
               size="sm"
               variant="ghost"
               bg={budgetType === TaskBudgetType.OneOff ? 'cardBg' : 'cardBg'}
-              color={
-                budgetType === TaskBudgetType.OneOff
-                  ? 'jobCardTitle'
-                  : 'jobCardTitle'
-              }
+              color={budgetType === TaskBudgetType.OneOff ? 'cardFg' : 'cardFg'}
               boxShadow="none"
               onClick={() => onBudgetTypeChange(TaskBudgetType.OneOff)}
             >
@@ -125,11 +121,7 @@ export function CreateTaskBudgetSection({
               size="sm"
               variant="ghost"
               bg={budgetType === TaskBudgetType.PerDay ? 'cardBg' : 'cardBg'}
-              color={
-                budgetType === TaskBudgetType.PerDay
-                  ? 'jobCardTitle'
-                  : 'jobCardTitle'
-              }
+              color={budgetType === TaskBudgetType.PerDay ? 'cardFg' : 'cardFg'}
               boxShadow="none"
               onClick={() => onBudgetTypeChange(TaskBudgetType.PerDay)}
             >
@@ -141,9 +133,7 @@ export function CreateTaskBudgetSection({
               variant="ghost"
               bg={budgetType === TaskBudgetType.PerHour ? 'cardBg' : 'cardBg'}
               color={
-                budgetType === TaskBudgetType.PerHour
-                  ? 'jobCardTitle'
-                  : 'jobCardTitle'
+                budgetType === TaskBudgetType.PerHour ? 'cardFg' : 'cardFg'
               }
               boxShadow="none"
               onClick={() => onBudgetTypeChange(TaskBudgetType.PerHour)}
@@ -163,9 +153,7 @@ export function CreateTaskBudgetSection({
                 paymentMethod === TaskPaymentMethod.Cash ? 'cardBg' : 'cardBg'
               }
               color={
-                paymentMethod === TaskPaymentMethod.Cash
-                  ? 'jobCardTitle'
-                  : 'jobCardTitle'
+                paymentMethod === TaskPaymentMethod.Cash ? 'cardFg' : 'cardFg'
               }
               boxShadow="none"
               onClick={() => onPaymentMethodChange(TaskPaymentMethod.Cash)}
@@ -183,8 +171,8 @@ export function CreateTaskBudgetSection({
               }
               color={
                 paymentMethod === TaskPaymentMethod.BankTransfer
-                  ? 'jobCardTitle'
-                  : 'jobCardTitle'
+                  ? 'cardFg'
+                  : 'cardFg'
               }
               boxShadow="none"
               onClick={() =>

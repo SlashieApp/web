@@ -44,13 +44,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
 
   if (!meLoading && !me) {
     return (
-      <Box
-        bg="bg"
-        color="jobCardTitle"
-        minH="100vh"
-        py={{ base: 8, md: 12 }}
-        px={4}
-      >
+      <Box bg="bg" color="cardFg" minH="100vh" py={{ base: 8, md: 12 }} px={4}>
         <Stack gap={8} maxW="lg" mx="auto">
           <Box>
             <Heading size="lg">Worker dashboard</Heading>
@@ -86,7 +80,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
             href="/"
             fontSize="sm"
             color="formLabelMuted"
-            _hover={{ color: 'jobCardTitle' }}
+            _hover={{ color: 'cardFg' }}
           >
             ← Back to home
           </Link>
@@ -121,7 +115,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
             href="/dashboard"
             onClick={() => refetchDashboardData()}
             color="formLabelMuted"
-            _hover={{ color: 'jobCardTitle' }}
+            _hover={{ color: 'cardFg' }}
           >
             Refresh
           </Link>
@@ -129,7 +123,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
             as={NextLink}
             href="/logout"
             color="formLabelMuted"
-            _hover={{ color: 'jobCardTitle' }}
+            _hover={{ color: 'cardFg' }}
           >
             Log out
           </Link>

@@ -123,7 +123,7 @@ export function CreateTaskScheduleSection({
                     flexShrink={0}
                     minW="56px"
                     bg={isSelected ? 'primary.600' : 'cardBg'}
-                    color={isSelected ? 'white' : 'jobCardTitle'}
+                    color={isSelected ? 'white' : 'cardFg'}
                     boxShadow="none"
                     onClick={() => onPreferredDateChange(ymd)}
                   >

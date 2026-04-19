@@ -82,7 +82,7 @@ export function TaskDetailWorkerCtas({
           variant="secondary"
           w="full"
           borderColor="cardBorder"
-          color="jobCardTitle"
+          color="cardFg"
           bg="white"
           _hover={{ bg: 'cardBg' }}
           onClick={() => {
@@ -162,7 +162,7 @@ export function TaskDetailWorkerQuotePanel({
               {formatPoundsFromPence(priceToPence(myQuote.price) ?? 0)}
               {myQuote.message ? ` — “${myQuote.message}”` : '.'}
             </Text>
-            <Badge bg="cardBg" color="jobCardTitle" w="fit-content">
+            <Badge bg="cardBg" color="cardFg" w="fit-content">
               Status: {normaliseStatus(myQuote.status)}
             </Badge>
           </Stack>

@@ -32,7 +32,7 @@ export function TaskDetailApproximateLocation({
       <Stack gap={4}>
         <HStack gap={2}>
           <IconMapPin color="primary.600" />
-          <Text fontSize="md" fontWeight={700} color="jobCardTitle">
+          <Text fontSize="md" fontWeight={700} color="cardFg">
             {heading}
           </Text>
         </HStack>
@@ -77,13 +77,13 @@ export function TaskDetailApproximateLocation({
           <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
             {variant === 'owner' && ownerLine ? (
               <>
-                <Text as="span" fontWeight={600} color="jobCardTitle">
+                <Text as="span" fontWeight={600} color="cardFg">
                   {ownerLine}.
                 </Text>{' '}
               </>
             ) : place ? (
               <>
-                <Text as="span" fontWeight={600} color="jobCardTitle">
+                <Text as="span" fontWeight={600} color="cardFg">
                   {place}.
                 </Text>{' '}
               </>

@@ -27,7 +27,7 @@ const navLinkProps = {
   borderBottomWidth: '2px',
   borderBottomColor: 'transparent',
   borderRadius: 0,
-  _hover: { textDecoration: 'none', color: 'jobCardTitle' },
+  _hover: { textDecoration: 'none', color: 'cardFg' },
 } as const
 
 function IconBell() {
@@ -229,7 +229,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           bg="badgeBg"
           borderRadius="full"
           display={{ base: 'none', md: 'inline-flex' }}
-          _hover={{ bg: 'cardBg', color: 'jobCardTitle' }}
+          _hover={{ bg: 'cardBg', color: 'cardFg' }}
         />
         {isLoggedIn ? (
           <>
@@ -250,7 +250,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               color="formLabelMuted"
               bg="badgeBg"
               borderRadius="full"
-              _hover={{ bg: 'cardBg', color: 'jobCardTitle' }}
+              _hover={{ bg: 'cardBg', color: 'cardFg' }}
             >
               <NextLink href="/dashboard" aria-label="Notifications">
                 <IconBell />
@@ -264,7 +264,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               color="formLabelMuted"
               bg="badgeBg"
               borderRadius="full"
-              _hover={{ bg: 'cardBg', color: 'jobCardTitle' }}
+              _hover={{ bg: 'cardBg', color: 'cardFg' }}
             >
               <NextLink href="/profile" aria-label="Profile">
                 <IconUser />
@@ -302,7 +302,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           color="formLabelMuted"
           bg="badgeBg"
           borderRadius="full"
-          _hover={{ bg: 'cardBg', color: 'jobCardTitle' }}
+          _hover={{ bg: 'cardBg', color: 'cardFg' }}
           onClick={() => setMobileMenuOpen(true)}
         >
           <IconMenu />
@@ -393,7 +393,7 @@ export function Header({
       as="header"
       zIndex={30}
       bg="bg"
-      color="jobCardTitle"
+      color="cardFg"
       backdropFilter="blur(20px)"
       boxShadow="none"
       borderWidth="1px"

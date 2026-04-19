@@ -150,7 +150,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
           }}
         >
           <Slider.Control>
-            <Slider.Track bg="jobCardDivider">
+            <Slider.Track bg="cardDivider">
               <Slider.Range bg="primary.600" />
             </Slider.Track>
             <Slider.Thumbs />
@@ -317,7 +317,7 @@ export function MobileTaskBrowseFiltersDrawer() {
                 fontFamily="heading"
                 fontSize="xl"
                 fontWeight={800}
-                color="jobCardTitle"
+                color="cardFg"
                 lineHeight="short"
               >
                 Filters

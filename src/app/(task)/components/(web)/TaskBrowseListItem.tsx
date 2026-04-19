@@ -155,7 +155,7 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
           <HStack justify="space-between" align="flex-start" gap={2}>
             <Heading
               size="sm"
-              color="jobCardTitle"
+              color="cardFg"
               lineHeight="1.25"
               flex={1}
               minW={0}

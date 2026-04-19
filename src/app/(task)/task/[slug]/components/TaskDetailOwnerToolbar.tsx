@@ -83,7 +83,7 @@ export function TaskDetailOwnerToolbar({
           My tasks
         </Link>
         <Text aria-hidden>/</Text>
-        <Text fontWeight={500} color="jobCardTitle">
+        <Text fontWeight={500} color="cardFg">
           Details
         </Text>
       </HStack>
@@ -127,7 +127,7 @@ export function TaskDetailOwnerToolbar({
               py={1.5}
               borderRadius="full"
               bg="badgeBg"
-              color="jobCardTitle"
+              color="cardFg"
               fontSize="11px"
               fontWeight={700}
               letterSpacing="0.04em"
@@ -151,7 +151,7 @@ export function TaskDetailOwnerToolbar({
               as="a"
               variant="secondary"
               borderColor="cardBorder"
-              color="jobCardTitle"
+              color="cardFg"
               bg="white"
               size="sm"
               borderRadius="lg"
@@ -166,7 +166,7 @@ export function TaskDetailOwnerToolbar({
             type="button"
             variant="secondary"
             borderColor="cardBorder"
-            color="jobCardTitle"
+            color="cardFg"
             bg="white"
             size="sm"
             borderRadius="lg"

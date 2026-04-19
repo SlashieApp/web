@@ -69,7 +69,7 @@ export function TaskQuoteCard({
       </Text>
     </Stack>
   ) : (
-    <Text fontWeight={800} fontSize="lg" color="jobCardTitle" flexShrink={0}>
+    <Text fontWeight={800} fontSize="lg" color="cardFg" flexShrink={0}>
       {priceLabel}
     </Text>
   )

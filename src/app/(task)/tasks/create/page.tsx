@@ -379,7 +379,7 @@ export default function CreateTaskPage() {
     return (
       <Box
         bg="bg"
-        color="jobCardTitle"
+        color="cardFg"
         minH="50vh"
         display="flex"
         alignItems="center"
@@ -393,7 +393,7 @@ export default function CreateTaskPage() {
   }
 
   return (
-    <Box bg="bg" color="jobCardTitle" minH="100vh">
+    <Box bg="bg" color="cardFg" minH="100vh">
       <Stack gap={0}>
         <Box as="section" bg="cardBg" py={{ base: 8, md: 10 }}>
           <Container>

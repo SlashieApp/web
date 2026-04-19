@@ -16,7 +16,7 @@ export type TaskDetailOwnerPerformanceCardProps = {
 function StatCell({
   label,
   value,
-  valueColor = 'jobCardTitle',
+  valueColor = 'cardFg',
 }: {
   label: string
   value: string
@@ -62,7 +62,7 @@ export function TaskDetailOwnerPerformanceCard({
       bg="primary.50"
       boxShadow="ambient"
     >
-      <Text fontSize="sm" fontWeight={700} color="jobCardTitle" mb={4}>
+      <Text fontSize="sm" fontWeight={700} color="cardFg" mb={4}>
         Task performance
       </Text>
       <Grid templateColumns="1fr 1fr" gap={3}>

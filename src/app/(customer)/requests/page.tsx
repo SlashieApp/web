@@ -54,7 +54,7 @@ function TaskCard({ task }: { task: TaskItem }) {
   const badgeByStage: Record<TaskStage, { bg: string; color: string }> = {
     draft: { bg: 'badgeBg', color: 'formLabelMuted' },
     open: { bg: 'primary.100', color: 'primary.700' },
-    awarded: { bg: 'cardBg', color: 'jobCardTitle' },
+    awarded: { bg: 'cardBg', color: 'cardFg' },
     completed: { bg: 'green.100', color: 'green.700' },
   }
 

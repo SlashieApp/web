@@ -18,6 +18,7 @@ export {
 } from './color-mode'
 export { Dock } from './Dock'
 export { FormField } from './FormField/FormField'
+export { Icon } from './Icon/Icon'
 export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Logo } from './Logo/Logo'
@@ -33,6 +34,7 @@ export type {
 } from './color-mode'
 export type { FormFieldProps } from './FormField/FormField'
 export type { IconButtonProps } from './IconButton/IconButton'
+export type { IconColor, IconProps } from './Icon/Icon'
 export type {
   ImageGalleryItem,
   ImageGalleryProps,

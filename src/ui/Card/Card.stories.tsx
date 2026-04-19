@@ -55,7 +55,7 @@ function TradeCategoryIcon() {
 export const Default: Story = {
   render: () => (
     <Card>
-      <Text fontSize="md" color="jobCardTitle">
+      <Text fontSize="md" color="cardFg">
         Generic card wrapper. Pass any content via children.
       </Text>
     </Card>

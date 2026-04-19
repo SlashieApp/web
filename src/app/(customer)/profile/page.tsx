@@ -398,7 +398,7 @@ export default function CustomerProfilePage() {
               </Heading>
               <Badge
                 bg="cardBg"
-                color="jobCardTitle"
+                color="cardFg"
                 px={2}
                 py={0.5}
                 borderRadius="full"
@@ -761,10 +761,10 @@ export default function CustomerProfilePage() {
             display="block"
             _hover={{ boxShadow: 'md' }}
           >
-            <Heading size="md" color="jobCardTitle">
+            <Heading size="md" color="cardFg">
               Switch to Worker Mode
             </Heading>
-            <Text color="jobCardTitle" opacity={0.9} mt={2} maxW="sm">
+            <Text color="cardFg" opacity={0.9} mt={2} maxW="sm">
               Start earning by offering your skills to the community.
             </Text>
             <Box
@@ -842,11 +842,7 @@ function InfoRow({
               >
                 {label}
               </Text>
-              <Text
-                fontWeight={600}
-                color="jobCardTitle"
-                wordBreak="break-word"
-              >
+              <Text fontWeight={600} color="cardFg" wordBreak="break-word">
                 {value}
               </Text>
             </Stack>

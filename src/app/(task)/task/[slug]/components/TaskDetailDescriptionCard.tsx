@@ -45,7 +45,7 @@ export function TaskDetailDescriptionCard({
             >
               {task.budget?.paymentMethod ? (
                 <Text color="formLabelMuted">
-                  <Text as="span" fontWeight={600} color="jobCardTitle">
+                  <Text as="span" fontWeight={600} color="cardFg">
                     Payment:{' '}
                   </Text>
                   {formatPaymentMethod(task.budget.paymentMethod)}
@@ -53,7 +53,7 @@ export function TaskDetailDescriptionCard({
               ) : null}
               {task.contactMethod ? (
                 <Text color="formLabelMuted">
-                  <Text as="span" fontWeight={600} color="jobCardTitle">
+                  <Text as="span" fontWeight={600} color="cardFg">
                     Contact:{' '}
                   </Text>
                   {formatTaskContactMethodLabel(task.contactMethod)}

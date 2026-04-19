@@ -267,7 +267,7 @@ export function DashboardShell({
   const workerOnboardingDone = workerProfileComplete ?? workerEnabled
 
   return (
-    <Box minH="100vh" bg="bg" color="jobCardTitle">
+    <Box minH="100vh" bg="bg" color="cardFg">
       <Stack
         direction={{ base: 'column', md: 'row' }}
         align="stretch"
@@ -398,7 +398,7 @@ export function DashboardShell({
                   ? 'linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)'
                   : 'primary.50'
               }
-              color={workerOnboardingDone ? 'white' : 'jobCardTitle'}
+              color={workerOnboardingDone ? 'white' : 'cardFg'}
             >
               <Stack gap={3}>
                 <Text
@@ -435,7 +435,7 @@ export function DashboardShell({
                   as={NextLink}
                   href={workerCtaHref}
                   color="formLabelMuted"
-                  _hover={{ color: 'jobCardTitle' }}
+                  _hover={{ color: 'cardFg' }}
                 >
                   {workerOnboardingDone
                     ? 'Manage worker profile'

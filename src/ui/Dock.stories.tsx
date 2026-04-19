@@ -26,7 +26,7 @@ export const Default: Story = {
     <Box minH="100vh" bg="bg" position="relative">
       <Dock />
       <Box pt={6} px={4} pl={{ base: 4, md: '88px' }}>
-        <Text color="jobCardTitle" fontWeight={700}>
+        <Text color="cardFg" fontWeight={700}>
           Page Content
         </Text>
         <Text color="formLabelMuted" fontSize="sm" mt={2}>

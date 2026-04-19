@@ -28,7 +28,7 @@ export function TaskDetailPreferredAvailability({
       <Stack gap={4}>
         <HStack gap={2}>
           <IconCalendar color="primary.600" />
-          <Text fontSize="md" fontWeight={700} color="jobCardTitle">
+          <Text fontSize="md" fontWeight={700} color="cardFg">
             Preferred availability
           </Text>
         </HStack>
@@ -78,7 +78,7 @@ export function TaskDetailPreferredAvailability({
                   >
                     {c.monthDay}
                   </Text>
-                  <Text fontWeight={700} color="jobCardTitle" fontSize="sm">
+                  <Text fontWeight={700} color="cardFg" fontSize="sm">
                     {c.title}
                   </Text>
                   <Text fontSize="xs" color="formLabelMuted">

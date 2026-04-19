@@ -101,7 +101,7 @@ export default function DashboardOverviewPage() {
               </NextLink>
             </HStack>
             <HStack gap={3} flexWrap="wrap">
-              <Badge bg="badgeBg" color="jobCardTitle">
+              <Badge bg="badgeBg" color="cardFg">
                 {workerProfile.serviceArea?.trim() || 'Set service area'}
               </Badge>
               <Badge bg="primary.50" color="primary.700">

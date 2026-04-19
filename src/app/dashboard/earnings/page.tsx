@@ -165,10 +165,10 @@ export default function DashboardEarningsPage() {
                         }
                         color={
                           row.status === 'Processing'
-                            ? 'jobCardTitle'
+                            ? 'cardFg'
                             : row.status === 'Scheduled'
                               ? 'primary.700'
-                              : 'jobCardTitle'
+                              : 'cardFg'
                         }
                       >
                         {row.status}

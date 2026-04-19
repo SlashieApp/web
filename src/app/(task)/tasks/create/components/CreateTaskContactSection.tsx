@@ -40,8 +40,8 @@ export function CreateTaskContactSection({
               }
               color={
                 preferredContactMethod === TaskContactMethod.InApp
-                  ? 'jobCardTitle'
-                  : 'jobCardTitle'
+                  ? 'cardFg'
+                  : 'cardFg'
               }
               boxShadow="none"
               onClick={() =>
@@ -61,8 +61,8 @@ export function CreateTaskContactSection({
               }
               color={
                 preferredContactMethod === TaskContactMethod.Phone
-                  ? 'jobCardTitle'
-                  : 'jobCardTitle'
+                  ? 'cardFg'
+                  : 'cardFg'
               }
               boxShadow="none"
               onClick={() =>
@@ -82,8 +82,8 @@ export function CreateTaskContactSection({
               }
               color={
                 preferredContactMethod === TaskContactMethod.Email
-                  ? 'jobCardTitle'
-                  : 'jobCardTitle'
+                  ? 'cardFg'
+                  : 'cardFg'
               }
               boxShadow="none"
               onClick={() =>

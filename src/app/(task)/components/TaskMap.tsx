@@ -1013,7 +1013,7 @@ export function TaskMap({
       >
         <Text color="formLabelMuted" fontSize="sm" textAlign="center">
           Set{' '}
-          <Text as="span" fontWeight={700} color="jobCardTitle">
+          <Text as="span" fontWeight={700} color="cardFg">
             NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
           </Text>{' '}
           in your environment to load the map.

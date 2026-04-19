@@ -38,7 +38,7 @@ src/ui/<ComponentName>/
 ### Stack and styling
 
 - Build with **Chakra UI v3** primitives (`Box`, `Stack`, `Text`, `Button`, etc.) consistent with the rest of `src/ui`.
-- **Colors and surfaces** must come from **semantic tokens** defined for both themes in `src/theme/system.ts` (`lightConfig` / `darkConfig`)—for example `cardBg`, `jobCardTitle`, `formControlBg`, `bg`, `fg`, existing `tag*` / `badge*` tokens, etc.
+- **Colors and surfaces** must come from **semantic tokens** defined for both themes in `src/theme/system.ts` (`lightConfig` / `darkConfig`)—for example `cardBg`, `cardFg`, `formControlBg`, `bg`, `fg`, `intent*` / `badge*` tokens, etc. (see `src/theme/cardPalette.ts`, `src/theme/formPalette.ts`, and `src/theme/intentPalette.ts` for grouped palettes).
 - If the mockup needs a color that has **no** semantic token, **add** a paired semantic entry in **both** `lightConfig` and `darkConfig` (and document the token name in the component props or JSDoc if non-obvious).
 - Follow Slashie **no-line rule** by default: avoid 1px borders for sectioning; use tonal surfaces and spacing. Use borders only when required for clarity or a11y, and prefer tokenized borders (e.g. patterns used by `Card`: `cardBorder`, `cardBg`).
 - Typography: **headings** → `fontFamily="heading"` where appropriate; body → default body. Respect scale and rhythm from the slashie skill.

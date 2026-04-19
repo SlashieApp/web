@@ -146,7 +146,7 @@ export default function DashboardQuotesPage() {
                       <Heading size="sm">{task.title}</Heading>
                       <Badge
                         bg={awarded ? 'cardBg' : 'badgeBg'}
-                        color={awarded ? 'jobCardTitle' : 'jobCardTitle'}
+                        color={awarded ? 'cardFg' : 'cardFg'}
                       >
                         {awarded ? 'Awarded' : 'Pending'}
                       </Badge>

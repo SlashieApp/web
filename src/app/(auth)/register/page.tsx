@@ -233,7 +233,7 @@ export default function RegisterPage() {
       </Link>
 
       <Box>
-        <Heading size="2xl" color="jobCardTitle">
+        <Heading size="2xl" color="cardFg">
           Create your account
         </Heading>
         <Text mt={2} color="formLabelMuted" fontSize="sm">
@@ -252,7 +252,7 @@ export default function RegisterPage() {
             role === 'homeowner' ? 'primary.500' : 'formControlBorder'
           }
           bg={role === 'homeowner' ? 'primary.50' : 'neutral.100'}
-          color={role === 'homeowner' ? 'primary.700' : 'jobCardTitle'}
+          color={role === 'homeowner' ? 'primary.700' : 'cardFg'}
           fontWeight={700}
           py={6}
           h="auto"
@@ -280,7 +280,7 @@ export default function RegisterPage() {
             role === 'professional' ? 'primary.500' : 'formControlBorder'
           }
           bg={role === 'professional' ? 'primary.50' : 'neutral.100'}
-          color={role === 'professional' ? 'primary.700' : 'jobCardTitle'}
+          color={role === 'professional' ? 'primary.700' : 'cardFg'}
           fontWeight={700}
           py={6}
           h="auto"
@@ -434,7 +434,7 @@ export default function RegisterPage() {
               <Checkbox.Label
                 fontSize="sm"
                 fontWeight={500}
-                color="jobCardTitle"
+                color="cardFg"
                 lineHeight="1.5"
               >
                 I agree to the{' '}

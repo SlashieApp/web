@@ -148,7 +148,7 @@ function ForgotPasswordContent() {
           </Box>
 
           <Box>
-            <Heading size="xl" color="jobCardTitle">
+            <Heading size="xl" color="cardFg">
               Forgot Password?
             </Heading>
             <Text

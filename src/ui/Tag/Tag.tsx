@@ -18,21 +18,21 @@ function colorTokens(color: TagColor): ColorTokens {
   switch (color) {
     case 'primary':
       return {
-        fg: 'tagActiveFg',
-        border: 'tagActiveBorder',
-        bg: 'tagActiveBg',
+        fg: 'intentPrimaryFg',
+        border: 'intentPrimaryBorder',
+        bg: 'intentPrimaryBg',
       }
     case 'tertiary':
       return {
-        fg: 'tagPendingFg',
-        border: 'tagPendingBorder',
-        bg: 'tagPendingBg',
+        fg: 'intentTertiaryFg',
+        border: 'intentTertiaryBorder',
+        bg: 'intentTertiaryBg',
       }
     case 'danger':
       return {
-        fg: 'tagUrgentFg',
-        border: 'tagUrgentBorder',
-        bg: 'tagUrgentBg',
+        fg: 'intentDangerFg',
+        border: 'intentDangerBorder',
+        bg: 'intentDangerBg',
       }
     case null:
       return {
@@ -52,7 +52,7 @@ function resolveColor(color: TagColor | undefined): TagColor {
   return color ?? 'primary'
 }
 
-export type TagProps = Omit<BoxProps, 'children'> & {
+export type TagProps = Omit<BoxProps, 'children' | 'color'> & {
   /**
    * Filled pill with border (`default`) or transparent label row (`ghost`).
    * `color` and `icon` are supported for **both** variants.
