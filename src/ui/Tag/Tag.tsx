@@ -3,104 +3,80 @@
 import { Box, type BoxProps } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-type VariantVisual = {
-  color: string
-  borderColor: string
+/** Semantic color group; `null` is neutral grey (metadata-style). */
+export type TagColor = 'primary' | 'tertiary' | 'danger' | null
+
+export type TagVariant = 'default' | 'ghost'
+
+type ColorTokens = {
+  fg: string
+  border: string
   bg: string
-  leading: ReactNode
 }
 
-function IconClockSmall() {
-  return (
-    <Box
-      as="span"
-      display="inline-flex"
-      w="14px"
-      h="14px"
-      flexShrink={0}
-      aria-hidden
-    >
-      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>Pending</title>
-        <circle
-          cx="12"
-          cy="12"
-          r="9"
-          stroke="currentColor"
-          strokeWidth="1.75"
-        />
-        <path
-          d="M12 7v5l3 2"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M5 12a7 7 0 0 1 12-4"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    </Box>
-  )
-}
-
-function LeadingDot() {
-  return (
-    <Box
-      as="span"
-      w="6px"
-      h="6px"
-      borderRadius="full"
-      bg="currentColor"
-      flexShrink={0}
-      aria-hidden
-    />
-  )
-}
-
-/** Maps to semantic tokens in `theme/system.ts` (light vs dark per active Chakra system). */
-function variantVisual(
-  variant: 'active' | 'pending' | 'urgent',
-): VariantVisual {
-  switch (variant) {
-    case 'active':
+function colorTokens(color: TagColor): ColorTokens {
+  switch (color) {
+    case 'primary':
       return {
-        color: 'tagActiveFg',
-        borderColor: 'tagActiveBorder',
+        fg: 'tagActiveFg',
+        border: 'tagActiveBorder',
         bg: 'tagActiveBg',
-        leading: <LeadingDot />,
       }
-    case 'pending':
+    case 'tertiary':
       return {
-        color: 'tagPendingFg',
-        borderColor: 'tagPendingBorder',
+        fg: 'tagPendingFg',
+        border: 'tagPendingBorder',
         bg: 'tagPendingBg',
-        leading: <IconClockSmall />,
       }
-    case 'urgent':
+    case 'danger':
       return {
-        color: 'tagUrgentFg',
-        borderColor: 'tagUrgentBorder',
+        fg: 'tagUrgentFg',
+        border: 'tagUrgentBorder',
         bg: 'tagUrgentBg',
-        leading: null,
+      }
+    case null:
+      return {
+        fg: 'badgeFg',
+        border: 'cardBorder',
+        bg: 'badgeBg',
       }
     default: {
-      const _x: never = variant
+      const _x: never = color
       return _x
     }
   }
 }
 
+function resolveColor(color: TagColor | undefined): TagColor {
+  if (color === null) return null
+  return color ?? 'primary'
+}
+
 export type TagProps = Omit<BoxProps, 'children'> & {
-  variant: 'active' | 'pending' | 'urgent'
+  /**
+   * Filled pill with border (`default`) or transparent label row (`ghost`).
+   * `color` and `icon` are supported for **both** variants.
+   */
+  variant?: TagVariant
+  /** Tint for text, icon, and (on `default`) pill surface. `null` = grey metadata. */
+  color?: TagColor
+  /** Optional leading icon (any variant); use `currentColor` in SVGs when possible. */
+  icon?: ReactNode
   children: ReactNode
 }
 
-export function Tag({ variant, children, gap = 1.5, ...rest }: TagProps) {
-  const v = variantVisual(variant)
+/** Status / metadata label. Both `default` and `ghost` accept `color` and `icon`. */
+export function Tag({
+  variant = 'default',
+  color,
+  icon,
+  children,
+  gap = 1.5,
+  ...rest
+}: TagProps) {
+  const c = resolveColor(color)
+  const t = colorTokens(c)
+  const isGhost = variant === 'ghost'
 
   return (
     <Box
@@ -110,21 +86,33 @@ export function Tag({ variant, children, gap = 1.5, ...rest }: TagProps) {
       columnGap={gap}
       w="fit-content"
       borderRadius="full"
-      borderWidth="1px"
-      borderColor={v.borderColor}
-      bg={v.bg}
-      color={v.color}
-      px={4}
-      py={1.5}
-      fontFamily="heading"
-      fontSize="xs"
-      fontWeight={700}
-      letterSpacing="0.06em"
-      textTransform="uppercase"
-      lineHeight="1.2"
+      borderWidth={isGhost ? '0' : '1px'}
+      borderColor={isGhost ? 'transparent' : t.border}
+      bg={isGhost ? 'transparent' : t.bg}
+      color={t.fg}
+      px={isGhost ? 0 : 4}
+      py={isGhost ? 0 : 1.5}
+      fontFamily={isGhost ? 'body' : 'heading'}
+      fontSize={isGhost ? 'sm' : 'xs'}
+      fontWeight={isGhost ? 600 : 700}
+      letterSpacing={isGhost ? 'normal' : '0.06em'}
+      textTransform={isGhost ? 'none' : 'uppercase'}
+      lineHeight={isGhost ? 'short' : '1.2'}
       {...rest}
     >
-      {v.leading}
+      {icon ? (
+        <Box
+          as="span"
+          display="inline-flex"
+          alignItems="center"
+          justifyContent="center"
+          flexShrink={0}
+          lineHeight={0}
+          color="inherit"
+        >
+          {icon}
+        </Box>
+      ) : null}
       {children}
     </Box>
   )

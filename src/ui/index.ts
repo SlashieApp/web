@@ -38,4 +38,4 @@ export type {
   ImageGalleryProps,
 } from './ImageGallery/ImageGallery'
 export type { LogoProps } from './Logo/Logo'
-export type { TagProps } from './Tag'
+export type { TagColor, TagProps, TagVariant } from './Tag'
