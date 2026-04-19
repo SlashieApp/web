@@ -44,7 +44,7 @@ export function TaskDetailWorkerCtas({
   const [saveNote, setSaveNote] = useState<string | null>(null)
 
   return (
-    <Box p={{ base: 5, md: 5 }} borderColor="jobCardBorder" boxShadow="ambient">
+    <Box p={{ base: 5, md: 5 }} borderColor="cardBorder" boxShadow="ambient">
       <Stack gap={3}>
         {isAuthenticated ? (
           <Button type="button" w="full" onClick={onScrollToQuoteForm}>
@@ -81,10 +81,10 @@ export function TaskDetailWorkerCtas({
           type="button"
           variant="secondary"
           w="full"
-          borderColor="jobCardBorder"
+          borderColor="cardBorder"
           color="jobCardTitle"
           bg="white"
-          _hover={{ bg: 'jobCardBg' }}
+          _hover={{ bg: 'cardBg' }}
           onClick={() => {
             setSaveNote('Task watchlists are not available on web yet.')
           }}
@@ -140,7 +140,7 @@ export function TaskDetailWorkerQuotePanel({
   return (
     <Box id="task-quote" scrollMarginTop="96px">
       {!mePresent ? (
-        <Box p={6} borderColor="jobCardBorder" boxShadow="ambient">
+        <Box p={6} borderColor="cardBorder" boxShadow="ambient">
           <Stack gap={4}>
             <Heading size="md">Log in to make a quote</Heading>
             <Text color="formLabelMuted">
@@ -154,7 +154,7 @@ export function TaskDetailWorkerQuotePanel({
           </Stack>
         </Box>
       ) : myQuote ? (
-        <Box p={6} borderColor="jobCardBorder" boxShadow="ambient">
+        <Box p={6} borderColor="cardBorder" boxShadow="ambient">
           <Stack gap={3}>
             <Heading size="md">Your quote</Heading>
             <Text color="formLabelMuted">
@@ -162,7 +162,7 @@ export function TaskDetailWorkerQuotePanel({
               {formatPoundsFromPence(priceToPence(myQuote.price) ?? 0)}
               {myQuote.message ? ` — “${myQuote.message}”` : '.'}
             </Text>
-            <Badge bg="jobCardBg" color="jobCardTitle" w="fit-content">
+            <Badge bg="cardBg" color="jobCardTitle" w="fit-content">
               Status: {normaliseStatus(myQuote.status)}
             </Badge>
           </Stack>
@@ -187,7 +187,7 @@ export function TaskDetailWorkerQuotePanel({
           </Stack>
         </Box>
       ) : (
-        <Box p={6} borderColor="jobCardBorder" boxShadow="ambient">
+        <Box p={6} borderColor="cardBorder" boxShadow="ambient">
           <Stack gap={4}>
             <Heading size="md">Submit a quote</Heading>
             <Text color="formLabelMuted">

@@ -45,7 +45,7 @@ export function CreateTaskBasicsSection({
             minH="120px"
             bg="neutral.100"
             borderWidth="1px"
-            borderColor="jobCardBorder"
+            borderColor="cardBorder"
             borderRadius="lg"
           />
         </FormField>

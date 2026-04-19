@@ -24,7 +24,7 @@ export function TaskDetailPreferredAvailability({
   if (chips.length === 0) return null
 
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="jobCardBorder" boxShadow="ambient">
+    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
       <Stack gap={4}>
         <HStack gap={2}>
           <IconCalendar color="primary.600" />
@@ -53,7 +53,7 @@ export function TaskDetailPreferredAvailability({
                 borderRadius="lg"
                 borderWidth="2px"
                 borderColor={selected ? 'primary.500' : 'border'}
-                bg={selected ? 'primary.50' : 'jobCardBg'}
+                bg={selected ? 'primary.50' : 'cardBg'}
                 px={4}
                 py={3}
                 minW="140px"

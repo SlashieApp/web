@@ -19,6 +19,7 @@ export {
 export { Dock } from './Dock'
 export { FormField } from './FormField/FormField'
 export { IconButton } from './IconButton/IconButton'
+export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Logo } from './Logo/Logo'
 export { Tag } from './Tag'
 export * from './Footer'
@@ -32,5 +33,9 @@ export type {
 } from './color-mode'
 export type { FormFieldProps } from './FormField/FormField'
 export type { IconButtonProps } from './IconButton/IconButton'
+export type {
+  ImageGalleryItem,
+  ImageGalleryProps,
+} from './ImageGallery/ImageGallery'
 export type { LogoProps } from './Logo/Logo'
 export type { TagProps } from './Tag'

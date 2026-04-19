@@ -229,7 +229,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           bg="badgeBg"
           borderRadius="full"
           display={{ base: 'none', md: 'inline-flex' }}
-          _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
+          _hover={{ bg: 'cardBg', color: 'jobCardTitle' }}
         />
         {isLoggedIn ? (
           <>
@@ -250,7 +250,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               color="formLabelMuted"
               bg="badgeBg"
               borderRadius="full"
-              _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
+              _hover={{ bg: 'cardBg', color: 'jobCardTitle' }}
             >
               <NextLink href="/dashboard" aria-label="Notifications">
                 <IconBell />
@@ -264,7 +264,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               color="formLabelMuted"
               bg="badgeBg"
               borderRadius="full"
-              _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
+              _hover={{ bg: 'cardBg', color: 'jobCardTitle' }}
             >
               <NextLink href="/profile" aria-label="Profile">
                 <IconUser />
@@ -302,7 +302,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           color="formLabelMuted"
           bg="badgeBg"
           borderRadius="full"
-          _hover={{ bg: 'jobCardBg', color: 'jobCardTitle' }}
+          _hover={{ bg: 'cardBg', color: 'jobCardTitle' }}
           onClick={() => setMobileMenuOpen(true)}
         >
           <IconMenu />
@@ -397,7 +397,7 @@ export function Header({
       backdropFilter="blur(20px)"
       boxShadow="none"
       borderWidth="1px"
-      borderColor="jobCardBorder"
+      borderColor="cardBorder"
       px={{ base: 2, md: 3 }}
       py={1}
       {...props}

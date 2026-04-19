@@ -97,7 +97,7 @@ export function TaskBrowseFiltersCompactPanel({
             onChange={(e) => onSortChange?.(e.target.value)}
             bg="neutral.100"
             borderWidth="1px"
-            borderColor="jobCardBorder"
+            borderColor="cardBorder"
             borderRadius="lg"
             fontSize="sm"
           >
@@ -244,7 +244,7 @@ export function TaskBrowseFilters({
     return (
       <Box
         borderRadius="xl"
-        bg="jobCardBg"
+        bg="cardBg"
         p={{ base: 3, md: 4 }}
         boxShadow="ghostBorder"
       >
@@ -256,7 +256,7 @@ export function TaskBrowseFilters({
   return (
     <Box
       borderRadius="xl"
-      bg="jobCardBg"
+      bg="cardBg"
       p={{ base: 5, md: 6 }}
       boxShadow="ghostBorder"
     >

@@ -35,8 +35,8 @@ export function CreateTaskContactSection({
               variant="ghost"
               bg={
                 preferredContactMethod === TaskContactMethod.InApp
-                  ? 'jobCardBg'
-                  : 'jobCardBg'
+                  ? 'cardBg'
+                  : 'cardBg'
               }
               color={
                 preferredContactMethod === TaskContactMethod.InApp
@@ -56,8 +56,8 @@ export function CreateTaskContactSection({
               variant="ghost"
               bg={
                 preferredContactMethod === TaskContactMethod.Phone
-                  ? 'jobCardBg'
-                  : 'jobCardBg'
+                  ? 'cardBg'
+                  : 'cardBg'
               }
               color={
                 preferredContactMethod === TaskContactMethod.Phone
@@ -77,8 +77,8 @@ export function CreateTaskContactSection({
               variant="ghost"
               bg={
                 preferredContactMethod === TaskContactMethod.Email
-                  ? 'jobCardBg'
-                  : 'jobCardBg'
+                  ? 'cardBg'
+                  : 'cardBg'
               }
               color={
                 preferredContactMethod === TaskContactMethod.Email

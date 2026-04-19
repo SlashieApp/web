@@ -11,7 +11,7 @@ export type TaskDetailPostedMetaProps = {
 
 export function TaskDetailPostedMeta({ createdAt }: TaskDetailPostedMetaProps) {
   return (
-    <Box p={4} borderColor="jobCardBorder" boxShadow="ambient">
+    <Box p={4} borderColor="cardBorder" boxShadow="ambient">
       <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
         {formatRelativeTime(createdAt)}
       </Text>

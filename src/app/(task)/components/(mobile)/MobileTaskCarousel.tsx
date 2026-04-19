@@ -129,7 +129,7 @@ export function MobileTaskCarousel() {
         bg="whiteAlpha.960"
         borderRadius="2xl"
         borderWidth="1px"
-        borderColor="jobCardBorder"
+        borderColor="cardBorder"
         maxWidth="420px"
         mx="auto"
         w="full"

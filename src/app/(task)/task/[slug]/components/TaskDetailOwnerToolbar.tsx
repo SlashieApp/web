@@ -150,7 +150,7 @@ export function TaskDetailOwnerToolbar({
             <Button
               as="a"
               variant="secondary"
-              borderColor="jobCardBorder"
+              borderColor="cardBorder"
               color="jobCardTitle"
               bg="white"
               size="sm"
@@ -165,7 +165,7 @@ export function TaskDetailOwnerToolbar({
           <Button
             type="button"
             variant="secondary"
-            borderColor="jobCardBorder"
+            borderColor="cardBorder"
             color="jobCardTitle"
             bg="white"
             size="sm"

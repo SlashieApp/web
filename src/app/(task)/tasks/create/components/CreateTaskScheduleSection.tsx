@@ -84,7 +84,7 @@ export function CreateTaskScheduleSection({
             <NativeSelect.Field
               bg="neutral.100"
               borderWidth="1px"
-              borderColor="jobCardBorder"
+              borderColor="cardBorder"
               borderRadius="lg"
               value={datetimeType}
               onChange={(e) =>
@@ -122,7 +122,7 @@ export function CreateTaskScheduleSection({
                     variant="ghost"
                     flexShrink={0}
                     minW="56px"
-                    bg={isSelected ? 'primary.600' : 'jobCardBg'}
+                    bg={isSelected ? 'primary.600' : 'cardBg'}
                     color={isSelected ? 'white' : 'jobCardTitle'}
                     boxShadow="none"
                     onClick={() => onPreferredDateChange(ymd)}

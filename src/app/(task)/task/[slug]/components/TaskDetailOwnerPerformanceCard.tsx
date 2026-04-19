@@ -58,7 +58,7 @@ export function TaskDetailOwnerPerformanceCard({
       id="owner-task-performance"
       scrollMarginTop="96px"
       p={5}
-      borderColor="jobCardBorder"
+      borderColor="cardBorder"
       bg="primary.50"
       boxShadow="ambient"
     >

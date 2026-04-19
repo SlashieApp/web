@@ -26,7 +26,7 @@ export function TaskDetailOwnerQuickInfo({
       }}
       gap={3}
     >
-      <Box p={4} borderColor="jobCardBorder" boxShadow="ambient">
+      <Box p={4} borderColor="cardBorder" boxShadow="ambient">
         <Stack gap={1}>
           <Text
             fontSize="10px"
@@ -41,7 +41,7 @@ export function TaskDetailOwnerQuickInfo({
           </Text>
         </Stack>
       </Box>
-      <Box p={4} borderColor="jobCardBorder" boxShadow="ambient">
+      <Box p={4} borderColor="cardBorder" boxShadow="ambient">
         <Stack gap={1}>
           <Text
             fontSize="10px"

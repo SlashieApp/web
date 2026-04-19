@@ -145,7 +145,7 @@ export default function DashboardQuotesPage() {
                     <HStack justify="space-between" gap={3} flexWrap="wrap">
                       <Heading size="sm">{task.title}</Heading>
                       <Badge
-                        bg={awarded ? 'jobCardBg' : 'badgeBg'}
+                        bg={awarded ? 'cardBg' : 'badgeBg'}
                         color={awarded ? 'jobCardTitle' : 'jobCardTitle'}
                       >
                         {awarded ? 'Awarded' : 'Pending'}

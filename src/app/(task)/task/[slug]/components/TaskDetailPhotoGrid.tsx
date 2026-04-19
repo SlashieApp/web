@@ -108,8 +108,8 @@ export function TaskDetailPhotoGrid({
           borderRadius="xl"
           overflow="hidden"
           borderWidth="1px"
-          borderColor="jobCardBorder"
-          bg="jobCardBg"
+          borderColor="cardBorder"
+          bg="cardBg"
         >
           <PhotoCell
             src={main}
@@ -124,7 +124,7 @@ export function TaskDetailPhotoGrid({
           borderRadius="xl"
           overflow="hidden"
           borderWidth="1px"
-          borderColor="jobCardBorder"
+          borderColor="cardBorder"
         >
           <PhotoCell
             src={second}
@@ -139,7 +139,7 @@ export function TaskDetailPhotoGrid({
           borderRadius="xl"
           overflow="hidden"
           borderWidth="1px"
-          borderColor="jobCardBorder"
+          borderColor="cardBorder"
           position="relative"
         >
           <PhotoCell

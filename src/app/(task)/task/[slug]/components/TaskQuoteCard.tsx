@@ -83,7 +83,7 @@ export function TaskQuoteCard({
       borderRadius="xl"
       bg="neutral.100"
       borderWidth="1px"
-      borderColor="jobCardBorder"
+      borderColor="cardBorder"
       boxShadow="ghostBorder"
     >
       <HStack align="flex-start" gap={3} justify="space-between">
@@ -183,7 +183,7 @@ export function TaskQuoteCard({
             <Button
               size="sm"
               variant="secondary"
-              borderColor="jobCardBorder"
+              borderColor="cardBorder"
               color="formLabelMuted"
               flex={1}
               minW="120px"

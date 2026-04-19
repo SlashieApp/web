@@ -280,7 +280,7 @@ export default function WorkerRegistrationPage() {
                 borderStyle="dashed"
                 borderColor="primary.200"
                 p={6}
-                bg="jobCardBg"
+                bg="cardBg"
               >
                 <Stack gap={3} align="center" textAlign="center">
                   <Text fontSize="4xl" aria-hidden>
@@ -295,7 +295,7 @@ export default function WorkerRegistrationPage() {
                     type="file"
                     maxW="sm"
                     bg="neutral.100"
-                    borderColor="jobCardBorder"
+                    borderColor="cardBorder"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setVerificationFileName(e.target.files?.[0]?.name ?? '')
                     }
@@ -336,7 +336,7 @@ export default function WorkerRegistrationPage() {
             </Stack>
           </Box>
 
-          <Box p={6} bg="jobCardBg">
+          <Box p={6} bg="cardBg">
             <Stack gap={4}>
               <Heading size="sm">Final step</Heading>
               <Text fontSize="sm" color="formLabelMuted">

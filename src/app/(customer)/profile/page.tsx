@@ -397,7 +397,7 @@ export default function CustomerProfilePage() {
                 {me ? displayNameFromMe(me) : 'Account'}
               </Heading>
               <Badge
-                bg="jobCardBg"
+                bg="cardBg"
                 color="jobCardTitle"
                 px={2}
                 py={0.5}
@@ -426,7 +426,7 @@ export default function CustomerProfilePage() {
         </Text>
       ) : null}
 
-      <Box p={{ base: 5, md: 6 }} bg="jobCardBg">
+      <Box p={{ base: 5, md: 6 }} bg="cardBg">
         <Stack gap={5}>
           <HStack
             justify="space-between"
@@ -531,7 +531,7 @@ export default function CustomerProfilePage() {
               onChange={(e) => setBio(e.target.value)}
               placeholder="Tell workers a little about what you are looking for."
               bg="neutral.100"
-              borderColor="jobCardBorder"
+              borderColor="cardBorder"
               borderRadius="lg"
             />
           </InfoRow>
@@ -603,7 +603,7 @@ export default function CustomerProfilePage() {
               )
             }
           />
-          <Box h="1px" bg="jobCardBorder" /> */}
+          <Box h="1px" bg="cardBorder" /> */}
           <SecurityRow
             icon={<IconEnvelope />}
             title="Email Address"
@@ -621,7 +621,7 @@ export default function CustomerProfilePage() {
           />
         </Box>
 
-        <Box p={4} bg="jobCardBg">
+        <Box p={4} bg="cardBg">
           <NextLink href={forgotHref} passHref legacyBehavior>
             <Button
               as="a"
@@ -753,8 +753,8 @@ export default function CustomerProfilePage() {
         >
           <Box
             p={6}
-            bg="jobCardBg"
-            borderColor="jobCardBg"
+            bg="cardBg"
+            borderColor="cardBg"
             borderWidth="1px"
             position="relative"
             overflow="hidden"

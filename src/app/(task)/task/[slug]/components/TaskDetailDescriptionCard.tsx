@@ -22,7 +22,7 @@ export function TaskDetailDescriptionCard({
   task,
 }: TaskDetailDescriptionCardProps) {
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="jobCardBorder" boxShadow="ambient">
+    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
       <Stack gap={4}>
         <HStack gap={2}>
           <IconDocument color="primary.600" />
@@ -37,7 +37,7 @@ export function TaskDetailDescriptionCard({
             fontSize="sm"
             pt={2}
             borderTopWidth="1px"
-            borderColor="jobCardBorder"
+            borderColor="cardBorder"
           >
             <Grid
               templateColumns={{ base: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }}

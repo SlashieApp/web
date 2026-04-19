@@ -173,7 +173,7 @@ export default function LoginPage() {
               disabled
               title="Coming soon"
               opacity={0.85}
-              _hover={{ bg: 'jobCardBg' }}
+              _hover={{ bg: 'cardBg' }}
             >
               <HStack gap={2} justify="center" w="full">
                 <SocialIconGoogle />
@@ -192,7 +192,7 @@ export default function LoginPage() {
               disabled
               title="Coming soon"
               opacity={0.85}
-              _hover={{ bg: 'jobCardBg' }}
+              _hover={{ bg: 'cardBg' }}
             >
               <HStack gap={2} justify="center" w="full">
                 <SocialIconApple />

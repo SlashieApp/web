@@ -232,7 +232,7 @@ function SidebarNavLink({
       transition="background 0.15s ease, color 0.15s ease"
       _hover={{
         textDecoration: 'none',
-        bg: active ? 'primary.50' : 'jobCardBg',
+        bg: active ? 'primary.50' : 'cardBg',
         color: 'primary.700',
       }}
     >
@@ -280,7 +280,7 @@ export function DashboardShell({
           flexShrink={0}
           borderRightWidth={{ base: 0, md: '1px' }}
           borderBottomWidth={{ base: '1px', md: 0 }}
-          borderColor="jobCardBorder"
+          borderColor="cardBorder"
           bg="bg"
           px={{ base: 4, md: 5 }}
           py={{ base: 4, md: 8 }}
@@ -331,7 +331,7 @@ export function DashboardShell({
               </Stack>
             </HStack>
 
-            <Box p={4} bg="jobCardBg">
+            <Box p={4} bg="cardBg">
               <Stack gap={1}>
                 <HStack gap={3}>
                   <Box
@@ -379,12 +379,7 @@ export function DashboardShell({
               ))}
             </Stack>
 
-            <Stack
-              gap={1}
-              pt={4}
-              borderTopWidth="1px"
-              borderColor="jobCardBorder"
-            >
+            <Stack gap={1} pt={4} borderTopWidth="1px" borderColor="cardBorder">
               {navSecondary.map((item) => (
                 <SidebarNavLink
                   key={item.key}
@@ -457,7 +452,7 @@ export function DashboardShell({
             px={{ base: 4, md: 8 }}
             py={4}
             borderBottomWidth="1px"
-            borderColor="jobCardBorder"
+            borderColor="cardBorder"
             bg="bg"
             gap={4}
             flexWrap="wrap"
@@ -497,7 +492,7 @@ export function DashboardShell({
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   onSearchChange(e.target.value)
                 }
-                bg="jobCardBg"
+                bg="cardBg"
                 borderRadius="full"
                 aria-label="Search tasks"
               />
@@ -509,7 +504,7 @@ export function DashboardShell({
                 w={10}
                 h={10}
                 borderRadius="full"
-                bg="jobCardBg"
+                bg="cardBg"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -523,7 +518,7 @@ export function DashboardShell({
                 w={10}
                 h={10}
                 borderRadius="full"
-                bg="jobCardBg"
+                bg="cardBg"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"

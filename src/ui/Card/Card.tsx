@@ -11,9 +11,9 @@ export function Card({ children, ...rest }: CardProps) {
   return (
     <Box
       borderRadius="24px"
-      bg="jobCardBg"
+      bg="cardBg"
       borderWidth="1px"
-      borderColor="jobCardBorder"
+      borderColor="cardBorder"
       p={6}
       maxW="md"
       w="full"

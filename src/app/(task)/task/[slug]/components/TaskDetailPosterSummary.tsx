@@ -25,7 +25,7 @@ export function TaskDetailPosterSummary({
   const name = posterDisplayName(task)
 
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="jobCardBorder" boxShadow="ambient">
+    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
       <HStack align="flex-start" gap={4}>
         <Box
           flexShrink={0}

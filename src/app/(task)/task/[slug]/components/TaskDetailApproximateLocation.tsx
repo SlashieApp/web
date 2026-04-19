@@ -28,7 +28,7 @@ export function TaskDetailApproximateLocation({
   if (!place && !coords && !ownerLine) return null
 
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="jobCardBorder" boxShadow="ambient">
+    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
       <Stack gap={4}>
         <HStack gap={2}>
           <IconMapPin color="primary.600" />
@@ -47,8 +47,8 @@ export function TaskDetailApproximateLocation({
             <Box
               borderRadius="lg"
               borderWidth="1px"
-              borderColor="jobCardBorder"
-              bg="jobCardBg"
+              borderColor="cardBorder"
+              bg="cardBg"
               minH="140px"
               display="flex"
               alignItems="center"

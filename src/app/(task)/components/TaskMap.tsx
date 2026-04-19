@@ -1001,10 +1001,10 @@ export function TaskMap({
         inset={0}
         top={0}
         h="full"
-        bg="jobCardBg"
+        bg="cardBg"
         boxShadow="none"
         borderWidth={0}
-        borderColor="jobCardBorder"
+        borderColor="cardBorder"
         display="flex"
         alignItems="center"
         justifyContent="center"
@@ -1032,7 +1032,7 @@ export function TaskMap({
       borderRadius="0"
       boxShadow="none"
       borderWidth={0}
-      borderColor="jobCardBorder"
+      borderColor="cardBorder"
       zIndex={0}
     >
       <Box

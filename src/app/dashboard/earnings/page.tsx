@@ -132,9 +132,9 @@ export default function DashboardEarningsPage() {
                 <Box
                   key={row.id}
                   p={4}
-                  bg="jobCardBg"
+                  bg="cardBg"
                   borderWidth="1px"
-                  borderColor="jobCardBorder"
+                  borderColor="cardBorder"
                 >
                   <HStack
                     justify="space-between"
@@ -158,7 +158,7 @@ export default function DashboardEarningsPage() {
                       <Badge
                         bg={
                           row.status === 'Processing'
-                            ? 'jobCardBg'
+                            ? 'cardBg'
                             : row.status === 'Scheduled'
                               ? 'primary.50'
                               : 'badgeBg'

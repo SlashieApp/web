@@ -144,9 +144,9 @@ export function Dock() {
       zIndex={20}
       bg="bg"
       borderWidth={{ base: '1px', md: 0 }}
-      borderColor={{ base: 'jobCardBorder', md: 'transparent' }}
+      borderColor={{ base: 'cardBorder', md: 'transparent' }}
       borderRightWidth={{ base: 0, md: '1px' }}
-      borderRightColor={{ base: 'transparent', md: 'jobCardBorder' }}
+      borderRightColor={{ base: 'transparent', md: 'cardBorder' }}
       w={{ base: 'auto', md: '76px' }}
       justifyContent="flex-start"
       pt={{ base: 2, md: 6 }}

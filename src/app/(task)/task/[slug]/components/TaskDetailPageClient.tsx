@@ -143,7 +143,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
   return (
     <Box bg="bg" color="jobCardTitle" minH="100vh">
       <Stack gap={0}>
-        <Box as="section" bg="jobCardBg" py={{ base: 8, md: 10 }}>
+        <Box as="section" bg="cardBg" py={{ base: 8, md: 10 }}>
           <Container>
             <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
               <Stack gap={3}>
@@ -206,7 +206,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                     borderRadius="xl"
                     overflow="hidden"
                     borderWidth="1px"
-                    borderColor="jobCardBorder"
+                    borderColor="cardBorder"
                   >
                     {task.images?.[0] ? (
                       <Image
@@ -217,7 +217,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                         objectFit="cover"
                       />
                     ) : (
-                      <Box h="220px" bg="jobCardBg" />
+                      <Box h="220px" bg="cardBg" />
                     )}
                   </Box>
                   <Grid
@@ -342,7 +342,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
             zIndex={30}
             bg="bg"
             borderTopWidth="1px"
-            borderColor="jobCardBorder"
+            borderColor="cardBorder"
             px={4}
             py={3}
           >

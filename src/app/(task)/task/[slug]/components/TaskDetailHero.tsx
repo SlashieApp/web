@@ -27,7 +27,7 @@ export function TaskDetailHero({
   const budgetLine = taskBudgetDisplayLine(task, budgetViewer, viewerUserId)
 
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="jobCardBorder" boxShadow="ambient">
+    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
       <Stack gap={4}>
         <Box
           as="span"

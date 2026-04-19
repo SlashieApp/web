@@ -65,7 +65,7 @@ export function TaskDetailOwnerQuotesSection({
         </Text>
       ) : null}
       {n === 0 ? (
-        <Box p={6} borderColor="jobCardBorder" boxShadow="ambient">
+        <Box p={6} borderColor="cardBorder" boxShadow="ambient">
           <Text color="formLabelMuted">
             No quotes yet. Check back for worker responses.
           </Text>

@@ -34,10 +34,10 @@ export function CreateTaskVisualsSection({
         <Box
           borderWidth="2px"
           borderStyle="dashed"
-          borderColor="jobCardBorder"
+          borderColor="cardBorder"
           borderRadius="xl"
           p={6}
-          bg="jobCardBg"
+          bg="cardBg"
         >
           <Stack align="center" gap={3}>
             <Text fontSize="sm" color="formLabelMuted" textAlign="center">
@@ -87,7 +87,7 @@ export function CreateTaskVisualsSection({
                     objectFit="cover"
                     borderRadius="lg"
                     borderWidth="1px"
-                    borderColor="jobCardBorder"
+                    borderColor="cardBorder"
                   />
                   <Button
                     type="button"

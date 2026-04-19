@@ -54,7 +54,7 @@ function TaskCard({ task }: { task: TaskItem }) {
   const badgeByStage: Record<TaskStage, { bg: string; color: string }> = {
     draft: { bg: 'badgeBg', color: 'formLabelMuted' },
     open: { bg: 'primary.100', color: 'primary.700' },
-    awarded: { bg: 'jobCardBg', color: 'jobCardTitle' },
+    awarded: { bg: 'cardBg', color: 'jobCardTitle' },
     completed: { bg: 'green.100', color: 'green.700' },
   }
 
@@ -62,7 +62,7 @@ function TaskCard({ task }: { task: TaskItem }) {
     <Box
       p={5}
       borderWidth="1px"
-      borderColor="jobCardBorder"
+      borderColor="cardBorder"
       _hover={{ boxShadow: 'md' }}
     >
       <Stack gap={4}>
@@ -297,7 +297,7 @@ export default function CustomerRequestsPage() {
               </Text>
             </Box>
 
-            <Box p={5} bg="jobCardBg">
+            <Box p={5} bg="cardBg">
               <Heading size="sm" mb={3}>
                 Needs attention
               </Heading>
@@ -311,7 +311,7 @@ export default function CustomerRequestsPage() {
                       p={4}
                       bg="neutral.100"
                       borderWidth="1px"
-                      borderColor="jobCardBorder"
+                      borderColor="cardBorder"
                     >
                       <Heading size="sm">{task.title}</Heading>
                       <Text fontSize="sm" color="formLabelMuted">
@@ -339,7 +339,7 @@ export default function CustomerRequestsPage() {
         overflow="hidden"
         borderRadius="xl"
         borderWidth="1px"
-        borderColor="jobCardBorder"
+        borderColor="cardBorder"
         bg="primary.700"
         color="white"
       >

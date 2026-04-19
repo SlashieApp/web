@@ -208,9 +208,9 @@ export function TaskLocationMapPicker({
         overflow="hidden"
         boxShadow="ghostBorder"
         borderWidth="1px"
-        borderColor="jobCardBorder"
+        borderColor="cardBorder"
         h={{ base: '240px', md: '320px' }}
-        bg="jobCardBg"
+        bg="cardBg"
       >
         {token ? (
           <>
@@ -225,7 +225,7 @@ export function TaskLocationMapPicker({
                 bg="whiteAlpha.950"
                 backdropFilter="blur(8px)"
                 borderWidth="1px"
-                borderColor="jobCardBorder"
+                borderColor="cardBorder"
                 borderRadius="lg"
                 boxShadow="sm"
                 aria-label="Search for your location"

@@ -258,7 +258,7 @@ export default function RegisterPage() {
           h="auto"
           onClick={() => setRole('homeowner')}
           _hover={{
-            bg: role === 'homeowner' ? 'primary.100' : 'jobCardBg',
+            bg: role === 'homeowner' ? 'primary.100' : 'cardBg',
           }}
         >
           <Stack gap={2} align="center" w="full">
@@ -286,7 +286,7 @@ export default function RegisterPage() {
           h="auto"
           onClick={() => setRole('professional')}
           _hover={{
-            bg: role === 'professional' ? 'primary.100' : 'jobCardBg',
+            bg: role === 'professional' ? 'primary.100' : 'cardBg',
           }}
         >
           <Stack gap={2} align="center" w="full">

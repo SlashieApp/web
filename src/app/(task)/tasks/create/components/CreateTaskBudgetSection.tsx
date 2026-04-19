@@ -55,7 +55,7 @@ export function CreateTaskBudgetSection({
               <NativeSelect.Field
                 bg="neutral.100"
                 borderWidth="1px"
-                borderColor="jobCardBorder"
+                borderColor="cardBorder"
                 borderRadius="lg"
                 value={budgetCurrency}
                 onChange={(e) =>
@@ -109,9 +109,7 @@ export function CreateTaskBudgetSection({
               type="button"
               size="sm"
               variant="ghost"
-              bg={
-                budgetType === TaskBudgetType.OneOff ? 'jobCardBg' : 'jobCardBg'
-              }
+              bg={budgetType === TaskBudgetType.OneOff ? 'cardBg' : 'cardBg'}
               color={
                 budgetType === TaskBudgetType.OneOff
                   ? 'jobCardTitle'
@@ -126,9 +124,7 @@ export function CreateTaskBudgetSection({
               type="button"
               size="sm"
               variant="ghost"
-              bg={
-                budgetType === TaskBudgetType.PerDay ? 'jobCardBg' : 'jobCardBg'
-              }
+              bg={budgetType === TaskBudgetType.PerDay ? 'cardBg' : 'cardBg'}
               color={
                 budgetType === TaskBudgetType.PerDay
                   ? 'jobCardTitle'
@@ -143,11 +139,7 @@ export function CreateTaskBudgetSection({
               type="button"
               size="sm"
               variant="ghost"
-              bg={
-                budgetType === TaskBudgetType.PerHour
-                  ? 'jobCardBg'
-                  : 'jobCardBg'
-              }
+              bg={budgetType === TaskBudgetType.PerHour ? 'cardBg' : 'cardBg'}
               color={
                 budgetType === TaskBudgetType.PerHour
                   ? 'jobCardTitle'
@@ -168,9 +160,7 @@ export function CreateTaskBudgetSection({
               size="sm"
               variant="ghost"
               bg={
-                paymentMethod === TaskPaymentMethod.Cash
-                  ? 'jobCardBg'
-                  : 'jobCardBg'
+                paymentMethod === TaskPaymentMethod.Cash ? 'cardBg' : 'cardBg'
               }
               color={
                 paymentMethod === TaskPaymentMethod.Cash
@@ -188,8 +178,8 @@ export function CreateTaskBudgetSection({
               variant="ghost"
               bg={
                 paymentMethod === TaskPaymentMethod.BankTransfer
-                  ? 'jobCardBg'
-                  : 'jobCardBg'
+                  ? 'cardBg'
+                  : 'cardBg'
               }
               color={
                 paymentMethod === TaskPaymentMethod.BankTransfer
