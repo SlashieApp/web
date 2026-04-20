@@ -3,6 +3,7 @@
 import {
   Box,
   type BoxProps,
+  Button,
   Flex,
   Grid,
   HStack,
@@ -289,10 +290,10 @@ function MobileCarousel({ cells }: { cells: (ImageGalleryItem | null)[] }) {
             {slides.map((slide, index) => {
               const selected = index === selectedIndex
               return (
-                <Box
+                <Button
                   key={`dot-${slide.src}-${slide.alt}`}
-                  as="button"
                   type="button"
+                  variant="ghost"
                   aria-current={selected ? 'true' : undefined}
                   aria-label={`Image ${index + 1} of ${slides.length}`}
                   onClick={() => emblaApi?.scrollTo(index)}
@@ -307,7 +308,12 @@ function MobileCarousel({ cells }: { cells: (ImageGalleryItem | null)[] }) {
                   cursor="pointer"
                   borderWidth="0"
                   p={0}
+                  minH="6px"
                   flexShrink={0}
+                  _hover={{
+                    bg: selected ? 'primary.500' : 'badgeBg',
+                    opacity: 0.92,
+                  }}
                 />
               )
             })}

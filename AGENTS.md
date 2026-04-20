@@ -10,7 +10,7 @@ Slashie is a high-trust local task marketplace connecting people who need work d
 
 - Need: fast and reliable help with clear status tracking.
 - Core flow: post task -> receive quotes -> choose pro -> complete task -> review.
-- App surfaces: `/quotes`, `/requests`, and `/profile` (client point of view).
+- App surfaces: `/requests`, and `/profile` (client point of view).
 
 ### Worker
 
