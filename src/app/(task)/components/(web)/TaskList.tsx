@@ -94,7 +94,6 @@ export function TaskList() {
                     metaLine={loc}
                     thumbnailSrc={task.images?.[0] ?? undefined}
                     detailsHref={`/task/${task.id}`}
-                    badgeVariant={badge.variant}
                     badgeText={badge.text}
                     isActive={selectedTaskId === task.id}
                     onActivate={() => handleActivateTask(task.id)}

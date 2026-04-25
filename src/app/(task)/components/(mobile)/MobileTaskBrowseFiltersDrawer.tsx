@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 
 import {
   Box,
@@ -16,14 +16,12 @@ import {
   DrawerTitle,
   HStack,
   IconButton,
-  Input,
-  InputGroup,
   SimpleGrid,
   Slider,
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { Button } from '@ui'
+import { Button, Input } from '@ui'
 
 import {
   useTaskBrowseFiltersProps,
@@ -112,7 +110,6 @@ function cycleUrgency(
 
 function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
   const {
-    variant: _variant,
     showMapPromo: _showMapPromo,
     sortValue: _sort,
     sortOptions: _sortOptions,
@@ -179,54 +176,34 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
       <Stack gap={3}>
         <SectionLabel>Budget range (£)</SectionLabel>
         <SimpleGrid columns={2} gap={3}>
-          <InputGroup
+          <Input
+            rootProps={{ minH: 12, borderRadius: 'lg' }}
             startElement={
-              <Text
-                color="formLabelMuted"
-                fontSize="sm"
-                fontWeight={600}
-                ps={3}
-              >
+              <Text color="formLabelMuted" fontSize="sm" fontWeight={600}>
                 £
               </Text>
             }
-          >
-            <Input
-              inputMode="decimal"
-              placeholder="Min"
-              value={minBudgetPounds}
-              onChange={(e) => onMinBudgetChange(e.target.value)}
-              h={12}
-              borderRadius="lg"
-              borderWidth="1px"
-              borderColor="formControlBorder"
-              ps="2.25rem"
-            />
-          </InputGroup>
-          <InputGroup
+            inputMode="decimal"
+            placeholder="Min"
+            value={minBudgetPounds}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onMinBudgetChange(e.target.value)
+            }
+          />
+          <Input
+            rootProps={{ minH: 12, borderRadius: 'lg' }}
             startElement={
-              <Text
-                color="formLabelMuted"
-                fontSize="sm"
-                fontWeight={600}
-                ps={3}
-              >
+              <Text color="formLabelMuted" fontSize="sm" fontWeight={600}>
                 £
               </Text>
             }
-          >
-            <Input
-              inputMode="decimal"
-              placeholder="Max"
-              value={maxBudgetPounds}
-              onChange={(e) => onMaxBudgetChange(e.target.value)}
-              h={12}
-              borderRadius="lg"
-              borderWidth="1px"
-              borderColor="formControlBorder"
-              ps="2.25rem"
-            />
-          </InputGroup>
+            inputMode="decimal"
+            placeholder="Max"
+            value={maxBudgetPounds}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onMaxBudgetChange(e.target.value)
+            }
+          />
         </SimpleGrid>
       </Stack>
 
@@ -270,7 +247,7 @@ export function MobileTaskBrowseFiltersTrigger() {
  */
 export function MobileTaskBrowseFiltersDrawer() {
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
-  const filterProps = useTaskBrowseFiltersProps('compact')
+  const filterProps = useTaskBrowseFiltersProps()
 
   return (
     <DrawerRoot

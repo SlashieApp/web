@@ -1,16 +1,9 @@
 'use client'
 
-import {
-  Box,
-  HStack,
-  Input,
-  NativeSelect,
-  SimpleGrid,
-  Slider,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
-import { Button } from '@ui'
+import { Box, HStack, SimpleGrid, Slider, Stack, Text } from '@chakra-ui/react'
+import { Button, Input as UiInput } from '@ui'
+import type { ChangeEvent, KeyboardEvent } from 'react'
+import { LuLocateFixed, LuSearch } from 'react-icons/lu'
 
 import {
   useTaskBrowseFiltersProps,
@@ -27,7 +20,7 @@ export type {
 
 export type TaskBrowseFiltersPanelProps = Omit<
   TaskBrowseFiltersProps,
-  'variant' | 'showMapPromo'
+  'showMapPromo'
 >
 
 const FILTER_LABEL = {
@@ -52,103 +45,7 @@ function FilterSectionTitle({
   )
 }
 
-/** Compact filter panel (web sidebar). */
-export function TaskBrowseFiltersCompactPanel({
-  radiusMiles,
-  onRadiusChange,
-  minBudgetPounds,
-  maxBudgetPounds,
-  onMinBudgetChange,
-  onMaxBudgetChange,
-  sortValue = 'nearest',
-  sortOptions = [],
-  onSortChange,
-}: TaskBrowseFiltersPanelProps) {
-  const budgetPresets = ['50', '100', '500']
-  return (
-    <Stack gap={4}>
-      <Stack gap={2}>
-        <FilterSectionTitle mb={1}>Search radius</FilterSectionTitle>
-        <Slider.Root
-          min={1}
-          max={50}
-          step={1}
-          value={[Math.min(50, Math.max(1, radiusMiles))]}
-          onValueChange={(d) => {
-            const next = d.value[0]
-            if (typeof next === 'number') onRadiusChange(next)
-          }}
-        >
-          <Slider.Control>
-            <Slider.Track>
-              <Slider.Range />
-            </Slider.Track>
-            <Slider.Thumbs />
-          </Slider.Control>
-        </Slider.Root>
-      </Stack>
-
-      <Stack gap={2}>
-        <FilterSectionTitle mb={1}>Sort</FilterSectionTitle>
-        <NativeSelect.Root>
-          <NativeSelect.Field
-            aria-label="Sort tasks"
-            value={sortValue}
-            onChange={(e) => onSortChange?.(e.target.value)}
-            bg="neutral.100"
-            borderWidth="1px"
-            borderColor="cardBorder"
-            borderRadius="lg"
-            fontSize="sm"
-          >
-            {sortOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </NativeSelect.Field>
-        </NativeSelect.Root>
-      </Stack>
-
-      <Stack gap={2}>
-        <FilterSectionTitle mb={1}>Budget range</FilterSectionTitle>
-        <SimpleGrid columns={2} gap={2}>
-          <Input
-            inputMode="decimal"
-            placeholder="$50"
-            value={minBudgetPounds}
-            onChange={(e) => onMinBudgetChange(e.target.value)}
-          />
-          <Input
-            inputMode="decimal"
-            placeholder="$500+"
-            value={maxBudgetPounds}
-            onChange={(e) => onMaxBudgetChange(e.target.value)}
-          />
-        </SimpleGrid>
-        <HStack gap={2} flexWrap="wrap">
-          {budgetPresets.map((value) => (
-            <Button
-              key={value}
-              type="button"
-              size="xs"
-              variant="secondary"
-              onClick={() => {
-                onMinBudgetChange(value)
-                onMaxBudgetChange('')
-              }}
-            >
-              £{value}
-            </Button>
-          ))}
-        </HStack>
-      </Stack>
-    </Stack>
-  )
-}
-
-/** Full default filter panel (web). */
-export function TaskBrowseFiltersDefaultPanel({
+export function TaskBrowseFiltersPanel({
   searchQuery,
   onSearchChange,
   areaLocationInput = '',
@@ -160,30 +57,82 @@ export function TaskBrowseFiltersDefaultPanel({
   maxBudgetPounds,
   onMinBudgetChange,
   onMaxBudgetChange,
-  urgency,
-  onUrgencyChange,
-}: TaskBrowseFiltersPanelProps) {
+  urgency: _urgency,
+  onUrgencyChange: _onUrgencyChange,
+}: TaskBrowseFiltersProps) {
   return (
     <Stack gap={6}>
       <Stack gap={3}>
         <FilterSectionTitle>Search</FilterSectionTitle>
-        <Input
-          type="search"
+        <UiInput
+          startElement={
+            <Box as="span" aria-hidden display="inline-flex">
+              <LuSearch size={18} strokeWidth={2} />
+            </Box>
+          }
+          type="text"
+          inputMode="search"
+          autoComplete="off"
           placeholder="Title, description, keywords..."
           value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            onSearchChange(e.target.value)
+          }
         />
       </Stack>
 
       <Stack gap={3}>
         <FilterSectionTitle>Search area</FilterSectionTitle>
-        <Input
-          type="search"
-          placeholder="e.g. Shoreditch, London or postcode"
+        <UiInput
+          startElement={
+            <Box as="span" aria-hidden display="inline-flex">
+              <LuSearch size={18} strokeWidth={2} />
+            </Box>
+          }
+          endElement={
+            <Button
+              aria-label="Use current location"
+              title="Use current location"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              minW={0}
+              w={8}
+              h={8}
+              px={0}
+              py={0}
+              variant="ghost"
+              color="formControlIcon"
+              _hover={{ bg: 'badgeBg', color: 'cardFg' }}
+              _focusVisible={{
+                outline: '2px solid',
+                outlineColor: 'secondary',
+                outlineOffset: '2px',
+              }}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                if (!navigator.geolocation) return
+                navigator.geolocation.getCurrentPosition((position) => {
+                  const lat = position.coords.latitude.toFixed(5)
+                  const lng = position.coords.longitude.toFixed(5)
+                  onAreaLocationChange(`${lat}, ${lng}`)
+                  onAreaLocationCommit?.()
+                })
+              }}
+            >
+              <LuLocateFixed size={18} strokeWidth={2} aria-hidden />
+            </Button>
+          }
+          type="text"
+          inputMode="search"
+          autoComplete="off"
+          placeholder="London, UK"
           value={areaLocationInput}
-          onChange={(e) => onAreaLocationChange(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            onAreaLocationChange(e.target.value)
+          }
           onBlur={() => onAreaLocationCommit?.()}
-          onKeyDown={(e) => {
+          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter') onAreaLocationCommit?.()
           }}
         />
@@ -218,17 +167,33 @@ export function TaskBrowseFiltersDefaultPanel({
       <Stack gap={3}>
         <FilterSectionTitle>Budget range</FilterSectionTitle>
         <SimpleGrid columns={2} gap={3}>
-          <Input
+          <UiInput
+            rootProps={{ minH: 12, borderRadius: 'lg' }}
+            startElement={
+              <Text color="formLabelMuted" fontSize="sm" fontWeight={600}>
+                £
+              </Text>
+            }
             inputMode="decimal"
             placeholder="0"
             value={minBudgetPounds}
-            onChange={(e) => onMinBudgetChange(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onMinBudgetChange(e.target.value)
+            }
           />
-          <Input
+          <UiInput
+            rootProps={{ minH: 12, borderRadius: 'lg' }}
+            startElement={
+              <Text color="formLabelMuted" fontSize="sm" fontWeight={600}>
+                £
+              </Text>
+            }
             inputMode="decimal"
             placeholder="Any"
             value={maxBudgetPounds}
-            onChange={(e) => onMaxBudgetChange(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onMaxBudgetChange(e.target.value)
+            }
           />
         </SimpleGrid>
       </Stack>
@@ -236,31 +201,15 @@ export function TaskBrowseFiltersDefaultPanel({
   )
 }
 
-export function TaskBrowseFilters({
-  variant = 'default',
-  ...props
-}: TaskBrowseFiltersProps) {
-  if (variant === 'compact') {
-    return (
-      <Box
-        borderRadius="xl"
-        bg="cardBg"
-        p={{ base: 3, md: 4 }}
-        boxShadow="ghostBorder"
-      >
-        <TaskBrowseFiltersCompactPanel {...props} />
-      </Box>
-    )
-  }
-
+export function TaskBrowseFilters({ ...props }: TaskBrowseFiltersProps) {
   return (
     <Box
       borderRadius="xl"
       bg="cardBg"
-      p={{ base: 5, md: 6 }}
+      p={{ base: 3, md: 4 }}
       boxShadow="ghostBorder"
     >
-      <TaskBrowseFiltersDefaultPanel {...props} />
+      <TaskBrowseFiltersPanel {...props} />
     </Box>
   )
 }
@@ -271,7 +220,7 @@ export function TaskBrowseFilters({
  */
 export function WebTaskBrowseFiltersBlock() {
   const { isFilterOpen } = useTaskBrowseLayout()
-  const filterProps = useTaskBrowseFiltersProps('compact')
+  const filterProps = useTaskBrowseFiltersProps()
 
   return (
     <Box flex={1} minH={0} mb={6} pointerEvents="none">

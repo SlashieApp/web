@@ -13,11 +13,16 @@ const meta = {
   args: {
     task: {
       id: 'task-1',
-      title: 'Fix leaking kitchen sink',
-      description: 'Small leak under the basin cabinet.',
-      location: 'Mission District, SF',
-      priceLabel: '$120',
-      badgeText: 'Featured',
+      title: 'Fix shelf on wall',
+      description: 'Need a worker to mount one shelf safely.',
+      location: '33 Charing Cross Road',
+      priceLabel: '£10',
+      badgeText: 'New',
+      distanceLabel: '0.4 mi away',
+      ownerName: 'John D.',
+      ratingLabel: '4.9 (42)',
+      ownerAvatarSrc:
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop',
       thumbnailSrc:
         'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
     },
@@ -36,13 +41,18 @@ type Story = StoryObj<typeof meta>
 
 export const ListItem: Story = {
   args: {
-    title: 'Fix leaking kitchen sink',
-    description: 'Small leak under the basin cabinet.',
-    priceLabel: '$120',
-    metaLine: 'Mission District, SF',
+    title: 'Fix shelf on wall',
+    description: 'Need a worker to mount one shelf safely.',
+    priceLabel: '£10',
+    metaLine: '33 Charing Cross Road',
+    distanceLabel: '0.4 mi away',
+    ownerName: 'John D.',
+    ratingLabel: '4.9 (42)',
+    ownerAvatarSrc:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop',
     thumbnailSrc:
       'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
     detailsHref: '/task/task-1',
-    badgeText: 'Featured',
+    badgeText: 'New',
   },
 }

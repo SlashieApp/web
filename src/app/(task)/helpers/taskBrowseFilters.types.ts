@@ -18,5 +18,4 @@ export type TaskBrowseFiltersProps = {
   sortOptions?: readonly { value: string; label: string }[]
   onSortChange?: (value: string) => void
   showMapPromo?: boolean
-  variant?: 'default' | 'compact'
 }

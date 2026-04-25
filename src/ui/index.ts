@@ -21,6 +21,7 @@ export { FormField } from './FormField/FormField'
 export { Icon } from './Icon/Icon'
 export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
+export { Input } from './Input'
 export { Logo } from './Logo/Logo'
 export { Tag } from './Tag'
 export * from './Footer'
@@ -39,5 +40,6 @@ export type {
   ImageGalleryItem,
   ImageGalleryProps,
 } from './ImageGallery/ImageGallery'
+export type { InputProps } from './Input'
 export type { LogoProps } from './Logo/Logo'
 export type { TagColor, TagProps, TagVariant } from './Tag'

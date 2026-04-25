@@ -5,9 +5,6 @@ import Image from 'next/image'
 import NextLink from 'next/link'
 
 import { Button, Card } from '@ui'
-import { useColorModeValue } from '@ui/color-mode'
-
-export type JobCardBadgeVariant = 'emergency' | 'featured' | 'none'
 
 /** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
 export type TaskBrowseListCardTask = {
@@ -17,6 +14,10 @@ export type TaskBrowseListCardTask = {
   location: string
   priceLabel: string
   badgeText?: string
+  distanceLabel?: string
+  ownerName?: string
+  ownerAvatarSrc?: string
+  ratingLabel?: string
   thumbnailSrc?: string
 }
 
@@ -24,7 +25,6 @@ type TaskBrowseListItemWithTask = {
   task: TaskBrowseListCardTask
   detailsHref?: string
   detailsCtaLabel?: string
-  badgeVariant?: JobCardBadgeVariant
   isActive?: boolean
   onActivate?: () => void
 }
@@ -34,10 +34,13 @@ type TaskBrowseListItemLegacy = {
   description: string
   priceLabel: string
   metaLine: string
+  distanceLabel?: string
+  ownerName?: string
+  ownerAvatarSrc?: string
+  ratingLabel?: string
   thumbnailSrc?: string
   detailsHref: string
   detailsCtaLabel?: string
-  badgeVariant?: JobCardBadgeVariant
   badgeText?: string
   isActive?: boolean
   onActivate?: () => void
@@ -60,9 +63,12 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
   let title: string
   let priceLabel: string
   let metaLine: string
+  let distanceLabel: string | undefined
+  let ownerName: string | undefined
+  let ownerAvatarSrc: string | undefined
+  let ratingLabel: string | undefined
   let thumbnailSrc: string | undefined
   let detailsHref: string
-  let badgeVariant: JobCardBadgeVariant
   let badgeText: string | undefined
 
   if (isTaskBrowseListItemWithTask(props)) {
@@ -70,163 +76,197 @@ export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
     title = task.title
     priceLabel = task.priceLabel
     metaLine = task.location
+    distanceLabel = task.distanceLabel
+    ownerName = task.ownerName
+    ownerAvatarSrc = task.ownerAvatarSrc
+    ratingLabel = task.ratingLabel
     thumbnailSrc = task.thumbnailSrc
     detailsHref = props.detailsHref ?? `/task/${task.id}`
-    badgeVariant = props.badgeVariant ?? (task.badgeText ? 'featured' : 'none')
     badgeText = task.badgeText
   } else {
     title = props.title
     priceLabel = props.priceLabel
     metaLine = props.metaLine
+    distanceLabel = props.distanceLabel
+    ownerName = props.ownerName
+    ownerAvatarSrc = props.ownerAvatarSrc
+    ratingLabel = props.ratingLabel
     thumbnailSrc = props.thumbnailSrc
     detailsHref = props.detailsHref
-    badgeVariant = props.badgeVariant ?? 'none'
     badgeText = props.badgeText
   }
 
-  const showBadge = badgeVariant !== 'none' && Boolean(badgeText?.trim())
-  const badgeBg = useColorModeValue(
-    badgeVariant === 'emergency'
-      ? 'red.50'
-      : badgeVariant === 'featured'
-        ? 'primary.100'
-        : 'badgeBg',
-    badgeVariant === 'emergency'
-      ? 'red.900'
-      : badgeVariant === 'featured'
-        ? 'primary.900'
-        : 'gray.700',
-  )
-  const badgeColor = useColorModeValue(
-    badgeVariant === 'emergency'
-      ? 'red.700'
-      : badgeVariant === 'featured'
-        ? 'primary.700'
-        : 'formLabelMuted',
-    badgeVariant === 'emergency'
-      ? 'red.100'
-      : badgeVariant === 'featured'
-        ? 'primary.100'
-        : 'gray.200',
-  )
-  const surfaceBg = useColorModeValue('neutral.100', 'gray.800')
-  const activeBorderColor = useColorModeValue(
-    'rgba(26,86,219,0.42)',
-    'rgba(147,197,253,0.6)',
-  )
-  const idleBorderColor = useColorModeValue(
-    'rgba(148,163,184,0.32)',
-    'rgba(148,163,184,0.46)',
-  )
-  const hoverShadow = useColorModeValue(
-    '0 8px 22px rgba(15,23,42,0.12)',
-    '0 10px 28px rgba(2,6,23,0.52)',
-  )
-  const baseShadow = useColorModeValue(
-    '0 4px 14px rgba(15,23,42,0.08)',
-    '0 5px 18px rgba(2,6,23,0.38)',
-  )
-  const priceColor = useColorModeValue('primary.700', 'primary.300')
-  const thumbFallbackBg = useColorModeValue('badgeBg', 'gray.700')
+  const detailsCtaLabel = props.detailsCtaLabel ?? 'View details'
+  const showBadge = Boolean(badgeText?.trim())
+  const displayOwnerName = ownerName?.trim() || 'Task owner'
+  const displayRatingLabel = ratingLabel?.trim()
 
   const shell = (
-    <Card p={2.5} maxW="full">
-      <HStack gap={3} align="stretch">
+    <Card
+      p={{ base: 2.5, md: 3 }}
+      maxW="full"
+      bg="cardBg"
+      borderColor={isActive ? 'secondary' : 'cardBorder'}
+      boxShadow="card"
+      transition="box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease"
+      _hover={
+        onActivate
+          ? {
+              boxShadow: '0 10px 24px rgba(15, 23, 42, 0.12)',
+              transform: 'translateY(-1px)',
+            }
+          : undefined
+      }
+    >
+      <HStack gap={{ base: 2.5, md: 3 }} align="stretch">
         <Box
           position="relative"
-          w="84px"
-          h="84px"
+          w={{ base: '92px', md: '112px' }}
+          h={{ base: '92px', md: '112px' }}
           flexShrink={0}
-          borderRadius="lg"
+          borderRadius={{ base: 'lg', md: 'xl' }}
           overflow="hidden"
-          bg={thumbFallbackBg}
+          bg="cardAvatarEmpty"
         >
           {thumbnailSrc ? (
             <Image
               src={thumbnailSrc}
               alt={`${title} thumbnail`}
               fill
-              sizes="84px"
+              sizes="(max-width: 768px) 92px, 112px"
               style={{ objectFit: 'cover' }}
             />
           ) : null}
         </Box>
-        <Stack flex={1} minW={0} gap={1} h="84px">
-          <HStack justify="space-between" align="flex-start" gap={2}>
-            <Heading
-              size="sm"
-              color="cardFg"
-              lineHeight="1.25"
-              flex={1}
-              minW={0}
-            >
-              <Text
-                as="span"
-                display="block"
-                truncate
-                fontWeight={700}
-                color="inherit"
-                fontSize="inherit"
-                lineHeight="inherit"
-              >
-                {title}
-              </Text>
-            </Heading>
-            <Text
-              flexShrink={0}
-              fontWeight={600}
-              fontSize="lg"
-              lineHeight="1"
-              color={priceColor}
-            >
-              {priceLabel}
-            </Text>
-          </HStack>
-
-          <HStack gap={1.5} minW={0}>
-            <Text fontSize="sm" color="formLabelMuted" truncate>
-              {metaLine}
-            </Text>
-          </HStack>
-
+        <Stack
+          flex={1}
+          minW={0}
+          gap={{ base: 1.5, md: 2 }}
+          justify="space-between"
+        >
           <HStack justify="space-between" align="center" gap={2}>
-            {showBadge ? (
-              <Text
-                as="span"
-                display="inline-block"
-                fontSize="xs"
-                fontWeight={800}
-                letterSpacing="0.03em"
-                px={2.5}
-                py={1}
+            <HStack gap={2} minW={0} flex={1}>
+              {showBadge ? (
+                <Text
+                  as="span"
+                  px={{ base: 2, md: 2.5 }}
+                  py={{ base: 0.5, md: 1 }}
+                  borderRadius="md"
+                  bg="primary.100"
+                  color="primary.800"
+                  fontWeight={700}
+                  fontSize="sm"
+                  lineHeight="1"
+                  whiteSpace="nowrap"
+                >
+                  {badgeText}
+                </Text>
+              ) : null}
+              {distanceLabel ? (
+                <Text fontSize="sm" color="formLabelMuted" truncate>
+                  {distanceLabel}
+                </Text>
+              ) : null}
+            </HStack>
+            <Box as="span" color="formControlIcon" flexShrink={0} aria-hidden>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <title>Save task</title>
+                <path
+                  d="M12.62 20.55a1 1 0 0 1-1.24 0C7.1 17.1 4 14.39 4 10.93 4 8.4 6.04 6.5 8.44 6.5c1.53 0 2.95.8 3.56 2.06.61-1.26 2.03-2.06 3.56-2.06C17.96 6.5 20 8.4 20 10.93c0 3.46-3.1 6.17-7.38 9.62Z"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Box>
+          </HStack>
+
+          <Heading
+            size={{ base: 'md', md: 'lg' }}
+            color="cardFg"
+            lineHeight={{ base: '1.25', md: '1.2' }}
+            truncate
+          >
+            {title}
+          </Heading>
+
+          <Text
+            fontSize={{ base: 'sm', md: 'md' }}
+            color="formLabelMuted"
+            truncate
+          >
+            {metaLine}
+          </Text>
+
+          <HStack
+            justify="space-between"
+            align="center"
+            gap={{ base: 2, md: 3 }}
+          >
+            <HStack minW={0} gap={{ base: 1.5, md: 2 }} flex={1}>
+              <Box
+                w={{ base: 6, md: 7 }}
+                h={{ base: 6, md: 7 }}
                 borderRadius="full"
-                bg={badgeBg}
-                color={badgeColor}
-                truncate
-                maxW="60%"
+                overflow="hidden"
+                bg="cardAvatarEmpty"
+                flexShrink={0}
               >
-                {badgeText}
+                {ownerAvatarSrc ? (
+                  <Image
+                    src={ownerAvatarSrc}
+                    alt={`${displayOwnerName} avatar`}
+                    width={24}
+                    height={24}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : null}
+              </Box>
+              <Text fontSize="sm" fontWeight={600} color="cardMutedFg" truncate>
+                {displayOwnerName}
               </Text>
-            ) : (
-              <Box />
-            )}
-            <Link
-              as={NextLink}
-              href={detailsHref}
-              onClick={(e) => e.stopPropagation()}
-              _hover={{ textDecoration: 'none' }}
-            >
-              <Button
-                as="span"
-                px={2}
-                mt="auto"
-                h="auto"
-                fontSize="xs"
-                fontWeight={600}
+              {displayRatingLabel ? (
+                <HStack gap={1} flexShrink={0}>
+                  <Text
+                    as="span"
+                    color="mustard.400"
+                    fontSize="sm"
+                    lineHeight="1"
+                  >
+                    ★
+                  </Text>
+                  <Text fontSize="sm" fontWeight={600} color="cardMutedFg">
+                    {displayRatingLabel}
+                  </Text>
+                </HStack>
+              ) : null}
+            </HStack>
+            <Stack gap={1} flexShrink={0} align="flex-end">
+              <Text
+                fontWeight={800}
+                fontSize={{ base: '2xl', md: '3xl' }}
+                lineHeight="1"
+                color="cardAccentFg"
+                whiteSpace="nowrap"
               >
-                View details
-              </Button>
-            </Link>
+                {priceLabel}
+              </Text>
+              <Link
+                as={NextLink}
+                href={detailsHref}
+                onClick={(e) => e.stopPropagation()}
+                _hover={{ textDecoration: 'none' }}
+              >
+                <Button size="sm" minW={{ base: '100px', md: '112px' }}>
+                  {detailsCtaLabel}
+                </Button>
+              </Link>
+            </Stack>
           </HStack>
         </Stack>
       </HStack>

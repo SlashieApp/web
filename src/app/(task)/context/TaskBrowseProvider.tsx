@@ -472,9 +472,7 @@ export function useTaskBrowseLayout() {
   return ctx
 }
 
-export function useTaskBrowseFiltersProps(
-  variant: 'default' | 'compact' = 'compact',
-): TaskBrowseFiltersProps {
+export function useTaskBrowseFiltersProps(): TaskBrowseFiltersProps {
   const data = useTaskBrowseData()
   return {
     searchQuery: data.searchInput,
@@ -494,7 +492,6 @@ export function useTaskBrowseFiltersProps(
     sortOptions: SORT_OPTIONS,
     onSortChange: data.setSort,
     showMapPromo: false,
-    variant,
   }
 }
 

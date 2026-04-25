@@ -1,6 +1,5 @@
 import type { TaskListItem } from '@/graphql/tasks-query.types'
 import { budgetToPence, priceToPence } from '@/utils/price'
-import type { JobCardBadgeVariant } from '../components/(web)/TaskBrowseListItem'
 import type { UrgencyFilter } from './taskBrowseFilters.types'
 
 export const PAGE_SIZE = 5
@@ -66,19 +65,16 @@ export function taskCreatedTime(task: TaskListItem): number {
   return d.getTime()
 }
 
-export function inferBadge(task: TaskListItem): {
-  variant: JobCardBadgeVariant
-  text?: string
-} {
+export function inferBadge(task: TaskListItem): { text?: string } {
   const fixed = budgetToPence(task.budget)
   const t = `${task.title} ${task.description}`.toLowerCase()
   if (t.includes('emergency') || t.includes('urgent') || t.includes('burst')) {
-    return { variant: 'emergency', text: 'EMERGENCY' }
+    return { text: 'Emergency' }
   }
   if (task.description.length > 280 || (fixed != null && fixed >= 50_000)) {
-    return { variant: 'featured', text: 'BIG PROJECT' }
+    return { text: 'Big project' }
   }
-  return { variant: 'none' }
+  return {}
 }
 
 /**
