@@ -61,7 +61,7 @@ function workerAvatarLabel(workerUserId: string) {
   return 'PR'
 }
 
-function TaskDetailLayout({ taskId }: { taskId: string }) {
+export function TaskDetailLayout({ taskId }: { taskId: string }) {
   const {
     task,
     isOwner,
@@ -99,6 +99,11 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
 
   const offersCount = task?.quotes.length ?? 0
   const locationLabel = task ? taskPublicLocationLabel(task) : null
+  const breadcrumbLabel = useMemo(() => {
+    if (!task?.title?.trim()) return 'Browse / Tasks / Details'
+    const firstWord = task.title.trim().split(/\s+/)[0]
+    return `Browse / Tasks / ${firstWord}`
+  }, [task?.title])
   const scrollToQuoteForm = useCallback(() => {
     document.getElementById('task-quote')?.scrollIntoView({
       behavior: 'smooth',
@@ -143,40 +148,56 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
   return (
     <Box bg="bg" color="cardFg" minH="100vh">
       <Stack gap={0}>
-        <Box as="section" bg="cardBg" py={{ base: 8, md: 10 }}>
+        <Box as="section" py={{ base: 8, md: 10 }}>
           <Container>
             <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-              <Stack gap={3}>
+              <Stack gap={4}>
+                <Text
+                  fontSize="xs"
+                  color="formLabelMuted"
+                  letterSpacing="0.04em"
+                  textTransform="none"
+                >
+                  {breadcrumbLabel}
+                </Text>
                 <Link
                   as={NextLink}
                   href="/"
                   fontWeight={600}
-                  color="primary.700"
+                  color="formLabelMuted"
+                  fontSize="sm"
                   _hover={{ textDecoration: 'none' }}
                 >
                   ← Back to task board
                 </Link>
-                {task ? (
-                  <Box
-                    as="span"
-                    display="inline-flex"
-                    alignSelf="flex-start"
-                    px={3}
-                    py={1}
-                    borderRadius="full"
-                    bg="secondary.100"
-                    color="secondary.700"
-                    fontSize="xs"
-                    fontWeight={800}
-                    letterSpacing="0.08em"
-                  >
-                    {taskStatusBadgeLabel(task.status)} - {offersCount} OFFER
-                    {offersCount === 1 ? '' : 'S'} RECEIVED
-                  </Box>
-                ) : null}
-                <Heading size={{ base: '2xl', md: '4xl' }} fontWeight={800}>
-                  {task?.title ?? 'Task details'}
-                </Heading>
+                <Stack
+                  direction={{ base: 'column', md: 'row' }}
+                  align={{ base: 'flex-start', md: 'center' }}
+                  justify="space-between"
+                  gap={3}
+                >
+                  <Heading size={{ base: '2xl', md: '4xl' }} fontWeight={800}>
+                    {task?.title ?? 'Task details'}
+                  </Heading>
+                  {task ? (
+                    <Box
+                      as="span"
+                      display="inline-flex"
+                      alignSelf={{ base: 'flex-start', md: 'center' }}
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                      bg="primary.900"
+                      color="primary.300"
+                      fontSize="xs"
+                      fontWeight={800}
+                      letterSpacing="0.08em"
+                    >
+                      {taskStatusBadgeLabel(task.status)} · {offersCount} OFFER
+                      {offersCount === 1 ? '' : 'S'}
+                    </Box>
+                  ) : null}
+                </Stack>
                 {task ? (
                   <Stack
                     direction={{ base: 'column', md: 'row' }}
@@ -200,7 +221,7 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                   Task details are unavailable.
                 </Text>
               ) : (
-                <Stack gap={{ base: 8, lg: 10 }} w="full">
+                <Stack gap={{ base: 6, lg: 8 }} w="full">
                   <Box
                     display={{ base: 'block', md: 'none' }}
                     borderRadius="xl"
@@ -224,9 +245,9 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
                     w="full"
                     templateColumns={{
                       base: '1fr',
-                      lg: 'minmax(0, 1fr) minmax(300px, 380px)',
+                      lg: 'minmax(0, 1fr) minmax(320px, 360px)',
                     }}
-                    gap={{ base: 8, lg: 10 }}
+                    gap={{ base: 6, lg: 8 }}
                     alignItems="start"
                   >
                     <Box
@@ -401,19 +422,5 @@ function TaskDetailLayout({ taskId }: { taskId: string }) {
         <Footer />
       </Stack>
     </Box>
-  )
-}
-
-export function TaskDetailPageClient({
-  taskId,
-  initialTask,
-}: {
-  taskId: string
-  initialTask: TaskQuery['task'] | null
-}) {
-  return (
-    <TaskDetailProvider taskId={taskId} initialTask={initialTask}>
-      <TaskDetailLayout taskId={taskId} />
-    </TaskDetailProvider>
   )
 }

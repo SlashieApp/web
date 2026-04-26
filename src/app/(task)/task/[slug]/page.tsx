@@ -3,7 +3,8 @@ import { cookies } from 'next/headers'
 
 import type { TaskQuery } from '@codegen/schema'
 
-import { TaskDetailPageClient } from './components/TaskDetailPageClient'
+import { TaskDetailLayout } from './components/TaskDetailPageClient'
+import { TaskDetailProvider } from './context/TaskDetailProvider'
 
 const AUTH_COOKIE_NAME = 'auth'
 
@@ -155,5 +156,9 @@ export default async function TaskDetailPage({
   const { slug } = await params
   const task = await fetchTaskForSsr(slug)
 
-  return <TaskDetailPageClient taskId={slug} initialTask={task} />
+  return (
+    <TaskDetailProvider taskId={slug} initialTask={task}>
+      <TaskDetailLayout taskId={slug} />
+    </TaskDetailProvider>
+  )
 }

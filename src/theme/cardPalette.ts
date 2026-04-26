@@ -43,7 +43,7 @@ export const lightCardSurface: CardSurfacePalette = {
 export const darkCardIconPodBg = '#14532d'
 
 export const darkCardSurface: CardSurfacePalette = {
-  cardBg: '#2a2a2a',
+  cardBg: '#2f3136',
   cardBorder: 'rgba(255, 255, 255, 0.12)',
   cardFg: '#ffffff',
   cardMutedFg: 'rgba(255, 255, 255, 0.62)',

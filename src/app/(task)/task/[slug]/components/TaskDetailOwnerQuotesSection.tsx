@@ -1,9 +1,10 @@
 'use client'
 
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { priceToPence } from '@/utils/price'
+import { Card } from '@ui'
 
 import { TaskQuoteCard } from './TaskQuoteCard'
 import type { TaskDetailRecord } from './taskDetailUtils'
@@ -65,11 +66,11 @@ export function TaskDetailOwnerQuotesSection({
         </Text>
       ) : null}
       {n === 0 ? (
-        <Box p={6} borderColor="cardBorder" boxShadow="ambient">
+        <Card p={6} maxW="full" w="full">
           <Text color="formLabelMuted">
             No quotes yet. Check back for worker responses.
           </Text>
-        </Box>
+        </Card>
       ) : (
         <Stack gap={4} id="owner-quotes-list">
           {sortedQuotes.map((quote) => {

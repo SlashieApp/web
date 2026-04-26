@@ -27,7 +27,6 @@ export function AuthBrandMark({
         alignItems="center"
         justifyContent="center"
         flexShrink={0}
-        boxShadow="ambient"
         aria-hidden
       >
         <svg

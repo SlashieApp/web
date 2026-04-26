@@ -4,6 +4,7 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
 import { IconMapPin } from '@/icons/taskMeta'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
+import { Card } from '@ui'
 
 import { TaskDetailLocationMap } from './TaskDetailLocationMap'
 import { type TaskDetailRecord, taskMapCoordinates } from './taskDetailUtils'
@@ -28,7 +29,7 @@ export function TaskDetailApproximateLocation({
   if (!place && !coords && !ownerLine) return null
 
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
+    <Card p={{ base: 5, md: 6 }} maxW="full" w="full">
       <Stack gap={4}>
         <HStack gap={2}>
           <IconMapPin color="primary.600" />
@@ -94,6 +95,6 @@ export function TaskDetailApproximateLocation({
           </Text>
         </HStack>
       </Stack>
-    </Box>
+    </Card>
   )
 }

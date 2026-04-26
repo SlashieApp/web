@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, Grid, Stack, Text } from '@chakra-ui/react'
+import { Card } from '@ui'
 
 import {
   type TaskDetailRecord,
@@ -26,7 +27,7 @@ export function TaskDetailOwnerQuickInfo({
       }}
       gap={3}
     >
-      <Box p={4} borderColor="cardBorder" boxShadow="ambient">
+      <Card p={4} maxW="full" w="full">
         <Stack gap={1}>
           <Text
             fontSize="10px"
@@ -40,8 +41,8 @@ export function TaskDetailOwnerQuickInfo({
             {budget}
           </Text>
         </Stack>
-      </Box>
-      <Box p={4} borderColor="cardBorder" boxShadow="ambient">
+      </Card>
+      <Card p={4} maxW="full" w="full">
         <Stack gap={1}>
           <Text
             fontSize="10px"
@@ -55,7 +56,7 @@ export function TaskDetailOwnerQuickInfo({
             {availability}
           </Text>
         </Stack>
-      </Box>
+      </Card>
     </Grid>
   )
 }

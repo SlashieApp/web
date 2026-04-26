@@ -14,9 +14,33 @@ import { LuMoon, LuSun } from 'react-icons/lu'
 
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
+const LIGHT_BASE_BG = '#f7f8f7'
+const DARK_BASE_BG = '#222222'
+
+function ColorModeBaseBgSync() {
+  const { resolvedTheme, forcedTheme } = useTheme()
+  const colorMode = forcedTheme || resolvedTheme
+  const baseColor = colorMode === 'dark' ? DARK_BASE_BG : LIGHT_BASE_BG
+
+  const applyBaseColorRef = React.useCallback(
+    (node: HTMLSpanElement | null) => {
+      if (!node || typeof document === 'undefined') return
+      document.body.style.backgroundColor = baseColor
+    },
+    [baseColor],
+  )
+
+  return <span ref={applyBaseColorRef} hidden aria-hidden />
+}
+
 export function ColorModeProvider(props: ColorModeProviderProps) {
+  const { children, ...rest } = props
+
   return (
-    <ThemeProvider attribute="class" disableTransitionOnChange {...props} />
+    <ThemeProvider attribute="class" disableTransitionOnChange {...rest}>
+      <ColorModeBaseBgSync />
+      {children}
+    </ThemeProvider>
   )
 }
 

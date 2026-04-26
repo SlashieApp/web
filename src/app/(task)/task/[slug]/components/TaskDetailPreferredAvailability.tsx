@@ -1,10 +1,11 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
 import { IconCalendar } from '@/icons/taskMeta'
 import { Button } from '@ui'
+import { Card } from '@ui'
 
 import {
   type TaskDetailRecord,
@@ -24,7 +25,7 @@ export function TaskDetailPreferredAvailability({
   if (chips.length === 0) return null
 
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
+    <Card p={{ base: 5, md: 6 }} maxW="full" w="full">
       <Stack gap={4}>
         <HStack gap={2}>
           <IconCalendar color="primary.600" />
@@ -90,6 +91,6 @@ export function TaskDetailPreferredAvailability({
           })}
         </HStack>
       </Stack>
-    </Box>
+    </Card>
   )
 }

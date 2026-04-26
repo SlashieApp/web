@@ -6,6 +6,7 @@ import { formatTaskContactMethodLabel } from '@/utils/taskLocationDisplay'
 import { Heading, Text } from '@chakra-ui/react'
 
 import { IconDocument } from '@/icons/taskMeta'
+import { Card } from '@ui'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
 
@@ -22,7 +23,7 @@ export function TaskDetailDescriptionCard({
   task,
 }: TaskDetailDescriptionCardProps) {
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
+    <Card p={{ base: 5, md: 6 }} maxW="full" w="full">
       <Stack gap={4}>
         <HStack gap={2}>
           <IconDocument color="primary.600" />
@@ -63,6 +64,6 @@ export function TaskDetailDescriptionCard({
           </Stack>
         ) : null}
       </Stack>
-    </Box>
+    </Card>
   )
 }

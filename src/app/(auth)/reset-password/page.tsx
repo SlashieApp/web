@@ -273,7 +273,6 @@ export default function ResetPasswordPage() {
         w="full"
         bg="neutral.100"
         borderRadius="2xl"
-        boxShadow="ambient"
         px={{ base: 6, md: 10 }}
         py={{ base: 8, md: 10 }}
       >

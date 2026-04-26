@@ -1,15 +1,17 @@
 'use client'
 
 import { Box, Link, Stack, Text } from '@chakra-ui/react'
+import { Card } from '@ui'
 
 export function TaskDetailOwnerHelpCard() {
   return (
-    <Box
+    <Card
       p={6}
+      maxW="full"
+      w="full"
       borderWidth="0"
       bg="linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)"
       color="white"
-      boxShadow="ambient"
     >
       <Stack gap={4}>
         <Stack gap={1}>
@@ -40,6 +42,6 @@ export function TaskDetailOwnerHelpCard() {
           Chat with support
         </Link>
       </Stack>
-    </Box>
+    </Card>
   )
 }

@@ -3,6 +3,7 @@
 import { Box, HStack, Stack } from '@chakra-ui/react'
 
 import { Heading, Text } from '@chakra-ui/react'
+import { Card } from '@ui'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
 
@@ -25,7 +26,7 @@ export function TaskDetailPosterSummary({
   const name = posterDisplayName(task)
 
   return (
-    <Box p={{ base: 5, md: 6 }} borderColor="cardBorder" boxShadow="ambient">
+    <Card p={{ base: 5, md: 6 }} maxW="full" w="full">
       <HStack align="flex-start" gap={4}>
         <Box
           flexShrink={0}
@@ -60,6 +61,6 @@ export function TaskDetailPosterSummary({
           </Heading>
         </Stack>
       </HStack>
-    </Box>
+    </Card>
   )
 }

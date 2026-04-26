@@ -1,6 +1,7 @@
 'use client'
 
-import { Box, Grid, Stack, Text } from '@chakra-ui/react'
+import { Grid, Stack, Text } from '@chakra-ui/react'
+import { Card } from '@ui'
 
 import {
   type TaskDetailRecord,
@@ -54,13 +55,13 @@ export function TaskDetailOwnerPerformanceCard({
   const interest = ownerProInterestLabel(n)
 
   return (
-    <Box
+    <Card
       id="owner-task-performance"
       scrollMarginTop="96px"
       p={5}
-      borderColor="cardBorder"
+      maxW="full"
+      w="full"
       bg="primary.50"
-      boxShadow="ambient"
     >
       <Text fontSize="sm" fontWeight={700} color="cardFg" mb={4}>
         Task performance
@@ -82,6 +83,6 @@ export function TaskDetailOwnerPerformanceCard({
         View counts are not tracked on web yet. Response time is averaged from
         quote timestamps.
       </Text>
-    </Box>
+    </Card>
   )
 }
