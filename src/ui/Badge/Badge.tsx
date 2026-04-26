@@ -10,15 +10,14 @@ export function Badge(props: UiBadgeProps) {
     <ChakraBadge
       bg="badgeBg"
       color="badgeFg"
-      borderRadius="md"
+      borderRadius="sm"
       borderWidth="0"
       fontFamily="body"
       fontSize="xs"
       fontWeight={600}
       letterSpacing="0.07em"
-      textTransform="uppercase"
       px={2.5}
-      py={1}
+      py={0.5}
       {...props}
     />
   )

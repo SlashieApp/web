@@ -1,15 +1,15 @@
 'use client'
 
-import { Box, HStack, SimpleGrid, Slider, Stack, Text } from '@chakra-ui/react'
-import { Button, Input as UiInput } from '@ui'
-import type { ChangeEvent, KeyboardEvent } from 'react'
-import { LuLocateFixed, LuSearch } from 'react-icons/lu'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Button, RadioButton, Slider, Input as UiInput } from '@ui'
+import type { ChangeEvent } from 'react'
 
 import {
   useTaskBrowseFiltersProps,
   useTaskBrowseLayout,
 } from '../../context/TaskBrowseProvider'
 import type { TaskBrowseFiltersProps } from '../../helpers/taskBrowseFilters.types'
+import type { UrgencyFilter } from '../../helpers/taskBrowseFilters.types'
 
 import { TaskList } from './TaskList'
 
@@ -45,12 +45,31 @@ function FilterSectionTitle({
   )
 }
 
+const CATEGORY_OPTIONS = [
+  'Delivery',
+  'Handyman',
+  'Tech Setup',
+  'Cleaning',
+  'Moving',
+]
+
+function formatBudgetRange(minBudgetPounds: string, maxBudgetPounds: string) {
+  const min = Number.parseFloat(minBudgetPounds)
+  const max = Number.parseFloat(maxBudgetPounds)
+  const minLabel = Number.isFinite(min) ? `$${Math.round(min)}` : '$0'
+  const maxLabel = Number.isFinite(max) ? `$${Math.round(max)}` : '$150+'
+  return `${minLabel} - ${maxLabel}`
+}
+
+function milesToKm(miles: number): number {
+  return Math.round(miles * 1.60934)
+}
+
+function kmToMiles(km: number): number {
+  return Math.max(1, Math.round(km / 1.60934))
+}
+
 export function TaskBrowseFiltersPanel({
-  searchQuery,
-  onSearchChange,
-  areaLocationInput = '',
-  onAreaLocationChange = () => {},
-  onAreaLocationCommit,
   radiusMiles,
   onRadiusChange,
   minBudgetPounds,
@@ -60,142 +79,125 @@ export function TaskBrowseFiltersPanel({
   urgency: _urgency,
   onUrgencyChange: _onUrgencyChange,
 }: TaskBrowseFiltersProps) {
+  const radiusKm = milesToKm(radiusMiles)
+  const budgetLabel = formatBudgetRange(minBudgetPounds, maxBudgetPounds)
+
   return (
     <Stack gap={6}>
       <Stack gap={3}>
-        <FilterSectionTitle>Search</FilterSectionTitle>
-        <UiInput
-          startElement={
-            <Box as="span" aria-hidden display="inline-flex">
-              <LuSearch size={18} strokeWidth={2} />
-            </Box>
-          }
-          type="text"
-          inputMode="search"
-          autoComplete="off"
-          placeholder="Title, description, keywords..."
-          value={searchQuery}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            onSearchChange(e.target.value)
-          }
-        />
+        <FilterSectionTitle>Category</FilterSectionTitle>
+        <HStack gap={2} flexWrap="wrap">
+          {CATEGORY_OPTIONS.map((category, idx) => (
+            <Button
+              key={category}
+              size="sm"
+              variant={idx === 0 ? 'primary' : 'secondary'}
+              borderRadius="full"
+            >
+              {category}
+            </Button>
+          ))}
+        </HStack>
       </Stack>
 
       <Stack gap={3}>
-        <FilterSectionTitle>Search area</FilterSectionTitle>
-        <UiInput
-          startElement={
-            <Box as="span" aria-hidden display="inline-flex">
-              <LuSearch size={18} strokeWidth={2} />
-            </Box>
-          }
-          endElement={
-            <Button
-              aria-label="Use current location"
-              title="Use current location"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              minW={0}
-              w={8}
-              h={8}
-              px={0}
-              py={0}
-              variant="ghost"
-              color="formControlIcon"
-              _hover={{ bg: 'badgeBg', color: 'cardFg' }}
-              _focusVisible={{
-                outline: '2px solid',
-                outlineColor: 'secondary',
-                outlineOffset: '2px',
-              }}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => {
-                if (!navigator.geolocation) return
-                navigator.geolocation.getCurrentPosition((position) => {
-                  const lat = position.coords.latitude.toFixed(5)
-                  const lng = position.coords.longitude.toFixed(5)
-                  onAreaLocationChange(`${lat}, ${lng}`)
-                  onAreaLocationCommit?.()
-                })
-              }}
-            >
-              <LuLocateFixed size={18} strokeWidth={2} aria-hidden />
-            </Button>
-          }
-          type="text"
-          inputMode="search"
-          autoComplete="off"
-          placeholder="London, UK"
-          value={areaLocationInput}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            onAreaLocationChange(e.target.value)
-          }
-          onBlur={() => onAreaLocationCommit?.()}
-          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'Enter') onAreaLocationCommit?.()
+        <HStack justify="space-between" align="baseline">
+          <FilterSectionTitle mb={0}>Budget</FilterSectionTitle>
+          <Text fontSize="sm" fontWeight={700} color="primary.600">
+            {budgetLabel}
+          </Text>
+        </HStack>
+        <Slider
+          min={0}
+          max={150}
+          step={1}
+          value={[
+            Number.isFinite(Number.parseFloat(minBudgetPounds))
+              ? Number.parseFloat(minBudgetPounds)
+              : 0,
+            Number.isFinite(Number.parseFloat(maxBudgetPounds))
+              ? Number.parseFloat(maxBudgetPounds)
+              : 150,
+          ]}
+          onValueChange={(d) => {
+            const [nextMin, nextMax] = d.value
+            if (typeof nextMin === 'number') {
+              onMinBudgetChange(String(Math.round(nextMin)))
+            }
+            if (typeof nextMax === 'number') {
+              onMaxBudgetChange(
+                nextMax >= 150 ? '' : String(Math.round(nextMax)),
+              )
+            }
           }}
         />
       </Stack>
 
       <Stack gap={3}>
         <HStack justify="space-between" align="baseline">
-          <FilterSectionTitle mb={0}>Radius</FilterSectionTitle>
-          <Text fontSize="sm" fontWeight={700}>
-            {radiusMiles} miles
+          <FilterSectionTitle mb={0}>Distance</FilterSectionTitle>
+          <Text fontSize="sm" fontWeight={700} color="primary.600">
+            {radiusKm} km
           </Text>
         </HStack>
-        <Slider.Root
+        <Slider
           min={1}
-          max={500}
+          max={80}
           step={1}
-          value={[radiusMiles]}
+          value={[radiusKm]}
           onValueChange={(d) => {
             const next = d.value[0]
-            if (typeof next === 'number') onRadiusChange(next)
+            if (typeof next === 'number') onRadiusChange(kmToMiles(next))
           }}
-        >
-          <Slider.Control>
-            <Slider.Track>
-              <Slider.Range />
-            </Slider.Track>
-            <Slider.Thumbs />
-          </Slider.Control>
-        </Slider.Root>
+        />
       </Stack>
 
       <Stack gap={3}>
-        <FilterSectionTitle>Budget range</FilterSectionTitle>
-        <SimpleGrid columns={2} gap={3}>
+        <FilterSectionTitle>Urgency</FilterSectionTitle>
+        <Stack gap={2} role="radiogroup" aria-label="Urgency">
+          {[
+            {
+              value: 'emergency' as UrgencyFilter,
+              label: 'ASAP (Next 2 hours)',
+            },
+            { value: 'today' as UrgencyFilter, label: 'Today' },
+            { value: 'week' as UrgencyFilter, label: 'Flexible' },
+          ].map((option) => {
+            const active = _urgency === option.value
+            return (
+              <RadioButton
+                key={option.value}
+                checked={active}
+                label={option.label}
+                onChange={() => _onUrgencyChange(option.value)}
+              />
+            )
+          })}
+        </Stack>
+      </Stack>
+
+      <Stack gap={3}>
+        <FilterSectionTitle>Budget inputs</FilterSectionTitle>
+        <HStack gap={3}>
           <UiInput
-            rootProps={{ minH: 12, borderRadius: 'lg' }}
-            startElement={
-              <Text color="formLabelMuted" fontSize="sm" fontWeight={600}>
-                £
-              </Text>
-            }
+            rootProps={{ minH: 11, borderRadius: 'lg' }}
             inputMode="decimal"
-            placeholder="0"
+            placeholder="Min"
             value={minBudgetPounds}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onMinBudgetChange(e.target.value)
             }
           />
           <UiInput
-            rootProps={{ minH: 12, borderRadius: 'lg' }}
-            startElement={
-              <Text color="formLabelMuted" fontSize="sm" fontWeight={600}>
-                £
-              </Text>
-            }
+            rootProps={{ minH: 11, borderRadius: 'lg' }}
             inputMode="decimal"
-            placeholder="Any"
+            placeholder="Max"
             value={maxBudgetPounds}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onMaxBudgetChange(e.target.value)
             }
           />
-        </SimpleGrid>
+        </HStack>
       </Stack>
     </Stack>
   )
@@ -208,6 +210,7 @@ export function TaskBrowseFilters({ ...props }: TaskBrowseFiltersProps) {
       bg="cardBg"
       p={{ base: 3, md: 4 }}
       boxShadow="ghostBorder"
+      pointerEvents="auto"
     >
       <TaskBrowseFiltersPanel {...props} />
     </Box>

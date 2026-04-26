@@ -20,9 +20,9 @@ export {
   TaskBrowseFiltersPanel,
   WebTaskBrowseFiltersBlock,
 } from './(web)/TaskBrowseFilters'
-export { TaskBrowseListItem } from './(web)/TaskBrowseListItem'
 export { TaskBrowseMapLayer, TaskMap } from './TaskMap'
 export { TaskBrowseSearchThisAreaButton } from './TaskBrowseSearchThisAreaButton'
+export { TaskCard } from './TaskCard'
 export { TaskList } from './(web)/TaskList'
 export { WebLayout } from './(web)/WebLayout'
 export type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
@@ -33,12 +33,9 @@ export type {
   UrgencyFilter,
 } from './(web)/TaskBrowseFilters'
 export type {
-  TaskBrowseListCardTask,
-  TaskBrowseListItemProps,
-} from './(web)/TaskBrowseListItem'
-export type {
   TaskBrowseMapLayerProps,
   TaskMapProps,
   TaskMapTask,
 } from './TaskMap'
 export type { TaskBrowseSearchThisAreaButtonProps } from './TaskBrowseSearchThisAreaButton'
+export type { TaskCardProps, TaskCardTask } from './TaskCard'

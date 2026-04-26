@@ -8,7 +8,7 @@ import { TaskBrowseProvider } from './context/TaskBrowseProvider'
 
 export default function HomePage() {
   const isDesktopSplit =
-    useBreakpointValue({ base: false, md: true }, { fallback: 'base' }) ?? false
+    useBreakpointValue({ base: false, lg: true }, { fallback: 'base' }) ?? false
 
   return (
     <TaskBrowseProvider initialTasks={[]} isDesktop={isDesktopSplit}>

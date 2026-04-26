@@ -16,8 +16,8 @@ export function WebLayout() {
         top={2}
         left={2}
         bottom={2}
-        w={{ base: 'calc(100% - 24px)', md: 'min(420px, 38vw)' }}
-        maxW="440px"
+        w={{ base: 'calc(100% - 24px)', md: '460px' }}
+        maxW="460px"
         display="flex"
         flexDirection="column"
         pointerEvents="none"

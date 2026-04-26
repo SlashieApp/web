@@ -7,9 +7,9 @@ import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
 import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
-import { TaskBrowseListItem } from '../(web)/TaskBrowseListItem'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { formatBudget, inferBadge } from '../../helpers/taskBrowseHelpers'
+import { TaskCard } from '../TaskCard'
 
 export function MobileTaskCarousel() {
   const { pageItems, selectedTaskId, setSelectedTaskId } = useTaskBrowseData()
@@ -71,7 +71,7 @@ export function MobileTaskCarousel() {
 
       const measure = () => {
         const w = node.clientWidth
-        const slideW = Math.min(420, Math.max(0, w - 52))
+        const slideW = Math.min(600, Math.max(0, w - 52))
         setCenteringPadPx(Math.max(0, Math.round((w - slideW) / 2)))
       }
       measure()
@@ -130,7 +130,7 @@ export function MobileTaskCarousel() {
         borderRadius="2xl"
         borderWidth="1px"
         borderColor="cardBorder"
-        maxWidth="420px"
+        maxWidth="460px"
         mx="auto"
         w="full"
         boxShadow="0 8px 24px rgba(15,23,42,0.2)"
@@ -176,13 +176,23 @@ export function MobileTaskCarousel() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
               style={{
-                flex: '0 0 min(420px, 100%)',
-                maxWidth: '420px',
-                minWidth: '0',
+                flex: '0 0 min(600px, 100%)',
               }}
             >
-              <TaskBrowseListItem
-                task={task}
+              <TaskCard
+                title={task.title}
+                description={task.description}
+                priceLabel={task.priceLabel}
+                metaLine={task.location}
+                distanceLabel={'3 miles away'}
+                thumbnailSrc={task.thumbnailSrc}
+                detailsHref={`/task/${task.id}`}
+                badgeText={task.badgeText}
+                ownerName={'John D.'}
+                ownerAvatarSrc={
+                  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop'
+                }
+                ratingLabel={'4.9'}
                 isActive={selectedTaskId === task.id}
                 onActivate={() => handleSelectTask(task.id)}
               />

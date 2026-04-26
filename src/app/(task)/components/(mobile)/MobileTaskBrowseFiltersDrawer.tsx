@@ -1,27 +1,7 @@
 'use client'
 
-import type { ChangeEvent, ReactNode } from 'react'
-
-import {
-  Box,
-  Button as ChakraButton,
-  DrawerBackdrop,
-  DrawerBody,
-  DrawerCloseTrigger,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerPositioner,
-  DrawerRoot,
-  DrawerTitle,
-  HStack,
-  IconButton,
-  SimpleGrid,
-  Slider,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
-import { Button, Input } from '@ui'
+import { Box, HStack, Slider, Stack, Text } from '@chakra-ui/react'
+import { AppDrawer, Button } from '@ui'
 
 import {
   useTaskBrowseFiltersProps,
@@ -32,80 +12,42 @@ import type {
   UrgencyFilter,
 } from '../../helpers/taskBrowseFilters.types'
 
-function CloseIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Close</title>
-      <path
-        d="M18 6 6 18M6 6l12 12"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
+const CATEGORY_OPTIONS = [
+  'Delivery',
+  'Handyman',
+  'Tech Setup',
+  'Cleaning',
+  'Moving',
+]
 
-function SectionLabel({ children }: { children: ReactNode }) {
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <Text fontSize="sm" fontWeight={600} color="formLabelMuted">
+    <Text
+      fontSize="xs"
+      fontWeight={700}
+      letterSpacing="0.06em"
+      color="formLabelMuted"
+      textTransform="uppercase"
+    >
       {children}
     </Text>
   )
 }
 
-function IconEmergencyDiamond() {
-  return (
-    <Box as="span" w="22px" h="22px" display="inline-flex" alignItems="center">
-      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>Emergency</title>
-        <path
-          d="M12 4 20 12 12 20 4 12 12 4Z"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M12 8v5M12 16h.01"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-        />
-      </svg>
-    </Box>
-  )
+function milesToKm(miles: number): number {
+  return Math.round(miles * 1.60934)
 }
 
-type UrgencyCardProps = {
-  label: string
-  active: boolean
-  onClick: () => void
-  icon: ReactNode
-  accent?: 'emergency'
+function kmToMiles(km: number): number {
+  return Math.max(1, Math.round(km / 1.60934))
 }
 
-function UrgencyCard({
-  label,
-  active,
-  onClick,
-  icon,
-  accent,
-}: UrgencyCardProps) {
-  return (
-    <Button variant="secondary" size="sm" onClick={onClick}>
-      {icon}
-      <Text as="span" textAlign="center">
-        {label}
-      </Text>
-    </Button>
-  )
-}
-
-function cycleUrgency(
-  current: UrgencyFilter,
-  target: UrgencyFilter,
-): UrgencyFilter {
-  return current === target ? 'any' : target
+function formatBudgetRange(minBudgetPounds: string, maxBudgetPounds: string) {
+  const min = Number.parseFloat(minBudgetPounds)
+  const max = Number.parseFloat(maxBudgetPounds)
+  const minLabel = Number.isFinite(min) ? `$${Math.round(min)}` : '$0'
+  const maxLabel = Number.isFinite(max) ? `$${Math.round(max)}` : '$150+'
+  return `${minLabel} - ${maxLabel}`
 }
 
 function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
@@ -124,26 +66,56 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
     onUrgencyChange,
   } = props
 
-  const radius = Math.min(50, Math.max(1, radiusMiles))
+  const radiusKm = milesToKm(Math.min(50, Math.max(1, radiusMiles)))
+  const budgetLabel = formatBudgetRange(minBudgetPounds, maxBudgetPounds)
 
   return (
     <Stack gap={6} pb={2}>
       <Stack gap={3}>
+        <SectionLabel>Category</SectionLabel>
+        <HStack gap={2} flexWrap="wrap">
+          {CATEGORY_OPTIONS.map((category, idx) => (
+            <Button
+              key={category}
+              size="sm"
+              variant={idx === 0 ? 'primary' : 'secondary'}
+              borderRadius="full"
+            >
+              {category}
+            </Button>
+          ))}
+        </HStack>
+      </Stack>
+
+      <Stack gap={3}>
         <HStack justify="space-between" align="baseline">
-          <SectionLabel>Discovery radius</SectionLabel>
+          <SectionLabel>Budget</SectionLabel>
           <Text fontSize="sm" fontWeight={800} color="primary.600">
-            {radius} miles
+            {budgetLabel}
           </Text>
         </HStack>
         <Slider.Root
-          min={1}
-          max={50}
+          min={0}
+          max={150}
           step={1}
-          value={[radius]}
-          colorPalette="blue"
+          value={[
+            Number.isFinite(Number.parseFloat(minBudgetPounds))
+              ? Number.parseFloat(minBudgetPounds)
+              : 0,
+            Number.isFinite(Number.parseFloat(maxBudgetPounds))
+              ? Number.parseFloat(maxBudgetPounds)
+              : 150,
+          ]}
           onValueChange={(d) => {
-            const next = d.value[0]
-            if (typeof next === 'number') onRadiusChange(next)
+            const [nextMin, nextMax] = d.value
+            if (typeof nextMin === 'number') {
+              onMinBudgetChange(String(Math.round(nextMin)))
+            }
+            if (typeof nextMax === 'number') {
+              onMaxBudgetChange(
+                nextMax >= 150 ? '' : String(Math.round(nextMax)),
+              )
+            }
           }}
         >
           <Slider.Control>
@@ -153,71 +125,85 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
             <Slider.Thumbs />
           </Slider.Control>
         </Slider.Root>
-        <HStack justify="space-between">
-          <Text
-            fontSize="10px"
-            fontWeight={700}
-            letterSpacing="0.08em"
-            color="formLabelMuted"
-          >
-            1 MILES
-          </Text>
-          <Text
-            fontSize="10px"
-            fontWeight={700}
-            letterSpacing="0.08em"
-            color="formLabelMuted"
-          >
-            50 MILES
-          </Text>
-        </HStack>
       </Stack>
 
       <Stack gap={3}>
-        <SectionLabel>Budget range (£)</SectionLabel>
-        <SimpleGrid columns={2} gap={3}>
-          <Input
-            rootProps={{ minH: 12, borderRadius: 'lg' }}
-            startElement={
-              <Text color="formLabelMuted" fontSize="sm" fontWeight={600}>
-                £
-              </Text>
-            }
-            inputMode="decimal"
-            placeholder="Min"
-            value={minBudgetPounds}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              onMinBudgetChange(e.target.value)
-            }
-          />
-          <Input
-            rootProps={{ minH: 12, borderRadius: 'lg' }}
-            startElement={
-              <Text color="formLabelMuted" fontSize="sm" fontWeight={600}>
-                £
-              </Text>
-            }
-            inputMode="decimal"
-            placeholder="Max"
-            value={maxBudgetPounds}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              onMaxBudgetChange(e.target.value)
-            }
-          />
-        </SimpleGrid>
+        <HStack justify="space-between" align="baseline">
+          <SectionLabel>Distance</SectionLabel>
+          <Text fontSize="sm" fontWeight={800} color="primary.600">
+            {radiusKm} km
+          </Text>
+        </HStack>
+        <Slider.Root
+          min={1}
+          max={80}
+          step={1}
+          value={[radiusKm]}
+          onValueChange={(d) => {
+            const next = d.value[0]
+            if (typeof next === 'number') onRadiusChange(kmToMiles(next))
+          }}
+        >
+          <Slider.Control>
+            <Slider.Track bg="cardDivider">
+              <Slider.Range bg="primary.600" />
+            </Slider.Track>
+            <Slider.Thumbs />
+          </Slider.Control>
+        </Slider.Root>
       </Stack>
 
       <Stack gap={3}>
         <SectionLabel>Urgency</SectionLabel>
-        <HStack gap={2} align="stretch">
-          <UrgencyCard
-            label="EMERGENCY"
-            accent="emergency"
-            active={urgency === 'emergency'}
-            onClick={() => onUrgencyChange(cycleUrgency(urgency, 'emergency'))}
-            icon={<IconEmergencyDiamond />}
-          />
-        </HStack>
+        <Stack gap={2}>
+          {[
+            {
+              value: 'emergency' as UrgencyFilter,
+              label: 'ASAP (Next 2 hours)',
+            },
+            { value: 'today' as UrgencyFilter, label: 'Today' },
+            { value: 'week' as UrgencyFilter, label: 'Flexible' },
+          ].map((option) => {
+            const active = urgency === option.value
+            return (
+              <Button
+                key={option.value}
+                variant={active ? 'secondary' : 'ghost'}
+                size="md"
+                justifyContent="flex-start"
+                borderRadius="lg"
+                borderWidth="1px"
+                borderColor={active ? 'primary.600' : 'cardBorder'}
+                bg={active ? 'primary.50' : 'transparent'}
+                onClick={() => onUrgencyChange(option.value)}
+              >
+                <Box
+                  as="span"
+                  w={4}
+                  h={4}
+                  borderRadius="full"
+                  borderWidth="2px"
+                  borderColor={active ? 'primary.600' : 'formControlBorder'}
+                  mr={2.5}
+                  display="inline-flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  {active ? (
+                    <Box
+                      as="span"
+                      w={2}
+                      h={2}
+                      borderRadius="full"
+                      bg="primary.600"
+                    />
+                  ) : null}
+                </Box>
+                {option.label}
+              </Button>
+            )
+          })}
+        </Stack>
       </Stack>
     </Stack>
   )
@@ -250,93 +236,16 @@ export function MobileTaskBrowseFiltersDrawer() {
   const filterProps = useTaskBrowseFiltersProps()
 
   return (
-    <DrawerRoot
+    <AppDrawer
       open={isFilterOpen}
-      onOpenChange={(d: { open: boolean }) => setIsFilterOpen(d.open)}
+      onOpenChange={setIsFilterOpen}
+      title="Filters"
       placement="bottom"
       size="full"
+      primaryActionLabel="Apply filters"
+      onPrimaryAction={() => setIsFilterOpen(false)}
     >
-      <DrawerBackdrop bg="blackAlpha.600" />
-      <DrawerPositioner>
-        <DrawerContent
-          borderTopLeftRadius="3xl"
-          borderTopRightRadius="3xl"
-          bg="neutral.100"
-          maxH="96dvh"
-          display="flex"
-          flexDirection="column"
-          boxShadow="ambient"
-        >
-          <DrawerHeader
-            borderBottomWidth={0}
-            px={5}
-            pt={3}
-            pb={0}
-            flexShrink={0}
-          >
-            <Box
-              aria-hidden
-              mx="auto"
-              mb={4}
-              w="40px"
-              h="4px"
-              borderRadius="full"
-              bg="formControlBorder"
-            />
-            <Box
-              display="flex"
-              flexDirection="row"
-              alignItems="center"
-              justifyContent="space-between"
-              gap={3}
-            >
-              <DrawerTitle
-                fontFamily="heading"
-                fontSize="xl"
-                fontWeight={800}
-                color="cardFg"
-                lineHeight="short"
-              >
-                Filters
-              </DrawerTitle>
-              <DrawerCloseTrigger asChild>
-                <IconButton
-                  aria-label="Close filters"
-                  borderRadius="full"
-                  size="md"
-                  bg="primary.50"
-                  color="primary.600"
-                  minW={11}
-                  h={11}
-                  _hover={{ bg: 'primary.100' }}
-                >
-                  <CloseIcon />
-                </IconButton>
-              </DrawerCloseTrigger>
-            </Box>
-          </DrawerHeader>
-          <DrawerBody flex="1" minH={0} overflowY="auto" px={5} pt={4} pb={2}>
-            <MobileBrowseFiltersSheetBody {...filterProps} />
-          </DrawerBody>
-          <DrawerFooter
-            borderTopWidth={0}
-            flexShrink={0}
-            px={5}
-            pt={2}
-            pb="calc(16px + env(safe-area-inset-bottom, 0px))"
-          >
-            <Button
-              type="button"
-              w="full"
-              size="lg"
-              borderRadius="xl"
-              onClick={() => setIsFilterOpen(false)}
-            >
-              Apply filters
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </DrawerPositioner>
-    </DrawerRoot>
+      <MobileBrowseFiltersSheetBody {...filterProps} />
+    </AppDrawer>
   )
 }

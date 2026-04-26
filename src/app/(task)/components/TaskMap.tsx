@@ -87,23 +87,6 @@ function fullscreenCenterOffsetPx(
   return [Math.max(0, (leftViewportPadding - 120) / 2), 0]
 }
 
-/** After `map.resize()`, re-apply pixel offset so the framing stays correct (same geo center, updated inset). */
-function reapplyMapCenterOffsetForLeftInset(
-  map: MapboxMap,
-  leftViewportPadding: number,
-) {
-  if (!map.isStyleLoaded()) return
-  const c = map.getCenter()
-  map.easeTo({
-    center: [c.lng, c.lat],
-    zoom: map.getZoom(),
-    duration: 0,
-    bearing: map.getBearing(),
-    pitch: map.getPitch(),
-    offset: fullscreenCenterOffsetPx(leftViewportPadding),
-  })
-}
-
 function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
   const toRad = (d: number) => (d * Math.PI) / 180
   const R = 3958.8
@@ -472,12 +455,6 @@ function createTaskMapController(args: {
       resizeFrameRequested = false
       if (!map || cancelled) return
       map.resize()
-      if (programmaticMove) return
-      if (!(getProps().visible ?? true)) return
-      reapplyMapCenterOffsetForLeftInset(
-        map,
-        getProps().leftViewportPadding ?? 48,
-      )
     })
   }
 

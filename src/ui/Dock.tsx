@@ -163,7 +163,7 @@ export function Dock() {
         align="stretch"
         gap={{ base: 1, md: 2 }}
         flexDirection={{ base: 'row', md: 'column' }}
-        justify={{ base: 'space-between', md: 'flex-start' }}
+        justify={{ base: 'space-around', md: 'flex-start' }}
         w="full"
       >
         {items.map((item) => (

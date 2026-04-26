@@ -113,7 +113,7 @@ const sharedTheme = {
         },
       },
       fontSizes: {
-        xs: { value: '10px' },
+        xs: { value: '12px' },
       },
       radii: {
         sm: { value: '6px' },
@@ -125,7 +125,7 @@ const sharedTheme = {
         card: { value: '0 8px 24px rgba(0, 0, 0, 0.08)' },
         ambient: { value: '0 24px 48px rgba(0, 0, 0, 0.4)' },
         ghostBorder: { value: 'inset 0 0 0 1px rgba(119, 119, 119, 0.15)' },
-        primary: { value: '0 14px 36px rgba(0, 220, 130, 0.25)' },
+        primary: { value: '0 14px 36px rgba(0, 220, 130, 0.15)' },
       },
     },
   },

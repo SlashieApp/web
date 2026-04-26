@@ -6,7 +6,7 @@ import { TaskBrowseFilters } from './TaskBrowseFilters'
 const meta = {
   title: 'ui/Card',
   component: TaskBrowseFilters,
-  tags: ['autodocs'],
+  // tags: ['autodocs'],
   parameters: {
     layout: 'padded',
   },

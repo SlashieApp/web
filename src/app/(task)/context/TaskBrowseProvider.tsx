@@ -98,6 +98,10 @@ const DEFAULT_SEARCH_LAT = 51.5074
 const DEFAULT_SEARCH_LNG = -0.1278
 const MIN_RADIUS_MILES = 1
 const MAX_RADIUS_MILES = 50
+/** Edit this to tune map center offset for desktop split layout. */
+const DESKTOP_MAP_CENTER_LEFT_INSET_PX = 420
+/** Mobile (base < lg) should not offset map center. */
+const MOBILE_MAP_CENTER_LEFT_INSET_PX = 0
 
 function clampRadiusMiles(value: number): number {
   if (!Number.isFinite(value)) return 10
@@ -119,13 +123,10 @@ type TaskBrowseProviderProps = {
   isDesktop: boolean
 }
 
-/** Matches `WebLayout` list column: `left-2` + `min(420px, 38vw)` (+ small gutter). */
+/** Left inset used by map center offset in desktop split mode. */
 function desktopListPanelLeftInsetPx(): number {
-  if (typeof window === 'undefined') return 320
-  const w = window.innerWidth
-  const panel = Math.min(420, w * 0.38)
-  const marginGutter = 24
-  return Math.round(marginGutter + panel)
+  if (typeof window === 'undefined') return DESKTOP_MAP_CENTER_LEFT_INSET_PX
+  return DESKTOP_MAP_CENTER_LEFT_INSET_PX
 }
 
 function subscribeWindowResize(onStoreChange: () => void) {
@@ -143,9 +144,12 @@ export function TaskBrowseProvider({
   const hasMapboxToken = Boolean(mapboxToken?.trim())
 
   const windowOffsetWidth = useSyncExternalStore(
-    isDesktop ? subscribeWindowResize : () => () => {},
-    () => (isDesktop ? desktopListPanelLeftInsetPx() : 320),
-    () => 320,
+    subscribeWindowResize,
+    () =>
+      isDesktop
+        ? desktopListPanelLeftInsetPx()
+        : MOBILE_MAP_CENTER_LEFT_INSET_PX,
+    () => MOBILE_MAP_CENTER_LEFT_INSET_PX,
   )
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)

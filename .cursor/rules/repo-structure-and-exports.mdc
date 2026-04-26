@@ -35,6 +35,26 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 - **Root of `components/`** — Shared across breakpoints; **context-wired wrappers** (read domain hooks next to the widget, not via props from `WebLayout` / `MobileLayout`); dumb primitives; maps and other heavy shells.
 - Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to the **components root**.
 
+## UI atom/reuse architecture (`src/ui`)
+
+- Treat **`src/ui`** as the reusable UI element layer (atoms + shared molecules).
+- Route-scoped or feature-scoped components (under `src/app/**/components/**`) should **compose from `@ui` first**.
+- Exception: plain **`Text`** can be used directly from Chakra when a dedicated UI wrapper is unnecessary.
+
+### Reuse-first workflow (required)
+
+1. **Search for existing UI first** (`src/ui`) before creating new scoped markup/components.
+2. If a similar UI component exists, **reuse it**.
+3. If similar but not enough, **extend the existing `src/ui` component** with reusable props (prefer optional props over one-off forks).
+4. Only create a new `src/ui` component when no suitable atom/reusable element exists.
+
+### Rules for new UI components
+
+- New `src/ui` components must be **universal and reusable**, not route-specific.
+- Use generic naming and prop APIs (avoid task/domain-specific prop names unless truly global).
+- Keep variants configurable through props/tokens instead of duplicating components.
+- Add/update Storybook stories for new reusable UI components.
+
 ### Context colocation (any route provider)
 
 - **`WebLayout` / `MobileLayout`-style shells** should mostly **compose** structure (position, z-index, flex) and mount children.

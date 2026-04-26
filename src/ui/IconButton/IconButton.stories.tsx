@@ -49,3 +49,17 @@ export const IconOnly: Story = {
     caption: undefined,
   },
 }
+
+/** Chakra-style `IconButton` (no `href` / `icon`); same path as `ColorModeButton`. */
+export const ChakraGhost: Story = {
+  render: () => (
+    <IconButton
+      type="button"
+      variant="ghost"
+      size="sm"
+      aria-label="Example action"
+    >
+      <DiscoveryIcon />
+    </IconButton>
+  ),
+}

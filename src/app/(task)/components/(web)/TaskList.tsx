@@ -4,7 +4,7 @@ import { Box, Stack } from '@chakra-ui/react'
 import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef } from 'react'
 
-import { TaskBrowseListItem } from './TaskBrowseListItem'
+import { TaskCard } from '../TaskCard'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
@@ -87,14 +87,20 @@ export function TaskList() {
                     }
                   }}
                 >
-                  <TaskBrowseListItem
+                  <TaskCard
                     title={task.title}
                     description={task.description}
                     priceLabel={main}
                     metaLine={loc}
+                    distanceLabel={'3 miles away'}
                     thumbnailSrc={task.images?.[0] ?? undefined}
                     detailsHref={`/task/${task.id}`}
                     badgeText={badge.text}
+                    ownerName={'John D.'}
+                    ownerAvatarSrc={
+                      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop'
+                    }
+                    ratingLabel={'4.9'}
                     isActive={selectedTaskId === task.id}
                     onActivate={() => handleActivateTask(task.id)}
                   />

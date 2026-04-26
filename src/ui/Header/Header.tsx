@@ -147,11 +147,11 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
       align="center"
       gap={4}
       py={2}
-      flexWrap={{ base: 'nowrap', md: 'wrap' }}
+      flexWrap={{ base: 'nowrap', lg: 'wrap' }}
       w="full"
     >
       <HStack
-        gap={{ base: 3, md: 6 }}
+        gap={{ base: 3, lg: 6 }}
         flexWrap="wrap"
         align="center"
         flex="1"
@@ -167,9 +167,9 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
         </Link>
 
         <HStack
-          gap={{ base: 3, md: 6 }}
+          gap={{ base: 3, lg: 6 }}
           flexWrap="wrap"
-          display={{ base: 'none', md: 'flex' }}
+          display={{ base: 'none', lg: 'flex' }}
         >
           <Link
             as={NextLink}
@@ -196,7 +196,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
       </HStack>
 
       <HStack
-        gap={{ base: 2, md: 2.5 }}
+        gap={{ base: 2, lg: 2.5 }}
         flexWrap="wrap"
         align="center"
         justify="flex-end"
@@ -210,7 +210,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           <Button
             size="sm"
             variant={resolvedActive === 'post-task' ? 'primary' : 'secondary'}
-            display={{ base: 'none', md: 'inline-flex' }}
+            display={{ base: 'none', lg: 'inline-flex' }}
           >
             Post a task
           </Button>
@@ -220,7 +220,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           href={workerHref}
           _hover={{ textDecoration: 'none' }}
         >
-          <Button size="sm" display={{ base: 'none', md: 'inline-flex' }}>
+          <Button size="sm" display={{ base: 'none', lg: 'inline-flex' }}>
             Become a worker
           </Button>
         </Link>
@@ -228,7 +228,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           color="formLabelMuted"
           bg="badgeBg"
           borderRadius="full"
-          display={{ base: 'none', md: 'inline-flex' }}
+          display={{ base: 'none', lg: 'inline-flex' }}
           _hover={{ bg: 'cardBg', color: 'cardFg' }}
         />
         {isLoggedIn ? (
@@ -246,7 +246,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               asChild
               variant="ghost"
               size="sm"
-              display={{ base: 'none', md: 'inline-flex' }}
+              display={{ base: 'none', lg: 'inline-flex' }}
               color="formLabelMuted"
               bg="badgeBg"
               borderRadius="full"
@@ -260,7 +260,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               asChild
               variant="ghost"
               size="sm"
-              display={{ base: 'none', md: 'inline-flex' }}
+              display={{ base: 'none', lg: 'inline-flex' }}
               color="formLabelMuted"
               bg="badgeBg"
               borderRadius="full"
@@ -276,7 +276,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           auth
           size="sm"
           variant="secondary"
-          display={{ base: 'none', md: 'inline-flex' }}
+          display={{ base: 'none', lg: 'inline-flex' }}
           onClick={() => {
             logout()
             navigateTo('/')
@@ -289,7 +289,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
             hidden={isLoggedIn}
             size="sm"
             variant="secondary"
-            display={{ base: 'none', md: 'inline-flex' }}
+            display={{ base: 'none', lg: 'inline-flex' }}
           >
             Login
           </Button>
@@ -298,7 +298,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           aria-label="Open menu"
           variant="ghost"
           size="sm"
-          display={{ base: 'inline-flex', md: 'none' }}
+          display={{ base: 'inline-flex', lg: 'none' }}
           color="formLabelMuted"
           bg="badgeBg"
           borderRadius="full"
@@ -398,7 +398,7 @@ export function Header({
       boxShadow="none"
       borderWidth="1px"
       borderColor="cardBorder"
-      px={{ base: 2, md: 3 }}
+      px={{ base: 2, lg: 3 }}
       py={1}
       {...props}
     >
