@@ -17,7 +17,7 @@ Treat **`src/app/(task)/`** as the **reference template** for other product area
 | **`components/`** | Feature UI; **`components/index.ts`** is **auto-generated** (see exports below). |
 | **`components/(web)/`** | Desktop / split-view-only UI (e.g. `WebLayout`, `TaskList`, web-only filter panels). |
 | **`components/(mobile)/`** | Small-viewport-only UI (e.g. `MobileLayout`, bottom sheets, carousels). |
-| **`components/`** (files next to `(web)` / `(mobile)`) | **Cross-breakpoint** pieces: context-wired wrappers, primitives reused by both layouts, map shell (`TaskMap` / `TaskBrowseMapLayer`), shared filter summaries (`TaskBrowseFilterTags.tsx`), etc. |
+| **`components/`** (files next to `(web)` / `(mobile)`) | **Cross-breakpoint** pieces: context-wired wrappers, primitives reused by both layouts, map shell (`TaskMap` / `TaskBrowseMapLayer`), shared filter summaries (`TaskTag.tsx`), etc. |
 | **`tasks/create/`** | Nested route: `page.tsx`, schema, and **`tasks/create/components/`** for create-flow sections (colocate with that route). |
 | **`task/[slug]/`** | Dynamic route with its own `page.tsx` and colocated `components/` as needed. |
 

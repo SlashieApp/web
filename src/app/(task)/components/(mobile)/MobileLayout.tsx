@@ -1,10 +1,10 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
+import { Box, HStack, Stack } from '@chakra-ui/react'
 
-import { TaskBrowseAreaLocationInput } from '../TaskBrowseAreaLocationInput'
-import { TaskBrowseActiveFilterTags } from '../TaskBrowseFilterTags'
 import { TaskBrowseSearchThisAreaButton } from '../TaskBrowseSearchThisAreaButton'
+import { TaskSearch } from '../TaskSearch'
+import { TaskTag } from '../TaskTag'
 import { MobileTaskBrowseFiltersDrawer } from './MobileTaskBrowseFiltersDrawer'
 import { MobileTaskCarousel } from './MobileTaskCarousel'
 
@@ -26,10 +26,12 @@ export function MobileLayout() {
         zIndex={4}
         pointerEvents="none"
       >
-        <Box mr={12}>
-          <TaskBrowseAreaLocationInput />
-          <TaskBrowseActiveFilterTags />
-        </Box>
+        <Stack gap={2} flexShrink={0} mr={12}>
+          <TaskSearch />
+          <HStack gap={1.5} flexWrap="wrap">
+            <TaskTag />
+          </HStack>
+        </Stack>
       </Box>
 
       <Box

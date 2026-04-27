@@ -2,9 +2,9 @@
 
 import { Box, HStack, Stack } from '@chakra-ui/react'
 
-import { TaskBrowseAreaLocationInput } from '../TaskBrowseAreaLocationInput'
-import { TaskBrowseActiveFilterTags } from '../TaskBrowseFilterTags'
 import { TaskBrowseSearchThisAreaButton } from '../TaskBrowseSearchThisAreaButton'
+import { TaskSearch } from '../TaskSearch'
+import { TaskTag } from '../TaskTag'
 import { WebTaskBrowseFiltersBlock } from './TaskBrowseFilters'
 
 export function WebLayout() {
@@ -25,19 +25,23 @@ export function WebLayout() {
         <Box
           px={{ base: 1, md: 0 }}
           pb={2}
+          flex={1}
+          minH={0}
           display="flex"
-          justifyContent="flex-start"
+          flexDirection="column"
+          w="full"
         >
-          <Box borderRadius="xl" px={2} py={1.5} w="full">
-            <Stack gap={2}>
-              <TaskBrowseAreaLocationInput />
-              <HStack gap={1.5} flexWrap="wrap">
-                <TaskBrowseActiveFilterTags />
-              </HStack>
-            </Stack>
+          <Stack gap={2} flexShrink={0}>
+            <TaskSearch />
+            <HStack gap={1.5} flexWrap="wrap">
+              <TaskTag />
+            </HStack>
+          </Stack>
+
+          <Box flex={1} minH={0} w="full" px={2}>
+            <WebTaskBrowseFiltersBlock />
           </Box>
         </Box>
-        <WebTaskBrowseFiltersBlock />
       </Box>
 
       <TaskBrowseSearchThisAreaButton overlay />

@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Box,
   DrawerBackdrop,
   DrawerBody,
   DrawerCloseTrigger,
@@ -126,7 +127,9 @@ export function AppDrawer({
             minH={0}
             overflowY="auto"
           >
-            {children}
+            <Box w="full" maxW="lg" mx="auto">
+              {children}
+            </Box>
           </DrawerBody>
           {primaryActionLabel ? (
             <DrawerFooter

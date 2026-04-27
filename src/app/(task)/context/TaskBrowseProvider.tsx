@@ -26,8 +26,10 @@ import type {
   UrgencyFilter,
 } from '../helpers/taskBrowseFilters.types'
 import {
+  DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
   PAGE_SIZE,
   SORT_OPTIONS,
+  buildActiveBrowseFilterTags,
   effectiveTaskPricePenceForFilter,
   formatBudget,
   matchesUrgency,
@@ -41,6 +43,8 @@ type TaskBrowseDataContextValue = {
   page: number
   setPage: (v: number | ((prev: number) => number)) => void
   radiusMiles: number
+  /** Last submitted radius (drives fetch + map query disc); draft {@link radiusMiles} is edited in the filter UI. */
+  submittedRadiusMiles: number
   setRadiusMiles: (v: number) => void
   minBudget: string
   setMinBudget: (v: string) => void
@@ -53,6 +57,12 @@ type TaskBrowseDataContextValue = {
   areaLocationInput: string
   setAreaLocationInput: (v: string) => void
   commitAreaLocationSearch: () => void
+  /** Sets map search center from coordinates, reverse-geocodes label when Mapbox token exists. */
+  applyGeolocatedSearch: (lat: number, lng: number) => Promise<void>
+  /** Copies draft filter UI → submitted; triggers fetch (radius) + list filters. */
+  submitBrowseFilters: () => void
+  /** Resets draft filter fields from last submitted snapshot (call when opening the filter panel). */
+  syncDraftFiltersFromSubmitted: () => void
   searchCenterLat: number
   searchCenterLng: number
   confirmSearchThisAreaFromMap: (lat: number, lng: number, zoom: number) => void
@@ -78,6 +88,8 @@ type TaskBrowseDataContextValue = {
   }[]
   shouldWaitForMap: boolean
   markMapReadyForQuery: (ready: boolean) => void
+  /** Chips derived from last submitted filters (see {@link submitBrowseFilters}). */
+  activeFilterTags: readonly string[]
 }
 
 type TaskBrowseLayoutContextValue = {
@@ -164,21 +176,23 @@ export function TaskBrowseProvider({
     })
   const [sort, setSort] = useState<string>('nearest')
   const [page, setPage] = useState(0)
-  const [radiusMiles, setRadiusMiles] = useState(10)
+  const [radiusMiles, setRadiusMiles] = useState(
+    DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
+  )
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
   const [urgency, setUrgency] = useState<UrgencyFilter>('any')
+  const [submittedRadiusMiles, setSubmittedRadiusMiles] = useState(
+    DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
+  )
+  const [submittedMinBudget, setSubmittedMinBudget] = useState('')
+  const [submittedMaxBudget, setSubmittedMaxBudget] = useState('')
+  const [submittedUrgency, setSubmittedUrgency] = useState<UrgencyFilter>('any')
+  const [submittedSearchText, setSubmittedSearchText] = useState('')
   const [searchInput, setSearchInputRaw] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const searchDebounceRef = useRef<number | null>(null)
 
   const setSearchInput = useCallback((v: string) => {
     setSearchInputRaw(v)
-    if (searchDebounceRef.current)
-      window.clearTimeout(searchDebounceRef.current)
-    searchDebounceRef.current = window.setTimeout(() => {
-      setDebouncedSearch(v.trim())
-    }, 300)
   }, [])
   const [searchCenterLat, setSearchCenterLat] = useState(DEFAULT_SEARCH_LAT)
   const [searchCenterLng, setSearchCenterLng] = useState(DEFAULT_SEARCH_LNG)
@@ -195,13 +209,13 @@ export function TaskBrowseProvider({
   }
 
   const queryVariables = useMemo(() => {
-    const radius = clampRadiusMiles(radiusMiles)
+    const radius = clampRadiusMiles(submittedRadiusMiles)
     return {
       lat: searchCenterLat,
       lng: searchCenterLng,
       radiusMiles: radius,
     }
-  }, [radiusMiles, searchCenterLat, searchCenterLng])
+  }, [searchCenterLat, searchCenterLng, submittedRadiusMiles])
 
   const shouldWaitForMap = hasMapboxToken
   const { data, loading, error } = useQuery<TasksQueryData>(TASKS_QUERY, {
@@ -212,9 +226,9 @@ export function TaskBrowseProvider({
 
   const filtered = useMemo(() => {
     const items = data?.tasks ?? initialTasks
-    const text = debouncedSearch.trim().toLowerCase()
-    const minStr = minBudget.trim()
-    const maxStr = maxBudget.trim()
+    const text = submittedSearchText.trim().toLowerCase()
+    const minStr = submittedMinBudget.trim()
+    const maxStr = submittedMaxBudget.trim()
     const minP = minStr === '' ? null : Number.parseFloat(minStr) * 100
     const maxP = maxStr === '' ? null : Number.parseFloat(maxStr) * 100
 
@@ -223,7 +237,7 @@ export function TaskBrowseProvider({
         const hay = `${task.title} ${task.description}`.toLowerCase()
         if (!hay.includes(text)) return false
       }
-      if (!matchesUrgency(task, urgency)) return false
+      if (!matchesUrgency(task, submittedUrgency)) return false
 
       const eff = effectiveTaskPricePenceForFilter(task)
       if (minP != null && Number.isFinite(minP)) {
@@ -234,7 +248,34 @@ export function TaskBrowseProvider({
       }
       return true
     })
-  }, [data, debouncedSearch, initialTasks, maxBudget, minBudget, urgency])
+  }, [
+    data,
+    initialTasks,
+    submittedMaxBudget,
+    submittedMinBudget,
+    submittedSearchText,
+    submittedUrgency,
+  ])
+
+  const activeFilterTags = useMemo(
+    () =>
+      buildActiveBrowseFilterTags({
+        submittedRadiusMiles,
+        submittedMinBudget,
+        submittedMaxBudget,
+        submittedUrgency,
+        submittedSearchText,
+        areaLocationInput,
+      }),
+    [
+      areaLocationInput,
+      submittedMaxBudget,
+      submittedMinBudget,
+      submittedRadiusMiles,
+      submittedSearchText,
+      submittedUrgency,
+    ],
+  )
 
   const filteredSorted = useMemo(() => {
     let next = filtered
@@ -329,7 +370,9 @@ export function TaskBrowseProvider({
   const confirmSearchThisAreaFromMap = useCallback(
     (lat: number, lng: number, zoom: number) => {
       setSearchCenter(lat, lng)
-      setRadiusMiles(clampRadiusMiles(zoomToRadiusMiles(zoom)))
+      const nextRadius = clampRadiusMiles(zoomToRadiusMiles(zoom))
+      setRadiusMiles(nextRadius)
+      setSubmittedRadiusMiles(nextRadius)
       const token = mapboxToken?.trim()
       if (token) {
         void mapboxReverseGeocode(lat, lng, token).then((name) => {
@@ -363,12 +406,53 @@ export function TaskBrowseProvider({
       })
   }, [areaLocationInput, mapboxToken, setSearchCenter])
 
+  const applyGeolocatedSearch = useCallback(
+    async (lat: number, lng: number) => {
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+      setSearchCenter(lat, lng)
+      pendingAreaSearchQueryRef.current = null
+      lastResolvedAreaSearchQueryRef.current = null
+      const token = mapboxToken?.trim()
+      if (token) {
+        const name = await mapboxReverseGeocode(lat, lng, token)
+        if (name) setAreaLocationInput(name)
+        else setAreaLocationInput(`${lat.toFixed(5)}, ${lng.toFixed(5)}`)
+      } else {
+        setAreaLocationInput(`${lat.toFixed(5)}, ${lng.toFixed(5)}`)
+      }
+    },
+    [mapboxToken, setSearchCenter],
+  )
+
   const cycleSort = useCallback(() => {
     const idx = SORT_OPTIONS.findIndex((opt) => opt.value === sort)
     const next =
       SORT_OPTIONS[(idx + 1 + SORT_OPTIONS.length) % SORT_OPTIONS.length]
     setSort(next.value)
   }, [sort])
+
+  const submitBrowseFilters = useCallback(() => {
+    setSubmittedRadiusMiles(radiusMiles)
+    setSubmittedMinBudget(minBudget)
+    setSubmittedMaxBudget(maxBudget)
+    setSubmittedUrgency(urgency)
+    setSubmittedSearchText(searchInput.trim())
+    setPage(0)
+  }, [maxBudget, minBudget, radiusMiles, searchInput, urgency])
+
+  const syncDraftFiltersFromSubmitted = useCallback(() => {
+    setRadiusMiles(submittedRadiusMiles)
+    setMinBudget(submittedMinBudget)
+    setMaxBudget(submittedMaxBudget)
+    setUrgency(submittedUrgency)
+    setSearchInputRaw(submittedSearchText)
+  }, [
+    submittedMaxBudget,
+    submittedMinBudget,
+    submittedRadiusMiles,
+    submittedSearchText,
+    submittedUrgency,
+  ])
 
   const dataValue = useMemo<TaskBrowseDataContextValue>(
     () => ({
@@ -378,6 +462,7 @@ export function TaskBrowseProvider({
       page,
       setPage,
       radiusMiles,
+      submittedRadiusMiles,
       setRadiusMiles,
       minBudget,
       setMinBudget,
@@ -390,6 +475,9 @@ export function TaskBrowseProvider({
       areaLocationInput,
       setAreaLocationInput,
       commitAreaLocationSearch,
+      applyGeolocatedSearch,
+      submitBrowseFilters,
+      syncDraftFiltersFromSubmitted,
       searchCenterLat,
       searchCenterLng,
       confirmSearchThisAreaFromMap,
@@ -408,11 +496,16 @@ export function TaskBrowseProvider({
       markMapReadyForQuery: (ready) => {
         if (ready) setIsMapReadyForQuery(true)
       },
+      activeFilterTags,
     }),
     [
+      activeFilterTags,
       areaLocationInput,
+      applyGeolocatedSearch,
       commitAreaLocationSearch,
       confirmSearchThisAreaFromMap,
+      submitBrowseFilters,
+      syncDraftFiltersFromSubmitted,
       cycleSort,
       data,
       error,
@@ -424,6 +517,7 @@ export function TaskBrowseProvider({
       page,
       pageItems,
       radiusMiles,
+      submittedRadiusMiles,
       safePage,
       searchCenterLat,
       searchCenterLng,
@@ -523,7 +617,7 @@ export function useTaskMapBindings(): SharedTaskMapBindings {
     accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN,
     centerLat: data.searchCenterLat,
     centerLng: data.searchCenterLng,
-    radiusMiles: data.radiusMiles,
+    radiusMiles: data.submittedRadiusMiles,
     tasks: data.effectiveMapTasksForBox,
     visible: true,
     tasksLoaded: true,

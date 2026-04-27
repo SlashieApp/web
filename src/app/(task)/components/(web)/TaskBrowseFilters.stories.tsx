@@ -1,30 +1,39 @@
+import { ApolloProvider } from '@apollo/client/react'
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+
+import { apolloClient } from '@/utils/apolloClient'
+import { TaskBrowseProvider } from '../../context/TaskBrowseProvider'
 
 import { TaskBrowseFilters } from './TaskBrowseFilters'
 
 const meta = {
-  title: 'ui/Card',
+  title: 'task/TaskBrowseFilters',
   component: TaskBrowseFilters,
-  // tags: ['autodocs'],
   parameters: {
     layout: 'padded',
   },
   args: {
-    searchQuery: 'plumber',
+    searchQuery: '',
     onSearchChange: () => {},
-    areaLocationInput: 'Soho, London',
-    onAreaLocationChange: () => {},
-    onAreaLocationCommit: () => {},
     radiusMiles: 10,
     onRadiusChange: () => {},
     minBudgetPounds: '50',
     maxBudgetPounds: '300',
     onMinBudgetChange: () => {},
     onMaxBudgetChange: () => {},
-    urgency: 'any',
+    urgency: 'any' as const,
     onUrgencyChange: () => {},
   },
+  decorators: [
+    (Story) => (
+      <ApolloProvider client={apolloClient}>
+        <TaskBrowseProvider initialTasks={[]} isDesktop>
+          <Story />
+        </TaskBrowseProvider>
+      </ApolloProvider>
+    ),
+  ],
   render: (args) => (
     <Box maxW="460px">
       <TaskBrowseFilters {...args} />

@@ -10,11 +10,6 @@ export {
 } from './(mobile)/MobileTaskBrowseFiltersDrawer'
 export { MobileTaskCarousel } from './(mobile)/MobileTaskCarousel'
 export { SearchThisAreaButton } from './SearchThisAreaButton'
-export { TaskBrowseActiveFilterTags } from './TaskBrowseFilterTags'
-export {
-  TaskBrowseAreaLocationInput,
-  TaskBrowseAreaLocationInputBase,
-} from './TaskBrowseAreaLocationInput'
 export {
   TaskBrowseFilters,
   TaskBrowseFiltersPanel,
@@ -24,9 +19,10 @@ export { TaskBrowseMapLayer, TaskMap } from './TaskMap'
 export { TaskBrowseSearchThisAreaButton } from './TaskBrowseSearchThisAreaButton'
 export { TaskCard } from './TaskCard'
 export { TaskList } from './(web)/TaskList'
+export { TaskSearch, TaskSearchBase } from './TaskSearch'
+export { TaskTag, useActiveFilterTags } from './TaskTag'
 export { WebLayout } from './(web)/WebLayout'
 export type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
-export type { TaskBrowseAreaLocationInputBaseProps } from './TaskBrowseAreaLocationInput'
 export type {
   TaskBrowseFiltersPanelProps,
   TaskBrowseFiltersProps,
@@ -39,3 +35,4 @@ export type {
 } from './TaskMap'
 export type { TaskBrowseSearchThisAreaButtonProps } from './TaskBrowseSearchThisAreaButton'
 export type { TaskCardProps, TaskCardTask } from './TaskCard'
+export type { TaskSearchBaseProps } from './TaskSearch'

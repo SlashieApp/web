@@ -1,9 +1,12 @@
 'use client'
 
 import { Box, HStack, Slider, Stack, Text } from '@chakra-ui/react'
-import { AppDrawer, Button } from '@ui'
+import { AppDrawer, Button, Input } from '@ui'
+import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react'
+import { LuLocateFixed, LuSearch } from 'react-icons/lu'
 
 import {
+  useTaskBrowseData,
   useTaskBrowseFiltersProps,
   useTaskBrowseLayout,
 } from '../../context/TaskBrowseProvider'
@@ -51,11 +54,17 @@ function formatBudgetRange(minBudgetPounds: string, maxBudgetPounds: string) {
 }
 
 function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
+  const { applyGeolocatedSearch } = useTaskBrowseData()
   const {
     showMapPromo: _showMapPromo,
     sortValue: _sort,
     sortOptions: _sortOptions,
     onSortChange: _onSortChange,
+    searchQuery: _searchQuery,
+    onSearchChange: _onSearchChange,
+    areaLocationInput = '',
+    onAreaLocationChange,
+    onAreaLocationCommit,
     radiusMiles,
     onRadiusChange,
     minBudgetPounds,
@@ -71,6 +80,70 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
 
   return (
     <Stack gap={6} pb={2}>
+      <Stack gap={3}>
+        <SectionLabel>Location</SectionLabel>
+        <Input
+          startElement={
+            <Box as="span" aria-hidden display="inline-flex">
+              <LuSearch size={18} strokeWidth={2} />
+            </Box>
+          }
+          endElement={
+            <Button
+              type="button"
+              aria-label="Use current location"
+              title="Use current location"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              minW={0}
+              w={8}
+              h={8}
+              px={0}
+              py={0}
+              borderRadius="lg"
+              variant="ghost"
+              color="formControlIcon"
+              _hover={{ bg: 'badgeBg', color: 'cardFg' }}
+              _focusVisible={{
+                outline: '2px solid',
+                outlineColor: 'secondary',
+                outlineOffset: '2px',
+              }}
+              onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault()
+              }}
+              onClick={() => {
+                if (!navigator.geolocation) return
+                navigator.geolocation.getCurrentPosition((position) => {
+                  void applyGeolocatedSearch(
+                    position.coords.latitude,
+                    position.coords.longitude,
+                  )
+                })
+              }}
+            >
+              <LuLocateFixed size={18} strokeWidth={2} aria-hidden />
+            </Button>
+          }
+          value={areaLocationInput}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            onAreaLocationChange?.(e.target.value)
+          }
+          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+            if (e.key !== 'Enter') return
+            e.preventDefault()
+            e.currentTarget.blur()
+          }}
+          onBlur={() => onAreaLocationCommit?.()}
+          type="text"
+          inputMode="search"
+          autoComplete="off"
+          placeholder="London, UK"
+          aria-label="Search by area or address"
+        />
+      </Stack>
+
       <Stack gap={3}>
         <SectionLabel>Category</SectionLabel>
         <HStack gap={2} flexWrap="wrap">
@@ -211,6 +284,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
 
 /** Opens / toggles the mobile filter drawer; owns layout `isFilterOpen` subscription so `MobileLayout` does not. */
 export function MobileTaskBrowseFiltersTrigger() {
+  const { syncDraftFiltersFromSubmitted } = useTaskBrowseData()
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
   return (
     <Button
@@ -219,7 +293,11 @@ export function MobileTaskBrowseFiltersTrigger() {
       variant={isFilterOpen ? 'primary' : 'secondary'}
       px={2.5}
       py={1}
-      onClick={() => setIsFilterOpen(!isFilterOpen)}
+      onClick={() => {
+        const next = !isFilterOpen
+        if (next) syncDraftFiltersFromSubmitted()
+        setIsFilterOpen(next)
+      }}
       pointerEvents="auto"
     >
       Filters
@@ -232,18 +310,26 @@ export function MobileTaskBrowseFiltersTrigger() {
  * fields, apply footer). Map and carousel stay mounted underneath.
  */
 export function MobileTaskBrowseFiltersDrawer() {
+  const { submitBrowseFilters, syncDraftFiltersFromSubmitted } =
+    useTaskBrowseData()
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
   const filterProps = useTaskBrowseFiltersProps()
 
   return (
     <AppDrawer
       open={isFilterOpen}
-      onOpenChange={setIsFilterOpen}
+      onOpenChange={(open) => {
+        setIsFilterOpen(open)
+        if (open) syncDraftFiltersFromSubmitted()
+      }}
       title="Filters"
       placement="bottom"
       size="full"
       primaryActionLabel="Apply filters"
-      onPrimaryAction={() => setIsFilterOpen(false)}
+      onPrimaryAction={() => {
+        submitBrowseFilters()
+        setIsFilterOpen(false)
+      }}
     >
       <MobileBrowseFiltersSheetBody {...filterProps} />
     </AppDrawer>

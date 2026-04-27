@@ -1,10 +1,20 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { Button, RadioButton, Slider, Input as UiInput } from '@ui'
+import {
+  Button,
+  Card,
+  IconButton,
+  RadioButton,
+  Slider,
+  Input as UiInput,
+} from '@ui'
+import { AnimatePresence, motion } from 'motion/react'
 import type { ChangeEvent } from 'react'
+import { LuX } from 'react-icons/lu'
 
 import {
+  useTaskBrowseData,
   useTaskBrowseFiltersProps,
   useTaskBrowseLayout,
 } from '../../context/TaskBrowseProvider'
@@ -204,16 +214,51 @@ export function TaskBrowseFiltersPanel({
 }
 
 export function TaskBrowseFilters({ ...props }: TaskBrowseFiltersProps) {
+  const { submitBrowseFilters } = useTaskBrowseData()
+  const { setIsFilterOpen } = useTaskBrowseLayout()
+
+  const dismissFilters = () => {
+    setIsFilterOpen(false)
+  }
+
+  const submitAndDismiss = () => {
+    submitBrowseFilters()
+    setIsFilterOpen(false)
+  }
+
   return (
-    <Box
-      borderRadius="xl"
-      bg="cardBg"
+    <Card
+      position="relative"
+      w="full"
+      maxW="full"
       p={{ base: 3, md: 4 }}
       boxShadow="ghostBorder"
       pointerEvents="auto"
     >
-      <TaskBrowseFiltersPanel {...props} />
-    </Box>
+      <Box position="absolute" top={2} right={2} zIndex={1}>
+        <IconButton
+          type="button"
+          variant="ghost"
+          aria-label="Close filters"
+          size="sm"
+          onClick={dismissFilters}
+        >
+          <LuX size={18} strokeWidth={2} />
+        </IconButton>
+      </Box>
+
+      <Stack gap={6} pt={1}>
+        <TaskBrowseFiltersPanel {...props} />
+        <Button
+          type="button"
+          w="full"
+          variant="primary"
+          onClick={submitAndDismiss}
+        >
+          Apply filters
+        </Button>
+      </Stack>
+    </Card>
   )
 }
 
@@ -221,19 +266,63 @@ export function TaskBrowseFilters({ ...props }: TaskBrowseFiltersProps) {
  * Web task browse: when filters are open, this panel occupies the same flex
  * region as `TaskList`; otherwise the list is shown.
  */
+const filterPanelEase = [0.22, 1, 0.36, 1] as const
+/** Shared horizontal slide distance (px): enter from left (−), exit to right (+). */
+const browsePanelSlidePx = 22
+
 export function WebTaskBrowseFiltersBlock() {
   const { isFilterOpen } = useTaskBrowseLayout()
   const filterProps = useTaskBrowseFiltersProps()
 
   return (
-    <Box flex={1} minH={0} mb={6} pointerEvents="none">
-      {isFilterOpen ? (
-        <Box h="full" overflowY="auto" pr={{ base: 1, md: 0 }}>
-          <TaskBrowseFilters {...filterProps} />
-        </Box>
-      ) : (
-        <TaskList />
-      )}
+    <Box
+      flex={1}
+      minH={0}
+      mb={6}
+      w="full"
+      pointerEvents="none"
+      display="flex"
+      flexDirection="column"
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        {isFilterOpen ? (
+          <motion.div
+            key="task-browse-filters"
+            initial={{ opacity: 0, x: -browsePanelSlidePx }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: browsePanelSlidePx }}
+            transition={{ duration: 0.32, ease: filterPanelEase }}
+            style={{
+              flex: 1,
+              minHeight: 0,
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <Box flex={1} minH={0} w="full" overflowY="auto">
+              <TaskBrowseFilters {...filterProps} />
+            </Box>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="task-browse-list"
+            initial={{ opacity: 0, x: -browsePanelSlidePx }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: browsePanelSlidePx }}
+            transition={{ duration: 0.26, ease: filterPanelEase }}
+            style={{
+              flex: 1,
+              minHeight: 0,
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <TaskList />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Box>
   )
 }

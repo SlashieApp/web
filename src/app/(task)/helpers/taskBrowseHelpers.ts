@@ -95,6 +95,80 @@ export function effectiveTaskPricePenceForFilter(
   return Math.min(...prices)
 }
 
+/** Matches initial `submittedRadiusMiles` in browse context; distance chip hidden at default. */
+export const DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES = 10
+
+function milesToKmRounded(miles: number): number {
+  return Math.round(miles * 1.60934)
+}
+
+function formatSubmittedBudgetRange(
+  minBudgetPounds: string,
+  maxBudgetPounds: string,
+): string {
+  const min = Number.parseFloat(minBudgetPounds)
+  const max = Number.parseFloat(maxBudgetPounds)
+  const minLabel = Number.isFinite(min) ? `$${Math.round(min)}` : '$0'
+  const maxLabel = Number.isFinite(max) ? `$${Math.round(max)}` : '$150+'
+  return `${minLabel} - ${maxLabel}`
+}
+
+function submittedUrgencyChipLabel(u: UrgencyFilter): string | null {
+  if (u === 'any') return null
+  const map: Record<Exclude<UrgencyFilter, 'any'>, string> = {
+    emergency: 'ASAP',
+    today: 'Today',
+    week: 'Flexible',
+  }
+  return map[u]
+}
+
+function truncateChipLabel(s: string, maxLen: number): string {
+  if (s.length <= maxLen) return s
+  return `${s.slice(0, maxLen - 1)}…`
+}
+
+/** Human-readable chips for the last submitted browse filters (list + fetch). */
+export function buildActiveBrowseFilterTags(input: {
+  submittedRadiusMiles: number
+  submittedMinBudget: string
+  submittedMaxBudget: string
+  submittedUrgency: UrgencyFilter
+  submittedSearchText: string
+  areaLocationInput: string
+}): string[] {
+  const tags: string[] = []
+  const {
+    submittedRadiusMiles,
+    submittedMinBudget,
+    submittedMaxBudget,
+    submittedUrgency,
+    submittedSearchText,
+    areaLocationInput,
+  } = input
+
+  if (submittedRadiusMiles !== DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES) {
+    tags.push(`Within ${milesToKmRounded(submittedRadiusMiles)} km`)
+  }
+
+  const minS = submittedMinBudget.trim()
+  const maxS = submittedMaxBudget.trim()
+  if (minS || maxS) {
+    tags.push(formatSubmittedBudgetRange(minS, maxS))
+  }
+
+  const urgencyLabel = submittedUrgencyChipLabel(submittedUrgency)
+  if (urgencyLabel) tags.push(urgencyLabel)
+
+  const q = submittedSearchText.trim()
+  if (q) tags.push(truncateChipLabel(q, 24))
+
+  const area = areaLocationInput.trim()
+  if (area) tags.push(truncateChipLabel(area, 28))
+
+  return tags
+}
+
 export function matchesUrgency(
   task: TaskListItem,
   urgency: UrgencyFilter,
