@@ -79,7 +79,7 @@ export default function CreateTaskPage() {
       preferredDate: toYmd(new Date()),
       preferredTime: '09:00',
       budgetMajor: '',
-      budgetCurrency: Currency.Gdp,
+      budgetCurrency: Currency.Gbp,
       budgetType: TaskBudgetType.OneOff,
       paymentMethod: TaskPaymentMethod.Cash,
       preferredContactMethod: TaskContactMethod.InApp,

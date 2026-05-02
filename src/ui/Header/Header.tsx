@@ -3,10 +3,14 @@
 import {
   Box,
   type BoxProps,
+  Button as ChakraButton,
+  ClientOnly,
   Container,
   HStack,
   IconButton,
   Link,
+  Skeleton,
+  Stack,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useCallback, useState } from 'react'
@@ -15,51 +19,86 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { getAuthToken } from '@/utils/auth'
 import { AppDrawer } from '../AppDrawer/AppDrawer'
 import { Button } from '../Button'
+import { HoverDropdownMenu } from '../HoverDropdownMenu'
 import { Logo } from '../Logo/Logo'
-import { ColorModeButton } from '../color-mode'
+import { useColorMode } from '../color-mode'
 
-const navLinkProps = {
-  fontSize: '14px',
+const accountMenuLinkProps = {
+  display: 'block',
+  px: 3,
+  py: 2,
+  borderRadius: 'md',
+  fontSize: 'sm',
   fontWeight: 600,
-  color: 'formLabelMuted',
-  h: '44px',
-  px: 2,
-  borderBottomWidth: '2px',
-  borderBottomColor: 'transparent',
-  borderRadius: 0,
-  _hover: { textDecoration: 'none', color: 'cardFg' },
+  color: 'cardFg',
+  _hover: { bg: 'badgeBg', textDecoration: 'none' },
 } as const
 
-function IconBell() {
+function HeaderThemeMenuButton() {
+  const { colorMode, toggleColorMode } = useColorMode()
+  const label = colorMode === 'dark' ? 'Light mode' : 'Dark mode'
   return (
-    <Box as="span" display="flex" color="currentColor" aria-hidden>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <title>Notifications</title>
-        <path
-          d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+    <Button
+      variant="ghost"
+      w="full"
+      h="auto"
+      minH={0}
+      py={2}
+      px={3}
+      justifyContent="flex-start"
+      fontSize="sm"
+      fontWeight={600}
+      borderRadius="md"
+      color="cardFg"
+      onClick={toggleColorMode}
+    >
+      {label}
+    </Button>
+  )
+}
+
+function ThemeToggleMenuRow() {
+  return (
+    <Box borderTopWidth="1px" borderColor="cardBorder" mt={1} pt={1}>
+      <ClientOnly fallback={<Skeleton h="36px" w="full" borderRadius="md" />}>
+        <HeaderThemeMenuButton />
+      </ClientOnly>
     </Box>
   )
 }
 
-function IconUser() {
+function HeaderLogOutMenuRow({
+  onNavigate,
+  onAfterLogout,
+}: {
+  onNavigate: (href: string) => void
+  onAfterLogout?: () => void
+}) {
+  const logout = useUserStore((state) => state.logout)
   return (
-    <Box as="span" display="flex" color="currentColor" aria-hidden>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <title>Profile</title>
-        <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2" />
-        <path
-          d="M4 20c0-4 4-6 8-6s8 2 8 6"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
+    <Box borderTopWidth="1px" borderColor="cardBorder" mt={1} pt={1}>
+      <ChakraButton
+        type="button"
+        variant="ghost"
+        w="full"
+        h="auto"
+        minH={0}
+        py={2}
+        px={3}
+        justifyContent="flex-start"
+        fontSize="sm"
+        fontWeight={600}
+        color="red.600"
+        borderRadius="md"
+        _hover={{ bg: 'badgeBg' }}
+        onClick={() => {
+          logout()
+          onAfterLogout?.()
+          onNavigate('/')
+        }}
+      >
+        Log out
+      </ChakraButton>
     </Box>
   )
 }
@@ -76,6 +115,29 @@ function IconMenu() {
           strokeLinecap="round"
         />
       </svg>
+    </Box>
+  )
+}
+
+/** Compact initials avatar for the signed-in header trigger (Airbnb-style account chip). */
+function AccountTriggerGlyph({ email }: { email: string }) {
+  const initial = email.trim().charAt(0).toUpperCase() || '?'
+  return (
+    <Box
+      boxSize="22px"
+      borderRadius="full"
+      bg="primary.100"
+      color="primary.700"
+      fontSize="10px"
+      fontWeight={700}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      lineHeight={1}
+      flexShrink={0}
+      aria-hidden
+    >
+      {initial}
     </Box>
   )
 }
@@ -97,7 +159,6 @@ export type HeaderProps = {
 function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   const user = useUserStore((state) => state.user)
   const getUser = useUserStore((state) => state.getUser)
-  const logout = useUserStore((state) => state.logout)
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -127,19 +188,22 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
             ? 'home'
             : 'none'
 
-  const browseTasksLinkProps =
-    resolvedActive === 'home' || resolvedActive === 'tasks'
-      ? { ...navLinkProps, color: 'primary.700' as const, fontWeight: 700 }
-      : navLinkProps
-
   const workerHref = isLoggedIn
     ? '/dashboard'
     : `/login?next=${encodeURIComponent('/dashboard')}`
+
+  const workerCtaLabel = isLoggedIn ? 'Switch to work mode' : 'Join Slashie'
 
   const navigateTo = useCallback((href: string) => {
     if (typeof window === 'undefined') return
     window.location.assign(href)
   }, [])
+
+  const loginHref =
+    hasMounted && currentPathname
+      ? `/login?next=${encodeURIComponent(currentPathname)}`
+      : '/login'
+
   return (
     <HStack
       ref={onMountNavigation}
@@ -165,34 +229,6 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
         >
           <Logo />
         </Link>
-
-        <HStack
-          gap={{ base: 3, lg: 6 }}
-          flexWrap="wrap"
-          display={{ base: 'none', lg: 'flex' }}
-        >
-          <Link
-            as={NextLink}
-            href="/"
-            {...browseTasksLinkProps}
-            borderBottomColor={
-              resolvedActive === 'home' || resolvedActive === 'tasks'
-                ? 'primary.500'
-                : 'transparent'
-            }
-          >
-            Browse tasks
-          </Link>
-          <Link as={NextLink} href="/tasks" {...navLinkProps}>
-            How it Works
-          </Link>
-
-          {isLoggedIn ? (
-            <Link as={NextLink} href="/requests" {...navLinkProps}>
-              Requests
-            </Link>
-          ) : null}
-        </HStack>
       </HStack>
 
       <HStack
@@ -218,82 +254,74 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
         <Link
           as={NextLink}
           href={workerHref}
-          _hover={{ textDecoration: 'none' }}
-        >
-          <Button size="sm" display={{ base: 'none', lg: 'inline-flex' }}>
-            Become a worker
-          </Button>
-        </Link>
-        <ColorModeButton
-          color="formLabelMuted"
-          bg="badgeBg"
-          borderRadius="full"
           display={{ base: 'none', lg: 'inline-flex' }}
-          _hover={{ bg: 'cardBg', color: 'cardFg' }}
-        />
-        {isLoggedIn ? (
-          <>
-            <Box
-              display={{ base: 'none', sm: 'block' }}
-              alignSelf="stretch"
-              w="1px"
-              minH={6}
-              bg="secondary.200"
-              my="auto"
-              aria-hidden
-            />
-            <IconButton
-              asChild
-              variant="ghost"
-              size="sm"
-              display={{ base: 'none', lg: 'inline-flex' }}
-              color="formLabelMuted"
-              bg="badgeBg"
-              borderRadius="full"
-              _hover={{ bg: 'cardBg', color: 'cardFg' }}
-            >
-              <NextLink href="/dashboard" aria-label="Notifications">
-                <IconBell />
-              </NextLink>
-            </IconButton>
-            <IconButton
-              asChild
-              variant="ghost"
-              size="sm"
-              display={{ base: 'none', lg: 'inline-flex' }}
-              color="formLabelMuted"
-              bg="badgeBg"
-              borderRadius="full"
-              _hover={{ bg: 'cardBg', color: 'cardFg' }}
-            >
-              <NextLink href="/profile" aria-label="Profile">
-                <IconUser />
-              </NextLink>
-            </IconButton>
-          </>
-        ) : null}
-        <Button
-          auth
-          size="sm"
-          variant="secondary"
-          display={{ base: 'none', lg: 'inline-flex' }}
-          onClick={() => {
-            logout()
-            navigateTo('/')
+          alignItems="center"
+          flexShrink={0}
+          fontSize="sm"
+          fontWeight={600}
+          color="cardFg"
+          h="44px"
+          px={3}
+          borderRadius="md"
+          _hover={{
+            textDecoration: 'none',
+            bg: 'badgeBg',
+            color: 'cardFg',
           }}
         >
-          Log out
-        </Button>
-        <Link as={NextLink} href="/login" _hover={{ textDecoration: 'none' }}>
-          <Button
-            hidden={isLoggedIn}
-            size="sm"
-            variant="secondary"
-            display={{ base: 'none', lg: 'inline-flex' }}
-          >
-            Login
-          </Button>
+          {workerCtaLabel}
         </Link>
+        <HoverDropdownMenu
+          align="end"
+          contentLabel={isLoggedIn ? 'Account menu' : 'Menu'}
+          display={{ base: 'none', lg: 'inline-block' }}
+          trigger={
+            <IconButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              color="formLabelMuted"
+              bg="badgeBg"
+              borderRadius="full"
+              aria-label={isLoggedIn ? 'Account menu' : 'Menu'}
+              _hover={{ bg: 'cardBg', color: 'cardFg' }}
+            >
+              {user ? <AccountTriggerGlyph email={user.email} /> : <IconMenu />}
+            </IconButton>
+          }
+        >
+          <Stack gap={0}>
+            {isLoggedIn ? (
+              <>
+                <Link as={NextLink} href="/profile" {...accountMenuLinkProps}>
+                  Profile
+                </Link>
+                <Link as={NextLink} href="/dashboard" {...accountMenuLinkProps}>
+                  Dashboard
+                </Link>
+                <Link
+                  as={NextLink}
+                  href="/dashboard/messages"
+                  {...accountMenuLinkProps}
+                >
+                  Messages
+                </Link>
+                <ThemeToggleMenuRow />
+                <HeaderLogOutMenuRow onNavigate={navigateTo} />
+              </>
+            ) : (
+              <>
+                <Link as={NextLink} href={loginHref} {...accountMenuLinkProps}>
+                  Log in
+                </Link>
+                <Link as={NextLink} href="/register" {...accountMenuLinkProps}>
+                  Create account
+                </Link>
+                <ThemeToggleMenuRow />
+              </>
+            )}
+          </Stack>
+        </HoverDropdownMenu>
         <IconButton
           aria-label="Open menu"
           variant="ghost"
@@ -315,68 +343,79 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
         placement="end"
         size="xs"
       >
-        <HStack as="nav" align="stretch" gap={2} flexDirection="column">
-          <Link
-            as={NextLink}
-            href="/"
-            {...browseTasksLinkProps}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Browse tasks
-          </Link>
+        <HStack as="nav" align="stretch" gap={0} flexDirection="column">
           <Link
             as={NextLink}
             href="/tasks/create"
-            {...(resolvedActive === 'post-task'
-              ? {
-                  ...navLinkProps,
-                  color: 'primary.700' as const,
-                  fontWeight: 700,
-                }
-              : navLinkProps)}
+            {...accountMenuLinkProps}
+            color={resolvedActive === 'post-task' ? 'primary.700' : 'cardFg'}
+            fontWeight={resolvedActive === 'post-task' ? 700 : 600}
             onClick={() => setMobileMenuOpen(false)}
           >
             Post a task
           </Link>
           <Link
             as={NextLink}
-            href="/tasks"
-            {...navLinkProps}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            How it Works
-          </Link>
-          <Link
-            as={NextLink}
             href={workerHref}
-            {...navLinkProps}
+            {...accountMenuLinkProps}
             onClick={() => setMobileMenuOpen(false)}
           >
-            Become a worker
+            {workerCtaLabel}
           </Link>
           {isLoggedIn ? (
-            <Link
-              as={NextLink}
-              href="/requests"
-              {...navLinkProps}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Requests
-            </Link>
+            <>
+              <Link
+                as={NextLink}
+                href="/profile"
+                {...accountMenuLinkProps}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Profile
+              </Link>
+              <Link
+                as={NextLink}
+                href="/dashboard"
+                {...accountMenuLinkProps}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <Link
+                as={NextLink}
+                href="/dashboard/messages"
+                {...accountMenuLinkProps}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Messages
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                as={NextLink}
+                href={loginHref}
+                {...accountMenuLinkProps}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Log in
+              </Link>
+              <Link
+                as={NextLink}
+                href="/register"
+                {...accountMenuLinkProps}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Create account
+              </Link>
+            </>
+          )}
+          <ThemeToggleMenuRow />
+          {isLoggedIn ? (
+            <HeaderLogOutMenuRow
+              onNavigate={navigateTo}
+              onAfterLogout={() => setMobileMenuOpen(false)}
+            />
           ) : null}
-          <Button
-            auth
-            size="sm"
-            variant="secondary"
-            alignSelf="flex-start"
-            onClick={() => {
-              logout()
-              setMobileMenuOpen(false)
-              navigateTo('/')
-            }}
-          >
-            Log out
-          </Button>
         </HStack>
       </AppDrawer>
     </HStack>

@@ -1,0 +1,39 @@
+---
+description: Use Zod for form validation with react-hook-form; colocate schemas with the feature.
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# Forms and Zod
+
+When adding or refactoring a **user-submitted form** (multiple fields, `onSubmit`, or non-trivial validation), use **Zod** for the schema and wire it with **`react-hook-form`** and **`zodResolver`** from `@hookform/resolvers/zod`.
+
+## Patterns
+
+1. **Colocate the schema** next to the route or feature, e.g. `createTaskFormSchema.ts` under the same segment as the page (see `src/app/(task)/tasks/create/createTaskFormSchema.ts`).
+2. **Export inferred types** with `export type MyFormValues = z.infer<typeof myFormSchema>`.
+3. **Hook setup:**
+
+```tsx
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
+import { myFormSchema } from './myFormSchema'
+
+const form = useForm<z.infer<typeof myFormSchema>>({
+  resolver: zodResolver(myFormSchema),
+  defaultValues: { ... },
+})
+```
+
+4. Prefer **`z.string().trim()`**, **`z.nativeEnum(...)`** for GraphQL/codegen enums, and **`.superRefine` / `.refine`** for cross-field rules instead of scattering checks in `onSubmit`.
+
+## Avoid
+
+- Manual `useState` per field + ad-hoc validation only in `onSubmit` for new multi-field forms (harder to test and keep in sync).
+- Duplicating the same rules in TS types and in hand-written `if` checks without a single Zod source of truth.
+
+## Exceptions
+
+- **Tiny controls** (single checkbox, search box with no schema) may stay local; use judgment.
+- When extending an **existing** form that predates this rule, migrate to Zod when that file is already being changed for behavior.

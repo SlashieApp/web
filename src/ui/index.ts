@@ -19,6 +19,7 @@ export {
 } from './color-mode'
 export { Dock } from './Dock'
 export { FormField } from './FormField/FormField'
+export { HoverDropdownMenu } from './HoverDropdownMenu'
 export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Input } from './Input'
@@ -39,6 +40,7 @@ export type {
   UseColorModeReturn,
 } from './color-mode'
 export type { FormFieldProps } from './FormField/FormField'
+export type { HoverDropdownMenuProps } from './HoverDropdownMenu'
 export type {
   IconButtonProps,
   NavIconButtonProps,

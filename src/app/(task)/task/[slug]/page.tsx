@@ -121,7 +121,7 @@ export async function generateMetadata({
     ? rawDescription.length > 160
       ? `${rawDescription.slice(0, 157)}…`
       : rawDescription
-    : 'Browse task details, worker quotes, and availability on Slashie.'
+    : 'Browse task details and availability on Slashie.'
   const firstImage = task?.images?.[0]
   const ogImageUrl = firstImage ? absoluteUrlFromEnv(firstImage) : undefined
   const canonicalPath = `/task/${slug}`

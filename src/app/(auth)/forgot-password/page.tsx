@@ -1,10 +1,9 @@
 'use client'
 
-import { AuthBrandMark } from '@/app/(auth)/components/AuthBrandMark'
 import { useMutation } from '@apollo/client/react'
 import { Box, Heading, Input, Link, Stack, Text } from '@chakra-ui/react'
 import type { ForgotPasswordMutation } from '@codegen/schema'
-import { Button, FormField } from '@ui'
+import { Button, FormField, Logo } from '@ui'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useMemo, useState } from 'react'
@@ -122,7 +121,7 @@ function ForgotPasswordContent() {
         href="/"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}
       >
-        <AuthBrandMark size="lg" />
+        <Logo h="48px" />
       </Link>
 
       <Box

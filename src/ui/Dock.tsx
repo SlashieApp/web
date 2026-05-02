@@ -50,20 +50,6 @@ function JobsIcon() {
   )
 }
 
-function ChatIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Chat</title>
-      <path
-        d="M5 6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-4 4V6Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 function ProfileIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -83,6 +69,7 @@ export function Dock() {
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
 
+  /** Chat (`/dashboard/messages`) omitted until the feature is ready. */
   const items: DockItem[] = [
     {
       key: 'browse',
@@ -101,12 +88,6 @@ export function Dock() {
       caption: 'Account',
       href: '/profile',
       icon: <ProfileIcon />,
-    },
-    {
-      key: 'chat',
-      caption: 'Chat',
-      href: '/dashboard/messages',
-      icon: <ChatIcon />,
     },
   ]
 

@@ -10,7 +10,7 @@ type BudgetLike =
   | undefined
 
 function toIsoCurrency(currency: Currency | string) {
-  if (currency === 'GDP') return 'GBP'
+  if (currency === 'GBP') return 'GBP'
   return currency
 }
 

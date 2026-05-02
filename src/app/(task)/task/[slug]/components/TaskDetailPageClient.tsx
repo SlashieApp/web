@@ -97,7 +97,7 @@ export function TaskDetailLayout({ taskId }: { taskId: string }) {
     return 'Review the scope, budget, photos, and availability before you send a quote.'
   }, [isOwner, task, taskId])
 
-  const offersCount = task?.quotes.length ?? 0
+  const ownerOffersCount = isOwner && task ? task.quotes.length : null
   const locationLabel = task ? taskPublicLocationLabel(task) : null
   const breadcrumbLabel = useMemo(() => {
     if (!task?.title?.trim()) return 'Browse / Tasks / Details'
@@ -193,8 +193,14 @@ export function TaskDetailLayout({ taskId }: { taskId: string }) {
                       fontWeight={800}
                       letterSpacing="0.08em"
                     >
-                      {taskStatusBadgeLabel(task.status)} · {offersCount} OFFER
-                      {offersCount === 1 ? '' : 'S'}
+                      {taskStatusBadgeLabel(task.status)}
+                      {ownerOffersCount != null ? (
+                        <>
+                          {' · '}
+                          {ownerOffersCount} OFFER
+                          {ownerOffersCount === 1 ? '' : 'S'}
+                        </>
+                      ) : null}
                     </Box>
                   ) : null}
                 </Stack>

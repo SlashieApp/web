@@ -1,30 +1,31 @@
 'use client'
 
-import { AuthBrandMark } from '@/app/(auth)/components/AuthBrandMark'
 import { useMutation } from '@apollo/client/react'
 import {
   Box,
   Checkbox,
   HStack,
   Heading,
-  IconButton,
-  Input,
-  InputGroup,
   Link,
   Stack,
   Text,
 } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
-import { Button, FormField } from '@ui'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Badge, Button, FormField, IconButton, Input, Logo } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
+import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
+import { registerFormSchema } from '@/app/(auth)/register/registerFormSchema'
 import { REGISTER_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
-type AccountRole = 'homeowner' | 'professional'
+type AccountRole = 'customer' | 'worker'
 
 function FieldIconMail() {
   return (
@@ -60,11 +61,11 @@ function FieldIconLock() {
   )
 }
 
-function IconHouse() {
+function IconCustomer() {
   return (
     <Box as="span" display="flex" aria-hidden>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <title>Home</title>
+        <title>Customer</title>
         <path
           d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
           stroke="currentColor"
@@ -76,11 +77,11 @@ function IconHouse() {
   )
 }
 
-function IconTools() {
+function IconWorker() {
   return (
     <Box as="span" display="flex" aria-hidden>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <title>Professional</title>
+        <title>Worker</title>
         <path
           d="m14.5 9.5 5-5M16 8l2 2M3 21l7-7M8 16l-2 2M12 6l6 6-3 3-6-6 3-3Z"
           stroke="currentColor"
@@ -154,19 +155,163 @@ function PasswordToggleButton({
   )
 }
 
+function RegisterFeatureCard({ children }: { children: ReactNode }) {
+  return (
+    <Stack
+      gap={2}
+      flex={1}
+      minW={0}
+      borderRadius="lg"
+      px={{ base: 4, md: 5 }}
+      py={4}
+      bg="rgba(255, 255, 255, 0.08)"
+      borderWidth="1px"
+      borderColor="rgba(255, 255, 255, 0.14)"
+      backdropFilter="blur(10px)"
+    >
+      {children}
+    </Stack>
+  )
+}
+
+function RegisterMarketingAside() {
+  return (
+    <Box
+      position="relative"
+      overflow="hidden"
+      display={{ base: 'none', lg: 'flex' }}
+      flexDirection="column"
+      justifyContent="space-between"
+      minH="100vh"
+      px={{ lg: 10, xl: 14 }}
+      py={{ lg: 12, xl: 14 }}
+      bg="primary.800"
+      color="white"
+    >
+      <Box
+        position="absolute"
+        inset={0}
+        opacity={0.18}
+        bgImage="repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(255,255,255,0.05) 47px, rgba(255,255,255,0.05) 48px), repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(255,255,255,0.05) 47px, rgba(255,255,255,0.05) 48px)"
+        pointerEvents="none"
+        aria-hidden
+      />
+      <Box
+        position="absolute"
+        inset={0}
+        opacity={0.1}
+        bgImage="linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 42%, transparent 58%, rgba(0,0,0,0.22) 100%)"
+        pointerEvents="none"
+        aria-hidden
+      />
+
+      <Stack gap={8} position="relative" zIndex={1} maxW="lg">
+        <Badge
+          alignSelf="flex-start"
+          bg="rgba(0, 0, 0, 0.35)"
+          color="white"
+          fontSize="2xs"
+          letterSpacing="0.1em"
+          textTransform="uppercase"
+          py={1.5}
+          px={3}
+          borderRadius="full"
+          borderWidth="1px"
+          borderColor="rgba(255,255,255,0.12)"
+        >
+          Join Slashie
+        </Badge>
+
+        <Box>
+          <Heading
+            as="h1"
+            fontSize={{ lg: '4xl', xl: '5xl' }}
+            lineHeight="1.1"
+            fontWeight={800}
+            color="white"
+            letterSpacing="-0.03em"
+          >
+            Create an account for local tasks and quotes.
+          </Heading>
+          <Text
+            mt={5}
+            fontSize="lg"
+            lineHeight="1.55"
+            color="rgba(255, 255, 255, 0.88)"
+            fontWeight={500}
+          >
+            Post tasks, compare quotes from nearby workers, or set up your
+            worker profile to find local work.
+          </Text>
+        </Box>
+      </Stack>
+
+      <HStack
+        gap={4}
+        align="stretch"
+        position="relative"
+        zIndex={1}
+        w="full"
+        maxW="lg"
+        mt={{ lg: 12 }}
+      >
+        <RegisterFeatureCard>
+          <Text
+            fontSize="xs"
+            fontWeight={700}
+            letterSpacing="0.08em"
+            color="rgba(255, 255, 255, 0.75)"
+            textTransform="uppercase"
+          >
+            For customers
+          </Text>
+          <Text fontSize="md" fontWeight={700} color="white" lineHeight="1.4">
+            Post tasks and compare quotes
+          </Text>
+        </RegisterFeatureCard>
+        <RegisterFeatureCard>
+          <Text
+            fontSize="xs"
+            fontWeight={700}
+            letterSpacing="0.08em"
+            color="rgba(255, 255, 255, 0.75)"
+            textTransform="uppercase"
+          >
+            For workers
+          </Text>
+          <Text fontSize="md" fontWeight={700} color="white" lineHeight="1.4">
+            Find local tasks and send quotes
+          </Text>
+        </RegisterFeatureCard>
+      </HStack>
+    </Box>
+  )
+}
+
 export default function RegisterPage() {
   const router = useRouter()
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [agreedToTerms, setAgreedToTerms] = useState(false)
-  const [role, setRole] = useState<AccountRole>('homeowner')
-  const [error, setError] = useState<string | null>(null)
+  const [role, setRole] = useState<AccountRole>('customer')
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  const [register, { loading }] =
+  const {
+    register: registerField,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<z.infer<typeof registerFormSchema>>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      agreedToTerms: false,
+    },
+  })
+
+  const [registerMutation, { loading }] =
     useMutation<RegisterMutation>(REGISTER_MUTATION)
 
   const explicitNextPath = useMemo(() => {
@@ -180,31 +325,15 @@ export default function RegisterPage() {
   }, [])
 
   const postRegisterPath = useMemo(
-    () =>
-      role === 'professional' ? '/dashboard/worker/register' : '/dashboard',
+    () => (role === 'worker' ? '/dashboard/worker/register' : '/dashboard'),
     [role],
   )
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-
-    if (!fullName.trim()) {
-      setError('Please enter your full name.')
-      return
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.')
-      return
-    }
-    if (!agreedToTerms) {
-      setError('Please agree to the Terms of Service and Privacy Policy.')
-      return
-    }
-
+  const onValid = async (data: z.infer<typeof registerFormSchema>) => {
+    setServerError(null)
     try {
-      const res = await register({
-        variables: { email, password },
+      const res = await registerMutation({
+        variables: { email: data.email, password: data.password },
       })
 
       const token = res.data?.register?.token
@@ -217,284 +346,324 @@ export default function RegisterPage() {
       setAuthToken(token)
       router.push(explicitNextPath ?? postRegisterPath)
     } catch (err: unknown) {
-      const message = getFriendlyErrorMessage(err, 'Registration failed')
-      setError(message)
+      setServerError(getFriendlyErrorMessage(err, 'Registration failed'))
     }
   }
 
   return (
-    <Stack gap={6}>
-      <Link
-        as={NextLink}
-        href="/"
-        _hover={{ textDecoration: 'none', opacity: 0.9 }}
+    <HStack align="stretch" gap={0} minH="100vh" w="full">
+      <RegisterMarketingAside />
+      <Box
+        flex={1}
+        bg="neutral.100"
+        display="flex"
+        flexDirection="column"
+        minH={{ base: '100vh', lg: 'auto' }}
       >
-        <AuthBrandMark size="lg" />
-      </Link>
-
-      <Box>
-        <Heading size="2xl" color="cardFg">
-          Create your account
-        </Heading>
-        <Text mt={2} color="formLabelMuted" fontSize="sm">
-          Start your journey with HandyBox today.
-        </Text>
-      </Box>
-
-      <HStack gap={3} align="stretch">
-        <Button
-          type="button"
+        <Stack
           flex={1}
-          variant="secondary"
-          borderRadius="lg"
-          borderWidth="2px"
-          borderColor={
-            role === 'homeowner' ? 'primary.500' : 'formControlBorder'
-          }
-          bg={role === 'homeowner' ? 'primary.50' : 'neutral.100'}
-          color={role === 'homeowner' ? 'primary.700' : 'cardFg'}
-          fontWeight={700}
-          py={6}
-          h="auto"
-          onClick={() => setRole('homeowner')}
-          _hover={{
-            bg: role === 'homeowner' ? 'primary.100' : 'cardBg',
-          }}
+          justify="center"
+          px={{ base: 6, md: 10, xl: 16 }}
+          py={{ base: 10, md: 12 }}
+          maxW="md"
+          w="full"
+          mx="auto"
+          gap={8}
         >
-          <Stack gap={2} align="center" w="full">
-            <Box
-              color={role === 'homeowner' ? 'primary.600' : 'formLabelMuted'}
+          <Stack gap={6}>
+            <Link
+              as={NextLink}
+              href="/"
+              display="block"
+              w="full"
+              _hover={{ textDecoration: 'none', opacity: 0.92 }}
             >
-              <IconHouse />
-            </Box>
-            <Box as="span">Homeowner</Box>
-          </Stack>
-        </Button>
-        <Button
-          type="button"
-          flex={1}
-          variant="secondary"
-          borderRadius="lg"
-          borderWidth="2px"
-          borderColor={
-            role === 'professional' ? 'primary.500' : 'formControlBorder'
-          }
-          bg={role === 'professional' ? 'primary.50' : 'neutral.100'}
-          color={role === 'professional' ? 'primary.700' : 'cardFg'}
-          fontWeight={700}
-          py={6}
-          h="auto"
-          onClick={() => setRole('professional')}
-          _hover={{
-            bg: role === 'professional' ? 'primary.100' : 'cardBg',
-          }}
-        >
-          <Stack gap={2} align="center" w="full">
-            <Box
-              color={role === 'professional' ? 'primary.600' : 'formLabelMuted'}
-            >
-              <IconTools />
-            </Box>
-            <Box as="span">Professional</Box>
-          </Stack>
-        </Button>
-      </HStack>
+              <Logo h="48px" />
+            </Link>
 
-      <Box as="form" onSubmit={onSubmit}>
-        <Stack gap={4}>
-          <FormField label="Full Name">
-            <Input
-              placeholder="e.g. John Doe"
-              value={fullName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setFullName(e.target.value)
-              }
-              autoComplete="name"
-              required
-              borderRadius="lg"
-              borderWidth="1px"
-              borderColor="formControlBorder"
-            />
-          </FormField>
+            <Box>
+              <Heading size="2xl" color="cardFg" fontFamily="heading">
+                Create your account
+              </Heading>
+              <Text
+                mt={2}
+                color="formLabelMuted"
+                fontSize="sm"
+                lineHeight="1.55"
+              >
+                Choose how you want to start with Slashie.
+              </Text>
+            </Box>
 
-          <FormField label="Email Address">
-            <InputGroup startElement={<FieldIconMail />}>
-              <Input
-                placeholder="name@company.com"
-                value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setEmail(e.target.value)
-                }
-                type="email"
-                autoComplete="email"
-                required
+            <HStack gap={3} align="stretch">
+              <Button
+                type="button"
+                flex={1}
+                variant="secondary"
                 borderRadius="lg"
-                borderWidth="1px"
-                borderColor="formControlBorder"
-              />
-            </InputGroup>
-          </FormField>
-
-          <HStack
-            gap={4}
-            align="flex-start"
-            flexDir={{ base: 'column', sm: 'row' }}
-          >
-            <FormField
-              label="Password"
-              flex={1}
-              w={{ base: 'full', sm: 'auto' }}
-            >
-              <InputGroup
-                startElement={<FieldIconLock />}
-                endElement={
-                  <PasswordToggleButton
-                    visible={showPassword}
-                    onToggle={() => setShowPassword((v) => !v)}
-                    label={showPassword ? 'Hide password' : 'Show password'}
-                  />
+                borderWidth="2px"
+                borderColor={
+                  role === 'customer' ? 'primary.500' : 'formControlBorder'
                 }
-              >
-                <Input
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setPassword(e.target.value)
-                  }
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  required
-                  minLength={8}
-                  borderRadius="lg"
-                  borderWidth="1px"
-                  borderColor="formControlBorder"
-                />
-              </InputGroup>
-            </FormField>
-            <FormField
-              label="Confirm"
-              flex={1}
-              w={{ base: 'full', sm: 'auto' }}
-            >
-              <InputGroup
-                startElement={<FieldIconLock />}
-                endElement={
-                  <PasswordToggleButton
-                    visible={showConfirm}
-                    onToggle={() => setShowConfirm((v) => !v)}
-                    label={
-                      showConfirm
-                        ? 'Hide confirm password'
-                        : 'Show confirm password'
-                    }
-                  />
-                }
-              >
-                <Input
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setConfirmPassword(e.target.value)
-                  }
-                  type={showConfirm ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  required
-                  minLength={8}
-                  borderRadius="lg"
-                  borderWidth="1px"
-                  borderColor="formControlBorder"
-                />
-              </InputGroup>
-            </FormField>
-          </HStack>
-
-          <Checkbox.Root
-            checked={agreedToTerms}
-            onCheckedChange={(detail) =>
-              setAgreedToTerms(Boolean(detail.checked))
-            }
-            colorPalette="blue"
-          >
-            <Checkbox.HiddenInput />
-            <HStack gap={3} align="flex-start">
-              <Checkbox.Control
-                mt={0.5}
-                borderRadius="md"
-                borderWidth="1px"
-                borderColor="formControlBorder"
-                bg="neutral.100"
-                _checked={{
-                  bg: 'primary.500',
-                  borderColor: 'primary.500',
-                  color: 'white',
+                bg={role === 'customer' ? 'primary.50' : 'neutral.100'}
+                color={role === 'customer' ? 'primary.700' : 'cardFg'}
+                fontWeight={700}
+                py={6}
+                h="auto"
+                onClick={() => setRole('customer')}
+                _hover={{
+                  bg: role === 'customer' ? 'primary.100' : 'cardBg',
                 }}
               >
-                <Checkbox.Indicator color="inherit" />
-              </Checkbox.Control>
-              <Checkbox.Label
-                fontSize="sm"
-                fontWeight={500}
-                color="cardFg"
-                lineHeight="1.5"
+                <Stack gap={1} align="center" w="full">
+                  <Box
+                    color={
+                      role === 'customer' ? 'primary.600' : 'formLabelMuted'
+                    }
+                  >
+                    <IconCustomer />
+                  </Box>
+                  <Box as="span">Customer</Box>
+                  <Text
+                    fontSize="xs"
+                    fontWeight={600}
+                    color={
+                      role === 'customer' ? 'primary.600' : 'formLabelMuted'
+                    }
+                  >
+                    Post tasks
+                  </Text>
+                </Stack>
+              </Button>
+              <Button
+                type="button"
+                flex={1}
+                variant="secondary"
+                borderRadius="lg"
+                borderWidth="2px"
+                borderColor={
+                  role === 'worker' ? 'primary.500' : 'formControlBorder'
+                }
+                bg={role === 'worker' ? 'primary.50' : 'neutral.100'}
+                color={role === 'worker' ? 'primary.700' : 'cardFg'}
+                fontWeight={700}
+                py={6}
+                h="auto"
+                onClick={() => setRole('worker')}
+                _hover={{
+                  bg: role === 'worker' ? 'primary.100' : 'cardBg',
+                }}
               >
-                I agree to the{' '}
+                <Stack gap={1} align="center" w="full">
+                  <Box
+                    color={role === 'worker' ? 'primary.600' : 'formLabelMuted'}
+                  >
+                    <IconWorker />
+                  </Box>
+                  <Box as="span">Worker</Box>
+                  <Text
+                    fontSize="xs"
+                    fontWeight={600}
+                    color={role === 'worker' ? 'primary.600' : 'formLabelMuted'}
+                  >
+                    Send quotes
+                  </Text>
+                </Stack>
+              </Button>
+            </HStack>
+
+            <Box asChild w="full">
+              <form onSubmit={handleSubmit(onValid)} noValidate>
+                <Stack gap={4}>
+                  <FormField
+                    label="Full name"
+                    errorText={errors.fullName?.message}
+                  >
+                    <Input
+                      placeholder="e.g. John Doe"
+                      autoComplete="name"
+                      rootProps={{ minH: '48px', w: 'full' }}
+                      {...registerField('fullName')}
+                    />
+                  </FormField>
+
+                  <FormField
+                    label="Email address"
+                    errorText={errors.email?.message}
+                  >
+                    <Input
+                      startElement={<FieldIconMail />}
+                      placeholder="name@company.com"
+                      type="email"
+                      autoComplete="email"
+                      rootProps={{ minH: '48px', w: 'full' }}
+                      {...registerField('email')}
+                    />
+                  </FormField>
+
+                  <HStack
+                    gap={4}
+                    align="flex-start"
+                    flexDir={{ base: 'column', sm: 'row' }}
+                  >
+                    <FormField
+                      label="Password"
+                      flex={1}
+                      w={{ base: 'full', sm: 'auto' }}
+                      errorText={errors.password?.message}
+                    >
+                      <Input
+                        startElement={<FieldIconLock />}
+                        endElement={
+                          <PasswordToggleButton
+                            visible={showPassword}
+                            onToggle={() => setShowPassword((v) => !v)}
+                            label={
+                              showPassword ? 'Hide password' : 'Show password'
+                            }
+                          />
+                        }
+                        placeholder="••••••••"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        rootProps={{ minH: '48px', w: 'full' }}
+                        {...registerField('password')}
+                      />
+                    </FormField>
+                    <FormField
+                      label="Confirm password"
+                      flex={1}
+                      w={{ base: 'full', sm: 'auto' }}
+                      errorText={errors.confirmPassword?.message}
+                    >
+                      <Input
+                        startElement={<FieldIconLock />}
+                        endElement={
+                          <PasswordToggleButton
+                            visible={showConfirm}
+                            onToggle={() => setShowConfirm((v) => !v)}
+                            label={
+                              showConfirm
+                                ? 'Hide confirm password'
+                                : 'Show confirm password'
+                            }
+                          />
+                        }
+                        placeholder="••••••••"
+                        type={showConfirm ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        rootProps={{ minH: '48px', w: 'full' }}
+                        {...registerField('confirmPassword')}
+                      />
+                    </FormField>
+                  </HStack>
+
+                  <Stack gap={1}>
+                    <Controller
+                      name="agreedToTerms"
+                      control={control}
+                      render={({ field: { value, onChange, ref, name } }) => (
+                        <Checkbox.Root
+                          name={name}
+                          ref={ref}
+                          checked={value}
+                          onCheckedChange={(detail) =>
+                            onChange(Boolean(detail.checked))
+                          }
+                          colorPalette="blue"
+                        >
+                          <Checkbox.HiddenInput />
+                          <HStack gap={3} align="flex-start">
+                            <Checkbox.Control
+                              mt={0.5}
+                              borderRadius="md"
+                              borderWidth="1px"
+                              borderColor="formControlBorder"
+                              bg="neutral.100"
+                              _checked={{
+                                bg: 'primary.500',
+                                borderColor: 'primary.500',
+                                color: 'white',
+                              }}
+                            >
+                              <Checkbox.Indicator color="inherit" />
+                            </Checkbox.Control>
+                            <Checkbox.Label
+                              fontSize="sm"
+                              fontWeight={500}
+                              color="cardFg"
+                              lineHeight="1.5"
+                            >
+                              I agree to the{' '}
+                              <Link
+                                as={NextLink}
+                                href="/terms"
+                                fontWeight={700}
+                                color="primary.600"
+                                _hover={{ color: 'primary.700' }}
+                              >
+                                Terms of Service
+                              </Link>{' '}
+                              and{' '}
+                              <Link
+                                as={NextLink}
+                                href="/privacy"
+                                fontWeight={700}
+                                color="primary.600"
+                                _hover={{ color: 'primary.700' }}
+                              >
+                                Privacy Policy
+                              </Link>
+                              .
+                            </Checkbox.Label>
+                          </HStack>
+                        </Checkbox.Root>
+                      )}
+                    />
+                    {errors.agreedToTerms?.message ? (
+                      <Text color="red.500" fontSize="sm">
+                        {errors.agreedToTerms.message}
+                      </Text>
+                    ) : null}
+                  </Stack>
+
+                  {serverError ? (
+                    <Text color="red.500" fontSize="sm">
+                      {serverError}
+                    </Text>
+                  ) : null}
+
+                  <Button
+                    type="submit"
+                    loading={loading}
+                    w="full"
+                    borderRadius="full"
+                    size="lg"
+                    minH="48px"
+                  >
+                    Create account
+                  </Button>
+                </Stack>
+              </form>
+            </Box>
+
+            <Stack gap={2} pt={2}>
+              <Text fontSize="sm" color="formLabelMuted" textAlign="center">
+                Already have an account?{' '}
                 <Link
                   as={NextLink}
                   href="/login"
                   fontWeight={700}
                   color="primary.600"
-                  _hover={{ color: 'primary.700' }}
+                  _hover={{ color: 'primary.700', textDecoration: 'none' }}
                 >
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link
-                  as={NextLink}
-                  href="/register"
-                  fontWeight={700}
-                  color="primary.600"
-                  _hover={{ color: 'primary.700' }}
-                >
-                  Privacy Policy
+                  Log in
                 </Link>
-                .
-              </Checkbox.Label>
-            </HStack>
-          </Checkbox.Root>
-
-          {error ? (
-            <Text color="red.500" fontSize="sm">
-              {error}
-            </Text>
-          ) : null}
-
-          <Button
-            type="submit"
-            loading={loading}
-            w="full"
-            borderRadius="full"
-            size="lg"
-            boxShadow="0 8px 20px rgba(26, 86, 219, 0.25)"
-          >
-            Create Account
-          </Button>
+              </Text>
+            </Stack>
+          </Stack>
         </Stack>
       </Box>
-
-      <Box pt={2} borderTopWidth="1px" borderColor="formControlBorder">
-        <Text fontSize="sm" color="formLabelMuted" textAlign="center">
-          Already have an account?{' '}
-          <Link
-            as={NextLink}
-            href="/login"
-            fontWeight={700}
-            color="primary.600"
-            _hover={{ color: 'primary.700', textDecoration: 'none' }}
-          >
-            Log In
-          </Link>
-        </Text>
-      </Box>
-    </Stack>
+    </HStack>
   )
 }

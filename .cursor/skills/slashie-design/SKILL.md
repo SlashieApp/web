@@ -1,256 +1,229 @@
 ---
 name: slashie-design
 description: >-
-  Applies slashie UI design tokens, component patterns, interactions, and
-  accessibility rules (blueprint + amber identity). Use when building or
+  Applies Slashie UI design tokens, component patterns, interactions,
+  marketplace page patterns, and accessibility rules. Use when building or
   changing UI, styling pages, adding components, landing sections, dashboards,
-  task cards, forms, badges, navigation, or when the user mentions slashie
-  design, DESIGN.md, or brand look-and-feel.
+  task cards, quote flows, forms, badges, navigation, or when the user mentions
+  Slashie design, DESIGN.md, brand look-and-feel, or UI design tokens.
 ---
 
 # Slashie UI Design
 
-## Theme support requirement
+## Source of truth
 
-Slashie UI supports both **light theme** and **dark theme**.
+Follow the current wiki notes:
 
-Every UI component must have **two design-ready versions**:
+- `02-Engineering/Slashie-Brand-Design.md`
+- `02-Engineering/Slashie-Design-Tokens.md`
+- `01-Product/FE-Page-Inventory-and-Design-Briefs.md`
 
-- a light-theme version
-- a dark-theme version
+## 1. Executive summary
 
-When creating or updating components, always define and verify both variants (tokens, states, contrast, and interaction feedback).
+Slashie is a map-first local services marketplace connecting:
 
-## 1) Executive summary
+- **Customers** who post local tasks
+- **Workers** who browse nearby tasks and send quotes
 
-Slashie UI is a map-first, high-legibility design system for a local task marketplace.
+The UI should make task discovery, quote comparison, and account actions fast, clear, and trustworthy on mobile and desktop.
 
-It is built to make task discovery, quote comparison, and account actions fast and clear on mobile and desktop.
+The design direction is:
 
-The design direction combines:
+- Modern
+- Map-native
+- High-legibility
+- Clean and trustworthy
+- Green/mint-led, not blue or amber
 
-- **Architectural structure** (clean hierarchy, disciplined layout)
+## 2. Design north star
 
-- **Editorial rhythm** (scale contrast + negative space)
+Slashie treats the screen as a local marketplace viewport:
 
-- **Operational clarity** (clear actions, fast scanability)
-
-The UI should feel premium and modern without visual clutter.
-
-## 2) Design north star
-
-The product treats the screen as a **digital viewport**:
-
-- the map is foundational context
-
-- interface elements are purposeful overlays/sheets
-
-- typography and spacing do most of the communication work
+- The map is foundational context.
+- Task cards and quote surfaces should be compact and scannable.
+- Interface elements should feel purposeful, not decorative.
+- Typography, spacing, and tonal surfaces should do most of the hierarchy work.
 
 Core principle: clarity over decoration.
 
-## 3) Brand expression
+## 3. Brand identity
 
-### Identity system
+- Primary logo: green rounded square with white slash/dollar-style mark.
+- Wordmark: lowercase `slashie`.
+- Brand accent: green/mint.
+- Tone: practical, local, clean, confident, money-aware.
 
-- Primary brand mark: forward **slash** motif
+Use the slash motif where meaningful, but do not over-decorate the interface.
 
-- Wordmark style: lowercase `slashie`
+## 4. Color system
 
-- Tone: precise, technical, approachable
-
-### Brand usage intent
-
-- Use mark/wordmark lockup in major navigation and brand moments
-
-- Use compact mark in constrained UI surfaces
-
-- Keep brand geometry consistent and avoid arbitrary distortion
-
-## 4) Color and tonal architecture
-
-The palette uses a neutral technical base with a kinetic mint accent.
-
-### Core colors
+Use current Slashie tokens.
 
 | Token | Value | Use |
+|---|---:|---|
+| `primary.green` | `#00DC82` | Main brand accent, CTAs, active states |
+| `green.600` | `#00AB63` | Pressed states, strong green emphasis |
+| `green.500` | `#53D388` | Secondary highlights, map pins |
+| `green.300` | `#92E7B7` | Soft fills, progress backgrounds |
+| `green.100` | `#D9F4E5` | Pale success/brand containers |
+| `neutral.900` | `#0B1714` | Primary text, dark nav, strong icons |
+| `neutral.700` | `#3F4B45` | Secondary text |
+| `neutral.500` | `#6B7370` | Metadata, placeholders |
+| `neutral.300` | `#D1D5D4` | Subtle separators and input strokes |
+| `neutral.100` | `#F7F9F8` | Page background |
+| `white` | `#FFFFFF` | Cards and elevated surfaces |
 
-|---|---|---|
+## 5. Theme guidance
 
-| Primary kinetic | `#00DC82` | Primary action emphasis, active highlights |
+Default product UI is light:
 
-| Primary deep | `#10B981` | CTA gradient depth |
+- White cards
+- Pale neutral backgrounds
+- Green primary actions
+- Compact metadata
+- Clear map-first layout
 
-| Tertiary accent | `#54BBBB` | Secondary highlight moments |
+Dark surfaces may be used for navigation, brand scenes, or high-contrast UI moments. Do not invent a full dark theme unless explicitly requested or already supported by the app.
 
-| Brand dark | `#07172A` | Dark surfaces/brand scenes |
+If a dark variant is created, verify tokens, states, contrast, and interaction feedback.
 
-| Text dark (ink) | `#0B1020` | Primary text on light backgrounds |
+## 6. Surface hierarchy
 
-| White | `#FFFFFF` | Text on dark surfaces |
+Prefer tonal layering over heavy borders:
 
-| Neutral base reference | `#777777` | Tonal anchoring concept |
+- `surface`
+- `surface-container-low`
+- `surface-container-lowest`
+- `surface-container-high`
+- `surface-container-highest`
+- `primary-container`
 
-### Surface hierarchy
+Avoid 1px borders as the main sectioning method. Use whitespace, radius, tonal shifts, and compact shadows first.
 
-Use tonal layering for separation:
+## 7. Typography
 
-- `surface` (base, light + dark variants)
+- **Plus Jakarta Sans**: display, hero, and headline moments.
+- **Inter**: product UI, labels, dense body content, metadata.
 
-- `surface-container-low/lowest` (inset, light + dark variants)
+Use strong hierarchy:
 
-- `surface-container-high/highest` (elevated focus, light + dark variants)
+- Clear page titles
+- Compact card titles
+- Short metadata rows
+- Small labels for scanability
 
-- `primary-container` (action emphasis, light + dark variants)
-
-### The no-line rule
-
-- Do not use 1px borders for sectioning by default.
-
-- Section boundaries should be perceived via tonal shifts and spacing.
-
-- If a boundary is required for accessibility, use low-opacity outline fallback.
-
-### Glass and gradient behavior
-
-- Floating-over-map elements: translucent surface + backdrop blur (20px)
-
-- Primary CTA polish: linear gradient from `#00DC82` to `#10B981` (approx. 135deg)
-
-## 5) Typography system
-
-Typography balances expressive hierarchy and utility reading.
-
-### Font roles
-
-- **Plus Jakarta Sans**: display/headline emphasis
-
-- **Inter**: body text, labels, dense utility content
-
-### Hierarchy behavior
-
-- Display text creates strong section anchors
-
-- Body text remains compact and readable
-
-- Labels are concise and support scanability
-
-### Editorial rhythm
-
-- Pair larger headlines with smaller uppercase metadata labels
-
-- Use spacing and contrast to define hierarchy before adding UI chrome
-
-## 6) Elevation and depth
-
-Depth is mostly tonal, not shadow-heavy.
-
-- Prefer stacked tonal surfaces for hierarchy
-
-- Use shadows only for truly floating/high-priority surfaces
-
-- Keep contours moderately rounded for approachable precision
-
-Recommended floating shadow profile (when needed):
-
-- Y offset ~24px
-
-- Blur ~48px
-
-- Dark neutral alpha shadow (soft edge)
-
-## 7) Component behavior
-
-All component behaviors below must be implemented for both light and dark theme versions.
+## 8. Core components
 
 ### Buttons
 
-- **Primary:** high-contrast kinetic CTA treatment
+- Primary: green filled button with white text.
+- Secondary: quiet white, outlined, or pale green treatment.
+- Ghost: text/icon-only action.
+- Icon: compact circular or square action.
 
-- **Secondary:** quiet supporting action (surface-based)
+Primary actions should be visually obvious and green.
 
-- **Tertiary:** text-forward action for low-emphasis interactions
+### Cards
+
+Task and quote cards should be compact, scannable, and marketplace-focused.
+
+Task cards should usually include:
+
+- Thumbnail or category image
+- Task title
+- Distance/location metadata
+- Timing metadata
+- Price or budget
+- Category/status tags
+- Primary action such as `View details`
+
+Quote cards should usually include:
+
+- Worker avatar
+- Worker name
+- Rating or trust signal
+- Quote price
+- Message preview
+- Relevant actions
 
 ### Inputs
 
-- Minimal shell with tonal background
+- White or pale neutral field
+- Clear placeholder
+- Green focus state
+- Clear success/error states
+- Minimal visual noise
 
-- Focus indicated by strong bottom accent stroke
+### Badges and tags
 
-- Error shown clearly in text/state, avoiding visual over-noise
+Use badges for task state, quote metadata, category, urgency, completion, and verification.
 
-### Cards and lists
+Green is for active, selected, successful, money, worker/customer matching, or progress moments.
 
-- Avoid divider-line dependency
+## 9. Map-first behavior
 
-- Use vertical spacing (12px/16px) and tonal changes between items
+Map UI should feel integrated with the product:
 
-- Keep information hierarchy strict and predictable
+- Use green price/location pins.
+- Keep floating controls legible.
+- Do not block too much geography.
+- Use bottom sheets on mobile for selected tasks.
+- Prefer compact preview cards over large duplicated content.
 
-### Map-native surfaces
+## 10. Page behavior
 
-- Floating search/actions should feel integrated with map context
+Slashie pages should not create separate designs for every account role.
 
-- Overlay elements remain legible without obscuring spatial orientation
+Use one shared page where account status and permissions reveal more or less action.
 
-## 8) Interaction and motion
+Example: `/task/[slug]`
 
-Motion must be purposeful:
+- Visitors see public-safe task details and sign-in/register prompts.
+- Registered workers can see quote actions when eligible.
+- The customer who owns the task can see owner-only quote comparison and accept actions.
+- Private address/contact details must not appear in public visitor state.
 
-- orient users (navigation/state shifts)
+## 11. Payment copy
 
-- confirm actions (submit/accept/complete)
+Slashie does not process payments in the current product direction.
 
-- reduce uncertainty in high-frequency flows
+Payment copy must say payment is arranged directly between customer and worker outside Slashie.
 
-Avoid decorative animation in dense task flows.
+Do not imply escrow, platform-held payment, card capture, or in-app payout unless the product brief changes.
 
-## 9) Accessibility requirements
+## 12. Accessibility
 
-- Text contrast target: WCAG AA minimum
+- Meet WCAG AA contrast for text and key UI states.
+- Touch targets should be at least 44x44 where practical.
+- Forms need clear labels, focus, error, and success states.
+- Do not rely on color alone to communicate state.
+- Keep dense task and quote flows readable on mobile.
 
-- Verify WCAG AA contrast in **both** light and dark themes for every component/state
+## 13. Microcopy
 
-- Touch targets: 44x44 minimum where applicable
-
-- Form states: clear success/error feedback
-
-- Accent colors must preserve readability on both light and dark surfaces
-
-## 10) Content style and microcopy
-
-- Use short, direct action language
-
-- Prefer operational terms users already see in product:
+Use consistent product language:
 
 - task
-
 - quote
-
 - worker
-
+- customer
 - request
 
-- Reduce cognitive load by keeping labels and status wording consistent
+Avoid mixing in terms like provider, bid, job poster, offer, or gig unless the user explicitly asks for marketing copy that uses broader category language.
 
-## 11) Do and don't
+## 14. Do
 
-### Do
+- Use green for primary actions and marketplace progress.
+- Keep layouts clean, local, and task-focused.
+- Use compact metadata rows.
+- Prioritize mobile-first task discovery.
+- Use tonal surfaces and spacing for structure.
+- Keep quote and task comparison easy to scan.
 
-- Use whitespace deliberately to create premium clarity
+## 15. Don't
 
-- Maintain strong typography hierarchy
-
-- Trust tonal layering for structure
-
-- Keep roundedness moderate and consistent
-
-### Don't
-
-- Don't overuse borders or visual separators
-
-- Don't crowd cards/actions in dense clusters
-
-- Don't introduce random greys/greens outside token intent
-
-- Don't rely on icons when text can be clearer
+- Do not use amber or blue as brand identity colors.
+- Do not overuse borders, heavy shadows, or divider lines.
+- Do not create separate page variants when permission-gated sections on one page are correct.
+- Do not imply Slashie handles payment if the current brief says payment is external.
+- Do not crowd task cards with too many actions.

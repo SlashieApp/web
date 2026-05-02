@@ -68,6 +68,7 @@ export function AppDrawer({
       <DrawerBackdrop bg="blackAlpha.600" />
       <DrawerPositioner>
         <DrawerContent
+          colorPalette="green"
           bg="bg"
           boxShadow="none"
           display="flex"
@@ -82,7 +83,7 @@ export function AppDrawer({
                   fontFamily="heading"
                   fontSize="lg"
                   fontWeight={800}
-                  color="secondary.900"
+                  color="cardFg"
                   lineHeight="short"
                   letterSpacing="-0.02em"
                   flex={1}
@@ -99,9 +100,14 @@ export function AppDrawer({
                     h={11}
                     fontSize="xl"
                     lineHeight={1}
-                    color="secondary.900"
+                    color="primary.600"
                     flexShrink={0}
-                    _hover={{ bg: 'secondary.100' }}
+                    _hover={{ bg: 'badgeBg', color: 'primary.700' }}
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'primary.500',
+                      outlineOffset: '2px',
+                    }}
                   >
                     ×
                   </IconButton>
@@ -109,7 +115,7 @@ export function AppDrawer({
               </HStack>
               {description ? (
                 <DrawerDescription
-                  color="secondary.700"
+                  color="formLabelMuted"
                   fontSize="sm"
                   lineHeight="tall"
                   fontWeight={500}
@@ -140,9 +146,11 @@ export function AppDrawer({
             >
               <Button
                 variant="primary"
+                colorPalette="green"
                 w="full"
                 size="lg"
                 borderRadius="xl"
+                color="white"
                 onClick={() => {
                   onPrimaryAction?.()
                   onOpenChange(false)

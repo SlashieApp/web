@@ -5,11 +5,10 @@ import type {
   AcceptQuoteMutation,
   AddQuoteMutation,
   CancelTaskMutation,
-  Currency,
   MeQuery,
   TaskQuery,
 } from '@codegen/schema'
-import { QuoteStatus, TaskStatus } from '@codegen/schema'
+import { Currency, QuoteStatus, TaskStatus } from '@codegen/schema'
 import { useRouter } from 'next/navigation'
 import {
   createContext,
@@ -186,7 +185,7 @@ export function TaskDetailProvider({
             taskId: task.id,
             price: {
               amount: (Number(quoteAmountInput) || 0) / 100,
-              currency: 'GDP' as Currency,
+              currency: Currency.Gbp,
             },
             message: quoteMessageInput || undefined,
           },

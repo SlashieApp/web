@@ -39,7 +39,7 @@ export const Default: Story = {
           Open drawer
         </Button>
         <AppDrawer {...args} open={open} onOpenChange={setOpen}>
-          <Text fontSize="sm" color="secondary.700">
+          <Text fontSize="sm" color="formLabelMuted">
             Drawer body content goes here.
           </Text>
         </AppDrawer>

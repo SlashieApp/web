@@ -1,24 +1,18 @@
 'use client'
 
-import { AuthBrandMark } from '@/app/(auth)/components/AuthBrandMark'
 import { useMutation } from '@apollo/client/react'
-import {
-  Box,
-  HStack,
-  Heading,
-  IconButton,
-  Input,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import type { ResetPasswordMutation } from '@codegen/schema'
-import { Button, FormField } from '@ui'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button, FormField, IconButton, Input, Logo } from '@ui'
 import NextLink from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import type { z } from 'zod'
 
+import { resetPasswordFormSchema } from '@/app/(auth)/reset-password/resetPasswordFormSchema'
 import { RESET_PASSWORD_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -105,7 +99,7 @@ function PasswordToggleButton({
       h="var(--input-height)"
       borderRadius="md"
       color="formLabelMuted"
-      _hover={{ bg: 'rgba(0, 63, 177, 0.06)' }}
+      _hover={{ bg: 'badgeBg' }}
     >
       <IconEye open={!visible} />
     </IconButton>
@@ -195,54 +189,50 @@ function IconArrowRight() {
   )
 }
 
+const numberOrSymbol = /[\d!@#$%^&*(),.?":{}|<>[\]\\/_+=-]/
+
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const [token, setToken] = useState(() => {
-    if (typeof window === 'undefined') return ''
-    return new URLSearchParams(window.location.search).get('token') ?? ''
-  })
-  const [showTokenField, setShowTokenField] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const searchParams = useSearchParams()
+  const tokenFromUrl = useMemo(
+    () => searchParams.get('token')?.trim() ?? '',
+    [searchParams],
+  )
+  const [showTokenField, setShowTokenField] = useState(() => !tokenFromUrl)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<z.infer<typeof resetPasswordFormSchema>>({
+    resolver: zodResolver(resetPasswordFormSchema),
+    defaultValues: {
+      token: tokenFromUrl,
+      newPassword: '',
+      confirmPassword: '',
+    },
+  })
+
+  const newPasswordValue =
+    useWatch({ control, name: 'newPassword', defaultValue: '' }) ?? ''
+
+  const hasMinLength = newPasswordValue.length >= 8
+  const hasNumberOrSymbol = numberOrSymbol.test(newPasswordValue)
+  const hasUppercase = /[A-Z]/.test(newPasswordValue)
 
   const [resetPassword, { loading }] = useMutation<ResetPasswordMutation>(
     RESET_PASSWORD_MUTATION,
   )
 
-  const hasMinLength = newPassword.length >= 8
-  const hasNumberOrSymbol = /[\d!@#$%^&*(),.?":{}|<>[\]\\/_+=-]/.test(
-    newPassword,
-  )
-  const hasUppercase = /[A-Z]/.test(newPassword)
-
-  const passwordMeetsRules = useMemo(
-    () => hasMinLength && hasNumberOrSymbol && hasUppercase,
-    [hasMinLength, hasNumberOrSymbol, hasUppercase],
-  )
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-
-    if (!token.trim()) {
-      setError('Reset token is required.')
-      return
-    }
-    if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.')
-      return
-    }
-    if (!passwordMeetsRules) {
-      setError('Please meet all password requirements below.')
-      return
-    }
-
+  const onValid = async (data: z.infer<typeof resetPasswordFormSchema>) => {
+    setServerError(null)
     try {
       const res = await resetPassword({
-        variables: { token: token.trim(), newPassword },
+        variables: { token: data.token.trim(), newPassword: data.newPassword },
       })
 
       const authToken = res.data?.resetPassword?.token
@@ -255,18 +245,23 @@ export default function ResetPasswordPage() {
       setAuthToken(authToken)
       router.push('/dashboard')
     } catch (err: unknown) {
-      setError(getFriendlyErrorMessage(err, 'Could not reset password.'))
+      setServerError(getFriendlyErrorMessage(err, 'Could not reset password.'))
     }
   }
+
+  const tokenWatch =
+    useWatch({ control, name: 'token', defaultValue: tokenFromUrl }) ?? ''
 
   return (
     <Stack gap={6} w="full">
       <Link
         as={NextLink}
         href="/"
+        display="block"
+        w="full"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}
       >
-        <AuthBrandMark size="lg" />
+        <Logo h="48px" />
       </Link>
 
       <Box
@@ -290,167 +285,142 @@ export default function ResetPasswordPage() {
 
           <Box>
             <Heading size="xl" color="cardFg">
-              Reset Password
+              Reset password
             </Heading>
             <Text mt={2} color="formLabelMuted" fontSize="sm">
               Create a new, strong password for your account.
             </Text>
           </Box>
 
-          <Box as="form" onSubmit={onSubmit} w="full" textAlign="left">
-            <Stack gap={4}>
-              {(showTokenField || !token) && (
-                <FormField label="Reset token">
-                  <Input
-                    placeholder="Paste token from your email"
-                    value={token}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setToken(e.target.value)
-                    }
-                    required
-                    borderRadius="lg"
-                    bg="primary.50"
-                    borderWidth="0"
-                    boxShadow="none"
-                    _focusVisible={{
-                      boxShadow:
-                        'inset 0 0 0 2px rgba(26, 86, 219, 0.3), 0 0 0 3px rgba(26, 86, 219, 0.1)',
-                    }}
-                  />
-                </FormField>
-              )}
-
-              {token && !showTokenField ? (
-                <Text fontSize="xs" color="formLabelMuted" textAlign="center">
-                  <Box
-                    asChild
-                    display="inline"
-                    fontWeight={600}
-                    color="primary.600"
-                    _hover={{ color: 'primary.700' }}
+          <Box asChild w="full">
+            <form onSubmit={handleSubmit(onValid)} noValidate>
+              <Stack gap={4} textAlign="left">
+                {(showTokenField || !tokenWatch) && (
+                  <FormField
+                    label="Reset token"
+                    errorText={errors.token?.message}
                   >
-                    <button
-                      type="button"
-                      onClick={() => setShowTokenField(true)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: 0,
-                        cursor: 'pointer',
-                        font: 'inherit',
-                        color: 'inherit',
-                      }}
-                    >
-                      Enter or edit reset token
-                    </button>
-                  </Box>
-                </Text>
-              ) : null}
+                    <Input
+                      placeholder="Paste token from your email"
+                      autoComplete="one-time-code"
+                      rootProps={{ minH: '48px', w: 'full' }}
+                      {...register('token')}
+                    />
+                  </FormField>
+                )}
 
-              <FormField label="New Password">
-                <Box position="relative">
+                {tokenWatch && !showTokenField ? (
+                  <Text fontSize="xs" color="formLabelMuted" textAlign="center">
+                    <Box
+                      asChild
+                      display="inline"
+                      fontWeight={600}
+                      color="primary.600"
+                      _hover={{ color: 'primary.700' }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setShowTokenField(true)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                          font: 'inherit',
+                          color: 'inherit',
+                        }}
+                      >
+                        Enter or edit reset token
+                      </button>
+                    </Box>
+                  </Text>
+                ) : null}
+
+                <FormField
+                  label="New password"
+                  errorText={errors.newPassword?.message}
+                >
                   <Input
-                    placeholder="••••••••"
-                    value={newPassword}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setNewPassword(e.target.value)
+                    endElement={
+                      <PasswordToggleButton
+                        visible={showNew}
+                        onToggle={() => setShowNew((v) => !v)}
+                        label={showNew ? 'Hide password' : 'Show password'}
+                      />
                     }
+                    placeholder="••••••••"
                     type={showNew ? 'text' : 'password'}
                     autoComplete="new-password"
-                    pr={12}
-                    borderRadius="lg"
-                    bg="primary.50"
-                    borderWidth="0"
-                    boxShadow="none"
-                    _focusVisible={{
-                      boxShadow:
-                        'inset 0 0 0 2px rgba(26, 86, 219, 0.3), 0 0 0 3px rgba(26, 86, 219, 0.1)',
-                    }}
+                    rootProps={{ minH: '48px', w: 'full' }}
+                    {...register('newPassword')}
                   />
-                  <Box position="absolute" right={1} top={0}>
-                    <PasswordToggleButton
-                      visible={showNew}
-                      onToggle={() => setShowNew((v) => !v)}
-                      label={showNew ? 'Hide password' : 'Show password'}
-                    />
-                  </Box>
-                </Box>
-              </FormField>
+                </FormField>
 
-              <FormField label="Confirm New Password">
-                <Box position="relative">
+                <FormField
+                  label="Confirm new password"
+                  errorText={errors.confirmPassword?.message}
+                >
                   <Input
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setConfirmPassword(e.target.value)
+                    endElement={
+                      <PasswordToggleButton
+                        visible={showConfirm}
+                        onToggle={() => setShowConfirm((v) => !v)}
+                        label={
+                          showConfirm
+                            ? 'Hide confirm password'
+                            : 'Show confirm password'
+                        }
+                      />
                     }
+                    placeholder="••••••••"
                     type={showConfirm ? 'text' : 'password'}
                     autoComplete="new-password"
-                    pr={12}
-                    borderRadius="lg"
-                    bg="primary.50"
-                    borderWidth="0"
-                    boxShadow="none"
-                    _focusVisible={{
-                      boxShadow:
-                        'inset 0 0 0 2px rgba(26, 86, 219, 0.3), 0 0 0 3px rgba(26, 86, 219, 0.1)',
-                    }}
+                    rootProps={{ minH: '48px', w: 'full' }}
+                    {...register('confirmPassword')}
                   />
-                  <Box position="absolute" right={1} top={0}>
-                    <PasswordToggleButton
-                      visible={showConfirm}
-                      onToggle={() => setShowConfirm((v) => !v)}
-                      label={
-                        showConfirm
-                          ? 'Hide confirm password'
-                          : 'Show confirm password'
-                      }
-                    />
-                  </Box>
-                </Box>
-              </FormField>
+                </FormField>
 
-              <Stack
-                gap={2.5}
-                p={4}
-                borderRadius="lg"
-                bg="primary.100"
-                w="full"
-              >
-                <Text
-                  fontSize="2xs"
-                  fontWeight={700}
-                  letterSpacing="0.12em"
-                  color="formLabelMuted"
-                  textTransform="uppercase"
+                <Stack
+                  gap={2.5}
+                  p={4}
+                  borderRadius="lg"
+                  bg="primary.100"
+                  w="full"
                 >
-                  Security standards
-                </Text>
-                <ReqRow met={hasMinLength}>8+ characters required</ReqRow>
-                <ReqRow met={hasNumberOrSymbol}>
-                  Include a number or symbol
-                </ReqRow>
-                <ReqRow met={hasUppercase}>One uppercase letter</ReqRow>
+                  <Text
+                    fontSize="2xs"
+                    fontWeight={700}
+                    letterSpacing="0.12em"
+                    color="formLabelMuted"
+                    textTransform="uppercase"
+                  >
+                    Password requirements
+                  </Text>
+                  <ReqRow met={hasMinLength}>8+ characters required</ReqRow>
+                  <ReqRow met={hasNumberOrSymbol}>
+                    Include a number or symbol
+                  </ReqRow>
+                  <ReqRow met={hasUppercase}>One uppercase letter</ReqRow>
+                </Stack>
+
+                {serverError ? (
+                  <Text role="alert" color="red.500" fontSize="sm">
+                    {serverError}
+                  </Text>
+                ) : null}
+
+                <Button
+                  type="submit"
+                  loading={loading}
+                  w="full"
+                  borderRadius="lg"
+                  size="lg"
+                >
+                  Update password
+                  <IconArrowRight />
+                </Button>
               </Stack>
-
-              {error ? (
-                <Text color="red.500" fontSize="sm">
-                  {error}
-                </Text>
-              ) : null}
-
-              <Button
-                type="submit"
-                loading={loading}
-                w="full"
-                borderRadius="lg"
-                size="lg"
-              >
-                Update Password
-                <IconArrowRight />
-              </Button>
-            </Stack>
+            </form>
           </Box>
 
           <Link
@@ -461,17 +431,17 @@ export default function ResetPasswordPage() {
             color="primary.600"
             _hover={{ color: 'primary.700', textDecoration: 'none' }}
           >
-            ← Back to Sign In
+            ← Back to sign in
           </Link>
         </Stack>
       </Box>
 
       <HStack gap={2} color="formLabelMuted" justify="center">
         <IconShieldSmall />
-        <IconShieldSmall />
+        <Text fontSize="xs">Secure connection</Text>
       </HStack>
       <Text fontSize="xs" color="formLabelMuted" textAlign="center">
-        © 2024 HandyBox Technologies. Secure Infrastructure v2.4.0
+        © {new Date().getFullYear()} Slashie
       </Text>
     </Stack>
   )
