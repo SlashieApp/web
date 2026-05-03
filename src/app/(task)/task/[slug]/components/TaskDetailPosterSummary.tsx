@@ -5,6 +5,7 @@ import { Box, HStack, Stack } from '@chakra-ui/react'
 import { Heading, Text } from '@chakra-ui/react'
 import { Card } from '@ui'
 
+import { useTaskDetail } from '../context/TaskDetailProvider'
 import type { TaskDetailRecord } from './taskDetailUtils'
 
 function posterDisplayName(task: TaskDetailRecord): string {
@@ -16,13 +17,10 @@ function posterDisplayName(task: TaskDetailRecord): string {
   return combined || 'Task owner'
 }
 
-export type TaskDetailPosterSummaryProps = {
-  task: TaskDetailRecord
-}
+export function TaskDetailPosterSummary() {
+  const { task } = useTaskDetail()
+  if (!task) return null
 
-export function TaskDetailPosterSummary({
-  task,
-}: TaskDetailPosterSummaryProps) {
   const name = posterDisplayName(task)
 
   return (

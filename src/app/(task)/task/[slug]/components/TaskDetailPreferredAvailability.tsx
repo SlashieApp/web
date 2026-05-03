@@ -7,18 +7,13 @@ import { IconCalendar } from '@/icons/taskMeta'
 import { Button } from '@ui'
 import { Card } from '@ui'
 
-import {
-  type TaskDetailRecord,
-  buildAvailabilityChips,
-} from './taskDetailUtils'
+import { useTaskDetail } from '../context/TaskDetailProvider'
+import { buildAvailabilityChips } from './taskDetailUtils'
 
-export type TaskDetailPreferredAvailabilityProps = {
-  task: TaskDetailRecord
-}
+export function TaskDetailPreferredAvailability() {
+  const { task } = useTaskDetail()
+  if (!task) return null
 
-export function TaskDetailPreferredAvailability({
-  task,
-}: TaskDetailPreferredAvailabilityProps) {
   const chips = buildAvailabilityChips(task)
   const [activeKey, setActiveKey] = useState(chips[0]?.key ?? '')
 

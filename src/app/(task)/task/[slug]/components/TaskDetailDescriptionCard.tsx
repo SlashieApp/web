@@ -8,20 +8,17 @@ import { Heading, Text } from '@chakra-ui/react'
 import { IconDocument } from '@/icons/taskMeta'
 import { Card } from '@ui'
 
-import type { TaskDetailRecord } from './taskDetailUtils'
+import { useTaskDetail } from '../context/TaskDetailProvider'
 
 function formatPaymentMethod(paymentMethod: string) {
   const normalised = paymentMethod.replaceAll('_', ' ').toLowerCase()
   return normalised.charAt(0).toUpperCase() + normalised.slice(1)
 }
 
-export type TaskDetailDescriptionCardProps = {
-  task: TaskDetailRecord
-}
+export function TaskDetailDescriptionCard() {
+  const { task } = useTaskDetail()
+  if (!task) return null
 
-export function TaskDetailDescriptionCard({
-  task,
-}: TaskDetailDescriptionCardProps) {
   return (
     <Card p={{ base: 5, md: 6 }} maxW="full" w="full">
       <Stack gap={4}>

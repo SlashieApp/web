@@ -6,42 +6,34 @@ import NextLink from 'next/link'
 import { priceToPence } from '@/utils/price'
 import { Card } from '@ui'
 
+import { useTaskDetail } from '../context/TaskDetailProvider'
 import { TaskQuoteCard } from './TaskQuoteCard'
-import type { TaskDetailRecord } from './taskDetailUtils'
+import {
+  formatPoundsFromPence,
+  workerQuoteAvatarLabel,
+} from './taskDetailUtils'
 
-export type TaskDetailOwnerQuotesSectionProps = {
-  task: TaskDetailRecord
-  sortedQuotes: TaskDetailRecord['quotes']
-  lowestPricePence: number | null
-  isOwner: boolean
-  canAcceptQuotes: boolean
-  acceptError: string | null
-  cancelError: string | null
-  acceptingQuoteId: string | null
-  onAcceptQuote: (quoteId: string) => void
-  formatPounds: (pricePence: number) => string
-  workerAvatarLabel: (workerUserId: string) => string
-}
+export function TaskDetailOwnerQuotesSection() {
+  const {
+    task,
+    isOwner,
+    sortedQuotes,
+    lowestPricePence,
+    canAcceptQuotes,
+    acceptError,
+    cancelError,
+    acceptingQuoteId,
+    onAcceptQuote,
+  } = useTaskDetail()
 
-export function TaskDetailOwnerQuotesSection({
-  task,
-  sortedQuotes,
-  lowestPricePence,
-  isOwner,
-  canAcceptQuotes,
-  acceptError,
-  cancelError,
-  acceptingQuoteId,
-  onAcceptQuote,
-  formatPounds,
-  workerAvatarLabel,
-}: TaskDetailOwnerQuotesSectionProps) {
+  if (!task) return null
+
   const n = task.quotes.length
 
   return (
     <Stack gap={4} w="full" pt={{ base: 2, lg: 4 }} id="owner-quotes">
       <HStack justify="space-between" align="center" flexWrap="wrap" gap={3}>
-        <Heading size="md">Worker quotes</Heading>
+        <Heading size="md">Quotes</Heading>
         {n > 0 ? (
           <Link
             as={NextLink}
@@ -83,12 +75,12 @@ export function TaskDetailOwnerQuotesSection({
               <TaskQuoteCard
                 key={quote.id}
                 name={professionalName}
-                avatarLabel={workerAvatarLabel(quote.workerUserId)}
+                avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
                 avatarUrl={quote.professional?.profile?.avatarUrl}
                 priceLabel={
                   isOwner
                     ? quotePence != null
-                      ? formatPounds(quotePence)
+                      ? formatPoundsFromPence(quotePence)
                       : '—'
                     : 'Hidden until you own this task'
                 }

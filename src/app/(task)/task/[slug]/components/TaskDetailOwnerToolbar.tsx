@@ -1,21 +1,12 @@
 'use client'
 
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { TaskStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 
 import { Button } from '@ui'
 
-import type { TaskDetailRecord } from './taskDetailUtils'
-
-export type TaskDetailOwnerToolbarProps = {
-  task: TaskDetailRecord
-  openStatusLabel: string
-  quotesReceivedLabel: string
-  onViewStats: () => void
-  onCancelTask: () => void
-  cancelLoading: boolean
-  cancelDisabled?: boolean
-}
+import { useTaskDetail } from '../context/TaskDetailProvider'
 
 function IconPencil() {
   return (
@@ -61,17 +52,23 @@ function IconCancel() {
   )
 }
 
-export function TaskDetailOwnerToolbar({
-  task,
-  openStatusLabel,
-  quotesReceivedLabel,
-  onViewStats,
-  onCancelTask,
-  cancelLoading,
-  cancelDisabled = false,
-}: TaskDetailOwnerToolbarProps) {
+export function TaskDetailOwnerToolbar() {
+  const {
+    isOwner,
+    task,
+    cancelingTask,
+    onCancelTask,
+    scrollToOwnerPerformance,
+  } = useTaskDetail()
+  if (!isOwner || !task) return null
+
+  const cancelDisabled =
+    task.status === TaskStatus.Cancelled ||
+    task.status === TaskStatus.Completed ||
+    task.status === TaskStatus.Confirmed
+
   return (
-    <Stack gap={5} w="full">
+    <Stack gap={3} w="full">
       <HStack gap={2} fontSize="sm" color="formLabelMuted" flexWrap="wrap">
         <Link
           as={NextLink}
@@ -88,114 +85,59 @@ export function TaskDetailOwnerToolbar({
         </Text>
       </HStack>
 
-      <Stack
-        gap={4}
-        flexDirection={{ base: 'column', md: 'row' }}
-        align={{ base: 'stretch', md: 'flex-start' }}
-        justify="space-between"
-      >
-        <Stack gap={3} flex={1} minW={0}>
-          <HStack gap={2} flexWrap="wrap" align="center">
-            <Box
-              as="span"
-              display="inline-flex"
-              alignItems="center"
-              gap={2}
-              px={3}
-              py={1.5}
-              borderRadius="full"
-              bg="#F2994A"
-              color="white"
-              fontSize="11px"
-              fontWeight={800}
-              letterSpacing="0.08em"
-            >
-              <Box
-                as="span"
-                w="6px"
-                h="6px"
-                borderRadius="full"
-                bg="white"
-                aria-hidden
-              />
-              {openStatusLabel}
-            </Box>
-            <Box
-              as="span"
-              display="inline-flex"
-              px={3}
-              py={1.5}
-              borderRadius="full"
-              bg="badgeBg"
-              color="cardFg"
-              fontSize="11px"
-              fontWeight={700}
-              letterSpacing="0.04em"
-            >
-              {quotesReceivedLabel}
-            </Box>
-          </HStack>
-          <Heading
-            size={{ base: 'xl', md: '2xl' }}
-            fontWeight={800}
-            lineHeight="shorter"
-            color="ink.900"
-          >
-            {task.title}
-          </Heading>
-        </Stack>
-
-        <HStack gap={2} flexWrap="wrap" flexShrink={0}>
-          <NextLink href="/requests" passHref legacyBehavior>
-            <Button
-              as="a"
-              variant="secondary"
-              borderColor="cardBorder"
-              color="cardFg"
-              bg="white"
-              size="sm"
-              borderRadius="lg"
-            >
-              <HStack gap={2}>
-                <IconPencil />
-                <span>Edit task</span>
-              </HStack>
-            </Button>
-          </NextLink>
+      <HStack gap={2} flexWrap="wrap">
+        <Link
+          as={NextLink}
+          href="/requests"
+          _hover={{ textDecoration: 'none' }}
+        >
           <Button
-            type="button"
             variant="secondary"
             borderColor="cardBorder"
             color="cardFg"
             bg="white"
             size="sm"
             borderRadius="lg"
-            onClick={onViewStats}
           >
             <HStack gap={2}>
-              <IconChart />
-              <span>View stats</span>
+              <IconPencil />
+              <span>Edit task</span>
             </HStack>
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            borderColor="red.200"
-            color="red.700"
-            bg="red.50"
-            size="sm"
-            borderRadius="lg"
-            loading={cancelLoading}
-            disabled={cancelDisabled}
-            onClick={onCancelTask}
-          >
-            <HStack gap={2}>
-              <IconCancel />
-              <span>Cancel task</span>
-            </HStack>
-          </Button>
-        </HStack>
-      </Stack>
+        </Link>
+        <Button
+          type="button"
+          variant="secondary"
+          borderColor="cardBorder"
+          color="cardFg"
+          bg="white"
+          size="sm"
+          borderRadius="lg"
+          onClick={scrollToOwnerPerformance}
+        >
+          <HStack gap={2}>
+            <IconChart />
+            <span>View stats</span>
+          </HStack>
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          borderColor="red.200"
+          color="red.700"
+          bg="red.50"
+          size="sm"
+          borderRadius="lg"
+          loading={cancelingTask}
+          disabled={cancelDisabled}
+          onClick={() => void onCancelTask()}
+        >
+          <HStack gap={2}>
+            <IconCancel />
+            <span>Cancel task</span>
+          </HStack>
+        </Button>
+      </HStack>
     </Stack>
   )
 }

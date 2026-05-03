@@ -1,16 +1,27 @@
 'use client'
 
-import { Box, HStack, Heading, Input, Stack, Text } from '@chakra-ui/react'
-import type { Price, QuoteStatus } from '@codegen/schema'
+import {
+  Box,
+  HStack,
+  Heading,
+  Input,
+  Link,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
 import { IconDocument } from '@/icons/taskMeta'
-import { Badge, Button } from '@ui'
-import { Card } from '@ui'
+import { Badge, Button, Card } from '@ui'
 
 import { priceToPence } from '@/utils/price'
-import { formatPoundsFromPence } from './taskDetailUtils'
+
+import { useTaskDetail } from '../context/TaskDetailProvider'
+import {
+  formatPoundsFromPence,
+  normaliseTaskStatusForBadge,
+} from './taskDetailUtils'
 
 function IconBookmark(props: { size?: number }) {
   const s = props.size ?? 18
@@ -27,28 +38,19 @@ function IconBookmark(props: { size?: number }) {
   )
 }
 
-function normaliseStatus(status: string) {
-  return status.replaceAll('_', ' ').toUpperCase()
-}
-
-export type TaskDetailWorkerCtasProps = {
-  isAuthenticated: boolean
-  loginHref: string
-  onScrollToQuoteForm: () => void
-}
-
-export function TaskDetailWorkerCtas({
-  isAuthenticated,
-  loginHref,
-  onScrollToQuoteForm,
-}: TaskDetailWorkerCtasProps) {
+export function TaskDetailWorkerCtas() {
+  const { isOwner, task, isAuthenticated, scrollToQuoteForm } = useTaskDetail()
   const [saveNote, setSaveNote] = useState<string | null>(null)
+
+  if (isOwner || !task) return null
+
+  const loginHref = `/login?next=${encodeURIComponent(`/task/${task.id}#task-quote`)}`
 
   return (
     <Card p={{ base: 5, md: 5 }} maxW="full" w="full">
       <Stack gap={3}>
         {isAuthenticated ? (
-          <Button type="button" w="full" onClick={onScrollToQuoteForm}>
+          <Button type="button" w="full" onClick={scrollToQuoteForm}>
             <HStack gap={2} justify="center">
               <IconDocument />
               <span>Make a quote</span>
@@ -60,11 +62,13 @@ export function TaskDetailWorkerCtas({
               Log in with your worker account to send a quote and message the
               client.
             </Text>
-            <NextLink href={loginHref} passHref legacyBehavior>
-              <Button as="a" w="full">
-                Log in to make a quote
-              </Button>
-            </NextLink>
+            <Link
+              as={NextLink}
+              href={loginHref}
+              _hover={{ textDecoration: 'none' }}
+            >
+              <Button w="full">Log in to make a quote</Button>
+            </Link>
             <Button
               type="button"
               variant="secondary"
@@ -72,7 +76,7 @@ export function TaskDetailWorkerCtas({
               borderColor="primary.200"
               color="primary.700"
               bg="primary.50"
-              onClick={onScrollToQuoteForm}
+              onClick={scrollToQuoteForm}
             >
               Preview quote form
             </Button>
@@ -105,53 +109,43 @@ export function TaskDetailWorkerCtas({
   )
 }
 
-export type TaskDetailWorkerQuotePanelProps = {
-  myQuote: {
-    price?: Price | null
-    message?: string | null
-    status: QuoteStatus
-  } | null
-  canAccessWorkerTools: boolean
-  mePresent: boolean
-  loginHref: string
-  pricePence: string
-  message: string
-  onPriceChange: (v: string) => void
-  onMessageChange: (v: string) => void
-  onSubmitQuote: () => void
-  quoting: boolean
-  quoteError: string | null
-  quoteSuccess: string | null
-}
+export function TaskDetailWorkerQuotePanel() {
+  const {
+    isOwner,
+    task,
+    isAuthenticated,
+    myQuote,
+    canAccessWorkerTools,
+    quoteAmountInput,
+    quoteMessageInput,
+    setQuoteAmountInput,
+    setQuoteMessageInput,
+    onSubmitQuote,
+    quoting,
+    quoteError,
+    quoteSuccess,
+  } = useTaskDetail()
 
-export function TaskDetailWorkerQuotePanel({
-  myQuote,
-  canAccessWorkerTools,
-  mePresent,
-  loginHref,
-  pricePence,
-  message,
-  onPriceChange,
-  onMessageChange,
-  onSubmitQuote,
-  quoting,
-  quoteError,
-  quoteSuccess,
-}: TaskDetailWorkerQuotePanelProps) {
+  if (isOwner || !task) return null
+
+  const loginHref = `/login?next=${encodeURIComponent(`/task/${task.id}#task-quote`)}`
+
   return (
     <Box id="task-quote" scrollMarginTop="96px">
-      {!mePresent ? (
+      {!isAuthenticated ? (
         <Card p={6} maxW="full" w="full">
           <Stack gap={4}>
             <Heading size="md">Log in to make a quote</Heading>
             <Text color="formLabelMuted">
               Sign in to send your quote and message to the task owner.
             </Text>
-            <NextLink href={loginHref} passHref legacyBehavior>
-              <Button as="a" w="full">
-                Log in
-              </Button>
-            </NextLink>
+            <Link
+              as={NextLink}
+              href={loginHref}
+              _hover={{ textDecoration: 'none' }}
+            >
+              <Button w="full">Log in</Button>
+            </Link>
           </Stack>
         </Card>
       ) : myQuote ? (
@@ -164,7 +158,7 @@ export function TaskDetailWorkerQuotePanel({
               {myQuote.message ? ` — “${myQuote.message}”` : '.'}
             </Text>
             <Badge bg="cardBg" color="cardFg" w="fit-content">
-              Status: {normaliseStatus(myQuote.status)}
+              Status: {normaliseTaskStatusForBadge(myQuote.status)}
             </Badge>
           </Stack>
         </Card>
@@ -181,11 +175,13 @@ export function TaskDetailWorkerQuotePanel({
             <Text color="formLabelMuted">
               Create your worker profile to unlock quoting and worker tools.
             </Text>
-            <NextLink href="/dashboard/worker/register" passHref legacyBehavior>
-              <Button as="a" w="full">
-                Create worker profile
-              </Button>
-            </NextLink>
+            <Link
+              as={NextLink}
+              href="/dashboard/worker/register"
+              _hover={{ textDecoration: 'none' }}
+            >
+              <Button w="full">Create worker profile</Button>
+            </Link>
           </Stack>
         </Card>
       ) : (
@@ -198,16 +194,16 @@ export function TaskDetailWorkerQuotePanel({
             <Stack gap={3}>
               <Input
                 placeholder="Quote price (pence)"
-                value={pricePence}
+                value={quoteAmountInput}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  onPriceChange(e.target.value)
+                  setQuoteAmountInput(e.target.value)
                 }
               />
               <Input
                 placeholder="Short message to the client"
-                value={message}
+                value={quoteMessageInput}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  onMessageChange(e.target.value)
+                  setQuoteMessageInput(e.target.value)
                 }
               />
               <Button

@@ -56,6 +56,8 @@ type TaskDetailContextValue = {
   onSubmitQuote: () => Promise<void>
   onAcceptQuote: (quoteId: string) => Promise<void>
   onCancelTask: () => Promise<void>
+  scrollToQuoteForm: () => void
+  scrollToOwnerPerformance: () => void
 }
 
 const TaskDetailContext = createContext<TaskDetailContextValue | null>(null)
@@ -261,6 +263,22 @@ export function TaskDetailProvider({
     }
   }, [cancelTask, refreshTask, task])
 
+  const scrollToQuoteForm = useCallback(() => {
+    if (typeof document === 'undefined') return
+    document.getElementById('task-quote')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }, [])
+
+  const scrollToOwnerPerformance = useCallback(() => {
+    if (typeof document === 'undefined') return
+    document.getElementById('owner-task-performance')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }, [])
+
   const value = useMemo<TaskDetailContextValue>(
     () => ({
       task,
@@ -286,6 +304,8 @@ export function TaskDetailProvider({
       onSubmitQuote,
       onAcceptQuote,
       onCancelTask,
+      scrollToQuoteForm,
+      scrollToOwnerPerformance,
     }),
     [
       acceptError,
@@ -307,6 +327,8 @@ export function TaskDetailProvider({
       quoteMessageInput,
       quoteSuccess,
       quoting,
+      scrollToOwnerPerformance,
+      scrollToQuoteForm,
       sortedQuotes,
       task,
     ],

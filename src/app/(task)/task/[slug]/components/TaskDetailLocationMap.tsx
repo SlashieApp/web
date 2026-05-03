@@ -38,12 +38,15 @@ export type TaskDetailLocationMapProps = {
   accessToken: string | undefined
   lat: number
   lng: number
+  /** Map container height (default 200px). */
+  height?: string
 }
 
 export function TaskDetailLocationMap({
   accessToken,
   lat,
   lng,
+  height = '200px',
 }: TaskDetailLocationMapProps) {
   const mapRef = useRef<MapboxMap | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
@@ -134,7 +137,7 @@ export function TaskDetailLocationMap({
     <Box
       ref={setContainerRef}
       w="full"
-      h="200px"
+      h={height}
       borderRadius="lg"
       overflow="hidden"
       borderWidth="1px"

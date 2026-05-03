@@ -192,7 +192,7 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
     ? '/dashboard'
     : `/login?next=${encodeURIComponent('/dashboard')}`
 
-  const workerCtaLabel = isLoggedIn ? 'Switch to work mode' : 'Join Slashie'
+  const workerCtaLabel = isLoggedIn ? 'Worker Dashboard' : 'Join Slashie'
 
   const navigateTo = useCallback((href: string) => {
     if (typeof window === 'undefined') return

@@ -1,6 +1,14 @@
 'use client'
 
-import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Heading,
+  Image,
+  Link,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { Badge, Button } from '@ui'
@@ -163,21 +171,25 @@ export function TaskQuoteCard({
       {showActions ? (
         <HStack gap={2} flexWrap="wrap">
           {messageHref ? (
-            <NextLink href={messageHref} passHref legacyBehavior>
+            <Link
+              as={NextLink}
+              href={messageHref}
+              flex={1}
+              minW="120px"
+              _hover={{ textDecoration: 'none' }}
+            >
               <Button
-                as="a"
                 size="sm"
                 variant="secondary"
                 borderColor="primary.200"
                 color="primary.700"
                 bg="primary.50"
                 px={4}
-                flex={1}
-                minW="120px"
+                w="full"
               >
                 Message
               </Button>
-            </NextLink>
+            </Link>
           ) : null}
           {isOwnQuote ? (
             <Button

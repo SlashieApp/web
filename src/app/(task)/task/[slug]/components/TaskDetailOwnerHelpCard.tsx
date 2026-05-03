@@ -3,7 +3,12 @@
 import { Box, Link, Stack, Text } from '@chakra-ui/react'
 import { Card } from '@ui'
 
+import { useTaskDetail } from '../context/TaskDetailProvider'
+
 export function TaskDetailOwnerHelpCard() {
+  const { isOwner } = useTaskDetail()
+  if (!isOwner) return null
+
   return (
     <Card
       p={6}
