@@ -11,6 +11,7 @@ export function BackToBrowseLink() {
       fontWeight={600}
       color="formLabelMuted"
       fontSize="sm"
+      w="fit-content"
       _hover={{ textDecoration: 'none' }}
     >
       ← Back to browse

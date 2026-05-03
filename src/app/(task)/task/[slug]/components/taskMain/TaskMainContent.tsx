@@ -11,7 +11,7 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
   type TaskDetailRecord,
   buildAvailabilityChips,
-} from '../taskDetailUtils'
+} from '../../helpers/taskDetailUtils'
 
 function formatPaymentMethod(paymentMethod: string) {
   const normalised = paymentMethod.replaceAll('_', ' ').toLowerCase()

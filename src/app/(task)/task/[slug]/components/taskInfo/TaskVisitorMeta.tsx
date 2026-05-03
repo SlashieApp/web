@@ -7,14 +7,14 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { TaskDetailLocationMap } from '../TaskDetailLocationMap'
 import {
   budgetKindLabel,
   taskAvailabilityRangeLabel,
   taskBudgetDisplayLine,
   taskMapCoordinates,
-} from '../taskDetailUtils'
+} from '../../helpers/taskDetailUtils'
 import { MetaRow } from './MetaRow'
+import { TaskDetailLocationMap } from './TaskDetailLocationMap'
 import {
   IconCalendar,
   IconClock,

@@ -9,7 +9,7 @@ import {
   averageHoursToQuotes,
   formatAvgResponseHours,
   ownerProInterestLabel,
-} from '../taskDetailUtils'
+} from '../../helpers/taskDetailUtils'
 
 function StatCell({
   label,

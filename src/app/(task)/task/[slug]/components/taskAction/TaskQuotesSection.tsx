@@ -21,7 +21,7 @@ import {
   formatPoundsFromPence,
   normaliseTaskStatusForBadge,
   workerQuoteAvatarLabel,
-} from '../taskDetailUtils'
+} from '../../helpers/taskDetailUtils'
 import { TaskQuoteCard } from './TaskQuoteCard'
 
 export function TaskQuotesSection() {

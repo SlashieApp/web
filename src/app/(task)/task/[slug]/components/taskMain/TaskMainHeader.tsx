@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react'
 import { Button } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { centerColumnStatusLabel } from '../taskDetailUtils'
+import { centerColumnStatusLabel } from '../../helpers/taskDetailUtils'
 
 export function TaskMainHeader() {
   const { task, isOwner } = useTaskDetail()

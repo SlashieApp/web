@@ -173,19 +173,26 @@ export function Dock() {
         align="stretch"
         gap={{ base: 1, md: 2 }}
         flexDirection={{ base: 'row', md: 'column' }}
-        justify={{ base: 'space-around', md: 'flex-start' }}
+        justify={{ base: 'flex-start', md: 'flex-start' }}
         w="full"
         flex={{ base: undefined, md: 1 }}
         minH={{ base: undefined, md: 0 }}
       >
         {items.map((item) => (
-          <IconButton
+          <Box
             key={item.key}
-            href={item.href}
-            icon={item.icon}
-            caption={item.caption}
-            active={isHrefActive(item.href)}
-          />
+            display={{ base: 'flex', md: 'contents' }}
+            flex={{ base: 1, md: 'unset' }}
+            minW={0}
+            justifyContent="center"
+          >
+            <IconButton
+              href={item.href}
+              icon={item.icon}
+              caption={item.caption}
+              active={isHrefActive(item.href)}
+            />
+          </Box>
         ))}
         <Box
           display={{ base: 'none', md: 'flex' }}

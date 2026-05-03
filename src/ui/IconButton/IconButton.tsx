@@ -45,10 +45,11 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         <Link
           as={NextLink}
           href={href}
-          style={{
-            textDecoration: 'none',
-            flex: '0 0 auto',
-          }}
+          display="flex"
+          w={{ base: 'full', md: 'auto' }}
+          justifyContent={{ base: 'center', md: 'flex-start' }}
+          alignItems="center"
+          textDecoration="none"
         >
           <Box
             w={{ base: '56px', md: '60px' }}
@@ -61,6 +62,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
             color={active ? 'intentPrimaryFg' : 'formLabelMuted'}
             py={1.5}
             px={1}
+            flexShrink={0}
             _hover={{
               bg: active ? 'intentPrimaryBg' : 'badgeBg',
               color: active ? 'intentPrimaryFg' : 'cardFg',
@@ -75,11 +77,19 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
               position="relative"
               textAlign="center"
             >
-              <Box position="relative" display="inline-flex" minH="20px">
+              <Box
+                position="relative"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                w="full"
+                minH="20px"
+              >
                 {icon}
               </Box>
               {caption ? (
                 <Text
+                  w="full"
                   fontSize="xs"
                   fontWeight={700}
                   color={active ? 'intentPrimaryFg' : 'formLabelMuted'}

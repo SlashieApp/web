@@ -9,6 +9,7 @@ import { TASK_QUERY } from '@/graphql/tasks'
 import { fetch } from '@/utils/api'
 import { Footer } from '@ui'
 
+import { BackToBrowseLink } from './components/BackToBrowseLink'
 import { TaskActionSection } from './components/taskAction/TaskActionSection'
 import { TaskInfoSection } from './components/taskInfo/TaskInfoSection'
 import { TaskMainSection } from './components/taskMain/TaskMainSection'
@@ -112,6 +113,7 @@ export default async function TaskDetailPage({
           <Box as="section" pt={{ base: 8, md: 10 }} pb={{ base: 28, md: 10 }}>
             <Container>
               <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
+                <BackToBrowseLink />
                 <Grid
                   w="full"
                   templateColumns={{
