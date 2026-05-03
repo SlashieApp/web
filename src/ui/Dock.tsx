@@ -146,11 +146,11 @@ export function Dock() {
       display="flex"
       position={{ base: 'fixed', md: 'relative' }}
       alignSelf={{ base: 'auto', md: 'stretch' }}
-      h={{ base: 'auto', md: 'full' }}
-      minH={{ base: 'auto', md: 'full' }}
-      left={{ base: 2, md: 0 }}
+      h={{ base: 'auto', md: 'auto' }}
+      minH={{ base: 'auto', md: 0 }}
+      left={{ base: 2, md: 'auto' }}
       right={{ base: 2, md: 'auto' }}
-      bottom={{ base: 2, md: 0 }}
+      bottom={{ base: 2, md: 'auto' }}
       zIndex={20}
       bg="bg"
       borderWidth={{ base: '1px', md: 0 }}

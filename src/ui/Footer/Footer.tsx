@@ -5,46 +5,84 @@ import NextLink from 'next/link'
 
 const links = [
   { label: 'Support', href: '/' },
-  { label: 'Privacy Policy', href: '/register' },
-  { label: 'Terms of Service', href: '/login' },
-  { label: 'Help Center', href: '/forgot-password' },
-  { label: 'Safety', href: '/dashboard' },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Terms of Service', href: '/terms' },
+  { label: 'Help Center', href: 'https://slashie.app' },
+  { label: 'Safety', href: 'https://slashie.app' },
 ] as const
+
+function isExternalHref(href: string) {
+  return /^https?:\/\//i.test(href)
+}
 
 export function Footer() {
   return (
-    <Box as="footer" borderTopWidth="1px" borderColor="secondary.200" bg="bg">
-      <Container>
+    <Box
+      as="footer"
+      borderTopWidth="1px"
+      borderColor="cardBorder"
+      bg="bg"
+      py={{ base: 8, md: 10 }}
+    >
+      <Container maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
         <Stack
           direction={{ base: 'column', md: 'row' }}
           align={{ base: 'flex-start', md: 'center' }}
           justify="space-between"
-          gap={3}
+          gap={6}
         >
-          <Stack gap={1}>
-            <Text fontWeight={700}>Slashie</Text>
-            <Text fontSize="sm" color="secondary.700">
-              Connecting skilled tradespeople with homeowners who value quality
-              workmanship.
+          <Stack gap={2} maxW={{ md: 'md' }}>
+            <Text fontWeight={700} color="cardFg">
+              Slashie
             </Text>
-            <Text fontSize="sm" color="secondary.700">
-              © 2024 Slashie. Built for trusted local work.
+            <Text fontSize="sm" color="formLabelMuted" lineHeight="short">
+              A local marketplace for people who need tasks done and workers who
+              quote, deliver, and build trust on the map.
+            </Text>
+            <Text fontSize="sm" color="formLabelMuted">
+              © 2026 Slashie. Built for trusted local work.
             </Text>
           </Stack>
 
-          <HStack gap={4} flexWrap="wrap">
-            {links.map((link) => (
-              <Link
-                key={`${link.href}-${link.label}`}
-                as={NextLink}
-                href={link.href}
-                fontWeight={600}
-                fontSize="sm"
-                _hover={{ textDecoration: 'none', color: 'primary.600' }}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <HStack gap={{ base: 3, md: 4 }} flexWrap="wrap">
+            {links.map((link) =>
+              isExternalHref(link.href) ? (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  fontWeight={600}
+                  fontSize="sm"
+                  color="cardFg"
+                  _hover={{ textDecoration: 'none', color: 'primary.600' }}
+                  _focusVisible={{
+                    outline: '2px solid',
+                    outlineColor: 'primary.500',
+                    outlineOffset: '2px',
+                  }}
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <Link
+                  key={link.label}
+                  as={NextLink}
+                  href={link.href}
+                  fontWeight={600}
+                  fontSize="sm"
+                  color="cardFg"
+                  _hover={{ textDecoration: 'none', color: 'primary.600' }}
+                  _focusVisible={{
+                    outline: '2px solid',
+                    outlineColor: 'primary.500',
+                    outlineOffset: '2px',
+                  }}
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
           </HStack>
         </Stack>
       </Container>

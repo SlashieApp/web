@@ -6,7 +6,7 @@ import NextLink from 'next/link'
 
 import { Button } from '@ui'
 
-import { useTaskDetail } from '../context/TaskDetailProvider'
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 
 function IconPencil() {
   return (
@@ -52,7 +52,7 @@ function IconCancel() {
   )
 }
 
-export function TaskDetailOwnerToolbar() {
+export function OwnerToolbar() {
   const {
     isOwner,
     task,

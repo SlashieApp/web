@@ -54,9 +54,11 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
   return (
     <Box display="flex" flexDirection="column" height="100dvh">
       <Header />
-      <Box as="main" flex={1} display="flex">
+      <Box as="main" flex={1} display="flex" minH={0} overflow="hidden">
         <Dock />
-        {children}
+        <Box flex={1} minW={0} minH={0} overflowY="auto">
+          {children}
+        </Box>
       </Box>
     </Box>
   )

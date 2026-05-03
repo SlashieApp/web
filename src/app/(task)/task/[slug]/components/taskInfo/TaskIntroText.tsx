@@ -2,9 +2,9 @@
 
 import { Text } from '@chakra-ui/react'
 
-import { useTaskDetail } from '../context/TaskDetailProvider'
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 
-export function TaskDetailIntroText() {
+export function TaskIntroText() {
   const { task, isOwner } = useTaskDetail()
   if (!task) return null
 

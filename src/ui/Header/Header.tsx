@@ -5,7 +5,6 @@ import {
   type BoxProps,
   Button as ChakraButton,
   ClientOnly,
-  Container,
   HStack,
   IconButton,
   Link,
@@ -441,9 +440,9 @@ export function Header({
       py={1}
       {...props}
     >
-      <Container>
+      <Box w="full">
         {children ?? <SiteNavigation activeItem={activeItem} />}
-      </Container>
+      </Box>
     </Box>
   )
 }

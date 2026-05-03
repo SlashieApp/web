@@ -1,14 +1,15 @@
 'use client'
 
 import { Grid, Stack, Text } from '@chakra-ui/react'
+
 import { Card } from '@ui'
 
-import { useTaskDetail } from '../context/TaskDetailProvider'
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
   averageHoursToQuotes,
   formatAvgResponseHours,
   ownerProInterestLabel,
-} from './taskDetailUtils'
+} from '../taskDetailUtils'
 
 function StatCell({
   label,
@@ -43,7 +44,7 @@ function StatCell({
   )
 }
 
-export function TaskDetailOwnerPerformanceCard() {
+export function OwnerPerformanceCard() {
   const { task, isOwner } = useTaskDetail()
   if (!isOwner || !task) return null
 

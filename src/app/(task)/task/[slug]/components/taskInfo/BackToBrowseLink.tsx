@@ -3,7 +3,7 @@
 import { Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-export function TaskDetailBackToBrowseLink() {
+export function BackToBrowseLink() {
   return (
     <Link
       as={NextLink}

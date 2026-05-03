@@ -1,11 +1,12 @@
 'use client'
 
-import { Box, Link, Stack, Text } from '@chakra-ui/react'
+import { Link, Stack, Text } from '@chakra-ui/react'
+
 import { Card } from '@ui'
 
-import { useTaskDetail } from '../context/TaskDetailProvider'
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 
-export function TaskDetailOwnerHelpCard() {
+export function OwnerHelpCard() {
   const { isOwner } = useTaskDetail()
   if (!isOwner) return null
 

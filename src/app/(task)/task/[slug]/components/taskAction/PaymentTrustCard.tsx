@@ -20,7 +20,7 @@ function IconShield() {
   )
 }
 
-export function TaskDetailPaymentTrustCard() {
+export function PaymentTrustCard() {
   return (
     <Card
       p={5}

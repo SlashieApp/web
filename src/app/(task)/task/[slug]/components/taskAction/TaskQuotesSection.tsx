@@ -1,5 +1,7 @@
 'use client'
 
+import type { ChangeEvent } from 'react'
+
 import {
   Box,
   HStack,
@@ -10,109 +12,22 @@ import {
   Text,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { useState } from 'react'
-
-import { IconDocument } from '@/icons/taskMeta'
-import { Badge, Button, Card } from '@ui'
 
 import { priceToPence } from '@/utils/price'
+import { Badge, Button, Card } from '@ui'
 
-import { useTaskDetail } from '../context/TaskDetailProvider'
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
   formatPoundsFromPence,
   normaliseTaskStatusForBadge,
-} from './taskDetailUtils'
+  workerQuoteAvatarLabel,
+} from '../taskDetailUtils'
+import { TaskQuoteCard } from './TaskQuoteCard'
 
-function IconBookmark(props: { size?: number }) {
-  const s = props.size ?? 18
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Bookmark</title>
-      <path
-        d="M6 4h12v16l-6-4-6 4V4Z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-export function TaskDetailWorkerCtas() {
-  const { isOwner, task, isAuthenticated, scrollToQuoteForm } = useTaskDetail()
-  const [saveNote, setSaveNote] = useState<string | null>(null)
-
-  if (isOwner || !task) return null
-
-  const loginHref = `/login?next=${encodeURIComponent(`/task/${task.id}#task-quote`)}`
-
-  return (
-    <Card p={{ base: 5, md: 5 }} maxW="full" w="full">
-      <Stack gap={3}>
-        {isAuthenticated ? (
-          <Button type="button" w="full" onClick={scrollToQuoteForm}>
-            <HStack gap={2} justify="center">
-              <IconDocument />
-              <span>Make a quote</span>
-            </HStack>
-          </Button>
-        ) : (
-          <>
-            <Text fontSize="sm" color="formLabelMuted">
-              Log in with your worker account to send a quote and message the
-              client.
-            </Text>
-            <Link
-              as={NextLink}
-              href={loginHref}
-              _hover={{ textDecoration: 'none' }}
-            >
-              <Button w="full">Log in to make a quote</Button>
-            </Link>
-            <Button
-              type="button"
-              variant="secondary"
-              w="full"
-              borderColor="primary.200"
-              color="primary.700"
-              bg="primary.50"
-              onClick={scrollToQuoteForm}
-            >
-              Preview quote form
-            </Button>
-          </>
-        )}
-        <Button
-          type="button"
-          variant="secondary"
-          w="full"
-          borderColor="cardBorder"
-          color="cardFg"
-          bg="white"
-          _hover={{ bg: 'cardBg' }}
-          onClick={() => {
-            setSaveNote('Task watchlists are not available on web yet.')
-          }}
-        >
-          <HStack gap={2} justify="center">
-            <IconBookmark />
-            <span>Save for later</span>
-          </HStack>
-        </Button>
-        {saveNote ? (
-          <Text fontSize="xs" color="formLabelMuted">
-            {saveNote}
-          </Text>
-        ) : null}
-      </Stack>
-    </Card>
-  )
-}
-
-export function TaskDetailWorkerQuotePanel() {
+export function TaskQuotesSection() {
   const {
-    isOwner,
     task,
+    isOwner,
     isAuthenticated,
     myQuote,
     canAccessWorkerTools,
@@ -124,9 +39,91 @@ export function TaskDetailWorkerQuotePanel() {
     quoting,
     quoteError,
     quoteSuccess,
+    sortedQuotes,
+    lowestPricePence,
+    canAcceptQuotes,
+    acceptError,
+    cancelError,
+    acceptingQuoteId,
+    onAcceptQuote,
   } = useTaskDetail()
 
-  if (isOwner || !task) return null
+  if (!task) return null
+
+  if (isOwner) {
+    const n = task.quotes.length
+
+    return (
+      <Stack gap={4} w="full" pt={{ base: 2, lg: 4 }} id="owner-quotes">
+        <HStack justify="space-between" align="center" flexWrap="wrap" gap={3}>
+          <Heading size="md">Quotes</Heading>
+          {n > 0 ? (
+            <Link
+              as={NextLink}
+              href="#owner-quotes-list"
+              fontSize="sm"
+              fontWeight={700}
+              color="primary.600"
+              _hover={{ color: 'primary.700' }}
+            >
+              View all {n} quote{n === 1 ? '' : 's'}
+            </Link>
+          ) : null}
+        </HStack>
+        {acceptError ? (
+          <Text color="red.400" fontSize="sm">
+            {acceptError}
+          </Text>
+        ) : null}
+        {cancelError ? (
+          <Text color="red.400" fontSize="sm">
+            {cancelError}
+          </Text>
+        ) : null}
+        {n === 0 ? (
+          <Card p={6} maxW="full" w="full">
+            <Text color="formLabelMuted">
+              No quotes yet. Check back for worker responses.
+            </Text>
+          </Card>
+        ) : (
+          <Stack gap={4} id="owner-quotes-list">
+            {sortedQuotes.map((quote) => {
+              const quotePence = priceToPence(quote.price)
+              const professionalName =
+                quote.professional?.profile?.name?.trim() ||
+                `${quote.professional?.firstName ?? ''} ${quote.professional?.lastName ?? ''}`.trim() ||
+                'Professional'
+              return (
+                <TaskQuoteCard
+                  key={quote.id}
+                  name={professionalName}
+                  avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
+                  avatarUrl={quote.professional?.profile?.avatarUrl}
+                  priceLabel={
+                    quotePence != null ? formatPoundsFromPence(quotePence) : '—'
+                  }
+                  message={quote.message}
+                  ownerQuoteEmphasis
+                  acceptPrimary={
+                    quotePence != null && quotePence === lowestPricePence
+                  }
+                  messageHref="/dashboard/messages"
+                  isOwnQuote={false}
+                  onAccept={
+                    canAcceptQuotes
+                      ? () => void onAcceptQuote(quote.id)
+                      : undefined
+                  }
+                  acceptLoading={acceptingQuoteId === quote.id}
+                />
+              )
+            })}
+          </Stack>
+        )}
+      </Stack>
+    )
+  }
 
   const loginHref = `/login?next=${encodeURIComponent(`/task/${task.id}#task-quote`)}`
 
@@ -195,14 +192,14 @@ export function TaskDetailWorkerQuotePanel() {
               <Input
                 placeholder="Quote price (pence)"
                 value={quoteAmountInput}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setQuoteAmountInput(e.target.value)
                 }
               />
               <Input
                 placeholder="Short message to the client"
                 value={quoteMessageInput}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setQuoteMessageInput(e.target.value)
                 }
               />

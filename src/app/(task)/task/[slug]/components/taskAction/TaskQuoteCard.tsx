@@ -13,6 +13,14 @@ import NextLink from 'next/link'
 
 import { Badge, Button } from '@ui'
 
+function avatarGradient(seed: string): string {
+  let h = 0
+  for (let i = 0; i < seed.length; i += 1)
+    h = (h * 31 + seed.charCodeAt(i)) >>> 0
+  const hue = h % 360
+  return `linear-gradient(135deg, hsl(${hue} 55% 42%) 0%, hsl(${(hue + 40) % 360} 60% 36%) 100%)`
+}
+
 export type TaskQuoteCardProps = {
   name: string
   avatarLabel: string
@@ -21,7 +29,6 @@ export type TaskQuoteCardProps = {
   message?: string | null
   ratingSummary?: string | null
   trustBadge?: 'pro' | 'verified'
-  /** Owner task page: prominent quote amount and layout. */
   ownerQuoteEmphasis?: boolean
   acceptPrimary?: boolean
   messageHref?: string
@@ -29,14 +36,6 @@ export type TaskQuoteCardProps = {
   onAccept?: () => void
   acceptLoading?: boolean
   acceptDisabled?: boolean
-}
-
-function avatarGradient(seed: string): string {
-  let h = 0
-  for (let i = 0; i < seed.length; i += 1)
-    h = (h * 31 + seed.charCodeAt(i)) >>> 0
-  const hue = h % 360
-  return `linear-gradient(135deg, hsl(${hue} 55% 42%) 0%, hsl(${(hue + 40) % 360} 60% 36%) 100%)`
 }
 
 export function TaskQuoteCard({
@@ -166,7 +165,7 @@ export function TaskQuoteCard({
         fontStyle="italic"
         lineHeight="tall"
       >
-        "{snippet}"
+        &ldquo;{snippet}&rdquo;
       </Text>
       {showActions ? (
         <HStack gap={2} flexWrap="wrap">

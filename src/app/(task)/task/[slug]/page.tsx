@@ -9,20 +9,9 @@ import { TASK_QUERY } from '@/graphql/tasks'
 import { fetch } from '@/utils/api'
 import { Footer } from '@ui'
 
-import { TaskDetailBackToBrowseLink } from './components/TaskDetailBackToBrowseLink'
-import { TaskDetailIntroText } from './components/TaskDetailIntroText'
-import { TaskDetailMainColumn } from './components/TaskDetailMainColumn'
-import { TaskDetailMobileStickyQuoteBar } from './components/TaskDetailMobileStickyQuoteBar'
-import { TaskDetailOwnerHelpCard } from './components/TaskDetailOwnerHelpCard'
-import { TaskDetailOwnerPerformanceCard } from './components/TaskDetailOwnerPerformanceCard'
-import { TaskDetailOwnerQuotesSection } from './components/TaskDetailOwnerQuotesSection'
-import { TaskDetailOwnerToolbar } from './components/TaskDetailOwnerToolbar'
-import { TaskDetailPaymentTrustCard } from './components/TaskDetailPaymentTrustCard'
-import { TaskDetailVisitorSidebar } from './components/TaskDetailVisitorSidebar'
-import {
-  TaskDetailWorkerCtas,
-  TaskDetailWorkerQuotePanel,
-} from './components/TaskDetailWorkerSidebar'
+import { TaskActionSection } from './components/taskAction/TaskActionSection'
+import { TaskInfoSection } from './components/taskInfo/TaskInfoSection'
+import { TaskMainSection } from './components/taskMain/TaskMainSection'
 import { TaskDetailProvider } from './context/TaskDetailProvider'
 
 const AUTH_COOKIE = 'auth'
@@ -120,56 +109,61 @@ export default async function TaskDetailPage({
     <TaskDetailProvider taskId={slug} initialTask={task}>
       <Box bg="bg" color="cardFg" minH="100vh">
         <Stack gap={0}>
-          <Box as="section" py={{ base: 8, md: 10 }}>
+          <Box as="section" pt={{ base: 8, md: 10 }} pb={{ base: 28, md: 10 }}>
             <Container>
               <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
                 <Grid
                   w="full"
                   templateColumns={{
                     base: 'minmax(0, 1fr)',
+                    md: 'minmax(0, 1fr) minmax(280px, 340px)',
                     xl: 'minmax(220px, 260px) minmax(0, 1fr) minmax(280px, 340px)',
                   }}
-                  gap={{ base: 6, xl: 8 }}
+                  gap={{ base: 6, md: 8, xl: 8 }}
                   alignItems="start"
                 >
                   <Box
-                    position={{ base: 'static', xl: 'sticky' }}
-                    top={{ xl: 6 }}
-                    alignSelf="start"
+                    minW={0}
+                    gridColumn={{ base: '1', md: '1', xl: '2' }}
+                    gridRow={{ base: '1', md: '1', xl: '1' }}
                   >
-                    <Stack gap={4}>
-                      <TaskDetailBackToBrowseLink />
-                      <TaskDetailIntroText />
-                      <TaskDetailVisitorSidebar />
-                    </Stack>
-                  </Box>
-
-                  <Box minW={0}>
-                    <TaskDetailMainColumn />
+                    <TaskMainSection />
                   </Box>
 
                   <Box
-                    position={{ base: 'static', xl: 'sticky' }}
-                    top={{ xl: 6 }}
+                    display={{ base: 'contents', md: 'flex', xl: 'contents' }}
+                    flexDirection="column"
+                    gap={4}
+                    w={{ md: 'full' }}
+                    gridColumn={{ md: '2' }}
+                    gridRow={{ md: '1 / 3' }}
+                    position={{ md: 'sticky' }}
+                    top={{ md: 6 }}
                     alignSelf="start"
-                    w="full"
                   >
-                    <Stack gap={4} w="full">
-                      <TaskDetailOwnerToolbar />
-                      <TaskDetailWorkerCtas />
-                      <TaskDetailWorkerQuotePanel />
-                      <TaskDetailOwnerQuotesSection />
-                      <TaskDetailPaymentTrustCard />
-                      <TaskDetailOwnerPerformanceCard />
-                      <TaskDetailOwnerHelpCard />
-                    </Stack>
+                    <TaskInfoSection
+                      gridColumn={{ base: '1', xl: '1' }}
+                      gridRow={{ base: '2', xl: '1' }}
+                      position={{ base: 'static', xl: 'sticky' }}
+                      top={{ xl: 6 }}
+                      alignSelf="start"
+                    />
+
+                    <TaskActionSection
+                      gridColumn={{ base: '1', xl: '3' }}
+                      gridRow={{ base: '3', xl: '1' }}
+                      position={{ base: 'static', xl: 'sticky' }}
+                      top={{ xl: 6 }}
+                      alignSelf="start"
+                    />
                   </Box>
                 </Grid>
               </Stack>
             </Container>
           </Box>
-          <TaskDetailMobileStickyQuoteBar />
-          <Footer />
+          <Box mb={{ base: 24, md: 0 }}>
+            <Footer />
+          </Box>
         </Stack>
       </Box>
     </TaskDetailProvider>
