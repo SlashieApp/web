@@ -8,14 +8,15 @@ import { Button, FormField, IconButton, Input, Logo } from '@ui'
 import NextLink from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { useMemo, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { resetPasswordFormSchema } from '@/app/(auth)/reset-password/resetPasswordFormSchema'
 import { RESET_PASSWORD_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+
+import { resetPasswordFormSchema } from './resetPasswordFormSchema'
 
 function IconLockReset() {
   return (
@@ -191,7 +192,15 @@ function IconArrowRight() {
 
 const numberOrSymbol = /[\d!@#$%^&*(),.?":{}|<>[\]\\/_+=-]/
 
-export default function ResetPasswordPage() {
+function ResetPasswordFallback() {
+  return (
+    <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
+      <Text color="formLabelMuted">Loading…</Text>
+    </Box>
+  )
+}
+
+function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tokenFromUrl = useMemo(
@@ -444,5 +453,13 @@ export default function ResetPasswordPage() {
         © {new Date().getFullYear()} Slashie
       </Text>
     </Stack>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordFallback />}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }

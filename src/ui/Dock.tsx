@@ -65,6 +65,35 @@ function ProfileIcon() {
   )
 }
 
+function GetAppPhoneIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Get app</title>
+      <rect
+        x="6.5"
+        y="3.5"
+        width="11"
+        height="17"
+        rx="2.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <circle cx="12" cy="7" r="1" fill="currentColor" />
+      <rect
+        x="17.35"
+        y="10.25"
+        width="1.35"
+        height="3.5"
+        rx="0.35"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/** Marketing / store landing until a dedicated in-app route exists. */
+const GET_APP_HREF = 'https://slashie.app'
+
 export function Dock() {
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
@@ -146,6 +175,8 @@ export function Dock() {
         flexDirection={{ base: 'row', md: 'column' }}
         justify={{ base: 'space-around', md: 'flex-start' }}
         w="full"
+        flex={{ base: undefined, md: 1 }}
+        minH={{ base: undefined, md: 0 }}
       >
         {items.map((item) => (
           <IconButton
@@ -156,6 +187,23 @@ export function Dock() {
             active={isHrefActive(item.href)}
           />
         ))}
+        <Box
+          display={{ base: 'none', md: 'flex' }}
+          flexDirection="column"
+          alignItems="center"
+          w="full"
+          borderTopWidth="1px"
+          borderTopColor="cardDivider"
+          pt={3}
+          mt="auto"
+        >
+          <IconButton
+            href={GET_APP_HREF}
+            icon={<GetAppPhoneIcon />}
+            caption="Get app"
+            active={false}
+          />
+        </Box>
       </HStack>
     </Box>
   )

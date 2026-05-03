@@ -57,25 +57,13 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
             alignItems="center"
             justifyContent="center"
             borderRadius="xl"
-            bg={{
-              base: active ? 'primary.50' : 'transparent',
-              md: active ? 'intentPrimaryBg' : 'transparent',
-            }}
-            color={{
-              base: active ? 'primary.600' : 'secondary.700',
-              md: active ? 'intentPrimaryFg' : 'formLabelMuted',
-            }}
+            bg={active ? 'intentPrimaryBg' : 'transparent'}
+            color={active ? 'intentPrimaryFg' : 'formLabelMuted'}
             py={1.5}
             px={1}
             _hover={{
-              bg: {
-                base: active ? 'primary.100' : 'secondary.100',
-                md: active ? 'intentPrimaryBg' : 'badgeBg',
-              },
-              color: {
-                base: active ? 'primary.600' : 'secondary.800',
-                md: active ? 'intentPrimaryFg' : 'cardFg',
-              },
+              bg: active ? 'intentPrimaryBg' : 'badgeBg',
+              color: active ? 'intentPrimaryFg' : 'cardFg',
             }}
           >
             <Stack
@@ -94,10 +82,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
                 <Text
                   fontSize="xs"
                   fontWeight={700}
-                  color={{
-                    base: active ? 'primary.600' : 'secondary.700',
-                    md: active ? 'intentPrimaryFg' : 'formLabelMuted',
-                  }}
+                  color={active ? 'intentPrimaryFg' : 'formLabelMuted'}
                   textAlign="center"
                   lineHeight="short"
                   whiteSpace="nowrap"
