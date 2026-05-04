@@ -4,7 +4,7 @@ import { HStack, Link, Stack, Text } from '@chakra-ui/react'
 import { TaskStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 
-import { Button } from '@ui'
+import { Button, SectionCard } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 
@@ -52,7 +52,7 @@ function IconCancel() {
   )
 }
 
-export function OwnerToolbar() {
+export function QuoteOwnerToolbar() {
   const {
     isOwner,
     task,
@@ -68,7 +68,7 @@ export function OwnerToolbar() {
     task.status === TaskStatus.Confirmed
 
   return (
-    <Stack gap={3} w="full">
+    <SectionCard eyebrow="Your listing" bodyGap={3} p={{ base: 4, md: 5 }}>
       <HStack gap={2} fontSize="sm" color="formLabelMuted" flexWrap="wrap">
         <Link
           as={NextLink}
@@ -138,6 +138,6 @@ export function OwnerToolbar() {
           </HStack>
         </Button>
       </HStack>
-    </Stack>
+    </SectionCard>
   )
 }

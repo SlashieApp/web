@@ -34,7 +34,7 @@ function circlePolygon(
   }
 }
 
-export type TaskDetailLocationMapProps = {
+export type LocationMapProps = {
   accessToken: string | undefined
   lat: number
   lng: number
@@ -42,12 +42,12 @@ export type TaskDetailLocationMapProps = {
   height?: string
 }
 
-export function TaskDetailLocationMap({
+export function LocationMap({
   accessToken,
   lat,
   lng,
   height = '200px',
-}: TaskDetailLocationMapProps) {
+}: LocationMapProps) {
   const mapRef = useRef<MapboxMap | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const coordsRef = useRef({ lat, lng })

@@ -7,12 +7,12 @@ import type { TaskQuery } from '@codegen/schema'
 
 import { TASK_QUERY } from '@/graphql/tasks'
 import { fetch } from '@/utils/api'
-import { Footer } from '@ui'
+import { Footer, SectionCard } from '@ui'
 
-import { BackToBrowseLink } from './components/BackToBrowseLink'
-import { TaskActionSection } from './components/taskAction/TaskActionSection'
-import { TaskInfoSection } from './components/taskInfo/TaskInfoSection'
-import { TaskMainSection } from './components/taskMain/TaskMainSection'
+import { TaskHeader } from './components/TaskHeader'
+import { MainSection } from './components/mainSection'
+import { MetaSection } from './components/metaSection'
+import { QuoteSection } from './components/quoteSection'
 import { TaskDetailProvider } from './context/TaskDetailProvider'
 
 const AUTH_COOKIE = 'auth'
@@ -94,9 +94,11 @@ export default async function TaskDetailPage({
           <Box as="section" py={{ base: 8, md: 10 }}>
             <Container>
               <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-                <Text color="formLabelMuted">
-                  Task details are unavailable.
-                </Text>
+                <SectionCard eyebrow="Task" heading="Unavailable">
+                  <Text color="formLabelMuted">
+                    Task details are unavailable.
+                  </Text>
+                </SectionCard>
               </Stack>
             </Container>
           </Box>
@@ -110,10 +112,10 @@ export default async function TaskDetailPage({
     <TaskDetailProvider taskId={slug} initialTask={task}>
       <Box bg="bg" color="cardFg" minH="100vh">
         <Stack gap={0}>
-          <Box as="section" pt={{ base: 8, md: 10 }} pb={{ base: 28, md: 10 }}>
-            <Container>
+          <Box as="section">
+            <Container pb={{ base: 28, md: 10 }}>
               <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-                <BackToBrowseLink />
+                <TaskHeader />
                 <Grid
                   w="full"
                   templateColumns={{
@@ -129,7 +131,7 @@ export default async function TaskDetailPage({
                     gridColumn={{ base: '1', md: '1', xl: '2' }}
                     gridRow={{ base: '1', md: '1', xl: '1' }}
                   >
-                    <TaskMainSection />
+                    <MainSection />
                   </Box>
 
                   <Box
@@ -140,22 +142,22 @@ export default async function TaskDetailPage({
                     gridColumn={{ md: '2' }}
                     gridRow={{ md: '1 / 3' }}
                     position={{ md: 'sticky' }}
-                    top={{ md: 6 }}
+                    top={{ md: 20 }}
                     alignSelf="start"
                   >
-                    <TaskInfoSection
+                    <MetaSection
                       gridColumn={{ base: '1', xl: '1' }}
                       gridRow={{ base: '2', xl: '1' }}
                       position={{ base: 'static', xl: 'sticky' }}
-                      top={{ xl: 6 }}
+                      top={{ xl: 20 }}
                       alignSelf="start"
                     />
 
-                    <TaskActionSection
+                    <QuoteSection
                       gridColumn={{ base: '1', xl: '3' }}
                       gridRow={{ base: '3', xl: '1' }}
                       position={{ base: 'static', xl: 'sticky' }}
-                      top={{ xl: 6 }}
+                      top={{ xl: 20 }}
                       alignSelf="start"
                     />
                   </Box>

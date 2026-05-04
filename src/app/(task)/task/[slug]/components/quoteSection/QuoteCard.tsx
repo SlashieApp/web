@@ -21,7 +21,7 @@ function avatarGradient(seed: string): string {
   return `linear-gradient(135deg, hsl(${hue} 55% 42%) 0%, hsl(${(hue + 40) % 360} 60% 36%) 100%)`
 }
 
-export type TaskQuoteCardProps = {
+export type QuoteCardProps = {
   name: string
   avatarLabel: string
   avatarUrl?: string | null
@@ -38,7 +38,7 @@ export type TaskQuoteCardProps = {
   acceptDisabled?: boolean
 }
 
-export function TaskQuoteCard({
+export function QuoteCard({
   name,
   avatarLabel,
   avatarUrl,
@@ -53,7 +53,7 @@ export function TaskQuoteCard({
   onAccept,
   acceptLoading = false,
   acceptDisabled = false,
-}: TaskQuoteCardProps) {
+}: QuoteCardProps) {
   const snippet =
     message && message.trim().length > 0
       ? message.length > 140

@@ -13,8 +13,8 @@ import {
   taskBudgetDisplayLine,
   taskMapCoordinates,
 } from '../../helpers/taskDetailUtils'
+import { LocationMap } from './LocationMap'
 import { MetaRow } from './MetaRow'
-import { TaskDetailLocationMap } from './TaskDetailLocationMap'
 import {
   IconCalendar,
   IconClock,
@@ -22,7 +22,7 @@ import {
   IconWallet,
 } from './VisitorMetaIcons'
 
-export function TaskVisitorMeta() {
+export function VisitorMeta() {
   const { task, me, isOwner } = useTaskDetail()
   if (!task) return null
 
@@ -41,19 +41,12 @@ export function TaskVisitorMeta() {
     <Stack gap={5} w="full">
       {coords && mapboxToken?.trim() ? (
         <Stack gap={2}>
-          <Box
-            borderRadius="lg"
-            overflow="hidden"
-            borderWidth="1px"
-            borderColor="cardBorder"
-          >
-            <TaskDetailLocationMap
-              accessToken={mapboxToken}
-              lat={coords.lat}
-              lng={coords.lng}
-              height="160px"
-            />
-          </Box>
+          <LocationMap
+            accessToken={mapboxToken}
+            lat={coords.lat}
+            lng={coords.lng}
+            height="160px"
+          />
         </Stack>
       ) : null}
 

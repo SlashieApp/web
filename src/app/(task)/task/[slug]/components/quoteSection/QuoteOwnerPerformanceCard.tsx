@@ -2,7 +2,7 @@
 
 import { Grid, Stack, Text } from '@chakra-ui/react'
 
-import { Card } from '@ui'
+import { SectionCard } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
@@ -44,7 +44,7 @@ function StatCell({
   )
 }
 
-export function OwnerPerformanceCard() {
+export function QuoteOwnerPerformanceCard() {
   const { task, isOwner } = useTaskDetail()
   if (!isOwner || !task) return null
 
@@ -53,17 +53,15 @@ export function OwnerPerformanceCard() {
   const interest = ownerProInterestLabel(n)
 
   return (
-    <Card
+    <SectionCard
       id="owner-task-performance"
       scrollMarginTop="96px"
-      p={5}
-      maxW="full"
-      w="full"
+      eyebrow="Insights"
+      heading="Task performance"
+      bodyGap={3}
       bg="primary.50"
+      p={{ base: 5, md: 6 }}
     >
-      <Text fontSize="sm" fontWeight={700} color="cardFg" mb={4}>
-        Task performance
-      </Text>
       <Grid templateColumns="1fr 1fr" gap={3}>
         <StatCell label="VIEWS" value="—" />
         <StatCell label="QUOTES" value={String(n)} />
@@ -77,10 +75,10 @@ export function OwnerPerformanceCard() {
           valueColor="secondary.700"
         />
       </Grid>
-      <Text fontSize="xs" color="formLabelMuted" mt={3} lineHeight="short">
+      <Text fontSize="xs" color="formLabelMuted" lineHeight="short">
         View counts are not tracked on web yet. Response time is averaged from
         quote timestamps.
       </Text>
-    </Card>
+    </SectionCard>
   )
 }
