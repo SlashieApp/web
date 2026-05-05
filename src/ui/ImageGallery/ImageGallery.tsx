@@ -76,34 +76,6 @@ function GalleryImage({
   )
 }
 
-function EmptySlot({
-  borderRadius,
-}: { borderRadius: BoxProps['borderRadius'] }) {
-  return (
-    <Box
-      w="full"
-      h="full"
-      minH="inherit"
-      bg="cardAvatarEmpty"
-      borderRadius={borderRadius}
-      aria-hidden
-    />
-  )
-}
-
-function ImageOrEmpty({
-  item,
-  borderRadius,
-}: {
-  item: ImageGalleryItem | null
-  borderRadius: BoxProps['borderRadius']
-}) {
-  if (!item) return <EmptySlot borderRadius={borderRadius} />
-  return (
-    <GalleryImage src={item.src} alt={item.alt} borderRadius={borderRadius} />
-  )
-}
-
 function BentoShell({
   children,
   borderRadius,
@@ -127,9 +99,49 @@ function BentoShell({
   )
 }
 
-function DesktopBento({ cells }: { cells: (ImageGalleryItem | null)[] }) {
+/** Desktop: one image uses the full gallery area. */
+function DesktopOneImage({ item }: { item: ImageGalleryItem }) {
   const r = '2xl'
-  const [main, top, bottom] = cells
+  return (
+    <Box minH="280px" w="full">
+      <BentoShell borderRadius={r}>
+        <GalleryImage src={item.src} alt={item.alt} borderRadius={r} />
+      </BentoShell>
+    </Box>
+  )
+}
+
+/** Desktop: two images split evenly, no empty slots. */
+function DesktopTwoImages({
+  items,
+}: { items: [ImageGalleryItem, ImageGalleryItem] }) {
+  const r = '2xl'
+  return (
+    <Grid
+      templateColumns="minmax(0, 1fr) minmax(0, 1fr)"
+      gap={2}
+      minH="280px"
+      w="full"
+    >
+      {items.map((item, i) => (
+        <Box key={`${item.src}-${i}`} minH="0" minW="0">
+          <BentoShell borderRadius={r}>
+            <GalleryImage src={item.src} alt={item.alt} borderRadius={r} />
+          </BentoShell>
+        </Box>
+      ))}
+    </Grid>
+  )
+}
+
+/** Desktop: classic bento for three images. */
+function DesktopThreeImages({
+  items,
+}: {
+  items: [ImageGalleryItem, ImageGalleryItem, ImageGalleryItem]
+}) {
+  const r = '2xl'
+  const [main, top, bottom] = items
 
   return (
     <Grid
@@ -141,29 +153,35 @@ function DesktopBento({ cells }: { cells: (ImageGalleryItem | null)[] }) {
     >
       <Box gridColumn="1" gridRow="1 / span 2" minH="0" minW="0">
         <BentoShell borderRadius={r}>
-          <ImageOrEmpty item={main} borderRadius={r} />
+          <GalleryImage src={main.src} alt={main.alt} borderRadius={r} />
         </BentoShell>
       </Box>
       <Box gridColumn="2" gridRow="1" minH="0" minW="0">
         <BentoShell borderRadius={r}>
-          <ImageOrEmpty item={top} borderRadius={r} />
+          <GalleryImage src={top.src} alt={top.alt} borderRadius={r} />
         </BentoShell>
       </Box>
       <Box gridColumn="2" gridRow="2" minH="0" minW="0">
         <BentoShell borderRadius={r}>
-          <ImageOrEmpty item={bottom} borderRadius={r} />
+          <GalleryImage src={bottom.src} alt={bottom.alt} borderRadius={r} />
         </BentoShell>
       </Box>
     </Grid>
   )
 }
 
-function MobileCarousel({ cells }: { cells: (ImageGalleryItem | null)[] }) {
-  const slides = useMemo(
-    () => cells.filter((c): c is ImageGalleryItem => c !== null),
-    [cells],
-  )
+function DesktopGallery({ items }: { items: ImageGalleryItem[] }) {
+  const n = items.length
+  if (n === 1) {
+    return <DesktopOneImage item={items[0]} />
+  }
+  if (n === 2) {
+    return <DesktopTwoImages items={[items[0], items[1]]} />
+  }
+  return <DesktopThreeImages items={[items[0], items[1], items[2]]} />
+}
 
+function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
@@ -192,11 +210,11 @@ function MobileCarousel({ cells }: { cells: (ImageGalleryItem | null)[] }) {
     }
   }, [emblaApi, syncEmblaState])
 
-  if (slides.length === 0) return null
+  if (items.length === 0) return null
 
   const r = '2xl'
-  const showNav = slides.length > 1
-  const viewportKey = slides.map((s) => s.src).join('|')
+  const showNav = items.length > 1
+  const viewportKey = items.map((s) => s.src).join('|')
 
   const navButtonProps = {
     position: 'absolute' as const,
@@ -219,7 +237,7 @@ function MobileCarousel({ cells }: { cells: (ImageGalleryItem | null)[] }) {
       <Box position="relative" w="full">
         <Box key={viewportKey} overflow="hidden" ref={emblaRef} w="full">
           <Flex gap={0}>
-            {slides.map((item, index) => (
+            {items.map((item, index) => (
               <Box
                 key={`${item.src}-${index}`}
                 flex="0 0 100%"
@@ -287,7 +305,7 @@ function MobileCarousel({ cells }: { cells: (ImageGalleryItem | null)[] }) {
             Slide indicators
           </Text>
           <HStack justify="center" gap={2}>
-            {slides.map((slide, index) => {
+            {items.map((slide, index) => {
               const selected = index === selectedIndex
               return (
                 <Button
@@ -295,7 +313,7 @@ function MobileCarousel({ cells }: { cells: (ImageGalleryItem | null)[] }) {
                   type="button"
                   variant="ghost"
                   aria-current={selected ? 'true' : undefined}
-                  aria-label={`Image ${index + 1} of ${slides.length}`}
+                  aria-label={`Image ${index + 1} of ${items.length}`}
                   onClick={() => emblaApi?.scrollTo(index)}
                   h="6px"
                   minW={selected ? '24px' : '6px'}
@@ -324,24 +342,21 @@ function MobileCarousel({ cells }: { cells: (ImageGalleryItem | null)[] }) {
   )
 }
 
-/** Shows up to three images: Embla carousel on small viewports, bento grid from `md` up. */
+/** Up to three images: Embla carousel on small viewports, adaptive bento from `md` up (no empty slots). */
 export function ImageGallery({ items, ...rest }: ImageGalleryProps) {
   const isDesktop =
     useBreakpointValue({ base: false, md: true }, { fallback: 'base' }) ?? false
 
-  const cells = useMemo<(ImageGalleryItem | null)[]>(() => {
-    const v = items.slice(0, MAX_IMAGES)
-    return [v[0] ?? null, v[1] ?? null, v[2] ?? null]
-  }, [items])
+  const displayItems = useMemo(() => items.slice(0, MAX_IMAGES), [items])
 
-  if (!items.length) return null
+  if (!displayItems.length) return null
 
   return (
     <Box w="full" {...rest}>
       {isDesktop ? (
-        <DesktopBento cells={cells} />
+        <DesktopGallery items={displayItems} />
       ) : (
-        <MobileCarousel cells={cells} />
+        <MobileCarousel items={displayItems} />
       )}
     </Box>
   )

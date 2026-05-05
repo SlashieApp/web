@@ -1,12 +1,17 @@
 'use client'
 
 import { Box, Image, type ImageProps } from '@chakra-ui/react'
+import type { ComponentProps } from 'react'
 import { useCallback, useState } from 'react'
 
 import { useColorMode } from '../color-mode'
-export type LogoProps = Omit<ImageProps, 'src' | 'alt'>
 
-export function Logo(props: LogoProps) {
+export type LogoProps = Omit<ImageProps, 'src' | 'alt'> & {
+  /** Merged onto the wrapper around the image (e.g. `display="block"`, `w="full"`). */
+  containerProps?: Omit<ComponentProps<typeof Box>, 'children'>
+}
+
+export function Logo({ containerProps, ...props }: LogoProps) {
   const [mounted, setMounted] = useState(false)
   const { colorMode } = useColorMode()
   const logoSrc =
@@ -18,10 +23,16 @@ export function Logo(props: LogoProps) {
   }, [])
 
   return (
-    <Box as="span" ref={handleMountRef} display="inline-block" lineHeight={0}>
+    <Box
+      as="span"
+      ref={handleMountRef}
+      display="inline-block"
+      lineHeight={0}
+      {...containerProps}
+    >
       {mounted ? (
         <Image
-          h={{ base: '20px', md: '22px' }}
+          h={{ base: '24px', md: '32px' }}
           w="auto"
           objectFit="contain"
           {...props}

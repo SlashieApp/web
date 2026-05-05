@@ -762,7 +762,7 @@ export default function CustomerProfilePage() {
             _hover={{ boxShadow: 'md' }}
           >
             <Heading size="md" color="cardFg">
-              Switch to Worker Mode
+              Worker Dashboard
             </Heading>
             <Text color="cardFg" opacity={0.9} mt={2} maxW="sm">
               Start earning by offering your skills to the community.

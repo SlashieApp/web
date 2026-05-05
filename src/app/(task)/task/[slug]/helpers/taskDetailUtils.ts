@@ -178,3 +178,50 @@ export function taskMapCoordinates(
   if (lat == null || lng == null) return null
   return { lat, lng }
 }
+
+/** Short label for budget `type` (e.g. badge next to amount). */
+export function budgetKindLabel(
+  budgetType: string | null | undefined,
+): string | null {
+  if (!budgetType) return null
+  const u = budgetType.trim().toUpperCase().replaceAll(' ', '_')
+  if (u === 'ONE_OFF' || u === 'FIXED') return 'Fixed price'
+  if (u === 'PER_HOUR') return 'Per hour'
+  if (u === 'PER_DAY') return 'Per day'
+  return null
+}
+
+export function normaliseTaskStatusForBadge(status: string) {
+  return status.replaceAll('_', ' ').toUpperCase()
+}
+
+export function taskStatusBadgeLabel(status: string) {
+  const s = status.toUpperCase()
+  if (s === 'OPEN' || s === 'POSTED' || s === 'PUBLISHED') return 'OPEN'
+  return normaliseTaskStatusForBadge(status)
+}
+
+export function visitorFacingStatusBadge(status: string) {
+  const s = status.toUpperCase()
+  if (s === 'OPEN' || s === 'POSTED' || s === 'PUBLISHED') return 'New task'
+  return taskStatusBadgeLabel(status)
+}
+
+export function workerQuoteAvatarLabel(workerUserId: string) {
+  const alnum = workerUserId.replace(/[^a-zA-Z0-9]/g, '')
+  if (alnum.length >= 2) return alnum.slice(0, 2)
+  if (alnum.length === 1) return `${alnum}P`
+  return 'PR'
+}
+
+export function centerColumnStatusLabel(
+  task: TaskDetailRecord,
+  isOwner: boolean,
+): string {
+  if (isOwner) {
+    const n = task.quotes.length
+    const base = taskStatusBadgeLabel(task.status)
+    return n ? `${base} · ${n} quote${n === 1 ? '' : 's'}` : base
+  }
+  return visitorFacingStatusBadge(task.status)
+}

@@ -29,7 +29,7 @@ export type CreateTaskBudgetSectionProps = {
 
 const CURRENCY_PREFIX: Record<Currency, string> = {
   [Currency.Usd]: 'USD',
-  [Currency.Gdp]: 'GBP',
+  [Currency.Gbp]: 'GBP',
 }
 
 export function CreateTaskBudgetSection({
@@ -63,7 +63,7 @@ export function CreateTaskBudgetSection({
                 }
               >
                 <option value={Currency.Usd}>USD</option>
-                <option value={Currency.Gdp}>GBP</option>
+                <option value={Currency.Gbp}>GBP</option>
               </NativeSelect.Field>
             </NativeSelect.Root>
             <HStack

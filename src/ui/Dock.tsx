@@ -50,20 +50,6 @@ function JobsIcon() {
   )
 }
 
-function ChatIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Chat</title>
-      <path
-        d="M5 6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-4 4V6Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 function ProfileIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -79,10 +65,40 @@ function ProfileIcon() {
   )
 }
 
+function GetAppPhoneIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Get app</title>
+      <rect
+        x="6.5"
+        y="3.5"
+        width="11"
+        height="17"
+        rx="2.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <circle cx="12" cy="7" r="1" fill="currentColor" />
+      <rect
+        x="17.35"
+        y="10.25"
+        width="1.35"
+        height="3.5"
+        rx="0.35"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/** Marketing / store landing until a dedicated in-app route exists. */
+const GET_APP_HREF = 'https://slashie.app'
+
 export function Dock() {
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
 
+  /** Chat (`/dashboard/messages`) omitted until the feature is ready. */
   const items: DockItem[] = [
     {
       key: 'browse',
@@ -101,12 +117,6 @@ export function Dock() {
       caption: 'Account',
       href: '/profile',
       icon: <ProfileIcon />,
-    },
-    {
-      key: 'chat',
-      caption: 'Chat',
-      href: '/dashboard/messages',
-      icon: <ChatIcon />,
     },
   ]
 
@@ -136,11 +146,11 @@ export function Dock() {
       display="flex"
       position={{ base: 'fixed', md: 'relative' }}
       alignSelf={{ base: 'auto', md: 'stretch' }}
-      h={{ base: 'auto', md: 'full' }}
-      minH={{ base: 'auto', md: 'full' }}
-      left={{ base: 2, md: 0 }}
+      h={{ base: 'auto', md: 'auto' }}
+      minH={{ base: 'auto', md: 0 }}
+      left={{ base: 2, md: 'auto' }}
       right={{ base: 2, md: 'auto' }}
-      bottom={{ base: 2, md: 0 }}
+      bottom={{ base: 2, md: 'auto' }}
       zIndex={20}
       bg="bg"
       borderWidth={{ base: '1px', md: 0 }}
@@ -163,18 +173,44 @@ export function Dock() {
         align="stretch"
         gap={{ base: 1, md: 2 }}
         flexDirection={{ base: 'row', md: 'column' }}
-        justify={{ base: 'space-around', md: 'flex-start' }}
+        justify={{ base: 'flex-start', md: 'flex-start' }}
         w="full"
+        flex={{ base: undefined, md: 1 }}
+        minH={{ base: undefined, md: 0 }}
       >
         {items.map((item) => (
-          <IconButton
+          <Box
             key={item.key}
-            href={item.href}
-            icon={item.icon}
-            caption={item.caption}
-            active={isHrefActive(item.href)}
-          />
+            display={{ base: 'flex', md: 'contents' }}
+            flex={{ base: 1, md: 'unset' }}
+            minW={0}
+            justifyContent="center"
+          >
+            <IconButton
+              href={item.href}
+              icon={item.icon}
+              caption={item.caption}
+              active={isHrefActive(item.href)}
+            />
+          </Box>
         ))}
+        <Box
+          display={{ base: 'none', md: 'flex' }}
+          flexDirection="column"
+          alignItems="center"
+          w="full"
+          borderTopWidth="1px"
+          borderTopColor="cardDivider"
+          pt={3}
+          mt="auto"
+        >
+          <IconButton
+            href={GET_APP_HREF}
+            icon={<GetAppPhoneIcon />}
+            caption="Get app"
+            active={false}
+          />
+        </Box>
       </HStack>
     </Box>
   )

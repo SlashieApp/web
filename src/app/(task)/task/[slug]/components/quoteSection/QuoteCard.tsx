@@ -1,27 +1,17 @@
 'use client'
 
-import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Heading,
+  Image,
+  Link,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { Badge, Button } from '@ui'
-
-export type TaskQuoteCardProps = {
-  name: string
-  avatarLabel: string
-  avatarUrl?: string | null
-  priceLabel: string
-  message?: string | null
-  ratingSummary?: string | null
-  trustBadge?: 'pro' | 'verified'
-  /** Owner task page: prominent quote amount and layout. */
-  ownerQuoteEmphasis?: boolean
-  acceptPrimary?: boolean
-  messageHref?: string
-  isOwnQuote?: boolean
-  onAccept?: () => void
-  acceptLoading?: boolean
-  acceptDisabled?: boolean
-}
 
 function avatarGradient(seed: string): string {
   let h = 0
@@ -31,7 +21,24 @@ function avatarGradient(seed: string): string {
   return `linear-gradient(135deg, hsl(${hue} 55% 42%) 0%, hsl(${(hue + 40) % 360} 60% 36%) 100%)`
 }
 
-export function TaskQuoteCard({
+export type QuoteCardProps = {
+  name: string
+  avatarLabel: string
+  avatarUrl?: string | null
+  priceLabel: string
+  message?: string | null
+  ratingSummary?: string | null
+  trustBadge?: 'pro' | 'verified'
+  ownerQuoteEmphasis?: boolean
+  acceptPrimary?: boolean
+  messageHref?: string
+  isOwnQuote?: boolean
+  onAccept?: () => void
+  acceptLoading?: boolean
+  acceptDisabled?: boolean
+}
+
+export function QuoteCard({
   name,
   avatarLabel,
   avatarUrl,
@@ -46,7 +53,7 @@ export function TaskQuoteCard({
   onAccept,
   acceptLoading = false,
   acceptDisabled = false,
-}: TaskQuoteCardProps) {
+}: QuoteCardProps) {
   const snippet =
     message && message.trim().length > 0
       ? message.length > 140
@@ -158,26 +165,30 @@ export function TaskQuoteCard({
         fontStyle="italic"
         lineHeight="tall"
       >
-        "{snippet}"
+        &ldquo;{snippet}&rdquo;
       </Text>
       {showActions ? (
         <HStack gap={2} flexWrap="wrap">
           {messageHref ? (
-            <NextLink href={messageHref} passHref legacyBehavior>
+            <Link
+              as={NextLink}
+              href={messageHref}
+              flex={1}
+              minW="120px"
+              _hover={{ textDecoration: 'none' }}
+            >
               <Button
-                as="a"
                 size="sm"
                 variant="secondary"
                 borderColor="primary.200"
                 color="primary.700"
                 bg="primary.50"
                 px={4}
-                flex={1}
-                minW="120px"
+                w="full"
               >
                 Message
               </Button>
-            </NextLink>
+            </Link>
           ) : null}
           {isOwnQuote ? (
             <Button

@@ -27,6 +27,7 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 
 - Keep files **thin**: providers, layout choice, one-off composition.
 - Prefer **colocated `components/`** (and nested `…/components/` under child routes) for feature UI instead of large inline trees.
+- **Do not** add a `*View` (or similar) component file whose **only** purpose is to host the same screen in a separate module from `page.tsx`—e.g. `page.tsx` that only renders `<FooView />` with no other composition. Either keep the route body in `page.tsx` when it is a single screen, or split into **`components/`** when there is a real reason: reuse across routes, `(web)` / `(mobile)` forks, heavy isolated widgets, or testing boundaries. Naming a file `SomethingView` is not a reason by itself.
 
 ## `components/` under a route segment
 
@@ -75,3 +76,4 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 - [ ] New exportable folder added to **`EXPORT_CONFIGS`** when it needs a root barrel.
 - [ ] **`bun run exports-gen`** run after moves/adds under registered folders.
 - [ ] Affected imports updated to barrel paths where the codebase uses `@/` / package barrels for that folder.
+- [ ] No **view-only** split: extra component files under the route justify reuse, layout fork, or real decomposition—not only moving one screen out of `page.tsx`.

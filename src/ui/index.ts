@@ -19,12 +19,14 @@ export {
 } from './color-mode'
 export { Dock } from './Dock'
 export { FormField } from './FormField/FormField'
+export { HoverDropdownMenu } from './HoverDropdownMenu'
 export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Input } from './Input'
 export { Logo } from './Logo/Logo'
 export { RadioButton } from './RadioButton/RadioButton'
 export { Rating } from './Rating/Rating'
+export { SectionCard } from './SectionCard/SectionCard'
 export { Slider } from './Slider/Slider'
 export { Tag } from './Tag'
 export { Thumbnail } from './Thumbnail/Thumbnail'
@@ -39,6 +41,7 @@ export type {
   UseColorModeReturn,
 } from './color-mode'
 export type { FormFieldProps } from './FormField/FormField'
+export type { HoverDropdownMenuProps } from './HoverDropdownMenu'
 export type {
   IconButtonProps,
   NavIconButtonProps,
@@ -51,6 +54,7 @@ export type { InputProps } from './Input'
 export type { LogoProps } from './Logo/Logo'
 export type { RadioButtonProps } from './RadioButton/RadioButton'
 export type { RatingProps } from './Rating/Rating'
+export type { SectionCardProps } from './SectionCard/SectionCard'
 export type { SliderProps } from './Slider/Slider'
 export type { TagColor, TagProps, TagVariant } from './Tag'
 export type { ThumbnailProps } from './Thumbnail/Thumbnail'
