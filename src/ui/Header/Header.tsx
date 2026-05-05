@@ -440,9 +440,7 @@ export function Header({
       py={1}
       {...props}
     >
-      <Box w="full">
-        {children ?? <SiteNavigation activeItem={activeItem} />}
-      </Box>
+      <Box>{children ?? <SiteNavigation activeItem={activeItem} />}</Box>
     </Box>
   )
 }

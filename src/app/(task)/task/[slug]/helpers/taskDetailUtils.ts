@@ -14,9 +14,17 @@ export function formatPoundsFromPence(pricePence: number) {
   return `£${(pricePence / 100).toFixed(0)}`
 }
 
+/** Human-readable budget payment method (e.g. cash, card). */
+export function formatTaskBudgetPaymentMethodLabel(
+  paymentMethod: string,
+): string {
+  const normalised = paymentMethod.replaceAll('_', ' ').toLowerCase()
+  return normalised.charAt(0).toUpperCase() + normalised.slice(1)
+}
+
 export type TaskBudgetViewerContext = 'owner' | 'visitor'
 
-function formatTaskDateTimeType(type: string): string {
+export function formatTaskDateTimeType(type: string): string {
   const t = type.trim().toUpperCase()
   if (t === 'EXACT') return 'Exact time'
   if (t === 'BEFORE') return 'Before'
@@ -159,6 +167,24 @@ export function formatAvgResponseHours(hours: number): string {
   return `${Math.max(1, Math.round(hours / 24))}d`
 }
 
+/** Relative “Responded … ago” line for quote cards (from `quote.createdAt`). */
+export function formatQuoteRespondedAgo(
+  iso: string | null | undefined,
+): string | null {
+  if (!iso?.trim()) return null
+  const t = new Date(iso).getTime()
+  if (Number.isNaN(t)) return null
+  const diffMs = Date.now() - t
+  if (diffMs < 0) return 'Responded just now'
+  const mins = Math.floor(diffMs / 60000)
+  if (mins < 1) return 'Responded just now'
+  if (mins < 60) return `Responded ${mins} min ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 48) return `Responded ${hours} hour${hours === 1 ? '' : 's'} ago`
+  const days = Math.floor(hours / 24)
+  return `Responded ${days} day${days === 1 ? '' : 's'} ago`
+}
+
 function parseCoord(value: unknown): number | null {
   if (value == null) return null
   if (typeof value === 'number' && Number.isFinite(value)) return value
@@ -224,4 +250,130 @@ export function centerColumnStatusLabel(
     return n ? `${base} · ${n} quote${n === 1 ? '' : 's'}` : base
   }
   return visitorFacingStatusBadge(task.status)
+}
+
+const CATEGORY_KEYWORDS: ReadonlyArray<[RegExp, string]> = [
+  [/deliver|courier|parcel/i, 'Delivery'],
+  [/handyman|shelf|fix|mount|drill|plaster|wall/i, 'Handyman'],
+  [/clean|hoover|tidy|vacuum/i, 'Cleaning'],
+  [/mov(e|ing)|furniture/i, 'Moving'],
+  [/tech|computer|wifi|setup|router/i, 'Tech setup'],
+]
+
+/** Best-effort category chip from title + description (no dedicated API field yet). */
+export function taskCategoryLabel(task: TaskDetailRecord): string | null {
+  const t = `${task.title} ${task.description}`
+  for (const [re, label] of CATEGORY_KEYWORDS) {
+    if (re.test(t)) return label
+  }
+  return null
+}
+
+/** Short date label for hero meta: "Today" when the task date is today (local). */
+export function taskPrimaryCalendarLabel(task: TaskDetailRecord): string {
+  const datePart = task.datetime?.date?.trim()
+  if (!datePart) return 'Flexible'
+  const d = new Date(`${datePart}T12:00:00`)
+  if (Number.isNaN(d.getTime())) return 'Flexible'
+  const today = new Date()
+  if (
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate()
+  ) {
+    return 'Today'
+  }
+  return d.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
+}
+
+/** Time / duration hint from `datetime.time` when present. */
+export function taskDurationEstimateLabel(
+  task: TaskDetailRecord,
+): string | null {
+  const timePart = task.datetime?.time?.trim()
+  if (!timePart) return null
+  return timePart
+}
+
+/** Visitor-facing urgency line (heuristic + `datetime.type`). */
+export function taskUrgencyDisplayLabel(task: TaskDetailRecord): string {
+  const text = `${task.title} ${task.description}`.toLowerCase()
+  if (/\bemergency|asap|urgent|burst\b/i.test(text)) return 'ASAP'
+  const raw = task.datetime?.type?.trim()
+  if (!raw) return 'Flexible'
+  const u = raw.toUpperCase().replaceAll(' ', '_')
+  if (u === 'FLEXIBLE') return 'Flexible'
+  if (u === 'EMERGENCY') return 'ASAP'
+  return formatTaskDateTimeType(raw)
+}
+
+export type TaskSecondaryFact = {
+  key: 'tools' | 'access' | 'parking' | 'pets'
+  label: string
+  value: string
+}
+
+/** Heuristic “details” grid for task detail (until API exposes structured fields). */
+export function buildSecondaryTaskFacts(
+  task: TaskDetailRecord,
+): TaskSecondaryFact[] {
+  const t = `${task.title} ${task.description}`.toLowerCase()
+  const out: TaskSecondaryFact[] = []
+
+  if (
+    /\bi have (the )?tools?\b|tools (are )?ready|bring your own tools/i.test(t)
+  ) {
+    out.push({
+      key: 'tools',
+      label: 'Tools',
+      value: /\bbring your own tools\b/i.test(t)
+        ? 'Worker brings tools'
+        : 'I have tools',
+    })
+  } else if (/\btool|drill|screwdriver\b/i.test(t)) {
+    out.push({
+      key: 'tools',
+      label: 'Tools',
+      value: 'See description',
+    })
+  }
+
+  if (/\beasy access\b|ground floor|no stairs|step-?free/i.test(t)) {
+    out.push({ key: 'access', label: 'Access', value: 'Easy access' })
+  } else if (/\blift|elevator\b/i.test(t)) {
+    out.push({ key: 'access', label: 'Access', value: 'Lift available' })
+  } else if (/\bstairs|upper floor|2nd floor|second floor/i.test(t)) {
+    out.push({ key: 'access', label: 'Access', value: 'Stairs involved' })
+  }
+
+  if (/\bdriveway|off-?street parking\b/i.test(t)) {
+    out.push({
+      key: 'parking',
+      label: 'Parking',
+      value: 'Driveway / off street',
+    })
+  } else if (/\bstreet parking|on-?street\b/i.test(t)) {
+    out.push({ key: 'parking', label: 'Parking', value: 'On street' })
+  } else if (/\bparking\b/i.test(t)) {
+    out.push({ key: 'parking', label: 'Parking', value: 'See description' })
+  }
+
+  if (/\bno pets\b|pet-?free/i.test(t)) {
+    out.push({ key: 'pets', label: 'Pets', value: 'No pets' })
+  } else if (/\bdog|cat|pet\b/i.test(t)) {
+    out.push({ key: 'pets', label: 'Pets', value: 'Pets on site' })
+  }
+
+  return out
+}
+
+export function getSecondaryTaskFact(
+  task: TaskDetailRecord,
+  key: TaskSecondaryFact['key'],
+): TaskSecondaryFact | undefined {
+  return buildSecondaryTaskFacts(task).find((f) => f.key === key)
 }

@@ -10,8 +10,9 @@ import {
   Text,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import { LuCheck, LuChevronRight } from 'react-icons/lu'
 
-import { Badge, Button } from '@ui'
+import { Button } from '@ui'
 
 function avatarGradient(seed: string): string {
   let h = 0
@@ -25,17 +26,23 @@ export type QuoteCardProps = {
   name: string
   avatarLabel: string
   avatarUrl?: string | null
+  /** Shown in the price column when `showPrice` is true. */
   priceLabel: string
+  priceKindLabel?: string | null
   message?: string | null
-  ratingSummary?: string | null
-  trustBadge?: 'pro' | 'verified'
-  ownerQuoteEmphasis?: boolean
+  respondedLabel?: string | null
+  showVerified?: boolean
+  ratingLine?: string | null
+  /** When false, price column is hidden (e.g. visitors — API omits amounts for non-posters). */
+  showPrice?: boolean
+  /** `list` = divider rows like task meta; `card` = bordered tile. */
+  variant?: 'list' | 'card'
   acceptPrimary?: boolean
-  messageHref?: string
   isOwnQuote?: boolean
   onAccept?: () => void
   acceptLoading?: boolean
   acceptDisabled?: boolean
+  detailHref?: string
 }
 
 export function QuoteCard({
@@ -43,62 +50,48 @@ export function QuoteCard({
   avatarLabel,
   avatarUrl,
   priceLabel,
+  priceKindLabel,
   message,
-  ratingSummary,
-  trustBadge,
-  ownerQuoteEmphasis = false,
+  respondedLabel,
+  showVerified = false,
+  ratingLine,
+  showPrice = true,
+  variant = 'list',
   acceptPrimary = false,
-  messageHref,
   isOwnQuote = false,
   onAccept,
   acceptLoading = false,
   acceptDisabled = false,
+  detailHref = '/dashboard/messages',
 }: QuoteCardProps) {
-  const snippet =
+  const body =
     message && message.trim().length > 0
-      ? message.length > 140
-        ? `${message.slice(0, 137).trim()}…`
+      ? message.length > 220
+        ? `${message.slice(0, 217).trim()}…`
         : message
       : 'No message provided with this quote.'
 
-  const priceBlock = ownerQuoteEmphasis ? (
-    <Stack align="flex-end" gap={0} flexShrink={0} textAlign="right">
-      <Text
-        fontSize="10px"
-        fontWeight={800}
-        color="formLabelMuted"
-        letterSpacing="0.12em"
-      >
-        QUOTE
-      </Text>
-      <Text fontWeight={800} fontSize="xl" color="secondary.700">
-        {priceLabel}
-      </Text>
-    </Stack>
-  ) : (
-    <Text fontWeight={800} fontSize="lg" color="cardFg" flexShrink={0}>
-      {priceLabel}
-    </Text>
-  )
-
-  const showActions = Boolean(messageHref || isOwnQuote || onAccept)
+  const isCard = variant === 'card'
 
   return (
     <Stack
       gap={3}
-      p={4}
-      borderRadius="xl"
-      bg="neutral.100"
-      borderWidth="1px"
-      borderColor="cardBorder"
-      boxShadow="ghostBorder"
+      {...(isCard
+        ? {
+            p: 4,
+            borderRadius: 'xl',
+            bg: 'cardBg',
+            borderWidth: '1px',
+            borderColor: 'cardBorder',
+          }
+        : {})}
     >
-      <HStack align="flex-start" gap={3} justify="space-between">
+      <HStack align="flex-start" gap={3} justify="space-between" w="full">
         <HStack align="flex-start" gap={3} flex={1} minW={0}>
           <Box
             flexShrink={0}
-            boxSize="52px"
-            borderRadius="lg"
+            boxSize="48px"
+            borderRadius="full"
             bg={avatarGradient(name + avatarLabel)}
             display="flex"
             alignItems="center"
@@ -122,108 +115,116 @@ export function QuoteCard({
             )}
           </Box>
           <Stack gap={1} flex={1} minW={0}>
-            <HStack gap={2} flexWrap="wrap" align="center">
+            <HStack gap={2} align="center" flexWrap="wrap">
               <Heading size="sm" lineHeight="short">
                 {name}
               </Heading>
-              {trustBadge === 'pro' ? (
-                <Badge
-                  px={2}
-                  py={0.5}
-                  fontSize="10px"
-                  bg="primary.100"
-                  color="primary.700"
-                >
-                  PRO
-                </Badge>
-              ) : null}
-              {trustBadge === 'verified' ? (
-                <Badge
-                  px={2}
-                  py={0.5}
-                  fontSize="10px"
+              {showVerified ? (
+                <Box
+                  as="span"
+                  display="inline-flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  boxSize="18px"
+                  borderRadius="full"
                   bg="primary.600"
                   color="white"
-                  fontWeight={700}
+                  flexShrink={0}
+                  aria-label="Verified on Slashie"
                 >
-                  VERIFIED
-                </Badge>
+                  <LuCheck size={12} strokeWidth={3} aria-hidden />
+                </Box>
               ) : null}
             </HStack>
-            {ratingSummary ? (
-              <Text fontSize="sm" color="secondary.600" fontWeight={600}>
-                ★ {ratingSummary}
-              </Text>
+            {ratingLine ? (
+              <HStack
+                gap={1}
+                fontSize="sm"
+                color="formLabelMuted"
+                fontWeight={500}
+              >
+                <Text as="span" color="secondary.600" aria-hidden>
+                  ★
+                </Text>
+                <Text as="span">{ratingLine}</Text>
+              </HStack>
             ) : null}
           </Stack>
         </HStack>
-        {priceBlock}
-      </HStack>
-      <Text
-        fontSize="sm"
-        color="formLabelMuted"
-        fontStyle="italic"
-        lineHeight="tall"
-      >
-        &ldquo;{snippet}&rdquo;
-      </Text>
-      {showActions ? (
-        <HStack gap={2} flexWrap="wrap">
-          {messageHref ? (
-            <Link
-              as={NextLink}
-              href={messageHref}
-              flex={1}
-              minW="120px"
-              _hover={{ textDecoration: 'none' }}
-            >
-              <Button
-                size="sm"
-                variant="secondary"
-                borderColor="primary.200"
-                color="primary.700"
-                bg="primary.50"
-                px={4}
-                w="full"
+        <HStack align="flex-start" gap={0} flexShrink={0}>
+          {showPrice ? (
+            <Stack align="flex-end" gap={0} textAlign="right" minW="4rem">
+              <Text
+                fontWeight={800}
+                fontSize="xl"
+                color="primary.600"
+                lineHeight="shorter"
               >
-                Message
-              </Button>
-            </Link>
+                {priceLabel}
+              </Text>
+              {priceKindLabel ? (
+                <Text fontSize="xs" color="formLabelMuted">
+                  {priceKindLabel}
+                </Text>
+              ) : null}
+            </Stack>
           ) : null}
-          {isOwnQuote ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              borderColor="cardBorder"
-              color="formLabelMuted"
-              flex={1}
-              minW="120px"
-              disabled
-            >
-              Your quote
-            </Button>
-          ) : onAccept ? (
-            <Button
-              size="sm"
-              px={4}
-              flex={1}
-              minW="120px"
-              loading={acceptLoading}
-              disabled={acceptDisabled}
-              onClick={onAccept}
-              {...(acceptPrimary
-                ? {}
-                : {
-                    variant: 'outline' as const,
-                    borderColor: 'primary.200',
-                    color: 'primary.700',
-                    bg: 'primary.50',
-                  })}
-            >
-              Accept quote
-            </Button>
-          ) : null}
+          <Link
+            as={NextLink}
+            href={detailHref}
+            display="flex"
+            alignItems="center"
+            alignSelf="center"
+            mt={0.5}
+            px={1}
+            color="formLabelMuted"
+            _hover={{ color: 'cardFg' }}
+            aria-label="Messages"
+          >
+            <LuChevronRight size={22} aria-hidden />
+          </Link>
         </HStack>
+      </HStack>
+      {respondedLabel ? (
+        <Box
+          as="span"
+          display="inline-block"
+          w="fit-content"
+          px={3}
+          py={1}
+          borderRadius="full"
+          bg="neutral.100"
+          fontSize="xs"
+          fontWeight={600}
+          color="formLabelMuted"
+        >
+          {respondedLabel}
+        </Box>
+      ) : null}
+      <Text fontSize="sm" color="cardFg" lineHeight="tall">
+        {body}
+      </Text>
+      {isOwnQuote ? (
+        <Button size="sm" variant="secondary" disabled w="full">
+          Your quote
+        </Button>
+      ) : onAccept ? (
+        <Button
+          size="sm"
+          w="full"
+          loading={acceptLoading}
+          disabled={acceptDisabled}
+          onClick={onAccept}
+          variant={acceptPrimary ? 'primary' : 'outline'}
+          {...(acceptPrimary
+            ? {}
+            : {
+                borderColor: 'primary.300',
+                color: 'primary.700',
+              })}
+        >
+          Accept quote
+        </Button>
       ) : null}
     </Stack>
   )

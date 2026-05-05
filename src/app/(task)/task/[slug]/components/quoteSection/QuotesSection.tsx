@@ -1,28 +1,75 @@
 'use client'
 
-import type { ChangeEvent } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
-  Box,
   HStack,
   Heading,
-  Input,
   Link,
+  NativeSelect,
   Stack,
   Text,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { priceToPence } from '@/utils/price'
-import { Badge, Button, SectionCard } from '@ui'
+import { Badge, Button } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
+  budgetKindLabel,
   formatPoundsFromPence,
+  formatQuoteRespondedAgo,
   normaliseTaskStatusForBadge,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
+import { MetaListRow } from '../metaSection/MetaListRow'
 import { QuoteCard } from './QuoteCard'
+
+type QuoteSort = 'recommended' | 'price_low' | 'price_high' | 'recent'
+
+type TaskQuote = TaskDetailRecord['quotes'][number]
+
+function sortOwnerQuotes(quotes: TaskQuote[], sort: QuoteSort): TaskQuote[] {
+  const list = [...quotes]
+  const created = (q: TaskQuote) => new Date(q.createdAt).getTime()
+  const cmpPrice = (a: TaskQuote, b: TaskQuote) => {
+    const pa = priceToPence(a.price)
+    const pb = priceToPence(b.price)
+    const na = pa == null
+    const nb = pb == null
+    if (na && nb) return 0
+    if (na) return 1
+    if (nb) return -1
+    return pa - pb
+  }
+  switch (sort) {
+    case 'price_low':
+      return list.sort(cmpPrice)
+    case 'price_high':
+      return list.sort((a, b) => -cmpPrice(a, b))
+    case 'recent':
+      return list.sort((a, b) => created(b) - created(a))
+    default:
+      return list.sort((a, b) => {
+        const p = cmpPrice(a, b)
+        if (p !== 0) return p
+        return created(b) - created(a)
+      })
+  }
+}
+
+function quoteDividerAfterList(
+  listLength: number,
+  hasTrailingBlock: boolean,
+  index: number,
+): boolean {
+  if (listLength === 0) return false
+  const isLastRow = index === listLength - 1
+  if (!isLastRow) return true
+  return hasTrailingBlock
+}
 
 export function QuotesSection() {
   const {
@@ -31,14 +78,6 @@ export function QuotesSection() {
     isAuthenticated,
     myQuote,
     canAccessWorkerTools,
-    quoteAmountInput,
-    quoteMessageInput,
-    setQuoteAmountInput,
-    setQuoteMessageInput,
-    onSubmitQuote,
-    quoting,
-    quoteError,
-    quoteSuccess,
     sortedQuotes,
     lowestPricePence,
     canAcceptQuotes,
@@ -48,39 +87,54 @@ export function QuotesSection() {
     onAcceptQuote,
   } = useTaskDetail()
 
+  const [quoteSort, setQuoteSort] = useState<QuoteSort>('recommended')
+
+  const displayQuotes = useMemo(
+    () => sortOwnerQuotes(sortedQuotes, quoteSort),
+    [sortedQuotes, quoteSort],
+  )
+
   if (!task) return null
 
   if (isOwner) {
     const n = task.quotes.length
+    const priceKind = budgetKindLabel(task.budget?.type) ?? 'Fixed price'
+    const hasList = n > 0
 
     return (
-      <SectionCard
-        id="owner-quotes"
-        pt={{ base: 2, lg: 4 }}
-        bodyGap={4}
-        header={
-          <HStack
-            justify="space-between"
-            align="center"
-            flexWrap="wrap"
-            gap={3}
-          >
-            <Heading size="md">Quotes</Heading>
-            {n > 0 ? (
-              <Link
-                as={NextLink}
-                href="#owner-quotes-list"
-                fontSize="sm"
-                fontWeight={700}
-                color="primary.600"
-                _hover={{ color: 'primary.700' }}
-              >
-                View all {n} quote{n === 1 ? '' : 's'}
-              </Link>
-            ) : null}
-          </HStack>
-        }
-      >
+      <Stack gap={4} w="full" id="owner-quotes">
+        <HStack
+          justify="space-between"
+          align="center"
+          flexWrap="wrap"
+          gap={3}
+          w="full"
+        >
+          <Heading size="md">Quotes{hasList ? ` (${n})` : ''}</Heading>
+          {hasList ? (
+            <HStack gap={2} align="center" flexShrink={0}>
+              <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
+                Sort:
+              </Text>
+              <NativeSelect.Root w={{ base: 'full', sm: '180px' }} maxW="220px">
+                <NativeSelect.Field
+                  bg="cardBg"
+                  borderWidth="1px"
+                  borderColor="cardBorder"
+                  borderRadius="lg"
+                  fontSize="sm"
+                  value={quoteSort}
+                  onChange={(e) => setQuoteSort(e.target.value as QuoteSort)}
+                >
+                  <option value="recommended">Recommended</option>
+                  <option value="price_low">Price (lowest)</option>
+                  <option value="price_high">Price (highest)</option>
+                  <option value="recent">Most recent</option>
+                </NativeSelect.Field>
+              </NativeSelect.Root>
+            </HStack>
+          ) : null}
+        </HStack>
         {acceptError ? (
           <Text color="red.400" fontSize="sm">
             {acceptError}
@@ -91,141 +145,180 @@ export function QuotesSection() {
             {cancelError}
           </Text>
         ) : null}
-        {n === 0 ? (
+        {!hasList ? (
           <Text color="formLabelMuted">
             No quotes yet. Check back for worker responses.
           </Text>
         ) : (
-          <Stack gap={4} id="owner-quotes-list">
-            {sortedQuotes.map((quote) => {
+          <Stack gap={0} w="full" id="owner-quotes-list">
+            {displayQuotes.map((quote, i) => {
               const quotePence = priceToPence(quote.price)
               const professionalName =
                 quote.professional?.profile?.name?.trim() ||
                 `${quote.professional?.firstName ?? ''} ${quote.professional?.lastName ?? ''}`.trim() ||
                 'Professional'
               return (
-                <QuoteCard
+                <MetaListRow
                   key={quote.id}
-                  name={professionalName}
-                  avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
-                  avatarUrl={quote.professional?.profile?.avatarUrl}
-                  priceLabel={
-                    quotePence != null ? formatPoundsFromPence(quotePence) : '—'
-                  }
-                  message={quote.message}
-                  ownerQuoteEmphasis
-                  acceptPrimary={
-                    quotePence != null && quotePence === lowestPricePence
-                  }
-                  messageHref="/dashboard/messages"
-                  isOwnQuote={false}
-                  onAccept={
-                    canAcceptQuotes
-                      ? () => void onAcceptQuote(quote.id)
-                      : undefined
-                  }
-                  acceptLoading={acceptingQuoteId === quote.id}
-                />
+                  withDivider={quoteDividerAfterList(
+                    displayQuotes.length,
+                    false,
+                    i,
+                  )}
+                >
+                  <QuoteCard
+                    variant="list"
+                    showPrice
+                    name={professionalName}
+                    avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
+                    avatarUrl={quote.professional?.profile?.avatarUrl}
+                    priceLabel={
+                      quotePence != null
+                        ? formatPoundsFromPence(quotePence)
+                        : '—'
+                    }
+                    priceKindLabel={priceKind}
+                    message={quote.message}
+                    respondedLabel={
+                      formatQuoteRespondedAgo(quote.createdAt) ?? undefined
+                    }
+                    showVerified={Boolean(quote.professional?.id)}
+                    acceptPrimary={
+                      quotePence != null && quotePence === lowestPricePence
+                    }
+                    isOwnQuote={false}
+                    onAccept={
+                      canAcceptQuotes
+                        ? () => void onAcceptQuote(quote.id)
+                        : undefined
+                    }
+                    acceptLoading={acceptingQuoteId === quote.id}
+                  />
+                </MetaListRow>
               )
             })}
           </Stack>
         )}
-      </SectionCard>
+      </Stack>
     )
   }
 
-  const loginHref = `/login?next=${encodeURIComponent(`/task/${task.id}#task-quote`)}`
+  const n = task.quotes.length
+  const hasQuoteRows = n > 0
+  const quoteFlowHref = `/task/${task.id}/quote`
+  const loginHref = `/login?next=${encodeURIComponent(quoteFlowHref)}`
+
+  const followUpBlock = !isAuthenticated ? (
+    <Stack gap={3}>
+      <Heading size="sm">Log in to make a quote</Heading>
+      <Text color="formLabelMuted">
+        Sign in to send your quote and message to the task owner.
+      </Text>
+      <Link as={NextLink} href={loginHref} _hover={{ textDecoration: 'none' }}>
+        <Button w="full">Log in</Button>
+      </Link>
+    </Stack>
+  ) : myQuote ? (
+    <Stack gap={3}>
+      <Heading size="sm">Your quote</Heading>
+      <Text color="formLabelMuted">
+        {(() => {
+          const submittedPence = priceToPence(myQuote.price)
+          if (submittedPence == null) {
+            return (
+              <>
+                The poster can see your amount; it is not shown on the public
+                task page.
+                {myQuote.message ? ` “${myQuote.message}”` : null}
+              </>
+            )
+          }
+          return (
+            <>
+              You submitted {formatPoundsFromPence(submittedPence)}.
+              {myQuote.message ? ` “${myQuote.message}”` : null}
+            </>
+          )
+        })()}
+      </Text>
+      <Badge bg="cardBg" color="cardFg" w="fit-content">
+        Status: {normaliseTaskStatusForBadge(myQuote.status)}
+      </Badge>
+    </Stack>
+  ) : !canAccessWorkerTools ? (
+    <Stack gap={3}>
+      <Heading size="sm">Become a worker to send a quote</Heading>
+      <Text color="formLabelMuted">
+        Create your worker profile to unlock quoting and worker tools.
+      </Text>
+      <Link
+        as={NextLink}
+        href="/dashboard/worker/register"
+        _hover={{ textDecoration: 'none' }}
+      >
+        <Button w="full">Create worker profile</Button>
+      </Link>
+    </Stack>
+  ) : (
+    <Stack gap={3}>
+      <Heading size="sm">Submit a quote</Heading>
+      <Text color="formLabelMuted">
+        Add your price, availability, and a message in a few guided steps.
+      </Text>
+      <Link
+        as={NextLink}
+        href={quoteFlowHref}
+        _hover={{ textDecoration: 'none' }}
+      >
+        <Button w="full">Send a quote</Button>
+      </Link>
+    </Stack>
+  )
 
   return (
-    <Box id="task-quote" scrollMarginTop="96px">
-      {!isAuthenticated ? (
-        <SectionCard
-          eyebrow="Quotes"
-          heading="Log in to make a quote"
-          bodyGap={4}
-        >
-          <Text color="formLabelMuted">
-            Sign in to send your quote and message to the task owner.
-          </Text>
-          <Link
-            as={NextLink}
-            href={loginHref}
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button w="full">Log in</Button>
-          </Link>
-        </SectionCard>
-      ) : myQuote ? (
-        <SectionCard eyebrow="Quotes" heading="Your quote" bodyGap={3}>
-          <Text color="formLabelMuted">
-            You submitted{' '}
-            {formatPoundsFromPence(priceToPence(myQuote.price) ?? 0)}
-            {myQuote.message ? ` — “${myQuote.message}”` : '.'}
-          </Text>
-          <Badge bg="cardBg" color="cardFg" w="fit-content">
-            Status: {normaliseTaskStatusForBadge(myQuote.status)}
-          </Badge>
-        </SectionCard>
-      ) : !canAccessWorkerTools ? (
-        <SectionCard
-          eyebrow="Quotes"
-          heading="Become a worker to send a quote"
-          bodyGap={4}
-          bg="primary.50"
-          borderColor="primary.100"
-        >
-          <Text color="formLabelMuted">
-            Create your worker profile to unlock quoting and worker tools.
-          </Text>
-          <Link
-            as={NextLink}
-            href="/dashboard/worker/register"
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button w="full">Create worker profile</Button>
-          </Link>
-        </SectionCard>
+    <Stack gap={4} w="full">
+      <HStack
+        justify="space-between"
+        align="center"
+        flexWrap="wrap"
+        gap={3}
+        w="full"
+      >
+        <Heading size="md">Quotes{hasQuoteRows ? ` (${n})` : ''}</Heading>
+      </HStack>
+      {hasQuoteRows ? (
+        <Stack gap={0} w="full">
+          {task.quotes.map((quote, i) => {
+            const professionalName =
+              quote.professional?.profile?.name?.trim() ||
+              `${quote.professional?.firstName ?? ''} ${quote.professional?.lastName ?? ''}`.trim() ||
+              'Professional'
+            return (
+              <MetaListRow
+                key={quote.id}
+                withDivider={quoteDividerAfterList(n, true, i)}
+              >
+                <QuoteCard
+                  variant="list"
+                  showPrice={false}
+                  name={professionalName}
+                  avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
+                  avatarUrl={quote.professional?.profile?.avatarUrl}
+                  priceLabel=""
+                  message={quote.message}
+                  respondedLabel={
+                    formatQuoteRespondedAgo(quote.createdAt) ?? undefined
+                  }
+                  showVerified={Boolean(quote.professional?.id)}
+                />
+              </MetaListRow>
+            )
+          })}
+          <MetaListRow withDivider={false}>{followUpBlock}</MetaListRow>
+        </Stack>
       ) : (
-        <SectionCard eyebrow="Quotes" heading="Submit a quote" bodyGap={4}>
-          <Text color="formLabelMuted">
-            Share your price and a short message for the client.
-          </Text>
-          <Stack gap={3}>
-            <Input
-              placeholder="Quote price (pence)"
-              value={quoteAmountInput}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setQuoteAmountInput(e.target.value)
-              }
-            />
-            <Input
-              placeholder="Short message to the client"
-              value={quoteMessageInput}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setQuoteMessageInput(e.target.value)
-              }
-            />
-            <Button
-              background="linkBlue.600"
-              color="white"
-              loading={quoting}
-              onClick={() => void onSubmitQuote()}
-            >
-              Submit quote
-            </Button>
-            {quoteError ? (
-              <Text color="red.400" fontSize="sm">
-                {quoteError}
-              </Text>
-            ) : null}
-            {quoteSuccess ? (
-              <Text color="green.600" fontSize="sm">
-                {quoteSuccess}
-              </Text>
-            ) : null}
-          </Stack>
-        </SectionCard>
+        followUpBlock
       )}
-    </Box>
+    </Stack>
   )
 }

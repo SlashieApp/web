@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, HStack, Link } from '@chakra-ui/react'
+import { TaskStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useCallback, useMemo, useState } from 'react'
 
@@ -8,8 +9,58 @@ import { Button } from '@ui'
 
 import { useTaskDetail } from '../context/TaskDetailProvider'
 
+function IconPencil() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Edit</title>
+      <path
+        d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconChart() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Stats</title>
+      <path
+        d="M18 20V10M12 20V4M6 20v-6"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function IconCancel() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Cancel</title>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
+      <path
+        d="m15 9-6 6M9 9l6 6"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 export function TaskHeader() {
-  const { task, isOwner } = useTaskDetail()
+  const {
+    task,
+    isOwner,
+    cancelingTask,
+    onCancelTask,
+    scrollToOwnerPerformance,
+  } = useTaskDetail()
   const [saved, setSaved] = useState(false)
 
   const share = useCallback(async () => {
@@ -36,6 +87,12 @@ export function TaskHeader() {
     return `mailto:support@slashie.app?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   }, [task])
 
+  const cancelDisabled =
+    !task ||
+    task.status === TaskStatus.Cancelled ||
+    task.status === TaskStatus.Completed ||
+    task.status === TaskStatus.Confirmed
+
   if (!task) return null
 
   return (
@@ -53,7 +110,7 @@ export function TaskHeader() {
       <HStack
         justify="space-between"
         align="center"
-        gap={{ base: 3, md: 4 }}
+        gap={{ base: 2, md: 3 }}
         flexWrap="wrap"
         w="full"
       >
@@ -73,22 +130,64 @@ export function TaskHeader() {
           gap={2}
           flexWrap="wrap"
           justify="flex-end"
-          flex={{ base: '1 1 auto', md: '0 0 auto' }}
-          minW={0}
+          align="center"
+          flexShrink={0}
         >
           {isOwner ? (
-            <Link
-              as={NextLink}
-              href="/requests"
-              _hover={{ textDecoration: 'none' }}
-            >
-              <Button variant="outline" size="sm" borderRadius="lg">
-                Edit
+            <>
+              <Link
+                as={NextLink}
+                href="/requests"
+                _hover={{ textDecoration: 'none' }}
+              >
+                <Button
+                  variant="secondary"
+                  borderColor="cardBorder"
+                  color="cardFg"
+                  bg="white"
+                  size="sm"
+                  borderRadius="lg"
+                >
+                  <HStack gap={2}>
+                    <IconPencil />
+                    <span>Edit task</span>
+                  </HStack>
+                </Button>
+              </Link>
+              <Button
+                type="button"
+                variant="secondary"
+                borderColor="cardBorder"
+                color="cardFg"
+                bg="white"
+                size="sm"
+                borderRadius="lg"
+                onClick={scrollToOwnerPerformance}
+              >
+                <HStack gap={2}>
+                  <IconChart />
+                  <span>View stats</span>
+                </HStack>
               </Button>
-            </Link>
-          ) : null}
-
-          {!isOwner ? (
+              <Button
+                type="button"
+                variant="secondary"
+                borderColor="red.200"
+                color="red.700"
+                bg="red.50"
+                size="sm"
+                borderRadius="lg"
+                loading={cancelingTask}
+                disabled={cancelDisabled}
+                onClick={() => void onCancelTask()}
+              >
+                <HStack gap={2}>
+                  <IconCancel />
+                  <span>Cancel task</span>
+                </HStack>
+              </Button>
+            </>
+          ) : (
             <Button
               type="button"
               variant="outline"
@@ -100,7 +199,7 @@ export function TaskHeader() {
             >
               Report
             </Button>
-          ) : null}
+          )}
 
           <Button
             type="button"

@@ -1,5 +1,7 @@
 'use client'
 
+import type { ReactNode } from 'react'
+
 import { Box } from '@chakra-ui/react'
 import type { GeoJSONSource, Map as MapboxMap } from 'mapbox-gl'
 import { useCallback, useRef } from 'react'
@@ -40,6 +42,8 @@ export type LocationMapProps = {
   lng: number
   /** Map container height (default 200px). */
   height?: string
+  /** Optional footer (e.g. “View full map”) flush below the map. */
+  footer?: ReactNode
 }
 
 export function LocationMap({
@@ -47,6 +51,7 @@ export function LocationMap({
   lat,
   lng,
   height = '200px',
+  footer,
 }: LocationMapProps) {
   const mapRef = useRef<MapboxMap | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
@@ -133,16 +138,50 @@ export function LocationMap({
     [accessToken],
   )
 
-  return (
+  const mapPane = (
     <Box
       ref={setContainerRef}
       w="full"
       h={height}
+      overflow="hidden"
+      bg="cardBg"
+    />
+  )
+
+  if (!footer) {
+    return (
+      <Box
+        w="full"
+        borderRadius="lg"
+        overflow="hidden"
+        borderWidth="1px"
+        borderColor="cardBorder"
+        bg="cardBg"
+      >
+        {mapPane}
+      </Box>
+    )
+  }
+
+  return (
+    <Box
+      w="full"
       borderRadius="lg"
       overflow="hidden"
       borderWidth="1px"
       borderColor="cardBorder"
       bg="cardBg"
-    />
+    >
+      {mapPane}
+      <Box
+        py={3}
+        px={2}
+        textAlign="center"
+        borderTopWidth="1px"
+        borderColor="cardDivider"
+      >
+        {footer}
+      </Box>
+    </Box>
   )
 }

@@ -144,6 +144,7 @@ export const TASK_QUERY = gql`
         id
         taskId
         workerUserId
+        estimatedDuration
         price {
           currency
           amount

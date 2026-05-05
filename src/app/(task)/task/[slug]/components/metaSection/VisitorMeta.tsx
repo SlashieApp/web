@@ -1,6 +1,8 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
+
+import { HStack, Stack, Text } from '@chakra-ui/react'
 
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
@@ -9,17 +11,28 @@ import { Badge } from '@ui'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
   budgetKindLabel,
+  formatTaskBudgetPaymentMethodLabel,
+  getSecondaryTaskFact,
   taskAvailabilityRangeLabel,
   taskBudgetDisplayLine,
+  taskCategoryLabel,
+  taskDurationEstimateLabel,
   taskMapCoordinates,
+  taskUrgencyDisplayLabel,
 } from '../../helpers/taskDetailUtils'
 import { LocationMap } from './LocationMap'
+import { MetaListRow } from './MetaListRow'
 import { MetaRow } from './MetaRow'
 import {
-  IconCalendar,
+  IconAccess,
+  IconBudgetGrid,
   IconClock,
+  IconParking,
+  IconPaymentMethod,
   IconPin,
-  IconWallet,
+  IconTag,
+  IconUrgency,
+  IconWrench,
 } from './VisitorMetaIcons'
 
 export function VisitorMeta() {
@@ -36,57 +49,161 @@ export function VisitorMeta() {
   )
   const budgetBadge = budgetKindLabel(task.budget?.type)
   const timing = taskAvailabilityRangeLabel(task)
+  const category = taskCategoryLabel(task)
+  const paymentMethod = task.budget?.paymentMethod?.trim()
+  const estimatedTime = taskDurationEstimateLabel(task)
+  const urgency = taskUrgencyDisplayLabel(task)
+  const accessFact = getSecondaryTaskFact(task, 'access')
+  const toolsFact = getSecondaryTaskFact(task, 'tools')
+  const parkingFact = getSecondaryTaskFact(task, 'parking')
+
+  type Block = { key: string; node: ReactNode }
+  const blocks: Block[] = []
+
+  blocks.push({
+    key: 'posted',
+    node: (
+      <MetaRow label="Posted" icon={<IconClock />}>
+        {formatRelativeTime(task.createdAt)}
+      </MetaRow>
+    ),
+  })
+
+  blocks.push({
+    key: 'location',
+    node: (
+      <MetaRow label="Location" icon={<IconPin />}>
+        {place || 'Location shared after you accept a quote'}
+      </MetaRow>
+    ),
+  })
+
+  if (category) {
+    blocks.push({
+      key: 'category',
+      node: (
+        <MetaRow label="Category" icon={<IconTag />}>
+          {category}
+        </MetaRow>
+      ),
+    })
+  }
+
+  blocks.push({
+    key: 'budget',
+    node: (
+      <MetaRow label="Budget" icon={<IconBudgetGrid />}>
+        <HStack gap={2} flexWrap="wrap" align="center">
+          <Text as="span" fontSize="sm" fontWeight={700}>
+            {budgetLine}
+          </Text>
+          {budgetBadge ? (
+            <Badge
+              px={2}
+              py={0.5}
+              fontSize="10px"
+              fontWeight={700}
+              bg="primary.100"
+              color="primary.700"
+            >
+              {budgetBadge}
+            </Badge>
+          ) : null}
+        </HStack>
+      </MetaRow>
+    ),
+  })
+
+  if (paymentMethod) {
+    blocks.push({
+      key: 'payment',
+      node: (
+        <MetaRow label="Payment" icon={<IconPaymentMethod />}>
+          {formatTaskBudgetPaymentMethodLabel(paymentMethod)}
+        </MetaRow>
+      ),
+    })
+  }
+
+  blocks.push({
+    key: 'timing',
+    node: (
+      <MetaRow label="Timing" icon={<IconClock />}>
+        {timing}
+      </MetaRow>
+    ),
+  })
+
+  if (estimatedTime) {
+    blocks.push({
+      key: 'estimated',
+      node: (
+        <MetaRow label="Estimated time" icon={<IconClock />}>
+          {estimatedTime.replace(/-/g, '–')}
+        </MetaRow>
+      ),
+    })
+  }
+
+  if (accessFact) {
+    blocks.push({
+      key: 'access',
+      node: (
+        <MetaRow label="Access" icon={<IconAccess />}>
+          {accessFact.value}
+        </MetaRow>
+      ),
+    })
+  }
+
+  if (toolsFact) {
+    blocks.push({
+      key: 'tools',
+      node: (
+        <MetaRow label="Tools" icon={<IconWrench />}>
+          {toolsFact.value}
+        </MetaRow>
+      ),
+    })
+  }
+
+  if (parkingFact) {
+    blocks.push({
+      key: 'parking',
+      node: (
+        <MetaRow label="Parking" icon={<IconParking />}>
+          {parkingFact.value}
+        </MetaRow>
+      ),
+    })
+  }
+
+  blocks.push({
+    key: 'urgency',
+    node: (
+      <MetaRow label="Urgency" icon={<IconUrgency />}>
+        {urgency}
+      </MetaRow>
+    ),
+  })
 
   return (
-    <Stack gap={5} w="full">
+    <Stack gap={4} w="full">
       {coords && mapboxToken?.trim() ? (
-        <Stack gap={2}>
-          <LocationMap
-            accessToken={mapboxToken}
-            lat={coords.lat}
-            lng={coords.lng}
-            height="160px"
-          />
-        </Stack>
+        <LocationMap
+          accessToken={mapboxToken}
+          lat={coords.lat}
+          lng={coords.lng}
+          height="160px"
+        />
       ) : null}
 
-      <Stack gap={0}>
-        <Box pb={4} borderBottomWidth="1px" borderColor="cardDivider">
-          <MetaRow label="Posted" icon={<IconClock />}>
-            {formatRelativeTime(task.createdAt)}
-          </MetaRow>
-        </Box>
-        <Box py={4} borderBottomWidth="1px" borderColor="cardDivider">
-          <MetaRow label="Location" icon={<IconPin />}>
-            {place || 'Location shared after you accept a quote'}
-          </MetaRow>
-        </Box>
-        <Box py={4} borderBottomWidth="1px" borderColor="cardDivider">
-          <MetaRow label="Budget" icon={<IconWallet />}>
-            <HStack gap={2} flexWrap="wrap" align="center">
-              <Text as="span" fontSize="sm" fontWeight={600}>
-                {budgetLine}
-              </Text>
-              {budgetBadge ? (
-                <Badge
-                  px={2}
-                  py={0.5}
-                  fontSize="10px"
-                  fontWeight={700}
-                  bg="primary.100"
-                  color="primary.700"
-                >
-                  {budgetBadge}
-                </Badge>
-              ) : null}
-            </HStack>
-          </MetaRow>
-        </Box>
-        <Box pt={4}>
-          <MetaRow label="Timing" icon={<IconCalendar />}>
-            {timing}
-          </MetaRow>
-        </Box>
+      <Stack gap={0} w="full">
+        {blocks.map((b, i) => (
+          <MetaListRow key={b.key} withDivider={i < blocks.length - 1}>
+            {b.node}
+          </MetaListRow>
+        ))}
       </Stack>
     </Stack>
   )

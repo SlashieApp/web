@@ -9,7 +9,7 @@ import type {
   TaskQuery,
 } from '@codegen/schema'
 import { Currency, QuoteStatus, TaskStatus } from '@codegen/schema'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   createContext,
   useCallback,
@@ -36,14 +36,18 @@ type TaskDetailContextValue = {
   task: TaskDetailRecord | null
   isOwner: boolean
   me: MeQuery['me'] | null
+  /** True while `ME_QUERY` is in flight (only when authenticated). */
+  meLoading: boolean
   isAuthenticated: boolean
   myQuote: TaskDetailRecord['quotes'][number] | null
   sortedQuotes: TaskDetailRecord['quotes']
   lowestPricePence: number | null
   quoteAmountInput: string
   quoteMessageInput: string
+  quoteAvailabilityInput: string
   setQuoteAmountInput: (v: string) => void
   setQuoteMessageInput: (v: string) => void
+  setQuoteAvailabilityInput: (v: string) => void
   quoteError: string | null
   quoteSuccess: string | null
   acceptError: string | null
@@ -53,7 +57,7 @@ type TaskDetailContextValue = {
   cancelingTask: boolean
   canAcceptQuotes: boolean
   canAccessWorkerTools: boolean
-  onSubmitQuote: () => Promise<void>
+  onSubmitQuote: () => Promise<boolean>
   onAcceptQuote: (quoteId: string) => Promise<void>
   onCancelTask: () => Promise<void>
   scrollToQuoteForm: () => void
@@ -74,12 +78,14 @@ export function TaskDetailProvider({
   children,
 }: TaskDetailProviderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const apollo = useApolloClient()
   const [task, setTask] = useState<TaskDetailRecord | null>(
     initialTask as TaskDetailRecord | null,
   )
   const [quoteAmountInput, setQuoteAmountInput] = useState('')
   const [quoteMessageInput, setQuoteMessageInput] = useState('')
+  const [quoteAvailabilityInput, setQuoteAvailabilityInput] = useState('')
   const [quoteError, setQuoteError] = useState<string | null>(null)
   const [quoteSuccess, setQuoteSuccess] = useState<string | null>(null)
   const [acceptError, setAcceptError] = useState<string | null>(null)
@@ -87,11 +93,12 @@ export function TaskDetailProvider({
   const [cancelError, setCancelError] = useState<string | null>(null)
   const isAuthenticated = Boolean(getAuthToken())
 
-  const { data: meData } = useQuery<MeQuery>(ME_QUERY, {
+  const { data: meData, loading: meLoading } = useQuery<MeQuery>(ME_QUERY, {
     skip: !isAuthenticated,
     fetchPolicy: 'cache-first',
   })
   const me = meData?.me ?? null
+  const meLoadingResolved = Boolean(isAuthenticated && meLoading)
 
   const [addQuote, { loading: quoting }] =
     useMutation<AddQuoteMutation>(ADD_QUOTE)
@@ -165,20 +172,32 @@ export function TaskDetailProvider({
 
     if (!task) {
       setQuoteError('Task details are not loaded yet.')
-      return
+      return false
     }
 
     if (!isAuthenticated) {
-      const next = `/task/${task.id}#task-quote`
+      const onQuoteFlow = pathname === `/task/${taskId}/quote`
+      const next = onQuoteFlow
+        ? `/task/${taskId}/quote`
+        : `/task/${task.id}#task-quote`
       router.push(`/login?next=${encodeURIComponent(next)}`)
-      return
+      return false
     }
 
     if (!workerOnboardingDone && !myQuote) {
       setQuoteError('Create a worker profile before submitting quotes.')
       router.push('/dashboard/worker/register')
-      return
+      return false
     }
+
+    const trimmedMessage = quoteMessageInput.trim()
+    const trimmedAvailability = quoteAvailabilityInput.trim()
+    const messageParts = [trimmedMessage]
+    if (trimmedAvailability) {
+      messageParts.push(`Availability: ${trimmedAvailability}`)
+    }
+    const combinedMessage =
+      messageParts.filter(Boolean).join('\n\n') || undefined
 
     try {
       const result = await addQuote({
@@ -189,7 +208,7 @@ export function TaskDetailProvider({
               amount: (Number(quoteAmountInput) || 0) / 100,
               currency: Currency.Gbp,
             },
-            message: quoteMessageInput || undefined,
+            message: combinedMessage,
           },
         },
       })
@@ -200,18 +219,23 @@ export function TaskDetailProvider({
 
       setQuoteSuccess('Quote submitted successfully.')
       await refreshTask()
+      return true
     } catch (error: unknown) {
       setQuoteError(getFriendlyErrorMessage(error, 'Quote submission failed.'))
+      return false
     }
   }, [
     addQuote,
     isAuthenticated,
     myQuote,
+    pathname,
     quoteAmountInput,
+    quoteAvailabilityInput,
     quoteMessageInput,
     refreshTask,
     router,
     task,
+    taskId,
     workerOnboardingDone,
   ])
 
@@ -284,14 +308,17 @@ export function TaskDetailProvider({
       task,
       isOwner,
       me,
+      meLoading: meLoadingResolved,
       isAuthenticated,
       myQuote,
       sortedQuotes,
       lowestPricePence,
       quoteAmountInput,
       quoteMessageInput,
+      quoteAvailabilityInput,
       setQuoteAmountInput,
       setQuoteMessageInput,
+      setQuoteAvailabilityInput,
       quoteError,
       quoteSuccess,
       acceptError,
@@ -318,11 +345,13 @@ export function TaskDetailProvider({
       isOwner,
       lowestPricePence,
       me,
+      meLoadingResolved,
       myQuote,
       onAcceptQuote,
       onCancelTask,
       onSubmitQuote,
       quoteAmountInput,
+      quoteAvailabilityInput,
       quoteError,
       quoteMessageInput,
       quoteSuccess,
