@@ -2,14 +2,14 @@
 
 import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 import {
   DashboardDataProvider,
   useDashboardData,
 } from '@/app/dashboard/context'
 
-import { Button } from '@ui'
+import { Button, SectionCard } from '@ui'
 
 import {
   type DashboardNavKey,
@@ -28,7 +28,6 @@ function resolveActiveNav(pathname: string): DashboardNavKey {
 
 function DashboardChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const router = useRouter()
   const {
     me,
     meLoading,
@@ -57,24 +56,28 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
               {meErrorMessage}
             </Text>
           ) : null}
-          <Box p={6}>
-            <Stack gap={4}>
-              <Heading size="md">Sign in to open your dashboard</Heading>
-              <Text color="formLabelMuted">
-                You need an account for the worker workspace. Posting tasks and
-                customer tools use the main site under Quotes, Requests, and
-                Profile.
-              </Text>
-              <HStack gap={3} flexWrap="wrap">
-                <Link href="/login">
-                  <Button>Log in</Button>
-                </Link>
-                <Link href="/register">
-                  <Button>Register</Button>
-                </Link>
-              </HStack>
-            </Stack>
-          </Box>
+          <SectionCard heading="Sign in to open your dashboard">
+            <Text color="formLabelMuted">
+              You need an account for the worker workspace. To post tasks or
+              manage customer requests, use the main site.
+            </Text>
+            <HStack gap={3} flexWrap="wrap">
+              <Link
+                as={NextLink}
+                href="/login"
+                _hover={{ textDecoration: 'none' }}
+              >
+                <Button>Log in</Button>
+              </Link>
+              <Link
+                as={NextLink}
+                href="/register"
+                _hover={{ textDecoration: 'none' }}
+              >
+                <Button variant="secondary">Register</Button>
+              </Link>
+            </HStack>
+          </SectionCard>
           <Link
             as={NextLink}
             href="/"

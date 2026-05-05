@@ -2,6 +2,8 @@
 
 import { Box, Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
+import { DashboardMetricCard } from '@/app/dashboard/components/DashboardMetricCard'
+import { DashboardPageHeader } from '@/app/dashboard/components/DashboardPageHeader'
 import { WorkerAccessGate } from '@/app/dashboard/components/WorkerAccessGate'
 import { useDashboardData } from '@/app/dashboard/context'
 import {
@@ -9,37 +11,7 @@ import {
   formatPounds,
   quotePricePence,
 } from '@/utils/dashboardHelpers'
-import { Badge } from '@ui'
-
-function EarningsCard({
-  label,
-  value,
-  helper,
-}: {
-  label: string
-  value: string
-  helper: string
-}) {
-  return (
-    <Box p={5}>
-      <Stack gap={2}>
-        <Text
-          fontSize="10px"
-          fontWeight={800}
-          letterSpacing="0.08em"
-          color="formLabelMuted"
-          textTransform="uppercase"
-        >
-          {label}
-        </Text>
-        <Heading size="lg">{value}</Heading>
-        <Text fontSize="sm" color="formLabelMuted">
-          {helper}
-        </Text>
-      </Stack>
-    </Box>
-  )
-}
+import { Badge, SectionCard } from '@ui'
 
 export default function DashboardEarningsPage() {
   const {
@@ -54,7 +26,7 @@ export default function DashboardEarningsPage() {
     return (
       <WorkerAccessGate
         title="Earnings tracking unlocks with your worker profile"
-        description="Create a worker profile to access quote totals, payout forecasting, and your worker-side performance summary."
+        description="Create a worker profile to access quote totals, earnings forecasting, and your worker-side performance summary."
       />
     )
   }
@@ -75,48 +47,44 @@ export default function DashboardEarningsPage() {
       .reduce((sum, { quote }) => sum + quotePricePence(quote), 0) ||
     averageQuotePence
 
-  const payoutRows =
+  const earningsRows =
     awardedQuotes.length > 0
       ? awardedQuotes.slice(0, 4).map(({ task, quote }, index) => ({
           id: quote.id,
           title: task.title,
           amountPence: quotePricePence(quote),
-          status: index === 0 ? 'Processing' : 'Scheduled',
-          payoutAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * (index + 2)),
+          status: index === 0 ? 'Awarded' : 'Tracked',
+          targetAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * (index + 2)),
         }))
       : [
           {
             id: 'forecast-1',
-            title: 'First completed worker payout',
+            title: 'First completed worker task',
             amountPence: averageQuotePence,
-            status: 'Forecast',
-            payoutAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+            status: 'Estimate',
+            targetAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
           },
         ]
 
   return (
     <Stack gap={8}>
-      <Stack gap={2}>
-        <Heading size="xl">Earnings</Heading>
-        <Text color="formLabelMuted" maxW="3xl">
-          This worker workspace mixes live awarded quote data with demo payout
-          forecasting so the frontend can showcase earnings flow even while the
-          backend payout APIs are still limited.
-        </Text>
-      </Stack>
+      <DashboardPageHeader
+        title="Earnings"
+        description="Track awarded quote value and forecast worker earnings while dedicated earnings APIs are still limited."
+      />
 
       <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
-        <EarningsCard
+        <DashboardMetricCard
           label="Tracked earnings"
           value={formatPounds(totalEarningsPence)}
           helper="Awarded quote value pulled from the current tasks schema."
         />
-        <EarningsCard
+        <DashboardMetricCard
           label="Average quote"
           value={formatPounds(averageQuotePence)}
           helper="Based on live sent quotes or your configured worker rate."
         />
-        <EarningsCard
+        <DashboardMetricCard
           label="Pipeline forecast"
           value={formatPounds(projectedPipelinePence)}
           helper="Open worker opportunity value still active in your queue."
@@ -124,18 +92,14 @@ export default function DashboardEarningsPage() {
       </Grid>
 
       <Grid templateColumns={{ base: '1fr', xl: '1.2fr 0.8fr' }} gap={6}>
-        <Box p={6}>
+        <SectionCard p={6}>
           <Stack gap={4}>
-            <Heading size="md">Payout queue</Heading>
+            <Heading size="md" color="secondary.900">
+              Earnings estimate
+            </Heading>
             <Stack gap={3}>
-              {payoutRows.map((row) => (
-                <Box
-                  key={row.id}
-                  p={4}
-                  bg="cardBg"
-                  borderWidth="1px"
-                  borderColor="cardBorder"
-                >
+              {earningsRows.map((row) => (
+                <Box key={row.id} p={4} bg="cardBg" borderRadius="xl">
                   <HStack
                     justify="space-between"
                     align="flex-start"
@@ -143,9 +107,11 @@ export default function DashboardEarningsPage() {
                     flexWrap="wrap"
                   >
                     <Stack gap={1}>
-                      <Heading size="sm">{row.title}</Heading>
+                      <Heading size="sm" color="secondary.900">
+                        {row.title}
+                      </Heading>
                       <Text fontSize="sm" color="formLabelMuted">
-                        Expected {formatDate(row.payoutAt.toISOString())}
+                        Target date {formatDate(row.targetAt.toISOString())}
                       </Text>
                     </Stack>
                     <Stack
@@ -158,16 +124,16 @@ export default function DashboardEarningsPage() {
                       <Badge
                         bg={
                           row.status === 'Processing'
-                            ? 'cardBg'
-                            : row.status === 'Scheduled'
-                              ? 'primary.50'
+                            ? 'green.100'
+                            : row.status === 'Tracked'
+                              ? 'cardBg'
                               : 'badgeBg'
                         }
                         color={
                           row.status === 'Processing'
-                            ? 'cardFg'
-                            : row.status === 'Scheduled'
-                              ? 'primary.700'
+                            ? 'secondary.600'
+                            : row.status === 'Tracked'
+                              ? 'cardFg'
                               : 'cardFg'
                         }
                       >
@@ -179,11 +145,11 @@ export default function DashboardEarningsPage() {
               ))}
             </Stack>
           </Stack>
-        </Box>
+        </SectionCard>
 
-        <Box
+        <SectionCard
           p={6}
-          bg="linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)"
+          bg="linear-gradient(160deg, #0B1714 0%, #123D31 100%)"
           color="white"
         >
           <Stack gap={4}>
@@ -193,7 +159,7 @@ export default function DashboardEarningsPage() {
             <HStack justify="space-between">
               <Text color="whiteAlpha.800">Business</Text>
               <Text fontWeight={700}>
-                {workerProfile.businessName || 'Independent pro'}
+                {workerProfile.businessName || 'Independent worker'}
               </Text>
             </HStack>
             <HStack justify="space-between">
@@ -213,7 +179,7 @@ export default function DashboardEarningsPage() {
               </Text>
             </HStack>
           </Stack>
-        </Box>
+        </SectionCard>
       </Grid>
     </Stack>
   )

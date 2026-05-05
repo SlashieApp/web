@@ -1,9 +1,9 @@
 'use client'
 
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { Button } from '@ui'
+import { Button, SectionCard } from '@ui'
 
 export function WorkerAccessGate({
   title,
@@ -13,16 +13,20 @@ export function WorkerAccessGate({
   description: string
 }) {
   return (
-    <Box p={{ base: 6, md: 7 }} bg="primary.50" borderColor="primary.100">
+    <SectionCard p={{ base: 6, md: 7 }} bg="green.100">
       <Stack gap={4} maxW="2xl">
-        <Heading size="lg">{title}</Heading>
+        <Heading size="lg" color="secondary.900">
+          {title}
+        </Heading>
         <Text color="formLabelMuted">{description}</Text>
-        <NextLink href="/dashboard/worker/register" passHref legacyBehavior>
-          <Button as="a" alignSelf="flex-start">
-            Become a worker
-          </Button>
-        </NextLink>
+        <Link
+          as={NextLink}
+          href="/dashboard/worker/register"
+          _hover={{ textDecoration: 'none' }}
+        >
+          <Button alignSelf="flex-start">Become a worker</Button>
+        </Link>
       </Stack>
-    </Box>
+    </SectionCard>
   )
 }

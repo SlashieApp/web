@@ -1,17 +1,10 @@
 'use client'
 
-import {
-  Box,
-  HStack,
-  Heading,
-  Input,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import { LuBell, LuCircleHelp, LuSearch } from 'react-icons/lu'
 
-import { Button } from '@ui'
+import { Button, IconButton, Input } from '@ui'
 
 export type DashboardNavKey =
   | 'overview'
@@ -220,27 +213,25 @@ function SidebarNavLink({
       gap={3}
       px={3}
       py={2.5}
-      borderRadius="md"
-      borderLeftWidth="3px"
-      borderLeftColor={active ? 'primary.500' : 'transparent'}
-      bg={active ? 'primary.50' : 'transparent'}
+      borderRadius="xl"
+      bg={active ? 'green.100' : 'transparent'}
       color={
-        active ? 'primary.700' : locked ? 'formLabelMuted' : 'formLabelMuted'
+        active ? 'secondary.900' : locked ? 'formLabelMuted' : 'formLabelMuted'
       }
       fontWeight={active ? 700 : 600}
       fontSize="sm"
       transition="background 0.15s ease, color 0.15s ease"
       _hover={{
         textDecoration: 'none',
-        bg: active ? 'primary.50' : 'cardBg',
-        color: 'primary.700',
+        bg: active ? 'green.100' : 'cardBg',
+        color: 'secondary.900',
       }}
     >
       <NavIcon>{icon}</NavIcon>
       <HStack gap={2} justify="space-between" flex="1">
         <Text>{label}</Text>
         {locked ? (
-          <Text fontSize="10px" color="primary.700" fontWeight={800}>
+          <Text fontSize="10px" color="secondary.600" fontWeight={800}>
             LOCKED
           </Text>
         ) : null}
@@ -278,9 +269,6 @@ export function DashboardShell({
           as="aside"
           w={{ base: 'full', md: '280px' }}
           flexShrink={0}
-          borderRightWidth={{ base: 0, md: '1px' }}
-          borderBottomWidth={{ base: '1px', md: 0 }}
-          borderColor="cardBorder"
           bg="bg"
           px={{ base: 4, md: 5 }}
           py={{ base: 4, md: 8 }}
@@ -295,21 +283,22 @@ export function DashboardShell({
               <Box
                 w={10}
                 h={10}
-                borderRadius="md"
-                bg="linear-gradient(135deg, #003fb1 0%, #1a56db 100%)"
+                borderRadius="xl"
+                bg="primary"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-                color="white"
+                color="black"
                 flexShrink={0}
+                boxShadow="primary"
               >
                 <NavIcon aria-hidden>
                   <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
-                    <title>HandyBox</title>
+                    <title>Slashie</title>
                     <path
-                      d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.36 6.36a2.83 2.83 0 1 1-4-4l6.36-6.36a6 6 0 0 1 7.94-7.94l-3.77 3.77Z"
+                      d="M14.75 4 7.5 12h5.75L9.25 20 16.5 10h-5.75L14.75 4Z"
                       stroke="currentColor"
-                      strokeWidth="1.75"
+                      strokeWidth="2"
                       strokeLinejoin="round"
                     />
                   </svg>
@@ -317,7 +306,7 @@ export function DashboardShell({
               </Box>
               <Stack gap={0}>
                 <Heading size="sm" lineHeight={1.25}>
-                  HandyBox
+                  slashie
                 </Heading>
                 <Text
                   fontSize="10px"
@@ -331,15 +320,15 @@ export function DashboardShell({
               </Stack>
             </HStack>
 
-            <Box p={4} bg="cardBg">
+            <Box p={4} bg="cardBg" borderRadius="xl" boxShadow="card">
               <Stack gap={1}>
                 <HStack gap={3}>
                   <Box
                     w={10}
                     h={10}
                     borderRadius="full"
-                    bg="primary.500"
-                    color="white"
+                    bg="primary"
+                    color="black"
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
@@ -352,7 +341,11 @@ export function DashboardShell({
                   <Stack gap={0}>
                     <Heading size="sm">{userLabel}</Heading>
                     {userStatus ? (
-                      <Text fontSize="xs" color="primary.700" fontWeight={700}>
+                      <Text
+                        fontSize="xs"
+                        color="secondary.600"
+                        fontWeight={700}
+                      >
                         {userStatus}
                       </Text>
                     ) : null}
@@ -379,7 +372,7 @@ export function DashboardShell({
               ))}
             </Stack>
 
-            <Stack gap={1} pt={4} borderTopWidth="1px" borderColor="cardBorder">
+            <Stack gap={1} pt={4}>
               {navSecondary.map((item) => (
                 <SidebarNavLink
                   key={item.key}
@@ -395,10 +388,11 @@ export function DashboardShell({
               p={4}
               bg={
                 workerOnboardingDone
-                  ? 'linear-gradient(160deg, #03225a 0%, #012b73 55%, #00358f 100%)'
-                  : 'primary.50'
+                  ? 'linear-gradient(160deg, #0B1714 0%, #123D31 100%)'
+                  : 'green.100'
               }
               color={workerOnboardingDone ? 'white' : 'cardFg'}
+              borderRadius="xl"
             >
               <Stack gap={3}>
                 <Text
@@ -406,7 +400,7 @@ export function DashboardShell({
                   fontWeight={800}
                   letterSpacing="0.08em"
                   color={
-                    workerOnboardingDone ? 'whiteAlpha.800' : 'primary.700'
+                    workerOnboardingDone ? 'whiteAlpha.800' : 'secondary.600'
                   }
                 >
                   {workerOnboardingDone
@@ -428,14 +422,19 @@ export function DashboardShell({
                   }
                 >
                   {workerOnboardingDone
-                    ? 'Track active quotes, monitor payout totals, and keep your professional profile ready for new work.'
-                    : 'Create your worker profile to unlock quoting, task intake, and payout tracking in the dashboard.'}
+                    ? 'Track active quotes, monitor quote value, and keep your worker profile ready for new tasks.'
+                    : 'Create your worker profile to unlock quoting, task intake, and earnings tracking in the dashboard.'}
                 </Text>
                 <Link
                   as={NextLink}
                   href={workerCtaHref}
-                  color="formLabelMuted"
-                  _hover={{ color: 'cardFg' }}
+                  color={workerOnboardingDone ? 'white' : 'secondary.600'}
+                  fontWeight={700}
+                  _hover={{
+                    color: workerOnboardingDone
+                      ? 'whiteAlpha.900'
+                      : 'secondary.700',
+                  }}
                 >
                   {workerOnboardingDone
                     ? 'Manage worker profile'
@@ -451,108 +450,45 @@ export function DashboardShell({
             as="header"
             px={{ base: 4, md: 8 }}
             py={4}
-            borderBottomWidth="1px"
-            borderColor="cardBorder"
             bg="bg"
             gap={4}
             flexWrap="wrap"
             align="center"
           >
-            <Box flex="1" minW="200px" maxW="480px" position="relative">
-              <Box
-                position="absolute"
-                left={3}
-                top="50%"
-                transform="translateY(-50%)"
-                color="formLabelMuted"
-                pointerEvents="none"
-                zIndex={1}
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                  <title>Search</title>
-                  <circle
-                    cx="11"
-                    cy="11"
-                    r="6.5"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                  />
-                  <path
-                    d="m16.5 16.5 4 4"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </Box>
+            <Box flex="1" minW="200px" maxW="480px">
               <Input
-                pl={10}
                 placeholder={searchPlaceholder}
                 value={searchValue}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   onSearchChange(e.target.value)
                 }
-                bg="cardBg"
-                borderRadius="full"
                 aria-label="Search tasks"
+                startElement={<LuSearch size={18} aria-hidden />}
+                rootProps={{
+                  bg: 'cardBg',
+                  borderRadius: 'full',
+                  boxShadow: 'card',
+                }}
               />
             </Box>
             {headerAction ? <Box>{headerAction}</Box> : null}
             <HStack gap={2} ml={{ base: 0, md: 'auto' }}>
-              <Box
-                as="button"
-                w={10}
-                h={10}
-                borderRadius="full"
-                bg="cardBg"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize="lg"
+              <IconButton
                 aria-label="Notifications"
-              >
-                🔔
-              </Box>
-              <Box
-                as="button"
-                w={10}
-                h={10}
                 borderRadius="full"
                 bg="cardBg"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                aria-label="Help"
               >
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-                  <title>Help</title>
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="9"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                  />
-                  <path
-                    d="M9.09 9a3 3 0 1 1 5.83 1c0 2-3 2-3 4"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M12 17h.01"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </Box>
+                <LuBell size={18} aria-hidden />
+              </IconButton>
+              <IconButton aria-label="Help" borderRadius="full" bg="cardBg">
+                <LuCircleHelp size={18} aria-hidden />
+              </IconButton>
               <Box
                 w={10}
                 h={10}
                 borderRadius="full"
-                bg="primary.500"
-                color="white"
+                bg="primary"
+                color="black"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"

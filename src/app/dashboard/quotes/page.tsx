@@ -3,6 +3,8 @@
 import { Box, Grid, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { DashboardMetricCard } from '@/app/dashboard/components/DashboardMetricCard'
+import { DashboardPageHeader } from '@/app/dashboard/components/DashboardPageHeader'
 import { WorkerAccessGate } from '@/app/dashboard/components/WorkerAccessGate'
 import { useDashboardData } from '@/app/dashboard/context'
 import {
@@ -13,37 +15,7 @@ import {
   quotePricePence,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Button } from '@ui'
-
-function QuoteMetric({
-  label,
-  value,
-  helper,
-}: {
-  label: string
-  value: string
-  helper: string
-}) {
-  return (
-    <Box p={5}>
-      <Stack gap={2}>
-        <Text
-          fontSize="10px"
-          fontWeight={800}
-          letterSpacing="0.08em"
-          color="formLabelMuted"
-          textTransform="uppercase"
-        >
-          {label}
-        </Text>
-        <Heading size="lg">{value}</Heading>
-        <Text fontSize="sm" color="formLabelMuted">
-          {helper}
-        </Text>
-      </Stack>
-    </Box>
-  )
-}
+import { Badge, Button, SectionCard } from '@ui'
 
 export default function DashboardQuotesPage() {
   const {
@@ -68,33 +40,28 @@ export default function DashboardQuotesPage() {
 
   return (
     <Stack gap={8}>
-      <Stack gap={2}>
-        <HStack justify="space-between" gap={4} flexWrap="wrap">
-          <Stack gap={1} maxW="3xl">
-            <Heading size="xl">Worker Quotes</Heading>
-            <Text color="formLabelMuted">
-              Review sent quotes, track awarded work, and jump back into the
-              relevant task details whenever you need context.
-            </Text>
-          </Stack>
-          <NextLink href="/" passHref legacyBehavior>
-            <Button as="a">Browse tasks</Button>
-          </NextLink>
-        </HStack>
-      </Stack>
+      <HStack justify="space-between" gap={4} flexWrap="wrap">
+        <DashboardPageHeader
+          title="Quotes"
+          description="Review sent quotes, track awarded work, and jump back into task details whenever you need context."
+        />
+        <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+          <Button>Browse tasks</Button>
+        </Link>
+      </HStack>
 
       <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
-        <QuoteMetric
+        <DashboardMetricCard
           label="Sent quotes"
           value={String(filteredMyQuotes.length)}
           helper="All quotes that match the current dashboard search."
         />
-        <QuoteMetric
+        <DashboardMetricCard
           label="Awarded"
           value={String(awardedQuotes.length)}
           helper="Quotes that look accepted/awarded from the current task data."
         />
-        <QuoteMetric
+        <DashboardMetricCard
           label="In progress"
           value={String(quotesInProgress.length)}
           helper="Open tasks where your quote is still active."
@@ -106,20 +73,20 @@ export default function DashboardQuotesPage() {
       ) : null}
 
       {!isLoadingQuotes && filteredMyQuotes.length === 0 ? (
-        <Box p={6}>
+        <SectionCard p={6}>
           <Stack gap={4}>
-            <Heading size="md">No quotes sent yet</Heading>
+            <Heading size="md" color="secondary.900">
+              No quotes sent yet
+            </Heading>
             <Text color="formLabelMuted">
               Your worker profile is ready. Browse available tasks and send your
               first quote to populate this workspace.
             </Text>
-            <NextLink href="/" passHref legacyBehavior>
-              <Button as="a" alignSelf="flex-start">
-                Browse open tasks
-              </Button>
-            </NextLink>
+            <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+              <Button alignSelf="flex-start">Browse open tasks</Button>
+            </Link>
           </Stack>
-        </Box>
+        </SectionCard>
       ) : !isLoadingQuotes ? (
         <Stack gap={4}>
           {filteredMyQuotes.map(({ task, quote }) => {
@@ -127,7 +94,7 @@ export default function DashboardQuotesPage() {
             const awarded = isQuoteAwarded(quote.status)
 
             return (
-              <Box key={quote.id} p={5}>
+              <SectionCard key={quote.id} p={5}>
                 <HStack align="flex-start" gap={4} flexWrap="wrap">
                   <Stack
                     w={14}
@@ -143,7 +110,9 @@ export default function DashboardQuotesPage() {
                   </Stack>
                   <Stack gap={2} flex="1" minW="240px">
                     <HStack justify="space-between" gap={3} flexWrap="wrap">
-                      <Heading size="sm">{task.title}</Heading>
+                      <Heading size="sm" color="secondary.900">
+                        {task.title}
+                      </Heading>
                       <Badge
                         bg={awarded ? 'cardBg' : 'badgeBg'}
                         color={awarded ? 'cardFg' : 'cardFg'}
@@ -165,24 +134,26 @@ export default function DashboardQuotesPage() {
                     </Text>
                   </Stack>
                   <Stack gap={3} align={{ base: 'flex-start', md: 'flex-end' }}>
-                    <NextLink href={`/task/${task.id}`} passHref legacyBehavior>
-                      <Button as="a" size="sm">
-                        View task
-                      </Button>
-                    </NextLink>
+                    <Link
+                      as={NextLink}
+                      href={`/task/${task.id}`}
+                      _hover={{ textDecoration: 'none' }}
+                    >
+                      <Button size="sm">View task</Button>
+                    </Link>
                     <Link
                       as={NextLink}
                       href="/dashboard/messages"
                       fontSize="sm"
                       fontWeight={700}
-                      color="primary.600"
-                      _hover={{ color: 'primary.700' }}
+                      color="secondary.600"
+                      _hover={{ color: 'secondary.700' }}
                     >
                       Open messages
                     </Link>
                   </Stack>
                 </HStack>
-              </Box>
+              </SectionCard>
             )
           })}
         </Stack>

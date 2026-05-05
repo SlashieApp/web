@@ -490,5 +490,5 @@ export function useDashboardData() {
 export function buildEarningsHeadline(totalEarningsPence: number) {
   return totalEarningsPence > 0
     ? formatPounds(totalEarningsPence)
-    : 'Awaiting first payout'
+    : 'Awaiting first awarded quote'
 }
