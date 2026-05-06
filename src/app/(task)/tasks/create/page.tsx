@@ -1,16 +1,7 @@
 'use client'
 
 import { useApolloClient, useMutation } from '@apollo/client/react'
-import {
-  Box,
-  Container,
-  Grid,
-  HStack,
-  Heading,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Container, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
@@ -20,7 +11,6 @@ import {
   TaskPaymentMethod,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -40,6 +30,7 @@ import {
   CreateTaskScheduleSection,
   CreateTaskVisualsSection,
 } from './components'
+import { CreateTaskPageHeader } from './components/CreateTaskPageHeader'
 import {
   buildDatetimePayload,
   createTaskFormSchema,
@@ -398,25 +389,7 @@ export default function CreateTaskPage() {
         <Box as="section" bg="cardBg" py={{ base: 8, md: 10 }}>
           <Container>
             <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-              <Stack gap={2}>
-                <Link
-                  as={NextLink}
-                  href="/"
-                  fontWeight={600}
-                  color="primary.700"
-                  _hover={{ textDecoration: 'none' }}
-                >
-                  ← Back to tasks
-                </Link>
-                <Heading size={{ base: '2xl', md: '3xl' }} fontWeight={800}>
-                  Post a new task
-                </Heading>
-                <Text color="formLabelMuted">
-                  Detail your requirements, set your budget, and find the right
-                  professional for your project.
-                </Text>
-              </Stack>
-
+              <CreateTaskPageHeader />
               {createTaskForm}
             </Stack>
           </Container>

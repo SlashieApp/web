@@ -253,7 +253,7 @@ export function TaskLocationMapPicker({
                 <title>Selected location</title>
                 <path
                   d="M12 0C5.383 0 0 5.285 0 11.8c0 6.515 12 20.2 12 20.2s12-13.685 12-20.2C24 5.285 18.617 0 12 0z"
-                  fill="#1A56DB"
+                  fill="#00AB63"
                   stroke="#ffffff"
                   strokeWidth="2"
                 />

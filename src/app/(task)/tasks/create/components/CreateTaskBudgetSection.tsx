@@ -1,19 +1,10 @@
 'use client'
 
-import {
-  Box,
-  HStack,
-  Heading,
-  Input,
-  NativeSelect,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
-import { Button } from '@/ui/Button'
-import { FormField } from '@/ui/FormField/FormField'
+import { Button, FormField, Input, SectionCard, Select } from '@ui'
 import type { CreateTaskFormValues } from '../createTaskFormSchema'
 
 export type CreateTaskBudgetSectionProps = {
@@ -43,147 +34,122 @@ export function CreateTaskBudgetSection({
   budgetMajorError,
 }: CreateTaskBudgetSectionProps) {
   return (
-    <Box p={{ base: 5, md: 6 }} bg="neutral.100">
-      <Stack gap={5}>
+    <SectionCard
+      bodyGap={5}
+      header={
         <Heading size="lg" color="primary.700">
-          3. Budget & payment
+          5. Budget & payment
         </Heading>
-
-        <FormField label="Budget amount" errorText={budgetMajorError}>
-          <HStack gap={2} align="stretch" maxW={{ base: 'full', md: '380px' }}>
-            <NativeSelect.Root w="108px" flexShrink={0}>
-              <NativeSelect.Field
-                bg="neutral.100"
-                borderWidth="1px"
-                borderColor="cardBorder"
-                borderRadius="lg"
-                value={budgetCurrency}
-                onChange={(e) =>
-                  onBudgetCurrencyChange(e.target.value as Currency)
-                }
-              >
-                <option value={Currency.Usd}>USD</option>
-                <option value={Currency.Gbp}>GBP</option>
-              </NativeSelect.Field>
-            </NativeSelect.Root>
-            <HStack
-              flex={1}
-              align="center"
-              gap={2}
-              bg="neutral.100"
-              borderRadius="lg"
-              boxShadow="ghostBorder"
-              px={3}
-              minH="44px"
-            >
-              <Text
-                fontWeight={700}
-                fontSize="sm"
-                color="formLabelMuted"
-                flexShrink={0}
-              >
+      }
+    >
+      <FormField label="Budget amount" errorText={budgetMajorError}>
+        <HStack gap={2} align="stretch" maxW={{ base: 'full', md: '380px' }}>
+          <Select
+            rootProps={{ w: '108px', flexShrink: 0 }}
+            value={budgetCurrency}
+            onChange={(e) => onBudgetCurrencyChange(e.target.value as Currency)}
+          >
+            <option value={Currency.Usd}>USD</option>
+            <option value={Currency.Gbp}>GBP</option>
+          </Select>
+          <Input
+            type="number"
+            min={1}
+            step="0.01"
+            placeholder="0.00"
+            rootProps={{ flex: 1, minW: 0 }}
+            startElement={
+              <Text fontWeight={700} fontSize="sm" color="formLabelMuted">
                 {CURRENCY_PREFIX[budgetCurrency]}
               </Text>
-              <Input
-                flex={1}
-                type="number"
-                min={1}
-                step="0.01"
-                {...register('budgetMajor')}
-                placeholder="0.00"
-                borderWidth={0}
-                boxShadow="none"
-                h="auto"
-                minH={0}
-                py={2}
-                bg="transparent"
-                _focusVisible={{ boxShadow: 'none' }}
-              />
-            </HStack>
-          </HStack>
-        </FormField>
+            }
+            {...register('budgetMajor')}
+          />
+        </HStack>
+      </FormField>
 
-        <FormField label="Budget type">
-          <HStack gap={2} flexWrap="wrap">
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              bg={budgetType === TaskBudgetType.OneOff ? 'cardBg' : 'cardBg'}
-              color={budgetType === TaskBudgetType.OneOff ? 'cardFg' : 'cardFg'}
-              boxShadow="none"
-              onClick={() => onBudgetTypeChange(TaskBudgetType.OneOff)}
-            >
-              One-off
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              bg={budgetType === TaskBudgetType.PerDay ? 'cardBg' : 'cardBg'}
-              color={budgetType === TaskBudgetType.PerDay ? 'cardFg' : 'cardFg'}
-              boxShadow="none"
-              onClick={() => onBudgetTypeChange(TaskBudgetType.PerDay)}
-            >
-              Per day
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              bg={budgetType === TaskBudgetType.PerHour ? 'cardBg' : 'cardBg'}
-              color={
-                budgetType === TaskBudgetType.PerHour ? 'cardFg' : 'cardFg'
-              }
-              boxShadow="none"
-              onClick={() => onBudgetTypeChange(TaskBudgetType.PerHour)}
-            >
-              Per hour
-            </Button>
-          </HStack>
-        </FormField>
+      <FormField label="Budget type">
+        <HStack gap={2} flexWrap="wrap">
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            bg={budgetType === TaskBudgetType.OneOff ? 'primary.600' : 'cardBg'}
+            color={budgetType === TaskBudgetType.OneOff ? 'white' : 'cardFg'}
+            boxShadow="none"
+            onClick={() => onBudgetTypeChange(TaskBudgetType.OneOff)}
+          >
+            One-off
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            bg={budgetType === TaskBudgetType.PerDay ? 'primary.600' : 'cardBg'}
+            color={budgetType === TaskBudgetType.PerDay ? 'white' : 'cardFg'}
+            boxShadow="none"
+            onClick={() => onBudgetTypeChange(TaskBudgetType.PerDay)}
+          >
+            Per day
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            bg={
+              budgetType === TaskBudgetType.PerHour ? 'primary.600' : 'cardBg'
+            }
+            color={budgetType === TaskBudgetType.PerHour ? 'white' : 'cardFg'}
+            boxShadow="none"
+            onClick={() => onBudgetTypeChange(TaskBudgetType.PerHour)}
+          >
+            Per hour
+          </Button>
+        </HStack>
+      </FormField>
 
-        <FormField label="Payment method">
-          <HStack gap={2} flexWrap="wrap">
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              bg={
-                paymentMethod === TaskPaymentMethod.Cash ? 'cardBg' : 'cardBg'
-              }
-              color={
-                paymentMethod === TaskPaymentMethod.Cash ? 'cardFg' : 'cardFg'
-              }
-              boxShadow="none"
-              onClick={() => onPaymentMethodChange(TaskPaymentMethod.Cash)}
-            >
-              Cash
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              bg={
-                paymentMethod === TaskPaymentMethod.BankTransfer
-                  ? 'cardBg'
-                  : 'cardBg'
-              }
-              color={
-                paymentMethod === TaskPaymentMethod.BankTransfer
-                  ? 'cardFg'
-                  : 'cardFg'
-              }
-              boxShadow="none"
-              onClick={() =>
-                onPaymentMethodChange(TaskPaymentMethod.BankTransfer)
-              }
-            >
-              Bank transfer
-            </Button>
-          </HStack>
-        </FormField>
-      </Stack>
-    </Box>
+      <FormField label="Payment method">
+        <HStack gap={2} flexWrap="wrap">
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            bg={
+              paymentMethod === TaskPaymentMethod.Cash
+                ? 'primary.600'
+                : 'cardBg'
+            }
+            color={
+              paymentMethod === TaskPaymentMethod.Cash ? 'white' : 'cardFg'
+            }
+            boxShadow="none"
+            onClick={() => onPaymentMethodChange(TaskPaymentMethod.Cash)}
+          >
+            Cash
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            bg={
+              paymentMethod === TaskPaymentMethod.BankTransfer
+                ? 'primary.600'
+                : 'cardBg'
+            }
+            color={
+              paymentMethod === TaskPaymentMethod.BankTransfer
+                ? 'white'
+                : 'cardFg'
+            }
+            boxShadow="none"
+            onClick={() =>
+              onPaymentMethodChange(TaskPaymentMethod.BankTransfer)
+            }
+          >
+            Bank transfer
+          </Button>
+        </HStack>
+      </FormField>
+    </SectionCard>
   )
 }

@@ -14,6 +14,7 @@ export default async function TaskSlugLayout({
 }) {
   const { slug } = await params
   const task = await getTaskForTaskDetailPage(slug)
+  console.log(task)
 
   if (!task) {
     return (

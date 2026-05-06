@@ -3,7 +3,7 @@
 import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { useRef } from 'react'
 
-import { Button } from '@/ui/Button'
+import { Button, SectionCard } from '@ui'
 
 export type CreateTaskVisualsSectionProps = {
   files: File[]
@@ -22,90 +22,91 @@ export function CreateTaskVisualsSection({
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
-    <Box p={{ base: 5, md: 6 }} bg="neutral.100">
-      <Stack gap={4}>
+    <SectionCard
+      bodyGap={4}
+      header={
         <Heading size="lg" color="primary.700">
-          3. Visuals
+          4. Visuals
         </Heading>
-        <Text fontSize="sm" color="formLabelMuted">
-          Photos help contractors give more accurate quotes.
-        </Text>
+      }
+    >
+      <Text fontSize="sm" color="formLabelMuted">
+        Photos help workers give more accurate quotes.
+      </Text>
 
-        <Box
-          borderWidth="2px"
-          borderStyle="dashed"
-          borderColor="cardBorder"
-          borderRadius="xl"
-          p={6}
-          bg="cardBg"
-        >
-          <Stack align="center" gap={3}>
-            <Text fontSize="sm" color="formLabelMuted" textAlign="center">
-              Upload images of the job area or problem (optional).
-            </Text>
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              onChange={(e) => {
-                const picked =
-                  e.target.files && e.target.files.length > 0
-                    ? Array.from(e.target.files)
-                    : []
-                e.target.value = ''
-                if (picked.length > 0) {
-                  onFilesAdded(picked)
-                }
-              }}
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => inputRef.current?.click()}
-            >
-              Upload
-            </Button>
-          </Stack>
-        </Box>
+      <Box
+        borderWidth="2px"
+        borderStyle="dashed"
+        borderColor="cardBorder"
+        borderRadius="xl"
+        p={6}
+        bg="neutral.100"
+      >
+        <Stack align="center" gap={3}>
+          <Text fontSize="sm" color="formLabelMuted" textAlign="center">
+            Upload images of the job area or problem (optional).
+          </Text>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={(e) => {
+              const picked =
+                e.target.files && e.target.files.length > 0
+                  ? Array.from(e.target.files)
+                  : []
+              e.target.value = ''
+              if (picked.length > 0) {
+                onFilesAdded(picked)
+              }
+            }}
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => inputRef.current?.click()}
+          >
+            Upload
+          </Button>
+        </Stack>
+      </Box>
 
-        {previews.length > 0 ? (
-          <HStack gap={3} flexWrap="wrap" align="flex-start">
-            {previews.map((src, i) => {
-              const file = files[i]
-              const stableKey = file
-                ? `${file.name}-${file.size}-${file.lastModified}`
-                : `${i}-${src.slice(0, 24)}`
-              return (
-                <Box key={stableKey} position="relative">
-                  <Image
-                    key={src}
-                    src={src}
-                    alt={file ? `Preview: ${file.name}` : ''}
-                    boxSize="88px"
-                    objectFit="cover"
-                    borderRadius="lg"
-                    borderWidth="1px"
-                    borderColor="cardBorder"
-                  />
-                  <Button
-                    type="button"
-                    size="xs"
-                    variant="ghost"
-                    position="absolute"
-                    top={1}
-                    right={1}
-                    onClick={() => onRemoveFile(i)}
-                  >
-                    ×
-                  </Button>
-                </Box>
-              )
-            })}
-          </HStack>
-        ) : null}
-      </Stack>
-    </Box>
+      {previews.length > 0 ? (
+        <HStack gap={3} flexWrap="wrap" align="flex-start">
+          {previews.map((src, i) => {
+            const file = files[i]
+            const stableKey = file
+              ? `${file.name}-${file.size}-${file.lastModified}`
+              : `${i}-${src.slice(0, 24)}`
+            return (
+              <Box key={stableKey} position="relative">
+                <Image
+                  src={src}
+                  alt={file ? `Preview: ${file.name}` : ''}
+                  boxSize="88px"
+                  objectFit="cover"
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor="cardBorder"
+                />
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="ghost"
+                  position="absolute"
+                  top={1}
+                  right={1}
+                  onClick={() => onRemoveFile(i)}
+                >
+                  ×
+                </Button>
+              </Box>
+            )
+          })}
+        </HStack>
+      ) : null}
+    </SectionCard>
   )
 }
