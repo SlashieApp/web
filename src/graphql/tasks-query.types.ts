@@ -25,6 +25,8 @@ export type TaskListItem = {
   id: string
   title: string
   description: string
+  category: string
+  acceptedWorkerCap: number
   location?: TaskMapLocationFields | null
   status: string
   createdAt: unknown
@@ -32,7 +34,12 @@ export type TaskListItem = {
   budget?: TaskBudget | null
   contactMethod?: string | null
   images?: string[]
-  poster?: { id: string } | null
+  poster?: {
+    id: string
+    firstName?: string | null
+    lastName?: string | null
+    profile?: { name?: string | null; avatarUrl?: string | null } | null
+  } | null
   /**
    * Only present when the operation selects `quotes` (e.g. `myTasks`).
    * Public `tasks` browse does not fetch quotes.

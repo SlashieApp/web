@@ -4,7 +4,7 @@ import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Button, FormField, Input, SectionCard } from '@ui'
-import type { CreateTaskFormValues } from '../createTaskFormSchema'
+import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 import { TaskLocationMapPicker } from './TaskLocationMapPicker'
 
 export type CreateTaskMapLocationPanelProps = {
@@ -15,7 +15,7 @@ export type CreateTaskMapLocationPanelProps = {
   onLocationChange: (value: string) => void
   onLocationLatChange: (value: string) => void
   onLocationLngChange: (value: string) => void
-  register: UseFormRegister<CreateTaskFormValues>
+  register: UseFormRegister<CreateTaskFormFieldValues>
   streetAddressError?: string
   onCopyMapPlaceToAddress: () => void
   /** First relevant map/location validation message from the form. */

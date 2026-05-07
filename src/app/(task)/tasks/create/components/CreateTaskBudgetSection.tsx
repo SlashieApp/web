@@ -5,10 +5,10 @@ import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Button, FormField, Input, SectionCard, Select } from '@ui'
-import type { CreateTaskFormValues } from '../createTaskFormSchema'
+import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 
 export type CreateTaskBudgetSectionProps = {
-  register: UseFormRegister<CreateTaskFormValues>
+  register: UseFormRegister<CreateTaskFormFieldValues>
   budgetCurrency: Currency
   budgetType: TaskBudgetType
   paymentMethod: TaskPaymentMethod

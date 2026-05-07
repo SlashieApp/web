@@ -49,6 +49,7 @@ export const ME_QUERY = gql`
         name
         contactNumber
         avatarUrl
+        defaultPreferredContactMethod
       }
     }
   }

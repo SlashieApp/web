@@ -8,9 +8,20 @@ import {
   TaskPaymentMethod,
 } from '@codegen/schema'
 
+import { taskCreateCategorySchema } from '../../helpers/taskCategories'
+
 export const createTaskFormSchema = z
   .object({
     title: z.string().trim().min(1, 'Please add a task title.'),
+    category: z
+      .string()
+      .transform((s) => s.trim())
+      .pipe(
+        z
+          .string()
+          .min(1, 'Please choose a task category.')
+          .pipe(taskCreateCategorySchema),
+      ),
     description: z
       .string()
       .trim()
@@ -88,6 +99,8 @@ export const createTaskFormSchema = z
   })
 
 export type CreateTaskFormValues = z.infer<typeof createTaskFormSchema>
+/** Values as held in the form (`react-hook-form` / field inputs) before Zod coercion. */
+export type CreateTaskFormFieldValues = z.input<typeof createTaskFormSchema>
 
 export function toYmd(d: Date): string {
   const y = d.getFullYear()

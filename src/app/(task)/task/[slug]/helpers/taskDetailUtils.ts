@@ -1,3 +1,4 @@
+import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import { formatBudgetAmount, priceToPence } from '@/utils/price'
 import type { TaskQuery } from '@codegen/schema'
 
@@ -260,8 +261,10 @@ const CATEGORY_KEYWORDS: ReadonlyArray<[RegExp, string]> = [
   [/tech|computer|wifi|setup|router/i, 'Tech setup'],
 ]
 
-/** Best-effort category chip from title + description (no dedicated API field yet). */
+/** Category chip: prefer API `task.category`, then title/description heuristics. */
 export function taskCategoryLabel(task: TaskDetailRecord): string | null {
+  const fromApi = taskCategoryDisplayLabel(task.category)
+  if (fromApi) return fromApi
   const t = `${task.title} ${task.description}`
   for (const [re, label] of CATEGORY_KEYWORDS) {
     if (re.test(t)) return label

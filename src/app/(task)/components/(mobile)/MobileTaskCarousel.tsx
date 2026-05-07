@@ -8,11 +8,24 @@ import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import { formatBudget, inferBadge } from '../../helpers/taskBrowseHelpers'
+import {
+  formatBudget,
+  inferBadge,
+  taskPosterAvatarUrl,
+  taskPosterDisplayName,
+} from '../../helpers/taskBrowseHelpers'
 import { TaskCard } from '../TaskCard'
 
 export function MobileTaskCarousel() {
-  const { pageItems, selectedTaskId, setSelectedTaskId } = useTaskBrowseData()
+  const {
+    loading,
+    dataLoaded,
+    filteredSorted,
+    browseSourceTaskCount,
+    pageItems,
+    selectedTaskId,
+    setSelectedTaskId,
+  } = useTaskBrowseData()
   const tasks = useMemo(
     () =>
       pageItems.map((task) => {
@@ -27,6 +40,8 @@ export function MobileTaskCarousel() {
           priceLabel: main,
           badgeText: badge.text,
           thumbnailSrc: task.images?.[0] ?? undefined,
+          ownerName: taskPosterDisplayName(task),
+          ownerAvatarSrc: taskPosterAvatarUrl(task),
         }
       }),
     [pageItems],
@@ -124,6 +139,26 @@ export function MobileTaskCarousel() {
   }
 
   if (tasks.length === 0) {
+    const filteredCount = filteredSorted.length
+    let emptyMessage = ''
+    if (
+      loading &&
+      filteredCount === 0 &&
+      browseSourceTaskCount === 0 &&
+      !dataLoaded
+    ) {
+      emptyMessage = 'Loading nearby tasks…'
+    } else if (!loading && filteredCount === 0 && browseSourceTaskCount === 0) {
+      emptyMessage =
+        'No open tasks here yet. Tasks leave worker discovery once they fill their worker slots or stop being open—try moving the map or widening your radius.'
+    } else if (!loading && filteredCount === 0 && browseSourceTaskCount > 0) {
+      emptyMessage =
+        'No tasks match your filters. Adjust filters or clear search to see more listings.'
+    } else {
+      emptyMessage =
+        'No tasks on this page. Browse other pages or adjust filters.'
+    }
+
     return (
       <Box
         bg="whiteAlpha.960"
@@ -138,7 +173,7 @@ export function MobileTaskCarousel() {
         py={3}
       >
         <Text fontSize="sm" color="formLabelMuted">
-          No tasks match current filters.
+          {emptyMessage}
         </Text>
       </Box>
     )
@@ -188,11 +223,8 @@ export function MobileTaskCarousel() {
                 thumbnailSrc={task.thumbnailSrc}
                 detailsHref={`/task/${task.id}`}
                 badgeText={task.badgeText}
-                ownerName={'John D.'}
-                ownerAvatarSrc={
-                  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop'
-                }
-                ratingLabel={'4.9'}
+                ownerName={task.ownerName}
+                ownerAvatarSrc={task.ownerAvatarSrc}
                 isActive={selectedTaskId === task.id}
                 onActivate={() => handleSelectTask(task.id)}
               />

@@ -24,9 +24,9 @@ export function CreateTaskContactSection({
       }
     >
       <Text fontSize="sm" color="formLabelMuted">
-        We share contact details from your Slashie profile using the method you
-        choose below. Update your phone, email, or in-app preferences in account
-        settings if needed.
+        We prefill this from your Slashie profile default when you start a new
+        task. You can override it for this post. Update the default anytime in
+        your account profile.
       </Text>
 
       <FormField label="How should workers reach you?">

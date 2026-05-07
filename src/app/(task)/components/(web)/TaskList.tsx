@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef } from 'react'
 
@@ -8,12 +8,18 @@ import { TaskCard } from '../TaskCard'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import { formatBudget, inferBadge } from '../../helpers/taskBrowseHelpers'
+import {
+  formatBudget,
+  inferBadge,
+  taskPosterAvatarUrl,
+  taskPosterDisplayName,
+} from '../../helpers/taskBrowseHelpers'
 
 export function TaskList() {
   const {
     loading,
     dataLoaded,
+    browseSourceTaskCount,
     filteredSorted,
     selectedTaskId,
     setSelectedTaskId,
@@ -57,12 +63,28 @@ export function TaskList() {
 
   const animationKey = loading ? 'loading' : dataLoaded ? 'ready' : 'idle'
 
+  const listEmptyMessage = useMemo(() => {
+    if (filteredSorted.length > 0) return null
+    if (loading && browseSourceTaskCount === 0 && !dataLoaded) {
+      return 'Loading nearby tasks…'
+    }
+    if (!loading && browseSourceTaskCount === 0) {
+      return 'No open tasks here yet. Discovery only shows tasks that are still open to new quotes—try moving the map or widening your radius.'
+    }
+    if (!loading && browseSourceTaskCount > 0) {
+      return 'No tasks match your filters. Adjust filters or clear search to see more listings.'
+    }
+    return null
+  }, [browseSourceTaskCount, dataLoaded, filteredSorted.length, loading])
+
   const listBody = (
     <>
       {!loading && filteredSorted.length > 0
         ? filteredSorted.map((task, index) => {
             const { main } = formatBudget(task)
             const badge = inferBadge(task)
+            const ownerName = taskPosterDisplayName(task)
+            const ownerAvatarSrc = taskPosterAvatarUrl(task)
             const loc =
               taskPublicLocationLabel(task).trim() || 'Location on request'
             return (
@@ -96,11 +118,8 @@ export function TaskList() {
                     thumbnailSrc={task.images?.[0] ?? undefined}
                     detailsHref={`/task/${task.id}`}
                     badgeText={badge.text}
-                    ownerName={'John D.'}
-                    ownerAvatarSrc={
-                      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop'
-                    }
-                    ratingLabel={'4.9'}
+                    ownerName={ownerName}
+                    ownerAvatarSrc={ownerAvatarSrc}
                     isActive={selectedTaskId === task.id}
                     onActivate={() => handleActivateTask(task.id)}
                   />
@@ -135,6 +154,11 @@ export function TaskList() {
       }}
     >
       <Stack gap={3} py={6}>
+        {listEmptyMessage ? (
+          <Text fontSize="sm" color="formLabelMuted" px={1}>
+            {listEmptyMessage}
+          </Text>
+        ) : null}
         {listBody}
       </Stack>
     </Box>

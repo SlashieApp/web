@@ -1,10 +1,11 @@
 'use client'
 
-import { useApolloClient, useMutation } from '@apollo/client/react'
+import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
 import { Box, Container, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
+  type MeQuery,
   TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
@@ -14,8 +15,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import type { z } from 'zod'
 
+import { ME_QUERY } from '@/graphql/auth'
 import { CREATE_TASK } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -32,6 +33,8 @@ import {
 } from './components'
 import { CreateTaskPageHeader } from './components/CreateTaskPageHeader'
 import {
+  type CreateTaskFormFieldValues,
+  type CreateTaskFormValues,
   buildDatetimePayload,
   createTaskFormSchema,
   toYmd,
@@ -39,12 +42,17 @@ import {
 
 const POST_TASK_PATH = '/tasks/create'
 
-export default function CreateTaskPage() {
+type CreateTaskFormBodyProps = {
+  preferredContactDefault: TaskContactMethod
+}
+
+function CreateTaskFormBody({
+  preferredContactDefault,
+}: CreateTaskFormBodyProps) {
   const router = useRouter()
   const apollo = useApolloClient()
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
-  const [sessionOk, setSessionOk] = useState(false)
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
   const imagePreviewUrlsUnmountRef = useRef<string[]>([])
@@ -57,10 +65,11 @@ export default function CreateTaskPage() {
     watch,
     getValues,
     formState: { errors, isSubmitting },
-  } = useForm<z.infer<typeof createTaskFormSchema>>({
+  } = useForm<CreateTaskFormFieldValues>({
     resolver: zodResolver(createTaskFormSchema),
     defaultValues: {
       title: '',
+      category: '',
       description: '',
       streetAddress: '',
       mapPlaceName: '',
@@ -73,7 +82,7 @@ export default function CreateTaskPage() {
       budgetCurrency: Currency.Gbp,
       budgetType: TaskBudgetType.OneOff,
       paymentMethod: TaskPaymentMethod.Cash,
-      preferredContactMethod: TaskContactMethod.InApp,
+      preferredContactMethod: preferredContactDefault,
     },
   })
 
@@ -90,16 +99,6 @@ export default function CreateTaskPage() {
 
   const [runCreateTask, { loading: creating }] =
     useMutation<CreateTaskMutation>(CREATE_TASK)
-
-  const sessionGateRef = useRef(false)
-  if (!sessionGateRef.current) {
-    sessionGateRef.current = true
-    if (!getAuthToken()) {
-      router.replace(`/login?redirect=${encodeURIComponent(POST_TASK_PATH)}`)
-    } else {
-      setSessionOk(true)
-    }
-  }
 
   useLayoutEffect(() => {
     const next = imageFiles.map((file) => URL.createObjectURL(file))
@@ -170,7 +169,7 @@ export default function CreateTaskPage() {
     errors.locationLat?.message ??
     errors.locationLng?.message
 
-  async function onSubmit(values: z.infer<typeof createTaskFormSchema>) {
+  async function onSubmit(values: CreateTaskFormValues) {
     setServerError(null)
     if (!getAuthToken()) {
       router.replace(`/login?redirect=${encodeURIComponent(POST_TASK_PATH)}`)
@@ -186,6 +185,7 @@ export default function CreateTaskPage() {
           input: {
             title: values.title.trim(),
             description: values.description.trim(),
+            category: values.category,
             budget: {
               amount: parsedBudget,
               currency: values.budgetCurrency,
@@ -264,7 +264,12 @@ export default function CreateTaskPage() {
   )
 
   const createTaskForm = (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form
+      onSubmit={handleSubmit(
+        (raw) => void onSubmit(raw as CreateTaskFormValues),
+      )}
+      noValidate
+    >
       <Grid
         w="full"
         templateColumns={{
@@ -283,6 +288,7 @@ export default function CreateTaskPage() {
             register={register}
             fieldErrors={{
               title: errors.title?.message,
+              category: errors.category?.message,
               description: errors.description?.message,
             }}
           />
@@ -366,6 +372,39 @@ export default function CreateTaskPage() {
     </form>
   )
 
+  return (
+    <>
+      <CreateTaskPageHeader />
+      {createTaskForm}
+    </>
+  )
+}
+
+export default function CreateTaskPage() {
+  const router = useRouter()
+  const [sessionOk, setSessionOk] = useState(false)
+
+  const sessionGateRef = useRef(false)
+  if (!sessionGateRef.current) {
+    sessionGateRef.current = true
+    if (!getAuthToken()) {
+      router.replace(`/login?redirect=${encodeURIComponent(POST_TASK_PATH)}`)
+    } else {
+      setSessionOk(true)
+    }
+  }
+
+  const { loading: meLoading, data: meData } = useQuery<MeQuery>(ME_QUERY, {
+    skip: !sessionOk,
+    fetchPolicy: 'cache-first',
+  })
+
+  const preferredContactDefault =
+    meData?.me?.profile?.defaultPreferredContactMethod ??
+    TaskContactMethod.InApp
+
+  const mePrimedForForm = Boolean(meData?.me) || !meLoading
+
   if (!sessionOk) {
     return (
       <Box
@@ -383,14 +422,32 @@ export default function CreateTaskPage() {
     )
   }
 
+  if (!mePrimedForForm) {
+    return (
+      <Box
+        bg="bg"
+        color="cardFg"
+        minH="50vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Text color="formLabelMuted" fontSize="sm">
+          Loading your profile…
+        </Text>
+      </Box>
+    )
+  }
+
   return (
     <Box bg="bg" color="cardFg" minH="100vh">
       <Stack gap={0}>
         <Box as="section" bg="cardBg" py={{ base: 8, md: 10 }}>
           <Container>
             <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-              <CreateTaskPageHeader />
-              {createTaskForm}
+              <CreateTaskFormBody
+                preferredContactDefault={preferredContactDefault}
+              />
             </Stack>
           </Container>
         </Box>

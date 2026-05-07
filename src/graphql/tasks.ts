@@ -6,6 +6,8 @@ export const CREATE_TASK = gql`
       id
       title
       description
+      category
+      acceptedWorkerCap
       budget {
         amount
         currency
@@ -57,7 +59,7 @@ export const ADD_QUOTE = gql`
       message
       status
       createdAt
-      professional {
+      worker {
         id
         firstName
         lastName
@@ -71,11 +73,13 @@ export const ADD_QUOTE = gql`
 `
 
 export const TASKS_QUERY = gql`
-  query Tasks($lat: Float, $lng: Float, $radiusMiles: Float, $search: String) {
-    tasks(lat: $lat, lng: $lng, radiusMiles: $radiusMiles, search: $search) {
+  query Tasks($filter: TaskFilter) {
+    tasks(filter: $filter) {
       id
       title
       description
+      category
+      acceptedWorkerCap
       budget {
         amount
         currency
@@ -99,6 +103,15 @@ export const TASKS_QUERY = gql`
         name
         address
       }
+      poster {
+        id
+        firstName
+        lastName
+        profile {
+          name
+          avatarUrl
+        }
+      }
     }
   }
 `
@@ -109,6 +122,8 @@ export const TASK_QUERY = gql`
       id
       title
       description
+      category
+      acceptedWorkerCap
       budget {
         amount
         currency
@@ -152,7 +167,7 @@ export const TASK_QUERY = gql`
         message
         status
         createdAt
-        professional {
+        worker {
           id
           firstName
           lastName
@@ -167,11 +182,13 @@ export const TASK_QUERY = gql`
 `
 
 export const MY_TASKS_QUERY = gql`
-  query MyTasks($status: [TaskStatus!]) {
-    myTasks(status: $status) {
+  query MyTasks($filter: TaskFilter) {
+    myTasks(filter: $filter) {
       id
       title
       description
+      category
+      acceptedWorkerCap
       budget {
         amount
         currency
@@ -262,16 +279,6 @@ export const CONFIRM_TASK_MUTATION = gql`
       id
       status
       confirmedAt
-    }
-  }
-`
-
-export const MARK_TASK_COMPLETE_MUTATION = gql`
-  mutation MarkTaskComplete($taskId: ID!) {
-    markTaskComplete(taskId: $taskId) {
-      id
-      status
-      completedAt
     }
   }
 `

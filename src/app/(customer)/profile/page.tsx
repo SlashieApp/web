@@ -3,20 +3,27 @@
 import { useMutation } from '@apollo/client/react'
 import {
   Box,
+  Container,
   Grid,
   HStack,
   Heading,
   IconButton,
-  Input,
   Link,
+  NativeSelect,
   Stack,
   Text,
   Textarea,
 } from '@chakra-ui/react'
-import { LoginMethod, type UpdateMyProfileMutation } from '@codegen/schema'
+import {
+  LoginMethod,
+  TaskContactMethod,
+  type UpdateMyProfileMutation,
+} from '@codegen/schema'
+import { zodResolver } from '@hookform/resolvers/zod'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { ME_QUERY } from '@/graphql/auth'
@@ -27,42 +34,26 @@ import {
   saveCustomerProfileExtras,
 } from '@/utils/customerProfileExtras'
 import {
+  type TaskItem,
   formatPounds,
-  getDisplayNameFromEmail,
   isTaskCompleted,
   taskBudgetPence,
 } from '@/utils/dashboardHelpers'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Badge, Button } from '@ui'
+import { formatTaskContactMethodLabel } from '@/utils/taskLocationDisplay'
+import { Badge, Button, FormField, Input } from '@ui'
 
 import { useCustomerAccount } from '../context'
-
-function displayNameFromMe(me: {
-  firstName: string
-  lastName: string
-  profile?: { name?: string | null } | null
-  email: string
-}) {
-  const combined = `${me.firstName ?? ''} ${me.lastName ?? ''}`.trim()
-  if (combined) return combined
-  const profileName = me.profile?.name?.trim()
-  if (profileName) return profileName
-  return getDisplayNameFromEmail(me.email)
-}
-
-function joinMonthYear(iso: unknown) {
-  const d =
-    typeof iso === 'string' || typeof iso === 'number'
-      ? new Date(iso)
-      : iso instanceof Date
-        ? iso
-        : null
-  if (!d || Number.isNaN(d.getTime())) return null
-  return new Intl.DateTimeFormat('en-GB', {
-    month: 'long',
-    year: 'numeric',
-  }).format(d)
-}
+import {
+  displayNameFromMe,
+  initialDisplayNameForForm,
+  joinMonthYear,
+} from './profileDisplayHelpers'
+import {
+  type ProfileApiFormValues,
+  profileApiFormSchema,
+  profileFormToMutationInput,
+} from './profileFormSchema'
 
 function ChevronRight() {
   return (
@@ -81,37 +72,14 @@ function ChevronRight() {
   )
 }
 
-function IconGoogle() {
+function ConnectedBadge() {
   return (
-    <Box
-      w={9}
-      h={9}
-      borderRadius="md"
-      bg="white"
-      display="grid"
-      placeItems="center"
-      boxShadow="sm"
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
-        <title>Google</title>
-        <path
-          fill="#4285F4"
-          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-        />
-        <path
-          fill="#34A853"
-          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-        />
-        <path
-          fill="#FBBC05"
-          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-        />
-        <path
-          fill="#EA4335"
-          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-        />
-      </svg>
-    </Box>
+    <HStack gap={1}>
+      <Box w={2} h={2} borderRadius="full" bg="green.600" />
+      <Text fontSize="sm" fontWeight={600} color="green.700">
+        Connected
+      </Text>
+    </HStack>
   )
 }
 
@@ -154,6 +122,21 @@ function IconLockOutline() {
   )
 }
 
+function IconPencil() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Edit</title>
+      <path
+        d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function IconSignOut() {
   return (
     <Box color="red.500" display="flex" aria-hidden>
@@ -171,56 +154,65 @@ function IconSignOut() {
   )
 }
 
-function IconPencil() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Edit</title>
-      <path
-        d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function ConnectedBadge() {
-  return (
-    <HStack gap={1}>
-      <Box w={2} h={2} borderRadius="full" bg="green.600" />
-      <Text fontSize="sm" fontWeight={600} color="green.700">
-        Connected
-      </Text>
-    </HStack>
-  )
-}
-
 export default function CustomerProfilePage() {
   const router = useRouter()
   const logout = useUserStore((s) => s.logout)
   const {
     me,
+    meLoading,
+    meErrorMessage,
     myPostedTasks,
     tasksLoading,
     tasksErrorMessage,
     refetchCustomerAccount,
   } = useCustomerAccount()
 
-  const [fullName, setFullName] = useState('')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [location, setLocation] = useState('')
-  const [bio, setBio] = useState('')
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-
   const [editingSection, setEditingSection] = useState<
-    'none' | 'all' | 'name' | 'location' | 'bio' | 'phone'
+    | 'none'
+    | 'all'
+    | 'displayName'
+    | 'location'
+    | 'bio'
+    | 'phone'
+    | 'preferredContact'
   >('none')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [saveOk, setSaveOk] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [localSaveOk, setLocalSaveOk] = useState<string | null>(null)
+  const [localSaveError, setLocalSaveError] = useState<string | null>(null)
+
+  const [location, setLocation] = useState('')
+  const [bio, setBio] = useState('')
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+
+  const formValues = useMemo((): ProfileApiFormValues => {
+    if (!me) {
+      return {
+        displayName: '',
+        contactNumber: '',
+        defaultPreferredContactMethod: TaskContactMethod.InApp,
+      }
+    }
+    return {
+      displayName: initialDisplayNameForForm(me),
+      contactNumber: me.profile?.contactNumber?.trim() ?? '',
+      defaultPreferredContactMethod:
+        me.profile?.defaultPreferredContactMethod ?? TaskContactMethod.InApp,
+    }
+  }, [me])
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ProfileApiFormValues>({
+    resolver: zodResolver(profileApiFormSchema),
+    values: formValues,
+  })
 
   const [updateMyProfile, { loading: profileSaving }] =
     useMutation<UpdateMyProfileMutation>(UPDATE_MY_PROFILE_MUTATION, {
@@ -236,8 +228,6 @@ export default function CustomerProfilePage() {
       setLocation(extras.location)
       setBio(extras.bio)
       setAvatarPreview(extras.avatarOverride ?? null)
-      setFullName(displayNameFromMe(me))
-      setPhoneNumber(me.profile?.contactNumber?.trim() ?? '')
     }
   }
 
@@ -251,13 +241,17 @@ export default function CustomerProfilePage() {
   }, [me, location, bio, avatarPreview])
 
   const completedPosted = useMemo(
-    () => myPostedTasks.filter((t) => isTaskCompleted(t.status)),
+    () => myPostedTasks.filter((t: TaskItem) => isTaskCompleted(t.status)),
     [myPostedTasks],
   )
 
   const totalTasksPosted = myPostedTasks.length
   const totalSpendPence = useMemo(
-    () => completedPosted.reduce((sum, task) => sum + taskBudgetPence(task), 0),
+    () =>
+      completedPosted.reduce(
+        (sum: number, task: TaskItem) => sum + taskBudgetPence(task),
+        0,
+      ),
     [completedPosted],
   )
 
@@ -280,41 +274,44 @@ export default function CustomerProfilePage() {
       .charAt(0)
       .toUpperCase() || '?'
 
-  async function persistProfileToApi() {
+  async function onSubmitProfile(values: ProfileApiFormValues) {
     if (!me) return
-    const trimmedName = fullName.trim()
-    if (!trimmedName) {
-      setSaveError('Please enter your full name.')
-      return
-    }
-
     setSaveError(null)
     setSaveOk(null)
-
+    setLocalSaveOk(null)
+    setLocalSaveError(null)
     try {
       await updateMyProfile({
         variables: {
-          input: {
-            name: trimmedName,
-            contactNumber: phoneNumber.trim() || undefined,
-          },
+          input: profileFormToMutationInput(values),
         },
       })
-      persistExtras()
-      setSaveOk('Profile updated.')
+      setSaveOk('Profile saved.')
       setEditingSection('none')
       void refetchCustomerAccount()
-    } catch (err) {
+    } catch (err: unknown) {
       setSaveError(
         getFriendlyErrorMessage(err, 'Could not save your profile. Try again.'),
       )
     }
   }
 
+  function saveLocalExtrasOnly() {
+    if (!me) return
+    setLocalSaveError(null)
+    setLocalSaveOk(null)
+    try {
+      persistExtras()
+      setLocalSaveOk('Saved on this device.')
+    } catch {
+      setLocalSaveError('Could not save. Check browser storage permissions.')
+    }
+  }
+
   function handleAvatarFile(file: File | null) {
     if (!file || !me) return
     if (!file.type.startsWith('image/')) {
-      setSaveError('Please choose an image file.')
+      setLocalSaveError('Please choose an image file.')
       return
     }
     const reader = new FileReader()
@@ -326,8 +323,8 @@ export default function CustomerProfilePage() {
         ...current,
         avatarOverride: result,
       })
-      setSaveOk('Photo updated for this session.')
-      setSaveError(null)
+      setLocalSaveOk('Photo updated for this session on this device.')
+      setLocalSaveError(null)
     }
     reader.readAsDataURL(file)
   }
@@ -336,465 +333,679 @@ export default function CustomerProfilePage() {
     ? `/forgot-password?email=${encodeURIComponent(me.email)}`
     : '/forgot-password'
 
-  return (
-    <Stack gap={{ base: 8, md: 10 }} maxW="960px" mx="auto">
-      <Stack gap={2}>
-        <HStack gap={3} align="flex-start" flexWrap="wrap">
-          <Box position="relative">
-            <Box
-              w={{ base: '88px', md: '104px' }}
-              h={{ base: '88px', md: '104px' }}
-              borderRadius="full"
-              bg="primary.100"
-              display="grid"
-              placeItems="center"
-              fontSize="2xl"
-              fontWeight={800}
-              color="primary.800"
-              overflow="hidden"
-              borderWidth="3px"
-              borderColor="neutral.100"
-              boxShadow="sm"
-            >
-              {avatarSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarSrc}
-                  alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                headerInitial
-              )}
-            </Box>
-            <IconButton
-              position="absolute"
-              bottom={0}
-              right={0}
-              size="xs"
-              borderRadius="full"
-              colorPalette="blue"
-              aria-label="Change profile photo"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <IconPencil />
-            </IconButton>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(e) => {
-                handleAvatarFile(e.target.files?.[0] ?? null)
-                e.target.value = ''
-              }}
-            />
-          </Box>
-
-          <Stack gap={1} flex="1" minW={0} pt={1}>
-            <HStack gap={2} flexWrap="wrap" align="center">
-              <Heading size="xl">
-                {me ? displayNameFromMe(me) : 'Account'}
-              </Heading>
-              <Badge
-                bg="cardBg"
-                color="cardFg"
-                px={2}
-                py={0.5}
-                borderRadius="full"
-                fontSize="xs"
-                fontWeight={800}
-                letterSpacing="0.04em"
-              >
-                CUSTOMER
-              </Badge>
-            </HStack>
-            <Text color="formLabelMuted">{me?.email}</Text>
-            {joinMonthYear(me?.createdAt) ? (
-              <HStack gap={2} color="formLabelMuted" fontSize="sm">
-                <IconCalendar w="16px" h="16px" />
-                <Text>Joined {joinMonthYear(me?.createdAt)}</Text>
-              </HStack>
-            ) : null}
-          </Stack>
-        </HStack>
-      </Stack>
-
-      {tasksErrorMessage ? (
-        <Text color="red.400" fontSize="sm">
-          {tasksErrorMessage}
+  const inner =
+    meLoading && !me ? (
+      <Stack gap={4} py={10}>
+        <Text color="formLabelMuted" fontSize="sm">
+          Loading your account…
         </Text>
-      ) : null}
+      </Stack>
+    ) : meErrorMessage && !me ? (
+      <Stack gap={3} py={8}>
+        <Text color="red.500" fontSize="sm">
+          {meErrorMessage}
+        </Text>
+        <Text fontSize="sm" color="formLabelMuted">
+          Try refreshing the page. If the problem continues, sign in again.
+        </Text>
+      </Stack>
+    ) : !me ? null : (
+      <Stack gap={{ base: 8, md: 10 }}>
+        {meErrorMessage ? (
+          <Text color="orange.600" fontSize="sm">
+            {meErrorMessage}
+          </Text>
+        ) : null}
 
-      <Box p={{ base: 5, md: 6 }} bg="cardBg">
-        <Stack gap={5}>
-          <HStack
-            justify="space-between"
-            align="center"
-            flexWrap="wrap"
-            gap={3}
-          >
-            <Heading size="md">Basic Information</Heading>
-            <Link
-              as="button"
-              type="button"
-              fontWeight={700}
-              color="primary.700"
-              onClick={() => {
-                setEditingSection((prev) => (prev === 'all' ? 'none' : 'all'))
-                setSaveError(null)
-              }}
-            >
-              {editingSection === 'all' ? 'Done' : 'Edit All'}
-            </Link>
-          </HStack>
+        <Stack gap={2}>
+          <HStack gap={3} align="flex-start" flexWrap="wrap">
+            <Box position="relative">
+              <Box
+                w={{ base: '88px', md: '104px' }}
+                h={{ base: '88px', md: '104px' }}
+                borderRadius="full"
+                bg="primary.100"
+                display="grid"
+                placeItems="center"
+                fontSize="2xl"
+                fontWeight={800}
+                color="primary.800"
+                overflow="hidden"
+                borderWidth="3px"
+                borderColor="neutral.100"
+                boxShadow="sm"
+              >
+                {avatarSrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarSrc}
+                    alt=""
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  headerInitial
+                )}
+              </Box>
+              <IconButton
+                position="absolute"
+                bottom={0}
+                right={0}
+                size="xs"
+                borderRadius="full"
+                colorPalette="blue"
+                aria-label="Choose a preview image for this device"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <IconPencil />
+              </IconButton>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  handleAvatarFile(e.target.files?.[0] ?? null)
+                  e.target.value = ''
+                }}
+              />
+            </Box>
 
-          {(saveOk || saveError) && editingSection !== 'none' ? (
-            <Stack gap={1}>
-              {saveError ? (
-                <Text color="red.500" fontSize="sm">
-                  {saveError}
-                </Text>
-              ) : null}
-              {saveOk ? (
-                <Text color="green.700" fontSize="sm">
-                  {saveOk}
-                </Text>
+            <Stack gap={1} flex="1" minW={0} pt={1}>
+              <HStack gap={2} flexWrap="wrap" align="center">
+                <Heading size="xl">{displayNameFromMe(me)}</Heading>
+                <Badge
+                  bg="cardBg"
+                  color="cardFg"
+                  px={2}
+                  py={0.5}
+                  borderRadius="full"
+                  fontSize="xs"
+                  fontWeight={800}
+                  letterSpacing="0.04em"
+                >
+                  CUSTOMER
+                </Badge>
+              </HStack>
+              <Text color="formLabelMuted">{me.email}</Text>
+              {joinMonthYear(me.createdAt) ? (
+                <HStack gap={2} color="formLabelMuted" fontSize="sm">
+                  <IconCalendar w="16px" h="16px" />
+                  <Text>Joined {joinMonthYear(me.createdAt)}</Text>
+                </HStack>
               ) : null}
             </Stack>
-          ) : null}
+          </HStack>
+        </Stack>
 
-          <Grid
-            templateColumns={{ base: '1fr', md: 'repeat(2, minmax(0, 1fr))' }}
-            gap={3}
-          >
-            <InfoRow
-              label="Full Name"
-              value={fullName || '—'}
-              expanded={editingSection === 'all' || editingSection === 'name'}
-              onActivate={() => {
-                setEditingSection('name')
-                setSaveError(null)
-              }}
+        {tasksErrorMessage ? (
+          <Text color="red.400" fontSize="sm">
+            {tasksErrorMessage}
+          </Text>
+        ) : null}
+
+        <Box
+          p={{ base: 5, md: 6 }}
+          bg="cardBg"
+          borderWidth="1px"
+          borderColor="cardBorder"
+          borderRadius="xl"
+        >
+          <Stack gap={4} mb={5}>
+            <Heading size="sm" color="formLabelMuted" fontWeight={700}>
+              Account details
+            </Heading>
+            <Grid
+              templateColumns={{ base: '1fr', sm: 'repeat(3, minmax(0,1fr))' }}
+              gap={3}
             >
-              <Input
-                value={fullName}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFullName(e.target.value)
-                }
-                aria-label="Full name"
-                bg="neutral.100"
-                borderRadius="lg"
-                borderWidth="1px"
-                borderColor="formControlBorder"
-              />
-            </InfoRow>
-            <InfoRow
-              label="Location"
-              value={location.trim() || '—'}
-              expanded={
-                editingSection === 'all' || editingSection === 'location'
-              }
-              onActivate={() => {
-                setEditingSection('location')
-                setSaveError(null)
-              }}
-            >
-              <Input
-                value={location}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setLocation(e.target.value)
-                }
-                placeholder="City or region"
-                aria-label="Location"
-                bg="neutral.100"
-                borderRadius="lg"
-                borderWidth="1px"
-                borderColor="formControlBorder"
-              />
-            </InfoRow>
-          </Grid>
+              <Stack gap={1}>
+                <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+                  Email
+                </Text>
+                <Text fontWeight={600} wordBreak="break-word">
+                  {me.email}
+                </Text>
+              </Stack>
+              <Stack gap={1}>
+                <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+                  First name
+                </Text>
+                <Text fontWeight={600}>{me.firstName || '—'}</Text>
+              </Stack>
+              <Stack gap={1}>
+                <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+                  Last name
+                </Text>
+                <Text fontWeight={600}>{me.lastName || '—'}</Text>
+              </Stack>
+            </Grid>
+            <Text fontSize="xs" color="formLabelMuted">
+              Name and email come from your account. Change password via
+              security below; contact support if your legal name needs updating.
+            </Text>
+          </Stack>
+        </Box>
 
-          <InfoRow
-            label="Bio"
-            value={bio.trim() || 'Add a short bio'}
-            expanded={editingSection === 'all' || editingSection === 'bio'}
-            onActivate={() => {
-              setEditingSection('bio')
-              setSaveError(null)
-            }}
-            fullWidth
+        <form
+          onSubmit={(e) => {
+            void handleSubmit(onSubmitProfile)(e)
+          }}
+          noValidate
+        >
+          <Box
+            p={{ base: 5, md: 6 }}
+            bg="cardBg"
+            borderWidth="1px"
+            borderColor="cardBorder"
+            borderRadius="xl"
           >
-            <Textarea
-              minH="120px"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Tell workers a little about what you are looking for."
-              bg="neutral.100"
-              borderColor="cardBorder"
-              borderRadius="lg"
-            />
-          </InfoRow>
-
-          <InfoRow
-            label="Phone Number"
-            value={phoneNumber.trim() || '—'}
-            expanded={editingSection === 'all' || editingSection === 'phone'}
-            onActivate={() => {
-              setEditingSection('phone')
-              setSaveError(null)
-            }}
-          >
-            <Input
-              value={phoneNumber}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPhoneNumber(e.target.value)
-              }
-              placeholder="+44 7000 000000"
-              inputMode="tel"
-              aria-label="Phone number"
-              bg="neutral.100"
-              borderRadius="lg"
-              borderWidth="1px"
-              borderColor="formControlBorder"
-            />
-          </InfoRow>
-
-          {editingSection !== 'none' ? (
-            <HStack gap={3} flexWrap="wrap">
-              <Button
-                onClick={() => void persistProfileToApi()}
-                loading={profileSaving}
+            <Stack gap={5}>
+              <HStack
+                justify="space-between"
+                align="center"
+                flexWrap="wrap"
+                gap={3}
               >
-                Save changes
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setEditingSection('none')
+                <Heading size="md">Profile on Slashie</Heading>
+                <Link
+                  as="button"
+                  type="button"
+                  fontWeight={700}
+                  color="primary.600"
+                  onClick={() => {
+                    setEditingSection((prev) =>
+                      prev === 'all' ? 'none' : 'all',
+                    )
+                    setSaveError(null)
+                    setSaveOk(null)
+                  }}
+                >
+                  {editingSection === 'all' ? 'Done' : 'Edit all'}
+                </Link>
+              </HStack>
+
+              <Text fontSize="sm" color="formLabelMuted">
+                Saved to your account and used across quotes and tasks.
+              </Text>
+
+              {(saveOk || saveError) && editingSection !== 'none' ? (
+                <Stack gap={1}>
+                  {saveError ? (
+                    <Text color="red.500" fontSize="sm">
+                      {saveError}
+                    </Text>
+                  ) : null}
+                  {saveOk ? (
+                    <Text color="green.700" fontSize="sm">
+                      {saveOk}
+                    </Text>
+                  ) : null}
+                </Stack>
+              ) : null}
+
+              <Grid
+                templateColumns={{
+                  base: '1fr',
+                  md: 'repeat(2, minmax(0, 1fr))',
+                }}
+                gap={3}
+              >
+                <InfoRow
+                  label="Display name"
+                  value={
+                    initialDisplayNameForForm(me).trim() ||
+                    displayNameFromMe(me) ||
+                    '—'
+                  }
+                  expanded={
+                    editingSection === 'all' || editingSection === 'displayName'
+                  }
+                  onActivate={() => {
+                    setEditingSection('displayName')
+                    setSaveError(null)
+                  }}
+                >
+                  <FormField
+                    label="Display name"
+                    errorText={errors.displayName?.message}
+                  >
+                    <Input
+                      {...register('displayName')}
+                      placeholder="How you want to appear"
+                      aria-label="Display name"
+                    />
+                  </FormField>
+                </InfoRow>
+
+                <InfoRow
+                  label="Phone"
+                  value={me.profile?.contactNumber?.trim() || '—'}
+                  expanded={
+                    editingSection === 'all' || editingSection === 'phone'
+                  }
+                  onActivate={() => {
+                    setEditingSection('phone')
+                    setSaveError(null)
+                  }}
+                >
+                  <FormField
+                    label="Phone number"
+                    helperText="Optional. Shared only when you allow contact by phone."
+                    errorText={errors.contactNumber?.message}
+                  >
+                    <Input
+                      {...register('contactNumber')}
+                      placeholder="+44 7000 000000"
+                      inputMode="tel"
+                      aria-label="Phone number"
+                    />
+                  </FormField>
+                </InfoRow>
+              </Grid>
+
+              <InfoRow
+                label="Default contact when posting a task"
+                value={formatTaskContactMethodLabel(
+                  formValues.defaultPreferredContactMethod,
+                )}
+                expanded={
+                  editingSection === 'all' ||
+                  editingSection === 'preferredContact'
+                }
+                onActivate={() => {
+                  setEditingSection('preferredContact')
                   setSaveError(null)
-                  setSaveOk(null)
+                }}
+                fullWidth
+              >
+                <Stack gap={3} align="stretch">
+                  <Text fontSize="sm" color="formLabelMuted">
+                    You can override this on each task. Matches{' '}
+                    <Link
+                      as={NextLink}
+                      href="/tasks/create"
+                      color="primary.600"
+                    >
+                      post a task
+                    </Link>{' '}
+                    prefill.
+                  </Text>
+                  <Controller
+                    name="defaultPreferredContactMethod"
+                    control={control}
+                    render={({ field }) => (
+                      <NativeSelect.Root w="full" maxW="320px">
+                        <NativeSelect.Field
+                          {...field}
+                          aria-label="Default contact method for new tasks"
+                        >
+                          <option value={TaskContactMethod.InApp}>
+                            In-app chat
+                          </option>
+                          <option value={TaskContactMethod.Phone}>Phone</option>
+                          <option value={TaskContactMethod.Email}>Email</option>
+                        </NativeSelect.Field>
+                      </NativeSelect.Root>
+                    )}
+                  />
+                </Stack>
+              </InfoRow>
+
+              {editingSection !== 'none' ? (
+                <HStack gap={3} flexWrap="wrap">
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    loading={profileSaving || isSubmitting}
+                  >
+                    Save profile
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setEditingSection('none')
+                      setSaveError(null)
+                      setSaveOk(null)
+                      reset(formValues)
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </HStack>
+              ) : null}
+            </Stack>
+          </Box>
+        </form>
+
+        <Box
+          p={{ base: 5, md: 6 }}
+          bg="cardBg"
+          borderWidth="1px"
+          borderColor="cardBorder"
+          borderRadius="xl"
+        >
+          <Stack gap={5}>
+            <Stack gap={1}>
+              <Heading size="md">On this device only</Heading>
+              <Text fontSize="sm" color="formLabelMuted">
+                Bio, location label, and the preview photo above are stored
+                locally in your browser—they are not sent to Slashie yet. Use
+                them as personal notes while we expand profile sync.
+              </Text>
+            </Stack>
+
+            {localSaveOk || localSaveError ? (
+              <Stack gap={1}>
+                {localSaveError ? (
+                  <Text color="red.500" fontSize="sm">
+                    {localSaveError}
+                  </Text>
+                ) : null}
+                {localSaveOk ? (
+                  <Text color="green.700" fontSize="sm">
+                    {localSaveOk}
+                  </Text>
+                ) : null}
+              </Stack>
+            ) : null}
+
+            <Grid
+              templateColumns={{
+                base: '1fr',
+                md: 'repeat(2, minmax(0, 1fr))',
+              }}
+              gap={3}
+            >
+              <InfoRow
+                label="Location (local)"
+                value={location.trim() || '—'}
+                expanded={
+                  editingSection === 'all' || editingSection === 'location'
+                }
+                onActivate={() => {
+                  setEditingSection('location')
+                  setLocalSaveError(null)
                 }}
               >
-                Cancel
-              </Button>
-            </HStack>
-          ) : null}
-        </Stack>
-      </Box>
+                <FormField label="City or area">
+                  <Input
+                    value={location}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setLocation(e.target.value)
+                    }
+                    placeholder="City or region"
+                    aria-label="Local location note"
+                  />
+                </FormField>
+              </InfoRow>
+            </Grid>
 
-      <Stack gap={4}>
-        <Heading size="md">Account Security</Heading>
-        <Box p={0} overflow="hidden">
-          {/* Google login method is intentionally hidden until rollout is ready. */}
-          {/* <SecurityRow
-            icon={<IconGoogle />}
-            title="Google"
-            status={<ConnectedBadge />}
-            action={
-              googleConnected ? (
-                <Text fontSize="sm" color="formLabelMuted">
-                  Managed in Slashie settings soon
-                </Text>
-              ) : (
-                <Text fontSize="sm" color="formLabelMuted">
-                  Not connected
-                </Text>
-              )
-            }
-          />
-          <Box h="1px" bg="cardBorder" /> */}
-          <SecurityRow
-            icon={<IconEnvelope />}
-            title="Email Address"
-            status={<ConnectedBadge />}
-            action={
-              <Link
-                as={NextLink}
-                href={forgotHref}
-                fontWeight={700}
-                color="primary.700"
-              >
-                Change
-              </Link>
-            }
-          />
-        </Box>
+            <InfoRow
+              label="Bio (local)"
+              value={bio.trim() || 'Add a short note'}
+              expanded={editingSection === 'all' || editingSection === 'bio'}
+              onActivate={() => {
+                setEditingSection('bio')
+                setLocalSaveError(null)
+              }}
+              fullWidth
+            >
+              <FormField label="Bio">
+                <Textarea
+                  minH="120px"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Notes for yourself—workers don’t see this from the server yet."
+                  bg="neutral.100"
+                  borderColor="cardBorder"
+                  borderRadius="lg"
+                />
+              </FormField>
+            </InfoRow>
 
-        <Box p={4} bg="cardBg">
-          <NextLink href={forgotHref} passHref legacyBehavior>
             <Button
-              as="a"
+              type="button"
               variant="secondary"
-              width="full"
-              justifyContent="center"
-              gap={2}
+              alignSelf="flex-start"
+              onClick={() => saveLocalExtrasOnly()}
             >
-              <IconLockOutline />
-              Change Password
+              Save local notes
             </Button>
-          </NextLink>
-          {!passwordConnected ? (
-            <Text fontSize="sm" color="formLabelMuted" mt={3}>
-              Password sign-in is not enabled on this account. Use your
-              connected provider, or contact support to add a password.
-            </Text>
-          ) : null}
-        </Box>
-      </Stack>
-
-      <Grid
-        templateColumns={{ base: '1fr', md: 'repeat(2, minmax(0, 1fr))' }}
-        gap={4}
-      >
-        <Box
-          p={6}
-          bg="primary.700"
-          color="white"
-          position="relative"
-          overflow="hidden"
-        >
-          <Stack gap={1} position="relative" zIndex={1}>
-            <Text
-              fontSize="xs"
-              fontWeight={800}
-              letterSpacing="0.08em"
-              opacity={0.9}
-            >
-              TOTAL TASKS POSTED
-            </Text>
-            <Text fontSize="4xl" fontWeight={800} lineHeight={1.1}>
-              {tasksLoading ? '…' : totalTasksPosted}
-            </Text>
           </Stack>
-          <Box
-            position="absolute"
-            right={4}
-            bottom={4}
-            opacity={0.2}
-            fontSize="4xl"
-            aria-hidden
-          >
-            📋
-          </Box>
         </Box>
-        <Box p={6} bg="badgeBg" position="relative" overflow="hidden">
-          <Stack gap={1} position="relative" zIndex={1}>
-            <Text
-              fontSize="xs"
-              fontWeight={800}
-              letterSpacing="0.08em"
-              color="formLabelMuted"
-            >
-              TOTAL SPENT
-            </Text>
-            <Text fontSize="3xl" fontWeight={800} color="primary.800">
-              {tasksLoading ? '…' : formatPounds(totalSpendPence)}
-            </Text>
-            <Text fontSize="xs" color="formLabelMuted">
-              Based on completed tasks you posted.
-            </Text>
-          </Stack>
-          <Box
-            position="absolute"
-            right={4}
-            bottom={2}
-            opacity={0.15}
-            fontSize="4xl"
-            aria-hidden
-          >
-            💷
-          </Box>
-        </Box>
-      </Grid>
 
-      <Grid
-        templateColumns={{ base: '1fr', md: 'repeat(2, minmax(0, 1fr))' }}
-        gap={4}
-      >
-        <Link
-          as={NextLink}
-          href="/requests"
-          textDecoration="none"
-          color="inherit"
+        <Stack gap={4}>
+          <Heading size="md">Account security</Heading>
+          <Box
+            p={0}
+            overflow="hidden"
+            borderRadius="xl"
+            borderWidth="1px"
+            borderColor="cardBorder"
+          >
+            <SecurityRow
+              icon={<IconEnvelope />}
+              title="Email address"
+              status={<ConnectedBadge />}
+              action={
+                <Link
+                  as={NextLink}
+                  href={forgotHref}
+                  fontWeight={700}
+                  color="primary.600"
+                >
+                  Change
+                </Link>
+              }
+            />
+          </Box>
+
+          <Box
+            p={4}
+            bg="cardBg"
+            borderRadius="xl"
+            borderWidth="1px"
+            borderColor="cardBorder"
+          >
+            <Link
+              as={NextLink}
+              href={forgotHref}
+              _hover={{ textDecoration: 'none' }}
+              display="block"
+            >
+              <Button
+                as="span"
+                variant="secondary"
+                width="full"
+                justifyContent="center"
+                gap={2}
+              >
+                <IconLockOutline />
+                Change password
+              </Button>
+            </Link>
+            {!passwordConnected ? (
+              <Text fontSize="sm" color="formLabelMuted" mt={3}>
+                Password sign-in is not enabled on this account. Use your
+                connected provider, or contact support to add a password.
+              </Text>
+            ) : null}
+          </Box>
+        </Stack>
+
+        <Grid
+          templateColumns={{ base: '1fr', md: 'repeat(2, minmax(0, 1fr))' }}
+          gap={4}
         >
           <Box
             p={6}
-            bg="primary.50"
-            borderColor="primary.100"
-            borderWidth="1px"
+            bg="primary.600"
+            color="white"
             position="relative"
             overflow="hidden"
-            display="block"
-            _hover={{ boxShadow: 'md' }}
+            borderRadius="xl"
           >
-            <Heading size="md" color="primary.900">
-              My Requests
-            </Heading>
-            <Text color="formLabelMuted" mt={2} maxW="sm">
-              Track your ongoing and completed service requests.
-            </Text>
+            <Stack gap={1} position="relative" zIndex={1}>
+              <Text
+                fontSize="xs"
+                fontWeight={800}
+                letterSpacing="0.08em"
+                opacity={0.9}
+              >
+                Tasks posted
+              </Text>
+              <Text fontSize="4xl" fontWeight={800} lineHeight={1.1}>
+                {tasksLoading ? '…' : totalTasksPosted}
+              </Text>
+            </Stack>
             <Box
               position="absolute"
-              right={2}
-              bottom={0}
-              opacity={0.12}
-              fontSize="5xl"
+              right={4}
+              bottom={4}
+              opacity={0.2}
+              fontSize="4xl"
+              aria-hidden
             >
               📋
             </Box>
           </Box>
-        </Link>
-        <Link
-          as={NextLink}
-          href="/dashboard"
-          textDecoration="none"
-          color="inherit"
-        >
           <Box
             p={6}
-            bg="cardBg"
-            borderColor="cardBg"
-            borderWidth="1px"
+            bg="neutral.100"
             position="relative"
             overflow="hidden"
-            display="block"
-            _hover={{ boxShadow: 'md' }}
+            borderRadius="xl"
           >
-            <Heading size="md" color="cardFg">
-              Worker Dashboard
-            </Heading>
-            <Text color="cardFg" opacity={0.9} mt={2} maxW="sm">
-              Start earning by offering your skills to the community.
-            </Text>
+            <Stack gap={1} position="relative" zIndex={1}>
+              <Text
+                fontSize="xs"
+                fontWeight={800}
+                letterSpacing="0.08em"
+                color="formLabelMuted"
+              >
+                Total spent
+              </Text>
+              <Text fontSize="3xl" fontWeight={800} color="primary.800">
+                {tasksLoading ? '…' : formatPounds(totalSpendPence)}
+              </Text>
+              <Text fontSize="xs" color="formLabelMuted">
+                From completed tasks you posted (payments are arranged outside
+                Slashie).
+              </Text>
+            </Stack>
             <Box
               position="absolute"
-              right={2}
-              bottom={0}
+              right={4}
+              bottom={2}
               opacity={0.15}
-              fontSize="5xl"
+              fontSize="4xl"
+              aria-hidden
             >
-              👷
+              💷
             </Box>
           </Box>
-        </Link>
-      </Grid>
+        </Grid>
 
-      <HStack justify="center" py={4}>
-        <Button
-          variant="ghost"
-          colorPalette="red"
-          onClick={() => {
-            logout()
-            router.push('/')
-          }}
-          gap={2}
+        <Grid
+          templateColumns={{ base: '1fr', md: 'repeat(2, minmax(0, 1fr))' }}
+          gap={4}
         >
-          <IconSignOut />
-          Sign Out
-        </Button>
-      </HStack>
-    </Stack>
+          <Link
+            as={NextLink}
+            href="/requests"
+            _hover={{ textDecoration: 'none' }}
+            color="inherit"
+          >
+            <Box
+              p={6}
+              bg="primary.50"
+              borderColor="primary.100"
+              borderWidth="1px"
+              position="relative"
+              overflow="hidden"
+              display="block"
+              borderRadius="xl"
+              _hover={{ boxShadow: 'md' }}
+            >
+              <Heading size="md" color="primary.900">
+                My requests
+              </Heading>
+              <Text color="formLabelMuted" mt={2} maxW="sm">
+                Track quotes and status on tasks you posted.
+              </Text>
+              <Box
+                position="absolute"
+                right={2}
+                bottom={0}
+                opacity={0.12}
+                fontSize="5xl"
+              >
+                📋
+              </Box>
+            </Box>
+          </Link>
+          <Link
+            as={NextLink}
+            href="/dashboard"
+            _hover={{ textDecoration: 'none' }}
+            color="inherit"
+          >
+            <Box
+              p={6}
+              bg="cardBg"
+              borderColor="cardBorder"
+              borderWidth="1px"
+              position="relative"
+              overflow="hidden"
+              display="block"
+              borderRadius="xl"
+              _hover={{ boxShadow: 'md' }}
+            >
+              <Heading size="md" color="cardFg">
+                Worker dashboard
+              </Heading>
+              <Text color="cardFg" opacity={0.9} mt={2} maxW="sm">
+                Send quotes and manage work you offer on the marketplace.
+              </Text>
+              <Box
+                position="absolute"
+                right={2}
+                bottom={0}
+                opacity={0.15}
+                fontSize="5xl"
+              >
+                👷
+              </Box>
+            </Box>
+          </Link>
+        </Grid>
+
+        <HStack justify="center" py={4}>
+          <Button
+            variant="ghost"
+            colorPalette="red"
+            onClick={() => {
+              logout()
+              router.push('/')
+            }}
+            gap={2}
+          >
+            <IconSignOut />
+            Sign out
+          </Button>
+        </HStack>
+      </Stack>
+    )
+
+  return (
+    <Box as="section" py={{ base: 6, md: 10 }}>
+      <Container maxW="container.lg">{inner}</Container>
+    </Box>
   )
 }
 
@@ -817,37 +1028,44 @@ function InfoRow({
     <Box
       gridColumn={fullWidth ? { base: '1 / -1', md: '1 / -1' } : undefined}
       p={4}
-      bg="primary.50"
+      bg="neutral.100"
       borderWidth="1px"
-      borderColor="primary.100"
+      borderColor="cardBorder"
+      borderRadius="lg"
     >
       {!expanded ? (
-        <Box
-          as="button"
-          w="full"
-          cursor="pointer"
-          textAlign="left"
-          bg="transparent"
-          border="none"
-          p={0}
-          onClick={onActivate}
-        >
-          <HStack justify="space-between" align="flex-start" gap={3}>
-            <Stack gap={1} align="flex-start" minW={0}>
-              <Text
-                fontSize="xs"
-                fontWeight={800}
-                letterSpacing="0.06em"
-                color="primary.800"
-              >
-                {label}
-              </Text>
-              <Text fontWeight={600} color="cardFg" wordBreak="break-word">
-                {value}
-              </Text>
-            </Stack>
-            <ChevronRight />
-          </HStack>
+        <Box asChild w="full">
+          <button
+            type="button"
+            onClick={onActivate}
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              font: 'inherit',
+              color: 'inherit',
+            }}
+          >
+            <HStack justify="space-between" align="flex-start" gap={3}>
+              <Stack gap={1} align="flex-start" minW={0}>
+                <Text
+                  fontSize="xs"
+                  fontWeight={800}
+                  letterSpacing="0.06em"
+                  color="formLabelMuted"
+                >
+                  {label}
+                </Text>
+                <Text fontWeight={600} color="cardFg" wordBreak="break-word">
+                  {value}
+                </Text>
+              </Stack>
+              <ChevronRight />
+            </HStack>
+          </button>
         </Box>
       ) : (
         <Stack gap={3} align="stretch">
@@ -856,7 +1074,7 @@ function InfoRow({
               fontSize="xs"
               fontWeight={800}
               letterSpacing="0.06em"
-              color="primary.800"
+              color="formLabelMuted"
             >
               {label}
             </Text>
@@ -889,7 +1107,7 @@ function SecurityRow({
       flexWrap="wrap"
       justify="space-between"
     >
-      <HStack gap={3} align="center">
+      <HStack gap={3} align="center" minW={0}>
         {icon}
         <Text fontWeight={700}>{title}</Text>
         {status}

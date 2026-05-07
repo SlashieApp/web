@@ -54,6 +54,7 @@ export const UPDATE_MY_PROFILE_MUTATION = gql`
       profile {
         name
         contactNumber
+        defaultPreferredContactMethod
       }
     }
   }

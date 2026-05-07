@@ -153,10 +153,10 @@ export function QuotesSection() {
           <Stack gap={0} w="full" id="owner-quotes-list">
             {displayQuotes.map((quote, i) => {
               const quotePence = priceToPence(quote.price)
-              const professionalName =
-                quote.professional?.profile?.name?.trim() ||
-                `${quote.professional?.firstName ?? ''} ${quote.professional?.lastName ?? ''}`.trim() ||
-                'Professional'
+              const workerName =
+                quote.worker?.profile?.name?.trim() ||
+                `${quote.worker?.firstName ?? ''} ${quote.worker?.lastName ?? ''}`.trim() ||
+                'Worker'
               return (
                 <MetaListRow
                   key={quote.id}
@@ -169,9 +169,9 @@ export function QuotesSection() {
                   <QuoteCard
                     variant="list"
                     showPrice
-                    name={professionalName}
+                    name={workerName}
                     avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
-                    avatarUrl={quote.professional?.profile?.avatarUrl}
+                    avatarUrl={quote.worker?.profile?.avatarUrl}
                     priceLabel={
                       quotePence != null
                         ? formatPoundsFromPence(quotePence)
@@ -182,7 +182,7 @@ export function QuotesSection() {
                     respondedLabel={
                       formatQuoteRespondedAgo(quote.createdAt) ?? undefined
                     }
-                    showVerified={Boolean(quote.professional?.id)}
+                    showVerified={Boolean(quote.worker?.id)}
                     acceptPrimary={
                       quotePence != null && quotePence === lowestPricePence
                     }
@@ -289,10 +289,10 @@ export function QuotesSection() {
       {hasQuoteRows ? (
         <Stack gap={0} w="full">
           {task.quotes.map((quote, i) => {
-            const professionalName =
-              quote.professional?.profile?.name?.trim() ||
-              `${quote.professional?.firstName ?? ''} ${quote.professional?.lastName ?? ''}`.trim() ||
-              'Professional'
+            const workerName =
+              quote.worker?.profile?.name?.trim() ||
+              `${quote.worker?.firstName ?? ''} ${quote.worker?.lastName ?? ''}`.trim() ||
+              'Worker'
             return (
               <MetaListRow
                 key={quote.id}
@@ -301,15 +301,15 @@ export function QuotesSection() {
                 <QuoteCard
                   variant="list"
                   showPrice={false}
-                  name={professionalName}
+                  name={workerName}
                   avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
-                  avatarUrl={quote.professional?.profile?.avatarUrl}
+                  avatarUrl={quote.worker?.profile?.avatarUrl}
                   priceLabel=""
                   message={quote.message}
                   respondedLabel={
                     formatQuoteRespondedAgo(quote.createdAt) ?? undefined
                   }
-                  showVerified={Boolean(quote.professional?.id)}
+                  showVerified={Boolean(quote.worker?.id)}
                 />
               </MetaListRow>
             )

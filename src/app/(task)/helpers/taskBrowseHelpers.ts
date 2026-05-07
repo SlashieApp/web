@@ -77,6 +77,22 @@ export function inferBadge(task: TaskListItem): { text?: string } {
   return {}
 }
 
+/** Display name for browse cards: `profile.name`, else `firstName` + `lastName`, else fallback. */
+export function taskPosterDisplayName(task: TaskListItem): string {
+  const p = task.poster
+  if (!p) return 'Task owner'
+  const profileName = p.profile?.name?.trim()
+  if (profileName) return profileName
+  const combined = `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim()
+  if (combined) return combined
+  return 'Task owner'
+}
+
+export function taskPosterAvatarUrl(task: TaskListItem): string | undefined {
+  const u = task.poster?.profile?.avatarUrl?.trim()
+  return u || undefined
+}
+
 /**
  * Best-effort price for budget filters when the server query is geo-only.
  * Uses fixed quote price when set; otherwise the lowest worker quote.

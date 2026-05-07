@@ -71,6 +71,8 @@ type TaskBrowseDataContextValue = {
   loading: boolean
   error: { message: string } | null | undefined
   dataLoaded: boolean
+  /** Task count from the latest `tasks` query (or SSR initial list) before client-side filters. Discovery is cap-aware server-side. */
+  browseSourceTaskCount: number
   filteredSorted: TaskListItem[]
   pageItems: TaskListItem[]
   totalPages: number
@@ -211,9 +213,11 @@ export function TaskBrowseProvider({
   const queryVariables = useMemo(() => {
     const radius = clampRadiusMiles(submittedRadiusMiles)
     return {
-      lat: searchCenterLat,
-      lng: searchCenterLng,
-      radiusMiles: radius,
+      filter: {
+        lat: searchCenterLat,
+        lng: searchCenterLng,
+        radiusMiles: radius,
+      },
     }
   }, [searchCenterLat, searchCenterLng, submittedRadiusMiles])
 
@@ -334,6 +338,7 @@ export function TaskBrowseProvider({
           id: task.id,
           title: task.title,
           description: task.description,
+          category: task.category,
           location: taskPublicLocationLabel(task),
           locationLat: task.location?.lat ?? null,
           locationLng: task.location?.lng ?? null,
@@ -352,6 +357,7 @@ export function TaskBrowseProvider({
           id: task.id,
           title: task.title,
           description: task.description,
+          category: task.category,
           location: taskPublicLocationLabel(task),
           locationLat: task.location?.lat ?? null,
           locationLng: task.location?.lng ?? null,
@@ -486,6 +492,7 @@ export function TaskBrowseProvider({
       loading,
       error,
       dataLoaded: Boolean(data),
+      browseSourceTaskCount: (data?.tasks ?? initialTasks).length,
       filteredSorted,
       pageItems,
       totalPages,
@@ -529,6 +536,7 @@ export function TaskBrowseProvider({
       totalPages,
       urgency,
       initialMapTasksForBox,
+      initialTasks,
     ],
   )
 
