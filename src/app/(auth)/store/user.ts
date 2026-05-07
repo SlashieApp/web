@@ -76,6 +76,8 @@ export const useUserStore = create<UserStore>((set) => ({
         throw new Error('Login succeeded but no session token was returned.')
       }
 
+      setAuthToken(token, rememberMe ? REMEMBER_MAX_AGE : SESSION_MAX_AGE)
+
       const meResult = await apolloClient.query<MeQuery>({
         query: ME_QUERY,
         fetchPolicy: 'network-only',
@@ -107,7 +109,6 @@ export const useUserStore = create<UserStore>((set) => ({
         fetchPolicy: 'network-only',
       })
 
-      console.log(result)
       const meUser = toAuthUser(result.data?.me)
       set({ user: meUser, isLoading: false })
       return meUser
