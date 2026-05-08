@@ -9,7 +9,103 @@ type AccountSideNavProps = {
   active: AccountNavKey
 }
 
-/** Desktop side nav for the merged account hub (mobile uses tab strip). */
+function NavIcon({ type }: { type: AccountNavKey }) {
+  const common = {
+    width: 18,
+    height: 18,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+  } as const
+
+  if (type === 'overview') {
+    return (
+      <svg {...common} aria-hidden>
+        <path
+          d="M4 13.5L12 5l8 8.5M7 11.5V19h10v-7.5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+
+  if (type === 'requests') {
+    return (
+      <svg {...common} aria-hidden>
+        <path
+          d="M7 4h10l3 3v13H4V4h3Zm10 0v3h3"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+
+  if (type === 'jobs') {
+    return (
+      <svg {...common} aria-hidden>
+        <path
+          d="M4 8h16v11H4V8Zm4-3h8v3H8V5Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+
+  if (type === 'earnings') {
+    return (
+      <svg {...common} aria-hidden>
+        <path
+          d="M12 3a9 9 0 1 0 9 9"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M12 7v6l4 2"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+
+  if (type === 'account') {
+    return (
+      <svg {...common} aria-hidden>
+        <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
+        <path
+          d="M12 9.3a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+      </svg>
+    )
+  }
+
+  return (
+    <svg {...common} aria-hidden>
+      <circle cx="12" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M5.5 19c.8-2.6 3.1-4.2 6.5-4.2s5.7 1.6 6.5 4.2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+/** Desktop side nav for the merged account hub. */
 export function AccountSideNav({ active }: AccountSideNavProps) {
   return (
     <Stack as="nav" aria-label="Account sections" gap={1} w="full">
@@ -32,16 +128,12 @@ export function AccountSideNav({ active }: AccountSideNavProps) {
             fontSize="sm"
             _hover={{
               textDecoration: 'none',
-              bg: isActive ? 'primary.100' : 'cardBg',
+              bg: isActive ? 'primary.100' : 'badgeBg',
             }}
           >
-            <Box
-              w={2}
-              h={2}
-              borderRadius="full"
-              bg={isActive ? 'primary.600' : 'transparent'}
-              aria-hidden
-            />
+            <Box display="flex" color={isActive ? 'primary.700' : 'formLabelMuted'}>
+              <NavIcon type={item.key} />
+            </Box>
             <Text>{item.label}</Text>
           </Link>
         )
@@ -50,23 +142,25 @@ export function AccountSideNav({ active }: AccountSideNavProps) {
   )
 }
 
-/** Mobile horizontal tab strip used above page content. */
-export function AccountTabStrip({ active }: AccountSideNavProps) {
+/** Mobile in-dashboard navigation with parity to desktop sections. */
+export function AccountBottomNav({ active }: AccountSideNavProps) {
   return (
     <HStack
       as="nav"
       aria-label="Account sections"
-      gap={2}
-      overflowX="auto"
-      px={4}
-      py={2}
-      borderBottomWidth="1px"
+      gap={0}
+      position="fixed"
+      left={0}
+      right={0}
+      bottom={0}
+      zIndex={40}
+      px={2}
+      pt={2}
+      pb="calc(env(safe-area-inset-bottom) + 10px)"
+      borderTopWidth="1px"
       borderColor="cardBorder"
       bg="bg"
-      css={{
-        scrollbarWidth: 'thin',
-        WebkitOverflowScrolling: 'touch',
-      }}
+      display={{ base: 'flex', lg: 'none' }}
     >
       {ACCOUNT_NAV.map((item) => {
         const isActive = item.key === active
@@ -75,21 +169,25 @@ export function AccountTabStrip({ active }: AccountSideNavProps) {
             key={item.key}
             as={NextLink}
             href={item.href}
-            flexShrink={0}
-            px={3}
-            py={2}
-            borderRadius="full"
-            fontSize="sm"
-            fontWeight={isActive ? 700 : 600}
-            whiteSpace="nowrap"
-            bg={isActive ? 'primary' : 'cardBg'}
-            color={isActive ? 'black' : 'cardFg'}
-            borderWidth={isActive ? 0 : '1px'}
-            borderColor="cardBorder"
-            boxShadow={isActive ? 'sm' : 'none'}
-            _hover={{ textDecoration: 'none', opacity: 0.92 }}
+            flex={1}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            _hover={{ textDecoration: 'none' }}
           >
-            {item.label}
+            <Stack
+              gap={0.5}
+              align="center"
+              px={1}
+              py={1}
+              borderRadius="md"
+              color={isActive ? 'primary.700' : 'formLabelMuted'}
+            >
+              <NavIcon type={item.key} />
+              <Text fontSize="xs" fontWeight={isActive ? 700 : 600} lineHeight={1}>
+                {item.label}
+              </Text>
+            </Stack>
           </Link>
         )
       })}
