@@ -20,6 +20,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'overview') {
     return (
       <svg {...common} aria-hidden>
+        <title>Overview</title>
         <path
           d="M4 13.5L12 5l8 8.5M7 11.5V19h10v-7.5"
           stroke="currentColor"
@@ -34,6 +35,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'requests') {
     return (
       <svg {...common} aria-hidden>
+        <title>My Requests</title>
         <path
           d="M7 4h10l3 3v13H4V4h3Zm10 0v3h3"
           stroke="currentColor"
@@ -48,6 +50,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'jobs') {
     return (
       <svg {...common} aria-hidden>
+        <title>Jobs</title>
         <path
           d="M4 8h16v11H4V8Zm4-3h8v3H8V5Z"
           stroke="currentColor"
@@ -62,6 +65,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'earnings') {
     return (
       <svg {...common} aria-hidden>
+        <title>Earnings</title>
         <path
           d="M12 3a9 9 0 1 0 9 9"
           stroke="currentColor"
@@ -82,7 +86,14 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'account') {
     return (
       <svg {...common} aria-hidden>
-        <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
+        <title>Account</title>
+        <circle
+          cx="12"
+          cy="12"
+          r="8.5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
         <path
           d="M12 9.3a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4Z"
           stroke="currentColor"
@@ -94,6 +105,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
 
   return (
     <svg {...common} aria-hidden>
+      <title>Profile</title>
       <circle cx="12" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.8" />
       <path
         d="M5.5 19c.8-2.6 3.1-4.2 6.5-4.2s5.7 1.6 6.5 4.2"
@@ -131,7 +143,10 @@ export function AccountSideNav({ active }: AccountSideNavProps) {
               bg: isActive ? 'primary.100' : 'badgeBg',
             }}
           >
-            <Box display="flex" color={isActive ? 'primary.700' : 'formLabelMuted'}>
+            <Box
+              display="flex"
+              color={isActive ? 'primary.700' : 'formLabelMuted'}
+            >
               <NavIcon type={item.key} />
             </Box>
             <Text>{item.label}</Text>
@@ -184,7 +199,11 @@ export function AccountBottomNav({ active }: AccountSideNavProps) {
               color={isActive ? 'primary.700' : 'formLabelMuted'}
             >
               <NavIcon type={item.key} />
-              <Text fontSize="xs" fontWeight={isActive ? 700 : 600} lineHeight={1}>
+              <Text
+                fontSize="xs"
+                fontWeight={isActive ? 700 : 600}
+                lineHeight={1}
+              >
                 {item.label}
               </Text>
             </Stack>

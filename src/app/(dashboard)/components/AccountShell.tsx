@@ -1,10 +1,10 @@
 'use client'
 
 import {
-  Avatar,
   Box,
-  HStack,
   IconButton as ChakraIconButton,
+  HStack,
+  Image,
   Link,
   Stack,
   Text,
@@ -28,6 +28,7 @@ function SearchIcon() {
   return (
     <Box as="span" display="inline-flex" aria-hidden>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <title>Search</title>
         <path
           d="M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14Zm8.5 16.5-4-4"
           stroke="currentColor"
@@ -43,6 +44,7 @@ function SearchIcon() {
 function MessageIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Messages</title>
       <path
         d="M4 6h16v10H7l-3 3V6Z"
         stroke="currentColor"
@@ -57,6 +59,7 @@ function MessageIcon() {
 function BellIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Notifications</title>
       <path
         d="M6 16h12l-1.5-2.2v-3.5a4.5 4.5 0 0 0-9 0v3.5L6 16Zm4 2a2 2 0 0 0 4 0"
         stroke="currentColor"
@@ -68,9 +71,7 @@ function BellIcon() {
   )
 }
 
-function completionFromMe(
-  me: MeSnapshot,
-) {
+function completionFromMe(me: MeSnapshot) {
   const checks = [
     Boolean(me.profile?.name?.trim()),
     Boolean(me.profile?.contactNumber?.trim()),
@@ -101,7 +102,10 @@ export function AccountShell({ children }: AccountShellProps) {
     `${me.firstName ?? ''} ${me.lastName ?? ''}`.trim() ||
     me.email.split('@')[0] ||
     'Member'
-  const profileLinkLabel = completion.isWorker ? 'Manage profile' : 'Continue setup'
+  const profileInitial = profileName.charAt(0).toUpperCase() || 'S'
+  const profileLinkLabel = completion.isWorker
+    ? 'Manage profile'
+    : 'Continue setup'
   const profileLinkHref = completion.isWorker ? '/profile' : '/worker/setup'
 
   return (
@@ -143,7 +147,12 @@ export function AccountShell({ children }: AccountShellProps) {
                     {completion.percent}%
                   </Text>
                 </HStack>
-                <Box h="6px" borderRadius="full" bg="whiteAlpha.700" overflow="hidden">
+                <Box
+                  h="6px"
+                  borderRadius="full"
+                  bg="whiteAlpha.700"
+                  overflow="hidden"
+                >
                   <Box h="full" bg="primary.600" w={`${completion.percent}%`} />
                 </Box>
               </Stack>
@@ -229,11 +238,31 @@ export function AccountShell({ children }: AccountShellProps) {
                 borderRadius="full"
                 px={1}
               >
-                <Avatar
-                  size="sm"
-                  name={profileName}
-                  src={me.profile?.avatarUrl ?? undefined}
-                />
+                <Box
+                  w={8}
+                  h={8}
+                  borderRadius="full"
+                  bg="primary.100"
+                  color="primary.700"
+                  display="grid"
+                  placeItems="center"
+                  fontSize="sm"
+                  fontWeight={700}
+                  overflow="hidden"
+                  flexShrink={0}
+                >
+                  {me.profile?.avatarUrl ? (
+                    <Image
+                      src={me.profile.avatarUrl}
+                      alt={`${profileName} avatar`}
+                      w="full"
+                      h="full"
+                      objectFit="cover"
+                    />
+                  ) : (
+                    profileInitial
+                  )}
+                </Box>
                 <Text
                   display={{ base: 'none', md: 'block' }}
                   fontSize="sm"
@@ -248,7 +277,11 @@ export function AccountShell({ children }: AccountShellProps) {
           </HStack>
         </Box>
 
-        <Box px={{ base: 4, md: 6, xl: 8 }} py={{ base: 5, md: 6 }} pb={{ base: 24, lg: 8 }}>
+        <Box
+          px={{ base: 4, md: 6, xl: 8 }}
+          py={{ base: 5, md: 6 }}
+          pb={{ base: 24, lg: 8 }}
+        >
           {children}
         </Box>
       </Box>

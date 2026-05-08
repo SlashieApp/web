@@ -82,10 +82,13 @@ function StatTile({ label, value, helper, icon }: StatTileProps) {
   )
 }
 
-function TileIcon({ type }: { type: 'posted' | 'quotes' | 'accepted' | 'done' }) {
+function TileIcon({
+  type,
+}: { type: 'posted' | 'quotes' | 'accepted' | 'done' }) {
   if (type === 'posted') {
     return (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <title>Posted tasks</title>
         <path
           d="M7 4h10l3 3v13H4V4h3Zm10 0v3h3"
           stroke="currentColor"
@@ -99,6 +102,7 @@ function TileIcon({ type }: { type: 'posted' | 'quotes' | 'accepted' | 'done' })
   if (type === 'quotes') {
     return (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <title>Quotes sent</title>
         <path
           d="m5 12 5 5L20 7"
           stroke="currentColor"
@@ -112,6 +116,7 @@ function TileIcon({ type }: { type: 'posted' | 'quotes' | 'accepted' | 'done' })
   if (type === 'accepted') {
     return (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <title>Accepted jobs</title>
         <path
           d="M4 8h16v11H4V8Zm4-3h8v3H8V5Z"
           stroke="currentColor"
@@ -124,6 +129,7 @@ function TileIcon({ type }: { type: 'posted' | 'quotes' | 'accepted' | 'done' })
   }
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Completed jobs</title>
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
       <path
         d="m8 12 2.7 2.7L16 9.4"
@@ -169,7 +175,12 @@ function ActivityIcon({ tone }: { tone: ActivityTone }) {
 
 function ClockLabel({ happenedAt }: { happenedAt: unknown }) {
   const timestamp = timeFromUnknown(happenedAt)
-  if (!timestamp) return <Text fontSize="xs" color="formLabelMuted">Recently</Text>
+  if (!timestamp)
+    return (
+      <Text fontSize="xs" color="formLabelMuted">
+        Recently
+      </Text>
+    )
   const diffMs = Date.now() - timestamp
   const minute = 60 * 1000
   const hour = 60 * minute
@@ -390,7 +401,12 @@ export default function DashboardOverviewPage() {
 
   return (
     <Stack gap={{ base: 5, md: 6 }}>
-      <HStack justify="space-between" align="flex-start" gap={4} flexWrap="wrap">
+      <HStack
+        justify="space-between"
+        align="flex-start"
+        gap={4}
+        flexWrap="wrap"
+      >
         <Stack gap={1}>
           <Heading size="xl" color="cardFg">
             {greeting}, {displayName}! <span aria-hidden>👋</span>
@@ -405,7 +421,11 @@ export default function DashboardOverviewPage() {
               Browse tasks
             </Button>
           </Link>
-          <Link as={NextLink} href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+          <Link
+            as={NextLink}
+            href="/tasks/create"
+            _hover={{ textDecoration: 'none' }}
+          >
             <Button size="sm">Post task</Button>
           </Link>
         </HStack>
@@ -490,10 +510,10 @@ export default function DashboardOverviewPage() {
                     <HStack align="flex-start" gap={3} minW={0}>
                       <ActivityIcon tone={item.tone} />
                       <Stack gap={0} minW={0}>
-                        <Text fontSize="sm" fontWeight={600} noOfLines={1}>
+                        <Text fontSize="sm" fontWeight={600} truncate>
                           {item.title}
                         </Text>
-                        <Text fontSize="xs" color="formLabelMuted" noOfLines={1}>
+                        <Text fontSize="xs" color="formLabelMuted" truncate>
                           {item.subtitle}
                         </Text>
                       </Stack>
