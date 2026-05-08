@@ -253,7 +253,7 @@ export function QuotesSection() {
       </Text>
       <Link
         as={NextLink}
-        href="/dashboard/worker/register"
+        href="/worker/setup"
         _hover={{ textDecoration: 'none' }}
       >
         <Button w="full">Create worker profile</Button>

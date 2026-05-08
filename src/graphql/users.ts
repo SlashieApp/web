@@ -43,6 +43,12 @@ export const REGISTER_AS_PRO_MUTATION = gql`
     registerAsPro(input: $input) {
       id
       userId
+      bio
+      tagline
+      yearsExperience
+      isVerified
+      tasksCompletedCount
+      locationAddress
     }
   }
 `

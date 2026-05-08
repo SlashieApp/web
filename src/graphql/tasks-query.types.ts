@@ -30,6 +30,8 @@ export type TaskListItem = {
   location?: TaskMapLocationFields | null
   status: string
   createdAt: unknown
+  completedAt?: unknown
+  confirmedAt?: unknown
   datetime?: TaskDateTime | null
   budget?: TaskBudget | null
   contactMethod?: string | null

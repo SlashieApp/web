@@ -62,7 +62,7 @@ export function QuoteCard({
   onAccept,
   acceptLoading = false,
   acceptDisabled = false,
-  detailHref = '/dashboard/messages',
+  detailHref = '/jobs',
 }: QuoteCardProps) {
   const body =
     message && message.trim().length > 0

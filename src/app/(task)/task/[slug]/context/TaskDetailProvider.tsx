@@ -28,7 +28,6 @@ import {
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { priceToPence } from '@/utils/price'
-import { getWorkerRegistered } from '@/utils/workerSession'
 
 type TaskDetailRecord = NonNullable<TaskQuery['task']>
 
@@ -125,7 +124,7 @@ export function TaskDetailProvider({
     return task.quotes.find((quote) => quote.workerUserId === me.id) ?? null
   }, [me, task])
 
-  const workerOnboardingDone = Boolean(me && getWorkerRegistered(me.id))
+  const workerOnboardingDone = Boolean(me?.worker?.id)
   const isAssignedWorker = Boolean(
     me &&
       task &&
@@ -186,7 +185,7 @@ export function TaskDetailProvider({
 
     if (!workerOnboardingDone && !myQuote) {
       setQuoteError('Create a worker profile before submitting quotes.')
-      router.push('/dashboard/worker/register')
+      router.push('/worker/setup')
       return false
     }
 

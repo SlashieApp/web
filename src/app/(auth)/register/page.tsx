@@ -325,7 +325,7 @@ export default function RegisterPage() {
   }, [])
 
   const postRegisterPath = useMemo(
-    () => (role === 'worker' ? '/dashboard/worker/register' : '/dashboard'),
+    () => (role === 'worker' ? '/worker/setup' : '/dashboard'),
     [role],
   )
 

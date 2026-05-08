@@ -20,6 +20,8 @@ type AuthUser = {
   createdAt?: string | null
 }
 
+export type MeSnapshot = NonNullable<MeQuery['me']>
+
 type LoginInput = {
   email: string
   password: string
@@ -28,8 +30,14 @@ type LoginInput = {
 
 type UserStore = {
   user: AuthUser | null
+  /** Full `me` snapshot mirrored from Apollo. Source of truth for dashboard reads. */
+  me: MeSnapshot | null
   isLoading: boolean
   setUser: (user: AuthUser | null) => void
+  /** Replace the cached `me` snapshot (typically after `me` query or full mutation). */
+  setMe: (me: MeSnapshot | null) => void
+  /** Shallow-merge into the cached `me`; ignored when no `me` is present. */
+  patchMe: (patch: Partial<MeSnapshot>) => void
   login: (input: LoginInput) => Promise<AuthUser | null>
   logout: () => void
   getUser: () => Promise<AuthUser | null>
@@ -56,10 +64,28 @@ function toAuthUser(user: unknown): AuthUser | null {
   }
 }
 
-export const useUserStore = create<UserStore>((set) => ({
+function syncStateFromMe(me: MeQuery['me'] | null | undefined): {
+  user: AuthUser | null
+  me: MeSnapshot | null
+} {
+  return {
+    user: toAuthUser(me),
+    me: me ?? null,
+  }
+}
+
+export const useUserStore = create<UserStore>((set, get) => ({
   user: null,
+  me: null,
   isLoading: false,
   setUser: (user) => set({ user }),
+  setMe: (next) => set(syncStateFromMe(next)),
+  patchMe: (patch) => {
+    const current = get().me
+    if (!current) return
+    const next = { ...current, ...patch } as MeSnapshot
+    set(syncStateFromMe(next))
+  },
   login: async ({ email, password, rememberMe = false }) => {
     set({ isLoading: true })
     try {
@@ -82,9 +108,9 @@ export const useUserStore = create<UserStore>((set) => ({
         query: ME_QUERY,
         fetchPolicy: 'network-only',
       })
-      const meUser = toAuthUser(meResult.data?.me)
-      set({ user: meUser, isLoading: false })
-      return meUser
+      const synced = syncStateFromMe(meResult.data?.me)
+      set({ ...synced, isLoading: false })
+      return synced.user
     } catch (error) {
       set({ isLoading: false })
       throw error
@@ -92,13 +118,13 @@ export const useUserStore = create<UserStore>((set) => ({
   },
   logout: () => {
     clearAuthToken()
-    set({ user: null })
+    set({ user: null, me: null })
     void apolloClient.clearStore()
   },
   getUser: async () => {
     const token = getAuthToken()
     if (!token) {
-      set({ user: null, isLoading: false })
+      set({ user: null, me: null, isLoading: false })
       return null
     }
 
@@ -108,14 +134,18 @@ export const useUserStore = create<UserStore>((set) => ({
         query: ME_QUERY,
         fetchPolicy: 'network-only',
       })
-
-      const meUser = toAuthUser(result.data?.me)
-      set({ user: meUser, isLoading: false })
-      return meUser
+      const synced = syncStateFromMe(result.data?.me)
+      set({ ...synced, isLoading: false })
+      return synced.user
     } catch {
       clearAuthToken()
-      set({ user: null, isLoading: false })
+      set({ user: null, me: null, isLoading: false })
       return null
     }
   },
 }))
+
+/** Stable selector hook for the current `me` snapshot (Zustand-mirrored). */
+export function useMe() {
+  return useUserStore((state) => state.me)
+}

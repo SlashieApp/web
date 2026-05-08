@@ -51,6 +51,15 @@ export const ME_QUERY = gql`
         avatarUrl
         defaultPreferredContactMethod
       }
+      worker {
+        id
+        bio
+        tagline
+        yearsExperience
+        isVerified
+        tasksCompletedCount
+        locationAddress
+      }
     }
   }
 `

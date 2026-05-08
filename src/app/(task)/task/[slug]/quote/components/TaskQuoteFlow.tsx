@@ -229,7 +229,7 @@ export function TaskQuoteFlow() {
           <TaskQuoteSummaryCard />
           <Link
             as={NextLink}
-            href="/dashboard/worker/register"
+            href="/worker/setup"
             _hover={{ textDecoration: 'none' }}
           >
             <Button w="full">Create worker profile</Button>
@@ -586,7 +586,7 @@ export function TaskQuoteFlow() {
             <Stack gap={3}>
               <Link
                 as={NextLink}
-                href="/dashboard/quotes"
+                href="/requests"
                 _hover={{ textDecoration: 'none' }}
               >
                 <Button w="full">View my quotes</Button>
