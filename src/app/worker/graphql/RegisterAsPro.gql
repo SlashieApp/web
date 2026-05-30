@@ -1,0 +1,16 @@
+mutation RegisterAsPro($input: ProRegistrationInput!) {
+  registerAsPro(input: $input) {
+    id
+    userId
+    legalName
+    bio
+    tagline
+    yearsExperience
+    isVerified
+    tasksCompletedCount
+    locationAddress
+    profile {
+      name
+    }
+  }
+}

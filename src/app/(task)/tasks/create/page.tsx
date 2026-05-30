@@ -16,8 +16,8 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { ME_QUERY } from '@/graphql/auth'
-import { CREATE_TASK } from '@/graphql/tasks'
+import CreateTask from '@/app/(task)/graphql/CreateTask.gql'
+import Me from '@/graphql/Me.gql'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
@@ -98,7 +98,7 @@ function CreateTaskFormBody({
   const preferredContactMethod = watch('preferredContactMethod')
 
   const [runCreateTask, { loading: creating }] =
-    useMutation<CreateTaskMutation>(CREATE_TASK)
+    useMutation<CreateTaskMutation>(CreateTask)
 
   useLayoutEffect(() => {
     const next = imageFiles.map((file) => URL.createObjectURL(file))
@@ -394,7 +394,7 @@ export default function CreateTaskPage() {
     }
   }
 
-  const { loading: meLoading, data: meData } = useQuery<MeQuery>(ME_QUERY, {
+  const { loading: meLoading, data: meData } = useQuery<MeQuery>(Me, {
     skip: !sessionOk,
     fetchPolicy: 'cache-first',
   })

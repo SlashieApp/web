@@ -9,7 +9,14 @@ import { WebTaskBrowseFiltersBlock } from './TaskBrowseFilters'
 
 export function WebLayout() {
   return (
-    <Box flex={1} minH={0} w="full" position="relative">
+    <Box
+      flex={1}
+      minH={0}
+      h="full"
+      w="full"
+      position="relative"
+      overflow="hidden"
+    >
       <Box
         position="absolute"
         zIndex={2}
@@ -38,7 +45,15 @@ export function WebLayout() {
             </HStack>
           </Stack>
 
-          <Box flex={1} minH={0} w="full" px={2}>
+          <Box
+            flex={1}
+            minH={0}
+            w="full"
+            px={2}
+            display="flex"
+            flexDirection="column"
+            overflow="hidden"
+          >
             <WebTaskBrowseFiltersBlock />
           </Box>
         </Box>

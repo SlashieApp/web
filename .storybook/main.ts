@@ -1,5 +1,6 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite'
 import { type UserConfig, mergeConfig } from 'vite'
+import graphqlLoader from 'vite-plugin-graphql-loader'
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -21,8 +22,9 @@ const config: StorybookConfig = {
             esbuild: {
               legalComments: 'none',
             },
+            plugins: [graphqlLoader()],
           }
-        : {}
+        : { plugins: [graphqlLoader()] }
     return mergeConfig(userConfig, extra)
   },
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Box, HStack, Text } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 import useEmblaCarousel from 'embla-carousel-react'
 import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
 import { motion } from 'motion/react'
@@ -15,17 +15,10 @@ import {
   taskPosterDisplayName,
 } from '../../helpers/taskBrowseHelpers'
 import { TaskCard } from '../TaskCard'
+import { TaskEmptyState } from '../TaskEmptyState'
 
 export function MobileTaskCarousel() {
-  const {
-    loading,
-    dataLoaded,
-    filteredSorted,
-    browseSourceTaskCount,
-    pageItems,
-    selectedTaskId,
-    setSelectedTaskId,
-  } = useTaskBrowseData()
+  const { pageItems, selectedTaskId, setSelectedTaskId } = useTaskBrowseData()
   const tasks = useMemo(
     () =>
       pageItems.map((task) => {
@@ -139,42 +132,9 @@ export function MobileTaskCarousel() {
   }
 
   if (tasks.length === 0) {
-    const filteredCount = filteredSorted.length
-    let emptyMessage = ''
-    if (
-      loading &&
-      filteredCount === 0 &&
-      browseSourceTaskCount === 0 &&
-      !dataLoaded
-    ) {
-      emptyMessage = 'Loading nearby tasks…'
-    } else if (!loading && filteredCount === 0 && browseSourceTaskCount === 0) {
-      emptyMessage =
-        'No open tasks here yet. Tasks leave worker discovery once they fill their worker slots or stop being open—try moving the map or widening your radius.'
-    } else if (!loading && filteredCount === 0 && browseSourceTaskCount > 0) {
-      emptyMessage =
-        'No tasks match your filters. Adjust filters or clear search to see more listings.'
-    } else {
-      emptyMessage =
-        'No tasks on this page. Browse other pages or adjust filters.'
-    }
-
     return (
-      <Box
-        bg="whiteAlpha.960"
-        borderRadius="2xl"
-        borderWidth="1px"
-        borderColor="cardBorder"
-        maxWidth="460px"
-        mx="auto"
-        w="full"
-        boxShadow="0 8px 24px rgba(15,23,42,0.2)"
-        px={4}
-        py={3}
-      >
-        <Text fontSize="sm" color="formLabelMuted">
-          {emptyMessage}
-        </Text>
+      <Box px={3} pb={2}>
+        <TaskEmptyState />
       </Box>
     )
   }

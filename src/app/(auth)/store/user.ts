@@ -7,7 +7,8 @@ import type {
 } from '@codegen/schema'
 import { create } from 'zustand'
 
-import { LOGIN_MUTATION, ME_QUERY } from '@/graphql/auth'
+import Login from '@/app/(auth)/graphql/Login.gql'
+import Me from '@/graphql/Me.gql'
 import { apolloClient } from '@/utils/apolloClient'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/utils/auth'
 
@@ -93,7 +94,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         LoginMutation,
         LoginMutationVariables
       >({
-        mutation: LOGIN_MUTATION,
+        mutation: Login,
         variables: { email, password },
       })
 
@@ -105,7 +106,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       setAuthToken(token, rememberMe ? REMEMBER_MAX_AGE : SESSION_MAX_AGE)
 
       const meResult = await apolloClient.query<MeQuery>({
-        query: ME_QUERY,
+        query: Me,
         fetchPolicy: 'network-only',
       })
       const synced = syncStateFromMe(meResult.data?.me)
@@ -131,7 +132,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     set({ isLoading: true })
     try {
       const result = await apolloClient.query<MeQuery>({
-        query: ME_QUERY,
+        query: Me,
         fetchPolicy: 'network-only',
       })
       const synced = syncStateFromMe(result.data?.me)

@@ -1,17 +1,29 @@
 'use client'
 
-import { Box, Input, Stack, Text } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Map as MapboxMap } from 'mapbox-gl'
+import type { ChangeEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
 import {
   mapboxForwardGeocode,
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
+import { Input } from '@ui'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 const DEFAULT_LAT = 51.5074
 const DEFAULT_LNG = -0.1278
+
+function bumpMapResize(map: MapboxMap) {
+  map.resize()
+  requestAnimationFrame(() => {
+    map.resize()
+    requestAnimationFrame(() => {
+      map.resize()
+    })
+  })
+}
 
 function parseCoordString(value: string): number | null {
   const n = Number.parseFloat(value.trim())
@@ -41,9 +53,10 @@ export function TaskLocationMapPicker({
   showCoordinateHelpText = true,
 }: TaskLocationMapPickerProps) {
   const mapRef = useRef<MapboxMap | null>(null)
+  const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const [mapReady, setMapReady] = useState(false)
   const skipReverseAfterForwardRef = useRef(false)
-  const moveEndCountRef = useRef(0)
+  const skipNextMoveEndRef = useRef(false)
   const moveDebounceRef = useRef<number | null>(null)
   const locationGeocodeTimerRef = useRef<number | null>(null)
 
@@ -52,8 +65,10 @@ export function TaskLocationMapPicker({
 
   const locationLatRef = useRef(locationLat)
   const locationLngRef = useRef(locationLng)
+  const locationRef = useRef(location)
   locationLatRef.current = locationLat
   locationLngRef.current = locationLng
+  locationRef.current = location
 
   const onLocationChangeRef = useRef(onLocationChange)
   const onLocationLatChangeRef = useRef(onLocationLatChange)
@@ -66,6 +81,7 @@ export function TaskLocationMapPicker({
     (lat: number, lng: number, opts?: { animate?: boolean }) => {
       const map = mapRef.current
       if (!map?.isStyleLoaded()) return
+      skipNextMoveEndRef.current = true
       const animate = opts?.animate ?? true
       if (animate) {
         map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 13) })
@@ -77,6 +93,8 @@ export function TaskLocationMapPicker({
   )
 
   const attachMapContainer = useCallback((el: HTMLDivElement | null) => {
+    resizeObserverRef.current?.disconnect()
+    resizeObserverRef.current = null
     if (locationGeocodeTimerRef.current) {
       window.clearTimeout(locationGeocodeTimerRef.current)
       locationGeocodeTimerRef.current = null
@@ -87,7 +105,7 @@ export function TaskLocationMapPicker({
     }
     mapRef.current?.remove()
     mapRef.current = null
-    moveEndCountRef.current = 0
+    skipNextMoveEndRef.current = false
     setMapReady(false)
 
     if (!el) return
@@ -112,7 +130,17 @@ export function TaskLocationMapPicker({
       map.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
       mapRef.current = map
 
+      const resizeObserver = new ResizeObserver(() => {
+        mapRef.current?.resize()
+      })
+      resizeObserver.observe(el)
+      resizeObserverRef.current = resizeObserver
+
       const onMoveEnd = () => {
+        if (skipNextMoveEndRef.current) {
+          skipNextMoveEndRef.current = false
+          return
+        }
         if (moveDebounceRef.current)
           window.clearTimeout(moveDebounceRef.current)
         moveDebounceRef.current = window.setTimeout(() => {
@@ -127,9 +155,6 @@ export function TaskLocationMapPicker({
             return
           }
 
-          moveEndCountRef.current += 1
-          if (moveEndCountRef.current < 2) return
-
           const geocodeToken = accessTokenRef.current?.trim()
           if (!geocodeToken) return
           void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then((name) => {
@@ -142,10 +167,19 @@ export function TaskLocationMapPicker({
 
       map.on('load', () => {
         if (!el.isConnected) return
+        skipNextMoveEndRef.current = true
+        bumpMapResize(map)
         const c = map.getCenter()
         onLocationLatChangeRef.current(c.lat.toFixed(6))
         onLocationLngChangeRef.current(c.lng.toFixed(6))
         setMapReady(true)
+
+        const geocodeToken = accessTokenRef.current?.trim()
+        if (geocodeToken && !locationRef.current.trim()) {
+          void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then((name) => {
+            if (name) onLocationChangeRef.current(name)
+          })
+        }
       })
     })
   }, [])
@@ -165,6 +199,7 @@ export function TaskLocationMapPicker({
       const delta = Math.abs(current.lat - lat) + Math.abs(current.lng - lng)
       if (delta >= 1e-7) {
         queueMicrotask(() => {
+          skipNextMoveEndRef.current = true
           mapRef.current?.jumpTo({ center: [lng, lat] })
         })
       }
@@ -214,21 +249,29 @@ export function TaskLocationMapPicker({
       >
         {token ? (
           <>
-            <Box ref={attachMapContainer} w="full" h="full" aria-hidden />
+            <Box
+              ref={attachMapContainer}
+              position="absolute"
+              inset={0}
+              zIndex={0}
+              w="full"
+              h="full"
+              aria-hidden
+            />
             <Box position="absolute" left={3} right={3} top={3} zIndex={2}>
               <Input
                 value={location}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   onLocationInputChange(e.target.value)
                 }
                 placeholder="Search for your location..."
-                bg="whiteAlpha.950"
-                backdropFilter="blur(8px)"
-                borderWidth="1px"
-                borderColor="cardBorder"
-                borderRadius="lg"
-                boxShadow="sm"
                 aria-label="Search for your location"
+                rootProps={{
+                  bg: 'whiteAlpha.950',
+                  backdropFilter: 'blur(8px)',
+                  borderColor: 'cardBorder',
+                  boxShadow: 'sm',
+                }}
               />
             </Box>
             <Box
@@ -264,6 +307,7 @@ export function TaskLocationMapPicker({
               bottom={2}
               left={2}
               right={2}
+              zIndex={2}
               fontSize="xs"
               color="cardFg"
               bg="whiteAlpha.900"

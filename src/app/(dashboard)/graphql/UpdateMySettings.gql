@@ -1,0 +1,9 @@
+mutation UpdateMySettings($input: UpdateMySettingsInput!) {
+  updateMySettings(input: $input) {
+    id
+    settings {
+      isProfilePrivate
+      marketingEmails
+    }
+  }
+}

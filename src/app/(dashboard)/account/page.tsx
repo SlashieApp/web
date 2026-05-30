@@ -4,9 +4,11 @@ import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { Badge, Button, SectionCard } from '@ui'
-
 import { useUserStore } from '@/app/(auth)/store/user'
+import { Button, SectionCard } from '@ui'
+
+import { AccountContactCard } from './components/AccountContactCard'
+import { AccountSettingsCard } from './components/AccountSettingsCard'
 
 function Row({
   label,
@@ -57,54 +59,21 @@ export default function AccountPage() {
       <Stack gap={2}>
         <Heading size="xl">Account</Heading>
         <Text color="formLabelMuted">
-          Settings, preferences, and session controls. Editable profile fields
-          live under <strong>Profile</strong>.
+          Login, security, and contact settings. Your photo, name, bio, and date
+          of birth live on{' '}
+          <Link as={NextLink} href="/profile" color="primary.700">
+            Profile
+          </Link>
+          .
         </Text>
       </Stack>
 
-      <SectionCard p={{ base: 5, md: 6 }}>
-        <Stack gap={4}>
-          <Heading size="md">Identity</Heading>
-          <Row label="Email" value={me.email} />
-          <Row
-            label="Display name"
-            value={me.profile?.name?.trim() || '—'}
-            hint="Edit on the Profile page."
-          />
-          <Row
-            label="Phone"
-            value={me.profile?.contactNumber?.trim() || 'Not set'}
-            hint="Edit on the Profile page."
-          />
-          <Row label="Login methods" value={enabledMethods} />
-        </Stack>
-      </SectionCard>
+      <AccountContactCard />
 
       <SectionCard p={{ base: 5, md: 6 }}>
         <Stack gap={4}>
-          <HStack justify="space-between" gap={3} flexWrap="wrap">
-            <Heading size="md">Worker tools</Heading>
-            <Badge
-              bg={me.worker?.id ? 'primary.100' : 'badgeBg'}
-              color={me.worker?.id ? 'primary.800' : 'cardFg'}
-            >
-              {me.worker?.id ? 'Active' : 'Not set up'}
-            </Badge>
-          </HStack>
-          <Text fontSize="sm" color="formLabelMuted">
-            Worker setup is part of your profile. Both the customer and worker
-            sides of your account share this dashboard.
-          </Text>
-          <Link
-            as={NextLink}
-            href="/profile"
-            _hover={{ textDecoration: 'none' }}
-            alignSelf="flex-start"
-          >
-            <Button size="sm" variant="secondary">
-              Open profile
-            </Button>
-          </Link>
+          <Heading size="md">Login methods</Heading>
+          <Row label="Sign-in methods" value={enabledMethods} />
         </Stack>
       </SectionCard>
 
@@ -129,6 +98,8 @@ export default function AccountPage() {
           </HStack>
         </Stack>
       </SectionCard>
+
+      <AccountSettingsCard />
 
       <SectionCard p={{ base: 5, md: 6 }}>
         <Stack gap={4}>

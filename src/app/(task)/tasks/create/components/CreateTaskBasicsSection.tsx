@@ -1,10 +1,10 @@
 'use client'
 
-import { Heading, NativeSelect, Textarea } from '@chakra-ui/react'
+import { Heading } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { TASK_CREATE_CATEGORY_OPTIONS } from '@/app/(task)/helpers/taskCategories'
-import { FormField, Input, SectionCard } from '@ui'
+import { FormField, Input, SectionCard, Select, Textarea } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 
 export type CreateTaskBasicsSectionProps = {
@@ -46,34 +46,21 @@ export function CreateTaskBasicsSection({
           mt: 1,
         }}
       >
-        <NativeSelect.Root w="full">
-          <NativeSelect.Field
-            {...register('category')}
-            bg="neutral.100"
-            borderWidth="1px"
-            borderColor="cardBorder"
-            borderRadius="lg"
-          >
-            <option value="">Select a category…</option>
-            {TASK_CREATE_CATEGORY_OPTIONS.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </NativeSelect.Field>
-        </NativeSelect.Root>
+        <Select {...register('category')}>
+          <option value="">Select a category…</option>
+          {TASK_CREATE_CATEGORY_OPTIONS.map(({ value, label }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </Select>
       </FormField>
 
       <FormField label="Description" errorText={fieldErrors?.description}>
         <Textarea
           {...register('description')}
           placeholder="Describe the specific problem or work needed..."
-          minH="120px"
-          bg="neutral.100"
-          borderWidth="1px"
-          borderColor="cardBorder"
-          borderRadius="lg"
-          _focusVisible={{ borderColor: 'formControlFocusBorder' }}
+          rows={4}
         />
       </FormField>
     </SectionCard>

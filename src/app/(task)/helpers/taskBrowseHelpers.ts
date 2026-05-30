@@ -77,15 +77,36 @@ export function inferBadge(task: TaskListItem): { text?: string } {
   return {}
 }
 
-/** Display name for browse cards: `profile.name`, else `firstName` + `lastName`, else fallback. */
+/** Display name for browse cards: canonical `profile.name`. */
 export function taskPosterDisplayName(task: TaskListItem): string {
-  const p = task.poster
-  if (!p) return 'Task owner'
-  const profileName = p.profile?.name?.trim()
+  const profileName = task.poster?.profile?.name?.trim()
   if (profileName) return profileName
-  const combined = `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim()
-  if (combined) return combined
   return 'Task owner'
+}
+
+/** Public display name for a worker (`profile.name`). */
+export function workerDisplayName(
+  worker:
+    | {
+        profile?: { name?: string | null } | null
+      }
+    | null
+    | undefined,
+): string {
+  return worker?.profile?.name?.trim() || 'Worker'
+}
+
+/** Worker's legal name (`Worker.legalName`); use when legal identity is required. */
+export function workerLegalName(
+  worker:
+    | {
+        legalName?: string | null
+      }
+    | null
+    | undefined,
+): string | null {
+  const name = worker?.legalName?.trim()
+  return name || null
 }
 
 export function taskPosterAvatarUrl(task: TaskListItem): string | undefined {

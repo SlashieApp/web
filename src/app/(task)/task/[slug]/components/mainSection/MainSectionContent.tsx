@@ -5,6 +5,7 @@ import {
   Grid,
   HStack,
   Heading,
+  Image,
   Stack,
   Text,
   useBreakpointValue,
@@ -21,10 +22,7 @@ import { TaskSecondaryDetailsGrid } from './TaskSecondaryDetailsGrid'
 function posterDisplayName(task: TaskDetailRecord): string {
   const profileName = task.poster?.profile?.name?.trim()
   if (profileName) return profileName
-  const first = task.poster?.firstName?.trim() ?? ''
-  const last = task.poster?.lastName?.trim() ?? ''
-  const combined = `${first} ${last}`.trim()
-  return combined || 'Task owner'
+  return 'Task owner'
 }
 
 export function MainSectionContent() {
@@ -39,6 +37,7 @@ export function MainSectionContent() {
     .map((src) => ({ src, alt: task.title }))
 
   const posterName = posterDisplayName(task)
+  const posterAvatarUrl = task.poster?.profile?.avatarUrl?.trim() || null
   const posterInitials =
     posterName
       .split(/\s+/)
@@ -111,8 +110,19 @@ export function MainSectionContent() {
             color="primary.700"
             fontWeight={800}
             fontSize="sm"
+            overflow="hidden"
           >
-            {posterInitials}
+            {posterAvatarUrl ? (
+              <Image
+                src={posterAvatarUrl}
+                alt={`${posterName} avatar`}
+                w="full"
+                h="full"
+                objectFit="cover"
+              />
+            ) : (
+              posterInitials
+            )}
           </Box>
           <Stack gap={1} flex={1} minW={0}>
             <Text

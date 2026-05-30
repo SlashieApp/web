@@ -278,11 +278,12 @@ export function WebTaskBrowseFiltersBlock() {
     <Box
       flex={1}
       minH={0}
-      mb={6}
+      h="full"
       w="full"
       pointerEvents="none"
       display="flex"
       flexDirection="column"
+      overflow="hidden"
     >
       <AnimatePresence mode="wait" initial={false}>
         {isFilterOpen ? (
@@ -314,6 +315,7 @@ export function WebTaskBrowseFiltersBlock() {
             style={{
               flex: 1,
               minHeight: 0,
+              height: '100%',
               width: '100%',
               display: 'flex',
               flexDirection: 'column',

@@ -1,0 +1,13 @@
+mutation UpdatePhoneNumber($contactNumber: String!) {
+  updatePhoneNumber(contactNumber: $contactNumber) {
+    id
+    profile {
+      contactNumber
+      phoneVerified
+    }
+    workerEligibility {
+      isEligible
+      missing
+    }
+  }
+}

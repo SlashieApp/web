@@ -229,7 +229,7 @@ export function TaskQuoteFlow() {
           <TaskQuoteSummaryCard />
           <Link
             as={NextLink}
-            href="/worker/setup"
+            href="/profile#profile-worker"
             _hover={{ textDecoration: 'none' }}
           >
             <Button w="full">Create worker profile</Button>

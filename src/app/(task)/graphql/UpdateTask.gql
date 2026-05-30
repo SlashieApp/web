@@ -1,0 +1,30 @@
+mutation UpdateTask($taskId: ID!, $input: UpdateTaskInput!) {
+  updateTask(taskId: $taskId, input: $input) {
+    id
+    title
+    description
+    category
+    status
+    budget {
+      amount
+      currency
+      type
+      paymentMethod
+    }
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    datetime {
+      date
+      time
+      type
+    }
+    contactMethod
+    acceptedWorkerCap
+    images
+    createdAt
+  }
+}

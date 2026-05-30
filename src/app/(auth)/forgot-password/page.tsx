@@ -8,7 +8,7 @@ import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useMemo, useState } from 'react'
 
-import { FORGOT_PASSWORD_MUTATION } from '@/graphql/auth'
+import ForgotPassword from '@/app/(auth)/graphql/ForgotPassword.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 function FieldIconMail() {
@@ -84,9 +84,8 @@ function ForgotPasswordContent() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [resetToken, setResetToken] = useState<string | null>(null)
 
-  const [forgotPassword, { loading }] = useMutation<ForgotPasswordMutation>(
-    FORGOT_PASSWORD_MUTATION,
-  )
+  const [forgotPassword, { loading }] =
+    useMutation<ForgotPasswordMutation>(ForgotPassword)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()

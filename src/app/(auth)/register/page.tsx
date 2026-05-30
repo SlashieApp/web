@@ -20,8 +20,8 @@ import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
+import Register from '@/app/(auth)/graphql/Register.gql'
 import { registerFormSchema } from '@/app/(auth)/register/registerFormSchema'
-import { REGISTER_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -312,7 +312,7 @@ export default function RegisterPage() {
   })
 
   const [registerMutation, { loading }] =
-    useMutation<RegisterMutation>(REGISTER_MUTATION)
+    useMutation<RegisterMutation>(Register)
 
   const explicitNextPath = useMemo(() => {
     if (typeof window === 'undefined') return null
@@ -325,7 +325,7 @@ export default function RegisterPage() {
   }, [])
 
   const postRegisterPath = useMemo(
-    () => (role === 'worker' ? '/worker/setup' : '/dashboard'),
+    () => (role === 'worker' ? '/profile#profile-worker' : '/dashboard'),
     [role],
   )
 

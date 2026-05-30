@@ -1,0 +1,154 @@
+'use client'
+
+import { useMutation } from '@apollo/client/react'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import type { UpdateMyProfileMutation } from '@codegen/schema'
+import { useRef, useState } from 'react'
+
+import { useUserStore } from '@/app/(auth)/store/user'
+import UpdateMyProfile from '@/app/(dashboard)/graphql/UpdateMyProfile.gql'
+import { apolloClient } from '@/utils/apolloClient'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import {
+  uploadProfileAvatar,
+  validateAvatarFile,
+} from '@/utils/profileAvatarUpload'
+import { Button, SectionCard } from '@ui'
+
+import { displayNameFromMe } from '../profileDisplayHelpers'
+
+export function ProfilePhotoCard() {
+  const me = useUserStore((s) => s.me)
+  const patchMe = useUserStore((s) => s.patchMe)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const [updateMyProfile] =
+    useMutation<UpdateMyProfileMutation>(UpdateMyProfile)
+
+  if (!me) return null
+
+  const currentAvatar = me.profile?.avatarUrl?.trim() || null
+  const shownAvatar = previewUrl ?? currentAvatar
+  const initial = displayNameFromMe(me).charAt(0).toUpperCase() || '?'
+
+  const handlePick = () => {
+    setError(null)
+    inputRef.current?.click()
+  }
+
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return
+    const validationError = validateAvatarFile(file)
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
+    const localPreview = URL.createObjectURL(file)
+    setPreviewUrl(localPreview)
+    setUploading(true)
+    setError(null)
+
+    try {
+      const avatarUrl = await uploadProfileAvatar(apolloClient, file)
+      const result = await updateMyProfile({
+        variables: { input: { avatarUrl } },
+      })
+      const updated = result.data?.updateMyProfile
+      if (updated?.profile && me.profile) {
+        patchMe({
+          profile: { ...me.profile, avatarUrl: updated.profile.avatarUrl },
+          workerEligibility: updated.workerEligibility,
+        })
+      }
+    } catch (uploadError) {
+      setError(
+        getFriendlyErrorMessage(
+          uploadError,
+          'Could not upload your photo. Please try again.',
+        ),
+      )
+      setPreviewUrl(null)
+    } finally {
+      setUploading(false)
+      URL.revokeObjectURL(localPreview)
+    }
+  }
+
+  return (
+    <SectionCard id="profile-photo" p={{ base: 5, md: 6 }}>
+      <Stack gap={4}>
+        <Stack gap={1}>
+          <Heading size="md">Profile photo</Heading>
+          <Text fontSize="sm" color="formLabelMuted">
+            A clear photo helps customers and workers trust your profile.
+          </Text>
+        </Stack>
+
+        <HStack gap={4} align="center" flexWrap="wrap">
+          <Box
+            w={{ base: 20, md: 24 }}
+            h={{ base: 20, md: 24 }}
+            borderRadius="full"
+            bg="primary.100"
+            color="primary.800"
+            display="grid"
+            placeItems="center"
+            fontWeight={800}
+            fontSize="2xl"
+            overflow="hidden"
+            flexShrink={0}
+            opacity={uploading ? 0.6 : 1}
+          >
+            {shownAvatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={shownAvatar}
+                alt=""
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              initial
+            )}
+          </Box>
+
+          <Stack gap={2}>
+            <HStack gap={3} flexWrap="wrap">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handlePick}
+                loading={uploading}
+              >
+                {currentAvatar ? 'Replace photo' : 'Upload photo'}
+              </Button>
+            </HStack>
+            <Text fontSize="xs" color="formLabelMuted">
+              JPG, PNG, or WebP. Up to 5MB.
+            </Text>
+          </Stack>
+        </HStack>
+
+        {error ? (
+          <Text color="red.500" fontSize="sm">
+            {error}
+          </Text>
+        ) : null}
+
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          hidden
+          onChange={(event) => {
+            void handleFile(event.target.files?.[0])
+            event.target.value = ''
+          }}
+        />
+      </Stack>
+    </SectionCard>
+  )
+}

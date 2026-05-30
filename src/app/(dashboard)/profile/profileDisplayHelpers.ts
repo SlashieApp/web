@@ -1,15 +1,11 @@
 import { getDisplayNameFromEmail } from '@/utils/dashboardHelpers'
 
 export function displayNameFromMe(me: {
-  firstName: string
-  lastName: string
   profile?: { name?: string | null } | null
   email: string
 }) {
   const profileName = me.profile?.name?.trim()
   if (profileName) return profileName
-  const combined = `${me.firstName ?? ''} ${me.lastName ?? ''}`.trim()
-  if (combined) return combined
   return getDisplayNameFromEmail(me.email)
 }
 
@@ -29,8 +25,6 @@ export function joinMonthYear(iso: unknown) {
 
 /** `profile.name` for editing; empty string if unset so the user can set a display name. */
 export function initialDisplayNameForForm(me: {
-  firstName: string
-  lastName: string
   profile?: { name?: string | null } | null
 }): string {
   const n = me.profile?.name?.trim()

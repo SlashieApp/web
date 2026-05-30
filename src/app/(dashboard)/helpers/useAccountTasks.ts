@@ -4,7 +4,7 @@ import { useQuery } from '@apollo/client/react'
 import { useMemo } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import { MY_TASKS_QUERY } from '@/graphql/tasks'
+import MyTasks from '@/app/(dashboard)/graphql/MyTasks.gql'
 import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
 import {
   type MyQuoteItem,
@@ -25,7 +25,7 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 export function useAccountTasks() {
   const me = useUserStore((s) => s.me)
   const { data, loading, error, refetch } = useQuery<MyTasksQueryData>(
-    MY_TASKS_QUERY,
+    MyTasks,
     {
       fetchPolicy: 'cache-and-network',
       skip: !me,

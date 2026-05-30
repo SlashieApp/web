@@ -13,7 +13,7 @@ const config: CodegenConfig = {
       },
     },
   ],
-  documents: ['src/graphql/**/*.ts', 'src/app/**/page.tsx'],
+  documents: ['src/**/*.gql', 'src/app/**/page.tsx'],
   ignoreNoDocuments: true,
   generates: {
     '.codegen/schema.ts': {

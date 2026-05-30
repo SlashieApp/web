@@ -241,10 +241,7 @@ export default function DashboardOverviewPage() {
   } = useAccountTasks()
 
   const displayName =
-    me?.profile?.name?.trim() ||
-    `${me?.firstName ?? ''} ${me?.lastName ?? ''}`.trim() ||
-    me?.email?.split('@')[0] ||
-    'there'
+    me?.profile?.name?.trim() || me?.email?.split('@')[0] || 'there'
 
   const greeting =
     new Date().getHours() < 12

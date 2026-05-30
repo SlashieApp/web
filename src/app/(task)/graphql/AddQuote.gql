@@ -1,0 +1,21 @@
+mutation AddQuote($input: AddQuoteInput!) {
+  addQuote(input: $input) {
+    id
+    taskId
+    workerUserId
+    price {
+      currency
+      amount
+    }
+    message
+    status
+    createdAt
+    worker {
+      id
+      profile {
+        name
+        avatarUrl
+      }
+    }
+  }
+}

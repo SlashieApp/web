@@ -11,7 +11,7 @@ import {
   useSyncExternalStore,
 } from 'react'
 
-import { TASKS_QUERY } from '@/graphql/tasks'
+import Tasks from '@/app/(task)/graphql/Tasks.gql'
 import type { TaskListItem, TasksQueryData } from '@/graphql/tasks-query.types'
 import {
   mapboxForwardGeocode,
@@ -222,7 +222,7 @@ export function TaskBrowseProvider({
   }, [searchCenterLat, searchCenterLng, submittedRadiusMiles])
 
   const shouldWaitForMap = hasMapboxToken
-  const { data, loading, error } = useQuery<TasksQueryData>(TASKS_QUERY, {
+  const { data, loading, error } = useQuery<TasksQueryData>(Tasks, {
     variables: queryVariables,
     notifyOnNetworkStatusChange: true,
     skip: shouldWaitForMap && !isMapReadyForQuery,

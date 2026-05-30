@@ -1,0 +1,13 @@
+mutation ConfirmPhoneVerification($code: String!) {
+  confirmPhoneVerification(code: $code) {
+    id
+    profile {
+      contactNumber
+      phoneVerified
+    }
+    workerEligibility {
+      isEligible
+      missing
+    }
+  }
+}

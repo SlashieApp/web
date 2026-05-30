@@ -38,8 +38,6 @@ export type TaskListItem = {
   images?: string[]
   poster?: {
     id: string
-    firstName?: string | null
-    lastName?: string | null
     profile?: { name?: string | null; avatarUrl?: string | null } | null
   } | null
   /**

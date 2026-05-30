@@ -1,0 +1,39 @@
+query Tasks($filter: TaskFilter) {
+  tasks(filter: $filter) {
+    id
+    title
+    description
+    category
+    acceptedWorkerCap
+    budget {
+      amount
+      currency
+      type
+      paymentMethod
+    }
+    datetime {
+      date
+      time
+      type
+    }
+    contactMethod
+    images
+    status
+    completedAt
+    confirmedAt
+    createdAt
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    poster {
+      id
+      profile {
+        name
+        avatarUrl
+      }
+    }
+  }
+}

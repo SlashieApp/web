@@ -17,9 +17,11 @@ export default function HomePage() {
         height="100%"
         w="full"
         minW={0}
+        minH={0}
         position="relative"
         display="flex"
         flexDirection="column"
+        overflow="hidden"
       >
         <TaskBrowseMapLayer isDesktop={isDesktopSplit} />
         {isDesktopSplit ? <WebLayout /> : <MobileLayout />}

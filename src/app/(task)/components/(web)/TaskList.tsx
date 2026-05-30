@@ -1,10 +1,11 @@
 'use client'
 
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { TaskCard } from '../TaskCard'
+import { TaskEmptyState } from '../TaskEmptyState'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
@@ -19,7 +20,6 @@ export function TaskList() {
   const {
     loading,
     dataLoaded,
-    browseSourceTaskCount,
     filteredSorted,
     selectedTaskId,
     setSelectedTaskId,
@@ -62,20 +62,6 @@ export function TaskList() {
   }
 
   const animationKey = loading ? 'loading' : dataLoaded ? 'ready' : 'idle'
-
-  const listEmptyMessage = useMemo(() => {
-    if (filteredSorted.length > 0) return null
-    if (loading && browseSourceTaskCount === 0 && !dataLoaded) {
-      return 'Loading nearby tasks…'
-    }
-    if (!loading && browseSourceTaskCount === 0) {
-      return 'No open tasks here yet. Discovery only shows tasks that are still open to new quotes—try moving the map or widening your radius.'
-    }
-    if (!loading && browseSourceTaskCount > 0) {
-      return 'No tasks match your filters. Adjust filters or clear search to see more listings.'
-    }
-    return null
-  }, [browseSourceTaskCount, dataLoaded, filteredSorted.length, loading])
 
   const listBody = (
     <>
@@ -132,35 +118,46 @@ export function TaskList() {
   )
 
   const scrollWindowStyles = useMemo(() => {
-    const topFadeDepthPx = 32
+    const topFadeDepthPx = 24
+    const bottomFadeDepthPx = 72
     return {
-      maskImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) ${topFadeDepthPx}px, rgba(0, 0, 0, 1) calc(100% - 56px), rgba(0, 0, 0, 0) 100%)`,
-      WebkitMaskImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) ${topFadeDepthPx}px, rgba(0, 0, 0, 1) calc(100% - 56px), rgba(0, 0, 0, 0) 100%)`,
+      maskImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) ${topFadeDepthPx}px, rgba(0, 0, 0, 1) calc(100% - ${bottomFadeDepthPx}px), rgba(0, 0, 0, 0) 100%)`,
+      WebkitMaskImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) ${topFadeDepthPx}px, rgba(0, 0, 0, 1) calc(100% - ${bottomFadeDepthPx}px), rgba(0, 0, 0, 0) 100%)`,
     } as const
   }, [])
 
   return (
     <Box
+      flex={1}
+      minH={0}
+      h="full"
       maxH="full"
-      paddingBottom={8}
-      ref={scrollRef}
-      overflowY="auto"
+      w="full"
+      position="relative"
+      overflow="hidden"
       style={scrollWindowStyles}
-      scrollbarWidth="none"
       pointerEvents="auto"
-      css={{
-        msOverflowStyle: 'none',
-        '&::-webkit-scrollbar': { display: 'none' },
-      }}
     >
-      <Stack gap={3} py={6}>
-        {listEmptyMessage ? (
-          <Text fontSize="sm" color="formLabelMuted" px={1}>
-            {listEmptyMessage}
-          </Text>
-        ) : null}
-        {listBody}
-      </Stack>
+      <Box
+        ref={scrollRef}
+        h="full"
+        maxH="full"
+        overflowY="auto"
+        scrollbarWidth="none"
+        css={{
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
+      >
+        <Stack gap={3} py={6} pb={10}>
+          {filteredSorted.length === 0 ? (
+            <Box px={1} pt={2}>
+              <TaskEmptyState />
+            </Box>
+          ) : null}
+          {listBody}
+        </Stack>
+      </Box>
     </Box>
   )
 }

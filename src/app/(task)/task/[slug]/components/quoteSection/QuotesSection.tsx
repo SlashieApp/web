@@ -153,10 +153,7 @@ export function QuotesSection() {
           <Stack gap={0} w="full" id="owner-quotes-list">
             {displayQuotes.map((quote, i) => {
               const quotePence = priceToPence(quote.price)
-              const workerName =
-                quote.worker?.profile?.name?.trim() ||
-                `${quote.worker?.firstName ?? ''} ${quote.worker?.lastName ?? ''}`.trim() ||
-                'Worker'
+              const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
               return (
                 <MetaListRow
                   key={quote.id}
@@ -253,7 +250,7 @@ export function QuotesSection() {
       </Text>
       <Link
         as={NextLink}
-        href="/worker/setup"
+        href="/profile#profile-worker"
         _hover={{ textDecoration: 'none' }}
       >
         <Button w="full">Create worker profile</Button>
@@ -289,10 +286,7 @@ export function QuotesSection() {
       {hasQuoteRows ? (
         <Stack gap={0} w="full">
           {task.quotes.map((quote, i) => {
-            const workerName =
-              quote.worker?.profile?.name?.trim() ||
-              `${quote.worker?.firstName ?? ''} ${quote.worker?.lastName ?? ''}`.trim() ||
-              'Worker'
+            const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
             return (
               <MetaListRow
                 key={quote.id}

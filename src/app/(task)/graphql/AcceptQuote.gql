@@ -1,0 +1,6 @@
+mutation AcceptQuote($quoteId: ID, $input: AcceptQuoteInput) {
+  acceptQuote(quoteId: $quoteId, input: $input) {
+    id
+    status
+  }
+}

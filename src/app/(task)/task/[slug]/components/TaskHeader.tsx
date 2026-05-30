@@ -5,6 +5,7 @@ import { TaskStatus } from '@codegen/schema'
 import NextLink from 'next/link'
 import { useCallback, useMemo, useState } from 'react'
 
+import { isTaskEditable } from '@/app/(task)/helpers/taskEditHelpers'
 import { Button } from '@ui'
 
 import { useTaskDetail } from '../context/TaskDetailProvider'
@@ -93,6 +94,8 @@ export function TaskHeader() {
     task.status === TaskStatus.Completed ||
     task.status === TaskStatus.Confirmed
 
+  const canEditTask = Boolean(task && isOwner && isTaskEditable(task.status))
+
   if (!task) return null
 
   return (
@@ -135,25 +138,27 @@ export function TaskHeader() {
         >
           {isOwner ? (
             <>
-              <Link
-                as={NextLink}
-                href="/requests"
-                _hover={{ textDecoration: 'none' }}
-              >
-                <Button
-                  variant="secondary"
-                  borderColor="cardBorder"
-                  color="cardFg"
-                  bg="white"
-                  size="sm"
-                  borderRadius="lg"
+              {canEditTask ? (
+                <Link
+                  as={NextLink}
+                  href={`/tasks/${task.id}/edit`}
+                  _hover={{ textDecoration: 'none' }}
                 >
-                  <HStack gap={2}>
-                    <IconPencil />
-                    <span>Edit task</span>
-                  </HStack>
-                </Button>
-              </Link>
+                  <Button
+                    variant="secondary"
+                    borderColor="cardBorder"
+                    color="cardFg"
+                    bg="white"
+                    size="sm"
+                    borderRadius="lg"
+                  >
+                    <HStack gap={2}>
+                      <IconPencil />
+                      <span>Edit task</span>
+                    </HStack>
+                  </Button>
+                </Link>
+              ) : null}
               <Button
                 type="button"
                 variant="secondary"

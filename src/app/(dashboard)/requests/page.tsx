@@ -19,6 +19,8 @@ import {
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
+import { isTaskEditable } from '@/app/(task)/helpers/taskEditHelpers'
+
 import { useAccountTasks } from '../helpers/useAccountTasks'
 
 type RequestsTab = 'active' | 'archived' | 'quoting'
@@ -73,17 +75,33 @@ function PostedTaskCard({ task }: { task: TaskItem }) {
         >
           {task.description}
         </Text>
-        <HStack justify="space-between" align="center">
+        <HStack justify="space-between" align="center" flexWrap="wrap" gap={2}>
           <Heading size="sm">{formatPounds(taskBudgetPence(task))}</Heading>
-          <Link
-            as={NextLink}
-            href={`/task/${task.id}`}
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button size="sm" variant={stage === 'open' ? 'primary' : 'ghost'}>
-              {stage === 'open' ? 'View quotes' : 'Open task'}
-            </Button>
-          </Link>
+          <HStack gap={2}>
+            {isTaskEditable(task.status) ? (
+              <Link
+                as={NextLink}
+                href={`/tasks/${task.id}/edit`}
+                _hover={{ textDecoration: 'none' }}
+              >
+                <Button size="sm" variant="ghost">
+                  Edit
+                </Button>
+              </Link>
+            ) : null}
+            <Link
+              as={NextLink}
+              href={`/task/${task.id}`}
+              _hover={{ textDecoration: 'none' }}
+            >
+              <Button
+                size="sm"
+                variant={stage === 'open' ? 'primary' : 'ghost'}
+              >
+                {stage === 'open' ? 'View quotes' : 'Open task'}
+              </Button>
+            </Link>
+          </HStack>
         </HStack>
       </Stack>
     </SectionCard>

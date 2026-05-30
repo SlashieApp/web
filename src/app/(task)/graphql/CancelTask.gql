@@ -1,0 +1,6 @@
+mutation CancelTask($taskId: ID!) {
+  cancelTask(taskId: $taskId) {
+    id
+    status
+  }
+}

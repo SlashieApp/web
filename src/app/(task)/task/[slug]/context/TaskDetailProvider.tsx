@@ -18,13 +18,11 @@ import {
   useState,
 } from 'react'
 
-import { ME_QUERY } from '@/graphql/auth'
-import {
-  ACCEPT_QUOTE_MUTATION,
-  ADD_QUOTE,
-  CANCEL_TASK_MUTATION,
-  TASK_QUERY,
-} from '@/graphql/tasks'
+import AcceptQuote from '@/app/(task)/graphql/AcceptQuote.gql'
+import AddQuote from '@/app/(task)/graphql/AddQuote.gql'
+import CancelTask from '@/app/(task)/graphql/CancelTask.gql'
+import Task from '@/app/(task)/graphql/Task.gql'
+import Me from '@/graphql/Me.gql'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { priceToPence } from '@/utils/price'
@@ -35,7 +33,7 @@ type TaskDetailContextValue = {
   task: TaskDetailRecord | null
   isOwner: boolean
   me: MeQuery['me'] | null
-  /** True while `ME_QUERY` is in flight (only when authenticated). */
+  /** True while the `Me` query is in flight (only when authenticated). */
   meLoading: boolean
   isAuthenticated: boolean
   myQuote: TaskDetailRecord['quotes'][number] | null
@@ -92,7 +90,7 @@ export function TaskDetailProvider({
   const [cancelError, setCancelError] = useState<string | null>(null)
   const isAuthenticated = Boolean(getAuthToken())
 
-  const { data: meData, loading: meLoading } = useQuery<MeQuery>(ME_QUERY, {
+  const { data: meData, loading: meLoading } = useQuery<MeQuery>(Me, {
     skip: !isAuthenticated,
     fetchPolicy: 'cache-first',
   })
@@ -100,14 +98,14 @@ export function TaskDetailProvider({
   const meLoadingResolved = Boolean(isAuthenticated && meLoading)
 
   const [addQuote, { loading: quoting }] =
-    useMutation<AddQuoteMutation>(ADD_QUOTE)
-  const [acceptQuote] = useMutation<AcceptQuoteMutation>(ACCEPT_QUOTE_MUTATION)
+    useMutation<AddQuoteMutation>(AddQuote)
+  const [acceptQuote] = useMutation<AcceptQuoteMutation>(AcceptQuote)
   const [cancelTask, { loading: cancelingTask }] =
-    useMutation<CancelTaskMutation>(CANCEL_TASK_MUTATION)
+    useMutation<CancelTaskMutation>(CancelTask)
 
   const refreshTask = useCallback(async () => {
     const result = await apollo.query<TaskQuery>({
-      query: TASK_QUERY,
+      query: Task,
       variables: { id: taskId },
       fetchPolicy: 'network-only',
     })
@@ -185,7 +183,7 @@ export function TaskDetailProvider({
 
     if (!workerOnboardingDone && !myQuote) {
       setQuoteError('Create a worker profile before submitting quotes.')
-      router.push('/worker/setup')
+      router.push('/profile#profile-worker')
       return false
     }
 

@@ -18,6 +18,7 @@ export {
 export { TaskBrowseMapLayer, TaskMap } from './TaskMap'
 export { TaskBrowseSearchThisAreaButton } from './TaskBrowseSearchThisAreaButton'
 export { TaskCard } from './TaskCard'
+export { TaskEmptyState } from './TaskEmptyState'
 export { TaskList } from './(web)/TaskList'
 export { TaskSearch, TaskSearchBase } from './TaskSearch'
 export { TaskTag, useActiveFilterTags } from './TaskTag'

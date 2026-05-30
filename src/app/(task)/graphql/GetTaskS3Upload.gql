@@ -1,0 +1,5 @@
+query GetTaskS3Upload($taskId: ID!, $index: String!) {
+  getTaskS3Upload(taskId: $taskId, index: $index) {
+    url
+  }
+}

@@ -98,15 +98,14 @@ export function AccountShell({ children }: AccountShellProps) {
   if (!me) return null
   const completion = completionFromMe(me)
   const profileName =
-    me.profile?.name?.trim() ||
-    `${me.firstName ?? ''} ${me.lastName ?? ''}`.trim() ||
-    me.email.split('@')[0] ||
-    'Member'
+    me.profile?.name?.trim() || me.email.split('@')[0] || 'Member'
   const profileInitial = profileName.charAt(0).toUpperCase() || 'S'
   const profileLinkLabel = completion.isWorker
     ? 'Manage profile'
     : 'Continue setup'
-  const profileLinkHref = completion.isWorker ? '/profile' : '/worker/setup'
+  const profileLinkHref = completion.isWorker
+    ? '/profile'
+    : '/profile#profile-worker'
 
   return (
     <Box minH="100dvh" bg="neutral.100" color="cardFg">
@@ -282,7 +281,9 @@ export function AccountShell({ children }: AccountShellProps) {
           py={{ base: 5, md: 6 }}
           pb={{ base: 24, lg: 8 }}
         >
-          {children}
+          <Box w="full" maxW="1200px">
+            {children}
+          </Box>
         </Box>
       </Box>
 

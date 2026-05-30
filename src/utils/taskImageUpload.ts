@@ -1,7 +1,7 @@
 import type { ApolloClient } from '@apollo/client'
 import type { GetTaskS3UploadQuery } from '@codegen/schema'
 
-import { GET_S3_UPLOAD_URL_QUERY } from '@/graphql/storage'
+import GetTaskS3Upload from '@/app/(task)/graphql/GetTaskS3Upload.gql'
 
 function objectUrlFromPresignedPut(presignedUrl: string): string {
   try {
@@ -21,7 +21,7 @@ export async function getS3PresignedPutUrlForTaskImage(
   index: string,
 ): Promise<string> {
   const { data, error } = await client.query<GetTaskS3UploadQuery>({
-    query: GET_S3_UPLOAD_URL_QUERY,
+    query: GetTaskS3Upload,
     variables: { taskId, index },
     fetchPolicy: 'network-only',
   })

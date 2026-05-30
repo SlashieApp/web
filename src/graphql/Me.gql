@@ -1,0 +1,39 @@
+query Me {
+  me {
+    id
+    email
+    createdAt
+    enabledLoginMethods
+    profile {
+      name
+      contactNumber
+      avatarUrl
+      bio
+      dateOfBirth
+      defaultPreferredContactMethod
+      emailVerified
+      phoneVerified
+    }
+    settings {
+      isProfilePrivate
+      marketingEmails
+    }
+    workerEligibility {
+      isEligible
+      missing
+    }
+    worker {
+      id
+      legalName
+      bio
+      tagline
+      yearsExperience
+      isVerified
+      tasksCompletedCount
+      locationAddress
+      profile {
+        name
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+query GetProfileAvatarUpload($filename: String!) {
+  getProfileAvatarUpload(filename: $filename) {
+    url
+    publicUrl
+  }
+}

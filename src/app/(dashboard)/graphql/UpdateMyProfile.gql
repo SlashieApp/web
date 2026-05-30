@@ -1,0 +1,19 @@
+mutation UpdateMyProfile($input: UpdateMyProfileInput!) {
+  updateMyProfile(input: $input) {
+    id
+    profile {
+      name
+      contactNumber
+      avatarUrl
+      bio
+      dateOfBirth
+      defaultPreferredContactMethod
+      emailVerified
+      phoneVerified
+    }
+    workerEligibility {
+      isEligible
+      missing
+    }
+  }
+}

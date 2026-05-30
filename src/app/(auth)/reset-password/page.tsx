@@ -12,7 +12,7 @@ import { Suspense, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { RESET_PASSWORD_MUTATION } from '@/graphql/auth'
+import ResetPassword from '@/app/(auth)/graphql/ResetPassword.gql'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -233,9 +233,8 @@ function ResetPasswordForm() {
   const hasNumberOrSymbol = numberOrSymbol.test(newPasswordValue)
   const hasUppercase = /[A-Z]/.test(newPasswordValue)
 
-  const [resetPassword, { loading }] = useMutation<ResetPasswordMutation>(
-    RESET_PASSWORD_MUTATION,
-  )
+  const [resetPassword, { loading }] =
+    useMutation<ResetPasswordMutation>(ResetPassword)
 
   const onValid = async (data: z.infer<typeof resetPasswordFormSchema>) => {
     setServerError(null)
