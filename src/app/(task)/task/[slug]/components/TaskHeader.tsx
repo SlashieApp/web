@@ -3,7 +3,7 @@
 import { Box, HStack, Link } from '@chakra-ui/react'
 import { TaskStatus } from '@codegen/schema'
 import NextLink from 'next/link'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback } from 'react'
 
 import { isTaskEditable } from '@/app/(task)/helpers/taskEditHelpers'
 import { Button } from '@ui'
@@ -25,20 +25,6 @@ function IconPencil() {
   )
 }
 
-function IconChart() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Stats</title>
-      <path
-        d="M18 20V10M12 20V4M6 20v-6"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
 function IconCancel() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -55,14 +41,7 @@ function IconCancel() {
 }
 
 export function TaskHeader() {
-  const {
-    task,
-    isOwner,
-    cancelingTask,
-    onCancelTask,
-    scrollToOwnerPerformance,
-  } = useTaskDetail()
-  const [saved, setSaved] = useState(false)
+  const { task, isOwner, cancelingTask, onCancelTask } = useTaskDetail()
 
   const share = useCallback(async () => {
     if (!task) return
@@ -79,13 +58,6 @@ export function TaskHeader() {
     } catch {
       /* user cancelled or clipboard blocked */
     }
-  }, [task])
-
-  const reportHref = useMemo(() => {
-    if (!task) return '#'
-    const subject = `Slashie: Report task (${task.id})`
-    const body = `Task: ${task.title}\n\nPlease describe the issue:\n\n`
-    return `mailto:support@slashie.app?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   }, [task])
 
   const cancelDisabled =
@@ -162,21 +134,6 @@ export function TaskHeader() {
               <Button
                 type="button"
                 variant="secondary"
-                borderColor="cardBorder"
-                color="cardFg"
-                bg="white"
-                size="sm"
-                borderRadius="lg"
-                onClick={scrollToOwnerPerformance}
-              >
-                <HStack gap={2}>
-                  <IconChart />
-                  <span>View stats</span>
-                </HStack>
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
                 borderColor="red.200"
                 color="red.700"
                 bg="red.50"
@@ -192,30 +149,7 @@ export function TaskHeader() {
                 </HStack>
               </Button>
             </>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              borderRadius="lg"
-              onClick={() => {
-                window.location.href = reportHref
-              }}
-            >
-              Report
-            </Button>
-          )}
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            borderRadius="lg"
-            onClick={() => setSaved((v) => !v)}
-            aria-pressed={saved}
-          >
-            {saved ? 'Saved' : 'Save'}
-          </Button>
+          ) : null}
 
           <Button
             type="button"

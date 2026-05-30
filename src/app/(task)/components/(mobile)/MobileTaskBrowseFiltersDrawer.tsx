@@ -54,7 +54,7 @@ function formatBudgetRange(minBudgetPounds: string, maxBudgetPounds: string) {
 }
 
 function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
-  const { applyGeolocatedSearch } = useTaskBrowseData()
+  const { requestUseMyLocation } = useTaskBrowseData()
   const {
     showMapPromo: _showMapPromo,
     sortValue: _sort,
@@ -114,13 +114,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
                 e.preventDefault()
               }}
               onClick={() => {
-                if (!navigator.geolocation) return
-                navigator.geolocation.getCurrentPosition((position) => {
-                  void applyGeolocatedSearch(
-                    position.coords.latitude,
-                    position.coords.longitude,
-                  )
-                })
+                requestUseMyLocation()
               }}
             >
               <LuLocateFixed size={18} strokeWidth={2} aria-hidden />

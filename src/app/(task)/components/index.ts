@@ -3,6 +3,7 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
+export { BrowseGeolocationInit } from './BrowseGeolocationInit'
 export { MobileLayout } from './(mobile)/MobileLayout'
 export {
   MobileTaskBrowseFiltersDrawer,

@@ -1,6 +1,6 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import { Button, Input } from '@ui'
 import { useRef } from 'react'
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react'
@@ -183,31 +183,35 @@ export function TaskSearch() {
     areaLocationInput,
     setAreaLocationInput,
     commitAreaLocationSearch,
-    applyGeolocatedSearch,
+    requestUseMyLocation,
     syncDraftFiltersFromSubmitted,
+    geolocationStatus,
+    referenceLocation,
   } = useTaskBrowseData()
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
 
-  const onUseCurrentLocation = () => {
-    if (!navigator.geolocation) return
-    navigator.geolocation.getCurrentPosition((position) => {
-      const lat = position.coords.latitude
-      const lng = position.coords.longitude
-      void applyGeolocatedSearch(lat, lng)
-    })
-  }
+  const showLocationHint =
+    geolocationStatus === 'denied' && referenceLocation.source === 'default'
 
   return (
-    <TaskSearchBase
-      value={areaLocationInput}
-      filtersOpen={isFilterOpen}
-      onValueChange={setAreaLocationInput}
-      onActivateFilters={() => {
-        if (!isFilterOpen) syncDraftFiltersFromSubmitted()
-        setIsFilterOpen(!isFilterOpen)
-      }}
-      onCommitLocationSearch={commitAreaLocationSearch}
-      onUseCurrentLocation={onUseCurrentLocation}
-    />
+    <Stack gap={1.5} pointerEvents="auto">
+      <TaskSearchBase
+        value={areaLocationInput}
+        filtersOpen={isFilterOpen}
+        onValueChange={setAreaLocationInput}
+        onActivateFilters={() => {
+          if (!isFilterOpen) syncDraftFiltersFromSubmitted()
+          setIsFilterOpen(!isFilterOpen)
+        }}
+        onCommitLocationSearch={commitAreaLocationSearch}
+        onUseCurrentLocation={requestUseMyLocation}
+      />
+      {showLocationHint ? (
+        <Text fontSize="xs" color="formLabelMuted" px={1}>
+          Location access is off. Search an area or tap the locate button to set
+          your reference point.
+        </Text>
+      ) : null}
+    </Stack>
   )
 }

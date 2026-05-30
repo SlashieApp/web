@@ -12,6 +12,7 @@ import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import {
   formatBudget,
   inferBadge,
+  taskDistanceLabelFromReference,
   taskPosterAvatarUrl,
   taskPosterDisplayName,
 } from '../../helpers/taskBrowseHelpers'
@@ -23,6 +24,7 @@ export function TaskList() {
     filteredSorted,
     selectedTaskId,
     setSelectedTaskId,
+    referenceLocation,
   } = useTaskBrowseData()
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -73,6 +75,10 @@ export function TaskList() {
             const ownerAvatarSrc = taskPosterAvatarUrl(task)
             const loc =
               taskPublicLocationLabel(task).trim() || 'Location on request'
+            const distanceLabel = taskDistanceLabelFromReference(
+              task,
+              referenceLocation,
+            )
             return (
               <motion.div
                 key={`${animationKey}-${task.id}`}
@@ -100,13 +106,15 @@ export function TaskList() {
                     description={task.description}
                     priceLabel={main}
                     metaLine={loc}
-                    distanceLabel={'3 miles away'}
+                    distanceLabel={distanceLabel}
                     thumbnailSrc={task.images?.[0] ?? undefined}
                     detailsHref={`/task/${task.id}`}
                     badgeText={badge.text}
                     ownerName={ownerName}
                     ownerAvatarSrc={ownerAvatarSrc}
                     isActive={selectedTaskId === task.id}
+                    isExpanded={selectedTaskId === task.id}
+                    showDetailsCta={selectedTaskId === task.id}
                     onActivate={() => handleActivateTask(task.id)}
                   />
                 </Box>

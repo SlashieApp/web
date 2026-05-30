@@ -2,9 +2,8 @@
 
 import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { LuHeart } from 'react-icons/lu'
 
-import { Avatar, Badge, Button, Card, IconButton, Rating, Thumbnail } from '@ui'
+import { Avatar, Badge, Button, Card, Rating, Thumbnail } from '@ui'
 
 /** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
 export type TaskCardTask = {
@@ -21,15 +20,24 @@ export type TaskCardTask = {
   thumbnailSrc?: string
 }
 
-type TaskCardWithTask = {
-  task: TaskCardTask
+type TaskCardShared = {
   detailsHref?: string
   detailsCtaLabel?: string
   isActive?: boolean
+  /** Taller layout with description (web list selection). */
+  isExpanded?: boolean
+  /** When false, hides the details CTA (e.g. unselected rows in web TaskList). */
+  showDetailsCta?: boolean
+  /** Overrides default “select on map” label when `onActivate` opens task detail. */
+  activateAriaLabel?: string
   onActivate?: () => void
 }
 
-type TaskCardLegacy = {
+type TaskCardWithTask = TaskCardShared & {
+  task: TaskCardTask
+}
+
+type TaskCardLegacy = TaskCardShared & {
   title: string
   description: string
   priceLabel: string
@@ -40,10 +48,7 @@ type TaskCardLegacy = {
   ratingLabel?: string
   thumbnailSrc?: string
   detailsHref: string
-  detailsCtaLabel?: string
   badgeText?: string
-  isActive?: boolean
-  onActivate?: () => void
 }
 
 export type TaskCardProps = TaskCardWithTask | TaskCardLegacy
@@ -54,9 +59,12 @@ function isTaskCardWithTask(props: TaskCardProps): props is TaskCardWithTask {
 
 export function TaskCard(props: TaskCardProps) {
   const isActive = props.isActive ?? false
+  const isExpanded = props.isExpanded ?? false
+  const showDetailsCta = props.showDetailsCta ?? true
   const onActivate = props.onActivate
 
   let title: string
+  let description: string
   let priceLabel: string
   let metaLine: string
   let distanceLabel: string | undefined
@@ -70,6 +78,7 @@ export function TaskCard(props: TaskCardProps) {
   if (isTaskCardWithTask(props)) {
     const { task } = props
     title = task.title
+    description = task.description
     priceLabel = task.priceLabel
     metaLine = task.location
     distanceLabel = task.distanceLabel
@@ -81,6 +90,7 @@ export function TaskCard(props: TaskCardProps) {
     badgeText = task.badgeText
   } else {
     title = props.title
+    description = props.description
     priceLabel = props.priceLabel
     metaLine = props.metaLine
     distanceLabel = props.distanceLabel
@@ -93,6 +103,10 @@ export function TaskCard(props: TaskCardProps) {
   }
 
   const detailsCtaLabel = props.detailsCtaLabel ?? 'View details'
+  const activateAriaLabel =
+    props.activateAriaLabel ?? `${title}. Select to highlight on map.`
+  const descriptionText = description?.trim()
+  const showDescription = isExpanded && Boolean(descriptionText)
   const showBadge = Boolean(badgeText?.trim())
   const displayOwnerName = ownerName?.trim() || 'Task owner'
   const displayRatingLabel = ratingLabel?.trim()
@@ -100,43 +114,26 @@ export function TaskCard(props: TaskCardProps) {
   const shell = (
     <Card
       isActive={isActive}
-      p={2}
-      px={3}
-      minH={{ base: '124px', md: '132px' }}
+      p={{ base: 2, md: isExpanded ? 3.5 : 2 }}
+      px={{ base: 3, md: isExpanded ? 4 : 3 }}
+      minH={{ base: '108px', md: isExpanded ? 'auto' : '132px' }}
       maxW="full"
       bg="cardBg"
-      boxShadow="card"
-      transition="box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease"
+      boxShadow={isExpanded ? '0 10px 28px rgba(15, 23, 42, 0.1)' : 'card'}
+      transition="box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease, padding 200ms ease"
       _hover={
         onActivate
           ? {
               boxShadow: '0 10px 24px rgba(15, 23, 42, 0.12)',
-              transform: 'translateY(-1px)',
             }
           : undefined
       }
     >
       <HStack
         gap={{ base: 2.5, md: 4 }}
-        align="stretch"
-        position="relative"
+        align={isExpanded ? 'flex-start' : 'stretch'}
         flexWrap={{ base: 'wrap', md: 'nowrap' }}
       >
-        <IconButton
-          type="button"
-          variant="ghost"
-          aria-label="Save task"
-          size="sm"
-          position="absolute"
-          right={0}
-          top={0}
-          borderRadius="lg"
-          color="formControlIcon"
-          flexShrink={0}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <LuHeart size={20} aria-hidden />
-        </IconButton>
         <Thumbnail alt={`${title} thumbnail`} src={thumbnailSrc} />
         <Stack flex={1} minW={0} gap={0}>
           <HStack
@@ -146,7 +143,7 @@ export function TaskCard(props: TaskCardProps) {
             pb={1}
             minW={0}
           >
-            <HStack gap={3} flex={1} minW={0} pe={{ base: 8, md: 0 }}>
+            <HStack gap={3} flex={1} minW={0}>
               {showBadge ? <Badge>{badgeText}</Badge> : null}
               {distanceLabel ? (
                 <Text fontSize="xs" color="formLabelMuted" truncate>
@@ -157,13 +154,28 @@ export function TaskCard(props: TaskCardProps) {
           </HStack>
 
           <Text
-            fontSize={{ base: 'lg', md: 'xl' }}
+            display={{ base: 'none', md: 'block' }}
+            fontSize={isExpanded ? '2xl' : 'xl'}
             fontWeight={700}
             color="cardFg"
-            truncate
+            lineClamp={isExpanded ? 2 : 1}
+            truncate={!isExpanded}
           >
             {title}
           </Text>
+
+          {showDescription ? (
+            <Text
+              display={{ base: 'none', md: 'block' }}
+              fontSize="sm"
+              lineHeight="1.5"
+              color="formLabelMuted"
+              lineClamp={4}
+              pb={2}
+            >
+              {descriptionText}
+            </Text>
+          ) : null}
 
           <Stack direction="row" justify="space-between" align="center" pb={2}>
             <Text
@@ -171,7 +183,8 @@ export function TaskCard(props: TaskCardProps) {
               minW={0}
               fontSize="xs"
               color="formLabelMuted"
-              truncate
+              lineClamp={isExpanded ? 2 : 1}
+              truncate={!isExpanded}
             >
               {metaLine}
             </Text>
@@ -187,33 +200,45 @@ export function TaskCard(props: TaskCardProps) {
             </Text>
           </Stack>
 
-          <HStack gap={3} minW={0} flexWrap="wrap" rowGap={2}>
-            <HStack gap={3} minW={0} flex={1}>
-              <Avatar
-                name={displayOwnerName}
-                src={ownerAvatarSrc}
-                label={displayOwnerName}
-              />
+          <HStack
+            gap={{ base: 2, md: 3 }}
+            minW={0}
+            align="center"
+            flexWrap="nowrap"
+          >
+            <HStack gap={2} minW={0} flex={1} overflow="hidden">
+              <Box flex={1} minW={0} overflow="hidden">
+                <Avatar
+                  name={displayOwnerName}
+                  src={ownerAvatarSrc}
+                  label={displayOwnerName}
+                  labelProps={{ flex: 1, minW: 0 }}
+                />
+              </Box>
               {displayRatingLabel ? (
                 <Rating value={displayRatingLabel} />
               ) : null}
             </HStack>
-            <Link
-              as={NextLink}
-              href={detailsHref}
-              onClick={(e) => e.stopPropagation()}
-              _hover={{ textDecoration: 'none' }}
-              ml="auto"
-            >
-              <Button
-                size="sm"
-                minW={{ base: '100%', md: '106px' }}
-                h={9}
-                borderRadius="lg"
+            {showDetailsCta ? (
+              <Link
+                as={NextLink}
+                href={detailsHref}
+                onClick={(e) => e.stopPropagation()}
+                _hover={{ textDecoration: 'none' }}
+                flexShrink={0}
               >
-                {detailsCtaLabel}
-              </Button>
-            </Link>
+                <Button
+                  size="sm"
+                  minW={{ md: '106px' }}
+                  h={9}
+                  px={{ base: 3, md: 4 }}
+                  borderRadius="lg"
+                  whiteSpace="nowrap"
+                >
+                  {detailsCtaLabel}
+                </Button>
+              </Link>
+            ) : null}
           </HStack>
         </Stack>
       </HStack>
@@ -227,7 +252,7 @@ export function TaskCard(props: TaskCardProps) {
         role="button"
         tabIndex={0}
         aria-current={isActive ? 'true' : undefined}
-        aria-label={`${title}. Select to highlight on map.`}
+        aria-label={activateAriaLabel}
         onClick={onActivate}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {

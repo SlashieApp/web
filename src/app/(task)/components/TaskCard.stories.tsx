@@ -38,3 +38,15 @@ export const ListItem: Story = {
     badgeText: 'New',
   },
 }
+
+export const ListItemExpanded: Story = {
+  args: {
+    ...ListItem.args,
+    isActive: true,
+    isExpanded: true,
+    showDetailsCta: true,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+}

@@ -5,6 +5,7 @@ import type { Map as MapboxMap, Marker } from 'mapbox-gl'
 import { useCallback, useRef, useState } from 'react'
 
 import { useColorMode } from '@/ui/color-mode'
+import { distanceMilesBetween } from '@/utils/geoDistance'
 
 import {
   useTaskBrowseData,
@@ -28,6 +29,8 @@ export type TaskMapTask = {
   priceLabel?: string | null
   /** Short line for popup (e.g. budget). */
   detailLine?: string | null
+  /** Distance from the active browse reference (e.g. "2.1 miles away"). */
+  distanceLabel?: string | null
 }
 
 export type TaskMapProps = {
@@ -88,30 +91,39 @@ function fullscreenCenterOffsetPx(
 }
 
 function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
-  const toRad = (d: number) => (d * Math.PI) / 180
-  const R = 3958.8
-  const dLat = toRad(lat2 - lat1)
-  const dLng = toRad(lng2 - lng1)
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return R * c
+  return distanceMilesBetween(lat1, lng1, lat2, lng2)
 }
 
-const POPUP_DESC_MAX = 240
 const MAX_SEARCH_RADIUS_MILES = 50
 const MAP_MIN_ZOOM = 10
 const MAP_MAX_ZOOM = 17
 const DEFAULT_MAPBOX_STYLE = 'mapbox://styles/mapbox/streets-v12'
 
-function truncateDescription(text: string, max: number): string {
-  const t = text.trim()
-  if (t.length <= max) return t
-  return `${t.slice(0, Math.max(0, max - 1)).trim()}…`
+/** Slashie map pin + peek popup tokens (see slashie-design skill). */
+const PIN = {
+  green: '#00AB63',
+  greenBright: '#00DC82',
+  greenSoft: '#53D388',
+  greenPale: '#D9F4E5',
+  text: '#0B1714',
+  textSecondary: '#3F4B45',
+  textMuted: '#6B7370',
+  border: '#D1D5D4',
+  white: '#FFFFFF',
+  shadow: '0 2px 10px rgba(11, 23, 20, 0.12)',
+  shadowExpanded: '0 10px 28px rgba(11, 23, 20, 0.16)',
+} as const
+
+const PIN_FONT =
+  'Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+
+const PIN_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
+const PIN_ANIM_MS = 240
+const PIN_ANIM = `${PIN_ANIM_MS}ms ${PIN_EASE}`
+
+function pinMotionEnabled(): boolean {
+  if (typeof window === 'undefined') return true
+  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 /** GraphQL / JSON often returns coordinates as strings; Mapbox needs finite numbers. */
@@ -142,6 +154,22 @@ function pinPriceText(task: TaskMapTask): string {
   return head || line
 }
 
+function referenceMarkerElement(): HTMLDivElement {
+  const root = document.createElement('div')
+  root.setAttribute('aria-hidden', 'true')
+  Object.assign(root.style, {
+    width: '18px',
+    height: '18px',
+    borderRadius: '50%',
+    background: '#00AB63',
+    border: '3px solid #ffffff',
+    boxShadow: '0 0 0 2px rgba(0,171,99,0.35), 0 2px 8px rgba(15,23,42,0.25)',
+    zIndex: '0',
+    pointerEvents: 'none',
+  })
+  return root
+}
+
 function taskMarkerElement(
   task: TaskMapTask,
   selected: boolean,
@@ -159,110 +187,31 @@ function taskMarkerElement(
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    gap: '5px',
+    gap: '6px',
     padding: '0',
     margin: '0',
     background: 'transparent',
     cursor: 'pointer',
-    fontFamily: 'system-ui, -apple-system, sans-serif',
+    fontFamily: PIN_FONT,
   })
 
-  const card = document.createElement('div')
-  const ring = document.createElement('span')
-  ring.setAttribute('aria-hidden', 'true')
+  const popupShell = document.createElement('div')
+  const pricePillWrap = document.createElement('div')
+  const pinDot = document.createElement('span')
+  pinDot.setAttribute('aria-hidden', 'true')
 
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('viewBox', '0 0 24 24')
-  svg.setAttribute('width', '14')
-  svg.setAttribute('height', '14')
-  svg.setAttribute('fill', 'none')
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-  path.setAttribute(
-    'd',
-    'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.36 6.36a2.83 2.83 0 1 1-4-4l6.36-6.36a6 6 0 0 1 7.94-7.94l-3.77 3.77Z',
-  )
-  path.setAttribute('stroke', '#ffffff')
-  path.setAttribute('stroke-width', '1.75')
-  path.setAttribute('stroke-linejoin', 'round')
-  svg.appendChild(path)
-  ring.appendChild(svg)
+  root.appendChild(popupShell)
+  root.appendChild(pricePillWrap)
+  root.appendChild(pinDot)
 
-  root.appendChild(card)
-  root.appendChild(ring)
+  const pricePill = document.createElement('div')
+  pricePill.textContent = pinPriceText(task)
+  pricePillWrap.appendChild(pricePill)
 
-  const priceRow = document.createElement('div')
-  priceRow.textContent = pinPriceText(task)
-  const detailsWrap = document.createElement('div')
-  const cat = (task.category ?? '').trim()
-  const detail = (task.detailLine ?? '').trim()
-  const rawDesc = (task.description ?? '').trim()
-  const desc =
-    rawDesc.length > 0 ? truncateDescription(rawDesc, POPUP_DESC_MAX) : ''
-
-  if (cat) {
-    const catEl = document.createElement('div')
-    catEl.textContent = cat
-    Object.assign(catEl.style, {
-      fontSize: '10px',
-      fontWeight: '700',
-      letterSpacing: '0.06em',
-      textTransform: 'uppercase',
-      color: '#64748b',
-      marginBottom: '4px',
-    })
-    detailsWrap.appendChild(catEl)
-  }
-  const titleEl = document.createElement('div')
-  titleEl.textContent = task.title
-  Object.assign(titleEl.style, {
-    fontWeight: '700',
-    color: '#0f172a',
-    marginBottom: '6px',
-    fontSize: '16px',
-  })
-  detailsWrap.appendChild(titleEl)
-  if (detail) {
-    const detailEl = document.createElement('div')
-    detailEl.textContent = detail
-    Object.assign(detailEl.style, {
-      color: '#1e293b',
-      fontSize: '12px',
-      fontWeight: '600',
-      marginBottom: '6px',
-    })
-    detailsWrap.appendChild(detailEl)
-  }
-  if (desc) {
-    const descEl = document.createElement('div')
-    descEl.textContent = desc
-    Object.assign(descEl.style, {
-      color: '#475569',
-      fontSize: '12px',
-      lineHeight: '1.45',
-    })
-    detailsWrap.appendChild(descEl)
-  }
-  const cta = document.createElement('a')
-  cta.href = `/task/${task.id}`
-  cta.textContent = 'View details'
-  cta.addEventListener('click', (e) => e.stopPropagation())
-  Object.assign(cta.style, {
-    display: 'inline-block',
-    marginTop: '12px',
-    padding: '9px 16px',
-    background: 'linear-gradient(95deg,#003fb1 0%,#1a56db 100%)',
-    color: '#fff',
-    textDecoration: 'none',
-    borderRadius: '999px',
-    fontWeight: '600',
-    fontSize: '13px',
-    boxShadow: '0 1px 4px rgba(15,23,42,0.2)',
-  })
-  detailsWrap.appendChild(cta)
-
+  const popupBody = document.createElement('div')
   const closeBtn = document.createElement('button')
   closeBtn.type = 'button'
-  closeBtn.setAttribute('aria-label', 'Close task details')
+  closeBtn.setAttribute('aria-label', 'Close task preview')
   closeBtn.textContent = '×'
   closeBtn.addEventListener('click', (e) => {
     e.stopPropagation()
@@ -270,96 +219,276 @@ function taskMarkerElement(
     if (isSelected) onClearActiveSelection()
     apply()
   })
-  Object.assign(closeBtn.style, {
-    position: 'absolute',
-    top: '6px',
-    right: '6px',
-    width: '24px',
-    height: '24px',
-    border: 'none',
-    borderRadius: '999px',
-    background: '#f8fafc',
-    color: '#334155',
-    fontSize: '16px',
-    lineHeight: '24px',
-    cursor: 'pointer',
-    opacity: '0',
-    pointerEvents: 'none',
-  })
 
-  card.appendChild(priceRow)
-  card.appendChild(detailsWrap)
-  card.appendChild(closeBtn)
+  const cat = (task.category ?? '').trim()
+  const locationText = (task.location ?? '').trim()
+  const distanceText = (task.distanceLabel ?? '').trim()
+  const priceText = pinPriceText(task)
+
+  let categoryEl: HTMLDivElement | null = null
+  if (cat) {
+    categoryEl = document.createElement('div')
+    categoryEl.textContent = cat
+    popupBody.appendChild(categoryEl)
+  }
+
+  const titleEl = document.createElement('div')
+  titleEl.textContent = task.title
+  popupBody.appendChild(titleEl)
+
+  const metaParts = [locationText, distanceText].filter(Boolean)
+  let metaEl: HTMLDivElement | null = null
+  if (metaParts.length > 0) {
+    metaEl = document.createElement('div')
+    metaEl.textContent = metaParts.join(' · ')
+    popupBody.appendChild(metaEl)
+  }
+
+  const priceEl = document.createElement('div')
+  priceEl.textContent = priceText
+  popupBody.appendChild(priceEl)
+
+  popupBody.appendChild(closeBtn)
+
+  const popupReveal = document.createElement('div')
+  popupReveal.appendChild(popupBody)
+  popupShell.appendChild(popupReveal)
+
+  Object.assign(popupShell.style, {
+    overflow: 'hidden',
+    flexShrink: '0',
+    transition: pinMotionEnabled()
+      ? `max-height ${PIN_ANIM}, margin-bottom ${PIN_ANIM}, width ${PIN_ANIM}, max-width ${PIN_ANIM}`
+      : 'none',
+  })
+  Object.assign(popupReveal.style, {
+    transformOrigin: 'center bottom',
+    overflow: 'hidden',
+    transition: pinMotionEnabled()
+      ? `clip-path ${PIN_ANIM}, box-shadow ${PIN_ANIM}, border-color ${PIN_ANIM}`
+      : 'none',
+  })
+  Object.assign(pricePillWrap.style, {
+    transformOrigin: 'center bottom',
+    flexShrink: '0',
+    transition: pinMotionEnabled()
+      ? `opacity ${PIN_ANIM}, max-height ${PIN_ANIM}, box-shadow ${PIN_ANIM}, border-color ${PIN_ANIM}`
+      : 'none',
+  })
+  Object.assign(pricePill.style, {
+    transition: pinMotionEnabled()
+      ? `opacity ${PIN_ANIM}, transform ${PIN_ANIM}`
+      : 'none',
+  })
+  Object.assign(popupBody.style, {
+    position: 'relative',
+    boxSizing: 'border-box',
+    width: '236px',
+  })
+  Object.assign(closeBtn.style, {
+    transition: 'none',
+  })
 
   let isSelected = selected
   let expanded = false
-  let isHovered = false
+  let wasExpanded = false
+  let hoverOpenTimer: ReturnType<typeof setTimeout> | undefined
+  let hoverCloseTimer: ReturnType<typeof setTimeout> | undefined
+
+  const clearHoverTimers = () => {
+    if (hoverOpenTimer) clearTimeout(hoverOpenTimer)
+    if (hoverCloseTimer) clearTimeout(hoverCloseTimer)
+    hoverOpenTimer = undefined
+    hoverCloseTimer = undefined
+  }
+
+  const pulsePinDot = () => {
+    if (!pinMotionEnabled() || typeof pinDot.animate !== 'function') return
+    pinDot.animate(
+      [
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.18)' },
+        { transform: 'scale(1)' },
+      ],
+      { duration: 320, easing: PIN_EASE },
+    )
+  }
+
   const apply = () => {
     const isSel = isSelected
     const isExpanded = expanded || isSel
-    const dotPx = isSel ? 30 : 26
-    const zIndex = isHovered && expanded ? '3' : isExpanded ? '2' : '1'
-    Object.assign(root.style, {
-      zIndex,
+    const dotPx = isSel ? 14 : 12
+    const zIndex = isExpanded ? '2' : '1'
+    const opening = isExpanded && !wasExpanded
+    const showPill = !isExpanded
+
+    Object.assign(root.style, { zIndex })
+
+    Object.assign(popupShell.style, {
+      width: isExpanded ? '236px' : '0px',
+      maxWidth: isExpanded ? '236px' : '0px',
+      minWidth: '0',
+      maxHeight: isExpanded ? '240px' : '0px',
+      marginBottom: isExpanded ? '6px' : '0px',
+      pointerEvents: isExpanded ? 'auto' : 'none',
     })
-    Object.assign(card.style, {
-      display: 'block',
-      background: '#ffffff',
-      color: '#1A56DB',
-      fontWeight: '700',
-      fontSize: '12px',
+
+    Object.assign(popupReveal.style, {
+      background: PIN.white,
+      borderRadius: '16px',
+      boxShadow: isExpanded ? PIN.shadowExpanded : 'none',
+      border: isSel
+        ? `2px solid ${PIN.greenBright}`
+        : isExpanded
+          ? `1px solid ${PIN.border}`
+          : '1px solid transparent',
+      clipPath: isExpanded
+        ? 'inset(0 0 0 0 round 16px)'
+        : 'inset(100% 0 0 0 round 16px)',
+    })
+
+    Object.assign(pricePillWrap.style, {
+      display: showPill ? 'inline-block' : 'block',
+      width: 'max-content',
+      maxWidth: 'max-content',
+      maxHeight: showPill ? '64px' : '0px',
+      opacity: showPill ? '1' : '0',
+      overflow: 'hidden',
+      background: PIN.white,
+      borderRadius: '999px',
+      boxShadow: PIN.shadow,
+      border: isSel
+        ? `2px solid ${PIN.greenBright}`
+        : '1px solid rgba(209, 213, 212, 0.55)',
+      pointerEvents: 'none',
+    })
+
+    Object.assign(pricePill.style, {
+      display: 'inline-block',
+      width: 'max-content',
+      maxWidth: 'max-content',
+      boxSizing: 'border-box',
+      padding: '5px 12px',
+      fontSize: '13px',
+      fontWeight: '800',
       lineHeight: '1.2',
-      padding: isExpanded ? '12px 12px 10px' : '4px 10px',
-      borderRadius: isExpanded ? '14px' : '999px',
-      boxShadow: '0 1px 4px rgba(15,23,42,0.2)',
-      whiteSpace: isExpanded ? 'normal' : 'nowrap',
-      width: isExpanded ? '260px' : 'auto',
-      maxWidth: isExpanded ? '260px' : 'none',
-      minHeight: isExpanded ? '140px' : '26px',
-      overflow: 'hidden',
-      textOverflow: isExpanded ? 'clip' : 'ellipsis',
-      border: isSel ? '2px solid #ea580c' : '1px solid rgba(226,232,240,0.9)',
-      transition:
-        'min-height 0.2s ease, border-radius 0.2s ease, padding 0.2s ease',
-    })
-    Object.assign(priceRow.style, {
-      display: isExpanded ? 'none' : 'block',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
+      color: PIN.green,
       whiteSpace: 'nowrap',
+      textAlign: 'center',
+      transform: showPill ? 'translateY(0)' : 'translateY(10px)',
     })
-    Object.assign(detailsWrap.style, {
-      display: isExpanded ? 'block' : 'none',
+
+    Object.assign(popupBody.style, {
+      padding: '14px 36px 12px 14px',
     })
+
+    if (categoryEl) {
+      Object.assign(categoryEl.style, {
+        fontSize: '10px',
+        fontWeight: '700',
+        letterSpacing: '0.07em',
+        textTransform: 'uppercase',
+        color: PIN.green,
+        marginBottom: '6px',
+      })
+    }
+
+    Object.assign(titleEl.style, {
+      fontWeight: '700',
+      fontSize: '15px',
+      lineHeight: '1.3',
+      color: PIN.text,
+      marginBottom: metaEl ? '4px' : '8px',
+      display: '-webkit-box',
+      WebkitLineClamp: '2',
+      WebkitBoxOrient: 'vertical',
+      overflow: 'hidden',
+    })
+
+    if (metaEl) {
+      Object.assign(metaEl.style, {
+        fontSize: '12px',
+        lineHeight: '1.35',
+        color: PIN.textMuted,
+        marginBottom: '10px',
+        display: '-webkit-box',
+        WebkitLineClamp: '2',
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden',
+      })
+    }
+
+    Object.assign(priceEl.style, {
+      fontSize: '22px',
+      fontWeight: '800',
+      lineHeight: '1',
+      color: PIN.green,
+    })
+
     Object.assign(closeBtn.style, {
+      position: 'absolute',
+      top: '8px',
+      right: '8px',
+      width: '26px',
+      height: '26px',
+      border: 'none',
+      borderRadius: '999px',
+      background: PIN.greenPale,
+      color: PIN.textSecondary,
+      fontSize: '18px',
+      lineHeight: '26px',
+      cursor: 'pointer',
       opacity: isExpanded ? '1' : '0',
       pointerEvents: isExpanded ? 'auto' : 'none',
     })
-    Object.assign(ring.style, {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0,
+
+    Object.assign(pinDot.style, {
+      display: 'block',
+      flexShrink: '0',
       width: `${dotPx}px`,
       height: `${dotPx}px`,
       borderRadius: '50%',
-      background: isSel ? '#ea580c' : '#1A56DB',
-      border: '3px solid #ffffff',
+      background: isSel ? PIN.greenBright : PIN.greenSoft,
+      border: `2.5px solid ${PIN.white}`,
       boxShadow: isSel
-        ? '0 2px 10px rgba(234,88,12,0.45)'
-        : '0 1px 4px rgba(0,0,0,0.25)',
+        ? `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`
+        : PIN.shadow,
+      transition: pinMotionEnabled()
+        ? `width ${PIN_ANIM}, height ${PIN_ANIM}, background ${PIN_ANIM}, box-shadow ${PIN_ANIM}`
+        : 'none',
     })
+
+    if (opening) pulsePinDot()
+    wasExpanded = isExpanded
   }
 
   apply()
 
   root.addEventListener('mouseenter', () => {
-    isHovered = true
-    apply()
+    if (hoverCloseTimer) {
+      clearTimeout(hoverCloseTimer)
+      hoverCloseTimer = undefined
+    }
+    if (isSelected || expanded) return
+    hoverOpenTimer = setTimeout(() => {
+      hoverOpenTimer = undefined
+      if (isSelected) return
+      expanded = true
+      apply()
+    }, 120)
   })
+
   root.addEventListener('mouseleave', () => {
-    isHovered = false
-    apply()
+    if (hoverOpenTimer) {
+      clearTimeout(hoverOpenTimer)
+      hoverOpenTimer = undefined
+    }
+    if (isSelected) return
+    hoverCloseTimer = setTimeout(() => {
+      hoverCloseTimer = undefined
+      expanded = false
+      apply()
+    }, 160)
   })
 
   root.addEventListener('keydown', (e) => {
@@ -373,10 +502,12 @@ function taskMarkerElement(
     el: root,
     setSelected: (v: boolean) => {
       isSelected = v
+      if (v) clearHoverTimers()
       apply()
     },
     setExpanded: (v: boolean) => {
       expanded = v
+      if (v) clearHoverTimers()
       apply()
     },
   }
@@ -415,6 +546,7 @@ function createTaskMapController(args: {
   let cancelled = false
   let map: MapboxMap | null = null
   let mapboxMod: typeof import('mapbox-gl').default | null = null
+  let referenceMarker: Marker | null = null
   const markersRef: MarkerRow[] = []
   let moveEndDebounce: ReturnType<typeof setTimeout> | null = null
   let pendingView: { lat: number; lng: number } | null = null
@@ -484,12 +616,28 @@ function createTaskMapController(args: {
     scheduleSync()
   }
 
+  const syncReferenceMarker = () => {
+    if (!map?.isStyleLoaded() || !mapboxMod) return
+    const p = getProps()
+    if (!referenceMarker) {
+      referenceMarker = new mapboxMod.Marker({
+        element: referenceMarkerElement(),
+        anchor: 'center',
+      })
+        .setLngLat([p.centerLng, p.centerLat])
+        .addTo(map)
+      return
+    }
+    referenceMarker.setLngLat([p.centerLng, p.centerLat])
+  }
+
   const syncMarkersAndBounds = () => {
     if (!map?.isStyleLoaded() || !mapboxMod) return
     const p = getProps()
     if (!(p.visible ?? true) || !(p.tasksLoaded ?? true)) return
 
     bumpMapResize(map)
+    syncReferenceMarker()
 
     for (const { marker } of markersRef) marker.remove()
     markersRef.length = 0
@@ -520,19 +668,6 @@ function createTaskMapController(args: {
         el.addEventListener('click', (e) => {
           e.stopPropagation()
           getSelectTask()?.(task.id)
-        })
-
-        let enterTimer: ReturnType<typeof setTimeout> | undefined
-        el.addEventListener('mouseenter', () => {
-          enterTimer = setTimeout(() => {
-            if (getSelectedTaskId() === task.id) return
-            setExpanded(true)
-          }, 120)
-        })
-        el.addEventListener('mouseleave', () => {
-          if (enterTimer) clearTimeout(enterTimer)
-          if (getSelectedTaskId() === task.id) return
-          setExpanded(false)
         })
 
         const marker = new mapboxMod.Marker({
@@ -621,6 +756,7 @@ function createTaskMapController(args: {
     const queryCenterKey = `${p.centerLat}|${p.centerLng}|${leftPad}`
     if (queryCenterKey !== lastQueryCenterKey) {
       lastQueryCenterKey = queryCenterKey
+      syncReferenceMarker()
       const c = map.getCenter()
       const geoMatch =
         Math.abs(c.lat - p.centerLat) < 5e-5 &&
@@ -823,6 +959,8 @@ function createTaskMapController(args: {
       if (map && mapClickRun) map.off('click', mapClickRun)
       for (const { marker } of markersRef) marker.remove()
       markersRef.length = 0
+      referenceMarker?.remove()
+      referenceMarker = null
       map?.remove()
       map = null
       mapboxMod = null

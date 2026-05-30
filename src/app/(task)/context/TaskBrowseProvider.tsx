@@ -21,11 +21,18 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 import type { SearchThisAreaButtonProps } from '../components/SearchThisAreaButton'
 import type { TaskMapProps } from '../components/TaskMap'
+import {
+  type BrowseGeolocationStatus,
+  type BrowseReferenceLocation,
+  CURRENT_LOCATION_LABEL,
+  DEFAULT_BROWSE_REFERENCE,
+} from '../helpers/browseReferenceLocation'
 import type {
   TaskBrowseFiltersProps,
   UrgencyFilter,
 } from '../helpers/taskBrowseFilters.types'
 import {
+  type BrowseFilterTag,
   DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
   PAGE_SIZE,
   SORT_OPTIONS,
@@ -34,6 +41,8 @@ import {
   formatBudget,
   matchesUrgency,
   taskCreatedTime,
+  taskDistanceLabelFromReference,
+  taskDistanceMilesFromReference,
 } from '../helpers/taskBrowseHelpers'
 
 type TaskBrowseDataContextValue = {
@@ -57,8 +66,13 @@ type TaskBrowseDataContextValue = {
   areaLocationInput: string
   setAreaLocationInput: (v: string) => void
   commitAreaLocationSearch: () => void
-  /** Sets map search center from coordinates, reverse-geocodes label when Mapbox token exists. */
+  /** Sets map search center from coordinates (GPS). */
   applyGeolocatedSearch: (lat: number, lng: number) => Promise<void>
+  /** Browser geolocation on load and via "Use my location". */
+  requestUseMyLocation: () => void
+  initGeolocationOnLoad: () => void
+  referenceLocation: BrowseReferenceLocation
+  geolocationStatus: BrowseGeolocationStatus
   /** Copies draft filter UI → submitted; triggers fetch (radius) + list filters. */
   submitBrowseFilters: () => void
   /** Resets draft filter fields from last submitted snapshot (call when opening the filter panel). */
@@ -87,11 +101,12 @@ type TaskBrowseDataContextValue = {
     locationLng: number | null | undefined
     priceLabel: string
     detailLine: string
+    distanceLabel?: string
   }[]
   shouldWaitForMap: boolean
   markMapReadyForQuery: (ready: boolean) => void
   /** Chips derived from last submitted filters (see {@link submitBrowseFilters}). */
-  activeFilterTags: readonly string[]
+  activeFilterTags: readonly BrowseFilterTag[]
 }
 
 type TaskBrowseLayoutContextValue = {
@@ -108,8 +123,6 @@ const TaskBrowseDataContext = createContext<TaskBrowseDataContextValue | null>(
 const TaskBrowseLayoutContext =
   createContext<TaskBrowseLayoutContextValue | null>(null)
 
-const DEFAULT_SEARCH_LAT = 51.5074
-const DEFAULT_SEARCH_LNG = -0.1278
 const MIN_RADIUS_MILES = 1
 const MAX_RADIUS_MILES = 50
 /** Edit this to tune map center offset for desktop split layout. */
@@ -196,13 +209,26 @@ export function TaskBrowseProvider({
   const setSearchInput = useCallback((v: string) => {
     setSearchInputRaw(v)
   }, [])
-  const [searchCenterLat, setSearchCenterLat] = useState(DEFAULT_SEARCH_LAT)
-  const [searchCenterLng, setSearchCenterLng] = useState(DEFAULT_SEARCH_LNG)
-  const [areaLocationInput, setAreaLocationInput] = useState('')
+  const [referenceLocation, setReferenceLocation] =
+    useState<BrowseReferenceLocation>(DEFAULT_BROWSE_REFERENCE)
+  const [geolocationStatus, setGeolocationStatus] =
+    useState<BrowseGeolocationStatus>('idle')
+  const [areaLocationInput, setAreaLocationInput] = useState(
+    DEFAULT_BROWSE_REFERENCE.label,
+  )
   const pendingAreaSearchQueryRef = useRef<string | null>(null)
   const lastResolvedAreaSearchQueryRef = useRef<string | null>(null)
+  const geolocationInitStartedRef = useRef(false)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [isMapReadyForQuery, setIsMapReadyForQuery] = useState(!hasMapboxToken)
+
+  const searchCenterLat = referenceLocation.lat
+  const searchCenterLng = referenceLocation.lng
+
+  const applyReference = useCallback((next: BrowseReferenceLocation) => {
+    setReferenceLocation(next)
+    setAreaLocationInput(next.label)
+  }, [])
 
   const prevHasMapboxTokenRef = useRef(hasMapboxToken)
   if (hasMapboxToken !== prevHasMapboxTokenRef.current) {
@@ -269,10 +295,10 @@ export function TaskBrowseProvider({
         submittedMaxBudget,
         submittedUrgency,
         submittedSearchText,
-        areaLocationInput,
+        referenceLabel: referenceLocation.label,
       }),
     [
-      areaLocationInput,
+      referenceLocation.label,
       submittedMaxBudget,
       submittedMinBudget,
       submittedRadiusMiles,
@@ -283,7 +309,17 @@ export function TaskBrowseProvider({
 
   const filteredSorted = useMemo(() => {
     let next = filtered
-    if (sort === 'newest' || sort === 'oldest') {
+    if (sort === 'nearest') {
+      next = [...next].sort((a, b) => {
+        const da =
+          taskDistanceMilesFromReference(a, referenceLocation) ??
+          Number.POSITIVE_INFINITY
+        const db =
+          taskDistanceMilesFromReference(b, referenceLocation) ??
+          Number.POSITIVE_INFINITY
+        return da - db
+      })
+    } else if (sort === 'newest' || sort === 'oldest') {
       next = [...next].sort((a, b) => {
         const ta = taskCreatedTime(a)
         const tb = taskCreatedTime(b)
@@ -291,7 +327,7 @@ export function TaskBrowseProvider({
       })
     }
     return next
-  }, [filtered, sort])
+  }, [filtered, referenceLocation, sort])
 
   const totalPages = Math.max(1, Math.ceil(filteredSorted.length / PAGE_SIZE))
   const maxPageIndex = Math.max(0, totalPages - 1)
@@ -344,9 +380,13 @@ export function TaskBrowseProvider({
           locationLng: task.location?.lng ?? null,
           priceLabel: main,
           detailLine: `${main} · ${sub}`,
+          distanceLabel: taskDistanceLabelFromReference(
+            task,
+            referenceLocation,
+          ),
         }
       }),
-    [filtered],
+    [filtered, referenceLocation],
   )
 
   const initialMapTasksForBox = useMemo(
@@ -363,30 +403,40 @@ export function TaskBrowseProvider({
           locationLng: task.location?.lng ?? null,
           priceLabel: main,
           detailLine: `${main} · ${sub}`,
+          distanceLabel: taskDistanceLabelFromReference(
+            task,
+            referenceLocation,
+          ),
         }
       }),
-    [initialTasks],
+    [initialTasks, referenceLocation],
   )
-
-  const setSearchCenter = useCallback((lat: number, lng: number) => {
-    setSearchCenterLat(lat)
-    setSearchCenterLng(lng)
-  }, [])
 
   const confirmSearchThisAreaFromMap = useCallback(
     (lat: number, lng: number, zoom: number) => {
-      setSearchCenter(lat, lng)
       const nextRadius = clampRadiusMiles(zoomToRadiusMiles(zoom))
       setRadiusMiles(nextRadius)
       setSubmittedRadiusMiles(nextRadius)
       const token = mapboxToken?.trim()
       if (token) {
         void mapboxReverseGeocode(lat, lng, token).then((name) => {
-          if (name) setAreaLocationInput(name)
+          applyReference({
+            lat,
+            lng,
+            label: name?.trim() || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+            source: 'manual',
+          })
         })
+        return
       }
+      applyReference({
+        lat,
+        lng,
+        label: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+        source: 'manual',
+      })
     },
-    [mapboxToken, setSearchCenter],
+    [applyReference, mapboxToken],
   )
 
   const commitAreaLocationSearch = useCallback(() => {
@@ -400,8 +450,12 @@ export function TaskBrowseProvider({
     void mapboxForwardGeocode(q, token)
       .then((hit) => {
         if (hit) {
-          setSearchCenter(hit.lat, hit.lng)
-          setAreaLocationInput(hit.placeName)
+          applyReference({
+            lat: hit.lat,
+            lng: hit.lng,
+            label: hit.placeName,
+            source: 'manual',
+          })
           lastResolvedAreaSearchQueryRef.current = q
         }
       })
@@ -410,25 +464,49 @@ export function TaskBrowseProvider({
           pendingAreaSearchQueryRef.current = null
         }
       })
-  }, [areaLocationInput, mapboxToken, setSearchCenter])
+  }, [applyReference, areaLocationInput, mapboxToken])
 
   const applyGeolocatedSearch = useCallback(
     async (lat: number, lng: number) => {
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
-      setSearchCenter(lat, lng)
       pendingAreaSearchQueryRef.current = null
       lastResolvedAreaSearchQueryRef.current = null
-      const token = mapboxToken?.trim()
-      if (token) {
-        const name = await mapboxReverseGeocode(lat, lng, token)
-        if (name) setAreaLocationInput(name)
-        else setAreaLocationInput(`${lat.toFixed(5)}, ${lng.toFixed(5)}`)
-      } else {
-        setAreaLocationInput(`${lat.toFixed(5)}, ${lng.toFixed(5)}`)
-      }
+      applyReference({
+        lat,
+        lng,
+        label: CURRENT_LOCATION_LABEL,
+        source: 'geolocation',
+      })
+      setGeolocationStatus('granted')
     },
-    [mapboxToken, setSearchCenter],
+    [applyReference],
   )
+
+  const requestUseMyLocation = useCallback(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setGeolocationStatus('unsupported')
+      return
+    }
+    setGeolocationStatus('pending')
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        void applyGeolocatedSearch(
+          position.coords.latitude,
+          position.coords.longitude,
+        )
+      },
+      () => {
+        setGeolocationStatus('denied')
+      },
+      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 60_000 },
+    )
+  }, [applyGeolocatedSearch])
+
+  const initGeolocationOnLoad = useCallback(() => {
+    if (geolocationInitStartedRef.current) return
+    geolocationInitStartedRef.current = true
+    requestUseMyLocation()
+  }, [requestUseMyLocation])
 
   const cycleSort = useCallback(() => {
     const idx = SORT_OPTIONS.findIndex((opt) => opt.value === sort)
@@ -452,7 +530,9 @@ export function TaskBrowseProvider({
     setMaxBudget(submittedMaxBudget)
     setUrgency(submittedUrgency)
     setSearchInputRaw(submittedSearchText)
+    setAreaLocationInput(referenceLocation.label)
   }, [
+    referenceLocation.label,
     submittedMaxBudget,
     submittedMinBudget,
     submittedRadiusMiles,
@@ -482,6 +562,10 @@ export function TaskBrowseProvider({
       setAreaLocationInput,
       commitAreaLocationSearch,
       applyGeolocatedSearch,
+      requestUseMyLocation,
+      initGeolocationOnLoad,
+      referenceLocation,
+      geolocationStatus,
       submitBrowseFilters,
       syncDraftFiltersFromSubmitted,
       searchCenterLat,
@@ -511,6 +595,10 @@ export function TaskBrowseProvider({
       applyGeolocatedSearch,
       commitAreaLocationSearch,
       confirmSearchThisAreaFromMap,
+      geolocationStatus,
+      initGeolocationOnLoad,
+      referenceLocation,
+      requestUseMyLocation,
       submitBrowseFilters,
       syncDraftFiltersFromSubmitted,
       cycleSort,

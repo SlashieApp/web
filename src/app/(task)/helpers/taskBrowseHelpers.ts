@@ -1,5 +1,12 @@
 import type { TaskListItem } from '@/graphql/tasks-query.types'
+import {
+  distanceMilesBetween,
+  formatDistanceAwayLabel,
+  parseGeoCoord,
+} from '@/utils/geoDistance'
 import { budgetToPence, priceToPence } from '@/utils/price'
+
+import type { BrowseReferenceLocation } from './browseReferenceLocation'
 import type { UrgencyFilter } from './taskBrowseFilters.types'
 
 export const PAGE_SIZE = 5
@@ -132,8 +139,34 @@ export function effectiveTaskPricePenceForFilter(
   return Math.min(...prices)
 }
 
-/** Matches initial `submittedRadiusMiles` in browse context; distance chip hidden at default. */
+/** Matches initial `submittedRadiusMiles` in browse context. */
 export const DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES = 10
+
+export type BrowseFilterTag =
+  | { kind: 'radius'; label: string; miles: number }
+  | { kind: 'location'; label: string }
+  | { kind: 'budget'; label: string }
+  | { kind: 'urgency'; label: string; value: UrgencyFilter }
+  | { kind: 'search'; label: string; query: string }
+
+export function taskDistanceMilesFromReference(
+  task: TaskListItem,
+  reference: Pick<BrowseReferenceLocation, 'lat' | 'lng'>,
+): number | null {
+  const lat = parseGeoCoord(task.location?.lat)
+  const lng = parseGeoCoord(task.location?.lng)
+  if (lat == null || lng == null) return null
+  return distanceMilesBetween(reference.lat, reference.lng, lat, lng)
+}
+
+export function taskDistanceLabelFromReference(
+  task: TaskListItem,
+  reference: Pick<BrowseReferenceLocation, 'lat' | 'lng'>,
+): string | undefined {
+  return formatDistanceAwayLabel(
+    taskDistanceMilesFromReference(task, reference),
+  )
+}
 
 function milesToKmRounded(miles: number): number {
   return Math.round(miles * 1.60934)
@@ -172,36 +205,58 @@ export function buildActiveBrowseFilterTags(input: {
   submittedMaxBudget: string
   submittedUrgency: UrgencyFilter
   submittedSearchText: string
-  areaLocationInput: string
-}): string[] {
-  const tags: string[] = []
+  referenceLabel: string
+}): BrowseFilterTag[] {
+  const tags: BrowseFilterTag[] = []
   const {
     submittedRadiusMiles,
     submittedMinBudget,
     submittedMaxBudget,
     submittedUrgency,
     submittedSearchText,
-    areaLocationInput,
+    referenceLabel,
   } = input
 
-  if (submittedRadiusMiles !== DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES) {
-    tags.push(`Within ${milesToKmRounded(submittedRadiusMiles)} km`)
-  }
+  tags.push({
+    kind: 'radius',
+    label: `Within ${milesToKmRounded(submittedRadiusMiles)} km`,
+    miles: submittedRadiusMiles,
+  })
 
   const minS = submittedMinBudget.trim()
   const maxS = submittedMaxBudget.trim()
   if (minS || maxS) {
-    tags.push(formatSubmittedBudgetRange(minS, maxS))
+    tags.push({
+      kind: 'budget',
+      label: formatSubmittedBudgetRange(minS, maxS),
+    })
   }
 
   const urgencyLabel = submittedUrgencyChipLabel(submittedUrgency)
-  if (urgencyLabel) tags.push(urgencyLabel)
+  if (urgencyLabel) {
+    tags.push({
+      kind: 'urgency',
+      label: urgencyLabel,
+      value: submittedUrgency,
+    })
+  }
 
   const q = submittedSearchText.trim()
-  if (q) tags.push(truncateChipLabel(q, 24))
+  if (q) {
+    tags.push({
+      kind: 'search',
+      label: truncateChipLabel(q, 24),
+      query: q,
+    })
+  }
 
-  const area = areaLocationInput.trim()
-  if (area) tags.push(truncateChipLabel(area, 28))
+  const area = referenceLabel.trim()
+  if (area) {
+    tags.push({
+      kind: 'location',
+      label: truncateChipLabel(area, 28),
+    })
+  }
 
   return tags
 }
