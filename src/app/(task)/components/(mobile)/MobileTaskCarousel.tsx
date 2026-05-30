@@ -28,6 +28,8 @@ const CAROUSEL_INSET = { base: 2, md: 3 } as const
 const SLIDE_PEEK_MD_PX = 52
 /** Movement above this (px) counts as a carousel drag, not a card tap. */
 const CAROUSEL_DRAG_THRESHOLD_PX = 8
+/** Embla programmatic scroll / snap animation (ms). */
+const CAROUSEL_SCROLL_DURATION_MS = 20
 
 type CarouselPointerGesture = {
   didDrag: boolean
@@ -52,8 +54,12 @@ function measureCarouselLayout(viewportWidth: number): {
 
 export function MobileTaskCarousel() {
   const router = useRouter()
-  const { pageItems, selectedTaskId, setSelectedTaskId, referenceLocation } =
-    useTaskBrowseData()
+  const {
+    filteredSorted,
+    selectedTaskId,
+    setSelectedTaskId,
+    referenceLocation,
+  } = useTaskBrowseData()
   const pointerGestureRef = useRef<CarouselPointerGesture>({
     didDrag: false,
     startX: 0,
@@ -61,7 +67,7 @@ export function MobileTaskCarousel() {
   })
   const tasks = useMemo(
     () =>
-      pageItems.map((task) => {
+      filteredSorted.map((task) => {
         const { main } = formatBudget(task)
         const badge = inferBadge(task)
         return {
@@ -81,7 +87,7 @@ export function MobileTaskCarousel() {
           ),
         }
       }),
-    [pageItems, referenceLocation],
+    [filteredSorted, referenceLocation],
   )
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
@@ -89,6 +95,7 @@ export function MobileTaskCarousel() {
       /** Allow first/last slide to reach true center with symmetric track padding. */
       containScroll: false,
       dragFree: false,
+      duration: CAROUSEL_SCROLL_DURATION_MS,
     },
     [WheelGesturesPlugin()],
   )
@@ -108,6 +115,13 @@ export function MobileTaskCarousel() {
   const mediaQueryCleanupRef = useRef<(() => void) | null>(null)
   const emblaEventsCleanupRef = useRef<(() => void) | null>(null)
   const emblaEventsApiRef = useRef<typeof emblaApi>(null)
+  /** Skip scrollTo when selection was driven by carousel (avoids snap fight). */
+  const selectionFromCarouselRef = useRef(false)
+  const [focusedTaskId, setFocusedTaskId] = useState<string | null>(
+    selectedTaskId,
+  )
+  const focusedTaskIdRef = useRef(focusedTaskId)
+  focusedTaskIdRef.current = focusedTaskId
 
   const onCarouselPointerDown = useCallback((event: ReactPointerEvent) => {
     pointerGestureRef.current = {
@@ -127,6 +141,12 @@ export function MobileTaskCarousel() {
     }
   }, [])
 
+  const onCarouselPointerUp = useCallback(() => {
+    queueMicrotask(() => {
+      pointerGestureRef.current.didDrag = false
+    })
+  }, [])
+
   const openTaskDetail = useCallback(
     (taskId: string) => {
       if (pointerGestureRef.current.didDrag) return
@@ -141,6 +161,9 @@ export function MobileTaskCarousel() {
     const idx = live.selectedScrollSnap()
     const id = taskIdsRef.current[idx]
     if (id && id !== selectedTaskIdRef.current) {
+      focusedTaskIdRef.current = id
+      setFocusedTaskId(id)
+      selectionFromCarouselRef.current = true
       setSelectedTaskIdRef.current(id)
     }
   }, [])
@@ -148,10 +171,11 @@ export function MobileTaskCarousel() {
   const lastEmblaLayoutRef = useRef<{
     pad: number
     slideWidth: number
-    selectedId: string | null
     taskIds: string
     api: NonNullable<typeof emblaApi> | null
-  }>({ pad: -1, slideWidth: -1, selectedId: null, taskIds: '', api: null })
+  }>({ pad: -1, slideWidth: -1, taskIds: '', api: null })
+
+  const lastExternalScrollKeyRef = useRef('')
 
   const [carouselLayout, setCarouselLayout] = useState({
     centeringPadPx: 0,
@@ -207,30 +231,58 @@ export function MobileTaskCarousel() {
 
   if (api) {
     const prev = lastEmblaLayoutRef.current
-    if (
+    const layoutChanged =
       prev.api !== api ||
       prev.pad !== pad ||
       prev.slideWidth !== slideWidthPx ||
-      prev.selectedId !== selectedTaskId ||
       prev.taskIds !== taskIdsKey
-    ) {
+
+    if (layoutChanged) {
       lastEmblaLayoutRef.current = {
         api,
         pad,
         slideWidth: slideWidthPx,
-        selectedId: selectedTaskId,
         taskIds: taskIdsKey,
       }
-      const sel = selectedTaskId
+      const sel = selectedTaskIdRef.current
       const idOrder = [...taskIdsRef.current]
       queueMicrotask(() => {
         const live = emblaApiRef.current
         if (!live) return
         live.reInit()
-        if (!sel) return
+        if (!sel) {
+          syncSelectionFromCarousel()
+          return
+        }
         const idx = idOrder.indexOf(sel)
-        if (idx >= 0) live.scrollTo(idx)
+        if (idx >= 0) live.scrollTo(idx, true)
       })
+    }
+  }
+
+  if (selectionFromCarouselRef.current) {
+    selectionFromCarouselRef.current = false
+    lastExternalScrollKeyRef.current = `${selectedTaskId ?? ''}|${taskIdsKey}`
+  } else if (api && selectedTaskId) {
+    const externalScrollKey = `${selectedTaskId}|${taskIdsKey}`
+    if (externalScrollKey !== lastExternalScrollKeyRef.current) {
+      lastExternalScrollKeyRef.current = externalScrollKey
+      if (focusedTaskIdRef.current !== selectedTaskId) {
+        focusedTaskIdRef.current = selectedTaskId
+        queueMicrotask(() => setFocusedTaskId(selectedTaskId))
+      }
+      const idx = taskIdsRef.current.indexOf(selectedTaskId)
+      if (idx >= 0 && idx !== api.selectedScrollSnap()) {
+        queueMicrotask(() => {
+          emblaApiRef.current?.scrollTo(idx, false)
+        })
+      }
+    }
+  } else if (!selectedTaskId) {
+    lastExternalScrollKeyRef.current = ''
+    if (focusedTaskIdRef.current !== null) {
+      focusedTaskIdRef.current = null
+      queueMicrotask(() => setFocusedTaskId(null))
     }
   }
 
@@ -260,8 +312,10 @@ export function MobileTaskCarousel() {
       px={CAROUSEL_INSET}
       mb={1}
       style={edgeFadeMask}
+      css={{ touchAction: 'pan-y pinch-zoom' }}
       onPointerDown={onCarouselPointerDown}
       onPointerMove={onCarouselPointerMove}
+      onPointerUp={onCarouselPointerUp}
       onPointerCancel={() => {
         pointerGestureRef.current.didDrag = true
       }}
@@ -272,9 +326,6 @@ export function MobileTaskCarousel() {
         justify="flex-start"
         pl={`${centeringPadPx}px`}
         pr={`${centeringPadPx}px`}
-        css={{
-          touchAction: 'pan-y pinch-zoom',
-        }}
       >
         {tasks.map((task) => {
           return (
@@ -300,7 +351,7 @@ export function MobileTaskCarousel() {
                 badgeText={task.badgeText}
                 ownerName={task.ownerName}
                 ownerAvatarSrc={task.ownerAvatarSrc}
-                isActive={selectedTaskId === task.id}
+                isActive={(focusedTaskId ?? selectedTaskId) === task.id}
                 showDetailsCta={false}
                 activateAriaLabel={`${task.title}. View task details.`}
                 onActivate={() => openTaskDetail(task.id)}

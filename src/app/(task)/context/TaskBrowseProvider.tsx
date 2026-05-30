@@ -331,18 +331,33 @@ export function TaskBrowseProvider({
 
   const totalPages = Math.max(1, Math.ceil(filteredSorted.length / PAGE_SIZE))
   const maxPageIndex = Math.max(0, totalPages - 1)
-  if (page > maxPageIndex) {
-    setPage(maxPageIndex)
-  }
-
   const safePage = Math.min(page, maxPageIndex)
   const pageItems = filteredSorted.slice(
     safePage * PAGE_SIZE,
     safePage * PAGE_SIZE + PAGE_SIZE,
   )
 
-  if (selectedTaskId && !filteredSorted.some((t) => t.id === selectedTaskId)) {
-    setSelectedTaskId(null)
+  const visibleSelectedTaskId =
+    selectedTaskId && filteredSorted.some((task) => task.id === selectedTaskId)
+      ? selectedTaskId
+      : null
+
+  const staleSelectionRef = useRef<string | null>(null)
+  if (
+    selectedTaskId &&
+    !visibleSelectedTaskId &&
+    staleSelectionRef.current !== selectedTaskId
+  ) {
+    staleSelectionRef.current = selectedTaskId
+    queueMicrotask(() => {
+      setSelectedTaskId((current) =>
+        current && !filteredSorted.some((task) => task.id === current)
+          ? null
+          : current,
+      )
+    })
+  } else if (visibleSelectedTaskId) {
+    staleSelectionRef.current = null
   }
 
   const selectionPageSyncRef = useRef<{
@@ -351,16 +366,21 @@ export function TaskBrowseProvider({
   }>({ selectedTaskId: null, filteredSorted: [] })
 
   if (
-    selectedTaskId !== selectionPageSyncRef.current.selectedTaskId ||
+    visibleSelectedTaskId !== selectionPageSyncRef.current.selectedTaskId ||
     filteredSorted !== selectionPageSyncRef.current.filteredSorted
   ) {
-    selectionPageSyncRef.current = { selectedTaskId, filteredSorted }
-    if (selectedTaskId) {
-      const idx = filteredSorted.findIndex((t) => t.id === selectedTaskId)
+    selectionPageSyncRef.current = {
+      selectedTaskId: visibleSelectedTaskId,
+      filteredSorted,
+    }
+    if (visibleSelectedTaskId) {
+      const idx = filteredSorted.findIndex(
+        (task) => task.id === visibleSelectedTaskId,
+      )
       if (idx >= 0) {
         const desiredPage = Math.floor(idx / PAGE_SIZE)
         if (page !== desiredPage) {
-          setPage(desiredPage)
+          queueMicrotask(() => setPage(desiredPage))
         }
       }
     }
@@ -571,7 +591,7 @@ export function TaskBrowseProvider({
       searchCenterLat,
       searchCenterLng,
       confirmSearchThisAreaFromMap,
-      selectedTaskId,
+      selectedTaskId: visibleSelectedTaskId,
       setSelectedTaskId,
       loading,
       error,
@@ -618,7 +638,7 @@ export function TaskBrowseProvider({
       searchCenterLng,
       searchInput,
       setSearchInput,
-      selectedTaskId,
+      visibleSelectedTaskId,
       shouldWaitForMap,
       sort,
       totalPages,
@@ -716,7 +736,8 @@ export function useTaskMapBindings(): SharedTaskMapBindings {
     radiusMiles: data.submittedRadiusMiles,
     tasks: data.effectiveMapTasksForBox,
     visible: true,
-    tasksLoaded: true,
+    tasksLoaded:
+      !data.loading && (data.dataLoaded || data.browseSourceTaskCount > 0),
     onSearchThisAreaConfirm: data.confirmSearchThisAreaFromMap,
     onMapClick: () => layout.setIsFilterOpen(false),
     onReadyChange: data.markMapReadyForQuery,
