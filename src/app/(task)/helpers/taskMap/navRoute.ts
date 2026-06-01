@@ -115,7 +115,7 @@ export function createTaskMapNavRouteController(args: {
   let animStart = 0
   let selected: { lng: number; lat: number } | null = null
   let needsFlushWhenReady = false
-  /** Bumped on every selection change so stale fetches/animations are ignored. */
+  /** Invalidates in-flight fetches when the user picks another task. */
   let routeRequestId = 0
 
   const cancelAnimation = () => {
@@ -177,10 +177,11 @@ export function createTaskMapNavRouteController(args: {
     map: MapboxMap,
     coordinates: [number, number][],
     displayKey: string,
-    opts?: { instant?: boolean; requestId?: number },
+    requestId: number,
   ) => {
-    if (opts?.requestId != null && opts.requestId !== routeRequestId) return
+    if (requestId !== routeRequestId) return
     if (pendingDisplayKey !== displayKey) return
+
     ensureTaskMapNavRouteLayers(map)
     const src = map.getSource(TASK_MAP_NAV_ROUTE_SOURCE) as GeoJSONSource
     src.setData({
@@ -189,18 +190,13 @@ export function createTaskMapNavRouteController(args: {
       geometry: { type: 'LineString', coordinates },
     })
     activeDisplayKey = displayKey
-    if (opts?.instant) {
-      cancelAnimation()
-      setGradientProgress(map, 1)
-      return
-    }
     runGradientAnimation(map, displayKey)
   }
 
   const loadRouteTo = (
     toLng: number,
     toLat: number,
-    opts?: { force?: boolean; instant?: boolean },
+    opts?: { force?: boolean },
   ) => {
     const map = args.getMap()
     if (!map?.isStyleLoaded()) {
@@ -223,32 +219,28 @@ export function createTaskMapNavRouteController(args: {
     abort = new AbortController()
     const { signal } = abort
 
-    const straightLine: [number, number][] = [
+    const fallbackLine: [number, number][] = [
       [fromLng, fromLat],
       [toLng, toLat],
     ]
-    applyRoute(map, straightLine, displayKey, {
-      instant: true,
-      requestId,
-    })
 
     void mapboxDrivingRoute(fromLng, fromLat, toLng, toLat, token, signal).then(
       (geometry) => {
-        if (signal.aborted || requestId !== routeRequestId) return
+        if (requestId !== routeRequestId) return
         if (pendingDisplayKey !== displayKey) return
+
         const m = args.getMap()
         if (!m?.isStyleLoaded()) {
           needsFlushWhenReady = true
           return
         }
+
         const coordinates =
           geometry?.coordinates.length && geometry.coordinates.length >= 2
             ? geometry.coordinates
-            : straightLine
-        applyRoute(m, coordinates, displayKey, {
-          instant: opts?.instant ?? true,
-          requestId,
-        })
+            : fallbackLine
+
+        applyRoute(m, coordinates, displayKey, requestId)
       },
     )
   }
@@ -269,11 +261,10 @@ export function createTaskMapNavRouteController(args: {
         clearRoute()
         return
       }
-      loadRouteTo(selected.lng, selected.lat, { force: true, instant: true })
+      loadRouteTo(selected.lng, selected.lat, { force: true })
     },
     refreshForSearchCenter: () => {
       if (!selected) return
-      activeDisplayKey = ''
       loadRouteTo(selected.lng, selected.lat, { force: true })
     },
     onStyleReload: () => {
