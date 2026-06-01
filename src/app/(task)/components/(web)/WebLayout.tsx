@@ -49,7 +49,7 @@ export function WebLayout() {
             flex={1}
             minH={0}
             w="full"
-            px={2}
+            pt={2}
             display="flex"
             flexDirection="column"
             overflow="hidden"

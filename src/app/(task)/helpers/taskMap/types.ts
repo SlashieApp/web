@@ -1,4 +1,4 @@
-import type { SearchThisAreaButtonProps } from '../components/SearchThisAreaButton'
+import type { SearchThisAreaButtonProps } from '../../components/SearchThisAreaButton'
 
 export type TaskMapTask = {
   id: string

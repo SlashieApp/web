@@ -1,6 +1,5 @@
 import type { MapMouseEvent, Map as MapboxMap, Marker } from 'mapbox-gl'
 
-import type { TaskMapPropsSnapshot } from './taskMap.types'
 import {
   referenceMarkerElement,
   taskLngLat,
@@ -8,9 +7,12 @@ import {
   taskPinContentSig,
   tasksCoordsSig,
   tasksMarkerSig,
-} from './taskMapPin'
+} from './pin'
+import type { TaskMapPropsSnapshot } from './types'
 
 import { distanceMilesBetween } from '@/utils/geoDistance'
+
+import { createTaskMapNavRouteController } from './navRoute'
 
 const MAP_MIN_ZOOM = 10
 const MAP_MAX_ZOOM = 17
@@ -89,6 +91,14 @@ export function createTaskMapController(args: {
   let markerSyncGeneration = 0
   let syncQueued = false
   let pendingSyncWhileStyleLoading = false
+  const navRoute = createTaskMapNavRouteController({
+    getMap: () => map,
+    getAccessToken: () => args.accessToken,
+    getSearchCenter: () => {
+      const p = getProps()
+      return { lat: p.centerLat, lng: p.centerLng }
+    },
+  })
 
   const lightStyle = process.env.NEXT_PUBLIC_MAPBOX_STYLE_LIGHT?.trim()
   const darkStyle = process.env.NEXT_PUBLIC_MAPBOX_STYLE_DARK?.trim()
@@ -171,7 +181,6 @@ export function createTaskMapController(args: {
     const { el, setSelected, setExpanded } = taskMarkerElement(
       task,
       false,
-      () => queueMicrotask(() => getSelectTask()?.(null)),
       () => queueMicrotask(() => getSelectTask()?.(task.id)),
     )
 
@@ -290,6 +299,7 @@ export function createTaskMapController(args: {
         setShowSearchThisArea(false)
         pendingView = null
         suppressSearchPromptUntil = Date.now() + 1600
+        navRoute.refreshForSearchCenter()
       }
       prevSearchCenterKey = searchKey
     }
@@ -364,6 +374,12 @@ export function createTaskMapController(args: {
     }
 
     lastSelectionFlyKey = selectionFlyKey
+
+    if (selectedId && selLl) {
+      navRoute.setSelectedRoute({ lng: selLl.lng, lat: selLl.lat })
+    } else {
+      navRoute.setSelectedRoute(null)
+    }
 
     if (selectedId && selectedTask && selLl) {
       programmaticMove = true
@@ -457,6 +473,8 @@ export function createTaskMapController(args: {
     styleLoadRun = () => {
       if (cancelled) return
       if (pendingSyncWhileStyleLoading) pendingSyncWhileStyleLoading = false
+      navRoute.onStyleReload()
+      navRoute.flushWhenReady()
       scheduleSync()
     }
 
@@ -464,6 +482,7 @@ export function createTaskMapController(args: {
       if (cancelled) return
       bumpMapResize(m)
       getProps().onReadyChange?.(true)
+      navRoute.flushWhenReady()
       scheduleSync()
     })
 
@@ -504,6 +523,7 @@ export function createTaskMapController(args: {
       if (target instanceof Element && target.closest('.mapboxgl-marker')) {
         return
       }
+      navRoute.clearRoute()
       if (getSelectedTaskId()) getSelectTask()?.(null)
       getProps().onMapClick?.()
     }
@@ -521,6 +541,7 @@ export function createTaskMapController(args: {
       if (map && moveEndRun) map.off('moveend', moveEndRun)
       if (map && mapClickRun) map.off('click', mapClickRun)
       if (map && styleLoadRun) map.off('style.load', styleLoadRun)
+      navRoute.destroy()
       clearAllMarkers()
       referenceMarker?.remove()
       referenceMarker = null

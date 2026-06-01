@@ -10,21 +10,19 @@ import {
   useTaskBrowseLayout,
   useTaskMapBindings,
 } from '../context/TaskBrowseProvider'
-import type {
-  TaskMapPropsSnapshot,
-  TaskMapTask,
-} from '../helpers/taskMap.types'
 import {
   MAX_SEARCH_RADIUS_MILES,
+  type TaskMapPropsSnapshot,
+  type TaskMapTask,
   createTaskMapController,
-} from '../helpers/taskMapController'
-import { taskLngLat } from '../helpers/taskMapPin'
+  taskLngLat,
+} from '../helpers/taskMap'
 
 import type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-export type { TaskMapTask } from '../helpers/taskMap.types'
+export type { TaskMapTask } from '../helpers/taskMap'
 
 export type TaskMapProps = {
   accessToken: string | undefined
