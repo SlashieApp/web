@@ -13,6 +13,7 @@ import {
   activeOrdersForUser,
   customerOrders,
   isOrderClosed,
+  isOrderCompletedEarnings,
   isOrderPendingEarnings,
   sumOrderAgreedPricePence,
   workerOrders,
@@ -53,7 +54,9 @@ export function useAccountOrders() {
         isOrderClosed(o.status) &&
         (o.customerUserId === me.id || o.workerUserId === me.id),
     )
-    const closedWorker = asWorker.filter((o) => isOrderClosed(o.status))
+    const closedWorker = asWorker.filter((o) =>
+      isOrderCompletedEarnings(o.status),
+    )
     const pendingWorker = asWorker.filter((o) =>
       isOrderPendingEarnings(o.status),
     )

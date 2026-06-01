@@ -26,6 +26,10 @@ function toneForType(type: string): ActivityTone {
       return 'purple'
     case NotificationType.TaskConfirmed:
       return 'mint'
+    case NotificationType.OrderWorkCompleted:
+      return 'purple'
+    case NotificationType.OrderClosed:
+      return 'mint'
     default:
       return 'green'
   }

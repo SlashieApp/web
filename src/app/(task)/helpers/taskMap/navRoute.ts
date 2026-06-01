@@ -115,6 +115,8 @@ export function createTaskMapNavRouteController(args: {
   let animStart = 0
   let selected: { lng: number; lat: number } | null = null
   let needsFlushWhenReady = false
+  /** Bumped on every selection change so stale fetches/animations are ignored. */
+  let routeRequestId = 0
 
   const cancelAnimation = () => {
     if (animFrame != null) {
@@ -157,6 +159,7 @@ export function createTaskMapNavRouteController(args: {
   }
 
   const clearRoute = () => {
+    routeRequestId += 1
     abort?.abort()
     abort = null
     cancelAnimation()
@@ -174,7 +177,9 @@ export function createTaskMapNavRouteController(args: {
     map: MapboxMap,
     coordinates: [number, number][],
     displayKey: string,
+    opts?: { instant?: boolean; requestId?: number },
   ) => {
+    if (opts?.requestId != null && opts.requestId !== routeRequestId) return
     if (pendingDisplayKey !== displayKey) return
     ensureTaskMapNavRouteLayers(map)
     const src = map.getSource(TASK_MAP_NAV_ROUTE_SOURCE) as GeoJSONSource
@@ -184,13 +189,18 @@ export function createTaskMapNavRouteController(args: {
       geometry: { type: 'LineString', coordinates },
     })
     activeDisplayKey = displayKey
+    if (opts?.instant) {
+      cancelAnimation()
+      setGradientProgress(map, 1)
+      return
+    }
     runGradientAnimation(map, displayKey)
   }
 
   const loadRouteTo = (
     toLng: number,
     toLat: number,
-    opts?: { force?: boolean },
+    opts?: { force?: boolean; instant?: boolean },
   ) => {
     const map = args.getMap()
     if (!map?.isStyleLoaded()) {
@@ -205,15 +215,27 @@ export function createTaskMapNavRouteController(args: {
     const displayKey = targetKey(fromLng, fromLat, toLng, toLat)
     if (!opts?.force && displayKey === activeDisplayKey) return
 
+    const requestId = ++routeRequestId
     pendingDisplayKey = displayKey
     needsFlushWhenReady = false
+    cancelAnimation()
     abort?.abort()
     abort = new AbortController()
     const { signal } = abort
 
+    const straightLine: [number, number][] = [
+      [fromLng, fromLat],
+      [toLng, toLat],
+    ]
+    applyRoute(map, straightLine, displayKey, {
+      instant: true,
+      requestId,
+    })
+
     void mapboxDrivingRoute(fromLng, fromLat, toLng, toLat, token, signal).then(
       (geometry) => {
-        if (signal.aborted || pendingDisplayKey !== displayKey) return
+        if (signal.aborted || requestId !== routeRequestId) return
+        if (pendingDisplayKey !== displayKey) return
         const m = args.getMap()
         if (!m?.isStyleLoaded()) {
           needsFlushWhenReady = true
@@ -222,11 +244,11 @@ export function createTaskMapNavRouteController(args: {
         const coordinates =
           geometry?.coordinates.length && geometry.coordinates.length >= 2
             ? geometry.coordinates
-            : ([
-                [fromLng, fromLat],
-                [toLng, toLat],
-              ] as [number, number][])
-        applyRoute(m, coordinates, displayKey)
+            : straightLine
+        applyRoute(m, coordinates, displayKey, {
+          instant: opts?.instant ?? true,
+          requestId,
+        })
       },
     )
   }
@@ -247,7 +269,7 @@ export function createTaskMapNavRouteController(args: {
         clearRoute()
         return
       }
-      loadRouteTo(selected.lng, selected.lat, { force: true })
+      loadRouteTo(selected.lng, selected.lat, { force: true, instant: true })
     },
     refreshForSearchCenter: () => {
       if (!selected) return

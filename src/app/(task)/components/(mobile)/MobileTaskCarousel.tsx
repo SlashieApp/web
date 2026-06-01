@@ -160,10 +160,12 @@ export function MobileTaskCarousel() {
     if (!live) return
     const idx = live.selectedScrollSnap()
     const id = taskIdsRef.current[idx]
-    if (id && id !== selectedTaskIdRef.current) {
-      focusedTaskIdRef.current = id
-      setFocusedTaskId(id)
-      selectionFromCarouselRef.current = true
+    if (!id) return
+
+    focusedTaskIdRef.current = id
+    setFocusedTaskId(id)
+    selectionFromCarouselRef.current = true
+    if (id !== selectedTaskIdRef.current) {
       setSelectedTaskIdRef.current(id)
     }
   }, [])

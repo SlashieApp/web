@@ -3,5 +3,6 @@
 query Order($id: ID!) {
   order(id: $id) {
     ...OrderFields
+    completionVerificationCode
   }
 }

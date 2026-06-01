@@ -5,8 +5,9 @@ import { Box, Container, Grid, Stack } from '@chakra-ui/react'
 import { Footer } from '@ui'
 
 import { AcceptedWorkerBanner } from './components/AcceptedWorkerBanner'
+import { CustomerActiveOrderBanner } from './components/CustomerActiveOrderBanner'
 import { TaskHeader } from './components/TaskHeader'
-import { TaskJobClosurePanels } from './components/TaskJobClosurePanels'
+import { WorkerOrderVerificationPanel } from './components/WorkerOrderVerificationPanel'
 import { MainSection } from './components/mainSection'
 import { MetaSection } from './components/metaSection'
 import { QuoteSection } from './components/quoteSection'
@@ -69,6 +70,7 @@ export default function TaskDetailPage() {
       <Container pb={{ base: 28, md: 10 }} mx="auto">
         <Stack gap={8} px={{ base: 4, md: 6 }}>
           <TaskHeader />
+          <CustomerActiveOrderBanner />
           <AcceptedWorkerBanner />
           <Grid
             w="full"
@@ -115,7 +117,7 @@ export default function TaskDetailPage() {
                 top={{ xl: 20 }}
                 alignSelf="start"
               >
-                <TaskJobClosurePanels />
+                <WorkerOrderVerificationPanel />
                 <QuoteSection />
               </Stack>
             </Box>

@@ -59,7 +59,7 @@ export default function EarningsPage() {
               {loading ? '…' : formatPounds(pendingEarningsPence)}
             </Heading>
             <Text fontSize="sm" color="formLabelMuted">
-              Sum of agreed prices on active orders (until closed).
+              Sum of agreed prices on orders still in progress (ACTIVE).
             </Text>
           </Stack>
         </SectionCard>
@@ -78,7 +78,7 @@ export default function EarningsPage() {
               {loading ? '…' : formatPounds(completedEarningsPence)}
             </Heading>
             <Text fontSize="sm" color="formLabelMuted">
-              Sum of agreed prices on closed orders.
+              Sum of agreed prices on closed orders (CLOSED).
             </Text>
           </Stack>
         </SectionCard>

@@ -1,4 +1,8 @@
-import { type MyOrdersQuery, OrderStatus } from '@codegen/schema'
+import {
+  type MyOrdersQuery,
+  type OrderQuery,
+  OrderStatus,
+} from '@codegen/schema'
 
 import { formatPounds } from '@/utils/dashboardHelpers'
 import {
@@ -7,7 +11,11 @@ import {
   scheduleChipForTask,
 } from '@/utils/taskJobSchedule'
 
-export type OrderItem = MyOrdersQuery['myOrders'][number]
+export type OrderItem = MyOrdersQuery['myOrders'][number] &
+  Pick<
+    NonNullable<OrderQuery['order']>,
+    'completionVerificationCode' | 'createdAt'
+  >
 
 export function orderAgreedPricePence(order: OrderItem): number {
   const amount = order.agreedPrice?.amount
@@ -64,12 +72,16 @@ export function isOrderClosed(status: OrderStatus | string): boolean {
   return status === OrderStatus.Closed || status === OrderStatus.Cancelled
 }
 
+/** Worker pending earnings: only orders still in progress. */
 export function isOrderPendingEarnings(status: OrderStatus | string): boolean {
-  return (
-    status === OrderStatus.Active ||
-    status === OrderStatus.WorkCompleted ||
-    status === OrderStatus.PaymentAcknowledged
-  )
+  return status === OrderStatus.Active
+}
+
+/** Worker completed earnings tally: closed orders only. */
+export function isOrderCompletedEarnings(
+  status: OrderStatus | string,
+): boolean {
+  return status === OrderStatus.Closed
 }
 
 export type OrderPartyRole = 'customer' | 'worker'
@@ -83,8 +95,64 @@ export function orderPartyRole(
   return null
 }
 
-export function orderTaskHref(order: OrderItem): string {
+export function orderTaskHref(
+  order: OrderItem | { id: string; taskId: string },
+): string {
   return `/task/${order.taskId}?orderId=${order.id}`
+}
+
+export function orderDashboardHref(orderId: string): string {
+  return `/dashboard/orders/${orderId}`
+}
+
+export type OrderTimelineStep = {
+  key: string
+  label: string
+  at?: unknown
+  done: boolean
+  current: boolean
+}
+
+export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
+  const status = order.status
+  const closed = status === OrderStatus.Closed
+  const cancelled = status === OrderStatus.Cancelled
+  return [
+    {
+      key: 'created',
+      label: 'Order created',
+      at: order.createdAt,
+      done: true,
+      current: false,
+    },
+    {
+      key: 'active',
+      label: cancelled ? 'Cancelled' : 'Job in progress',
+      done: status !== OrderStatus.Active,
+      current: status === OrderStatus.Active,
+    },
+    {
+      key: 'closed',
+      label: 'Closed',
+      at: order.closedAt,
+      done: closed,
+      current: closed,
+    },
+  ]
+}
+
+export function workerQuoteForOrder(
+  quotes: ReadonlyArray<{
+    id: string
+    status: string
+    worker?: {
+      id: string
+      profile?: { name?: string | null; avatarUrl?: string | null } | null
+    } | null
+  }>,
+  quoteId: string,
+) {
+  return quotes.find((q) => q.id === quoteId) ?? null
 }
 
 export function orderLocationLabel(order: OrderItem): string {

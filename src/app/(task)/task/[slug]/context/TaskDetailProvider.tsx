@@ -3,18 +3,16 @@
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
 import type {
   AcceptQuoteMutation,
-  AcknowledgeOrderPaymentMutation,
   AddQuoteMutation,
   CancelTaskMutation,
-  CompleteOrderMutation,
-  ConfirmOrderMutation,
+  CompleteOrderWithVerificationMutation,
   DeclineQuoteMutation,
   MeQuery,
   MyOrdersQuery,
   OrderQuery,
   TaskQuery,
 } from '@codegen/schema'
-import { Currency, OrderStatus, QuoteStatus, TaskStatus } from '@codegen/schema'
+import { Currency, QuoteStatus, TaskStatus } from '@codegen/schema'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   createContext,
@@ -24,9 +22,7 @@ import {
   useState,
 } from 'react'
 
-import AcknowledgeOrderPayment from '@/app/(dashboard)/graphql/AcknowledgeOrderPayment.gql'
-import CompleteOrder from '@/app/(dashboard)/graphql/CompleteOrder.gql'
-import ConfirmOrder from '@/app/(dashboard)/graphql/ConfirmOrder.gql'
+import CompleteOrderWithVerification from '@/app/(dashboard)/graphql/CompleteOrderWithVerification.gql'
 import DeclineQuote from '@/app/(dashboard)/graphql/DeclineQuote.gql'
 import MyOrders from '@/app/(dashboard)/graphql/MyOrders.gql'
 import Order from '@/app/(dashboard)/graphql/Order.gql'
@@ -69,21 +65,19 @@ type TaskDetailContextValue = {
   acceptError: string | null
   cancelError: string | null
   jobActionError: string | null
+  verificationCode: string
+  setVerificationCode: (v: string) => void
   acceptingQuoteId: string | null
   decliningQuoteId: string | null
   quoting: boolean
   cancelingTask: boolean
-  completingOrder: boolean
-  confirmingOrder: boolean
-  acknowledgingOrderPayment: boolean
+  completingOrderWithVerification: boolean
   canAcceptQuotes: boolean
   canAccessWorkerTools: boolean
   onSubmitQuote: () => Promise<boolean>
   onAcceptQuote: (quoteId: string) => Promise<void>
   onDeclineQuote: (quoteId: string) => Promise<void>
-  onCompleteOrder: () => Promise<void>
-  onConfirmOrder: () => Promise<void>
-  onAcknowledgeOrderPayment: () => Promise<void>
+  onCompleteOrderWithVerification: () => Promise<void>
   onCancelTask: () => Promise<void>
   scrollToQuoteForm: () => void
   scrollToOwnerPerformance: () => void
@@ -118,6 +112,7 @@ export function TaskDetailProvider({
   const [acceptingQuoteId, setAcceptingQuoteId] = useState<string | null>(null)
   const [cancelError, setCancelError] = useState<string | null>(null)
   const [jobActionError, setJobActionError] = useState<string | null>(null)
+  const [verificationCode, setVerificationCode] = useState('')
   const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
   const isAuthenticated = Boolean(getAuthToken())
 
@@ -160,12 +155,12 @@ export function TaskDetailProvider({
   const [cancelTask, { loading: cancelingTask }] =
     useMutation<CancelTaskMutation>(CancelTask)
   const [declineQuote] = useMutation<DeclineQuoteMutation>(DeclineQuote)
-  const [completeOrder, { loading: completingOrder }] =
-    useMutation<CompleteOrderMutation>(CompleteOrder)
-  const [confirmOrder, { loading: confirmingOrder }] =
-    useMutation<ConfirmOrderMutation>(ConfirmOrder)
-  const [acknowledgeOrderPayment, { loading: acknowledgingOrderPayment }] =
-    useMutation<AcknowledgeOrderPaymentMutation>(AcknowledgeOrderPayment)
+  const [
+    completeOrderWithVerification,
+    { loading: completingOrderWithVerification },
+  ] = useMutation<CompleteOrderWithVerificationMutation>(
+    CompleteOrderWithVerification,
+  )
 
   const refreshTask = useCallback(async () => {
     const result = await apollo.query<TaskQuery>({
@@ -387,64 +382,26 @@ export function TaskDetailProvider({
     [declineQuote, isOwner, refreshTask, task],
   )
 
-  const onCompleteOrder = useCallback(async () => {
+  const onCompleteOrderWithVerification = useCallback(async () => {
     if (!myOrder || !isOrderWorker) return
-    setJobActionError(null)
-    try {
-      const result = await completeOrder({
-        variables: { orderId: myOrder.id },
-      })
-      if (!result.data?.completeOrder?.id) {
-        throw new Error('Could not mark this job as done.')
-      }
-      showAppToast({
-        title: 'Job marked complete',
-        description: 'The customer will be asked to confirm.',
-        type: 'success',
-      })
-      await refreshOrders()
-    } catch (error: unknown) {
-      setJobActionError(
-        getFriendlyErrorMessage(error, 'Could not mark this job as done.'),
-      )
+    const code = verificationCode.trim()
+    if (code.length !== 6) {
+      setJobActionError('Enter the 6-digit code from the customer.')
+      return
     }
-  }, [completeOrder, isOrderWorker, myOrder, refreshOrders])
-
-  const onConfirmOrder = useCallback(async () => {
-    if (!myOrder || !isOrderCustomer) return
     setJobActionError(null)
     try {
-      const result = await confirmOrder({ variables: { orderId: myOrder.id } })
-      if (!result.data?.confirmOrder?.id) {
-        throw new Error('Could not confirm this job.')
-      }
-      showAppToast({
-        title: 'Job confirmed',
-        description: 'This order is now closed on Slashie.',
-        type: 'success',
+      const result = await completeOrderWithVerification({
+        variables: { orderId: myOrder.id, code },
       })
-      await refreshOrders()
-    } catch (error: unknown) {
-      setJobActionError(
-        getFriendlyErrorMessage(error, 'Could not confirm this job.'),
-      )
-    }
-  }, [confirmOrder, isOrderCustomer, myOrder, refreshOrders])
-
-  const onAcknowledgeOrderPayment = useCallback(async () => {
-    if (!myOrder || !isOrderWorker) return
-    setJobActionError(null)
-    try {
-      const result = await acknowledgeOrderPayment({
-        variables: { orderId: myOrder.id },
-      })
-      if (!result.data?.acknowledgeOrderPayment?.id) {
-        throw new Error('Could not save payment acknowledgment.')
+      if (!result.data?.completeOrderWithVerification?.id) {
+        throw new Error('Could not complete this job.')
       }
+      setVerificationCode('')
       showAppToast({
-        title: 'Payment noted',
+        title: 'Job closed',
         description:
-          'Recorded that you received payment directly from the customer.',
+          'Payment and completion are recorded. This order is now closed.',
         type: 'success',
       })
       await refreshOrders()
@@ -452,11 +409,17 @@ export function TaskDetailProvider({
       setJobActionError(
         getFriendlyErrorMessage(
           error,
-          'Could not save payment acknowledgment.',
+          'Invalid or expired code. Check with the customer and try again.',
         ),
       )
     }
-  }, [acknowledgeOrderPayment, isOrderWorker, myOrder, refreshOrders])
+  }, [
+    completeOrderWithVerification,
+    isOrderWorker,
+    myOrder,
+    refreshOrders,
+    verificationCode,
+  ])
 
   const onCancelTask = useCallback(async () => {
     if (!task) return
@@ -522,21 +485,19 @@ export function TaskDetailProvider({
       acceptError,
       cancelError,
       jobActionError,
+      verificationCode,
+      setVerificationCode,
       acceptingQuoteId,
       decliningQuoteId,
       quoting,
       cancelingTask,
-      completingOrder,
-      confirmingOrder,
-      acknowledgingOrderPayment,
+      completingOrderWithVerification,
       canAcceptQuotes,
       canAccessWorkerTools,
       onSubmitQuote,
       onAcceptQuote,
       onDeclineQuote,
-      onCompleteOrder,
-      onConfirmOrder,
-      onAcknowledgeOrderPayment,
+      onCompleteOrderWithVerification,
       onCancelTask,
       scrollToQuoteForm,
       scrollToOwnerPerformance,
@@ -547,9 +508,7 @@ export function TaskDetailProvider({
       cancelError,
       jobActionError,
       cancelingTask,
-      completingOrder,
-      confirmingOrder,
-      acknowledgingOrderPayment,
+      completingOrderWithVerification,
       canAcceptQuotes,
       canAccessWorkerTools,
       canSubmitQuote,
@@ -565,10 +524,8 @@ export function TaskDetailProvider({
       myOrder,
       myQuote,
       onAcceptQuote,
-      onAcknowledgeOrderPayment,
       onCancelTask,
-      onCompleteOrder,
-      onConfirmOrder,
+      onCompleteOrderWithVerification,
       onDeclineQuote,
       onSubmitQuote,
       quoteAmountInput,
@@ -581,6 +538,7 @@ export function TaskDetailProvider({
       scrollToQuoteForm,
       sortedQuotes,
       task,
+      verificationCode,
     ],
   )
 
@@ -599,5 +557,4 @@ export function useTaskDetail() {
   return context
 }
 
-/** Alias for {@link useTaskDetail} (task detail route context). */
 export const useTask = useTaskDetail

@@ -29,6 +29,7 @@ fragment OrderFields on Order {
     budgetAmount
     paymentMethod
   }
+  createdAt
   workCompletedAt
   workerPaymentAcknowledgedAt
   closedAt

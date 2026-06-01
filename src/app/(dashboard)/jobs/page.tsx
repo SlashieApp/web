@@ -8,6 +8,7 @@ import {
   type OrderItem,
   formatOrderAgreedPrice,
   isOrderClosed,
+  orderDashboardHref,
   orderLocationLabel,
   orderPartyRole,
   orderStatusChipLabel,
@@ -55,16 +56,25 @@ function OrderJobCardWithRole({
         </Text>
         <Text fontSize="sm" color="formLabelMuted">
           {role === 'customer'
-            ? 'Confirm completion when you are satisfied with the work.'
-            : 'Coordinate on site and close out the job when finished.'}
+            ? 'Share your completion code when the work is done.'
+            : 'Enter the customer’s code to close the job when finished.'}
         </Text>
-        <HStack gap={3}>
+        <HStack gap={3} flexWrap="wrap">
+          <Link
+            as={NextLink}
+            href={orderDashboardHref(order.id)}
+            _hover={{ textDecoration: 'none' }}
+          >
+            <Button size="sm" variant="secondary">
+              Order details
+            </Button>
+          </Link>
           <Link
             as={NextLink}
             href={orderTaskHref(order)}
             _hover={{ textDecoration: 'none' }}
           >
-            <Button size="sm">Open job</Button>
+            <Button size="sm">Open task</Button>
           </Link>
         </HStack>
       </Stack>

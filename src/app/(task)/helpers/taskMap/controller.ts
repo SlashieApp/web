@@ -85,6 +85,7 @@ export function createTaskMapController(args: {
   let lastMarkerSig = ''
   let lastCoordsSig = ''
   let lastSelectionFlyKey = ''
+  let lastSyncedSelectedId = ''
   let lastPinSelectedKey = ''
   let lastSearchThisAreaUiSig: string | null = null
   let lastThemeMode: 'light' | 'dark' | null = null
@@ -367,6 +368,16 @@ export function createTaskMapController(args: {
         ? `${selectedId}|${selLl.lat}|${selLl.lng}|${leftPad}`
         : `__none__|${leftPad}`
 
+    const selectedIdChanged = (selectedId ?? '') !== lastSyncedSelectedId
+    if (selectedIdChanged) {
+      lastSyncedSelectedId = selectedId ?? ''
+      if (selectedId && selLl) {
+        navRoute.setSelectedRoute({ lng: selLl.lng, lat: selLl.lat })
+      } else {
+        navRoute.setSelectedRoute(null)
+      }
+    }
+
     if (selectionFlyKey === lastSelectionFlyKey) {
       const pinKey = selectedId ?? ''
       if (pinKey !== lastPinSelectedKey) applyMarkerSelection(selectedId)
@@ -375,13 +386,8 @@ export function createTaskMapController(args: {
 
     lastSelectionFlyKey = selectionFlyKey
 
-    if (selectedId && selLl) {
-      navRoute.setSelectedRoute({ lng: selLl.lng, lat: selLl.lat })
-    } else {
-      navRoute.setSelectedRoute(null)
-    }
-
     if (selectedId && selectedTask && selLl) {
+      map.stop()
       programmaticMove = true
       suppressSearchPromptUntil = Date.now() + 1200
       setShowSearchThisArea(false)

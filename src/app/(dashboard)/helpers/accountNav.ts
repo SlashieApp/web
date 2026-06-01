@@ -66,6 +66,7 @@ export { isAccountHubPath } from '@/utils/accountHub'
 export function resolveAccountNavKey(pathname: string | null): AccountNavKey {
   const path = pathname ?? ''
   if (path.startsWith('/requests')) return 'requests'
+  if (path.startsWith('/dashboard/orders')) return 'jobs'
   if (path.startsWith('/jobs')) return 'jobs'
   if (path.startsWith('/earnings')) return 'earnings'
   if (path.startsWith('/account')) return 'account'

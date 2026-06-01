@@ -1,0 +1,23 @@
+#import "./orderFields.gql"
+
+query OrderDetail($id: ID!) {
+  order(id: $id) {
+    ...OrderFields
+    completionVerificationCode
+    task {
+      id
+      quotes {
+        id
+        status
+        workerUserId
+        worker {
+          id
+          profile {
+            name
+            avatarUrl
+          }
+        }
+      }
+    }
+  }
+}
