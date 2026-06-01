@@ -12,14 +12,17 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { isAccountHubPath } from '@/utils/accountHub'
 import { getAuthToken } from '@/utils/auth'
 import { AppDrawer } from '../AppDrawer/AppDrawer'
 import { Button } from '../Button'
 import { HoverDropdownMenu } from '../HoverDropdownMenu'
 import { Logo } from '../Logo/Logo'
+import { NotificationBell } from '../NotificationBell'
 import { useColorMode } from '../color-mode'
 
 const accountMenuLinkProps = {
@@ -155,23 +158,40 @@ export type HeaderProps = {
   children?: React.ReactNode
 } & Omit<BoxProps, 'children'>
 
+function resolveWorkerCta(
+  isLoggedIn: boolean,
+  pathname: string,
+): { href: string; label: string } {
+  if (!isLoggedIn) {
+    return {
+      href: `/login?next=${encodeURIComponent('/dashboard')}`,
+      label: 'Join Slashie',
+    }
+  }
+  if (isAccountHubPath(pathname)) {
+    return { href: '/', label: 'Browse tasks' }
+  }
+  return { href: '/dashboard', label: 'Worker Dashboard' }
+}
+
 function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
+  const pathname = usePathname()
   const user = useUserStore((state) => state.user)
   const getUser = useUserStore((state) => state.getUser)
   const [hasMounted, setHasMounted] = useState(false)
-  const [currentPathname, setCurrentPathname] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isLoggedIn = Boolean(user)
   const onMountNavigation = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node || hasMounted) return
       setHasMounted(true)
-      setCurrentPathname(window.location.pathname)
       if (!getAuthToken()) return
       void getUser()
     },
     [getUser, hasMounted],
   )
+
+  const routePathname = hasMounted ? pathname : null
 
   // Pathname from `usePathname()` can disagree between SSR and the first client
   // paint (e.g. null vs real path). Defer route-derived highlighting until after
@@ -181,17 +201,16 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
       ? activeItem
       : !hasMounted
         ? 'none'
-        : currentPathname?.startsWith('/tasks/create')
+        : routePathname?.startsWith('/tasks/create')
           ? 'post-task'
-          : currentPathname === '/' || currentPathname?.startsWith('/tasks')
+          : routePathname === '/' || routePathname?.startsWith('/tasks')
             ? 'home'
             : 'none'
 
-  const workerHref = isLoggedIn
-    ? '/dashboard'
-    : `/login?next=${encodeURIComponent('/dashboard')}`
-
-  const workerCtaLabel = isLoggedIn ? 'Worker Dashboard' : 'Join Slashie'
+  const { href: workerHref, label: workerCtaLabel } = resolveWorkerCta(
+    isLoggedIn,
+    pathname,
+  )
 
   const navigateTo = useCallback((href: string) => {
     if (typeof window === 'undefined') return
@@ -199,8 +218,8 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   }, [])
 
   const loginHref =
-    hasMounted && currentPathname
-      ? `/login?next=${encodeURIComponent(currentPathname)}`
+    hasMounted && routePathname
+      ? `/login?next=${encodeURIComponent(routePathname)}`
       : '/login'
 
   return (
@@ -250,6 +269,11 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
             Post a task
           </Button>
         </Link>
+        {isLoggedIn ? (
+          <Box display={{ base: 'none', lg: 'inline-flex' }}>
+            <NotificationBell />
+          </Box>
+        ) : null}
         <Link
           as={NextLink}
           href={workerHref}
@@ -320,6 +344,11 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
             )}
           </Stack>
         </HoverDropdownMenu>
+        {isLoggedIn ? (
+          <Box display={{ base: 'inline-flex', lg: 'none' }}>
+            <NotificationBell />
+          </Box>
+        ) : null}
         <IconButton
           aria-label="Open menu"
           variant="ghost"

@@ -1,0 +1,7 @@
+#import "./orderFields.gql"
+
+mutation ConfirmOrder($orderId: ID!) {
+  confirmOrder(orderId: $orderId) {
+    ...OrderFields
+  }
+}

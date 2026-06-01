@@ -1,0 +1,7 @@
+mutation AcknowledgeWorkerPayment($taskId: ID!) {
+  acknowledgeWorkerPayment(taskId: $taskId) {
+    id
+    status
+    workerPaymentAcknowledgedAt
+  }
+}

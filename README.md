@@ -16,7 +16,7 @@ When you **accept a quote**, the amount you agreed is handled **on-platform** (h
 
 ### As a worker (earning)
 
-You sign up as a **worker**, add skills and profile details, then **browse tasks** (with notifications when available). You **send quotes** with your price and a short pitch. If the customer chooses you, you complete the work; after completion, **payment is released** according to the platform flow.
+You sign up as a **worker**, add skills and profile details, then **browse tasks** (with notifications when available). You **send quotes** with your price and a short pitch. If the customer chooses you, you complete the work; **payment is arranged directly** between you and the customer outside Slashie.
 
 ### Connections and membership
 

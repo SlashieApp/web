@@ -4,9 +4,6 @@ mutation ConfirmEmailVerification($token: String!) {
     profile {
       emailVerified
     }
-    workerEligibility {
-      isEligible
-      missing
-    }
+    workerEligibility
   }
 }

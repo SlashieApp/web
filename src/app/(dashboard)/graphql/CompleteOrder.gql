@@ -1,0 +1,7 @@
+#import "./orderFields.gql"
+
+mutation CompleteOrder($orderId: ID!) {
+  completeOrder(orderId: $orderId) {
+    ...OrderFields
+  }
+}

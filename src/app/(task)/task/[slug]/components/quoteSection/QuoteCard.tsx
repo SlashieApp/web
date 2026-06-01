@@ -40,7 +40,9 @@ export type QuoteCardProps = {
   acceptPrimary?: boolean
   isOwnQuote?: boolean
   onAccept?: () => void
+  onDecline?: () => void
   acceptLoading?: boolean
+  declineLoading?: boolean
   acceptDisabled?: boolean
   detailHref?: string
 }
@@ -60,7 +62,9 @@ export function QuoteCard({
   acceptPrimary = false,
   isOwnQuote = false,
   onAccept,
+  onDecline,
   acceptLoading = false,
+  declineLoading = false,
   acceptDisabled = false,
   detailHref = '/jobs',
 }: QuoteCardProps) {
@@ -208,23 +212,40 @@ export function QuoteCard({
         <Button size="sm" variant="secondary" disabled w="full">
           Your quote
         </Button>
-      ) : onAccept ? (
-        <Button
-          size="sm"
-          w="full"
-          loading={acceptLoading}
-          disabled={acceptDisabled}
-          onClick={onAccept}
-          variant={acceptPrimary ? 'primary' : 'outline'}
-          {...(acceptPrimary
-            ? {}
-            : {
-                borderColor: 'primary.300',
-                color: 'primary.700',
-              })}
-        >
-          Accept quote
-        </Button>
+      ) : onAccept || onDecline ? (
+        <Stack gap={2} w="full">
+          {onAccept ? (
+            <Button
+              size="sm"
+              w="full"
+              loading={acceptLoading}
+              disabled={acceptDisabled || declineLoading}
+              onClick={onAccept}
+              variant={acceptPrimary ? 'primary' : 'outline'}
+              {...(acceptPrimary
+                ? {}
+                : {
+                    borderColor: 'primary.300',
+                    color: 'primary.700',
+                  })}
+            >
+              Accept quote
+            </Button>
+          ) : null}
+          {onDecline ? (
+            <Button
+              size="sm"
+              w="full"
+              variant="ghost"
+              color="red.600"
+              loading={declineLoading}
+              disabled={acceptLoading || acceptDisabled}
+              onClick={onDecline}
+            >
+              Decline
+            </Button>
+          ) : null}
+        </Stack>
       ) : null}
     </Stack>
   )

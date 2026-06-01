@@ -15,6 +15,8 @@ import NextLink from 'next/link'
 import { priceToPence } from '@/utils/price'
 import { Badge, Button } from '@ui'
 
+import { QuoteStatus } from '@codegen/schema'
+
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
@@ -78,13 +80,17 @@ export function QuotesSection() {
     isAuthenticated,
     myQuote,
     canAccessWorkerTools,
+    canSubmitQuote,
+    isAssignedWorker,
     sortedQuotes,
     lowestPricePence,
     canAcceptQuotes,
     acceptError,
     cancelError,
     acceptingQuoteId,
+    decliningQuoteId,
     onAcceptQuote,
+    onDeclineQuote,
   } = useTaskDetail()
 
   const [quoteSort, setQuoteSort] = useState<QuoteSort>('recommended')
@@ -185,11 +191,17 @@ export function QuotesSection() {
                     }
                     isOwnQuote={false}
                     onAccept={
-                      canAcceptQuotes
+                      canAcceptQuotes && quote.status === QuoteStatus.Pending
                         ? () => void onAcceptQuote(quote.id)
                         : undefined
                     }
+                    onDecline={
+                      canAcceptQuotes && quote.status === QuoteStatus.Pending
+                        ? () => void onDeclineQuote(quote.id)
+                        : undefined
+                    }
                     acceptLoading={acceptingQuoteId === quote.id}
+                    declineLoading={decliningQuoteId === quote.id}
                   />
                 </MetaListRow>
               )
@@ -204,6 +216,18 @@ export function QuotesSection() {
   const hasQuoteRows = n > 0
   const quoteFlowHref = `/task/${task.id}/quote`
   const loginHref = `/login?next=${encodeURIComponent(quoteFlowHref)}`
+
+  if (isAssignedWorker) {
+    return (
+      <Stack gap={3} w="full">
+        <Heading size="md">Your accepted quote</Heading>
+        <Text fontSize="sm" color="formLabelMuted">
+          You are booked on this job. Use the coordination panel above to reach
+          the customer and close out the work.
+        </Text>
+      </Stack>
+    )
+  }
 
   const followUpBlock = !isAuthenticated ? (
     <Stack gap={3}>
@@ -242,7 +266,7 @@ export function QuotesSection() {
         Status: {normaliseTaskStatusForBadge(myQuote.status)}
       </Badge>
     </Stack>
-  ) : !canAccessWorkerTools ? (
+  ) : !canSubmitQuote && !canAccessWorkerTools ? (
     <Stack gap={3}>
       <Heading size="sm">Become a worker to send a quote</Heading>
       <Text color="formLabelMuted">
@@ -255,6 +279,13 @@ export function QuotesSection() {
       >
         <Button w="full">Create worker profile</Button>
       </Link>
+    </Stack>
+  ) : !canSubmitQuote ? (
+    <Stack gap={3}>
+      <Heading size="sm">Quoting closed</Heading>
+      <Text color="formLabelMuted">
+        This task is no longer accepting new quotes.
+      </Text>
     </Stack>
   ) : (
     <Stack gap={3}>

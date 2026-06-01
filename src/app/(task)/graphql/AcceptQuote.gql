@@ -1,6 +1,13 @@
+#import "../../(dashboard)/graphql/orderFields.gql"
+
 mutation AcceptQuote($quoteId: ID, $input: AcceptQuoteInput) {
   acceptQuote(quoteId: $quoteId, input: $input) {
-    id
-    status
+    task {
+      id
+      status
+    }
+    order {
+      ...OrderFields
+    }
   }
 }

@@ -11,6 +11,9 @@ export type CreateTaskVisualsSectionProps = {
   /** Snapshot `File[]` in the change handler before clearing the input (mobile-safe). */
   onFilesAdded: (files: File[]) => void
   onRemoveFile: (index: number) => void
+  /** Already-uploaded URLs (edit flow). */
+  existingImageUrls?: string[]
+  sectionHeading?: string
 }
 
 export function CreateTaskVisualsSection({
@@ -18,6 +21,8 @@ export function CreateTaskVisualsSection({
   previews,
   onFilesAdded,
   onRemoveFile,
+  existingImageUrls = [],
+  sectionHeading = '4. Visuals',
 }: CreateTaskVisualsSectionProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -26,7 +31,7 @@ export function CreateTaskVisualsSection({
       bodyGap={4}
       header={
         <Heading size="lg" color="primary.700">
-          4. Visuals
+          {sectionHeading}
         </Heading>
       }
     >
@@ -72,6 +77,23 @@ export function CreateTaskVisualsSection({
           </Button>
         </Stack>
       </Box>
+
+      {existingImageUrls.length > 0 ? (
+        <HStack gap={3} flexWrap="wrap" align="flex-start">
+          {existingImageUrls.map((src) => (
+            <Image
+              key={src}
+              src={src}
+              alt="Task photo"
+              boxSize="88px"
+              objectFit="cover"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="cardBorder"
+            />
+          ))}
+        </HStack>
+      ) : null}
 
       {previews.length > 0 ? (
         <HStack gap={3} flexWrap="wrap" align="flex-start">

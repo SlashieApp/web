@@ -61,6 +61,8 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
   },
 ] as const
 
+export { isAccountHubPath } from '@/utils/accountHub'
+
 export function resolveAccountNavKey(pathname: string | null): AccountNavKey {
   const path = pathname ?? ''
   if (path.startsWith('/requests')) return 'requests'

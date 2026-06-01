@@ -1,0 +1,7 @@
+mutation DeclineQuote($quoteId: ID!) {
+  declineQuote(quoteId: $quoteId) {
+    id
+    status
+    taskId
+  }
+}

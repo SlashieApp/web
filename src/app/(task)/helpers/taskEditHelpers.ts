@@ -18,6 +18,16 @@ import { taskCreateCategorySchema } from './taskCategories'
 
 export type EditableTask = NonNullable<TaskQuery['task']>
 
+export function taskImageUrls(
+  task:
+    | Pick<EditableTask, 'images'>
+    | { images?: ReadonlyArray<string | null> | null },
+): string[] {
+  return (task.images ?? []).filter(
+    (url): url is string => typeof url === 'string' && url.trim().length > 0,
+  )
+}
+
 export function isTaskEditable(status: string): boolean {
   return status === TaskStatus.Open || status === TaskStatus.Draft
 }

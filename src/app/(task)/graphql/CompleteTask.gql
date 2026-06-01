@@ -1,0 +1,8 @@
+mutation CompleteTask($taskId: ID!) {
+  completeTask(taskId: $taskId) {
+    id
+    status
+    completedAt
+    workerPaymentAcknowledgedAt
+  }
+}

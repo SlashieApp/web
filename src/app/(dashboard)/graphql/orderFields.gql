@@ -1,0 +1,35 @@
+fragment OrderFields on Order {
+  id
+  taskId
+  quoteId
+  customerUserId
+  workerUserId
+  status
+  agreedPrice {
+    amount
+    currency
+  }
+  snapshot {
+    title
+    description
+    category
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    datetime {
+      date
+      time
+      type
+    }
+    contactMethod
+    quoteMessage
+    budgetAmount
+    paymentMethod
+  }
+  workCompletedAt
+  workerPaymentAcknowledgedAt
+  closedAt
+}

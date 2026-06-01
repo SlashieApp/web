@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 
-import { Box, Container, Grid, Stack, Text } from '@chakra-ui/react'
+import { Box, Container, Grid, Stack } from '@chakra-ui/react'
 
 import { Footer } from '@ui'
 
+import { AcceptedWorkerBanner } from './components/AcceptedWorkerBanner'
 import { TaskHeader } from './components/TaskHeader'
+import { TaskJobClosurePanels } from './components/TaskJobClosurePanels'
 import { MainSection } from './components/mainSection'
 import { MetaSection } from './components/metaSection'
 import { QuoteSection } from './components/quoteSection'
@@ -67,6 +69,7 @@ export default function TaskDetailPage() {
       <Container pb={{ base: 28, md: 10 }} mx="auto">
         <Stack gap={8} px={{ base: 4, md: 6 }}>
           <TaskHeader />
+          <AcceptedWorkerBanner />
           <Grid
             w="full"
             templateColumns={{
@@ -104,13 +107,17 @@ export default function TaskDetailPage() {
                 alignSelf="start"
               />
 
-              <QuoteSection
+              <Stack
+                gap={4}
                 gridColumn={{ base: '1', xl: '3' }}
                 gridRow={{ base: '3', xl: '1' }}
                 position={{ base: 'static', xl: 'sticky' }}
                 top={{ xl: 20 }}
                 alignSelf="start"
-              />
+              >
+                <TaskJobClosurePanels />
+                <QuoteSection />
+              </Stack>
             </Box>
           </Grid>
         </Stack>

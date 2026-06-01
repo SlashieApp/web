@@ -1,82 +1,70 @@
 'use client'
 
-import { Box, Grid, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { ScheduleChip } from '@/ui/ScheduleChip'
+import {
+  type OrderItem,
+  formatOrderAgreedPrice,
+  isOrderClosed,
+  orderLocationLabel,
+  orderPartyRole,
+  orderStatusChipLabel,
+  orderTaskHref,
+  scheduleChipForOrder,
+  sortOrdersBySchedule,
+} from '@/utils/orderHelpers'
 import { Badge, Button, SectionCard } from '@ui'
 
-import {
-  type MyQuoteItem,
-  type TaskItem,
-  formatPounds,
-  formatRelativePosted,
-  isTaskCompleted,
-  quotePricePence,
-  taskBudgetPence,
-} from '@/utils/dashboardHelpers'
-import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
+import { useAccountOrders } from '../helpers/useAccountOrders'
 
-import { useAccountTasks } from '../helpers/useAccountTasks'
+function OrderJobCardWithRole({
+  order,
+  userId,
+}: {
+  order: OrderItem
+  userId: string
+}) {
+  const role = orderPartyRole(order, userId)
+  const chip = scheduleChipForOrder(order)
+  const roleLabel = role === 'customer' ? 'Customer' : 'Worker'
 
-function statusLabel(status: string): string {
-  return status.replaceAll('_', ' ').toLowerCase()
-}
-
-function CustomerJobCard({ task }: { task: TaskItem }) {
   return (
     <SectionCard p={5}>
       <Stack gap={3}>
-        <HStack justify="space-between" align="flex-start">
-          <Heading size="sm">{task.title}</Heading>
-          <Badge bg="badgeBg" color="cardFg">
-            Customer · {statusLabel(task.status)}
-          </Badge>
+        <HStack
+          justify="space-between"
+          align="flex-start"
+          flexWrap="wrap"
+          gap={2}
+        >
+          <Heading size="sm">{order.snapshot.title}</Heading>
+          <HStack gap={2}>
+            <ScheduleChip chip={chip} />
+            <Badge
+              bg={role === 'worker' ? 'primary.100' : 'badgeBg'}
+              color={role === 'worker' ? 'primary.800' : 'cardFg'}
+            >
+              {roleLabel} · {orderStatusChipLabel(order.status)}
+            </Badge>
+          </HStack>
         </HStack>
         <Text fontSize="sm" color="formLabelMuted">
-          {taskPublicLocationLabel(task) || 'Location TBC'} · budget{' '}
-          {formatPounds(taskBudgetPence(task))}
+          {orderLocationLabel(order)} · agreed {formatOrderAgreedPrice(order)}
         </Text>
         <Text fontSize="sm" color="formLabelMuted">
-          Worker accepted. Confirm completion when the work is done.
+          {role === 'customer'
+            ? 'Confirm completion when you are satisfied with the work.'
+            : 'Coordinate on site and close out the job when finished.'}
         </Text>
         <HStack gap={3}>
           <Link
             as={NextLink}
-            href={`/task/${task.id}`}
+            href={orderTaskHref(order)}
             _hover={{ textDecoration: 'none' }}
           >
-            <Button size="sm">Open task</Button>
-          </Link>
-        </HStack>
-      </Stack>
-    </SectionCard>
-  )
-}
-
-function WorkerJobCard({ task, quote }: MyQuoteItem) {
-  return (
-    <SectionCard p={5}>
-      <Stack gap={3}>
-        <HStack justify="space-between" align="flex-start">
-          <Heading size="sm">{task.title}</Heading>
-          <Badge bg="primary.100" color="primary.800">
-            Worker · {statusLabel(task.status)}
-          </Badge>
-        </HStack>
-        <Text fontSize="sm" color="formLabelMuted">
-          {taskPublicLocationLabel(task) || 'Location TBC'} ·{' '}
-          {formatRelativePosted(quote.createdAt)}
-        </Text>
-        <Text fontSize="sm">
-          Agreed value: <strong>{formatPounds(quotePricePence(quote))}</strong>
-        </Text>
-        <HStack gap={3}>
-          <Link
-            as={NextLink}
-            href={`/task/${task.id}`}
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button size="sm">Open task</Button>
+            <Button size="sm">Open job</Button>
           </Link>
         </HStack>
       </Stack>
@@ -85,9 +73,16 @@ function WorkerJobCard({ task, quote }: MyQuoteItem) {
 }
 
 export default function JobsPage() {
-  const { loading, errorMessage, customerJobs, workerJobs, refetch } =
-    useAccountTasks()
-  const total = customerJobs.length + workerJobs.length
+  const { loading, errorMessage, customerOrders, workerOrders, refetch, me } =
+    useAccountOrders()
+
+  const sortedCustomer = sortOrdersBySchedule(
+    customerOrders.filter((o) => !isOrderClosed(o.status)),
+  )
+  const sortedWorker = sortOrdersBySchedule(
+    workerOrders.filter((o) => !isOrderClosed(o.status)),
+  )
+  const total = sortedCustomer.length + sortedWorker.length
 
   return (
     <Stack gap={6}>
@@ -96,8 +91,8 @@ export default function JobsPage() {
           <Stack gap={1}>
             <Heading size="xl">Jobs</Heading>
             <Text color="formLabelMuted">
-              Tasks with an accepted quote, on either side of the booking. The
-              backend decides what you can see — this list reflects the API.
+              Active orders from accepted quotes — your bookings on either side
+              of the job.
             </Text>
           </Stack>
           <Button size="sm" variant="ghost" onClick={() => void refetch()}>
@@ -119,37 +114,39 @@ export default function JobsPage() {
           <Stack gap={3}>
             <Heading size="sm">No active jobs</Heading>
             <Text color="formLabelMuted" fontSize="sm">
-              Accepted quotes appear here whether you posted the task or were
-              awarded the work.
+              When a quote is accepted, your order appears here with the agreed
+              price and schedule.
             </Text>
           </Stack>
         </SectionCard>
       ) : (
         <Stack gap={6}>
-          {customerJobs.length > 0 ? (
+          {sortedCustomer.length > 0 && me ? (
             <Stack gap={3}>
-              <Heading size="md">Tasks you posted</Heading>
-              <Grid
-                templateColumns={{ base: '1fr', md: 'repeat(2,1fr)' }}
-                gap={4}
-              >
-                {customerJobs.map((task) => (
-                  <CustomerJobCard key={task.id} task={task} />
+              <Heading size="md">Jobs you booked</Heading>
+              <Stack gap={4}>
+                {sortedCustomer.map((order) => (
+                  <OrderJobCardWithRole
+                    key={order.id}
+                    order={order}
+                    userId={me.id}
+                  />
                 ))}
-              </Grid>
+              </Stack>
             </Stack>
           ) : null}
-          {workerJobs.length > 0 ? (
+          {sortedWorker.length > 0 && me ? (
             <Stack gap={3}>
-              <Heading size="md">Tasks where you’re the worker</Heading>
-              <Grid
-                templateColumns={{ base: '1fr', md: 'repeat(2,1fr)' }}
-                gap={4}
-              >
-                {workerJobs.map((entry) => (
-                  <WorkerJobCard key={entry.quote.id} {...entry} />
+              <Heading size="md">Jobs where you’re the worker</Heading>
+              <Stack gap={4}>
+                {sortedWorker.map((order) => (
+                  <OrderJobCardWithRole
+                    key={order.id}
+                    order={order}
+                    userId={me.id}
+                  />
                 ))}
-              </Grid>
+              </Stack>
             </Stack>
           ) : null}
         </Stack>

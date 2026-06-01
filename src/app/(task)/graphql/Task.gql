@@ -21,7 +21,13 @@ query Task($id: ID!) {
     status
     completedAt
     confirmedAt
+    workerPaymentAcknowledgedAt
     createdAt
+    posterContact {
+      method
+      email
+      phone
+    }
     location {
       lat
       lng

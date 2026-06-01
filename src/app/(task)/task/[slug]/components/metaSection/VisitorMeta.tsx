@@ -8,6 +8,8 @@ import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge } from '@ui'
 
+import { orderLocationLabel } from '@/utils/orderHelpers'
+
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
   budgetKindLabel,
@@ -36,11 +38,30 @@ import {
 } from './VisitorMetaIcons'
 
 export function VisitorMeta() {
-  const { task, me, isOwner } = useTaskDetail()
+  const { task, me, isOwner, isAssignedWorker, myOrder, isOrderCustomer } =
+    useTaskDetail()
   if (!task) return null
 
-  const place = taskPublicLocationLabel(task)
-  const coords = taskMapCoordinates(task)
+  const participant =
+    isOwner || isAssignedWorker || isOrderCustomer || Boolean(myOrder)
+  const orderLoc = myOrder ? orderLocationLabel(myOrder) : null
+  const place = myOrder
+    ? orderLoc
+    : participant
+      ? task.location?.address?.trim() ||
+        task.location?.name?.trim() ||
+        taskPublicLocationLabel(task)
+      : taskPublicLocationLabel(task)
+  const orderLat = myOrder?.snapshot?.location?.lat
+  const orderLng = myOrder?.snapshot?.location?.lng
+  const orderCoords =
+    typeof orderLat === 'number' &&
+    Number.isFinite(orderLat) &&
+    typeof orderLng === 'number' &&
+    Number.isFinite(orderLng)
+      ? { lat: orderLat, lng: orderLng }
+      : null
+  const coords = orderCoords ?? taskMapCoordinates(task)
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const budgetLine = taskBudgetDisplayLine(
     task,

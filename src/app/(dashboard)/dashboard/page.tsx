@@ -16,6 +16,8 @@ import { type ReactNode, useMemo } from 'react'
 import { Button, SectionCard } from '@ui'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
+import { ScheduleChip } from '@/ui/ScheduleChip'
 import {
   formatPounds,
   isQuoteAwarded,
@@ -23,8 +25,17 @@ import {
   taskBudgetPence,
   timeFromUnknown,
 } from '@/utils/dashboardHelpers'
+import {
+  orderLocationLabel,
+  orderPartyRole,
+  orderTaskHref,
+  scheduleChipForOrder,
+  sortOrdersBySchedule,
+} from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
+import { notificationRowsFromQuery } from '../helpers/notificationActivity'
+import { useAccountOrders } from '../helpers/useAccountOrders'
 import { useAccountTasks } from '../helpers/useAccountTasks'
 
 type StatTileProps = {
@@ -34,7 +45,7 @@ type StatTileProps = {
   icon: ReactNode
 }
 
-type ActivityTone = 'green' | 'purple' | 'blue' | 'mint'
+type ActivityTone = 'green' | 'purple' | 'blue' | 'mint' | 'red'
 
 type ActivityRow = {
   id: string
@@ -42,6 +53,7 @@ type ActivityRow = {
   subtitle: string
   happenedAt: unknown
   tone: ActivityTone
+  href?: string
 }
 
 type MapPin = {
@@ -148,12 +160,14 @@ function ActivityIcon({ tone }: { tone: ActivityTone }) {
     purple: 'purple.100',
     blue: 'blue.100',
     mint: 'primary.100',
+    red: 'red.100',
   } as const
   const fgByTone = {
     green: 'green.700',
     purple: 'purple.700',
     blue: 'blue.700',
     mint: 'primary.700',
+    red: 'red.700',
   } as const
   return (
     <Box
@@ -234,11 +248,16 @@ export default function DashboardOverviewPage() {
     postedTasks,
     activePostedTasks,
     sentQuotes,
-    completedPostedTasks,
-    awardedSentQuotes,
-    customerJobs,
-    workerJobs,
   } = useAccountTasks()
+
+  const {
+    loading: ordersLoading,
+    errorMessage: ordersErrorMessage,
+    activeOrders,
+    openOrdersCount,
+    pendingEarningsPence,
+    closedOrdersCount,
+  } = useAccountOrders()
 
   const displayName =
     me?.profile?.name?.trim() || me?.email?.split('@')[0] || 'there'
@@ -250,22 +269,8 @@ export default function DashboardOverviewPage() {
         ? 'Good afternoon'
         : 'Good evening'
 
-  const completedAsWorker = useMemo(
-    () =>
-      sentQuotes.filter(
-        ({ task, quote }) =>
-          isTaskCompleted(task.status) && isQuoteAwarded(quote.status),
-      ),
-    [sentQuotes],
-  )
-
-  const acceptedJobsCount = customerJobs.length + workerJobs.length
-  const completedJobsCount =
-    completedPostedTasks.length + completedAsWorker.length
-  const totalEarningsPence = awardedSentQuotes.reduce(
-    (sum, { quote }) => sum + (quote.price?.amount ?? 0) * 100,
-    0,
-  )
+  const loadingAny = loading || ordersLoading
+  const errorMessageCombined = errorMessage || ordersErrorMessage || null
   const postedAwaitingQuotes = activePostedTasks.filter(
     (task) => (task.quotes?.length ?? 0) === 0,
   ).length
@@ -273,7 +278,13 @@ export default function DashboardOverviewPage() {
     ({ quote }) => !isQuoteAwarded(quote.status),
   ).length
 
+  const notifications = useNotificationsOptional()
+
   const recentActivity = useMemo<ActivityRow[]>(() => {
+    if (notifications?.items.length) {
+      return notificationRowsFromQuery(notifications.items, 8)
+    }
+
     const activity: ActivityRow[] = []
     for (const task of postedTasks) {
       activity.push({
@@ -318,7 +329,16 @@ export default function DashboardOverviewPage() {
         (a, b) => timeFromUnknown(b.happenedAt) - timeFromUnknown(a.happenedAt),
       )
       .slice(0, 6)
-  }, [postedTasks, sentQuotes])
+  }, [notifications?.items, postedTasks, sentQuotes])
+
+  const upcomingJobs = useMemo(() => {
+    if (!me) return []
+    return sortOrdersBySchedule(activeOrders).map((order) => ({
+      id: order.id,
+      order,
+      role: orderPartyRole(order, me.id) === 'customer' ? 'Customer' : 'Worker',
+    }))
+  }, [activeOrders, me])
 
   const mapPins = useMemo<MapPin[]>(() => {
     const nearby = tasks
@@ -428,38 +448,91 @@ export default function DashboardOverviewPage() {
         </HStack>
       </HStack>
 
-      {errorMessage ? (
+      {errorMessageCombined ? (
         <Text color="red.500" fontSize="sm">
-          {errorMessage}
+          {errorMessageCombined}
         </Text>
       ) : null}
 
       <SimpleGrid columns={{ base: 2, xl: 4 }} gap={3}>
         <StatTile
           label="Posted tasks"
-          value={loading ? '…' : String(postedTasks.length)}
+          value={loadingAny ? '…' : String(postedTasks.length)}
           helper={`${activePostedTasks.length} open · ${postedAwaitingQuotes} awaiting quotes`}
           icon={<TileIcon type="posted" />}
         />
         <StatTile
           label="Quotes sent"
-          value={loading ? '…' : String(sentQuotes.length)}
+          value={loadingAny ? '…' : String(sentQuotes.length)}
           helper={`${quotesAwaitingResponse} awaiting response`}
           icon={<TileIcon type="quotes" />}
         />
         <StatTile
-          label="Accepted jobs"
-          value={loading ? '…' : String(acceptedJobsCount)}
-          helper="In progress across customer + worker roles"
+          label="Open orders"
+          value={loadingAny ? '…' : String(openOrdersCount)}
+          helper="Active jobs from accepted quotes"
           icon={<TileIcon type="accepted" />}
         />
         <StatTile
-          label="Completed jobs"
-          value={loading ? '…' : String(completedJobsCount)}
-          helper={`Tracked earnings: ${formatPounds(totalEarningsPence)}`}
+          label="Pending earnings"
+          value={loadingAny ? '…' : formatPounds(pendingEarningsPence)}
+          helper={`${closedOrdersCount} closed order${closedOrdersCount === 1 ? '' : 's'}`}
           icon={<TileIcon type="done" />}
         />
       </SimpleGrid>
+
+      {upcomingJobs.length > 0 ? (
+        <SectionCard p={{ base: 5, md: 6 }}>
+          <Stack gap={4}>
+            <HStack justify="space-between" flexWrap="wrap" gap={2}>
+              <Stack gap={1}>
+                <Heading size="md" color="cardFg">
+                  Upcoming accepted jobs
+                </Heading>
+                <Text fontSize="sm" color="formLabelMuted">
+                  Sorted by scheduled date when the task uses an exact time.
+                </Text>
+              </Stack>
+              <Link
+                as={NextLink}
+                href="/jobs"
+                fontSize="sm"
+                fontWeight={600}
+                color="primary.700"
+              >
+                View all jobs
+              </Link>
+            </HStack>
+            <Stack gap={2}>
+              {upcomingJobs.slice(0, 5).map((entry) => (
+                <Link
+                  key={entry.id}
+                  as={NextLink}
+                  href={orderTaskHref(entry.order)}
+                  display="block"
+                  p={3}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor="cardBorder"
+                  _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+                >
+                  <HStack justify="space-between" align="flex-start" gap={3}>
+                    <Stack gap={1} minW={0}>
+                      <Text fontWeight={600} truncate>
+                        {entry.order.snapshot.title}
+                      </Text>
+                      <Text fontSize="xs" color="formLabelMuted" truncate>
+                        {entry.role} · {orderLocationLabel(entry.order)}
+                      </Text>
+                    </Stack>
+                    <ScheduleChip chip={scheduleChipForOrder(entry.order)} />
+                  </HStack>
+                </Link>
+              ))}
+            </Stack>
+          </Stack>
+        </SectionCard>
+      ) : null}
 
       <Grid templateColumns={{ base: '1fr', xl: '1.3fr 1fr' }} gap={4}>
         <SectionCard p={{ base: 5, md: 6 }}>
@@ -485,7 +558,7 @@ export default function DashboardOverviewPage() {
               </Link>
             </HStack>
 
-            {loading && recentActivity.length === 0 ? (
+            {notifications?.loading && recentActivity.length === 0 ? (
               <Text color="formLabelMuted" fontSize="sm">
                 Loading activity…
               </Text>
@@ -495,29 +568,46 @@ export default function DashboardOverviewPage() {
               </Text>
             ) : (
               <Stack gap={1}>
-                {recentActivity.map((item) => (
-                  <HStack
-                    key={item.id}
-                    justify="space-between"
-                    align="flex-start"
-                    py={2.5}
-                    borderBottomWidth="1px"
-                    borderColor="cardBorder"
-                  >
-                    <HStack align="flex-start" gap={3} minW={0}>
-                      <ActivityIcon tone={item.tone} />
-                      <Stack gap={0} minW={0}>
-                        <Text fontSize="sm" fontWeight={600} truncate>
-                          {item.title}
-                        </Text>
-                        <Text fontSize="xs" color="formLabelMuted" truncate>
-                          {item.subtitle}
-                        </Text>
-                      </Stack>
+                {recentActivity.map((item) => {
+                  const row = (
+                    <HStack
+                      key={item.id}
+                      justify="space-between"
+                      align="flex-start"
+                      py={2.5}
+                      borderBottomWidth="1px"
+                      borderColor="cardBorder"
+                      w="full"
+                    >
+                      <HStack align="flex-start" gap={3} minW={0}>
+                        <ActivityIcon tone={item.tone} />
+                        <Stack gap={0} minW={0}>
+                          <Text fontSize="sm" fontWeight={600} truncate>
+                            {item.title}
+                          </Text>
+                          <Text fontSize="xs" color="formLabelMuted" truncate>
+                            {item.subtitle}
+                          </Text>
+                        </Stack>
+                      </HStack>
+                      <ClockLabel happenedAt={item.happenedAt} />
                     </HStack>
-                    <ClockLabel happenedAt={item.happenedAt} />
-                  </HStack>
-                ))}
+                  )
+                  return item.href ? (
+                    <Link
+                      key={item.id}
+                      as={NextLink}
+                      href={item.href}
+                      display="block"
+                      _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+                      borderRadius="md"
+                    >
+                      {row}
+                    </Link>
+                  ) : (
+                    <Box key={item.id}>{row}</Box>
+                  )
+                })}
               </Stack>
             )}
           </Stack>

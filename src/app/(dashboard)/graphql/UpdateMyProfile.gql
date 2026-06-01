@@ -11,9 +11,6 @@ mutation UpdateMyProfile($input: UpdateMyProfileInput!) {
       emailVerified
       phoneVerified
     }
-    workerEligibility {
-      isEligible
-      missing
-    }
+    workerEligibility
   }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQuery } from '@apollo/client/react'
+import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
 import {
   Box,
   Container,
@@ -19,7 +19,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { type UseFormRegister, useForm } from 'react-hook-form'
 
 import MyTasks from '@/app/(dashboard)/graphql/MyTasks.gql'
@@ -30,6 +30,7 @@ import {
   buildUpdateTaskInput,
   countAcceptedQuotes,
   isTaskEditable,
+  taskImageUrls,
   taskToEditFormValues,
 } from '@/app/(task)/helpers/taskEditHelpers'
 import Me from '@/graphql/Me.gql'
@@ -39,6 +40,10 @@ import {
   getTaskMutationErrorMessage,
   isUnauthenticatedError,
 } from '@/utils/graphqlErrors'
+import {
+  nextTaskImageUploadIndex,
+  uploadTaskImagesWithPresign,
+} from '@/utils/taskImageUpload'
 import { Button, Footer } from '@ui'
 
 import {
@@ -47,6 +52,7 @@ import {
   CreateTaskContactSection,
   CreateTaskMapLocationPanel,
   CreateTaskScheduleSection,
+  CreateTaskVisualsSection,
 } from '../../create/components'
 import type { CreateTaskFormFieldValues } from '../../create/createTaskFormSchema'
 import { EditTaskAcceptedWorkerCapSection } from '../../edit/components/EditTaskAcceptedWorkerCapSection'
@@ -87,9 +93,8 @@ function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
           {taskTitle}
         </Text>
         <Text color="formLabelMuted" fontSize="sm" maxW="3xl">
-          Update your listing while it is still open. Task photos cannot be
-          changed here — use the existing upload flow when adding images is
-          supported.
+          Update your listing while it is still open. You can add more photos;
+          existing photos stay on the task.
         </Text>
       </Stack>
     </Stack>
@@ -103,8 +108,13 @@ type EditTaskFormBodyProps = {
 
 function EditTaskFormBody({ taskId, task }: EditTaskFormBodyProps) {
   const router = useRouter()
+  const apollo = useApolloClient()
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const minAcceptedCap = countAcceptedQuotes(task.quotes)
+  const existingImageUrls = useMemo(() => taskImageUrls(task), [task])
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
+  const imagePreviewUrlsUnmountRef = useRef<string[]>([])
   const [serverError, setServerError] = useState<string | null>(null)
   const [serverErrorCode, setServerErrorCode] = useState<string | null>(null)
 
@@ -135,6 +145,31 @@ function EditTaskFormBody({ taskId, task }: EditTaskFormBodyProps) {
 
   const sharedRegister =
     register as unknown as UseFormRegister<CreateTaskFormFieldValues>
+
+  useLayoutEffect(() => {
+    const next = imageFiles.map((file) => URL.createObjectURL(file))
+    imagePreviewUrlsUnmountRef.current = next
+    setImagePreviewUrls((prev) => {
+      for (const u of prev) {
+        URL.revokeObjectURL(u)
+      }
+      return next
+    })
+    return () => {
+      for (const u of imagePreviewUrlsUnmountRef.current) {
+        URL.revokeObjectURL(u)
+      }
+    }
+  }, [imageFiles])
+
+  const onFilesAdded = useCallback((picked: File[]) => {
+    if (picked.length === 0) return
+    setImageFiles((prev) => [...prev, ...picked])
+  }, [])
+
+  const onRemoveFile = useCallback((index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index))
+  }, [])
 
   const [runUpdateTask, { loading: updating }] =
     useMutation<UpdateTaskMutation>(UpdateTask, {
@@ -202,6 +237,16 @@ function EditTaskFormBody({ taskId, task }: EditTaskFormBodyProps) {
           input: buildUpdateTaskInput(values),
         },
       })
+
+      if (imageFiles.length > 0) {
+        await uploadTaskImagesWithPresign(
+          apollo,
+          taskId,
+          imageFiles,
+          nextTaskImageUploadIndex(existingImageUrls),
+        )
+      }
+
       router.push(`/task/${taskId}`)
     } catch (err: unknown) {
       if (isUnauthenticatedError(err)) {
@@ -309,6 +354,14 @@ function EditTaskFormBody({ taskId, task }: EditTaskFormBodyProps) {
           gridRow={{ base: '3', lg: '2' }}
         >
           <Stack gap={6}>
+            <CreateTaskVisualsSection
+              sectionHeading="Photos"
+              existingImageUrls={existingImageUrls}
+              files={imageFiles}
+              previews={imagePreviewUrls}
+              onFilesAdded={onFilesAdded}
+              onRemoveFile={onRemoveFile}
+            />
             <CreateTaskBudgetSection
               register={sharedRegister}
               budgetCurrency={budgetCurrency}

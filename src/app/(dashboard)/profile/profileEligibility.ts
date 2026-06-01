@@ -13,7 +13,7 @@ export type CompletenessItem = {
 /**
  * Profile-completeness signals that gate worker eligibility, derived from the
  * `me` snapshot. The contact / avatar / DOB items mirror the API's
- * `workerEligibility.missing` codes; bio is an additional completeness signal.
+ * profile fields the API uses for `workerEligibility`; bio is an extra signal.
  */
 export function getCompletenessItems(me: MeSnapshot): CompletenessItem[] {
   const profile = me.profile
@@ -60,7 +60,7 @@ export function completenessPercent(items: CompletenessItem[]): number {
  * to the local completeness items if the field is unavailable.
  */
 export function isWorkerEligible(me: MeSnapshot): boolean {
-  if (me.workerEligibility) return me.workerEligibility.isEligible
+  if (typeof me.workerEligibility === 'boolean') return me.workerEligibility
   return getCompletenessItems(me).every((item) => item.done)
 }
 

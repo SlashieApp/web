@@ -18,10 +18,7 @@ query Me {
       isProfilePrivate
       marketingEmails
     }
-    workerEligibility {
-      isEligible
-      missing
-    }
+    workerEligibility
     worker {
       id
       legalName

@@ -100,11 +100,33 @@ export async function uploadTaskImagesWithPresign(
   client: ApolloClient,
   taskId: string,
   files: File[],
+  startIndex = 0,
 ): Promise<string[]> {
   if (files.length === 0) return []
   const urls: string[] = []
   for (let i = 0; i < files.length; i += 1) {
-    urls.push(await uploadTaskImageWithPresign(client, taskId, files[i], i))
+    urls.push(
+      await uploadTaskImageWithPresign(
+        client,
+        taskId,
+        files[i],
+        startIndex + i,
+      ),
+    )
   }
   return urls
+}
+
+/** Next S3 object index under `tasks/<taskId>/` from existing image URLs. */
+export function nextTaskImageUploadIndex(
+  existingImageUrls: readonly string[],
+): number {
+  let max = -1
+  for (const url of existingImageUrls) {
+    const match = url.match(/\/(\d+)(?:\.[a-z0-9]+)?(?:\?|#|$)/i)
+    if (!match) continue
+    const n = Number.parseInt(match[1], 10)
+    if (Number.isFinite(n)) max = Math.max(max, n)
+  }
+  return max + 1
 }

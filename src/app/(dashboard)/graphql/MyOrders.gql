@@ -1,0 +1,7 @@
+#import "./orderFields.gql"
+
+query MyOrders($filter: MyOrdersFilter) {
+  myOrders(filter: $filter) {
+    ...OrderFields
+  }
+}

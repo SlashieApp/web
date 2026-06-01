@@ -1,59 +1,39 @@
 'use client'
 
-import { Box, Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { Grid, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import NextLink from 'next/link'
 
+import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
+import {
+  formatOrderAgreedPrice,
+  orderStatusChipLabel,
+  orderTaskHref,
+} from '@/utils/orderHelpers'
 import { Badge, SectionCard } from '@ui'
 
-import {
-  formatDate,
-  formatPounds,
-  isQuoteAwarded,
-  isTaskCompleted,
-  quotePricePence,
-  taskBudgetPence,
-} from '@/utils/dashboardHelpers'
-
-import { useAccountTasks } from '../helpers/useAccountTasks'
+import { useAccountOrders } from '../helpers/useAccountOrders'
 
 /**
  * Reference-only earnings log. Slashie does not handle payouts; this page only
- * tallies historical task activity for your records.
+ * tallies order amounts for your records.
  */
 export default function EarningsPage() {
-  const { loading, errorMessage, sentQuotes, completedPostedTasks } =
-    useAccountTasks()
-
-  const completedAsWorker = useMemo(
-    () =>
-      sentQuotes.filter(
-        ({ task, quote }) =>
-          isTaskCompleted(task.status) && isQuoteAwarded(quote.status),
-      ),
-    [sentQuotes],
-  )
-
-  const totalAwardedPence = useMemo(
-    () =>
-      completedAsWorker.reduce(
-        (sum, { quote }) => sum + quotePricePence(quote),
-        0,
-      ),
-    [completedAsWorker],
-  )
-
-  const totalSpendPence = useMemo(
-    () => completedPostedTasks.reduce((sum, t) => sum + taskBudgetPence(t), 0),
-    [completedPostedTasks],
-  )
+  const {
+    loading,
+    errorMessage,
+    pendingEarningsPence,
+    completedEarningsPence,
+    pendingWorkerOrders,
+    closedWorkerOrders,
+  } = useAccountOrders()
 
   return (
     <Stack gap={6}>
       <Stack gap={2}>
         <Heading size="xl">Earnings</Heading>
         <Text color="formLabelMuted">
-          Historical completed work, summarised. Reference only — Slashie does
-          not handle payments between customers and workers.
+          Worker earnings from your orders. Reference only — Slashie does not
+          handle payments between customers and workers.
         </Text>
       </Stack>
 
@@ -73,13 +53,13 @@ export default function EarningsPage() {
               letterSpacing="0.06em"
               textTransform="uppercase"
             >
-              Completed as worker
+              Pending
             </Text>
             <Heading size="lg">
-              {loading ? '…' : formatPounds(totalAwardedPence)}
+              {loading ? '…' : formatPounds(pendingEarningsPence)}
             </Heading>
             <Text fontSize="sm" color="formLabelMuted">
-              Sum of awarded quote values on tasks marked completed.
+              Sum of agreed prices on active orders (until closed).
             </Text>
           </Stack>
         </SectionCard>
@@ -92,31 +72,31 @@ export default function EarningsPage() {
               letterSpacing="0.06em"
               textTransform="uppercase"
             >
-              Spent as customer
+              Completed
             </Text>
             <Heading size="lg">
-              {loading ? '…' : formatPounds(totalSpendPence)}
+              {loading ? '…' : formatPounds(completedEarningsPence)}
             </Heading>
             <Text fontSize="sm" color="formLabelMuted">
-              Sum of budgets on tasks you posted that have been completed.
+              Sum of agreed prices on closed orders.
             </Text>
           </Stack>
         </SectionCard>
       </Grid>
 
       <Stack gap={3}>
-        <Heading size="md">Worker history</Heading>
-        {completedAsWorker.length === 0 ? (
+        <Heading size="md">Pending orders</Heading>
+        {pendingWorkerOrders.length === 0 ? (
           <SectionCard p={6}>
             <Text color="formLabelMuted" fontSize="sm">
-              No completed worker engagements yet. Awarded quotes that finish on
-              tasks you took on will appear here.
+              No pending worker earnings. Accepted quotes create an order
+              immediately — agreed value shows here until the order is closed.
             </Text>
           </SectionCard>
         ) : (
           <Stack gap={3}>
-            {completedAsWorker.map(({ task, quote }) => (
-              <SectionCard key={quote.id} p={5}>
+            {pendingWorkerOrders.map((order) => (
+              <SectionCard key={order.id} p={5}>
                 <HStack
                   justify="space-between"
                   align="flex-start"
@@ -124,9 +104,9 @@ export default function EarningsPage() {
                   gap={4}
                 >
                   <Stack gap={1} maxW="3xl">
-                    <Heading size="sm">{task.title}</Heading>
+                    <Heading size="sm">{order.snapshot.title}</Heading>
                     <Text fontSize="sm" color="formLabelMuted">
-                      Completed {formatDate(task.completedAt ?? task.createdAt)}
+                      {orderStatusChipLabel(order.status)}
                     </Text>
                   </Stack>
                   <HStack gap={3}>
@@ -134,7 +114,56 @@ export default function EarningsPage() {
                       Worker
                     </Badge>
                     <Text fontWeight={800}>
-                      {formatPounds(quotePricePence(quote))}
+                      {formatOrderAgreedPrice(order)}
+                    </Text>
+                    <Link
+                      as={NextLink}
+                      href={orderTaskHref(order)}
+                      fontSize="sm"
+                      fontWeight={600}
+                      color="primary.700"
+                    >
+                      Open
+                    </Link>
+                  </HStack>
+                </HStack>
+              </SectionCard>
+            ))}
+          </Stack>
+        )}
+      </Stack>
+
+      <Stack gap={3}>
+        <Heading size="md">Closed orders</Heading>
+        {closedWorkerOrders.length === 0 ? (
+          <SectionCard p={6}>
+            <Text color="formLabelMuted" fontSize="sm">
+              Closed orders will appear here after you and the customer finish
+              the job on Slashie.
+            </Text>
+          </SectionCard>
+        ) : (
+          <Stack gap={3}>
+            {closedWorkerOrders.map((order) => (
+              <SectionCard key={order.id} p={5}>
+                <HStack
+                  justify="space-between"
+                  align="flex-start"
+                  flexWrap="wrap"
+                  gap={4}
+                >
+                  <Stack gap={1} maxW="3xl">
+                    <Heading size="sm">{order.snapshot.title}</Heading>
+                    <Text fontSize="sm" color="formLabelMuted">
+                      Closed {order.closedAt ? formatDate(order.closedAt) : '—'}
+                    </Text>
+                  </Stack>
+                  <HStack gap={3}>
+                    <Badge bg="badgeBg" color="cardFg">
+                      Closed
+                    </Badge>
+                    <Text fontWeight={800}>
+                      {formatOrderAgreedPrice(order)}
                     </Text>
                   </HStack>
                 </HStack>
