@@ -19,6 +19,7 @@ Treat **`src/app/(task)/`** as the **reference template** for other product area
 | **`components/(mobile)/`** | Small-viewport-only UI (e.g. `MobileLayout`, bottom sheets, carousels). |
 | **`components/`** (files next to `(web)` / `(mobile)`) | **Cross-breakpoint** pieces: context-wired wrappers, primitives reused by both layouts, map shell (`TaskMap` / `TaskBrowseMapLayer`), shared filter summaries (`TaskTag.tsx`), etc. |
 | **`tasks/create/`** | Nested route: `page.tsx`, schema, and **`tasks/create/components/`** for create-flow sections (colocate with that route). |
+| **`graphql/`** (beside `page.tsx`) | Route-owned GraphQL operations — see **`graphql-route-colocation.mdc`**. |
 | **`task/[slug]/`** | Dynamic route with its own `page.tsx` and colocated `components/` as needed. |
 
 New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by viewport; **`helpers/`** and **`context/`** at the segment when logic or types are shared across pages in that folder.

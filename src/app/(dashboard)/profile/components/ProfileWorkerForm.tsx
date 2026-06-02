@@ -8,7 +8,7 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import RegisterAsPro from '@/app/worker/graphql/RegisterAsPro.gql'
+import RegisterAsPro from '@/app/(dashboard)/profile/graphql/RegisterAsPro.gql'
 import Me from '@/graphql/Me.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, FormField, Input, SectionCard, Textarea } from '@ui'

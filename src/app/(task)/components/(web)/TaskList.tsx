@@ -21,6 +21,7 @@ export function TaskList() {
   const {
     loading,
     dataLoaded,
+    canShowBrowseEmptyState,
     filteredSorted,
     selectedTaskId,
     setSelectedTaskId,
@@ -103,7 +104,7 @@ export function TaskList() {
                     metaLine={loc}
                     distanceLabel={distanceLabel}
                     thumbnailSrc={task.images?.[0] ?? undefined}
-                    detailsHref={`/task/${task.id}`}
+                    detailsHref={`/tasks/${task.id}`}
                     badgeText={badge.text}
                     ownerName={ownerName}
                     ownerAvatarSrc={ownerAvatarSrc}
@@ -153,7 +154,7 @@ export function TaskList() {
         }}
       >
         <Stack gap={3} py={5} pb={10}>
-          {filteredSorted.length === 0 ? (
+          {canShowBrowseEmptyState && filteredSorted.length === 0 ? (
             <Box px={1}>
               <TaskEmptyState />
             </Box>

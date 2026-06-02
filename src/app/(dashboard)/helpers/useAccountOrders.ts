@@ -5,8 +5,8 @@ import type { MyOrdersQuery, WorkerPendingEarningsQuery } from '@codegen/schema'
 import { useMemo } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import MyOrders from '@/app/(dashboard)/graphql/MyOrders.gql'
-import WorkerPendingEarnings from '@/app/(dashboard)/graphql/WorkerPendingEarnings.gql'
+import MyOrders from '@/app/(dashboard)/earnings/graphql/MyOrders.gql'
+import WorkerPendingEarnings from '@/app/(dashboard)/earnings/graphql/WorkerPendingEarnings.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {
   type OrderItem,

@@ -20,7 +20,7 @@ import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
-import Register from '@/app/(auth)/graphql/Register.gql'
+import Register from '@/app/(auth)/register/graphql/Register.gql'
 import { registerFormSchema } from '@/app/(auth)/register/registerFormSchema'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'

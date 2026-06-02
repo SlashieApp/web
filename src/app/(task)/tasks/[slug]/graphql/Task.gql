@@ -1,0 +1,71 @@
+#import "../../../../(dashboard)/earnings/graphql/orderFields.gql"
+
+query Task($id: ID!) {
+  task(id: $id) {
+    id
+    title
+    description
+    category
+    acceptedWorkerCap
+    budget {
+      amount
+      currency
+      type
+      paymentMethod
+    }
+    datetime {
+      date
+      time
+      type
+    }
+    contactMethod
+    images
+    status
+    completedAt
+    confirmedAt
+    workerPaymentAcknowledgedAt
+    createdAt
+    posterContact {
+      method
+      email
+      phone
+    }
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    poster {
+      id
+      profile {
+        name
+        avatarUrl
+      }
+    }
+    quotes {
+      id
+      taskId
+      workerUserId
+      estimatedDuration
+      price {
+        currency
+        amount
+      }
+      message
+      status
+      createdAt
+      worker {
+        id
+        profile {
+          name
+          avatarUrl
+        }
+      }
+    }
+  }
+  order(taskId: $id) {
+    ...OrderFields
+    completionVerificationCode
+  }
+}

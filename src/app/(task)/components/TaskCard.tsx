@@ -30,6 +30,8 @@ type TaskCardShared = {
   showDetailsCta?: boolean
   /** Overrides default “select on map” label when `onActivate` opens task detail. */
   activateAriaLabel?: string
+  /** Cursor on the activatable shell (e.g. `grab` in a draggable carousel). */
+  activateCursor?: 'pointer' | 'grab'
   onActivate?: () => void
 }
 
@@ -62,6 +64,7 @@ export function TaskCard(props: TaskCardProps) {
   const isExpanded = props.isExpanded ?? false
   const showDetailsCta = props.showDetailsCta ?? true
   const onActivate = props.onActivate
+  const activateCursor = props.activateCursor ?? 'pointer'
 
   let title: string
   let description: string
@@ -86,7 +89,7 @@ export function TaskCard(props: TaskCardProps) {
     ownerAvatarSrc = task.ownerAvatarSrc
     ratingLabel = task.ratingLabel
     thumbnailSrc = task.thumbnailSrc
-    detailsHref = props.detailsHref ?? `/task/${task.id}`
+    detailsHref = props.detailsHref ?? `/tasks/${task.id}`
     badgeText = task.badgeText
   } else {
     title = props.title
@@ -266,7 +269,7 @@ export function TaskCard(props: TaskCardProps) {
         border="none"
         textAlign="left"
         bg="transparent"
-        cursor="pointer"
+        cursor={activateCursor}
         style={{ font: 'inherit' }}
       >
         {shell}

@@ -12,7 +12,7 @@ import { Suspense, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
-import ResetPassword from '@/app/(auth)/graphql/ResetPassword.gql'
+import ResetPassword from '@/app/(auth)/reset-password/graphql/ResetPassword.gql'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 

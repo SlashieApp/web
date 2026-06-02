@@ -4,6 +4,7 @@ import { Box, useBreakpointValue } from '@chakra-ui/react'
 import { MobileLayout } from './components/(mobile)/MobileLayout'
 import { WebLayout } from './components/(web)/WebLayout'
 import { BrowseGeolocationInit } from './components/BrowseGeolocationInit'
+import { TaskBrowseMapLoader } from './components/TaskBrowseMapLoader'
 import { TaskBrowseMapLayer } from './components/TaskMap'
 import { TaskBrowseProvider } from './context/TaskBrowseProvider'
 
@@ -26,6 +27,7 @@ export default function HomePage() {
         overflow="hidden"
       >
         <TaskBrowseMapLayer isDesktop={isDesktopSplit} />
+        <TaskBrowseMapLoader />
         {isDesktopSplit ? <WebLayout /> : <MobileLayout />}
       </Box>
     </TaskBrowseProvider>

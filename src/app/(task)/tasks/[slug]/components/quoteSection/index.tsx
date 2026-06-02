@@ -1,0 +1,1 @@
+export { QuoteSectionColumn } from './QuoteSectionColumn'

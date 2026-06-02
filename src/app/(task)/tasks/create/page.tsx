@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import CreateTask from '@/app/(task)/graphql/CreateTask.gql'
+import CreateTask from '@/app/(task)/tasks/create/graphql/CreateTask.gql'
 import Me from '@/graphql/Me.gql'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -212,7 +212,7 @@ function CreateTaskFormBody({
         await uploadTaskImagesWithPresign(apollo, createdTaskId, imageFiles)
       }
 
-      router.push(`/task/${createdTaskId}`)
+      router.push(`/tasks/${createdTaskId}`)
     } catch (err: unknown) {
       setServerError(getFriendlyErrorMessage(err, 'Task creation failed.'))
     }

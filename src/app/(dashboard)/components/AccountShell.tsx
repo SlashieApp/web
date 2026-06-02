@@ -35,7 +35,7 @@ function completionFromMe(me: MeSnapshot) {
   }
 }
 
-/** Unified account hub shell with desktop rail + mobile bottom navigation. */
+/** Unified account hub shell — fixed header + dock; only main content scrolls. */
 export function AccountShell({ children }: AccountShellProps) {
   const pathname = usePathname()
   const active = resolveAccountNavKey(pathname)
@@ -51,15 +51,16 @@ export function AccountShell({ children }: AccountShellProps) {
 
   return (
     <Box
-      minH="100dvh"
+      h="100dvh"
       bg="neutral.100"
       color="cardFg"
       display="flex"
       flexDirection="column"
+      overflow="hidden"
     >
-      <Header activeItem="none" position="sticky" top={0} zIndex={30} />
+      <Header activeItem="none" flexShrink={0} zIndex={30} />
 
-      <Box flex="1" display="flex" minH={0} overflow="hidden">
+      <Box flex="1" minH={0} display="flex" overflow="hidden">
         <Box
           display={{ base: 'none', lg: 'flex' }}
           w="280px"
@@ -70,7 +71,7 @@ export function AccountShell({ children }: AccountShellProps) {
           flexDirection="column"
           overflowY="auto"
         >
-          <Stack h="full" py={6} px={5} gap={6}>
+          <Stack py={6} px={5} gap={6} flex="1" minH="min-content">
             <AccountSideNav active={active} />
 
             <Box mt="auto" display="grid" gap={4}>
@@ -127,8 +128,10 @@ export function AccountShell({ children }: AccountShellProps) {
         </Box>
 
         <Box
+          as="main"
           flex="1"
           minW={0}
+          minH={0}
           overflowY="auto"
           px={{ base: 4, md: 6, xl: 8 }}
           py={{ base: 5, md: 6 }}

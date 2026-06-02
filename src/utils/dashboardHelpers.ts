@@ -1,6 +1,6 @@
 'use client'
 
-import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
+import type { MyRequestsQueryData } from '@/graphql/tasks-query.types'
 import { budgetToPence, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
@@ -15,7 +15,7 @@ export function getDisplayNameFromEmail(email: string | null | undefined) {
     .join(' ')
 }
 
-export type TaskItem = MyTasksQueryData['myTasks'][number]
+export type TaskItem = MyRequestsQueryData['myRequests'][number]
 export type TaskQuoteItem = NonNullable<TaskItem['quotes']>[number]
 export type MyQuoteItem = {
   task: TaskItem

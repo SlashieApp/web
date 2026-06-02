@@ -1,7 +1,7 @@
 import {
   type MyOrdersQuery,
-  type OrderQuery,
   OrderStatus,
+  type TaskQuery,
 } from '@codegen/schema'
 
 import { formatPounds } from '@/utils/dashboardHelpers'
@@ -11,11 +11,9 @@ import {
   scheduleChipForTask,
 } from '@/utils/taskJobSchedule'
 
-export type OrderItem = MyOrdersQuery['myOrders'][number] &
-  Pick<
-    NonNullable<OrderQuery['order']>,
-    'completionVerificationCode' | 'createdAt'
-  >
+export type OrderItem = NonNullable<TaskQuery['order']>
+
+export type MyOrdersListItem = MyOrdersQuery['myOrders'][number]
 
 export function orderAgreedPricePence(order: OrderItem): number {
   const amount = order.agreedPrice?.amount
@@ -48,6 +46,18 @@ export function sortOrdersBySchedule(orders: OrderItem[]): OrderItem[] {
       parseTaskScheduleDate(orderSnapshotDatetime(b))?.getTime() ??
       Number.MAX_SAFE_INTEGER
     return aWhen - bWhen
+  })
+}
+
+export function sortOrdersByClosedAtDesc(orders: OrderItem[]): OrderItem[] {
+  return [...orders].sort((a, b) => {
+    const aWhen = a.closedAt ? new Date(String(a.closedAt)).getTime() : 0
+    const bWhen = b.closedAt ? new Date(String(b.closedAt)).getTime() : 0
+    if (bWhen !== aWhen) return bWhen - aWhen
+    return (
+      new Date(String(b.createdAt)).getTime() -
+      new Date(String(a.createdAt)).getTime()
+    )
   })
 }
 
@@ -98,11 +108,29 @@ export function orderPartyRole(
 export function orderTaskHref(
   order: OrderItem | { id: string; taskId: string },
 ): string {
-  return `/task/${order.taskId}?orderId=${order.id}`
+  return taskOrderSectionHref(order.taskId)
 }
 
-export function orderDashboardHref(orderId: string): string {
-  return `/dashboard/orders/${orderId}`
+export const TASK_ORDER_SECTION_ID = 'task-order'
+
+/** Deep link to the inline order block on task detail. */
+export function taskOrderSectionHref(taskId: string): string {
+  return `/tasks/${taskId}#${TASK_ORDER_SECTION_ID}`
+}
+
+/** @deprecated Use {@link taskOrderSectionHref}. */
+export function taskOrderHref(taskId: string): string {
+  return taskOrderSectionHref(taskId)
+}
+
+/** @deprecated Use {@link taskOrderSectionHref}. */
+export function requestOrderHref(taskId: string): string {
+  return taskOrderSectionHref(taskId)
+}
+
+/** @deprecated Use {@link taskOrderHref} with `taskId`. */
+export function orderDashboardHref(_orderId: string): string {
+  return '/quotes'
 }
 
 export type OrderTimelineStep = {

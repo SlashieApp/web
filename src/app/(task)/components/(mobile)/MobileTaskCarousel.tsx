@@ -56,6 +56,7 @@ export function MobileTaskCarousel() {
   const router = useRouter()
   const {
     filteredSorted,
+    canShowBrowseEmptyState,
     selectedTaskId,
     setSelectedTaskId,
     isNavRoutePresenting,
@@ -123,8 +124,10 @@ export function MobileTaskCarousel() {
   )
   const focusedTaskIdRef = useRef(focusedTaskId)
   focusedTaskIdRef.current = focusedTaskId
+  const [isCarouselGrabbing, setIsCarouselGrabbing] = useState(false)
 
   const onCarouselPointerDown = useCallback((event: ReactPointerEvent) => {
+    setIsCarouselGrabbing(true)
     pointerGestureRef.current = {
       didDrag: false,
       startX: event.clientX,
@@ -143,6 +146,7 @@ export function MobileTaskCarousel() {
   }, [])
 
   const onCarouselPointerUp = useCallback(() => {
+    setIsCarouselGrabbing(false)
     queueMicrotask(() => {
       pointerGestureRef.current.didDrag = false
     })
@@ -151,7 +155,7 @@ export function MobileTaskCarousel() {
   const openTaskDetail = useCallback(
     (taskId: string) => {
       if (pointerGestureRef.current.didDrag) return
-      router.push(`/task/${taskId}`)
+      router.push(`/tasks/${taskId}`)
     },
     [router],
   )
@@ -322,6 +326,7 @@ export function MobileTaskCarousel() {
   }
 
   if (tasks.length === 0) {
+    if (!canShowBrowseEmptyState) return null
     return (
       <Box px={CAROUSEL_INSET} pb={2}>
         <TaskEmptyState />
@@ -350,12 +355,21 @@ export function MobileTaskCarousel() {
       overflow="hidden"
       px={CAROUSEL_INSET}
       mb={1}
+      cursor={
+        isNavRoutePresenting
+          ? 'default'
+          : isCarouselGrabbing
+            ? 'grabbing'
+            : 'grab'
+      }
       style={edgeFadeMask}
       css={{ touchAction: 'pan-y pinch-zoom' }}
       onPointerDown={onCarouselPointerDown}
       onPointerMove={onCarouselPointerMove}
       onPointerUp={onCarouselPointerUp}
+      onPointerLeave={onCarouselPointerUp}
       onPointerCancel={() => {
+        setIsCarouselGrabbing(false)
         pointerGestureRef.current.didDrag = true
       }}
     >
@@ -365,6 +379,7 @@ export function MobileTaskCarousel() {
         justify="flex-start"
         pl={`${centeringPadPx}px`}
         pr={`${centeringPadPx}px`}
+        cursor="inherit"
       >
         {tasks.map((task) => {
           const snapIndex = api?.selectedScrollSnap() ?? -1
@@ -375,6 +390,14 @@ export function MobileTaskCarousel() {
             task.id !== centeredTaskId
           const peekScrollLabel =
             taskIndex > snapIndex ? 'Show next task' : 'Show previous task'
+          const isCenteredCard = task.id === centeredTaskId
+          const slideCursor = isNavRoutePresenting
+            ? 'default'
+            : isCenteredCard
+              ? 'pointer'
+              : isCarouselGrabbing
+                ? 'grabbing'
+                : 'grab'
 
           return (
             <motion.div
@@ -386,16 +409,18 @@ export function MobileTaskCarousel() {
                 flex: `0 0 ${slideWidthPx > 0 ? `${slideWidthPx}px` : '100%'}`,
                 minWidth: 0,
                 maxWidth: '100%',
+                cursor: slideCursor,
               }}
             >
               <TaskCard
+                activateCursor={isCenteredCard ? 'pointer' : 'grab'}
                 title={task.title}
                 description={task.description}
                 priceLabel={task.priceLabel}
                 metaLine={task.location}
                 distanceLabel={task.distanceLabel}
                 thumbnailSrc={task.thumbnailSrc}
-                detailsHref={`/task/${task.id}`}
+                detailsHref={`/tasks/${task.id}`}
                 badgeText={task.badgeText}
                 ownerName={task.ownerName}
                 ownerAvatarSrc={task.ownerAvatarSrc}

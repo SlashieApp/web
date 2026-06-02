@@ -47,10 +47,10 @@ function NavIcon({ type }: { type: AccountNavKey }) {
     )
   }
 
-  if (type === 'jobs') {
+  if (type === 'quotes') {
     return (
       <svg {...common} aria-hidden>
-        <title>Jobs</title>
+        <title>My Quotes</title>
         <path
           d="M4 8h16v11H4V8Zm4-3h8v3H8V5Z"
           stroke="currentColor"

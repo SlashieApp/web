@@ -13,6 +13,40 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async redirects() {
+    return [
+      {
+        source: '/task/:slug',
+        destination: '/tasks/:slug',
+        permanent: true,
+      },
+      {
+        source: '/task/:slug/quote',
+        destination: '/tasks/:slug/quote',
+        permanent: true,
+      },
+      {
+        source: '/requests/:id/order',
+        destination: '/tasks/:id#task-order',
+        permanent: true,
+      },
+      {
+        source: '/tasks/:slug/order',
+        destination: '/tasks/:slug#task-order',
+        permanent: true,
+      },
+      {
+        source: '/jobs',
+        destination: '/quotes',
+        permanent: true,
+      },
+      {
+        source: '/jobs/:path*',
+        destination: '/quotes/:path*',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {

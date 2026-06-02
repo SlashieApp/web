@@ -2,7 +2,7 @@
 const ACCOUNT_HUB_PREFIXES = [
   '/dashboard',
   '/requests',
-  '/jobs',
+  '/quotes',
   '/earnings',
   '/account',
   '/profile',

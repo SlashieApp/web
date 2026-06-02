@@ -12,7 +12,7 @@ import { useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import UpdateMyProfile from '@/app/(dashboard)/graphql/UpdateMyProfile.gql'
+import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, FormField, Input, SectionCard, Select } from '@ui'
 

@@ -6,7 +6,7 @@ import type { UpdateMySettingsMutation } from '@codegen/schema'
 import { useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import UpdateMySettings from '@/app/(dashboard)/graphql/UpdateMySettings.gql'
+import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { SectionCard } from '@ui'
 

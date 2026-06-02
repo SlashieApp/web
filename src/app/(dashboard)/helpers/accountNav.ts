@@ -8,7 +8,7 @@
 export type AccountNavKey =
   | 'overview'
   | 'requests'
-  | 'jobs'
+  | 'quotes'
   | 'earnings'
   | 'account'
   | 'profile'
@@ -32,13 +32,14 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
     label: 'My Requests',
     href: '/requests',
     description:
-      'Tasks you posted as customer, plus quotes you sent on others’ tasks.',
+      'Tasks you posted as a customer — quotes, bookings, and completion.',
   },
   {
-    key: 'jobs',
-    label: 'Jobs',
-    href: '/jobs',
-    description: 'Tasks with an accepted quote, on either side of the booking.',
+    key: 'quotes',
+    label: 'My Quotes',
+    href: '/quotes',
+    description:
+      'Quotes you sent on other people’s tasks — pending, booked, or done.',
   },
   {
     key: 'earnings',
@@ -66,8 +67,7 @@ export { isAccountHubPath } from '@/utils/accountHub'
 export function resolveAccountNavKey(pathname: string | null): AccountNavKey {
   const path = pathname ?? ''
   if (path.startsWith('/requests')) return 'requests'
-  if (path.startsWith('/dashboard/orders')) return 'jobs'
-  if (path.startsWith('/jobs')) return 'jobs'
+  if (path.startsWith('/quotes')) return 'quotes'
   if (path.startsWith('/earnings')) return 'earnings'
   if (path.startsWith('/account')) return 'account'
   if (path.startsWith('/profile')) return 'profile'

@@ -49,7 +49,7 @@ export function notificationRowsFromQuery(
       happenedAt: item.createdAt,
       tone: toneForType(item.type),
       href: item.orderId
-        ? `/task/${item.taskId}?orderId=${item.orderId}`
-        : `/task/${item.taskId}`,
+        ? `/tasks/${item.taskId}?orderId=${item.orderId}`
+        : `/tasks/${item.taskId}`,
     }))
 }

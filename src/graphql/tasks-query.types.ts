@@ -41,7 +41,7 @@ export type TaskListItem = {
     profile?: { name?: string | null; avatarUrl?: string | null } | null
   } | null
   /**
-   * Only present when the operation selects `quotes` (e.g. `myTasks`).
+   * Only present when the operation selects `quotes` (e.g. `myRequests`, `myQuotes`).
    * Public `tasks` browse does not fetch quotes.
    */
   quotes?: TaskQuoteListItem[]
@@ -51,6 +51,10 @@ export type TasksQueryData = {
   tasks: TaskListItem[]
 }
 
-export type MyTasksQueryData = {
-  myTasks: TaskListItem[]
+export type MyRequestsQueryData = {
+  myRequests: TaskListItem[]
+}
+
+export type MyQuotesQueryData = {
+  myQuotes: TaskListItem[]
 }

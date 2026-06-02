@@ -17,6 +17,7 @@ export {
   WebTaskBrowseFiltersBlock,
 } from './(web)/TaskBrowseFilters'
 export { TaskBrowseMapLayer, TaskMap } from './TaskMap'
+export { TaskBrowseMapLoader } from './TaskBrowseMapLoader'
 export { TaskBrowseSearchThisAreaButton } from './TaskBrowseSearchThisAreaButton'
 export { TaskCard } from './TaskCard'
 export { TaskEmptyState } from './TaskEmptyState'

@@ -7,7 +7,7 @@ import type {
 } from '@codegen/schema'
 import { create } from 'zustand'
 
-import Login from '@/app/(auth)/graphql/Login.gql'
+import Login from '@/app/(auth)/login/graphql/Login.gql'
 import Me from '@/graphql/Me.gql'
 import { apolloClient } from '@/utils/apolloClient'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/utils/auth'

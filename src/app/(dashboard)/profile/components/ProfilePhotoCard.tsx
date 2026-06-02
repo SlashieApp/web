@@ -6,7 +6,7 @@ import type { UpdateMyProfileMutation } from '@codegen/schema'
 import { useRef, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import UpdateMyProfile from '@/app/(dashboard)/graphql/UpdateMyProfile.gql'
+import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
 import { apolloClient } from '@/utils/apolloClient'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {

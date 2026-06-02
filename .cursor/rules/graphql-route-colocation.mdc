@@ -1,0 +1,63 @@
+---
+description: Colocate .gql operations in graphql/ next to the owning route page.tsx
+alwaysApply: true
+---
+
+# GraphQL operations: colocate with the route
+
+Place **`.gql` files next to the route that owns the screen**, not in a distant segment-wide `graphql/` folder when a single page (or nested route) is the primary consumer.
+
+## Default layout
+
+```
+src/app/(dashboard)/requests/
+  page.tsx
+  graphql/MyRequests.gql
+
+src/app/(dashboard)/quotes/
+  page.tsx
+  graphql/MyQuotes.gql
+```
+
+- Use a **`graphql/`** subfolder beside **`page.tsx`** (same route directory).
+- **One operation per file** (matches existing codegen / `*.gql` loader setup).
+- Import from the colocated path, e.g. `@/app/(dashboard)/requests/graphql/MyRequests.gql`.
+
+## Which route “owns” an operation?
+
+| Operation used for… | Put the `.gql` under… |
+|---------------------|------------------------|
+| `/requests` list UI | `requests/graphql/` |
+| `/quotes` list UI | `quotes/graphql/` |
+| Task detail + quote flow on `/tasks/[slug]` | `tasks/[slug]/graphql/` (or the nested route that mounts the mutation) |
+| Auth login/register | `(auth)/login/graphql/`, `(auth)/register/graphql/`, etc. |
+
+If another route **imports** the operation (e.g. task detail refetches `MyQuotes` after `addQuote`), **import the colocated file** from the owning route—do not duplicate the operation.
+
+## Shared fragments and cross-cutting ops
+
+- **Fragments** shared by several operations (e.g. `orderFields.gql`): colocate with the primary consumer route (e.g. `earnings/graphql/orderFields.gql` for `MyOrders`); `#import` paths must stay valid.
+- **Global** `me` / app-wide queries: `src/graphql/Me.gql` is fine.
+- **Segment-level** `(task)/graphql/` or `(dashboard)/graphql/` only when **many** routes in that segment use the same op and there is no single owning `page.tsx` (e.g. browse `Tasks.gql` on `(task)/page.tsx` → `(task)/graphql/Tasks.gql` next to that page is preferred over a orphan pile).
+
+## Avoid
+
+```text
+# ❌ MyRequests only powers /requests but lives in a segment-wide pile
+src/app/(dashboard)/graphql/MyRequests.gql
+src/app/(dashboard)/requests/page.tsx
+```
+
+```text
+# ✅
+src/app/(dashboard)/requests/graphql/MyRequests.gql
+src/app/(dashboard)/requests/page.tsx
+```
+
+## When moving or adding operations
+
+1. Add or move the `.gql` beside the owning `page.tsx`.
+2. Update imports in hooks (`helpers/useMyRequests.ts` colocated under the same route is ideal), providers, and mutations.
+3. Run `bun run codegen` and `bun run lint`.
+
+See also **`graphql-codegen.mdc`** and the **update-graphql** skill.

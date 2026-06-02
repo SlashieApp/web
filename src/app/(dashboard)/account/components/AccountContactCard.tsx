@@ -12,11 +12,11 @@ import type {
 import { useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import ConfirmEmailVerification from '@/app/(dashboard)/graphql/ConfirmEmailVerification.gql'
-import ConfirmPhoneVerification from '@/app/(dashboard)/graphql/ConfirmPhoneVerification.gql'
-import RequestEmailVerification from '@/app/(dashboard)/graphql/RequestEmailVerification.gql'
-import RequestPhoneVerification from '@/app/(dashboard)/graphql/RequestPhoneVerification.gql'
-import UpdatePhoneNumber from '@/app/(dashboard)/graphql/UpdatePhoneNumber.gql'
+import ConfirmEmailVerification from '@/app/(dashboard)/account/graphql/ConfirmEmailVerification.gql'
+import ConfirmPhoneVerification from '@/app/(dashboard)/account/graphql/ConfirmPhoneVerification.gql'
+import RequestEmailVerification from '@/app/(dashboard)/account/graphql/RequestEmailVerification.gql'
+import RequestPhoneVerification from '@/app/(dashboard)/account/graphql/RequestPhoneVerification.gql'
+import UpdatePhoneNumber from '@/app/(dashboard)/account/graphql/UpdatePhoneNumber.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Badge, Button, FormField, Input, SectionCard } from '@ui'
 

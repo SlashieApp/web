@@ -325,8 +325,8 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
                 <Link as={NextLink} href="/requests" {...accountMenuLinkProps}>
                   My Requests
                 </Link>
-                <Link as={NextLink} href="/jobs" {...accountMenuLinkProps}>
-                  Jobs
+                <Link as={NextLink} href="/quotes" {...accountMenuLinkProps}>
+                  My Quotes
                 </Link>
                 <ThemeToggleMenuRow />
                 <HeaderLogOutMenuRow onNavigate={navigateTo} />
@@ -417,11 +417,11 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
               </Link>
               <Link
                 as={NextLink}
-                href="/jobs"
+                href="/quotes"
                 {...accountMenuLinkProps}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Jobs
+                My Quotes
               </Link>
             </>
           ) : (

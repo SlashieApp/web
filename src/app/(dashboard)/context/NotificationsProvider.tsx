@@ -17,9 +17,9 @@ import {
 } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import MarkAllNotificationsRead from '@/app/(dashboard)/graphql/MarkAllNotificationsRead.gql'
-import MarkNotificationRead from '@/app/(dashboard)/graphql/MarkNotificationRead.gql'
-import MyNotifications from '@/app/(dashboard)/graphql/MyNotifications.gql'
+import MarkAllNotificationsRead from '@/app/(dashboard)/dashboard/graphql/MarkAllNotificationsRead.gql'
+import MarkNotificationRead from '@/app/(dashboard)/dashboard/graphql/MarkNotificationRead.gql'
+import MyNotifications from '@/app/(dashboard)/dashboard/graphql/MyNotifications.gql'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
 import {

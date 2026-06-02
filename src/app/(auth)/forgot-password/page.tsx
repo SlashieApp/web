@@ -8,7 +8,7 @@ import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useMemo, useState } from 'react'
 
-import ForgotPassword from '@/app/(auth)/graphql/ForgotPassword.gql'
+import ForgotPassword from '@/app/(auth)/forgot-password/graphql/ForgotPassword.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 function FieldIconMail() {

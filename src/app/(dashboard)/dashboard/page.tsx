@@ -36,7 +36,8 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 import { notificationRowsFromQuery } from '../helpers/notificationActivity'
 import { useAccountOrders } from '../helpers/useAccountOrders'
-import { useAccountTasks } from '../helpers/useAccountTasks'
+import { useMyQuotes } from '../helpers/useMyQuotes'
+import { useMyRequests } from '../helpers/useMyRequests'
 
 type StatTileProps = {
   label: string
@@ -230,25 +231,25 @@ function ClockLabel({ happenedAt }: { happenedAt: unknown }) {
 function QuickActionIcon({
   kind,
 }: {
-  kind: 'post' | 'browse' | 'requests' | 'jobs' | 'profile'
+  kind: 'post' | 'browse' | 'requests' | 'quotes' | 'profile'
 }) {
   if (kind === 'browse') return <Text fontWeight={700}>⌕</Text>
   if (kind === 'requests') return <Text fontWeight={700}>⌂</Text>
-  if (kind === 'jobs') return <Text fontWeight={700}>☑</Text>
+  if (kind === 'quotes') return <Text fontWeight={700}>☑</Text>
   if (kind === 'profile') return <Text fontWeight={700}>◯</Text>
   return <Text fontWeight={700}>＋</Text>
 }
 
 export default function DashboardOverviewPage() {
   const me = useUserStore((s) => s.me)
+  const { loading, errorMessage, tasks, postedTasks, activePostedTasks } =
+    useMyRequests()
+
   const {
-    loading,
-    errorMessage,
-    tasks,
-    postedTasks,
-    activePostedTasks,
+    loading: quotesLoading,
+    errorMessage: quotesErrorMessage,
     sentQuotes,
-  } = useAccountTasks()
+  } = useMyQuotes()
 
   const {
     loading: ordersLoading,
@@ -269,8 +270,9 @@ export default function DashboardOverviewPage() {
         ? 'Good afternoon'
         : 'Good evening'
 
-  const loadingAny = loading || ordersLoading
-  const errorMessageCombined = errorMessage || ordersErrorMessage || null
+  const loadingAny = loading || quotesLoading || ordersLoading
+  const errorMessageCombined =
+    errorMessage || quotesErrorMessage || ordersErrorMessage || null
   const postedAwaitingQuotes = activePostedTasks.filter(
     (task) => (task.quotes?.length ?? 0) === 0,
   ).length
@@ -395,11 +397,11 @@ export default function DashboardOverviewPage() {
       kind: 'requests' as const,
     },
     {
-      key: 'jobs',
-      title: 'View jobs',
-      subtitle: 'Monitor accepted and active work',
-      href: '/jobs',
-      kind: 'jobs' as const,
+      key: 'quotes',
+      title: 'My Quotes',
+      subtitle: 'Track quotes you sent on tasks',
+      href: '/quotes',
+      kind: 'quotes' as const,
     },
     {
       key: 'profile',
@@ -429,7 +431,7 @@ export default function DashboardOverviewPage() {
             {greeting}, {displayName}! <span aria-hidden>👋</span>
           </Heading>
           <Text color="formLabelMuted" maxW="3xl">
-            Manage your tasks, quotes and jobs in one place.
+            Manage your tasks and quotes in one place.
           </Text>
         </Stack>
         <HStack gap={2} flexWrap="wrap">
@@ -495,12 +497,12 @@ export default function DashboardOverviewPage() {
               </Stack>
               <Link
                 as={NextLink}
-                href="/jobs"
+                href="/quotes"
                 fontSize="sm"
                 fontWeight={600}
                 color="primary.700"
               >
-                View all jobs
+                View all quotes
               </Link>
             </HStack>
             <Stack gap={2}>

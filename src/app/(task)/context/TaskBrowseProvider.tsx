@@ -92,6 +92,10 @@ type TaskBrowseDataContextValue = {
   loading: boolean
   error: { message: string } | null | undefined
   dataLoaded: boolean
+  /** Map/list loader: waiting for map readiness and/or the first tasks query. */
+  isInitialTasksLoad: boolean
+  /** Empty-state card may render (first fetch finished). */
+  canShowBrowseEmptyState: boolean
   /** Task count from the latest `tasks` query (or SSR initial list) before client-side filters. Discovery is cap-aware server-side. */
   browseSourceTaskCount: number
   filteredSorted: TaskListItem[]
@@ -598,6 +602,11 @@ export function TaskBrowseProvider({
     submittedUrgency,
   ])
 
+  const dataLoaded = Boolean(data)
+  const tasksQuerySkipped = shouldWaitForMap && !isMapReadyForQuery
+  const isInitialTasksLoad = tasksQuerySkipped || (loading && !dataLoaded)
+  const canShowBrowseEmptyState = !isInitialTasksLoad && dataLoaded
+
   const dataValue = useMemo<TaskBrowseDataContextValue>(
     () => ({
       sort,
@@ -636,7 +645,9 @@ export function TaskBrowseProvider({
       onNavRoutePresentingChange,
       loading,
       error,
-      dataLoaded: Boolean(data),
+      dataLoaded,
+      isInitialTasksLoad,
+      canShowBrowseEmptyState,
       browseSourceTaskCount: (data?.tasks ?? initialTasks).length,
       filteredSorted,
       pageItems,
@@ -667,6 +678,9 @@ export function TaskBrowseProvider({
       error,
       filteredSorted,
       loading,
+      dataLoaded,
+      isInitialTasksLoad,
+      canShowBrowseEmptyState,
       mapTasksForBox,
       maxBudget,
       minBudget,

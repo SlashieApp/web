@@ -1,7 +1,7 @@
 import type { ApolloClient } from '@apollo/client'
 import type { GetProfileAvatarUploadQuery } from '@codegen/schema'
 
-import GetProfileAvatarUpload from '@/app/(dashboard)/graphql/GetProfileAvatarUpload.gql'
+import GetProfileAvatarUpload from '@/app/(dashboard)/profile/graphql/GetProfileAvatarUpload.gql'
 
 export const AVATAR_MAX_BYTES = 5 * 1024 * 1024
 export const AVATAR_ACCEPTED_TYPES = [

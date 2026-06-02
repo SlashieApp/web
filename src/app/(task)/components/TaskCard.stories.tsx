@@ -34,7 +34,7 @@ export const ListItem: Story = {
       'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop',
     thumbnailSrc:
       'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
-    detailsHref: '/task/task-1',
+    detailsHref: '/tasks/task-1',
     badgeText: 'New',
   },
 }

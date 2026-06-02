@@ -19,9 +19,9 @@ export function notificationTaskHref(
   orderId?: string | null,
 ): string {
   if (orderId?.trim()) {
-    return `/task/${taskId}?orderId=${encodeURIComponent(orderId.trim())}`
+    return `/tasks/${taskId}?orderId=${encodeURIComponent(orderId.trim())}`
   }
-  return `/task/${taskId}`
+  return `/tasks/${taskId}`
 }
 
 /** Prefer API title/body; fall back to type-based copy. */

@@ -145,29 +145,40 @@ export default function EarningsPage() {
         ) : (
           <Stack gap={3}>
             {closedWorkerOrders.map((order) => (
-              <SectionCard key={order.id} p={5}>
-                <HStack
-                  justify="space-between"
-                  align="flex-start"
-                  flexWrap="wrap"
-                  gap={4}
-                >
-                  <Stack gap={1} maxW="3xl">
-                    <Heading size="sm">{order.snapshot.title}</Heading>
-                    <Text fontSize="sm" color="formLabelMuted">
-                      Closed {order.closedAt ? formatDate(order.closedAt) : '—'}
-                    </Text>
-                  </Stack>
-                  <HStack gap={3}>
-                    <Badge bg="badgeBg" color="cardFg">
-                      Closed
-                    </Badge>
-                    <Text fontWeight={800}>
-                      {formatOrderAgreedPrice(order)}
-                    </Text>
+              <Link
+                key={order.id}
+                as={NextLink}
+                href={orderTaskHref(order)}
+                _hover={{ textDecoration: 'none' }}
+              >
+                <SectionCard p={5}>
+                  <HStack
+                    justify="space-between"
+                    align="flex-start"
+                    flexWrap="wrap"
+                    gap={4}
+                  >
+                    <Stack gap={1} maxW="3xl">
+                      <Heading size="sm">{order.snapshot.title}</Heading>
+                      <Text fontSize="sm" color="formLabelMuted">
+                        Closed{' '}
+                        {order.closedAt ? formatDate(order.closedAt) : '—'}
+                      </Text>
+                    </Stack>
+                    <HStack gap={3}>
+                      <Badge bg="badgeBg" color="cardFg">
+                        Closed
+                      </Badge>
+                      <Text fontWeight={800}>
+                        {formatOrderAgreedPrice(order)}
+                      </Text>
+                      <Text fontSize="sm" fontWeight={600} color="primary.700">
+                        Open task →
+                      </Text>
+                    </HStack>
                   </HStack>
-                </HStack>
-              </SectionCard>
+                </SectionCard>
+              </Link>
             ))}
           </Stack>
         )}
