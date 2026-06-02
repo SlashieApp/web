@@ -1,14 +1,17 @@
 import type { ExpressionSpecification } from 'mapbox-gl'
 import type { GeoJSONSource, Map as MapboxMap } from 'mapbox-gl'
 
-import { mapboxDrivingRoute } from '@/utils/mapboxDirections'
+import {
+  mapboxDrivingRoute,
+  peekDrivingRouteCache,
+} from '@/utils/mapboxDirections'
 
 export const TASK_MAP_NAV_ROUTE_SOURCE = 'task-browse-nav-route'
 export const TASK_MAP_NAV_ROUTE_LAYER = 'task-browse-nav-route-line'
 
 const ROUTE_GREEN = '#00AB63'
 const ROUTE_FADE = 'rgba(0, 171, 99, 0)'
-const ROUTE_ANIM_MS = 720
+const ROUTE_ANIM_MS = 400
 
 const emptyLine = {
   type: 'Feature' as const,
@@ -19,6 +22,9 @@ const emptyLine = {
   },
 }
 
+/** Last drawn route geometry keyed by stable origin→destination (survives task re-selection). */
+const presentationRouteCache = new Map<string, [number, number][]>()
+
 function routeMotionEnabled(): boolean {
   if (typeof window === 'undefined') return true
   return !window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -28,7 +34,7 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3
 }
 
-function targetKey(
+function routeDisplayKey(
   fromLng: number,
   fromLat: number,
   toLng: number,
@@ -94,6 +100,39 @@ function clearTaskMapNavRouteData(map: MapboxMap) {
   }
 }
 
+function rememberRouteGeometry(
+  displayKey: string,
+  coordinates: [number, number][],
+) {
+  if (coordinates.length >= 2) {
+    presentationRouteCache.set(displayKey, coordinates)
+  }
+}
+
+function resolveCachedCoordinates(
+  fromLng: number,
+  fromLat: number,
+  toLng: number,
+  toLat: number,
+  displayKey: string,
+): [number, number][] | null {
+  const fromPresentation = presentationRouteCache.get(displayKey)
+  if (fromPresentation && fromPresentation.length >= 2) {
+    return fromPresentation
+  }
+  const fromDirections = peekDrivingRouteCache(
+    fromLng,
+    fromLat,
+    toLng,
+    toLat,
+  )?.coordinates
+  if (fromDirections && fromDirections.length >= 2) {
+    rememberRouteGeometry(displayKey, fromDirections)
+    return fromDirections
+  }
+  return null
+}
+
 export type TaskMapNavRouteController = {
   setSelectedRoute: (target: { lng: number; lat: number } | null) => void
   refreshForSearchCenter: () => void
@@ -107,6 +146,7 @@ export function createTaskMapNavRouteController(args: {
   getMap: () => MapboxMap | null
   getAccessToken: () => string
   getSearchCenter: () => { lat: number; lng: number }
+  onNavRoutePresentingChange?: (presenting: boolean) => void
 }): TaskMapNavRouteController {
   let abort: AbortController | null = null
   let activeDisplayKey = ''
@@ -117,11 +157,30 @@ export function createTaskMapNavRouteController(args: {
   let needsFlushWhenReady = false
   /** Invalidates in-flight fetches when the user picks another task. */
   let routeRequestId = 0
+  let isPresenting = false
+
+  const setPresenting = (presenting: boolean) => {
+    if (presenting === isPresenting) return
+    isPresenting = presenting
+    // Defer so map init / sync never triggers React setState during a ref callback.
+    queueMicrotask(() => {
+      args.onNavRoutePresentingChange?.(presenting)
+    })
+  }
 
   const cancelAnimation = () => {
     if (animFrame != null) {
       cancelAnimationFrame(animFrame)
       animFrame = null
+    }
+  }
+
+  /** Stop gradient animation only — keep line geometry for cache replay. */
+  const cancelRoutePresentation = () => {
+    cancelAnimation()
+    const map = args.getMap()
+    if (map?.isStyleLoaded() && map.getLayer(TASK_MAP_NAV_ROUTE_LAYER)) {
+      setGradientProgress(map, 0)
     }
   }
 
@@ -138,6 +197,7 @@ export function createTaskMapNavRouteController(args: {
     cancelAnimation()
     if (!routeMotionEnabled()) {
       setGradientProgress(map, 1)
+      setPresenting(false)
       return
     }
 
@@ -145,13 +205,14 @@ export function createTaskMapNavRouteController(args: {
     animStart = performance.now()
 
     const tick = (now: number) => {
-      if (displayKey !== activeDisplayKey) return
+      if (displayKey !== activeDisplayKey || !activeDisplayKey) return
       const t = Math.min(1, (now - animStart) / ROUTE_ANIM_MS)
       setGradientProgress(map, easeOutCubic(t))
       if (t < 1) {
         animFrame = requestAnimationFrame(tick)
       } else {
         animFrame = null
+        setPresenting(false)
       }
     }
 
@@ -163,6 +224,7 @@ export function createTaskMapNavRouteController(args: {
     abort?.abort()
     abort = null
     cancelAnimation()
+    setPresenting(false)
     activeDisplayKey = ''
     pendingDisplayKey = ''
     needsFlushWhenReady = false
@@ -182,6 +244,7 @@ export function createTaskMapNavRouteController(args: {
     if (requestId !== routeRequestId) return
     if (pendingDisplayKey !== displayKey) return
 
+    rememberRouteGeometry(displayKey, coordinates)
     ensureTaskMapNavRouteLayers(map)
     const src = map.getSource(TASK_MAP_NAV_ROUTE_SOURCE) as GeoJSONSource
     src.setData({
@@ -208,13 +271,31 @@ export function createTaskMapNavRouteController(args: {
     const token = args.getAccessToken().trim()
     if (!token) return
 
-    const displayKey = targetKey(fromLng, fromLat, toLng, toLat)
+    const displayKey = routeDisplayKey(fromLng, fromLat, toLng, toLat)
     if (!opts?.force && displayKey === activeDisplayKey) return
 
     const requestId = ++routeRequestId
     pendingDisplayKey = displayKey
     needsFlushWhenReady = false
-    cancelAnimation()
+    setPresenting(true)
+
+    const cached = resolveCachedCoordinates(
+      fromLng,
+      fromLat,
+      toLng,
+      toLat,
+      displayKey,
+    )
+    if (cached) {
+      abort?.abort()
+      abort = null
+      cancelRoutePresentation()
+      applyRoute(map, cached, displayKey, requestId)
+      return
+    }
+
+    cancelRoutePresentation()
+    activeDisplayKey = ''
     abort?.abort()
     abort = new AbortController()
     const { signal } = abort
@@ -224,8 +305,8 @@ export function createTaskMapNavRouteController(args: {
       [toLng, toLat],
     ]
 
-    void mapboxDrivingRoute(fromLng, fromLat, toLng, toLat, token, signal).then(
-      (geometry) => {
+    void mapboxDrivingRoute(fromLng, fromLat, toLng, toLat, token, signal)
+      .then((geometry) => {
         if (requestId !== routeRequestId) return
         if (pendingDisplayKey !== displayKey) return
 
@@ -241,8 +322,11 @@ export function createTaskMapNavRouteController(args: {
             : fallbackLine
 
         applyRoute(m, coordinates, displayKey, requestId)
-      },
-    )
+      })
+      .catch(() => {
+        if (requestId !== routeRequestId) return
+        setPresenting(false)
+      })
   }
 
   const flushWhenReady = () => {

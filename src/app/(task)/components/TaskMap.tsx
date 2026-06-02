@@ -55,8 +55,10 @@ export type TaskMapProps = {
   /** Emits map style readiness state for parent loading orchestration. */
   onReadyChange?: (ready: boolean) => void
   selectedTaskId?: string | null
+  selectedTaskSelectionToken?: number
   onSelectTask?: (taskId: string | null) => void
   onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
+  onNavRoutePresentingChange?: (presenting: boolean) => void
 }
 
 export function TaskMap({
@@ -75,8 +77,10 @@ export function TaskMap({
   onMapClick,
   onReadyChange,
   selectedTaskId = null,
+  selectedTaskSelectionToken = 0,
   onSelectTask,
   onSearchThisAreaUiChange,
+  onNavRoutePresentingChange,
 }: TaskMapProps) {
   const { colorMode } = useColorMode()
   const effectiveSearchRadiusMiles = Math.max(
@@ -109,6 +113,7 @@ export function TaskMap({
     onMapClick,
     onReadyChange,
     selectedTaskId,
+    selectedTaskSelectionToken,
     onSelectTask,
     onSearchThisAreaUiChange,
     effectiveSearchRadiusMiles,
@@ -131,6 +136,7 @@ export function TaskMap({
     onMapClick,
     onReadyChange,
     selectedTaskId,
+    selectedTaskSelectionToken,
     onSelectTask,
     onSearchThisAreaUiChange,
     effectiveSearchRadiusMiles,
@@ -141,6 +147,18 @@ export function TaskMap({
   selectTaskRef.current = onSelectTask
   const selectedTaskIdRef = useRef(selectedTaskId)
   selectedTaskIdRef.current = selectedTaskId
+  const isNavRoutePresentingRef = useRef(false)
+  const onNavRoutePresentingChangeRef = useRef(onNavRoutePresentingChange)
+  onNavRoutePresentingChangeRef.current = onNavRoutePresentingChange
+
+  const notifyNavRoutePresentingChangeRef = useRef((presenting: boolean) => {
+    isNavRoutePresentingRef.current = presenting
+    onNavRoutePresentingChangeRef.current?.(presenting)
+  })
+  notifyNavRoutePresentingChangeRef.current = (presenting: boolean) => {
+    isNavRoutePresentingRef.current = presenting
+    onNavRoutePresentingChangeRef.current?.(presenting)
+  }
 
   const syncDriverRef = useRef<string | null>(null)
   const showSearchRef = useRef(false)
@@ -165,6 +183,10 @@ export function TaskMap({
         getProps: () => propsRef.current,
         getSelectTask: () => selectTaskRef.current,
         getSelectedTaskId: () => selectedTaskIdRef.current ?? null,
+        getIsNavRoutePresenting: () => isNavRoutePresentingRef.current,
+        onNavRoutePresentingChange: (presenting) => {
+          notifyNavRoutePresentingChangeRef.current(presenting)
+        },
         setShowSearchThisArea,
         getShowSearchThisArea: () => showSearchRef.current,
       })
@@ -190,6 +212,7 @@ export function TaskMap({
     tasksLoaded,
     leftViewportPadding ?? '',
     selectedTaskId ?? '',
+    selectedTaskSelectionToken,
     effectiveSearchRadiusMiles,
     searchAreaButtonLeftInset ?? '',
     searchAreaButtonPosition ?? '',
@@ -269,7 +292,7 @@ export type TaskBrowseMapLayerProps = {
 export function TaskBrowseMapLayer({ isDesktop }: TaskBrowseMapLayerProps) {
   const mapBindings = useTaskMapBindings()
   const { windowOffsetWidth, setIsFilterOpen } = useTaskBrowseLayout()
-  const { setSelectedTaskId } = useTaskBrowseData()
+  const { setSelectedTaskId, onNavRoutePresentingChange } = useTaskBrowseData()
 
   return (
     <Box position="absolute" inset={0} zIndex={isDesktop ? 1 : 0}>
@@ -279,6 +302,7 @@ export function TaskBrowseMapLayer({ isDesktop }: TaskBrowseMapLayerProps) {
         searchAreaButtonLeftInset={
           isDesktop ? SINGLE_PANEL_BUTTON_LEFT_INSET : undefined
         }
+        onNavRoutePresentingChange={onNavRoutePresentingChange}
         onSelectTask={(taskId) => {
           if (taskId) setIsFilterOpen(false)
           setSelectedTaskId(taskId)

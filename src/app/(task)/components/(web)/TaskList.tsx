@@ -24,6 +24,7 @@ export function TaskList() {
     filteredSorted,
     selectedTaskId,
     setSelectedTaskId,
+    isNavRoutePresenting,
     referenceLocation,
   } = useTaskBrowseData()
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
@@ -50,13 +51,7 @@ export function TaskList() {
   )
 
   const handleActivateTask = (taskId: string) => {
-    if (selectedTaskId === taskId) {
-      setSelectedTaskId(null)
-      requestAnimationFrame(() => {
-        setSelectedTaskId(taskId)
-      })
-      return
-    }
+    if (isNavRoutePresenting) return
     setSelectedTaskId(taskId)
     requestAnimationFrame(() => {
       scrollTaskCardIntoView(taskId)
@@ -157,9 +152,9 @@ export function TaskList() {
           '&::-webkit-scrollbar': { display: 'none' },
         }}
       >
-        <Stack gap={3} py={6} pb={10}>
+        <Stack gap={3} py={5} pb={10}>
           {filteredSorted.length === 0 ? (
-            <Box px={1} pt={2}>
+            <Box px={1}>
               <TaskEmptyState />
             </Box>
           ) : null}

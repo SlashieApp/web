@@ -53,6 +53,8 @@ export function createTaskMapController(args: {
   getProps: () => TaskMapPropsSnapshot
   getSelectTask: () => TaskMapPropsSnapshot['onSelectTask']
   getSelectedTaskId: () => string | null
+  getIsNavRoutePresenting: () => boolean
+  onNavRoutePresentingChange?: (presenting: boolean) => void
   setShowSearchThisArea: (v: boolean) => void
   getShowSearchThisArea: () => boolean
 }): TaskMapController {
@@ -85,7 +87,7 @@ export function createTaskMapController(args: {
   let lastMarkerSig = ''
   let lastCoordsSig = ''
   let lastSelectionFlyKey = ''
-  let lastSyncedSelectedId = ''
+  let lastSyncedRouteKey = ''
   let lastPinSelectedKey = ''
   let lastSearchThisAreaUiSig: string | null = null
   let lastThemeMode: 'light' | 'dark' | null = null
@@ -99,6 +101,7 @@ export function createTaskMapController(args: {
       const p = getProps()
       return { lat: p.centerLat, lng: p.centerLng }
     },
+    onNavRoutePresentingChange: args.onNavRoutePresentingChange,
   })
 
   const lightStyle = process.env.NEXT_PUBLIC_MAPBOX_STYLE_LIGHT?.trim()
@@ -182,7 +185,11 @@ export function createTaskMapController(args: {
     const { el, setSelected, setExpanded } = taskMarkerElement(
       task,
       false,
-      () => queueMicrotask(() => getSelectTask()?.(task.id)),
+      () =>
+        queueMicrotask(() => {
+          if (args.getIsNavRoutePresenting()) return
+          getSelectTask()?.(task.id)
+        }),
     )
 
     const marker = new mapboxMod.Marker({
@@ -368,9 +375,11 @@ export function createTaskMapController(args: {
         ? `${selectedId}|${selLl.lat}|${selLl.lng}|${leftPad}`
         : `__none__|${leftPad}`
 
-    const selectedIdChanged = (selectedId ?? '') !== lastSyncedSelectedId
-    if (selectedIdChanged) {
-      lastSyncedSelectedId = selectedId ?? ''
+    const routeSyncKey = selectedId
+      ? `${selectedId}|${p.selectedTaskSelectionToken ?? 0}`
+      : ''
+    if (routeSyncKey !== lastSyncedRouteKey) {
+      lastSyncedRouteKey = routeSyncKey
       if (selectedId && selLl) {
         navRoute.setSelectedRoute({ lng: selLl.lng, lat: selLl.lat })
       } else {
@@ -529,6 +538,7 @@ export function createTaskMapController(args: {
       if (target instanceof Element && target.closest('.mapboxgl-marker')) {
         return
       }
+      if (args.getIsNavRoutePresenting()) return
       navRoute.clearRoute()
       if (getSelectedTaskId()) getSelectTask()?.(null)
       getProps().onMapClick?.()

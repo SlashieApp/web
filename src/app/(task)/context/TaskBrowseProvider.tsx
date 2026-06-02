@@ -81,7 +81,14 @@ type TaskBrowseDataContextValue = {
   searchCenterLng: number
   confirmSearchThisAreaFromMap: (lat: number, lng: number, zoom: number) => void
   selectedTaskId: string | null
-  setSelectedTaskId: (v: string | null) => void
+  /** Bumps on every non-null selection (including re-selecting the same task). */
+  selectedTaskSelectionToken: number
+  setSelectedTaskId: (
+    v: string | null | ((prev: string | null) => string | null),
+  ) => void
+  /** True while the map nav route is fetching or animating. */
+  isNavRoutePresenting: boolean
+  onNavRoutePresentingChange: (presenting: boolean) => void
   loading: boolean
   error: { message: string } | null | undefined
   dataLoaded: boolean
@@ -219,7 +226,38 @@ export function TaskBrowseProvider({
   const pendingAreaSearchQueryRef = useRef<string | null>(null)
   const lastResolvedAreaSearchQueryRef = useRef<string | null>(null)
   const geolocationInitStartedRef = useRef(false)
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
+  const [selectedTaskId, setSelectedTaskIdState] = useState<string | null>(null)
+  const [selectedTaskSelectionToken, setSelectedTaskSelectionToken] =
+    useState(0)
+  const [isNavRoutePresenting, setIsNavRoutePresenting] = useState(false)
+  const isNavRoutePresentingRef = useRef(false)
+
+  const onNavRoutePresentingChange = useCallback((presenting: boolean) => {
+    isNavRoutePresentingRef.current = presenting
+    setIsNavRoutePresenting(presenting)
+  }, [])
+
+  const setSelectedTaskId = useCallback(
+    (value: string | null | ((prev: string | null) => string | null)) => {
+      if (isNavRoutePresentingRef.current) return
+
+      if (typeof value === 'function') {
+        setSelectedTaskIdState((prev) => {
+          const next = value(prev)
+          if (next) {
+            setSelectedTaskSelectionToken((t) => t + 1)
+          }
+          return next
+        })
+        return
+      }
+      if (value) {
+        setSelectedTaskSelectionToken((t) => t + 1)
+      }
+      setSelectedTaskIdState(value)
+    },
+    [],
+  )
   const [isMapReadyForQuery, setIsMapReadyForQuery] = useState(!hasMapboxToken)
 
   const searchCenterLat = referenceLocation.lat
@@ -592,7 +630,10 @@ export function TaskBrowseProvider({
       searchCenterLng,
       confirmSearchThisAreaFromMap,
       selectedTaskId: visibleSelectedTaskId,
+      selectedTaskSelectionToken,
       setSelectedTaskId,
+      isNavRoutePresenting,
+      onNavRoutePresentingChange,
       loading,
       error,
       dataLoaded: Boolean(data),
@@ -639,6 +680,10 @@ export function TaskBrowseProvider({
       searchInput,
       setSearchInput,
       visibleSelectedTaskId,
+      selectedTaskSelectionToken,
+      setSelectedTaskId,
+      isNavRoutePresenting,
+      onNavRoutePresentingChange,
       shouldWaitForMap,
       sort,
       totalPages,
@@ -722,6 +767,7 @@ type SharedTaskMapBindings = Pick<
   | 'onMapClick'
   | 'onReadyChange'
   | 'selectedTaskId'
+  | 'selectedTaskSelectionToken'
   | 'onSelectTask'
   | 'onSearchThisAreaUiChange'
 >
@@ -742,6 +788,7 @@ export function useTaskMapBindings(): SharedTaskMapBindings {
     onMapClick: () => layout.setIsFilterOpen(false),
     onReadyChange: data.markMapReadyForQuery,
     selectedTaskId: data.selectedTaskId,
+    selectedTaskSelectionToken: data.selectedTaskSelectionToken,
     onSelectTask: data.setSelectedTaskId,
     onSearchThisAreaUiChange: layout.setSearchThisAreaUi,
   }

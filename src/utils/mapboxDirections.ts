@@ -10,7 +10,7 @@ export type MapboxRouteLine = {
 
 const routeCache = new Map<string, MapboxRouteLine>()
 
-function routeCacheKey(
+export function drivingRouteCacheKey(
   fromLng: number,
   fromLat: number,
   toLng: number,
@@ -18,6 +18,16 @@ function routeCacheKey(
 ): string {
   const r = (n: number) => n.toFixed(5)
   return `${r(fromLng)},${r(fromLat)};${r(toLng)},${r(toLat)}`
+}
+
+/** Returns cached Directions geometry when this origin→destination was fetched before. */
+export function peekDrivingRouteCache(
+  fromLng: number,
+  fromLat: number,
+  toLng: number,
+  toLat: number,
+): MapboxRouteLine | undefined {
+  return routeCache.get(drivingRouteCacheKey(fromLng, fromLat, toLng, toLat))
 }
 
 export async function mapboxDrivingRoute(
@@ -37,7 +47,7 @@ export async function mapboxDrivingRoute(
     return null
   }
 
-  const key = routeCacheKey(fromLng, fromLat, toLng, toLat)
+  const key = drivingRouteCacheKey(fromLng, fromLat, toLng, toLat)
   const cached = routeCache.get(key)
   if (cached) return cached
 

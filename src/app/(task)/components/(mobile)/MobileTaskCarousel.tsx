@@ -58,6 +58,7 @@ export function MobileTaskCarousel() {
     filteredSorted,
     selectedTaskId,
     setSelectedTaskId,
+    isNavRoutePresenting,
     referenceLocation,
   } = useTaskBrowseData()
   const pointerGestureRef = useRef<CarouselPointerGesture>({
@@ -155,7 +156,41 @@ export function MobileTaskCarousel() {
     [router],
   )
 
+  const handleCardActivate = useCallback(
+    (taskId: string) => {
+      if (pointerGestureRef.current.didDrag) return
+      if (isNavRoutePresenting) return
+
+      const live = emblaApiRef.current
+      const centeredTaskId = live
+        ? taskIdsRef.current[live.selectedScrollSnap()]
+        : null
+
+      if (
+        selectedTaskIdRef.current &&
+        centeredTaskId &&
+        taskId !== centeredTaskId &&
+        live
+      ) {
+        const snap = live.selectedScrollSnap()
+        const idx = taskIdsRef.current.indexOf(taskId)
+        if (idx < 0) return
+        selectionFromCarouselRef.current = true
+        if (idx > snap) {
+          live.scrollNext()
+        } else if (idx < snap) {
+          live.scrollPrev()
+        }
+        return
+      }
+
+      openTaskDetail(taskId)
+    },
+    [isNavRoutePresenting, openTaskDetail],
+  )
+
   const syncSelectionFromCarousel = useCallback(() => {
+    if (isNavRoutePresenting) return
     const live = emblaApiRef.current
     if (!live) return
     const idx = live.selectedScrollSnap()
@@ -165,10 +200,8 @@ export function MobileTaskCarousel() {
     focusedTaskIdRef.current = id
     setFocusedTaskId(id)
     selectionFromCarouselRef.current = true
-    if (id !== selectedTaskIdRef.current) {
-      setSelectedTaskIdRef.current(id)
-    }
-  }, [])
+    setSelectedTaskIdRef.current(id)
+  }, [isNavRoutePresenting])
 
   const lastEmblaLayoutRef = useRef<{
     pad: number
@@ -296,6 +329,10 @@ export function MobileTaskCarousel() {
     )
   }
 
+  const centeredTaskId =
+    api != null ? (taskIdsRef.current[api.selectedScrollSnap()] ?? null) : null
+  const mapSelectionActive = Boolean(selectedTaskId)
+
   const edgeFadeMask =
     centeringPadPx > 0
       ? {
@@ -309,7 +346,7 @@ export function MobileTaskCarousel() {
   return (
     <Box
       ref={setViewportRef}
-      pointerEvents="auto"
+      pointerEvents={isNavRoutePresenting ? 'none' : 'auto'}
       overflow="hidden"
       px={CAROUSEL_INSET}
       mb={1}
@@ -330,6 +367,15 @@ export function MobileTaskCarousel() {
         pr={`${centeringPadPx}px`}
       >
         {tasks.map((task) => {
+          const snapIndex = api?.selectedScrollSnap() ?? -1
+          const taskIndex = tasks.findIndex((t) => t.id === task.id)
+          const isPeekAdjacent =
+            mapSelectionActive &&
+            centeredTaskId != null &&
+            task.id !== centeredTaskId
+          const peekScrollLabel =
+            taskIndex > snapIndex ? 'Show next task' : 'Show previous task'
+
           return (
             <motion.div
               key={task.id}
@@ -355,8 +401,12 @@ export function MobileTaskCarousel() {
                 ownerAvatarSrc={task.ownerAvatarSrc}
                 isActive={(focusedTaskId ?? selectedTaskId) === task.id}
                 showDetailsCta={false}
-                activateAriaLabel={`${task.title}. View task details.`}
-                onActivate={() => openTaskDetail(task.id)}
+                activateAriaLabel={
+                  isPeekAdjacent
+                    ? `${task.title}. ${peekScrollLabel}.`
+                    : `${task.title}. View task details.`
+                }
+                onActivate={() => handleCardActivate(task.id)}
               />
             </motion.div>
           )

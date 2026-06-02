@@ -185,13 +185,8 @@ export function TaskSearch() {
     commitAreaLocationSearch,
     requestUseMyLocation,
     syncDraftFiltersFromSubmitted,
-    geolocationStatus,
-    referenceLocation,
   } = useTaskBrowseData()
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
-
-  const showLocationHint =
-    geolocationStatus === 'denied' && referenceLocation.source === 'default'
 
   return (
     <Stack gap={1.5} pointerEvents="auto">
@@ -206,12 +201,6 @@ export function TaskSearch() {
         onCommitLocationSearch={commitAreaLocationSearch}
         onUseCurrentLocation={requestUseMyLocation}
       />
-      {showLocationHint ? (
-        <Text fontSize="xs" color="formLabelMuted" px={1}>
-          Location access is off. Search an area or tap the locate button to set
-          your reference point.
-        </Text>
-      ) : null}
     </Stack>
   )
 }
