@@ -1,4 +1,4 @@
-#import "./orderFields.gql"
+#import "../../../../(dashboard)/earnings/graphql/orderFields.gql"
 
 mutation CompleteOrderWithVerification($orderId: ID!, $code: String!) {
   completeOrderWithVerification(orderId: $orderId, code: $code) {

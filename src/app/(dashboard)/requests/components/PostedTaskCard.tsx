@@ -76,11 +76,17 @@ export function PostedTaskCard({
           variant: 'primary' as const,
         }
       : hasOrder
-        ? {
-            label: orderClosed ? 'View order' : 'Manage booking',
-            href: taskOrderSectionHref(task.id),
-            variant: (orderClosed ? 'primary' : 'secondary') as const,
-          }
+        ? orderClosed
+          ? {
+              label: 'View order',
+              href: taskOrderSectionHref(task.id),
+              variant: 'primary' as const,
+            }
+          : {
+              label: 'Manage booking',
+              href: taskOrderSectionHref(task.id),
+              variant: 'secondary' as const,
+            }
         : {
             label: 'Open task',
             href: taskHref,
@@ -99,7 +105,6 @@ export function PostedTaskCard({
     <SectionCard p={0} overflow="hidden">
       <Box
         as="button"
-        type="button"
         w="full"
         textAlign="left"
         p={5}

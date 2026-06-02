@@ -68,11 +68,17 @@ export function WorkerQuoteCard({ task, quote, workerOrder }: WorkerQuoteRow) {
             href: taskOrderSectionHref(task.id),
             variant: 'secondary' as const,
           }
-        : {
-            label: 'Open task',
-            href: taskHref,
-            variant: stage === 'pending' ? 'primary' : 'ghost',
-          }
+        : stage === 'pending'
+          ? {
+              label: 'Open task',
+              href: taskHref,
+              variant: 'primary' as const,
+            }
+          : {
+              label: 'Open task',
+              href: taskHref,
+              variant: 'ghost' as const,
+            }
 
   const summaryMeta = `${formatPounds(quotePence)} · ${formatRelativePosted(quote.createdAt).replace(/^Posted /, 'Sent ')}`
 
@@ -83,7 +89,6 @@ export function WorkerQuoteCard({ task, quote, workerOrder }: WorkerQuoteRow) {
     <SectionCard p={0} overflow="hidden">
       <Box
         as="button"
-        type="button"
         w="full"
         textAlign="left"
         p={5}

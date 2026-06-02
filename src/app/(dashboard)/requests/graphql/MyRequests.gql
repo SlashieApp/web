@@ -42,6 +42,13 @@ query MyRequests($filter: TaskFilter) {
       message
       status
       createdAt
+      worker {
+        id
+        profile {
+          name
+          avatarUrl
+        }
+      }
     }
   }
 }

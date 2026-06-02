@@ -12,6 +12,10 @@ export type TaskQuoteListItem = {
   message?: string | null
   status: string
   createdAt: unknown
+  worker?: {
+    id: string
+    profile?: { name?: string | null; avatarUrl?: string | null } | null
+  } | null
 }
 
 export type TaskMapLocationFields = {

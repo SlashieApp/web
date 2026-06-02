@@ -8,9 +8,9 @@ import { WorkerOrderVerificationPanel } from '../WorkerOrderVerificationPanel'
 import { QuotePaymentTrustCard } from './QuotePaymentTrustCard'
 import { QuotesSection } from './QuotesSection'
 
-type QuoteSectionColumnProps = StackProps & {
+type QuoteSectionColumnProps = Omit<StackProps, 'order'> & {
   task: TaskDetailRecord
-  order: TaskQuery['order']
+  order: TaskQuery['order'] | null | undefined
 }
 
 export function QuoteSectionColumn({
