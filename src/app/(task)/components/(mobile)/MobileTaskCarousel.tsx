@@ -1,9 +1,8 @@
 'use client'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Box, HStack } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import useEmblaCarousel from 'embla-carousel-react'
-import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -91,16 +90,13 @@ export function MobileTaskCarousel() {
       }),
     [filteredSorted, referenceLocation],
   )
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    {
-      align: 'center',
-      /** Allow first/last slide to reach true center with symmetric track padding. */
-      containScroll: false,
-      dragFree: false,
-      duration: CAROUSEL_SCROLL_DURATION_MS,
-    },
-    [WheelGesturesPlugin()],
-  )
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: 'center',
+    /** Allow first/last slide to reach true center with symmetric track padding. */
+    containScroll: false,
+    dragFree: false,
+    duration: CAROUSEL_SCROLL_DURATION_MS,
+  })
 
   const viewportElRef = useRef<HTMLDivElement | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
@@ -363,7 +359,7 @@ export function MobileTaskCarousel() {
             : 'grab'
       }
       style={edgeFadeMask}
-      css={{ touchAction: 'pan-y pinch-zoom' }}
+      css={{ touchAction: 'pan-y' }}
       onPointerDown={onCarouselPointerDown}
       onPointerMove={onCarouselPointerMove}
       onPointerUp={onCarouselPointerUp}
@@ -373,13 +369,15 @@ export function MobileTaskCarousel() {
         pointerGestureRef.current.didDrag = true
       }}
     >
-      <HStack
+      <Box
+        display="flex"
+        flexDirection="row"
+        alignItems="stretch"
         gap={3}
-        align="stretch"
-        justify="flex-start"
         pl={`${centeringPadPx}px`}
         pr={`${centeringPadPx}px`}
         cursor="inherit"
+        css={{ touchAction: 'pan-y' }}
       >
         {tasks.map((task) => {
           const snapIndex = api?.selectedScrollSnap() ?? -1
@@ -410,9 +408,11 @@ export function MobileTaskCarousel() {
                 minWidth: 0,
                 maxWidth: '100%',
                 cursor: slideCursor,
+                touchAction: 'pan-y',
               }}
             >
               <TaskCard
+                activateMode="gesture"
                 activateCursor={isCenteredCard ? 'pointer' : 'grab'}
                 title={task.title}
                 description={task.description}
@@ -436,7 +436,7 @@ export function MobileTaskCarousel() {
             </motion.div>
           )
         })}
-      </HStack>
+      </Box>
     </Box>
   )
 }

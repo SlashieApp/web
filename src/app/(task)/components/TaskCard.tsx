@@ -32,6 +32,11 @@ type TaskCardShared = {
   activateAriaLabel?: string
   /** Cursor on the activatable shell (e.g. `grab` in a draggable carousel). */
   activateCursor?: 'pointer' | 'grab'
+  /**
+   * `gesture` — plain surface so horizontal swipes reach Embla (mobile carousel).
+   * `button` — focusable control (lists, keyboard).
+   */
+  activateMode?: 'button' | 'gesture'
   onActivate?: () => void
 }
 
@@ -65,6 +70,7 @@ export function TaskCard(props: TaskCardProps) {
   const showDetailsCta = props.showDetailsCta ?? true
   const onActivate = props.onActivate
   const activateCursor = props.activateCursor ?? 'pointer'
+  const activateMode = props.activateMode ?? 'button'
 
   let title: string
   let description: string
@@ -249,6 +255,24 @@ export function TaskCard(props: TaskCardProps) {
   )
 
   if (onActivate) {
+    if (activateMode === 'gesture') {
+      return (
+        <Box
+          w="full"
+          cursor={activateCursor}
+          aria-current={isActive ? 'true' : undefined}
+          aria-label={activateAriaLabel}
+          onClick={onActivate}
+          css={{
+            touchAction: 'pan-y',
+            WebkitTapHighlightColor: 'transparent',
+          }}
+        >
+          {shell}
+        </Box>
+      )
+    }
+
     return (
       <Box
         as="div"

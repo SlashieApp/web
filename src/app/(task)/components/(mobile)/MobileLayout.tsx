@@ -43,6 +43,7 @@ export function MobileLayout() {
         display="flex"
         flexDirection="column"
         gap={2}
+        pointerEvents="auto"
       >
         <TaskBrowseSearchThisAreaButton />
 
