@@ -10,15 +10,9 @@ import type {
   MeQuery,
   TaskQuery,
 } from '@codegen/schema'
-import { Currency, QuoteStatus, TaskStatus } from '@codegen/schema'
+import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import MyQuotes from '@/app/(dashboard)/quotes/graphql/MyQuotes.gql'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
@@ -27,6 +21,7 @@ import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
 import CompleteOrderWithVerification from '@/app/(task)/tasks/[slug]/graphql/CompleteOrderWithVerification.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
+import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 import Me from '@/graphql/Me.gql'
 import { showAppToast } from '@/utils/appToast'
@@ -34,55 +29,8 @@ import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
-import { canSubmitNewQuote } from '@/utils/taskJobSchedule'
 
-type TaskDetailRecord = NonNullable<TaskQuery['task']>
-
-type TaskDetailContextValue = {
-  task: TaskDetailRecord | null
-  myOrder: OrderItem | null
-  orderLoading: boolean
-  isOwner: boolean
-  isOrderWorker: boolean
-  isOrderCustomer: boolean
-  isAssignedWorker: boolean
-  canSubmitQuote: boolean
-  me: MeQuery['me'] | null
-  meLoading: boolean
-  isAuthenticated: boolean
-  myQuote: TaskDetailRecord['quotes'][number] | null
-  sortedQuotes: TaskDetailRecord['quotes']
-  lowestPricePence: number | null
-  quoteAmountInput: string
-  quoteMessageInput: string
-  quoteAvailabilityInput: string
-  setQuoteAmountInput: (v: string) => void
-  setQuoteMessageInput: (v: string) => void
-  setQuoteAvailabilityInput: (v: string) => void
-  quoteError: string | null
-  quoteSuccess: string | null
-  acceptError: string | null
-  cancelError: string | null
-  jobActionError: string | null
-  verificationCode: string
-  setVerificationCode: (v: string) => void
-  acceptingQuoteId: string | null
-  decliningQuoteId: string | null
-  quoting: boolean
-  cancelingTask: boolean
-  completingOrderWithVerification: boolean
-  canAcceptQuotes: boolean
-  canAccessWorkerTools: boolean
-  onSubmitQuote: () => Promise<boolean>
-  onAcceptQuote: (quoteId: string) => Promise<void>
-  onDeclineQuote: (quoteId: string) => Promise<void>
-  onCompleteOrderWithVerification: () => Promise<void>
-  onCancelTask: () => Promise<void>
-  scrollToQuoteForm: () => void
-  scrollToOwnerPerformance: () => void
-}
-
-const TaskDetailContext = createContext<TaskDetailContextValue | null>(null)
+import { TaskDetailContext } from './TaskDetailContext'
 
 const ORDER_POLL_MS = 30_000
 
@@ -140,12 +88,53 @@ export function TaskDetailProvider({
     },
   )
 
-  const task = (liveTaskData?.task ?? initialTask) as TaskDetailRecord | null
+  const task = liveTaskData?.task ?? initialTask ?? null
   const myOrder = (liveTaskData?.order ??
     myOrderFromInitial) as OrderItem | null
   const orderLoading = Boolean(
     shouldPollLiveOrder && liveTaskLoading && !liveTaskData,
   )
+
+  const myQuote = useMemo(() => {
+    if (!me || !task) return null
+    return task.quotes.find((quote) => quote.workerUserId === me.id) ?? null
+  }, [me, task])
+
+  const permissions = useMemo(
+    () =>
+      getTaskDetailPermissions({
+        task,
+        myOrder,
+        me,
+        myQuote,
+        isAuthenticated,
+      }),
+    [task, myOrder, me, myQuote, isAuthenticated],
+  )
+
+  const sortedQuotes = useMemo(() => {
+    if (!task) return []
+    if (!permissions.isOwner) return [...task.quotes]
+    return [...task.quotes].sort((a, b) => {
+      const ap = priceToPence(a.price)
+      const bp = priceToPence(b.price)
+      if (ap == null && bp == null) return 0
+      if (ap == null) return 1
+      if (bp == null) return -1
+      return ap - bp
+    })
+  }, [permissions.isOwner, task])
+
+  const lowestPricePence = useMemo(() => {
+    if (!permissions.isOwner || sortedQuotes.length === 0) return null
+    let min: number | null = null
+    for (const quote of sortedQuotes) {
+      const pence = priceToPence(quote.price)
+      if (pence == null) continue
+      if (min == null || pence < min) min = pence
+    }
+    return min
+  }, [permissions.isOwner, sortedQuotes])
 
   const refreshPageData = useCallback(() => {
     router.refresh()
@@ -162,68 +151,6 @@ export function TaskDetailProvider({
     { loading: completingOrderWithVerification },
   ] = useMutation<CompleteOrderWithVerificationMutation>(
     CompleteOrderWithVerification,
-  )
-
-  const isOwner = useMemo(
-    () => Boolean(me && task && me.id === task.poster?.id),
-    [me, task],
-  )
-
-  const isOrderWorker = Boolean(me && myOrder && myOrder.workerUserId === me.id)
-  const isOrderCustomer = Boolean(
-    me && myOrder && myOrder.customerUserId === me.id,
-  )
-
-  const myQuote = useMemo(() => {
-    if (!me || !task) return null
-    return task.quotes.find((quote) => quote.workerUserId === me.id) ?? null
-  }, [me, task])
-
-  const workerOnboardingDone = Boolean(me?.worker?.id)
-
-  const isAssignedWorker = Boolean(
-    isOrderWorker ||
-      (me &&
-        task &&
-        task.quotes.some(
-          (q) => q.workerUserId === me.id && q.status === QuoteStatus.Accepted,
-        )),
-  )
-
-  const sortedQuotes = useMemo(() => {
-    if (!task) return []
-    if (!isOwner) return [...task.quotes]
-    return [...task.quotes].sort((a, b) => {
-      const ap = priceToPence(a.price)
-      const bp = priceToPence(b.price)
-      if (ap == null && bp == null) return 0
-      if (ap == null) return 1
-      if (bp == null) return -1
-      return ap - bp
-    })
-  }, [isOwner, task])
-
-  const lowestPricePence = useMemo(() => {
-    if (!isOwner || sortedQuotes.length === 0) return null
-    let min: number | null = null
-    for (const quote of sortedQuotes) {
-      const pence = priceToPence(quote.price)
-      if (pence == null) continue
-      if (min == null || pence < min) min = pence
-    }
-    return min
-  }, [isOwner, sortedQuotes])
-
-  const canAcceptQuotes = Boolean(
-    isOwner && task && task.status === TaskStatus.Open && !myOrder,
-  )
-
-  const canSubmitQuote = Boolean(
-    task && me && canSubmitNewQuote(task, me.id) && workerOnboardingDone,
-  )
-
-  const canAccessWorkerTools = Boolean(
-    workerOnboardingDone || myQuote || isAssignedWorker,
   )
 
   const onSubmitQuote = useCallback(async () => {
@@ -244,9 +171,14 @@ export function TaskDetailProvider({
       return false
     }
 
-    if (!workerOnboardingDone && !myQuote) {
+    if (!permissions.hasWorkerProfile && !myQuote) {
       setQuoteError('Create a worker profile before submitting quotes.')
       router.push('/profile#profile-worker')
+      return false
+    }
+
+    if (!permissions.canSubmitQuote) {
+      setQuoteError('This task is no longer accepting new quotes.')
       return false
     }
 
@@ -295,6 +227,8 @@ export function TaskDetailProvider({
     isAuthenticated,
     myQuote,
     pathname,
+    permissions.canSubmitQuote,
+    permissions.hasWorkerProfile,
     quoteAmountInput,
     quoteAvailabilityInput,
     quoteMessageInput,
@@ -302,12 +236,11 @@ export function TaskDetailProvider({
     router,
     task,
     taskId,
-    workerOnboardingDone,
   ])
 
   const onAcceptQuote = useCallback(
     async (quoteId: string) => {
-      if (!task || !isOwner) return
+      if (!task || !permissions.showAcceptDecline) return
 
       setAcceptError(null)
       setAcceptingQuoteId(quoteId)
@@ -339,12 +272,12 @@ export function TaskDetailProvider({
         setAcceptingQuoteId(null)
       }
     },
-    [acceptQuote, isOwner, refreshPageData, router, task],
+    [acceptQuote, permissions.showAcceptDecline, refreshPageData, router, task],
   )
 
   const onDeclineQuote = useCallback(
     async (quoteId: string) => {
-      if (!task || !isOwner) return
+      if (!task || !permissions.showAcceptDecline) return
       setAcceptError(null)
       setDecliningQuoteId(quoteId)
       try {
@@ -366,11 +299,11 @@ export function TaskDetailProvider({
         setDecliningQuoteId(null)
       }
     },
-    [declineQuote, isOwner, refreshPageData, task],
+    [declineQuote, permissions.showAcceptDecline, refreshPageData, task],
   )
 
   const onCompleteOrderWithVerification = useCallback(async () => {
-    if (!myOrder || !isOrderWorker) return
+    if (!myOrder || !permissions.showCompleteWithCode) return
     const code = verificationCode.trim()
     if (code.length !== 6) {
       setJobActionError('Enter the 6-digit code from the customer.')
@@ -402,14 +335,14 @@ export function TaskDetailProvider({
     }
   }, [
     completeOrderWithVerification,
-    isOrderWorker,
     myOrder,
+    permissions.showCompleteWithCode,
     refreshPageData,
     verificationCode,
   ])
 
   const onCancelTask = useCallback(async () => {
-    if (!task) return
+    if (!task || !permissions.canCancelTask) return
 
     setCancelError(null)
     const confirmed = window.confirm(
@@ -428,7 +361,7 @@ export function TaskDetailProvider({
         getFriendlyErrorMessage(error, 'Could not cancel this task.'),
       )
     }
-  }, [cancelTask, refreshPageData, task])
+  }, [cancelTask, permissions.canCancelTask, refreshPageData, task])
 
   const scrollToQuoteForm = useCallback(() => {
     if (typeof document === 'undefined') return
@@ -446,16 +379,12 @@ export function TaskDetailProvider({
     })
   }, [])
 
-  const value = useMemo<TaskDetailContextValue>(
+  const value = useMemo(
     () => ({
+      permissions,
       task,
       myOrder,
       orderLoading,
-      isOwner,
-      isOrderWorker,
-      isOrderCustomer,
-      isAssignedWorker,
-      canSubmitQuote,
       me,
       meLoading: meLoadingResolved,
       isAuthenticated,
@@ -480,8 +409,6 @@ export function TaskDetailProvider({
       quoting,
       cancelingTask,
       completingOrderWithVerification,
-      canAcceptQuotes,
-      canAccessWorkerTools,
       onSubmitQuote,
       onAcceptQuote,
       onDeclineQuote,
@@ -491,43 +418,37 @@ export function TaskDetailProvider({
       scrollToOwnerPerformance,
     }),
     [
-      acceptError,
-      acceptingQuoteId,
-      cancelError,
-      jobActionError,
-      cancelingTask,
-      completingOrderWithVerification,
-      canAcceptQuotes,
-      canAccessWorkerTools,
-      canSubmitQuote,
-      decliningQuoteId,
-      isAuthenticated,
-      isAssignedWorker,
-      isOrderCustomer,
-      isOrderWorker,
-      isOwner,
-      lowestPricePence,
-      me,
-      meLoadingResolved,
+      permissions,
+      task,
       myOrder,
       orderLoading,
+      me,
+      meLoadingResolved,
+      isAuthenticated,
       myQuote,
-      onAcceptQuote,
-      onCancelTask,
-      onCompleteOrderWithVerification,
-      onDeclineQuote,
-      onSubmitQuote,
+      sortedQuotes,
+      lowestPricePence,
       quoteAmountInput,
+      quoteMessageInput,
       quoteAvailabilityInput,
       quoteError,
-      quoteMessageInput,
       quoteSuccess,
-      quoting,
-      scrollToOwnerPerformance,
-      scrollToQuoteForm,
-      sortedQuotes,
-      task,
+      acceptError,
+      cancelError,
+      jobActionError,
       verificationCode,
+      acceptingQuoteId,
+      decliningQuoteId,
+      quoting,
+      cancelingTask,
+      completingOrderWithVerification,
+      onSubmitQuote,
+      onAcceptQuote,
+      onDeclineQuote,
+      onCompleteOrderWithVerification,
+      onCancelTask,
+      scrollToQuoteForm,
+      scrollToOwnerPerformance,
     ],
   )
 
@@ -538,12 +459,4 @@ export function TaskDetailProvider({
   )
 }
 
-export function useTaskDetail() {
-  const context = useContext(TaskDetailContext)
-  if (!context) {
-    throw new Error('useTaskDetail must be used within TaskDetailProvider')
-  }
-  return context
-}
-
-export const useTask = useTaskDetail
+export { useTaskDetail, useTask } from './TaskDetailContext'

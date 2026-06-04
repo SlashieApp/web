@@ -145,6 +145,41 @@ export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
   const status = order.status
   const closed = status === OrderStatus.Closed
   const cancelled = status === OrderStatus.Cancelled
+
+  if (cancelled) {
+    return [
+      {
+        key: 'created',
+        label: 'Order created',
+        at: order.createdAt,
+        done: true,
+        current: false,
+      },
+      {
+        key: 'cancelled',
+        label: 'Order cancelled',
+        at: order.closedAt,
+        done: true,
+        current: true,
+      },
+    ]
+  }
+
+  const workCompleted =
+    Boolean(order.workCompletedAt) ||
+    status === OrderStatus.WorkCompleted ||
+    status === OrderStatus.PaymentAcknowledged ||
+    closed
+
+  const paymentAcknowledged =
+    Boolean(order.workerPaymentAcknowledgedAt) ||
+    status === OrderStatus.PaymentAcknowledged ||
+    closed
+
+  const workCompletedCurrent = status === OrderStatus.WorkCompleted
+  const paymentCurrent = status === OrderStatus.PaymentAcknowledged
+  const closedCurrent = closed
+
   return [
     {
       key: 'created',
@@ -155,16 +190,30 @@ export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
     },
     {
       key: 'active',
-      label: cancelled ? 'Cancelled' : 'Job in progress',
+      label: 'Job in progress',
       done: status !== OrderStatus.Active,
       current: status === OrderStatus.Active,
     },
     {
+      key: 'work-completed',
+      label: 'Work completed',
+      at: order.workCompletedAt,
+      done: workCompleted,
+      current: workCompletedCurrent,
+    },
+    {
+      key: 'payment',
+      label: 'Payment acknowledged',
+      at: order.workerPaymentAcknowledgedAt,
+      done: paymentAcknowledged,
+      current: paymentCurrent,
+    },
+    {
       key: 'closed',
-      label: 'Closed',
+      label: 'Order closed',
       at: order.closedAt,
       done: closed,
-      current: closed,
+      current: closedCurrent,
     },
   ]
 }

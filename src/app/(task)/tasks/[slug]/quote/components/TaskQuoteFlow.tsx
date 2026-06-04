@@ -72,11 +72,10 @@ export function TaskQuoteFlow() {
   const router = useRouter()
   const {
     task,
-    isOwner,
+    permissions,
     myQuote,
     isAuthenticated,
     meLoading,
-    canAccessWorkerTools,
     quoteAmountInput,
     quoteMessageInput,
     quoteAvailabilityInput,
@@ -100,6 +99,8 @@ export function TaskQuoteFlow() {
       URL.revokeObjectURL(url)
     }
   }, [])
+
+  const { isOwner, hasWorkerProfile, showQuoteForm } = permissions
 
   const shellRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -251,7 +252,7 @@ export function TaskQuoteFlow() {
     )
   }
 
-  if (!canAccessWorkerTools) {
+  if (!hasWorkerProfile) {
     return (
       <Box ref={shellRef}>
         <Stack gap={6} py={{ base: 6, md: 8 }}>

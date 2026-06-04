@@ -2,9 +2,9 @@ import { Stack, type StackProps } from '@chakra-ui/react'
 import type { TaskQuery } from '@codegen/schema'
 
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
-import { TaskClosedOrderBlock } from '../TaskClosedOrderBlock'
 import { TaskOwnerCard } from '../TaskOwnerCard'
 import { WorkerOrderVerificationPanel } from '../WorkerOrderVerificationPanel'
+import { OrderSection } from '../orderSection/OrderSection'
 import { QuotePaymentTrustCard } from './QuotePaymentTrustCard'
 import { QuotesSection } from './QuotesSection'
 
@@ -24,14 +24,11 @@ export function QuoteSectionColumn({
       {order ? (
         <>
           <WorkerOrderVerificationPanel />
-          <TaskClosedOrderBlock task={task} order={order} />
+          <OrderSection task={task} order={order} />
         </>
-      ) : (
-        <>
-          <QuotesSection />
-          <QuotePaymentTrustCard />
-        </>
-      )}
+      ) : null}
+      <QuotesSection />
+      {!order ? <QuotePaymentTrustCard /> : null}
     </Stack>
   )
 }

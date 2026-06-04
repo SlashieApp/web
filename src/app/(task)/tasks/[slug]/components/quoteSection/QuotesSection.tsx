@@ -26,7 +26,7 @@ import {
   normaliseTaskStatusForBadge,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
-import { MetaListRow } from '../metaSection/MetaListRow'
+import { MetaRow } from '../metaSection/MetaRow'
 import { QuoteCard } from './QuoteCard'
 
 type QuoteSort = 'recommended' | 'price_low' | 'price_high' | 'recent'
@@ -76,23 +76,27 @@ function quoteDividerAfterList(
 export function QuotesSection() {
   const {
     task,
-    isOwner,
+    permissions,
     isAuthenticated,
     myQuote,
-    canAccessWorkerTools,
-    canSubmitQuote,
-    isAssignedWorker,
     sortedQuotes,
     lowestPricePence,
-    canAcceptQuotes,
     acceptError,
     cancelError,
     acceptingQuoteId,
     decliningQuoteId,
     onAcceptQuote,
     onDeclineQuote,
-    myOrder,
   } = useTaskDetail()
+
+  const {
+    showOwnerQuoteList,
+    showAcceptDecline,
+    showWorkerJobBanner,
+    canSubmitQuote,
+    hasWorkerProfile,
+    showQuoteForm,
+  } = permissions
 
   const [quoteSort, setQuoteSort] = useState<QuoteSort>('recommended')
 
@@ -102,9 +106,8 @@ export function QuotesSection() {
   )
 
   if (!task) return null
-  if (myOrder) return null
 
-  if (isOwner) {
+  if (showOwnerQuoteList) {
     const n = task.quotes.length
     const priceKind = budgetKindLabel(task.budget?.type) ?? 'Fixed price'
     const hasList = n > 0
@@ -163,7 +166,7 @@ export function QuotesSection() {
               const quotePence = priceToPence(quote.price)
               const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
               return (
-                <MetaListRow
+                <MetaRow
                   key={quote.id}
                   withDivider={quoteDividerAfterList(
                     displayQuotes.length,
@@ -193,19 +196,19 @@ export function QuotesSection() {
                     }
                     isOwnQuote={false}
                     onAccept={
-                      canAcceptQuotes && quote.status === QuoteStatus.Pending
+                      showAcceptDecline && quote.status === QuoteStatus.Pending
                         ? () => void onAcceptQuote(quote.id)
                         : undefined
                     }
                     onDecline={
-                      canAcceptQuotes && quote.status === QuoteStatus.Pending
+                      showAcceptDecline && quote.status === QuoteStatus.Pending
                         ? () => void onDeclineQuote(quote.id)
                         : undefined
                     }
                     acceptLoading={acceptingQuoteId === quote.id}
                     declineLoading={decliningQuoteId === quote.id}
                   />
-                </MetaListRow>
+                </MetaRow>
               )
             })}
           </Stack>
@@ -219,7 +222,7 @@ export function QuotesSection() {
   const quoteFlowHref = `/tasks/${task.id}/quote`
   const loginHref = `/login?next=${encodeURIComponent(quoteFlowHref)}`
 
-  if (isAssignedWorker) {
+  if (showWorkerJobBanner) {
     return (
       <Stack gap={3} w="full">
         <Heading size="md">Your accepted quote</Heading>
@@ -268,7 +271,7 @@ export function QuotesSection() {
         Status: {normaliseTaskStatusForBadge(myQuote.status)}
       </Badge>
     </Stack>
-  ) : !canSubmitQuote && !canAccessWorkerTools ? (
+  ) : !canSubmitQuote && !hasWorkerProfile ? (
     <Stack gap={3}>
       <Heading size="sm">Become a worker to send a quote</Heading>
       <Text color="formLabelMuted">
@@ -289,7 +292,7 @@ export function QuotesSection() {
         This task is no longer accepting new quotes.
       </Text>
     </Stack>
-  ) : (
+  ) : showQuoteForm ? (
     <Stack gap={3}>
       <Heading size="sm">Submit a quote</Heading>
       <Text color="formLabelMuted">
@@ -303,7 +306,7 @@ export function QuotesSection() {
         <Button w="full">Send a quote</Button>
       </Link>
     </Stack>
-  )
+  ) : null
 
   return (
     <Stack gap={4} w="full">
@@ -321,7 +324,7 @@ export function QuotesSection() {
           {task.quotes.map((quote, i) => {
             const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
             return (
-              <MetaListRow
+              <MetaRow
                 key={quote.id}
                 withDivider={quoteDividerAfterList(n, true, i)}
               >
@@ -338,10 +341,10 @@ export function QuotesSection() {
                   }
                   showVerified={Boolean(quote.worker?.id)}
                 />
-              </MetaListRow>
+              </MetaRow>
             )
           })}
-          <MetaListRow withDivider={false}>{followUpBlock}</MetaListRow>
+          <MetaRow withDivider={false}>{followUpBlock}</MetaRow>
         </Stack>
       ) : (
         followUpBlock

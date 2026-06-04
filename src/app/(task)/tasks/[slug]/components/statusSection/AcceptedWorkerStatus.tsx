@@ -11,21 +11,15 @@ import {
 } from '@/utils/taskJobSchedule'
 import { Button } from '@ui'
 
-import { useTaskDetail } from '../context/TaskDetailProvider'
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 
 function mapsDirectionsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
 }
 
-export function AcceptedWorkerBanner() {
-  const { task, myOrder, isOrderWorker } = useTaskDetail()
-  if (!task || !isOrderWorker || !myOrder) return null
-  if (
-    myOrder.status === OrderStatus.Closed ||
-    myOrder.status === OrderStatus.Cancelled
-  ) {
-    return null
-  }
+export function AcceptedWorkerStatus() {
+  const { task, myOrder, permissions } = useTaskDetail()
+  if (!task || !myOrder || !permissions.showWorkerJobBanner) return null
 
   const snapshot = myOrder.snapshot
   const address =

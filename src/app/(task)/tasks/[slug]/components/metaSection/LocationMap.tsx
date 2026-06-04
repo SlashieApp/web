@@ -1,40 +1,13 @@
-'use client'
-
 import type { ReactNode } from 'react'
 
-import { Box } from '@chakra-ui/react'
-import type { GeoJSONSource, Map as MapboxMap } from 'mapbox-gl'
-import { useCallback, useRef } from 'react'
+import { Box, Link } from '@chakra-ui/react'
 
-import 'mapbox-gl/dist/mapbox-gl.css'
-
-const SOURCE_ID = 'task-approx-area'
-const FILL_LAYER_ID = 'task-approx-fill'
-const LINE_LAYER_ID = 'task-approx-line'
-const APPROX_RADIUS_M = 400
-
-function circlePolygon(
-  lat: number,
-  lng: number,
-  radiusMeters: number,
-  steps = 48,
-) {
-  const latRad = (lat * Math.PI) / 180
-  const cosLat = Math.cos(latRad)
-  const ring: [number, number][] = []
-  for (let i = 0; i <= steps; i++) {
-    const angle = (i / steps) * 2 * Math.PI
-    const dLng =
-      (radiusMeters * Math.cos(angle)) / (111111 * Math.max(cosLat, 0.01))
-    const dLat = (radiusMeters * Math.sin(angle)) / 111111
-    ring.push([lng + dLng, lat + dLat])
-  }
-  return {
-    type: 'Feature' as const,
-    properties: {},
-    geometry: { type: 'Polygon' as const, coordinates: [ring] },
-  }
-}
+import {
+  type MapboxStaticMapVariant,
+  buildMapboxStaticImageUrl,
+  parseMapHeightPx,
+} from '@/utils/mapboxStaticImageUrl'
+import { Button } from '@ui'
 
 export type LocationMapProps = {
   accessToken: string | undefined
@@ -42,8 +15,33 @@ export type LocationMapProps = {
   lng: number
   /** Map container height (default 200px). */
   height?: string
-  /** Optional footer (e.g. “View full map”) flush below the map. */
+  /** Exact pin when full address is shared; otherwise approximate area circle. */
+  variant?: MapboxStaticMapVariant
+  /** Optional footer flush below the map (and below “Open in Maps” when shown). */
   footer?: ReactNode
+}
+
+function mapsSearchUrl(lat: number, lng: number): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
+}
+
+function LocationMapUnavailable({ height }: { height: string }) {
+  return (
+    <Box
+      w="full"
+      h={height}
+      bg="cardBg"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      px={4}
+      fontSize="sm"
+      color="formLabelMuted"
+      textAlign="center"
+    >
+      Map preview unavailable
+    </Box>
+  )
 }
 
 export function LocationMap({
@@ -51,102 +49,62 @@ export function LocationMap({
   lat,
   lng,
   height = '200px',
+  variant = 'approximate',
   footer,
 }: LocationMapProps) {
-  const mapRef = useRef<MapboxMap | null>(null)
-  const resizeObserverRef = useRef<ResizeObserver | null>(null)
-  const coordsRef = useRef({ lat, lng })
-  coordsRef.current = { lat, lng }
+  const token = accessToken?.trim()
+  const heightPx = parseMapHeightPx(height)
+  const showOpenInMaps =
+    variant === 'exact' && Number.isFinite(lat) && Number.isFinite(lng)
 
-  const prevLatLngRef = useRef({ lat, lng })
-  if (prevLatLngRef.current.lat !== lat || prevLatLngRef.current.lng !== lng) {
-    prevLatLngRef.current = { lat, lng }
-    const map = mapRef.current
-    const nextLat = lat
-    const nextLng = lng
-    queueMicrotask(() => {
-      if (!map?.isStyleLoaded()) return
-      if (!map.getSource(SOURCE_ID)) return
-      const src = map.getSource(SOURCE_ID) as GeoJSONSource
-      src.setData(circlePolygon(nextLat, nextLng, APPROX_RADIUS_M))
-      map.jumpTo({ center: [nextLng, nextLat] })
+  const mapImage =
+    token &&
+    buildMapboxStaticImageUrl({
+      accessToken: token,
+      lat,
+      lng,
+      heightPx,
+      variant,
     })
-  }
 
-  const setContainerRef = useCallback(
-    (el: HTMLDivElement | null) => {
-      resizeObserverRef.current?.disconnect()
-      resizeObserverRef.current = null
-      mapRef.current?.remove()
-      mapRef.current = null
-
-      if (!el || !accessToken?.trim()) return
-
-      const ro = new ResizeObserver(() => {
-        mapRef.current?.resize()
-      })
-      ro.observe(el)
-      resizeObserverRef.current = ro
-
-      void import('mapbox-gl').then((mapboxgl) => {
-        if (!el.isConnected) return
-        mapboxgl.default.accessToken = accessToken
-
-        const { lat: startLat, lng: startLng } = coordsRef.current
-        const map = new mapboxgl.default.Map({
-          container: el,
-          style: 'mapbox://styles/mapbox/light-v11',
-          center: [startLng, startLat],
-          zoom: 12.5,
-          scrollZoom: false,
-          boxZoom: false,
-          dragRotate: false,
-          pitchWithRotate: false,
-          keyboard: false,
-          doubleClickZoom: false,
-        })
-
-        mapRef.current = map
-
-        map.on('load', () => {
-          if (!el.isConnected) return
-          const { lat: la, lng: ln } = coordsRef.current
-          const data = circlePolygon(la, ln, APPROX_RADIUS_M)
-          map.addSource(SOURCE_ID, { type: 'geojson', data })
-          map.addLayer({
-            id: FILL_LAYER_ID,
-            type: 'fill',
-            source: SOURCE_ID,
-            paint: {
-              'fill-color': '#1A56DB',
-              'fill-opacity': 0.12,
-            },
-          })
-          map.addLayer({
-            id: LINE_LAYER_ID,
-            type: 'line',
-            source: SOURCE_ID,
-            paint: {
-              'line-color': '#1A56DB',
-              'line-width': 2,
-              'line-opacity': 0.4,
-            },
-          })
-        })
-      })
-    },
-    [accessToken],
-  )
-
-  const mapPane = (
-    <Box
-      ref={setContainerRef}
-      w="full"
-      h={height}
-      overflow="hidden"
-      bg="cardBg"
+  const mapPane = mapImage ? (
+    <img
+      src={mapImage}
+      alt={
+        variant === 'exact'
+          ? 'Map showing task location'
+          : 'Map showing approximate task area'
+      }
+      style={{
+        width: '100%',
+        height,
+        objectFit: 'cover',
+        display: 'block',
+      }}
+      loading="lazy"
+      decoding="async"
     />
+  ) : (
+    <LocationMapUnavailable height={height} />
   )
+
+  const openInMapsRow = showOpenInMaps ? (
+    <Link
+      href={mapsSearchUrl(lat, lng)}
+      target="_blank"
+      rel="noopener noreferrer"
+      display="block"
+      w="full"
+      borderTopWidth="1px"
+      borderColor="cardDivider"
+      bg="cardBg"
+      _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+    >
+      <Button type="button" size="xs" variant="ghost" w="full">
+        Open in Maps
+      </Button>
+    </Link>
+  ) : null
 
   if (!footer) {
     return (
@@ -159,6 +117,7 @@ export function LocationMap({
         bg="cardBg"
       >
         {mapPane}
+        {openInMapsRow}
       </Box>
     )
   }
@@ -173,6 +132,7 @@ export function LocationMap({
       bg="cardBg"
     >
       {mapPane}
+      {openInMapsRow}
       <Box
         py={3}
         px={2}

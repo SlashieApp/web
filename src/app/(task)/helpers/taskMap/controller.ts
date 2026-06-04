@@ -18,6 +18,16 @@ const MAP_MIN_ZOOM = 10
 const MAP_MAX_ZOOM = 17
 const DEFAULT_MAPBOX_STYLE = 'mapbox://styles/mapbox/streets-v12'
 
+/** Inverse of browse `zoomToRadiusMiles` — keeps map zoom aligned with search radius. */
+function radiusMilesToZoom(miles: number): number {
+  const clamped = Math.min(
+    MAX_SEARCH_RADIUS_MILES,
+    Math.max(1, Number.isFinite(miles) ? miles : 10),
+  )
+  const zoom = 13 - Math.log2(clamped / 10)
+  return Math.min(MAP_MAX_ZOOM, Math.max(MAP_MIN_ZOOM, zoom))
+}
+
 function bumpMapResize(map: MapboxMap) {
   map.resize()
   requestAnimationFrame(() => map.resize())
@@ -86,6 +96,8 @@ export function createTaskMapController(args: {
   let lastQueryCenterKey = ''
   let lastMarkerSig = ''
   let lastCoordsSig = ''
+  let didApplyInitialMarkersCamera = false
+  let lastMarkersSearchCenterKey = ''
   let lastSelectionFlyKey = ''
   let lastSyncedRouteKey = ''
   let lastPinSelectedKey = ''
@@ -246,8 +258,6 @@ export function createTaskMapController(args: {
         return
       }
 
-      const mod = mapboxMod
-
       const nextIds = new Set(withCoords.map((row) => row.task.id))
       for (const [taskId, row] of markersById) {
         if (!nextIds.has(taskId)) {
@@ -267,28 +277,24 @@ export function createTaskMapController(args: {
       }
 
       const leftPad = p.leftViewportPadding ?? 48
-      const fitPadding = {
-        top: 80,
-        right: 80,
-        bottom: 80,
-        left: Math.max(80, leftPad),
-      }
+      const searchCenterKey = `${p.centerLat},${p.centerLng}`
+      const searchCenterChanged = searchCenterKey !== lastMarkersSearchCenterKey
+      const shouldCenterOnSearch =
+        coordsChanged && (!didApplyInitialMarkersCamera || searchCenterChanged)
 
-      if (coordsChanged && withCoords.length > 0) {
-        const b = new mod.LngLatBounds()
-        for (const row of withCoords) b.extend([row.lng, row.lat])
-        b.extend([p.centerLng, p.centerLat])
-        map.fitBounds(b, {
-          padding: fitPadding,
-          maxZoom: MAP_MAX_ZOOM,
-          duration: 500,
-        })
-      } else if (coordsChanged && withCoords.length === 0) {
+      if (shouldCenterOnSearch) {
+        didApplyInitialMarkersCamera = true
+        lastMarkersSearchCenterKey = searchCenterKey
+        programmaticMove = true
+        suppressSearchPromptUntil = Date.now() + 1200
         map.easeTo({
           center: [p.centerLng, p.centerLat],
-          zoom: 11,
-          duration: 400,
+          zoom: radiusMilesToZoom(p.effectiveSearchRadiusMiles),
+          duration: 500,
           offset: fullscreenCenterOffsetPx(leftPad),
+        })
+        map.once('moveend', () => {
+          programmaticMove = false
         })
       }
 
@@ -473,11 +479,12 @@ export function createTaskMapController(args: {
     const styleUrl = getStyleUrlForMode(getProps().themeMode)
     lastThemeMode = getProps().themeMode
 
+    const initialProps = getProps()
     const m = new mapboxgl.default.Map({
       container: args.container,
       style: styleUrl,
-      center: [getProps().centerLng, getProps().centerLat],
-      zoom: 11,
+      center: [initialProps.centerLng, initialProps.centerLat],
+      zoom: radiusMilesToZoom(initialProps.effectiveSearchRadiusMiles),
       minZoom: MAP_MIN_ZOOM,
       maxZoom: MAP_MAX_ZOOM,
     })

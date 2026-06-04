@@ -42,6 +42,10 @@ const preview: Preview = {
     ),
   ],
   parameters: {
+    // App Router project: mount AppRouterContext for next/navigation hooks.
+    nextjs: {
+      appDirectory: true,
+    },
     options: {
       storySort: {
         order: ['Design', 'UI'],

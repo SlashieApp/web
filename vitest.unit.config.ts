@@ -1,0 +1,22 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { defineConfig } from 'vitest/config'
+
+const dirname =
+  typeof __dirname !== 'undefined'
+    ? __dirname
+    : path.dirname(fileURLToPath(import.meta.url))
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.join(dirname, 'src'),
+      '@codegen/schema': path.join(dirname, '.codegen/schema.ts'),
+    },
+  },
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.ts'],
+  },
+})

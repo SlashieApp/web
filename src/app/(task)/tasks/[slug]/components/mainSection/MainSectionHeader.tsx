@@ -16,7 +16,8 @@ function teaserDescription(text: string, maxLen = 160) {
 }
 
 export function MainSectionHeader() {
-  const { task, isOwner, myOrder } = useTaskDetail()
+  const { task, permissions, myOrder } = useTaskDetail()
+  const { isOwner } = permissions
   if (!task) return null
 
   const taskStatusLabel = centerColumnStatusLabel(task, isOwner, myOrder)

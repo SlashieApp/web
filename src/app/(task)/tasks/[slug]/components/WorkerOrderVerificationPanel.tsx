@@ -12,10 +12,17 @@ function normalizeVerificationCode(raw: string): string {
   return raw.replace(/\D/g, '').slice(0, 6)
 }
 
-export function WorkerOrderVerificationPanel() {
+type WorkerOrderVerificationPanelProps = {
+  /** Storybook: start with code entry visible. */
+  initialExpanded?: boolean
+}
+
+export function WorkerOrderVerificationPanel({
+  initialExpanded = false,
+}: WorkerOrderVerificationPanelProps = {}) {
   const {
     myOrder,
-    isOrderWorker,
+    permissions,
     jobActionError,
     verificationCode,
     setVerificationCode,
@@ -23,7 +30,7 @@ export function WorkerOrderVerificationPanel() {
     onCompleteOrderWithVerification,
   } = useTaskDetail()
 
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(initialExpanded)
 
   const onCodeChange = useCallback(
     (value: string) => {
@@ -32,13 +39,9 @@ export function WorkerOrderVerificationPanel() {
     [setVerificationCode],
   )
 
-  if (!myOrder || !isOrderWorker) return null
+  if (!myOrder || !permissions.showCompleteWithCode) return null
 
   const status = myOrder.status
-  if (status === OrderStatus.Closed || status === OrderStatus.Cancelled) {
-    return null
-  }
-
   if (status !== OrderStatus.Active) {
     return (
       <SectionCard eyebrow="Your job" heading="Awaiting update" bodyGap={2}>

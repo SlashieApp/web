@@ -1,8 +1,14 @@
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
-import { isOrderClosed } from '@/utils/orderHelpers'
+import {
+  type OrderItem,
+  isOrderClosed,
+  orderLocationLabel,
+} from '@/utils/orderHelpers'
 import { formatBudgetAmount, priceToPence } from '@/utils/price'
-import { isJobClosedStatus } from '@/utils/taskJobSchedule'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
+import { QuoteStatus } from '@codegen/schema'
 import type { TaskQuery } from '@codegen/schema'
+import { mapTaskStatus } from './mapTaskStatus'
 
 export type TaskDetailRecord = NonNullable<TaskQuery['task']>
 
@@ -208,6 +214,50 @@ export function taskMapCoordinates(
   return { lat, lng }
 }
 
+export function taskHasAcceptedQuote(task: TaskDetailRecord): boolean {
+  return task.quotes.some((q) => q.status === QuoteStatus.Accepted)
+}
+
+/** Exact street address for viewers allowed to see the booked location. */
+export function taskDetailShowsExactLocation(input: {
+  myOrder?: OrderItem | null
+  showFullAddress: boolean
+}): boolean {
+  if (input.myOrder) return true
+  return input.showFullAddress
+}
+
+export function taskDetailMapCoordinates(
+  task: TaskDetailRecord,
+  myOrder?: OrderItem | null,
+): { lat: number; lng: number } | null {
+  const orderLat = parseCoord(myOrder?.snapshot?.location?.lat)
+  const orderLng = parseCoord(myOrder?.snapshot?.location?.lng)
+  if (orderLat != null && orderLng != null) {
+    return { lat: orderLat, lng: orderLng }
+  }
+  return taskMapCoordinates(task)
+}
+
+export function taskDetailLocationLabel(input: {
+  task: TaskDetailRecord
+  myOrder?: OrderItem | null
+  showExactLocation: boolean
+}): string {
+  if (input.myOrder) {
+    return orderLocationLabel(input.myOrder)
+  }
+  if (input.showExactLocation) {
+    return (
+      input.task.location?.address?.trim() ||
+      input.task.location?.name?.trim() ||
+      taskPublicLocationLabel(input.task) ||
+      'Address shared when your quote is accepted'
+    )
+  }
+  return taskPublicLocationLabel(input.task) || 'Approximate area'
+}
+
 /** Short label for budget `type` (e.g. badge next to amount). */
 export function budgetKindLabel(
   budgetType: string | null | undefined,
@@ -248,7 +298,7 @@ export function isTaskDetailListingClosed(
   myOrder?: { status: string } | null,
 ): boolean {
   if (myOrder && isOrderClosed(myOrder.status)) return true
-  return isJobClosedStatus(task.status)
+  return mapTaskStatus(task.status) === 'CLOSED'
 }
 
 export function centerColumnStatusLabel(
@@ -256,17 +306,26 @@ export function centerColumnStatusLabel(
   isOwner: boolean,
   myOrder?: { status: string } | null,
 ): string {
-  const closed = isTaskDetailListingClosed(task, myOrder)
+  const taskStatus = mapTaskStatus(task.status)
+  const closed =
+    isTaskDetailListingClosed(task, myOrder) || taskStatus === 'CLOSED'
   if (isOwner) {
     const n = task.quotes.length
     if (closed) {
       return n ? `CLOSED · ${n} quote${n === 1 ? '' : 's'}` : 'CLOSED'
     }
-    const base = taskStatusBadgeLabel(task.status)
+    const base =
+      taskStatus === 'AWARDED'
+        ? 'AWARDED'
+        : taskStatus === 'OPEN'
+          ? 'OPEN'
+          : 'CLOSED'
     return n ? `${base} · ${n} quote${n === 1 ? '' : 's'}` : base
   }
   if (closed) return 'Closed'
-  return visitorFacingStatusBadge(task.status)
+  if (taskStatus === 'AWARDED') return 'In progress'
+  if (taskStatus === 'OPEN') return 'New task'
+  return 'Closed'
 }
 
 const CATEGORY_KEYWORDS: ReadonlyArray<[RegExp, string]> = [

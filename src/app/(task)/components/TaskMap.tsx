@@ -35,9 +35,9 @@ export type TaskMapProps = {
    * true so Mapbox can `resize()` after becoming visible.
    */
   visible?: boolean
-  /** Wait for data before fitting markers / bounds (avoids empty-first sync). */
+  /** Wait for data before placing markers / centering on search (avoids empty-first sync). */
   tasksLoaded?: boolean
-  /** Extra left padding (px) for fitBounds in fullscreen (floating list panel). */
+  /** Extra left padding (px) when centering the map in fullscreen (floating list panel). */
   leftViewportPadding?: number
   /** Called when the user taps “Search this area” after panning the map. */
   onSearchThisAreaConfirm?: (lat: number, lng: number, zoom: number) => void

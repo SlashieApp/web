@@ -46,8 +46,18 @@ function ChevronIcon({ expanded }: { expanded: boolean }) {
   )
 }
 
-export function WorkerQuoteCard({ task, quote, workerOrder }: WorkerQuoteRow) {
-  const [expanded, setExpanded] = useState(false)
+type WorkerQuoteCardProps = WorkerQuoteRow & {
+  /** Storybook / tests: start with timeline and details visible. */
+  initialExpanded?: boolean
+}
+
+export function WorkerQuoteCard({
+  task,
+  quote,
+  workerOrder,
+  initialExpanded = false,
+}: WorkerQuoteCardProps) {
+  const [expanded, setExpanded] = useState(initialExpanded)
   const stage = workerQuoteStage(task, quote, workerOrder)
   const thumbnailSrc = task.images?.[0] ?? undefined
   const timelineSteps = workerQuoteTimelineSteps(task, quote, workerOrder)

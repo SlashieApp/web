@@ -1,10 +1,14 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import {
+  type ReactElement,
+  type ReactNode,
+  cloneElement,
+  isValidElement,
+} from 'react'
 
 import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 
-import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -14,12 +18,13 @@ import {
   formatTaskBudgetPaymentMethodLabel,
   taskBudgetDisplayLine,
   taskCategoryLabel,
+  taskDetailLocationLabel,
+  taskDetailMapCoordinates,
+  taskDetailShowsExactLocation,
   taskDurationEstimateLabel,
-  taskMapCoordinates,
   taskPrimaryCalendarLabel,
 } from '../../helpers/taskDetailUtils'
 import { LocationMap } from '../metaSection/LocationMap'
-import { MetaListRow } from '../metaSection/MetaListRow'
 import { MetaRow, metaSectionLabelProps } from '../metaSection/MetaRow'
 import {
   IconBudgetGrid,
@@ -32,11 +37,20 @@ import {
 
 /** Vertical meta list for viewports below `xl` (sidebar meta is used from `xl` up). */
 export function MainSectionPrimaryMeta() {
-  const { task, me, isOwner } = useTaskDetail()
+  const { task, me, permissions, myOrder } = useTaskDetail()
   if (!task) return null
 
-  const place = taskPublicLocationLabel(task)
-  const coords = taskMapCoordinates(task)
+  const { isOwner, showFullAddress } = permissions
+  const showExactLocation = taskDetailShowsExactLocation({
+    myOrder,
+    showFullAddress,
+  })
+  const place = taskDetailLocationLabel({
+    task,
+    myOrder,
+    showExactLocation,
+  })
+  const coords = taskDetailMapCoordinates(task, myOrder)
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
   const category = taskCategoryLabel(task)
@@ -78,6 +92,7 @@ export function MainSectionPrimaryMeta() {
               lat={coords.lat}
               lng={coords.lng}
               height="200px"
+              variant={showExactLocation ? 'exact' : 'approximate'}
             />
           </Box>
         </Grid>
@@ -208,11 +223,14 @@ export function MainSectionPrimaryMeta() {
       display={{ base: 'flex', xl: 'none' }}
       aria-label="Task summary"
     >
-      {blocks.map((b, i) => (
-        <MetaListRow key={b.key} withDivider={i < blocks.length - 1}>
-          {b.node}
-        </MetaListRow>
-      ))}
+      {blocks.map((b, i) =>
+        isValidElement(b.node)
+          ? cloneElement(b.node as ReactElement<{ withDivider?: boolean }>, {
+              key: b.key,
+              withDivider: i < blocks.length - 1,
+            })
+          : null,
+      )}
     </Stack>
   )
 }

@@ -4,8 +4,6 @@ import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useCallback } from 'react'
 
-import { isTaskEditable } from '@/app/(task)/helpers/taskEditHelpers'
-import { isJobClosedStatus } from '@/utils/taskJobSchedule'
 import { Button } from '@ui'
 
 import { useTaskDetail } from '../context/TaskDetailProvider'
@@ -41,7 +39,8 @@ function IconCancel() {
 }
 
 export function TaskHeader() {
-  const { task, isOwner, cancelingTask, onCancelTask } = useTaskDetail()
+  const { task, permissions, cancelingTask, onCancelTask } = useTaskDetail()
+  const { isOwner, canEditTask, canCancelTask } = permissions
 
   const share = useCallback(async () => {
     if (!task) return
@@ -60,11 +59,6 @@ export function TaskHeader() {
     }
   }, [task])
 
-  const canEditTask = Boolean(task && isOwner && isTaskEditable(task.status))
-  const showCancelTask = Boolean(
-    task && isOwner && !isJobClosedStatus(task.status),
-  )
-
   if (!task) return null
 
   return (
@@ -72,12 +66,11 @@ export function TaskHeader() {
       position="sticky"
       top={0}
       zIndex={10}
-      w="full"
+      // borderBottomWidth="1px"
+      // borderColor="cardBorder"
       bg="bg"
-      borderBottomWidth="1px"
-      borderColor="cardDivider"
-      py={3}
-      backdropFilter="blur(10px)"
+      w="full"
+      py={4}
     >
       <HStack
         justify="space-between"
@@ -128,7 +121,7 @@ export function TaskHeader() {
                   </Button>
                 </Link>
               ) : null}
-              {showCancelTask ? (
+              {canCancelTask ? (
                 <Button
                   type="button"
                   variant="secondary"

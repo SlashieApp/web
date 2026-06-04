@@ -4,7 +4,6 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { OrderStatus, QuoteStatus } from '@codegen/schema'
 import { type ReactNode, useCallback } from 'react'
 
-import { OrderJobInvoice } from '@/app/(dashboard)/components/orders/OrderJobInvoice'
 import { showAppToast } from '@/utils/appToast'
 import {
   formatOrderAgreedPrice,
@@ -14,7 +13,7 @@ import {
 import { formatTaskScheduleLabel } from '@/utils/taskJobSchedule'
 import { Avatar, Button, IconButton } from '@ui'
 
-import { useTaskDetail } from '../context/TaskDetailProvider'
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 
 function CopyIcon() {
   return (
@@ -38,8 +37,8 @@ function CopyIcon() {
   )
 }
 
-export function CustomerActiveOrderBanner() {
-  const { task, myOrder, isOrderCustomer } = useTaskDetail()
+export function CustomerActiveOrderStatus() {
+  const { task, myOrder, permissions } = useTaskDetail()
 
   const copyCode = useCallback(async (code: string) => {
     try {
@@ -59,24 +58,7 @@ export function CustomerActiveOrderBanner() {
     }
   }, [])
 
-  if (!task || !myOrder || !isOrderCustomer) return null
-
-  const status = myOrder.status
-  if (status === OrderStatus.Cancelled) return null
-
-  if (status === OrderStatus.Closed) {
-    const quote =
-      task.quotes.find((q) => q.id === myOrder.quoteId) ??
-      task.quotes.find((q) => q.status === QuoteStatus.Accepted)
-    const workerName = quote?.worker?.profile?.name?.trim() || 'Your worker'
-    return (
-      <SectionCardWrap>
-        <OrderJobInvoice order={myOrder} workerName={workerName} />
-      </SectionCardWrap>
-    )
-  }
-
-  if (status !== OrderStatus.Active) return null
+  if (!task || !myOrder || !permissions.showCustomerCompletionCode) return null
 
   const quote =
     task.quotes.find((q) => q.id === myOrder.quoteId) ??
@@ -206,7 +188,7 @@ export function CustomerActiveOrderBanner() {
   )
 }
 
-function SectionCardWrap({ children }: { children: ReactNode }) {
+function StatusCardWrap({ children }: { children: ReactNode }) {
   return (
     <Box
       w="full"

@@ -59,7 +59,12 @@ function HeaderThemeMenuButton() {
   )
 }
 
+// Dark mode is temporarily disabled, so the theme toggle is hidden. Flip this
+// flag back to `true` (and re-enable theming in `ThemeProvider`) to restore it.
+const SHOW_THEME_TOGGLE = false
+
 function ThemeToggleMenuRow() {
+  if (!SHOW_THEME_TOGGLE) return null
   return (
     <Box borderTopWidth="1px" borderColor="cardBorder" mt={1} pt={1}>
       <ClientOnly fallback={<Skeleton h="36px" w="full" borderRadius="md" />}>

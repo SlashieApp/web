@@ -1,14 +1,16 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import {
+  type ReactElement,
+  type ReactNode,
+  cloneElement,
+  isValidElement,
+} from 'react'
 
 import { HStack, Stack, Text } from '@chakra-ui/react'
 
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
-import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge } from '@ui'
-
-import { orderLocationLabel } from '@/utils/orderHelpers'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
@@ -18,12 +20,13 @@ import {
   taskAvailabilityRangeLabel,
   taskBudgetDisplayLine,
   taskCategoryLabel,
+  taskDetailLocationLabel,
+  taskDetailMapCoordinates,
+  taskDetailShowsExactLocation,
   taskDurationEstimateLabel,
-  taskMapCoordinates,
   taskUrgencyDisplayLabel,
 } from '../../helpers/taskDetailUtils'
 import { LocationMap } from './LocationMap'
-import { MetaListRow } from './MetaListRow'
 import { MetaRow } from './MetaRow'
 import {
   IconAccess,
@@ -38,30 +41,20 @@ import {
 } from './VisitorMetaIcons'
 
 export function VisitorMeta() {
-  const { task, me, isOwner, isAssignedWorker, myOrder, isOrderCustomer } =
-    useTaskDetail()
+  const { task, me, permissions, myOrder } = useTaskDetail()
   if (!task) return null
 
-  const participant =
-    isOwner || isAssignedWorker || isOrderCustomer || Boolean(myOrder)
-  const orderLoc = myOrder ? orderLocationLabel(myOrder) : null
-  const place = myOrder
-    ? orderLoc
-    : participant
-      ? task.location?.address?.trim() ||
-        task.location?.name?.trim() ||
-        taskPublicLocationLabel(task)
-      : taskPublicLocationLabel(task)
-  const orderLat = myOrder?.snapshot?.location?.lat
-  const orderLng = myOrder?.snapshot?.location?.lng
-  const orderCoords =
-    typeof orderLat === 'number' &&
-    Number.isFinite(orderLat) &&
-    typeof orderLng === 'number' &&
-    Number.isFinite(orderLng)
-      ? { lat: orderLat, lng: orderLng }
-      : null
-  const coords = orderCoords ?? taskMapCoordinates(task)
+  const { isOwner, showFullAddress } = permissions
+  const showExactLocation = taskDetailShowsExactLocation({
+    myOrder,
+    showFullAddress,
+  })
+  const place = taskDetailLocationLabel({
+    task,
+    myOrder,
+    showExactLocation,
+  })
+  const coords = taskDetailMapCoordinates(task, myOrder)
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const budgetLine = taskBudgetDisplayLine(
     task,
@@ -216,15 +209,19 @@ export function VisitorMeta() {
           lat={coords.lat}
           lng={coords.lng}
           height="160px"
+          variant={showExactLocation ? 'exact' : 'approximate'}
         />
       ) : null}
 
       <Stack gap={0} w="full">
-        {blocks.map((b, i) => (
-          <MetaListRow key={b.key} withDivider={i < blocks.length - 1}>
-            {b.node}
-          </MetaListRow>
-        ))}
+        {blocks.map((b, i) =>
+          isValidElement(b.node)
+            ? cloneElement(b.node as ReactElement<{ withDivider?: boolean }>, {
+                key: b.key,
+                withDivider: i < blocks.length - 1,
+              })
+            : null,
+        )}
       </Stack>
     </Stack>
   )
