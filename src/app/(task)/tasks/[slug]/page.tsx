@@ -4,6 +4,7 @@ import { Box, Container, Grid, Stack } from '@chakra-ui/react'
 
 import { Footer } from '@ui'
 
+import { TaskDetailCoordinationBanners } from './components/TaskDetailCoordinationBanners'
 import { TaskHeader } from './components/TaskHeader'
 import { MainSection } from './components/mainSection'
 import { MetaSection } from './components/metaSection'
@@ -76,6 +77,7 @@ export default async function TaskDetailPage({
       <Container pb={{ base: 28, md: 10 }} mx="auto">
         <Stack gap={8} px={{ base: 4, md: 6 }}>
           <TaskHeader />
+          <TaskDetailCoordinationBanners />
           <Grid
             w="full"
             templateColumns={{

@@ -26,11 +26,13 @@ import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
 import CompleteOrderWithVerification from '@/app/(task)/tasks/[slug]/graphql/CompleteOrderWithVerification.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
+import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
+import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 import Me from '@/graphql/Me.gql'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import type { OrderItem } from '@/utils/orderHelpers'
+import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
 import { canSubmitNewQuote } from '@/utils/taskJobSchedule'
 
@@ -82,6 +84,8 @@ type TaskDetailContextValue = {
 
 const TaskDetailContext = createContext<TaskDetailContextValue | null>(null)
 
+const ORDER_POLL_MS = 30_000
+
 type TaskDetailProviderProps = {
   taskId: string
   initialTask: TaskQuery['task'] | null
@@ -117,8 +121,31 @@ export function TaskDetailProvider({
   const me = meData?.me ?? null
   const meLoadingResolved = Boolean(isAuthenticated && meLoading)
 
-  const task = initialTask as TaskDetailRecord | null
-  const myOrder = (initialOrder ?? null) as OrderItem | null
+  const myOrderFromInitial = (initialOrder ?? null) as OrderItem | null
+
+  const shouldPollLiveOrder = Boolean(
+    isAuthenticated &&
+      myOrderFromInitial &&
+      !isOrderClosed(myOrderFromInitial.status),
+  )
+
+  const { data: liveTaskData, loading: liveTaskLoading } = useQuery<TaskQuery>(
+    Task,
+    {
+      variables: taskQueryVariables(taskId),
+      skip: !shouldPollLiveOrder,
+      pollInterval: shouldPollLiveOrder ? ORDER_POLL_MS : 0,
+      fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true,
+    },
+  )
+
+  const task = (liveTaskData?.task ?? initialTask) as TaskDetailRecord | null
+  const myOrder = (liveTaskData?.order ??
+    myOrderFromInitial) as OrderItem | null
+  const orderLoading = Boolean(
+    shouldPollLiveOrder && liveTaskLoading && !liveTaskData,
+  )
 
   const refreshPageData = useCallback(() => {
     router.refresh()
@@ -423,7 +450,7 @@ export function TaskDetailProvider({
     () => ({
       task,
       myOrder,
-      orderLoading: false,
+      orderLoading,
       isOwner,
       isOrderWorker,
       isOrderCustomer,
@@ -483,6 +510,7 @@ export function TaskDetailProvider({
       me,
       meLoadingResolved,
       myOrder,
+      orderLoading,
       myQuote,
       onAcceptQuote,
       onCancelTask,
