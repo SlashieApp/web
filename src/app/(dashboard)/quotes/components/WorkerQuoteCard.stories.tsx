@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { OrderStatus } from '@codegen/schema'
+import { Currency, OrderStatus, QuoteStatus } from '@codegen/schema'
 
 import { WorkerQuoteCard } from './WorkerQuoteCard'
 import {
@@ -104,9 +104,9 @@ export const EndedAnotherWorkerBooked: Story = {
           id: 'quote-other',
           taskId: 'task-story-1',
           workerUserId: 'worker-other',
-          price: { amount: 90, currency: 'GBP' },
+          price: { amount: 90, currency: Currency.Gbp },
           message: null,
-          status: 'ACCEPTED',
+          status: QuoteStatus.Accepted,
           createdAt: '2026-05-30T10:00:00.000Z',
         },
       ],

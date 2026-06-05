@@ -1,3 +1,4 @@
+import { TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
@@ -27,7 +28,7 @@ export const BookedTask: Story = {
     withTaskDetailStory(
       {
         viewer: 'owner',
-        task: storyTaskDetail({ status: 'CLOSED' }),
+        task: storyTaskDetail({ status: TaskStatus.Confirmed }),
         order: storyTaskOrder(),
       },
       { maxWidth: '640px' },

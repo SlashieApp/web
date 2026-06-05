@@ -12,6 +12,9 @@ const meta = {
   component: WorkerOrderVerificationPanel,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  args: {
+    initialExpanded: false,
+  },
 } satisfies Meta<typeof WorkerOrderVerificationPanel>
 
 export default meta
@@ -23,7 +26,7 @@ export const ActiveCollapsed: Story = {
     withTaskDetailStory({
       viewer: 'worker',
       order: storyTaskOrder({ status: OrderStatus.Active }),
-    }),
+    }) as never,
   ],
 }
 
@@ -32,7 +35,7 @@ export const ActiveExpanded: Story = {
     withTaskDetailStory({
       viewer: 'worker',
       order: storyTaskOrder({ status: OrderStatus.Active }),
-    }),
+    }) as never,
   ],
   render: () => <WorkerOrderVerificationPanel initialExpanded />,
 }
@@ -42,6 +45,6 @@ export const AwaitingUpdate: Story = {
     withTaskDetailStory({
       viewer: 'worker',
       order: storyTaskOrder({ status: OrderStatus.PaymentAcknowledged }),
-    }),
+    }) as never,
   ],
 }

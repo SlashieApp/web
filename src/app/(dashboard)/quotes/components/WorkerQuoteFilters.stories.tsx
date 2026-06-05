@@ -29,6 +29,14 @@ function WorkerQuoteFiltersPlayground({
 
 const mixedRows = storyQuoteRowsMixed()
 
+const noopFilterChange = (_filter: WorkerQuoteListFilter) => {}
+
+const placeholderArgs = {
+  rows: mixedRows,
+  filter: 'all' as WorkerQuoteListFilter,
+  onFilterChange: noopFilterChange,
+}
+
 const meta = {
   title: 'quotes/WorkerQuoteFilters',
   component: WorkerQuoteFilters,
@@ -36,6 +44,7 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
+  args: placeholderArgs,
   render: () => (
     <Box maxW="640px" w="full">
       <WorkerQuoteFiltersPlayground rows={mixedRows} />
@@ -48,6 +57,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const AllSelected: Story = {
+  args: placeholderArgs,
   render: () => (
     <Box maxW="640px" w="full">
       <WorkerQuoteFiltersPlayground rows={mixedRows} initialFilter="all" />
@@ -56,6 +66,7 @@ export const AllSelected: Story = {
 }
 
 export const PendingSelected: Story = {
+  args: placeholderArgs,
   render: () => (
     <Box maxW="640px" w="full">
       <WorkerQuoteFiltersPlayground rows={mixedRows} initialFilter="pending" />
@@ -64,6 +75,7 @@ export const PendingSelected: Story = {
 }
 
 export const BookedSelected: Story = {
+  args: placeholderArgs,
   render: () => (
     <Box maxW="640px" w="full">
       <WorkerQuoteFiltersPlayground rows={mixedRows} initialFilter="booked" />
@@ -72,6 +84,7 @@ export const BookedSelected: Story = {
 }
 
 export const DoneSelected: Story = {
+  args: placeholderArgs,
   render: () => (
     <Box maxW="640px" w="full">
       <WorkerQuoteFiltersPlayground rows={mixedRows} initialFilter="done" />
@@ -80,6 +93,7 @@ export const DoneSelected: Story = {
 }
 
 export const OnlyPendingQuotes: Story = {
+  args: placeholderArgs,
   render: () => (
     <Box maxW="640px" w="full">
       <WorkerQuoteFiltersPlayground
@@ -91,6 +105,7 @@ export const OnlyPendingQuotes: Story = {
 }
 
 export const EmptyList: Story = {
+  args: placeholderArgs,
   render: () => (
     <Box maxW="640px" w="full">
       <WorkerQuoteFiltersPlayground rows={[]} initialFilter="all" />

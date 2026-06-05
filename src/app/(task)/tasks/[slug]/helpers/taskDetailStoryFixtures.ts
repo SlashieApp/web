@@ -1,4 +1,11 @@
-import { OrderStatus, QuoteStatus } from '@codegen/schema'
+import {
+  Currency,
+  LoginMethod,
+  OrderStatus,
+  QuoteStatus,
+  TaskContactMethod,
+  TaskStatus,
+} from '@codegen/schema'
 import type { MeQuery, TaskQuery } from '@codegen/schema'
 
 import type { OrderItem } from '@/utils/orderHelpers'
@@ -23,7 +30,7 @@ export function storyTaskDetail(
       id: 'quote-detail-1',
       workerUserId: STORY_WORKER_ID,
       status: QuoteStatus.Pending,
-      price: { amount: 85, currency: 'GBP' },
+      price: { amount: 85, currency: Currency.Gbp },
       message: 'I can do this Saturday morning with my own tools.',
       worker: {
         id: STORY_WORKER_ID,
@@ -34,7 +41,7 @@ export function storyTaskDetail(
       id: 'quote-detail-2',
       workerUserId: 'worker-detail-2',
       status: QuoteStatus.Pending,
-      price: { amount: 95, currency: 'GBP' },
+      price: { amount: 95, currency: Currency.Gbp },
       message: 'Available weekday evenings. Happy to bring a ladder.',
       worker: {
         id: 'worker-detail-2',
@@ -52,7 +59,7 @@ export function storyTaskDetail(
     acceptedWorkerCap: 1,
     budget: {
       amount: 120,
-      currency: 'GBP',
+      currency: Currency.Gbp,
       type: 'ONE_OFF',
       paymentMethod: 'CASH',
     },
@@ -95,7 +102,7 @@ export function storyTaskQuote(
     id: 'quote-detail-1',
     taskId: STORY_TASK_ID,
     workerUserId: STORY_WORKER_ID,
-    price: { amount: 85, currency: 'GBP' },
+    price: { amount: 85, currency: Currency.Gbp },
     message: 'I can do this Saturday morning with my own tools.',
     status: QuoteStatus.Pending,
     createdAt: '2026-05-29T14:30:00.000Z',
@@ -115,7 +122,7 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
     customerUserId: STORY_OWNER_ID,
     workerUserId: STORY_WORKER_ID,
     status: OrderStatus.Active,
-    agreedPrice: { amount: 85, currency: 'GBP' },
+    agreedPrice: { amount: 85, currency: Currency.Gbp },
     completionVerificationCode: '482913',
     snapshot: {
       title: 'Mount bookshelf on living room wall',
@@ -156,7 +163,7 @@ export function storyMe(
         ? 'alex@example.com'
         : 'jordan@example.com',
     createdAt: '2025-01-01T00:00:00.000Z',
-    enabledLoginMethods: ['PASSWORD'],
+    enabledLoginMethods: [LoginMethod.Password],
     profile: {
       name:
         viewer === 'owner' || viewer === 'customer'
@@ -166,7 +173,7 @@ export function storyMe(
       avatarUrl: STORY_AVATAR,
       bio: null,
       dateOfBirth: null,
-      defaultPreferredContactMethod: 'PHONE',
+      defaultPreferredContactMethod: TaskContactMethod.Phone,
       emailVerified: true,
       phoneVerified: true,
     },
@@ -174,7 +181,7 @@ export function storyMe(
       isProfilePrivate: false,
       marketingEmails: false,
     },
-    workerEligibility: 'ELIGIBLE',
+    workerEligibility: true,
     worker:
       viewer === 'worker'
         ? {
@@ -190,7 +197,7 @@ export function storyMe(
           }
         : null,
   }
-  return base as NonNullable<MeQuery['me']>
+  return base as unknown as NonNullable<MeQuery['me']>
 }
 
 export type TaskDetailStoryConfig = {
