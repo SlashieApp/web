@@ -3,11 +3,14 @@
 import type {
   LoginMutation,
   LoginMutationVariables,
+  LoginWithGoogleMutation,
+  LoginWithGoogleMutationVariables,
   MeQuery,
 } from '@codegen/schema'
 import { create } from 'zustand'
 
 import Login from '@/app/(auth)/login/graphql/Login.gql'
+import LoginWithGoogle from '@/app/(auth)/login/graphql/LoginWithGoogle.gql'
 import Me from '@/graphql/Me.gql'
 import { apolloClient } from '@/utils/apolloClient'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/utils/auth'
@@ -40,6 +43,7 @@ type UserStore = {
   /** Shallow-merge into the cached `me`; ignored when no `me` is present. */
   patchMe: (patch: Partial<MeSnapshot>) => void
   login: (input: LoginInput) => Promise<AuthUser | null>
+  loginWithGoogle: (idToken: string) => Promise<AuthUser | null>
   logout: () => void
   getUser: () => Promise<AuthUser | null>
 }
@@ -104,6 +108,38 @@ export const useUserStore = create<UserStore>((set, get) => ({
       }
 
       setAuthToken(token, rememberMe ? REMEMBER_MAX_AGE : SESSION_MAX_AGE)
+
+      const meResult = await apolloClient.query<MeQuery>({
+        query: Me,
+        fetchPolicy: 'network-only',
+      })
+      const synced = syncStateFromMe(meResult.data?.me)
+      set({ ...synced, isLoading: false })
+      return synced.user
+    } catch (error) {
+      set({ isLoading: false })
+      throw error
+    }
+  },
+  loginWithGoogle: async (idToken) => {
+    set({ isLoading: true })
+    try {
+      const result = await apolloClient.mutate<
+        LoginWithGoogleMutation,
+        LoginWithGoogleMutationVariables
+      >({
+        mutation: LoginWithGoogle,
+        variables: { token: idToken },
+      })
+
+      const token = result.data?.loginWithMethod?.token?.trim()
+      if (!token) {
+        throw new Error(
+          'Google sign-in succeeded but no session token was returned.',
+        )
+      }
+
+      setAuthToken(token, SESSION_MAX_AGE)
 
       const meResult = await apolloClient.query<MeQuery>({
         query: Me,

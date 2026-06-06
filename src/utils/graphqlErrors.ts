@@ -10,6 +10,10 @@ type GraphQLErrorLike = {
 const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   UNAUTHENTICATED: 'You need to log in to continue.',
   INVALID_CREDENTIALS: 'Email or password is incorrect.',
+  INVALID_OAUTH_TOKEN:
+    'Google sign-in could not be verified. Try again or use email instead.',
+  OAUTH_ACCOUNT_CONFLICT:
+    'This Google account is linked to a different login method. Sign in with email or the original provider.',
   WEAK_PASSWORD: 'Password must meet the minimum complexity requirements.',
   INVALID_OR_EXPIRED_RESET_TOKEN: 'This reset link is invalid or has expired.',
   INVALID_OR_EXPIRED_VERIFICATION:

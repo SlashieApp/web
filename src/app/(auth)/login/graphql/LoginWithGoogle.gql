@@ -1,0 +1,11 @@
+mutation LoginWithGoogle($token: String!) {
+  loginWithMethod(input: { method: GOOGLE, oauthToken: $token }) {
+    token
+    user {
+      id
+      email
+      emailVerified
+      enabledLoginMethods
+    }
+  }
+}

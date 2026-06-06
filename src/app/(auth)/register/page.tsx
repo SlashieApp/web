@@ -20,6 +20,7 @@ import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
+import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
 import Register from '@/app/(auth)/register/graphql/Register.gql'
 import { registerFormSchema } from '@/app/(auth)/register/registerFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
@@ -316,14 +317,15 @@ export default function RegisterPage() {
   const [registerMutation, { loading }] =
     useMutation<RegisterMutation>(Register)
 
-  const explicitNextPath = useMemo(() => {
-    if (typeof window === 'undefined') return null
-    const requestedNextPath = new URLSearchParams(window.location.search).get(
-      'next',
-    )
-    const hasSafeNextPath =
-      requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
-    return hasSafeNextPath && requestedNextPath ? requestedNextPath : null
+  const authQuery = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return { next: null as string | null, redirect: null as string | null }
+    }
+    const params = new URLSearchParams(window.location.search)
+    return {
+      next: params.get('next'),
+      redirect: params.get('redirect'),
+    }
   }, [])
 
   const onValid = async (data: z.infer<typeof registerFormSchema>) => {
@@ -348,6 +350,7 @@ export default function RegisterPage() {
       await getUser()
 
       const sentParams = new URLSearchParams()
+      const explicitNextPath = authQuery.redirect ?? authQuery.next
       if (explicitNextPath) sentParams.set('next', explicitNextPath)
       const sentQuery = sentParams.toString()
       router.push(
@@ -479,6 +482,23 @@ export default function RegisterPage() {
                 </Stack>
               </Button>
             </HStack>
+
+            <Stack gap={3}>
+              <GoogleAuthButton
+                intent={role}
+                next={authQuery.next}
+                redirect={authQuery.redirect}
+              />
+              <Text
+                fontSize="2xs"
+                fontWeight={700}
+                letterSpacing="0.1em"
+                color="formLabelMuted"
+                textTransform="uppercase"
+              >
+                Or continue with email
+              </Text>
+            </Stack>
 
             <Box asChild w="full">
               <form onSubmit={handleSubmit(onValid)} noValidate>
