@@ -1,20 +1,19 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import type {
-  ConfirmEmailVerificationMutation,
   ConfirmPhoneVerificationMutation,
-  RequestEmailVerificationMutation,
   RequestPhoneVerificationMutation,
   UpdatePhoneNumberMutation,
 } from '@codegen/schema'
+import NextLink from 'next/link'
 import { useState } from 'react'
 
+import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
+import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
-import ConfirmEmailVerification from '@/app/(dashboard)/account/graphql/ConfirmEmailVerification.gql'
 import ConfirmPhoneVerification from '@/app/(dashboard)/account/graphql/ConfirmPhoneVerification.gql'
-import RequestEmailVerification from '@/app/(dashboard)/account/graphql/RequestEmailVerification.gql'
 import RequestPhoneVerification from '@/app/(dashboard)/account/graphql/RequestPhoneVerification.gql'
 import UpdatePhoneNumber from '@/app/(dashboard)/account/graphql/UpdatePhoneNumber.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -33,70 +32,10 @@ function VerifiedBadge({ verified }: { verified: boolean }) {
 
 function EmailRow() {
   const me = useUserStore((s) => s.me)
-  const patchMe = useUserStore((s) => s.patchMe)
-  const [open, setOpen] = useState(false)
-  const [token, setToken] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [hint, setHint] = useState<string | null>(null)
-
-  const [requestVerification, { loading: requesting }] =
-    useMutation<RequestEmailVerificationMutation>(RequestEmailVerification)
-  const [confirmVerification, { loading: confirming }] =
-    useMutation<ConfirmEmailVerificationMutation>(ConfirmEmailVerification)
+  const { resend, isSending, message, isSent } = useResendVerificationEmail()
 
   if (!me) return null
-  const verified = Boolean(me.profile?.emailVerified)
-
-  const start = async () => {
-    setError(null)
-    setHint(null)
-    setOpen(true)
-    try {
-      const result = await requestVerification()
-      const devCode = result.data?.requestEmailVerification?.devCode
-      if (devCode) {
-        setToken(devCode)
-        setHint(`Dev code: ${devCode}`)
-      } else {
-        setHint('We sent a verification link/token to your email.')
-      }
-    } catch (e) {
-      setError(
-        getFriendlyErrorMessage(e, 'Could not start email verification.'),
-      )
-    }
-  }
-
-  const confirm = async () => {
-    const trimmed = token.trim()
-    if (!trimmed) {
-      setError('Enter the verification token from your email.')
-      return
-    }
-    setError(null)
-    try {
-      const result = await confirmVerification({
-        variables: { token: trimmed },
-      })
-      const updated = result.data?.confirmEmailVerification
-      if (updated && me.profile) {
-        patchMe({
-          profile: {
-            ...me.profile,
-            emailVerified: updated.profile.emailVerified,
-          },
-          workerEligibility: updated.workerEligibility,
-        })
-      }
-      setOpen(false)
-      setToken('')
-      setHint(null)
-    } catch (e) {
-      setError(
-        getFriendlyErrorMessage(e, 'That token did not work. Try again.'),
-      )
-    }
-  }
+  const verified = isEmailVerified(me)
 
   return (
     <Stack gap={3} borderBottomWidth="1px" borderColor="cardBorder" pb={4}>
@@ -114,62 +53,43 @@ function EmailRow() {
             {me.email}
           </Text>
         </Stack>
-        <HStack gap={3}>
+        <HStack gap={3} flexWrap="wrap">
           <VerifiedBadge verified={verified} />
-          {!verified && !open ? (
-            <Button size="sm" variant="secondary" onClick={() => void start()}>
-              Verify email
-            </Button>
+          {!verified ? (
+            <>
+              <Button
+                size="sm"
+                variant="secondary"
+                loading={isSending}
+                onClick={() => void resend()}
+              >
+                Resend verification email
+              </Button>
+              <Link
+                as={NextLink}
+                href="/verify-email/sent"
+                fontSize="sm"
+                fontWeight={600}
+                color="primary.600"
+                _hover={{ textDecoration: 'none', color: 'primary.700' }}
+              >
+                Check inbox
+              </Link>
+            </>
           ) : null}
         </HStack>
       </HStack>
 
-      {open ? (
-        <Stack gap={3}>
-          <FormField
-            label="Verification token"
-            helperText={hint ?? 'Paste the token from your verification email.'}
-          >
-            <Input
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="Verification token"
-            />
-          </FormField>
-          <HStack gap={3}>
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={() => void confirm()}
-              loading={confirming}
-            >
-              Confirm
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => void start()}
-              loading={requesting}
-            >
-              Resend
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setOpen(false)
-                setError(null)
-              }}
-            >
-              Cancel
-            </Button>
-          </HStack>
-        </Stack>
+      {!verified && message ? (
+        <Text fontSize="sm" color={isSent ? 'primary.700' : 'red.500'}>
+          {message}
+        </Text>
       ) : null}
 
-      {error ? (
-        <Text color="red.500" fontSize="sm">
-          {error}
+      {!verified ? (
+        <Text fontSize="sm" color="formLabelMuted">
+          Open the link in your email to verify. Verification completes
+          automatically when you click the link.
         </Text>
       ) : null}
     </Stack>

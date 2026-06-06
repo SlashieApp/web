@@ -22,6 +22,7 @@ import type { z } from 'zod'
 
 import Register from '@/app/(auth)/register/graphql/Register.gql'
 import { registerFormSchema } from '@/app/(auth)/register/registerFormSchema'
+import { useUserStore } from '@/app/(auth)/store/user'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -290,6 +291,7 @@ function RegisterMarketingAside() {
 
 export default function RegisterPage() {
   const router = useRouter()
+  const getUser = useUserStore((s) => s.getUser)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [role, setRole] = useState<AccountRole>('customer')
@@ -324,16 +326,15 @@ export default function RegisterPage() {
     return hasSafeNextPath && requestedNextPath ? requestedNextPath : null
   }, [])
 
-  const postRegisterPath = useMemo(
-    () => (role === 'worker' ? '/profile#profile-worker' : '/dashboard'),
-    [role],
-  )
-
   const onValid = async (data: z.infer<typeof registerFormSchema>) => {
     setServerError(null)
     try {
       const res = await registerMutation({
-        variables: { email: data.email, password: data.password },
+        variables: {
+          email: data.email,
+          password: data.password,
+          name: data.fullName.trim() || undefined,
+        },
       })
 
       const token = res.data?.register?.token
@@ -344,7 +345,14 @@ export default function RegisterPage() {
       }
 
       setAuthToken(token)
-      router.push(explicitNextPath ?? postRegisterPath)
+      await getUser()
+
+      const sentParams = new URLSearchParams()
+      if (explicitNextPath) sentParams.set('next', explicitNextPath)
+      const sentQuery = sentParams.toString()
+      router.push(
+        sentQuery ? `/verify-email/sent?${sentQuery}` : '/verify-email/sent',
+      )
     } catch (err: unknown) {
       setServerError(getFriendlyErrorMessage(err, 'Registration failed'))
     }

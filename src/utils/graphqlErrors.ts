@@ -12,6 +12,11 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   INVALID_CREDENTIALS: 'Email or password is incorrect.',
   WEAK_PASSWORD: 'Password must meet the minimum complexity requirements.',
   INVALID_OR_EXPIRED_RESET_TOKEN: 'This reset link is invalid or has expired.',
+  INVALID_OR_EXPIRED_VERIFICATION:
+    'This verification link is invalid or has expired.',
+  RESEND_VERIFICATION_RATE_LIMITED: 'Please wait 2 minutes before resending.',
+  EMAIL_NOT_VERIFIED:
+    'Verify your email to post tasks and send quotes. Check your inbox or resend the verification email.',
   MONTHLY_CONNECTION_LIMIT_REACHED:
     "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade your membership or Worker Pro for unlimited connections, or try again next month.",
   FORBIDDEN: 'You do not have permission to change this task.',

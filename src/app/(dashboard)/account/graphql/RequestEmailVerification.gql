@@ -1,6 +1,0 @@
-mutation RequestEmailVerification {
-  requestEmailVerification {
-    success
-    devCode
-  }
-}

@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { priceToPence } from '@/utils/price'
 import { Badge, Button } from '@ui'
 
@@ -78,6 +79,7 @@ export function QuotesSection() {
     task,
     permissions,
     isAuthenticated,
+    me,
     myQuote,
     sortedQuotes,
     lowestPricePence,
@@ -283,6 +285,21 @@ export function QuotesSection() {
         _hover={{ textDecoration: 'none' }}
       >
         <Button w="full">Create worker profile</Button>
+      </Link>
+    </Stack>
+  ) : me && !isEmailVerified(me) ? (
+    <Stack gap={3}>
+      <Heading size="sm">Verify your email</Heading>
+      <Text color="formLabelMuted">
+        Verify your email before sending quotes. Check your inbox or resend from
+        the banner.
+      </Text>
+      <Link
+        as={NextLink}
+        href="/verify-email/sent"
+        _hover={{ textDecoration: 'none' }}
+      >
+        <Button w="full">Check inbox</Button>
       </Link>
     </Stack>
   ) : !canSubmitQuote ? (

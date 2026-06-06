@@ -1,9 +1,0 @@
-mutation ConfirmEmailVerification($token: String!) {
-  confirmEmailVerification(token: $token) {
-    id
-    profile {
-      emailVerified
-    }
-    workerEligibility
-  }
-}

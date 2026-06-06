@@ -14,6 +14,7 @@ import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
 
+import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
@@ -25,7 +26,10 @@ import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryV
 import Me from '@/graphql/Me.gql'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import {
+  getFriendlyErrorMessage,
+  getGraphQLErrorCode,
+} from '@/utils/graphqlErrors'
 import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
 
@@ -181,6 +185,18 @@ export function TaskDetailProvider({
       return false
     }
 
+    if (me && !isEmailVerified(me)) {
+      const message =
+        'Verify your email before sending quotes. Check your inbox or resend from the banner.'
+      setQuoteError(message)
+      showAppToast({
+        title: 'Email verification required',
+        description: message,
+        type: 'warning',
+      })
+      return false
+    }
+
     const trimmedMessage = quoteMessageInput.trim()
     const trimmedAvailability = quoteAvailabilityInput.trim()
     const messageParts = [trimmedMessage]
@@ -220,12 +236,21 @@ export function TaskDetailProvider({
       refreshPageData()
       return true
     } catch (error: unknown) {
-      setQuoteError(getFriendlyErrorMessage(error, 'Quote submission failed.'))
+      const message = getFriendlyErrorMessage(error, 'Quote submission failed.')
+      setQuoteError(message)
+      if (getGraphQLErrorCode(error) === 'EMAIL_NOT_VERIFIED') {
+        showAppToast({
+          title: 'Email verification required',
+          description: message,
+          type: 'warning',
+        })
+      }
       return false
     }
   }, [
     addQuote,
     isAuthenticated,
+    me,
     myQuote,
     pathname,
     permissions.canSubmitQuote,

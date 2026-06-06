@@ -16,10 +16,15 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import CreateTask from '@/app/(task)/tasks/create/graphql/CreateTask.gql'
 import Me from '@/graphql/Me.gql'
+import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import {
+  getGraphQLErrorCode,
+  getTaskMutationErrorMessage,
+} from '@/utils/graphqlErrors'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
 import { Button, Footer } from '@ui'
 
@@ -44,10 +49,12 @@ const POST_TASK_PATH = '/tasks/create'
 
 type CreateTaskFormBodyProps = {
   preferredContactDefault: TaskContactMethod
+  emailVerified: boolean
 }
 
 function CreateTaskFormBody({
   preferredContactDefault,
+  emailVerified,
 }: CreateTaskFormBodyProps) {
   const router = useRouter()
   const apollo = useApolloClient()
@@ -176,6 +183,18 @@ function CreateTaskFormBody({
       return
     }
 
+    if (!emailVerified) {
+      const message =
+        'Verify your email before posting tasks. Check your inbox or resend from the banner.'
+      setServerError(message)
+      showAppToast({
+        title: 'Email verification required',
+        description: message,
+        type: 'warning',
+      })
+      return
+    }
+
     const parsedBudget = Number.parseFloat(values.budgetMajor)
     const datetime = buildDatetimePayload(values)
 
@@ -214,7 +233,15 @@ function CreateTaskFormBody({
 
       router.push(`/tasks/${createdTaskId}`)
     } catch (err: unknown) {
-      setServerError(getFriendlyErrorMessage(err, 'Task creation failed.'))
+      const message = getTaskMutationErrorMessage(err, 'Task creation failed.')
+      setServerError(message)
+      if (getGraphQLErrorCode(err) === 'EMAIL_NOT_VERIFIED') {
+        showAppToast({
+          title: 'Email verification required',
+          description: message,
+          type: 'warning',
+        })
+      }
     }
   }
 
@@ -356,6 +383,8 @@ function CreateTaskFormBody({
                   type="submit"
                   size="lg"
                   loading={creating || isSubmitting}
+                  disabled={!emailVerified}
+                  title={emailVerified ? undefined : 'Verify your email first'}
                 >
                   Publish task
                 </Button>
@@ -447,6 +476,7 @@ export default function CreateTaskPage() {
             <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
               <CreateTaskFormBody
                 preferredContactDefault={preferredContactDefault}
+                emailVerified={isEmailVerified(meData?.me)}
               />
             </Stack>
           </Container>

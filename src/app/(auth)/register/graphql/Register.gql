@@ -1,9 +1,20 @@
-mutation Register($email: String!, $password: String!) {
-  register(email: $email, password: $password) {
+mutation Register(
+  $email: String!
+  $password: String!
+  $name: String
+  $contactNumber: String
+) {
+  register(
+    email: $email
+    password: $password
+    name: $name
+    contactNumber: $contactNumber
+  ) {
     token
     user {
       id
       email
+      emailVerified
     }
   }
 }

@@ -15,7 +15,9 @@ import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
-import { useUserStore } from '@/app/(auth)/store/user'
+import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
+import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
+import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { isAccountHubPath } from '@/utils/accountHub'
 import { getAuthToken } from '@/utils/auth'
 import { AppDrawer } from '../AppDrawer/AppDrawer'
@@ -179,13 +181,54 @@ function resolveWorkerCta(
   return { href: '/dashboard', label: 'Worker Dashboard' }
 }
 
+function PostTaskNavButton({
+  active,
+  disabled,
+}: {
+  active: boolean
+  disabled: boolean
+}) {
+  if (disabled) {
+    return (
+      <Button
+        size="sm"
+        variant="secondary"
+        display={{ base: 'none', lg: 'inline-flex' }}
+        disabled
+        opacity={0.6}
+        title="Verify your email first"
+      >
+        Post a task
+      </Button>
+    )
+  }
+
+  return (
+    <Link
+      as={NextLink}
+      href="/tasks/create"
+      _hover={{ textDecoration: 'none' }}
+    >
+      <Button
+        size="sm"
+        variant={active ? 'primary' : 'secondary'}
+        display={{ base: 'none', lg: 'inline-flex' }}
+      >
+        Post a task
+      </Button>
+    </Link>
+  )
+}
+
 function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   const pathname = usePathname()
   const user = useUserStore((state) => state.user)
+  const me = useMe()
   const getUser = useUserStore((state) => state.getUser)
   const [hasMounted, setHasMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isLoggedIn = Boolean(user)
+  const postTaskBlocked = isLoggedIn && me != null && !isEmailVerified(me)
   const onMountNavigation = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node || hasMounted) return
@@ -261,19 +304,10 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
         justify="flex-end"
         flexShrink={0}
       >
-        <Link
-          as={NextLink}
-          href="/tasks/create"
-          _hover={{ textDecoration: 'none' }}
-        >
-          <Button
-            size="sm"
-            variant={resolvedActive === 'post-task' ? 'primary' : 'secondary'}
-            display={{ base: 'none', lg: 'inline-flex' }}
-          >
-            Post a task
-          </Button>
-        </Link>
+        <PostTaskNavButton
+          active={resolvedActive === 'post-task'}
+          disabled={postTaskBlocked}
+        />
         {isLoggedIn ? (
           <Box display={{ base: 'none', lg: 'inline-flex' }}>
             <NotificationBell />
@@ -481,6 +515,7 @@ export function Header({
       py={1}
       {...props}
     >
+      <EmailVerificationBanner />
       <Box>{children ?? <SiteNavigation activeItem={activeItem} />}</Box>
     </Box>
   )

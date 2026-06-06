@@ -21,6 +21,7 @@ import {
   LuX,
 } from 'react-icons/lu'
 
+import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { formatBudgetAmount } from '@/utils/price'
 import { Button, FormField, IconButton, Input } from '@ui'
 
@@ -74,6 +75,7 @@ export function TaskQuoteFlow() {
     task,
     permissions,
     myQuote,
+    me,
     isAuthenticated,
     meLoading,
     quoteAmountInput,
@@ -271,6 +273,33 @@ export function TaskQuoteFlow() {
             _hover={{ textDecoration: 'none' }}
           >
             <Button w="full">Create worker profile</Button>
+          </Link>
+          <BackToTaskLink href={backToTask} />
+        </Stack>
+      </Box>
+    )
+  }
+
+  if (me && !isEmailVerified(me)) {
+    return (
+      <Box ref={shellRef}>
+        <Stack gap={6} py={{ base: 6, md: 8 }}>
+          <Stack gap={1}>
+            <Heading size="lg" color="secondary.900">
+              Verify your email
+            </Heading>
+            <Text color="formLabelMuted">
+              Verify your email before sending quotes. Check your inbox or
+              resend from the banner.
+            </Text>
+          </Stack>
+          <TaskQuoteSummaryCard />
+          <Link
+            as={NextLink}
+            href="/verify-email/sent"
+            _hover={{ textDecoration: 'none' }}
+          >
+            <Button w="full">Check inbox</Button>
           </Link>
           <BackToTaskLink href={backToTask} />
         </Stack>
