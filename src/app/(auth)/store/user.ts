@@ -14,7 +14,7 @@ import LoginWithGoogle from '@/app/(auth)/login/graphql/LoginWithGoogle.gql'
 import Me from '@/graphql/Me.gql'
 import {
   EVENTS,
-  identifyUser,
+  identifyAuthenticatedUser,
   resetAnalyticsIdentity,
   trackFlowFailed,
   trackFlowSucceeded,
@@ -88,13 +88,16 @@ function syncStateFromMe(me: MeQuery['me'] | null | undefined): {
 
 function syncAnalyticsIdentity(me: MeSnapshot | null) {
   if (!me) return
-  identifyUser({
+  const fullName = me.profile?.name?.trim() ?? ''
+  const [firstName, ...lastParts] = fullName.split(/\s+/).filter(Boolean)
+  identifyAuthenticatedUser({
     id: me.id,
+    email: me.email,
+    firstName: firstName || undefined,
+    lastName: lastParts.join(' ') || undefined,
     emailVerified: me.emailVerified,
     phoneVerified: me.phoneVerified,
-    workerEligibility: me.workerEligibility,
-    enabledLoginMethods: me.enabledLoginMethods,
-    workerId: me.worker?.id,
+    isWorker: Boolean(me.worker?.id),
   })
 }
 

@@ -7,6 +7,10 @@ export { AnalyticsErrorBoundary } from './AnalyticsErrorBoundary'
 export { apiFetch } from './api-fetch'
 export { capture, getCurrentRoute } from './capture'
 export { captureApiError } from './capture-api-error'
+export {
+  captureTaskDetailView,
+  resolveTaskDetailViewerRole,
+} from './task-detail-view'
 export { EVENTS } from './events'
 export {
   getPostHog,
@@ -14,7 +18,10 @@ export {
   isPostHogConfigured,
   queueCapture,
 } from './posthog-client'
-export { identifyUser, resetAnalyticsIdentity } from './identify'
+export {
+  identifyAuthenticatedUser,
+  resetAnalyticsIdentity,
+} from './identify-user'
 export { sanitizeProperties, truncateMessage } from './sanitize'
 export { trackFlowFailed, trackFlowSucceeded } from './flow-events'
 export type { AnalyticsEvent, CaptureProperties } from './events'
@@ -22,3 +29,9 @@ export type {
   ApiErrorSource,
   CaptureApiErrorContext,
 } from './capture-api-error'
+export type { AuthenticatedUserIdentity } from './identify-user'
+export type {
+  CaptureTaskDetailViewInput,
+  TaskDetailViewerRole,
+  TaskDetailViewSource,
+} from './task-detail-view'

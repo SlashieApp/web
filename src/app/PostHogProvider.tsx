@@ -16,10 +16,13 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   }
 
   if (pathname && pathname !== lastPathRef.current) {
+    const previousPath = lastPathRef.current
     lastPathRef.current = pathname
+    // Initial load is handled by posthog.init(capture_pageview: true).
+    if (previousPath === null) return
     const ph = getPostHog()
     if (ph) {
-      ph.capture('$pageview')
+      ph.capture('$pageview', { route: pathname })
     } else {
       capture('$pageview', { route: pathname })
     }

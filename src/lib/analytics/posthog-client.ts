@@ -22,7 +22,8 @@ export function initPostHogClient(): void {
   posthog.init(key, {
     api_host:
       process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://eu.i.posthog.com',
-    capture_pageview: false,
+    person_profiles: 'identified_only',
+    capture_pageview: true,
     capture_exceptions: true,
     persistence: 'localStorage+cookie',
   })

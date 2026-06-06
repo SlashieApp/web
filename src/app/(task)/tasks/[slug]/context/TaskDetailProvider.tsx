@@ -1,7 +1,6 @@
 'use client'
 
 import { useMutation, useQuery } from '@apollo/client/react'
-import { Box } from '@chakra-ui/react'
 import type {
   AcceptQuoteMutation,
   AddQuoteMutation,
@@ -41,6 +40,7 @@ import {
 import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
 
+import { TaskDetailViewCapture } from '../components/TaskDetailViewCapture'
 import { TaskDetailContext } from './TaskDetailContext'
 
 const ORDER_POLL_MS = 30_000
@@ -72,7 +72,6 @@ export function TaskDetailProvider({
   const [verificationCode, setVerificationCode] = useState('')
   const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
   const isAuthenticated = Boolean(getAuthToken())
-  const detailViewTrackedRef = useRef(false)
 
   const { data: meData, loading: meLoading } = useQuery<MeQuery>(Me, {
     skip: !isAuthenticated,
@@ -101,15 +100,6 @@ export function TaskDetailProvider({
   )
 
   const task = liveTaskData?.task ?? initialTask ?? null
-  const trackDetailViewRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node || detailViewTrackedRef.current) return
-      detailViewTrackedRef.current = true
-      capture(EVENTS.task_detail_viewed, { task_id: taskId })
-      capture(EVENTS.task_detail_loaded, { task_id: taskId })
-    },
-    [taskId],
-  )
   const myOrder = (liveTaskData?.order ??
     myOrderFromInitial) as OrderItem | null
   const orderLoading = Boolean(
@@ -548,11 +538,21 @@ export function TaskDetailProvider({
     ],
   )
 
+  const canCaptureTaskView =
+    Boolean(task) && (!isAuthenticated || !meLoadingResolved)
+
   return (
     <TaskDetailContext.Provider value={value}>
-      <Box ref={trackDetailViewRef} display="contents">
-        {children}
-      </Box>
+      {canCaptureTaskView && task ? (
+        <TaskDetailViewCapture
+          taskId={task.id}
+          taskSlug={taskId}
+          isOwner={permissions.isOwner}
+          hasWorkerProfile={permissions.hasWorkerProfile}
+          isAuthenticated={isAuthenticated}
+        />
+      ) : null}
+      {children}
     </TaskDetailContext.Provider>
   )
 }
