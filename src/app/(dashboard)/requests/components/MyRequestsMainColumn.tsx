@@ -10,7 +10,6 @@ import { Button, Input, SectionCard } from '@ui'
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
 
 import { PostedTaskCard } from './PostedTaskCard'
-import { PostedTaskFilters } from './PostedTaskFilters'
 import { PostedTaskSummaryBar } from './PostedTaskSummaryBar'
 
 export function MyRequestsMainColumn() {
@@ -28,10 +27,6 @@ export function MyRequestsMainColumn() {
       <Stack gap={3}>
         <Stack gap={1}>
           <Heading size="xl">My Requests</Heading>
-          <Text color="formLabelMuted">
-            Tasks you posted as a customer — track quotes, bookings, and
-            completion in one place.
-          </Text>
         </Stack>
 
         <Input
@@ -56,12 +51,6 @@ export function MyRequestsMainColumn() {
             inboxFilters.commitSearch()
           }}
         />
-
-        {taskRows.length > 0 ? (
-          <Box display={{ base: 'block', xl: 'none' }}>
-            <PostedTaskFilters />
-          </Box>
-        ) : null}
 
         {taskRows.length > 0 ? <PostedTaskSummaryBar /> : null}
       </Stack>

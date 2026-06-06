@@ -10,7 +10,6 @@ import { Button, Input, SectionCard } from '@ui'
 import { useWorkerQuotes } from '../context/WorkerQuotesProvider'
 
 import { WorkerQuoteCard } from './WorkerQuoteCard'
-import { WorkerQuoteFilters } from './WorkerQuoteFilters'
 import { WorkerQuoteSummaryBar } from './WorkerQuoteSummaryBar'
 
 export function WorkerQuotesMainColumn() {
@@ -28,10 +27,6 @@ export function WorkerQuotesMainColumn() {
       <Stack gap={3}>
         <Stack gap={1}>
           <Heading size="xl">My Quotes</Heading>
-          <Text color="formLabelMuted">
-            Quotes you sent on other people&apos;s tasks — filter by pending,
-            booked, or done.
-          </Text>
         </Stack>
 
         <Input
@@ -56,12 +51,6 @@ export function WorkerQuotesMainColumn() {
             inboxFilters.commitSearch()
           }}
         />
-
-        {quoteRows.length > 0 ? (
-          <Box display={{ base: 'block', xl: 'none' }}>
-            <WorkerQuoteFilters />
-          </Box>
-        ) : null}
 
         {quoteRows.length > 0 ? <WorkerQuoteSummaryBar /> : null}
       </Stack>

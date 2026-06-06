@@ -1,6 +1,6 @@
 import { TaskDateTimeType } from '@codegen/schema'
 
-import { type TaskItem, quotePricePence } from '@/utils/dashboardHelpers'
+import type { TaskItem } from '@/utils/dashboardHelpers'
 import { isOrderClosed, taskOrderSectionHref } from '@/utils/orderHelpers'
 import {
   type ScheduleChip,
@@ -12,6 +12,7 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 import {
   type WorkerQuoteRow,
+  workerQuotePricePence,
   workerQuoteStage,
 } from '../../helpers/workerQuoteJobs'
 
@@ -95,7 +96,10 @@ export function workerQuoteSummaryCounts(
     if (stage === 'pending') pending += 1
     if (isActiveBookedRow(row)) {
       booked += 1
-      bookedValuePence += quotePricePence(row.quote)
+      const quotePence = workerQuotePricePence(row.quote, row.workerOrder)
+      if (quotePence != null && quotePence > 0) {
+        bookedValuePence += quotePence
+      }
       const chip = scheduleChipForTask(row.task.datetime, now)
       if (chip === 'today') actionToday += 1
     }

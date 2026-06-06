@@ -1,0 +1,50 @@
+'use client'
+
+import { Box, HStack, Link, Text } from '@chakra-ui/react'
+import NextLink from 'next/link'
+
+export function InboxUpcomingEventRow({
+  href,
+  title,
+  timeLabel,
+  status,
+}: {
+  href: string
+  title: string
+  timeLabel: string
+  status: 'booked' | 'upcoming'
+}) {
+  return (
+    <Link
+      as={NextLink}
+      href={href}
+      display="block"
+      px={2}
+      py={2}
+      borderRadius="md"
+      _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+    >
+      <HStack gap={2} align="center" minW={0}>
+        <StatusDot status={status} />
+        <Text fontSize="sm" fontWeight={600} lineClamp={1} flex={1} minW={0}>
+          {title}
+        </Text>
+        <Text fontSize="xs" color="formLabelMuted" flexShrink={0}>
+          {timeLabel}
+        </Text>
+      </HStack>
+    </Link>
+  )
+}
+
+function StatusDot({ status }: { status: 'booked' | 'upcoming' }) {
+  return (
+    <Box
+      w="6px"
+      h="6px"
+      borderRadius="full"
+      bg={status === 'booked' ? 'primary.500' : 'secondary.500'}
+      flexShrink={0}
+    />
+  )
+}

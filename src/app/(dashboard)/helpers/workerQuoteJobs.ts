@@ -8,7 +8,12 @@ import {
   isQuoteAwarded,
   isTaskCompleted,
 } from '@/utils/dashboardHelpers'
-import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
+import {
+  type OrderItem,
+  isOrderClosed,
+  orderAgreedPricePence,
+} from '@/utils/orderHelpers'
+import { priceToPence } from '@/utils/price'
 
 export type WorkerQuoteStage = 'pending' | 'booked' | 'closed' | 'ended'
 
@@ -25,12 +30,46 @@ export function workerOrderForTask(
   orders: readonly OrderItem[],
   taskId: string,
   workerUserId: string,
+  quoteId?: string,
 ): OrderItem | null {
+  if (quoteId) {
+    const byQuote = orders.find(
+      (o) =>
+        o.quoteId === quoteId &&
+        o.workerUserId === workerUserId &&
+        o.taskId === taskId,
+    )
+    if (byQuote) return byQuote
+  }
+
   return (
     orders.find(
       (o) => o.taskId === taskId && o.workerUserId === workerUserId,
     ) ?? null
   )
+}
+
+/**
+ * Worker-facing quote amount. `Task.quotes[].price` is poster-only in the API;
+ * fall back to the matched order's `agreedPrice` when booked.
+ */
+export function workerQuotePricePence(
+  quote: TaskQuoteItem,
+  workerOrder: OrderItem | null,
+): number | null {
+  const fromQuote = priceToPence(quote.price)
+  if (fromQuote != null && fromQuote > 0) return fromQuote
+
+  if (
+    workerOrder &&
+    workerOrder.quoteId === quote.id &&
+    workerOrder.taskId === quote.taskId
+  ) {
+    const fromOrder = orderAgreedPricePence(workerOrder)
+    if (fromOrder > 0) return fromOrder
+  }
+
+  return fromQuote
 }
 
 function isQuoteDeclined(status: string): boolean {
@@ -171,6 +210,6 @@ export function buildWorkerQuoteRows(
   return sentQuotes.map(({ task, quote }) => ({
     task,
     quote,
-    workerOrder: workerOrderForTask(orders, task.id, workerUserId),
+    workerOrder: workerOrderForTask(orders, task.id, workerUserId, quote.id),
   }))
 }

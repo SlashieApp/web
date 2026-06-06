@@ -4,11 +4,7 @@ import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
-import {
-  formatPounds,
-  formatRelativePosted,
-  quotePricePence,
-} from '@/utils/dashboardHelpers'
+import { formatPounds, formatRelativePosted } from '@/utils/dashboardHelpers'
 import { isOrderClosed, taskOrderSectionHref } from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, SectionCard, Thumbnail } from '@ui'
@@ -16,6 +12,7 @@ import { Badge, Button, SectionCard, Thumbnail } from '@ui'
 import {
   type WorkerQuoteRow,
   type WorkerQuoteStage,
+  workerQuotePricePence,
   workerQuoteStage,
   workerQuoteStageLabel,
   workerQuoteTimelineSteps,
@@ -61,7 +58,7 @@ export function WorkerQuoteCard({
   const stage = workerQuoteStage(task, quote, workerOrder)
   const thumbnailSrc = task.images?.[0] ?? undefined
   const timelineSteps = workerQuoteTimelineSteps(task, quote, workerOrder)
-  const quotePence = quotePricePence(quote)
+  const quotePence = workerQuotePricePence(quote, workerOrder)
   const orderClosed = workerOrder ? isOrderClosed(workerOrder.status) : false
   const taskHref = `/tasks/${task.id}`
 
@@ -90,7 +87,14 @@ export function WorkerQuoteCard({
               variant: 'ghost' as const,
             }
 
-  const summaryMeta = `${formatPounds(quotePence)} · ${formatRelativePosted(quote.createdAt).replace(/^Posted /, 'Sent ')}`
+  const sentLabel = formatRelativePosted(quote.createdAt).replace(
+    /^Posted /,
+    'Sent ',
+  )
+  const summaryMeta =
+    quotePence != null && quotePence > 0
+      ? `${formatPounds(quotePence)} · ${sentLabel}`
+      : sentLabel
 
   const showSecondaryCta =
     expanded && primaryCta.href !== taskHref && primaryCta.label !== 'Open task'

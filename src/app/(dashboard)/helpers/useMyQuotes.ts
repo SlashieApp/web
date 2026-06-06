@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import MyQuotes from '@/app/(dashboard)/quotes/graphql/MyQuotes.gql'
+import { quotePriceFromCache } from '@/app/(dashboard)/quotes/helpers/quotePriceFromCache'
 import type { MyQuotesQueryData } from '@/graphql/tasks-query.types'
 import type { MyQuoteItem } from '@/utils/dashboardHelpers'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -29,7 +30,14 @@ export function useMyQuotes(variables?: TaskListVariables) {
     return (data?.myQuotes ?? []).flatMap((task) =>
       (task.quotes ?? [])
         .filter((quote) => quote.workerUserId === me.id)
-        .map((quote) => ({ task, quote })),
+        .map((quote) => {
+          const cachedPrice = quotePriceFromCache(quote.id)
+          const resolvedPrice = quote.price ?? cachedPrice
+          return {
+            task,
+            quote: resolvedPrice ? { ...quote, price: resolvedPrice } : quote,
+          }
+        }),
     )
   }, [data?.myQuotes, me])
 
