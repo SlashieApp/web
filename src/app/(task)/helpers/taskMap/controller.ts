@@ -10,6 +10,7 @@ import {
 } from './pin'
 import type { TaskMapPropsSnapshot } from './types'
 
+import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import { distanceMilesBetween } from '@/utils/geoDistance'
 
 import { createTaskMapNavRouteController } from './navRoute'
@@ -471,87 +472,89 @@ export function createTaskMapController(args: {
     syncSearchUi()
   }
 
-  void import('mapbox-gl').then((mapboxgl) => {
-    if (cancelled || !args.container) return
-    mapboxgl.default.accessToken = args.accessToken
-    mapboxMod = mapboxgl.default
+  void Promise.all([ensureMapboxStyles(), import('mapbox-gl')]).then(
+    ([, mapboxgl]) => {
+      if (cancelled || !args.container) return
+      mapboxgl.default.accessToken = args.accessToken
+      mapboxMod = mapboxgl.default
 
-    const styleUrl = getStyleUrlForMode(getProps().themeMode)
-    lastThemeMode = getProps().themeMode
+      const styleUrl = getStyleUrlForMode(getProps().themeMode)
+      lastThemeMode = getProps().themeMode
 
-    const initialProps = getProps()
-    const m = new mapboxgl.default.Map({
-      container: args.container,
-      style: styleUrl,
-      center: [initialProps.centerLng, initialProps.centerLat],
-      zoom: radiusMilesToZoom(initialProps.effectiveSearchRadiusMiles),
-      minZoom: MAP_MIN_ZOOM,
-      maxZoom: MAP_MAX_ZOOM,
-    })
+      const initialProps = getProps()
+      const m = new mapboxgl.default.Map({
+        container: args.container,
+        style: styleUrl,
+        center: [initialProps.centerLng, initialProps.centerLat],
+        zoom: radiusMilesToZoom(initialProps.effectiveSearchRadiusMiles),
+        minZoom: MAP_MIN_ZOOM,
+        maxZoom: MAP_MAX_ZOOM,
+      })
 
-    m.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
-    map = m
+      m.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
+      map = m
 
-    styleLoadRun = () => {
-      if (cancelled) return
-      if (pendingSyncWhileStyleLoading) pendingSyncWhileStyleLoading = false
-      navRoute.onStyleReload()
-      navRoute.flushWhenReady()
-      scheduleSync()
-    }
-
-    m.on('load', () => {
-      if (cancelled) return
-      bumpMapResize(m)
-      getProps().onReadyChange?.(true)
-      navRoute.flushWhenReady()
-      scheduleSync()
-    })
-
-    m.on('style.load', styleLoadRun)
-
-    moveEndRun = () => {
-      if (!map || !getProps().onSearchThisAreaConfirm) return
-      if (moveEndDebounce) clearTimeout(moveEndDebounce)
-      moveEndDebounce = setTimeout(() => {
+      styleLoadRun = () => {
         if (cancelled) return
-        if (programmaticMove) return
-        if (Date.now() < suppressSearchPromptUntil) {
-          setShowSearchThisArea(false)
+        if (pendingSyncWhileStyleLoading) pendingSyncWhileStyleLoading = false
+        navRoute.onStyleReload()
+        navRoute.flushWhenReady()
+        scheduleSync()
+      }
+
+      m.on('load', () => {
+        if (cancelled) return
+        bumpMapResize(m)
+        getProps().onReadyChange?.(true)
+        navRoute.flushWhenReady()
+        scheduleSync()
+      })
+
+      m.on('style.load', styleLoadRun)
+
+      moveEndRun = () => {
+        if (!map || !getProps().onSearchThisAreaConfirm) return
+        if (moveEndDebounce) clearTimeout(moveEndDebounce)
+        moveEndDebounce = setTimeout(() => {
+          if (cancelled) return
+          if (programmaticMove) return
+          if (Date.now() < suppressSearchPromptUntil) {
+            setShowSearchThisArea(false)
+            scheduleSync()
+            return
+          }
+          const mm = map
+          if (!mm) return
+          const cc = mm.getCenter()
+          const pr = getProps()
+          const movedOutsideSearchArea =
+            distanceMiles(pr.centerLat, pr.centerLng, cc.lat, cc.lng) >
+            pr.effectiveSearchRadiusMiles
+          if (movedOutsideSearchArea) {
+            pendingView = { lat: cc.lat, lng: cc.lng }
+            setShowSearchThisArea(true)
+          } else {
+            pendingView = null
+            setShowSearchThisArea(false)
+          }
           scheduleSync()
+        }, 400)
+      }
+      m.on('moveend', moveEndRun)
+
+      mapClickRun = (e: MapMouseEvent) => {
+        const target = e.originalEvent?.target
+        if (target instanceof Element && target.closest('.mapboxgl-marker')) {
           return
         }
-        const mm = map
-        if (!mm) return
-        const cc = mm.getCenter()
-        const pr = getProps()
-        const movedOutsideSearchArea =
-          distanceMiles(pr.centerLat, pr.centerLng, cc.lat, cc.lng) >
-          pr.effectiveSearchRadiusMiles
-        if (movedOutsideSearchArea) {
-          pendingView = { lat: cc.lat, lng: cc.lng }
-          setShowSearchThisArea(true)
-        } else {
-          pendingView = null
-          setShowSearchThisArea(false)
-        }
-        scheduleSync()
-      }, 400)
-    }
-    m.on('moveend', moveEndRun)
-
-    mapClickRun = (e: MapMouseEvent) => {
-      const target = e.originalEvent?.target
-      if (target instanceof Element && target.closest('.mapboxgl-marker')) {
-        return
+        if (args.getIsNavRoutePresenting()) return
+        navRoute.clearRoute()
+        if (getSelectedTaskId()) getSelectTask()?.(null)
+        getProps().onMapClick?.()
       }
-      if (args.getIsNavRoutePresenting()) return
-      navRoute.clearRoute()
-      if (getSelectedTaskId()) getSelectTask()?.(null)
-      getProps().onMapClick?.()
-    }
-    m.on('click', mapClickRun)
-  })
+      m.on('click', mapClickRun)
+    },
+  )
 
   return {
     scheduleSync,

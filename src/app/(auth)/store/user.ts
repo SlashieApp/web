@@ -7,7 +7,7 @@ import type {
   LoginWithGoogleMutationVariables,
   MeQuery,
 } from '@codegen/schema'
-import { create } from 'zustand'
+import { create } from 'zustand/react'
 
 import Login from '@/app/(auth)/login/graphql/Login.gql'
 import LoginWithGoogle from '@/app/(auth)/login/graphql/LoginWithGoogle.gql'

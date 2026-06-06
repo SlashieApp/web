@@ -49,7 +49,6 @@ export function captureTaskDetailView(input: CaptureTaskDetailViewInput): void {
     if (typeof window === 'undefined') return
     const sessionKey = `${SESSION_VIEW_KEY_PREFIX}${input.taskId}`
     if (sessionStorage.getItem(sessionKey)) return
-    sessionStorage.setItem(sessionKey, '1')
 
     capture(EVENTS.task_view, {
       task_id: input.taskId,
@@ -58,6 +57,7 @@ export function captureTaskDetailView(input: CaptureTaskDetailViewInput): void {
       is_authenticated: input.isAuthenticated,
       source: input.source ?? inferTaskDetailViewSource(),
     })
+    sessionStorage.setItem(sessionKey, '1')
   } catch {
     // Never throw from analytics.
   }

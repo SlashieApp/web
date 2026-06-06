@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 
 import {
   captureTaskDetailView,
@@ -23,9 +23,12 @@ export function TaskDetailViewCapture({
   hasWorkerProfile,
   isAuthenticated,
 }: TaskDetailViewCaptureProps) {
+  const capturedRef = useRef(false)
+
   const onMountRef = useCallback(
     (node: HTMLDivElement | null) => {
-      if (!node) return
+      if (!node || capturedRef.current) return
+      capturedRef.current = true
       captureTaskDetailView({
         taskId,
         taskSlug,

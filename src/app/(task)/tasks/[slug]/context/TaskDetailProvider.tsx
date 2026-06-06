@@ -12,7 +12,13 @@ import type {
 } from '@codegen/schema'
 import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneNotVerifiedError } from '@/app/(auth)/helpers/phoneVerification'
@@ -44,6 +50,9 @@ import { TaskDetailViewCapture } from '../components/TaskDetailViewCapture'
 import { TaskDetailContext } from './TaskDetailContext'
 
 const ORDER_POLL_MS = 30_000
+const clientSnapshot = () => true
+const serverSnapshot = () => false
+const subscribeNoop = () => () => {}
 
 type TaskDetailProviderProps = {
   taskId: string
@@ -538,8 +547,13 @@ export function TaskDetailProvider({
     ],
   )
 
-  const canCaptureTaskView =
-    Boolean(task) && (!isAuthenticated || !meLoadingResolved)
+  const isClient = useSyncExternalStore(
+    subscribeNoop,
+    clientSnapshot,
+    serverSnapshot,
+  )
+  const authReadyForTaskView = !isAuthenticated || !meLoadingResolved
+  const canCaptureTaskView = isClient && Boolean(task) && authReadyForTaskView
 
   return (
     <TaskDetailContext.Provider value={value}>

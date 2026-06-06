@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
+import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
+
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import {
   formatBudget,
@@ -86,6 +88,7 @@ export function MobileTaskCarousel() {
             task,
             referenceLocation,
           ),
+          viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,
         }
       }),
     [filteredSorted, referenceLocation],
@@ -419,6 +422,7 @@ export function MobileTaskCarousel() {
                 priceLabel={task.priceLabel}
                 metaLine={task.location}
                 distanceLabel={task.distanceLabel}
+                viewsLabel={task.viewsLabel}
                 thumbnailSrc={task.thumbnailSrc}
                 detailsHref={`/tasks/${task.id}`}
                 badgeText={task.badgeText}

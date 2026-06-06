@@ -9,6 +9,7 @@ import {
 
 import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 
+import { taskDetailViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
 import { Badge } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -33,6 +34,7 @@ import {
   IconPaymentMethod,
   IconPin,
   IconTag,
+  IconViews,
 } from '../metaSection/VisitorMetaIcons'
 
 /** Vertical meta list for viewports below `xl` (sidebar meta is used from `xl` up). */
@@ -64,9 +66,21 @@ export function MainSectionPrimaryMeta() {
   const budgetBadge = budgetKindLabel(task.budget?.type)
   const paymentMethod = task.budget?.paymentMethod?.trim()
   const availabilityChips = buildAvailabilityChips(task)
+  const viewsLabel = taskDetailViewsLabel(task, isOwner)
 
   type Block = { key: string; node: ReactNode }
   const blocks: Block[] = []
+
+  if (viewsLabel) {
+    blocks.push({
+      key: 'views',
+      node: (
+        <MetaRow label="Views" icon={<IconViews />}>
+          {viewsLabel}
+        </MetaRow>
+      ),
+    })
+  }
 
   if (coords && mapboxToken?.trim()) {
     blocks.push({

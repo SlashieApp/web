@@ -1,5 +1,10 @@
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import {
+  appendViewsToStatusLabel,
+  taskOwnerViewsLabel,
+  taskPublicViewsLabel,
+} from '@/app/(task)/helpers/taskViewLabels'
+import {
   type OrderItem,
   isOrderClosed,
   orderLocationLabel,
@@ -9,11 +14,6 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { QuoteStatus } from '@codegen/schema'
 import type { TaskQuery } from '@codegen/schema'
 import { mapTaskStatus } from './mapTaskStatus'
-import {
-  appendViewsToStatusLabel,
-  taskOwnerViewsLabel,
-  taskPublicViewsLabel,
-} from './taskViewLabels'
 
 export type TaskDetailRecord = NonNullable<TaskQuery['task']>
 

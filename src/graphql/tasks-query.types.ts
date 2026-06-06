@@ -33,6 +33,8 @@ export type TaskListItem = {
   acceptedWorkerCap: number
   location?: TaskMapLocationFields | null
   status: string
+  /** Public view count; null during cold-start. Browse `tasks` only. */
+  views?: number | null
   createdAt: unknown
   completedAt?: unknown
   confirmedAt?: unknown

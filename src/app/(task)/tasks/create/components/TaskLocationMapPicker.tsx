@@ -5,12 +5,12 @@ import type { Map as MapboxMap } from 'mapbox-gl'
 import type { ChangeEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
+import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import {
   mapboxForwardGeocode,
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
 import { Input } from '@ui'
-import 'mapbox-gl/dist/mapbox-gl.css'
 
 const DEFAULT_LAT = 51.5074
 const DEFAULT_LNG = -0.1278
@@ -113,75 +113,81 @@ export function TaskLocationMapPicker({
     const token = accessTokenRef.current?.trim()
     if (!token) return
 
-    void import('mapbox-gl').then((mapboxgl) => {
-      if (!el.isConnected) return
-      mapboxgl.default.accessToken = token
+    void Promise.all([ensureMapboxStyles(), import('mapbox-gl')]).then(
+      ([, mapboxgl]) => {
+        if (!el.isConnected) return
+        mapboxgl.default.accessToken = token
 
-      const lat = parseCoordString(locationLatRef.current) ?? DEFAULT_LAT
-      const lng = parseCoordString(locationLngRef.current) ?? DEFAULT_LNG
+        const lat = parseCoordString(locationLatRef.current) ?? DEFAULT_LAT
+        const lng = parseCoordString(locationLngRef.current) ?? DEFAULT_LNG
 
-      const map = new mapboxgl.default.Map({
-        container: el,
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [lng, lat],
-        zoom: 12,
-      })
+        const map = new mapboxgl.default.Map({
+          container: el,
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [lng, lat],
+          zoom: 12,
+        })
 
-      map.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
-      mapRef.current = map
+        map.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
+        mapRef.current = map
 
-      const resizeObserver = new ResizeObserver(() => {
-        mapRef.current?.resize()
-      })
-      resizeObserver.observe(el)
-      resizeObserverRef.current = resizeObserver
+        const resizeObserver = new ResizeObserver(() => {
+          mapRef.current?.resize()
+        })
+        resizeObserver.observe(el)
+        resizeObserverRef.current = resizeObserver
 
-      const onMoveEnd = () => {
-        if (skipNextMoveEndRef.current) {
-          skipNextMoveEndRef.current = false
-          return
-        }
-        if (moveDebounceRef.current)
-          window.clearTimeout(moveDebounceRef.current)
-        moveDebounceRef.current = window.setTimeout(() => {
-          const c = map.getCenter()
-          const latStr = c.lat.toFixed(6)
-          const lngStr = c.lng.toFixed(6)
-          onLocationLatChangeRef.current(latStr)
-          onLocationLngChangeRef.current(lngStr)
-
-          if (skipReverseAfterForwardRef.current) {
-            skipReverseAfterForwardRef.current = false
+        const onMoveEnd = () => {
+          if (skipNextMoveEndRef.current) {
+            skipNextMoveEndRef.current = false
             return
           }
+          if (moveDebounceRef.current)
+            window.clearTimeout(moveDebounceRef.current)
+          moveDebounceRef.current = window.setTimeout(() => {
+            const c = map.getCenter()
+            const latStr = c.lat.toFixed(6)
+            const lngStr = c.lng.toFixed(6)
+            onLocationLatChangeRef.current(latStr)
+            onLocationLngChangeRef.current(lngStr)
+
+            if (skipReverseAfterForwardRef.current) {
+              skipReverseAfterForwardRef.current = false
+              return
+            }
+
+            const geocodeToken = accessTokenRef.current?.trim()
+            if (!geocodeToken) return
+            void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then(
+              (name) => {
+                if (name) onLocationChangeRef.current(name)
+              },
+            )
+          }, 350)
+        }
+
+        map.on('moveend', onMoveEnd)
+
+        map.on('load', () => {
+          if (!el.isConnected) return
+          skipNextMoveEndRef.current = true
+          bumpMapResize(map)
+          const c = map.getCenter()
+          onLocationLatChangeRef.current(c.lat.toFixed(6))
+          onLocationLngChangeRef.current(c.lng.toFixed(6))
+          setMapReady(true)
 
           const geocodeToken = accessTokenRef.current?.trim()
-          if (!geocodeToken) return
-          void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then((name) => {
-            if (name) onLocationChangeRef.current(name)
-          })
-        }, 350)
-      }
-
-      map.on('moveend', onMoveEnd)
-
-      map.on('load', () => {
-        if (!el.isConnected) return
-        skipNextMoveEndRef.current = true
-        bumpMapResize(map)
-        const c = map.getCenter()
-        onLocationLatChangeRef.current(c.lat.toFixed(6))
-        onLocationLngChangeRef.current(c.lng.toFixed(6))
-        setMapReady(true)
-
-        const geocodeToken = accessTokenRef.current?.trim()
-        if (geocodeToken && !locationRef.current.trim()) {
-          void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then((name) => {
-            if (name) onLocationChangeRef.current(name)
-          })
-        }
-      })
-    })
+          if (geocodeToken && !locationRef.current.trim()) {
+            void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then(
+              (name) => {
+                if (name) onLocationChangeRef.current(name)
+              },
+            )
+          }
+        })
+      },
+    )
   }, [])
 
   const prevCoordsKeyRef = useRef<string | null>(null)

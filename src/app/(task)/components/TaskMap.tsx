@@ -20,8 +20,6 @@ import {
 
 import type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
 
-import 'mapbox-gl/dist/mapbox-gl.css'
-
 export type { TaskMapTask } from '../helpers/taskMap'
 
 export type TaskMapProps = {

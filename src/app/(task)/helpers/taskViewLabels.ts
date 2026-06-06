@@ -1,4 +1,9 @@
-import type { TaskDetailRecord } from './taskDetailUtils'
+import type { TaskQuery } from '@codegen/schema'
+
+type TaskViewsRecord = Pick<
+  NonNullable<TaskQuery['task']>,
+  'views' | 'exposure'
+>
 
 const COLD_START_VIEWS_LABEL = 'New — reaching workers'
 
@@ -12,7 +17,7 @@ export function taskPublicViewsLabel(
 }
 
 /** Owner-only exposure line from `task.exposure` with public `views` fallback. */
-export function taskOwnerViewsLabel(task: TaskDetailRecord): string | null {
+export function taskOwnerViewsLabel(task: TaskViewsRecord): string | null {
   const exposure = task.exposure
   if (exposure?.showViews === false) return COLD_START_VIEWS_LABEL
 
@@ -23,6 +28,13 @@ export function taskOwnerViewsLabel(task: TaskDetailRecord): string | null {
   const unique =
     exposure?.uniqueViewers != null ? ` · ${exposure.uniqueViewers} unique` : ''
   return `${count} views${unique}`
+}
+
+export function taskDetailViewsLabel(
+  task: TaskViewsRecord,
+  isOwner: boolean,
+): string | null {
+  return isOwner ? taskOwnerViewsLabel(task) : taskPublicViewsLabel(task.views)
 }
 
 export function appendViewsToStatusLabel(

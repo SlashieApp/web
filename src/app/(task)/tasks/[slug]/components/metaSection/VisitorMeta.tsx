@@ -9,6 +9,7 @@ import {
 
 import { HStack, Stack, Text } from '@chakra-ui/react'
 
+import { taskDetailViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { Badge } from '@ui'
 
@@ -37,6 +38,7 @@ import {
   IconPin,
   IconTag,
   IconUrgency,
+  IconViews,
   IconWrench,
 } from './VisitorMetaIcons'
 
@@ -70,6 +72,7 @@ export function VisitorMeta() {
   const accessFact = getSecondaryTaskFact(task, 'access')
   const toolsFact = getSecondaryTaskFact(task, 'tools')
   const parkingFact = getSecondaryTaskFact(task, 'parking')
+  const viewsLabel = taskDetailViewsLabel(task, isOwner)
 
   type Block = { key: string; node: ReactNode }
   const blocks: Block[] = []
@@ -82,6 +85,17 @@ export function VisitorMeta() {
       </MetaRow>
     ),
   })
+
+  if (viewsLabel) {
+    blocks.push({
+      key: 'views',
+      node: (
+        <MetaRow label="Views" icon={<IconViews />}>
+          {viewsLabel}
+        </MetaRow>
+      ),
+    })
+  }
 
   blocks.push({
     key: 'location',

@@ -19,6 +19,7 @@ query Tasks($filter: TaskFilter, $sort: TaskSort) {
     contactMethod
     images
     status
+    views
     completedAt
     confirmedAt
     createdAt

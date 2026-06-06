@@ -14,6 +14,8 @@ export type TaskCardTask = {
   priceLabel: string
   badgeText?: string
   distanceLabel?: string
+  /** Public views line from GraphQL (`task.views`). */
+  viewsLabel?: string
   ownerName?: string
   ownerAvatarSrc?: string
   ratingLabel?: string
@@ -50,6 +52,8 @@ type TaskCardLegacy = TaskCardShared & {
   priceLabel: string
   metaLine: string
   distanceLabel?: string
+  /** Public views line from GraphQL (`task.views`). */
+  viewsLabel?: string
   ownerName?: string
   ownerAvatarSrc?: string
   ratingLabel?: string
@@ -77,6 +81,7 @@ export function TaskCard(props: TaskCardProps) {
   let priceLabel: string
   let metaLine: string
   let distanceLabel: string | undefined
+  let viewsLabel: string | undefined
   let ownerName: string | undefined
   let ownerAvatarSrc: string | undefined
   let ratingLabel: string | undefined
@@ -91,6 +96,7 @@ export function TaskCard(props: TaskCardProps) {
     priceLabel = task.priceLabel
     metaLine = task.location
     distanceLabel = task.distanceLabel
+    viewsLabel = task.viewsLabel
     ownerName = task.ownerName
     ownerAvatarSrc = task.ownerAvatarSrc
     ratingLabel = task.ratingLabel
@@ -103,6 +109,7 @@ export function TaskCard(props: TaskCardProps) {
     priceLabel = props.priceLabel
     metaLine = props.metaLine
     distanceLabel = props.distanceLabel
+    viewsLabel = props.viewsLabel
     ownerName = props.ownerName
     ownerAvatarSrc = props.ownerAvatarSrc
     ratingLabel = props.ratingLabel
@@ -157,6 +164,11 @@ export function TaskCard(props: TaskCardProps) {
               {distanceLabel ? (
                 <Text fontSize="xs" color="formLabelMuted" truncate>
                   {distanceLabel}
+                </Text>
+              ) : null}
+              {viewsLabel ? (
+                <Text fontSize="xs" color="formLabelMuted" truncate>
+                  {viewsLabel}
                 </Text>
               ) : null}
             </HStack>

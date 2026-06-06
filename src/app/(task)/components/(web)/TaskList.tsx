@@ -7,8 +7,10 @@ import { useCallback, useMemo, useRef } from 'react'
 import { TaskCard } from '../TaskCard'
 import { TaskEmptyState } from '../TaskEmptyState'
 
+import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
+
 import {
   formatBudget,
   inferBadge,
@@ -75,6 +77,7 @@ export function TaskList() {
               task,
               referenceLocation,
             )
+            const viewsLabel = taskPublicViewsLabel(task.views)
             return (
               <motion.div
                 key={`${animationKey}-${task.id}`}
@@ -103,6 +106,7 @@ export function TaskList() {
                     priceLabel={main}
                     metaLine={loc}
                     distanceLabel={distanceLabel}
+                    viewsLabel={viewsLabel ?? undefined}
                     thumbnailSrc={task.images?.[0] ?? undefined}
                     detailsHref={`/tasks/${task.id}`}
                     badgeText={badge.text}
