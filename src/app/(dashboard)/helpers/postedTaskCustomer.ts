@@ -7,6 +7,15 @@ import {
 } from '@/utils/dashboardHelpers'
 import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 
+export type PostedTaskRow = {
+  task: TaskItem
+  customerOrder: OrderItem | null
+}
+
+export type RequestsTab = 'active' | 'completed'
+
+export type PostedTaskListFilter = 'all' | 'quoting' | 'booked'
+
 export type PostedTaskStage =
   | 'draft'
   | 'quoting'
@@ -57,6 +66,27 @@ export function postedTaskStage(
   if ((task.quotes ?? []).some((q) => isQuoteAwarded(q.status))) return 'booked'
   if ((task.quotes ?? []).length > 0) return 'quoting'
   return 'draft'
+}
+
+export function postedTaskFilterLabel(filter: PostedTaskListFilter): string {
+  switch (filter) {
+    case 'all':
+      return 'All'
+    case 'quoting':
+      return 'Collecting quotes'
+    case 'booked':
+      return 'In progress'
+  }
+}
+
+export function postedTaskMatchesFilter(
+  stage: PostedTaskStage,
+  filter: PostedTaskListFilter,
+): boolean {
+  if (filter === 'all') return true
+  if (filter === 'quoting') return stage === 'quoting' || stage === 'draft'
+  if (filter === 'booked') return stage === 'booked'
+  return true
 }
 
 export function postedTaskStageLabel(stage: PostedTaskStage): string {

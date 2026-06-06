@@ -10,30 +10,28 @@ import {
   type TaskItem,
   isQuoteAwarded,
   isTaskCompleted,
-  timeFromUnknown,
 } from '@/utils/dashboardHelpers'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import type { TaskListVariables } from '@/utils/taskListQuery'
 
 /** Customer inbox: `myRequests` (poster or assigned worker). */
-export function useMyRequests() {
+export function useMyRequests(variables?: TaskListVariables) {
   const me = useUserStore((s) => s.me)
-  const { data, loading, error, refetch } = useQuery<MyRequestsQueryData>(
-    MyRequests,
-    {
-      fetchPolicy: 'cache-and-network',
-      skip: !me,
-    },
-  )
+  const { data, loading, error, refetch } = useQuery<
+    MyRequestsQueryData,
+    TaskListVariables
+  >(MyRequests, {
+    variables,
+    fetchPolicy: 'cache-and-network',
+    skip: !me,
+  })
 
   const tasks = data?.myRequests ?? []
 
   const postedTasks = useMemo(() => {
     if (!me) return [] as TaskItem[]
-    return tasks
-      .filter((task) => task.poster?.id === me.id)
-      .sort(
-        (a, b) => timeFromUnknown(b.createdAt) - timeFromUnknown(a.createdAt),
-      )
+    // Server applies the chosen `sort`; preserve that order here.
+    return tasks.filter((task) => task.poster?.id === me.id)
   }, [tasks, me])
 
   const activePostedTasks = useMemo(

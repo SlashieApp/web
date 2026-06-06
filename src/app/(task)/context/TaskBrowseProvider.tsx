@@ -17,6 +17,12 @@ import {
   mapboxForwardGeocode,
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
+import {
+  type TaskListVariables,
+  type TaskSortChoice,
+  buildTaskFilter,
+  taskSortToInput,
+} from '@/utils/taskListQuery'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 import type { SearchThisAreaButtonProps } from '../components/SearchThisAreaButton'
@@ -61,6 +67,12 @@ type TaskBrowseDataContextValue = {
   setMaxBudget: (v: string) => void
   urgency: UrgencyFilter
   setUrgency: (v: UrgencyFilter) => void
+  category: string
+  setCategory: (v: string) => void
+  scheduledAfter: string
+  setScheduledAfter: (v: string) => void
+  scheduledBefore: string
+  setScheduledBefore: (v: string) => void
   searchInput: string
   setSearchInput: (v: string) => void
   areaLocationInput: string
@@ -149,6 +161,15 @@ function clampRadiusMiles(value: number): number {
   )
 }
 
+/** Maps the browse sort control value to a {@link TaskSortChoice} for the server. */
+function browseSortToChoice(sort: string): TaskSortChoice {
+  if (sort === 'newest') return 'newest'
+  if (sort === 'oldest') return 'oldest'
+  if (sort === 'scheduled') return 'scheduled'
+  if (sort === 'title') return 'title'
+  return 'nearest'
+}
+
 function zoomToRadiusMiles(zoom: number): number {
   const normalized = Number.isFinite(zoom) ? zoom : 11
   const miles = 10 * 2 ** (11 - normalized)
@@ -208,12 +229,18 @@ export function TaskBrowseProvider({
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
   const [urgency, setUrgency] = useState<UrgencyFilter>('any')
+  const [category, setCategory] = useState('')
+  const [scheduledAfter, setScheduledAfter] = useState('')
+  const [scheduledBefore, setScheduledBefore] = useState('')
   const [submittedRadiusMiles, setSubmittedRadiusMiles] = useState(
     DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
   )
   const [submittedMinBudget, setSubmittedMinBudget] = useState('')
   const [submittedMaxBudget, setSubmittedMaxBudget] = useState('')
   const [submittedUrgency, setSubmittedUrgency] = useState<UrgencyFilter>('any')
+  const [submittedCategory, setSubmittedCategory] = useState('')
+  const [submittedScheduledAfter, setSubmittedScheduledAfter] = useState('')
+  const [submittedScheduledBefore, setSubmittedScheduledBefore] = useState('')
   const [submittedSearchText, setSubmittedSearchText] = useState('')
   const [searchInput, setSearchInputRaw] = useState('')
 
@@ -278,23 +305,40 @@ export function TaskBrowseProvider({
     setIsMapReadyForQuery(!hasMapboxToken)
   }
 
-  const queryVariables = useMemo(() => {
+  const queryVariables = useMemo<TaskListVariables>(() => {
     const radius = clampRadiusMiles(submittedRadiusMiles)
     return {
-      filter: {
+      filter: buildTaskFilter({
         lat: searchCenterLat,
         lng: searchCenterLng,
         radiusMiles: radius,
-      },
+        search: submittedSearchText,
+        category: submittedCategory,
+        scheduledAfter: submittedScheduledAfter,
+        scheduledBefore: submittedScheduledBefore,
+      }),
+      sort: taskSortToInput(browseSortToChoice(sort)),
     }
-  }, [searchCenterLat, searchCenterLng, submittedRadiusMiles])
+  }, [
+    searchCenterLat,
+    searchCenterLng,
+    submittedRadiusMiles,
+    submittedSearchText,
+    submittedCategory,
+    submittedScheduledAfter,
+    submittedScheduledBefore,
+    sort,
+  ])
 
   const shouldWaitForMap = hasMapboxToken
-  const { data, loading, error } = useQuery<TasksQueryData>(Tasks, {
-    variables: queryVariables,
-    notifyOnNetworkStatusChange: true,
-    skip: shouldWaitForMap && !isMapReadyForQuery,
-  })
+  const { data, loading, error } = useQuery<TasksQueryData, TaskListVariables>(
+    Tasks,
+    {
+      variables: queryVariables,
+      notifyOnNetworkStatusChange: true,
+      skip: shouldWaitForMap && !isMapReadyForQuery,
+    },
+  )
 
   const filtered = useMemo(() => {
     const items = data?.tasks ?? initialTasks
@@ -336,11 +380,17 @@ export function TaskBrowseProvider({
         submittedMinBudget,
         submittedMaxBudget,
         submittedUrgency,
+        submittedCategory,
+        submittedScheduledAfter,
+        submittedScheduledBefore,
         submittedSearchText,
         referenceLabel: referenceLocation.label,
       }),
     [
       referenceLocation.label,
+      submittedCategory,
+      submittedScheduledAfter,
+      submittedScheduledBefore,
       submittedMaxBudget,
       submittedMinBudget,
       submittedRadiusMiles,
@@ -582,19 +632,37 @@ export function TaskBrowseProvider({
     setSubmittedMinBudget(minBudget)
     setSubmittedMaxBudget(maxBudget)
     setSubmittedUrgency(urgency)
+    setSubmittedCategory(category)
+    setSubmittedScheduledAfter(scheduledAfter)
+    setSubmittedScheduledBefore(scheduledBefore)
     setSubmittedSearchText(searchInput.trim())
     setPage(0)
-  }, [maxBudget, minBudget, radiusMiles, searchInput, urgency])
+  }, [
+    category,
+    maxBudget,
+    minBudget,
+    radiusMiles,
+    scheduledAfter,
+    scheduledBefore,
+    searchInput,
+    urgency,
+  ])
 
   const syncDraftFiltersFromSubmitted = useCallback(() => {
     setRadiusMiles(submittedRadiusMiles)
     setMinBudget(submittedMinBudget)
     setMaxBudget(submittedMaxBudget)
     setUrgency(submittedUrgency)
+    setCategory(submittedCategory)
+    setScheduledAfter(submittedScheduledAfter)
+    setScheduledBefore(submittedScheduledBefore)
     setSearchInputRaw(submittedSearchText)
     setAreaLocationInput(referenceLocation.label)
   }, [
     referenceLocation.label,
+    submittedCategory,
+    submittedScheduledAfter,
+    submittedScheduledBefore,
     submittedMaxBudget,
     submittedMinBudget,
     submittedRadiusMiles,
@@ -623,6 +691,12 @@ export function TaskBrowseProvider({
       setMaxBudget,
       urgency,
       setUrgency,
+      category,
+      setCategory,
+      scheduledAfter,
+      setScheduledAfter,
+      scheduledBefore,
+      setScheduledBefore,
       searchInput,
       setSearchInput,
       areaLocationInput,
@@ -702,6 +776,9 @@ export function TaskBrowseProvider({
       sort,
       totalPages,
       urgency,
+      category,
+      scheduledAfter,
+      scheduledBefore,
       initialMapTasksForBox,
       initialTasks,
     ],
@@ -761,6 +838,12 @@ export function useTaskBrowseFiltersProps(): TaskBrowseFiltersProps {
     onMaxBudgetChange: data.setMaxBudget,
     urgency: data.urgency,
     onUrgencyChange: data.setUrgency,
+    category: data.category,
+    onCategoryChange: data.setCategory,
+    scheduledAfter: data.scheduledAfter,
+    onScheduledAfterChange: data.setScheduledAfter,
+    scheduledBefore: data.scheduledBefore,
+    onScheduledBeforeChange: data.setScheduledBefore,
     sortValue: data.sort,
     sortOptions: SORT_OPTIONS,
     onSortChange: data.setSort,

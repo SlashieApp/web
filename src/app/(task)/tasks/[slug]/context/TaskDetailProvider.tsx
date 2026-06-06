@@ -14,7 +14,6 @@ import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
 
-import MyQuotes from '@/app/(dashboard)/quotes/graphql/MyQuotes.gql'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
@@ -203,7 +202,9 @@ export function TaskDetailProvider({
             message: combinedMessage,
           },
         },
-        refetchQueries: [{ query: MyQuotes }],
+        // Refetch by operation name so active `/quotes` queries refresh
+        // regardless of their filter/sort variables.
+        refetchQueries: ['MyQuotes'],
       })
 
       if (!result.data?.addQuote?.id) {

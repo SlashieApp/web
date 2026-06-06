@@ -8,6 +8,7 @@ import { budgetToPence, priceToPence } from '@/utils/price'
 
 import type { BrowseReferenceLocation } from './browseReferenceLocation'
 import type { UrgencyFilter } from './taskBrowseFilters.types'
+import { taskCategoryDisplayLabel } from './taskCategories'
 
 export const PAGE_SIZE = 5
 
@@ -15,6 +16,8 @@ export const SORT_OPTIONS = [
   { value: 'nearest', label: 'Nearest' },
   { value: 'newest', label: 'Newest' },
   { value: 'oldest', label: 'Oldest' },
+  { value: 'scheduled', label: 'Scheduled date' },
+  { value: 'title', label: 'Title (A–Z)' },
 ] as const
 
 export function startOfLocalDay(d = new Date()) {
@@ -147,6 +150,8 @@ export type BrowseFilterTag =
   | { kind: 'location'; label: string }
   | { kind: 'budget'; label: string }
   | { kind: 'urgency'; label: string; value: UrgencyFilter }
+  | { kind: 'category'; label: string; value: string }
+  | { kind: 'scheduled'; label: string }
   | { kind: 'search'; label: string; query: string }
 
 export function taskDistanceMilesFromReference(
@@ -204,6 +209,9 @@ export function buildActiveBrowseFilterTags(input: {
   submittedMinBudget: string
   submittedMaxBudget: string
   submittedUrgency: UrgencyFilter
+  submittedCategory: string
+  submittedScheduledAfter: string
+  submittedScheduledBefore: string
   submittedSearchText: string
   referenceLabel: string
 }): BrowseFilterTag[] {
@@ -213,6 +221,9 @@ export function buildActiveBrowseFilterTags(input: {
     submittedMinBudget,
     submittedMaxBudget,
     submittedUrgency,
+    submittedCategory,
+    submittedScheduledAfter,
+    submittedScheduledBefore,
     submittedSearchText,
     referenceLabel,
   } = input
@@ -238,6 +249,26 @@ export function buildActiveBrowseFilterTags(input: {
       kind: 'urgency',
       label: urgencyLabel,
       value: submittedUrgency,
+    })
+  }
+
+  const categoryValue = submittedCategory.trim()
+  if (categoryValue) {
+    tags.push({
+      kind: 'category',
+      label: taskCategoryDisplayLabel(categoryValue) ?? categoryValue,
+      value: categoryValue,
+    })
+  }
+
+  const scheduledAfter = submittedScheduledAfter.trim()
+  const scheduledBefore = submittedScheduledBefore.trim()
+  if (scheduledAfter || scheduledBefore) {
+    const from = scheduledAfter || '…'
+    const to = scheduledBefore || '…'
+    tags.push({
+      kind: 'scheduled',
+      label: `Scheduled ${from} – ${to}`,
     })
   }
 

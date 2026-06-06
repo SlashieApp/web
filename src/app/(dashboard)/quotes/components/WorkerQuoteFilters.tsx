@@ -10,10 +10,11 @@ import {
   workerQuoteFilterLabel,
   workerQuoteStage,
 } from '../../helpers/workerQuoteJobs'
+import { useWorkerQuotes } from '../context/WorkerQuotesProvider'
 
 const FILTERS: WorkerQuoteListFilter[] = ['all', 'pending', 'booked', 'done']
 
-export function WorkerQuoteFilters({
+export function WorkerQuoteFiltersBar({
   rows,
   filter,
   onFilterChange,
@@ -41,6 +42,17 @@ export function WorkerQuoteFilters({
         )
       })}
     </HStack>
+  )
+}
+
+export function WorkerQuoteFilters() {
+  const { quoteRows, stageFilter, setStageFilter } = useWorkerQuotes()
+  return (
+    <WorkerQuoteFiltersBar
+      rows={quoteRows}
+      filter={stageFilter}
+      onFilterChange={setStageFilter}
+    />
   )
 }
 

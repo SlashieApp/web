@@ -6,12 +6,13 @@ import {
   Card,
   IconButton,
   RadioButton,
+  Select,
   Slider,
   Input as UiInput,
 } from '@ui'
 import { AnimatePresence, motion } from 'motion/react'
 import type { ChangeEvent } from 'react'
-import { LuX } from 'react-icons/lu'
+import { LuSearch, LuX } from 'react-icons/lu'
 
 import {
   useTaskBrowseData,
@@ -20,6 +21,7 @@ import {
 } from '../../context/TaskBrowseProvider'
 import type { TaskBrowseFiltersProps } from '../../helpers/taskBrowseFilters.types'
 import type { UrgencyFilter } from '../../helpers/taskBrowseFilters.types'
+import { TASK_CREATE_CATEGORY_OPTIONS } from '../../helpers/taskCategories'
 
 import { TaskList } from './TaskList'
 
@@ -55,14 +57,6 @@ function FilterSectionTitle({
   )
 }
 
-const CATEGORY_OPTIONS = [
-  'Delivery',
-  'Handyman',
-  'Tech Setup',
-  'Cleaning',
-  'Moving',
-]
-
 function formatBudgetRange(minBudgetPounds: string, maxBudgetPounds: string) {
   const min = Number.parseFloat(minBudgetPounds)
   const max = Number.parseFloat(maxBudgetPounds)
@@ -80,6 +74,11 @@ function kmToMiles(km: number): number {
 }
 
 export function TaskBrowseFiltersPanel({
+  searchQuery,
+  onSearchChange,
+  sortValue = 'nearest',
+  sortOptions = [],
+  onSortChange,
   radiusMiles,
   onRadiusChange,
   minBudgetPounds,
@@ -88,6 +87,12 @@ export function TaskBrowseFiltersPanel({
   onMaxBudgetChange,
   urgency: _urgency,
   onUrgencyChange: _onUrgencyChange,
+  category = '',
+  onCategoryChange,
+  scheduledAfter = '',
+  onScheduledAfterChange,
+  scheduledBefore = '',
+  onScheduledBeforeChange,
 }: TaskBrowseFiltersProps) {
   const radiusKm = milesToKm(radiusMiles)
   const budgetLabel = formatBudgetRange(minBudgetPounds, maxBudgetPounds)
@@ -95,18 +100,59 @@ export function TaskBrowseFiltersPanel({
   return (
     <Stack gap={6}>
       <Stack gap={3}>
+        <FilterSectionTitle>Search tasks</FilterSectionTitle>
+        <UiInput
+          startElement={
+            <Box as="span" aria-hidden display="inline-flex">
+              <LuSearch size={18} strokeWidth={2} />
+            </Box>
+          }
+          value={searchQuery}
+          placeholder="Title, description, or place name"
+          type="search"
+          inputMode="search"
+          autoComplete="off"
+          aria-label="Search tasks"
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            onSearchChange(e.target.value)
+          }
+        />
+      </Stack>
+
+      <Stack gap={3}>
+        <FilterSectionTitle>Sort</FilterSectionTitle>
+        <Select
+          value={sortValue}
+          aria-label="Sort tasks"
+          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+            onSortChange?.(e.target.value)
+          }
+        >
+          {sortOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
+      </Stack>
+
+      <Stack gap={3}>
         <FilterSectionTitle>Category</FilterSectionTitle>
         <HStack gap={2} flexWrap="wrap">
-          {CATEGORY_OPTIONS.map((category, idx) => (
-            <Button
-              key={category}
-              size="sm"
-              variant={idx === 0 ? 'primary' : 'secondary'}
-              borderRadius="full"
-            >
-              {category}
-            </Button>
-          ))}
+          {TASK_CREATE_CATEGORY_OPTIONS.map((option) => {
+            const active = category === option.value
+            return (
+              <Button
+                key={option.value}
+                size="sm"
+                variant={active ? 'primary' : 'secondary'}
+                borderRadius="full"
+                onClick={() => onCategoryChange?.(active ? '' : option.value)}
+              >
+                {option.label}
+              </Button>
+            )
+          })}
         </HStack>
       </Stack>
 
@@ -163,9 +209,44 @@ export function TaskBrowseFiltersPanel({
       </Stack>
 
       <Stack gap={3}>
+        <FilterSectionTitle>Scheduled between</FilterSectionTitle>
+        <HStack gap={3} align="flex-end" flexWrap="wrap">
+          <Stack gap={1} flex="1 1 140px" minW="140px">
+            <Text fontSize="xs" color="formLabelMuted">
+              From
+            </Text>
+            <UiInput
+              type="date"
+              value={scheduledAfter}
+              aria-label="Scheduled on or after"
+              max={scheduledBefore || undefined}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                onScheduledAfterChange?.(e.target.value)
+              }
+            />
+          </Stack>
+          <Stack gap={1} flex="1 1 140px" minW="140px">
+            <Text fontSize="xs" color="formLabelMuted">
+              To
+            </Text>
+            <UiInput
+              type="date"
+              value={scheduledBefore}
+              aria-label="Scheduled on or before"
+              min={scheduledAfter || undefined}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                onScheduledBeforeChange?.(e.target.value)
+              }
+            />
+          </Stack>
+        </HStack>
+      </Stack>
+
+      <Stack gap={3}>
         <FilterSectionTitle>Urgency</FilterSectionTitle>
         <Stack gap={2} role="radiogroup" aria-label="Urgency">
           {[
+            { value: 'any' as UrgencyFilter, label: 'Any' },
             {
               value: 'emergency' as UrgencyFilter,
               label: 'ASAP (Next 2 hours)',

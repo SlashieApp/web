@@ -7,7 +7,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import type { WorkerQuoteListFilter } from '../../helpers/workerQuoteJobs'
 
-import { WorkerQuoteFilters } from './WorkerQuoteFilters'
+import { WorkerQuoteFiltersBar } from './WorkerQuoteFilters'
 import { storyQuoteRow, storyQuoteRowsMixed } from './workerQuoteStoryFixtures'
 
 function WorkerQuoteFiltersPlayground({
@@ -19,7 +19,7 @@ function WorkerQuoteFiltersPlayground({
 }) {
   const [filter, setFilter] = useState<WorkerQuoteListFilter>(initialFilter)
   return (
-    <WorkerQuoteFilters
+    <WorkerQuoteFiltersBar
       rows={rows}
       filter={filter}
       onFilterChange={setFilter}
@@ -39,7 +39,7 @@ const placeholderArgs = {
 
 const meta = {
   title: 'quotes/WorkerQuoteFilters',
-  component: WorkerQuoteFilters,
+  component: WorkerQuoteFiltersBar,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
@@ -50,7 +50,7 @@ const meta = {
       <WorkerQuoteFiltersPlayground rows={mixedRows} />
     </Box>
   ),
-} satisfies Meta<typeof WorkerQuoteFilters>
+} satisfies Meta<typeof WorkerQuoteFiltersBar>
 
 export default meta
 

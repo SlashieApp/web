@@ -1,5 +1,5 @@
-query MyRequests($filter: TaskFilter) {
-  myRequests(filter: $filter) {
+query MyRequests($filter: TaskFilter, $sort: TaskSort) {
+  myRequests(filter: $filter, sort: $sort) {
     id
     title
     description

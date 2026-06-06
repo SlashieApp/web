@@ -1,5 +1,5 @@
-query MyQuotes($filter: TaskFilter) {
-  myQuotes(filter: $filter) {
+query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
+  myQuotes(filter: $filter, sort: $sort) {
     id
     title
     description
