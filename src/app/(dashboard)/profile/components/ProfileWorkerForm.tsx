@@ -73,7 +73,6 @@ export function ProfileWorkerForm() {
             isVerified: w.isVerified,
             tasksCompletedCount: w.tasksCompletedCount ?? null,
             locationAddress: w.locationAddress ?? null,
-            profile: { name: displayName },
           },
         })
       }
