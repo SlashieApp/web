@@ -13,7 +13,7 @@ export default function MyRequestsPage() {
   const onMountRef = useCallback((node: HTMLDivElement | null) => {
     if (!node || trackedRef.current) return
     trackedRef.current = true
-    capture(EVENTS.my_requests_viewed)
+    capture(EVENTS.requests_view)
   }, [])
 
   return (

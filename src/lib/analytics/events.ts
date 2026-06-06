@@ -1,70 +1,77 @@
-/** Allowlisted PostHog event names (snake_case, past tense). */
+// Event names follow PostHog-style convention ({object}_view, {action}_success|fail).
+// Keep in sync with apollo src/data/posthog/events.ts (PostHogEvents.TASK_VIEW).
+
+/** Allowlisted PostHog event names (short snake_case). */
 export const EVENTS = {
   // Visitor / discovery
-  browse_tasks_viewed: 'browse_tasks_viewed',
-  task_detail_viewed: 'task_detail_viewed',
-  task_detail_loaded: 'task_detail_loaded',
-  task_detail_load_failed: 'task_detail_load_failed',
-  task_not_found_viewed: 'task_not_found_viewed',
-  login_gate_shown: 'login_gate_shown',
+  browse_view: 'browse_view',
+  task_view: 'task_view',
+  task_load: 'task_load',
+  task_load_fail: 'task_load_fail',
+  task_not_found_view: 'task_not_found_view',
+  login_gate: 'login_gate',
 
   // Auth
-  login_succeeded: 'login_succeeded',
-  login_failed: 'login_failed',
-  register_succeeded: 'register_succeeded',
-  register_failed: 'register_failed',
-  google_login_succeeded: 'google_login_succeeded',
-  google_login_failed: 'google_login_failed',
-  password_reset_requested: 'password_reset_requested',
-  password_reset_request_failed: 'password_reset_request_failed',
-  password_reset_succeeded: 'password_reset_succeeded',
-  password_reset_failed: 'password_reset_failed',
+  login_success: 'login_success',
+  login_fail: 'login_fail',
+  register_success: 'register_success',
+  register_fail: 'register_fail',
+  google_login_success: 'google_login_success',
+  google_login_fail: 'google_login_fail',
+  apple_login_success: 'apple_login_success',
+  apple_login_fail: 'apple_login_fail',
+  password_reset_request: 'password_reset_request',
+  password_reset_request_fail: 'password_reset_request_fail',
+  password_reset_success: 'password_reset_success',
+  password_reset_fail: 'password_reset_fail',
 
   // Email / phone verify
-  email_verify_succeeded: 'email_verify_succeeded',
-  email_verify_failed: 'email_verify_failed',
-  email_resend_succeeded: 'email_resend_succeeded',
-  email_resend_failed: 'email_resend_failed',
-  phone_verify_send_succeeded: 'phone_verify_send_succeeded',
-  phone_verify_send_failed: 'phone_verify_send_failed',
-  phone_verify_succeeded: 'phone_verify_succeeded',
-  phone_verify_failed: 'phone_verify_failed',
+  email_verify_success: 'email_verify_success',
+  email_verify_fail: 'email_verify_fail',
+  email_resend_success: 'email_resend_success',
+  email_resend_fail: 'email_resend_fail',
+  phone_verify_send_success: 'phone_verify_send_success',
+  phone_verify_send_fail: 'phone_verify_send_fail',
+  phone_verify_success: 'phone_verify_success',
+  phone_verify_fail: 'phone_verify_fail',
 
   // Customer
-  task_create_succeeded: 'task_create_succeeded',
-  task_create_failed: 'task_create_failed',
-  quote_accept_succeeded: 'quote_accept_succeeded',
-  quote_accept_failed: 'quote_accept_failed',
-  quote_decline_succeeded: 'quote_decline_succeeded',
-  quote_decline_failed: 'quote_decline_failed',
-  my_requests_viewed: 'my_requests_viewed',
+  task_create_success: 'task_create_success',
+  task_create_fail: 'task_create_fail',
+  quote_accept_success: 'quote_accept_success',
+  quote_accept_fail: 'quote_accept_fail',
+  quote_decline_success: 'quote_decline_success',
+  quote_decline_fail: 'quote_decline_fail',
+  requests_view: 'requests_view',
 
   // Worker
-  quote_send_succeeded: 'quote_send_succeeded',
-  quote_send_failed: 'quote_send_failed',
-  worker_setup_succeeded: 'worker_setup_succeeded',
-  worker_setup_failed: 'worker_setup_failed',
-  task_save_succeeded: 'task_save_succeeded',
-  task_save_failed: 'task_save_failed',
-  jobs_list_viewed: 'jobs_list_viewed',
-  job_verify_code_succeeded: 'job_verify_code_succeeded',
-  job_verify_code_failed: 'job_verify_code_failed',
+  quote_send_success: 'quote_send_success',
+  quote_send_fail: 'quote_send_fail',
+  worker_setup_success: 'worker_setup_success',
+  worker_setup_fail: 'worker_setup_fail',
+  task_save_success: 'task_save_success',
+  task_save_fail: 'task_save_fail',
+  quotes_view: 'quotes_view',
+  jobs_view: 'jobs_view',
+  job_verify_success: 'job_verify_success',
+  job_verify_fail: 'job_verify_fail',
 
   // Profile / dashboard
-  profile_updated: 'profile_updated',
-  profile_update_failed: 'profile_update_failed',
-  notification_opened: 'notification_opened',
-  order_detail_viewed: 'order_detail_viewed',
+  profile_update_success: 'profile_update_success',
+  profile_update_fail: 'profile_update_fail',
+  notification_open: 'notification_open',
+  order_view: 'order_view',
+  dashboard_view: 'dashboard_view',
 
   // Closure
-  job_mark_done_succeeded: 'job_mark_done_succeeded',
-  job_mark_done_failed: 'job_mark_done_failed',
-  order_confirm_succeeded: 'order_confirm_succeeded',
-  order_confirm_failed: 'order_confirm_failed',
+  job_done_success: 'job_done_success',
+  job_done_fail: 'job_done_fail',
+  order_confirm_success: 'order_confirm_success',
+  order_confirm_fail: 'order_confirm_fail',
 
   // Global errors
   graphql_error: 'graphql_error',
-  api_fetch_failed: 'api_fetch_failed',
+  api_fetch_fail: 'api_fetch_fail',
 } as const
 
 export type AnalyticsEvent = (typeof EVENTS)[keyof typeof EVENTS]

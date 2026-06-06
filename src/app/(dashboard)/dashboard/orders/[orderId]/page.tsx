@@ -28,7 +28,7 @@ export default function LegacyOrderDetailRedirect() {
   const taskId = data?.order?.taskId?.trim()
   if (taskId && !redirectedRef.current) {
     redirectedRef.current = true
-    capture(EVENTS.order_detail_viewed, { order_id: orderId, task_id: taskId })
+    capture(EVENTS.order_view, { order_id: orderId, task_id: taskId })
     router.replace(taskOrderSectionHref(taskId))
   }
 

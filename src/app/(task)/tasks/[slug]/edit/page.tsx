@@ -255,10 +255,10 @@ function EditTaskFormBody({
         )
       }
 
-      trackFlowSucceeded(EVENTS.task_save_succeeded, { task_id: taskId })
+      trackFlowSucceeded(EVENTS.task_save_success, { task_id: taskId })
       router.push(`/tasks/${taskId}`)
     } catch (err: unknown) {
-      trackFlowFailed(EVENTS.task_save_failed, err, {
+      trackFlowFailed(EVENTS.task_save_fail, err, {
         flow: 'task_save',
         action: 'updateTask',
         operation: 'UpdateTask',

@@ -51,7 +51,7 @@ export function captureTaskDetailView(input: CaptureTaskDetailViewInput): void {
     if (sessionStorage.getItem(sessionKey)) return
     sessionStorage.setItem(sessionKey, '1')
 
-    capture(EVENTS.task_detail_viewed, {
+    capture(EVENTS.task_view, {
       task_id: input.taskId,
       task_slug: input.taskSlug,
       viewer_role: input.viewerRole,

@@ -10,7 +10,7 @@ export function TaskNotFoundTracker() {
   const onMountRef = useCallback((node: HTMLDivElement | null) => {
     if (!node || trackedRef.current) return
     trackedRef.current = true
-    capture(EVENTS.task_not_found_viewed)
+    capture(EVENTS.task_not_found_view)
   }, [])
 
   return <div ref={onMountRef} hidden aria-hidden />

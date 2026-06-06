@@ -19,7 +19,7 @@ export default function HomePage() {
   const onBrowseMountRef = useCallback((node: HTMLDivElement | null) => {
     if (!node || browseTrackedRef.current) return
     browseTrackedRef.current = true
-    capture(EVENTS.browse_tasks_viewed)
+    capture(EVENTS.browse_view)
   }, [])
 
   return (

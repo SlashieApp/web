@@ -13,7 +13,7 @@ export default function MyQuotesPage() {
   const onMountRef = useCallback((node: HTMLDivElement | null) => {
     if (!node || trackedRef.current) return
     trackedRef.current = true
-    capture(EVENTS.jobs_list_viewed)
+    capture(EVENTS.jobs_view)
   }, [])
 
   return (

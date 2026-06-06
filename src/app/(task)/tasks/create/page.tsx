@@ -191,7 +191,7 @@ function CreateTaskFormBody({
   async function onSubmit(values: CreateTaskFormValues) {
     setServerError(null)
     if (!getAuthToken()) {
-      capture(EVENTS.login_gate_shown, {
+      capture(EVENTS.login_gate, {
         route: POST_TASK_PATH,
         gate_reason: 'post_task',
       })
@@ -262,12 +262,12 @@ function CreateTaskFormBody({
         await uploadTaskImagesWithPresign(apollo, createdTaskId, imageFiles)
       }
 
-      trackFlowSucceeded(EVENTS.task_create_succeeded, {
+      trackFlowSucceeded(EVENTS.task_create_success, {
         task_id: createdTaskId,
       })
       router.push(`/tasks/${createdTaskId}`)
     } catch (err: unknown) {
-      trackFlowFailed(EVENTS.task_create_failed, err, {
+      trackFlowFailed(EVENTS.task_create_fail, err, {
         flow: 'task_create',
         action: 'createTask',
         operation: 'CreateTask',

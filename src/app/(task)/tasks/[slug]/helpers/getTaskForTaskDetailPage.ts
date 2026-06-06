@@ -5,6 +5,7 @@ import type { TaskQuery } from '@codegen/schema'
 
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import { fetch } from '@/utils/api'
+import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
 
 import { taskQueryVariables } from './taskQueryVariables'
 
@@ -26,9 +27,11 @@ export const getTaskForTaskDetailPage = cache(
       authToken: token,
     })
 
+    const notFound = isGraphqlTaskNotFound(json?.errors)
+
     return {
-      task: json?.data?.task ?? null,
-      order: json?.data?.order ?? null,
+      task: notFound ? null : (json?.data?.task ?? null),
+      order: notFound ? null : (json?.data?.order ?? null),
     }
   },
 )

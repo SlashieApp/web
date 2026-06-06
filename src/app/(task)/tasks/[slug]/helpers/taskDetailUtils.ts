@@ -9,6 +9,11 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { QuoteStatus } from '@codegen/schema'
 import type { TaskQuery } from '@codegen/schema'
 import { mapTaskStatus } from './mapTaskStatus'
+import {
+  appendViewsToStatusLabel,
+  taskOwnerViewsLabel,
+  taskPublicViewsLabel,
+} from './taskViewLabels'
 
 export type TaskDetailRecord = NonNullable<TaskQuery['task']>
 
@@ -310,9 +315,10 @@ export function centerColumnStatusLabel(
   const closed =
     isTaskDetailListingClosed(task, myOrder) || taskStatus === 'CLOSED'
   if (isOwner) {
-    const n = task.quotes.length
+    const n = task.acceptedQuoteCount ?? task.quotes.length
+    const quotePart = n ? `${n} quote${n === 1 ? '' : 's'}` : null
     if (closed) {
-      return n ? `CLOSED · ${n} quote${n === 1 ? '' : 's'}` : 'CLOSED'
+      return quotePart ? `CLOSED · ${quotePart}` : 'CLOSED'
     }
     const base =
       taskStatus === 'AWARDED'
@@ -320,11 +326,17 @@ export function centerColumnStatusLabel(
         : taskStatus === 'OPEN'
           ? 'OPEN'
           : 'CLOSED'
-    return n ? `${base} · ${n} quote${n === 1 ? '' : 's'}` : base
+    if (quotePart) return `${base} · ${quotePart}`
+    return appendViewsToStatusLabel(base, taskOwnerViewsLabel(task))
   }
   if (closed) return 'Closed'
   if (taskStatus === 'AWARDED') return 'In progress'
-  if (taskStatus === 'OPEN') return 'New task'
+  if (taskStatus === 'OPEN') {
+    return appendViewsToStatusLabel(
+      'New task',
+      taskPublicViewsLabel(task.views),
+    )
+  }
   return 'Closed'
 }
 

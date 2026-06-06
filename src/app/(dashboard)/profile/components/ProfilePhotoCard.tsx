@@ -70,7 +70,7 @@ export function ProfilePhotoCard() {
           workerEligibility: updated.workerEligibility,
         })
       }
-      trackFlowSucceeded(EVENTS.profile_updated, { section: 'avatar' })
+      trackFlowSucceeded(EVENTS.profile_update_success, { section: 'avatar' })
     } catch (uploadError) {
       captureApiError(uploadError, {
         flow: 'profile_update',
@@ -80,7 +80,7 @@ export function ProfilePhotoCard() {
         route: '/profile',
         report_global: false,
       })
-      trackFlowFailed(EVENTS.profile_update_failed, uploadError, {
+      trackFlowFailed(EVENTS.profile_update_fail, uploadError, {
         flow: 'profile_update',
         action: 'uploadProfileAvatar',
         operation: 'UpdateMyProfile',

@@ -178,7 +178,7 @@ export function TaskDetailProvider({
       const next = onQuoteFlow
         ? `/tasks/${taskId}/quote`
         : `/tasks/${task.id}#task-quote`
-      capture(EVENTS.login_gate_shown, {
+      capture(EVENTS.login_gate, {
         route: pathname,
         gate_reason: 'send_quote',
         task_id: taskId,
@@ -240,7 +240,7 @@ export function TaskDetailProvider({
         throw new Error('Quote submission failed. Please try again.')
       }
 
-      trackFlowSucceeded(EVENTS.quote_send_succeeded, {
+      trackFlowSucceeded(EVENTS.quote_send_success, {
         task_id: task.id,
         quote_id: result.data.addQuote.id,
       })
@@ -253,7 +253,7 @@ export function TaskDetailProvider({
       refreshPageData()
       return true
     } catch (error: unknown) {
-      trackFlowFailed(EVENTS.quote_send_failed, error, {
+      trackFlowFailed(EVENTS.quote_send_fail, error, {
         flow: 'quote_send',
         action: 'onSubmitQuote',
         operation: 'AddQuote',
@@ -316,7 +316,7 @@ export function TaskDetailProvider({
           description: `${workerName} can now coordinate on “${task.title}”.`,
           type: 'success',
         })
-        trackFlowSucceeded(EVENTS.quote_accept_succeeded, {
+        trackFlowSucceeded(EVENTS.quote_accept_success, {
           task_id: task.id,
           quote_id: quoteId,
           order_id: order.id,
@@ -324,7 +324,7 @@ export function TaskDetailProvider({
         refreshPageData()
         router.replace(`/tasks/${task.id}#task-order`)
       } catch (error: unknown) {
-        trackFlowFailed(EVENTS.quote_accept_failed, error, {
+        trackFlowFailed(EVENTS.quote_accept_fail, error, {
           flow: 'quote_accept',
           action: 'onAcceptQuote',
           operation: 'AcceptQuote',
@@ -355,13 +355,13 @@ export function TaskDetailProvider({
           description: 'The worker will be notified.',
           type: 'info',
         })
-        trackFlowSucceeded(EVENTS.quote_decline_succeeded, {
+        trackFlowSucceeded(EVENTS.quote_decline_success, {
           task_id: task.id,
           quote_id: quoteId,
         })
         refreshPageData()
       } catch (error: unknown) {
-        trackFlowFailed(EVENTS.quote_decline_failed, error, {
+        trackFlowFailed(EVENTS.quote_decline_fail, error, {
           flow: 'quote_decline',
           action: 'onDeclineQuote',
           operation: 'DeclineQuote',
@@ -399,13 +399,13 @@ export function TaskDetailProvider({
           'Payment and completion are recorded. This order is now closed.',
         type: 'success',
       })
-      trackFlowSucceeded(EVENTS.job_verify_code_succeeded, {
+      trackFlowSucceeded(EVENTS.job_verify_success, {
         order_id: myOrder.id,
         task_id: taskId,
       })
       refreshPageData()
     } catch (error: unknown) {
-      trackFlowFailed(EVENTS.job_verify_code_failed, error, {
+      trackFlowFailed(EVENTS.job_verify_fail, error, {
         flow: 'job_verify_code',
         action: 'onCompleteOrderWithVerification',
         operation: 'CompleteOrderWithVerification',

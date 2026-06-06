@@ -76,11 +76,11 @@ function VerifyEmailContent() {
 
       setAuthToken(authToken)
       await getUser()
-      trackFlowSucceeded(EVENTS.email_verify_succeeded)
+      trackFlowSucceeded(EVENTS.email_verify_success)
       setState('success')
       router.replace(nextPath)
     } catch (error: unknown) {
-      trackFlowFailed(EVENTS.email_verify_failed, error, {
+      trackFlowFailed(EVENTS.email_verify_fail, error, {
         flow: 'email_verify',
         action: 'verifyEmail',
         operation: 'VerifyEmail',

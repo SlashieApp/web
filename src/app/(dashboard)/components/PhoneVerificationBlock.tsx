@@ -119,12 +119,12 @@ export function PhoneVerificationBlock({
       setCodeSentForPhone(savedPhone)
       setOtpStep(true)
       setRateLimited(false)
-      trackFlowSucceeded(EVENTS.phone_verify_send_succeeded)
+      trackFlowSucceeded(EVENTS.phone_verify_send_success)
       setHint(
         `Code sent to ${maskPhoneForDisplay(formatPhoneForDisplay(savedPhone))}.`,
       )
     } catch (e) {
-      trackFlowFailed(EVENTS.phone_verify_send_failed, e, {
+      trackFlowFailed(EVENTS.phone_verify_send_fail, e, {
         flow: 'phone_verify',
         action: 'sendPhoneVerification',
         operation: 'SendPhoneVerification',
@@ -155,14 +155,14 @@ export function PhoneVerificationBlock({
       }
       await getUser()
       resetOtpState()
-      trackFlowSucceeded(EVENTS.phone_verify_succeeded)
+      trackFlowSucceeded(EVENTS.phone_verify_success)
       showAppToast({
         title: 'Phone verified',
         description: 'Your phone number is now verified on your account.',
         type: 'success',
       })
     } catch (e) {
-      trackFlowFailed(EVENTS.phone_verify_failed, e, {
+      trackFlowFailed(EVENTS.phone_verify_fail, e, {
         flow: 'phone_verify',
         action: 'verifyPhone',
         operation: 'VerifyPhone',

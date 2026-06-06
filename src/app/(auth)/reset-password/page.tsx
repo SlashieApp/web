@@ -252,10 +252,10 @@ function ResetPasswordForm() {
       }
 
       setAuthToken(authToken)
-      trackFlowSucceeded(EVENTS.password_reset_succeeded)
+      trackFlowSucceeded(EVENTS.password_reset_success)
       router.push('/dashboard')
     } catch (err: unknown) {
-      trackFlowFailed(EVENTS.password_reset_failed, err, {
+      trackFlowFailed(EVENTS.password_reset_fail, err, {
         flow: 'password_reset',
         action: 'resetPassword',
         operation: 'ResetPassword',

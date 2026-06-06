@@ -29,7 +29,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const { task } = await getTaskForTaskDetailPage(slug)
-  const title = task ? `${task.title} | Slashie Task` : 'Task Details | Slashie'
+  const title = task
+    ? `${task.title} | Slashie Task`
+    : 'Task not found | Slashie'
   const rawDescription = task?.description?.trim()
   const description = rawDescription
     ? rawDescription.length > 160

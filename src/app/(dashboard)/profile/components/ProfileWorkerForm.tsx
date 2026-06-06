@@ -77,13 +77,13 @@ export function ProfileWorkerForm() {
           },
         })
       }
-      trackFlowSucceeded(EVENTS.worker_setup_succeeded, {
+      trackFlowSucceeded(EVENTS.worker_setup_success, {
         is_new_worker: !isWorker,
       })
       reset(values)
       await getUser()
     } catch (error: unknown) {
-      trackFlowFailed(EVENTS.worker_setup_failed, error, {
+      trackFlowFailed(EVENTS.worker_setup_fail, error, {
         flow: 'worker_setup',
         action: 'registerAsPro',
         operation: 'RegisterAsPro',

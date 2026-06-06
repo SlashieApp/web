@@ -6,6 +6,14 @@ query Task($id: ID!) {
     title
     description
     category
+    acceptedQuoteCount
+    views
+    exposure {
+      viewCount
+      uniqueViewers
+      showViews
+      computedAt
+    }
     acceptedWorkerCap
     budget {
       amount

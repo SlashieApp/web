@@ -27,12 +27,12 @@ export function useResendVerificationEmail() {
       if (!result.data?.resendVerificationEmail) {
         throw new Error('Could not send verification email.')
       }
-      trackFlowSucceeded(EVENTS.email_resend_succeeded)
+      trackFlowSucceeded(EVENTS.email_resend_success)
       setState('sent')
       setMessage('Verification email sent. Check your inbox.')
       return true
     } catch (error: unknown) {
-      trackFlowFailed(EVENTS.email_resend_failed, error, {
+      trackFlowFailed(EVENTS.email_resend_fail, error, {
         flow: 'email_verify',
         action: 'resendVerificationEmail',
         operation: 'ResendVerificationEmail',

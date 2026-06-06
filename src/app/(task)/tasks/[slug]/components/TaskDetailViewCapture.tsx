@@ -15,7 +15,7 @@ type TaskDetailViewCaptureProps = {
   isAuthenticated: boolean
 }
 
-/** Fires UBA task_detail_viewed once per session per task after task + auth resolve. */
+/** Fires UBA task_view once per session per task after task + auth resolve. */
 export function TaskDetailViewCapture({
   taskId,
   taskSlug,

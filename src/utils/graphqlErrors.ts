@@ -41,6 +41,7 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   MONTHLY_CONNECTION_LIMIT_REACHED:
     "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade your membership or Worker Pro for unlimited connections, or try again next month.",
   FORBIDDEN: 'You do not have permission to change this task.',
+  NOT_FOUND: 'This task could not be found.',
   TASK_NOT_FOUND: 'This task could not be found.',
   TASK_NOT_EDITABLE:
     'This task can only be edited while it is open or still in draft.',

@@ -79,10 +79,10 @@ export function ProfileDetailsForm() {
           workerEligibility: updated.workerEligibility,
         })
       }
-      trackFlowSucceeded(EVENTS.profile_updated)
+      trackFlowSucceeded(EVENTS.profile_update_success)
       reset(values)
     } catch (error: unknown) {
-      trackFlowFailed(EVENTS.profile_update_failed, error, {
+      trackFlowFailed(EVENTS.profile_update_fail, error, {
         flow: 'profile_update',
         action: 'updateMyProfile',
         operation: 'UpdateMyProfile',

@@ -23,10 +23,11 @@ export default async function TaskSlugLayout({
           <Box as="section" py={{ base: 8, md: 10 }}>
             <Container>
               <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-                <SectionCard eyebrow="Task" heading="Unavailable">
+                <SectionCard eyebrow="Task" heading="Task not found">
                   <TaskNotFoundTracker />
                   <Text color="formLabelMuted">
-                    Task details are unavailable.
+                    This task is not available. It may have been removed or you
+                    do not have access to view it.
                   </Text>
                 </SectionCard>
               </Stack>

@@ -103,13 +103,13 @@ function ForgotPasswordContent() {
         throw new Error('Could not start password reset. Please try again.')
       }
 
-      trackFlowSucceeded(EVENTS.password_reset_requested)
+      trackFlowSucceeded(EVENTS.password_reset_request)
       setSuccessMessage(
         'If an account exists for this email, a password reset link has been sent.',
       )
       setResetToken(payload.resetToken ?? null)
     } catch (err: unknown) {
-      trackFlowFailed(EVENTS.password_reset_request_failed, err, {
+      trackFlowFailed(EVENTS.password_reset_request_fail, err, {
         flow: 'password_reset',
         action: 'forgotPassword',
         operation: 'ForgotPassword',

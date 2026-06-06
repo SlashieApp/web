@@ -53,7 +53,7 @@ export function NotificationBell() {
 
   const onOpenItem = useCallback(
     async (id: string, readAt: string | null | undefined) => {
-      capture(EVENTS.notification_opened, {
+      capture(EVENTS.notification_open, {
         notification_id: id,
         was_unread: !readAt,
       })

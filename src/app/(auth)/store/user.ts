@@ -138,11 +138,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const synced = syncStateFromMe(meResult.data?.me)
       set({ ...synced, isLoading: false })
       syncAnalyticsIdentity(synced.me)
-      trackFlowSucceeded(EVENTS.login_succeeded, { method: 'password' })
+      trackFlowSucceeded(EVENTS.login_success, { method: 'password' })
       return synced.user
     } catch (error) {
       set({ isLoading: false })
-      trackFlowFailed(EVENTS.login_failed, error, {
+      trackFlowFailed(EVENTS.login_fail, error, {
         flow: 'login',
         action: 'login',
         operation: 'Login',
@@ -179,11 +179,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const synced = syncStateFromMe(meResult.data?.me)
       set({ ...synced, isLoading: false })
       syncAnalyticsIdentity(synced.me)
-      trackFlowSucceeded(EVENTS.google_login_succeeded)
+      trackFlowSucceeded(EVENTS.google_login_success)
       return synced.user
     } catch (error) {
       set({ isLoading: false })
-      trackFlowFailed(EVENTS.google_login_failed, error, {
+      trackFlowFailed(EVENTS.google_login_fail, error, {
         flow: 'google_login',
         action: 'loginWithGoogle',
         operation: 'LoginWithGoogle',

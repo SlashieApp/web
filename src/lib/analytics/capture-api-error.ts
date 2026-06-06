@@ -11,7 +11,7 @@ export type CaptureApiErrorContext = {
   url_or_operation?: string
   route?: string
   operation_type?: 'query' | 'mutation' | 'subscription'
-  /** When false, skip the global graphql_error / api_fetch_failed event (flow-only). */
+  /** When false, skip the global graphql_error / api_fetch_fail event (flow-only). */
   report_global?: boolean
 }
 
@@ -105,7 +105,7 @@ export function captureApiError(
       shouldReportGlobal(fingerprint, reportGlobal) &&
       (context.source === 'fetch' || context.source === 'upload')
     ) {
-      capture(EVENTS.api_fetch_failed, baseProps)
+      capture(EVENTS.api_fetch_fail, baseProps)
     }
   } catch {
     // Never throw from analytics.

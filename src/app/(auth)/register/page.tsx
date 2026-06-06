@@ -349,7 +349,7 @@ export default function RegisterPage() {
 
       setAuthToken(token)
       await getUser()
-      trackFlowSucceeded(EVENTS.register_succeeded, { method: 'password' })
+      trackFlowSucceeded(EVENTS.register_success, { method: 'password' })
 
       const sentParams = new URLSearchParams()
       const explicitNextPath = authQuery.redirect ?? authQuery.next
@@ -359,7 +359,7 @@ export default function RegisterPage() {
         sentQuery ? `/verify-email/sent?${sentQuery}` : '/verify-email/sent',
       )
     } catch (err: unknown) {
-      trackFlowFailed(EVENTS.register_failed, err, {
+      trackFlowFailed(EVENTS.register_fail, err, {
         flow: 'register',
         action: 'register',
         operation: 'Register',
