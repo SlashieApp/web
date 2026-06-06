@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react'
 
 import { isResendVerificationRateLimitedError } from '@/app/(auth)/helpers/emailVerification'
 import ResendVerificationEmail from '@/app/(auth)/verify-email/graphql/ResendVerificationEmail.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 type ResendState = 'idle' | 'sending' | 'sent' | 'error'
@@ -26,10 +27,16 @@ export function useResendVerificationEmail() {
       if (!result.data?.resendVerificationEmail) {
         throw new Error('Could not send verification email.')
       }
+      trackFlowSucceeded(EVENTS.email_resend_succeeded)
       setState('sent')
       setMessage('Verification email sent. Check your inbox.')
       return true
     } catch (error: unknown) {
+      trackFlowFailed(EVENTS.email_resend_failed, error, {
+        flow: 'email_verify',
+        action: 'resendVerificationEmail',
+        operation: 'ResendVerificationEmail',
+      })
       setState('error')
       if (isResendVerificationRateLimitedError(error)) {
         setMessage(

@@ -7,6 +7,7 @@ import { useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
+import { captureApiError } from '@/lib/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { SectionCard } from '@ui'
 
@@ -74,6 +75,14 @@ export function AccountSettingsCard() {
       const updated = result.data?.updateMySettings?.settings
       if (updated) patchMe({ settings: updated })
     } catch (e) {
+      captureApiError(e, {
+        flow: 'profile_update',
+        action: 'updateMySettings',
+        source: 'graphql',
+        url_or_operation: 'UpdateMySettings',
+        route: '/account',
+        report_global: false,
+      })
       patchMe({ settings })
       setError(getFriendlyErrorMessage(e, 'Could not update your settings.'))
     } finally {

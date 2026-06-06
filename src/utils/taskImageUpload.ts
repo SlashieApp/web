@@ -2,6 +2,7 @@ import type { ApolloClient } from '@apollo/client'
 import type { GetTaskS3UploadQuery } from '@codegen/schema'
 
 import GetTaskS3Upload from '@/app/(task)/tasks/create/graphql/GetTaskS3Upload.gql'
+import { apiFetch } from '@/lib/analytics'
 
 function objectUrlFromPresignedPut(presignedUrl: string): string {
   try {
@@ -46,16 +47,24 @@ export async function putTaskImageToPresignedUrl(
 ): Promise<string> {
   let putRes: Response
   try {
-    //front-end
-    putRes = await fetch(presignedUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': file.type || 'application/octet-stream',
-        'Cache-Control': 'public,max-age=31536000,immutable',
-        'x-amz-acl': 'public-read',
+    putRes = await apiFetch(
+      presignedUrl,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream',
+          'Cache-Control': 'public,max-age=31536000,immutable',
+          'x-amz-acl': 'public-read',
+        },
+        body: file,
       },
-      body: file,
-    })
+      {
+        flow: 'task_create',
+        action: 'putTaskImageToPresignedUrl',
+        source: 'upload',
+        url_or_operation: 'task_image_put',
+      },
+    )
   } catch {
     throw new Error(
       'Upload failed before reaching storage. Check storage CORS for PUT from this origin and try again.',

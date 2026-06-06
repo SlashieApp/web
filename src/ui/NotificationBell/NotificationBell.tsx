@@ -13,6 +13,7 @@ import NextLink from 'next/link'
 import { useCallback } from 'react'
 
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
+import { EVENTS, capture } from '@/lib/analytics'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import {
   notificationDisplayText,
@@ -52,6 +53,10 @@ export function NotificationBell() {
 
   const onOpenItem = useCallback(
     async (id: string, readAt: string | null | undefined) => {
+      capture(EVENTS.notification_opened, {
+        notification_id: id,
+        was_unread: !readAt,
+      })
       if (!readAt) {
         await markRead(id)
       }

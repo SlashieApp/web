@@ -17,6 +17,7 @@ import {
 import { useUserStore } from '@/app/(auth)/store/user'
 import SendPhoneVerification from '@/app/(dashboard)/account/graphql/SendPhoneVerification.gql'
 import VerifyPhone from '@/app/(dashboard)/account/graphql/VerifyPhone.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {
@@ -118,10 +119,16 @@ export function PhoneVerificationBlock({
       setCodeSentForPhone(savedPhone)
       setOtpStep(true)
       setRateLimited(false)
+      trackFlowSucceeded(EVENTS.phone_verify_send_succeeded)
       setHint(
         `Code sent to ${maskPhoneForDisplay(formatPhoneForDisplay(savedPhone))}.`,
       )
     } catch (e) {
+      trackFlowFailed(EVENTS.phone_verify_send_failed, e, {
+        flow: 'phone_verify',
+        action: 'sendPhoneVerification',
+        operation: 'SendPhoneVerification',
+      })
       if (isPhoneVerificationRateLimited(e)) {
         setRateLimited(true)
       }
@@ -148,12 +155,18 @@ export function PhoneVerificationBlock({
       }
       await getUser()
       resetOtpState()
+      trackFlowSucceeded(EVENTS.phone_verify_succeeded)
       showAppToast({
         title: 'Phone verified',
         description: 'Your phone number is now verified on your account.',
         type: 'success',
       })
     } catch (e) {
+      trackFlowFailed(EVENTS.phone_verify_failed, e, {
+        flow: 'phone_verify',
+        action: 'verifyPhone',
+        operation: 'VerifyPhone',
+      })
       setError(getFriendlyErrorMessage(e, 'That code did not work. Try again.'))
     }
   }

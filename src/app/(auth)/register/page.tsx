@@ -24,6 +24,7 @@ import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
 import Register from '@/app/(auth)/register/graphql/Register.gql'
 import { registerFormSchema } from '@/app/(auth)/register/registerFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -348,6 +349,7 @@ export default function RegisterPage() {
 
       setAuthToken(token)
       await getUser()
+      trackFlowSucceeded(EVENTS.register_succeeded, { method: 'password' })
 
       const sentParams = new URLSearchParams()
       const explicitNextPath = authQuery.redirect ?? authQuery.next
@@ -357,6 +359,13 @@ export default function RegisterPage() {
         sentQuery ? `/verify-email/sent?${sentQuery}` : '/verify-email/sent',
       )
     } catch (err: unknown) {
+      trackFlowFailed(EVENTS.register_failed, err, {
+        flow: 'register',
+        action: 'register',
+        operation: 'Register',
+        route: '/register',
+        extra: { method: 'password' },
+      })
       setServerError(getFriendlyErrorMessage(err, 'Registration failed'))
     }
   }

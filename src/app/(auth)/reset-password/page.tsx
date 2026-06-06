@@ -13,6 +13,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
 import ResetPassword from '@/app/(auth)/reset-password/graphql/ResetPassword.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -251,8 +252,15 @@ function ResetPasswordForm() {
       }
 
       setAuthToken(authToken)
+      trackFlowSucceeded(EVENTS.password_reset_succeeded)
       router.push('/dashboard')
     } catch (err: unknown) {
+      trackFlowFailed(EVENTS.password_reset_failed, err, {
+        flow: 'password_reset',
+        action: 'resetPassword',
+        operation: 'ResetPassword',
+        route: '/reset-password',
+      })
       setServerError(getFriendlyErrorMessage(err, 'Could not reset password.'))
     }
   }

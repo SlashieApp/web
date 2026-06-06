@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense, useMemo, useState } from 'react'
 
 import ForgotPassword from '@/app/(auth)/forgot-password/graphql/ForgotPassword.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 function FieldIconMail() {
@@ -102,11 +103,18 @@ function ForgotPasswordContent() {
         throw new Error('Could not start password reset. Please try again.')
       }
 
+      trackFlowSucceeded(EVENTS.password_reset_requested)
       setSuccessMessage(
         'If an account exists for this email, a password reset link has been sent.',
       )
       setResetToken(payload.resetToken ?? null)
     } catch (err: unknown) {
+      trackFlowFailed(EVENTS.password_reset_request_failed, err, {
+        flow: 'password_reset',
+        action: 'forgotPassword',
+        operation: 'ForgotPassword',
+        route: '/forgot-password',
+      })
       setError(
         getFriendlyErrorMessage(err, 'Could not start password reset process.'),
       )

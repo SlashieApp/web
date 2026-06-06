@@ -21,6 +21,7 @@ const DEFAULT_CONFIG = {
 const EXPORT_CONFIGS: ExportConfig[] = [
   { folder: 'src/ui' },
   { folder: 'src/app/(task)/components' },
+  { folder: 'src/lib/analytics' },
 ]
 
 const AUTOGEN_HEADER = `/**

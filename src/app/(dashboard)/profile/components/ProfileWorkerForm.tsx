@@ -12,6 +12,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { PhoneVerificationBlock } from '@/app/(dashboard)/components/PhoneVerificationBlock'
 import RegisterAsPro from '@/app/(dashboard)/profile/graphql/RegisterAsPro.gql'
 import Me from '@/graphql/Me.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, FormField, Input, SectionCard, Textarea } from '@ui'
 
@@ -76,10 +77,19 @@ export function ProfileWorkerForm() {
           },
         })
       }
+      trackFlowSucceeded(EVENTS.worker_setup_succeeded, {
+        is_new_worker: !isWorker,
+      })
       reset(values)
       await getUser()
-    } catch {
-      // Surfaced via mutationError below.
+    } catch (error: unknown) {
+      trackFlowFailed(EVENTS.worker_setup_failed, error, {
+        flow: 'worker_setup',
+        action: 'registerAsPro',
+        operation: 'RegisterAsPro',
+        route: '/profile',
+        extra: { is_new_worker: !isWorker },
+      })
     }
   }
 

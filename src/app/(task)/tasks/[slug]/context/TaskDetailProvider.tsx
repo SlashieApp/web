@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQuery } from '@apollo/client/react'
+import { Box } from '@chakra-ui/react'
 import type {
   AcceptQuoteMutation,
   AddQuoteMutation,
@@ -12,7 +13,7 @@ import type {
 } from '@codegen/schema'
 import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneNotVerifiedError } from '@/app/(auth)/helpers/phoneVerification'
@@ -25,6 +26,12 @@ import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 import Me from '@/graphql/Me.gql'
+import {
+  EVENTS,
+  capture,
+  trackFlowFailed,
+  trackFlowSucceeded,
+} from '@/lib/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
 import {
@@ -65,6 +72,7 @@ export function TaskDetailProvider({
   const [verificationCode, setVerificationCode] = useState('')
   const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
   const isAuthenticated = Boolean(getAuthToken())
+  const detailViewTrackedRef = useRef(false)
 
   const { data: meData, loading: meLoading } = useQuery<MeQuery>(Me, {
     skip: !isAuthenticated,
@@ -93,6 +101,15 @@ export function TaskDetailProvider({
   )
 
   const task = liveTaskData?.task ?? initialTask ?? null
+  const trackDetailViewRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node || detailViewTrackedRef.current) return
+      detailViewTrackedRef.current = true
+      capture(EVENTS.task_detail_viewed, { task_id: taskId })
+      capture(EVENTS.task_detail_loaded, { task_id: taskId })
+    },
+    [taskId],
+  )
   const myOrder = (liveTaskData?.order ??
     myOrderFromInitial) as OrderItem | null
   const orderLoading = Boolean(
@@ -171,6 +188,11 @@ export function TaskDetailProvider({
       const next = onQuoteFlow
         ? `/tasks/${taskId}/quote`
         : `/tasks/${task.id}#task-quote`
+      capture(EVENTS.login_gate_shown, {
+        route: pathname,
+        gate_reason: 'send_quote',
+        task_id: taskId,
+      })
       router.push(`/login?next=${encodeURIComponent(next)}`)
       return false
     }
@@ -228,6 +250,10 @@ export function TaskDetailProvider({
         throw new Error('Quote submission failed. Please try again.')
       }
 
+      trackFlowSucceeded(EVENTS.quote_send_succeeded, {
+        task_id: task.id,
+        quote_id: result.data.addQuote.id,
+      })
       setQuoteSuccess('Quote submitted successfully.')
       showAppToast({
         title: 'Quote sent',
@@ -237,6 +263,13 @@ export function TaskDetailProvider({
       refreshPageData()
       return true
     } catch (error: unknown) {
+      trackFlowFailed(EVENTS.quote_send_failed, error, {
+        flow: 'quote_send',
+        action: 'onSubmitQuote',
+        operation: 'AddQuote',
+        route: pathname,
+        extra: { task_id: taskId },
+      })
       const message = getFriendlyErrorMessage(error, 'Quote submission failed.')
       setQuoteError(message)
       const code = getGraphQLErrorCode(error)
@@ -293,9 +326,20 @@ export function TaskDetailProvider({
           description: `${workerName} can now coordinate on “${task.title}”.`,
           type: 'success',
         })
+        trackFlowSucceeded(EVENTS.quote_accept_succeeded, {
+          task_id: task.id,
+          quote_id: quoteId,
+          order_id: order.id,
+        })
         refreshPageData()
         router.replace(`/tasks/${task.id}#task-order`)
       } catch (error: unknown) {
+        trackFlowFailed(EVENTS.quote_accept_failed, error, {
+          flow: 'quote_accept',
+          action: 'onAcceptQuote',
+          operation: 'AcceptQuote',
+          extra: { task_id: task?.id, quote_id: quoteId },
+        })
         setAcceptError(
           getFriendlyErrorMessage(error, 'Could not accept this quote.'),
         )
@@ -321,8 +365,18 @@ export function TaskDetailProvider({
           description: 'The worker will be notified.',
           type: 'info',
         })
+        trackFlowSucceeded(EVENTS.quote_decline_succeeded, {
+          task_id: task.id,
+          quote_id: quoteId,
+        })
         refreshPageData()
       } catch (error: unknown) {
+        trackFlowFailed(EVENTS.quote_decline_failed, error, {
+          flow: 'quote_decline',
+          action: 'onDeclineQuote',
+          operation: 'DeclineQuote',
+          extra: { task_id: task?.id, quote_id: quoteId },
+        })
         setAcceptError(
           getFriendlyErrorMessage(error, 'Could not decline this quote.'),
         )
@@ -355,8 +409,18 @@ export function TaskDetailProvider({
           'Payment and completion are recorded. This order is now closed.',
         type: 'success',
       })
+      trackFlowSucceeded(EVENTS.job_verify_code_succeeded, {
+        order_id: myOrder.id,
+        task_id: taskId,
+      })
       refreshPageData()
     } catch (error: unknown) {
+      trackFlowFailed(EVENTS.job_verify_code_failed, error, {
+        flow: 'job_verify_code',
+        action: 'onCompleteOrderWithVerification',
+        operation: 'CompleteOrderWithVerification',
+        extra: { order_id: myOrder.id, task_id: taskId },
+      })
       setJobActionError(
         getFriendlyErrorMessage(
           error,
@@ -369,6 +433,7 @@ export function TaskDetailProvider({
     myOrder,
     permissions.showCompleteWithCode,
     refreshPageData,
+    taskId,
     verificationCode,
   ])
 
@@ -485,7 +550,9 @@ export function TaskDetailProvider({
 
   return (
     <TaskDetailContext.Provider value={value}>
-      {children}
+      <Box ref={trackDetailViewRef} display="contents">
+        {children}
+      </Box>
     </TaskDetailContext.Provider>
   )
 }

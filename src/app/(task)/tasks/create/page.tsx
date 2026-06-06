@@ -21,6 +21,12 @@ import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(task)/tasks/create/graphql/CreateTask.gql'
 import Me from '@/graphql/Me.gql'
+import {
+  EVENTS,
+  capture,
+  trackFlowFailed,
+  trackFlowSucceeded,
+} from '@/lib/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
 import {
@@ -185,6 +191,10 @@ function CreateTaskFormBody({
   async function onSubmit(values: CreateTaskFormValues) {
     setServerError(null)
     if (!getAuthToken()) {
+      capture(EVENTS.login_gate_shown, {
+        route: POST_TASK_PATH,
+        gate_reason: 'post_task',
+      })
       router.replace(`/login?redirect=${encodeURIComponent(POST_TASK_PATH)}`)
       return
     }
@@ -252,8 +262,17 @@ function CreateTaskFormBody({
         await uploadTaskImagesWithPresign(apollo, createdTaskId, imageFiles)
       }
 
+      trackFlowSucceeded(EVENTS.task_create_succeeded, {
+        task_id: createdTaskId,
+      })
       router.push(`/tasks/${createdTaskId}`)
     } catch (err: unknown) {
+      trackFlowFailed(EVENTS.task_create_failed, err, {
+        flow: 'task_create',
+        action: 'createTask',
+        operation: 'CreateTask',
+        route: POST_TASK_PATH,
+      })
       const message = getTaskMutationErrorMessage(err, 'Task creation failed.')
       setServerError(message)
       const code = getGraphQLErrorCode(err)

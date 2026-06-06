@@ -7,6 +7,12 @@ import { useRef, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
+import {
+  EVENTS,
+  captureApiError,
+  trackFlowFailed,
+  trackFlowSucceeded,
+} from '@/lib/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {
@@ -64,7 +70,23 @@ export function ProfilePhotoCard() {
           workerEligibility: updated.workerEligibility,
         })
       }
+      trackFlowSucceeded(EVENTS.profile_updated, { section: 'avatar' })
     } catch (uploadError) {
+      captureApiError(uploadError, {
+        flow: 'profile_update',
+        action: 'uploadProfileAvatar',
+        source: 'upload',
+        url_or_operation: 'GetProfileAvatarUpload',
+        route: '/profile',
+        report_global: false,
+      })
+      trackFlowFailed(EVENTS.profile_update_failed, uploadError, {
+        flow: 'profile_update',
+        action: 'uploadProfileAvatar',
+        operation: 'UpdateMyProfile',
+        route: '/profile',
+        extra: { section: 'avatar' },
+      })
       setError(
         getFriendlyErrorMessage(
           uploadError,

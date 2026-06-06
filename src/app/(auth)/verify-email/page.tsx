@@ -15,6 +15,7 @@ import {
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
 import VerifyEmail from '@/app/(auth)/verify-email/graphql/VerifyEmail.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { getAuthToken, setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -75,9 +76,16 @@ function VerifyEmailContent() {
 
       setAuthToken(authToken)
       await getUser()
+      trackFlowSucceeded(EVENTS.email_verify_succeeded)
       setState('success')
       router.replace(nextPath)
     } catch (error: unknown) {
+      trackFlowFailed(EVENTS.email_verify_failed, error, {
+        flow: 'email_verify',
+        action: 'verifyEmail',
+        operation: 'VerifyEmail',
+        route: '/verify-email',
+      })
       if (
         isInvalidOrExpiredVerificationError(error) ||
         isEmailMismatchError(error)

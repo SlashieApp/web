@@ -2,6 +2,7 @@ import type { ApolloClient } from '@apollo/client'
 import type { GetProfileAvatarUploadQuery } from '@codegen/schema'
 
 import GetProfileAvatarUpload from '@/app/(dashboard)/profile/graphql/GetProfileAvatarUpload.gql'
+import { apiFetch } from '@/lib/analytics'
 
 export const AVATAR_MAX_BYTES = 5 * 1024 * 1024
 export const AVATAR_ACCEPTED_TYPES = [
@@ -60,15 +61,24 @@ export async function uploadProfileAvatar(
 
   let putRes: Response
   try {
-    putRes = await fetch(presignedUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': file.type || 'application/octet-stream',
-        'Cache-Control': 'public,max-age=31536000,immutable',
-        'x-amz-acl': 'public-read',
+    putRes = await apiFetch(
+      presignedUrl,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream',
+          'Cache-Control': 'public,max-age=31536000,immutable',
+          'x-amz-acl': 'public-read',
+        },
+        body: file,
       },
-      body: file,
-    })
+      {
+        flow: 'profile_update',
+        action: 'uploadProfileAvatar',
+        source: 'upload',
+        url_or_operation: 'profile_avatar_put',
+      },
+    )
   } catch {
     throw new Error(
       'Upload failed before reaching storage. Check storage CORS for PUT from this origin and try again.',

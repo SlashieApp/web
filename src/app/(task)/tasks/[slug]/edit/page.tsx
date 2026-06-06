@@ -35,6 +35,7 @@ import {
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import UpdateTask from '@/app/(task)/tasks/[slug]/graphql/UpdateTask.gql'
 import Me from '@/graphql/Me.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { getAuthToken } from '@/utils/auth'
 import {
   getGraphQLErrorCode,
@@ -254,8 +255,16 @@ function EditTaskFormBody({
         )
       }
 
+      trackFlowSucceeded(EVENTS.task_save_succeeded, { task_id: taskId })
       router.push(`/tasks/${taskId}`)
     } catch (err: unknown) {
+      trackFlowFailed(EVENTS.task_save_failed, err, {
+        flow: 'task_save',
+        action: 'updateTask',
+        operation: 'UpdateTask',
+        route: `/tasks/${taskId}/edit`,
+        extra: { task_id: taskId },
+      })
       if (isUnauthenticatedError(err)) {
         router.replace(
           `/login?redirect=${encodeURIComponent(`/tasks/${taskId}/edit`)}`,

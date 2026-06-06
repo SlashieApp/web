@@ -12,6 +12,7 @@ import {
 import { useUserStore } from '@/app/(auth)/store/user'
 import { PhoneVerificationBlock } from '@/app/(dashboard)/components/PhoneVerificationBlock'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
+import { captureApiError } from '@/lib/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { formatPhoneForDisplay, toE164ForApi } from '@/utils/phoneNormalize'
 import { Button, FormField, PhoneInput } from '@ui'
@@ -82,6 +83,14 @@ export function PhoneContactEditor({
       setVerifyResetKey(e164)
       setSaveSuccess('Phone saved. Request a verification code when ready.')
     } catch (e) {
+      captureApiError(e, {
+        flow: 'phone_verify',
+        action: 'savePhone',
+        source: 'graphql',
+        url_or_operation: 'UpdateMyProfile',
+        route: '/profile',
+        report_global: false,
+      })
       setSaveError(
         getFriendlyErrorMessage(e, 'Could not save your phone number.'),
       )

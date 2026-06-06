@@ -2,6 +2,7 @@ import { Box, Container, Stack, Text } from '@chakra-ui/react'
 
 import { Footer, SectionCard } from '@ui'
 
+import { TaskNotFoundTracker } from './components/TaskNotFoundTracker'
 import { TaskDetailProvider } from './context/TaskDetailProvider'
 import { getTaskForTaskDetailPage } from './helpers/getTaskForTaskDetailPage'
 
@@ -23,6 +24,7 @@ export default async function TaskSlugLayout({
             <Container>
               <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
                 <SectionCard eyebrow="Task" heading="Unavailable">
+                  <TaskNotFoundTracker />
                   <Text color="formLabelMuted">
                     Task details are unavailable.
                   </Text>

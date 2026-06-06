@@ -13,6 +13,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, FormField, Input, SectionCard, Select } from '@ui'
 
@@ -78,9 +79,15 @@ export function ProfileDetailsForm() {
           workerEligibility: updated.workerEligibility,
         })
       }
+      trackFlowSucceeded(EVENTS.profile_updated)
       reset(values)
-    } catch {
-      // Surfaced via mutationError below.
+    } catch (error: unknown) {
+      trackFlowFailed(EVENTS.profile_update_failed, error, {
+        flow: 'profile_update',
+        action: 'updateMyProfile',
+        operation: 'UpdateMyProfile',
+        route: '/profile',
+      })
     }
   }
 

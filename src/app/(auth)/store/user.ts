@@ -12,6 +12,13 @@ import { create } from 'zustand'
 import Login from '@/app/(auth)/login/graphql/Login.gql'
 import LoginWithGoogle from '@/app/(auth)/login/graphql/LoginWithGoogle.gql'
 import Me from '@/graphql/Me.gql'
+import {
+  EVENTS,
+  identifyUser,
+  resetAnalyticsIdentity,
+  trackFlowFailed,
+  trackFlowSucceeded,
+} from '@/lib/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/utils/auth'
 
@@ -79,6 +86,18 @@ function syncStateFromMe(me: MeQuery['me'] | null | undefined): {
   }
 }
 
+function syncAnalyticsIdentity(me: MeSnapshot | null) {
+  if (!me) return
+  identifyUser({
+    id: me.id,
+    emailVerified: me.emailVerified,
+    phoneVerified: me.phoneVerified,
+    workerEligibility: me.workerEligibility,
+    enabledLoginMethods: me.enabledLoginMethods,
+    workerId: me.worker?.id,
+  })
+}
+
 export const useUserStore = create<UserStore>((set, get) => ({
   user: null,
   me: null,
@@ -115,9 +134,18 @@ export const useUserStore = create<UserStore>((set, get) => ({
       })
       const synced = syncStateFromMe(meResult.data?.me)
       set({ ...synced, isLoading: false })
+      syncAnalyticsIdentity(synced.me)
+      trackFlowSucceeded(EVENTS.login_succeeded, { method: 'password' })
       return synced.user
     } catch (error) {
       set({ isLoading: false })
+      trackFlowFailed(EVENTS.login_failed, error, {
+        flow: 'login',
+        action: 'login',
+        operation: 'Login',
+        route: '/login',
+        extra: { method: 'password' },
+      })
       throw error
     }
   },
@@ -147,14 +175,23 @@ export const useUserStore = create<UserStore>((set, get) => ({
       })
       const synced = syncStateFromMe(meResult.data?.me)
       set({ ...synced, isLoading: false })
+      syncAnalyticsIdentity(synced.me)
+      trackFlowSucceeded(EVENTS.google_login_succeeded)
       return synced.user
     } catch (error) {
       set({ isLoading: false })
+      trackFlowFailed(EVENTS.google_login_failed, error, {
+        flow: 'google_login',
+        action: 'loginWithGoogle',
+        operation: 'LoginWithGoogle',
+        route: '/login',
+      })
       throw error
     }
   },
   logout: () => {
     clearAuthToken()
+    resetAnalyticsIdentity()
     set({ user: null, me: null })
     void apolloClient.clearStore()
   },
@@ -173,9 +210,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
       })
       const synced = syncStateFromMe(result.data?.me)
       set({ ...synced, isLoading: false })
+      syncAnalyticsIdentity(synced.me)
       return synced.user
-    } catch {
+    } catch (error) {
       clearAuthToken()
+      resetAnalyticsIdentity()
       set({ user: null, me: null, isLoading: false })
       return null
     }
