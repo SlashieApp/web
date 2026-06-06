@@ -16,6 +16,8 @@ export function resolvePostAuthRedirect(options: {
   redirect?: string | null
   intent?: AuthRedirectIntent | null
   emailVerified?: boolean
+  /** Where to send the user when no `next` / `redirect` / register intent applies. */
+  fallback?: string
 }): string {
   const safeNext = getSafeNextPath(options.next, options.redirect)
 
@@ -29,5 +31,5 @@ export function resolvePostAuthRedirect(options: {
   if (safeNext) return safeNext
   if (options.intent === 'worker') return '/profile'
   if (options.intent === 'customer') return '/tasks/create'
-  return '/dashboard'
+  return options.fallback ?? '/dashboard'
 }

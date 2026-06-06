@@ -22,12 +22,14 @@ type GoogleAuthButtonProps = {
   intent?: AuthRedirectIntent | null
   next?: string | null
   redirect?: string | null
+  fallbackPath?: string
 }
 
 export function GoogleAuthButton({
   intent = null,
   next = null,
   redirect = null,
+  fallbackPath = '/dashboard',
 }: GoogleAuthButtonProps) {
   const router = useRouter()
   const loginWithGoogle = useUserStore((s) => s.loginWithGoogle)
@@ -61,6 +63,7 @@ export function GoogleAuthButton({
             redirect,
             intent,
             emailVerified: me?.emailVerified,
+            fallback: fallbackPath,
           }),
         )
       } catch (err: unknown) {
@@ -74,7 +77,7 @@ export function GoogleAuthButton({
         })
       }
     },
-    [intent, loginWithGoogle, next, redirect, router],
+    [fallbackPath, intent, loginWithGoogle, next, redirect, router],
   )
 
   const onError = useCallback(() => {
