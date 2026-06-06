@@ -1,6 +1,0 @@
-mutation RequestPhoneVerification {
-  requestPhoneVerification {
-    success
-    devCode
-  }
-}

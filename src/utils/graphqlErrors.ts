@@ -13,10 +13,27 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   WEAK_PASSWORD: 'Password must meet the minimum complexity requirements.',
   INVALID_OR_EXPIRED_RESET_TOKEN: 'This reset link is invalid or has expired.',
   INVALID_OR_EXPIRED_VERIFICATION:
-    'This verification link is invalid or has expired.',
+    'This verification code is invalid or has expired. Request a new one.',
+  INVALID_PHONE_NUMBER: 'Enter a valid UK mobile number (07… or +44…).',
+  PHONE_VERIFICATION_RATE_LIMITED:
+    'Too many verification attempts. Try again in about an hour.',
+  PHONE_VERIFICATION_NOT_REQUESTED: 'Request a code first.',
+  INVALID_VERIFICATION_CODE: 'Enter the 6-digit code from your SMS.',
+  TWILIO_VERIFY_NOT_CONFIGURED:
+    'Phone verification is temporarily unavailable. Try again later.',
+  PHONE_VERIFICATION_FAILED:
+    'Could not send or verify your code. Try again shortly.',
   RESEND_VERIFICATION_RATE_LIMITED: 'Please wait 2 minutes before resending.',
-  EMAIL_NOT_VERIFIED:
-    'Verify your email to post tasks and send quotes. Check your inbox or resend the verification email.',
+  EMAIL_MISMATCH:
+    'This link is no longer valid. Request a new verification email.',
+  PHONE_MISMATCH:
+    "Phone doesn't match your profile. Save your number first, then verify.",
+  CONTACT_ALREADY_VERIFIED:
+    'Already verified. Change your phone in profile to use a new number.',
+  EMAIL_OR_PHONE_IN_USE:
+    'This email or phone is already registered to another account.',
+  EMAIL_NOT_VERIFIED: 'Verify your email to continue.',
+  PHONE_NOT_VERIFIED: 'Verify your phone to continue.',
   MONTHLY_CONNECTION_LIMIT_REACHED:
     "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade your membership or Worker Pro for unlimited connections, or try again next month.",
   FORBIDDEN: 'You do not have permission to change this task.',
@@ -32,7 +49,7 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   ACCEPTED_WORKER_CAP_BELOW_ACCEPTED:
     'Worker cap cannot be lower than the number of quotes already accepted.',
   PROFILE_PHONE_REQUIRED:
-    'Add and verify a phone number on your profile before choosing phone contact.',
+    'Save your phone number on your profile first, then verify.',
 }
 
 export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =

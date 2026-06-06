@@ -1,19 +1,54 @@
 'use client'
 
-import { HStack, Heading, Text } from '@chakra-ui/react'
+import { HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import { TaskContactMethod } from '@codegen/schema'
+import NextLink from 'next/link'
 
+import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility'
 import { Button, FormField, SectionCard } from '@ui'
 
 export type CreateTaskContactSectionProps = {
   preferredContactMethod: TaskContactMethod
   onPreferredContactMethodChange: (value: TaskContactMethod) => void
+  contactOptions: ContactOption[]
+}
+
+function contactButtonProps(
+  method: TaskContactMethod,
+  preferredContactMethod: TaskContactMethod,
+  enabled: boolean,
+) {
+  const selected = preferredContactMethod === method
+  return {
+    type: 'button' as const,
+    size: 'sm' as const,
+    variant: 'ghost' as const,
+    bg: selected && enabled ? 'primary.600' : 'cardBg',
+    color:
+      selected && enabled ? 'white' : enabled ? 'cardFg' : 'formLabelMuted',
+    boxShadow: 'none',
+    disabled: !enabled,
+    opacity: enabled ? 1 : 0.55,
+    title: enabled ? undefined : 'Verify this contact method in Account first',
+  }
 }
 
 export function CreateTaskContactSection({
   preferredContactMethod,
   onPreferredContactMethodChange,
+  contactOptions,
 }: CreateTaskContactSectionProps) {
+  const optionByMethod = Object.fromEntries(
+    contactOptions.map((option) => [option.value, option]),
+  ) as Partial<Record<TaskContactMethod, ContactOption>>
+
+  const phoneOption = optionByMethod[TaskContactMethod.Phone]
+  const emailOption = optionByMethod[TaskContactMethod.Email]
+  const needsPhoneVerify =
+    preferredContactMethod === TaskContactMethod.Phone &&
+    phoneOption &&
+    !phoneOption.enabled
+
   return (
     <SectionCard
       bodyGap={4}
@@ -32,20 +67,11 @@ export function CreateTaskContactSection({
       <FormField label="How should workers reach you?">
         <HStack gap={2} flexWrap="wrap">
           <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            bg={
-              preferredContactMethod === TaskContactMethod.InApp
-                ? 'primary.600'
-                : 'cardBg'
-            }
-            color={
-              preferredContactMethod === TaskContactMethod.InApp
-                ? 'white'
-                : 'cardFg'
-            }
-            boxShadow="none"
+            {...contactButtonProps(
+              TaskContactMethod.InApp,
+              preferredContactMethod,
+              true,
+            )}
             onClick={() =>
               onPreferredContactMethodChange(TaskContactMethod.InApp)
             }
@@ -53,49 +79,65 @@ export function CreateTaskContactSection({
             In-app chat
           </Button>
           <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            bg={
-              preferredContactMethod === TaskContactMethod.Phone
-                ? 'primary.600'
-                : 'cardBg'
-            }
-            color={
-              preferredContactMethod === TaskContactMethod.Phone
-                ? 'white'
-                : 'cardFg'
-            }
-            boxShadow="none"
-            onClick={() =>
-              onPreferredContactMethodChange(TaskContactMethod.Phone)
-            }
+            {...contactButtonProps(
+              TaskContactMethod.Phone,
+              preferredContactMethod,
+              phoneOption?.enabled ?? false,
+            )}
+            onClick={() => {
+              if (phoneOption?.enabled) {
+                onPreferredContactMethodChange(TaskContactMethod.Phone)
+              }
+            }}
           >
             Phone
           </Button>
           <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            bg={
-              preferredContactMethod === TaskContactMethod.Email
-                ? 'primary.600'
-                : 'cardBg'
-            }
-            color={
-              preferredContactMethod === TaskContactMethod.Email
-                ? 'white'
-                : 'cardFg'
-            }
-            boxShadow="none"
-            onClick={() =>
-              onPreferredContactMethodChange(TaskContactMethod.Email)
-            }
+            {...contactButtonProps(
+              TaskContactMethod.Email,
+              preferredContactMethod,
+              emailOption?.enabled ?? false,
+            )}
+            onClick={() => {
+              if (emailOption?.enabled) {
+                onPreferredContactMethodChange(TaskContactMethod.Email)
+              }
+            }}
           >
             Email
           </Button>
         </HStack>
       </FormField>
+
+      {phoneOption && !phoneOption.enabled ? (
+        <Text fontSize="sm" color="formLabelMuted">
+          {phoneOption.disabledHint}
+        </Text>
+      ) : null}
+
+      {emailOption && !emailOption.enabled ? (
+        <Text fontSize="sm" color="formLabelMuted">
+          {emailOption.disabledHint}
+        </Text>
+      ) : null}
+
+      {needsPhoneVerify ? (
+        <Stack gap={2}>
+          <Text fontSize="sm" color="formLabelMuted">
+            Phone contact requires a verified mobile number on your account.
+          </Text>
+          <Link
+            as={NextLink}
+            href="/account"
+            alignSelf="flex-start"
+            _hover={{ textDecoration: 'none' }}
+          >
+            <Button size="sm" variant="secondary">
+              Verify phone in Account
+            </Button>
+          </Link>
+        </Stack>
+      ) : null}
     </SectionCard>
   )
 }

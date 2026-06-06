@@ -16,6 +16,7 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
+import { PhoneVerificationBanner } from '@/app/(auth)/components/PhoneVerificationBanner'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { isAccountHubPath } from '@/utils/accountHub'
@@ -502,21 +503,24 @@ export function Header({
   ...props
 }: HeaderProps) {
   return (
-    <Box
-      as="header"
-      zIndex={30}
-      bg="bg"
-      color="cardFg"
-      backdropFilter="blur(20px)"
-      boxShadow="none"
-      borderWidth="1px"
-      borderColor="cardBorder"
-      px={{ base: 2, lg: 3 }}
-      py={1}
-      {...props}
-    >
+    <>
       <EmailVerificationBanner />
-      <Box>{children ?? <SiteNavigation activeItem={activeItem} />}</Box>
-    </Box>
+      {/* <PhoneVerificationBanner /> */}
+      <Box
+        as="header"
+        zIndex={30}
+        bg="bg"
+        color="cardFg"
+        backdropFilter="blur(20px)"
+        boxShadow="none"
+        borderWidth="1px"
+        borderColor="cardBorder"
+        px={{ base: 2, lg: 3 }}
+        py={1}
+        {...props}
+      >
+        <Box>{children ?? <SiteNavigation activeItem={activeItem} />}</Box>
+      </Box>
+    </>
   )
 }

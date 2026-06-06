@@ -1,5 +1,10 @@
 import { TaskContactMethod } from '@codegen/schema'
 
+import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
+import {
+  hasVerifiedContactMethod,
+  isPhoneVerified,
+} from '@/app/(auth)/helpers/phoneVerification'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 
 export type CompletenessItem = {
@@ -17,9 +22,7 @@ export type CompletenessItem = {
  */
 export function getCompletenessItems(me: MeSnapshot): CompletenessItem[] {
   const profile = me.profile
-  const hasVerifiedContact = Boolean(
-    profile?.emailVerified || profile?.phoneVerified,
-  )
+  const hasVerifiedContact = hasVerifiedContactMethod(me)
 
   return [
     {
@@ -77,7 +80,6 @@ export type ContactOption = {
  * unlock only once the matching contact method is verified.
  */
 export function getContactOptions(me: MeSnapshot): ContactOption[] {
-  const profile = me.profile
   return [
     {
       value: TaskContactMethod.InApp,
@@ -87,14 +89,14 @@ export function getContactOptions(me: MeSnapshot): ContactOption[] {
     {
       value: TaskContactMethod.Email,
       label: 'Email',
-      enabled: Boolean(profile?.emailVerified),
+      enabled: isEmailVerified(me),
       disabledHint: 'Verify your email in Account to use this option.',
     },
     {
       value: TaskContactMethod.Phone,
       label: 'Phone',
-      enabled: Boolean(profile?.phoneVerified),
-      disabledHint: 'Add and verify a phone in Account to use this option.',
+      enabled: isPhoneVerified(me),
+      disabledHint: 'Verify your phone in Account to use this option.',
     },
   ]
 }

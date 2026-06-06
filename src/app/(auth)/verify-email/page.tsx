@@ -8,7 +8,10 @@ import NextLink from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 
-import { isInvalidOrExpiredVerificationError } from '@/app/(auth)/helpers/emailVerification'
+import {
+  isEmailMismatchError,
+  isInvalidOrExpiredVerificationError,
+} from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
 import VerifyEmail from '@/app/(auth)/verify-email/graphql/VerifyEmail.gql'
@@ -75,7 +78,10 @@ function VerifyEmailContent() {
       setState('success')
       router.replace(nextPath)
     } catch (error: unknown) {
-      if (isInvalidOrExpiredVerificationError(error)) {
+      if (
+        isInvalidOrExpiredVerificationError(error) ||
+        isEmailMismatchError(error)
+      ) {
         setState('error')
         setErrorMessage(
           getFriendlyErrorMessage(

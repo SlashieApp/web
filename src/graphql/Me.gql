@@ -3,6 +3,8 @@ query Me {
     id
     email
     emailVerified
+    phoneVerified
+    phoneVerifiedAt
     createdAt
     enabledLoginMethods
     profile {

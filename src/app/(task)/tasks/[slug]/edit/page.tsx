@@ -22,6 +22,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { type UseFormRegister, useForm } from 'react-hook-form'
 
+import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import MyRequests from '@/app/(dashboard)/requests/graphql/MyRequests.gql'
 import Tasks from '@/app/(task)/graphql/Tasks.gql'
 import {
@@ -105,9 +106,14 @@ function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
 type EditTaskFormBodyProps = {
   taskId: string
   task: NonNullable<TaskQuery['task']>
+  contactOptions: ReturnType<typeof getContactOptions>
 }
 
-function EditTaskFormBody({ taskId, task }: EditTaskFormBodyProps) {
+function EditTaskFormBody({
+  taskId,
+  task,
+  contactOptions,
+}: EditTaskFormBodyProps) {
   const router = useRouter()
   const apollo = useApolloClient()
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
@@ -395,6 +401,7 @@ function EditTaskFormBody({ taskId, task }: EditTaskFormBodyProps) {
             />
             <CreateTaskContactSection
               preferredContactMethod={preferredContactMethod}
+              contactOptions={contactOptions}
               onPreferredContactMethodChange={(m) =>
                 setValue('preferredContactMethod', m, {
                   shouldValidate: true,
@@ -469,6 +476,7 @@ export default function EditTaskPage() {
     fetchPolicy: 'cache-first',
   })
   const me = meData?.me ?? null
+  const contactOptions = useMemo(() => (me ? getContactOptions(me) : []), [me])
 
   const {
     data: taskData,
@@ -633,7 +641,11 @@ export default function EditTaskPage() {
           <Container>
             <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
               <EditTaskPageHeader taskTitle={task.title} />
-              <EditTaskFormBody taskId={taskId} task={task} />
+              <EditTaskFormBody
+                taskId={taskId}
+                task={task}
+                contactOptions={contactOptions}
+              />
             </Stack>
           </Container>
         </Box>

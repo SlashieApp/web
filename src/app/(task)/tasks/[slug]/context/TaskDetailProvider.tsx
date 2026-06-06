@@ -15,6 +15,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
+import { isPhoneNotVerifiedError } from '@/app/(auth)/helpers/phoneVerification'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
@@ -238,9 +239,13 @@ export function TaskDetailProvider({
     } catch (error: unknown) {
       const message = getFriendlyErrorMessage(error, 'Quote submission failed.')
       setQuoteError(message)
-      if (getGraphQLErrorCode(error) === 'EMAIL_NOT_VERIFIED') {
+      const code = getGraphQLErrorCode(error)
+      if (code === 'EMAIL_NOT_VERIFIED' || isPhoneNotVerifiedError(error)) {
         showAppToast({
-          title: 'Email verification required',
+          title:
+            code === 'PHONE_NOT_VERIFIED'
+              ? 'Phone verification required'
+              : 'Email verification required',
           description: message,
           type: 'warning',
         })

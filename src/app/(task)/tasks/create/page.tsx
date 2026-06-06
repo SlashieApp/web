@@ -13,10 +13,12 @@ import {
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
+import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
+import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(task)/tasks/create/graphql/CreateTask.gql'
 import Me from '@/graphql/Me.gql'
 import { showAppToast } from '@/utils/appToast'
@@ -50,11 +52,15 @@ const POST_TASK_PATH = '/tasks/create'
 type CreateTaskFormBodyProps = {
   preferredContactDefault: TaskContactMethod
   emailVerified: boolean
+  phoneVerified: boolean
+  contactOptions: ReturnType<typeof getContactOptions>
 }
 
 function CreateTaskFormBody({
   preferredContactDefault,
   emailVerified,
+  phoneVerified,
+  contactOptions,
 }: CreateTaskFormBodyProps) {
   const router = useRouter()
   const apollo = useApolloClient()
@@ -195,6 +201,21 @@ function CreateTaskFormBody({
       return
     }
 
+    if (
+      values.preferredContactMethod === TaskContactMethod.Phone &&
+      !phoneVerified
+    ) {
+      const message =
+        'Verify your phone in Account before choosing phone as your contact method.'
+      setServerError(message)
+      showAppToast({
+        title: 'Phone verification required',
+        description: message,
+        type: 'warning',
+      })
+      return
+    }
+
     const parsedBudget = Number.parseFloat(values.budgetMajor)
     const datetime = buildDatetimePayload(values)
 
@@ -235,9 +256,13 @@ function CreateTaskFormBody({
     } catch (err: unknown) {
       const message = getTaskMutationErrorMessage(err, 'Task creation failed.')
       setServerError(message)
-      if (getGraphQLErrorCode(err) === 'EMAIL_NOT_VERIFIED') {
+      const code = getGraphQLErrorCode(err)
+      if (code === 'EMAIL_NOT_VERIFIED' || code === 'PHONE_NOT_VERIFIED') {
         showAppToast({
-          title: 'Email verification required',
+          title:
+            code === 'PHONE_NOT_VERIFIED'
+              ? 'Phone verification required'
+              : 'Email verification required',
           description: message,
           type: 'warning',
         })
@@ -367,6 +392,7 @@ function CreateTaskFormBody({
             />
             <CreateTaskContactSection
               preferredContactMethod={preferredContactMethod}
+              contactOptions={contactOptions}
               onPreferredContactMethodChange={(m) =>
                 setValue('preferredContactMethod', m, {
                   shouldValidate: true,
@@ -432,6 +458,11 @@ export default function CreateTaskPage() {
     meData?.me?.profile?.defaultPreferredContactMethod ??
     TaskContactMethod.InApp
 
+  const contactOptions = useMemo(
+    () => (meData?.me ? getContactOptions(meData.me) : []),
+    [meData?.me],
+  )
+
   const mePrimedForForm = Boolean(meData?.me) || !meLoading
 
   if (!sessionOk) {
@@ -477,6 +508,8 @@ export default function CreateTaskPage() {
               <CreateTaskFormBody
                 preferredContactDefault={preferredContactDefault}
                 emailVerified={isEmailVerified(meData?.me)}
+                phoneVerified={isPhoneVerified(meData?.me)}
+                contactOptions={contactOptions}
               />
             </Stack>
           </Container>

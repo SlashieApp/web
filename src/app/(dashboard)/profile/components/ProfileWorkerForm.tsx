@@ -7,7 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { hasVerifiedContactMethod } from '@/app/(auth)/helpers/phoneVerification'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { PhoneVerificationBlock } from '@/app/(dashboard)/components/PhoneVerificationBlock'
 import RegisterAsPro from '@/app/(dashboard)/profile/graphql/RegisterAsPro.gql'
 import Me from '@/graphql/Me.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -165,6 +167,21 @@ export function ProfileWorkerForm() {
             </HStack>
           </Stack>
         </SectionCard>
+
+        {!hasVerifiedContactMethod(me) ? (
+          <SectionCard p={{ base: 5, md: 6 }}>
+            <Stack gap={3}>
+              <Stack gap={1}>
+                <Heading size="md">Verified contact required</Heading>
+                <Text fontSize="sm" color="formLabelMuted">
+                  Verify your email or phone before registering as a worker.
+                  Save your phone on Profile first, then verify it here.
+                </Text>
+              </Stack>
+              <PhoneVerificationBlock compact />
+            </Stack>
+          </SectionCard>
+        ) : null}
 
         <HStack gap={3} justify="flex-end">
           <Button

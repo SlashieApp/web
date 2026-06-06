@@ -6,6 +6,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 
 import { ProfileCompletenessCard } from './components/ProfileCompletenessCard'
 import { ProfileDetailsForm } from './components/ProfileDetailsForm'
+import { ProfilePhoneSection } from './components/ProfilePhoneSection'
 import { ProfilePhotoCard } from './components/ProfilePhotoCard'
 import { ProfileWorkerForm } from './components/ProfileWorkerForm'
 import { displayNameFromMe, joinMonthYear } from './profileDisplayHelpers'
@@ -56,6 +57,7 @@ export default function ProfilePage() {
 
       <ProfileCompletenessCard />
       <ProfilePhotoCard />
+      <ProfilePhoneSection />
       <ProfileDetailsForm />
       <ProfileWorkerForm />
     </Stack>

@@ -1,0 +1,3 @@
+mutation SendPhoneVerification($phone: String!) {
+  sendPhoneVerification(phone: $phone)
+}
