@@ -13,7 +13,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
 import ResetPassword from '@/app/(auth)/reset-password/graphql/ResetPassword.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 

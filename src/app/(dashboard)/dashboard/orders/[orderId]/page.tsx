@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useRef } from 'react'
 
 import OrderDetail from '@/app/(dashboard)/dashboard/orders/[orderId]/graphql/OrderDetail.gql'
-import { EVENTS, capture, captureApiError } from '@/lib/analytics'
+import { EVENTS, capture, captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { taskOrderSectionHref } from '@/utils/orderHelpers'
 import { SectionCard } from '@ui'

@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react'
 
-import { EVENTS, capture } from '@/lib/analytics'
+import { EVENTS, capture } from '@/utils/analytics'
 
 export function TaskNotFoundTracker() {
   const trackedRef = useRef(false)

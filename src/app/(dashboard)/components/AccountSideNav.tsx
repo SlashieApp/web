@@ -32,6 +32,28 @@ function NavIcon({ type }: { type: AccountNavKey }) {
     )
   }
 
+  if (type === 'workers') {
+    return (
+      <svg {...common} aria-hidden>
+        <title>Workers</title>
+        <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="1.8" />
+        <circle
+          cx="17"
+          cy="9"
+          r="2.5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M3.5 20c0-3 2.7-4.5 5.5-4.5S14.5 17 14.5 20M14.5 18.5c1.8-.3 4-1.5 5.5-3.5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    )
+  }
+
   if (type === 'requests') {
     return (
       <svg {...common} aria-hidden>

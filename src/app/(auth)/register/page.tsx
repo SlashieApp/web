@@ -24,7 +24,7 @@ import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
 import Register from '@/app/(auth)/register/graphql/Register.gql'
 import { registerFormSchema } from '@/app/(auth)/register/registerFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 

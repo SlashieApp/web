@@ -13,7 +13,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, FormField, Input, SectionCard, Select } from '@ui'
 

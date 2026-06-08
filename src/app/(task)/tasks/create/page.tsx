@@ -26,7 +26,7 @@ import {
   capture,
   trackFlowFailed,
   trackFlowSucceeded,
-} from '@/lib/analytics'
+} from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
 import {

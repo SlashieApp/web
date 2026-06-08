@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
-import { captureApiError } from '@/lib/analytics'
+import { captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { SectionCard } from '@ui'
 

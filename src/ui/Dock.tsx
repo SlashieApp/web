@@ -27,6 +27,22 @@ function BrowseIcon() {
   )
 }
 
+function WorkersIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Workers</title>
+      <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="17" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M3.5 20c0-3 2.7-4.5 5.5-4.5S14.5 17 14.5 20M14.5 18.5c1.8-.3 4-1.5 5.5-3.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 function JobsIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -105,6 +121,12 @@ export function Dock() {
       caption: 'Discovery',
       href: '/',
       icon: <BrowseIcon />,
+    },
+    {
+      key: 'workers',
+      caption: 'Workers',
+      href: '/workers',
+      icon: <WorkersIcon />,
     },
     {
       key: 'jobs',

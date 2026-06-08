@@ -69,6 +69,10 @@ query Task($id: ID!) {
           name
           avatarUrl
         }
+        worker {
+          id
+          isVerified
+        }
       }
     }
   }

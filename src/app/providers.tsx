@@ -4,7 +4,7 @@ import { ApolloProvider } from '@apollo/client/react'
 import type { ReactNode } from 'react'
 
 import { NotificationsProvider } from '@/app/(dashboard)/context/NotificationsProvider'
-import { AnalyticsErrorBoundary } from '@/lib/analytics'
+import { AnalyticsErrorBoundary } from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { AppToastHost } from '@/utils/appToast'
 

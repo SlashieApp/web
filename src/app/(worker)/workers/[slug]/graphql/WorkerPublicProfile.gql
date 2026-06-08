@@ -1,0 +1,23 @@
+query WorkerPublicProfile($id: ID!) {
+  worker(id: $id) {
+    id
+    bio
+    tagline
+    isVerified
+    yearsExperience
+    averageResponseTime
+    tasksCompletedCount
+    legalName
+    location {
+      name
+    }
+    user {
+      id
+      createdAt
+    }
+    profile {
+      avatarUrl
+      name
+    }
+  }
+}

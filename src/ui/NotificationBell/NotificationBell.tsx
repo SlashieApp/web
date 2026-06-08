@@ -13,7 +13,7 @@ import NextLink from 'next/link'
 import { useCallback } from 'react'
 
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
-import { EVENTS, capture } from '@/lib/analytics'
+import { EVENTS, capture } from '@/utils/analytics'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import {
   notificationDisplayText,

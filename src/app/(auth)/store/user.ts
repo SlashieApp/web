@@ -18,7 +18,7 @@ import {
   resetAnalyticsIdentity,
   trackFlowFailed,
   trackFlowSucceeded,
-} from '@/lib/analytics'
+} from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/utils/auth'
 

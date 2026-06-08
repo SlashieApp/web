@@ -11,6 +11,7 @@ export {
   captureTaskDetailView,
   resolveTaskDetailViewerRole,
 } from './task-detail-view'
+export { captureWorkerProfileView } from './worker-profile-view'
 export { EVENTS } from './events'
 export {
   getPostHog,
@@ -35,3 +36,7 @@ export type {
   TaskDetailViewerRole,
   TaskDetailViewSource,
 } from './task-detail-view'
+export type {
+  CaptureWorkerProfileViewInput,
+  WorkerProfileViewSource,
+} from './worker-profile-view'

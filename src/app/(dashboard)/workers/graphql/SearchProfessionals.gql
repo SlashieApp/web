@@ -1,0 +1,21 @@
+query SearchProfessionals($filter: WorkerFilter, $sort: WorkerSort) {
+  searchProfessionals(filter: $filter, sort: $sort) {
+    id
+    tagline
+    isVerified
+    yearsExperience
+    tasksCompletedCount
+    location {
+      name
+    }
+    user {
+      profile {
+        name
+        avatarUrl
+      }
+    }
+    profile {
+      avatarUrl
+    }
+  }
+}

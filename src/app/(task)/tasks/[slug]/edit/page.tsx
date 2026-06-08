@@ -35,7 +35,7 @@ import {
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import UpdateTask from '@/app/(task)/tasks/[slug]/graphql/UpdateTask.gql'
 import Me from '@/graphql/Me.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getAuthToken } from '@/utils/auth'
 import {
   getGraphQLErrorCode,

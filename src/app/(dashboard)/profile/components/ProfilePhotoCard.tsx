@@ -12,7 +12,7 @@ import {
   captureApiError,
   trackFlowFailed,
   trackFlowSucceeded,
-} from '@/lib/analytics'
+} from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {

@@ -12,7 +12,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { PhoneVerificationBlock } from '@/app/(dashboard)/components/PhoneVerificationBlock'
 import RegisterAsPro from '@/app/(dashboard)/profile/graphql/RegisterAsPro.gql'
 import Me from '@/graphql/Me.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, FormField, Input, SectionCard, Textarea } from '@ui'
 

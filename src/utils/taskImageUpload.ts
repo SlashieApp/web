@@ -2,7 +2,7 @@ import type { ApolloClient } from '@apollo/client'
 import type { GetTaskS3UploadQuery } from '@codegen/schema'
 
 import GetTaskS3Upload from '@/app/(task)/tasks/create/graphql/GetTaskS3Upload.gql'
-import { apiFetch } from '@/lib/analytics'
+import { apiFetch } from '@/utils/analytics'
 
 function objectUrlFromPresignedPut(presignedUrl: string): string {
   try {

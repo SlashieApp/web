@@ -2,7 +2,7 @@
 import { Box, useBreakpointValue } from '@chakra-ui/react'
 import { useCallback, useRef } from 'react'
 
-import { EVENTS, capture } from '@/lib/analytics'
+import { EVENTS, capture } from '@/utils/analytics'
 
 import { MobileLayout } from './components/(mobile)/MobileLayout'
 import { WebLayout } from './components/(web)/WebLayout'

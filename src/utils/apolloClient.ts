@@ -6,7 +6,7 @@ import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
 import { createHttpLink } from '@apollo/client/link/http'
 
-import { captureApiError, getCurrentRoute } from '@/lib/analytics'
+import { captureApiError, getCurrentRoute } from '@/utils/analytics'
 
 import { clearAuthToken, getAuthToken } from './auth'
 import { isUnauthenticatedError } from './graphqlErrors'

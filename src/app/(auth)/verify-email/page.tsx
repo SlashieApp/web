@@ -15,7 +15,7 @@ import {
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
 import VerifyEmail from '@/app/(auth)/verify-email/graphql/VerifyEmail.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getAuthToken, setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 

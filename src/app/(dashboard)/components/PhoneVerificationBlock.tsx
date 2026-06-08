@@ -17,7 +17,7 @@ import {
 import { useUserStore } from '@/app/(auth)/store/user'
 import SendPhoneVerification from '@/app/(dashboard)/account/graphql/SendPhoneVerification.gql'
 import VerifyPhone from '@/app/(dashboard)/account/graphql/VerifyPhone.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {

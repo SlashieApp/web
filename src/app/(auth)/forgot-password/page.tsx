@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense, useMemo, useState } from 'react'
 
 import ForgotPassword from '@/app/(auth)/forgot-password/graphql/ForgotPassword.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 function FieldIconMail() {

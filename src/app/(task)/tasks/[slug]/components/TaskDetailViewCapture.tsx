@@ -5,7 +5,7 @@ import { useCallback, useRef } from 'react'
 import {
   captureTaskDetailView,
   resolveTaskDetailViewerRole,
-} from '@/lib/analytics'
+} from '@/utils/analytics'
 
 type TaskDetailViewCaptureProps = {
   taskId: string

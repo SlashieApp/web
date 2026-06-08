@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { useRef } from 'react'
 
-import { capture, getPostHog, initPostHogClient } from '@/lib/analytics'
+import { capture, getPostHog, initPostHogClient } from '@/utils/analytics'
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

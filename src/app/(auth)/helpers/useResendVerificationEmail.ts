@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react'
 
 import { isResendVerificationRateLimitedError } from '@/app/(auth)/helpers/emailVerification'
 import ResendVerificationEmail from '@/app/(auth)/verify-email/graphql/ResendVerificationEmail.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/lib/analytics'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 type ResendState = 'idle' | 'sending' | 'sent' | 'error'

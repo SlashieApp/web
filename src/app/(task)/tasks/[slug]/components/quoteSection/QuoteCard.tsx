@@ -45,6 +45,8 @@ export type QuoteCardProps = {
   declineLoading?: boolean
   acceptDisabled?: boolean
   detailHref?: string
+  /** Links avatar and name to the public worker profile when set. */
+  workerProfileHref?: string
 }
 
 export function QuoteCard({
@@ -66,8 +68,11 @@ export function QuoteCard({
   acceptLoading = false,
   declineLoading = false,
   acceptDisabled = false,
-  detailHref = '/quotes',
+  detailHref,
+  workerProfileHref,
 }: QuoteCardProps) {
+  const profileHref = workerProfileHref ?? detailHref ?? '/quotes'
+  const profileLinkLabel = workerProfileHref ? 'View profile' : 'Messages'
   const body =
     message && message.trim().length > 0
       ? message.length > 220
@@ -92,37 +97,44 @@ export function QuoteCard({
     >
       <HStack align="flex-start" gap={3} justify="space-between" w="full">
         <HStack align="flex-start" gap={3} flex={1} minW={0}>
-          <Box
-            flexShrink={0}
-            boxSize="48px"
-            borderRadius="full"
-            bg={avatarGradient(name + avatarLabel)}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            color="white"
-            fontWeight={800}
-            fontSize="sm"
-            letterSpacing="0.02em"
-            overflow="hidden"
-          >
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={`${name} avatar`}
-                w="full"
-                h="full"
-                objectFit="cover"
+          {workerProfileHref ? (
+            <Link
+              as={NextLink}
+              href={workerProfileHref}
+              flexShrink={0}
+              _hover={{ textDecoration: 'none' }}
+              aria-label={`View profile for ${name}`}
+            >
+              <QuoteCardAvatar
+                name={name}
+                avatarLabel={avatarLabel}
+                avatarUrl={avatarUrl}
               />
-            ) : (
-              avatarLabel.slice(0, 2).toUpperCase()
-            )}
-          </Box>
+            </Link>
+          ) : (
+            <QuoteCardAvatar
+              name={name}
+              avatarLabel={avatarLabel}
+              avatarUrl={avatarUrl}
+            />
+          )}
           <Stack gap={1} flex={1} minW={0}>
             <HStack gap={2} align="center" flexWrap="wrap">
-              <Heading size="sm" lineHeight="short">
-                {name}
-              </Heading>
+              {workerProfileHref ? (
+                <Link
+                  as={NextLink}
+                  href={workerProfileHref}
+                  _hover={{ textDecoration: 'none', color: 'primary.700' }}
+                >
+                  <Heading size="sm" lineHeight="short">
+                    {name}
+                  </Heading>
+                </Link>
+              ) : (
+                <Heading size="sm" lineHeight="short">
+                  {name}
+                </Heading>
+              )}
               {showVerified ? (
                 <Box
                   as="span"
@@ -175,7 +187,7 @@ export function QuoteCard({
           ) : null}
           <Link
             as={NextLink}
-            href={detailHref}
+            href={profileHref}
             display="flex"
             alignItems="center"
             alignSelf="center"
@@ -183,7 +195,7 @@ export function QuoteCard({
             px={1}
             color="formLabelMuted"
             _hover={{ color: 'cardFg' }}
-            aria-label="Messages"
+            aria-label={profileLinkLabel}
           >
             <LuChevronRight size={22} aria-hidden />
           </Link>
@@ -248,5 +260,44 @@ export function QuoteCard({
         </Stack>
       ) : null}
     </Stack>
+  )
+}
+
+function QuoteCardAvatar({
+  name,
+  avatarLabel,
+  avatarUrl,
+}: {
+  name: string
+  avatarLabel: string
+  avatarUrl?: string | null
+}) {
+  return (
+    <Box
+      flexShrink={0}
+      boxSize="48px"
+      borderRadius="full"
+      bg={avatarGradient(name + avatarLabel)}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      color="white"
+      fontWeight={800}
+      fontSize="sm"
+      letterSpacing="0.02em"
+      overflow="hidden"
+    >
+      {avatarUrl ? (
+        <Image
+          src={avatarUrl}
+          alt={`${name} avatar`}
+          w="full"
+          h="full"
+          objectFit="cover"
+        />
+      ) : (
+        avatarLabel.slice(0, 2).toUpperCase()
+      )}
+    </Box>
   )
 }

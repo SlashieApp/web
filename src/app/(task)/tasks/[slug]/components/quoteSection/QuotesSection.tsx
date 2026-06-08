@@ -18,6 +18,7 @@ import { Badge, Button } from '@ui'
 
 import { QuoteStatus } from '@codegen/schema'
 
+import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
@@ -27,6 +28,7 @@ import {
   normaliseTaskStatusForBadge,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
+
 import { MetaRow } from '../metaSection/MetaRow'
 import { QuoteCard } from './QuoteCard'
 
@@ -167,6 +169,10 @@ export function QuotesSection() {
             {displayQuotes.map((quote, i) => {
               const quotePence = priceToPence(quote.price)
               const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
+              const workerEntityId = quote.worker?.worker?.id
+              const workerProfileHref = workerEntityId
+                ? workerProfilePath(workerEntityId, task.id)
+                : undefined
               return (
                 <MetaRow
                   key={quote.id}
@@ -192,7 +198,8 @@ export function QuotesSection() {
                     respondedLabel={
                       formatQuoteRespondedAgo(quote.createdAt) ?? undefined
                     }
-                    showVerified={Boolean(quote.worker?.id)}
+                    showVerified={Boolean(quote.worker?.worker?.isVerified)}
+                    workerProfileHref={workerProfileHref}
                     acceptPrimary={
                       quotePence != null && quotePence === lowestPricePence
                     }
@@ -340,6 +347,10 @@ export function QuotesSection() {
         <Stack gap={0} w="full">
           {task.quotes.map((quote, i) => {
             const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
+            const workerEntityId = quote.worker?.worker?.id
+            const workerProfileHref = workerEntityId
+              ? workerProfilePath(workerEntityId, task.id)
+              : undefined
             return (
               <MetaRow
                 key={quote.id}
@@ -356,7 +367,8 @@ export function QuotesSection() {
                   respondedLabel={
                     formatQuoteRespondedAgo(quote.createdAt) ?? undefined
                   }
-                  showVerified={Boolean(quote.worker?.id)}
+                  showVerified={Boolean(quote.worker?.worker?.isVerified)}
+                  workerProfileHref={workerProfileHref}
                 />
               </MetaRow>
             )

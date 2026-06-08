@@ -9,6 +9,8 @@ export const EVENTS = {
   task_load: 'task_load',
   task_load_fail: 'task_load_fail',
   task_not_found_view: 'task_not_found_view',
+  worker_view: 'worker_view',
+  workers_view: 'workers_view',
   login_gate: 'login_gate',
 
   // Auth

@@ -12,7 +12,7 @@ import {
 import { useUserStore } from '@/app/(auth)/store/user'
 import { PhoneVerificationBlock } from '@/app/(dashboard)/components/PhoneVerificationBlock'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
-import { captureApiError } from '@/lib/analytics'
+import { captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { formatPhoneForDisplay, toE164ForApi } from '@/utils/phoneNormalize'
 import { Button, FormField, PhoneInput } from '@ui'
