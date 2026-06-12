@@ -1,0 +1,14 @@
+query Pricing {
+  pricing {
+    productName
+    description
+    priceAmount
+    priceCurrency
+    priceInterval
+    trialDays
+    trialLabel
+    freeQuotesPerMonth
+    stripePriceId
+    stripeProductId
+  }
+}

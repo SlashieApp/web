@@ -105,6 +105,24 @@ function NavIcon({ type }: { type: AccountNavKey }) {
     )
   }
 
+  if (type === 'billing') {
+    return (
+      <svg {...common} aria-hidden>
+        <title>Billing</title>
+        <rect
+          x="3"
+          y="6"
+          width="18"
+          height="12"
+          rx="2"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+        <path d="M3 10h18" stroke="currentColor" strokeWidth="1.8" />
+      </svg>
+    )
+  }
+
   if (type === 'account') {
     return (
       <svg {...common} aria-hidden>

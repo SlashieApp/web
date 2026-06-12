@@ -19,9 +19,12 @@ import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificati
 import { PhoneVerificationBanner } from '@/app/(auth)/components/PhoneVerificationBanner'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
+import { membershipBadgeColors } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { isAccountHubPath } from '@/utils/accountHub'
 import { getAuthToken } from '@/utils/auth'
+
 import { AppDrawer } from '../AppDrawer/AppDrawer'
+import { Badge } from '../Badge'
 import { Button } from '../Button'
 import { HoverDropdownMenu } from '../HoverDropdownMenu'
 import { Logo } from '../Logo/Logo'
@@ -260,6 +263,14 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
     isLoggedIn,
     pathname,
   )
+  const workerMembership = me?.worker?.membership
+  const membershipLabel = workerMembership?.statusLabel?.trim()
+  const showMembershipBadge = Boolean(
+    membershipLabel && membershipLabel.toLowerCase() !== 'free',
+  )
+  const membershipColors = workerMembership
+    ? membershipBadgeColors(workerMembership)
+    : null
 
   const navigateTo = useCallback((href: string) => {
     if (typeof window === 'undefined') return
@@ -339,18 +350,35 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
           contentLabel={isLoggedIn ? 'Account menu' : 'Menu'}
           display={{ base: 'none', lg: 'inline-block' }}
           trigger={
-            <IconButton
-              type="button"
-              variant="ghost"
-              size="sm"
-              color="formLabelMuted"
-              bg="badgeBg"
-              borderRadius="full"
-              aria-label={isLoggedIn ? 'Account menu' : 'Menu'}
-              _hover={{ bg: 'cardBg', color: 'cardFg' }}
-            >
-              {user ? <AccountTriggerGlyph email={user.email} /> : <IconMenu />}
-            </IconButton>
+            <HStack gap={1.5} align="center">
+              {showMembershipBadge && membershipColors ? (
+                <Badge
+                  display={{ base: 'none', lg: 'inline-flex' }}
+                  bg={membershipColors.bg}
+                  color={membershipColors.color}
+                  fontWeight={700}
+                  fontSize="xs"
+                >
+                  {membershipLabel}
+                </Badge>
+              ) : null}
+              <IconButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                color="formLabelMuted"
+                bg="badgeBg"
+                borderRadius="full"
+                aria-label={isLoggedIn ? 'Account menu' : 'Menu'}
+                _hover={{ bg: 'cardBg', color: 'cardFg' }}
+              >
+                {user ? (
+                  <AccountTriggerGlyph email={user.email} />
+                ) : (
+                  <IconMenu />
+                )}
+              </IconButton>
+            </HStack>
           }
         >
           <Stack gap={0}>

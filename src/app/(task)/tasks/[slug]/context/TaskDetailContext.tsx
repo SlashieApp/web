@@ -18,6 +18,10 @@ export type TaskDetailData = {
   myQuote: TaskDetailRecord['quotes'][number] | null
   sortedQuotes: TaskDetailRecord['quotes']
   lowestPricePence: number | null
+  workerBillingLoading: boolean
+  hasUnlimitedQuotes: boolean
+  quotesRemainingThisMonth: number | null
+  quoteLimitReached: boolean
 }
 
 export type TaskDetailQuoteForm = {

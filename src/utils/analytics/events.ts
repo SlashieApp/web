@@ -11,6 +11,13 @@ export const EVENTS = {
   task_not_found_view: 'task_not_found_view',
   worker_view: 'worker_view',
   workers_view: 'workers_view',
+  pricing_view: 'pricing_view',
+  billing_page_view: 'billing_page_view',
+  billing_portal_open: 'billing_portal_open',
+  checkout_start: 'checkout_start',
+  checkout_success: 'checkout_success',
+  checkout_cancel: 'checkout_cancel',
+  quote_limit_reached: 'quote_limit_reached',
   login_gate: 'login_gate',
 
   // Auth

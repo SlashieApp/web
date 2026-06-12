@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { Button, SectionCard } from '@ui'
 
+import { MembershipRefreshOnMount } from '../components/MembershipRefreshOnMount'
+import { WorkerMembershipCard } from '../components/WorkerMembershipCard'
 import { AccountContactCard } from './components/AccountContactCard'
 import { AccountSettingsCard } from './components/AccountSettingsCard'
 
@@ -56,6 +58,7 @@ export default function AccountPage() {
 
   return (
     <Stack gap={6}>
+      <MembershipRefreshOnMount />
       <Stack gap={2}>
         <Heading size="xl">Account</Heading>
         <Text color="formLabelMuted">
@@ -69,6 +72,10 @@ export default function AccountPage() {
       </Stack>
 
       <AccountContactCard />
+
+      {me.worker?.membership ? (
+        <WorkerMembershipCard membership={me.worker.membership} />
+      ) : null}
 
       <SectionCard p={{ base: 5, md: 6 }}>
         <Stack gap={4}>

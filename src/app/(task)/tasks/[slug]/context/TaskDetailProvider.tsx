@@ -22,6 +22,11 @@ import {
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneNotVerifiedError } from '@/app/(auth)/helpers/phoneVerification'
+import { useMe, useUserStore } from '@/app/(auth)/store/user'
+import {
+  hasUnlimitedQuoting,
+  isQuoteLimitReached,
+} from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
@@ -42,6 +47,7 @@ import { getAuthToken } from '@/utils/auth'
 import {
   getFriendlyErrorMessage,
   getGraphQLErrorCode,
+  isWorkerQuoteLimitError,
 } from '@/utils/graphqlErrors'
 import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
@@ -81,13 +87,36 @@ export function TaskDetailProvider({
   const [verificationCode, setVerificationCode] = useState('')
   const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
   const isAuthenticated = Boolean(getAuthToken())
+  const zustandMe = useMe()
+  const getUser = useUserStore((s) => s.getUser)
+  const meHydratedRef = useRef(false)
 
   const { data: meData, loading: meLoading } = useQuery<MeQuery>(Me, {
     skip: !isAuthenticated,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-and-network',
   })
-  const me = meData?.me ?? null
-  const meLoadingResolved = Boolean(isAuthenticated && meLoading)
+  const me = zustandMe ?? meData?.me ?? null
+  const meLoadingResolved = Boolean(
+    isAuthenticated && meLoading && !zustandMe && !meData?.me,
+  )
+  const hasWorkerProfile = Boolean(me?.worker?.id)
+  const workerMembership = me?.worker?.membership ?? null
+  const hasUnlimitedQuotes = hasUnlimitedQuoting(workerMembership)
+  const quotesRemainingThisMonth =
+    workerMembership?.quotesRemainingThisMonth ?? null
+  const quoteLimitReached = isQuoteLimitReached(workerMembership)
+  const workerBillingLoading = Boolean(
+    isAuthenticated && hasWorkerProfile && meLoadingResolved,
+  )
+
+  const onMembershipRefreshMount = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node || meHydratedRef.current || !isAuthenticated) return
+      meHydratedRef.current = true
+      void getUser()
+    },
+    [getUser, isAuthenticated],
+  )
 
   const myOrderFromInitial = (initialOrder ?? null) as OrderItem | null
 
@@ -272,7 +301,17 @@ export function TaskDetailProvider({
       const message = getFriendlyErrorMessage(error, 'Quote submission failed.')
       setQuoteError(message)
       const code = getGraphQLErrorCode(error)
-      if (code === 'EMAIL_NOT_VERIFIED' || isPhoneNotVerifiedError(error)) {
+      if (isWorkerQuoteLimitError(error)) {
+        capture(EVENTS.quote_limit_reached, { task_id: task.id })
+        showAppToast({
+          title: 'Monthly quote limit reached',
+          description: message,
+          type: 'warning',
+        })
+      } else if (
+        code === 'EMAIL_NOT_VERIFIED' ||
+        isPhoneNotVerifiedError(error)
+      ) {
         showAppToast({
           title:
             code === 'PHONE_NOT_VERIFIED'
@@ -486,6 +525,10 @@ export function TaskDetailProvider({
       myQuote,
       sortedQuotes,
       lowestPricePence,
+      workerBillingLoading,
+      hasUnlimitedQuotes,
+      quotesRemainingThisMonth,
+      quoteLimitReached,
       quoteAmountInput,
       quoteMessageInput,
       quoteAvailabilityInput,
@@ -523,6 +566,10 @@ export function TaskDetailProvider({
       myQuote,
       sortedQuotes,
       lowestPricePence,
+      workerBillingLoading,
+      hasUnlimitedQuotes,
+      quotesRemainingThisMonth,
+      quoteLimitReached,
       quoteAmountInput,
       quoteMessageInput,
       quoteAvailabilityInput,
@@ -557,6 +604,7 @@ export function TaskDetailProvider({
 
   return (
     <TaskDetailContext.Provider value={value}>
+      <div ref={onMembershipRefreshMount} hidden aria-hidden />
       {canCaptureTaskView && task ? (
         <TaskDetailViewCapture
           taskId={task.id}

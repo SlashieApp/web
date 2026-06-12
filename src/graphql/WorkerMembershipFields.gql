@@ -1,0 +1,17 @@
+fragment WorkerMembershipFields on WorkerMembership {
+  planName
+  statusLabel
+  statusDescription
+  subscriptionStatus
+  hasUnlimitedQuotes
+  cancelAtPeriodEnd
+  canceledAt
+  freeQuotesPerMonth
+  quotesUsedThisMonth
+  quotesRemainingThisMonth
+  trialEndsAt
+  currentPeriodEnd
+  canStartTrial
+  canManageBilling
+  canUpgrade
+}

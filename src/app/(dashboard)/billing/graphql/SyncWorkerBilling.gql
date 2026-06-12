@@ -1,0 +1,7 @@
+#import "../../../../graphql/WorkerMembershipFields.gql"
+
+mutation SyncWorkerBilling {
+  syncWorkerBilling {
+    ...WorkerMembershipFields
+  }
+}

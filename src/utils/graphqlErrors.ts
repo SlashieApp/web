@@ -39,7 +39,9 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   EMAIL_NOT_VERIFIED: 'Verify your email to continue.',
   PHONE_NOT_VERIFIED: 'Verify your phone to continue.',
   MONTHLY_CONNECTION_LIMIT_REACHED:
-    "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade your membership or Worker Pro for unlimited connections, or try again next month.",
+    "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade to Slashie Unlimited for unlimited quotes, or try again next month.",
+  WORKER_QUOTE_LIMIT_REACHED:
+    "You've used all free quotes this month (UTC). Upgrade to Slashie Unlimited for unlimited quoting, or wait until next month.",
   FORBIDDEN: 'You do not have permission to change this task.',
   NOT_FOUND: 'This task could not be found.',
   TASK_NOT_FOUND: 'This task could not be found.',
@@ -59,6 +61,9 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
 
 export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =
   'MONTHLY_CONNECTION_LIMIT_REACHED' as const
+
+export const WORKER_QUOTE_LIMIT_ERROR_CODE =
+  'WORKER_QUOTE_LIMIT_REACHED' as const
 
 function normaliseMessage(message: string) {
   return message.trim().toUpperCase()
@@ -96,6 +101,16 @@ export function isMonthlyConnectionLimitError(error: unknown) {
   return (
     normaliseMessage(graphQLError.message) ===
     MONTHLY_CONNECTION_LIMIT_ERROR_CODE
+  )
+}
+
+export function isWorkerQuoteLimitError(error: unknown) {
+  const graphQLError = pickGraphQLError(error)
+  if (graphQLError?.extensions?.code === WORKER_QUOTE_LIMIT_ERROR_CODE)
+    return true
+  if (!graphQLError?.message) return false
+  return (
+    normaliseMessage(graphQLError.message) === WORKER_QUOTE_LIMIT_ERROR_CODE
   )
 }
 

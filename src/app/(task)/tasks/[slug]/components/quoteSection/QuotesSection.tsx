@@ -31,6 +31,7 @@ import {
 
 import { MetaRow } from '../metaSection/MetaRow'
 import { QuoteCard } from './QuoteCard'
+import { QuoteLimitPaywall } from './QuoteLimitPaywall'
 
 type QuoteSort = 'recommended' | 'price_low' | 'price_high' | 'recent'
 
@@ -91,6 +92,7 @@ export function QuotesSection() {
     decliningQuoteId,
     onAcceptQuote,
     onDeclineQuote,
+    quoteLimitReached,
   } = useTaskDetail()
 
   const {
@@ -309,6 +311,8 @@ export function QuotesSection() {
         <Button w="full">Check inbox</Button>
       </Link>
     </Stack>
+  ) : quoteLimitReached ? (
+    <QuoteLimitPaywall />
   ) : !canSubmitQuote ? (
     <Stack gap={3}>
       <Heading size="sm">Quoting closed</Heading>

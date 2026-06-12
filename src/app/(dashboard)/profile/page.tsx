@@ -4,6 +4,8 @@ import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 
+import { MembershipRefreshOnMount } from '../components/MembershipRefreshOnMount'
+import { WorkerMembershipCard } from '../components/WorkerMembershipCard'
 import { ProfileCompletenessCard } from './components/ProfileCompletenessCard'
 import { ProfileDetailsForm } from './components/ProfileDetailsForm'
 import { ProfilePhoneSection } from './components/ProfilePhoneSection'
@@ -17,6 +19,7 @@ export default function ProfilePage() {
 
   return (
     <Stack gap={6}>
+      <MembershipRefreshOnMount />
       <Stack gap={2}>
         <HStack gap={3} align="flex-start" flexWrap="wrap">
           <Box
@@ -56,6 +59,9 @@ export default function ProfilePage() {
       </Stack>
 
       <ProfileCompletenessCard />
+      {me.worker?.membership ? (
+        <WorkerMembershipCard membership={me.worker.membership} />
+      ) : null}
       <ProfilePhotoCard />
       <ProfilePhoneSection />
       <ProfileDetailsForm />

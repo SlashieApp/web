@@ -5,6 +5,7 @@ const ACCOUNT_HUB_PREFIXES = [
   '/requests',
   '/quotes',
   '/earnings',
+  '/billing',
   '/account',
   '/profile',
 ] as const

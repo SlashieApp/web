@@ -60,21 +60,11 @@ export function ProfileWorkerForm() {
       const w = result.data?.registerAsPro
       if (w) {
         const displayName = w.profile?.name?.trim() ?? null
-        patchMe({
-          profile: me.profile
-            ? { ...me.profile, name: displayName ?? me.profile.name }
-            : me.profile,
-          worker: {
-            id: w.id,
-            legalName: w.legalName ?? null,
-            bio: w.bio ?? null,
-            tagline: w.tagline ?? null,
-            yearsExperience: w.yearsExperience ?? null,
-            isVerified: w.isVerified,
-            tasksCompletedCount: w.tasksCompletedCount ?? null,
-            locationAddress: w.locationAddress ?? null,
-          },
-        })
+        if (displayName && me.profile) {
+          patchMe({
+            profile: { ...me.profile, name: displayName },
+          })
+        }
       }
       trackFlowSucceeded(EVENTS.worker_setup_success, {
         is_new_worker: !isWorker,

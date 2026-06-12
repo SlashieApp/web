@@ -163,6 +163,7 @@ Ensure `.env` includes:
 
 - `NEXT_PUBLIC_GRAPHQL_URL` — API **base** (no `/graphql` suffix; the app appends `/graphql`).
 - `SCHEMA_ACCESS_TOKEN` — value for the `X-Schema-Token` header when fetching `/schema` (see `codegen.ts`).
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Stripe publishable key (`pk_test_…` / `pk_live_…`) for worker subscription Checkout; must match the API’s Stripe mode. Never put `STRIPE_SECRET_KEY` in the web app.
 
 ## Run the web app
 

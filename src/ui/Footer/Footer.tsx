@@ -4,6 +4,7 @@ import { Box, Container, HStack, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 const links = [
+  { label: 'Pricing', href: '/pricing' },
   { label: 'Support', href: '/' },
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },

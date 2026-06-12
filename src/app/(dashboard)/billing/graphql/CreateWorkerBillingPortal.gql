@@ -1,0 +1,5 @@
+mutation CreateWorkerBillingPortal($returnUrl: String!) {
+  createWorkerBillingPortal(returnUrl: $returnUrl) {
+    url
+  }
+}

@@ -25,6 +25,7 @@ import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { formatBudgetAmount } from '@/utils/price'
 import { Button, FormField, IconButton, Input } from '@ui'
 
+import { QuoteLimitPaywall } from '../../components/quoteSection/QuoteLimitPaywall'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TaskQuotePrivateCallout } from './TaskQuotePrivateCallout'
 import { TaskQuoteSummaryCard } from './TaskQuoteSummaryCard'
@@ -87,6 +88,7 @@ export function TaskQuoteFlow() {
     onSubmitQuote,
     quoting,
     quoteError,
+    quoteLimitReached,
   } = useTaskDetail()
 
   const [step, setStep] = useState<Step>('compose')
@@ -275,6 +277,26 @@ export function TaskQuoteFlow() {
             <Button w="full">Create worker profile</Button>
           </Link>
           <BackToTaskLink href={backToTask} />
+        </Stack>
+      </Box>
+    )
+  }
+
+  if (quoteLimitReached) {
+    return (
+      <Box ref={shellRef}>
+        <Stack gap={6} py={{ base: 6, md: 8 }}>
+          <BackToTaskLink href={backToTask} />
+          <Stack gap={1}>
+            <Heading size="lg" color="secondary.900">
+              Send quote
+            </Heading>
+            <Text color="formLabelMuted">
+              Upgrade to send more quotes this month.
+            </Text>
+          </Stack>
+          <TaskQuoteSummaryCard />
+          <QuoteLimitPaywall />
         </Stack>
       </Box>
     )

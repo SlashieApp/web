@@ -11,6 +11,7 @@ export type AccountNavKey =
   | 'requests'
   | 'quotes'
   | 'earnings'
+  | 'billing'
   | 'account'
   | 'profile'
 
@@ -57,6 +58,13 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
       'Historical completed work — reference only, Slashie does not pay out.',
   },
   {
+    key: 'billing',
+    label: 'Billing',
+    href: '/billing',
+    description:
+      'Slashie Unlimited subscription, quote allowance, and Stripe billing.',
+  },
+  {
     key: 'account',
     label: 'Account',
     href: '/account',
@@ -78,6 +86,7 @@ export function resolveAccountNavKey(pathname: string | null): AccountNavKey {
   if (path.startsWith('/requests')) return 'requests'
   if (path.startsWith('/quotes')) return 'quotes'
   if (path.startsWith('/earnings')) return 'earnings'
+  if (path.startsWith('/billing')) return 'billing'
   if (path.startsWith('/account')) return 'account'
   if (path.startsWith('/profile')) return 'profile'
   return 'overview'

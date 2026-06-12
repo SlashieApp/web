@@ -1,0 +1,11 @@
+mutation CreateWorkerSubscriptionCheckout(
+  $successUrl: String!
+  $cancelUrl: String!
+) {
+  createWorkerSubscriptionCheckout(
+    successUrl: $successUrl
+    cancelUrl: $cancelUrl
+  ) {
+    url
+  }
+}
