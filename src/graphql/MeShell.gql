@@ -1,0 +1,22 @@
+#import "./WorkerMembershipFields.gql"
+
+fragment MeShell on User {
+  id
+  email
+  profile {
+    name
+    avatarUrl
+  }
+  worker {
+    id
+    membership {
+      ...WorkerMembershipFields
+    }
+    earnings {
+      pending {
+        amount
+        currency
+      }
+    }
+  }
+}

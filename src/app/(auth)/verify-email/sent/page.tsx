@@ -9,6 +9,7 @@ import { Suspense, useCallback, useMemo, useRef } from 'react'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useMe } from '@/app/(auth)/store/user'
+import { APP_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 
 function VerifyEmailSentFallback() {
@@ -39,7 +40,7 @@ function VerifyEmailSentContent() {
       if (!node || redirectedRef.current) return
       if (me && isEmailVerified(me)) {
         redirectedRef.current = true
-        router.replace(nextPath ?? '/dashboard')
+        router.replace(nextPath ?? APP_HOME)
       }
     },
     [me, nextPath, router],
@@ -109,7 +110,7 @@ function VerifyEmailSentContent() {
               ) : null}
               <Link
                 as={NextLink}
-                href={nextPath ?? '/dashboard'}
+                href={nextPath ?? APP_HOME}
                 fontSize="sm"
                 fontWeight={600}
                 color="primary.600"

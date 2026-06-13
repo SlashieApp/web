@@ -75,9 +75,9 @@ query Task($id: ID!) {
         }
       }
     }
-  }
-  order(taskId: $id) {
-    ...OrderFields
-    completionVerificationCode
+    viewerOrder {
+      ...OrderFields
+      completionVerificationCode
+    }
   }
 }

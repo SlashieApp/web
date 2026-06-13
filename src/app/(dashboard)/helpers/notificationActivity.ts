@@ -36,7 +36,9 @@ function toneForType(type: string): ActivityTone {
 }
 
 export function notificationRowsFromQuery(
-  items: MyNotificationsQuery['myNotifications']['items'],
+  items: NonNullable<
+    NonNullable<MyNotificationsQuery['me']>['notifications']
+  >['items'],
   limit = 8,
 ): NotificationActivityRow[] {
   return [...items]

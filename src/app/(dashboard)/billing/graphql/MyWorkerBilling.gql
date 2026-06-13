@@ -1,7 +1,0 @@
-#import "../../../../graphql/WorkerMembershipFields.gql"
-
-query MyWorkerBilling {
-  myWorkerBilling {
-    ...WorkerMembershipFields
-  }
-}

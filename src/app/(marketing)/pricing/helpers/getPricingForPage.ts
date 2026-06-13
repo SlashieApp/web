@@ -2,8 +2,8 @@ import { cache } from 'react'
 
 import type { PricingQuery } from '@codegen/schema'
 
-import Pricing from '@/app/pricing/graphql/Pricing.gql'
 import { fetch } from '@/utils/api'
+import Pricing from '../graphql/Pricing.gql'
 
 export type PricingRecord = PricingQuery['pricing']
 

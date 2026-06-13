@@ -38,6 +38,12 @@ query Me {
       membership {
         ...WorkerMembershipFields
       }
+      earnings {
+        pending {
+          amount
+          currency
+        }
+      }
     }
   }
 }

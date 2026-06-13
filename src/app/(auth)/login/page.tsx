@@ -105,14 +105,11 @@ function PasswordToggleButton({
     <IconButton
       type="button"
       variant="ghost"
-      size="sm"
       onClick={onToggle}
       aria-label={label}
       minW="var(--input-height)"
       h="var(--input-height)"
       borderRadius="md"
-      color="formLabelMuted"
-      _hover={{ bg: 'badgeBg' }}
     >
       <IconEye open={!visible} />
     </IconButton>
@@ -319,7 +316,7 @@ export default function LoginPage() {
     ) {
       return requestedNextPath
     }
-    return '/'
+    return '/tasks'
   }, [authQuery])
   const onMountAuthGuard = useCallback(
     (node: HTMLDivElement | null) => {
@@ -407,7 +404,7 @@ export default function LoginPage() {
                 <GoogleAuthButton
                   next={authQuery.next}
                   redirect={authQuery.redirect}
-                  fallbackPath="/"
+                  fallbackPath="/tasks"
                 />
 
                 <Stack gap={2} pt={1}>

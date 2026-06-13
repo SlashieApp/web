@@ -70,7 +70,6 @@ export function WorkerQuoteCalendar() {
           <HStack gap={1}>
             <IconButton
               aria-label="Previous month"
-              size="sm"
               variant="ghost"
               onClick={goPrevMonth}
             >
@@ -86,7 +85,6 @@ export function WorkerQuoteCalendar() {
             </Text>
             <IconButton
               aria-label="Next month"
-              size="sm"
               variant="ghost"
               onClick={goNextMonth}
             >

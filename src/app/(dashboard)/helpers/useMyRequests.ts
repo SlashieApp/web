@@ -14,7 +14,7 @@ import {
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import type { TaskListVariables } from '@/utils/taskListQuery'
 
-/** Customer inbox: `myRequests` (poster or assigned worker). */
+/** Customer inbox: tasks the user posted (`me.tasksPosted`). */
 export function useMyRequests(variables?: TaskListVariables) {
   const me = useUserStore((s) => s.me)
   const { data, loading, error, refetch } = useQuery<
@@ -26,13 +26,9 @@ export function useMyRequests(variables?: TaskListVariables) {
     skip: !me,
   })
 
-  const tasks = data?.myRequests ?? []
-
   const postedTasks = useMemo(() => {
-    if (!me) return [] as TaskItem[]
-    // Server applies the chosen `sort`; preserve that order here.
-    return tasks.filter((task) => task.poster?.id === me.id)
-  }, [tasks, me])
+    return (data?.me?.tasksPosted ?? []) as TaskItem[]
+  }, [data?.me?.tasksPosted])
 
   const activePostedTasks = useMemo(
     () => postedTasks.filter((t) => !isTaskCompleted(t.status)),
@@ -59,7 +55,7 @@ export function useMyRequests(variables?: TaskListVariables) {
       ? getFriendlyErrorMessage(error, 'Could not load tasks.')
       : null,
     refetch,
-    tasks,
+    tasks: postedTasks,
     postedTasks,
     activePostedTasks,
     completedPostedTasks,

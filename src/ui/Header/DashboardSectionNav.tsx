@@ -1,13 +1,11 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, IconButton, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import { useCallback } from 'react'
 
-import { ACCOUNT_NAV, type AccountNavKey } from '../helpers/accountNav'
-
-type AccountSideNavProps = {
-  active: AccountNavKey
-}
+import { ACCOUNT_NAV, type AccountNavKey } from '@/utils/accountNav'
+import { AppDrawer } from '@ui'
 
 function NavIcon({ type }: { type: AccountNavKey }) {
   const common = {
@@ -157,10 +155,19 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   )
 }
 
-/** Desktop side nav for the merged account hub. */
-export function AccountSideNav({ active }: AccountSideNavProps) {
+export type DashboardSectionNavProps = {
+  active: AccountNavKey
+  onNavigate?: () => void
+  variant?: 'sidebar' | 'drawer'
+}
+
+export function DashboardSectionNav({
+  active,
+  onNavigate,
+  variant = 'sidebar',
+}: DashboardSectionNavProps) {
   return (
-    <Stack as="nav" aria-label="Account sections" gap={1} w="full">
+    <Stack as="nav" aria-label="Dashboard sections" gap={1} w="full">
       {ACCOUNT_NAV.map((item) => {
         const isActive = item.key === active
         return (
@@ -172,7 +179,8 @@ export function AccountSideNav({ active }: AccountSideNavProps) {
             alignItems="center"
             gap={3}
             px={3}
-            py={2.5}
+            py={variant === 'drawer' ? 3 : 2.5}
+            minH={variant === 'drawer' ? '44px' : undefined}
             borderRadius="lg"
             bg={isActive ? 'primary.100' : 'transparent'}
             color={isActive ? 'primary.800' : 'cardFg'}
@@ -182,14 +190,23 @@ export function AccountSideNav({ active }: AccountSideNavProps) {
               textDecoration: 'none',
               bg: isActive ? 'primary.100' : 'badgeBg',
             }}
+            onClick={onNavigate}
           >
             <Box
               display="flex"
               color={isActive ? 'primary.700' : 'formLabelMuted'}
+              flexShrink={0}
             >
               <NavIcon type={item.key} />
             </Box>
-            <Text>{item.label}</Text>
+            <Stack gap={0} minW={0}>
+              <Text>{item.label}</Text>
+              {variant === 'drawer' ? (
+                <Text fontSize="xs" color="formLabelMuted" lineClamp={2}>
+                  {item.description}
+                </Text>
+              ) : null}
+            </Stack>
           </Link>
         )
       })}
@@ -197,59 +214,94 @@ export function AccountSideNav({ active }: AccountSideNavProps) {
   )
 }
 
-/** Mobile in-dashboard navigation with parity to desktop sections. */
-export function AccountBottomNav({ active }: AccountSideNavProps) {
+function MenuIcon() {
   return (
-    <HStack
-      as="nav"
-      aria-label="Account sections"
-      gap={0}
-      position="fixed"
-      left={0}
-      right={0}
-      bottom={0}
-      zIndex={40}
-      px={2}
-      pt={2}
-      pb="calc(env(safe-area-inset-bottom) + 10px)"
-      borderTopWidth="1px"
-      borderColor="cardBorder"
-      bg="bg"
-      display={{ base: 'flex', lg: 'none' }}
+    <Box as="span" display="flex" color="currentColor" aria-hidden>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <title>Menu</title>
+        <path
+          d="M4 7h16M4 12h16M4 17h16"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </Box>
+  )
+}
+
+export function DashboardContextLabel({ active }: { active: AccountNavKey }) {
+  const activeItem = ACCOUNT_NAV.find((item) => item.key === active)
+
+  return (
+    <Stack gap={0} minW={0} flex={1}>
+      <Text
+        fontSize="xs"
+        color="formLabelMuted"
+        fontWeight={600}
+        lineHeight={1.2}
+      >
+        Dashboard
+      </Text>
+      <Text
+        fontSize="sm"
+        fontWeight={700}
+        color="cardFg"
+        truncate
+        lineHeight={1.3}
+      >
+        {activeItem?.label ?? 'Overview'}
+      </Text>
+    </Stack>
+  )
+}
+
+export function DashboardSectionMenuButton({
+  onClick,
+}: {
+  onClick: () => void
+}) {
+  return (
+    <IconButton
+      aria-label="Open dashboard sections"
+      variant="ghost"
+      display={{ base: 'inline-flex', lg: 'none' }}
+      flexShrink={0}
+      onClick={onClick}
     >
-      {ACCOUNT_NAV.map((item) => {
-        const isActive = item.key === active
-        return (
-          <Link
-            key={item.key}
-            as={NextLink}
-            href={item.href}
-            flex={1}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Stack
-              gap={0.5}
-              align="center"
-              px={1}
-              py={1}
-              borderRadius="md"
-              color={isActive ? 'primary.700' : 'formLabelMuted'}
-            >
-              <NavIcon type={item.key} />
-              <Text
-                fontSize="xs"
-                fontWeight={isActive ? 700 : 600}
-                lineHeight={1}
-              >
-                {item.label}
-              </Text>
-            </Stack>
-          </Link>
-        )
-      })}
-    </HStack>
+      <MenuIcon />
+    </IconButton>
+  )
+}
+
+export type DashboardSectionDrawerProps = {
+  active: AccountNavKey
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+/** Dashboard section drawer — trigger is rendered separately in the app header. */
+export function DashboardSectionDrawer({
+  active,
+  open,
+  onOpenChange,
+}: DashboardSectionDrawerProps) {
+  const close = useCallback(() => onOpenChange(false), [onOpenChange])
+
+  return (
+    <AppDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Dashboard sections"
+      description="Jump between your requests, quotes, billing, and account tools."
+      placement="start"
+      size="sm"
+    >
+      <DashboardSectionNav
+        active={active}
+        variant="drawer"
+        onNavigate={close}
+      />
+    </AppDrawer>
   )
 }

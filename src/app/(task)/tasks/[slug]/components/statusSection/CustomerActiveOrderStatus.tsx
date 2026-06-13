@@ -157,7 +157,6 @@ export function CustomerActiveOrderStatus() {
               <IconButton
                 type="button"
                 aria-label="Copy completion code"
-                size="sm"
                 variant="ghost"
                 onClick={() => void copyCode(code)}
               >

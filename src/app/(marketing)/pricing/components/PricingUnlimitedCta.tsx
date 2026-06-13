@@ -5,6 +5,7 @@ import NextLink from 'next/link'
 
 import { useMe } from '@/app/(auth)/store/user'
 import { useBillingActions } from '@/app/(dashboard)/billing/helpers/useBillingActions'
+import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { getAuthToken } from '@/utils/auth'
 import { Button } from '@ui'
 
@@ -14,11 +15,23 @@ export function PricingUnlimitedCta() {
   const me = useMe()
   const isAuthenticated = Boolean(getAuthToken())
   const hasWorkerProfile = Boolean(me?.worker?.id)
+  const hasUnlimitedPlan = hasUnlimitedQuoting(me?.worker?.membership)
   const unlimitedCta = resolveUnlimitedPlanCta({
     isAuthenticated,
     hasWorkerProfile,
+    hasUnlimitedPlan,
   })
   const { startCheckout, checkoutLoading } = useBillingActions()
+
+  if (hasUnlimitedPlan) {
+    return (
+      <Box mt="auto">
+        <Button w="full" disabled opacity={0.72}>
+          {unlimitedCta.label}
+        </Button>
+      </Box>
+    )
+  }
 
   if (isAuthenticated && hasWorkerProfile) {
     return (

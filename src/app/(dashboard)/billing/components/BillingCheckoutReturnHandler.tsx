@@ -1,16 +1,12 @@
 'use client'
 
 import { useApolloClient } from '@apollo/client/react'
-import type { MyWorkerBillingQuery } from '@codegen/schema'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useRef } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { syncMembershipFromStripe } from '@/app/(dashboard)/billing/helpers/syncMembership'
-import {
-  isMembershipSynced,
-  pickMembershipSnapshot,
-} from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { isMembershipSynced } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { EVENTS, capture } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 
@@ -56,18 +52,9 @@ export function BillingCheckoutReturnHandler({
 
       let attempts = 0
       const poll = async () => {
-        const [billingResult, meResult] = await Promise.all([
-          onRefetchBilling(),
-          syncMembershipFromStripe(apolloClient, setMe),
-        ])
-
-        const billing = (billingResult as { data?: MyWorkerBillingQuery })?.data
-          ?.myWorkerBilling
-
-        const membership = pickMembershipSnapshot(
-          meResult.membership,
-          billing ?? null,
-        )
+        await onRefetchBilling()
+        const meResult = await syncMembershipFromStripe(apolloClient, setMe)
+        const membership = meResult.membership
 
         attempts += 1
         if (isMembershipSynced(membership) || attempts >= POLL_ATTEMPTS) {

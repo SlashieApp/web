@@ -221,14 +221,7 @@ function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
     top: '50%',
     transform: 'translateY(-50%)',
     zIndex: 2,
-    size: 'md' as const,
     variant: 'ghost' as const,
-    borderRadius: 'full',
-    minW: '44px',
-    minH: '44px',
-    bg: 'blackAlpha.600',
-    color: 'white',
-    _hover: { bg: 'blackAlpha.700' },
     _disabled: { opacity: 0.35, cursor: 'not-allowed' },
   }
 

@@ -1,7 +1,17 @@
 #import "./orderFields.gql"
 
 query MyOrders($filter: MyOrdersFilter) {
-  myOrders(filter: $filter) {
-    ...OrderFields
+  me {
+    orders(filter: $filter) {
+      ...OrderFields
+    }
+    worker {
+      earnings {
+        pending {
+          amount
+          currency
+        }
+      }
+    }
   }
 }

@@ -10,7 +10,7 @@ type RefetchMembershipResult = {
   membership: WorkerMembershipSnapshot | null
 }
 
-/** Network refresh of membership via Stripe sync + `me` / `myWorkerBilling`. */
+/** Network refresh of membership via Stripe sync + `me.worker.membership`. */
 export async function refetchMembershipState(
   apolloClient: ApolloClient,
   setMe: (me: MeSnapshot | null) => void,

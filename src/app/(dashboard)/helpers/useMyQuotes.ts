@@ -23,11 +23,12 @@ export function useMyQuotes(variables?: TaskListVariables) {
     skip: !me,
   })
 
+  const quotedTasks = data?.me?.worker?.quotedTasks ?? []
+
   const sentQuotes = useMemo((): MyQuoteItem[] => {
     if (!me) return []
 
-    // Server applies the chosen `sort` on tasks; preserve that order here.
-    return (data?.myQuotes ?? []).flatMap((task) =>
+    return quotedTasks.flatMap((task) =>
       (task.quotes ?? [])
         .filter((quote) => quote.workerUserId === me.id)
         .map((quote) => {
@@ -39,7 +40,7 @@ export function useMyQuotes(variables?: TaskListVariables) {
           }
         }),
     )
-  }, [data?.myQuotes, me])
+  }, [quotedTasks, me])
 
   return {
     me,

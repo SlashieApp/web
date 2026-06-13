@@ -21,9 +21,9 @@ import {
 import { TaskCard } from '../TaskCard'
 import { TaskEmptyState } from '../TaskEmptyState'
 
-/** Matches Chakra `md` and Dock horizontal inset (`left`/`right: 2` on base). */
+/** Chakra `md` breakpoint for carousel peek behavior. */
 const MD_MEDIA = '(min-width: 48em)'
-/** Horizontal inset on carousel viewport — same as mobile Dock (`spacing.2`). */
+/** Horizontal inset on carousel viewport. */
 const CAROUSEL_INSET = { base: 2, md: 3 } as const
 /** Extra peek on md+ so adjacent slides show at the edges. */
 const SLIDE_PEEK_MD_PX = 52

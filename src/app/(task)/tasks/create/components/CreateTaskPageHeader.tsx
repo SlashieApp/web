@@ -10,7 +10,7 @@ export function CreateTaskPageHeader() {
     <Stack gap={2}>
       <Link
         as={NextLink}
-        href="/"
+        href="/tasks"
         fontWeight={600}
         color="primary.700"
         _hover={{ textDecoration: 'none' }}

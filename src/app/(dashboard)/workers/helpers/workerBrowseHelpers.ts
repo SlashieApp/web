@@ -1,7 +1,6 @@
-import type { SearchProfessionalsQuery } from '@codegen/schema'
+import type { WorkersDirectoryQuery } from '@codegen/schema'
 
-export type WorkerBrowseItem =
-  SearchProfessionalsQuery['searchProfessionals'][number]
+export type WorkerBrowseItem = WorkersDirectoryQuery['workers'][number]
 
 export function workerBrowseDisplayName(worker: WorkerBrowseItem): string {
   const profileName = worker.user?.profile?.name?.trim()

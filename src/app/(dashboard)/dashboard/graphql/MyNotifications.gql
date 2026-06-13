@@ -1,17 +1,19 @@
 query MyNotifications($first: Int, $after: String, $unreadOnly: Boolean) {
-  myNotifications(first: $first, after: $after, unreadOnly: $unreadOnly) {
-    nextCursor
-    items {
-      id
-      type
-      title
-      body
-      taskId
-      orderId
-      quoteId
-      actorUserId
-      readAt
-      createdAt
+  me {
+    notifications(first: $first, after: $after, unreadOnly: $unreadOnly) {
+      nextCursor
+      items {
+        id
+        type
+        title
+        body
+        taskId
+        orderId
+        quoteId
+        actorUserId
+        readAt
+        createdAt
+      }
     }
   }
 }

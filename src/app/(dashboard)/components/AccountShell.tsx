@@ -5,12 +5,11 @@ import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 
-import { Button, Header } from '@ui'
+import { Button, DashboardSectionNav, Header } from '@ui'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 
-import { resolveAccountNavKey } from '../helpers/accountNav'
-import { AccountBottomNav, AccountSideNav } from './AccountSideNav'
+import { resolveAccountNavKey } from '@/utils/accountNav'
 
 type AccountShellProps = {
   children: ReactNode
@@ -35,7 +34,7 @@ function completionFromMe(me: MeSnapshot) {
   }
 }
 
-/** Unified account hub shell — fixed header + dock; only main content scrolls. */
+/** Unified account hub shell — fixed header + nav; only main content scrolls. */
 export function AccountShell({ children }: AccountShellProps) {
   const pathname = usePathname()
   const active = resolveAccountNavKey(pathname)
@@ -58,7 +57,7 @@ export function AccountShell({ children }: AccountShellProps) {
       flexDirection="column"
       overflow="hidden"
     >
-      <Header activeItem="none" flexShrink={0} zIndex={30} />
+      <Header flexShrink={0} zIndex={30} />
 
       <Box flex="1" minH={0} display="flex" overflow="hidden">
         <Box
@@ -72,7 +71,7 @@ export function AccountShell({ children }: AccountShellProps) {
           overflowY="auto"
         >
           <Stack py={6} px={5} gap={6} flex="1" minH="min-content">
-            <AccountSideNav active={active} />
+            <DashboardSectionNav active={active} variant="sidebar" />
 
             <Box mt="auto" display="grid" gap={4}>
               <Stack p={4} gap={3} bg="primary.100" borderRadius="xl">
@@ -135,15 +134,13 @@ export function AccountShell({ children }: AccountShellProps) {
           overflowY="auto"
           px={{ base: 4, md: 6, xl: 8 }}
           py={{ base: 5, md: 6 }}
-          pb={{ base: 24, lg: 8 }}
+          pb={{ base: 5, lg: 8 }}
         >
           <Box w="full" maxW="1200px">
             {children}
           </Box>
         </Box>
       </Box>
-
-      <AccountBottomNav active={active} />
     </Box>
   )
 }

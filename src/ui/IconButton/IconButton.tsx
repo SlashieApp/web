@@ -54,10 +54,10 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           <Box
             w={{ base: '56px', md: '60px' }}
             h={{ base: '56px', md: '60px' }}
+            borderRadius="full"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            borderRadius="xl"
             bg={active ? 'intentPrimaryBg' : 'transparent'}
             color={active ? 'intentPrimaryFg' : 'formLabelMuted'}
             py={1.5}
@@ -106,6 +106,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       )
     }
 
-    return <ChakraIconButton ref={ref} {...props} />
+    const { borderRadius = 'full', ...rest } = props
+    return <ChakraIconButton ref={ref} borderRadius={borderRadius} {...rest} />
   },
 )

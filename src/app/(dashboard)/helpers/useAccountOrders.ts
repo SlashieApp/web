@@ -1,12 +1,11 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import type { MyOrdersQuery, WorkerPendingEarningsQuery } from '@codegen/schema'
+import type { MyOrdersQuery } from '@codegen/schema'
 import { useMemo } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import MyOrders from '@/app/(dashboard)/earnings/graphql/MyOrders.gql'
-import WorkerPendingEarnings from '@/app/(dashboard)/earnings/graphql/WorkerPendingEarnings.gql'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {
   type OrderItem,
@@ -26,13 +25,8 @@ export function useAccountOrders() {
     fetchPolicy: 'cache-and-network',
   })
 
-  const { data: pendingData, refetch: refetchPending } =
-    useQuery<WorkerPendingEarningsQuery>(WorkerPendingEarnings, {
-      skip: !me,
-      fetchPolicy: 'cache-and-network',
-    })
-
-  const orders = data?.myOrders ?? []
+  const orders = data?.me?.orders ?? []
+  const pendingEarnings = data?.me?.worker?.earnings?.pending
 
   const grouped = useMemo(() => {
     if (!me) {
@@ -72,21 +66,17 @@ export function useAccountOrders() {
   }, [me, orders])
 
   const pendingEarningsPence = useMemo(() => {
-    const apiAmount = pendingData?.workerPendingEarnings?.amount
+    const apiAmount = pendingEarnings?.amount
     if (typeof apiAmount === 'number' && Number.isFinite(apiAmount)) {
       return Math.round(apiAmount * 100)
     }
     return sumOrderAgreedPricePence(grouped.pendingWorkerOrders)
-  }, [grouped.pendingWorkerOrders, pendingData?.workerPendingEarnings?.amount])
+  }, [grouped.pendingWorkerOrders, pendingEarnings?.amount])
 
   const completedEarningsPence = useMemo(
     () => sumOrderAgreedPricePence(grouped.closedWorkerOrders),
     [grouped.closedWorkerOrders],
   )
-
-  const refetchAll = async () => {
-    await Promise.all([refetch(), refetchPending()])
-  }
 
   return {
     me,
@@ -94,7 +84,7 @@ export function useAccountOrders() {
     errorMessage: error
       ? getFriendlyErrorMessage(error, 'Could not load your jobs.')
       : null,
-    refetch: refetchAll,
+    refetch,
     orders,
     ...grouped,
     pendingEarningsPence,

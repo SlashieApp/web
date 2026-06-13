@@ -63,7 +63,7 @@ const subscribeNoop = () => () => {}
 type TaskDetailProviderProps = {
   taskId: string
   initialTask: TaskQuery['task'] | null
-  initialOrder: TaskQuery['order'] | null
+  initialOrder: NonNullable<TaskQuery['task']>['viewerOrder'] | null
   children: React.ReactNode
 }
 
@@ -138,8 +138,7 @@ export function TaskDetailProvider({
   )
 
   const task = liveTaskData?.task ?? initialTask ?? null
-  const myOrder = (liveTaskData?.order ??
-    myOrderFromInitial) as OrderItem | null
+  const myOrder = (task?.viewerOrder ?? myOrderFromInitial) as OrderItem | null
   const orderLoading = Boolean(
     shouldPollLiveOrder && liveTaskLoading && !liveTaskData,
   )

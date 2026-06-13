@@ -1,5 +1,5 @@
-query SearchProfessionals($filter: WorkerFilter, $sort: WorkerSort) {
-  searchProfessionals(filter: $filter, sort: $sort) {
+query WorkersDirectory($filter: WorkerFilter, $sort: WorkerSort) {
+  workers(filter: $filter, sort: $sort) {
     id
     tagline
     isVerified

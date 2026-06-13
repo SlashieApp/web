@@ -72,7 +72,11 @@ export function WorkerQuotesMainColumn() {
               Browse open tasks near you and send your first quote to start
               earning.
             </Text>
-            <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+            <Link
+              as={NextLink}
+              href="/tasks"
+              _hover={{ textDecoration: 'none' }}
+            >
               <Button alignSelf="flex-start" size="sm">
                 Browse tasks
               </Button>

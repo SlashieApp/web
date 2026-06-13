@@ -20,5 +20,5 @@ type Story = StoryObj<typeof meta>
 export const CustomChildren: Story = {}
 
 export const SiteNavigation: Story = {
-  render: () => <Header activeItem="home" />,
+  render: () => <Header />,
 }

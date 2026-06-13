@@ -15,7 +15,9 @@ export function getDisplayNameFromEmail(email: string | null | undefined) {
     .join(' ')
 }
 
-export type TaskItem = MyRequestsQueryData['myRequests'][number]
+export type TaskItem = NonNullable<
+  NonNullable<MyRequestsQueryData['me']>['tasksPosted']
+>[number]
 export type TaskQuoteItem = NonNullable<TaskItem['quotes']>[number]
 export type MyQuoteItem = {
   task: TaskItem

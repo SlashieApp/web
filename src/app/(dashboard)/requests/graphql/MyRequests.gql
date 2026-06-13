@@ -1,52 +1,54 @@
 query MyRequests($filter: TaskFilter, $sort: TaskSort) {
-  myRequests(filter: $filter, sort: $sort) {
-    id
-    title
-    description
-    category
-    acceptedWorkerCap
-    budget {
-      amount
-      currency
-      type
-      paymentMethod
-    }
-    datetime {
-      date
-      time
-      type
-    }
-    contactMethod
-    images
-    status
-    completedAt
-    confirmedAt
-    createdAt
-    location {
-      lat
-      lng
-      name
-      address
-    }
-    poster {
+  me {
+    tasksPosted(filter: $filter, sort: $sort) {
       id
-    }
-    quotes {
-      id
-      taskId
-      workerUserId
-      price {
-        currency
+      title
+      description
+      category
+      acceptedWorkerCap
+      budget {
         amount
+        currency
+        type
+        paymentMethod
       }
-      message
+      datetime {
+        date
+        time
+        type
+      }
+      contactMethod
+      images
       status
+      completedAt
+      confirmedAt
       createdAt
-      worker {
+      location {
+        lat
+        lng
+        name
+        address
+      }
+      poster {
         id
-        profile {
-          name
-          avatarUrl
+      }
+      quotes {
+        id
+        taskId
+        workerUserId
+        price {
+          currency
+          amount
+        }
+        message
+        status
+        createdAt
+        worker {
+          id
+          profile {
+            name
+            avatarUrl
+          }
         }
       }
     }

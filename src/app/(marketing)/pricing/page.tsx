@@ -1,14 +1,16 @@
 import type { Metadata } from 'next'
 
-import { Box, Container, Stack, Text } from '@chakra-ui/react'
+import { Box, Container, Stack } from '@chakra-ui/react'
 
 import { Footer } from '@ui'
 
-import { PricingAudienceSummary } from './components/PricingAudienceSummary'
+import { PricingDisclaimer } from './components/PricingDisclaimer'
 import { PricingErrorState } from './components/PricingErrorState'
 import { PricingFaq } from './components/PricingFaq'
 import { PricingHeader } from './components/PricingHeader'
 import { PricingPlanCards } from './components/PricingPlanCards'
+import { PricingPlanDetailsLink } from './components/PricingPlanDetailsLink'
+import { PricingTrialBanner } from './components/PricingTrialBanner'
 import { PricingViewCapture } from './components/PricingViewCapture'
 import { getPricingForPage } from './helpers/getPricingForPage'
 
@@ -24,27 +26,20 @@ export default async function PricingPage() {
   return (
     <>
       <Box as="section" py={{ base: 8, md: 12 }} pb={{ base: 10, md: 12 }}>
-        <Container maxW="5xl" px={{ base: 4, md: 6 }}>
+        <Container maxW="6xl" px={{ base: 4, md: 6 }}>
           <Stack gap={{ base: 8, md: 10 }}>
             <PricingHeader />
             {failed || !pricing ? (
               <PricingErrorState />
             ) : (
               <>
-                <PricingAudienceSummary pricing={pricing} />
+                <PricingTrialBanner pricing={pricing} />
                 <PricingPlanCards pricing={pricing} />
-                <PricingFaq pricing={pricing} />
-                <Text
-                  fontSize="sm"
-                  color="formLabelMuted"
-                  textAlign="center"
-                  lineHeight="tall"
-                >
-                  Starting in Central London. Prices shown in{' '}
-                  {pricing.priceCurrency.toUpperCase()}. Platform subscription
-                  is separate from job payment, which customers and workers
-                  arrange directly outside Slashie.
-                </Text>
+                <PricingPlanDetailsLink />
+                <PricingDisclaimer />
+                <Box id="plan-details" scrollMarginTop="6rem">
+                  <PricingFaq pricing={pricing} />
+                </Box>
               </>
             )}
           </Stack>

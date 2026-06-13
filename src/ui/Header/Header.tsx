@@ -1,14 +1,11 @@
 'use client'
 
 import {
+  Badge,
   Box,
   type BoxProps,
-  Button as ChakraButton,
-  ClientOnly,
   HStack,
-  IconButton,
   Link,
-  Skeleton,
   Stack,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
@@ -16,103 +13,41 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
-import { PhoneVerificationBanner } from '@/app/(auth)/components/PhoneVerificationBanner'
-import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
-import { useMe, useUserStore } from '@/app/(auth)/store/user'
-import { membershipBadgeColors } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { useUserStore } from '@/app/(auth)/store/user'
+import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { isAccountHubPath } from '@/utils/accountHub'
+import { resolveAccountNavKey } from '@/utils/accountNav'
+import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
+import { AppDrawer, Button, IconButton, Logo } from '@ui'
 
-import { AppDrawer } from '../AppDrawer/AppDrawer'
-import { Badge } from '../Badge'
-import { Button } from '../Button'
-import { HoverDropdownMenu } from '../HoverDropdownMenu'
-import { Logo } from '../Logo/Logo'
-import { NotificationBell } from '../NotificationBell'
-import { useColorMode } from '../color-mode'
+import { AccountMenu } from './AccountMenu'
+import { BellIcon } from './BellIcon'
+import {
+  DashboardContextLabel,
+  DashboardSectionDrawer,
+  DashboardSectionMenuButton,
+} from './DashboardSectionNav'
+import { NotificationsDrawer } from './NotificationsDrawer'
+import { accountNavLinkRowProps } from './accountNavLinkProps'
 
-const accountMenuLinkProps = {
-  display: 'block',
-  px: 3,
-  py: 2,
-  borderRadius: 'md',
-  fontSize: 'sm',
-  fontWeight: 600,
-  color: 'cardFg',
-  _hover: { bg: 'badgeBg', textDecoration: 'none' },
-} as const
+/** Stable app header height (logo + controls + padding). */
+export const HEADER_MIN_HEIGHT = { base: '56px', md: '64px' } as const
 
-function HeaderThemeMenuButton() {
-  const { colorMode, toggleColorMode } = useColorMode()
-  const label = colorMode === 'dark' ? 'Light mode' : 'Dark mode'
+function GetAppButton() {
   return (
-    <Button
-      variant="ghost"
-      w="full"
-      h="auto"
-      minH={0}
-      py={2}
-      px={3}
-      justifyContent="flex-start"
-      fontSize="sm"
-      fontWeight={600}
-      borderRadius="md"
-      color="cardFg"
-      onClick={toggleColorMode}
+    <Link
+      href={GET_APP_HREF}
+      target="_blank"
+      rel="noopener noreferrer"
+      display="inline-flex"
+      _hover={{ textDecoration: 'none' }}
+      flexShrink={0}
     >
-      {label}
-    </Button>
-  )
-}
-
-// Dark mode is temporarily disabled, so the theme toggle is hidden. Flip this
-// flag back to `true` (and re-enable theming in `ThemeProvider`) to restore it.
-const SHOW_THEME_TOGGLE = false
-
-function ThemeToggleMenuRow() {
-  if (!SHOW_THEME_TOGGLE) return null
-  return (
-    <Box borderTopWidth="1px" borderColor="cardBorder" mt={1} pt={1}>
-      <ClientOnly fallback={<Skeleton h="36px" w="full" borderRadius="md" />}>
-        <HeaderThemeMenuButton />
-      </ClientOnly>
-    </Box>
-  )
-}
-
-function HeaderLogOutMenuRow({
-  onNavigate,
-  onAfterLogout,
-}: {
-  onNavigate: (href: string) => void
-  onAfterLogout?: () => void
-}) {
-  const logout = useUserStore((state) => state.logout)
-  return (
-    <Box borderTopWidth="1px" borderColor="cardBorder" mt={1} pt={1}>
-      <ChakraButton
-        type="button"
-        variant="ghost"
-        w="full"
-        h="auto"
-        minH={0}
-        py={2}
-        px={3}
-        justifyContent="flex-start"
-        fontSize="sm"
-        fontWeight={600}
-        color="red.600"
-        borderRadius="md"
-        _hover={{ bg: 'badgeBg' }}
-        onClick={() => {
-          logout()
-          onAfterLogout?.()
-          onNavigate('/')
-        }}
-      >
-        Log out
-      </ChakraButton>
-    </Box>
+      <Button size="sm" variant="outline">
+        Get app
+      </Button>
+    </Link>
   )
 }
 
@@ -132,108 +67,21 @@ function IconMenu() {
   )
 }
 
-/** Compact initials avatar for the signed-in header trigger (Airbnb-style account chip). */
-function AccountTriggerGlyph({ email }: { email: string }) {
-  const initial = email.trim().charAt(0).toUpperCase() || '?'
-  return (
-    <Box
-      boxSize="22px"
-      borderRadius="full"
-      bg="primary.100"
-      color="primary.700"
-      fontSize="10px"
-      fontWeight={700}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      lineHeight={1}
-      flexShrink={0}
-      aria-hidden
-    >
-      {initial}
-    </Box>
-  )
-}
-
-export type HeaderActiveItem =
-  | 'home'
-  | 'tasks'
-  | 'my-tasks'
-  | 'post-task'
-  | 'profile'
-  | 'none'
-
 export type HeaderProps = {
-  /** When omitted and `children` is omitted, renders the default site navigation. */
-  activeItem?: HeaderActiveItem
+  /** When omitted and `children` is omitted, renders the default app navigation. */
   children?: React.ReactNode
 } & Omit<BoxProps, 'children'>
 
-function resolveWorkerCta(
-  isLoggedIn: boolean,
-  pathname: string,
-): { href: string; label: string } {
-  if (!isLoggedIn) {
-    return {
-      href: `/login?next=${encodeURIComponent('/dashboard')}`,
-      label: 'Join Slashie',
-    }
-  }
-  if (isAccountHubPath(pathname)) {
-    return { href: '/', label: 'Browse tasks' }
-  }
-  return { href: '/dashboard', label: 'Worker Dashboard' }
-}
-
-function PostTaskNavButton({
-  active,
-  disabled,
-}: {
-  active: boolean
-  disabled: boolean
-}) {
-  if (disabled) {
-    return (
-      <Button
-        size="sm"
-        variant="secondary"
-        display={{ base: 'none', lg: 'inline-flex' }}
-        disabled
-        opacity={0.6}
-        title="Verify your email first"
-      >
-        Post a task
-      </Button>
-    )
-  }
-
-  return (
-    <Link
-      as={NextLink}
-      href="/tasks/create"
-      _hover={{ textDecoration: 'none' }}
-    >
-      <Button
-        size="sm"
-        variant={active ? 'primary' : 'secondary'}
-        display={{ base: 'none', lg: 'inline-flex' }}
-      >
-        Post a task
-      </Button>
-    </Link>
-  )
-}
-
-function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
+function AppHeaderNavigation() {
   const pathname = usePathname()
   const user = useUserStore((state) => state.user)
-  const me = useMe()
   const getUser = useUserStore((state) => state.getUser)
+  const notifications = useNotificationsOptional()
   const [hasMounted, setHasMounted] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const isLoggedIn = Boolean(user)
-  const postTaskBlocked = isLoggedIn && me != null && !isEmailVerified(me)
-  const onMountNavigation = useCallback(
+  const [guestDrawerOpen, setGuestDrawerOpen] = useState(false)
+  const [dashboardDrawerOpen, setDashboardDrawerOpen] = useState(false)
+
+  const onMount = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node || hasMounted) return
       setHasMounted(true)
@@ -244,39 +92,9 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   )
 
   const routePathname = hasMounted ? pathname : null
-
-  // Pathname from `usePathname()` can disagree between SSR and the first client
-  // paint (e.g. null vs real path). Defer route-derived highlighting until after
-  // mount so server and client render the same tree for hydration.
-  const resolvedActive: HeaderActiveItem =
-    activeItem !== 'none'
-      ? activeItem
-      : !hasMounted
-        ? 'none'
-        : routePathname?.startsWith('/tasks/create')
-          ? 'post-task'
-          : routePathname === '/' || routePathname?.startsWith('/tasks')
-            ? 'home'
-            : 'none'
-
-  const { href: workerHref, label: workerCtaLabel } = resolveWorkerCta(
-    isLoggedIn,
-    pathname,
-  )
-  const workerMembership = me?.worker?.membership
-  const membershipLabel = workerMembership?.statusLabel?.trim()
-  const showMembershipBadge = Boolean(
-    membershipLabel && membershipLabel.toLowerCase() !== 'free',
-  )
-  const membershipColors = workerMembership
-    ? membershipBadgeColors(workerMembership)
-    : null
-
-  const navigateTo = useCallback((href: string) => {
-    if (typeof window === 'undefined') return
-    window.location.assign(href)
-  }, [])
-
+  const isLoggedIn = Boolean(user)
+  const isDashboard = hasMounted && isAccountHubPath(routePathname)
+  const dashboardActive = resolveAccountNavKey(routePathname)
   const loginHref =
     hasMounted && routePathname
       ? `/login?next=${encodeURIComponent(routePathname)}`
@@ -284,256 +102,189 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
 
   return (
     <HStack
-      ref={onMountNavigation}
+      ref={onMount}
       justify="space-between"
       align="center"
-      gap={4}
-      py={2}
-      flexWrap={{ base: 'nowrap', lg: 'wrap' }}
+      gap={{ base: 2, md: 4 }}
+      minH={HEADER_MIN_HEIGHT}
       w="full"
     >
       <HStack
-        gap={{ base: 3, lg: 6 }}
-        flexWrap="wrap"
-        align="center"
-        flex="1"
+        gap={{ base: 2, md: 3 }}
+        flex={1}
         minW={0}
+        align="center"
+        px={{ base: 0, md: 2, lg: 3 }}
       >
+        {isLoggedIn && isDashboard ? (
+          <DashboardSectionMenuButton
+            onClick={() => setDashboardDrawerOpen(true)}
+          />
+        ) : null}
+
         <Link
           as={NextLink}
-          href="/"
+          href={APP_HOME}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
         >
-          <Logo />
+          <Box display={{ base: 'inline-block', md: 'none' }} lineHeight={0}>
+            <Logo mobile={isDashboard} h={isDashboard ? '32px' : '24px'} />
+          </Box>
+          <Box display={{ base: 'none', md: 'inline-block' }} lineHeight={0}>
+            <Logo />
+          </Box>
         </Link>
+
+        {isDashboard ? (
+          <Box
+            display={{ base: 'flex', lg: 'none' }}
+            minW={0}
+            flex={1}
+            pl={2}
+            borderLeftWidth="1px"
+            borderColor="cardBorder"
+          >
+            <DashboardContextLabel active={dashboardActive} />
+          </Box>
+        ) : null}
+
+        {isDashboard ? (
+          <HStack
+            display={{ base: 'none', lg: 'flex' }}
+            gap={2}
+            pl={3}
+            borderLeftWidth="1px"
+            borderColor="cardBorder"
+            minW={0}
+          >
+            <DashboardContextLabel active={dashboardActive} />
+          </HStack>
+        ) : null}
       </HStack>
 
-      <HStack
-        gap={{ base: 2, lg: 2.5 }}
-        flexWrap="wrap"
-        align="center"
-        justify="flex-end"
-        flexShrink={0}
-      >
-        <PostTaskNavButton
-          active={resolvedActive === 'post-task'}
-          disabled={postTaskBlocked}
-        />
-        {isLoggedIn ? (
-          <Box display={{ base: 'none', lg: 'inline-flex' }}>
-            <NotificationBell />
-          </Box>
-        ) : null}
-        <Link
-          as={NextLink}
-          href={workerHref}
-          display={{ base: 'none', lg: 'inline-flex' }}
-          alignItems="center"
-          flexShrink={0}
-          fontSize="sm"
-          fontWeight={600}
-          color="cardFg"
-          h="44px"
-          px={3}
-          borderRadius="md"
-          _hover={{
-            textDecoration: 'none',
-            bg: 'badgeBg',
-            color: 'cardFg',
-          }}
-        >
-          {workerCtaLabel}
-        </Link>
-        <HoverDropdownMenu
-          align="end"
-          contentLabel={isLoggedIn ? 'Account menu' : 'Menu'}
-          display={{ base: 'none', lg: 'inline-block' }}
-          trigger={
-            <HStack gap={1.5} align="center">
-              {showMembershipBadge && membershipColors ? (
-                <Badge
-                  display={{ base: 'none', lg: 'inline-flex' }}
-                  bg={membershipColors.bg}
-                  color={membershipColors.color}
-                  fontWeight={700}
-                  fontSize="xs"
-                >
-                  {membershipLabel}
-                </Badge>
-              ) : null}
+      <HStack align="center" flexShrink={0}>
+        {!isDashboard ? <GetAppButton /> : null}
+
+        {isLoggedIn && notifications ? (
+          <>
+            <Box position="relative" display="inline-flex">
               <IconButton
                 type="button"
+                aria-label={
+                  notifications.unreadCount > 0
+                    ? `Notifications, ${notifications.unreadCount} unread`
+                    : 'Notifications'
+                }
                 variant="ghost"
-                size="sm"
-                color="formLabelMuted"
-                bg="badgeBg"
-                borderRadius="full"
-                aria-label={isLoggedIn ? 'Account menu' : 'Menu'}
-                _hover={{ bg: 'cardBg', color: 'cardFg' }}
+                onClick={notifications.openDrawer}
               >
-                {user ? (
-                  <AccountTriggerGlyph email={user.email} />
-                ) : (
-                  <IconMenu />
-                )}
+                <BellIcon />
               </IconButton>
-            </HStack>
-          }
-        >
-          <Stack gap={0}>
-            {isLoggedIn ? (
-              <>
-                <Link as={NextLink} href="/profile" {...accountMenuLinkProps}>
-                  Profile
-                </Link>
-                <Link as={NextLink} href="/dashboard" {...accountMenuLinkProps}>
-                  Dashboard
-                </Link>
-                <Link as={NextLink} href="/requests" {...accountMenuLinkProps}>
-                  My Requests
-                </Link>
-                <Link as={NextLink} href="/quotes" {...accountMenuLinkProps}>
-                  My Quotes
-                </Link>
-                <ThemeToggleMenuRow />
-                <HeaderLogOutMenuRow onNavigate={navigateTo} />
-              </>
-            ) : (
-              <>
-                <Link as={NextLink} href={loginHref} {...accountMenuLinkProps}>
+              {notifications.unreadCount > 0 ? (
+                <Badge
+                  position="absolute"
+                  top="-2px"
+                  right="-2px"
+                  minW="18px"
+                  h="18px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="full"
+                  fontSize="10px"
+                  fontWeight={700}
+                  bg="primary.600"
+                  color="white"
+                  px={1}
+                >
+                  {notifications.unreadCount > 9
+                    ? '9+'
+                    : notifications.unreadCount}
+                </Badge>
+              ) : null}
+            </Box>
+            <NotificationsDrawer />
+          </>
+        ) : null}
+
+        {isLoggedIn ? (
+          <>
+            <AccountMenu />
+            {isDashboard ? (
+              <DashboardSectionDrawer
+                active={dashboardActive}
+                open={dashboardDrawerOpen}
+                onOpenChange={setDashboardDrawerOpen}
+              />
+            ) : null}
+          </>
+        ) : (
+          <>
+            <Link
+              as={NextLink}
+              href={loginHref}
+              display={{ base: 'none', sm: 'inline-flex' }}
+              fontSize="sm"
+              fontWeight={600}
+              color="cardFg"
+              _hover={{ textDecoration: 'none', color: 'primary.700' }}
+            >
+              Log in
+            </Link>
+            <Link
+              as={NextLink}
+              href="/register"
+              _hover={{ textDecoration: 'none' }}
+              display={{ base: 'none', sm: 'inline-flex' }}
+            >
+              <Button size="sm">Get started</Button>
+            </Link>
+            <IconButton
+              aria-label="Open menu"
+              variant="ghost"
+              display={{ base: 'inline-flex', sm: 'none' }}
+              onClick={() => setGuestDrawerOpen(true)}
+            >
+              <IconMenu />
+            </IconButton>
+            <AppDrawer
+              open={guestDrawerOpen}
+              onOpenChange={setGuestDrawerOpen}
+              title="Menu"
+              placement="end"
+              size="full"
+            >
+              <Stack as="nav" gap={0} align="stretch">
+                <Link
+                  as={NextLink}
+                  href={loginHref}
+                  {...accountNavLinkRowProps}
+                  onClick={() => setGuestDrawerOpen(false)}
+                >
                   Log in
                 </Link>
-                <Link as={NextLink} href="/register" {...accountMenuLinkProps}>
-                  Create account
+                <Link
+                  as={NextLink}
+                  href="/register"
+                  {...accountNavLinkRowProps}
+                  onClick={() => setGuestDrawerOpen(false)}
+                >
+                  Get started
                 </Link>
-                <ThemeToggleMenuRow />
-              </>
-            )}
-          </Stack>
-        </HoverDropdownMenu>
-        {isLoggedIn ? (
-          <Box display={{ base: 'inline-flex', lg: 'none' }}>
-            <NotificationBell />
-          </Box>
-        ) : null}
-        <IconButton
-          aria-label="Open menu"
-          variant="ghost"
-          size="sm"
-          display={{ base: 'inline-flex', lg: 'none' }}
-          color="formLabelMuted"
-          bg="badgeBg"
-          borderRadius="full"
-          _hover={{ bg: 'cardBg', color: 'cardFg' }}
-          onClick={() => setMobileMenuOpen(true)}
-        >
-          <IconMenu />
-        </IconButton>
+              </Stack>
+            </AppDrawer>
+          </>
+        )}
       </HStack>
-      <AppDrawer
-        open={mobileMenuOpen}
-        onOpenChange={setMobileMenuOpen}
-        title="Menu"
-        placement="end"
-        size="xs"
-      >
-        <HStack as="nav" align="stretch" gap={0} flexDirection="column">
-          <Link
-            as={NextLink}
-            href="/tasks/create"
-            {...accountMenuLinkProps}
-            color={resolvedActive === 'post-task' ? 'primary.700' : 'cardFg'}
-            fontWeight={resolvedActive === 'post-task' ? 700 : 600}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Post a task
-          </Link>
-          <Link
-            as={NextLink}
-            href={workerHref}
-            {...accountMenuLinkProps}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            {workerCtaLabel}
-          </Link>
-          {isLoggedIn ? (
-            <>
-              <Link
-                as={NextLink}
-                href="/profile"
-                {...accountMenuLinkProps}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Profile
-              </Link>
-              <Link
-                as={NextLink}
-                href="/dashboard"
-                {...accountMenuLinkProps}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <Link
-                as={NextLink}
-                href="/requests"
-                {...accountMenuLinkProps}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                My Requests
-              </Link>
-              <Link
-                as={NextLink}
-                href="/quotes"
-                {...accountMenuLinkProps}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                My Quotes
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link
-                as={NextLink}
-                href={loginHref}
-                {...accountMenuLinkProps}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Log in
-              </Link>
-              <Link
-                as={NextLink}
-                href="/register"
-                {...accountMenuLinkProps}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Create account
-              </Link>
-            </>
-          )}
-          <ThemeToggleMenuRow />
-          {isLoggedIn ? (
-            <HeaderLogOutMenuRow
-              onNavigate={navigateTo}
-              onAfterLogout={() => setMobileMenuOpen(false)}
-            />
-          ) : null}
-        </HStack>
-      </AppDrawer>
     </HStack>
   )
 }
 
-export function Header({
-  activeItem = 'none',
-  children,
-  ...props
-}: HeaderProps) {
+export function Header({ children, ...props }: HeaderProps) {
   return (
     <>
       <EmailVerificationBanner />
-      {/* <PhoneVerificationBanner /> */}
       <Box
         as="header"
         zIndex={30}
@@ -544,10 +295,21 @@ export function Header({
         borderWidth="1px"
         borderColor="cardBorder"
         px={{ base: 2, lg: 3 }}
-        py={1}
+        minH={HEADER_MIN_HEIGHT}
+        display="flex"
+        alignItems="center"
+        position="sticky"
+        top={0}
         {...props}
       >
-        <Box>{children ?? <SiteNavigation activeItem={activeItem} />}</Box>
+        <Box
+          w="full"
+          minH={HEADER_MIN_HEIGHT}
+          display="flex"
+          alignItems="center"
+        >
+          {children ?? <AppHeaderNavigation />}
+        </Box>
       </Box>
     </>
   )

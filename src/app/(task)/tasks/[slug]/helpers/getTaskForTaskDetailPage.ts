@@ -13,7 +13,7 @@ const AUTH_COOKIE = 'auth'
 
 export type TaskPageData = {
   task: NonNullable<TaskQuery['task']> | null
-  order: TaskQuery['order'] | null
+  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null
 }
 
 export const getTaskForTaskDetailPage = cache(
@@ -28,10 +28,11 @@ export const getTaskForTaskDetailPage = cache(
     })
 
     const notFound = isGraphqlTaskNotFound(json?.errors)
+    const task = notFound ? null : (json?.data?.task ?? null)
 
     return {
-      task: notFound ? null : (json?.data?.task ?? null),
-      order: notFound ? null : (json?.data?.order ?? null),
+      task,
+      order: task?.viewerOrder ?? null,
     }
   },
 )

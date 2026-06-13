@@ -16,6 +16,7 @@ import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerifi
 import { useUserStore } from '@/app/(auth)/store/user'
 import VerifyEmail from '@/app/(auth)/verify-email/graphql/VerifyEmail.gql'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
+import { APP_HOME } from '@/utils/appRoutes'
 import { getAuthToken, setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -40,7 +41,7 @@ function VerifyEmailContent() {
   const nextPath = useMemo(() => {
     const next = searchParams.get('next')?.trim() ?? ''
     if (next.startsWith('/') && !next.startsWith('//')) return next
-    return '/dashboard'
+    return APP_HOME
   }, [searchParams])
 
   const [state, setState] = useState<VerifyState>(() =>

@@ -63,7 +63,11 @@ export function ActionBar({ fromTask }: ActionBarProps) {
               party.
             </Text>
             <HStack gap={3} flexWrap="wrap">
-              <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+              <Link
+                as={NextLink}
+                href="/tasks"
+                _hover={{ textDecoration: 'none' }}
+              >
                 <Button w={{ base: 'full', sm: 'auto' }}>Browse tasks</Button>
               </Link>
               <Link

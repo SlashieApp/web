@@ -15,6 +15,7 @@ import {
   isGoogleAuthConfigured,
 } from '@/app/(auth)/helpers/googleAuthConfig'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { APP_HOME } from '@/utils/appRoutes'
 import { showAppToast } from '@/utils/appToast'
 
 type GoogleAuthButtonProps = {
@@ -28,7 +29,7 @@ export function GoogleAuthButton({
   intent = null,
   next = null,
   redirect = null,
-  fallbackPath = '/dashboard',
+  fallbackPath = APP_HOME,
 }: GoogleAuthButtonProps) {
   const router = useRouter()
   const loginWithGoogle = useUserStore((s) => s.loginWithGoogle)

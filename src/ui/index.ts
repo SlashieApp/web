@@ -17,6 +17,7 @@ export {
   useColorMode,
   useColorModeValue,
 } from './color-mode'
+export { DashboardSectionNav, Header } from './Header'
 export { Dock } from './Dock'
 export { FormField } from './FormField/FormField'
 export { HoverDropdownMenu } from './HoverDropdownMenu'
@@ -24,7 +25,6 @@ export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Input } from './Input'
 export { Logo } from './Logo/Logo'
-export { NotificationBell } from './NotificationBell'
 export { PhoneInput } from './PhoneInput'
 export { RadioButton } from './RadioButton/RadioButton'
 export { Rating } from './Rating/Rating'
@@ -36,7 +36,6 @@ export { Tag } from './Tag'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail/Thumbnail'
 export * from './Footer'
-export * from './Header'
 export type { AppDrawerPlacement, AppDrawerProps } from './AppDrawer/AppDrawer'
 export type { AvatarProps } from './Avatar/Avatar'
 export type { CardProps } from './Card/Card'
@@ -45,6 +44,7 @@ export type {
   ColorModeProviderProps,
   UseColorModeReturn,
 } from './color-mode'
+export type { DashboardSectionNavProps, HeaderProps } from './Header'
 export type { FormFieldProps } from './FormField/FormField'
 export type { HoverDropdownMenuProps } from './HoverDropdownMenu'
 export type {

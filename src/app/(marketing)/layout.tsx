@@ -1,8 +1,8 @@
 import { Box } from '@chakra-ui/react'
 
-import { Header } from '@ui'
+import { MarketingHeader } from './components/MarketingHeader'
 
-export default function PricingLayout({
+export default function MarketingLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -15,8 +15,8 @@ export default function PricingLayout({
       display="flex"
       flexDirection="column"
     >
-      <Header />
-      <Box as="main" flex={1}>
+      <MarketingHeader />
+      <Box as="main" flex={1} mx="auto">
         {children}
       </Box>
     </Box>

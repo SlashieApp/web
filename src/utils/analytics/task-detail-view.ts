@@ -35,7 +35,7 @@ function inferTaskDetailViewSource(): TaskDetailViewSource {
     const refUrl = new URL(referrer)
     if (refUrl.origin !== window.location.origin) return 'direct'
     const path = refUrl.pathname
-    if (path === '/' || path === '/tasks') return 'browse'
+    if (path === '/tasks') return 'browse'
   } catch {
     return 'direct'
   }

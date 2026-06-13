@@ -13,18 +13,26 @@ export function resolveFreePlanCta(): PricingCtaTarget {
 export function resolveUnlimitedPlanCta(options: {
   isAuthenticated: boolean
   hasWorkerProfile: boolean
+  hasUnlimitedPlan?: boolean
 }): PricingCtaTarget {
+  if (options.hasUnlimitedPlan) {
+    return {
+      href: '/billing',
+      label: 'Current plan',
+    }
+  }
+
   if (!options.isAuthenticated) {
     return {
       href: `/register?next=${encodeURIComponent('/billing')}`,
-      label: 'Start free trial',
+      label: 'Upgrade',
     }
   }
 
   if (options.hasWorkerProfile) {
     return {
       href: '/billing',
-      label: 'Start free trial',
+      label: 'Upgrade',
     }
   }
 

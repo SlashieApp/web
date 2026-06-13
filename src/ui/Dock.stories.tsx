@@ -23,16 +23,16 @@ export const Default: Story = {
     },
   },
   render: () => (
-    <Box minH="100vh" bg="bg" position="relative">
-      <Dock />
-      <Box pt={6} px={4} pl={{ base: 4, md: '88px' }}>
+    <Box minH="100vh" bg="bg" display="flex" flexDirection="column">
+      <Box flex={1} pt={6} px={4} pl={{ base: 4, md: '88px' }}>
         <Text color="cardFg" fontWeight={700}>
           Page Content
         </Text>
         <Text color="formLabelMuted" fontSize="sm" mt={2}>
-          On mobile, Dock is fixed to the bottom.
+          On mobile, Dock sits in the bottom layout slot.
         </Text>
       </Box>
+      <Dock />
     </Box>
   ),
 }

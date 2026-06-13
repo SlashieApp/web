@@ -1,47 +1,51 @@
 query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
-  myQuotes(filter: $filter, sort: $sort) {
-    id
-    title
-    description
-    category
-    acceptedWorkerCap
-    budget {
-      amount
-      currency
-      type
-      paymentMethod
-    }
-    datetime {
-      date
-      time
-      type
-    }
-    contactMethod
-    images
-    status
-    completedAt
-    confirmedAt
-    createdAt
-    location {
-      lat
-      lng
-      name
-      address
-    }
-    poster {
-      id
-    }
-    quotes {
-      id
-      taskId
-      workerUserId
-      price {
-        currency
-        amount
+  me {
+    worker {
+      quotedTasks(filter: $filter, sort: $sort) {
+        id
+        title
+        description
+        category
+        acceptedWorkerCap
+        budget {
+          amount
+          currency
+          type
+          paymentMethod
+        }
+        datetime {
+          date
+          time
+          type
+        }
+        contactMethod
+        images
+        status
+        completedAt
+        confirmedAt
+        createdAt
+        location {
+          lat
+          lng
+          name
+          address
+        }
+        poster {
+          id
+        }
+        quotes {
+          id
+          taskId
+          workerUserId
+          price {
+            currency
+            amount
+          }
+          message
+          status
+          createdAt
+        }
       }
-      message
-      status
-      createdAt
     }
   }
 }

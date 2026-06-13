@@ -28,8 +28,6 @@ import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
-type AccountRole = 'customer' | 'worker'
-
 function FieldIconMail() {
   return (
     <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
@@ -54,39 +52,6 @@ function FieldIconLock() {
         <title>Password</title>
         <path
           d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v10H6V11Z"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </Box>
-  )
-}
-
-function IconCustomer() {
-  return (
-    <Box as="span" display="flex" aria-hidden>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <title>Customer</title>
-        <path
-          d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </Box>
-  )
-}
-
-function IconWorker() {
-  return (
-    <Box as="span" display="flex" aria-hidden>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <title>Worker</title>
-        <path
-          d="m14.5 9.5 5-5M16 8l2 2M3 21l7-7M8 16l-2 2M12 6l6 6-3 3-6-6 3-3Z"
           stroke="currentColor"
           strokeWidth="1.6"
           strokeLinecap="round"
@@ -144,14 +109,11 @@ function PasswordToggleButton({
     <IconButton
       type="button"
       variant="ghost"
-      size="sm"
       onClick={onToggle}
       aria-label={label}
       minW="var(--input-height)"
       h="var(--input-height)"
       borderRadius="md"
-      color="formLabelMuted"
-      _hover={{ bg: 'badgeBg' }}
     >
       <IconEye open={!visible} />
     </IconButton>
@@ -296,7 +258,6 @@ export default function RegisterPage() {
   const getUser = useUserStore((s) => s.getUser)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [role, setRole] = useState<AccountRole>('customer')
   const [serverError, setServerError] = useState<string | null>(null)
 
   const {
@@ -411,90 +372,13 @@ export default function RegisterPage() {
                 fontSize="sm"
                 lineHeight="1.55"
               >
-                Choose how you want to start with Slashie.
+                Join Slashie to post tasks, send quotes, and manage your local
+                work in one place.
               </Text>
             </Box>
 
-            <HStack gap={3} align="stretch">
-              <Button
-                type="button"
-                flex={1}
-                variant="secondary"
-                borderRadius="lg"
-                borderWidth="2px"
-                borderColor={
-                  role === 'customer' ? 'primary.500' : 'formControlBorder'
-                }
-                bg={role === 'customer' ? 'primary.50' : 'neutral.100'}
-                color={role === 'customer' ? 'primary.700' : 'cardFg'}
-                fontWeight={700}
-                py={6}
-                h="auto"
-                onClick={() => setRole('customer')}
-                _hover={{
-                  bg: role === 'customer' ? 'primary.100' : 'cardBg',
-                }}
-              >
-                <Stack gap={1} align="center" w="full">
-                  <Box
-                    color={
-                      role === 'customer' ? 'primary.600' : 'formLabelMuted'
-                    }
-                  >
-                    <IconCustomer />
-                  </Box>
-                  <Box as="span">Customer</Box>
-                  <Text
-                    fontSize="xs"
-                    fontWeight={600}
-                    color={
-                      role === 'customer' ? 'primary.600' : 'formLabelMuted'
-                    }
-                  >
-                    Post tasks
-                  </Text>
-                </Stack>
-              </Button>
-              <Button
-                type="button"
-                flex={1}
-                variant="secondary"
-                borderRadius="lg"
-                borderWidth="2px"
-                borderColor={
-                  role === 'worker' ? 'primary.500' : 'formControlBorder'
-                }
-                bg={role === 'worker' ? 'primary.50' : 'neutral.100'}
-                color={role === 'worker' ? 'primary.700' : 'cardFg'}
-                fontWeight={700}
-                py={6}
-                h="auto"
-                onClick={() => setRole('worker')}
-                _hover={{
-                  bg: role === 'worker' ? 'primary.100' : 'cardBg',
-                }}
-              >
-                <Stack gap={1} align="center" w="full">
-                  <Box
-                    color={role === 'worker' ? 'primary.600' : 'formLabelMuted'}
-                  >
-                    <IconWorker />
-                  </Box>
-                  <Box as="span">Worker</Box>
-                  <Text
-                    fontSize="xs"
-                    fontWeight={600}
-                    color={role === 'worker' ? 'primary.600' : 'formLabelMuted'}
-                  >
-                    Send quotes
-                  </Text>
-                </Stack>
-              </Button>
-            </HStack>
-
             <Stack gap={3}>
               <GoogleAuthButton
-                intent={role}
                 next={authQuery.next}
                 redirect={authQuery.redirect}
               />

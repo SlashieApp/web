@@ -1,8 +1,7 @@
 import type { Price, TaskBudget, TaskDateTime } from '@codegen/schema'
 
 /**
- * Types for task list operations in `tasks.ts`. Prefer `@codegen/schema` once
- * codegen succeeds against the GraphQL endpoint.
+ * Types for task list operations. Prefer `@codegen/schema` once codegen runs.
  */
 export type TaskQuoteListItem = {
   id: string
@@ -47,7 +46,7 @@ export type TaskListItem = {
     profile?: { name?: string | null; avatarUrl?: string | null } | null
   } | null
   /**
-   * Only present when the operation selects `quotes` (e.g. `myRequests`, `myQuotes`).
+   * Only present when the operation selects `quotes` (e.g. `tasksPosted`, `quotedTasks`).
    * Public `tasks` browse does not fetch quotes.
    */
   quotes?: TaskQuoteListItem[]
@@ -58,9 +57,15 @@ export type TasksQueryData = {
 }
 
 export type MyRequestsQueryData = {
-  myRequests: TaskListItem[]
+  me: {
+    tasksPosted: TaskListItem[]
+  } | null
 }
 
 export type MyQuotesQueryData = {
-  myQuotes: TaskListItem[]
+  me: {
+    worker: {
+      quotedTasks: TaskListItem[]
+    } | null
+  } | null
 }

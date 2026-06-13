@@ -2,7 +2,6 @@ import type { ApolloClient } from '@apollo/client'
 import type { MeQuery, SyncWorkerBillingMutation } from '@codegen/schema'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
-import MyWorkerBilling from '@/app/(dashboard)/billing/graphql/MyWorkerBilling.gql'
 import SyncWorkerBilling from '@/app/(dashboard)/billing/graphql/SyncWorkerBilling.gql'
 import Me from '@/graphql/Me.gql'
 
@@ -27,7 +26,7 @@ export function mergeMembershipIntoMe(
   }
 }
 
-/** Stripe sync mutation + network refresh of `me` and `myWorkerBilling`. */
+/** Stripe sync mutation + network refresh of `me` (membership under `me.worker`). */
 export async function syncMembershipFromStripe(
   apolloClient: ApolloClient,
   setMe: (me: MeSnapshot | null) => void,
@@ -52,7 +51,7 @@ export async function syncMembershipFromStripe(
   }
 
   await apolloClient.refetchQueries({
-    include: [Me, MyWorkerBilling],
+    include: [Me],
   })
 
   const result = await apolloClient.query<MeQuery>({

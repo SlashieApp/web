@@ -321,7 +321,6 @@ export function TaskBrowseFilters({ ...props }: TaskBrowseFiltersProps) {
           type="button"
           variant="ghost"
           aria-label="Close filters"
-          size="sm"
           onClick={dismissFilters}
         >
           <LuX size={18} strokeWidth={2} />

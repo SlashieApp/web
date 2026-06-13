@@ -31,7 +31,9 @@ const POLL_MS = 45_000
 const PAGE_SIZE = 30
 
 type NotificationsContextValue = {
-  items: MyNotificationsQuery['myNotifications']['items']
+  items: NonNullable<
+    NonNullable<MyNotificationsQuery['me']>['notifications']
+  >['items']
   unreadCount: number
   loading: boolean
   drawerOpen: boolean
@@ -68,7 +70,7 @@ export function NotificationsProvider({
     notifyOnNetworkStatusChange: true,
   })
 
-  const items = data?.myNotifications?.items ?? []
+  const items = data?.me?.notifications?.items ?? []
   const unreadCount = countUnreadNotifications(items)
 
   const refetch = useCallback(async () => {

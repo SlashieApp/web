@@ -2,11 +2,11 @@
 
 import { useQuery } from '@apollo/client/react'
 import { SimpleGrid, Stack } from '@chakra-ui/react'
-import type { SearchProfessionalsQuery } from '@codegen/schema'
+import type { WorkersDirectoryQuery } from '@codegen/schema'
 import { useMemo, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import SearchProfessionals from '@/app/(dashboard)/workers/graphql/SearchProfessionals.gql'
+import WorkersDirectory from '@/app/(dashboard)/workers/graphql/WorkersDirectory.gql'
 
 import {
   type WorkersDiscoveryState,
@@ -42,15 +42,12 @@ export function WorkersBrowseLayout() {
     [discoveryState, userCoords],
   )
 
-  const { data, loading } = useQuery<SearchProfessionalsQuery>(
-    SearchProfessionals,
-    {
-      variables,
-      fetchPolicy: 'cache-and-network',
-    },
-  )
+  const { data, loading } = useQuery<WorkersDirectoryQuery>(WorkersDirectory, {
+    variables,
+    fetchPolicy: 'cache-and-network',
+  })
 
-  const workers = data?.searchProfessionals ?? []
+  const workers = data?.workers ?? []
   const hasActiveFilters = workersDiscoveryHasActiveFilters(discoveryState)
 
   const onFiltersChange = (patch: Partial<WorkersBrowseFilters>) => {

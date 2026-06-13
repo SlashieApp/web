@@ -25,7 +25,7 @@ export function WorkersBrowseEmpty({ variant }: WorkersBrowseEmptyProps) {
           from local pros.
         </Text>
         <Stack direction={{ base: 'column', sm: 'row' }} gap={3}>
-          <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+          <Link as={NextLink} href="/tasks" _hover={{ textDecoration: 'none' }}>
             <Button variant="secondary">Browse tasks</Button>
           </Link>
           <Link

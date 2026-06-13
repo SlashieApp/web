@@ -10,7 +10,7 @@ import { QuotesSection } from './QuotesSection'
 
 type QuoteSectionColumnProps = Omit<StackProps, 'order'> & {
   task: TaskDetailRecord
-  order: TaskQuery['order'] | null | undefined
+  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null | undefined
 }
 
 export function QuoteSectionColumn({

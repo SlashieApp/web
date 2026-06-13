@@ -1,3 +1,5 @@
+import { APP_HOME } from '@/utils/appRoutes'
+
 export type AuthRedirectIntent = 'customer' | 'worker'
 
 export function getSafeNextPath(
@@ -31,5 +33,5 @@ export function resolvePostAuthRedirect(options: {
   if (safeNext) return safeNext
   if (options.intent === 'worker') return '/profile'
   if (options.intent === 'customer') return '/tasks/create'
-  return options.fallback ?? '/dashboard'
+  return options.fallback ?? APP_HOME
 }

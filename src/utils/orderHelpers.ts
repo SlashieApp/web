@@ -11,9 +11,13 @@ import {
   scheduleChipForTask,
 } from '@/utils/taskJobSchedule'
 
-export type OrderItem = NonNullable<TaskQuery['order']>
+export type OrderItem = NonNullable<
+  NonNullable<TaskQuery['task']>['viewerOrder']
+>
 
-export type MyOrdersListItem = MyOrdersQuery['myOrders'][number]
+export type MyOrdersListItem = NonNullable<
+  NonNullable<MyOrdersQuery['me']>['orders']
+>[number]
 
 export function orderAgreedPricePence(order: OrderItem): number {
   const amount = order.agreedPrice?.amount

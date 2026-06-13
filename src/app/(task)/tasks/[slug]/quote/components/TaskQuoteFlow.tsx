@@ -471,13 +471,10 @@ export function TaskQuoteFlow() {
                       </Box>
                       <IconButton
                         aria-label="Remove photo"
-                        size="xs"
                         position="absolute"
                         top={1}
                         right={1}
-                        variant="solid"
-                        bg="blackAlpha.700"
-                        color="white"
+                        variant="ghost"
                         onClick={() => removePhotoAt(i)}
                       >
                         <LuX size={14} />
@@ -680,7 +677,11 @@ export function TaskQuoteFlow() {
               >
                 <Button w="full">View my quotes</Button>
               </Link>
-              <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+              <Link
+                as={NextLink}
+                href="/tasks"
+                _hover={{ textDecoration: 'none' }}
+              >
                 <Button w="full" variant="secondary">
                   Browse more tasks
                 </Button>

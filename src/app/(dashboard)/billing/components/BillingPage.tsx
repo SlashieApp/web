@@ -2,22 +2,22 @@
 
 import { useQuery } from '@apollo/client/react'
 import { Box, HStack, Heading, List, Stack, Text } from '@chakra-ui/react'
-import type { MyWorkerBillingQuery, PricingQuery } from '@codegen/schema'
+import type { MeQuery, PricingQuery } from '@codegen/schema'
 import { WorkerSubscriptionStatus } from '@codegen/schema'
 import { useSearchParams } from 'next/navigation'
 
 import { useMe } from '@/app/(auth)/store/user'
-import MyWorkerBilling from '@/app/(dashboard)/billing/graphql/MyWorkerBilling.gql'
 import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/MembershipRefreshOnMount'
 import { MembershipCancelNotice } from '@/app/(dashboard)/components/membership/MembershipCancelNotice'
 import { MembershipStatusBadge } from '@/app/(dashboard)/components/membership/MembershipStatusBadge'
 import { MembershipStatusDetail } from '@/app/(dashboard)/components/membership/MembershipStatusDetail'
-import Pricing from '@/app/pricing/graphql/Pricing.gql'
+import Pricing from '@/app/(marketing)/pricing/graphql/Pricing.gql'
 import {
   formatPricingInterval,
   pricingAfterTrialLine,
   pricingDisplayPrice,
-} from '@/app/pricing/helpers/formatPricing'
+} from '@/app/(marketing)/pricing/helpers/formatPricing'
+import Me from '@/graphql/Me.gql'
 import { Button } from '@ui'
 
 import {
@@ -61,7 +61,7 @@ export function BillingPage() {
     loading: billingLoading,
     error: billingError,
     refetch,
-  } = useQuery<MyWorkerBillingQuery>(MyWorkerBilling, {
+  } = useQuery<MeQuery>(Me, {
     skip: !me?.worker?.id,
     fetchPolicy: 'cache-and-network',
   })
@@ -75,8 +75,10 @@ export function BillingPage() {
     useBillingActions()
 
   const zustandMembership = me?.worker?.membership
-  const billing = billingData?.myWorkerBilling
-  const membership = pickMembershipSnapshot(zustandMembership, billing)
+  const membership = pickMembershipSnapshot(
+    zustandMembership,
+    billingData?.me?.worker?.membership,
+  )
   const pricing = pricingData?.pricing
   const loading = billingLoading || pricingLoading
 

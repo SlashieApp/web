@@ -209,7 +209,7 @@ export function storyMe(
 export type TaskDetailStoryConfig = {
   viewer: TaskDetailStoryViewer
   task?: TaskDetailRecord
-  order?: TaskQuery['order'] | null
+  order?: NonNullable<TaskQuery['task']>['viewerOrder'] | null
 }
 
 export function defaultTaskDetailStoryConfig(

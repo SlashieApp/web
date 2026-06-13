@@ -81,7 +81,7 @@ export function TaskHeader() {
       >
         <Link
           as={NextLink}
-          href="/"
+          href="/tasks"
           fontWeight={600}
           color="formLabelMuted"
           fontSize="sm"

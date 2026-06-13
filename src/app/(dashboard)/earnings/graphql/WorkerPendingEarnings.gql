@@ -1,6 +1,0 @@
-query WorkerPendingEarnings {
-  workerPendingEarnings {
-    amount
-    currency
-  }
-}

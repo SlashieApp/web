@@ -16,13 +16,14 @@ import { type ReactNode, useMemo } from 'react'
 import { Button, SectionCard } from '@ui'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/MembershipRefreshOnMount'
+import { WorkerMembershipCard } from '@/app/(dashboard)/components/WorkerMembershipCard'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { ScheduleChip } from '@/ui/ScheduleChip'
 import {
   formatPounds,
   isQuoteAwarded,
   isTaskCompleted,
-  taskBudgetPence,
   timeFromUnknown,
 } from '@/utils/dashboardHelpers'
 import {
@@ -32,8 +33,6 @@ import {
   scheduleChipForOrder,
   sortOrdersBySchedule,
 } from '@/utils/orderHelpers'
-import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-
 import { notificationRowsFromQuery } from '../helpers/notificationActivity'
 import { useAccountOrders } from '../helpers/useAccountOrders'
 import { useMyQuotes } from '../helpers/useMyQuotes'
@@ -55,13 +54,6 @@ type ActivityRow = {
   happenedAt: unknown
   tone: ActivityTone
   href?: string
-}
-
-type MapPin = {
-  id: string
-  label: string
-  left: number
-  top: number
 }
 
 function StatTile({ label, value, helper, icon }: StatTileProps) {
@@ -242,7 +234,7 @@ function QuickActionIcon({
 
 export default function DashboardOverviewPage() {
   const me = useUserStore((s) => s.me)
-  const { loading, errorMessage, tasks, postedTasks, activePostedTasks } =
+  const { loading, errorMessage, postedTasks, activePostedTasks } =
     useMyRequests()
 
   const {
@@ -342,38 +334,6 @@ export default function DashboardOverviewPage() {
     }))
   }, [activeOrders, me])
 
-  const mapPins = useMemo<MapPin[]>(() => {
-    const nearby = tasks
-      .filter(
-        (task) =>
-          typeof task.location?.lat === 'number' &&
-          typeof task.location?.lng === 'number',
-      )
-      .slice(0, 6)
-
-    if (nearby.length === 0) return []
-
-    const lats = nearby.map((task) => task.location?.lat as number)
-    const lngs = nearby.map((task) => task.location?.lng as number)
-    const minLat = Math.min(...lats)
-    const maxLat = Math.max(...lats)
-    const minLng = Math.min(...lngs)
-    const maxLng = Math.max(...lngs)
-    const latSpan = Math.max(0.0001, maxLat - minLat)
-    const lngSpan = Math.max(0.0001, maxLng - minLng)
-
-    return nearby.map((task) => {
-      const lat = task.location?.lat as number
-      const lng = task.location?.lng as number
-      return {
-        id: task.id,
-        label: formatPounds(taskBudgetPence(task)),
-        left: 14 + ((lng - minLng) / lngSpan) * 72,
-        top: 16 + (1 - (lat - minLat) / latSpan) * 66,
-      }
-    })
-  }, [tasks])
-
   const quickActions = [
     {
       key: 'post',
@@ -386,7 +346,7 @@ export default function DashboardOverviewPage() {
       key: 'browse',
       title: 'Browse tasks',
       subtitle: 'Find work and send quotes',
-      href: '/',
+      href: '/tasks',
       kind: 'browse' as const,
     },
     {
@@ -414,12 +374,9 @@ export default function DashboardOverviewPage() {
     },
   ]
 
-  const nearbyLabel =
-    (tasks[0] ? taskPublicLocationLabel(tasks[0]).trim() : '') ||
-    'Your local area'
-
   return (
     <Stack gap={{ base: 5, md: 6 }}>
+      <MembershipRefreshOnMount />
       <HStack
         justify="space-between"
         align="flex-start"
@@ -435,7 +392,7 @@ export default function DashboardOverviewPage() {
           </Text>
         </Stack>
         <HStack gap={2} flexWrap="wrap">
-          <Link as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+          <Link as={NextLink} href="/tasks" _hover={{ textDecoration: 'none' }}>
             <Button size="sm" variant="secondary">
               Browse tasks
             </Button>
@@ -615,96 +572,34 @@ export default function DashboardOverviewPage() {
           </Stack>
         </SectionCard>
 
-        <SectionCard p={{ base: 5, md: 6 }}>
-          <Stack gap={4}>
-            <HStack justify="space-between" align="flex-start">
+        {me?.worker?.membership ? (
+          <WorkerMembershipCard membership={me.worker.membership} />
+        ) : (
+          <SectionCard p={{ base: 5, md: 6 }}>
+            <Stack gap={4}>
               <Stack gap={1}>
-                <Heading size="md">Explore tasks near you</Heading>
+                <Heading size="md">Platform membership</Heading>
                 <Text fontSize="sm" color="formLabelMuted">
-                  Nearby opportunities from your account feed.
+                  Post tasks for free as a customer, or become a worker to send
+                  quotes.
                 </Text>
               </Stack>
+              <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+                Compare quotes from local workers. Job payments stay between you
+                and your pro — not through Slashie.
+              </Text>
               <Link
                 as={NextLink}
-                href="/"
-                fontSize="sm"
-                fontWeight={600}
-                color="primary.700"
-                _hover={{ textDecoration: 'none', color: 'primary.600' }}
+                href="/worker/setup"
+                _hover={{ textDecoration: 'none' }}
               >
-                View map
+                <Button size="sm" w={{ base: 'full', md: 'auto' }}>
+                  Become a worker
+                </Button>
               </Link>
-            </HStack>
-
-            <Box
-              position="relative"
-              h={{ base: '180px', md: '220px' }}
-              borderRadius="xl"
-              overflow="hidden"
-              bg="linear-gradient(135deg, #f5f8f6 0%, #e8efec 100%)"
-            >
-              <Box
-                position="absolute"
-                inset={0}
-                opacity={0.45}
-                bgImage="repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(255,255,255,0.7) 31px, rgba(255,255,255,0.7) 32px), repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(255,255,255,0.7) 31px, rgba(255,255,255,0.7) 32px)"
-              />
-              <Box
-                position="absolute"
-                left="50%"
-                top="50%"
-                transform="translate(-50%, -50%)"
-                w="70px"
-                h="70px"
-                borderRadius="full"
-                bg="primary.100"
-                borderWidth="8px"
-                borderColor="primary.200"
-                opacity={0.9}
-              />
-              <Box
-                position="absolute"
-                left="50%"
-                top="50%"
-                transform="translate(-50%, -50%)"
-                w={4}
-                h={4}
-                borderRadius="full"
-                bg="blue.500"
-                borderWidth="2px"
-                borderColor="white"
-              />
-              {mapPins.map((pin) => (
-                <Box
-                  key={pin.id}
-                  position="absolute"
-                  left={`${pin.left}%`}
-                  top={`${pin.top}%`}
-                  transform="translate(-50%, -50%)"
-                  px={2}
-                  py={0.5}
-                  bg="primary.500"
-                  color="white"
-                  borderRadius="full"
-                  fontSize="xs"
-                  fontWeight={700}
-                  boxShadow="sm"
-                >
-                  {pin.label}
-                </Box>
-              ))}
-            </Box>
-
-            <Stack gap={0.5}>
-              <Text fontSize="sm" fontWeight={600}>
-                {nearbyLabel}
-              </Text>
-              <Text fontSize="xs" color="formLabelMuted">
-                Approx. 5km radius
-              </Text>
             </Stack>
-          </Stack>
-        </SectionCard>
+          </SectionCard>
+        )}
       </Grid>
 
       <SectionCard p={{ base: 5, md: 6 }}>

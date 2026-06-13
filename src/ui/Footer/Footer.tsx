@@ -5,6 +5,7 @@ import NextLink from 'next/link'
 
 const links = [
   { label: 'Pricing', href: '/pricing' },
+  { label: 'About', href: '/about' },
   { label: 'Support', href: '/' },
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },

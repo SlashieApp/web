@@ -95,19 +95,7 @@ export function AppDrawer({
                   <IconButton
                     aria-label="Close drawer"
                     variant="ghost"
-                    borderRadius="lg"
-                    minW={11}
-                    h={11}
-                    fontSize="xl"
-                    lineHeight={1}
-                    color="primary.600"
                     flexShrink={0}
-                    _hover={{ bg: 'badgeBg', color: 'primary.700' }}
-                    _focusVisible={{
-                      outline: '2px solid',
-                      outlineColor: 'primary.500',
-                      outlineOffset: '2px',
-                    }}
                   >
                     ×
                   </IconButton>

@@ -3,6 +3,8 @@
 import { Box, HStack } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 
+import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
+
 import { IconButton } from './IconButton/IconButton'
 
 type DockItem = {
@@ -107,9 +109,6 @@ function GetAppPhoneIcon() {
   )
 }
 
-/** Marketing / store landing until a dedicated in-app route exists. */
-const GET_APP_HREF = 'https://slashie.app'
-
 export function Dock() {
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
@@ -119,7 +118,7 @@ export function Dock() {
     {
       key: 'browse',
       caption: 'Discovery',
-      href: '/',
+      href: APP_HOME,
       icon: <BrowseIcon />,
     },
     {
@@ -156,8 +155,13 @@ export function Dock() {
   const isHrefActive = useCallback(
     (href: string): boolean => {
       if (!currentPathname) return false
-      if (href === '/') return currentPathname === '/'
-      return currentPathname.startsWith(href)
+      if (href === APP_HOME) {
+        return (
+          currentPathname === APP_HOME ||
+          currentPathname.startsWith(`${APP_HOME}/`)
+        )
+      }
+      return currentPathname === href || currentPathname.startsWith(`${href}/`)
     },
     [currentPathname],
   )
@@ -166,29 +170,19 @@ export function Dock() {
     <Box
       ref={onMountDock}
       display="flex"
-      position={{ base: 'fixed', md: 'relative' }}
-      alignSelf={{ base: 'auto', md: 'stretch' }}
-      h={{ base: 'auto', md: 'auto' }}
-      minH={{ base: 'auto', md: 0 }}
-      left={{ base: 2, md: 'auto' }}
-      right={{ base: 2, md: 'auto' }}
-      bottom={{ base: 2, md: 'auto' }}
-      zIndex={20}
+      flexShrink={0}
+      position="relative"
+      alignSelf={{ base: 'stretch', md: 'stretch' }}
+      w={{ base: 'full', md: '76px' }}
       bg="bg"
-      borderWidth={{ base: '1px', md: 0 }}
-      borderColor={{ base: 'cardBorder', md: 'transparent' }}
+      borderTopWidth={{ base: '1px', md: 0 }}
+      borderTopColor={{ base: 'cardBorder', md: 'transparent' }}
       borderRightWidth={{ base: 0, md: '1px' }}
       borderRightColor={{ base: 'transparent', md: 'cardBorder' }}
-      w={{ base: 'auto', md: '76px' }}
       justifyContent="flex-start"
       pt={{ base: 2, md: 6 }}
       px={2}
-      borderRadius={{ base: '2xl', md: 0 }}
-      boxShadow={{
-        base: '0 10px 32px rgba(15,23,42,0.24)',
-        md: 'none',
-      }}
-      backdropFilter={{ base: 'blur(10px)', md: 'none' }}
+      pb={{ base: 'calc(env(safe-area-inset-bottom) + 8px)', md: 0 }}
     >
       <HStack
         as="nav"
