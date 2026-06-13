@@ -13,11 +13,14 @@ import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
 import ResetPassword from '@/app/(auth)/reset-password/graphql/ResetPassword.gql'
+import { useUserStore } from '@/app/(auth)/store/user'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 import { resetPasswordFormSchema } from './resetPasswordFormSchema'
+
+const isDev = process.env.NODE_ENV === 'development'
 
 function IconLockReset() {
   return (
@@ -198,6 +201,59 @@ function ResetPasswordFallback() {
   )
 }
 
+function MissingResetLinkState() {
+  return (
+    <Stack gap={6} w="full">
+      <Link
+        as={NextLink}
+        href="/"
+        display="block"
+        w="full"
+        _hover={{ textDecoration: 'none', opacity: 0.92 }}
+      >
+        <Logo h="48px" />
+      </Link>
+
+      <Box
+        w="full"
+        bg="neutral.100"
+        borderRadius="2xl"
+        px={{ base: 6, md: 10 }}
+        py={{ base: 8, md: 10 }}
+      >
+        <Stack gap={5} align="center" textAlign="center">
+          <Heading size="xl" color="cardFg">
+            Reset link required
+          </Heading>
+          <Text color="formLabelMuted" fontSize="sm" lineHeight="1.6">
+            Open the password reset link from your email, or request a new one.
+            Links expire after 1 hour.
+          </Text>
+          <Stack gap={3} w="full" maxW="xs">
+            <Link
+              as={NextLink}
+              href="/forgot-password"
+              _hover={{ textDecoration: 'none' }}
+            >
+              <Button w="full">Request reset link</Button>
+            </Link>
+            <Link
+              as={NextLink}
+              href="/login"
+              fontSize="sm"
+              fontWeight={600}
+              color="primary.600"
+              _hover={{ textDecoration: 'none', color: 'primary.700' }}
+            >
+              Back to sign in
+            </Link>
+          </Stack>
+        </Stack>
+      </Box>
+    </Stack>
+  )
+}
+
 function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -205,7 +261,9 @@ function ResetPasswordForm() {
     () => searchParams.get('token')?.trim() ?? '',
     [searchParams],
   )
-  const [showTokenField, setShowTokenField] = useState(() => !tokenFromUrl)
+  const [showTokenField, setShowTokenField] = useState(
+    () => isDev && !tokenFromUrl,
+  )
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -231,6 +289,7 @@ function ResetPasswordForm() {
   const hasNumberOrSymbol = numberOrSymbol.test(newPasswordValue)
   const hasUppercase = /[A-Z]/.test(newPasswordValue)
 
+  const getUser = useUserStore((s) => s.getUser)
   const [resetPassword, { loading }] =
     useMutation<ResetPasswordMutation>(ResetPassword)
 
@@ -249,6 +308,7 @@ function ResetPasswordForm() {
       }
 
       setAuthToken(authToken)
+      await getUser()
       trackFlowSucceeded(EVENTS.password_reset_success)
       router.push('/dashboard')
     } catch (err: unknown) {
@@ -264,6 +324,10 @@ function ResetPasswordForm() {
 
   const tokenWatch =
     useWatch({ control, name: 'token', defaultValue: tokenFromUrl }) ?? ''
+
+  if (!tokenFromUrl && !isDev) {
+    return <MissingResetLinkState />
+  }
 
   return (
     <Stack gap={6} w="full">
@@ -308,7 +372,7 @@ function ResetPasswordForm() {
           <Box asChild w="full">
             <form onSubmit={handleSubmit(onValid)} noValidate>
               <Stack gap={4} textAlign="left">
-                {(showTokenField || !tokenWatch) && (
+                {isDev && (showTokenField || !tokenWatch) && (
                   <FormField
                     label="Reset token"
                     errorText={errors.token?.message}
@@ -322,7 +386,7 @@ function ResetPasswordForm() {
                   </FormField>
                 )}
 
-                {tokenWatch && !showTokenField ? (
+                {isDev && tokenWatch && !showTokenField ? (
                   <Text fontSize="xs" color="formLabelMuted" textAlign="center">
                     <Box
                       asChild
@@ -417,9 +481,21 @@ function ResetPasswordForm() {
                 </Stack>
 
                 {serverError ? (
-                  <Text role="alert" color="red.500" fontSize="sm">
-                    {serverError}
-                  </Text>
+                  <Stack gap={2}>
+                    <Text role="alert" color="red.500" fontSize="sm">
+                      {serverError}
+                    </Text>
+                    <Link
+                      as={NextLink}
+                      href="/forgot-password"
+                      fontSize="sm"
+                      fontWeight={600}
+                      color="primary.600"
+                      _hover={{ textDecoration: 'none', color: 'primary.700' }}
+                    >
+                      Request a new reset link
+                    </Link>
+                  </Stack>
                 ) : null}
 
                 <Button

@@ -15,7 +15,7 @@ import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
 import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
@@ -330,6 +330,14 @@ export default function LoginPage() {
     [getUser, nextPath, router],
   )
 
+  const emailValue = useWatch({ control, name: 'email', defaultValue: '' })
+  const forgotPasswordHref = useMemo(() => {
+    const trimmed = emailValue?.trim()
+    return trimmed
+      ? `/forgot-password?email=${encodeURIComponent(trimmed)}`
+      : '/forgot-password'
+  }, [emailValue])
+
   const onValid = async (data: z.infer<typeof loginFormSchema>) => {
     setServerError(null)
     try {
@@ -440,7 +448,7 @@ export default function LoginPage() {
                           <Box as="span">Password</Box>
                           <Link
                             as={NextLink}
-                            href="/forgot-password"
+                            href={forgotPasswordHref}
                             fontSize="sm"
                             fontWeight={600}
                             color="primary.600"
