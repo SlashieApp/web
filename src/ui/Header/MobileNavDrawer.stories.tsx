@@ -67,6 +67,10 @@ const meta = {
     layout: 'fullscreen',
     viewport: { defaultViewport: 'mobile1' },
   },
+  args: {
+    open: true,
+    onOpenChange: () => {},
+  },
   decorators: [
     (Story) => {
       seedMeStore(meFixture)
@@ -80,10 +84,18 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Open: Story = {
+  args: {
+    open: true,
+    onOpenChange: () => {},
+  },
   render: () => <DrawerStory />,
 }
 
 export const CustomerOnly: Story = {
+  args: {
+    open: true,
+    onOpenChange: () => {},
+  },
   decorators: [
     (Story) => {
       seedMeStore({ ...meFixture, worker: null })
