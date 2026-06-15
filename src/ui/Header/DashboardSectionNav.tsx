@@ -7,6 +7,8 @@ import { useCallback } from 'react'
 import { ACCOUNT_NAV, type AccountNavKey } from '@/utils/accountNav'
 import { AppDrawer } from '@ui'
 
+import { dashboardNavRowInteraction } from '../interactionStyles'
+
 function NavIcon({ type }: { type: AccountNavKey }) {
   const common = {
     width: 18,
@@ -186,10 +188,7 @@ export function DashboardSectionNav({
             color={isActive ? 'primary.800' : 'cardFg'}
             fontWeight={isActive ? 700 : 600}
             fontSize="sm"
-            _hover={{
-              textDecoration: 'none',
-              bg: isActive ? 'primary.100' : 'badgeBg',
-            }}
+            {...dashboardNavRowInteraction(isActive)}
             onClick={onNavigate}
           >
             <Box

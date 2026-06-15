@@ -80,5 +80,20 @@ export const ListNoMessage: Story = {
 }
 
 export const CardVariant: Story = {
-  args: { ...base, variant: 'card' },
+  args: {
+    ...base,
+    variant: 'card',
+    respondedLabel: 'Posted 2 hours ago',
+    ratingLine: '4.8',
+  },
+}
+
+export const CardNoReviews: Story = {
+  args: {
+    ...base,
+    variant: 'card',
+    respondedLabel: 'Posted 3 hours ago',
+    ratingLine: 'No reviews yet',
+    showVerified: false,
+  },
 }

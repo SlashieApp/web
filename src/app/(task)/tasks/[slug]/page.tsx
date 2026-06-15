@@ -4,7 +4,6 @@ import { Box, Container, Grid, Stack } from '@chakra-ui/react'
 
 import { Footer } from '@ui'
 
-import { TaskHeader } from './components/TaskHeader'
 import { MainSection } from './components/mainSection'
 import { MetaSection } from './components/metaSection'
 import { QuoteSectionColumn } from './components/quoteSection'
@@ -76,9 +75,13 @@ export default async function TaskDetailPage({
 
   return (
     <>
-      <Container pb={{ base: 28, md: 10 }} mx="auto">
+      <Container
+        maxW="7xl"
+        mx="auto"
+        pt={{ base: 4, md: 6 }}
+        pb={{ base: 28, md: 10 }}
+      >
         <Stack gap={2} px={{ base: 4, md: 6 }}>
-          <TaskHeader />
           <StatusSection />
           <Grid
             w="full"
@@ -106,14 +109,14 @@ export default async function TaskDetailPage({
               gridColumn={{ md: '2' }}
               gridRow={{ md: '1 / 3' }}
               position={{ md: 'sticky' }}
-              top={{ md: 20 }}
+              top={{ md: 4 }}
               alignSelf="start"
             >
               <MetaSection
                 gridColumn={{ base: '1', xl: '1' }}
                 gridRow={{ base: '2', xl: '1' }}
                 position={{ base: 'static', xl: 'sticky' }}
-                top={{ xl: 20 }}
+                top={{ xl: 4 }}
                 alignSelf="start"
               />
 
@@ -122,7 +125,7 @@ export default async function TaskDetailPage({
                 gridColumn={{ base: '1', xl: '3' }}
                 gridRow={{ base: '3', xl: '1' }}
                 position={{ base: 'static', xl: 'sticky' }}
-                top={{ xl: 20 }}
+                top={{ xl: 4 }}
                 alignSelf="start"
               >
                 <QuoteSectionColumn task={task} order={order} />

@@ -31,6 +31,13 @@ export function Slider({
           borderWidth="2px"
           borderColor={thumbBorderColor}
           boxShadow="none"
+          _focus={{ outline: 'none', boxShadow: 'none' }}
+          _focusVisible={{
+            outline: 'none',
+            boxShadow: 'none',
+            borderColor: 'primary.500',
+            transform: 'scale(1.08)',
+          }}
         />
       </ChakraSlider.Control>
     </ChakraSlider.Root>

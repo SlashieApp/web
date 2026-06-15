@@ -28,7 +28,7 @@ description: Audits and refactors App Router pages and colocated UI for repo rul
 
 - **Effects:** do not add `useEffect` for new behavior; prefer handlers, callbacks, and callback refs (`.cursor/rules/no-useeffect-callback-ref.mdc`). Only touch existing `useEffect` if the task requires that behavior.
 - **GraphQL:** if the page uses operations, keep them in `src/graphql/` and types from `@codegen/schema`; run `bun run codegen` when the schema or operations change (`.cursor/rules/graphql-codegen.mdc`).
-- **Structure:** keep **`page.tsx` thin**; feature UI belongs in colocated **`components/`** per segment (`.cursor/rules/repo-structure-and-exports.mdc`). Context hooks live in leaf components where possible.
+- **Structure:** **`page.tsx` owns route composition** (metadata, fetch, page grid/shell); section/widget UI belongs in colocated **`components/`**—do not add pass-through `*PageLayout` / `*PageContent` wrappers (`.cursor/rules/repo-structure-and-exports.mdc`, `app-route-page-data-flow.mdc`). Context hooks live in leaf components where possible.
 - **Barrels:** if you add or move modules under folders covered by `EXPORT_CONFIGS` (`src/ui`, `src/app/(task)/components`), run **`bun run exports-gen`**; do not hand-edit auto-generated `index.ts` files.
 
 ### Quality bar
@@ -39,7 +39,7 @@ description: Audits and refactors App Router pages and colocated UI for repo rul
 
 ## Refactor workflow
 
-1. List concrete violations (e.g. raw `<a>`, Chakra `Button` where `@ui` `Button` is standard, missing `NextLink` pattern, copy off-product, oversized `page.tsx`).
+1. List concrete violations (e.g. raw `<a>`, Chakra `Button` where `@ui` `Button` is standard, missing `NextLink` pattern, copy off-product, pass-through `*PageLayout` that should live in `page.tsx`).
 2. Apply fixes in small, readable steps; preserve behavior and public URLs.
 3. If a rule conflicts with an explicit user instruction, follow the user and note the tradeoff briefly.
 

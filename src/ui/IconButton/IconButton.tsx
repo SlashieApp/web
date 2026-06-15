@@ -11,6 +11,12 @@ import {
 import NextLink from 'next/link'
 import * as React from 'react'
 
+import {
+  focusVisibleMatchesHover,
+  ghostSurfaceHover,
+  navIconSurfaceInteraction,
+} from '../interactionStyles'
+
 /** Dock / nav: icon (and optional caption) inside a route link. */
 export type NavIconButtonProps = {
   href: string
@@ -41,6 +47,8 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   function IconButton(props, ref) {
     if (isNavIconButtonProps(props)) {
       const { href, icon, caption, active = false } = props
+      const surfaceInteraction = navIconSurfaceInteraction(active)
+
       return (
         <Link
           as={NextLink}
@@ -50,8 +58,15 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           justifyContent={{ base: 'center', md: 'flex-start' }}
           alignItems="center"
           textDecoration="none"
+          borderRadius="lg"
+          _focus={{ outline: 'none' }}
+          _focusVisible={{
+            outline: 'none',
+            '& [data-nav-icon]': surfaceInteraction._focusVisible,
+          }}
         >
           <Box
+            data-nav-icon
             w={{ base: '56px', md: '60px' }}
             h={{ base: '56px', md: '60px' }}
             borderRadius="lg"
@@ -63,10 +78,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
             py={1.5}
             px={1}
             flexShrink={0}
-            _hover={{
-              bg: active ? 'intentPrimaryBg' : 'badgeBg',
-              color: active ? 'intentPrimaryFg' : 'cardFg',
-            }}
+            {...surfaceInteraction}
           >
             <Stack
               align="center"
@@ -106,7 +118,18 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       )
     }
 
-    const { borderRadius = 'full', ...rest } = props
-    return <ChakraIconButton ref={ref} borderRadius={borderRadius} {...rest} />
+    const { borderRadius = 'full', variant = 'ghost', _hover, ...rest } = props
+    const hoverStyles = _hover ?? (variant === 'ghost' ? ghostSurfaceHover : {})
+
+    return (
+      <ChakraIconButton
+        ref={ref}
+        borderRadius={borderRadius}
+        variant={variant}
+        _hover={hoverStyles}
+        {...focusVisibleMatchesHover(hoverStyles)}
+        {...rest}
+      />
+    )
   },
 )

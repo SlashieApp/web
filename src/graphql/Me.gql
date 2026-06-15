@@ -30,11 +30,25 @@ query Me {
       bio
       tagline
       yearsExperience
+      skills
+      travelRadiusMiles
+      portfolioUrls
       isVerified
       tasksCompletedCount
       locationAddress
       locationLat
       locationLng
+      location {
+        address
+        lat
+        lng
+        name
+      }
+      setupProgress {
+        currentSubStep
+        completedSubSteps
+        isComplete
+      }
       membership {
         ...WorkerMembershipFields
       }

@@ -1,9 +1,10 @@
 'use client'
 
-import { Box, Button as ChakraButton, Link } from '@chakra-ui/react'
+import { Box, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useCallback } from 'react'
 
+import { Button } from '../Button'
 import type { AccountNavItem } from './accountNav.config'
 import { groupAccountNavItems } from './accountNav.config'
 import {
@@ -37,7 +38,7 @@ function AccountNavRow({
   if (item.kind === 'action') {
     if (item.action === 'logout') {
       return (
-        <ChakraButton
+        <Button
           type="button"
           variant="ghost"
           {...accountNavLogoutRowProps}
@@ -50,12 +51,12 @@ function AccountNavRow({
           }}
         >
           {item.label}
-        </ChakraButton>
+        </Button>
       )
     }
     if (item.action === 'notifications') {
       return (
-        <ChakraButton
+        <Button
           type="button"
           variant="ghost"
           {...accountNavLinkRowProps}
@@ -68,7 +69,7 @@ function AccountNavRow({
           }}
         >
           {item.label}
-        </ChakraButton>
+        </Button>
       )
     }
     return null

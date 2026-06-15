@@ -26,9 +26,9 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 
 ## `page.tsx` (any `src/app/**/page.tsx`)
 
-- Keep files **thin**: providers, layout choice, one-off composition.
-- Prefer **colocated `components/`** (and nested `…/components/` under child routes) for feature UI instead of large inline trees.
-- **Do not** add a `*View` (or similar) component file whose **only** purpose is to host the same screen in a separate module from `page.tsx`—e.g. `page.tsx` that only renders `<FooView />` with no other composition. Either keep the route body in `page.tsx` when it is a single screen, or split into **`components/`** when there is a real reason: reuse across routes, `(web)` / `(mobile)` forks, heavy isolated widgets, or testing boundaries. Naming a file `SomethingView` is not a reason by itself.
+- **`page.tsx` owns the route**: metadata, data loading, and **page-level composition** (grid/shell that wires sections together) belong here—not in a pass-through `*PageLayout` / `*PageContent` file.
+- Extract **colocated `components/`** (and nested `…/components/` under child routes) for **sections and widgets** (cards, forms, sidebars, maps)—not to relocate the entire page tree one file over.
+- **Do not** add a `*View`, `*PageLayout`, or similar file whose **only** purpose is to host the same screen in a separate module from `page.tsx`—e.g. `page.tsx` that only renders `<FooPageLayout />` with no other composition. Split into **`components/`** only when there is a real reason: reuse across routes, `(web)` / `(mobile)` forks, heavy isolated widgets, or testing boundaries. Naming alone is not a reason.
 
 ## `components/` under a route segment
 

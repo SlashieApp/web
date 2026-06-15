@@ -11,6 +11,7 @@ import { ProfileDetailsForm } from './components/ProfileDetailsForm'
 import { ProfilePhoneSection } from './components/ProfilePhoneSection'
 import { ProfilePhotoCard } from './components/ProfilePhotoCard'
 import { ProfileWorkerForm } from './components/ProfileWorkerForm'
+import { ProfileWorkerSetupBanner } from './components/ProfileWorkerSetupBanner'
 import { displayNameFromMe, joinMonthYear } from './profileDisplayHelpers'
 
 export default function ProfilePage() {
@@ -59,6 +60,7 @@ export default function ProfilePage() {
       </Stack>
 
       <ProfileCompletenessCard />
+      <ProfileWorkerSetupBanner />
       {me.worker?.membership ? (
         <WorkerMembershipCard membership={me.worker.membership} />
       ) : null}

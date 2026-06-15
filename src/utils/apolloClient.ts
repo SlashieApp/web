@@ -7,6 +7,10 @@ import { onError } from '@apollo/client/link/error'
 import { createHttpLink } from '@apollo/client/link/http'
 
 import { captureApiError, getCurrentRoute } from '@/utils/analytics'
+import {
+  clearApiUnavailable,
+  redirectToLandingIfAppRoute,
+} from '@/utils/apiAvailability'
 
 import { clearAuthToken, getAuthToken } from './auth'
 import { isUnauthenticatedError } from './graphqlErrors'
@@ -66,6 +70,10 @@ const errorLink = onError(({ error, operation }) => {
       route: getCurrentRoute(),
       operation_type: opType,
     })
+
+    if (!CombinedGraphQLErrors.is(error)) {
+      redirectToLandingIfAppRoute()
+    }
   }
 })
 

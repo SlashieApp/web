@@ -51,13 +51,17 @@ export async function fetch<TData = unknown>(
     headers.authorization = `Bearer ${decodeURIComponent(rawToken)}`
   }
 
-  const response = await globalThis.fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ query: queryString, variables }),
-    next,
-  })
+  try {
+    const response = await globalThis.fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query: queryString, variables }),
+      next,
+    })
 
-  if (!response.ok) return null
-  return (await response.json()) as GraphqlResponse<TData>
+    if (!response.ok) return null
+    return (await response.json()) as GraphqlResponse<TData>
+  } catch {
+    return null
+  }
 }

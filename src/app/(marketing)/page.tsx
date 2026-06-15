@@ -482,7 +482,7 @@ export default async function MarketingHomePage() {
                 cut of the job.
               </Text>
               <HStack gap={3} flexWrap="wrap">
-                <NextLink href="/register" style={{ textDecoration: 'none' }}>
+                <NextLink href={APP_HOME} style={{ textDecoration: 'none' }}>
                   <Button size="lg">Get started</Button>
                 </NextLink>
                 <NextLink href="/login" style={{ textDecoration: 'none' }}>
@@ -831,7 +831,7 @@ export default async function MarketingHomePage() {
               </Text>
             </Stack>
             <HStack gap={3} flexWrap="wrap">
-              <NextLink href="/register" style={{ textDecoration: 'none' }}>
+              <NextLink href={APP_HOME} style={{ textDecoration: 'none' }}>
                 <Button size="lg">Get started</Button>
               </NextLink>
               <NextLink href="/login" style={{ textDecoration: 'none' }}>

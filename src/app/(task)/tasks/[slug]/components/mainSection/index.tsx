@@ -3,6 +3,7 @@
 import { Stack, type StackProps } from '@chakra-ui/react'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_GAP } from '../../helpers/taskDetailLayout'
 
 import { MainSectionContent } from './MainSectionContent'
 import { MainSectionHeader } from './MainSectionHeader'
@@ -13,7 +14,7 @@ export function MainSection(props: StackProps) {
   if (!task) return null
 
   return (
-    <Stack gap={{ base: 6, lg: 8 }} w="full" {...props}>
+    <Stack gap={TASK_DETAIL_SECTION_GAP} w="full" {...props}>
       <MainSectionHeader />
       <MainSectionPrimaryMeta />
       <MainSectionContent />

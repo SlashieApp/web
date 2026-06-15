@@ -4,6 +4,7 @@ type GraphQLErrorLike = {
   message?: string
   extensions?: {
     code?: string
+    missing?: unknown
   }
 }
 
@@ -42,7 +43,18 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
     "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade to Slashie Unlimited for unlimited quotes, or try again next month.",
   WORKER_QUOTE_LIMIT_REACHED:
     "You've used all free quotes this month (UTC). Upgrade to Slashie Unlimited for unlimited quoting, or wait until next month.",
-  FORBIDDEN: 'You do not have permission to change this task.',
+  WORKER_SETUP_INCOMPLETE: 'Finish worker setup before quoting on tasks.',
+  WORKER_PROFILE_INCOMPLETE:
+    'Complete your profile requirements before finishing setup.',
+  INVALID_SETUP_SUB_STEP:
+    'That setup step is not valid. Refresh and try again.',
+  INVALID_NAME: 'Enter your first and last name.',
+  AVATAR_REQUIRED: 'Add a profile photo before continuing.',
+  SKILLS_REQUIRED: 'List at least one skill or service you offer.',
+  YEARS_EXPERIENCE_REQUIRED: 'Enter your years of experience.',
+  LOCATION_REQUIRED:
+    "We couldn't find that place. Try a city name or full postcode.",
+  LOCATION_LABEL_REQUIRED: 'Add your primary service area.',
   NOT_FOUND: 'This task could not be found.',
   TASK_NOT_FOUND: 'This task could not be found.',
   TASK_NOT_EDITABLE:
@@ -69,7 +81,7 @@ function normaliseMessage(message: string) {
   return message.trim().toUpperCase()
 }
 
-function pickGraphQLError(error: unknown): GraphQLErrorLike | null {
+export function pickGraphQLError(error: unknown): GraphQLErrorLike | null {
   if (!error || typeof error !== 'object') return null
   const candidate = error as {
     errors?: unknown

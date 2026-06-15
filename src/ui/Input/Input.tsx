@@ -8,6 +8,11 @@ import {
 import type { ReactNode } from 'react'
 import * as React from 'react'
 
+import {
+  formControlFieldRingless,
+  formControlShellInteraction,
+} from '../interactionStyles'
+
 export type InputProps = ChakraInputProps & {
   /** Optional leading content (icon, text) inside the bordered shell. */
   startElement?: ReactNode
@@ -36,11 +41,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         bg="formControlBg"
         pl={2}
         pr={1}
-        transitionProperty="border-color"
-        transitionDuration="160ms"
-        _focusWithin={{
-          borderColor: 'formControlFocusBorder',
-        }}
+        {...formControlShellInteraction}
         {...rootProps}
       >
         {startElement != null ? (
@@ -62,7 +63,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           minW={0}
           borderWidth={0}
           boxShadow="none"
-          outline="none"
           bg="transparent"
           color="formControlFg"
           h="auto"
@@ -70,8 +70,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           py={2}
           px={1}
           _placeholder={{ color: 'formControlPlaceholder' }}
-          _focus={{ borderWidth: 0, boxShadow: 'none' }}
-          _focusVisible={{ borderWidth: 0, boxShadow: 'none' }}
+          {...formControlFieldRingless}
         />
         {endElement != null ? (
           <Box

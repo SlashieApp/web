@@ -2,8 +2,7 @@
 
 import { Stack, type StackProps, useBreakpointValue } from '@chakra-ui/react'
 
-import { SectionCard } from '@ui'
-
+import { TASK_DETAIL_COLUMN_GAP } from '../../helpers/taskDetailLayout'
 import { VisitorMeta } from './VisitorMeta'
 
 /** Sidebar task meta (map + detail list). Hidden below `xl`; main column shows that summary + map instead. */
@@ -14,7 +13,7 @@ export function MetaSection(props: StackProps) {
   if (!showSidebarMeta) return null
 
   return (
-    <Stack gap={4} w="full" {...props}>
+    <Stack gap={TASK_DETAIL_COLUMN_GAP} w="full" {...props}>
       <VisitorMeta />
     </Stack>
   )

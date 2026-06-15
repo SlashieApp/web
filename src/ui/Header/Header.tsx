@@ -17,7 +17,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { isAccountHubPath } from '@/utils/accountHub'
 import { resolveAccountNavKey } from '@/utils/accountNav'
-import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
+import { GET_APP_HREF, MARKETING_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 import { AppDrawer, Button, IconButton, Logo } from '@ui'
 
@@ -28,11 +28,15 @@ import {
   DashboardSectionDrawer,
   DashboardSectionMenuButton,
 } from './DashboardSectionNav'
+import {
+  HeaderGuestAuthButtons,
+  HeaderToolbarSeparator,
+} from './GuestHeaderAuth'
 import { NotificationsDrawer } from './NotificationsDrawer'
 import { accountNavLinkRowProps } from './accountNavLinkProps'
+import { HEADER_MIN_HEIGHT, HEADER_PADDING_X } from './headerShell'
 
-/** Stable app header height (logo + controls + padding). */
-export const HEADER_MIN_HEIGHT = { base: '56px', md: '64px' } as const
+export { HEADER_MIN_HEIGHT } from './headerShell'
 
 function GetAppButton() {
   return (
@@ -40,7 +44,7 @@ function GetAppButton() {
       href={GET_APP_HREF}
       target="_blank"
       rel="noopener noreferrer"
-      display="inline-flex"
+      display={{ base: 'none', md: 'inline-flex' }}
       _hover={{ textDecoration: 'none' }}
       flexShrink={0}
     >
@@ -56,7 +60,7 @@ function PostTaskHeaderButton() {
     <Link
       as={NextLink}
       href="/tasks/create"
-      display={{ base: 'none', md: 'inline-flex' }}
+      display="inline-flex"
       _hover={{ textDecoration: 'none' }}
       flexShrink={0}
     >
@@ -113,23 +117,21 @@ function AppHeaderNavigation() {
     hasMounted && routePathname
       ? `/login?next=${encodeURIComponent(routePathname)}`
       : '/login'
+  const signupHref =
+    hasMounted && routePathname
+      ? `/register?next=${encodeURIComponent(routePathname)}`
+      : '/register'
 
   return (
     <HStack
       ref={onMount}
       justify="space-between"
       align="center"
-      gap={{ base: 2, md: 4 }}
+      gap={{ base: 3, md: 6 }}
       minH={HEADER_MIN_HEIGHT}
       w="full"
     >
-      <HStack
-        gap={{ base: 2, md: 3 }}
-        flex={1}
-        minW={0}
-        align="center"
-        px={{ base: 0, md: 2, lg: 3 }}
-      >
+      <HStack gap={{ base: 3, md: 4 }} flex={1} minW={0} align="center">
         {isLoggedIn && isDashboard ? (
           <DashboardSectionMenuButton
             onClick={() => setDashboardDrawerOpen(true)}
@@ -138,17 +140,19 @@ function AppHeaderNavigation() {
 
         <Link
           as={NextLink}
-          href={APP_HOME}
+          href={MARKETING_HOME}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
         >
           <Box display={{ base: 'inline-block', md: 'none' }} lineHeight={0}>
-            <Logo mobile={isDashboard} h={isDashboard ? '32px' : '24px'} />
+            <Logo mobile h="32px" />
           </Box>
           <Box display={{ base: 'none', md: 'inline-block' }} lineHeight={0}>
             <Logo />
           </Box>
         </Link>
+
+        {!isDashboard ? <GetAppButton /> : null}
 
         {isDashboard ? (
           <Box
@@ -178,58 +182,58 @@ function AppHeaderNavigation() {
       </HStack>
 
       <HStack align="center" flexShrink={0}>
-        {!isDashboard ? (
-          <>
-            <PostTaskHeaderButton />
-            <GetAppButton />
-          </>
-        ) : null}
-
-        {isLoggedIn && notifications ? (
-          <>
-            <Box position="relative" display="inline-flex">
-              <IconButton
-                type="button"
-                aria-label={
-                  notifications.unreadCount > 0
-                    ? `Notifications, ${notifications.unreadCount} unread`
-                    : 'Notifications'
-                }
-                variant="ghost"
-                onClick={notifications.openDrawer}
-              >
-                <BellIcon />
-              </IconButton>
-              {notifications.unreadCount > 0 ? (
-                <Badge
-                  position="absolute"
-                  top="-2px"
-                  right="-2px"
-                  minW="18px"
-                  h="18px"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  borderRadius="full"
-                  fontSize="10px"
-                  fontWeight={700}
-                  bg="primary.600"
-                  color="white"
-                  px={1}
-                >
-                  {notifications.unreadCount > 9
-                    ? '9+'
-                    : notifications.unreadCount}
-                </Badge>
-              ) : null}
-            </Box>
-            <NotificationsDrawer />
-          </>
-        ) : null}
-
         {isLoggedIn ? (
           <>
-            <AccountMenu />
+            {!isDashboard ? (
+              <>
+                <PostTaskHeaderButton />
+                <HeaderToolbarSeparator display="block" ml={2} />
+              </>
+            ) : null}
+            <HStack gap={1} align="center" flexShrink={0}>
+              {notifications ? (
+                <>
+                  <Box position="relative" display="inline-flex">
+                    <IconButton
+                      type="button"
+                      aria-label={
+                        notifications.unreadCount > 0
+                          ? `Notifications, ${notifications.unreadCount} unread`
+                          : 'Notifications'
+                      }
+                      variant="ghost"
+                      onClick={notifications.openDrawer}
+                    >
+                      <BellIcon />
+                    </IconButton>
+                    {notifications.unreadCount > 0 ? (
+                      <Badge
+                        position="absolute"
+                        top="-2px"
+                        right="-2px"
+                        minW="18px"
+                        h="18px"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="full"
+                        fontSize="10px"
+                        fontWeight={700}
+                        bg="primary.600"
+                        color="white"
+                        px={1}
+                      >
+                        {notifications.unreadCount > 9
+                          ? '9+'
+                          : notifications.unreadCount}
+                      </Badge>
+                    ) : null}
+                  </Box>
+                  <NotificationsDrawer />
+                </>
+              ) : null}
+              <AccountMenu />
+            </HStack>
             {isDashboard ? (
               <DashboardSectionDrawer
                 active={dashboardActive}
@@ -240,25 +244,12 @@ function AppHeaderNavigation() {
           </>
         ) : (
           <>
-            <Link
-              as={NextLink}
-              href={loginHref}
-              display={{ base: 'none', sm: 'inline-flex' }}
-              fontSize="sm"
-              fontWeight={600}
-              color="cardFg"
-              _hover={{ textDecoration: 'none', color: 'primary.700' }}
-            >
-              Log in
-            </Link>
-            <Link
-              as={NextLink}
-              href="/register"
-              _hover={{ textDecoration: 'none' }}
-              display={{ base: 'none', sm: 'inline-flex' }}
-            >
-              <Button size="sm">Get started</Button>
-            </Link>
+            {!isDashboard ? <PostTaskHeaderButton /> : null}
+            <HeaderToolbarSeparator />
+            <HeaderGuestAuthButtons
+              loginHref={loginHref}
+              signupHref={signupHref}
+            />
             <IconButton
               aria-label="Open menu"
               variant="ghost"
@@ -274,23 +265,40 @@ function AppHeaderNavigation() {
               placement="end"
               size="full"
             >
-              <Stack as="nav" gap={0} align="stretch">
+              <Stack as="nav" gap={0} align="stretch" flex={1}>
                 <Link
                   as={NextLink}
-                  href={loginHref}
+                  href="/tasks/create"
                   {...accountNavLinkRowProps}
                   onClick={() => setGuestDrawerOpen(false)}
                 >
-                  Log in
+                  Post a task
                 </Link>
-                <Link
-                  as={NextLink}
-                  href="/register"
-                  {...accountNavLinkRowProps}
-                  onClick={() => setGuestDrawerOpen(false)}
+                <Stack
+                  gap={0}
+                  align="stretch"
+                  mt="auto"
+                  pt={3}
+                  borderTopWidth="1px"
+                  borderColor="cardBorder"
                 >
-                  Get started
-                </Link>
+                  <Link
+                    as={NextLink}
+                    href={loginHref}
+                    {...accountNavLinkRowProps}
+                    onClick={() => setGuestDrawerOpen(false)}
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    as={NextLink}
+                    href={signupHref}
+                    {...accountNavLinkRowProps}
+                    onClick={() => setGuestDrawerOpen(false)}
+                  >
+                    Sign up
+                  </Link>
+                </Stack>
               </Stack>
             </AppDrawer>
           </>
@@ -313,7 +321,7 @@ export function Header({ children, ...props }: HeaderProps) {
         boxShadow="none"
         borderWidth="1px"
         borderColor="cardBorder"
-        px={{ base: 2, lg: 3 }}
+        px={HEADER_PADDING_X}
         minH={HEADER_MIN_HEIGHT}
         display="flex"
         alignItems="center"

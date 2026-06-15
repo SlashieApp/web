@@ -4,6 +4,8 @@ import { type ButtonProps, Button as ChakraButton } from '@chakra-ui/react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 
+import { focusVisibleMatchesHover } from '../interactionStyles'
+
 export type UiButtonVariant =
   | 'primary'
   | 'secondary'
@@ -79,6 +81,28 @@ export function Button(props: UiButtonProps) {
       visualProps = {}
   }
 
+  const hoverStyles: NonNullable<ButtonProps['_hover']> = {
+    transform: 'none',
+    opacity: 1,
+    ...(isPrimary ? { bg: 'primaryHover' } : undefined),
+    ...(isSecondary
+      ? {
+          bg: 'transparent',
+          borderColor: 'secondary.600',
+          color: 'secondary.600',
+        }
+      : undefined),
+    ...(isTertiary ? { bg: 'transparent', color: 'primary.500' } : undefined),
+    ...(isOutline
+      ? {
+          bg: 'badgeBg',
+          borderColor: 'formControlBorder',
+        }
+      : undefined),
+    ...(isGhost ? { bg: 'badgeBg', color: 'primary.500' } : undefined),
+    ...(isSubtle ? { bg: 'badgeBg', color: 'primary.600' } : undefined),
+  }
+
   return (
     <ChakraButton
       type="button"
@@ -89,38 +113,12 @@ export function Button(props: UiButtonProps) {
       borderRadius="sm"
       px={4}
       {...visualProps}
-      _hover={{
-        transform: 'none',
-        opacity: 1,
-        ...(isPrimary ? { bg: 'primaryHover' } : undefined),
-        ...(isSecondary
-          ? {
-              bg: 'transparent',
-              borderColor: 'secondary.600',
-              color: 'secondary.600',
-            }
-          : undefined),
-        ...(isTertiary
-          ? { bg: 'transparent', color: 'primary.500' }
-          : undefined),
-        ...(isOutline
-          ? {
-              bg: 'badgeBg',
-              borderColor: 'formControlBorder',
-            }
-          : undefined),
-        ...(isGhost ? { bg: 'badgeBg', color: 'primary.500' } : undefined),
-        ...(isSubtle ? { bg: 'badgeBg', color: 'primary.600' } : undefined),
-      }}
+      _hover={hoverStyles}
+      {...focusVisibleMatchesHover(hoverStyles)}
       _active={{
         transform: 'none',
         opacity: 1,
         ...(isPrimary ? { bg: 'primary.600' } : undefined),
-      }}
-      _focusVisible={{
-        outline: '2px solid',
-        outlineColor: 'primary.500',
-        outlineOffset: '2px',
       }}
       {...restProps}
     />

@@ -3,6 +3,8 @@
 import { Box, type BoxProps, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { focusVisibleMatchesHover } from '../interactionStyles'
+
 export type RadioButtonProps = Omit<BoxProps, 'onChange' | 'children'> & {
   checked: boolean
   label: ReactNode
@@ -17,6 +19,10 @@ export function RadioButton({
   borderRadius = 'lg',
   ...rest
 }: RadioButtonProps) {
+  const hoverStyles = {
+    bg: checked ? 'intentPrimaryBg' : 'badgeBg',
+  }
+
   return (
     <Box
       as="button"
@@ -35,12 +41,8 @@ export function RadioButton({
       borderColor={checked ? 'intentPrimaryBorder' : 'cardBorder'}
       bg={checked ? 'intentPrimaryBg' : 'transparent'}
       color={checked ? 'intentPrimaryFg' : 'formLabelMuted'}
-      _hover={{ bg: checked ? 'intentPrimaryBg' : 'badgeBg' }}
-      _focusVisible={{
-        outline: '2px solid',
-        outlineColor: 'primary.500',
-        outlineOffset: '2px',
-      }}
+      _hover={hoverStyles}
+      {...focusVisibleMatchesHover(hoverStyles)}
       {...rest}
     >
       <Box

@@ -199,6 +199,15 @@ export function formatQuoteRespondedAgo(
   return `Responded ${days} day${days === 1 ? '' : 's'} ago`
 }
 
+/** Public quote cards: “Posted … ago”. */
+export function formatQuotePostedAgo(
+  iso: string | null | undefined,
+): string | null {
+  const responded = formatQuoteRespondedAgo(iso)
+  if (!responded) return null
+  return responded.replace(/^Responded /, 'Posted ')
+}
+
 function parseCoord(value: unknown): number | null {
   if (value == null) return null
   if (typeof value === 'number' && Number.isFinite(value)) return value

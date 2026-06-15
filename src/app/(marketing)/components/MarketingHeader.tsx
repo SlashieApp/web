@@ -13,6 +13,11 @@ import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
+import {
+  HeaderGuestAuthButtons,
+  HeaderToolbarSeparator,
+} from '@/ui/Header/GuestHeaderAuth'
+import { HEADER_MIN_HEIGHT, HEADER_PADDING_X } from '@/ui/Header/headerShell'
 import { GET_APP_HREF, MARKETING_HOME } from '@/utils/appRoutes'
 import { AppDrawer, Button, Logo } from '@ui'
 
@@ -111,6 +116,8 @@ function MarketingNavigation() {
           <Logo />
         </Link>
 
+        <GetAppButton />
+
         <Text
           display={{ base: 'none', md: 'block' }}
           color="cardBorder"
@@ -145,18 +152,8 @@ function MarketingNavigation() {
       </HStack>
 
       <HStack gap={{ base: 2, md: 4 }} align="center" flexShrink={0}>
-        <GetAppButton />
-
-        <Link
-          as={NextLink}
-          href="/register"
-          display={{ base: 'none', sm: 'inline-flex' }}
-          _hover={{ textDecoration: 'none' }}
-        >
-          <Button size="sm" borderRadius="full" px={5}>
-            Get started
-          </Button>
-        </Link>
+        <HeaderToolbarSeparator />
+        <HeaderGuestAuthButtons loginHref="/login" signupHref="/register" />
 
         <IconButton
           aria-label="Open menu"
@@ -175,7 +172,7 @@ function MarketingNavigation() {
         placement="end"
         size="xs"
       >
-        <Stack as="nav" align="stretch" gap={0}>
+        <Stack as="nav" align="stretch" gap={0} flex={1}>
           {MARKETING_NAV_LINKS.map((link) => (
             <Link
               key={link.key}
@@ -191,14 +188,31 @@ function MarketingNavigation() {
               {link.label}
             </Link>
           ))}
-          <Link
-            as={NextLink}
-            href="/register"
-            {...drawerLinkProps}
-            onClick={() => setMobileMenuOpen(false)}
+          <Stack
+            gap={0}
+            align="stretch"
+            mt="auto"
+            pt={3}
+            borderTopWidth="1px"
+            borderColor="cardBorder"
           >
-            Get started
-          </Link>
+            <Link
+              as={NextLink}
+              href="/login"
+              {...drawerLinkProps}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Log in
+            </Link>
+            <Link
+              as={NextLink}
+              href="/register"
+              {...drawerLinkProps}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Sign up
+            </Link>
+          </Stack>
         </Stack>
       </AppDrawer>
     </HStack>
@@ -217,13 +231,17 @@ export function MarketingHeader(props: MarketingHeaderProps) {
       backdropFilter="blur(20px)"
       borderWidth="1px"
       borderColor="cardBorder"
-      px={{ base: 4, lg: 6 }}
-      py={3}
+      px={HEADER_PADDING_X}
+      minH={HEADER_MIN_HEIGHT}
+      display="flex"
+      alignItems="center"
       position="sticky"
       top={0}
       {...props}
     >
-      <MarketingNavigation />
+      <Box w="full" minH={HEADER_MIN_HEIGHT} display="flex" alignItems="center">
+        <MarketingNavigation />
+      </Box>
     </Box>
   )
 }

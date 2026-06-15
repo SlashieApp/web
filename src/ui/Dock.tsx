@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, HStack, Stack } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 
 import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
@@ -184,41 +184,49 @@ export function Dock() {
       px={2}
       pb={{ base: 'calc(env(safe-area-inset-bottom) + 8px)', md: 0 }}
     >
-      <HStack
+      <Stack
         as="nav"
         align="stretch"
         gap={{ base: 1, md: 2 }}
-        flexDirection={{ base: 'row', md: 'column' }}
-        justify={{ base: 'flex-start', md: 'flex-start' }}
+        flexDirection="column"
         w="full"
-        flex={{ base: undefined, md: 1 }}
-        minH={{ base: undefined, md: 0 }}
+        flex={{ md: 1 }}
+        minH={{ md: 0 }}
       >
-        {items.map((item) => (
-          <Box
-            key={item.key}
-            display={{ base: 'flex', md: 'contents' }}
-            flex={{ base: 1, md: 'unset' }}
-            minW={0}
-            justifyContent="center"
-          >
-            <IconButton
-              href={item.href}
-              icon={item.icon}
-              caption={item.caption}
-              active={isHrefActive(item.href)}
-            />
-          </Box>
-        ))}
+        <HStack
+          align="stretch"
+          gap={{ base: 1, md: 2 }}
+          flexDirection={{ base: 'row', md: 'column' }}
+          flex={1}
+          justify={{ base: 'flex-start', md: 'flex-start' }}
+          w="full"
+        >
+          {items.map((item) => (
+            <Box
+              key={item.key}
+              display={{ base: 'flex', md: 'contents' }}
+              flex={{ base: 1, md: 'unset' }}
+              minW={0}
+              justifyContent="center"
+            >
+              <IconButton
+                href={item.href}
+                icon={item.icon}
+                caption={item.caption}
+                active={isHrefActive(item.href)}
+              />
+            </Box>
+          ))}
+        </HStack>
         <Box
-          display={{ base: 'none', md: 'flex' }}
+          display="flex"
           flexDirection="column"
           alignItems="center"
           w="full"
           borderTopWidth="1px"
           borderTopColor="cardDivider"
-          pt={3}
-          mt="auto"
+          pt={{ base: 1.5, md: 3 }}
+          mt={{ md: 'auto' }}
         >
           <IconButton
             href={GET_APP_HREF}
@@ -227,7 +235,7 @@ export function Dock() {
             active={false}
           />
         </Box>
-      </HStack>
+      </Stack>
     </Box>
   )
 }

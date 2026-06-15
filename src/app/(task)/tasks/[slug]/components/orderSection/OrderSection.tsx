@@ -349,7 +349,6 @@ export function OrderSection({ task, order }: OrderSectionProps) {
     <Box
       ref={onSectionRef}
       id={TASK_ORDER_SECTION_ID}
-      scrollMarginTop="96px"
       w="full"
       borderRadius="xl"
       borderWidth="1px"

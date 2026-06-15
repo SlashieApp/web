@@ -22,6 +22,7 @@ import {
 } from 'react-icons/lu'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
+import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { formatBudgetAmount } from '@/utils/price'
 import { Button, FormField, IconButton, Input } from '@ui'
 
@@ -271,7 +272,7 @@ export function TaskQuoteFlow() {
           <TaskQuoteSummaryCard />
           <Link
             as={NextLink}
-            href="/profile#profile-worker"
+            href={workerSetupHref(`/tasks/${task.id}/quote`)}
             _hover={{ textDecoration: 'none' }}
           >
             <Button w="full">Create worker profile</Button>

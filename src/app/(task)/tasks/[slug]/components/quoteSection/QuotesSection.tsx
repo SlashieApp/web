@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { type ReactNode, useMemo, useState } from 'react'
 
 import {
+  Box,
   HStack,
   Heading,
   Link,
@@ -24,14 +25,17 @@ import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
   budgetKindLabel,
   formatPoundsFromPence,
+  formatQuotePostedAgo,
   formatQuoteRespondedAgo,
   normaliseTaskStatusForBadge,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
 
-import { MetaRow } from '../metaSection/MetaRow'
+import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+
 import { QuoteCard } from './QuoteCard'
 import { QuoteLimitPaywall } from './QuoteLimitPaywall'
+import { QuoteWorkerEarnCta } from './QuoteWorkerEarnCta'
 
 type QuoteSort = 'recommended' | 'price_low' | 'price_high' | 'recent'
 
@@ -66,15 +70,83 @@ function sortOwnerQuotes(quotes: TaskQuote[], sort: QuoteSort): TaskQuote[] {
   }
 }
 
-function quoteDividerAfterList(
-  listLength: number,
-  hasTrailingBlock: boolean,
-  index: number,
-): boolean {
-  if (listLength === 0) return false
-  const isLastRow = index === listLength - 1
-  if (!isLastRow) return true
-  return hasTrailingBlock
+function offerCountLabel(count: number): string {
+  return `${count} offer${count === 1 ? '' : 's'}`
+}
+
+function QuotesSectionShell({ children }: { children: ReactNode }) {
+  return (
+    <Box
+      borderWidth="1px"
+      borderColor="cardBorder"
+      borderRadius="xl"
+      bg="cardBg"
+      p={{ base: 4, md: 5 }}
+      w="full"
+    >
+      {children}
+    </Box>
+  )
+}
+
+function renderQuoteCard(
+  quote: TaskQuote,
+  task: TaskDetailRecord,
+  options: {
+    showPrice: boolean
+    postedAgo?: boolean
+    priceKind?: string
+    showAcceptDecline?: boolean
+    lowestPricePence?: number | null
+    onAcceptQuote?: (id: string) => void
+    onDeclineQuote?: (id: string) => void
+    acceptingQuoteId?: string | null
+    decliningQuoteId?: string | null
+  },
+) {
+  const quotePence = priceToPence(quote.price)
+  const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
+  const workerEntityId = quote.worker?.worker?.id
+  const workerProfileHref = workerEntityId
+    ? workerProfilePath(workerEntityId, task.id)
+    : undefined
+  const formatAgo = options.postedAgo
+    ? formatQuotePostedAgo
+    : formatQuoteRespondedAgo
+
+  return (
+    <QuoteCard
+      key={quote.id}
+      variant="card"
+      showPrice={options.showPrice}
+      name={workerName}
+      avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
+      avatarUrl={quote.worker?.profile?.avatarUrl}
+      priceLabel={quotePence != null ? formatPoundsFromPence(quotePence) : '—'}
+      priceKindLabel={options.priceKind}
+      message={quote.message}
+      respondedLabel={formatAgo(quote.createdAt) ?? undefined}
+      showVerified={Boolean(quote.worker?.worker?.isVerified)}
+      workerProfileHref={workerProfileHref}
+      acceptPrimary={
+        options.lowestPricePence != null &&
+        quotePence != null &&
+        quotePence === options.lowestPricePence
+      }
+      onAccept={
+        options.showAcceptDecline && quote.status === QuoteStatus.Pending
+          ? () => options.onAcceptQuote?.(quote.id)
+          : undefined
+      }
+      onDecline={
+        options.showAcceptDecline && quote.status === QuoteStatus.Pending
+          ? () => options.onDeclineQuote?.(quote.id)
+          : undefined
+      }
+      acceptLoading={options.acceptingQuoteId === quote.id}
+      declineLoading={options.decliningQuoteId === quote.id}
+    />
+  )
 }
 
 export function QuotesSection() {
@@ -119,143 +191,113 @@ export function QuotesSection() {
     const hasList = n > 0
 
     return (
-      <Stack gap={4} w="full" id="owner-quotes">
-        <HStack
-          justify="space-between"
-          align="center"
-          flexWrap="wrap"
-          gap={3}
-          w="full"
-        >
-          <Heading size="md">Quotes{hasList ? ` (${n})` : ''}</Heading>
-          {hasList ? (
-            <HStack gap={2} align="center" flexShrink={0}>
-              <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
-                Sort:
-              </Text>
-              <NativeSelect.Root w={{ base: 'full', sm: '180px' }} maxW="220px">
-                <NativeSelect.Field
-                  bg="cardBg"
-                  borderWidth="1px"
-                  borderColor="cardBorder"
-                  borderRadius="lg"
-                  fontSize="sm"
-                  value={quoteSort}
-                  onChange={(e) => setQuoteSort(e.target.value as QuoteSort)}
+      <QuotesSectionShell>
+        <Stack gap={4} w="full" id="owner-quotes">
+          <HStack
+            justify="space-between"
+            align="center"
+            flexWrap="wrap"
+            gap={3}
+            w="full"
+          >
+            <HStack gap={2} align="center" flexWrap="wrap">
+              <Heading size="md">Quotes</Heading>
+              {hasList ? (
+                <Badge
+                  bg="primary.100"
+                  color="primary.800"
+                  borderRadius="full"
+                  letterSpacing="normal"
+                  fontSize="xs"
+                  px={2.5}
                 >
-                  <option value="recommended">Recommended</option>
-                  <option value="price_low">Price (lowest)</option>
-                  <option value="price_high">Price (highest)</option>
-                  <option value="recent">Most recent</option>
-                </NativeSelect.Field>
-              </NativeSelect.Root>
+                  {offerCountLabel(n)}
+                </Badge>
+              ) : null}
             </HStack>
-          ) : null}
-        </HStack>
-        {acceptError ? (
-          <Text color="red.400" fontSize="sm">
-            {acceptError}
-          </Text>
-        ) : null}
-        {cancelError ? (
-          <Text color="red.400" fontSize="sm">
-            {cancelError}
-          </Text>
-        ) : null}
-        {!hasList ? (
-          <Text color="formLabelMuted">
-            No quotes yet. Check back for worker responses.
-          </Text>
-        ) : (
-          <Stack gap={0} w="full" id="owner-quotes-list">
-            {displayQuotes.map((quote, i) => {
-              const quotePence = priceToPence(quote.price)
-              const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
-              const workerEntityId = quote.worker?.worker?.id
-              const workerProfileHref = workerEntityId
-                ? workerProfilePath(workerEntityId, task.id)
-                : undefined
-              return (
-                <MetaRow
-                  key={quote.id}
-                  withDivider={quoteDividerAfterList(
-                    displayQuotes.length,
-                    false,
-                    i,
-                  )}
+            {hasList ? (
+              <HStack gap={2} align="center" flexShrink={0}>
+                <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
+                  Sort:
+                </Text>
+                <NativeSelect.Root
+                  w={{ base: 'full', sm: '180px' }}
+                  maxW="220px"
                 >
-                  <QuoteCard
-                    variant="list"
-                    showPrice
-                    name={workerName}
-                    avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
-                    avatarUrl={quote.worker?.profile?.avatarUrl}
-                    priceLabel={
-                      quotePence != null
-                        ? formatPoundsFromPence(quotePence)
-                        : '—'
-                    }
-                    priceKindLabel={priceKind}
-                    message={quote.message}
-                    respondedLabel={
-                      formatQuoteRespondedAgo(quote.createdAt) ?? undefined
-                    }
-                    showVerified={Boolean(quote.worker?.worker?.isVerified)}
-                    workerProfileHref={workerProfileHref}
-                    acceptPrimary={
-                      quotePence != null && quotePence === lowestPricePence
-                    }
-                    isOwnQuote={false}
-                    onAccept={
-                      showAcceptDecline && quote.status === QuoteStatus.Pending
-                        ? () => void onAcceptQuote(quote.id)
-                        : undefined
-                    }
-                    onDecline={
-                      showAcceptDecline && quote.status === QuoteStatus.Pending
-                        ? () => void onDeclineQuote(quote.id)
-                        : undefined
-                    }
-                    acceptLoading={acceptingQuoteId === quote.id}
-                    declineLoading={decliningQuoteId === quote.id}
-                  />
-                </MetaRow>
-              )
-            })}
-          </Stack>
-        )}
-      </Stack>
+                  <NativeSelect.Field
+                    bg="cardBg"
+                    borderWidth="1px"
+                    borderColor="cardBorder"
+                    borderRadius="lg"
+                    fontSize="sm"
+                    value={quoteSort}
+                    onChange={(e) => setQuoteSort(e.target.value as QuoteSort)}
+                  >
+                    <option value="recommended">Recommended</option>
+                    <option value="price_low">Price (lowest)</option>
+                    <option value="price_high">Price (highest)</option>
+                    <option value="recent">Most recent</option>
+                  </NativeSelect.Field>
+                </NativeSelect.Root>
+              </HStack>
+            ) : null}
+          </HStack>
+          {acceptError ? (
+            <Text color="red.400" fontSize="sm">
+              {acceptError}
+            </Text>
+          ) : null}
+          {cancelError ? (
+            <Text color="red.400" fontSize="sm">
+              {cancelError}
+            </Text>
+          ) : null}
+          {!hasList ? (
+            <Text color="formLabelMuted">
+              No quotes yet. Check back for worker responses.
+            </Text>
+          ) : (
+            <Stack gap={3} w="full" id="owner-quotes-list">
+              {displayQuotes.map((quote) =>
+                renderQuoteCard(quote, task, {
+                  showPrice: true,
+                  priceKind,
+                  showAcceptDecline,
+                  lowestPricePence,
+                  onAcceptQuote: (id) => void onAcceptQuote(id),
+                  onDeclineQuote: (id) => void onDeclineQuote(id),
+                  acceptingQuoteId,
+                  decliningQuoteId,
+                }),
+              )}
+            </Stack>
+          )}
+        </Stack>
+      </QuotesSectionShell>
     )
   }
 
   const n = task.quotes.length
   const hasQuoteRows = n > 0
   const quoteFlowHref = `/tasks/${task.id}/quote`
-  const loginHref = `/login?next=${encodeURIComponent(quoteFlowHref)}`
 
   if (showWorkerJobBanner) {
     return (
-      <Stack gap={3} w="full">
-        <Heading size="md">Your accepted quote</Heading>
-        <Text fontSize="sm" color="formLabelMuted">
-          You are booked on this job. Use the panel below to enter the
-          customer&apos;s completion code when work is done.
-        </Text>
-      </Stack>
+      <QuotesSectionShell>
+        <Stack gap={3} w="full">
+          <Heading size="md">Your accepted quote</Heading>
+          <Text fontSize="sm" color="formLabelMuted">
+            You are booked on this job. Use the panel below to enter the
+            customer&apos;s completion code when work is done.
+          </Text>
+        </Stack>
+      </QuotesSectionShell>
     )
   }
 
-  const followUpBlock = !isAuthenticated ? (
-    <Stack gap={3}>
-      <Heading size="sm">Log in to make a quote</Heading>
-      <Text color="formLabelMuted">
-        Sign in to send your quote and message to the task owner.
-      </Text>
-      <Link as={NextLink} href={loginHref} _hover={{ textDecoration: 'none' }}>
-        <Button w="full">Log in</Button>
-      </Link>
-    </Stack>
-  ) : myQuote ? (
+  const showEarnCta = !myQuote && (!isAuthenticated || !hasWorkerProfile)
+
+  const followUpBlock = myQuote ? (
     <Stack gap={3}>
       <Heading size="sm">Your quote</Heading>
       <Text color="formLabelMuted">
@@ -278,24 +320,14 @@ export function QuotesSection() {
           )
         })()}
       </Text>
-      <Badge bg="cardBg" color="cardFg" w="fit-content">
+      <Badge bg="neutral.100" color="cardFg" w="fit-content">
         Status: {normaliseTaskStatusForBadge(myQuote.status)}
       </Badge>
     </Stack>
-  ) : !canSubmitQuote && !hasWorkerProfile ? (
-    <Stack gap={3}>
-      <Heading size="sm">Become a worker to send a quote</Heading>
-      <Text color="formLabelMuted">
-        Create your worker profile to unlock quoting and worker tools.
-      </Text>
-      <Link
-        as={NextLink}
-        href="/profile#profile-worker"
-        _hover={{ textDecoration: 'none' }}
-      >
-        <Button w="full">Create worker profile</Button>
-      </Link>
-    </Stack>
+  ) : showEarnCta ? (
+    <QuoteWorkerEarnCta
+      createProfileHref={workerSetupHref(`/tasks/${task.id}#task-quote`)}
+    />
   ) : me && !isEmailVerified(me) ? (
     <Stack gap={3}>
       <Heading size="sm">Verify your email</Heading>
@@ -337,51 +369,42 @@ export function QuotesSection() {
   ) : null
 
   return (
-    <Stack gap={4} w="full">
-      <HStack
-        justify="space-between"
-        align="center"
-        flexWrap="wrap"
-        gap={3}
-        w="full"
-      >
-        <Heading size="md">Quotes{hasQuoteRows ? ` (${n})` : ''}</Heading>
-      </HStack>
-      {hasQuoteRows ? (
-        <Stack gap={0} w="full">
-          {task.quotes.map((quote, i) => {
-            const workerName = quote.worker?.profile?.name?.trim() || 'Worker'
-            const workerEntityId = quote.worker?.worker?.id
-            const workerProfileHref = workerEntityId
-              ? workerProfilePath(workerEntityId, task.id)
-              : undefined
-            return (
-              <MetaRow
-                key={quote.id}
-                withDivider={quoteDividerAfterList(n, true, i)}
+    <QuotesSectionShell>
+      <Stack gap={4} w="full">
+        <Stack gap={1}>
+          <HStack gap={2} align="center" flexWrap="wrap">
+            <Heading size="md">Quotes</Heading>
+            {hasQuoteRows ? (
+              <Badge
+                bg="primary.100"
+                color="primary.800"
+                borderRadius="full"
+                letterSpacing="normal"
+                fontSize="xs"
+                px={2.5}
               >
-                <QuoteCard
-                  variant="list"
-                  showPrice={false}
-                  name={workerName}
-                  avatarLabel={workerQuoteAvatarLabel(quote.workerUserId)}
-                  avatarUrl={quote.worker?.profile?.avatarUrl}
-                  priceLabel=""
-                  message={quote.message}
-                  respondedLabel={
-                    formatQuoteRespondedAgo(quote.createdAt) ?? undefined
-                  }
-                  showVerified={Boolean(quote.worker?.worker?.isVerified)}
-                  workerProfileHref={workerProfileHref}
-                />
-              </MetaRow>
-            )
-          })}
-          <MetaRow withDivider={false}>{followUpBlock}</MetaRow>
+                {offerCountLabel(n)}
+              </Badge>
+            ) : null}
+          </HStack>
+          <Text fontSize="sm" color="formLabelMuted">
+            See what others are bidding — register as a worker to compete
+          </Text>
         </Stack>
-      ) : (
-        followUpBlock
-      )}
-    </Stack>
+        {hasQuoteRows ? (
+          <Stack gap={3} w="full">
+            {task.quotes.map((quote) =>
+              renderQuoteCard(quote, task, {
+                showPrice: true,
+                postedAgo: true,
+              }),
+            )}
+          </Stack>
+        ) : (
+          <Text color="formLabelMuted">No quotes yet.</Text>
+        )}
+        {followUpBlock}
+      </Stack>
+    </QuotesSectionShell>
   )
 }

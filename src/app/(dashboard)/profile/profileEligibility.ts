@@ -6,6 +6,7 @@ import {
   isPhoneVerified,
 } from '@/app/(auth)/helpers/phoneVerification'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 
 export type CompletenessItem = {
   key: 'avatar' | 'dateOfBirth' | 'bio' | 'verifiedContact'
@@ -41,7 +42,9 @@ export function getCompletenessItems(me: MeSnapshot): CompletenessItem[] {
       key: 'bio',
       label: 'Write a short bio',
       done: Boolean(me.worker?.bio?.trim()),
-      href: '#profile-worker',
+      href: me.worker?.id
+        ? workerSetupHref('/profile#profile-worker')
+        : '#profile-worker',
     },
     {
       key: 'verifiedContact',

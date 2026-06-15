@@ -2,7 +2,6 @@
 
 import { Box, HStack, Stack } from '@chakra-ui/react'
 
-import { PostTaskFloatingButton } from '../PostTaskFloatingButton'
 import { TaskBrowseSearchThisAreaButton } from '../TaskBrowseSearchThisAreaButton'
 import { TaskSearch } from '../TaskSearch'
 import { TaskTag } from '../TaskTag'
@@ -41,15 +40,13 @@ export function MobileLayout() {
         right={0}
         bottom={8}
         zIndex={3}
+        display="flex"
+        flexDirection="column"
+        gap={2}
         pointerEvents="auto"
       >
-        <Box position="relative">
-          <PostTaskFloatingButton />
-          <Stack gap={2}>
-            <TaskBrowseSearchThisAreaButton />
-            <MobileTaskCarousel />
-          </Stack>
-        </Box>
+        <TaskBrowseSearchThisAreaButton />
+        <MobileTaskCarousel />
       </Box>
 
       <MobileTaskBrowseFiltersDrawer />

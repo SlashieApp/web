@@ -13,6 +13,13 @@ import {
 } from '@/utils/notifications'
 import { AppDrawer, Button } from '@ui'
 
+import { focusVisibleMatchesHover } from '../interactionStyles'
+
+const notificationItemHover = {
+  textDecoration: 'none',
+  bg: 'badgeBg',
+} as const
+
 export function NotificationsDrawer() {
   const notifications = useNotificationsOptional()
   if (!notifications) return null
@@ -94,7 +101,8 @@ export function NotificationsDrawer() {
                   borderWidth="1px"
                   borderColor={unread ? 'primary.200' : 'cardBorder'}
                   bg={unread ? 'primary.50' : 'cardBg'}
-                  _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+                  _hover={notificationItemHover}
+                  {...focusVisibleMatchesHover(notificationItemHover)}
                   onClick={() => void onOpenItem(item.id, item.readAt)}
                 >
                   <Stack gap={1}>

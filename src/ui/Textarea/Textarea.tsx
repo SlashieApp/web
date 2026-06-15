@@ -6,6 +6,8 @@ import {
 } from '@chakra-ui/react'
 import * as React from 'react'
 
+import { formControlFieldInteraction } from '../interactionStyles'
+
 export type TextareaProps = ChakraTextareaProps
 
 /**
@@ -27,15 +29,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         borderColor="formControlBorder"
         bg="formControlBg"
         color="formControlFg"
-        outline="none"
-        boxShadow="none"
-        transitionProperty="border-color"
-        transitionDuration="160ms"
         _placeholder={{ color: 'formControlPlaceholder' }}
-        _focusVisible={{
-          borderColor: 'formControlFocusBorder',
-          boxShadow: 'none',
-        }}
+        {...formControlFieldInteraction}
         {...props}
       />
     )

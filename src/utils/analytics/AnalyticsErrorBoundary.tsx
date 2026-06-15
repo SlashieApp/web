@@ -5,6 +5,10 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 import { Button } from '@ui'
 
+import {
+  redirectToLandingIfAppRoute,
+  shouldFallbackToLandingOnApiFailure,
+} from '@/utils/apiAvailability'
 import { capture, getCurrentRoute } from './capture'
 
 type AnalyticsErrorBoundaryProps = {
@@ -27,6 +31,14 @@ export class AnalyticsErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    if (
+      typeof window !== 'undefined' &&
+      shouldFallbackToLandingOnApiFailure(window.location.pathname)
+    ) {
+      redirectToLandingIfAppRoute()
+      return
+    }
+
     try {
       capture('$exception', {
         route: this.props.route ?? getCurrentRoute(),

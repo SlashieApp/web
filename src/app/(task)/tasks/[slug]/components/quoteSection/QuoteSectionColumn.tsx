@@ -1,6 +1,7 @@
 import { Stack, type StackProps } from '@chakra-ui/react'
 import type { TaskQuery } from '@codegen/schema'
 
+import { TASK_DETAIL_COLUMN_GAP } from '../../helpers/taskDetailLayout'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import { TaskOwnerCard } from '../TaskOwnerCard'
 import { WorkerOrderVerificationPanel } from '../WorkerOrderVerificationPanel'
@@ -19,7 +20,13 @@ export function QuoteSectionColumn({
   ...props
 }: QuoteSectionColumnProps) {
   return (
-    <Stack id="task-quote" scrollMarginTop="96px" gap={4} w="full" {...props}>
+    <Stack
+      id="task-quote"
+      scrollMarginTop="96px"
+      gap={TASK_DETAIL_COLUMN_GAP}
+      w="full"
+      {...props}
+    >
       <TaskOwnerCard />
       {order ? (
         <>

@@ -72,7 +72,7 @@ export function ActionBar({ fromTask }: ActionBarProps) {
               </Link>
               <Link
                 as={NextLink}
-                href="/profile#profile-worker"
+                href="/worker/setup"
                 _hover={{ textDecoration: 'none' }}
               >
                 <Button variant="secondary" w={{ base: 'full', sm: 'auto' }}>

@@ -1,33 +1,32 @@
 'use client'
 
-import { useMutation } from '@apollo/client/react'
-import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
-import type { RegisterAsProMutation } from '@codegen/schema'
+import { HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo } from 'react'
+import NextLink from 'next/link'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { hasVerifiedContactMethod } from '@/app/(auth)/helpers/phoneVerification'
 import { useUserStore } from '@/app/(auth)/store/user'
-import { PhoneVerificationBlock } from '@/app/(dashboard)/components/PhoneVerificationBlock'
-import RegisterAsPro from '@/app/(dashboard)/profile/graphql/RegisterAsPro.gql'
-import Me from '@/graphql/Me.gql'
-import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
+import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
+import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { apolloClient } from '@/utils/apolloClient'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, FormField, Input, SectionCard, Textarea } from '@ui'
 
+import { saveWorkerProfileForm } from '../helpers/saveWorkerProfileForm'
+import { isWorkerSetupInProgress } from '../helpers/workerSetupProfileHelpers'
 import {
   type WorkerFormValues,
   workerFormSchema,
-  workerFormToMutationInput,
   workerFormValuesFromMe,
 } from '../workerFormSchema'
 
 export function ProfileWorkerForm() {
   const me = useUserStore((s) => s.me)
-  const patchMe = useUserStore((s) => s.patchMe)
+  const setMe = useUserStore((s) => s.setMe)
   const getUser = useUserStore((s) => s.getUser)
-  const isWorker = Boolean(me?.worker?.id)
+  const [saving, setSaving] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const formValues = useMemo(
     () => (me ? workerFormValuesFromMe(me) : null),
@@ -38,53 +37,88 @@ export function ProfileWorkerForm() {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<WorkerFormValues>({
     resolver: zodResolver(workerFormSchema),
     values: formValues ?? undefined,
   })
 
-  const [registerAsPro, { loading: saving, error: mutationError }] =
-    useMutation<RegisterAsProMutation>(RegisterAsPro, {
-      refetchQueries: [{ query: Me }],
-      awaitRefetchQueries: true,
-    })
-
   if (!me || !formValues) return null
 
+  const setupComplete = isWorkerSetupComplete(me)
+  const setupInProgress = isWorkerSetupInProgress(me)
+
+  if (!me.worker?.id) {
+    return (
+      <SectionCard id="profile-worker" p={{ base: 5, md: 6 }}>
+        <Stack gap={4}>
+          <Stack gap={1}>
+            <Heading size="md">Become a worker</Heading>
+            <Text fontSize="sm" color="formLabelMuted">
+              Set up your worker profile to send quotes. Customers pay you
+              directly for completed work.
+            </Text>
+          </Stack>
+          <Link
+            as={NextLink}
+            href={workerSetupHref('/profile')}
+            _hover={{ textDecoration: 'none' }}
+          >
+            <Button w={{ base: 'full', sm: 'auto' }}>Start worker setup</Button>
+          </Link>
+        </Stack>
+      </SectionCard>
+    )
+  }
+
+  if (setupInProgress) {
+    return (
+      <SectionCard id="profile-worker" p={{ base: 5, md: 6 }}>
+        <Stack gap={3}>
+          <Heading size="md">Worker profile (in progress)</Heading>
+          <Text fontSize="sm" color="formLabelMuted">
+            Finish setup to edit your full worker profile here. What you have
+            saved so far:
+          </Text>
+          <WorkerProfileSummary values={formValues} />
+          <Link
+            as={NextLink}
+            href={workerSetupHref('/profile')}
+            _hover={{ textDecoration: 'none' }}
+          >
+            <Button
+              size="sm"
+              variant="primary"
+              w={{ base: 'full', sm: 'auto' }}
+            >
+              Continue setup
+            </Button>
+          </Link>
+        </Stack>
+      </SectionCard>
+    )
+  }
+
+  if (!setupComplete) {
+    return null
+  }
+
   const onSubmit = async (values: WorkerFormValues) => {
+    setSubmitError(null)
+    setSaving(true)
     try {
-      const result = await registerAsPro({
-        variables: { input: workerFormToMutationInput(values) },
-      })
-      const w = result.data?.registerAsPro
-      if (w) {
-        const displayName = w.profile?.name?.trim() ?? null
-        if (displayName && me.profile) {
-          patchMe({
-            profile: { ...me.profile, name: displayName },
-          })
-        }
-      }
-      trackFlowSucceeded(EVENTS.worker_setup_success, {
-        is_new_worker: !isWorker,
-      })
+      await saveWorkerProfileForm(apolloClient, values, me, setMe)
       reset(values)
       await getUser()
     } catch (error: unknown) {
-      trackFlowFailed(EVENTS.worker_setup_fail, error, {
-        flow: 'worker_setup',
-        action: 'registerAsPro',
-        operation: 'RegisterAsPro',
-        route: '/profile',
-        extra: { is_new_worker: !isWorker },
-      })
+      setSubmitError(
+        getFriendlyErrorMessage(error, 'Could not save worker profile.'),
+      )
+    } finally {
+      setSaving(false)
     }
   }
-
-  const errorMessage = mutationError
-    ? getFriendlyErrorMessage(mutationError, 'Could not save worker profile.')
-    : null
 
   return (
     <form
@@ -95,31 +129,31 @@ export function ProfileWorkerForm() {
       noValidate
     >
       <Stack gap={6}>
-        {errorMessage ? (
+        {submitError ? (
           <Text color="red.500" fontSize="sm">
-            {errorMessage}
+            {submitError}
           </Text>
         ) : null}
 
         <SectionCard p={{ base: 5, md: 6 }}>
           <Stack gap={4}>
             <Stack gap={1}>
-              <Heading size="md">
-                {isWorker ? 'Worker profile' : 'Become a worker'}
-              </Heading>
+              <Heading size="md">Worker profile</Heading>
               <Text fontSize="sm" color="formLabelMuted">
-                {isWorker
-                  ? 'Update the details customers see when you quote on tasks.'
-                  : 'Complete these details to register as a worker and send quotes on tasks.'}
+                Update the details customers see when you quote on tasks.
               </Text>
             </Stack>
 
             <FormField
               label="Legal name"
-              helperText="Your full legal name. This sets your public display name on Slashie."
+              helperText="Your full legal name on your public worker profile."
               errorText={errors.legalName?.message}
             >
-              <Input {...register('legalName')} placeholder="Alex Johnson" />
+              <Input
+                {...register('legalName')}
+                placeholder="Alex Johnson"
+                minH="44px"
+              />
             </FormField>
 
             <FormField
@@ -130,14 +164,28 @@ export function ProfileWorkerForm() {
               <Input
                 {...register('tagline')}
                 placeholder="Reliable repairs, clean finishes."
+                minH="44px"
               />
             </FormField>
 
             <FormField label="Bio" errorText={errors.bio?.message}>
               <Textarea
                 {...register('bio')}
-                placeholder="Tell posters about your skills, experience, and approach."
+                placeholder="Tell customers about your skills and experience."
                 rows={4}
+                maxLength={300}
+              />
+            </FormField>
+
+            <FormField
+              label="Skills & services"
+              helperText="Separate skills with commas or new lines."
+              errorText={errors.skillsText?.message}
+            >
+              <Textarea
+                {...register('skillsText')}
+                placeholder="e.g. Plumbing, furniture assembly"
+                rows={3}
               />
             </FormField>
 
@@ -152,35 +200,56 @@ export function ProfileWorkerForm() {
                   {...register('yearsExperience')}
                   inputMode="numeric"
                   placeholder="3"
+                  minH="44px"
                 />
               </FormField>
               <FormField
-                label="Service area"
-                helperText="City or postcode that matches your usual jobs."
-                errorText={errors.locationName?.message}
+                label="Travel radius (miles)"
+                helperText="Optional"
+                errorText={errors.travelRadiusMiles?.message}
                 flex="1"
-                minW={{ base: 'full', md: '240px' }}
+                minW={{ base: 'full', md: '200px' }}
               >
-                <Input {...register('locationName')} placeholder="London" />
+                <Input
+                  {...register('travelRadiusMiles')}
+                  inputMode="decimal"
+                  placeholder="10"
+                  minH="44px"
+                />
               </FormField>
             </HStack>
+
+            <FormField
+              label="Service area"
+              helperText="City or postcode. Coordinates are refreshed when you save."
+              errorText={errors.locationName?.message}
+            >
+              <Input
+                {...register('locationName')}
+                onChange={(e) => {
+                  setValue('locationName', e.target.value, {
+                    shouldDirty: true,
+                  })
+                  setValue('locationLat', null, { shouldDirty: true })
+                  setValue('locationLng', null, { shouldDirty: true })
+                }}
+                placeholder="London or WD17 2AW"
+                minH="44px"
+              />
+            </FormField>
+
+            <FormField
+              label="Portfolio links"
+              helperText="Optional — one URL per line."
+            >
+              <Textarea
+                {...register('portfolioText')}
+                placeholder="https://example.com/my-work"
+                rows={3}
+              />
+            </FormField>
           </Stack>
         </SectionCard>
-
-        {!hasVerifiedContactMethod(me) ? (
-          <SectionCard p={{ base: 5, md: 6 }}>
-            <Stack gap={3}>
-              <Stack gap={1}>
-                <Heading size="md">Verified contact required</Heading>
-                <Text fontSize="sm" color="formLabelMuted">
-                  Verify your email or phone before registering as a worker.
-                  Save your phone on Profile first, then verify it here.
-                </Text>
-              </Stack>
-              <PhoneVerificationBlock compact />
-            </Stack>
-          </SectionCard>
-        ) : null}
 
         <HStack gap={3} justify="flex-end">
           <Button
@@ -197,10 +266,38 @@ export function ProfileWorkerForm() {
             loading={saving || isSubmitting}
             disabled={!isDirty}
           >
-            {isWorker ? 'Save worker profile' : 'Register as worker'}
+            Save worker profile
           </Button>
         </HStack>
       </Stack>
     </form>
+  )
+}
+
+function WorkerProfileSummary({ values }: { values: WorkerFormValues }) {
+  const rows: { label: string; value: string }[] = [
+    { label: 'Name', value: values.legalName },
+    { label: 'Bio', value: values.bio },
+    { label: 'Skills', value: values.skillsText },
+    { label: 'Experience', value: values.yearsExperience },
+    { label: 'Service area', value: values.locationName },
+  ].filter((row) => row.value.trim())
+
+  return (
+    <Stack gap={2}>
+      {rows.map((row) => (
+        <Stack key={row.label} gap={0}>
+          <Text
+            fontSize="xs"
+            fontWeight={700}
+            color="formLabelMuted"
+            textTransform="uppercase"
+          >
+            {row.label}
+          </Text>
+          <Text fontSize="sm">{row.value}</Text>
+        </Stack>
+      ))}
+    </Stack>
   )
 }

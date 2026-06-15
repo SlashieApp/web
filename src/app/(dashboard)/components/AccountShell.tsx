@@ -8,6 +8,8 @@ import type { ReactNode } from 'react'
 import { Button, DashboardSectionNav, Header } from '@ui'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
+import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 
 import { resolveAccountNavKey } from '@/utils/accountNav'
 
@@ -41,12 +43,11 @@ export function AccountShell({ children }: AccountShellProps) {
   const me = useUserStore((state) => state.me)
   if (!me) return null
   const completion = completionFromMe(me)
-  const profileLinkLabel = completion.isWorker
-    ? 'Manage profile'
-    : 'Continue setup'
-  const profileLinkHref = completion.isWorker
+  const setupComplete = isWorkerSetupComplete(me)
+  const profileLinkLabel = setupComplete ? 'Manage profile' : 'Continue setup'
+  const profileLinkHref = setupComplete
     ? '/profile'
-    : '/profile#profile-worker'
+    : workerSetupHref(pathname ?? '/profile')
 
   return (
     <Box

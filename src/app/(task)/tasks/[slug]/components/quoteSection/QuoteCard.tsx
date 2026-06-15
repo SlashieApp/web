@@ -58,7 +58,7 @@ export function QuoteCard({
   message,
   respondedLabel,
   showVerified = false,
-  ratingLine,
+  ratingLine = 'No reviews yet',
   showPrice = true,
   variant = 'list',
   acceptPrimary = false,
@@ -75,26 +75,157 @@ export function QuoteCard({
   const profileLinkLabel = workerProfileHref ? 'View profile' : 'Messages'
   const body =
     message && message.trim().length > 0
-      ? message.length > 220
-        ? `${message.slice(0, 217).trim()}…`
+      ? message.length > (variant === 'card' ? 160 : 220)
+        ? `${message.slice(0, variant === 'card' ? 157 : 217).trim()}…`
         : message
       : 'No message provided with this quote.'
 
   const isCard = variant === 'card'
 
-  return (
-    <Stack
-      gap={3}
-      {...(isCard
-        ? {
-            p: 4,
-            borderRadius: 'xl',
-            bg: 'cardBg',
-            borderWidth: '1px',
-            borderColor: 'cardBorder',
-          }
-        : {})}
+  const avatar = (
+    <QuoteCardAvatar
+      name={name}
+      avatarLabel={avatarLabel}
+      avatarUrl={avatarUrl}
+      size={isCard ? '44px' : '48px'}
+    />
+  )
+
+  const nameBlock = workerProfileHref ? (
+    <Link
+      as={NextLink}
+      href={workerProfileHref}
+      _hover={{ textDecoration: 'none', color: 'primary.700' }}
     >
+      <Heading size="sm" lineHeight="short">
+        {name}
+      </Heading>
+    </Link>
+  ) : (
+    <Heading size="sm" lineHeight="short">
+      {name}
+    </Heading>
+  )
+
+  const ratingRow = (
+    <HStack gap={1} fontSize="sm" color="formLabelMuted" fontWeight={500}>
+      <Text as="span" color="mustard.400" aria-hidden>
+        ★
+      </Text>
+      <Text as="span">{ratingLine}</Text>
+    </HStack>
+  )
+
+  const priceBlock =
+    showPrice && priceLabel ? (
+      <Stack align="flex-end" gap={0} textAlign="right" flexShrink={0}>
+        <Text
+          fontWeight={800}
+          fontSize={isCard ? '2xl' : 'xl'}
+          color={isCard ? 'cardFg' : 'primary.600'}
+          lineHeight="shorter"
+        >
+          {priceLabel}
+        </Text>
+        {!isCard && priceKindLabel ? (
+          <Text fontSize="xs" color="formLabelMuted">
+            {priceKindLabel}
+          </Text>
+        ) : null}
+      </Stack>
+    ) : null
+
+  const actionBlock = isOwnQuote ? (
+    <Button size="sm" variant="secondary" disabled w="full">
+      Your quote
+    </Button>
+  ) : onAccept || onDecline ? (
+    <Stack gap={2} w="full">
+      {onAccept ? (
+        <Button
+          size="sm"
+          w="full"
+          loading={acceptLoading}
+          disabled={acceptDisabled || declineLoading}
+          onClick={onAccept}
+          variant={acceptPrimary ? 'primary' : 'outline'}
+          {...(acceptPrimary
+            ? {}
+            : {
+                borderColor: 'primary.300',
+                color: 'primary.700',
+              })}
+        >
+          Accept quote
+        </Button>
+      ) : null}
+      {onDecline ? (
+        <Button
+          size="sm"
+          w="full"
+          variant="ghost"
+          color="red.600"
+          loading={declineLoading}
+          disabled={acceptLoading || acceptDisabled}
+          onClick={onDecline}
+        >
+          Decline
+        </Button>
+      ) : null}
+    </Stack>
+  ) : null
+
+  if (isCard) {
+    return (
+      <Stack
+        gap={3}
+        p={4}
+        borderRadius="xl"
+        bg="cardBg"
+        borderWidth="1px"
+        borderColor="cardBorder"
+        w="full"
+      >
+        <HStack align="flex-start" gap={3} justify="space-between" w="full">
+          <HStack align="flex-start" gap={3} flex={1} minW={0}>
+            {workerProfileHref ? (
+              <Link
+                as={NextLink}
+                href={workerProfileHref}
+                flexShrink={0}
+                _hover={{ textDecoration: 'none' }}
+                aria-label={`View profile for ${name}`}
+              >
+                {avatar}
+              </Link>
+            ) : (
+              avatar
+            )}
+            <Stack gap={0.5} flex={1} minW={0}>
+              <HStack gap={2} align="center" flexWrap="wrap">
+                {nameBlock}
+                {showVerified ? <VerifiedBadge /> : null}
+              </HStack>
+              {ratingRow}
+            </Stack>
+          </HStack>
+          {priceBlock}
+        </HStack>
+        <Text fontSize="sm" color="cardFg" lineHeight="tall">
+          {body}
+        </Text>
+        {respondedLabel ? (
+          <Text fontSize="xs" color="formLabelMuted" fontWeight={500}>
+            {respondedLabel}
+          </Text>
+        ) : null}
+        {actionBlock}
+      </Stack>
+    )
+  }
+
+  return (
+    <Stack gap={3}>
       <HStack align="flex-start" gap={3} justify="space-between" w="full">
         <HStack align="flex-start" gap={3} flex={1} minW={0}>
           {workerProfileHref ? (
@@ -105,86 +236,21 @@ export function QuoteCard({
               _hover={{ textDecoration: 'none' }}
               aria-label={`View profile for ${name}`}
             >
-              <QuoteCardAvatar
-                name={name}
-                avatarLabel={avatarLabel}
-                avatarUrl={avatarUrl}
-              />
+              {avatar}
             </Link>
           ) : (
-            <QuoteCardAvatar
-              name={name}
-              avatarLabel={avatarLabel}
-              avatarUrl={avatarUrl}
-            />
+            avatar
           )}
           <Stack gap={1} flex={1} minW={0}>
             <HStack gap={2} align="center" flexWrap="wrap">
-              {workerProfileHref ? (
-                <Link
-                  as={NextLink}
-                  href={workerProfileHref}
-                  _hover={{ textDecoration: 'none', color: 'primary.700' }}
-                >
-                  <Heading size="sm" lineHeight="short">
-                    {name}
-                  </Heading>
-                </Link>
-              ) : (
-                <Heading size="sm" lineHeight="short">
-                  {name}
-                </Heading>
-              )}
-              {showVerified ? (
-                <Box
-                  as="span"
-                  display="inline-flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  boxSize="18px"
-                  borderRadius="full"
-                  bg="primary.600"
-                  color="white"
-                  flexShrink={0}
-                  aria-label="Verified on Slashie"
-                >
-                  <LuCheck size={12} strokeWidth={3} aria-hidden />
-                </Box>
-              ) : null}
+              {nameBlock}
+              {showVerified ? <VerifiedBadge /> : null}
             </HStack>
-            {ratingLine ? (
-              <HStack
-                gap={1}
-                fontSize="sm"
-                color="formLabelMuted"
-                fontWeight={500}
-              >
-                <Text as="span" color="secondary.600" aria-hidden>
-                  ★
-                </Text>
-                <Text as="span">{ratingLine}</Text>
-              </HStack>
-            ) : null}
+            {ratingLine ? ratingRow : null}
           </Stack>
         </HStack>
         <HStack align="flex-start" gap={0} flexShrink={0}>
-          {showPrice ? (
-            <Stack align="flex-end" gap={0} textAlign="right" minW="4rem">
-              <Text
-                fontWeight={800}
-                fontSize="xl"
-                color="primary.600"
-                lineHeight="shorter"
-              >
-                {priceLabel}
-              </Text>
-              {priceKindLabel ? (
-                <Text fontSize="xs" color="formLabelMuted">
-                  {priceKindLabel}
-                </Text>
-              ) : null}
-            </Stack>
-          ) : null}
+          {priceBlock}
           <Link
             as={NextLink}
             href={profileHref}
@@ -220,46 +286,27 @@ export function QuoteCard({
       <Text fontSize="sm" color="cardFg" lineHeight="tall">
         {body}
       </Text>
-      {isOwnQuote ? (
-        <Button size="sm" variant="secondary" disabled w="full">
-          Your quote
-        </Button>
-      ) : onAccept || onDecline ? (
-        <Stack gap={2} w="full">
-          {onAccept ? (
-            <Button
-              size="sm"
-              w="full"
-              loading={acceptLoading}
-              disabled={acceptDisabled || declineLoading}
-              onClick={onAccept}
-              variant={acceptPrimary ? 'primary' : 'outline'}
-              {...(acceptPrimary
-                ? {}
-                : {
-                    borderColor: 'primary.300',
-                    color: 'primary.700',
-                  })}
-            >
-              Accept quote
-            </Button>
-          ) : null}
-          {onDecline ? (
-            <Button
-              size="sm"
-              w="full"
-              variant="ghost"
-              color="red.600"
-              loading={declineLoading}
-              disabled={acceptLoading || acceptDisabled}
-              onClick={onDecline}
-            >
-              Decline
-            </Button>
-          ) : null}
-        </Stack>
-      ) : null}
+      {actionBlock}
     </Stack>
+  )
+}
+
+function VerifiedBadge() {
+  return (
+    <Box
+      as="span"
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      boxSize="18px"
+      borderRadius="full"
+      bg="primary.600"
+      color="white"
+      flexShrink={0}
+      aria-label="Verified on Slashie"
+    >
+      <LuCheck size={12} strokeWidth={3} aria-hidden />
+    </Box>
   )
 }
 
@@ -267,15 +314,17 @@ function QuoteCardAvatar({
   name,
   avatarLabel,
   avatarUrl,
+  size = '48px',
 }: {
   name: string
   avatarLabel: string
   avatarUrl?: string | null
+  size?: string
 }) {
   return (
     <Box
       flexShrink={0}
-      boxSize="48px"
+      boxSize={size}
       borderRadius="full"
       bg={avatarGradient(name + avatarLabel)}
       display="flex"

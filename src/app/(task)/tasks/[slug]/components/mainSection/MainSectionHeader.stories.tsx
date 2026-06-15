@@ -35,3 +35,9 @@ export const BookedTask: Story = {
     ),
   ],
 }
+
+export const VisitorWithShare: Story = {
+  decorators: [
+    withTaskDetailStory({ viewer: 'visitor' }, { maxWidth: '640px' }),
+  ],
+}

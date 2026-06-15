@@ -13,12 +13,12 @@ import {
   DrawerRoot,
   DrawerTitle,
   HStack,
-  IconButton,
   Stack,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { Button } from '../Button'
+import { IconButton as UiIconButton } from '../IconButton/IconButton'
 
 /** Matches `Container`: horizontal page gutters. */
 const drawerGutterX = { base: 4, md: 6 } as const
@@ -92,13 +92,13 @@ export function AppDrawer({
                   {title}
                 </DrawerTitle>
                 <DrawerCloseTrigger asChild>
-                  <IconButton
+                  <UiIconButton
                     aria-label="Close drawer"
                     variant="ghost"
                     flexShrink={0}
                   >
                     ×
-                  </IconButton>
+                  </UiIconButton>
                 </DrawerCloseTrigger>
               </HStack>
               {description ? (
@@ -120,8 +120,18 @@ export function AppDrawer({
             flex={1}
             minH={0}
             overflowY="auto"
+            display="flex"
+            flexDirection="column"
           >
-            <Box w="full" maxW="lg" mx="auto">
+            <Box
+              w="full"
+              maxW="lg"
+              mx="auto"
+              flex={1}
+              display="flex"
+              flexDirection="column"
+              minH={0}
+            >
               {children}
             </Box>
           </DrawerBody>

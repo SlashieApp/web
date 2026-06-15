@@ -3,6 +3,8 @@
 import { Box, Container, HStack, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { textLinkInteraction } from '../interactionStyles'
+
 const links = [
   { label: 'Pricing', href: '/pricing' },
   { label: 'About', href: '/about' },
@@ -57,12 +59,7 @@ export function Footer() {
                   fontWeight={600}
                   fontSize="sm"
                   color="cardFg"
-                  _hover={{ textDecoration: 'none', color: 'primary.600' }}
-                  _focusVisible={{
-                    outline: '2px solid',
-                    outlineColor: 'primary.500',
-                    outlineOffset: '2px',
-                  }}
+                  {...textLinkInteraction}
                 >
                   {link.label}
                 </Link>
@@ -74,12 +71,7 @@ export function Footer() {
                   fontWeight={600}
                   fontSize="sm"
                   color="cardFg"
-                  _hover={{ textDecoration: 'none', color: 'primary.600' }}
-                  _focusVisible={{
-                    outline: '2px solid',
-                    outlineColor: 'primary.500',
-                    outlineOffset: '2px',
-                  }}
+                  {...textLinkInteraction}
                 >
                   {link.label}
                 </Link>

@@ -13,8 +13,8 @@ alwaysApply: false
 
 ## What to avoid
 
-- **No pass-through screen wrappers** whose only role is moving the entire page body out of `page.tsx`—for example `FooPageContent.tsx` that renders the same tree with no real split (server/client boundary, reuse, or heavy isolation). That duplicates the “view-only split” called out in **`repo-structure-and-exports.mdc`**.
-- Do **not** default to an extra top-level file just to shorten `page.tsx` by a few lines; shorten by extracting **meaningful** pieces into `components/`.
+- **No pass-through screen wrappers** whose only role is moving the entire page body out of `page.tsx`—for example `FooPageLayout.tsx`, `FooPageContent.tsx`, or `TaskDetailPageLayout.tsx` that renders the same tree with no real split (server/client boundary, reuse, or heavy isolation). Keep that composition in **`page.tsx`**.
+- Do **not** default to an extra top-level file just to shorten `page.tsx`; extract **sections and widgets** into `components/`, not the whole page shell.
 
 ## Client vs server
 

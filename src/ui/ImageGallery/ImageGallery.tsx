@@ -3,11 +3,9 @@
 import {
   Box,
   type BoxProps,
-  Button,
   Flex,
   Grid,
   HStack,
-  IconButton,
   Image,
   Stack,
   Text,
@@ -22,6 +20,10 @@ import {
   useState,
 } from 'react'
 import { LuChevronLeft, LuChevronRight } from 'react-icons/lu'
+
+import { Button } from '../Button'
+import { IconButton } from '../IconButton/IconButton'
+import { focusVisibleMatchesHover } from '../interactionStyles'
 
 const MAX_IMAGES = 3
 
@@ -223,6 +225,7 @@ function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
     zIndex: 2,
     variant: 'ghost' as const,
     _disabled: { opacity: 0.35, cursor: 'not-allowed' },
+    ...focusVisibleMatchesHover({ bg: 'badgeBg', color: 'cardFg' }),
   }
 
   return (
@@ -300,6 +303,10 @@ function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
           <HStack justify="center" gap={2}>
             {items.map((slide, index) => {
               const selected = index === selectedIndex
+              const dotHover = {
+                bg: selected ? 'primary.500' : 'badgeBg',
+                opacity: 0.92,
+              }
               return (
                 <Button
                   key={`dot-${slide.src}-${slide.alt}`}
@@ -321,10 +328,8 @@ function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
                   p={0}
                   minH="6px"
                   flexShrink={0}
-                  _hover={{
-                    bg: selected ? 'primary.500' : 'badgeBg',
-                    opacity: 0.92,
-                  }}
+                  _hover={dotHover}
+                  {...focusVisibleMatchesHover(dotHover)}
                 />
               )
             })}

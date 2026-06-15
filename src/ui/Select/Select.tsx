@@ -5,6 +5,11 @@ import type { ReactNode } from 'react'
 import * as React from 'react'
 import { LuChevronDown } from 'react-icons/lu'
 
+import {
+  formControlFieldRingless,
+  formControlShellInteraction,
+} from '../interactionStyles'
+
 type NativeFieldProps = React.ComponentProps<typeof NativeSelect.Field>
 type NativeRootProps = React.ComponentProps<typeof NativeSelect.Root>
 
@@ -43,11 +48,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           bg="formControlBg"
           pl={2}
           pr={1}
-          transitionProperty="border-color"
-          transitionDuration="160ms"
-          _focusWithin={{
-            borderColor: 'formControlFocusBorder',
-          }}
+          {...formControlShellInteraction}
         >
           {startElement != null ? (
             <Box
@@ -71,19 +72,17 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             h="auto"
             minH={0}
             borderWidth={0}
-            outline="none"
             boxShadow="none"
             bg="transparent"
             color="formControlFg"
             cursor="pointer"
             appearance="none"
             lineHeight="1.25"
-            _focus={{ borderWidth: 0, boxShadow: 'none' }}
-            _focusVisible={{ borderWidth: 0, boxShadow: 'none' }}
             _disabled={{
               opacity: 0.6,
               cursor: 'not-allowed',
             }}
+            {...formControlFieldRingless}
             {...fieldProps}
           >
             {children}

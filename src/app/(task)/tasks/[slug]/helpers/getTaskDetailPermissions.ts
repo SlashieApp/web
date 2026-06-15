@@ -4,6 +4,8 @@ import type { MeQuery, TaskQuery } from '@codegen/schema'
 import type { OrderItem } from '@/utils/orderHelpers'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 
+import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
+
 import { type MappedTaskStatus, mapTaskStatus } from './mapTaskStatus'
 import type { TaskDetailRecord } from './taskDetailUtils'
 
@@ -73,7 +75,7 @@ export function getTaskDetailPermissions(
   const isOrderWorker = Boolean(me && myOrder && myOrder.workerUserId === me.id)
   const isOrderActive = myOrder?.status === OrderStatus.Active
 
-  const hasWorkerProfile = Boolean(me?.worker?.id)
+  const hasWorkerProfile = isWorkerSetupComplete(me)
 
   const atCap = input.atCap ?? (task ? isAtAcceptedWorkerCap(task) : false)
 

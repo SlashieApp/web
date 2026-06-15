@@ -19,6 +19,7 @@ import {
   trackFlowFailed,
   trackFlowSucceeded,
 } from '@/utils/analytics'
+import { clearApiUnavailable } from '@/utils/apiAvailability'
 import { apolloClient } from '@/utils/apolloClient'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/utils/auth'
 
@@ -130,7 +131,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
       }
 
       setAuthToken(token, rememberMe ? REMEMBER_MAX_AGE : SESSION_MAX_AGE)
-
       const meResult = await apolloClient.query<MeQuery>({
         query: Me,
         fetchPolicy: 'network-only',
@@ -138,6 +138,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const synced = syncStateFromMe(meResult.data?.me)
       set({ ...synced, isLoading: false })
       syncAnalyticsIdentity(synced.me)
+      clearApiUnavailable()
       trackFlowSucceeded(EVENTS.login_success, { method: 'password' })
       return synced.user
     } catch (error) {
@@ -179,6 +180,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const synced = syncStateFromMe(meResult.data?.me)
       set({ ...synced, isLoading: false })
       syncAnalyticsIdentity(synced.me)
+      clearApiUnavailable()
       trackFlowSucceeded(EVENTS.google_login_success)
       return synced.user
     } catch (error) {
@@ -214,6 +216,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const synced = syncStateFromMe(result.data?.me)
       set({ ...synced, isLoading: false })
       syncAnalyticsIdentity(synced.me)
+      clearApiUnavailable()
       return synced.user
     } catch (error) {
       clearAuthToken()

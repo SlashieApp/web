@@ -35,6 +35,8 @@ import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
+import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
+import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import Me from '@/graphql/Me.gql'
 import {
   EVENTS,
@@ -99,14 +101,15 @@ export function TaskDetailProvider({
   const meLoadingResolved = Boolean(
     isAuthenticated && meLoading && !zustandMe && !meData?.me,
   )
-  const hasWorkerProfile = Boolean(me?.worker?.id)
+  const hasWorkerRow = Boolean(me?.worker?.id)
+  const hasWorkerProfile = isWorkerSetupComplete(me)
   const workerMembership = me?.worker?.membership ?? null
   const hasUnlimitedQuotes = hasUnlimitedQuoting(workerMembership)
   const quotesRemainingThisMonth =
     workerMembership?.quotesRemainingThisMonth ?? null
   const quoteLimitReached = isQuoteLimitReached(workerMembership)
   const workerBillingLoading = Boolean(
-    isAuthenticated && hasWorkerProfile && meLoadingResolved,
+    isAuthenticated && hasWorkerRow && meLoadingResolved,
   )
 
   const onMembershipRefreshMount = useCallback(
@@ -226,7 +229,11 @@ export function TaskDetailProvider({
 
     if (!permissions.hasWorkerProfile && !myQuote) {
       setQuoteError('Create a worker profile before submitting quotes.')
-      router.push('/profile#profile-worker')
+      const onQuoteFlow = pathname === `/tasks/${taskId}/quote`
+      const next = onQuoteFlow
+        ? `/tasks/${taskId}/quote`
+        : `/tasks/${task.id}#task-quote`
+      router.push(workerSetupHref(next))
       return false
     }
 

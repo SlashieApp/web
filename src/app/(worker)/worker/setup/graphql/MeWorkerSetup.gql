@@ -1,0 +1,38 @@
+query MeWorkerSetup {
+  me {
+    id
+    email
+    emailVerified
+    phoneVerified
+    workerEligibility
+    profile {
+      name
+      contactNumber
+      avatarUrl
+      dateOfBirth
+      emailVerified
+      phoneVerified
+    }
+    worker {
+      id
+      legalName
+      bio
+      tagline
+      yearsExperience
+      skills
+      travelRadiusMiles
+      portfolioUrls
+      location {
+        address
+        lat
+        lng
+        name
+      }
+      setupProgress {
+        currentSubStep
+        completedSubSteps
+        isComplete
+      }
+    }
+  }
+}

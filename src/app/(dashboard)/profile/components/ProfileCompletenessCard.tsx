@@ -4,8 +4,14 @@ import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
+import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { Badge, Button, SectionCard } from '@ui'
 
+import {
+  isWorkerSetupInProgress,
+  workerSetupProgressPercent,
+} from '../helpers/workerSetupProfileHelpers'
 import {
   completenessPercent,
   getCompletenessItems,
@@ -39,7 +45,9 @@ export function ProfileCompletenessCard() {
   const items = getCompletenessItems(me)
   const percent = completenessPercent(items)
   const eligible = isWorkerEligible(me)
-  const isWorker = Boolean(me.worker?.id)
+  const setupComplete = isWorkerSetupComplete(me)
+  const setupInProgress = isWorkerSetupInProgress(me)
+  const setupPercent = workerSetupProgressPercent(me)
   const firstIncomplete = items.find((item) => !item.done)
 
   return (
@@ -53,26 +61,36 @@ export function ProfileCompletenessCard() {
         >
           <Stack gap={1}>
             <Heading size="md">
-              {isWorker ? 'Your worker profile' : 'Complete your profile'}
+              {setupComplete
+                ? 'Your worker profile'
+                : setupInProgress
+                  ? 'Finish worker setup'
+                  : 'Complete your profile'}
             </Heading>
             <Text fontSize="sm" color="formLabelMuted">
-              {isWorker
+              {setupComplete
                 ? 'Your profile meets the requirements to send quotes.'
-                : 'Finish these to unlock sending quotes as a worker.'}
+                : setupInProgress
+                  ? `You are ${setupPercent}% through worker onboarding.`
+                  : 'Finish these to unlock sending quotes as a worker.'}
             </Text>
           </Stack>
           <Badge
-            bg={eligible ? 'primary.100' : 'badgeBg'}
-            color={eligible ? 'primary.800' : 'cardFg'}
+            bg={setupComplete ? 'primary.100' : 'badgeBg'}
+            color={setupComplete ? 'primary.800' : 'cardFg'}
           >
-            {isWorker ? 'Worker active' : `${percent}% complete`}
+            {setupComplete
+              ? 'Worker active'
+              : setupInProgress
+                ? `${setupPercent}% setup`
+                : `${percent}% complete`}
           </Badge>
         </HStack>
 
         <Box h={2} borderRadius="full" bg="badgeBg" overflow="hidden">
           <Box
             h="full"
-            w={`${percent}%`}
+            w={`${setupInProgress ? setupPercent : percent}%`}
             bg="primary.500"
             transitionProperty="width"
             transitionDuration="240ms"
@@ -109,12 +127,22 @@ export function ProfileCompletenessCard() {
           ))}
         </Stack>
 
-        {!isWorker ? (
+        {!setupComplete ? (
           <HStack gap={3} flexWrap="wrap">
-            {eligible ? (
+            {setupInProgress ? (
               <Link
                 as={NextLink}
-                href="#profile-worker"
+                href={workerSetupHref('/profile')}
+                _hover={{ textDecoration: 'none' }}
+              >
+                <Button size="sm" variant="primary">
+                  Continue setup
+                </Button>
+              </Link>
+            ) : eligible ? (
+              <Link
+                as={NextLink}
+                href={workerSetupHref('/profile')}
                 _hover={{ textDecoration: 'none' }}
               >
                 <Button size="sm" variant="primary">
@@ -128,7 +156,7 @@ export function ProfileCompletenessCard() {
                 _hover={{ textDecoration: 'none' }}
               >
                 <Button size="sm" variant="secondary">
-                  Continue setup
+                  Continue profile
                 </Button>
               </Link>
             ) : null}

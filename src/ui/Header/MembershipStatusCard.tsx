@@ -11,6 +11,8 @@ import {
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { Button } from '@ui'
 
+import { focusVisibleMatchesHover } from '../interactionStyles'
+
 export type MembershipStatusCardVariant = 'dropdown' | 'drawer'
 
 export type MembershipStatusCardProps = {
@@ -129,6 +131,10 @@ export function MembershipStatusCard({
               fontWeight={700}
               color="primary.700"
               _hover={{ textDecoration: 'underline' }}
+              {...focusVisibleMatchesHover({
+                color: 'primary.700',
+                textDecoration: 'underline',
+              })}
             >
               Manage billing
             </Text>

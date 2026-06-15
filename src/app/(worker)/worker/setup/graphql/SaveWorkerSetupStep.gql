@@ -1,0 +1,33 @@
+mutation SaveWorkerSetupStep($input: SaveWorkerSetupStepInput!) {
+  saveWorkerSetupStep(input: $input) {
+    id
+    legalName
+    bio
+    tagline
+    yearsExperience
+    skills
+    travelRadiusMiles
+    portfolioUrls
+    location {
+      address
+      lat
+      lng
+      name
+    }
+    setupProgress {
+      currentSubStep
+      completedSubSteps
+      isComplete
+    }
+    profile {
+      name
+      avatarUrl
+    }
+    user {
+      phoneVerified
+      profile {
+        contactNumber
+      }
+    }
+  }
+}
