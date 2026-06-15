@@ -51,6 +51,20 @@ function GetAppButton() {
   )
 }
 
+function PostTaskHeaderButton() {
+  return (
+    <Link
+      as={NextLink}
+      href="/tasks/create"
+      display={{ base: 'none', md: 'inline-flex' }}
+      _hover={{ textDecoration: 'none' }}
+      flexShrink={0}
+    >
+      <Button size="sm">Post a task</Button>
+    </Link>
+  )
+}
+
 function IconMenu() {
   return (
     <Box as="span" display="flex" color="currentColor" aria-hidden>
@@ -164,7 +178,12 @@ function AppHeaderNavigation() {
       </HStack>
 
       <HStack align="center" flexShrink={0}>
-        {!isDashboard ? <GetAppButton /> : null}
+        {!isDashboard ? (
+          <>
+            <PostTaskHeaderButton />
+            <GetAppButton />
+          </>
+        ) : null}
 
         {isLoggedIn && notifications ? (
           <>

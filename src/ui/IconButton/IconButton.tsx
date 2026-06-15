@@ -54,7 +54,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           <Box
             w={{ base: '56px', md: '60px' }}
             h={{ base: '56px', md: '60px' }}
-            borderRadius="full"
+            borderRadius="lg"
             display="flex"
             alignItems="center"
             justifyContent="center"

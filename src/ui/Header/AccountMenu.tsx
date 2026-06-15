@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, IconButton, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Link } from '@chakra-ui/react'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
@@ -8,10 +8,10 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
-import { Button } from '@ui'
+import { Button, IconButton } from '@ui'
 
+import { AccountMenuHeader } from './AccountMenuHeader'
 import { AccountNavPanel } from './AccountNavPanel'
-import { MembershipStatusCard } from './MembershipStatusCard'
 import { MobileNavDrawer } from './MobileNavDrawer'
 import { resolveAccountNavItems } from './accountNav.config'
 
@@ -174,56 +174,49 @@ export function AccountMenu({ initialOpen = false }: AccountMenuProps) {
             top="calc(100% + 8px)"
             right={0}
             zIndex={50}
-            w="320px"
+            w="300px"
             bg="cardBg"
             borderWidth="1px"
             borderColor="cardBorder"
             borderRadius="xl"
             boxShadow="lg"
-            py={3}
-            px={2}
+            py={1}
+            overflow="hidden"
           >
-            <Stack gap={3} px={1}>
-              <Box px={2}>
-                <Text fontSize="sm" fontWeight={700} color="cardFg" truncate>
-                  {displayName}
-                </Text>
-              </Box>
+            <AccountMenuHeader
+              displayName={displayName}
+              email={email}
+              avatarUrl={me?.profile?.avatarUrl}
+              membership={me?.worker?.membership}
+              hasWorker={hasWorker}
+              onViewProfile={closeDesktop}
+            />
 
-              <Box px={2}>
-                <MembershipStatusCard
-                  membership={me?.worker?.membership}
-                  hasWorker={hasWorker}
-                  variant="dropdown"
-                />
-              </Box>
+            <AccountNavPanel
+              items={navItems}
+              onNavigate={closeDesktop}
+              onLogout={onLogout}
+              onOpenNotifications={() => notifications?.openDrawer()}
+            />
 
-              <AccountNavPanel
-                items={navItems}
-                onNavigate={closeDesktop}
-                onLogout={onLogout}
-                onOpenNotifications={() => notifications?.openDrawer()}
-              />
-
-              <Box px={2} pt={1}>
-                {postTaskBlocked ? (
-                  <Button size="sm" w="full" variant="secondary" disabled>
+            <Box px={3} py={3}>
+              {postTaskBlocked ? (
+                <Button size="sm" w="full" variant="secondary" disabled>
+                  Post a task
+                </Button>
+              ) : (
+                <Link
+                  as={NextLink}
+                  href="/tasks/create"
+                  _hover={{ textDecoration: 'none' }}
+                  onClick={closeDesktop}
+                >
+                  <Button size="sm" w="full" variant="secondary">
                     Post a task
                   </Button>
-                ) : (
-                  <Link
-                    as={NextLink}
-                    href="/tasks/create"
-                    _hover={{ textDecoration: 'none' }}
-                    onClick={closeDesktop}
-                  >
-                    <Button size="sm" w="full" variant="secondary">
-                      Post a task
-                    </Button>
-                  </Link>
-                )}
-              </Box>
-            </Stack>
+                </Link>
+              )}
+            </Box>
           </Box>
         ) : null}
       </Box>

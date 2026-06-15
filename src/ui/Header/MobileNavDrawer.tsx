@@ -19,10 +19,10 @@ import { useCallback } from 'react'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
-import { Avatar, Button } from '@ui'
+import { Button } from '@ui'
 
+import { AccountMenuHeader } from './AccountMenuHeader'
 import { AccountNavPanel } from './AccountNavPanel'
-import { MembershipStatusCard } from './MembershipStatusCard'
 import { resolveAccountNavItems } from './accountNav.config'
 
 export type MobileNavDrawerProps = {
@@ -40,8 +40,8 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
   const navItems = resolveAccountNavItems(hasWorker)
   const postTaskBlocked = me != null && !isEmailVerified(me)
   if (!user) return null
-  const displayName =
-    me?.profile?.name?.trim() || user?.email || me?.email || 'Account'
+  const email = user.email ?? me?.email ?? ''
+  const displayName = me?.profile?.name?.trim() || email || 'Account'
 
   const close = useCallback(() => onOpenChange(false), [onOpenChange])
 
@@ -104,43 +104,22 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
             minH={0}
             overflowY="auto"
           >
-            <Stack gap={4} align="stretch">
+            <Stack gap={0} align="stretch">
               <Box
                 borderWidth="1px"
                 borderColor="cardBorder"
                 borderRadius="xl"
-                p={4}
+                overflow="hidden"
               >
-                <Stack gap={2}>
-                  <Avatar
-                    name={displayName}
-                    src={me?.profile?.avatarUrl ?? undefined}
-                    label={displayName}
-                    labelProps={{
-                      fontSize: 'md',
-                      fontWeight: 700,
-                      color: 'cardFg',
-                    }}
-                  />
-                  <Link
-                    as={NextLink}
-                    href="/profile"
-                    fontSize="sm"
-                    fontWeight={600}
-                    color="primary.700"
-                    _hover={{ textDecoration: 'underline' }}
-                    onClick={close}
-                  >
-                    View profile
-                  </Link>
-                </Stack>
+                <AccountMenuHeader
+                  displayName={displayName}
+                  email={email}
+                  avatarUrl={me?.profile?.avatarUrl}
+                  membership={me?.worker?.membership}
+                  hasWorker={hasWorker}
+                  onViewProfile={close}
+                />
               </Box>
-
-              <MembershipStatusCard
-                membership={me?.worker?.membership}
-                hasWorker={hasWorker}
-                variant="drawer"
-              />
 
               <AccountNavPanel
                 items={navItems}
