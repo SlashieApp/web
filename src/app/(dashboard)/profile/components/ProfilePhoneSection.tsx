@@ -2,7 +2,7 @@
 
 import { Heading, Stack, Text } from '@chakra-ui/react'
 
-import { PhoneContactEditor } from '@/app/(dashboard)/components/PhoneContactEditor'
+import { PhoneContactRow } from '@/app/(dashboard)/components/ContactMethodsPanel'
 import { SectionCard } from '@ui'
 
 export function ProfilePhoneSection() {
@@ -12,12 +12,11 @@ export function ProfilePhoneSection() {
         <Stack gap={1}>
           <Heading size="md">Phone number</Heading>
           <Text fontSize="sm" color="formLabelMuted">
-            Save your mobile number here first, then verify it with an SMS code.
-            Verification confirms this saved number — it does not accept a
-            different number at verify time.
+            Add and verify the mobile number on your account. Verification
+            confirms this saved number via SMS.
           </Text>
         </Stack>
-        <PhoneContactEditor />
+        <PhoneContactRow />
       </Stack>
     </SectionCard>
   )

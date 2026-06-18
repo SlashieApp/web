@@ -22,6 +22,7 @@ import {
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
 import { WorkerSetupOptionalLabel } from './WorkerSetupOptionalBadge'
+import { WorkerSetupReviewStep } from './WorkerSetupReviewStep'
 
 const BIO_PLACEHOLDER =
   'Tell customers about your experience, skills, and what makes you great to work with. Keep it clear and friendly.'
@@ -34,7 +35,6 @@ export function WorkerSetupStepContent() {
     fieldErrors,
     patchForm,
     clearSetupErrors,
-    workerEligibility,
   } = useWorkerSetup()
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
@@ -305,7 +305,7 @@ export function WorkerSetupStepContent() {
     case 'verify.phone':
       return (
         <Stack gap={4}>
-          <ContactMethodsPanel compact onContactUpdated={clearSetupErrors} />
+          <ContactMethodsPanel onContactUpdated={clearSetupErrors} />
           {fieldErrors.contact ? (
             <Text color="red.500" fontSize="sm">
               {fieldErrors.contact}
@@ -332,57 +332,9 @@ export function WorkerSetupStepContent() {
       )
 
     case 'review.submit':
-      return (
-        <Stack gap={4} fontSize="sm">
-          <ReviewRow
-            label="Name"
-            value={`${form.firstName} ${form.lastName}`.trim()}
-          />
-          {form.tagline ? (
-            <ReviewRow label="Tagline" value={form.tagline} />
-          ) : null}
-          <ReviewRow label="Bio" value={form.bio} />
-          <ReviewRow label="Skills" value={form.skillsText} />
-          <ReviewRow
-            label="Experience"
-            value={`${form.yearsExperience} years`}
-          />
-          <ReviewRow label="Service area" value={form.locationName} />
-          {form.travelRadiusMiles ? (
-            <ReviewRow
-              label="Travel radius"
-              value={`${form.travelRadiusMiles} miles`}
-            />
-          ) : null}
-          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
-            {workerEligibility
-              ? 'You meet the profile requirements to start quoting.'
-              : 'Some profile requirements may still need attention. You can finish setup and update your profile if needed.'}
-          </Text>
-          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
-            After you start quoting, customers pay you directly for the work.
-            Slashie does not process job payments.
-          </Text>
-        </Stack>
-      )
+      return <WorkerSetupReviewStep />
 
     default:
       return null
   }
-}
-
-function ReviewRow({ label, value }: { label: string; value: string }) {
-  return (
-    <Stack gap={1}>
-      <Text
-        fontWeight={700}
-        color="formLabelMuted"
-        fontSize="xs"
-        textTransform="uppercase"
-      >
-        {label}
-      </Text>
-      <Text color="cardFg">{value || '—'}</Text>
-    </Stack>
-  )
 }

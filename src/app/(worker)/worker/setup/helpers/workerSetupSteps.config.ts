@@ -118,9 +118,8 @@ export const STEP_COPY: Record<
     description: 'Optional — add notes about recent jobs or portfolio links.',
   },
   'review.submit': {
-    title: 'Review and start quoting',
-    description:
-      'Check your details, then unlock quoting on tasks. Customers pay you directly for completed work.',
+    title: 'Review and submit',
+    description: 'Take a moment to review your information.',
   },
 }
 
