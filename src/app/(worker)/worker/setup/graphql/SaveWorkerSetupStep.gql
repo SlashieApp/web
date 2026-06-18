@@ -24,6 +24,7 @@ mutation SaveWorkerSetupStep($input: SaveWorkerSetupStepInput!) {
       avatarUrl
     }
     user {
+      emailVerified
       phoneVerified
       profile {
         contactNumber

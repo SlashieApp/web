@@ -31,7 +31,7 @@ export function WorkerSetupStepPanel({
   return (
     <Stack gap={0} w="full" h="full" minH={0}>
       <Stack
-        gap={4}
+        gap={6}
         flex={1}
         minH={0}
         overflowY="auto"

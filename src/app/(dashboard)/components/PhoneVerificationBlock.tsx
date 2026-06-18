@@ -35,6 +35,8 @@ type PhoneVerificationBlockProps = {
   compact?: boolean
   /** Reset OTP state when parent saves a new phone number. */
   resetKey?: string
+  /** Fires after phone verification succeeds and `me` is refreshed. */
+  onVerified?: () => void
 }
 
 function VerifiedBadge({ verified }: { verified: boolean }) {
@@ -52,6 +54,7 @@ export function PhoneVerificationBlock({
   profilePhoneDirty = false,
   compact = false,
   resetKey,
+  onVerified,
 }: PhoneVerificationBlockProps) {
   const me = useUserStore((s) => s.me)
   const getUser = useUserStore((s) => s.getUser)
@@ -156,6 +159,7 @@ export function PhoneVerificationBlock({
       await getUser()
       resetOtpState()
       trackFlowSucceeded(EVENTS.phone_verify_success)
+      onVerified?.()
       showAppToast({
         title: 'Phone verified',
         description: 'Your phone number is now verified on your account.',

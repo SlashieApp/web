@@ -69,6 +69,7 @@ export function mergeSaveWorkerSetupIntoMe(
 
   return {
     ...current,
+    emailVerified: saved.user?.emailVerified ?? current.emailVerified,
     phoneVerified: saved.user?.phoneVerified ?? current.phoneVerified,
     profile: {
       ...current.profile,

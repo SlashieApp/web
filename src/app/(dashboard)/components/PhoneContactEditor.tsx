@@ -20,10 +20,12 @@ import { Button, FormField, PhoneInput } from '@ui'
 type PhoneContactEditorProps = {
   /** Hide the verify sub-heading (account card embed). */
   compact?: boolean
+  onContactUpdated?: () => void
 }
 
 export function PhoneContactEditor({
   compact = false,
+  onContactUpdated,
 }: PhoneContactEditorProps) {
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
@@ -82,6 +84,7 @@ export function PhoneContactEditor({
       setPhoneDraft(e164)
       setVerifyResetKey(e164)
       setSaveSuccess('Phone saved. Request a verification code when ready.')
+      onContactUpdated?.()
     } catch (e) {
       captureApiError(e, {
         flow: 'phone_verify',
@@ -146,6 +149,7 @@ export function PhoneContactEditor({
         compact={compact}
         profilePhoneDirty={phoneDirty}
         resetKey={verifyResetKey}
+        onVerified={onContactUpdated}
       />
     </Stack>
   )

@@ -20,7 +20,8 @@ export function WorkerSetupStepHeading({
         fontSize={compact ? 'xl' : { base: '2xl', md: '3xl' }}
         fontWeight={800}
         lineHeight="short"
-        color="cardFg"
+        color="neutral.900"
+        letterSpacing="-0.02em"
       >
         {title}
       </Text>

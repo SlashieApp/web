@@ -59,7 +59,7 @@ export const WORKER_SETUP_MAJOR_STEPS: WorkerSetupMajorStepConfig[] = [
     id: 'verify',
     label: 'Verify & trust',
     subSteps: [
-      { id: 'verify.phone', label: 'Phone' },
+      { id: 'verify.phone', label: 'Contact' },
       { id: 'verify.portfolio', label: 'Portfolio', optional: true },
     ],
   },

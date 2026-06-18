@@ -8,6 +8,9 @@ import type { WorkerSetupSubStepId } from './workerSetupSteps.config'
 const detailsSchema = z.object({
   firstName: z.string().trim().min(1, 'Enter your first name.'),
   lastName: z.string().trim().min(1, 'Enter your last name.'),
+})
+
+const dateOfBirthSchema = z.object({
   dateOfBirth: z
     .string()
     .trim()
@@ -66,22 +69,30 @@ export function validateWorkerSetupSubStep(
 ): Record<string, string> {
   const errors: Record<string, string> = {}
 
+  const mergeZodErrors = (result: {
+    success: boolean
+    error?: z.ZodError
+  }) => {
+    if (result.success || !result.error) return
+    for (const issue of result.error.issues) {
+      const key = issue.path[0]
+      if (typeof key === 'string') errors[key] = issue.message
+    }
+  }
+
   switch (subStepId) {
     case 'profile.details': {
-      const result = detailsSchema.safeParse(form)
-      if (!result.success) {
-        for (const issue of result.error.issues) {
-          const key = issue.path[0]
-          if (typeof key === 'string') errors[key] = issue.message
-        }
-      }
+      mergeZodErrors(detailsSchema.safeParse(form))
+      mergeZodErrors(bioSchema.safeParse(form))
       break
     }
-    case 'profile.photo':
+    case 'profile.photo': {
+      mergeZodErrors(dateOfBirthSchema.safeParse(form))
       if (!me.profile?.avatarUrl?.trim()) {
         errors.avatar = 'Add a profile photo to continue.'
       }
       break
+    }
     case 'profile.bio': {
       const result = bioSchema.safeParse(form)
       if (!result.success) {
@@ -117,7 +128,8 @@ export function validateWorkerSetupSubStep(
     }
     case 'verify.phone':
       if (!me.emailVerified && !me.phoneVerified) {
-        errors.phone = 'Verify your phone or email before continuing.'
+        errors.contact =
+          'Verify your email or phone number below before continuing.'
       }
       break
     default:
@@ -125,6 +137,19 @@ export function validateWorkerSetupSubStep(
   }
 
   return errors
+}
+
+export function subStepsToSaveOnContinue(
+  subStepId: WorkerSetupSubStepId,
+): WorkerSetupSubStepId[] {
+  switch (subStepId) {
+    case 'profile.details':
+      return ['profile.details', 'profile.bio']
+    case 'profile.photo':
+      return ['profile.details', 'profile.photo']
+    default:
+      return [subStepId]
+  }
 }
 
 export function buildSavePayload(

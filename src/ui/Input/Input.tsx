@@ -34,13 +34,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         display="flex"
         alignItems="center"
         gap={1}
-        minH={{ base: 10, md: 11 }}
-        borderRadius={{ base: 'lg', md: 'xl' }}
+        minH="48px"
+        borderRadius="md"
         borderWidth="1px"
         borderColor="formControlBorder"
         bg="formControlBg"
-        pl={2}
-        pr={1}
+        pl={3}
+        pr={3}
         {...formControlShellInteraction}
         {...rootProps}
       >

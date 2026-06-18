@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, HStack, Text } from '@chakra-ui/react'
 import { LuArrowLeft, LuArrowRight } from 'react-icons/lu'
 
 import { Button } from '@ui'
@@ -25,7 +25,7 @@ export function WorkerSetupStepActions({
   return (
     <Box
       borderTopWidth="1px"
-      borderColor="cardBorder"
+      borderColor="neutral.300"
       bg="white"
       px={{ base: 4, md: 8, lg: 10 }}
       py={4}
@@ -35,14 +35,17 @@ export function WorkerSetupStepActions({
       flexShrink={0}
       pb={{ base: 'calc(16px + env(safe-area-inset-bottom))', lg: 4 }}
     >
-      <HStack justify="space-between" gap={3} w="full">
+      <HStack justify="space-between" gap={3} w="full" align="center">
         {showBack ? (
           <Button
             type="button"
             variant="ghost"
-            color="primary.700"
-            onClick={onBack}
+            color="primary.600"
+            fontWeight={600}
+            px={0}
             minH="44px"
+            onClick={onBack}
+            _hover={{ bg: 'transparent', color: 'primary.700' }}
           >
             <HStack gap={2}>
               <LuArrowLeft size={18} aria-hidden />
@@ -58,8 +61,11 @@ export function WorkerSetupStepActions({
           onClick={onContinue}
           loading={continueLoading}
           minH="44px"
+          minW={{ base: 'full', lg: 'auto' }}
           flex={{ base: 1, lg: 'none' }}
           ml="auto"
+          borderRadius="md"
+          px={6}
         >
           <HStack gap={2}>
             <span>{continueLabel}</span>

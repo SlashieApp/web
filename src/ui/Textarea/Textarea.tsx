@@ -21,10 +21,11 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       <ChakraTextarea
         ref={ref}
         pointerEvents="auto"
-        minH="120px"
-        px={3}
-        py={2}
-        borderRadius={{ base: 'lg', md: 'xl' }}
+        minH="140px"
+        px={4}
+        py={3}
+        fontSize="md"
+        borderRadius="md"
         borderWidth="1px"
         borderColor="formControlBorder"
         bg="formControlBg"

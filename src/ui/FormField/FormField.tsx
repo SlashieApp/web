@@ -99,18 +99,24 @@ export function FormField({
   )
 
   return (
-    <FieldRoot invalid={Boolean(errorText)} {...props}>
+    <FieldRoot invalid={Boolean(errorText)} gap={2} {...props}>
       <FieldLabel
         fontSize="sm"
         fontWeight={700}
-        color="secondary.900"
+        color="cardFg"
+        mb={0}
         {...labelProps}
       >
         {label}
       </FieldLabel>
       {control}
       {helperText ? (
-        <Text fontSize="sm" color="secondary.700" {...helperTextProps}>
+        <Text
+          fontSize="sm"
+          color="formLabelMuted"
+          lineHeight="tall"
+          {...helperTextProps}
+        >
           {helperText}
         </Text>
       ) : null}

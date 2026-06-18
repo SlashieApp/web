@@ -8,6 +8,7 @@ export { Avatar } from './Avatar/Avatar'
 export { Badge } from './Badge'
 export { Button } from './Button'
 export { Card } from './Card/Card'
+export { CharCountTextarea } from './CharCountTextarea'
 export {
   ColorModeButton,
   ColorModeIcon,
@@ -17,8 +18,32 @@ export {
   useColorMode,
   useColorModeValue,
 } from './color-mode'
+export {
+  dashboardNavRowInteraction,
+  focusVisibleMatchesHover,
+  formControlFieldInteraction,
+  formControlFieldRingless,
+  formControlShellInteraction,
+  ghostSurfaceHover,
+  ghostSurfaceInteraction,
+  mutedTextLinkHover,
+  mutedTextLinkInteraction,
+  navIconSurfaceInteraction,
+  navRowHover,
+  navRowInteraction,
+  textLinkEmphasisHover,
+  textLinkEmphasisInteraction,
+  textLinkHover,
+  textLinkInteraction,
+} from './interactionStyles'
 export { DashboardSectionNav, Header } from './Header'
 export { Dock } from './Dock'
+export {
+  formControlHelperTextProps,
+  formControlLabelProps,
+  formControlRootProps,
+  formControlTextareaProps,
+} from './formControlStyles'
 export { FormField } from './FormField/FormField'
 export { HoverDropdownMenu } from './HoverDropdownMenu'
 export { IconButton } from './IconButton/IconButton'
@@ -39,6 +64,7 @@ export * from './Footer'
 export type { AppDrawerPlacement, AppDrawerProps } from './AppDrawer/AppDrawer'
 export type { AvatarProps } from './Avatar/Avatar'
 export type { CardProps } from './Card/Card'
+export type { CharCountTextareaProps } from './CharCountTextarea'
 export type {
   ColorMode,
   ColorModeProviderProps,

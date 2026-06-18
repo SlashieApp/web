@@ -46,6 +46,7 @@ import {
 } from '../helpers/workerSetupSyncMe'
 import {
   buildSavePayload,
+  subStepsToSaveOnContinue,
   validateWorkerSetupSubStep,
 } from '../helpers/workerSetupValidation'
 
@@ -62,6 +63,7 @@ type WorkerSetupContextValue = {
   progressPercent: number
   workerEligibility: boolean
   patchForm: (patch: Partial<WorkerSetupFormState>) => void
+  clearSetupErrors: () => void
   goToSubStep: (id: WorkerSetupSubStepId) => void
   saveAndContinue: () => Promise<void>
   goBack: () => void
@@ -185,6 +187,7 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
     if (!me?.profile) return bootstrap
     return {
       ...bootstrap,
+      email: me.email ?? bootstrap.email,
       phoneVerified: me.phoneVerified,
       emailVerified: me.emailVerified,
       workerEligibility: me.workerEligibility,
@@ -200,6 +203,11 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
 
   const patchForm = useCallback((patch: Partial<WorkerSetupFormState>) => {
     setForm((current) => ({ ...current, ...patch }))
+    setFieldErrors({})
+    setSaveError(null)
+  }, [])
+
+  const clearSetupErrors = useCallback(() => {
     setFieldErrors({})
     setSaveError(null)
   }, [])
@@ -257,53 +265,71 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
       locationPayload = { location: resolved.location }
     }
 
-    const payload = {
-      ...buildSavePayload(
-        activeSubStep,
-        formForSave,
-        effectiveBootstrap.profile?.avatarUrl,
-      ),
-      ...(locationPayload ?? {}),
-    }
-    const input = {
-      subStep: activeSubStep,
-      ...payload,
-    } as SaveWorkerSetupStepInput
+    const stepsToSave = subStepsToSaveOnContinue(activeSubStep)
 
     try {
-      const result = await saveStep({ variables: { input } })
-      const saved = result.data?.saveWorkerSetupStep
-      if (!saved?.setupProgress) {
+      let savedBootstrap = effectiveBootstrap
+      let lastSaved: SaveWorkerSetupStepMutation['saveWorkerSetupStep'] | null =
+        null
+
+      for (const subStep of stepsToSave) {
+        const payload = {
+          ...buildSavePayload(
+            subStep,
+            formForSave,
+            savedBootstrap.profile?.avatarUrl,
+          ),
+          ...(subStep === 'area.location' ? (locationPayload ?? {}) : {}),
+        }
+        const input = {
+          subStep,
+          ...payload,
+        } as SaveWorkerSetupStepInput
+
+        const result = await saveStep({ variables: { input } })
+        const saved = result.data?.saveWorkerSetupStep
+        if (!saved?.setupProgress) {
+          throw new Error('Could not save setup progress.')
+        }
+        lastSaved = saved
+
+        savedBootstrap = {
+          ...savedBootstrap,
+          emailVerified:
+            saved.user?.emailVerified ?? savedBootstrap.emailVerified,
+          phoneVerified:
+            saved.user?.phoneVerified ?? savedBootstrap.phoneVerified,
+          profile: {
+            ...savedBootstrap.profile,
+            name: saved.profile?.name ?? savedBootstrap.profile?.name,
+            avatarUrl:
+              saved.profile?.avatarUrl ?? savedBootstrap.profile?.avatarUrl,
+            contactNumber:
+              saved.user?.profile?.contactNumber ??
+              savedBootstrap.profile?.contactNumber,
+          },
+          worker: {
+            ...(savedBootstrap.worker ?? { id: saved.id }),
+            id: saved.id,
+            legalName: saved.legalName,
+            bio: saved.bio,
+            tagline: saved.tagline,
+            yearsExperience: saved.yearsExperience,
+            skills: saved.skills,
+            travelRadiusMiles: saved.travelRadiusMiles,
+            portfolioUrls: saved.portfolioUrls,
+            location: saved.location,
+            setupProgress: saved.setupProgress,
+          },
+        }
+      }
+
+      if (!lastSaved) {
         throw new Error('Could not save setup progress.')
       }
 
-      const nextBootstrap: MeWorkerSetupQuery['me'] = {
-        ...effectiveBootstrap,
-        phoneVerified:
-          saved.user?.phoneVerified ?? effectiveBootstrap.phoneVerified,
-        profile: {
-          ...effectiveBootstrap.profile,
-          name: saved.profile?.name ?? effectiveBootstrap.profile?.name,
-          avatarUrl:
-            saved.profile?.avatarUrl ?? effectiveBootstrap.profile?.avatarUrl,
-          contactNumber:
-            saved.user?.profile?.contactNumber ??
-            effectiveBootstrap.profile?.contactNumber,
-        },
-        worker: {
-          ...(effectiveBootstrap.worker ?? { id: saved.id }),
-          id: saved.id,
-          legalName: saved.legalName,
-          bio: saved.bio,
-          tagline: saved.tagline,
-          yearsExperience: saved.yearsExperience,
-          skills: saved.skills,
-          travelRadiusMiles: saved.travelRadiusMiles,
-          portfolioUrls: saved.portfolioUrls,
-          location: saved.location,
-          setupProgress: saved.setupProgress,
-        },
-      }
+      const saved = lastSaved
+      const nextBootstrap = savedBootstrap
 
       applyBootstrapState(nextBootstrap, {
         setBootstrap,
@@ -317,7 +343,10 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
         setMe(mergeSaveWorkerSetupIntoMe(me, saved))
       }
 
-      if (activeSubStep === 'review.submit' && saved.setupProgress.isComplete) {
+      if (
+        activeSubStep === 'review.submit' &&
+        saved.setupProgress?.isComplete
+      ) {
         trackFlowSucceeded(EVENTS.worker_setup_success, {
           is_new_worker: true,
         })
@@ -364,6 +393,7 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
       progressPercent: progressPercent(activeSubStep),
       workerEligibility: effectiveBootstrap?.workerEligibility ?? false,
       patchForm,
+      clearSetupErrors,
       goToSubStep,
       saveAndContinue,
       goBack,
@@ -385,6 +415,7 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
       isHydrated,
       isSaving,
       patchForm,
+      clearSetupErrors,
       saveAndContinue,
       saveError,
       toggleMajor,
