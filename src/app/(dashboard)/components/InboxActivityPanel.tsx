@@ -4,7 +4,7 @@ import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { timeFromUnknown } from '@/utils/dashboardHelpers'
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 import type {
   ActivityTone,
@@ -21,7 +21,7 @@ export function InboxActivityPanel({
   emptyMessage?: string
 }) {
   return (
-    <SectionCard p={5}>
+    <Card layout="section" p={5}>
       <Stack gap={4}>
         <Stack gap={1}>
           <Text fontWeight={700} fontSize="md" color="cardFg">
@@ -86,7 +86,7 @@ export function InboxActivityPanel({
           </Stack>
         )}
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }
 

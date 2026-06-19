@@ -3,7 +3,7 @@
 import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
-import { Button, FormField, Input, SectionCard } from '@ui'
+import { Button, Card, FormField, Input } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 import { TaskLocationMapPicker } from './TaskLocationMapPicker'
 
@@ -38,7 +38,8 @@ export function CreateTaskMapLocationPanel({
   const canCopyPlace = Boolean(mapPlaceName.trim())
 
   return (
-    <SectionCard
+    <Card
+      layout="section"
       bodyGap={4}
       header={
         <Heading size="lg" color="primary.700">
@@ -95,6 +96,6 @@ export function CreateTaskMapLocationPanel({
           {locationError}
         </Text>
       ) : null}
-    </SectionCard>
+    </Card>
   )
 }

@@ -2,7 +2,7 @@
 
 import { Grid, Stack, Text } from '@chakra-ui/react'
 
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 import { useWorkerProfile } from '../context/WorkerProfileContext'
 
@@ -68,7 +68,7 @@ export function StatsGrid() {
   if (stats.length === 0) return null
 
   return (
-    <SectionCard eyebrow="Stats" heading="At a glance">
+    <Card layout="section" eyebrow="Stats" heading="At a glance">
       <Grid
         templateColumns={{
           base: '1fr',
@@ -82,6 +82,6 @@ export function StatsGrid() {
           <StatTile key={stat.label} {...stat} />
         ))}
       </Grid>
-    </SectionCard>
+    </Card>
   )
 }

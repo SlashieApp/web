@@ -13,7 +13,7 @@ import {
 import NextLink from 'next/link'
 import { type ReactNode, useMemo } from 'react'
 
-import { Button, SectionCard } from '@ui'
+import { Button, Card } from '@ui'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/MembershipRefreshOnMount'
@@ -58,7 +58,7 @@ type ActivityRow = {
 
 function StatTile({ label, value, helper, icon }: StatTileProps) {
   return (
-    <SectionCard p={5}>
+    <Card layout="section" p={5}>
       <Stack gap={2}>
         <HStack justify="space-between" align="flex-start">
           <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
@@ -83,7 +83,7 @@ function StatTile({ label, value, helper, icon }: StatTileProps) {
           {helper}
         </Text>
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }
 
@@ -441,7 +441,7 @@ export default function DashboardOverviewPage() {
       </SimpleGrid>
 
       {upcomingJobs.length > 0 ? (
-        <SectionCard p={{ base: 5, md: 6 }}>
+        <Card layout="section" p={{ base: 5, md: 6 }}>
           <Stack gap={4}>
             <HStack justify="space-between" flexWrap="wrap" gap={2}>
               <Stack gap={1}>
@@ -490,11 +490,11 @@ export default function DashboardOverviewPage() {
               ))}
             </Stack>
           </Stack>
-        </SectionCard>
+        </Card>
       ) : null}
 
       <Grid templateColumns={{ base: '1fr', xl: '1.3fr 1fr' }} gap={4}>
-        <SectionCard p={{ base: 5, md: 6 }}>
+        <Card layout="section" p={{ base: 5, md: 6 }}>
           <Stack gap={4}>
             <HStack justify="space-between" gap={3}>
               <Stack gap={1}>
@@ -570,12 +570,12 @@ export default function DashboardOverviewPage() {
               </Stack>
             )}
           </Stack>
-        </SectionCard>
+        </Card>
 
         {me?.worker?.membership ? (
           <WorkerMembershipCard membership={me.worker.membership} />
         ) : (
-          <SectionCard p={{ base: 5, md: 6 }}>
+          <Card layout="section" p={{ base: 5, md: 6 }}>
             <Stack gap={4}>
               <Stack gap={1}>
                 <Heading size="md">Platform membership</Heading>
@@ -598,11 +598,11 @@ export default function DashboardOverviewPage() {
                 </Button>
               </Link>
             </Stack>
-          </SectionCard>
+          </Card>
         )}
       </Grid>
 
-      <SectionCard p={{ base: 5, md: 6 }}>
+      <Card layout="section" p={{ base: 5, md: 6 }}>
         <Stack gap={4}>
           <Heading size="md">Quick actions</Heading>
           <SimpleGrid columns={{ base: 1, sm: 2, xl: 5 }} gap={3}>
@@ -646,7 +646,7 @@ export default function DashboardOverviewPage() {
             ))}
           </SimpleGrid>
         </Stack>
-      </SectionCard>
+      </Card>
     </Stack>
   )
 }

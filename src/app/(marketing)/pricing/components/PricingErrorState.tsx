@@ -1,10 +1,10 @@
 import { Stack, Text } from '@chakra-ui/react'
 
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 export function PricingErrorState() {
   return (
-    <SectionCard eyebrow="Pricing" heading="Pricing unavailable">
+    <Card layout="section" eyebrow="Pricing" heading="Pricing unavailable">
       <Stack gap={2}>
         <Text color="formLabelMuted" lineHeight="tall">
           We could not load plan details right now. Please refresh the page or
@@ -15,6 +15,6 @@ export function PricingErrorState() {
           workers outside Slashie.
         </Text>
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { formatPounds, formatRelativePosted } from '@/utils/dashboardHelpers'
 import { isOrderClosed, taskOrderSectionHref } from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Button, SectionCard, Thumbnail } from '@ui'
+import { Badge, Button, Card, Thumbnail } from '@ui'
 
 import {
   type WorkerQuoteRow,
@@ -100,7 +100,7 @@ export function WorkerQuoteCard({
     expanded && primaryCta.href !== taskHref && primaryCta.label !== 'Open task'
 
   return (
-    <SectionCard p={0} overflow="hidden">
+    <Card layout="section" p={0} overflow="hidden">
       <Box
         as="button"
         w="full"
@@ -183,7 +183,7 @@ export function WorkerQuoteCard({
           ) : null}
         </Stack>
       ) : null}
-    </SectionCard>
+    </Card>
   )
 }
 

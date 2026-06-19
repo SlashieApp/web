@@ -16,7 +16,7 @@ import {
   taskOrderSectionHref,
 } from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Button, SectionCard, Thumbnail } from '@ui'
+import { Badge, Button, Card, Thumbnail } from '@ui'
 
 import {
   type PostedTaskStage,
@@ -102,7 +102,7 @@ export function PostedTaskCard({
     expanded && primaryCta.href !== taskHref && primaryCta.label !== 'Open task'
 
   return (
-    <SectionCard p={0} overflow="hidden">
+    <Card layout="section" p={0} overflow="hidden">
       <Box
         as="button"
         w="full"
@@ -190,7 +190,7 @@ export function PostedTaskCard({
           </HStack>
         </Stack>
       ) : null}
-    </SectionCard>
+    </Card>
   )
 }
 

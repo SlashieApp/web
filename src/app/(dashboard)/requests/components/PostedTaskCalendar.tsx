@@ -3,7 +3,7 @@
 import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 
-import { Button, IconButton, SectionCard } from '@ui'
+import { Button, Card, IconButton } from '@ui'
 
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
 import {
@@ -61,7 +61,7 @@ export function PostedTaskCalendar() {
   const today = new Date()
 
   return (
-    <SectionCard p={5}>
+    <Card layout="section" p={5}>
       <Stack gap={4}>
         <HStack justify="space-between" align="center">
           <Text fontWeight={700} fontSize="md" color="cardFg">
@@ -210,7 +210,7 @@ export function PostedTaskCalendar() {
           </HStack>
         </HStack>
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }
 

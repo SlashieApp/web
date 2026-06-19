@@ -15,7 +15,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Button, FormField, Input, SectionCard, Select } from '@ui'
+import { Button, Card, FormField, Input, Select } from '@ui'
 
 import { initialDisplayNameForForm } from '../profileDisplayHelpers'
 import { getContactOptions } from '../profileEligibility'
@@ -109,7 +109,7 @@ export function ProfileDetailsForm() {
           </Text>
         ) : null}
 
-        <SectionCard p={{ base: 5, md: 6 }}>
+        <Card layout="section" p={{ base: 5, md: 6 }}>
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Name</Heading>
@@ -128,9 +128,9 @@ export function ProfileDetailsForm() {
               />
             </FormField>
           </Stack>
-        </SectionCard>
+        </Card>
 
-        <SectionCard id="profile-about" p={{ base: 5, md: 6 }}>
+        <Card layout="section" id="profile-about" p={{ base: 5, md: 6 }}>
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Private details</Heading>
@@ -151,9 +151,9 @@ export function ProfileDetailsForm() {
               />
             </FormField>
           </Stack>
-        </SectionCard>
+        </Card>
 
-        <SectionCard p={{ base: 5, md: 6 }}>
+        <Card layout="section" p={{ base: 5, md: 6 }}>
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Default contact preference</Heading>
@@ -204,7 +204,7 @@ export function ProfileDetailsForm() {
               </Stack>
             ) : null}
           </Stack>
-        </SectionCard>
+        </Card>
 
         <HStack gap={3} justify="flex-end">
           <Button

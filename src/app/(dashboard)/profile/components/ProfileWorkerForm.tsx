@@ -11,7 +11,7 @@ import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/worke
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { apolloClient } from '@/utils/apolloClient'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Button, FormField, Input, SectionCard, Textarea } from '@ui'
+import { Button, Card, FormField, Input, Textarea } from '@ui'
 
 import { saveWorkerProfileForm } from '../helpers/saveWorkerProfileForm'
 import { isWorkerSetupInProgress } from '../helpers/workerSetupProfileHelpers'
@@ -51,7 +51,7 @@ export function ProfileWorkerForm() {
 
   if (!me.worker?.id) {
     return (
-      <SectionCard id="profile-worker" p={{ base: 5, md: 6 }}>
+      <Card layout="section" id="profile-worker" p={{ base: 5, md: 6 }}>
         <Stack gap={4}>
           <Stack gap={1}>
             <Heading size="md">Become a worker</Heading>
@@ -68,13 +68,13 @@ export function ProfileWorkerForm() {
             <Button w={{ base: 'full', sm: 'auto' }}>Start worker setup</Button>
           </Link>
         </Stack>
-      </SectionCard>
+      </Card>
     )
   }
 
   if (setupInProgress) {
     return (
-      <SectionCard id="profile-worker" p={{ base: 5, md: 6 }}>
+      <Card layout="section" id="profile-worker" p={{ base: 5, md: 6 }}>
         <Stack gap={3}>
           <Heading size="md">Worker profile (in progress)</Heading>
           <Text fontSize="sm" color="formLabelMuted">
@@ -96,7 +96,7 @@ export function ProfileWorkerForm() {
             </Button>
           </Link>
         </Stack>
-      </SectionCard>
+      </Card>
     )
   }
 
@@ -135,7 +135,7 @@ export function ProfileWorkerForm() {
           </Text>
         ) : null}
 
-        <SectionCard p={{ base: 5, md: 6 }}>
+        <Card layout="section" p={{ base: 5, md: 6 }}>
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Worker profile</Heading>
@@ -249,7 +249,7 @@ export function ProfileWorkerForm() {
               />
             </FormField>
           </Stack>
-        </SectionCard>
+        </Card>
 
         <HStack gap={3} justify="flex-end">
           <Button

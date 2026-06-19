@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 
 import { InboxUpcomingEventRow } from '@/app/(dashboard)/components/InboxUpcomingEventRow'
 
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
 import {
@@ -22,7 +22,7 @@ export function PostedTaskUpcoming() {
   }, [taskRows])
 
   return (
-    <SectionCard p={5}>
+    <Card layout="section" p={5}>
       <Stack gap={4}>
         <Text fontWeight={700} fontSize="md" color="cardFg">
           Upcoming
@@ -55,6 +55,6 @@ export function PostedTaskUpcoming() {
           </Stack>
         )}
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

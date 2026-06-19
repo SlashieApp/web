@@ -9,7 +9,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 type ToggleKey = 'isProfilePrivate' | 'marketingEmails'
 
@@ -91,7 +91,7 @@ export function AccountSettingsCard() {
   }
 
   return (
-    <SectionCard p={{ base: 5, md: 6 }}>
+    <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
         <Heading size="md">Settings</Heading>
         <SettingToggle
@@ -114,6 +114,6 @@ export function AccountSettingsCard() {
           </Text>
         ) : null}
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

@@ -5,7 +5,7 @@ import NextLink from 'next/link'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
-import { Button, SectionCard } from '@ui'
+import { Button, Card } from '@ui'
 
 import {
   isWorkerSetupInProgress,
@@ -21,7 +21,8 @@ export function ProfileWorkerSetupBanner() {
   const stepLabel = workerSetupCurrentStepLabel(me)
 
   return (
-    <SectionCard
+    <Card
+      layout="section"
       p={{ base: 5, md: 6 }}
       bg="primary.50"
       borderColor="primary.100"
@@ -54,6 +55,6 @@ export function ProfileWorkerSetupBanner() {
           </Text>
         </HStack>
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

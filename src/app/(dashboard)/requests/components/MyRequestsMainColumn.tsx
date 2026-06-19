@@ -5,7 +5,7 @@ import NextLink from 'next/link'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { LuSearch } from 'react-icons/lu'
 
-import { Button, Input, SectionCard } from '@ui'
+import { Button, Card, Input } from '@ui'
 
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
 
@@ -63,7 +63,7 @@ export function MyRequestsMainColumn() {
       ) : null}
 
       {!loading && taskRows.length === 0 ? (
-        <SectionCard p={6}>
+        <Card layout="section" p={6}>
           <Stack gap={3}>
             <Heading size="sm">No requests yet</Heading>
             <Text color="formLabelMuted" fontSize="sm">
@@ -80,15 +80,15 @@ export function MyRequestsMainColumn() {
               </Button>
             </Link>
           </Stack>
-        </SectionCard>
+        </Card>
       ) : null}
 
       {!loading && taskRows.length > 0 && visibleTasks.length === 0 ? (
-        <SectionCard p={6}>
+        <Card layout="section" p={6}>
           <Text color="formLabelMuted" fontSize="sm">
             {emptyHint}
           </Text>
-        </SectionCard>
+        </Card>
       ) : null}
 
       {visibleTasks.length > 0 ? (

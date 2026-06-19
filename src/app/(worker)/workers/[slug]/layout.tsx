@@ -1,6 +1,6 @@
 import { Box, Container, Stack, Text } from '@chakra-ui/react'
 
-import { Footer, SectionCard } from '@ui'
+import { Card, Footer } from '@ui'
 
 import { WorkerProfileProvider } from './context/WorkerProfileContext'
 import { getWorkerForPublicPage } from './helpers/getWorkerForPublicPage'
@@ -21,12 +21,16 @@ export default async function WorkerProfileLayout({
         <Box as="section" py={{ base: 8, md: 10 }}>
           <Container>
             <Stack gap={8} maxW="3xl" mx="auto" px={{ base: 4, md: 6 }}>
-              <SectionCard eyebrow="Worker" heading="Worker not found">
+              <Card
+                layout="section"
+                eyebrow="Worker"
+                heading="Worker not found"
+              >
                 <Text color="formLabelMuted">
                   This worker profile is not available. It may have been removed
                   or the link may be incorrect.
                 </Text>
-              </SectionCard>
+              </Card>
             </Stack>
           </Container>
         </Box>

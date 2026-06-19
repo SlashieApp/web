@@ -19,7 +19,7 @@ import {
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
-import { Button, SectionCard } from '@ui'
+import { Button, Card } from '@ui'
 
 import { displayNameFromMe } from '../profileDisplayHelpers'
 
@@ -101,7 +101,7 @@ export function ProfilePhotoCard() {
   }
 
   return (
-    <SectionCard id="profile-photo" p={{ base: 5, md: 6 }}>
+    <Card layout="section" id="profile-photo" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
         <Stack gap={1}>
           <Heading size="md">Profile photo</Heading>
@@ -171,6 +171,6 @@ export function ProfilePhotoCard() {
           }}
         />
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

@@ -4,7 +4,7 @@ import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
-import { Button, FormField, Input, SectionCard, Select } from '@ui'
+import { Button, Card, FormField, Input, Select } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 
 export type CreateTaskBudgetSectionProps = {
@@ -34,7 +34,8 @@ export function CreateTaskBudgetSection({
   budgetMajorError,
 }: CreateTaskBudgetSectionProps) {
   return (
-    <SectionCard
+    <Card
+      layout="section"
       bodyGap={5}
       header={
         <Heading size="lg" color="primary.700">
@@ -150,6 +151,6 @@ export function CreateTaskBudgetSection({
           </Button>
         </HStack>
       </FormField>
-    </SectionCard>
+    </Card>
   )
 }

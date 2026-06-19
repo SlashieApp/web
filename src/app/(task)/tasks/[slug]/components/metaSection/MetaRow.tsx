@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 
 import { Box, HStack, Text } from '@chakra-ui/react'
 
-/** Label style aligned with `SectionCard` eyebrow and filter section titles. */
+/** Label style aligned with `Card` eyebrow and filter section titles. */
 export const metaSectionLabelProps = {
   fontSize: 'xs',
   fontWeight: 700,

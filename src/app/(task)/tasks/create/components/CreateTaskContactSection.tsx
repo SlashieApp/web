@@ -5,7 +5,7 @@ import { TaskContactMethod } from '@codegen/schema'
 import NextLink from 'next/link'
 
 import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility'
-import { Button, FormField, SectionCard } from '@ui'
+import { Button, Card, FormField } from '@ui'
 
 export type CreateTaskContactSectionProps = {
   preferredContactMethod: TaskContactMethod
@@ -50,7 +50,8 @@ export function CreateTaskContactSection({
     !phoneOption.enabled
 
   return (
-    <SectionCard
+    <Card
+      layout="section"
       bodyGap={4}
       header={
         <Heading size="lg" color="primary.700">
@@ -138,6 +139,6 @@ export function CreateTaskContactSection({
           </Link>
         </Stack>
       ) : null}
-    </SectionCard>
+    </Card>
   )
 }

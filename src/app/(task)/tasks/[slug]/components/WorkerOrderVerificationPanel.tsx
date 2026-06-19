@@ -4,7 +4,7 @@ import { Stack, Text } from '@chakra-ui/react'
 import { OrderStatus } from '@codegen/schema'
 import { useCallback, useState } from 'react'
 
-import { Button, Input, SectionCard } from '@ui'
+import { Button, Card, Input } from '@ui'
 
 import { useTaskDetail } from '../context/TaskDetailProvider'
 
@@ -44,17 +44,23 @@ export function WorkerOrderVerificationPanel({
   const status = myOrder.status
   if (status !== OrderStatus.Active) {
     return (
-      <SectionCard eyebrow="Your job" heading="Awaiting update" bodyGap={2}>
+      <Card
+        layout="section"
+        eyebrow="Your job"
+        heading="Awaiting update"
+        bodyGap={2}
+      >
         <Text fontSize="sm" color="formLabelMuted">
           This order is no longer active. Refresh the page or contact support if
           something looks wrong.
         </Text>
-      </SectionCard>
+      </Card>
     )
   }
 
   return (
-    <SectionCard
+    <Card
+      layout="section"
       id="worker-job-panel"
       eyebrow="Your job"
       heading="Complete job & confirm payment"
@@ -113,6 +119,6 @@ export function WorkerOrderVerificationPanel({
           </Button>
         </Stack>
       )}
-    </SectionCard>
+    </Card>
   )
 }

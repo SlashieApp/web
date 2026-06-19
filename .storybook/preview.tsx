@@ -1,10 +1,13 @@
+import { ApolloProvider } from '@apollo/client/react'
+import { ChakraProvider } from '@chakra-ui/react'
 import type { Preview } from '@storybook/nextjs-vite'
 import type { CSSProperties } from 'react'
 import React from 'react'
 
-import { ChakraProvider } from '@chakra-ui/react'
+import { ThemeProvider } from 'next-themes'
 
 import { darkSystem, lightSystem } from '../src/theme/system'
+import { apolloClient } from '../src/utils/apolloClient'
 
 /** Mirrors `next/font` CSS variables from `app/layout.tsx` so theme `fonts.heading` / `fonts.body` resolve in Storybook. */
 const storybookFontRootStyle = {
@@ -32,13 +35,21 @@ const preview: Preview = {
   },
   decorators: [
     (Story, context) => (
-      <ChakraProvider
-        value={context.globals.theme === 'dark' ? darkSystem : lightSystem}
-      >
-        <div style={storybookFontRootStyle}>
-          <Story />
-        </div>
-      </ChakraProvider>
+      <ApolloProvider client={apolloClient}>
+        <ThemeProvider
+          attribute="class"
+          disableTransitionOnChange
+          forcedTheme={context.globals.theme ?? 'light'}
+        >
+          <ChakraProvider
+            value={context.globals.theme === 'dark' ? darkSystem : lightSystem}
+          >
+            <div style={storybookFontRootStyle}>
+              <Story />
+            </div>
+          </ChakraProvider>
+        </ThemeProvider>
+      </ApolloProvider>
     ),
   ],
   parameters: {

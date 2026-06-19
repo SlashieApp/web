@@ -4,7 +4,7 @@ import { HStack, Link, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
 import NextLink from 'next/link'
 
-import { Button, SectionCard } from '@ui'
+import { Button, Card } from '@ui'
 
 import { BillingQuoteMeter } from '../billing/components/BillingQuoteMeter'
 import { hasUnlimitedQuoting } from '../helpers/workerMembershipHelpers'
@@ -23,7 +23,7 @@ export function WorkerMembershipCard({
   const showMeter = !unlimited
 
   return (
-    <SectionCard p={{ base: 5, md: 6 }}>
+    <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
         <MembershipCancelNotice membership={membership} />
 
@@ -72,6 +72,6 @@ export function WorkerMembershipCard({
           </Button>
         </Link>
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

@@ -5,7 +5,7 @@ import NextLink from 'next/link'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { LuSearch } from 'react-icons/lu'
 
-import { Button, Input, SectionCard } from '@ui'
+import { Button, Card, Input } from '@ui'
 
 import { useWorkerQuotes } from '../context/WorkerQuotesProvider'
 
@@ -65,7 +65,7 @@ export function WorkerQuotesMainColumn() {
       ) : null}
 
       {!loading && quoteRows.length === 0 ? (
-        <SectionCard p={6}>
+        <Card layout="section" p={6}>
           <Stack gap={3}>
             <Heading size="sm">No quotes yet</Heading>
             <Text color="formLabelMuted" fontSize="sm">
@@ -82,15 +82,15 @@ export function WorkerQuotesMainColumn() {
               </Button>
             </Link>
           </Stack>
-        </SectionCard>
+        </Card>
       ) : null}
 
       {!loading && quoteRows.length > 0 && visibleQuotes.length === 0 ? (
-        <SectionCard p={6}>
+        <Card layout="section" p={6}>
           <Text color="formLabelMuted" fontSize="sm">
             {emptyHint}
           </Text>
-        </SectionCard>
+        </Card>
       ) : null}
 
       {visibleQuotes.length > 0 ? (

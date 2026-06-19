@@ -2,7 +2,7 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 function IconShield() {
   return (
@@ -22,7 +22,8 @@ function IconShield() {
 
 export function QuotePaymentTrustCard() {
   return (
-    <SectionCard
+    <Card
+      layout="section"
       bodyGap={3}
       bg="neutral.100"
       borderColor="cardBorder"
@@ -56,6 +57,6 @@ export function QuotePaymentTrustCard() {
         Slashie. Use the app to agree on scope and quotes; settle up using
         whatever method you both choose.
       </Text>
-    </SectionCard>
+    </Card>
   )
 }

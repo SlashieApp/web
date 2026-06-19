@@ -9,7 +9,7 @@ import {
   orderStatusChipLabel,
   orderTaskHref,
 } from '@/utils/orderHelpers'
-import { Badge, SectionCard } from '@ui'
+import { Badge, Card } from '@ui'
 
 import { useAccountOrders } from '../helpers/useAccountOrders'
 
@@ -44,7 +44,7 @@ export default function EarningsPage() {
       ) : null}
 
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2,1fr)' }} gap={4}>
-        <SectionCard p={5}>
+        <Card layout="section" p={5}>
           <Stack gap={1}>
             <Text
               fontSize="xs"
@@ -62,8 +62,8 @@ export default function EarningsPage() {
               Sum of agreed prices on orders still in progress (ACTIVE).
             </Text>
           </Stack>
-        </SectionCard>
-        <SectionCard p={5}>
+        </Card>
+        <Card layout="section" p={5}>
           <Stack gap={1}>
             <Text
               fontSize="xs"
@@ -81,22 +81,22 @@ export default function EarningsPage() {
               Sum of agreed prices on closed orders (CLOSED).
             </Text>
           </Stack>
-        </SectionCard>
+        </Card>
       </Grid>
 
       <Stack gap={3}>
         <Heading size="md">Pending orders</Heading>
         {pendingWorkerOrders.length === 0 ? (
-          <SectionCard p={6}>
+          <Card layout="section" p={6}>
             <Text color="formLabelMuted" fontSize="sm">
               No pending worker earnings. Accepted quotes create an order
               immediately — agreed value shows here until the order is closed.
             </Text>
-          </SectionCard>
+          </Card>
         ) : (
           <Stack gap={3}>
             {pendingWorkerOrders.map((order) => (
-              <SectionCard key={order.id} p={5}>
+              <Card layout="section" key={order.id} p={5}>
                 <HStack
                   justify="space-between"
                   align="flex-start"
@@ -127,7 +127,7 @@ export default function EarningsPage() {
                     </Link>
                   </HStack>
                 </HStack>
-              </SectionCard>
+              </Card>
             ))}
           </Stack>
         )}
@@ -136,12 +136,12 @@ export default function EarningsPage() {
       <Stack gap={3}>
         <Heading size="md">Closed orders</Heading>
         {closedWorkerOrders.length === 0 ? (
-          <SectionCard p={6}>
+          <Card layout="section" p={6}>
             <Text color="formLabelMuted" fontSize="sm">
               Closed orders will appear here after you and the customer finish
               the job on Slashie.
             </Text>
-          </SectionCard>
+          </Card>
         ) : (
           <Stack gap={3}>
             {closedWorkerOrders.map((order) => (
@@ -151,7 +151,7 @@ export default function EarningsPage() {
                 href={orderTaskHref(order)}
                 _hover={{ textDecoration: 'none' }}
               >
-                <SectionCard p={5}>
+                <Card layout="section" p={5}>
                   <HStack
                     justify="space-between"
                     align="flex-start"
@@ -177,7 +177,7 @@ export default function EarningsPage() {
                       </Text>
                     </HStack>
                   </HStack>
-                </SectionCard>
+                </Card>
               </Link>
             ))}
           </Stack>

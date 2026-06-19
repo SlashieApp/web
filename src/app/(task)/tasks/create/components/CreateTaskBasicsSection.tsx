@@ -4,7 +4,7 @@ import { Heading } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { TASK_CREATE_CATEGORY_OPTIONS } from '@/app/(task)/helpers/taskCategories'
-import { FormField, Input, SectionCard, Select, Textarea } from '@ui'
+import { Card, FormField, Input, Select, Textarea } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 
 export type CreateTaskBasicsSectionProps = {
@@ -21,7 +21,8 @@ export function CreateTaskBasicsSection({
   fieldErrors,
 }: CreateTaskBasicsSectionProps) {
   return (
-    <SectionCard
+    <Card
+      layout="section"
       bodyGap={5}
       header={
         <Heading size="lg" color="primary.700">
@@ -63,6 +64,6 @@ export function CreateTaskBasicsSection({
           rows={4}
         />
       </FormField>
-    </SectionCard>
+    </Card>
   )
 }

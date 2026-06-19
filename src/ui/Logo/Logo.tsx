@@ -32,15 +32,19 @@ export function Logo({ mobile = false, containerProps, ...props }: LogoProps) {
       display="inline-block"
       lineHeight={0}
       {...containerProps}
+      _focus={{ outline: 'none' }}
+      _focusVisible={{ outline: 'none' }}
     >
       {mounted ? (
         <Image
           h={{ base: '24px', md: '32px' }}
-          w={'auto'}
+          w="auto"
           objectFit="contain"
           {...props}
           src={logoSrc}
           alt={mobile ? 'Slashie' : `Slashie ${colorMode}`}
+          _focus={{ outline: 'none' }}
+          _focusVisible={{ outline: 'none' }}
         />
       ) : null}
     </Box>

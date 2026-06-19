@@ -4,7 +4,7 @@ import type { ChangeEvent } from 'react'
 
 import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { TaskDateTimeType } from '@codegen/schema'
-import { Button, FormField, Input, SectionCard, Select } from '@ui'
+import { Button, Card, FormField, Input, Select } from '@ui'
 
 function toYmd(d: Date): string {
   const y = d.getFullYear()
@@ -58,7 +58,8 @@ export function CreateTaskScheduleSection({
   const showTimePicker = datetimeType === TaskDateTimeType.Exact
 
   return (
-    <SectionCard
+    <Card
+      layout="section"
       bodyGap={5}
       header={
         <Stack gap={1}>
@@ -155,6 +156,6 @@ export function CreateTaskScheduleSection({
           ) : null}
         </Box>
       ) : null}
-    </SectionCard>
+    </Card>
   )
 }

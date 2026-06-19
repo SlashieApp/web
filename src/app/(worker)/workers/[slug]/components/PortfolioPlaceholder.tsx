@@ -2,11 +2,11 @@
 
 import { Box, Grid, Text } from '@chakra-ui/react'
 
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 export function PortfolioPlaceholder() {
   return (
-    <SectionCard eyebrow="Portfolio" heading="Work examples">
+    <Card layout="section" eyebrow="Portfolio" heading="Work examples">
       <Grid
         templateColumns={{
           base: '1fr',
@@ -35,6 +35,6 @@ export function PortfolioPlaceholder() {
       <Text fontSize="sm" color="formLabelMuted">
         Workers will be able to showcase completed work here in a future update.
       </Text>
-    </SectionCard>
+    </Card>
   )
 }

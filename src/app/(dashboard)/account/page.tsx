@@ -5,7 +5,7 @@ import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import { Button, SectionCard } from '@ui'
+import { Button, Card } from '@ui'
 
 import { MembershipRefreshOnMount } from '../components/MembershipRefreshOnMount'
 import { WorkerMembershipCard } from '../components/WorkerMembershipCard'
@@ -77,14 +77,14 @@ export default function AccountPage() {
         <WorkerMembershipCard membership={me.worker.membership} />
       ) : null}
 
-      <SectionCard p={{ base: 5, md: 6 }}>
+      <Card layout="section" p={{ base: 5, md: 6 }}>
         <Stack gap={4}>
           <Heading size="md">Login methods</Heading>
           <Row label="Sign-in methods" value={enabledMethods} />
         </Stack>
-      </SectionCard>
+      </Card>
 
-      <SectionCard p={{ base: 5, md: 6 }}>
+      <Card layout="section" p={{ base: 5, md: 6 }}>
         <Stack gap={4}>
           <Heading size="md">Security</Heading>
           <Row
@@ -104,11 +104,11 @@ export default function AccountPage() {
             </Link>
           </HStack>
         </Stack>
-      </SectionCard>
+      </Card>
 
       <AccountSettingsCard />
 
-      <SectionCard p={{ base: 5, md: 6 }}>
+      <Card layout="section" p={{ base: 5, md: 6 }}>
         <Stack gap={4}>
           <Heading size="md">Session</Heading>
           <Text fontSize="sm" color="formLabelMuted">
@@ -120,7 +120,7 @@ export default function AccountPage() {
             </Button>
           </Box>
         </Stack>
-      </SectionCard>
+      </Card>
     </Stack>
   )
 }

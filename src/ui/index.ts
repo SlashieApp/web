@@ -39,26 +39,38 @@ export {
 } from './interactionStyles'
 export { DashboardSectionNav, Header } from './Header'
 export { Dock } from './Dock'
+export { Drawer } from './Drawer/Drawer'
+export { Dropdown, useDropdownClose } from './Dropdown/Dropdown'
 export {
   formControlHelperTextProps,
   formControlLabelProps,
   formControlRootProps,
   formControlTextareaProps,
 } from './formControlStyles'
+export {
+  formControlInvalidFieldProps,
+  formControlInvalidShellProps,
+  FormFieldStateContext,
+  useFormField,
+  useFormFieldControlProps,
+} from './FormField/formFieldContext'
 export { FormField } from './FormField/FormField'
+export { FormFieldCharCountTextarea } from './FormField/FormFieldCharCountTextarea'
 export { HoverDropdownMenu } from './HoverDropdownMenu'
 export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Input } from './Input'
 export { Logo } from './Logo/Logo'
+export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
 export { PhoneInput } from './PhoneInput'
+export { ProgressBar } from './ProgressBar/ProgressBar'
 export { RadioButton } from './RadioButton/RadioButton'
 export { Rating } from './Rating/Rating'
 export { ScheduleChip } from './ScheduleChip'
-export { SectionCard } from './SectionCard/SectionCard'
 export { Select } from './Select'
 export { Slider } from './Slider/Slider'
+export { Stepper } from './Stepper/Stepper'
 export { Tag } from './Tag'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail/Thumbnail'
@@ -69,11 +81,23 @@ export type { AvatarProps } from './Avatar/Avatar'
 export type { CardProps } from './Card/Card'
 export type { CharCountTextareaProps } from './CharCountTextarea'
 export type {
+  ClickDropdownProps,
+  DropdownProps,
+  DropdownTriggerApi,
+  HoverDropdownProps,
+} from './Dropdown/Dropdown'
+export type {
   ColorMode,
   ColorModeProviderProps,
   UseColorModeReturn,
 } from './color-mode'
 export type { DashboardSectionNavProps, HeaderProps } from './Header'
+export type { DrawerPlacement, DrawerProps } from './Drawer/Drawer'
+export type { FormFieldCharCountTextareaProps } from './FormField/FormFieldCharCountTextarea'
+export type {
+  FormFieldControlProps,
+  FormFieldState,
+} from './FormField/formFieldContext'
 export type { FormFieldProps } from './FormField/FormField'
 export type { HoverDropdownMenuProps } from './HoverDropdownMenu'
 export type {
@@ -86,13 +110,19 @@ export type {
 } from './ImageGallery/ImageGallery'
 export type { InputProps } from './Input'
 export type { LogoProps } from './Logo/Logo'
+export type { ModalProps, ModalSize } from './Modal'
 export type { OtpInputProps } from './OtpInput'
+export type { ProgressBarProps } from './ProgressBar/ProgressBar'
 export type { RadioButtonProps } from './RadioButton/RadioButton'
 export type { RatingProps } from './Rating/Rating'
 export type { ScheduleChipProps } from './ScheduleChip'
-export type { SectionCardProps } from './SectionCard/SectionCard'
 export type { SelectProps } from './Select'
 export type { SliderProps } from './Slider/Slider'
+export type {
+  StepperProps,
+  StepperStep,
+  StepperSubStep,
+} from './Stepper/Stepper'
 export type { TagColor, TagProps, TagVariant } from './Tag'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps } from './Thumbnail/Thumbnail'

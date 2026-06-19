@@ -3,8 +3,6 @@
 import { Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { SectionCard } from '@ui'
-
 export function CreateTaskPageHeader() {
   return (
     <Stack gap={2}>

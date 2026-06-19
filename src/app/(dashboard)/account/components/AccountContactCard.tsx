@@ -3,11 +3,11 @@
 import { Heading, Stack, Text } from '@chakra-ui/react'
 
 import { ContactMethodsPanel } from '@/app/(dashboard)/components/ContactMethodsPanel'
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 export function AccountContactCard() {
   return (
-    <SectionCard p={{ base: 5, md: 6 }}>
+    <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
         <Stack gap={1}>
           <Heading size="md">Contact methods</Heading>
@@ -18,6 +18,6 @@ export function AccountContactCard() {
         </Stack>
         <ContactMethodsPanel showIntro={false} />
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

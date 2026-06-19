@@ -3,11 +3,11 @@
 import { Heading, Stack, Text } from '@chakra-ui/react'
 
 import { PhoneContactRow } from '@/app/(dashboard)/components/ContactMethodsPanel'
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 export function ProfilePhoneSection() {
   return (
-    <SectionCard id="profile-phone" p={{ base: 5, md: 6 }}>
+    <Card layout="section" id="profile-phone" p={{ base: 5, md: 6 }}>
       <Stack gap={5}>
         <Stack gap={1}>
           <Heading size="md">Phone number</Heading>
@@ -18,6 +18,6 @@ export function ProfilePhoneSection() {
         </Stack>
         <PhoneContactRow />
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

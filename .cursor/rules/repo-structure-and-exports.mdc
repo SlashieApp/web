@@ -57,6 +57,17 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 - Keep variants configurable through props/tokens instead of duplicating components.
 - Add/update Storybook stories for new reusable UI components.
 
+### Extract universal primitives; keep route adapters thin
+
+- If a route-scoped component is really a **generic widget** (progress bar, stepper, dropdown/popover, etc.), **extract the universal piece to `src/ui`** with a data-agnostic prop API (e.g. `ProgressBar` takes `value`/`label`; `Stepper` takes `steps`/`activeSubStepId`; `Dropdown` takes `trigger`/`children`).
+- The route keeps a **thin adapter** that reads its context/data and renders the `src/ui` primitive (e.g. `WorkerSetupStepper` wires `useWorkerSetup()` into `<Stepper>`). Adapters are not new universal components and need no story.
+- **Feature menus compose layout primitives.** Click/hover popovers and drawers (`Dropdown`, `Drawer`) are universal `src/ui` layout primitives; feature menus such as `AccountMenu` **build on them** instead of re-implementing click-outside / focus / positioning. Use `Dropdown` with `hoverExpand` for nav hover menus.
+
+### Storybook grouping (see `storybook-story-conventions` skill)
+
+- Title stories **by function**: `ui/*` (universal atoms/molecules incl. form controls), `layout/*` (dropdown/drawer/footer/dock primitives), `header/*` (top-level headers + their menus), or a route/section group. There is **no `form/*` group**.
+- **One story per non-universal feature component**; do **not** add stories for its internal sub-components.
+
 ### Context colocation (any route provider)
 
 - **`WebLayout` / `MobileLayout`-style shells** should mostly **compose** structure (position, z-index, flex) and mount children.

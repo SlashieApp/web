@@ -10,7 +10,7 @@ import OrderDetail from '@/app/(dashboard)/dashboard/orders/[orderId]/graphql/Or
 import { EVENTS, capture, captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { taskOrderSectionHref } from '@/utils/orderHelpers'
-import { SectionCard } from '@ui'
+import { Card } from '@ui'
 
 /** Legacy URL — redirects to `/tasks/:taskId#task-order`. */
 export default function LegacyOrderDetailRedirect() {
@@ -54,11 +54,11 @@ export default function LegacyOrderDetailRedirect() {
 
   if (!loading && !taskId) {
     return (
-      <SectionCard p={6}>
+      <Card layout="section" p={6}>
         <Text color="formLabelMuted" fontSize="sm">
           Order not found or you do not have access.
         </Text>
-      </SectionCard>
+      </Card>
     )
   }
 

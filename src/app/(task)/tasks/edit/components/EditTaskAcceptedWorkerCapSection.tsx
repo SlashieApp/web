@@ -3,7 +3,7 @@
 import { Heading, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
-import { FormField, Input, SectionCard } from '@ui'
+import { Card, FormField, Input } from '@ui'
 
 import type { EditTaskFormFieldValues } from '../editTaskFormSchema'
 
@@ -19,7 +19,8 @@ export function EditTaskAcceptedWorkerCapSection({
   errorText,
 }: EditTaskAcceptedWorkerCapSectionProps) {
   return (
-    <SectionCard
+    <Card
+      layout="section"
       bodyGap={4}
       header={
         <Heading size="lg" color="primary.700">
@@ -46,6 +47,6 @@ export function EditTaskAcceptedWorkerCapSection({
           maxW="200px"
         />
       </FormField>
-    </SectionCard>
+    </Card>
   )
 }

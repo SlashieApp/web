@@ -6,7 +6,7 @@ import NextLink from 'next/link'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
-import { Badge, Button, SectionCard } from '@ui'
+import { Badge, Button, Card } from '@ui'
 
 import {
   isWorkerSetupInProgress,
@@ -51,7 +51,7 @@ export function ProfileCompletenessCard() {
   const firstIncomplete = items.find((item) => !item.done)
 
   return (
-    <SectionCard p={{ base: 5, md: 6 }}>
+    <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
         <HStack
           justify="space-between"
@@ -163,6 +163,6 @@ export function ProfileCompletenessCard() {
           </HStack>
         ) : null}
       </Stack>
-    </SectionCard>
+    </Card>
   )
 }

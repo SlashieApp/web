@@ -3,7 +3,7 @@
 import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { useRef } from 'react'
 
-import { Button, SectionCard } from '@ui'
+import { Button, Card } from '@ui'
 
 export type CreateTaskVisualsSectionProps = {
   files: File[]
@@ -27,7 +27,8 @@ export function CreateTaskVisualsSection({
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
-    <SectionCard
+    <Card
+      layout="section"
       bodyGap={4}
       header={
         <Heading size="lg" color="primary.700">
@@ -129,6 +130,6 @@ export function CreateTaskVisualsSection({
           })}
         </HStack>
       ) : null}
-    </SectionCard>
+    </Card>
   )
 }
