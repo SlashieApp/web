@@ -22,11 +22,15 @@ function isIgnorableRollupWarning(warning: RollupLog): boolean {
   )
 }
 
-function schemaAliasConfig(): UserConfig['resolve'] {
+function schemaAliasConfig(
+  configType: 'DEVELOPMENT' | 'PRODUCTION',
+): UserConfig['resolve'] {
   if (!existsSync(schemaPath)) {
-    console.warn(
-      `[storybook] ${schemaPath} not found. Run \`node scripts/prebuild-storybook.mjs\` before building.`,
-    )
+    const message = `[storybook] ${schemaPath} not found. Run \`bun run build-storybook\` (or \`node scripts/prebuild-storybook.mjs\`) before building.`
+    if (configType === 'PRODUCTION') {
+      throw new Error(message)
+    }
+    console.warn(message)
     return undefined
   }
 
@@ -54,7 +58,7 @@ const config: StorybookConfig = {
   framework: '@storybook/nextjs-vite',
   staticDirs: ['../public'],
   async viteFinal(userConfig, { configType }) {
-    const schemaResolve = schemaAliasConfig()
+    const schemaResolve = schemaAliasConfig(configType)
 
     const productionBuild: UserConfig =
       configType === 'PRODUCTION'
