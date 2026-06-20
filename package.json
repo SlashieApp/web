@@ -12,8 +12,8 @@
     "start": "next start",
     "lint": "biome check --write .",
     "storybook": "storybook dev -p 6006",
-    "prebuild-storybook": "graphql-codegen --config codegen.ts",
-    "build-storybook": "storybook build",
+    "prebuild-storybook": "node scripts/prebuild-storybook.mjs",
+    "build-storybook": "NODE_OPTIONS=--max-old-space-size=6144 storybook build",
     "test:unit": "vitest run --config vitest.unit.config.ts"
   },
   "dependencies": {
