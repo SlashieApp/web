@@ -1,5 +1,11 @@
 import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+
+import { AccountMenu } from '../Header/AccountMenu'
+import {
+  headerMeWorker,
+  seedHeaderMeStore,
+} from '../Header/headerStoryFixtures'
 import { Link } from '../Link'
 
 import { Dropdown, useDropdownClose } from './Dropdown'
@@ -183,5 +189,24 @@ export const HoverAlignEnd: Story = {
         </Stack>
       </Dropdown>
     </HStack>
+  ),
+}
+
+/** Real product composition: `AccountMenu` on `Dropdown` with auth store seeded. */
+export const AccountMenuOpen: Story = {
+  parameters: {
+    layout: 'fullscreen',
+    viewport: { defaultViewport: 'desktop' },
+  },
+  decorators: [
+    (Story) => {
+      seedHeaderMeStore(headerMeWorker)
+      return <Story />
+    },
+  ],
+  render: () => (
+    <Box display="flex" justifyContent="flex-end" p={6}>
+      <AccountMenu initialOpen />
+    </Box>
   ),
 }
