@@ -12,8 +12,7 @@
     "start": "next start",
     "lint": "biome check --write .",
     "storybook": "node scripts/prebuild-storybook.mjs && storybook dev -p 6006",
-    "prebuild-storybook": "node scripts/prebuild-storybook.mjs",
-    "build-storybook": "NODE_OPTIONS=--max-old-space-size=6144 storybook build",
+    "build-storybook": "node scripts/prebuild-storybook.mjs && storybook build",
     "test:unit": "vitest run --config vitest.unit.config.ts"
   },
   "dependencies": {

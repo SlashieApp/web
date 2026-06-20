@@ -1,7 +1,13 @@
+import { existsSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { StorybookConfig } from '@storybook/nextjs-vite'
 import type { RollupLog } from 'rollup'
 import { type UserConfig, mergeConfig } from 'vite'
 import graphqlLoader from 'vite-plugin-graphql-loader'
+
+const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const schemaPath = resolve(rootDir, '.codegen/schema.ts')
 
 const isStaticBuild =
   process.env.npm_lifecycle_event === 'build-storybook' ||
@@ -14,6 +20,19 @@ function isIgnorableRollupWarning(warning: RollupLog): boolean {
     message.includes('Module level directives cause errors when bundled') ||
     message.includes("Can't resolve original location of error")
   )
+}
+
+function schemaAliasConfig(): UserConfig['resolve'] {
+  if (!existsSync(schemaPath)) {
+    console.warn(
+      `[storybook] ${schemaPath} not found. Run \`node scripts/prebuild-storybook.mjs\` before building.`,
+    )
+    return undefined
+  }
+
+  return {
+    alias: [{ find: '@codegen/schema', replacement: schemaPath }],
+  }
 }
 
 const config: StorybookConfig = {
@@ -35,9 +54,12 @@ const config: StorybookConfig = {
   framework: '@storybook/nextjs-vite',
   staticDirs: ['../public'],
   async viteFinal(userConfig, { configType }) {
+    const schemaResolve = schemaAliasConfig()
+
     const productionBuild: UserConfig =
       configType === 'PRODUCTION'
         ? {
+            resolve: schemaResolve,
             build: {
               sourcemap: false,
               chunkSizeWarningLimit: 3000,
@@ -53,9 +75,40 @@ const config: StorybookConfig = {
             },
             plugins: [graphqlLoader()],
           }
-        : { plugins: [graphqlLoader()] }
+        : {
+            resolve: schemaResolve,
+            plugins: [graphqlLoader()],
+          }
 
-    return mergeConfig(userConfig, productionBuild)
+    const merged = mergeConfig(userConfig, productionBuild)
+
+    if (!existsSync(schemaPath)) {
+      return merged
+    }
+
+    const existingAlias = Array.isArray(merged.resolve?.alias)
+      ? merged.resolve.alias
+      : merged.resolve?.alias
+        ? Object.entries(merged.resolve.alias).map(([find, replacement]) => ({
+            find,
+            replacement,
+          }))
+        : []
+
+    const withoutCodegen = existingAlias.filter((entry) => {
+      if (typeof entry === 'string') return entry !== '@codegen/schema'
+      if (entry instanceof RegExp) return entry.source !== '@codegen\\/schema'
+      return entry.find !== '@codegen/schema'
+    })
+
+    return mergeConfig(merged, {
+      resolve: {
+        alias: [
+          { find: '@codegen/schema', replacement: schemaPath },
+          ...withoutCodegen,
+        ],
+      },
+    })
   },
 }
 export default config
