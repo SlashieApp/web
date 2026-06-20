@@ -1,15 +1,7 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import type { StorybookConfig } from '@storybook/nextjs-vite'
 import type { RollupLog } from 'rollup'
 import { type UserConfig, mergeConfig } from 'vite'
 import graphqlLoader from 'vite-plugin-graphql-loader'
-
-const storybookDir = dirname(fileURLToPath(import.meta.url))
-const schemaStubPath = resolve(
-  storybookDir,
-  '../src/storybook/codegenSchemaStub.ts',
-)
 
 const isStaticBuild =
   process.env.npm_lifecycle_event === 'build-storybook' ||
@@ -43,42 +35,9 @@ const config: StorybookConfig = {
   framework: '@storybook/nextjs-vite',
   staticDirs: ['../public'],
   async viteFinal(userConfig, { configType }) {
-    const schemaAlias = {
-      '@codegen/schema': schemaStubPath,
-    }
-
-    const toAliasArray = (
-      alias: UserConfig['resolve'] extends infer R
-        ? R extends { alias?: infer A }
-          ? A
-          : never
-        : never,
-    ) =>
-      Array.isArray(alias)
-        ? alias
-        : alias
-          ? Object.entries(alias).map(([find, replacement]) => ({
-              find,
-              replacement,
-            }))
-          : []
-
-    const schemaAliasEntries = Object.entries(schemaAlias).map(
-      ([find, replacement]) => ({
-        find,
-        replacement,
-      }),
-    )
-
     const productionBuild: UserConfig =
       configType === 'PRODUCTION'
         ? {
-            resolve: {
-              alias: [
-                ...schemaAliasEntries,
-                ...toAliasArray(userConfig.resolve?.alias),
-              ],
-            },
             build: {
               sourcemap: false,
               chunkSizeWarningLimit: 3000,
@@ -94,15 +53,7 @@ const config: StorybookConfig = {
             },
             plugins: [graphqlLoader()],
           }
-        : {
-            resolve: {
-              alias: [
-                ...schemaAliasEntries,
-                ...toAliasArray(userConfig.resolve?.alias),
-              ],
-            },
-            plugins: [graphqlLoader()],
-          }
+        : { plugins: [graphqlLoader()] }
 
     return mergeConfig(userConfig, productionBuild)
   },

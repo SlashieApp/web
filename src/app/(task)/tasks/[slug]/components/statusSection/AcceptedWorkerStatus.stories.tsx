@@ -1,9 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import {
-  StoryOrderStatus,
-  StoryTaskContactMethod,
-} from '@/storybook/storyLiterals'
+import { OrderStatus, TaskContactMethod } from '@codegen/schema'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -21,7 +18,7 @@ const meta = {
   decorators: [
     withTaskDetailStory({
       viewer: 'worker',
-      order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+      order: storyTaskOrder({ status: OrderStatus.Active }),
     }),
   ],
 } satisfies Meta<typeof AcceptedWorkerStatus>
@@ -38,12 +35,12 @@ export const WithEmailContact: Story = {
       viewer: 'worker',
       task: storyTaskDetail({
         posterContact: {
-          method: StoryTaskContactMethod.Email,
+          method: TaskContactMethod.Email,
           phone: null,
           email: 'alex@example.com',
         },
       }),
-      order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+      order: storyTaskOrder({ status: OrderStatus.Active }),
     }),
   ],
 }

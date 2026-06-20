@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { StoryOrderStatus } from '@/storybook/storyLiterals'
+import { OrderStatus } from '@codegen/schema'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
@@ -25,7 +25,7 @@ export const ActiveCollapsed: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'worker',
-      order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+      order: storyTaskOrder({ status: OrderStatus.Active }),
     }) as never,
   ],
 }
@@ -34,7 +34,7 @@ export const ActiveExpanded: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'worker',
-      order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+      order: storyTaskOrder({ status: OrderStatus.Active }),
     }) as never,
   ],
   render: () => <WorkerOrderVerificationPanel initialExpanded />,
@@ -44,7 +44,7 @@ export const AwaitingUpdate: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'worker',
-      order: storyTaskOrder({ status: StoryOrderStatus.PaymentAcknowledged }),
+      order: storyTaskOrder({ status: OrderStatus.PaymentAcknowledged }),
     }) as never,
   ],
 }

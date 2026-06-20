@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { StoryOrderStatus } from '@/storybook/storyLiterals'
+import { OrderStatus } from '@codegen/schema'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -34,14 +34,14 @@ export const ActiveOrderWithQuotes: Story = {
     withTaskDetailStory(
       {
         viewer: 'owner',
-        order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+        order: storyTaskOrder({ status: OrderStatus.Active }),
       },
       { maxWidth: '400px' },
     ),
   ],
   args: {
     task: storyTaskDetail(),
-    order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+    order: storyTaskOrder({ status: OrderStatus.Active }),
   },
 }
 
@@ -50,13 +50,13 @@ export const WorkerWithVerification: Story = {
     withTaskDetailStory(
       {
         viewer: 'worker',
-        order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+        order: storyTaskOrder({ status: OrderStatus.Active }),
       },
       { maxWidth: '400px' },
     ),
   ],
   args: {
     task: storyTaskDetail(),
-    order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+    order: storyTaskOrder({ status: OrderStatus.Active }),
   },
 }

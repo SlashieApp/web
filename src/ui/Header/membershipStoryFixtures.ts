@@ -1,15 +1,11 @@
-import type { MeSnapshot } from '@/app/(auth)/store/user'
-import { StoryWorkerSubscriptionStatus } from '@/storybook/storyLiterals'
+import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
+import { WorkerSubscriptionStatus } from '@codegen/schema'
 
-export type StoryMembership = NonNullable<
-  NonNullable<MeSnapshot['worker']>['membership']
->
-
-const baseMembership: StoryMembership = {
+const baseMembership: WorkerMembershipFieldsFragment = {
   planName: 'Slashie Unlimited',
   statusLabel: 'Active',
   statusDescription: null,
-  subscriptionStatus: StoryWorkerSubscriptionStatus.Active,
+  subscriptionStatus: WorkerSubscriptionStatus.Active,
   hasUnlimitedQuotes: true,
   cancelAtPeriodEnd: false,
   canceledAt: null,
@@ -23,11 +19,11 @@ const baseMembership: StoryMembership = {
   canUpgrade: false,
 }
 
-export const membershipFixtureFree: StoryMembership = {
+export const membershipFixtureFree: WorkerMembershipFieldsFragment = {
   ...baseMembership,
   planName: 'Free',
   statusLabel: 'Free',
-  subscriptionStatus: StoryWorkerSubscriptionStatus.None,
+  subscriptionStatus: WorkerSubscriptionStatus.None,
   hasUnlimitedQuotes: false,
   quotesUsedThisMonth: 2,
   quotesRemainingThisMonth: 1,
@@ -35,27 +31,27 @@ export const membershipFixtureFree: StoryMembership = {
   canUpgrade: true,
 }
 
-export const membershipFixtureTrial: StoryMembership = {
+export const membershipFixtureTrial: WorkerMembershipFieldsFragment = {
   ...baseMembership,
   statusLabel: 'Trial',
   statusDescription: 'Unlimited quotes until 9 Dec 2026',
-  subscriptionStatus: StoryWorkerSubscriptionStatus.Trialing,
+  subscriptionStatus: WorkerSubscriptionStatus.Trialing,
   trialEndsAt: '2026-12-09T00:00:00.000Z',
   canManageBilling: true,
   canUpgrade: false,
 }
 
-export const membershipFixtureActive: StoryMembership = {
+export const membershipFixtureActive: WorkerMembershipFieldsFragment = {
   ...baseMembership,
   statusLabel: 'Active',
   statusDescription: 'Renews on 9 Dec 2026',
 }
 
-export const membershipFixtureCanceled: StoryMembership = {
+export const membershipFixtureCanceled: WorkerMembershipFieldsFragment = {
   ...baseMembership,
   statusLabel: 'Canceled',
   statusDescription: 'Unlimited quotes until 9 Dec 2026',
-  subscriptionStatus: StoryWorkerSubscriptionStatus.Active,
+  subscriptionStatus: WorkerSubscriptionStatus.Active,
   cancelAtPeriodEnd: true,
   hasUnlimitedQuotes: true,
   trialEndsAt: null,

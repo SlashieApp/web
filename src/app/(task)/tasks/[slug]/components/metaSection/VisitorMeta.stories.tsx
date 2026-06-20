@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { StoryOrderStatus } from '@/storybook/storyLiterals'
+import { OrderStatus } from '@codegen/schema'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -29,7 +29,7 @@ export const OwnerBookedExactLocation: Story = {
     withTaskDetailStory(
       {
         viewer: 'owner',
-        order: storyTaskOrder({ status: StoryOrderStatus.Active }),
+        order: storyTaskOrder({ status: OrderStatus.Active }),
       },
       { maxWidth: '360px' },
     ),

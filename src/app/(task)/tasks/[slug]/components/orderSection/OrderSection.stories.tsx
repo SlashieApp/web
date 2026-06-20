@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { StoryOrderStatus } from '@/storybook/storyLiterals'
+import { OrderStatus } from '@codegen/schema'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -26,7 +26,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const closedOrder = storyTaskOrder({
-  status: StoryOrderStatus.Closed,
+  status: OrderStatus.Closed,
   workCompletedAt: '2026-05-19T11:30:00.000Z',
   workerPaymentAcknowledgedAt: '2026-05-20T09:15:00.000Z',
   closedAt: '2026-05-20T16:00:00.000Z',
@@ -44,7 +44,7 @@ export const Cancelled: Story = {
   args: {
     task: storyTaskDetail(),
     order: storyTaskOrder({
-      status: StoryOrderStatus.Cancelled,
+      status: OrderStatus.Cancelled,
       closedAt: '2026-05-18T10:00:00.000Z',
       customerUserId: STORY_OWNER_ID,
     }),
