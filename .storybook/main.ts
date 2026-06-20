@@ -43,13 +43,41 @@ const config: StorybookConfig = {
   framework: '@storybook/nextjs-vite',
   staticDirs: ['../public'],
   async viteFinal(userConfig, { configType }) {
+    const schemaAlias = {
+      '@codegen/schema': schemaStubPath,
+    }
+
+    const toAliasArray = (
+      alias: UserConfig['resolve'] extends infer R
+        ? R extends { alias?: infer A }
+          ? A
+          : never
+        : never,
+    ) =>
+      Array.isArray(alias)
+        ? alias
+        : alias
+          ? Object.entries(alias).map(([find, replacement]) => ({
+              find,
+              replacement,
+            }))
+          : []
+
+    const schemaAliasEntries = Object.entries(schemaAlias).map(
+      ([find, replacement]) => ({
+        find,
+        replacement,
+      }),
+    )
+
     const productionBuild: UserConfig =
       configType === 'PRODUCTION'
         ? {
             resolve: {
-              alias: {
-                '@codegen/schema': schemaStubPath,
-              },
+              alias: [
+                ...schemaAliasEntries,
+                ...toAliasArray(userConfig.resolve?.alias),
+              ],
             },
             build: {
               sourcemap: false,
@@ -68,9 +96,10 @@ const config: StorybookConfig = {
           }
         : {
             resolve: {
-              alias: {
-                '@codegen/schema': schemaStubPath,
-              },
+              alias: [
+                ...schemaAliasEntries,
+                ...toAliasArray(userConfig.resolve?.alias),
+              ],
             },
             plugins: [graphqlLoader()],
           }
