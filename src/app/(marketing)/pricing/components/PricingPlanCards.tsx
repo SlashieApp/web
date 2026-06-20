@@ -1,21 +1,11 @@
 'use client'
 
-import {
-  Box,
-  Grid,
-  HStack,
-  Heading,
-  Link,
-  List,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, Grid, HStack, Heading, List, Stack, Text } from '@chakra-ui/react'
 
 import { useMe } from '@/app/(auth)/store/user'
 import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { getAuthToken } from '@/utils/auth'
-import { Badge, Button } from '@ui'
+import { Badge, Button, Link } from '@ui'
 
 import { pricingAfterTrialLine } from '../helpers/formatPricing'
 import type { PricingRecord } from '../helpers/getPricingForPage'
@@ -186,7 +176,7 @@ function WorkerFreePlanCta() {
   }
 
   return (
-    <Link as={NextLink} href="/register" _hover={{ textDecoration: 'none' }}>
+    <Link href="/register" _hover={{ textDecoration: 'none' }}>
       <Button w="full" variant="secondary">
         Get started
       </Button>

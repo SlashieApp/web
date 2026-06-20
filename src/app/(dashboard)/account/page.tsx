@@ -1,11 +1,10 @@
 'use client'
 
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import { Button, Card } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import { MembershipRefreshOnMount } from '../components/MembershipRefreshOnMount'
 import { WorkerMembershipCard } from '../components/WorkerMembershipCard'
@@ -64,7 +63,7 @@ export default function AccountPage() {
         <Text color="formLabelMuted">
           Login, security, and contact settings. Your photo, name, bio, and date
           of birth live on{' '}
-          <Link as={NextLink} href="/profile" color="primary.700">
+          <Link href="/profile" color="primary.700">
             Profile
           </Link>
           .
@@ -93,11 +92,7 @@ export default function AccountPage() {
             hint="A reset email is sent to the address on file."
           />
           <HStack gap={3} flexWrap="wrap">
-            <Link
-              as={NextLink}
-              href="/forgot-password"
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link href="/forgot-password" _hover={{ textDecoration: 'none' }}>
               <Button size="sm" variant="ghost">
                 Reset password
               </Button>

@@ -1,11 +1,10 @@
 'use client'
 
-import { Box, IconButton, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, IconButton, Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { ACCOUNT_NAV, type AccountNavKey } from '@/utils/accountNav'
-import { AppDrawer } from '@ui'
+import { Drawer, Link } from '@ui'
 
 import { dashboardNavRowInteraction } from '../interactionStyles'
 
@@ -175,7 +174,6 @@ export function DashboardSectionNav({
         return (
           <Link
             key={item.key}
-            as={NextLink}
             href={item.href}
             display="flex"
             alignItems="center"
@@ -288,7 +286,7 @@ export function DashboardSectionDrawer({
   const close = useCallback(() => onOpenChange(false), [onOpenChange])
 
   return (
-    <AppDrawer
+    <Drawer
       open={open}
       onOpenChange={onOpenChange}
       title="Dashboard sections"
@@ -301,6 +299,6 @@ export function DashboardSectionDrawer({
         variant="drawer"
         onNavigate={close}
       />
-    </AppDrawer>
+    </Drawer>
   )
 }

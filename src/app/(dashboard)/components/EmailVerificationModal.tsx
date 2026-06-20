@@ -1,13 +1,12 @@
 'use client'
 
-import { Link, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Text } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
-import { AppModal } from '@ui'
+import { Link, Modal } from '@ui'
 
 type EmailVerificationModalProps = {
   open: boolean
@@ -48,7 +47,7 @@ export function EmailVerificationModal({
 
   return (
     <div ref={onModalRef}>
-      <AppModal
+      <Modal
         open={open}
         onOpenChange={handleOpenChange}
         title="Verify your email"
@@ -78,7 +77,6 @@ export function EmailVerificationModal({
               </Text>
             ) : null}
             <Link
-              as={NextLink}
               href="/verify-email/sent"
               fontSize="sm"
               fontWeight={600}
@@ -89,7 +87,7 @@ export function EmailVerificationModal({
             </Link>
           </>
         )}
-      </AppModal>
+      </Modal>
     </div>
   )
 }

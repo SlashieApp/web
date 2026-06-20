@@ -1,7 +1,6 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
@@ -11,7 +10,7 @@ import {
   notificationDisplayText,
   notificationTaskHref,
 } from '@/utils/notifications'
-import { AppDrawer, Button } from '@ui'
+import { Button, Drawer, Link } from '@ui'
 
 import { focusVisibleMatchesHover } from '../interactionStyles'
 
@@ -50,7 +49,7 @@ export function NotificationsDrawer() {
   )
 
   return (
-    <AppDrawer
+    <Drawer
       open={drawerOpen}
       onOpenChange={(open) => (open ? openDrawer() : closeDrawer())}
       title="Notifications"
@@ -93,7 +92,6 @@ export function NotificationsDrawer() {
               return (
                 <Link
                   key={item.id}
-                  as={NextLink}
                   href={notificationTaskHref(item.taskId, item.orderId)}
                   display="block"
                   p={3}
@@ -133,6 +131,6 @@ export function NotificationsDrawer() {
           )}
         </Stack>
       </Stack>
-    </AppDrawer>
+    </Drawer>
   )
 }

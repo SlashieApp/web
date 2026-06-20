@@ -41,7 +41,7 @@ export function ProgressBar({
         <Box
           h="full"
           w={`${clamped}%`}
-          bg="primary.600"
+          bg="primary"
           transition="width 0.2s ease"
         />
       </Box>

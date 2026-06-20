@@ -1,11 +1,10 @@
 'use client'
 
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Button, Tag } from '@ui'
+import { Button, Link, Tag } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { centerColumnStatusLabel } from '../../helpers/taskDetailUtils'
@@ -98,7 +97,6 @@ export function MainSectionHeader() {
             <>
               {canEditTask ? (
                 <Link
-                  as={NextLink}
                   href={`/tasks/${task.id}/edit`}
                   _hover={{ textDecoration: 'none' }}
                 >

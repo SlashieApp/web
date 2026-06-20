@@ -4,13 +4,12 @@ import {
   Box,
   IconButton as ChakraIconButton,
   type IconButtonProps as ChakraIconButtonProps,
-  Link,
   Stack,
   Text,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import * as React from 'react'
 
+import { Link } from '../Link'
 import {
   focusVisibleMatchesHover,
   ghostSurfaceHover,
@@ -51,7 +50,6 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
 
       return (
         <Link
-          as={NextLink}
           href={href}
           display="flex"
           w={{ base: 'full', md: 'auto' }}

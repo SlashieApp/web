@@ -151,10 +151,10 @@ export function FormField({
       >
         <FieldLabel
           htmlFor={controlId}
-          fontSize="sm"
-          fontWeight={700}
+          fontSize="14px"
+          fontWeight={500}
           color="cardFg"
-          mb={0}
+          mb={2}
           {...labelProps}
         >
           {label}

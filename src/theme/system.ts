@@ -34,7 +34,7 @@ const sharedTheme = {
           300: { value: '#6ee7b7' },
           400: { value: '#34d399' },
           500: { value: '#00dc82' },
-          600: { value: '#10b981' },
+          600: { value: '#00AB63' },
           700: { value: '#059669' },
           800: { value: '#047857' },
           900: { value: '#065f46' },
@@ -65,12 +65,14 @@ const sharedTheme = {
         },
         neutral: {
           50: { value: '#ffffff' },
-          100: { value: '#f7f8f7' },
-          200: { value: '#eff1f0' },
-          300: { value: '#e4e7e5' },
-          400: { value: '#d5dad8' },
-          500: { value: '#b9c0bd' },
-          600: { value: '#777777' },
+          100: { value: '#F7F9F8' },
+          200: { value: '#EFF1F0' },
+          300: { value: '#D1D5D4' },
+          400: { value: '#B9C0BD' },
+          500: { value: '#6B7370' },
+          600: { value: '#3F4B45' },
+          700: { value: '#3F4B45' },
+          900: { value: '#0B1714' },
         },
         ink: {
           700: { value: '#2b332f' },
@@ -85,7 +87,7 @@ const sharedTheme = {
           300: { value: '#6ee7b7' },
           400: { value: '#34d399' },
           500: { value: '#00dc82' },
-          600: { value: '#10b981' },
+          600: { value: '#00AB63' },
           700: { value: '#059669' },
           800: { value: '#047857' },
           900: { value: '#065f46' },
@@ -122,7 +124,24 @@ const sharedTheme = {
         xl: { value: '16px' },
       },
       shadows: {
-        card: { value: '0 8px 24px rgba(0, 0, 0, 0.08)' },
+        xs: { value: '0 1px 2px 0 rgb(0 0 0 / 0.05)' },
+        sm: {
+          value:
+            '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        },
+        md: {
+          value:
+            '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        },
+        lg: {
+          value:
+            '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+        },
+        xl: {
+          value:
+            '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+        },
+        card: { value: '0 1px 2px 0 rgb(0 0 0 / 0.05)' },
         ambient: { value: '0 24px 48px rgba(0, 0, 0, 0.4)' },
         ghostBorder: { value: 'inset 0 0 0 1px rgba(119, 119, 119, 0.15)' },
         primary: { value: '0 14px 36px rgba(0, 220, 130, 0.15)' },
@@ -137,25 +156,18 @@ export const lightConfig = defineConfig({
     ...sharedTheme.theme,
     semanticTokens: {
       colors: {
-        bg: { value: { base: '#f7f8f7' } },
-        primary: {
-          value: {
-            base: 'linear-gradient(to top right, #00DC82 0%, #00e69d 100%)',
-          },
-        },
-        primaryHover: {
-          value: {
-            base: 'linear-gradient(to top right, #00DC82 0%, #00e69d 50%)',
-          },
-        },
+        bg: { value: { base: '#F7F9F8' } },
+        primary: { value: { base: '#00DC82' } },
+        primaryHover: { value: { base: '#00AB63' } },
         secondary: { value: { base: '#00A572' } },
         tertiary: { value: { base: '#54BBBB' } },
         ...intentSemanticColors(lightIntentPalette, lightIntentPrimaryIcon),
         ...cardSemanticColors(lightCardSurface),
         ...formSemanticColors(lightFormField),
         // Metadata chip (e.g. timestamps)
-        badgeBg: { value: { base: '#e4e7e5' } },
-        badgeFg: { value: { base: '#4f5854' } },
+        badgeBg: { value: { base: '#D9F4E5' } },
+        badgeFg: { value: { base: '#00AB63' } },
+        surfaceHover: { value: { base: '#F9FAFB' } },
       },
     },
   },
@@ -185,6 +197,7 @@ export const darkConfig = defineConfig({
         ...formSemanticColors(darkFormField),
         badgeBg: { value: { base: '#333333' } },
         badgeFg: { value: { base: '#a8b4c4' } },
+        surfaceHover: { value: { base: '#3a3a3a' } },
       },
     },
   },

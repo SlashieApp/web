@@ -1,9 +1,8 @@
 'use client'
 
-import { Heading, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Heading, Stack, Text } from '@chakra-ui/react'
 
-import { Button, Card } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 export function BillingNonWorkerState() {
   return (
@@ -17,11 +16,7 @@ export function BillingNonWorkerState() {
             manage your subscription.
           </Text>
         </Stack>
-        <Link
-          as={NextLink}
-          href="/worker/setup"
-          _hover={{ textDecoration: 'none' }}
-        >
+        <Link href="/worker/setup" _hover={{ textDecoration: 'none' }}>
           <Button w={{ base: 'full', md: 'auto' }}>
             Set up worker profile
           </Button>

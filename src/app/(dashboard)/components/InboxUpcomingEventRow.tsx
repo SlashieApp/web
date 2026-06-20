@@ -1,7 +1,7 @@
 'use client'
+import { Link } from '@ui'
 
-import { Box, HStack, Link, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Text } from '@chakra-ui/react'
 
 export function InboxUpcomingEventRow({
   href,
@@ -16,7 +16,6 @@ export function InboxUpcomingEventRow({
 }) {
   return (
     <Link
-      as={NextLink}
       href={href}
       display="block"
       px={2}

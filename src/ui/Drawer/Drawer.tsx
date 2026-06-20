@@ -39,10 +39,10 @@ export type DrawerProps = {
 }
 
 function drawerPanelRadius(placement: DrawerPlacement) {
-  if (placement === 'end') return { borderLeftRadius: 'xl' }
-  if (placement === 'start') return { borderRightRadius: 'xl' }
-  if (placement === 'bottom') return { borderTopRadius: '2xl' }
-  return { borderBottomRadius: '2xl' }
+  if (placement === 'end') return { borderLeftRadius: 'md' }
+  if (placement === 'start') return { borderRightRadius: 'md' }
+  if (placement === 'bottom') return { borderTopRadius: 'md' }
+  return { borderBottomRadius: 'md' }
 }
 
 export function Drawer({
@@ -65,7 +65,7 @@ export function Drawer({
       placement={placement}
       size={size}
     >
-      <DrawerBackdrop bg="blackAlpha.600" />
+      <DrawerBackdrop bg="blackAlpha.500" backdropFilter="blur(4px)" />
       <DrawerPositioner>
         <DrawerContent
           colorPalette="green"
@@ -80,12 +80,11 @@ export function Drawer({
             <Stack gap={description ? 2 : 0} align="stretch">
               <HStack align="center" justify="space-between" gap={3} minH={11}>
                 <DrawerTitle
-                  fontFamily="heading"
-                  fontSize="lg"
-                  fontWeight={800}
+                  fontFamily="body"
+                  fontSize="20px"
+                  fontWeight={600}
                   color="cardFg"
                   lineHeight="short"
-                  letterSpacing="-0.02em"
                   flex={1}
                   minW={0}
                 >
@@ -144,11 +143,8 @@ export function Drawer({
             >
               <Button
                 variant="primary"
-                colorPalette="green"
                 w="full"
                 size="lg"
-                borderRadius="xl"
-                color="white"
                 onClick={() => {
                   onPrimaryAction?.()
                   onOpenChange(false)

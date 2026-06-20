@@ -5,15 +5,13 @@ import {
   Grid,
   HStack,
   Heading,
-  Link,
   SimpleGrid,
   Stack,
   Text,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { type ReactNode, useMemo } from 'react'
 
-import { Button, Card } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/MembershipRefreshOnMount'
@@ -392,16 +390,12 @@ export default function DashboardOverviewPage() {
           </Text>
         </Stack>
         <HStack gap={2} flexWrap="wrap">
-          <Link as={NextLink} href="/tasks" _hover={{ textDecoration: 'none' }}>
+          <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
             <Button size="sm" variant="secondary">
               Browse tasks
             </Button>
           </Link>
-          <Link
-            as={NextLink}
-            href="/tasks/create"
-            _hover={{ textDecoration: 'none' }}
-          >
+          <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
             <Button size="sm">Post task</Button>
           </Link>
         </HStack>
@@ -453,7 +447,6 @@ export default function DashboardOverviewPage() {
                 </Text>
               </Stack>
               <Link
-                as={NextLink}
                 href="/quotes"
                 fontSize="sm"
                 fontWeight={600}
@@ -466,7 +459,6 @@ export default function DashboardOverviewPage() {
               {upcomingJobs.slice(0, 5).map((entry) => (
                 <Link
                   key={entry.id}
-                  as={NextLink}
                   href={orderTaskHref(entry.order)}
                   display="block"
                   p={3}
@@ -506,7 +498,6 @@ export default function DashboardOverviewPage() {
                 </Text>
               </Stack>
               <Link
-                as={NextLink}
                 href="/requests"
                 fontSize="sm"
                 fontWeight={600}
@@ -555,7 +546,6 @@ export default function DashboardOverviewPage() {
                   return item.href ? (
                     <Link
                       key={item.id}
-                      as={NextLink}
                       href={item.href}
                       display="block"
                       _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
@@ -588,11 +578,7 @@ export default function DashboardOverviewPage() {
                 Compare quotes from local workers. Job payments stay between you
                 and your pro — not through Slashie.
               </Text>
-              <Link
-                as={NextLink}
-                href="/worker/setup"
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link href="/worker/setup" _hover={{ textDecoration: 'none' }}>
                 <Button size="sm" w={{ base: 'full', md: 'auto' }}>
                   Become a worker
                 </Button>
@@ -609,7 +595,6 @@ export default function DashboardOverviewPage() {
             {quickActions.map((item) => (
               <Link
                 key={item.key}
-                as={NextLink}
                 href={item.href}
                 _hover={{ textDecoration: 'none' }}
               >

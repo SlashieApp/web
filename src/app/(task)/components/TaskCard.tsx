@@ -1,7 +1,6 @@
 'use client'
 
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
 import {
@@ -16,7 +15,7 @@ import { PostedTaskTimeline } from '@/app/(dashboard)/requests/components/Posted
 import { formatPounds, formatRelativePosted } from '@/utils/dashboardHelpers'
 import { isOrderClosed, taskOrderSectionHref } from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Avatar, Badge, Button, Card, Rating, Thumbnail } from '@ui'
+import { Avatar, Badge, Button, Card, Link, Rating, Thumbnail } from '@ui'
 
 /** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
 export type TaskCardTask = {
@@ -203,7 +202,7 @@ function TaskCardWorkerQuote({
         borderTopWidth="1px"
         borderColor="cardBorder"
       >
-        <Link as={NextLink} href={taskHref} _hover={{ textDecoration: 'none' }}>
+        <Link href={taskHref} _hover={{ textDecoration: 'none' }}>
           <Button size="sm" variant="primary">
             Open task
           </Button>
@@ -229,11 +228,7 @@ function TaskCardWorkerQuote({
 
           {showSecondaryCta ? (
             <HStack justify="flex-end" flexWrap="wrap" gap={2}>
-              <Link
-                as={NextLink}
-                href={primaryCta.href}
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link href={primaryCta.href} _hover={{ textDecoration: 'none' }}>
                 <Button size="sm" variant={primaryCta.variant}>
                   {primaryCta.label}
                 </Button>
@@ -461,7 +456,6 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             </HStack>
             {showDetailsCta ? (
               <Link
-                as={NextLink}
                 href={detailsHref}
                 onClick={(e) => e.stopPropagation()}
                 _hover={{ textDecoration: 'none' }}

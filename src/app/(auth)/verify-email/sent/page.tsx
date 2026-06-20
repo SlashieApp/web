@@ -1,8 +1,7 @@
 'use client'
 
-import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import { Button, Logo } from '@ui'
-import NextLink from 'next/link'
+import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Button, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useMemo, useRef } from 'react'
 
@@ -57,7 +56,6 @@ function VerifyEmailSentContent() {
   return (
     <Stack ref={onMountRef} gap={6} w="full">
       <Link
-        as={NextLink}
         href="/"
         display="block"
         w="full"
@@ -109,7 +107,6 @@ function VerifyEmailSentContent() {
                 </Box>
               ) : null}
               <Link
-                as={NextLink}
                 href={nextPath ?? APP_HOME}
                 fontSize="sm"
                 fontWeight={600}
@@ -125,7 +122,6 @@ function VerifyEmailSentContent() {
                 Log in to resend the verification email.
               </Text>
               <Link
-                as={NextLink}
                 href={`/login?next=${encodeURIComponent('/verify-email/sent')}`}
                 _hover={{ textDecoration: 'none' }}
               >

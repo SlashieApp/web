@@ -10,11 +10,15 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { dsCardInteractive, dsCardSurface } from '../designSystemStyles'
+
 export type CardProps = BoxProps & {
   children?: ReactNode
   /** Highlights the card border for selected/active states. */
   isActive?: boolean
   activeBorderColor?: BoxProps['borderColor']
+  /** Clickable card — adds hover surface per Design-System/cards.md. */
+  interactive?: boolean
   /**
    * `section` — dashboard / task-detail block with optional eyebrow + heading
    * and stacked body (`bodyGap`). Default card is a plain wrapper.
@@ -41,7 +45,7 @@ function CardTitleBlock({
       {eyebrow ? (
         <Text
           fontSize="xs"
-          fontWeight={700}
+          fontWeight={500}
           color="formLabelMuted"
           letterSpacing="0.06em"
           textTransform="uppercase"
@@ -49,7 +53,17 @@ function CardTitleBlock({
           {eyebrow}
         </Text>
       ) : null}
-      {heading ? <Heading size="md">{heading}</Heading> : null}
+      {heading ? (
+        <Heading
+          as="h3"
+          fontSize={{ base: '16px', md: '20px' }}
+          fontWeight={500}
+          color="cardFg"
+          lineHeight="short"
+        >
+          {heading}
+        </Heading>
+      ) : null}
     </Stack>
   )
 }
@@ -58,7 +72,8 @@ function CardTitleBlock({
 export function Card({
   children,
   isActive = false,
-  activeBorderColor = 'secondary',
+  activeBorderColor = 'primary',
+  interactive = false,
   layout = 'default',
   eyebrow,
   heading,
@@ -70,16 +85,16 @@ export function Card({
   ...rest
 }: CardProps) {
   const isSection = layout === 'section'
+  const surface = interactive ? dsCardInteractive : dsCardSurface
 
   return (
     <Box
-      borderRadius={borderRadius ?? (isSection ? 'xl' : '24px')}
-      bg="cardBg"
-      borderWidth="1px"
-      borderColor={isActive ? activeBorderColor : 'cardBorder'}
+      borderRadius={borderRadius ?? 'md'}
       p={p ?? (isSection ? { base: 5, md: 6 } : 6)}
       maxW={maxW ?? (isSection ? 'full' : 'md')}
       w="full"
+      {...surface}
+      borderColor={isActive ? activeBorderColor : 'cardBorder'}
       {...rest}
     >
       {isSection ? (

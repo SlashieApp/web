@@ -1,8 +1,7 @@
 'use client'
 
-import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import { Button, FormField, Input, Logo } from '@ui'
-import NextLink from 'next/link'
+import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Button, FormField, Input, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
@@ -38,11 +37,7 @@ export function ForgotPasswordForm() {
 
   return (
     <Stack gap={6} w="full">
-      <Link
-        as={NextLink}
-        href="/"
-        _hover={{ textDecoration: 'none', opacity: 0.92 }}
-      >
+      <Link href="/" _hover={{ textDecoration: 'none', opacity: 0.92 }}>
         <Logo h="48px" />
       </Link>
 
@@ -124,7 +119,6 @@ export function ForgotPasswordForm() {
           </Box>
 
           <Link
-            as={NextLink}
             href="/login"
             fontSize="sm"
             fontWeight={700}
@@ -139,7 +133,6 @@ export function ForgotPasswordForm() {
       <Text fontSize="sm" color="formLabelMuted" textAlign="center">
         Facing issues?{' '}
         <Link
-          as={NextLink}
           href="/"
           fontWeight={700}
           color="secondary.600"

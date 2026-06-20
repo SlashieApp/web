@@ -93,21 +93,24 @@ export function navIconSurfaceInteraction(active: boolean) {
   }
 }
 
-/** Bordered form shells (`Input`, `Select`). Hover matches focus border. */
+/** Bordered form shells (`Input`, `Select`). Hover + focus per inputs.md. */
 export const formControlShellInteraction = {
-  transitionProperty: 'border-color',
-  transitionDuration: '160ms',
+  boxShadow: 'xs',
+  transitionProperty: 'border-color, box-shadow',
+  transitionDuration: '200ms',
   _hover: {
-    borderColor: 'formControlFocusBorder',
+    borderColor: 'formControlBorderStrong',
   },
   _focusWithin: {
     borderColor: 'formControlFocusBorder',
+    boxShadow: '0 0 0 1px var(--chakra-colors-formControlFocusBorder)',
   },
 } satisfies SystemStyleObject
 
 /** Native field inside a bordered shell — ring handled by the shell. */
 export const formControlFieldRingless = {
   outline: 'none',
+  fontSize: '14px',
   _focus: RINGLESS,
   _focusVisible: RINGLESS,
 } satisfies SystemStyleObject
@@ -115,15 +118,17 @@ export const formControlFieldRingless = {
 /** Standalone bordered field (`Textarea`). */
 export const formControlFieldInteraction = {
   outline: 'none',
-  boxShadow: 'none',
-  transitionProperty: 'border-color',
-  transitionDuration: '160ms',
+  boxShadow: 'xs',
+  fontSize: '14px',
+  transitionProperty: 'border-color, box-shadow',
+  transitionDuration: '200ms',
   _hover: {
-    borderColor: 'formControlFocusBorder',
+    borderColor: 'formControlBorderStrong',
   },
   _focus: RINGLESS,
   _focusVisible: {
     borderColor: 'formControlFocusBorder',
-    ...RINGLESS,
+    outline: 'none',
+    boxShadow: '0 0 0 1px var(--chakra-colors-formControlFocusBorder)',
   },
 } satisfies SystemStyleObject

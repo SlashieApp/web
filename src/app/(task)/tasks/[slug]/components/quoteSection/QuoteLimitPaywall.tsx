@@ -1,9 +1,8 @@
 'use client'
 
-import { HStack, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 export function QuoteLimitPaywall() {
   return (
@@ -24,7 +23,7 @@ export function QuoteLimitPaywall() {
         and the customer.
       </Text>
       <HStack gap={2} flexWrap="wrap">
-        <Link as={NextLink} href="/billing" _hover={{ textDecoration: 'none' }}>
+        <Link href="/billing" _hover={{ textDecoration: 'none' }}>
           <Button size="sm">Upgrade on billing</Button>
         </Link>
       </HStack>

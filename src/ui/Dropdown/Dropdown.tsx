@@ -253,8 +253,8 @@ function ClickDropdown({
           bg="cardBg"
           borderWidth="1px"
           borderColor="cardBorder"
-          borderRadius="xl"
-          boxShadow="lg"
+          borderRadius="md"
+          boxShadow="md"
           py={1}
           overflow="hidden"
           {...alignProps}

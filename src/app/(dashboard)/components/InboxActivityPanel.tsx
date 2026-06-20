@@ -1,10 +1,9 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
 import { timeFromUnknown } from '@/utils/dashboardHelpers'
-import { Card } from '@ui'
+import { Card, Link } from '@ui'
 
 import type {
   ActivityTone,
@@ -71,7 +70,6 @@ export function InboxActivityPanel({
               return item.href ? (
                 <Link
                   key={item.id}
-                  as={NextLink}
                   href={item.href}
                   display="block"
                   _hover={{ textDecoration: 'none', bg: 'badgeBg' }}

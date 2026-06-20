@@ -1,9 +1,8 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 type ActionBarProps = {
   fromTask?: string | null
@@ -36,7 +35,6 @@ export function ActionBar({ fromTask }: ActionBarProps) {
             </Text>
             <HStack gap={3} flexWrap="wrap">
               <Link
-                as={NextLink}
                 href={`/tasks/${taskSlug}`}
                 _hover={{ textDecoration: 'none' }}
                 flex={{ base: '1 1 100%', sm: '0 1 auto' }}
@@ -44,7 +42,6 @@ export function ActionBar({ fromTask }: ActionBarProps) {
                 <Button w={{ base: 'full', sm: 'auto' }}>Back to task</Button>
               </Link>
               <Link
-                as={NextLink}
                 href={`/tasks/${taskSlug}#owner-quotes`}
                 _hover={{ textDecoration: 'none' }}
                 flex={{ base: '1 1 100%', sm: '0 1 auto' }}
@@ -63,18 +60,10 @@ export function ActionBar({ fromTask }: ActionBarProps) {
               party.
             </Text>
             <HStack gap={3} flexWrap="wrap">
-              <Link
-                as={NextLink}
-                href="/tasks"
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
                 <Button w={{ base: 'full', sm: 'auto' }}>Browse tasks</Button>
               </Link>
-              <Link
-                as={NextLink}
-                href="/worker/setup"
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link href="/worker/setup" _hover={{ textDecoration: 'none' }}>
                 <Button variant="secondary" w={{ base: 'full', sm: 'auto' }}>
                   Become a worker
                 </Button>

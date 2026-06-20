@@ -39,14 +39,23 @@ function schemaAliasConfig(
   }
 }
 
+const chakraStorybookOrigin = 'https://storybook.chakra-ui.com'
+/** Same-origin proxy in dev — avoids CORS on metadata.json 404 from Chakra's host. */
+const chakraStorybookDevPath = '/chakra-ui-storybook'
+
+const chakraRef = {
+  title: 'Chakra UI',
+  url: isStaticBuild ? chakraStorybookOrigin : chakraStorybookDevPath,
+  expanded: true,
+} as const
+
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-  // @chakra-ui/react declares a storybook ref in package.json; disable it to avoid
-  // CORS errors fetching https://storybook.chakra-ui.com/metadata.json
   refs: {
-    '@chakra-ui/react': {
-      disable: true,
-    },
+    // Explicit ref (see https://github.com/chakra-ui/chakra-ui/pull/5133).
+    'chakra-ui': chakraRef,
+    // Disable auto-discovery from @chakra-ui/react package.json (same URL, avoids duplicate/broken ref).
+    '@chakra-ui/react': { disable: true },
   },
   addons: [
     '@chromatic-com/storybook',
@@ -59,6 +68,18 @@ const config: StorybookConfig = {
   staticDirs: ['../public'],
   async viteFinal(userConfig, { configType }) {
     const schemaResolve = schemaAliasConfig(configType)
+
+    const chakraProxy: UserConfig['server'] = isStaticBuild
+      ? undefined
+      : {
+          proxy: {
+            [chakraStorybookDevPath]: {
+              target: chakraStorybookOrigin,
+              changeOrigin: true,
+              rewrite: (path) => path.replace(chakraStorybookDevPath, ''),
+            },
+          },
+        }
 
     const productionBuild: UserConfig =
       configType === 'PRODUCTION'
@@ -82,6 +103,7 @@ const config: StorybookConfig = {
         : {
             resolve: schemaResolve,
             plugins: [graphqlLoader()],
+            server: chakraProxy,
           }
 
     const merged = mergeConfig(userConfig, productionBuild)

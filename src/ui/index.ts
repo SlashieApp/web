@@ -3,10 +3,17 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
-export { AppDrawer } from './AppDrawer/AppDrawer'
-export { AppModal } from './AppModal'
 export { Avatar } from './Avatar/Avatar'
 export { Badge } from './Badge'
+export {
+  badgeSizeStyles,
+  badgeVariantStyles,
+  buttonSizeProps,
+  buttonVariantStyles,
+  dsCardInteractive,
+  dsCardSurface,
+  dsFormControlShell,
+} from './designSystemStyles'
 export { Button } from './Button'
 export { Card } from './Card/Card'
 export {
@@ -57,6 +64,7 @@ export { FormField } from './FormField/FormField'
 export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Input } from './Input'
+export { Link } from './Link'
 export { Logo } from './Logo/Logo'
 export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
@@ -72,8 +80,6 @@ export { Tag } from './Tag'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail/Thumbnail'
 export * from './Footer'
-export type { AppDrawerPlacement, AppDrawerProps } from './AppDrawer/AppDrawer'
-export type { AppModalProps, AppModalSize } from './AppModal'
 export type { AvatarProps } from './Avatar/Avatar'
 export type { CardProps } from './Card/Card'
 export type {
@@ -120,3 +126,10 @@ export type {
 export type { TagColor, TagProps, TagVariant } from './Tag'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps } from './Thumbnail/Thumbnail'
+export type {
+  UiBadgeShape,
+  UiBadgeSize,
+  UiBadgeVariant,
+  UiButtonSize,
+  UiButtonVariant,
+} from './designSystemStyles'

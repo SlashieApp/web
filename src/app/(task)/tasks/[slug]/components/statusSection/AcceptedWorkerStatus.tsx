@@ -1,15 +1,14 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { OrderStatus } from '@codegen/schema'
-import NextLink from 'next/link'
 
 import { orderSnapshotDatetime } from '@/utils/orderHelpers'
 import {
   countdownToExactSchedule,
   formatTaskScheduleLabel,
 } from '@/utils/taskJobSchedule'
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 
@@ -113,11 +112,7 @@ export function AcceptedWorkerStatus() {
               </Button>
             </Link>
           ) : (
-            <Link
-              as={NextLink}
-              href="/account"
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link href="/account" _hover={{ textDecoration: 'none' }}>
               <Button size="sm" variant="secondary">
                 Add contact in Account
               </Button>

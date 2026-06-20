@@ -1,8 +1,7 @@
 'use client'
 
-import { HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import NextLink from 'next/link'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -11,7 +10,7 @@ import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/worke
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { apolloClient } from '@/utils/apolloClient'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Button, Card, FormField, Input, Textarea } from '@ui'
+import { Button, Card, FormField, Input, Link, Textarea } from '@ui'
 
 import { saveWorkerProfileForm } from '../helpers/saveWorkerProfileForm'
 import { isWorkerSetupInProgress } from '../helpers/workerSetupProfileHelpers'
@@ -61,7 +60,6 @@ export function ProfileWorkerForm() {
             </Text>
           </Stack>
           <Link
-            as={NextLink}
             href={workerSetupHref('/profile')}
             _hover={{ textDecoration: 'none' }}
           >
@@ -83,7 +81,6 @@ export function ProfileWorkerForm() {
           </Text>
           <WorkerProfileSummary values={formValues} />
           <Link
-            as={NextLink}
             href={workerSetupHref('/profile')}
             _hover={{ textDecoration: 'none' }}
           >

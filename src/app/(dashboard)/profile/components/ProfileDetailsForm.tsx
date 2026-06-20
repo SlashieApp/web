@@ -1,13 +1,12 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import {
   TaskContactMethod,
   type UpdateMyProfileMutation,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import NextLink from 'next/link'
 import { useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
@@ -15,7 +14,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Button, Card, FormField, Input, Select } from '@ui'
+import { Button, Card, FormField, Input, Link, Select } from '@ui'
 
 import { initialDisplayNameForForm } from '../profileDisplayHelpers'
 import { getContactOptions } from '../profileEligibility'
@@ -192,7 +191,6 @@ export function ProfileDetailsForm() {
                   Email and phone unlock once verified.
                 </Text>
                 <Link
-                  as={NextLink}
                   href="/account"
                   alignSelf="flex-start"
                   _hover={{ textDecoration: 'none' }}

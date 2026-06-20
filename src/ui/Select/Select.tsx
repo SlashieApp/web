@@ -70,13 +70,13 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           display="flex"
           alignItems="center"
           gap={1}
-          minH={{ base: 10, md: 11 }}
-          borderRadius={{ base: 'lg', md: 'xl' }}
+          minH="40px"
+          borderRadius="md"
           borderWidth="1px"
           borderColor="formControlBorder"
           bg="formControlBg"
-          pl={2}
-          pr={1}
+          pl={3}
+          pr={2}
           {...formControlShellInteraction}
           {...formControlInvalidShellProps(invalid)}
         >
@@ -97,7 +97,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             unstyled
             flex={1}
             minW={0}
-            py={2}
+            py={2.5}
             px={1}
             h="auto"
             minH={0}

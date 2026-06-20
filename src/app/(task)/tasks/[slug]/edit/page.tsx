@@ -1,15 +1,7 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import {
-  Box,
-  Container,
-  Grid,
-  HStack,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Container, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import {
   type MeQuery,
   TaskContactMethod,
@@ -17,7 +9,6 @@ import {
   type UpdateTaskMutation,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { type UseFormRegister, useForm } from 'react-hook-form'
@@ -46,7 +37,7 @@ import {
   nextTaskImageUploadIndex,
   uploadTaskImagesWithPresign,
 } from '@/utils/taskImageUpload'
-import { Button, Footer } from '@ui'
+import { Button, Footer, Link } from '@ui'
 import { taskQueryVariables } from '../helpers/taskQueryVariables'
 
 import {
@@ -69,7 +60,6 @@ function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
   return (
     <Stack gap={2}>
       <Link
-        as={NextLink}
         href="/requests"
         fontSize="sm"
         fontWeight={600}
@@ -421,7 +411,6 @@ function EditTaskFormBody({
             <Stack gap={3} pt={2}>
               <HStack justify="space-between" flexWrap="wrap" gap={3}>
                 <Link
-                  as={NextLink}
                   href={`/tasks/${taskId}`}
                   _hover={{ textDecoration: 'none' }}
                 >
@@ -444,7 +433,6 @@ function EditTaskFormBody({
                   </Text>
                   {serverErrorCode === 'PROFILE_PHONE_REQUIRED' ? (
                     <Link
-                      as={NextLink}
                       href="/account"
                       fontSize="sm"
                       fontWeight={600}
@@ -568,12 +556,7 @@ export default function EditTaskPage() {
             <Text fontSize="sm" color="formLabelMuted">
               This task may have been removed or the link is invalid.
             </Text>
-            <Link
-              as={NextLink}
-              href="/requests"
-              color="primary.700"
-              fontWeight={600}
-            >
+            <Link href="/requests" color="primary.700" fontWeight={600}>
               Back to my requests
             </Link>
           </Stack>
@@ -599,7 +582,6 @@ export default function EditTaskPage() {
               Only the person who posted the task can make changes.
             </Text>
             <Link
-              as={NextLink}
               href={`/tasks/${taskId}`}
               color="primary.700"
               fontWeight={600}
@@ -630,7 +612,6 @@ export default function EditTaskPage() {
               Once a quote is accepted or work has started, details are locked.
             </Text>
             <Link
-              as={NextLink}
               href={`/tasks/${taskId}`}
               color="primary.700"
               fontWeight={600}

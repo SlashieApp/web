@@ -27,10 +27,10 @@ export type CardSurfacePalette = {
 
 export const lightCardSurface: CardSurfacePalette = {
   cardBg: '#ffffff',
-  cardBorder: 'rgba(0, 0, 0, 0.08)',
-  cardFg: '#151a18',
-  cardMutedFg: '#64748b',
-  cardDivider: '#e4e7e5',
+  cardBorder: '#E5E7EB',
+  cardFg: '#0B1714',
+  cardMutedFg: '#6B7370',
+  cardDivider: '#E5E7EB',
   cardIconPodBg: lightIntentPalette.primary.bg,
   cardIconPodFg: lightIntentPrimaryIcon,
   cardAccentFg: '#00A572',

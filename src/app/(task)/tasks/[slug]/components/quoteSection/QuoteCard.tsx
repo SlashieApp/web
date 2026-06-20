@@ -1,18 +1,9 @@
 'use client'
 
-import {
-  Box,
-  HStack,
-  Heading,
-  Image,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { LuCheck, LuChevronRight } from 'react-icons/lu'
 
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 function avatarGradient(seed: string): string {
   let h = 0
@@ -93,7 +84,6 @@ export function QuoteCard({
 
   const nameBlock = workerProfileHref ? (
     <Link
-      as={NextLink}
       href={workerProfileHref}
       _hover={{ textDecoration: 'none', color: 'primary.700' }}
     >
@@ -190,7 +180,6 @@ export function QuoteCard({
           <HStack align="flex-start" gap={3} flex={1} minW={0}>
             {workerProfileHref ? (
               <Link
-                as={NextLink}
                 href={workerProfileHref}
                 flexShrink={0}
                 _hover={{ textDecoration: 'none' }}
@@ -230,7 +219,6 @@ export function QuoteCard({
         <HStack align="flex-start" gap={3} flex={1} minW={0}>
           {workerProfileHref ? (
             <Link
-              as={NextLink}
               href={workerProfileHref}
               flexShrink={0}
               _hover={{ textDecoration: 'none' }}
@@ -252,7 +240,6 @@ export function QuoteCard({
         <HStack align="flex-start" gap={0} flexShrink={0}>
           {priceBlock}
           <Link
-            as={NextLink}
             href={profileHref}
             display="flex"
             alignItems="center"

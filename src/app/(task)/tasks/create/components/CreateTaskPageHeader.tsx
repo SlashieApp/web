@@ -1,13 +1,12 @@
 'use client'
+import { Link } from '@ui'
 
-import { Heading, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Heading, Stack, Text } from '@chakra-ui/react'
 
 export function CreateTaskPageHeader() {
   return (
     <Stack gap={2}>
       <Link
-        as={NextLink}
         href="/tasks"
         fontWeight={600}
         color="primary.700"

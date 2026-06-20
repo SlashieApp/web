@@ -1,7 +1,7 @@
 'use client'
+import { Link } from '../Link'
 
-import { Box, Container, HStack, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, Container, HStack, Stack, Text } from '@chakra-ui/react'
 
 import { textLinkInteraction } from '../interactionStyles'
 
@@ -66,7 +66,6 @@ export function Footer() {
               ) : (
                 <Link
                   key={link.label}
-                  as={NextLink}
                   href={link.href}
                   fontWeight={600}
                   fontSize="sm"

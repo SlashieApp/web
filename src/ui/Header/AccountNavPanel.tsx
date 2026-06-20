@@ -1,7 +1,7 @@
 'use client'
+import { Link } from '../Link'
 
-import { Box, Link } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { Button } from '../Button'
@@ -78,12 +78,7 @@ function AccountNavRow({
   if (!item.href) return null
 
   return (
-    <Link
-      as={NextLink}
-      href={item.href}
-      {...accountNavLinkRowProps}
-      onClick={close}
-    >
+    <Link href={item.href} {...accountNavLinkRowProps} onClick={close}>
       {item.label}
     </Link>
   )

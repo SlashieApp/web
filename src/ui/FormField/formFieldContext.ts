@@ -55,9 +55,12 @@ export function useFormFieldControlProps(
 export function formControlInvalidShellProps(invalid: boolean): BoxProps {
   if (!invalid) return {}
   return {
-    borderColor: 'red.500',
-    _hover: { borderColor: 'red.500' },
-    _focusWithin: { borderColor: 'red.500' },
+    borderColor: '#EF4444',
+    _hover: { borderColor: '#EF4444' },
+    _focusWithin: {
+      borderColor: '#EF4444',
+      boxShadow: '0 0 0 1px #EF4444',
+    },
   }
 }
 
@@ -67,12 +70,12 @@ export function formControlInvalidFieldProps(
 ): SystemStyleObject {
   if (!invalid) return {}
   return {
-    borderColor: 'red.500',
-    _hover: { borderColor: 'red.500' },
+    borderColor: '#EF4444',
+    _hover: { borderColor: '#EF4444' },
     _focusVisible: {
-      borderColor: 'red.500',
+      borderColor: '#EF4444',
+      boxShadow: '0 0 0 1px #EF4444',
       outline: 'none',
-      boxShadow: 'none',
     },
   }
 }

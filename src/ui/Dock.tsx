@@ -170,10 +170,11 @@ export function Dock() {
     <Box
       ref={onMountDock}
       display="flex"
+      flexDirection="column"
       flexShrink={0}
-      position="relative"
       alignSelf={{ base: 'stretch', md: 'stretch' }}
       w={{ base: 'full', md: '76px' }}
+      h={{ base: 'auto', md: 'full' }}
       bg="bg"
       borderTopWidth={{ base: '1px', md: 0 }}
       borderTopColor={{ base: 'cardBorder', md: 'transparent' }}
@@ -190,6 +191,7 @@ export function Dock() {
         gap={{ base: 1, md: 2 }}
         flexDirection="column"
         w="full"
+        h={{ base: 'auto', md: 'full' }}
         flex={{ md: 1 }}
         minH={{ md: 0 }}
       >
@@ -197,9 +199,9 @@ export function Dock() {
           align="stretch"
           gap={{ base: 1, md: 2 }}
           flexDirection={{ base: 'row', md: 'column' }}
-          flex={1}
           justify={{ base: 'flex-start', md: 'flex-start' }}
           w="full"
+          flexShrink={0}
         >
           {items.map((item) => (
             <Box
@@ -219,14 +221,14 @@ export function Dock() {
           ))}
         </HStack>
         <Box
-          display="flex"
+          display={{ base: 'none', md: 'flex' }}
           flexDirection="column"
           alignItems="center"
           w="full"
           borderTopWidth="1px"
           borderTopColor="cardDivider"
           pt={{ base: 1.5, md: 3 }}
-          mt={{ md: 'auto' }}
+          mt="auto"
         >
           <IconButton
             href={GET_APP_HREF}

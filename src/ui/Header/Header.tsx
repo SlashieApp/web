@@ -1,14 +1,6 @@
 'use client'
 
-import {
-  Badge,
-  Box,
-  type BoxProps,
-  HStack,
-  Link,
-  Stack,
-} from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Badge, Box, type BoxProps, HStack, Stack } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
@@ -19,7 +11,7 @@ import { isAccountHubPath } from '@/utils/accountHub'
 import { resolveAccountNavKey } from '@/utils/accountNav'
 import { GET_APP_HREF, MARKETING_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
-import { AppDrawer, Button, IconButton, Logo } from '@ui'
+import { Button, Drawer, IconButton, Link, Logo } from '@ui'
 
 import { AccountMenu } from './AccountMenu'
 import { BellIcon } from './BellIcon'
@@ -58,7 +50,6 @@ function GetAppButton() {
 function PostTaskHeaderButton() {
   return (
     <Link
-      as={NextLink}
       href="/tasks/create"
       display="inline-flex"
       _hover={{ textDecoration: 'none' }}
@@ -139,7 +130,6 @@ function AppHeaderNavigation() {
         ) : null}
 
         <Link
-          as={NextLink}
           href={MARKETING_HOME}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
@@ -258,7 +248,7 @@ function AppHeaderNavigation() {
             >
               <IconMenu />
             </IconButton>
-            <AppDrawer
+            <Drawer
               open={guestDrawerOpen}
               onOpenChange={setGuestDrawerOpen}
               title="Menu"
@@ -267,7 +257,6 @@ function AppHeaderNavigation() {
             >
               <Stack as="nav" gap={0} align="stretch" flex={1}>
                 <Link
-                  as={NextLink}
                   href="/tasks/create"
                   {...accountNavLinkRowProps}
                   onClick={() => setGuestDrawerOpen(false)}
@@ -283,7 +272,6 @@ function AppHeaderNavigation() {
                   borderColor="cardBorder"
                 >
                   <Link
-                    as={NextLink}
                     href={loginHref}
                     {...accountNavLinkRowProps}
                     onClick={() => setGuestDrawerOpen(false)}
@@ -291,7 +279,6 @@ function AppHeaderNavigation() {
                     Log in
                   </Link>
                   <Link
-                    as={NextLink}
                     href={signupHref}
                     {...accountNavLinkRowProps}
                     onClick={() => setGuestDrawerOpen(false)}
@@ -300,7 +287,7 @@ function AppHeaderNavigation() {
                   </Link>
                 </Stack>
               </Stack>
-            </AppDrawer>
+            </Drawer>
           </>
         )}
       </HStack>

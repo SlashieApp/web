@@ -1,11 +1,10 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ResetPasswordMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, FormField, IconButton, Input, Logo } from '@ui'
-import NextLink from 'next/link'
+import { Button, FormField, IconButton, Input, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { Suspense, useMemo, useState } from 'react'
@@ -205,7 +204,6 @@ function MissingResetLinkState() {
   return (
     <Stack gap={6} w="full">
       <Link
-        as={NextLink}
         href="/"
         display="block"
         w="full"
@@ -230,15 +228,10 @@ function MissingResetLinkState() {
             Links expire after 1 hour.
           </Text>
           <Stack gap={3} w="full" maxW="xs">
-            <Link
-              as={NextLink}
-              href="/forgot-password"
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link href="/forgot-password" _hover={{ textDecoration: 'none' }}>
               <Button w="full">Request reset link</Button>
             </Link>
             <Link
-              as={NextLink}
               href="/login"
               fontSize="sm"
               fontWeight={600}
@@ -332,7 +325,6 @@ function ResetPasswordForm() {
   return (
     <Stack gap={6} w="full">
       <Link
-        as={NextLink}
         href="/"
         display="block"
         w="full"
@@ -486,7 +478,6 @@ function ResetPasswordForm() {
                       {serverError}
                     </Text>
                     <Link
-                      as={NextLink}
                       href="/forgot-password"
                       fontSize="sm"
                       fontWeight={600}
@@ -513,7 +504,6 @@ function ResetPasswordForm() {
           </Box>
 
           <Link
-            as={NextLink}
             href="/login"
             fontSize="sm"
             fontWeight={700}

@@ -1,11 +1,10 @@
 'use client'
 
-import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { LuSearch } from 'react-icons/lu'
 
-import { Button, Card, Input } from '@ui'
+import { Button, Card, Input, Link } from '@ui'
 
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
 
@@ -70,11 +69,7 @@ export function MyRequestsMainColumn() {
               Post a task when you need help — quotes and bookings will show up
               here.
             </Text>
-            <Link
-              as={NextLink}
-              href="/tasks/create"
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
               <Button alignSelf="flex-start" size="sm">
                 Post a task
               </Button>

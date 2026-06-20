@@ -22,8 +22,9 @@ export type OtpInputProps = {
 }
 
 const cellStyles = {
+  ...formControlFieldInteraction,
   w: '44px',
-  h: '48px',
+  h: '40px',
   textAlign: 'center' as const,
   fontSize: 'lg',
   fontWeight: 700,
@@ -33,7 +34,6 @@ const cellStyles = {
   bg: 'formControlBg',
   color: 'formControlFg',
   px: 0,
-  ...formControlFieldInteraction,
 }
 
 function normalizeDigits(raw: string, length: number): string {

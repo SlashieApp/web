@@ -1,12 +1,11 @@
 'use client'
 
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
-import { Badge, Button, Card } from '@ui'
+import { Badge, Button, Card, Link } from '@ui'
 
 import {
   isWorkerSetupInProgress,
@@ -112,7 +111,6 @@ export function ProfileCompletenessCard() {
               </HStack>
               {!item.done ? (
                 <Link
-                  as={NextLink}
                   href={item.href}
                   fontSize="sm"
                   fontWeight={600}
@@ -131,7 +129,6 @@ export function ProfileCompletenessCard() {
           <HStack gap={3} flexWrap="wrap">
             {setupInProgress ? (
               <Link
-                as={NextLink}
                 href={workerSetupHref('/profile')}
                 _hover={{ textDecoration: 'none' }}
               >
@@ -141,7 +138,6 @@ export function ProfileCompletenessCard() {
               </Link>
             ) : eligible ? (
               <Link
-                as={NextLink}
                 href={workerSetupHref('/profile')}
                 _hover={{ textDecoration: 'none' }}
               >
@@ -151,7 +147,6 @@ export function ProfileCompletenessCard() {
               </Link>
             ) : firstIncomplete ? (
               <Link
-                as={NextLink}
                 href={firstIncomplete.href}
                 _hover={{ textDecoration: 'none' }}
               >

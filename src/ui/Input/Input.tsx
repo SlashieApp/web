@@ -56,7 +56,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         display="flex"
         alignItems="center"
         gap={1}
-        minH="48px"
+        minH="40px"
         borderRadius="md"
         borderWidth="1px"
         borderColor="formControlBorder"
@@ -91,7 +91,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           color="formControlFg"
           h="auto"
           minH={0}
-          py={2}
+          py={2.5}
           px={1}
           _placeholder={{ color: 'formControlPlaceholder' }}
           {...formControlFieldRingless}

@@ -16,7 +16,7 @@ export function RadioButton({
   checked,
   label,
   onChange,
-  borderRadius = 'lg',
+  borderRadius = 'md',
   ...rest
 }: RadioButtonProps) {
   const hoverStyles = {

@@ -4,122 +4,54 @@ import { type ButtonProps, Button as ChakraButton } from '@chakra-ui/react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 
-import { focusVisibleMatchesHover } from '../interactionStyles'
+import {
+  type UiButtonSize,
+  type UiButtonVariant,
+  buttonSizeProps,
+  buttonVariantStyles,
+} from '../designSystemStyles'
 
-export type UiButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'tertiary'
-  | 'outline'
-  | 'ghost'
-  | 'subtle'
-  | 'solid'
+export type { UiButtonVariant, UiButtonSize }
 
-export type UiButtonProps = Omit<ButtonProps, 'variant'> & {
+export type UiButtonProps = Omit<ButtonProps, 'variant' | 'size'> & {
   variant?: UiButtonVariant
+  size?: UiButtonSize
   /** When true, render only for authenticated users. */
   auth?: boolean
 }
 
 export function Button(props: UiButtonProps) {
-  const { variant, auth = false, ...restProps } = props
+  const {
+    variant = 'primary',
+    size = 'md',
+    auth = false,
+    borderRadius = 'md',
+    fontFamily = 'body',
+    gap = 2,
+    ...restProps
+  } = props
   const user = useUserStore((state) => state.user)
   if (auth && !user) return null
-  const resolvedVariant = variant ?? 'primary'
-  const isPrimary = resolvedVariant === 'primary' || resolvedVariant === 'solid'
-  const isSecondary = resolvedVariant === 'secondary'
-  const isTertiary = resolvedVariant === 'tertiary'
-  const isOutline = resolvedVariant === 'outline'
-  const isGhost = resolvedVariant === 'ghost'
-  const isSubtle = resolvedVariant === 'subtle'
 
-  let chakraVariant: ButtonProps['variant'] = 'solid'
-  if (isSecondary || isOutline) chakraVariant = 'outline'
-  else if (isTertiary || isGhost || isSubtle) chakraVariant = 'ghost'
-  else chakraVariant = 'solid'
-
-  let visualProps: Partial<ButtonProps> = {}
-
-  switch (resolvedVariant) {
-    case 'primary':
-    case 'solid':
-      visualProps = {
-        bg: 'primary',
-        color: 'black',
-        boxShadow: 'primary',
-        borderWidth: '0px',
-      }
-      break
-    case 'secondary':
-      visualProps = {
-        bg: 'transparent',
-        color: 'secondary.500',
-        borderWidth: '1px',
-        borderColor: 'secondary.500',
-      }
-      break
-    case 'tertiary':
-      visualProps = {
-        bg: 'transparent',
-        color: 'secondary.500',
-        borderWidth: '0px',
-        textTransform: 'uppercase',
-        letterSpacing: '0.04em',
-        fontWeight: 700,
-      }
-      break
-
-    case 'ghost':
-      visualProps = {
-        bg: 'transparent',
-        color: 'secondary.600',
-        borderWidth: '0px',
-        fontWeight: 600,
-      }
-      break
-    default:
-      visualProps = {}
-  }
-
-  const hoverStyles: NonNullable<ButtonProps['_hover']> = {
-    transform: 'none',
-    opacity: 1,
-    ...(isPrimary ? { bg: 'primaryHover' } : undefined),
-    ...(isSecondary
-      ? {
-          bg: 'transparent',
-          borderColor: 'secondary.600',
-          color: 'secondary.600',
-        }
-      : undefined),
-    ...(isTertiary ? { bg: 'transparent', color: 'primary.500' } : undefined),
-    ...(isOutline
-      ? {
-          bg: 'badgeBg',
-          borderColor: 'formControlBorder',
-        }
-      : undefined),
-    ...(isGhost ? { bg: 'badgeBg', color: 'primary.500' } : undefined),
-    ...(isSubtle ? { bg: 'badgeBg', color: 'primary.600' } : undefined),
-  }
+  const variantStyles = buttonVariantStyles(variant)
+  const sizeStyles = buttonSizeProps(size)
 
   return (
     <ChakraButton
       type="button"
       pointerEvents="auto"
-      variant={chakraVariant}
-      fontFamily="heading"
-      fontWeight={700}
-      borderRadius="sm"
-      px={4}
-      {...visualProps}
-      _hover={hoverStyles}
-      {...focusVisibleMatchesHover(hoverStyles)}
-      _active={{
-        transform: 'none',
-        opacity: 1,
-        ...(isPrimary ? { bg: 'primary.600' } : undefined),
-      }}
+      variant="plain"
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      lineHeight="1.25"
+      borderRadius={borderRadius}
+      fontFamily={fontFamily}
+      gap={gap}
+      transitionProperty="color, background-color, border-color, box-shadow"
+      transitionDuration="200ms"
+      {...sizeStyles}
+      {...variantStyles}
       {...restProps}
     />
   )

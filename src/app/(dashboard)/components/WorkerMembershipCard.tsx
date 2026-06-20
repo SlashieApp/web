@@ -1,10 +1,9 @@
 'use client'
 
-import { HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
-import NextLink from 'next/link'
 
-import { Button, Card } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import { BillingQuoteMeter } from '../billing/components/BillingQuoteMeter'
 import { hasUnlimitedQuoting } from '../helpers/workerMembershipHelpers'
@@ -64,7 +63,7 @@ export function WorkerMembershipCard({
           />
         ) : null}
 
-        <Link as={NextLink} href="/billing" _hover={{ textDecoration: 'none' }}>
+        <Link href="/billing" _hover={{ textDecoration: 'none' }}>
           <Button size="sm" w={{ base: 'full', md: 'auto' }}>
             {membership.canManageBilling || membership.canUpgrade
               ? 'Manage billing'

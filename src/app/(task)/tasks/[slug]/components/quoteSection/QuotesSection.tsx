@@ -6,16 +6,14 @@ import {
   Box,
   HStack,
   Heading,
-  Link,
   NativeSelect,
   Stack,
   Text,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { priceToPence } from '@/utils/price'
-import { Badge, Button } from '@ui'
+import { Badge, Button, Link } from '@ui'
 
 import { QuoteStatus } from '@codegen/schema'
 
@@ -335,11 +333,7 @@ export function QuotesSection() {
         Verify your email before sending quotes. Check your inbox or resend from
         the banner.
       </Text>
-      <Link
-        as={NextLink}
-        href="/verify-email/sent"
-        _hover={{ textDecoration: 'none' }}
-      >
+      <Link href="/verify-email/sent" _hover={{ textDecoration: 'none' }}>
         <Button w="full">Check inbox</Button>
       </Link>
     </Stack>
@@ -358,11 +352,7 @@ export function QuotesSection() {
       <Text color="formLabelMuted">
         Add your price, availability, and a message in a few guided steps.
       </Text>
-      <Link
-        as={NextLink}
-        href={quoteFlowHref}
-        _hover={{ textDecoration: 'none' }}
-      >
+      <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
         <Button w="full">Send a quote</Button>
       </Link>
     </Stack>

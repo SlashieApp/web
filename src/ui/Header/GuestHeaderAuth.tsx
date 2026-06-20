@@ -1,7 +1,6 @@
-import { HStack, Link, Text, type TextProps } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { HStack, Text, type TextProps } from '@chakra-ui/react'
 
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 const authButtonLinkProps = {
   _hover: { textDecoration: 'none' },
@@ -31,7 +30,7 @@ function HeaderAuthButton({
   children: string
 }) {
   return (
-    <Link as={NextLink} href={href} {...authButtonLinkProps}>
+    <Link href={href} {...authButtonLinkProps}>
       <Button size="sm" variant="ghost" px={2}>
         {children}
       </Button>

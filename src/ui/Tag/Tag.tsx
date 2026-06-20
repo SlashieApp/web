@@ -85,18 +85,18 @@ export function Tag({
       alignItems="center"
       columnGap={gap}
       w="fit-content"
-      borderRadius="full"
+      borderRadius={isGhost ? '0' : 'md'}
       borderWidth={isGhost ? '0' : '1px'}
       borderColor={isGhost ? 'transparent' : t.border}
       bg={isGhost ? 'transparent' : t.bg}
       color={t.fg}
-      px={isGhost ? 0 : 4}
-      py={isGhost ? 0 : 1.5}
-      fontFamily={isGhost ? 'body' : 'heading'}
-      fontSize={isGhost ? 'sm' : 'xs'}
-      fontWeight={isGhost ? 600 : 700}
-      letterSpacing={isGhost ? 'normal' : '0.06em'}
-      textTransform={isGhost ? 'none' : 'uppercase'}
+      px={isGhost ? 0 : 2}
+      py={isGhost ? 0 : 0.5}
+      fontFamily="body"
+      fontSize={isGhost ? 'sm' : '12px'}
+      fontWeight={500}
+      letterSpacing="normal"
+      textTransform="none"
       lineHeight={isGhost ? 'short' : '1.2'}
       {...rest}
     >

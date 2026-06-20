@@ -26,7 +26,7 @@ import {
   maskPhoneForDisplay,
   toE164ForApi,
 } from '@/utils/phoneNormalize'
-import { AppModal, FormField, OtpInput, PhoneInput } from '@ui'
+import { FormField, Modal, OtpInput, PhoneInput } from '@ui'
 
 type PhoneVerificationModalProps = {
   open: boolean
@@ -189,7 +189,7 @@ export function PhoneVerificationModal({
   return (
     <div ref={onModalRef}>
       {step === 'phone' ? (
-        <AppModal
+        <Modal
           open={open}
           onOpenChange={handleOpenChange}
           title="Add contact phone number"
@@ -218,9 +218,9 @@ export function PhoneVerificationModal({
               {error}
             </Text>
           ) : null}
-        </AppModal>
+        </Modal>
       ) : (
-        <AppModal
+        <Modal
           open={open}
           onOpenChange={handleOpenChange}
           title="Add contact phone number"
@@ -280,7 +280,7 @@ export function PhoneVerificationModal({
               {error}
             </Text>
           ) : null}
-        </AppModal>
+        </Modal>
       )}
     </div>
   )

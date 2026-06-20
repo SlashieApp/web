@@ -4,13 +4,11 @@ import {
   Box,
   HStack,
   Heading,
-  Link,
   NativeSelect,
   Stack,
   Text,
   Textarea,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 import {
@@ -24,7 +22,7 @@ import {
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { formatBudgetAmount } from '@/utils/price'
-import { Button, FormField, IconButton, Input } from '@ui'
+import { Button, FormField, IconButton, Input, Link } from '@ui'
 
 import { QuoteLimitPaywall } from '../../components/quoteSection/QuoteLimitPaywall'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -54,7 +52,6 @@ function FormErrorText({ children }: { children: string }) {
 function BackToTaskLink({ href }: { href: string }) {
   return (
     <Link
-      as={NextLink}
       href={href}
       fontSize="sm"
       fontWeight={600}
@@ -197,11 +194,7 @@ export function TaskQuoteFlow() {
             </Text>
           </Stack>
           <TaskQuoteSummaryCard />
-          <Link
-            as={NextLink}
-            href={loginHref}
-            _hover={{ textDecoration: 'none' }}
-          >
+          <Link href={loginHref} _hover={{ textDecoration: 'none' }}>
             <Button w="full">Log in</Button>
           </Link>
           <BackToTaskLink href={backToTask} />
@@ -235,18 +228,10 @@ export function TaskQuoteFlow() {
           </Stack>
           <TaskQuoteSummaryCard />
           <Stack gap={3}>
-            <Link
-              as={NextLink}
-              href="/quotes"
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link href="/quotes" _hover={{ textDecoration: 'none' }}>
               <Button w="full">View my quotes</Button>
             </Link>
-            <Link
-              as={NextLink}
-              href={backToTask}
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link href={backToTask} _hover={{ textDecoration: 'none' }}>
               <Button w="full" variant="secondary">
                 Back to task
               </Button>
@@ -271,7 +256,6 @@ export function TaskQuoteFlow() {
           </Stack>
           <TaskQuoteSummaryCard />
           <Link
-            as={NextLink}
             href={workerSetupHref(`/tasks/${task.id}/quote`)}
             _hover={{ textDecoration: 'none' }}
           >
@@ -317,11 +301,7 @@ export function TaskQuoteFlow() {
             </Text>
           </Stack>
           <TaskQuoteSummaryCard />
-          <Link
-            as={NextLink}
-            href="/verify-email/sent"
-            _hover={{ textDecoration: 'none' }}
-          >
+          <Link href="/verify-email/sent" _hover={{ textDecoration: 'none' }}>
             <Button w="full">Check inbox</Button>
           </Link>
           <BackToTaskLink href={backToTask} />
@@ -605,7 +585,7 @@ export function TaskQuoteFlow() {
 
             <Text fontSize="xs" color="formLabelMuted" textAlign="center">
               By sending, you agree to Slashie&apos;s{' '}
-              <Link as={NextLink} href="/terms" color="secondary.600">
+              <Link href="/terms" color="secondary.600">
                 Terms of Service
               </Link>
               .
@@ -671,18 +651,10 @@ export function TaskQuoteFlow() {
             </Stack>
 
             <Stack gap={3}>
-              <Link
-                as={NextLink}
-                href="/quotes"
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link href="/quotes" _hover={{ textDecoration: 'none' }}>
                 <Button w="full">View my quotes</Button>
               </Link>
-              <Link
-                as={NextLink}
-                href="/tasks"
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
                 <Button w="full" variant="secondary">
                   Browse more tasks
                 </Button>

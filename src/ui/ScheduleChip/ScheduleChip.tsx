@@ -1,7 +1,6 @@
 'use client'
 
-import type { BadgeProps } from '@chakra-ui/react'
-
+import type { UiBadgeProps } from '../Badge'
 import { Badge } from '../Badge'
 
 import type { ScheduleChip as ScheduleChipValue } from '@/utils/taskJobSchedule'
@@ -23,7 +22,7 @@ const CHIP_PALETTE: Record<
 
 export type ScheduleChipProps = {
   chip: ScheduleChipValue
-} & Omit<BadgeProps, 'children'>
+} & Omit<UiBadgeProps, 'children'>
 
 export function ScheduleChip({ chip, ...props }: ScheduleChipProps) {
   if (!chip) return null

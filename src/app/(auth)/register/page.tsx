@@ -1,19 +1,10 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import {
-  Box,
-  Checkbox,
-  HStack,
-  Heading,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Checkbox, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Badge, Button, FormField, IconButton, Input, Logo } from '@ui'
-import NextLink from 'next/link'
+import { Badge, Button, FormField, IconButton, Input, Link, Logo } from '@ui'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
@@ -353,7 +344,6 @@ export default function RegisterPage() {
         >
           <Stack gap={6}>
             <Link
-              as={NextLink}
               href="/"
               display="block"
               w="full"
@@ -517,7 +507,6 @@ export default function RegisterPage() {
                             >
                               I agree to the{' '}
                               <Link
-                                as={NextLink}
                                 href="/terms"
                                 fontWeight={700}
                                 color="primary.600"
@@ -527,7 +516,6 @@ export default function RegisterPage() {
                               </Link>{' '}
                               and{' '}
                               <Link
-                                as={NextLink}
                                 href="/privacy"
                                 fontWeight={700}
                                 color="primary.600"
@@ -572,7 +560,6 @@ export default function RegisterPage() {
               <Text fontSize="sm" color="formLabelMuted" textAlign="center">
                 Already have an account?{' '}
                 <Link
-                  as={NextLink}
                   href="/login"
                   fontWeight={700}
                   color="primary.600"

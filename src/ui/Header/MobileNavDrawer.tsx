@@ -10,16 +10,14 @@ import {
   DrawerRoot,
   HStack,
   IconButton,
-  Link,
   Stack,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { useCallback } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 import { AccountMenuHeader } from './AccountMenuHeader'
 import { AccountNavPanel } from './AccountNavPanel'
@@ -86,7 +84,6 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
               </Button>
             ) : (
               <Link
-                as={NextLink}
                 href="/tasks/create"
                 _hover={{ textDecoration: 'none' }}
                 onClick={close}

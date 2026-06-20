@@ -1,7 +1,7 @@
 'use client'
+import { Link } from '@ui'
 
-import { Box, HStack, Link, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Text } from '@chakra-ui/react'
 
 import {
   isPhoneVerified,
@@ -34,7 +34,6 @@ export function PhoneVerificationBanner() {
           Verify your phone to share it on tasks.
         </Text>
         <Link
-          as={NextLink}
           href="/profile#profile-phone"
           fontSize="sm"
           fontWeight={700}

@@ -1,11 +1,10 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 
-import { Button, DashboardSectionNav, Header } from '@ui'
+import { Button, DashboardSectionNav, Header, Link } from '@ui'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
@@ -109,7 +108,6 @@ export function AccountShell({ children }: AccountShellProps) {
                 </Stack>
 
                 <Link
-                  as={NextLink}
                   href={profileLinkHref}
                   _hover={{ textDecoration: 'none' }}
                 >

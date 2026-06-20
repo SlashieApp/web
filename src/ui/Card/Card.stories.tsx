@@ -106,13 +106,24 @@ export const SectionCustomHeader: Story = {
   ),
 }
 
+export const Interactive: Story = {
+  args: { interactive: true },
+  render: (args) => (
+    <Card {...args}>
+      <Text fontSize="md" color="cardFg">
+        Hover to see neutral-secondary-medium surface (interactive card).
+      </Text>
+    </Card>
+  ),
+}
+
 export const SectionActive: Story = {
   args: {
     layout: 'section',
     eyebrow: 'Status',
     heading: 'Selected block',
     isActive: true,
-    activeBorderColor: 'primary.500',
+    activeBorderColor: 'primary',
   },
   render: (args) => (
     <Card {...args}>

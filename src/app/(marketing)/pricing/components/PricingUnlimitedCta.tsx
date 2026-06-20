@@ -1,13 +1,12 @@
 'use client'
 
-import { Box, Link } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box } from '@chakra-ui/react'
 
 import { useMe } from '@/app/(auth)/store/user'
 import { useBillingActions } from '@/app/(dashboard)/billing/helpers/useBillingActions'
 import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { getAuthToken } from '@/utils/auth'
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 import { resolveUnlimitedPlanCta } from '../helpers/pricingCta'
 
@@ -50,7 +49,6 @@ export function PricingUnlimitedCta() {
 
   return (
     <Link
-      as={NextLink}
       href={unlimitedCta.href}
       mt="auto"
       _hover={{ textDecoration: 'none' }}

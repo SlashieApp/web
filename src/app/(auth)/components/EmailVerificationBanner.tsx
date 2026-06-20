@@ -1,12 +1,11 @@
 'use client'
 
-import { Box, HStack, Link, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Text } from '@chakra-ui/react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useMe } from '@/app/(auth)/store/user'
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 export function EmailVerificationBanner() {
   const me = useMe()
@@ -39,7 +38,6 @@ export function EmailVerificationBanner() {
             </Text>
           ) : null}
           <Link
-            as={NextLink}
             href="/verify-email/sent"
             fontSize="sm"
             fontWeight={700}

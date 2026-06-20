@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, HStack, Slider, Stack, Text } from '@chakra-ui/react'
-import { AppDrawer, Button, Input } from '@ui'
+import { Button, Drawer, Input } from '@ui'
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react'
 import { LuLocateFixed, LuSearch } from 'react-icons/lu'
 
@@ -310,7 +310,7 @@ export function MobileTaskBrowseFiltersDrawer() {
   const filterProps = useTaskBrowseFiltersProps()
 
   return (
-    <AppDrawer
+    <Drawer
       open={isFilterOpen}
       onOpenChange={(open) => {
         setIsFilterOpen(open)
@@ -326,6 +326,6 @@ export function MobileTaskBrowseFiltersDrawer() {
       }}
     >
       <MobileBrowseFiltersSheetBody {...filterProps} />
-    </AppDrawer>
+    </Drawer>
   )
 }

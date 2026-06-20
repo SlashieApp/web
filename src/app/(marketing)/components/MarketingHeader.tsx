@@ -5,11 +5,9 @@ import {
   type BoxProps,
   HStack,
   IconButton,
-  Link,
   Stack,
   Text,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
@@ -19,7 +17,7 @@ import {
 } from '@/ui/Header/GuestHeaderAuth'
 import { HEADER_MIN_HEIGHT, HEADER_PADDING_X } from '@/ui/Header/headerShell'
 import { GET_APP_HREF, MARKETING_HOME } from '@/utils/appRoutes'
-import { AppDrawer, Button, Logo } from '@ui'
+import { Button, Drawer, Link, Logo } from '@ui'
 
 const MARKETING_NAV_LINKS = [
   { key: 'pricing', label: 'Pricing', href: '/pricing' },
@@ -108,7 +106,6 @@ function MarketingNavigation() {
     >
       <HStack flex={1} minW={0} align="center" gap={{ base: 3, md: 4 }}>
         <Link
-          as={NextLink}
           href={MARKETING_HOME}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
@@ -138,7 +135,6 @@ function MarketingNavigation() {
           {MARKETING_NAV_LINKS.map((link) => (
             <Link
               key={link.key}
-              as={NextLink}
               href={link.href}
               {...navLinkProps}
               color={
@@ -165,7 +161,7 @@ function MarketingNavigation() {
         </IconButton>
       </HStack>
 
-      <AppDrawer
+      <Drawer
         open={mobileMenuOpen}
         onOpenChange={setMobileMenuOpen}
         title="Menu"
@@ -176,7 +172,6 @@ function MarketingNavigation() {
           {MARKETING_NAV_LINKS.map((link) => (
             <Link
               key={link.key}
-              as={NextLink}
               href={link.href}
               {...drawerLinkProps}
               color={
@@ -197,7 +192,6 @@ function MarketingNavigation() {
             borderColor="cardBorder"
           >
             <Link
-              as={NextLink}
               href="/login"
               {...drawerLinkProps}
               onClick={() => setMobileMenuOpen(false)}
@@ -205,7 +199,6 @@ function MarketingNavigation() {
               Log in
             </Link>
             <Link
-              as={NextLink}
               href="/register"
               {...drawerLinkProps}
               onClick={() => setMobileMenuOpen(false)}
@@ -214,7 +207,7 @@ function MarketingNavigation() {
             </Link>
           </Stack>
         </Stack>
-      </AppDrawer>
+      </Drawer>
     </HStack>
   )
 }

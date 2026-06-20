@@ -1,10 +1,9 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuArrowRight, LuBriefcase } from 'react-icons/lu'
 
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 import { textLinkEmphasisInteraction } from '@/ui/interactionStyles'
 
@@ -59,17 +58,12 @@ export function QuoteWorkerEarnCta({
               Free to join · Takes ~2 minutes
             </Text>
           </Stack>
-          <Link
-            as={NextLink}
-            href={createProfileHref}
-            _hover={{ textDecoration: 'none' }}
-          >
+          <Link href={createProfileHref} _hover={{ textDecoration: 'none' }}>
             <Button w="full" size="sm">
               Create worker profile
             </Button>
           </Link>
           <Link
-            as={NextLink}
             href={learnHref}
             display="flex"
             alignItems="center"

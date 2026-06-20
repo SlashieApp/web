@@ -1,9 +1,9 @@
 'use client'
+import { Link } from '../Link'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
 import Image from 'next/image'
-import NextLink from 'next/link'
 
 import { MembershipStatusBadge } from '@/app/(dashboard)/components/membership/MembershipStatusBadge'
 import {
@@ -114,7 +114,6 @@ function CustomerMembershipSection() {
         Compare quotes from local workers on your posted tasks.
       </Text>
       <Link
-        as={NextLink}
         href="/worker/setup"
         fontSize="xs"
         fontWeight={600}
@@ -158,7 +157,6 @@ function WorkerMembershipSection({
         <HStack gap={3} flexWrap="wrap">
           {membership.canUpgrade ? (
             <Link
-              as={NextLink}
               href="/billing"
               fontSize="xs"
               fontWeight={600}
@@ -170,7 +168,6 @@ function WorkerMembershipSection({
           ) : null}
           {membership.canManageBilling ? (
             <Link
-              as={NextLink}
               href="/billing"
               fontSize="xs"
               fontWeight={600}
@@ -210,7 +207,6 @@ export function AccountMenuHeader({
             {email}
           </Text>
           <Link
-            as={NextLink}
             href="/profile"
             fontSize="xs"
             fontWeight={600}

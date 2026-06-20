@@ -47,7 +47,7 @@ function StepNumber({
       fontSize="sm"
       fontWeight={700}
       flexShrink={0}
-      bg={active ? 'primary.600' : complete ? 'primary.100' : 'transparent'}
+      bg={active ? 'primary' : complete ? 'primary.100' : 'transparent'}
       color={active ? 'white' : complete ? 'primary.800' : 'formLabelMuted'}
       borderWidth={active || complete ? '0' : '1px'}
       borderColor="neutral.300"
@@ -69,7 +69,7 @@ function SubStepDot({
       boxSize="10px"
       borderRadius="full"
       flexShrink={0}
-      bg={active ? 'primary.600' : complete ? 'primary.400' : 'transparent'}
+      bg={active ? 'primary' : complete ? 'primary.400' : 'transparent'}
       borderWidth={active || complete ? '0' : '2px'}
       borderColor="neutral.300"
     />

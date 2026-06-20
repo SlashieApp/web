@@ -1,7 +1,6 @@
 'use client'
 
-import { Grid, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
 import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
 import {
@@ -9,7 +8,7 @@ import {
   orderStatusChipLabel,
   orderTaskHref,
 } from '@/utils/orderHelpers'
-import { Badge, Card } from '@ui'
+import { Badge, Card, Link } from '@ui'
 
 import { useAccountOrders } from '../helpers/useAccountOrders'
 
@@ -117,7 +116,6 @@ export default function EarningsPage() {
                       {formatOrderAgreedPrice(order)}
                     </Text>
                     <Link
-                      as={NextLink}
                       href={orderTaskHref(order)}
                       fontSize="sm"
                       fontWeight={600}
@@ -147,7 +145,6 @@ export default function EarningsPage() {
             {closedWorkerOrders.map((order) => (
               <Link
                 key={order.id}
-                as={NextLink}
                 href={orderTaskHref(order)}
                 _hover={{ textDecoration: 'none' }}
               >

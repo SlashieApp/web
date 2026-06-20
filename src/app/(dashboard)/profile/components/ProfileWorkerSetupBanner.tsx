@@ -1,11 +1,10 @@
 'use client'
 
-import { HStack, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
-import { Button, Card } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import {
   isWorkerSetupInProgress,
@@ -42,7 +41,6 @@ export function ProfileWorkerSetupBanner() {
         </Stack>
         <HStack gap={3} flexWrap="wrap">
           <Link
-            as={NextLink}
             href={workerSetupHref('/profile')}
             _hover={{ textDecoration: 'none' }}
           >

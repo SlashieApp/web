@@ -1,10 +1,9 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { VerifyEmailMutation } from '@codegen/schema'
-import { Button, Logo } from '@ui'
-import NextLink from 'next/link'
+import { Button, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 
@@ -121,7 +120,6 @@ function VerifyEmailContent() {
   return (
     <Stack ref={onMountRef} gap={6} w="full">
       <Link
-        as={NextLink}
         href="/"
         display="block"
         w="full"
@@ -179,7 +177,6 @@ function VerifyEmailContent() {
                 </Button>
               ) : (
                 <Link
-                  as={NextLink}
                   href="/login"
                   fontWeight={700}
                   color="primary.600"
@@ -210,7 +207,6 @@ function VerifyEmailContent() {
                     Resend verification email
                   </Button>
                   <Link
-                    as={NextLink}
                     href="/verify-email/sent"
                     fontSize="sm"
                     fontWeight={600}
@@ -222,7 +218,6 @@ function VerifyEmailContent() {
                 </Stack>
               ) : (
                 <Link
-                  as={NextLink}
                   href={`/login?next=${encodeURIComponent('/verify-email/sent')}`}
                   fontWeight={700}
                   color="primary.600"

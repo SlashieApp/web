@@ -1,7 +1,7 @@
 'use client'
+import { Link } from '@ui'
 
-import { Box, Heading, Image, Link, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { LuCheck } from 'react-icons/lu'
 
 import type { WorkerBrowseItem } from '../helpers/workerBrowseHelpers'
@@ -97,7 +97,6 @@ export function WorkerGridCard({ worker }: WorkerGridCardProps) {
       </Text>
 
       <Link
-        as={NextLink}
         href={href}
         fontSize="sm"
         fontWeight={700}

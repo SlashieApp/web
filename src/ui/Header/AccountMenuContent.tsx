@@ -1,8 +1,8 @@
 'use client'
+import { Link } from '../Link'
 
-import { Box, Link } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import Image from 'next/image'
-import NextLink from 'next/link'
 import { useCallback } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
@@ -110,7 +110,6 @@ export function AccountMenuContent({ onClose }: AccountMenuContentProps = {}) {
           </Button>
         ) : (
           <Link
-            as={NextLink}
             href="/tasks/create"
             _hover={{ textDecoration: 'none' }}
             onClick={close}

@@ -88,13 +88,14 @@ export function Modal({
       placement="center"
       motionPreset="scale"
     >
-      <DialogBackdrop bg="blackAlpha.600" />
+      <DialogBackdrop bg="blackAlpha.500" backdropFilter="blur(4px)" />
       <DialogPositioner p={4}>
         <DialogContent
-          colorPalette="green"
-          bg="white"
-          borderRadius="xl"
-          boxShadow="lg"
+          bg="cardBg"
+          borderRadius="md"
+          boxShadow="xl"
+          borderWidth="1px"
+          borderColor="cardBorder"
           maxW={sizeMaxW[size]}
           w="full"
           mx="auto"
@@ -105,16 +106,15 @@ export function Modal({
             pt={5}
             pb={4}
             borderBottomWidth="1px"
-            borderColor="neutral.300"
+            borderColor="cardBorder"
           >
             <HStack align="center" justify="space-between" gap={3}>
               <DialogTitle
-                fontFamily="heading"
-                fontSize="lg"
-                fontWeight={800}
-                color="neutral.900"
+                fontFamily="body"
+                fontSize="20px"
+                fontWeight={600}
+                color="cardFg"
                 lineHeight="short"
-                letterSpacing="-0.02em"
                 flex={1}
                 minW={0}
               >
@@ -128,8 +128,15 @@ export function Modal({
             </HStack>
           </DialogHeader>
 
-          <DialogBody px={modalPaddingX} py={5}>
-            <Stack gap={4}>{children}</Stack>
+          <DialogBody px={modalPaddingX} py={6}>
+            <Stack
+              gap={6}
+              fontSize="md"
+              color="formLabelMuted"
+              lineHeight="1.625"
+            >
+              {children}
+            </Stack>
           </DialogBody>
 
           {showFooter ? (
@@ -137,7 +144,7 @@ export function Modal({
               px={modalPaddingX}
               py={4}
               borderTopWidth="1px"
-              borderColor="neutral.300"
+              borderColor="cardBorder"
               gap={3}
               justifyContent="flex-end"
             >
@@ -148,7 +155,6 @@ export function Modal({
                       type="button"
                       variant="secondary"
                       onClick={handleBack}
-                      minH="44px"
                     >
                       {backLabel}
                     </Button>
@@ -157,7 +163,6 @@ export function Modal({
                       type="button"
                       variant="secondary"
                       onClick={handleCancel}
-                      minH="44px"
                     >
                       {cancelLabel}
                     </Button>
@@ -169,7 +174,6 @@ export function Modal({
                       onClick={onSubmit}
                       loading={submitLoading}
                       disabled={submitDisabled}
-                      minH="44px"
                       minW="120px"
                     >
                       {submitLabel}

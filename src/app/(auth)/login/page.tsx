@@ -1,17 +1,8 @@
 'use client'
 
-import {
-  Box,
-  Checkbox,
-  HStack,
-  Heading,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Checkbox, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Badge, Button, FormField, IconButton, Input, Logo } from '@ui'
-import NextLink from 'next/link'
+import { Badge, Button, FormField, IconButton, Input, Link, Logo } from '@ui'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -375,7 +366,6 @@ export default function LoginPage() {
           >
             <Stack gap={6}>
               <Link
-                as={NextLink}
                 href="/"
                 display="block"
                 w="full"
@@ -447,7 +437,6 @@ export default function LoginPage() {
                         <HStack justify="space-between" w="full" align="center">
                           <Box as="span">Password</Box>
                           <Link
-                            as={NextLink}
                             href={forgotPasswordHref}
                             fontSize="sm"
                             fontWeight={600}
@@ -547,7 +536,6 @@ export default function LoginPage() {
                 <Text fontSize="sm" color="formLabelMuted" textAlign="center">
                   New to Slashie?{' '}
                   <Link
-                    as={NextLink}
                     href="/register"
                     fontWeight={700}
                     color="primary.600"

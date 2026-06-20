@@ -1,5 +1,6 @@
-import { Box, Button, HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { Link } from '../Link'
 
 import { Dropdown, useDropdownClose } from './Dropdown'
 

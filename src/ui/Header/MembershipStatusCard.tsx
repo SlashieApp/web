@@ -1,15 +1,14 @@
 'use client'
 
-import { Box, HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
-import NextLink from 'next/link'
 
 import { MembershipStatusBadge } from '@/app/(dashboard)/components/membership/MembershipStatusBadge'
 import {
   hasUnlimitedQuoting,
   membershipStatusDetailText,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 import { focusVisibleMatchesHover } from '../interactionStyles'
 
@@ -55,11 +54,7 @@ function CustomerStatusCard({
           Compare quotes from local workers. Job payments stay between you and
           your pro.
         </Text>
-        <Link
-          as={NextLink}
-          href="/worker/setup"
-          _hover={{ textDecoration: 'none' }}
-        >
+        <Link href="/worker/setup" _hover={{ textDecoration: 'none' }}>
           <Button size="sm" w={compact ? 'full' : 'auto'}>
             Become a worker
           </Button>
@@ -109,11 +104,7 @@ export function MembershipStatusCard({
         {!unlimited ? <QuoteMeterCopy membership={membership} /> : null}
 
         {membership.canUpgrade ? (
-          <Link
-            as={NextLink}
-            href="/billing"
-            _hover={{ textDecoration: 'none' }}
-          >
+          <Link href="/billing" _hover={{ textDecoration: 'none' }}>
             <Button size="sm" w={compact ? 'full' : 'auto'}>
               Upgrade
             </Button>
@@ -121,11 +112,7 @@ export function MembershipStatusCard({
         ) : null}
 
         {membership.canManageBilling ? (
-          <Link
-            as={NextLink}
-            href="/billing"
-            _hover={{ textDecoration: 'none' }}
-          >
+          <Link href="/billing" _hover={{ textDecoration: 'none' }}>
             <Text
               fontSize="xs"
               fontWeight={700}

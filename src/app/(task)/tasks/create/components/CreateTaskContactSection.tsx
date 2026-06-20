@@ -1,11 +1,10 @@
 'use client'
 
-import { HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { TaskContactMethod } from '@codegen/schema'
-import NextLink from 'next/link'
 
 import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility'
-import { Button, Card, FormField } from '@ui'
+import { Button, Card, FormField, Link } from '@ui'
 
 export type CreateTaskContactSectionProps = {
   preferredContactMethod: TaskContactMethod
@@ -128,7 +127,6 @@ export function CreateTaskContactSection({
             Phone contact requires a verified mobile number on your account.
           </Text>
           <Link
-            as={NextLink}
             href="/account"
             alignSelf="flex-start"
             _hover={{ textDecoration: 'none' }}

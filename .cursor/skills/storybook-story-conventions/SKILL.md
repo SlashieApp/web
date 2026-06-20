@@ -37,7 +37,7 @@ The **title group** reflects what the component *is*, not where the file sits:
 Rules:
 
 - **No redundant `form` group.** Form controls are universal `ui` (character-count textareas use `FormField.CharCountTextarea` inside `FormField`; the field shell is `ui/FormField`). Title them `ui/*`.
-- **No duplicate primitive stories.** Do not add separate stories for alias/wrapper exports (`AppDrawer` vs `Drawer`, `AppModal` vs `Modal`) or for thin variants already covered by a parent (`CharCountTextarea` → `ui/Textarea/WithCharCount`; `HoverDropdownMenu` → `layout/Dropdown/HoverDefault`).
+- **No duplicate primitive stories.** Do not add separate stories for alias/wrapper exports (`Drawer` vs `Drawer`, `Modal` vs `Modal`) or for thin variants already covered by a parent (`CharCountTextarea` → `ui/Textarea/WithCharCount`; `HoverDropdownMenu` → `layout/Dropdown/HoverDefault`).
 - **Universal-first.** If a route component is really a generic widget (e.g. a progress bar, a stepper), extract it to `src/ui` and title it `ui/*`; the route keeps a thin adapter that wires data/context into the `ui` primitive (no story needed for the adapter).
 - **Dropdowns/drawers are `layout`.** Feature menus (e.g. account menu) **compose** `layout/Dropdown` with JSX slot content (see `AccountMenuContent`); the thin `AccountMenu` wrapper handles mobile drawer + desktop trigger only.
 

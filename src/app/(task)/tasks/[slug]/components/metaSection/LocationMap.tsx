@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react'
 
-import { Box, Link } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 
 import {
   type MapboxStaticMapVariant,
   buildMapboxStaticImageUrl,
   parseMapHeightPx,
 } from '@/utils/mapboxStaticImageUrl'
-import { Button } from '@ui'
+import { Button, Link } from '@ui'
 
 export type LocationMapProps = {
   accessToken: string | undefined

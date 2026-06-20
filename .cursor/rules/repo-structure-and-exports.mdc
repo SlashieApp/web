@@ -77,7 +77,7 @@ Stories are titled **by function**, not by source folder:
 Rules:
 
 - **No `form/*` group.** Form controls are `ui/*`. Character-count textareas are covered by `ui/Textarea → WithCharCount`; do not add a separate `CharCountTextarea` story.
-- **No duplicate primitive stories.** Do not story both `Drawer` and `AppDrawer`, or `Modal` and `AppModal`—one story per universal primitive (`layout/Drawer`, `ui/Modal`).
+- **No duplicate primitive stories.** Do not story both `Drawer` and `Drawer`, or `Modal` and `Modal`—one story per universal primitive (`layout/Drawer`, `ui/Modal`).
 - **Universal-first.** Generic widgets (progress bar, stepper) live in `src/ui` with `ui/*` stories; route adapters (e.g. `WorkerSetupStepper`) wire context into the primitive and get **no story**.
 - **One story per non-universal feature component** (e.g. `header/AccountMenu → Default` only). Do **not** story internal sub-components (`MembershipStatusCard`, `MobileNavDrawer`, menu panels)—exercise them through the parent header/menu story.
 - **Feature menus compose layout primitives.** `AccountMenu` builds on `layout/Dropdown` / `layout/Drawer`; hover nav uses `Dropdown` with `hoverExpand`, not a separate hover-menu story.
