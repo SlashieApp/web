@@ -1,6 +1,6 @@
 'use client'
 
-import type { BoxProps } from '@chakra-ui/react'
+import type { BoxProps, SystemStyleObject } from '@chakra-ui/react'
 import { createContext, useContext } from 'react'
 
 export type FormFieldState = {
@@ -62,7 +62,9 @@ export function formControlInvalidShellProps(invalid: boolean): BoxProps {
 }
 
 /** Error border treatment for standalone bordered fields (`Textarea`). */
-export function formControlInvalidFieldProps(invalid: boolean): BoxProps {
+export function formControlInvalidFieldProps(
+  invalid: boolean,
+): SystemStyleObject {
   if (!invalid) return {}
   return {
     borderColor: 'red.500',

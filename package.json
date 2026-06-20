@@ -6,13 +6,13 @@
     "prepare": "lefthook install",
     "codegen": "graphql-codegen --config codegen.ts",
     "exports-gen": "bun scripts/generate-exports.ts",
-    "prebuild": "bun run exports-gen && bun run codegen",
+    "prebuild": "node scripts/prebuild.mjs",
     "dev": "bun run exports-gen && next dev",
     "build": " next build",
     "start": "next start",
     "lint": "biome check --write .",
     "storybook": "node scripts/prebuild-storybook.mjs && storybook dev -p 6006",
-    "build-storybook": "node scripts/prebuild-storybook.mjs && storybook build",
+    "build-storybook": "node scripts/prebuild-storybook.mjs && NODE_OPTIONS=--max-old-space-size=6144 storybook build",
     "test:unit": "vitest run --config vitest.unit.config.ts"
   },
   "dependencies": {

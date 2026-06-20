@@ -18,6 +18,9 @@ type NativeFieldProps = React.ComponentProps<typeof NativeSelect.Field>
 type NativeRootProps = React.ComponentProps<typeof NativeSelect.Root>
 
 export type SelectProps = NativeFieldProps & {
+  /** When set, applies to the root and field (overridden by `rootProps.disabled` when both set). */
+  disabled?: NativeRootProps['disabled']
+  required?: boolean
   /** Forwarded to `NativeSelect.Root` (`w`, `maxW`, `disabled`, `invalid`, …). */
   rootProps?: Omit<NativeRootProps, 'children'>
   /** Optional leading content inside the control shell (e.g. icon). */

@@ -10,27 +10,48 @@ import {
   storyTask,
 } from '@/app/(dashboard)/quotes/components/workerQuoteStoryFixtures'
 
-import { TaskCard } from './TaskCard'
+import {
+  TaskCard,
+  type TaskCardProps,
+  type TaskCardWorkerQuoteProps,
+} from './TaskCard'
 
-const meta = {
+type TaskCardBrowseProps = Exclude<TaskCardProps, TaskCardWorkerQuoteProps>
+
+const listMeta = {
   title: 'task/TaskCard',
   component: TaskCard,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
   },
-  render: (args) => (
+  render: (args: TaskCardBrowseProps) => (
     <Box maxW="520px" w="full">
       <TaskCard {...args} />
     </Box>
   ),
-} satisfies Meta<typeof TaskCard>
+} satisfies Meta<TaskCardBrowseProps>
 
-export default meta
+const workerQuoteMeta = {
+  title: 'task/TaskCard/WorkerQuote',
+  component: TaskCard,
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+  },
+  render: (args: TaskCardWorkerQuoteProps) => (
+    <Box maxW="520px" w="full">
+      <TaskCard {...args} />
+    </Box>
+  ),
+} satisfies Meta<TaskCardWorkerQuoteProps>
 
-type Story = StoryObj<typeof meta>
+export default listMeta
 
-export const ListItem: Story = {
+type ListStory = StoryObj<typeof listMeta>
+type WorkerQuoteStory = StoryObj<typeof workerQuoteMeta>
+
+export const ListItem: ListStory = {
   args: {
     title: 'Fix shelf on wall',
     description: 'Need a worker to mount one shelf safely.',
@@ -48,7 +69,7 @@ export const ListItem: Story = {
   },
 }
 
-export const ListItemExpanded: Story = {
+export const ListItemExpanded: ListStory = {
   args: {
     ...ListItem.args,
     isActive: true,
@@ -60,7 +81,7 @@ export const ListItemExpanded: Story = {
   },
 }
 
-export const WorkerQuotePendingCollapsed: Story = {
+export const WorkerQuotePendingCollapsed: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({
@@ -70,14 +91,14 @@ export const WorkerQuotePendingCollapsed: Story = {
   },
 }
 
-export const WorkerQuotePendingExpanded: Story = {
+export const WorkerQuotePendingExpanded: WorkerQuoteStory = {
   args: {
     ...WorkerQuotePendingCollapsed.args,
     initialExpanded: true,
   },
 }
 
-export const WorkerQuotePendingNoMessage: Story = {
+export const WorkerQuotePendingNoMessage: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({
@@ -87,7 +108,7 @@ export const WorkerQuotePendingNoMessage: Story = {
   },
 }
 
-export const WorkerQuotePendingNoThumbnail: Story = {
+export const WorkerQuotePendingNoThumbnail: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({
@@ -98,7 +119,7 @@ export const WorkerQuotePendingNoThumbnail: Story = {
   },
 }
 
-export const WorkerQuoteBookedActiveJob: Story = {
+export const WorkerQuoteBookedActiveJob: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({
@@ -108,14 +129,14 @@ export const WorkerQuoteBookedActiveJob: Story = {
   },
 }
 
-export const WorkerQuoteBookedActiveJobExpanded: Story = {
+export const WorkerQuoteBookedActiveJobExpanded: WorkerQuoteStory = {
   args: {
     ...WorkerQuoteBookedActiveJob.args,
     initialExpanded: true,
   },
 }
 
-export const WorkerQuoteCompletedOrder: Story = {
+export const WorkerQuoteCompletedOrder: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({
@@ -128,14 +149,14 @@ export const WorkerQuoteCompletedOrder: Story = {
   },
 }
 
-export const WorkerQuoteCompletedOrderExpanded: Story = {
+export const WorkerQuoteCompletedOrderExpanded: WorkerQuoteStory = {
   args: {
     ...WorkerQuoteCompletedOrder.args,
     initialExpanded: true,
   },
 }
 
-export const WorkerQuoteEndedDeclined: Story = {
+export const WorkerQuoteEndedDeclined: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({
@@ -145,7 +166,7 @@ export const WorkerQuoteEndedDeclined: Story = {
   },
 }
 
-export const WorkerQuoteEndedAnotherWorkerBooked: Story = {
+export const WorkerQuoteEndedAnotherWorkerBooked: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({
@@ -168,7 +189,7 @@ export const WorkerQuoteEndedAnotherWorkerBooked: Story = {
   },
 }
 
-export const WorkerQuoteEndedTaskCancelled: Story = {
+export const WorkerQuoteEndedTaskCancelled: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({

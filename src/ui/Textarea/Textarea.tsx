@@ -21,7 +21,7 @@ export type TextareaProps = ChakraTextareaProps
  */
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   function Textarea({ disabled, required, id, ...props }, ref) {
-    const { invalid, ...controlProps } = useFormFieldControlProps({
+    const control = useFormFieldControlProps({
       id,
       disabled,
       required,
@@ -43,9 +43,13 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         color="formControlFg"
         _placeholder={{ color: 'formControlPlaceholder' }}
         {...formControlFieldInteraction}
-        {...formControlInvalidFieldProps(invalid)}
+        {...formControlInvalidFieldProps(control.invalid)}
         {...props}
-        {...controlProps}
+        id={control.id}
+        disabled={control.disabled}
+        required={control.required}
+        aria-describedby={control['aria-describedby']}
+        aria-invalid={control['aria-invalid']}
       />
     )
   },
