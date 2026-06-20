@@ -5,7 +5,7 @@ import { MetaRow } from './MetaRow'
 import { IconBudgetGrid, IconPin } from './VisitorMetaIcons'
 
 const meta = {
-  title: 'taskDetail/MetaSection/MetaRow',
+  title: 'task/MetaSection/MetaRow',
   component: MetaRow,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

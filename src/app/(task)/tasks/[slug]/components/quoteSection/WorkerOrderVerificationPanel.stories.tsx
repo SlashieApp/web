@@ -2,13 +2,13 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { OrderStatus } from '@codegen/schema'
 
-import { withTaskDetailStory } from '../helpers/taskDetailStoryDecorator'
-import { storyTaskOrder } from '../helpers/taskDetailStoryFixtures'
+import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
+import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
 
 import { WorkerOrderVerificationPanel } from './WorkerOrderVerificationPanel'
 
 const meta = {
-  title: 'taskDetail/QuoteSection/WorkerOrderVerificationPanel',
+  title: 'task/QuoteSection/WorkerOrderVerificationPanel',
   component: WorkerOrderVerificationPanel,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

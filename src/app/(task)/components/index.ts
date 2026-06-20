@@ -37,5 +37,9 @@ export type {
   TaskMapTask,
 } from './TaskMap'
 export type { TaskBrowseSearchThisAreaButtonProps } from './TaskBrowseSearchThisAreaButton'
-export type { TaskCardProps, TaskCardTask } from './TaskCard'
+export type {
+  TaskCardProps,
+  TaskCardTask,
+  TaskCardWorkerQuoteProps,
+} from './TaskCard'
 export type { TaskSearchBaseProps } from './TaskSearch'

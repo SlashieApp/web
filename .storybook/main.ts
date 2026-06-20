@@ -4,6 +4,13 @@ import graphqlLoader from 'vite-plugin-graphql-loader'
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  // @chakra-ui/react declares a storybook ref in package.json; disable it to avoid
+  // CORS errors fetching https://storybook.chakra-ui.com/metadata.json
+  refs: {
+    '@chakra-ui/react': {
+      disable: true,
+    },
+  },
   addons: [
     '@chromatic-com/storybook',
     '@storybook/addon-vitest',

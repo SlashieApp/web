@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { Dock } from './Dock'
 
 const meta = {
-  title: 'layout/Dock',
+  title: 'ui/Dock',
   component: Dock,
   tags: ['autodocs'],
   parameters: {

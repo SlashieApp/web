@@ -6,6 +6,10 @@ import {
 } from '@chakra-ui/react'
 import * as React from 'react'
 
+import {
+  formControlInvalidFieldProps,
+  useFormFieldControlProps,
+} from '../FormField/formFieldContext'
 import { formControlFieldInteraction } from '../interactionStyles'
 
 export type TextareaProps = ChakraTextareaProps
@@ -16,7 +20,14 @@ export type TextareaProps = ChakraTextareaProps
  * {@link FormField} for labels and errors.
  */
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  function Textarea(props, ref) {
+  function Textarea({ disabled, required, id, ...props }, ref) {
+    const { invalid, ...controlProps } = useFormFieldControlProps({
+      id,
+      disabled,
+      required,
+      'aria-describedby': props['aria-describedby'],
+    })
+
     return (
       <ChakraTextarea
         ref={ref}
@@ -32,7 +43,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         color="formControlFg"
         _placeholder={{ color: 'formControlPlaceholder' }}
         {...formControlFieldInteraction}
+        {...formControlInvalidFieldProps(invalid)}
         {...props}
+        {...controlProps}
       />
     )
   },

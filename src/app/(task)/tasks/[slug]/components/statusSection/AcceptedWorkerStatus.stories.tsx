@@ -11,7 +11,7 @@ import {
 import { AcceptedWorkerStatus } from './AcceptedWorkerStatus'
 
 const meta = {
-  title: 'taskDetail/StatusSection/AcceptedWorkerStatus',
+  title: 'task/StatusSection/AcceptedWorkerStatus',
   component: AcceptedWorkerStatus,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

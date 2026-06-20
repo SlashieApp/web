@@ -7,7 +7,7 @@ const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 const coords = { lat: 51.5074, lng: -0.1278 }
 
 const meta = {
-  title: 'taskDetail/MetaSection/LocationMap',
+  title: 'task/MetaSection/LocationMap',
   component: LocationMap,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

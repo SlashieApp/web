@@ -89,7 +89,7 @@ function ColorPaletteStory({ themeMode }: { themeMode: ThemeMode }) {
 }
 
 const meta = {
-  title: 'ui/ColorPalette',
+  title: 'design/ColorPalette',
   component: ColorPaletteStory,
   tags: ['autodocs'],
   parameters: {

@@ -29,7 +29,7 @@ export type FormFieldControlProps = {
   'aria-describedby'?: string
 }
 
-/** Merge explicit control props with the nearest `FormField` state. */
+/** Merge explicit control props with the nearest {@link FormField} state. */
 export function useFormFieldControlProps(
   overrides: FormFieldControlProps = {},
 ) {
@@ -39,13 +39,15 @@ export function useFormFieldControlProps(
     .filter(Boolean)
     .join(' ')
 
+  const invalid = field?.invalid ?? false
+
   return {
     id: overrides.id ?? field?.controlId,
     disabled: overrides.disabled ?? field?.disabled ?? false,
     required: overrides.required ?? field?.required ?? false,
-    invalid: field?.invalid ?? false,
+    invalid,
     'aria-describedby': describedBy || undefined,
-    'aria-invalid': field?.invalid ? true : undefined,
+    'aria-invalid': invalid ? true : undefined,
   } as const
 }
 

@@ -1,5 +1,13 @@
 import { Box } from '@chakra-ui/react'
+import { Currency, OrderStatus, QuoteStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+
+import {
+  storyOrder,
+  storyQuote,
+  storyQuoteRow,
+  storyTask,
+} from '@/app/(dashboard)/quotes/components/workerQuoteStoryFixtures'
 
 import { TaskCard } from './TaskCard'
 
@@ -10,9 +18,8 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
-
   render: (args) => (
-    <Box maxW="460px">
+    <Box maxW="520px" w="full">
       <TaskCard {...args} />
     </Box>
   ),
@@ -49,5 +56,124 @@ export const ListItemExpanded: Story = {
   },
   parameters: {
     viewport: { defaultViewport: 'desktop' },
+  },
+}
+
+export const WorkerQuotePendingCollapsed: Story = {
+  args: {
+    variant: 'workerQuote',
+    ...storyQuoteRow({
+      quote: storyQuote({ status: 'PENDING' }),
+      workerOrder: null,
+    }),
+  },
+}
+
+export const WorkerQuotePendingExpanded: Story = {
+  args: {
+    ...WorkerQuotePendingCollapsed.args,
+    initialExpanded: true,
+  },
+}
+
+export const WorkerQuotePendingNoMessage: Story = {
+  args: {
+    variant: 'workerQuote',
+    ...storyQuoteRow({
+      quote: storyQuote({ status: 'PENDING', message: null }),
+      workerOrder: null,
+    }),
+  },
+}
+
+export const WorkerQuotePendingNoThumbnail: Story = {
+  args: {
+    variant: 'workerQuote',
+    ...storyQuoteRow({
+      task: storyTask({ images: [] }),
+      quote: storyQuote({ status: 'PENDING' }),
+      workerOrder: null,
+    }),
+  },
+}
+
+export const WorkerQuoteBookedActiveJob: Story = {
+  args: {
+    variant: 'workerQuote',
+    ...storyQuoteRow({
+      quote: storyQuote({ status: 'ACCEPTED' }),
+      workerOrder: storyOrder({ status: OrderStatus.Active }),
+    }),
+  },
+}
+
+export const WorkerQuoteBookedActiveJobExpanded: Story = {
+  args: {
+    ...WorkerQuoteBookedActiveJob.args,
+    initialExpanded: true,
+  },
+}
+
+export const WorkerQuoteCompletedOrder: Story = {
+  args: {
+    variant: 'workerQuote',
+    ...storyQuoteRow({
+      quote: storyQuote({ status: 'ACCEPTED' }),
+      workerOrder: storyOrder({
+        status: OrderStatus.Closed,
+        closedAt: '2026-05-20T16:00:00.000Z',
+      }),
+    }),
+  },
+}
+
+export const WorkerQuoteCompletedOrderExpanded: Story = {
+  args: {
+    ...WorkerQuoteCompletedOrder.args,
+    initialExpanded: true,
+  },
+}
+
+export const WorkerQuoteEndedDeclined: Story = {
+  args: {
+    variant: 'workerQuote',
+    ...storyQuoteRow({
+      quote: storyQuote({ status: 'DECLINED' }),
+      workerOrder: null,
+    }),
+  },
+}
+
+export const WorkerQuoteEndedAnotherWorkerBooked: Story = {
+  args: {
+    variant: 'workerQuote',
+    ...storyQuoteRow({
+      task: storyTask({
+        quotes: [
+          {
+            id: 'quote-other',
+            taskId: 'task-story-1',
+            workerUserId: 'worker-other',
+            price: { amount: 90, currency: Currency.Gbp },
+            message: null,
+            status: QuoteStatus.Accepted,
+            createdAt: '2026-05-30T10:00:00.000Z',
+          },
+        ],
+      }),
+      quote: storyQuote({ status: 'PENDING' }),
+      workerOrder: null,
+    }),
+  },
+}
+
+export const WorkerQuoteEndedTaskCancelled: Story = {
+  args: {
+    variant: 'workerQuote',
+    ...storyQuoteRow({
+      task: storyTask({ status: 'CANCELLED' }),
+      quote: storyQuote({ status: 'PENDING' }),
+      workerOrder: null,
+    }),
   },
 }

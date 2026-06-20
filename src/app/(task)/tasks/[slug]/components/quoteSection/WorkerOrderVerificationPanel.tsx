@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react'
 
 import { Button, Card, Input } from '@ui'
 
-import { useTaskDetail } from '../context/TaskDetailProvider'
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 
 function normalizeVerificationCode(raw: string): string {
   return raw.replace(/\D/g, '').slice(0, 6)

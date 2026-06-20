@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { QuotePaymentTrustCard } from './QuotePaymentTrustCard'
 
 const meta = {
-  title: 'taskDetail/QuoteSection/QuotePaymentTrustCard',
+  title: 'task/QuoteSection/QuotePaymentTrustCard',
   component: QuotePaymentTrustCard,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

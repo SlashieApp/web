@@ -12,6 +12,7 @@
     "start": "next start",
     "lint": "biome check --write .",
     "storybook": "storybook dev -p 6006",
+    "prebuild-storybook": "graphql-codegen --config codegen.ts",
     "build-storybook": "storybook build",
     "test:unit": "vitest run --config vitest.unit.config.ts"
   },

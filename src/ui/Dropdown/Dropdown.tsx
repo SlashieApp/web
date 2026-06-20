@@ -42,12 +42,8 @@ export type DropdownTriggerApi = {
 }
 
 type DropdownBaseProps = {
-  /** Accessible label for the popover region. */
-  contentLabel: string
   /** Horizontal alignment of the panel relative to the trigger. */
   align?: 'start' | 'end' | 'center'
-  /** Panel width (click mode). */
-  width?: BoxProps['w']
   /** Start opened (Storybook / controlled-open scenarios). */
   defaultOpen?: boolean
   /** Notified whenever open state changes. */
@@ -57,6 +53,10 @@ type DropdownBaseProps = {
 }
 
 export type ClickDropdownProps = DropdownBaseProps & {
+  /** Accessible label for the popover region. */
+  contentLabel: string
+  /** Panel width (click mode). */
+  width?: BoxProps['w']
   hoverExpand?: false
   /**
    * Trigger element or render prop. Pass JSX (e.g. `IconButton`) and `Dropdown`
@@ -72,6 +72,8 @@ export type ClickDropdownProps = DropdownBaseProps & {
 export type HoverDropdownProps = DropdownBaseProps & {
   /** Open on pointer hover and keyboard focus instead of click. */
   hoverExpand: true
+  /** Accessible label for the popover region. */
+  contentLabel?: string
   /** Hover/focus target (e.g. nav link). ARIA props merge when this is a single React element. */
   trigger: ReactNode
   /** Dropdown panel body. */
@@ -273,7 +275,7 @@ function HoverDropdown({
   openDelayMs = 0,
   closeDelayMs = 150,
   contentProps,
-  contentLabel,
+  contentLabel = 'Submenu',
   onOpenChange,
   defaultOpen = false,
   rootProps,

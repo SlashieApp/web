@@ -1,32 +1,13 @@
-import {
-  Box,
-  Input,
-  type InputProps,
-  SimpleGrid,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useCallback, useState } from 'react'
 
+import { Input } from '../Input/Input'
+import { OtpInput } from '../OtpInput/OtpInput'
+import { PhoneInput } from '../PhoneInput/PhoneInput'
+import { Select } from '../Select/Select'
+import { Textarea } from '../Textarea/Textarea'
 import { FormField } from './FormField'
-
-/** Themed field shell; resolves via `formControl*` tokens in `theme/system.ts` (Storybook light/dark toolbar). */
-const slashieFormInputProps = {
-  bg: 'formControlBg',
-  color: 'formControlFg',
-  borderWidth: '1px',
-  borderColor: 'formControlBorder',
-  borderRadius: '12px',
-  h: '52px',
-  px: 4,
-  fontSize: 'md',
-  outline: 'none',
-  _placeholder: { color: 'formControlPlaceholder' },
-  _focusVisible: {
-    borderColor: 'formControlFocusBorder',
-  },
-} satisfies InputProps
 
 const slashieLabelProps = {
   fontSize: 'xs',
@@ -101,6 +82,12 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Label + helper + error wrapper. Slot any `@ui` control; field state (id, invalid, disabled, aria) flows via context.',
+      },
+    },
   },
   args: {
     label: 'Email',
@@ -119,7 +106,7 @@ export const Default: Story = {
       helperText="We’ll never share your email."
       helperTextProps={{ color: 'formHelperMuted' }}
     >
-      <Input placeholder="you@example.com" {...slashieFormInputProps} />
+      <Input placeholder="you@example.com" />
     </FormField>
   ),
 }
@@ -127,13 +114,106 @@ export const Default: Story = {
 export const WithError: Story = {
   render: () => (
     <FormField label="Password" errorText="Password is too short">
-      <Input
-        type="password"
-        placeholder="••••••••"
-        {...slashieFormInputProps}
-      />
+      <Input type="password" placeholder="••••••••" />
     </FormField>
   ),
+}
+
+export const WithSelect: Story = {
+  render: () => (
+    <FormField
+      label="Category"
+      helperText="Workers filter discovery by category."
+    >
+      <Select>
+        <option value="">Select a category…</option>
+        <option value="handyman">Handyman</option>
+        <option value="cleaning">Cleaning</option>
+      </Select>
+    </FormField>
+  ),
+}
+
+export const WithTextarea: Story = {
+  render: function WithTextareaRender() {
+    const [value, setValue] = useState('')
+    return (
+      <FormField
+        label="Description"
+        errorText={
+          value.length > 0 && value.length < 10
+            ? 'Add a bit more detail'
+            : undefined
+        }
+      >
+        <Textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Describe the work…"
+          rows={4}
+        />
+      </FormField>
+    )
+  },
+}
+
+export const WithCharCount: Story = {
+  render: function WithCharCountRender() {
+    const [value, setValue] = useState('')
+    const maxLength = 300
+    return (
+      <FormField label="Short bio" helperText="Keep it clear and friendly.">
+        <Box position="relative" w="full">
+          <Textarea
+            value={value}
+            maxLength={maxLength}
+            pb={10}
+            rows={6}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Tell customers about your experience, skills, and what makes you great to work with."
+          />
+          <Text
+            position="absolute"
+            bottom={3}
+            right={4}
+            fontSize="xs"
+            color="formLabelMuted"
+            pointerEvents="none"
+            aria-hidden
+          >
+            {value.length} / {maxLength}
+          </Text>
+        </Box>
+      </FormField>
+    )
+  },
+}
+
+export const WithPhoneAndOtp: Story = {
+  render: function WithPhoneAndOtpRender() {
+    const [phone, setPhone] = useState('')
+    const [code, setCode] = useState('')
+    return (
+      <Stack gap={6} maxW="420px">
+        <FormField
+          label="Mobile number"
+          helperText="UK numbers only in this demo."
+        >
+          <PhoneInput value={phone} onChange={setPhone} />
+        </FormField>
+        <FormField
+          label="Verification code"
+          errorText={
+            code.length > 0 && code.length < 6
+              ? 'Enter all 6 digits'
+              : undefined
+          }
+        >
+          <OtpInput value={code} onChange={setCode} />
+        </FormField>
+      </Stack>
+    )
+  },
 }
 
 /** Project-style grid; toggle Storybook **Theme** for light/dark. */
@@ -151,10 +231,7 @@ export const FormControls: Story = {
       </Text>
 
       <FormField label="Project title" labelProps={slashieLabelProps}>
-        <Input
-          defaultValue="Urban Garden Redesign"
-          {...slashieFormInputProps}
-        />
+        <Input defaultValue="Urban Garden Redesign" />
       </FormField>
 
       <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
@@ -164,11 +241,7 @@ export const FormControls: Story = {
           icon={<IconCalendar />}
           iconProps={slashieIconProps}
         >
-          <Input
-            placeholder="Select date"
-            readOnly
-            {...slashieFormInputProps}
-          />
+          <Input placeholder="Select date" readOnly />
         </FormField>
 
         <FormField
@@ -177,11 +250,7 @@ export const FormControls: Story = {
           icon={<IconCash />}
           iconProps={slashieIconProps}
         >
-          <Input
-            defaultValue="$500 - $1.2k"
-            readOnly
-            {...slashieFormInputProps}
-          />
+          <Input defaultValue="$500 - $1.2k" readOnly />
         </FormField>
       </SimpleGrid>
     </Stack>
@@ -196,7 +265,7 @@ export const WithIcon: Story = {
       icon={<IconCalendar />}
       iconProps={slashieIconProps}
     >
-      <Input placeholder="Select date" readOnly {...slashieFormInputProps} />
+      <Input placeholder="Select date" readOnly />
     </FormField>
   ),
 }
@@ -237,4 +306,28 @@ export const ClickableTrigger: Story = {
       </FormField>
     )
   },
+}
+
+export const Disabled: Story = {
+  render: () => (
+    <FormField label="Email" helperText="This field is disabled." disabled>
+      <Input defaultValue="you@example.com" />
+    </FormField>
+  ),
+}
+
+export const RenderProp: Story = {
+  render: () => (
+    <FormField
+      label="Task title"
+      helperText="Render prop receives field state."
+    >
+      {(field) => (
+        <Input
+          placeholder="e.g. Fix leaking pipe"
+          aria-invalid={field.invalid ? true : undefined}
+        />
+      )}
+    </FormField>
+  ),
 }

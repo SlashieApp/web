@@ -9,6 +9,10 @@ import type { ReactNode } from 'react'
 import * as React from 'react'
 
 import {
+  formControlInvalidShellProps,
+  useFormFieldControlProps,
+} from '../FormField/formFieldContext'
+import {
   formControlFieldRingless,
   formControlShellInteraction,
 } from '../interactionStyles'
@@ -27,7 +31,25 @@ export type InputProps = ChakraInputProps & {
  * borderless inside the shell; focus ring is expressed via the shell border.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  function Input({ startElement, endElement, rootProps, ...inputProps }, ref) {
+  function Input(
+    {
+      startElement,
+      endElement,
+      rootProps,
+      disabled,
+      required,
+      id,
+      ...inputProps
+    },
+    ref,
+  ) {
+    const { invalid, ...controlProps } = useFormFieldControlProps({
+      id,
+      disabled,
+      required,
+      'aria-describedby': inputProps['aria-describedby'],
+    })
+
     return (
       <Box
         pointerEvents="auto"
@@ -42,6 +64,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         pl={3}
         pr={3}
         {...formControlShellInteraction}
+        {...formControlInvalidShellProps(invalid)}
         {...rootProps}
       >
         {startElement != null ? (
@@ -59,6 +82,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <ChakraInput
           ref={ref}
           {...inputProps}
+          {...controlProps}
           flex={1}
           minW={0}
           borderWidth={0}

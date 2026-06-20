@@ -3,6 +3,10 @@
 import { Box, Input as ChakraInput, HStack, Text } from '@chakra-ui/react'
 import * as React from 'react'
 
+import {
+  formControlInvalidFieldProps,
+  useFormFieldControlProps,
+} from '../FormField/formFieldContext'
 import { formControlFieldInteraction } from '../interactionStyles'
 
 export type OtpInputProps = {
@@ -62,6 +66,11 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     },
     ref,
   ) {
+    const { invalid, id, ...controlProps } = useFormFieldControlProps({
+      disabled,
+    })
+    const isDisabled = controlProps.disabled
+
     const inputRefs = React.useRef<Array<HTMLInputElement | null>>([])
     const cells = digitsToCells(value, length)
     const indices = Array.from({ length }, (_, i) => i)
@@ -167,7 +176,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
       (node: HTMLDivElement | null) => {
         if (typeof ref === 'function') ref(node)
         else if (ref) ref.current = node
-        if (!node || didAutoFocusRef.current || !autoFocus || disabled) return
+        if (!node || didAutoFocusRef.current || !autoFocus || isDisabled) return
         didAutoFocusRef.current = true
         const first = inputRefs.current[0]
         if (first) {
@@ -175,7 +184,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
           first.select()
         }
       },
-      [autoFocus, disabled, ref],
+      [autoFocus, isDisabled, ref],
     )
 
     const renderCell = (index: number) => (
@@ -193,14 +202,21 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         pattern="[0-9]*"
         autoComplete={index === 0 ? 'one-time-code' : 'off'}
         maxLength={1}
-        disabled={disabled}
+        disabled={isDisabled}
         aria-label={`Digit ${index + 1} of ${length}`}
         {...cellStyles}
+        {...formControlInvalidFieldProps(invalid)}
       />
     )
 
     return (
-      <Box ref={onContainerRef} w="full">
+      <Box
+        ref={onContainerRef}
+        w="full"
+        id={id}
+        aria-describedby={controlProps['aria-describedby']}
+        aria-invalid={controlProps['aria-invalid']}
+      >
         <HStack gap={2} justify="center" w="full">
           {firstGroup.map(renderCell)}
           {length > 3 ? (

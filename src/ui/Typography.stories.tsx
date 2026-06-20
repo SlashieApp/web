@@ -62,7 +62,7 @@ function TypographyStory({ themeMode }: { themeMode: ThemeMode }) {
 }
 
 const meta = {
-  title: 'ui/Typography',
+  title: 'design/Typography',
   component: TypographyStory,
   tags: ['autodocs'],
   parameters: {

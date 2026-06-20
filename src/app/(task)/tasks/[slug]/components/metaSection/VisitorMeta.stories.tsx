@@ -11,7 +11,7 @@ import {
 import { VisitorMeta } from './VisitorMeta'
 
 const meta = {
-  title: 'taskDetail/MetaSection/VisitorMeta',
+  title: 'task/MetaSection/VisitorMeta',
   component: VisitorMeta,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

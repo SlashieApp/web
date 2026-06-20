@@ -72,7 +72,7 @@ Stories are titled **by function**, not by source folder:
 | `ui/*` | Universal atoms/molecules from `src/ui` (form controls, progress, stepper, card, badge, …). | `ui/Input`, `ui/Textarea`, `ui/FormField`, `ui/ProgressBar`, `ui/Stepper` |
 | `layout/*` | Universal layout primitives (position/overlay). | `layout/Dropdown`, `layout/Drawer`, `layout/Footer`, `layout/Dock` |
 | `header/*` | Top-level app/site headers and their menus. | `header/Header`, `header/MarketingHeader`, `header/AccountMenu` |
-| route/section | Feature-scoped components under `src/app/**`. | `task/TaskCard`, `taskDetail/QuoteSection/QuoteCard` |
+| route/section | Feature-scoped components under `src/app/**`. | `task/TaskCard`, `task/QuoteSection/QuoteCard` |
 
 Rules:
 

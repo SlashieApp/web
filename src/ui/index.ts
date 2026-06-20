@@ -9,7 +9,6 @@ export { Avatar } from './Avatar/Avatar'
 export { Badge } from './Badge'
 export { Button } from './Button'
 export { Card } from './Card/Card'
-export { CharCountTextarea } from './CharCountTextarea'
 export {
   ColorModeButton,
   ColorModeIcon,
@@ -55,8 +54,6 @@ export {
   useFormFieldControlProps,
 } from './FormField/formFieldContext'
 export { FormField } from './FormField/FormField'
-export { FormFieldCharCountTextarea } from './FormField/FormFieldCharCountTextarea'
-export { HoverDropdownMenu } from './HoverDropdownMenu'
 export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Input } from './Input'
@@ -79,7 +76,6 @@ export type { AppDrawerPlacement, AppDrawerProps } from './AppDrawer/AppDrawer'
 export type { AppModalProps, AppModalSize } from './AppModal'
 export type { AvatarProps } from './Avatar/Avatar'
 export type { CardProps } from './Card/Card'
-export type { CharCountTextareaProps } from './CharCountTextarea'
 export type {
   ClickDropdownProps,
   DropdownProps,
@@ -93,13 +89,11 @@ export type {
 } from './color-mode'
 export type { DashboardSectionNavProps, HeaderProps } from './Header'
 export type { DrawerPlacement, DrawerProps } from './Drawer/Drawer'
-export type { FormFieldCharCountTextareaProps } from './FormField/FormFieldCharCountTextarea'
 export type {
   FormFieldControlProps,
   FormFieldState,
 } from './FormField/formFieldContext'
 export type { FormFieldProps } from './FormField/FormField'
-export type { HoverDropdownMenuProps } from './HoverDropdownMenu'
 export type {
   IconButtonProps,
   NavIconButtonProps,

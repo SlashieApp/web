@@ -6,7 +6,7 @@ import { storyTaskDetail } from '../helpers/taskDetailStoryFixtures'
 import { TaskOwnerCard } from './TaskOwnerCard'
 
 const meta = {
-  title: 'taskDetail/TaskOwnerCard',
+  title: 'task/TaskOwnerCard',
   component: TaskOwnerCard,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

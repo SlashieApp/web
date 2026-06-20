@@ -7,7 +7,7 @@ const photo =
   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop'
 
 const meta = {
-  title: 'taskDetail/MainSection/TaskPhotoStrip',
+  title: 'task/MainSection/TaskPhotoStrip',
   component: TaskPhotoStrip,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

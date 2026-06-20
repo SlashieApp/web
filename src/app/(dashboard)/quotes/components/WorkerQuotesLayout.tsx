@@ -1,19 +1,49 @@
 'use client'
 
-import { Box, Grid, Stack } from '@chakra-ui/react'
+import { Box, Grid, HStack, Stack } from '@chakra-ui/react'
+import { useMemo } from 'react'
 
+import { Button } from '@ui'
+
+import {
+  type WorkerQuoteListFilter,
+  workerQuoteFilterLabel,
+  workerQuoteStage,
+} from '../../helpers/workerQuoteJobs'
 import { useWorkerQuotes } from '../context/WorkerQuotesProvider'
 
 import { WorkerQuoteActivity } from './WorkerQuoteActivity'
 import { WorkerQuoteCalendar } from './WorkerQuoteCalendar'
 import { WorkerQuoteFilterColumn } from './WorkerQuoteFilterColumn'
-import { WorkerQuoteFilters } from './WorkerQuoteFilters'
 import { WorkerQuoteQuickStats } from './WorkerQuoteQuickStats'
 import { WorkerQuoteUpcoming } from './WorkerQuoteUpcoming'
 import { WorkerQuotesMainColumn } from './WorkerQuotesMainColumn'
 
+const STAGE_FILTERS: WorkerQuoteListFilter[] = [
+  'all',
+  'pending',
+  'booked',
+  'done',
+]
+
 export function WorkerQuotesLayout() {
-  const { quoteRows } = useWorkerQuotes()
+  const { quoteRows, stageFilter, setStageFilter } = useWorkerQuotes()
+
+  const stageCounts = useMemo(() => {
+    const counts: Record<WorkerQuoteListFilter, number> = {
+      all: quoteRows.length,
+      pending: 0,
+      booked: 0,
+      done: 0,
+    }
+    for (const row of quoteRows) {
+      const stage = workerQuoteStage(row.task, row.quote, row.workerOrder)
+      if (stage === 'pending') counts.pending += 1
+      else if (stage === 'booked') counts.booked += 1
+      else if (stage === 'closed' || stage === 'ended') counts.done += 1
+    }
+    return counts
+  }, [quoteRows])
 
   return (
     <Grid
@@ -59,7 +89,24 @@ export function WorkerQuotesLayout() {
           {quoteRows.length > 0 ? <WorkerQuoteCalendar /> : null}
           {quoteRows.length > 0 ? (
             <Box display={{ base: 'block', md: 'none' }}>
-              <WorkerQuoteFilters />
+              <HStack gap={2} flexWrap="wrap">
+                {STAGE_FILTERS.map((key) => {
+                  const n = stageCounts[key]
+                  if (n === 0 && stageFilter !== key && key !== 'all') {
+                    return null
+                  }
+                  return (
+                    <Button
+                      key={key}
+                      size="sm"
+                      variant={stageFilter === key ? 'primary' : 'ghost'}
+                      onClick={() => setStageFilter(key)}
+                    >
+                      {workerQuoteFilterLabel(key)} ({n})
+                    </Button>
+                  )
+                })}
+              </HStack>
             </Box>
           ) : null}
           <Box display={{ base: 'none', md: 'block' }}>

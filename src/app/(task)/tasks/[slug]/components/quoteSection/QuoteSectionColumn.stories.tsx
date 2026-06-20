@@ -11,7 +11,7 @@ import {
 import { QuoteSectionColumn } from './QuoteSectionColumn'
 
 const meta = {
-  title: 'taskDetail/QuoteSection/QuoteSectionColumn',
+  title: 'task/QuoteSection/QuoteSectionColumn',
   component: QuoteSectionColumn,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

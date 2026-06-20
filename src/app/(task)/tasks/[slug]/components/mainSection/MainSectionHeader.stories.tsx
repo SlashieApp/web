@@ -10,7 +10,7 @@ import {
 import { MainSectionHeader } from './MainSectionHeader'
 
 const meta = {
-  title: 'taskDetail/MainSection/MainSectionHeader',
+  title: 'task/MainSection/MainSectionHeader',
   component: MainSectionHeader,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

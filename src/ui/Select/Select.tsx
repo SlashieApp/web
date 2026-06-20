@@ -6,6 +6,10 @@ import * as React from 'react'
 import { LuChevronDown } from 'react-icons/lu'
 
 import {
+  formControlInvalidShellProps,
+  useFormFieldControlProps,
+} from '../FormField/formFieldContext'
+import {
   formControlFieldRingless,
   formControlShellInteraction,
 } from '../interactionStyles'
@@ -31,11 +35,33 @@ export type SelectProps = NativeFieldProps & {
  */
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   function Select(
-    { rootProps, startElement, endElement, children, ...fieldProps },
+    {
+      rootProps,
+      startElement,
+      endElement,
+      children,
+      disabled,
+      required,
+      id,
+      ...fieldProps
+    },
     ref,
   ) {
+    const { invalid, ...controlProps } = useFormFieldControlProps({
+      id,
+      disabled: disabled ?? rootProps?.disabled,
+      required,
+      'aria-describedby': fieldProps['aria-describedby'],
+    })
+
     return (
-      <NativeSelect.Root unstyled w="full" {...rootProps}>
+      <NativeSelect.Root
+        unstyled
+        w="full"
+        {...rootProps}
+        disabled={controlProps.disabled}
+        invalid={invalid}
+      >
         <Box
           pointerEvents="auto"
           display="flex"
@@ -49,6 +75,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           pl={2}
           pr={1}
           {...formControlShellInteraction}
+          {...formControlInvalidShellProps(invalid)}
         >
           {startElement != null ? (
             <Box
@@ -84,6 +111,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             }}
             {...formControlFieldRingless}
             {...fieldProps}
+            {...controlProps}
           >
             {children}
           </NativeSelect.Field>

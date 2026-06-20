@@ -13,12 +13,13 @@ import {
 } from '@/utils/profileAvatarUpload'
 import {
   Button,
-  CharCountTextarea,
   FormField,
   Input,
   Textarea,
   formControlRootProps,
+  formControlTextareaProps,
 } from '@ui'
+import type { TextareaProps } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
 import { WorkerSetupOptionalLabel } from './WorkerSetupOptionalBadge'
@@ -108,7 +109,7 @@ export function WorkerSetupStepContent() {
             />
           </FormField>
           <FormField label="Short bio" errorText={fieldErrors.bio}>
-            <CharCountTextarea
+            <TextareaWithCharCount
               value={form.bio}
               maxLength={300}
               onChange={(e) => patchForm({ bio: e.target.value })}
@@ -216,7 +217,7 @@ export function WorkerSetupStepContent() {
             />
           </FormField>
           <FormField label="Short bio" errorText={fieldErrors.bio}>
-            <CharCountTextarea
+            <TextareaWithCharCount
               value={form.bio}
               maxLength={300}
               onChange={(e) => patchForm({ bio: e.target.value })}
@@ -337,4 +338,34 @@ export function WorkerSetupStepContent() {
     default:
       return null
   }
+}
+
+function TextareaWithCharCount({
+  value,
+  maxLength,
+  pb = 10,
+  ...textareaProps
+}: TextareaProps & { value: string; maxLength: number }) {
+  return (
+    <Box position="relative" w="full">
+      <Textarea
+        value={value}
+        maxLength={maxLength}
+        pb={pb}
+        {...formControlTextareaProps}
+        {...textareaProps}
+      />
+      <Text
+        position="absolute"
+        bottom={3}
+        right={4}
+        fontSize="xs"
+        color="formLabelMuted"
+        pointerEvents="none"
+        aria-hidden
+      >
+        {value.length} / {maxLength}
+      </Text>
+    </Box>
+  )
 }

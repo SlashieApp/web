@@ -12,7 +12,7 @@ function ChevronDown() {
 }
 
 const meta = {
-  title: 'layout/Dropdown',
+  title: 'ui/Dropdown',
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',

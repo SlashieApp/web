@@ -4,10 +4,10 @@ import type { TaskQuery } from '@codegen/schema'
 import { TASK_DETAIL_COLUMN_GAP } from '../../helpers/taskDetailLayout'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import { TaskOwnerCard } from '../TaskOwnerCard'
-import { WorkerOrderVerificationPanel } from '../WorkerOrderVerificationPanel'
 import { OrderSection } from '../orderSection/OrderSection'
 import { QuotePaymentTrustCard } from './QuotePaymentTrustCard'
 import { QuotesSection } from './QuotesSection'
+import { WorkerOrderVerificationPanel } from './WorkerOrderVerificationPanel'
 
 type QuoteSectionColumnProps = Omit<StackProps, 'order'> & {
   task: TaskDetailRecord

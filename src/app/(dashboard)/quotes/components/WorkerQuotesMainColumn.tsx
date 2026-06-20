@@ -7,9 +7,10 @@ import { LuSearch } from 'react-icons/lu'
 
 import { Button, Card, Input } from '@ui'
 
+import { TaskCard } from '@/app/(task)/components/TaskCard'
+
 import { useWorkerQuotes } from '../context/WorkerQuotesProvider'
 
-import { WorkerQuoteCard } from './WorkerQuoteCard'
 import { WorkerQuoteSummaryBar } from './WorkerQuoteSummaryBar'
 
 export function WorkerQuotesMainColumn() {
@@ -96,7 +97,7 @@ export function WorkerQuotesMainColumn() {
       {visibleQuotes.length > 0 ? (
         <Stack gap={3}>
           {visibleQuotes.map((row) => (
-            <WorkerQuoteCard key={row.quote.id} {...row} />
+            <TaskCard key={row.quote.id} variant="workerQuote" {...row} />
           ))}
         </Stack>
       ) : null}

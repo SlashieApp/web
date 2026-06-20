@@ -70,7 +70,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Dropdown } from './Dropdown';
 
 const meta = {
-  title: 'layout/Dropdown',
+  title: 'ui/Dropdown',
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
 } satisfies Meta;

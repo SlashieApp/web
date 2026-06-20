@@ -1,6 +1,7 @@
 'use client'
 
 import type { MouseEventHandler, ReactNode } from 'react'
+import { useId, useMemo } from 'react'
 
 import {
   Box,
@@ -12,6 +13,8 @@ import {
   Text,
   type TextProps,
 } from '@chakra-ui/react'
+
+import { type FormFieldState, FormFieldStateContext } from './formFieldContext'
 
 /** When true, the click is treated as interacting with a real editable control (skip `onControlClick`). */
 function isTypingSurfaceTarget(target: EventTarget | null): boolean {
@@ -31,7 +34,11 @@ export type FormFieldProps = {
   label: ReactNode
   helperText?: string
   errorText?: string
-  children: React.ReactNode
+  /**
+   * Control slot: any `@ui` input or custom control that reads {@link useFormFieldControlProps}.
+   * Optional render prop receives the resolved field state.
+   */
+  children: ReactNode | ((field: FormFieldState) => ReactNode)
   labelProps?: React.ComponentProps<typeof FieldLabel>
   helperTextProps?: TextProps
   /** Applied to the icon slot wrapper (e.g. `color` on dark panels). */
@@ -55,8 +62,40 @@ export function FormField({
   iconProps,
   icon,
   onControlClick,
+  disabled,
+  required,
   ...props
 }: FormFieldProps) {
+  const baseId = useId()
+  const controlId = `${baseId}-control`
+  const helperId = helperText ? `${baseId}-helper` : undefined
+  const errorId = errorText ? `${baseId}-error` : undefined
+  const invalid = Boolean(errorText)
+  const isDisabled = Boolean(disabled)
+  const isRequired = Boolean(required)
+
+  const fieldState = useMemo<FormFieldState>(
+    () => ({
+      controlId,
+      invalid,
+      disabled: isDisabled,
+      required: isRequired,
+      errorText,
+      helperText,
+      describedBy: [helperId, errorId].filter(Boolean).join(' ') || undefined,
+    }),
+    [
+      controlId,
+      errorId,
+      errorText,
+      helperId,
+      helperText,
+      invalid,
+      isDisabled,
+      isRequired,
+    ],
+  )
+
   const handleControlClick: MouseEventHandler<HTMLDivElement> | undefined =
     onControlClick
       ? (e) => {
@@ -66,6 +105,9 @@ export function FormField({
       : undefined
 
   const useControlRow = icon != null || onControlClick != null
+
+  const controlBody =
+    typeof children === 'function' ? children(fieldState) : children
 
   const control = useControlRow ? (
     <HStack
@@ -91,36 +133,48 @@ export function FormField({
         </Box>
       ) : null}
       <Box flex="1" minW={0} w="full">
-        {children}
+        {controlBody}
       </Box>
     </HStack>
   ) : (
-    children
+    controlBody
   )
 
   return (
-    <FieldRoot invalid={Boolean(errorText)} gap={2} {...props}>
-      <FieldLabel
-        fontSize="sm"
-        fontWeight={700}
-        color="cardFg"
-        mb={0}
-        {...labelProps}
+    <FormFieldStateContext.Provider value={fieldState}>
+      <FieldRoot
+        invalid={invalid}
+        disabled={disabled}
+        required={required}
+        gap={2}
+        {...props}
       >
-        {label}
-      </FieldLabel>
-      {control}
-      {helperText ? (
-        <Text
+        <FieldLabel
+          htmlFor={controlId}
           fontSize="sm"
-          color="formLabelMuted"
-          lineHeight="tall"
-          {...helperTextProps}
+          fontWeight={700}
+          color="cardFg"
+          mb={0}
+          {...labelProps}
         >
-          {helperText}
-        </Text>
-      ) : null}
-      {errorText ? <FieldErrorText>{errorText}</FieldErrorText> : null}
-    </FieldRoot>
+          {label}
+        </FieldLabel>
+        {control}
+        {helperText ? (
+          <Text
+            id={helperId}
+            fontSize="sm"
+            color="formLabelMuted"
+            lineHeight="tall"
+            {...helperTextProps}
+          >
+            {helperText}
+          </Text>
+        ) : null}
+        {errorText ? (
+          <FieldErrorText id={errorId}>{errorText}</FieldErrorText>
+        ) : null}
+      </FieldRoot>
+    </FormFieldStateContext.Provider>
   )
 }
