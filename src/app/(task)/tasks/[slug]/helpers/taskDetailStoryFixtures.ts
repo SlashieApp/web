@@ -1,13 +1,11 @@
+import type { MeSnapshot } from '@/app/(auth)/store/user'
 import {
-  Currency,
-  LoginMethod,
-  OrderStatus,
-  QuoteStatus,
-  TaskContactMethod,
-  TaskStatus,
-} from '@codegen/schema'
-import type { MeQuery, TaskQuery } from '@codegen/schema'
-
+  StoryCurrency,
+  StoryLoginMethod,
+  StoryOrderStatus,
+  StoryQuoteStatus,
+  StoryTaskContactMethod,
+} from '@/storybook/storyLiterals'
 import type { OrderItem } from '@/utils/orderHelpers'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
@@ -29,8 +27,8 @@ export function storyTaskDetail(
     storyTaskQuote({
       id: 'quote-detail-1',
       workerUserId: STORY_WORKER_ID,
-      status: QuoteStatus.Pending,
-      price: { amount: 85, currency: Currency.Gbp },
+      status: StoryQuoteStatus.Pending,
+      price: { amount: 85, currency: StoryCurrency.Gbp },
       message: 'I can do this Saturday morning with my own tools.',
       worker: {
         id: STORY_WORKER_ID,
@@ -41,8 +39,8 @@ export function storyTaskDetail(
     storyTaskQuote({
       id: 'quote-detail-2',
       workerUserId: 'worker-detail-2',
-      status: QuoteStatus.Pending,
-      price: { amount: 95, currency: Currency.Gbp },
+      status: StoryQuoteStatus.Pending,
+      price: { amount: 95, currency: StoryCurrency.Gbp },
       message: 'Available weekday evenings. Happy to bring a ladder.',
       worker: {
         id: 'worker-detail-2',
@@ -61,7 +59,7 @@ export function storyTaskDetail(
     acceptedWorkerCap: 1,
     budget: {
       amount: 120,
-      currency: Currency.Gbp,
+      currency: StoryCurrency.Gbp,
       type: 'ONE_OFF',
       paymentMethod: 'CASH',
     },
@@ -104,9 +102,9 @@ export function storyTaskQuote(
     id: 'quote-detail-1',
     taskId: STORY_TASK_ID,
     workerUserId: STORY_WORKER_ID,
-    price: { amount: 85, currency: Currency.Gbp },
+    price: { amount: 85, currency: StoryCurrency.Gbp },
     message: 'I can do this Saturday morning with my own tools.',
-    status: QuoteStatus.Pending,
+    status: StoryQuoteStatus.Pending,
     createdAt: '2026-05-29T14:30:00.000Z',
     worker: {
       id: STORY_WORKER_ID,
@@ -124,8 +122,8 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
     quoteId: 'quote-detail-1',
     customerUserId: STORY_OWNER_ID,
     workerUserId: STORY_WORKER_ID,
-    status: OrderStatus.Active,
-    agreedPrice: { amount: 85, currency: Currency.Gbp },
+    status: StoryOrderStatus.Active,
+    agreedPrice: { amount: 85, currency: StoryCurrency.Gbp },
     completionVerificationCode: '482913',
     snapshot: {
       title: 'Mount bookshelf on living room wall',
@@ -155,8 +153,8 @@ export type TaskDetailStoryViewer = 'owner' | 'worker' | 'customer' | 'visitor'
 
 export function storyMe(
   viewer: Exclude<TaskDetailStoryViewer, 'visitor'>,
-): NonNullable<MeQuery['me']> {
-  const base = {
+): MeSnapshot {
+  return {
     id:
       viewer === 'owner' || viewer === 'customer'
         ? STORY_OWNER_ID
@@ -169,7 +167,7 @@ export function storyMe(
     phoneVerified: true,
     phoneVerifiedAt: '2025-01-01T00:00:00.000Z',
     createdAt: '2025-01-01T00:00:00.000Z',
-    enabledLoginMethods: [LoginMethod.Password],
+    enabledLoginMethods: [StoryLoginMethod.Password],
     profile: {
       name:
         viewer === 'owner' || viewer === 'customer'
@@ -179,7 +177,7 @@ export function storyMe(
       avatarUrl: STORY_AVATAR,
       bio: null,
       dateOfBirth: null,
-      defaultPreferredContactMethod: TaskContactMethod.Phone,
+      defaultPreferredContactMethod: StoryTaskContactMethod.Phone,
       emailVerified: true,
       phoneVerified: true,
     },
@@ -202,14 +200,13 @@ export function storyMe(
             profile: { name: 'Jordan Lee' },
           }
         : null,
-  }
-  return base as unknown as NonNullable<MeQuery['me']>
+  } as MeSnapshot
 }
 
 export type TaskDetailStoryConfig = {
   viewer: TaskDetailStoryViewer
   task?: TaskDetailRecord
-  order?: NonNullable<TaskQuery['task']>['viewerOrder'] | null
+  order?: OrderItem | null
 }
 
 export function defaultTaskDetailStoryConfig(

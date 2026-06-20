@@ -1,7 +1,6 @@
-import { Currency, LoginMethod } from '@codegen/schema'
-
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { StoryCurrency, StoryLoginMethod } from '@/storybook/storyLiterals'
 
 import {
   membershipFixtureFree,
@@ -15,7 +14,7 @@ export const headerMeWorker: MeSnapshot = {
   phoneVerified: true,
   phoneVerifiedAt: '2024-06-01T00:00:00.000Z',
   createdAt: '2024-01-01T00:00:00.000Z',
-  enabledLoginMethods: [LoginMethod.Password],
+  enabledLoginMethods: [StoryLoginMethod.Password],
   profile: {
     name: 'Ryan Kwan',
     contactNumber: '+447878154432',
@@ -56,7 +55,7 @@ export const headerMeWorker: MeSnapshot = {
     locationLat: 51.5074,
     locationLng: -0.1278,
     membership: membershipFixtureTrial,
-    earnings: { pending: { amount: 120, currency: Currency.Gbp } },
+    earnings: { pending: { amount: 120, currency: StoryCurrency.Gbp } },
   },
 }
 

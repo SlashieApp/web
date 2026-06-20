@@ -1,5 +1,4 @@
-import { OrderStatus } from '@codegen/schema'
-
+import { StoryOrderStatus } from '@/storybook/storyLiterals'
 import type { TaskItem, TaskQuoteItem } from '@/utils/dashboardHelpers'
 import type { OrderItem } from '@/utils/orderHelpers'
 
@@ -65,7 +64,7 @@ export function storyOrder(overrides: Partial<OrderItem> = {}): OrderItem {
     quoteId: 'quote-story-1',
     customerUserId: STORY_CUSTOMER_ID,
     workerUserId: STORY_WORKER_ID,
-    status: OrderStatus.Active,
+    status: StoryOrderStatus.Active,
     agreedPrice: { amount: 85, currency: 'GBP' },
     snapshot: {
       title: 'Mount bookshelf on living room wall',
@@ -125,7 +124,7 @@ export function storyQuoteRowsMixed(): WorkerQuoteRow[] {
         id: 'order-booked',
         taskId: 'task-booked',
         quoteId: 'quote-booked',
-        status: OrderStatus.Active,
+        status: StoryOrderStatus.Active,
       }),
     }),
     storyQuoteRow({
@@ -139,7 +138,7 @@ export function storyQuoteRowsMixed(): WorkerQuoteRow[] {
         id: 'order-done',
         taskId: 'task-done',
         quoteId: 'quote-done',
-        status: OrderStatus.Closed,
+        status: StoryOrderStatus.Closed,
         closedAt: '2026-05-20T16:00:00.000Z',
       }),
     }),

@@ -1,7 +1,15 @@
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { StorybookConfig } from '@storybook/nextjs-vite'
 import type { RollupLog } from 'rollup'
 import { type UserConfig, mergeConfig } from 'vite'
 import graphqlLoader from 'vite-plugin-graphql-loader'
+
+const storybookDir = dirname(fileURLToPath(import.meta.url))
+const schemaStubPath = resolve(
+  storybookDir,
+  '../src/storybook/codegenSchemaStub.ts',
+)
 
 const isStaticBuild =
   process.env.npm_lifecycle_event === 'build-storybook' ||
@@ -38,6 +46,11 @@ const config: StorybookConfig = {
     const productionBuild: UserConfig =
       configType === 'PRODUCTION'
         ? {
+            resolve: {
+              alias: {
+                '@codegen/schema': schemaStubPath,
+              },
+            },
             build: {
               sourcemap: false,
               chunkSizeWarningLimit: 3000,
@@ -53,7 +66,14 @@ const config: StorybookConfig = {
             },
             plugins: [graphqlLoader()],
           }
-        : { plugins: [graphqlLoader()] }
+        : {
+            resolve: {
+              alias: {
+                '@codegen/schema': schemaStubPath,
+              },
+            },
+            plugins: [graphqlLoader()],
+          }
 
     return mergeConfig(userConfig, productionBuild)
   },

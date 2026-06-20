@@ -1,6 +1,11 @@
 import { Box } from '@chakra-ui/react'
-import { Currency, OrderStatus, QuoteStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+
+import {
+  StoryCurrency,
+  StoryOrderStatus,
+  StoryQuoteStatus,
+} from '@/storybook/storyLiterals'
 
 import {
   storyOrder,
@@ -102,7 +107,7 @@ export const WorkerQuoteBookedActiveJob: Story = {
     variant: 'workerQuote',
     ...storyQuoteRow({
       quote: storyQuote({ status: 'ACCEPTED' }),
-      workerOrder: storyOrder({ status: OrderStatus.Active }),
+      workerOrder: storyOrder({ status: StoryOrderStatus.Active }),
     }),
   },
 }
@@ -120,7 +125,7 @@ export const WorkerQuoteCompletedOrder: Story = {
     ...storyQuoteRow({
       quote: storyQuote({ status: 'ACCEPTED' }),
       workerOrder: storyOrder({
-        status: OrderStatus.Closed,
+        status: StoryOrderStatus.Closed,
         closedAt: '2026-05-20T16:00:00.000Z',
       }),
     }),
@@ -154,9 +159,9 @@ export const WorkerQuoteEndedAnotherWorkerBooked: Story = {
             id: 'quote-other',
             taskId: 'task-story-1',
             workerUserId: 'worker-other',
-            price: { amount: 90, currency: Currency.Gbp },
+            price: { amount: 90, currency: StoryCurrency.Gbp },
             message: null,
-            status: QuoteStatus.Accepted,
+            status: StoryQuoteStatus.Accepted,
             createdAt: '2026-05-30T10:00:00.000Z',
           },
         ],

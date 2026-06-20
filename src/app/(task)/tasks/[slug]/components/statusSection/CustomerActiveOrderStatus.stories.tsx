@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { OrderStatus } from '@codegen/schema'
+import { StoryOrderStatus } from '@/storybook/storyLiterals'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -26,7 +26,7 @@ export const JobInProgress: Story = {
     withTaskDetailStory({
       viewer: 'customer',
       order: storyTaskOrder({
-        status: OrderStatus.Active,
+        status: StoryOrderStatus.Active,
         completionVerificationCode: '482913',
       }),
     }),
@@ -38,7 +38,7 @@ export const NoCompletionCodeYet: Story = {
     withTaskDetailStory({
       viewer: 'customer',
       order: storyTaskOrder({
-        status: OrderStatus.Active,
+        status: StoryOrderStatus.Active,
         completionVerificationCode: null,
       }),
     }),
@@ -51,7 +51,7 @@ export const ClosedWithInvoice: Story = {
       viewer: 'customer',
       task: storyTaskDetail(),
       order: storyTaskOrder({
-        status: OrderStatus.Closed,
+        status: StoryOrderStatus.Closed,
         closedAt: '2026-05-20T16:00:00.000Z',
       }),
     }),
