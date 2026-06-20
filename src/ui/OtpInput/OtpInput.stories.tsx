@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { OtpInput } from './OtpInput'
 
 const meta = {
-  title: 'form/OtpInput',
+  title: 'ui/OtpInput',
   component: OtpInput,
   tags: ['autodocs'],
   parameters: {

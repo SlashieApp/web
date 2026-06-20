@@ -6,7 +6,7 @@ import { Button } from '../Button'
 import { Drawer } from './Drawer'
 
 const meta = {
-  title: 'ui/Drawer',
+  title: 'layout/Drawer',
   component: Drawer,
   tags: ['autodocs'],
   parameters: {

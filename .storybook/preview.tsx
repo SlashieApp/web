@@ -59,7 +59,15 @@ const preview: Preview = {
     },
     options: {
       storySort: {
-        order: ['Design', 'UI'],
+        order: [
+          'ui',
+          'layout',
+          'header',
+          'task',
+          'taskDetail',
+          'quotes',
+          'Design',
+        ],
       },
     },
     controls: {

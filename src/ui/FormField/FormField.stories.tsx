@@ -96,7 +96,7 @@ function IconCash() {
 }
 
 const meta = {
-  title: 'form/FormField',
+  title: 'ui/FormField',
   component: FormField,
   tags: ['autodocs'],
   parameters: {

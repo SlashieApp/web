@@ -4,8 +4,9 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskCard } from './TaskCard'
 
 const meta = {
-  title: 'ui/TaskCard',
+  title: 'task/TaskCard',
   component: TaskCard,
+  tags: ['autodocs'],
   parameters: {
     layout: 'padded',
   },

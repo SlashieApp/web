@@ -67,33 +67,53 @@ export const Default: Story = {};
 
 ```ts
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Bento, type GridItem } from './bento';
-
-const items: GridItem[] = [
-  {
-    type: 'image',
-    image: 'https://example.com/photo.jpg',
-    layout: { x: 0, y: 0, w: 1, h: 1 },
-    altText: null,
-  },
-];
+import { Dropdown } from './Dropdown';
 
 const meta = {
-  title: 'layout/Bento',
-  component: Bento,
+  title: 'layout/Dropdown',
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
-  args: {
-    items,
-    config: { cols: 4 },
-    rowHeight: 200,
-    margin: [16, 16],
-    isDraggable: false,
-  },
-} satisfies Meta<typeof Bento>;
+} satisfies Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const ClickWithJsxSlots: Story = { /* … */ };
+```
+
+## Header Example
+
+```ts
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Header } from './Header';
+
+const meta = {
+  title: 'header/Header',
+  component: Header,
+  tags: ['autodocs'],
+  parameters: { layout: 'fullscreen' },
+} satisfies Meta<typeof Header>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+/** Top-level headers get state stories (browse, dashboard, guest). */
+export const BrowseLoggedIn: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  render: () => <Header />,
+};
+```
+
+Non-universal menus get a single story:
+
+```ts
+const meta = {
+  title: 'header/AccountMenu',
+  component: AccountMenu,
+  tags: ['autodocs'],
+  parameters: { layout: 'fullscreen' },
+  args: { initialOpen: true },
+} satisfies Meta<typeof AccountMenu>;
 
 export const Default: Story = {};
 ```

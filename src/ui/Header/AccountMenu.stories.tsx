@@ -6,10 +6,7 @@ import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { useUserStore } from '@/app/(auth)/store/user'
 
 import { AccountMenu } from './AccountMenu'
-import {
-  membershipFixtureFree,
-  membershipFixtureTrial,
-} from './membershipStoryFixtures'
+import { membershipFixtureTrial } from './membershipStoryFixtures'
 
 const workerMe: MeSnapshot = {
   id: 'user-1',
@@ -66,7 +63,7 @@ function seedMeStore(me: MeSnapshot) {
 }
 
 const meta = {
-  title: 'layout/AccountMenu',
+  title: 'header/AccountMenu',
   component: AccountMenu,
   tags: ['autodocs'],
   parameters: {
@@ -78,6 +75,10 @@ const meta = {
         <Story />
       </Box>
     ),
+    (Story) => {
+      seedMeStore(workerMe)
+      return <Story />
+    },
   ],
   args: {
     initialOpen: true,
@@ -88,42 +89,4 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const WorkerTrial: Story = {
-  decorators: [
-    (Story) => {
-      seedMeStore(workerMe)
-      return <Story />
-    },
-  ],
-}
-
-export const WorkerFree: Story = {
-  decorators: [
-    (Story) => {
-      seedMeStore(
-        workerMe.worker
-          ? {
-              ...workerMe,
-              worker: {
-                ...workerMe.worker,
-                membership: membershipFixtureFree,
-              },
-            }
-          : workerMe,
-      )
-      return <Story />
-    },
-  ],
-}
-
-export const CustomerOnly: Story = {
-  decorators: [
-    (Story) => {
-      seedMeStore({
-        ...workerMe,
-        worker: null,
-      })
-      return <Story />
-    },
-  ],
-}
+export const Default: Story = {}

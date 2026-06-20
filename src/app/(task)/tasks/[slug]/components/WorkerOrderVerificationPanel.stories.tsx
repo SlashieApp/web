@@ -8,7 +8,7 @@ import { storyTaskOrder } from '../helpers/taskDetailStoryFixtures'
 import { WorkerOrderVerificationPanel } from './WorkerOrderVerificationPanel'
 
 const meta = {
-  title: 'taskDetail/WorkerOrderVerificationPanel',
+  title: 'taskDetail/QuoteSection/WorkerOrderVerificationPanel',
   component: WorkerOrderVerificationPanel,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
