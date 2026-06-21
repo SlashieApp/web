@@ -1,4 +1,10 @@
-import { focusVisibleMatchesHover, navRowHover } from '../interactionStyles'
+import { focusVisibleMatchesHover } from '@/theme/system'
+
+const navRowHover = {
+  bg: 'badgeBg',
+  textDecoration: 'none',
+  color: 'cardFg',
+} as const
 
 export const accountNavLinkRowProps = {
   display: 'flex',

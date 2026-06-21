@@ -8,39 +8,40 @@ const meta = {
   title: 'ui/RadioButton',
   component: RadioButton,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-  args: {
-    checked: false,
-    label: 'Flexible',
-  },
+  parameters: { layout: 'padded' },
 } satisfies Meta<typeof RadioButton>
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
-
-export const Checked: Story = {
-  args: {
-    checked: true,
-    label: 'ASAP (Next 2 hours)',
-  },
+export const TimingAsap: Story = {
+  render: () => (
+    <RadioButton checked label="ASAP (next 2 hours)" onChange={() => {}} />
+  ),
 }
 
-export const GroupExample: Story = {
-  render: () => {
-    const [value, setValue] = useState<'emergency' | 'today' | 'week'>(
-      'emergency',
-    )
+export const TimingToday: Story = {
+  render: () => (
+    <RadioButton checked={false} label="Today" onChange={() => {}} />
+  ),
+}
+
+export const TimingFlexible: Story = {
+  render: () => (
+    <RadioButton checked={false} label="Flexible" onChange={() => {}} />
+  ),
+}
+
+export const PostTaskTimingGroup: Story = {
+  render: function PostTaskTimingGroup() {
+    const [value, setValue] = useState<'asap' | 'today' | 'flexible'>('asap')
     return (
       <Stack gap={2} maxW="360px">
         <RadioButton
-          checked={value === 'emergency'}
-          label="ASAP (Next 2 hours)"
-          onChange={() => setValue('emergency')}
+          checked={value === 'asap'}
+          label="ASAP (next 2 hours)"
+          onChange={() => setValue('asap')}
         />
         <RadioButton
           checked={value === 'today'}
@@ -48,9 +49,9 @@ export const GroupExample: Story = {
           onChange={() => setValue('today')}
         />
         <RadioButton
-          checked={value === 'week'}
+          checked={value === 'flexible'}
           label="Flexible"
-          onChange={() => setValue('week')}
+          onChange={() => setValue('flexible')}
         />
       </Stack>
     )

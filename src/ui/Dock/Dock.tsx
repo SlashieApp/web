@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react'
 
 import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
 
-import { IconButton } from './IconButton/IconButton'
+import { IconButton } from '../IconButton/IconButton'
 
 type DockItem = {
   key: string

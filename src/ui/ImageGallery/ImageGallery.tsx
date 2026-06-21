@@ -21,9 +21,9 @@ import {
 } from 'react'
 import { LuChevronLeft, LuChevronRight } from 'react-icons/lu'
 
+import { focusVisibleMatchesHover } from '@/theme/system'
 import { Button } from '../Button'
 import { IconButton } from '../IconButton/IconButton'
-import { focusVisibleMatchesHover } from '../interactionStyles'
 
 const MAX_IMAGES = 3
 

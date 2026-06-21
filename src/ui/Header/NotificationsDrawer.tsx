@@ -12,7 +12,7 @@ import {
 } from '@/utils/notifications'
 import { Button, Drawer, Link } from '@ui'
 
-import { focusVisibleMatchesHover } from '../interactionStyles'
+import { focusVisibleMatchesHover } from '@/theme/system'
 
 const notificationItemHover = {
   textDecoration: 'none',

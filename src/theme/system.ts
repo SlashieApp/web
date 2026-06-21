@@ -1,4 +1,5 @@
 import {
+  type SystemStyleObject,
   createSystem,
   defaultConfig,
   defineConfig,
@@ -22,6 +23,75 @@ import {
   lightIntentPalette,
   lightIntentPrimaryIcon,
 } from './intentPalette'
+
+/**
+ * Chakra theme system — tokens, semantic colors, and light/dark configs.
+ * Component variant styles live in each `@ui` component file.
+ */
+
+/** shadows.md — shared shadow scale referenced by theme tokens */
+export const dsShadows = {
+  xs: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+  sm: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+  md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+  xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+} as const
+
+/** Keyboard `:focus-visible` mirrors mouse `:hover`; suppress default focus ring. */
+export const focusRingless = {
+  outline: 'none',
+  boxShadow: 'none',
+} as const
+
+export function focusVisibleMatchesHover(
+  hover: SystemStyleObject,
+): Pick<SystemStyleObject, '_focus' | '_focusVisible'> {
+  return {
+    _focus: focusRingless,
+    _focusVisible: { ...hover, ...focusRingless },
+  }
+}
+
+/** Bordered form shells (`Input`, `Select`) — Design-System/inputs.md */
+export const formControlShellInteraction = {
+  boxShadow: 'xs',
+  transitionProperty: 'border-color, box-shadow',
+  transitionDuration: '200ms',
+  _hover: {
+    borderColor: 'formControlBorderStrong',
+  },
+  _focusWithin: {
+    borderColor: 'formControlFocusBorder',
+    boxShadow: '0 0 0 1px var(--chakra-colors-formControlFocusBorder)',
+  },
+} satisfies SystemStyleObject
+
+/** Native field inside a bordered shell — ring handled by the shell. */
+export const formControlFieldRingless = {
+  outline: 'none',
+  fontSize: '14px',
+  _focus: focusRingless,
+  _focusVisible: focusRingless,
+} satisfies SystemStyleObject
+
+/** Standalone bordered field (`Textarea`, `OtpInput`). */
+export const formControlFieldInteraction = {
+  outline: 'none',
+  boxShadow: 'xs',
+  fontSize: '14px',
+  transitionProperty: 'border-color, box-shadow',
+  transitionDuration: '200ms',
+  _hover: {
+    borderColor: 'formControlBorderStrong',
+  },
+  _focus: focusRingless,
+  _focusVisible: {
+    borderColor: 'formControlFocusBorder',
+    outline: 'none',
+    boxShadow: '0 0 0 1px var(--chakra-colors-formControlFocusBorder)',
+  },
+} satisfies SystemStyleObject
 
 const sharedTheme = {
   theme: {
@@ -124,24 +194,12 @@ const sharedTheme = {
         xl: { value: '16px' },
       },
       shadows: {
-        xs: { value: '0 1px 2px 0 rgb(0 0 0 / 0.05)' },
-        sm: {
-          value:
-            '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-        },
-        md: {
-          value:
-            '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-        },
-        lg: {
-          value:
-            '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-        },
-        xl: {
-          value:
-            '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-        },
-        card: { value: '0 1px 2px 0 rgb(0 0 0 / 0.05)' },
+        xs: { value: dsShadows.xs },
+        sm: { value: dsShadows.sm },
+        md: { value: dsShadows.md },
+        lg: { value: dsShadows.lg },
+        xl: { value: dsShadows.xl },
+        card: { value: dsShadows.xs },
         ambient: { value: '0 24px 48px rgba(0, 0, 0, 0.4)' },
         ghostBorder: { value: 'inset 0 0 0 1px rgba(119, 119, 119, 0.15)' },
         primary: { value: '0 14px 36px rgba(0, 220, 130, 0.15)' },

@@ -6,11 +6,26 @@ import {
   Heading,
   Stack,
   type StackProps,
+  type SystemStyleObject,
   Text,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-import { dsCardInteractive, dsCardSurface } from '../designSystemStyles'
+const cardSurface: SystemStyleObject = {
+  bg: 'cardBg',
+  borderWidth: '1px',
+  borderColor: 'cardBorder',
+  borderRadius: 'md',
+  boxShadow: 'xs',
+}
+
+const cardInteractive: SystemStyleObject = {
+  ...cardSurface,
+  cursor: 'pointer',
+  transitionProperty: 'background-color',
+  transitionDuration: '160ms',
+  _hover: { bg: 'surfaceHover' },
+}
 
 export type CardProps = BoxProps & {
   children?: ReactNode
@@ -85,7 +100,7 @@ export function Card({
   ...rest
 }: CardProps) {
   const isSection = layout === 'section'
-  const surface = interactive ? dsCardInteractive : dsCardSurface
+  const surface = interactive ? cardInteractive : cardSurface
 
   return (
     <Box

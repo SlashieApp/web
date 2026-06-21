@@ -3,11 +3,11 @@
 import { Box, Input as ChakraInput, HStack, Text } from '@chakra-ui/react'
 import * as React from 'react'
 
+import { formControlFieldInteraction } from '@/theme/system'
 import {
   formControlInvalidFieldProps,
   useFormFieldControlProps,
 } from '../FormField/formFieldContext'
-import { formControlFieldInteraction } from '../interactionStyles'
 
 export type OtpInputProps = {
   value: string

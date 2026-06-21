@@ -3,8 +3,6 @@ import { Link } from '../Link'
 
 import { Box, Container, HStack, Stack, Text } from '@chakra-ui/react'
 
-import { textLinkInteraction } from '../interactionStyles'
-
 const links = [
   { label: 'Pricing', href: '/pricing' },
   { label: 'About', href: '/about' },
@@ -59,7 +57,6 @@ export function Footer() {
                   fontWeight={600}
                   fontSize="sm"
                   color="cardFg"
-                  {...textLinkInteraction}
                 >
                   {link.label}
                 </Link>
@@ -70,7 +67,6 @@ export function Footer() {
                   fontWeight={600}
                   fontSize="sm"
                   color="cardFg"
-                  {...textLinkInteraction}
                 >
                   {link.label}
                 </Link>

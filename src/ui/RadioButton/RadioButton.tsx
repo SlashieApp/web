@@ -3,7 +3,7 @@
 import { Box, type BoxProps, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-import { focusVisibleMatchesHover } from '../interactionStyles'
+import { focusVisibleMatchesHover } from '@/theme/system'
 
 export type RadioButtonProps = Omit<BoxProps, 'onChange' | 'children'> & {
   checked: boolean

@@ -1,1 +1,1 @@
-export { Link, type UiLinkProps } from './Link'
+export { Link, type UiLinkProps, type UiLinkTone } from './Link'

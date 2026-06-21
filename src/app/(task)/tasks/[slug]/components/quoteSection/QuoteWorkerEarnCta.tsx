@@ -5,8 +5,6 @@ import { LuArrowRight, LuBriefcase } from 'react-icons/lu'
 
 import { Button, Link } from '@ui'
 
-import { textLinkEmphasisInteraction } from '@/ui/interactionStyles'
-
 export type QuoteWorkerEarnCtaProps = {
   createProfileHref?: string
   learnHref?: string
@@ -72,7 +70,7 @@ export function QuoteWorkerEarnCta({
             fontSize="sm"
             fontWeight={600}
             color="primary.700"
-            {...textLinkEmphasisInteraction}
+            tone="emphasis"
           >
             Learn how quoting works
             <LuArrowRight size={16} aria-hidden />

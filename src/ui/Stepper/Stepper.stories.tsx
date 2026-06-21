@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { Stepper, type StepperStep } from './Stepper'
 
-const steps: StepperStep[] = [
+const workerSetupSteps: StepperStep[] = [
   {
     id: 'profile',
     label: 'Build your profile',
@@ -27,12 +27,12 @@ const steps: StepperStep[] = [
     label: 'Service area',
     subSteps: [
       { id: 'area.location', label: 'Location' },
-      { id: 'area.travel', label: 'Travel' },
+      { id: 'area.travel', label: 'Travel radius' },
     ],
   },
   {
     id: 'review',
-    label: 'Review & go',
+    label: 'Review & go live',
     subSteps: [{ id: 'review.submit', label: 'Review' }],
   },
 ]
@@ -41,9 +41,7 @@ const meta = {
   title: 'ui/Stepper',
   component: Stepper,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
+  parameters: { layout: 'padded' },
   decorators: [
     (Story) => (
       <Box maxW="320px">
@@ -51,27 +49,25 @@ const meta = {
       </Box>
     ),
   ],
-  args: {
-    steps,
-    activeSubStepId: 'services.skills',
-    completedSubStepIds: ['profile.details', 'profile.photo', 'profile.bio'],
-  },
 } satisfies Meta<typeof Stepper>
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
-
-export const Interactive: Story = {
-  render: function InteractiveStepper(args) {
-    const [active, setActive] = useState('profile.photo')
+/** Sidebar step list on worker setup — click to jump between sub-steps. */
+export const WorkerSetup: Story = {
+  render: function WorkerSetupStepper() {
+    const [active, setActive] = useState('services.skills')
     return (
       <Stepper
-        {...args}
+        steps={workerSetupSteps}
         activeSubStepId={active}
-        completedSubStepIds={['profile.details']}
+        completedSubStepIds={[
+          'profile.details',
+          'profile.photo',
+          'profile.bio',
+        ]}
         isSubStepUnlocked={() => true}
         onSelectSubStep={setActive}
       />

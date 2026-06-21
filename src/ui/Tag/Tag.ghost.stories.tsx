@@ -1,4 +1,4 @@
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuClock3, LuShieldCheck } from 'react-icons/lu'
 
@@ -24,102 +24,41 @@ const meta = {
   title: 'ui/Tag/Ghost',
   component: Tag,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-  args: {
-    variant: 'ghost' as const,
-    color: null,
-    children: 'Posted 2 hours ago',
-    icon: <IconClockSmall />,
-  },
+  parameters: { layout: 'padded' },
 } satisfies Meta<typeof Tag>
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const GreyWithIcon: Story = {
-  args: {
-    variant: 'ghost',
-    color: null,
-    icon: <IconClockSmall />,
-    children: 'Posted 2 hours ago',
-  },
-}
-
-export const TertiaryWithIcon: Story = {
-  args: {
-    variant: 'ghost',
-    color: 'tertiary',
-    icon: <IconShieldCheck />,
-    children: 'Verified Poster',
-  },
-}
-
-export const Primary: Story = {
-  args: {
-    variant: 'ghost',
-    color: 'primary',
-    children: 'Verified worker',
-  },
-}
-
-export const Danger: Story = {
-  args: {
-    variant: 'ghost',
-    color: 'danger',
-    children: 'Action required',
-  },
-}
-
-export const PrimaryWithIcon: Story = {
-  args: {
-    variant: 'ghost',
-    color: 'primary',
-    icon: <IconClockSmall />,
-    children: 'Verified worker',
-  },
-}
-
-export const DangerWithIcon: Story = {
-  args: {
-    variant: 'ghost',
-    color: 'danger',
-    icon: <IconClockSmall />,
-    children: 'Action required',
-  },
-}
-
-export const Overview: Story = {
+export const PostedHoursAgo: Story = {
   render: () => (
-    <Stack gap={5} align="flex-start">
-      <Text fontSize="sm" color="formLabelMuted">
-        Ghost: transparent background. Use color and icon together on every
-        tint.
-      </Text>
-      <HStack gap={6} flexWrap="wrap" align="center">
-        <Tag variant="ghost" color={null} icon={<IconClockSmall />}>
-          Posted 2 hours ago
-        </Tag>
-        <Tag variant="ghost" color="tertiary" icon={<IconShieldCheck />}>
-          Verified Poster
-        </Tag>
-      </HStack>
-      <HStack gap={4} flexWrap="wrap" align="center">
-        <Tag variant="ghost" color="primary" icon={<IconClockSmall />}>
-          Primary
-        </Tag>
-        <Tag variant="ghost" color="tertiary" icon={<IconShieldCheck />}>
-          Tertiary
-        </Tag>
-        <Tag variant="ghost" color="danger" icon={<IconClockSmall />}>
-          Danger
-        </Tag>
-        <Tag variant="ghost" color={null} icon={<IconClockSmall />}>
-          Grey
-        </Tag>
-      </HStack>
-    </Stack>
+    <Tag variant="ghost" color={null} icon={<IconClockSmall />}>
+      Posted 2 hours ago
+    </Tag>
+  ),
+}
+
+export const VerifiedPoster: Story = {
+  render: () => (
+    <Tag variant="ghost" color="tertiary" icon={<IconShieldCheck />}>
+      Verified poster
+    </Tag>
+  ),
+}
+
+export const ScheduleToday: Story = {
+  render: () => (
+    <Tag variant="ghost" color="primary" icon={<IconClockSmall />}>
+      Today
+    </Tag>
+  ),
+}
+
+export const ScheduleOverdue: Story = {
+  render: () => (
+    <Tag variant="ghost" color="danger" icon={<IconClockSmall />}>
+      Overdue
+    </Tag>
   ),
 }

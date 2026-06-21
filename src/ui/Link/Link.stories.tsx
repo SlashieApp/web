@@ -1,90 +1,71 @@
-import { Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Button } from '../Button/Button'
-import { textLinkInteraction } from '../interactionStyles'
-
+import { Button } from '../Button'
 import { Link } from './Link'
 
 const meta = {
   title: 'ui/Link',
   component: Link,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-  args: {
-    href: '/tasks',
-    children: 'Browse tasks',
-    fontWeight: 600,
-    color: 'primary.600',
-  },
+  parameters: { layout: 'padded' },
 } satisfies Meta<typeof Link>
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
-
-export const External: Story = {
-  args: {
-    href: 'https://slashie.app',
-    children: 'Help center',
-    target: '_blank',
-    rel: 'noopener noreferrer',
-    color: 'cardFg',
-    ...textLinkInteraction,
-  },
-}
-
-export const MutedInline: Story = {
+export const FooterPricing: Story = {
   render: () => (
-    <Text fontSize="sm" color="formLabelMuted">
-      Need an account?{' '}
-      <Link href="/register" color="primary.600" fontWeight={600}>
-        Sign up
-      </Link>{' '}
-      or{' '}
-      <Link href="/login" color="primary.600" fontWeight={600}>
-        log in
-      </Link>
-      .
-    </Text>
-  ),
-}
-
-export const WrapsButton: Story = {
-  render: () => (
-    <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
-      <Button size="sm">Post a task</Button>
+    <Link href="/pricing" fontWeight={600} fontSize="sm" color="cardFg">
+      Pricing
     </Link>
   ),
 }
 
-export const FooterStyle: Story = {
+export const AccountViewProfile: Story = {
   render: () => (
-    <Stack gap={2} align="flex-start">
-      <Link
-        href="/pricing"
-        fontWeight={600}
-        fontSize="sm"
-        color="cardFg"
-        {...textLinkInteraction}
-      >
-        Pricing
-      </Link>
-      <Link
-        href="https://slashie.app"
-        target="_blank"
-        rel="noopener noreferrer"
-        fontWeight={600}
-        fontSize="sm"
-        color="cardFg"
-        {...textLinkInteraction}
-      >
-        Help center (external)
-      </Link>
-    </Stack>
+    <Link href="/profile" tone="emphasis" fontSize="xs" fontWeight={600}>
+      View profile
+    </Link>
+  ),
+}
+
+export const AccountManageBilling: Story = {
+  render: () => (
+    <Link href="/billing" tone="emphasis" fontSize="xs" fontWeight={600}>
+      Manage billing
+    </Link>
+  ),
+}
+
+export const TaskDetailBackToBrowse: Story = {
+  render: () => (
+    <Link href="/" tone="muted" fontSize="sm" color="formLabelMuted">
+      Back to browse
+    </Link>
+  ),
+}
+
+export const WrapsPostTaskButton: Story = {
+  render: () => (
+    <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+      <Button variant="primary" size="sm">
+        Post a task
+      </Button>
+    </Link>
+  ),
+}
+
+export const ExternalHelpCenter: Story = {
+  render: () => (
+    <Link
+      href="https://slashie.app"
+      target="_blank"
+      rel="noopener noreferrer"
+      fontSize="sm"
+      fontWeight={600}
+    >
+      Help Center
+    </Link>
   ),
 }

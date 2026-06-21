@@ -3,10 +3,20 @@
 import { Box, IconButton, Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
+import { focusVisibleMatchesHover } from '@/theme/system'
 import { ACCOUNT_NAV, type AccountNavKey } from '@/utils/accountNav'
 import { Drawer, Link } from '@ui'
 
-import { dashboardNavRowInteraction } from '../interactionStyles'
+function dashboardNavRowInteraction(active: boolean) {
+  const hover = {
+    textDecoration: 'none',
+    bg: active ? 'primary.100' : 'badgeBg',
+  }
+  return {
+    _hover: hover,
+    ...focusVisibleMatchesHover(hover),
+  }
+}
 
 function NavIcon({ type }: { type: AccountNavKey }) {
   const common = {

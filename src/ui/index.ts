@@ -5,15 +5,6 @@
 
 export { Avatar } from './Avatar/Avatar'
 export { Badge } from './Badge'
-export {
-  badgeSizeStyles,
-  badgeVariantStyles,
-  buttonSizeProps,
-  buttonVariantStyles,
-  dsCardInteractive,
-  dsCardSurface,
-  dsFormControlShell,
-} from './designSystemStyles'
 export { Button } from './Button'
 export { Card } from './Card/Card'
 export {
@@ -25,26 +16,8 @@ export {
   useColorMode,
   useColorModeValue,
 } from './color-mode'
-export {
-  dashboardNavRowInteraction,
-  focusVisibleMatchesHover,
-  formControlFieldInteraction,
-  formControlFieldRingless,
-  formControlShellInteraction,
-  ghostSurfaceHover,
-  ghostSurfaceInteraction,
-  mutedTextLinkHover,
-  mutedTextLinkInteraction,
-  navIconSurfaceInteraction,
-  navRowHover,
-  navRowInteraction,
-  textLinkEmphasisHover,
-  textLinkEmphasisInteraction,
-  textLinkHover,
-  textLinkInteraction,
-} from './interactionStyles'
 export { DashboardSectionNav, Header } from './Header'
-export { Dock } from './Dock'
+export { Dock } from './Dock/Dock'
 export { Drawer } from './Drawer/Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown/Dropdown'
 export {
@@ -52,7 +25,8 @@ export {
   formControlLabelProps,
   formControlRootProps,
   formControlTextareaProps,
-} from './formControlStyles'
+  FormField,
+} from './FormField/FormField'
 export {
   formControlInvalidFieldProps,
   formControlInvalidShellProps,
@@ -60,7 +34,6 @@ export {
   useFormField,
   useFormFieldControlProps,
 } from './FormField/formFieldContext'
-export { FormField } from './FormField/FormField'
 export { IconButton } from './IconButton/IconButton'
 export { ImageGallery } from './ImageGallery/ImageGallery'
 export { Input } from './Input'
@@ -126,10 +99,3 @@ export type {
 export type { TagColor, TagProps, TagVariant } from './Tag'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps } from './Thumbnail/Thumbnail'
-export type {
-  UiBadgeShape,
-  UiBadgeSize,
-  UiBadgeVariant,
-  UiButtonSize,
-  UiButtonVariant,
-} from './designSystemStyles'

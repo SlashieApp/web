@@ -21,7 +21,7 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
+export const VerifySmsCode: Story = {
   args: {
     value: '',
     length: 6,

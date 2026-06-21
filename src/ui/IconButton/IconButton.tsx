@@ -5,16 +5,14 @@ import {
   IconButton as ChakraIconButton,
   type IconButtonProps as ChakraIconButtonProps,
   Stack,
+  type SystemStyleObject,
   Text,
 } from '@chakra-ui/react'
 import * as React from 'react'
 
+import { focusVisibleMatchesHover } from '@/theme/system'
+
 import { Link } from '../Link'
-import {
-  focusVisibleMatchesHover,
-  ghostSurfaceHover,
-  navIconSurfaceInteraction,
-} from '../interactionStyles'
 
 /** Dock / nav: icon (and optional caption) inside a route link. */
 export type NavIconButtonProps = {
@@ -25,6 +23,22 @@ export type NavIconButtonProps = {
 }
 
 export type IconButtonProps = NavIconButtonProps | ChakraIconButtonProps
+
+const ghostSurfaceHover = {
+  bg: 'badgeBg',
+  color: 'cardFg',
+} satisfies SystemStyleObject
+
+function navIconSurfaceInteraction(active: boolean) {
+  const surface = {
+    bg: active ? 'intentPrimaryBg' : 'badgeBg',
+    color: active ? 'intentPrimaryFg' : 'cardFg',
+  } satisfies SystemStyleObject
+  return {
+    _hover: surface,
+    ...focusVisibleMatchesHover(surface),
+  }
+}
 
 function isNavIconButtonProps(
   props: IconButtonProps,

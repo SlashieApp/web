@@ -14,12 +14,7 @@ const meta = {
   title: 'ui/Input',
   component: Input,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-  args: {
-    placeholder: 'Search…',
-  },
+  parameters: { layout: 'padded' },
   argTypes: {
     startElement: { control: false, table: { disable: true } },
     endElement: { control: false, table: { disable: true } },
@@ -31,15 +26,20 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
-
-export const WithStartIcon: Story = {
-  render: (args) => <Input {...args} startElement={searchIcon} />,
+export const BrowseSearch: Story = {
+  render: () => (
+    <Input placeholder="Search tasks near you…" startElement={searchIcon} />
+  ),
 }
 
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-    placeholder: 'Disabled',
-  },
+export const AuthEmail: Story = {
+  render: () => <Input placeholder="you@example.com" type="email" />,
+}
+
+export const PostTaskTitle: Story = {
+  render: () => <Input placeholder="e.g. Assemble flat-pack wardrobe" />,
+}
+
+export const DashboardFilterDisabled: Story = {
+  render: () => <Input placeholder="Filter by keyword" disabled />,
 }

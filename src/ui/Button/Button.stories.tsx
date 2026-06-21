@@ -1,4 +1,4 @@
-import { HStack, Stack } from '@chakra-ui/react'
+import { HStack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Button } from './Button'
@@ -7,69 +7,65 @@ const meta = {
   title: 'ui/Button',
   component: Button,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-  args: {
-    children: 'Button',
-    variant: 'primary',
-    size: 'md',
-  },
+  parameters: { layout: 'padded' },
 } satisfies Meta<typeof Button>
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Primary: Story = {}
-
-export const Secondary: Story = {
-  args: { variant: 'secondary' },
+export const PostTask: Story = {
+  render: () => <Button variant="primary">Post a task</Button>,
 }
 
-export const Tertiary: Story = {
-  args: { variant: 'tertiary' },
+export const ReviewQuotes: Story = {
+  render: () => <Button variant="primary">Review quotes</Button>,
 }
 
-export const Ghost: Story = {
-  args: { variant: 'ghost' },
+export const SendQuote: Story = {
+  render: () => <Button variant="primary">Send quote</Button>,
 }
 
-export const Success: Story = {
-  args: { variant: 'success', children: 'Confirm' },
+export const SaveDraft: Story = {
+  render: () => <Button variant="secondary">Save draft</Button>,
 }
 
-export const Danger: Story = {
-  args: { variant: 'danger', children: 'Delete' },
+export const SignIn: Story = {
+  render: () => <Button variant="primary">Sign in</Button>,
 }
 
-export const Disabled: Story = {
-  args: { disabled: true },
+export const CreateAccount: Story = {
+  render: () => <Button variant="secondary">Create account</Button>,
 }
 
-export const Sizes: Story = {
+export const ContinueAsGuest: Story = {
+  render: () => <Button variant="ghost">Continue as guest</Button>,
+}
+
+export const ConfirmBooking: Story = {
+  render: () => <Button variant="success">Confirm booking</Button>,
+}
+
+export const CancelTask: Story = {
+  render: () => <Button variant="danger">Cancel task</Button>,
+}
+
+export const Dismiss: Story = {
+  render: () => <Button variant="ghost">Dismiss</Button>,
+}
+
+export const CompactToolbar: Story = {
   render: () => (
-    <Stack gap={3} align="flex-start">
-      <HStack gap={2}>
-        <Button size="xs">Extra small</Button>
-        <Button size="sm">Small</Button>
-        <Button size="md">Base</Button>
-        <Button size="lg">Large</Button>
-        <Button size="xl">Extra large</Button>
-      </HStack>
-    </Stack>
-  ),
-}
-
-export const AllVariants: Story = {
-  render: () => (
-    <HStack gap={2} flexWrap="wrap">
-      <Button variant="primary">Primary</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="tertiary">Tertiary</Button>
-      <Button variant="ghost">Ghost</Button>
-      <Button variant="success">Success</Button>
-      <Button variant="danger">Danger</Button>
+    <HStack gap={2}>
+      <Button size="sm" variant="secondary">
+        Edit task
+      </Button>
+      <Button size="sm" variant="ghost">
+        Share
+      </Button>
+      <Button size="sm" variant="primary">
+        Choose pro
+      </Button>
     </HStack>
   ),
 }

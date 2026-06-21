@@ -10,7 +10,7 @@ import {
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { Button, Link } from '@ui'
 
-import { focusVisibleMatchesHover } from '../interactionStyles'
+import { focusVisibleMatchesHover } from '@/theme/system'
 
 export type MembershipStatusCardVariant = 'dropdown' | 'drawer'
 

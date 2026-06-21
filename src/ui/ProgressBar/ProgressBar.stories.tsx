@@ -7,9 +7,7 @@ const meta = {
   title: 'ui/ProgressBar',
   component: ProgressBar,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
+  parameters: { layout: 'padded' },
   decorators: [
     (Story) => (
       <Box maxW="420px">
@@ -17,29 +15,38 @@ const meta = {
       </Box>
     ),
   ],
-  args: {
-    value: 40,
-    label: 'Step 2 of 5 · Your services',
-    trackLabel: 'Setup progress',
-  },
 } satisfies Meta<typeof ProgressBar>
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
-
-export const Complete: Story = {
-  args: {
-    value: 100,
-    label: 'All steps complete',
-  },
+export const SetupEarly: Story = {
+  render: () => (
+    <ProgressBar
+      value={25}
+      label="Step 1 of 4 · Build your profile"
+      trackLabel="Worker setup progress"
+    />
+  ),
 }
 
-export const NoLabel: Story = {
-  args: {
-    value: 65,
-    label: undefined,
-  },
+export const SetupMid: Story = {
+  render: () => (
+    <ProgressBar
+      value={55}
+      label="Step 2 of 4 · Your services"
+      trackLabel="Worker setup progress"
+    />
+  ),
+}
+
+export const SetupComplete: Story = {
+  render: () => (
+    <ProgressBar
+      value={100}
+      label="All steps complete · Review & go live"
+      trackLabel="Worker setup progress"
+    />
+  ),
 }

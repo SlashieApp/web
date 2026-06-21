@@ -11,8 +11,6 @@ import {
   membershipStatusDetailText,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 
-import { textLinkEmphasisInteraction } from '../interactionStyles'
-
 export type AccountMenuHeaderProps = {
   displayName: string
   email: string
@@ -116,9 +114,9 @@ function CustomerMembershipSection() {
       <Link
         href="/worker/setup"
         fontSize="xs"
+        tone="emphasis"
         fontWeight={600}
         color="primary.600"
-        {...textLinkEmphasisInteraction}
       >
         Become a worker
       </Link>
@@ -158,10 +156,10 @@ function WorkerMembershipSection({
           {membership.canUpgrade ? (
             <Link
               href="/billing"
+              tone="emphasis"
               fontSize="xs"
               fontWeight={600}
               color="primary.600"
-              {...textLinkEmphasisInteraction}
             >
               Upgrade
             </Link>
@@ -169,10 +167,10 @@ function WorkerMembershipSection({
           {membership.canManageBilling ? (
             <Link
               href="/billing"
+              tone="emphasis"
               fontSize="xs"
               fontWeight={600}
               color="primary.600"
-              {...textLinkEmphasisInteraction}
             >
               Manage billing
             </Link>
@@ -208,10 +206,10 @@ export function AccountMenuHeader({
           </Text>
           <Link
             href="/profile"
+            tone="emphasis"
             fontSize="xs"
             fontWeight={600}
             color="primary.600"
-            {...textLinkEmphasisInteraction}
             onClick={onViewProfile}
           >
             View profile

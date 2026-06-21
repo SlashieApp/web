@@ -6,13 +6,13 @@ import * as React from 'react'
 import { LuChevronDown } from 'react-icons/lu'
 
 import {
+  formControlFieldRingless,
+  formControlShellInteraction,
+} from '@/theme/system'
+import {
   formControlInvalidShellProps,
   useFormFieldControlProps,
 } from '../FormField/formFieldContext'
-import {
-  formControlFieldRingless,
-  formControlShellInteraction,
-} from '../interactionStyles'
 
 type NativeFieldProps = React.ComponentProps<typeof NativeSelect.Field>
 type NativeRootProps = React.ComponentProps<typeof NativeSelect.Root>

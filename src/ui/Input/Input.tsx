@@ -9,13 +9,13 @@ import type { ReactNode } from 'react'
 import * as React from 'react'
 
 import {
+  formControlFieldRingless,
+  formControlShellInteraction,
+} from '@/theme/system'
+import {
   formControlInvalidShellProps,
   useFormFieldControlProps,
 } from '../FormField/formFieldContext'
-import {
-  formControlFieldRingless,
-  formControlShellInteraction,
-} from '../interactionStyles'
 
 export type InputProps = ChakraInputProps & {
   /** Optional leading content (icon, text) inside the bordered shell. */
