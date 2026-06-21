@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
+import { BRAND_PRIMARY } from '@/theme/brand'
 import { Providers } from './providers'
 const inter = Inter({
   variable: '--font-inter',
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   description:
     'Slashie is a local trades and home tasks marketplace that connects homeowners with skilled professionals for home repairs, maintenance, and improvements.',
   manifest: '/manifest.json',
-  themeColor: '#00dc82',
+  themeColor: BRAND_PRIMARY,
 }
 
 export default function RootLayout({

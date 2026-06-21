@@ -19,7 +19,7 @@ import {
 } from '@/app/(marketing)/pricing/helpers/formatPricing'
 import { getPricingForPage } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
 import { buildWorkerFreePlan } from '@/app/(marketing)/pricing/helpers/pricingPlans'
-import { Button, Logo } from '@/ui'
+import { Button, Footer } from '@/ui'
 import { APP_HOME } from '@/utils/appRoutes'
 
 export const metadata: Metadata = {
@@ -356,80 +356,6 @@ function AudienceCard({
         </Button>
       </NextLink>
     </Stack>
-  )
-}
-
-function LandingFooter() {
-  return (
-    <Box
-      as="footer"
-      borderTopWidth="1px"
-      borderColor="cardBorder"
-      bg="bg"
-      py={10}
-    >
-      <Container maxW="6xl" px={{ base: 4, md: 6 }}>
-        <Stack gap={8}>
-          <HStack
-            justify="space-between"
-            align="flex-start"
-            flexWrap="wrap"
-            gap={6}
-          >
-            <Stack gap={2}>
-              <Logo />
-              <Text fontSize="sm" color="formLabelMuted">
-                Map-first local task marketplace.
-              </Text>
-            </Stack>
-            <HStack gap={5} flexWrap="wrap">
-              {[
-                { label: 'Pricing', href: '/pricing' },
-                { label: 'About', href: '/about' },
-                { label: 'Log in', href: '/login' },
-                { label: 'Register', href: '/register' },
-              ].map((link) => (
-                <NextLink
-                  key={link.href}
-                  href={link.href}
-                  style={{
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    color: 'var(--chakra-colors-cardFg)',
-                    textDecoration: 'none',
-                  }}
-                >
-                  {link.label}
-                </NextLink>
-              ))}
-            </HStack>
-          </HStack>
-          <HStack
-            justify="space-between"
-            flexWrap="wrap"
-            gap={4}
-            fontSize="sm"
-            color="formLabelMuted"
-          >
-            <Text>© Slashie 2026</Text>
-            <HStack gap={4}>
-              <NextLink
-                href="/terms"
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                Terms
-              </NextLink>
-              <NextLink
-                href="/privacy"
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                Privacy
-              </NextLink>
-            </HStack>
-          </HStack>
-        </Stack>
-      </Container>
-    </Box>
   )
 }
 
@@ -844,7 +770,7 @@ export default async function MarketingHomePage() {
         </Container>
       </Box>
 
-      <LandingFooter />
+      <Footer />
     </>
   )
 }

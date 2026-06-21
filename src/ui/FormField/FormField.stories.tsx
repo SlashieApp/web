@@ -1,4 +1,3 @@
-import { Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 
@@ -14,6 +13,13 @@ const meta = {
   component: FormField,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  args: {
+    label: 'Label',
+    children: null,
+  },
+  argTypes: {
+    children: { control: false, table: { disable: true } },
+  },
 } satisfies Meta<typeof FormField>
 
 export default meta
@@ -21,30 +27,36 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const AuthEmail: Story = {
-  render: () => (
-    <FormField
-      label="Email"
-      helperText="Used to sign in and receive quote updates."
-    >
+  args: {
+    label: 'Email',
+    helperText: 'Used to sign in and receive quote updates.',
+  },
+  render: (args) => (
+    <FormField {...args}>
       <Input placeholder="you@example.com" type="email" />
     </FormField>
   ),
 }
 
 export const PostTaskTitle: Story = {
-  render: () => (
-    <FormField label="Task title" errorText="Add a short, specific title">
+  args: {
+    label: 'Task title',
+    errorText: 'Add a short, specific title',
+  },
+  render: (args) => (
+    <FormField {...args}>
       <Input placeholder="e.g. Fix leaking pipe under sink" />
     </FormField>
   ),
 }
 
 export const PostTaskCategory: Story = {
-  render: () => (
-    <FormField
-      label="Category"
-      helperText="Workers filter discovery by category."
-    >
+  args: {
+    label: 'Category',
+    helperText: 'Workers filter discovery by category.',
+  },
+  render: (args) => (
+    <FormField {...args}>
       <Select>
         <option value="">Select a category…</option>
         <option value="handyman">Handyman</option>
@@ -56,13 +68,14 @@ export const PostTaskCategory: Story = {
 }
 
 export const PostTaskDescription: Story = {
-  render: function PostTaskDescriptionStory() {
+  args: {
+    label: 'Describe the work',
+    helperText: 'Include access details, materials, and timing.',
+  },
+  render: function PostTaskDescriptionStory(args) {
     const [value, setValue] = useState('')
     return (
-      <FormField
-        label="Describe the work"
-        helperText="Include access details, materials, and timing."
-      >
+      <FormField {...args}>
         <Textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -75,13 +88,14 @@ export const PostTaskDescription: Story = {
 }
 
 export const VerifyPhoneNumber: Story = {
-  render: function VerifyPhoneNumberStory() {
+  args: {
+    label: 'Mobile number',
+    helperText: 'UK numbers only — we text a verification code.',
+  },
+  render: function VerifyPhoneNumberStory(args) {
     const [phone, setPhone] = useState('')
     return (
-      <FormField
-        label="Mobile number"
-        helperText="UK numbers only — we text a verification code."
-      >
+      <FormField {...args}>
         <PhoneInput value={phone} onChange={setPhone} />
       </FormField>
     )
@@ -89,11 +103,14 @@ export const VerifyPhoneNumber: Story = {
 }
 
 export const VerifyOtpCode: Story = {
-  render: function VerifyOtpCodeStory() {
+  args: {
+    label: 'Verification code',
+  },
+  render: function VerifyOtpCodeStory(args) {
     const [code, setCode] = useState('')
     return (
       <FormField
-        label="Verification code"
+        {...args}
         errorText={
           code.length > 0 && code.length < 6 ? 'Enter all 6 digits' : undefined
         }

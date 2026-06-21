@@ -10,10 +10,10 @@ export type UiBadgeVariant =
   | 'brand'
   | 'alternative'
   | 'gray'
+  | 'blue'
   | 'danger'
   | 'success'
   | 'warning'
-  | 'dark'
 
 export type UiBadgeSize = 'sm' | 'lg'
 export type UiBadgeShape = 'default' | 'pill'
@@ -52,29 +52,29 @@ function badgeVariantStyles(
         color: 'cardFg',
         borderColor: 'formControlBorder',
       }
+    case 'blue':
+      return {
+        bg: 'statusInfoBg',
+        color: 'statusInfoFg',
+        borderColor: 'statusInfoBorder',
+      }
     case 'danger':
       return {
-        bg: '#FEE2E2',
-        color: '#B91C1C',
-        borderColor: '#FECACA',
+        bg: 'statusDangerBg',
+        color: 'statusDangerFg',
+        borderColor: 'statusDangerBorder',
       }
     case 'success':
       return {
-        bg: '#DCFCE7',
-        color: '#15803D',
-        borderColor: '#BBF7D0',
+        bg: 'statusSuccessBg',
+        color: 'statusSuccessFg',
+        borderColor: 'statusSuccessBorder',
       }
     case 'warning':
       return {
-        bg: '#FEF3C7',
-        color: '#B45309',
-        borderColor: '#FDE68A',
-      }
-    case 'dark':
-      return {
-        bg: 'neutral.900',
-        color: 'white',
-        borderColor: 'transparent',
+        bg: 'statusWarningBg',
+        color: 'statusWarningFg',
+        borderColor: 'statusWarningBorder',
       }
     default:
       return {}

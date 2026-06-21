@@ -1,7 +1,12 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Currency, OrderStatus, QuoteStatus } from '@codegen/schema'
+import {
+  Currency,
+  OrderStatus,
+  QuoteStatus,
+  TaskDateTimeType,
+} from '@codegen/schema'
 
 import {
   storyOrder,
@@ -123,8 +128,33 @@ export const WorkerQuoteBookedActiveJob: WorkerQuoteStory = {
   args: {
     variant: 'workerQuote',
     ...storyQuoteRow({
-      quote: storyQuote({ status: 'ACCEPTED' }),
-      workerOrder: storyOrder({ status: OrderStatus.Active }),
+      task: storyTask({
+        title: 'Fix leaking tap',
+        category: 'PLUMBING',
+        datetime: {
+          date: '2026-06-21',
+          time: '14:00',
+          type: TaskDateTimeType.Exact,
+        },
+        location: {
+          lat: 51.5014,
+          lng: -0.1419,
+          name: 'Westminster',
+          address: null,
+        },
+      }),
+      quote: storyQuote({
+        status: 'ACCEPTED',
+        price: { amount: 95, currency: Currency.Gbp },
+        message:
+          "Hi! I can fix the tap and check for any leaks. I'll bring all tools and parts.",
+        createdAt: '2026-06-20T10:00:00.000Z',
+      }),
+      workerOrder: storyOrder({
+        status: OrderStatus.Active,
+        createdAt: '2026-06-20T14:00:00.000Z',
+        agreedPrice: { amount: 95, currency: Currency.Gbp },
+      }),
     }),
   },
 }

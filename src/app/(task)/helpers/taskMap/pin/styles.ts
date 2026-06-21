@@ -1,4 +1,10 @@
 import {
+  BRAND_PRIMARY,
+  BRAND_PRIMARY_HOVER,
+  BRAND_PRIMARY_SOFT_BG,
+  brandPrimary,
+} from '@/theme/system'
+import {
   PIN_STACK_GAP_PX,
   POPUP_ABOVE_DOT_PX,
   pinTransition,
@@ -7,10 +13,10 @@ import { applyFadeFromBottom, mountFadeFromBottom } from './fadeFromBottom'
 
 /** Slashie map pin palette. */
 export const PIN = {
-  green: '#00AB63',
-  greenBright: '#00DC82',
-  greenSoft: '#53D388',
-  greenPale: '#D9F4E5',
+  green: BRAND_PRIMARY,
+  greenBright: BRAND_PRIMARY_HOVER,
+  greenSoft: brandPrimary[400],
+  greenPale: BRAND_PRIMARY_SOFT_BG,
   textMuted: '#6B7370',
   border: '#D1D5D4',
   white: '#FFFFFF',

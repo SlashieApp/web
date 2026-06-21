@@ -4,7 +4,7 @@ import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Button, Link, Tag } from '@ui'
+import { Badge, Button, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { centerColumnStatusLabel } from '../../helpers/taskDetailUtils'
@@ -85,7 +85,7 @@ export function MainSectionHeader() {
         w="full"
         flexWrap="wrap"
       >
-        <Tag color="primary">{taskStatusLabel}</Tag>
+        <Badge color="primary">{taskStatusLabel}</Badge>
         <HStack
           gap={2}
           flexWrap="wrap"

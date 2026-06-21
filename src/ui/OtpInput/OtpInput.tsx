@@ -212,7 +212,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     return (
       <Box
         ref={onContainerRef}
-        w="full"
+        p={2}
         id={id}
         aria-describedby={controlProps['aria-describedby']}
         aria-invalid={controlProps['aria-invalid']}

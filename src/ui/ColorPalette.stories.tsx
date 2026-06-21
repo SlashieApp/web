@@ -1,6 +1,12 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import {
+  BRAND_PRIMARY,
+  BRAND_PRIMARY_HOVER,
+  BRAND_SECONDARY,
+} from '@/theme/system'
+
 type ThemeMode = 'light' | 'dark'
 
 type PaletteSwatch = {
@@ -13,12 +19,13 @@ type PaletteSwatch = {
 const BRAND_PALETTE: PaletteSwatch[] = [
   {
     label: 'Primary',
-    hex: 'linear-gradient(to top right, #00DC82 0%, #00e69d 100%)',
+    hex: `linear-gradient(to top right, ${BRAND_PRIMARY} 0%, ${BRAND_PRIMARY_HOVER} 100%)`,
     glow: true,
   },
-  { label: 'Primary Kinetic', hex: '#00DC82' },
+  { label: 'Primary default', hex: BRAND_PRIMARY },
+  { label: 'Primary hover', hex: BRAND_PRIMARY_HOVER },
   { label: 'Brand Base', hex: '#222222', outlined: true },
-  { label: 'Secondary', hex: '#00A572' },
+  { label: 'Secondary', hex: BRAND_SECONDARY },
   { label: 'Tertiary Accent', hex: '#54BBBB' },
 ]
 

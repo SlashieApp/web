@@ -7,6 +7,7 @@ import {
 } from '@chakra-ui/react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { statusDangerSolidFocusRing } from '@/theme/system'
 
 export type UiButtonVariant =
   | 'primary'
@@ -15,7 +16,6 @@ export type UiButtonVariant =
   | 'outline'
   | 'ghost'
   | 'subtle'
-  | 'solid'
   | 'success'
   | 'danger'
 
@@ -35,12 +35,6 @@ const buttonSizes = {
   lg: { fontSize: '16px', px: 5, py: 3 },
   xl: { fontSize: '16px', px: 6, py: 3.5 },
 } as const
-
-const shadowXs = '0 1px 2px 0 rgb(0 0 0 / 0.05)'
-
-function buttonGlint(shadowBase = shadowXs): string {
-  return `${shadowBase}, inset rgba(255, 255, 255, 0.25) 0 6px 0 -5px, rgba(0, 0, 0, 0.12) 0 4px 10px -5px`
-}
 
 const focusRingBrand: SystemStyleObject = {
   outline: 'none',
@@ -64,17 +58,14 @@ function buttonSizeProps(size: UiButtonSize = 'md') {
 function buttonVariantStyles(variant: UiButtonVariant): SystemStyleObject {
   switch (variant) {
     case 'primary':
-    case 'solid':
       return {
         bg: 'primary',
         color: 'white',
         borderWidth: '1px',
         borderColor: 'transparent',
-        boxShadow: buttonGlint(),
         fontWeight: 500,
         _hover: {
           bg: 'primaryHover',
-          boxShadow: buttonGlint(),
         },
         _active: { bg: 'primaryHover' },
         _focusVisible: focusRingBrand,
@@ -146,28 +137,23 @@ function buttonVariantStyles(variant: UiButtonVariant): SystemStyleObject {
       }
     case 'success':
       return {
-        bg: '#22C55E',
+        bg: 'statusSuccessSolid',
         color: 'white',
         borderWidth: '1px',
         borderColor: 'transparent',
-        boxShadow: buttonGlint(),
         fontWeight: 500,
         _hover: { filter: 'brightness(0.95)' },
         _focusVisible: focusRingBrand,
       }
     case 'danger':
       return {
-        bg: '#EF4444',
+        bg: 'statusDangerSolid',
         color: 'white',
         borderWidth: '1px',
         borderColor: 'transparent',
-        boxShadow: buttonGlint(),
         fontWeight: 500,
         _hover: { filter: 'brightness(0.95)' },
-        _focusVisible: {
-          outline: 'none',
-          boxShadow: '0 0 0 4px rgba(239, 68, 68, 0.25)',
-        },
+        _focusVisible: statusDangerSolidFocusRing,
       }
     default:
       return {}

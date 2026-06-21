@@ -15,9 +15,9 @@ const CHIP_PALETTE: Record<
   NonNullable<ScheduleChipValue>,
   { bg: string; color: string }
 > = {
-  today: { bg: 'primary.100', color: 'primary.800' },
-  tomorrow: { bg: 'secondary.100', color: 'secondary.800' },
-  overdue: { bg: 'red.100', color: 'red.800' },
+  today: { bg: 'badgeBg', color: 'badgeFg' },
+  tomorrow: { bg: 'statusInfoBg', color: 'statusInfoFg' },
+  overdue: { bg: 'statusDangerBg', color: 'statusDangerFg' },
 }
 
 export type ScheduleChipProps = {

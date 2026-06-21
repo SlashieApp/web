@@ -32,6 +32,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       <ChakraTextarea
         ref={ref}
         pointerEvents="auto"
+        w="full"
         minH="140px"
         px={3}
         py={2.5}

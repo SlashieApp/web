@@ -3,6 +3,11 @@
 import type { BoxProps, SystemStyleObject } from '@chakra-ui/react'
 import { createContext, useContext } from 'react'
 
+import {
+  formControlInvalidFieldStyles,
+  formControlInvalidShellStyles,
+} from '@/theme/system'
+
 export type FormFieldState = {
   /** Id for the native control (`htmlFor` / `id` wiring). */
   controlId: string
@@ -53,31 +58,14 @@ export function useFormFieldControlProps(
 
 /** Error border treatment for bordered control shells (`Input`, `Select`). */
 export function formControlInvalidShellProps(invalid: boolean): BoxProps {
-  if (!invalid) return {}
-  return {
-    borderColor: '#EF4444',
-    _hover: { borderColor: '#EF4444' },
-    _focusWithin: {
-      borderColor: '#EF4444',
-      boxShadow: '0 0 0 1px #EF4444',
-    },
-  }
+  return formControlInvalidShellStyles(invalid)
 }
 
 /** Error border treatment for standalone bordered fields (`Textarea`). */
 export function formControlInvalidFieldProps(
   invalid: boolean,
 ): SystemStyleObject {
-  if (!invalid) return {}
-  return {
-    borderColor: '#EF4444',
-    _hover: { borderColor: '#EF4444' },
-    _focusVisible: {
-      borderColor: '#EF4444',
-      boxShadow: '0 0 0 1px #EF4444',
-      outline: 'none',
-    },
-  }
+  return formControlInvalidFieldStyles(invalid)
 }
 
 /** @internal Provider context for {@link FormField}. */

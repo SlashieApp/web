@@ -1,7 +1,6 @@
-import { HStack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Button } from './Button'
+import { Button, type UiButtonVariant } from './Button'
 
 const meta = {
   title: 'ui/Button',
@@ -14,58 +13,28 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const PostTask: Story = {
-  render: () => <Button variant="primary">Post a task</Button>,
+const variantLabels: Record<UiButtonVariant, string> = {
+  primary: 'Post a task',
+  secondary: 'Save draft',
+  tertiary: 'View details',
+  outline: 'Filter tasks',
+  ghost: 'Dismiss',
+  subtle: 'Learn more',
+  success: 'Confirm booking',
+  danger: 'Cancel task',
 }
 
-export const ReviewQuotes: Story = {
-  render: () => <Button variant="primary">Review quotes</Button>,
+function variantStory(variant: UiButtonVariant): Story {
+  return {
+    render: () => <Button variant={variant}>{variantLabels[variant]}</Button>,
+  }
 }
 
-export const SendQuote: Story = {
-  render: () => <Button variant="primary">Send quote</Button>,
-}
-
-export const SaveDraft: Story = {
-  render: () => <Button variant="secondary">Save draft</Button>,
-}
-
-export const SignIn: Story = {
-  render: () => <Button variant="primary">Sign in</Button>,
-}
-
-export const CreateAccount: Story = {
-  render: () => <Button variant="secondary">Create account</Button>,
-}
-
-export const ContinueAsGuest: Story = {
-  render: () => <Button variant="ghost">Continue as guest</Button>,
-}
-
-export const ConfirmBooking: Story = {
-  render: () => <Button variant="success">Confirm booking</Button>,
-}
-
-export const CancelTask: Story = {
-  render: () => <Button variant="danger">Cancel task</Button>,
-}
-
-export const Dismiss: Story = {
-  render: () => <Button variant="ghost">Dismiss</Button>,
-}
-
-export const CompactToolbar: Story = {
-  render: () => (
-    <HStack gap={2}>
-      <Button size="sm" variant="secondary">
-        Edit task
-      </Button>
-      <Button size="sm" variant="ghost">
-        Share
-      </Button>
-      <Button size="sm" variant="primary">
-        Choose pro
-      </Button>
-    </HStack>
-  ),
-}
+export const Primary = variantStory('primary')
+export const Secondary = variantStory('secondary')
+export const Tertiary = variantStory('tertiary')
+export const Outline = variantStory('outline')
+export const Ghost = variantStory('ghost')
+export const Subtle = variantStory('subtle')
+export const Success = variantStory('success')
+export const Danger = variantStory('danger')

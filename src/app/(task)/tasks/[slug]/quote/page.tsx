@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 
-import { Box, Container } from '@chakra-ui/react'
-
-import { Footer } from '@ui'
+import { Box } from '@chakra-ui/react'
 
 import { getTaskForTaskDetailPage } from '../helpers/getTaskForTaskDetailPage'
 import { TaskQuoteFlow } from './components/TaskQuoteFlow'
@@ -55,13 +53,8 @@ export async function generateMetadata({
 
 export default function TaskQuotePage() {
   return (
-    <>
-      <Container maxW="lg" mx="auto" px={{ base: 4, md: 6 }}>
-        <TaskQuoteFlow />
-      </Container>
-      <Box mb={{ base: 24, md: 10 }}>
-        <Footer />
-      </Box>
-    </>
+    <Box minH="100dvh" display="flex" flexDirection="column">
+      <TaskQuoteFlow />
+    </Box>
   )
 }

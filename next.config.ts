@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(gql|graphql)$/,
+      exclude: /node_modules/,
+      loader: 'graphql-tag/loader',
+    })
+    return config
+  },
   async redirects() {
     return [
       {

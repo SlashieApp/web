@@ -4,7 +4,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { useTheme as useNextTheme } from 'next-themes'
 import type { ReactNode } from 'react'
 
-import { darkSystem, system as lightSystem } from '@/theme/system'
+import { darkSystem, system as lightSystem } from '@/theme/chakraSystem'
 import { ColorModeProvider } from '@/ui/color-mode'
 
 export type AppThemeMode = 'light' | 'dark'

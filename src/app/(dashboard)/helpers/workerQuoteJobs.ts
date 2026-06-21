@@ -5,6 +5,7 @@ import {
   type MyQuoteItem,
   type TaskItem,
   type TaskQuoteItem,
+  formatRelativeAgo,
   isQuoteAwarded,
   isTaskCompleted,
 } from '@/utils/dashboardHelpers'
@@ -24,6 +25,14 @@ export type WorkerQuoteTimelineStep = {
   at?: unknown
   done: boolean
   current: boolean
+}
+
+/** Compact horizontal progress labels for worker quote cards. */
+export type WorkerQuoteCardProgressStep = {
+  key: string
+  label: string
+  detail: string
+  done: boolean
 }
 
 export function workerOrderForTask(
@@ -144,6 +153,46 @@ export function workerQuoteStageLabel(stage: WorkerQuoteStage): string {
     case 'ended':
       return 'Closed'
   }
+}
+
+export function workerQuoteCardProgressSteps(
+  task: TaskItem,
+  quote: TaskQuoteItem,
+  workerOrder: OrderItem | null,
+): WorkerQuoteCardProgressStep[] {
+  const stage = workerQuoteStage(task, quote, workerOrder)
+  const accepted =
+    stage === 'booked' ||
+    stage === 'closed' ||
+    isQuoteAwarded(quote.status) ||
+    Boolean(workerOrder)
+  const completed = stage === 'closed'
+
+  const acceptedAt =
+    workerOrder?.createdAt ??
+    (accepted && isQuoteAwarded(quote.status) ? quote.createdAt : null)
+  const completedAt = workerOrder?.closedAt ?? task.completedAt
+
+  return [
+    {
+      key: 'sent',
+      label: 'Sent',
+      detail: formatRelativeAgo(quote.createdAt) || '—',
+      done: true,
+    },
+    {
+      key: 'accepted',
+      label: 'Accepted',
+      detail: accepted ? formatRelativeAgo(acceptedAt) || '—' : '—',
+      done: accepted,
+    },
+    {
+      key: 'completed',
+      label: 'Completed',
+      detail: completed ? formatRelativeAgo(completedAt) || '—' : '—',
+      done: completed,
+    },
+  ]
 }
 
 export function workerQuoteTimelineSteps(

@@ -56,6 +56,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         display="flex"
         alignItems="center"
         gap={1}
+        w="full"
         minH="40px"
         borderRadius="md"
         borderWidth="1px"

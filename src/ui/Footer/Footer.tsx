@@ -1,21 +1,20 @@
 'use client'
-import { Link } from '../Link'
 
 import { Box, Container, HStack, Stack, Text } from '@chakra-ui/react'
 
-const links = [
+import { Link, Logo } from '@ui'
+
+const navLinks = [
   { label: 'Pricing', href: '/pricing' },
   { label: 'About', href: '/about' },
-  { label: 'Support', href: '/' },
-  { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Terms of Service', href: '/terms' },
-  { label: 'Help Center', href: 'https://slashie.app' },
-  { label: 'Safety', href: 'https://slashie.app' },
+  { label: 'Log in', href: '/login' },
+  { label: 'Register', href: '/register' },
 ] as const
 
-function isExternalHref(href: string) {
-  return /^https?:\/\//i.test(href)
-}
+const legalLinks = [
+  { label: 'Terms', href: '/terms' },
+  { label: 'Privacy', href: '/privacy' },
+] as const
 
 export function Footer() {
   return (
@@ -24,54 +23,58 @@ export function Footer() {
       borderTopWidth="1px"
       borderColor="cardBorder"
       bg="bg"
-      py={{ base: 8, md: 10 }}
+      py={10}
     >
-      <Container maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-        <Stack
-          direction={{ base: 'column', md: 'row' }}
-          align={{ base: 'flex-start', md: 'center' }}
-          justify="space-between"
-          gap={6}
-        >
-          <Stack gap={2} maxW={{ md: 'md' }}>
-            <Text fontWeight={700} color="cardFg">
-              Slashie
-            </Text>
-            <Text fontSize="sm" color="formLabelMuted" lineHeight="short">
-              A local marketplace for people who need tasks done and workers who
-              quote, deliver, and build trust on the map.
-            </Text>
-            <Text fontSize="sm" color="formLabelMuted">
-              © 2026 Slashie. Built for trusted local work.
-            </Text>
-          </Stack>
-
-          <HStack gap={{ base: 3, md: 4 }} flexWrap="wrap">
-            {links.map((link) =>
-              isExternalHref(link.href) ? (
+      <Container maxW="6xl" px={{ base: 4, md: 6 }}>
+        <Stack gap={8}>
+          <HStack
+            justify="space-between"
+            align="flex-start"
+            flexWrap="wrap"
+            gap={6}
+          >
+            <Stack gap={2}>
+              <Logo />
+              <Text fontSize="sm" color="formLabelMuted">
+                Map-first local task marketplace.
+              </Text>
+            </Stack>
+            <HStack gap={5} flexWrap="wrap">
+              {navLinks.map((link) => (
                 <Link
-                  key={link.label}
+                  key={link.href}
                   href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  tone="muted"
                   fontWeight={600}
                   fontSize="sm"
                   color="cardFg"
                 >
                   {link.label}
                 </Link>
-              ) : (
+              ))}
+            </HStack>
+          </HStack>
+          <HStack
+            justify="space-between"
+            flexWrap="wrap"
+            gap={4}
+            fontSize="sm"
+            color="formLabelMuted"
+          >
+            <Text>© Slashie 2026</Text>
+            <HStack gap={4}>
+              {legalLinks.map((link) => (
                 <Link
-                  key={link.label}
+                  key={link.href}
                   href={link.href}
-                  fontWeight={600}
+                  tone="muted"
                   fontSize="sm"
-                  color="cardFg"
+                  color="inherit"
                 >
                   {link.label}
                 </Link>
-              ),
-            )}
+              ))}
+            </HStack>
           </HStack>
         </Stack>
       </Container>

@@ -18,10 +18,7 @@ import { PhoneVerificationModal } from './PhoneVerificationModal'
 
 function VerifiedBadge({ verified }: { verified: boolean }) {
   return (
-    <Badge
-      bg={verified ? 'primary.100' : 'badgeBg'}
-      color={verified ? 'primary.800' : 'cardFg'}
-    >
+    <Badge variant={verified ? 'success' : 'gray'}>
       {verified ? 'Verified' : 'Unverified'}
     </Badge>
   )

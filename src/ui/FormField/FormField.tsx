@@ -111,7 +111,7 @@ export function FormField({
 
   const control = useControlRow ? (
     <HStack
-      gap={3}
+      gap={2}
       w="full"
       align="center"
       cursor={onControlClick ? 'pointer' : undefined}
@@ -137,7 +137,7 @@ export function FormField({
       </Box>
     </HStack>
   ) : (
-    controlBody
+    <Box w="full">{controlBody}</Box>
   )
 
   return (
@@ -147,6 +147,7 @@ export function FormField({
         disabled={disabled}
         required={required}
         gap={2}
+        w="full"
         {...props}
       >
         <FieldLabel
@@ -154,7 +155,7 @@ export function FormField({
           fontSize="14px"
           fontWeight={500}
           color="cardFg"
-          mb={2}
+          px={1}
           {...labelProps}
         >
           {label}
@@ -166,6 +167,7 @@ export function FormField({
             fontSize="sm"
             color="formLabelMuted"
             lineHeight="tall"
+            px={1}
             {...helperTextProps}
           >
             {helperText}

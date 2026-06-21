@@ -2,7 +2,7 @@
 
 import { Stack, Text } from '@chakra-ui/react'
 
-import { Card, Tag } from '@ui'
+import { Badge, Card } from '@ui'
 
 import { useWorkerProfile } from '../context/WorkerProfileContext'
 
@@ -15,7 +15,7 @@ export function AboutSection() {
 
   return (
     <Card layout="section" eyebrow="About" heading="About this worker">
-      {tagline ? <Tag color="primary">{tagline}</Tag> : null}
+      {tagline ? <Badge color="primary">{tagline}</Badge> : null}
       {bio ? (
         <Text
           fontSize="sm"

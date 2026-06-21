@@ -1,5 +1,4 @@
 'use client'
-import { Link } from '../Link'
 
 import { Box } from '@chakra-ui/react'
 import Image from 'next/image'
@@ -9,7 +8,6 @@ import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 
-import { Button } from '../Button'
 import { useDropdownClose } from '../Dropdown/Dropdown'
 import { AccountMenuHeader } from './AccountMenuHeader'
 import { AccountNavPanel } from './AccountNavPanel'
@@ -102,24 +100,6 @@ export function AccountMenuContent({ onClose }: AccountMenuContentProps = {}) {
         onLogout={onLogout}
         onOpenNotifications={() => notifications?.openDrawer()}
       />
-
-      <Box px={3} py={3}>
-        {postTaskBlocked ? (
-          <Button size="sm" w="full" variant="secondary" disabled>
-            Post a task
-          </Button>
-        ) : (
-          <Link
-            href="/tasks/create"
-            _hover={{ textDecoration: 'none' }}
-            onClick={close}
-          >
-            <Button size="sm" w="full" variant="secondary">
-              Post a task
-            </Button>
-          </Link>
-        )}
-      </Box>
     </>
   )
 }

@@ -49,7 +49,6 @@ export { ScheduleChip } from './ScheduleChip'
 export { Select } from './Select'
 export { Slider } from './Slider/Slider'
 export { Stepper } from './Stepper/Stepper'
-export { Tag } from './Tag'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail/Thumbnail'
 export * from './Footer'
@@ -96,6 +95,5 @@ export type {
   StepperStep,
   StepperSubStep,
 } from './Stepper/Stepper'
-export type { TagColor, TagProps, TagVariant } from './Tag'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps } from './Thumbnail/Thumbnail'

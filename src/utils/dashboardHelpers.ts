@@ -83,6 +83,11 @@ export function formatRelativePosted(iso: unknown): string {
   return `Posted ${formatDate(iso)}`
 }
 
+/** Compact relative time without the “Posted” prefix (e.g. `1 day ago`). */
+export function formatRelativeAgo(iso: unknown): string {
+  return formatRelativePosted(iso).replace(/^Posted /, '')
+}
+
 export function isTaskCompleted(status: string) {
   return /complete|done|closed|paid|archived|finished|resolved/i.test(
     status.trim(),
