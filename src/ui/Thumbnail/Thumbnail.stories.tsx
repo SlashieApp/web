@@ -8,6 +8,9 @@ const meta = {
   component: Thumbnail,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  args: {
+    alt: 'Task thumbnail',
+  },
 } satisfies Meta<typeof Thumbnail>
 
 export default meta
@@ -15,19 +18,20 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const TaskWithPhoto: Story = {
-  render: () => (
-    <Thumbnail
-      alt="Garden tidy-up"
-      src="https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=600&fit=crop"
-    />
-  ),
+  args: {
+    alt: 'Garden tidy-up',
+    src: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=600&fit=crop',
+  },
+  render: (args) => <Thumbnail {...args} />,
 }
 
 export const NoPhotoPlaceholder: Story = {
-  render: () => <Thumbnail alt="Task without photo" />,
+  args: { alt: 'Task without photo' },
+  render: (args) => <Thumbnail {...args} />,
 }
 
 export const BrowseListRow: Story = {
+  args: { alt: 'Handyman job' },
   render: () => (
     <HStack gap={3}>
       <Thumbnail

@@ -42,6 +42,14 @@ const meta = {
   component: Stepper,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  args: {
+    steps: workerSetupSteps,
+    activeSubStepId: 'profile.details',
+  },
+  argTypes: {
+    steps: { control: false },
+    onSelectSubStep: { action: 'selectSubStep' },
+  },
   decorators: [
     (Story) => (
       <Box maxW="320px">
@@ -57,17 +65,17 @@ type Story = StoryObj<typeof meta>
 
 /** Sidebar step list on worker setup — click to jump between sub-steps. */
 export const WorkerSetup: Story = {
-  render: function WorkerSetupStepper() {
-    const [active, setActive] = useState('services.skills')
+  args: {
+    steps: workerSetupSteps,
+    activeSubStepId: 'services.skills',
+    completedSubStepIds: ['profile.details', 'profile.photo', 'profile.bio'],
+  },
+  render: function WorkerSetupStepper(args) {
+    const [active, setActive] = useState(args.activeSubStepId)
     return (
       <Stepper
-        steps={workerSetupSteps}
+        {...args}
         activeSubStepId={active}
-        completedSubStepIds={[
-          'profile.details',
-          'profile.photo',
-          'profile.bio',
-        ]}
         isSubStepUnlocked={() => true}
         onSelectSubStep={setActive}
       />

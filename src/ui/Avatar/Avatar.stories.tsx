@@ -13,6 +13,9 @@ const meta = {
   component: Avatar,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  args: {
+    name: 'Alex Morgan',
+  },
 } satisfies Meta<typeof Avatar>
 
 export default meta
@@ -20,20 +23,35 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const TaskCardOwner: Story = {
-  render: () => (
-    <Avatar name="Alex Morgan" label="Alex Morgan" src={taskOwnerSrc} />
-  ),
+  args: {
+    name: 'Alex Morgan',
+    label: 'Alex Morgan',
+    src: taskOwnerSrc,
+  },
+  render: (args) => <Avatar {...args} />,
 }
 
 export const QuoteListWorker: Story = {
-  render: () => <Avatar name="Jordan Lee" label="Jordan Lee" src={workerSrc} />,
+  args: {
+    name: 'Jordan Lee',
+    label: 'Jordan Lee',
+    src: workerSrc,
+  },
+  render: (args) => <Avatar {...args} />,
 }
 
 export const InitialsFallback: Story = {
-  render: () => <Avatar name="Sam Taylor" label="Sam Taylor" />,
+  args: {
+    name: 'Sam Taylor',
+    label: 'Sam Taylor',
+  },
+  render: (args) => <Avatar {...args} />,
 }
 
 export const WorkerRow: Story = {
+  args: {
+    name: 'Alex Morgan',
+  },
   render: () => (
     <HStack gap={3}>
       <Avatar name="Alex Morgan" label="Alex Morgan" />

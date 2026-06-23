@@ -12,6 +12,16 @@ const meta = {
   component: Modal,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
+  args: {
+    open: false,
+    onOpenChange: () => {},
+    title: 'Modal',
+    children: null,
+  },
+  argTypes: {
+    onOpenChange: { action: 'openChange' },
+    children: { control: false, table: { disable: true } },
+  },
 } satisfies Meta<typeof Modal>
 
 export default meta
@@ -19,7 +29,11 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const VerifyPhoneNumber: Story = {
-  render: function VerifyPhoneModal() {
+  args: {
+    title: 'Add contact phone number',
+    submitLabel: 'Send code',
+  },
+  render: function VerifyPhoneModal(args) {
     const [open, setOpen] = useState(false)
     return (
       <>
@@ -27,11 +41,10 @@ export const VerifyPhoneNumber: Story = {
           Verify phone number
         </Button>
         <Modal
-          title="Add contact phone number"
+          {...args}
           open={open}
           onOpenChange={setOpen}
           onSubmit={() => setOpen(false)}
-          submitLabel="Send code"
         >
           <Stack gap={4}>
             <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
@@ -49,7 +62,11 @@ export const VerifyPhoneNumber: Story = {
 }
 
 export const ChangeEmail: Story = {
-  render: function ChangeEmailModal() {
+  args: {
+    title: 'Change email address',
+    submitLabel: 'Save',
+  },
+  render: function ChangeEmailModal(args) {
     const [open, setOpen] = useState(false)
     return (
       <>
@@ -62,11 +79,10 @@ export const ChangeEmail: Story = {
           Update email
         </Button>
         <Modal
-          title="Change email address"
+          {...args}
           open={open}
           onOpenChange={setOpen}
           onSubmit={() => setOpen(false)}
-          submitLabel="Save"
         >
           <FormField
             label="New email"
