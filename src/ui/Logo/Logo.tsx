@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react'
 import { useColorMode } from '../color-mode'
 
 export type LogoProps = Omit<ImageProps, 'src' | 'alt'> & {
-  /** Use the compact mark (`Slashie-logo-mobile.png`) instead of the full wordmark. */
+  /** Use the compact mark (`slashie-logo-mobile.png`) instead of the full wordmark. */
   mobile?: boolean
   /** Merged onto the wrapper around the image (e.g. `display="block"`, `w="full"`). */
   containerProps?: Omit<ComponentProps<typeof Box>, 'children'>
@@ -17,7 +17,7 @@ export function Logo({ mobile = false, containerProps, ...props }: LogoProps) {
   const [mounted, setMounted] = useState(false)
   const { colorMode } = useColorMode()
   const logoSrc = mobile
-    ? '/images/Slashie-logo-mobile.png'
+    ? '/images/slashie-logo-mobile.png'
     : colorMode === 'light'
       ? '/images/slashie-logo-light.png'
       : '/images/slashie-logo-dark.png'
