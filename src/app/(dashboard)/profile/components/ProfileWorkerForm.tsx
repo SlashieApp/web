@@ -54,7 +54,7 @@ export function ProfileWorkerForm() {
         <Stack gap={4}>
           <Stack gap={1}>
             <Heading size="md">Become a worker</Heading>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Set up your worker profile to send quotes. Customers pay you
               directly for completed work.
             </Text>
@@ -75,7 +75,7 @@ export function ProfileWorkerForm() {
       <Card layout="section" id="profile-worker" p={{ base: 5, md: 6 }}>
         <Stack gap={3}>
           <Heading size="md">Worker profile (in progress)</Heading>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Finish setup to edit your full worker profile here. What you have
             saved so far:
           </Text>
@@ -127,7 +127,7 @@ export function ProfileWorkerForm() {
     >
       <Stack gap={6}>
         {submitError ? (
-          <Text color="red.500" fontSize="sm">
+          <Text color="status.danger.fg" fontSize="sm">
             {submitError}
           </Text>
         ) : null}
@@ -136,7 +136,7 @@ export function ProfileWorkerForm() {
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Worker profile</Heading>
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 Update the details customers see when you quote on tasks.
               </Text>
             </Stack>
@@ -287,7 +287,7 @@ function WorkerProfileSummary({ values }: { values: WorkerFormValues }) {
           <Text
             fontSize="xs"
             fontWeight={700}
-            color="formLabelMuted"
+            color="text.muted"
             textTransform="uppercase"
           >
             {row.label}

@@ -26,7 +26,7 @@ export function WorkerSetupStepHeading({
         {title}
       </Text>
       {description ? (
-        <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+        <Text fontSize="sm" color="text.muted" lineHeight="tall">
           {description}
         </Text>
       ) : null}

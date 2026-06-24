@@ -24,12 +24,17 @@ function StatTile({ label, value }: StatItem) {
       <Text
         fontSize="xs"
         fontWeight={700}
-        color="formLabelMuted"
+        color="text.muted"
         textTransform="uppercase"
       >
         {label}
       </Text>
-      <Text fontSize="xl" fontWeight={800} color="cardFg" lineHeight="shorter">
+      <Text
+        fontSize="xl"
+        fontWeight={800}
+        color="text.default"
+        lineHeight="shorter"
+      >
         {value}
       </Text>
     </Stack>

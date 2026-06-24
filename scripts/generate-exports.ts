@@ -150,7 +150,13 @@ const parseExportsFromSource = (source: string) => {
       .map((part) => part.trim())
       .filter(Boolean)
       .map((part) => {
-        if (part.startsWith('type ')) return null
+        if (part.startsWith('type ')) {
+          const typeName =
+            part.replace(/^type\s+/, '').split(/\s+as\s+/i)[1] ??
+            part.replace(/^type\s+/, '')
+          typeExports.add(typeName.trim())
+          return null
+        }
         const aliasParts = part.split(/\s+as\s+/i).map((p) => p.trim())
         return aliasParts[1] ?? aliasParts[0]
       })

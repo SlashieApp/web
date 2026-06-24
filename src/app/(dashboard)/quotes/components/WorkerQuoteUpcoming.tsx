@@ -24,19 +24,19 @@ export function WorkerQuoteUpcoming() {
   return (
     <Card layout="section" p={5}>
       <Stack gap={4}>
-        <Text fontWeight={700} fontSize="md" color="cardFg">
+        <Text fontWeight={700} fontSize="md" color="text.default">
           Upcoming
         </Text>
 
         {groups.length === 0 ? (
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             No scheduled jobs yet. Booked work with exact dates will show here.
           </Text>
         ) : (
           <Stack gap={3}>
             {groups.map((group) => (
               <Stack key={group.label} gap={1}>
-                <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+                <Text fontSize="xs" fontWeight={700} color="text.muted">
                   {group.label}
                 </Text>
                 <Stack gap={0}>

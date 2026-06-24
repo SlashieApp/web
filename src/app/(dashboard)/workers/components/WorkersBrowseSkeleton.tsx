@@ -23,9 +23,9 @@ export function WorkersBrowseSkeleton() {
           gap={3}
           p={{ base: 5, md: 6 }}
           borderWidth="1px"
-          borderColor="cardBorder"
+          borderColor="border.default"
           borderRadius="2xl"
-          bg="cardBg"
+          bg="bg.surface"
         >
           <Skeleton boxSize="96px" borderRadius="full" />
           <Skeleton h="18px" w="55%" />

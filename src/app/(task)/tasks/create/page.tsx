@@ -435,7 +435,7 @@ function CreateTaskFormBody({
                 </Button>
               </HStack>
               {serverError ? (
-                <Text color="red.500" fontSize="sm">
+                <Text color="status.danger.fg" fontSize="sm">
                   {serverError}
                 </Text>
               ) : null}
@@ -487,14 +487,14 @@ export default function CreateTaskPage() {
   if (!sessionOk) {
     return (
       <Box
-        bg="bg"
-        color="cardFg"
+        bg="bg.canvas"
+        color="text.default"
         minH="50vh"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="formLabelMuted" fontSize="sm">
+        <Text color="text.muted" fontSize="sm">
           Checking your session…
         </Text>
       </Box>
@@ -504,14 +504,14 @@ export default function CreateTaskPage() {
   if (!mePrimedForForm) {
     return (
       <Box
-        bg="bg"
-        color="cardFg"
+        bg="bg.canvas"
+        color="text.default"
         minH="50vh"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="formLabelMuted" fontSize="sm">
+        <Text color="text.muted" fontSize="sm">
           Loading your profile…
         </Text>
       </Box>
@@ -519,9 +519,9 @@ export default function CreateTaskPage() {
   }
 
   return (
-    <Box bg="bg" color="cardFg" minH="100vh">
+    <Box bg="bg.canvas" color="text.default" minH="100vh">
       <Stack gap={0}>
-        <Box as="section" bg="cardBg" py={{ base: 8, md: 10 }}>
+        <Box as="section" bg="bg.surface" py={{ base: 8, md: 10 }}>
           <Container>
             <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
               <CreateTaskFormBody

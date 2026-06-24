@@ -28,31 +28,31 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
   return (
     <Stack gap={5}>
       <Stack gap={2}>
-        <Text fontWeight={700} fontSize="sm" color="secondary.900">
+        <Text fontWeight={700} fontSize="sm" color="text.link">
           Your quote
         </Text>
-        <Text fontSize="md" color="secondary.900">
+        <Text fontSize="md" color="text.link">
           {reviewPriceLabel}
         </Text>
         {quoteAvailabilityInput.trim() ? (
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Availability: {quoteAvailabilityInput.trim()}
           </Text>
         ) : null}
       </Stack>
 
       <Stack gap={2}>
-        <Text fontWeight={700} fontSize="sm" color="secondary.900">
+        <Text fontWeight={700} fontSize="sm" color="text.link">
           Message to customer
         </Text>
-        <Text fontSize="sm" color="secondary.900" whiteSpace="pre-wrap">
+        <Text fontSize="sm" color="text.link" whiteSpace="pre-wrap">
           {quoteMessageInput.trim() || '—'}
         </Text>
       </Stack>
 
       {photoUrls.length > 0 ? (
         <Stack gap={2}>
-          <Text fontWeight={700} fontSize="sm" color="secondary.900">
+          <Text fontWeight={700} fontSize="sm" color="text.link">
             Photos
           </Text>
           <HStack gap={2} flexWrap="wrap">

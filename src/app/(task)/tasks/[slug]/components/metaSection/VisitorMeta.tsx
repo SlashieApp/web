@@ -131,8 +131,8 @@ export function VisitorMeta() {
               py={0.5}
               fontSize="10px"
               fontWeight={700}
-              bg="primary.100"
-              color="primary.700"
+              bg="status.success.soft"
+              color="status.success.fg"
             >
               {budgetBadge}
             </Badge>

@@ -1,17 +1,21 @@
 import { ApolloProvider } from '@apollo/client/react'
 import { ChakraProvider } from '@chakra-ui/react'
+import { DocsContainer } from '@storybook/addon-docs/blocks'
 import type { Preview } from '@storybook/nextjs-vite'
 import type { CSSProperties } from 'react'
-import React from 'react'
+import type React from 'react'
 
 import { ThemeProvider } from 'next-themes'
 
-import { darkSystem, lightSystem } from '../src/theme/system'
+import { darkSystem, lightSystem } from '../src/theme/chakraSystem'
 import { apolloClient } from '../src/utils/apolloClient'
 
 /** Mirrors `next/font` CSS variables from `app/layout.tsx` so theme `fonts.heading` / `fonts.body` resolve in Storybook. */
 const storybookFontRootStyle = {
   minHeight: '100%',
+  // Canvas uses the SDL `bg.canvas` role so every story sits on the themed surface.
+  background: 'var(--chakra-colors-bg-canvas)',
+  color: 'var(--chakra-colors-text-default)',
   '--font-plus-jakarta':
     '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif',
   '--font-inter': '"Inter", ui-sans-serif, system-ui, sans-serif',
@@ -57,9 +61,31 @@ const preview: Preview = {
     nextjs: {
       appDirectory: true,
     },
+    // Docs pages (MDX + autodocs) render free-standing JSX OUTSIDE the story
+    // decorators, so wrap the whole docs page in a ChakraProvider. Pages that
+    // also show dark mode nest their own provider — harmless.
+    docs: {
+      container: (props: React.ComponentProps<typeof DocsContainer>) => (
+        <DocsContainer {...props}>
+          <ChakraProvider value={lightSystem}>{props.children}</ChakraProvider>
+        </DocsContainer>
+      ),
+    },
     options: {
       storySort: {
         order: [
+          'Foundations',
+          [
+            'Overview & Principles',
+            'Color',
+            'Typography',
+            'Space & Radius',
+            'Elevation',
+            'Motion',
+            'Accessibility',
+          ],
+          'Components',
+          'Patterns',
           'ui',
           'layout',
           'header',

@@ -17,6 +17,8 @@ export const PIN = {
   greenBright: BRAND_PRIMARY_HOVER,
   greenSoft: brandPrimary[400],
   greenPale: BRAND_PRIMARY_SOFT_BG,
+  /* TODO(sdl): raw Mapbox/DOM consumer - these map to text.muted / border.strong / bg.surface
+     but have no brand.ts constant yet (theme is out of scope for this migration). */
   textMuted: '#6B7370',
   border: '#D1D5D4',
   white: '#FFFFFF',

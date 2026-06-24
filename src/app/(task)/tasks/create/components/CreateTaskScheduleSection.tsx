@@ -63,10 +63,10 @@ export function CreateTaskScheduleSection({
       bodyGap={5}
       header={
         <Stack gap={1}>
-          <Heading size="lg" color="primary.700">
+          <Heading size="lg" color="text.link">
             3. Timing
           </Heading>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Tell workers when you need the work done. You can keep it flexible
             or pin an exact slot.
           </Text>
@@ -111,8 +111,8 @@ export function CreateTaskScheduleSection({
                   variant="ghost"
                   flexShrink={0}
                   minW="56px"
-                  bg={isSelected ? 'primary.600' : 'cardBg'}
-                  color={isSelected ? 'white' : 'cardFg'}
+                  bg={isSelected ? 'action.primary' : 'bg.surface'}
+                  color={isSelected ? 'text.onGreen' : 'text.default'}
                   boxShadow="none"
                   onClick={() => onPreferredDateChange(ymd)}
                 >
@@ -129,7 +129,7 @@ export function CreateTaskScheduleSection({
             })}
           </HStack>
           {fieldErrors?.preferredDate ? (
-            <Text fontSize="sm" color="red.500" mt={1}>
+            <Text fontSize="sm" color="status.danger.fg" mt={1}>
               {fieldErrors.preferredDate}
             </Text>
           ) : null}
@@ -150,7 +150,7 @@ export function CreateTaskScheduleSection({
             }
           />
           {fieldErrors?.preferredTime ? (
-            <Text fontSize="sm" color="red.500" mt={1}>
+            <Text fontSize="sm" color="status.danger.fg" mt={1}>
               {fieldErrors.preferredTime}
             </Text>
           ) : null}

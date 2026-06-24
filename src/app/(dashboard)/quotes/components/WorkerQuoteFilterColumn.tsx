@@ -37,7 +37,7 @@ const SECTION_LABEL = {
   fontSize: 'xs',
   fontWeight: 700,
   letterSpacing: '0.08em',
-  color: 'formLabelMuted',
+  color: 'text.muted',
   textTransform: 'uppercase' as const,
 }
 
@@ -53,7 +53,7 @@ function FilterAccordion({
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <Stack gap={0} borderTopWidth="1px" borderColor="cardBorder">
+    <Stack gap={0} borderTopWidth="1px" borderColor="border.default">
       <Button
         type="button"
         variant="ghost"
@@ -65,7 +65,7 @@ function FilterAccordion({
         minH={0}
         fontWeight={600}
         fontSize="sm"
-        color="cardFg"
+        color="text.default"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
       >
@@ -73,7 +73,7 @@ function FilterAccordion({
         <Box
           as="span"
           display="inline-flex"
-          color="formLabelMuted"
+          color="text.muted"
           transform={open ? 'rotate(180deg)' : 'rotate(0deg)'}
           transition="transform 0.15s ease"
           aria-hidden
@@ -130,9 +130,9 @@ export function WorkerQuoteFilterColumn() {
       gap={5}
       p={4}
       borderRadius="xl"
-      bg="cardBg"
+      bg="bg.surface"
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
     >
       <Stack gap={2}>
         <Text {...SECTION_LABEL}>Filters</Text>

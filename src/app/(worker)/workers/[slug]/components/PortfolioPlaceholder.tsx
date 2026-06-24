@@ -24,7 +24,7 @@ export function PortfolioPlaceholder() {
             minH="120px"
             borderRadius="lg"
             bg="neutral.100"
-            color="formLabelMuted"
+            color="text.muted"
             fontSize="sm"
             fontWeight={600}
           >
@@ -32,7 +32,7 @@ export function PortfolioPlaceholder() {
           </Box>
         ))}
       </Grid>
-      <Text fontSize="sm" color="formLabelMuted">
+      <Text fontSize="sm" color="text.muted">
         Workers will be able to showcase completed work here in a future update.
       </Text>
     </Card>

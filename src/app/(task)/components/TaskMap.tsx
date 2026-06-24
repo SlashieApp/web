@@ -232,19 +232,19 @@ export function TaskMap({
         inset={0}
         top={0}
         h="full"
-        bg="cardBg"
+        bg="bg.surface"
         boxShadow="none"
         borderWidth={0}
-        borderColor="cardBorder"
+        borderColor="border.default"
         display="flex"
         alignItems="center"
         justifyContent="center"
         px={6}
         zIndex={0}
       >
-        <Text color="formLabelMuted" fontSize="sm" textAlign="center">
+        <Text color="text.muted" fontSize="sm" textAlign="center">
           Set{' '}
-          <Text as="span" fontWeight={700} color="cardFg">
+          <Text as="span" fontWeight={700} color="text.default">
             NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
           </Text>{' '}
           in your environment to load the map.
@@ -263,7 +263,7 @@ export function TaskMap({
       borderRadius="0"
       boxShadow="none"
       borderWidth={0}
-      borderColor="cardBorder"
+      borderColor="border.default"
       zIndex={0}
     >
       <Box

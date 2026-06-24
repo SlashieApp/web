@@ -1,6 +1,7 @@
 import type { ExpressionSpecification } from 'mapbox-gl'
 import type { GeoJSONSource, Map as MapboxMap } from 'mapbox-gl'
 
+import { BRAND_MAP_ROUTE } from '@/theme/brand'
 import {
   mapboxDrivingRoute,
   peekDrivingRouteCache,
@@ -9,8 +10,8 @@ import {
 export const TASK_MAP_NAV_ROUTE_SOURCE = 'task-browse-nav-route'
 export const TASK_MAP_NAV_ROUTE_LAYER = 'task-browse-nav-route-line'
 
-const ROUTE_GREEN = '#00AB63'
-const ROUTE_FADE = 'rgba(0, 171, 99, 0)'
+const ROUTE_GREEN = BRAND_MAP_ROUTE
+const ROUTE_FADE = 'rgba(0, 220, 130, 0)'
 const ROUTE_ANIM_MS = 400
 
 const emptyLine = {

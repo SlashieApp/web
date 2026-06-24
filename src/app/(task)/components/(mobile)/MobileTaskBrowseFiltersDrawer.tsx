@@ -1,5 +1,6 @@
 'use client'
 
+import { sdlFocusRing } from '@/theme/styles'
 import { Box, HStack, Slider, Stack, Text } from '@chakra-ui/react'
 import { Button, Drawer, Input } from '@ui'
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react'
@@ -29,7 +30,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
       fontSize="xs"
       fontWeight={700}
       letterSpacing="0.06em"
-      color="formLabelMuted"
+      color="text.muted"
       textTransform="uppercase"
     >
       {children}
@@ -103,13 +104,10 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
               py={0}
               borderRadius="lg"
               variant="ghost"
-              color="formControlIcon"
-              _hover={{ bg: 'badgeBg', color: 'cardFg' }}
-              _focusVisible={{
-                outline: '2px solid',
-                outlineColor: 'secondary',
-                outlineOffset: '2px',
-              }}
+              color="text.muted"
+              /* TODO(sdl): verify role — badgeBg used as neutral hover surface */
+              _hover={{ bg: 'bg.subtle', color: 'text.default' }}
+              _focusVisible={sdlFocusRing}
               onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault()
               }}
@@ -157,7 +155,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
       <Stack gap={3}>
         <HStack justify="space-between" align="baseline">
           <SectionLabel>Budget</SectionLabel>
-          <Text fontSize="sm" fontWeight={800} color="primary.600">
+          <Text fontSize="sm" fontWeight={800} color="text.link">
             {budgetLabel}
           </Text>
         </HStack>
@@ -186,8 +184,8 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
           }}
         >
           <Slider.Control>
-            <Slider.Track bg="cardDivider">
-              <Slider.Range bg="primary.600" />
+            <Slider.Track bg="border.default">
+              <Slider.Range bg="action.primary" />
             </Slider.Track>
             <Slider.Thumbs />
           </Slider.Control>
@@ -197,7 +195,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
       <Stack gap={3}>
         <HStack justify="space-between" align="baseline">
           <SectionLabel>Distance</SectionLabel>
-          <Text fontSize="sm" fontWeight={800} color="primary.600">
+          <Text fontSize="sm" fontWeight={800} color="text.link">
             {radiusKm} km
           </Text>
         </HStack>
@@ -212,8 +210,8 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
           }}
         >
           <Slider.Control>
-            <Slider.Track bg="cardDivider">
-              <Slider.Range bg="primary.600" />
+            <Slider.Track bg="border.default">
+              <Slider.Range bg="action.primary" />
             </Slider.Track>
             <Slider.Thumbs />
           </Slider.Control>
@@ -240,8 +238,8 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
                 justifyContent="flex-start"
                 borderRadius="lg"
                 borderWidth="1px"
-                borderColor={active ? 'primary.600' : 'cardBorder'}
-                bg={active ? 'primary.50' : 'transparent'}
+                borderColor={active ? 'action.primary' : 'border.default'}
+                bg={active ? 'status.success.soft' : 'transparent'}
                 onClick={() => onUrgencyChange(option.value)}
               >
                 <Box
@@ -250,7 +248,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
                   h={4}
                   borderRadius="full"
                   borderWidth="2px"
-                  borderColor={active ? 'primary.600' : 'formControlBorder'}
+                  borderColor={active ? 'action.primary' : 'border.default'}
                   mr={2.5}
                   display="inline-flex"
                   alignItems="center"
@@ -262,7 +260,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
                       w={2}
                       h={2}
                       borderRadius="full"
-                      bg="primary.600"
+                      bg="action.primary"
                     />
                   ) : null}
                 </Box>

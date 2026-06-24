@@ -37,7 +37,7 @@ function ReviewSection({
         borderWidth="1px"
         borderColor="neutral.300"
         borderRadius="lg"
-        bg="white"
+        bg="bg.surface"
         position="relative"
       >
         <Box position="absolute" top={3} right={3} zIndex={1}>
@@ -45,7 +45,7 @@ function ReviewSection({
             type="button"
             size="sm"
             variant="ghost"
-            color="formLabelMuted"
+            color="text.muted"
             fontWeight={600}
             minH="32px"
             px={3}
@@ -71,11 +71,16 @@ function ReviewField({
 }) {
   return (
     <Stack gap={0.5}>
-      <Text fontSize="sm" color="formLabelMuted">
+      <Text fontSize="sm" color="text.muted">
         {label}
       </Text>
       {typeof value === 'string' ? (
-        <Text fontSize="sm" color="cardFg" fontWeight={500} lineHeight="tall">
+        <Text
+          fontSize="sm"
+          color="text.default"
+          fontWeight={500}
+          lineHeight="tall"
+        >
           {value.trim() ? value : '—'}
         </Text>
       ) : (
@@ -145,7 +150,7 @@ export function WorkerSetupReviewStep() {
                           boxSize="40px"
                           borderRadius="full"
                           overflow="hidden"
-                          bg="primary.100"
+                          bg="status.success.soft"
                           flexShrink={0}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -159,7 +164,11 @@ export function WorkerSetupReviewStep() {
                             }}
                           />
                         </Box>
-                        <Text fontSize="sm" color="cardFg" fontWeight={500}>
+                        <Text
+                          fontSize="sm"
+                          color="text.default"
+                          fontWeight={500}
+                        >
                           Photo added
                         </Text>
                       </HStack>
@@ -242,12 +251,12 @@ export function WorkerSetupReviewStep() {
       })}
 
       <Stack gap={2} pt={1}>
-        <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+        <Text fontSize="sm" color="text.muted" lineHeight="tall">
           {workerEligibility
             ? 'You meet the profile requirements to start quoting.'
             : 'Some profile requirements may still need attention. You can finish setup and update your profile if needed.'}
         </Text>
-        <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+        <Text fontSize="sm" color="text.muted" lineHeight="tall">
           After you start quoting, customers pay you directly for the work.
           Slashie does not process job payments.
         </Text>

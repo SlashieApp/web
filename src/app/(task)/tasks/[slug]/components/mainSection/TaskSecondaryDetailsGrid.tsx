@@ -119,14 +119,19 @@ function FactCell({ fact }: { fact: TaskSecondaryFact }) {
   const icon = FACT_ICONS[fact.key] ?? <IconCrosshair />
   return (
     <HStack align="flex-start" gap={3} minW={0}>
-      <Box flexShrink={0} color="formLabelMuted" mt={0.5} aria-hidden>
+      <Box flexShrink={0} color="text.muted" mt={0.5} aria-hidden>
         {icon}
       </Box>
       <Box minW={0}>
-        <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+        <Text fontSize="xs" fontWeight={700} color="text.muted">
           {fact.label}
         </Text>
-        <Text fontSize="sm" fontWeight={600} color="cardFg" lineHeight="short">
+        <Text
+          fontSize="sm"
+          fontWeight={600}
+          color="text.default"
+          lineHeight="short"
+        >
           {fact.value}
         </Text>
       </Box>
@@ -145,9 +150,9 @@ export function TaskSecondaryDetailsGrid() {
     <Box
       w="full"
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="xl"
-      bg="cardBg"
+      bg="bg.surface"
       p={{ base: 4, md: 5 }}
     >
       <Grid

@@ -27,8 +27,8 @@ export default function ProfilePage() {
             w={{ base: 16, md: 20 }}
             h={{ base: 16, md: 20 }}
             borderRadius="full"
-            bg="primary.100"
-            color="primary.800"
+            bg="bg.subtle"
+            color="text.default"
             display="grid"
             placeItems="center"
             fontWeight={800}
@@ -49,9 +49,9 @@ export default function ProfilePage() {
           </Box>
           <Stack gap={1} flex="1" minW={0}>
             <Heading size="xl">{displayNameFromMe(me)}</Heading>
-            <Text color="formLabelMuted">{me.email}</Text>
+            <Text color="text.muted">{me.email}</Text>
             {joinMonthYear(me.createdAt) ? (
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 Joined {joinMonthYear(me.createdAt)}
               </Text>
             ) : null}

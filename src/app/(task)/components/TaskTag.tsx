@@ -46,12 +46,12 @@ export function TaskTag() {
               h="auto"
               minH={0}
               borderRadius="full"
-              bg="primary.600"
-              color="white"
+              bg="action.primary"
+              color="text.onGreen"
               fontSize="xs"
               fontWeight={700}
               boxShadow="none"
-              _hover={{ bg: 'primary.700', color: 'white' }}
+              _hover={{ bg: 'action.primaryHover', color: 'text.onGreen' }}
               onClick={openFilters}
             >
               {tag.label}
@@ -65,8 +65,8 @@ export function TaskTag() {
             px={2.5}
             py={1}
             borderRadius="full"
-            bg="primary.600"
-            color="white"
+            bg="action.primary"
+            color="text.onGreen"
             fontSize="xs"
             fontWeight={700}
           >

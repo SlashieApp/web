@@ -1,3 +1,4 @@
+import { BRAND_MAP_PIN } from '@/theme/brand'
 import type { TaskMapTask } from '../types'
 import { pinMilesText, pinPriceText, taskPinContentSig } from './content'
 import { type TaskMapPinHandle, taskMarkerElement } from './marker'
@@ -54,9 +55,9 @@ export function referenceMarkerElement(): HTMLDivElement {
     width: '18px',
     height: '18px',
     borderRadius: '50%',
-    background: '#00AB63',
+    background: BRAND_MAP_PIN,
     border: '3px solid #ffffff',
-    boxShadow: '0 0 0 2px rgba(0,171,99,0.35), 0 2px 8px rgba(15,23,42,0.25)',
+    boxShadow: '0 0 0 2px rgba(0,220,130,0.35), 0 2px 8px rgba(15,23,42,0.25)',
     zIndex: '0',
     pointerEvents: 'none',
   })

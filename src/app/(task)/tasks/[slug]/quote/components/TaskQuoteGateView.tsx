@@ -20,12 +20,12 @@ function BackToTaskLink({ href }: { href: string }) {
       href={href}
       fontSize="sm"
       fontWeight={600}
-      color="secondary.600"
+      color="text.link"
       display="inline-flex"
       alignItems="center"
       gap={1}
       w="fit-content"
-      _hover={{ textDecoration: 'none', color: 'secondary.700' }}
+      _hover={{ textDecoration: 'none', color: 'text.link' }}
     >
       <LuArrowLeft size={16} aria-hidden />
       Back to task
@@ -59,7 +59,7 @@ export function TaskQuoteGateView({
         >
           {title}
         </Text>
-        <Text color="formLabelMuted">{description}</Text>
+        <Text color="text.muted">{description}</Text>
       </Stack>
       {children}
     </Stack>

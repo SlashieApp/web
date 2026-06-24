@@ -15,8 +15,24 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { sdlMotion } from '@/theme/styles'
+
 import { Button } from '../Button'
 import { IconButton as UiIconButton } from '../IconButton/IconButton'
+
+/**
+ * SDL Modal. A centred dialog built on Chakra/Ark `Dialog`, so it keeps a focus
+ * trap, ESC-to-close, scrim click-away, and `prefers-reduced-motion` awareness
+ * for free. Visuals reference SDL semantic roles only.
+ *
+ * SDL guarantees:
+ * - Surface/border/text via roles (`bg.surface`, `border.default`, `text.*`).
+ * - Close control is a >=44px `IconButton` that keeps its `aria-label` + focus ring.
+ * - Footer primary action is `Button` (44px, green-ink, visible focus).
+ * - Transitions use `sdlMotion`; the scrim/content animation honours reduced motion.
+ *
+ * Public props/API unchanged. `size` keeps its legacy `sm | md | lg` names.
+ */
 
 const modalPaddingX = { base: 5, md: 6 } as const
 
@@ -88,32 +104,37 @@ export function Modal({
       placement="center"
       motionPreset="scale"
     >
+      {/* Scrim: dim + blur the canvas behind the dialog. No SDL token covers an
+          overlay tint, so a translucent ink wash is used directly. */}
       <DialogBackdrop bg="blackAlpha.500" backdropFilter="blur(4px)" />
       <DialogPositioner p={4}>
         <DialogContent
-          bg="cardBg"
-          borderRadius="md"
-          boxShadow="xl"
+          bg="bg.surface"
+          borderRadius="lg"
+          boxShadow="e5"
           borderWidth="1px"
-          borderColor="cardBorder"
+          borderColor="border.default"
           maxW={sizeMaxW[size]}
           w="full"
           mx="auto"
           overflow="hidden"
+          transitionProperty="opacity, transform"
+          transitionDuration={sdlMotion.duration.moderate}
+          transitionTimingFunction={sdlMotion.easing.standard}
         >
           <DialogHeader
             px={modalPaddingX}
             pt={5}
             pb={4}
             borderBottomWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
           >
             <HStack align="center" justify="space-between" gap={3}>
               <DialogTitle
                 fontFamily="body"
                 fontSize="20px"
                 fontWeight={600}
-                color="cardFg"
+                color="text.default"
                 lineHeight="short"
                 flex={1}
                 minW={0}
@@ -129,12 +150,7 @@ export function Modal({
           </DialogHeader>
 
           <DialogBody px={modalPaddingX} py={6}>
-            <Stack
-              gap={6}
-              fontSize="md"
-              color="formLabelMuted"
-              lineHeight="1.625"
-            >
+            <Stack gap={6} fontSize="md" color="text.muted" lineHeight="1.625">
               {children}
             </Stack>
           </DialogBody>
@@ -144,7 +160,7 @@ export function Modal({
               px={modalPaddingX}
               py={4}
               borderTopWidth="1px"
-              borderColor="cardBorder"
+              borderColor="border.default"
               gap={3}
               justifyContent="flex-end"
             >

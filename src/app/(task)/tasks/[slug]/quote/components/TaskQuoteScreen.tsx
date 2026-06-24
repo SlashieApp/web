@@ -198,7 +198,7 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
             activeSubStep={activeSubStep}
             progressPercent={progressPercent}
           />
-          <Box flex={1} minH={0} overflowY="auto" bg="white">
+          <Box flex={1} minH={0} overflowY="auto" bg="bg.surface">
             <Stack
               gap={6}
               flex={1}
@@ -237,11 +237,11 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
               />
             </Box>
             <Box
-              bg="white"
+              bg="bg.surface"
               borderRadius="2xl"
               boxShadow="sm"
               borderWidth="1px"
-              borderColor="cardBorder"
+              borderColor="border.default"
               minH="640px"
               h="full"
               display="flex"

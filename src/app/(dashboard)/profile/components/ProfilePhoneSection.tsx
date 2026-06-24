@@ -11,7 +11,7 @@ export function ProfilePhoneSection() {
       <Stack gap={5}>
         <Stack gap={1}>
           <Heading size="md">Phone number</Heading>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Add and verify the mobile number on your account. Verification
             confirms this saved number via SMS.
           </Text>

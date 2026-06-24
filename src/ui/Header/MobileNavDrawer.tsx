@@ -9,7 +9,6 @@ import {
   DrawerPositioner,
   DrawerRoot,
   HStack,
-  IconButton,
   Stack,
 } from '@chakra-ui/react'
 import { useCallback } from 'react'
@@ -17,7 +16,7 @@ import { useCallback } from 'react'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
-import { Button, Link } from '@ui'
+import { Button, IconButton, Link } from '@ui'
 
 import { AccountMenuHeader } from './AccountMenuHeader'
 import { AccountNavPanel } from './AccountNavPanel'
@@ -37,9 +36,6 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
   const hasWorker = Boolean(me?.worker)
   const navItems = resolveAccountNavItems(hasWorker)
   const postTaskBlocked = me != null && !isEmailVerified(me)
-  if (!user) return null
-  const email = user.email ?? me?.email ?? ''
-  const displayName = me?.profile?.name?.trim() || email || 'Account'
 
   const close = useCallback(() => onOpenChange(false), [onOpenChange])
 
@@ -48,6 +44,10 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
     close()
     if (typeof window !== 'undefined') window.location.assign('/')
   }, [close, logout])
+
+  if (!user) return null
+  const email = user.email ?? me?.email ?? ''
+  const displayName = me?.profile?.name?.trim() || email || 'Account'
 
   return (
     <DrawerRoot
@@ -59,7 +59,7 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
       <DrawerBackdrop bg="blackAlpha.600" />
       <DrawerPositioner>
         <DrawerContent
-          bg="bg"
+          bg="bg.surface"
           display="flex"
           flexDirection="column"
           maxH="100dvh"
@@ -104,7 +104,7 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
             <Stack gap={0} align="stretch">
               <Box
                 borderWidth="1px"
-                borderColor="cardBorder"
+                borderColor="border.default"
                 borderRadius="xl"
                 overflow="hidden"
               >

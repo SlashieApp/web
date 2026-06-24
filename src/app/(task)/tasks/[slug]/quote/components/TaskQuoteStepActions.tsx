@@ -26,7 +26,7 @@ export function TaskQuoteStepActions({
     <Box
       borderTopWidth="1px"
       borderColor="neutral.300"
-      bg="white"
+      bg="bg.surface"
       px={{ base: 4, md: 8, lg: 10 }}
       py={4}
       position={sticky ? 'sticky' : 'static'}
@@ -40,12 +40,12 @@ export function TaskQuoteStepActions({
           <Button
             type="button"
             variant="ghost"
-            color="primary.600"
+            color="text.link"
             fontWeight={600}
             px={0}
             minH="44px"
             onClick={onBack}
-            _hover={{ bg: 'transparent', color: 'primary.700' }}
+            _hover={{ bg: 'transparent', color: 'text.link' }}
           >
             <HStack gap={2}>
               <LuArrowLeft size={18} aria-hidden />

@@ -24,7 +24,7 @@ type VerifyState = 'loading' | 'success' | 'error' | 'invalid-link'
 function VerifyEmailFallback() {
   return (
     <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
-      <Text color="formLabelMuted">Loading…</Text>
+      <Text color="text.muted">Loading…</Text>
     </Box>
   )
 }
@@ -138,10 +138,10 @@ function VerifyEmailContent() {
         <Stack gap={5} align="center" textAlign="center">
           {state === 'loading' ? (
             <>
-              <Heading size="xl" color="cardFg">
+              <Heading size="xl" color="text.default">
                 Verifying your email…
               </Heading>
-              <Text color="formLabelMuted" fontSize="sm">
+              <Text color="text.muted" fontSize="sm">
                 Hang tight while we confirm your link.
               </Text>
             </>
@@ -149,10 +149,10 @@ function VerifyEmailContent() {
 
           {state === 'success' ? (
             <>
-              <Heading size="xl" color="cardFg">
+              <Heading size="xl" color="text.default">
                 Email verified
               </Heading>
-              <Text color="formLabelMuted" fontSize="sm">
+              <Text color="text.muted" fontSize="sm">
                 Redirecting you now…
               </Text>
             </>
@@ -160,10 +160,10 @@ function VerifyEmailContent() {
 
           {state === 'invalid-link' ? (
             <>
-              <Heading size="xl" color="cardFg">
+              <Heading size="xl" color="text.default">
                 Invalid link
               </Heading>
-              <Text color="formLabelMuted" fontSize="sm">
+              <Text color="text.muted" fontSize="sm">
                 This verification link is missing or malformed. Open the link
                 from your email, or request a new one.
               </Text>
@@ -179,8 +179,11 @@ function VerifyEmailContent() {
                 <Link
                   href="/login"
                   fontWeight={700}
-                  color="primary.600"
-                  _hover={{ textDecoration: 'none', color: 'primary.700' }}
+                  color="text.link"
+                  _hover={{
+                    textDecoration: 'none',
+                    color: 'status.success.fg',
+                  }}
                 >
                   Log in to resend
                 </Link>
@@ -190,10 +193,10 @@ function VerifyEmailContent() {
 
           {state === 'error' ? (
             <>
-              <Heading size="xl" color="cardFg">
+              <Heading size="xl" color="text.default">
                 Link expired or invalid
               </Heading>
-              <Text color="formLabelMuted" fontSize="sm">
+              <Text color="text.muted" fontSize="sm">
                 {errorMessage ??
                   'This verification link is invalid or has expired.'}
               </Text>
@@ -210,7 +213,7 @@ function VerifyEmailContent() {
                     href="/verify-email/sent"
                     fontSize="sm"
                     fontWeight={600}
-                    color="primary.600"
+                    color="text.link"
                     _hover={{ textDecoration: 'none' }}
                   >
                     Go to check-inbox page
@@ -220,8 +223,11 @@ function VerifyEmailContent() {
                 <Link
                   href={`/login?next=${encodeURIComponent('/verify-email/sent')}`}
                   fontWeight={700}
-                  color="primary.600"
-                  _hover={{ textDecoration: 'none', color: 'primary.700' }}
+                  color="text.link"
+                  _hover={{
+                    textDecoration: 'none',
+                    color: 'status.success.fg',
+                  }}
                 >
                   Log in to resend
                 </Link>
@@ -230,7 +236,7 @@ function VerifyEmailContent() {
           ) : null}
 
           {resendMessage && state !== 'loading' ? (
-            <Text fontSize="sm" color="primary.700">
+            <Text fontSize="sm" color="status.success.fg">
               {resendMessage}
             </Text>
           ) : null}

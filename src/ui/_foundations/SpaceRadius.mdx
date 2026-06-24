@@ -1,0 +1,153 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
+
+import { sdlSpace, sdlRadii } from '@/theme/styles'
+
+<Meta title="Foundations/Space & Radius" />
+
+# Space & Radius
+
+The SDL spacing and radius scales. Every value on this page is read directly from
+`src/theme/styles.ts` (`sdlSpace`, `sdlRadii`) at render time, so the documentation
+can never drift from the code that ships. Colours below reference SDL semantic roles
+(`action.primary`, `bg.subtle`, `border.default`, …) defined in
+`src/theme/chakraSystem.ts`, so they follow the active light/dark theme.
+
+## Spacing
+
+SDL spacing uses a **4px base unit**. Reach for these tokens for padding, gaps, and
+margins rather than ad-hoc pixel values. Use the Chakra numeric scale (`p={4}`, `gap={2}`)
+which maps to the same values shown here.
+
+export const SpaceScale = () => (
+  <Stack gap={3} maxW="720px" w="full">
+    {Object.entries(sdlSpace).map(([token, px]) => (
+      <Flex key={token} align="center" gap={4}>
+        <Text
+          w="3.5rem"
+          flexShrink={0}
+          fontFamily="mono"
+          fontSize="sm"
+          fontWeight={600}
+          color="text.default"
+        >
+          {token}
+        </Text>
+        <Text
+          w="3.5rem"
+          flexShrink={0}
+          fontFamily="mono"
+          fontSize="xs"
+          color="text.muted"
+        >
+          {px}px
+        </Text>
+        <Box
+          h="16px"
+          w={`${px}px`}
+          borderRadius="sm"
+          bg="action.primary"
+          flexShrink={0}
+        />
+      </Flex>
+    ))}
+  </Stack>
+)
+
+<SpaceScale />
+
+### Spacing in context
+
+A card-like surface padded with `sdlSpace[6]` (24px) and an internal gap of
+`sdlSpace[3]` (12px).
+
+export const SpaceInContext = () => (
+  <Box
+    maxW="360px"
+    bg="bg.surface"
+    borderWidth="1px"
+    borderColor="border.default"
+    borderRadius="lg"
+    boxShadow="e1"
+    style={{ padding: `${sdlSpace[6]}px` }}
+  >
+    <Stack style={{ gap: `${sdlSpace[3]}px` }}>
+      <Text fontSize="md" fontWeight={600} color="text.default">
+        Padded surface
+      </Text>
+      <Text fontSize="sm" color="text.muted">
+        24px padding, 12px internal gap.
+      </Text>
+    </Stack>
+  </Box>
+)
+
+<SpaceInContext />
+
+## Radius
+
+SDL corner radii. Use `borderRadius="md|lg|xl|2xl|full"` (the Chakra radii tokens), which
+map to the pixel values below. `full` produces pills and circular avatars.
+
+export const RadiusSwatches = () => (
+  <HStack gap={6} flexWrap="wrap" align="flex-start">
+    {Object.entries(sdlRadii).map(([token, px]) => {
+      const isFull = token === 'full'
+      return (
+        <Stack key={token} gap={2} align="center">
+          <Box
+            boxSize="72px"
+            bg="bg.subtle"
+            borderWidth="1px"
+            borderColor="border.strong"
+            borderRadius={token}
+          />
+          <Text fontFamily="mono" fontSize="sm" fontWeight={600} color="text.default">
+            {token}
+          </Text>
+          <Text fontFamily="mono" fontSize="xs" color="text.muted">
+            {isFull ? '9999px (pill)' : `${px}px`}
+          </Text>
+        </Stack>
+      )
+    })}
+  </HStack>
+)
+
+<RadiusSwatches />
+
+### Radius in context
+
+The `full` radius applied to a green pill. Per the SDL green-ink rule, any green fill
+pairs with `text.onGreen` ink, never white.
+
+export const RadiusInContext = () => (
+  <HStack gap={4} flexWrap="wrap">
+    <Box
+      px={4}
+      py={2}
+      borderRadius="full"
+      bg="action.primary"
+      color="text.onGreen"
+      fontSize="sm"
+      fontWeight={600}
+    >
+      Pill (full)
+    </Box>
+    <Box
+      px={4}
+      py={2}
+      borderRadius="lg"
+      bg="bg.surface"
+      borderWidth="1px"
+      borderColor="border.default"
+      color="text.default"
+      fontSize="sm"
+      fontWeight={600}
+    >
+      Card (lg)
+    </Box>
+  </HStack>
+)
+
+<RadiusInContext />

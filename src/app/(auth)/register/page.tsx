@@ -21,7 +21,7 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 function FieldIconMail() {
   return (
-    <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
+    <Box as="span" color="text.muted" display="flex" aria-hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <title>Email</title>
         <path
@@ -38,7 +38,7 @@ function FieldIconMail() {
 
 function FieldIconLock() {
   return (
-    <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
+    <Box as="span" color="text.muted" display="flex" aria-hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <title>Password</title>
         <path
@@ -55,7 +55,7 @@ function FieldIconLock() {
 
 function IconEye({ open }: { open: boolean }) {
   return (
-    <Box as="span" display="flex" color="formLabelMuted" aria-hidden>
+    <Box as="span" display="flex" color="text.muted" aria-hidden>
       {open ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <title>Show password</title>
@@ -141,8 +141,9 @@ function RegisterMarketingAside() {
       minH="100vh"
       px={{ lg: 10, xl: 14 }}
       py={{ lg: 12, xl: 14 }}
-      bg="primary.800"
+      bg="green.800"
       color="white"
+      /* TODO(sdl): verify role — dark-green marketing surface has no dedicated semantic role; white text stays (dark surface, AA-safe, not an action.primary fill) */
     >
       <Box
         position="absolute"
@@ -353,15 +354,10 @@ export default function RegisterPage() {
             </Link>
 
             <Box>
-              <Heading size="2xl" color="cardFg" fontFamily="heading">
+              <Heading size="2xl" color="text.default" fontFamily="heading">
                 Create your account
               </Heading>
-              <Text
-                mt={2}
-                color="formLabelMuted"
-                fontSize="sm"
-                lineHeight="1.55"
-              >
+              <Text mt={2} color="text.muted" fontSize="sm" lineHeight="1.55">
                 Join Slashie to post tasks, send quotes, and manage your local
                 work in one place.
               </Text>
@@ -376,7 +372,7 @@ export default function RegisterPage() {
                 fontSize="2xs"
                 fontWeight={700}
                 letterSpacing="0.1em"
-                color="formLabelMuted"
+                color="text.muted"
                 textTransform="uppercase"
               >
                 Or continue with email
@@ -489,12 +485,12 @@ export default function RegisterPage() {
                               mt={0.5}
                               borderRadius="md"
                               borderWidth="1px"
-                              borderColor="formControlBorder"
-                              bg="neutral.100"
+                              borderColor="border.default"
+                              bg="bg.surface"
                               _checked={{
-                                bg: 'primary.500',
-                                borderColor: 'primary.500',
-                                color: 'white',
+                                bg: 'action.primary',
+                                borderColor: 'action.primary',
+                                color: 'text.onGreen',
                               }}
                             >
                               <Checkbox.Indicator color="inherit" />
@@ -502,15 +498,15 @@ export default function RegisterPage() {
                             <Checkbox.Label
                               fontSize="sm"
                               fontWeight={500}
-                              color="cardFg"
+                              color="text.default"
                               lineHeight="1.5"
                             >
                               I agree to the{' '}
                               <Link
                                 href="/terms"
                                 fontWeight={700}
-                                color="primary.600"
-                                _hover={{ color: 'primary.700' }}
+                                color="text.link"
+                                _hover={{ color: 'status.success.fg' }}
                               >
                                 Terms of Service
                               </Link>{' '}
@@ -518,8 +514,8 @@ export default function RegisterPage() {
                               <Link
                                 href="/privacy"
                                 fontWeight={700}
-                                color="primary.600"
-                                _hover={{ color: 'primary.700' }}
+                                color="text.link"
+                                _hover={{ color: 'status.success.fg' }}
                               >
                                 Privacy Policy
                               </Link>
@@ -530,14 +526,14 @@ export default function RegisterPage() {
                       )}
                     />
                     {errors.agreedToTerms?.message ? (
-                      <Text color="red.500" fontSize="sm">
+                      <Text color="status.danger.fg" fontSize="sm">
                         {errors.agreedToTerms.message}
                       </Text>
                     ) : null}
                   </Stack>
 
                   {serverError ? (
-                    <Text color="red.500" fontSize="sm">
+                    <Text color="status.danger.fg" fontSize="sm">
                       {serverError}
                     </Text>
                   ) : null}
@@ -557,13 +553,16 @@ export default function RegisterPage() {
             </Box>
 
             <Stack gap={2} pt={2}>
-              <Text fontSize="sm" color="formLabelMuted" textAlign="center">
+              <Text fontSize="sm" color="text.muted" textAlign="center">
                 Already have an account?{' '}
                 <Link
                   href="/login"
                   fontWeight={700}
-                  color="primary.600"
-                  _hover={{ color: 'primary.700', textDecoration: 'none' }}
+                  color="text.link"
+                  _hover={{
+                    color: 'status.success.fg',
+                    textDecoration: 'none',
+                  }}
                 >
                   Log in
                 </Link>

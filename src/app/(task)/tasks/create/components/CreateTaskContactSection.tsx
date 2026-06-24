@@ -22,9 +22,13 @@ function contactButtonProps(
     type: 'button' as const,
     size: 'sm' as const,
     variant: 'ghost' as const,
-    bg: selected && enabled ? 'primary.600' : 'cardBg',
+    bg: selected && enabled ? 'action.primary' : 'bg.surface',
     color:
-      selected && enabled ? 'white' : enabled ? 'cardFg' : 'formLabelMuted',
+      selected && enabled
+        ? 'text.onGreen'
+        : enabled
+          ? 'text.default'
+          : 'text.muted',
     boxShadow: 'none',
     disabled: !enabled,
     opacity: enabled ? 1 : 0.55,
@@ -53,12 +57,12 @@ export function CreateTaskContactSection({
       layout="section"
       bodyGap={4}
       header={
-        <Heading size="lg" color="primary.700">
+        <Heading size="lg" color="text.link">
           6. Preferred contact
         </Heading>
       }
     >
-      <Text fontSize="sm" color="formLabelMuted">
+      <Text fontSize="sm" color="text.muted">
         We prefill this from your Slashie profile default when you start a new
         task. You can override it for this post. Update the default anytime in
         your account profile.
@@ -110,20 +114,20 @@ export function CreateTaskContactSection({
       </FormField>
 
       {phoneOption && !phoneOption.enabled ? (
-        <Text fontSize="sm" color="formLabelMuted">
+        <Text fontSize="sm" color="text.muted">
           {phoneOption.disabledHint}
         </Text>
       ) : null}
 
       {emailOption && !emailOption.enabled ? (
-        <Text fontSize="sm" color="formLabelMuted">
+        <Text fontSize="sm" color="text.muted">
           {emailOption.disabledHint}
         </Text>
       ) : null}
 
       {needsPhoneVerify ? (
         <Stack gap={2}>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Phone contact requires a verified mobile number on your account.
           </Text>
           <Link

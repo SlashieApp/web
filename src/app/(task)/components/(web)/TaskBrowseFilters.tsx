@@ -39,7 +39,7 @@ const FILTER_LABEL = {
   fontSize: 'xs',
   fontWeight: 700,
   letterSpacing: '0.06em',
-  color: 'formLabelMuted',
+  color: 'text.muted',
   textTransform: 'uppercase' as const,
 }
 
@@ -159,7 +159,7 @@ export function TaskBrowseFiltersPanel({
       <Stack gap={3}>
         <HStack justify="space-between" align="baseline">
           <FilterSectionTitle mb={0}>Budget</FilterSectionTitle>
-          <Text fontSize="sm" fontWeight={700} color="primary.600">
+          <Text fontSize="sm" fontWeight={700} color="text.link">
             {budgetLabel}
           </Text>
         </HStack>
@@ -192,7 +192,7 @@ export function TaskBrowseFiltersPanel({
       <Stack gap={3}>
         <HStack justify="space-between" align="baseline">
           <FilterSectionTitle mb={0}>Distance</FilterSectionTitle>
-          <Text fontSize="sm" fontWeight={700} color="primary.600">
+          <Text fontSize="sm" fontWeight={700} color="text.link">
             {radiusKm} km
           </Text>
         </HStack>
@@ -212,7 +212,7 @@ export function TaskBrowseFiltersPanel({
         <FilterSectionTitle>Scheduled between</FilterSectionTitle>
         <HStack gap={3} align="flex-end" flexWrap="wrap">
           <Stack gap={1} flex="1 1 140px" minW="140px">
-            <Text fontSize="xs" color="formLabelMuted">
+            <Text fontSize="xs" color="text.muted">
               From
             </Text>
             <UiInput
@@ -226,7 +226,7 @@ export function TaskBrowseFiltersPanel({
             />
           </Stack>
           <Stack gap={1} flex="1 1 140px" minW="140px">
-            <Text fontSize="xs" color="formLabelMuted">
+            <Text fontSize="xs" color="text.muted">
               To
             </Text>
             <UiInput

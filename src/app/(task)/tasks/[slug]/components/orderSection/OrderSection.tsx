@@ -164,11 +164,11 @@ function OrderStatusBadge({ label }: { label: string }) {
       px={3}
       py={1.5}
       borderRadius="full"
-      bg="green.100"
-      color="green.700"
+      bg="status.success.soft"
+      color="status.success.fg"
       flexShrink={0}
     >
-      <Box color="green.600" display="flex" alignItems="center">
+      <Box color="status.success.fg" display="flex" alignItems="center">
         <IconRailCheck />
       </Box>
       <Text fontSize="sm" fontWeight={700}>
@@ -212,7 +212,7 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
                   transform="translateX(-50%)"
                   w="2px"
                   h="50%"
-                  bg="green.200"
+                  bg="status.success.soft"
                   aria-hidden
                 />
               ) : null}
@@ -224,7 +224,7 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
                   transform="translateX(-50%)"
                   w="2px"
                   h="50%"
-                  bg="green.200"
+                  bg="status.success.soft"
                   aria-hidden
                 />
               ) : null}
@@ -234,10 +234,10 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
                 align="center"
                 justify="center"
                 borderRadius="full"
-                bg={complete ? 'green.500' : 'cardBg'}
+                bg={complete ? 'action.primary' : 'bg.surface'}
                 borderWidth="2px"
-                borderColor={complete ? 'green.500' : 'cardDivider'}
-                color="white"
+                borderColor={complete ? 'action.primary' : 'border.default'}
+                color="text.onGreen"
                 flexShrink={0}
                 zIndex={1}
                 lineHeight={0}
@@ -251,17 +251,17 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
               align="center"
               justify="center"
               borderRadius="full"
-              bg="green.100"
-              color="green.700"
+              bg="status.success.soft"
+              color="status.success.fg"
               flexShrink={0}
             >
               <StepIcon />
             </Flex>
             <Stack gap={0.5} flex={1} minW={0}>
-              <Text fontSize="sm" fontWeight={700} color="cardFg">
+              <Text fontSize="sm" fontWeight={700} color="text.default">
                 {step.label}
               </Text>
-              <Text fontSize="xs" color="formLabelMuted">
+              <Text fontSize="xs" color="text.muted">
                 {step.at ? formatDate(step.at) : '—'}
               </Text>
             </Stack>
@@ -285,7 +285,7 @@ function OrderWorkerRow({
       gap={3}
       py={3}
       borderBottomWidth="1px"
-      borderColor="cardDivider"
+      borderColor="border.default"
     >
       <Flex
         w="9"
@@ -293,8 +293,8 @@ function OrderWorkerRow({
         align="center"
         justify="center"
         borderRadius="full"
-        bg="green.100"
-        color="green.700"
+        bg="status.success.soft"
+        color="status.success.fg"
         flexShrink={0}
       >
         <IconUser />
@@ -302,7 +302,7 @@ function OrderWorkerRow({
       <Text
         fontSize="sm"
         fontWeight={600}
-        color="formLabelMuted"
+        color="text.muted"
         flexShrink={0}
         minW={{ base: '4.5rem', sm: '5.5rem' }}
       >
@@ -310,7 +310,7 @@ function OrderWorkerRow({
       </Text>
       <HStack gap={2} flex={1} minW={0}>
         <Avatar name={workerName} src={avatarUrl ?? undefined} />
-        <Text fontSize="sm" fontWeight={600} color="cardFg">
+        <Text fontSize="sm" fontWeight={600} color="text.default">
           {workerName}
         </Text>
       </HStack>
@@ -352,8 +352,8 @@ export function OrderSection({ task, order }: OrderSectionProps) {
       w="full"
       borderRadius="xl"
       borderWidth="1px"
-      borderColor="cardBorder"
-      bg="cardBg"
+      borderColor="border.default"
+      bg="bg.surface"
       overflow="hidden"
       boxShadow="sm"
     >
@@ -365,7 +365,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
               fontWeight={700}
               letterSpacing="0.06em"
               textTransform="uppercase"
-              color="formLabelMuted"
+              color="text.muted"
             >
               Order summary
             </Text>
@@ -381,15 +381,15 @@ export function OrderSection({ task, order }: OrderSectionProps) {
             px={4}
             py={3.5}
             borderRadius="lg"
-            bg="green.100"
+            bg="status.success.soft"
           >
-            <Text fontSize="sm" fontWeight={700} color="green.800">
+            <Text fontSize="sm" fontWeight={700} color="status.success.fg">
               Agreed total
             </Text>
             <Text
               fontSize="2xl"
               fontWeight={800}
-              color="green.800"
+              color="status.success.fg"
               lineHeight="1"
             >
               {agreedPrice}
@@ -403,7 +403,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
             fontWeight={700}
             letterSpacing="0.06em"
             textTransform="uppercase"
-            color="formLabelMuted"
+            color="text.muted"
             mb={3}
           >
             Timeline
@@ -427,13 +427,13 @@ export function OrderSection({ task, order }: OrderSectionProps) {
             align="center"
             justify="center"
             borderRadius="full"
-            bg="cardBg"
-            color="formLabelMuted"
+            bg="bg.surface"
+            color="text.muted"
             flexShrink={0}
           >
             <IconInfo />
           </Flex>
-          <Text fontSize="xs" color="formLabelMuted" lineHeight="relaxed">
+          <Text fontSize="xs" color="text.muted" lineHeight="relaxed">
             This record is for your files only. Slashie does not process
             payments between customers and workers — settle payment directly
             with each other. This is not a tax invoice or platform receipt.

@@ -17,7 +17,7 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 function FieldIconMail() {
   return (
-    <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
+    <Box as="span" color="text.muted" display="flex" aria-hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <title>Email</title>
         <path
@@ -34,7 +34,7 @@ function FieldIconMail() {
 
 function FieldIconLock() {
   return (
-    <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
+    <Box as="span" color="text.muted" display="flex" aria-hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <title>Password</title>
         <path
@@ -51,7 +51,7 @@ function FieldIconLock() {
 
 function IconEye({ open }: { open: boolean }) {
   return (
-    <Box as="span" display="flex" color="formLabelMuted" aria-hidden>
+    <Box as="span" display="flex" color="text.muted" aria-hidden>
       {open ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <title>Show password</title>
@@ -154,8 +154,9 @@ function LoginMarketingAside() {
       minH="100vh"
       px={{ lg: 10, xl: 14 }}
       py={{ lg: 12, xl: 14 }}
-      bg="primary.800"
+      bg="green.800"
       color="white"
+      /* TODO(sdl): verify role — dark-green marketing surface has no dedicated semantic role; white text stays (dark surface, AA-safe, not an action.primary fill) */
     >
       <Box
         position="absolute"
@@ -177,8 +178,8 @@ function LoginMarketingAside() {
       <Stack gap={8} position="relative" zIndex={1} maxW="lg">
         <Badge
           alignSelf="flex-start"
-          bg="secondary.300"
-          color="secondary.900"
+          bg="green.300"
+          color="green.900"
           fontSize="2xs"
           letterSpacing="0.08em"
           textTransform="uppercase"
@@ -194,7 +195,7 @@ function LoginMarketingAside() {
             w={3.5}
             h={3.5}
             borderRadius="full"
-            bg="secondary.600"
+            bg="green.600"
             boxShadow="inset 0 0 0 1px rgba(255,255,255,0.25)"
             aria-hidden
           />
@@ -379,20 +380,20 @@ export default function LoginPage() {
                   fontSize="2xs"
                   fontWeight={700}
                   letterSpacing="0.12em"
-                  color="formLabelMuted"
+                  color="text.muted"
                   textTransform="uppercase"
                 >
                   ACCOUNT
                 </Text>
-                <Heading size="2xl" color="cardFg" fontFamily="heading" mt={2}>
+                <Heading
+                  size="2xl"
+                  color="text.default"
+                  fontFamily="heading"
+                  mt={2}
+                >
                   Welcome back
                 </Heading>
-                <Text
-                  mt={2}
-                  color="formLabelMuted"
-                  fontSize="sm"
-                  lineHeight="1.55"
-                >
+                <Text mt={2} color="text.muted" fontSize="sm" lineHeight="1.55">
                   Sign in to manage your tasks, quotes, and worker profile in
                   one place.
                 </Text>
@@ -410,7 +411,7 @@ export default function LoginPage() {
                     fontSize="2xs"
                     fontWeight={700}
                     letterSpacing="0.1em"
-                    color="formLabelMuted"
+                    color="text.muted"
                     textTransform="uppercase"
                   >
                     Or continue with email
@@ -440,9 +441,9 @@ export default function LoginPage() {
                             href={forgotPasswordHref}
                             fontSize="sm"
                             fontWeight={600}
-                            color="primary.600"
+                            color="text.link"
                             _hover={{
-                              color: 'primary.700',
+                              color: 'status.success.fg',
                               textDecoration: 'none',
                             }}
                           >
@@ -489,16 +490,19 @@ export default function LoginPage() {
                             <Checkbox.Control
                               borderRadius="md"
                               borderWidth="0"
-                              bg="cardBg"
+                              bg="bg.surface"
                               boxShadow="sm"
                               _checked={{
-                                bg: 'primary',
-                                color: 'black',
+                                bg: 'action.primary',
+                                color: 'text.onGreen',
                               }}
                             >
                               <Checkbox.Indicator color="inherit" />
                             </Checkbox.Control>
-                            <Checkbox.Label fontWeight={500} color="cardFg">
+                            <Checkbox.Label
+                              fontWeight={500}
+                              color="text.default"
+                            >
                               Remember me on this device
                             </Checkbox.Label>
                           </HStack>
@@ -509,7 +513,7 @@ export default function LoginPage() {
                     {serverError ? (
                       <Text
                         role="alert"
-                        color="red.500"
+                        color="status.danger.fg"
                         fontSize="sm"
                         fontWeight={500}
                       >
@@ -533,20 +537,23 @@ export default function LoginPage() {
               </Box>
 
               <Stack gap={4} pt={2}>
-                <Text fontSize="sm" color="formLabelMuted" textAlign="center">
+                <Text fontSize="sm" color="text.muted" textAlign="center">
                   New to Slashie?{' '}
                   <Link
                     href="/register"
                     fontWeight={700}
-                    color="primary.600"
-                    _hover={{ color: 'primary.700', textDecoration: 'none' }}
+                    color="text.link"
+                    _hover={{
+                      color: 'status.success.fg',
+                      textDecoration: 'none',
+                    }}
                   >
                     Create an account
                   </Link>
                 </Text>
                 <Text
                   fontSize="xs"
-                  color="formLabelMuted"
+                  color="text.muted"
                   textAlign="center"
                   lineHeight="1.5"
                 >

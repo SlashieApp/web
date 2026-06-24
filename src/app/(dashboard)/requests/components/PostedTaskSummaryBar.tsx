@@ -31,10 +31,10 @@ export function PostedTaskSummaryBar() {
       px={4}
       py={3}
       borderRadius="lg"
-      bg="badgeBg"
+      bg="status.success.soft"
     >
-      <HStack gap={2} fontSize="sm" color="formLabelMuted" flexWrap="wrap">
-        <Box as="span" display="inline-flex" color="primary.700" aria-hidden>
+      <HStack gap={2} fontSize="sm" color="text.muted" flexWrap="wrap">
+        <Box as="span" display="inline-flex" color="text.link" aria-hidden>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <title>Summary</title>
             <path
@@ -49,11 +49,11 @@ export function PostedTaskSummaryBar() {
       </HStack>
 
       {counts.bookedBudgetPence > 0 ? (
-        <HStack gap={1.5} fontSize="sm" color="cardFg" flexShrink={0}>
+        <HStack gap={1.5} fontSize="sm" color="text.default" flexShrink={0}>
           <Text fontWeight={600}>
             {formatPounds(counts.bookedBudgetPence)} in booked work
           </Text>
-          <Text color="formLabelMuted" fontSize="xs">
+          <Text color="text.muted" fontSize="xs">
             (Reference only)
           </Text>
         </HStack>

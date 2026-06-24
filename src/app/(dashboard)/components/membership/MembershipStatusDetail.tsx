@@ -25,7 +25,7 @@ export function MembershipStatusDetail({
 
   if (isMembershipCanceled(membership) && !unlimited) {
     return (
-      <Text fontSize="sm" color="cardFg" lineHeight="tall">
+      <Text fontSize="sm" color="text.default" lineHeight="tall">
         {membershipCanceledBodyCopy(membership)}
       </Text>
     )
@@ -33,7 +33,12 @@ export function MembershipStatusDetail({
 
   if (isMembershipCancelScheduled(membership) && detail) {
     return (
-      <Text fontSize="sm" color="orange.900" fontWeight={600} lineHeight="tall">
+      <Text
+        fontSize="sm"
+        color="status.warning.fg"
+        fontWeight={600}
+        lineHeight="tall"
+      >
         {detail}
       </Text>
     )
@@ -41,7 +46,12 @@ export function MembershipStatusDetail({
 
   if (isMembershipPaymentWarning(membership.subscriptionStatus)) {
     return (
-      <Text fontSize="sm" color="orange.900" fontWeight={600} lineHeight="tall">
+      <Text
+        fontSize="sm"
+        color="status.warning.fg"
+        fontWeight={600}
+        lineHeight="tall"
+      >
         {membership.subscriptionStatus === WorkerSubscriptionStatus.PastDue
           ? 'Payment issue — update your payment method to keep unlimited quotes.'
           : 'Payment required — update billing to restore unlimited quotes.'}
@@ -52,21 +62,21 @@ export function MembershipStatusDetail({
   if (unlimited) {
     if (isMembershipCancelScheduled(membership)) {
       return (
-        <Text fontSize="sm" color="cardFg" fontWeight={600}>
+        <Text fontSize="sm" color="text.default" fontWeight={600}>
           Unlimited quotes until your subscription ends.
         </Text>
       )
     }
     if (detail) {
       return (
-        <Text fontSize="sm" color="cardFg" fontWeight={600}>
+        <Text fontSize="sm" color="text.default" fontWeight={600}>
           Unlimited quotes — {detail.charAt(0).toLowerCase()}
           {detail.slice(1)}.
         </Text>
       )
     }
     return (
-      <Text fontSize="sm" color="cardFg" fontWeight={600}>
+      <Text fontSize="sm" color="text.default" fontWeight={600}>
         Unlimited quotes while your subscription is active.
       </Text>
     )
@@ -74,7 +84,7 @@ export function MembershipStatusDetail({
 
   if (detail) {
     return (
-      <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+      <Text fontSize="sm" color="text.muted" lineHeight="tall">
         {detail}
       </Text>
     )

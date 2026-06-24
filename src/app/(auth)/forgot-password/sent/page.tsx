@@ -8,7 +8,7 @@ import { ForgotPasswordSentPanel } from '../components/ForgotPasswordSentPanel'
 function ForgotPasswordSentFallback() {
   return (
     <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
-      <Text color="formLabelMuted">Loading…</Text>
+      <Text color="text.muted">Loading…</Text>
     </Box>
   )
 }

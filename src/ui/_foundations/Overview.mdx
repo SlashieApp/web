@@ -1,0 +1,357 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+import { Box, Flex, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+
+import { Badge, Button, StatusPill } from '@ui'
+import {
+  sdlElevation,
+  sdlMotion,
+  sdlRadii,
+  sdlSpace,
+  sdlTypeScale,
+} from '@/theme/styles'
+
+<Meta title="Foundations/Overview & Principles" />
+
+{/*
+  CRITICAL: Every value on this page is READ FROM the theme modules so the docs
+  cannot drift from code.
+    - type / space / radius / elevation / motion  -> imported from '@/theme/styles'
+    - color roles                                 -> resolved from the live themed
+      CSS custom properties that Chakra generates from src/theme/chakraSystem.ts
+  The live examples below render real @ui atoms, so they pick up whatever the
+  theme (and the light/dark toolbar toggle) currently is.
+
+  To change any value, edit the theme module — never hand-edit numbers here.
+*/}
+
+export const SEMANTIC_ROLES = [
+  ['bg.canvas', 'App background'],
+  ['bg.surface', 'Cards, sheets, inputs'],
+  ['bg.subtle', 'Hover / muted fills'],
+  ['bg.raised', 'Popovers, raised panels'],
+  ['text.default', 'Primary ink'],
+  ['text.muted', 'Secondary text, labels'],
+  ['text.subtle', 'Placeholders, hints'],
+  ['text.onGreen', 'Ink on green / danger fills'],
+  ['text.link', 'Links, accent text'],
+  ['border.default', 'Hairlines, dividers'],
+  ['border.strong', 'Emphasised borders'],
+  ['border.focus', 'Focus ring'],
+  ['action.primary', 'Primary button fill'],
+  ['action.primaryHover', 'Primary hover'],
+  ['action.primaryPressed', 'Primary pressed'],
+  ['accent.premium', 'Premium (plum)'],
+]
+
+export const STATUS_FAMILIES = ['success', 'warning', 'danger', 'info']
+
+{/* Reads the resolved value of a Chakra color token from the live theme. */}
+export function resolveToken(role) {
+  if (typeof window === 'undefined') return ''
+  const cssVar = `--chakra-colors-${role.replace(/\./g, '-')}`
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(cssVar)
+    .trim()
+}
+
+export function Swatch({ role, note }) {
+  const value = resolveToken(role)
+  const isDark = /surface|canvas|subtle|raised|onGreen/.test(role)
+  return (
+    <Stack gap={2} minW="0">
+      <Box
+        h="56px"
+        borderRadius="lg"
+        bg={role}
+        borderWidth="1px"
+        borderColor="border.default"
+      />
+      <Stack gap={0.5} minW="0">
+        <Text fontFamily="mono" fontSize="xs" fontWeight={600} color="text.default">
+          {role}
+        </Text>
+        {note ? (
+          <Text fontSize="xs" color="text.muted">
+            {note}
+          </Text>
+        ) : null}
+        <Text fontFamily="mono" fontSize="xs" color="text.subtle">
+          {value || '…'}
+        </Text>
+      </Stack>
+    </Stack>
+  )
+}
+
+# Slashie Design Language
+
+The **Slashie Design Language (SDL)** is defined in a single source of truth:
+[`src/theme/chakraSystem.ts`](?path=/docs/foundations-overview-principles--docs).
+Everything below is read from the theme at render time, so this page can never
+drift from the shipped tokens — change a value in code and the docs update with it.
+
+---
+
+## 1. Two-tier tokens
+
+SDL has exactly two layers of color:
+
+1. **Primitives** — raw scale values (`green.400`, `neutral.900`, `status.danger.solid`).
+   These are the paint. **Feature code never references them.**
+2. **Semantic roles** — the only thing components and pages reference
+   (`action.primary`, `bg.surface`, `text.muted`, `border.focus`, …).
+
+Light and dark ship as two systems that share **identical primitives**; only the
+semantic role *values* differ. That is why a theme toggle "flips semantic tokens,
+primitives unchanged". Toggle the **Theme** control in the toolbar above — every
+swatch and example on this page re-resolves live.
+
+### Semantic roles
+
+<Grid templateColumns="repeat(auto-fill, minmax(150px, 1fr))" gap={5} my={5}>
+  {SEMANTIC_ROLES.map(([role, note]) => (
+    <Swatch key={role} role={role} note={note} />
+  ))}
+</Grid>
+
+### Status roles (`soft` / `fg` / `solid`)
+
+<Stack gap={4} my={5}>
+  {STATUS_FAMILIES.map((family) => (
+    <Box key={family}>
+      <Text
+        fontSize="xs"
+        textTransform="uppercase"
+        letterSpacing="0.12em"
+        color="text.muted"
+        fontWeight={700}
+        mb={2}
+      >
+        {family}
+      </Text>
+      <Grid templateColumns="repeat(3, 1fr)" gap={4} maxW="480px">
+        <Swatch role={`status.${family}.soft`} note="background" />
+        <Swatch role={`status.${family}.fg`} note="text / icon" />
+        <Swatch role={`status.${family}.solid`} note="dot / solid" />
+      </Grid>
+    </Box>
+  ))}
+</Stack>
+
+> **Rule:** in feature code, reference a semantic role only. Never a primitive
+> (`green.400`) and never a raw hex. Raw consumers (Mapbox, SVG, meta tags) use
+> `src/theme/brand.ts` constants instead.
+
+---
+
+## 2. Green-ink rule
+
+`action.primary` is green-400 (`#00DC82`) — too light to carry white text and
+pass contrast. So **every green fill pairs with `text.onGreen`** (a near-black
+ink, `#0A1512`), never white. The same applies to solid danger fills.
+
+<HStack gap={3} my={5} flexWrap="wrap">
+  <Button variant="primary">Post a task</Button>
+  <Button variant="danger">Cancel task</Button>
+  <Button variant="premium">Go premium</Button>
+</HStack>
+
+<Text fontSize="sm" color="text.muted">
+  Primary and danger fills above use <code>text.onGreen</code> ink. Premium (plum)
+  is dark enough for white. White on green or red fails AA and is never used.
+</Text>
+
+---
+
+## 3. AA contrast
+
+Every text/background pairing targets **WCAG 2.1 AA** (4.5:1 for body text,
+3:1 for large text and UI affordances). The ink-on-green pairing clears AA
+comfortably (≈10:1), which is why the green-ink rule exists. The a11y addon
+(panel below each story) flags any pairing that regresses.
+
+---
+
+## 4. Status is never color alone
+
+Color is never the *only* signal for state — that excludes color-blind and
+low-vision users. Every status chip carries a **dot or icon plus a text label**.
+Use the `Badge` `dot` prop, or `StatusPill` which always renders both.
+
+<HStack gap={3} my={5} flexWrap="wrap">
+  <StatusPill status="OPEN" />
+  <StatusPill status="AWARDED" />
+  <StatusPill status="CLOSED" />
+  <StatusPill status="CANCELLED" />
+</HStack>
+
+<HStack gap={3} my={5} flexWrap="wrap">
+  <Badge variant="success" dot>
+    Success
+  </Badge>
+  <Badge variant="warning" dot>
+    Warning
+  </Badge>
+  <Badge variant="danger" dot>
+    Danger
+  </Badge>
+  <Badge variant="info" dot>
+    Info
+  </Badge>
+  <Badge variant="neutral" dot>
+    Neutral
+  </Badge>
+</HStack>
+
+---
+
+## 5. Reduced motion
+
+Transitions use `sdlMotion` and animate **transform / opacity only** (never
+layout). Always honour `prefers-reduced-motion: reduce` and drop non-essential
+movement. The `emphasis` easing is reserved for confirmation moments (quote
+accepted, job closed).
+
+### Durations
+
+<Stack gap={2} my={5} maxW="420px">
+  {Object.entries(sdlMotion.duration).map(([name, value]) => (
+    <Flex key={name} justify="space-between" fontSize="sm">
+      <Text fontFamily="mono" color="text.default">
+        duration.{name}
+      </Text>
+      <Text fontFamily="mono" color="text.muted">
+        {value}
+      </Text>
+    </Flex>
+  ))}
+</Stack>
+
+### Easing
+
+<Stack gap={2} my={5} maxW="560px">
+  {Object.entries(sdlMotion.easing).map(([name, value]) => (
+    <Flex key={name} justify="space-between" gap={4} fontSize="sm">
+      <Text fontFamily="mono" color="text.default">
+        easing.{name}
+      </Text>
+      <Text fontFamily="mono" color="text.muted">
+        {value}
+      </Text>
+    </Flex>
+  ))}
+</Stack>
+
+---
+
+## 6. Map = list
+
+Anything shown on a **map** must also be available as an accessible **list**.
+Maps are not keyboard- or screen-reader-friendly on their own, so the list is
+the source of truth for interaction and the map is a spatial enhancement on top.
+The dedicated `duration.map` token (below) keeps map transitions consistent.
+
+---
+
+## Type scale
+
+Roles read from `sdlTypeScale`. Consumed by `Text` / `Heading` and these docs.
+
+<Stack gap={4} my={5}>
+  {Object.entries(sdlTypeScale).map(([role, t]) => (
+    <Flex key={role} align="baseline" gap={6} flexWrap="wrap">
+      <Text
+        fontFamily="mono"
+        fontSize="xs"
+        color="text.muted"
+        minW="110px"
+      >
+        {role}
+      </Text>
+      <Text
+        color="text.default"
+        style={{
+          fontSize: t.fontSize,
+          lineHeight: t.lineHeight,
+          fontWeight: t.fontWeight,
+        }}
+      >
+        The quick brown fox
+      </Text>
+      <Text fontFamily="mono" fontSize="xs" color="text.subtle">
+        {t.fontSize} / {t.lineHeight} / {t.fontWeight}
+      </Text>
+    </Flex>
+  ))}
+</Stack>
+
+---
+
+## Spacing
+
+4px base. Values read from `sdlSpace`.
+
+<Stack gap={2} my={5}>
+  {Object.entries(sdlSpace).map(([step, px]) => (
+    <Flex key={step} align="center" gap={4}>
+      <Text fontFamily="mono" fontSize="xs" color="text.muted" minW="64px">
+        {step}
+      </Text>
+      <Box h="12px" bg="action.primary" borderRadius="sm" style={{ width: px }} />
+      <Text fontFamily="mono" fontSize="xs" color="text.subtle">
+        {px}px
+      </Text>
+    </Flex>
+  ))}
+</Stack>
+
+---
+
+## Radius
+
+Values read from `sdlRadii`.
+
+<HStack gap={6} my={5} flexWrap="wrap" align="flex-start">
+  {Object.entries(sdlRadii).map(([name, px]) => (
+    <Stack key={name} gap={2} align="center">
+      <Box
+        boxSize="64px"
+        bg="bg.subtle"
+        borderWidth="1px"
+        borderColor="border.strong"
+        style={{ borderRadius: px === 9999 ? '9999px' : `${px}px` }}
+      />
+      <Text fontFamily="mono" fontSize="xs" color="text.default">
+        {name}
+      </Text>
+      <Text fontFamily="mono" fontSize="xs" color="text.subtle">
+        {px === 9999 ? 'full' : `${px}px`}
+      </Text>
+    </Stack>
+  ))}
+</HStack>
+
+---
+
+## Elevation
+
+Values read from `sdlElevation`. Dark mode prefers a lighter surface plus a 1px
+border over heavy shadow.
+
+<Grid templateColumns="repeat(auto-fill, minmax(140px, 1fr))" gap={6} my={5}>
+  {Object.entries(sdlElevation).map(([name, shadow]) => (
+    <Stack key={name} gap={2} align="center">
+      <Box
+        boxSize="72px"
+        bg="bg.surface"
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="border.default"
+        style={{ boxShadow: shadow }}
+      />
+      <Text fontFamily="mono" fontSize="xs" color="text.default">
+        {name}
+      </Text>
+    </Stack>
+  ))}
+</Grid>

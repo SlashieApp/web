@@ -47,8 +47,8 @@ export function AcceptedWorkerStatus() {
       w="full"
       borderRadius="xl"
       borderWidth="1px"
-      borderColor="primary.200"
-      bg="primary.50"
+      borderColor="status.success.soft"
+      bg="status.success.soft"
       px={{ base: 4, md: 5 }}
       py={4}
       boxShadow="sm"
@@ -58,7 +58,7 @@ export function AcceptedWorkerStatus() {
           <Text
             fontSize="xs"
             fontWeight={700}
-            color="primary.800"
+            color="status.success.fg"
             letterSpacing="0.04em"
           >
             YOUR JOB
@@ -66,30 +66,30 @@ export function AcceptedWorkerStatus() {
           <Text
             fontWeight={800}
             fontSize={{ base: 'md', md: 'lg' }}
-            color="cardFg"
+            color="text.default"
           >
             You are booked for this job
           </Text>
           {countdown ? (
-            <Text fontSize="sm" color="primary.800" fontWeight={600}>
+            <Text fontSize="sm" color="status.success.fg" fontWeight={600}>
               {countdown}
             </Text>
           ) : (
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Agree timing with the customer if the schedule is flexible.
             </Text>
           )}
         </Stack>
 
         <Stack gap={1}>
-          <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+          <Text fontSize="xs" fontWeight={700} color="text.muted">
             Be on site
           </Text>
           <Text fontSize="sm" fontWeight={600}>
             {address}
           </Text>
           {scheduleLabel ? (
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               {scheduleLabel}
             </Text>
           ) : null}
@@ -132,7 +132,7 @@ export function AcceptedWorkerStatus() {
           ) : null}
         </HStack>
 
-        <Text fontSize="xs" color="formLabelMuted">
+        <Text fontSize="xs" color="text.muted">
           Payment is arranged directly with the customer outside Slashie.
         </Text>
       </Stack>

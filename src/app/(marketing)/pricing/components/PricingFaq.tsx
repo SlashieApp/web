@@ -50,16 +50,16 @@ export function PricingFaq({ pricing }: PricingFaqProps) {
           <Box
             key={item.question}
             borderWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
             borderRadius="xl"
-            bg="cardBg"
+            bg="bg.surface"
             p={{ base: 4, md: 5 }}
           >
             <Stack gap={2}>
-              <Text fontWeight={700} color="cardFg">
+              <Text fontWeight={700} color="text.default">
                 {item.question}
               </Text>
-              <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+              <Text fontSize="sm" color="text.muted" lineHeight="tall">
                 {item.answer}
               </Text>
             </Stack>

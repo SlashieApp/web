@@ -58,21 +58,24 @@ export function EmailVerificationModal({
         hideFooter={verified}
       >
         {verified ? (
-          <Text fontSize="sm" color="primary.700" fontWeight={600}>
+          <Text fontSize="sm" color="text.link" fontWeight={600}>
             Your email is verified.
           </Text>
         ) : (
           <>
-            <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+            <Text fontSize="sm" color="text.muted" lineHeight="tall">
               We&apos;ll send a verification link to{' '}
-              <Text as="span" fontWeight={600} color="cardFg">
+              <Text as="span" fontWeight={600} color="text.default">
                 {me.email}
               </Text>
               . Open the link in your inbox to confirm this address on your
               account — you cannot verify a different email.
             </Text>
             {message ? (
-              <Text fontSize="sm" color={isSent ? 'primary.700' : 'red.500'}>
+              <Text
+                fontSize="sm"
+                color={isSent ? 'text.link' : 'status.danger.fg'}
+              >
                 {message}
               </Text>
             ) : null}
@@ -80,8 +83,8 @@ export function EmailVerificationModal({
               href="/verify-email/sent"
               fontSize="sm"
               fontWeight={600}
-              color="primary.600"
-              _hover={{ textDecoration: 'none', color: 'primary.700' }}
+              color="text.link"
+              _hover={{ textDecoration: 'none', color: 'action.primaryHover' }}
             >
               Check inbox
             </Link>

@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, type BoxProps } from '@chakra-ui/react'
+import { Box, type BoxProps, chakra } from '@chakra-ui/react'
 import {
   type FocusEvent,
   type ReactElement,
@@ -17,7 +17,28 @@ import {
   useState,
 } from 'react'
 
+import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+
+/**
+ * SDL popover surface. Reduced-motion safe: animates transform/opacity only and
+ * the `@media (prefers-reduced-motion: reduce)` clause disables the enter motion.
+ */
+const sdlPanelMotion = {
+  transformOrigin: 'top',
+  animation: `sdl-dropdown-in ${sdlMotion.duration.fast} ${sdlMotion.easing.decelerate}`,
+  '@keyframes sdl-dropdown-in': {
+    from: { opacity: 0, transform: 'translateY(-4px) scale(0.98)' },
+    to: { opacity: 1, transform: 'translateY(0) scale(1)' },
+  },
+  '@media (prefers-reduced-motion: reduce)': {
+    animation: 'none',
+  },
+} as const
+
 const DropdownCloseContext = createContext<(() => void) | null>(null)
+
+/** Default trigger shell (used when `trigger` is not a React element). */
+const DropdownTriggerButton = chakra('button')
 
 /** Close the nearest click-mode `Dropdown` panel. No-op outside a dropdown. */
 export function useDropdownClose() {
@@ -119,14 +140,27 @@ function renderClickTrigger(
   if (typeof trigger === 'function') return trigger(api)
   if (!isValidElement(trigger)) {
     return (
-      <button
+      <DropdownTriggerButton
         ref={api.triggerRef}
         type="button"
         onClick={api.toggle}
+        display="inline-flex"
+        alignItems="center"
+        justifyContent="center"
+        minH="44px"
+        minW="44px"
+        borderRadius="md"
+        color="text.default"
+        cursor="pointer"
+        transitionProperty="color, background-color, box-shadow"
+        transitionDuration={sdlMotion.duration.moderate}
+        transitionTimingFunction={sdlMotion.easing.standard}
+        _hover={{ bg: 'bg.subtle' }}
+        _focusVisible={sdlFocusRing}
         {...api.triggerProps}
       >
         {trigger}
-      </button>
+      </DropdownTriggerButton>
     )
   }
 
@@ -250,13 +284,14 @@ function ClickDropdown({
           top="calc(100% + 8px)"
           zIndex={50}
           w={width}
-          bg="cardBg"
+          bg="bg.surface"
           borderWidth="1px"
-          borderColor="cardBorder"
-          borderRadius="md"
-          boxShadow="md"
+          borderColor="border.default"
+          borderRadius="lg"
+          boxShadow="e3"
           p={1}
           overflow="hidden"
+          css={sdlPanelMotion}
           {...alignProps}
           {...contentProps}
         >
@@ -380,14 +415,15 @@ function HoverDropdown({
             as="section"
             id={contentDomId}
             aria-label={contentLabel}
-            bg="cardBg"
+            bg="bg.surface"
             borderWidth="1px"
-            borderColor="cardBorder"
-            borderRadius="md"
-            boxShadow="lg"
+            borderColor="border.default"
+            borderRadius="lg"
+            boxShadow="e4"
             py={2}
             px={1}
             minW="200px"
+            css={sdlPanelMotion}
             {...contentProps}
           >
             {children}

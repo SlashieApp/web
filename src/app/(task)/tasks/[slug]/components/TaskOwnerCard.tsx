@@ -28,9 +28,9 @@ export function TaskOwnerCard() {
   return (
     <Box
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="xl"
-      bg="cardBg"
+      bg="bg.surface"
       p={{ base: 4, md: 5 }}
       w="full"
     >
@@ -39,11 +39,11 @@ export function TaskOwnerCard() {
           flexShrink={0}
           boxSize="56px"
           borderRadius="full"
-          bg="primary.100"
+          bg="status.success.soft"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          color="primary.700"
+          color="status.success.fg"
           fontWeight={800}
           fontSize="sm"
           overflow="hidden"
@@ -64,7 +64,7 @@ export function TaskOwnerCard() {
           <Text
             fontSize="xs"
             fontWeight={700}
-            color="formLabelMuted"
+            color="text.muted"
             letterSpacing="0.06em"
             textTransform="uppercase"
           >

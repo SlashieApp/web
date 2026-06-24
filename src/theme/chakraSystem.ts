@@ -7,160 +7,241 @@ import {
   mergeConfigs,
 } from '@chakra-ui/react'
 
-import {
-  cardSemanticColors,
-  darkCardSurface,
-  lightCardSurface,
-} from './cardPalette'
-import {
-  darkFormField,
-  formSemanticColors,
-  lightFormField,
-} from './formPalette'
-import {
-  darkIntentPalette,
-  darkIntentPrimaryIcon,
-  intentSemanticColors,
-  lightIntentPalette,
-  lightIntentPrimaryIcon,
-} from './intentPalette'
-import { dsShadows } from './styles'
+import { sdlElevation } from './styles'
+
+/**
+ * SLASHIE DESIGN LANGUAGE (SDL) — Chakra theme = single source of truth.
+ *
+ * Two-tier tokens:
+ *   1. PRIMITIVES (`tokens.colors.{green,neutral,plum,status}`) — raw scale values.
+ *   2. SEMANTIC ROLES (`semanticTokens.colors.{bg,text,border,action,accent,status}`)
+ *      — the ONLY thing components/pages reference. Never reference a primitive or hex
+ *      directly in feature code.
+ *
+ * Light + dark are shipped as two systems sharing identical primitives; only the
+ * semantic role VALUES differ (so "toggle flips semantic tokens, primitives unchanged").
+ *
+ * GREEN-INK RULE: `action.primary` (green-400 #00DC82) is too light for white text.
+ * Every green fill pairs with `text.onGreen` (#0A1512 ink) in BOTH modes.
+ */
 
 const sharedTheme = {
   theme: {
     tokens: {
       colors: {
-        primary: {
-          50: { value: '#ecfdf5' },
-          100: { value: '#d1fae5' },
-          200: { value: '#a7f3d0' },
-          300: { value: '#6ee7b7' },
-          400: { value: '#34d399' },
-          500: { value: '#00dc82' },
-          600: { value: '#00AB63' },
-          700: { value: '#059669' },
-          800: { value: '#047857' },
-          900: { value: '#065f46' },
-        },
-        secondary: {
-          50: { value: '#f0fdf9' },
-          100: { value: '#ccfbf1' },
-          200: { value: '#99f6e4' },
-          300: { value: '#5eead4' },
-          400: { value: '#2dd4bf' },
-          500: { value: '#10b981' },
-          600: { value: '#0d9f71' },
-          700: { value: '#0f766e' },
-          800: { value: '#115e59' },
-          900: { value: '#134e4a' },
-        },
-        tertiary: {
-          50: { value: '#f1fcfc' },
-          100: { value: '#d9f7f7' },
-          200: { value: '#bceeee' },
-          300: { value: '#93e0e0' },
-          400: { value: '#6aced0' },
-          500: { value: '#54bbbb' },
-          600: { value: '#3f9b9b' },
-          700: { value: '#337d7d' },
-          800: { value: '#2d6565' },
-          900: { value: '#285454' },
+        green: {
+          50: { value: '#E7FBF0' },
+          100: { value: '#C6F6DD' },
+          200: { value: '#92ECC0' },
+          300: { value: '#54DD9D' },
+          400: { value: '#00DC82' },
+          500: { value: '#00C275' },
+          600: { value: '#02A567' },
+          700: { value: '#048654' },
+          800: { value: '#05683F' },
+          900: { value: '#053D27' },
         },
         neutral: {
-          50: { value: '#ffffff' },
-          100: { value: '#F7F9F8' },
-          200: { value: '#EFF1F0' },
-          300: { value: '#D1D5D4' },
-          400: { value: '#B9C0BD' },
-          500: { value: '#6B7370' },
-          600: { value: '#3F4B45' },
-          700: { value: '#3F4B45' },
-          900: { value: '#0B1714' },
+          0: { value: '#FFFFFF' },
+          50: { value: '#F7F9F8' },
+          100: { value: '#EEF1F0' },
+          200: { value: '#E0E5E3' },
+          300: { value: '#C7CECB' },
+          400: { value: '#9BA4A0' },
+          500: { value: '#6E7873' },
+          600: { value: '#515A56' },
+          700: { value: '#3A423E' },
+          800: { value: '#232A27' },
+          900: { value: '#0A1512' },
         },
-        ink: {
-          700: { value: '#2b332f' },
-          800: { value: '#1f2623' },
-          900: { value: '#151a18' },
+        plum: {
+          50: { value: '#F4F1FE' },
+          100: { value: '#E6DEFD' },
+          400: { value: '#7A5AF8' },
+          500: { value: '#6938EF' },
+          600: { value: '#5925DC' },
+          700: { value: '#4A1FB8' },
         },
-        // Compatibility aliases for existing code paths.
-        linkBlue: {
-          50: { value: '#ecfdf5' },
-          100: { value: '#d1fae5' },
-          200: { value: '#a7f3d0' },
-          300: { value: '#6ee7b7' },
-          400: { value: '#34d399' },
-          500: { value: '#00dc82' },
-          600: { value: '#00AB63' },
-          700: { value: '#059669' },
-          800: { value: '#047857' },
-          900: { value: '#065f46' },
+        // Status primitives. `success` reuses the green family.
+        warning: {
+          soft: { value: '#FEF6E7' },
+          fg: { value: '#8A5A00' },
+          solid: { value: '#F5A300' },
         },
-        mustard: {
-          50: { value: '#fff4e4' },
-          100: { value: '#ffddb8' },
-          200: { value: '#ffcd91' },
-          300: { value: '#ffbc66' },
-          400: { value: '#fea619' },
-          500: { value: '#cb7f08' },
-          600: { value: '#855300' },
-          700: { value: '#6a4300' },
-          800: { value: '#513200' },
-          900: { value: '#3a2400' },
+        danger: {
+          soft: { value: '#FEF1F1' },
+          fg: { value: '#B42318' },
+          solid: { value: '#F04438' },
+        },
+        info: {
+          soft: { value: '#EFF6FF' },
+          fg: { value: '#175CD3' },
+          solid: { value: '#2E90FA' },
         },
       },
       fonts: {
+        // Display = marketing/display only. Body/ui = Inter. Mono = codes.
+        display: {
+          value:
+            'var(--font-plus-jakarta), "Plus Jakarta Sans", Inter, system-ui, sans-serif',
+        },
         heading: {
           value:
             'var(--font-plus-jakarta), "Plus Jakarta Sans", Inter, system-ui, sans-serif',
         },
         body: {
-          value: 'var(--font-inter), "Inter", Inter, system-ui, sans-serif',
+          value: 'var(--font-inter), "Inter", system-ui, sans-serif',
+        },
+        mono: {
+          value: '"SF Mono", "JetBrains Mono", ui-monospace, monospace',
         },
       },
       fontSizes: {
         xs: { value: '12px' },
+        sm: { value: '14px' },
+        md: { value: '16px' },
+        lg: { value: '18px' },
+        xl: { value: '20px' },
+        '2xl': { value: '24px' },
+        '3xl': { value: '28px' },
+        '4xl': { value: '36px' },
       },
       radii: {
         sm: { value: '6px' },
         md: { value: '8px' },
         lg: { value: '12px' },
         xl: { value: '16px' },
+        '2xl': { value: '20px' },
+        full: { value: '9999px' },
       },
       shadows: {
-        xs: { value: dsShadows.xs },
-        sm: { value: dsShadows.sm },
-        md: { value: dsShadows.md },
-        lg: { value: dsShadows.lg },
-        xl: { value: dsShadows.xl },
-        card: { value: dsShadows.xs },
-        ambient: { value: '0 24px 48px rgba(0, 0, 0, 0.4)' },
-        ghostBorder: { value: 'inset 0 0 0 1px rgba(119, 119, 119, 0.15)' },
-        primary: { value: '0 14px 36px rgba(0, 220, 130, 0.15)' },
+        // SDL elevation scale (light). Named aliases + explicit e1..e5.
+        e1: { value: sdlElevation.e1 },
+        e2: { value: sdlElevation.e2 },
+        e3: { value: sdlElevation.e3 },
+        e4: { value: sdlElevation.e4 },
+        e5: { value: sdlElevation.e5 },
+        xs: { value: sdlElevation.e1 },
+        sm: { value: sdlElevation.e2 },
+        md: { value: sdlElevation.e3 },
+        lg: { value: sdlElevation.e4 },
+        xl: { value: sdlElevation.e5 },
+        '2xl': { value: sdlElevation.e5 },
+        card: { value: sdlElevation.e1 },
       },
     },
   },
 }
 
+/** Light-mode semantic roles. Components reference ONLY these (never primitives/hex). */
+const lightSemanticColors = {
+  bg: {
+    canvas: { value: { base: '#F7F9F8' } },
+    surface: { value: { base: '#FFFFFF' } },
+    subtle: { value: { base: '#EEF1F0' } },
+    raised: { value: { base: '#FFFFFF' } },
+  },
+  text: {
+    default: { value: { base: '#0A1512' } },
+    muted: { value: { base: '#515A56' } },
+    subtle: { value: { base: '#9BA4A0' } },
+    onGreen: { value: { base: '#0A1512' } },
+    link: { value: { base: '#048654' } },
+  },
+  border: {
+    default: { value: { base: '#E0E5E3' } },
+    strong: { value: { base: '#C7CECB' } },
+    focus: { value: { base: '#02A567' } },
+  },
+  action: {
+    primary: { value: { base: '#00DC82' } },
+    primaryHover: { value: { base: '#00C275' } },
+    primaryPressed: { value: { base: '#02A567' } },
+  },
+  accent: {
+    premium: { value: { base: '#6938EF' } },
+  },
+  status: {
+    success: {
+      soft: { value: { base: '#E7FBF0' } },
+      fg: { value: { base: '#048654' } },
+      solid: { value: { base: '#00DC82' } },
+    },
+    warning: {
+      soft: { value: { base: '#FEF6E7' } },
+      fg: { value: { base: '#8A5A00' } },
+      solid: { value: { base: '#F5A300' } },
+    },
+    danger: {
+      soft: { value: { base: '#FEF1F1' } },
+      fg: { value: { base: '#B42318' } },
+      solid: { value: { base: '#F04438' } },
+    },
+    info: {
+      soft: { value: { base: '#EFF6FF' } },
+      fg: { value: { base: '#175CD3' } },
+      solid: { value: { base: '#2E90FA' } },
+    },
+  },
+} as const
+
+/** Dark-mode semantic roles. Same keys as light; only values differ. */
+const darkSemanticColors = {
+  bg: {
+    canvas: { value: { base: '#0C1310' } },
+    surface: { value: { base: '#121A16' } },
+    subtle: { value: { base: '#18221E' } },
+    raised: { value: { base: '#1F2A25' } },
+  },
+  text: {
+    default: { value: { base: '#F2F5F4' } },
+    muted: { value: { base: '#A6AFAB' } },
+    subtle: { value: { base: '#7E8783' } },
+    onGreen: { value: { base: '#0A1512' } },
+    link: { value: { base: '#54DD9D' } },
+  },
+  border: {
+    default: { value: { base: '#283330' } },
+    strong: { value: { base: '#313D39' } },
+    focus: { value: { base: '#00DC82' } },
+  },
+  action: {
+    primary: { value: { base: '#00DC82' } },
+    primaryHover: { value: { base: '#00C275' } },
+    primaryPressed: { value: { base: '#02A567' } },
+  },
+  accent: {
+    premium: { value: { base: '#7A5AF8' } },
+  },
+  status: {
+    success: {
+      soft: { value: { base: 'rgba(0, 220, 130, 0.16)' } },
+      fg: { value: { base: '#54DD9D' } },
+      solid: { value: { base: '#00DC82' } },
+    },
+    warning: {
+      soft: { value: { base: 'rgba(245, 163, 0, 0.16)' } },
+      fg: { value: { base: '#F5C66B' } },
+      solid: { value: { base: '#F5A300' } },
+    },
+    danger: {
+      soft: { value: { base: 'rgba(240, 68, 56, 0.16)' } },
+      fg: { value: { base: '#FDA29B' } },
+      solid: { value: { base: '#F04438' } },
+    },
+    info: {
+      soft: { value: { base: 'rgba(46, 144, 250, 0.16)' } },
+      fg: { value: { base: '#84CAFF' } },
+      solid: { value: { base: '#2E90FA' } },
+    },
+  },
+} as const
+
 export const lightConfig = defineConfig({
   ...sharedTheme,
   theme: {
     ...sharedTheme.theme,
-    semanticTokens: {
-      colors: {
-        bg: { value: { base: '#F7F9F8' } },
-        primary: { value: { base: '#00DC82' } },
-        primaryHover: { value: { base: '#00AB63' } },
-        secondary: { value: { base: '#00A572' } },
-        tertiary: { value: { base: '#54BBBB' } },
-        ...intentSemanticColors(lightIntentPalette, lightIntentPrimaryIcon),
-        ...cardSemanticColors(lightCardSurface),
-        ...formSemanticColors(lightFormField),
-        // Metadata chip (e.g. timestamps)
-        badgeBg: { value: { base: '#D9F4E5' } },
-        badgeFg: { value: { base: '#00AB63' } },
-        surfaceHover: { value: { base: '#F9FAFB' } },
-      },
-    },
+    semanticTokens: { colors: lightSemanticColors },
   },
 })
 
@@ -168,29 +249,7 @@ export const darkConfig = defineConfig({
   ...sharedTheme,
   theme: {
     ...sharedTheme.theme,
-    semanticTokens: {
-      colors: {
-        bg: { value: { base: '#222222' } },
-        primary: {
-          value: {
-            base: 'linear-gradient(to top right, #00DC82 0%, #00A572 100%)',
-          },
-        },
-        primaryHover: {
-          value: {
-            base: 'linear-gradient(to top right, #00DC82 0%, #00A572 50%)',
-          },
-        },
-        secondary: { value: { base: '#00A572' } },
-        tertiary: { value: { base: '#54BBBB' } },
-        ...intentSemanticColors(darkIntentPalette, darkIntentPrimaryIcon),
-        ...cardSemanticColors(darkCardSurface),
-        ...formSemanticColors(darkFormField),
-        badgeBg: { value: { base: '#333333' } },
-        badgeFg: { value: { base: '#a8b4c4' } },
-        surfaceHover: { value: { base: '#3a3a3a' } },
-      },
-    },
+    semanticTokens: { colors: darkSemanticColors },
   },
 })
 
@@ -199,5 +258,5 @@ export const lightSystem = createSystem(
 )
 export const darkSystem = createSystem(mergeConfigs(defaultConfig, darkConfig))
 
-// Backward-compatible default system for current providers.
+/** Backward-compatible default system for current providers (light). */
 export const system = lightSystem

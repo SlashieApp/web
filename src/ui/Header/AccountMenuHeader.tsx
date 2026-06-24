@@ -36,8 +36,8 @@ function AccountMenuAvatar({
     <Box
       boxSize="40px"
       borderRadius="full"
-      bg="primary.100"
-      color="primary.700"
+      bg="status.success.soft"
+      color="status.success.fg"
       fontSize="md"
       fontWeight={700}
       display="flex"
@@ -63,7 +63,7 @@ function AccountMenuAvatar({
 }
 
 function AccountMenuDivider() {
-  return <Box borderTopWidth="1px" borderColor="cardBorder" />
+  return <Box borderTopWidth="1px" borderColor="border.default" />
 }
 
 function QuoteUsageMeter({
@@ -78,10 +78,10 @@ function QuoteUsageMeter({
   return (
     <Stack gap={1.5}>
       <HStack justify="space-between" align="baseline">
-        <Text fontSize="xs" color="formLabelMuted">
+        <Text fontSize="xs" color="text.muted">
           Quotes this month
         </Text>
-        <Text fontSize="xs" fontWeight={700} color="cardFg">
+        <Text fontSize="xs" fontWeight={700} color="text.default">
           {used} / {total}
         </Text>
       </HStack>
@@ -96,7 +96,7 @@ function QuoteUsageMeter({
         aria-valuemax={total}
         aria-label={`${used} of ${total} quotes used this month`}
       >
-        <Box h="full" w={`${pct}%`} bg="primary.500" borderRadius="full" />
+        <Box h="full" w={`${pct}%`} bg="action.primary" borderRadius="full" />
       </Box>
     </Stack>
   )
@@ -105,10 +105,10 @@ function QuoteUsageMeter({
 function CustomerMembershipSection() {
   return (
     <Stack gap={1}>
-      <Text fontSize="sm" fontWeight={700} color="cardFg">
+      <Text fontSize="sm" fontWeight={700} color="text.default">
         Post tasks for free
       </Text>
-      <Text fontSize="xs" color="formLabelMuted" lineHeight="tall">
+      <Text fontSize="xs" color="text.muted" lineHeight="tall">
         Compare quotes from local workers on your posted tasks.
       </Text>
       <Link
@@ -116,7 +116,7 @@ function CustomerMembershipSection() {
         fontSize="xs"
         tone="emphasis"
         fontWeight={600}
-        color="primary.600"
+        color="text.link"
       >
         Become a worker
       </Link>
@@ -137,14 +137,14 @@ function WorkerMembershipSection({
   return (
     <Stack gap={2.5}>
       <HStack justify="space-between" align="flex-start" gap={2}>
-        <Text fontSize="sm" fontWeight={700} color="cardFg" lineClamp={2}>
+        <Text fontSize="sm" fontWeight={700} color="text.default" lineClamp={2}>
           {membership.planName}
         </Text>
         <MembershipStatusBadge membership={membership} />
       </HStack>
 
       {unlimited && detail ? (
-        <Text fontSize="xs" color="formLabelMuted" lineHeight="tall">
+        <Text fontSize="xs" color="text.muted" lineHeight="tall">
           {detail}
         </Text>
       ) : null}
@@ -159,7 +159,7 @@ function WorkerMembershipSection({
               tone="emphasis"
               fontSize="xs"
               fontWeight={600}
-              color="primary.600"
+              color="text.link"
             >
               Upgrade
             </Link>
@@ -170,7 +170,7 @@ function WorkerMembershipSection({
               tone="emphasis"
               fontSize="xs"
               fontWeight={600}
-              color="primary.600"
+              color="text.link"
             >
               Manage billing
             </Link>
@@ -198,10 +198,16 @@ export function AccountMenuHeader({
           avatarUrl={avatarUrl}
         />
         <Stack gap={0.5} minW={0} flex={1} align="flex-start">
-          <Text fontSize="sm" fontWeight={700} color="cardFg" truncate w="full">
+          <Text
+            fontSize="sm"
+            fontWeight={700}
+            color="text.default"
+            truncate
+            w="full"
+          >
             {displayName}
           </Text>
-          <Text fontSize="xs" color="formLabelMuted" truncate w="full">
+          <Text fontSize="xs" color="text.muted" truncate w="full">
             {email}
           </Text>
           <Link
@@ -209,7 +215,7 @@ export function AccountMenuHeader({
             tone="emphasis"
             fontSize="xs"
             fontWeight={600}
-            color="primary.600"
+            color="text.link"
             onClick={onViewProfile}
           >
             View profile

@@ -17,9 +17,9 @@ export function PhoneVerificationBanner() {
 
   return (
     <Box
-      bg="neutral.100"
+      bg="bg.subtle"
       borderBottomWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       px={{ base: 3, lg: 4 }}
       py={2}
     >
@@ -30,15 +30,15 @@ export function PhoneVerificationBanner() {
         align="center"
         maxW="full"
       >
-        <Text fontSize="sm" color="cardFg" fontWeight={600}>
+        <Text fontSize="sm" color="text.default" fontWeight={600}>
           Verify your phone to share it on tasks.
         </Text>
         <Link
           href="/profile#profile-phone"
           fontSize="sm"
           fontWeight={700}
-          color="primary.600"
-          _hover={{ textDecoration: 'none', color: 'primary.700' }}
+          color="text.link"
+          _hover={{ textDecoration: 'none', color: 'status.success.fg' }}
         >
           Verify phone
         </Link>

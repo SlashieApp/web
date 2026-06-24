@@ -11,20 +11,33 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+
+/**
+ * SDL Card. A surface primitive for dashboard / task-detail blocks and
+ * clickable rows. References SDL semantic roles only:
+ * `bg.surface` fill, `border.default` hairline, `e1` elevation.
+ *
+ * Interactive cards (clickable rows) are keyboard-focusable and show the SDL
+ * focus ring; surface hover uses `bg.subtle`. Active/selected cards highlight
+ * the border with `action.primary`.
+ */
 const cardSurface: SystemStyleObject = {
-  bg: 'cardBg',
+  bg: 'bg.surface',
   borderWidth: '1px',
-  borderColor: 'cardBorder',
+  borderColor: 'border.default',
   borderRadius: 'md',
-  boxShadow: 'xs',
+  boxShadow: 'e1',
 }
 
 const cardInteractive: SystemStyleObject = {
   ...cardSurface,
   cursor: 'pointer',
-  transitionProperty: 'background-color',
-  transitionDuration: '160ms',
-  _hover: { bg: 'surfaceHover' },
+  transitionProperty: 'background-color, border-color, box-shadow',
+  transitionDuration: sdlMotion.duration.base,
+  transitionTimingFunction: sdlMotion.easing.standard,
+  _hover: { bg: 'bg.subtle' },
+  _focusVisible: sdlFocusRing,
 }
 
 export type CardProps = BoxProps & {
@@ -32,7 +45,7 @@ export type CardProps = BoxProps & {
   /** Highlights the card border for selected/active states. */
   isActive?: boolean
   activeBorderColor?: BoxProps['borderColor']
-  /** Clickable card — adds hover surface per Design-System/cards.md. */
+  /** Clickable card — adds hover surface + keyboard focus per SDL cards. */
   interactive?: boolean
   /**
    * `section` — dashboard / task-detail block with optional eyebrow + heading
@@ -61,7 +74,7 @@ function CardTitleBlock({
         <Text
           fontSize="xs"
           fontWeight={500}
-          color="formLabelMuted"
+          color="text.muted"
           letterSpacing="0.06em"
           textTransform="uppercase"
         >
@@ -73,7 +86,7 @@ function CardTitleBlock({
           as="h3"
           fontSize={{ base: '16px', md: '20px' }}
           fontWeight={500}
-          color="cardFg"
+          color="text.default"
           lineHeight="short"
         >
           {heading}
@@ -87,7 +100,7 @@ function CardTitleBlock({
 export function Card({
   children,
   isActive = false,
-  activeBorderColor = 'primary',
+  activeBorderColor = 'action.primary',
   interactive = false,
   layout = 'default',
   eyebrow,
@@ -101,6 +114,10 @@ export function Card({
 }: CardProps) {
   const isSection = layout === 'section'
   const surface = interactive ? cardInteractive : cardSurface
+  // Clickable cards must be reachable + operable by keyboard (WCAG 2.2 AA).
+  const interactiveA11y = interactive
+    ? { tabIndex: 0, role: 'button' as const }
+    : {}
 
   return (
     <Box
@@ -108,8 +125,9 @@ export function Card({
       p={p ?? (isSection ? { base: 5, md: 6 } : 6)}
       maxW={maxW ?? (isSection ? 'full' : 'md')}
       w="full"
+      {...interactiveA11y}
       {...surface}
-      borderColor={isActive ? activeBorderColor : 'cardBorder'}
+      borderColor={isActive ? activeBorderColor : 'border.default'}
       {...rest}
     >
       {isSection ? (

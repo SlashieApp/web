@@ -55,11 +55,9 @@ export function WorkerQuotesMainColumn() {
         {quoteRows.length > 0 ? <WorkerQuoteSummaryBar /> : null}
       </Stack>
 
-      {loading ? (
-        <Text color="formLabelMuted">Loading your quotes…</Text>
-      ) : null}
+      {loading ? <Text color="text.muted">Loading your quotes…</Text> : null}
       {errorMessage ? (
-        <Text color="red.500" fontSize="sm">
+        <Text color="status.danger.fg" fontSize="sm">
           {errorMessage}
         </Text>
       ) : null}
@@ -68,7 +66,7 @@ export function WorkerQuotesMainColumn() {
         <Card layout="section" p={6}>
           <Stack gap={3}>
             <Heading size="sm">No quotes yet</Heading>
-            <Text color="formLabelMuted" fontSize="sm">
+            <Text color="text.muted" fontSize="sm">
               Browse open tasks near you and send your first quote to start
               earning.
             </Text>
@@ -83,7 +81,7 @@ export function WorkerQuotesMainColumn() {
 
       {!loading && quoteRows.length > 0 && visibleQuotes.length === 0 ? (
         <Card layout="section" p={6}>
-          <Text color="formLabelMuted" fontSize="sm">
+          <Text color="text.muted" fontSize="sm">
             {emptyHint}
           </Text>
         </Card>

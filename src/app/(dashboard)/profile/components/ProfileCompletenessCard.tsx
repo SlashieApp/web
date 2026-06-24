@@ -28,8 +28,8 @@ function CheckGlyph({ done }: { done: boolean }) {
       placeItems="center"
       fontSize="xs"
       fontWeight={800}
-      bg={done ? 'primary.500' : 'badgeBg'}
-      color={done ? 'black' : 'formLabelMuted'}
+      bg={done ? 'action.primary' : 'bg.subtle'}
+      color={done ? 'text.onGreen' : 'text.muted'}
       aria-hidden
     >
       {done ? '✓' : '○'}
@@ -66,7 +66,7 @@ export function ProfileCompletenessCard() {
                   ? 'Finish worker setup'
                   : 'Complete your profile'}
             </Heading>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               {setupComplete
                 ? 'Your profile meets the requirements to send quotes.'
                 : setupInProgress
@@ -74,10 +74,7 @@ export function ProfileCompletenessCard() {
                   : 'Finish these to unlock sending quotes as a worker.'}
             </Text>
           </Stack>
-          <Badge
-            bg={setupComplete ? 'primary.100' : 'badgeBg'}
-            color={setupComplete ? 'primary.800' : 'cardFg'}
-          >
+          <Badge variant={setupComplete ? 'success' : 'neutral'} dot>
             {setupComplete
               ? 'Worker active'
               : setupInProgress
@@ -86,11 +83,11 @@ export function ProfileCompletenessCard() {
           </Badge>
         </HStack>
 
-        <Box h={2} borderRadius="full" bg="badgeBg" overflow="hidden">
+        <Box h={2} borderRadius="full" bg="bg.subtle" overflow="hidden">
           <Box
             h="full"
             w={`${setupInProgress ? setupPercent : percent}%`}
-            bg="primary.500"
+            bg="action.primary"
             transitionProperty="width"
             transitionDuration="240ms"
           />
@@ -103,7 +100,7 @@ export function ProfileCompletenessCard() {
                 <CheckGlyph done={item.done} />
                 <Text
                   fontSize="sm"
-                  color={item.done ? 'formLabelMuted' : 'cardFg'}
+                  color={item.done ? 'text.muted' : 'text.default'}
                   textDecoration={item.done ? 'line-through' : undefined}
                 >
                   {item.label}
@@ -114,9 +111,9 @@ export function ProfileCompletenessCard() {
                   href={item.href}
                   fontSize="sm"
                   fontWeight={600}
-                  color="primary.700"
+                  color="text.link"
                   flexShrink={0}
-                  _hover={{ textDecoration: 'none', color: 'primary.600' }}
+                  _hover={{ textDecoration: 'none', color: 'text.link' }}
                 >
                   Fix
                 </Link>

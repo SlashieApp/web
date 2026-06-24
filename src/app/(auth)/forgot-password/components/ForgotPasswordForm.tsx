@@ -47,7 +47,7 @@ export function ForgotPasswordForm() {
         borderRadius="xl"
         boxShadow="card"
         borderTopWidth="4px"
-        borderTopColor="primary.500"
+        borderTopColor="action.primary"
         px={{ base: 6, md: 10 }}
         py={{ base: 8, md: 10 }}
       >
@@ -55,7 +55,7 @@ export function ForgotPasswordForm() {
           <Box
             boxSize={14}
             borderRadius="full"
-            bg="primary.100"
+            bg="status.success.soft"
             display="flex"
             alignItems="center"
             justifyContent="center"
@@ -64,16 +64,10 @@ export function ForgotPasswordForm() {
           </Box>
 
           <Box>
-            <Heading size="xl" color="cardFg">
+            <Heading size="xl" color="text.default">
               Forgot Password?
             </Heading>
-            <Text
-              mt={2}
-              color="formLabelMuted"
-              fontSize="sm"
-              maxW="xs"
-              mx="auto"
-            >
+            <Text mt={2} color="text.muted" fontSize="sm" maxW="xs" mx="auto">
               Enter your email and we&apos;ll send reset instructions if an
               account exists.
             </Text>
@@ -97,7 +91,7 @@ export function ForgotPasswordForm() {
               </FormField>
 
               {message ? (
-                <Text role="alert" color="red.500" fontSize="sm">
+                <Text role="alert" color="status.danger.fg" fontSize="sm">
                   {message}
                 </Text>
               ) : null}
@@ -122,21 +116,21 @@ export function ForgotPasswordForm() {
             href="/login"
             fontSize="sm"
             fontWeight={700}
-            color="primary.600"
-            _hover={{ color: 'primary.700', textDecoration: 'none' }}
+            color="text.link"
+            _hover={{ color: 'status.success.fg', textDecoration: 'none' }}
           >
             ← Back to Login
           </Link>
         </Stack>
       </Box>
 
-      <Text fontSize="sm" color="formLabelMuted" textAlign="center">
+      <Text fontSize="sm" color="text.muted" textAlign="center">
         Facing issues?{' '}
         <Link
           href="/"
           fontWeight={700}
-          color="secondary.600"
-          _hover={{ color: 'secondary.700', textDecoration: 'none' }}
+          color="text.link"
+          _hover={{ color: 'status.success.fg', textDecoration: 'none' }}
         >
           Contact Support
         </Link>

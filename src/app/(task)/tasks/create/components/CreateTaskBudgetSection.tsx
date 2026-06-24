@@ -38,7 +38,7 @@ export function CreateTaskBudgetSection({
       layout="section"
       bodyGap={5}
       header={
-        <Heading size="lg" color="primary.700">
+        <Heading size="lg" color="text.link">
           5. Budget & payment
         </Heading>
       }
@@ -60,7 +60,7 @@ export function CreateTaskBudgetSection({
             placeholder="0.00"
             rootProps={{ flex: 1, minW: 0 }}
             startElement={
-              <Text fontWeight={700} fontSize="sm" color="formLabelMuted">
+              <Text fontWeight={700} fontSize="sm" color="text.muted">
                 {CURRENCY_PREFIX[budgetCurrency]}
               </Text>
             }
@@ -75,8 +75,16 @@ export function CreateTaskBudgetSection({
             type="button"
             size="sm"
             variant="ghost"
-            bg={budgetType === TaskBudgetType.OneOff ? 'primary.600' : 'cardBg'}
-            color={budgetType === TaskBudgetType.OneOff ? 'white' : 'cardFg'}
+            bg={
+              budgetType === TaskBudgetType.OneOff
+                ? 'action.primary'
+                : 'bg.surface'
+            }
+            color={
+              budgetType === TaskBudgetType.OneOff
+                ? 'text.onGreen'
+                : 'text.default'
+            }
             boxShadow="none"
             onClick={() => onBudgetTypeChange(TaskBudgetType.OneOff)}
           >
@@ -86,8 +94,16 @@ export function CreateTaskBudgetSection({
             type="button"
             size="sm"
             variant="ghost"
-            bg={budgetType === TaskBudgetType.PerDay ? 'primary.600' : 'cardBg'}
-            color={budgetType === TaskBudgetType.PerDay ? 'white' : 'cardFg'}
+            bg={
+              budgetType === TaskBudgetType.PerDay
+                ? 'action.primary'
+                : 'bg.surface'
+            }
+            color={
+              budgetType === TaskBudgetType.PerDay
+                ? 'text.onGreen'
+                : 'text.default'
+            }
             boxShadow="none"
             onClick={() => onBudgetTypeChange(TaskBudgetType.PerDay)}
           >
@@ -98,9 +114,15 @@ export function CreateTaskBudgetSection({
             size="sm"
             variant="ghost"
             bg={
-              budgetType === TaskBudgetType.PerHour ? 'primary.600' : 'cardBg'
+              budgetType === TaskBudgetType.PerHour
+                ? 'action.primary'
+                : 'bg.surface'
             }
-            color={budgetType === TaskBudgetType.PerHour ? 'white' : 'cardFg'}
+            color={
+              budgetType === TaskBudgetType.PerHour
+                ? 'text.onGreen'
+                : 'text.default'
+            }
             boxShadow="none"
             onClick={() => onBudgetTypeChange(TaskBudgetType.PerHour)}
           >
@@ -117,11 +139,13 @@ export function CreateTaskBudgetSection({
             variant="ghost"
             bg={
               paymentMethod === TaskPaymentMethod.Cash
-                ? 'primary.600'
-                : 'cardBg'
+                ? 'action.primary'
+                : 'bg.surface'
             }
             color={
-              paymentMethod === TaskPaymentMethod.Cash ? 'white' : 'cardFg'
+              paymentMethod === TaskPaymentMethod.Cash
+                ? 'text.onGreen'
+                : 'text.default'
             }
             boxShadow="none"
             onClick={() => onPaymentMethodChange(TaskPaymentMethod.Cash)}
@@ -134,13 +158,13 @@ export function CreateTaskBudgetSection({
             variant="ghost"
             bg={
               paymentMethod === TaskPaymentMethod.BankTransfer
-                ? 'primary.600'
-                : 'cardBg'
+                ? 'action.primary'
+                : 'bg.surface'
             }
             color={
               paymentMethod === TaskPaymentMethod.BankTransfer
-                ? 'white'
-                : 'cardFg'
+                ? 'text.onGreen'
+                : 'text.default'
             }
             boxShadow="none"
             onClick={() =>

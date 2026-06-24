@@ -6,7 +6,7 @@ import { Card } from '@ui'
 
 function IconShield() {
   return (
-    <Box color="primary.600" flexShrink={0} aria-hidden>
+    <Box color="text.link" flexShrink={0} aria-hidden>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <title>Shield</title>
         <path
@@ -26,13 +26,13 @@ export function QuotePaymentTrustCard() {
       layout="section"
       bodyGap={3}
       bg="neutral.100"
-      borderColor="cardBorder"
+      borderColor="border.default"
       header={
         <Stack gap={2}>
           <Text
             fontSize="xs"
             fontWeight={700}
-            color="formLabelMuted"
+            color="text.muted"
             letterSpacing="0.06em"
             textTransform="uppercase"
           >
@@ -43,7 +43,7 @@ export function QuotePaymentTrustCard() {
             <Text
               fontSize="sm"
               fontWeight={700}
-              color="cardFg"
+              color="text.default"
               lineHeight="short"
             >
               Payments outside Slashie
@@ -52,7 +52,7 @@ export function QuotePaymentTrustCard() {
         </Stack>
       }
     >
-      <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+      <Text fontSize="sm" color="text.muted" lineHeight="tall">
         Payment is arranged directly between the customer and the worker outside
         Slashie. Use the app to agree on scope and quotes; settle up using
         whatever method you both choose.

@@ -11,7 +11,7 @@ export function AccountContactCard() {
       <Stack gap={4}>
         <Stack gap={1}>
           <Heading size="md">Contact methods</Heading>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Verify a contact method to unlock it as a default on your profile
             and to become a worker.
           </Text>

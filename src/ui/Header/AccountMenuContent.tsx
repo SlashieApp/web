@@ -29,8 +29,8 @@ export function AccountMenuAvatar({
     <Box
       boxSize="32px"
       borderRadius="full"
-      bg="primary.100"
-      color="primary.700"
+      bg="status.success.soft"
+      color="status.success.fg"
       fontSize="sm"
       fontWeight={700}
       display="flex"

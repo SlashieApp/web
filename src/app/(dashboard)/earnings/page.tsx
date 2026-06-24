@@ -30,14 +30,14 @@ export default function EarningsPage() {
     <Stack gap={6}>
       <Stack gap={2}>
         <Heading size="xl">Earnings</Heading>
-        <Text color="formLabelMuted">
+        <Text color="text.muted">
           Worker earnings from your orders. Reference only — Slashie does not
           handle payments between customers and workers.
         </Text>
       </Stack>
 
       {errorMessage ? (
-        <Text color="red.500" fontSize="sm">
+        <Text color="status.danger.fg" fontSize="sm">
           {errorMessage}
         </Text>
       ) : null}
@@ -48,7 +48,7 @@ export default function EarningsPage() {
             <Text
               fontSize="xs"
               fontWeight={700}
-              color="formLabelMuted"
+              color="text.muted"
               letterSpacing="0.06em"
               textTransform="uppercase"
             >
@@ -57,7 +57,7 @@ export default function EarningsPage() {
             <Heading size="lg">
               {loading ? '…' : formatPounds(pendingEarningsPence)}
             </Heading>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Sum of agreed prices on orders still in progress (ACTIVE).
             </Text>
           </Stack>
@@ -67,7 +67,7 @@ export default function EarningsPage() {
             <Text
               fontSize="xs"
               fontWeight={700}
-              color="formLabelMuted"
+              color="text.muted"
               letterSpacing="0.06em"
               textTransform="uppercase"
             >
@@ -76,7 +76,7 @@ export default function EarningsPage() {
             <Heading size="lg">
               {loading ? '…' : formatPounds(completedEarningsPence)}
             </Heading>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Sum of agreed prices on closed orders (CLOSED).
             </Text>
           </Stack>
@@ -87,7 +87,7 @@ export default function EarningsPage() {
         <Heading size="md">Pending orders</Heading>
         {pendingWorkerOrders.length === 0 ? (
           <Card layout="section" p={6}>
-            <Text color="formLabelMuted" fontSize="sm">
+            <Text color="text.muted" fontSize="sm">
               No pending worker earnings. Accepted quotes create an order
               immediately — agreed value shows here until the order is closed.
             </Text>
@@ -104,14 +104,12 @@ export default function EarningsPage() {
                 >
                   <Stack gap={1} maxW="3xl">
                     <Heading size="sm">{order.snapshot.title}</Heading>
-                    <Text fontSize="sm" color="formLabelMuted">
+                    <Text fontSize="sm" color="text.muted">
                       {orderStatusChipLabel(order.status)}
                     </Text>
                   </Stack>
                   <HStack gap={3}>
-                    <Badge bg="primary.100" color="primary.800">
-                      Worker
-                    </Badge>
+                    <Badge variant="success">Worker</Badge>
                     <Text fontWeight={800}>
                       {formatOrderAgreedPrice(order)}
                     </Text>
@@ -119,7 +117,7 @@ export default function EarningsPage() {
                       href={orderTaskHref(order)}
                       fontSize="sm"
                       fontWeight={600}
-                      color="primary.700"
+                      color="text.link"
                     >
                       Open
                     </Link>
@@ -135,7 +133,7 @@ export default function EarningsPage() {
         <Heading size="md">Closed orders</Heading>
         {closedWorkerOrders.length === 0 ? (
           <Card layout="section" p={6}>
-            <Text color="formLabelMuted" fontSize="sm">
+            <Text color="text.muted" fontSize="sm">
               Closed orders will appear here after you and the customer finish
               the job on Slashie.
             </Text>
@@ -157,19 +155,17 @@ export default function EarningsPage() {
                   >
                     <Stack gap={1} maxW="3xl">
                       <Heading size="sm">{order.snapshot.title}</Heading>
-                      <Text fontSize="sm" color="formLabelMuted">
+                      <Text fontSize="sm" color="text.muted">
                         Closed{' '}
                         {order.closedAt ? formatDate(order.closedAt) : '—'}
                       </Text>
                     </Stack>
                     <HStack gap={3}>
-                      <Badge bg="badgeBg" color="cardFg">
-                        Closed
-                      </Badge>
+                      <Badge variant="info">Closed</Badge>
                       <Text fontWeight={800}>
                         {formatOrderAgreedPrice(order)}
                       </Text>
-                      <Text fontSize="sm" fontWeight={600} color="primary.700">
+                      <Text fontSize="sm" fontWeight={600} color="text.link">
                         Open task →
                       </Text>
                     </HStack>

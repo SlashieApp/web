@@ -24,7 +24,7 @@ const FIELD_LABEL = {
   fontSize: 'xs',
   fontWeight: 700,
   letterSpacing: '0.04em',
-  color: 'formLabelMuted',
+  color: 'text.muted',
   textTransform: 'uppercase' as const,
 }
 
@@ -58,9 +58,9 @@ export function TaskInboxFilters({
       gap={3}
       p={4}
       borderRadius="xl"
-      bg="cardBg"
+      bg="bg.surface"
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
     >
       <HStack gap={3} align="flex-end" flexWrap="wrap">
         <Stack gap={1} flex="1 1 240px" minW="200px">

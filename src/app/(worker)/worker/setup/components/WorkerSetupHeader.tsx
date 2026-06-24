@@ -16,9 +16,9 @@ export function WorkerSetupHeader({ exitHref }: WorkerSetupHeaderProps) {
   return (
     <Box
       as="header"
-      bg="white"
+      bg="bg.surface"
       borderBottomWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       px={{ base: 4, md: 6 }}
       minH={{ base: '56px', md: '64px' }}
       display="flex"
@@ -39,7 +39,7 @@ export function WorkerSetupHeader({ exitHref }: WorkerSetupHeaderProps) {
         <Text
           fontSize={{ base: 'sm', md: 'md' }}
           fontWeight={600}
-          color="cardFg"
+          color="text.default"
           flex={1}
           textAlign={{ base: 'left', md: 'center' }}
           truncate

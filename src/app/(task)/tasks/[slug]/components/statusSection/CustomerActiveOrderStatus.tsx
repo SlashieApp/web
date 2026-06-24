@@ -73,8 +73,8 @@ export function CustomerActiveOrderStatus() {
       w="full"
       borderRadius="xl"
       borderWidth="1px"
-      borderColor="primary.200"
-      bg="primary.50"
+      borderColor="status.success.soft"
+      bg="status.success.soft"
       px={{ base: 4, md: 5 }}
       py={4}
       boxShadow="sm"
@@ -84,7 +84,7 @@ export function CustomerActiveOrderStatus() {
           <Text
             fontSize="xs"
             fontWeight={700}
-            color="primary.800"
+            color="status.success.fg"
             letterSpacing="0.04em"
           >
             YOUR BOOKING
@@ -92,11 +92,11 @@ export function CustomerActiveOrderStatus() {
           <Text
             fontWeight={800}
             fontSize={{ base: 'md', md: 'lg' }}
-            color="cardFg"
+            color="text.default"
           >
             Job in progress
           </Text>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             {formatOrderAgreedPrice(myOrder)} agreed ·{' '}
             {orderLocationLabel(myOrder)}
           </Text>
@@ -105,7 +105,7 @@ export function CustomerActiveOrderStatus() {
         <HStack gap={3} align="center">
           <Avatar name={workerName} src={workerAvatar} />
           <Stack gap={0}>
-            <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+            <Text fontSize="xs" fontWeight={700} color="text.muted">
               Your worker
             </Text>
             <Text fontWeight={700}>{workerName}</Text>
@@ -114,7 +114,7 @@ export function CustomerActiveOrderStatus() {
 
         {schedule ? (
           <Stack gap={1}>
-            <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+            <Text fontSize="xs" fontWeight={700} color="text.muted">
               Schedule
             </Text>
             <Text fontSize="sm" fontWeight={600}>
@@ -124,16 +124,16 @@ export function CustomerActiveOrderStatus() {
         ) : null}
 
         <Stack gap={2}>
-          <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+          <Text fontSize="xs" fontWeight={700} color="text.muted">
             What&apos;s next
           </Text>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             1. Coordinate on site with your worker.
           </Text>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             2. Pay them directly when you agree (outside Slashie).
           </Text>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             3. When satisfied, give them the completion code below so they can
             close the job on Slashie.
           </Text>
@@ -141,7 +141,7 @@ export function CustomerActiveOrderStatus() {
 
         {code ? (
           <Stack gap={2}>
-            <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+            <Text fontSize="xs" fontWeight={700} color="text.muted">
               Completion code
             </Text>
             <HStack gap={2}>
@@ -150,7 +150,7 @@ export function CustomerActiveOrderStatus() {
                 fontSize="2xl"
                 fontWeight={800}
                 letterSpacing="0.2em"
-                color="primary.800"
+                color="status.success.fg"
               >
                 {code}
               </Text>
@@ -172,13 +172,13 @@ export function CustomerActiveOrderStatus() {
             >
               Copy code
             </Button>
-            <Text fontSize="xs" color="formLabelMuted">
+            <Text fontSize="xs" color="text.muted">
               Only you can see this code. Do not share it until the work is
               done.
             </Text>
           </Stack>
         ) : (
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Your completion code will appear here shortly.
           </Text>
         )}
@@ -193,8 +193,8 @@ function StatusCardWrap({ children }: { children: ReactNode }) {
       w="full"
       borderRadius="xl"
       borderWidth="1px"
-      borderColor="cardBorder"
-      bg="cardBg"
+      borderColor="border.default"
+      bg="bg.surface"
       px={{ base: 4, md: 5 }}
       py={4}
     >

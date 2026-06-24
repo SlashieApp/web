@@ -136,7 +136,7 @@ export function WorkerSetupStepContent() {
             />
           </FormField>
           <Stack gap={3}>
-            <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+            <Text fontSize="sm" color="text.muted" lineHeight="tall">
               Customers trust workers with a clear profile photo. Use a friendly
               headshot or work photo.
             </Text>
@@ -144,8 +144,8 @@ export function WorkerSetupStepContent() {
               <Box
                 boxSize="88px"
                 borderRadius="full"
-                bg="primary.100"
-                color="primary.700"
+                bg="status.success.soft"
+                color="status.success.fg"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -189,12 +189,12 @@ export function WorkerSetupStepContent() {
               </Stack>
             </HStack>
             {uploadError ? (
-              <Text color="red.500" fontSize="sm">
+              <Text color="status.danger.fg" fontSize="sm">
                 {uploadError}
               </Text>
             ) : null}
             {fieldErrors.avatar ? (
-              <Text color="red.500" fontSize="sm">
+              <Text color="status.danger.fg" fontSize="sm">
                 {fieldErrors.avatar}
               </Text>
             ) : null}
@@ -308,7 +308,7 @@ export function WorkerSetupStepContent() {
         <Stack gap={4}>
           <ContactMethodsPanel onContactUpdated={clearSetupErrors} />
           {fieldErrors.contact ? (
-            <Text color="red.500" fontSize="sm">
+            <Text color="status.danger.fg" fontSize="sm">
               {fieldErrors.contact}
             </Text>
           ) : null}
@@ -360,7 +360,7 @@ function TextareaWithCharCount({
         bottom={3}
         right={4}
         fontSize="xs"
-        color="formLabelMuted"
+        color="text.muted"
         pointerEvents="none"
         aria-hidden
       >

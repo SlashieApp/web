@@ -17,18 +17,18 @@ export function ActionBar({ fromTask }: ActionBarProps) {
       position={{ base: 'sticky', md: 'static' }}
       bottom={{ base: 0, md: 'auto' }}
       zIndex={{ base: 10, md: 'auto' }}
-      bg={{ base: 'cardBg', md: 'transparent' }}
+      bg={{ base: 'bg.surface', md: 'transparent' }}
       borderTopWidth={{ base: '1px', md: 0 }}
-      borderColor="cardBorder"
+      borderColor="border.default"
       px={{ base: 4, md: 0 }}
       py={{ base: 4, md: 0 }}
       mx={{ base: -4, md: 0 }}
-      boxShadow={{ base: 'sm', md: 'none' }}
+      boxShadow={{ base: 'e2', md: 'none' }}
     >
       <Stack gap={3}>
         {hasTaskContext ? (
           <>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Compare this worker&apos;s quote on the task page before you
               accept. Payment is arranged directly between you and the worker
               outside Slashie.
@@ -54,7 +54,7 @@ export function ActionBar({ fromTask }: ActionBarProps) {
           </>
         ) : (
           <>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Browse open tasks to post a job or send a quote. Slashie does not
               process payments — you arrange payment directly with the other
               party.

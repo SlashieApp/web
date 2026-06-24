@@ -10,7 +10,7 @@ export default function MarketingLayout({
   return (
     <Box
       bg="neutral.100"
-      color="cardFg"
+      color="text.default"
       minH="100dvh"
       display="flex"
       flexDirection="column"

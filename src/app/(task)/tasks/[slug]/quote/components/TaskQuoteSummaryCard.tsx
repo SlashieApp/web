@@ -24,7 +24,7 @@ export function TaskQuoteSummaryCard() {
       gap={3}
       p={3}
       rounded="xl"
-      bg="cardBg"
+      bg="bg.surface"
       boxShadow="card"
     >
       {thumb ? (
@@ -36,27 +36,28 @@ export function TaskQuoteSummaryCard() {
           />
         </Box>
       ) : (
-        <Box w="72px" h="72px" rounded="lg" bg="badgeBg" flexShrink={0} />
+        <Box
+          w="72px"
+          h="72px"
+          rounded="lg"
+          bg="status.success.soft"
+          flexShrink={0}
+        />
       )}
       <Stack gap={1} minW={0}>
-        <Text
-          fontWeight={700}
-          fontSize="sm"
-          lineClamp={2}
-          color="secondary.900"
-        >
+        <Text fontWeight={700} fontSize="sm" lineClamp={2} color="text.link">
           {task.title}
         </Text>
         {locationLine ? (
-          <Text fontSize="xs" color="formLabelMuted" lineClamp={2}>
+          <Text fontSize="xs" color="text.muted" lineClamp={2}>
             {locationLine}
           </Text>
         ) : null}
-        <Text fontSize="xs" color="formLabelMuted">
+        <Text fontSize="xs" color="text.muted">
           {when}
         </Text>
         {kind ? (
-          <Text fontSize="xs" fontWeight={600} color="secondary.600">
+          <Text fontSize="xs" fontWeight={600} color="text.link">
             {kind}
           </Text>
         ) : null}

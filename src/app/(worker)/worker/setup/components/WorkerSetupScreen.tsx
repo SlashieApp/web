@@ -76,11 +76,11 @@ export function WorkerSetupScreen() {
               <WorkerSetupStepper />
             </Box>
             <Box
-              bg="white"
+              bg="bg.surface"
               borderRadius="2xl"
-              boxShadow="sm"
+              boxShadow="e2"
               borderWidth="1px"
-              borderColor="cardBorder"
+              borderColor="border.default"
               minH="640px"
               h="full"
               display="flex"
@@ -97,7 +97,7 @@ export function WorkerSetupScreen() {
                 onContinue={() => void saveAndContinue()}
               >
                 {saveError ? (
-                  <Text color="red.500" fontSize="sm" mb={4}>
+                  <Text color="status.danger.fg" fontSize="sm" mb={4}>
                     {saveError}
                   </Text>
                 ) : null}

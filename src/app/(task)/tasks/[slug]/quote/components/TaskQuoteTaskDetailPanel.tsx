@@ -28,11 +28,11 @@ export function TaskQuoteTaskDetailPanel({
       h={isSection ? 'auto' : 'full'}
       minH={0}
       overflowY={isSection ? 'visible' : 'auto'}
-      bg="white"
+      bg="bg.surface"
       borderRadius={isSection ? undefined : '2xl'}
       boxShadow={isSection ? undefined : 'sm'}
       borderWidth={isSection ? '0 0 1px 0' : '1px'}
-      borderColor="cardBorder"
+      borderColor="border.default"
       px={{ base: 4, md: 6 }}
       py={{ base: 4, md: isSection ? 4 : 6 }}
       flexShrink={0}
@@ -41,12 +41,12 @@ export function TaskQuoteTaskDetailPanel({
         href={backHref}
         fontSize="sm"
         fontWeight={600}
-        color="secondary.600"
+        color="text.link"
         display="inline-flex"
         alignItems="center"
         gap={1}
         w="fit-content"
-        _hover={{ textDecoration: 'none', color: 'secondary.700' }}
+        _hover={{ textDecoration: 'none', color: 'text.link' }}
       >
         <LuArrowLeft size={16} aria-hidden />
         Back to task
@@ -63,11 +63,11 @@ export function TaskQuoteTaskDetailPanel({
           {task.title}
         </Heading>
         {task.description?.trim() ? (
-          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="sm" color="text.muted" lineHeight="tall">
             {task.description}
           </Text>
         ) : (
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             No description provided.
           </Text>
         )}

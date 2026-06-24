@@ -6,7 +6,7 @@ export function WorkersBrowseHeader() {
       <Text
         fontSize="xs"
         fontWeight={700}
-        color="primary.600"
+        color="text.link"
         letterSpacing="0.08em"
         textTransform="uppercase"
       >
@@ -15,7 +15,7 @@ export function WorkersBrowseHeader() {
       <Heading size={{ base: 'lg', md: 'xl' }} letterSpacing="-0.02em">
         Workers
       </Heading>
-      <Text fontSize="sm" color="formLabelMuted" lineHeight="tall" maxW="48rem">
+      <Text fontSize="sm" color="text.muted" lineHeight="tall" maxW="48rem">
         Browse worker profiles before you accept a quote. Open a profile to see
         bio, skills, and reputation.
       </Text>

@@ -16,10 +16,10 @@ export function QuoteWorkerEarnCta({
 }: QuoteWorkerEarnCtaProps) {
   return (
     <Box
-      bg="primary.50"
+      bg="status.success.soft"
       borderRadius="xl"
       borderWidth="1px"
-      borderColor="primary.100"
+      borderColor="status.success.soft"
       p={{ base: 4, md: 5 }}
       w="full"
     >
@@ -28,11 +28,11 @@ export function QuoteWorkerEarnCta({
           flexShrink={0}
           boxSize="44px"
           borderRadius="full"
-          bg="white"
+          bg="bg.surface"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          color="primary.600"
+          color="text.link"
           boxShadow="sm"
           aria-hidden
         >
@@ -43,16 +43,16 @@ export function QuoteWorkerEarnCta({
             <Text
               fontSize="sm"
               fontWeight={700}
-              color="cardFg"
+              color="text.default"
               lineHeight="short"
             >
               Want to earn on this job?
             </Text>
-            <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+            <Text fontSize="sm" color="text.muted" lineHeight="tall">
               Create your worker profile to send a quote and get paid directly
               by the customer.
             </Text>
-            <Text fontSize="xs" color="formLabelMuted">
+            <Text fontSize="xs" color="text.muted">
               Free to join · Takes ~2 minutes
             </Text>
           </Stack>
@@ -69,7 +69,7 @@ export function QuoteWorkerEarnCta({
             gap={1}
             fontSize="sm"
             fontWeight={600}
-            color="primary.700"
+            color="text.link"
             tone="emphasis"
           >
             Learn how quoting works

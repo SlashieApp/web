@@ -28,13 +28,13 @@ export function TaskBrowseMapLoader() {
         px={4}
         py={3}
         borderRadius="xl"
-        bg="cardBg"
+        bg="bg.surface"
         borderWidth="1px"
-        borderColor="cardBorder"
-        boxShadow="0 8px 24px rgba(15, 23, 42, 0.12)"
+        borderColor="border.default"
+        boxShadow="e3"
       >
-        <Spinner size="sm" color="intentPrimaryFg" />
-        <Text fontSize="xs" color="formLabelMuted">
+        <Spinner size="sm" color="status.success.fg" />
+        <Text fontSize="xs" color="text.muted">
           Finding tasks…
         </Text>
       </Box>

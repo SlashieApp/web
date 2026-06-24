@@ -23,12 +23,12 @@ export function EditTaskAcceptedWorkerCapSection({
       layout="section"
       bodyGap={4}
       header={
-        <Heading size="lg" color="primary.700">
+        <Heading size="lg" color="text.link">
           Worker slots
         </Heading>
       }
     >
-      <Text fontSize="sm" color="formLabelMuted">
+      <Text fontSize="sm" color="text.muted">
         How many workers can be accepted on this task before it leaves
         discovery.
         {minAcceptedCap > 0

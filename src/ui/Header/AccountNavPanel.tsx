@@ -85,7 +85,7 @@ function AccountNavRow({
 }
 
 function NavDivider() {
-  return <Box borderTopWidth="1px" borderColor="cardBorder" my={1} />
+  return <Box borderTopWidth="1px" borderColor="border.default" my={1} />
 }
 
 export function AccountNavPanel({

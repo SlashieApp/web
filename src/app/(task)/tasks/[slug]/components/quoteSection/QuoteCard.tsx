@@ -85,7 +85,7 @@ export function QuoteCard({
   const nameBlock = workerProfileHref ? (
     <Link
       href={workerProfileHref}
-      _hover={{ textDecoration: 'none', color: 'primary.700' }}
+      _hover={{ textDecoration: 'none', color: 'text.link' }}
     >
       <Heading size="sm" lineHeight="short">
         {name}
@@ -98,8 +98,8 @@ export function QuoteCard({
   )
 
   const ratingRow = (
-    <HStack gap={1} fontSize="sm" color="formLabelMuted" fontWeight={500}>
-      <Text as="span" color="mustard.400" aria-hidden>
+    <HStack gap={1} fontSize="sm" color="text.muted" fontWeight={500}>
+      <Text as="span" color="status.warning.solid" aria-hidden>
         ★
       </Text>
       <Text as="span">{ratingLine}</Text>
@@ -112,13 +112,13 @@ export function QuoteCard({
         <Text
           fontWeight={800}
           fontSize={isCard ? '2xl' : 'xl'}
-          color={isCard ? 'cardFg' : 'primary.600'}
+          color={isCard ? 'text.default' : 'text.link'}
           lineHeight="shorter"
         >
           {priceLabel}
         </Text>
         {!isCard && priceKindLabel ? (
-          <Text fontSize="xs" color="formLabelMuted">
+          <Text fontSize="xs" color="text.muted">
             {priceKindLabel}
           </Text>
         ) : null}
@@ -142,8 +142,8 @@ export function QuoteCard({
           {...(acceptPrimary
             ? {}
             : {
-                borderColor: 'primary.300',
-                color: 'primary.700',
+                borderColor: 'status.success.soft',
+                color: 'text.link',
               })}
         >
           Accept quote
@@ -154,7 +154,7 @@ export function QuoteCard({
           size="sm"
           w="full"
           variant="ghost"
-          color="red.600"
+          color="status.danger.fg"
           loading={declineLoading}
           disabled={acceptLoading || acceptDisabled}
           onClick={onDecline}
@@ -171,9 +171,9 @@ export function QuoteCard({
         gap={3}
         p={4}
         borderRadius="xl"
-        bg="cardBg"
+        bg="bg.surface"
         borderWidth="1px"
-        borderColor="cardBorder"
+        borderColor="border.default"
         w="full"
       >
         <HStack align="flex-start" gap={3} justify="space-between" w="full">
@@ -200,11 +200,11 @@ export function QuoteCard({
           </HStack>
           {priceBlock}
         </HStack>
-        <Text fontSize="sm" color="cardFg" lineHeight="tall">
+        <Text fontSize="sm" color="text.default" lineHeight="tall">
           {body}
         </Text>
         {respondedLabel ? (
-          <Text fontSize="xs" color="formLabelMuted" fontWeight={500}>
+          <Text fontSize="xs" color="text.muted" fontWeight={500}>
             {respondedLabel}
           </Text>
         ) : null}
@@ -246,8 +246,8 @@ export function QuoteCard({
             alignSelf="center"
             mt={0.5}
             px={1}
-            color="formLabelMuted"
-            _hover={{ color: 'cardFg' }}
+            color="text.muted"
+            _hover={{ color: 'text.default' }}
             aria-label={profileLinkLabel}
           >
             <LuChevronRight size={22} aria-hidden />
@@ -265,12 +265,12 @@ export function QuoteCard({
           bg="neutral.100"
           fontSize="xs"
           fontWeight={600}
-          color="formLabelMuted"
+          color="text.muted"
         >
           {respondedLabel}
         </Box>
       ) : null}
-      <Text fontSize="sm" color="cardFg" lineHeight="tall">
+      <Text fontSize="sm" color="text.default" lineHeight="tall">
         {body}
       </Text>
       {actionBlock}
@@ -287,8 +287,8 @@ function VerifiedBadge() {
       justifyContent="center"
       boxSize="18px"
       borderRadius="full"
-      bg="primary.600"
-      color="white"
+      bg="action.primary"
+      color="text.onGreen"
       flexShrink={0}
       aria-label="Verified on Slashie"
     >
@@ -317,6 +317,7 @@ function QuoteCardAvatar({
       display="flex"
       alignItems="center"
       justifyContent="center"
+      /* TODO(sdl): verify role - white initials on a generated multi-hue avatar gradient, no SDL avatar-text role */
       color="white"
       fontWeight={800}
       fontSize="sm"

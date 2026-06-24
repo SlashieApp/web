@@ -10,7 +10,7 @@ export const metaSectionLabelProps = {
   fontWeight: 700,
   letterSpacing: '0.06em',
   textTransform: 'uppercase' as const,
-  color: 'formLabelMuted',
+  color: 'text.muted',
 }
 
 type MetaRowListProps = {
@@ -45,7 +45,7 @@ function MetaRowListShell({
     <Box
       py={4}
       borderBottomWidth={withDivider ? '1px' : '0'}
-      borderColor="cardDivider"
+      borderColor="border.default"
     >
       {children}
     </Box>
@@ -67,23 +67,23 @@ export function MetaRow(props: MetaRowProps) {
 
   const row = (
     <HStack align="flex-start" gap={3}>
-      <Box flexShrink={0} color="formLabelMuted" mt={0.5} aria-hidden>
+      <Box flexShrink={0} color="text.muted" mt={0.5} aria-hidden>
         {icon}
       </Box>
       <Box flex={1} minW={0}>
         <Text {...metaSectionLabelProps} mb={1}>
           {label}
         </Text>
-        <Box fontSize="sm" fontWeight={700} color="cardFg" lineHeight="short">
+        <Box
+          fontSize="sm"
+          fontWeight={700}
+          color="text.default"
+          lineHeight="short"
+        >
           {children}
         </Box>
         {secondaryLine ? (
-          <Text
-            fontSize="xs"
-            color="formLabelMuted"
-            lineHeight="short"
-            mt={1.5}
-          >
+          <Text fontSize="xs" color="text.muted" lineHeight="short" mt={1.5}>
             {secondaryLine}
           </Text>
         ) : null}

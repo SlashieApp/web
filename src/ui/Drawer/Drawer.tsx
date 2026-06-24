@@ -16,6 +16,9 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import { LuX } from 'react-icons/lu'
+
+import { sdlMotion } from '@/theme/styles'
 
 import { Button } from '../Button'
 import { IconButton as UiIconButton } from '../IconButton/IconButton'
@@ -25,6 +28,8 @@ const drawerGutterX = { base: 4, md: 6 } as const
 
 export type DrawerPlacement = 'start' | 'end' | 'top' | 'bottom'
 
+export type DrawerSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full'
+
 export type DrawerProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -32,17 +37,17 @@ export type DrawerProps = {
   description?: ReactNode
   children: ReactNode
   placement?: DrawerPlacement
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full'
+  size?: DrawerSize
   /** Footer button that closes the drawer; optional. */
   primaryActionLabel?: string
   onPrimaryAction?: () => void
 }
 
 function drawerPanelRadius(placement: DrawerPlacement) {
-  if (placement === 'end') return { borderLeftRadius: 'md' }
-  if (placement === 'start') return { borderRightRadius: 'md' }
-  if (placement === 'bottom') return { borderTopRadius: 'md' }
-  return { borderBottomRadius: 'md' }
+  if (placement === 'end') return { borderLeftRadius: 'lg' }
+  if (placement === 'start') return { borderRightRadius: 'lg' }
+  if (placement === 'bottom') return { borderTopRadius: 'lg' }
+  return { borderBottomRadius: 'lg' }
 }
 
 export function Drawer({
@@ -65,15 +70,38 @@ export function Drawer({
       placement={placement}
       size={size}
     >
-      <DrawerBackdrop bg="blackAlpha.500" backdropFilter="blur(4px)" />
+      {/* Scrim: dim + blur the page behind the panel. Click + ESC close are
+          handled by DrawerRoot, which also traps focus inside the panel. */}
+      <DrawerBackdrop
+        bg="blackAlpha.500"
+        backdropFilter="blur(4px)"
+        transitionProperty="opacity"
+        transitionDuration={sdlMotion.duration.moderate}
+        transitionTimingFunction={sdlMotion.easing.standard}
+        css={{
+          '@media (prefers-reduced-motion: reduce)': {
+            transitionDuration: '0ms',
+          },
+        }}
+      />
       <DrawerPositioner>
         <DrawerContent
           colorPalette="green"
-          bg="bg"
-          boxShadow="none"
+          bg="bg.surface"
+          color="text.default"
+          borderColor="border.default"
+          boxShadow="e4"
           display="flex"
           flexDirection="column"
           maxH="100dvh"
+          transitionProperty="transform, opacity"
+          transitionDuration={sdlMotion.duration.moderate}
+          transitionTimingFunction={sdlMotion.easing.decelerate}
+          css={{
+            '@media (prefers-reduced-motion: reduce)': {
+              transitionDuration: '0ms',
+            },
+          }}
           {...radius}
         >
           <DrawerHeader px={drawerGutterX} pt={4} pb={4} flexShrink={0}>
@@ -83,7 +111,7 @@ export function Drawer({
                   fontFamily="body"
                   fontSize="20px"
                   fontWeight={600}
-                  color="cardFg"
+                  color="text.default"
                   lineHeight="short"
                   flex={1}
                   minW={0}
@@ -95,14 +123,16 @@ export function Drawer({
                     aria-label="Close drawer"
                     variant="ghost"
                     flexShrink={0}
+                    minW="44px"
+                    minH="44px"
                   >
-                    ×
+                    <LuX size={20} strokeWidth={2} aria-hidden />
                   </UiIconButton>
                 </DrawerCloseTrigger>
               </HStack>
               {description ? (
                 <DrawerDescription
-                  color="formLabelMuted"
+                  color="text.muted"
                   fontSize="sm"
                   lineHeight="tall"
                   fontWeight={500}
@@ -140,6 +170,8 @@ export function Drawer({
               pt={3}
               pb="calc(16px + env(safe-area-inset-bottom, 0px))"
               flexShrink={0}
+              borderTopWidth="1px"
+              borderColor="border.default"
             >
               <Button
                 variant="primary"

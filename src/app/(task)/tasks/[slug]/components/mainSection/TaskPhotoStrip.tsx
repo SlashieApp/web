@@ -60,17 +60,11 @@ function PhotoThumb({
       borderRadius={RADIUS}
       overflow="hidden"
       borderWidth="1px"
-      borderColor="cardBorder"
-      bg="cardAvatarEmpty"
+      borderColor="border.default"
+      bg="bg.subtle"
     >
       {broken ? (
-        <Text
-          fontSize="xs"
-          color="formLabelMuted"
-          textAlign="center"
-          px={2}
-          py={8}
-        >
+        <Text fontSize="xs" color="text.muted" textAlign="center" px={2} py={8}>
           Unavailable
         </Text>
       ) : (
@@ -91,6 +85,7 @@ function PhotoThumb({
           alignItems="center"
           justifyContent="center"
           bg="blackAlpha.700"
+          /* TODO(sdl): verify role - white label on a dark photo scrim, no SDL role for on-dark-overlay text */
           color="white"
           fontSize="sm"
           fontWeight={700}

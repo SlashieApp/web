@@ -14,7 +14,7 @@ import { getAuthToken } from '@/utils/auth'
 function VerifyEmailSentFallback() {
   return (
     <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
-      <Text color="formLabelMuted">Loading…</Text>
+      <Text color="text.muted">Loading…</Text>
     </Box>
   )
 }
@@ -47,7 +47,7 @@ function VerifyEmailSentContent() {
 
   if (me && isEmailVerified(me)) {
     return (
-      <Text color="formLabelMuted" fontSize="sm">
+      <Text color="text.muted" fontSize="sm">
         Redirecting…
       </Text>
     )
@@ -72,13 +72,13 @@ function VerifyEmailSentContent() {
         py={{ base: 8, md: 10 }}
       >
         <Stack gap={5} align="center" textAlign="center">
-          <Heading size="xl" color="cardFg">
+          <Heading size="xl" color="text.default">
             Check your inbox
           </Heading>
-          <Text color="formLabelMuted" fontSize="sm" lineHeight="1.6">
+          <Text color="text.muted" fontSize="sm" lineHeight="1.6">
             We sent a verification link to{' '}
             {me?.email ? (
-              <Text as="span" fontWeight={700} color="cardFg">
+              <Text as="span" fontWeight={700} color="text.default">
                 {me.email}
               </Text>
             ) : (
@@ -101,7 +101,7 @@ function VerifyEmailSentContent() {
                 <Box
                   as="output"
                   fontSize="sm"
-                  color={isSent ? 'primary.700' : 'red.500'}
+                  color={isSent ? 'status.success.fg' : 'status.danger.fg'}
                 >
                   {message}
                 </Box>
@@ -110,15 +110,15 @@ function VerifyEmailSentContent() {
                 href={nextPath ?? APP_HOME}
                 fontSize="sm"
                 fontWeight={600}
-                color="primary.600"
-                _hover={{ textDecoration: 'none', color: 'primary.700' }}
+                color="text.link"
+                _hover={{ textDecoration: 'none', color: 'status.success.fg' }}
               >
                 Continue to dashboard
               </Link>
             </Stack>
           ) : (
             <Stack gap={2}>
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 Log in to resend the verification email.
               </Text>
               <Link

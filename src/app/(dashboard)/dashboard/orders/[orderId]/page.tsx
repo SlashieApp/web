@@ -33,7 +33,7 @@ export default function LegacyOrderDetailRedirect() {
   }
 
   if (!orderId) {
-    return <Text color="formLabelMuted">Missing order id.</Text>
+    return <Text color="text.muted">Missing order id.</Text>
   }
 
   if (error) {
@@ -46,7 +46,7 @@ export default function LegacyOrderDetailRedirect() {
       report_global: false,
     })
     return (
-      <Text color="red.500" fontSize="sm">
+      <Text color="status.danger.fg" fontSize="sm">
         {getFriendlyErrorMessage(error, 'Could not load this order.')}
       </Text>
     )
@@ -55,7 +55,7 @@ export default function LegacyOrderDetailRedirect() {
   if (!loading && !taskId) {
     return (
       <Card layout="section" p={6}>
-        <Text color="formLabelMuted" fontSize="sm">
+        <Text color="text.muted" fontSize="sm">
           Order not found or you do not have access.
         </Text>
       </Card>
@@ -64,7 +64,7 @@ export default function LegacyOrderDetailRedirect() {
 
   return (
     <Stack gap={4} py={6}>
-      <Text color="formLabelMuted">Redirecting to order details…</Text>
+      <Text color="text.muted">Redirecting to order details…</Text>
     </Stack>
   )
 }

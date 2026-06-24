@@ -20,7 +20,7 @@ export function PostedTaskTimeline({
           gap={3}
           py={2}
           borderBottomWidth={index < steps.length - 1 ? '1px' : undefined}
-          borderColor="cardBorder"
+          borderColor="border.default"
         >
           <Box
             w={2}
@@ -29,9 +29,9 @@ export function PostedTaskTimeline({
             borderRadius="full"
             bg={
               step.done
-                ? 'primary.600'
+                ? 'action.primary'
                 : step.current
-                  ? 'primary.300'
+                  ? 'status.success.solid'
                   : 'neutral.300'
             }
             flexShrink={0}
@@ -40,17 +40,17 @@ export function PostedTaskTimeline({
             <Text
               fontSize="sm"
               fontWeight={step.current ? 700 : 600}
-              color={step.done || step.current ? 'cardFg' : 'formLabelMuted'}
+              color={step.done || step.current ? 'text.default' : 'text.muted'}
             >
               {step.label}
             </Text>
             {step.detail ? (
-              <Text fontSize="xs" color="formLabelMuted">
+              <Text fontSize="xs" color="text.muted">
                 {step.detail}
               </Text>
             ) : null}
             {step.at ? (
-              <Text fontSize="xs" color="formLabelMuted">
+              <Text fontSize="xs" color="text.muted">
                 {formatDate(step.at)}
               </Text>
             ) : null}

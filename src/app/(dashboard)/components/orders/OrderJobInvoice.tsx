@@ -48,8 +48,8 @@ export function OrderJobInvoice({
         p={5}
         borderRadius="lg"
         borderWidth="1px"
-        borderColor="cardBorder"
-        bg="cardBg"
+        borderColor="border.default"
+        bg="bg.surface"
         css={{
           '@media print': {
             display: 'block !important',
@@ -64,11 +64,11 @@ export function OrderJobInvoice({
       >
         <Stack gap={4}>
           <Stack gap={1}>
-            <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+            <Text fontSize="xs" fontWeight={700} color="text.muted">
               JOB SUMMARY · REFERENCE ONLY
             </Text>
             <Heading size="md">{order.snapshot.title}</Heading>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Order {order.id.slice(-8).toUpperCase()}
               {order.closedAt ? ` · Closed ${formatDate(order.closedAt)}` : ''}
             </Text>
@@ -96,7 +96,7 @@ export function OrderJobInvoice({
             borderRadius="md"
             bg="neutral.100"
             fontSize="xs"
-            color="formLabelMuted"
+            color="text.muted"
           >
             This summary is for your records only. Slashie does not process
             payments between customers and workers — agree and settle payment

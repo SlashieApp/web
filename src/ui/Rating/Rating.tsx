@@ -1,24 +1,69 @@
 'use client'
 
-import { HStack, Text } from '@chakra-ui/react'
+import { HStack, type StackProps, Text } from '@chakra-ui/react'
 
-export type RatingProps = {
+/**
+ * SDL Rating. Compact, read-only star + score used on task/profile cards.
+ *
+ * SDL notes:
+ * - The star uses `status.warning.solid` (amber), the SDL role for the legacy
+ *   `mustard.400` fill. It is `aria-hidden` because the meaning is carried by
+ *   the visible score label (status is never communicated by color/icon alone).
+ * - The score uses `text.muted`, the SDL role for the legacy `cardMutedFg`.
+ * - Read-only display element, so there is no focus ring / touch target.
+ *
+ * Public API: `value` is preserved. `size` and `label` are additive and
+ * optional, so existing call sites (`<Rating value="4.9" />`) are unchanged.
+ */
+export type UiRatingSize = 'sm' | 'md'
+
+export type RatingProps = Omit<StackProps, 'children'> & {
+  /** The score to display (e.g. "4.9", or "—" when there are no reviews). */
   value: string
+  /** Visual density. Defaults to `md`. */
+  size?: UiRatingSize
+  /**
+   * Accessible label describing the score (e.g. "Worker rating").
+   * Rendered as the group's `aria-label` so screen readers announce context.
+   */
+  label?: string
 }
 
-export function Rating({ value }: RatingProps) {
+const ratingSizes: Record<
+  UiRatingSize,
+  { star: string; score: string; gap: number }
+> = {
+  sm: { star: 'xs', score: 'xs', gap: 1 },
+  md: { star: 'xs', score: 'sm', gap: 1 },
+}
+
+export function Rating({ value, size = 'md', label, ...rest }: RatingProps) {
+  const { star, score, gap } = ratingSizes[size]
+
   return (
-    <HStack gap={1} flexShrink={0}>
+    <HStack
+      gap={gap}
+      flexShrink={0}
+      role="img"
+      aria-label={label ? `${label}: ${value}` : `Rating: ${value}`}
+      {...rest}
+    >
       <Text
         as="span"
-        color="mustard.400"
-        fontSize="xs"
+        color="status.warning.solid"
+        fontSize={star}
         lineHeight="1"
         aria-hidden
       >
         ★
       </Text>
-      <Text fontSize="sm" fontWeight={600} color="cardMutedFg">
+      <Text
+        as="span"
+        fontSize={score}
+        fontWeight={600}
+        color="text.muted"
+        lineHeight="1"
+      >
         {value}
       </Text>
     </HStack>

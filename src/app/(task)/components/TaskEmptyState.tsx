@@ -18,11 +18,11 @@ export function TaskEmptyState() {
 
   return (
     <Box
-      bg="cardBg"
+      bg="bg.surface"
       borderRadius="2xl"
       borderWidth="1px"
-      borderColor="cardBorder"
-      boxShadow="0 12px 24px rgba(15,23,42,0.16)"
+      borderColor="border.default"
+      boxShadow="e4"
       w="full"
       mx="auto"
       maxW="full"
@@ -33,19 +33,19 @@ export function TaskEmptyState() {
       <Stack gap={4} align="center" textAlign="center">
         {mode === 'filtered' ? (
           <Stack gap={1}>
-            <Heading size="md" color="cardFg">
+            <Heading size="md" color="text.default">
               No tasks match your filters
             </Heading>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Try clearing your filters or widening your search area.
             </Text>
           </Stack>
         ) : (
           <Stack gap={1}>
-            <Heading size="md" color="cardFg">
+            <Heading size="md" color="text.default">
               No nearby tasks right now
             </Heading>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Try expanding your search area or browse tasks in nearby towns.
             </Text>
           </Stack>

@@ -32,7 +32,7 @@ function SettingToggle({
         <Text fontSize="sm" fontWeight={700}>
           {label}
         </Text>
-        <Text fontSize="xs" color="formLabelMuted">
+        <Text fontSize="xs" color="text.muted">
           {description}
         </Text>
       </Stack>
@@ -42,7 +42,7 @@ function SettingToggle({
         onCheckedChange={(details) => onChange(details.checked)}
       >
         <Switch.HiddenInput />
-        <Switch.Control _checked={{ bg: 'primary.500' }}>
+        <Switch.Control _checked={{ bg: 'action.primary' }}>
           <Switch.Thumb />
         </Switch.Control>
       </Switch.Root>
@@ -109,7 +109,7 @@ export function AccountSettingsCard() {
           onChange={(next) => void update('marketingEmails', next)}
         />
         {error ? (
-          <Text color="red.500" fontSize="sm">
+          <Text color="status.danger.fg" fontSize="sm">
             {error}
           </Text>
         ) : null}

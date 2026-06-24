@@ -23,7 +23,7 @@ const isDev = process.env.NODE_ENV === 'development'
 
 function IconLockReset() {
   return (
-    <Box color="primary.700" display="flex" aria-hidden>
+    <Box color="status.success.fg" display="flex" aria-hidden>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <title>Reset password</title>
         <path
@@ -51,7 +51,7 @@ function IconLockReset() {
 
 function IconEye({ open }: { open: boolean }) {
   return (
-    <Box as="span" display="flex" color="formLabelMuted" aria-hidden>
+    <Box as="span" display="flex" color="text.muted" aria-hidden>
       {open ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <title>Show password</title>
@@ -120,8 +120,9 @@ function ReqRow({
         boxSize={5}
         borderRadius="full"
         borderWidth="1.5px"
-        borderColor={met ? 'primary.500' : 'formControlBorder'}
-        bg={met ? 'primary.500' : 'transparent'}
+        borderColor={met ? 'action.primary' : 'border.default'}
+        bg={met ? 'action.primary' : 'transparent'}
+        color="text.onGreen"
         display="flex"
         alignItems="center"
         justifyContent="center"
@@ -138,7 +139,7 @@ function ReqRow({
             <title>Requirement met</title>
             <path
               d="M20 6 9 17l-5-5"
-              stroke="white"
+              stroke="currentColor"
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -149,7 +150,7 @@ function ReqRow({
       <Text
         fontSize="sm"
         fontWeight={500}
-        color={met ? 'cardFg' : 'formLabelMuted'}
+        color={met ? 'text.default' : 'text.muted'}
       >
         {children}
       </Text>
@@ -159,7 +160,7 @@ function ReqRow({
 
 function IconShieldSmall() {
   return (
-    <Box color="formLabelMuted" display="flex" aria-hidden>
+    <Box color="text.muted" display="flex" aria-hidden>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
         <title>Security</title>
         <path
@@ -195,7 +196,7 @@ const numberOrSymbol = /[\d!@#$%^&*(),.?":{}|<>[\]\\/_+=-]/
 function ResetPasswordFallback() {
   return (
     <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
-      <Text color="formLabelMuted">Loading…</Text>
+      <Text color="text.muted">Loading…</Text>
     </Box>
   )
 }
@@ -220,10 +221,10 @@ function MissingResetLinkState() {
         py={{ base: 8, md: 10 }}
       >
         <Stack gap={5} align="center" textAlign="center">
-          <Heading size="xl" color="cardFg">
+          <Heading size="xl" color="text.default">
             Reset link required
           </Heading>
-          <Text color="formLabelMuted" fontSize="sm" lineHeight="1.6">
+          <Text color="text.muted" fontSize="sm" lineHeight="1.6">
             Open the password reset link from your email, or request a new one.
             Links expire after 1 hour.
           </Text>
@@ -235,8 +236,8 @@ function MissingResetLinkState() {
               href="/login"
               fontSize="sm"
               fontWeight={600}
-              color="primary.600"
-              _hover={{ textDecoration: 'none', color: 'primary.700' }}
+              color="text.link"
+              _hover={{ textDecoration: 'none', color: 'status.success.fg' }}
             >
               Back to sign in
             </Link>
@@ -344,7 +345,7 @@ function ResetPasswordForm() {
           <Box
             boxSize={12}
             borderRadius="lg"
-            bg="primary.100"
+            bg="status.success.soft"
             display="flex"
             alignItems="center"
             justifyContent="center"
@@ -353,10 +354,10 @@ function ResetPasswordForm() {
           </Box>
 
           <Box>
-            <Heading size="xl" color="cardFg">
+            <Heading size="xl" color="text.default">
               Reset password
             </Heading>
-            <Text mt={2} color="formLabelMuted" fontSize="sm">
+            <Text mt={2} color="text.muted" fontSize="sm">
               Create a new, strong password for your account.
             </Text>
           </Box>
@@ -379,13 +380,13 @@ function ResetPasswordForm() {
                 )}
 
                 {isDev && tokenWatch && !showTokenField ? (
-                  <Text fontSize="xs" color="formLabelMuted" textAlign="center">
+                  <Text fontSize="xs" color="text.muted" textAlign="center">
                     <Box
                       asChild
                       display="inline"
                       fontWeight={600}
-                      color="primary.600"
-                      _hover={{ color: 'primary.700' }}
+                      color="text.link"
+                      _hover={{ color: 'status.success.fg' }}
                     >
                       <button
                         type="button"
@@ -453,14 +454,14 @@ function ResetPasswordForm() {
                   gap={2.5}
                   p={4}
                   borderRadius="lg"
-                  bg="primary.100"
+                  bg="status.success.soft"
                   w="full"
                 >
                   <Text
                     fontSize="2xs"
                     fontWeight={700}
                     letterSpacing="0.12em"
-                    color="formLabelMuted"
+                    color="text.muted"
                     textTransform="uppercase"
                   >
                     Password requirements
@@ -474,15 +475,18 @@ function ResetPasswordForm() {
 
                 {serverError ? (
                   <Stack gap={2}>
-                    <Text role="alert" color="red.500" fontSize="sm">
+                    <Text role="alert" color="status.danger.fg" fontSize="sm">
                       {serverError}
                     </Text>
                     <Link
                       href="/forgot-password"
                       fontSize="sm"
                       fontWeight={600}
-                      color="primary.600"
-                      _hover={{ textDecoration: 'none', color: 'primary.700' }}
+                      color="text.link"
+                      _hover={{
+                        textDecoration: 'none',
+                        color: 'status.success.fg',
+                      }}
                     >
                       Request a new reset link
                     </Link>
@@ -507,19 +511,19 @@ function ResetPasswordForm() {
             href="/login"
             fontSize="sm"
             fontWeight={700}
-            color="primary.600"
-            _hover={{ color: 'primary.700', textDecoration: 'none' }}
+            color="text.link"
+            _hover={{ color: 'status.success.fg', textDecoration: 'none' }}
           >
             ← Back to sign in
           </Link>
         </Stack>
       </Box>
 
-      <HStack gap={2} color="formLabelMuted" justify="center">
+      <HStack gap={2} color="text.muted" justify="center">
         <IconShieldSmall />
         <Text fontSize="xs">Secure connection</Text>
       </HStack>
-      <Text fontSize="xs" color="formLabelMuted" textAlign="center">
+      <Text fontSize="xs" color="text.muted" textAlign="center">
         © {new Date().getFullYear()} Slashie
       </Text>
     </Stack>

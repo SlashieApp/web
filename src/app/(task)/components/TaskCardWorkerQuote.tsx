@@ -27,6 +27,7 @@ import {
 } from '@/app/(dashboard)/quotes/helpers/workerQuoteSchedule'
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import { budgetKindLabel } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
+import { sdlMotion } from '@/theme/styles'
 import { formatPounds, formatRelativePosted } from '@/utils/dashboardHelpers'
 import { isOrderClosed, taskOrderSectionHref } from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
@@ -108,7 +109,7 @@ export function TaskCardWorkerQuote({
                   <MetaItem icon={<LuMapPin size={14} />}>
                     {locationLabel}
                   </MetaItem>
-                  <Text fontSize="sm" color="formLabelMuted" aria-hidden>
+                  <Text fontSize="sm" color="text.muted" aria-hidden>
                     ·
                   </Text>
                   <MetaItem icon={<LuCalendar size={14} />}>
@@ -118,7 +119,7 @@ export function TaskCardWorkerQuote({
                 <HStack gap={2} flexWrap="wrap" align="center">
                   <MetaItem icon={<LuWallet size={14} />}>
                     Your quote{' '}
-                    <Text as="span" fontWeight={700} color="cardFg">
+                    <Text as="span" fontWeight={700} color="text.default">
                       {quotePence != null && quotePence > 0
                         ? formatPounds(quotePence)
                         : '—'}
@@ -148,7 +149,7 @@ export function TaskCardWorkerQuote({
                 bg="transparent"
                 border="none"
                 cursor="pointer"
-                color="formLabelMuted"
+                color="text.muted"
                 aria-expanded={expanded}
                 aria-label={
                   expanded ? 'Collapse quote details' : 'Expand quote details'
@@ -183,8 +184,8 @@ export function TaskCardWorkerQuote({
             <Box
               borderRadius="lg"
               borderWidth="1px"
-              borderColor="cardBorder"
-              bg="cardBg"
+              borderColor="border.default"
+              bg="bg.surface"
               px={4}
               py={3}
             >
@@ -198,7 +199,7 @@ export function TaskCardWorkerQuote({
                   <Box
                     as="span"
                     display="inline-flex"
-                    color="formLabelMuted"
+                    color="text.muted"
                     mt={0.5}
                     aria-hidden
                   >
@@ -206,12 +207,12 @@ export function TaskCardWorkerQuote({
                   </Box>
                   <Stack gap={0} minW={0}>
                     {scheduleLabel ? (
-                      <Text fontSize="sm" fontWeight={700} color="cardFg">
+                      <Text fontSize="sm" fontWeight={700} color="text.default">
                         {scheduleLabel}
                       </Text>
                     ) : null}
                     {onsiteCountdown ? (
-                      <Text fontSize="sm" color="formLabelMuted">
+                      <Text fontSize="sm" color="text.muted">
                         {onsiteCountdown}
                       </Text>
                     ) : null}
@@ -261,7 +262,7 @@ function MetaItem({
   children: ReactNode
 }) {
   return (
-    <HStack gap={1.5} color="formLabelMuted" fontSize="sm" minW={0}>
+    <HStack gap={1.5} color="text.muted" fontSize="sm" minW={0}>
       <Box as="span" display="inline-flex" flexShrink={0} aria-hidden>
         {icon}
       </Box>
@@ -280,16 +281,16 @@ function WorkerQuoteMessagePanel({
   return (
     <Box
       borderRadius="lg"
-      bg="primary.50"
+      bg="status.success.soft"
       px={4}
       py={3}
       h="full"
       minH={{ md: '120px' }}
     >
-      <Text fontSize="sm" fontWeight={700} color="cardFg" mb={2}>
+      <Text fontSize="sm" fontWeight={700} color="text.default" mb={2}>
         Your message
       </Text>
-      <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+      <Text fontSize="sm" color="text.muted" lineHeight="tall">
         {body || 'No message included with this quote.'}
       </Text>
     </Box>
@@ -311,14 +312,14 @@ function WorkerQuoteProgressTimeline({
               <Text
                 fontSize="xs"
                 fontWeight={700}
-                color={step.done ? 'cardFg' : 'formLabelMuted'}
+                color={step.done ? 'text.default' : 'text.muted'}
                 textAlign="center"
               >
                 {step.label}
               </Text>
               <Text
                 fontSize="xs"
-                color="formLabelMuted"
+                color="text.muted"
                 textAlign="center"
                 lineClamp={1}
               >
@@ -344,10 +345,10 @@ function ProgressStepDot({ done }: { done: boolean }) {
       alignItems="center"
       justifyContent="center"
       flexShrink={0}
-      bg={done ? 'primary' : 'transparent'}
+      bg={done ? 'action.primary' : 'transparent'}
       borderWidth={done ? '0' : '2px'}
       borderColor="neutral.300"
-      color="white"
+      color="text.onGreen"
     >
       {done ? <LuCheck size={16} strokeWidth={3} aria-hidden /> : null}
     </Box>
@@ -364,7 +365,7 @@ function ProgressConnector({ done }: { done: boolean }) {
       mx={-1}
       borderTopWidth="2px"
       borderTopStyle={done ? 'solid' : 'dashed'}
-      borderTopColor={done ? 'primary' : 'neutral.300'}
+      borderTopColor={done ? 'action.primary' : 'neutral.300'}
       aria-hidden
     />
   )
@@ -376,7 +377,9 @@ function WorkerQuoteChevronIcon({ expanded }: { expanded: boolean }) {
       as="span"
       display="inline-flex"
       transform={expanded ? 'rotate(180deg)' : 'rotate(0deg)'}
-      transition="transform 0.15s ease"
+      transitionProperty="transform"
+      transitionDuration={sdlMotion.duration.base}
+      transitionTimingFunction={sdlMotion.easing.standard}
       aria-hidden
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">

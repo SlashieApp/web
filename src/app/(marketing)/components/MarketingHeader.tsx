@@ -27,9 +27,9 @@ const MARKETING_NAV_LINKS = [
 const navLinkProps = {
   fontSize: 'sm',
   fontWeight: 600,
-  color: 'cardFg',
+  color: 'text.default',
   whiteSpace: 'nowrap',
-  _hover: { textDecoration: 'none', color: 'primary.700' },
+  _hover: { textDecoration: 'none', color: 'text.link' },
 } as const
 
 const drawerLinkProps = {
@@ -39,8 +39,8 @@ const drawerLinkProps = {
   borderRadius: 'md',
   fontSize: 'sm',
   fontWeight: 600,
-  color: 'cardFg',
-  _hover: { bg: 'badgeBg', textDecoration: 'none' },
+  color: 'text.default',
+  _hover: { bg: 'status.success.soft', textDecoration: 'none' },
 } as const
 
 function GetAppButton() {
@@ -117,7 +117,7 @@ function MarketingNavigation() {
 
         <Text
           display={{ base: 'none', md: 'block' }}
-          color="cardBorder"
+          color="border.default"
           fontSize="sm"
           lineHeight={1}
           aria-hidden
@@ -138,7 +138,9 @@ function MarketingNavigation() {
               href={link.href}
               {...navLinkProps}
               color={
-                isNavActive(routePathname, link.href) ? 'primary.700' : 'cardFg'
+                isNavActive(routePathname, link.href)
+                  ? 'text.link'
+                  : 'text.default'
               }
             >
               {link.label}
@@ -175,7 +177,9 @@ function MarketingNavigation() {
               href={link.href}
               {...drawerLinkProps}
               color={
-                isNavActive(routePathname, link.href) ? 'primary.700' : 'cardFg'
+                isNavActive(routePathname, link.href)
+                  ? 'text.link'
+                  : 'text.default'
               }
               fontWeight={isNavActive(routePathname, link.href) ? 700 : 600}
               onClick={() => setMobileMenuOpen(false)}
@@ -189,7 +193,7 @@ function MarketingNavigation() {
             mt="auto"
             pt={3}
             borderTopWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
           >
             <Link
               href="/login"
@@ -219,11 +223,11 @@ export function MarketingHeader(props: MarketingHeaderProps) {
     <Box
       as="header"
       zIndex={30}
-      bg="bg"
-      color="cardFg"
+      bg="bg.canvas"
+      color="text.default"
       backdropFilter="blur(20px)"
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       px={HEADER_PADDING_X}
       minH={HEADER_MIN_HEIGHT}
       display="flex"

@@ -1,0 +1,42 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+import { ColorPalettes, GreenInkDemo } from './ColorSwatches'
+
+<Meta title="Foundations/Color" />
+
+# Color
+
+The Slashie Design Language (SDL) ships **two tiers** of color tokens. The single
+source of truth is [`src/theme/chakraSystem.ts`](?path=/docs/foundations-color--docs);
+every value on this page is read from the theme module (semantic swatches resolve
+the live `var(--chakra-colors-…)` CSS variable, primitives mirror the scale in code),
+so the docs cannot drift from the shipped tokens.
+
+1. **Primitives** (`tokens.colors.{green,neutral,plum,status}`) — the raw scale values.
+2. **Semantic roles** (`semanticTokens.colors.{bg,text,border,action,accent,status}`) —
+   the **only** thing components and pages reference. Never reference a primitive
+   (`green.400`) or a raw hex in feature code.
+
+Light and dark are shipped as two systems that share identical primitives; only the
+semantic role _values_ differ. Both modes are rendered side-by-side below.
+
+## Rules
+
+- **Semantic only in feature code.** Use `action.primary`, `text.muted`,
+  `border.strong`, `status.danger.fg`, etc. — never a primitive or hex.
+- **Green-ink rule.** Any green fill pairs with `text.onGreen` (ink `#0A1512`),
+  never white. The same applies to solid danger fills.
+- **Status is never color alone.** Pair a dot/icon + label (use the Badge `dot`
+  prop or `StatusPill`).
+
+## Palette
+
+<ColorPalettes />
+
+## Green-ink rule
+
+Green (`action.primary` = `green.400` `#00DC82`) is too light to carry white text at
+AA. Every green fill — and every solid danger fill — uses `text.onGreen` (ink) in
+both modes.
+
+<GreenInkDemo />

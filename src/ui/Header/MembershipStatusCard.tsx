@@ -28,7 +28,7 @@ function QuoteMeterCopy({
   const used = membership.quotesUsedThisMonth
   const total = membership.freeQuotesPerMonth
   return (
-    <Text fontSize="sm" color="cardFg" fontWeight={600}>
+    <Text fontSize="sm" color="text.default" fontWeight={600}>
       {used} of {total} quotes used this month
     </Text>
   )
@@ -40,17 +40,17 @@ function CustomerStatusCard({
   const compact = variant === 'drawer'
   return (
     <Box
-      bg="primary.100"
+      bg="status.success.soft"
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="lg"
       p={compact ? 3 : 4}
     >
       <Stack gap={compact ? 2 : 3}>
-        <Text fontSize="sm" fontWeight={700} color="cardFg">
+        <Text fontSize="sm" fontWeight={700} color="text.default">
           Post tasks for free
         </Text>
-        <Text fontSize="xs" color="formLabelMuted" lineHeight="tall">
+        <Text fontSize="xs" color="text.muted" lineHeight="tall">
           Compare quotes from local workers. Job payments stay between you and
           your pro.
         </Text>
@@ -81,22 +81,27 @@ export function MembershipStatusCard({
 
   return (
     <Box
-      bg="neutral.100"
+      bg="bg.subtle"
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="lg"
       p={compact ? 3 : 4}
     >
       <Stack gap={compact ? 2 : 3}>
         <HStack justify="space-between" align="flex-start" gap={2}>
-          <Text fontSize="sm" fontWeight={800} color="cardFg" lineClamp={2}>
+          <Text
+            fontSize="sm"
+            fontWeight={800}
+            color="text.default"
+            lineClamp={2}
+          >
             {membership.planName}
           </Text>
           <MembershipStatusBadge membership={membership} />
         </HStack>
 
         {unlimited && detail ? (
-          <Text fontSize="xs" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="xs" color="text.muted" lineHeight="tall">
             {detail}
           </Text>
         ) : null}
@@ -116,10 +121,10 @@ export function MembershipStatusCard({
             <Text
               fontSize="xs"
               fontWeight={700}
-              color="primary.700"
+              color="text.link"
               _hover={{ textDecoration: 'underline' }}
               {...focusVisibleMatchesHover({
-                color: 'primary.700',
+                color: 'text.link',
                 textDecoration: 'underline',
               })}
             >

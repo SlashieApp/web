@@ -1,13 +1,21 @@
 'use client'
 
-import { Box, Input as ChakraInput, HStack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Input as ChakraInput,
+  HStack,
+  type SystemStyleObject,
+  Text,
+} from '@chakra-ui/react'
 import * as React from 'react'
 
-import { formControlFieldInteraction } from '@/theme/system'
+import { formControlFieldInteraction, sdlMotion } from '@/theme/styles'
 import {
   formControlInvalidFieldProps,
   useFormFieldControlProps,
 } from '../FormField/formFieldContext'
+
+export type OtpInputSize = 'md' | 'lg'
 
 export type OtpInputProps = {
   value: string
@@ -15,25 +23,49 @@ export type OtpInputProps = {
   length?: number
   disabled?: boolean
   autoFocus?: boolean
+  /**
+   * Cell size. `md` keeps a 44px touch target (default); `lg` is for hero /
+   * single-field verification screens. Defaults to `md`.
+   */
+  size?: OtpInputSize
   /** Fires when Enter is pressed and all digits are filled. */
   onEnter?: (value: string) => void
   /** Fires when the last digit is entered. */
   onComplete?: (value: string) => void
 }
 
-const cellStyles = {
+/**
+ * Per-cell sizes. Both heights meet the 44px min touch target so the field is
+ * comfortable on mobile; `lg` is reserved for prominent verification screens.
+ */
+const cellSizes: Record<OtpInputSize, SystemStyleObject> = {
+  md: { w: '44px', h: '44px', fontSize: 'lg' },
+  lg: { w: '52px', h: '56px', fontSize: 'xl' },
+}
+
+/**
+ * Shared cell shell. `formControlFieldInteraction` supplies the SDL green
+ * `_focusVisible` ring (`border.focus`) + hover treatment + `sdlMotion`
+ * transition, so each cell shows a visible keyboard focus ring.
+ */
+const cellStyles: SystemStyleObject = {
   ...formControlFieldInteraction,
-  w: '44px',
-  h: '40px',
-  textAlign: 'center' as const,
-  fontSize: 'lg',
+  textAlign: 'center',
   fontWeight: 700,
   borderRadius: 'md',
   borderWidth: '1px',
-  borderColor: 'formControlBorder',
-  bg: 'formControlBg',
-  color: 'formControlFg',
+  borderColor: 'border.default',
+  bg: 'bg.surface',
+  color: 'text.default',
   px: 0,
+  transitionTimingFunction: sdlMotion.easing.standard,
+  _disabled: {
+    bg: 'bg.subtle',
+    color: 'text.subtle',
+    borderColor: 'border.default',
+    cursor: 'not-allowed',
+    opacity: 1,
+  },
 }
 
 function normalizeDigits(raw: string, length: number): string {
@@ -52,6 +84,12 @@ function cellsToDigits(cells: string[]): string {
 /**
  * Six-digit OTP field with 3+3 grouping, auto-advance, backspace navigation,
  * paste support, and Enter to submit when complete.
+ *
+ * SDL: cells reference semantic roles only (`bg.surface`, `text.default`,
+ * `border.default`); the green keyboard focus ring + transition come from
+ * `formControlFieldInteraction`. Error state is wired through `aria-invalid` /
+ * `aria-describedby` from the nearest {@link FormField} (never placeholder-only),
+ * and each cell carries an explicit `aria-label`.
  */
 export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
   function OtpInput(
@@ -61,6 +99,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
       length = 6,
       disabled = false,
       autoFocus = true,
+      size = 'md',
       onEnter,
       onComplete,
     },
@@ -205,6 +244,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         disabled={isDisabled}
         aria-label={`Digit ${index + 1} of ${length}`}
         {...cellStyles}
+        {...cellSizes[size]}
         {...formControlInvalidFieldProps(invalid)}
       />
     )
@@ -220,7 +260,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         <HStack gap={2} justify="center" w="full">
           {firstGroup.map(renderCell)}
           {length > 3 ? (
-            <Text color="formLabelMuted" fontWeight={600} px={1} aria-hidden>
+            <Text color="text.muted" fontWeight={600} px={1} aria-hidden>
               –
             </Text>
           ) : null}

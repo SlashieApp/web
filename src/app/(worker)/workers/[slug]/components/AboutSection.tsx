@@ -15,18 +15,18 @@ export function AboutSection() {
 
   return (
     <Card layout="section" eyebrow="About" heading="About this worker">
-      {tagline ? <Badge color="primary">{tagline}</Badge> : null}
+      {tagline ? <Badge variant="brand">{tagline}</Badge> : null}
       {bio ? (
         <Text
           fontSize="sm"
-          color="cardFg"
+          color="text.default"
           lineHeight="tall"
           whiteSpace="pre-wrap"
         >
           {bio}
         </Text>
       ) : (
-        <Text fontSize="sm" color="formLabelMuted">
+        <Text fontSize="sm" color="text.muted">
           This worker has not added a bio yet.
         </Text>
       )}

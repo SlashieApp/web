@@ -31,10 +31,10 @@ export function WorkerQuoteSummaryBar() {
       px={4}
       py={3}
       borderRadius="lg"
-      bg="badgeBg"
+      bg="bg.subtle"
     >
-      <HStack gap={2} fontSize="sm" color="formLabelMuted" flexWrap="wrap">
-        <Box as="span" display="inline-flex" color="primary.700" aria-hidden>
+      <HStack gap={2} fontSize="sm" color="text.muted" flexWrap="wrap">
+        <Box as="span" display="inline-flex" color="text.link" aria-hidden>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <title>Summary</title>
             <path
@@ -49,17 +49,17 @@ export function WorkerQuoteSummaryBar() {
       </HStack>
 
       {counts.bookedValuePence > 0 ? (
-        <HStack gap={1.5} fontSize="sm" color="cardFg" flexShrink={0}>
+        <HStack gap={1.5} fontSize="sm" color="text.default" flexShrink={0}>
           <Text fontWeight={600}>
             {formatPounds(counts.bookedValuePence)} in booked work
           </Text>
-          <Text color="formLabelMuted" fontSize="xs">
+          <Text color="text.muted" fontSize="xs">
             (Reference only)
           </Text>
           <Box
             as="span"
             display="inline-flex"
-            color="formLabelMuted"
+            color="text.muted"
             aria-label="Booked work total is indicative only"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">

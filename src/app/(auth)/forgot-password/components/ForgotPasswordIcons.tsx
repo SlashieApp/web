@@ -4,7 +4,7 @@ import { Box } from '@chakra-ui/react'
 
 export function FieldIconMail() {
   return (
-    <Box as="span" color="formLabelMuted" display="flex" aria-hidden>
+    <Box as="span" color="text.muted" display="flex" aria-hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <title>Email</title>
         <path
@@ -21,7 +21,7 @@ export function FieldIconMail() {
 
 export function IconLockReset() {
   return (
-    <Box color="primary.700" display="flex" aria-hidden>
+    <Box color="status.success.fg" display="flex" aria-hidden>
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
         <title>Reset password</title>
         <path

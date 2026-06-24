@@ -54,9 +54,9 @@ export function MyRequestsMainColumn() {
         {taskRows.length > 0 ? <PostedTaskSummaryBar /> : null}
       </Stack>
 
-      {loading ? <Text color="formLabelMuted">Loading your tasks…</Text> : null}
+      {loading ? <Text color="text.muted">Loading your tasks…</Text> : null}
       {errorMessage ? (
-        <Text color="red.500" fontSize="sm">
+        <Text color="status.danger.fg" fontSize="sm">
           {errorMessage}
         </Text>
       ) : null}
@@ -65,7 +65,7 @@ export function MyRequestsMainColumn() {
         <Card layout="section" p={6}>
           <Stack gap={3}>
             <Heading size="sm">No requests yet</Heading>
-            <Text color="formLabelMuted" fontSize="sm">
+            <Text color="text.muted" fontSize="sm">
               Post a task when you need help — quotes and bookings will show up
               here.
             </Text>
@@ -80,7 +80,7 @@ export function MyRequestsMainColumn() {
 
       {!loading && taskRows.length > 0 && visibleTasks.length === 0 ? (
         <Card layout="section" p={6}>
-          <Text color="formLabelMuted" fontSize="sm">
+          <Text color="text.muted" fontSize="sm">
             {emptyHint}
           </Text>
         </Card>

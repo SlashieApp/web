@@ -27,12 +27,12 @@ function Row({
           {label}
         </Text>
         {hint ? (
-          <Text fontSize="xs" color="formLabelMuted">
+          <Text fontSize="xs" color="text.muted">
             {hint}
           </Text>
         ) : null}
       </Stack>
-      <Text fontSize="sm" color="formLabelMuted">
+      <Text fontSize="sm" color="text.muted">
         {value}
       </Text>
     </HStack>
@@ -60,10 +60,10 @@ export default function AccountPage() {
       <MembershipRefreshOnMount />
       <Stack gap={2}>
         <Heading size="xl">Account</Heading>
-        <Text color="formLabelMuted">
+        <Text color="text.muted">
           Login, security, and contact settings. Your photo, name, bio, and date
           of birth live on{' '}
-          <Link href="/profile" color="primary.700">
+          <Link href="/profile" color="text.link">
             Profile
           </Link>
           .
@@ -106,7 +106,7 @@ export default function AccountPage() {
       <Card layout="section" p={{ base: 5, md: 6 }}>
         <Stack gap={4}>
           <Heading size="md">Session</Heading>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Logging out clears the session token and the cached `me` snapshot.
           </Text>
           <Box>

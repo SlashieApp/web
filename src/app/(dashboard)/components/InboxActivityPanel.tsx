@@ -23,20 +23,20 @@ export function InboxActivityPanel({
     <Card layout="section" p={5}>
       <Stack gap={4}>
         <Stack gap={1}>
-          <Text fontWeight={700} fontSize="md" color="cardFg">
+          <Text fontWeight={700} fontSize="md" color="text.default">
             Activity
           </Text>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             Latest updates on your tasks and bookings.
           </Text>
         </Stack>
 
         {loading && rows.length === 0 ? (
-          <Text color="formLabelMuted" fontSize="sm">
+          <Text color="text.muted" fontSize="sm">
             Loading activity…
           </Text>
         ) : rows.length === 0 ? (
-          <Text color="formLabelMuted" fontSize="sm">
+          <Text color="text.muted" fontSize="sm">
             {emptyMessage}
           </Text>
         ) : (
@@ -49,7 +49,7 @@ export function InboxActivityPanel({
                   align="flex-start"
                   py={2.5}
                   borderBottomWidth="1px"
-                  borderColor="cardBorder"
+                  borderColor="border.default"
                   w="full"
                 >
                   <HStack align="flex-start" gap={3} minW={0}>
@@ -58,7 +58,7 @@ export function InboxActivityPanel({
                       <Text fontSize="sm" fontWeight={600} lineClamp={1}>
                         {item.title}
                       </Text>
-                      <Text fontSize="xs" color="formLabelMuted" lineClamp={1}>
+                      <Text fontSize="xs" color="text.muted" lineClamp={1}>
                         {item.subtitle}
                       </Text>
                     </Stack>
@@ -72,7 +72,7 @@ export function InboxActivityPanel({
                   key={item.id}
                   href={item.href}
                   display="block"
-                  _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+                  _hover={{ textDecoration: 'none', bg: 'status.success.soft' }}
                   borderRadius="md"
                 >
                   {row}
@@ -93,14 +93,14 @@ function ActivityIcon({ tone }: { tone: ActivityTone }) {
     green: 'green.100',
     purple: 'purple.100',
     blue: 'blue.100',
-    mint: 'primary.100',
+    mint: 'green.100',
     red: 'red.100',
   } as const
   const fgByTone = {
     green: 'green.700',
     purple: 'purple.700',
     blue: 'blue.700',
-    mint: 'primary.700',
+    mint: 'green.700',
     red: 'red.700',
   } as const
 
@@ -126,7 +126,7 @@ function ClockLabel({ happenedAt }: { happenedAt: unknown }) {
   const timestamp = timeFromUnknown(happenedAt)
   if (!timestamp) {
     return (
-      <Text fontSize="xs" color="formLabelMuted" flexShrink={0}>
+      <Text fontSize="xs" color="text.muted" flexShrink={0}>
         Recently
       </Text>
     )
@@ -139,28 +139,28 @@ function ClockLabel({ happenedAt }: { happenedAt: unknown }) {
 
   if (diffMs < hour) {
     return (
-      <Text fontSize="xs" color="formLabelMuted" flexShrink={0}>
+      <Text fontSize="xs" color="text.muted" flexShrink={0}>
         {Math.max(1, Math.floor(diffMs / minute))}m ago
       </Text>
     )
   }
   if (diffMs < day) {
     return (
-      <Text fontSize="xs" color="formLabelMuted" flexShrink={0}>
+      <Text fontSize="xs" color="text.muted" flexShrink={0}>
         {Math.floor(diffMs / hour)}h ago
       </Text>
     )
   }
   if (diffMs < day * 7) {
     return (
-      <Text fontSize="xs" color="formLabelMuted" flexShrink={0}>
+      <Text fontSize="xs" color="text.muted" flexShrink={0}>
         {Math.floor(diffMs / day)}d ago
       </Text>
     )
   }
 
   return (
-    <Text fontSize="xs" color="formLabelMuted" flexShrink={0}>
+    <Text fontSize="xs" color="text.muted" flexShrink={0}>
       Earlier
     </Text>
   )

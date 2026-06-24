@@ -37,7 +37,7 @@ export function ForgotPasswordSentPanel() {
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="formLabelMuted" fontSize="sm">
+        <Text color="text.muted" fontSize="sm">
           Redirecting…
         </Text>
       </Box>
@@ -63,12 +63,12 @@ export function ForgotPasswordSentPanel() {
         py={{ base: 8, md: 10 }}
       >
         <Stack gap={5} align="center" textAlign="center">
-          <Heading size="xl" color="cardFg">
+          <Heading size="xl" color="text.default">
             Check your inbox
           </Heading>
-          <Text color="formLabelMuted" fontSize="sm" lineHeight="1.6">
+          <Text color="text.muted" fontSize="sm" lineHeight="1.6">
             If an account exists for{' '}
-            <Text as="span" fontWeight={700} color="cardFg">
+            <Text as="span" fontWeight={700} color="text.default">
               {email}
             </Text>
             , we sent a password reset link. Open the link to choose a new
@@ -92,7 +92,9 @@ export function ForgotPasswordSentPanel() {
                 as="output"
                 fontSize="sm"
                 color={
-                  message.startsWith('Please wait') ? 'red.500' : 'primary.700'
+                  message.startsWith('Please wait')
+                    ? 'status.danger.fg'
+                    : 'status.success.fg'
                 }
               >
                 {message}
@@ -103,8 +105,8 @@ export function ForgotPasswordSentPanel() {
               href="/login"
               fontSize="sm"
               fontWeight={600}
-              color="primary.600"
-              _hover={{ textDecoration: 'none', color: 'primary.700' }}
+              color="text.link"
+              _hover={{ textDecoration: 'none', color: 'status.success.fg' }}
             >
               Back to sign in
             </Link>

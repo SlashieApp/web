@@ -23,15 +23,15 @@ export function MembershipCancelNotice({
   return (
     <Box
       borderWidth="1px"
-      borderColor="orange.200"
+      borderColor="status.warning.solid"
       borderRadius="xl"
-      bg="orange.50"
+      bg="status.warning.soft"
       p={4}
     >
-      <Text fontSize="sm" fontWeight={700} color="orange.900">
+      <Text fontSize="sm" fontWeight={700} color="status.warning.fg">
         Subscription cancelling
       </Text>
-      <Text fontSize="sm" color="orange.900" mt={1} lineHeight="tall">
+      <Text fontSize="sm" color="status.warning.fg" mt={1} lineHeight="tall">
         Your Slashie Unlimited subscription will end on {endDate}. You&apos;ll
         keep unlimited quotes until then, then return to the free plan (
         {membership.freeQuotesPerMonth} quotes per UTC month).

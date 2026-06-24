@@ -41,7 +41,7 @@ export const ClosedOpensFiltersOpenTypes: Story = {
             setValue('Example address after reverse geocode')
           }}
         />
-        <Box mt={3} fontSize="sm" color="formLabelMuted">
+        <Box mt={3} fontSize="sm" color="text.muted">
           Location commits (open state): {commits}
         </Box>
       </Box>

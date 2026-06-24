@@ -30,8 +30,8 @@ function PlanFeature({ children }: { children: React.ReactNode }) {
         justifyContent="center"
         boxSize="18px"
         borderRadius="full"
-        bg="primary.500"
-        color="white"
+        bg="action.primary"
+        color="text.onGreen"
         flexShrink={0}
         mt="2px"
         aria-hidden
@@ -47,7 +47,7 @@ function PlanFeature({ children }: { children: React.ReactNode }) {
           />
         </svg>
       </Box>
-      <Text as="span" fontSize="sm" color="cardFg" lineHeight="tall">
+      <Text as="span" fontSize="sm" color="text.default" lineHeight="tall">
         {children}
       </Text>
     </List.Item>
@@ -59,8 +59,8 @@ function PlanTypeIcon({ children }: { children: React.ReactNode }) {
     <Box
       boxSize="44px"
       borderRadius="full"
-      bg="primary.100"
-      color="primary.700"
+      bg="status.success.soft"
+      color="status.success.fg"
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -114,9 +114,10 @@ function PlanBadge({ children }: { children: React.ReactNode }) {
   return (
     <Badge
       bg="transparent"
-      color="primary.700"
+      color="text.link"
       borderWidth="1px"
-      borderColor="primary.300"
+      /* TODO(sdl): green accent border mapped to border.focus */
+      borderColor="border.focus"
       borderRadius="full"
       px={3}
       py={1}
@@ -144,13 +145,13 @@ function PlanPrice({
       <Text
         fontSize="3xl"
         fontWeight={800}
-        color={accent ? 'primary.700' : 'cardFg'}
+        color={accent ? 'text.link' : 'text.default'}
         lineHeight="1"
       >
         {amount}
       </Text>
       {suffix ? (
-        <Text fontSize="md" fontWeight={600} color="formLabelMuted">
+        <Text fontSize="md" fontWeight={600} color="text.muted">
           {suffix}
         </Text>
       ) : null}
@@ -196,9 +197,10 @@ function PlanCardShell({
   return (
     <Box
       borderWidth={featured ? '2px' : '1px'}
-      borderColor={featured ? 'primary.400' : 'cardBorder'}
+      /* TODO(sdl): featured green accent border mapped to border.focus */
+      borderColor={featured ? 'border.focus' : 'border.default'}
       borderRadius="2xl"
-      bg="cardBg"
+      bg="bg.surface"
       p={{ base: 5, md: 6 }}
       boxShadow={featured ? 'md' : 'sm'}
       position="relative"
@@ -210,8 +212,8 @@ function PlanCardShell({
           position="absolute"
           top={4}
           right={4}
-          bg="primary.500"
-          color="white"
+          bg="action.primary"
+          color="text.onGreen"
           borderRadius="md"
           px={2.5}
           py={1}
@@ -251,7 +253,7 @@ export function PricingPlanCards({ pricing }: PricingPlanCardsProps) {
             </PlanTypeIcon>
             <Stack gap={1}>
               <Heading size="md">{workerFreePlan.title}</Heading>
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 {workerFreePlan.subtitle}
               </Text>
             </Stack>
@@ -282,14 +284,14 @@ export function PricingPlanCards({ pricing }: PricingPlanCardsProps) {
             </PlanTypeIcon>
             <Stack gap={1}>
               <Heading size="md">{pricing.productName}</Heading>
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 {pricing.description?.trim() || 'For serious workers'}
               </Text>
             </Stack>
           </Stack>
           <Stack gap={3}>
             <PlanPrice amount={trialLabel || 'Free trial'} suffix="" accent />
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               {pricingAfterTrialLine(pricing)}
             </Text>
             <PlanBadge>UNLIMITED QUOTES</PlanBadge>

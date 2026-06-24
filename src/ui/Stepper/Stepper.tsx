@@ -1,8 +1,18 @@
 'use client'
 
-import { Box, HStack, Stack, type StackProps, Text } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Icon,
+  Stack,
+  type StackProps,
+  Text,
+  chakra,
+} from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { LuChevronDown, LuChevronRight } from 'react-icons/lu'
+import { LuCheck, LuChevronDown, LuChevronRight } from 'react-icons/lu'
+
+import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 export type StepperSubStep = {
   id: string
@@ -28,6 +38,14 @@ export type StepperProps = {
   onSelectSubStep?: (id: string) => void
 } & Omit<StackProps, 'children' | 'onSelect'>
 
+/**
+ * SDL vertical Stepper. References semantic roles only.
+ *
+ * GREEN-INK: the active step badge is an `action.primary` (green) fill, so its
+ * glyph uses `text.onGreen` ink — never white. Status of each step (active /
+ * complete / upcoming) is conveyed by shape + icon (number, check tick, dot)
+ * as well as color, so meaning never rests on color alone.
+ */
 function StepNumber({
   active,
   complete,
@@ -47,12 +65,28 @@ function StepNumber({
       fontSize="sm"
       fontWeight={700}
       flexShrink={0}
-      bg={active ? 'primary' : complete ? 'primary.100' : 'transparent'}
-      color={active ? 'white' : complete ? 'primary.800' : 'formLabelMuted'}
+      // GREEN-INK: active green fill pairs with `text.onGreen` ink, never white.
+      bg={
+        active
+          ? 'action.primary'
+          : complete
+            ? 'status.success.soft'
+            : 'transparent'
+      }
+      color={
+        active ? 'text.onGreen' : complete ? 'status.success.fg' : 'text.muted'
+      }
       borderWidth={active || complete ? '0' : '1px'}
-      borderColor="neutral.300"
+      borderColor="border.strong"
+      transitionProperty="background-color, color, border-color"
+      transitionDuration={sdlMotion.duration.moderate}
+      transitionTimingFunction={sdlMotion.easing.standard}
     >
-      {children}
+      {complete && !active ? (
+        <Icon as={LuCheck} boxSize="14px" aria-hidden />
+      ) : (
+        children
+      )}
     </Box>
   )
 }
@@ -69,9 +103,19 @@ function SubStepDot({
       boxSize="10px"
       borderRadius="full"
       flexShrink={0}
-      bg={active ? 'primary' : complete ? 'primary.400' : 'transparent'}
+      aria-hidden
+      bg={
+        active
+          ? 'action.primary'
+          : complete
+            ? 'status.success.solid'
+            : 'transparent'
+      }
       borderWidth={active || complete ? '0' : '2px'}
-      borderColor="neutral.300"
+      borderColor="border.strong"
+      transitionProperty="background-color, border-color"
+      transitionDuration={sdlMotion.duration.moderate}
+      transitionTimingFunction={sdlMotion.easing.standard}
     />
   )
 }
@@ -100,7 +144,7 @@ export function Stepper({
   }
 
   return (
-    <Stack gap={1} w="full" {...rest}>
+    <Stack as="nav" gap={1} w="full" {...rest}>
       {steps.map((major, majorIdx) => {
         const isActiveMajor = majorIdx === activeMajorIndex
         const isCompleteMajor = majorIdx < activeMajorIndex
@@ -116,22 +160,18 @@ export function Stepper({
                 flex={1}
                 fontSize="sm"
                 fontWeight={isActiveMajor ? 700 : 600}
-                color={isActiveMajor ? 'cardFg' : 'formLabelMuted'}
+                color={isActiveMajor ? 'text.default' : 'text.muted'}
+                aria-current={isActiveMajor ? 'step' : undefined}
               >
                 {major.label}
               </Text>
               {subSteps.length > 0 ? (
-                isActiveMajor ? (
-                  <LuChevronDown
-                    size={18}
-                    color="var(--chakra-colors-primary-600)"
-                  />
-                ) : (
-                  <LuChevronRight
-                    size={18}
-                    color="var(--chakra-colors-formLabelMuted)"
-                  />
-                )
+                <Icon
+                  as={isActiveMajor ? LuChevronDown : LuChevronRight}
+                  boxSize="18px"
+                  aria-hidden
+                  color={isActiveMajor ? 'status.success.fg' : 'text.muted'}
+                />
               ) : null}
             </HStack>
 
@@ -141,7 +181,7 @@ export function Stepper({
                 pl="14px"
                 ml="13px"
                 borderLeftWidth="2px"
-                borderColor="primary.300"
+                borderColor="status.success.solid"
                 pb={2}
               >
                 {subSteps.map((sub) => {
@@ -150,12 +190,29 @@ export function Stepper({
                   const unlocked = isSubStepUnlocked?.(sub.id) ?? true
 
                   return (
-                    <HStack
+                    <chakra.button
                       key={sub.id}
+                      type="button"
+                      display="flex"
+                      alignItems="center"
                       gap={3}
-                      py={2}
+                      w="full"
+                      textAlign="left"
+                      // >=44px touch target for the navigable sub-step row.
+                      minH="44px"
+                      px={1}
+                      borderRadius="md"
+                      bg="transparent"
                       cursor={unlocked ? 'pointer' : 'not-allowed'}
                       opacity={unlocked ? 1 : 0.45}
+                      disabled={!unlocked}
+                      aria-current={isActiveSub ? 'step' : undefined}
+                      transitionProperty="background-color, color"
+                      transitionDuration={sdlMotion.duration.moderate}
+                      transitionTimingFunction={sdlMotion.easing.standard}
+                      _hover={unlocked ? { bg: 'bg.subtle' } : undefined}
+                      _focusVisible={sdlFocusRing}
+                      _disabled={{ cursor: 'not-allowed' }}
                       onClick={() => {
                         if (unlocked) onSelectSubStep?.(sub.id)
                       }}
@@ -164,11 +221,11 @@ export function Stepper({
                       <Text
                         fontSize="sm"
                         fontWeight={isActiveSub ? 600 : 500}
-                        color={isActiveSub ? 'primary.700' : 'formLabelMuted'}
+                        color={isActiveSub ? 'text.link' : 'text.muted'}
                       >
                         {sub.label}
                       </Text>
-                    </HStack>
+                    </chakra.button>
                   )
                 })}
               </Stack>

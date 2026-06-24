@@ -29,10 +29,10 @@ export function WorkerGridCard({ worker }: WorkerGridCardProps) {
       gap={3}
       p={{ base: 5, md: 6 }}
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="2xl"
-      bg="cardBg"
-      boxShadow="sm"
+      bg="bg.surface"
+      boxShadow="e2"
       h="full"
       textAlign="center"
     >
@@ -40,11 +40,11 @@ export function WorkerGridCard({ worker }: WorkerGridCardProps) {
         <Box
           boxSize={{ base: '88px', md: '96px' }}
           borderRadius="full"
-          bg="primary.100"
+          bg="status.success.soft"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          color="primary.700"
+          color="status.success.fg"
           fontWeight={800}
           fontSize="lg"
           overflow="hidden"
@@ -69,13 +69,13 @@ export function WorkerGridCard({ worker }: WorkerGridCardProps) {
             bottom={0}
             boxSize="26px"
             borderRadius="full"
-            bg="primary.600"
-            color="white"
+            bg="action.primary"
+            color="text.onGreen"
             display="flex"
             alignItems="center"
             justifyContent="center"
             borderWidth="2px"
-            borderColor="cardBg"
+            borderColor="bg.surface"
             aria-label="Verified worker"
           >
             <LuCheck size={14} strokeWidth={3} aria-hidden />
@@ -87,12 +87,12 @@ export function WorkerGridCard({ worker }: WorkerGridCardProps) {
         <Heading size="sm" lineHeight="short">
           {name}
         </Heading>
-        <Text fontSize="sm" color="formLabelMuted" lineClamp={2}>
+        <Text fontSize="sm" color="text.muted" lineClamp={2}>
           {subtitle}
         </Text>
       </Stack>
 
-      <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
+      <Text fontSize="sm" color="text.muted" fontWeight={500}>
         No reviews yet
       </Text>
 
@@ -100,9 +100,9 @@ export function WorkerGridCard({ worker }: WorkerGridCardProps) {
         href={href}
         fontSize="sm"
         fontWeight={700}
-        color="primary.600"
+        color="text.link"
         mt="auto"
-        _hover={{ color: 'primary.700', textDecoration: 'none' }}
+        _hover={{ color: 'text.link', textDecoration: 'none' }}
       >
         View profile &gt;
       </Link>

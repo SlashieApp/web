@@ -199,7 +199,7 @@ export function PhoneVerificationModal({
           submitLoading={saving || sending}
           submitDisabled={rateLimited}
         >
-          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="sm" color="text.muted" lineHeight="tall">
             Enter your contact phone number below to get verified.
           </Text>
           <FormField label="Mobile number">
@@ -209,12 +209,12 @@ export function PhoneVerificationModal({
               aria-label="Mobile number"
             />
           </FormField>
-          <Text fontSize="xs" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="xs" color="text.muted" lineHeight="tall">
             UK mobile numbers only (+44). We&apos;ll text you a 6-digit code to
             confirm this number on your account.
           </Text>
           {error ? (
-            <Text color="red.500" fontSize="sm">
+            <Text color="status.danger.fg" fontSize="sm">
               {error}
             </Text>
           ) : null}
@@ -234,9 +234,9 @@ export function PhoneVerificationModal({
           onSubmit={() => void confirmCode()}
           submitLoading={verifying}
         >
-          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="sm" color="text.muted" lineHeight="tall">
             To verify this mobile number, enter the 6-digit code we sent to{' '}
-            <Text as="span" fontWeight={600} color="cardFg">
+            <Text as="span" fontWeight={600} color="text.default">
               {maskedPhone}
             </Text>
             .
@@ -254,7 +254,7 @@ export function PhoneVerificationModal({
               }}
             />
           </Stack>
-          <Text fontSize="xs" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="xs" color="text.muted" lineHeight="tall">
             Codes are valid for 10 minutes. Didn&apos;t receive one?{' '}
             <button
               type="button"
@@ -276,7 +276,7 @@ export function PhoneVerificationModal({
             .
           </Text>
           {error ? (
-            <Text color="red.500" fontSize="sm">
+            <Text color="status.danger.fg" fontSize="sm">
               {error}
             </Text>
           ) : null}

@@ -28,7 +28,7 @@ export function WorkerSetupMobileAccordion() {
   const copy = STEP_COPY[activeSubStep]
 
   return (
-    <Stack gap={0} w="full" bg="white">
+    <Stack gap={0} w="full" bg="bg.surface">
       {WORKER_SETUP_MAJOR_STEPS.map((major, majorIdx) => {
         const isExpanded = expandedMajor === majorIdx
         const isActiveMajor = majorIdx === activeMajorIndex
@@ -41,7 +41,7 @@ export function WorkerSetupMobileAccordion() {
             key={major.id}
             w="full"
             borderBottomWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
             _last={{ borderBottomWidth: 0 }}
           >
             <HStack
@@ -57,8 +57,8 @@ export function WorkerSetupMobileAccordion() {
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-                bg={majorComplete ? 'primary.100' : 'neutral.100'}
-                color={majorComplete ? 'primary.800' : 'formLabelMuted'}
+                bg={majorComplete ? 'status.success.soft' : 'neutral.100'}
+                color={majorComplete ? 'status.success.fg' : 'text.muted'}
                 flexShrink={0}
               >
                 {majorComplete ? (
@@ -69,18 +69,23 @@ export function WorkerSetupMobileAccordion() {
                   </Text>
                 )}
               </Box>
-              <Text flex={1} fontSize="sm" fontWeight={600} color="cardFg">
+              <Text
+                flex={1}
+                fontSize="sm"
+                fontWeight={600}
+                color="text.default"
+              >
                 {major.label}
               </Text>
               {isExpanded ? (
                 <LuChevronDown
                   size={18}
-                  color="var(--chakra-colors-formLabelMuted)"
+                  color="var(--chakra-colors-text-muted)"
                 />
               ) : (
                 <LuChevronRight
                   size={18}
-                  color="var(--chakra-colors-formLabelMuted)"
+                  color="var(--chakra-colors-text-muted)"
                 />
               )}
             </HStack>
@@ -114,9 +119,9 @@ export function WorkerSetupMobileAccordion() {
                             borderRadius="full"
                             bg={
                               isActive
-                                ? 'primary.600'
+                                ? 'action.primary'
                                 : isComplete
-                                  ? 'primary.300'
+                                  ? 'green.300' /* TODO(sdl): no lighter-green semantic role for completed-but-inactive dot */
                                   : 'transparent'
                             }
                             borderWidth={isActive || isComplete ? '0' : '2px'}
@@ -126,7 +131,7 @@ export function WorkerSetupMobileAccordion() {
                           <Text
                             fontSize="sm"
                             fontWeight={isActive ? 600 : 500}
-                            color={isActive ? 'primary.700' : 'formLabelMuted'}
+                            color={isActive ? 'text.link' : 'text.muted'}
                           >
                             {sub.label}
                           </Text>
@@ -149,7 +154,7 @@ export function WorkerSetupMobileAccordion() {
                         compact
                       />
                       {saveError ? (
-                        <Text color="red.500" fontSize="sm">
+                        <Text color="status.danger.fg" fontSize="sm">
                           {saveError}
                         </Text>
                       ) : null}

@@ -122,13 +122,14 @@ export function membershipBadgeColorsFromVariant(
 ): { bg: string; color: string } {
   switch (variant) {
     case 'success':
-      return { bg: 'primary.100', color: 'primary.800' }
+      return { bg: 'status.success.soft', color: 'status.success.fg' }
     case 'warning':
-      return { bg: 'orange.100', color: 'orange.900' }
+      return { bg: 'status.warning.soft', color: 'status.warning.fg' }
     case 'danger':
-      return { bg: 'red.100', color: 'red.800' }
+      return { bg: 'status.danger.soft', color: 'status.danger.fg' }
     default:
-      return { bg: 'badgeBg', color: 'cardFg' }
+      /* TODO(sdl): verify role — neutral membership chip fallback */
+      return { bg: 'bg.subtle', color: 'text.default' }
   }
 }
 

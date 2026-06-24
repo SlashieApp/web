@@ -30,13 +30,13 @@ function LocationMapUnavailable({ height }: { height: string }) {
     <Box
       w="full"
       h={height}
-      bg="cardBg"
+      bg="bg.surface"
       display="flex"
       alignItems="center"
       justifyContent="center"
       px={4}
       fontSize="sm"
-      color="formLabelMuted"
+      color="text.muted"
       textAlign="center"
     >
       Map preview unavailable
@@ -96,9 +96,9 @@ export function LocationMap({
       display="block"
       w="full"
       borderTopWidth="1px"
-      borderColor="cardDivider"
-      bg="cardBg"
-      _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+      borderColor="border.default"
+      bg="bg.surface"
+      _hover={{ textDecoration: 'none', bg: 'status.success.soft' }}
     >
       <Button type="button" size="xs" variant="ghost" w="full">
         Open in Maps
@@ -113,8 +113,8 @@ export function LocationMap({
         borderRadius="lg"
         overflow="hidden"
         borderWidth="1px"
-        borderColor="cardBorder"
-        bg="cardBg"
+        borderColor="border.default"
+        bg="bg.surface"
       >
         {mapPane}
         {openInMapsRow}
@@ -128,8 +128,8 @@ export function LocationMap({
       borderRadius="lg"
       overflow="hidden"
       borderWidth="1px"
-      borderColor="cardBorder"
-      bg="cardBg"
+      borderColor="border.default"
+      bg="bg.surface"
     >
       {mapPane}
       {openInMapsRow}
@@ -138,7 +138,7 @@ export function LocationMap({
         px={2}
         textAlign="center"
         borderTopWidth="1px"
-        borderColor="cardDivider"
+        borderColor="border.default"
       >
         {footer}
       </Box>

@@ -17,8 +17,8 @@ function GiftIcon() {
       justifyContent="center"
       boxSize="36px"
       borderRadius="full"
-      bg="primary.100"
-      color="primary.700"
+      bg="status.success.soft"
+      color="status.success.fg"
       flexShrink={0}
       aria-hidden
     >
@@ -56,9 +56,10 @@ export function PricingTrialBanner({ pricing }: PricingTrialBannerProps) {
   return (
     <Box
       borderWidth="1px"
-      borderColor="primary.200"
+      /* TODO(sdl): green accent border mapped to border.focus */
+      borderColor="border.focus"
       borderRadius="2xl"
-      bg="primary.50"
+      bg="status.success.soft"
       px={{ base: 4, md: 5 }}
       py={4}
     >
@@ -69,15 +70,21 @@ export function PricingTrialBanner({ pricing }: PricingTrialBannerProps) {
       >
         <HStack gap={3} align="center" flex={1}>
           <GiftIcon />
-          <Text fontSize="sm" fontWeight={600} color="cardFg" lineHeight="tall">
+          <Text
+            fontSize="sm"
+            fontWeight={600}
+            color="text.default"
+            lineHeight="tall"
+          >
             {trialBannerCopy(trialLabel)}
           </Text>
         </HStack>
         <Badge
-          bg="primary.100"
-          color="primary.800"
+          bg="status.success.soft"
+          color="status.success.fg"
           borderWidth="1px"
-          borderColor="primary.300"
+          /* TODO(sdl): green accent border mapped to border.focus */
+          borderColor="border.focus"
           borderRadius="full"
           px={3}
           py={1}

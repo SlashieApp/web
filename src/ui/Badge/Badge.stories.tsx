@@ -1,102 +1,82 @@
-import { HStack } from '@chakra-ui/react'
+import { HStack, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Badge } from './Badge'
+import { Badge, StatusPill, type UiBadgeVariant } from './Badge'
+
+const FAMILIES: UiBadgeVariant[] = [
+  'success',
+  'warning',
+  'danger',
+  'info',
+  'neutral',
+]
 
 const meta = {
-  title: 'ui/Badge',
+  title: 'Components/Badge',
   component: Badge,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  argTypes: {
+    variant: { control: 'select', options: FAMILIES },
+    size: { control: 'inline-radio', options: ['sm', 'lg'] },
+    shape: { control: 'inline-radio', options: ['default', 'pill'] },
+    dot: { control: 'boolean' },
+    children: { control: 'text' },
+  },
+  args: { variant: 'success', size: 'sm', dot: true, children: 'Open' },
 } satisfies Meta<typeof Badge>
 
 export default meta
-
 type Story = StoryObj<typeof meta>
 
-export const Schedule: Story = {
+export const Playground: Story = {}
+
+export const AllFamilies: Story = {
   render: () => (
     <HStack gap={2} flexWrap="wrap">
-      <Badge variant="brand">Today</Badge>
-      <Badge variant="blue">Tomorrow</Badge>
-      <Badge variant="danger">Overdue</Badge>
+      {FAMILIES.map((variant) => (
+        <Badge key={variant} variant={variant} dot>
+          {variant}
+        </Badge>
+      ))}
     </HStack>
   ),
 }
 
-export const Status: Story = {
+export const WithAndWithoutDot: Story = {
+  render: () => (
+    <Stack gap={3}>
+      <HStack gap={2}>
+        <Badge variant="success" dot>
+          With dot
+        </Badge>
+        <Badge variant="success">No dot</Badge>
+      </HStack>
+    </Stack>
+  ),
+}
+
+/** TaskStatus mapping — every pill shows dot + label (never colour alone). */
+export const TaskStatus: Story = {
   render: () => (
     <HStack gap={2} flexWrap="wrap">
-      <Badge variant="brand">Collecting quotes</Badge>
-      <Badge variant="brand">In progress</Badge>
-      <Badge variant="gray">Completed</Badge>
-      <Badge variant="danger">Cancelled</Badge>
-      <Badge variant="alternative">Draft</Badge>
+      <StatusPill status="OPEN" />
+      <StatusPill status="AWARDED" />
+      <StatusPill status="CLOSED" />
+      <StatusPill status="CANCELLED" />
     </HStack>
   ),
 }
 
-export const Browse: Story = {
+export const Sizes: Story = {
   render: () => (
-    <HStack gap={2} flexWrap="wrap">
-      <Badge variant="brand">2 hours ago</Badge>
-      <Badge variant="brand">Posted yesterday</Badge>
-    </HStack>
-  ),
-}
-
-export const Quotes: Story = {
-  render: () => (
-    <HStack gap={2} flexWrap="wrap">
-      <Badge variant="brand" shape="pill" size="sm">
-        3 offers
+    <HStack gap={2} alignItems="center">
+      <Badge variant="info" size="sm" dot>
+        Small
       </Badge>
-      <Badge variant="gray">Quote sent</Badge>
-      <Badge variant="success">Accepted</Badge>
+      <Badge variant="info" size="lg" dot>
+        Large
+      </Badge>
     </HStack>
-  ),
-}
-
-export const Trust: Story = {
-  render: () => (
-    <HStack gap={2} flexWrap="wrap">
-      <Badge variant="success">Verified</Badge>
-      <Badge variant="gray">Unverified</Badge>
-      <Badge variant="danger">Link expired</Badge>
-    </HStack>
-  ),
-}
-
-export const Membership: Story = {
-  render: () => (
-    <HStack gap={2} flexWrap="wrap">
-      <Badge variant="success">Active</Badge>
-      <Badge variant="warning">Past due</Badge>
-      <Badge variant="danger">Payment failed</Badge>
-      <Badge variant="warning">Trial ending</Badge>
-      <Badge variant="alternative">Canceled</Badge>
-    </HStack>
-  ),
-}
-
-export const Setup: Story = {
-  render: () => (
-    <Badge variant="gray" size="sm">
-      Optional
-    </Badge>
-  ),
-}
-
-export const Pricing: Story = {
-  render: () => (
-    <Badge
-      variant="brand"
-      shape="pill"
-      size="sm"
-      fontWeight={800}
-      letterSpacing="0.08em"
-    >
-      Most popular
-    </Badge>
   ),
 }

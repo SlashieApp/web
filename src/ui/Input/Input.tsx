@@ -57,11 +57,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         alignItems="center"
         gap={1}
         w="full"
-        minH="40px"
+        minH="44px"
         borderRadius="md"
         borderWidth="1px"
-        borderColor="formControlBorder"
-        bg="formControlBg"
+        borderColor="border.default"
+        bg="bg.surface"
         pl={3}
         pr={3}
         {...formControlShellInteraction}
@@ -74,7 +74,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             display="flex"
             alignItems="center"
             justifyContent="center"
-            color="formControlIcon"
+            color="text.muted"
             px={1}
           >
             {startElement}
@@ -89,12 +89,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           borderWidth={0}
           boxShadow="none"
           bg="transparent"
-          color="formControlFg"
+          color="text.default"
           h="auto"
           minH={0}
           py={2.5}
           px={1}
-          _placeholder={{ color: 'formControlPlaceholder' }}
+          _placeholder={{ color: 'text.subtle' }}
           {...formControlFieldRingless}
         />
         {endElement != null ? (

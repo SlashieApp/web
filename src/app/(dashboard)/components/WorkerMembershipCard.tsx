@@ -36,20 +36,20 @@ export function WorkerMembershipCard({
             <Text
               fontSize="xs"
               fontWeight={700}
-              color="formLabelMuted"
+              color="text.muted"
               textTransform="uppercase"
               letterSpacing="0.06em"
             >
               Platform membership
             </Text>
-            <Text fontSize="lg" fontWeight={800} color="cardFg">
+            <Text fontSize="lg" fontWeight={800} color="text.default">
               {membership.planName}
             </Text>
           </Stack>
           <MembershipStatusBadge membership={membership} />
         </HStack>
 
-        <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+        <Text fontSize="sm" color="text.muted" lineHeight="tall">
           Slashie Unlimited covers platform quoting access. Job payments stay
           between customer and worker — not through Slashie.
         </Text>

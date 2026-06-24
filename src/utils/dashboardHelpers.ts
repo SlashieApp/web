@@ -133,6 +133,10 @@ export function getQuoteRange(
     : `${formatPounds(min)}–${formatPounds(max)}`
 }
 
+// TODO(sdl): decorative per-category glyph gradients below use raw hex. These are
+// purely ornamental category differentiators with no semantic SDL role (not
+// action/status/text/border/surface), so they have no clean token mapping. Revisit
+// if SDL gains a decorative-illustration palette.
 export function getCategoryVisual(category: string | null | undefined) {
   const key = (category ?? '').toLowerCase()
 

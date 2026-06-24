@@ -17,13 +17,13 @@ export default function AboutPage() {
         <Container maxW="3xl" px={{ base: 4, md: 6 }}>
           <Stack gap={6}>
             <Heading size="xl">About Slashie</Heading>
-            <Text color="formLabelMuted" lineHeight="tall" fontSize="md">
+            <Text color="text.muted" lineHeight="tall" fontSize="md">
               Slashie is a map-first local task marketplace. Customers post what
               needs doing; workers browse nearby tasks and send quotes. When
               work is booked, payment stays between customer and worker —
               Slashie focuses on discovery, quoting, and trust.
             </Text>
-            <Text color="formLabelMuted" lineHeight="tall" fontSize="md">
+            <Text color="text.muted" lineHeight="tall" fontSize="md">
               Workers can start on a free quote tier or subscribe to Slashie
               Unlimited for unlimited quoting. Customers post tasks for free.
               Platform billing is separate from job payments.

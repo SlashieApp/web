@@ -85,7 +85,7 @@ export function MainSectionHeader() {
         w="full"
         flexWrap="wrap"
       >
-        <Badge color="primary">{taskStatusLabel}</Badge>
+        <Badge color="status.success.fg">{taskStatusLabel}</Badge>
         <HStack
           gap={2}
           flexWrap="wrap"
@@ -102,9 +102,9 @@ export function MainSectionHeader() {
                 >
                   <Button
                     variant="secondary"
-                    borderColor="cardBorder"
-                    color="cardFg"
-                    bg="white"
+                    borderColor="border.default"
+                    color="text.default"
+                    bg="bg.surface"
                     size="sm"
                     borderRadius="lg"
                   >
@@ -119,9 +119,9 @@ export function MainSectionHeader() {
                 <Button
                   type="button"
                   variant="secondary"
-                  borderColor="red.200"
-                  color="red.700"
-                  bg="red.50"
+                  borderColor="status.danger.soft"
+                  color="status.danger.fg"
+                  bg="status.danger.soft"
                   size="sm"
                   borderRadius="lg"
                   loading={cancelingTask}
@@ -157,7 +157,7 @@ export function MainSectionHeader() {
       {descriptionTeaser ? (
         <Text
           fontSize="md"
-          color="formLabelMuted"
+          color="text.muted"
           lineHeight="tall"
           display={{ base: 'block', xl: 'none' }}
         >
@@ -171,13 +171,13 @@ export function MainSectionHeader() {
           minW={0}
           display={{ base: 'flex', xl: 'none' }}
         >
-          <Box flexShrink={0} color="formLabelMuted" mt={0.5} aria-hidden>
+          <Box flexShrink={0} color="text.muted" mt={0.5} aria-hidden>
             <IconPin />
           </Box>
           <Text
             fontSize="sm"
             fontWeight={600}
-            color="cardFg"
+            color="text.default"
             lineHeight="short"
           >
             {place}

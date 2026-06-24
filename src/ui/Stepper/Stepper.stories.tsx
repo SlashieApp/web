@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 
@@ -37,8 +37,14 @@ const workerSetupSteps: StepperStep[] = [
   },
 ]
 
+const flatSteps: StepperStep[] = [
+  { id: 'account', label: 'Create account' },
+  { id: 'verify', label: 'Verify email' },
+  { id: 'done', label: 'All set' },
+]
+
 const meta = {
-  title: 'ui/Stepper',
+  title: 'Components/Stepper',
   component: Stepper,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
@@ -48,6 +54,9 @@ const meta = {
   },
   argTypes: {
     steps: { control: false },
+    activeSubStepId: { control: 'text' },
+    completedSubStepIds: { control: false },
+    isSubStepUnlocked: { control: false },
     onSelectSubStep: { action: 'selectSubStep' },
   },
   decorators: [
@@ -63,10 +72,12 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-/** Sidebar step list on worker setup — click to jump between sub-steps. */
+/** Default: first sub-step active, nothing completed. */
+export const Default: Story = {}
+
+/** Interactive sidebar — click or keyboard-focus a sub-step to jump. */
 export const WorkerSetup: Story = {
   args: {
-    steps: workerSetupSteps,
     activeSubStepId: 'services.skills',
     completedSubStepIds: ['profile.details', 'profile.photo', 'profile.bio'],
   },
@@ -81,4 +92,84 @@ export const WorkerSetup: Story = {
       />
     )
   },
+}
+
+/** A run of completed sub-steps render a check tick + green dot. */
+export const Completed: Story = {
+  args: {
+    activeSubStepId: 'review.submit',
+    completedSubStepIds: [
+      'profile.details',
+      'profile.photo',
+      'profile.bio',
+      'services.skills',
+      'services.experience',
+      'area.location',
+      'area.travel',
+    ],
+  },
+}
+
+/** Locked future sub-steps are dimmed and non-navigable (disabled). */
+export const DisabledSubSteps: Story = {
+  args: {
+    activeSubStepId: 'services.skills',
+    completedSubStepIds: ['profile.details', 'profile.photo', 'profile.bio'],
+    isSubStepUnlocked: (id) =>
+      [
+        'profile.details',
+        'profile.photo',
+        'profile.bio',
+        'services.skills',
+      ].includes(id),
+  },
+}
+
+/** Flat steps (no sub-steps) — no chevron, no expanded rail. */
+export const FlatSteps: Story = {
+  args: {
+    steps: flatSteps,
+    activeSubStepId: 'verify',
+    completedSubStepIds: ['account'],
+  },
+}
+
+/** Overview of every meaningful state side by side. */
+export const AllVariants: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Stack direction={{ base: 'column', md: 'row' }} gap={8} align="flex-start">
+      <Stack gap={2} maxW="280px">
+        <Text fontSize="xs" fontWeight={700} color="text.muted">
+          Start
+        </Text>
+        <Stepper steps={workerSetupSteps} activeSubStepId="profile.details" />
+      </Stack>
+      <Stack gap={2} maxW="280px">
+        <Text fontSize="xs" fontWeight={700} color="text.muted">
+          In progress
+        </Text>
+        <Stepper
+          steps={workerSetupSteps}
+          activeSubStepId="services.experience"
+          completedSubStepIds={[
+            'profile.details',
+            'profile.photo',
+            'profile.bio',
+            'services.skills',
+          ]}
+        />
+      </Stack>
+      <Stack gap={2} maxW="280px">
+        <Text fontSize="xs" fontWeight={700} color="text.muted">
+          Flat (no sub-steps)
+        </Text>
+        <Stepper
+          steps={flatSteps}
+          activeSubStepId="verify"
+          completedSubStepIds={['account']}
+        />
+      </Stack>
+    </Stack>
+  ),
 }

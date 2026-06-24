@@ -52,7 +52,7 @@ function TaskQuoteOptionalLabel({ children }: { children: string }) {
   return (
     <HStack as="span" gap={2} display="inline-flex">
       <span>{children}</span>
-      <Text as="span" fontSize="xs" fontWeight={500} color="formLabelMuted">
+      <Text as="span" fontSize="xs" fontWeight={500} color="text.muted">
         Optional
       </Text>
     </HStack>
@@ -83,7 +83,7 @@ function TextareaWithCharCount({
         bottom={3}
         right={4}
         fontSize="xs"
-        color="formLabelMuted"
+        color="text.muted"
         pointerEvents="none"
       >
         {value.length}/{maxLength}
@@ -138,7 +138,7 @@ export function TaskQuoteStepContent({
               value={poundsInput}
               onChange={(e) => onPoundsInputChange(e.target.value)}
               startElement={
-                <Text fontWeight={700} fontSize="sm" color="formControlFg">
+                <Text fontWeight={700} fontSize="sm" color="text.default">
                   £
                 </Text>
               }
@@ -261,13 +261,13 @@ export function TaskQuoteStepContent({
           <TaskQuoteReviewStep photoUrls={photoUrls} />
           <TaskQuotePrivateCallout />
           {quoteError ? (
-            <Text fontSize="sm" color="red.400" role="alert">
+            <Text fontSize="sm" color="status.danger.fg" role="alert">
               {quoteError}
             </Text>
           ) : null}
-          <Text fontSize="xs" color="formLabelMuted" textAlign="center">
+          <Text fontSize="xs" color="text.muted" textAlign="center">
             By sending, you agree to Slashie&apos;s{' '}
-            <Link href="/terms" color="secondary.600" fontWeight={600}>
+            <Link href="/terms" color="text.link" fontWeight={600}>
               Terms of Service
             </Link>
             . Payment is arranged directly between you and the customer outside

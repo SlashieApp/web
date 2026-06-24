@@ -1,16 +1,16 @@
 'use client'
 
-import { Box, IconButton, Stack, Text } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { focusVisibleMatchesHover } from '@/theme/system'
 import { ACCOUNT_NAV, type AccountNavKey } from '@/utils/accountNav'
-import { Drawer, Link } from '@ui'
+import { Drawer, IconButton, Link } from '@ui'
 
 function dashboardNavRowInteraction(active: boolean) {
   const hover = {
     textDecoration: 'none',
-    bg: active ? 'primary.100' : 'badgeBg',
+    bg: active ? 'status.success.soft' : 'bg.subtle',
   }
   return {
     _hover: hover,
@@ -192,8 +192,8 @@ export function DashboardSectionNav({
             py={variant === 'drawer' ? 3 : 2.5}
             minH={variant === 'drawer' ? '44px' : undefined}
             borderRadius="lg"
-            bg={isActive ? 'primary.100' : 'transparent'}
-            color={isActive ? 'primary.800' : 'cardFg'}
+            bg={isActive ? 'status.success.soft' : 'transparent'}
+            color={isActive ? 'status.success.fg' : 'text.default'}
             fontWeight={isActive ? 700 : 600}
             fontSize="sm"
             {...dashboardNavRowInteraction(isActive)}
@@ -201,7 +201,7 @@ export function DashboardSectionNav({
           >
             <Box
               display="flex"
-              color={isActive ? 'primary.700' : 'formLabelMuted'}
+              color={isActive ? 'status.success.fg' : 'text.muted'}
               flexShrink={0}
             >
               <NavIcon type={item.key} />
@@ -209,7 +209,7 @@ export function DashboardSectionNav({
             <Stack gap={0} minW={0}>
               <Text>{item.label}</Text>
               {variant === 'drawer' ? (
-                <Text fontSize="xs" color="formLabelMuted" lineClamp={2}>
+                <Text fontSize="xs" color="text.muted" lineClamp={2}>
                   {item.description}
                 </Text>
               ) : null}
@@ -242,18 +242,13 @@ export function DashboardContextLabel({ active }: { active: AccountNavKey }) {
 
   return (
     <Stack gap={0} minW={0} flex={1}>
-      <Text
-        fontSize="xs"
-        color="formLabelMuted"
-        fontWeight={600}
-        lineHeight={1.2}
-      >
+      <Text fontSize="xs" color="text.muted" fontWeight={600} lineHeight={1.2}>
         Dashboard
       </Text>
       <Text
         fontSize="sm"
         fontWeight={700}
-        color="cardFg"
+        color="text.default"
         truncate
         lineHeight={1.3}
       >

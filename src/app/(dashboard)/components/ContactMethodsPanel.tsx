@@ -35,7 +35,12 @@ function EmailContactRow({
 
   return (
     <>
-      <Stack gap={3} borderBottomWidth="1px" borderColor="cardBorder" pb={4}>
+      <Stack
+        gap={3}
+        borderBottomWidth="1px"
+        borderColor="border.default"
+        pb={4}
+      >
         <HStack
           justify="space-between"
           align="flex-start"
@@ -43,10 +48,10 @@ function EmailContactRow({
           flexWrap="wrap"
         >
           <Stack gap={0} minW={0}>
-            <Text fontSize="sm" fontWeight={700} color="cardFg">
+            <Text fontSize="sm" fontWeight={700} color="text.default">
               Email
             </Text>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               {me.email}
             </Text>
           </Stack>
@@ -97,10 +102,10 @@ export function PhoneContactRow({
           flexWrap="wrap"
         >
           <Stack gap={0} minW={0}>
-            <Text fontSize="sm" fontWeight={700} color="cardFg">
+            <Text fontSize="sm" fontWeight={700} color="text.default">
               Phone
             </Text>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               {displayPhone}
             </Text>
           </Stack>
@@ -146,7 +151,7 @@ export function ContactMethodsPanel({
   return (
     <Stack gap={4}>
       {showIntro ? (
-        <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+        <Text fontSize="sm" color="text.muted" lineHeight="tall">
           Verify a contact method on your account so customers can trust your
           profile. Payment is arranged directly between you and the customer
           outside Slashie.
@@ -157,11 +162,11 @@ export function ContactMethodsPanel({
       <PhoneContactRow onContactUpdated={onContactUpdated} />
 
       {ready ? (
-        <Text fontSize="sm" fontWeight={600} color="primary.700">
+        <Text fontSize="sm" fontWeight={600} color="text.link">
           At least one contact method is verified. You can continue when ready.
         </Text>
       ) : (
-        <Text fontSize="sm" color="formLabelMuted">
+        <Text fontSize="sm" color="text.muted">
           Verify your email or phone to continue.
         </Text>
       )}

@@ -8,7 +8,7 @@ export function WorkerSetupOptionalBadge() {
   return (
     <Badge
       bg="neutral.100"
-      color="formLabelMuted"
+      color="text.muted"
       fontSize="xs"
       fontWeight={600}
       letterSpacing="normal"

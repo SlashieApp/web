@@ -7,7 +7,7 @@ export function PricingPlanDetailsLink() {
       <NextLink
         href="#plan-details"
         style={{
-          color: 'var(--chakra-colors-primary-700)',
+          color: 'var(--chakra-colors-text-link)',
           fontWeight: 700,
           fontSize: '0.95rem',
           textDecoration: 'none',

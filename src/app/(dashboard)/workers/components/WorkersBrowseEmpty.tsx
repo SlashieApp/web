@@ -11,7 +11,7 @@ export function WorkersBrowseEmpty({ variant }: WorkersBrowseEmptyProps) {
   if (variant === 'no_search_results') {
     return (
       <BoxMessage>
-        <Text color="formLabelMuted">No workers match your search.</Text>
+        <Text color="text.muted">No workers match your search.</Text>
       </BoxMessage>
     )
   }
@@ -19,7 +19,7 @@ export function WorkersBrowseEmpty({ variant }: WorkersBrowseEmptyProps) {
   return (
     <BoxMessage>
       <Stack gap={4} align={{ base: 'stretch', sm: 'flex-start' }}>
-        <Text color="formLabelMuted">
+        <Text color="text.muted">
           No workers in your area yet. Post a task to start receiving quotes
           from local pros.
         </Text>
@@ -42,10 +42,10 @@ function BoxMessage({ children }: { children: ReactNode }) {
       gap={3}
       p={{ base: 5, md: 6 }}
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="2xl"
-      bg="cardBg"
-      boxShadow="sm"
+      bg="bg.surface"
+      boxShadow="e2"
     >
       {children}
     </Stack>

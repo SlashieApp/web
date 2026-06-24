@@ -1,0 +1,243 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
+import { useState } from 'react'
+
+import { sdlMotion } from '@/theme/styles'
+
+<Meta title="Foundations/Motion" />
+
+# Motion
+
+The SDL motion system. Every duration and easing curve below is **read live from
+`sdlMotion`** in `src/theme/styles.ts`, so this page can never drift from the code that
+ships. Specimens render with SDL semantic color roles (`action.primary`, `bg.surface`,
+`border.default`, …) defined in `src/theme/chakraSystem.ts`, so they follow the active
+light/dark theme.
+
+**Two non-negotiable rules govern all SDL motion:**
+
+- **Animate `transform` and `opacity` only.** These are GPU-compositable and never trigger
+  layout or paint. Never animate `width`, `height`, `top`, `left`, `margin`, or `box-shadow`
+  geometry.
+- **Honor `prefers-reduced-motion`.** Users who request reduced motion must get an instant,
+  non-animated result. The live demo below wraps its transition in
+  `@media (prefers-reduced-motion: reduce)` and collapses the duration to `0ms`.
+
+Per the green-ink rule, the green fills on this page pair with `text.onGreen` ink, never
+white.
+
+## Durations
+
+Reach for a named duration token rather than a hardcoded `ms` value. Shorter tokens are for
+small, frequent UI feedback; longer tokens are reserved for larger spatial transitions and
+the map.
+
+export const DURATION_USE = {
+  instant: 'Press/active state feedback; checkbox ticks.',
+  fast: 'Hover color shifts, small icon swaps.',
+  base: 'Default control transitions (buttons, inputs).',
+  moderate: 'Border/shadow transitions, form focus rings.',
+  slow: 'Drawers, modals, larger entrances/exits.',
+  map: 'Map pans, zooms and camera moves only.',
+}
+
+export const DurationScale = () => (
+  <Stack gap={3} maxW="760px" w="full">
+    {Object.entries(sdlMotion.duration).map(([token, value]) => {
+      const ms = Number.parseInt(value, 10)
+      return (
+        <Flex key={token} align="center" gap={4}>
+          <Text
+            w="5rem"
+            flexShrink={0}
+            fontFamily="mono"
+            fontSize="sm"
+            fontWeight={600}
+            color="text.default"
+          >
+            {token}
+          </Text>
+          <Text
+            w="3.5rem"
+            flexShrink={0}
+            fontFamily="mono"
+            fontSize="xs"
+            color="text.muted"
+          >
+            {value}
+          </Text>
+          <Box
+            h="8px"
+            w={`${ms}px`}
+            maxW="320px"
+            borderRadius="full"
+            bg="action.primary"
+            flexShrink={0}
+          />
+          <Text fontSize="xs" color="text.subtle" flex="1" minW="160px">
+            {DURATION_USE[token]}
+          </Text>
+        </Flex>
+      )
+    })}
+  </Stack>
+)
+
+<DurationScale />
+
+## Easings
+
+SDL uses four easing curves. `standard` is the default for nearly everything; `emphasis`
+overshoots slightly and is reserved for confirmation moments (quote accepted, job closed).
+
+export const EASING_USE = {
+  standard: 'Default. Most enter/exit and state transitions.',
+  decelerate: 'Elements entering the screen (ease-out feel).',
+  accelerate: 'Elements leaving the screen (ease-in feel).',
+  emphasis: 'Confirmation moments only — slight overshoot.',
+}
+
+export const EasingTable = () => (
+  <Box overflowX="auto">
+    <Box
+      as="table"
+      w="100%"
+      fontSize="14px"
+      color="text.default"
+      style={{ borderCollapse: 'collapse' }}
+    >
+      <Box as="thead">
+        <Box as="tr" textAlign="left" color="text.muted">
+          <Box as="th" py={2} pr={4}>Token</Box>
+          <Box as="th" py={2} pr={4}>cubic-bezier</Box>
+          <Box as="th" py={2}>Use</Box>
+        </Box>
+      </Box>
+      <Box as="tbody">
+        {Object.entries(sdlMotion.easing).map(([token, value]) => (
+          <Box
+            as="tr"
+            key={token}
+            borderTopWidth="1px"
+            borderColor="border.default"
+          >
+            <Box as="td" py={2} pr={4} fontFamily="mono" fontSize="12px" fontWeight={600}>
+              {token}
+            </Box>
+            <Box as="td" py={2} pr={4} fontFamily="mono" fontSize="12px" color="text.muted">
+              {value}
+            </Box>
+            <Box as="td" py={2} color="text.muted">
+              {EASING_USE[token]}
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  </Box>
+)
+
+<EasingTable />
+
+## Live demo
+
+A `transform` + `opacity` transition built entirely from `sdlMotion` tokens. It uses
+`sdlMotion.duration.moderate` and `sdlMotion.easing.standard`, read live from the theme.
+The transition is wrapped in a `prefers-reduced-motion` media query: if you have reduced
+motion enabled, the chip snaps to its new position instantly with no animation.
+
+export const MotionDemo = () => {
+  const [on, setOn] = useState(false)
+  const duration = sdlMotion.duration.moderate
+  const easing = sdlMotion.easing.standard
+  return (
+    <Stack gap={4} maxW="520px">
+      <Box
+        position="relative"
+        h="96px"
+        borderRadius="lg"
+        bg="bg.surface"
+        borderWidth="1px"
+        borderColor="border.default"
+        boxShadow="e1"
+        overflow="hidden"
+      >
+        <style>{`
+          .sdl-motion-chip {
+            transition: transform ${duration} ${easing}, opacity ${duration} ${easing};
+            transform: translateX(0) scale(1);
+            opacity: 1;
+          }
+          .sdl-motion-chip[data-on='true'] {
+            transform: translateX(360px) scale(1.06);
+            opacity: 0.85;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .sdl-motion-chip { transition-duration: 0ms; }
+          }
+        `}</style>
+        <Box
+          className="sdl-motion-chip"
+          data-on={on ? 'true' : 'false'}
+          position="absolute"
+          top="50%"
+          left="16px"
+          mt="-18px"
+          px={4}
+          py={2}
+          borderRadius="full"
+          bg="action.primary"
+          color="text.onGreen"
+          fontSize="sm"
+          fontWeight={600}
+          style={{ willChange: 'transform, opacity' }}
+        >
+          Slashie
+        </Box>
+      </Box>
+      <HStack gap={3}>
+        <Box
+          as="button"
+          type="button"
+          onClick={() => setOn((v) => !v)}
+          px={4}
+          py={2}
+          minH="44px"
+          borderRadius="lg"
+          bg="action.primary"
+          color="text.onGreen"
+          fontSize="sm"
+          fontWeight={600}
+          cursor="pointer"
+          style={{
+            transition: `transform ${sdlMotion.duration.fast} ${sdlMotion.easing.standard}`,
+          }}
+          _hover={{ bg: 'action.primaryHover' }}
+          _active={{ bg: 'action.primaryPressed', transform: 'scale(0.98)' }}
+        >
+          {on ? 'Reset' : 'Animate'}
+        </Box>
+        <Text fontFamily="mono" fontSize="xs" color="text.muted">
+          transform + opacity · {duration} · {easing}
+        </Text>
+      </HStack>
+    </Stack>
+  )
+}
+
+<MotionDemo />
+
+### Reference usage
+
+Apply motion in component styles by reading from `sdlMotion`, never by hardcoding `ms` or
+cubic-bezier literals:
+
+```tsx
+import { sdlMotion } from '@/theme/styles'
+
+const styles = {
+  transitionProperty: 'transform, opacity',
+  transitionDuration: sdlMotion.duration.moderate,
+  transitionTimingFunction: sdlMotion.easing.standard,
+}
+```

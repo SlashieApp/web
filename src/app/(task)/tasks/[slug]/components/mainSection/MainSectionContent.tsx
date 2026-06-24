@@ -32,7 +32,7 @@ export function MainSectionContent() {
         <Heading size="md" fontWeight={800} lineHeight="short">
           About this task
         </Heading>
-        <Text color="formLabelMuted" lineHeight="tall">
+        <Text color="text.muted" lineHeight="tall">
           {task.description}
         </Text>
         {task.contactMethod ? (
@@ -44,11 +44,11 @@ export function MainSectionContent() {
             gap={3}
             pt={2}
             borderTopWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
             fontSize="sm"
           >
-            <Text color="formLabelMuted">
-              <Text as="span" fontWeight={600} color="cardFg">
+            <Text color="text.muted">
+              <Text as="span" fontWeight={600} color="text.default">
                 Contact:{' '}
               </Text>
               {formatTaskContactMethodLabel(task.contactMethod)}
@@ -64,7 +64,7 @@ export function MainSectionContent() {
           <TaskPhotoStrip items={photoItems} />
         )
       ) : (
-        <Text fontSize="sm" color="formLabelMuted">
+        <Text fontSize="sm" color="text.muted">
           No photos yet
         </Text>
       )}

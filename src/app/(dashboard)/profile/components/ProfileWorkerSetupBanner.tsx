@@ -23,17 +23,17 @@ export function ProfileWorkerSetupBanner() {
     <Card
       layout="section"
       p={{ base: 5, md: 6 }}
-      bg="primary.50"
-      borderColor="primary.100"
+      bg="status.success.soft"
+      borderColor="green.200"
     >
       <Stack gap={4}>
         <Stack gap={1}>
-          <Text fontSize="sm" fontWeight={700} color="primary.800">
+          <Text fontSize="sm" fontWeight={700} color="status.success.fg">
             Worker setup in progress
           </Text>
-          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="sm" color="text.muted" lineHeight="tall">
             You are {percent}% through onboarding. Pick up at{' '}
-            <Text as="span" fontWeight={600} color="cardFg">
+            <Text as="span" fontWeight={600} color="text.default">
               {stepLabel}
             </Text>{' '}
             to unlock quoting on tasks.
@@ -48,7 +48,7 @@ export function ProfileWorkerSetupBanner() {
               Continue setup
             </Button>
           </Link>
-          <Text fontSize="xs" color="formLabelMuted">
+          <Text fontSize="xs" color="text.muted">
             Progress is saved automatically as you go.
           </Text>
         </HStack>

@@ -1,0 +1,176 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+import { Box, ChakraProvider, Stack, Text } from '@chakra-ui/react'
+
+import { darkSystem, lightSystem } from '@/theme/chakraSystem'
+import { sdlElevation, sdlMotion, sdlRadii, sdlSpace } from '@/theme/styles'
+
+<Meta title="Foundations/Elevation" />
+
+# Elevation
+
+SDL ships a single elevation scale, `sdlElevation` (`e1`–`e5`), exported from
+`@/theme/styles` and registered as Chakra `shadows` tokens in
+`src/theme/chakraSystem.ts`. Reference elevation by token (`boxShadow="e3"`),
+never as a raw `box-shadow` string in feature code. The legacy
+`xs/sm/md/lg/xl` shadow names are kept as aliases of `e1`–`e5` during migration.
+
+Every value below is read live from the theme modules, so this page cannot
+drift from code.
+
+export const LEVELS = Object.keys(sdlElevation)
+
+export const USAGE = {
+  e1: 'Resting cards, inputs, list rows. The default surface lift.',
+  e2: 'Hover/raised cards, sticky bars, low popovers.',
+  e3: 'Dropdowns, menus, comboboxes, date pickers.',
+  e4: 'Dialogs, drawers, sheets.',
+  e5: 'Toasts and transient overlays that float above everything.',
+}
+
+export const ElevationCard = ({ level }) => (
+  <Box
+    bg="bg.surface"
+    color="text.default"
+    borderWidth="1px"
+    borderColor="border.default"
+    borderRadius={`${sdlRadii.lg}px`}
+    boxShadow={level}
+    p={`${sdlSpace[5]}px`}
+    transitionProperty="box-shadow, transform"
+    transitionDuration={sdlMotion.duration.moderate}
+    transitionTimingFunction={sdlMotion.easing.standard}
+  >
+    <Text fontWeight={600} fontSize="md">
+      {level}
+    </Text>
+    <Text color="text.muted" fontSize="sm" mt={`${sdlSpace[1]}px`}>
+      {USAGE[level]}
+    </Text>
+    <Text
+      as="code"
+      display="block"
+      mt={`${sdlSpace[3]}px`}
+      fontFamily="mono"
+      fontSize="xs"
+      color="text.subtle"
+    >
+      {sdlElevation[level]}
+    </Text>
+  </Box>
+)
+
+export const ModeColumn = ({ mode, system }) => (
+  <ChakraProvider value={system}>
+    <Box
+      flex="1"
+      minW="280px"
+      bg="bg.canvas"
+      borderWidth="1px"
+      borderColor="border.default"
+      borderRadius={`${sdlRadii.xl}px`}
+      p={`${sdlSpace[6]}px`}
+    >
+      <Text
+        color="text.muted"
+        fontSize="xs"
+        fontWeight={600}
+        textTransform="uppercase"
+        letterSpacing="0.08em"
+        mb={`${sdlSpace[4]}px`}
+      >
+        {mode}
+      </Text>
+      <Stack gap={`${sdlSpace[4]}px`}>
+        {LEVELS.map((level) => (
+          <ElevationCard key={level} level={level} />
+        ))}
+      </Stack>
+    </Box>
+  </ChakraProvider>
+)
+
+<Box
+  display="flex"
+  flexWrap="wrap"
+  gap="24px"
+  alignItems="flex-start"
+  style={{ marginTop: '24px' }}
+>
+  <ModeColumn mode="Light" system={lightSystem} />
+  <ModeColumn mode="Dark" system={darkSystem} />
+</Box>
+
+## Dark mode: prefer border over heavy shadow
+
+`sdlElevation` shadows are tuned for the light canvas (a low-alpha ink shadow on
+white). On the dark canvas a soft shadow against a dark surface reads as muddy,
+so dark mode communicates depth primarily through a **raised surface color plus
+a 1px border**, not a heavy drop shadow:
+
+- Step the surface up the `bg` ramp (`bg.canvas` → `bg.surface` → `bg.raised`)
+  rather than increasing shadow weight.
+- Keep a `1px` `border.default` (or `border.strong` for the top layer) so edges
+  stay crisp without relying on the shadow.
+- It is fine to keep the same `boxShadow` token in both modes — it simply does
+  less visual work in dark, where the border and surface carry the elevation.
+
+Notice in the comparison above how each card stays legible in dark via its
+border and surface, while in light the shadow does most of the lifting.
+
+## Motion
+
+Animate elevation changes with `sdlMotion` (from `@/theme/styles`) and only ever
+animate `transform`/`opacity`/`box-shadow` — never layout properties. The cards
+above transition over `{sdlMotion.duration.moderate}` using the
+`standard` easing curve (`{sdlMotion.easing.standard}`).
+
+## Reference
+
+<ChakraProvider value={lightSystem}>
+  <Box overflowX="auto" mt={`${sdlSpace[4]}px`}>
+    <Box
+      as="table"
+      width="100%"
+      minW="560px"
+      borderWidth="1px"
+      borderColor="border.default"
+      borderRadius={`${sdlRadii.lg}px`}
+      style={{ borderCollapse: 'separate', borderSpacing: 0 }}
+    >
+      <Box as="thead" bg="bg.subtle">
+        <Box as="tr">
+          {['Token', 'Value', 'Typical use'].map((head) => (
+            <Box
+              key={head}
+              as="th"
+              textAlign="left"
+              fontSize="xs"
+              fontWeight={600}
+              color="text.muted"
+              textTransform="uppercase"
+              letterSpacing="0.06em"
+              p={`${sdlSpace[3]}px`}
+            >
+              {head}
+            </Box>
+          ))}
+        </Box>
+      </Box>
+      <Box as="tbody">
+        {LEVELS.map((level) => (
+          <Box as="tr" key={level} borderTopWidth="1px" borderColor="border.default">
+            <Box as="td" p={`${sdlSpace[3]}px`} fontFamily="mono" fontSize="sm" color="text.default">
+              {level}
+            </Box>
+            <Box as="td" p={`${sdlSpace[3]}px`} fontFamily="mono" fontSize="xs" color="text.subtle" whiteSpace="nowrap">
+              {sdlElevation[level]}
+            </Box>
+            <Box as="td" p={`${sdlSpace[3]}px`} fontSize="sm" color="text.muted">
+              {USAGE[level]}
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  </Box>
+</ChakraProvider>

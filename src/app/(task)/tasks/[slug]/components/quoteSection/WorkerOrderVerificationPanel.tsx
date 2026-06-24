@@ -50,7 +50,7 @@ export function WorkerOrderVerificationPanel({
         heading="Awaiting update"
         bodyGap={2}
       >
-        <Text fontSize="sm" color="formLabelMuted">
+        <Text fontSize="sm" color="text.muted">
           This order is no longer active. Refresh the page or contact support if
           something looks wrong.
         </Text>
@@ -66,14 +66,14 @@ export function WorkerOrderVerificationPanel({
       heading="Complete job & confirm payment"
       bodyGap={3}
     >
-      <Text fontSize="sm" color="formLabelMuted">
+      <Text fontSize="sm" color="text.muted">
         When the customer is happy with the work and has paid you directly, ask
         them for their 6-digit completion code. Enter it here to close the job
         on Slashie.
       </Text>
 
       {jobActionError ? (
-        <Text fontSize="sm" color="red.500">
+        <Text fontSize="sm" color="status.danger.fg">
           {jobActionError}
         </Text>
       ) : null}

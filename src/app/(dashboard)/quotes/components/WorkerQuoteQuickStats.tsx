@@ -13,7 +13,7 @@ export function WorkerQuoteQuickStats() {
         fontSize="xs"
         fontWeight={700}
         letterSpacing="0.08em"
-        color="formLabelMuted"
+        color="text.muted"
         textTransform="uppercase"
       >
         Quick stats
@@ -46,10 +46,10 @@ function StatPill({
 }) {
   const palette =
     tone === 'primary'
-      ? { bg: 'primary.100', color: 'primary.800' }
+      ? { bg: 'status.success.soft', color: 'status.success.fg' }
       : tone === 'secondary'
-        ? { bg: 'secondary.100', color: 'secondary.800' }
-        : { bg: 'badgeBg', color: 'cardFg' }
+        ? { bg: 'status.info.soft', color: 'status.info.fg' }
+        : { bg: 'bg.subtle', color: 'text.default' }
 
   return (
     <Stack

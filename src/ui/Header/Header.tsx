@@ -151,7 +151,7 @@ function AppHeaderNavigation() {
             flex={1}
             pl={2}
             borderLeftWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
           >
             <DashboardContextLabel active={dashboardActive} />
           </Box>
@@ -163,7 +163,7 @@ function AppHeaderNavigation() {
             gap={2}
             pl={3}
             borderLeftWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
             minW={0}
           >
             <DashboardContextLabel active={dashboardActive} />
@@ -209,8 +209,8 @@ function AppHeaderNavigation() {
                         borderRadius="full"
                         fontSize="10px"
                         fontWeight={700}
-                        bg="primary.600"
-                        color="white"
+                        bg="status.success.solid"
+                        color="text.onGreen"
                         px={1}
                       >
                         {notifications.unreadCount > 9
@@ -269,7 +269,7 @@ function AppHeaderNavigation() {
                   mt="auto"
                   pt={3}
                   borderTopWidth="1px"
-                  borderColor="cardBorder"
+                  borderColor="border.default"
                 >
                   <Link
                     href={loginHref}
@@ -302,12 +302,12 @@ export function Header({ children, ...props }: HeaderProps) {
       <Box
         as="header"
         zIndex={30}
-        bg="bg"
-        color="cardFg"
+        bg="bg.canvas"
+        color="text.default"
         backdropFilter="blur(20px)"
         boxShadow="none"
         borderWidth="1px"
-        borderColor="cardBorder"
+        borderColor="border.default"
         px={HEADER_PADDING_X}
         minH={HEADER_MIN_HEIGHT}
         display="flex"

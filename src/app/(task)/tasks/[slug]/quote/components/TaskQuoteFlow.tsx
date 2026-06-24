@@ -78,7 +78,7 @@ export function TaskQuoteFlow() {
     return (
       <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="neutral.100">
         <Stack py={10} align="center">
-          <Text color="formLabelMuted">Loading…</Text>
+          <Text color="text.muted">Loading…</Text>
         </Stack>
       </Box>
     )
@@ -88,7 +88,7 @@ export function TaskQuoteFlow() {
     return (
       <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="neutral.100">
         <Stack py={10} align="center">
-          <Text color="formLabelMuted">Redirecting…</Text>
+          <Text color="text.muted">Redirecting…</Text>
         </Stack>
       </Box>
     )

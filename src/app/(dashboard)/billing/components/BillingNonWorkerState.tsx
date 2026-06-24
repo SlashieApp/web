@@ -10,7 +10,7 @@ export function BillingNonWorkerState() {
       <Stack gap={4}>
         <Stack gap={2}>
           <Heading size="md">Become a worker to manage billing</Heading>
-          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="sm" color="text.muted" lineHeight="tall">
             Slashie Unlimited is for workers who send quotes on tasks. Set up
             your worker profile first, then return here to start a free trial or
             manage your subscription.

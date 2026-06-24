@@ -68,7 +68,7 @@ export class AnalyticsErrorBoundary extends Component<
       >
         <Stack gap={4} maxW="md" textAlign="center">
           <Heading size="md">Something went wrong</Heading>
-          <Text color="formLabelMuted" fontSize="sm">
+          <Text color="text.muted" fontSize="sm">
             An unexpected error occurred. Try again or refresh the page.
           </Text>
           <Button size="sm" variant="primary" onClick={this.handleRetry}>

@@ -37,14 +37,14 @@ function PlanFeature({ children }: { children: React.ReactNode }) {
     <List.Item display="flex" gap={2} alignItems="flex-start">
       <Box
         as="span"
-        color="primary.600"
+        color="text.link"
         fontWeight={800}
         lineHeight="1.4"
         aria-hidden
       >
         ✓
       </Box>
-      <Text as="span" fontSize="sm" color="cardFg" lineHeight="tall">
+      <Text as="span" fontSize="sm" color="text.default" lineHeight="tall">
         {children}
       </Text>
     </List.Item>
@@ -100,7 +100,7 @@ export function BillingPage() {
         <BillingViewCapture />
         <Stack gap={2}>
           <Heading size="xl">Billing</Heading>
-          <Text color="formLabelMuted">
+          <Text color="text.muted">
             Manage your Slashie Unlimited subscription and quote allowance.
           </Text>
         </Stack>
@@ -119,7 +119,7 @@ export function BillingPage() {
       />
       <Stack gap={2}>
         <Heading size="xl">Billing</Heading>
-        <Text color="formLabelMuted">
+        <Text color="text.muted">
           Manage your Slashie Unlimited subscription and monthly quote
           allowance.
         </Text>
@@ -128,18 +128,18 @@ export function BillingPage() {
       {showCheckoutSuccess ? (
         <Box
           borderWidth="1px"
-          borderColor="primary.300"
+          borderColor="status.success.soft"
           borderRadius="xl"
-          bg="primary.50"
+          bg="status.success.soft"
           p={4}
         >
-          <Text fontWeight={700} color="primary.800">
+          <Text fontWeight={700} color="status.success.fg">
             {isActivating
               ? 'Activating your subscription…'
               : 'Slashie Unlimited is active.'}
           </Text>
           {isActivating ? (
-            <Text fontSize="sm" color="primary.900" mt={1}>
+            <Text fontSize="sm" color="status.success.fg" mt={1}>
               This usually takes a few seconds after checkout.
             </Text>
           ) : null}
@@ -149,12 +149,12 @@ export function BillingPage() {
       {showCheckoutCancel ? (
         <Box
           borderWidth="1px"
-          borderColor="cardBorder"
+          borderColor="border.default"
           borderRadius="xl"
-          bg="cardBg"
+          bg="bg.surface"
           p={4}
         >
-          <Text fontWeight={600} color="cardFg">
+          <Text fontWeight={600} color="text.default">
             Checkout cancelled — you can try again anytime.
           </Text>
         </Box>
@@ -163,12 +163,12 @@ export function BillingPage() {
       {billingError ? (
         <Box
           borderWidth="1px"
-          borderColor="red.200"
+          borderColor="status.danger.soft"
           borderRadius="xl"
-          bg="red.50"
+          bg="status.danger.soft"
           p={4}
         >
-          <Text fontWeight={600} color="red.800">
+          <Text fontWeight={600} color="status.danger.fg">
             Could not load billing details. Refresh the page or try again
             shortly.
           </Text>
@@ -187,16 +187,16 @@ export function BillingPage() {
           {!hasUnlimited ? (
             <Box
               borderWidth="1px"
-              borderColor="cardBorder"
+              borderColor="border.default"
               borderRadius="2xl"
-              bg="cardBg"
+              bg="bg.surface"
               p={{ base: 5, md: 6 }}
-              boxShadow="sm"
+              boxShadow="e2"
             >
               <Stack gap={5}>
                 <Stack gap={1}>
                   <Heading size="sm">Free tier usage</Heading>
-                  <Text fontSize="sm" color="formLabelMuted">
+                  <Text fontSize="sm" color="text.muted">
                     {membership.freeQuotesPerMonth} quotes per UTC month on the
                     free plan.
                   </Text>
@@ -206,7 +206,11 @@ export function BillingPage() {
                   total={membership.freeQuotesPerMonth}
                 />
                 {membership.quotesRemainingThisMonth <= 0 ? (
-                  <Text fontSize="sm" color="orange.700" fontWeight={600}>
+                  <Text
+                    fontSize="sm"
+                    color="status.warning.fg"
+                    fontWeight={600}
+                  >
                     You&apos;ve used all free quotes this month. Upgrade for
                     unlimited quoting.
                   </Text>
@@ -217,11 +221,11 @@ export function BillingPage() {
 
           <Box
             borderWidth={hasUnlimited ? '2px' : '1px'}
-            borderColor={hasUnlimited ? 'primary.400' : 'cardBorder'}
+            borderColor={hasUnlimited ? 'action.primary' : 'border.default'}
             borderRadius="2xl"
-            bg="cardBg"
+            bg="bg.surface"
             p={{ base: 5, md: 6 }}
-            boxShadow={hasUnlimited ? 'md' : 'sm'}
+            boxShadow={hasUnlimited ? 'e3' : 'e2'}
             position="relative"
           >
             <Box position="absolute" top={4} right={4}>
@@ -244,16 +248,16 @@ export function BillingPage() {
                     <Text
                       fontSize="2xl"
                       fontWeight={800}
-                      color="primary.700"
+                      color="text.link"
                       lineHeight="1"
                     >
                       {pricing.trialLabel.trim()}
                     </Text>
                   ) : null}
-                  <Text fontSize="sm" color="formLabelMuted" mt={2}>
+                  <Text fontSize="sm" color="text.muted" mt={2}>
                     {pricingAfterTrialLine(pricing)}
                   </Text>
-                  <Text fontSize="xs" color="formLabelMuted" mt={1}>
+                  <Text fontSize="xs" color="text.muted" mt={1}>
                     Then {pricingDisplayPrice(pricing)} per {interval} unless
                     you cancel
                   </Text>
@@ -263,12 +267,16 @@ export function BillingPage() {
               {isMembershipPaymentWarning(membership.subscriptionStatus) ? (
                 <Box
                   borderWidth="1px"
-                  borderColor="orange.200"
+                  borderColor="status.warning.soft"
                   borderRadius="lg"
-                  bg="orange.50"
+                  bg="status.warning.soft"
                   p={3}
                 >
-                  <Text fontSize="sm" fontWeight={600} color="orange.900">
+                  <Text
+                    fontSize="sm"
+                    fontWeight={600}
+                    color="status.warning.fg"
+                  >
                     {membership.subscriptionStatus ===
                     WorkerSubscriptionStatus.PastDue
                       ? 'Payment issue — update your payment method to keep unlimited quotes.'
@@ -320,7 +328,7 @@ export function BillingPage() {
             </Stack>
           </Box>
 
-          <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+          <Text fontSize="sm" color="text.muted" lineHeight="tall">
             Job payments are arranged directly with customers. This subscription
             is for platform access only — Slashie does not process task
             payments.

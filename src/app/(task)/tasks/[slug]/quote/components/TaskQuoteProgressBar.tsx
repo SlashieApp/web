@@ -23,9 +23,9 @@ export function TaskQuoteProgressBar({
       w="full"
       px={{ base: 4, md: 6 }}
       py={3}
-      bg="white"
+      bg="bg.surface"
       borderBottomWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
     >
       <ProgressBar
         value={progressPercent}

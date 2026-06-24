@@ -105,7 +105,7 @@ export function ProfilePhotoCard() {
       <Stack gap={4}>
         <Stack gap={1}>
           <Heading size="md">Profile photo</Heading>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             A clear photo helps customers and workers trust your profile.
           </Text>
         </Stack>
@@ -115,8 +115,8 @@ export function ProfilePhotoCard() {
             w={{ base: 20, md: 24 }}
             h={{ base: 20, md: 24 }}
             borderRadius="full"
-            bg="primary.100"
-            color="primary.800"
+            bg="bg.subtle"
+            color="text.default"
             display="grid"
             placeItems="center"
             fontWeight={800}
@@ -148,14 +148,14 @@ export function ProfilePhotoCard() {
                 {currentAvatar ? 'Replace photo' : 'Upload photo'}
               </Button>
             </HStack>
-            <Text fontSize="xs" color="formLabelMuted">
+            <Text fontSize="xs" color="text.muted">
               JPG, PNG, or WebP. Up to 5MB.
             </Text>
           </Stack>
         </HStack>
 
         {error ? (
-          <Text color="red.500" fontSize="sm">
+          <Text color="status.danger.fg" fontSize="sm">
             {error}
           </Text>
         ) : null}

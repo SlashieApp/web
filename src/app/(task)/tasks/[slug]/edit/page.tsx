@@ -63,8 +63,8 @@ function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
         href="/requests"
         fontSize="sm"
         fontWeight={600}
-        color="primary.700"
-        _hover={{ textDecoration: 'none', color: 'primary.600' }}
+        color="text.link"
+        _hover={{ textDecoration: 'none', color: 'text.link' }}
       >
         ← Back to my requests
       </Link>
@@ -72,7 +72,7 @@ function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
         <Text
           fontSize="xs"
           fontWeight={700}
-          color="formLabelMuted"
+          color="text.muted"
           letterSpacing="0.06em"
           textTransform="uppercase"
         >
@@ -85,7 +85,7 @@ function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
         >
           {taskTitle}
         </Text>
-        <Text color="formLabelMuted" fontSize="sm" maxW="3xl">
+        <Text color="text.muted" fontSize="sm" maxW="3xl">
           Update your listing while it is still open. You can add more photos;
           existing photos stay on the task.
         </Text>
@@ -428,7 +428,7 @@ function EditTaskFormBody({
               </HStack>
               {serverError ? (
                 <Stack gap={2}>
-                  <Text color="red.500" fontSize="sm">
+                  <Text color="status.danger.fg" fontSize="sm">
                     {serverError}
                   </Text>
                   {serverErrorCode === 'PROFILE_PHONE_REQUIRED' ? (
@@ -436,7 +436,7 @@ function EditTaskFormBody({
                       href="/account"
                       fontSize="sm"
                       fontWeight={600}
-                      color="primary.700"
+                      color="text.link"
                     >
                       Add or verify phone in Account
                     </Link>
@@ -492,14 +492,14 @@ export default function EditTaskPage() {
   if (!sessionOk || !taskId) {
     return (
       <Box
-        bg="bg"
-        color="cardFg"
+        bg="bg.canvas"
+        color="text.default"
         minH="50vh"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="formLabelMuted" fontSize="sm">
+        <Text color="text.muted" fontSize="sm">
           Checking your session…
         </Text>
       </Box>
@@ -509,14 +509,14 @@ export default function EditTaskPage() {
   if (meLoading && !me) {
     return (
       <Box
-        bg="bg"
-        color="cardFg"
+        bg="bg.canvas"
+        color="text.default"
         minH="50vh"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="formLabelMuted" fontSize="sm">
+        <Text color="text.muted" fontSize="sm">
           Loading your profile…
         </Text>
       </Box>
@@ -526,14 +526,14 @@ export default function EditTaskPage() {
   if (taskLoading && !task) {
     return (
       <Box
-        bg="bg"
-        color="cardFg"
+        bg="bg.canvas"
+        color="text.default"
         minH="50vh"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="formLabelMuted" fontSize="sm">
+        <Text color="text.muted" fontSize="sm">
           Loading task…
         </Text>
       </Box>
@@ -542,21 +542,21 @@ export default function EditTaskPage() {
 
   if (taskError || !task) {
     return (
-      <Box bg="bg" color="cardFg" minH="50vh" py={12}>
+      <Box bg="bg.canvas" color="text.default" minH="50vh" py={12}>
         <Container maxW="lg">
           <Stack
             gap={4}
             p={6}
             borderRadius="xl"
-            bg="cardBg"
+            bg="bg.surface"
             borderWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
           >
             <Text fontWeight={700}>Task not found</Text>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               This task may have been removed or the link is invalid.
             </Text>
-            <Link href="/requests" color="primary.700" fontWeight={600}>
+            <Link href="/requests" color="text.link" fontWeight={600}>
               Back to my requests
             </Link>
           </Stack>
@@ -567,25 +567,21 @@ export default function EditTaskPage() {
 
   if (!isOwner) {
     return (
-      <Box bg="bg" color="cardFg" minH="50vh" py={12}>
+      <Box bg="bg.canvas" color="text.default" minH="50vh" py={12}>
         <Container maxW="lg">
           <Stack
             gap={4}
             p={6}
             borderRadius="xl"
-            bg="cardBg"
+            bg="bg.surface"
             borderWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
           >
             <Text fontWeight={700}>You cannot edit this task</Text>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Only the person who posted the task can make changes.
             </Text>
-            <Link
-              href={`/tasks/${taskId}`}
-              color="primary.700"
-              fontWeight={600}
-            >
+            <Link href={`/tasks/${taskId}`} color="text.link" fontWeight={600}>
               View task
             </Link>
           </Stack>
@@ -596,26 +592,22 @@ export default function EditTaskPage() {
 
   if (!editable) {
     return (
-      <Box bg="bg" color="cardFg" minH="50vh" py={12}>
+      <Box bg="bg.canvas" color="text.default" minH="50vh" py={12}>
         <Container maxW="lg">
           <Stack
             gap={4}
             p={6}
             borderRadius="xl"
-            bg="cardBg"
+            bg="bg.surface"
             borderWidth="1px"
-            borderColor="cardBorder"
+            borderColor="border.default"
           >
             <Text fontWeight={700}>This task can no longer be edited</Text>
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Tasks can only be updated while they are open or still in draft.
               Once a quote is accepted or work has started, details are locked.
             </Text>
-            <Link
-              href={`/tasks/${taskId}`}
-              color="primary.700"
-              fontWeight={600}
-            >
+            <Link href={`/tasks/${taskId}`} color="text.link" fontWeight={600}>
               View task
             </Link>
           </Stack>
@@ -625,9 +617,9 @@ export default function EditTaskPage() {
   }
 
   return (
-    <Box bg="bg" color="cardFg" minH="100vh">
+    <Box bg="bg.canvas" color="text.default" minH="100vh">
       <Stack gap={0}>
-        <Box as="section" bg="cardBg" py={{ base: 8, md: 10 }}>
+        <Box as="section" bg="bg.surface" py={{ base: 8, md: 10 }}>
           <Container>
             <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
               <EditTaskPageHeader taskTitle={task.title} />

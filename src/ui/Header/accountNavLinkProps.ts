@@ -1,9 +1,9 @@
 import { focusVisibleMatchesHover } from '@/theme/system'
 
 const navRowHover = {
-  bg: 'badgeBg',
+  bg: 'bg.subtle',
   textDecoration: 'none',
-  color: 'cardFg',
+  color: 'text.default',
 } as const
 
 export const accountNavLinkRowProps = {
@@ -16,20 +16,20 @@ export const accountNavLinkRowProps = {
   borderRadius: 'md',
   fontSize: 'sm',
   fontWeight: 600,
-  color: 'cardFg',
+  color: 'text.default',
   _hover: navRowHover,
   ...focusVisibleMatchesHover(navRowHover),
 } as const
 
 const logoutHover = {
-  bg: 'badgeBg',
+  bg: 'status.danger.soft',
   textDecoration: 'none',
-  color: 'red.700',
+  color: 'status.danger.fg',
 } as const
 
 export const accountNavLogoutRowProps = {
   ...accountNavLinkRowProps,
-  color: 'red.600',
+  color: 'status.danger.fg',
   _hover: logoutHover,
   ...focusVisibleMatchesHover(logoutHover),
 } as const

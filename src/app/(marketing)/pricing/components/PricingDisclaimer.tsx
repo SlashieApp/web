@@ -10,8 +10,8 @@ function ShieldIcon() {
       justifyContent="center"
       boxSize="40px"
       borderRadius="full"
-      bg="primary.100"
-      color="primary.700"
+      bg="status.success.soft"
+      color="status.success.fg"
       flexShrink={0}
       aria-hidden
     >
@@ -33,21 +33,21 @@ export function PricingDisclaimer() {
   return (
     <Box
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="2xl"
-      bg="cardBg"
+      bg="bg.surface"
       px={{ base: 4, md: 5 }}
       py={4}
     >
       <HStack gap={4} align="flex-start">
         <ShieldIcon />
-        <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+        <Text fontSize="sm" color="text.muted" lineHeight="tall">
           Job payments are arranged directly between customers and workers.
           Slashie subscription is for platform access only.{' '}
           <NextLink
             href="/terms"
             style={{
-              color: 'var(--chakra-colors-primary-700)',
+              color: 'var(--chakra-colors-text-link)',
               fontWeight: 600,
               textDecoration: 'none',
             }}

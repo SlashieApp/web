@@ -10,9 +10,28 @@ import {
 } from '@chakra-ui/react'
 import * as React from 'react'
 
-import { focusVisibleMatchesHover } from '@/theme/system'
+import {
+  focusVisibleMatchesHover,
+  sdlFocusRing,
+  sdlMotion,
+} from '@/theme/styles'
 
 import { Link } from '../Link'
+
+/**
+ * SDL IconButton.
+ *
+ * Two shapes, one public API (unchanged):
+ * - **Nav** (`href` + `icon`, optional `caption`): dock-style route link with an
+ *   active surface. Surfaces use `status.success.*` (the SDL green-tint family).
+ * - **Default**: Chakra `IconButton` for ghost actions / `asChild` / drawer close.
+ *   Every default IconButton keeps its `aria-label` and meets the 44px touch target.
+ *
+ * SDL guarantees:
+ * - Visible focus ring on both shapes (`sdlFocusRing`; nav mirrors hover surface).
+ * - >=44px hit area (nav tiles are 56/60px; default enforces a 44px minimum).
+ * - Transitions via `sdlMotion` (color/background only — no layout animation).
+ */
 
 /** Dock / nav: icon (and optional caption) inside a route link. */
 export type NavIconButtonProps = {
@@ -24,15 +43,16 @@ export type NavIconButtonProps = {
 
 export type IconButtonProps = NavIconButtonProps | ChakraIconButtonProps
 
+/** Ghost action hover surface (default shape). */
 const ghostSurfaceHover = {
-  bg: 'badgeBg',
-  color: 'cardFg',
+  bg: 'status.success.soft',
+  color: 'text.default',
 } satisfies SystemStyleObject
 
 function navIconSurfaceInteraction(active: boolean) {
   const surface = {
-    bg: active ? 'intentPrimaryBg' : 'badgeBg',
-    color: active ? 'intentPrimaryFg' : 'cardFg',
+    bg: 'status.success.soft',
+    color: active ? 'status.success.fg' : 'text.default',
   } satisfies SystemStyleObject
   return {
     _hover: surface,
@@ -52,10 +72,6 @@ function isNavIconButtonProps(
   )
 }
 
-/**
- * - **Nav** (`href` + `icon`, optional `caption`): dock-style link control.
- * - **Default**: Chakra `IconButton` (ghost actions, `asChild`, drawers, etc.).
- */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   function IconButton(props, ref) {
     if (isNavIconButtonProps(props)) {
@@ -85,11 +101,14 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
             display="flex"
             alignItems="center"
             justifyContent="center"
-            bg={active ? 'intentPrimaryBg' : 'transparent'}
-            color={active ? 'intentPrimaryFg' : 'formLabelMuted'}
+            bg={active ? 'status.success.soft' : 'transparent'}
+            color={active ? 'status.success.fg' : 'text.muted'}
             py={1.5}
             px={1}
             flexShrink={0}
+            transitionProperty="color, background-color"
+            transitionDuration={sdlMotion.duration.moderate}
+            transitionTimingFunction={sdlMotion.easing.standard}
             {...surfaceInteraction}
           >
             <Stack
@@ -116,7 +135,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
                   w="full"
                   fontSize="xs"
                   fontWeight={700}
-                  color={active ? 'intentPrimaryFg' : 'formLabelMuted'}
+                  color={active ? 'status.success.fg' : 'text.muted'}
                   textAlign="center"
                   lineHeight="short"
                   whiteSpace="nowrap"
@@ -138,8 +157,15 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         ref={ref}
         borderRadius={borderRadius}
         variant={variant}
+        minW="44px"
+        minH="44px"
+        color="text.default"
+        transitionProperty="color, background-color, border-color, box-shadow"
+        transitionDuration={sdlMotion.duration.moderate}
+        transitionTimingFunction={sdlMotion.easing.standard}
         _hover={hoverStyles}
-        {...focusVisibleMatchesHover(hoverStyles)}
+        _focusVisible={sdlFocusRing}
+        _disabled={{ color: 'text.subtle', cursor: 'not-allowed' }}
         {...rest}
       />
     )

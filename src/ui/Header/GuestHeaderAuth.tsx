@@ -11,7 +11,7 @@ export function HeaderToolbarSeparator(props: Omit<TextProps, 'children'>) {
   return (
     <Text
       display={{ base: 'none', sm: 'block' }}
-      color="cardBorder"
+      color="border.default"
       fontSize="sm"
       lineHeight={1}
       aria-hidden

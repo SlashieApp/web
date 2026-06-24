@@ -156,13 +156,13 @@ export function MainSectionPrimaryMeta() {
                 align="flex-start"
                 pt={index > 0 ? 3 : 0}
                 borderTopWidth={index > 0 ? '1px' : undefined}
-                borderColor="cardDivider"
+                borderColor="border.default"
               >
                 <Text {...metaSectionLabelProps}>{c.monthDay}</Text>
                 <Text
                   fontSize="sm"
                   fontWeight={700}
-                  color="cardFg"
+                  color="text.default"
                   lineHeight="short"
                 >
                   {c.title}
@@ -170,7 +170,7 @@ export function MainSectionPrimaryMeta() {
                 <Text
                   fontSize="xs"
                   fontWeight={500}
-                  color="formLabelMuted"
+                  color="text.muted"
                   lineHeight="short"
                 >
                   {c.subtitle}
@@ -208,8 +208,8 @@ export function MainSectionPrimaryMeta() {
               py={0.5}
               fontSize="10px"
               fontWeight={700}
-              bg="primary.100"
-              color="primary.700"
+              bg="status.success.soft"
+              color="status.success.fg"
             >
               {budgetBadge}
             </Badge>

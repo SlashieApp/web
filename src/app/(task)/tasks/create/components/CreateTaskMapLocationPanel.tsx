@@ -42,7 +42,7 @@ export function CreateTaskMapLocationPanel({
       layout="section"
       bodyGap={4}
       header={
-        <Heading size="lg" color="primary.700">
+        <Heading size="lg" color="text.link">
           2. Task location
         </Heading>
       }
@@ -79,7 +79,7 @@ export function CreateTaskMapLocationPanel({
             >
               Copy map place to address
             </Button>
-            <Text fontSize="xs" color="formLabelMuted" flex={1} minW="0" py={1}>
+            <Text fontSize="xs" color="text.muted" flex={1} minW="0" py={1}>
               Fills the field with the map search label (you can edit it
               afterward).
             </Text>
@@ -87,12 +87,12 @@ export function CreateTaskMapLocationPanel({
         </Stack>
       </FormField>
 
-      <Text fontSize="sm" color="formLabelMuted">
+      <Text fontSize="sm" color="text.muted">
         Workers see the map area for search only. Your exact address stays
         private until you hire someone.
       </Text>
       {locationError ? (
-        <Text fontSize="sm" color="red.500">
+        <Text fontSize="sm" color="status.danger.fg">
           {locationError}
         </Text>
       ) : null}

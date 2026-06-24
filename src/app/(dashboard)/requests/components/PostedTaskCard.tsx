@@ -30,7 +30,7 @@ function ChevronIcon({ expanded }: { expanded: boolean }) {
     <Box
       as="span"
       display="inline-flex"
-      color="formLabelMuted"
+      color="text.muted"
       transform={expanded ? 'rotate(180deg)' : 'rotate(0deg)'}
       transition="transform 0.15s ease"
       aria-hidden
@@ -120,10 +120,10 @@ export function PostedTaskCard({
               <Heading size="sm" lineClamp={2}>
                 {task.title}
               </Heading>
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 {taskPublicLocationLabel(task) || 'Location TBC'}
               </Text>
-              <Text fontSize="sm" fontWeight={600} color="cardFg">
+              <Text fontSize="sm" fontWeight={600} color="text.default">
                 {summaryMeta}
               </Text>
             </Stack>
@@ -143,7 +143,7 @@ export function PostedTaskCard({
         justify="flex-end"
         flexWrap="wrap"
         borderTopWidth="1px"
-        borderColor="cardBorder"
+        borderColor="border.default"
       >
         <Link href={taskHref} _hover={{ textDecoration: 'none' }}>
           <Button size="sm" variant="primary">
@@ -159,7 +159,7 @@ export function PostedTaskCard({
           pb={5}
           pt={0}
           borderTopWidth="1px"
-          borderColor="cardBorder"
+          borderColor="border.default"
         >
           <PostedTaskTimeline steps={timelineSteps} />
 
@@ -189,17 +189,17 @@ export function PostedTaskCard({
 }
 
 function StageBadge({ stage }: { stage: PostedTaskStage }) {
-  const tone =
+  const variant =
     stage === 'booked'
-      ? { bg: 'primary.100', color: 'primary.800' }
-      : stage === 'done'
-        ? { bg: 'badgeBg', color: 'cardFg' }
-        : stage === 'cancelled'
-          ? { bg: 'red.50', color: 'red.700' }
-          : { bg: 'badgeBg', color: 'cardFg' }
+      ? 'success'
+      : stage === 'cancelled'
+        ? 'danger'
+        : stage === 'done'
+          ? 'info'
+          : 'neutral'
 
   return (
-    <Badge bg={tone.bg} color={tone.color} flexShrink={0}>
+    <Badge variant={variant} dot flexShrink={0}>
       {postedTaskStageLabel(stage)}
     </Badge>
   )

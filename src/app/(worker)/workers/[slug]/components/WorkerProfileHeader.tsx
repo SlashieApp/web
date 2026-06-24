@@ -24,9 +24,9 @@ export function WorkerProfileHeader() {
   return (
     <Box
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="xl"
-      bg="cardBg"
+      bg="bg.surface"
       p={{ base: 4, md: 6 }}
       w="full"
     >
@@ -40,11 +40,11 @@ export function WorkerProfileHeader() {
           flexShrink={0}
           boxSize={{ base: '72px', md: '88px' }}
           borderRadius="full"
-          bg="primary.100"
+          bg="status.success.soft"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          color="primary.700"
+          color="status.success.fg"
           fontWeight={800}
           fontSize="lg"
           overflow="hidden"
@@ -65,7 +65,7 @@ export function WorkerProfileHeader() {
           <Text
             fontSize="xs"
             fontWeight={700}
-            color="formLabelMuted"
+            color="text.muted"
             letterSpacing="0.06em"
             textTransform="uppercase"
           >
@@ -77,8 +77,7 @@ export function WorkerProfileHeader() {
             </Heading>
             {worker.isVerified ? (
               <Badge
-                bg="primary.100"
-                color="primary.800"
+                variant="success"
                 display="inline-flex"
                 alignItems="center"
                 gap={1}
@@ -90,8 +89,8 @@ export function WorkerProfileHeader() {
                   justifyContent="center"
                   boxSize="16px"
                   borderRadius="full"
-                  bg="primary.600"
-                  color="white"
+                  bg="action.primary"
+                  color="text.onGreen"
                   flexShrink={0}
                   aria-hidden
                 >
@@ -102,16 +101,16 @@ export function WorkerProfileHeader() {
             ) : null}
           </HStack>
           {serviceArea ? (
-            <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
+            <Text fontSize="sm" color="text.muted" fontWeight={500}>
               Service area · {serviceArea}
             </Text>
           ) : null}
           {memberSince ? (
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Member since {memberSince}
             </Text>
           ) : null}
-          <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
+          <Text fontSize="sm" color="text.muted" fontWeight={500}>
             No reviews yet
           </Text>
         </Stack>

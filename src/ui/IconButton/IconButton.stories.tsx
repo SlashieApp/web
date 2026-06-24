@@ -1,4 +1,4 @@
-import { HStack } from '@chakra-ui/react'
+import { HStack, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { IconButton } from './IconButton'
@@ -38,50 +38,112 @@ function BellIcon() {
   )
 }
 
+/**
+ * SDL IconButton. Renders either a dock-style nav link (`href` + `icon`) or a
+ * standalone ghost action (Chakra `IconButton`). Both keep a visible focus ring
+ * and meet the 44px touch target. Stories render under both light and dark via
+ * the global theme toolbar — nothing here hardcodes a mode.
+ */
 const meta = {
-  title: 'ui/IconButton',
+  title: 'Components/IconButton',
   component: IconButton,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  argTypes: {
+    variant: { control: 'select', options: ['ghost', 'solid', 'outline'] },
+    disabled: { control: 'boolean' },
+    loading: { control: 'boolean' },
+    'aria-label': { control: 'text' },
+  },
+  args: {
+    variant: 'ghost',
+    'aria-label': 'Notifications',
+    children: <BellIcon />,
+  },
 } satisfies Meta<typeof IconButton>
 
 export default meta
-
 type Story = StoryObj<typeof meta>
 
-export const DockBrowseActive: Story = {
+/** Standalone ghost action. Tab to it to see the SDL focus ring. */
+export const Playground: Story = {}
+
+/** Default ghost action with its required aria-label. */
+export const Default: Story = {
+  args: { 'aria-label': 'Notifications', children: <BellIcon /> },
+}
+
+export const Disabled: Story = {
+  args: {
+    'aria-label': 'Notifications',
+    disabled: true,
+    children: <BellIcon />,
+  },
+}
+
+export const Loading: Story = {
+  args: {
+    'aria-label': 'Notifications',
+    loading: true,
+    children: <BellIcon />,
+  },
+}
+
+/** Focusable example — Tab in to verify the 2px ring + offset. */
+export const Focus: Story = {
+  args: { 'aria-label': 'Notifications', children: <BellIcon /> },
+}
+
+/** Dock nav tile in its active (selected route) state. */
+export const NavActive: Story = {
   render: () => (
     <IconButton href="/" icon={<BrowseIcon />} caption="Browse" active />
   ),
 }
 
-export const DockRequests: Story = {
+/** Dock nav tile in its resting (inactive) state. */
+export const NavInactive: Story = {
   render: () => (
     <IconButton href="/requests" icon={<BrowseIcon />} caption="Requests" />
   ),
 }
 
-export const DockNavRow: Story = {
+/** Overview of every shape and state side by side. */
+export const AllVariants: Story = {
   render: () => (
-    <HStack gap={2}>
-      <IconButton href="/" icon={<BrowseIcon />} caption="Browse" active />
-      <IconButton href="/requests" icon={<BrowseIcon />} caption="Requests" />
-    </HStack>
-  ),
-}
+    <Stack gap={6}>
+      <Stack gap={2}>
+        <HStack gap={3} alignItems="center">
+          <IconButton type="button" variant="ghost" aria-label="Notifications">
+            <BellIcon />
+          </IconButton>
+          <IconButton
+            type="button"
+            variant="ghost"
+            aria-label="Notifications"
+            disabled
+          >
+            <BellIcon />
+          </IconButton>
+          <IconButton
+            type="button"
+            variant="ghost"
+            aria-label="Notifications"
+            loading
+          >
+            <BellIcon />
+          </IconButton>
+          <IconButton type="button" variant="ghost" aria-label="Close menu">
+            ×
+          </IconButton>
+        </HStack>
+      </Stack>
 
-export const HeaderNotifications: Story = {
-  render: () => (
-    <IconButton type="button" variant="ghost" aria-label="Notifications">
-      <BellIcon />
-    </IconButton>
-  ),
-}
-
-export const HeaderCloseDrawer: Story = {
-  render: () => (
-    <IconButton type="button" variant="ghost" aria-label="Close menu">
-      ×
-    </IconButton>
+      <HStack gap={2} alignItems="center">
+        <IconButton href="/" icon={<BrowseIcon />} caption="Browse" active />
+        <IconButton href="/requests" icon={<BrowseIcon />} caption="Requests" />
+        <IconButton href="/alerts" icon={<BellIcon />} caption="Alerts" />
+      </HStack>
+    </Stack>
   ),
 }

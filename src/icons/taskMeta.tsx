@@ -7,7 +7,7 @@ const iconWrap = {
   alignItems: 'center',
   justifyContent: 'center',
   flexShrink: 0,
-  color: 'formLabelMuted',
+  color: 'text.muted',
 } as const
 
 export function IconMapPin(props: BoxProps) {

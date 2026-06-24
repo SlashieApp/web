@@ -59,25 +59,25 @@ function StatTile({ label, value, helper, icon }: StatTileProps) {
     <Card layout="section" p={5}>
       <Stack gap={2}>
         <HStack justify="space-between" align="flex-start">
-          <Text fontSize="xs" fontWeight={700} color="formLabelMuted">
+          <Text fontSize="xs" fontWeight={700} color="text.muted">
             {label}
           </Text>
           <Box
             w={9}
             h={9}
             borderRadius="full"
-            bg="primary.100"
-            color="primary.700"
+            bg="status.success.soft"
+            color="status.success.fg"
             display="grid"
             placeItems="center"
           >
             {icon}
           </Box>
         </HStack>
-        <Heading size={{ base: 'md', md: 'lg' }} color="cardFg">
+        <Heading size={{ base: 'md', md: 'lg' }} color="text.default">
           {value}
         </Heading>
-        <Text fontSize="xs" color="formLabelMuted">
+        <Text fontSize="xs" color="text.muted">
           {helper}
         </Text>
       </Stack>
@@ -150,14 +150,14 @@ function ActivityIcon({ tone }: { tone: ActivityTone }) {
     green: 'green.100',
     purple: 'purple.100',
     blue: 'blue.100',
-    mint: 'primary.100',
+    mint: 'status.success.soft',
     red: 'red.100',
   } as const
   const fgByTone = {
     green: 'green.700',
     purple: 'purple.700',
     blue: 'blue.700',
-    mint: 'primary.700',
+    mint: 'status.success.fg',
     red: 'red.700',
   } as const
   return (
@@ -182,7 +182,7 @@ function ClockLabel({ happenedAt }: { happenedAt: unknown }) {
   const timestamp = timeFromUnknown(happenedAt)
   if (!timestamp)
     return (
-      <Text fontSize="xs" color="formLabelMuted">
+      <Text fontSize="xs" color="text.muted">
         Recently
       </Text>
     )
@@ -192,27 +192,27 @@ function ClockLabel({ happenedAt }: { happenedAt: unknown }) {
   const day = 24 * hour
   if (diffMs < hour) {
     return (
-      <Text fontSize="xs" color="formLabelMuted">
+      <Text fontSize="xs" color="text.muted">
         {Math.max(1, Math.floor(diffMs / minute))}m ago
       </Text>
     )
   }
   if (diffMs < day) {
     return (
-      <Text fontSize="xs" color="formLabelMuted">
+      <Text fontSize="xs" color="text.muted">
         {Math.floor(diffMs / hour)}h ago
       </Text>
     )
   }
   if (diffMs < day * 7) {
     return (
-      <Text fontSize="xs" color="formLabelMuted">
+      <Text fontSize="xs" color="text.muted">
         {Math.floor(diffMs / day)}d ago
       </Text>
     )
   }
   return (
-    <Text fontSize="xs" color="formLabelMuted">
+    <Text fontSize="xs" color="text.muted">
       Earlier
     </Text>
   )
@@ -382,10 +382,10 @@ export default function DashboardOverviewPage() {
         flexWrap="wrap"
       >
         <Stack gap={1}>
-          <Heading size="xl" color="cardFg">
+          <Heading size="xl" color="text.default">
             {greeting}, {displayName}! <span aria-hidden>👋</span>
           </Heading>
-          <Text color="formLabelMuted" maxW="3xl">
+          <Text color="text.muted" maxW="3xl">
             Manage your tasks and quotes in one place.
           </Text>
         </Stack>
@@ -402,7 +402,7 @@ export default function DashboardOverviewPage() {
       </HStack>
 
       {errorMessageCombined ? (
-        <Text color="red.500" fontSize="sm">
+        <Text color="status.danger.fg" fontSize="sm">
           {errorMessageCombined}
         </Text>
       ) : null}
@@ -439,10 +439,10 @@ export default function DashboardOverviewPage() {
           <Stack gap={4}>
             <HStack justify="space-between" flexWrap="wrap" gap={2}>
               <Stack gap={1}>
-                <Heading size="md" color="cardFg">
+                <Heading size="md" color="text.default">
                   Upcoming accepted jobs
                 </Heading>
-                <Text fontSize="sm" color="formLabelMuted">
+                <Text fontSize="sm" color="text.muted">
                   Sorted by scheduled date when the task uses an exact time.
                 </Text>
               </Stack>
@@ -450,7 +450,7 @@ export default function DashboardOverviewPage() {
                 href="/quotes"
                 fontSize="sm"
                 fontWeight={600}
-                color="primary.700"
+                color="text.link"
               >
                 View all quotes
               </Link>
@@ -464,15 +464,15 @@ export default function DashboardOverviewPage() {
                   p={3}
                   borderRadius="lg"
                   borderWidth="1px"
-                  borderColor="cardBorder"
-                  _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+                  borderColor="border.default"
+                  _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
                 >
                   <HStack justify="space-between" align="flex-start" gap={3}>
                     <Stack gap={1} minW={0}>
                       <Text fontWeight={600} truncate>
                         {entry.order.snapshot.title}
                       </Text>
-                      <Text fontSize="xs" color="formLabelMuted" truncate>
+                      <Text fontSize="xs" color="text.muted" truncate>
                         {entry.role} · {orderLocationLabel(entry.order)}
                       </Text>
                     </Stack>
@@ -490,10 +490,10 @@ export default function DashboardOverviewPage() {
           <Stack gap={4}>
             <HStack justify="space-between" gap={3}>
               <Stack gap={1}>
-                <Heading size="md" color="cardFg">
+                <Heading size="md" color="text.default">
                   Recent activity
                 </Heading>
-                <Text fontSize="sm" color="formLabelMuted">
+                <Text fontSize="sm" color="text.muted">
                   Latest updates across your requests, jobs, and quotes.
                 </Text>
               </Stack>
@@ -501,19 +501,19 @@ export default function DashboardOverviewPage() {
                 href="/requests"
                 fontSize="sm"
                 fontWeight={600}
-                color="primary.700"
-                _hover={{ textDecoration: 'none', color: 'primary.600' }}
+                color="text.link"
+                _hover={{ textDecoration: 'none', color: 'text.link' }}
               >
                 View all
               </Link>
             </HStack>
 
             {notifications?.loading && recentActivity.length === 0 ? (
-              <Text color="formLabelMuted" fontSize="sm">
+              <Text color="text.muted" fontSize="sm">
                 Loading activity…
               </Text>
             ) : recentActivity.length === 0 ? (
-              <Text color="formLabelMuted" fontSize="sm">
+              <Text color="text.muted" fontSize="sm">
                 No activity yet. Start by posting a task or sending a quote.
               </Text>
             ) : (
@@ -526,7 +526,7 @@ export default function DashboardOverviewPage() {
                       align="flex-start"
                       py={2.5}
                       borderBottomWidth="1px"
-                      borderColor="cardBorder"
+                      borderColor="border.default"
                       w="full"
                     >
                       <HStack align="flex-start" gap={3} minW={0}>
@@ -535,7 +535,7 @@ export default function DashboardOverviewPage() {
                           <Text fontSize="sm" fontWeight={600} truncate>
                             {item.title}
                           </Text>
-                          <Text fontSize="xs" color="formLabelMuted" truncate>
+                          <Text fontSize="xs" color="text.muted" truncate>
                             {item.subtitle}
                           </Text>
                         </Stack>
@@ -548,7 +548,7 @@ export default function DashboardOverviewPage() {
                       key={item.id}
                       href={item.href}
                       display="block"
-                      _hover={{ textDecoration: 'none', bg: 'badgeBg' }}
+                      _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
                       borderRadius="md"
                     >
                       {row}
@@ -569,12 +569,12 @@ export default function DashboardOverviewPage() {
             <Stack gap={4}>
               <Stack gap={1}>
                 <Heading size="md">Platform membership</Heading>
-                <Text fontSize="sm" color="formLabelMuted">
+                <Text fontSize="sm" color="text.muted">
                   Post tasks for free as a customer, or become a worker to send
                   quotes.
                 </Text>
               </Stack>
-              <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+              <Text fontSize="sm" color="text.muted" lineHeight="tall">
                 Compare quotes from local workers. Job payments stay between you
                 and your pro — not through Slashie.
               </Text>
@@ -601,9 +601,9 @@ export default function DashboardOverviewPage() {
                 <Stack
                   p={4}
                   borderRadius="lg"
-                  bg="cardBg"
+                  bg="bg.surface"
                   borderWidth="1px"
-                  borderColor="cardBorder"
+                  borderColor="border.default"
                   minH="106px"
                   justify="space-between"
                 >
@@ -615,15 +615,15 @@ export default function DashboardOverviewPage() {
                       w={8}
                       h={8}
                       borderRadius="full"
-                      bg="primary.100"
-                      color="primary.700"
+                      bg="status.success.soft"
+                      color="status.success.fg"
                       display="grid"
                       placeItems="center"
                     >
                       <QuickActionIcon kind={item.kind} />
                     </Box>
                   </HStack>
-                  <Text fontSize="xs" color="formLabelMuted">
+                  <Text fontSize="xs" color="text.muted">
                     {item.subtitle}
                   </Text>
                 </Stack>

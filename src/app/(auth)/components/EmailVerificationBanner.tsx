@@ -15,9 +15,9 @@ export function EmailVerificationBanner() {
 
   return (
     <Box
-      bg="primary.50"
+      bg="status.success.soft"
       borderBottomWidth="1px"
-      borderColor="primary.200"
+      borderColor="green.200"
       px={{ base: 3, lg: 4 }}
       py={2}
     >
@@ -28,12 +28,12 @@ export function EmailVerificationBanner() {
         align="center"
         maxW="full"
       >
-        <Text fontSize="sm" color="primary.800" fontWeight={600}>
+        <Text fontSize="sm" color="status.success.fg" fontWeight={600}>
           Verify your email to post tasks and send quotes.
         </Text>
         <HStack gap={2} flexWrap="wrap" align="center">
           {message ? (
-            <Text fontSize="xs" color="primary.700">
+            <Text fontSize="xs" color="status.success.fg">
               {message}
             </Text>
           ) : null}
@@ -41,8 +41,8 @@ export function EmailVerificationBanner() {
             href="/verify-email/sent"
             fontSize="sm"
             fontWeight={700}
-            color="primary.700"
-            _hover={{ color: 'primary.800', textDecoration: 'none' }}
+            color="text.link"
+            _hover={{ color: 'status.success.fg', textDecoration: 'none' }}
           >
             Check inbox
           </Link>

@@ -14,6 +14,8 @@ import {
   type TextProps,
 } from '@chakra-ui/react'
 
+import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+
 import { type FormFieldState, FormFieldStateContext } from './formFieldContext'
 
 /** When true, the click is treated as interacting with a real editable control (skip `onControlClick`). */
@@ -116,6 +118,11 @@ export function FormField({
       align="center"
       cursor={onControlClick ? 'pointer' : undefined}
       onClick={handleControlClick}
+      transitionProperty="box-shadow, outline-color"
+      transitionDuration={sdlMotion.duration.moderate}
+      transitionTimingFunction={sdlMotion.easing.standard}
+      _focusVisible={onControlClick ? sdlFocusRing : undefined}
+      borderRadius={onControlClick ? 'md' : undefined}
     >
       {icon != null ? (
         <Box
@@ -123,7 +130,7 @@ export function FormField({
           display="flex"
           alignItems="center"
           justifyContent="center"
-          color="secondary.600"
+          color="text.muted"
           fontSize="md"
           pointerEvents="none"
           aria-hidden
@@ -154,7 +161,7 @@ export function FormField({
           htmlFor={controlId}
           fontSize="14px"
           fontWeight={500}
-          color="cardFg"
+          color="text.default"
           px={1}
           {...labelProps}
         >
@@ -165,7 +172,7 @@ export function FormField({
           <Text
             id={helperId}
             fontSize="sm"
-            color="formLabelMuted"
+            color="text.muted"
             lineHeight="tall"
             px={1}
             {...helperTextProps}
@@ -174,7 +181,25 @@ export function FormField({
           </Text>
         ) : null}
         {errorText ? (
-          <FieldErrorText id={errorId}>{errorText}</FieldErrorText>
+          <FieldErrorText
+            id={errorId}
+            color="status.danger.fg"
+            display="flex"
+            alignItems="center"
+            gap={1.5}
+            px={1}
+          >
+            {/* Status not by color alone: pair an icon + label. */}
+            <Box
+              as="span"
+              aria-hidden
+              flexShrink={0}
+              boxSize="6px"
+              borderRadius="full"
+              bg="status.danger.solid"
+            />
+            {errorText}
+          </FieldErrorText>
         ) : null}
       </FieldRoot>
     </FormFieldStateContext.Provider>
@@ -194,14 +219,14 @@ export const formControlRootProps = {
 export const formControlLabelProps = {
   fontSize: '14px',
   fontWeight: 500,
-  color: 'cardFg',
+  color: 'text.default',
   mb: 2,
 } as const
 
 /** Helper copy under fields. */
 export const formControlHelperTextProps = {
   fontSize: 'sm',
-  color: 'formLabelMuted',
+  color: 'text.muted',
   lineHeight: 'tall',
 } satisfies TextProps
 

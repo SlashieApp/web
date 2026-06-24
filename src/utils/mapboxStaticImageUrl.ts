@@ -1,6 +1,8 @@
+import { BRAND_MAP_PIN_HEX, BRAND_MAP_RADIUS } from '@/theme/brand'
+
 const DEFAULT_STYLE = 'mapbox/light-v11'
 const APPROX_RADIUS_M = 400
-const BRAND_PIN_COLOR = '00AB63'
+const BRAND_PIN_COLOR = BRAND_MAP_PIN_HEX
 
 function circlePolygon(
   lat: number,
@@ -21,9 +23,10 @@ function circlePolygon(
   return {
     type: 'Feature' as const,
     properties: {
-      fill: '#1A56DB',
+      // Approximate-radius overlay uses SDL info (status.info.solid) via brand.ts.
+      fill: BRAND_MAP_RADIUS,
       'fill-opacity': 0.12,
-      stroke: '#1A56DB',
+      stroke: BRAND_MAP_RADIUS,
       'stroke-width': 2,
       'stroke-opacity': 0.4,
     },

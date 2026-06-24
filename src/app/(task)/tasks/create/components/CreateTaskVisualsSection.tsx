@@ -31,25 +31,25 @@ export function CreateTaskVisualsSection({
       layout="section"
       bodyGap={4}
       header={
-        <Heading size="lg" color="primary.700">
+        <Heading size="lg" color="text.link">
           {sectionHeading}
         </Heading>
       }
     >
-      <Text fontSize="sm" color="formLabelMuted">
+      <Text fontSize="sm" color="text.muted">
         Photos help workers give more accurate quotes.
       </Text>
 
       <Box
         borderWidth="2px"
         borderStyle="dashed"
-        borderColor="cardBorder"
+        borderColor="border.default"
         borderRadius="xl"
         p={6}
         bg="neutral.100"
       >
         <Stack align="center" gap={3}>
-          <Text fontSize="sm" color="formLabelMuted" textAlign="center">
+          <Text fontSize="sm" color="text.muted" textAlign="center">
             Upload images of the job area or problem (optional).
           </Text>
           <input
@@ -90,7 +90,7 @@ export function CreateTaskVisualsSection({
               objectFit="cover"
               borderRadius="lg"
               borderWidth="1px"
-              borderColor="cardBorder"
+              borderColor="border.default"
             />
           ))}
         </HStack>
@@ -112,7 +112,7 @@ export function CreateTaskVisualsSection({
                   objectFit="cover"
                   borderRadius="lg"
                   borderWidth="1px"
-                  borderColor="cardBorder"
+                  borderColor="border.default"
                 />
                 <Button
                   type="button"

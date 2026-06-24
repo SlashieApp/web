@@ -16,7 +16,7 @@ import { focusVisibleMatchesHover } from '@/theme/system'
 
 const notificationItemHover = {
   textDecoration: 'none',
-  bg: 'badgeBg',
+  bg: 'bg.subtle',
 } as const
 
 export function NotificationsDrawer() {
@@ -58,7 +58,7 @@ export function NotificationsDrawer() {
     >
       <Stack gap={4} h="full">
         <HStack justify="space-between">
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             {unreadCount > 0
               ? `${unreadCount} unread`
               : 'You are all caught up'}
@@ -77,11 +77,11 @@ export function NotificationsDrawer() {
 
         <Stack gap={2} flex="1" overflowY="auto">
           {loading && items.length === 0 ? (
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               Loading…
             </Text>
           ) : items.length === 0 ? (
-            <Text fontSize="sm" color="formLabelMuted">
+            <Text fontSize="sm" color="text.muted">
               No notifications yet. Activity on your tasks and quotes will show
               up here.
             </Text>
@@ -97,8 +97,8 @@ export function NotificationsDrawer() {
                   p={3}
                   borderRadius="lg"
                   borderWidth="1px"
-                  borderColor={unread ? 'primary.200' : 'cardBorder'}
-                  bg={unread ? 'primary.50' : 'cardBg'}
+                  borderColor={unread ? 'green.200' : 'border.default'}
+                  bg={unread ? 'status.success.soft' : 'bg.surface'}
                   _hover={notificationItemHover}
                   {...focusVisibleMatchesHover(notificationItemHover)}
                   onClick={() => void onOpenItem(item.id, item.readAt)}
@@ -112,16 +112,16 @@ export function NotificationsDrawer() {
                         <Box
                           boxSize="8px"
                           borderRadius="full"
-                          bg="primary.600"
+                          bg="status.success.solid"
                           flexShrink={0}
                           aria-hidden
                         />
                       ) : null}
                     </HStack>
-                    <Text fontSize="xs" color="formLabelMuted" lineClamp={2}>
+                    <Text fontSize="xs" color="text.muted" lineClamp={2}>
                       {description}
                     </Text>
-                    <Text fontSize="xs" color="formLabelMuted">
+                    <Text fontSize="xs" color="text.muted">
                       {formatRelativeTime(item.createdAt)}
                     </Text>
                   </Stack>

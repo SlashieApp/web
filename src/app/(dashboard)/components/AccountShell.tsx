@@ -52,7 +52,7 @@ export function AccountShell({ children }: AccountShellProps) {
     <Box
       h="100dvh"
       bg="neutral.100"
-      color="cardFg"
+      color="text.default"
       display="flex"
       flexDirection="column"
       overflow="hidden"
@@ -65,8 +65,8 @@ export function AccountShell({ children }: AccountShellProps) {
           w="280px"
           flexShrink={0}
           borderRightWidth="1px"
-          borderColor="cardBorder"
-          bg="bg"
+          borderColor="border.default"
+          bg="bg.canvas"
           flexDirection="column"
           overflowY="auto"
         >
@@ -74,7 +74,7 @@ export function AccountShell({ children }: AccountShellProps) {
             <DashboardSectionNav active={active} variant="sidebar" />
 
             <Box mt="auto" display="grid" gap={4}>
-              <Stack p={4} gap={3} bg="primary.100" borderRadius="xl">
+              <Stack p={4} gap={3} bg="green.100" borderRadius="xl">
                 <Stack gap={0.5}>
                   <Text fontSize="sm" fontWeight={700}>
                     Complete your profile
@@ -101,7 +101,7 @@ export function AccountShell({ children }: AccountShellProps) {
                   >
                     <Box
                       h="full"
-                      bg="primary.600"
+                      bg="action.primary"
                       w={`${completion.percent}%`}
                     />
                   </Box>
@@ -117,7 +117,7 @@ export function AccountShell({ children }: AccountShellProps) {
                 </Link>
               </Stack>
 
-              <Text fontSize="xs" color="formLabelMuted">
+              <Text fontSize="xs" color="text.muted">
                 Payments are arranged directly between customer and worker
                 outside Slashie.
               </Text>

@@ -7,6 +7,19 @@ import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
 
 import { IconButton } from '../IconButton/IconButton'
 
+/**
+ * SDL Dock — primary navigation rail. Left rail on md+, bottom bar on mobile.
+ *
+ * Surface tokens use SDL semantic roles (`bg.canvas`, `border.default`). The
+ * per-item icon control, including its >=44px touch target (60px), visible
+ * focus treatment and active state, is owned by the shared `IconButton` atom;
+ * the Dock composes it and passes the `active` flag derived from the route.
+ *
+ * NOTE(sdl): the active item is currently signalled by surface fill + caption
+ * color (handled inside IconButton). The focus-visible and active styling for
+ * nav items lives in `src/ui/IconButton/IconButton.tsx` (out of Dock's scope);
+ * those still reference legacy tokens and should be migrated with that atom.
+ */
 type DockItem = {
   key: string
   caption?: string
@@ -175,11 +188,11 @@ export function Dock() {
       alignSelf={{ base: 'stretch', md: 'stretch' }}
       w={{ base: 'full', md: '76px' }}
       h={{ base: 'auto', md: 'full' }}
-      bg="bg"
+      bg="bg.canvas"
       borderTopWidth={{ base: '1px', md: 0 }}
-      borderTopColor={{ base: 'cardBorder', md: 'transparent' }}
+      borderTopColor={{ base: 'border.default', md: 'transparent' }}
       borderRightWidth={{ base: 0, md: '1px' }}
-      borderRightColor={{ base: 'transparent', md: 'cardBorder' }}
+      borderRightColor={{ base: 'transparent', md: 'border.default' }}
       justifyContent="flex-start"
       pt={{ base: 2, md: 6 }}
       px={2}
@@ -226,7 +239,7 @@ export function Dock() {
           alignItems="center"
           w="full"
           borderTopWidth="1px"
-          borderTopColor="cardDivider"
+          borderTopColor="border.default"
           pt={{ base: 1.5, md: 3 }}
           mt="auto"
         >

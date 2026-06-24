@@ -1,5 +1,6 @@
 'use client'
 
+import { sdlFocusRing } from '@/theme/styles'
 import { Box, Stack, Text } from '@chakra-ui/react'
 import { Button, Input } from '@ui'
 import { useRef } from 'react'
@@ -74,13 +75,10 @@ export function TaskSearchBase({
             py={0}
             borderRadius="lg"
             variant="ghost"
-            color="formControlIcon"
-            _hover={{ bg: 'badgeBg', color: 'cardFg' }}
-            _focusVisible={{
-              outline: '2px solid',
-              outlineColor: 'secondary',
-              outlineOffset: '2px',
-            }}
+            color="text.muted"
+            /* TODO(sdl): verify role — badgeBg used as neutral hover surface */
+            _hover={{ bg: 'bg.subtle', color: 'text.default' }}
+            _focusVisible={sdlFocusRing}
             onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
               e.preventDefault()
             }}
@@ -140,13 +138,10 @@ export function TaskSearchBase({
           py={0}
           borderRadius="lg"
           variant="ghost"
-          color="formControlIcon"
-          _hover={{ bg: 'badgeBg', color: 'cardFg' }}
-          _focusVisible={{
-            outline: '2px solid',
-            outlineColor: 'secondary',
-            outlineOffset: '2px',
-          }}
+          color="text.muted"
+          /* TODO(sdl): verify role — badgeBg used as neutral hover surface */
+          _hover={{ bg: 'bg.subtle', color: 'text.default' }}
+          _focusVisible={sdlFocusRing}
           onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
             e.preventDefault()
             e.stopPropagation()

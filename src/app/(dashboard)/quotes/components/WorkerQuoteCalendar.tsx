@@ -64,7 +64,7 @@ export function WorkerQuoteCalendar() {
     <Card layout="section" p={5}>
       <Stack gap={4}>
         <HStack justify="space-between" align="center">
-          <Text fontWeight={700} fontSize="md" color="cardFg">
+          <Text fontWeight={700} fontSize="md" color="text.default">
             Calendar
           </Text>
           <HStack gap={1}>
@@ -101,9 +101,9 @@ export function WorkerQuoteCalendar() {
             px={3}
             py={2}
             borderRadius="lg"
-            bg="primary.100"
+            bg="status.success.soft"
           >
-            <Text fontSize="sm" color="primary.800" fontWeight={600}>
+            <Text fontSize="sm" color="status.success.fg" fontWeight={600}>
               {formatCalendarDateLabel(selectedCalendarDate)}
             </Text>
             <Button
@@ -123,7 +123,7 @@ export function WorkerQuoteCalendar() {
               key={label}
               fontSize="xs"
               fontWeight={600}
-              color="formLabelMuted"
+              color="text.muted"
               textAlign="center"
               py={1}
             >
@@ -166,19 +166,25 @@ export function WorkerQuoteCalendar() {
                   fontWeight={isToday || isSelected ? 700 : 500}
                   bg={
                     isSelected
-                      ? 'primary.600'
+                      ? 'action.primary'
                       : isToday
-                        ? 'primary.100'
+                        ? 'status.success.soft'
                         : 'transparent'
                   }
                   color={
-                    isSelected ? 'white' : isToday ? 'primary.800' : 'cardFg'
+                    isSelected
+                      ? 'text.onGreen'
+                      : isToday
+                        ? 'status.success.fg'
+                        : 'text.default'
                   }
                   borderWidth={hasEvents && !isSelected ? '1px' : 0}
-                  borderColor="primary.200"
+                  borderColor="green.200"
                   transition="background 0.15s ease, color 0.15s ease"
                   _hover={{
-                    bg: isSelected ? 'primary.700' : 'primary.100',
+                    bg: isSelected
+                      ? 'action.primaryPressed'
+                      : 'status.success.soft',
                   }}
                   aria-label={`Select ${dateKey}`}
                   aria-pressed={isSelected}
@@ -199,7 +205,7 @@ export function WorkerQuoteCalendar() {
           })}
         </Grid>
 
-        <HStack gap={4} flexWrap="wrap" fontSize="xs" color="formLabelMuted">
+        <HStack gap={4} flexWrap="wrap" fontSize="xs" color="text.muted">
           <HStack gap={1.5}>
             <CalendarDot tone="booked" />
             <Text>Booked jobs</Text>
@@ -220,7 +226,7 @@ function CalendarDot({ tone }: { tone: WorkerQuoteCalendarMark }) {
       w="6px"
       h="6px"
       borderRadius="full"
-      bg={tone === 'booked' ? 'primary.500' : 'secondary.500'}
+      bg={tone === 'booked' ? 'status.success.solid' : 'status.info.solid'}
     />
   )
 }

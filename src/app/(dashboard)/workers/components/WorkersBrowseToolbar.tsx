@@ -43,9 +43,11 @@ function FilterChip({
       py={1.5}
       borderRadius="full"
       borderWidth="1px"
-      borderColor={active ? 'primary.400' : 'cardBorder'}
-      bg={active ? 'primary.50' : 'cardBg'}
-      color={disabled ? 'formLabelMuted' : active ? 'primary.800' : 'cardFg'}
+      borderColor={active ? 'action.primary' : 'border.default'}
+      bg={active ? 'status.success.soft' : 'bg.surface'}
+      color={
+        disabled ? 'text.muted' : active ? 'status.success.fg' : 'text.default'
+      }
       fontSize="sm"
       fontWeight={600}
       opacity={disabled ? 0.55 : 1}
@@ -55,7 +57,7 @@ function FilterChip({
       aria-pressed={active}
       aria-disabled={disabled}
     >
-      <Box as="span" color="primary.600" display="inline-flex" aria-hidden>
+      <Box as="span" color="text.link" display="inline-flex" aria-hidden>
         {icon}
       </Box>
       {label}
@@ -85,11 +87,11 @@ export function WorkersBrowseToolbar({
   return (
     <Box
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="xl"
-      bg="cardBg"
+      bg="bg.surface"
       p={{ base: 3, md: 4 }}
-      boxShadow="sm"
+      boxShadow="e2"
     >
       <HStack
         gap={{ base: 3, md: 4 }}
@@ -103,7 +105,7 @@ export function WorkersBrowseToolbar({
             placeholder="Search by name, skill, or area…"
             aria-label="Search workers"
             startElement={
-              <Box color="formLabelMuted" pl={2} display="flex" aria-hidden>
+              <Box color="text.muted" pl={2} display="flex" aria-hidden>
                 <LuSearch size={18} />
               </Box>
             }
@@ -137,7 +139,7 @@ export function WorkersBrowseToolbar({
         </HStack>
       </HStack>
       {!nearMeAvailable ? (
-        <Text fontSize="xs" color="formLabelMuted" mt={2}>
+        <Text fontSize="xs" color="text.muted" mt={2}>
           Set a service area with map coordinates on your worker profile to use
           Near me.
         </Text>

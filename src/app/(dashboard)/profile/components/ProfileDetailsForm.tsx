@@ -103,7 +103,7 @@ export function ProfileDetailsForm() {
     >
       <Stack gap={6}>
         {errorMessage ? (
-          <Text color="red.500" fontSize="sm">
+          <Text color="status.danger.fg" fontSize="sm">
             {errorMessage}
           </Text>
         ) : null}
@@ -112,7 +112,7 @@ export function ProfileDetailsForm() {
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Name</Heading>
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 Your display name is shown publicly on your profile, tasks, and
                 quotes.
               </Text>
@@ -133,7 +133,7 @@ export function ProfileDetailsForm() {
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Private details</Heading>
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 Used to confirm you meet the minimum age to work. Not shown
                 publicly.
               </Text>
@@ -156,7 +156,7 @@ export function ProfileDetailsForm() {
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Default contact preference</Heading>
-              <Text fontSize="sm" color="formLabelMuted">
+              <Text fontSize="sm" color="text.muted">
                 Pre-fills how you&apos;re contacted on new tasks. Only verified
                 methods can be selected.
               </Text>
@@ -187,7 +187,7 @@ export function ProfileDetailsForm() {
             </FormField>
             {hasUnverifiedContact ? (
               <Stack gap={2}>
-                <Text fontSize="sm" color="formLabelMuted">
+                <Text fontSize="sm" color="text.muted">
                   Email and phone unlock once verified.
                 </Text>
                 <Link

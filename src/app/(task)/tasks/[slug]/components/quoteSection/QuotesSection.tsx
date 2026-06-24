@@ -76,9 +76,9 @@ function QuotesSectionShell({ children }: { children: ReactNode }) {
   return (
     <Box
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="xl"
-      bg="cardBg"
+      bg="bg.surface"
       p={{ base: 4, md: 5 }}
       w="full"
     >
@@ -202,8 +202,8 @@ export function QuotesSection() {
               <Heading size="md">Quotes</Heading>
               {hasList ? (
                 <Badge
-                  bg="primary.100"
-                  color="primary.800"
+                  bg="status.success.soft"
+                  color="status.success.fg"
                   borderRadius="full"
                   letterSpacing="normal"
                   fontSize="xs"
@@ -215,7 +215,7 @@ export function QuotesSection() {
             </HStack>
             {hasList ? (
               <HStack gap={2} align="center" flexShrink={0}>
-                <Text fontSize="sm" color="formLabelMuted" fontWeight={500}>
+                <Text fontSize="sm" color="text.muted" fontWeight={500}>
                   Sort:
                 </Text>
                 <NativeSelect.Root
@@ -223,9 +223,9 @@ export function QuotesSection() {
                   maxW="220px"
                 >
                   <NativeSelect.Field
-                    bg="cardBg"
+                    bg="bg.surface"
                     borderWidth="1px"
-                    borderColor="cardBorder"
+                    borderColor="border.default"
                     borderRadius="lg"
                     fontSize="sm"
                     value={quoteSort}
@@ -241,17 +241,17 @@ export function QuotesSection() {
             ) : null}
           </HStack>
           {acceptError ? (
-            <Text color="red.400" fontSize="sm">
+            <Text color="status.danger.fg" fontSize="sm">
               {acceptError}
             </Text>
           ) : null}
           {cancelError ? (
-            <Text color="red.400" fontSize="sm">
+            <Text color="status.danger.fg" fontSize="sm">
               {cancelError}
             </Text>
           ) : null}
           {!hasList ? (
-            <Text color="formLabelMuted">
+            <Text color="text.muted">
               No quotes yet. Check back for worker responses.
             </Text>
           ) : (
@@ -284,7 +284,7 @@ export function QuotesSection() {
       <QuotesSectionShell>
         <Stack gap={3} w="full">
           <Heading size="md">Your accepted quote</Heading>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             You are booked on this job. Use the panel below to enter the
             customer&apos;s completion code when work is done.
           </Text>
@@ -298,7 +298,7 @@ export function QuotesSection() {
   const followUpBlock = myQuote ? (
     <Stack gap={3}>
       <Heading size="sm">Your quote</Heading>
-      <Text color="formLabelMuted">
+      <Text color="text.muted">
         {(() => {
           const submittedPence = priceToPence(myQuote.price)
           if (submittedPence == null) {
@@ -318,7 +318,7 @@ export function QuotesSection() {
           )
         })()}
       </Text>
-      <Badge bg="neutral.100" color="cardFg" w="fit-content">
+      <Badge bg="neutral.100" color="text.default" w="fit-content">
         Status: {normaliseTaskStatusForBadge(myQuote.status)}
       </Badge>
     </Stack>
@@ -329,7 +329,7 @@ export function QuotesSection() {
   ) : me && !isEmailVerified(me) ? (
     <Stack gap={3}>
       <Heading size="sm">Verify your email</Heading>
-      <Text color="formLabelMuted">
+      <Text color="text.muted">
         Verify your email before sending quotes. Check your inbox or resend from
         the banner.
       </Text>
@@ -342,14 +342,14 @@ export function QuotesSection() {
   ) : !canSubmitQuote ? (
     <Stack gap={3}>
       <Heading size="sm">Quoting closed</Heading>
-      <Text color="formLabelMuted">
+      <Text color="text.muted">
         This task is no longer accepting new quotes.
       </Text>
     </Stack>
   ) : showQuoteForm ? (
     <Stack gap={3}>
       <Heading size="sm">Submit a quote</Heading>
-      <Text color="formLabelMuted">
+      <Text color="text.muted">
         Add your price, availability, and a message in a few guided steps.
       </Text>
       <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
@@ -366,8 +366,8 @@ export function QuotesSection() {
             <Heading size="md">Quotes</Heading>
             {hasQuoteRows ? (
               <Badge
-                bg="primary.100"
-                color="primary.800"
+                bg="status.success.soft"
+                color="status.success.fg"
                 borderRadius="full"
                 letterSpacing="normal"
                 fontSize="xs"
@@ -377,7 +377,7 @@ export function QuotesSection() {
               </Badge>
             ) : null}
           </HStack>
-          <Text fontSize="sm" color="formLabelMuted">
+          <Text fontSize="sm" color="text.muted">
             See what others are bidding — register as a worker to compete
           </Text>
         </Stack>
@@ -391,7 +391,7 @@ export function QuotesSection() {
             )}
           </Stack>
         ) : (
-          <Text color="formLabelMuted">No quotes yet.</Text>
+          <Text color="text.muted">No quotes yet.</Text>
         )}
         {followUpBlock}
       </Stack>

@@ -25,7 +25,7 @@ export function CreateTaskBasicsSection({
       layout="section"
       bodyGap={5}
       header={
-        <Heading size="lg" color="primary.700">
+        <Heading size="lg" color="text.link">
           1. Task basics
         </Heading>
       }
@@ -43,7 +43,7 @@ export function CreateTaskBasicsSection({
         helperText="Choose the closest match—workers filter discovery by category."
         helperTextProps={{
           fontSize: 'xs',
-          color: 'formLabelMuted',
+          color: 'text.muted',
           mt: 1,
         }}
       >

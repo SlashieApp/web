@@ -5,6 +5,7 @@ import type { Map as MapboxMap } from 'mapbox-gl'
 import type { ChangeEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
+import { BRAND_MAP_PIN, BRAND_MAP_PIN_STROKE } from '@/theme/brand'
 import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import {
   mapboxForwardGeocode,
@@ -249,9 +250,9 @@ export function TaskLocationMapPicker({
         overflow="hidden"
         boxShadow="ghostBorder"
         borderWidth="1px"
-        borderColor="cardBorder"
+        borderColor="border.default"
         h={{ base: '240px', md: '320px' }}
-        bg="cardBg"
+        bg="bg.surface"
       >
         {token ? (
           <>
@@ -275,7 +276,7 @@ export function TaskLocationMapPicker({
                 rootProps={{
                   bg: 'whiteAlpha.950',
                   backdropFilter: 'blur(8px)',
-                  borderColor: 'cardBorder',
+                  borderColor: 'border.default',
                   boxShadow: 'sm',
                 }}
               />
@@ -302,8 +303,8 @@ export function TaskLocationMapPicker({
                 <title>Selected location</title>
                 <path
                   d="M12 0C5.383 0 0 5.285 0 11.8c0 6.515 12 20.2 12 20.2s12-13.685 12-20.2C24 5.285 18.617 0 12 0z"
-                  fill="#00AB63"
-                  stroke="#ffffff"
+                  fill={BRAND_MAP_PIN}
+                  stroke={BRAND_MAP_PIN_STROKE}
                   strokeWidth="2"
                 />
               </svg>
@@ -315,7 +316,7 @@ export function TaskLocationMapPicker({
               right={2}
               zIndex={2}
               fontSize="xs"
-              color="cardFg"
+              color="text.default"
               bg="whiteAlpha.900"
               backdropFilter="blur(6px)"
               borderRadius="md"
@@ -336,9 +337,9 @@ export function TaskLocationMapPicker({
             h="full"
             px={4}
           >
-            <Text color="formLabelMuted" fontSize="sm" textAlign="center">
+            <Text color="text.muted" fontSize="sm" textAlign="center">
               Set{' '}
-              <Text as="span" fontWeight={700} color="cardFg">
+              <Text as="span" fontWeight={700} color="text.default">
                 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
               </Text>{' '}
               to pick a location on the map.
@@ -348,7 +349,7 @@ export function TaskLocationMapPicker({
       </Box>
 
       {showCoordinateHelpText ? (
-        <Text fontSize="sm" color="formLabelMuted">
+        <Text fontSize="sm" color="text.muted">
           Adjust the map or use the search box. Map coordinates and the place
           label from Mapbox are saved for matching only — workers see
           approximate area, not your full street address, until you accept a

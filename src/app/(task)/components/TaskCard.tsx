@@ -5,6 +5,8 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
 import { Avatar, Badge, Button, Card, Link, Rating, Thumbnail } from '@ui'
 
+import { sdlMotion } from '@/theme/styles'
+
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
 
 /** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
@@ -162,13 +164,15 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       px={{ base: 3, md: isExpanded ? 4 : 3 }}
       minH={{ base: '108px', md: isExpanded ? 'auto' : '132px' }}
       maxW="full"
-      bg="cardBg"
-      boxShadow={isExpanded ? '0 10px 28px rgba(15, 23, 42, 0.1)' : 'card'}
-      transition="box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease, padding 200ms ease"
+      bg="bg.surface"
+      boxShadow={isExpanded ? 'e3' : 'card'}
+      transitionProperty="box-shadow, transform, border-color, padding"
+      transitionDuration={sdlMotion.duration.base}
+      transitionTimingFunction={sdlMotion.easing.standard}
       _hover={
         onActivate
           ? {
-              boxShadow: '0 10px 24px rgba(15, 23, 42, 0.12)',
+              boxShadow: 'e3',
             }
           : undefined
       }
@@ -190,12 +194,12 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             <HStack gap={3} flex={1} minW={0}>
               {showBadge ? <Badge>{badgeText}</Badge> : null}
               {distanceLabel ? (
-                <Text fontSize="xs" color="formLabelMuted" truncate>
+                <Text fontSize="xs" color="text.muted" truncate>
                   {distanceLabel}
                 </Text>
               ) : null}
               {viewsLabel ? (
-                <Text fontSize="xs" color="formLabelMuted" truncate>
+                <Text fontSize="xs" color="text.muted" truncate>
                   {viewsLabel}
                 </Text>
               ) : null}
@@ -206,7 +210,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             display={{ base: 'none', md: 'block' }}
             fontSize={isExpanded ? '2xl' : 'xl'}
             fontWeight={700}
-            color="cardFg"
+            color="text.default"
             lineClamp={isExpanded ? 2 : 1}
             truncate={!isExpanded}
           >
@@ -218,7 +222,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               display={{ base: 'none', md: 'block' }}
               fontSize="sm"
               lineHeight="1.5"
-              color="formLabelMuted"
+              color="text.muted"
               lineClamp={4}
               pb={2}
             >
@@ -231,7 +235,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               flex={1}
               minW={0}
               fontSize="xs"
-              color="formLabelMuted"
+              color="text.muted"
               lineClamp={isExpanded ? 2 : 1}
               truncate={!isExpanded}
             >
@@ -241,7 +245,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               fontWeight={800}
               fontSize={{ base: 'xl', md: '2xl' }}
               lineHeight="1"
-              color="cardAccentFg"
+              color="text.link"
               whiteSpace="nowrap"
               flexShrink={0}
             >

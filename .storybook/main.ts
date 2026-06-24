@@ -9,6 +9,13 @@ import graphqlLoader from 'vite-plugin-graphql-loader'
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const schemaPath = resolve(rootDir, '.codegen/schema.ts')
 
+/** tsconfig `paths` mirrored for Vite/Rollup so `@ui` / `@/*` resolve in stories + MDX. */
+const tsconfigPathAliases = [
+  { find: /^@ui$/, replacement: resolve(rootDir, 'src/ui/index.ts') },
+  { find: /^@ui\//, replacement: `${resolve(rootDir, 'src/ui')}/` },
+  { find: /^@\//, replacement: `${resolve(rootDir, 'src')}/` },
+]
+
 const isStaticBuild =
   process.env.npm_lifecycle_event === 'build-storybook' ||
   process.env.npm_lifecycle_event === 'prebuild-storybook'
@@ -50,7 +57,7 @@ const chakraRef = {
 } as const
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   refs: {
     // Explicit ref (see https://github.com/chakra-ui/chakra-ui/pull/5133).
     'chakra-ui': chakraRef,
@@ -106,7 +113,18 @@ const config: StorybookConfig = {
             server: chakraProxy,
           }
 
-    const merged = mergeConfig(userConfig, productionBuild)
+    const merged = mergeConfig(userConfig, {
+      ...productionBuild,
+      resolve: {
+        ...productionBuild.resolve,
+        alias: [
+          ...tsconfigPathAliases,
+          ...(Array.isArray(productionBuild.resolve?.alias)
+            ? productionBuild.resolve.alias
+            : []),
+        ],
+      },
+    })
 
     if (!existsSync(schemaPath)) {
       return merged

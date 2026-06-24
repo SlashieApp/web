@@ -13,8 +13,8 @@ export default function WorkerProfileLoading() {
               p={{ base: 4, md: 6 }}
               borderRadius="xl"
               borderWidth="1px"
-              borderColor="cardBorder"
-              bg="cardBg"
+              borderColor="border.default"
+              bg="bg.surface"
             >
               <HStackSkeleton />
               <Skeleton h="20px" w="40%" />
@@ -60,8 +60,8 @@ function SectionSkeleton({ lines }: { lines: 2 | 3 | 4 }) {
       p={{ base: 5, md: 6 }}
       borderRadius="xl"
       borderWidth="1px"
-      borderColor="cardBorder"
-      bg="cardBg"
+      borderColor="border.default"
+      bg="bg.surface"
     >
       <Skeleton h="12px" w="20%" />
       <Skeleton h="24px" w="40%" />

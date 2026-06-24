@@ -8,6 +8,7 @@ import {
   HStack,
   Image,
   Stack,
+  type SystemStyleObject,
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react'
@@ -21,7 +22,7 @@ import {
 } from 'react'
 import { LuChevronLeft, LuChevronRight } from 'react-icons/lu'
 
-import { focusVisibleMatchesHover } from '@/theme/system'
+import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 import { Button } from '../Button'
 import { IconButton } from '../IconButton/IconButton'
 
@@ -35,6 +36,12 @@ export type ImageGalleryItem = {
 export type ImageGalleryProps = Omit<BoxProps, 'children'> & {
   items: ImageGalleryItem[]
 }
+
+/** Shared SDL transition for gallery controls (transform/opacity/color only). */
+const galleryTransition = {
+  transitionDuration: sdlMotion.duration.moderate,
+  transitionTimingFunction: sdlMotion.easing.standard,
+} satisfies SystemStyleObject
 
 function GalleryImage({
   src,
@@ -52,13 +59,13 @@ function GalleryImage({
         w="full"
         h="full"
         minH="inherit"
-        bg="cardAvatarEmpty"
+        bg="bg.subtle"
         display="flex"
         alignItems="center"
         justifyContent="center"
         borderRadius={borderRadius}
       >
-        <Text fontSize="sm" color="formLabelMuted" textAlign="center" px={3}>
+        <Text fontSize="sm" color="text.muted" textAlign="center" px={3}>
           Image unavailable
         </Text>
       </Box>
@@ -90,8 +97,8 @@ function BentoShell({
       borderRadius={borderRadius}
       overflow="hidden"
       borderWidth="1px"
-      borderColor="cardBorder"
-      bg="cardBg"
+      borderColor="border.default"
+      bg="bg.surface"
       minH="inherit"
       h="full"
       w="full"
@@ -218,14 +225,24 @@ function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
   const showNav = items.length > 1
   const viewportKey = items.map((s) => s.src).join('|')
 
+  // Nav arrows: >=44px touch target, visible SDL focus ring, keep aria-labels.
   const navButtonProps = {
     position: 'absolute' as const,
     top: '50%',
     transform: 'translateY(-50%)',
     zIndex: 2,
     variant: 'ghost' as const,
+    boxSize: '44px',
+    minW: '44px',
+    minH: '44px',
+    bg: 'bg.surface',
+    color: 'text.default',
+    boxShadow: 'e1',
+    ...galleryTransition,
+    transitionProperty: 'background-color, color, opacity, box-shadow',
+    _hover: { bg: 'bg.subtle' },
+    _focusVisible: sdlFocusRing,
     _disabled: { opacity: 0.35, cursor: 'not-allowed' },
-    ...focusVisibleMatchesHover({ bg: 'badgeBg', color: 'cardFg' }),
   }
 
   return (
@@ -245,8 +262,8 @@ function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
                   borderRadius={r}
                   overflow="hidden"
                   borderWidth="1px"
-                  borderColor="cardBorder"
-                  bg="cardBg"
+                  borderColor="border.default"
+                  bg="bg.surface"
                   minH="220px"
                   maxH="360px"
                   h="52vw"
@@ -303,10 +320,6 @@ function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
           <HStack justify="center" gap={2}>
             {items.map((slide, index) => {
               const selected = index === selectedIndex
-              const dotHover = {
-                bg: selected ? 'primary.500' : 'badgeBg',
-                opacity: 0.92,
-              }
               return (
                 <Button
                   key={`dot-${slide.src}-${slide.alt}`}
@@ -319,17 +332,23 @@ function MobileCarousel({ items }: { items: ImageGalleryItem[] }) {
                   minW={selected ? '24px' : '6px'}
                   w={selected ? '24px' : '6px'}
                   borderRadius="full"
-                  bg={selected ? 'primary.500' : 'badgeBg'}
+                  bg={selected ? 'action.primary' : 'status.success.soft'}
                   opacity={selected ? 1 : 0.85}
                   transitionProperty="width, min-width, opacity, background-color"
-                  transitionDuration="0.2s"
+                  transitionDuration={sdlMotion.duration.moderate}
+                  transitionTimingFunction={sdlMotion.easing.standard}
                   cursor="pointer"
                   borderWidth="0"
                   p={0}
                   minH="6px"
                   flexShrink={0}
-                  _hover={dotHover}
-                  {...focusVisibleMatchesHover(dotHover)}
+                  _hover={{
+                    bg: selected
+                      ? 'action.primaryHover'
+                      : 'status.success.soft',
+                    opacity: 0.92,
+                  }}
+                  _focusVisible={sdlFocusRing}
                 />
               )
             })}

@@ -109,8 +109,8 @@ function CheckIcon() {
       justifyContent="center"
       boxSize="18px"
       borderRadius="full"
-      bg="primary.500"
-      color="white"
+      bg="action.primary"
+      color="text.onGreen"
       flexShrink={0}
       mt="2px"
       aria-hidden
@@ -149,8 +149,8 @@ function StepIcon({ kind }: { kind: string }) {
     <Box
       boxSize="44px"
       borderRadius="xl"
-      bg="primary.100"
-      color="primary.700"
+      bg="status.success.soft"
+      color="status.success.fg"
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -169,8 +169,8 @@ function FeatureIcon({ kind }: { kind: string }) {
     <Box
       boxSize="36px"
       borderRadius="lg"
-      bg="primary.100"
-      color="primary.700"
+      bg="status.success.soft"
+      color="status.success.fg"
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -219,9 +219,9 @@ function HeroTaskCard({
     <Box
       position="absolute"
       {...offset}
-      bg="cardBg"
+      bg="bg.surface"
       borderWidth="1px"
-      borderColor="cardBorder"
+      borderColor="border.default"
       borderRadius="xl"
       boxShadow="md"
       p={3}
@@ -229,21 +229,21 @@ function HeroTaskCard({
       zIndex={2}
     >
       <Stack gap={1.5}>
-        <Text fontSize="sm" fontWeight={700} color="cardFg" lineClamp={1}>
+        <Text fontSize="sm" fontWeight={700} color="text.default" lineClamp={1}>
           {title}
         </Text>
-        <Text fontSize="xs" color="formLabelMuted">
+        <Text fontSize="xs" color="text.muted">
           {area}
         </Text>
         <HStack justify="space-between" align="center">
-          <Text fontSize="sm" fontWeight={800} color="primary.700">
+          <Text fontSize="sm" fontWeight={800} color="text.link">
             {price}
           </Text>
-          <Text fontSize="2xs" color="formLabelMuted">
+          <Text fontSize="2xs" color="text.muted">
             ★ {rating}
           </Text>
         </HStack>
-        <Text fontSize="2xs" fontWeight={600} color="primary.700">
+        <Text fontSize="2xs" fontWeight={600} color="text.link">
           {quotes} quotes
         </Text>
       </Stack>
@@ -270,9 +270,10 @@ function AudienceCard({
     <Stack
       gap={5}
       borderWidth={featured ? '2px' : '1px'}
-      borderColor={featured ? 'primary.300' : 'cardBorder'}
+      /* TODO(sdl): featured green accent border mapped to border.focus */
+      borderColor={featured ? 'border.focus' : 'border.default'}
       borderRadius="2xl"
-      bg="cardBg"
+      bg="bg.surface"
       p={{ base: 5, md: 7 }}
       boxShadow="sm"
       h="full"
@@ -281,8 +282,8 @@ function AudienceCard({
         <Box
           boxSize="44px"
           borderRadius="full"
-          bg="primary.100"
-          color="primary.700"
+          bg="status.success.soft"
+          color="status.success.fg"
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -344,7 +345,7 @@ function AudienceCard({
         {items.map((item) => (
           <List.Item key={item} display="flex" gap={3} alignItems="flex-start">
             <CheckIcon />
-            <Text fontSize="sm" color="cardFg" lineHeight="tall">
+            <Text fontSize="sm" color="text.default" lineHeight="tall">
               {item}
             </Text>
           </List.Item>
@@ -374,7 +375,8 @@ export default async function MarketingHomePage() {
       {/* Hero */}
       <Box
         as="section"
-        bg="linear-gradient(180deg, primary.50 0%, neutral.100 65%)"
+        /* TODO(sdl): gradient stops use primitives (no semantic role for gradient stops) */
+        bg="linear-gradient(180deg, green.50 0%, neutral.100 65%)"
         py={{ base: 10, md: 16 }}
         overflow="hidden"
       >
@@ -388,18 +390,18 @@ export default async function MarketingHomePage() {
               <Heading
                 size={{ base: '2xl', md: '3xl', lg: '4xl' }}
                 lineHeight="1.08"
-                color="secondary.900"
+                color="text.default"
                 fontFamily="var(--font-plus-jakarta)"
                 letterSpacing="-0.02em"
               >
                 Local tasks. Real quotes.{' '}
-                <Text as="span" color="primary.600">
+                <Text as="span" color="text.link">
                   On the map.
                 </Text>
               </Heading>
               <Text
                 fontSize={{ base: 'md', md: 'lg' }}
-                color="formLabelMuted"
+                color="text.muted"
                 lineHeight="tall"
                 maxW="lg"
               >
@@ -424,15 +426,15 @@ export default async function MarketingHomePage() {
                       key={initial}
                       boxSize="32px"
                       borderRadius="full"
-                      bg="primary.200"
-                      color="primary.800"
+                      bg="status.success.soft"
+                      color="status.success.fg"
                       fontSize="xs"
                       fontWeight={700}
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
                       borderWidth="2px"
-                      borderColor="cardBg"
+                      borderColor="bg.surface"
                       ml={i === 0 ? 0 : -2}
                       zIndex={3 - i}
                     >
@@ -440,8 +442,8 @@ export default async function MarketingHomePage() {
                     </Box>
                   ))}
                 </HStack>
-                <Text fontSize="sm" color="formLabelMuted">
-                  <Text as="span" color="mustard.400" fontWeight={700}>
+                <Text fontSize="sm" color="text.muted">
+                  <Text as="span" color="status.warning.solid" fontWeight={700}>
                     ★★★★★
                   </Text>{' '}
                   4.8/5 from 2,300+ users
@@ -453,16 +455,18 @@ export default async function MarketingHomePage() {
               position="relative"
               minH={{ base: '320px', md: '400px' }}
               borderRadius="2xl"
-              bg="linear-gradient(145deg, primary.100 0%, neutral.100 55%, primary.50 100%)"
+              /* TODO(sdl): gradient stops use primitives (no semantic role for gradient stops) */
+              bg="linear-gradient(145deg, green.100 0%, neutral.100 55%, green.50 100%)"
               borderWidth="1px"
-              borderColor="primary.200"
+              borderColor="border.focus"
               overflow="hidden"
             >
               <Box
                 position="absolute"
                 inset={0}
                 opacity={0.35}
-                bgImage="radial-gradient(circle at 20% 30%, #92E7B7 0%, transparent 45%), radial-gradient(circle at 80% 70%, #D9F4E5 0%, transparent 40%)"
+                /* TODO(sdl): decorative radial-gradient stops use green primitives */
+                bgImage="radial-gradient(circle at 20% 30%, {colors.green.200} 0%, transparent 45%), radial-gradient(circle at 80% 70%, {colors.green.100} 0%, transparent 40%)"
               />
               {HERO_TASK_CARDS.map((card) => (
                 <HeroTaskCard key={card.title} {...card} />
@@ -475,9 +479,9 @@ export default async function MarketingHomePage() {
                   left={`${left}%`}
                   boxSize="10px"
                   borderRadius="full"
-                  bg="primary.500"
+                  bg="action.primary"
                   borderWidth="2px"
-                  borderColor="white"
+                  borderColor="bg.surface"
                   boxShadow="sm"
                   zIndex={1}
                   aria-hidden
@@ -489,7 +493,7 @@ export default async function MarketingHomePage() {
       </Box>
 
       {/* How it works */}
-      <Box as="section" py={{ base: 12, md: 16 }} bg="bg">
+      <Box as="section" py={{ base: 12, md: 16 }} bg="bg.canvas">
         <Container maxW="6xl" px={{ base: 4, md: 6 }}>
           <Stack gap={10}>
             <Heading size="lg" textAlign="center">
@@ -511,13 +515,13 @@ export default async function MarketingHomePage() {
                   <Text
                     fontSize="xs"
                     fontWeight={800}
-                    color="primary.700"
+                    color="text.link"
                     letterSpacing="0.08em"
                   >
                     {item.step}
                   </Text>
                   <Heading size="sm">{item.title}</Heading>
-                  <Text fontSize="sm" color="formLabelMuted" lineHeight="tall">
+                  <Text fontSize="sm" color="text.muted" lineHeight="tall">
                     {item.body}
                   </Text>
                 </Stack>
@@ -564,7 +568,7 @@ export default async function MarketingHomePage() {
       </Box>
 
       {/* See demand near you */}
-      <Box as="section" py={{ base: 12, md: 16 }} bg="bg">
+      <Box as="section" py={{ base: 12, md: 16 }} bg="bg.canvas">
         <Container maxW="6xl" px={{ base: 4, md: 6 }}>
           <Grid
             templateColumns={{ base: '1fr', lg: '1fr 1fr' }}
@@ -573,7 +577,7 @@ export default async function MarketingHomePage() {
           >
             <Stack gap={6}>
               <Heading size="lg">See demand near you</Heading>
-              <Text color="formLabelMuted" lineHeight="tall" fontSize="md">
+              <Text color="text.muted" lineHeight="tall" fontSize="md">
                 Browse open tasks on a map — not endless scrolling through
                 classifieds.
               </Text>
@@ -584,7 +588,7 @@ export default async function MarketingHomePage() {
                     <Text
                       fontSize="sm"
                       fontWeight={600}
-                      color="cardFg"
+                      color="text.default"
                       pt={1.5}
                     >
                       {feature.label}
@@ -604,8 +608,9 @@ export default async function MarketingHomePage() {
               minH={{ base: '280px', md: '360px' }}
               borderRadius="2xl"
               borderWidth="1px"
-              borderColor="cardBorder"
-              bg="linear-gradient(160deg, #E8F8EF 0%, #F7F9F8 50%, #D9F4E5 100%)"
+              borderColor="border.default"
+              /* TODO(sdl): decorative gradient stops use green/canvas primitives */
+              bg="linear-gradient(160deg, {colors.green.50} 0%, {colors.neutral.50} 50%, {colors.green.100} 100%)"
               overflow="hidden"
             >
               <Text
@@ -614,7 +619,7 @@ export default async function MarketingHomePage() {
                 left={4}
                 fontSize="xs"
                 fontWeight={700}
-                color="formLabelMuted"
+                color="text.muted"
               >
                 London
               </Text>
@@ -627,15 +632,15 @@ export default async function MarketingHomePage() {
                   {...('right' in pin ? { right: pin.right } : {})}
                   {...('bottom' in pin ? { bottom: pin.bottom } : {})}
                   transform="translate(-50%, -50%)"
-                  bg="cardBg"
+                  bg="bg.surface"
                   borderWidth="1px"
-                  borderColor="primary.300"
+                  borderColor="border.focus"
                   borderRadius="full"
                   px={2.5}
                   py={1}
                   fontSize="xs"
                   fontWeight={800}
-                  color="primary.700"
+                  color="text.link"
                   boxShadow="sm"
                   zIndex={1}
                 >
@@ -648,7 +653,7 @@ export default async function MarketingHomePage() {
       </Box>
 
       {/* Trust bar */}
-      <Box as="section" bg="primary.50" py={{ base: 8, md: 10 }}>
+      <Box as="section" bg="status.success.soft" py={{ base: 8, md: 10 }}>
         <Container maxW="6xl" px={{ base: 4, md: 6 }}>
           <Grid
             templateColumns={{
@@ -664,7 +669,7 @@ export default async function MarketingHomePage() {
                 <Text
                   fontSize="sm"
                   fontWeight={600}
-                  color="cardFg"
+                  color="text.default"
                   lineHeight="tall"
                 >
                   {point}
@@ -676,7 +681,7 @@ export default async function MarketingHomePage() {
       </Box>
 
       {/* Pricing teaser */}
-      <Box as="section" py={{ base: 12, md: 16 }} bg="bg">
+      <Box as="section" py={{ base: 12, md: 16 }} bg="bg.canvas">
         <Container maxW="4xl" px={{ base: 4, md: 6 }}>
           <Stack gap={8} align="center">
             <Heading size="lg" textAlign="center">
@@ -690,36 +695,37 @@ export default async function MarketingHomePage() {
               <Stack
                 gap={3}
                 borderWidth="1px"
-                borderColor="cardBorder"
+                borderColor="border.default"
                 borderRadius="2xl"
-                bg="cardBg"
+                bg="bg.surface"
                 p={{ base: 5, md: 6 }}
                 textAlign="center"
               >
-                <Text fontSize="sm" fontWeight={700} color="formLabelMuted">
+                <Text fontSize="sm" fontWeight={700} color="text.muted">
                   Workers — Free
                 </Text>
                 <Heading size="md">{workerFree.badge}</Heading>
-                <Text fontSize="sm" color="formLabelMuted">
+                <Text fontSize="sm" color="text.muted">
                   Browse tasks and send quotes on the free tier.
                 </Text>
               </Stack>
               <Stack
                 gap={3}
                 borderWidth="2px"
-                borderColor="primary.300"
+                /* TODO(sdl): featured green accent border mapped to border.focus */
+                borderColor="border.focus"
                 borderRadius="2xl"
-                bg="cardBg"
+                bg="bg.surface"
                 p={{ base: 5, md: 6 }}
                 textAlign="center"
               >
-                <Text fontSize="sm" fontWeight={700} color="primary.700">
+                <Text fontSize="sm" fontWeight={700} color="text.link">
                   {pricing?.productName ?? 'Slashie Unlimited'}
                 </Text>
-                <Heading size="md" color="primary.700">
+                <Heading size="md" color="text.link">
                   {trialLabel}
                 </Heading>
-                <Text fontSize="sm" color="formLabelMuted">
+                <Text fontSize="sm" color="text.muted">
                   Then {unlimitedPrice}
                 </Text>
               </Stack>
@@ -727,7 +733,7 @@ export default async function MarketingHomePage() {
             <NextLink
               href="/pricing"
               style={{
-                color: 'var(--chakra-colors-primary-700)',
+                color: 'var(--chakra-colors-text-link)',
                 fontWeight: 700,
                 fontSize: '0.95rem',
                 textDecoration: 'none',
@@ -740,7 +746,8 @@ export default async function MarketingHomePage() {
       </Box>
 
       {/* Final CTA */}
-      <Box as="section" bg="secondary.900" py={{ base: 10, md: 12 }}>
+      {/* TODO(sdl): dark CTA band uses neutral.900 ink surface (no dark-surface role in light mode) */}
+      <Box as="section" bg="neutral.900" py={{ base: 10, md: 12 }}>
         <Container maxW="6xl" px={{ base: 4, md: 6 }}>
           <HStack
             justify="space-between"

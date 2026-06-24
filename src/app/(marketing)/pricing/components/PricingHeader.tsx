@@ -10,7 +10,7 @@ export function PricingHeader() {
       >
         Choose your Slashie plan
       </Heading>
-      <Text fontSize="md" color="formLabelMuted" lineHeight="tall">
+      <Text fontSize="md" color="text.muted" lineHeight="tall">
         Workers choose free or unlimited quotes.
       </Text>
     </Stack>

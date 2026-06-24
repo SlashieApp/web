@@ -26,7 +26,7 @@ export default async function WorkerProfileLayout({
                 eyebrow="Worker"
                 heading="Worker not found"
               >
-                <Text color="formLabelMuted">
+                <Text color="text.muted">
                   This worker profile is not available. It may have been removed
                   or the link may be incorrect.
                 </Text>

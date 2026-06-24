@@ -1,0 +1,123 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+import { Box, Flex, Stack, Text } from '@chakra-ui/react'
+import { sdlTypeScale } from '@/theme/styles'
+
+<Meta title="Foundations/Typography" />
+
+# Typography
+
+The SDL type scale. Every role below is **read live from `sdlTypeScale`** in
+`src/theme/styles.ts`, so this page can never drift from the code. Components
+should reference these roles rather than hardcoding `fontSize` / `lineHeight` /
+`fontWeight` values.
+
+**Font families** resolve from the Chakra theme (`src/theme/chakraSystem.ts`):
+
+- **Display & headings** use the `heading` family (Plus Jakarta Sans).
+- **Body, label & UI text** use the `body` family (Inter).
+- **Mono** uses the `mono` family (SF Mono / JetBrains Mono) for codes and IDs.
+
+All specimens render with SDL semantic color roles (`text.default`, `text.muted`),
+so they reflect the active light/dark theme.
+
+export const ROLE_META = {
+  'display-lg': { family: 'heading', use: 'Marketing / hero display.' },
+  'heading-xl': { family: 'heading', use: 'Page title (H1).' },
+  'heading-lg': { family: 'heading', use: 'Section heading (H2).' },
+  'heading-md': { family: 'heading', use: 'Subsection / card title (H3).' },
+  'text-lg': { family: 'body', use: 'Lead paragraph / emphasis body.' },
+  'text-md': { family: 'body', use: 'Default body copy.' },
+  'text-sm': { family: 'body', use: 'Secondary body / dense rows.' },
+  'text-xs': { family: 'body', use: 'Captions, metadata, footnotes.' },
+  'label-md': { family: 'body', use: 'Form labels, buttons, tabs.' },
+  'mono-sm': { family: 'mono', use: 'Codes, IDs, numeric tokens.' },
+}
+
+export const SAMPLE = 'The quick brown Slashie jumps over 0123456789'
+
+export const Specimen = ({ role }) => {
+  const scale = sdlTypeScale[role]
+  const meta = ROLE_META[role]
+  return (
+    <Box
+      borderBottomWidth="1px"
+      borderColor="border.default"
+      py={4}
+    >
+      <Flex
+        gap={3}
+        justify="space-between"
+        align="baseline"
+        flexWrap="wrap"
+        mb={2}
+      >
+        <Text
+          fontFamily="mono"
+          fontSize="12px"
+          fontWeight={600}
+          color="text.default"
+        >
+          {role}
+        </Text>
+        <Text fontFamily="mono" fontSize="12px" color="text.muted">
+          {scale.fontSize} / {scale.lineHeight} / {scale.fontWeight} · {meta.family}
+        </Text>
+      </Flex>
+      <Text fontSize="12px" color="text.subtle" mb={2}>
+        {meta.use}
+      </Text>
+      <Text
+        fontFamily={meta.family}
+        fontSize={scale.fontSize}
+        lineHeight={scale.lineHeight}
+        fontWeight={scale.fontWeight}
+        color="text.default"
+      >
+        {SAMPLE}
+      </Text>
+    </Box>
+  )
+}
+
+export const TypeScale = () => (
+  <Stack gap={0}>
+    {Object.keys(sdlTypeScale).map((role) => (
+      <Specimen key={role} role={role} />
+    ))}
+  </Stack>
+)
+
+<TypeScale />
+
+## Reference table
+
+export const ScaleTable = () => (
+  <Box overflowX="auto">
+    <Box as="table" w="100%" fontSize="14px" color="text.default" style={{ borderCollapse: 'collapse' }}>
+      <Box as="thead">
+        <Box as="tr" textAlign="left" color="text.muted">
+          <Box as="th" py={2} pr={4}>Role</Box>
+          <Box as="th" py={2} pr={4}>Size</Box>
+          <Box as="th" py={2} pr={4}>Line height</Box>
+          <Box as="th" py={2} pr={4}>Weight</Box>
+          <Box as="th" py={2} pr={4}>Family</Box>
+          <Box as="th" py={2}>Use</Box>
+        </Box>
+      </Box>
+      <Box as="tbody">
+        {Object.entries(sdlTypeScale).map(([role, scale]) => (
+          <Box as="tr" key={role} borderTopWidth="1px" borderColor="border.default">
+            <Box as="td" py={2} pr={4} fontFamily="mono" fontSize="12px">{role}</Box>
+            <Box as="td" py={2} pr={4}>{scale.fontSize}</Box>
+            <Box as="td" py={2} pr={4}>{scale.lineHeight}</Box>
+            <Box as="td" py={2} pr={4}>{scale.fontWeight}</Box>
+            <Box as="td" py={2} pr={4}>{ROLE_META[role].family}</Box>
+            <Box as="td" py={2} color="text.muted">{ROLE_META[role].use}</Box>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  </Box>
+)
+
+<ScaleTable />
