@@ -6,7 +6,11 @@ import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 
-import { type MappedTaskStatus, mapTaskStatus } from './mapTaskStatus'
+import {
+  type MappedTaskStatus,
+  isCancelledTaskStatus,
+  mapTaskStatus,
+} from './mapTaskStatus'
 import type { TaskDetailRecord } from './taskDetailUtils'
 
 export type TaskDetailPermissionsInput = {
@@ -25,11 +29,21 @@ export type TaskDetailPermissions = {
   isOpen: boolean
   isAwarded: boolean
   isClosed: boolean
+  /** Raw status is a cancellation (mapTaskStatus collapses this into CLOSED). */
+  isCancelled: boolean
   isOrderWorker: boolean
   isOrderActive: boolean
   hasWorkerProfile: boolean
+  /** Accepted-worker cap reached for this task. */
+  atCap: boolean
   canSubmitQuote: boolean
   showQuoteForm: boolean
+  /**
+   * Worker viewing an OPEN task who cannot quote and has no pending quote of
+   * their own (at cap, or otherwise ineligible). Drives the "task is full" hero.
+   * Presentation derivation only — no new data.
+   */
+  showQuoteUnavailableNotice: boolean
   showOwnerQuoteList: boolean
   showAcceptDecline: boolean
   showWorkerJobBanner: boolean
@@ -71,6 +85,7 @@ export function getTaskDetailPermissions(
   const isOpen = taskStatus === 'OPEN'
   const isAwarded = taskStatus === 'AWARDED'
   const isClosed = taskStatus === 'CLOSED'
+  const isCancelled = isCancelledTaskStatus(task?.status)
 
   const isOrderWorker = Boolean(me && myOrder && myOrder.workerUserId === me.id)
   const isOrderActive = myOrder?.status === OrderStatus.Active
@@ -92,6 +107,14 @@ export function getTaskDetailPermissions(
 
   const showQuoteForm = Boolean(
     canSubmitQuote && (!myQuote || myQuote.status === QuoteStatus.Pending),
+  )
+
+  const showQuoteUnavailableNotice = Boolean(
+    isOpen &&
+      isAuthenticated &&
+      !isOwner &&
+      !showQuoteForm &&
+      myQuote?.status !== QuoteStatus.Pending,
   )
 
   const showOwnerQuoteList = Boolean(isOwner && (isOpen || isAwarded))
@@ -116,11 +139,14 @@ export function getTaskDetailPermissions(
     isOpen,
     isAwarded,
     isClosed,
+    isCancelled,
     isOrderWorker,
     isOrderActive,
     hasWorkerProfile,
+    atCap,
     canSubmitQuote,
     showQuoteForm,
+    showQuoteUnavailableNotice,
     showOwnerQuoteList,
     showAcceptDecline,
     showWorkerJobBanner,

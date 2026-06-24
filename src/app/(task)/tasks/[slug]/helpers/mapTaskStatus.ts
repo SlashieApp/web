@@ -34,3 +34,15 @@ export function mapTaskStatus(
 
   return 'OPEN'
 }
+
+/**
+ * True when the raw task status is a cancellation. `mapTaskStatus` collapses this
+ * into `CLOSED`; this lets the UI distinguish a cancelled task from a completed one.
+ */
+export function isCancelledTaskStatus(
+  status: string | null | undefined,
+): boolean {
+  return (
+    (status ?? '').trim().toUpperCase().replaceAll(' ', '_') === 'CANCELLED'
+  )
+}

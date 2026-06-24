@@ -1,0 +1,1 @@
+export { TaskTripDetail } from './TaskTripDetail'

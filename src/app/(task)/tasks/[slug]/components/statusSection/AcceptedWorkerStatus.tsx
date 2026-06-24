@@ -51,7 +51,7 @@ export function AcceptedWorkerStatus() {
       bg="status.success.soft"
       px={{ base: 4, md: 5 }}
       py={4}
-      boxShadow="sm"
+      boxShadow="e2"
     >
       <Stack gap={3}>
         <Stack gap={1}>
@@ -64,8 +64,8 @@ export function AcceptedWorkerStatus() {
             YOUR JOB
           </Text>
           <Text
-            fontWeight={800}
-            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight={700}
+            fontSize={{ base: 'lg', md: 'xl' }}
             color="text.default"
           >
             You are booked for this job

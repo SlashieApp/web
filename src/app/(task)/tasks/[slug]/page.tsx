@@ -1,13 +1,10 @@
 import type { Metadata } from 'next'
 
-import { Box, Container, Grid, Stack } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 
 import { Footer } from '@ui'
 
-import { MainSection } from './components/mainSection'
-import { MetaSection } from './components/metaSection'
-import { QuoteSectionColumn } from './components/quoteSection'
-import { StatusSection } from './components/statusSection'
+import { TaskTripDetail } from './components/tripDetail'
 import { getTaskForTaskDetailPage } from './helpers/getTaskForTaskDetailPage'
 
 function absoluteUrlFromEnv(pathOrUrl: string): string {
@@ -75,65 +72,7 @@ export default async function TaskDetailPage({
 
   return (
     <>
-      <Container
-        maxW="7xl"
-        mx="auto"
-        pt={{ base: 4, md: 6 }}
-        pb={{ base: 28, md: 10 }}
-      >
-        <Stack gap={2} px={{ base: 4, md: 6 }}>
-          <StatusSection />
-          <Grid
-            w="full"
-            templateColumns={{
-              base: 'minmax(0, 1fr)',
-              md: 'minmax(0, 1fr) minmax(280px, 340px)',
-              xl: 'minmax(220px, 260px) minmax(0, 1fr) minmax(280px, 340px)',
-            }}
-            gap={{ base: 6, md: 8, xl: 8 }}
-            alignItems="start"
-          >
-            <Box
-              minW={0}
-              gridColumn={{ base: '1', md: '1', xl: '2' }}
-              gridRow={{ base: '1', md: '1', xl: '1' }}
-            >
-              <MainSection />
-            </Box>
-
-            <Box
-              display={{ base: 'contents', md: 'flex', xl: 'contents' }}
-              flexDirection="column"
-              gap={4}
-              w={{ md: 'full' }}
-              gridColumn={{ md: '2' }}
-              gridRow={{ md: '1 / 3' }}
-              position={{ md: 'sticky' }}
-              top={{ md: 4 }}
-              alignSelf="start"
-            >
-              <MetaSection
-                gridColumn={{ base: '1', xl: '1' }}
-                gridRow={{ base: '2', xl: '1' }}
-                position={{ base: 'static', xl: 'sticky' }}
-                top={{ xl: 4 }}
-                alignSelf="start"
-              />
-
-              <Stack
-                gap={4}
-                gridColumn={{ base: '1', xl: '3' }}
-                gridRow={{ base: '3', xl: '1' }}
-                position={{ base: 'static', xl: 'sticky' }}
-                top={{ xl: 4 }}
-                alignSelf="start"
-              >
-                <QuoteSectionColumn task={task} order={order} />
-              </Stack>
-            </Box>
-          </Grid>
-        </Stack>
-      </Container>
+      <TaskTripDetail task={task} order={order} />
       <Box mb={{ base: 24, md: 0 }}>
         <Footer />
       </Box>

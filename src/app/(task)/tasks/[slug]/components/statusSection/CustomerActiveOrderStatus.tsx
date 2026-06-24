@@ -77,7 +77,7 @@ export function CustomerActiveOrderStatus() {
       bg="status.success.soft"
       px={{ base: 4, md: 5 }}
       py={4}
-      boxShadow="sm"
+      boxShadow="e2"
     >
       <Stack gap={4}>
         <Stack gap={1}>
@@ -90,8 +90,8 @@ export function CustomerActiveOrderStatus() {
             YOUR BOOKING
           </Text>
           <Text
-            fontWeight={800}
-            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight={700}
+            fontSize={{ base: 'lg', md: 'xl' }}
             color="text.default"
           >
             Job in progress
@@ -148,9 +148,9 @@ export function CustomerActiveOrderStatus() {
               <Text
                 fontFamily="mono"
                 fontSize="2xl"
-                fontWeight={800}
+                fontWeight={700}
                 letterSpacing="0.2em"
-                color="status.success.fg"
+                color="text.default"
               >
                 {code}
               </Text>

@@ -42,7 +42,7 @@ import {
   IconWrench,
 } from './VisitorMetaIcons'
 
-export function VisitorMeta() {
+export function VisitorMeta({ showMap = true }: { showMap?: boolean }) {
   const { task, me, permissions, myOrder } = useTaskDetail()
   if (!task) return null
 
@@ -217,7 +217,7 @@ export function VisitorMeta() {
 
   return (
     <Stack gap={4} w="full">
-      {coords && mapboxToken?.trim() ? (
+      {showMap && coords && mapboxToken?.trim() ? (
         <LocationMap
           accessToken={mapboxToken}
           lat={coords.lat}
