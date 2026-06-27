@@ -388,7 +388,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
             </Text>
             <Text
               fontSize="2xl"
-              fontWeight={800}
+              fontWeight={700}
               color="status.success.fg"
               lineHeight="1"
             >

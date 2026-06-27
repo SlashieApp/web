@@ -2,6 +2,8 @@
 
 import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 
+import { Card } from '@ui'
+
 import { useTaskDetail } from '../context/TaskDetailProvider'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
 
@@ -26,14 +28,7 @@ export function TaskOwnerCard() {
       .join('') || 'TO'
 
   return (
-    <Box
-      borderWidth="1px"
-      borderColor="border.default"
-      borderRadius="xl"
-      bg="bg.surface"
-      p={{ base: 4, md: 5 }}
-      w="full"
-    >
+    <Card layout="default" maxW="full" p={{ base: 4, md: 5 }} w="full">
       <HStack align="flex-start" gap={4} w="full">
         <Box
           flexShrink={0}
@@ -44,7 +39,7 @@ export function TaskOwnerCard() {
           alignItems="center"
           justifyContent="center"
           color="status.success.fg"
-          fontWeight={800}
+          fontWeight={700}
           fontSize="sm"
           overflow="hidden"
         >
@@ -75,6 +70,6 @@ export function TaskOwnerCard() {
           </Heading>
         </Stack>
       </HStack>
-    </Box>
+    </Card>
   )
 }

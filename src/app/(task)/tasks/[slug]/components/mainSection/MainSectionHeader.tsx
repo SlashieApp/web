@@ -148,7 +148,7 @@ export function MainSectionHeader() {
       </HStack>
       <Heading
         size={{ base: 'xl', md: '2xl' }}
-        fontWeight={800}
+        fontWeight={700}
         lineHeight="short"
         letterSpacing="-0.02em"
       >

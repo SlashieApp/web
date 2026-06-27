@@ -1,8 +1,8 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import { OrderStatus, QuoteStatus } from '@codegen/schema'
-import { type ReactNode, useCallback } from 'react'
+import { useCallback } from 'react'
 
 import { showAppToast } from '@/utils/appToast'
 import {
@@ -11,7 +11,7 @@ import {
   orderSnapshotDatetime,
 } from '@/utils/orderHelpers'
 import { formatTaskScheduleLabel } from '@/utils/taskJobSchedule'
-import { Avatar, Button, IconButton } from '@ui'
+import { Avatar, Button, Card, IconButton } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 
@@ -69,16 +69,7 @@ export function CustomerActiveOrderStatus() {
   const code = myOrder.completionVerificationCode?.trim() ?? ''
 
   return (
-    <Box
-      w="full"
-      borderRadius="xl"
-      borderWidth="1px"
-      borderColor="status.success.soft"
-      bg="status.success.soft"
-      px={{ base: 4, md: 5 }}
-      py={4}
-      boxShadow="e2"
-    >
+    <Card layout="default" maxW="full" w="full" px={{ base: 4, md: 5 }} py={4}>
       <Stack gap={4}>
         <Stack gap={1}>
           <Text
@@ -183,22 +174,6 @@ export function CustomerActiveOrderStatus() {
           </Text>
         )}
       </Stack>
-    </Box>
-  )
-}
-
-function StatusCardWrap({ children }: { children: ReactNode }) {
-  return (
-    <Box
-      w="full"
-      borderRadius="xl"
-      borderWidth="1px"
-      borderColor="border.default"
-      bg="bg.surface"
-      px={{ base: 4, md: 5 }}
-      py={4}
-    >
-      {children}
-    </Box>
+    </Card>
   )
 }

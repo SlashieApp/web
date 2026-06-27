@@ -29,10 +29,13 @@ export {
   statusFamilies,
   statusScale,
 } from './_foundations/ColorSwatches'
+export { CountChip } from './CountChip'
 export { DashboardSectionNav, Header } from './Header'
+export { DetailRow } from './DetailRow'
 export { Dock } from './Dock'
 export { Drawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
+export { EmptyState } from './EmptyState'
 export {
   formControlHelperTextProps,
   formControlInvalidFieldProps,
@@ -51,6 +54,7 @@ export { InfoBar } from './InfoBar'
 export { Input } from './Input'
 export { Link } from './Link'
 export { Logo } from './Logo'
+export { MapCard } from './MapCard'
 export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
 export { PhoneInput } from './PhoneInput'
@@ -62,6 +66,7 @@ export { ScheduleChip } from './ScheduleChip'
 export { Select } from './Select'
 export { Slider } from './Slider'
 export { Stepper } from './Stepper'
+export { Tabs } from './Tabs'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail'
 export { Toast } from './Toast'
@@ -85,8 +90,11 @@ export type {
   ColorModeProviderProps,
   UseColorModeReturn,
 } from './color-mode'
+export type { CountChipProps } from './CountChip'
 export type { DashboardSectionNavProps, HeaderProps } from './Header'
+export type { DetailRowProps } from './DetailRow'
 export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'
+export type { EmptyStateProps } from './EmptyState'
 export type {
   FormFieldControlProps,
   FormFieldProps,
@@ -96,6 +104,7 @@ export type { IconButtonProps, NavIconButtonProps } from './IconButton'
 export type { ImageGalleryItem, ImageGalleryProps } from './ImageGallery'
 export type { InputProps } from './Input'
 export type { LogoProps, UiLogoSize, UiLogoVariant } from './Logo'
+export type { MapCardProps } from './MapCard'
 export type { ModalProps, ModalSize } from './Modal'
 export type { OtpInputProps, OtpInputSize } from './OtpInput'
 export type { PhoneInputProps } from './PhoneInput'
@@ -121,6 +130,7 @@ export type {
   UiBadgeVariant,
 } from './Badge'
 export type { StepperProps, StepperStep, StepperSubStep } from './Stepper'
+export type { TabItem, TabPanelProps, TabsProps } from './Tabs'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps, ThumbnailSize } from './Thumbnail'
 export type { UiInfoBarProps, UiInfoBarTone } from './InfoBar'

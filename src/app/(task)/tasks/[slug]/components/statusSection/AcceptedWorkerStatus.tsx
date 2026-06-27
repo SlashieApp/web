@@ -1,14 +1,13 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { OrderStatus } from '@codegen/schema'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 
 import { orderSnapshotDatetime } from '@/utils/orderHelpers'
 import {
   countdownToExactSchedule,
   formatTaskScheduleLabel,
 } from '@/utils/taskJobSchedule'
-import { Button, Link } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 
@@ -16,6 +15,11 @@ function mapsDirectionsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
 }
 
+/**
+ * The worker's "Your job" booking card for an active booking: where to be +
+ * contact. The complete-with-code flow lives in the quote section
+ * (`WorkerOrderVerificationPanel`), not here.
+ */
 export function AcceptedWorkerStatus() {
   const { task, myOrder, permissions } = useTaskDetail()
   if (!task || !myOrder || !permissions.showWorkerJobBanner) return null
@@ -43,16 +47,7 @@ export function AcceptedWorkerStatus() {
   const mailto = contact?.email?.trim()
 
   return (
-    <Box
-      w="full"
-      borderRadius="xl"
-      borderWidth="1px"
-      borderColor="status.success.soft"
-      bg="status.success.soft"
-      px={{ base: 4, md: 5 }}
-      py={4}
-      boxShadow="e2"
-    >
+    <Card layout="default" maxW="full" w="full" px={{ base: 4, md: 5 }} py={4}>
       <Stack gap={3}>
         <Stack gap={1}>
           <Text
@@ -136,6 +131,6 @@ export function AcceptedWorkerStatus() {
           Payment is arranged directly with the customer outside Slashie.
         </Text>
       </Stack>
-    </Box>
+    </Card>
   )
 }

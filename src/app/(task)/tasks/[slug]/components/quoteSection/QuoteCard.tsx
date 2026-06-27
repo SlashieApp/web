@@ -110,7 +110,7 @@ export function QuoteCard({
     showPrice && priceLabel ? (
       <Stack align="flex-end" gap={0} textAlign="right" flexShrink={0}>
         <Text
-          fontWeight={800}
+          fontWeight={700}
           fontSize={isCard ? '2xl' : 'xl'}
           color={isCard ? 'text.default' : 'text.link'}
           lineHeight="shorter"
@@ -319,7 +319,7 @@ function QuoteCardAvatar({
       justifyContent="center"
       /* TODO(sdl): verify role - white initials on a generated multi-hue avatar gradient, no SDL avatar-text role */
       color="white"
-      fontWeight={800}
+      fontWeight={700}
       fontSize="sm"
       letterSpacing="0.02em"
       overflow="hidden"

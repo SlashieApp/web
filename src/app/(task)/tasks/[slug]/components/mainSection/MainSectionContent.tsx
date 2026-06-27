@@ -29,7 +29,7 @@ export function MainSectionContent() {
   return (
     <Stack gap={{ base: 6, lg: 8 }} w="full">
       <Stack gap={4} w="full">
-        <Heading size="md" fontWeight={800} lineHeight="short">
+        <Heading size="md" fontWeight={700} lineHeight="short">
           About this task
         </Heading>
         <Text color="text.muted" lineHeight="tall">
