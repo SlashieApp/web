@@ -4,3 +4,12 @@
   href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
   rel="stylesheet"
 />
+<style>
+  /* Sit the whole preview canvas on the Slashie `bg.canvas` surface, matching
+     the app. Uses the Chakra semantic-token CSS var so it follows the light/dark
+     toolbar toggle; the literal is a pre-mount fallback (light canvas). */
+  html,
+  body {
+    background: var(--chakra-colors-bg-canvas, #f7f9f8);
+  }
+</style>
