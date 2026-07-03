@@ -73,7 +73,7 @@ export function Drawer({
       {/* Scrim: dim + blur the page behind the panel. Click + ESC close are
           handled by DrawerRoot, which also traps focus inside the panel. */}
       <DrawerBackdrop
-        bg="blackAlpha.500"
+        bg="bg.overlay"
         backdropFilter="blur(4px)"
         transitionProperty="opacity"
         transitionDuration={sdlMotion.duration.moderate}

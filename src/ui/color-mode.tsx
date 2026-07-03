@@ -14,20 +14,22 @@ import { LuMoon, LuSun } from 'react-icons/lu'
 
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
-const LIGHT_BASE_BG = '#f7f8f7'
-const DARK_BASE_BG = '#222222'
-
+/**
+ * Keeps the document body background in sync with the SDL `bg.canvas` token, so
+ * the area outside the app shell (overscroll gutters, mobile safe-areas) matches
+ * the themed canvas. References the semantic token via its CSS var instead of a
+ * hardcoded hex: only one Chakra system is mounted at a time, so the var already
+ * holds the active mode's canvas and re-resolves automatically when the mode
+ * flips. The literal is a last-resort fallback only (light canvas).
+ */
 function ColorModeBaseBgSync() {
-  const { resolvedTheme, forcedTheme } = useTheme()
-  const colorMode = forcedTheme || resolvedTheme
-  const baseColor = colorMode === 'dark' ? DARK_BASE_BG : LIGHT_BASE_BG
-
   const applyBaseColorRef = React.useCallback(
     (node: HTMLSpanElement | null) => {
       if (!node || typeof document === 'undefined') return
-      document.body.style.backgroundColor = baseColor
+      document.body.style.backgroundColor =
+        'var(--chakra-colors-bg-canvas, #F7F9F8)'
     },
-    [baseColor],
+    [],
   )
 
   return <span ref={applyBaseColorRef} hidden aria-hidden />

@@ -7,7 +7,7 @@ import {
   mergeConfigs,
 } from '@chakra-ui/react'
 
-import { sdlElevation } from './styles'
+import { sdlElevation, sdlTypeScale } from './styles'
 
 /**
  * SLASHIE DESIGN LANGUAGE (SDL) — Chakra theme = single source of truth.
@@ -24,6 +24,35 @@ import { sdlElevation } from './styles'
  * GREEN-INK RULE: `action.primary` (green-400 #00DC82) is too light for white text.
  * Every green fill pairs with `text.onGreen` (#0A1512 ink) in BOTH modes.
  */
+
+/**
+ * SDL type roles exposed as Chakra `textStyles`, so components can write
+ * `textStyle="heading-md"` instead of re-deriving size/line-height/weight.
+ * Generated from the single `sdlTypeScale` source; the font family is assigned by
+ * role prefix (display/heading -> display face, mono -> mono, else -> body).
+ */
+const sdlTextStyles = Object.fromEntries(
+  Object.entries(sdlTypeScale).map(([role, scale]) => {
+    const fontFamily = role.startsWith('display')
+      ? 'display'
+      : role.startsWith('heading')
+        ? 'heading'
+        : role.startsWith('mono')
+          ? 'mono'
+          : 'body'
+    return [
+      role,
+      {
+        value: {
+          fontFamily,
+          fontSize: scale.fontSize,
+          lineHeight: scale.lineHeight,
+          fontWeight: `${scale.fontWeight}`,
+        },
+      },
+    ]
+  }),
+)
 
 const sharedTheme = {
   theme: {
@@ -105,6 +134,7 @@ const sharedTheme = {
         '2xl': { value: '24px' },
         '3xl': { value: '28px' },
         '4xl': { value: '36px' },
+        '5xl': { value: '48px' },
       },
       radii: {
         sm: { value: '6px' },
@@ -130,6 +160,7 @@ const sharedTheme = {
         card: { value: sdlElevation.e1 },
       },
     },
+    textStyles: sdlTextStyles,
   },
 }
 
@@ -140,6 +171,8 @@ const lightSemanticColors = {
     surface: { value: { base: '#FFFFFF' } },
     subtle: { value: { base: '#EEF1F0' } },
     raised: { value: { base: '#FFFFFF' } },
+    /** Scrim behind modals/drawers - SDL ink wash, not pure black. */
+    overlay: { value: { base: 'rgba(10, 21, 18, 0.55)' } },
   },
   text: {
     default: { value: { base: '#0A1512' } },
@@ -176,6 +209,8 @@ const lightSemanticColors = {
       soft: { value: { base: '#FEF1F1' } },
       fg: { value: { base: '#B42318' } },
       solid: { value: { base: '#F04438' } },
+      /** Focus-ring wash for solid danger controls (tokenized from `solid`). */
+      ring: { value: { base: 'rgba(240, 68, 56, 0.24)' } },
     },
     info: {
       soft: { value: { base: '#EFF6FF' } },
@@ -192,6 +227,8 @@ const darkSemanticColors = {
     surface: { value: { base: '#121A16' } },
     subtle: { value: { base: '#18221E' } },
     raised: { value: { base: '#1F2A25' } },
+    /** Scrim behind modals/drawers - deeper wash for dark surfaces. */
+    overlay: { value: { base: 'rgba(4, 8, 6, 0.7)' } },
   },
   text: {
     default: { value: { base: '#F2F5F4' } },
@@ -228,6 +265,8 @@ const darkSemanticColors = {
       soft: { value: { base: 'rgba(240, 68, 56, 0.16)' } },
       fg: { value: { base: '#FDA29B' } },
       solid: { value: { base: '#F04438' } },
+      /** Focus-ring wash for solid danger controls (tokenized from `solid`). */
+      ring: { value: { base: 'rgba(240, 68, 56, 0.32)' } },
     },
     info: {
       soft: { value: { base: 'rgba(46, 144, 250, 0.16)' } },
