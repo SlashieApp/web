@@ -28,7 +28,8 @@ import { Link } from '../Link'
  *   Every default IconButton keeps its `aria-label` and meets the 44px touch target.
  *
  * SDL guarantees:
- * - Visible focus ring on both shapes (`sdlFocusRing`; nav mirrors hover surface).
+ * - Visible focus ring on both shapes via `sdlFocusRing` (nav also keeps its
+ *   hover surface tint on keyboard focus).
  * - >=44px hit area (nav tiles are 56/60px; default enforces a 44px minimum).
  * - Transitions via `sdlMotion` (color/background only — no layout animation).
  */
@@ -90,7 +91,10 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           _focus={{ outline: 'none' }}
           _focusVisible={{
             outline: 'none',
-            '& [data-nav-icon]': surfaceInteraction._focusVisible,
+            '& [data-nav-icon]': {
+              ...surfaceInteraction._focusVisible,
+              ...sdlFocusRing,
+            },
           }}
         >
           <Box

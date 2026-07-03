@@ -66,6 +66,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         pr={3}
         {...formControlShellInteraction}
         {...formControlInvalidShellProps(invalid)}
+        {...(controlProps.disabled
+          ? {
+              bg: 'bg.subtle',
+              borderColor: 'border.default',
+              boxShadow: 'none',
+              cursor: 'not-allowed',
+              _hover: { borderColor: 'border.default' },
+            }
+          : null)}
         {...rootProps}
       >
         {startElement != null ? (
@@ -95,6 +104,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           py={2.5}
           px={1}
           _placeholder={{ color: 'text.subtle' }}
+          _disabled={{ color: 'text.subtle', cursor: 'not-allowed' }}
           {...formControlFieldRingless}
         />
         {endElement != null ? (

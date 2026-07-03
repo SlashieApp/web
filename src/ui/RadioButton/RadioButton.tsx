@@ -26,6 +26,11 @@ const RadioButtonShell = chakra('button')
  * the selected state, a visible `sdlFocusRing` on keyboard focus, and a >=44px
  * touch target. For an exclusive group, wrap the rows in a `role="radiogroup"`
  * container with a group label.
+ *
+ * NOTE: for a canonical single-select group this should become a native
+ * `<input type="radio">` set (Biome `useSemanticElements`), which also brings
+ * roving-tabindex/arrow-key selection. That is a structural + behavioral change
+ * (requires a shared `name` at the call site) and is intentionally deferred.
  */
 export type UiRadioButtonVariant =
   | 'primary'
