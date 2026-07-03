@@ -16,7 +16,7 @@ export type TaskCoreRecord = NonNullable<TaskCoreQuery['task']>
 
 export type TaskPageData = {
   task: TaskCoreRecord | null
-  order: TaskCoreRecord['viewerOrder'] | null
+  order: TaskCoreRecord['orders'][number] | null
 }
 
 export const getTaskForTaskDetailPage = cache(
@@ -35,7 +35,9 @@ export const getTaskForTaskDetailPage = cache(
 
     return {
       task,
-      order: task?.viewerOrder ?? null,
+      // `orders` is a list now; the detail UI is single-order, so take the first
+      // (a worker only ever gets their own; a poster's first is the primary order).
+      order: task?.orders?.[0] ?? null,
     }
   },
 )

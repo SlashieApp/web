@@ -8,7 +8,6 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react'
 
-import { formatTaskContactMethodLabel } from '@/utils/taskLocationDisplay'
 import { ImageGallery, type ImageGalleryItem } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -35,26 +34,6 @@ export function MainSectionContent() {
         <Text color="text.muted" lineHeight="tall">
           {task.description}
         </Text>
-        {task.contactMethod ? (
-          <Grid
-            templateColumns={{
-              base: '1fr',
-              sm: 'repeat(2, minmax(0, 1fr))',
-            }}
-            gap={3}
-            pt={2}
-            borderTopWidth="1px"
-            borderColor="border.default"
-            fontSize="sm"
-          >
-            <Text color="text.muted">
-              <Text as="span" fontWeight={600} color="text.default">
-                Contact:{' '}
-              </Text>
-              {formatTaskContactMethodLabel(task.contactMethod)}
-            </Text>
-          </Grid>
-        ) : null}
       </Stack>
 
       {photoItems.length > 0 ? (

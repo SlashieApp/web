@@ -70,7 +70,7 @@ const EMPTY_QUOTES: NonNullable<TaskQuotesQuery['task']>['quotes'] = []
 type TaskDetailProviderProps = {
   taskId: string
   initialTask: TaskCoreQuery['task'] | null
-  initialOrder: NonNullable<TaskCoreQuery['task']>['viewerOrder'] | null
+  initialOrder: NonNullable<TaskCoreQuery['task']>['orders'][number] | null
   children: React.ReactNode
 }
 
@@ -159,7 +159,7 @@ export function TaskDetailProvider({
     () => (baseTask ? ({ ...baseTask, quotes } as TaskDetailRecord) : null),
     [baseTask, quotes],
   )
-  const myOrder = (task?.viewerOrder ?? myOrderFromInitial) as OrderItem | null
+  const myOrder = (task?.orders?.[0] ?? myOrderFromInitial) as OrderItem | null
   const orderLoading = Boolean(
     shouldPollLiveOrder && liveTaskLoading && !liveTaskData,
   )

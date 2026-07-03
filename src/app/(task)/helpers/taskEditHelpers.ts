@@ -81,13 +81,11 @@ export function taskToEditFormValues(
     budgetCurrency: task.budget?.currency ?? Currency.Gbp,
     budgetType: task.budget?.type ?? TaskBudgetType.OneOff,
     paymentMethod: task.budget?.paymentMethod ?? TaskPaymentMethod.Cash,
-    preferredContactMethod:
-      (task.contactMethod as TaskContactMethod | null | undefined) ??
-      TaskContactMethod.InApp,
-    acceptedWorkerCap:
-      typeof task.acceptedWorkerCap === 'number' && task.acceptedWorkerCap >= 1
-        ? task.acceptedWorkerCap
-        : 1,
+    // contactMethod + acceptedWorkerCap were removed from the Task type; the edit
+    // form starts from defaults (per-task contact method now lives on the poster
+    // profile, and the single-worker cap is the default).
+    preferredContactMethod: TaskContactMethod.InApp,
+    acceptedWorkerCap: 1,
   }
 }
 

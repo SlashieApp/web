@@ -21,6 +21,7 @@ import {
   taskAvailabilityRangeLabel,
   taskBudgetDisplayLine,
   taskCategoryLabel,
+  taskCreatedAtIso,
   taskDetailLocationLabel,
   taskDetailMapCoordinates,
   taskDetailShowsExactLocation,
@@ -77,14 +78,19 @@ export function VisitorMeta({ showMap = true }: { showMap?: boolean }) {
   type Block = { key: string; node: ReactNode }
   const blocks: Block[] = []
 
-  blocks.push({
-    key: 'posted',
-    node: (
-      <MetaRow label="Posted" icon={<IconClock />}>
-        {formatRelativeTime(task.createdAt)}
-      </MetaRow>
-    ),
-  })
+  // createdAt was removed from Task; derive it from the timeline (TASK_CREATED),
+  // which is empty for public/guest viewers, so the "Posted" row simply hides.
+  const createdAt = taskCreatedAtIso(task)
+  if (createdAt) {
+    blocks.push({
+      key: 'posted',
+      node: (
+        <MetaRow label="Posted" icon={<IconClock />}>
+          {formatRelativeTime(createdAt)}
+        </MetaRow>
+      ),
+    })
+  }
 
   if (viewsLabel) {
     blocks.push({

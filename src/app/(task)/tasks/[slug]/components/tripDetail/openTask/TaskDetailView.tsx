@@ -1,7 +1,7 @@
 'use client'
 
+import type { OrderItem } from '@/utils/orderHelpers'
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import type { TaskQuery } from '@codegen/schema'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 import { TaskOwnerCard } from '../../TaskOwnerCard'
@@ -15,7 +15,7 @@ import { TaskDetailsCard } from './TaskDetailsCard'
 import { TrustCard } from './TrustCard'
 
 type TaskDetailViewProps = {
-  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null | undefined
+  order: OrderItem | null | undefined
 }
 
 /**

@@ -1,7 +1,7 @@
 'use client'
 
+import type { OrderItem } from '@/utils/orderHelpers'
 import { Box, Stack } from '@chakra-ui/react'
-import type { TaskQuery } from '@codegen/schema'
 import { useCallback, useEffect, useState } from 'react'
 import { LuShare2 } from 'react-icons/lu'
 
@@ -20,7 +20,7 @@ import { TrustCard } from './openTask/TrustCard'
 import { useShareTask } from './openTask/shareTask'
 
 type TaskDetailMobileProps = {
-  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null | undefined
+  order: OrderItem | null | undefined
 }
 
 const TAB_INFO = 'info'

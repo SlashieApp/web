@@ -2,22 +2,20 @@
 
 # Core task fields for the detail page: everything EXCEPT the heavy `quotes`
 # list (fetched client-side via TaskQuotes.gql). Server-rendered for SEO + the
-# immediately-needed panels (poster contact, viewer order, exposure).
+# immediately-needed panels.
+#
+# - Poster phone/email come via `poster` (User); the API redacts them for
+#   non-accepted viewers, and the UI gates display on the accepted worker.
+# - Status timestamps come from `timeline` (participant-only; empty for guests).
+# - `orders` is a list: poster sees all orders, a worker sees only their own,
+#   guests get an empty array.
 query TaskCore($id: ID!) {
   task(id: $id) {
     id
     title
     description
     category
-    acceptedQuoteCount
     views
-    exposure {
-      viewCount
-      uniqueViewers
-      showViews
-      computedAt
-    }
-    acceptedWorkerCap
     budget {
       amount
       currency
@@ -29,18 +27,8 @@ query TaskCore($id: ID!) {
       time
       type
     }
-    contactMethod
     images
     status
-    completedAt
-    confirmedAt
-    workerPaymentAcknowledgedAt
-    createdAt
-    posterContact {
-      method
-      email
-      phone
-    }
     location {
       lat
       lng
@@ -49,12 +37,26 @@ query TaskCore($id: ID!) {
     }
     poster {
       id
+      email
       profile {
         name
         avatarUrl
+        contactNumber
       }
     }
-    viewerOrder {
+    timeline {
+      type
+      timestamp
+      actor {
+        id
+        profile {
+          name
+          avatarUrl
+        }
+      }
+      data
+    }
+    orders {
       ...OrderFields
       completionVerificationCode
     }

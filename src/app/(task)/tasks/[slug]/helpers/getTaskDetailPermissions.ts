@@ -59,9 +59,9 @@ function countAcceptedQuotes(task: TaskDetailRecord): number {
 }
 
 function isAtAcceptedWorkerCap(task: TaskDetailRecord): boolean {
-  const cap = task.acceptedWorkerCap
-  if (typeof cap !== 'number' || cap < 1) return false
-  return countAcceptedQuotes(task) >= cap
+  // The per-task accepted-worker cap was removed from the API; default to the
+  // single-worker model - a task is "full" once any quote is accepted.
+  return countAcceptedQuotes(task) >= 1
 }
 
 function workerCanSubmitOnOpenTask(

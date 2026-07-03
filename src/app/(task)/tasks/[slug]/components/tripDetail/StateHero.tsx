@@ -1,7 +1,7 @@
 'use client'
 
+import type { OrderItem } from '@/utils/orderHelpers'
 import { Stack } from '@chakra-ui/react'
-import type { TaskQuery } from '@codegen/schema'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { OrderSection } from '../orderSection/OrderSection'
@@ -14,7 +14,7 @@ import {
 import { Reveal } from './Reveal'
 
 type StateHeroProps = {
-  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null | undefined
+  order: OrderItem | null | undefined
 }
 
 /**

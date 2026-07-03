@@ -4,7 +4,6 @@ query Tasks($filter: TaskFilter, $sort: TaskSort) {
     title
     description
     category
-    acceptedWorkerCap
     budget {
       amount
       currency
@@ -16,13 +15,9 @@ query Tasks($filter: TaskFilter, $sort: TaskSort) {
       time
       type
     }
-    contactMethod
     images
     status
     views
-    completedAt
-    confirmedAt
-    createdAt
     location {
       lat
       lng

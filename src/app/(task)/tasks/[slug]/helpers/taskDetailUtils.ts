@@ -11,11 +11,30 @@ import {
 } from '@/utils/orderHelpers'
 import { formatBudgetAmount, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { QuoteStatus } from '@codegen/schema'
-import type { TaskQuery } from '@codegen/schema'
+import { QuoteStatus, TaskTimelineEventType } from '@codegen/schema'
+import type { TaskCoreQuery, TaskQuotesQuery } from '@codegen/schema'
 import { mapTaskStatus } from './mapTaskStatus'
 
-export type TaskDetailRecord = NonNullable<TaskQuery['task']>
+/**
+ * The merged task the detail context exposes: server-rendered core fields
+ * (TaskCore) plus the client-fetched quotes list (TaskQuotes).
+ */
+export type TaskDetailRecord = NonNullable<TaskCoreQuery['task']> & {
+  quotes: NonNullable<TaskQuotesQuery['task']>['quotes']
+}
+
+/**
+ * Task creation time, derived from the TASK_CREATED timeline event. Null for
+ * viewers whose timeline is empty (public/guest) since the field was removed.
+ */
+export function taskCreatedAtIso(
+  task: Pick<TaskDetailRecord, 'timeline'>,
+): string | null {
+  return (
+    task.timeline.find((e) => e.type === TaskTimelineEventType.TaskCreated)
+      ?.timestamp ?? null
+  )
+}
 
 export type AvailabilityChip = {
   key: string
@@ -161,7 +180,9 @@ export function ownerProInterestLabel(quoteCount: number): string {
 /** Average hours from task post to each quote (rough engagement signal). */
 export function averageHoursToQuotes(task: TaskDetailRecord): number | null {
   if (task.quotes.length === 0) return null
-  const t0 = new Date(task.createdAt).getTime()
+  const createdAt = taskCreatedAtIso(task)
+  if (!createdAt) return null
+  const t0 = new Date(createdAt).getTime()
   if (Number.isNaN(t0)) return null
   let sum = 0
   let n = 0
@@ -324,7 +345,7 @@ export function centerColumnStatusLabel(
   const closed =
     isTaskDetailListingClosed(task, myOrder) || taskStatus === 'CLOSED'
   if (isOwner) {
-    const n = task.acceptedQuoteCount ?? task.quotes.length
+    const n = task.quotes.length
     const quotePart = n ? `${n} quote${n === 1 ? '' : 's'}` : null
     if (closed) {
       return quotePart ? `CLOSED · ${quotePart}` : 'CLOSED'

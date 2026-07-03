@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { OrderStatus, TaskContactMethod } from '@codegen/schema'
+import { OrderStatus } from '@codegen/schema'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -34,10 +34,14 @@ export const WithEmailContact: Story = {
     withTaskDetailStory({
       viewer: 'worker',
       task: storyTaskDetail({
-        posterContact: {
-          method: TaskContactMethod.Email,
-          phone: null,
+        poster: {
+          id: storyTaskDetail().poster?.id ?? 'owner',
           email: 'alex@example.com',
+          profile: {
+            name: 'Alex Chen',
+            avatarUrl: null,
+            contactNumber: null,
+          },
         },
       }),
       order: storyTaskOrder({ status: OrderStatus.Active }),

@@ -1,7 +1,7 @@
 import {
   type MyOrdersQuery,
   OrderStatus,
-  type TaskQuery,
+  type TaskCoreQuery,
 } from '@codegen/schema'
 
 import { formatPounds } from '@/utils/dashboardHelpers'
@@ -11,9 +11,7 @@ import {
   scheduleChipForTask,
 } from '@/utils/taskJobSchedule'
 
-export type OrderItem = NonNullable<
-  NonNullable<TaskQuery['task']>['viewerOrder']
->
+export type OrderItem = NonNullable<TaskCoreQuery['task']>['orders'][number]
 
 export type MyOrdersListItem = NonNullable<
   NonNullable<MyOrdersQuery['me']>['orders']

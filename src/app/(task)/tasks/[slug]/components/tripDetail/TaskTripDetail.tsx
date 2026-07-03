@@ -1,13 +1,13 @@
 'use client'
 
+import type { OrderItem } from '@/utils/orderHelpers'
 import { useBreakpointValue } from '@chakra-ui/react'
-import type { TaskQuery } from '@codegen/schema'
 
 import { TaskDetailMobile } from './TaskDetailMobile'
 import { TaskDetailView } from './openTask/TaskDetailView'
 
 type TaskTripDetailProps = {
-  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null | undefined
+  order: OrderItem | null | undefined
 }
 
 /**

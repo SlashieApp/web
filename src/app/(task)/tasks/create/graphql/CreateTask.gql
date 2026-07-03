@@ -4,7 +4,6 @@ mutation CreateTask($input: CreateTaskInput!) {
     title
     description
     category
-    acceptedWorkerCap
     budget {
       amount
       currency
@@ -16,12 +15,8 @@ mutation CreateTask($input: CreateTaskInput!) {
       time
       type
     }
-    contactMethod
     images
     status
-    completedAt
-    confirmedAt
-    createdAt
     location {
       lat
       lng

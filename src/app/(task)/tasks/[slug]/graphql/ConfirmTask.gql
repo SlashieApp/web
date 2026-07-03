@@ -2,7 +2,5 @@ mutation ConfirmTask($taskId: ID!) {
   confirmTask(taskId: $taskId) {
     id
     status
-    confirmedAt
-    workerPaymentAcknowledgedAt
   }
 }

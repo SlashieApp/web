@@ -1,7 +1,7 @@
 'use client'
 
+import type { OrderItem } from '@/utils/orderHelpers'
 import { Stack } from '@chakra-ui/react'
-import type { TaskQuery } from '@codegen/schema'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 import { OrderSection } from '../../orderSection/OrderSection'
@@ -11,7 +11,7 @@ import {
 } from '../../statusSection'
 
 type BookingSectionProps = {
-  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null | undefined
+  order: OrderItem | null | undefined
 }
 
 /**

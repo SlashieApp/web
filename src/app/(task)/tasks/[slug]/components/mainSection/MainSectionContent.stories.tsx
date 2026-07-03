@@ -24,7 +24,7 @@ export const NoImages: Story = {
     withTaskDetailStory(
       {
         viewer: 'owner',
-        task: storyTaskDetail({ images: [], contactMethod: 'EMAIL' }),
+        task: storyTaskDetail({ images: [] }),
       },
       { maxWidth: '720px' },
     ),

@@ -1,20 +1,12 @@
-#import "../../../../(dashboard)/earnings/graphql/orderFields.gql"
-
+# Full task incl. quotes. Used by the edit page (which needs the quotes list to
+# compute the minimum accepted-worker cap). The task detail page uses the lighter
+# TaskCore + TaskQuotes split instead.
 query Task($id: ID!) {
   task(id: $id) {
     id
     title
     description
     category
-    acceptedQuoteCount
-    views
-    exposure {
-      viewCount
-      uniqueViewers
-      showViews
-      computedAt
-    }
-    acceptedWorkerCap
     budget {
       amount
       currency
@@ -26,18 +18,8 @@ query Task($id: ID!) {
       time
       type
     }
-    contactMethod
     images
     status
-    completedAt
-    confirmedAt
-    workerPaymentAcknowledgedAt
-    createdAt
-    posterContact {
-      method
-      email
-      phone
-    }
     location {
       lat
       lng
@@ -74,10 +56,6 @@ query Task($id: ID!) {
           isVerified
         }
       }
-    }
-    viewerOrder {
-      ...OrderFields
-      completionVerificationCode
     }
   }
 }

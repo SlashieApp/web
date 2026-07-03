@@ -1,5 +1,5 @@
+import type { OrderItem } from '@/utils/orderHelpers'
 import { Stack, type StackProps } from '@chakra-ui/react'
-import type { TaskQuery } from '@codegen/schema'
 
 import { TASK_DETAIL_COLUMN_GAP } from '../../helpers/taskDetailLayout'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
@@ -11,7 +11,7 @@ import { WorkerOrderVerificationPanel } from './WorkerOrderVerificationPanel'
 
 type QuoteSectionColumnProps = Omit<StackProps, 'order'> & {
   task: TaskDetailRecord
-  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null | undefined
+  order: OrderItem | null | undefined
 }
 
 export function QuoteSectionColumn({

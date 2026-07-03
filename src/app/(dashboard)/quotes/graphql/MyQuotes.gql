@@ -6,7 +6,6 @@ query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
         title
         description
         category
-        acceptedWorkerCap
         budget {
           amount
           currency
@@ -18,12 +17,8 @@ query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
           time
           type
         }
-        contactMethod
         images
         status
-        completedAt
-        confirmedAt
-        createdAt
         location {
           lat
           lng

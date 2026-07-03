@@ -26,6 +26,7 @@ export const InitialsOnly: Story = {
       task: storyTaskDetail({
         poster: {
           id: storyTaskDetail().poster?.id ?? 'owner',
+          email: 'alex@example.com',
           profile: { name: 'Alex Chen', avatarUrl: null },
         },
       }),

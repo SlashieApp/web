@@ -22,9 +22,6 @@ mutation UpdateTask($taskId: ID!, $input: UpdateTaskInput!) {
       time
       type
     }
-    contactMethod
-    acceptedWorkerCap
     images
-    createdAt
   }
 }

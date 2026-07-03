@@ -40,11 +40,13 @@ export function AcceptedWorkerStatus() {
     typeof lng === 'number' &&
     Number.isFinite(lng)
 
-  const contact = task.posterContact
-  const tel =
-    contact?.phone?.trim() ||
-    (contact?.method === 'PHONE' ? contact?.phone?.trim() : null)
-  const mailto = contact?.email?.trim()
+  // Poster phone/email now come via `task.poster` (User). The API returns real
+  // values only to the accepted worker/assignee - exactly this banner's audience
+  // (gated by permissions.showWorkerJobBanner above); other viewers get redacted
+  // nulls.
+  const poster = task.poster
+  const tel = poster?.profile?.contactNumber?.trim() || null
+  const mailto = poster?.email?.trim() || null
 
   return (
     <Card layout="default" maxW="full" w="full" px={{ base: 4, md: 5 }} py={4}>

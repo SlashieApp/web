@@ -4,8 +4,9 @@ import {
   OrderStatus,
   QuoteStatus,
   TaskContactMethod,
+  TaskTimelineEventType,
 } from '@codegen/schema'
-import type { MeQuery, TaskQuery } from '@codegen/schema'
+import type { MeQuery } from '@codegen/schema'
 
 import type { OrderItem } from '@/utils/orderHelpers'
 
@@ -57,7 +58,6 @@ export function storyTaskDetail(
     description:
       'Need a worker to mount one IKEA bookshelf safely. Wall is plasterboard; fixings supplied.',
     category: 'HANDYMAN',
-    acceptedWorkerCap: 1,
     budget: {
       amount: 120,
       currency: Currency.Gbp,
@@ -65,7 +65,6 @@ export function storyTaskDetail(
       paymentMethod: 'CASH',
     },
     datetime: { date: '2026-06-10', time: '14:00', type: 'EXACT' },
-    contactMethod: 'PHONE',
     images: [
       STORY_THUMBNAIL,
       STORY_THUMBNAIL,
@@ -73,9 +72,7 @@ export function storyTaskDetail(
       STORY_THUMBNAIL,
     ],
     status: 'OPEN',
-    completedAt: null,
-    confirmedAt: null,
-    createdAt: '2026-05-28T10:00:00.000Z',
+    views: 12,
     location: {
       lat: 51.5074,
       lng: -0.1278,
@@ -84,13 +81,25 @@ export function storyTaskDetail(
     },
     poster: {
       id: STORY_OWNER_ID,
-      profile: { name: 'Alex Chen', avatarUrl: STORY_AVATAR },
-    },
-    posterContact: {
-      method: 'PHONE',
-      phone: '+44 7700 900123',
       email: 'alex@example.com',
+      profile: {
+        name: 'Alex Chen',
+        avatarUrl: STORY_AVATAR,
+        contactNumber: '+44 7700 900123',
+      },
     },
+    timeline: [
+      {
+        type: TaskTimelineEventType.TaskCreated,
+        timestamp: '2026-05-28T10:00:00.000Z',
+        actor: {
+          id: STORY_OWNER_ID,
+          profile: { name: 'Alex Chen', avatarUrl: STORY_AVATAR },
+        },
+        data: {},
+      },
+    ],
+    orders: [],
     quotes: baseQuotes,
     ...overrides,
   } as TaskDetailRecord
@@ -208,7 +217,7 @@ export function storyMe(
 export type TaskDetailStoryConfig = {
   viewer: TaskDetailStoryViewer
   task?: TaskDetailRecord
-  order?: NonNullable<TaskQuery['task']>['viewerOrder'] | null
+  order?: OrderItem | null
 }
 
 export function defaultTaskDetailStoryConfig(
