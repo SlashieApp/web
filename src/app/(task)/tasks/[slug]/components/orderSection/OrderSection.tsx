@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react'
 
 import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
+import { OrderStatus } from '@codegen/schema'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { formatDate } from '@/utils/dashboardHelpers'
@@ -331,6 +332,9 @@ export function OrderSection({ task, order }: OrderSectionProps) {
   const timeline = orderTimelineSteps(order)
   const agreedPrice = formatOrderAgreedPrice(order)
   const statusLabel = orderStatusChipLabel(order.status)
+  // A closed (not cancelled) order means the worker entered the customer's
+  // completion code and the job is done + paid.
+  const completed = order.status === OrderStatus.Closed
 
   const scrolledToHashRef = useRef(false)
 
@@ -358,7 +362,43 @@ export function OrderSection({ task, order }: OrderSectionProps) {
       boxShadow="sm"
     >
       <Stack gap={0}>
-        <Box px={{ base: 4, md: 5 }} pt={5} pb={2}>
+        {completed ? (
+          <HStack
+            align="flex-start"
+            gap={3}
+            px={{ base: 4, md: 5 }}
+            pt={5}
+            pb={1}
+          >
+            <Flex
+              w="10"
+              h="10"
+              align="center"
+              justify="center"
+              borderRadius="full"
+              bg="status.success.solid"
+              color="text.onGreen"
+              flexShrink={0}
+            >
+              <IconWorkCompleted />
+            </Flex>
+            <Stack gap={0.5} flex={1} minW={0}>
+              <Text
+                fontWeight={700}
+                fontSize={{ base: 'md', md: 'lg' }}
+                color="text.default"
+              >
+                Task completed
+              </Text>
+              <Text fontSize="sm" color="text.muted">
+                The job is done and payment is settled directly between you.
+                This task is now closed, and the summary below is for your
+                records.
+              </Text>
+            </Stack>
+          </HStack>
+        ) : null}
+        <Box px={{ base: 4, md: 5 }} pt={completed ? 3 : 5} pb={2}>
           <HStack justify="space-between" align="center" gap={3}>
             <Text
               fontSize="xs"
