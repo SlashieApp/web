@@ -262,7 +262,7 @@ export function QuoteCard({
           px={3}
           py={1}
           borderRadius="full"
-          bg="neutral.100"
+          bg="bg.subtle"
           fontSize="xs"
           fontWeight={600}
           color="text.muted"

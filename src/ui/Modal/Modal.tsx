@@ -104,9 +104,9 @@ export function Modal({
       placement="center"
       motionPreset="scale"
     >
-      {/* Scrim: dim + blur the canvas behind the dialog. No SDL token covers an
-          overlay tint, so a translucent ink wash is used directly. */}
-      <DialogBackdrop bg="blackAlpha.500" backdropFilter="blur(4px)" />
+      {/* Scrim: dim + blur the canvas behind the dialog, using the SDL
+          `bg.overlay` ink wash (not pure black). */}
+      <DialogBackdrop bg="bg.overlay" backdropFilter="blur(4px)" />
       <DialogPositioner p={4}>
         <DialogContent
           bg="bg.surface"

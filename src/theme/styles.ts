@@ -42,10 +42,12 @@ export const sdlMotion = {
 
 /** SDL type scale — role → size/line-height/weight. Consumed by Text/Heading + docs. */
 export const sdlTypeScale = {
+  'display-xl': { fontSize: '48px', lineHeight: '1.1', fontWeight: 700 },
   'display-lg': { fontSize: '36px', lineHeight: '1.15', fontWeight: 700 },
   'heading-xl': { fontSize: '28px', lineHeight: '1.2', fontWeight: 600 },
   'heading-lg': { fontSize: '24px', lineHeight: '1.25', fontWeight: 600 },
   'heading-md': { fontSize: '20px', lineHeight: '1.3', fontWeight: 600 },
+  'heading-sm': { fontSize: '18px', lineHeight: '1.35', fontWeight: 600 },
   'text-lg': { fontSize: '18px', lineHeight: '1.55', fontWeight: 400 },
   'text-md': { fontSize: '16px', lineHeight: '1.5', fontWeight: 400 },
   'text-sm': { fontSize: '14px', lineHeight: '1.45', fontWeight: 400 },
@@ -162,10 +164,10 @@ export function formControlInvalidFieldStyles(
   }
 }
 
-/** Focus ring for solid danger buttons. */
+/** Focus ring for solid danger buttons (uses the `status.danger.ring` token). */
 export const statusDangerSolidFocusRing: SystemStyleObject = {
   outline: 'none',
-  boxShadow: '0 0 0 4px rgba(240, 68, 56, 0.24)',
+  boxShadow: '0 0 0 4px var(--chakra-colors-status-danger-ring)',
 }
 
 /** Standalone bordered field (`Textarea`, `OtpInput`). */
