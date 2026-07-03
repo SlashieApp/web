@@ -29,7 +29,6 @@ export {
   statusFamilies,
   statusScale,
 } from './_foundations/ColorSwatches'
-export { CountChip } from './CountChip'
 export { DashboardSectionNav, Header } from './Header'
 export { DetailRow } from './DetailRow'
 export { Dock } from './Dock'
@@ -59,7 +58,6 @@ export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
 export { PhoneInput } from './PhoneInput'
 export { ProgressBar } from './ProgressBar'
-export { QuoteCard } from './QuoteCard'
 export { RadioButton } from './RadioButton'
 export { Rating } from './Rating'
 export { ScheduleChip } from './ScheduleChip'
@@ -90,7 +88,6 @@ export type {
   ColorModeProviderProps,
   UseColorModeReturn,
 } from './color-mode'
-export type { CountChipProps } from './CountChip'
 export type { DashboardSectionNavProps, HeaderProps } from './Header'
 export type { DetailRowProps } from './DetailRow'
 export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'
@@ -113,7 +110,6 @@ export type {
   ProgressBarSize,
   ProgressBarTone,
 } from './ProgressBar'
-export type { QuoteCardProps, QuoteStatusValue } from './QuoteCard'
 export type {
   RadioButtonProps,
   UiRadioButtonSize,

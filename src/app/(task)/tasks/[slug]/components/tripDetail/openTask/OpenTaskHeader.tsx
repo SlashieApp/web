@@ -11,8 +11,8 @@ import {
 
 import { showAppToast } from '@/utils/appToast'
 import {
+  Badge,
   Button,
-  CountChip,
   Dropdown,
   IconButton,
   Link,
@@ -130,7 +130,10 @@ export function OpenTaskHeader() {
           >
             <StatusPill status={copy.pill} size="lg" />
             {permissions.isOpen ? (
-              <CountChip icon={<LuMessageSquare />}>{chipText}</CountChip>
+              <Badge variant="neutral" shape="pill" size="lg">
+                {chipText}
+                <LuMessageSquare aria-hidden />
+              </Badge>
             ) : null}
           </HStack>
           <Stack gap={2}>
