@@ -1,5 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { LuShieldCheck } from 'react-icons/lu'
 
 import { InfoBar, type UiInfoBarTone } from './InfoBar'
 
@@ -12,7 +13,7 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: {
     tone: { control: 'inline-radio', options: TONES },
-    icon: { control: 'text' },
+    icon: { control: false, table: { disable: true } },
     badgeLabel: { control: 'text' },
     heading: { control: 'text' },
     children: { control: 'text' },
@@ -82,11 +83,11 @@ export const AllTones: Story = {
   ),
 }
 
-/** Custom leading icon and badge label. */
+/** Custom leading icon (any Lucide/SVG node) and badge label. */
 export const CustomIcon: Story = {
   args: {
     tone: 'info',
-    icon: '🔒',
+    icon: <LuShieldCheck size={20} />,
     badgeLabel: 'Secure',
     heading: 'Keep payments off-platform and in person',
     children:

@@ -6,10 +6,15 @@ import {
   HStack,
   Heading,
   Stack,
-  type SystemStyleObject,
   Text,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import {
+  LuCircleAlert,
+  LuCircleCheck,
+  LuInfo,
+  LuTriangleAlert,
+} from 'react-icons/lu'
 
 import { sdlMotion } from '@/theme/styles'
 import { Badge } from '../Badge/Badge'
@@ -17,62 +22,41 @@ import { Card } from '../Card/Card'
 import { Link } from '../Link/Link'
 
 /**
- * SDL Foundations organism: InfoBar — a trust / advisory panel.
+ * SDL Foundations organism: InfoBar — a calm trust / advisory panel.
  *
- * The canonical use is the payment-trust notice: an info-toned bar explaining
- * "You pay the worker directly — Slashie never handles job payment." It composes
- * existing @ui atoms only (Card surface, Badge for the dot + label, Link for the
- * optional CTA) and references SDL semantic roles exclusively.
+ * Canonical use is the payment-trust notice ("You pay the worker directly —
+ * Slashie never handles job payment"). Composes @ui atoms only (Card surface,
+ * Badge for the dot + label, Link for the optional CTA) and references SDL
+ * semantic roles exclusively.
  *
- * Tones map 1:1 to the SDL status families (info | success | warning | danger).
- * Status is never signalled by colour alone: a leading icon pod plus the Badge
- * (`dot` + label) carry the meaning. Solid status fills (success/danger dots,
- * pods) keep their `status.<family>.solid` swatch; ink text on a green pod uses
- * `text.onGreen` per the GREEN-INK rule, never white.
+ * Tone maps 1:1 to the SDL status families. Status is never signalled by colour
+ * alone: a Lucide icon in a neutral pod plus the Badge (dot + label) carry the
+ * meaning. The pod is one calm, consistent treatment across every tone — a
+ * `bg.surface` chip lifted with `e1`, holding a `status.<tone>.fg` icon — so no
+ * solid status fills are used and the green-ink rule does not come into play.
  */
 export type UiInfoBarTone = 'info' | 'success' | 'warning' | 'danger'
 
-type SdlTone = 'info' | 'success' | 'warning' | 'danger'
-
-const toneAlias: Record<UiInfoBarTone, SdlTone> = {
-  info: 'info',
-  success: 'success',
-  warning: 'warning',
-  danger: 'danger',
-}
-
 /** Default short label rendered inside the status Badge per tone. */
-const toneBadgeLabel: Record<SdlTone, string> = {
+const toneBadgeLabel: Record<UiInfoBarTone, string> = {
   info: 'Good to know',
   success: 'All clear',
   warning: 'Heads up',
   danger: 'Action needed',
 }
 
-/** Surface tint + accent border for each tone. */
-function toneSurface(tone: SdlTone): SystemStyleObject {
-  return {
-    bg: `status.${tone}.soft`,
-    borderColor: `status.${tone}.soft`,
-  }
-}
-
-/**
- * Icon pod styling. Solid pods carry the tone's `solid` swatch; the green
- * (success) pod pairs with `text.onGreen` ink — never white — and danger does
- * the same. Info/warning pods use the tone foreground on the soft tint.
- */
-function iconPodStyles(tone: SdlTone): SystemStyleObject {
-  if (tone === 'success' || tone === 'danger') {
-    return { bg: `status.${tone}.solid`, color: 'text.onGreen' }
-  }
-  return { bg: 'bg.surface', color: `status.${tone}.fg` }
+/** Default Lucide icon per tone. Override with the `icon` prop. */
+const defaultToneIcon: Record<UiInfoBarTone, ReactNode> = {
+  info: <LuInfo size={20} />,
+  success: <LuCircleCheck size={20} />,
+  warning: <LuTriangleAlert size={20} />,
+  danger: <LuCircleAlert size={20} />,
 }
 
 export type UiInfoBarProps = Omit<BoxProps, 'title'> & {
   /** SDL status family for the panel. Default `info`. */
   tone?: UiInfoBarTone
-  /** Leading glyph (emoji or icon node) shown in the icon pod. */
+  /** Leading icon shown in the pod. Defaults to a Lucide icon per tone. */
   icon?: ReactNode
   /** Short status label rendered in the Badge (dot + label). */
   badgeLabel?: string
@@ -84,18 +68,8 @@ export type UiInfoBarProps = Omit<BoxProps, 'title'> & {
   linkLabel?: string
   /** Destination for the optional link. */
   linkHref?: string
-  /** Hide the status Badge (icon pod still carries the tone). */
+  /** Hide the status Badge (the pod still carries the tone). */
   hideBadge?: boolean
-}
-
-/**
- * Default info icon — a lowercase "i" glyph. Consumers can override via `icon`.
- */
-const defaultToneIcon: Record<SdlTone, string> = {
-  info: 'i',
-  success: '✓',
-  warning: '!',
-  danger: '!',
 }
 
 export function InfoBar({
@@ -109,19 +83,16 @@ export function InfoBar({
   hideBadge = false,
   ...rest
 }: UiInfoBarProps) {
-  const family = toneAlias[tone]
-  const podStyles = iconPodStyles(family)
-
   return (
     <Card
       layout="default"
       maxW="full"
       p={{ base: 4, md: 5 }}
-      borderColor="transparent"
+      bg={`status.${tone}.soft`}
+      borderColor={`status.${tone}.soft`}
       transitionProperty="background-color, border-color, box-shadow"
       transitionDuration={sdlMotion.duration.base}
       transitionTimingFunction={sdlMotion.easing.standard}
-      {...toneSurface(family)}
       {...rest}
     >
       <HStack gap={{ base: 3, md: 4 }} alignItems="flex-start">
@@ -133,19 +104,20 @@ export function InfoBar({
           flexShrink={0}
           boxSize="40px"
           borderRadius="lg"
-          fontWeight={700}
-          fontSize="lg"
+          bg="bg.surface"
+          color={`status.${tone}.fg`}
+          boxShadow="e1"
+          fontSize="20px"
           lineHeight="1"
-          {...podStyles}
         >
-          {icon ?? defaultToneIcon[family]}
+          {icon ?? defaultToneIcon[tone]}
         </Box>
 
         <Stack gap={2} flex="1" minW={0}>
           <HStack gap={3} flexWrap="wrap" alignItems="center">
             <Heading
               as="h3"
-              fontSize={{ base: '16px', md: '18px' }}
+              fontSize={{ base: 'md', md: 'lg' }}
               fontWeight={600}
               color="text.default"
               lineHeight="short"
@@ -153,8 +125,8 @@ export function InfoBar({
               {heading}
             </Heading>
             {hideBadge ? null : (
-              <Badge variant={family} dot shape="pill" size="sm">
-                {badgeLabel ?? toneBadgeLabel[family]}
+              <Badge variant={tone} dot shape="pill" size="sm">
+                {badgeLabel ?? toneBadgeLabel[tone]}
               </Badge>
             )}
           </HStack>
