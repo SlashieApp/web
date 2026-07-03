@@ -1,0 +1,62 @@
+#import "../../../../(dashboard)/earnings/graphql/orderFields.gql"
+
+# Core task fields for the detail page: everything EXCEPT the heavy `quotes`
+# list (fetched client-side via TaskQuotes.gql). Server-rendered for SEO + the
+# immediately-needed panels (poster contact, viewer order, exposure).
+query TaskCore($id: ID!) {
+  task(id: $id) {
+    id
+    title
+    description
+    category
+    acceptedQuoteCount
+    views
+    exposure {
+      viewCount
+      uniqueViewers
+      showViews
+      computedAt
+    }
+    acceptedWorkerCap
+    budget {
+      amount
+      currency
+      type
+      paymentMethod
+    }
+    datetime {
+      date
+      time
+      type
+    }
+    contactMethod
+    images
+    status
+    completedAt
+    confirmedAt
+    workerPaymentAcknowledgedAt
+    createdAt
+    posterContact {
+      method
+      email
+      phone
+    }
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    poster {
+      id
+      profile {
+        name
+        avatarUrl
+      }
+    }
+    viewerOrder {
+      ...OrderFields
+      completionVerificationCode
+    }
+  }
+}

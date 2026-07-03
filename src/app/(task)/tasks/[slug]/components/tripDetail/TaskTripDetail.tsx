@@ -3,12 +3,10 @@
 import { useBreakpointValue } from '@chakra-ui/react'
 import type { TaskQuery } from '@codegen/schema'
 
-import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import { TaskDetailMobile } from './TaskDetailMobile'
 import { TaskDetailView } from './openTask/TaskDetailView'
 
 type TaskTripDetailProps = {
-  task: TaskDetailRecord
   order: NonNullable<TaskQuery['task']>['viewerOrder'] | null | undefined
 }
 

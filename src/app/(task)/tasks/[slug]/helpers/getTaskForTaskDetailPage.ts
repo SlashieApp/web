@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers'
 import { cache } from 'react'
 
-import type { TaskQuery } from '@codegen/schema'
+import type { TaskCoreQuery } from '@codegen/schema'
 
-import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
+import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
 import { fetch } from '@/utils/api'
 import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
 
@@ -11,9 +11,12 @@ import { taskQueryVariables } from './taskQueryVariables'
 
 const AUTH_COOKIE = 'auth'
 
+/** Server-rendered task fields (everything except the client-fetched quotes list). */
+export type TaskCoreRecord = NonNullable<TaskCoreQuery['task']>
+
 export type TaskPageData = {
-  task: NonNullable<TaskQuery['task']> | null
-  order: NonNullable<TaskQuery['task']>['viewerOrder'] | null
+  task: TaskCoreRecord | null
+  order: TaskCoreRecord['viewerOrder'] | null
 }
 
 export const getTaskForTaskDetailPage = cache(
@@ -21,8 +24,8 @@ export const getTaskForTaskDetailPage = cache(
     const cookieStore = await cookies()
     const token = cookieStore.get(AUTH_COOKIE)?.value ?? ''
 
-    const json = await fetch<TaskQuery>({
-      query: Task,
+    const json = await fetch<TaskCoreQuery>({
+      query: TaskCore,
       variables: taskQueryVariables(taskId),
       authToken: token,
     })

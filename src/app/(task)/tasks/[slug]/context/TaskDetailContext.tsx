@@ -12,6 +12,8 @@ export type TaskDetailData = {
   task: TaskDetailRecord | null
   myOrder: OrderItem | null
   orderLoading: boolean
+  /** The quotes list is fetched client-side after SSR; true during its first load. */
+  quotesLoading: boolean
   me: MeQuery['me'] | null
   meLoading: boolean
   isAuthenticated: boolean

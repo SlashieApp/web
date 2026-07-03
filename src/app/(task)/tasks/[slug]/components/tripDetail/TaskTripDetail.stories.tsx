@@ -27,12 +27,11 @@ type Story = StoryObj<typeof meta>
  * hero matches the seeded permission flags.
  */
 function tripStory(config: TaskDetailStoryConfig): Story {
-  const task = config.task ?? storyTaskDetail()
   const order = config.order ?? null
   return {
-    args: { task, order },
+    args: { order },
     decorators: [withTaskDetailStory(config)],
-    render: () => <TaskTripDetail task={task} order={order} />,
+    render: () => <TaskTripDetail order={order} />,
   }
 }
 

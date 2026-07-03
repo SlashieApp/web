@@ -8,7 +8,8 @@ import type {
   CompleteOrderWithVerificationMutation,
   DeclineQuoteMutation,
   MeQuery,
-  TaskQuery,
+  TaskCoreQuery,
+  TaskQuotesQuery,
 } from '@codegen/schema'
 import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
@@ -32,8 +33,10 @@ import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
 import CompleteOrderWithVerification from '@/app/(task)/tasks/[slug]/graphql/CompleteOrderWithVerification.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
-import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
+import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
+import TaskQuotes from '@/app/(task)/tasks/[slug]/graphql/TaskQuotes.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
+import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
@@ -61,11 +64,13 @@ const ORDER_POLL_MS = 30_000
 const clientSnapshot = () => true
 const serverSnapshot = () => false
 const subscribeNoop = () => () => {}
+/** Stable empty-quotes ref so the merged task memo doesn't churn before quotes load. */
+const EMPTY_QUOTES: NonNullable<TaskQuotesQuery['task']>['quotes'] = []
 
 type TaskDetailProviderProps = {
   taskId: string
-  initialTask: TaskQuery['task'] | null
-  initialOrder: NonNullable<TaskQuery['task']>['viewerOrder'] | null
+  initialTask: TaskCoreQuery['task'] | null
+  initialOrder: NonNullable<TaskCoreQuery['task']>['viewerOrder'] | null
   children: React.ReactNode
 }
 
@@ -129,18 +134,31 @@ export function TaskDetailProvider({
       !isOrderClosed(myOrderFromInitial.status),
   )
 
-  const { data: liveTaskData, loading: liveTaskLoading } = useQuery<TaskQuery>(
-    Task,
-    {
+  const { data: liveTaskData, loading: liveTaskLoading } =
+    useQuery<TaskCoreQuery>(TaskCore, {
       variables: taskQueryVariables(taskId),
       skip: !shouldPollLiveOrder,
       pollInterval: shouldPollLiveOrder ? ORDER_POLL_MS : 0,
       fetchPolicy: 'cache-and-network',
       notifyOnNetworkStatusChange: true,
-    },
-  )
+    })
 
-  const task = liveTaskData?.task ?? initialTask ?? null
+  // Heavy quotes list: fetched client-side after the SSR shell paints, so it
+  // streams in (with a skeleton) instead of blocking the server render.
+  const { data: quotesData, loading: quotesLoadingRaw } =
+    useQuery<TaskQuotesQuery>(TaskQuotes, {
+      variables: taskQueryVariables(taskId),
+      fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true,
+    })
+
+  const baseTask = liveTaskData?.task ?? initialTask ?? null
+  const quotes = quotesData?.task?.quotes ?? EMPTY_QUOTES
+  const quotesLoading = Boolean(quotesLoadingRaw && !quotesData?.task)
+  const task = useMemo<TaskDetailRecord | null>(
+    () => (baseTask ? ({ ...baseTask, quotes } as TaskDetailRecord) : null),
+    [baseTask, quotes],
+  )
   const myOrder = (task?.viewerOrder ?? myOrderFromInitial) as OrderItem | null
   const orderLoading = Boolean(
     shouldPollLiveOrder && liveTaskLoading && !liveTaskData,
@@ -210,6 +228,11 @@ export function TaskDetailProvider({
 
     if (!task) {
       setQuoteError('Task details are not loaded yet.')
+      return false
+    }
+
+    if (quotesLoading) {
+      setQuoteError('Still loading quotes — one moment.')
       return false
     }
 
@@ -340,6 +363,7 @@ export function TaskDetailProvider({
     quoteAmountInput,
     quoteAvailabilityInput,
     quoteMessageInput,
+    quotesLoading,
     refreshPageData,
     router,
     task,
@@ -525,6 +549,7 @@ export function TaskDetailProvider({
       task,
       myOrder,
       orderLoading,
+      quotesLoading,
       me,
       meLoading: meLoadingResolved,
       isAuthenticated,
@@ -566,6 +591,7 @@ export function TaskDetailProvider({
       task,
       myOrder,
       orderLoading,
+      quotesLoading,
       me,
       meLoadingResolved,
       isAuthenticated,
