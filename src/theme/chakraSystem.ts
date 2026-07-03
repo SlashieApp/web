@@ -173,18 +173,28 @@ const lightSemanticColors = {
     raised: { value: { base: '#FFFFFF' } },
     /** Scrim behind modals/drawers - SDL ink wash, not pure black. */
     overlay: { value: { base: 'rgba(10, 21, 18, 0.55)' } },
+    /** Dark-green marketing/auth hero surface (green.800). */
+    brandHero: { value: { base: '#05683F' } },
+    /** Translucent white glass card on the brand hero. */
+    glass: { value: { base: 'rgba(255, 255, 255, 0.08)' } },
   },
   text: {
     default: { value: { base: '#0A1512' } },
     muted: { value: { base: '#515A56' } },
     subtle: { value: { base: '#9BA4A0' } },
     onGreen: { value: { base: '#0A1512' } },
+    /** Text on the dark brand/auth hero (white + alphas; mode-independent). */
+    onBrand: { value: { base: '#FFFFFF' } },
+    onBrandMuted: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
+    onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.75)' } },
     link: { value: { base: '#048654' } },
   },
   border: {
     default: { value: { base: '#E0E5E3' } },
     strong: { value: { base: '#C7CECB' } },
     focus: { value: { base: '#02A567' } },
+    /** White hairline on brand-hero glass cards. */
+    glass: { value: { base: 'rgba(255, 255, 255, 0.14)' } },
   },
   action: {
     primary: { value: { base: '#00DC82' } },
@@ -229,18 +239,28 @@ const darkSemanticColors = {
     raised: { value: { base: '#1F2A25' } },
     /** Scrim behind modals/drawers - deeper wash for dark surfaces. */
     overlay: { value: { base: 'rgba(4, 8, 6, 0.7)' } },
+    /** Dark-green marketing/auth hero surface (green.800). */
+    brandHero: { value: { base: '#05683F' } },
+    /** Translucent white glass card on the brand hero. */
+    glass: { value: { base: 'rgba(255, 255, 255, 0.08)' } },
   },
   text: {
     default: { value: { base: '#F2F5F4' } },
     muted: { value: { base: '#A6AFAB' } },
     subtle: { value: { base: '#7E8783' } },
     onGreen: { value: { base: '#0A1512' } },
+    /** Text on the dark brand/auth hero (white + alphas; mode-independent). */
+    onBrand: { value: { base: '#FFFFFF' } },
+    onBrandMuted: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
+    onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.75)' } },
     link: { value: { base: '#54DD9D' } },
   },
   border: {
     default: { value: { base: '#283330' } },
     strong: { value: { base: '#313D39' } },
     focus: { value: { base: '#00DC82' } },
+    /** White hairline on brand-hero glass cards. */
+    glass: { value: { base: 'rgba(255, 255, 255, 0.14)' } },
   },
   action: {
     primary: { value: { base: '#00DC82' } },

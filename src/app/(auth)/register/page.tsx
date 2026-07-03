@@ -120,9 +120,9 @@ function RegisterFeatureCard({ children }: { children: ReactNode }) {
       borderRadius="lg"
       px={{ base: 4, md: 5 }}
       py={4}
-      bg="rgba(255, 255, 255, 0.08)"
+      bg="bg.glass"
       borderWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.14)"
+      borderColor="border.glass"
       backdropFilter="blur(10px)"
     >
       {children}
@@ -141,9 +141,11 @@ function RegisterMarketingAside() {
       minH="100vh"
       px={{ lg: 10, xl: 14 }}
       py={{ lg: 12, xl: 14 }}
-      bg="green.800"
-      color="white"
-      /* TODO(sdl): verify role — dark-green marketing surface has no dedicated semantic role; white text stays (dark surface, AA-safe, not an action.primary fill) */
+      bg="bg.brandHero"
+      color="text.onBrand"
+      /* SDL: brand/auth hero surface (bg.brandHero) with on-brand white text roles.
+         The remaining rgba() below are intentional decorative treatments (grid,
+         gradient wash, badge scrim), not semantic color roles. */
     >
       <Box
         position="absolute"
@@ -166,7 +168,7 @@ function RegisterMarketingAside() {
         <Badge
           alignSelf="flex-start"
           bg="rgba(0, 0, 0, 0.35)"
-          color="white"
+          color="text.onBrand"
           fontSize="2xs"
           letterSpacing="0.1em"
           textTransform="uppercase"
@@ -185,7 +187,7 @@ function RegisterMarketingAside() {
             fontSize={{ lg: '4xl', xl: '5xl' }}
             lineHeight="1.1"
             fontWeight={800}
-            color="white"
+            color="text.onBrand"
             letterSpacing="-0.03em"
           >
             Create an account for local tasks and quotes.
@@ -194,7 +196,7 @@ function RegisterMarketingAside() {
             mt={5}
             fontSize="lg"
             lineHeight="1.55"
-            color="rgba(255, 255, 255, 0.88)"
+            color="text.onBrandMuted"
             fontWeight={500}
           >
             Post tasks, compare quotes from nearby workers, or set up your
@@ -217,12 +219,17 @@ function RegisterMarketingAside() {
             fontSize="xs"
             fontWeight={700}
             letterSpacing="0.08em"
-            color="rgba(255, 255, 255, 0.75)"
+            color="text.onBrandSubtle"
             textTransform="uppercase"
           >
             For customers
           </Text>
-          <Text fontSize="md" fontWeight={700} color="white" lineHeight="1.4">
+          <Text
+            fontSize="md"
+            fontWeight={700}
+            color="text.onBrand"
+            lineHeight="1.4"
+          >
             Post tasks and compare quotes
           </Text>
         </RegisterFeatureCard>
@@ -231,12 +238,17 @@ function RegisterMarketingAside() {
             fontSize="xs"
             fontWeight={700}
             letterSpacing="0.08em"
-            color="rgba(255, 255, 255, 0.75)"
+            color="text.onBrandSubtle"
             textTransform="uppercase"
           >
             For workers
           </Text>
-          <Text fontSize="md" fontWeight={700} color="white" lineHeight="1.4">
+          <Text
+            fontSize="md"
+            fontWeight={700}
+            color="text.onBrand"
+            lineHeight="1.4"
+          >
             Find local tasks and send quotes
           </Text>
         </RegisterFeatureCard>

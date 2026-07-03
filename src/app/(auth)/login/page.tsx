@@ -133,9 +133,9 @@ function LoginStatCard({ children }: { children: ReactNode }) {
       borderRadius="lg"
       px={{ base: 4, md: 5 }}
       py={4}
-      bg="rgba(255, 255, 255, 0.08)"
+      bg="bg.glass"
       borderWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.14)"
+      borderColor="border.glass"
       backdropFilter="blur(10px)"
     >
       {children}
@@ -154,9 +154,11 @@ function LoginMarketingAside() {
       minH="100vh"
       px={{ lg: 10, xl: 14 }}
       py={{ lg: 12, xl: 14 }}
-      bg="green.800"
-      color="white"
-      /* TODO(sdl): verify role — dark-green marketing surface has no dedicated semantic role; white text stays (dark surface, AA-safe, not an action.primary fill) */
+      bg="bg.brandHero"
+      color="text.onBrand"
+      /* SDL: brand/auth hero surface (bg.brandHero) with on-brand white text roles.
+         The remaining rgba() below are intentional decorative textures (grid +
+         diagonal gradient wash), not color roles. */
     >
       <Box
         position="absolute"
@@ -208,7 +210,7 @@ function LoginMarketingAside() {
             fontSize={{ lg: '4xl', xl: '5xl' }}
             lineHeight="1.1"
             fontWeight={800}
-            color="white"
+            color="text.onBrand"
             letterSpacing="-0.03em"
           >
             Get local tasks done with confidence.
@@ -217,7 +219,7 @@ function LoginMarketingAside() {
             mt={5}
             fontSize="lg"
             lineHeight="1.55"
-            color="rgba(255, 255, 255, 0.88)"
+            color="text.onBrandMuted"
             fontWeight={500}
           >
             Post a task, compare quotes from nearby workers, and manage
@@ -236,28 +238,38 @@ function LoginMarketingAside() {
         mt={{ lg: 12 }}
       >
         <LoginStatCard>
-          <Text fontSize="xl" fontWeight={800} lineHeight="1.2" color="white">
+          <Text
+            fontSize="xl"
+            fontWeight={800}
+            lineHeight="1.2"
+            color="text.onBrand"
+          >
             Fast quotes
           </Text>
           <Text
             fontSize="xs"
             fontWeight={700}
             letterSpacing="0.06em"
-            color="rgba(255, 255, 255, 0.75)"
+            color="text.onBrandSubtle"
             textTransform="uppercase"
           >
             From local workers
           </Text>
         </LoginStatCard>
         <LoginStatCard>
-          <Text fontSize="xl" fontWeight={800} lineHeight="1.2" color="white">
+          <Text
+            fontSize="xl"
+            fontWeight={800}
+            lineHeight="1.2"
+            color="text.onBrand"
+          >
             Map-first
           </Text>
           <Text
             fontSize="xs"
             fontWeight={700}
             letterSpacing="0.06em"
-            color="rgba(255, 255, 255, 0.75)"
+            color="text.onBrandSubtle"
             textTransform="uppercase"
           >
             Find help nearby
