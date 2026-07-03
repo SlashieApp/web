@@ -347,7 +347,7 @@ function ProgressStepDot({ done }: { done: boolean }) {
       flexShrink={0}
       bg={done ? 'action.primary' : 'transparent'}
       borderWidth={done ? '0' : '2px'}
-      borderColor="neutral.300"
+      borderColor="border.strong"
       color="text.onGreen"
     >
       {done ? <LuCheck size={16} strokeWidth={3} aria-hidden /> : null}

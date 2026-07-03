@@ -188,7 +188,7 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
   )
 
   return (
-    <Stack gap={0} flex={1} minH="100dvh" bg="neutral.100">
+    <Stack gap={0} flex={1} minH="100dvh" bg="bg.subtle">
       <EmailVerificationBanner />
 
       {!showDesktopLayout ? (

@@ -419,7 +419,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
           px={4}
           py={3.5}
           borderRadius="lg"
-          bg="neutral.100"
+          bg="bg.subtle"
         >
           <Flex
             w="8"

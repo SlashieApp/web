@@ -179,7 +179,7 @@ export function WorkerQuoteCalendar() {
                         : 'text.default'
                   }
                   borderWidth={hasEvents && !isSelected ? '1px' : 0}
-                  borderColor="green.200"
+                  borderColor="status.success.border"
                   transition="background 0.15s ease, color 0.15s ease"
                   _hover={{
                     bg: isSelected

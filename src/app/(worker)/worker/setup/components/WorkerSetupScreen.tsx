@@ -29,7 +29,7 @@ export function WorkerSetupScreen() {
     useBreakpointValue({ base: false, lg: true }, { fallback: 'base' }) ?? false
 
   if (!isHydrated) {
-    return <Box minH="100dvh" bg="neutral.100" />
+    return <Box minH="100dvh" bg="bg.subtle" />
   }
 
   const copy = STEP_COPY[activeSubStep]
@@ -48,7 +48,7 @@ export function WorkerSetupScreen() {
   )
 
   return (
-    <Stack gap={0} flex={1} minH="100dvh" bg="neutral.100">
+    <Stack gap={0} flex={1} minH="100dvh" bg="bg.subtle">
       <EmailVerificationBanner />
       <WorkerSetupHeader exitHref={exitHref} />
 

@@ -66,7 +66,7 @@ function VerifyEmailSentContent() {
 
       <Box
         w="full"
-        bg="neutral.100"
+        bg="bg.subtle"
         borderRadius="2xl"
         px={{ base: 6, md: 10 }}
         py={{ base: 8, md: 10 }}

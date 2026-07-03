@@ -30,12 +30,12 @@ function ReviewSection({
 }: ReviewSectionProps) {
   return (
     <Stack gap={2}>
-      <Text fontSize="md" fontWeight={700} color="neutral.900">
+      <Text fontSize="md" fontWeight={700} color="text.default">
         {title}
       </Text>
       <Box
         borderWidth="1px"
-        borderColor="neutral.300"
+        borderColor="border.strong"
         borderRadius="lg"
         bg="bg.surface"
         position="relative"

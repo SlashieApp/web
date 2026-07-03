@@ -125,7 +125,7 @@ export function WorkerSetupMobileAccordion() {
                                   : 'transparent'
                             }
                             borderWidth={isActive || isComplete ? '0' : '2px'}
-                            borderColor="neutral.300"
+                            borderColor="border.strong"
                             flexShrink={0}
                           />
                           <Text
@@ -146,7 +146,7 @@ export function WorkerSetupMobileAccordion() {
                       mt={3}
                       pt={4}
                       borderTopWidth="1px"
-                      borderColor="neutral.100"
+                      borderColor="border.default"
                     >
                       <WorkerSetupStepHeading
                         title={copy.title}

@@ -209,6 +209,8 @@ const lightSemanticColors = {
       soft: { value: { base: '#E7FBF0' } },
       fg: { value: { base: '#048654' } },
       solid: { value: { base: '#00DC82' } },
+      /** Soft success-tinted border (parity with legacy green.200). */
+      border: { value: { base: '#92ECC0' } },
     },
     warning: {
       soft: { value: { base: '#FEF6E7' } },
@@ -275,6 +277,8 @@ const darkSemanticColors = {
       soft: { value: { base: 'rgba(0, 220, 130, 0.16)' } },
       fg: { value: { base: '#54DD9D' } },
       solid: { value: { base: '#00DC82' } },
+      /** Soft success-tinted border (dark). */
+      border: { value: { base: 'rgba(0, 220, 130, 0.32)' } },
     },
     warning: {
       soft: { value: { base: 'rgba(245, 163, 0, 0.16)' } },

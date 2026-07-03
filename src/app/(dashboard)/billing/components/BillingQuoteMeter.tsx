@@ -24,7 +24,7 @@ export function BillingQuoteMeter({ used, total }: BillingQuoteMeterProps) {
       <Box
         h="2"
         borderRadius="full"
-        bg="neutral.200"
+        bg="bg.subtle"
         overflow="hidden"
         role="progressbar"
         aria-valuenow={used}

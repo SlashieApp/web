@@ -23,7 +23,7 @@ export function PortfolioPlaceholder() {
             placeItems="center"
             minH="120px"
             borderRadius="lg"
-            bg="neutral.100"
+            bg="bg.subtle"
             color="text.muted"
             fontSize="sm"
             fontWeight={600}

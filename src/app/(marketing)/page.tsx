@@ -532,7 +532,7 @@ export default async function MarketingHomePage() {
       </Box>
 
       {/* Customers & workers */}
-      <Box as="section" py={{ base: 12, md: 16 }} bg="neutral.100">
+      <Box as="section" py={{ base: 12, md: 16 }} bg="bg.subtle">
         <Container maxW="6xl" px={{ base: 4, md: 6 }}>
           <Stack gap={10}>
             <Heading size="lg" textAlign="center">

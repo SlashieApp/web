@@ -17,7 +17,7 @@ export function EmailVerificationBanner() {
     <Box
       bg="status.success.soft"
       borderBottomWidth="1px"
-      borderColor="green.200"
+      borderColor="status.success.border"
       px={{ base: 3, lg: 4 }}
       py={2}
     >

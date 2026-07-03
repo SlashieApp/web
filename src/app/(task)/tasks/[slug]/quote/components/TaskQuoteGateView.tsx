@@ -55,7 +55,7 @@ export function TaskQuoteGateView({
           as="h1"
           fontSize={{ base: '2xl', md: '3xl' }}
           fontWeight={800}
-          color="neutral.900"
+          color="text.default"
         >
           {title}
         </Text>

@@ -318,7 +318,7 @@ export function QuotesSection() {
           )
         })()}
       </Text>
-      <Badge bg="neutral.100" color="text.default" w="fit-content">
+      <Badge bg="bg.subtle" color="text.default" w="fit-content">
         Status: {normaliseTaskStatusForBadge(myQuote.status)}
       </Badge>
     </Stack>

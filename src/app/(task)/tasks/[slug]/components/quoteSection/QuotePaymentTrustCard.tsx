@@ -25,7 +25,7 @@ export function QuotePaymentTrustCard() {
     <Card
       layout="section"
       bodyGap={3}
-      bg="neutral.100"
+      bg="bg.subtle"
       borderColor="border.default"
       header={
         <Stack gap={2}>

@@ -178,6 +178,9 @@ function LoginMarketingAside() {
       />
 
       <Stack gap={8} position="relative" zIndex={1} maxW="lg">
+        {/* Brand-accent badge: the vivid green ramp (green.300/600/900) is an
+            intentional hero accent, not a success STATE, so it stays off the
+            status.success.* roles. */}
         <Badge
           alignSelf="flex-start"
           bg="green.300"
@@ -362,7 +365,7 @@ export default function LoginPage() {
         <LoginMarketingAside />
         <Box
           flex={1}
-          bg="neutral.100"
+          bg="bg.subtle"
           display="flex"
           flexDirection="column"
           minH={{ base: '100vh', lg: 'auto' }}

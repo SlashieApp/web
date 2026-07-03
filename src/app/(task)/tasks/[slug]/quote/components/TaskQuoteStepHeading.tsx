@@ -20,7 +20,7 @@ export function TaskQuoteStepHeading({
         fontSize={compact ? 'xl' : { base: '2xl', md: '3xl' }}
         fontWeight={800}
         lineHeight="short"
-        color="neutral.900"
+        color="text.default"
         letterSpacing="-0.02em"
       >
         {title}

@@ -51,7 +51,7 @@ export function AccountShell({ children }: AccountShellProps) {
   return (
     <Box
       h="100dvh"
-      bg="neutral.100"
+      bg="bg.subtle"
       color="text.default"
       display="flex"
       flexDirection="column"
@@ -74,22 +74,26 @@ export function AccountShell({ children }: AccountShellProps) {
             <DashboardSectionNav active={active} variant="sidebar" />
 
             <Box mt="auto" display="grid" gap={4}>
-              <Stack p={4} gap={3} bg="green.100" borderRadius="xl">
+              <Stack p={4} gap={3} bg="status.success.soft" borderRadius="xl">
                 <Stack gap={0.5}>
                   <Text fontSize="sm" fontWeight={700}>
                     Complete your profile
                   </Text>
-                  <Text fontSize="xs" color="green.800">
+                  <Text fontSize="xs" color="status.success.fg">
                     Stand out and get more work.
                   </Text>
                 </Stack>
 
                 <Stack gap={2}>
                   <HStack justify="space-between">
-                    <Text fontSize="xs" color="green.800">
+                    <Text fontSize="xs" color="status.success.fg">
                       {completion.done}/{completion.total} complete
                     </Text>
-                    <Text fontSize="xs" color="green.800" fontWeight={700}>
+                    <Text
+                      fontSize="xs"
+                      color="status.success.fg"
+                      fontWeight={700}
+                    >
                       {completion.percent}%
                     </Text>
                   </HStack>

@@ -177,8 +177,8 @@ export function BillingPage() {
 
       {loading && !membership ? (
         <Stack gap={4}>
-          <Box h="24" borderRadius="xl" bg="neutral.200" />
-          <Box h="40" borderRadius="xl" bg="neutral.200" />
+          <Box h="24" borderRadius="xl" bg="bg.subtle" />
+          <Box h="40" borderRadius="xl" bg="bg.subtle" />
         </Stack>
       ) : membership ? (
         <Stack gap={5}>

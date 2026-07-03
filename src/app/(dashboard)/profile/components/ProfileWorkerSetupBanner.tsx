@@ -24,7 +24,7 @@ export function ProfileWorkerSetupBanner() {
       layout="section"
       p={{ base: 5, md: 6 }}
       bg="status.success.soft"
-      borderColor="green.200"
+      borderColor="status.success.border"
     >
       <Stack gap={4}>
         <Stack gap={1}>

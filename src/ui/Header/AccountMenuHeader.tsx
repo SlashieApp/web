@@ -88,7 +88,7 @@ function QuoteUsageMeter({
       <Box
         h="1.5"
         borderRadius="full"
-        bg="neutral.200"
+        bg="bg.subtle"
         overflow="hidden"
         role="progressbar"
         aria-valuenow={used}

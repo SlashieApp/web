@@ -46,7 +46,7 @@ export function CreateTaskVisualsSection({
         borderColor="border.default"
         borderRadius="xl"
         p={6}
-        bg="neutral.100"
+        bg="bg.subtle"
       >
         <Stack align="center" gap={3}>
           <Text fontSize="sm" color="text.muted" textAlign="center">

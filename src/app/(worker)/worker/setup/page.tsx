@@ -8,7 +8,7 @@ import { WorkerSetupProvider } from './context/WorkerSetupProvider'
 
 export default function WorkerSetupPage() {
   return (
-    <Suspense fallback={<Box minH="100dvh" bg="neutral.100" />}>
+    <Suspense fallback={<Box minH="100dvh" bg="bg.subtle" />}>
       <WorkerSetupAuthGate>
         <WorkerSetupProvider>
           <WorkerSetupScreen />

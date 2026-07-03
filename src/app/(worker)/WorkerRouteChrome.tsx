@@ -21,7 +21,7 @@ export function WorkerRouteChrome({ children }: WorkerRouteChromeProps) {
 
   if (isStandaloneWorkerRoute(pathname)) {
     return (
-      <Box minH="100dvh" bg="neutral.100" display="flex" flexDirection="column">
+      <Box minH="100dvh" bg="bg.subtle" display="flex" flexDirection="column">
         {children}
       </Box>
     )

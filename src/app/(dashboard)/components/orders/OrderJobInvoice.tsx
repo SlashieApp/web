@@ -94,7 +94,7 @@ export function OrderJobInvoice({
           <Box
             p={3}
             borderRadius="md"
-            bg="neutral.100"
+            bg="bg.subtle"
             fontSize="xs"
             color="text.muted"
           >

@@ -38,7 +38,7 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
   )
 
   if (!hydrated || (hasToken && !me && isLoading)) {
-    return <Box ref={onMount} minH="100dvh" bg="neutral.100" />
+    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
   }
 
   if (!me) {
@@ -47,7 +47,7 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
       redirectedRef.current = true
       router.replace(`/login?redirect=${encodeURIComponent(redirectPath)}`)
     }
-    return <Box ref={onMount} minH="100dvh" bg="neutral.100" />
+    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
   }
 
   return <Box ref={onMount}>{children}</Box>

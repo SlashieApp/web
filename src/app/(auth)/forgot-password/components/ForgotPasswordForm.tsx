@@ -43,7 +43,7 @@ export function ForgotPasswordForm() {
 
       <Box
         w="full"
-        bg="neutral.100"
+        bg="bg.subtle"
         borderRadius="xl"
         boxShadow="card"
         borderTopWidth="4px"

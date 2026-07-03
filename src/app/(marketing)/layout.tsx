@@ -9,7 +9,7 @@ export default function MarketingLayout({
 }>) {
   return (
     <Box
-      bg="neutral.100"
+      bg="bg.subtle"
       color="text.default"
       minH="100dvh"
       display="flex"

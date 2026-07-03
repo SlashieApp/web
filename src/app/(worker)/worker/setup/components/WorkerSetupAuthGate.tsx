@@ -36,7 +36,7 @@ export function WorkerSetupAuthGate({ children }: WorkerSetupAuthGateProps) {
   )
 
   if (!hydrated || (hasToken && !me && isLoading)) {
-    return <Box ref={onMount} minH="100dvh" bg="neutral.100" />
+    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
   }
 
   if (!me) {
@@ -48,7 +48,7 @@ export function WorkerSetupAuthGate({ children }: WorkerSetupAuthGateProps) {
         `/login?next=${encodeURIComponent(returnPath ?? '/worker/setup')}`,
       )
     }
-    return <Box ref={onMount} minH="100dvh" bg="neutral.100" />
+    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
   }
 
   return <Box ref={onMount}>{children}</Box>

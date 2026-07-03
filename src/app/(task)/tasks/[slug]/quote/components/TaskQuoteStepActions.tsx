@@ -25,7 +25,7 @@ export function TaskQuoteStepActions({
   return (
     <Box
       borderTopWidth="1px"
-      borderColor="neutral.300"
+      borderColor="border.strong"
       bg="bg.surface"
       px={{ base: 4, md: 8, lg: 10 }}
       py={4}

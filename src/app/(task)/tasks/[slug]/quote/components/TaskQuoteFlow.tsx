@@ -76,7 +76,7 @@ export function TaskQuoteFlow() {
 
   if (isAuthenticated && meLoading) {
     return (
-      <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="neutral.100">
+      <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="bg.subtle">
         <Stack py={10} align="center">
           <Text color="text.muted">Loading…</Text>
         </Stack>
@@ -86,7 +86,7 @@ export function TaskQuoteFlow() {
 
   if (shouldRedirectToTaskDetail) {
     return (
-      <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="neutral.100">
+      <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="bg.subtle">
         <Stack py={10} align="center">
           <Text color="text.muted">Redirecting…</Text>
         </Stack>
@@ -96,7 +96,7 @@ export function TaskQuoteFlow() {
 
   if (!isAuthenticated) {
     return (
-      <Box minH="100dvh" bg="neutral.100">
+      <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
           title="Send quote"
           description="Sign in to send a quote for this task."
@@ -113,7 +113,7 @@ export function TaskQuoteFlow() {
 
   if (!hasWorkerProfile) {
     return (
-      <Box minH="100dvh" bg="neutral.100">
+      <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
           title="Send quote"
           description="Create your worker profile before you can send quotes."
@@ -133,7 +133,7 @@ export function TaskQuoteFlow() {
 
   if (quoteLimitReached) {
     return (
-      <Box minH="100dvh" bg="neutral.100">
+      <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
           title="Send quote"
           description="Upgrade to send more quotes this month."
@@ -148,7 +148,7 @@ export function TaskQuoteFlow() {
 
   if (me && !isEmailVerified(me)) {
     return (
-      <Box minH="100dvh" bg="neutral.100">
+      <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
           title="Verify your email"
           description="Verify your email before sending quotes. Check your inbox or resend from the banner."

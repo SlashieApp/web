@@ -17,7 +17,7 @@ function StatTile({ label, value }: StatItem) {
       gap={1}
       p={4}
       borderRadius="lg"
-      bg="neutral.100"
+      bg="bg.subtle"
       minH="88px"
       justify="center"
     >

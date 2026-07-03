@@ -7,7 +7,7 @@ import { Badge } from '@ui'
 export function WorkerSetupOptionalBadge() {
   return (
     <Badge
-      bg="neutral.100"
+      bg="bg.subtle"
       color="text.muted"
       fontSize="xs"
       fontWeight={600}

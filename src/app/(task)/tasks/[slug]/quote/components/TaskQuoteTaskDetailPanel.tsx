@@ -58,7 +58,7 @@ export function TaskQuoteTaskDetailPanel({
           fontWeight={800}
           lineHeight="short"
           letterSpacing="-0.02em"
-          color="neutral.900"
+          color="text.default"
         >
           {task.title}
         </Heading>
