@@ -75,7 +75,8 @@ export const WithStartElement: Story = {
   },
 }
 
-/** Disabled field -- non-interactive, dimmed via the native control. */
+/** Disabled field -- non-interactive; the shell dims to `bg.subtle` and the
+ * field text mutes to `text.subtle`, matching Textarea/Select. */
 export const Disabled: Story = {
   args: { placeholder: 'Filter by keyword', disabled: true },
 }
