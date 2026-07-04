@@ -161,6 +161,13 @@ const sharedTheme = {
       },
     },
     textStyles: sdlTextStyles,
+    keyframes: {
+      /** Marketing entrance: fade + rise. Pair with a reduced-motion override. */
+      'rise-in': {
+        from: { opacity: '0', transform: 'translateY(28px)' },
+        to: { opacity: '1', transform: 'translateY(0)' },
+      },
+    },
   },
 }
 
@@ -177,6 +184,10 @@ const lightSemanticColors = {
     brandHero: { value: { base: '#05683F' } },
     /** Translucent white glass card on the brand hero. */
     glass: { value: { base: 'rgba(255, 255, 255, 0.08)' } },
+    /** Immersive dark ink surfaces (marketing hero/CTA bands). Mode-independent. */
+    inverted: { value: { base: '#0C1310' } },
+    invertedSurface: { value: { base: '#121A16' } },
+    invertedRaised: { value: { base: '#1F2A25' } },
   },
   text: {
     default: { value: { base: '#0A1512' } },
@@ -187,6 +198,11 @@ const lightSemanticColors = {
     onBrand: { value: { base: '#FFFFFF' } },
     onBrandMuted: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
     onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.75)' } },
+    /** Text on `bg.inverted*` dark ink surfaces. Mode-independent. */
+    onInverted: { value: { base: '#F2F5F4' } },
+    onInvertedMuted: { value: { base: '#A6AFAB' } },
+    /** Green link/accent text on dark surfaces (SDL dark-mode link value). */
+    onInvertedLink: { value: { base: '#54DD9D' } },
     link: { value: { base: '#048654' } },
   },
   border: {
@@ -195,6 +211,8 @@ const lightSemanticColors = {
     focus: { value: { base: '#02A567' } },
     /** White hairline on brand-hero glass cards. */
     glass: { value: { base: 'rgba(255, 255, 255, 0.14)' } },
+    /** Hairline on `bg.inverted*` dark surfaces (SDL dark border.default). */
+    inverted: { value: { base: '#283330' } },
   },
   action: {
     primary: { value: { base: '#00DC82' } },
@@ -245,6 +263,10 @@ const darkSemanticColors = {
     brandHero: { value: { base: '#05683F' } },
     /** Translucent white glass card on the brand hero. */
     glass: { value: { base: 'rgba(255, 255, 255, 0.08)' } },
+    /** Immersive dark ink surfaces (marketing hero/CTA bands). Mode-independent. */
+    inverted: { value: { base: '#0C1310' } },
+    invertedSurface: { value: { base: '#121A16' } },
+    invertedRaised: { value: { base: '#1F2A25' } },
   },
   text: {
     default: { value: { base: '#F2F5F4' } },
@@ -255,6 +277,11 @@ const darkSemanticColors = {
     onBrand: { value: { base: '#FFFFFF' } },
     onBrandMuted: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
     onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.75)' } },
+    /** Text on `bg.inverted*` dark ink surfaces. Mode-independent. */
+    onInverted: { value: { base: '#F2F5F4' } },
+    onInvertedMuted: { value: { base: '#A6AFAB' } },
+    /** Green link/accent text on dark surfaces (SDL dark-mode link value). */
+    onInvertedLink: { value: { base: '#54DD9D' } },
     link: { value: { base: '#54DD9D' } },
   },
   border: {
@@ -263,6 +290,8 @@ const darkSemanticColors = {
     focus: { value: { base: '#00DC82' } },
     /** White hairline on brand-hero glass cards. */
     glass: { value: { base: 'rgba(255, 255, 255, 0.14)' } },
+    /** Hairline on `bg.inverted*` dark surfaces (SDL dark border.default). */
+    inverted: { value: { base: '#283330' } },
   },
   action: {
     primary: { value: { base: '#00DC82' } },
