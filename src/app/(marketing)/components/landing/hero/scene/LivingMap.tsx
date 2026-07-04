@@ -66,8 +66,12 @@ const FRAGMENT_SHADER = /* glsl */ `
     vec3 color = mix(uLow, uHigh, smoothstep(0.1, 1.35, vElevation));
 
     // Topographic contour bands (kept faint — the map should whisper).
+    // NOTE: smoothstep edges must be ascending (edge0 < edge1 is required by
+    // the GLSL spec; reversed edges are undefined on some drivers), so
+    // "descending" ramps are expressed as 1.0 - smoothstep(...).
     float band = fract(vElevation * 7.0);
-    float contour = smoothstep(0.0, 0.05, band) * smoothstep(0.11, 0.05, band);
+    float contour =
+      smoothstep(0.0, 0.05, band) * (1.0 - smoothstep(0.05, 0.11, band));
     color = mix(color, uLine, contour * 0.11);
 
     // Faint survey grid for the map feel.
@@ -77,20 +81,34 @@ const FRAGMENT_SHADER = /* glsl */ `
 
     // Radial fade so the terrain melts into the hero background.
     float edge = distance(vUv, vec2(0.5));
-    float alpha = smoothstep(0.52, 0.3, edge);
+    float alpha = 1.0 - smoothstep(0.3, 0.52, edge);
 
     gl_FragColor = vec4(color, alpha);
   }
 `
+
+/**
+ * Uniform color that reaches the screen as the EXACT sRGB hex. The default
+ * `new Color(hex)` converts sRGB → linear working space, but this raw shader
+ * writes gl_FragColor straight to the sRGB drawing buffer (no
+ * colorspace_fragment chunk), so conversion must be skipped or the terrain
+ * renders darker than the background it has to melt into.
+ */
+function rawColor(hex: string): THREE.Color {
+  return new THREE.Color().setHex(
+    Number.parseInt(hex.slice(1), 16),
+    THREE.LinearSRGBColorSpace,
+  )
+}
 
 export function LivingMap({ segments }: { segments: number }) {
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uAmp: { value: 0.6 },
-      uLow: { value: new THREE.Color(LANDING_INK.surface) },
-      uHigh: { value: new THREE.Color(LANDING_INK.raised) },
-      uLine: { value: new THREE.Color(LANDING_ON_INK.muted) },
+      uLow: { value: rawColor(LANDING_INK.surface) },
+      uHigh: { value: rawColor(LANDING_INK.raised) },
+      uLine: { value: rawColor(LANDING_ON_INK.muted) },
     }),
     [],
   )

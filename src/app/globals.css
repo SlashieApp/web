@@ -13,6 +13,19 @@ body {
   overflow-x: clip;
 }
 
+html {
+  /* Anchor targets land below the sticky headers (56/64px + breathing room). */
+  scroll-padding-top: 80px;
+  /* Smooth in-page anchor scrolling (native, no-JS friendly). */
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

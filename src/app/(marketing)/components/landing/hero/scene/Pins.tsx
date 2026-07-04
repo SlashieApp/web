@@ -4,6 +4,8 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
+// (time accumulates from deltas, not clock.elapsedTime — see useFrame below)
+
 import { BEACON_PRICES, LANDING_GREEN } from '../../landingPalette'
 import { createBeaconTexture, createGlowTexture, mulberry32 } from './textures'
 
@@ -17,6 +19,7 @@ const PIN_BASE_SIZE = 0.42
 export function MapPins({ pinCount }: { pinCount: number }) {
   const pointsMaterialRef = useRef<THREE.PointsMaterial>(null)
   const beaconGroupRef = useRef<THREE.Group>(null)
+  const timeRef = useRef(0)
 
   const glowTexture = useMemo(() => createGlowTexture(), [])
   const beaconTextures = useMemo(
@@ -65,8 +68,11 @@ export function MapPins({ pinCount }: { pinCount: number }) {
     })
   }, [beaconTextures])
 
-  useFrame((state) => {
-    const t = state.clock.elapsedTime
+  useFrame((_, delta) => {
+    // Delta-accumulated time: clock.elapsedTime resets when the frameloop
+    // pauses offscreen, which would snap every pulse/bob on hero re-entry.
+    timeRef.current += delta
+    const t = timeRef.current
 
     // Gentle collective pulse on the pin field.
     if (pointsMaterialRef.current) {

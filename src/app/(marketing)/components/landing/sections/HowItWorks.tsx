@@ -32,7 +32,7 @@ const STEPS = [
   {
     step: '03',
     title: 'Accept & pay directly',
-    body: 'Pick your worker and settle payment between yourselves. Slashie never takes a cut of the job.',
+    body: 'Pick your worker and settle up directly, in person — no middleman, no platform fee.',
     icon: <LuBanknote size={22} />,
   },
 ] as const

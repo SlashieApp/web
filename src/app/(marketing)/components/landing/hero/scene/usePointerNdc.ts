@@ -1,16 +1,21 @@
 'use client'
 
 import { useThree } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
+import { type RefObject, useEffect, useRef } from 'react'
 
 export type PointerNdc = { x: number; y: number; active: boolean }
+
+export type PointerNdcRef = RefObject<PointerNdc>
 
 /**
  * Pointer position in canvas NDC space, tracked on `window` so the scene keeps
  * reacting even when the pointer is over hero copy that sits above the canvas
  * (the canvas itself is pointer-events: none so links/CTAs stay clickable).
+ *
+ * Call ONCE per scene (from the scene root) and pass the ref down — one window
+ * listener and one getBoundingClientRect per event for the whole scene.
  */
-export function usePointerNdc() {
+export function usePointerNdc(): PointerNdcRef {
   const gl = useThree((state) => state.gl)
   const ndcRef = useRef<PointerNdc>({ x: 0, y: 0, active: false })
 

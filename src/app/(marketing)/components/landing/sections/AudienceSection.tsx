@@ -90,11 +90,13 @@ function AudienceCard({
           </List.Item>
         ))}
       </List.Root>
-      <NextLink href={href} style={{ textDecoration: 'none' }}>
-        <Button w="fit-content" variant={featured ? 'primary' : 'secondary'}>
-          {ctaLabel}
-        </Button>
-      </NextLink>
+      <Button
+        asChild
+        w="fit-content"
+        variant={featured ? 'primary' : 'secondary'}
+      >
+        <NextLink href={href}>{ctaLabel}</NextLink>
+      </Button>
     </Stack>
   )
 }
@@ -130,7 +132,9 @@ export function AudienceSection() {
                   'Choose by price, profile, and reviews',
                 ]}
                 ctaLabel="Post a task"
-                href="/tasks/create"
+                // Registration, not /tasks/create: anonymous visitors hitting
+                // the create flow are bounced to a login wall mid-funnel.
+                href="/register"
               />
             </Reveal>
             <Reveal delayMs={120} h="full">

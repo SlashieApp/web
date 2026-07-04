@@ -35,6 +35,8 @@ export const LANDING_GREEN = {
   accent: brandPrimary[300],
   /** Ink for text ON green fills (green-ink rule). */
   ink: BRAND_INK,
+  /** action.primary at 10% — the DOM cursor-glow gradient stop. */
+  cursorGlow: 'rgba(0, 220, 130, 0.1)',
 } as const
 
 /** £ labels shown on the floating beacon pins (quote moments are green). */

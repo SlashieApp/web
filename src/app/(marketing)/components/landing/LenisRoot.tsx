@@ -12,9 +12,11 @@ export function LenisRoot() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
+    // Anchor scrolling is native (CSS `scroll-behavior: smooth` in
+    // globals.css): Lenis `anchors` would double-handle hash clicks alongside
+    // the browser/Next and cause a jump-then-snap glitch.
     const lenis = new Lenis({
       autoRaf: true,
-      anchors: true,
       duration: 1.1,
     })
 

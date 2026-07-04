@@ -114,26 +114,28 @@ export function HeroSection() {
             two of you — Slashie never takes a cut of the job.
           </Text>
 
+          {/* CTAs are single <a> elements styled as buttons (Button asChild):
+              a <button> nested in an <a> is invalid HTML and double-focuses. */}
           <HStack gap={4} flexWrap="wrap" {...riseIn(240)}>
             <Magnetic>
-              <NextLink href="/register" style={{ textDecoration: 'none' }}>
-                <Button size="lg" variant="primary">
-                  Get started
-                </Button>
-              </NextLink>
-            </Magnetic>
-            <NextLink href="#how-it-works" style={{ textDecoration: 'none' }}>
-              <Button
-                size="lg"
-                variant="ghost"
-                color="text.onInverted"
-                borderWidth="1px"
-                borderColor="border.glass"
-                _hover={{ bg: 'bg.glass', color: 'text.onInverted' }}
-              >
-                See how it works
+              <Button asChild size="lg" variant="primary">
+                <NextLink href="/register">Get started</NextLink>
               </Button>
-            </NextLink>
+            </Magnetic>
+            <Button
+              asChild
+              size="lg"
+              variant="ghost"
+              color="text.onInverted"
+              borderWidth="1px"
+              borderColor="border.glass"
+              _hover={{ bg: 'bg.glass', color: 'text.onInverted' }}
+              _active={{ bg: 'bg.glass', color: 'text.onInverted' }}
+            >
+              {/* Plain anchor: native CSS smooth scroll (globals.css) — routing
+                  through NextLink makes Next and Lenis fight over the scroll. */}
+              <a href="#how-it-works">See how it works</a>
+            </Button>
           </HStack>
 
           <HStack

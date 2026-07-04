@@ -15,6 +15,10 @@ export type PricingPageData = {
 export const getPricingForPage = cache(async (): Promise<PricingPageData> => {
   const json = await fetch<PricingQuery>({
     query: Pricing,
+    // Public, slow-changing data: 5-minute ISR instead of the helper's
+    // `revalidate: 0` default, so the marketing landing + /pricing are not
+    // dynamically rendered (TTFB blocked on GraphQL) for every visitor.
+    next: { revalidate: 300 },
   })
 
   if (!json?.data?.pricing) {

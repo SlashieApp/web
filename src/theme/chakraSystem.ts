@@ -203,7 +203,12 @@ const lightSemanticColors = {
     onInvertedMuted: { value: { base: '#A6AFAB' } },
     /** Green link/accent text on dark surfaces (SDL dark-mode link value). */
     onInvertedLink: { value: { base: '#54DD9D' } },
-    link: { value: { base: '#048654' } },
+    /**
+     * Green ink for text. green-800: green-700 (#048654) is 4.37:1 on
+     * `bg.canvas` (#F7F9F8) — just under WCAG AA 4.5:1 for normal text —
+     * while green-800 passes on every light surface.
+     */
+    link: { value: { base: '#05683F' } },
   },
   border: {
     default: { value: { base: '#E0E5E3' } },

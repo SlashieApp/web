@@ -6,7 +6,6 @@ import {
   pricingDisplayPrice,
 } from '@/app/(marketing)/pricing/helpers/formatPricing'
 import { getPricingForPage } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
-import { buildWorkerFreePlan } from '@/app/(marketing)/pricing/helpers/pricingPlans'
 import { Footer } from '@/ui'
 
 import { LenisRoot } from './components/landing/LenisRoot'
@@ -50,16 +49,25 @@ export const metadata: Metadata = {
  */
 export default async function MarketingHomePage() {
   const { pricing } = await getPricingForPage()
-  const workerFree = buildWorkerFreePlan(pricing?.freeQuotesPerMonth ?? 3)
-  const unlimitedPrice = pricing
+
+  // Only claims backed by live pricing render: no fabricated trial or price
+  // when the API reports none (or the fetch fails) — the card degrades to a
+  // truthful generic line and /pricing carries the detail.
+  const priceLine = pricing
     ? `${pricingDisplayPrice(pricing)}/${formatPricingInterval(pricing.priceInterval)}`
-    : '£19.99/month'
+    : null
+  const trialLabel = pricing?.trialLabel?.trim() || null
+  const freeQuotes = pricing?.freeQuotesPerMonth ?? 3
 
   const landingPricing: LandingPricing = {
     productName: pricing?.productName ?? 'Slashie Unlimited',
-    trialLabel: pricing?.trialLabel?.trim() || '6 months free trial',
-    priceLine: `Then ${unlimitedPrice}`,
-    freeBadge: workerFree.badge,
+    headline: trialLabel ?? priceLine ?? 'Unlimited quotes',
+    subline: trialLabel
+      ? priceLine
+        ? `Then ${priceLine} · unlimited quotes`
+        : 'Unlimited quotes for one subscription'
+      : 'Unlimited quotes for one subscription',
+    freeHeadline: `${freeQuotes} quotes a month`,
   }
 
   return (

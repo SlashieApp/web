@@ -17,12 +17,12 @@ import { Reveal } from '../Reveal'
 export type LandingPricing = {
   /** e.g. "Slashie Unlimited" */
   productName: string
-  /** e.g. "6 months free trial" */
-  trialLabel: string
-  /** e.g. "Then £19.99/month" */
-  priceLine: string
-  /** Free-tier badge, e.g. "3 free quotes every month" */
-  freeBadge: string
+  /** Premium-card headline — live trial label when one exists, else the price. */
+  headline: string
+  /** Premium-card supporting line. */
+  subline: string
+  /** Free-tier headline, sentence case, e.g. "3 quotes a month". */
+  freeHeadline: string
 }
 
 /**
@@ -72,7 +72,7 @@ export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
                   Workers — Free
                 </Text>
                 <Heading as="h3" fontSize="24px" fontWeight={600}>
-                  {pricing.freeBadge}
+                  {pricing.freeHeadline}
                 </Heading>
                 <Text fontSize="sm" color="text.muted">
                   Browse local tasks and send quotes on the free tier.
@@ -98,19 +98,19 @@ export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
                   <Text fontSize="sm">{pricing.productName}</Text>
                 </HStack>
                 <Heading as="h3" fontSize="24px" fontWeight={600}>
-                  {pricing.trialLabel}
+                  {pricing.headline}
                 </Heading>
                 <Text fontSize="sm" color="text.muted">
-                  {pricing.priceLine} · unlimited quotes
+                  {pricing.subline}
                 </Text>
               </Stack>
             </Reveal>
           </Grid>
 
           <Reveal delayMs={160}>
-            <NextLink href="/pricing" style={{ textDecoration: 'none' }}>
-              <Button variant="premium">View pricing</Button>
-            </NextLink>
+            <Button asChild variant="premium">
+              <NextLink href="/pricing">View pricing</NextLink>
+            </Button>
           </Reveal>
         </Stack>
       </Container>

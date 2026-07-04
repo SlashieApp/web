@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { BRAND_PRIMARY } from '@/theme/brand'
@@ -14,10 +14,20 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
+  // Absolute base for canonical/og URLs + the opengraph-image route.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
+      'https://slashie.app',
+  ),
   title: 'Slashie App - Local Trades and Home Tasks Marketplace',
   description:
     'Slashie is a local trades and home tasks marketplace that connects homeowners with skilled professionals for home repairs, maintenance, and improvements.',
   manifest: '/manifest.json',
+}
+
+// App Router requires themeColor in the viewport export (a metadata-export
+// themeColor is warned about and silently dropped by Next 15+).
+export const viewport: Viewport = {
   themeColor: BRAND_PRIMARY,
 }
 

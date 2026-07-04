@@ -57,24 +57,22 @@ export function FinalCtaBand() {
             </Stack>
             <HStack gap={3} flexWrap="wrap">
               <Magnetic>
-                <NextLink href="/register" style={{ textDecoration: 'none' }}>
-                  <Button size="lg" variant="primary">
-                    Get started
-                  </Button>
-                </NextLink>
-              </Magnetic>
-              <NextLink href="/login" style={{ textDecoration: 'none' }}>
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  color="text.onInverted"
-                  borderWidth="1px"
-                  borderColor="border.glass"
-                  _hover={{ bg: 'bg.glass', color: 'text.onInverted' }}
-                >
-                  Log in
+                <Button asChild size="lg" variant="primary">
+                  <NextLink href="/register">Get started</NextLink>
                 </Button>
-              </NextLink>
+              </Magnetic>
+              <Button
+                asChild
+                size="lg"
+                variant="ghost"
+                color="text.onInverted"
+                borderWidth="1px"
+                borderColor="border.glass"
+                _hover={{ bg: 'bg.glass', color: 'text.onInverted' }}
+                _active={{ bg: 'bg.glass', color: 'text.onInverted' }}
+              >
+                <NextLink href="/login">Log in</NextLink>
+              </Button>
             </HStack>
           </HStack>
         </Reveal>

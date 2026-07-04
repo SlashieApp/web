@@ -6,7 +6,7 @@ import * as THREE from 'three'
 
 import { LANDING_GREEN, LANDING_ON_INK } from '../../landingPalette'
 import { createGlowTexture, mulberry32 } from './textures'
-import { usePointerNdc } from './usePointerNdc'
+import type { PointerNdcRef } from './usePointerNdc'
 
 const MAX_LINKS = 4
 const ANCHOR_SEARCH_RADIUS_SQ = 2.2 * 2.2
@@ -17,9 +17,13 @@ const NEIGHBOR_RADIUS_SQ = 1.9 * 1.9
  * cursor, green connection lines link a "customer" point to nearby "worker"
  * points — quotes arriving — and disperse smoothly as the pointer moves away.
  */
-export function Signals({ particleCount }: { particleCount: number }) {
-  const ndcRef = usePointerNdc()
-
+export function Signals({
+  particleCount,
+  ndcRef,
+}: {
+  particleCount: number
+  ndcRef: PointerNdcRef
+}) {
   const glowTexture = useMemo(() => createGlowTexture(), [])
   useEffect(() => () => glowTexture.dispose(), [glowTexture])
 
@@ -62,7 +66,7 @@ export function Signals({ particleCount }: { particleCount: number }) {
     const material = lineMaterialRef.current
     if (!geometry || !material) return
 
-    const { x, y, active } = ndcRef.current
+    const { x, y, active } = ndcRef.current ?? { x: 0, y: 0, active: false }
     let targetOpacity = 0
 
     if (active) {
