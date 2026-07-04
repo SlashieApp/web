@@ -1,7 +1,7 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import { Box, Container, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
@@ -34,7 +35,7 @@ import {
   getTaskMutationErrorMessage,
 } from '@/utils/graphqlErrors'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
-import { Button, Footer } from '@ui'
+import { StepFlowLayout, StepFlowProgress } from '@ui'
 
 import {
   CreateTaskBasicsSection,
@@ -44,7 +45,7 @@ import {
   CreateTaskScheduleSection,
   CreateTaskVisualsSection,
 } from './components'
-import { CreateTaskPageHeader } from './components/CreateTaskPageHeader'
+import { CreateTaskStepper } from './components/CreateTaskStepper'
 import {
   type CreateTaskFormFieldValues,
   type CreateTaskFormValues,
@@ -52,6 +53,19 @@ import {
   createTaskFormSchema,
   toYmd,
 } from './createTaskFormSchema'
+import {
+  CREATE_TASK_FINAL_SUB_STEP,
+  CREATE_TASK_FIRST_SUB_STEP,
+  CREATE_TASK_SECTION_HEADINGS,
+  CREATE_TASK_STEP_COPY,
+  CREATE_TASK_STEP_FIELDS,
+  type CreateTaskSubStepId,
+  createTaskIsSubStepUnlocked,
+  createTaskNextSubStep,
+  createTaskPreviousSubStep,
+  createTaskProgressPercent,
+  createTaskStepCaption,
+} from './helpers/createTaskSteps.config'
 
 const POST_TASK_PATH = '/tasks/create'
 
@@ -77,12 +91,20 @@ function CreateTaskFormBody({
   const imagePreviewUrlsUnmountRef = useRef<string[]>([])
   const [serverError, setServerError] = useState<string | null>(null)
 
+  const [activeSubStep, setActiveSubStep] = useState<CreateTaskSubStepId>(
+    CREATE_TASK_FIRST_SUB_STEP,
+  )
+  const [completedSubSteps, setCompletedSubSteps] = useState<
+    Set<CreateTaskSubStepId>
+  >(() => new Set())
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
     getValues,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<CreateTaskFormFieldValues>({
     resolver: zodResolver(createTaskFormSchema),
@@ -289,73 +311,75 @@ function CreateTaskFormBody({
     }
   }
 
-  const mapScheduleStack = (
-    <Stack gap={6}>
-      <CreateTaskMapLocationPanel
-        mapboxAccessToken={mapboxAccessToken}
-        mapPlaceName={mapPlaceName}
-        locationLat={locationLat}
-        locationLng={locationLng}
-        register={register}
-        streetAddressError={errors.streetAddress?.message}
-        onCopyMapPlaceToAddress={onCopyMapPlaceToAddress}
-        locationError={locationError}
-        onLocationChange={onMapPlaceNameChange}
-        onLocationLatChange={onLocationLatChange}
-        onLocationLngChange={onLocationLngChange}
-      />
-      <CreateTaskScheduleSection
-        datetimeType={datetimeType}
-        onDatetimeTypeChange={(v) =>
-          setValue('datetimeType', v, {
-            shouldValidate: true,
-            shouldDirty: true,
-          })
-        }
-        preferredDate={preferredDate}
-        preferredTime={preferredTime}
-        onPreferredDateChange={(v) =>
-          setValue('preferredDate', v, {
-            shouldValidate: true,
-            shouldDirty: true,
-          })
-        }
-        onPreferredTimeChange={(v) =>
-          setValue('preferredTime', v, {
-            shouldValidate: true,
-            shouldDirty: true,
-          })
-        }
-        fieldErrors={{
-          preferredDate: errors.preferredDate?.message,
-          preferredTime: errors.preferredTime?.message,
-        }}
-      />
-    </Stack>
+  const goToSubStep = useCallback(
+    (id: CreateTaskSubStepId) => {
+      if (!createTaskIsSubStepUnlocked(id, activeSubStep, completedSubSteps)) {
+        return
+      }
+      setServerError(null)
+      setActiveSubStep(id)
+    },
+    [activeSubStep, completedSubSteps],
   )
 
-  const createTaskForm = (
-    <form
-      onSubmit={handleSubmit(
-        (raw) => void onSubmit(raw as CreateTaskFormValues),
-      )}
-      noValidate
-    >
-      <Grid
-        w="full"
-        templateColumns={{
-          base: '1fr',
-          lg: 'minmax(0,1fr) minmax(300px,380px)',
-        }}
-        templateRows={{ base: 'repeat(3, auto)', lg: 'auto auto' }}
-        gap={{ base: 8, lg: 10 }}
-        alignItems="start"
-      >
-        <Box
-          gridColumn={{ base: '1', lg: '1' }}
-          gridRow={{ base: '1', lg: '1' }}
-        >
+  const goBack = useCallback(() => {
+    const prev = createTaskPreviousSubStep(activeSubStep)
+    if (prev) goToSubStep(prev)
+  }, [activeSubStep, goToSubStep])
+
+  /** On full-form failure, jump to the first step that owns an errored field. */
+  const jumpToFirstErroredStep = useCallback((erroredFields: string[]) => {
+    for (const [stepId, fields] of Object.entries(CREATE_TASK_STEP_FIELDS)) {
+      if (fields.some((field) => erroredFields.includes(field))) {
+        setActiveSubStep(stepId as CreateTaskSubStepId)
+        return
+      }
+    }
+  }, [])
+
+  // Plain function (not useCallback): it closes over the per-render onSubmit,
+  // and the layout's `actions` object is rebuilt every render anyway.
+  async function continueStep() {
+    setServerError(null)
+    const isFinal = activeSubStep === CREATE_TASK_FINAL_SUB_STEP
+
+    const fields = CREATE_TASK_STEP_FIELDS[activeSubStep]
+    if (fields.length > 0) {
+      const valid = await trigger(fields)
+      if (!valid) return
+    }
+
+    if (isFinal) {
+      await handleSubmit(
+        (raw) => onSubmit(raw as CreateTaskFormValues),
+        (formErrors) => {
+          setServerError('Some details are missing — check earlier steps.')
+          jumpToFirstErroredStep(Object.keys(formErrors))
+        },
+      )()
+      return
+    }
+
+    setCompletedSubSteps((prev) => {
+      const next = new Set(prev)
+      next.add(activeSubStep)
+      return next
+    })
+    const next = createTaskNextSubStep(activeSubStep)
+    if (next) setActiveSubStep(next)
+  }
+
+  const copy = CREATE_TASK_STEP_COPY[activeSubStep]
+  const sectionHeading = CREATE_TASK_SECTION_HEADINGS[activeSubStep]
+  const isFirstStep = activeSubStep === CREATE_TASK_FIRST_SUB_STEP
+  const isFinalStep = activeSubStep === CREATE_TASK_FINAL_SUB_STEP
+
+  const stepContent = (() => {
+    switch (activeSubStep) {
+      case 'details.basics':
+        return (
           <CreateTaskBasicsSection
+            sectionHeading={sectionHeading}
             register={register}
             fieldErrors={{
               title: errors.title?.message,
@@ -363,94 +387,142 @@ function CreateTaskFormBody({
               description: errors.description?.message,
             }}
           />
-        </Box>
-        <Box
-          gridColumn={{ base: '1', lg: '2' }}
-          gridRow={{ base: '2', lg: '1 / span 2' }}
-          position={{ base: 'static', lg: 'sticky' }}
-          top={{ lg: 4 }}
-          alignSelf="start"
-        >
-          {mapScheduleStack}
-        </Box>
-        <Box
-          gridColumn={{ base: '1', lg: '1' }}
-          gridRow={{ base: '3', lg: '2' }}
-        >
-          <Stack gap={6}>
-            <CreateTaskVisualsSection
-              files={imageFiles}
-              previews={imagePreviewUrls}
-              onFilesAdded={onFilesAdded}
-              onRemoveFile={onRemoveFile}
-            />
-            <CreateTaskBudgetSection
-              register={register}
-              budgetCurrency={budgetCurrency}
-              budgetType={budgetType}
-              paymentMethod={paymentMethod}
-              onBudgetCurrencyChange={(currency) =>
-                setValue('budgetCurrency', currency, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-              onBudgetTypeChange={(t) =>
-                setValue('budgetType', t, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-              onPaymentMethodChange={(m) =>
-                setValue('paymentMethod', m, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-              budgetMajorError={errors.budgetMajor?.message}
-            />
-            <CreateTaskContactSection
-              preferredContactMethod={preferredContactMethod}
-              contactOptions={contactOptions}
-              onPreferredContactMethodChange={(m) =>
-                setValue('preferredContactMethod', m, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-            />
-            <Stack gap={3} pt={2}>
-              <HStack justify="space-between" flexWrap="wrap" gap={3}>
-                <Button type="button" variant="ghost" disabled opacity={0.5}>
-                  Save as draft
-                </Button>
-                <Button
-                  type="submit"
-                  size="lg"
-                  loading={creating || isSubmitting}
-                  disabled={!emailVerified}
-                  title={emailVerified ? undefined : 'Verify your email first'}
-                >
-                  Publish task
-                </Button>
-              </HStack>
-              {serverError ? (
-                <Text color="status.danger.fg" fontSize="sm">
-                  {serverError}
-                </Text>
-              ) : null}
-            </Stack>
-          </Stack>
-        </Box>
-      </Grid>
-    </form>
-  )
+        )
+      case 'details.location':
+        return (
+          <CreateTaskMapLocationPanel
+            sectionHeading={sectionHeading}
+            mapboxAccessToken={mapboxAccessToken}
+            mapPlaceName={mapPlaceName}
+            locationLat={locationLat}
+            locationLng={locationLng}
+            register={register}
+            streetAddressError={errors.streetAddress?.message}
+            onCopyMapPlaceToAddress={onCopyMapPlaceToAddress}
+            locationError={locationError}
+            onLocationChange={onMapPlaceNameChange}
+            onLocationLatChange={onLocationLatChange}
+            onLocationLngChange={onLocationLngChange}
+          />
+        )
+      case 'details.timing':
+        return (
+          <CreateTaskScheduleSection
+            sectionHeading={sectionHeading}
+            datetimeType={datetimeType}
+            onDatetimeTypeChange={(v) =>
+              setValue('datetimeType', v, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            preferredDate={preferredDate}
+            preferredTime={preferredTime}
+            onPreferredDateChange={(v) =>
+              setValue('preferredDate', v, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            onPreferredTimeChange={(v) =>
+              setValue('preferredTime', v, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            fieldErrors={{
+              preferredDate: errors.preferredDate?.message,
+              preferredTime: errors.preferredTime?.message,
+            }}
+          />
+        )
+      case 'publish.photos':
+        return (
+          <CreateTaskVisualsSection
+            sectionHeading={sectionHeading}
+            files={imageFiles}
+            previews={imagePreviewUrls}
+            onFilesAdded={onFilesAdded}
+            onRemoveFile={onRemoveFile}
+          />
+        )
+      case 'publish.budget':
+        return (
+          <CreateTaskBudgetSection
+            sectionHeading={sectionHeading}
+            register={register}
+            budgetCurrency={budgetCurrency}
+            budgetType={budgetType}
+            paymentMethod={paymentMethod}
+            onBudgetCurrencyChange={(currency) =>
+              setValue('budgetCurrency', currency, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            onBudgetTypeChange={(t) =>
+              setValue('budgetType', t, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            onPaymentMethodChange={(m) =>
+              setValue('paymentMethod', m, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            budgetMajorError={errors.budgetMajor?.message}
+          />
+        )
+      case 'publish.contact':
+        return (
+          <CreateTaskContactSection
+            sectionHeading={sectionHeading}
+            preferredContactMethod={preferredContactMethod}
+            contactOptions={contactOptions}
+            onPreferredContactMethodChange={(m) =>
+              setValue('preferredContactMethod', m, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+          />
+        )
+    }
+  })()
 
   return (
-    <>
-      <CreateTaskPageHeader />
-      {createTaskForm}
-    </>
+    <StepFlowLayout
+      banner={<EmailVerificationBanner />}
+      progress={
+        <StepFlowProgress
+          value={createTaskProgressPercent(activeSubStep)}
+          label={createTaskStepCaption(activeSubStep)}
+          trackLabel="Task creation progress"
+        />
+      }
+      stepper={
+        <CreateTaskStepper
+          activeSubStep={activeSubStep}
+          completedSubSteps={completedSubSteps}
+          onSelectSubStep={goToSubStep}
+        />
+      }
+      title={copy.title}
+      description={copy.description}
+      errorText={serverError}
+      actions={{
+        showBack: !isFirstStep,
+        continueLabel: isFinalStep ? 'Publish task' : 'Continue',
+        continueLoading: isFinalStep && (creating || isSubmitting),
+        isFinal: isFinalStep,
+        onBack: goBack,
+        onContinue: () => void continueStep(),
+      }}
+    >
+      {stepContent}
+    </StepFlowLayout>
   )
 }
 
@@ -487,7 +559,7 @@ export default function CreateTaskPage() {
   if (!sessionOk) {
     return (
       <Box
-        bg="bg.canvas"
+        bg="bg.subtle"
         color="text.default"
         minH="50vh"
         display="flex"
@@ -504,7 +576,7 @@ export default function CreateTaskPage() {
   if (!mePrimedForForm) {
     return (
       <Box
-        bg="bg.canvas"
+        bg="bg.subtle"
         color="text.default"
         minH="50vh"
         display="flex"
@@ -519,22 +591,11 @@ export default function CreateTaskPage() {
   }
 
   return (
-    <Box bg="bg.canvas" color="text.default" minH="100vh">
-      <Stack gap={0}>
-        <Box as="section" bg="bg.surface" py={{ base: 8, md: 10 }}>
-          <Container>
-            <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
-              <CreateTaskFormBody
-                preferredContactDefault={preferredContactDefault}
-                emailVerified={isEmailVerified(meData?.me)}
-                phoneVerified={isPhoneVerified(meData?.me)}
-                contactOptions={contactOptions}
-              />
-            </Stack>
-          </Container>
-        </Box>
-        <Footer />
-      </Stack>
-    </Box>
+    <CreateTaskFormBody
+      preferredContactDefault={preferredContactDefault}
+      emailVerified={isEmailVerified(meData?.me)}
+      phoneVerified={isPhoneVerified(meData?.me)}
+      contactOptions={contactOptions}
+    />
   )
 }

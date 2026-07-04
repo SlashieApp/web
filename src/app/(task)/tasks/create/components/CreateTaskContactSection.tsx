@@ -7,6 +7,8 @@ import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility
 import { Button, Card, FormField, Link } from '@ui'
 
 export type CreateTaskContactSectionProps = {
+  /** Card header text (the stepped create flow drops the legacy numbering). */
+  sectionHeading?: string
   preferredContactMethod: TaskContactMethod
   onPreferredContactMethodChange: (value: TaskContactMethod) => void
   contactOptions: ContactOption[]
@@ -37,6 +39,7 @@ function contactButtonProps(
 }
 
 export function CreateTaskContactSection({
+  sectionHeading = '6. Preferred contact',
   preferredContactMethod,
   onPreferredContactMethodChange,
   contactOptions,
@@ -58,7 +61,7 @@ export function CreateTaskContactSection({
       bodyGap={4}
       header={
         <Heading size="lg" color="text.link">
-          6. Preferred contact
+          {sectionHeading}
         </Heading>
       }
     >

@@ -8,6 +8,8 @@ import { Button, Card, FormField, Input, Select } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 
 export type CreateTaskBudgetSectionProps = {
+  /** Card header text (the stepped create flow drops the legacy numbering). */
+  sectionHeading?: string
   register: UseFormRegister<CreateTaskFormFieldValues>
   budgetCurrency: Currency
   budgetType: TaskBudgetType
@@ -24,6 +26,7 @@ const CURRENCY_PREFIX: Record<Currency, string> = {
 }
 
 export function CreateTaskBudgetSection({
+  sectionHeading = '5. Budget & payment',
   register,
   budgetCurrency,
   budgetType,
@@ -39,7 +42,7 @@ export function CreateTaskBudgetSection({
       bodyGap={5}
       header={
         <Heading size="lg" color="text.link">
-          5. Budget & payment
+          {sectionHeading}
         </Heading>
       }
     >

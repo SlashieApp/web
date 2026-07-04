@@ -8,6 +8,8 @@ import { Card, FormField, Input, Select, Textarea } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 
 export type CreateTaskBasicsSectionProps = {
+  /** Card header text (the stepped create flow drops the legacy numbering). */
+  sectionHeading?: string
   register: UseFormRegister<CreateTaskFormFieldValues>
   fieldErrors?: {
     title?: string
@@ -17,6 +19,7 @@ export type CreateTaskBasicsSectionProps = {
 }
 
 export function CreateTaskBasicsSection({
+  sectionHeading = '1. Task basics',
   register,
   fieldErrors,
 }: CreateTaskBasicsSectionProps) {
@@ -26,7 +29,7 @@ export function CreateTaskBasicsSection({
       bodyGap={5}
       header={
         <Heading size="lg" color="text.link">
-          1. Task basics
+          {sectionHeading}
         </Heading>
       }
     >

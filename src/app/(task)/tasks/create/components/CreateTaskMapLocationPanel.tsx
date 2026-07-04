@@ -8,6 +8,8 @@ import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 import { TaskLocationMapPicker } from './TaskLocationMapPicker'
 
 export type CreateTaskMapLocationPanelProps = {
+  /** Card header text (the stepped create flow drops the legacy numbering). */
+  sectionHeading?: string
   mapboxAccessToken: string | undefined
   mapPlaceName: string
   locationLat: string
@@ -23,6 +25,7 @@ export type CreateTaskMapLocationPanelProps = {
 }
 
 export function CreateTaskMapLocationPanel({
+  sectionHeading = '2. Task location',
   mapboxAccessToken,
   mapPlaceName,
   locationLat,
@@ -43,7 +46,7 @@ export function CreateTaskMapLocationPanel({
       bodyGap={4}
       header={
         <Heading size="lg" color="text.link">
-          2. Task location
+          {sectionHeading}
         </Heading>
       }
     >

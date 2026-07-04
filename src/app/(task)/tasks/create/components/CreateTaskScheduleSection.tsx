@@ -14,6 +14,8 @@ function toYmd(d: Date): string {
 }
 
 export type CreateTaskScheduleSectionProps = {
+  /** Card header text (the stepped create flow drops the legacy numbering). */
+  sectionHeading?: string
   datetimeType: TaskDateTimeType
   onDatetimeTypeChange: (value: TaskDateTimeType) => void
   preferredDate: string
@@ -27,6 +29,7 @@ export type CreateTaskScheduleSectionProps = {
 }
 
 export function CreateTaskScheduleSection({
+  sectionHeading = '3. Timing',
   datetimeType,
   onDatetimeTypeChange,
   preferredDate,
@@ -64,7 +67,7 @@ export function CreateTaskScheduleSection({
       header={
         <Stack gap={1}>
           <Heading size="lg" color="text.link">
-            3. Timing
+            {sectionHeading}
           </Heading>
           <Text fontSize="sm" color="text.muted">
             Tell workers when you need the work done. You can keep it flexible
