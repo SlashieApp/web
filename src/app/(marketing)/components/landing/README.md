@@ -29,7 +29,7 @@ components/landing/
     HeroCanvas.tsx           R3F canvas (dynamic-imported, ssr: false)
     HeroCursorGlow.tsx       pointer glow (native cursor untouched)
     scene/                   LivingMap (terrain shader) · Pins (£ beacons) · Signals
-                             (cursor-reactive quote lines) · CameraRig · HeroBloom
+                             (cursor-reactive quote lines) · CameraRig
   sections/                  HowItWorks · Audience · Trust · PricingTeaser · FinalCtaBand
 ```
 
@@ -45,9 +45,13 @@ textures (`scene/textures.ts`: £ labels are ink `#0A1512` on green).
 ## Device-tier tuning
 
 `hooks/useDeviceTier.ts` → `TIER_SETTINGS` controls DPR cap, particle/pin
-counts, terrain density, antialias, and bloom per tier. `off` (reduced motion
-or no WebGL) never loads the three.js chunk — the poster is the hero. The
-render loop pauses (`frameloop="never"`) whenever the hero leaves the viewport.
+counts, terrain density, and antialias per tier. `off` (reduced motion or no
+WebGL) never loads the three.js chunk — the poster is the hero. The render
+loop pauses (`frameloop="never"`) whenever the hero leaves the viewport.
+Bloom is achieved with additive glow sprites rather than a post-processing
+composer: an UnrealBloomPass through drei `Effects` bypasses three's output
+color management (washed inks, verified by screenshot), while sprite glow
+reads identically and costs almost nothing on low tiers.
 
 ## Deliberate calls / integration notes
 

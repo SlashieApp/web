@@ -45,6 +45,15 @@ export function HeroSection() {
     >
       <HeroPoster />
       <HeroCanvasLayer />
+      {/* Legibility scrim above the scene, below the copy. Decorative rgba of
+          the bg.inverted ink (#0C1310), like the auth-page treatments. */}
+      <Box
+        position="absolute"
+        inset={0}
+        aria-hidden
+        pointerEvents="none"
+        bgImage="linear-gradient(100deg, rgba(12, 19, 16, 0.82) 0%, rgba(12, 19, 16, 0.5) 42%, rgba(12, 19, 16, 0) 70%), linear-gradient(0deg, rgba(12, 19, 16, 0.5) 0%, rgba(12, 19, 16, 0) 24%)"
+      />
       <HeroCursorGlow />
 
       <Container

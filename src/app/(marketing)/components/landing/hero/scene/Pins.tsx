@@ -46,15 +46,17 @@ export function MapPins({ pinCount }: { pinCount: number }) {
 
   const beacons = useMemo(() => {
     const random = mulberry32(4)
+    const count = beaconTextures.length
     return beaconTextures.map((texture, index) => {
-      const angle =
-        (index / beaconTextures.length) * Math.PI * 2 + random() * 0.7
-      const radius = 1.6 + random() * 2.6
+      // Fan the beacons across the RIGHT half of the map (+X axis) so they
+      // never sit behind the left-aligned hero copy.
+      const angle = -0.85 + (index / Math.max(1, count - 1)) * 1.7
+      const radius = 2.1 + random() * 2.3
       return {
         texture,
         basePosition: new THREE.Vector3(
           Math.cos(angle) * radius,
-          1.25 + random() * 0.5,
+          1.15 + random() * 0.45,
           Math.sin(angle) * radius,
         ),
         phase: random() * Math.PI * 2,
@@ -116,7 +118,7 @@ export function MapPins({ pinCount }: { pinCount: number }) {
           <sprite
             key={beacon.phase}
             position={beacon.basePosition.toArray()}
-            scale={[1.5, 0.75, 1]}
+            scale={[1.05, 0.525, 1]}
             renderOrder={2}
           >
             <spriteMaterial

@@ -5,7 +5,6 @@ import { Canvas } from '@react-three/fiber'
 import { type DeviceTier, TIER_SETTINGS } from '../hooks/useDeviceTier'
 import { LANDING_INK } from '../landingPalette'
 import { CameraRig } from './scene/CameraRig'
-import { HeroBloom } from './scene/HeroBloom'
 import { LivingMap } from './scene/LivingMap'
 import { MapPins } from './scene/Pins'
 import { Signals } from './scene/Signals'
@@ -40,11 +39,13 @@ export default function HeroCanvas({ tier, active, onReady }: HeroCanvasProps) {
     >
       <color attach="background" args={[LANDING_INK.canvas]} />
       <fog attach="fog" args={[LANDING_INK.canvas, 8.5, 16]} />
+      {/* Glow comes from additive sprite textures rather than a bloom pass:
+          the composer bypasses three's output color management (washed inks),
+          and sprite glow reads identically at a fraction of the cost. */}
       <CameraRig />
       <LivingMap segments={settings.terrainSegments} />
       <MapPins pinCount={settings.pins} />
       <Signals particleCount={settings.particles} />
-      {settings.bloom ? <HeroBloom /> : null}
     </Canvas>
   )
 }

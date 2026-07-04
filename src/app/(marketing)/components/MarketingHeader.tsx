@@ -48,6 +48,8 @@ function GetAppButton({ overlay }: { overlay: boolean }) {
         variant="outline"
         {...(overlay
           ? {
+              bg: 'transparent',
+              boxShadow: 'none',
               color: 'text.onInverted',
               borderColor: 'border.glass',
               _hover: { bg: 'bg.glass', color: 'text.onInverted' },
@@ -95,6 +97,7 @@ function MarketingAuthButtons({ overlay }: { overlay: boolean }) {
           variant={overlay ? 'ghost' : 'primary'}
           {...(overlay
             ? {
+                bg: 'transparent',
                 color: 'text.onInverted',
                 borderWidth: '1px',
                 borderColor: 'border.glass',

@@ -18,8 +18,6 @@ export type TierSettings = {
   pins: number
   /** Terrain plane segments per axis. */
   terrainSegments: number
-  /** Full-screen UnrealBloomPass (high tier only). */
-  bloom: boolean
   antialias: boolean
 }
 
@@ -29,7 +27,6 @@ export const TIER_SETTINGS: Record<Exclude<DeviceTier, 'off'>, TierSettings> = {
     particles: 1400,
     pins: 26,
     terrainSegments: 160,
-    bloom: true,
     antialias: true,
   },
   mid: {
@@ -37,7 +34,6 @@ export const TIER_SETTINGS: Record<Exclude<DeviceTier, 'off'>, TierSettings> = {
     particles: 700,
     pins: 18,
     terrainSegments: 110,
-    bloom: false,
     antialias: true,
   },
   low: {
@@ -45,7 +41,6 @@ export const TIER_SETTINGS: Record<Exclude<DeviceTier, 'off'>, TierSettings> = {
     particles: 320,
     pins: 12,
     terrainSegments: 72,
-    bloom: false,
     antialias: false,
   },
 }

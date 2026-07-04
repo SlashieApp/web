@@ -84,9 +84,9 @@ export function createBeaconTexture(label: string): THREE.CanvasTexture {
       6,
       centerX,
       centerY,
-      64,
+      54,
     )
-    glow.addColorStop(0, 'rgba(0, 220, 130, 0.5)')
+    glow.addColorStop(0, 'rgba(0, 220, 130, 0.32)')
     glow.addColorStop(1, 'rgba(0, 220, 130, 0)')
     ctx.fillStyle = glow
     ctx.fillRect(0, 0, width, height)

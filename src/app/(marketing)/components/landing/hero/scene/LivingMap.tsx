@@ -65,15 +65,15 @@ const FRAGMENT_SHADER = /* glsl */ `
   void main() {
     vec3 color = mix(uLow, uHigh, smoothstep(0.1, 1.35, vElevation));
 
-    // Topographic contour bands.
+    // Topographic contour bands (kept faint — the map should whisper).
     float band = fract(vElevation * 7.0);
     float contour = smoothstep(0.0, 0.05, band) * smoothstep(0.11, 0.05, band);
-    color = mix(color, uLine, contour * 0.16);
+    color = mix(color, uLine, contour * 0.11);
 
     // Faint survey grid for the map feel.
     vec2 grid = abs(fract(vUv * 36.0) - 0.5);
     float gridLine = smoothstep(0.47, 0.5, max(grid.x, grid.y));
-    color = mix(color, uLine, gridLine * 0.05);
+    color = mix(color, uLine, gridLine * 0.035);
 
     // Radial fade so the terrain melts into the hero background.
     float edge = distance(vUv, vec2(0.5));
