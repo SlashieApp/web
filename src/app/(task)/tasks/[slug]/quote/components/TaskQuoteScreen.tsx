@@ -1,10 +1,10 @@
 'use client'
 
-import { Box, Grid, Stack, useBreakpointValue } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
+import { StepFlowLayout } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
@@ -17,10 +17,7 @@ import {
   taskQuoteProgressPercent,
 } from '../helpers/taskQuoteSteps.config'
 import { TaskQuoteProgressBar } from './TaskQuoteProgressBar'
-import { TaskQuoteStepActions } from './TaskQuoteStepActions'
 import { TaskQuoteStepContent } from './TaskQuoteStepContent'
-import { TaskQuoteStepHeading } from './TaskQuoteStepHeading'
-import { TaskQuoteStepPanel } from './TaskQuoteStepPanel'
 import { TaskQuoteStepper } from './TaskQuoteStepper'
 import { TaskQuoteTaskDetailPanel } from './TaskQuoteTaskDetailPanel'
 
@@ -49,9 +46,6 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
   const [poundsInput, setPoundsInput] = useState('')
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [fieldError, setFieldError] = useState<string | null>(null)
-
-  const showDesktopLayout =
-    useBreakpointValue({ base: false, lg: true }, { fallback: 'base' }) ?? false
 
   const progressPercent = taskQuoteProgressPercent(activeSubStep)
   const copy = TASK_QUOTE_STEP_COPY[activeSubStep]
@@ -176,97 +170,38 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
     />
   )
 
-  const stepActions = (
-    <TaskQuoteStepActions
-      showBack={!isFirstStep}
-      continueLabel={continueLabel}
-      continueLoading={isReviewStep && quoting}
-      onBack={goBack}
-      onContinue={() => void continueFlow()}
-      sticky={!showDesktopLayout}
-    />
-  )
-
   return (
-    <Stack gap={0} flex={1} minH="100dvh" bg="bg.subtle">
-      <EmailVerificationBanner />
-
-      {!showDesktopLayout ? (
-        <Stack flex={1} minH={0} gap={0}>
-          <TaskQuoteTaskDetailPanel backHref={backToTask} variant="section" />
-          <TaskQuoteProgressBar
-            activeSubStep={activeSubStep}
-            progressPercent={progressPercent}
-          />
-          <Box flex={1} minH={0} overflowY="auto" bg="bg.surface">
-            <Stack
-              gap={6}
-              flex={1}
-              minH={0}
-              overflowY="auto"
-              px={4}
-              py={5}
-              pb={4}
-            >
-              <TaskQuoteStepHeading
-                title={copy.title}
-                description={copy.description}
-              />
-              {stepContent}
-            </Stack>
-          </Box>
-          {stepActions}
-        </Stack>
-      ) : (
-        <Box flex={1} minH={0} overflow="hidden">
-          <Grid
-            templateColumns="minmax(240px, 280px) minmax(0, 1fr) minmax(280px, 340px)"
-            gap={6}
-            maxW="7xl"
-            mx="auto"
-            w="full"
-            h="full"
-            px={8}
-            py={8}
-          >
-            <Box pt={2} px={1} overflowY="auto" minH={0}>
-              <TaskQuoteStepper
-                activeSubStep={activeSubStep}
-                completedSubSteps={completedSubSteps}
-                onSelectSubStep={goToSubStep}
-              />
-            </Box>
-            <Box
-              bg="bg.surface"
-              borderRadius="2xl"
-              boxShadow="sm"
-              borderWidth="1px"
-              borderColor="border.default"
-              minH="640px"
-              h="full"
-              display="flex"
-              flexDirection="column"
-              overflow="hidden"
-              minW={0}
-            >
-              <TaskQuoteStepPanel
-                title={copy.title}
-                description={copy.description}
-                showBack={!isFirstStep}
-                continueLabel={continueLabel}
-                continueLoading={isReviewStep && quoting}
-                onBack={goBack}
-                onContinue={() => void continueFlow()}
-              >
-                {stepContent}
-              </TaskQuoteStepPanel>
-            </Box>
-            <Box minH={0} minW={0} h="full">
-              <TaskQuoteTaskDetailPanel backHref={backToTask} />
-            </Box>
-          </Grid>
-        </Box>
-      )}
-    </Stack>
+    <StepFlowLayout
+      banner={<EmailVerificationBanner />}
+      mobileTop={
+        <TaskQuoteTaskDetailPanel backHref={backToTask} variant="section" />
+      }
+      progress={
+        <TaskQuoteProgressBar
+          activeSubStep={activeSubStep}
+          progressPercent={progressPercent}
+        />
+      }
+      stepper={
+        <TaskQuoteStepper
+          activeSubStep={activeSubStep}
+          completedSubSteps={completedSubSteps}
+          onSelectSubStep={goToSubStep}
+        />
+      }
+      aside={<TaskQuoteTaskDetailPanel backHref={backToTask} />}
+      title={copy.title}
+      description={copy.description}
+      actions={{
+        showBack: !isFirstStep,
+        continueLabel,
+        continueLoading: isReviewStep && quoting,
+        isFinal: isReviewStep,
+        onBack: goBack,
+        onContinue: () => void continueFlow(),
+      }}
+    >
+      {stepContent}
+    </StepFlowLayout>
   )
 }

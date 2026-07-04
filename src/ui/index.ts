@@ -63,6 +63,12 @@ export { Rating } from './Rating'
 export { ScheduleChip } from './ScheduleChip'
 export { Select } from './Select'
 export { Slider } from './Slider'
+export {
+  StepFlowActions,
+  StepFlowHeading,
+  StepFlowLayout,
+  StepFlowProgress,
+} from './StepFlowLayout'
 export { Stepper } from './Stepper'
 export { Tabs } from './Tabs'
 export { Textarea } from './Textarea'
@@ -125,6 +131,12 @@ export type {
   UiBadgeProps,
   UiBadgeVariant,
 } from './Badge'
+export type {
+  StepFlowActionsProps,
+  StepFlowHeadingProps,
+  StepFlowLayoutProps,
+  StepFlowProgressProps,
+} from './StepFlowLayout'
 export type { StepperProps, StepperStep, StepperSubStep } from './Stepper'
 export type { TabItem, TabPanelProps, TabsProps } from './Tabs'
 export type { TextareaProps } from './Textarea'

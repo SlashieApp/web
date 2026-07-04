@@ -3,6 +3,7 @@
 import { Box, Collapsible, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuCheck, LuChevronDown, LuChevronRight } from 'react-icons/lu'
 
+import { StepFlowHeading } from '@ui'
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
 import {
   STEP_COPY,
@@ -11,7 +12,6 @@ import {
   majorIndexForSubStep,
 } from '../helpers/workerSetupSteps.config'
 import { WorkerSetupStepContent } from './WorkerSetupStepContent'
-import { WorkerSetupStepHeading } from './WorkerSetupStepHeading'
 
 export function WorkerSetupMobileAccordion() {
   const {
@@ -148,7 +148,7 @@ export function WorkerSetupMobileAccordion() {
                       borderTopWidth="1px"
                       borderColor="border.default"
                     >
-                      <WorkerSetupStepHeading
+                      <StepFlowHeading
                         title={copy.title}
                         description={copy.description}
                         compact

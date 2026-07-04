@@ -1,8 +1,6 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
-
-import { ProgressBar } from '@ui'
+import { StepFlowProgress } from '@ui'
 
 import {
   type TaskQuoteSubStepId,
@@ -14,24 +12,16 @@ type TaskQuoteProgressBarProps = {
   progressPercent: number
 }
 
+/** Quote-flow binding for the shared {@link StepFlowProgress} strip. */
 export function TaskQuoteProgressBar({
   activeSubStep,
   progressPercent,
 }: TaskQuoteProgressBarProps) {
   return (
-    <Box
-      w="full"
-      px={{ base: 4, md: 6 }}
-      py={3}
-      bg="bg.surface"
-      borderBottomWidth="1px"
-      borderColor="border.default"
-    >
-      <ProgressBar
-        value={progressPercent}
-        label={taskQuoteStepCaption(activeSubStep)}
-        trackLabel="Quote progress"
-      />
-    </Box>
+    <StepFlowProgress
+      value={progressPercent}
+      label={taskQuoteStepCaption(activeSubStep)}
+      trackLabel="Quote progress"
+    />
   )
 }
