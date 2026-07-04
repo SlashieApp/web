@@ -1,6 +1,7 @@
 'use client'
 
-import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Image } from '@chakra-ui/react'
+import { LuUserRound } from 'react-icons/lu'
 
 import { Card } from '@ui'
 
@@ -28,11 +29,11 @@ export function TaskOwnerCard() {
       .join('') || 'TO'
 
   return (
-    <Card layout="default" maxW="full" p={{ base: 4, md: 5 }} w="full">
-      <HStack align="flex-start" gap={4} w="full">
+    <Card layout="section" icon={<LuUserRound />} heading="Task owner">
+      <HStack align="center" gap={3} w="full">
         <Box
           flexShrink={0}
-          boxSize="56px"
+          boxSize="48px"
           borderRadius="full"
           bg="status.success.soft"
           display="flex"
@@ -55,20 +56,9 @@ export function TaskOwnerCard() {
             posterInitials
           )}
         </Box>
-        <Stack gap={1} flex={1} minW={0}>
-          <Text
-            fontSize="xs"
-            fontWeight={700}
-            color="text.muted"
-            letterSpacing="0.06em"
-            textTransform="uppercase"
-          >
-            Task owner
-          </Text>
-          <Heading size="sm" lineHeight="short">
-            {posterName}
-          </Heading>
-        </Stack>
+        <Heading size="sm" lineHeight="short" minW={0}>
+          {posterName}
+        </Heading>
       </HStack>
     </Card>
   )

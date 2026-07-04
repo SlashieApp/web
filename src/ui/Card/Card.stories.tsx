@@ -1,5 +1,6 @@
 import { HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { LuClipboardList } from 'react-icons/lu'
 
 import { Badge, StatusPill } from '@/ui/Badge'
 import { Card } from './Card'
@@ -59,6 +60,16 @@ export const Default: Story = {
 /** Titled dashboard / task-detail block. */
 export const Section: Story = {
   args: { layout: 'section' },
+}
+
+/** Section title with the leading icon tile (task-detail sections). */
+export const SectionWithIcon: Story = {
+  args: {
+    layout: 'section',
+    eyebrow: undefined,
+    heading: 'Task details',
+    icon: <LuClipboardList />,
+  },
 }
 
 /**

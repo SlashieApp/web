@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, Image, Wrap } from '@chakra-ui/react'
+import { LuImages } from 'react-icons/lu'
 
 import { Card } from '@ui'
 
@@ -18,7 +19,7 @@ export function PhotosCard() {
   if (images.length === 0) return null
 
   return (
-    <Card layout="section" heading="Photos">
+    <Card layout="section" icon={<LuImages />} heading="Photos">
       <Wrap gap={2}>
         {images.map((src, index) => (
           <Box

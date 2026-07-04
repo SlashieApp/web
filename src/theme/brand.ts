@@ -36,5 +36,5 @@ export const BRAND_MAP_PIN_HEX = BRAND_PRIMARY.slice(1)
 /** White outline around the map pin for contrast against the basemap (raw SVG only). */
 export const BRAND_MAP_PIN_STROKE = '#FFFFFF'
 export const BRAND_MAP_ROUTE = BRAND_PRIMARY
-/** Approximate-radius overlay = SDL info (status.info.solid). Mapbox needs a literal hex. */
-export const BRAND_MAP_RADIUS = '#2E90FA'
+/** Approximate-radius zone overlay on browse/detail maps (brand green). */
+export const BRAND_MAP_RADIUS = BRAND_PRIMARY

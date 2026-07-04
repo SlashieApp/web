@@ -14,6 +14,14 @@ import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import { distanceMilesBetween } from '@/utils/geoDistance'
 
 import { createTaskMapNavRouteController } from './navRoute'
+import { syncZoneCircle } from './zoneCircle'
+
+/** Zone circle replacing the selected task's pin point on the browse map. */
+const SELECTED_ZONE_LAYERS = {
+  source: 'task-browse-selected-zone',
+  fill: 'task-browse-selected-zone-fill',
+  line: 'task-browse-selected-zone-line',
+} as const
 
 const MAP_MIN_ZOOM = 10
 const MAP_MAX_ZOOM = 17
@@ -63,6 +71,7 @@ export function createTaskMapController(args: {
   accessToken: string
   getProps: () => TaskMapPropsSnapshot
   getSelectTask: () => TaskMapPropsSnapshot['onSelectTask']
+  getViewTask: () => TaskMapPropsSnapshot['onViewTask']
   getSelectedTaskId: () => string | null
   getIsNavRoutePresenting: () => boolean
   onNavRoutePresentingChange?: (presenting: boolean) => void
@@ -102,6 +111,7 @@ export function createTaskMapController(args: {
   let lastSelectionFlyKey = ''
   let lastSyncedRouteKey = ''
   let lastPinSelectedKey = ''
+  let lastZoneCircleKey = ''
   let lastSearchThisAreaUiSig: string | null = null
   let lastThemeMode: 'light' | 'dark' | null = null
   let markerSyncGeneration = 0
@@ -153,8 +163,26 @@ export function createTaskMapController(args: {
     markersById.clear()
   }
 
+  const syncSelectedZoneCircle = (selectedId: string | null) => {
+    if (!map?.isStyleLoaded()) return
+    const selectedTask = selectedId
+      ? getProps().tasks.find((t) => t.id === selectedId)
+      : null
+    const ll = selectedTask ? taskLngLat(selectedTask) : null
+    const zoneKey = ll
+      ? `${selectedId}|${ll.lat}|${ll.lng}`
+      : selectedId
+        ? `${selectedId}|missing`
+        : '__none__'
+    if (zoneKey === lastZoneCircleKey) return
+    lastZoneCircleKey = zoneKey
+    syncZoneCircle(map, SELECTED_ZONE_LAYERS, ll)
+  }
+
   const applyMarkerSelection = (selectedId: string | null) => {
-    lastPinSelectedKey = selectedId ?? ''
+    const pinKey = selectedId ?? ''
+    if (pinKey === lastPinSelectedKey) return
+    lastPinSelectedKey = pinKey
     for (const row of markersById.values()) {
       const isSel = row.taskId === selectedId
       row.setSelected(isSel)
@@ -202,6 +230,11 @@ export function createTaskMapController(args: {
         queueMicrotask(() => {
           if (args.getIsNavRoutePresenting()) return
           getSelectTask()?.(task.id)
+        }),
+      () =>
+        queueMicrotask(() => {
+          if (args.getIsNavRoutePresenting()) return
+          args.getViewTask()?.(task.id)
         }),
     )
 
@@ -373,6 +406,9 @@ export function createTaskMapController(args: {
     const leftPad = p.leftViewportPadding ?? 48
     const selectedId = p.selectedTaskId ?? null
 
+    // Keep the zone circle in sync even when camera fly keys are unchanged.
+    syncSelectedZoneCircle(selectedId)
+
     const selectedTask = selectedId
       ? p.tasks.find((t) => t.id === selectedId)
       : null
@@ -395,8 +431,7 @@ export function createTaskMapController(args: {
     }
 
     if (selectionFlyKey === lastSelectionFlyKey) {
-      const pinKey = selectedId ?? ''
-      if (pinKey !== lastPinSelectedKey) applyMarkerSelection(selectedId)
+      applyMarkerSelection(selectedId)
       return
     }
 
@@ -461,6 +496,8 @@ export function createTaskMapController(args: {
       clearAllMarkers()
       lastMarkerSig = ''
       lastCoordsSig = ''
+      lastZoneCircleKey = ''
+      lastPinSelectedKey = ''
       map.setStyle(getStyleUrlForMode(p.themeMode))
       pendingSyncWhileStyleLoading = true
       return
@@ -497,6 +534,9 @@ export function createTaskMapController(args: {
       styleLoadRun = () => {
         if (cancelled) return
         if (pendingSyncWhileStyleLoading) pendingSyncWhileStyleLoading = false
+        // Style reload drops GeoJSON layers — force zone circle + pin selection re-sync.
+        lastPinSelectedKey = ''
+        lastZoneCircleKey = ''
         navRoute.onStyleReload()
         navRoute.flushWhenReady()
         scheduleSync()

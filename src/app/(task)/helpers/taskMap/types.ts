@@ -35,6 +35,7 @@ export type TaskMapPropsSnapshot = {
   /** Bumps when the same task is selected again so the map can redraw the route. */
   selectedTaskSelectionToken?: number
   onSelectTask?: (taskId: string | null) => void
+  onViewTask?: (taskId: string) => void
   onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
   effectiveSearchRadiusMiles: number
   themeMode: 'light' | 'dark'

@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, Text } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 
 import { useColorMode } from '@/ui/color-mode'
@@ -55,6 +56,7 @@ export type TaskMapProps = {
   selectedTaskId?: string | null
   selectedTaskSelectionToken?: number
   onSelectTask?: (taskId: string | null) => void
+  onViewTask?: (taskId: string) => void
   onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
   onNavRoutePresentingChange?: (presenting: boolean) => void
 }
@@ -77,6 +79,7 @@ export function TaskMap({
   selectedTaskId = null,
   selectedTaskSelectionToken = 0,
   onSelectTask,
+  onViewTask,
   onSearchThisAreaUiChange,
   onNavRoutePresentingChange,
 }: TaskMapProps) {
@@ -113,6 +116,7 @@ export function TaskMap({
     selectedTaskId,
     selectedTaskSelectionToken,
     onSelectTask,
+    onViewTask,
     onSearchThisAreaUiChange,
     effectiveSearchRadiusMiles,
     themeMode: colorMode,
@@ -136,6 +140,7 @@ export function TaskMap({
     selectedTaskId,
     selectedTaskSelectionToken,
     onSelectTask,
+    onViewTask,
     onSearchThisAreaUiChange,
     effectiveSearchRadiusMiles,
     themeMode: colorMode,
@@ -143,6 +148,8 @@ export function TaskMap({
 
   const selectTaskRef = useRef(onSelectTask)
   selectTaskRef.current = onSelectTask
+  const viewTaskRef = useRef(onViewTask)
+  viewTaskRef.current = onViewTask
   const selectedTaskIdRef = useRef(selectedTaskId)
   selectedTaskIdRef.current = selectedTaskId
   const isNavRoutePresentingRef = useRef(false)
@@ -180,6 +187,7 @@ export function TaskMap({
         accessToken: token,
         getProps: () => propsRef.current,
         getSelectTask: () => selectTaskRef.current,
+        getViewTask: () => viewTaskRef.current,
         getSelectedTaskId: () => selectedTaskIdRef.current ?? null,
         getIsNavRoutePresenting: () => isNavRoutePresentingRef.current,
         onNavRoutePresentingChange: (presenting) => {
@@ -288,9 +296,17 @@ export type TaskBrowseMapLayerProps = {
  * when switching between web/mobile layouts on viewport resize.
  */
 export function TaskBrowseMapLayer({ isDesktop }: TaskBrowseMapLayerProps) {
+  const router = useRouter()
   const mapBindings = useTaskMapBindings()
   const { windowOffsetWidth, setIsFilterOpen } = useTaskBrowseLayout()
   const { setSelectedTaskId, onNavRoutePresentingChange } = useTaskBrowseData()
+
+  const handleViewTask = useCallback(
+    (taskId: string) => {
+      router.push(`/tasks/${taskId}`)
+    },
+    [router],
+  )
 
   return (
     <Box position="absolute" inset={0} zIndex={isDesktop ? 1 : 0}>
@@ -305,6 +321,7 @@ export function TaskBrowseMapLayer({ isDesktop }: TaskBrowseMapLayerProps) {
           if (taskId) setIsFilterOpen(false)
           setSelectedTaskId(taskId)
         }}
+        onViewTask={handleViewTask}
       />
     </Box>
   )

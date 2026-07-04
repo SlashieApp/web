@@ -2,21 +2,20 @@
 
 import type { OrderItem } from '@/utils/orderHelpers'
 import { Box, Stack } from '@chakra-ui/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { LuShare2 } from 'react-icons/lu'
 
 import { Button, Link, Tabs } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { useScrollContainerCollapsed } from '../../helpers/taskDetailHeaderCollapse'
 import { Reveal } from './Reveal'
 import { StatusHeader } from './StatusHeader'
-import { BookingSection } from './openTask/BookingSection'
-import { HelpActionsCard } from './openTask/HelpActionsCard'
-import { LocationCard } from './openTask/LocationCard'
-import { PhotosCard } from './openTask/PhotosCard'
-import { QuotesPanel } from './openTask/QuotesPanel'
-import { TaskDetailsCard } from './openTask/TaskDetailsCard'
-import { TrustCard } from './openTask/TrustCard'
+import {
+  MOBILE_COLLAPSED_HEADER_H,
+  TaskDetailMobileCollapsedHeader,
+} from './TaskDetailMobileCollapsedHeader'
+import { TaskInfoSections, TaskQuoteSections } from './TaskDetailSections'
 import { useShareTask } from './openTask/shareTask'
 
 type TaskDetailMobileProps = {
@@ -40,6 +39,11 @@ function readHashTab(): string | null {
 export function TaskDetailMobile({ order }: TaskDetailMobileProps) {
   const { task, permissions } = useTaskDetail()
   const onShare = useShareTask(task?.title?.trim() || 'Task')
+
+  // Collapse once the map hero has largely scrolled away, resolved from the
+  // app-shell content pane (not the window — see taskDetailHeaderCollapse).
+  const rootRef = useRef<HTMLDivElement>(null)
+  const collapsed = useScrollContainerCollapsed(rootRef, 140, 80)
 
   const quoteCount = task?.quotes.length ?? 0
   const defaultTab =
@@ -86,19 +90,21 @@ export function TaskDetailMobile({ order }: TaskDetailMobileProps) {
   }
 
   return (
-    <Box px={4} pt={3} pb={28}>
-      <Stack gap={5} w="full">
-        <Reveal speed="slow">
-          <Stack gap={4} w="full">
-            <StatusHeader />
-            {heroCta}
-          </Stack>
-        </Reveal>
+    <Box ref={rootRef} pb={28}>
+      {/* Compact header that pins above the tabs once the hero scrolls away. */}
+      <TaskDetailMobileCollapsedHeader collapsed={collapsed} />
+
+      {/* Full-bleed map hero — text aligned to the page container internally.
+          The map fades out once collapsed so it doesn't linger on scroll. */}
+      <StatusHeader collapsed={collapsed} />
+
+      <Stack gap={5} w="full" px={4} pt={4}>
+        {heroCta ? <Reveal speed="slow">{heroCta}</Reveal> : null}
 
         <Tabs
           fitted
           sticky
-          stickyTop={0}
+          stickyTop={collapsed ? MOBILE_COLLAPSED_HEADER_H : 0}
           aria-label="Task sections"
           value={activeTab}
           onChange={onTabChange}
@@ -108,18 +114,11 @@ export function TaskDetailMobile({ order }: TaskDetailMobileProps) {
           ]}
         >
           <Tabs.Panel value={TAB_INFO}>
-            <Stack gap={5} w="full">
-              <BookingSection order={order} />
-              <TaskDetailsCard />
-              <PhotosCard />
-              <LocationCard />
-              <TrustCard />
-              <HelpActionsCard />
-            </Stack>
+            <TaskInfoSections order={order} />
           </Tabs.Panel>
 
           <Tabs.Panel value={TAB_QUOTES}>
-            <QuotesPanel />
+            <TaskQuoteSections />
           </Tabs.Panel>
         </Tabs>
       </Stack>

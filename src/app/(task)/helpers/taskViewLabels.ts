@@ -21,11 +21,14 @@ export function taskOwnerViewsLabel(task: TaskViewsRecord): string | null {
   return `${count} views`
 }
 
+/** Task detail meta: always show the count (browse cards keep the ≥3 threshold). */
 export function taskDetailViewsLabel(
   task: TaskViewsRecord,
-  isOwner: boolean,
+  _isOwner?: boolean,
 ): string | null {
-  return isOwner ? taskOwnerViewsLabel(task) : taskPublicViewsLabel(task.views)
+  const count = task.views
+  if (count == null) return COLD_START_VIEWS_LABEL
+  return `${count} ${count === 1 ? 'view' : 'views'}`
 }
 
 export function appendViewsToStatusLabel(

@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import {
+  LuArrowRight,
   LuCircleAlert,
   LuCircleCheck,
   LuInfo,
@@ -103,7 +104,7 @@ export function InfoBar({
           justifyContent="center"
           flexShrink={0}
           boxSize="40px"
-          borderRadius="lg"
+          borderRadius="full"
           bg="bg.surface"
           color={`status.${tone}.fg`}
           boxShadow="e1"
@@ -144,8 +145,12 @@ export function InfoBar({
                 tone="emphasis"
                 fontSize="sm"
                 fontWeight={600}
+                display="inline-flex"
+                alignItems="center"
+                gap={1.5}
               >
                 {linkLabel}
+                <LuArrowRight aria-hidden />
               </Link>
             </Box>
           ) : null}

@@ -14,9 +14,9 @@ export function TrustCard() {
 
   return (
     <InfoBar
-      tone="info"
+      tone="success"
       icon={<span aria-hidden>£</span>}
-      badgeLabel="Payments"
+      hideBadge
       heading={
         isOwner
           ? 'You pay the worker directly'

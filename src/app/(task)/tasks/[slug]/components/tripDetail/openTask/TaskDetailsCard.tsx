@@ -3,12 +3,15 @@
 import { HStack, Stack } from '@chakra-ui/react'
 import {
   LuCalendar,
+  LuClipboardList,
+  LuEye,
   LuMapPin,
   LuPoundSterling,
   LuTag,
   LuWrench,
 } from 'react-icons/lu'
 
+import { taskDetailViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
 import { Badge, Card, DetailRow } from '@ui'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
@@ -43,9 +46,10 @@ export function TaskDetailsCard() {
     me?.id,
   )
   const budgetKind = budgetKindLabel(task.budget?.type)
+  const viewsLabel = taskDetailViewsLabel(task, permissions.isOwner)
 
   return (
-    <Card layout="section" heading="Task details">
+    <Card layout="section" icon={<LuClipboardList />} heading="Task details">
       <Stack gap={0}>
         <DetailRow
           icon={<LuWrench />}
@@ -55,6 +59,11 @@ export function TaskDetailsCard() {
         >
           {title}
         </DetailRow>
+        {viewsLabel ? (
+          <DetailRow icon={<LuEye />} label="Views" withDivider>
+            {viewsLabel}
+          </DetailRow>
+        ) : null}
         {locationLabel ? (
           <DetailRow icon={<LuMapPin />} label="Location" withDivider>
             {locationLabel}

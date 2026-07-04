@@ -2,6 +2,7 @@
 
 import { Box, Stack } from '@chakra-ui/react'
 import { motion } from 'motion/react'
+import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { TaskCard } from '../TaskCard'
@@ -20,6 +21,7 @@ import {
 } from '../../helpers/taskBrowseHelpers'
 
 export function TaskList() {
+  const router = useRouter()
   const {
     loading,
     dataLoaded,
@@ -55,6 +57,10 @@ export function TaskList() {
 
   const handleActivateTask = (taskId: string) => {
     if (isNavRoutePresenting) return
+    if (selectedTaskId === taskId) {
+      router.push(`/tasks/${taskId}`)
+      return
+    }
     setSelectedTaskId(taskId)
     requestAnimationFrame(() => {
       scrollTaskCardIntoView(taskId)
@@ -113,8 +119,11 @@ export function TaskList() {
                     ownerName={ownerName}
                     ownerAvatarSrc={ownerAvatarSrc}
                     isActive={selectedTaskId === task.id}
-                    isExpanded={selectedTaskId === task.id}
-                    showDetailsCta={selectedTaskId === task.id}
+                    activateAriaLabel={
+                      selectedTaskId === task.id
+                        ? `${task.title}. View task details.`
+                        : `${task.title}. Select to highlight on map.`
+                    }
                     onActivate={() => handleActivateTask(task.id)}
                   />
                 </Box>

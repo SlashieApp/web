@@ -1,18 +1,16 @@
 'use client'
 
 import type { OrderItem } from '@/utils/orderHelpers'
-import { Box, Grid, Stack } from '@chakra-ui/react'
+import { Box, Grid } from '@chakra-ui/react'
+import { useRef } from 'react'
 
-import { useTaskDetail } from '../../../context/TaskDetailProvider'
-import { TaskOwnerCard } from '../../TaskOwnerCard'
-import { BookingSection } from './BookingSection'
-import { HelpActionsCard } from './HelpActionsCard'
-import { LocationCard } from './LocationCard'
+import {
+  TaskDetailHeaderCollapsedProvider,
+  useScrollContainerCollapsed,
+} from '../../../helpers/taskDetailHeaderCollapse'
+import { TaskInfoSections, TaskQuoteSections } from '../TaskDetailSections'
 import { OpenTaskHeader } from './OpenTaskHeader'
-import { PhotosCard } from './PhotosCard'
-import { QuotesPanel } from './QuotesPanel'
-import { TaskDetailsCard } from './TaskDetailsCard'
-import { TrustCard } from './TrustCard'
+import { TaskDetailMapBackground } from './TaskDetailMapBackground'
 
 type TaskDetailViewProps = {
   order: OrderItem | null | undefined
@@ -25,47 +23,50 @@ type TaskDetailViewProps = {
  * mobile is handled by `TaskDetailMobile`.
  */
 export function TaskDetailView({ order }: TaskDetailViewProps) {
-  const { permissions } = useTaskDetail()
+  // Collapse is driven by the app-shell content pane resolved from this root,
+  // not the window (which never scrolls in the (task) layout). Snap to compact
+  // the moment scrolling starts, and only expand back at the very top
+  // (scrollTop 0) — safe from oscillation thanks to overflow-anchor: none.
+  const rootRef = useRef<HTMLDivElement>(null)
+  const collapsed = useScrollContainerCollapsed(rootRef, 2, 0)
 
   return (
-    <Box
-      maxW="6xl"
-      mx="auto"
-      px={{ base: 4, md: 6 }}
-      pt={{ base: 3, md: 5 }}
-      pb={{ base: 28, md: 16 }}
-    >
-      <Stack gap={5} w="full">
-        <OpenTaskHeader />
+    <TaskDetailHeaderCollapsedProvider value={collapsed}>
+      <Box
+        ref={rootRef}
+        position="relative"
+        pb={{ base: 28, md: 16 }}
+        bg="bg.canvas"
+      >
+        {/* Fixed map — no document flow height. */}
+        <TaskDetailMapBackground />
 
-        <Grid
-          templateColumns={{
-            base: '1fr',
-            lg: 'minmax(0, 1fr) minmax(320px, 400px)',
-          }}
-          columnGap={{ lg: 8 }}
-          rowGap={5}
-          alignItems="start"
-        >
-          {/* Left column */}
-          <Stack gap={5} minW={0}>
-            {/* "Your booking" section (active order / closed); null otherwise. */}
-            <BookingSection order={order} />
-            <TaskDetailsCard />
-            {permissions.isOwner ? null : <TaskOwnerCard />}
-            <PhotosCard />
-            <TrustCard />
-            <HelpActionsCard />
-          </Stack>
+        <Box position="relative" zIndex={1}>
+          <OpenTaskHeader />
 
-          {/* Right column — quotes stay visible across states (shows the
-              selected quote once awarded). */}
-          <Stack gap={5} minW={0}>
-            <LocationCard />
-            <QuotesPanel />
-          </Stack>
-        </Grid>
-      </Stack>
-    </Box>
+          <Box
+            maxW="6xl"
+            mx="auto"
+            px={{ base: 4, md: 6 }}
+            pb={{ base: 4, md: 0 }}
+            pointerEvents="none"
+          >
+            <Grid
+              templateColumns={{
+                base: '1fr',
+                lg: 'minmax(0, 1fr) minmax(320px, 400px)',
+              }}
+              columnGap={{ lg: 8 }}
+              rowGap={5}
+              alignItems="start"
+            >
+              {/* Left column = mobile Info tab; right = mobile Quotes tab. */}
+              <TaskInfoSections order={order} />
+              <TaskQuoteSections />
+            </Grid>
+          </Box>
+        </Box>
+      </Box>
+    </TaskDetailHeaderCollapsedProvider>
   )
 }

@@ -101,7 +101,7 @@ export function TaskCard(props: TaskCardProps) {
 function TaskCardBrowse(props: TaskCardBrowseProps) {
   const isActive = props.isActive ?? false
   const isExpanded = props.isExpanded ?? false
-  const showDetailsCta = props.showDetailsCta ?? true
+  const showDetailsCta = props.showDetailsCta ?? false
   const onActivate = props.onActivate
   const activateCursor = props.activateCursor ?? 'pointer'
   const activateMode = props.activateMode ?? 'button'
@@ -148,7 +148,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     badgeText = props.badgeText
   }
 
-  const detailsCtaLabel = props.detailsCtaLabel ?? 'View details'
+  const detailsCtaLabel = props.detailsCtaLabel ?? 'View task'
   const activateAriaLabel =
     props.activateAriaLabel ?? `${title}. Select to highlight on map.`
   const descriptionText = description?.trim()

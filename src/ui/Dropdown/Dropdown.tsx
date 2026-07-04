@@ -35,6 +35,70 @@ const sdlPanelMotion = {
   },
 } as const
 
+/** How long the panel stays mounted while the exit transition plays. */
+const PANEL_EXIT_MS = 160
+
+/**
+ * Exit motion — mirrors the enter keyframes as a transition back to hidden.
+ * `alignTransform` preserves alignment transforms (e.g. centered panels).
+ */
+function sdlPanelExit(alignTransform = '') {
+  return {
+    opacity: 0,
+    transform: `${alignTransform} translateY(-4px) scale(0.98)`.trim(),
+    pointerEvents: 'none',
+    transitionProperty: 'opacity, transform',
+    transitionDuration: sdlMotion.duration.base,
+    transitionTimingFunction: sdlMotion.easing.accelerate,
+    '@media (prefers-reduced-motion: reduce)': {
+      transition: 'none',
+    },
+  } as const
+}
+
+type DropdownPhase = 'closed' | 'open' | 'closing'
+
+/**
+ * Open/close with an animated exit: closing keeps the panel mounted for
+ * `PANEL_EXIT_MS` so the fade/slide-out transition can play before unmount.
+ */
+function useDropdownPhase(
+  defaultOpen: boolean,
+  onOpenChange?: (open: boolean) => void,
+) {
+  const [phase, setPhase] = useState<DropdownPhase>(
+    defaultOpen ? 'open' : 'closed',
+  )
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const setOpenState = useCallback(
+    (next: boolean) => {
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current)
+        exitTimerRef.current = null
+      }
+      if (next) {
+        setPhase('open')
+      } else {
+        setPhase((prev) => (prev === 'closed' ? 'closed' : 'closing'))
+        exitTimerRef.current = setTimeout(() => {
+          setPhase('closed')
+          exitTimerRef.current = null
+        }, PANEL_EXIT_MS)
+      }
+      onOpenChange?.(next)
+    },
+    [onOpenChange],
+  )
+
+  return {
+    open: phase === 'open',
+    rendered: phase !== 'closed',
+    closing: phase === 'closing',
+    setOpenState,
+  }
+}
+
 const DropdownCloseContext = createContext<(() => void) | null>(null)
 
 /** Default trigger shell (used when `trigger` is not a React element). */
@@ -201,18 +265,13 @@ function ClickDropdown({
   onOpenChange,
   contentProps,
 }: ClickDropdownProps) {
-  const [open, setOpen] = useState(defaultOpen)
+  const { open, rendered, closing, setOpenState } = useDropdownPhase(
+    defaultOpen,
+    onOpenChange,
+  )
   const panelRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelId = useId()
-
-  const setOpenState = useCallback(
-    (next: boolean) => {
-      setOpen(next)
-      onOpenChange?.(next)
-    },
-    [onOpenChange],
-  )
 
   const close = useCallback(() => setOpenState(false), [setOpenState])
   const toggle = useCallback(() => setOpenState(!open), [open, setOpenState])
@@ -251,11 +310,12 @@ function ClickDropdown({
     firstFocusable?.focus()
   }, [open])
 
+  const alignTransform = align === 'center' ? 'translateX(-50%)' : ''
   const alignProps =
     align === 'start'
       ? { left: 0, right: undefined }
       : align === 'center'
-        ? { left: '50%', right: undefined, transform: 'translateX(-50%)' }
+        ? { left: '50%', right: undefined, transform: alignTransform }
         : { left: undefined, right: 0 }
 
   const triggerApi: DropdownTriggerApi = {
@@ -274,12 +334,13 @@ function ClickDropdown({
     <Box position="relative" display="inline-block">
       {renderClickTrigger(trigger, triggerApi)}
 
-      {open ? (
+      {rendered ? (
         <Box
           ref={panelRef}
           id={panelId}
           role="menu"
           aria-label={contentLabel}
+          aria-hidden={closing}
           position="absolute"
           top="calc(100% + 8px)"
           zIndex={50}
@@ -291,7 +352,7 @@ function ClickDropdown({
           boxShadow="e3"
           p={1}
           overflow="hidden"
-          css={sdlPanelMotion}
+          css={closing ? sdlPanelExit(alignTransform) : sdlPanelMotion}
           {...alignProps}
           {...contentProps}
         >
@@ -316,17 +377,12 @@ function HoverDropdown({
   rootProps,
 }: HoverDropdownProps) {
   const contentDomId = useId()
-  const [open, setOpen] = useState(defaultOpen)
+  const { open, rendered, closing, setOpenState } = useDropdownPhase(
+    defaultOpen,
+    onOpenChange,
+  )
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const setOpenState = useCallback(
-    (next: boolean) => {
-      setOpen(next)
-      onOpenChange?.(next)
-    },
-    [onOpenChange],
-  )
 
   const clearOpenTimer = useCallback(() => {
     if (openTimerRef.current) {
@@ -403,18 +459,20 @@ function HoverDropdown({
       {...restRootProps}
     >
       {mergeTriggerAria(trigger, open, contentDomId)}
-      {open ? (
+      {rendered ? (
         <Box
           position="absolute"
           top="100%"
           zIndex={50}
           pt={gutter}
+          pointerEvents={closing ? 'none' : undefined}
           {...alignProps}
         >
           <Box
             as="section"
             id={contentDomId}
             aria-label={contentLabel}
+            aria-hidden={closing}
             bg="bg.surface"
             borderWidth="1px"
             borderColor="border.default"
@@ -423,7 +481,7 @@ function HoverDropdown({
             py={2}
             px={1}
             minW="200px"
-            css={sdlPanelMotion}
+            css={closing ? sdlPanelExit() : sdlPanelMotion}
             {...contentProps}
           >
             {children}

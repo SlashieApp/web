@@ -73,9 +73,6 @@ export default async function TaskDetailPage({
   return (
     <>
       <TaskTripDetail order={order} />
-      <Box mb={{ base: 24, md: 0 }}>
-        <Footer />
-      </Box>
     </>
   )
 }

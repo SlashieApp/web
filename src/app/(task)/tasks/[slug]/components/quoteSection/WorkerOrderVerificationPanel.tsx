@@ -3,6 +3,7 @@
 import { Stack, Text } from '@chakra-ui/react'
 import { OrderStatus } from '@codegen/schema'
 import { useCallback, useState } from 'react'
+import { LuBadgeCheck } from 'react-icons/lu'
 
 import { Button, Card, Input } from '@ui'
 
@@ -46,6 +47,7 @@ export function WorkerOrderVerificationPanel({
     return (
       <Card
         layout="section"
+        icon={<LuBadgeCheck />}
         eyebrow="Your job"
         heading="Awaiting update"
         bodyGap={2}
@@ -62,6 +64,7 @@ export function WorkerOrderVerificationPanel({
     <Card
       layout="section"
       id="worker-job-panel"
+      icon={<LuBadgeCheck />}
       eyebrow="Your job"
       heading="Complete job & confirm payment"
       bodyGap={3}

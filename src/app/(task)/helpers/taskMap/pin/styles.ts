@@ -46,6 +46,7 @@ type PinDom = {
   pricePill: HTMLDivElement
   priceEl: HTMLDivElement
   milesEl: HTMLDivElement
+  viewTaskBtn: HTMLButtonElement
   pinDot: HTMLSpanElement
 }
 
@@ -123,6 +124,25 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
     color: PIN.textMuted,
     whiteSpace: 'nowrap',
   })
+
+  Object.assign(dom.viewTaskBtn.style, {
+    display: 'none',
+    marginTop: '8px',
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: '6px 12px',
+    fontSize: '13px',
+    fontWeight: '700',
+    lineHeight: '1.2',
+    color: PIN.white,
+    background: PIN.green,
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontFamily: PIN_FONT,
+    textAlign: 'center',
+    transition: pinTransition(motion, ['background-color', 'opacity']),
+  })
 }
 
 export function applyPinVisualState(
@@ -141,7 +161,7 @@ export function applyPinVisualState(
   })
 
   Object.assign(dom.popupShell.style, {
-    maxHeight: expanded ? '120px' : '0px',
+    maxHeight: expanded ? '168px' : '0px',
     overflow: expanded ? 'visible' : 'hidden',
     marginBottom: expanded ? `${POPUP_ABOVE_DOT_PX}px` : '0px',
     pointerEvents: expanded ? 'auto' : 'none',
@@ -199,8 +219,16 @@ export function applyPinVisualState(
     boxShadow: dotActive
       ? `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`
       : PIN.shadow,
-    opacity: '1',
-    transition: pinTransition(motion, ['width', 'height']),
+    // Selected tasks show a zone circle on the map instead of a point — keep
+    // the dot's layout box so the popup stays anchored above the location.
+    opacity: selected ? '0' : '1',
+    pointerEvents: selected ? 'none' : 'auto',
+    transition: pinTransition(motion, ['width', 'height', 'opacity']),
+  })
+
+  Object.assign(dom.viewTaskBtn.style, {
+    display: expanded ? 'block' : 'none',
+    pointerEvents: expanded ? 'auto' : 'none',
   })
 }
 

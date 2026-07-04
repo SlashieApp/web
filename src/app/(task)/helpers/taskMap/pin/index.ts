@@ -2,6 +2,7 @@ import { BRAND_MAP_PIN } from '@/theme/brand'
 import type { TaskMapTask } from '../types'
 import { pinMilesText, pinPriceText, taskPinContentSig } from './content'
 import { type TaskMapPinHandle, taskMarkerElement } from './marker'
+import { PIN } from './styles'
 
 export type { TaskMapPinHandle }
 
@@ -59,6 +60,26 @@ export function referenceMarkerElement(): HTMLDivElement {
     border: '3px solid #ffffff',
     boxShadow: '0 0 0 2px rgba(0,220,130,0.35), 0 2px 8px rgba(15,23,42,0.25)',
     zIndex: '0',
+    pointerEvents: 'none',
+  })
+  return root
+}
+
+/**
+ * Standalone task-location dot matching the browse map's selected task pin
+ * (brand-green dot, white ring, soft glow). Non-interactive — use as a Mapbox
+ * `Marker` element with center anchor for single-location maps (e.g. task detail).
+ */
+export function taskPinDotElement(): HTMLDivElement {
+  const root = document.createElement('div')
+  root.setAttribute('aria-hidden', 'true')
+  Object.assign(root.style, {
+    width: '16px',
+    height: '16px',
+    borderRadius: '50%',
+    background: PIN.greenBright,
+    border: '2.5px solid #ffffff',
+    boxShadow: `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`,
     pointerEvents: 'none',
   })
   return root

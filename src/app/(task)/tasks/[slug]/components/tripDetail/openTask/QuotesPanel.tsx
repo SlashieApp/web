@@ -1,6 +1,6 @@
 'use client'
 
-import { LuShare2 } from 'react-icons/lu'
+import { LuMessagesSquare, LuShare2 } from 'react-icons/lu'
 
 import { Button, Card, EmptyState, Link } from '@ui'
 
@@ -30,7 +30,7 @@ export function QuotesPanel() {
   if (!ownerEmpty) return <QuotesSection />
 
   return (
-    <Card layout="section" heading="Quotes">
+    <Card layout="section" icon={<LuMessagesSquare />} heading="Quotes">
       <EmptyState
         title="No quotes yet"
         description="Share your task to reach more nearby workers."

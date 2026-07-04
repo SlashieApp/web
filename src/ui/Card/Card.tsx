@@ -3,6 +3,7 @@
 import {
   Box,
   type BoxProps,
+  HStack,
   Heading,
   Stack,
   type StackProps,
@@ -57,6 +58,8 @@ export type CardProps = BoxProps & {
   heading?: string
   /** Full header row; when set, `eyebrow` and `heading` are ignored. */
   header?: ReactNode
+  /** Leading title icon — rendered in a soft brand tile beside the heading. */
+  icon?: ReactNode
   bodyGap?: StackProps['gap']
 }
 
@@ -64,35 +67,61 @@ function CardTitleBlock({
   eyebrow,
   heading,
   header,
-}: Pick<CardProps, 'eyebrow' | 'heading' | 'header'>) {
-  if (header) return header
-  if (!eyebrow && !heading) return null
+  icon,
+}: Pick<CardProps, 'eyebrow' | 'heading' | 'header' | 'icon'>) {
+  const title =
+    header ??
+    (eyebrow || heading ? (
+      <Stack gap={1}>
+        {eyebrow ? (
+          <Text
+            fontSize="xs"
+            fontWeight={500}
+            color="text.muted"
+            letterSpacing="0.06em"
+            textTransform="uppercase"
+          >
+            {eyebrow}
+          </Text>
+        ) : null}
+        {heading ? (
+          <Heading
+            as="h3"
+            fontSize={{ base: '16px', md: '20px' }}
+            fontWeight={500}
+            color="text.default"
+            lineHeight="short"
+          >
+            {heading}
+          </Heading>
+        ) : null}
+      </Stack>
+    ) : null)
+
+  if (!title) return null
+  if (!icon) return title
 
   return (
-    <Stack gap={1}>
-      {eyebrow ? (
-        <Text
-          fontSize="xs"
-          fontWeight={500}
-          color="text.muted"
-          letterSpacing="0.06em"
-          textTransform="uppercase"
-        >
-          {eyebrow}
-        </Text>
-      ) : null}
-      {heading ? (
-        <Heading
-          as="h3"
-          fontSize={{ base: '16px', md: '20px' }}
-          fontWeight={500}
-          color="text.default"
-          lineHeight="short"
-        >
-          {heading}
-        </Heading>
-      ) : null}
-    </Stack>
+    <HStack gap={3} align="center" w="full">
+      <Box
+        aria-hidden
+        display="inline-flex"
+        alignItems="center"
+        justifyContent="center"
+        flexShrink={0}
+        boxSize="40px"
+        borderRadius="lg"
+        bg="status.success.soft"
+        color="status.success.fg"
+        fontSize="20px"
+        lineHeight="1"
+      >
+        {icon}
+      </Box>
+      <Box flex="1" minW={0}>
+        {title}
+      </Box>
+    </HStack>
   )
 }
 
@@ -106,6 +135,7 @@ export function Card({
   eyebrow,
   heading,
   header,
+  icon,
   bodyGap = 4,
   p,
   maxW,
@@ -132,7 +162,12 @@ export function Card({
     >
       {isSection ? (
         <Stack gap={bodyGap}>
-          <CardTitleBlock eyebrow={eyebrow} heading={heading} header={header} />
+          <CardTitleBlock
+            eyebrow={eyebrow}
+            heading={heading}
+            header={header}
+            icon={icon}
+          />
           {children}
         </Stack>
       ) : (

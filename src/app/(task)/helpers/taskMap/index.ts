@@ -14,6 +14,7 @@ export {
   taskLngLat,
   taskMarkerElement,
   taskPinContentSig,
+  taskPinDotElement,
   tasksCoordsSig,
   tasksMarkerSig,
 } from './pin'

@@ -1,19 +1,13 @@
 'use client'
 
-import { type ReactNode, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
-import {
-  Box,
-  HStack,
-  Heading,
-  NativeSelect,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { HStack, Heading, NativeSelect, Stack, Text } from '@chakra-ui/react'
+import { LuMessagesSquare } from 'react-icons/lu'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { priceToPence } from '@/utils/price'
-import { Badge, Button, Link } from '@ui'
+import { Badge, Button, Card, Link } from '@ui'
 
 import { QuoteStatus } from '@codegen/schema'
 
@@ -72,18 +66,37 @@ function offerCountLabel(count: number): string {
   return `${count} offer${count === 1 ? '' : 's'}`
 }
 
-function QuotesSectionShell({ children }: { children: ReactNode }) {
+function OfferCountBadge({ count }: { count: number }) {
   return (
-    <Box
-      borderWidth="1px"
-      borderColor="border.default"
-      borderRadius="xl"
-      bg="bg.surface"
-      p={{ base: 4, md: 5 }}
-      w="full"
+    <Badge
+      bg="status.success.soft"
+      color="status.success.fg"
+      borderRadius="full"
+      letterSpacing="normal"
+      fontSize="xs"
+      px={2.5}
     >
-      {children}
-    </Box>
+      {offerCountLabel(count)}
+    </Badge>
+  )
+}
+
+/** "Quotes" title styled to match `Card layout="section"` headings, with an
+ * optional offer-count badge alongside it. */
+function QuotesHeading({ count }: { count: number }) {
+  return (
+    <HStack gap={2} align="center" flexWrap="wrap">
+      <Heading
+        as="h3"
+        fontSize={{ base: '16px', md: '20px' }}
+        fontWeight={500}
+        color="text.default"
+        lineHeight="short"
+      >
+        Quotes
+      </Heading>
+      {count > 0 ? <OfferCountBadge count={count} /> : null}
+    </HStack>
   )
 }
 
@@ -189,8 +202,11 @@ export function QuotesSection() {
     const hasList = n > 0
 
     return (
-      <QuotesSectionShell>
-        <Stack gap={4} w="full" id="owner-quotes">
+      <Card
+        layout="section"
+        id="owner-quotes"
+        icon={<LuMessagesSquare />}
+        header={
           <HStack
             justify="space-between"
             align="center"
@@ -198,21 +214,7 @@ export function QuotesSection() {
             gap={3}
             w="full"
           >
-            <HStack gap={2} align="center" flexWrap="wrap">
-              <Heading size="md">Quotes</Heading>
-              {hasList ? (
-                <Badge
-                  bg="status.success.soft"
-                  color="status.success.fg"
-                  borderRadius="full"
-                  letterSpacing="normal"
-                  fontSize="xs"
-                  px={2.5}
-                >
-                  {offerCountLabel(n)}
-                </Badge>
-              ) : null}
-            </HStack>
+            <QuotesHeading count={n} />
             {hasList ? (
               <HStack gap={2} align="center" flexShrink={0}>
                 <Text fontSize="sm" color="text.muted" fontWeight={500}>
@@ -240,38 +242,39 @@ export function QuotesSection() {
               </HStack>
             ) : null}
           </HStack>
-          {acceptError ? (
-            <Text color="status.danger.fg" fontSize="sm">
-              {acceptError}
-            </Text>
-          ) : null}
-          {cancelError ? (
-            <Text color="status.danger.fg" fontSize="sm">
-              {cancelError}
-            </Text>
-          ) : null}
-          {!hasList ? (
-            <Text color="text.muted">
-              No quotes yet. Check back for worker responses.
-            </Text>
-          ) : (
-            <Stack gap={3} w="full" id="owner-quotes-list">
-              {displayQuotes.map((quote) =>
-                renderQuoteCard(quote, task, {
-                  showPrice: true,
-                  priceKind,
-                  showAcceptDecline,
-                  lowestPricePence,
-                  onAcceptQuote: (id) => void onAcceptQuote(id),
-                  onDeclineQuote: (id) => void onDeclineQuote(id),
-                  acceptingQuoteId,
-                  decliningQuoteId,
-                }),
-              )}
-            </Stack>
-          )}
-        </Stack>
-      </QuotesSectionShell>
+        }
+      >
+        {acceptError ? (
+          <Text color="status.danger.fg" fontSize="sm">
+            {acceptError}
+          </Text>
+        ) : null}
+        {cancelError ? (
+          <Text color="status.danger.fg" fontSize="sm">
+            {cancelError}
+          </Text>
+        ) : null}
+        {!hasList ? (
+          <Text color="text.muted">
+            No quotes yet. Check back for worker responses.
+          </Text>
+        ) : (
+          <Stack gap={3} w="full" id="owner-quotes-list">
+            {displayQuotes.map((quote) =>
+              renderQuoteCard(quote, task, {
+                showPrice: true,
+                priceKind,
+                showAcceptDecline,
+                lowestPricePence,
+                onAcceptQuote: (id) => void onAcceptQuote(id),
+                onDeclineQuote: (id) => void onDeclineQuote(id),
+                acceptingQuoteId,
+                decliningQuoteId,
+              }),
+            )}
+          </Stack>
+        )}
+      </Card>
     )
   }
 
@@ -281,15 +284,16 @@ export function QuotesSection() {
 
   if (showWorkerJobBanner) {
     return (
-      <QuotesSectionShell>
-        <Stack gap={3} w="full">
-          <Heading size="md">Your accepted quote</Heading>
-          <Text fontSize="sm" color="text.muted">
-            You are booked on this job. Use the panel below to enter the
-            customer&apos;s completion code when work is done.
-          </Text>
-        </Stack>
-      </QuotesSectionShell>
+      <Card
+        layout="section"
+        icon={<LuMessagesSquare />}
+        heading="Your accepted quote"
+      >
+        <Text fontSize="sm" color="text.muted">
+          You are booked on this job. Use the panel below to enter the
+          customer&apos;s completion code when work is done.
+        </Text>
+      </Card>
     )
   }
 
@@ -359,42 +363,31 @@ export function QuotesSection() {
   ) : null
 
   return (
-    <QuotesSectionShell>
-      <Stack gap={4} w="full">
+    <Card
+      layout="section"
+      icon={<LuMessagesSquare />}
+      header={
         <Stack gap={1}>
-          <HStack gap={2} align="center" flexWrap="wrap">
-            <Heading size="md">Quotes</Heading>
-            {hasQuoteRows ? (
-              <Badge
-                bg="status.success.soft"
-                color="status.success.fg"
-                borderRadius="full"
-                letterSpacing="normal"
-                fontSize="xs"
-                px={2.5}
-              >
-                {offerCountLabel(n)}
-              </Badge>
-            ) : null}
-          </HStack>
+          <QuotesHeading count={n} />
           <Text fontSize="sm" color="text.muted">
             See what others are bidding — register as a worker to compete
           </Text>
         </Stack>
-        {hasQuoteRows ? (
-          <Stack gap={3} w="full">
-            {task.quotes.map((quote) =>
-              renderQuoteCard(quote, task, {
-                showPrice: true,
-                postedAgo: true,
-              }),
-            )}
-          </Stack>
-        ) : (
-          <Text color="text.muted">No quotes yet.</Text>
-        )}
-        {followUpBlock}
-      </Stack>
-    </QuotesSectionShell>
+      }
+    >
+      {hasQuoteRows ? (
+        <Stack gap={3} w="full">
+          {task.quotes.map((quote) =>
+            renderQuoteCard(quote, task, {
+              showPrice: true,
+              postedAgo: true,
+            }),
+          )}
+        </Stack>
+      ) : (
+        <Text color="text.muted">No quotes yet.</Text>
+      )}
+      {followUpBlock}
+    </Card>
   )
 }

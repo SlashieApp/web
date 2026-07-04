@@ -36,8 +36,11 @@ function createPinDom(task: TaskMapTask): PinDom {
   priceEl.textContent = pinPriceText(task)
   const milesEl = document.createElement('div')
   milesEl.textContent = pinMilesText(task)
+  const viewTaskBtn = document.createElement('button')
+  viewTaskBtn.type = 'button'
+  viewTaskBtn.textContent = 'View task'
 
-  popupBody.append(priceEl, milesEl)
+  popupBody.append(priceEl, milesEl, viewTaskBtn)
   popupReveal.appendChild(popupBody)
   popupShell.appendChild(popupReveal)
   pricePillWrap.appendChild(pricePill)
@@ -52,6 +55,7 @@ function createPinDom(task: TaskMapTask): PinDom {
     pricePill,
     priceEl,
     milesEl,
+    viewTaskBtn,
     pinDot,
   }
 }
@@ -125,7 +129,12 @@ function createHoverPeek(
   return { onEnter, onLeave, clearTimers }
 }
 
-function wireSelection(dom: PinDom, task: TaskMapTask, onSelect: () => void) {
+function wireSelection(
+  dom: PinDom,
+  task: TaskMapTask,
+  onSelect: () => void,
+  onViewTask?: () => void,
+) {
   const stopAndSelect = (e: Event) => {
     e.stopPropagation()
     e.preventDefault()
@@ -147,12 +156,27 @@ function wireSelection(dom: PinDom, task: TaskMapTask, onSelect: () => void) {
   dom.pricePill.addEventListener('keydown', onKeySelect)
   dom.pinDot.addEventListener('click', stopAndSelect)
   dom.popupReveal.addEventListener('click', stopAndSelect)
+
+  if (!onViewTask) {
+    // No detail navigation (e.g. already on the task detail page).
+    dom.viewTaskBtn.remove()
+    return
+  }
+
+  const stopAndViewTask = (e: Event) => {
+    e.stopPropagation()
+    e.preventDefault()
+    onViewTask()
+  }
+  dom.viewTaskBtn.setAttribute('aria-label', `View task: ${task.title}`)
+  dom.viewTaskBtn.addEventListener('click', stopAndViewTask)
 }
 
 export function taskMarkerElement(
   task: TaskMapTask,
   selected: boolean,
   onSelect: () => void,
+  onViewTask?: () => void,
 ): TaskMapPinHandle {
   const motion = pinMotionEnabled()
   const dom = createPinDom(task)
@@ -162,7 +186,7 @@ export function taskMarkerElement(
   let wasExpanded = false
 
   mountPinStaticStyles(dom, motion)
-  wireSelection(dom, task, onSelect)
+  wireSelection(dom, task, onSelect, onViewTask)
 
   const render = () => {
     const state = visualState(isSelected, expanded)

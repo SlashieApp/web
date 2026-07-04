@@ -80,6 +80,7 @@ export const ListItemExpanded: ListStory = {
     isActive: true,
     isExpanded: true,
     showDetailsCta: true,
+    detailsCtaLabel: 'View task',
   },
   parameters: {
     viewport: { defaultViewport: 'desktop' },
