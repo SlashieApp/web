@@ -1,14 +1,16 @@
 'use client'
 
-import { Heading } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { TASK_CREATE_CATEGORY_OPTIONS } from '@/app/(task)/helpers/taskCategories'
-import { Card, FormField, Input, Select, Textarea } from '@ui'
+import { FormField, Input, Select, Textarea } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
+import { CreateTaskSection } from './CreateTaskSection'
 
 export type CreateTaskBasicsSectionProps = {
-  /** Card header text (the stepped create flow drops the legacy numbering). */
+  /** Bare mode for the stepped create flow (no Card/heading). */
+  bare?: boolean
+  /** Card header text (card mode only). */
   sectionHeading?: string
   register: UseFormRegister<CreateTaskFormFieldValues>
   fieldErrors?: {
@@ -19,20 +21,13 @@ export type CreateTaskBasicsSectionProps = {
 }
 
 export function CreateTaskBasicsSection({
+  bare = false,
   sectionHeading = '1. Task basics',
   register,
   fieldErrors,
 }: CreateTaskBasicsSectionProps) {
   return (
-    <Card
-      layout="section"
-      bodyGap={5}
-      header={
-        <Heading size="lg" color="text.link">
-          {sectionHeading}
-        </Heading>
-      }
-    >
+    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={5}>
       <FormField label="Task title" errorText={fieldErrors?.title}>
         <Input
           {...register('title')}
@@ -67,6 +62,6 @@ export function CreateTaskBasicsSection({
           rows={4}
         />
       </FormField>
-    </Card>
+    </CreateTaskSection>
   )
 }

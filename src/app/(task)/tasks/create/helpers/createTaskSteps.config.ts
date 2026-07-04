@@ -100,17 +100,6 @@ export const CREATE_TASK_STEP_COPY: Record<
   },
 }
 
-/** Card header shown inside each step (numbering now lives in the stepper). */
-export const CREATE_TASK_SECTION_HEADINGS: Record<CreateTaskSubStepId, string> =
-  {
-    'details.basics': 'Task basics',
-    'details.location': 'Task location',
-    'details.timing': 'Timing',
-    'publish.photos': 'Photos',
-    'publish.budget': 'Budget & payment',
-    'publish.contact': 'Preferred contact',
-  }
-
 /** Form fields validated (react-hook-form `trigger`) before leaving a step. */
 export const CREATE_TASK_STEP_FIELDS: Record<
   CreateTaskSubStepId,

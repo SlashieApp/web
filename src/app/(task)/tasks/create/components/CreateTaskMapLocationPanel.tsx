@@ -1,14 +1,17 @@
 'use client'
 
-import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 
-import { Button, Card, FormField, Input } from '@ui'
+import { Button, FormField, Input } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
+import { CreateTaskSection } from './CreateTaskSection'
 import { TaskLocationMapPicker } from './TaskLocationMapPicker'
 
 export type CreateTaskMapLocationPanelProps = {
-  /** Card header text (the stepped create flow drops the legacy numbering). */
+  /** Bare mode for the stepped create flow (no Card/heading). */
+  bare?: boolean
+  /** Card header text (card mode only). */
   sectionHeading?: string
   mapboxAccessToken: string | undefined
   mapPlaceName: string
@@ -25,6 +28,7 @@ export type CreateTaskMapLocationPanelProps = {
 }
 
 export function CreateTaskMapLocationPanel({
+  bare = false,
   sectionHeading = '2. Task location',
   mapboxAccessToken,
   mapPlaceName,
@@ -41,15 +45,7 @@ export function CreateTaskMapLocationPanel({
   const canCopyPlace = Boolean(mapPlaceName.trim())
 
   return (
-    <Card
-      layout="section"
-      bodyGap={4}
-      header={
-        <Heading size="lg" color="text.link">
-          {sectionHeading}
-        </Heading>
-      }
-    >
+    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={4}>
       <TaskLocationMapPicker
         accessToken={mapboxAccessToken}
         location={mapPlaceName}
@@ -99,6 +95,6 @@ export function CreateTaskMapLocationPanel({
           {locationError}
         </Text>
       ) : null}
-    </Card>
+    </CreateTaskSection>
   )
 }

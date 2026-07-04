@@ -1,9 +1,10 @@
 'use client'
 
-import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Image, Stack, Text } from '@chakra-ui/react'
 import { useRef } from 'react'
 
-import { Button, Card } from '@ui'
+import { Button } from '@ui'
+import { CreateTaskSection } from './CreateTaskSection'
 
 export type CreateTaskVisualsSectionProps = {
   files: File[]
@@ -13,6 +14,9 @@ export type CreateTaskVisualsSectionProps = {
   onRemoveFile: (index: number) => void
   /** Already-uploaded URLs (edit flow). */
   existingImageUrls?: string[]
+  /** Bare mode for the stepped create flow (no Card/heading). */
+  bare?: boolean
+  /** Card header text (card mode only). */
   sectionHeading?: string
 }
 
@@ -22,20 +26,13 @@ export function CreateTaskVisualsSection({
   onFilesAdded,
   onRemoveFile,
   existingImageUrls = [],
+  bare = false,
   sectionHeading = '4. Visuals',
 }: CreateTaskVisualsSectionProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
-    <Card
-      layout="section"
-      bodyGap={4}
-      header={
-        <Heading size="lg" color="text.link">
-          {sectionHeading}
-        </Heading>
-      }
-    >
+    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={4}>
       <Text fontSize="sm" color="text.muted">
         Photos help workers give more accurate quotes.
       </Text>
@@ -130,6 +127,6 @@ export function CreateTaskVisualsSection({
           })}
         </HStack>
       ) : null}
-    </Card>
+    </CreateTaskSection>
   )
 }

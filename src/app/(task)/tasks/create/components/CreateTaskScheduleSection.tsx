@@ -2,9 +2,10 @@
 
 import type { ChangeEvent } from 'react'
 
-import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { TaskDateTimeType } from '@codegen/schema'
-import { Button, Card, FormField, Input, Select } from '@ui'
+import { Button, FormField, Input, Select } from '@ui'
+import { CreateTaskSection } from './CreateTaskSection'
 
 function toYmd(d: Date): string {
   const y = d.getFullYear()
@@ -14,7 +15,9 @@ function toYmd(d: Date): string {
 }
 
 export type CreateTaskScheduleSectionProps = {
-  /** Card header text (the stepped create flow drops the legacy numbering). */
+  /** Bare mode for the stepped create flow (no Card/heading). */
+  bare?: boolean
+  /** Card header text (card mode only). */
   sectionHeading?: string
   datetimeType: TaskDateTimeType
   onDatetimeTypeChange: (value: TaskDateTimeType) => void
@@ -29,6 +32,7 @@ export type CreateTaskScheduleSectionProps = {
 }
 
 export function CreateTaskScheduleSection({
+  bare = false,
   sectionHeading = '3. Timing',
   datetimeType,
   onDatetimeTypeChange,
@@ -61,19 +65,15 @@ export function CreateTaskScheduleSection({
   const showTimePicker = datetimeType === TaskDateTimeType.Exact
 
   return (
-    <Card
-      layout="section"
+    <CreateTaskSection
+      bare={bare}
+      heading={sectionHeading}
       bodyGap={5}
-      header={
-        <Stack gap={1}>
-          <Heading size="lg" color="text.link">
-            {sectionHeading}
-          </Heading>
-          <Text fontSize="sm" color="text.muted">
-            Tell workers when you need the work done. You can keep it flexible
-            or pin an exact slot.
-          </Text>
-        </Stack>
+      headingSubtext={
+        <Text fontSize="sm" color="text.muted">
+          Tell workers when you need the work done. You can keep it flexible or
+          pin an exact slot.
+        </Text>
       }
     >
       <FormField label="When do you need this?">
@@ -159,6 +159,6 @@ export function CreateTaskScheduleSection({
           ) : null}
         </Box>
       ) : null}
-    </Card>
+    </CreateTaskSection>
   )
 }

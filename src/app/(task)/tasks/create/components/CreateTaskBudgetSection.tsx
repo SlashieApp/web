@@ -1,14 +1,17 @@
 'use client'
 
-import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { HStack, Text } from '@chakra-ui/react'
 import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
-import { Button, Card, FormField, Input, Select } from '@ui'
+import { Button, FormField, Input, Select } from '@ui'
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
+import { CreateTaskSection } from './CreateTaskSection'
 
 export type CreateTaskBudgetSectionProps = {
-  /** Card header text (the stepped create flow drops the legacy numbering). */
+  /** Bare mode for the stepped create flow (no Card/heading). */
+  bare?: boolean
+  /** Card header text (card mode only). */
   sectionHeading?: string
   register: UseFormRegister<CreateTaskFormFieldValues>
   budgetCurrency: Currency
@@ -26,6 +29,7 @@ const CURRENCY_PREFIX: Record<Currency, string> = {
 }
 
 export function CreateTaskBudgetSection({
+  bare = false,
   sectionHeading = '5. Budget & payment',
   register,
   budgetCurrency,
@@ -37,15 +41,7 @@ export function CreateTaskBudgetSection({
   budgetMajorError,
 }: CreateTaskBudgetSectionProps) {
   return (
-    <Card
-      layout="section"
-      bodyGap={5}
-      header={
-        <Heading size="lg" color="text.link">
-          {sectionHeading}
-        </Heading>
-      }
-    >
+    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={5}>
       <FormField label="Budget amount" errorText={budgetMajorError}>
         <HStack gap={2} align="stretch" maxW={{ base: 'full', md: '380px' }}>
           <Select
@@ -178,6 +174,6 @@ export function CreateTaskBudgetSection({
           </Button>
         </HStack>
       </FormField>
-    </Card>
+    </CreateTaskSection>
   )
 }

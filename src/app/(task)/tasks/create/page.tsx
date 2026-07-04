@@ -56,7 +56,6 @@ import {
 import {
   CREATE_TASK_FINAL_SUB_STEP,
   CREATE_TASK_FIRST_SUB_STEP,
-  CREATE_TASK_SECTION_HEADINGS,
   CREATE_TASK_STEP_COPY,
   CREATE_TASK_STEP_FIELDS,
   type CreateTaskSubStepId,
@@ -370,7 +369,6 @@ function CreateTaskFormBody({
   }
 
   const copy = CREATE_TASK_STEP_COPY[activeSubStep]
-  const sectionHeading = CREATE_TASK_SECTION_HEADINGS[activeSubStep]
   const isFirstStep = activeSubStep === CREATE_TASK_FIRST_SUB_STEP
   const isFinalStep = activeSubStep === CREATE_TASK_FINAL_SUB_STEP
 
@@ -379,7 +377,7 @@ function CreateTaskFormBody({
       case 'details.basics':
         return (
           <CreateTaskBasicsSection
-            sectionHeading={sectionHeading}
+            bare
             register={register}
             fieldErrors={{
               title: errors.title?.message,
@@ -391,7 +389,7 @@ function CreateTaskFormBody({
       case 'details.location':
         return (
           <CreateTaskMapLocationPanel
-            sectionHeading={sectionHeading}
+            bare
             mapboxAccessToken={mapboxAccessToken}
             mapPlaceName={mapPlaceName}
             locationLat={locationLat}
@@ -408,7 +406,7 @@ function CreateTaskFormBody({
       case 'details.timing':
         return (
           <CreateTaskScheduleSection
-            sectionHeading={sectionHeading}
+            bare
             datetimeType={datetimeType}
             onDatetimeTypeChange={(v) =>
               setValue('datetimeType', v, {
@@ -439,7 +437,7 @@ function CreateTaskFormBody({
       case 'publish.photos':
         return (
           <CreateTaskVisualsSection
-            sectionHeading={sectionHeading}
+            bare
             files={imageFiles}
             previews={imagePreviewUrls}
             onFilesAdded={onFilesAdded}
@@ -449,7 +447,7 @@ function CreateTaskFormBody({
       case 'publish.budget':
         return (
           <CreateTaskBudgetSection
-            sectionHeading={sectionHeading}
+            bare
             register={register}
             budgetCurrency={budgetCurrency}
             budgetType={budgetType}
@@ -478,7 +476,7 @@ function CreateTaskFormBody({
       case 'publish.contact':
         return (
           <CreateTaskContactSection
-            sectionHeading={sectionHeading}
+            bare
             preferredContactMethod={preferredContactMethod}
             contactOptions={contactOptions}
             onPreferredContactMethodChange={(m) =>

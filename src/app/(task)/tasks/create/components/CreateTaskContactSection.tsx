@@ -1,13 +1,16 @@
 'use client'
 
-import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import { TaskContactMethod } from '@codegen/schema'
 
 import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility'
-import { Button, Card, FormField, Link } from '@ui'
+import { Button, FormField, Link } from '@ui'
+import { CreateTaskSection } from './CreateTaskSection'
 
 export type CreateTaskContactSectionProps = {
-  /** Card header text (the stepped create flow drops the legacy numbering). */
+  /** Bare mode for the stepped create flow (no Card/heading). */
+  bare?: boolean
+  /** Card header text (card mode only). */
   sectionHeading?: string
   preferredContactMethod: TaskContactMethod
   onPreferredContactMethodChange: (value: TaskContactMethod) => void
@@ -39,6 +42,7 @@ function contactButtonProps(
 }
 
 export function CreateTaskContactSection({
+  bare = false,
   sectionHeading = '6. Preferred contact',
   preferredContactMethod,
   onPreferredContactMethodChange,
@@ -56,15 +60,7 @@ export function CreateTaskContactSection({
     !phoneOption.enabled
 
   return (
-    <Card
-      layout="section"
-      bodyGap={4}
-      header={
-        <Heading size="lg" color="text.link">
-          {sectionHeading}
-        </Heading>
-      }
-    >
+    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={4}>
       <Text fontSize="sm" color="text.muted">
         We prefill this from your Slashie profile default when you start a new
         task. You can override it for this post. Update the default anytime in
@@ -144,6 +140,6 @@ export function CreateTaskContactSection({
           </Link>
         </Stack>
       ) : null}
-    </Card>
+    </CreateTaskSection>
   )
 }
