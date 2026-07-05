@@ -1,9 +1,4 @@
-import type {
-  GeoJSONSource,
-  LngLatBoundsLike,
-  Map as MapboxMap,
-  Marker,
-} from 'mapbox-gl'
+import type { GeoJSONSource, Map as MapboxMap, Marker } from 'mapbox-gl'
 
 import {
   referenceMarkerElement,
@@ -63,6 +58,24 @@ export type TaskLocationMapViewPadding = {
   right?: number
   bottom?: number
   left?: number
+}
+
+/**
+ * Frame the fixed desktop hero map so the task location sits in the visible
+ * top-right quadrant (left side is scrim + scrolling cards).
+ */
+export function desktopTaskDetailMapPadding(
+  width: number,
+  height: number,
+  variant: TaskLocationMapVariant = 'exact',
+): TaskLocationMapViewPadding {
+  return {
+    top: 58,
+    left: Math.round(width * 0.5),
+    right: 20,
+    // Zone circle sits higher — extra bottom inset lifts it above the quote cards.
+    bottom: Math.round(height * (variant === 'approximate' ? 0.66 : 0.58)),
+  }
 }
 
 export type TaskLocationMapController = {
@@ -139,19 +152,11 @@ export function createTaskLocationMapController(args: {
     })
   }
 
-  /** Pin framing — keeps the destination marker in the header's right zone. */
-  const pinViewPadding = (): TaskLocationMapViewPadding => viewPadding
-
-  /** Route framing — leaves room for header copy while showing the full path. */
-  const routeViewPadding = (): TaskLocationMapViewPadding => {
+  const pinViewPadding = (): TaskLocationMapViewPadding => {
+    if (Object.keys(viewPadding).length > 0) return viewPadding
     const w = container.offsetWidth
     const h = container.offsetHeight
-    return {
-      top: 96,
-      left: Math.round(w * 0.36),
-      right: 48,
-      bottom: Math.max(96, Math.round(h * 0.12)),
-    }
+    return desktopTaskDetailMapPadding(w, h, variant)
   }
 
   const resetCamera = (m: MapboxMap) => {
@@ -231,36 +236,17 @@ export function createTaskLocationMapController(args: {
       .addTo(m)
   }
 
-  const frameRoute = (
-    m: MapboxMap,
-    origin: { lat: number; lng: number },
-    coordinates: [number, number][],
-  ) => {
-    if (!mapboxMod) return
-    const points: [number, number][] =
-      coordinates.length >= 2
-        ? coordinates
-        : [
-            [origin.lng, origin.lat],
-            [lng, lat],
-          ]
-    const bounds = points.reduce(
-      (b, c) => b.extend(c),
-      new mapboxMod.LngLatBounds(points[0], points[0]),
-    )
-    applyViewPadding(m, routeViewPadding())
-    m.fitBounds(bounds as LngLatBoundsLike, {
-      padding: { top: 56, bottom: 56, left: 56, right: 56 },
-      maxZoom: 14,
-      duration: 600,
-    })
+  const frameRoute = (m: MapboxMap) => {
+    // Keep the task location anchored like zone/pin mode — draw the route without
+    // fitBounds shifting the map center toward the viewer origin.
+    resetCamera(m)
   }
 
   const renderRoute = (m: MapboxMap) => {
     if (!currentRoute) return
     paintRoute(m, currentRoute.coordinates)
     addOriginMarker(m, currentRoute.origin)
-    frameRoute(m, currentRoute.origin, currentRoute.coordinates)
+    frameRoute(m)
   }
 
   const addOverlays = (m: MapboxMap) => {
@@ -365,7 +351,7 @@ export function createTaskLocationMapController(args: {
       const m = map
       if (!m?.isStyleLoaded()) return
       if (currentRoute) {
-        frameRoute(m, currentRoute.origin, currentRoute.coordinates)
+        frameRoute(m)
         return
       }
       resetCamera(m)
@@ -373,7 +359,7 @@ export function createTaskLocationMapController(args: {
     reframeRoute: () => {
       const m = map
       if (!m?.isStyleLoaded() || !currentRoute) return
-      frameRoute(m, currentRoute.origin, currentRoute.coordinates)
+      frameRoute(m)
     },
     setThemeMode: (mode) => {
       map?.setStyle(styleUrlForMode(mode))

@@ -46,7 +46,6 @@ type PinDom = {
   pricePill: HTMLDivElement
   priceEl: HTMLDivElement
   milesEl: HTMLDivElement
-  viewTaskBtn: HTMLButtonElement
   pinDot: HTMLSpanElement
 }
 
@@ -109,7 +108,7 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
   })
 
   Object.assign(dom.priceEl.style, {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: '800',
     lineHeight: '1.1',
     color: PIN.green,
@@ -123,25 +122,6 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
     lineHeight: '1.25',
     color: PIN.textMuted,
     whiteSpace: 'nowrap',
-  })
-
-  Object.assign(dom.viewTaskBtn.style, {
-    display: 'none',
-    marginTop: '8px',
-    width: '100%',
-    boxSizing: 'border-box',
-    padding: '6px 12px',
-    fontSize: '13px',
-    fontWeight: '700',
-    lineHeight: '1.2',
-    color: PIN.white,
-    background: PIN.green,
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontFamily: PIN_FONT,
-    textAlign: 'center',
-    transition: pinTransition(motion, ['background-color', 'opacity']),
   })
 }
 
@@ -224,11 +204,6 @@ export function applyPinVisualState(
     opacity: selected ? '0' : '1',
     pointerEvents: selected ? 'none' : 'auto',
     transition: pinTransition(motion, ['width', 'height', 'opacity']),
-  })
-
-  Object.assign(dom.viewTaskBtn.style, {
-    display: expanded ? 'block' : 'none',
-    pointerEvents: expanded ? 'auto' : 'none',
   })
 }
 

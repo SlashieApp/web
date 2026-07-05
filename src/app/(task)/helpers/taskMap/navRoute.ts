@@ -263,7 +263,7 @@ export function createTaskMapNavRouteController(args: {
     opts?: { force?: boolean },
   ) => {
     const map = args.getMap()
-    if (!map?.isStyleLoaded()) {
+    if (!map) {
       needsFlushWhenReady = true
       return
     }
@@ -291,6 +291,11 @@ export function createTaskMapNavRouteController(args: {
       abort?.abort()
       abort = null
       cancelRoutePresentation()
+      if (!map.isStyleLoaded()) {
+        // Layer mutations throw while the style is busy — defer to `idle`.
+        needsFlushWhenReady = true
+        return
+      }
       applyRoute(map, cached, displayKey, requestId)
       return
     }
@@ -313,6 +318,8 @@ export function createTaskMapNavRouteController(args: {
 
         const m = args.getMap()
         if (!m?.isStyleLoaded()) {
+          // Style busy (e.g. tiles loading mid-fly) — the controller's `idle`
+          // handler flushes this once the map settles.
           needsFlushWhenReady = true
           return
         }
@@ -324,14 +331,28 @@ export function createTaskMapNavRouteController(args: {
 
         applyRoute(m, coordinates, displayKey, requestId)
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         if (requestId !== routeRequestId) return
-        setPresenting(false)
+        if (err instanceof DOMException && err.name === 'AbortError') return
+        // Network/API failure — still show a straight-line path so the
+        // selection always presents a route.
+        const m = args.getMap()
+        if (m?.isStyleLoaded()) {
+          applyRoute(m, fallbackLine, displayKey, requestId)
+        } else {
+          needsFlushWhenReady = true
+          setPresenting(false)
+        }
       })
   }
 
+  /**
+   * Retry a route apply that was deferred because the style was busy. Cheap
+   * no-op unless a deferral is actually pending — safe to call from the map's
+   * `idle` event.
+   */
   const flushWhenReady = () => {
-    if (!needsFlushWhenReady && !selected) return
+    if (!needsFlushWhenReady) return
     const map = args.getMap()
     if (!map?.isStyleLoaded()) return
     needsFlushWhenReady = false

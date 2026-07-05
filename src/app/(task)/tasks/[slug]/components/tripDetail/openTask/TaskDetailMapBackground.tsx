@@ -14,9 +14,9 @@ import {
 } from '../../../helpers/taskDetailUtils'
 import {
   type TaskLocationMapController,
-  type TaskLocationMapViewPadding,
   buildTaskDetailMapPinTask,
   createTaskLocationMapController,
+  desktopTaskDetailMapPadding,
 } from '../../../helpers/taskLocationMap'
 
 const HORIZONTAL_SCRIM =
@@ -26,17 +26,13 @@ const HORIZONTAL_SCRIM =
 const BOTTOM_SCRIM =
   'linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.75) 18%, rgba(255, 255, 255, 0.25) 42%, rgba(255, 255, 255, 0) 68%)'
 
-/** Frame the task pin in the header's right column (slightly past center). */
-function desktopPinPadding(
+/** Frame the task pin / zone circle in the header's right column. */
+function desktopMapPadding(
   width: number,
   height: number,
-): TaskLocationMapViewPadding {
-  return {
-    top: 88,
-    left: Math.round(width * 0.5),
-    right: 20,
-    bottom: Math.round(height * 0.58),
-  }
+  variant: 'exact' | 'approximate',
+) {
+  return desktopTaskDetailMapPadding(width, height, variant)
 }
 
 /**
@@ -108,10 +104,10 @@ export function TaskDetailMapBackground() {
     const controller = controllerRef.current
     if (!node || !controller) return
     controller.setViewPadding(
-      desktopPinPadding(node.offsetWidth, node.offsetHeight),
+      desktopMapPadding(node.offsetWidth, node.offsetHeight, variant),
     )
     controller.resize()
-  }, [])
+  }, [variant])
 
   const mapContainerRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -124,6 +120,11 @@ export function TaskDetailMapBackground() {
       controllerRef.current = null
       if (!node || !token || lat == null || lng == null) return
 
+      const mapPadding = desktopMapPadding(
+        node.offsetWidth,
+        node.offsetHeight,
+        variant,
+      )
       controllerRef.current = createTaskLocationMapController({
         container: node,
         accessToken: token,
@@ -131,7 +132,7 @@ export function TaskDetailMapBackground() {
         lng,
         variant,
         themeMode: colorModeRef.current === 'dark' ? 'dark' : 'light',
-        viewPadding: desktopPinPadding(node.offsetWidth, node.offsetHeight),
+        viewPadding: mapPadding,
         onMapReady: requestRouteFromViewer,
         pinTask,
       })
