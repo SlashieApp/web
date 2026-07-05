@@ -3,7 +3,6 @@
 import { Box } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef } from 'react'
 
-import { sdlMotion } from '@/theme/styles'
 import { useColorMode } from '@/ui/color-mode'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
@@ -158,11 +157,10 @@ export function TaskDetailMapBackground() {
       overflow="hidden"
       display={{ base: 'none', lg: 'block' }}
       aria-hidden
-      opacity={collapsed ? 0 : 1}
       pointerEvents={collapsed ? 'none' : 'auto'}
-      transitionProperty="opacity"
-      transitionDuration={sdlMotion.duration.map}
-      transitionTimingFunction={sdlMotion.easing.standard}
+      // Continuous scroll-driven fade — tracks the header's collapse progress
+      // so a mid-scroll rest keeps the map partially visible (no snap).
+      style={{ opacity: 'calc(1 - var(--task-collapse, 0))' }}
       css={{
         background: 'linear-gradient(135deg, #EEF3F0 0%, #DCE6E0 100%)',
       }}

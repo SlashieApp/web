@@ -4,8 +4,8 @@ import {
   TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
+  type TaskForEditQuery,
   TaskPaymentMethod,
-  type TaskQuery,
   TaskStatus,
 } from '@codegen/schema'
 
@@ -16,7 +16,7 @@ import {
 } from '../tasks/create/createTaskFormSchema'
 import { taskCreateCategorySchema } from './taskCategories'
 
-export type EditableTask = NonNullable<TaskQuery['task']>
+export type EditableTask = NonNullable<TaskForEditQuery['task']>
 
 export function taskImageUrls(
   task:

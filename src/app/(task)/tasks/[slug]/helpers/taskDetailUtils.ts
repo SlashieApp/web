@@ -12,31 +12,25 @@ import {
 import { formatBudgetAmount, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { QuoteStatus, TaskTimelineEventType } from '@codegen/schema'
-import type {
-  TaskCoreQuery,
-  TaskQuotesQuery,
-  TaskViewerQuery,
-} from '@codegen/schema'
+import type { TaskCoreQuery, TaskQuery } from '@codegen/schema'
 import { mapTaskStatus } from './mapTaskStatus'
 
 export type TaskCoreRecord = NonNullable<TaskCoreQuery['task']>
-export type TaskViewerRecord = NonNullable<TaskViewerQuery['task']>
+export type TaskClientRecord = NonNullable<TaskQuery['task']>
 
 /**
  * The merged task the detail context exposes:
  * - PUBLIC meta server-rendered via TaskCore (fast, auth-free SSR),
- * - viewer-scoped fields (orders, timeline, contact, exact address, live
- *   status) fetched client-side via TaskViewer,
- * - the heavy quotes list fetched client-side via TaskQuotes.
- * Until the viewer query resolves, viewer fields carry their redacted/guest
+ * - viewer-scoped fields + quotes fetched client-side via Task.gql.
+ * Until the client query resolves, viewer fields carry their redacted/guest
  * fallbacks (empty orders/timeline, null contact + address).
  */
 export type TaskDetailRecord = Omit<TaskCoreRecord, 'location' | 'poster'> & {
-  quotes: NonNullable<TaskQuotesQuery['task']>['quotes']
-  location: TaskViewerRecord['location']
-  poster: TaskViewerRecord['poster']
-  timeline: TaskViewerRecord['timeline']
-  orders: TaskViewerRecord['orders']
+  quotes: TaskClientRecord['quotes']
+  location: TaskClientRecord['location']
+  poster: TaskClientRecord['poster']
+  timeline: TaskClientRecord['timeline']
+  orders: TaskClientRecord['orders']
 }
 
 /**

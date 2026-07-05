@@ -1,0 +1,5 @@
+fragment TaskLocationPublicFields on TaskLocation {
+  lat
+  lng
+  name
+}

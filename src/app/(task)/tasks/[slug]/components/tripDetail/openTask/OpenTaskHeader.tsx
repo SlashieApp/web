@@ -9,39 +9,49 @@ import { sdlMotion } from '@/theme/styles'
 import { Button, Dropdown, IconButton, StatusPill } from '@ui'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
-import { useTaskDetailHeaderCollapsed } from '../../../helpers/taskDetailHeaderCollapse'
+import {
+  TASK_COLLAPSE_VAR,
+  useTaskDetailHeaderCollapsed,
+} from '../../../helpers/taskDetailHeaderCollapse'
 import { TaskOverflowMenu } from '../TaskOverflowMenu'
 import { selectStatusHeaderCopy } from '../statusHeaderCopy'
 
 const heroTextShadow = '0 1px 2px rgba(255, 255, 255, 0.75)'
 
-const collapseTransition = {
-  transitionProperty:
-    'grid-template-rows, opacity, background-color, transform, max-width, height',
-  transitionDuration: sdlMotion.duration.slow,
-  transitionTimingFunction: sdlMotion.easing.standard,
-} as const
+/** Collapse progress (0 expanded → 1 collapsed), scroll-driven. */
+const P = `var(${TASK_COLLAPSE_VAR}, 0)`
+/** Inverse progress. */
+const INV = `(1 - ${P})`
 
-/** Vertical row that collapses to zero height (+ fades) when `collapsed`. */
-function CollapsibleRow({
+/**
+ * Hero row that interpolates away with scroll progress: height, opacity, and
+ * its stack spacing all track `--task-collapse` continuously, so the header
+ * can rest anywhere mid-transition. `maxPx` bounds the row's expanded height.
+ */
+function ProgressRow({
   collapsed,
+  maxPx,
+  withGap = false,
   children,
 }: {
   collapsed: boolean
+  maxPx: number
+  /** Adds the stack gap above this row (also interpolated away). */
+  withGap?: boolean
   children: ReactNode
 }) {
   return (
     <Box
-      display="grid"
-      gridTemplateRows={collapsed ? '0fr' : '1fr'}
-      opacity={collapsed ? 0 : 1}
+      overflow="hidden"
       pointerEvents="none"
       aria-hidden={collapsed}
-      {...collapseTransition}
+      style={{
+        maxHeight: `calc(${INV} * ${maxPx}px)`,
+        opacity: `calc(${INV} * ${INV})`,
+        marginTop: withGap ? `calc(${INV} * 12px)` : undefined,
+      }}
     >
-      <Box overflow="hidden" minH={0}>
-        {children}
-      </Box>
+      {children}
     </Box>
   )
 }
@@ -49,10 +59,10 @@ function CollapsibleRow({
 /**
  * Desktop open-task header. Sticky over the fixed map; at rest it's a spacious
  * hero (Back with label top-left, overflow top-right, then pill · headline ·
- * subtext). On scroll the pill/subtext and the map gap collapse away, the Back
- * label collapses to an icon, and the headline snaps up onto the Back/overflow
- * row — a compact `‹ · headline · ⋮` bar. The surface fades into the content
- * below rather than a hard border + shadow.
+ * subtext). Scrolling interpolates it CONTINUOUSLY into a compact
+ * `‹ · headline · ⋮` bar — driven by the `--task-collapse` scroll progress
+ * variable, so stopping mid-scroll holds the in-between state (no snap). The
+ * surface fades into the content below rather than a hard border + shadow.
  */
 export function OpenTaskHeader() {
   const router = useRouter()
@@ -70,9 +80,15 @@ export function OpenTaskHeader() {
   })
 
   // Expanded controls sit over the map — a translucent chip keeps them legible;
-  // once collapsed the surface is solid, so the chip fades to transparent.
+  // once the surface is solid the chip fades to transparent. Boolean-driven
+  // (color tokens can't interpolate via the CSS var), softened by transition.
   const controlBg = collapsed ? 'transparent' : 'whiteAlpha.700'
   const controlHoverBg = collapsed ? 'bg.subtle' : 'whiteAlpha.900'
+  const controlTransition = {
+    transitionProperty: 'background-color',
+    transitionDuration: sdlMotion.duration.base,
+    transitionTimingFunction: sdlMotion.easing.standard,
+  } as const
 
   return (
     <Box
@@ -80,11 +96,20 @@ export function OpenTaskHeader() {
       top={{ lg: 0 }}
       zIndex={20}
       w="full"
-      bg={{ lg: collapsed ? 'bg.surface' : 'transparent' }}
       css={{ overflowAnchor: 'none' }}
-      {...collapseTransition}
     >
-      {/* Soft fade into the content below — replaces the hard border + shadow. */}
+      {/* Solid surface fades in with scroll progress (bg tokens can't lerp). */}
+      <Box
+        aria-hidden
+        display={{ base: 'none', lg: 'block' }}
+        position="absolute"
+        inset={0}
+        bg="bg.surface"
+        pointerEvents="none"
+        style={{ opacity: `calc(${P})` }}
+      />
+
+      {/* Soft fade into the content below — replaces a hard border + shadow. */}
       <Box
         aria-hidden
         display={{ base: 'none', lg: 'block' }}
@@ -94,10 +119,7 @@ export function OpenTaskHeader() {
         top="100%"
         h="24px"
         pointerEvents="none"
-        opacity={collapsed ? 1 : 0}
-        transitionProperty="opacity"
-        transitionDuration={sdlMotion.duration.slow}
-        transitionTimingFunction={sdlMotion.easing.standard}
+        style={{ opacity: `calc(${P})` }}
         css={{
           background:
             'linear-gradient(to bottom, var(--chakra-colors-bg-surface), transparent)',
@@ -105,6 +127,7 @@ export function OpenTaskHeader() {
       />
 
       <Box
+        position="relative"
         maxW="6xl"
         mx="auto"
         w="full"
@@ -112,9 +135,8 @@ export function OpenTaskHeader() {
         py={2}
         pointerEvents="none"
       >
-        {/* Persistent row — Back · (headline when collapsed) · overflow. Never
-            wrapped in an overflow:hidden collapse box, so its dropdown never
-            clips. */}
+        {/* Persistent row — Back · (headline as it collapses) · overflow.
+            Never inside an overflow:hidden box, so the dropdown never clips. */}
         <HStack gap={3} align="center" minH="44px" w="full">
           <Button
             type="button"
@@ -131,25 +153,27 @@ export function OpenTaskHeader() {
             _hover={{ bg: controlHoverBg, color: 'gray.900' }}
             onClick={() => router.back()}
             aria-label="Go back"
-            {...collapseTransition}
+            {...controlTransition}
           >
             <HStack gap={1.5} align="center">
               <LuArrowLeft />
-              {/* Label collapses to an icon-only button on scroll. */}
+              {/* Label narrows to icon-only with scroll progress. */}
               <Box
                 as="span"
                 overflow="hidden"
                 whiteSpace="nowrap"
-                maxW={collapsed ? '0px' : '80px'}
-                opacity={collapsed ? 0 : 1}
-                {...collapseTransition}
+                style={{
+                  maxWidth: `calc(${INV} * 80px)`,
+                  opacity: `calc(${INV})`,
+                }}
               >
                 Back
               </Box>
             </HStack>
           </Button>
 
-          {/* Headline once collapsed — shares the Back/overflow row. */}
+          {/* Compact headline — fades in on the Back/overflow row as the hero
+              headline below fades out (continuous crossfade). */}
           <Text
             flex="1"
             minW={0}
@@ -157,9 +181,8 @@ export function OpenTaskHeader() {
             fontWeight={600}
             fontSize="md"
             color="gray.900"
-            opacity={collapsed ? 1 : 0}
             pointerEvents="none"
-            {...collapseTransition}
+            style={{ opacity: `calc(${P} * ${P})` }}
           >
             {statusReady ? copy.headline : ''}
           </Text>
@@ -176,7 +199,7 @@ export function OpenTaskHeader() {
                   color="gray.900"
                   bg={controlBg}
                   _hover={{ bg: controlHoverBg }}
-                  {...collapseTransition}
+                  {...controlTransition}
                 >
                   <LuEllipsisVertical />
                 </IconButton>
@@ -187,27 +210,26 @@ export function OpenTaskHeader() {
           </Box>
         </HStack>
 
-        {/* Generous breathing room so more of the map shows in the hero;
-            collapses to nothing on scroll. */}
+        {/* Breathing room for the map hero — shrinks with scroll progress. */}
         <Box
-          h={collapsed ? '0px' : { base: '56px', md: '104px' }}
-          {...collapseTransition}
+          h={{
+            base: `calc(${INV} * 56px)`,
+            md: `calc(${INV} * 104px)`,
+          }}
         />
 
         {statusReady ? (
           <Stack
-            gap={collapsed ? 0 : 3}
+            gap={0}
             w="full"
             maxW={{ md: '2xl' }}
             animation={`rise-in 0.35s ${sdlMotion.easing.decelerate}`}
           >
-            <CollapsibleRow collapsed={collapsed}>
+            <ProgressRow collapsed={collapsed} maxPx={40}>
               <StatusPill status={copy.pill} size="lg" />
-            </CollapsibleRow>
+            </ProgressRow>
 
-            {/* Expanded hero headline — collapses away as its compact twin on
-                the row above fades in. */}
-            <CollapsibleRow collapsed={collapsed}>
+            <ProgressRow collapsed={collapsed} maxPx={76} withGap>
               <Heading
                 as="h1"
                 fontFamily="heading"
@@ -219,9 +241,9 @@ export function OpenTaskHeader() {
               >
                 {copy.headline}
               </Heading>
-            </CollapsibleRow>
+            </ProgressRow>
 
-            <CollapsibleRow collapsed={collapsed}>
+            <ProgressRow collapsed={collapsed} maxPx={64} withGap>
               <Text
                 fontSize={{ base: 'md', md: 'lg' }}
                 color="gray.700"
@@ -229,7 +251,7 @@ export function OpenTaskHeader() {
               >
                 {copy.subtext}
               </Text>
-            </CollapsibleRow>
+            </ProgressRow>
           </Stack>
         ) : (
           // Viewer state unconfirmed — placeholder lines instead of guessing

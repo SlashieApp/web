@@ -1,61 +1,9 @@
-# Full task incl. quotes. Used by the edit page (which needs the quotes list to
-# compute the minimum accepted-worker cap). The task detail page uses the lighter
-# TaskCore + TaskQuotes split instead.
+#import "./fragments/TaskDetailClientFields.gql"
+
+# Client-side task detail init: viewer-scoped fields + quotes (replaces TaskViewer +
+# TaskQuotes). Merged with SSR TaskCore in TaskDetailProvider.
 query Task($id: ID!) {
   task(id: $id) {
-    id
-    title
-    description
-    category
-    budget {
-      amount
-      currency
-      type
-      paymentMethod
-    }
-    datetime {
-      date
-      time
-      type
-    }
-    images
-    status
-    location {
-      lat
-      lng
-      name
-      address
-    }
-    poster {
-      id
-      profile {
-        name
-        avatarUrl
-      }
-    }
-    quotes {
-      id
-      taskId
-      workerUserId
-      estimatedDuration
-      price {
-        currency
-        amount
-      }
-      message
-      status
-      createdAt
-      worker {
-        id
-        profile {
-          name
-          avatarUrl
-        }
-        worker {
-          id
-          isVerified
-        }
-      }
-    }
+    ...TaskDetailClientFields
   }
 }

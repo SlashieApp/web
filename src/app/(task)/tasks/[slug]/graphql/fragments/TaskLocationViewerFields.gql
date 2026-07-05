@@ -1,0 +1,6 @@
+#import "./TaskLocationPublicFields.gql"
+
+fragment TaskLocationViewerFields on TaskLocation {
+  ...TaskLocationPublicFields
+  address
+}

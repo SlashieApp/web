@@ -1,0 +1,9 @@
+#import "./QuoteFields.gql"
+#import "./TaskViewerFields.gql"
+
+fragment TaskDetailClientFields on Task {
+  ...TaskViewerFields
+  quotes {
+    ...QuoteFields
+  }
+}

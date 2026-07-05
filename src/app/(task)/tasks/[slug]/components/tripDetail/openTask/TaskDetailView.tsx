@@ -5,7 +5,7 @@ import { useRef } from 'react'
 
 import {
   TaskDetailHeaderCollapsedProvider,
-  useScrollContainerCollapsed,
+  useScrollCollapseProgress,
 } from '../../../helpers/taskDetailHeaderCollapse'
 import { TaskInfoSections, TaskQuoteSections } from '../TaskDetailSections'
 import { OpenTaskHeader } from './OpenTaskHeader'
@@ -18,12 +18,13 @@ import { TaskDetailMapBackground } from './TaskDetailMapBackground'
  * mobile is handled by `TaskDetailMobile`.
  */
 export function TaskDetailView() {
-  // Collapse is driven by the app-shell content pane resolved from this root,
-  // not the window (which never scrolls in the (task) layout). Snap to compact
-  // the moment scrolling starts, and only expand back at the very top
-  // (scrollTop 0) — safe from oscillation thanks to overflow-anchor: none.
+  // Continuous scroll-driven collapse: progress (0–1 over the first 140px of
+  // the app-shell content pane's scroll) is written to the `--task-collapse`
+  // CSS var on this root — the header and map interpolate against it, so the
+  // transition tracks scroll and can rest anywhere in between (no snap). The
+  // returned boolean only drives aria/pointer-events/token flips.
   const rootRef = useRef<HTMLDivElement>(null)
-  const collapsed = useScrollContainerCollapsed(rootRef, 2, 0)
+  const collapsed = useScrollCollapseProgress(rootRef)
 
   return (
     <TaskDetailHeaderCollapsedProvider value={collapsed}>

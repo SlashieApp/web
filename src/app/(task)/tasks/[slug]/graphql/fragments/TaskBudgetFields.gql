@@ -1,0 +1,6 @@
+fragment TaskBudgetFields on TaskBudget {
+  amount
+  currency
+  type
+  paymentMethod
+}

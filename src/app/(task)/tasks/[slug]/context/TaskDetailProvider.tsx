@@ -9,8 +9,7 @@ import type {
   DeclineQuoteMutation,
   MeQuery,
   TaskCoreQuery,
-  TaskQuotesQuery,
-  TaskViewerQuery,
+  TaskQuery,
 } from '@codegen/schema'
 import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
@@ -34,8 +33,7 @@ import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
 import CompleteOrderWithVerification from '@/app/(task)/tasks/[slug]/graphql/CompleteOrderWithVerification.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
-import TaskQuotes from '@/app/(task)/tasks/[slug]/graphql/TaskQuotes.gql'
-import TaskViewer from '@/app/(task)/tasks/[slug]/graphql/TaskViewer.gql'
+import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
@@ -65,8 +63,8 @@ const ORDER_POLL_MS = 30_000
 const clientSnapshot = () => true
 const serverSnapshot = () => false
 const subscribeNoop = () => () => {}
-/** Stable empty-quotes ref so the merged task memo doesn't churn before quotes load. */
-const EMPTY_QUOTES: NonNullable<TaskQuotesQuery['task']>['quotes'] = []
+/** Stable empty-quotes ref so the merged task memo doesn't churn before client data loads. */
+const EMPTY_QUOTES: NonNullable<TaskQuery['task']>['quotes'] = []
 
 type TaskDetailProviderProps = {
   taskId: string
@@ -126,29 +124,25 @@ export function TaskDetailProvider({
     [getUser, isAuthenticated],
   )
 
-  // Viewer-scoped task data (orders, timeline, contact, exact address, live
-  // status): fetched client-side with the auth token AFTER the public SSR
-  // shell paints, so the API confirms the viewer's state before any
-  // state-dependent UI renders. Guests skip it — their viewer fields are the
-  // redacted fallbacks by definition. Polls while an order is live.
-  const { data: viewerData, loading: viewerLoadingRaw } =
-    useQuery<TaskViewerQuery>(TaskViewer, {
+  // Viewer-scoped task data + quotes: one client fetch after the public SSR
+  // shell paints. Guests still receive the public quotes list; authenticated
+  // viewers get orders, timeline, contact, exact address, and live status.
+  // Polls while an order is live.
+  const { data: clientTaskData, loading: clientTaskLoadingRaw } =
+    useQuery<TaskQuery>(Task, {
       variables: taskQueryVariables(taskId),
-      skip: !isAuthenticated,
       fetchPolicy: 'cache-and-network',
       notifyOnNetworkStatusChange: true,
     })
-  const viewerTask = viewerData?.task ?? null
-  const viewerLoading = Boolean(
-    isAuthenticated && viewerLoadingRaw && !viewerTask,
-  )
-  const viewerLoaded = !isAuthenticated || Boolean(viewerTask)
+  const clientTask = clientTaskData?.task ?? null
+  const clientTaskLoading = Boolean(clientTaskLoadingRaw && !clientTask)
+  const clientTaskLoaded = Boolean(clientTask)
 
-  const liveOrder = (viewerTask?.orders?.[0] ?? null) as OrderItem | null
+  const liveOrder = (clientTask?.orders?.[0] ?? null) as OrderItem | null
   const shouldPollLiveOrder = Boolean(
     isAuthenticated && liveOrder && !isOrderClosed(liveOrder.status),
   )
-  useQuery<TaskViewerQuery>(TaskViewer, {
+  useQuery<TaskQuery>(Task, {
     variables: taskQueryVariables(taskId),
     skip: !shouldPollLiveOrder,
     pollInterval: ORDER_POLL_MS,
@@ -156,35 +150,26 @@ export function TaskDetailProvider({
     notifyOnNetworkStatusChange: false,
   })
 
-  // Heavy quotes list: fetched client-side after the SSR shell paints, so it
-  // streams in (with a skeleton) instead of blocking the server render.
-  const { data: quotesData, loading: quotesLoadingRaw } =
-    useQuery<TaskQuotesQuery>(TaskQuotes, {
-      variables: taskQueryVariables(taskId),
-      fetchPolicy: 'cache-and-network',
-      notifyOnNetworkStatusChange: true,
-    })
+  const quotes = clientTask?.quotes ?? EMPTY_QUOTES
+  const quotesLoading = clientTaskLoading
+  const viewerLoading = clientTaskLoading
 
-  const quotes = quotesData?.task?.quotes ?? EMPTY_QUOTES
-  const quotesLoading = Boolean(quotesLoadingRaw && !quotesData?.task)
-
-  // Merge: public SSR meta + viewer-scoped fields (redacted fallbacks until
-  // the viewer response lands) + client quotes.
+  // Merge: public SSR meta + client Task.gql (viewer fields + quotes).
   const task = useMemo<TaskDetailRecord | null>(() => {
     if (!initialTask) return null
     return {
       ...initialTask,
-      status: viewerTask?.status ?? initialTask.status,
+      status: clientTask?.status ?? initialTask.status,
       quotes,
-      timeline: viewerTask?.timeline ?? [],
-      orders: viewerTask?.orders ?? [],
+      timeline: clientTask?.timeline ?? [],
+      orders: clientTask?.orders ?? [],
       location:
-        viewerTask?.location ??
+        clientTask?.location ??
         (initialTask.location
           ? { ...initialTask.location, address: null }
           : null),
       poster:
-        viewerTask?.poster ??
+        clientTask?.poster ??
         (initialTask.poster
           ? {
               ...initialTask.poster,
@@ -195,7 +180,7 @@ export function TaskDetailProvider({
             }
           : null),
     } as TaskDetailRecord
-  }, [initialTask, viewerTask, quotes])
+  }, [initialTask, clientTask, quotes])
 
   const myOrder = liveOrder
   const orderLoading = viewerLoading
@@ -583,7 +568,7 @@ export function TaskDetailProvider({
   // should show loading placeholders until this is true — before that the
   // permission flags are guest-shaped defaults, not the confirmed viewer state.
   const statusReady = Boolean(
-    viewerLoaded && !quotesLoading && (!isAuthenticated || !meLoadingResolved),
+    clientTaskLoaded && (!isAuthenticated || !meLoadingResolved),
   )
 
   const value = useMemo(

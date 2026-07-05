@@ -1,0 +1,8 @@
+#import "./fragments/TaskForEditFields.gql"
+
+# Full editable task + quotes (edit page, cap calculations).
+query TaskForEdit($id: ID!) {
+  task(id: $id) {
+    ...TaskForEditFields
+  }
+}

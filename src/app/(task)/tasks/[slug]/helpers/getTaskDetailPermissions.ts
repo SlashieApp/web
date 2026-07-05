@@ -1,5 +1,5 @@
 import { OrderStatus, QuoteStatus } from '@codegen/schema'
-import type { MeQuery, TaskQuery } from '@codegen/schema'
+import type { MeQuery } from '@codegen/schema'
 
 import type { OrderItem } from '@/utils/orderHelpers'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'

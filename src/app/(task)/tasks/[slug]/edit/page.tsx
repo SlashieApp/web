@@ -5,7 +5,7 @@ import { Box, Container, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import {
   type MeQuery,
   TaskContactMethod,
-  type TaskQuery,
+  type TaskForEditQuery,
   type UpdateTaskMutation,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -23,7 +23,7 @@ import {
   taskImageUrls,
   taskToEditFormValues,
 } from '@/app/(task)/helpers/taskEditHelpers'
-import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
+import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import UpdateTask from '@/app/(task)/tasks/[slug]/graphql/UpdateTask.gql'
 import Me from '@/graphql/Me.gql'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
@@ -96,7 +96,7 @@ function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
 
 type EditTaskFormBodyProps = {
   taskId: string
-  task: NonNullable<TaskQuery['task']>
+  task: NonNullable<TaskForEditQuery['task']>
   contactOptions: ReturnType<typeof getContactOptions>
 }
 
@@ -172,7 +172,7 @@ function EditTaskFormBody({
   const [runUpdateTask, { loading: updating }] =
     useMutation<UpdateTaskMutation>(UpdateTask, {
       refetchQueries: [
-        { query: Task, variables: { id: taskId } },
+        { query: TaskForEdit, variables: { id: taskId } },
         { query: MyRequests },
         { query: Tasks },
       ],
@@ -479,7 +479,7 @@ export default function EditTaskPage() {
     data: taskData,
     loading: taskLoading,
     error: taskError,
-  } = useQuery<TaskQuery>(Task, {
+  } = useQuery<TaskForEditQuery>(TaskForEdit, {
     variables: taskQueryVariables(taskId),
     skip: !sessionOk || !taskId,
     fetchPolicy: 'network-only',

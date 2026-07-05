@@ -1,0 +1,9 @@
+#import "./TaskPosterProfileViewerFields.gql"
+
+fragment TaskPosterViewerFields on User {
+  id
+  email
+  profile {
+    ...TaskPosterProfileViewerFields
+  }
+}

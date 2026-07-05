@@ -13,8 +13,7 @@ import Me from '@/graphql/Me.gql'
 import { clearAuthToken, setAuthToken } from '@/utils/auth'
 
 import { TaskDetailProvider } from '../context/TaskDetailProvider'
-import TaskQuotes from '../graphql/TaskQuotes.gql'
-import TaskViewer from '../graphql/TaskViewer.gql'
+import Task from '../graphql/Task.gql'
 import {
   STORY_TASK_ID,
   type TaskDetailStoryConfig,
@@ -45,39 +44,10 @@ function TaskDetailStorySeed({
   const taskId = task?.id ?? STORY_TASK_ID
 
   useEffect(() => {
-    // Client-fetched slices now come from Apollo — seed the cache so the
-    // provider's TaskQuotes/TaskViewer queries resolve from story fixtures.
-    // Every selected field + __typename must be present or the cache read
-    // misses and the story renders the unloaded fallbacks.
+    // Client Task.gql slice — seed the cache so the provider resolves from fixtures.
     if (task) {
       apolloClient.writeQuery({
-        query: TaskQuotes,
-        variables: { id: taskId },
-        data: {
-          task: {
-            __typename: 'Task',
-            id: task.id,
-            quotes: task.quotes.map((q) => ({
-              __typename: 'Quote',
-              estimatedDuration: null,
-              ...q,
-              price: q.price ? { __typename: 'Price', ...q.price } : null,
-              worker: q.worker
-                ? {
-                    __typename: 'User',
-                    ...q.worker,
-                    profile: { __typename: 'Profile', ...q.worker.profile },
-                    worker: q.worker.worker
-                      ? { __typename: 'Worker', ...q.worker.worker }
-                      : null,
-                  }
-                : q.worker,
-            })),
-          },
-        },
-      })
-      apolloClient.writeQuery({
-        query: TaskViewer,
+        query: Task,
         variables: { id: taskId },
         data: {
           task: {
@@ -125,6 +95,22 @@ function TaskDetailStorySeed({
                       : null,
                   }
                 : o.snapshot,
+            })),
+            quotes: task.quotes.map((q) => ({
+              __typename: 'Quote',
+              estimatedDuration: null,
+              ...q,
+              price: q.price ? { __typename: 'Price', ...q.price } : null,
+              worker: q.worker
+                ? {
+                    __typename: 'User',
+                    ...q.worker,
+                    profile: { __typename: 'Profile', ...q.worker.profile },
+                    worker: q.worker.worker
+                      ? { __typename: 'Worker', ...q.worker.worker }
+                      : null,
+                  }
+                : q.worker,
             })),
           },
         },

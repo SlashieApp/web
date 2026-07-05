@@ -1,0 +1,26 @@
+#import "./TaskBudgetFields.gql"
+#import "./TaskDatetimeFields.gql"
+#import "./TaskLocationPublicFields.gql"
+#import "./TaskPosterPublicFields.gql"
+
+fragment TaskCoreFields on Task {
+  id
+  title
+  description
+  category
+  views
+  budget {
+    ...TaskBudgetFields
+  }
+  datetime {
+    ...TaskDatetimeFields
+  }
+  images
+  status
+  location {
+    ...TaskLocationPublicFields
+  }
+  poster {
+    ...TaskPosterPublicFields
+  }
+}

@@ -1,0 +1,31 @@
+#import "./TaskBudgetFields.gql"
+#import "./TaskDatetimeFields.gql"
+#import "./TaskLocationViewerFields.gql"
+#import "./TaskPosterPublicFields.gql"
+#import "./QuoteFields.gql"
+
+# Editable task shape (authenticated owner): core meta + full location + quotes.
+fragment TaskForEditFields on Task {
+  id
+  title
+  description
+  category
+  views
+  budget {
+    ...TaskBudgetFields
+  }
+  datetime {
+    ...TaskDatetimeFields
+  }
+  images
+  status
+  location {
+    ...TaskLocationViewerFields
+  }
+  poster {
+    ...TaskPosterPublicFields
+  }
+  quotes {
+    ...QuoteFields
+  }
+}

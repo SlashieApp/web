@@ -1,6 +1,6 @@
 'use client'
 
-import type { MeQuery, TaskQuery } from '@codegen/schema'
+import type { MeQuery } from '@codegen/schema'
 import { createContext, useContext } from 'react'
 
 import type { OrderItem } from '@/utils/orderHelpers'
@@ -12,14 +12,14 @@ export type TaskDetailData = {
   task: TaskDetailRecord | null
   myOrder: OrderItem | null
   orderLoading: boolean
-  /** Viewer-scoped task data (orders/timeline/contact) is loading. */
+  /** Client Task.gql data (viewer fields + quotes) is loading. */
   viewerLoading: boolean
   /**
    * True once the viewer's state is CONFIRMED (viewer + quotes + me resolved).
    * Status-dependent UI should render loading placeholders until then.
    */
   statusReady: boolean
-  /** The quotes list is fetched client-side after SSR; true during its first load. */
+  /** The quotes list is part of Task.gql; true during its first client load. */
   quotesLoading: boolean
   me: MeQuery['me'] | null
   meLoading: boolean

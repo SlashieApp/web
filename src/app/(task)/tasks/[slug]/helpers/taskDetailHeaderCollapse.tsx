@@ -81,6 +81,69 @@ export function useScrollContainerCollapsed(
   return collapsed
 }
 
+/** CSS custom property carrying the continuous collapse progress (0 → 1). */
+export const TASK_COLLAPSE_VAR = '--task-collapse'
+
+/**
+ * Continuous, scroll-driven collapse for the task-detail header. Writes the
+ * progress (scrollTop / `range`, clamped 0–1) to the `--task-collapse` CSS
+ * variable on the ref'd root every frame — styles interpolate via `calc()`
+ * with NO React re-renders, so the header tracks the finger/wheel and can
+ * rest at any point mid-transition (no snap).
+ *
+ * Returns a boolean for the few things CSS can't drive (aria-hidden,
+ * pointer-events, color tokens), flipped with hysteresis around the midpoint.
+ */
+export function useScrollCollapseProgress(
+  ref: RefObject<HTMLElement | null>,
+  range = 140,
+): boolean {
+  const [collapsed, setCollapsed] = useState(false)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const scroller = findScrollParent(node)
+    const target: HTMLElement | Window = scroller ?? window
+    const readY = () => (scroller ? scroller.scrollTop : window.scrollY)
+
+    // Header height changes above the viewport as progress moves — without
+    // this, scroll anchoring compensates and fights the interpolation.
+    const prevAnchor = scroller?.style.overflowAnchor
+    if (scroller) scroller.style.overflowAnchor = 'none'
+
+    let isCollapsed = false
+    let frame: number | null = null
+
+    const apply = () => {
+      frame = null
+      const progress = Math.min(1, Math.max(0, readY() / range))
+      node.style.setProperty(TASK_COLLAPSE_VAR, String(progress))
+      const next = isCollapsed ? progress > 0.4 : progress > 0.6
+      if (next !== isCollapsed) {
+        isCollapsed = next
+        setCollapsed(next)
+      }
+    }
+
+    const onScroll = () => {
+      if (frame != null) return
+      frame = requestAnimationFrame(apply)
+    }
+
+    apply()
+    target.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      if (frame != null) cancelAnimationFrame(frame)
+      target.removeEventListener('scroll', onScroll)
+      node.style.removeProperty(TASK_COLLAPSE_VAR)
+      if (scroller) scroller.style.overflowAnchor = prevAnchor ?? ''
+    }
+  }, [ref, range])
+
+  return collapsed
+}
+
 const HeaderCollapsedContext = createContext(false)
 
 /** Provides the collapsed flag to the header + map background subtree. */

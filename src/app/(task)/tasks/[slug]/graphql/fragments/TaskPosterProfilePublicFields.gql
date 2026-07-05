@@ -1,0 +1,4 @@
+fragment TaskPosterProfilePublicFields on Profile {
+  name
+  avatarUrl
+}

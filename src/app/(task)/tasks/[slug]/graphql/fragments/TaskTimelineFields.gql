@@ -1,0 +1,17 @@
+#import "./TaskPosterProfilePublicFields.gql"
+
+fragment TaskTimelineActorFields on User {
+  id
+  profile {
+    ...TaskPosterProfilePublicFields
+  }
+}
+
+fragment TaskTimelineEventFields on TaskTimelineEvent {
+  type
+  timestamp
+  actor {
+    ...TaskTimelineActorFields
+  }
+  data
+}

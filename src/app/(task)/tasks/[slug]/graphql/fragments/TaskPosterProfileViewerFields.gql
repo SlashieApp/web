@@ -1,0 +1,6 @@
+#import "./TaskPosterProfilePublicFields.gql"
+
+fragment TaskPosterProfileViewerFields on Profile {
+  ...TaskPosterProfilePublicFields
+  contactNumber
+}

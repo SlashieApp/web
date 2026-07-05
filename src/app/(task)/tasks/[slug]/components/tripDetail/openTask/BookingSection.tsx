@@ -14,7 +14,7 @@ import {
  * for the customer; job + complete-with-code for the worker) and the order
  * summary once closed. It's a normal section card placed inside the existing
  * layout (not a full-width banner). Renders nothing for OPEN / CANCELLED.
- * Order data is client-fetched (TaskViewer) and read from context.
+ * Order data is client-fetched (Task.gql) and read from context.
  */
 export function BookingSection() {
   const { task, myOrder, permissions } = useTaskDetail()
