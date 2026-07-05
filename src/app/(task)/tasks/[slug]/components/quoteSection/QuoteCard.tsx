@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
+import { useState } from 'react'
 import { LuCheck, LuChevronRight } from 'react-icons/lu'
 
 import { Button, Link } from '@ui'
@@ -13,6 +14,8 @@ function avatarGradient(seed: string): string {
   return `linear-gradient(135deg, hsl(${hue} 55% 42%) 0%, hsl(${(hue + 40) % 360} 60% 36%) 100%)`
 }
 
+export type QuoteCardStatusBadge = 'accepted' | 'declined' | 'yours'
+
 export type QuoteCardProps = {
   name: string
   avatarLabel: string
@@ -22,6 +25,10 @@ export type QuoteCardProps = {
   priceKindLabel?: string | null
   message?: string | null
   respondedLabel?: string | null
+  /** Availability chip, e.g. "Available this week". */
+  availabilityLabel?: string | null
+  /** Status badge under the price: Accepted (green) / Declined / Your quote. */
+  statusBadge?: QuoteCardStatusBadge | null
   showVerified?: boolean
   ratingLine?: string | null
   /** When false, price column is hidden (e.g. visitors — API omits amounts for non-posters). */
@@ -40,6 +47,30 @@ export type QuoteCardProps = {
   workerProfileHref?: string
 }
 
+const STATUS_BADGE_STYLES: Record<
+  QuoteCardStatusBadge,
+  { label: string; bg: string; color: string; borderColor: string }
+> = {
+  accepted: {
+    label: 'Accepted',
+    bg: 'status.success.soft',
+    color: 'status.success.fg',
+    borderColor: 'status.success.soft',
+  },
+  declined: {
+    label: 'Declined',
+    bg: 'bg.subtle',
+    color: 'text.muted',
+    borderColor: 'border.default',
+  },
+  yours: {
+    label: 'Your quote',
+    bg: 'bg.surface',
+    color: 'status.success.fg',
+    borderColor: 'status.success.solid',
+  },
+}
+
 export function QuoteCard({
   name,
   avatarLabel,
@@ -48,6 +79,8 @@ export function QuoteCard({
   priceKindLabel,
   message,
   respondedLabel,
+  availabilityLabel,
+  statusBadge,
   showVerified = false,
   ratingLine = 'No reviews yet',
   showPrice = true,
@@ -106,55 +139,80 @@ export function QuoteCard({
     </HStack>
   )
 
+  const badgeStyle = statusBadge ? STATUS_BADGE_STYLES[statusBadge] : null
+  const statusBadgeEl = badgeStyle ? (
+    <Box
+      as="span"
+      display="inline-block"
+      px={2.5}
+      py={0.5}
+      borderRadius="full"
+      borderWidth="1px"
+      borderColor={badgeStyle.borderColor}
+      bg={badgeStyle.bg}
+      color={badgeStyle.color}
+      fontSize="xs"
+      fontWeight={700}
+      whiteSpace="nowrap"
+    >
+      {badgeStyle.label}
+    </Box>
+  ) : null
+
   const priceBlock =
-    showPrice && priceLabel ? (
-      <Stack align="flex-end" gap={0} textAlign="right" flexShrink={0}>
-        <Text
-          fontWeight={700}
-          fontSize={isCard ? '2xl' : 'xl'}
-          color={isCard ? 'text.default' : 'text.link'}
-          lineHeight="shorter"
-        >
-          {priceLabel}
-        </Text>
-        {!isCard && priceKindLabel ? (
+    (showPrice && priceLabel) || statusBadgeEl ? (
+      <Stack align="flex-end" gap={1} textAlign="right" flexShrink={0}>
+        {showPrice && priceLabel ? (
+          <Text
+            fontWeight={700}
+            fontSize={isCard ? '2xl' : 'xl'}
+            color={isCard ? 'text.default' : 'text.link'}
+            lineHeight="shorter"
+          >
+            {priceLabel}
+          </Text>
+        ) : null}
+        {!isCard && showPrice && priceKindLabel ? (
           <Text fontSize="xs" color="text.muted">
             {priceKindLabel}
           </Text>
         ) : null}
+        {statusBadgeEl}
       </Stack>
     ) : null
+
+  const availabilityChip = availabilityLabel ? (
+    <Box
+      as="span"
+      display="inline-block"
+      w="fit-content"
+      px={2.5}
+      py={1}
+      borderRadius="full"
+      bg="status.success.soft"
+      color="status.success.fg"
+      fontSize="xs"
+      fontWeight={600}
+    >
+      {availabilityLabel}
+    </Box>
+  ) : null
 
   const actionBlock = isOwnQuote ? (
     <Button size="sm" variant="secondary" disabled w="full">
       Your quote
     </Button>
   ) : onAccept || onDecline ? (
-    <Stack gap={2} w="full">
-      {onAccept ? (
-        <Button
-          size="sm"
-          w="full"
-          loading={acceptLoading}
-          disabled={acceptDisabled || declineLoading}
-          onClick={onAccept}
-          variant={acceptPrimary ? 'primary' : 'outline'}
-          {...(acceptPrimary
-            ? {}
-            : {
-                borderColor: 'status.success.soft',
-                color: 'text.link',
-              })}
-        >
-          Accept quote
-        </Button>
-      ) : null}
+    // Decline (ghost) beside Accept (primary), per the quotes-module mockup.
+    <HStack gap={2} w="full">
       {onDecline ? (
         <Button
           size="sm"
-          w="full"
+          flex={1}
           variant="ghost"
-          color="status.danger.fg"
+          borderWidth="1px"
+          borderColor="border.default"
+          color="text.default"
           loading={declineLoading}
           disabled={acceptLoading || acceptDisabled}
           onClick={onDecline}
@@ -162,7 +220,19 @@ export function QuoteCard({
           Decline
         </Button>
       ) : null}
-    </Stack>
+      {onAccept ? (
+        <Button
+          size="sm"
+          flex={1}
+          loading={acceptLoading}
+          disabled={acceptDisabled || declineLoading}
+          onClick={onAccept}
+          variant="primary"
+        >
+          Accept
+        </Button>
+      ) : null}
+    </HStack>
   ) : null
 
   if (isCard) {
@@ -203,6 +273,7 @@ export function QuoteCard({
         <Text fontSize="sm" color="text.default" lineHeight="tall">
           {body}
         </Text>
+        {availabilityChip}
         {respondedLabel ? (
           <Text fontSize="xs" color="text.muted" fontWeight={500}>
             {respondedLabel}
@@ -273,6 +344,7 @@ export function QuoteCard({
       <Text fontSize="sm" color="text.default" lineHeight="tall">
         {body}
       </Text>
+      {availabilityChip}
       {actionBlock}
     </Stack>
   )
@@ -297,7 +369,7 @@ function VerifiedBadge() {
   )
 }
 
-function QuoteCardAvatar({
+export function QuoteCardAvatar({
   name,
   avatarLabel,
   avatarUrl,
@@ -308,6 +380,11 @@ function QuoteCardAvatar({
   avatarUrl?: string | null
   size?: string
 }) {
+  // Broken/forbidden image URLs (e.g. object-storage 403) fall back to
+  // initials instead of a blank circle with a broken-image glyph.
+  const [imageFailed, setImageFailed] = useState(false)
+  const showImage = Boolean(avatarUrl?.trim()) && !imageFailed
+
   return (
     <Box
       flexShrink={0}
@@ -324,13 +401,14 @@ function QuoteCardAvatar({
       letterSpacing="0.02em"
       overflow="hidden"
     >
-      {avatarUrl ? (
+      {showImage && avatarUrl ? (
         <Image
           src={avatarUrl}
           alt={`${name} avatar`}
           w="full"
           h="full"
           objectFit="cover"
+          onError={() => setImageFailed(true)}
         />
       ) : (
         avatarLabel.slice(0, 2).toUpperCase()

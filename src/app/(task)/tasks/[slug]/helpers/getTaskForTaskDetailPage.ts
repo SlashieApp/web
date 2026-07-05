@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import { cache } from 'react'
 
 import type { TaskCoreQuery } from '@codegen/schema'
@@ -9,35 +8,28 @@ import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
 
 import { taskQueryVariables } from './taskQueryVariables'
 
-const AUTH_COOKIE = 'auth'
-
-/** Server-rendered task fields (everything except the client-fetched quotes list). */
+/** Server-rendered PUBLIC task meta (see TaskCore.gql). */
 export type TaskCoreRecord = NonNullable<TaskCoreQuery['task']>
 
 export type TaskPageData = {
   task: TaskCoreRecord | null
-  order: TaskCoreRecord['orders'][number] | null
 }
 
+/**
+ * Public task meta for SSR. Deliberately auth-free: no cookies() and a
+ * minimal field selection, so the API responds fast and the same payload
+ * serves every viewer. Viewer-scoped data (orders, timeline, contact) is
+ * fetched client-side by TaskDetailProvider where the response also confirms
+ * the viewer's state.
+ */
 export const getTaskForTaskDetailPage = cache(
   async (taskId: string): Promise<TaskPageData> => {
-    const cookieStore = await cookies()
-    const token = cookieStore.get(AUTH_COOKIE)?.value ?? ''
-
     const json = await fetch<TaskCoreQuery>({
       query: TaskCore,
       variables: taskQueryVariables(taskId),
-      authToken: token,
     })
 
     const notFound = isGraphqlTaskNotFound(json?.errors)
-    const task = notFound ? null : (json?.data?.task ?? null)
-
-    return {
-      task,
-      // `orders` is a list now; the detail UI is single-order, so take the first
-      // (a worker only ever gets their own; a poster's first is the primary order).
-      order: task?.orders?.[0] ?? null,
-    }
+    return { task: notFound ? null : (json?.data?.task ?? null) }
   },
 )

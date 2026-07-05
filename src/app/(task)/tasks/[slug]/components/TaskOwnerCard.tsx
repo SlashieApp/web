@@ -1,7 +1,6 @@
 'use client'
 
 import { Box, HStack, Heading, Image } from '@chakra-ui/react'
-import { LuUserRound } from 'react-icons/lu'
 
 import { Card } from '@ui'
 
@@ -29,7 +28,7 @@ export function TaskOwnerCard() {
       .join('') || 'TO'
 
   return (
-    <Card layout="section" icon={<LuUserRound />} heading="Task owner">
+    <Card layout="section" heading="Task owner">
       <HStack align="center" gap={3} w="full">
         <Box
           flexShrink={0}

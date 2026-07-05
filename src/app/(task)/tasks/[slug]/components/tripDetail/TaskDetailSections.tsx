@@ -1,6 +1,5 @@
 'use client'
 
-import type { OrderItem } from '@/utils/orderHelpers'
 import { Stack } from '@chakra-ui/react'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -17,16 +16,12 @@ import { TrustCard } from './openTask/TrustCard'
  * mobile renders them as the Info and Quotes tabs.
  */
 
-export function TaskInfoSections({
-  order,
-}: {
-  order: OrderItem | null | undefined
-}) {
+export function TaskInfoSections() {
   const { permissions } = useTaskDetail()
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
       {/* "Your booking" section (active order / closed); null otherwise. */}
-      <BookingSection order={order} />
+      <BookingSection />
       <TaskDetailsCard />
       {permissions.isOwner ? null : <TaskOwnerCard />}
       <PhotosCard />

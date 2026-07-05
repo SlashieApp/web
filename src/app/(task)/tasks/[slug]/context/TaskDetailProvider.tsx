@@ -10,6 +10,7 @@ import type {
   MeQuery,
   TaskCoreQuery,
   TaskQuotesQuery,
+  TaskViewerQuery,
 } from '@codegen/schema'
 import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
@@ -33,8 +34,8 @@ import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
 import CompleteOrderWithVerification from '@/app/(task)/tasks/[slug]/graphql/CompleteOrderWithVerification.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
-import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
 import TaskQuotes from '@/app/(task)/tasks/[slug]/graphql/TaskQuotes.gql'
+import TaskViewer from '@/app/(task)/tasks/[slug]/graphql/TaskViewer.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
@@ -69,15 +70,14 @@ const EMPTY_QUOTES: NonNullable<TaskQuotesQuery['task']>['quotes'] = []
 
 type TaskDetailProviderProps = {
   taskId: string
+  /** Public task meta from the auth-free SSR TaskCore query. */
   initialTask: TaskCoreQuery['task'] | null
-  initialOrder: NonNullable<TaskCoreQuery['task']>['orders'][number] | null
   children: React.ReactNode
 }
 
 export function TaskDetailProvider({
   taskId,
   initialTask,
-  initialOrder,
   children,
 }: TaskDetailProviderProps) {
   const router = useRouter()
@@ -126,22 +126,35 @@ export function TaskDetailProvider({
     [getUser, isAuthenticated],
   )
 
-  const myOrderFromInitial = (initialOrder ?? null) as OrderItem | null
-
-  const shouldPollLiveOrder = Boolean(
-    isAuthenticated &&
-      myOrderFromInitial &&
-      !isOrderClosed(myOrderFromInitial.status),
-  )
-
-  const { data: liveTaskData, loading: liveTaskLoading } =
-    useQuery<TaskCoreQuery>(TaskCore, {
+  // Viewer-scoped task data (orders, timeline, contact, exact address, live
+  // status): fetched client-side with the auth token AFTER the public SSR
+  // shell paints, so the API confirms the viewer's state before any
+  // state-dependent UI renders. Guests skip it — their viewer fields are the
+  // redacted fallbacks by definition. Polls while an order is live.
+  const { data: viewerData, loading: viewerLoadingRaw } =
+    useQuery<TaskViewerQuery>(TaskViewer, {
       variables: taskQueryVariables(taskId),
-      skip: !shouldPollLiveOrder,
-      pollInterval: shouldPollLiveOrder ? ORDER_POLL_MS : 0,
+      skip: !isAuthenticated,
       fetchPolicy: 'cache-and-network',
       notifyOnNetworkStatusChange: true,
     })
+  const viewerTask = viewerData?.task ?? null
+  const viewerLoading = Boolean(
+    isAuthenticated && viewerLoadingRaw && !viewerTask,
+  )
+  const viewerLoaded = !isAuthenticated || Boolean(viewerTask)
+
+  const liveOrder = (viewerTask?.orders?.[0] ?? null) as OrderItem | null
+  const shouldPollLiveOrder = Boolean(
+    isAuthenticated && liveOrder && !isOrderClosed(liveOrder.status),
+  )
+  useQuery<TaskViewerQuery>(TaskViewer, {
+    variables: taskQueryVariables(taskId),
+    skip: !shouldPollLiveOrder,
+    pollInterval: ORDER_POLL_MS,
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: false,
+  })
 
   // Heavy quotes list: fetched client-side after the SSR shell paints, so it
   // streams in (with a skeleton) instead of blocking the server render.
@@ -152,17 +165,40 @@ export function TaskDetailProvider({
       notifyOnNetworkStatusChange: true,
     })
 
-  const baseTask = liveTaskData?.task ?? initialTask ?? null
   const quotes = quotesData?.task?.quotes ?? EMPTY_QUOTES
   const quotesLoading = Boolean(quotesLoadingRaw && !quotesData?.task)
-  const task = useMemo<TaskDetailRecord | null>(
-    () => (baseTask ? ({ ...baseTask, quotes } as TaskDetailRecord) : null),
-    [baseTask, quotes],
-  )
-  const myOrder = (task?.orders?.[0] ?? myOrderFromInitial) as OrderItem | null
-  const orderLoading = Boolean(
-    shouldPollLiveOrder && liveTaskLoading && !liveTaskData,
-  )
+
+  // Merge: public SSR meta + viewer-scoped fields (redacted fallbacks until
+  // the viewer response lands) + client quotes.
+  const task = useMemo<TaskDetailRecord | null>(() => {
+    if (!initialTask) return null
+    return {
+      ...initialTask,
+      status: viewerTask?.status ?? initialTask.status,
+      quotes,
+      timeline: viewerTask?.timeline ?? [],
+      orders: viewerTask?.orders ?? [],
+      location:
+        viewerTask?.location ??
+        (initialTask.location
+          ? { ...initialTask.location, address: null }
+          : null),
+      poster:
+        viewerTask?.poster ??
+        (initialTask.poster
+          ? {
+              ...initialTask.poster,
+              email: null,
+              profile: initialTask.poster.profile
+                ? { ...initialTask.poster.profile, contactNumber: null }
+                : null,
+            }
+          : null),
+    } as TaskDetailRecord
+  }, [initialTask, viewerTask, quotes])
+
+  const myOrder = liveOrder
+  const orderLoading = viewerLoading
 
   const myQuote = useMemo(() => {
     if (!me || !task) return null
@@ -543,12 +579,21 @@ export function TaskDetailProvider({
     })
   }, [])
 
+  // State-dependent surfaces (status header copy, hero CTA, booking panel)
+  // should show loading placeholders until this is true — before that the
+  // permission flags are guest-shaped defaults, not the confirmed viewer state.
+  const statusReady = Boolean(
+    viewerLoaded && !quotesLoading && (!isAuthenticated || !meLoadingResolved),
+  )
+
   const value = useMemo(
     () => ({
       permissions,
       task,
       myOrder,
       orderLoading,
+      viewerLoading,
+      statusReady,
       quotesLoading,
       me,
       meLoading: meLoadingResolved,
@@ -591,6 +636,8 @@ export function TaskDetailProvider({
       task,
       myOrder,
       orderLoading,
+      viewerLoading,
+      statusReady,
       quotesLoading,
       me,
       meLoadingResolved,

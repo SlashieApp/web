@@ -1,6 +1,5 @@
 'use client'
 
-import type { OrderItem } from '@/utils/orderHelpers'
 import { Box, Grid } from '@chakra-ui/react'
 import { useRef } from 'react'
 
@@ -12,17 +11,13 @@ import { TaskInfoSections, TaskQuoteSections } from '../TaskDetailSections'
 import { OpenTaskHeader } from './OpenTaskHeader'
 import { TaskDetailMapBackground } from './TaskDetailMapBackground'
 
-type TaskDetailViewProps = {
-  order: OrderItem | null | undefined
-}
-
 /**
  * Single desktop layout for a task detail, used for EVERY status (open, awarded
  * "job in progress", closed, cancelled). Each section branches on `permissions`
  * internally; `StatePanel` swaps the primary content per state. Desktop-only —
  * mobile is handled by `TaskDetailMobile`.
  */
-export function TaskDetailView({ order }: TaskDetailViewProps) {
+export function TaskDetailView() {
   // Collapse is driven by the app-shell content pane resolved from this root,
   // not the window (which never scrolls in the (task) layout). Snap to compact
   // the moment scrolling starts, and only expand back at the very top
@@ -61,7 +56,7 @@ export function TaskDetailView({ order }: TaskDetailViewProps) {
               alignItems="start"
             >
               {/* Left column = mobile Info tab; right = mobile Quotes tab. */}
-              <TaskInfoSections order={order} />
+              <TaskInfoSections />
               <TaskQuoteSections />
             </Grid>
           </Box>

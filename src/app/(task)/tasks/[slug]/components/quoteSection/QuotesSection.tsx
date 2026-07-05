@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 
 import { HStack, Heading, NativeSelect, Stack, Text } from '@chakra-ui/react'
-import { LuMessagesSquare } from 'react-icons/lu'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { priceToPence } from '@/utils/price'
@@ -205,7 +204,6 @@ export function QuotesSection() {
       <Card
         layout="section"
         id="owner-quotes"
-        icon={<LuMessagesSquare />}
         header={
           <HStack
             justify="space-between"
@@ -284,11 +282,7 @@ export function QuotesSection() {
 
   if (showWorkerJobBanner) {
     return (
-      <Card
-        layout="section"
-        icon={<LuMessagesSquare />}
-        heading="Your accepted quote"
-      >
+      <Card layout="section" heading="Your accepted quote">
         <Text fontSize="sm" color="text.muted">
           You are booked on this job. Use the panel below to enter the
           customer&apos;s completion code when work is done.
@@ -365,7 +359,6 @@ export function QuotesSection() {
   return (
     <Card
       layout="section"
-      icon={<LuMessagesSquare />}
       header={
         <Stack gap={1}>
           <QuotesHeading count={n} />

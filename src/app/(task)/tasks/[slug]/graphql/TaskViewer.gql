@@ -1,0 +1,46 @@
+#import "../../../../(dashboard)/earnings/graphql/orderFields.gql"
+
+# Viewer-scoped task data, fetched CLIENT-side with the auth token after the
+# public TaskCore shell has painted. Everything here varies by viewer:
+# - `status` refreshes live task state (SSR value may be stale mid-booking).
+# - `location.address` / poster email + contactNumber are redacted by the API
+#   unless the viewer is the poster or the accepted worker.
+# - `timeline` is participant-only (empty for guests).
+# - `orders`: poster sees all, a worker sees only their own, guests none.
+query TaskViewer($id: ID!) {
+  task(id: $id) {
+    id
+    status
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    poster {
+      id
+      email
+      profile {
+        name
+        avatarUrl
+        contactNumber
+      }
+    }
+    timeline {
+      type
+      timestamp
+      actor {
+        id
+        profile {
+          name
+          avatarUrl
+        }
+      }
+      data
+    }
+    orders {
+      ...OrderFields
+      completionVerificationCode
+    }
+  }
+}

@@ -20,7 +20,7 @@ export function TrustCard() {
       heading={
         isOwner
           ? 'You pay the worker directly'
-          : "You pay the customer's agreed price directly"
+          : 'You get paid by the customer directly'
       }
       linkLabel="How payments work"
       linkHref="#how-payments-work"

@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { LuArrowLeft, LuEllipsisVertical } from 'react-icons/lu'
@@ -56,7 +56,8 @@ function CollapsibleRow({
  */
 export function OpenTaskHeader() {
   const router = useRouter()
-  const { task, myQuote, isAuthenticated, permissions } = useTaskDetail()
+  const { task, myQuote, isAuthenticated, permissions, statusReady } =
+    useTaskDetail()
   const collapsed = useTaskDetailHeaderCollapsed()
 
   if (!task) return null
@@ -160,7 +161,7 @@ export function OpenTaskHeader() {
             pointerEvents="none"
             {...collapseTransition}
           >
-            {copy.headline}
+            {statusReady ? copy.headline : ''}
           </Text>
 
           <Box pointerEvents="auto" flexShrink={0}>
@@ -193,37 +194,52 @@ export function OpenTaskHeader() {
           {...collapseTransition}
         />
 
-        <Stack gap={collapsed ? 0 : 3} w="full" maxW={{ md: '2xl' }}>
-          <CollapsibleRow collapsed={collapsed}>
-            <StatusPill status={copy.pill} size="lg" />
-          </CollapsibleRow>
+        {statusReady ? (
+          <Stack
+            gap={collapsed ? 0 : 3}
+            w="full"
+            maxW={{ md: '2xl' }}
+            animation={`rise-in 0.35s ${sdlMotion.easing.decelerate}`}
+          >
+            <CollapsibleRow collapsed={collapsed}>
+              <StatusPill status={copy.pill} size="lg" />
+            </CollapsibleRow>
 
-          {/* Expanded hero headline — collapses away as its compact twin on the
-              row above fades in. */}
-          <CollapsibleRow collapsed={collapsed}>
-            <Heading
-              as="h1"
-              fontFamily="heading"
-              fontSize={{ base: '24px', md: '28px' }}
-              fontWeight={600}
-              lineHeight="1.2"
-              color="gray.900"
-              textShadow={heroTextShadow}
-            >
-              {copy.headline}
-            </Heading>
-          </CollapsibleRow>
+            {/* Expanded hero headline — collapses away as its compact twin on
+                the row above fades in. */}
+            <CollapsibleRow collapsed={collapsed}>
+              <Heading
+                as="h1"
+                fontFamily="heading"
+                fontSize={{ base: '24px', md: '28px' }}
+                fontWeight={600}
+                lineHeight="1.2"
+                color="gray.900"
+                textShadow={heroTextShadow}
+              >
+                {copy.headline}
+              </Heading>
+            </CollapsibleRow>
 
-          <CollapsibleRow collapsed={collapsed}>
-            <Text
-              fontSize={{ base: 'md', md: 'lg' }}
-              color="gray.700"
-              textShadow={heroTextShadow}
-            >
-              {copy.subtext}
-            </Text>
-          </CollapsibleRow>
-        </Stack>
+            <CollapsibleRow collapsed={collapsed}>
+              <Text
+                fontSize={{ base: 'md', md: 'lg' }}
+                color="gray.700"
+                textShadow={heroTextShadow}
+              >
+                {copy.subtext}
+              </Text>
+            </CollapsibleRow>
+          </Stack>
+        ) : (
+          // Viewer state unconfirmed — placeholder lines instead of guessing
+          // the status copy (which previously flashed the wrong state).
+          <Stack gap={3} w="full" maxW={{ md: '2xl' }} aria-busy>
+            <Skeleton h="28px" w="92px" borderRadius="full" />
+            <Skeleton h="30px" w="min(340px, 75%)" borderRadius="md" />
+            <Skeleton h="18px" w="min(420px, 90%)" borderRadius="md" />
+          </Stack>
+        )}
       </Box>
     </Box>
   )

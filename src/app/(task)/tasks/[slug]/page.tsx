@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 
 import { Box } from '@chakra-ui/react'
 
-import { Footer } from '@ui'
-
-import { TaskTripDetail } from './components/tripDetail'
+import { TaskNotFoundCard } from './components/TaskNotFoundCard'
+import { TaskDetailMobile } from './components/tripDetail/TaskDetailMobile'
+import { TaskDetailView } from './components/tripDetail/openTask/TaskDetailView'
+import { TaskDetailProvider } from './context/TaskDetailProvider'
 import { getTaskForTaskDetailPage } from './helpers/getTaskForTaskDetailPage'
 
 function absoluteUrlFromEnv(pathOrUrl: string): string {
@@ -60,19 +61,30 @@ export async function generateMetadata({
   }
 }
 
+/**
+ * Task detail page. The page owns the whole composition: the SSR-fetched
+ * public task meta seeds `TaskDetailProvider` (viewer/quotes stream in
+ * client-side), and the two form-factor views render as direct children —
+ * CSS-gated so the server HTML paints the correct layout at any width.
+ */
 export default async function TaskDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const { task, order } = await getTaskForTaskDetailPage(slug)
+  const { task } = await getTaskForTaskDetailPage(slug)
 
-  if (!task) return null
+  if (!task) return <TaskNotFoundCard />
 
   return (
-    <>
-      <TaskTripDetail order={order} />
-    </>
+    <TaskDetailProvider taskId={slug} initialTask={task}>
+      <Box display={{ base: 'block', lg: 'none' }}>
+        <TaskDetailMobile />
+      </Box>
+      <Box display={{ base: 'none', lg: 'block' }}>
+        <TaskDetailView />
+      </Box>
+    </TaskDetailProvider>
   )
 }

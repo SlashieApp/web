@@ -5,18 +5,34 @@ import { Box } from '@chakra-ui/react'
 import type { Decorator } from '@storybook/nextjs-vite'
 import { type ReactNode, useEffect } from 'react'
 
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client/core'
+import { NEVER } from 'rxjs'
+
 import { useUserStore } from '@/app/(auth)/store/user'
 import Me from '@/graphql/Me.gql'
-import { apolloClient } from '@/utils/apolloClient'
 import { clearAuthToken, setAuthToken } from '@/utils/auth'
 
 import { TaskDetailProvider } from '../context/TaskDetailProvider'
+import TaskQuotes from '../graphql/TaskQuotes.gql'
+import TaskViewer from '../graphql/TaskViewer.gql'
 import {
   STORY_TASK_ID,
   type TaskDetailStoryConfig,
   defaultTaskDetailStoryConfig,
   storyMe,
 } from './taskDetailStoryFixtures'
+
+/**
+ * Story-only Apollo client: all data comes from the seeded cache and network
+ * requests never resolve. Using the real app client would hit the live API,
+ * whose UNAUTHENTICATED response for the fake story token makes the error
+ * link clear the auth cookie — collapsing every authed story to the
+ * visitor state.
+ */
+const apolloClient = new ApolloClient({
+  link: new ApolloLink(() => NEVER),
+  cache: new InMemoryCache(),
+})
 
 function TaskDetailStorySeed({
   config,
@@ -26,8 +42,95 @@ function TaskDetailStorySeed({
   children: ReactNode
 }) {
   const { viewer, task, order } = config
+  const taskId = task?.id ?? STORY_TASK_ID
 
   useEffect(() => {
+    // Client-fetched slices now come from Apollo — seed the cache so the
+    // provider's TaskQuotes/TaskViewer queries resolve from story fixtures.
+    // Every selected field + __typename must be present or the cache read
+    // misses and the story renders the unloaded fallbacks.
+    if (task) {
+      apolloClient.writeQuery({
+        query: TaskQuotes,
+        variables: { id: taskId },
+        data: {
+          task: {
+            __typename: 'Task',
+            id: task.id,
+            quotes: task.quotes.map((q) => ({
+              __typename: 'Quote',
+              estimatedDuration: null,
+              ...q,
+              price: q.price ? { __typename: 'Price', ...q.price } : null,
+              worker: q.worker
+                ? {
+                    __typename: 'User',
+                    ...q.worker,
+                    profile: { __typename: 'Profile', ...q.worker.profile },
+                    worker: q.worker.worker
+                      ? { __typename: 'Worker', ...q.worker.worker }
+                      : null,
+                  }
+                : q.worker,
+            })),
+          },
+        },
+      })
+      apolloClient.writeQuery({
+        query: TaskViewer,
+        variables: { id: taskId },
+        data: {
+          task: {
+            __typename: 'Task',
+            id: task.id,
+            status: task.status,
+            location: task.location
+              ? { __typename: 'TaskLocation', ...task.location }
+              : null,
+            poster: task.poster
+              ? {
+                  __typename: 'User',
+                  ...task.poster,
+                  profile: {
+                    __typename: 'Profile',
+                    contactNumber: null,
+                    ...task.poster.profile,
+                  },
+                }
+              : null,
+            timeline: (task.timeline ?? []).map((e) => ({
+              __typename: 'TaskTimelineEvent',
+              ...e,
+              actor: {
+                __typename: 'User',
+                ...e.actor,
+                profile: { __typename: 'Profile', ...e.actor.profile },
+              },
+            })),
+            orders: (order ? [order] : (task.orders ?? [])).map((o) => ({
+              __typename: 'Order',
+              ...o,
+              agreedPrice: o.agreedPrice
+                ? { __typename: 'OrderAgreedPrice', ...o.agreedPrice }
+                : o.agreedPrice,
+              snapshot: o.snapshot
+                ? {
+                    __typename: 'OrderSnapshot',
+                    ...o.snapshot,
+                    location: o.snapshot.location
+                      ? { __typename: 'TaskLocation', ...o.snapshot.location }
+                      : o.snapshot.location,
+                    datetime: o.snapshot.datetime
+                      ? { __typename: 'TaskDatetime', ...o.snapshot.datetime }
+                      : null,
+                  }
+                : o.snapshot,
+            })),
+          },
+        },
+      })
+    }
+
     if (viewer === 'visitor') {
       clearAuthToken()
       useUserStore.getState().setMe(null)
@@ -41,6 +144,11 @@ function TaskDetailStorySeed({
     )
     useUserStore.getState().setMe(me)
     useUserStore.getState().setUser({ id: me.id, email: me.email })
+    // The real getUser() hits the live API, fails on the fake story token,
+    // and clears the auth cookie — stub it to keep the seeded session.
+    useUserStore.setState({
+      getUser: async () => useUserStore.getState().user,
+    })
     apolloClient.writeQuery({ query: Me, data: { me } })
 
     return () => {
@@ -48,14 +156,10 @@ function TaskDetailStorySeed({
       useUserStore.getState().setMe(null)
       useUserStore.getState().setUser(null)
     }
-  }, [viewer])
+  }, [viewer, task, order, taskId])
 
   return (
-    <TaskDetailProvider
-      taskId={task?.id ?? STORY_TASK_ID}
-      initialTask={task ?? null}
-      initialOrder={order ?? null}
-    >
+    <TaskDetailProvider taskId={taskId} initialTask={task ?? null}>
       {children}
     </TaskDetailProvider>
   )

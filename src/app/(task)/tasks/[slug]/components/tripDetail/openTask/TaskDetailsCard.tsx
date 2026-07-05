@@ -3,7 +3,6 @@
 import { HStack, Stack } from '@chakra-ui/react'
 import {
   LuCalendar,
-  LuClipboardList,
   LuEye,
   LuMapPin,
   LuPoundSterling,
@@ -49,7 +48,7 @@ export function TaskDetailsCard() {
   const viewsLabel = taskDetailViewsLabel(task, permissions.isOwner)
 
   return (
-    <Card layout="section" icon={<LuClipboardList />} heading="Task details">
+    <Card layout="section" heading="Task details">
       <Stack gap={0}>
         <DetailRow
           icon={<LuWrench />}

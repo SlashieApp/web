@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react'
 import { OrderStatus, QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
@@ -9,29 +10,45 @@ import {
   storyTaskOrder,
   storyTaskQuote,
 } from '../../helpers/taskDetailStoryFixtures'
-import { TaskTripDetail } from './TaskTripDetail'
+import { TaskDetailMobile } from './TaskDetailMobile'
+import { TaskDetailView } from './openTask/TaskDetailView'
+
+/**
+ * Mirror of the page-level composition (`tasks/[slug]/page.tsx` renders the
+ * two form-factor views CSS-gated as direct children of the provider).
+ */
+function TaskTripDetailPreview() {
+  return (
+    <>
+      <Box display={{ base: 'block', lg: 'none' }}>
+        <TaskDetailMobile />
+      </Box>
+      <Box display={{ base: 'none', lg: 'block' }}>
+        <TaskDetailView />
+      </Box>
+    </>
+  )
+}
 
 const meta = {
   title: 'task/TaskTripDetail',
-  component: TaskTripDetail,
+  component: TaskTripDetailPreview,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
-} satisfies Meta<typeof TaskTripDetail>
+} satisfies Meta<typeof TaskTripDetailPreview>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * One story per state-matrix case. Each wires the SAME fixture task/order into the
- * mocked TaskDetailProvider (decorator) and the component props, so the rendered
+ * One story per state-matrix case. The decorator seeds the fixture task into
+ * the provider (and the order/quotes into the Apollo cache), so the rendered
  * hero matches the seeded permission flags.
  */
 function tripStory(config: TaskDetailStoryConfig): Story {
-  const order = config.order ?? null
   return {
-    args: { order },
     decorators: [withTaskDetailStory(config)],
-    render: () => <TaskTripDetail order={order} />,
+    render: () => <TaskTripDetailPreview />,
   }
 }
 

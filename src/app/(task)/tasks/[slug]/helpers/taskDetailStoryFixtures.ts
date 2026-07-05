@@ -208,6 +208,9 @@ export function storyMe(
             tasksCompletedCount: 42,
             locationAddress: 'London',
             profile: { name: 'Jordan Lee' },
+            // Required by isWorkerSetupComplete — without it worker stories
+            // collapse into the "set up worker profile" state.
+            setupProgress: { isComplete: true },
           }
         : null,
   }

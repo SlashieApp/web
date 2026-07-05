@@ -12,6 +12,13 @@ export type TaskDetailData = {
   task: TaskDetailRecord | null
   myOrder: OrderItem | null
   orderLoading: boolean
+  /** Viewer-scoped task data (orders/timeline/contact) is loading. */
+  viewerLoading: boolean
+  /**
+   * True once the viewer's state is CONFIRMED (viewer + quotes + me resolved).
+   * Status-dependent UI should render loading placeholders until then.
+   */
+  statusReady: boolean
   /** The quotes list is fetched client-side after SSR; true during its first load. */
   quotesLoading: boolean
   me: MeQuery['me'] | null

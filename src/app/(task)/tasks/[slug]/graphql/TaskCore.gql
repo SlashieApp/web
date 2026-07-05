@@ -1,14 +1,8 @@
-#import "../../../../(dashboard)/earnings/graphql/orderFields.gql"
-
-# Core task fields for the detail page: everything EXCEPT the heavy `quotes`
-# list (fetched client-side via TaskQuotes.gql). Server-rendered for SEO + the
-# immediately-needed panels.
-#
-# - Poster phone/email come via `poster` (User); the API redacts them for
-#   non-accepted viewers, and the UI gates display on the accepted worker.
-# - Status timestamps come from `timeline` (participant-only; empty for guests).
-# - `orders` is a list: poster sees all orders, a worker sees only their own,
-#   guests get an empty array.
+# PUBLIC task meta only — the fast, auth-free SSR query behind the task detail
+# shell (title, images, budget, approximate location, poster identity). Viewer-
+# scoped data (orders, timeline, contact details, exact address, live status)
+# is fetched client-side via TaskViewer.gql; the heavy quotes list via
+# TaskQuotes.gql. Keeping this selection minimal keeps SSR TTFB low.
 query TaskCore($id: ID!) {
   task(id: $id) {
     id
@@ -33,32 +27,13 @@ query TaskCore($id: ID!) {
       lat
       lng
       name
-      address
     }
     poster {
       id
-      email
       profile {
         name
         avatarUrl
-        contactNumber
       }
-    }
-    timeline {
-      type
-      timestamp
-      actor {
-        id
-        profile {
-          name
-          avatarUrl
-        }
-      }
-      data
-    }
-    orders {
-      ...OrderFields
-      completionVerificationCode
     }
   }
 }

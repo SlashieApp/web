@@ -12,15 +12,31 @@ import {
 import { formatBudgetAmount, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { QuoteStatus, TaskTimelineEventType } from '@codegen/schema'
-import type { TaskCoreQuery, TaskQuotesQuery } from '@codegen/schema'
+import type {
+  TaskCoreQuery,
+  TaskQuotesQuery,
+  TaskViewerQuery,
+} from '@codegen/schema'
 import { mapTaskStatus } from './mapTaskStatus'
 
+export type TaskCoreRecord = NonNullable<TaskCoreQuery['task']>
+export type TaskViewerRecord = NonNullable<TaskViewerQuery['task']>
+
 /**
- * The merged task the detail context exposes: server-rendered core fields
- * (TaskCore) plus the client-fetched quotes list (TaskQuotes).
+ * The merged task the detail context exposes:
+ * - PUBLIC meta server-rendered via TaskCore (fast, auth-free SSR),
+ * - viewer-scoped fields (orders, timeline, contact, exact address, live
+ *   status) fetched client-side via TaskViewer,
+ * - the heavy quotes list fetched client-side via TaskQuotes.
+ * Until the viewer query resolves, viewer fields carry their redacted/guest
+ * fallbacks (empty orders/timeline, null contact + address).
  */
-export type TaskDetailRecord = NonNullable<TaskCoreQuery['task']> & {
+export type TaskDetailRecord = Omit<TaskCoreRecord, 'location' | 'poster'> & {
   quotes: NonNullable<TaskQuotesQuery['task']>['quotes']
+  location: TaskViewerRecord['location']
+  poster: TaskViewerRecord['poster']
+  timeline: TaskViewerRecord['timeline']
+  orders: TaskViewerRecord['orders']
 }
 
 /**
@@ -200,6 +216,22 @@ export function averageHoursToQuotes(task: TaskDetailRecord): number | null {
 export function formatAvgResponseHours(hours: number): string {
   if (hours < 24) return `${Math.max(1, Math.round(hours))}h`
   return `${Math.max(1, Math.round(hours / 24))}d`
+}
+
+/**
+ * Split a quote message into its body and the "Availability: X" line the
+ * quote flow appends — the availability renders as a chip on quote cards.
+ */
+export function splitQuoteMessageAvailability(
+  message: string | null | undefined,
+): { body: string | null; availability: string | null } {
+  const trimmed = message?.trim()
+  if (!trimmed) return { body: null, availability: null }
+  const match = trimmed.match(/(?:^|\n)\s*Availability:\s*(.+?)\s*$/i)
+  if (!match) return { body: trimmed, availability: null }
+  const availability = match[1]?.trim() || null
+  const body = trimmed.replace(match[0], '').trim() || null
+  return { body, availability }
 }
 
 /** Relative “Responded … ago” line for quote cards (from `quote.createdAt`). */

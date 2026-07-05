@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 
 import { Box } from '@chakra-ui/react'
 
+import { TaskNotFoundCard } from '../components/TaskNotFoundCard'
+import { TaskDetailProvider } from '../context/TaskDetailProvider'
 import { getTaskForTaskDetailPage } from '../helpers/getTaskForTaskDetailPage'
 import { TaskQuoteFlow } from './components/TaskQuoteFlow'
 
@@ -51,10 +53,21 @@ export async function generateMetadata({
   }
 }
 
-export default function TaskQuotePage() {
+export default async function TaskQuotePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+  const { task } = await getTaskForTaskDetailPage(slug)
+
+  if (!task) return <TaskNotFoundCard />
+
   return (
-    <Box minH="100dvh" display="flex" flexDirection="column">
-      <TaskQuoteFlow />
-    </Box>
+    <TaskDetailProvider taskId={slug} initialTask={task}>
+      <Box minH="100dvh" display="flex" flexDirection="column">
+        <TaskQuoteFlow />
+      </Box>
+    </TaskDetailProvider>
   )
 }

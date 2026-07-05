@@ -1,7 +1,7 @@
 import {
   type MyOrdersQuery,
   OrderStatus,
-  type TaskCoreQuery,
+  type TaskViewerQuery,
 } from '@codegen/schema'
 
 import { formatPounds } from '@/utils/dashboardHelpers'
@@ -11,7 +11,8 @@ import {
   scheduleChipForTask,
 } from '@/utils/taskJobSchedule'
 
-export type OrderItem = NonNullable<TaskCoreQuery['task']>['orders'][number]
+/** Detail-page order shape (client-fetched via TaskViewer.gql). */
+export type OrderItem = NonNullable<TaskViewerQuery['task']>['orders'][number]
 
 export type MyOrdersListItem = NonNullable<
   NonNullable<MyOrdersQuery['me']>['orders']

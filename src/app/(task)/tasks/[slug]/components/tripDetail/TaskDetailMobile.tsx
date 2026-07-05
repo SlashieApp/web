@@ -1,7 +1,6 @@
 'use client'
 
-import type { OrderItem } from '@/utils/orderHelpers'
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, Skeleton, Stack } from '@chakra-ui/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { LuShare2 } from 'react-icons/lu'
 
@@ -18,10 +17,6 @@ import {
 import { TaskInfoSections, TaskQuoteSections } from './TaskDetailSections'
 import { useShareTask } from './openTask/shareTask'
 
-type TaskDetailMobileProps = {
-  order: OrderItem | null | undefined
-}
-
 const TAB_INFO = 'info'
 const TAB_QUOTES = 'quotes'
 
@@ -36,8 +31,8 @@ function readHashTab(): string | null {
  * above Info / Quotes tabs. Tab content reuses the same section components as the
  * desktop layout. Presentation only.
  */
-export function TaskDetailMobile({ order }: TaskDetailMobileProps) {
-  const { task, permissions } = useTaskDetail()
+export function TaskDetailMobile() {
+  const { task, permissions, statusReady } = useTaskDetail()
   const onShare = useShareTask(task?.title?.trim() || 'Task')
 
   // Collapse once the map hero has largely scrolled away, resolved from the
@@ -67,8 +62,12 @@ export function TaskDetailMobile({ order }: TaskDetailMobileProps) {
   const quoteFlowHref = `/tasks/${task.id}/quote`
 
   // Pinned primary CTA for OPEN states (booking states use the banner below).
+  // Held as a skeleton until the viewer state is confirmed — the CTA choice
+  // (share vs quote vs none) is exactly the state that used to flash wrong.
   let heroCta: React.ReactNode = null
-  if (permissions.isOwner && permissions.isOpen) {
+  if (!statusReady) {
+    heroCta = <Skeleton h="48px" w="full" borderRadius="md" />
+  } else if (permissions.isOwner && permissions.isOpen) {
     heroCta = (
       <Button variant="primary" w="full" onClick={() => void onShare()}>
         <LuShare2 />
@@ -114,7 +113,7 @@ export function TaskDetailMobile({ order }: TaskDetailMobileProps) {
           ]}
         >
           <Tabs.Panel value={TAB_INFO}>
-            <TaskInfoSections order={order} />
+            <TaskInfoSections />
           </Tabs.Panel>
 
           <Tabs.Panel value={TAB_QUOTES}>
