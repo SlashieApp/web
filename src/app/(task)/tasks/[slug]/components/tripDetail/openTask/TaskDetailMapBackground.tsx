@@ -3,7 +3,9 @@
 import { Box } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef } from 'react'
 
+import { sdlMotion } from '@/theme/styles'
 import { useColorMode } from '@/ui/color-mode'
+import { whenElementHasLayout } from '@/utils/whenElementHasLayout'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 import { useTaskDetailHeaderCollapsed } from '../../../helpers/taskDetailHeaderCollapse'
@@ -49,6 +51,7 @@ export function TaskDetailMapBackground() {
   const mapNodeRef = useRef<HTMLDivElement | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const routeRequestedRef = useRef(false)
+  const layoutCleanupRef = useRef<(() => void) | null>(null)
 
   const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN?.trim()
   const coords = task ? taskDetailMapCoordinates(task, myOrder) : null
@@ -112,6 +115,8 @@ export function TaskDetailMapBackground() {
     (node: HTMLDivElement | null) => {
       resizeObserverRef.current?.disconnect()
       resizeObserverRef.current = null
+      layoutCleanupRef.current?.()
+      layoutCleanupRef.current = null
       mapNodeRef.current = node
       routeRequestedRef.current = false
 
@@ -119,28 +124,32 @@ export function TaskDetailMapBackground() {
       controllerRef.current = null
       if (!node || !token || lat == null || lng == null) return
 
-      const mapPadding = desktopMapPadding(
-        node.offsetWidth,
-        node.offsetHeight,
-        variant,
-      )
-      controllerRef.current = createTaskLocationMapController({
-        container: node,
-        accessToken: token,
-        lat,
-        lng,
-        variant,
-        themeMode: colorModeRef.current === 'dark' ? 'dark' : 'light',
-        viewPadding: mapPadding,
-        onMapReady: requestRouteFromViewer,
-        pinTask,
-      })
+      // Both form-factor views mount (CSS display gating) — only build the
+      // map (WebGL, tiles, geolocation, Directions) once this one has layout.
+      layoutCleanupRef.current = whenElementHasLayout(node, () => {
+        const mapPadding = desktopMapPadding(
+          node.offsetWidth,
+          node.offsetHeight,
+          variant,
+        )
+        controllerRef.current = createTaskLocationMapController({
+          container: node,
+          accessToken: token,
+          lat,
+          lng,
+          variant,
+          themeMode: colorModeRef.current === 'dark' ? 'dark' : 'light',
+          viewPadding: mapPadding,
+          onMapReady: requestRouteFromViewer,
+          pinTask,
+        })
 
-      if (typeof ResizeObserver !== 'undefined') {
-        const observer = new ResizeObserver(() => syncPinPadding())
-        observer.observe(node)
-        resizeObserverRef.current = observer
-      }
+        if (typeof ResizeObserver !== 'undefined') {
+          const observer = new ResizeObserver(() => syncPinPadding())
+          observer.observe(node)
+          resizeObserverRef.current = observer
+        }
+      })
     },
     [token, lat, lng, variant, pinTask, syncPinPadding, requestRouteFromViewer],
   )
@@ -157,10 +166,11 @@ export function TaskDetailMapBackground() {
       overflow="hidden"
       display={{ base: 'none', lg: 'block' }}
       aria-hidden
+      opacity={collapsed ? 0 : 1}
       pointerEvents={collapsed ? 'none' : 'auto'}
-      // Continuous scroll-driven fade — tracks the header's collapse progress
-      // so a mid-scroll rest keeps the map partially visible (no snap).
-      style={{ opacity: 'calc(1 - var(--task-collapse, 0))' }}
+      transitionProperty="opacity"
+      transitionDuration={sdlMotion.duration.map}
+      transitionTimingFunction={sdlMotion.easing.standard}
       css={{
         background: 'linear-gradient(135deg, #EEF3F0 0%, #DCE6E0 100%)',
       }}

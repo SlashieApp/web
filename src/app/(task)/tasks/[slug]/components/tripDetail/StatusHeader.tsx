@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { useMemo } from 'react'
 
 import { sdlMotion } from '@/theme/styles'
 import { StatusPill } from '@ui'
@@ -10,7 +11,9 @@ import {
   taskDetailMapCoordinates,
   taskDetailShowsExactLocation,
 } from '../../helpers/taskDetailUtils'
+import { buildTaskDetailMapPinTask } from '../../helpers/taskLocationMap'
 import { Reveal } from './Reveal'
+import { TaskHeaderControls } from './TaskHeaderControls'
 import { TaskLocationHeroMap } from './openTask/TaskLocationHeroMap'
 import { selectStatusHeaderCopy } from './statusHeaderCopy'
 
@@ -22,8 +25,39 @@ const heroTextShadow = '0 1px 2px rgba(255, 255, 255, 0.75)'
  * StatusPill overlaid on a legibility scrim.
  */
 export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
-  const { permissions, myQuote, isAuthenticated, task, myOrder, statusReady } =
-    useTaskDetail()
+  const {
+    permissions,
+    myQuote,
+    isAuthenticated,
+    task,
+    myOrder,
+    me,
+    statusReady,
+  } = useTaskDetail()
+
+  const coords = task ? taskDetailMapCoordinates(task, myOrder) : null
+  const showExact = taskDetailShowsExactLocation({
+    myOrder,
+    showFullAddress: permissions.showFullAddress,
+  })
+  const lat = coords?.lat
+  const lng = coords?.lng
+
+  // Same interactive treatment as the desktop map background: expanded price
+  // pin + route-from-viewer when the exact location is shared. Memoized so the
+  // map-mounting callback ref in TaskLocationHeroMap keeps a stable identity —
+  // a fresh object here would tear down and recreate the Mapbox instance on
+  // every re-render (e.g. each collapse flip while scrolling).
+  const pinTask = useMemo(() => {
+    if (!task || !showExact || lat == null || lng == null) return undefined
+    return buildTaskDetailMapPinTask(
+      task,
+      { lat, lng },
+      permissions.isOwner ? 'owner' : 'visitor',
+      me?.id,
+    )
+  }, [task, showExact, lat, lng, permissions.isOwner, me?.id])
+
   if (!task) return null
 
   const { pill, headline, subtext } = selectStatusHeaderCopy({
@@ -31,12 +65,6 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
     myQuote,
     isAuthenticated,
     task,
-  })
-
-  const coords = taskDetailMapCoordinates(task, myOrder)
-  const showExact = taskDetailShowsExactLocation({
-    myOrder,
-    showFullAddress: permissions.showFullAddress,
   })
   const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
@@ -46,9 +74,16 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
       lat={coords?.lat}
       lng={coords?.lng}
       variant={showExact ? 'exact' : 'approximate'}
+      enableRoute={showExact}
+      pinTask={pinTask}
       hideMap={collapsed}
       minH={{ base: '260px', md: '300px' }}
     >
+      {/* Back · overflow controls over the map, matching the desktop header.
+          Hidden (incl. tab order) once the compact sticky bar — which carries
+          its own pair — takes over on scroll. */}
+      <TaskHeaderControls overlay hidden={collapsed} />
+
       <Box flex={1} />
       {statusReady ? (
         <Reveal speed="slow">
@@ -65,14 +100,14 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
                 fontSize={{ base: '24px', md: '28px' }}
                 fontWeight={600}
                 lineHeight="1.2"
-                color="gray.900"
+                color="text.default"
                 textShadow={heroTextShadow}
               >
                 {headline}
               </Heading>
               <Text
                 fontSize={{ base: 'md', md: 'lg' }}
-                color="gray.700"
+                color="text.muted"
                 textShadow={heroTextShadow}
               >
                 {subtext}

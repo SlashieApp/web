@@ -1,14 +1,11 @@
 'use client'
 
-import { Box, HStack, Text } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { LuArrowLeft, LuEllipsisVertical } from 'react-icons/lu'
+import { Box, Text } from '@chakra-ui/react'
 
 import { sdlMotion } from '@/theme/styles'
-import { Dropdown, IconButton } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { TaskOverflowMenu } from './TaskOverflowMenu'
+import { TaskHeaderControls } from './TaskHeaderControls'
 import { selectStatusHeaderCopy } from './statusHeaderCopy'
 
 /** Height of the collapsed bar — the mobile tab strip sticks directly below it. */
@@ -25,7 +22,6 @@ export function TaskDetailMobileCollapsedHeader({
 }: {
   collapsed: boolean
 }) {
-  const router = useRouter()
   const { task, myQuote, isAuthenticated, permissions } = useTaskDetail()
 
   if (!task) return null
@@ -54,54 +50,35 @@ export function TaskDetailMobileCollapsedHeader({
         px={4}
         opacity={collapsed ? 1 : 0}
         transform={collapsed ? 'translateY(0)' : 'translateY(-100%)'}
+        // visibility (not just pointer-events) so the off-screen bar's
+        // controls also leave the tab order — the hero carries the visible
+        // pair while expanded.
+        visibility={collapsed ? 'visible' : 'hidden'}
         pointerEvents={collapsed ? 'auto' : 'none'}
-        transitionProperty="opacity, transform"
+        transitionProperty="opacity, transform, visibility"
         transitionDuration={sdlMotion.duration.base}
         transitionTimingFunction={sdlMotion.easing.standard}
       >
-        <HStack
-          gap={2}
-          align="center"
+        <Box
+          display="flex"
+          alignItems="center"
           minH={MOBILE_COLLAPSED_HEADER_H}
           w="full"
         >
-          <IconButton
-            type="button"
-            variant="ghost"
-            aria-label="Go back"
-            flexShrink={0}
-            onClick={() => router.back()}
-          >
-            <LuArrowLeft />
-          </IconButton>
-          <Text
-            as="span"
-            flex="1"
-            minW={0}
-            fontWeight={600}
-            fontSize="md"
-            color="text.default"
-            truncate
-          >
-            {headline}
-          </Text>
-          <Dropdown
-            contentLabel="Task options"
-            align="end"
-            trigger={
-              <IconButton
-                type="button"
-                variant="ghost"
-                aria-label="Task options"
-                flexShrink={0}
-              >
-                <LuEllipsisVertical />
-              </IconButton>
-            }
-          >
-            <TaskOverflowMenu />
-          </Dropdown>
-        </HStack>
+          <TaskHeaderControls showBackLabel={false}>
+            <Text
+              as="span"
+              flex="1"
+              minW={0}
+              fontWeight={600}
+              fontSize="md"
+              color="text.default"
+              truncate
+            >
+              {headline}
+            </Text>
+          </TaskHeaderControls>
+        </Box>
       </Box>
     </Box>
   )

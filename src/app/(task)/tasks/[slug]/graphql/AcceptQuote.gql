@@ -1,13 +1,49 @@
-#import "../../../../(dashboard)/earnings/graphql/orderFields.gql"
-
 mutation AcceptQuote($quoteId: ID, $input: AcceptQuoteInput) {
   acceptQuote(quoteId: $quoteId, input: $input) {
     task {
       id
       status
     }
+    # Order selection deliberately inlined (task-detail documents stay
+    # self-contained instead of importing another feature's fragment). KEEP IN
+    # SYNC with OrderFields (src/app/(dashboard)/earnings/graphql/orderFields.gql)
+    # and the other task-detail copies — divergent selections on the same
+    # normalized Order cause Apollo cache merge gaps.
     order {
-      ...OrderFields
+      id
+      taskId
+      quoteId
+      customerUserId
+      workerUserId
+      status
+      agreedPrice {
+        amount
+        currency
+      }
+      snapshot {
+        title
+        description
+        category
+        location {
+          lat
+          lng
+          name
+          address
+        }
+        datetime {
+          date
+          time
+          type
+        }
+        contactMethod
+        quoteMessage
+        budgetAmount
+        paymentMethod
+      }
+      createdAt
+      workCompletedAt
+      workerPaymentAcknowledgedAt
+      closedAt
     }
   }
 }

@@ -1,11 +1,7 @@
 import { HStack, Text, type TextProps } from '@chakra-ui/react'
+import NextLink from 'next/link'
 
-import { Button, Link } from '@ui'
-
-const authButtonLinkProps = {
-  _hover: { textDecoration: 'none' },
-  flexShrink: 0,
-} as const
+import { Button } from '@ui'
 
 export function HeaderToolbarSeparator(props: Omit<TextProps, 'children'>) {
   return (
@@ -22,22 +18,11 @@ export function HeaderToolbarSeparator(props: Omit<TextProps, 'children'>) {
   )
 }
 
-function HeaderAuthButton({
-  href,
-  children,
-}: {
-  href: string
-  children: string
-}) {
-  return (
-    <Link href={href} {...authButtonLinkProps}>
-      <Button size="sm" variant="ghost" px={2}>
-        {children}
-      </Button>
-    </Link>
-  )
-}
-
+/**
+ * Guest auth actions, styled to match the marketing header: ghost Log in +
+ * green primary Sign up CTA. Rendered as single <a> elements via Button
+ * asChild (a <button> inside an <a> is invalid HTML and double-focuses).
+ */
 export function HeaderGuestAuthButtons({
   loginHref,
   signupHref,
@@ -47,13 +32,17 @@ export function HeaderGuestAuthButtons({
 }) {
   return (
     <HStack
-      gap={0}
+      gap={2}
       align="center"
       flexShrink={0}
       display={{ base: 'none', sm: 'flex' }}
     >
-      <HeaderAuthButton href={loginHref}>Log in</HeaderAuthButton>
-      <HeaderAuthButton href={signupHref}>Sign up</HeaderAuthButton>
+      <Button asChild size="sm" variant="ghost" px={2}>
+        <NextLink href={loginHref}>Log in</NextLink>
+      </Button>
+      <Button asChild size="sm" variant="primary">
+        <NextLink href={signupHref}>Sign up</NextLink>
+      </Button>
     </HStack>
   )
 }

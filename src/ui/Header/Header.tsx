@@ -1,6 +1,7 @@
 'use client'
 
 import { Badge, Box, type BoxProps, HStack, Stack } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
@@ -30,33 +31,32 @@ import { HEADER_MIN_HEIGHT, HEADER_PADDING_X } from './headerShell'
 
 export { HEADER_MIN_HEIGHT } from './headerShell'
 
+/**
+ * Header actions match the marketing header: ghost secondary + green primary
+ * CTA, rendered as single <a> elements via Button asChild (a <button> inside
+ * an <a> is invalid HTML and double-focuses).
+ */
 function GetAppButton() {
   return (
-    <Link
-      href={GET_APP_HREF}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Button
+      asChild
+      size="sm"
+      variant="ghost"
       display={{ base: 'none', md: 'inline-flex' }}
-      _hover={{ textDecoration: 'none' }}
       flexShrink={0}
     >
-      <Button size="sm" variant="outline">
+      <a href={GET_APP_HREF} target="_blank" rel="noopener noreferrer">
         Get app
-      </Button>
-    </Link>
+      </a>
+    </Button>
   )
 }
 
 function PostTaskHeaderButton() {
   return (
-    <Link
-      href="/tasks/create"
-      display="inline-flex"
-      _hover={{ textDecoration: 'none' }}
-      flexShrink={0}
-    >
-      <Button size="sm">Post a task</Button>
-    </Link>
+    <Button asChild size="sm" variant="primary" flexShrink={0}>
+      <NextLink href="/tasks/create">Post a task</NextLink>
+    </Button>
   )
 }
 

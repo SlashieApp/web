@@ -1,9 +1,101 @@
-#import "./fragments/TaskDetailClientFields.gql"
-
-# Client-side task detail init: viewer-scoped fields + quotes (replaces TaskViewer +
-# TaskQuotes). Merged with SSR TaskCore in TaskDetailProvider.
+# Client-side task detail init: viewer-scoped fields + quotes. Merged with SSR
+# TaskCore in TaskDetailProvider.
 query Task($id: ID!) {
   task(id: $id) {
-    ...TaskDetailClientFields
+    id
+    status
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    poster {
+      id
+      email
+      profile {
+        name
+        avatarUrl
+        contactNumber
+      }
+    }
+    timeline {
+      type
+      timestamp
+      actor {
+        id
+        profile {
+          name
+          avatarUrl
+        }
+      }
+      data
+    }
+    # Order selection deliberately inlined. KEEP IN SYNC with OrderFields
+    # (src/app/(dashboard)/earnings/graphql/orderFields.gql) and the other
+    # task-detail copies (AcceptQuote, CompleteOrderWithVerification) —
+    # divergent selections on the same normalized Order cause cache merge gaps.
+    orders {
+      id
+      taskId
+      quoteId
+      customerUserId
+      workerUserId
+      status
+      agreedPrice {
+        amount
+        currency
+      }
+      snapshot {
+        title
+        description
+        category
+        location {
+          lat
+          lng
+          name
+          address
+        }
+        datetime {
+          date
+          time
+          type
+        }
+        contactMethod
+        quoteMessage
+        budgetAmount
+        paymentMethod
+      }
+      createdAt
+      workCompletedAt
+      workerPaymentAcknowledgedAt
+      closedAt
+      completionVerificationCode
+    }
+    # KEEP IN SYNC with the quotes selection in TaskForEdit.gql.
+    quotes {
+      id
+      taskId
+      workerUserId
+      estimatedDuration
+      price {
+        currency
+        amount
+      }
+      message
+      status
+      createdAt
+      worker {
+        id
+        profile {
+          name
+          avatarUrl
+        }
+        worker {
+          id
+          isVerified
+        }
+      }
+    }
   }
 }

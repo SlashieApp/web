@@ -1,12 +1,37 @@
-#import "./fragments/TaskCoreFields.gql"
-
 # PUBLIC task meta only — the fast, auth-free SSR query behind the task detail
 # shell (title, images, budget, approximate location, poster identity). Viewer-
-# scoped data (orders, timeline, contact details, exact address, live status)
-# and quotes are fetched client-side via Task.gql. Keeping this selection
-# minimal keeps SSR TTFB low.
+# scoped data and quotes are fetched client-side via Task.gql.
 query TaskCore($id: ID!) {
   task(id: $id) {
-    ...TaskCoreFields
+    id
+    title
+    description
+    category
+    views
+    budget {
+      amount
+      currency
+      type
+      paymentMethod
+    }
+    datetime {
+      date
+      time
+      type
+    }
+    images
+    status
+    location {
+      lat
+      lng
+      name
+    }
+    poster {
+      id
+      profile {
+        name
+        avatarUrl
+      }
+    }
   }
 }

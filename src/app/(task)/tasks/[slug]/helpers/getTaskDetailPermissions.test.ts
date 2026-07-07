@@ -10,6 +10,14 @@ import type { TaskDetailRecord } from './taskDetailUtils'
 const OWNER_ID = 'owner-1'
 const WORKER_ID = 'worker-1'
 
+// Quote eligibility requires COMPLETED worker onboarding (isWorkerSetupComplete
+// checks worker.setupProgress.isComplete), not just a worker row.
+const workerMe = () =>
+  ({
+    id: WORKER_ID,
+    worker: { id: WORKER_ID, setupProgress: { isComplete: true } },
+  }) as never
+
 function baseTask(overrides: Partial<TaskDetailRecord> = {}): TaskDetailRecord {
   return {
     id: 'task-1',
@@ -74,7 +82,7 @@ describe('getTaskDetailPermissions', () => {
     const permissions = getTaskDetailPermissions({
       task: baseTask({ status: TaskStatus.Open }),
       myOrder: null,
-      me: { id: WORKER_ID, worker: { id: WORKER_ID } } as never,
+      me: workerMe(),
       myQuote: null,
       isAuthenticated: true,
     })
@@ -96,7 +104,7 @@ describe('getTaskDetailPermissions', () => {
     const permissions = getTaskDetailPermissions({
       task: baseTask({ status: TaskStatus.Open }),
       myOrder: null,
-      me: { id: WORKER_ID, worker: { id: WORKER_ID } } as never,
+      me: workerMe(),
       myQuote,
       isAuthenticated: true,
     })
@@ -109,7 +117,7 @@ describe('getTaskDetailPermissions', () => {
     const permissions = getTaskDetailPermissions({
       task: baseTask({ status: TaskStatus.QuoteAccepted }),
       myOrder: baseOrder(),
-      me: { id: WORKER_ID, worker: { id: WORKER_ID } } as never,
+      me: workerMe(),
       myQuote: null,
       isAuthenticated: true,
     })
@@ -154,7 +162,7 @@ describe('getTaskDetailPermissions', () => {
     const permissions = getTaskDetailPermissions({
       task: baseTask({ status: TaskStatus.Open }),
       myOrder: null,
-      me: { id: WORKER_ID, worker: { id: WORKER_ID } } as never,
+      me: workerMe(),
       myQuote: null,
       isAuthenticated: true,
       atCap: true,

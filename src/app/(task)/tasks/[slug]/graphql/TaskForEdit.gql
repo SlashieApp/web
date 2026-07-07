@@ -1,8 +1,61 @@
-#import "./fragments/TaskForEditFields.gql"
-
 # Full editable task + quotes (edit page, cap calculations).
 query TaskForEdit($id: ID!) {
   task(id: $id) {
-    ...TaskForEditFields
+    id
+    title
+    description
+    category
+    views
+    budget {
+      amount
+      currency
+      type
+      paymentMethod
+    }
+    datetime {
+      date
+      time
+      type
+    }
+    images
+    status
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    poster {
+      id
+      profile {
+        name
+        avatarUrl
+      }
+    }
+    # KEEP IN SYNC with the quotes selection in Task.gql.
+    quotes {
+      id
+      taskId
+      workerUserId
+      estimatedDuration
+      price {
+        currency
+        amount
+      }
+      message
+      status
+      createdAt
+      worker {
+        id
+        profile {
+          name
+          avatarUrl
+        }
+        worker {
+          id
+          isVerified
+        }
+      }
+    }
   }
 }

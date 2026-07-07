@@ -1,5 +1,0 @@
-fragment TaskDatetimeFields on TaskDateTime {
-  date
-  time
-  type
-}

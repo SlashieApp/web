@@ -1,8 +1,0 @@
-#import "./TaskPosterProfilePublicFields.gql"
-
-fragment TaskPosterPublicFields on User {
-  id
-  profile {
-    ...TaskPosterProfilePublicFields
-  }
-}
