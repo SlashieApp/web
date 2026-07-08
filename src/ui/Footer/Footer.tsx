@@ -9,6 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 
+import { COMPANY_REGISTRATION_LINE } from '@/content/legal/company'
 import { sdlMotion } from '@/theme/styles'
 import { Link, Logo } from '@ui'
 
@@ -45,6 +46,7 @@ const navLinks = [
 const legalLinks = [
   { label: 'Terms', href: '/terms' },
   { label: 'Privacy', href: '/privacy' },
+  { label: 'Cookies', href: '/cookies' },
 ] as const
 
 const linkMotion = {
@@ -87,16 +89,21 @@ export function Footer({
     >
       <Container maxW="6xl" px={{ base: 4, md: 6 }}>
         {variant === 'minimal' ? (
-          <HStack
-            justify="space-between"
-            flexWrap="wrap"
-            gap={4}
-            fontSize="sm"
-            color="text.muted"
-          >
-            <Text>{copyright}</Text>
-            {legalRow}
-          </HStack>
+          <Stack gap={3}>
+            <HStack
+              justify="space-between"
+              flexWrap="wrap"
+              gap={4}
+              fontSize="sm"
+              color="text.muted"
+            >
+              <Text>{copyright}</Text>
+              {legalRow}
+            </HStack>
+            <Text fontSize="xs" color="text.muted">
+              {COMPANY_REGISTRATION_LINE}
+            </Text>
+          </Stack>
         ) : (
           <Stack gap={8}>
             <HStack
@@ -127,16 +134,21 @@ export function Footer({
                 ))}
               </HStack>
             </HStack>
-            <HStack
-              justify="space-between"
-              flexWrap="wrap"
-              gap={4}
-              fontSize="sm"
-              color="text.muted"
-            >
-              <Text>{copyright}</Text>
-              {legalRow}
-            </HStack>
+            <Stack gap={3}>
+              <HStack
+                justify="space-between"
+                flexWrap="wrap"
+                gap={4}
+                fontSize="sm"
+                color="text.muted"
+              >
+                <Text>{copyright}</Text>
+                {legalRow}
+              </HStack>
+              <Text fontSize="xs" color="text.muted">
+                {COMPANY_REGISTRATION_LINE}
+              </Text>
+            </Stack>
           </Stack>
         )}
       </Container>

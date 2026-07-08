@@ -4,7 +4,7 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 
-import { Button, DashboardSectionNav, Header, Link } from '@ui'
+import { Button, DashboardSectionNav, Footer, Header, Link } from '@ui'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
@@ -135,13 +135,18 @@ export function AccountShell({ children }: AccountShellProps) {
           minW={0}
           minH={0}
           overflowY="auto"
+          display="flex"
+          flexDirection="column"
           px={{ base: 4, md: 6, xl: 8 }}
           py={{ base: 5, md: 6 }}
           pb={{ base: 5, lg: 8 }}
         >
-          <Box w="full" maxW="1200px">
+          <Box w="full" maxW="1200px" flex="1">
             {children}
           </Box>
+          {/* Legal strip stays inside the scroll container: the shell itself
+              never scrolls, so the footer surfaces at the end of the content. */}
+          <Footer variant="minimal" mt={{ base: 8, md: 10 }} bg="transparent" />
         </Box>
       </Box>
     </Box>

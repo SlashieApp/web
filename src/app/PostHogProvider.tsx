@@ -1,9 +1,14 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
-import { capture, getPostHog, initPostHogClient } from '@/utils/analytics'
+import {
+  capture,
+  getPostHog,
+  initPostHogClient,
+  onCookieConsentChange,
+} from '@/utils/analytics'
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -11,9 +16,21 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   const lastPathRef = useRef<string | null>(null)
 
   if (!initializedRef.current) {
+    // No-op until the visitor has accepted analytics cookies (PECR gate
+    // lives inside initPostHogClient).
     initPostHogClient()
     initializedRef.current = true
   }
+
+  // If consent is granted after load (banner "Accept all"), start PostHog
+  // immediately; queued pre-decision events flush inside init.
+  useEffect(
+    () =>
+      onCookieConsentChange((value) => {
+        if (value === 'accepted') initPostHogClient()
+      }),
+    [],
+  )
 
   if (pathname && pathname !== lastPathRef.current) {
     const previousPath = lastPathRef.current

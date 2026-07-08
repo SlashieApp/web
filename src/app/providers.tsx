@@ -8,6 +8,7 @@ import { AnalyticsErrorBoundary } from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { AppToastHost } from '@/utils/appToast'
 
+import { CookieConsentBanner } from './CookieConsentBanner'
 import { PostHogProvider } from './PostHogProvider'
 import { ThemeProvider } from './ThemeProvider'
 
@@ -20,6 +21,7 @@ export function Providers({ children }: { children: ReactNode }) {
             <AnalyticsErrorBoundary>
               <AppToastHost />
               {children}
+              <CookieConsentBanner />
             </AnalyticsErrorBoundary>
           </NotificationsProvider>
         </PostHogProvider>

@@ -10,6 +10,7 @@ export const registerFormSchema = z
       .email('Enter a valid email.'),
     password: z.string().min(8, 'Use at least 8 characters.'),
     confirmPassword: z.string(),
+    isOver18: z.boolean(),
     agreedToTerms: z.boolean(),
   })
   .superRefine((data, ctx) => {
@@ -18,6 +19,13 @@ export const registerFormSchema = z
         code: z.ZodIssueCode.custom,
         message: 'Passwords do not match.',
         path: ['confirmPassword'],
+      })
+    }
+    if (!data.isOver18) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'You must confirm you are 18 or over to use Slashie.',
+        path: ['isOver18'],
       })
     }
     if (!data.agreedToTerms) {

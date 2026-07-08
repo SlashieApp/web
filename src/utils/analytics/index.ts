@@ -12,6 +12,12 @@ export {
   resolveTaskDetailViewerRole,
 } from './task-detail-view'
 export { captureWorkerProfileView } from './worker-profile-view'
+export {
+  COOKIE_CONSENT_STORAGE_KEY,
+  getCookieConsent,
+  onCookieConsentChange,
+  setCookieConsent,
+} from './consent'
 export { EVENTS } from './events'
 export {
   getPostHog,
@@ -40,3 +46,4 @@ export type {
   CaptureWorkerProfileViewInput,
   WorkerProfileViewSource,
 } from './worker-profile-view'
+export type { CookieConsentStatus, CookieConsentValue } from './consent'

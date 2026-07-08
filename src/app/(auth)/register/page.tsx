@@ -11,9 +11,14 @@ import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
+import type { Control } from 'react-hook-form'
+
 import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
 import Register from '@/app/(auth)/register/graphql/Register.gql'
-import { registerFormSchema } from '@/app/(auth)/register/registerFormSchema'
+import {
+  type RegisterFormValues,
+  registerFormSchema,
+} from '@/app/(auth)/register/registerFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { setAuthToken } from '@/utils/auth'
@@ -108,6 +113,71 @@ function PasswordToggleButton({
     >
       <IconEye open={!visible} />
     </IconButton>
+  )
+}
+
+/**
+ * Required consent checkbox (18+ confirmation, Terms/Privacy agreement).
+ * Renders unticked; the zod schema blocks submission until checked.
+ */
+function ConsentCheckboxField({
+  control,
+  name,
+  label,
+  errorText,
+}: {
+  control: Control<RegisterFormValues>
+  name: 'isOver18' | 'agreedToTerms'
+  label: ReactNode
+  errorText?: string
+}) {
+  return (
+    <Stack gap={1}>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field: { value, onChange, ref, name: fieldName } }) => (
+          <Checkbox.Root
+            name={fieldName}
+            ref={ref}
+            checked={value}
+            onCheckedChange={(detail) => onChange(Boolean(detail.checked))}
+            colorPalette="blue"
+          >
+            <Checkbox.HiddenInput />
+            <HStack gap={3} align="flex-start">
+              <Checkbox.Control
+                mt={0.5}
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="border.default"
+                bg="bg.surface"
+                _checked={{
+                  bg: 'action.primary',
+                  borderColor: 'action.primary',
+                  color: 'text.onGreen',
+                }}
+              >
+                <Checkbox.Indicator color="inherit" />
+              </Checkbox.Control>
+              <Checkbox.Label
+                fontSize="sm"
+                fontWeight={500}
+                color="text.default"
+                lineHeight="1.5"
+              >
+                {label}
+              </Checkbox.Label>
+            </HStack>
+          </Checkbox.Root>
+        )}
+      />
+      {errorText ? (
+        <Text color="status.danger.fg" fontSize="sm">
+          {errorText}
+        </Text>
+      ) : null}
+    </Stack>
   )
 }
 
@@ -276,6 +346,7 @@ export default function RegisterPage() {
       email: '',
       password: '',
       confirmPassword: '',
+      isOver18: false,
       agreedToTerms: false,
     },
   })
@@ -477,71 +548,41 @@ export default function RegisterPage() {
                     </FormField>
                   </HStack>
 
-                  <Stack gap={1}>
-                    <Controller
-                      name="agreedToTerms"
+                  <Stack gap={3}>
+                    <ConsentCheckboxField
                       control={control}
-                      render={({ field: { value, onChange, ref, name } }) => (
-                        <Checkbox.Root
-                          name={name}
-                          ref={ref}
-                          checked={value}
-                          onCheckedChange={(detail) =>
-                            onChange(Boolean(detail.checked))
-                          }
-                          colorPalette="blue"
-                        >
-                          <Checkbox.HiddenInput />
-                          <HStack gap={3} align="flex-start">
-                            <Checkbox.Control
-                              mt={0.5}
-                              borderRadius="md"
-                              borderWidth="1px"
-                              borderColor="border.default"
-                              bg="bg.surface"
-                              _checked={{
-                                bg: 'action.primary',
-                                borderColor: 'action.primary',
-                                color: 'text.onGreen',
-                              }}
-                            >
-                              <Checkbox.Indicator color="inherit" />
-                            </Checkbox.Control>
-                            <Checkbox.Label
-                              fontSize="sm"
-                              fontWeight={500}
-                              color="text.default"
-                              lineHeight="1.5"
-                            >
-                              I agree to the{' '}
-                              <Link
-                                href="/terms"
-                                fontWeight={700}
-                                color="text.link"
-                                _hover={{ color: 'status.success.fg' }}
-                              >
-                                Terms of Service
-                              </Link>{' '}
-                              and{' '}
-                              <Link
-                                href="/privacy"
-                                fontWeight={700}
-                                color="text.link"
-                                _hover={{ color: 'status.success.fg' }}
-                              >
-                                Privacy Policy
-                              </Link>
-                              .
-                            </Checkbox.Label>
-                          </HStack>
-                        </Checkbox.Root>
-                      )}
+                      name="isOver18"
+                      errorText={errors.isOver18?.message}
+                      label="I confirm I am 18 or over."
                     />
-                    {errors.agreedToTerms?.message ? (
-                      <Text color="status.danger.fg" fontSize="sm">
-                        {errors.agreedToTerms.message}
-                      </Text>
-                    ) : null}
+                    <ConsentCheckboxField
+                      control={control}
+                      name="agreedToTerms"
+                      errorText={errors.agreedToTerms?.message}
+                      label={
+                        <>
+                          I agree to the{' '}
+                          <Link
+                            href="/terms"
+                            fontWeight={700}
+                            color="text.link"
+                            _hover={{ color: 'status.success.fg' }}
+                          >
+                            Terms of Service
+                          </Link>{' '}
+                          and{' '}
+                          <Link
+                            href="/privacy"
+                            fontWeight={700}
+                            color="text.link"
+                            _hover={{ color: 'status.success.fg' }}
+                          >
+                            Privacy Policy
+                          </Link>
+                          .
+                        </>
+                      }
+                    />
                   </Stack>
 
                   {serverError ? (

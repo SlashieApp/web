@@ -1,20 +1,30 @@
 import posthog from 'posthog-js'
 
+import { getCookieConsent } from './consent'
+
 type QueuedCapture = {
   event: string
   properties?: Record<string, unknown>
 }
 
+// Events captured before a consent decision wait here; they flush on accept
+// and are dropped on reject. Bounded so an undecided session can't grow it
+// indefinitely.
+const MAX_QUEUED_CAPTURES = 50
 const queuedCaptures: QueuedCapture[] = []
-let initAttempted = false
+let initialized = false
 
 export function isPostHogConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY?.trim())
 }
 
 export function initPostHogClient(): void {
-  if (typeof window === 'undefined' || initAttempted) return
-  initAttempted = true
+  if (typeof window === 'undefined' || initialized) return
+
+  // PECR/UK GDPR: analytics cookies are non-essential. PostHog must not
+  // start (and set its ph_* cookies) until the visitor accepts them via the
+  // cookie banner. Undecided or rejected -> stay uninitialised.
+  if (getCookieConsent() !== 'accepted') return
 
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY?.trim()
   if (!key) return
@@ -27,6 +37,7 @@ export function initPostHogClient(): void {
     capture_exceptions: true,
     persistence: 'localStorage+cookie',
   })
+  initialized = true
 
   for (const item of queuedCaptures) {
     posthog.capture(item.event, item.properties)
@@ -37,7 +48,7 @@ export function initPostHogClient(): void {
 export function getPostHog(): typeof posthog | null {
   if (typeof window === 'undefined' || !isPostHogConfigured()) return null
   initPostHogClient()
-  return posthog
+  return initialized ? posthog : null
 }
 
 export function queueCapture(
@@ -50,5 +61,9 @@ export function queueCapture(
     ph.capture(event, properties)
     return
   }
+  // No consent decision yet: hold the event in memory (no cookies are set).
+  // Rejected: drop it — the visitor opted out of analytics.
+  if (getCookieConsent() !== 'unset') return
+  if (queuedCaptures.length >= MAX_QUEUED_CAPTURES) return
   queuedCaptures.push({ event, properties })
 }
