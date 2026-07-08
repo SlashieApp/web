@@ -6,11 +6,12 @@ import {
   PIN_EASE,
   pinMotionEnabled,
 } from './animation'
-import { pinMilesText, pinPriceText } from './content'
+import { pinAvatarInitials, pinMilesText, pinPriceText } from './content'
 import {
   type PinDom,
   type PinVisualState,
   applyPinVisualState,
+  mountPersonAvatarStyles,
   mountPinStaticStyles,
 } from './styles'
 
@@ -18,6 +19,29 @@ export type TaskMapPinHandle = {
   el: HTMLDivElement
   setSelected: (v: boolean) => void
   setExpanded: (v: boolean) => void
+}
+
+/** Avatar chip inside a `person` pin pill: photo when available, else initials. */
+function createPersonAvatarElement(task: TaskMapTask): HTMLSpanElement {
+  const avatar = document.createElement('span')
+  avatar.setAttribute('aria-hidden', 'true')
+  const avatarUrl = task.avatarUrl?.trim()
+  let img: HTMLImageElement | null = null
+  if (avatarUrl) {
+    img = document.createElement('img')
+    img.src = avatarUrl
+    img.alt = ''
+    // A broken avatar URL falls back to initials, matching the no-URL branch.
+    img.addEventListener('error', () => {
+      img?.remove()
+      avatar.textContent = pinAvatarInitials(task)
+    })
+    avatar.appendChild(img)
+  } else {
+    avatar.textContent = pinAvatarInitials(task)
+  }
+  mountPersonAvatarStyles(avatar, img)
+  return avatar
 }
 
 function createPinDom(task: TaskMapTask): PinDom {
@@ -30,7 +54,15 @@ function createPinDom(task: TaskMapTask): PinDom {
   const pinDot = document.createElement('span')
 
   pinDot.setAttribute('aria-hidden', 'true')
-  pricePill.textContent = pinPriceText(task)
+
+  const isPerson = task.pinKind === 'person'
+  if (isPerson) {
+    const pillLabel = document.createElement('span')
+    pillLabel.textContent = pinPriceText(task)
+    pricePill.append(createPersonAvatarElement(task), pillLabel)
+  } else {
+    pricePill.textContent = pinPriceText(task)
+  }
 
   const priceEl = document.createElement('div')
   priceEl.textContent = pinPriceText(task)
@@ -53,6 +85,7 @@ function createPinDom(task: TaskMapTask): PinDom {
     priceEl,
     milesEl,
     pinDot,
+    isPersonPin: isPerson,
   }
 }
 

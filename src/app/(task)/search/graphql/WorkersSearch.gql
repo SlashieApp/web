@@ -1,0 +1,32 @@
+# Worker discovery for the unified /search surface (workers mode).
+# PUBLIC-SAFE FIELDS ONLY (BE-34): approximate preferredLocation coordinates +
+# name, and the computed serviceAreaLabel — never an address, phone, or email.
+# Geo filter comes from the shared map viewport.
+query WorkersSearch($filter: WorkerFilter, $sort: WorkerSort) {
+  workers(filter: $filter, sort: $sort) {
+    id
+    tagline
+    isVerified
+    yearsExperience
+    tasksCompletedCount
+    skills
+    serviceAreaLabel
+    serviceArea {
+      radiusMiles
+    }
+    preferredLocation {
+      name
+      lat
+      lng
+    }
+    user {
+      profile {
+        name
+        avatarUrl
+      }
+    }
+    profile {
+      avatarUrl
+    }
+  }
+}

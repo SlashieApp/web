@@ -1,33 +1,34 @@
-import { Box, Container, Skeleton, Stack } from '@chakra-ui/react'
+import { Box, Container, Grid, Skeleton, Stack } from '@chakra-ui/react'
 
 import { Footer } from '@ui'
 
+/** Skeleton mirroring the v2 layout: hero band + 65/35 two-column body. */
 export default function WorkerProfileLoading() {
   return (
     <>
-      <Box as="section" py={{ base: 6, md: 10 }}>
-        <Container>
-          <Stack gap={6} maxW="3xl" mx="auto" px={{ base: 4, md: 6 }}>
-            <Stack
-              gap={4}
-              p={{ base: 4, md: 6 }}
-              borderRadius="xl"
-              borderWidth="1px"
-              borderColor="border.default"
-              bg="bg.surface"
+      <Box as="section" py={{ base: 5, md: 8 }}>
+        <Container maxW="8xl" px={{ base: 4, md: 8 }}>
+          <Stack gap={{ base: 4, md: 5 }}>
+            <Skeleton h="18px" w="90px" />
+            <HeroSkeleton />
+            <Grid
+              templateColumns={{
+                base: 'minmax(0, 1fr)',
+                lg: 'minmax(0, 65fr) minmax(0, 35fr)',
+              }}
+              gap={{ base: 5, lg: 6 }}
+              alignItems="start"
             >
-              <HStackSkeleton />
-              <Skeleton h="20px" w="40%" />
-              <Skeleton h="16px" w="55%" />
-            </Stack>
-            <SectionSkeleton lines={3} />
-            <Stack gap={3}>
-              <Skeleton h="20px" w="30%" />
-              <Skeleton h="88px" borderRadius="lg" />
-              <Skeleton h="88px" borderRadius="lg" />
-            </Stack>
-            <SectionSkeleton lines={2} />
-            <SectionSkeleton lines={4} />
+              <Stack gap={{ base: 5, lg: 6 }}>
+                <SectionSkeleton lines={3} />
+                <SectionSkeleton lines={2} />
+                <SectionSkeleton lines={4} />
+              </Stack>
+              <Stack gap={5}>
+                <SectionSkeleton lines={3} />
+                <SectionSkeleton lines={2} />
+              </Stack>
+            </Grid>
           </Stack>
         </Container>
       </Box>
@@ -36,18 +37,24 @@ export default function WorkerProfileLoading() {
   )
 }
 
-function HStackSkeleton() {
+function HeroSkeleton() {
   return (
-    <Stack direction={{ base: 'column', md: 'row' }} gap={4} align="flex-start">
-      <Skeleton
-        boxSize={{ base: '72px', md: '88px' }}
-        borderRadius="full"
-        flexShrink={0}
-      />
-      <Stack gap={2} flex={1} w="full">
-        <Skeleton h="12px" w="28%" />
-        <Skeleton h="28px" w="55%" />
-        <Skeleton h="16px" w="45%" />
+    <Stack
+      direction={{ base: 'column', md: 'row' }}
+      gap={{ base: 4, md: 6 }}
+      align="flex-start"
+      p={{ base: 5, md: 8 }}
+      borderRadius="2xl"
+      borderWidth="1px"
+      borderColor="border.default"
+      bg="bg.surface"
+    >
+      <Skeleton boxSize="96px" borderRadius="full" flexShrink={0} />
+      <Stack gap={3} flex={1} w="full">
+        <Skeleton h="30px" w="45%" />
+        <Skeleton h="18px" w="60%" />
+        <Skeleton h="16px" w="70%" />
+        <Skeleton h="16px" w="50%" />
       </Stack>
     </Stack>
   )
@@ -63,7 +70,6 @@ function SectionSkeleton({ lines }: { lines: 2 | 3 | 4 }) {
       borderColor="border.default"
       bg="bg.surface"
     >
-      <Skeleton h="12px" w="20%" />
       <Skeleton h="24px" w="40%" />
       <Skeleton h="16px" w="full" />
       {lines >= 3 ? <Skeleton h="16px" w="full" /> : null}

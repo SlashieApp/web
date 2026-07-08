@@ -1,6 +1,4 @@
-import { Box, Container, Stack, Text } from '@chakra-ui/react'
-
-import { Card, Footer } from '@ui'
+import { notFound } from 'next/navigation'
 
 import { WorkerProfileProvider } from './context/WorkerProfileContext'
 import { getWorkerForPublicPage } from './helpers/getWorkerForPublicPage'
@@ -15,29 +13,7 @@ export default async function WorkerProfileLayout({
   const { slug } = await params
   const { worker } = await getWorkerForPublicPage(slug)
 
-  if (!worker) {
-    return (
-      <>
-        <Box as="section" py={{ base: 8, md: 10 }}>
-          <Container>
-            <Stack gap={8} maxW="3xl" mx="auto" px={{ base: 4, md: 6 }}>
-              <Card
-                layout="section"
-                eyebrow="Worker"
-                heading="Worker not found"
-              >
-                <Text color="text.muted">
-                  This worker profile is not available. It may have been removed
-                  or the link may be incorrect.
-                </Text>
-              </Card>
-            </Stack>
-          </Container>
-        </Box>
-        <Footer />
-      </>
-    )
-  }
+  if (!worker) notFound()
 
   return (
     <WorkerProfileProvider worker={worker}>{children}</WorkerProfileProvider>

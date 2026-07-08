@@ -12,6 +12,7 @@ import type { z } from 'zod'
 import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
 import { loginFormSchema } from '@/app/(auth)/login/loginFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { APP_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -323,7 +324,7 @@ export default function LoginPage() {
     ) {
       return requestedNextPath
     }
-    return '/tasks'
+    return APP_HOME
   }, [authQuery])
   const onMountAuthGuard = useCallback(
     (node: HTMLDivElement | null) => {

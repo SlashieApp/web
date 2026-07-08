@@ -344,7 +344,7 @@ export default function DashboardOverviewPage() {
       key: 'browse',
       title: 'Browse tasks',
       subtitle: 'Find work and send quotes',
-      href: '/tasks',
+      href: '/search',
       kind: 'browse' as const,
     },
     {

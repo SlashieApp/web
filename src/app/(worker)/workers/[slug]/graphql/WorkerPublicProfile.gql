@@ -1,15 +1,48 @@
+# Public worker profile v2 (BE-34 + BE-36 wired). PUBLIC-SAFE FIELDS ONLY:
+# serviceAreaLabel / preferredLocation.name are area-level — never an address
+# (Location.address resolves only for the worker themself). `viewer` is null
+# for anonymous visitors and drives Save / Leave a review / Contact.
 query WorkerPublicProfile($id: ID!) {
   worker(id: $id) {
     id
     bio
     tagline
     isVerified
+    phoneVerified
     yearsExperience
     averageResponseTime
     tasksCompletedCount
+    quotesSentCount
+    memberSince
     legalName
-    location {
+    skills
+    portfolioUrls
+    serviceAreaLabel
+    serviceArea {
+      label
+      radiusMiles
+    }
+    preferredLocation {
       name
+    }
+    ratingSummary {
+      average
+      count
+    }
+    completedJobs {
+      taskId
+      title
+      category
+      areaLabel
+      completedAt
+      rating
+    }
+    viewer {
+      isSaved
+      canLeaveReview
+      contactAction
+      relatedTaskId
+      relatedQuoteId
     }
     user {
       id

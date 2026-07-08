@@ -7,7 +7,6 @@
 
 export type AccountNavKey =
   | 'overview'
-  | 'workers'
   | 'requests'
   | 'quotes'
   | 'earnings'
@@ -29,13 +28,7 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
     href: '/dashboard',
     description: 'Quick links and headline stats for your account.',
   },
-  {
-    key: 'workers',
-    label: 'Workers',
-    href: '/workers',
-    description:
-      'Browse worker profiles before you accept a quote on your tasks.',
-  },
+  // Worker discovery moved out of the dashboard to /search?mode=workers.
   {
     key: 'requests',
     label: 'My Requests',
@@ -80,7 +73,6 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
 
 export function resolveAccountNavKey(pathname: string | null): AccountNavKey {
   const path = pathname ?? ''
-  if (path === '/workers') return 'workers'
   if (path.startsWith('/requests')) return 'requests'
   if (path.startsWith('/quotes')) return 'quotes'
   if (path.startsWith('/earnings')) return 'earnings'

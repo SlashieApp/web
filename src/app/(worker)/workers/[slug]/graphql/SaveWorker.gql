@@ -1,0 +1,8 @@
+mutation SaveWorker($workerId: ID!) {
+  saveWorker(workerId: $workerId) {
+    id
+    viewer {
+      isSaved
+    }
+  }
+}

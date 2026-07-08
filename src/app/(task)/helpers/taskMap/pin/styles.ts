@@ -47,6 +47,41 @@ type PinDom = {
   priceEl: HTMLDivElement
   milesEl: HTMLDivElement
   pinDot: HTMLSpanElement
+  /** True for worker `person` pins (avatar chip pill instead of price pill). */
+  isPersonPin: boolean
+}
+
+const PERSON_AVATAR_PX = 20
+
+/** Round avatar chip inside a `person` pin pill (photo or initials). */
+export function mountPersonAvatarStyles(
+  avatar: HTMLSpanElement,
+  img: HTMLImageElement | null,
+) {
+  Object.assign(avatar.style, {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: '0',
+    width: `${PERSON_AVATAR_PX}px`,
+    height: `${PERSON_AVATAR_PX}px`,
+    borderRadius: '50%',
+    overflow: 'hidden',
+    background: BRAND_PRIMARY_SOFT_BG,
+    color: PIN.green,
+    fontSize: '9px',
+    fontWeight: '800',
+    lineHeight: '1',
+    letterSpacing: '0.02em',
+  })
+  if (img) {
+    Object.assign(img.style, {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      display: 'block',
+    })
+  }
 }
 
 function pinBorder(selected: boolean, expanded: boolean): string {
@@ -171,11 +206,13 @@ export function applyPinVisualState(
   })
 
   Object.assign(dom.pricePill.style, {
-    display: 'inline-block',
+    display: dom.isPersonPin ? 'inline-flex' : 'inline-block',
+    alignItems: dom.isPersonPin ? 'center' : '',
+    gap: dom.isPersonPin ? '6px' : '',
     width: 'max-content',
     maxWidth: 'max-content',
     boxSizing: 'border-box',
-    padding: '5px 12px',
+    padding: dom.isPersonPin ? '4px 12px 4px 5px' : '5px 12px',
     fontSize: '13px',
     fontWeight: '800',
     lineHeight: '1.2',

@@ -52,7 +52,7 @@ export function WorkerRouteChrome({ children }: WorkerRouteChromeProps) {
           order={{ base: 2, md: 1 }}
           w={{ base: 'full', md: 'auto' }}
         >
-          <Dock />
+          {/* <Dock /> */}
         </Box>
       </Box>
     </Box>

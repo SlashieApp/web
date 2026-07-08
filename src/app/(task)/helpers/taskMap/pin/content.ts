@@ -17,7 +17,24 @@ export function pinMilesText(task: TaskMapTask): string {
   return '—'
 }
 
+/** Initials for `person` pin avatar fallback (from the pin title). */
+export function pinAvatarInitials(task: TaskMapTask): string {
+  return (
+    task.title
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase() ?? '')
+      .join('') || 'W'
+  )
+}
+
 /** Stable signature for pin popup content (excluding coordinates). */
 export function taskPinContentSig(task: TaskMapTask): string {
-  return [pinPriceText(task), pinMilesText(task)].join('\x1f')
+  return [
+    pinPriceText(task),
+    pinMilesText(task),
+    task.pinKind ?? 'price',
+    task.avatarUrl ?? '',
+  ].join('\x1f')
 }

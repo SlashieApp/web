@@ -3,7 +3,7 @@
 import { Box, HStack, Stack } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 
-import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
+import { APP_HOME, GET_APP_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 
 import { IconButton } from '../IconButton/IconButton'
 
@@ -125,6 +125,7 @@ function GetAppPhoneIcon() {
 export function Dock() {
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
+  const [currentSearch, setCurrentSearch] = useState('')
 
   /** Chat (`/dashboard/messages`) omitted until the feature is ready. */
   const items: DockItem[] = [
@@ -137,7 +138,7 @@ export function Dock() {
     {
       key: 'workers',
       caption: 'Workers',
-      href: '/workers',
+      href: WORKER_SEARCH_HREF,
       icon: <WorkersIcon />,
     },
     {
@@ -160,6 +161,7 @@ export function Dock() {
       setHasMounted(true)
       if (typeof window !== 'undefined') {
         setCurrentPathname(window.location.pathname)
+        setCurrentSearch(window.location.search)
       }
     },
     [hasMounted],
@@ -168,15 +170,21 @@ export function Dock() {
   const isHrefActive = useCallback(
     (href: string): boolean => {
       if (!currentPathname) return false
+      // /search hosts two dock items split by mode: Discovery (tasks, the
+      // default) and Workers (?mode=workers).
+      const isWorkerMode = currentSearch.includes('mode=workers')
+      if (href === WORKER_SEARCH_HREF) {
+        return currentPathname === APP_HOME && isWorkerMode
+      }
       if (href === APP_HOME) {
         return (
-          currentPathname === APP_HOME ||
+          (currentPathname === APP_HOME && !isWorkerMode) ||
           currentPathname.startsWith(`${APP_HOME}/`)
         )
       }
       return currentPathname === href || currentPathname.startsWith(`${href}/`)
     },
-    [currentPathname],
+    [currentPathname, currentSearch],
   )
 
   return (

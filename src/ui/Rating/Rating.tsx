@@ -37,6 +37,51 @@ const ratingSizes: Record<
   md: { star: 'xs', score: 'sm', gap: 1 },
 }
 
+export type RatingStarsProps = Omit<StackProps, 'children'> & {
+  /** Filled stars, 0–5 (fractions round to nearest whole star). */
+  value: number
+  /** Accessible label context (e.g. "Job rating"). */
+  label?: string
+  size?: UiRatingSize
+}
+
+/**
+ * Five-star display row (completed-job rows, review lists). Filled stars use
+ * the brand action colour per the profile v2 mockup; empty stars are muted.
+ */
+export function RatingStars({
+  value,
+  label,
+  size = 'md',
+  ...rest
+}: RatingStarsProps) {
+  const filled = Math.min(5, Math.max(0, Math.round(value)))
+  const { star } = ratingSizes[size]
+
+  return (
+    <HStack
+      gap={0.5}
+      flexShrink={0}
+      role="img"
+      aria-label={`${label ?? 'Rating'}: ${filled} out of 5 stars`}
+      {...rest}
+    >
+      {[1, 2, 3, 4, 5].map((position) => (
+        <Text
+          key={position}
+          as="span"
+          color={position <= filled ? 'action.primary' : 'border.strong'}
+          fontSize={star}
+          lineHeight="1"
+          aria-hidden
+        >
+          ★
+        </Text>
+      ))}
+    </HStack>
+  )
+}
+
 export function Rating({ value, size = 'md', label, ...rest }: RatingProps) {
   const { star, score, gap } = ratingSizes[size]
 

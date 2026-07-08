@@ -1,4 +1,4 @@
-import { APP_HOME } from '@/utils/appRoutes'
+import { APP_HOME, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 
 export type AccountNavAudience = 'all' | 'worker' | 'non-worker'
 
@@ -53,7 +53,7 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
   {
     id: 'workers',
     label: 'Workers',
-    href: '/workers',
+    href: WORKER_SEARCH_HREF,
     kind: 'link',
     section: 'main',
     audience: 'all',

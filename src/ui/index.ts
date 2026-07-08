@@ -59,10 +59,11 @@ export { OtpInput } from './OtpInput'
 export { PhoneInput } from './PhoneInput'
 export { ProgressBar } from './ProgressBar'
 export { RadioButton } from './RadioButton'
-export { Rating } from './Rating'
+export { Rating, RatingStars } from './Rating'
 export { ScheduleChip } from './ScheduleChip'
 export { Select } from './Select'
 export { Slider } from './Slider'
+export { SpotIllustration } from './SpotIllustration/SpotIllustration'
 export {
   StepFlowActions,
   StepFlowHeading,
@@ -121,10 +122,14 @@ export type {
   UiRadioButtonSize,
   UiRadioButtonVariant,
 } from './RadioButton'
-export type { RatingProps, UiRatingSize } from './Rating'
+export type { RatingProps, RatingStarsProps, UiRatingSize } from './Rating'
 export type { ScheduleChipProps } from './ScheduleChip'
 export type { SelectProps } from './Select'
 export type { SliderProps, UiSliderTone } from './Slider'
+export type {
+  SpotIllustrationProps,
+  SpotIllustrationVariant,
+} from './SpotIllustration/SpotIllustration'
 export type {
   StatusPillProps,
   TaskStatusValue,

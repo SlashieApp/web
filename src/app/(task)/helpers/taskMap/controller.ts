@@ -446,10 +446,15 @@ export function createTaskMapController(args: {
     const ll = task ? taskLngLat(task) : null
     const token = p.selectedTaskSelectionToken ?? 0
 
-    const routeKey = selectedId && ll ? `${selectedId}|${token}` : ''
+    // Approximate-location pins (worker mode) never draw a driving route.
+    const routeEnabled = p.navRouteEnabled ?? true
+    const routeKey =
+      selectedId && ll && routeEnabled ? `${selectedId}|${token}` : ''
     if (routeKey !== lastRouteKey) {
       lastRouteKey = routeKey
-      navRoute.setSelectedRoute(ll ? { lng: ll.lng, lat: ll.lat } : null)
+      navRoute.setSelectedRoute(
+        ll && routeEnabled ? { lng: ll.lng, lat: ll.lat } : null,
+      )
     }
 
     const flyKey =

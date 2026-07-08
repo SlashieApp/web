@@ -36,7 +36,10 @@
   },
   "overrides": [
     {
-      "include": ["src/app/(task)/components/TaskCard.tsx"],
+      "include": [
+        "src/app/(task)/components/TaskCard.tsx",
+        "src/app/(task)/search/components/WorkerSearchCard.tsx"
+      ],
       "linter": {
         "rules": {
           "a11y": {

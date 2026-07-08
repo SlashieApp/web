@@ -30,7 +30,7 @@ import { sdlFocusRing, sdlMotion } from '@/theme/styles'
  */
 export type UiAvatarSize = 'sm' | 'md' | 'lg' | 'xs' | 'xl'
 
-type SdlSize = 'sm' | 'md' | 'lg'
+type SdlSize = 'sm' | 'md' | 'lg' | 'xl'
 
 /** Presence/status families — always rendered as dot + accessible label. */
 export type UiAvatarStatus = 'online' | 'away' | 'busy' | 'offline'
@@ -62,20 +62,30 @@ const sizeAlias: Record<UiAvatarSize, SdlSize> = {
   sm: 'sm',
   md: 'md',
   lg: 'lg',
-  xl: 'lg',
+  xl: 'xl',
 }
 
-/** Pixel diameter per SDL size. `md` mirrors the legacy responsive 24/28px. */
+/** Pixel diameter per SDL size. `md` mirrors the legacy responsive 24/28px; `xl` is the profile-hero size. */
 const avatarBox: Record<SdlSize, BoxProps['w']> = {
   sm: 6,
   md: { base: 6, md: 7 },
   lg: 10,
+  xl: 24,
 }
 
 const avatarFontSize: Record<SdlSize, TextProps['fontSize']> = {
   sm: 'xs',
   md: 'xs',
   lg: 'sm',
+  xl: '2xl',
+}
+
+/** next/image `sizes` hint per SDL size. */
+const avatarImageSizes: Record<SdlSize, string> = {
+  sm: '28px',
+  md: '28px',
+  lg: '40px',
+  xl: '96px',
 }
 
 const statusMeta: Record<UiAvatarStatus, { dot: string; label: string }> = {
@@ -150,7 +160,7 @@ export function Avatar({
           src={src}
           alt={`${name} avatar`}
           fill
-          sizes="40px"
+          sizes={avatarImageSizes[sdlSize]}
           style={{ objectFit: 'cover' }}
         />
       ) : (

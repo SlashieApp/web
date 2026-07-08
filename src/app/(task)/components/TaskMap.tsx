@@ -58,6 +58,10 @@ export type TaskMapProps = {
   onSelectTask?: (taskId: string | null) => void
   onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
   onNavRoutePresentingChange?: (presenting: boolean) => void
+  /** Draw a driving route to the selected pin (off for approximate worker pins). */
+  navRouteEnabled?: boolean
+  /** Accessible label for the map container. */
+  mapAriaLabel?: string
 }
 
 /**
@@ -123,6 +127,7 @@ export function TaskMap(props: TaskMapProps) {
     props.searchAreaButtonPosition ?? '',
     props.searchAreaButtonOffsetX ?? '',
     Boolean(props.onSearchThisAreaConfirm),
+    props.navRouteEnabled ?? true,
     tasksMarkerSig(props.tasks),
   ].join('\x1e')
 
@@ -163,7 +168,7 @@ export function TaskMap(props: TaskMapProps) {
         ref={mapContainerRef}
         w="full"
         h="full"
-        aria-label="Map of tasks near the search area"
+        aria-label={props.mapAriaLabel ?? 'Map of tasks near the search area'}
       />
     </Box>
   )

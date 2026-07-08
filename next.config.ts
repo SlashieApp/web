@@ -23,6 +23,18 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Legacy browse surfaces merged into the unified map-first /search.
+      // Exact-match only: /tasks/:slug and /workers/:slug stay untouched.
+      {
+        source: '/tasks',
+        destination: '/search?mode=tasks',
+        permanent: false,
+      },
+      {
+        source: '/workers',
+        destination: '/search?mode=workers',
+        permanent: false,
+      },
       {
         source: '/task/:slug',
         destination: '/tasks/:slug',

@@ -5,6 +5,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -32,6 +33,8 @@ import {
   type BrowseReferenceLocation,
   CURRENT_LOCATION_LABEL,
   DEFAULT_BROWSE_REFERENCE,
+  URL_SEEDED_AREA_LABEL,
+  browseGeolocationPermission,
 } from '../helpers/browseReferenceLocation'
 import type {
   TaskBrowseFiltersProps,
@@ -60,6 +63,9 @@ type TaskBrowseDataContextValue = {
   radiusMiles: number
   /** Last submitted radius (drives fetch + map query disc); draft {@link radiusMiles} is edited in the filter UI. */
   submittedRadiusMiles: number
+  /** Last submitted category / search text (URL sync reads these). */
+  submittedCategory: string
+  submittedSearchText: string
   setRadiusMiles: (v: number) => void
   minBudget: string
   setMinBudget: (v: string) => void
@@ -127,6 +133,8 @@ type TaskBrowseDataContextValue = {
     distanceLabel?: string
   }[]
   shouldWaitForMap: boolean
+  /** True once the map signalled readiness (or immediately when no Mapbox token). */
+  isMapReadyForQuery: boolean
   markMapReadyForQuery: (ready: boolean) => void
   /** Chips derived from last submitted filters (see {@link submitBrowseFilters}). */
   activeFilterTags: readonly BrowseFilterTag[]
@@ -176,10 +184,20 @@ function zoomToRadiusMiles(zoom: number): number {
   return clampRadiusMiles(miles)
 }
 
+/** Deep-link state hydrated from /search URL params (all optional). */
+export type TaskBrowseInitialState = {
+  reference?: BrowseReferenceLocation | null
+  radiusMiles?: number | null
+  category?: string | null
+  searchText?: string | null
+}
+
 type TaskBrowseProviderProps = {
   children: React.ReactNode
   initialTasks: TaskListItem[]
   isDesktop: boolean
+  /** Seeds filters + viewport once on mount (shareable /search URLs). */
+  initialState?: TaskBrowseInitialState
 }
 
 /** Left inset used by map center offset in desktop split mode. */
@@ -198,9 +216,21 @@ export function TaskBrowseProvider({
   children,
   initialTasks,
   isDesktop,
+  initialState,
 }: TaskBrowseProviderProps) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const hasMapboxToken = Boolean(mapboxToken?.trim())
+
+  // Mount-only URL hydration snapshot — later prop changes are ignored.
+  const initialStateRef = useRef(initialState)
+  const seededReference =
+    initialStateRef.current?.reference ?? DEFAULT_BROWSE_REFERENCE
+  const seededRadius = clampRadiusMiles(
+    initialStateRef.current?.radiusMiles ??
+      DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
+  )
+  const seededCategory = initialStateRef.current?.category ?? ''
+  const seededSearchText = initialStateRef.current?.searchText?.trim() ?? ''
 
   const windowOffsetWidth = useSyncExternalStore(
     subscribeWindowResize,
@@ -223,36 +253,33 @@ export function TaskBrowseProvider({
     })
   const [sort, setSort] = useState<string>('nearest')
   const [page, setPage] = useState(0)
-  const [radiusMiles, setRadiusMiles] = useState(
-    DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
-  )
+  const [radiusMiles, setRadiusMiles] = useState(seededRadius)
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
   const [urgency, setUrgency] = useState<UrgencyFilter>('any')
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState(seededCategory)
   const [scheduledAfter, setScheduledAfter] = useState('')
   const [scheduledBefore, setScheduledBefore] = useState('')
-  const [submittedRadiusMiles, setSubmittedRadiusMiles] = useState(
-    DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
-  )
+  const [submittedRadiusMiles, setSubmittedRadiusMiles] = useState(seededRadius)
   const [submittedMinBudget, setSubmittedMinBudget] = useState('')
   const [submittedMaxBudget, setSubmittedMaxBudget] = useState('')
   const [submittedUrgency, setSubmittedUrgency] = useState<UrgencyFilter>('any')
-  const [submittedCategory, setSubmittedCategory] = useState('')
+  const [submittedCategory, setSubmittedCategory] = useState(seededCategory)
   const [submittedScheduledAfter, setSubmittedScheduledAfter] = useState('')
   const [submittedScheduledBefore, setSubmittedScheduledBefore] = useState('')
-  const [submittedSearchText, setSubmittedSearchText] = useState('')
-  const [searchInput, setSearchInputRaw] = useState('')
+  const [submittedSearchText, setSubmittedSearchText] =
+    useState(seededSearchText)
+  const [searchInput, setSearchInputRaw] = useState(seededSearchText)
 
   const setSearchInput = useCallback((v: string) => {
     setSearchInputRaw(v)
   }, [])
   const [referenceLocation, setReferenceLocation] =
-    useState<BrowseReferenceLocation>(DEFAULT_BROWSE_REFERENCE)
+    useState<BrowseReferenceLocation>(seededReference)
   const [geolocationStatus, setGeolocationStatus] =
     useState<BrowseGeolocationStatus>('idle')
   const [areaLocationInput, setAreaLocationInput] = useState(
-    DEFAULT_BROWSE_REFERENCE.label,
+    seededReference.label,
   )
   const pendingAreaSearchQueryRef = useRef<string | null>(null)
   const lastResolvedAreaSearchQueryRef = useRef<string | null>(null)
@@ -578,6 +605,27 @@ export function TaskBrowseProvider({
       })
   }, [applyReference, areaLocationInput, mapboxToken])
 
+  // Deep links carry lat/lng only — resolve a human label once on mount.
+  useEffect(() => {
+    const seeded = initialStateRef.current?.reference
+    const token = mapboxToken?.trim()
+    if (!seeded || !token || seeded.label !== URL_SEEDED_AREA_LABEL) return
+    void mapboxReverseGeocode(seeded.lat, seeded.lng, token).then((name) => {
+      const label = name?.trim()
+      if (!label) return
+      setReferenceLocation((current) =>
+        current.lat === seeded.lat &&
+        current.lng === seeded.lng &&
+        current.label === URL_SEEDED_AREA_LABEL
+          ? { ...current, label }
+          : current,
+      )
+      setAreaLocationInput((current) =>
+        current === URL_SEEDED_AREA_LABEL ? label : current,
+      )
+    })
+  }, [mapboxToken])
+
   const applyGeolocatedSearch = useCallback(
     async (lat: number, lng: number) => {
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
@@ -594,30 +642,43 @@ export function TaskBrowseProvider({
     [applyReference],
   )
 
-  const requestUseMyLocation = useCallback(() => {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setGeolocationStatus('unsupported')
-      return
-    }
-    setGeolocationStatus('pending')
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        void applyGeolocatedSearch(
-          position.coords.latitude,
-          position.coords.longitude,
-        )
-      },
-      () => {
-        setGeolocationStatus('denied')
-      },
-      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 60_000 },
-    )
-  }, [applyGeolocatedSearch])
+  const requestUseMyLocation = useCallback(
+    (opts?: { highAccuracy?: boolean }) => {
+      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+        setGeolocationStatus('unsupported')
+        return
+      }
+      setGeolocationStatus('pending')
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          void applyGeolocatedSearch(
+            position.coords.latitude,
+            position.coords.longitude,
+          )
+        },
+        () => {
+          setGeolocationStatus('denied')
+        },
+        {
+          enableHighAccuracy: opts?.highAccuracy ?? true,
+          timeout: 12_000,
+          maximumAge: 60_000,
+        },
+      )
+    },
+    [applyGeolocatedSearch],
+  )
 
   const initGeolocationOnLoad = useCallback(() => {
     if (geolocationInitStartedRef.current) return
     geolocationInitStartedRef.current = true
-    requestUseMyLocation()
+    void browseGeolocationPermission().then((permission) => {
+      // Only silently center on the visitor when GPS is already allowed.
+      // Otherwise keep the default/URL reference — no permission prompt or
+      // "Geolocation information is not available" noise on first visit.
+      if (permission !== 'granted') return
+      requestUseMyLocation({ highAccuracy: false })
+    })
   }, [requestUseMyLocation])
 
   const cycleSort = useCallback(() => {
@@ -684,6 +745,8 @@ export function TaskBrowseProvider({
       setPage,
       radiusMiles,
       submittedRadiusMiles,
+      submittedCategory,
+      submittedSearchText,
       setRadiusMiles,
       minBudget,
       setMinBudget,
@@ -730,6 +793,7 @@ export function TaskBrowseProvider({
       effectiveMapTasksForBox:
         data?.tasks != null ? mapTasksForBox : initialMapTasksForBox,
       shouldWaitForMap,
+      isMapReadyForQuery,
       markMapReadyForQuery: (ready) => {
         if (ready) setIsMapReadyForQuery(true)
       },
@@ -762,6 +826,8 @@ export function TaskBrowseProvider({
       pageItems,
       radiusMiles,
       submittedRadiusMiles,
+      submittedCategory,
+      submittedSearchText,
       safePage,
       searchCenterLat,
       searchCenterLng,
@@ -773,6 +839,7 @@ export function TaskBrowseProvider({
       isNavRoutePresenting,
       onNavRoutePresentingChange,
       shouldWaitForMap,
+      isMapReadyForQuery,
       sort,
       totalPages,
       urgency,

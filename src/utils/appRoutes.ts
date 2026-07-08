@@ -1,5 +1,8 @@
-/** Signed-in app home — map-first task browse. */
-export const APP_HOME = '/tasks' as const
+/** Signed-in app home — unified map-first search (tasks + workers). */
+export const APP_HOME = '/search' as const
+
+/** Worker mode of the unified search surface. */
+export const WORKER_SEARCH_HREF = '/search?mode=workers' as const
 
 /** Public marketing entry. */
 export const MARKETING_HOME = '/' as const

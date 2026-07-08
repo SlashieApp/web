@@ -19,6 +19,7 @@ import {
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
+import { APP_HOME } from '@/utils/appRoutes'
 
 import MeWorkerSetup from '../graphql/MeWorkerSetup.gql'
 import SaveWorkerSetupStep from '../graphql/SaveWorkerSetupStep.gql'
@@ -127,7 +128,7 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
   const me = useUserStore((s) => s.me)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const exitHref = searchParams.get('next')?.trim() || '/tasks'
+  const exitHref = searchParams.get('next')?.trim() || APP_HOME
   const redirectRef = useRef(false)
   const hydratedRef = useRef(false)
 
