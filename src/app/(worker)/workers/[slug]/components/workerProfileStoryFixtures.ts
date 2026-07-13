@@ -1,3 +1,8 @@
+import {
+  IdentityVerificationStatus,
+  WorkerPrimaryCategory,
+} from '@codegen/schema'
+
 import type { WorkerPublicRecord } from '../helpers/workerProfileHelpers'
 
 /** James Thornton sample from the approved v2 mockup (Storybook only). */
@@ -6,13 +11,16 @@ export const workerProfileFixture: WorkerPublicRecord = {
   bio: 'Hi, I’m James. I’m a reliable and friendly handyman based in North London.\nI specialise in furniture assembly and general DIY jobs around the home.\nI take pride in quality workmanship and always aim to leave every job clean, tidy and stress-free.',
   tagline: 'Reliable, on-time local help across North London',
   isVerified: true,
+  identityVerification: IdentityVerificationStatus.Verified,
   phoneVerified: true,
+  emailVerified: true,
   yearsExperience: 3,
   averageResponseTime: 'under 2 hours',
   tasksCompletedCount: 2,
   quotesSentCount: 12,
   memberSince: '2026-06-05T10:00:00.000Z',
   legalName: 'James Thornton',
+  primaryCategory: WorkerPrimaryCategory.Handyman,
   skills: [
     'Assembly',
     'Handyman',
@@ -21,6 +29,7 @@ export const workerProfileFixture: WorkerPublicRecord = {
     'Mounting',
     'Repairs',
   ],
+  qualifications: ['City & Guilds', 'Fully Insured'],
   portfolioUrls: [],
   serviceAreaLabel: 'Camden & Islington (~5 miles)',
   serviceArea: { label: 'Camden & Islington', radiusMiles: 5 },

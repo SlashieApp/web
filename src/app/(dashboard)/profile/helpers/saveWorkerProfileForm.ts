@@ -66,10 +66,12 @@ export async function saveWorkerProfileForm(
     dateOfBirth: '',
     tagline: '',
     bio: '',
-    skillsText: '',
+    primaryCategory: '',
+    skills: [],
     yearsExperience: '',
+    qualifications: [],
     travelRadiusMiles: '',
-    portfolioText: '',
+    portfolioUrls: [],
   }
 
   const resolved = await resolveWorkerSetupLocation(locationState)

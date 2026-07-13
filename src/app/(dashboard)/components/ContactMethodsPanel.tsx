@@ -135,18 +135,27 @@ export function PhoneContactRow({
 type ContactMethodsPanelProps = {
   compact?: boolean
   showIntro?: boolean
+  /**
+   * Readiness requires a verified PHONE, not just any contact method.
+   * Worker setup uses this — the BE requires a strictly verified phone to
+   * finish setup and send quotes (2026-07-13).
+   */
+  requirePhone?: boolean
   onContactUpdated?: () => void
 }
 
 /** Account-level email and phone verification (`me.email`, `me.phoneVerified`). */
 export function ContactMethodsPanel({
   showIntro = true,
+  requirePhone = false,
   onContactUpdated,
 }: ContactMethodsPanelProps) {
   const me = useUserStore((s) => s.me)
   if (!me) return null
 
-  const ready = hasVerifiedContactMethod(me)
+  const ready = requirePhone
+    ? isPhoneVerified(me)
+    : hasVerifiedContactMethod(me)
 
   return (
     <Stack gap={4}>
@@ -163,11 +172,15 @@ export function ContactMethodsPanel({
 
       {ready ? (
         <Text fontSize="sm" fontWeight={600} color="text.link">
-          At least one contact method is verified. You can continue when ready.
+          {requirePhone
+            ? 'Your phone number is verified. You can continue when ready.'
+            : 'At least one contact method is verified. You can continue when ready.'}
         </Text>
       ) : (
         <Text fontSize="sm" color="text.muted">
-          Verify your email or phone to continue.
+          {requirePhone
+            ? 'Verify your phone number to continue — a verified phone is required to send quotes.'
+            : 'Verify your email or phone to continue.'}
         </Text>
       )}
     </Stack>

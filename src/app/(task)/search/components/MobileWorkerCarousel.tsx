@@ -1,13 +1,17 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+
+import { MobileCarousel } from '@ui'
 
 import { useWorkerSearch } from '../context/WorkerSearchProvider'
 import {
   workerAvatarUrl,
   workerDisplayName,
+  workerExperienceShortLabel,
+  workerRatingLabel,
+  workerRespondsLabel,
   workerServiceAreaLabel,
   workerSubtitle,
 } from '../helpers/workerSearchHelpers'
@@ -15,10 +19,9 @@ import { WorkerSearchCard } from './WorkerSearchCard'
 import { WorkerSearchEmptyState } from './WorkerSearchEmptyState'
 
 /**
- * Mobile bottom strip for worker mode: horizontal scroll-snap cards over the
- * map (same slot as the task carousel). Tapping a card highlights its pin;
- * tapping the highlighted card opens the worker's profile. Selecting a pin
- * scrolls its card into view.
+ * Mobile bottom strip for worker mode: same center-snapping behaviour as the
+ * task carousel (shared `MobileCarousel` mechanics). Swiping highlights the
+ * matching person pin; tapping the centered card opens the worker's profile.
  */
 export function MobileWorkerCarousel() {
   const router = useRouter()
@@ -28,85 +31,50 @@ export function MobileWorkerCarousel() {
     selectedWorkerId,
     setSelectedWorkerId,
   } = useWorkerSearch()
-  const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
 
-  // Pin tap → bring the matching card into view.
-  useEffect(() => {
-    if (!selectedWorkerId) return
-    const el = cardRefs.current.get(selectedWorkerId)
-    el?.scrollIntoView({
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'nearest',
-    })
-  }, [selectedWorkerId])
-
-  if (canShowWorkersEmptyState && workers.length === 0) {
+  if (workers.length === 0) {
+    if (!canShowWorkersEmptyState) return null
     return (
-      <Box px={3} pointerEvents="auto">
+      <Box px={{ base: 2, md: 3 }} pb={2} pointerEvents="auto">
         <WorkerSearchEmptyState />
       </Box>
     )
   }
 
   return (
-    <HStack
-      as="ul"
-      listStyleType="none"
-      gap={3}
-      px={3}
-      overflowX="auto"
-      scrollSnapType="x mandatory"
-      scrollbarWidth="none"
-      css={{
-        msOverflowStyle: 'none',
-        '&::-webkit-scrollbar': { display: 'none' },
-      }}
-      pointerEvents="auto"
-      aria-label="Workers in this area"
+    <MobileCarousel
+      items={workers}
+      selectedId={selectedWorkerId}
+      onSnapSelect={setSelectedWorkerId}
+      onActivateCentered={(workerId) => router.push(`/workers/${workerId}`)}
     >
-      {workers.map((worker) => {
+      {(worker, state) => {
         const name = workerDisplayName(worker)
-        const isActive = selectedWorkerId === worker.id
         return (
-          <Box
-            key={worker.id}
-            as="li"
-            ref={(node: HTMLDivElement | null) => {
-              if (node) cardRefs.current.set(worker.id, node)
-              else cardRefs.current.delete(worker.id)
-            }}
-            flexShrink={0}
-            w="82vw"
-            maxW="340px"
-            scrollSnapAlign="center"
-          >
-            <WorkerSearchCard
-              compact
-              name={name}
-              avatarUrl={workerAvatarUrl(worker)}
-              verified={worker.isVerified}
-              subtitle={workerSubtitle(worker)}
-              serviceAreaLabel={workerServiceAreaLabel(worker)}
-              skills={worker.skills}
-              profileHref={`/workers/${worker.id}`}
-              isActive={isActive}
-              activateAriaLabel={
-                isActive
-                  ? `${name}. Open profile.`
-                  : `${name}. Select to highlight on map.`
-              }
-              onActivate={() => {
-                if (isActive) {
-                  router.push(`/workers/${worker.id}`)
-                  return
-                }
-                setSelectedWorkerId(worker.id)
-              }}
-            />
-          </Box>
+          <WorkerSearchCard
+            compact
+            activateMode="gesture"
+            activateCursor={state.activateCursor}
+            name={name}
+            avatarUrl={workerAvatarUrl(worker)}
+            verified={worker.isVerified}
+            subtitle={workerSubtitle(worker)}
+            ratingLabel={workerRatingLabel(worker)}
+            experienceLabel={workerExperienceShortLabel(worker)}
+            respondsLabel={workerRespondsLabel(worker)}
+            serviceAreaLabel={workerServiceAreaLabel(worker)}
+            skills={worker.skills}
+            profileHref={`/workers/${worker.id}`}
+            isActive={state.isActive}
+            activateAriaLabel={
+              state.isPeekAdjacent
+                ? `${name}. Show ${state.peekDirection === 'next' ? 'next' : 'previous'} worker.`
+                : `${name}. Open profile.`
+            }
+            onActivate={state.activate}
+          />
         )
-      })}
-    </HStack>
+      }}
+    </MobileCarousel>
   )
 }

@@ -1,58 +1,29 @@
 'use client'
 
-import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Box } from '@chakra-ui/react'
-import useEmblaCarousel from 'embla-carousel-react'
-import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useMemo, useRef, useState } from 'react'
-import type { PointerEvent as ReactPointerEvent } from 'react'
+import { useMemo } from 'react'
 
 import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
+import { MobileCarousel } from '@ui'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import {
   formatBudget,
-  inferBadge,
-  taskDistanceLabelFromReference,
-  taskPosterAvatarUrl,
-  taskPosterDisplayName,
+  taskDistanceShortLabelFromReference,
+  taskQuotesCountLabel,
+  taskScheduleCompactLabel,
 } from '../../helpers/taskBrowseHelpers'
+import { taskCategoryDisplayLabel } from '../../helpers/taskCategories'
 import { TaskCard } from '../TaskCard'
 import { TaskEmptyState } from '../TaskEmptyState'
 
-/** Chakra `md` breakpoint for carousel peek behavior. */
-const MD_MEDIA = '(min-width: 48em)'
-/** Horizontal inset on carousel viewport. */
-const CAROUSEL_INSET = { base: 2, md: 3 } as const
-/** Extra peek on md+ so adjacent slides show at the edges. */
-const SLIDE_PEEK_MD_PX = 52
-/** Movement above this (px) counts as a carousel drag, not a card tap. */
-const CAROUSEL_DRAG_THRESHOLD_PX = 8
-/** Embla programmatic scroll / snap animation (ms). */
-const CAROUSEL_SCROLL_DURATION_MS = 20
-
-type CarouselPointerGesture = {
-  didDrag: boolean
-  startX: number
-  startY: number
-}
-
-function measureCarouselLayout(viewportWidth: number): {
-  centeringPadPx: number
-  slideWidthPx: number
-} {
-  const isMd =
-    typeof window !== 'undefined' && window.matchMedia(MD_MEDIA).matches
-  const peekTotal = isMd ? SLIDE_PEEK_MD_PX : 0
-  const slideWidthPx = Math.min(600, Math.max(0, viewportWidth - peekTotal))
-  const centeringPadPx = Math.max(
-    0,
-    Math.round((viewportWidth - slideWidthPx) / 2),
-  )
-  return { centeringPadPx, slideWidthPx }
-}
-
+/**
+ * Mobile bottom strip for task mode: center-snapping cards over the map
+ * (mechanics live in the shared `MobileCarousel`). Swiping highlights the
+ * matching pin; tapping the centered card opens the task.
+ */
 export function MobileTaskCarousel() {
   const router = useRouter()
   const {
@@ -63,16 +34,11 @@ export function MobileTaskCarousel() {
     isNavRoutePresenting,
     referenceLocation,
   } = useTaskBrowseData()
-  const pointerGestureRef = useRef<CarouselPointerGesture>({
-    didDrag: false,
-    startX: 0,
-    startY: 0,
-  })
+
   const tasks = useMemo(
     () =>
       filteredSorted.map((task) => {
         const { main } = formatBudget(task)
-        const badge = inferBadge(task)
         return {
           id: task.id,
           title: task.title,
@@ -80,367 +46,62 @@ export function MobileTaskCarousel() {
           location:
             taskPublicLocationLabel(task).trim() || 'Location on request',
           priceLabel: main,
-          badgeText: badge.text,
+          badgeText: taskCategoryDisplayLabel(task.category) ?? undefined,
           thumbnailSrc: task.images?.[0] ?? undefined,
-          ownerName: taskPosterDisplayName(task),
-          ownerAvatarSrc: taskPosterAvatarUrl(task),
-          distanceLabel: taskDistanceLabelFromReference(
+          distanceLabel: taskDistanceShortLabelFromReference(
             task,
             referenceLocation,
           ),
+          timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,
+          quotesLabel: taskQuotesCountLabel(task) ?? undefined,
           viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,
         }
       }),
     [filteredSorted, referenceLocation],
   )
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'center',
-    /** Allow first/last slide to reach true center with symmetric track padding. */
-    containScroll: false,
-    dragFree: false,
-    duration: CAROUSEL_SCROLL_DURATION_MS,
-  })
-
-  const viewportElRef = useRef<HTMLDivElement | null>(null)
-  const resizeObserverRef = useRef<ResizeObserver | null>(null)
-  const emblaApiRef = useRef(emblaApi)
-  emblaApiRef.current = emblaApi
-
-  const setSelectedTaskIdRef = useRef(setSelectedTaskId)
-  setSelectedTaskIdRef.current = setSelectedTaskId
-  const selectedTaskIdRef = useRef(selectedTaskId)
-  selectedTaskIdRef.current = selectedTaskId
-  const taskIdsRef = useRef<string[]>([])
-  taskIdsRef.current = tasks.map((t) => t.id)
-
-  const mediaQueryCleanupRef = useRef<(() => void) | null>(null)
-  const emblaEventsCleanupRef = useRef<(() => void) | null>(null)
-  const emblaEventsApiRef = useRef<typeof emblaApi>(null)
-  /** Skip scrollTo when selection was driven by carousel (avoids snap fight). */
-  const selectionFromCarouselRef = useRef(false)
-  const [focusedTaskId, setFocusedTaskId] = useState<string | null>(
-    selectedTaskId,
-  )
-  const focusedTaskIdRef = useRef(focusedTaskId)
-  focusedTaskIdRef.current = focusedTaskId
-  const [isCarouselGrabbing, setIsCarouselGrabbing] = useState(false)
-
-  const onCarouselPointerDown = useCallback((event: ReactPointerEvent) => {
-    setIsCarouselGrabbing(true)
-    pointerGestureRef.current = {
-      didDrag: false,
-      startX: event.clientX,
-      startY: event.clientY,
-    }
-  }, [])
-
-  const onCarouselPointerMove = useCallback((event: ReactPointerEvent) => {
-    const gesture = pointerGestureRef.current
-    if (
-      Math.abs(event.clientX - gesture.startX) > CAROUSEL_DRAG_THRESHOLD_PX ||
-      Math.abs(event.clientY - gesture.startY) > CAROUSEL_DRAG_THRESHOLD_PX
-    ) {
-      gesture.didDrag = true
-    }
-  }, [])
-
-  const onCarouselPointerUp = useCallback(() => {
-    setIsCarouselGrabbing(false)
-    queueMicrotask(() => {
-      pointerGestureRef.current.didDrag = false
-    })
-  }, [])
-
-  const openTaskDetail = useCallback(
-    (taskId: string) => {
-      if (pointerGestureRef.current.didDrag) return
-      router.push(`/tasks/${taskId}`)
-    },
-    [router],
-  )
-
-  const handleCardActivate = useCallback(
-    (taskId: string) => {
-      if (pointerGestureRef.current.didDrag) return
-      if (isNavRoutePresenting) return
-
-      const live = emblaApiRef.current
-      const centeredTaskId = live
-        ? taskIdsRef.current[live.selectedScrollSnap()]
-        : null
-
-      if (
-        selectedTaskIdRef.current &&
-        centeredTaskId &&
-        taskId !== centeredTaskId &&
-        live
-      ) {
-        const snap = live.selectedScrollSnap()
-        const idx = taskIdsRef.current.indexOf(taskId)
-        if (idx < 0) return
-        selectionFromCarouselRef.current = true
-        if (idx > snap) {
-          live.scrollNext()
-        } else if (idx < snap) {
-          live.scrollPrev()
-        }
-        return
-      }
-
-      openTaskDetail(taskId)
-    },
-    [isNavRoutePresenting, openTaskDetail],
-  )
-
-  const syncSelectionFromCarousel = useCallback(() => {
-    if (isNavRoutePresenting) return
-    const live = emblaApiRef.current
-    if (!live) return
-    const idx = live.selectedScrollSnap()
-    const id = taskIdsRef.current[idx]
-    if (!id) return
-
-    focusedTaskIdRef.current = id
-    setFocusedTaskId(id)
-    selectionFromCarouselRef.current = true
-    setSelectedTaskIdRef.current(id)
-  }, [isNavRoutePresenting])
-
-  const lastEmblaLayoutRef = useRef<{
-    pad: number
-    slideWidth: number
-    taskIds: string
-    api: NonNullable<typeof emblaApi> | null
-  }>({ pad: -1, slideWidth: -1, taskIds: '', api: null })
-
-  const lastExternalScrollKeyRef = useRef('')
-
-  const [carouselLayout, setCarouselLayout] = useState({
-    centeringPadPx: 0,
-    slideWidthPx: 0,
-  })
-
-  const setViewportRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      resizeObserverRef.current?.disconnect()
-      resizeObserverRef.current = null
-      mediaQueryCleanupRef.current?.()
-      mediaQueryCleanupRef.current = null
-      emblaEventsCleanupRef.current?.()
-      emblaEventsCleanupRef.current = null
-      emblaEventsApiRef.current = null
-      viewportElRef.current = node
-      emblaRef(node)
-      if (!node) return
-
-      const measure = () => {
-        setCarouselLayout(measureCarouselLayout(node.clientWidth))
-      }
-      measure()
-      const ro = new ResizeObserver(measure)
-      ro.observe(node)
-      resizeObserverRef.current = ro
-      if (typeof window !== 'undefined') {
-        const mq = window.matchMedia(MD_MEDIA)
-        mq.addEventListener('change', measure)
-        mediaQueryCleanupRef.current = () => {
-          mq.removeEventListener('change', measure)
-        }
-      }
-    },
-    [emblaRef],
-  )
-
-  const { centeringPadPx, slideWidthPx } = carouselLayout
-  const pad = centeringPadPx
-  const taskIdsKey = taskIdsRef.current.join(',')
-  const api = emblaApi
-  if (api && emblaEventsApiRef.current !== api) {
-    emblaEventsCleanupRef.current?.()
-    api.on('select', syncSelectionFromCarousel)
-    api.on('reInit', syncSelectionFromCarousel)
-    emblaEventsCleanupRef.current = () => {
-      api.off('select', syncSelectionFromCarousel)
-      api.off('reInit', syncSelectionFromCarousel)
-    }
-    emblaEventsApiRef.current = api
-    queueMicrotask(syncSelectionFromCarousel)
-  }
-
-  if (api) {
-    const prev = lastEmblaLayoutRef.current
-    const layoutChanged =
-      prev.api !== api ||
-      prev.pad !== pad ||
-      prev.slideWidth !== slideWidthPx ||
-      prev.taskIds !== taskIdsKey
-
-    if (layoutChanged) {
-      lastEmblaLayoutRef.current = {
-        api,
-        pad,
-        slideWidth: slideWidthPx,
-        taskIds: taskIdsKey,
-      }
-      const sel = selectedTaskIdRef.current
-      const idOrder = [...taskIdsRef.current]
-      queueMicrotask(() => {
-        const live = emblaApiRef.current
-        if (!live) return
-        live.reInit()
-        if (!sel) {
-          syncSelectionFromCarousel()
-          return
-        }
-        const idx = idOrder.indexOf(sel)
-        if (idx >= 0) live.scrollTo(idx, true)
-      })
-    }
-  }
-
-  if (selectionFromCarouselRef.current) {
-    selectionFromCarouselRef.current = false
-    lastExternalScrollKeyRef.current = `${selectedTaskId ?? ''}|${taskIdsKey}`
-  } else if (api && selectedTaskId) {
-    const externalScrollKey = `${selectedTaskId}|${taskIdsKey}`
-    if (externalScrollKey !== lastExternalScrollKeyRef.current) {
-      lastExternalScrollKeyRef.current = externalScrollKey
-      if (focusedTaskIdRef.current !== selectedTaskId) {
-        focusedTaskIdRef.current = selectedTaskId
-        queueMicrotask(() => setFocusedTaskId(selectedTaskId))
-      }
-      const idx = taskIdsRef.current.indexOf(selectedTaskId)
-      if (idx >= 0 && idx !== api.selectedScrollSnap()) {
-        queueMicrotask(() => {
-          emblaApiRef.current?.scrollTo(idx, false)
-        })
-      }
-    }
-  } else if (!selectedTaskId) {
-    lastExternalScrollKeyRef.current = ''
-    if (focusedTaskIdRef.current !== null) {
-      focusedTaskIdRef.current = null
-      queueMicrotask(() => setFocusedTaskId(null))
-    }
-  }
 
   if (tasks.length === 0) {
     if (!canShowBrowseEmptyState) return null
     return (
-      <Box px={CAROUSEL_INSET} pb={2}>
+      <Box px={{ base: 2, md: 3 }} pb={2}>
         <TaskEmptyState />
       </Box>
     )
   }
 
-  const centeredTaskId =
-    api != null ? (taskIdsRef.current[api.selectedScrollSnap()] ?? null) : null
-  const mapSelectionActive = Boolean(selectedTaskId)
-
-  const edgeFadeMask =
-    centeringPadPx > 0
-      ? {
-          maskImage:
-            'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 24px, rgba(0,0,0,1) calc(100% - 24px), rgba(0,0,0,0) 100%)',
-          WebkitMaskImage:
-            'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 24px, rgba(0,0,0,1) calc(100% - 24px), rgba(0,0,0,0) 100%)',
-        }
-      : undefined
-
   return (
-    <Box
-      ref={setViewportRef}
-      pointerEvents={isNavRoutePresenting ? 'none' : 'auto'}
-      overflow="hidden"
-      px={CAROUSEL_INSET}
-      mb={1}
-      cursor={
-        isNavRoutePresenting
-          ? 'default'
-          : isCarouselGrabbing
-            ? 'grabbing'
-            : 'grab'
-      }
-      style={edgeFadeMask}
-      css={{ touchAction: 'pan-y' }}
-      onPointerDown={onCarouselPointerDown}
-      onPointerMove={onCarouselPointerMove}
-      onPointerUp={onCarouselPointerUp}
-      onPointerLeave={onCarouselPointerUp}
-      onPointerCancel={() => {
-        setIsCarouselGrabbing(false)
-        pointerGestureRef.current.didDrag = true
-      }}
+    <MobileCarousel
+      items={tasks}
+      selectedId={selectedTaskId}
+      onSnapSelect={setSelectedTaskId}
+      onActivateCentered={(taskId) => router.push(`/tasks/${taskId}`)}
+      disabled={isNavRoutePresenting}
     >
-      <Box
-        display="flex"
-        flexDirection="row"
-        alignItems="stretch"
-        gap={3}
-        pl={`${centeringPadPx}px`}
-        pr={`${centeringPadPx}px`}
-        cursor="inherit"
-        css={{ touchAction: 'pan-y' }}
-      >
-        {tasks.map((task) => {
-          const snapIndex = api?.selectedScrollSnap() ?? -1
-          const taskIndex = tasks.findIndex((t) => t.id === task.id)
-          const isPeekAdjacent =
-            mapSelectionActive &&
-            centeredTaskId != null &&
-            task.id !== centeredTaskId
-          const peekScrollLabel =
-            taskIndex > snapIndex ? 'Show next task' : 'Show previous task'
-          const isCenteredCard = task.id === centeredTaskId
-          const slideCursor = isNavRoutePresenting
-            ? 'default'
-            : isCenteredCard
-              ? 'pointer'
-              : isCarouselGrabbing
-                ? 'grabbing'
-                : 'grab'
-
-          return (
-            <motion.div
-              key={task.id}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-              style={{
-                flex: `0 0 ${slideWidthPx > 0 ? `${slideWidthPx}px` : '100%'}`,
-                minWidth: 0,
-                maxWidth: '100%',
-                cursor: slideCursor,
-                touchAction: 'pan-y',
-              }}
-            >
-              <TaskCard
-                activateMode="gesture"
-                activateCursor={isCenteredCard ? 'pointer' : 'grab'}
-                title={task.title}
-                description={task.description}
-                priceLabel={task.priceLabel}
-                metaLine={task.location}
-                distanceLabel={task.distanceLabel}
-                viewsLabel={task.viewsLabel}
-                thumbnailSrc={task.thumbnailSrc}
-                detailsHref={`/tasks/${task.id}`}
-                badgeText={task.badgeText}
-                ownerName={task.ownerName}
-                ownerAvatarSrc={task.ownerAvatarSrc}
-                isActive={(focusedTaskId ?? selectedTaskId) === task.id}
-                showDetailsCta={false}
-                activateAriaLabel={
-                  isPeekAdjacent
-                    ? `${task.title}. ${peekScrollLabel}.`
-                    : `${task.title}. View task details.`
-                }
-                onActivate={() => handleCardActivate(task.id)}
-              />
-            </motion.div>
-          )
-        })}
-      </Box>
-    </Box>
+      {(task, state) => (
+        <TaskCard
+          activateMode="gesture"
+          activateCursor={state.activateCursor}
+          title={task.title}
+          description={task.description}
+          priceLabel={task.priceLabel}
+          metaLine={task.location}
+          distanceLabel={task.distanceLabel}
+          timingLabel={task.timingLabel}
+          quotesLabel={task.quotesLabel}
+          viewsLabel={task.viewsLabel}
+          thumbnailSrc={task.thumbnailSrc}
+          detailsHref={`/tasks/${task.id}`}
+          badgeText={task.badgeText}
+          isActive={state.isActive}
+          showDetailsCta={false}
+          activateAriaLabel={
+            state.isPeekAdjacent
+              ? `${task.title}. Show ${state.peekDirection === 'next' ? 'next' : 'previous'} task.`
+              : `${task.title}. View task details.`
+          }
+          onActivate={state.activate}
+        />
+      )}
+    </MobileCarousel>
   )
 }

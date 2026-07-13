@@ -7,8 +7,12 @@ query WorkerPublicProfile($id: ID!) {
     id
     bio
     tagline
+    primaryCategory
     isVerified
+    identityVerification
     phoneVerified
+    emailVerified
+    qualifications
     yearsExperience
     averageResponseTime
     tasksCompletedCount

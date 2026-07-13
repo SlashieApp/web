@@ -350,7 +350,11 @@ const filterPanelEase = [0.22, 1, 0.36, 1] as const
 /** Shared horizontal slide distance (px): enter from left (−), exit to right (+). */
 const browsePanelSlidePx = 22
 
-export function WebTaskBrowseFiltersBlock() {
+export function WebTaskBrowseFiltersBlock({
+  listHeader,
+}: {
+  listHeader?: React.ReactNode
+}) {
   const { isFilterOpen } = useTaskBrowseLayout()
   const filterProps = useTaskBrowseFiltersProps()
 
@@ -401,7 +405,7 @@ export function WebTaskBrowseFiltersBlock() {
               flexDirection: 'column',
             }}
           >
-            <TaskList />
+            <TaskList header={listHeader} />
           </motion.div>
         )}
       </AnimatePresence>

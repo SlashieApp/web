@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { IdentityVerificationStatus } from '@codegen/schema'
 import {
   LuCalendar,
   LuCheck,
@@ -10,7 +11,7 @@ import {
   LuShieldCheck,
 } from 'react-icons/lu'
 
-import { Card } from '@ui'
+import { Badge, Card } from '@ui'
 
 import { useWorkerProfile } from '../context/WorkerProfileContext'
 import {
@@ -19,30 +20,35 @@ import {
 } from '../helpers/workerProfileHelpers'
 import { WorkerContactButton } from './WorkerContactButton'
 
+/**
+ * Trust row. A check mark renders ONLY when verified — unverified rows get a
+ * hollow grey circle and muted copy, never a check (a grey check still reads
+ * as "verified" at a glance and erodes trust).
+ */
 function CheckRow({ label, verified }: { label: string; verified: boolean }) {
   return (
     <HStack gap={2.5}>
       <Box
         boxSize="20px"
         borderRadius="full"
-        bg={verified ? 'action.primary' : 'bg.subtle'}
-        color={verified ? 'text.onGreen' : 'text.subtle'}
+        bg={verified ? 'action.primary' : 'transparent'}
+        borderWidth={verified ? 0 : '2px'}
+        borderColor="border.strong"
+        color="text.onGreen"
         display="flex"
         alignItems="center"
         justifyContent="center"
         flexShrink={0}
         aria-hidden
       >
-        <LuCheck size={11} strokeWidth={3.2} />
+        {verified ? <LuCheck size={11} strokeWidth={3.2} /> : null}
       </Box>
-      <Text fontSize="sm" color="text.default" fontWeight={500}>
+      <Text
+        fontSize="sm"
+        color={verified ? 'text.default' : 'text.muted'}
+        fontWeight={verified ? 500 : 400}
+      >
         {label}
-        {verified ? null : (
-          <Text as="span" color="text.muted" fontWeight={400}>
-            {' '}
-            (not yet verified)
-          </Text>
-        )}
       </Text>
     </HStack>
   )
@@ -77,13 +83,35 @@ export function WorkerProfileSidebar() {
   const years = worker.yearsExperience
   const avgResponse = worker.averageResponseTime?.trim()
   const quotesSent = worker.quotesSentCount
+  const qualifications = worker.qualifications
+    .map((q) => q.trim())
+    .filter(Boolean)
 
   return (
     <Stack gap={5}>
       <Card layout="section" heading="Trust & verification">
         <Stack gap={3}>
-          <CheckRow label="Identity verified" verified={worker.isVerified} />
-          <CheckRow label="Phone verified" verified={worker.phoneVerified} />
+          {/* NOT_STARTED is hidden — a "not verified" row on every new
+              profile reads as a warning, not information. */}
+          {worker.identityVerification ===
+          IdentityVerificationStatus.Verified ? (
+            <CheckRow label="Identity verified" verified />
+          ) : worker.identityVerification ===
+            IdentityVerificationStatus.Pending ? (
+            <CheckRow label="Identity verification pending" verified={false} />
+          ) : null}
+          <CheckRow
+            label={
+              worker.phoneVerified ? 'Phone verified' : 'Phone not yet verified'
+            }
+            verified={worker.phoneVerified}
+          />
+          <CheckRow
+            label={
+              worker.emailVerified ? 'Email verified' : 'Email not yet verified'
+            }
+            verified={worker.emailVerified}
+          />
           {memberSince ? (
             <HStack
               gap={2.5}
@@ -101,7 +129,10 @@ export function WorkerProfileSidebar() {
         </Stack>
       </Card>
 
-      {years != null || avgResponse || quotesSent > 0 ? (
+      {years != null ||
+      avgResponse ||
+      quotesSent > 0 ||
+      qualifications.length > 0 ? (
         <Card layout="section" heading="At a glance">
           <Stack gap={3}>
             {years != null && years > 0 ? (
@@ -121,6 +152,24 @@ export function WorkerProfileSidebar() {
                 icon={<LuClock size={15} strokeWidth={2} />}
                 label={`Avg response ${avgResponse}`}
               />
+            ) : null}
+            {qualifications.length > 0 ? (
+              <HStack
+                gap={1.5}
+                flexWrap="wrap"
+                pt={years != null || avgResponse || quotesSent > 0 ? 1 : 0}
+              >
+                {qualifications.map((qualification) => (
+                  <Badge
+                    key={qualification}
+                    variant="neutral"
+                    shape="pill"
+                    size="sm"
+                  >
+                    {qualification}
+                  </Badge>
+                ))}
+              </HStack>
             ) : null}
           </Stack>
         </Card>

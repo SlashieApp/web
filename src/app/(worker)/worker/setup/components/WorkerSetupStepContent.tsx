@@ -11,22 +11,27 @@ import {
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
+import { Button, FormField, Input, formControlRootProps } from '@ui'
+
 import {
-  Button,
-  FormField,
-  Input,
-  Textarea,
-  formControlRootProps,
-  formControlTextareaProps,
-} from '@ui'
-import type { TextareaProps } from '@ui'
+  canReplaceHeadline,
+  categoryBySlug,
+  suggestedHeadline,
+} from '../helpers/workerSetupCategories'
+import type { WorkerSetupFormState } from '../helpers/workerSetupFormState'
+import { HEADLINE_MAX_CHARS } from '../helpers/workerSetupValidation'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
+import { WorkerSetupBioComposer } from './WorkerSetupBioComposer'
+import { WorkerSetupCategoryTiles } from './WorkerSetupCategoryTiles'
 import { WorkerSetupOptionalLabel } from './WorkerSetupOptionalBadge'
+import { WorkerSetupPortfolioInput } from './WorkerSetupPortfolioInput'
+import { WorkerSetupQualificationsInput } from './WorkerSetupQualificationsInput'
 import { WorkerSetupReviewStep } from './WorkerSetupReviewStep'
+import { WorkerSetupSkillsInput } from './WorkerSetupSkillsInput'
 
-const BIO_PLACEHOLDER =
-  'Tell customers about your experience, skills, and what makes you great to work with. Keep it clear and friendly.'
+const HEADLINE_PLACEHOLDER = 'e.g. Handyman with 8 years experience'
+const HEADLINE_HELPER = 'Shown under your name on your public profile.'
 
 export function WorkerSetupStepContent() {
   const {
@@ -48,6 +53,26 @@ export function WorkerSetupStepContent() {
   const avatarUrl = bootstrap.profile?.avatarUrl?.trim() || null
   const displayInitial =
     `${form.firstName}${form.lastName}`.trim().charAt(0).toUpperCase() || '?'
+
+  /**
+   * Patch category/experience and refresh the suggested headline alongside it
+   * — but only while the current headline is empty or one we composed, so a
+   * headline the worker typed is never overwritten (ticket 1.2).
+   */
+  const patchWithHeadlineSuggestion = (
+    patch: Partial<WorkerSetupFormState>,
+  ) => {
+    if (canReplaceHeadline(form.tagline)) {
+      const suggestion = suggestedHeadline({ ...form, ...patch })
+      if (suggestion) {
+        patchForm({ ...patch, tagline: suggestion })
+        return
+      }
+    }
+    patchForm(patch)
+  }
+
+  const headlineSuggestion = suggestedHeadline(form)
 
   const handleAvatarPick = () => inputRef.current?.click()
 
@@ -97,26 +122,6 @@ export function WorkerSetupStepContent() {
               />
             </FormField>
           </Grid>
-          <FormField
-            label={<WorkerSetupOptionalLabel>Tagline</WorkerSetupOptionalLabel>}
-            errorText={fieldErrors.tagline}
-          >
-            <Input
-              value={form.tagline}
-              onChange={(e) => patchForm({ tagline: e.target.value })}
-              placeholder="e.g. Reliable handyman in London"
-              rootProps={formControlRootProps}
-            />
-          </FormField>
-          <FormField label="Short bio" errorText={fieldErrors.bio}>
-            <TextareaWithCharCount
-              value={form.bio}
-              maxLength={300}
-              onChange={(e) => patchForm({ bio: e.target.value })}
-              placeholder={BIO_PLACEHOLDER}
-              rows={6}
-            />
-          </FormField>
         </Stack>
       )
 
@@ -205,60 +210,94 @@ export function WorkerSetupStepContent() {
     case 'profile.bio':
       return (
         <Stack gap={6}>
-          <FormField
-            label={<WorkerSetupOptionalLabel>Tagline</WorkerSetupOptionalLabel>}
-            errorText={fieldErrors.tagline}
-          >
-            <Input
-              value={form.tagline}
-              onChange={(e) => patchForm({ tagline: e.target.value })}
-              placeholder="e.g. Reliable handyman in London"
-              rootProps={formControlRootProps}
-            />
-          </FormField>
-          <FormField label="Short bio" errorText={fieldErrors.bio}>
-            <TextareaWithCharCount
-              value={form.bio}
-              maxLength={300}
-              onChange={(e) => patchForm({ bio: e.target.value })}
-              placeholder={BIO_PLACEHOLDER}
-              rows={6}
-            />
-          </FormField>
+          <Stack gap={2}>
+            <FormField
+              label="Professional headline"
+              helperText={HEADLINE_HELPER}
+              errorText={fieldErrors.tagline}
+            >
+              <Input
+                value={form.tagline}
+                onChange={(e) => patchForm({ tagline: e.target.value })}
+                placeholder={HEADLINE_PLACEHOLDER}
+                maxLength={HEADLINE_MAX_CHARS}
+                rootProps={formControlRootProps}
+              />
+            </FormField>
+            {headlineSuggestion && headlineSuggestion !== form.tagline ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                alignSelf="flex-start"
+                color="text.link"
+                fontWeight={600}
+                px={2}
+                onClick={() => patchForm({ tagline: headlineSuggestion })}
+              >
+                Try: “{headlineSuggestion}”
+              </Button>
+            ) : null}
+          </Stack>
+          <WorkerSetupBioComposer
+            value={form.bio}
+            onChange={(bio) => patchForm({ bio })}
+            errorText={fieldErrors.bio}
+          />
         </Stack>
       )
 
     case 'services.skills':
       return (
-        <FormField
-          label="Skills & services"
-          helperText="Separate skills with commas or new lines."
-          errorText={fieldErrors.skillsText}
-        >
-          <Textarea
-            value={form.skillsText}
-            onChange={(e) => patchForm({ skillsText: e.target.value })}
-            placeholder="e.g. Plumbing, furniture assembly, garden tidy-ups"
-            rows={5}
+        <Stack gap={7}>
+          <FormField
+            label="What kind of work do you do most?"
+            helperText="This becomes your professional headline and helps customers find you."
+            errorText={fieldErrors.primaryCategory}
+          >
+            <WorkerSetupCategoryTiles
+              value={form.primaryCategory}
+              onChange={(slug) =>
+                patchWithHeadlineSuggestion({ primaryCategory: slug })
+              }
+            />
+          </FormField>
+          <WorkerSetupSkillsInput
+            value={form.skills}
+            onChange={(skills) => patchForm({ skills })}
+            suggestions={
+              categoryBySlug(form.primaryCategory)?.suggestedSkills.length
+                ? categoryBySlug(form.primaryCategory)?.suggestedSkills
+                : undefined
+            }
+            errorText={fieldErrors.skills}
           />
-        </FormField>
+        </Stack>
       )
 
     case 'services.experience':
       return (
-        <FormField
-          label="Years of experience"
-          helperText="How long you have been doing this kind of work."
-          errorText={fieldErrors.yearsExperience}
-        >
-          <Input
-            value={form.yearsExperience}
-            onChange={(e) => patchForm({ yearsExperience: e.target.value })}
-            inputMode="numeric"
-            placeholder="3"
-            rootProps={formControlRootProps}
+        <Stack gap={6}>
+          <FormField
+            label="Years of experience"
+            helperText="Shown on your profile — customers filter for experienced workers."
+            errorText={fieldErrors.yearsExperience}
+          >
+            <Input
+              value={form.yearsExperience}
+              onChange={(e) =>
+                patchWithHeadlineSuggestion({ yearsExperience: e.target.value })
+              }
+              inputMode="numeric"
+              placeholder="3"
+              rootProps={formControlRootProps}
+            />
+          </FormField>
+          <WorkerSetupQualificationsInput
+            value={form.qualifications}
+            onChange={(qualifications) => patchForm({ qualifications })}
           />
-        </FormField>
+        </Stack>
       )
 
     case 'area.location':
@@ -306,7 +345,10 @@ export function WorkerSetupStepContent() {
     case 'verify.phone':
       return (
         <Stack gap={4}>
-          <ContactMethodsPanel onContactUpdated={clearSetupErrors} />
+          <ContactMethodsPanel
+            requirePhone
+            onContactUpdated={clearSetupErrors}
+          />
           {fieldErrors.contact ? (
             <Text color="status.danger.fg" fontSize="sm">
               {fieldErrors.contact}
@@ -317,19 +359,10 @@ export function WorkerSetupStepContent() {
 
     case 'verify.portfolio':
       return (
-        <FormField
-          label={
-            <WorkerSetupOptionalLabel>Portfolio links</WorkerSetupOptionalLabel>
-          }
-          helperText="One URL per line."
-        >
-          <Textarea
-            value={form.portfolioText}
-            onChange={(e) => patchForm({ portfolioText: e.target.value })}
-            placeholder="https://example.com/my-work"
-            rows={5}
-          />
-        </FormField>
+        <WorkerSetupPortfolioInput
+          value={form.portfolioUrls}
+          onChange={(portfolioUrls) => patchForm({ portfolioUrls })}
+        />
       )
 
     case 'review.submit':
@@ -338,34 +371,4 @@ export function WorkerSetupStepContent() {
     default:
       return null
   }
-}
-
-function TextareaWithCharCount({
-  value,
-  maxLength,
-  pb = 10,
-  ...textareaProps
-}: TextareaProps & { value: string; maxLength: number }) {
-  return (
-    <Box position="relative" w="full">
-      <Textarea
-        value={value}
-        maxLength={maxLength}
-        pb={pb}
-        {...formControlTextareaProps}
-        {...textareaProps}
-      />
-      <Text
-        position="absolute"
-        bottom={3}
-        right={4}
-        fontSize="xs"
-        color="text.muted"
-        pointerEvents="none"
-        aria-hidden
-      >
-        {value.length} / {maxLength}
-      </Text>
-    </Box>
-  )
 }

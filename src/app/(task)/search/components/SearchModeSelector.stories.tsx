@@ -3,32 +3,32 @@ import { useState } from 'react'
 
 import type { SearchMode } from '../helpers/searchQueryParams'
 import {
-  SearchModeToggleBase,
-  type SearchModeToggleBaseProps,
-} from './SearchModeToggle'
+  SearchModeSelectorBase,
+  type SearchModeSelectorBaseProps,
+} from './SearchModeSelector'
 
 const meta = {
-  title: 'search/SearchModeToggle',
-  component: SearchModeToggleBase,
+  title: 'search/SearchModeSelector',
+  component: SearchModeSelectorBase,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
-} satisfies Meta<SearchModeToggleBaseProps>
+} satisfies Meta<SearchModeSelectorBaseProps>
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
-function InteractiveToggle({ initial }: { initial: SearchMode }) {
+function InteractiveSelector({ initial }: { initial: SearchMode }) {
   const [mode, setMode] = useState<SearchMode>(initial)
-  return <SearchModeToggleBase mode={mode} onModeChange={setMode} />
+  return <SearchModeSelectorBase mode={mode} onModeChange={setMode} />
 }
 
 export const TasksMode: Story = {
   args: { mode: 'tasks', onModeChange: () => {} },
-  render: () => <InteractiveToggle initial="tasks" />,
+  render: () => <InteractiveSelector initial="tasks" />,
 }
 
 export const WorkersMode: Story = {
   args: { mode: 'workers', onModeChange: () => {} },
-  render: () => <InteractiveToggle initial="workers" />,
+  render: () => <InteractiveSelector initial="workers" />,
 }

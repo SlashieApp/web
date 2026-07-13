@@ -24,12 +24,26 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    name: 'James Thornton',
+    name: 'Tom H.',
     verified: true,
-    subtitle: 'Reliable, on-time local help across North London',
-    serviceAreaLabel: 'Camden (~5 miles)',
-    skills: ['Assembly', 'Handyman', 'Flat-pack', 'Painting', 'Mounting'],
+    subtitle: 'Handyman · Furniture assembly',
+    ratingLabel: '4.9 (128)',
+    experienceLabel: '5 yrs exp',
+    respondsLabel: 'Responds in ~30 min',
+    serviceAreaLabel: 'Southwark & Lambeth',
+    skills: ['Assembly', 'Mounting', 'Flat-pack', 'Painting', 'Repairs'],
     profileHref: '/workers/worker-1',
+  },
+}
+
+export const NoReviewsYet: Story = {
+  args: {
+    ...Default.args,
+    name: 'Priya Anand',
+    verified: false,
+    ratingLabel: null,
+    respondsLabel: null,
+    experienceLabel: '2 yrs exp',
   },
 }
 
@@ -37,7 +51,7 @@ export const SelectedOnMap: Story = {
   args: {
     ...Default.args,
     isActive: true,
-    activateAriaLabel: 'James Thornton. Open profile.',
+    activateAriaLabel: 'Tom H. Open profile.',
   },
 }
 

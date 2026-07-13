@@ -1,9 +1,17 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import type { MouseEvent, ReactNode } from 'react'
+import {
+  LuBookmark,
+  LuCalendarDays,
+  LuEye,
+  LuMapPin,
+  LuMessageSquareText,
+} from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
-import { Avatar, Badge, Button, Card, Link, Rating, Thumbnail } from '@ui'
+import { Badge, Button, Card, IconButton, Link, Thumbnail } from '@ui'
 
 import { sdlMotion } from '@/theme/styles'
 
@@ -16,13 +24,15 @@ export type TaskCardTask = {
   description: string
   location: string
   priceLabel: string
+  /** Category pill, e.g. "Tech setup". */
   badgeText?: string
   distanceLabel?: string
-  /** Public views line from GraphQL (`task.views`). */
+  /** Compact schedule line, e.g. "Flexible" / "Tomorrow". */
+  timingLabel?: string
+  /** Quote-count line, e.g. "5 quotes" (owner/worker lists only). */
+  quotesLabel?: string
+  /** Public views line from GraphQL (`task.views`); fallback when quotes are unavailable. */
   viewsLabel?: string
-  ownerName?: string
-  ownerAvatarSrc?: string
-  ratingLabel?: string
   thumbnailSrc?: string
 }
 
@@ -34,6 +44,10 @@ type TaskCardShared = {
   isExpanded?: boolean
   /** When false, hides the details CTA (e.g. unselected rows in web TaskList). */
   showDetailsCta?: boolean
+  /** Bookmark state; the button renders only when `onToggleSave` is provided. */
+  isSaved?: boolean
+  /** Toggles the bookmark. Absent until the save-task API exists. */
+  onToggleSave?: () => void
   /** Overrides default “select on map” label when `onActivate` opens task detail. */
   activateAriaLabel?: string
   /** Cursor on the activatable shell (e.g. `grab` in a draggable carousel). */
@@ -55,15 +69,14 @@ type TaskCardLegacy = TaskCardShared & {
   description: string
   priceLabel: string
   metaLine: string
+  badgeText?: string
   distanceLabel?: string
+  timingLabel?: string
+  quotesLabel?: string
   /** Public views line from GraphQL (`task.views`). */
   viewsLabel?: string
-  ownerName?: string
-  ownerAvatarSrc?: string
-  ratingLabel?: string
   thumbnailSrc?: string
   detailsHref: string
-  badgeText?: string
 }
 
 export type TaskCardWorkerQuoteProps = WorkerQuoteRow & {
@@ -98,10 +111,32 @@ export function TaskCard(props: TaskCardProps) {
   return <TaskCardBrowse {...props} />
 }
 
+/** Icon + text meta line (`text.muted`, xs). Icon is decorative. */
+function TaskCardMetaRow({
+  icon,
+  children,
+}: {
+  icon: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <HStack gap={1.5} color="text.muted" fontSize="xs" minW={0}>
+      <Box as="span" aria-hidden display="inline-flex" flexShrink={0}>
+        {icon}
+      </Box>
+      <Text fontSize="xs" truncate>
+        {children}
+      </Text>
+    </HStack>
+  )
+}
+
 function TaskCardBrowse(props: TaskCardBrowseProps) {
   const isActive = props.isActive ?? false
   const isExpanded = props.isExpanded ?? false
   const showDetailsCta = props.showDetailsCta ?? false
+  const isSaved = props.isSaved ?? false
+  const onToggleSave = props.onToggleSave
   const onActivate = props.onActivate
   const activateCursor = props.activateCursor ?? 'pointer'
   const activateMode = props.activateMode ?? 'button'
@@ -110,14 +145,13 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   let description: string
   let priceLabel: string
   let metaLine: string
+  let badgeText: string | undefined
   let distanceLabel: string | undefined
+  let timingLabel: string | undefined
+  let quotesLabel: string | undefined
   let viewsLabel: string | undefined
-  let ownerName: string | undefined
-  let ownerAvatarSrc: string | undefined
-  let ratingLabel: string | undefined
   let thumbnailSrc: string | undefined
   let detailsHref: string
-  let badgeText: string | undefined
 
   if (isTaskCardWithTask(props)) {
     const { task } = props
@@ -125,27 +159,25 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     description = task.description
     priceLabel = task.priceLabel
     metaLine = task.location
+    badgeText = task.badgeText
     distanceLabel = task.distanceLabel
+    timingLabel = task.timingLabel
+    quotesLabel = task.quotesLabel
     viewsLabel = task.viewsLabel
-    ownerName = task.ownerName
-    ownerAvatarSrc = task.ownerAvatarSrc
-    ratingLabel = task.ratingLabel
     thumbnailSrc = task.thumbnailSrc
     detailsHref = props.detailsHref ?? `/tasks/${task.id}`
-    badgeText = task.badgeText
   } else {
     title = props.title
     description = props.description
     priceLabel = props.priceLabel
     metaLine = props.metaLine
+    badgeText = props.badgeText
     distanceLabel = props.distanceLabel
+    timingLabel = props.timingLabel
+    quotesLabel = props.quotesLabel
     viewsLabel = props.viewsLabel
-    ownerName = props.ownerName
-    ownerAvatarSrc = props.ownerAvatarSrc
-    ratingLabel = props.ratingLabel
     thumbnailSrc = props.thumbnailSrc
     detailsHref = props.detailsHref
-    badgeText = props.badgeText
   }
 
   const detailsCtaLabel = props.detailsCtaLabel ?? 'View task'
@@ -154,19 +186,26 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const descriptionText = description?.trim()
   const showDescription = isExpanded && Boolean(descriptionText)
   const showBadge = Boolean(badgeText?.trim())
-  const displayOwnerName = ownerName?.trim() || 'Task owner'
-  const displayRatingLabel = ratingLabel?.trim()
+  const locationLine = distanceLabel
+    ? `${metaLine} · ${distanceLabel}`
+    : metaLine
+  const engagementLabel = quotesLabel ?? viewsLabel
+
+  const handleToggleSave = onToggleSave
+    ? (e: MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation()
+        onToggleSave()
+      }
+    : undefined
 
   const shell = (
     <Card
       isActive={isActive}
-      p={{ base: 2, md: isExpanded ? 3.5 : 2 }}
-      px={{ base: 3, md: isExpanded ? 4 : 3 }}
-      minH={{ base: '108px', md: isExpanded ? 'auto' : '132px' }}
+      p={{ base: 3, md: isExpanded ? 4 : 3 }}
       maxW="full"
-      bg="bg.surface"
+      bg={isActive ? 'status.success.soft' : 'bg.surface'}
       boxShadow={isExpanded ? 'e3' : 'card'}
-      transitionProperty="box-shadow, transform, border-color, padding"
+      transitionProperty="background-color, box-shadow, transform, border-color, padding"
       transitionDuration={sdlMotion.duration.base}
       transitionTimingFunction={sdlMotion.easing.standard}
       _hover={
@@ -177,45 +216,40 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           : undefined
       }
     >
-      <HStack
-        gap={{ base: 2.5, md: 4 }}
-        align={isExpanded ? 'flex-start' : 'stretch'}
-        flexWrap={{ base: 'wrap', md: 'nowrap' }}
-      >
+      <HStack gap={{ base: 3, md: 4 }} align="stretch">
         <Thumbnail alt={`${title} thumbnail`} src={thumbnailSrc} />
-        <Stack flex={1} minW={0} gap={0}>
-          <HStack
-            justify="space-between"
-            align="center"
-            gap={2}
-            pb={1}
-            minW={0}
-          >
-            <HStack gap={3} flex={1} minW={0}>
-              {showBadge ? <Badge>{badgeText}</Badge> : null}
-              {distanceLabel ? (
-                <Text fontSize="xs" color="text.muted" truncate>
-                  {distanceLabel}
-                </Text>
+        <Stack flex={1} minW={0} gap={1}>
+          <HStack justify="space-between" align="flex-start" gap={2} minW={0}>
+            <Stack gap={1} flex={1} minW={0} align="flex-start">
+              {showBadge ? (
+                // Active card bg is the same soft green as the brand pill —
+                // switch the pill to a surface fill so it stays visible.
+                <Badge shape="pill" bg={isActive ? 'bg.surface' : undefined}>
+                  {badgeText}
+                </Badge>
               ) : null}
-              {viewsLabel ? (
-                <Text fontSize="xs" color="text.muted" truncate>
-                  {viewsLabel}
-                </Text>
-              ) : null}
-            </HStack>
+              <Text
+                fontSize={isExpanded ? 'xl' : 'md'}
+                fontWeight={700}
+                color="text.default"
+                lineClamp={isExpanded ? 2 : 1}
+                truncate={!isExpanded}
+                maxW="full"
+              >
+                {title}
+              </Text>
+            </Stack>
+            <Text
+              fontWeight={800}
+              fontSize={{ base: 'lg', md: 'xl' }}
+              lineHeight="1.4"
+              color="text.link"
+              whiteSpace="nowrap"
+              flexShrink={0}
+            >
+              {priceLabel}
+            </Text>
           </HStack>
-
-          <Text
-            display={{ base: 'none', md: 'block' }}
-            fontSize={isExpanded ? '2xl' : 'xl'}
-            fontWeight={700}
-            color="text.default"
-            lineClamp={isExpanded ? 2 : 1}
-            truncate={!isExpanded}
-          >
-            {title}
-          </Text>
 
           {showDescription ? (
             <Text
@@ -224,73 +258,77 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               lineHeight="1.5"
               color="text.muted"
               lineClamp={4}
-              pb={2}
+              pb={1}
             >
               {descriptionText}
             </Text>
           ) : null}
 
-          <Stack direction="row" justify="space-between" align="center" pb={2}>
-            <Text
-              flex={1}
-              minW={0}
-              fontSize="xs"
-              color="text.muted"
-              lineClamp={isExpanded ? 2 : 1}
-              truncate={!isExpanded}
-            >
-              {metaLine}
-            </Text>
-            <Text
-              fontWeight={800}
-              fontSize={{ base: 'xl', md: '2xl' }}
-              lineHeight="1"
-              color="text.link"
-              whiteSpace="nowrap"
-              flexShrink={0}
-            >
-              {priceLabel}
-            </Text>
-          </Stack>
-
-          <HStack
-            gap={{ base: 2, md: 3 }}
-            minW={0}
-            align="center"
-            flexWrap="nowrap"
-          >
-            <HStack gap={2} minW={0} flex={1} overflow="hidden">
-              <Box flex={1} minW={0} overflow="hidden">
-                <Avatar
-                  name={displayOwnerName}
-                  src={ownerAvatarSrc}
-                  label={displayOwnerName}
-                  labelProps={{ flex: 1, minW: 0 }}
-                />
-              </Box>
-              {displayRatingLabel ? (
-                <Rating value={displayRatingLabel} />
+          <HStack justify="space-between" align="flex-end" gap={2} minW={0}>
+            <Stack gap={1} flex={1} minW={0} py={0.5}>
+              <TaskCardMetaRow icon={<LuMapPin size={12} strokeWidth={2} />}>
+                {locationLine}
+              </TaskCardMetaRow>
+              {timingLabel ? (
+                <TaskCardMetaRow
+                  icon={<LuCalendarDays size={12} strokeWidth={2} />}
+                >
+                  {timingLabel}
+                </TaskCardMetaRow>
+              ) : null}
+              {engagementLabel ? (
+                <TaskCardMetaRow
+                  icon={
+                    quotesLabel ? (
+                      <LuMessageSquareText size={12} strokeWidth={2} />
+                    ) : (
+                      <LuEye size={12} strokeWidth={2} />
+                    )
+                  }
+                >
+                  {engagementLabel}
+                </TaskCardMetaRow>
+              ) : null}
+            </Stack>
+            <HStack gap={1} flexShrink={0} align="center">
+              {showDetailsCta ? (
+                <Link
+                  href={detailsHref}
+                  onClick={(e) => e.stopPropagation()}
+                  _hover={{ textDecoration: 'none' }}
+                  flexShrink={0}
+                >
+                  <Button
+                    size="sm"
+                    minW={{ md: '106px' }}
+                    h={9}
+                    px={{ base: 3, md: 4 }}
+                    borderRadius="lg"
+                    whiteSpace="nowrap"
+                  >
+                    {detailsCtaLabel}
+                  </Button>
+                </Link>
+              ) : null}
+              {handleToggleSave ? (
+                <IconButton
+                  aria-label={
+                    isSaved
+                      ? `Remove bookmark from ${title}`
+                      : `Bookmark ${title}`
+                  }
+                  aria-pressed={isSaved}
+                  onClick={handleToggleSave}
+                  color={isSaved ? 'text.link' : 'text.muted'}
+                >
+                  <LuBookmark
+                    size={18}
+                    strokeWidth={2}
+                    fill={isSaved ? 'currentColor' : 'none'}
+                  />
+                </IconButton>
               ) : null}
             </HStack>
-            {showDetailsCta ? (
-              <Link
-                href={detailsHref}
-                onClick={(e) => e.stopPropagation()}
-                _hover={{ textDecoration: 'none' }}
-                flexShrink={0}
-              >
-                <Button
-                  size="sm"
-                  minW={{ md: '106px' }}
-                  h={9}
-                  px={{ base: 3, md: 4 }}
-                  borderRadius="lg"
-                  whiteSpace="nowrap"
-                >
-                  {detailsCtaLabel}
-                </Button>
-              </Link>
-            ) : null}
           </HStack>
         </Stack>
       </HStack>
@@ -325,6 +363,9 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
         aria-label={activateAriaLabel}
         onClick={onActivate}
         onKeyDown={(e) => {
+          // Only card-level keypresses activate; inner controls (bookmark,
+          // details CTA) handle their own Enter/Space.
+          if (e.target !== e.currentTarget) return
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
             onActivate()

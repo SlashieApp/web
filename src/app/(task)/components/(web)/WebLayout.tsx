@@ -6,6 +6,7 @@ import { TaskBrowseSearchThisAreaButton } from '../TaskBrowseSearchThisAreaButto
 import { TaskSearch } from '../TaskSearch'
 import { TaskTag } from '../TaskTag'
 import { WebTaskBrowseFiltersBlock } from './TaskBrowseFilters'
+import { TaskBrowseListColumnScrim } from './TaskBrowseListColumnScrim'
 
 export function WebLayout() {
   return (
@@ -17,6 +18,7 @@ export function WebLayout() {
       position="relative"
       overflow="hidden"
     >
+      <TaskBrowseListColumnScrim />
       <Box
         position="absolute"
         zIndex={2}

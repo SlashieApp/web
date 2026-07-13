@@ -1,9 +1,27 @@
 import type { MeWorkerSetupQuery } from '@codegen/schema'
 import { z } from 'zod'
 
+import { categoryEnumFromSlug } from './workerSetupCategories'
 import type { WorkerSetupFormState } from './workerSetupFormState'
-import { parsePortfolioText, parseSkillsText } from './workerSetupFormState'
+import { SKILLS_MAX, SKILLS_MIN } from './workerSetupSkills'
 import type { WorkerSetupSubStepId } from './workerSetupSteps.config'
+
+export const BIO_MIN_CHARS = 80
+export const BIO_MAX_CHARS = 300
+export const HEADLINE_MIN_CHARS = 10
+export const HEADLINE_MAX_CHARS = 80
+export const YEARS_EXPERIENCE_MAX = 60
+
+/**
+ * Junk-content floor for the bio: passes with at least 10 distinct characters
+ * OR at least 12 words. Catches "oooooo…" and single-word walls that clear the
+ * length minimum without saying anything.
+ */
+export function isJunkBio(bio: string): boolean {
+  const distinctChars = new Set(bio.replace(/\s+/g, '').toLowerCase()).size
+  const wordCount = bio.split(/\s+/).filter(Boolean).length
+  return distinctChars < 10 && wordCount < 12
+}
 
 const detailsSchema = z.object({
   firstName: z.string().trim().min(1, 'Enter your first name.'),
@@ -35,16 +53,30 @@ const bioSchema = z.object({
   bio: z
     .string()
     .trim()
-    .min(1, 'Write a short bio about your skills and experience.')
-    .max(300, 'Keep your bio under 300 characters.'),
-  tagline: z.string().trim().max(140).optional().or(z.literal('')),
-})
-
-const skillsSchema = z.object({
-  skillsText: z
+    .min(
+      BIO_MIN_CHARS,
+      `Write at least ${BIO_MIN_CHARS} characters — customers read this before accepting your quote.`,
+    )
+    .max(BIO_MAX_CHARS, `Keep your bio under ${BIO_MAX_CHARS} characters.`)
+    .refine(
+      (v) => !isJunkBio(v),
+      'Tell customers about your work in full sentences — this reads as placeholder text.',
+    ),
+  tagline: z
     .string()
     .trim()
-    .min(1, 'List at least one skill or service you offer.'),
+    .min(
+      HEADLINE_MIN_CHARS,
+      `Add a professional headline of at least ${HEADLINE_MIN_CHARS} characters.`,
+    )
+    .max(
+      HEADLINE_MAX_CHARS,
+      `Keep your headline under ${HEADLINE_MAX_CHARS} characters.`,
+    )
+    .refine(
+      (v) => v.split(/\s+/).filter(Boolean).length >= 2,
+      'Use a few words, e.g. "Handyman with 8 years experience".',
+    ),
 })
 
 const experienceSchema = z.object({
@@ -52,10 +84,10 @@ const experienceSchema = z.object({
     .string()
     .trim()
     .min(1, 'Enter your years of experience.')
-    .refine(
-      (v) => Number.isFinite(Number(v)) && Number(v) >= 0,
-      'Years of experience must be 0 or greater.',
-    ),
+    .refine((v) => {
+      const n = Number(v)
+      return Number.isInteger(n) && n >= 0 && n <= YEARS_EXPERIENCE_MAX
+    }, `Enter a whole number between 0 and ${YEARS_EXPERIENCE_MAX}.`),
 })
 
 const locationSchema = z.object({
@@ -69,6 +101,8 @@ export function validateWorkerSetupSubStep(
 ): Record<string, string> {
   const errors: Record<string, string> = {}
 
+  // First issue per field wins — length errors read better than the
+  // content-heuristic message when both fire.
   const mergeZodErrors = (result: {
     success: boolean
     error?: z.ZodError
@@ -76,14 +110,17 @@ export function validateWorkerSetupSubStep(
     if (result.success || !result.error) return
     for (const issue of result.error.issues) {
       const key = issue.path[0]
-      if (typeof key === 'string') errors[key] = issue.message
+      if (typeof key === 'string' && !(key in errors)) {
+        errors[key] = issue.message
+      }
     }
   }
 
   switch (subStepId) {
     case 'profile.details': {
+      // Headline + bio moved to their dedicated `profile.bio` step — asking
+      // for an 80-char bio on the first screen buries the flow.
       mergeZodErrors(detailsSchema.safeParse(form))
-      mergeZodErrors(bioSchema.safeParse(form))
       break
     }
     case 'profile.photo': {
@@ -94,21 +131,17 @@ export function validateWorkerSetupSubStep(
       break
     }
     case 'profile.bio': {
-      const result = bioSchema.safeParse(form)
-      if (!result.success) {
-        for (const issue of result.error.issues) {
-          const key = issue.path[0]
-          if (typeof key === 'string') errors[key] = issue.message
-        }
-      }
+      mergeZodErrors(bioSchema.safeParse(form))
       break
     }
     case 'services.skills': {
-      const result = skillsSchema.safeParse(form)
-      if (!result.success) {
-        errors.skillsText = result.error.issues[0]?.message ?? 'Required'
-      } else if (parseSkillsText(form.skillsText).length === 0) {
-        errors.skillsText = 'List at least one skill or service you offer.'
+      if (!form.primaryCategory) {
+        errors.primaryCategory = 'Choose the kind of work you do most.'
+      }
+      if (form.skills.length < SKILLS_MIN) {
+        errors.skills = `Add at least ${SKILLS_MIN} skills so customers can find you for the right tasks.`
+      } else if (form.skills.length > SKILLS_MAX) {
+        errors.skills = `Keep it to ${SKILLS_MAX} skills — lead with the work you do best.`
       }
       break
     }
@@ -127,9 +160,11 @@ export function validateWorkerSetupSubStep(
       break
     }
     case 'verify.phone':
-      if (!me.emailVerified && !me.phoneVerified) {
+      // BE finalize + registerAsPro require a strictly verified PHONE
+      // (2026-07-13) — a verified email alone no longer unlocks quoting.
+      if (!me.phoneVerified) {
         errors.contact =
-          'Verify your email or phone number below before continuing.'
+          'Verify your phone number below before continuing — Slashie requires a verified phone to send quotes.'
       }
       break
     default:
@@ -143,8 +178,6 @@ export function subStepsToSaveOnContinue(
   subStepId: WorkerSetupSubStepId,
 ): WorkerSetupSubStepId[] {
   switch (subStepId) {
-    case 'profile.details':
-      return ['profile.details', 'profile.bio']
     case 'profile.photo':
       return ['profile.details', 'profile.photo']
     default:
@@ -173,14 +206,18 @@ export function buildSavePayload(
       return avatarUrl?.trim() ? { avatarUrl: avatarUrl.trim() } : {}
     case 'profile.bio':
       return {
-        tagline: form.tagline.trim() || undefined,
+        tagline: form.tagline.trim(),
         bio: form.bio.trim(),
       }
     case 'services.skills':
-      return { skills: parseSkillsText(form.skillsText) }
+      return {
+        primaryCategory: categoryEnumFromSlug(form.primaryCategory),
+        skills: form.skills,
+      }
     case 'services.experience':
       return {
         yearsExperience: Number.parseInt(form.yearsExperience.trim(), 10),
+        qualifications: form.qualifications,
       }
     case 'area.location': {
       const label = form.locationName.trim()
@@ -215,7 +252,7 @@ export function buildSavePayload(
       }
     }
     case 'verify.portfolio':
-      return { portfolioUrls: parsePortfolioText(form.portfolioText) }
+      return { portfolioUrls: form.portfolioUrls }
     default:
       return {}
   }

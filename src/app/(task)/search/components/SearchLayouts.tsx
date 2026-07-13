@@ -5,20 +5,21 @@ import { Box, HStack, Stack } from '@chakra-ui/react'
 import { MobileTaskBrowseFiltersDrawer } from '../../components/(mobile)/MobileTaskBrowseFiltersDrawer'
 import { MobileTaskCarousel } from '../../components/(mobile)/MobileTaskCarousel'
 import { WebTaskBrowseFiltersBlock } from '../../components/(web)/TaskBrowseFilters'
+import { TaskBrowseListColumnScrim } from '../../components/(web)/TaskBrowseListColumnScrim'
 import { TaskBrowseSearchThisAreaButton } from '../../components/TaskBrowseSearchThisAreaButton'
 import { TaskSearch } from '../../components/TaskSearch'
 import { TaskTag } from '../../components/TaskTag'
 import { useTaskBrowseLayout } from '../../context/TaskBrowseProvider'
 import { useSearchMode } from '../context/SearchModeProvider'
 import { MobileWorkerCarousel } from './MobileWorkerCarousel'
-import { SearchModeToggle } from './SearchModeToggle'
+import { SearchModeSelector } from './SearchModeSelector'
+import { SearchResultsListTitle } from './SearchResultsListTitle'
 import { WorkerFilterChips } from './WorkerFilterChips'
 import { WorkerFiltersPanel } from './WorkerFiltersPanel'
 import { WebWorkerSearchBlock } from './WorkerSearchPanel'
 
 /**
- * Desktop split view for /search: the task browse shell with a mode toggle
- * above the location bar; the list/filters region swaps per mode.
+ * Desktop split view for /search: mode selector above the location bar; the list/filters region swaps per mode.
  */
 export function WebSearchLayout() {
   const { mode } = useSearchMode()
@@ -32,6 +33,7 @@ export function WebSearchLayout() {
       position="relative"
       overflow="hidden"
     >
+      <TaskBrowseListColumnScrim />
       <Box
         position="absolute"
         zIndex={2}
@@ -54,7 +56,7 @@ export function WebSearchLayout() {
           w="full"
         >
           <Stack gap={2} flexShrink={0}>
-            <SearchModeToggle />
+            <SearchModeSelector />
             <TaskSearch />
             <HStack gap={1.5} flexWrap="wrap">
               {mode === 'workers' ? <WorkerFilterChips /> : <TaskTag />}
@@ -71,9 +73,13 @@ export function WebSearchLayout() {
             overflow="hidden"
           >
             {mode === 'workers' ? (
-              <WebWorkerSearchBlock />
+              <WebWorkerSearchBlock
+                listHeader={<SearchResultsListTitle mode="workers" />}
+              />
             ) : (
-              <WebTaskBrowseFiltersBlock />
+              <WebTaskBrowseFiltersBlock
+                listHeader={<SearchResultsListTitle mode="tasks" />}
+              />
             )}
           </Box>
         </Box>
@@ -106,7 +112,7 @@ function MobileWorkerFiltersOverlay() {
 }
 
 /**
- * Mobile /search: map behind, mode toggle + location bar on top, bottom
+ * Mobile /search: map behind, mode selector + location bar on top, bottom
  * card strip per mode (task carousel or worker strip).
  */
 export function MobileSearchLayout() {
@@ -121,6 +127,23 @@ export function MobileSearchLayout() {
       minW={0}
       pointerEvents="none"
     >
+      {/* White top fade (30% of height) so the mode toggle / search / chips
+          read over the map — mobile twin of TaskBrowseListColumnScrim. */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        h="30%"
+        zIndex={3}
+        pointerEvents="none"
+        aria-hidden
+        css={{
+          background:
+            'linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 45%, rgba(255, 255, 255, 0) 100%)',
+        }}
+      />
+
       <Box
         position="absolute"
         top={3}
@@ -130,7 +153,7 @@ export function MobileSearchLayout() {
         pointerEvents="none"
       >
         <Stack gap={2} flexShrink={0} mr={12}>
-          <SearchModeToggle />
+          <SearchModeSelector />
           <TaskSearch />
           <HStack gap={1.5} flexWrap="wrap">
             {mode === 'workers' ? <WorkerFilterChips /> : <TaskTag />}

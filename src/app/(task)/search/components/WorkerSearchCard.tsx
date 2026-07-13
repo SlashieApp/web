@@ -5,16 +5,45 @@ import type { KeyboardEvent } from 'react'
 import { LuCheck, LuMapPin } from 'react-icons/lu'
 
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
-import { Avatar, Badge, Card, Link } from '@ui'
+import { Avatar, Badge, Card, Link, Rating } from '@ui'
 
 const MAX_SKILL_CHIPS = 3
+
+/**
+ * Solid brand-green check disc (design's verified/responds glyph). Green-ink
+ * rule: the check uses `text.onGreen`, never white.
+ */
+function CheckDisc({ size }: { size: number }) {
+  return (
+    <Box
+      as="span"
+      aria-hidden
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      boxSize={`${size}px`}
+      borderRadius="full"
+      bg="action.primary"
+      color="text.onGreen"
+      flexShrink={0}
+    >
+      <LuCheck size={Math.round(size * 0.6)} strokeWidth={3.5} />
+    </Box>
+  )
+}
 
 export type WorkerSearchCardProps = {
   name: string
   avatarUrl?: string | null
   verified?: boolean
-  /** Tagline or experience/area summary. */
+  /** Tagline or area summary, e.g. "Handyman · Furniture assembly". */
   subtitle?: string | null
+  /** Rating-row score, e.g. "4.9 (128)". */
+  ratingLabel?: string | null
+  /** Rating-row experience, e.g. "5 yrs exp". */
+  experienceLabel?: string | null
+  /** Responsiveness line, e.g. "Responds in under 2 hours". */
+  respondsLabel?: string | null
   /** Approximate service-area label, e.g. "Camden (~5 miles)". Never an address. */
   serviceAreaLabel?: string | null
   skills?: readonly string[]
@@ -23,6 +52,14 @@ export type WorkerSearchCardProps = {
   /** First activation selects/highlights on the map; the parent decides what a second activation does. */
   onActivate?: () => void
   activateAriaLabel?: string
+  /**
+   * `gesture` — plain surface so horizontal swipes reach Embla (mobile
+   * carousel). `button` — focusable control (lists, keyboard). Mirrors
+   * TaskCard's activation modes.
+   */
+  activateMode?: 'button' | 'gesture'
+  /** Cursor on the activatable shell (e.g. `grab` in a draggable carousel). */
+  activateCursor?: 'pointer' | 'grab'
   /** Compact variant for the mobile carousel. */
   compact?: boolean
 }
@@ -37,12 +74,17 @@ export function WorkerSearchCard({
   avatarUrl,
   verified,
   subtitle,
+  ratingLabel,
+  experienceLabel,
+  respondsLabel,
   serviceAreaLabel,
   skills = [],
   profileHref,
   isActive = false,
   onActivate,
   activateAriaLabel,
+  activateMode = 'button',
+  activateCursor = 'pointer',
   compact = false,
 }: WorkerSearchCardProps) {
   const visibleSkills = skills.slice(0, MAX_SKILL_CHIPS)
@@ -56,15 +98,22 @@ export function WorkerSearchCard({
   }
 
   const shell = (
+    // Same Card treatment as TaskCard: `isActive` drives the border via the
+    // primitive; active fill + hover/active elevation match the task cards.
     <Card
-      p={compact ? 3 : 4}
+      isActive={isActive}
+      // TaskCard parity: same p={3}; minH matches TaskCard's natural height
+      // (120px thumbnail + padding) so the two /search modes line up.
+      p={3}
+      minH="144px"
       w="full"
-      borderWidth="1px"
-      borderColor={isActive ? 'action.primary' : 'border.default'}
-      boxShadow={isActive ? 'e3' : 'e2'}
-      transitionProperty="border-color, box-shadow"
-      transitionDuration={sdlMotion.duration.moderate}
+      maxW="full"
+      bg={isActive ? 'status.success.soft' : 'bg.surface'}
+      boxShadow={isActive ? 'e3' : 'card'}
+      transitionProperty="background-color, border-color, box-shadow"
+      transitionDuration={sdlMotion.duration.base}
       transitionTimingFunction={sdlMotion.easing.standard}
+      _hover={onActivate ? { boxShadow: 'e3' } : undefined}
     >
       <HStack gap={3} align="flex-start">
         <Box position="relative" flexShrink={0}>
@@ -76,9 +125,9 @@ export function WorkerSearchCard({
           {verified ? (
             <Box
               position="absolute"
-              right="-2px"
+              left="-2px"
               bottom="-2px"
-              boxSize="18px"
+              boxSize={compact ? '18px' : '24px'}
               borderRadius="full"
               bg="action.primary"
               color="text.onGreen"
@@ -89,16 +138,22 @@ export function WorkerSearchCard({
               borderColor="bg.surface"
               aria-label="Verified worker"
             >
-              <LuCheck size={10} strokeWidth={3.5} aria-hidden />
+              <LuCheck size={compact ? 10 : 13} strokeWidth={3.5} aria-hidden />
             </Box>
           ) : null}
         </Box>
 
         <Stack gap={compact ? 0.5 : 1} flex={1} minW={0}>
           <HStack gap={2} justify="space-between" align="baseline">
-            <Heading size="sm" lineHeight="short" lineClamp={1}>
-              {name}
-            </Heading>
+            <HStack gap={1} minW={0} align="center">
+              <Heading size="sm" lineHeight="short" lineClamp={1}>
+                {name}
+              </Heading>
+              {verified ? (
+                // Decorative: the avatar badge carries the "Verified worker" label.
+                <CheckDisc size={14} />
+              ) : null}
+            </HStack>
             <Link
               href={profileHref}
               fontSize="xs"
@@ -121,6 +176,24 @@ export function WorkerSearchCard({
             </Text>
           ) : null}
 
+          {ratingLabel || experienceLabel ? (
+            <HStack gap={1.5} color="text.muted" fontSize="xs" minW={0}>
+              {ratingLabel ? (
+                <Rating value={ratingLabel} size="sm" label="Worker rating" />
+              ) : null}
+              {ratingLabel && experienceLabel ? (
+                <Text as="span" fontSize="xs" aria-hidden>
+                  ·
+                </Text>
+              ) : null}
+              {experienceLabel ? (
+                <Text fontSize="xs" lineClamp={1}>
+                  {experienceLabel}
+                </Text>
+              ) : null}
+            </HStack>
+          ) : null}
+
           <HStack gap={1} color="text.muted" fontSize="xs" minW={0}>
             <Box as="span" aria-hidden display="inline-flex" flexShrink={0}>
               <LuMapPin size={12} strokeWidth={2} />
@@ -132,6 +205,15 @@ export function WorkerSearchCard({
             </Text>
           </HStack>
 
+          {respondsLabel ? (
+            <HStack gap={1.5} fontSize="xs" minW={0}>
+              <CheckDisc size={12} />
+              <Text color="text.muted" lineClamp={1}>
+                {respondsLabel}
+              </Text>
+            </HStack>
+          ) : null}
+
           {!compact && visibleSkills.length > 0 ? (
             <HStack gap={1.5} flexWrap="wrap" pt={0.5}>
               {visibleSkills.map((skill) => (
@@ -141,7 +223,7 @@ export function WorkerSearchCard({
               ))}
               {extraSkillCount > 0 ? (
                 <Badge variant="neutral" shape="pill" size="sm">
-                  +{extraSkillCount} more
+                  +{extraSkillCount}
                 </Badge>
               ) : null}
             </HStack>
@@ -150,6 +232,25 @@ export function WorkerSearchCard({
       </HStack>
     </Card>
   )
+
+  if (activateMode === 'gesture') {
+    // Plain surface (no button semantics) so horizontal swipes reach Embla.
+    return (
+      <Box
+        w="full"
+        cursor={activateCursor}
+        aria-current={isActive ? 'true' : undefined}
+        aria-label={activateAriaLabel ?? `${name}. Select to highlight on map.`}
+        onClick={onActivate}
+        css={{
+          touchAction: 'pan-y',
+          WebkitTapHighlightColor: 'transparent',
+        }}
+      >
+        {shell}
+      </Box>
+    )
+  }
 
   // Activation wrapper mirrors TaskCard: plain div with button semantics so
   // the inner "View profile" link stays independently focusable.

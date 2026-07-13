@@ -163,7 +163,21 @@ export function TaskMap(props: TaskMapProps) {
   }
 
   return (
-    <Box position="absolute" inset={0} h="full" overflow="hidden" zIndex={0}>
+    <Box
+      position="absolute"
+      inset={0}
+      h="full"
+      overflow="hidden"
+      zIndex={0}
+      css={{
+        // Mobile: hide the +/− NavigationControl. Touch has pinch/double-tap
+        // zoom, and the control sits inside the map's stacking context so the
+        // top scrim overlay would wash it out. Desktop keeps it.
+        '@media (max-width: 47.9975em)': {
+          '& .mapboxgl-ctrl-top-right': { display: 'none' },
+        },
+      }}
+    >
       <Box
         ref={mapContainerRef}
         w="full"

@@ -18,8 +18,10 @@ query MeWorkerSetup {
       legalName
       bio
       tagline
+      primaryCategory
       yearsExperience
       skills
+      qualifications
       travelRadiusMiles
       portfolioUrls
       location {

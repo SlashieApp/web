@@ -12,6 +12,9 @@ import { useWorkerSearch } from '../context/WorkerSearchProvider'
 import {
   workerAvatarUrl,
   workerDisplayName,
+  workerExperienceShortLabel,
+  workerRatingLabel,
+  workerRespondsLabel,
   workerServiceAreaLabel,
   workerSubtitle,
 } from '../helpers/workerSearchHelpers'
@@ -23,7 +26,7 @@ const panelEase = [0.22, 1, 0.36, 1] as const
 const panelSlidePx = 22
 
 /** Worker result list: select-to-highlight, activate again to open the profile. */
-export function WorkerSearchList() {
+export function WorkerSearchList({ header }: { header?: React.ReactNode }) {
   const router = useRouter()
   const {
     workers,
@@ -77,6 +80,7 @@ export function WorkerSearchList() {
         }}
       >
         <Stack gap={3} py={5} pb={10}>
+          {header ? <Box px={0.5}>{header}</Box> : null}
           {loading && workers.length === 0
             ? [0, 1, 2].map((row) => (
                 <Skeleton key={row} h="108px" borderRadius="2xl" />
@@ -103,6 +107,9 @@ export function WorkerSearchList() {
                   avatarUrl={workerAvatarUrl(worker)}
                   verified={worker.isVerified}
                   subtitle={workerSubtitle(worker)}
+                  ratingLabel={workerRatingLabel(worker)}
+                  experienceLabel={workerExperienceShortLabel(worker)}
+                  respondsLabel={workerRespondsLabel(worker)}
                   serviceAreaLabel={workerServiceAreaLabel(worker)}
                   skills={worker.skills}
                   profileHref={`/workers/${worker.id}`}
@@ -127,7 +134,11 @@ export function WorkerSearchList() {
  * Worker-mode equivalent of `WebTaskBrowseFiltersBlock`: filters and the
  * result list share one flex region, swapped with the same motion treatment.
  */
-export function WebWorkerSearchBlock() {
+export function WebWorkerSearchBlock({
+  listHeader,
+}: {
+  listHeader?: React.ReactNode
+}) {
   const { isFilterOpen } = useTaskBrowseLayout()
 
   return (
@@ -177,7 +188,7 @@ export function WebWorkerSearchBlock() {
               flexDirection: 'column',
             }}
           >
-            <WorkerSearchList />
+            <WorkerSearchList header={listHeader} />
           </motion.div>
         )}
       </AnimatePresence>

@@ -80,11 +80,20 @@ export function WorkerProfileHero() {
           gap={{ base: 4, md: 6 }}
         >
           <Box position="relative" flexShrink={0}>
-            <Avatar
-              name={name}
-              src={worker.profile?.avatarUrl ?? undefined}
-              size="xl"
-            />
+            {/* White ring lifts the avatar off the mint cover band. */}
+            <Box
+              borderRadius="full"
+              p="3px"
+              bg="bg.surface"
+              boxShadow="e2"
+              display="inline-flex"
+            >
+              <Avatar
+                name={name}
+                src={worker.profile?.avatarUrl ?? undefined}
+                size="xl"
+              />
+            </Box>
             {worker.isVerified ? (
               <Box
                 position="absolute"

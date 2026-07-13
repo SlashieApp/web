@@ -14,7 +14,7 @@ const SearchModeContext = createContext<SearchModeContextValue | null>(null)
 /**
  * What the unified /search surface is searching for: tasks or workers.
  * State-only — URL reflection is handled by `SearchUrlSync`, and mode-switch
- * side effects (clearing selection, closing filters) by `SearchModeToggle`.
+ * side effects (clearing selection, closing filters) by `useSelectSearchMode`.
  */
 export function SearchModeProvider({
   children,

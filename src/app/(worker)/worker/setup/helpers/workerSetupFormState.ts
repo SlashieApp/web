@@ -2,19 +2,28 @@ import type { MeWorkerSetupQuery } from '@codegen/schema'
 
 import { dateInputValueFromIso } from '@/app/(dashboard)/profile/profileFormSchema'
 
+import { categorySlugFromEnum } from './workerSetupCategories'
+
 export type WorkerSetupFormState = {
   firstName: string
   lastName: string
   dateOfBirth: string
+  /** Professional headline (saved to the worker `tagline` field). */
   tagline: string
   bio: string
-  skillsText: string
+  /** Primary trade slug ({@link workerSetupCategories}); saved as the `primaryCategory` enum. */
+  primaryCategory: string
+  /** Selected skill chips — the same string[] shape as the `skills` payload. */
+  skills: string[]
   yearsExperience: string
+  /** Qualification chips (e.g. "Gas Safe") — `qualifications` payload, max 10. */
+  qualifications: string[]
   locationName: string
   locationLat: number | null
   locationLng: number | null
   travelRadiusMiles: string
-  portfolioText: string
+  /** Portfolio item URLs — the same string[] shape as the `portfolioUrls` payload. */
+  portfolioUrls: string[]
 }
 
 export const emptyWorkerSetupFormState = (): WorkerSetupFormState => ({
@@ -23,13 +32,15 @@ export const emptyWorkerSetupFormState = (): WorkerSetupFormState => ({
   dateOfBirth: '',
   tagline: '',
   bio: '',
-  skillsText: '',
+  primaryCategory: '',
+  skills: [],
   yearsExperience: '',
+  qualifications: [],
   locationName: '',
   locationLat: null,
   locationLng: null,
   travelRadiusMiles: '',
-  portfolioText: '',
+  portfolioUrls: [],
 })
 
 function splitLegalName(legalName: string | null | undefined): {
@@ -67,7 +78,13 @@ export function formStateFromMeWorkerSetup(
     dateOfBirth: dateInputValueFromIso(profile?.dateOfBirth),
     tagline: worker?.tagline?.trim() ?? '',
     bio: worker?.bio?.trim() ?? '',
-    skillsText: (worker?.skills ?? []).join(', '),
+    // BE reads are rollout-tolerant: legacy skills[0] trade labels are
+    // inferred into primaryCategory and stripped from skills server-side.
+    primaryCategory: categorySlugFromEnum(worker?.primaryCategory),
+    skills: (worker?.skills ?? []).map((s) => s.trim()).filter(Boolean),
+    qualifications: (worker?.qualifications ?? [])
+      .map((q) => q.trim())
+      .filter(Boolean),
     yearsExperience:
       typeof worker?.yearsExperience === 'number'
         ? String(worker.yearsExperience)
@@ -79,7 +96,9 @@ export function formStateFromMeWorkerSetup(
       typeof worker?.travelRadiusMiles === 'number'
         ? String(worker.travelRadiusMiles)
         : '',
-    portfolioText: (worker?.portfolioUrls ?? []).join('\n'),
+    portfolioUrls: (worker?.portfolioUrls ?? [])
+      .map((url) => url.trim())
+      .filter(Boolean),
   }
 }
 

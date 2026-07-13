@@ -16,6 +16,7 @@ export {
   TaskBrowseFiltersPanel,
   WebTaskBrowseFiltersBlock,
 } from './(web)/TaskBrowseFilters'
+export { TaskBrowseListColumnScrim } from './(web)/TaskBrowseListColumnScrim'
 export { TaskBrowseMapLayer, TaskMap } from './TaskMap'
 export { TaskBrowseMapLoader } from './TaskBrowseMapLoader'
 export { TaskBrowseSearchThisAreaButton } from './TaskBrowseSearchThisAreaButton'

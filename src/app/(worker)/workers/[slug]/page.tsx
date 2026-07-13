@@ -10,7 +10,9 @@ import { WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 import { WorkerAboutSection } from './components/WorkerAboutSection'
 import { WorkerContactStickyBar } from './components/WorkerContactStickyBar'
 import { WorkerPortfolioSection } from './components/WorkerPortfolioSection'
+import { WorkerProfileAddPlaceholder } from './components/WorkerProfileAddPlaceholder'
 import { WorkerProfileHero } from './components/WorkerProfileHero'
+import { WorkerProfileOwnerBanner } from './components/WorkerProfileOwnerBanner'
 import { WorkerProfileSidebar } from './components/WorkerProfileSidebar'
 import { WorkerProfileViewCapture } from './components/WorkerProfileViewCapture'
 import { WorkerReviewsSection } from './components/WorkerReviewsSection'
@@ -23,6 +25,11 @@ import {
   workerPublicDisplayName,
   workerServiceAreaDisplay,
 } from './helpers/workerProfileHelpers'
+import {
+  isOwnWorkerProfile,
+  workerHasMeaningfulBio,
+  workerProfileCompleteness,
+} from './helpers/workerProfileOwner'
 
 function absoluteUrlFromEnv(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl
@@ -98,6 +105,14 @@ export default async function WorkerProfilePage({
   const analyticsSource = fromTask?.trim() ? 'quote_card' : undefined
   const displayName = workerPublicDisplayName(worker)
 
+  // Owner vs visitor: visitors never see thin/empty sections; the owner sees
+  // dashed "Add …" prompts and the dismissible strength banner instead.
+  const isOwner = isOwnWorkerProfile(worker)
+  const hasBio = workerHasMeaningfulBio(worker)
+  const hasSkills = worker.skills.some((s) => s.trim())
+  const hasPhotos = worker.portfolioUrls.some((u) => u.trim())
+  const completeness = workerProfileCompleteness(worker)
+
   const completedJobs = worker.completedJobs.map((job) => ({
     id: job.taskId,
     title: job.title,
@@ -122,14 +137,49 @@ export default async function WorkerProfilePage({
               alignItems="start"
             >
               <Stack gap={{ base: 5, lg: 6 }} minW={0}>
-                <WorkerAboutSection />
-                <WorkerSkillsSection skills={worker.skills} />
-                <WorkerWorkSection jobs={completedJobs} />
+                {isOwner && completeness.percent < 100 ? (
+                  <WorkerProfileOwnerBanner
+                    workerId={worker.id}
+                    percent={completeness.percent}
+                    nextGap={completeness.nextGap}
+                  />
+                ) : null}
+
+                {hasBio ? (
+                  <WorkerAboutSection />
+                ) : isOwner ? (
+                  <WorkerProfileAddPlaceholder
+                    title="Add a bio"
+                    description="Customers read this before accepting your quote. Two or three sentences about the work you do best."
+                  />
+                ) : null}
+
+                {hasSkills ? (
+                  <WorkerSkillsSection skills={worker.skills} />
+                ) : isOwner ? (
+                  <WorkerProfileAddPlaceholder
+                    title="Add your skills"
+                    description="Skills become searchable tags, so customers find you for the right tasks."
+                  />
+                ) : null}
+
+                {completedJobs.length > 0 || isOwner ? (
+                  <WorkerWorkSection jobs={completedJobs} />
+                ) : null}
+
                 <WorkerReviewsSection />
-                <WorkerPortfolioSection
-                  portfolioUrls={worker.portfolioUrls}
-                  workerName={displayName}
-                />
+
+                {hasPhotos ? (
+                  <WorkerPortfolioSection
+                    portfolioUrls={worker.portfolioUrls}
+                    workerName={displayName}
+                  />
+                ) : isOwner ? (
+                  <WorkerProfileAddPlaceholder
+                    title="Add photos of your work"
+                    description="Workers with photos win more quotes. Add pictures of finished jobs."
+                  />
+                ) : null}
               </Stack>
               <Box minW={0}>
                 <WorkerProfileSidebar />

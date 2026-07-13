@@ -1,5 +1,8 @@
 import { Box } from '@chakra-ui/react'
-import { WorkerContactAction } from '@codegen/schema'
+import {
+  IdentityVerificationStatus,
+  WorkerContactAction,
+} from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { WorkerProfileProvider } from '../context/WorkerProfileContext'
@@ -56,6 +59,7 @@ export const UnverifiedNoTagline: Story = {
         worker={{
           ...workerProfileFixture,
           isVerified: false,
+          identityVerification: IdentityVerificationStatus.NotStarted,
           tagline: null,
           skills: [],
           yearsExperience: null,

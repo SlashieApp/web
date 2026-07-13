@@ -13,15 +13,14 @@ const SETUP_ERROR_MESSAGES: Record<string, string> = {
   LOCATION_REQUIRED:
     "We couldn't find that place. Try a city name or full postcode.",
   LOCATION_LABEL_REQUIRED: 'Add your primary service area.',
-  PHONE_NOT_VERIFIED: 'Verify your phone or email before continuing.',
+  PHONE_NOT_VERIFIED: 'Verify your phone number before continuing.',
   WORKER_SETUP_INCOMPLETE: 'Finish worker setup before quoting on tasks.',
   WORKER_PROFILE_INCOMPLETE:
     'Complete your profile requirements before finishing setup.',
 }
 
 const MISSING_REQUIREMENT_MESSAGES: Record<string, string> = {
-  VERIFIED_CONTACT_METHOD:
-    'Verify your email or phone number in the contact step.',
+  VERIFIED_CONTACT_METHOD: 'Verify your phone number in the contact step.',
   AVATAR: 'Add a profile photo in the profile step.',
   DATE_OF_BIRTH: 'Add your date of birth in personal details.',
   AGE_REQUIREMENT: 'You must be at least 18 years old to work on Slashie.',

@@ -1,5 +1,7 @@
 import type { WorkerPublicProfileQuery } from '@codegen/schema'
 
+import { categoryLabelFromEnum } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
+
 export type WorkerPublicRecord = NonNullable<WorkerPublicProfileQuery['worker']>
 
 export function workerPublicDisplayName(worker: WorkerPublicRecord): string {
@@ -50,12 +52,16 @@ export function workerServiceAreaDisplay(
     : area
 }
 
-/** Hero headline: `Handyman • Furniture assembly • 3 years experience`. */
+/** Hero headline: `Handyman • Furniture Assembly • 3 years experience`. */
 export function workerHeadline(worker: WorkerPublicRecord): string | null {
-  const parts = worker.skills
+  // Primary trade leads when set; skills fill the remaining slots (the BE
+  // strips the legacy trade label from skills, so no duplication).
+  const categoryLabel = categoryLabelFromEnum(worker.primaryCategory)
+  const skillParts = worker.skills
     .map((skill) => skill.trim())
     .filter(Boolean)
-    .slice(0, 2)
+    .slice(0, categoryLabel ? 1 : 2)
+  const parts = categoryLabel ? [categoryLabel, ...skillParts] : skillParts
   const years = worker.yearsExperience
   if (years != null && years > 0) {
     parts.push(`${years} year${years === 1 ? '' : 's'} experience`)

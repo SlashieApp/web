@@ -81,45 +81,54 @@ export const STEP_COPY: Record<
   { title: string; description?: string }
 > = {
   'profile.details': {
-    title: 'Tell us about yourself',
+    title: 'Tell us your name',
     description:
-      'This information appears on your public worker profile so customers can trust you before accepting your quote.',
+      'Your name appears on your public profile and every quote you send — customers want to know who is turning up.',
   },
   'profile.photo': {
     title: 'Add a profile photo',
-    description: 'A clear photo helps customers recognise you on quotes.',
+    description:
+      'Profiles with a clear, friendly photo win more work — customers pick faces they recognise and trust.',
   },
   'profile.bio': {
-    title: 'Write your public bio',
-    description: 'Keep it short and focused on the work you do best.',
+    title: 'Write your headline and bio',
+    description:
+      'Customers read this before accepting your quote. A sharp headline and two or three sentences about the work you do best.',
   },
   'services.skills': {
-    title: 'What services do you offer?',
-    description: 'Help customers find you for the right kinds of tasks.',
+    title: 'What work do you do?',
+    description:
+      'Your trade and skills become searchable tags — they decide which tasks you show up for.',
   },
   'services.experience': {
     title: 'How much experience do you have?',
-    description: 'Share how long you have been doing this work.',
+    description:
+      'Years of experience appear next to your rating — one of the first things customers compare.',
   },
   'area.location': {
     title: 'Where do you work?',
-    description: 'Add the city or area where you usually take on jobs.',
+    description:
+      'We only ever show customers an approximate area — never your address.',
   },
   'area.travel': {
-    title: 'Travel preferences',
-    description: 'Optional — tell customers how far you are willing to travel.',
+    title: 'How far will you travel?',
+    description:
+      'Optional — a wider radius means more tasks in your search results.',
   },
   'verify.phone': {
-    title: 'Verify your contact',
-    description: 'Verified contact details build trust before you send quotes.',
+    title: 'Verify your phone',
+    description:
+      'A verified phone number is required to send quotes — customers see a "Phone verified" badge on your profile.',
   },
   'verify.portfolio': {
     title: 'Show your work',
-    description: 'Optional — add notes about recent jobs or portfolio links.',
+    description:
+      'Optional, but workers with photos win more quotes — add pictures of finished jobs.',
   },
   'review.submit': {
-    title: 'Review and submit',
-    description: 'Take a moment to review your information.',
+    title: 'Your profile, as customers see it',
+    description:
+      'Check the preview below — this is exactly what customers see when they open your profile.',
   },
 }
 

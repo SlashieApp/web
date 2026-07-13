@@ -54,6 +54,7 @@ export { Input } from './Input'
 export { Link } from './Link'
 export { Logo } from './Logo'
 export { MapCard } from './MapCard'
+export { MobileCarousel } from './MobileCarousel/MobileCarousel'
 export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
 export { PhoneInput } from './PhoneInput'
@@ -109,6 +110,10 @@ export type { ImageGalleryItem, ImageGalleryProps } from './ImageGallery'
 export type { InputProps } from './Input'
 export type { LogoProps, UiLogoSize, UiLogoVariant } from './Logo'
 export type { MapCardProps } from './MapCard'
+export type {
+  MobileCarouselItemState,
+  MobileCarouselProps,
+} from './MobileCarousel/MobileCarousel'
 export type { ModalProps, ModalSize } from './Modal'
 export type { OtpInputProps, OtpInputSize } from './OtpInput'
 export type { PhoneInputProps } from './PhoneInput'

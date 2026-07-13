@@ -14,13 +14,13 @@ import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 
 import {
   formatBudget,
-  inferBadge,
-  taskDistanceLabelFromReference,
-  taskPosterAvatarUrl,
-  taskPosterDisplayName,
+  taskDistanceShortLabelFromReference,
+  taskQuotesCountLabel,
+  taskScheduleCompactLabel,
 } from '../../helpers/taskBrowseHelpers'
+import { taskCategoryDisplayLabel } from '../../helpers/taskCategories'
 
-export function TaskList() {
+export function TaskList({ header }: { header?: React.ReactNode }) {
   const router = useRouter()
   const {
     loading,
@@ -74,12 +74,9 @@ export function TaskList() {
       {!loading && filteredSorted.length > 0
         ? filteredSorted.map((task, index) => {
             const { main } = formatBudget(task)
-            const badge = inferBadge(task)
-            const ownerName = taskPosterDisplayName(task)
-            const ownerAvatarSrc = taskPosterAvatarUrl(task)
             const loc =
               taskPublicLocationLabel(task).trim() || 'Location on request'
-            const distanceLabel = taskDistanceLabelFromReference(
+            const distanceLabel = taskDistanceShortLabelFromReference(
               task,
               referenceLocation,
             )
@@ -112,12 +109,16 @@ export function TaskList() {
                     priceLabel={main}
                     metaLine={loc}
                     distanceLabel={distanceLabel}
+                    timingLabel={
+                      taskScheduleCompactLabel(task.datetime) ?? undefined
+                    }
+                    quotesLabel={taskQuotesCountLabel(task) ?? undefined}
                     viewsLabel={viewsLabel ?? undefined}
                     thumbnailSrc={task.images?.[0] ?? undefined}
                     detailsHref={`/tasks/${task.id}`}
-                    badgeText={badge.text}
-                    ownerName={ownerName}
-                    ownerAvatarSrc={ownerAvatarSrc}
+                    badgeText={
+                      taskCategoryDisplayLabel(task.category) ?? undefined
+                    }
                     isActive={selectedTaskId === task.id}
                     activateAriaLabel={
                       selectedTaskId === task.id
@@ -167,6 +168,7 @@ export function TaskList() {
         }}
       >
         <Stack gap={3} py={5} pb={10}>
+          {header ? <Box px={0.5}>{header}</Box> : null}
           {canShowBrowseEmptyState && filteredSorted.length === 0 ? (
             <Box px={1}>
               <TaskEmptyState />

@@ -58,19 +58,34 @@ type WorkerQuoteStory = StoryObj<typeof workerQuoteMeta>
 
 export const ListItem: ListStory = {
   args: {
-    title: 'Fix shelf on wall',
-    description: 'Need a worker to mount one shelf safely.',
-    priceLabel: '£10',
-    metaLine: '33 Charing Cross Road',
-    distanceLabel: '0.4 mi away',
-    ownerName: 'John D.',
-    ratingLabel: '4.9 ',
-    ownerAvatarSrc:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop',
+    title: 'Mount a 55-inch TV',
+    description: 'Need a worker to mount one TV safely on a plasterboard wall.',
+    priceLabel: '£120',
+    metaLine: 'Southwark',
+    distanceLabel: '1.2 miles',
+    timingLabel: 'Flexible',
+    quotesLabel: '5 quotes',
     thumbnailSrc:
       'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
     detailsHref: '/tasks/task-1',
-    badgeText: 'New',
+    badgeText: 'Tech setup',
+    onToggleSave: () => {},
+  },
+}
+
+export const ListItemSaved: ListStory = {
+  args: {
+    ...ListItem.args,
+    isSaved: true,
+  },
+}
+
+export const ListItemViewsFallback: ListStory = {
+  args: {
+    ...ListItem.args,
+    quotesLabel: undefined,
+    viewsLabel: '12 views',
+    onToggleSave: undefined,
   },
 }
 

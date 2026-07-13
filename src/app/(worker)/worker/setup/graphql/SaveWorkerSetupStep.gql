@@ -4,8 +4,10 @@ mutation SaveWorkerSetupStep($input: SaveWorkerSetupStepInput!) {
     legalName
     bio
     tagline
+    primaryCategory
     yearsExperience
     skills
+    qualifications
     travelRadiusMiles
     portfolioUrls
     location {

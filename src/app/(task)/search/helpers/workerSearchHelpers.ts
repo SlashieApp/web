@@ -38,15 +38,32 @@ export function workerServiceAreaLabel(
 export function workerSubtitle(worker: WorkerSearchItem): string {
   const tagline = worker.tagline?.trim()
   if (tagline) return tagline
-  const parts: string[] = []
-  if (worker.yearsExperience != null && worker.yearsExperience > 0) {
-    parts.push(
-      `${worker.yearsExperience} yr${worker.yearsExperience === 1 ? '' : 's'} experience`,
-    )
-  }
+  // Experience is NOT part of the fallback: the card renders it on its own
+  // rating row (workerExperienceShortLabel) and would double up here.
   const area = worker.preferredLocation?.name?.trim()
-  if (area) parts.push(area)
-  return parts.length > 0 ? parts.join(' · ') : 'Local worker on Slashie'
+  return area || 'Local worker on Slashie'
+}
+
+/** Rating-row score, e.g. "4.9 (128)"; null until the worker has reviews. */
+export function workerRatingLabel(worker: WorkerSearchItem): string | null {
+  const summary = worker.ratingSummary
+  if (!summary || summary.count <= 0 || summary.average == null) return null
+  return `${summary.average.toFixed(1)} (${summary.count})`
+}
+
+/** Rating-row experience, e.g. "5 yrs exp". */
+export function workerExperienceShortLabel(
+  worker: WorkerSearchItem,
+): string | null {
+  const years = worker.yearsExperience
+  if (years == null || years <= 0) return null
+  return `${years} yr${years === 1 ? '' : 's'} exp`
+}
+
+/** "Responds in under 2 hours" from BE free-form `averageResponseTime`. */
+export function workerRespondsLabel(worker: WorkerSearchItem): string | null {
+  const avg = worker.averageResponseTime?.trim()
+  return avg ? `Responds in ${avg}` : null
 }
 
 export function workerHasServiceAreaCoords(worker: WorkerSearchItem): boolean {

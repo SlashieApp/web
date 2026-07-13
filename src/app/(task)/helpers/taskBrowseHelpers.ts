@@ -1,3 +1,5 @@
+import { TaskDateTimeType } from '@codegen/schema'
+
 import type { TaskListItem } from '@/graphql/tasks-query.types'
 import {
   distanceMilesBetween,
@@ -5,6 +7,11 @@ import {
   parseGeoCoord,
 } from '@/utils/geoDistance'
 import { budgetToPence, priceToPence } from '@/utils/price'
+import {
+  type TaskDatetimeLike,
+  parseTaskScheduleDate,
+  scheduleChipForTask,
+} from '@/utils/taskJobSchedule'
 
 import type { BrowseReferenceLocation } from './browseReferenceLocation'
 import type { UrgencyFilter } from './taskBrowseFilters.types'
@@ -171,6 +178,57 @@ export function taskDistanceLabelFromReference(
   return formatDistanceAwayLabel(
     taskDistanceMilesFromReference(task, reference),
   )
+}
+
+/**
+ * Short distance for the card pin row ("1.2 miles"); the standalone "away"
+ * phrasing stays in {@link formatDistanceAwayLabel}.
+ */
+export function taskDistanceShortLabelFromReference(
+  task: TaskListItem,
+  reference: Pick<BrowseReferenceLocation, 'lat' | 'lng'>,
+): string | undefined {
+  const miles = taskDistanceMilesFromReference(task, reference)
+  if (miles == null || !Number.isFinite(miles)) return undefined
+  if (miles < 0.05) return 'Nearby'
+  if (miles < 10) return `${miles.toFixed(1)} miles`
+  return `${Math.round(miles)} miles`
+}
+
+/** Compact card schedule label: "Flexible", "Today", "Tomorrow", "Before 21 Jun" or "Sat 21 Jun". */
+export function taskScheduleCompactLabel(
+  datetime: TaskDatetimeLike | null | undefined,
+  now = new Date(),
+): string | null {
+  if (!datetime) return null
+  if (datetime.type === TaskDateTimeType.Flexible) return 'Flexible'
+  if (datetime.type === TaskDateTimeType.Before) {
+    const date = datetime.date?.trim()
+    if (!date) return 'Flexible'
+    const parsed = new Date(`${date}T00:00`)
+    if (Number.isNaN(parsed.getTime())) return 'Flexible'
+    return `Before ${new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric',
+      month: 'short',
+    }).format(parsed)}`
+  }
+  const chip = scheduleChipForTask(datetime, now)
+  if (chip === 'today') return 'Today'
+  if (chip === 'tomorrow') return 'Tomorrow'
+  const when = parseTaskScheduleDate(datetime)
+  if (!when) return null
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(when)
+}
+
+/** "5 quotes" card label. Public `tasks` browse doesn't select quotes → null (row hidden). */
+export function taskQuotesCountLabel(task: TaskListItem): string | null {
+  const count = task.quotes?.length
+  if (!count) return null
+  return `${count} ${count === 1 ? 'quote' : 'quotes'}`
 }
 
 function milesToKmRounded(miles: number): number {
