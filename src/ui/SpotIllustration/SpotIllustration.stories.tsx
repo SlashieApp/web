@@ -16,6 +16,11 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+/** Houses + person + chat (marketplace / quotes empty). */
+export const Quotes: Story = {
+  args: { variant: 'quotes', width: 120 },
+}
+
 /** E04 — chair + lamp (reviews empty state). */
 export const Reviews: Story = {
   args: { variant: 'reviews' },

@@ -8,7 +8,7 @@ import { ScheduleChip } from './ScheduleChip'
 const CHIPS: NonNullable<ScheduleChipValue>[] = ['today', 'tomorrow', 'overdue']
 
 const meta = {
-  title: 'Components/ScheduleChip',
+  title: 'ui/ScheduleChip',
   component: ScheduleChip,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

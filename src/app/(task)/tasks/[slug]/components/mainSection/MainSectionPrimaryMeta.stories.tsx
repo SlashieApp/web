@@ -11,7 +11,7 @@ import {
 import { MainSectionPrimaryMeta } from './MainSectionPrimaryMeta'
 
 const meta = {
-  title: 'task/MainSection/MainSectionPrimaryMeta',
+  title: 'task/tasks/mainSection/MainSectionPrimaryMeta',
   component: MainSectionPrimaryMeta,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

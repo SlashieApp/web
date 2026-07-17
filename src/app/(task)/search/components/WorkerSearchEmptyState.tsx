@@ -1,8 +1,8 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 
-import { Button, Card, EmptyState } from '@ui'
+import { Button, Card, SpotIllustration } from '@ui'
 
 import {
   useTaskBrowseData,
@@ -22,11 +22,17 @@ export function WorkerSearchEmptyState() {
 
   return (
     <Card p={5} pointerEvents="auto">
-      <EmptyState
-        title="No workers here yet"
-        description={`No workers cover ${referenceLocation.label} with these filters. Try widening the search area or clearing filters — new workers join Slashie every week.`}
-      >
-        <Box>
+      <Stack align="center" textAlign="center" gap={3} py={4} px={2} w="full">
+        <SpotIllustration variant="quotes" width={120} />
+        <Stack gap={1} align="center">
+          <Text fontSize="lg" fontWeight={600} color="text.default">
+            No workers here yet
+          </Text>
+          <Text fontSize="sm" color="text.muted" maxW="320px">
+            {`No workers cover ${referenceLocation.label} with these filters. Try widening the search area or clearing filters — new workers join Slashie every week.`}
+          </Text>
+        </Stack>
+        <Box w="full" maxW="320px" pt={1}>
           <Button
             type="button"
             variant="secondary"
@@ -40,7 +46,7 @@ export function WorkerSearchEmptyState() {
             Adjust filters
           </Button>
         </Box>
-      </EmptyState>
+      </Stack>
     </Card>
   )
 }

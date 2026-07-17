@@ -1,8 +1,7 @@
 export {
   Badge,
-  StatusPill,
-  type StatusPillProps,
-  type TaskStatusValue,
   type UiBadgeProps,
+  type UiBadgeShape,
+  type UiBadgeSize,
   type UiBadgeVariant,
 } from './Badge'

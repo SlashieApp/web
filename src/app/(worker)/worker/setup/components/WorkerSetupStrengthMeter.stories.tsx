@@ -25,7 +25,7 @@ const completeForm = form({
 })
 
 const meta = {
-  title: 'form/WorkerSetupStrengthMeter',
+  title: 'worker/setup/WorkerSetupStrengthMeter',
   component: WorkerSetupStrengthMeter,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

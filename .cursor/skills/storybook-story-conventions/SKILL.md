@@ -23,23 +23,22 @@ Always colocate the story beside its component:
 
 Do not create story files in a separate stories tree; they live next to source.
 
-## Group by function, not by folder
+## Title groups follow source ownership
 
-The **title group** reflects what the component *is*, not where the file sits:
-
-| Group | What belongs here | Examples |
+| Source | Title pattern | Examples |
 |---|---|---|
-| `ui` | **Universal, reusable** atoms + molecules from `src/ui` (incl. form controls). | `ui/Input`, `ui/Textarea`, `ui/FormField`, `ui/OtpInput`, `ui/Button`, `ui/Badge`, `ui/ProgressBar`, `ui/Stepper` |
-| `layout` | **Universal layout primitives** that position/overlay content. | `layout/Dropdown`, `layout/Drawer`, `layout/Footer`, `layout/Dock` |
-| `header` | **Header use cases** (top-level app/site headers + the menus they own). | `header/Header` (browse + dashboard states), `header/MarketingHeader`, `header/AccountMenu` |
-| `task` / `taskDetail` / `quotes` / … | **Route/section-scoped** feature components. | `task/QuoteSection/QuoteCard` |
+| `src/ui/<Name>/` | `ui/<Name>` | `ui/Input`, `ui/Dropdown`, `ui/Drawer`, `ui/Footer`, `ui/Stepper` |
+| `src/components/<Name>/` | `shell/<Name>` | `shell/Header`, `shell/Dock` |
+| `src/app/(segment)/…` | folder path (strip route groups + `components/`, drop `[param]` segments) | `marketing/Header`, `task/TaskCard`, `task/search/SearchModeSelector`, `worker/setup/WorkerSetupBioComposer`, `dashboard/profile/ProfileHub` |
 
 Rules:
 
-- **No redundant `form` group.** Form controls are universal `ui` (character-count textareas use `FormField.CharCountTextarea` inside `FormField`; the field shell is `ui/FormField`). Title them `ui/*`.
-- **No duplicate primitive stories.** Do not add separate stories for alias/wrapper exports (`Drawer` vs `Drawer`, `Modal` vs `Modal`) or for thin variants already covered by a parent (`CharCountTextarea` → `ui/Textarea/WithCharCount`; `HoverDropdownMenu` → `layout/Dropdown/HoverDefault`).
-- **Universal-first.** If a route component is really a generic widget (e.g. a progress bar, a stepper), extract it to `src/ui` and title it `ui/*`; the route keeps a thin adapter that wires data/context into the `ui` primitive (no story needed for the adapter).
-- **Dropdowns/drawers are `layout`.** Feature menus (e.g. account menu) **compose** `layout/Dropdown` with JSX slot content (see `AccountMenuContent`); the thin `AccountMenu` wrapper handles mobile drawer + desktop trigger only.
+- **Every `src/ui` story is `ui/*`.** No `Components/*`, `Patterns/*`, `layout/*`, or `form/*` titles for primitives.
+- **App stories mirror the route folder path**, not a parallel “function” taxonomy. Prefer the full component name as the last segment (`task/TaskCard`, not `task/Card`).
+- **Marketing header** lives under marketing: `marketing/Header` (file may still be `MarketingHeader.tsx`).
+- **No duplicate primitive stories.** Do not story alias/wrapper exports or thin variants already covered by a parent.
+- **Universal-first.** Generic widgets belong in `src/ui` as `ui/*`; route adapters that only wire context get no story.
+- **App shell chrome** (`Header`, `Dock`) lives in `src/components` and stories as `shell/*` — not in `src/ui`.
 
 ## Story scope
 
@@ -71,12 +70,9 @@ export const Default: Story = {};
 
 ## Title convention
 
-Use lowercase group + PascalCase component (`ui`, `layout`, `header`, or a route/section group):
-
-- `ui/Card`
-- `ui/Stepper`
-- `layout/Dropdown`
-- `header/Header`
+- `ui/Card`, `ui/Stepper`, `ui/Dropdown` — anything under `src/ui`
+- `shell/Header`, `shell/Dock` — app shell under `src/components`
+- `marketing/Header`, `task/tasks/quoteSection/QuoteCard` — app routes by folder path
 
 ## Layout convention
 
@@ -118,7 +114,7 @@ Create/Update Storybook story for `<component-path>`.
 Follow repo conventions:
 1. Use `import type { Meta, StoryObj } from '@storybook/nextjs-vite'`.
 2. Place story next to component as `<Component>.stories.tsx`.
-3. Use title format `group/ComponentName` grouped **by function**: `ui` (universal atoms/molecules incl. form controls, progress, stepper), `layout` (dropdown/drawer/footer/dock primitives), `header` (top-level headers + their menus), or a route/section group. No `form` group.
+3. Use title format by ownership: `ui/<Name>` for `src/ui`, `shell/<Name>` for `src/components`, or the `src/app` folder path (strip `(groups)` + `components/`) for feature stories. No `form/*` / `Components/*` / `Patterns/*` titles.
 4. Include `tags: ['autodocs']`.
 5. Set `parameters.layout` (`fullscreen` for section/full-width, `padded` for contained widgets).
 6. Add realistic default args with complete mock object shapes.

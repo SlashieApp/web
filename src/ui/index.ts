@@ -3,14 +3,14 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
-export { Avatar, AvatarGroup } from './Avatar'
-export { Badge, StatusPill } from './Badge'
 export {
-  buildCurrentUserAvatarCandidates,
-  CurrentUserAvatar,
+  Avatar,
+  AvatarGroup,
+  buildAvatarSrcCandidates,
   isGooglePhotoUrl,
   isS3OrCdnAvatarUrl,
-} from './CurrentUserAvatar'
+} from './Avatar'
+export { Badge } from './Badge'
 export { Button } from './Button'
 export { Card } from './Card'
 export {
@@ -35,12 +35,9 @@ export {
   statusFamilies,
   statusScale,
 } from './_foundations/ColorSwatches'
-export { DashboardSectionNav, Header } from './Header'
 export { DetailRow } from './DetailRow'
-export { Dock } from './Dock'
 export { Drawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
-export { EmptyState } from './EmptyState'
 export {
   formControlHelperTextProps,
   formControlInvalidFieldProps,
@@ -87,6 +84,7 @@ export type {
   AvatarGroupItem,
   AvatarGroupProps,
   AvatarProps,
+  UiAvatarFallback,
   UiAvatarSize,
   UiAvatarStatus,
 } from './Avatar'
@@ -102,14 +100,8 @@ export type {
   ColorModeProviderProps,
   UseColorModeReturn,
 } from './color-mode'
-export type {
-  CurrentUserAvatarProps,
-  CurrentUserAvatarSize,
-} from './CurrentUserAvatar'
-export type { DashboardSectionNavProps, HeaderProps } from './Header'
 export type { DetailRowProps } from './DetailRow'
 export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'
-export type { EmptyStateProps } from './EmptyState'
 export type {
   FormFieldControlProps,
   FormFieldProps,
@@ -146,12 +138,6 @@ export type {
   SpotIllustrationVariant,
 } from './SpotIllustration/SpotIllustration'
 export type {
-  StatusPillProps,
-  TaskStatusValue,
-  UiBadgeProps,
-  UiBadgeVariant,
-} from './Badge'
-export type {
   StepFlowActionsProps,
   StepFlowHeadingProps,
   StepFlowLayoutProps,
@@ -161,6 +147,12 @@ export type { StepperProps, StepperStep, StepperSubStep } from './Stepper'
 export type { TabItem, TabPanelProps, TabsProps } from './Tabs'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps, ThumbnailSize } from './Thumbnail'
+export type {
+  UiBadgeProps,
+  UiBadgeShape,
+  UiBadgeSize,
+  UiBadgeVariant,
+} from './Badge'
 export type { UiInfoBarProps, UiInfoBarTone } from './InfoBar'
 export type { UiLinkProps, UiLinkTone } from './Link'
 export type { UiToastData, UiToastProps, UiToastType } from './Toast'

@@ -13,7 +13,7 @@ import {
 import { QuotesSection } from './QuotesSection'
 
 const meta = {
-  title: 'task/QuoteSection/QuotesSection',
+  title: 'task/tasks/quoteSection/QuotesSection',
   component: QuotesSection,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

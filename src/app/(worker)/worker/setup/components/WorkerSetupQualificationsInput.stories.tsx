@@ -21,7 +21,7 @@ function ControlledQualifications(
 }
 
 const meta = {
-  title: 'form/WorkerSetupQualificationsInput',
+  title: 'worker/setup/WorkerSetupQualificationsInput',
   component: WorkerSetupQualificationsInput,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

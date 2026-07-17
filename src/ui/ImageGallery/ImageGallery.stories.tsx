@@ -25,7 +25,7 @@ const sampleItems = [
  * automatically under the light/dark theme toolbar.
  */
 const meta = {
-  title: 'Components/ImageGallery',
+  title: 'ui/ImageGallery',
   component: ImageGallery,
   tags: ['autodocs'],
   parameters: {

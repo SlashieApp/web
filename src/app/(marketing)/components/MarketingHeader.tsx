@@ -14,8 +14,11 @@ import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
-import { HeaderToolbarSeparator } from '@/ui/Header/GuestHeaderAuth'
-import { HEADER_MIN_HEIGHT, HEADER_PADDING_X } from '@/ui/Header/headerShell'
+import { HeaderToolbarSeparator } from '@/components/Header/GuestHeaderAuth'
+import {
+  HEADER_MIN_HEIGHT,
+  HEADER_PADDING_X,
+} from '@/components/Header/headerShell'
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Button, Drawer, Link } from '@ui'
 

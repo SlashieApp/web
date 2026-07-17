@@ -2,11 +2,11 @@
 
 import { useCallback } from 'react'
 
+import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
-import { CurrentUserAvatar } from '@ui'
+import { useDropdownClose } from '@ui'
 
-import { useDropdownClose } from '../Dropdown/Dropdown'
 import { AccountMenuHeader } from './AccountMenuHeader'
 import { AccountNavPanel } from './AccountNavPanel'
 import { resolveAccountNavItems } from './accountNav.config'
@@ -17,12 +17,12 @@ export function AccountMenuAvatar({
 }: {
   name?: string | null
   email: string
-  /** @deprecated Prefer CurrentUserAvatar resolution; kept for call-site compat. */
+  /** @deprecated MeAvatar resolves avatars; kept for call-site compat. */
   avatarUrl?: string | null
 }) {
   const label = name?.trim() || email
 
-  return <CurrentUserAvatar size="sm" name={label} />
+  return <MeAvatar size="sm" name={label} />
 }
 
 type AccountMenuContentProps = {

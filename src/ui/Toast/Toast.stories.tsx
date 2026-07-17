@@ -21,7 +21,7 @@ const demoToaster = createToaster({
 
 const samples: Record<UiToastType, { title: string; description: string }> = {
   success: {
-    title: 'Quote accepted',
+    title: 'ui/Toast',
     description: 'Sam the plumber has been notified. You pay them directly.',
   },
   error: {
@@ -52,7 +52,7 @@ function fire(type: UiToastType) {
 }
 
 const meta = {
-  title: 'Components/Toast',
+  title: 'ui/Toast',
   component: Toast,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

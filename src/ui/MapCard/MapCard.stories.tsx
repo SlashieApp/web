@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { MapCard } from './MapCard'
 
 const meta = {
-  title: 'Components/MapCard',
+  title: 'ui/MapCard',
   component: MapCard,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

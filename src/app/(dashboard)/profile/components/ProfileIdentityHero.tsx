@@ -3,8 +3,9 @@
 import { HStack, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import { LuCalendarDays, LuCamera, LuExternalLink } from 'react-icons/lu'
 
+import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
-import { Badge, Button, Card, CurrentUserAvatar, Link } from '@ui'
+import { Badge, Button, Card, Link } from '@ui'
 
 import type { ProfileLifecycle } from '../helpers/profileLifecycle'
 import { displayNameFromMe, joinMonthYear } from '../profileDisplayHelpers'
@@ -30,7 +31,7 @@ export function ProfileIdentityHero({
       <SimpleGrid columns={{ base: 1, md: 2 }} gap={5} alignItems="center">
         <HStack gap={4} align="center">
           <Stack position="relative" flexShrink={0}>
-            <CurrentUserAvatar size="lg" name={name} />
+            <MeAvatar size="lg" name={name} />
             <Button
               type="button"
               size="sm"

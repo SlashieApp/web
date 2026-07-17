@@ -7,7 +7,7 @@ import { WorkerProfileSidebar } from './WorkerProfileSidebar'
 import { workerProfileFixture } from './workerProfileStoryFixtures'
 
 const meta = {
-  title: 'worker/WorkerProfileSidebar',
+  title: 'worker/workers/WorkerProfileSidebar',
   component: WorkerProfileSidebar,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -4,7 +4,7 @@ import { Box, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 
 import { sdlMotion } from '@/theme/styles'
-import { StatusPill } from '@ui'
+import { TaskStatusPill } from './TaskStatusPill'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
@@ -92,7 +92,7 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
             w="full"
             animation={`rise-in 0.35s ${sdlMotion.easing.decelerate}`}
           >
-            <StatusPill status={pill} size="lg" alignSelf="flex-start" />
+            <TaskStatusPill status={pill} size="lg" alignSelf="flex-start" />
             <Stack gap={2}>
               <Heading
                 as="h1"

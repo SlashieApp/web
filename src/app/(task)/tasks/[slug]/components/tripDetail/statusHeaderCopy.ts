@@ -1,4 +1,4 @@
-import type { TaskStatusValue } from '@ui'
+import type { TaskStatusValue } from './TaskStatusPill'
 
 import { QuoteStatus } from '@codegen/schema'
 import type { TaskDetailContextValue } from '../../context/TaskDetailContext'

@@ -7,7 +7,7 @@ import {
 } from './WorkerSearchCard'
 
 const meta = {
-  title: 'search/WorkerSearchCard',
+  title: 'task/search/WorkerSearchCard',
   component: WorkerSearchCard,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

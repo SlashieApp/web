@@ -4,7 +4,8 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 
-import { Button, DashboardSectionNav, Footer, Header, Link } from '@ui'
+import { DashboardSectionNav, Header } from '@/components/Header'
+import { Button, Footer, Link } from '@ui'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'

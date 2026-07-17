@@ -11,7 +11,7 @@ import {
 import { CustomerActiveOrderStatus } from './CustomerActiveOrderStatus'
 
 const meta = {
-  title: 'task/StatusSection/CustomerActiveOrderStatus',
+  title: 'task/tasks/statusSection/CustomerActiveOrderStatus',
   component: CustomerActiveOrderStatus,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

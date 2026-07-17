@@ -4,7 +4,7 @@ import { Box, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { sdlMotion } from '@/theme/styles'
-import { StatusPill } from '@ui'
+import { TaskStatusPill } from '../TaskStatusPill'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 import { useTaskDetailHeaderCollapsed } from '../../../helpers/taskDetailHeaderCollapse'
@@ -151,7 +151,7 @@ export function OpenTaskHeader() {
             animation={`rise-in 0.35s ${sdlMotion.easing.decelerate}`}
           >
             <CollapsibleRow collapsed={collapsed}>
-              <StatusPill status={copy.pill} size="lg" />
+              <TaskStatusPill status={copy.pill} size="lg" />
             </CollapsibleRow>
 
             {/* Expanded hero headline — collapses away as its compact twin on

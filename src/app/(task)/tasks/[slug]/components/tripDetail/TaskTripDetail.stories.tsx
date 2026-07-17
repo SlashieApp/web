@@ -31,7 +31,7 @@ function TaskTripDetailPreview() {
 }
 
 const meta = {
-  title: 'task/TaskTripDetail',
+  title: 'task/tasks/tripDetail/TaskTripDetail',
   component: TaskTripDetailPreview,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

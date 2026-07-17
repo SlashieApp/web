@@ -3,7 +3,7 @@ import { Currency, WorkerPrimaryCategory } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
-import { membershipFixtureFree } from '@/ui/Header/membershipStoryFixtures'
+import { membershipFixtureFree } from '@/components/Header/membershipStoryFixtures'
 
 import type { ProfileEditSection } from './ProfileEditDrawer'
 import { ProfileHub } from './ProfileHub'
@@ -107,7 +107,7 @@ function StoryProfile({
 }
 
 const meta = {
-  title: 'profile/ProfileHub',
+  title: 'dashboard/profile/ProfileHub',
   component: ProfileHub,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

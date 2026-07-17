@@ -3,20 +3,59 @@
 import { Box } from '@chakra-ui/react'
 
 /**
- * SDL Spot Line illustrations — small line-art spots for empty states.
- * Stroke rides `action.primary` (green ink) with muted supporting strokes,
- * matching the EmptyState house/person art style.
+ * SDL Spot Line illustrations — small line-art spots for empty / zero-data UI.
+ * Stroke rides `action.primary` (green ink) with muted supporting strokes.
  *
  * Variants map to the design-system Spot Line sheet:
- * - `reviews` — E04: chair + lamp + heart speech bubble (reviews empty state).
- * - `no-work` — E14: briefcase + sparkles (no completed jobs on Slashie yet).
+ * - `quotes` — houses + person + chat bubble (no quotes / marketplace empty).
+ * - `reviews` — E04: chair + lamp + heart speech bubble.
+ * - `no-work` — E14: briefcase + sparkles.
  */
-export type SpotIllustrationVariant = 'reviews' | 'no-work'
+export type SpotIllustrationVariant = 'quotes' | 'reviews' | 'no-work'
 
 export type SpotIllustrationProps = {
   variant: SpotIllustrationVariant
   /** Rendered width in px (SVG scales, 4:3 ratio). */
   width?: number
+}
+
+/** Houses + person + chat bubble (marketplace / quotes empty). */
+function QuotesSpot() {
+  return (
+    <svg
+      width="120"
+      height="84"
+      viewBox="0 0 120 84"
+      fill="none"
+      role="presentation"
+    >
+      <title>No quotes illustration</title>
+      <g
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        opacity="0.35"
+      >
+        <path d="M10 70V52l12-9 12 9v18" />
+        <path d="M86 70V54l11-8 11 8v16" />
+      </g>
+      <path
+        d="M4 70h112"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        opacity="0.35"
+      />
+      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <circle cx="60" cy="50" r="7" />
+        <path d="M48 70c0-7 5-12 12-12s12 5 12 12" />
+      </g>
+      <g stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+        <path d="M44 12h32a6 6 0 0 1 6 6v12a6 6 0 0 1-6 6H62l-9 8v-8h-9a6 6 0 0 1-6-6V18a6 6 0 0 1 6-6Z" />
+        <path d="M52 24h16M52 30h10" strokeLinecap="round" opacity="0.6" />
+      </g>
+    </svg>
+  )
 }
 
 /** E04 — chair + floor lamp + heart bubble. */
@@ -136,6 +175,15 @@ export function SpotIllustration({
   variant,
   width = 140,
 }: SpotIllustrationProps) {
+  const art =
+    variant === 'quotes' ? (
+      <QuotesSpot />
+    ) : variant === 'reviews' ? (
+      <ReviewsSpot />
+    ) : (
+      <NoWorkSpot />
+    )
+
   return (
     <Box
       aria-hidden
@@ -146,7 +194,7 @@ export function SpotIllustration({
       w={`${width}px`}
       css={{ '& svg': { width: '100%', height: 'auto' } }}
     >
-      {variant === 'reviews' ? <ReviewsSpot /> : <NoWorkSpot />}
+      {art}
     </Box>
   )
 }

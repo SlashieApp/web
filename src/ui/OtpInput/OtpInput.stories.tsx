@@ -6,7 +6,7 @@ import { FormField } from '../FormField'
 import { OtpInput } from './OtpInput'
 
 const meta = {
-  title: 'Components/OtpInput',
+  title: 'ui/OtpInput',
   component: OtpInput,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -11,6 +11,7 @@ import {
   LuUser,
 } from 'react-icons/lu'
 
+import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import {
   isPhoneVerified,
@@ -23,7 +24,7 @@ import {
 } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { formatPhoneForDisplay } from '@/utils/phoneNormalize'
-import { Badge, Button, CurrentUserAvatar, Link } from '@ui'
+import { Badge, Button, Link } from '@ui'
 
 import type { ProfileLifecycle } from '../helpers/profileLifecycle'
 import { profileIsPublished } from '../helpers/profileLifecycle'
@@ -260,7 +261,7 @@ export function PublicPreviewCard({
           borderRadius="lg"
           bg="bg.subtle"
         >
-          <CurrentUserAvatar size="md" name={displayNameFromMe(me)} />
+          <MeAvatar size="md" name={displayNameFromMe(me)} />
           <Stack gap={1} minW={0}>
             <Text fontSize="sm" fontWeight={700}>
               {displayNameFromMe(me)}

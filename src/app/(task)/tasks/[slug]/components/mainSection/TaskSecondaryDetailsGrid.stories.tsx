@@ -6,7 +6,7 @@ import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { TaskSecondaryDetailsGrid } from './TaskSecondaryDetailsGrid'
 
 const meta = {
-  title: 'task/MainSection/TaskSecondaryDetailsGrid',
+  title: 'task/tasks/mainSection/TaskSecondaryDetailsGrid',
   component: TaskSecondaryDetailsGrid,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

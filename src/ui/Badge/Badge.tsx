@@ -8,8 +8,8 @@ import {
 } from '@chakra-ui/react'
 
 /**
- * SDL Badge / StatusPill. Status is never signalled by color alone — pass `dot`
- * (or use `StatusPill`) so every status chip shows a dot + label.
+ * SDL Badge. Status is never signalled by color alone — pass `dot` so every
+ * status chip shows a dot + label.
  */
 export type UiBadgeVariant =
   | 'brand'
@@ -109,35 +109,5 @@ export function Badge({
       ) : null}
       {children}
     </ChakraBadge>
-  )
-}
-
-/** TaskStatus → SDL status family (always renders a dot + label). */
-export type TaskStatusValue = 'OPEN' | 'AWARDED' | 'CLOSED' | 'CANCELLED'
-
-const taskStatusMap: Record<
-  TaskStatusValue,
-  { family: UiBadgeVariant; label: string }
-> = {
-  OPEN: { family: 'success', label: 'Open' },
-  AWARDED: { family: 'warning', label: 'Awarded' },
-  CLOSED: { family: 'info', label: 'Closed' },
-  CANCELLED: { family: 'danger', label: 'Cancelled' },
-}
-
-export type StatusPillProps = Omit<
-  UiBadgeProps,
-  'variant' | 'dot' | 'children'
-> & {
-  status: TaskStatusValue
-  label?: string
-}
-
-export function StatusPill({ status, label, ...props }: StatusPillProps) {
-  const { family, label: defaultLabel } = taskStatusMap[status]
-  return (
-    <Badge variant={family} dot shape="pill" {...props}>
-      {label ?? defaultLabel}
-    </Badge>
   )
 }

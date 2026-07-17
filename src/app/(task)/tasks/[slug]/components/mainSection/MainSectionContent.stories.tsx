@@ -6,7 +6,7 @@ import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { MainSectionContent } from './MainSectionContent'
 
 const meta = {
-  title: 'task/MainSection/MainSectionContent',
+  title: 'task/tasks/mainSection/MainSectionContent',
   component: MainSectionContent,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -9,7 +9,7 @@ const workerSrc =
   'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=128&h=128&fit=crop'
 
 const meta = {
-  title: 'Components/Avatar',
+  title: 'ui/Avatar',
   component: Avatar,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
@@ -58,6 +58,15 @@ export const InitialsFallback: Story = {
   args: {
     name: 'Sam Taylor',
     label: 'Sam Taylor',
+  },
+}
+
+/** Failed / missing URLs → user icon when `fallback="icon"`. */
+export const IconFallback: Story = {
+  args: {
+    name: 'Sam Taylor',
+    srcCandidates: ['https://invalid.example/missing.jpg'],
+    fallback: 'icon',
   },
 }
 

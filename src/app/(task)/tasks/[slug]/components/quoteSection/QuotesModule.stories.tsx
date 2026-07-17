@@ -15,7 +15,7 @@ import { QuotesModule } from './QuotesModule'
  * from `getTaskDetailPermissions` + quote data seeded by the story decorator.
  */
 const meta = {
-  title: 'task/QuotesModule',
+  title: 'task/tasks/quoteSection/QuotesModule',
   component: QuotesModule,
   tags: ['autodocs'],
 } satisfies Meta<typeof QuotesModule>

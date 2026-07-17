@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { Rating } from './Rating'
 
 const meta = {
-  title: 'Components/Rating',
+  title: 'ui/Rating',
   component: Rating,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

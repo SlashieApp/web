@@ -8,7 +8,7 @@ import {
 } from './SearchModeSelector'
 
 const meta = {
-  title: 'search/SearchModeSelector',
+  title: 'task/search/SearchModeSelector',
   component: SearchModeSelectorBase,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

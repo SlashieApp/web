@@ -1,7 +1,7 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuChevronRight } from 'react-icons/lu'
 
-import { Badge, Card, EmptyState, RatingStars, SpotIllustration } from '@ui'
+import { Badge, Card, RatingStars, SpotIllustration } from '@ui'
 
 /**
  * Display shape for a BE-36 `completedJobs` row. `areaLabel` is an
@@ -82,11 +82,18 @@ export function WorkerWorkSection({
           ))}
         </Stack>
       ) : (
-        <EmptyState
-          illustration={<SpotIllustration variant="no-work" />}
-          title="No completed jobs on Slashie yet"
-          description="Jobs this worker completes through Slashie will appear here with the task, area, and date."
-        />
+        <Stack align="center" textAlign="center" gap={3} py={4} px={2} w="full">
+          <SpotIllustration variant="no-work" />
+          <Stack gap={1} align="center">
+            <Text fontSize="lg" fontWeight={600} color="text.default">
+              No completed jobs on Slashie yet
+            </Text>
+            <Text fontSize="sm" color="text.muted" maxW="320px">
+              Jobs this worker completes through Slashie will appear here with
+              the task, area, and date.
+            </Text>
+          </Stack>
+        </Stack>
       )}
     </Card>
   )

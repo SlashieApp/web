@@ -11,22 +11,22 @@ import {
   chakra,
 } from '@chakra-ui/react'
 import Image from 'next/image'
+import { useState } from 'react'
+import { LuUser } from 'react-icons/lu'
 
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 /**
- * SDL Avatar. Rounded list/profile avatar with an initials fallback when no
- * `src` is supplied. An optional `label` renders the name column beside the
- * image; an optional `status` renders a presence dot that is always paired with
- * an accessible label (status is never signalled by colour alone).
+ * SDL Avatar. Rounded list/profile avatar with load fallbacks:
+ * 1. `srcCandidates` tried in order (onError advances)
+ * 2. else single `src`
+ * 3. else `fallback` — initials (default) or user icon
  *
- * Sizes meet a 44px touch target when the avatar is interactive (`onClick`/
- * `href`); a visible focus ring (`sdlFocusRing`) is applied to interactive
- * avatars for WCAG 2.2 AA focus visibility.
+ * An optional `label` renders the name column beside the image; an optional
+ * `status` renders a presence dot paired with an accessible label.
  *
- * The public props (`name`, `src`, `label`, `labelProps`) are preserved from the
- * pre-SDL component; new props are additive and optional so existing call sites
- * are unaffected.
+ * Interactive avatars (`onClick` / `href`) meet a 44px touch target and use
+ * `sdlFocusRing` for WCAG 2.2 AA focus visibility.
  */
 export type UiAvatarSize = 'sm' | 'md' | 'lg' | 'xs' | 'xl'
 
@@ -35,10 +35,20 @@ type SdlSize = 'sm' | 'md' | 'lg' | 'xl'
 /** Presence/status families — always rendered as dot + accessible label. */
 export type UiAvatarStatus = 'online' | 'away' | 'busy' | 'offline'
 
+/** What to show when no image URL loads. */
+export type UiAvatarFallback = 'initials' | 'icon'
+
 export type AvatarProps = {
   /** Display name / alt text for the image; also drives the initials fallback. */
   name: string
   src?: string
+  /**
+   * Ordered image URLs tried on load failure (CDN → Google → other).
+   * Takes precedence over `src` when non-empty.
+   */
+  srcCandidates?: readonly string[]
+  /** Fallback when every URL fails or none are provided. Default: initials. */
+  fallback?: UiAvatarFallback
   /** When set, shown beside the image in the row; omit for image-only. */
   label?: string
   labelProps?: TextProps
@@ -88,6 +98,13 @@ const avatarImageSizes: Record<SdlSize, string> = {
   xl: '96px',
 }
 
+const avatarIconSize: Record<SdlSize, number> = {
+  sm: 14,
+  md: 16,
+  lg: 22,
+  xl: 44,
+}
+
 const statusMeta: Record<UiAvatarStatus, { dot: string; label: string }> = {
   online: { dot: 'status.success.solid', label: 'Online' },
   away: { dot: 'status.warning.solid', label: 'Away' },
@@ -124,10 +141,42 @@ const interactiveStyles: SystemStyleObject = {
 const InteractiveLink = chakra('a')
 const InteractiveButton = chakra('button')
 
+function AvatarFallback({
+  name,
+  sdlSize,
+  fallback,
+}: {
+  name: string
+  sdlSize: SdlSize
+  fallback: UiAvatarFallback
+}) {
+  if (fallback === 'icon') {
+    return (
+      <Box as="span" display="inline-flex" aria-hidden>
+        <LuUser size={avatarIconSize[sdlSize]} strokeWidth={1.75} />
+      </Box>
+    )
+  }
+  return (
+    <Text
+      as="span"
+      aria-hidden
+      fontSize={avatarFontSize[sdlSize]}
+      fontWeight={600}
+      lineHeight="1"
+      userSelect="none"
+    >
+      {initials(name)}
+    </Text>
+  )
+}
+
 /** Rounded list avatar; optional `label` adds the name column beside the image. */
 export function Avatar({
   name,
   src,
+  srcCandidates,
+  fallback = 'initials',
   label,
   labelProps,
   size = 'md',
@@ -139,6 +188,21 @@ export function Avatar({
   const sdlSize = sizeAlias[size]
   const box = avatarBox[sdlSize]
   const interactive = Boolean(onClick || href)
+
+  const candidates =
+    srcCandidates && srcCandidates.length > 0 ? srcCandidates : src ? [src] : []
+  const candidateKey = candidates.join('|')
+
+  const [failedCount, setFailedCount] = useState(0)
+  const [seenKey, setSeenKey] = useState(candidateKey)
+  if (seenKey !== candidateKey) {
+    setSeenKey(candidateKey)
+    setFailedCount(0)
+  }
+
+  const activeSrc =
+    failedCount < candidates.length ? candidates[failedCount] : null
+  const useCandidateChain = Boolean(srcCandidates && srcCandidates.length > 0)
 
   const image = (
     <Box
@@ -155,25 +219,26 @@ export function Avatar({
       flexShrink={0}
       {...rootProps}
     >
-      {src ? (
+      {activeSrc && useCandidateChain ? (
+        // Dynamic hosts (S3 + Google) — plain img so onError can advance the chain.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={activeSrc}
+          src={activeSrc}
+          alt=""
+          onError={() => setFailedCount((n) => n + 1)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      ) : activeSrc ? (
         <Image
-          src={src}
+          src={activeSrc}
           alt={`${name} avatar`}
           fill
           sizes={avatarImageSizes[sdlSize]}
           style={{ objectFit: 'cover' }}
         />
       ) : (
-        <Text
-          as="span"
-          aria-hidden
-          fontSize={avatarFontSize[sdlSize]}
-          fontWeight={600}
-          lineHeight="1"
-          userSelect="none"
-        >
-          {initials(name)}
-        </Text>
+        <AvatarFallback name={name} sdlSize={sdlSize} fallback={fallback} />
       )}
     </Box>
   )

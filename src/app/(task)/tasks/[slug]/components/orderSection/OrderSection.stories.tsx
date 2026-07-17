@@ -12,7 +12,7 @@ import {
 import { OrderSection } from './OrderSection'
 
 const meta = {
-  title: 'task/OrderSection/OrderSection',
+  title: 'task/tasks/orderSection/OrderSection',
   component: OrderSection,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

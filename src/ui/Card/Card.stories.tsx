@@ -2,11 +2,11 @@ import { HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuClipboardList } from 'react-icons/lu'
 
-import { Badge, StatusPill } from '@/ui/Badge'
+import { Badge } from '@/ui/Badge'
 import { Card } from './Card'
 
 const meta = {
-  title: 'Components/Card',
+  title: 'ui/Card',
   component: Card,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
@@ -118,7 +118,9 @@ export const WithStatus: Story = {
         <Text fontWeight={700} color="text.default">
           Garden tidy-up
         </Text>
-        <StatusPill status="OPEN" />
+        <Badge variant="success" dot shape="pill">
+          Open
+        </Badge>
       </HStack>
       <Text fontSize="sm" color="text.muted">
         Posted 2 hours ago, 3 quotes received.

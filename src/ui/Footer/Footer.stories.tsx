@@ -6,7 +6,7 @@ import { Footer, type UiFooterVariant } from './Footer'
 const SDL_VARIANTS: UiFooterVariant[] = ['default', 'minimal']
 
 const meta = {
-  title: 'Components/Footer',
+  title: 'ui/Footer',
   component: Footer,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

@@ -10,7 +10,7 @@ import { Dock } from './Dock'
  * global theme toolbar — no mode is hardcoded here.
  */
 const meta = {
-  title: 'Components/Dock',
+  title: 'shell/Dock',
   component: Dock,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

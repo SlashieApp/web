@@ -3,7 +3,7 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
 import { formatRelativeAgo } from '@/utils/dashboardHelpers'
-import { Button, Card, EmptyState, Link } from '@ui'
+import { Button, Card, Link, SpotIllustration } from '@ui'
 
 import type {
   ActivityTone,
@@ -63,11 +63,15 @@ export function InboxActivityPanel({
           </Text>
         ) : rows.length === 0 ? (
           emptyActionHref && emptyActionLabel ? (
-            <EmptyState title={emptyMessage}>
+            <Stack align="center" textAlign="center" gap={3} py={2} w="full">
+              <SpotIllustration variant="quotes" width={120} />
+              <Text fontSize="lg" fontWeight={600} color="text.default">
+                {emptyMessage}
+              </Text>
               <Link href={emptyActionHref} _hover={{ textDecoration: 'none' }}>
                 <Button size="sm">{emptyActionLabel}</Button>
               </Link>
-            </EmptyState>
+            </Stack>
           ) : (
             <Text color="text.muted" fontSize="sm">
               {emptyMessage}

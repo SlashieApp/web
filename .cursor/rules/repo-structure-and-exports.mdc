@@ -65,22 +65,21 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 
 ### Storybook grouping (see `storybook-story-conventions` skill)
 
-Stories are titled **by function**, not by source folder:
+Stories are titled **by source ownership**:
 
-| Group | What belongs here | Examples |
+| Source | Title | Examples |
 |---|---|---|
-| `ui/*` | Universal atoms/molecules from `src/ui` (form controls, progress, stepper, card, badge, …). | `ui/Input`, `ui/Textarea`, `ui/FormField`, `ui/ProgressBar`, `ui/Stepper` |
-| `layout/*` | Universal layout primitives (position/overlay). | `layout/Dropdown`, `layout/Drawer`, `layout/Footer`, `layout/Dock` |
-| `header/*` | Top-level app/site headers and their menus. | `header/Header`, `header/MarketingHeader`, `header/AccountMenu` |
-| route/section | Feature-scoped components under `src/app/**`. | `task/TaskCard`, `task/QuoteSection/QuoteCard` |
+| `src/ui` | `ui/*` | `ui/Input`, `ui/Dropdown`, `ui/Drawer`, `ui/Footer` |
+| `src/components` | `shell/*` | `shell/Header`, `shell/Dock` |
+| `src/app/(…)` | folder path (strip groups + `components/`) | `marketing/Header`, `task/TaskCard`, `worker/setup/WorkerSetupBioComposer` |
 
 Rules:
 
-- **No `form/*` group.** Form controls are `ui/*`. Character-count textareas are covered by `ui/Textarea → WithCharCount`; do not add a separate `CharCountTextarea` story.
-- **No duplicate primitive stories.** Do not story both `Drawer` and `Drawer`, or `Modal` and `Modal`—one story per universal primitive (`layout/Drawer`, `ui/Modal`).
-- **Universal-first.** Generic widgets (progress bar, stepper) live in `src/ui` with `ui/*` stories; route adapters (e.g. `WorkerSetupStepper`) wire context into the primitive and get **no story**.
-- **One story per non-universal feature component** (e.g. `header/AccountMenu → Default` only). Do **not** story internal sub-components (`MembershipStatusCard`, `MobileNavDrawer`, menu panels)—exercise them through the parent header/menu story.
-- **Feature menus compose layout primitives.** `AccountMenu` builds on `layout/Dropdown` / `layout/Drawer`; hover nav uses `Dropdown` with `hoverExpand`, not a separate hover-menu story.
+- **No `form/*` / `Components/*` / `Patterns/*` / `layout/*` titles.** Form controls and layout primitives under `src/ui` are all `ui/*`.
+- **No duplicate primitive stories.** One story file per universal primitive.
+- **Universal-first.** Generic widgets live in `src/ui` with `ui/*` stories; route adapters get **no story**.
+- **App shell chrome** (`Header`, `Dock`) lives in `src/components`, not `src/ui`.
+- **One story per non-universal feature component.** Do **not** story internal sub-components — exercise them through the parent.
 
 ### Context colocation (any route provider)
 

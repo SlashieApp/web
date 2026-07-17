@@ -7,7 +7,7 @@ import { InfoBar, type UiInfoBarTone } from './InfoBar'
 const TONES: UiInfoBarTone[] = ['info', 'success', 'warning', 'danger']
 
 const meta = {
-  title: 'Patterns/InfoBar',
+  title: 'ui/InfoBar',
   component: InfoBar,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

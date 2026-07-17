@@ -44,7 +44,7 @@ const flatSteps: StepperStep[] = [
 ]
 
 const meta = {
-  title: 'Components/Stepper',
+  title: 'ui/Stepper',
   component: Stepper,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

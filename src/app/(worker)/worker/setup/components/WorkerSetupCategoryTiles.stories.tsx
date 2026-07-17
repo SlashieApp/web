@@ -17,7 +17,7 @@ function ControlledTiles(
 }
 
 const meta = {
-  title: 'form/WorkerSetupCategoryTiles',
+  title: 'worker/setup/WorkerSetupCategoryTiles',
   component: WorkerSetupCategoryTiles,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

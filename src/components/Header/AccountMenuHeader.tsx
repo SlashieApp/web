@@ -1,20 +1,20 @@
 'use client'
-import { Link } from '../Link'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
 
+import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
 import { MembershipStatusBadge } from '@/app/(dashboard)/components/membership/MembershipStatusBadge'
 import {
   hasUnlimitedQuoting,
   membershipStatusDetailText,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
-import { CurrentUserAvatar } from '@ui'
+import { Link } from '@ui'
 
 export type AccountMenuHeaderProps = {
   displayName: string
   email: string
-  /** @deprecated CurrentUserAvatar resolves avatars; kept for call-site compat. */
+  /** @deprecated MeAvatar resolves avatars; kept for call-site compat. */
   avatarUrl?: string | null
   membership?: WorkerMembershipFieldsFragment | null
   hasWorker?: boolean
@@ -30,7 +30,7 @@ function AccountMenuAvatar({
   avatarUrl?: string | null
 }) {
   const label = displayName.trim() || email
-  return <CurrentUserAvatar size="md" name={label} />
+  return <MeAvatar size="md" name={label} />
 }
 
 function AccountMenuDivider() {

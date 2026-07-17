@@ -1,12 +1,13 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Button } from '../Button'
-import { AccountMenu } from '../Header/AccountMenu'
+import { AccountMenu } from '@/components/Header/AccountMenu'
 import {
   headerMeWorker,
   seedHeaderMeStore,
-} from '../Header/headerStoryFixtures'
+} from '@/components/Header/headerStoryFixtures'
+
+import { Button } from '../Button'
 import { Link } from '../Link'
 
 import { Dropdown, useDropdownClose } from './Dropdown'
@@ -57,7 +58,7 @@ function DropdownMenuItem({ children }: { children: React.ReactNode }) {
  * shared controls.
  */
 const meta = {
-  title: 'Components/Dropdown',
+  title: 'ui/Dropdown',
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',

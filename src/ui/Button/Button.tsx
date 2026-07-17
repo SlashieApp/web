@@ -6,7 +6,6 @@ import {
   type SystemStyleObject,
 } from '@chakra-ui/react'
 
-import { useUserStore } from '@/app/(auth)/store/user'
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 /**
@@ -35,8 +34,6 @@ export type UiButtonSize = 'sm' | 'md' | 'lg' | 'xs' | 'xl'
 export type UiButtonProps = Omit<ButtonProps, 'variant' | 'size'> & {
   variant?: UiButtonVariant
   size?: UiButtonSize
-  /** When true, render only for authenticated users. */
-  auth?: boolean
 }
 
 type SdlVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'premium'
@@ -147,14 +144,11 @@ export function Button(props: UiButtonProps) {
   const {
     variant = 'primary',
     size = 'md',
-    auth = false,
     borderRadius = 'md',
     fontFamily = 'body',
     fontWeight = 600,
     ...restProps
   } = props
-  const user = useUserStore((state) => state.user)
-  if (auth && !user) return null
 
   return (
     <ChakraButton

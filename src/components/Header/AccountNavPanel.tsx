@@ -1,10 +1,9 @@
 'use client'
-import { Link } from '../Link'
 
 import { Box } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
-import { Button } from '../Button'
+import { Button, Link } from '@ui'
 import type { AccountNavItem } from './accountNav.config'
 import { groupAccountNavItems } from './accountNav.config'
 import {

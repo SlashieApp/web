@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WorkerWorkSection } from './WorkerWorkSection'
 
 const meta = {
-  title: 'worker/WorkerWorkSection',
+  title: 'worker/workers/WorkerWorkSection',
   component: WorkerWorkSection,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

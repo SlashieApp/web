@@ -5,6 +5,7 @@ import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { UpdateMyProfileMutation } from '@codegen/schema'
 import { useRef, useState } from 'react'
 
+import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
 import {
@@ -20,7 +21,7 @@ import {
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
-import { Button, Card, CurrentUserAvatar } from '@ui'
+import { Button, Card } from '@ui'
 
 import { displayNameFromMe } from '../profileDisplayHelpers'
 
@@ -112,7 +113,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
         </Stack>
 
         <HStack gap={4} align="center" flexWrap="wrap">
-          <CurrentUserAvatar
+          <MeAvatar
             size="xl"
             name={displayNameFromMe(me)}
             avatarUrl={previewUrl ?? currentAvatar}

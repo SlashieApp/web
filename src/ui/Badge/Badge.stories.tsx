@@ -1,7 +1,7 @@
 import { HStack, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Badge, StatusPill, type UiBadgeVariant } from './Badge'
+import { Badge, type UiBadgeVariant } from './Badge'
 
 const FAMILIES: UiBadgeVariant[] = [
   'success',
@@ -12,7 +12,7 @@ const FAMILIES: UiBadgeVariant[] = [
 ]
 
 const meta = {
-  title: 'Components/Badge',
+  title: 'ui/Badge',
   component: Badge,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
@@ -53,18 +53,6 @@ export const WithAndWithoutDot: Story = {
         <Badge variant="success">No dot</Badge>
       </HStack>
     </Stack>
-  ),
-}
-
-/** TaskStatus mapping — every pill shows dot + label (never colour alone). */
-export const TaskStatus: Story = {
-  render: () => (
-    <HStack gap={2} flexWrap="wrap">
-      <StatusPill status="OPEN" />
-      <StatusPill status="AWARDED" />
-      <StatusPill status="CLOSED" />
-      <StatusPill status="CANCELLED" />
-    </HStack>
   ),
 }
 

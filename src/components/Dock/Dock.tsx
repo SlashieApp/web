@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react'
 
 import { APP_HOME, GET_APP_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 
-import { IconButton } from '../IconButton/IconButton'
+import { IconButton } from '@ui'
 
 /**
  * SDL Dock — primary navigation rail. Left rail on md+, bottom bar on mobile.

@@ -12,7 +12,7 @@ const SDL_VARIANTS: UiButtonVariant[] = [
 ]
 
 const meta = {
-  title: 'Components/Button',
+  title: 'ui/Button',
   component: Button,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -17,7 +17,7 @@ function ControlledPortfolio(
 }
 
 const meta = {
-  title: 'form/WorkerSetupPortfolioInput',
+  title: 'worker/setup/WorkerSetupPortfolioInput',
   component: WorkerSetupPortfolioInput,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -1,7 +1,8 @@
 import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Button } from '../Button'
+import { Button } from '@ui'
+
 import { Header } from './Header'
 import {
   headerMeCustomer,
@@ -30,7 +31,7 @@ function seedForMode(mode: HeaderMode) {
 }
 
 const meta = {
-  title: 'Components/Header',
+  title: 'shell/Header',
   component: Header,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

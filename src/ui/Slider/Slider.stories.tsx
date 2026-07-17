@@ -7,7 +7,7 @@ import { Slider, type UiSliderTone } from './Slider'
 const TONES: UiSliderTone[] = ['primary', 'danger']
 
 const meta = {
-  title: 'Components/Slider',
+  title: 'ui/Slider',
   component: Slider,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

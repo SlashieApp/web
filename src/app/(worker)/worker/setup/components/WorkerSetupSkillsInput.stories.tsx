@@ -17,7 +17,7 @@ function ControlledSkillsInput(
 }
 
 const meta = {
-  title: 'form/WorkerSetupSkillsInput',
+  title: 'worker/setup/WorkerSetupSkillsInput',
   component: WorkerSetupSkillsInput,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

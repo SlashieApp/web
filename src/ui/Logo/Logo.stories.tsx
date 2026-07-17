@@ -8,7 +8,7 @@ const VARIANTS: UiLogoVariant[] = ['wordmark', 'mark']
 const SIZES: UiLogoSize[] = ['sm', 'md', 'lg']
 
 const meta = {
-  title: 'Components/Logo',
+  title: 'ui/Logo',
   component: Logo,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

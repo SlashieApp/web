@@ -15,7 +15,7 @@ function ControlledComposer(
 }
 
 const meta = {
-  title: 'form/WorkerSetupBioComposer',
+  title: 'worker/setup/WorkerSetupBioComposer',
   component: WorkerSetupBioComposer,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

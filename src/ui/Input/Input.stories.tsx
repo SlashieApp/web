@@ -31,7 +31,7 @@ const lockIcon = (
  * and `aria-describedby` wiring -- never rely on the placeholder as the label.
  */
 const meta = {
-  title: 'Components/Input',
+  title: 'ui/Input',
   component: Input,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

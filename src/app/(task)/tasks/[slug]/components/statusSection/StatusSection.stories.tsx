@@ -8,7 +8,7 @@ import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
 import { StatusSection } from './StatusSection'
 
 const meta = {
-  title: 'task/StatusSection/StatusSection',
+  title: 'task/tasks/statusSection/StatusSection',
   component: StatusSection,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

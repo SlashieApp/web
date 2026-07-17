@@ -45,7 +45,7 @@ function BellIcon() {
  * the global theme toolbar — nothing here hardcodes a mode.
  */
 const meta = {
-  title: 'Components/IconButton',
+  title: 'ui/IconButton',
   component: IconButton,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

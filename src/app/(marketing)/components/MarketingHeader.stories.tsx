@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { MarketingHeader } from './MarketingHeader'
 
 const meta = {
-  title: 'header/MarketingHeader',
+  title: 'marketing/Header',
   component: MarketingHeader,
   tags: ['autodocs'],
   parameters: {
