@@ -2,8 +2,8 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
-import { timeFromUnknown } from '@/utils/dashboardHelpers'
-import { Card, Link } from '@ui'
+import { formatRelativeAgo } from '@/utils/dashboardHelpers'
+import { Button, Card, EmptyState, Link } from '@ui'
 
 import type {
   ActivityTone,
@@ -14,31 +14,65 @@ export function InboxActivityPanel({
   rows,
   loading = false,
   emptyMessage = 'No activity yet.',
+  emptyActionHref,
+  emptyActionLabel,
+  title = 'Activity',
+  description = 'Latest updates on your tasks and bookings.',
+  viewAllHref,
+  viewAllLabel = 'View all',
 }: {
   rows: readonly NotificationActivityRow[]
   loading?: boolean
   emptyMessage?: string
+  emptyActionHref?: string
+  emptyActionLabel?: string
+  title?: string
+  description?: string
+  viewAllHref?: string
+  viewAllLabel?: string
 }) {
   return (
-    <Card layout="section" p={5}>
+    <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
-        <Stack gap={1}>
-          <Text fontWeight={700} fontSize="md" color="text.default">
-            Activity
-          </Text>
-          <Text fontSize="sm" color="text.muted">
-            Latest updates on your tasks and bookings.
-          </Text>
-        </Stack>
+        <HStack justify="space-between" gap={3} align="flex-start">
+          <Stack gap={1}>
+            <Text fontWeight={700} fontSize="md" color="text.default">
+              {title}
+            </Text>
+            <Text fontSize="sm" color="text.muted">
+              {description}
+            </Text>
+          </Stack>
+          {viewAllHref ? (
+            <Link
+              href={viewAllHref}
+              fontSize="sm"
+              fontWeight={600}
+              color="text.link"
+              flexShrink={0}
+              _hover={{ textDecoration: 'none', color: 'text.link' }}
+            >
+              {viewAllLabel}
+            </Link>
+          ) : null}
+        </HStack>
 
         {loading && rows.length === 0 ? (
-          <Text color="text.muted" fontSize="sm">
+          <Text as="output" color="text.muted" fontSize="sm">
             Loading activity…
           </Text>
         ) : rows.length === 0 ? (
-          <Text color="text.muted" fontSize="sm">
-            {emptyMessage}
-          </Text>
+          emptyActionHref && emptyActionLabel ? (
+            <EmptyState title={emptyMessage}>
+              <Link href={emptyActionHref} _hover={{ textDecoration: 'none' }}>
+                <Button size="sm">{emptyActionLabel}</Button>
+              </Link>
+            </EmptyState>
+          ) : (
+            <Text color="text.muted" fontSize="sm">
+              {emptyMessage}
+            </Text>
+          )
         ) : (
           <Stack gap={1}>
             {rows.map((item) => {
@@ -51,6 +85,7 @@ export function InboxActivityPanel({
                   borderBottomWidth="1px"
                   borderColor="border.default"
                   w="full"
+                  minH="44px"
                 >
                   <HStack align="flex-start" gap={3} minW={0}>
                     <ActivityIcon tone={item.tone} />
@@ -63,7 +98,9 @@ export function InboxActivityPanel({
                       </Text>
                     </Stack>
                   </HStack>
-                  <ClockLabel happenedAt={item.happenedAt} />
+                  <Text fontSize="xs" color="text.muted" flexShrink={0}>
+                    {formatRelativeAgo(item.happenedAt)}
+                  </Text>
                 </HStack>
               )
 
@@ -90,18 +127,18 @@ export function InboxActivityPanel({
 
 function ActivityIcon({ tone }: { tone: ActivityTone }) {
   const bgByTone = {
-    green: 'green.100',
-    purple: 'purple.100',
-    blue: 'blue.100',
-    mint: 'green.100',
-    red: 'red.100',
+    green: 'status.success.soft',
+    purple: 'bg.subtle',
+    blue: 'status.info.soft',
+    mint: 'status.success.soft',
+    red: 'status.danger.soft',
   } as const
   const fgByTone = {
-    green: 'green.700',
-    purple: 'purple.700',
-    blue: 'blue.700',
-    mint: 'green.700',
-    red: 'red.700',
+    green: 'status.success.fg',
+    purple: 'text.muted',
+    blue: 'status.info.fg',
+    mint: 'status.success.fg',
+    red: 'status.danger.fg',
   } as const
 
   return (
@@ -116,52 +153,9 @@ function ActivityIcon({ tone }: { tone: ActivityTone }) {
       fontSize="sm"
       fontWeight={700}
       flexShrink={0}
+      aria-hidden
     >
       ·
     </Box>
-  )
-}
-
-function ClockLabel({ happenedAt }: { happenedAt: unknown }) {
-  const timestamp = timeFromUnknown(happenedAt)
-  if (!timestamp) {
-    return (
-      <Text fontSize="xs" color="text.muted" flexShrink={0}>
-        Recently
-      </Text>
-    )
-  }
-
-  const diffMs = Date.now() - timestamp
-  const minute = 60 * 1000
-  const hour = 60 * minute
-  const day = 24 * hour
-
-  if (diffMs < hour) {
-    return (
-      <Text fontSize="xs" color="text.muted" flexShrink={0}>
-        {Math.max(1, Math.floor(diffMs / minute))}m ago
-      </Text>
-    )
-  }
-  if (diffMs < day) {
-    return (
-      <Text fontSize="xs" color="text.muted" flexShrink={0}>
-        {Math.floor(diffMs / hour)}h ago
-      </Text>
-    )
-  }
-  if (diffMs < day * 7) {
-    return (
-      <Text fontSize="xs" color="text.muted" flexShrink={0}>
-        {Math.floor(diffMs / day)}d ago
-      </Text>
-    )
-  }
-
-  return (
-    <Text fontSize="xs" color="text.muted" flexShrink={0}>
-      Earlier
-    </Text>
   )
 }

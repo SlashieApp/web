@@ -914,7 +914,6 @@ export function useTaskBrowseFiltersProps(): TaskBrowseFiltersProps {
     sortValue: data.sort,
     sortOptions: SORT_OPTIONS,
     onSortChange: data.setSort,
-    showMapPromo: false,
   }
 }
 

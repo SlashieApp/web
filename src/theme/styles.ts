@@ -12,15 +12,6 @@ export const sdlElevation = {
   e5: '0 24px 64px rgba(10, 21, 18, 0.18)',
 } as const
 
-/** @deprecated SDL uses `sdlElevation`. Kept as an alias during migration. */
-export const dsShadows = {
-  xs: sdlElevation.e1,
-  sm: sdlElevation.e2,
-  md: sdlElevation.e3,
-  lg: sdlElevation.e4,
-  xl: sdlElevation.e5,
-} as const
-
 /** SDL motion. Animate transform/opacity only; honor prefers-reduced-motion. */
 export const sdlMotion = {
   duration: {

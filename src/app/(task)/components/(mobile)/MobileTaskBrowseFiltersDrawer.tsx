@@ -57,7 +57,6 @@ function formatBudgetRange(minBudgetPounds: string, maxBudgetPounds: string) {
 function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
   const { requestUseMyLocation } = useTaskBrowseData()
   const {
-    showMapPromo: _showMapPromo,
     sortValue: _sort,
     sortOptions: _sortOptions,
     onSortChange: _onSortChange,

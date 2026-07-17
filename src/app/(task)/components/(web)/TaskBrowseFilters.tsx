@@ -30,10 +30,7 @@ export type {
   UrgencyFilter,
 } from '../../helpers/taskBrowseFilters.types'
 
-export type TaskBrowseFiltersPanelProps = Omit<
-  TaskBrowseFiltersProps,
-  'showMapPromo'
->
+export type TaskBrowseFiltersPanelProps = TaskBrowseFiltersProps
 
 const FILTER_LABEL = {
   fontSize: 'xs',

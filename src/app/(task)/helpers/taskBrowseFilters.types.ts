@@ -25,5 +25,4 @@ export type TaskBrowseFiltersProps = {
   sortValue?: string
   sortOptions?: readonly { value: string; label: string }[]
   onSortChange?: (value: string) => void
-  showMapPromo?: boolean
 }
