@@ -2,6 +2,8 @@
 
 Next.js front end for a local task marketplace: task hunters browse open work on the home page; customers post tasks and review quotes; workers run quotes and earnings from the dashboard. Backed by a GraphQL API.
 
+**Engineering wiki:** [docs/coding-guidebook.md](docs/coding-guidebook.md) · [docs/README.md](docs/README.md)
+
 ## How Slashie works
 
 Slashie ([slashie.app](https://slashie.app)) is a **two-sided local task marketplace**: **customers** post work they need done; **workers** find tasks, send **quotes**, get chosen, complete the job, and build reputation.

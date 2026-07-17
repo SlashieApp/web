@@ -8,6 +8,8 @@ alwaysApply: false
 
 # Dual theme: components and Storybook
 
+Story ownership titles: **`docs/coding-guidebook.md`** §12 · **`storybook-story-conventions`** skill.
+
 ## Product components
 
 - New UI that reflects brand layouts (forms, cards, tags, etc.) must be **readable in both themes** by driving colors from **`lightConfig` / `darkConfig`** semantic tokens in `src/theme/system.ts` (or Chakra tokens that already differ per system). Avoid inferring theme from `useToken` string hacks unless there is no token path.

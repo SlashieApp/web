@@ -1,0 +1,45 @@
+---
+description: Strict UI layers — src/ui primitives, src/components shell, src/app features
+alwaysApply: true
+---
+
+# UI layer boundaries
+
+Canonical write-up: **`docs/coding-guidebook.md`** §2–3.
+
+## Dependency direction
+
+```text
+page.tsx → feature (src/app/**/components) → shell (src/components) → primitives (src/ui) → theme
+```
+
+Never import upward. Primitives must not import app routes, Apollo, or Me store.
+
+## `src/ui` — universal primitives only
+
+- Atoms/molecules reusable on **any** route (Button, Input, Card, Avatar, Drawer, …).
+- Presentational: **no** Apollo hooks, **no** `useUserStore`, **no** pathname branching for chrome.
+- No marketplace-scoped defaults (e.g. EmptyState with hardcoded quotes art). Compose `SpotIllustration` + local Stack in features.
+- No domain status enums (`TaskStatusValue` / `StatusPill`) — feature adapters compose `Badge`.
+- Extend existing primitives with optional props before adding forks.
+- Avatar load fallbacks: `srcCandidates` + `fallback: 'initials' | 'icon'`. App adapters (e.g. `MeAvatar`) resolve Me/Google URLs outside `src/ui`.
+
+## `src/components` — app shell chrome
+
+- Cross-route, app-aware chrome: **`Header`**, **`Dock`** (and their menus/drawers).
+- May read Me / notifications / routes.
+- Import as `@/components/Header`, `@/components/Dock`.
+- Stories: `shell/Header`, `shell/Dock` — not `ui/*`.
+
+## `src/app` — features
+
+- Route sections, mappers (`helpers/`), providers (`context/`), GraphQL.
+- Thin adapters that wire store/context into `@ui` (no new primitive unless domain-agnostic and multi-caller).
+- Domain cards stay presentational; one entity + view/state — no per-route card forks.
+
+## Checklist
+
+- [ ] New shared control → `src/ui` with `ui/<Name>` story, or extend an existing primitive.
+- [ ] App-only chrome → `src/components`, not `src/ui`.
+- [ ] Route UI → colocated `components/` next to `page.tsx`.
+- [ ] No `@/app` imports from `src/ui/**`.

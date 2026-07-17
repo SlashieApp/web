@@ -5,6 +5,8 @@ description: Create and update Storybook stories using this repository's require
 
 # Storybook Story Conventions
 
+Canonical ownership titles: **`docs/coding-guidebook.md`** §12.
+
 Apply these rules whenever creating or updating stories.
 
 ## Repo-specific stack

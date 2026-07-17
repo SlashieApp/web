@@ -1,27 +1,61 @@
 ---
-description: Route data flow lives in page.tsx; colocate split UI under ./components next to it
+description: page.tsx owns orchestration, lifecycle, and data flow; sections in ./components
 globs: src/app/**/page.tsx
 alwaysApply: false
 ---
 
 # App route: `page.tsx` owns data flow
 
+Canonical write-up: **`docs/coding-guidebook.md`** §4–7.
+
 ## Where logic lives
 
 - **`page.tsx`** holds **route-level data flow**: fetching/mutation orchestration, form state and `handleSubmit`, session or auth gates, `watch` / `setValue`, router navigation, and passing callbacks into children.
-- **UI decomposition** belongs in **`./components/`** in the **same route folder** as that `page.tsx` (section cards, panels, maps, etc.). Prefer several focused components (e.g. `CreateTaskBasicsSection.tsx`) over one large catch-all module.
+- **UI decomposition** belongs in **`./components/`** in the **same route folder** as that `page.tsx` (section cards, panels, maps, etc.). Prefer several focused components over one large catch-all module.
+- **GraphQL → UI mapping** belongs in colocated **`helpers/`**, not inside presentational cards.
+
+## Orchestration map (required readability)
+
+A reader of `page.tsx` should see, without spelunking:
+
+1. Auth / permission gates  
+2. Data sources and what each powers  
+3. Loading / error / empty / success branches  
+4. Providers / store boundaries  
+5. Section composition order  
+6. Page-level handlers delegated into sections  
+
+Keep markup thin; keep lifecycle explicit.
+
+## Data lifecycle (every page / section)
+
+| State | UX |
+| --- | --- |
+| loading | Skeleton / reserved layout; no blank freeze |
+| error | Message + recovery (retry / navigate) |
+| empty | Helpful copy + next action |
+| success | Real content |
+
+## State ownership
+
+- Segment/page shared → `context/` or existing Zustand (Me).
+- Section-local UI → inside that section.
+- Ephemeral control → leaf.
+- Leaves call segment hooks where they render; avoid shell-only prop drilling.
+- No god contexts across unrelated routes.
 
 ## What to avoid
 
-- **No pass-through screen wrappers** whose only role is moving the entire page body out of `page.tsx`—for example `FooPageLayout.tsx`, `FooPageContent.tsx`, or `TaskDetailPageLayout.tsx` that renders the same tree with no real split (server/client boundary, reuse, or heavy isolation). Keep that composition in **`page.tsx`**.
-- Do **not** default to an extra top-level file just to shorten `page.tsx`; extract **sections and widgets** into `components/`, not the whole page shell.
+- **No pass-through screen wrappers** whose only role is moving the entire page body out of `page.tsx` (e.g. `FooPageLayout` / `FooPageContent` with no real split).
+- Do **not** dump large inline entity/card trees in `page.tsx`.
+- Do **not** bury critical fetch/state only in deep leaves with no page-level visibility.
 
 ## Client vs server
 
 - Use **`'use client'`** on `page.tsx` when the route needs client hooks and the data flow stays here.
-- If the route must stay a **server** `page.tsx` (e.g. `generateMetadata`, streaming server data), keep that file as the server entry and import **only** what’s required—still split **UI** into `./components/`, and avoid a single monolithic `*PageContent` unless there is a hard server/client boundary.
+- If the route must stay a **server** `page.tsx` (e.g. `generateMetadata`), keep that file as the server entry and still split **UI** into `./components/`.
 
 ## Example (shape)
 
-- **`page.tsx`**: `useForm`, `onSubmit`, `watch`, compose `<CreateTaskBasicsSection register={...} />` etc.
-- **`components/CreateTaskBasicsSection.tsx`**: fields + layout only, no route-level orchestration.
+- **`page.tsx`**: queries/hooks, `error` + Retry, compose `<DashboardStatTiles … />` etc.
+- **`components/DashboardStatTiles.tsx`**: presentational section; no route-level orchestration.

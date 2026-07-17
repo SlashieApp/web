@@ -12,24 +12,27 @@ description: Audits and refactors App Router pages and colocated UI for repo rul
 
 ## Before editing
 
-1. Read the full file(s) to change and immediate imports; match existing naming and patterns in that folder.
-2. For visual or UX work, read and follow [.cursor/skills/slashie-design/SKILL.md](../slashie-design/SKILL.md) (tokens, light/dark, typography, no-line rule, accessibility).
-3. Skim [AGENTS.md](../../../AGENTS.md) for product language (**task**, **quote**, **worker**, map-first discovery)—use in copy, not legacy terms like “Handyman” unless migrating strings deliberately.
+1. Read **[docs/coding-guidebook.md](../../../docs/coding-guidebook.md)** for layers, `page.tsx` contract, and lifecycle.
+2. Read the full file(s) to change and immediate imports; match existing naming and patterns in that folder.
+3. For visual or UX work, read and follow [.cursor/skills/slashie-design/SKILL.md](../slashie-design/SKILL.md).
+4. Skim [AGENTS.md](../../../AGENTS.md) for product language (**task**, **quote**, **worker**, map-first discovery).
 
 ## Audit checklist (fix gaps by refactoring)
 
-### `@ui` and Chakra
+### Layers (`@ui` / shell / feature)
 
-- Prefer shared primitives from **`@ui`** when they fit: `Button`, `FormField`, `Input`, `IconButton`, `Badge`, `Card`, `Tag`, `Avatar`, `Header`, `Footer`, `Logo`, etc. (see `src/ui/index.ts`).
-- Layout and composition may still use **`@chakra-ui/react`** (`Box`, `Stack`, `Grid`, …). Do not reimplement `@ui` behavior with raw Chakra unless `@ui` lacks the variant needed.
-- **Navigation:** internal routes use Chakra **`Link`** with **`as={NextLink}`** and `href` on `Link`—no plain `<a href="/…">`, no `legacyBehavior` / `passHref` (see `.cursor/rules/chakra-next-link.mdc`).
+- Prefer **`@ui`** primitives: `Button`, `FormField`, `Input`, `IconButton`, `Badge`, `Card`, `Avatar`, `Footer`, `Logo`, etc. (see `src/ui/index.ts`).
+- App chrome: **`Header` / `Dock`** from `@/components/*` — not `@ui`.
+- Layout composition may use **`@chakra-ui/react`** (`Box`, `Stack`, `Grid`, …).
+- **Navigation:** Chakra / `@ui` **`Link`** with Next — no plain `<a>` for internal routes (`.cursor/rules/chakra-next-link.mdc`).
+- Layer boundaries: `.cursor/rules/ui-layer-boundaries.mdc`.
 
 ### Repo rules (always-applied)
 
-- **Effects:** do not add `useEffect` for new behavior; prefer handlers, callbacks, and callback refs (`.cursor/rules/no-useeffect-callback-ref.mdc`). Only touch existing `useEffect` if the task requires that behavior.
-- **GraphQL:** if the page uses operations, keep them in `src/graphql/` and types from `@codegen/schema`; run `bun run codegen` when the schema or operations change (`.cursor/rules/graphql-codegen.mdc`).
-- **Structure:** **`page.tsx` owns route composition** (metadata, fetch, page grid/shell); section/widget UI belongs in colocated **`components/`**—do not add pass-through `*PageLayout` / `*PageContent` wrappers (`.cursor/rules/repo-structure-and-exports.mdc`, `app-route-page-data-flow.mdc`). Context hooks live in leaf components where possible.
-- **Barrels:** if you add or move modules under folders covered by `EXPORT_CONFIGS` (`src/ui`, `src/app/(task)/components`), run **`bun run exports-gen`**; do not hand-edit auto-generated `index.ts` files.
+- **Effects:** do not add `useEffect` for new behavior; prefer handlers, callbacks, and callback refs (`.cursor/rules/no-useeffect-callback-ref.mdc`).
+- **GraphQL:** colocate `.gql` beside the owning `page.tsx`; run `bun run codegen` when ops change (`.cursor/rules/graphql-route-colocation.mdc`, `graphql-codegen.mdc`).
+- **Structure:** **`page.tsx` owns orchestration + lifecycle**; sections in colocated **`components/`** — no pass-through `*PageLayout` wrappers (`.cursor/rules/repo-structure-and-exports.mdc`, `app-route-page-data-flow.mdc`).
+- **Barrels:** after moves under `EXPORT_CONFIGS`, run **`bun run exports-gen`**.
 
 ### Quality bar
 

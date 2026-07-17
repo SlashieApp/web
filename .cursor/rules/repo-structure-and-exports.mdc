@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Repo structure, route features, and exports
 
+Canonical write-up: **`docs/coding-guidebook.md`**. Layer boundaries: **`ui-layer-boundaries.mdc`**.
+
 Treat **`src/app/(task)/`** as the **reference template** for other product areas under `src/app/(…)/**`: group by route segment, colocate UI, context, and helpers the same way.
 
 ## Reference tree: `src/app/(task)/` (current)
@@ -37,10 +39,17 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 - **Root of `components/`** — Shared across breakpoints; **context-wired wrappers** (read domain hooks next to the widget, not via props from `WebLayout` / `MobileLayout`); dumb primitives; maps and other heavy shells.
 - Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to the **components root**.
 
-## UI atom/reuse architecture (`src/ui`)
+## UI atom/reuse architecture
 
-- Treat **`src/ui`** as the reusable UI element layer (atoms + shared molecules).
-- Route-scoped or feature-scoped components (under `src/app/**/components/**`) should **compose from `@ui` first**.
+Three layers (see **`ui-layer-boundaries.mdc`**):
+
+| Layer | Path | Examples |
+| --- | --- | --- |
+| Primitives | `src/ui` → `@ui` | Button, Card, Avatar, Drawer, FormField |
+| Shell | `src/components` | Header, Dock |
+| Feature | `src/app/**/components` | TaskCard, MeAvatar, TaskStatusPill |
+
+- Route/feature code should **compose from `@ui` first**, then shell when needed.
 - Exception: plain **`Text`** can be used directly from Chakra when a dedicated UI wrapper is unnecessary.
 
 ### Reuse-first workflow (required)
@@ -49,19 +58,21 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 2. If a similar UI component exists, **reuse it**.
 3. If similar but not enough, **extend the existing `src/ui` component** with reusable props (prefer optional props over one-off forks).
 4. Only create a new `src/ui` component when no suitable atom/reusable element exists.
+5. App-aware chrome → `src/components`, **not** `src/ui`.
 
 ### Rules for new UI components
 
 - New `src/ui` components must be **universal and reusable**, not route-specific.
 - Use generic naming and prop APIs (avoid task/domain-specific prop names unless truly global).
 - Keep variants configurable through props/tokens instead of duplicating components.
-- Add/update Storybook stories for new reusable UI components.
+- Add/update Storybook stories as `ui/<Name>`.
+- No Apollo / Me store / pathname chrome inside `src/ui`.
 
 ### Extract universal primitives; keep route adapters thin
 
-- If a route-scoped component is really a **generic widget** (progress bar, stepper, dropdown/popover, etc.), **extract the universal piece to `src/ui`** with a data-agnostic prop API (e.g. `ProgressBar` takes `value`/`label`; `Stepper` takes `steps`/`activeSubStepId`; `Dropdown` takes `trigger`/`children`).
-- The route keeps a **thin adapter** that reads its context/data and renders the `src/ui` primitive (e.g. `WorkerSetupStepper` wires `useWorkerSetup()` into `<Stepper>`). Adapters are not new universal components and need no story.
-- **Feature menus compose layout primitives.** Click/hover popovers and drawers (`Dropdown`, `Drawer`) are universal `src/ui` layout primitives; feature menus such as `AccountMenu` **build on them** instead of re-implementing click-outside / focus / positioning. Use `Dropdown` with `hoverExpand` for nav hover menus.
+- If a route-scoped component is really a **generic widget** (progress bar, stepper, dropdown/popover, etc.), **extract the universal piece to `src/ui`** with a data-agnostic prop API.
+- The route keeps a **thin adapter** that reads its context/data and renders the `src/ui` primitive (e.g. `WorkerSetupStepper` → `<Stepper>`; `MeAvatar` → `<Avatar srcCandidates={…} />`). Adapters need no story.
+- **Feature menus compose layout primitives.** `AccountMenu` (under `src/components/Header`) builds on `@ui` `Dropdown` / `Drawer`.
 
 ### Storybook grouping (see `storybook-story-conventions` skill)
 

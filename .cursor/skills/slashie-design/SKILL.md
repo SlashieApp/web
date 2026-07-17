@@ -12,11 +12,11 @@ description: >-
 
 ## Source of truth
 
-Follow the current wiki notes:
+Follow the current wiki / repo notes:
 
-- `02-Engineering/Slashie-Brand-Design.md`
-- `02-Engineering/Slashie-Design-Tokens.md`
-- `01-Product/FE-Page-Inventory-and-Design-Briefs.md`
+- **Architecture / coding standards:** `docs/coding-guidebook.md`
+- **Tokens / UI consistency:** `docs/ui-consistency.md`
+- External wiki (when available): `02-Engineering/Slashie-Brand-Design.md`, `02-Engineering/Slashie-Design-Tokens.md`, `01-Product/FE-Page-Inventory-and-Design-Briefs.md`
 
 ## 1. Executive summary
 

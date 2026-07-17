@@ -39,9 +39,15 @@ Slashie is a high-trust local task marketplace connecting people who need work d
 
 - Frontend: Next.js 16 (App Router).
 - API: external GraphQL backend (schema synced into `.codegen/schema.ts`).
-- UI system: reusable primitives in `src/ui` with Chakra UI as base layer.
+- UI system: reusable primitives in `src/ui` (`@ui`) with Chakra UI as base layer; app shell chrome in `src/components`.
 
-## 6. Current Product Direction
+## 6. Engineering conventions (wiki)
+
+**Start here:** [`docs/coding-guidebook.md`](docs/coding-guidebook.md) — layers, route colocation, `page.tsx` contract, state, lifecycle, GraphQL, Storybook, checklists.
+
+Also: [`docs/ui-consistency.md`](docs/ui-consistency.md) · [`docs/README.md`](docs/README.md) · Cursor rules in [`.cursor/rules/`](.cursor/rules/).
+
+## 7. Current Product Direction
 
 - Implement and iterate the redesign page-by-page, starting from homepage flows.
 - Keep UX aligned to Stitch design output while preserving role-based app behavior.

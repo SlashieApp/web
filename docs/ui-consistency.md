@@ -5,7 +5,8 @@ design-system modernization pass (FE-47). Quality bar: systematic variants (Uber
 trust-focused card hierarchy and whitespace (Airbnb) — while staying distinctly Slashie
 (green `#00DC82`, map-first marketplace).
 
-Last updated: 2026-06-24 · Owner: web
+Last updated: 2026-07-17 · Owner: web  
+**Architecture / layering:** see [Coding Guidebook](./coding-guidebook.md).
 
 ---
 
@@ -63,21 +64,25 @@ Routes are already grouped by Next.js route groups, which align to shells:
 
 ---
 
-## 3. Primitive inventory (`src/ui`)
+## 3. Primitive inventory (`src/ui`) + shell
 
-Pages should import primitives from `@ui` (barrel is auto-generated — run `bun run exports-gen`).
+Pages import primitives from `@ui` (barrel auto-generated — `bun run exports-gen`).  
+**App shell** (`Header`, `Dock`) lives in **`src/components`**, not `@ui` — see [Coding Guidebook](./coding-guidebook.md) §2.
 
-| Primitive | Story | Notes |
+| Layer | Modules | Story title |
 | --- | --- | --- |
-| Button, Input, Card, Badge, Avatar, Modal, Drawer, Select, Textarea, FormField, IconButton, Link, Dropdown, OtpInput, ProgressBar, RadioButton, Rating, Slider, Stepper, Thumbnail, Dock, Header, Footer, ImageGallery, Logo | ✅ 1 story each | Expand to cover **all variants × sizes × states** (default/hover/focus/disabled/loading/error). |
-| PhoneInput | ❌ none | Add story. |
-| ScheduleChip | ❌ none | Add story. |
-| Alert / Toast | ⚠️ missing primitive | No shared Alert/Toast in `@ui` — needed for verify banners & errors (acceptance criteria). |
-| Empty / Error / Skeleton | ⚠️ missing primitive | No shared state primitives; pages may roll their own. |
-| Tabs | ⚠️ missing primitive | Confirm whether needed or Chakra Tabs used directly. |
+| `@ui` controls | Button, Input, Textarea, Select, PhoneInput, OtpInput, FormField, RadioButton, Slider, IconButton | `ui/*` |
+| `@ui` display | Card, Badge, Avatar, Thumbnail, Rating, DetailRow, InfoBar, Toast, ProgressBar, Stepper, Tabs, ScheduleChip, SpotIllustration, MapCard, ImageGallery, Logo, Link | `ui/*` |
+| `@ui` layout | Drawer, Dropdown, Modal, MobileCarousel, StepFlowLayout, Footer | `ui/*` |
+| Shell | Header, Dock (`src/components`) | `shell/*` |
 
-Docs stories present: `ColorPalette.stories.tsx`, `Typography.stories.tsx`. Add a
-**"Slashie UI"** docs page (tokens, shells, do/don't) per Phase 3.
+**Not in `@ui` (by design)**
+
+- Marketplace EmptyState — compose `SpotIllustration` + copy/CTA in the feature.
+- Task status pills — feature adapter (`TaskStatusPill`) over `Badge`.
+- Current-user avatar — `MeAvatar` adapter over `Avatar` (`srcCandidates` / icon fallback).
+
+Docs foundations: `src/ui/_foundations/*` (Color, Typography, …).
 
 ---
 
@@ -89,7 +94,8 @@ Docs stories present: `ColorPalette.stories.tsx`, `Typography.stories.tsx`. Add 
 | Med | Hardcoded `#00AB63` in map pin/route/static-image | `taskMap/pin`, `navRoute.ts`, `mapboxStaticImageUrl.ts`, `TaskLocationMapPicker.tsx` | ✅ Fixed — routed through `BRAND_MAP_*` constants (visible: pins now brighter spec green) |
 | Low | Ad-hoc hex gradients in marketing hero | `src/app/(marketing)/page.tsx:465,608` | Open — marketing decorative; tokenize later |
 | Low | Direct `@chakra-ui/react` primitive import | `(worker)/worker/setup/components/WorkerSetupHeader.tsx` | Open — review during worker migration |
-| Info | Missing Alert/Toast/Empty/Skeleton primitives | `src/ui` | Open — Phase 2 |
+| Info | Shared Empty primitive intentionally not in `@ui` | features compose `SpotIllustration` | ✅ By design — see Coding Guidebook |
+| Info | Toast exists in `@ui` | `src/ui/Toast` | ✅ |
 
 No primary blue CTAs found. ~15 ad-hoc hex values total across `src/app/**` (mostly map/marketing decorative).
 
