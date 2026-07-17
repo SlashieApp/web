@@ -45,6 +45,7 @@ import {
   CreateTaskScheduleSection,
   CreateTaskVisualsSection,
 } from './components'
+import { CreateTaskHeader } from './components/CreateTaskHeader'
 import { CreateTaskStepper } from './components/CreateTaskStepper'
 import {
   type CreateTaskFormFieldValues,
@@ -493,6 +494,7 @@ function CreateTaskFormBody({
   return (
     <StepFlowLayout
       banner={<EmailVerificationBanner />}
+      header={<CreateTaskHeader />}
       progress={
         <StepFlowProgress
           value={createTaskProgressPercent(activeSubStep)}
