@@ -38,6 +38,7 @@ export const headerMeWorker: MeSnapshot = {
     tagline: 'Reliable local help',
     yearsExperience: 8,
     skills: ['Plumbing', 'Assembly'],
+    qualifications: [],
     portfolioUrls: [],
     location: {
       address: 'London',

@@ -29,8 +29,10 @@ query Me {
       legalName
       bio
       tagline
+      primaryCategory
       yearsExperience
       skills
+      qualifications
       travelRadiusMiles
       portfolioUrls
       isVerified

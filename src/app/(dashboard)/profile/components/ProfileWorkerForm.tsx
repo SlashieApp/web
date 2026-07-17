@@ -6,11 +6,19 @@ import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { WorkerSetupBioComposer } from '@/app/(worker)/worker/setup/components/WorkerSetupBioComposer'
+import { WorkerSetupCategoryTiles } from '@/app/(worker)/worker/setup/components/WorkerSetupCategoryTiles'
+import { WorkerSetupPortfolioInput } from '@/app/(worker)/worker/setup/components/WorkerSetupPortfolioInput'
+import { WorkerSetupQualificationsInput } from '@/app/(worker)/worker/setup/components/WorkerSetupQualificationsInput'
+import { WorkerSetupSkillsInput } from '@/app/(worker)/worker/setup/components/WorkerSetupSkillsInput'
+import { categoryBySlug } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { HEADLINE_MAX_CHARS } from '@/app/(worker)/worker/setup/helpers/workerSetupValidation'
 import { apolloClient } from '@/utils/apolloClient'
+import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Button, Card, FormField, Input, Link, Textarea } from '@ui'
+import { Button, Card, FormField, Input, Link } from '@ui'
 
 import { saveWorkerProfileForm } from '../helpers/saveWorkerProfileForm'
 import { isWorkerSetupInProgress } from '../helpers/workerSetupProfileHelpers'
@@ -20,7 +28,15 @@ import {
   workerFormValuesFromMe,
 } from '../workerFormSchema'
 
-export function ProfileWorkerForm() {
+export function ProfileWorkerForm({
+  embedded = false,
+  onCancel,
+  onSaved,
+}: {
+  embedded?: boolean
+  onCancel?: () => void
+  onSaved?: () => void
+}) {
   const me = useUserStore((s) => s.me)
   const setMe = useUserStore((s) => s.setMe)
   const getUser = useUserStore((s) => s.getUser)
@@ -37,6 +53,7 @@ export function ProfileWorkerForm() {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<WorkerFormValues>({
     resolver: zodResolver(workerFormSchema),
@@ -108,10 +125,19 @@ export function ProfileWorkerForm() {
       await saveWorkerProfileForm(apolloClient, values, me, setMe)
       reset(values)
       await getUser()
+      showAppToast({ title: 'Worker profile saved' })
+      onSaved?.()
     } catch (error: unknown) {
-      setSubmitError(
-        getFriendlyErrorMessage(error, 'Could not save worker profile.'),
+      const message = getFriendlyErrorMessage(
+        error,
+        'Could not save worker profile.',
       )
+      setSubmitError(message)
+      showAppToast({
+        title: 'Could not save worker profile',
+        description: message,
+        type: 'error',
+      })
     } finally {
       setSaving(false)
     }
@@ -132,7 +158,12 @@ export function ProfileWorkerForm() {
           </Text>
         ) : null}
 
-        <Card layout="section" p={{ base: 5, md: 6 }}>
+        <Card
+          layout="section"
+          p={embedded ? 0 : { base: 5, md: 6 }}
+          borderWidth={embedded ? 0 : '1px'}
+          boxShadow={embedded ? 'none' : 'e1'}
+        >
           <Stack gap={4}>
             <Stack gap={1}>
               <Heading size="md">Worker profile</Heading>
@@ -154,37 +185,60 @@ export function ProfileWorkerForm() {
             </FormField>
 
             <FormField
-              label="Tagline"
-              helperText="One-line headline shown on your worker card."
+              label="Professional headline"
+              helperText="Shown under your name on your public profile."
               errorText={errors.tagline?.message}
             >
               <Input
                 {...register('tagline')}
-                placeholder="Reliable repairs, clean finishes."
+                placeholder="e.g. Handyman with 8 years experience"
+                maxLength={HEADLINE_MAX_CHARS}
                 minH="44px"
               />
             </FormField>
 
-            <FormField label="Bio" errorText={errors.bio?.message}>
-              <Textarea
-                {...register('bio')}
-                placeholder="Tell customers about your skills and experience."
-                rows={4}
-                maxLength={300}
+            <WorkerSetupBioComposer
+              value={watch('bio')}
+              onChange={(bio) =>
+                setValue('bio', bio, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+              errorText={errors.bio?.message}
+            />
+
+            <FormField
+              label="What kind of work do you do most?"
+              helperText="Your primary trade — it leads your profile headline."
+              errorText={errors.primaryCategory?.message}
+            >
+              <WorkerSetupCategoryTiles
+                value={watch('primaryCategory')}
+                onChange={(slug) =>
+                  setValue('primaryCategory', slug, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
               />
             </FormField>
 
-            <FormField
-              label="Skills & services"
-              helperText="Separate skills with commas or new lines."
-              errorText={errors.skillsText?.message}
-            >
-              <Textarea
-                {...register('skillsText')}
-                placeholder="e.g. Plumbing, furniture assembly"
-                rows={3}
-              />
-            </FormField>
+            <WorkerSetupSkillsInput
+              value={watch('skills')}
+              onChange={(skills) =>
+                setValue('skills', skills, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+              suggestions={
+                categoryBySlug(watch('primaryCategory'))?.suggestedSkills.length
+                  ? categoryBySlug(watch('primaryCategory'))?.suggestedSkills
+                  : undefined
+              }
+              errorText={errors.skills?.message}
+            />
 
             <HStack gap={4} flexWrap="wrap" align="flex-start">
               <FormField
@@ -216,6 +270,16 @@ export function ProfileWorkerForm() {
               </FormField>
             </HStack>
 
+            <WorkerSetupQualificationsInput
+              value={watch('qualifications')}
+              onChange={(qualifications) =>
+                setValue('qualifications', qualifications, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            />
+
             <FormField
               label="Service area"
               helperText="City or postcode. Coordinates are refreshed when you save."
@@ -235,27 +299,36 @@ export function ProfileWorkerForm() {
               />
             </FormField>
 
-            <FormField
-              label="Portfolio links"
-              helperText="Optional — one URL per line."
-            >
-              <Textarea
-                {...register('portfolioText')}
-                placeholder="https://example.com/my-work"
-                rows={3}
-              />
-            </FormField>
+            <WorkerSetupPortfolioInput
+              value={watch('portfolioUrls')}
+              onChange={(portfolioUrls) =>
+                setValue('portfolioUrls', portfolioUrls, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            />
           </Stack>
         </Card>
 
-        <HStack gap={3} justify="flex-end">
+        <HStack
+          gap={3}
+          justify="flex-end"
+          position={embedded ? 'sticky' : 'static'}
+          bottom={0}
+          bg="bg.surface"
+          py={embedded ? 3 : 0}
+        >
           <Button
             type="button"
             variant="ghost"
-            onClick={() => reset(formValues)}
-            disabled={!isDirty || saving}
+            onClick={() => {
+              reset(formValues)
+              onCancel?.()
+            }}
+            disabled={saving}
           >
-            Reset
+            {embedded ? 'Cancel' : 'Reset'}
           </Button>
           <Button
             type="submit"
@@ -263,7 +336,7 @@ export function ProfileWorkerForm() {
             loading={saving || isSubmitting}
             disabled={!isDirty}
           >
-            Save worker profile
+            {embedded ? 'Save' : 'Save worker profile'}
           </Button>
         </HStack>
       </Stack>
@@ -275,7 +348,7 @@ function WorkerProfileSummary({ values }: { values: WorkerFormValues }) {
   const rows: { label: string; value: string }[] = [
     { label: 'Name', value: values.legalName },
     { label: 'Bio', value: values.bio },
-    { label: 'Skills', value: values.skillsText },
+    { label: 'Skills', value: values.skills.join(', ') },
     { label: 'Experience', value: values.yearsExperience },
     { label: 'Service area', value: values.locationName },
   ].filter((row) => row.value.trim())

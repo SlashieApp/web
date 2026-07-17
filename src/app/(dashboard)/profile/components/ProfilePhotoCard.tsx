@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { UpdateMyProfileMutation } from '@codegen/schema'
 import { useRef, useState } from 'react'
 
@@ -14,16 +14,17 @@ import {
   trackFlowSucceeded,
 } from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
+import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
-import { Button, Card } from '@ui'
+import { Button, Card, CurrentUserAvatar } from '@ui'
 
 import { displayNameFromMe } from '../profileDisplayHelpers'
 
-export function ProfilePhotoCard() {
+export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -37,8 +38,6 @@ export function ProfilePhotoCard() {
   if (!me) return null
 
   const currentAvatar = me.profile?.avatarUrl?.trim() || null
-  const shownAvatar = previewUrl ?? currentAvatar
-  const initial = displayNameFromMe(me).charAt(0).toUpperCase() || '?'
 
   const handlePick = () => {
     setError(null)
@@ -71,6 +70,8 @@ export function ProfilePhotoCard() {
         })
       }
       trackFlowSucceeded(EVENTS.profile_update_success, { section: 'avatar' })
+      showAppToast({ title: 'Profile photo updated' })
+      onSaved?.()
     } catch (uploadError) {
       captureApiError(uploadError, {
         flow: 'profile_update',
@@ -111,31 +112,12 @@ export function ProfilePhotoCard() {
         </Stack>
 
         <HStack gap={4} align="center" flexWrap="wrap">
-          <Box
-            w={{ base: 20, md: 24 }}
-            h={{ base: 20, md: 24 }}
-            borderRadius="full"
-            bg="bg.subtle"
-            color="text.default"
-            display="grid"
-            placeItems="center"
-            fontWeight={800}
-            fontSize="2xl"
-            overflow="hidden"
-            flexShrink={0}
-            opacity={uploading ? 0.6 : 1}
-          >
-            {shownAvatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={shownAvatar}
-                alt=""
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              initial
-            )}
-          </Box>
+          <CurrentUserAvatar
+            size="xl"
+            name={displayNameFromMe(me)}
+            avatarUrl={previewUrl ?? currentAvatar}
+            rootProps={{ opacity: uploading ? 0.6 : 1 }}
+          />
 
           <Stack gap={2}>
             <HStack gap={3} flexWrap="wrap">

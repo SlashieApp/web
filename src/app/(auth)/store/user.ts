@@ -22,6 +22,11 @@ import {
 import { clearApiUnavailable } from '@/utils/apiAvailability'
 import { apolloClient } from '@/utils/apolloClient'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/utils/auth'
+import {
+  cacheGooglePhotoUrl,
+  clearCachedGooglePhotoUrl,
+  googlePictureFromIdToken,
+} from '@/utils/googlePhotoCache'
 
 const REMEMBER_MAX_AGE = 60 * 60 * 24 * 30
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7
@@ -131,6 +136,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       }
 
       setAuthToken(token, rememberMe ? REMEMBER_MAX_AGE : SESSION_MAX_AGE)
+      clearCachedGooglePhotoUrl()
       const meResult = await apolloClient.query<MeQuery>({
         query: Me,
         fetchPolicy: 'network-only',
@@ -172,6 +178,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       }
 
       setAuthToken(token, SESSION_MAX_AGE)
+      cacheGooglePhotoUrl(googlePictureFromIdToken(idToken))
 
       const meResult = await apolloClient.query<MeQuery>({
         query: Me,
@@ -196,6 +203,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
   logout: () => {
     clearAuthToken()
+    clearCachedGooglePhotoUrl()
     resetAnalyticsIdentity()
     set({ user: null, me: null })
     void apolloClient.clearStore()
@@ -220,6 +228,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       return synced.user
     } catch (error) {
       clearAuthToken()
+      clearCachedGooglePhotoUrl()
       resetAnalyticsIdentity()
       set({ user: null, me: null, isLoading: false })
       return null

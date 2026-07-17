@@ -1,15 +1,16 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { HStack, Heading, Stack, Switch, Text } from '@chakra-ui/react'
+import { HStack, Stack, Switch, Text } from '@chakra-ui/react'
 import type { UpdateMySettingsMutation } from '@codegen/schema'
 import { useState } from 'react'
+import { LuSlidersHorizontal } from 'react-icons/lu'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
+import { DashboardSectionCard } from '@/app/(dashboard)/components/DashboardSectionCard'
 import { captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Card } from '@ui'
 
 type ToggleKey = 'isProfilePrivate' | 'marketingEmails'
 
@@ -91,9 +92,12 @@ export function AccountSettingsCard() {
   }
 
   return (
-    <Card layout="section" p={{ base: 5, md: 6 }}>
+    <DashboardSectionCard
+      title="Settings"
+      description="Control discovery and product email preferences."
+      icon={<LuSlidersHorizontal size={18} aria-hidden />}
+    >
       <Stack gap={4}>
-        <Heading size="md">Settings</Heading>
         <SettingToggle
           label="Private profile"
           description="Hide your profile from public discovery and search."
@@ -114,6 +118,6 @@ export function AccountSettingsCard() {
           </Text>
         ) : null}
       </Stack>
-    </Card>
+    </DashboardSectionCard>
   )
 }

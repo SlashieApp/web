@@ -6,6 +6,7 @@ import {
   DrawerBody,
   DrawerCloseTrigger,
   DrawerContent,
+  type DrawerContentProps,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
@@ -41,6 +42,8 @@ export type DrawerProps = {
   /** Footer button that closes the drawer; optional. */
   primaryActionLabel?: string
   onPrimaryAction?: () => void
+  /** Optional responsive panel overrides for feature drawers/sheets. */
+  contentProps?: DrawerContentProps
 }
 
 function drawerPanelRadius(placement: DrawerPlacement) {
@@ -60,6 +63,7 @@ export function Drawer({
   size = 'md',
   primaryActionLabel,
   onPrimaryAction,
+  contentProps,
 }: DrawerProps) {
   const radius = drawerPanelRadius(placement)
 
@@ -103,6 +107,7 @@ export function Drawer({
             },
           }}
           {...radius}
+          {...contentProps}
         >
           <DrawerHeader px={drawerGutterX} pt={4} pb={4} flexShrink={0}>
             <Stack gap={description ? 2 : 0} align="stretch">

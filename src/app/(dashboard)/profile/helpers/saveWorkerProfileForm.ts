@@ -6,10 +6,7 @@ import type {
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import SaveWorkerSetupStep from '@/app/(worker)/worker/setup/graphql/SaveWorkerSetupStep.gql'
-import {
-  parsePortfolioText,
-  parseSkillsText,
-} from '@/app/(worker)/worker/setup/helpers/workerSetupFormState'
+import { categoryEnumFromSlug } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
 import { resolveWorkerSetupLocation } from '@/app/(worker)/worker/setup/helpers/workerSetupLocation'
 import { mergeSaveWorkerSetupIntoMe } from '@/app/(worker)/worker/setup/helpers/workerSetupSyncMe'
 
@@ -44,16 +41,18 @@ export async function saveWorkerProfileForm(
     },
     {
       subStep: 'profile.bio',
-      tagline: values.tagline?.trim() || undefined,
+      tagline: values.tagline.trim(),
       bio: values.bio.trim(),
     },
     {
       subStep: 'services.skills',
-      skills: parseSkillsText(values.skillsText),
+      primaryCategory: categoryEnumFromSlug(values.primaryCategory),
+      skills: values.skills,
     },
     {
       subStep: 'services.experience',
       yearsExperience: Number.parseInt(values.yearsExperience.trim(), 10),
+      qualifications: values.qualifications,
     },
   ]
 
@@ -95,7 +94,7 @@ export async function saveWorkerProfileForm(
 
   steps.push({
     subStep: 'verify.portfolio',
-    portfolioUrls: parsePortfolioText(values.portfolioText),
+    portfolioUrls: values.portfolioUrls,
   })
 
   for (const input of steps) {

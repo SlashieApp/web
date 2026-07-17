@@ -5,6 +5,12 @@
 
 export { Avatar, AvatarGroup } from './Avatar'
 export { Badge, StatusPill } from './Badge'
+export {
+  buildCurrentUserAvatarCandidates,
+  CurrentUserAvatar,
+  isGooglePhotoUrl,
+  isS3OrCdnAvatarUrl,
+} from './CurrentUserAvatar'
 export { Button } from './Button'
 export { Card } from './Card'
 export {
@@ -96,6 +102,10 @@ export type {
   ColorModeProviderProps,
   UseColorModeReturn,
 } from './color-mode'
+export type {
+  CurrentUserAvatarProps,
+  CurrentUserAvatarSize,
+} from './CurrentUserAvatar'
 export type { DashboardSectionNavProps, HeaderProps } from './Header'
 export type { DetailRowProps } from './DetailRow'
 export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'

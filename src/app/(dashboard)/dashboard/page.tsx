@@ -14,6 +14,7 @@ import { type ReactNode, useMemo } from 'react'
 import { Button, Card, Link } from '@ui'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
 import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/MembershipRefreshOnMount'
 import { WorkerMembershipCard } from '@/app/(dashboard)/components/WorkerMembershipCard'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
@@ -373,265 +374,269 @@ export default function DashboardOverviewPage() {
   ]
 
   return (
-    <Stack gap={{ base: 5, md: 6 }}>
+    <>
       <MembershipRefreshOnMount />
-      <HStack
-        justify="space-between"
-        align="flex-start"
-        gap={4}
-        flexWrap="wrap"
+      <DashboardPageLayout
+        eyebrow="DASHBOARD"
+        title={`${greeting}, ${displayName}`}
+        description="Manage your tasks and quotes in one place."
+        actions={
+          <>
+            <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
+              <Button size="sm" variant="secondary">
+                Browse tasks
+              </Button>
+            </Link>
+            <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+              <Button size="sm">Post task</Button>
+            </Link>
+          </>
+        }
+        afterNav={
+          errorMessageCombined ? (
+            <Text color="status.danger.fg" fontSize="sm">
+              {errorMessageCombined}
+            </Text>
+          ) : null
+        }
       >
-        <Stack gap={1}>
-          <Heading size="xl" color="text.default">
-            {greeting}, {displayName}! <span aria-hidden>👋</span>
-          </Heading>
-          <Text color="text.muted" maxW="3xl">
-            Manage your tasks and quotes in one place.
-          </Text>
-        </Stack>
-        <HStack gap={2} flexWrap="wrap">
-          <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
-            <Button size="sm" variant="secondary">
-              Browse tasks
-            </Button>
-          </Link>
-          <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
-            <Button size="sm">Post task</Button>
-          </Link>
-        </HStack>
-      </HStack>
+        <Stack gap={4}>
+          <SimpleGrid columns={{ base: 2, xl: 4 }} gap={3}>
+            <StatTile
+              label="Posted tasks"
+              value={loadingAny ? '…' : String(postedTasks.length)}
+              helper={`${activePostedTasks.length} open · ${postedAwaitingQuotes} awaiting quotes`}
+              icon={<TileIcon type="posted" />}
+            />
+            <StatTile
+              label="Quotes sent"
+              value={loadingAny ? '…' : String(sentQuotes.length)}
+              helper={`${quotesAwaitingResponse} awaiting response`}
+              icon={<TileIcon type="quotes" />}
+            />
+            <StatTile
+              label="Open orders"
+              value={loadingAny ? '…' : String(openOrdersCount)}
+              helper="Active jobs from accepted quotes"
+              icon={<TileIcon type="accepted" />}
+            />
+            <StatTile
+              label="Pending earnings"
+              value={loadingAny ? '…' : formatPounds(pendingEarningsPence)}
+              helper={`${closedOrdersCount} closed order${closedOrdersCount === 1 ? '' : 's'}`}
+              icon={<TileIcon type="done" />}
+            />
+          </SimpleGrid>
 
-      {errorMessageCombined ? (
-        <Text color="status.danger.fg" fontSize="sm">
-          {errorMessageCombined}
-        </Text>
-      ) : null}
-
-      <SimpleGrid columns={{ base: 2, xl: 4 }} gap={3}>
-        <StatTile
-          label="Posted tasks"
-          value={loadingAny ? '…' : String(postedTasks.length)}
-          helper={`${activePostedTasks.length} open · ${postedAwaitingQuotes} awaiting quotes`}
-          icon={<TileIcon type="posted" />}
-        />
-        <StatTile
-          label="Quotes sent"
-          value={loadingAny ? '…' : String(sentQuotes.length)}
-          helper={`${quotesAwaitingResponse} awaiting response`}
-          icon={<TileIcon type="quotes" />}
-        />
-        <StatTile
-          label="Open orders"
-          value={loadingAny ? '…' : String(openOrdersCount)}
-          helper="Active jobs from accepted quotes"
-          icon={<TileIcon type="accepted" />}
-        />
-        <StatTile
-          label="Pending earnings"
-          value={loadingAny ? '…' : formatPounds(pendingEarningsPence)}
-          helper={`${closedOrdersCount} closed order${closedOrdersCount === 1 ? '' : 's'}`}
-          icon={<TileIcon type="done" />}
-        />
-      </SimpleGrid>
-
-      {upcomingJobs.length > 0 ? (
-        <Card layout="section" p={{ base: 5, md: 6 }}>
-          <Stack gap={4}>
-            <HStack justify="space-between" flexWrap="wrap" gap={2}>
-              <Stack gap={1}>
-                <Heading size="md" color="text.default">
-                  Upcoming accepted jobs
-                </Heading>
-                <Text fontSize="sm" color="text.muted">
-                  Sorted by scheduled date when the task uses an exact time.
-                </Text>
-              </Stack>
-              <Link
-                href="/quotes"
-                fontSize="sm"
-                fontWeight={600}
-                color="text.link"
-              >
-                View all quotes
-              </Link>
-            </HStack>
-            <Stack gap={2}>
-              {upcomingJobs.slice(0, 5).map((entry) => (
-                <Link
-                  key={entry.id}
-                  href={orderTaskHref(entry.order)}
-                  display="block"
-                  p={3}
-                  borderRadius="lg"
-                  borderWidth="1px"
-                  borderColor="border.default"
-                  _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
-                >
-                  <HStack justify="space-between" align="flex-start" gap={3}>
-                    <Stack gap={1} minW={0}>
-                      <Text fontWeight={600} truncate>
-                        {entry.order.snapshot.title}
-                      </Text>
-                      <Text fontSize="xs" color="text.muted" truncate>
-                        {entry.role} · {orderLocationLabel(entry.order)}
-                      </Text>
-                    </Stack>
-                    <ScheduleChip chip={scheduleChipForOrder(entry.order)} />
-                  </HStack>
-                </Link>
-              ))}
-            </Stack>
-          </Stack>
-        </Card>
-      ) : null}
-
-      <Grid templateColumns={{ base: '1fr', xl: '1.3fr 1fr' }} gap={4}>
-        <Card layout="section" p={{ base: 5, md: 6 }}>
-          <Stack gap={4}>
-            <HStack justify="space-between" gap={3}>
-              <Stack gap={1}>
-                <Heading size="md" color="text.default">
-                  Recent activity
-                </Heading>
-                <Text fontSize="sm" color="text.muted">
-                  Latest updates across your requests, jobs, and quotes.
-                </Text>
-              </Stack>
-              <Link
-                href="/requests"
-                fontSize="sm"
-                fontWeight={600}
-                color="text.link"
-                _hover={{ textDecoration: 'none', color: 'text.link' }}
-              >
-                View all
-              </Link>
-            </HStack>
-
-            {notifications?.loading && recentActivity.length === 0 ? (
-              <Text color="text.muted" fontSize="sm">
-                Loading activity…
-              </Text>
-            ) : recentActivity.length === 0 ? (
-              <Text color="text.muted" fontSize="sm">
-                No activity yet. Start by posting a task or sending a quote.
-              </Text>
-            ) : (
-              <Stack gap={1}>
-                {recentActivity.map((item) => {
-                  const row = (
-                    <HStack
-                      key={item.id}
-                      justify="space-between"
-                      align="flex-start"
-                      py={2.5}
-                      borderBottomWidth="1px"
+          {upcomingJobs.length > 0 ? (
+            <Card layout="section" p={{ base: 5, md: 6 }}>
+              <Stack gap={4}>
+                <HStack justify="space-between" flexWrap="wrap" gap={2}>
+                  <Stack gap={1}>
+                    <Heading size="md" color="text.default">
+                      Upcoming accepted jobs
+                    </Heading>
+                    <Text fontSize="sm" color="text.muted">
+                      Sorted by scheduled date when the task uses an exact time.
+                    </Text>
+                  </Stack>
+                  <Link
+                    href="/quotes"
+                    fontSize="sm"
+                    fontWeight={600}
+                    color="text.link"
+                  >
+                    View all quotes
+                  </Link>
+                </HStack>
+                <Stack gap={2}>
+                  {upcomingJobs.slice(0, 5).map((entry) => (
+                    <Link
+                      key={entry.id}
+                      href={orderTaskHref(entry.order)}
+                      display="block"
+                      p={3}
+                      borderRadius="lg"
+                      borderWidth="1px"
                       borderColor="border.default"
-                      w="full"
+                      _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
                     >
-                      <HStack align="flex-start" gap={3} minW={0}>
-                        <ActivityIcon tone={item.tone} />
-                        <Stack gap={0} minW={0}>
-                          <Text fontSize="sm" fontWeight={600} truncate>
-                            {item.title}
+                      <HStack
+                        justify="space-between"
+                        align="flex-start"
+                        gap={3}
+                      >
+                        <Stack gap={1} minW={0}>
+                          <Text fontWeight={600} truncate>
+                            {entry.order.snapshot.title}
                           </Text>
                           <Text fontSize="xs" color="text.muted" truncate>
-                            {item.subtitle}
+                            {entry.role} · {orderLocationLabel(entry.order)}
                           </Text>
                         </Stack>
+                        <ScheduleChip
+                          chip={scheduleChipForOrder(entry.order)}
+                        />
                       </HStack>
-                      <ClockLabel happenedAt={item.happenedAt} />
-                    </HStack>
-                  )
-                  return item.href ? (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      display="block"
-                      _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
-                      borderRadius="md"
-                    >
-                      {row}
                     </Link>
-                  ) : (
-                    <Box key={item.id}>{row}</Box>
-                  )
-                })}
+                  ))}
+                </Stack>
               </Stack>
-            )}
-          </Stack>
-        </Card>
+            </Card>
+          ) : null}
 
-        {me?.worker?.membership ? (
-          <WorkerMembershipCard membership={me.worker.membership} />
-        ) : (
+          <Grid templateColumns={{ base: '1fr', xl: '1.3fr 1fr' }} gap={4}>
+            <Card layout="section" p={{ base: 5, md: 6 }}>
+              <Stack gap={4}>
+                <HStack justify="space-between" gap={3}>
+                  <Stack gap={1}>
+                    <Heading size="md" color="text.default">
+                      Recent activity
+                    </Heading>
+                    <Text fontSize="sm" color="text.muted">
+                      Latest updates across your requests, jobs, and quotes.
+                    </Text>
+                  </Stack>
+                  <Link
+                    href="/requests"
+                    fontSize="sm"
+                    fontWeight={600}
+                    color="text.link"
+                    _hover={{ textDecoration: 'none', color: 'text.link' }}
+                  >
+                    View all
+                  </Link>
+                </HStack>
+
+                {notifications?.loading && recentActivity.length === 0 ? (
+                  <Text color="text.muted" fontSize="sm">
+                    Loading activity…
+                  </Text>
+                ) : recentActivity.length === 0 ? (
+                  <Text color="text.muted" fontSize="sm">
+                    No activity yet. Start by posting a task or sending a quote.
+                  </Text>
+                ) : (
+                  <Stack gap={1}>
+                    {recentActivity.map((item) => {
+                      const row = (
+                        <HStack
+                          key={item.id}
+                          justify="space-between"
+                          align="flex-start"
+                          py={2.5}
+                          borderBottomWidth="1px"
+                          borderColor="border.default"
+                          w="full"
+                        >
+                          <HStack align="flex-start" gap={3} minW={0}>
+                            <ActivityIcon tone={item.tone} />
+                            <Stack gap={0} minW={0}>
+                              <Text fontSize="sm" fontWeight={600} truncate>
+                                {item.title}
+                              </Text>
+                              <Text fontSize="xs" color="text.muted" truncate>
+                                {item.subtitle}
+                              </Text>
+                            </Stack>
+                          </HStack>
+                          <ClockLabel happenedAt={item.happenedAt} />
+                        </HStack>
+                      )
+                      return item.href ? (
+                        <Link
+                          key={item.id}
+                          href={item.href}
+                          display="block"
+                          _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
+                          borderRadius="md"
+                        >
+                          {row}
+                        </Link>
+                      ) : (
+                        <Box key={item.id}>{row}</Box>
+                      )
+                    })}
+                  </Stack>
+                )}
+              </Stack>
+            </Card>
+
+            {me?.worker?.membership ? (
+              <WorkerMembershipCard membership={me.worker.membership} />
+            ) : (
+              <Card layout="section" p={{ base: 5, md: 6 }}>
+                <Stack gap={4}>
+                  <Stack gap={1}>
+                    <Heading size="md">Platform membership</Heading>
+                    <Text fontSize="sm" color="text.muted">
+                      Post tasks for free as a customer, or become a worker to
+                      send quotes.
+                    </Text>
+                  </Stack>
+                  <Text fontSize="sm" color="text.muted" lineHeight="tall">
+                    Compare quotes from local workers. Job payments stay between
+                    you and your pro — not through Slashie.
+                  </Text>
+                  <Link
+                    href="/worker/setup"
+                    _hover={{ textDecoration: 'none' }}
+                  >
+                    <Button size="sm" w={{ base: 'full', md: 'auto' }}>
+                      Become a worker
+                    </Button>
+                  </Link>
+                </Stack>
+              </Card>
+            )}
+          </Grid>
+
           <Card layout="section" p={{ base: 5, md: 6 }}>
             <Stack gap={4}>
-              <Stack gap={1}>
-                <Heading size="md">Platform membership</Heading>
-                <Text fontSize="sm" color="text.muted">
-                  Post tasks for free as a customer, or become a worker to send
-                  quotes.
-                </Text>
-              </Stack>
-              <Text fontSize="sm" color="text.muted" lineHeight="tall">
-                Compare quotes from local workers. Job payments stay between you
-                and your pro — not through Slashie.
-              </Text>
-              <Link href="/worker/setup" _hover={{ textDecoration: 'none' }}>
-                <Button size="sm" w={{ base: 'full', md: 'auto' }}>
-                  Become a worker
-                </Button>
-              </Link>
+              <Heading size="md">Quick actions</Heading>
+              <SimpleGrid columns={{ base: 1, sm: 2, xl: 5 }} gap={3}>
+                {quickActions.map((item) => (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    _hover={{ textDecoration: 'none' }}
+                  >
+                    <Stack
+                      p={4}
+                      borderRadius="lg"
+                      bg="bg.surface"
+                      borderWidth="1px"
+                      borderColor="border.default"
+                      minH="106px"
+                      justify="space-between"
+                    >
+                      <HStack justify="space-between">
+                        <Text fontSize="sm" fontWeight={600}>
+                          {item.title}
+                        </Text>
+                        <Box
+                          w={8}
+                          h={8}
+                          borderRadius="full"
+                          bg="status.success.soft"
+                          color="status.success.fg"
+                          display="grid"
+                          placeItems="center"
+                        >
+                          <QuickActionIcon kind={item.kind} />
+                        </Box>
+                      </HStack>
+                      <Text fontSize="xs" color="text.muted">
+                        {item.subtitle}
+                      </Text>
+                    </Stack>
+                  </Link>
+                ))}
+              </SimpleGrid>
             </Stack>
           </Card>
-        )}
-      </Grid>
-
-      <Card layout="section" p={{ base: 5, md: 6 }}>
-        <Stack gap={4}>
-          <Heading size="md">Quick actions</Heading>
-          <SimpleGrid columns={{ base: 1, sm: 2, xl: 5 }} gap={3}>
-            {quickActions.map((item) => (
-              <Link
-                key={item.key}
-                href={item.href}
-                _hover={{ textDecoration: 'none' }}
-              >
-                <Stack
-                  p={4}
-                  borderRadius="lg"
-                  bg="bg.surface"
-                  borderWidth="1px"
-                  borderColor="border.default"
-                  minH="106px"
-                  justify="space-between"
-                >
-                  <HStack justify="space-between">
-                    <Text fontSize="sm" fontWeight={600}>
-                      {item.title}
-                    </Text>
-                    <Box
-                      w={8}
-                      h={8}
-                      borderRadius="full"
-                      bg="status.success.soft"
-                      color="status.success.fg"
-                      display="grid"
-                      placeItems="center"
-                    >
-                      <QuickActionIcon kind={item.kind} />
-                    </Box>
-                  </HStack>
-                  <Text fontSize="xs" color="text.muted">
-                    {item.subtitle}
-                  </Text>
-                </Stack>
-              </Link>
-            ))}
-          </SimpleGrid>
         </Stack>
-      </Card>
-    </Stack>
+      </DashboardPageLayout>
+    </>
   )
 }

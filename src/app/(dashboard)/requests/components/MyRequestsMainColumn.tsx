@@ -24,10 +24,6 @@ export function MyRequestsMainColumn() {
   return (
     <Stack gap={6} minW={0}>
       <Stack gap={3}>
-        <Stack gap={1}>
-          <Heading size="xl">My Requests</Heading>
-        </Stack>
-
         <Input
           startElement={
             <Box as="span" aria-hidden display="inline-flex">

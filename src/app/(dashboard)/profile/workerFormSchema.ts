@@ -1,7 +1,22 @@
 import { z } from 'zod'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { categorySlugFromEnum } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
+import { QUALIFICATIONS_MAX } from '@/app/(worker)/worker/setup/helpers/workerSetupQualifications'
+import {
+  SKILLS_MAX,
+  SKILLS_MIN,
+} from '@/app/(worker)/worker/setup/helpers/workerSetupSkills'
+import {
+  BIO_MAX_CHARS,
+  BIO_MIN_CHARS,
+  HEADLINE_MAX_CHARS,
+  HEADLINE_MIN_CHARS,
+  YEARS_EXPERIENCE_MAX,
+  isJunkBio,
+} from '@/app/(worker)/worker/setup/helpers/workerSetupValidation'
 
+/** Mirrors the setup-flow validation floor — no junk via the dashboard editor. */
 export const workerFormSchema = z.object({
   legalName: z
     .string()
@@ -10,24 +25,53 @@ export const workerFormSchema = z.object({
       1,
       'Please enter your legal name as it should appear on your worker profile.',
     ),
-  tagline: z.string().trim().max(140).optional().or(z.literal('')),
+  tagline: z
+    .string()
+    .trim()
+    .min(
+      HEADLINE_MIN_CHARS,
+      `Add a professional headline of at least ${HEADLINE_MIN_CHARS} characters.`,
+    )
+    .max(
+      HEADLINE_MAX_CHARS,
+      `Keep your headline under ${HEADLINE_MAX_CHARS} characters.`,
+    )
+    .refine(
+      (v) => v.split(/\s+/).filter(Boolean).length >= 2,
+      'Use a few words, e.g. "Handyman with 8 years experience".',
+    ),
   bio: z
     .string()
     .trim()
-    .min(1, 'Write a short bio about your skills and experience.')
-    .max(300, 'Keep your bio under 300 characters.'),
-  skillsText: z
-    .string()
-    .trim()
-    .min(1, 'List at least one skill or service you offer.'),
+    .min(
+      BIO_MIN_CHARS,
+      `Write at least ${BIO_MIN_CHARS} characters — customers read this before accepting your quote.`,
+    )
+    .max(BIO_MAX_CHARS, `Keep your bio under ${BIO_MAX_CHARS} characters.`)
+    .refine(
+      (v) => !isJunkBio(v),
+      'Tell customers about your work in full sentences — this reads as placeholder text.',
+    ),
+  primaryCategory: z.string().min(1, 'Choose the kind of work you do most.'),
+  skills: z
+    .array(z.string())
+    .min(
+      SKILLS_MIN,
+      `Add at least ${SKILLS_MIN} skills so customers can find you for the right tasks.`,
+    )
+    .max(
+      SKILLS_MAX,
+      `Keep it to ${SKILLS_MAX} skills — lead with the work you do best.`,
+    ),
+  qualifications: z.array(z.string()).max(QUALIFICATIONS_MAX),
   yearsExperience: z
     .string()
     .trim()
     .min(1, 'Enter your years of experience.')
-    .refine(
-      (v) => Number.isFinite(Number(v)) && Number(v) >= 0,
-      'Years of experience must be 0 or greater.',
-    ),
+    .refine((v) => {
+      const n = Number(v)
+      return Number.isInteger(n) && n >= 0 && n <= YEARS_EXPERIENCE_MAX
+    }, `Enter a whole number between 0 and ${YEARS_EXPERIENCE_MAX}.`),
   locationName: z.string().trim().min(1, 'Please add a service area.'),
   locationLat: z.number().nullable(),
   locationLng: z.number().nullable(),
@@ -38,7 +82,7 @@ export const workerFormSchema = z.object({
       (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) > 0),
       'Travel radius must be a positive number of miles.',
     ),
-  portfolioText: z.string(),
+  portfolioUrls: z.array(z.string()),
 })
 
 export type WorkerFormValues = z.infer<typeof workerFormSchema>
@@ -56,7 +100,11 @@ export function workerFormValuesFromMe(me: MeSnapshot): WorkerFormValues {
     legalName: me.worker?.legalName?.trim() || me.profile?.name?.trim() || '',
     tagline: me.worker?.tagline ?? '',
     bio: me.worker?.bio?.trim() ?? '',
-    skillsText: (me.worker?.skills ?? []).join(', '),
+    primaryCategory: categorySlugFromEnum(me.worker?.primaryCategory),
+    skills: (me.worker?.skills ?? []).map((s) => s.trim()).filter(Boolean),
+    qualifications: (me.worker?.qualifications ?? [])
+      .map((q) => q.trim())
+      .filter(Boolean),
     yearsExperience:
       typeof me.worker?.yearsExperience === 'number'
         ? String(me.worker.yearsExperience)
@@ -68,6 +116,8 @@ export function workerFormValuesFromMe(me: MeSnapshot): WorkerFormValues {
       typeof me.worker?.travelRadiusMiles === 'number'
         ? String(me.worker.travelRadiusMiles)
         : '',
-    portfolioText: (me.worker?.portfolioUrls ?? []).join('\n'),
+    portfolioUrls: (me.worker?.portfolioUrls ?? [])
+      .map((url) => url.trim())
+      .filter(Boolean),
   }
 }

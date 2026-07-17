@@ -3,17 +3,18 @@ import { Link } from '../Link'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
-import Image from 'next/image'
 
 import { MembershipStatusBadge } from '@/app/(dashboard)/components/membership/MembershipStatusBadge'
 import {
   hasUnlimitedQuoting,
   membershipStatusDetailText,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { CurrentUserAvatar } from '@ui'
 
 export type AccountMenuHeaderProps = {
   displayName: string
   email: string
+  /** @deprecated CurrentUserAvatar resolves avatars; kept for call-site compat. */
   avatarUrl?: string | null
   membership?: WorkerMembershipFieldsFragment | null
   hasWorker?: boolean
@@ -23,43 +24,13 @@ export type AccountMenuHeaderProps = {
 function AccountMenuAvatar({
   displayName,
   email,
-  avatarUrl,
 }: {
   displayName: string
   email: string
   avatarUrl?: string | null
 }) {
   const label = displayName.trim() || email
-  const initial = label.trim().charAt(0).toUpperCase() || '?'
-
-  return (
-    <Box
-      boxSize="40px"
-      borderRadius="full"
-      bg="status.success.soft"
-      color="status.success.fg"
-      fontSize="md"
-      fontWeight={700}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      overflow="hidden"
-      flexShrink={0}
-      aria-hidden
-    >
-      {avatarUrl ? (
-        <Image
-          src={avatarUrl}
-          alt=""
-          width={40}
-          height={40}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-      ) : (
-        initial
-      )}
-    </Box>
-  )
+  return <CurrentUserAvatar size="md" name={label} />
 }
 
 function AccountMenuDivider() {

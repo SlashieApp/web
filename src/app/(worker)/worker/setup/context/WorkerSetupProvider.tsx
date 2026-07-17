@@ -173,11 +173,13 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
       if (nextBootstrap.worker?.setupProgress?.isComplete) {
         if (!redirectRef.current) {
           redirectRef.current = true
-          router.replace(exitHref)
+          // Already-complete workers edit on /profile instead of re-entering
+          // setup; an explicit ?next (e.g. from a login round-trip) wins.
+          router.replace(searchParams.get('next')?.trim() || '/profile')
         }
       }
     },
-    [data?.me, exitHref, loading, me, router, setMe],
+    [data?.me, loading, me, router, searchParams, setMe],
   )
 
   const [saveStep, { loading: isSaving }] =

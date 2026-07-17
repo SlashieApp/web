@@ -22,7 +22,7 @@ export function WorkerMembershipCard({
   const showMeter = !unlimited
 
   return (
-    <Card layout="section" p={{ base: 5, md: 6 }}>
+    <Card layout="section" p={{ base: 4, md: 5 }}>
       <Stack gap={4}>
         <MembershipCancelNotice membership={membership} />
 
@@ -36,13 +36,13 @@ export function WorkerMembershipCard({
             <Text
               fontSize="xs"
               fontWeight={700}
-              color="text.muted"
+              color="status.success.fg"
               textTransform="uppercase"
-              letterSpacing="0.06em"
+              letterSpacing="0.08em"
             >
-              Platform membership
+              Membership
             </Text>
-            <Text fontSize="lg" fontWeight={800} color="text.default">
+            <Text fontSize="lg" fontWeight={700} color="text.default">
               {membership.planName}
             </Text>
           </Stack>

@@ -1,12 +1,10 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
-import Image from 'next/image'
 import { useCallback } from 'react'
 
-import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
+import { CurrentUserAvatar } from '@ui'
 
 import { useDropdownClose } from '../Dropdown/Dropdown'
 import { AccountMenuHeader } from './AccountMenuHeader'
@@ -15,44 +13,16 @@ import { resolveAccountNavItems } from './accountNav.config'
 
 export function AccountMenuAvatar({
   name,
-  avatarUrl,
   email,
 }: {
   name?: string | null
-  avatarUrl?: string | null
   email: string
+  /** @deprecated Prefer CurrentUserAvatar resolution; kept for call-site compat. */
+  avatarUrl?: string | null
 }) {
   const label = name?.trim() || email
-  const initial = label.trim().charAt(0).toUpperCase() || '?'
 
-  return (
-    <Box
-      boxSize="32px"
-      borderRadius="full"
-      bg="status.success.soft"
-      color="status.success.fg"
-      fontSize="sm"
-      fontWeight={700}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      overflow="hidden"
-      flexShrink={0}
-      aria-hidden
-    >
-      {avatarUrl ? (
-        <Image
-          src={avatarUrl}
-          alt=""
-          width={32}
-          height={32}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-      ) : (
-        initial
-      )}
-    </Box>
-  )
+  return <CurrentUserAvatar size="sm" name={label} />
 }
 
 type AccountMenuContentProps = {
@@ -71,7 +41,6 @@ export function AccountMenuContent({ onClose }: AccountMenuContentProps = {}) {
 
   const hasWorker = Boolean(me?.worker)
   const navItems = resolveAccountNavItems(hasWorker)
-  const postTaskBlocked = me != null && !isEmailVerified(me)
 
   const onLogout = useCallback(() => {
     logout()
@@ -88,7 +57,6 @@ export function AccountMenuContent({ onClose }: AccountMenuContentProps = {}) {
       <AccountMenuHeader
         displayName={displayName}
         email={email}
-        avatarUrl={me?.profile?.avatarUrl}
         membership={me?.worker?.membership}
         hasWorker={hasWorker}
         onViewProfile={close}
