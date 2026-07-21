@@ -39,15 +39,18 @@ type TurnstileFieldProps = {
   label?: string
 }
 
+let turnstileScriptPromise: Promise<void> | null = null
+
 function loadTurnstileScript(): Promise<void> {
   if (typeof window === 'undefined') return Promise.resolve()
   if (window.turnstile) return Promise.resolve()
+  if (turnstileScriptPromise) return turnstileScriptPromise
 
-  const existing = document.querySelector<HTMLScriptElement>(
-    'script[data-slashie-turnstile]',
-  )
-  if (existing) {
-    return new Promise((resolve, reject) => {
+  turnstileScriptPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[data-slashie-turnstile]',
+    )
+    if (existing) {
       if (window.turnstile) {
         resolve()
         return
@@ -55,22 +58,95 @@ function loadTurnstileScript(): Promise<void> {
       existing.addEventListener('load', () => resolve(), { once: true })
       existing.addEventListener(
         'error',
-        () => reject(new Error('Turnstile script failed to load')),
+        () => {
+          turnstileScriptPromise = null
+          reject(new Error('Turnstile script failed to load'))
+        },
         { once: true },
       )
-    })
-  }
+      return
+    }
 
-  return new Promise((resolve, reject) => {
     const script = document.createElement('script')
     script.src = TURNSTILE_SCRIPT_SRC
     script.async = true
-    script.defer = true
     script.dataset.slashieTurnstile = '1'
     script.onload = () => resolve()
-    script.onerror = () => reject(new Error('Turnstile script failed to load'))
+    script.onerror = () => {
+      turnstileScriptPromise = null
+      reject(new Error('Turnstile script failed to load'))
+    }
     document.head.appendChild(script)
   })
+
+  return turnstileScriptPromise
+}
+
+type TurnstileMountProps = {
+  theme: 'light' | 'dark'
+  onTokenChange: (token: string | null) => void
+}
+
+/**
+ * Mounts once per `key` from the parent. Stable callback ref so parent
+ * re-renders (typing email, etc.) do not tear down the widget.
+ */
+function TurnstileMount({ theme, onTokenChange }: TurnstileMountProps) {
+  const widgetIdRef = useRef<string | null>(null)
+  const onTokenChangeRef = useRef(onTokenChange)
+  onTokenChangeRef.current = onTokenChange
+  const themeRef = useRef(theme)
+  themeRef.current = theme
+  const startedRef = useRef(false)
+
+  const onContainerRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node) {
+      if (widgetIdRef.current && window.turnstile) {
+        try {
+          window.turnstile.remove(widgetIdRef.current)
+        } catch {
+          // Widget may already be gone.
+        }
+        widgetIdRef.current = null
+      }
+      startedRef.current = false
+      return
+    }
+
+    if (startedRef.current) return
+    startedRef.current = true
+
+    const sitekey = getTurnstileSiteKey()
+    if (!sitekey) return
+
+    void loadTurnstileScript()
+      .then(() => {
+        if (!node.isConnected || !window.turnstile) return
+        if (widgetIdRef.current) return
+
+        widgetIdRef.current = window.turnstile.render(node, {
+          sitekey,
+          theme: themeRef.current,
+          callback: (token) => onTokenChangeRef.current(token),
+          'expired-callback': () => onTokenChangeRef.current(null),
+          'error-callback': () => onTokenChangeRef.current(null),
+          'timeout-callback': () => onTokenChangeRef.current(null),
+        })
+      })
+      .catch(() => {
+        startedRef.current = false
+        onTokenChangeRef.current(null)
+      })
+  }, [])
+
+  return (
+    <Box
+      ref={onContainerRef}
+      minH="65px"
+      display="flex"
+      justifyContent="flex-start"
+    />
+  )
 }
 
 /**
@@ -83,86 +159,7 @@ export function TurnstileField({
   label = 'Security check',
 }: TurnstileFieldProps) {
   const { colorMode } = useColorMode()
-  const widgetIdRef = useRef<string | null>(null)
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const onTokenChangeRef = useRef(onTokenChange)
-  onTokenChangeRef.current = onTokenChange
-  const lastResetRef = useRef(resetSignal)
-  const renderGenerationRef = useRef(0)
-
-  const destroyWidget = useCallback(() => {
-    if (widgetIdRef.current && window.turnstile) {
-      try {
-        window.turnstile.remove(widgetIdRef.current)
-      } catch {
-        // Widget may already be gone.
-      }
-      widgetIdRef.current = null
-    }
-  }, [])
-
-  const renderWidget = useCallback(
-    (node: HTMLDivElement) => {
-      const sitekey = getTurnstileSiteKey()
-      if (!sitekey || !window.turnstile) return
-
-      destroyWidget()
-      node.replaceChildren()
-
-      const generation = ++renderGenerationRef.current
-      widgetIdRef.current = window.turnstile.render(node, {
-        sitekey,
-        theme: colorMode === 'dark' ? 'dark' : 'light',
-        callback: (token) => {
-          if (generation !== renderGenerationRef.current) return
-          onTokenChangeRef.current(token)
-        },
-        'expired-callback': () => {
-          if (generation !== renderGenerationRef.current) return
-          onTokenChangeRef.current(null)
-        },
-        'error-callback': () => {
-          if (generation !== renderGenerationRef.current) return
-          onTokenChangeRef.current(null)
-        },
-        'timeout-callback': () => {
-          if (generation !== renderGenerationRef.current) return
-          onTokenChangeRef.current(null)
-        },
-      })
-    },
-    [colorMode, destroyWidget],
-  )
-
-  const onContainerRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!isTurnstileConfigured()) return
-
-      if (!node) {
-        destroyWidget()
-        containerRef.current = null
-        return
-      }
-
-      containerRef.current = node
-      const needsRerender =
-        lastResetRef.current !== resetSignal || !widgetIdRef.current
-      lastResetRef.current = resetSignal
-
-      if (!needsRerender && widgetIdRef.current) return
-
-      onTokenChangeRef.current(null)
-      void loadTurnstileScript()
-        .then(() => {
-          if (containerRef.current !== node) return
-          renderWidget(node)
-        })
-        .catch(() => {
-          onTokenChangeRef.current(null)
-        })
-    },
-    [destroyWidget, renderWidget, resetSignal],
-  )
+  const theme = colorMode === 'dark' ? 'dark' : 'light'
 
   if (!isTurnstileConfigured()) return null
 
@@ -179,14 +176,13 @@ export function TurnstileField({
       >
         {label}
       </Text>
-      <Box
-        ref={onContainerRef}
-        key={`${colorMode}-${resetSignal}`}
-        aria-labelledby="turnstile-label"
-        minH="65px"
-        display="flex"
-        justifyContent="flex-start"
-      />
+      <Box aria-labelledby="turnstile-label">
+        <TurnstileMount
+          key={`${theme}-${resetSignal}`}
+          theme={theme}
+          onTokenChange={onTokenChange}
+        />
+      </Box>
     </Box>
   )
 }
