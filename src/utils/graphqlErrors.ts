@@ -69,6 +69,28 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
     'Worker cap cannot be lower than the number of quotes already accepted.',
   PROFILE_PHONE_REQUIRED:
     'Save your phone number on your profile first, then verify.',
+  RATE_LIMITED: 'Too many attempts right now. Please wait a bit and try again.',
+  TOO_MANY_REQUESTS:
+    'Too many attempts right now. Please wait a bit and try again.',
+  AUTH_RATE_LIMITED:
+    'Too many attempts right now. Please wait a bit and try again, or sign in with Google if available.',
+  LOGIN_RATE_LIMITED:
+    'Too many sign-in attempts. Please wait a bit and try again, or sign in with Google if available.',
+  PASSWORD_RESET_RATE_LIMITED:
+    'Too many reset requests. Please wait a bit and try again.',
+  REGISTER_RATE_LIMITED:
+    'Too many registration attempts. Please wait a bit and try again, or continue with Google if available.',
+  ACCOUNT_TEMPORARILY_LOCKED:
+    'Too many attempts. Please wait a bit and try again, or sign in with Google if available.',
+  LOGIN_LOCKED:
+    'Too many attempts. Please wait a bit and try again, or sign in with Google if available.',
+  CAPTCHA_REQUIRED: 'Complete the security check to continue.',
+  CAPTCHA_FAILED:
+    'Security check failed or expired. Complete it again and retry.',
+  INVALID_CAPTCHA:
+    'Security check failed or expired. Complete it again and retry.',
+  TURNSTILE_FAILED:
+    'Security check failed or expired. Complete it again and retry.',
 }
 
 export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =

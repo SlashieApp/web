@@ -2,19 +2,34 @@
 
 import { Box, Stack } from '@chakra-ui/react'
 import { useSelectedLayoutSegment } from 'next/navigation'
+import { useCallback, useRef } from 'react'
+
+import { markAuthSurfaceSession } from '@/utils/analytics'
 
 export default function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const segment = useSelectedLayoutSegment()
   const isLoginOrRegister = segment === 'login' || segment === 'register'
+  const markedRef = useRef(false)
+
+  const onAuthSurfaceRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node || markedRef.current) return
+    markedRef.current = true
+    markAuthSurfaceSession()
+  }, [])
 
   if (isLoginOrRegister) {
-    return <>{children}</>
+    return (
+      <Box ref={onAuthSurfaceRef} w="full" minH="100vh">
+        {children}
+      </Box>
+    )
   }
 
   return (
     <Box
+      ref={onAuthSurfaceRef}
       flex={1}
       bg="bg.subtle"
       display="flex"

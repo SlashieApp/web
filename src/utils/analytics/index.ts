@@ -23,6 +23,7 @@ export {
   getPostHog,
   initPostHogClient,
   isPostHogConfigured,
+  markAuthSurfaceSession,
   queueCapture,
 } from './posthog-client'
 export {

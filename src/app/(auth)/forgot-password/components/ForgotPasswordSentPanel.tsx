@@ -5,7 +5,9 @@ import { Button, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo, useRef } from 'react'
 
+import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
 import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
+import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 
 export function ForgotPasswordSentPanel() {
   const router = useRouter()
@@ -14,6 +16,7 @@ export function ForgotPasswordSentPanel() {
     () => searchParams.get('email')?.trim() ?? '',
     [searchParams],
   )
+  const captcha = useProgressiveCaptcha({ alwaysRequire: true })
 
   const { requestReset, loading, message, cooldownSeconds, canResend } =
     useForgotPassword()
@@ -27,6 +30,15 @@ export function ForgotPasswordSentPanel() {
     },
     [email, router],
   )
+
+  async function onResend() {
+    if (captcha.requiresCaptcha && !captcha.token) return
+    const result = await requestReset(email, {
+      captchaToken: captcha.token,
+    })
+    captcha.resetChallenge()
+    if (!result) return
+  }
 
   if (!email) {
     return (
@@ -43,6 +55,9 @@ export function ForgotPasswordSentPanel() {
       </Box>
     )
   }
+
+  const resendDisabled =
+    !canResend || (captcha.requiresCaptcha && !captcha.token)
 
   return (
     <Stack gap={6} w="full">
@@ -75,11 +90,18 @@ export function ForgotPasswordSentPanel() {
             password — the link expires in 1 hour.
           </Text>
 
-          <Stack gap={3} w="full" maxW="xs">
+          <Stack gap={3} w="full" maxW="xs" textAlign="left">
+            {captcha.requiresCaptcha ? (
+              <TurnstileField
+                onTokenChange={captcha.setToken}
+                resetSignal={captcha.resetSignal}
+              />
+            ) : null}
+
             <Button
               loading={loading}
-              disabled={!canResend}
-              onClick={() => void requestReset(email)}
+              disabled={resendDisabled}
+              onClick={() => void onResend()}
               w="full"
             >
               {cooldownSeconds > 0
@@ -92,7 +114,9 @@ export function ForgotPasswordSentPanel() {
                 as="output"
                 fontSize="sm"
                 color={
-                  message.startsWith('Please wait')
+                  message.startsWith('Please wait') ||
+                  message.startsWith('Too many') ||
+                  message.startsWith('Security check')
                     ? 'status.danger.fg'
                     : 'status.success.fg'
                 }

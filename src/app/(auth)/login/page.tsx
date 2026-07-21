@@ -10,6 +10,18 @@ import { Controller, useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
 import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
+import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
+import {
+  getAuthAbuseFriendlyMessage,
+  parseAuthAbuseError,
+} from '@/app/(auth)/helpers/authAbuseErrors'
+import {
+  clearLoginFailCount,
+  getLoginFailCount,
+  incrementLoginFailCount,
+} from '@/app/(auth)/helpers/authFailCount'
+import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
+import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { loginFormSchema } from '@/app/(auth)/login/loginFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { APP_HOME } from '@/utils/appRoutes'
@@ -292,6 +304,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const authGuardCheckedRef = useRef(false)
+  const captcha = useProgressiveCaptcha({
+    initialFailCount: getLoginFailCount(),
+  })
+  const {
+    seconds: backoffSeconds,
+    startCooldown: startBackoff,
+    isActive: isBackoffActive,
+  } = useCooldownSeconds()
 
   const {
     register,
@@ -348,15 +368,44 @@ export default function LoginPage() {
 
   const onValid = async (data: z.infer<typeof loginFormSchema>) => {
     setServerError(null)
+    if (isBackoffActive) return
+    if (captcha.requiresCaptcha && !captcha.token) {
+      setServerError('Complete the security check to continue.')
+      return
+    }
+
     try {
       await login({
         email: data.email,
         password: data.password,
         rememberMe: data.rememberMe,
+        captchaToken: captcha.token,
+        analytics: {
+          had_captcha: captcha.requiresCaptcha,
+          fail_count_client: captcha.failCount,
+        },
       })
+      clearLoginFailCount()
+      captcha.setFailCount(0)
       router.push(nextPath)
     } catch (err: unknown) {
-      setServerError(getFriendlyErrorMessage(err, 'Login failed'))
+      const nextFails = incrementLoginFailCount()
+      captcha.setFailCount(nextFails)
+      const abuse = parseAuthAbuseError(err)
+      if (abuse.captchaRequired || abuse.captchaFailed) {
+        captcha.markApiRequiresCaptcha()
+      } else {
+        captcha.resetChallenge()
+      }
+      if (abuse.retryAfterSeconds) {
+        startBackoff(abuse.retryAfterSeconds)
+      }
+      setServerError(
+        getAuthAbuseFriendlyMessage(
+          err,
+          getFriendlyErrorMessage(err, 'Login failed'),
+        ),
+      )
     }
   }
 
@@ -526,6 +575,13 @@ export default function LoginPage() {
                       )}
                     />
 
+                    {captcha.requiresCaptcha ? (
+                      <TurnstileField
+                        onTokenChange={captcha.setToken}
+                        resetSignal={captcha.resetSignal}
+                      />
+                    ) : null}
+
                     {serverError ? (
                       <Text
                         role="alert"
@@ -540,13 +596,19 @@ export default function LoginPage() {
                     <Button
                       type="submit"
                       loading={loading}
+                      disabled={
+                        isBackoffActive ||
+                        (captcha.requiresCaptcha && !captcha.token)
+                      }
                       w="full"
                       borderRadius="full"
                       size="lg"
                       minH="48px"
                     >
-                      Log in
-                      <IconArrowRight />
+                      {isBackoffActive
+                        ? `Try again in ${backoffSeconds}s`
+                        : 'Log in'}
+                      {!isBackoffActive ? <IconArrowRight /> : null}
                     </Button>
                   </Stack>
                 </form>

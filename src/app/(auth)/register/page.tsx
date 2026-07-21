@@ -14,6 +14,19 @@ import type { z } from 'zod'
 import type { Control } from 'react-hook-form'
 
 import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
+import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
+import {
+  getAuthAbuseFriendlyMessage,
+  parseAuthAbuseError,
+} from '@/app/(auth)/helpers/authAbuseErrors'
+import {
+  clearRegisterFailCount,
+  getRegisterFailCount,
+  incrementRegisterFailCount,
+} from '@/app/(auth)/helpers/authFailCount'
+import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationContext'
+import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
+import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import Register from '@/app/(auth)/register/graphql/Register.gql'
 import {
   type RegisterFormValues,
@@ -333,6 +346,14 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const captcha = useProgressiveCaptcha({
+    initialFailCount: getRegisterFailCount(),
+  })
+  const {
+    seconds: backoffSeconds,
+    startCooldown: startBackoff,
+    isActive: isBackoffActive,
+  } = useCooldownSeconds()
 
   const {
     register: registerField,
@@ -367,6 +388,14 @@ export default function RegisterPage() {
 
   const onValid = async (data: z.infer<typeof registerFormSchema>) => {
     setServerError(null)
+    if (isBackoffActive) return
+    if (captcha.requiresCaptcha && !captcha.token) {
+      setServerError('Complete the security check to continue.')
+      return
+    }
+
+    const hadCaptcha = captcha.requiresCaptcha
+    const failCountAtSubmit = captcha.failCount
     try {
       const res = await registerMutation({
         variables: {
@@ -374,6 +403,7 @@ export default function RegisterPage() {
           password: data.password,
           name: data.fullName.trim() || undefined,
         },
+        context: captchaMutationContext(captcha.token),
       })
 
       const token = res.data?.register?.token
@@ -385,7 +415,13 @@ export default function RegisterPage() {
 
       setAuthToken(token)
       await getUser()
-      trackFlowSucceeded(EVENTS.register_success, { method: 'password' })
+      clearRegisterFailCount()
+      captcha.setFailCount(0)
+      trackFlowSucceeded(EVENTS.register_success, {
+        method: 'password',
+        had_captcha: hadCaptcha,
+        fail_count_client: failCountAtSubmit,
+      })
 
       const sentParams = new URLSearchParams()
       const explicitNextPath = authQuery.redirect ?? authQuery.next
@@ -395,14 +431,35 @@ export default function RegisterPage() {
         sentQuery ? `/verify-email/sent?${sentQuery}` : '/verify-email/sent',
       )
     } catch (err: unknown) {
+      const nextFails = incrementRegisterFailCount()
+      captcha.setFailCount(nextFails)
+      const abuse = parseAuthAbuseError(err)
+      if (abuse.captchaRequired || abuse.captchaFailed) {
+        captcha.markApiRequiresCaptcha()
+      } else {
+        captcha.resetChallenge()
+      }
+      if (abuse.retryAfterSeconds) {
+        startBackoff(abuse.retryAfterSeconds)
+      }
       trackFlowFailed(EVENTS.register_fail, err, {
         flow: 'register',
         action: 'register',
         operation: 'Register',
         route: '/register',
-        extra: { method: 'password' },
+        extra: {
+          method: 'password',
+          had_captcha: hadCaptcha,
+          fail_count_client: nextFails,
+          rate_limited: abuse.rateLimited,
+        },
       })
-      setServerError(getFriendlyErrorMessage(err, 'Registration failed'))
+      setServerError(
+        getAuthAbuseFriendlyMessage(
+          err,
+          getFriendlyErrorMessage(err, 'Registration failed'),
+        ),
+      )
     }
   }
 
@@ -585,8 +642,15 @@ export default function RegisterPage() {
                     />
                   </Stack>
 
+                  {captcha.requiresCaptcha ? (
+                    <TurnstileField
+                      onTokenChange={captcha.setToken}
+                      resetSignal={captcha.resetSignal}
+                    />
+                  ) : null}
+
                   {serverError ? (
-                    <Text color="status.danger.fg" fontSize="sm">
+                    <Text color="status.danger.fg" fontSize="sm" role="alert">
                       {serverError}
                     </Text>
                   ) : null}
@@ -594,12 +658,18 @@ export default function RegisterPage() {
                   <Button
                     type="submit"
                     loading={loading}
+                    disabled={
+                      isBackoffActive ||
+                      (captcha.requiresCaptcha && !captcha.token)
+                    }
                     w="full"
                     borderRadius="full"
                     size="lg"
                     minH="48px"
                   >
-                    Create account
+                    {isBackoffActive
+                      ? `Try again in ${backoffSeconds}s`
+                      : 'Create account'}
                   </Button>
                 </Stack>
               </form>

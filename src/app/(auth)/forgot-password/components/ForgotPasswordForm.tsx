@@ -5,7 +5,9 @@ import { Button, FormField, Input, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
+import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
 import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
+import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 
 import {
   FieldIconMail,
@@ -21,19 +23,36 @@ export function ForgotPasswordForm() {
     [searchParams],
   )
   const [email, setEmail] = useState(initialEmail)
+  const captcha = useProgressiveCaptcha({ alwaysRequire: true })
 
   const { requestReset, loading, message, cooldownSeconds, canResend } =
     useForgotPassword()
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const result = await requestReset(email)
-    if (!result || result.rateLimited) return
+    if (captcha.requiresCaptcha && !captcha.token) {
+      return
+    }
+
+    const result = await requestReset(email, {
+      captchaToken: captcha.token,
+    })
+    if (!result) {
+      captcha.resetChallenge()
+      return
+    }
+    if (result.rateLimited) {
+      captcha.resetChallenge()
+      return
+    }
 
     router.push(
       `/forgot-password/sent?email=${encodeURIComponent(email.trim())}`,
     )
   }
+
+  const submitDisabled =
+    !canResend || !email.trim() || (captcha.requiresCaptcha && !captcha.token)
 
   return (
     <Stack gap={6} w="full">
@@ -90,6 +109,13 @@ export function ForgotPasswordForm() {
                 />
               </FormField>
 
+              {captcha.requiresCaptcha ? (
+                <TurnstileField
+                  onTokenChange={captcha.setToken}
+                  resetSignal={captcha.resetSignal}
+                />
+              ) : null}
+
               {message ? (
                 <Text role="alert" color="status.danger.fg" fontSize="sm">
                   {message}
@@ -99,7 +125,7 @@ export function ForgotPasswordForm() {
               <Button
                 type="submit"
                 loading={loading}
-                disabled={!canResend || !email.trim()}
+                disabled={submitDisabled}
                 w="full"
                 borderRadius="full"
                 size="lg"

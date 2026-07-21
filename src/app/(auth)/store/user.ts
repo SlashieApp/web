@@ -9,6 +9,8 @@ import type {
 } from '@codegen/schema'
 import { create } from 'zustand/react'
 
+import { parseAuthAbuseError } from '@/app/(auth)/helpers/authAbuseErrors'
+import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationContext'
 import Login from '@/app/(auth)/login/graphql/Login.gql'
 import LoginWithGoogle from '@/app/(auth)/login/graphql/LoginWithGoogle.gql'
 import Me from '@/graphql/Me.gql'
@@ -39,10 +41,18 @@ type AuthUser = {
 
 export type MeSnapshot = NonNullable<MeQuery['me']>
 
+type LoginAnalyticsExtras = {
+  had_captcha?: boolean
+  fail_count_client?: number
+  rate_limited?: boolean
+}
+
 type LoginInput = {
   email: string
   password: string
   rememberMe?: boolean
+  captchaToken?: string | null
+  analytics?: LoginAnalyticsExtras
 }
 
 type UserStore = {
@@ -119,8 +129,15 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const next = { ...current, ...patch } as MeSnapshot
     set(syncStateFromMe(next))
   },
-  login: async ({ email, password, rememberMe = false }) => {
+  login: async ({
+    email,
+    password,
+    rememberMe = false,
+    captchaToken,
+    analytics,
+  }) => {
     set({ isLoading: true })
+    const hadCaptcha = Boolean(captchaToken?.trim() || analytics?.had_captcha)
     try {
       const result = await apolloClient.mutate<
         LoginMutation,
@@ -128,6 +145,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       >({
         mutation: Login,
         variables: { email, password },
+        context: captchaMutationContext(captchaToken),
       })
 
       const token = result.data?.login?.token?.trim()
@@ -145,16 +163,26 @@ export const useUserStore = create<UserStore>((set, get) => ({
       set({ ...synced, isLoading: false })
       syncAnalyticsIdentity(synced.me)
       clearApiUnavailable()
-      trackFlowSucceeded(EVENTS.login_success, { method: 'password' })
+      trackFlowSucceeded(EVENTS.login_success, {
+        method: 'password',
+        had_captcha: hadCaptcha,
+        fail_count_client: analytics?.fail_count_client,
+      })
       return synced.user
     } catch (error) {
       set({ isLoading: false })
+      const abuse = parseAuthAbuseError(error)
       trackFlowFailed(EVENTS.login_fail, error, {
         flow: 'login',
         action: 'login',
         operation: 'Login',
         route: '/login',
-        extra: { method: 'password' },
+        extra: {
+          method: 'password',
+          had_captcha: hadCaptcha,
+          fail_count_client: analytics?.fail_count_client,
+          rate_limited: abuse.rateLimited,
+        },
       })
       throw error
     }

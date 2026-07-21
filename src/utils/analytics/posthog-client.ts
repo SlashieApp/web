@@ -67,3 +67,18 @@ export function queueCapture(
   if (queuedCaptures.length >= MAX_QUEUED_CAPTURES) return
   queuedCaptures.push({ event, properties })
 }
+
+/**
+ * Tag the current PostHog session as an auth surface so ops can filter
+ * low-interaction auth-only noise (foreign $pageviews on /login, etc.).
+ * Safe no-op when PostHog is off or consent is not accepted.
+ */
+export function markAuthSurfaceSession(): void {
+  if (typeof window === 'undefined') return
+  try {
+    const ph = getPostHog()
+    ph?.register_for_session?.({ auth_surface: true })
+  } catch {
+    // Analytics must never break auth flows.
+  }
+}
