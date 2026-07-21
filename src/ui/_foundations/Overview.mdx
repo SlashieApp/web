@@ -1,7 +1,7 @@
 import { Meta } from '@storybook/addon-docs/blocks'
 import { Box, Flex, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 
-import { Badge, Button, StatusPill } from '@ui'
+import { Badge, Button } from '@ui'
 import {
   sdlElevation,
   sdlMotion,
@@ -176,13 +176,22 @@ comfortably (≈10:1), which is why the green-ink rule exists. The a11y addon
 
 Color is never the *only* signal for state — that excludes color-blind and
 low-vision users. Every status chip carries a **dot or icon plus a text label**.
-Use the `Badge` `dot` prop, or `StatusPill` which always renders both.
+Use the `Badge` `dot` prop. Domain adapters (e.g. task lifecycle chips) compose
+`Badge` with a fixed family + label map — they do not live in `@ui`.
 
 <HStack gap={3} my={5} flexWrap="wrap">
-  <StatusPill status="OPEN" />
-  <StatusPill status="AWARDED" />
-  <StatusPill status="CLOSED" />
-  <StatusPill status="CANCELLED" />
+  <Badge variant="success" shape="pill" dot>
+    Open
+  </Badge>
+  <Badge variant="warning" shape="pill" dot>
+    Awarded
+  </Badge>
+  <Badge variant="info" shape="pill" dot>
+    Closed
+  </Badge>
+  <Badge variant="danger" shape="pill" dot>
+    Cancelled
+  </Badge>
 </HStack>
 
 <HStack gap={3} my={5} flexWrap="wrap">
