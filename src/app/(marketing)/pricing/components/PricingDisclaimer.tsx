@@ -1,6 +1,8 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import type { Messages } from '@/i18n/getDictionary'
+
 function ShieldIcon() {
   return (
     <Box
@@ -29,7 +31,11 @@ function ShieldIcon() {
   )
 }
 
-export function PricingDisclaimer() {
+export function PricingDisclaimer({
+  messages,
+}: {
+  messages: Messages['pricing']['disclaimer']
+}) {
   return (
     <Box
       borderWidth="1px"
@@ -42,8 +48,7 @@ export function PricingDisclaimer() {
       <HStack gap={4} align="flex-start">
         <ShieldIcon />
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
-          Job payments are arranged directly between customers and workers.
-          Slashie subscription is for platform access only.{' '}
+          {messages.body}{' '}
           <NextLink
             href="/terms"
             style={{
@@ -52,7 +57,7 @@ export function PricingDisclaimer() {
               textDecoration: 'none',
             }}
           >
-            Terms apply.
+            {messages.terms}
           </NextLink>
         </Text>
       </HStack>

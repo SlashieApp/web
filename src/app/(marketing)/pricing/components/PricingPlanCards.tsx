@@ -4,19 +4,20 @@ import { Box, Grid, HStack, Heading, List, Stack, Text } from '@chakra-ui/react'
 
 import { useMe } from '@/app/(auth)/store/user'
 import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { type Messages, formatMessage } from '@/i18n/getDictionary'
 import { getAuthToken } from '@/utils/auth'
 import { Badge, Button, Link } from '@ui'
 
-import { pricingAfterTrialLine } from '../helpers/formatPricing'
-import type { PricingRecord } from '../helpers/getPricingForPage'
 import {
-  UNLIMITED_PLAN_FEATURES,
-  UNLIMITED_PLAN_RIBBON,
-  buildWorkerFreePlan,
-} from '../helpers/pricingPlans'
+  formatLocalizedPricingInterval,
+  pricingDisplayPrice,
+} from '../helpers/formatPricing'
+import type { PricingRecord } from '../helpers/getPricingForPage'
+import { buildWorkerFreePlan } from '../helpers/pricingPlans'
 import { PricingUnlimitedCta } from './PricingUnlimitedCta'
 
 type PricingPlanCardsProps = {
+  messages: Messages['pricing']['plans']
   pricing: PricingRecord
 }
 
@@ -159,7 +160,11 @@ function PlanPrice({
   )
 }
 
-function WorkerFreePlanCta() {
+function WorkerFreePlanCta({
+  messages,
+}: {
+  messages: Messages['pricing']['plans']
+}) {
   const me = useMe()
   const isAuthenticated = Boolean(getAuthToken())
   const hasWorkerProfile = Boolean(me?.worker?.id)
@@ -171,7 +176,7 @@ function WorkerFreePlanCta() {
   if (isCurrentFreePlan) {
     return (
       <Button w="full" variant="secondary" disabled opacity={0.72}>
-        Current plan
+        {messages.currentPlan}
       </Button>
     )
   }
@@ -179,7 +184,7 @@ function WorkerFreePlanCta() {
   return (
     <Link href="/register" _hover={{ textDecoration: 'none' }}>
       <Button w="full" variant="secondary">
-        Get started
+        {messages.getStarted}
       </Button>
     </Link>
   )
@@ -232,9 +237,19 @@ function PlanCardShell({
   )
 }
 
-export function PricingPlanCards({ pricing }: PricingPlanCardsProps) {
-  const workerFreePlan = buildWorkerFreePlan(pricing.freeQuotesPerMonth)
+export function PricingPlanCards({ messages, pricing }: PricingPlanCardsProps) {
+  const workerFreePlan = buildWorkerFreePlan(
+    pricing.freeQuotesPerMonth,
+    messages.free,
+  )
   const trialLabel = pricing.trialLabel?.trim()
+  const afterTrialLine = formatMessage(messages.unlimited.afterTrialLine, {
+    price: pricingDisplayPrice(pricing),
+    interval: formatLocalizedPricingInterval(
+      pricing.priceInterval,
+      messages.unlimited.intervals,
+    ),
+  })
 
   return (
     <Grid
@@ -271,12 +286,12 @@ export function PricingPlanCards({ pricing }: PricingPlanCardsProps) {
             ))}
           </List.Root>
           <Box mt="auto">
-            <WorkerFreePlanCta />
+            <WorkerFreePlanCta messages={messages} />
           </Box>
         </Stack>
       </PlanCardShell>
 
-      <PlanCardShell featured ribbon={UNLIMITED_PLAN_RIBBON}>
+      <PlanCardShell featured ribbon={messages.unlimited.ribbon}>
         <Stack gap={5} h="full">
           <Stack gap={3} pe={{ base: 0, lg: 28 }}>
             <PlanTypeIcon>
@@ -285,23 +300,28 @@ export function PricingPlanCards({ pricing }: PricingPlanCardsProps) {
             <Stack gap={1}>
               <Heading size="md">{pricing.productName}</Heading>
               <Text fontSize="sm" color="text.muted">
-                {pricing.description?.trim() || 'For serious workers'}
+                {pricing.description?.trim() ||
+                  messages.unlimited.descriptionFallback}
               </Text>
             </Stack>
           </Stack>
           <Stack gap={3}>
-            <PlanPrice amount={trialLabel || 'Free trial'} suffix="" accent />
+            <PlanPrice
+              amount={trialLabel || messages.unlimited.trialFallback}
+              suffix=""
+              accent
+            />
             <Text fontSize="sm" color="text.muted">
-              {pricingAfterTrialLine(pricing)}
+              {afterTrialLine}
             </Text>
-            <PlanBadge>UNLIMITED QUOTES</PlanBadge>
+            <PlanBadge>{messages.unlimited.badge}</PlanBadge>
           </Stack>
           <List.Root gap={3} ps={0} style={{ listStyle: 'none' }}>
-            {UNLIMITED_PLAN_FEATURES.map((feature) => (
+            {messages.unlimited.features.map((feature) => (
               <PlanFeature key={feature}>{feature}</PlanFeature>
             ))}
           </List.Root>
-          <PricingUnlimitedCta />
+          <PricingUnlimitedCta messages={messages} />
         </Stack>
       </PlanCardShell>
     </Grid>

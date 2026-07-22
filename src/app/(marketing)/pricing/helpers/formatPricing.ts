@@ -17,6 +17,16 @@ export function formatPricingInterval(interval: string): string {
   return normalised
 }
 
+export function formatLocalizedPricingInterval(
+  interval: string,
+  labels: { month: string; year: string },
+): string {
+  const normalised = interval.trim().toLowerCase()
+  if (normalised === 'month') return labels.month
+  if (normalised === 'year') return labels.year
+  return normalised
+}
+
 export function pricingDisplayPrice(pricing: PricingRecord): string {
   return formatPricingAmount(pricing.priceAmount, pricing.priceCurrency)
 }

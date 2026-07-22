@@ -1,10 +1,12 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
 
+import { type Messages, formatMessage } from '@/i18n/getDictionary'
 import { Badge } from '@ui'
 
 import type { PricingRecord } from '../helpers/getPricingForPage'
 
 type PricingTrialBannerProps = {
+  messages: Messages['pricing']['trialBanner']
   pricing: PricingRecord
 }
 
@@ -36,20 +38,31 @@ function GiftIcon() {
   )
 }
 
-function trialBannerCopy(trialLabel: string | null | undefined): string {
+function trialBannerCopy(
+  messages: Messages['pricing']['trialBanner'],
+  trialLabel: string | null | undefined,
+): string {
   const label = trialLabel?.trim()
-  if (!label) return 'Try Slashie Unlimited free. Cancel anytime.'
+  if (!label) return messages.defaultBody
   const normalized = label.replace(/\btrial\b/i, '').trim()
-  return `Try Slashie Unlimited ${normalized.toLowerCase()}. Cancel anytime.`
+  return formatMessage(messages.bodyWithTrial, {
+    trial: normalized.toLowerCase(),
+  })
 }
 
-function trialBadgeLabel(trialLabel: string | null | undefined): string {
+function trialBadgeLabel(
+  messages: Messages['pricing']['trialBanner'],
+  trialLabel: string | null | undefined,
+): string {
   const label = trialLabel?.trim()
-  if (!label) return 'FREE TRIAL'
+  if (!label) return messages.badgeFallback
   return label.toUpperCase()
 }
 
-export function PricingTrialBanner({ pricing }: PricingTrialBannerProps) {
+export function PricingTrialBanner({
+  messages,
+  pricing,
+}: PricingTrialBannerProps) {
   const trialLabel = pricing.trialLabel?.trim()
   if (!trialLabel && !pricing.trialDays) return null
 
@@ -76,7 +89,7 @@ export function PricingTrialBanner({ pricing }: PricingTrialBannerProps) {
             color="text.default"
             lineHeight="tall"
           >
-            {trialBannerCopy(trialLabel)}
+            {trialBannerCopy(messages, trialLabel)}
           </Text>
         </HStack>
         <Badge
@@ -93,7 +106,7 @@ export function PricingTrialBanner({ pricing }: PricingTrialBannerProps) {
           letterSpacing="0.08em"
           flexShrink={0}
         >
-          {trialBadgeLabel(trialLabel)}
+          {trialBadgeLabel(messages, trialLabel)}
         </Badge>
       </HStack>
     </Box>

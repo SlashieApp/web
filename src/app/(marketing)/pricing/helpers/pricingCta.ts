@@ -3,6 +3,12 @@ export type PricingCtaTarget = {
   label: string
 }
 
+type PricingCtaLabels = {
+  currentPlan: string
+  setUpWorkerProfile: string
+  upgrade: string
+}
+
 export function resolveFreePlanCta(): PricingCtaTarget {
   return {
     href: '/register',
@@ -11,6 +17,7 @@ export function resolveFreePlanCta(): PricingCtaTarget {
 }
 
 export function resolveUnlimitedPlanCta(options: {
+  labels: PricingCtaLabels
   isAuthenticated: boolean
   hasWorkerProfile: boolean
   hasUnlimitedPlan?: boolean
@@ -18,26 +25,26 @@ export function resolveUnlimitedPlanCta(options: {
   if (options.hasUnlimitedPlan) {
     return {
       href: '/billing',
-      label: 'Current plan',
+      label: options.labels.currentPlan,
     }
   }
 
   if (!options.isAuthenticated) {
     return {
       href: `/register?next=${encodeURIComponent('/billing')}`,
-      label: 'Upgrade',
+      label: options.labels.upgrade,
     }
   }
 
   if (options.hasWorkerProfile) {
     return {
       href: '/billing',
-      label: 'Upgrade',
+      label: options.labels.upgrade,
     }
   }
 
   return {
     href: '/worker/setup',
-    label: 'Set up worker profile',
+    label: options.labels.setUpWorkerProfile,
   }
 }

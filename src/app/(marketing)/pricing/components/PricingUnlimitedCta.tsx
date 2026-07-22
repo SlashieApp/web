@@ -5,17 +5,27 @@ import { Box } from '@chakra-ui/react'
 import { useMe } from '@/app/(auth)/store/user'
 import { useBillingActions } from '@/app/(dashboard)/billing/helpers/useBillingActions'
 import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import type { Messages } from '@/i18n/getDictionary'
 import { getAuthToken } from '@/utils/auth'
 import { Button, Link } from '@ui'
 
 import { resolveUnlimitedPlanCta } from '../helpers/pricingCta'
 
-export function PricingUnlimitedCta() {
+export function PricingUnlimitedCta({
+  messages,
+}: {
+  messages: Messages['pricing']['plans']
+}) {
   const me = useMe()
   const isAuthenticated = Boolean(getAuthToken())
   const hasWorkerProfile = Boolean(me?.worker?.id)
   const hasUnlimitedPlan = hasUnlimitedQuoting(me?.worker?.membership)
   const unlimitedCta = resolveUnlimitedPlanCta({
+    labels: {
+      currentPlan: messages.currentPlan,
+      setUpWorkerProfile: messages.setUpWorkerProfile,
+      upgrade: messages.upgrade,
+    },
     isAuthenticated,
     hasWorkerProfile,
     hasUnlimitedPlan,
