@@ -35,11 +35,7 @@
         "eyebrow": "Local help, on the map",
         "heading": "Get local help. Hire with confidence.",
         "body": "Post a task, get quotes from nearby workers, pick who you want. You pay the worker directly — Slashie takes no cut of the job.",
-        "trustChips": [
-          "No job fee",
-          "Local workers",
-          "Pay directly"
-        ]
+        "trustChips": ["No job fee", "Local workers", "Pay directly"]
       },
       "howItWorks": {
         "heading": "How it works",
@@ -141,11 +137,7 @@
         "eyebrow": "地圖上的本地幫手",
         "heading": "找本地幫手，安心聘用。",
         "body": "發布任務，取得附近工作者的報價，選你想聘用的人。你直接向工作者付款，Slashie 不抽取任務費用。",
-        "trustChips": [
-          "不抽任務費",
-          "本地工作者",
-          "直接付款"
-        ]
+        "trustChips": ["不抽任務費", "本地工作者", "直接付款"]
       },
       "howItWorks": {
         "heading": "運作方式",

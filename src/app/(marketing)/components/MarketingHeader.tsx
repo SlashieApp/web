@@ -14,12 +14,12 @@ import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { HeaderToolbarSeparator } from '@/components/Header/GuestHeaderAuth'
 import {
   HEADER_MIN_HEIGHT,
   HEADER_PADDING_X,
 } from '@/components/Header/headerShell'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useLocale, useLocalizedHref } from '@/i18n/LocaleProvider'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'

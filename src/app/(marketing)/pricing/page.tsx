@@ -38,10 +38,7 @@ export default async function PricingPage() {
               <PricingErrorState copy={copy.error} />
             ) : (
               <>
-                <PricingTrialBanner
-                  pricing={pricing}
-                  copy={copy.trialBanner}
-                />
+                <PricingTrialBanner pricing={pricing} copy={copy.trialBanner} />
                 <PricingPlanCards pricing={pricing} copy={copy.plans} />
                 <PricingPlanDetailsLink label={copy.detailsLink} />
                 <PricingDisclaimer

@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { describe, expect, it } from 'vitest'
 
 import { formatMessage, loadPageI11n } from './loadPageI11n'
 import {
@@ -68,13 +68,18 @@ describe('marketing page dictionaries', () => {
     (relativePath) => {
       const absolutePath = join(process.cwd(), relativePath)
 
-      expect(existsSync(absolutePath), `${relativePath} should exist`).toBe(true)
+      expect(existsSync(absolutePath), `${relativePath} should exist`).toBe(
+        true,
+      )
 
       const dictionary = JSON.parse(
         readFileSync(absolutePath, 'utf8'),
       ) as Record<string, unknown>
       expect(dictionary.en, `${relativePath} should include en`).toBeTruthy()
-      expect(dictionary.zh_hk, `${relativePath} should include zh_hk`).toBeTruthy()
+      expect(
+        dictionary.zh_hk,
+        `${relativePath} should include zh_hk`,
+      ).toBeTruthy()
     },
   )
 })

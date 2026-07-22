@@ -60,7 +60,9 @@ export default async function MarketingHomePage() {
   const landingPricing: LandingPricing = {
     productName: pricing?.productName ?? 'Slashie Unlimited',
     headline:
-      trialLabel ?? priceLine ?? landing.pricingTeaser.unlimitedHeadlineFallback,
+      trialLabel ??
+      priceLine ??
+      landing.pricingTeaser.unlimitedHeadlineFallback,
     subline: trialLabel
       ? priceLine
         ? formatMessage(landing.pricingTeaser.unlimitedSublineWithPrice, {
