@@ -1,3 +1,4 @@
+import { UserLanguage } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
@@ -26,7 +27,11 @@ function meFixture(
       emailVerified: true,
       phoneVerified,
     },
-    settings: { isProfilePrivate: false, marketingEmails: false },
+    settings: {
+      isProfilePrivate: false,
+      language: UserLanguage.En,
+      marketingEmails: false,
+    },
     worker: worker
       ? ({
           id: 'worker-1',
