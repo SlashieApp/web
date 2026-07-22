@@ -3,6 +3,7 @@ mutation UpdateMySettings($input: UpdateMySettingsInput!) {
     id
     settings {
       isProfilePrivate
+      language
       marketingEmails
     }
   }
