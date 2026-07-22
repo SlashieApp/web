@@ -9,11 +9,7 @@
     "heroSupport": "Free to browse. Free to quote. No platform fee on the work itself.",
     "missionHeading": "That's the pitch",
     "lead": "Slashie is a platform that helps workers reach local jobs — free to browse, free to quote, no platform fee on the work itself. AI is eating a lot of careers — we're trying to help the people on the wrong side of that shift find paid work instead of sitting idle. Improve the unemployment rate a bit. Make the world a better place.",
-    "trustPoints": [
-      "Free to browse",
-      "Free to quote",
-      "No fee on the job"
-    ],
+    "trustPoints": ["Free to browse", "Free to quote", "No fee on the job"],
     "productHeading": "How it works",
     "productBody": "Customers post local tasks on the map. Nearby workers send quotes. You pick who you want and pay the worker directly — Slashie takes no cut of the job. Workers can start on a free quote allowance or subscribe to Slashie Unlimited for unlimited quoting. Customers post tasks for free.",
     "buildHeading": "Open source, AI-built",
@@ -33,11 +29,7 @@
     "heroSupport": "免費瀏覽。免費報價。工作本身不收平台費。",
     "missionHeading": "這就是我們的主張",
     "lead": "Slashie 是一個幫助工作者接觸本地工作的平台 — 免費瀏覽、免費報價，工作本身不收平台費。AI 正在吞噬許多職業 — 我們想幫助處於這波轉變劣勢的人找到有薪工作，而不是閒置。稍微改善失業率。讓世界好一點。",
-    "trustPoints": [
-      "免費瀏覽",
-      "免費報價",
-      "工作不抽成"
-    ],
+    "trustPoints": ["免費瀏覽", "免費報價", "工作不抽成"],
     "productHeading": "如何運作",
     "productBody": "客戶在地圖上發布本地任務。附近的工作者發送報價。你選人，並直接付款給工作者 — Slashie 不抽工作成數。工作者可先使用免費報價額度，或訂閱 Slashie Unlimited 取得無限報價。客戶可免費發布任務。",
     "buildHeading": "開源，以 AI 打造",
