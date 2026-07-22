@@ -6,15 +6,13 @@ import {
   Image,
   Stack,
   Text,
-  chakra,
 } from '@chakra-ui/react'
 
+import { HeroHowItWorksLink } from './HeroHowItWorksLink'
 import { HeroPoster } from './HeroPoster'
 import { HeroSearchCta } from './HeroSearchCta'
 import { HeroSplineLayer } from './HeroSplineLayer'
 import { Spotlight } from './Spotlight'
-
-const HowItWorksLink = chakra('a')
 
 /** CSS entrance (runs without JS; disabled under reduced motion). */
 function riseIn(delayMs: number) {
@@ -127,21 +125,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
               fontWeight={500}
               {...riseIn(300)}
             >
-              {/* Plain anchor: native CSS smooth scroll — NextLink fights Lenis. */}
-              <HowItWorksLink
-                href="#how-it-works"
-                textDecoration="underline"
-                textUnderlineOffset="3px"
-                _hover={{ color: 'action.primary' }}
-                _focusVisible={{
-                  outline: '2px solid',
-                  outlineColor: 'action.primary',
-                  outlineOffset: '3px',
-                  borderRadius: 'sm',
-                }}
-              >
-                {ctas.seeHowItWorks}
-              </HowItWorksLink>
+              <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
             </Text>
 
             <HStack
