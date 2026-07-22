@@ -6,7 +6,8 @@ import { useMemo } from 'react'
 import { Button, Link } from '@ui'
 
 import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import {
   type WorkerQuoteListFilter,
   workerQuoteFilterLabel,
@@ -31,7 +32,8 @@ const STAGE_FILTERS: WorkerQuoteListFilter[] = [
 
 export function WorkerQuotesLayout() {
   const { quoteRows, stageFilter, setStageFilter } = useWorkerQuotes()
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
 
   const stageCounts = useMemo(() => {
     const counts: Record<WorkerQuoteListFilter, number> = {
@@ -55,7 +57,7 @@ export function WorkerQuotesLayout() {
       title={t.title}
       description={t.description}
       actions={
-        <Link href="/search" _hover={{ textDecoration: 'none' }}>
+        <Link href={href('/search')} _hover={{ textDecoration: 'none' }}>
           <Button size="sm">{t.primaryCta}</Button>
         </Link>
       }

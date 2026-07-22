@@ -4,7 +4,7 @@ import { Box, HStack, IconButton, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { LuX } from 'react-icons/lu'
 
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { Logo } from '@ui'
 import bag from '../i11n.json'
 
@@ -18,7 +18,7 @@ export function CreateTaskHeader({
   exitHref = '/search?mode=tasks',
 }: CreateTaskHeaderProps) {
   const router = useRouter()
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
 
   return (
     <Box

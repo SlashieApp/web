@@ -4,14 +4,24 @@ import { orderPartyRole, sortOrdersBySchedule } from '@/utils/orderHelpers'
 export type DashboardUpcomingJob = {
   id: string
   order: OrderItem
-  role: 'Customer' | 'Worker'
+  roleKey: 'customer' | 'worker'
 }
 
-export function greetingForNow(now = new Date()): string {
+export type DashboardGreetingCopy = {
+  morning: string
+  afternoon: string
+  evening: string
+  fallbackName: string
+}
+
+export function greetingForNow(
+  copy: DashboardGreetingCopy,
+  now = new Date(),
+): string {
   const hour = now.getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 18) return 'Good afternoon'
-  return 'Good evening'
+  if (hour < 12) return copy.morning
+  if (hour < 18) return copy.afternoon
+  return copy.evening
 }
 
 export function displayNameFromMe(
@@ -19,8 +29,9 @@ export function displayNameFromMe(
     profile?: { name?: string | null } | null
     email?: string | null
   } | null,
+  fallbackName: string,
 ): string {
-  return me?.profile?.name?.trim() || me?.email?.split('@')[0] || 'there'
+  return me?.profile?.name?.trim() || me?.email?.split('@')[0] || fallbackName
 }
 
 export function buildUpcomingJobs(
@@ -31,7 +42,8 @@ export function buildUpcomingJobs(
   return sortOrdersBySchedule([...activeOrders]).map((order) => ({
     id: order.id,
     order,
-    role: orderPartyRole(order, userId) === 'customer' ? 'Customer' : 'Worker',
+    roleKey:
+      orderPartyRole(order, userId) === 'customer' ? 'customer' : 'worker',
   }))
 }
 
@@ -43,44 +55,59 @@ export type DashboardQuickAction = {
   kind: 'post' | 'browse' | 'requests' | 'quotes' | 'profile'
 }
 
+export type DashboardQuickActionsCopy = {
+  postTitle: string
+  postSubtitle: string
+  browseTitle: string
+  browseSubtitle: string
+  requestsTitle: string
+  requestsSubtitle: string
+  quotesTitle: string
+  quotesSubtitle: string
+  profileTitle: string
+  profileSubtitleWorker: string
+  profileSubtitleCustomer: string
+}
+
 export function buildQuickActions(
   hasWorkerProfile: boolean,
+  copy: DashboardQuickActionsCopy,
 ): DashboardQuickAction[] {
   return [
     {
       key: 'post',
-      title: 'Post a task',
-      subtitle: 'Get quotes from local workers',
+      title: copy.postTitle,
+      subtitle: copy.postSubtitle,
       href: '/tasks/create',
       kind: 'post',
     },
     {
       key: 'browse',
-      title: 'Browse tasks',
-      subtitle: 'Find work and send quotes',
+      title: copy.browseTitle,
+      subtitle: copy.browseSubtitle,
       href: '/search',
       kind: 'browse',
     },
     {
       key: 'requests',
-      title: 'My requests',
-      subtitle: 'Track posted tasks and quotes',
+      title: copy.requestsTitle,
+      subtitle: copy.requestsSubtitle,
       href: '/requests',
       kind: 'requests',
     },
     {
       key: 'quotes',
-      title: 'My Quotes',
-      subtitle: 'Track quotes you sent on tasks',
+      title: copy.quotesTitle,
+      subtitle: copy.quotesSubtitle,
       href: '/quotes',
       kind: 'quotes',
     },
     {
       key: 'profile',
-      title: 'Complete profile',
+      title: copy.profileTitle,
       subtitle: hasWorkerProfile
-        ? 'Keep your worker profile fresh'
-        : 'Set up your worker profile',
+        ? copy.profileSubtitleWorker
+        : copy.profileSubtitleCustomer,
       href: '/profile',
       kind: 'profile',
     },

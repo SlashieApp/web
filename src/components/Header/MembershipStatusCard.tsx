@@ -8,6 +8,7 @@ import {
   hasUnlimitedQuoting,
   membershipStatusDetailText,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Button, Link } from '@ui'
 
 import { focusVisibleMatchesHover } from '@/theme/system'
@@ -37,6 +38,7 @@ function QuoteMeterCopy({
 function CustomerStatusCard({
   variant,
 }: { variant: MembershipStatusCardVariant }) {
+  const href = useLocalizedHref()
   const compact = variant === 'drawer'
   return (
     <Box
@@ -54,7 +56,7 @@ function CustomerStatusCard({
           Compare quotes from local workers. Job payments stay between you and
           your pro.
         </Text>
-        <Link href="/worker/setup" _hover={{ textDecoration: 'none' }}>
+        <Link href={href('/worker/setup')} _hover={{ textDecoration: 'none' }}>
           <Button size="sm" w={compact ? 'full' : 'auto'}>
             Become a worker
           </Button>
@@ -69,6 +71,7 @@ export function MembershipStatusCard({
   hasWorker = false,
   variant = 'dropdown',
 }: MembershipStatusCardProps) {
+  const href = useLocalizedHref()
   if (!hasWorker || !membership) {
     return <CustomerStatusCard variant={variant} />
   }
@@ -109,7 +112,7 @@ export function MembershipStatusCard({
         {!unlimited ? <QuoteMeterCopy membership={membership} /> : null}
 
         {membership.canUpgrade ? (
-          <Link href="/billing" _hover={{ textDecoration: 'none' }}>
+          <Link href={href('/billing')} _hover={{ textDecoration: 'none' }}>
             <Button size="sm" w={compact ? 'full' : 'auto'}>
               Upgrade
             </Button>
@@ -117,7 +120,7 @@ export function MembershipStatusCard({
         ) : null}
 
         {membership.canManageBilling ? (
-          <Link href="/billing" _hover={{ textDecoration: 'none' }}>
+          <Link href={href('/billing')} _hover={{ textDecoration: 'none' }}>
             <Text
               fontSize="xs"
               fontWeight={700}

@@ -24,7 +24,7 @@ import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { loginFormSchema } from '@/app/(auth)/login/loginFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { APP_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -159,7 +159,7 @@ function LoginStatCard({ children }: { children: ReactNode }) {
 }
 
 function LoginMarketingAside() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
 
   return (
     <Box
@@ -300,7 +300,7 @@ function LoginMarketingAside() {
 }
 
 export default function LoginPage() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const login = useUserStore((state) => state.login)
   const getUser = useUserStore((state) => state.getUser)

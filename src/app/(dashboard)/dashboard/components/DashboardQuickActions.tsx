@@ -2,9 +2,12 @@
 
 import { Box, HStack, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { Card, Link } from '@ui'
 
 import type { DashboardQuickAction } from '../helpers/dashboardOverview'
+import bag from '../i11n.json'
 
 function QuickActionIcon({
   kind,
@@ -97,15 +100,17 @@ export function DashboardQuickActions({
 }: {
   actions: readonly DashboardQuickAction[]
 }) {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   return (
     <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
-        <Heading size="md">Quick actions</Heading>
+        <Heading size="md">{t.quickActions.title}</Heading>
         <SimpleGrid columns={{ base: 1, sm: 2, xl: 5 }} gap={3}>
           {actions.map((item) => (
             <Link
               key={item.key}
-              href={item.href}
+              href={href(item.href)}
               _hover={{ textDecoration: 'none' }}
             >
               <Stack

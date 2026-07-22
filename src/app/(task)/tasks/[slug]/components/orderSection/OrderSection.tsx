@@ -1,6 +1,8 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import type { ReactNode } from 'react'
+import bag from '../../i11n.json'
 
 import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { OrderStatus } from '@codegen/schema'
@@ -276,9 +278,11 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
 function OrderWorkerRow({
   workerName,
   avatarUrl,
+  workerLabel,
 }: {
   workerName: string
   avatarUrl?: string | null
+  workerLabel: string
 }) {
   return (
     <HStack
@@ -307,7 +311,7 @@ function OrderWorkerRow({
         flexShrink={0}
         minW={{ base: '4.5rem', sm: '5.5rem' }}
       >
-        Worker
+        {workerLabel}
       </Text>
       <HStack gap={2} flex={1} minW={0}>
         <Avatar name={workerName} src={avatarUrl ?? undefined} />
@@ -320,13 +324,15 @@ function OrderWorkerRow({
 }
 
 export function OrderSection({ task, order }: OrderSectionProps) {
-  if (!isOrderClosed(order.status)) return null
+  const t = useI11n(bag)
+  const o = t.order
 
   const workerQuote = useMemo(
     () => workerQuoteForOrder(task.quotes, order.quoteId),
     [task.quotes, order.quoteId],
   )
-  const workerName = workerQuote?.worker?.profile?.name?.trim() || 'Worker'
+  const workerName =
+    workerQuote?.worker?.profile?.name?.trim() || t.fallbackWorker
   const workerAvatarUrl = workerQuote?.worker?.profile?.avatarUrl
 
   const timeline = orderTimelineSteps(order)
@@ -335,6 +341,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
   // A closed (not cancelled) order means the worker entered the customer's
   // completion code and the job is done + paid.
   const completed = order.status === OrderStatus.Closed
+  const closed = isOrderClosed(order.status)
 
   const scrolledToHashRef = useRef(false)
 
@@ -348,6 +355,8 @@ export function OrderSection({ task, order }: OrderSectionProps) {
       node.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [])
+
+  if (!closed) return null
 
   return (
     <Box
@@ -388,7 +397,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
                 fontSize={{ base: 'md', md: 'lg' }}
                 color="text.default"
               >
-                Task completed
+                {o.completed}
               </Text>
               <Text fontSize="sm" color="text.muted">
                 The job is done and payment is settled directly between you.
@@ -407,14 +416,18 @@ export function OrderSection({ task, order }: OrderSectionProps) {
               textTransform="uppercase"
               color="text.muted"
             >
-              Order summary
+              {o.summary}
             </Text>
             <OrderStatusBadge label={statusLabel} />
           </HStack>
         </Box>
 
         <Box px={{ base: 4, md: 5 }} pb={4}>
-          <OrderWorkerRow workerName={workerName} avatarUrl={workerAvatarUrl} />
+          <OrderWorkerRow
+            workerName={workerName}
+            avatarUrl={workerAvatarUrl}
+            workerLabel={o.worker}
+          />
           <HStack
             justify="space-between"
             align="center"
@@ -424,7 +437,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
             bg="status.success.soft"
           >
             <Text fontSize="sm" fontWeight={700} color="status.success.fg">
-              Agreed total
+              {o.agreedTotal}
             </Text>
             <Text
               fontSize="2xl"
@@ -446,7 +459,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
             color="text.muted"
             mb={3}
           >
-            Timeline
+            {o.timeline}
           </Text>
           <OrderRecordTimeline steps={timeline} />
         </Box>
@@ -474,9 +487,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
             <IconInfo />
           </Flex>
           <Text fontSize="xs" color="text.muted" lineHeight="relaxed">
-            This record is for your files only. Slashie does not process
-            payments between customers and workers — settle payment directly
-            with each other. This is not a tax invoice or platform receipt.
+            {o.disclaimer}
           </Text>
         </HStack>
       </Stack>

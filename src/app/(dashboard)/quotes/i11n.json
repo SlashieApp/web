@@ -7,20 +7,28 @@
     "eyebrow": "Worker quotes",
     "title": "Quotes sent",
     "description": "Track every quote you have sent and follow up on customer responses.",
-    "emptyTitle": "No quotes sent yet",
-    "emptyDescription": "Browse nearby tasks and send your first quote to start winning work.",
-    "primaryCta": "Browse tasks"
+    "searchPlaceholder": "Search tasks you quoted",
+    "loading": "Loading your quotes…",
+    "emptyTitle": "No quotes yet",
+    "emptyDescription": "Browse open tasks near you and send your first quote to start earning.",
+    "primaryCta": "Browse tasks",
+    "statusLabel": "Filters",
+    "activityEmpty": "No quote activity yet. Send a quote to get started."
   },
   "zh_hk": {
     "metadata": {
       "title": "報價 | Slashie",
-      "description": "查看你在 Slashie 任務傳送的報價，並追蹤 customer 回覆。"
+      "description": "查看你在 Slashie 任務傳送的報價，並追蹤顧客回覆。"
     },
-    "eyebrow": "Worker 報價",
+    "eyebrow": "工作者報價",
     "title": "已傳送報價",
-    "description": "追蹤你傳送的每個報價，並跟進 customer 回覆。",
+    "description": "追蹤你傳送的每個報價，並跟進顧客回覆。",
+    "searchPlaceholder": "搜尋你已報價的任務",
+    "loading": "正在載入你的報價…",
     "emptyTitle": "暫時未傳送報價",
-    "emptyDescription": "瀏覽附近任務並傳送第一個報價，開始爭取工作。",
-    "primaryCta": "瀏覽任務"
+    "emptyDescription": "瀏覽附近公開任務並傳送第一個報價，開始賺取收入。",
+    "primaryCta": "瀏覽任務",
+    "statusLabel": "篩選",
+    "activityEmpty": "暫時沒有報價活動。傳送報價即可開始。"
   }
 }

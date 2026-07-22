@@ -14,6 +14,30 @@ export type NotificationLike = {
   createdAt: unknown
 }
 
+export type NotificationDisplayCopy = {
+  openTaskDetails: string
+  types: {
+    quoteReceived: string
+    quoteAccepted: string
+    quoteDeclined: string
+    taskCompleted: string
+    taskConfirmed: string
+    default: string
+  }
+}
+
+const DEFAULT_DISPLAY_COPY: NotificationDisplayCopy = {
+  openTaskDetails: 'Open the task for details.',
+  types: {
+    quoteReceived: 'New quote on your task',
+    quoteAccepted: 'Your quote was accepted',
+    quoteDeclined: 'Your quote was declined',
+    taskCompleted: 'Job marked complete',
+    taskConfirmed: 'Job confirmed',
+    default: 'Slashie update',
+  },
+}
+
 export function notificationTaskHref(
   taskId: string,
   orderId?: string | null,
@@ -25,7 +49,10 @@ export function notificationTaskHref(
 }
 
 /** Prefer API title/body; fall back to type-based copy. */
-export function notificationDisplayText(notification: NotificationLike): {
+export function notificationDisplayText(
+  notification: NotificationLike,
+  copy: NotificationDisplayCopy = DEFAULT_DISPLAY_COPY,
+): {
   title: string
   description: string
 } {
@@ -34,25 +61,28 @@ export function notificationDisplayText(notification: NotificationLike): {
   if (title && body) return { title, description: body }
   if (title) return { title, description: body || '' }
   return {
-    title: defaultNotificationTitle(notification.type),
-    description: body || title || 'Open the task for details.',
+    title: defaultNotificationTitle(notification.type, copy),
+    description: body || title || copy.openTaskDetails,
   }
 }
 
-function defaultNotificationTitle(type: string): string {
+function defaultNotificationTitle(
+  type: string,
+  copy: NotificationDisplayCopy,
+): string {
   switch (type) {
     case NotificationType.QuoteReceived:
-      return 'New quote on your task'
+      return copy.types.quoteReceived
     case NotificationType.QuoteAccepted:
-      return 'Your quote was accepted'
+      return copy.types.quoteAccepted
     case NotificationType.QuoteDeclined:
-      return 'Your quote was declined'
+      return copy.types.quoteDeclined
     case NotificationType.TaskCompleted:
-      return 'Job marked complete'
+      return copy.types.taskCompleted
     case NotificationType.TaskConfirmed:
-      return 'Job confirmed'
+      return copy.types.taskConfirmed
     default:
-      return 'Slashie update'
+      return copy.types.default
   }
 }
 

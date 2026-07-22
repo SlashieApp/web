@@ -1,8 +1,10 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { HStack, Stack, Text } from '@chakra-ui/react'
-import { OrderStatus, QuoteStatus } from '@codegen/schema'
+import { QuoteStatus } from '@codegen/schema'
 import { useCallback } from 'react'
+import bag from '../../i11n.json'
 
 import { showAppToast } from '@/utils/appToast'
 import {
@@ -39,31 +41,36 @@ function CopyIcon() {
 
 export function CustomerActiveOrderStatus() {
   const { task, myOrder, permissions } = useTaskDetail()
+  const t = useI11n(bag)
+  const b = t.booking
 
-  const copyCode = useCallback(async (code: string) => {
-    try {
-      await navigator.clipboard.writeText(code)
-      showAppToast({
-        title: 'Code copied',
-        description:
-          'Share this 6-digit code with your worker when the job is done.',
-        type: 'success',
-      })
-    } catch {
-      showAppToast({
-        title: 'Could not copy',
-        description: 'Select and copy the code manually.',
-        type: 'error',
-      })
-    }
-  }, [])
+  const copyCode = useCallback(
+    async (code: string) => {
+      try {
+        await navigator.clipboard.writeText(code)
+        showAppToast({
+          title: b.codeCopiedTitle,
+          description: b.codeCopiedDescription,
+          type: 'success',
+        })
+      } catch {
+        showAppToast({
+          title: b.codeCopyFailedTitle,
+          description: b.codeCopyFailedDescription,
+          type: 'error',
+        })
+      }
+    },
+    [b],
+  )
 
   if (!task || !myOrder || !permissions.showCustomerCompletionCode) return null
 
   const quote =
     task.quotes.find((q) => q.id === myOrder.quoteId) ??
     task.quotes.find((q) => q.status === QuoteStatus.Accepted)
-  const workerName = quote?.worker?.profile?.name?.trim() || 'Your worker'
+  const workerName =
+    quote?.worker?.profile?.name?.trim() || b.yourWorkerFallback
   const workerAvatar = quote?.worker?.profile?.avatarUrl ?? undefined
   const schedule = formatTaskScheduleLabel(orderSnapshotDatetime(myOrder))
   const code = myOrder.completionVerificationCode?.trim() ?? ''
@@ -78,14 +85,14 @@ export function CustomerActiveOrderStatus() {
             color="status.success.fg"
             letterSpacing="0.04em"
           >
-            YOUR BOOKING
+            {b.customerEyebrow}
           </Text>
           <Text
             fontWeight={700}
             fontSize={{ base: 'lg', md: 'xl' }}
             color="text.default"
           >
-            Job in progress
+            {b.customerTitle}
           </Text>
           <Text fontSize="sm" color="text.muted">
             {formatOrderAgreedPrice(myOrder)} agreed ·{' '}
@@ -97,7 +104,7 @@ export function CustomerActiveOrderStatus() {
           <Avatar name={workerName} src={workerAvatar} />
           <Stack gap={0}>
             <Text fontSize="xs" fontWeight={700} color="text.muted">
-              Your worker
+              {b.yourWorker}
             </Text>
             <Text fontWeight={700}>{workerName}</Text>
           </Stack>
@@ -106,7 +113,7 @@ export function CustomerActiveOrderStatus() {
         {schedule ? (
           <Stack gap={1}>
             <Text fontSize="xs" fontWeight={700} color="text.muted">
-              Schedule
+              {b.schedule}
             </Text>
             <Text fontSize="sm" fontWeight={600}>
               {schedule}
@@ -116,24 +123,23 @@ export function CustomerActiveOrderStatus() {
 
         <Stack gap={2}>
           <Text fontSize="xs" fontWeight={700} color="text.muted">
-            What&apos;s next
+            {b.whatsNext}
           </Text>
           <Text fontSize="sm" color="text.muted">
-            1. Coordinate on site with your worker.
+            {b.step1}
           </Text>
           <Text fontSize="sm" color="text.muted">
-            2. Pay them directly when you agree (outside Slashie).
+            {b.step2}
           </Text>
           <Text fontSize="sm" color="text.muted">
-            3. When satisfied, give them the completion code below so they can
-            close the job on Slashie.
+            {b.step3}
           </Text>
         </Stack>
 
         {code ? (
           <Stack gap={2}>
             <Text fontSize="xs" fontWeight={700} color="text.muted">
-              Completion code
+              {b.completionCode}
             </Text>
             <HStack gap={2}>
               <Text
@@ -147,7 +153,7 @@ export function CustomerActiveOrderStatus() {
               </Text>
               <IconButton
                 type="button"
-                aria-label="Copy completion code"
+                aria-label={b.copyCodeAria}
                 variant="ghost"
                 onClick={() => void copyCode(code)}
               >
@@ -161,16 +167,15 @@ export function CustomerActiveOrderStatus() {
               w="fit-content"
               onClick={() => void copyCode(code)}
             >
-              Copy code
+              {b.copyCode}
             </Button>
             <Text fontSize="xs" color="text.muted">
-              Only you can see this code. Do not share it until the work is
-              done.
+              {b.codePrivateHint}
             </Text>
           </Stack>
         ) : (
           <Text fontSize="sm" color="text.muted">
-            Your completion code will appear here shortly.
+            {b.codePending}
           </Text>
         )}
       </Stack>

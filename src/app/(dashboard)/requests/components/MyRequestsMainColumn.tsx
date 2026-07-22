@@ -4,14 +4,19 @@ import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { LuSearch } from 'react-icons/lu'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, Input, Link } from '@ui'
 
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
+import bag from '../i11n.json'
 
 import { PostedTaskCard } from './PostedTaskCard'
 import { PostedTaskSummaryBar } from './PostedTaskSummaryBar'
 
 export function MyRequestsMainColumn() {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   const {
     loading,
     errorMessage,
@@ -31,11 +36,11 @@ export function MyRequestsMainColumn() {
             </Box>
           }
           value={inboxFilters.searchDraft}
-          placeholder="Search your requests"
+          placeholder={t.searchPlaceholder}
           type="search"
           inputMode="search"
           autoComplete="off"
-          aria-label="Search your requests"
+          aria-label={t.searchPlaceholder}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             inboxFilters.setSearchDraft(e.target.value)
           }
@@ -50,7 +55,7 @@ export function MyRequestsMainColumn() {
         {taskRows.length > 0 ? <PostedTaskSummaryBar /> : null}
       </Stack>
 
-      {loading ? <Text color="text.muted">Loading your tasks…</Text> : null}
+      {loading ? <Text color="text.muted">{t.loading}</Text> : null}
       {errorMessage ? (
         <Text color="status.danger.fg" fontSize="sm">
           {errorMessage}
@@ -60,14 +65,16 @@ export function MyRequestsMainColumn() {
       {!loading && taskRows.length === 0 ? (
         <Card layout="section" p={6}>
           <Stack gap={3}>
-            <Heading size="sm">No requests yet</Heading>
+            <Heading size="sm">{t.emptyTitle}</Heading>
             <Text color="text.muted" fontSize="sm">
-              Post a task when you need help — quotes and bookings will show up
-              here.
+              {t.emptyDescription}
             </Text>
-            <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+            <Link
+              href={href('/tasks/create')}
+              _hover={{ textDecoration: 'none' }}
+            >
               <Button alignSelf="flex-start" size="sm">
-                Post a task
+                {t.primaryCta}
               </Button>
             </Link>
           </Stack>

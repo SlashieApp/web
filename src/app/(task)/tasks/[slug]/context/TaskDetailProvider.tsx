@@ -1,5 +1,6 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { useMutation, useQuery } from '@apollo/client/react'
 import type {
   AcceptQuoteMutation,
@@ -20,6 +21,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react'
+import bag from '../i11n.json'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneNotVerifiedError } from '@/app/(auth)/helpers/phoneVerification'
@@ -80,6 +82,7 @@ export function TaskDetailProvider({
 }: TaskDetailProviderProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const t = useI11n(bag)
   const [quoteAmountInput, setQuoteAmountInput] = useState('')
   const [quoteMessageInput, setQuoteMessageInput] = useState('')
   const [quoteAvailabilityInput, setQuoteAvailabilityInput] = useState('')
@@ -246,14 +249,15 @@ export function TaskDetailProvider({
   const onSubmitQuote = useCallback(async () => {
     setQuoteError(null)
     setQuoteSuccess(null)
+    const p = t.provider
 
     if (!task) {
-      setQuoteError('Task details are not loaded yet.')
+      setQuoteError(p.taskNotLoaded)
       return false
     }
 
     if (quotesLoading) {
-      setQuoteError('Still loading quotes — one moment.')
+      setQuoteError(p.quotesLoading)
       return false
     }
 
@@ -272,7 +276,7 @@ export function TaskDetailProvider({
     }
 
     if (!permissions.hasWorkerProfile && !myQuote) {
-      setQuoteError('Create a worker profile before submitting quotes.')
+      setQuoteError(p.needWorkerProfile)
       const onQuoteFlow = pathname === `/tasks/${taskId}/quote`
       const next = onQuoteFlow
         ? `/tasks/${taskId}/quote`
@@ -282,16 +286,15 @@ export function TaskDetailProvider({
     }
 
     if (!permissions.canSubmitQuote) {
-      setQuoteError('This task is no longer accepting new quotes.')
+      setQuoteError(p.notAcceptingQuotes)
       return false
     }
 
     if (me && !isEmailVerified(me)) {
-      const message =
-        'Verify your email before sending quotes. Check your inbox or resend from the banner.'
+      const message = p.verifyEmailBeforeQuote
       setQuoteError(message)
       showAppToast({
-        title: 'Email verification required',
+        title: p.emailRequiredTitle,
         description: message,
         type: 'warning',
       })
@@ -325,17 +328,17 @@ export function TaskDetailProvider({
       })
 
       if (!result.data?.addQuote?.id) {
-        throw new Error('Quote submission failed. Please try again.')
+        throw new Error(p.quoteFailed)
       }
 
       trackFlowSucceeded(EVENTS.quote_send_success, {
         task_id: task.id,
         quote_id: result.data.addQuote.id,
       })
-      setQuoteSuccess('Quote submitted successfully.')
+      setQuoteSuccess(p.quoteSentSuccess)
       showAppToast({
-        title: 'Quote sent',
-        description: `Your quote on “${task.title}” was submitted.`,
+        title: p.quoteSentTitle,
+        description: p.quoteSentSuccess,
         type: 'success',
       })
       refreshPageData()
@@ -348,13 +351,13 @@ export function TaskDetailProvider({
         route: pathname,
         extra: { task_id: taskId },
       })
-      const message = getFriendlyErrorMessage(error, 'Quote submission failed.')
+      const message = getFriendlyErrorMessage(error, p.quoteFailedShort)
       setQuoteError(message)
       const code = getGraphQLErrorCode(error)
       if (isWorkerQuoteLimitError(error)) {
         capture(EVENTS.quote_limit_reached, { task_id: task.id })
         showAppToast({
-          title: 'Monthly quote limit reached',
+          title: p.quoteLimitTitle,
           description: message,
           type: 'warning',
         })
@@ -365,8 +368,8 @@ export function TaskDetailProvider({
         showAppToast({
           title:
             code === 'PHONE_NOT_VERIFIED'
-              ? 'Phone verification required'
-              : 'Email verification required',
+              ? p.phoneRequiredTitle
+              : p.emailRequiredTitle,
           description: message,
           type: 'warning',
         })
@@ -387,6 +390,7 @@ export function TaskDetailProvider({
     quotesLoading,
     refreshPageData,
     router,
+    t.provider,
     task,
     taskId,
   ])
@@ -394,6 +398,7 @@ export function TaskDetailProvider({
   const onAcceptQuote = useCallback(
     async (quoteId: string) => {
       if (!task || !permissions.showAcceptDecline) return
+      const p = t.provider
 
       setAcceptError(null)
       setAcceptingQuoteId(quoteId)
@@ -404,15 +409,10 @@ export function TaskDetailProvider({
         })
         const order = result.data?.acceptQuote?.order
         if (!order?.id) {
-          throw new Error('Could not accept this quote.')
+          throw new Error(p.acceptFailed)
         }
-        const workerName =
-          task.quotes
-            .find((q) => q.id === quoteId)
-            ?.worker?.profile?.name?.trim() || 'Worker'
         showAppToast({
-          title: 'Quote accepted',
-          description: `${workerName} can now coordinate on “${task.title}”.`,
+          title: p.quoteAcceptedTitle,
           type: 'success',
         })
         trackFlowSucceeded(EVENTS.quote_accept_success, {
@@ -429,29 +429,35 @@ export function TaskDetailProvider({
           operation: 'AcceptQuote',
           extra: { task_id: task?.id, quote_id: quoteId },
         })
-        setAcceptError(
-          getFriendlyErrorMessage(error, 'Could not accept this quote.'),
-        )
+        setAcceptError(getFriendlyErrorMessage(error, p.acceptFailed))
       } finally {
         setAcceptingQuoteId(null)
       }
     },
-    [acceptQuote, permissions.showAcceptDecline, refreshPageData, router, task],
+    [
+      acceptQuote,
+      permissions.showAcceptDecline,
+      refreshPageData,
+      router,
+      t.provider,
+      task,
+    ],
   )
 
   const onDeclineQuote = useCallback(
     async (quoteId: string) => {
       if (!task || !permissions.showAcceptDecline) return
+      const p = t.provider
       setAcceptError(null)
       setDecliningQuoteId(quoteId)
       try {
         const result = await declineQuote({ variables: { quoteId } })
         if (!result.data?.declineQuote?.id) {
-          throw new Error('Could not decline this quote.')
+          throw new Error(p.declineFailed)
         }
         showAppToast({
-          title: 'Quote declined',
-          description: 'The worker will be notified.',
+          title: p.quoteDeclinedTitle,
+          description: p.quoteDeclinedDescription,
           type: 'info',
         })
         trackFlowSucceeded(EVENTS.quote_decline_success, {
@@ -466,21 +472,26 @@ export function TaskDetailProvider({
           operation: 'DeclineQuote',
           extra: { task_id: task?.id, quote_id: quoteId },
         })
-        setAcceptError(
-          getFriendlyErrorMessage(error, 'Could not decline this quote.'),
-        )
+        setAcceptError(getFriendlyErrorMessage(error, p.declineFailed))
       } finally {
         setDecliningQuoteId(null)
       }
     },
-    [declineQuote, permissions.showAcceptDecline, refreshPageData, task],
+    [
+      declineQuote,
+      permissions.showAcceptDecline,
+      refreshPageData,
+      t.provider,
+      task,
+    ],
   )
 
   const onCompleteOrderWithVerification = useCallback(async () => {
     if (!myOrder || !permissions.showCompleteWithCode) return
+    const p = t.provider
     const code = verificationCode.trim()
     if (code.length !== 6) {
-      setJobActionError('Enter the 6-digit code from the customer.')
+      setJobActionError(p.enterCode)
       return
     }
     setJobActionError(null)
@@ -489,13 +500,12 @@ export function TaskDetailProvider({
         variables: { orderId: myOrder.id, code },
       })
       if (!result.data?.completeOrderWithVerification?.id) {
-        throw new Error('Could not complete this job.')
+        throw new Error(p.completeFailed)
       }
       setVerificationCode('')
       showAppToast({
-        title: 'Job closed',
-        description:
-          'Payment and completion are recorded. This order is now closed.',
+        title: p.jobClosedTitle,
+        description: p.jobClosedDescription,
         type: 'success',
       })
       trackFlowSucceeded(EVENTS.job_verify_success, {
@@ -510,43 +520,43 @@ export function TaskDetailProvider({
         operation: 'CompleteOrderWithVerification',
         extra: { order_id: myOrder.id, task_id: taskId },
       })
-      setJobActionError(
-        getFriendlyErrorMessage(
-          error,
-          'Invalid or expired code. Check with the customer and try again.',
-        ),
-      )
+      setJobActionError(getFriendlyErrorMessage(error, p.invalidCode))
     }
   }, [
     completeOrderWithVerification,
     myOrder,
     permissions.showCompleteWithCode,
     refreshPageData,
+    t.provider,
     taskId,
     verificationCode,
   ])
 
   const onCancelTask = useCallback(async () => {
     if (!task || !permissions.canCancelTask) return
+    const p = t.provider
 
     setCancelError(null)
-    const confirmed = window.confirm(
-      'Cancel this task? Professionals will no longer be able to send quotes.',
-    )
+    const confirmed = window.confirm(t.actions.cancelConfirm)
     if (!confirmed) return
 
     try {
       const result = await cancelTask({ variables: { taskId: task.id } })
       if (!result.data?.cancelTask?.id) {
-        throw new Error('Could not cancel this task.')
+        throw new Error(p.cancelFailed)
       }
       refreshPageData()
     } catch (error: unknown) {
-      setCancelError(
-        getFriendlyErrorMessage(error, 'Could not cancel this task.'),
-      )
+      setCancelError(getFriendlyErrorMessage(error, p.cancelFailed))
     }
-  }, [cancelTask, permissions.canCancelTask, refreshPageData, task])
+  }, [
+    cancelTask,
+    permissions.canCancelTask,
+    refreshPageData,
+    t.actions.cancelConfirm,
+    t.provider,
+    task,
+  ])
 
   const scrollToQuoteForm = useCallback(() => {
     if (typeof document === 'undefined') return

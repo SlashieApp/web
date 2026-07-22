@@ -10,7 +10,7 @@ import {
 
 /**
  * Resolve the active locale for a Server Component / `generateMetadata`.
- * Prefer the middleware header (URL slug), then cookie, then default `en`.
+ * Prefer the proxy header (URL slug), then cookie, then default `en`.
  */
 export async function getRequestLocale(): Promise<AppLocale> {
   const headerStore = await headers()

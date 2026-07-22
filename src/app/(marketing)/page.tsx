@@ -1,4 +1,3 @@
-import { HomeAuthRedirect } from '@/app/(marketing)/helpers/HomeAuthRedirect'
 import {
   formatPricingInterval,
   pricingDisplayPrice,
@@ -38,8 +37,7 @@ export async function generateMetadata() {
 /**
  * Marketing landing. The narrative is fully server-rendered (SEO + no-JS
  * legible); the WebGL living-map hero and scroll motion are client islands
- * layered on top. Signed-in visitors are redirected to the app by
- * `HomeAuthRedirect` — unchanged behavior.
+ * layered on top. Signed-in visitors stay on the landing (no auto-redirect).
  */
 export default async function MarketingHomePage() {
   const locale = await getRequestLocale()
@@ -82,7 +80,6 @@ export default async function MarketingHomePage() {
 
   return (
     <>
-      <HomeAuthRedirect />
       <LenisRoot />
       <HeroSection
         copy={landing.hero}

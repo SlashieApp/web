@@ -1,7 +1,9 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack, Stack } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
+import bag from '../../i18n/chrome.i11n.json'
 
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { stripLocalePrefix } from '@/i18n/navigation'
@@ -126,6 +128,7 @@ function GetAppPhoneIcon() {
 
 export function Dock() {
   const href = useLocalizedHref()
+  const t = useI11n(bag)
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
   const [currentSearch, setCurrentSearch] = useState('')
@@ -134,25 +137,25 @@ export function Dock() {
   const items: DockItem[] = [
     {
       key: 'browse',
-      caption: 'Discovery',
+      caption: t.dock.discovery,
       href: APP_HOME,
       icon: <BrowseIcon />,
     },
     {
       key: 'workers',
-      caption: 'Workers',
+      caption: t.dock.workers,
       href: WORKER_SEARCH_HREF,
       icon: <WorkersIcon />,
     },
     {
       key: 'jobs',
-      caption: 'My Tasks',
+      caption: t.dock.myTasks,
       href: '/requests',
       icon: <JobsIcon />,
     },
     {
       key: 'profile',
-      caption: 'Account',
+      caption: t.dock.account,
       href: '/profile',
       icon: <ProfileIcon />,
     },
@@ -258,7 +261,7 @@ export function Dock() {
           <IconButton
             href={GET_APP_HREF}
             icon={<GetAppPhoneIcon />}
-            caption="Get app"
+            caption={t.dock.getApp}
             active={false}
           />
         </Box>

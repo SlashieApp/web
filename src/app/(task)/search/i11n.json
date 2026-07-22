@@ -7,16 +7,36 @@
     "title": "Search tasks and workers",
     "description": "Find open tasks, local workers, and nearby opportunities on the map.",
     "emptyTitle": "No results nearby",
-    "emptyDescription": "Adjust your filters or move the map to search another area."
+    "emptyDescription": "Adjust your filters or move the map to search another area.",
+    "mode": {
+      "searchingFor": "Searching for",
+      "nearby": "nearby",
+      "ariaSearchingFor": "Searching for {mode} nearby",
+      "ariaSearchMode": "Search {mode}",
+      "tasksInline": "tasks",
+      "workerInline": "worker",
+      "tasksToggle": "Tasks",
+      "workersToggle": "Workers"
+    }
   },
   "zh_hk": {
     "metadata": {
       "title": "搜尋 | Slashie",
-      "description": "使用地圖優先篩選搜尋 Slashie 任務和 workers。"
+      "description": "使用地圖優先篩選搜尋 Slashie 任務和工作者。"
     },
-    "title": "搜尋任務和 workers",
-    "description": "在地圖上尋找公開任務、本地 workers 和附近機會。",
+    "title": "搜尋任務和工作者",
+    "description": "在地圖上尋找公開任務、本地工作者和附近機會。",
     "emptyTitle": "附近沒有結果",
-    "emptyDescription": "調整篩選或移動地圖，搜尋另一個地區。"
+    "emptyDescription": "調整篩選或移動地圖，搜尋另一個地區。",
+    "mode": {
+      "searchingFor": "正在搜尋",
+      "nearby": "附近",
+      "ariaSearchingFor": "正在搜尋附近的{mode}",
+      "ariaSearchMode": "搜尋{mode}",
+      "tasksInline": "任務",
+      "workerInline": "工作者",
+      "tasksToggle": "任務",
+      "workersToggle": "工作者"
+    }
   }
 }

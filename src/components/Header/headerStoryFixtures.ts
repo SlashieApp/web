@@ -1,4 +1,4 @@
-import { Currency, LoginMethod } from '@codegen/schema'
+import { Currency, LoginMethod, UserLanguage } from '@codegen/schema'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { useUserStore } from '@/app/(auth)/store/user'
@@ -28,6 +28,7 @@ export const headerMeWorker: MeSnapshot = {
   },
   settings: {
     isProfilePrivate: false,
+    language: UserLanguage.En,
     marketingEmails: false,
   },
   workerEligibility: true,

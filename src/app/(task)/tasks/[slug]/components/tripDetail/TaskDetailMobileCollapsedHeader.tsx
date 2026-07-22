@@ -1,6 +1,8 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, Text } from '@chakra-ui/react'
+import bag from '../../i11n.json'
 
 import { sdlMotion } from '@/theme/styles'
 
@@ -23,15 +25,19 @@ export function TaskDetailMobileCollapsedHeader({
   collapsed: boolean
 }) {
   const { task, myQuote, isAuthenticated, permissions } = useTaskDetail()
+  const t = useI11n(bag)
 
   if (!task) return null
 
-  const { headline } = selectStatusHeaderCopy({
-    permissions,
-    myQuote,
-    isAuthenticated,
-    task,
-  })
+  const { headline } = selectStatusHeaderCopy(
+    {
+      permissions,
+      myQuote,
+      isAuthenticated,
+      task,
+    },
+    t.statusHeader,
+  )
 
   return (
     <Box

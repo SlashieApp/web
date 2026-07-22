@@ -1,5 +1,9 @@
+'use client'
+
+import { useI11n } from '@/i18n/useI11n'
 import { HStack, Text, type TextProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import bag from '../../i18n/chrome.i11n.json'
 
 import { Button } from '@ui'
 
@@ -30,6 +34,8 @@ export function HeaderGuestAuthButtons({
   loginHref: string
   signupHref: string
 }) {
+  const t = useI11n(bag)
+
   return (
     <HStack
       gap={2}
@@ -38,10 +44,10 @@ export function HeaderGuestAuthButtons({
       display={{ base: 'none', sm: 'flex' }}
     >
       <Button asChild size="sm" variant="ghost" px={2}>
-        <NextLink href={loginHref}>Log in</NextLink>
+        <NextLink href={loginHref}>{t.logIn}</NextLink>
       </Button>
       <Button asChild size="sm" variant="primary">
-        <NextLink href={signupHref}>Sign up</NextLink>
+        <NextLink href={signupHref}>{t.signUp}</NextLink>
       </Button>
     </HStack>
   )

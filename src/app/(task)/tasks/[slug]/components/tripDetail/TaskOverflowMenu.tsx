@@ -1,5 +1,6 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Stack } from '@chakra-ui/react'
 import {
   LuCircleHelp,
@@ -10,7 +11,9 @@ import {
   LuTrash2,
   LuWallet,
 } from 'react-icons/lu'
+import bag from '../../i11n.json'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { showAppToast } from '@/utils/appToast'
 import { Button, Link, useDropdownClose } from '@ui'
 
@@ -65,8 +68,10 @@ function MenuAction({
  */
 export function TaskOverflowMenu() {
   const close = useDropdownClose()
+  const href = useLocalizedHref()
+  const t = useI11n(bag)
   const { task, permissions, onCancelTask, cancelingTask } = useTaskDetail()
-  const onShare = useShareTask(task?.title?.trim() || 'Task')
+  const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
 
   if (!task) return null
 
@@ -74,7 +79,7 @@ export function TaskOverflowMenu() {
     <Stack gap={1} p={1} minW="220px">
       <MenuAction
         icon={<LuShare2 />}
-        label="Share task"
+        label={t.actions.shareTask}
         onClick={() => {
           close()
           void onShare()
@@ -83,44 +88,43 @@ export function TaskOverflowMenu() {
       {permissions.canEditTask ? (
         <MenuAction
           icon={<LuPencil />}
-          label="Edit task"
-          href={`/tasks/${task.id}/edit`}
+          label={t.actions.editTask}
+          href={href(`/tasks/${task.id}/edit`)}
           onClick={close}
         />
       ) : null}
       <MenuAction
         icon={<LuWallet />}
-        label="How payments work"
+        label={t.actions.howPaymentsWork}
         onClick={() => {
           close()
           showAppToast({
-            title: 'How payments work',
-            description:
-              'You pay (or get paid) directly. Slashie never handles job payment.',
+            title: t.actions.howPaymentsWork,
+            description: t.actions.howPaymentsDescription,
             type: 'info',
           })
         }}
       />
       <MenuAction
         icon={<LuShieldCheck />}
-        label="Report a safety issue"
+        label={t.actions.reportSafety}
         href={SAFETY_MAILTO}
         onClick={close}
       />
       <MenuAction
         icon={<LuCircleHelp />}
-        label="Get help"
+        label={t.actions.getHelp}
         href={SUPPORT_MAILTO}
         onClick={close}
       />
       <MenuAction
         icon={<LuFlag />}
-        label="Report task"
+        label={t.actions.reportTask}
         onClick={() => {
           close()
           showAppToast({
-            title: 'Report received',
-            description: 'Thanks — our safety team will review this task.',
+            title: t.actions.reportReceivedTitle,
+            description: t.actions.reportReceivedDescription,
             type: 'info',
           })
         }}
@@ -128,7 +132,7 @@ export function TaskOverflowMenu() {
       {permissions.canCancelTask ? (
         <MenuAction
           icon={<LuTrash2 />}
-          label="Cancel task"
+          label={t.actions.cancelTask}
           danger
           loading={cancelingTask}
           onClick={() => {

@@ -5,6 +5,7 @@ import {
   QuoteStatus,
   TaskContactMethod,
   TaskTimelineEventType,
+  UserLanguage,
 } from '@codegen/schema'
 import type { MeQuery } from '@codegen/schema'
 
@@ -193,6 +194,7 @@ export function storyMe(
     },
     settings: {
       isProfilePrivate: false,
+      language: UserLanguage.En,
       marketingEmails: false,
     },
     workerEligibility: true,

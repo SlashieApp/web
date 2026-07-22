@@ -1,8 +1,11 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import bag from '../../app/(dashboard)/i11n.json'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { focusVisibleMatchesHover } from '@/theme/system'
 import { ACCOUNT_NAV, type AccountNavKey } from '@/utils/accountNav'
 import { Drawer, IconButton, Link } from '@ui'
@@ -18,7 +21,7 @@ function dashboardNavRowInteraction(active: boolean) {
   }
 }
 
-function NavIcon({ type }: { type: AccountNavKey }) {
+function NavIcon({ type, title }: { type: AccountNavKey; title: string }) {
   const common = {
     width: 18,
     height: 18,
@@ -29,7 +32,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'overview') {
     return (
       <svg {...common} aria-hidden>
-        <title>Overview</title>
+        <title>{title}</title>
         <path
           d="M4 13.5L12 5l8 8.5M7 11.5V19h10v-7.5"
           stroke="currentColor"
@@ -44,7 +47,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'requests') {
     return (
       <svg {...common} aria-hidden>
-        <title>My Requests</title>
+        <title>{title}</title>
         <path
           d="M7 4h10l3 3v13H4V4h3Zm10 0v3h3"
           stroke="currentColor"
@@ -59,7 +62,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'quotes') {
     return (
       <svg {...common} aria-hidden>
-        <title>My Quotes</title>
+        <title>{title}</title>
         <path
           d="M4 8h16v11H4V8Zm4-3h8v3H8V5Z"
           stroke="currentColor"
@@ -74,7 +77,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'earnings') {
     return (
       <svg {...common} aria-hidden>
-        <title>Earnings</title>
+        <title>{title}</title>
         <path
           d="M12 3a9 9 0 1 0 9 9"
           stroke="currentColor"
@@ -95,7 +98,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'billing') {
     return (
       <svg {...common} aria-hidden>
-        <title>Billing</title>
+        <title>{title}</title>
         <rect
           x="3"
           y="6"
@@ -113,7 +116,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
   if (type === 'account') {
     return (
       <svg {...common} aria-hidden>
-        <title>Account</title>
+        <title>{title}</title>
         <circle
           cx="12"
           cy="12"
@@ -132,7 +135,7 @@ function NavIcon({ type }: { type: AccountNavKey }) {
 
   return (
     <svg {...common} aria-hidden>
-      <title>Profile</title>
+      <title>{title}</title>
       <circle cx="12" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.8" />
       <path
         d="M5.5 19c.8-2.6 3.1-4.2 6.5-4.2s5.7 1.6 6.5 4.2"
@@ -155,14 +158,18 @@ export function DashboardSectionNav({
   onNavigate,
   variant = 'sidebar',
 }: DashboardSectionNavProps) {
+  const t = useI11n(bag).sectionNav
+  const href = useLocalizedHref()
+
   return (
-    <Stack as="nav" aria-label="Dashboard sections" gap={1} w="full">
+    <Stack as="nav" aria-label={t.ariaLabel} gap={1} w="full">
       {ACCOUNT_NAV.map((item) => {
         const isActive = item.key === active
+        const copy = t[item.key]
         return (
           <Link
             key={item.key}
-            href={item.href}
+            href={href(item.href)}
             display="flex"
             alignItems="center"
             gap={3}
@@ -182,13 +189,13 @@ export function DashboardSectionNav({
               color={isActive ? 'status.success.fg' : 'text.muted'}
               flexShrink={0}
             >
-              <NavIcon type={item.key} />
+              <NavIcon type={item.key} title={copy.label} />
             </Box>
             <Stack gap={0} minW={0}>
-              <Text>{item.label}</Text>
+              <Text>{copy.label}</Text>
               {variant === 'drawer' ? (
                 <Text fontSize="xs" color="text.muted" lineClamp={2}>
-                  {item.description}
+                  {copy.description}
                 </Text>
               ) : null}
             </Stack>
@@ -199,11 +206,11 @@ export function DashboardSectionNav({
   )
 }
 
-function MenuIcon() {
+function MenuIcon({ title }: { title: string }) {
   return (
     <Box as="span" display="flex" color="currentColor" aria-hidden>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <title>Menu</title>
+        <title>{title}</title>
         <path
           d="M4 7h16M4 12h16M4 17h16"
           stroke="currentColor"
@@ -216,12 +223,13 @@ function MenuIcon() {
 }
 
 export function DashboardContextLabel({ active }: { active: AccountNavKey }) {
-  const activeItem = ACCOUNT_NAV.find((item) => item.key === active)
+  const t = useI11n(bag).sectionNav
+  const activeCopy = t[active]
 
   return (
     <Stack gap={0} minW={0} flex={1}>
       <Text fontSize="xs" color="text.muted" fontWeight={600} lineHeight={1.2}>
-        Dashboard
+        {t.contextLabel}
       </Text>
       <Text
         fontSize="sm"
@@ -230,7 +238,7 @@ export function DashboardContextLabel({ active }: { active: AccountNavKey }) {
         truncate
         lineHeight={1.3}
       >
-        {activeItem?.label ?? 'Overview'}
+        {activeCopy.label}
       </Text>
     </Stack>
   )
@@ -241,15 +249,17 @@ export function DashboardSectionMenuButton({
 }: {
   onClick: () => void
 }) {
+  const t = useI11n(bag).sectionNav
+
   return (
     <IconButton
-      aria-label="Open dashboard sections"
+      aria-label={t.openSections}
       variant="ghost"
       display={{ base: 'inline-flex', lg: 'none' }}
       flexShrink={0}
       onClick={onClick}
     >
-      <MenuIcon />
+      <MenuIcon title={t.openSections} />
     </IconButton>
   )
 }
@@ -266,14 +276,15 @@ export function DashboardSectionDrawer({
   open,
   onOpenChange,
 }: DashboardSectionDrawerProps) {
+  const t = useI11n(bag).sectionNav
   const close = useCallback(() => onOpenChange(false), [onOpenChange])
 
   return (
     <Drawer
       open={open}
       onOpenChange={onOpenChange}
-      title="Dashboard sections"
-      description="Jump between your requests, quotes, billing, and account tools."
+      title={t.drawerTitle}
+      description={t.drawerDescription}
       placement="start"
       size="sm"
     >

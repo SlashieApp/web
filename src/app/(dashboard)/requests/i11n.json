@@ -7,20 +7,32 @@
     "eyebrow": "Customer requests",
     "title": "Your requests",
     "description": "Manage posted tasks, compare worker quotes, and keep each request moving.",
+    "searchPlaceholder": "Search your requests",
+    "loading": "Loading your tasks…",
     "emptyTitle": "No requests yet",
-    "emptyDescription": "Post your first task and nearby workers can send quotes.",
-    "primaryCta": "Post a task"
+    "emptyDescription": "Post a task when you need help — quotes and bookings will show up here.",
+    "primaryCta": "Post a task",
+    "statusLabel": "Status",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "activityEmpty": "No request activity yet. Post a task to get started."
   },
   "zh_hk": {
     "metadata": {
       "title": "請求 | Slashie",
-      "description": "管理你在 Slashie 發佈的任務，並查看本地 worker 報價。"
+      "description": "管理你在 Slashie 發佈的任務，並查看本地工作者報價。"
     },
-    "eyebrow": "Customer 請求",
+    "eyebrow": "顧客請求",
     "title": "你的請求",
-    "description": "管理已發佈任務、比較 worker 報價，並推進每個請求。",
+    "description": "管理已發佈任務、比較工作者報價，並推進每個請求。",
+    "searchPlaceholder": "搜尋你的請求",
+    "loading": "正在載入你的任務…",
     "emptyTitle": "暫時沒有請求",
-    "emptyDescription": "發佈第一個任務，附近 workers 便可以傳送報價。",
-    "primaryCta": "發佈任務"
+    "emptyDescription": "有需要時發佈任務 — 報價和預約會顯示在這裡。",
+    "primaryCta": "發佈任務",
+    "statusLabel": "狀態",
+    "inProgress": "進行中",
+    "completed": "已完成",
+    "activityEmpty": "暫時沒有請求活動。發佈任務即可開始。"
   }
 }

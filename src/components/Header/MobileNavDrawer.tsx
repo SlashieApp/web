@@ -18,11 +18,14 @@ import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { Button, IconButton, Link } from '@ui'
 
+import chromeBag from '../../i18n/chrome.i11n.json'
 import { AccountMenuHeader } from './AccountMenuHeader'
 import { AccountNavPanel } from './AccountNavPanel'
 import { resolveAccountNavItems } from './accountNav.config'
+import menuBag from './i11n.json'
 
 export type MobileNavDrawerProps = {
   open: boolean
@@ -32,6 +35,8 @@ export type MobileNavDrawerProps = {
 export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
   const me = useMe()
   const href = useLocalizedHref()
+  const t = useI11n(chromeBag)
+  const menuT = useI11n(menuBag)
   const user = useUserStore((state) => state.user)
   const logout = useUserStore((state) => state.logout)
   const notifications = useNotificationsOptional()
@@ -50,7 +55,8 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
 
   if (!user) return null
   const email = user.email ?? me?.email ?? ''
-  const displayName = me?.profile?.name?.trim() || email || 'Account'
+  const displayName =
+    me?.profile?.name?.trim() || email || menuT.accountFallback
 
   return (
     <DrawerRoot
@@ -76,7 +82,7 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
             flexShrink={0}
           >
             <DrawerCloseTrigger asChild>
-              <IconButton aria-label="Close menu" variant="ghost">
+              <IconButton aria-label={t.closeMenu} variant="ghost">
                 ×
               </IconButton>
             </DrawerCloseTrigger>
@@ -85,7 +91,7 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
 
             {postTaskBlocked ? (
               <Button size="sm" variant="secondary" disabled>
-                Post a task
+                {t.postTask}
               </Button>
             ) : (
               <Link
@@ -93,7 +99,7 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
                 _hover={{ textDecoration: 'none' }}
                 onClick={close}
               >
-                <Button size="sm">Post a task</Button>
+                <Button size="sm">{t.postTask}</Button>
               </Link>
             )}
           </HStack>

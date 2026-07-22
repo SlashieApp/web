@@ -1,8 +1,10 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
+import bag from '../i11n.json'
 
 import { DashboardSectionNav, Header } from '@/components/Header'
 import { Button, Footer, Link } from '@ui'
@@ -10,6 +12,8 @@ import { Button, Footer, Link } from '@ui'
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { resolveAccountNavKey } from '@/utils/accountNav'
 
@@ -39,15 +43,19 @@ function completionFromMe(me: MeSnapshot) {
 /** Unified account hub shell — fixed header + nav; only main content scrolls. */
 export function AccountShell({ children }: AccountShellProps) {
   const pathname = usePathname()
+  const href = useLocalizedHref()
+  const t = useI11n(bag)
   const active = resolveAccountNavKey(pathname)
   const me = useUserStore((state) => state.me)
   if (!me) return null
   const completion = completionFromMe(me)
   const setupComplete = isWorkerSetupComplete(me)
-  const profileLinkLabel = setupComplete ? 'Manage profile' : 'Continue setup'
-  const profileLinkHref = setupComplete
-    ? '/profile'
-    : workerSetupHref(pathname ?? '/profile')
+  const profileLinkLabel = setupComplete
+    ? t.shell.manageProfile
+    : t.shell.continueSetup
+  const profileLinkHref = href(
+    setupComplete ? '/profile' : workerSetupHref(pathname ?? '/profile'),
+  )
 
   return (
     <Box
@@ -78,17 +86,20 @@ export function AccountShell({ children }: AccountShellProps) {
               <Stack p={4} gap={3} bg="status.success.soft" borderRadius="xl">
                 <Stack gap={0.5}>
                   <Text fontSize="sm" fontWeight={700}>
-                    Complete your profile
+                    {t.shell.completeProfileTitle}
                   </Text>
                   <Text fontSize="xs" color="status.success.fg">
-                    Stand out and get more work.
+                    {t.shell.completeProfileDescription}
                   </Text>
                 </Stack>
 
                 <Stack gap={2}>
                   <HStack justify="space-between">
                     <Text fontSize="xs" color="status.success.fg">
-                      {completion.done}/{completion.total} complete
+                      {formatMessage(t.shell.completeCount, {
+                        done: completion.done,
+                        total: completion.total,
+                      })}
                     </Text>
                     <Text
                       fontSize="xs"
@@ -123,8 +134,7 @@ export function AccountShell({ children }: AccountShellProps) {
               </Stack>
 
               <Text fontSize="xs" color="text.muted">
-                Payments are arranged directly between customer and worker
-                outside Slashie.
+                {t.shell.paymentsDisclaimer}
               </Text>
             </Box>
           </Stack>

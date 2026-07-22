@@ -12,6 +12,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, Card, FormField, Input, Link, Select } from '@ui'
@@ -30,6 +31,7 @@ const TODAY = new Date().toISOString().slice(0, 10)
 export function ProfileDetailsForm() {
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
+  const href = useLocalizedHref()
 
   const formValues = useMemo<ProfileApiFormValues>(() => {
     if (!me) {
@@ -191,7 +193,7 @@ export function ProfileDetailsForm() {
                   Email and phone unlock once verified.
                 </Text>
                 <Link
-                  href="/account"
+                  href={href('/account')}
                   alignSelf="flex-start"
                   _hover={{ textDecoration: 'none' }}
                 >

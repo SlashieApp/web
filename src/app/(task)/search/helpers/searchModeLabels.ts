@@ -1,16 +1,35 @@
 import type { SearchMode } from './searchQueryParams'
 
-/** Inline button label in the collapsed “Searching for … nearby” sentence. */
-export const SEARCH_MODE_INLINE_LABEL: Record<SearchMode, string> = {
-  tasks: 'tasks',
-  workers: 'worker',
+/** Stable mode order for the segmented control (labels come from i11n). */
+export const SEARCH_MODE_VALUES = [
+  'tasks',
+  'workers',
+] as const satisfies ReadonlyArray<SearchMode>
+
+export type SearchModeCopy = {
+  searchingFor: string
+  nearby: string
+  ariaSearchingFor: string
+  ariaSearchMode: string
+  tasksInline: string
+  workerInline: string
+  tasksToggle: string
+  workersToggle: string
 }
 
-/** Segmented toggle labels. */
-export const SEARCH_MODE_TOGGLE_OPTIONS: ReadonlyArray<{
+export function searchModeInlineLabel(
+  copy: SearchModeCopy,
+  mode: SearchMode,
+): string {
+  return mode === 'workers' ? copy.workerInline : copy.tasksInline
+}
+
+export function searchModeToggleOptions(copy: SearchModeCopy): ReadonlyArray<{
   value: SearchMode
   label: string
-}> = [
-  { value: 'tasks', label: 'Tasks' },
-  { value: 'workers', label: 'Workers' },
-]
+}> {
+  return [
+    { value: 'tasks', label: copy.tasksToggle },
+    { value: 'workers', label: copy.workersToggle },
+  ]
+}

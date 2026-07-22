@@ -5,7 +5,8 @@ import { LuCircleCheck, LuClock3, LuInfo, LuWallet } from 'react-icons/lu'
 
 import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
 import { DashboardSectionCard } from '@/app/(dashboard)/components/DashboardSectionCard'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
 import {
   formatOrderAgreedPrice,
@@ -22,7 +23,8 @@ import bag from './i11n.json'
  * tallies order amounts for your records.
  */
 export default function EarningsPage() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   const {
     loading,
     errorMessage,
@@ -75,7 +77,7 @@ export default function EarningsPage() {
                 {t.referenceBody}
               </Text>
               <Link
-                href="/billing"
+                href={href('/billing')}
                 fontSize="sm"
                 fontWeight={600}
                 color="text.link"
@@ -200,7 +202,7 @@ function OrderEarningsCard({
   title,
   meta,
   amount,
-  href,
+  href: path,
   badge,
   linkLabel = 'Open',
 }: {
@@ -211,8 +213,9 @@ function OrderEarningsCard({
   badge: React.ReactNode
   linkLabel?: string
 }) {
+  const href = useLocalizedHref()
   return (
-    <Link href={href} _hover={{ textDecoration: 'none' }}>
+    <Link href={href(path)} _hover={{ textDecoration: 'none' }}>
       <Card layout="section" p={{ base: 4, md: 5 }}>
         <HStack
           justify="space-between"

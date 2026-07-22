@@ -1,6 +1,8 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { InfoBar } from '@ui'
+import bag from '../../../i11n.json'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 
@@ -10,6 +12,7 @@ import { useTaskDetail } from '../../../context/TaskDetailProvider'
  */
 export function TrustCard() {
   const { permissions } = useTaskDetail()
+  const t = useI11n(bag)
   const isOwner = permissions.isOwner
 
   return (
@@ -17,17 +20,11 @@ export function TrustCard() {
       tone="success"
       icon={<span aria-hidden>£</span>}
       hideBadge
-      heading={
-        isOwner
-          ? 'You pay the worker directly'
-          : 'You get paid by the customer directly'
-      }
-      linkLabel="How payments work"
+      heading={isOwner ? t.trust.ownerHeading : t.trust.workerHeading}
+      linkLabel={t.trust.linkLabel}
       linkHref="#how-payments-work"
     >
-      {isOwner
-        ? 'Slashie never handles job payment. Agree a price and pay your worker directly. Quotes and bookings happen here, money does not.'
-        : 'Slashie never handles job payment. Agree a price and get paid by the customer directly. Quotes and bookings happen here, money does not.'}
+      {isOwner ? t.trust.ownerBody : t.trust.workerBody}
     </InfoBar>
   )
 }

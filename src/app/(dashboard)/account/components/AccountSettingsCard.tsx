@@ -10,7 +10,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { DashboardSectionCard } from '@/app/(dashboard)/components/DashboardSectionCard'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import bag from '../i11n.json'
@@ -57,7 +57,7 @@ function SettingToggle({
 export function AccountSettingsCard() {
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState<ToggleKey | null>(null)
 

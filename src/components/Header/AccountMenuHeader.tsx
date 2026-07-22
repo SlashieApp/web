@@ -1,7 +1,9 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
+import bag from './i11n.json'
 
 import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
 import { MembershipStatusBadge } from '@/app/(dashboard)/components/membership/MembershipStatusBadge'
@@ -10,6 +12,7 @@ import {
   membershipStatusDetailText,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { Link } from '@ui'
 
 export type AccountMenuHeaderProps = {
@@ -43,6 +46,7 @@ function QuoteUsageMeter({
 }: {
   membership: WorkerMembershipFieldsFragment
 }) {
+  const t = useI11n(bag)
   const used = membership.quotesUsedThisMonth
   const total = Math.max(membership.freeQuotesPerMonth, 1)
   const pct = Math.min(100, Math.round((used / total) * 100))
@@ -51,7 +55,7 @@ function QuoteUsageMeter({
     <Stack gap={1.5}>
       <HStack justify="space-between" align="baseline">
         <Text fontSize="xs" color="text.muted">
-          Quotes this month
+          {t.quotesThisMonth}
         </Text>
         <Text fontSize="xs" fontWeight={700} color="text.default">
           {used} / {total}
@@ -66,7 +70,7 @@ function QuoteUsageMeter({
         aria-valuenow={used}
         aria-valuemin={0}
         aria-valuemax={total}
-        aria-label={`${used} of ${total} quotes used this month`}
+        aria-label={formatMessage(t.quotesUsedAria, { used, total })}
       >
         <Box h="full" w={`${pct}%`} bg="action.primary" borderRadius="full" />
       </Box>
@@ -76,14 +80,15 @@ function QuoteUsageMeter({
 
 function CustomerMembershipSection() {
   const href = useLocalizedHref()
+  const t = useI11n(bag)
 
   return (
     <Stack gap={1}>
       <Text fontSize="sm" fontWeight={700} color="text.default">
-        Post tasks for free
+        {t.postTasksForFree}
       </Text>
       <Text fontSize="xs" color="text.muted" lineHeight="tall">
-        Compare quotes from local workers on your posted tasks.
+        {t.postTasksForFreeDescription}
       </Text>
       <Link
         href={href('/worker/setup')}
@@ -92,7 +97,7 @@ function CustomerMembershipSection() {
         fontWeight={600}
         color="text.link"
       >
-        Become a worker
+        {t.becomeWorker}
       </Link>
     </Stack>
   )
@@ -104,6 +109,7 @@ function WorkerMembershipSection({
   membership: WorkerMembershipFieldsFragment
 }) {
   const href = useLocalizedHref()
+  const t = useI11n(bag)
   const unlimited = hasUnlimitedQuoting(membership)
   const detail =
     membership.statusDescription?.trim() ||
@@ -136,7 +142,7 @@ function WorkerMembershipSection({
               fontWeight={600}
               color="text.link"
             >
-              Upgrade
+              {t.upgrade}
             </Link>
           ) : null}
           {membership.canManageBilling ? (
@@ -147,7 +153,7 @@ function WorkerMembershipSection({
               fontWeight={600}
               color="text.link"
             >
-              Manage billing
+              {t.manageBilling}
             </Link>
           ) : null}
         </HStack>
@@ -165,6 +171,7 @@ export function AccountMenuHeader({
   onViewProfile,
 }: AccountMenuHeaderProps) {
   const href = useLocalizedHref()
+  const t = useI11n(bag)
 
   return (
     <Stack gap={0}>
@@ -195,7 +202,7 @@ export function AccountMenuHeader({
             color="text.link"
             onClick={onViewProfile}
           >
-            View profile
+            {t.viewProfile}
           </Link>
         </Stack>
       </HStack>

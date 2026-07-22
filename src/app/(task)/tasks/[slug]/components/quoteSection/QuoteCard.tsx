@@ -1,9 +1,13 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { LuCheck, LuChevronRight } from 'react-icons/lu'
+import bag from '../../i11n.json'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { Button, Link } from '@ui'
 
 function avatarGradient(seed: string): string {
@@ -49,22 +53,19 @@ export type QuoteCardProps = {
 
 const STATUS_BADGE_STYLES: Record<
   QuoteCardStatusBadge,
-  { label: string; bg: string; color: string; borderColor: string }
+  { bg: string; color: string; borderColor: string }
 > = {
   accepted: {
-    label: 'Accepted',
     bg: 'status.success.soft',
     color: 'status.success.fg',
     borderColor: 'status.success.soft',
   },
   declined: {
-    label: 'Declined',
     bg: 'bg.subtle',
     color: 'text.muted',
     borderColor: 'border.default',
   },
   yours: {
-    label: 'Your quote',
     bg: 'bg.surface',
     color: 'status.success.fg',
     borderColor: 'status.success.solid',
@@ -82,7 +83,7 @@ export function QuoteCard({
   availabilityLabel,
   statusBadge,
   showVerified = false,
-  ratingLine = 'No reviews yet',
+  ratingLine,
   showPrice = true,
   variant = 'list',
   acceptPrimary = false,
@@ -95,16 +96,28 @@ export function QuoteCard({
   detailHref,
   workerProfileHref,
 }: QuoteCardProps) {
-  const profileHref = workerProfileHref ?? detailHref ?? '/quotes'
-  const profileLinkLabel = workerProfileHref ? 'View profile' : 'Messages'
+  const href = useLocalizedHref()
+  const { quotes: q } = useI11n(bag)
+  const card = q.card
+
+  const profileHref = href(workerProfileHref ?? detailHref ?? '/quotes')
+  const profileLinkLabel = workerProfileHref ? card.viewProfile : card.messages
+  // Default only when omitted (`undefined`); explicit `null` still hides the row.
+  const displayRating = ratingLine === undefined ? card.noReviews : ratingLine
   const body =
     message && message.trim().length > 0
       ? message.length > (variant === 'card' ? 160 : 220)
         ? `${message.slice(0, variant === 'card' ? 157 : 217).trim()}…`
         : message
-      : 'No message provided with this quote.'
+      : card.noMessage
 
   const isCard = variant === 'card'
+
+  const statusLabels: Record<QuoteCardStatusBadge, string> = {
+    accepted: card.accepted,
+    declined: card.declined,
+    yours: card.yours,
+  }
 
   const avatar = (
     <QuoteCardAvatar
@@ -117,7 +130,7 @@ export function QuoteCard({
 
   const nameBlock = workerProfileHref ? (
     <Link
-      href={workerProfileHref}
+      href={href(workerProfileHref)}
       _hover={{ textDecoration: 'none', color: 'text.link' }}
     >
       <Heading size="sm" lineHeight="short">
@@ -135,29 +148,30 @@ export function QuoteCard({
       <Text as="span" color="status.warning.solid" aria-hidden>
         ★
       </Text>
-      <Text as="span">{ratingLine}</Text>
+      <Text as="span">{displayRating}</Text>
     </HStack>
   )
 
   const badgeStyle = statusBadge ? STATUS_BADGE_STYLES[statusBadge] : null
-  const statusBadgeEl = badgeStyle ? (
-    <Box
-      as="span"
-      display="inline-block"
-      px={2.5}
-      py={0.5}
-      borderRadius="full"
-      borderWidth="1px"
-      borderColor={badgeStyle.borderColor}
-      bg={badgeStyle.bg}
-      color={badgeStyle.color}
-      fontSize="xs"
-      fontWeight={700}
-      whiteSpace="nowrap"
-    >
-      {badgeStyle.label}
-    </Box>
-  ) : null
+  const statusBadgeEl =
+    badgeStyle && statusBadge ? (
+      <Box
+        as="span"
+        display="inline-block"
+        px={2.5}
+        py={0.5}
+        borderRadius="full"
+        borderWidth="1px"
+        borderColor={badgeStyle.borderColor}
+        bg={badgeStyle.bg}
+        color={badgeStyle.color}
+        fontSize="xs"
+        fontWeight={700}
+        whiteSpace="nowrap"
+      >
+        {statusLabels[statusBadge]}
+      </Box>
+    ) : null
 
   const priceBlock =
     (showPrice && priceLabel) || statusBadgeEl ? (
@@ -200,7 +214,7 @@ export function QuoteCard({
 
   const actionBlock = isOwnQuote ? (
     <Button size="sm" variant="secondary" disabled w="full">
-      Your quote
+      {card.yours}
     </Button>
   ) : onAccept || onDecline ? (
     // Decline (ghost) beside Accept (primary), per the quotes-module mockup.
@@ -217,7 +231,7 @@ export function QuoteCard({
           disabled={acceptLoading || acceptDisabled}
           onClick={onDecline}
         >
-          Decline
+          {card.decline}
         </Button>
       ) : null}
       {onAccept ? (
@@ -229,11 +243,13 @@ export function QuoteCard({
           onClick={onAccept}
           variant="primary"
         >
-          Accept
+          {card.accept}
         </Button>
       ) : null}
     </HStack>
   ) : null
+
+  const profileAria = formatMessage(card.viewProfileFor, { name })
 
   if (isCard) {
     return (
@@ -250,10 +266,10 @@ export function QuoteCard({
           <HStack align="flex-start" gap={3} flex={1} minW={0}>
             {workerProfileHref ? (
               <Link
-                href={workerProfileHref}
+                href={href(workerProfileHref)}
                 flexShrink={0}
                 _hover={{ textDecoration: 'none' }}
-                aria-label={`View profile for ${name}`}
+                aria-label={profileAria}
               >
                 {avatar}
               </Link>
@@ -290,10 +306,10 @@ export function QuoteCard({
         <HStack align="flex-start" gap={3} flex={1} minW={0}>
           {workerProfileHref ? (
             <Link
-              href={workerProfileHref}
+              href={href(workerProfileHref)}
               flexShrink={0}
               _hover={{ textDecoration: 'none' }}
-              aria-label={`View profile for ${name}`}
+              aria-label={profileAria}
             >
               {avatar}
             </Link>
@@ -305,7 +321,7 @@ export function QuoteCard({
               {nameBlock}
               {showVerified ? <VerifiedBadge /> : null}
             </HStack>
-            {ratingLine ? ratingRow : null}
+            {displayRating ? ratingRow : null}
           </Stack>
         </HStack>
         <HStack align="flex-start" gap={0} flexShrink={0}>
@@ -351,6 +367,7 @@ export function QuoteCard({
 }
 
 function VerifiedBadge() {
+  const { quotes: q } = useI11n(bag)
   return (
     <Box
       as="span"
@@ -362,7 +379,7 @@ function VerifiedBadge() {
       bg="action.primary"
       color="text.onGreen"
       flexShrink={0}
-      aria-label="Verified on Slashie"
+      aria-label={q.card.verified}
     >
       <LuCheck size={12} strokeWidth={3} aria-hidden />
     </Box>
@@ -383,6 +400,7 @@ export function QuoteCardAvatar({
   // Broken/forbidden image URLs (e.g. object-storage 403) fall back to
   // initials instead of a blank circle with a broken-image glyph.
   const [imageFailed, setImageFailed] = useState(false)
+  const { quotes: q } = useI11n(bag)
   const showImage = Boolean(avatarUrl?.trim()) && !imageFailed
 
   return (
@@ -404,7 +422,7 @@ export function QuoteCardAvatar({
       {showImage && avatarUrl ? (
         <Image
           src={avatarUrl}
-          alt={`${name} avatar`}
+          alt={formatMessage(q.card.avatarAlt, { name })}
           w="full"
           h="full"
           objectFit="cover"

@@ -1,7 +1,11 @@
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { QuoteStatus } from '@codegen/schema'
+
+import type { TaskDetailContextValue } from '../../context/TaskDetailContext'
+import type bag from '../../i11n.json'
 import type { TaskStatusValue } from './TaskStatusPill'
 
-import { QuoteStatus } from '@codegen/schema'
-import type { TaskDetailContextValue } from '../../context/TaskDetailContext'
+type TaskDetailI11n = (typeof bag)['en']
 
 export type StatusHeaderCopy = {
   /** StatusPill family for the current task phase. */
@@ -20,6 +24,7 @@ export function selectStatusHeaderCopy(
     TaskDetailContextValue,
     'permissions' | 'myQuote' | 'isAuthenticated' | 'task'
   >,
+  copy: TaskDetailI11n['statusHeader'],
 ): StatusHeaderCopy {
   const { permissions: p, myQuote, isAuthenticated, task } = ctx
   const quoteCount = task?.quotes.length ?? 0
@@ -27,16 +32,16 @@ export function selectStatusHeaderCopy(
   if (p.isCancelled) {
     return {
       pill: 'CANCELLED',
-      headline: 'Task cancelled',
-      subtext: 'This task is no longer active.',
+      headline: copy.cancelledHeadline,
+      subtext: copy.cancelledSubtext,
     }
   }
 
   if (p.isClosed) {
     return {
       pill: 'CLOSED',
-      headline: 'Job complete',
-      subtext: 'This job has been completed and closed.',
+      headline: copy.closedHeadline,
+      subtext: copy.closedSubtext,
     }
   }
 
@@ -44,22 +49,21 @@ export function selectStatusHeaderCopy(
     if (p.showCustomerCompletionCode) {
       return {
         pill: 'AWARDED',
-        headline: 'Worker booked - share your code when done',
-        subtext:
-          'Coordinate on site, pay them directly, then share your completion code.',
+        headline: copy.awardedCustomerHeadline,
+        subtext: copy.awardedCustomerSubtext,
       }
     }
     if (p.showWorkerJobBanner) {
       return {
         pill: 'AWARDED',
-        headline: 'Job confirmed',
-        subtext: 'You are booked. Complete the work, then enter the code.',
+        headline: copy.awardedWorkerHeadline,
+        subtext: copy.awardedWorkerSubtext,
       }
     }
     return {
       pill: 'AWARDED',
-      headline: 'Worker booked',
-      subtext: 'This task has been awarded to a worker.',
+      headline: copy.awardedDefaultHeadline,
+      subtext: copy.awardedDefaultSubtext,
     }
   }
 
@@ -68,23 +72,26 @@ export function selectStatusHeaderCopy(
     return quoteCount >= 1
       ? {
           pill: 'OPEN',
-          headline: `${quoteCount} ${quoteCount === 1 ? 'quote' : 'quotes'} - compare and accept`,
-          subtext: 'Review each quote and accept the worker you want.',
+          headline: formatMessage(
+            quoteCount === 1
+              ? copy.ownerQuotesHeadline
+              : copy.ownerQuotesHeadlinePlural,
+            { count: quoteCount },
+          ),
+          subtext: copy.ownerQuotesSubtext,
         }
       : {
           pill: 'OPEN',
-          headline: 'Your task is live - reaching workers',
-          subtext:
-            'Nearby workers can see your task. Share it to get quotes faster.',
+          headline: copy.ownerLiveHeadline,
+          subtext: copy.ownerLiveSubtext,
         }
   }
 
   if (myQuote?.status === QuoteStatus.Pending) {
     return {
       pill: 'OPEN',
-      headline: 'Quote sent',
-      subtext:
-        'The customer has your quote. We will notify you of any response.',
+      headline: copy.quoteSentHeadline,
+      subtext: copy.quoteSentSubtext,
     }
   }
 
@@ -93,26 +100,28 @@ export function selectStatusHeaderCopy(
       pill: 'OPEN',
       headline:
         quoteCount >= 1
-          ? `Open for quotes - ${quoteCount} so far`
-          : 'Open for quotes',
-      subtext: 'Send your price and availability to win this job.',
+          ? formatMessage(copy.openQuotesWithCountHeadline, {
+              count: quoteCount,
+            })
+          : copy.openQuotesHeadline,
+      subtext: copy.openQuotesSubtext,
     }
   }
 
   if (p.showQuoteUnavailableNotice) {
     return {
       pill: 'OPEN',
-      headline: 'This task is full',
-      subtext: 'This task is no longer accepting new quotes.',
+      headline: copy.fullHeadline,
+      subtext: copy.fullSubtext,
     }
   }
 
   // Visitor (not authenticated) or any other OPEN viewer.
   return {
     pill: 'OPEN',
-    headline: 'Open for quotes',
+    headline: copy.openQuotesHeadline,
     subtext: isAuthenticated
-      ? 'This task is open for quotes.'
-      : 'Sign in as a worker to send a quote.',
+      ? copy.visitorAuthedSubtext
+      : copy.visitorGuestSubtext,
   }
 }

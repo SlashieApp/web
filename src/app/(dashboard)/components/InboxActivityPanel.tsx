@@ -1,7 +1,10 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import bag from '../i11n.json'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatRelativeAgo } from '@/utils/dashboardHelpers'
 import { Button, Card, Link, SpotIllustration } from '@ui'
 
@@ -13,13 +16,13 @@ import type {
 export function InboxActivityPanel({
   rows,
   loading = false,
-  emptyMessage = 'No activity yet.',
+  emptyMessage,
   emptyActionHref,
   emptyActionLabel,
-  title = 'Activity',
-  description = 'Latest updates on your tasks and bookings.',
+  title,
+  description,
   viewAllHref,
-  viewAllLabel = 'View all',
+  viewAllLabel,
 }: {
   rows: readonly NotificationActivityRow[]
   loading?: boolean
@@ -31,50 +34,60 @@ export function InboxActivityPanel({
   viewAllHref?: string
   viewAllLabel?: string
 }) {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
+  const resolvedTitle = title ?? t.inbox.activity
+  const resolvedDescription = description ?? t.inbox.description
+  const resolvedViewAllLabel = viewAllLabel ?? t.inbox.viewAll
+  const resolvedEmptyMessage = emptyMessage ?? t.inbox.empty
+
   return (
     <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
         <HStack justify="space-between" gap={3} align="flex-start">
           <Stack gap={1}>
             <Text fontWeight={700} fontSize="md" color="text.default">
-              {title}
+              {resolvedTitle}
             </Text>
             <Text fontSize="sm" color="text.muted">
-              {description}
+              {resolvedDescription}
             </Text>
           </Stack>
           {viewAllHref ? (
             <Link
-              href={viewAllHref}
+              href={href(viewAllHref)}
               fontSize="sm"
               fontWeight={600}
               color="text.link"
               flexShrink={0}
               _hover={{ textDecoration: 'none', color: 'text.link' }}
             >
-              {viewAllLabel}
+              {resolvedViewAllLabel}
             </Link>
           ) : null}
         </HStack>
 
         {loading && rows.length === 0 ? (
           <Text as="output" color="text.muted" fontSize="sm">
-            Loading activity…
+            {t.inbox.loading}
           </Text>
         ) : rows.length === 0 ? (
           emptyActionHref && emptyActionLabel ? (
             <Stack align="center" textAlign="center" gap={3} py={2} w="full">
               <SpotIllustration variant="quotes" width={120} />
               <Text fontSize="lg" fontWeight={600} color="text.default">
-                {emptyMessage}
+                {resolvedEmptyMessage}
               </Text>
-              <Link href={emptyActionHref} _hover={{ textDecoration: 'none' }}>
+              <Link
+                href={href(emptyActionHref)}
+                _hover={{ textDecoration: 'none' }}
+              >
                 <Button size="sm">{emptyActionLabel}</Button>
               </Link>
             </Stack>
           ) : (
             <Text color="text.muted" fontSize="sm">
-              {emptyMessage}
+              {resolvedEmptyMessage}
             </Text>
           )
         ) : (
@@ -111,7 +124,7 @@ export function InboxActivityPanel({
               return item.href ? (
                 <Link
                   key={item.id}
-                  href={item.href}
+                  href={href(item.href)}
                   display="block"
                   _hover={{ textDecoration: 'none', bg: 'status.success.soft' }}
                   borderRadius="md"

@@ -8,25 +8,129 @@
     "title": "Your worker cockpit",
     "description": "Track active jobs, quotes, earnings, and next actions from one focused view.",
     "browseTasks": "Browse tasks",
-    "postTask": "Post task",
+    "postTask": "Post a task",
     "retry": "Retry",
     "emptyTitle": "No active work yet",
     "emptyDescription": "Browse open tasks and send quotes to start filling your dashboard.",
-    "primaryCta": "Find tasks"
+    "primaryCta": "Find tasks",
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening",
+      "fallbackName": "there"
+    },
+    "role": {
+      "customer": "Customer",
+      "worker": "Worker"
+    },
+    "stats": {
+      "posted": "Posted tasks",
+      "postedHelper": "{open} open · {awaiting} awaiting quotes",
+      "quotes": "Quotes sent",
+      "quotesHelper": "{awaiting} awaiting a response",
+      "orders": "Open orders",
+      "ordersHelper": "Active jobs in progress",
+      "earnings": "Pending earnings",
+      "earningsHelper": "{closed} completed jobs"
+    },
+    "upcoming": {
+      "title": "Upcoming accepted jobs",
+      "description": "Sorted by scheduled date when the task uses an exact time.",
+      "viewAllQuotes": "View all quotes"
+    },
+    "activity": {
+      "title": "Recent activity",
+      "description": "Latest updates across your requests, jobs, and quotes.",
+      "viewAll": "View all",
+      "empty": "No activity yet. Start by posting a task or sending a quote.",
+      "emptyAction": "Post a task"
+    },
+    "membershipEmpty": {
+      "title": "Platform membership",
+      "description": "Post tasks for free as a customer, or become a worker to send quotes.",
+      "body": "Compare quotes from local workers. Job payments stay between you and your pro — not through Slashie.",
+      "becomeWorker": "Become a worker"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "postTitle": "Post a task",
+      "postSubtitle": "Get quotes from local workers",
+      "browseTitle": "Browse tasks",
+      "browseSubtitle": "Find work and send quotes",
+      "requestsTitle": "My requests",
+      "requestsSubtitle": "Track posted tasks and quotes",
+      "quotesTitle": "My Quotes",
+      "quotesSubtitle": "Track quotes you sent on tasks",
+      "profileTitle": "Complete profile",
+      "profileSubtitleWorker": "Keep your worker profile fresh",
+      "profileSubtitleCustomer": "Set up your worker profile"
+    }
   },
   "zh_hk": {
     "metadata": {
-      "title": "Dashboard | Slashie",
-      "description": "查看你的 Slashie worker 工作、報價、會員、活動和即將處理的任務。"
+      "title": "儀表板 | Slashie",
+      "description": "查看你的 Slashie 工作者工作、報價、會員、活動和即將處理的任務。"
     },
-    "eyebrow": "Worker dashboard",
-    "title": "你的 worker 工作台",
+    "eyebrow": "工作者儀表板",
+    "title": "你的工作者工作台",
     "description": "在一個清晰畫面追蹤進行中的工作、報價、收入和下一步。",
     "browseTasks": "瀏覽任務",
-    "postTask": "發佈任務",
+    "postTask": "發布任務",
     "retry": "重試",
     "emptyTitle": "暫時沒有進行中的工作",
-    "emptyDescription": "瀏覽公開任務並傳送報價，開始建立你的 dashboard。",
-    "primaryCta": "尋找任務"
+    "emptyDescription": "瀏覽公開任務並傳送報價，開始建立你的儀表板。",
+    "primaryCta": "尋找任務",
+    "greeting": {
+      "morning": "早晨好",
+      "afternoon": "下午好",
+      "evening": "晚上好",
+      "fallbackName": "你好"
+    },
+    "role": {
+      "customer": "顧客",
+      "worker": "工作者"
+    },
+    "stats": {
+      "posted": "已發布任務",
+      "postedHelper": "{open} 個進行中 · {awaiting} 個等待報價",
+      "quotes": "已傳送報價",
+      "quotesHelper": "{awaiting} 個等待回覆",
+      "orders": "進行中訂單",
+      "ordersHelper": "進行中的工作",
+      "earnings": "待收收入",
+      "earningsHelper": "{closed} 個已完成工作"
+    },
+    "upcoming": {
+      "title": "即將進行的已接受工作",
+      "description": "如任務使用確切時間，會按排程日期排序。",
+      "viewAllQuotes": "查看全部報價"
+    },
+    "activity": {
+      "title": "最近活動",
+      "description": "你的請求、工作和報價的最新更新。",
+      "viewAll": "查看全部",
+      "empty": "暫時沒有活動。先發布任務或傳送報價。",
+      "emptyAction": "發布任務"
+    },
+    "membershipEmpty": {
+      "title": "平台會員",
+      "description": "以顧客身份免費發布任務，或成為工作者以傳送報價。",
+      "body": "比較本地工作者的報價。工作款項由你與專業人士直接處理 — 不經 Slashie。",
+      "becomeWorker": "成為工作者"
+    },
+    "quickActions": {
+      "title": "快捷操作",
+      "postTitle": "發布任務",
+      "postSubtitle": "向本地工作者索取報價",
+      "browseTitle": "瀏覽任務",
+      "browseSubtitle": "尋找工作並傳送報價",
+      "requestsTitle": "我的請求",
+      "requestsSubtitle": "追蹤已發布任務和報價",
+      "quotesTitle": "我的報價",
+      "quotesSubtitle": "追蹤你傳送的報價",
+      "profileTitle": "完善個人檔案",
+      "profileSubtitleWorker": "保持工作者檔案最新",
+      "profileSubtitleCustomer": "設定你的工作者檔案"
+    }
   }
 }

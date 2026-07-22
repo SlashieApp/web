@@ -10,7 +10,8 @@ import {
   DashboardDetailRow,
   DashboardSectionCard,
 } from '@/app/(dashboard)/components/DashboardSectionCard'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, Link } from '@ui'
 
 import { MembershipRefreshOnMount } from '../components/MembershipRefreshOnMount'
@@ -21,13 +22,14 @@ import bag from './i11n.json'
 
 export default function AccountPage() {
   const router = useRouter()
+  const href = useLocalizedHref()
   const me = useUserStore((s) => s.me)
   const logout = useUserStore((s) => s.logout)
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
 
   const handleLogout = () => {
     logout()
-    router.push('/')
+    router.push(href('/'))
   }
 
   if (!me) return null
@@ -53,7 +55,7 @@ export default function AccountPage() {
         description={
           <>
             {t.descriptionBefore}{' '}
-            <Link href="/profile" color="text.link">
+            <Link href={href('/profile')} color="text.link">
               {t.profileLink}
             </Link>
             {t.descriptionAfter}
@@ -81,7 +83,7 @@ export default function AccountPage() {
             >
               <Stack gap={3}>
                 <Link
-                  href="/profile"
+                  href={href('/profile')}
                   fontSize="sm"
                   fontWeight={600}
                   color="text.link"
@@ -89,7 +91,7 @@ export default function AccountPage() {
                   {t.profilePresence}
                 </Link>
                 <Link
-                  href="/billing"
+                  href={href('/billing')}
                   fontSize="sm"
                   fontWeight={600}
                   color="text.link"
@@ -98,7 +100,7 @@ export default function AccountPage() {
                 </Link>
                 {me.worker?.id ? (
                   <Link
-                    href="/earnings"
+                    href={href('/earnings')}
                     fontSize="sm"
                     fontWeight={600}
                     color="text.link"
@@ -107,7 +109,7 @@ export default function AccountPage() {
                   </Link>
                 ) : null}
                 <Link
-                  href="/profile?section=preferences"
+                  href={href('/profile?section=preferences')}
                   fontSize="sm"
                   fontWeight={600}
                   color="text.link"
@@ -144,7 +146,10 @@ export default function AccountPage() {
               value={t.passwordValue}
             />
             <Box>
-              <Link href="/forgot-password" _hover={{ textDecoration: 'none' }}>
+              <Link
+                href={href('/forgot-password')}
+                _hover={{ textDecoration: 'none' }}
+              >
                 <Button size="sm" variant="ghost">
                   {t.resetPassword}
                 </Button>

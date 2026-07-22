@@ -5,7 +5,8 @@ import { Box, Grid, Stack } from '@chakra-ui/react'
 import { Button, Link } from '@ui'
 
 import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
 import bag from '../i11n.json'
@@ -20,7 +21,8 @@ import { PostedTaskUpcoming } from './PostedTaskUpcoming'
 
 export function MyRequestsLayout() {
   const { taskRows } = useMyRequestsPage()
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
 
   return (
     <DashboardPageLayout
@@ -28,7 +30,7 @@ export function MyRequestsLayout() {
       title={t.title}
       description={t.description}
       actions={
-        <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+        <Link href={href('/tasks/create')} _hover={{ textDecoration: 'none' }}>
           <Button size="sm">{t.primaryCta}</Button>
         </Link>
       }

@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react'
 
 import { TASK_CREATE_CATEGORY_OPTIONS } from '@/app/(task)/helpers/taskCategories'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Button, Input, Select } from '@ui'
 
 import {
@@ -18,6 +19,7 @@ import {
   type InboxSortChoice,
 } from '../../helpers/useTaskInboxFilters'
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
+import bag from '../i11n.json'
 
 const STAGE_FILTERS: PostedTaskListFilter[] = ['all', 'quoting', 'booked']
 
@@ -91,6 +93,7 @@ function FilterAccordion({
 }
 
 export function MyRequestsFilterColumn() {
+  const t = useI11n(bag)
   const {
     activeRows,
     completedRows,
@@ -131,7 +134,7 @@ export function MyRequestsFilterColumn() {
       borderColor="border.default"
     >
       <Stack gap={2}>
-        <Text {...SECTION_LABEL}>Status</Text>
+        <Text {...SECTION_LABEL}>{t.statusLabel}</Text>
         <Stack gap={1.5}>
           <Button
             type="button"
@@ -141,7 +144,7 @@ export function MyRequestsFilterColumn() {
             variant={tab === 'active' ? 'primary' : 'ghost'}
             onClick={() => setTab('active')}
           >
-            <Text>In progress</Text>
+            <Text>{t.inProgress}</Text>
             <Text opacity={tab === 'active' ? 0.9 : 0.7}>
               ({activeRows.length})
             </Text>
@@ -154,7 +157,7 @@ export function MyRequestsFilterColumn() {
             variant={tab === 'completed' ? 'primary' : 'ghost'}
             onClick={() => setTab('completed')}
           >
-            <Text>Completed</Text>
+            <Text>{t.completed}</Text>
             <Text opacity={tab === 'completed' ? 0.9 : 0.7}>
               ({completedRows.length})
             </Text>

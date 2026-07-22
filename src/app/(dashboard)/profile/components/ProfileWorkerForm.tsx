@@ -15,6 +15,7 @@ import { categoryBySlug } from '@/app/(worker)/worker/setup/helpers/workerSetupC
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { HEADLINE_MAX_CHARS } from '@/app/(worker)/worker/setup/helpers/workerSetupValidation'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { apolloClient } from '@/utils/apolloClient'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -40,6 +41,7 @@ export function ProfileWorkerForm({
   const me = useUserStore((s) => s.me)
   const setMe = useUserStore((s) => s.setMe)
   const getUser = useUserStore((s) => s.getUser)
+  const href = useLocalizedHref()
   const [saving, setSaving] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -77,7 +79,7 @@ export function ProfileWorkerForm({
             </Text>
           </Stack>
           <Link
-            href={workerSetupHref('/profile')}
+            href={href(workerSetupHref('/profile'))}
             _hover={{ textDecoration: 'none' }}
           >
             <Button w={{ base: 'full', sm: 'auto' }}>Start worker setup</Button>
@@ -98,7 +100,7 @@ export function ProfileWorkerForm({
           </Text>
           <WorkerProfileSummary values={formValues} />
           <Link
-            href={workerSetupHref('/profile')}
+            href={href(workerSetupHref('/profile'))}
             _hover={{ textDecoration: 'none' }}
           >
             <Button

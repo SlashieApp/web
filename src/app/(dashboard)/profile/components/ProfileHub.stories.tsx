@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { Currency, WorkerPrimaryCategory } from '@codegen/schema'
+import { Currency, UserLanguage, WorkerPrimaryCategory } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
@@ -35,7 +35,11 @@ function profileFixture({
       emailVerified: true,
       phoneVerified,
     },
-    settings: { isProfilePrivate: false, marketingEmails: true },
+    settings: {
+      isProfilePrivate: false,
+      language: UserLanguage.En,
+      marketingEmails: true,
+    },
     worker:
       worker === 'none'
         ? null

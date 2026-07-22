@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useRef } from 'react'
 
 import OrderDetail from '@/app/(dashboard)/dashboard/orders/[orderId]/graphql/OrderDetail.gql'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, capture, captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { taskOrderSectionHref } from '@/utils/orderHelpers'
@@ -16,7 +16,7 @@ import bag from './i11n.json'
 
 /** Legacy URL — redirects to `/tasks/:taskId#task-order`. */
 export default function LegacyOrderDetailRedirect() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const params = useParams<{ orderId: string }>()
   const orderId = params.orderId?.trim() ?? ''

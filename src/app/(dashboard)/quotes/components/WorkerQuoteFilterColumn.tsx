@@ -4,9 +4,9 @@ import { Box, Stack, Text } from '@chakra-ui/react'
 import type { ChangeEvent, ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 
-import { Button, Input, Select } from '@ui'
-
 import { TASK_CREATE_CATEGORY_OPTIONS } from '@/app/(task)/helpers/taskCategories'
+import { useI11n } from '@/i18n/useI11n'
+import { Button, Input, Select } from '@ui'
 
 import {
   INBOX_SORT_OPTIONS,
@@ -18,6 +18,7 @@ import {
   workerQuoteStage,
 } from '../../helpers/workerQuoteJobs'
 import { useWorkerQuotes } from '../context/WorkerQuotesProvider'
+import bag from '../i11n.json'
 
 const STAGE_FILTERS: WorkerQuoteListFilter[] = [
   'all',
@@ -96,6 +97,7 @@ function FilterAccordion({
 }
 
 export function WorkerQuoteFilterColumn() {
+  const t = useI11n(bag)
   const {
     quoteRows,
     stageFilter,
@@ -135,7 +137,7 @@ export function WorkerQuoteFilterColumn() {
       borderColor="border.default"
     >
       <Stack gap={2}>
-        <Text {...SECTION_LABEL}>Filters</Text>
+        <Text {...SECTION_LABEL}>{t.statusLabel}</Text>
         <Stack gap={1.5}>
           {STAGE_FILTERS.map((key) => {
             const n = stageCounts[key]

@@ -8,11 +8,11 @@ import { useCallback, useMemo, useRef } from 'react'
 import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
 import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import bag from '../sent/i11n.json'
 
 export function ForgotPasswordSentPanel() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = useMemo(

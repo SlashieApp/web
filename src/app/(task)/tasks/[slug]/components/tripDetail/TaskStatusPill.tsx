@@ -1,18 +1,20 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Badge, type UiBadgeProps } from '@ui'
+import bag from '../../i11n.json'
 
 /** Task lifecycle status → Badge family (always renders a dot + label). */
 export type TaskStatusValue = 'OPEN' | 'AWARDED' | 'CLOSED' | 'CANCELLED'
 
-const taskStatusMap: Record<
+const taskStatusFamily: Record<
   TaskStatusValue,
-  { family: NonNullable<UiBadgeProps['variant']>; label: string }
+  NonNullable<UiBadgeProps['variant']>
 > = {
-  OPEN: { family: 'success', label: 'Open' },
-  AWARDED: { family: 'warning', label: 'Awarded' },
-  CLOSED: { family: 'info', label: 'Closed' },
-  CANCELLED: { family: 'danger', label: 'Cancelled' },
+  OPEN: 'success',
+  AWARDED: 'warning',
+  CLOSED: 'info',
+  CANCELLED: 'danger',
 }
 
 export type TaskStatusPillProps = Omit<
@@ -29,7 +31,9 @@ export function TaskStatusPill({
   label,
   ...props
 }: TaskStatusPillProps) {
-  const { family, label: defaultLabel } = taskStatusMap[status]
+  const t = useI11n(bag)
+  const family = taskStatusFamily[status]
+  const defaultLabel = t.statusPill[status]
   return (
     <Badge variant={family} dot shape="pill" {...props}>
       {label ?? defaultLabel}

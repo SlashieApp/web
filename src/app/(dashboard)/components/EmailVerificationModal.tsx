@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Link, Modal } from '@ui'
 
 type EmailVerificationModalProps = {
@@ -20,6 +21,7 @@ export function EmailVerificationModal({
   onContactUpdated,
 }: EmailVerificationModalProps) {
   const me = useUserStore((s) => s.me)
+  const href = useLocalizedHref()
   const { resend, isSending, message, isSent, reset } =
     useResendVerificationEmail()
 
@@ -80,7 +82,7 @@ export function EmailVerificationModal({
               </Text>
             ) : null}
             <Link
-              href="/verify-email/sent"
+              href={href('/verify-email/sent')}
               fontSize="sm"
               fontWeight={600}
               color="text.link"

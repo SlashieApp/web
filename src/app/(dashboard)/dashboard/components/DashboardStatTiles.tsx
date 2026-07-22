@@ -5,7 +5,11 @@ import type { ReactNode } from 'react'
 
 import { Card } from '@ui'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { formatPounds } from '@/utils/dashboardHelpers'
+
+import bag from '../i11n.json'
 
 export type DashboardStatTilesProps = {
   loading: boolean
@@ -134,6 +138,7 @@ export function DashboardStatTiles({
   pendingEarningsPence,
   closedOrdersCount,
 }: DashboardStatTilesProps) {
+  const t = useI11n(bag)
   const value = (n: number) => (loading ? '…' : String(n))
 
   return (
@@ -143,27 +148,34 @@ export function DashboardStatTiles({
       aria-busy={loading || undefined}
     >
       <StatTile
-        label="Posted tasks"
+        label={t.stats.posted}
         value={value(postedCount)}
-        helper={`${openPostedCount} open · ${awaitingQuotesCount} awaiting quotes`}
+        helper={formatMessage(t.stats.postedHelper, {
+          open: openPostedCount,
+          awaiting: awaitingQuotesCount,
+        })}
         icon={<TileIcon type="posted" />}
       />
       <StatTile
-        label="Quotes sent"
+        label={t.stats.quotes}
         value={value(quotesSentCount)}
-        helper={`${quotesAwaitingResponseCount} awaiting response`}
+        helper={formatMessage(t.stats.quotesHelper, {
+          awaiting: quotesAwaitingResponseCount,
+        })}
         icon={<TileIcon type="quotes" />}
       />
       <StatTile
-        label="Open orders"
+        label={t.stats.orders}
         value={value(openOrdersCount)}
-        helper="Active jobs from accepted quotes"
+        helper={t.stats.ordersHelper}
         icon={<TileIcon type="accepted" />}
       />
       <StatTile
-        label="Pending earnings"
+        label={t.stats.earnings}
         value={loading ? '…' : formatPounds(pendingEarningsPence)}
-        helper={`${closedOrdersCount} closed order${closedOrdersCount === 1 ? '' : 's'}`}
+        helper={formatMessage(t.stats.earningsHelper, {
+          closed: closedOrdersCount,
+        })}
         icon={<TileIcon type="done" />}
       />
     </SimpleGrid>

@@ -5,7 +5,7 @@ import { useCallback, useRef, useState } from 'react'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 
 import { getProfileLifecycle } from '../helpers/profileLifecycle'
 import bag from '../i11n.json'
@@ -30,7 +30,7 @@ export function ProfileHub({
   me: MeSnapshot
   initialEditSection?: ProfileEditSection
 }) {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const lifecycle = getProfileLifecycle(me)
   const [editSection, setEditSection] =
     useState<ProfileEditSection>(initialEditSection)

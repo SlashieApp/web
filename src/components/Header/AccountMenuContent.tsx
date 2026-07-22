@@ -1,6 +1,8 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { useCallback } from 'react'
+import bag from './i11n.json'
 
 import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
@@ -38,6 +40,7 @@ export function AccountMenuContent({ onClose }: AccountMenuContentProps = {}) {
   const notifications = useNotificationsOptional()
   const closeFromDropdown = useDropdownClose()
   const close = onClose ?? closeFromDropdown
+  const t = useI11n(bag)
 
   const hasWorker = Boolean(me?.worker)
   const navItems = resolveAccountNavItems(hasWorker)
@@ -50,7 +53,7 @@ export function AccountMenuContent({ onClose }: AccountMenuContentProps = {}) {
   if (!user) return null
 
   const email = user.email ?? me?.email ?? ''
-  const displayName = me?.profile?.name?.trim() || email || 'Account'
+  const displayName = me?.profile?.name?.trim() || email || t.accountFallback
 
   return (
     <>

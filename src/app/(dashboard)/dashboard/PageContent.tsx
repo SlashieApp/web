@@ -8,7 +8,8 @@ import { Button, Link } from '@ui'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
 import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/MembershipRefreshOnMount'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { isQuoteAwarded } from '@/utils/dashboardHelpers'
 import { useAccountOrders } from '../helpers/useAccountOrders'
 import { useMyQuotes } from '../helpers/useMyQuotes'
@@ -35,7 +36,8 @@ import bag from './i11n.json'
  * Sections: stats → upcoming jobs → activity + membership → quick actions
  */
 export default function DashboardOverviewPage() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   const me = useUserStore((s) => s.me)
 
   const {
@@ -85,8 +87,8 @@ export default function DashboardOverviewPage() {
     [activeOrders, me?.id],
   )
   const quickActions = useMemo(
-    () => buildQuickActions(Boolean(me?.worker?.id)),
-    [me?.worker?.id],
+    () => buildQuickActions(Boolean(me?.worker?.id), t.quickActions),
+    [me?.worker?.id, t.quickActions],
   )
 
   return (
@@ -94,16 +96,19 @@ export default function DashboardOverviewPage() {
       <MembershipRefreshOnMount />
       <DashboardPageLayout
         eyebrow={t.eyebrow}
-        title={`${greetingForNow()}, ${displayNameFromMe(me)}`}
+        title={`${greetingForNow(t.greeting)}, ${displayNameFromMe(me, t.greeting.fallbackName)}`}
         description={t.description}
         actions={
           <>
-            <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
+            <Link href={href('/tasks')} _hover={{ textDecoration: 'none' }}>
               <Button size="sm" variant="secondary">
                 {t.browseTasks}
               </Button>
             </Link>
-            <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+            <Link
+              href={href('/tasks/create')}
+              _hover={{ textDecoration: 'none' }}
+            >
               <Button size="sm">{t.postTask}</Button>
             </Link>
           </>

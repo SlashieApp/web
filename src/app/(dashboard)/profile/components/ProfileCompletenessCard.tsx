@@ -5,6 +5,7 @@ import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Badge, Button, Card, Link } from '@ui'
 
 import {
@@ -39,6 +40,7 @@ function CheckGlyph({ done }: { done: boolean }) {
 
 export function ProfileCompletenessCard() {
   const me = useUserStore((s) => s.me)
+  const href = useLocalizedHref()
   if (!me) return null
 
   const items = getCompletenessItems(me)
@@ -108,7 +110,7 @@ export function ProfileCompletenessCard() {
               </HStack>
               {!item.done ? (
                 <Link
-                  href={item.href}
+                  href={href(item.href)}
                   fontSize="sm"
                   fontWeight={600}
                   color="text.link"
@@ -126,7 +128,7 @@ export function ProfileCompletenessCard() {
           <HStack gap={3} flexWrap="wrap">
             {setupInProgress ? (
               <Link
-                href={workerSetupHref('/profile')}
+                href={href(workerSetupHref('/profile'))}
                 _hover={{ textDecoration: 'none' }}
               >
                 <Button size="sm" variant="primary">
@@ -135,7 +137,7 @@ export function ProfileCompletenessCard() {
               </Link>
             ) : eligible ? (
               <Link
-                href={workerSetupHref('/profile')}
+                href={href(workerSetupHref('/profile'))}
                 _hover={{ textDecoration: 'none' }}
               >
                 <Button size="sm" variant="primary">
@@ -144,7 +146,7 @@ export function ProfileCompletenessCard() {
               </Link>
             ) : firstIncomplete ? (
               <Link
-                href={firstIncomplete.href}
+                href={href(firstIncomplete.href)}
                 _hover={{ textDecoration: 'none' }}
               >
                 <Button size="sm" variant="secondary">

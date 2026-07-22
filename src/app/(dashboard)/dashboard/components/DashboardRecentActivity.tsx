@@ -5,9 +5,11 @@ import { useMemo } from 'react'
 import { InboxActivityPanel } from '@/app/(dashboard)/components/InboxActivityPanel'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { notificationRowsFromQuery } from '@/app/(dashboard)/helpers/notificationActivity'
+import { useI11n } from '@/i18n/useI11n'
 import type { MyQuoteItem, TaskItem } from '@/utils/dashboardHelpers'
 
 import { buildDashboardActivityFallback } from '../helpers/buildDashboardActivity'
+import bag from '../i11n.json'
 
 export function DashboardRecentActivity({
   postedTasks,
@@ -16,6 +18,7 @@ export function DashboardRecentActivity({
   postedTasks: readonly TaskItem[]
   sentQuotes: readonly MyQuoteItem[]
 }) {
+  const t = useI11n(bag)
   const notifications = useNotificationsOptional()
 
   const rows = useMemo(() => {
@@ -27,15 +30,15 @@ export function DashboardRecentActivity({
 
   return (
     <InboxActivityPanel
-      title="Recent activity"
-      description="Latest updates across your requests, jobs, and quotes."
+      title={t.activity.title}
+      description={t.activity.description}
       viewAllHref="/requests"
-      viewAllLabel="View all"
+      viewAllLabel={t.activity.viewAll}
       rows={rows}
       loading={notifications?.loading}
-      emptyMessage="No activity yet. Start by posting a task or sending a quote."
+      emptyMessage={t.activity.empty}
       emptyActionHref="/tasks/create"
-      emptyActionLabel="Post a task"
+      emptyActionLabel={t.activity.emptyAction}
     />
   )
 }

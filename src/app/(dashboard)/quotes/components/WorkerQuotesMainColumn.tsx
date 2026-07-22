@@ -4,15 +4,19 @@ import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { LuSearch } from 'react-icons/lu'
 
+import { TaskCard } from '@/app/(task)/components/TaskCard'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, Input, Link } from '@ui'
 
-import { TaskCard } from '@/app/(task)/components/TaskCard'
-
 import { useWorkerQuotes } from '../context/WorkerQuotesProvider'
+import bag from '../i11n.json'
 
 import { WorkerQuoteSummaryBar } from './WorkerQuoteSummaryBar'
 
 export function WorkerQuotesMainColumn() {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   const {
     loading,
     errorMessage,
@@ -32,11 +36,11 @@ export function WorkerQuotesMainColumn() {
             </Box>
           }
           value={inboxFilters.searchDraft}
-          placeholder="Search tasks you quoted"
+          placeholder={t.searchPlaceholder}
           type="search"
           inputMode="search"
           autoComplete="off"
-          aria-label="Search tasks you quoted"
+          aria-label={t.searchPlaceholder}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             inboxFilters.setSearchDraft(e.target.value)
           }
@@ -51,7 +55,7 @@ export function WorkerQuotesMainColumn() {
         {quoteRows.length > 0 ? <WorkerQuoteSummaryBar /> : null}
       </Stack>
 
-      {loading ? <Text color="text.muted">Loading your quotes…</Text> : null}
+      {loading ? <Text color="text.muted">{t.loading}</Text> : null}
       {errorMessage ? (
         <Text color="status.danger.fg" fontSize="sm">
           {errorMessage}
@@ -61,14 +65,13 @@ export function WorkerQuotesMainColumn() {
       {!loading && quoteRows.length === 0 ? (
         <Card layout="section" p={6}>
           <Stack gap={3}>
-            <Heading size="sm">No quotes yet</Heading>
+            <Heading size="sm">{t.emptyTitle}</Heading>
             <Text color="text.muted" fontSize="sm">
-              Browse open tasks near you and send your first quote to start
-              earning.
+              {t.emptyDescription}
             </Text>
-            <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
+            <Link href={href('/tasks')} _hover={{ textDecoration: 'none' }}>
               <Button alignSelf="flex-start" size="sm">
-                Browse tasks
+                {t.primaryCta}
               </Button>
             </Link>
           </Stack>

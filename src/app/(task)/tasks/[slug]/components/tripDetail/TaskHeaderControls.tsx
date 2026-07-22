@@ -1,9 +1,11 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { LuArrowLeft, LuEllipsisVertical } from 'react-icons/lu'
+import bag from '../../i11n.json'
 
 import { sdlMotion } from '@/theme/styles'
 import { Button, Dropdown, IconButton } from '@ui'
@@ -50,6 +52,7 @@ export function TaskHeaderControls({
   children,
 }: TaskHeaderControlsProps) {
   const router = useRouter()
+  const t = useI11n(bag)
   const chipBg = overlay ? 'whiteAlpha.700' : 'transparent'
   const chipHoverBg = overlay ? 'whiteAlpha.900' : 'bg.subtle'
 
@@ -78,7 +81,7 @@ export function TaskHeaderControls({
         bg={chipBg}
         _hover={{ bg: chipHoverBg, color: 'text.default' }}
         onClick={() => router.back()}
-        aria-label="Go back"
+        aria-label={t.nav.goBackAria}
         {...controlTransition}
       >
         <HStack gap={1.5} align="center">
@@ -92,7 +95,7 @@ export function TaskHeaderControls({
               opacity={labelCollapsed ? 0 : 1}
               {...controlTransition}
             >
-              Back
+              {t.nav.back}
             </Box>
           ) : null}
         </HStack>
@@ -102,13 +105,13 @@ export function TaskHeaderControls({
 
       <Box pointerEvents="auto" flexShrink={0}>
         <Dropdown
-          contentLabel="Task options"
+          contentLabel={t.nav.taskOptionsAria}
           align="end"
           trigger={
             <IconButton
               type="button"
               variant="ghost"
-              aria-label="Task options"
+              aria-label={t.nav.taskOptionsAria}
               color="text.default"
               bg={chipBg}
               _hover={{ bg: chipHoverBg }}

@@ -14,7 +14,7 @@ export const DEFAULT_LOCALE: AppLocale = 'en'
 
 export const LOCALE_COOKIE = 'NEXT_LOCALE'
 
-/** Set by middleware so Server Components can read the URL locale slug. */
+/** Set by proxy so Server Components can read the URL locale slug. */
 export const LOCALE_HEADER = 'x-slashie-locale'
 
 /** Keys used inside colocated `i11n.json` files. */

@@ -8,13 +8,13 @@ import { Suspense, useCallback, useMemo, useRef } from 'react'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useMe } from '@/app/(auth)/store/user'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { APP_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 import bag from './i11n.json'
 
 function VerifyEmailSentFallback() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
 
   return (
     <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
@@ -24,7 +24,7 @@ function VerifyEmailSentFallback() {
 }
 
 function VerifyEmailSentContent() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const searchParams = useSearchParams()
   const me = useMe()

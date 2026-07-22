@@ -1,0 +1,162 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Dashboard · Slashie"
+    },
+    "shell": {
+      "completeProfileTitle": "Complete your profile",
+      "completeProfileDescription": "Stand out and get more work.",
+      "completeCount": "{done}/{total} complete",
+      "manageProfile": "Manage profile",
+      "continueSetup": "Continue setup",
+      "paymentsDisclaimer": "Payments are arranged directly between customer and worker outside Slashie."
+    },
+    "inbox": {
+      "activity": "Activity",
+      "viewAll": "View all",
+      "description": "Latest updates on your tasks and bookings.",
+      "empty": "No activity yet.",
+      "loading": "Loading activity…",
+      "search": "Search",
+      "category": "Category",
+      "sort": "Sort",
+      "status": "Status",
+      "edit": "Edit",
+      "newestFirst": "Newest first",
+      "oldestFirst": "Oldest first"
+    },
+    "membership": {
+      "title": "Membership",
+      "manageBilling": "Manage billing",
+      "viewBilling": "View billing",
+      "becomeWorker": "Become a worker",
+      "platformMembership": "Platform membership",
+      "body": "Slashie Unlimited covers platform quoting access. Job payments stay between customer and worker — not through Slashie.",
+      "quotesThisMonth": "Quotes this month",
+      "quotesThisMonthUtc": "Quotes this month (UTC)"
+    },
+    "contact": {
+      "email": "Email",
+      "phone": "Phone",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "resendEmail": "Resend email",
+      "checkInbox": "Check inbox"
+    },
+    "sectionNav": {
+      "ariaLabel": "Dashboard sections",
+      "contextLabel": "Dashboard",
+      "openSections": "Open dashboard sections",
+      "drawerTitle": "Dashboard sections",
+      "drawerDescription": "Jump between your requests, quotes, billing, and account tools.",
+      "overview": {
+        "label": "Overview",
+        "description": "Quick links and headline stats for your account."
+      },
+      "requests": {
+        "label": "My Requests",
+        "description": "Tasks you posted as a customer — quotes, bookings, and completion."
+      },
+      "quotes": {
+        "label": "My Quotes",
+        "description": "Quotes you sent on other people’s tasks — pending, booked, or done."
+      },
+      "earnings": {
+        "label": "Earnings",
+        "description": "Historical completed work — reference only, Slashie does not pay out."
+      },
+      "billing": {
+        "label": "Billing",
+        "description": "Slashie Unlimited subscription, quote allowance, and Stripe billing."
+      },
+      "account": {
+        "label": "Account",
+        "description": "Settings, preferences, and session controls."
+      },
+      "profile": {
+        "label": "Profile",
+        "description": "Customer profile plus worker setup when needed."
+      }
+    }
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "儀表板 · Slashie"
+    },
+    "shell": {
+      "completeProfileTitle": "完善你的個人檔案",
+      "completeProfileDescription": "脫穎而出，爭取更多工作。",
+      "completeCount": "已完成 {done}/{total}",
+      "manageProfile": "管理個人檔案",
+      "continueSetup": "繼續設定",
+      "paymentsDisclaimer": "款項由顧客與工作者在 Slashie 以外直接安排。"
+    },
+    "inbox": {
+      "activity": "活動",
+      "viewAll": "查看全部",
+      "description": "你的任務和預約的最新更新。",
+      "empty": "暫時沒有活動。",
+      "loading": "正在載入活動…",
+      "search": "搜尋",
+      "category": "類別",
+      "sort": "排序",
+      "status": "狀態",
+      "edit": "編輯",
+      "newestFirst": "最新優先",
+      "oldestFirst": "最舊優先"
+    },
+    "membership": {
+      "title": "會員",
+      "manageBilling": "管理帳單",
+      "viewBilling": "查看帳單",
+      "becomeWorker": "成為工作者",
+      "platformMembership": "平台會員",
+      "body": "Slashie Unlimited 涵蓋平台報價權限。工作款項由顧客與工作者直接處理 — 不經 Slashie。",
+      "quotesThisMonth": "本月報價",
+      "quotesThisMonthUtc": "本月報價（UTC）"
+    },
+    "contact": {
+      "email": "電郵",
+      "phone": "電話",
+      "verified": "已驗證",
+      "unverified": "未驗證",
+      "resendEmail": "重新傳送電郵",
+      "checkInbox": "查看收件箱"
+    },
+    "sectionNav": {
+      "ariaLabel": "儀表板分區",
+      "contextLabel": "儀表板",
+      "openSections": "開啟儀表板分區",
+      "drawerTitle": "儀表板分區",
+      "drawerDescription": "在請求、報價、帳單和帳戶工具之間快速切換。",
+      "overview": {
+        "label": "總覽",
+        "description": "帳戶快捷連結和重點數據。"
+      },
+      "requests": {
+        "label": "我的請求",
+        "description": "你以顧客身份發布的任務 — 報價、預約與完成。"
+      },
+      "quotes": {
+        "label": "我的報價",
+        "description": "你在他人任務傳送的報價 — 待處理、已預約或已完成。"
+      },
+      "earnings": {
+        "label": "收入",
+        "description": "歷史已完成工作 — 僅供參考，Slashie 不會代為發放款項。"
+      },
+      "billing": {
+        "label": "帳單",
+        "description": "Slashie Unlimited 訂閱、報價額度與 Stripe 帳單。"
+      },
+      "account": {
+        "label": "帳戶",
+        "description": "設定、偏好和工作階段控制。"
+      },
+      "profile": {
+        "label": "個人檔案",
+        "description": "顧客個人檔案，以及需要時的工作者設定。"
+      }
+    }
+  }
+}

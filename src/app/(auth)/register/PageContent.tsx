@@ -33,7 +33,7 @@ import {
   registerFormSchema,
 } from '@/app/(auth)/register/registerFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -216,7 +216,7 @@ function RegisterFeatureCard({ children }: { children: ReactNode }) {
 }
 
 function RegisterMarketingAside() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
 
   return (
     <Box
@@ -344,7 +344,7 @@ function RegisterMarketingAside() {
 }
 
 export default function RegisterPage() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const getUser = useUserStore((s) => s.getUser)
   const [showPassword, setShowPassword] = useState(false)

@@ -1,7 +1,10 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { HStack, Stack, Text } from '@chakra-ui/react'
+import bag from '../../i11n.json'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { orderSnapshotDatetime } from '@/utils/orderHelpers'
 import {
   countdownToExactSchedule,
@@ -22,13 +25,17 @@ function mapsDirectionsUrl(lat: number, lng: number): string {
  */
 export function AcceptedWorkerStatus() {
   const { task, myOrder, permissions } = useTaskDetail()
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
+  const b = t.booking
+
   if (!task || !myOrder || !permissions.showWorkerJobBanner) return null
 
   const snapshot = myOrder.snapshot
   const address =
     snapshot.location?.address?.trim() ||
     snapshot.location?.name?.trim() ||
-    'Address shared by customer'
+    b.addressFallback
   const datetime = orderSnapshotDatetime(myOrder)
   const scheduleLabel = formatTaskScheduleLabel(datetime)
   const countdown = countdownToExactSchedule(datetime)
@@ -58,14 +65,14 @@ export function AcceptedWorkerStatus() {
             color="status.success.fg"
             letterSpacing="0.04em"
           >
-            YOUR JOB
+            {b.workerEyebrow}
           </Text>
           <Text
             fontWeight={700}
             fontSize={{ base: 'lg', md: 'xl' }}
             color="text.default"
           >
-            You are booked for this job
+            {b.workerTitle}
           </Text>
           {countdown ? (
             <Text fontSize="sm" color="status.success.fg" fontWeight={600}>
@@ -73,14 +80,14 @@ export function AcceptedWorkerStatus() {
             </Text>
           ) : (
             <Text fontSize="sm" color="text.muted">
-              Agree timing with the customer if the schedule is flexible.
+              {b.flexibleSchedule}
             </Text>
           )}
         </Stack>
 
         <Stack gap={1}>
           <Text fontSize="xs" fontWeight={700} color="text.muted">
-            Be on site
+            {b.beOnSite}
           </Text>
           <Text fontSize="sm" fontWeight={600}>
             {address}
@@ -99,19 +106,19 @@ export function AcceptedWorkerStatus() {
               _hover={{ textDecoration: 'none' }}
             >
               <Button size="sm" variant="primary">
-                Contact customer
+                {b.contactCustomer}
               </Button>
             </Link>
           ) : mailto ? (
             <Link href={`mailto:${mailto}`} _hover={{ textDecoration: 'none' }}>
               <Button size="sm" variant="primary">
-                Email customer
+                {b.emailCustomer}
               </Button>
             </Link>
           ) : (
-            <Link href="/account" _hover={{ textDecoration: 'none' }}>
+            <Link href={href('/account')} _hover={{ textDecoration: 'none' }}>
               <Button size="sm" variant="secondary">
-                Add contact in Account
+                {b.addContact}
               </Button>
             </Link>
           )}
@@ -123,14 +130,14 @@ export function AcceptedWorkerStatus() {
               _hover={{ textDecoration: 'none' }}
             >
               <Button size="sm" variant="secondary">
-                Open in Maps
+                {b.openMaps}
               </Button>
             </Link>
           ) : null}
         </HStack>
 
         <Text fontSize="xs" color="text.muted">
-          Payment is arranged directly with the customer outside Slashie.
+          {b.paymentNote}
         </Text>
       </Stack>
     </Card>

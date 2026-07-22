@@ -1,7 +1,9 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import bag from '../../../i11n.json'
 
 import { sdlMotion } from '@/theme/styles'
 import { TaskStatusPill } from '../TaskStatusPill'
@@ -63,15 +65,19 @@ export function OpenTaskHeader() {
   const { task, myQuote, isAuthenticated, permissions, statusReady } =
     useTaskDetail()
   const collapsed = useTaskDetailHeaderCollapsed()
+  const t = useI11n(bag)
 
   if (!task) return null
 
-  const copy = selectStatusHeaderCopy({
-    permissions,
-    myQuote,
-    isAuthenticated,
-    task,
-  })
+  const copy = selectStatusHeaderCopy(
+    {
+      permissions,
+      myQuote,
+      isAuthenticated,
+      task,
+    },
+    t.statusHeader,
+  )
 
   return (
     <Box

@@ -1,7 +1,9 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import bag from '../../i11n.json'
 
 import { sdlMotion } from '@/theme/styles'
 import { TaskStatusPill } from './TaskStatusPill'
@@ -34,6 +36,7 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
     me,
     statusReady,
   } = useTaskDetail()
+  const t = useI11n(bag)
 
   const coords = task ? taskDetailMapCoordinates(task, myOrder) : null
   const showExact = taskDetailShowsExactLocation({
@@ -60,12 +63,15 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
 
   if (!task) return null
 
-  const { pill, headline, subtext } = selectStatusHeaderCopy({
-    permissions,
-    myQuote,
-    isAuthenticated,
-    task,
-  })
+  const { pill, headline, subtext } = selectStatusHeaderCopy(
+    {
+      permissions,
+      myQuote,
+      isAuthenticated,
+      task,
+    },
+    t.statusHeader,
+  )
   const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
   return (

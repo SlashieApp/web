@@ -5,6 +5,7 @@ import { LuCalendarDays, LuCamera, LuExternalLink } from 'react-icons/lu'
 
 import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Badge, Button, Card, Link } from '@ui'
 
 import type { ProfileLifecycle } from '../helpers/profileLifecycle'
@@ -19,6 +20,7 @@ export function ProfileIdentityHero({
   lifecycle: ProfileLifecycle
   onEditPhoto: () => void
 }) {
+  const href = useLocalizedHref()
   const name = displayNameFromMe(me)
 
   return (
@@ -71,7 +73,7 @@ export function ProfileIdentityHero({
           </Badge>
           {lifecycle.publicProfileHref ? (
             <Link
-              href={lifecycle.publicProfileHref}
+              href={href(lifecycle.publicProfileHref)}
               _hover={{ textDecoration: 'none' }}
             >
               <Button size="sm" variant="secondary">

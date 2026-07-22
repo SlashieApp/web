@@ -22,7 +22,7 @@ import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(task)/tasks/create/graphql/CreateTask.gql'
 import Me from '@/graphql/Me.gql'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import {
   EVENTS,
   capture,
@@ -84,7 +84,7 @@ function CreateTaskFormBody({
   phoneVerified,
   contactOptions,
 }: CreateTaskFormBodyProps) {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const apollo = useApolloClient()
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN

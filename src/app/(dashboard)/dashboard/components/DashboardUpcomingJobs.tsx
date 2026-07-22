@@ -2,6 +2,8 @@
 
 import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { ScheduleChip } from '@/ui/ScheduleChip'
 import {
   orderLocationLabel,
@@ -11,12 +13,15 @@ import {
 import { Card, Link } from '@ui'
 
 import type { DashboardUpcomingJob } from '../helpers/dashboardOverview'
+import bag from '../i11n.json'
 
 export function DashboardUpcomingJobs({
   jobs,
 }: {
   jobs: readonly DashboardUpcomingJob[]
 }) {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   if (jobs.length === 0) return null
 
   return (
@@ -25,21 +30,26 @@ export function DashboardUpcomingJobs({
         <HStack justify="space-between" flexWrap="wrap" gap={2}>
           <Stack gap={1}>
             <Heading size="md" color="text.default">
-              Upcoming accepted jobs
+              {t.upcoming.title}
             </Heading>
             <Text fontSize="sm" color="text.muted">
-              Sorted by scheduled date when the task uses an exact time.
+              {t.upcoming.description}
             </Text>
           </Stack>
-          <Link href="/quotes" fontSize="sm" fontWeight={600} color="text.link">
-            View all quotes
+          <Link
+            href={href('/quotes')}
+            fontSize="sm"
+            fontWeight={600}
+            color="text.link"
+          >
+            {t.upcoming.viewAllQuotes}
           </Link>
         </HStack>
         <Stack gap={2}>
           {jobs.slice(0, 5).map((entry) => (
             <Link
               key={entry.id}
-              href={orderTaskHref(entry.order)}
+              href={href(orderTaskHref(entry.order))}
               display="block"
               p={3}
               borderRadius="lg"
@@ -54,7 +64,7 @@ export function DashboardUpcomingJobs({
                     {entry.order.snapshot.title}
                   </Text>
                   <Text fontSize="xs" color="text.muted" truncate>
-                    {entry.role} · {orderLocationLabel(entry.order)}
+                    {t.role[entry.roleKey]} · {orderLocationLabel(entry.order)}
                   </Text>
                 </Stack>
                 <ScheduleChip chip={scheduleChipForOrder(entry.order)} />

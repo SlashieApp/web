@@ -21,11 +21,11 @@ function shouldSkip(pathname: string): boolean {
 }
 
 /**
- * Locale slug routing:
+ * Locale slug routing (Next.js `proxy` — formerly `middleware`):
  * - `/en/...` and `/zh-hk/...` rewrite to the internal app path (no prefix).
  * - Paths without a locale redirect to `/en/...` (default).
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (shouldSkip(pathname)) {

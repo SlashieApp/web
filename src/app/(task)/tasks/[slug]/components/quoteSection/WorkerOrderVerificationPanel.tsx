@@ -1,8 +1,10 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Stack, Text } from '@chakra-ui/react'
 import { OrderStatus } from '@codegen/schema'
 import { useCallback, useState } from 'react'
+import bag from '../../i11n.json'
 
 import { Button, Card, Input } from '@ui'
 
@@ -29,6 +31,8 @@ export function WorkerOrderVerificationPanel({
     completingOrderWithVerification,
     onCompleteOrderWithVerification,
   } = useTaskDetail()
+  const t = useI11n(bag)
+  const v = t.verification
 
   const [expanded, setExpanded] = useState(initialExpanded)
 
@@ -46,13 +50,12 @@ export function WorkerOrderVerificationPanel({
     return (
       <Card
         layout="section"
-        eyebrow="Your job"
-        heading="Awaiting update"
+        eyebrow={v.eyebrow}
+        heading={v.awaitingHeading}
         bodyGap={2}
       >
         <Text fontSize="sm" color="text.muted">
-          This order is no longer active. Refresh the page or contact support if
-          something looks wrong.
+          {v.inactiveBody}
         </Text>
       </Card>
     )
@@ -62,14 +65,12 @@ export function WorkerOrderVerificationPanel({
     <Card
       layout="section"
       id="worker-job-panel"
-      eyebrow="Your job"
-      heading="Complete job & confirm payment"
+      eyebrow={v.eyebrow}
+      heading={v.completeHeading}
       bodyGap={3}
     >
       <Text fontSize="sm" color="text.muted">
-        When the customer is happy with the work and has paid you directly, ask
-        them for their 6-digit completion code. Enter it here to close the job
-        on Slashie.
+        {v.instructions}
       </Text>
 
       {jobActionError ? (
@@ -80,14 +81,14 @@ export function WorkerOrderVerificationPanel({
 
       {!expanded ? (
         <Button type="button" w="full" onClick={() => setExpanded(true)}>
-          Complete job & confirm payment
+          {v.enterCodeCta}
         </Button>
       ) : (
         <Stack gap={3}>
           <Input
             inputMode="numeric"
             autoComplete="one-time-code"
-            placeholder="6-digit code"
+            placeholder={v.placeholder}
             value={verificationCode}
             maxLength={6}
             onChange={(e) => onCodeChange(e.target.value)}
@@ -103,7 +104,7 @@ export function WorkerOrderVerificationPanel({
             disabled={verificationCode.length !== 6}
             onClick={() => void onCompleteOrderWithVerification()}
           >
-            Submit code & close job
+            {v.submit}
           </Button>
           <Button
             type="button"
@@ -115,7 +116,7 @@ export function WorkerOrderVerificationPanel({
               setVerificationCode('')
             }}
           >
-            Cancel
+            {v.cancel}
           </Button>
         </Stack>
       )}

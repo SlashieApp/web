@@ -1,9 +1,13 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
+import bag from '../i11n.json'
 
 import { Button, Card, Link } from '@ui'
+
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 
 import { BillingQuoteMeter } from '../billing/components/BillingQuoteMeter'
 import { hasUnlimitedQuoting } from '../helpers/workerMembershipHelpers'
@@ -18,6 +22,8 @@ type WorkerMembershipCardProps = {
 export function WorkerMembershipCard({
   membership,
 }: WorkerMembershipCardProps) {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   const unlimited = hasUnlimitedQuoting(membership)
   const showMeter = !unlimited
 
@@ -40,7 +46,7 @@ export function WorkerMembershipCard({
               textTransform="uppercase"
               letterSpacing="0.08em"
             >
-              Membership
+              {t.membership.title}
             </Text>
             <Text fontSize="lg" fontWeight={700} color="text.default">
               {membership.planName}
@@ -50,8 +56,7 @@ export function WorkerMembershipCard({
         </HStack>
 
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
-          Slashie Unlimited covers platform quoting access. Job payments stay
-          between customer and worker — not through Slashie.
+          {t.membership.body}
         </Text>
 
         <MembershipStatusDetail membership={membership} />
@@ -63,11 +68,11 @@ export function WorkerMembershipCard({
           />
         ) : null}
 
-        <Link href="/billing" _hover={{ textDecoration: 'none' }}>
+        <Link href={href('/billing')} _hover={{ textDecoration: 'none' }}>
           <Button size="sm" w={{ base: 'full', md: 'auto' }}>
             {membership.canManageBilling || membership.canUpgrade
-              ? 'Manage billing'
-              : 'View billing'}
+              ? t.membership.manageBilling
+              : t.membership.viewBilling}
           </Button>
         </Link>
       </Stack>

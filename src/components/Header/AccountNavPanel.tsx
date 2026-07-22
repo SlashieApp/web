@@ -1,12 +1,16 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import bag from './i11n.json'
 
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Button, Link } from '@ui'
+
 import type { AccountNavItem } from './accountNav.config'
 import { groupAccountNavItems } from './accountNav.config'
+import { accountNavLabel } from './accountNavLabel'
 import {
   accountNavLinkRowProps,
   accountNavLogoutRowProps,
@@ -32,6 +36,8 @@ function AccountNavRow({
   onOpenNotifications?: () => void
 }) {
   const href = useLocalizedHref()
+  const t = useI11n(bag)
+  const label = accountNavLabel(t, item.id, item.label)
   const close = useCallback(() => {
     onNavigate?.()
   }, [onNavigate])
@@ -51,7 +57,7 @@ function AccountNavRow({
             close()
           }}
         >
-          {item.label}
+          {label}
         </Button>
       )
     }
@@ -69,7 +75,7 @@ function AccountNavRow({
             close()
           }}
         >
-          {item.label}
+          {label}
         </Button>
       )
     }
@@ -80,7 +86,7 @@ function AccountNavRow({
 
   return (
     <Link href={href(item.href)} {...accountNavLinkRowProps} onClick={close}>
-      {item.label}
+      {label}
     </Link>
   )
 }

@@ -1,11 +1,14 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, Skeleton, Stack } from '@chakra-ui/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { LuShare2 } from 'react-icons/lu'
+import bag from '../../i11n.json'
 
 import { Button, Link, Tabs } from '@ui'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { useScrollContainerCollapsed } from '../../helpers/taskDetailHeaderCollapse'
 import { Reveal } from './Reveal'
@@ -33,7 +36,9 @@ function readHashTab(): string | null {
  */
 export function TaskDetailMobile() {
   const { task, permissions, statusReady } = useTaskDetail()
-  const onShare = useShareTask(task?.title?.trim() || 'Task')
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
+  const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
 
   // Collapse once the map hero has largely scrolled away, resolved from the
   // app-shell content pane (not the window — see taskDetailHeaderCollapse).
@@ -59,7 +64,7 @@ export function TaskDetailMobile() {
 
   if (!task) return null
 
-  const quoteFlowHref = `/tasks/${task.id}/quote`
+  const quoteFlowHref = href(`/tasks/${task.id}/quote`)
 
   // Pinned primary CTA for OPEN states (booking states use the banner below).
   // Held as a skeleton until the viewer state is confirmed — the CTA choice
@@ -71,7 +76,7 @@ export function TaskDetailMobile() {
     heroCta = (
       <Button variant="primary" w="full" onClick={() => void onShare()}>
         <LuShare2 />
-        Share task
+        {t.mobile.shareTask}
       </Button>
     )
   } else if (permissions.showQuoteForm) {
@@ -82,7 +87,7 @@ export function TaskDetailMobile() {
         display="block"
       >
         <Button variant="primary" w="full">
-          Send a quote
+          {t.mobile.sendQuote}
         </Button>
       </Link>
     )
@@ -104,12 +109,12 @@ export function TaskDetailMobile() {
           fitted
           sticky
           stickyTop={collapsed ? MOBILE_COLLAPSED_HEADER_H : 0}
-          aria-label="Task sections"
+          aria-label={t.nav.taskSectionsAria}
           value={activeTab}
           onChange={onTabChange}
           tabs={[
-            { key: TAB_INFO, label: 'Info' },
-            { key: TAB_QUOTES, label: 'Quotes', badge: quoteCount },
+            { key: TAB_INFO, label: t.mobile.tabInfo },
+            { key: TAB_QUOTES, label: t.mobile.tabQuotes, badge: quoteCount },
           ]}
         >
           <Tabs.Panel value={TAB_INFO}>

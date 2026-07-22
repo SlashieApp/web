@@ -1,7 +1,10 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Box, Image, Wrap } from '@chakra-ui/react'
+import bag from '../../../i11n.json'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { Card } from '@ui'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
@@ -12,13 +15,16 @@ import { useTaskDetail } from '../../../context/TaskDetailProvider'
  */
 export function PhotosCard() {
   const { task } = useTaskDetail()
+  const t = useI11n(bag)
   const images = (task?.images ?? []).filter((src): src is string =>
     Boolean(src?.trim()),
   )
   if (images.length === 0) return null
 
+  const title = task?.title ?? t.fallbackTask
+
   return (
-    <Card layout="section" heading="Photos">
+    <Card layout="section" heading={t.details.photos}>
       <Wrap gap={2}>
         {images.map((src, index) => (
           <Box
@@ -33,7 +39,10 @@ export function PhotosCard() {
           >
             <Image
               src={src}
-              alt={`${task?.title ?? 'Task'} photo ${index + 1}`}
+              alt={formatMessage(t.details.photoAlt, {
+                title,
+                n: index + 1,
+              })}
               w="full"
               h="full"
               objectFit="cover"

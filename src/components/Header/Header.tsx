@@ -10,12 +10,15 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { isAccountHubPath } from '@/utils/accountHub'
 import { resolveAccountNavKey } from '@/utils/accountNav'
 import { GET_APP_HREF, MARKETING_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 import { Button, Drawer, IconButton, Link, Logo } from '@ui'
 
+import chromeBag from '../../i18n/chrome.i11n.json'
 import { AccountMenu } from './AccountMenu'
 import { BellIcon } from './BellIcon'
 import {
@@ -30,6 +33,7 @@ import {
 import { NotificationsDrawer } from './NotificationsDrawer'
 import { accountNavLinkRowProps } from './accountNavLinkProps'
 import { HEADER_MIN_HEIGHT, HEADER_PADDING_X } from './headerShell'
+import menuBag from './i11n.json'
 
 export { HEADER_MIN_HEIGHT } from './headerShell'
 
@@ -40,6 +44,7 @@ export { HEADER_MIN_HEIGHT } from './headerShell'
  */
 function GetAppButton() {
   const href = useLocalizedHref()
+  const t = useI11n(chromeBag)
   const getAppHref =
     GET_APP_HREF === 'https://slashie.app' ? href('/') : GET_APP_HREF
   const isExternal = getAppHref.startsWith('http')
@@ -57,7 +62,7 @@ function GetAppButton() {
         target={isExternal ? '_blank' : undefined}
         rel={isExternal ? 'noopener noreferrer' : undefined}
       >
-        Get app
+        {t.getApp}
       </a>
     </Button>
   )
@@ -65,10 +70,11 @@ function GetAppButton() {
 
 function PostTaskHeaderButton() {
   const href = useLocalizedHref()
+  const t = useI11n(chromeBag)
 
   return (
     <Button asChild size="sm" variant="primary" flexShrink={0}>
-      <NextLink href={href('/tasks/create')}>Post a task</NextLink>
+      <NextLink href={href('/tasks/create')}>{t.postTask}</NextLink>
     </Button>
   )
 }
@@ -97,6 +103,8 @@ export type HeaderProps = {
 function AppHeaderNavigation() {
   const pathname = usePathname()
   const href = useLocalizedHref()
+  const t = useI11n(chromeBag)
+  const notificationsCopy = useI11n(menuBag).notifications
   const user = useUserStore((state) => state.user)
   const getUser = useUserStore((state) => state.getUser)
   const notifications = useNotificationsOptional()
@@ -205,8 +213,10 @@ function AppHeaderNavigation() {
                       type="button"
                       aria-label={
                         notifications.unreadCount > 0
-                          ? `Notifications, ${notifications.unreadCount} unread`
-                          : 'Notifications'
+                          ? formatMessage(notificationsCopy.ariaLabelUnread, {
+                              count: notifications.unreadCount,
+                            })
+                          : notificationsCopy.ariaLabel
                       }
                       variant="ghost"
                       onClick={notifications.openDrawer}
@@ -259,7 +269,7 @@ function AppHeaderNavigation() {
               signupHref={signupHref}
             />
             <IconButton
-              aria-label="Open menu"
+              aria-label={t.openMenu}
               variant="ghost"
               display={{ base: 'inline-flex', sm: 'none' }}
               onClick={() => setGuestDrawerOpen(true)}
@@ -269,7 +279,7 @@ function AppHeaderNavigation() {
             <Drawer
               open={guestDrawerOpen}
               onOpenChange={setGuestDrawerOpen}
-              title="Menu"
+              title={t.menu}
               placement="end"
               size="full"
             >
@@ -279,7 +289,7 @@ function AppHeaderNavigation() {
                   {...accountNavLinkRowProps}
                   onClick={() => setGuestDrawerOpen(false)}
                 >
-                  Post a task
+                  {t.postTask}
                 </Link>
                 <Stack
                   gap={0}
@@ -294,14 +304,14 @@ function AppHeaderNavigation() {
                     {...accountNavLinkRowProps}
                     onClick={() => setGuestDrawerOpen(false)}
                   >
-                    Log in
+                    {t.logIn}
                   </Link>
                   <Link
                     href={signupHref}
                     {...accountNavLinkRowProps}
                     onClick={() => setGuestDrawerOpen(false)}
                   >
-                    Sign up
+                    {t.signUp}
                   </Link>
                 </Stack>
               </Stack>

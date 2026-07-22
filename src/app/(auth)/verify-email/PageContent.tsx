@@ -14,7 +14,7 @@ import {
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
 import VerifyEmail from '@/app/(auth)/verify-email/graphql/VerifyEmail.gql'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { APP_HOME } from '@/utils/appRoutes'
 import { getAuthToken, setAuthToken } from '@/utils/auth'
@@ -24,7 +24,7 @@ import bag from './i11n.json'
 type VerifyState = 'loading' | 'success' | 'error' | 'invalid-link'
 
 function VerifyEmailFallback() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
 
   return (
     <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
@@ -34,7 +34,7 @@ function VerifyEmailFallback() {
 }
 
 function VerifyEmailContent() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const searchParams = useSearchParams()
   const getUser = useUserStore((s) => s.getUser)

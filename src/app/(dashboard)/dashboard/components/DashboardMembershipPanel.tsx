@@ -6,12 +6,18 @@ import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
 import { Button, Card, Link } from '@ui'
 
 import { WorkerMembershipCard } from '@/app/(dashboard)/components/WorkerMembershipCard'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
+
+import bag from '../i11n.json'
 
 export function DashboardMembershipPanel({
   membership,
 }: {
   membership: WorkerMembershipFieldsFragment | null | undefined
 }) {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   if (membership) {
     return <WorkerMembershipCard membership={membership} />
   }
@@ -20,19 +26,17 @@ export function DashboardMembershipPanel({
     <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
         <Stack gap={1}>
-          <Heading size="md">Platform membership</Heading>
+          <Heading size="md">{t.membershipEmpty.title}</Heading>
           <Text fontSize="sm" color="text.muted">
-            Post tasks for free as a customer, or become a worker to send
-            quotes.
+            {t.membershipEmpty.description}
           </Text>
         </Stack>
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
-          Compare quotes from local workers. Job payments stay between you and
-          your pro — not through Slashie.
+          {t.membershipEmpty.body}
         </Text>
-        <Link href="/worker/setup" _hover={{ textDecoration: 'none' }}>
+        <Link href={href('/worker/setup')} _hover={{ textDecoration: 'none' }}>
           <Button size="sm" w={{ base: 'full', md: 'auto' }}>
-            Become a worker
+            {t.membershipEmpty.becomeWorker}
           </Button>
         </Link>
       </Stack>

@@ -26,7 +26,7 @@ import {
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import UpdateTask from '@/app/(task)/tasks/[slug]/graphql/UpdateTask.gql'
 import Me from '@/graphql/Me.gql'
-import { usePageI11n } from '@/i18n/usePageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getAuthToken } from '@/utils/auth'
 import {
@@ -59,7 +59,7 @@ import {
 import bag from './i11n.json'
 
 function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
 
   return (
     <Stack gap={2}>
@@ -108,7 +108,7 @@ function EditTaskFormBody({
   task,
   contactOptions,
 }: EditTaskFormBodyProps) {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const apollo = useApolloClient()
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
@@ -456,7 +456,7 @@ function EditTaskFormBody({
 }
 
 export default function EditTaskPage() {
-  const t = usePageI11n(bag)
+  const t = useI11n(bag)
   const router = useRouter()
   const params = useParams<{ slug: string }>()
   const taskId = typeof params.slug === 'string' ? params.slug : ''

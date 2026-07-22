@@ -11,6 +11,8 @@ import {
 } from 'react-icons/lu'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { Badge, Button, Card, Link, ProgressBar } from '@ui'
 
 import type { ProfileLifecycle } from '../helpers/profileLifecycle'
@@ -18,6 +20,7 @@ import {
   getProfileStrengthItems,
   profileStrengthPercent,
 } from '../helpers/profileStrength'
+import bag from '../i11n.json'
 
 export function NextStepCard({
   lifecycle,
@@ -26,13 +29,15 @@ export function NextStepCard({
   lifecycle: ProfileLifecycle
   onAction?: () => void
 }) {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   return (
     <Card layout="section" p={5}>
       <Stack gap={4}>
         <HStack gap={2}>
           <LuFlag size={18} color="var(--chakra-colors-status-warning-fg)" />
           <Heading as="h2" fontSize="md">
-            Your next step
+            {t.nextStepTitle}
           </Heading>
         </HStack>
         <Stack gap={1}>
@@ -54,7 +59,10 @@ export function NextStepCard({
             {lifecycle.ctaLabel}
           </Button>
         ) : (
-          <Link href={lifecycle.ctaHref} _hover={{ textDecoration: 'none' }}>
+          <Link
+            href={href(lifecycle.ctaHref)}
+            _hover={{ textDecoration: 'none' }}
+          >
             <Button w="full" size="sm" variant="primary">
               {lifecycle.ctaLabel}
               {lifecycle.publicProfileHref === lifecycle.ctaHref ? (
@@ -69,6 +77,8 @@ export function NextStepCard({
 }
 
 export function ProfileStrengthCard({ me }: { me: MeSnapshot }) {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   if (!me.worker?.id) return null
   const items = getProfileStrengthItems(me)
   const percent = profileStrengthPercent(items)
@@ -79,22 +89,26 @@ export function ProfileStrengthCard({ me }: { me: MeSnapshot }) {
         <HStack justify="space-between" align="flex-start" gap={3}>
           <Stack gap={0.5}>
             <Heading as="h2" fontSize="md">
-              Profile strength
+              {t.strengthTitle}
             </Heading>
             <Text fontSize="xs" color="text.muted">
-              Complete your public worker profile.
+              {t.strengthDescription}
             </Text>
           </Stack>
           <Badge variant={percent === 100 ? 'success' : 'neutral'} shape="pill">
             {percent}%
           </Badge>
         </HStack>
-        <ProgressBar value={percent} size="lg" trackLabel="Profile strength" />
+        <ProgressBar
+          value={percent}
+          size="lg"
+          trackLabel={t.strengthTrackLabel}
+        />
         <Stack gap={2.5}>
           {items.map((item) => (
             <Link
               key={item.key}
-              href={item.href}
+              href={href(item.href)}
               tone="muted"
               _hover={{ textDecoration: 'none' }}
             >
@@ -115,7 +129,7 @@ export function ProfileStrengthCard({ me }: { me: MeSnapshot }) {
                   color={item.done ? 'text.muted' : 'text.default'}
                 >
                   {item.label}
-                  {item.optional ? ' (optional)' : ''}
+                  {item.optional ? ` ${t.optional}` : ''}
                 </Text>
               </HStack>
             </Link>
@@ -127,30 +141,33 @@ export function ProfileStrengthCard({ me }: { me: MeSnapshot }) {
 }
 
 export function PrivacyVisibilityCard({ me }: { me: MeSnapshot }) {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   return (
     <Card layout="section" p={5}>
       <Stack gap={4}>
         <HStack gap={2}>
           <LuLock size={18} aria-hidden />
           <Heading as="h2" fontSize="md">
-            Privacy & visibility
+            {t.privacyTitle}
           </Heading>
         </HStack>
         <Text fontSize="xs" color="text.muted" lineHeight="tall">
-          Control what customers can see on your public profile.
+          {t.privacyDescription}
         </Text>
         <Stack gap={3}>
           <HStack gap={3} align="flex-start">
             <LuUsers size={17} aria-hidden />
             <Stack gap={0}>
               <Text fontSize="sm" fontWeight={600}>
-                Your profile is{' '}
-                {me.settings.isProfilePrivate ? 'private' : 'public'}
+                {me.settings.isProfilePrivate
+                  ? t.profileIsPrivate
+                  : t.profileIsPublic}
               </Text>
               <Text fontSize="xs" color="text.muted">
                 {me.settings.isProfilePrivate
-                  ? 'Only you can view your full profile.'
-                  : 'Customers can find and view your public worker profile.'}
+                  ? t.profilePrivateHint
+                  : t.profilePublicHint}
               </Text>
             </Stack>
           </HStack>
@@ -158,16 +175,16 @@ export function PrivacyVisibilityCard({ me }: { me: MeSnapshot }) {
             <LuLock size={17} aria-hidden />
             <Stack gap={0}>
               <Text fontSize="sm" fontWeight={600}>
-                Contact info stays private
+                {t.contactStaysPrivate}
               </Text>
               <Text fontSize="xs" color="text.muted">
-                Email, phone, and exact address never appear in the preview.
+                {t.contactStaysPrivateHint}
               </Text>
             </Stack>
           </HStack>
         </Stack>
-        <Link href="/account" fontSize="sm" fontWeight={600}>
-          Manage account privacy
+        <Link href={href('/account')} fontSize="sm" fontWeight={600}>
+          {t.manageAccountPrivacy}
         </Link>
       </Stack>
     </Card>

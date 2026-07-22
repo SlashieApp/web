@@ -21,25 +21,23 @@ import {
   pricingDisplayPrice,
 } from '@/app/(marketing)/pricing/helpers/formatPricing'
 import Me from '@/graphql/Me.gql'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, Link } from '@ui'
 
 import {
   hasUnlimitedQuoting,
+  isMembershipCanceled,
   isMembershipPaymentWarning,
-  membershipUpgradeLabel,
   pickMembershipSnapshot,
 } from '../../helpers/workerMembershipHelpers'
 import { useBillingActions } from '../helpers/useBillingActions'
+import bag from '../i11n.json'
 import { BillingCheckoutReturnHandler } from './BillingCheckoutReturnHandler'
 import { BillingNonWorkerState } from './BillingNonWorkerState'
 import { BillingQuoteMeter } from './BillingQuoteMeter'
 import { BillingViewCapture } from './BillingViewCapture'
-
-const SECTION_LINKS = [
-  { label: 'Overview', href: '#overview' },
-  { label: 'Usage', href: '#usage' },
-  { label: 'Plan', href: '#plan' },
-] as const
 
 function PlanFeature({ children }: { children: React.ReactNode }) {
   return (
@@ -113,9 +111,16 @@ function BillingNotice({
 }
 
 export function BillingPage() {
+  const t = useI11n(bag)
+  const href = useLocalizedHref()
   const me = useMe()
   const searchParams = useSearchParams()
   const checkoutState = searchParams.get('checkout')
+  const sectionLinks = [
+    { label: t.navOverview, href: '#overview' },
+    { label: t.navUsage, href: '#usage' },
+    { label: t.navPlan, href: '#plan' },
+  ] as const
 
   const {
     data: billingData,
@@ -153,6 +158,11 @@ export function BillingPage() {
   const interval = pricing
     ? formatPricingInterval(pricing.priceInterval)
     : 'month'
+  const upgradeLabel =
+    membership &&
+    (isMembershipCanceled(membership) || !membership.canStartTrial)
+      ? t.resubscribe
+      : t.startTrial
 
   if (!me?.worker?.id) {
     return (
@@ -160,9 +170,9 @@ export function BillingPage() {
         <MembershipRefreshOnMount />
         <BillingViewCapture />
         <DashboardPageLayout
-          eyebrow="BILLING"
-          title="Billing & membership"
-          description="Manage your Slashie Unlimited subscription and quote allowance."
+          eyebrow={t.eyebrow}
+          title={t.title}
+          description={t.descriptionNonWorker}
         >
           <BillingNonWorkerState />
         </DashboardPageLayout>
@@ -179,10 +189,10 @@ export function BillingPage() {
         onRefetchBilling={refetch}
       />
       <DashboardPageLayout
-        eyebrow="BILLING"
-        title="Billing & membership"
-        description="Manage your Slashie Unlimited subscription and monthly quote allowance."
-        sections={SECTION_LINKS}
+        eyebrow={t.eyebrow}
+        title={t.title}
+        description={t.description}
+        sections={sectionLinks}
         afterNav={
           <>
             {showCheckoutSuccess ? (
@@ -190,27 +200,17 @@ export function BillingPage() {
                 tone="success"
                 title={
                   isActivating
-                    ? 'Activating your subscription…'
-                    : 'Slashie Unlimited is active.'
+                    ? t.checkoutActivatingTitle
+                    : t.checkoutActiveTitle
                 }
-                body={
-                  isActivating
-                    ? 'This usually takes a few seconds after checkout.'
-                    : undefined
-                }
+                body={isActivating ? t.checkoutActivatingBody : undefined}
               />
             ) : null}
             {showCheckoutCancel ? (
-              <BillingNotice
-                tone="neutral"
-                title="Checkout cancelled — you can try again anytime."
-              />
+              <BillingNotice tone="neutral" title={t.checkoutCancelledTitle} />
             ) : null}
             {billingError ? (
-              <BillingNotice
-                tone="danger"
-                title="Could not load billing details. Refresh the page or try again shortly."
-              />
+              <BillingNotice tone="danger" title={t.billingErrorTitle} />
             ) : null}
           </>
         }
@@ -218,14 +218,12 @@ export function BillingPage() {
           membership ? (
             <>
               <DashboardSectionCard
-                title="About platform billing"
-                description="Separate from job payments."
+                title={t.aboutTitle}
+                description={t.aboutDescription}
                 icon={<LuInfo size={18} aria-hidden />}
               >
                 <Text fontSize="sm" color="text.muted" lineHeight="tall">
-                  Job payments are arranged directly with customers. This
-                  subscription is for platform access only — Slashie does not
-                  process task payments.
+                  {t.aboutBody}
                 </Text>
               </DashboardSectionCard>
               <Card
@@ -234,38 +232,38 @@ export function BillingPage() {
                 header={
                   <Stack gap={0.5}>
                     <Text fontSize="md" fontWeight={600}>
-                      Related
+                      {t.relatedTitle}
                     </Text>
                     <Text fontSize="xs" color="text.muted">
-                      Other worker account tools.
+                      {t.relatedDescription}
                     </Text>
                   </Stack>
                 }
               >
                 <Stack gap={3}>
                   <Link
-                    href="/earnings"
+                    href={href('/earnings')}
                     fontSize="sm"
                     fontWeight={600}
                     color="text.link"
                   >
-                    Earnings log →
+                    {t.relatedEarnings}
                   </Link>
                   <Link
-                    href="/profile?section=worker"
+                    href={href('/profile?section=worker')}
                     fontSize="sm"
                     fontWeight={600}
                     color="text.link"
                   >
-                    Worker profile →
+                    {t.relatedWorkerProfile}
                   </Link>
                   <Link
-                    href="/account"
+                    href={href('/account')}
                     fontSize="sm"
                     fontWeight={600}
                     color="text.link"
                   >
-                    Account & security →
+                    {t.relatedAccount}
                   </Link>
                 </Stack>
               </Card>
@@ -285,8 +283,10 @@ export function BillingPage() {
             {!hasUnlimited ? (
               <DashboardSectionCard
                 id="usage"
-                title="Free tier usage"
-                description={`${membership.freeQuotesPerMonth} quotes per UTC month on the free plan.`}
+                title={t.usageTitle}
+                description={formatMessage(t.usageDescription, {
+                  count: membership.freeQuotesPerMonth,
+                })}
                 icon={<LuGauge size={18} aria-hidden />}
               >
                 <Stack gap={3}>
@@ -300,8 +300,7 @@ export function BillingPage() {
                       color="status.warning.fg"
                       fontWeight={600}
                     >
-                      You&apos;ve used all free quotes this month. Upgrade for
-                      unlimited quoting.
+                      {t.usageExhausted}
                     </Text>
                   ) : null}
                 </Stack>
@@ -334,7 +333,7 @@ export function BillingPage() {
                       <LuCreditCard size={18} aria-hidden />
                       {membership.planName ??
                         pricing?.productName ??
-                        'Slashie Unlimited'}
+                        t.planFallbackName}
                     </Text>
                     <MembershipStatusDetail membership={membership} />
                   </Stack>
@@ -359,8 +358,10 @@ export function BillingPage() {
                       {pricingAfterTrialLine(pricing)}
                     </Text>
                     <Text fontSize="xs" color="text.muted" mt={1}>
-                      Then {pricingDisplayPrice(pricing)} per {interval} unless
-                      you cancel
+                      {formatMessage(t.thenPrice, {
+                        price: pricingDisplayPrice(pricing),
+                        interval,
+                      })}
                     </Text>
                   </Stack>
                 ) : null}
@@ -371,22 +372,27 @@ export function BillingPage() {
                     title={
                       membership.subscriptionStatus ===
                       WorkerSubscriptionStatus.PastDue
-                        ? 'Payment issue — update your payment method to keep unlimited quotes.'
-                        : 'Payment required — update billing to restore unlimited quotes.'
+                        ? t.paymentPastDue
+                        : t.paymentUnpaid
                     }
                   />
                 ) : null}
 
                 {!hasUnlimited && pricing ? (
                   <List.Root gap={2.5} ps={0} style={{ listStyle: 'none' }}>
-                    <PlanFeature>Unlimited quotes while subscribed</PlanFeature>
-                    <PlanFeature>
-                      Browse tasks without a monthly quote cap
-                    </PlanFeature>
+                    <PlanFeature>{t.featureUnlimited}</PlanFeature>
+                    <PlanFeature>{t.featureBrowse}</PlanFeature>
                     <PlanFeature>
                       {pricing.trialLabel
-                        ? `${pricing.trialLabel}, then ${pricingDisplayPrice(pricing)}/${interval}`
-                        : `${pricingDisplayPrice(pricing)}/${interval}`}
+                        ? formatMessage(t.featurePriceWithTrial, {
+                            trial: pricing.trialLabel,
+                            price: pricingDisplayPrice(pricing),
+                            interval,
+                          })
+                        : formatMessage(t.featurePrice, {
+                            price: pricingDisplayPrice(pricing),
+                            interval,
+                          })}
                     </PlanFeature>
                   </List.Root>
                 ) : null}
@@ -399,7 +405,7 @@ export function BillingPage() {
                       loading={checkoutLoading}
                       disabled={checkoutLoading || portalLoading}
                     >
-                      {membershipUpgradeLabel(membership)}
+                      {upgradeLabel}
                     </Button>
                   ) : null}
                   {membership.canManageBilling ? (
@@ -412,8 +418,8 @@ export function BillingPage() {
                     >
                       {membership.subscriptionStatus ===
                       WorkerSubscriptionStatus.PastDue
-                        ? 'Fix payment'
-                        : 'Manage billing'}
+                        ? t.fixPayment
+                        : t.manageBilling}
                     </Button>
                   ) : null}
                 </Stack>

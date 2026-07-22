@@ -2,17 +2,21 @@
 
 import { Box, HStack, Heading } from '@chakra-ui/react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { sdlElevation } from '@/theme/styles'
 
 import {
-  SEARCH_MODE_INLINE_LABEL,
-  SEARCH_MODE_TOGGLE_OPTIONS,
+  type SearchModeCopy,
+  searchModeInlineLabel,
+  searchModeToggleOptions,
 } from '../helpers/searchModeLabels'
 import type { SearchMode } from '../helpers/searchQueryParams'
 import { searchModeWordHeadingProps } from '../helpers/searchTitleTypography'
 import { useSelectSearchMode } from '../hooks/useSelectSearchMode'
+import bag from '../i11n.json'
 
 const morphEase = [0.22, 1, 0.36, 1] as const
 const wordEase = [0.2, 0, 0, 1] as const
@@ -67,11 +71,14 @@ function segmentTargetWidth(
 export type SearchModeSelectorBaseProps = {
   mode: SearchMode
   onModeChange: (mode: SearchMode) => void
+  /** When omitted, reads from the colocated search `i11n.json`. */
+  copy?: SearchModeCopy
 }
 
 type ModeWordControlProps = SearchModeSelectorBaseProps & {
   expanded: boolean
   onOpen: () => void
+  copy: SearchModeCopy
 }
 
 /**
@@ -83,25 +90,27 @@ function ModeWordControl({
   onModeChange,
   expanded,
   onOpen,
+  copy,
 }: ModeWordControlProps) {
   const measureRef = useRef<HTMLDivElement>(null)
   const [textWidths, setTextWidths] = useState<Record<SearchMode, number>>({
     tasks: 0,
     workers: 0,
   })
+  const toggleOptions = useMemo(() => searchModeToggleOptions(copy), [copy])
 
   const measureTextWidths = useCallback(() => {
     const root = measureRef.current
     if (!root) return
     const next = { tasks: 0, workers: 0 }
-    for (const option of SEARCH_MODE_TOGGLE_OPTIONS) {
+    for (const option of toggleOptions) {
       const el = root.querySelector<HTMLElement>(
         `[data-mode-label="${option.value}"]`,
       )
       if (el) next[option.value] = el.offsetWidth
     }
     setTextWidths(next)
-  }, [])
+  }, [toggleOptions])
 
   useLayoutEffect(() => {
     measureTextWidths()
@@ -126,7 +135,7 @@ function ModeWordControl({
           whiteSpace: 'nowrap',
         }}
       >
-        {SEARCH_MODE_TOGGLE_OPTIONS.map((option) => (
+        {toggleOptions.map((option) => (
           <Heading
             key={option.value}
             data-mode-label={option.value}
@@ -135,7 +144,7 @@ function ModeWordControl({
             lineHeight="1"
             display="inline-block"
           >
-            {SEARCH_MODE_INLINE_LABEL[option.value]}
+            {searchModeInlineLabel(copy, option.value)}
           </Heading>
         ))}
       </div>
@@ -169,10 +178,10 @@ function ModeWordControl({
             overflow: 'hidden',
           }}
         >
-          {SEARCH_MODE_TOGGLE_OPTIONS.map((option) => {
+          {toggleOptions.map((option) => {
             const active = option.value === mode
             const visible = expanded || active
-            const label = SEARCH_MODE_INLINE_LABEL[option.value]
+            const label = searchModeInlineLabel(copy, option.value)
             const targetWidth = segmentTargetWidth(
               option.value,
               textWidths,
@@ -185,7 +194,7 @@ function ModeWordControl({
                 key={option.value}
                 type="button"
                 aria-pressed={active}
-                aria-label={`Search ${label}`}
+                aria-label={formatMessage(copy.ariaSearchMode, { mode: label })}
                 aria-hidden={visible ? undefined : true}
                 tabIndex={visible ? 0 : -1}
                 onClick={(event) => {
@@ -271,10 +280,13 @@ function ModeWordControl({
 export function SearchModeSelectorBase({
   mode,
   onModeChange,
+  copy: copyProp,
 }: SearchModeSelectorBaseProps) {
+  const pageCopy = useI11n(bag)
+  const copy = copyProp ?? pageCopy.mode
   const [expanded, setExpanded] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  const inlineLabel = SEARCH_MODE_INLINE_LABEL[mode]
+  const inlineLabel = searchModeInlineLabel(copy, mode)
 
   const open = useCallback(() => setExpanded(true), [])
   const close = useCallback(() => setExpanded(false), [])
@@ -307,7 +319,7 @@ export function SearchModeSelectorBase({
       onMouseLeave={close}
       onFocusCapture={open}
       onBlurCapture={onBlurCapture}
-      aria-label={`Searching for ${inlineLabel} nearby`}
+      aria-label={formatMessage(copy.ariaSearchingFor, { mode: inlineLabel })}
     >
       <HStack
         as="p"
@@ -317,7 +329,7 @@ export function SearchModeSelectorBase({
         alignItems="baseline"
       >
         <Heading as="span" {...searchModeWordHeadingProps}>
-          Searching for
+          {copy.searchingFor}
         </Heading>
 
         <ModeWordControl
@@ -325,10 +337,11 @@ export function SearchModeSelectorBase({
           onModeChange={onModeChange}
           expanded={expanded}
           onOpen={open}
+          copy={copy}
         />
 
         <Heading as="span" {...searchModeWordHeadingProps}>
-          nearby
+          {copy.nearby}
         </Heading>
       </HStack>
     </Box>

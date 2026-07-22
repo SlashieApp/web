@@ -16,6 +16,9 @@ import { LuCheck, LuLock, LuMessagesSquare, LuX } from 'react-icons/lu'
 
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { Button, Card, Link } from '@ui'
@@ -24,13 +27,15 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
   formatPoundsFromPence,
-  formatQuoteRespondedAgo,
   splitQuoteMessageAvailability,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
+import bag from '../../i11n.json'
 import { QuoteCard, QuoteCardAvatar } from './QuoteCard'
 
 type TaskQuote = TaskDetailRecord['quotes'][number]
+type TaskDetailI11n = (typeof bag)['en']
+type QuotesCopy = TaskDetailI11n['quotes']
 
 /** The approved 12-state quotes-module matrix (contact sheet v2). */
 export type QuotesModuleState =
@@ -115,19 +120,28 @@ export function deriveQuotesModuleState(input: {
   return 'W3'
 }
 
-const HEADER_SUBTITLES: Record<QuotesModuleState, string> = {
-  C1: 'Workers can send quotes while your task is open.',
-  C2: 'Workers can send quotes while your task is open.',
-  C3: 'Workers can send quotes while your task is open.',
-  C4: 'Workers can send quotes while your task is open.',
-  W1: 'Sign in to send a quote.',
-  W2: 'Become a worker to compete on this task.',
-  W3: 'Be the first to quote — customers compare price and availability.',
-  W4: 'See what others are bidding — then send yours.',
-  W5: 'Customer is reviewing quotes.',
-  W6: 'Your quote has been accepted.',
-  W7: 'This quote was not selected.',
-  W8: 'This task is not accepting new quotes.',
+function formatRespondedAgo(
+  iso: string | null | undefined,
+  q: QuotesCopy,
+): string | null {
+  if (!iso?.trim()) return null
+  const t = new Date(iso).getTime()
+  if (Number.isNaN(t)) return null
+  const diffMs = Date.now() - t
+  if (diffMs < 0) return q.respondedJustNow
+  const mins = Math.floor(diffMs / 60000)
+  if (mins < 1) return q.respondedJustNow
+  if (mins < 60) return formatMessage(q.respondedMinutes, { count: mins })
+  const hours = Math.floor(mins / 60)
+  if (hours < 48) {
+    return formatMessage(hours === 1 ? q.respondedHour : q.respondedHours, {
+      count: hours,
+    })
+  }
+  const days = Math.floor(hours / 24)
+  return formatMessage(days === 1 ? q.respondedDay : q.respondedDays, {
+    count: days,
+  })
 }
 
 // ---------------------------------------------------------------- chrome
@@ -166,6 +180,7 @@ function ModuleShell({
   slotsStrip?: React.ReactNode
   children: React.ReactNode
 }) {
+  const { quotes: q } = useI11n(bag)
   return (
     <Card
       layout="section"
@@ -180,7 +195,7 @@ function ModuleShell({
               color="text.default"
               lineHeight="short"
             >
-              Quotes
+              {q.heading}
             </Heading>
             {pill ? <CountPill label={pill} /> : null}
           </HStack>
@@ -198,6 +213,7 @@ function ModuleShell({
 
 /** C3: "2 of 3 worker slots filled" strip with progress dots. */
 function SlotsStrip({ filled, cap }: { filled: number; cap: number }) {
+  const { quotes: q } = useI11n(bag)
   return (
     <HStack
       justify="space-between"
@@ -208,7 +224,7 @@ function SlotsStrip({ filled, cap }: { filled: number; cap: number }) {
       borderRadius="lg"
     >
       <Text fontSize="sm" fontWeight={600} color="status.success.fg">
-        {filled} of {cap} worker slots filled
+        {formatMessage(q.slotsFilled, { filled, cap })}
       </Text>
       <HStack gap={1.5} aria-hidden>
         {Array.from({ length: cap }, (_, i) => (
@@ -303,10 +319,14 @@ function workerNameInitials(name: string, workerUserId: string): string {
   return initials || workerQuoteAvatarLabel(workerUserId)
 }
 
-function quoteCardBaseProps(quote: TaskQuote) {
+function quoteCardBaseProps(
+  quote: TaskQuote,
+  workerFallback: string,
+  quotesCopy: QuotesCopy,
+) {
   const { body, availability } = splitQuoteMessageAvailability(quote.message)
   const pence = priceToPence(quote.price)
-  const name = quote.worker?.profile?.name?.trim() || 'Worker'
+  const name = quote.worker?.profile?.name?.trim() || workerFallback
   return {
     name,
     avatarLabel: workerNameInitials(name, quote.workerUserId),
@@ -316,7 +336,8 @@ function quoteCardBaseProps(quote: TaskQuote) {
     message: body,
     availabilityLabel: availability,
     showVerified: Boolean(quote.worker?.worker?.isVerified),
-    respondedLabel: formatQuoteRespondedAgo(quote.createdAt) ?? undefined,
+    respondedLabel:
+      formatRespondedAgo(quote.createdAt, quotesCopy) ?? undefined,
   }
 }
 
@@ -328,10 +349,12 @@ function AcceptedPrimaryCard({
   quote: TaskQuote
   taskId: string
 }) {
-  const base = quoteCardBaseProps(quote)
+  const href = useLocalizedHref()
+  const { quotes: q, fallbackWorker } = useI11n(bag)
+  const base = quoteCardBaseProps(quote, fallbackWorker, q)
   const workerEntityId = quote.worker?.worker?.id
   const profileHref = workerEntityId
-    ? workerProfilePath(workerEntityId, taskId)
+    ? href(workerProfilePath(workerEntityId, taskId))
     : null
 
   return (
@@ -354,7 +377,7 @@ function AcceptedPrimaryCard({
           aria-hidden
         />
         <Text fontSize="sm" fontWeight={700} color="status.success.fg">
-          Job in progress
+          {q.jobInProgress}
         </Text>
       </HStack>
       <HStack align="flex-start" gap={3} justify="space-between">
@@ -370,7 +393,7 @@ function AcceptedPrimaryCard({
               {base.name}
             </Heading>
             <Text fontSize="sm" color="text.muted">
-              ★ No reviews yet
+              ★ {q.noReviewsYet}
             </Text>
           </Stack>
         </HStack>
@@ -403,7 +426,7 @@ function AcceptedPrimaryCard({
       {profileHref ? (
         <Button asChild size="sm" variant="secondary" w="full">
           <Link href={profileHref} _hover={{ textDecoration: 'none' }}>
-            View profile
+            {q.viewProfile}
           </Link>
         </Button>
       ) : null}
@@ -429,6 +452,8 @@ export type QuotesModuleProps = {
  * scattered in JSX.
  */
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
+  const href = useLocalizedHref()
+  const { quotes: q, fallbackWorker, fallbackCustomer } = useI11n(bag)
   const {
     task,
     permissions,
@@ -447,7 +472,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   const quotes = task?.quotes ?? []
   const acceptedQuotes = useMemo(
-    () => quotes.filter((q) => isAcceptedQuoteStatus(q.status)),
+    () => quotes.filter((qq) => isAcceptedQuoteStatus(qq.status)),
     [quotes],
   )
 
@@ -472,20 +497,25 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   const quoteFlowHref = `/tasks/${task.id}/quote`
   const nextHref = encodeURIComponent(quoteFlowHref)
+  const cardProps = (quote: TaskQuote) =>
+    quoteCardBaseProps(quote, fallbackWorker, q)
 
   const pill =
     state === 'W8'
-      ? 'Full'
+      ? q.pillFull
       : state === 'C4' || state === 'C3'
-        ? `${acceptedQuotes.length} accepted`
+        ? formatMessage(q.pillAccepted, { count: acceptedQuotes.length })
         : quotes.length > 0 && (state === 'C2' || state === 'W4')
-          ? `${quotes.length} offer${quotes.length === 1 ? '' : 's'}`
+          ? formatMessage(
+              quotes.length === 1 ? q.pillOffersOne : q.pillOffersMany,
+              { count: quotes.length },
+            )
           : null
 
   const sendQuoteCta = (
     <Button asChild variant="primary" w="full">
-      <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
-        Send a quote
+      <Link href={href(quoteFlowHref)} _hover={{ textDecoration: 'none' }}>
+        {q.sendQuote}
       </Link>
     </Button>
   )
@@ -499,7 +529,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const ownerSortSelect = (
     <HStack gap={2} align="center">
       <Text fontSize="sm" color="text.muted" fontWeight={500} flexShrink={0}>
-        Sort:
+        {q.sortLabel}
       </Text>
       <NativeSelect.Root w="full" maxW="220px">
         <NativeSelect.Field
@@ -511,9 +541,9 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           value={sort}
           onChange={(e) => setSort(e.target.value as QuoteSort)}
         >
-          <option value="recommended">Recommended</option>
-          <option value="price_low">Price low–high</option>
-          <option value="recent">Newest</option>
+          <option value="recommended">{q.sortRecommended}</option>
+          <option value="price_low">{q.sortPriceLow}</option>
+          <option value="recent">{q.sortNewest}</option>
         </NativeSelect.Field>
       </NativeSelect.Root>
     </HStack>
@@ -527,10 +557,10 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       <QuoteCard
         key={quote.id}
         variant="card"
-        {...quoteCardBaseProps(quote)}
+        {...cardProps(quote)}
         workerProfileHref={
           workerEntityId
-            ? workerProfilePath(workerEntityId, task.id)
+            ? href(workerProfilePath(workerEntityId, task.id))
             : undefined
         }
         statusBadge={
@@ -558,7 +588,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   /** Read-only competitor card — public identity only, no contact PII. */
   const competitorCard = (quote: TaskQuote) => (
-    <QuoteCard key={quote.id} variant="card" {...quoteCardBaseProps(quote)} />
+    <QuoteCard key={quote.id} variant="card" {...cardProps(quote)} />
   )
 
   let body: React.ReactNode = null
@@ -566,10 +596,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   switch (state) {
     case 'C1':
       body = (
-        <EmptyBlock
-          title="No quotes yet"
-          caption="Nearby workers usually respond within 24 hours."
-        />
+        <EmptyBlock title={q.emptyOwnerTitle} caption={q.emptyOwnerCaption} />
       )
       break
 
@@ -594,7 +621,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
     case 'C4': {
       const primary = acceptedQuotes[0]
-      const others = quotes.filter((q) => q.id !== primary?.id)
+      const others = quotes.filter((qq) => qq.id !== primary?.id)
       body = (
         <>
           {errorLine}
@@ -611,8 +638,13 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
                 onClick={() => setShowOthers((v) => !v)}
               >
                 {showOthers
-                  ? 'Hide other quotes'
-                  : `Show ${others.length} other quote${others.length === 1 ? '' : 's'}`}
+                  ? q.hideOtherQuotes
+                  : formatMessage(
+                      others.length === 1
+                        ? q.showOtherQuotesOne
+                        : q.showOtherQuotesMany,
+                      { count: others.length },
+                    )}
               </Button>
               {showOthers ? (
                 <Stack gap={3}>{others.map(ownerQuoteCard)}</Stack>
@@ -631,23 +663,23 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             <LuLock size={22} />
           </StatusCircle>
           <Text fontWeight={600} color="text.default" maxW="240px">
-            Join as a worker to quote on tasks.
+            {q.joinAsWorker}
           </Text>
           <Stack gap={2} w="full">
             <Button asChild variant="primary" w="full">
               <Link
-                href={`/register?next=${nextHref}`}
+                href={href(`/register?next=${nextHref}`)}
                 _hover={{ textDecoration: 'none' }}
               >
-                Get started
+                {q.getStarted}
               </Link>
             </Button>
             <Button asChild variant="ghost" w="full">
               <Link
-                href={`/login?next=${nextHref}`}
+                href={href(`/login?next=${nextHref}`)}
                 _hover={{ textDecoration: 'none' }}
               >
-                Log in
+                {q.logIn}
               </Link>
             </Button>
           </Stack>
@@ -679,14 +711,14 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           <Stack gap={1} align="center">
             <Button asChild variant="primary" w="full">
               <Link
-                href={workerSetupHref(quoteFlowHref)}
+                href={href(workerSetupHref(quoteFlowHref))}
                 _hover={{ textDecoration: 'none' }}
               >
-                Set up worker profile
+                {q.setupProfile}
               </Link>
             </Button>
             <Text fontSize="xs" color="text.muted">
-              Takes ~3 minutes.
+              {q.setupMinutes}
             </Text>
           </Stack>
         </Stack>
@@ -697,15 +729,15 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       body = (
         <Stack gap={4}>
           <EmptyBlock
-            title="No quotes yet"
-            caption="Be the first worker to make an offer on this task."
+            title={q.emptyWorkerTitle}
+            caption={q.emptyWorkerCaption}
           />
           <Stack gap={2}>
             <Text fontWeight={700} color="text.default">
-              Submit a quote
+              {q.submitQuoteTitle}
             </Text>
             <Text fontSize="sm" color="text.muted">
-              Add your price, availability, and a message for the customer.
+              {q.submitQuoteCaption}
             </Text>
             {sendQuoteCta}
           </Stack>
@@ -720,7 +752,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           <HStack gap={3} align="center" aria-hidden>
             <Box flex={1} h="1px" bg="border.default" />
             <Text fontSize="xs" color="text.muted" fontWeight={600}>
-              Your turn
+              {q.yourTurn}
             </Text>
             <Box flex={1} h="1px" bg="border.default" />
           </HStack>
@@ -730,7 +762,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       break
 
     case 'W5': {
-      const others = quotes.filter((q) => q.id !== myQuote?.id)
+      const others = quotes.filter((qq) => qq.id !== myQuote?.id)
       body = (
         <Stack gap={4}>
           {myQuote ? (
@@ -742,16 +774,16 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             >
               <QuoteCard
                 variant="card"
-                {...quoteCardBaseProps(myQuote)}
+                {...cardProps(myQuote)}
                 statusBadge="yours"
-                respondedLabel="Pending · customer reviewing"
+                respondedLabel={q.pendingReviewing}
               />
             </Box>
           ) : null}
           {others.length > 0 ? (
             <Stack gap={2}>
               <Text fontSize="sm" fontWeight={700} color="text.default">
-                Other quotes
+                {q.otherQuotes}
               </Text>
               <Stack gap={3}>{others.map(competitorCard)}</Stack>
             </Stack>
@@ -763,8 +795,11 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             borderColor="border.default"
             w="full"
           >
-            <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
-              Edit quote
+            <Link
+              href={href(quoteFlowHref)}
+              _hover={{ textDecoration: 'none' }}
+            >
+              {q.editQuote}
             </Link>
           </Button>
         </Stack>
@@ -774,7 +809,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
     case 'W6': {
       const pence = myQuote ? priceToPence(myQuote.price) : null
-      const posterName = task.poster?.profile?.name?.trim() || 'Customer'
+      const posterName = task.poster?.profile?.name?.trim() || fallbackCustomer
       body = (
         <Stack align="center" gap={3} py={2} textAlign="center">
           <StatusCircle tone="success">
@@ -782,10 +817,10 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           </StatusCircle>
           <Stack gap={0.5}>
             <Text fontWeight={700} fontSize="lg" color="text.default">
-              Quote accepted
+              {q.quoteAccepted}
             </Text>
             <Text fontSize="sm" color="text.muted">
-              Agreed price
+              {q.agreedPrice}
             </Text>
             <Text fontWeight={800} fontSize="3xl" color="text.default">
               {pence != null ? formatPoundsFromPence(pence) : '—'}
@@ -808,7 +843,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             />
             <Stack gap={0} minW={0}>
               <Text fontSize="xs" color="text.muted">
-                Customer
+                {q.customerLabel}
               </Text>
               <Text fontWeight={600} truncate>
                 {posterName}
@@ -816,11 +851,11 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             </Stack>
           </HStack>
           <Text fontSize="sm" color="text.muted">
-            See job banner for address &amp; code.
+            {q.seeJobBanner}
           </Text>
           <Button asChild variant="secondary" w="full">
             <Link href="#task-order" _hover={{ textDecoration: 'none' }}>
-              Open job details
+              {q.openJobDetails}
             </Link>
           </Button>
         </Stack>
@@ -854,17 +889,17 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             fontWeight={700}
             color="text.muted"
           >
-            Declined
+            {q.declined}
           </Box>
           <Text fontWeight={600} color="text.default" maxW="260px">
-            Customer chose another worker for this task.
+            {q.choseAnother}
           </Text>
           <Text fontSize="sm" color="text.muted">
-            Thanks for your offer.
+            {q.thanksOffer}
           </Text>
           <Button asChild variant="secondary" w="full">
-            <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
-              Browse other tasks
+            <Link href={href('/tasks')} _hover={{ textDecoration: 'none' }}>
+              {q.browseOtherTasks}
             </Link>
           </Button>
         </Stack>
@@ -878,22 +913,22 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             <LuCheck size={24} strokeWidth={3} />
           </StatusCircle>
           <Text fontWeight={700} color="text.default">
-            All worker slots filled.
+            {q.allSlotsFilled}
           </Text>
           <Text fontSize="sm" color="text.muted" maxW="260px">
-            The customer has accepted the maximum number of worker quotes.
+            {q.maxQuotesAccepted}
           </Text>
           {acceptedQuotes.length > 0 ? (
             <Stack gap={2} align="center">
               <Text fontSize="xs" fontWeight={700} color="text.muted">
-                Accepted workers
+                {q.acceptedWorkers}
               </Text>
               <HStack gap={2}>
-                {acceptedQuotes.map((q) => {
-                  const base = quoteCardBaseProps(q)
+                {acceptedQuotes.map((qq) => {
+                  const base = cardProps(qq)
                   return (
                     <QuoteCardAvatar
-                      key={q.id}
+                      key={qq.id}
                       name={base.name}
                       avatarLabel={base.avatarLabel}
                       avatarUrl={base.avatarUrl}
@@ -911,7 +946,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   return (
     <ModuleShell
-      subtitle={HEADER_SUBTITLES[state]}
+      subtitle={q.subtitles[state]}
       pill={pill}
       slotsStrip={
         state === 'C3' ? (

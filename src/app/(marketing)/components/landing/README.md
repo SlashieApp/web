@@ -64,7 +64,7 @@ reads identically and costs almost nothing on low tiers.
   the native cursor is never replaced (a11y + platform affordances intact).
 - **Pricing teaser** pulls live GraphQL pricing (`getPricingForPage`) — the one
   place plum (`accent.premium`) appears, per the premium-moment rule.
-- **Unchanged app behavior**: `HomeAuthRedirect` (signed-in `/` → `/tasks`),
+- **Landing stays public**: signed-in visitors are not auto-redirected away from `/`,
   routing, auth, and GraphQL are untouched; Lenis mounts only on the landing.
 - Scroll storytelling uses IO + CSS + `motion` (already installed) rather than
   GSAP, per the approved lean dependency set (`three`, `@react-three/fiber`,
