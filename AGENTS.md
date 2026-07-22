@@ -1,5 +1,19 @@
 # Project Overview: Slashie Web MVP
 
+## Agent workflow (required)
+
+Before changing this repo, follow the canonical playbook in the **wiki**:
+[`00-Meta/Agent-Instructions.md`](https://github.com/SlashieApp/wiki/blob/main/00-Meta/Agent-Instructions.md).
+
+Short rules for **web**:
+
+1. Read relevant wiki notes + the Linear **`FE-*`** ticket (create or **reuse/update** — do not duplicate).
+2. Implement here; keep product truth and decisions in the wiki.
+3. Open a **PR** against `main` and mark it **ready for review**; set Linear to **In Review**.
+4. Sync roadmap / domain wiki notes when scope or delivery status changes.
+
+Wiki docs ship on **`main`** directly; do not treat this file as the only source of process truth.
+
 ## 1. Project Mission
 
 Slashie is a high-trust local task marketplace connecting people who need work done with **workers** who can do it. The product goal is to make hiring and earning straightforward: post a task, compare **quotes**, complete the work, and leave feedback—with **map-first discovery** as a core experience.
