@@ -2,7 +2,6 @@
 
 import { Box, HStack, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { Card, Link } from '@ui'
 
@@ -101,7 +100,6 @@ export function DashboardQuickActions({
   actions: readonly DashboardQuickAction[]
 }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   return (
     <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
@@ -110,7 +108,7 @@ export function DashboardQuickActions({
           {actions.map((item) => (
             <Link
               key={item.key}
-              href={href(item.href)}
+              href={item.href}
               _hover={{ textDecoration: 'none' }}
             >
               <Stack

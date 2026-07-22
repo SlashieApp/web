@@ -53,7 +53,7 @@ Slashie is a high-trust local task marketplace connecting people who need work d
 
 - Frontend: Next.js 16 (App Router).
 - API: external GraphQL backend (schema synced into `.codegen/schema.ts`).
-- UI system: reusable primitives in `src/ui` (`@ui`) with Chakra UI as base layer; app shell chrome in `src/components`.
+- UI system: reusable primitives and shell chrome (`Header`, `Dock`) in `src/ui` (`@ui`) with Chakra UI as base layer; copy bags colocated as `i11n.json` next to the owner.
 
 ## 6. Engineering conventions (wiki)
 

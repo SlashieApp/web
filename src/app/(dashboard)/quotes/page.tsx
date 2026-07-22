@@ -1,18 +1,26 @@
-import { getRequestLocale } from '@/i18n/getRequestLocale'
-import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
+'use client'
 
-import PageContent from './PageContent'
-import bag from './i11n.json'
+import { useCallback, useRef } from 'react'
 
-const PAGE_PATH = '/quotes'
+import { EVENTS, capture } from '@/utils/analytics'
 
-export async function generateMetadata() {
-  const locale = await getRequestLocale()
-  const copy = loadPageI11n(bag, locale)
-  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
-}
+import { WorkerQuotesLayout } from './components/WorkerQuotesLayout'
+import { WorkerQuotesProvider } from './context/WorkerQuotesProvider'
 
-export default async function Page() {
-  const locale = await getRequestLocale()
-  return <PageContent key={locale} />
+export default function MyQuotesPage() {
+  const trackedRef = useRef(false)
+
+  const onMountRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node || trackedRef.current) return
+    trackedRef.current = true
+    capture(EVENTS.jobs_view)
+  }, [])
+
+  return (
+    <div ref={onMountRef}>
+      <WorkerQuotesProvider>
+        <WorkerQuotesLayout />
+      </WorkerQuotesProvider>
+    </div>
+  )
 }

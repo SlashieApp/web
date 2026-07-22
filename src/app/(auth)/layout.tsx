@@ -4,7 +4,7 @@ import { Box, Stack } from '@chakra-ui/react'
 import { useSelectedLayoutSegment } from 'next/navigation'
 import { useCallback, useRef } from 'react'
 
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { markAuthSurfaceSession } from '@/utils/analytics'
 
 export default function AuthLayout({

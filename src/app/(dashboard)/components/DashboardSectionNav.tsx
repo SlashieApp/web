@@ -2,7 +2,6 @@
 
 import { Box, HStack } from '@chakra-ui/react'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Link } from '@ui'
 
 export type DashboardSectionNavItem = {
@@ -18,7 +17,6 @@ export function DashboardSectionNav({
   /** When omitted, the first item is treated as active. */
   activeHref?: string
 }) {
-  const href = useLocalizedHref()
   const current = activeHref ?? items[0]?.href
 
   return (
@@ -33,7 +31,7 @@ export function DashboardSectionNav({
         {items.map((item) => (
           <Link
             key={item.href}
-            href={href(item.href)}
+            href={item.href}
             tone="muted"
             fontSize="sm"
             fontWeight={600}

@@ -4,7 +4,6 @@ import { HStack, Stack, Text } from '@chakra-ui/react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Button, Card, Link } from '@ui'
 
 import {
@@ -15,7 +14,6 @@ import {
 
 export function ProfileWorkerSetupBanner() {
   const me = useUserStore((s) => s.me)
-  const href = useLocalizedHref()
   if (!me || !isWorkerSetupInProgress(me)) return null
 
   const percent = workerSetupProgressPercent(me)
@@ -43,7 +41,7 @@ export function ProfileWorkerSetupBanner() {
         </Stack>
         <HStack gap={3} flexWrap="wrap">
           <Link
-            href={href(workerSetupHref('/profile'))}
+            href={workerSetupHref('/profile')}
             _hover={{ textDecoration: 'none' }}
           >
             <Button size="sm" variant="primary">

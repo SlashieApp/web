@@ -11,7 +11,6 @@ import {
 } from 'react-icons/lu'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { Badge, Button, Card, Link, ProgressBar } from '@ui'
 
@@ -30,7 +29,6 @@ export function NextStepCard({
   onAction?: () => void
 }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   return (
     <Card layout="section" p={5}>
       <Stack gap={4}>
@@ -59,10 +57,7 @@ export function NextStepCard({
             {lifecycle.ctaLabel}
           </Button>
         ) : (
-          <Link
-            href={href(lifecycle.ctaHref)}
-            _hover={{ textDecoration: 'none' }}
-          >
+          <Link href={lifecycle.ctaHref} _hover={{ textDecoration: 'none' }}>
             <Button w="full" size="sm" variant="primary">
               {lifecycle.ctaLabel}
               {lifecycle.publicProfileHref === lifecycle.ctaHref ? (
@@ -78,7 +73,6 @@ export function NextStepCard({
 
 export function ProfileStrengthCard({ me }: { me: MeSnapshot }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   if (!me.worker?.id) return null
   const items = getProfileStrengthItems(me)
   const percent = profileStrengthPercent(items)
@@ -108,7 +102,7 @@ export function ProfileStrengthCard({ me }: { me: MeSnapshot }) {
           {items.map((item) => (
             <Link
               key={item.key}
-              href={href(item.href)}
+              href={item.href}
               tone="muted"
               _hover={{ textDecoration: 'none' }}
             >
@@ -142,7 +136,6 @@ export function ProfileStrengthCard({ me }: { me: MeSnapshot }) {
 
 export function PrivacyVisibilityCard({ me }: { me: MeSnapshot }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   return (
     <Card layout="section" p={5}>
       <Stack gap={4}>
@@ -183,7 +176,7 @@ export function PrivacyVisibilityCard({ me }: { me: MeSnapshot }) {
             </Stack>
           </HStack>
         </Stack>
-        <Link href={href('/account')} fontSize="sm" fontWeight={600}>
+        <Link href={'/account'} fontSize="sm" fontWeight={600}>
           {t.manageAccountPrivacy}
         </Link>
       </Stack>

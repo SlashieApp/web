@@ -5,7 +5,6 @@ import { Box } from '@chakra-ui/react'
 import { useMe } from '@/app/(auth)/store/user'
 import { useBillingActions } from '@/app/(dashboard)/billing/helpers/useBillingActions'
 import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { getAuthToken } from '@/utils/auth'
 import { Button, Link } from '@ui'
 
@@ -21,7 +20,6 @@ export function PricingUnlimitedCta({
   }
 }) {
   const me = useMe()
-  const href = useLocalizedHref()
   const isAuthenticated = Boolean(getAuthToken())
   const hasWorkerProfile = Boolean(me?.worker?.id)
   const hasUnlimitedPlan = hasUnlimitedQuoting(me?.worker?.membership)
@@ -64,7 +62,7 @@ export function PricingUnlimitedCta({
 
   return (
     <Link
-      href={href(unlimitedCta.href)}
+      href={unlimitedCta.href}
       mt="auto"
       _hover={{ textDecoration: 'none' }}
     >

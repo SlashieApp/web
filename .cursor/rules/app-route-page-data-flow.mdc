@@ -1,18 +1,35 @@
 ---
-description: page.tsx owns orchestration, lifecycle, and data flow; sections in ./components
+description: page.tsx owns the screen — no PageContent pass-through files
 globs: src/app/**/page.tsx
 alwaysApply: false
 ---
 
-# App route: `page.tsx` owns data flow
+# App route: `page.tsx` owns the screen
 
 Canonical write-up: **`docs/coding-guidebook.md`** §4–7.
 
+## Hard rule
+
+**Do not** add `PageContent.tsx`, `*Page.tsx`, or `*PageLayout.tsx` whose only role is the route body while `page.tsx` only imports and renders it.
+
+Put content, data init, and page logic in **`page.tsx`**. Split into `./components/` only for real sections/widgets (reuse, web/mobile fork, heavy isolation).
+
 ## Where logic lives
 
-- **`page.tsx`** holds **route-level data flow**: fetching/mutation orchestration, form state and `handleSubmit`, session or auth gates, `watch` / `setValue`, router navigation, and passing callbacks into children.
-- **UI decomposition** belongs in **`./components/`** in the **same route folder** as that `page.tsx` (section cards, panels, maps, etc.). Prefer several focused components over one large catch-all module.
-- **GraphQL → UI mapping** belongs in colocated **`helpers/`**, not inside presentational cards.
+- **`page.tsx`** — route-level data flow: fetching/mutation orchestration, form state and `handleSubmit`, session or auth gates, router navigation, section composition.
+- **`./components/`** — section cards, panels, maps, forms used by that page.
+- **`helpers/`** — GraphQL → UI mapping, pure helpers (not a second page module).
+
+## Client page + metadata
+
+Next.js forbids `'use client'` and `generateMetadata` in the same file.
+
+| Need | File |
+| --- | --- |
+| Hooks / Apollo / browser APIs | `page.tsx` with `'use client'` |
+| `generateMetadata` | Colocated **`layout.tsx`** (server) that returns `children` |
+
+Do **not** invent `PageContent.tsx` to work around this.
 
 ## Orchestration map (required readability)
 
@@ -25,8 +42,6 @@ A reader of `page.tsx` should see, without spelunking:
 5. Section composition order  
 6. Page-level handlers delegated into sections  
 
-Keep markup thin; keep lifecycle explicit.
-
 ## Data lifecycle (every page / section)
 
 | State | UX |
@@ -36,26 +51,8 @@ Keep markup thin; keep lifecycle explicit.
 | empty | Helpful copy + next action |
 | success | Real content |
 
-## State ownership
-
-- Segment/page shared → `context/` or existing Zustand (Me).
-- Section-local UI → inside that section.
-- Ephemeral control → leaf.
-- Leaves call segment hooks where they render; avoid shell-only prop drilling.
-- No god contexts across unrelated routes.
-
 ## What to avoid
 
-- **No pass-through screen wrappers** whose only role is moving the entire page body out of `page.tsx` (e.g. `FooPageLayout` / `FooPageContent` with no real split).
-- Do **not** dump large inline entity/card trees in `page.tsx`.
-- Do **not** bury critical fetch/state only in deep leaves with no page-level visibility.
-
-## Client vs server
-
-- Use **`'use client'`** on `page.tsx` when the route needs client hooks and the data flow stays here.
-- If the route must stay a **server** `page.tsx` (e.g. `generateMetadata`), keep that file as the server entry and still split **UI** into `./components/`.
-
-## Example (shape)
-
-- **`page.tsx`**: queries/hooks, `error` + Retry, compose `<DashboardStatTiles … />` etc.
-- **`components/DashboardStatTiles.tsx`**: presentational section; no route-level orchestration.
+- **`page.tsx` → `<PageContent />` only**
+- Dumping large inline entity/card trees in `page.tsx` (extract a section component instead)
+- Burying critical fetch/state only in deep leaves with no page-level visibility

@@ -16,8 +16,7 @@ This guidebook is the engineering wiki source of truth for **how we structure co
 | Framework | Next.js 16 App Router |
 | Package manager | **Bun** (`bun install`, `bun run …`) |
 | UI base | Chakra UI 3 + Slashie SDL semantic tokens |
-| Primitives | `src/ui` → import `@ui` |
-| App shell chrome | `src/components` (`Header`, `Dock`) |
+| Primitives + shell chrome | `src/ui` → import `@ui` / `@/ui/<Name>` |
 | Data | External GraphQL + Apollo Client |
 | Forms | Zod + react-hook-form + `zodResolver` |
 | Lint / format | Biome (`bun run lint` writes fixes) |
@@ -30,43 +29,53 @@ This guidebook is the engineering wiki source of truth for **how we structure co
 ```text
 page.tsx
   → feature sections (src/app/**/components)
-    → app shell (src/components) when needed
-      → UI primitives (src/ui / @ui)
-        → design tokens (src/theme)
+    → shared UI (src/ui / @ui) — primitives + shell chrome
+      → design tokens (src/theme)
 ```
 
 **Never import upward.**
 
 | Layer | Path | May import | Must not |
 | --- | --- | --- | --- |
-| **Primitives** | `src/ui` | `src/theme`, Chakra, React, Next Image | `@/app/**`, Apollo hooks, pathname branching, domain enums for chrome |
-| **Shell** | `src/components` | `@ui`, app stores/hooks when wiring chrome | Live inside `src/ui` |
-| **Feature** | `src/app/(…)/…` | `@ui`, `@/components`, colocated helpers/context/graphql | Duplicate primitive markup; put atoms in `@ui` |
+| **Primitives** | `src/ui/<Name>/` (most folders) | `src/theme`, Chakra, React, sibling `@ui` via **relative** imports | Apollo hooks, `useUserStore`, pathname chrome (unless a thin adapter lives outside `src/ui`) |
+| **Shell chrome** | `src/ui/Header`, `src/ui/Dock` | App stores/hooks, Apollo, routes; sibling UI via relative imports | Live outside `src/ui` / a separate `src/components` tree |
+| **Feature** | `src/app/(…)/…` | `@ui`, `@/ui/<Name>`, colocated helpers/context/graphql | Duplicate primitive markup; put atoms in `@ui` |
 | **page.tsx** | route entry | Feature sections + data hooks | Large inline card/entity trees |
+
+### Folder shape (`src/ui/<Name>/`)
+
+```text
+src/ui/<Name>/
+  <Name>.tsx
+  i11n.json           # when the module owns copy
+  <Name>.stories.tsx  # title: ui/<Name>
+  index.ts
+```
 
 ### What belongs in `src/ui`
 
-Universal atoms/molecules reusable on **any** route:
+**Primitives** — universal atoms/molecules reusable on **any** route:
 
 - Controls: `Button`, `Input`, `Textarea`, `Select`, `PhoneInput`, `OtpInput`, `FormField`, `RadioButton`, `Slider`, `IconButton`
 - Display: `Card`, `Badge`, `Avatar`, `Thumbnail`, `Rating`, `DetailRow`, `InfoBar`, `Toast`, `ProgressBar`, `Stepper`, `Tabs`, `ScheduleChip`, `SpotIllustration`, `MapCard`, `ImageGallery`, `Logo`, `Link`
 - Layout primitives: `Drawer`, `Dropdown`, `Modal`, `MobileCarousel`, `StepFlowLayout`, `Footer`
+- Presentational switchers: `LanguageSwitcher` (connected adapter in `src/i18n/LanguageSwitcher.tsx`)
+
+**Shell chrome** (app-aware, still under `src/ui`):
+
+- `Header` (+ account menu, notifications drawer) — `src/ui/Header/`
+- `Dock` — `src/ui/Dock/`
+
+Stories for both: `ui/<Name>`.
 
 **Rules**
 
-- Presentational only: **no Apollo**, no `useUserStore` (except thin **app adapters** outside `src/ui`).
-- No marketplace-specific defaults (e.g. no “quotes empty state” component with hardcoded art). Prefer `SpotIllustration` + local composition.
+- Primitives: presentational only — **no Apollo**, no `useUserStore` (except thin **adapters** outside `src/ui`).
+- Shell chrome may read Me / notifications / routes.
+- No marketplace-specific defaults on primitives (e.g. no “quotes empty state” component with hardcoded art). Prefer `SpotIllustration` + local composition.
 - Domain status chips (e.g. task `OPEN` / `AWARDED`) live next to the feature (`TaskStatusPill`), composing `Badge`.
 - Extend existing primitives with optional props before forking.
-
-### What belongs in `src/components` (shell)
-
-Cross-route chrome that is **app-aware** (nav, account menu, dock):
-
-- `Header` (+ account menu, notifications drawer)
-- `Dock`
-
-Stories: `shell/Header`, `shell/Dock`.
+- Colocate copy in `i11n.json` next to the owner; use `useI11n(bag)` (see Cursor rule **`i11n-colocation`**).
 
 ### What belongs in `src/app`
 
@@ -107,13 +116,14 @@ A reader should understand the page **without spelunking**:
 
 **Do**
 
-- Keep markup thin: compose named sections.
-- Keep route-level fetch/form/submit in `page.tsx` (or a colocated hook used only by that page).
+- Put the route body and orchestration in **`page.tsx`** (mark `'use client'` when hooks are needed).
+- Compose named sections from `./components/`.
 - Wire lifecycle explicitly.
+- When the page is a client component, put `generateMetadata` in a colocated **`layout.tsx`** that returns `children` (Next.js cannot combine those in one file).
 
 **Don’t**
 
-- Pass-through `*PageLayout` / `*PageContent` whose only job is relocating the whole tree.
+- Create `PageContent.tsx` / `*Page.tsx` / pass-through `*PageLayout` whose only job is relocating the whole tree so `page.tsx` can re-export it.
 - Inline entity/card JSX that belongs in a section or entity component.
 - Bury critical fetch/state only in deep leaves with no page-level visibility.
 
@@ -198,8 +208,7 @@ Do **not** introduce `useEffect` by default. Prefer event-driven `useCallback` a
 
 | Source | Title | Examples |
 | --- | --- | --- |
-| `src/ui/<Name>/` | `ui/<Name>` | `ui/Button`, `ui/Dropdown` |
-| `src/components/<Name>/` | `shell/<Name>` | `shell/Header`, `shell/Dock` |
+| `src/ui/<Name>/` | `ui/<Name>` | `ui/Button`, `ui/Dropdown`, `ui/Header`, `ui/Dock` |
 | `src/app/(segment)/…` | Folder path (strip `(groups)` + `components/`, drop `[param]`) | `marketing/Header`, `task/TaskCard`, `worker/setup/WorkerSetupBioComposer` |
 
 - Colocate `*.stories.tsx` next to the component.

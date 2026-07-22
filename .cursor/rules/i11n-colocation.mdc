@@ -1,0 +1,66 @@
+---
+description: Colocate i11n.json with the owning UI or route; use useI11n(bag)
+alwaysApply: true
+---
+
+# i11n colocation
+
+Locale is **global** (`LocaleProvider` / `useLocale` / `useLocalizedHref`). Copy bags are **local** to the owner.
+
+## API
+
+```ts
+import { useI11n } from '@/i18n/useI11n'
+import bag from './i11n.json'
+
+const t = useI11n(bag)
+```
+
+- One bag per owner folder; **no** mega-global dictionary for product copy.
+- Do **not** add thin named wrappers (`useHeaderI11n`, `useChromeI11n`, …) — pass the colocated bag into `useI11n`.
+- Prefer `t.key` / nested `t.section.key` over stringly `t('key')` when the bag type supports it.
+
+## Where the bag lives
+
+| Owner | Bag path |
+|---|---|
+| `src/ui/<Name>/` (Header, Dock, LanguageSwitcher, …) | `src/ui/<Name>/i11n.json` |
+| Route / segment screen | next to `page.tsx` or the segment root, e.g. `src/app/(dashboard)/i11n.json`, `src/app/(task)/tasks/[slug]/i11n.json` |
+| Connected adapter that only wires Apollo/cookies | keep presentational copy on the `@ui` folder; adapter imports that bag or receives labels as props |
+
+## Patterns
+
+### Presentational `@ui` + thin adapter
+
+```text
+src/ui/LanguageSwitcher/     # UI + i11n.json + stories (ui/LanguageSwitcher)
+src/i18n/LanguageSwitcher.tsx  # cookie, URL locale swap, Apollo UpdateMySettings
+```
+
+Call sites import the **adapter** (`@/i18n/LanguageSwitcher`) when persistence is required.
+
+### Shell chrome (app-aware in `@ui`)
+
+```text
+src/ui/Header/   # Header, menus, drawers + i11n.json
+src/ui/Dock/     # Dock rail + i11n.json
+```
+
+Shell may call `useI11n` on its own bag and still read Me / notifications.
+
+### Shared segment copy
+
+If many routes in a segment share nav labels (e.g. dashboard section nav), put the bag at the segment root and **import that file** from the consumer — do not duplicate keys into Header’s bag.
+
+## Avoid
+
+- `src/i18n/chrome.i11n.json`-style piles for UI that already has a folder.
+- Copying the same strings into two bags; prefer one owner + import.
+- Hardcoded English in Header / Dock / route UI when a bag already exists.
+
+## Checklist
+
+- [ ] New copy → add keys to the owning `i11n.json` (`en` + `zh_hk`).
+- [ ] Component uses `useI11n(bag)` from a relative `./i11n.json` (or an explicit shared segment bag).
+- [ ] Locale-aware in-app links: pass bare paths to `@ui` `Link` (it localizes). Use `useLocalizedHref()` only for `router.push` / `window.location` / non-Link APIs.
+- [ ] Dictionary listed in `src/i18n/locales.test.ts` when it is a required product bag.

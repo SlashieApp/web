@@ -1,45 +1,64 @@
 ---
-description: Strict UI layers — src/ui primitives, src/components shell, src/app features
+description: UI folders under src/ui — primitives, shell chrome, colocated i11n
 alwaysApply: true
 ---
 
 # UI layer boundaries
 
-Canonical write-up: **`docs/coding-guidebook.md`** §2–3.
+Canonical write-up: **`docs/coding-guidebook.md`** §2–3. Copy bags: **`i11n-colocation.mdc`**.
 
 ## Dependency direction
 
 ```text
-page.tsx → feature (src/app/**/components) → shell (src/components) → primitives (src/ui) → theme
+page.tsx → feature (src/app/**/components) → src/ui (shell + primitives) → theme
 ```
 
-Never import upward. Primitives must not import app routes, Apollo, or Me store.
+Never import upward from primitives into features. Inside `src/ui/**`, import siblings **relatively** (not `@ui`) to avoid barrel cycles.
 
-## `src/ui` — universal primitives only
+## `src/ui/<Name>/` folder shape
 
-- Atoms/molecules reusable on **any** route (Button, Input, Card, Avatar, Drawer, …).
-- Presentational: **no** Apollo hooks, **no** `useUserStore`, **no** pathname branching for chrome.
-- No marketplace-scoped defaults (e.g. EmptyState with hardcoded quotes art). Compose `SpotIllustration` + local Stack in features.
-- No domain status enums (`TaskStatusValue` / `StatusPill`) — feature adapters compose `Badge`.
-- Extend existing primitives with optional props before adding forks.
-- Avatar load fallbacks: `srcCandidates` + `fallback: 'initials' | 'icon'`. App adapters (e.g. `MeAvatar`) resolve Me/Google URLs outside `src/ui`.
+Every shared UI module is a **folder** next to siblings:
 
-## `src/components` — app shell chrome
+```text
+src/ui/<Name>/
+  <Name>.tsx          # main export
+  i11n.json           # when the module owns user-facing copy
+  <Name>.stories.tsx  # title: ui/<Name>
+  index.ts            # public exports
+  # optional helpers / subcomponents in the same folder
+```
 
-- Cross-route, app-aware chrome: **`Header`**, **`Dock`** (and their menus/drawers).
-- May read Me / notifications / routes.
-- Import as `@/components/Header`, `@/components/Dock`.
-- Stories: `shell/Header`, `shell/Dock` — not `ui/*`.
+Import as `@/ui/<Name>` or from `@ui` after `bun run exports-gen`.
+
+## Two kinds of modules in `src/ui`
+
+### Primitives (presentational)
+
+- Atoms/molecules reusable on any route (Button, Input, Card, Avatar, Drawer, …).
+- **No** Apollo hooks, **no** `useUserStore`, **no** pathname branching for chrome.
+- No marketplace-scoped defaults; compose `SpotIllustration` + local Stack in features.
+- No domain status enums — feature adapters compose `Badge`.
+- If Apollo / cookie / Me wiring is needed, keep a **thin adapter outside** `src/ui` (example: presentational `src/ui/LanguageSwitcher` + connected `src/i18n/LanguageSwitcher.tsx`).
+
+### Shell chrome (app-aware)
+
+- Cross-route chrome: **`Header`**, **`Dock`** (menus, notifications drawer, dock rail).
+- May read Me / notifications / routes / Apollo.
+- Still live under `src/ui/<Name>/` with colocated `i11n.json`.
+- Stories: `ui/Header`, `ui/Dock` (same ownership title rule as other `@ui` modules).
+- May import from `@/app/**` only when wiring shell behavior (exception to the primitive rule).
 
 ## `src/app` — features
 
 - Route sections, mappers (`helpers/`), providers (`context/`), GraphQL.
-- Thin adapters that wire store/context into `@ui` (no new primitive unless domain-agnostic and multi-caller).
+- Thin adapters that wire store/context into `@ui` when the primitive is data-agnostic.
 - Domain cards stay presentational; one entity + view/state — no per-route card forks.
 
 ## Checklist
 
-- [ ] New shared control → `src/ui` with `ui/<Name>` story, or extend an existing primitive.
-- [ ] App-only chrome → `src/components`, not `src/ui`.
+- [ ] New shared control → `src/ui/<Name>/` with `ui/<Name>` story, or extend an existing primitive.
+- [ ] Shell chrome → `src/ui/Header` / `src/ui/Dock` (not a separate `src/components` tree).
+- [ ] User-facing copy → colocated `i11n.json` + `useI11n(bag)` (see **`i11n-colocation.mdc`**).
 - [ ] Route UI → colocated `components/` next to `page.tsx`.
-- [ ] No `@/app` imports from `src/ui/**`.
+- [ ] Primitives do not import `@/app/**`; shell chrome may.
+- [ ] Inside `src/ui/**`, relative sibling imports only — not `@ui`.

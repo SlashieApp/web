@@ -38,7 +38,7 @@ When requested to update the GraphQL schema or run codegen, follow these steps t
    - Ensure the structure strictly follows the generated schema types.
 
 5. **Identify Affected Frontend Components**
-   Use the search tools to find where the changed queries or mutations are imported and used across the frontend codebase (e.g., `src/app/`, `src/components/`, etc.).
+   Use the search tools to find where the changed queries or mutations are imported and used across the frontend codebase (e.g., `src/app/`, `src/ui/`, etc.).
 
 6. **Update Frontend Code**
    Update the affected frontend components to align with the new GraphQL operation signatures, fields, and TypeScript types. Ensure that variables passed to mutations/queries match the new schema requirements.

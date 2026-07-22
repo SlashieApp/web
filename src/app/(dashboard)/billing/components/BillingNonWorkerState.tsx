@@ -4,7 +4,6 @@ import { Stack, Text } from '@chakra-ui/react'
 import { LuBriefcase } from 'react-icons/lu'
 
 import { DashboardSectionCard } from '@/app/(dashboard)/components/DashboardSectionCard'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Link } from '@ui'
 
@@ -12,7 +11,6 @@ import bag from '../i11n.json'
 
 export function BillingNonWorkerState() {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
 
   return (
     <DashboardSectionCard
@@ -24,7 +22,7 @@ export function BillingNonWorkerState() {
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
           {t.nonWorker.body}
         </Text>
-        <Link href={href('/worker/setup')} _hover={{ textDecoration: 'none' }}>
+        <Link href={'/worker/setup'} _hover={{ textDecoration: 'none' }}>
           <Button w={{ base: 'full', md: 'auto' }}>{t.nonWorker.cta}</Button>
         </Link>
       </Stack>

@@ -4,7 +4,6 @@ import { useI11n } from '@/i18n/useI11n'
 import { HStack, Stack, Text } from '@chakra-ui/react'
 import bag from '../../i11n.json'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { orderSnapshotDatetime } from '@/utils/orderHelpers'
 import {
   countdownToExactSchedule,
@@ -26,7 +25,6 @@ function mapsDirectionsUrl(lat: number, lng: number): string {
 export function AcceptedWorkerStatus() {
   const { task, myOrder, permissions } = useTaskDetail()
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   const b = t.booking
 
   if (!task || !myOrder || !permissions.showWorkerJobBanner) return null
@@ -116,7 +114,7 @@ export function AcceptedWorkerStatus() {
               </Button>
             </Link>
           ) : (
-            <Link href={href('/account')} _hover={{ textDecoration: 'none' }}>
+            <Link href={'/account'} _hover={{ textDecoration: 'none' }}>
               <Button size="sm" variant="secondary">
                 {b.addContact}
               </Button>

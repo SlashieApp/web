@@ -8,7 +8,6 @@ import bag from '../../i11n.json'
 
 import { Button, Link, Tabs } from '@ui'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { useScrollContainerCollapsed } from '../../helpers/taskDetailHeaderCollapse'
 import { Reveal } from './Reveal'
@@ -37,7 +36,6 @@ function readHashTab(): string | null {
 export function TaskDetailMobile() {
   const { task, permissions, statusReady } = useTaskDetail()
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
 
   // Collapse once the map hero has largely scrolled away, resolved from the
@@ -64,7 +62,7 @@ export function TaskDetailMobile() {
 
   if (!task) return null
 
-  const quoteFlowHref = href(`/tasks/${task.id}/quote`)
+  const quoteFlowHref = `/tasks/${task.id}/quote`
 
   // Pinned primary CTA for OPEN states (booking states use the banner below).
   // Held as a skeleton until the viewer state is confirmed — the CTA choice

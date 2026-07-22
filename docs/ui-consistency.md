@@ -67,14 +67,14 @@ Routes are already grouped by Next.js route groups, which align to shells:
 ## 3. Primitive inventory (`src/ui`) + shell
 
 Pages import primitives from `@ui` (barrel auto-generated — `bun run exports-gen`).  
-**App shell** (`Header`, `Dock`) lives in **`src/components`**, not `@ui` — see [Coding Guidebook](./coding-guidebook.md) §2.
+**App shell** (`Header`, `Dock`) also lives under **`src/ui`** with colocated `i11n.json` — see [Coding Guidebook](./coding-guidebook.md) §2.
 
 | Layer | Modules | Story title |
 | --- | --- | --- |
 | `@ui` controls | Button, Input, Textarea, Select, PhoneInput, OtpInput, FormField, RadioButton, Slider, IconButton | `ui/*` |
 | `@ui` display | Card, Badge, Avatar, Thumbnail, Rating, DetailRow, InfoBar, Toast, ProgressBar, Stepper, Tabs, ScheduleChip, SpotIllustration, MapCard, ImageGallery, Logo, Link | `ui/*` |
 | `@ui` layout | Drawer, Dropdown, Modal, MobileCarousel, StepFlowLayout, Footer | `ui/*` |
-| Shell | Header, Dock (`src/components`) | `shell/*` |
+| `@ui` shell | Header, Dock | `ui/*` |
 
 **Not in `@ui` (by design)**
 

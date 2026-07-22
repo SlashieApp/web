@@ -1,9 +1,13 @@
 import { Box } from '@chakra-ui/react'
-import { Currency, UserLanguage, WorkerPrimaryCategory } from '@codegen/schema'
+import {
+  Currency,
+  UserLanguage,
+  WorkerPrimaryCategory,
+  WorkerSubscriptionStatus,
+} from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
-import { membershipFixtureFree } from '@/components/Header/membershipStoryFixtures'
 
 import type { ProfileEditSection } from './ProfileEditDrawer'
 import { ProfileHub } from './ProfileHub'
@@ -84,7 +88,23 @@ function profileFixture({
                     ],
               isComplete: worker === 'active',
             },
-            membership: membershipFixtureFree,
+            membership: {
+              planName: 'Free',
+              statusLabel: 'Free',
+              statusDescription: null,
+              subscriptionStatus: WorkerSubscriptionStatus.None,
+              hasUnlimitedQuotes: false,
+              cancelAtPeriodEnd: false,
+              canceledAt: null,
+              freeQuotesPerMonth: 3,
+              quotesUsedThisMonth: 2,
+              quotesRemainingThisMonth: 1,
+              trialEndsAt: null,
+              currentPeriodEnd: '2026-12-09T00:00:00.000Z',
+              canStartTrial: false,
+              canManageBilling: false,
+              canUpgrade: true,
+            },
             earnings: { pending: { amount: 0, currency: Currency.Gbp } },
           } as NonNullable<MeSnapshot['worker']>),
   } as MeSnapshot

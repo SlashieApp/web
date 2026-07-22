@@ -1,16 +1,89 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import {
+  Currency,
+  LoginMethod,
+  UserLanguage,
+  WorkerSubscriptionStatus,
+} from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { AccountMenu } from '@/components/Header/AccountMenu'
-import {
-  headerMeWorker,
-  seedHeaderMeStore,
-} from '@/components/Header/headerStoryFixtures'
+import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { AccountMenu } from '@/ui/Header/account/AccountMenu'
 
 import { Button } from '../Button'
 import { Link } from '../Link'
 
 import { Dropdown, useDropdownClose } from './Dropdown'
+
+const accountMenuMe: MeSnapshot = {
+  id: 'user-1',
+  email: 'ryan@example.com',
+  emailVerified: true,
+  phoneVerified: true,
+  phoneVerifiedAt: '2024-06-01T00:00:00.000Z',
+  createdAt: '2024-01-01T00:00:00.000Z',
+  enabledLoginMethods: [LoginMethod.Password],
+  profile: {
+    name: 'Ryan Kwan',
+    contactNumber: '+447878154432',
+    avatarUrl: null,
+    bio: 'Handyman covering North London.',
+    dateOfBirth: '1990-04-12T00:00:00.000Z',
+    defaultPreferredContactMethod: null,
+    emailVerified: true,
+    phoneVerified: true,
+  },
+  settings: {
+    isProfilePrivate: false,
+    language: UserLanguage.En,
+    marketingEmails: false,
+  },
+  workerEligibility: true,
+  worker: {
+    id: 'worker-1',
+    legalName: 'Ryan Kwan',
+    bio: 'Handyman covering North London.',
+    tagline: 'Reliable local help',
+    yearsExperience: 8,
+    skills: ['Plumbing', 'Assembly'],
+    qualifications: [],
+    portfolioUrls: [],
+    location: {
+      address: 'London',
+      lat: 51.5074,
+      lng: -0.1278,
+      name: 'London',
+    },
+    setupProgress: {
+      currentSubStep: 'review.submit',
+      completedSubSteps: ['review.submit'],
+      isComplete: true,
+    },
+    isVerified: true,
+    tasksCompletedCount: 12,
+    locationAddress: 'London',
+    locationLat: 51.5074,
+    locationLng: -0.1278,
+    membership: {
+      planName: 'Slashie Unlimited',
+      statusLabel: 'Trial',
+      statusDescription: 'Unlimited quotes until 9 Dec 2026',
+      subscriptionStatus: WorkerSubscriptionStatus.Trialing,
+      hasUnlimitedQuotes: true,
+      cancelAtPeriodEnd: false,
+      canceledAt: null,
+      freeQuotesPerMonth: 3,
+      quotesUsedThisMonth: 0,
+      quotesRemainingThisMonth: 3,
+      trialEndsAt: '2026-12-09T00:00:00.000Z',
+      currentPeriodEnd: '2026-12-09T00:00:00.000Z',
+      canStartTrial: false,
+      canManageBilling: true,
+      canUpgrade: false,
+    },
+    earnings: { pending: { amount: 120, currency: Currency.Gbp } },
+  },
+}
 
 function ChevronDown() {
   return (
@@ -343,7 +416,14 @@ export const AccountMenuOpen: Story = {
   },
   decorators: [
     (Story) => {
-      seedHeaderMeStore(headerMeWorker)
+      useUserStore.setState({
+        user: {
+          id: accountMenuMe.id,
+          email: accountMenuMe.email,
+          createdAt: accountMenuMe.createdAt,
+        },
+        me: accountMenuMe,
+      })
       return <Story />
     },
   ],

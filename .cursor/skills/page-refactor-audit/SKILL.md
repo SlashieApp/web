@@ -22,7 +22,7 @@ description: Audits and refactors App Router pages and colocated UI for repo rul
 ### Layers (`@ui` / shell / feature)
 
 - Prefer **`@ui`** primitives: `Button`, `FormField`, `Input`, `IconButton`, `Badge`, `Card`, `Avatar`, `Footer`, `Logo`, etc. (see `src/ui/index.ts`).
-- App chrome: **`Header` / `Dock`** from `@/components/*` — not `@ui`.
+- App chrome: **`Header` / `Dock`** from `@/ui/Header` / `@/ui/Dock` (or `@ui`).
 - Layout composition may use **`@chakra-ui/react`** (`Box`, `Stack`, `Grid`, …).
 - **Navigation:** Chakra / `@ui` **`Link`** with Next — no plain `<a>` for internal routes (`.cursor/rules/chakra-next-link.mdc`).
 - Layer boundaries: `.cursor/rules/ui-layer-boundaries.mdc`.
@@ -31,7 +31,7 @@ description: Audits and refactors App Router pages and colocated UI for repo rul
 
 - **Effects:** do not add `useEffect` for new behavior; prefer handlers, callbacks, and callback refs (`.cursor/rules/no-useeffect-callback-ref.mdc`).
 - **GraphQL:** colocate `.gql` beside the owning `page.tsx`; run `bun run codegen` when ops change (`.cursor/rules/graphql-route-colocation.mdc`, `graphql-codegen.mdc`).
-- **Structure:** **`page.tsx` owns orchestration + lifecycle**; sections in colocated **`components/`** — no pass-through `*PageLayout` wrappers (`.cursor/rules/repo-structure-and-exports.mdc`, `app-route-page-data-flow.mdc`).
+- **Structure:** **`page.tsx` owns the screen** (content + orchestration); no `PageContent` pass-through — sections in colocated **`components/`**; client pages put `generateMetadata` in colocated **`layout.tsx`** (`.cursor/rules/repo-structure-and-exports.mdc`, `app-route-page-data-flow.mdc`).
 - **Barrels:** after moves under `EXPORT_CONFIGS`, run **`bun run exports-gen`**.
 
 ### Quality bar

@@ -10,19 +10,18 @@ import {
   Text,
   chakra,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
-import { HeaderToolbarSeparator } from '@/components/Header/GuestHeaderAuth'
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { loadPageI11n } from '@/i18n/loadPageI11n'
+import { stripLocalePrefix } from '@/i18n/navigation'
 import {
   HEADER_MIN_HEIGHT,
   HEADER_PADDING_X,
-} from '@/components/Header/headerShell'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
-import { useLocale, useLocalizedHref } from '@/i18n/LocaleProvider'
-import { loadPageI11n } from '@/i18n/loadPageI11n'
-import { stripLocalePrefix } from '@/i18n/navigation'
+  HeaderToolbarSeparator,
+} from '@/ui/Header'
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Button, Drawer, Link } from '@ui'
 
@@ -92,7 +91,6 @@ function MarketingAuthButtons({
   overlay: boolean
   copy: Pick<MarketingChromeCopy, 'logIn' | 'getStarted'>
 }) {
-  const href = useLocalizedHref()
   const onDarkGhost = {
     bg: 'transparent',
     color: 'text.onInverted',
@@ -114,7 +112,9 @@ function MarketingAuthButtons({
         px={2}
         {...(overlay ? onDarkGhost : null)}
       >
-        <NextLink href={href('/login')}>{copy.logIn}</NextLink>
+        <Link href="/login" _hover={{ textDecoration: 'none' }}>
+          {copy.logIn}
+        </Link>
       </Button>
       <Button
         asChild
@@ -128,7 +128,9 @@ function MarketingAuthButtons({
             }
           : null)}
       >
-        <NextLink href={href('/register')}>{copy.getStarted}</NextLink>
+        <Link href="/register" _hover={{ textDecoration: 'none' }}>
+          {copy.getStarted}
+        </Link>
       </Button>
     </HStack>
   )
@@ -164,7 +166,6 @@ function MarketingNavigation({
   copy: MarketingChromeCopy
 }) {
   const pathname = usePathname()
-  const href = useLocalizedHref()
   const [hasMounted, setHasMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -198,7 +199,7 @@ function MarketingNavigation({
     >
       <HStack flex={1} minW={0} align="center" gap={{ base: 3, md: 4 }}>
         <Link
-          href={href(MARKETING_HOME)}
+          href={MARKETING_HOME}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
         >
@@ -246,7 +247,7 @@ function MarketingNavigation({
             return (
               <Link
                 key={link.key}
-                href={href(link.href)}
+                href={link.href}
                 {...navLinkProps}
                 aria-current={active ? 'page' : undefined}
                 // Weight + color: the active page is never colour-alone.
@@ -302,7 +303,7 @@ function MarketingNavigation({
             return (
               <Link
                 key={link.key}
-                href={href(link.href)}
+                href={link.href}
                 {...drawerLinkProps}
                 aria-current={active ? 'page' : undefined}
                 color={active ? 'text.link' : 'text.default'}
@@ -322,14 +323,14 @@ function MarketingNavigation({
             borderColor="border.default"
           >
             <Link
-              href={href('/login')}
+              href="/login"
               {...drawerLinkProps}
               onClick={() => setMobileMenuOpen(false)}
             >
               {copy.logIn}
             </Link>
             <Link
-              href={href('/register')}
+              href="/register"
               {...drawerLinkProps}
               onClick={() => setMobileMenuOpen(false)}
             >

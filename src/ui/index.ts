@@ -35,7 +35,15 @@ export {
   statusFamilies,
   statusScale,
 } from './_foundations/ColorSwatches'
+export {
+  DashboardSectionNav,
+  Header,
+  HEADER_MIN_HEIGHT,
+  HEADER_PADDING_X,
+  HeaderToolbarSeparator,
+} from './Header'
 export { DetailRow } from './DetailRow'
+export { Dock } from './Dock'
 export { Drawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
 export {
@@ -54,6 +62,7 @@ export { IconButton } from './IconButton'
 export { ImageGallery } from './ImageGallery'
 export { InfoBar } from './InfoBar'
 export { Input } from './Input'
+export { LanguageSwitcher } from './LanguageSwitcher'
 export { Link } from './Link'
 export { Logo } from './Logo'
 export { MapCard } from './MapCard'
@@ -100,6 +109,7 @@ export type {
   ColorModeProviderProps,
   UseColorModeReturn,
 } from './color-mode'
+export type { DashboardSectionNavProps, HeaderProps } from './Header'
 export type { DetailRowProps } from './DetailRow'
 export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'
 export type {
@@ -110,6 +120,7 @@ export type {
 export type { IconButtonProps, NavIconButtonProps } from './IconButton'
 export type { ImageGalleryItem, ImageGalleryProps } from './ImageGallery'
 export type { InputProps } from './Input'
+export type { LanguageSwitcherProps } from './LanguageSwitcher'
 export type { LogoProps, UiLogoSize, UiLogoVariant } from './Logo'
 export type { MapCardProps } from './MapCard'
 export type {

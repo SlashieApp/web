@@ -8,11 +8,17 @@ import {
 import NextLink from 'next/link'
 import * as React from 'react'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 /**
  * SDL inline Link. Renders the SDL link role (`text.link`, green-700 in light /
  * green-300 in dark) and uses Next.js client navigation for internal `href`s.
+ *
+ * Internal string `href`s are prefixed with the active locale automatically
+ * (`/tasks` → `/en/tasks`). External URLs, `mailto:`, `tel:`, and hash-only
+ * links are left unchanged. Call sites should pass bare paths — do not wrap
+ * with `useLocalizedHref()`.
  *
  * Tones:
  * - `default` — standard inline link (`text.link`), underline on hover.
@@ -58,11 +64,14 @@ export const Link = React.forwardRef<HTMLAnchorElement, UiLinkProps>(
     { as, href, tone = 'default', borderRadius = 'sm', ...props },
     ref,
   ) {
+    const localize = useLocalizedHref()
+    const resolvedHref = typeof href === 'string' ? localize(href) : href
+
     return (
       <ChakraLink
         ref={ref}
         as={NextLink}
-        href={href}
+        href={resolvedHref}
         borderRadius={borderRadius}
         outline="none"
         transitionProperty="color, text-decoration-color"

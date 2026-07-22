@@ -1,18 +1,22 @@
-import { getRequestLocale } from '@/i18n/getRequestLocale'
-import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
+'use client'
 
-import PageContent from './PageContent'
-import bag from './i11n.json'
+import { Box, Text } from '@chakra-ui/react'
+import { Suspense } from 'react'
 
-const PAGE_PATH = '/forgot-password/sent'
+import { ForgotPasswordSentPanel } from '../components/ForgotPasswordSentPanel'
 
-export async function generateMetadata() {
-  const locale = await getRequestLocale()
-  const copy = loadPageI11n(bag, locale)
-  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
+function ForgotPasswordSentFallback() {
+  return (
+    <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
+      <Text color="text.muted">Loading…</Text>
+    </Box>
+  )
 }
 
-export default async function Page() {
-  const locale = await getRequestLocale()
-  return <PageContent key={locale} />
+export default function ForgotPasswordSentPage() {
+  return (
+    <Suspense fallback={<ForgotPasswordSentFallback />}>
+      <ForgotPasswordSentPanel />
+    </Suspense>
+  )
 }

@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react'
 
-import { Dock } from '@/components/Dock'
-import { Header } from '@/components/Header'
+import { Dock } from '@/ui/Dock'
+import { Header } from '@/ui/Header'
 
 export default function TaskLayout({
   children,

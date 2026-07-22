@@ -22,7 +22,6 @@ import {
   categorySlugFromEnum,
 } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { formatPhoneForDisplay } from '@/utils/phoneNormalize'
@@ -149,7 +148,6 @@ export function WorkerProfileCard({
   onEdit: () => void
 }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
 
   if (!me.worker?.id) {
     return (
@@ -164,7 +162,7 @@ export function WorkerProfileCard({
             {t.workerEmptyBody}
           </Text>
           <Link
-            href={href(workerSetupHref('/profile?section=worker'))}
+            href={workerSetupHref('/profile?section=worker')}
             _hover={{ textDecoration: 'none' }}
           >
             <Button size="sm">{t.becomeWorker}</Button>
@@ -193,7 +191,7 @@ export function WorkerProfileCard({
           </Badge>
           {draft ? (
             <Link
-              href={href(workerSetupHref('/profile?section=worker'))}
+              href={workerSetupHref('/profile?section=worker')}
               _hover={{ textDecoration: 'none' }}
             >
               <Button size="sm">{t.continueSetup}</Button>
@@ -256,7 +254,6 @@ export function PublicPreviewCard({
   lifecycle: ProfileLifecycle
 }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   if (!me.worker?.id) return null
   const published = profileIsPublished(lifecycle)
   const area = publicServiceAreaLabel(me, t.serviceAreaNotAdded)
@@ -323,7 +320,7 @@ export function PublicPreviewCard({
           </Text>
           {published && lifecycle.publicProfileHref ? (
             <Link
-              href={href(lifecycle.publicProfileHref)}
+              href={lifecycle.publicProfileHref}
               fontSize="xs"
               fontWeight={600}
             >

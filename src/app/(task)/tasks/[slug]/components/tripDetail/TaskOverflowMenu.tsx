@@ -13,7 +13,6 @@ import {
 } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { showAppToast } from '@/utils/appToast'
 import { Button, Link, useDropdownClose } from '@ui'
 
@@ -68,7 +67,6 @@ function MenuAction({
  */
 export function TaskOverflowMenu() {
   const close = useDropdownClose()
-  const href = useLocalizedHref()
   const t = useI11n(bag)
   const { task, permissions, onCancelTask, cancelingTask } = useTaskDetail()
   const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
@@ -89,7 +87,7 @@ export function TaskOverflowMenu() {
         <MenuAction
           icon={<LuPencil />}
           label={t.actions.editTask}
-          href={href(`/tasks/${task.id}/edit`)}
+          href={`/tasks/${task.id}/edit`}
           onClick={close}
         />
       ) : null}

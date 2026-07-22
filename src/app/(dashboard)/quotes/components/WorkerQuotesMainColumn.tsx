@@ -5,7 +5,6 @@ import type { ChangeEvent, KeyboardEvent } from 'react'
 import { LuSearch } from 'react-icons/lu'
 
 import { TaskCard } from '@/app/(task)/components/TaskCard'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, Input, Link } from '@ui'
 
@@ -16,7 +15,6 @@ import { WorkerQuoteSummaryBar } from './WorkerQuoteSummaryBar'
 
 export function WorkerQuotesMainColumn() {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   const {
     loading,
     errorMessage,
@@ -69,7 +67,7 @@ export function WorkerQuotesMainColumn() {
             <Text color="text.muted" fontSize="sm">
               {t.emptyDescription}
             </Text>
-            <Link href={href('/tasks')} _hover={{ textDecoration: 'none' }}>
+            <Link href={'/tasks'} _hover={{ textDecoration: 'none' }}>
               <Button alignSelf="flex-start" size="sm">
                 {t.primaryCta}
               </Button>

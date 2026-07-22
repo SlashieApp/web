@@ -29,18 +29,17 @@ Do not create story files in a separate stories tree; they live next to source.
 
 | Source | Title pattern | Examples |
 |---|---|---|
-| `src/ui/<Name>/` | `ui/<Name>` | `ui/Input`, `ui/Dropdown`, `ui/Drawer`, `ui/Footer`, `ui/Stepper` |
-| `src/components/<Name>/` | `shell/<Name>` | `shell/Header`, `shell/Dock` |
+| `src/ui/<Name>/` | `ui/<Name>` | `ui/Input`, `ui/Dropdown`, `ui/Drawer`, `ui/Footer`, `ui/Stepper`, `ui/Header`, `ui/Dock` |
 | `src/app/(segment)/…` | folder path (strip route groups + `components/`, drop `[param]` segments) | `marketing/Header`, `task/TaskCard`, `task/search/SearchModeSelector`, `worker/setup/WorkerSetupBioComposer`, `dashboard/profile/ProfileHub` |
 
 Rules:
 
-- **Every `src/ui` story is `ui/*`.** No `Components/*`, `Patterns/*`, `layout/*`, or `form/*` titles for primitives.
+- **Every `src/ui` story is `ui/*`.** No `Components/*`, `Patterns/*`, `layout/*`, `form/*`, or `shell/*` titles.
 - **App stories mirror the route folder path**, not a parallel “function” taxonomy. Prefer the full component name as the last segment (`task/TaskCard`, not `task/Card`).
 - **Marketing header** lives under marketing: `marketing/Header` (file may still be `MarketingHeader.tsx`).
 - **No duplicate primitive stories.** Do not story alias/wrapper exports or thin variants already covered by a parent.
 - **Universal-first.** Generic widgets belong in `src/ui` as `ui/*`; route adapters that only wire context get no story.
-- **App shell chrome** (`Header`, `Dock`) lives in `src/components` and stories as `shell/*` — not in `src/ui`.
+- **App shell chrome** (`Header`, `Dock`) lives in `src/ui` with `ui/*` stories — same folder shape as other `@ui` modules.
 
 ## Story scope
 
@@ -72,8 +71,7 @@ export const Default: Story = {};
 
 ## Title convention
 
-- `ui/Card`, `ui/Stepper`, `ui/Dropdown` — anything under `src/ui`
-- `shell/Header`, `shell/Dock` — app shell under `src/components`
+- `ui/Card`, `ui/Stepper`, `ui/Dropdown`, `ui/Header`, `ui/Dock` — anything under `src/ui`
 - `marketing/Header`, `task/tasks/quoteSection/QuoteCard` — app routes by folder path
 
 ## Layout convention
@@ -116,7 +114,7 @@ Create/Update Storybook story for `<component-path>`.
 Follow repo conventions:
 1. Use `import type { Meta, StoryObj } from '@storybook/nextjs-vite'`.
 2. Place story next to component as `<Component>.stories.tsx`.
-3. Use title format by ownership: `ui/<Name>` for `src/ui`, `shell/<Name>` for `src/components`, or the `src/app` folder path (strip `(groups)` + `components/`) for feature stories. No `form/*` / `Components/*` / `Patterns/*` titles.
+3. Use title format by ownership: `ui/<Name>` for `src/ui`, or the `src/app` folder path (strip `(groups)` + `components/`) for feature stories. No `form/*` / `Components/*` / `Patterns/*` / `shell/*` titles.
 4. Include `tags: ['autodocs']`.
 5. Set `parameters.layout` (`fullscreen` for section/full-width, `padded` for contained widgets).
 6. Add realistic default args with complete mock object shapes.

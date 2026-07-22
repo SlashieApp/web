@@ -6,13 +6,12 @@ import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 import bag from '../i11n.json'
 
-import { DashboardSectionNav, Header } from '@/components/Header'
+import { DashboardSectionNav, Header } from '@/ui/Header'
 import { Button, Footer, Link } from '@ui'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { resolveAccountNavKey } from '@/utils/accountNav'
@@ -43,7 +42,6 @@ function completionFromMe(me: MeSnapshot) {
 /** Unified account hub shell — fixed header + nav; only main content scrolls. */
 export function AccountShell({ children }: AccountShellProps) {
   const pathname = usePathname()
-  const href = useLocalizedHref()
   const t = useI11n(bag)
   const active = resolveAccountNavKey(pathname)
   const me = useUserStore((state) => state.me)
@@ -53,9 +51,9 @@ export function AccountShell({ children }: AccountShellProps) {
   const profileLinkLabel = setupComplete
     ? t.shell.manageProfile
     : t.shell.continueSetup
-  const profileLinkHref = href(
-    setupComplete ? '/profile' : workerSetupHref(pathname ?? '/profile'),
-  )
+  const profileLinkHref = setupComplete
+    ? '/profile'
+    : workerSetupHref(pathname ?? '/profile')
 
   return (
     <Box

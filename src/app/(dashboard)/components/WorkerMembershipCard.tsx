@@ -7,8 +7,6 @@ import bag from '../i11n.json'
 
 import { Button, Card, Link } from '@ui'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
-
 import { BillingQuoteMeter } from '../billing/components/BillingQuoteMeter'
 import { hasUnlimitedQuoting } from '../helpers/workerMembershipHelpers'
 import { MembershipCancelNotice } from './membership/MembershipCancelNotice'
@@ -23,7 +21,6 @@ export function WorkerMembershipCard({
   membership,
 }: WorkerMembershipCardProps) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   const unlimited = hasUnlimitedQuoting(membership)
   const showMeter = !unlimited
 
@@ -68,7 +65,7 @@ export function WorkerMembershipCard({
           />
         ) : null}
 
-        <Link href={href('/billing')} _hover={{ textDecoration: 'none' }}>
+        <Link href={'/billing'} _hover={{ textDecoration: 'none' }}>
           <Button size="sm" w={{ base: 'full', md: 'auto' }}>
             {membership.canManageBilling || membership.canUpgrade
               ? t.membership.manageBilling

@@ -1,0 +1,16 @@
+{
+  "en": {
+    "discovery": "Discovery",
+    "workers": "Workers",
+    "myTasks": "My Tasks",
+    "account": "Account",
+    "getApp": "Get app"
+  },
+  "zh_hk": {
+    "discovery": "探索",
+    "workers": "工作者",
+    "myTasks": "我的任務",
+    "account": "帳戶",
+    "getApp": "下載 App"
+  }
+}

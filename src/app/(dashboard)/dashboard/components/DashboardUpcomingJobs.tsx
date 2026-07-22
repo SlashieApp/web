@@ -2,7 +2,6 @@
 
 import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { ScheduleChip } from '@/ui/ScheduleChip'
 import {
@@ -21,7 +20,6 @@ export function DashboardUpcomingJobs({
   jobs: readonly DashboardUpcomingJob[]
 }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   if (jobs.length === 0) return null
 
   return (
@@ -37,7 +35,7 @@ export function DashboardUpcomingJobs({
             </Text>
           </Stack>
           <Link
-            href={href('/quotes')}
+            href={'/quotes'}
             fontSize="sm"
             fontWeight={600}
             color="text.link"
@@ -49,7 +47,7 @@ export function DashboardUpcomingJobs({
           {jobs.slice(0, 5).map((entry) => (
             <Link
               key={entry.id}
-              href={href(orderTaskHref(entry.order))}
+              href={orderTaskHref(entry.order)}
               display="block"
               p={3}
               borderRadius="lg"

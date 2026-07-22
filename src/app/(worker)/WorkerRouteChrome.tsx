@@ -5,8 +5,8 @@ import type { ReactNode } from 'react'
 import { Box } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 
-import { Dock } from '@/components/Dock'
-import { Header } from '@/components/Header'
+import { Dock } from '@/ui/Dock'
+import { Header } from '@/ui/Header'
 
 type WorkerRouteChromeProps = {
   children: ReactNode

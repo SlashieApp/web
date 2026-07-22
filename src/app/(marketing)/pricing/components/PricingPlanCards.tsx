@@ -4,7 +4,6 @@ import { Box, Grid, HStack, Heading, List, Stack, Text } from '@chakra-ui/react'
 
 import { useMe } from '@/app/(auth)/store/user'
 import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { getAuthToken } from '@/utils/auth'
 import { Badge, Button, Link } from '@ui'
@@ -191,7 +190,6 @@ function WorkerFreePlanCta({
   copy: Pick<PricingPlanCopy, 'currentPlan' | 'getStarted'>
 }) {
   const me = useMe()
-  const href = useLocalizedHref()
   const isAuthenticated = Boolean(getAuthToken())
   const hasWorkerProfile = Boolean(me?.worker?.id)
   const isCurrentFreePlan =
@@ -208,7 +206,7 @@ function WorkerFreePlanCta({
   }
 
   return (
-    <Link href={href('/register')} _hover={{ textDecoration: 'none' }}>
+    <Link href={'/register'} _hover={{ textDecoration: 'none' }}>
       <Button w="full" variant="secondary">
         {copy.getStarted}
       </Button>

@@ -16,7 +16,6 @@ import { LuCheck, LuLock, LuMessagesSquare, LuX } from 'react-icons/lu'
 
 import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
@@ -349,12 +348,11 @@ function AcceptedPrimaryCard({
   quote: TaskQuote
   taskId: string
 }) {
-  const href = useLocalizedHref()
   const { quotes: q, fallbackWorker } = useI11n(bag)
   const base = quoteCardBaseProps(quote, fallbackWorker, q)
   const workerEntityId = quote.worker?.worker?.id
   const profileHref = workerEntityId
-    ? href(workerProfilePath(workerEntityId, taskId))
+    ? workerProfilePath(workerEntityId, taskId)
     : null
 
   return (
@@ -452,7 +450,6 @@ export type QuotesModuleProps = {
  * scattered in JSX.
  */
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
-  const href = useLocalizedHref()
   const { quotes: q, fallbackWorker, fallbackCustomer } = useI11n(bag)
   const {
     task,
@@ -514,7 +511,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   const sendQuoteCta = (
     <Button asChild variant="primary" w="full">
-      <Link href={href(quoteFlowHref)} _hover={{ textDecoration: 'none' }}>
+      <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
         {q.sendQuote}
       </Link>
     </Button>
@@ -560,7 +557,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
         {...cardProps(quote)}
         workerProfileHref={
           workerEntityId
-            ? href(workerProfilePath(workerEntityId, task.id))
+            ? workerProfilePath(workerEntityId, task.id)
             : undefined
         }
         statusBadge={
@@ -668,7 +665,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           <Stack gap={2} w="full">
             <Button asChild variant="primary" w="full">
               <Link
-                href={href(`/register?next=${nextHref}`)}
+                href={`/register?next=${nextHref}`}
                 _hover={{ textDecoration: 'none' }}
               >
                 {q.getStarted}
@@ -676,7 +673,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             </Button>
             <Button asChild variant="ghost" w="full">
               <Link
-                href={href(`/login?next=${nextHref}`)}
+                href={`/login?next=${nextHref}`}
                 _hover={{ textDecoration: 'none' }}
               >
                 {q.logIn}
@@ -711,7 +708,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           <Stack gap={1} align="center">
             <Button asChild variant="primary" w="full">
               <Link
-                href={href(workerSetupHref(quoteFlowHref))}
+                href={workerSetupHref(quoteFlowHref)}
                 _hover={{ textDecoration: 'none' }}
               >
                 {q.setupProfile}
@@ -795,10 +792,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             borderColor="border.default"
             w="full"
           >
-            <Link
-              href={href(quoteFlowHref)}
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
               {q.editQuote}
             </Link>
           </Button>
@@ -898,7 +892,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             {q.thanksOffer}
           </Text>
           <Button asChild variant="secondary" w="full">
-            <Link href={href('/tasks')} _hover={{ textDecoration: 'none' }}>
+            <Link href={'/tasks'} _hover={{ textDecoration: 'none' }}>
               {q.browseOtherTasks}
             </Link>
           </Button>

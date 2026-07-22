@@ -6,7 +6,6 @@ import { useState } from 'react'
 import { LuCheck, LuChevronRight } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { Button, Link } from '@ui'
 
@@ -96,11 +95,10 @@ export function QuoteCard({
   detailHref,
   workerProfileHref,
 }: QuoteCardProps) {
-  const href = useLocalizedHref()
   const { quotes: q } = useI11n(bag)
   const card = q.card
 
-  const profileHref = href(workerProfileHref ?? detailHref ?? '/quotes')
+  const profileHref = workerProfileHref ?? detailHref ?? '/quotes'
   const profileLinkLabel = workerProfileHref ? card.viewProfile : card.messages
   // Default only when omitted (`undefined`); explicit `null` still hides the row.
   const displayRating = ratingLine === undefined ? card.noReviews : ratingLine
@@ -130,7 +128,7 @@ export function QuoteCard({
 
   const nameBlock = workerProfileHref ? (
     <Link
-      href={href(workerProfileHref)}
+      href={workerProfileHref}
       _hover={{ textDecoration: 'none', color: 'text.link' }}
     >
       <Heading size="sm" lineHeight="short">
@@ -266,7 +264,7 @@ export function QuoteCard({
           <HStack align="flex-start" gap={3} flex={1} minW={0}>
             {workerProfileHref ? (
               <Link
-                href={href(workerProfileHref)}
+                href={workerProfileHref}
                 flexShrink={0}
                 _hover={{ textDecoration: 'none' }}
                 aria-label={profileAria}
@@ -306,7 +304,7 @@ export function QuoteCard({
         <HStack align="flex-start" gap={3} flex={1} minW={0}>
           {workerProfileHref ? (
             <Link
-              href={href(workerProfileHref)}
+              href={workerProfileHref}
               flexShrink={0}
               _hover={{ textDecoration: 'none' }}
               aria-label={profileAria}

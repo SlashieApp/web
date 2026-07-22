@@ -1,7 +1,6 @@
 'use client'
 import { Box, HStack, Text } from '@chakra-ui/react'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Link } from '@ui'
 
 export function InboxUpcomingEventRow({
@@ -15,10 +14,9 @@ export function InboxUpcomingEventRow({
   timeLabel: string
   status: 'booked' | 'upcoming'
 }) {
-  const href = useLocalizedHref()
   return (
     <Link
-      href={href(path)}
+      href={path}
       display="block"
       px={2}
       py={2}

@@ -4,7 +4,6 @@ import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { LuSearch } from 'react-icons/lu'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, Input, Link } from '@ui'
 
@@ -16,7 +15,6 @@ import { PostedTaskSummaryBar } from './PostedTaskSummaryBar'
 
 export function MyRequestsMainColumn() {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   const {
     loading,
     errorMessage,
@@ -69,10 +67,7 @@ export function MyRequestsMainColumn() {
             <Text color="text.muted" fontSize="sm">
               {t.emptyDescription}
             </Text>
-            <Link
-              href={href('/tasks/create')}
-              _hover={{ textDecoration: 'none' }}
-            >
+            <Link href={'/tasks/create'} _hover={{ textDecoration: 'none' }}>
               <Button alignSelf="flex-start" size="sm">
                 {t.primaryCta}
               </Button>

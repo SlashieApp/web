@@ -4,7 +4,6 @@ import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
 import { isTaskEditable } from '@/app/(task)/helpers/taskEditHelpers'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import {
   type TaskItem,
   formatPounds,
@@ -58,7 +57,6 @@ export function PostedTaskCard({
   customerOrder: OrderItem | null
 }) {
   const [expanded, setExpanded] = useState(false)
-  const href = useLocalizedHref()
   const stage = postedTaskStage(task, customerOrder)
   const thumbnailSrc = task.images?.[0] ?? undefined
   const hasOrder = Boolean(customerOrder)
@@ -147,7 +145,7 @@ export function PostedTaskCard({
         borderTopWidth="1px"
         borderColor="border.default"
       >
-        <Link href={href(taskHref)} _hover={{ textDecoration: 'none' }}>
+        <Link href={taskHref} _hover={{ textDecoration: 'none' }}>
           <Button size="sm" variant="primary">
             Open task
           </Button>
@@ -168,7 +166,7 @@ export function PostedTaskCard({
           <HStack justify="flex-end" flexWrap="wrap" gap={2}>
             {isTaskEditable(task.status) ? (
               <Link
-                href={href(`/tasks/${task.id}/edit`)}
+                href={`/tasks/${task.id}/edit`}
                 _hover={{ textDecoration: 'none' }}
               >
                 <Button size="sm" variant="ghost">
@@ -177,10 +175,7 @@ export function PostedTaskCard({
               </Link>
             ) : null}
             {showSecondaryCta ? (
-              <Link
-                href={href(primaryCta.href)}
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link href={primaryCta.href} _hover={{ textDecoration: 'none' }}>
                 <Button size="sm" variant={primaryCta.variant}>
                   {primaryCta.label}
                 </Button>

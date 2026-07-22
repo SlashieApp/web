@@ -4,7 +4,6 @@ import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import bag from '../i11n.json'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatRelativeAgo } from '@/utils/dashboardHelpers'
 import { Button, Card, Link, SpotIllustration } from '@ui'
 
@@ -35,7 +34,6 @@ export function InboxActivityPanel({
   viewAllLabel?: string
 }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   const resolvedTitle = title ?? t.inbox.activity
   const resolvedDescription = description ?? t.inbox.description
   const resolvedViewAllLabel = viewAllLabel ?? t.inbox.viewAll
@@ -55,7 +53,7 @@ export function InboxActivityPanel({
           </Stack>
           {viewAllHref ? (
             <Link
-              href={href(viewAllHref)}
+              href={viewAllHref}
               fontSize="sm"
               fontWeight={600}
               color="text.link"
@@ -78,10 +76,7 @@ export function InboxActivityPanel({
               <Text fontSize="lg" fontWeight={600} color="text.default">
                 {resolvedEmptyMessage}
               </Text>
-              <Link
-                href={href(emptyActionHref)}
-                _hover={{ textDecoration: 'none' }}
-              >
+              <Link href={emptyActionHref} _hover={{ textDecoration: 'none' }}>
                 <Button size="sm">{emptyActionLabel}</Button>
               </Link>
             </Stack>
@@ -124,7 +119,7 @@ export function InboxActivityPanel({
               return item.href ? (
                 <Link
                   key={item.id}
-                  href={href(item.href)}
+                  href={item.href}
                   display="block"
                   _hover={{ textDecoration: 'none', bg: 'status.success.soft' }}
                   borderRadius="md"

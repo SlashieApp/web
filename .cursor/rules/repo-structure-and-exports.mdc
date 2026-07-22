@@ -1,18 +1,18 @@
 ---
-description: Route feature layout (task as reference), App Router pages, components/(web|mobile), context colocation, barrel exports
+description: Repo structure, route features, src/ui folders, and barrel exports
 alwaysApply: true
 ---
 
 # Repo structure, route features, and exports
 
-Canonical write-up: **`docs/coding-guidebook.md`**. Layer boundaries: **`ui-layer-boundaries.mdc`**.
+Canonical write-up: **`docs/coding-guidebook.md`**. Layer boundaries: **`ui-layer-boundaries.mdc`**. i11n: **`i11n-colocation.mdc`**.
 
 Treat **`src/app/(task)/`** as the **reference template** for other product areas under `src/app/(…)/**`: group by route segment, colocate UI, context, and helpers the same way.
 
 ## Reference tree: `src/app/(task)/` (current)
 
 | Path | Role |
-|------|------|
+|---|---|
 | **`page.tsx`** | Route entry: providers, breakpoint/intent split, composes layouts; mount **long-lived** clients here when switching child layouts must not remount them (e.g. map). |
 | **`context/`** | Segment-scoped providers and hooks (e.g. `TaskBrowseProvider.tsx`); optional `index.ts` for re-exports. |
 | **`helpers/`** | Pure helpers and segment-local types (e.g. `taskBrowseHelpers.ts`, `taskBrowseFilters.types.ts`) consumed by `components/` or `context/`. |
@@ -28,9 +28,39 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 
 ## `page.tsx` (any `src/app/**/page.tsx`)
 
-- **`page.tsx` owns the route**: metadata, data loading, and **page-level composition** (grid/shell that wires sections together) belong here—not in a pass-through `*PageLayout` / `*PageContent` file.
-- Extract **colocated `components/`** (and nested `…/components/` under child routes) for **sections and widgets** (cards, forms, sidebars, maps)—not to relocate the entire page tree one file over.
-- **Do not** add a `*View`, `*PageLayout`, or similar file whose **only** purpose is to host the same screen in a separate module from `page.tsx`—e.g. `page.tsx` that only renders `<FooPageLayout />` with no other composition. Split into **`components/`** only when there is a real reason: reuse across routes, `(web)` / `(mobile)` forks, heavy isolated widgets, or testing boundaries. Naming alone is not a reason.
+- **`page.tsx` is the screen.** Metadata (via colocated `layout.tsx` when the page is a client component), data loading, route orchestration, and page composition live here — not in a sibling `PageContent.tsx` / `*Page.tsx` that `page.tsx` only re-exports.
+- **Never** create `PageContent.tsx` (or `BillingPage.tsx`, `FooPageLayout.tsx`, etc.) whose sole job is holding the route body so `page.tsx` can `return <PageContent />`. Merge that body into `page.tsx`.
+- When the route needs hooks / Apollo / browser APIs, mark **`page.tsx` with `'use client'`**. Put `generateMetadata` in a thin colocated **`layout.tsx`** (server) that returns `children` — Next.js cannot put `generateMetadata` and `'use client'` in the same file.
+- Extract **colocated `components/`** for **sections and widgets** (cards, forms, sidebars, maps) — reuse, `(web)` / `(mobile)` forks, or real decomposition. Naming alone is not a reason to split the whole screen out of `page.tsx`.
+
+### Bad
+
+```tsx
+// page.tsx — do not do this
+export default function Page() {
+  return <PageContent />
+}
+```
+
+### Good
+
+```tsx
+// page.tsx — route body + logic live here ('use client' when needed)
+export default function Page() {
+  const data = useMyQuery()
+  return (
+    <>
+      <SectionA ... />
+      <SectionB ... />
+    </>
+  )
+}
+
+// layout.tsx — optional; only for generateMetadata when page.tsx is a client component
+export async function generateMetadata() { ... }
+export default function Layout({ children }) { return children }
+```
+
 
 ## `components/` under a route segment
 
@@ -41,15 +71,15 @@ New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by vi
 
 ## UI atom/reuse architecture
 
-Three layers (see **`ui-layer-boundaries.mdc`**):
+Three conceptual layers (all shared UI lives under **`src/ui`**):
 
 | Layer | Path | Examples |
 | --- | --- | --- |
-| Primitives | `src/ui` → `@ui` | Button, Card, Avatar, Drawer, FormField |
-| Shell | `src/components` | Header, Dock |
+| Primitives | `src/ui/<Name>/` → `@ui` | Button, Card, Avatar, Drawer, FormField, LanguageSwitcher (presentational) |
+| Shell chrome | `src/ui/Header`, `src/ui/Dock` | Header, Dock, AccountMenu, NotificationsDrawer |
 | Feature | `src/app/**/components` | TaskCard, MeAvatar, TaskStatusPill |
 
-- Route/feature code should **compose from `@ui` first**, then shell when needed.
+- Route/feature code should **compose from `@ui` first**.
 - Exception: plain **`Text`** can be used directly from Chakra when a dedicated UI wrapper is unnecessary.
 
 ### Reuse-first workflow (required)
@@ -58,21 +88,21 @@ Three layers (see **`ui-layer-boundaries.mdc`**):
 2. If a similar UI component exists, **reuse it**.
 3. If similar but not enough, **extend the existing `src/ui` component** with reusable props (prefer optional props over one-off forks).
 4. Only create a new `src/ui` component when no suitable atom/reusable element exists.
-5. App-aware chrome → `src/components`, **not** `src/ui`.
+5. App-aware chrome → `src/ui/Header` / `src/ui/Dock` (same folder shape as primitives + colocated `i11n.json`).
 
 ### Rules for new UI components
 
-- New `src/ui` components must be **universal and reusable**, not route-specific.
-- Use generic naming and prop APIs (avoid task/domain-specific prop names unless truly global).
+- New `src/ui` folders follow **`ui-layer-boundaries.mdc`** (`<Name>.tsx`, optional `i11n.json`, `ui/<Name>` story).
+- Use generic naming and prop APIs for primitives (avoid task/domain-specific prop names unless truly global).
 - Keep variants configurable through props/tokens instead of duplicating components.
-- Add/update Storybook stories as `ui/<Name>`.
-- No Apollo / Me store / pathname chrome inside `src/ui`.
+- Primitives: no Apollo / Me store / pathname chrome. Shell chrome folders may.
+- Connected adapters for primitives (cookie, Apollo) live outside `src/ui` when needed (e.g. `src/i18n/LanguageSwitcher.tsx`).
 
 ### Extract universal primitives; keep route adapters thin
 
 - If a route-scoped component is really a **generic widget** (progress bar, stepper, dropdown/popover, etc.), **extract the universal piece to `src/ui`** with a data-agnostic prop API.
 - The route keeps a **thin adapter** that reads its context/data and renders the `src/ui` primitive (e.g. `WorkerSetupStepper` → `<Stepper>`; `MeAvatar` → `<Avatar srcCandidates={…} />`). Adapters need no story.
-- **Feature menus compose layout primitives.** `AccountMenu` (under `src/components/Header`) builds on `@ui` `Dropdown` / `Drawer`.
+- **Feature menus compose layout primitives.** `AccountMenu` (under `src/ui/Header`) builds on `Dropdown` / `Drawer`.
 
 ### Storybook grouping (see `storybook-story-conventions` skill)
 
@@ -80,16 +110,14 @@ Stories are titled **by source ownership**:
 
 | Source | Title | Examples |
 |---|---|---|
-| `src/ui` | `ui/*` | `ui/Input`, `ui/Dropdown`, `ui/Drawer`, `ui/Footer` |
-| `src/components` | `shell/*` | `shell/Header`, `shell/Dock` |
+| `src/ui` | `ui/*` | `ui/Input`, `ui/Header`, `ui/Dock`, `ui/LanguageSwitcher` |
 | `src/app/(…)` | folder path (strip groups + `components/`) | `marketing/Header`, `task/TaskCard`, `worker/setup/WorkerSetupBioComposer` |
 
 Rules:
 
-- **No `form/*` / `Components/*` / `Patterns/*` / `layout/*` titles.** Form controls and layout primitives under `src/ui` are all `ui/*`.
+- **No `form/*` / `Components/*` / `Patterns/*` / `layout/*` / `shell/*` titles.** Everything under `src/ui` is `ui/*`.
 - **No duplicate primitive stories.** One story file per universal primitive.
 - **Universal-first.** Generic widgets live in `src/ui` with `ui/*` stories; route adapters get **no story**.
-- **App shell chrome** (`Header`, `Dock`) lives in `src/components`, not `src/ui`.
 - **One story per non-universal feature component.** Do **not** story internal sub-components — exercise them through the parent.
 
 ### Context colocation (any route provider)
@@ -112,4 +140,6 @@ Rules:
 - [ ] New exportable folder added to **`EXPORT_CONFIGS`** when it needs a root barrel.
 - [ ] **`bun run exports-gen`** run after moves/adds under registered folders.
 - [ ] Affected imports updated to barrel paths where the codebase uses `@/` / package barrels for that folder.
+- [ ] No **`PageContent` / pass-through page module** — route body lives in `page.tsx`.
 - [ ] No **view-only** split: extra component files under the route justify reuse, layout fork, or real decomposition—not only moving one screen out of `page.tsx`.
+- [ ] Client `page.tsx` + metadata → colocated `layout.tsx` with `generateMetadata`.

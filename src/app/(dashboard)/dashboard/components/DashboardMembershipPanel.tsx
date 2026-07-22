@@ -6,7 +6,6 @@ import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
 import { Button, Card, Link } from '@ui'
 
 import { WorkerMembershipCard } from '@/app/(dashboard)/components/WorkerMembershipCard'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 
 import bag from '../i11n.json'
@@ -17,7 +16,6 @@ export function DashboardMembershipPanel({
   membership: WorkerMembershipFieldsFragment | null | undefined
 }) {
   const t = useI11n(bag)
-  const href = useLocalizedHref()
   if (membership) {
     return <WorkerMembershipCard membership={membership} />
   }
@@ -34,7 +32,7 @@ export function DashboardMembershipPanel({
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
           {t.membershipEmpty.body}
         </Text>
-        <Link href={href('/worker/setup')} _hover={{ textDecoration: 'none' }}>
+        <Link href={'/worker/setup'} _hover={{ textDecoration: 'none' }}>
           <Button size="sm" w={{ base: 'full', md: 'auto' }}>
             {t.membershipEmpty.becomeWorker}
           </Button>
