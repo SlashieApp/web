@@ -1,9 +1,4 @@
-import {
-  type AppLocale,
-  DEFAULT_LOCALE,
-  LOCALES,
-  isAppLocale,
-} from './locales'
+import { type AppLocale, DEFAULT_LOCALE, LOCALES, isAppLocale } from './locales'
 
 /**
  * Strip a leading locale segment from a pathname.
@@ -53,7 +48,9 @@ export function withLocale(locale: AppLocale, href: string): string {
 
   const bare = stripLocalePrefix(path || '/')
   const localized =
-    bare === '/' ? `/${locale}` : `/${locale}${bare.startsWith('/') ? bare : `/${bare}`}`
+    bare === '/'
+      ? `/${locale}`
+      : `/${locale}${bare.startsWith('/') ? bare : `/${bare}`}`
   return `${localized}${suffix}`
 }
 
@@ -65,7 +62,9 @@ export function swapLocaleInPath(
 ): string {
   const bare = stripLocalePrefix(pathname)
   const base = withLocale(nextLocale, bare)
-  return search ? `${base}${search.startsWith('?') ? search : `?${search}`}` : base
+  return search
+    ? `${base}${search.startsWith('?') ? search : `?${search}`}`
+    : base
 }
 
 export function isLocalePrefixed(pathname: string): boolean {

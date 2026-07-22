@@ -9,8 +9,11 @@ import { LuSlidersHorizontal } from 'react-icons/lu'
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { DashboardSectionCard } from '@/app/(dashboard)/components/DashboardSectionCard'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { usePageI11n } from '@/i18n/usePageI11n'
 import { captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import bag from '../i11n.json'
 
 type ToggleKey = 'isProfilePrivate' | 'marketingEmails'
 
@@ -54,6 +57,7 @@ function SettingToggle({
 export function AccountSettingsCard() {
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
+  const t = usePageI11n(bag)
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState<ToggleKey | null>(null)
 
@@ -85,7 +89,7 @@ export function AccountSettingsCard() {
         report_global: false,
       })
       patchMe({ settings })
-      setError(getFriendlyErrorMessage(e, 'Could not update your settings.'))
+      setError(getFriendlyErrorMessage(e, t.settingsError))
     } finally {
       setPending(null)
     }
@@ -93,21 +97,32 @@ export function AccountSettingsCard() {
 
   return (
     <DashboardSectionCard
-      title="Settings"
-      description="Control discovery and product email preferences."
+      title={t.settingsTitle}
+      description={t.settingsDescription}
       icon={<LuSlidersHorizontal size={18} aria-hidden />}
     >
       <Stack gap={4}>
+        <HStack justify="space-between" align="center" gap={4}>
+          <Stack gap={0} flex="1" minW={0}>
+            <Text fontSize="sm" fontWeight={700}>
+              {t.languageTitle}
+            </Text>
+            <Text fontSize="xs" color="text.muted">
+              {t.languageDescription}
+            </Text>
+          </Stack>
+          <LanguageSwitcher label={t.languageTitle} />
+        </HStack>
         <SettingToggle
-          label="Private profile"
-          description="Hide your profile from public discovery and search."
+          label={t.privateProfile}
+          description={t.privateProfileDescription}
           checked={Boolean(settings?.isProfilePrivate)}
           disabled={pending === 'isProfilePrivate'}
           onChange={(next) => void update('isProfilePrivate', next)}
         />
         <SettingToggle
-          label="Marketing emails"
-          description="Receive occasional product news and tips by email."
+          label={t.marketingEmails}
+          description={t.marketingEmailsDescription}
           checked={Boolean(settings?.marketingEmails)}
           disabled={pending === 'marketingEmails'}
           onChange={(next) => void update('marketingEmails', next)}

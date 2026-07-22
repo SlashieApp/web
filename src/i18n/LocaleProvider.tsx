@@ -1,12 +1,9 @@
 'use client'
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
+import { type ReactNode, createContext, useContext, useMemo } from 'react'
 
-import {
-  type AppLocale,
-  DEFAULT_LOCALE,
-} from '@/i18n/locales'
+import { type AppLocale, DEFAULT_LOCALE } from '@/i18n/locales'
 import { localeFromPathname, withLocale } from '@/i18n/navigation'
 
 type LocaleContextValue = {

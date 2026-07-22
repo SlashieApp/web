@@ -1,0 +1,34 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Profile | Slashie",
+      "description": "Manage your Slashie profile, contact details, worker presence, and trust signals."
+    },
+    "eyebrow": "Profile",
+    "title": "Profile & professional presence",
+    "description": "Keep your customer profile and worker presence accurate so people know who they are hiring.",
+    "navOverview": "Overview",
+    "navPersonalInfo": "Personal info",
+    "navContactVerification": "Contact & verification",
+    "navWorkerProfile": "Worker profile",
+    "navPreferences": "Preferences",
+    "emptyTitle": "Profile details are loading",
+    "emptyDescription": "We are preparing your account details."
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "個人檔案 | Slashie",
+      "description": "管理你的 Slashie 個人檔案、聯絡資料、worker 形象和信任訊號。"
+    },
+    "eyebrow": "個人檔案",
+    "title": "個人檔案與專業形象",
+    "description": "保持 customer 個人檔案和 worker 形象準確，讓別人清楚知道正在聘請誰。",
+    "navOverview": "總覽",
+    "navPersonalInfo": "個人資料",
+    "navContactVerification": "聯絡與驗證",
+    "navWorkerProfile": "Worker 個人檔案",
+    "navPreferences": "偏好",
+    "emptyTitle": "正在載入個人檔案",
+    "emptyDescription": "我們正在準備你的帳戶資料。"
+  }
+}

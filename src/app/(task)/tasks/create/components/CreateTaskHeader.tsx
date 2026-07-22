@@ -4,7 +4,9 @@ import { Box, HStack, IconButton, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { LuX } from 'react-icons/lu'
 
+import { usePageI11n } from '@/i18n/usePageI11n'
 import { Logo } from '@ui'
+import bag from '../i11n.json'
 
 type CreateTaskHeaderProps = {
   /** Where Close navigates (default: task browse). */
@@ -16,6 +18,7 @@ export function CreateTaskHeader({
   exitHref = '/search?mode=tasks',
 }: CreateTaskHeaderProps) {
   const router = useRouter()
+  const t = usePageI11n(bag)
 
   return (
     <Box
@@ -30,7 +33,7 @@ export function CreateTaskHeader({
     >
       <HStack gap={{ base: 3, md: 4 }} w="full" align="center">
         <IconButton
-          aria-label="Close task creation"
+          aria-label={t.closeLabel}
           variant="ghost"
           size="sm"
           minW="44px"
@@ -48,7 +51,7 @@ export function CreateTaskHeader({
           textAlign={{ base: 'left', md: 'center' }}
           truncate
         >
-          Post a task
+          {t.eyebrow}
         </Text>
         <Box
           display={{ base: 'none', md: 'block' }}

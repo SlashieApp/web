@@ -43,13 +43,17 @@ export const API_TO_LOCALE: Record<UserLanguageApi, AppLocale> = {
   ZH_TW: 'zh-hk',
 }
 
-export const LOCALE_LABELS: Record<AppLocale, { short: string; native: string }> =
-  {
-    en: { short: 'EN', native: 'English' },
-    'zh-hk': { short: '繁中', native: '繁體中文' },
-  }
+export const LOCALE_LABELS: Record<
+  AppLocale,
+  { short: string; native: string }
+> = {
+  en: { short: 'EN', native: 'English' },
+  'zh-hk': { short: '繁中', native: '繁體中文' },
+}
 
-export function isAppLocale(value: string | null | undefined): value is AppLocale {
+export function isAppLocale(
+  value: string | null | undefined,
+): value is AppLocale {
   return value === 'en' || value === 'zh-hk'
 }
 

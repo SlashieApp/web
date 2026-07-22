@@ -1,0 +1,26 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Quotes | Slashie",
+      "description": "Review quotes you sent on Slashie tasks and track customer responses."
+    },
+    "eyebrow": "Worker quotes",
+    "title": "Quotes sent",
+    "description": "Track every quote you have sent and follow up on customer responses.",
+    "emptyTitle": "No quotes sent yet",
+    "emptyDescription": "Browse nearby tasks and send your first quote to start winning work.",
+    "primaryCta": "Browse tasks"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "報價 | Slashie",
+      "description": "查看你在 Slashie 任務傳送的報價，並追蹤 customer 回覆。"
+    },
+    "eyebrow": "Worker 報價",
+    "title": "已傳送報價",
+    "description": "追蹤你傳送的每個報價，並跟進 customer 回覆。",
+    "emptyTitle": "暫時未傳送報價",
+    "emptyDescription": "瀏覽附近任務並傳送第一個報價，開始爭取工作。",
+    "primaryCta": "瀏覽任務"
+  }
+}

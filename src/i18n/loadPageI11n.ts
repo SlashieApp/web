@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 
 import {
   type AppLocale,
+  DEFAULT_LOCALE,
   type I11nKey,
   LOCALE_TO_I11N_KEY,
-  DEFAULT_LOCALE,
 } from './locales'
 
 export type PageI11nBag<T extends Record<string, unknown>> = {

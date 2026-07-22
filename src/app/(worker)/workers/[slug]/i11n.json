@@ -1,0 +1,34 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Worker profile | Slashie",
+      "description": "View a Slashie worker profile, skills, reviews, service area, and contact actions."
+    },
+    "loading": "Loading worker profile...",
+    "notFoundTitle": "Worker not found",
+    "notFoundDescription": "This worker profile may be unavailable or no longer active.",
+    "addBioTitle": "Add a bio",
+    "addBioDescription": "Customers read this before accepting your quote. Two or three sentences about the work you do best.",
+    "addSkillsTitle": "Add your skills",
+    "addSkillsDescription": "Skills become searchable tags, so customers find you for the right tasks.",
+    "addPhotosTitle": "Add photos of your work",
+    "addPhotosDescription": "Workers with photos win more quotes. Add pictures of finished jobs.",
+    "back": "Back to workers"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "Worker 個人檔案 | Slashie",
+      "description": "查看 Slashie worker 個人檔案、技能、評價、服務地區和聯絡操作。"
+    },
+    "loading": "正在載入 worker 個人檔案...",
+    "notFoundTitle": "找不到 worker",
+    "notFoundDescription": "此 worker 個人檔案可能無法使用或已不再啟用。",
+    "addBioTitle": "加入簡介",
+    "addBioDescription": "Customers 接受你的報價前會閱讀這段內容。用兩三句說明你最擅長的工作。",
+    "addSkillsTitle": "加入技能",
+    "addSkillsDescription": "技能會成為可搜尋標籤，幫助 customers 找到適合任務的你。",
+    "addPhotosTitle": "加入工作相片",
+    "addPhotosDescription": "有相片的 workers 較容易贏得報價。加入已完成工作的相片。",
+    "back": "返回 workers"
+  }
+}

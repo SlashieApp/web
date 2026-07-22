@@ -1,0 +1,20 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Worker plan | Slashie",
+      "description": "Choose or manage the Slashie worker membership plan for unlimited quote connections."
+    },
+    "title": "Worker plan",
+    "description": "Choose the membership that fits how often you want to connect with customers.",
+    "loading": "Loading plan..."
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "Worker 方案 | Slashie",
+      "description": "選擇或管理 Slashie worker 會員方案，以取得無限報價連繫。"
+    },
+    "title": "Worker 方案",
+    "description": "選擇符合你與 customers 聯繫頻率的會員方案。",
+    "loading": "正在載入方案..."
+  }
+}

@@ -8,7 +8,9 @@ import { useMemo, useState } from 'react'
 import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
 import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
+import { usePageI11n } from '@/i18n/usePageI11n'
 
+import bag from '../i11n.json'
 import {
   FieldIconMail,
   IconArrowRight,
@@ -16,6 +18,7 @@ import {
 } from './ForgotPasswordIcons'
 
 export function ForgotPasswordForm() {
+  const t = usePageI11n(bag)
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialEmail = useMemo(
@@ -84,17 +87,16 @@ export function ForgotPasswordForm() {
 
           <Box>
             <Heading size="xl" color="text.default">
-              Forgot Password?
+              {t.title}
             </Heading>
             <Text mt={2} color="text.muted" fontSize="sm" maxW="xs" mx="auto">
-              Enter your email and we&apos;ll send reset instructions if an
-              account exists.
+              {t.description}
             </Text>
           </Box>
 
           <Box as="form" onSubmit={onSubmit} w="full" textAlign="left">
             <Stack gap={4}>
-              <FormField label="Email Address">
+              <FormField label={t.emailLabel}>
                 <Input
                   startElement={<FieldIconMail />}
                   placeholder="name@company.com"
@@ -132,7 +134,7 @@ export function ForgotPasswordForm() {
               >
                 {cooldownSeconds > 0
                   ? `Send again in ${cooldownSeconds}s`
-                  : 'Send Reset Link'}
+                  : t.submit}
                 <IconArrowRight />
               </Button>
             </Stack>
@@ -145,7 +147,7 @@ export function ForgotPasswordForm() {
             color="text.link"
             _hover={{ color: 'status.success.fg', textDecoration: 'none' }}
           >
-            ← Back to Login
+            {t.backToLogin}
           </Link>
         </Stack>
       </Box>

@@ -1,0 +1,32 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Edit task | Slashie",
+      "description": "Update your Slashie task details, timing, budget, quote cap, and contact preference."
+    },
+    "eyebrow": "Edit task",
+    "title": "Update your task",
+    "description": "Keep task details accurate so workers can quote with confidence.",
+    "backToRequests": "Back to my requests",
+    "submit": "Save changes",
+    "loading": "Loading task...",
+    "loadingProfile": "Loading your profile...",
+    "notFoundTitle": "Task not found",
+    "notFoundDescription": "This task may have been removed or the link is invalid."
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "編輯任務 | Slashie",
+      "description": "更新你的 Slashie 任務詳情、時間、預算、報價名額和聯絡偏好。"
+    },
+    "eyebrow": "編輯任務",
+    "title": "更新你的任務",
+    "description": "保持任務詳情準確，讓 workers 更有信心報價。",
+    "backToRequests": "返回我的請求",
+    "submit": "儲存變更",
+    "loading": "正在載入任務...",
+    "loadingProfile": "正在載入你的個人檔案...",
+    "notFoundTitle": "找不到任務",
+    "notFoundDescription": "此任務可能已移除，或連結無效。"
+  }
+}

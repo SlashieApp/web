@@ -1,0 +1,32 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Post a task | Slashie",
+      "description": "Post a Slashie task with details, timing, budget, contact preference, and location."
+    },
+    "eyebrow": "Post a task",
+    "title": "Tell workers what you need",
+    "description": "Add the details, timing, budget, and location so nearby workers can send useful quotes.",
+    "closeLabel": "Close task creation",
+    "continue": "Continue",
+    "publishTask": "Publish task",
+    "missingDetails": "Some details are missing - check earlier steps.",
+    "submit": "Post task",
+    "draftSaved": "Draft saved"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "發佈任務 | Slashie",
+      "description": "在 Slashie 發佈任務，加入詳情、時間、預算、聯絡偏好和地點。"
+    },
+    "eyebrow": "發佈任務",
+    "title": "告訴 workers 你需要甚麼",
+    "description": "加入詳情、時間、預算和地點，讓附近 workers 傳送有用報價。",
+    "closeLabel": "關閉任務建立流程",
+    "continue": "繼續",
+    "publishTask": "發佈任務",
+    "missingDetails": "部分資料未完成，請檢查前面的步驟。",
+    "submit": "發佈任務",
+    "draftSaved": "草稿已儲存"
+  }
+}

@@ -1,10 +1,6 @@
 'use client'
 
-import {
-  type AppLocale,
-  LOCALE_COOKIE,
-  isAppLocale,
-} from './locales'
+import { type AppLocale, LOCALE_COOKIE, isAppLocale } from './locales'
 
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 365
 

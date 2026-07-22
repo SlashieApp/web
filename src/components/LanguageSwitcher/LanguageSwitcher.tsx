@@ -1,21 +1,21 @@
 'use client'
 
-import { Box, HStack, Text } from '@chakra-ui/react'
 import { useMutation } from '@apollo/client/react'
+import { Box, HStack, Text } from '@chakra-ui/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { LuGlobe } from 'react-icons/lu'
 
-import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { useUserStore } from '@/app/(auth)/store/user'
+import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { writeLocaleCookie } from '@/i18n/localeCookie'
 import {
   type AppLocale,
   LOCALES,
   LOCALE_LABELS,
   LOCALE_TO_API,
 } from '@/i18n/locales'
-import { writeLocaleCookie } from '@/i18n/localeCookie'
 import { localeFromPathname, swapLocaleInPath } from '@/i18n/navigation'
-import { useLocale } from '@/i18n/LocaleProvider'
 import { Dropdown, IconButton } from '@ui'
 
 type LanguageSwitcherProps = {
@@ -43,8 +43,7 @@ export function LanguageSwitcher({
     if (next === locale) return
     writeLocaleCookie(next)
 
-    const search =
-      typeof window !== 'undefined' ? window.location.search : ''
+    const search = typeof window !== 'undefined' ? window.location.search : ''
     const nextPath = swapLocaleInPath(pathname, next, search)
 
     if (user?.id) {

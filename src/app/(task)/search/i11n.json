@@ -1,0 +1,22 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Search | Slashie",
+      "description": "Search Slashie tasks and workers with map-first filters for local help."
+    },
+    "title": "Search tasks and workers",
+    "description": "Find open tasks, local workers, and nearby opportunities on the map.",
+    "emptyTitle": "No results nearby",
+    "emptyDescription": "Adjust your filters or move the map to search another area."
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "搜尋 | Slashie",
+      "description": "使用地圖優先篩選搜尋 Slashie 任務和 workers。"
+    },
+    "title": "搜尋任務和 workers",
+    "description": "在地圖上尋找公開任務、本地 workers 和附近機會。",
+    "emptyTitle": "附近沒有結果",
+    "emptyDescription": "調整篩選或移動地圖，搜尋另一個地區。"
+  }
+}

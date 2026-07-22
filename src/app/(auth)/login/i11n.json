@@ -1,0 +1,40 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Log in | Slashie",
+      "description": "Log in to Slashie to post tasks, send quotes, and manage your local marketplace account."
+    },
+    "asideBadge": "Local task marketplace",
+    "asideTitle": "Get local tasks done with confidence.",
+    "asideDescription": "Post a task, compare quotes from nearby workers, and manage everything in one place.",
+    "eyebrow": "Welcome back",
+    "title": "Log in to Slashie",
+    "description": "Manage requests, quotes, and worker tools from one account.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "remember": "Keep me signed in",
+    "forgotPassword": "Forgot password?",
+    "submit": "Log in",
+    "registerPrompt": "New to Slashie?",
+    "registerLink": "Create an account"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "登入 | Slashie",
+      "description": "登入 Slashie，發佈任務、傳送報價，並管理你的本地服務帳戶。"
+    },
+    "asideBadge": "本地任務平台",
+    "asideTitle": "安心完成本地任務。",
+    "asideDescription": "發佈任務、比較附近 worker 的報價，並在同一處管理所有事項。",
+    "eyebrow": "歡迎回來",
+    "title": "登入 Slashie",
+    "description": "用一個帳戶管理請求、報價和 worker 工具。",
+    "emailLabel": "電郵",
+    "passwordLabel": "密碼",
+    "remember": "保持登入",
+    "forgotPassword": "忘記密碼？",
+    "submit": "登入",
+    "registerPrompt": "第一次使用 Slashie？",
+    "registerLink": "建立帳戶"
+  }
+}

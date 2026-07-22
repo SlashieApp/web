@@ -1,0 +1,26 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Requests | Slashie",
+      "description": "Manage tasks you posted on Slashie and review quotes from local workers."
+    },
+    "eyebrow": "Customer requests",
+    "title": "Your requests",
+    "description": "Manage posted tasks, compare worker quotes, and keep each request moving.",
+    "emptyTitle": "No requests yet",
+    "emptyDescription": "Post your first task and nearby workers can send quotes.",
+    "primaryCta": "Post a task"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "請求 | Slashie",
+      "description": "管理你在 Slashie 發佈的任務，並查看本地 worker 報價。"
+    },
+    "eyebrow": "Customer 請求",
+    "title": "你的請求",
+    "description": "管理已發佈任務、比較 worker 報價，並推進每個請求。",
+    "emptyTitle": "暫時沒有請求",
+    "emptyDescription": "發佈第一個任務，附近 workers 便可以傳送報價。",
+    "primaryCta": "發佈任務"
+  }
+}

@@ -5,6 +5,8 @@ import { Box, Container, Grid, HStack, Stack } from '@chakra-ui/react'
 import { Footer, Link } from '@ui'
 
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 
 import { WorkerAboutSection } from './components/WorkerAboutSection'
@@ -30,6 +32,7 @@ import {
   workerHasMeaningfulBio,
   workerProfileCompleteness,
 } from './helpers/workerProfileOwner'
+import bag from './i11n.json'
 
 function absoluteUrlFromEnv(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl
@@ -47,13 +50,15 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
+  const locale = await getRequestLocale()
   const { slug } = await params
+  const copy = loadPageI11n(bag, locale)
   const { worker } = await getWorkerForPublicPage(slug)
   const displayName = worker ? workerPublicDisplayName(worker) : null
   const headline = worker ? workerHeadline(worker) : null
   const title = displayName
     ? `${displayName} — ${headline ?? 'Worker'} on Slashie`
-    : 'Worker not found | Slashie'
+    : copy.metadata.title
   const rawDescription =
     worker?.tagline?.trim() ||
     worker?.bio?.trim() ||
@@ -62,17 +67,17 @@ export async function generateMetadata({
     ? rawDescription.length > 160
       ? `${rawDescription.slice(0, 157)}…`
       : rawDescription
-    : 'View worker profile and trust signals on Slashie.'
+    : copy.metadata.description
   const canonicalPath = `/workers/${slug}`
   const avatarUrl = worker?.profile?.avatarUrl?.trim()
+  const base = metadataFromI11n(copy.metadata, { locale, path: canonicalPath })
 
   return {
+    ...base,
     title,
     description,
-    alternates: {
-      canonical: canonicalPath,
-    },
     openGraph: {
+      ...base.openGraph,
       type: 'profile',
       url: absoluteUrlFromEnv(canonicalPath),
       title,
@@ -95,6 +100,8 @@ export default async function WorkerProfilePage({
   params: Promise<{ slug: string }>
   searchParams: Promise<{ fromTask?: string }>
 }) {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(bag, locale)
   const { slug } = await params
   const { fromTask } = await searchParams
   const { worker } = await getWorkerForPublicPage(slug)
@@ -149,8 +156,8 @@ export default async function WorkerProfilePage({
                   <WorkerAboutSection />
                 ) : isOwner ? (
                   <WorkerProfileAddPlaceholder
-                    title="Add a bio"
-                    description="Customers read this before accepting your quote. Two or three sentences about the work you do best."
+                    title={copy.addBioTitle}
+                    description={copy.addBioDescription}
                   />
                 ) : null}
 
@@ -158,8 +165,8 @@ export default async function WorkerProfilePage({
                   <WorkerSkillsSection skills={worker.skills} />
                 ) : isOwner ? (
                   <WorkerProfileAddPlaceholder
-                    title="Add your skills"
-                    description="Skills become searchable tags, so customers find you for the right tasks."
+                    title={copy.addSkillsTitle}
+                    description={copy.addSkillsDescription}
                   />
                 ) : null}
 
@@ -176,8 +183,8 @@ export default async function WorkerProfilePage({
                   />
                 ) : isOwner ? (
                   <WorkerProfileAddPlaceholder
-                    title="Add photos of your work"
-                    description="Workers with photos win more quotes. Add pictures of finished jobs."
+                    title={copy.addPhotosTitle}
+                    description={copy.addPhotosDescription}
                   />
                 ) : null}
               </Stack>

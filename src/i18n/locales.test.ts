@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { formatMessage, loadPageI11n } from './loadPageI11n'
 import {
   API_TO_LOCALE,
   LOCALE_TO_API,
@@ -12,7 +13,6 @@ import {
   swapLocaleInPath,
   withLocale,
 } from './navigation'
-import { formatMessage, loadPageI11n } from './loadPageI11n'
 
 describe('locales', () => {
   it('maps GraphQL language enums', () => {
@@ -44,8 +44,8 @@ describe('loadPageI11n', () => {
 
   it('picks locale bundle and formats messages', () => {
     expect(loadPageI11n(bag, 'zh-hk').title).toBe('你好')
-    expect(formatMessage(loadPageI11n(bag, 'en').body, { name: 'Slashie' })).toBe(
-      'World Slashie',
-    )
+    expect(
+      formatMessage(loadPageI11n(bag, 'en').body, { name: 'Slashie' }),
+    ).toBe('World Slashie')
   })
 })

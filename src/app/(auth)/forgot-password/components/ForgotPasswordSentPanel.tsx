@@ -8,8 +8,11 @@ import { useCallback, useMemo, useRef } from 'react'
 import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
 import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
+import { usePageI11n } from '@/i18n/usePageI11n'
+import bag from '../sent/i11n.json'
 
 export function ForgotPasswordSentPanel() {
+  const t = usePageI11n(bag)
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = useMemo(
@@ -50,7 +53,7 @@ export function ForgotPasswordSentPanel() {
         justifyContent="center"
       >
         <Text color="text.muted" fontSize="sm">
-          Redirecting…
+          {t.loading}
         </Text>
       </Box>
     )
@@ -79,15 +82,14 @@ export function ForgotPasswordSentPanel() {
       >
         <Stack gap={5} align="center" textAlign="center">
           <Heading size="xl" color="text.default">
-            Check your inbox
+            {t.title}
           </Heading>
           <Text color="text.muted" fontSize="sm" lineHeight="1.6">
-            If an account exists for{' '}
+            {t.descriptionPrefix}{' '}
             <Text as="span" fontWeight={700} color="text.default">
               {email}
             </Text>
-            , we sent a password reset link. Open the link to choose a new
-            password — the link expires in 1 hour.
+            {t.descriptionSuffix}
           </Text>
 
           <Stack gap={3} w="full" maxW="xs" textAlign="left">
@@ -104,9 +106,7 @@ export function ForgotPasswordSentPanel() {
               onClick={() => void onResend()}
               w="full"
             >
-              {cooldownSeconds > 0
-                ? `Resend in ${cooldownSeconds}s`
-                : 'Resend reset link'}
+              {cooldownSeconds > 0 ? `Resend in ${cooldownSeconds}s` : t.resend}
             </Button>
 
             {message ? (
@@ -132,7 +132,7 @@ export function ForgotPasswordSentPanel() {
               color="text.link"
               _hover={{ textDecoration: 'none', color: 'status.success.fg' }}
             >
-              Back to sign in
+              {t.cta}
             </Link>
           </Stack>
         </Stack>

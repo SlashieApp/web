@@ -1,144 +1,18 @@
-'use client'
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
-import { Button, Link, Logo } from '@ui'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useCallback, useMemo, useRef } from 'react'
+import PageContent from './PageContent'
+import bag from './i11n.json'
 
-import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
-import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
-import { useMe } from '@/app/(auth)/store/user'
-import { APP_HOME } from '@/utils/appRoutes'
-import { getAuthToken } from '@/utils/auth'
+const PAGE_PATH = '/verify-email/sent'
 
-function VerifyEmailSentFallback() {
-  return (
-    <Box minH="40vh" display="flex" alignItems="center" justifyContent="center">
-      <Text color="text.muted">Loading…</Text>
-    </Box>
-  )
+export async function generateMetadata() {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(bag, locale)
+  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
 }
 
-function VerifyEmailSentContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const me = useMe()
-  const { resend, isSending, message, isSent } = useResendVerificationEmail()
-
-  const nextPath = useMemo(() => {
-    const next = searchParams.get('next')?.trim() ?? ''
-    if (next.startsWith('/') && !next.startsWith('//')) return next
-    return null
-  }, [searchParams])
-
-  const isLoggedIn = Boolean(getAuthToken())
-  const redirectedRef = useRef(false)
-
-  const onMountRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node || redirectedRef.current) return
-      if (me && isEmailVerified(me)) {
-        redirectedRef.current = true
-        router.replace(nextPath ?? APP_HOME)
-      }
-    },
-    [me, nextPath, router],
-  )
-
-  if (me && isEmailVerified(me)) {
-    return (
-      <Text color="text.muted" fontSize="sm">
-        Redirecting…
-      </Text>
-    )
-  }
-
-  return (
-    <Stack ref={onMountRef} gap={6} w="full">
-      <Link
-        href="/"
-        display="block"
-        w="full"
-        _hover={{ textDecoration: 'none', opacity: 0.92 }}
-      >
-        <Logo h="48px" />
-      </Link>
-
-      <Box
-        w="full"
-        bg="bg.subtle"
-        borderRadius="2xl"
-        px={{ base: 6, md: 10 }}
-        py={{ base: 8, md: 10 }}
-      >
-        <Stack gap={5} align="center" textAlign="center">
-          <Heading size="xl" color="text.default">
-            Check your inbox
-          </Heading>
-          <Text color="text.muted" fontSize="sm" lineHeight="1.6">
-            We sent a verification link to{' '}
-            {me?.email ? (
-              <Text as="span" fontWeight={700} color="text.default">
-                {me.email}
-              </Text>
-            ) : (
-              'your email address'
-            )}
-            . Open the link to verify your account — you can keep browsing while
-            you wait.
-          </Text>
-
-          {isLoggedIn ? (
-            <Stack gap={3} w="full" maxW="xs">
-              <Button
-                loading={isSending}
-                onClick={() => void resend()}
-                w="full"
-              >
-                Resend verification email
-              </Button>
-              {message ? (
-                <Box
-                  as="output"
-                  fontSize="sm"
-                  color={isSent ? 'status.success.fg' : 'status.danger.fg'}
-                >
-                  {message}
-                </Box>
-              ) : null}
-              <Link
-                href={nextPath ?? APP_HOME}
-                fontSize="sm"
-                fontWeight={600}
-                color="text.link"
-                _hover={{ textDecoration: 'none', color: 'status.success.fg' }}
-              >
-                Continue to dashboard
-              </Link>
-            </Stack>
-          ) : (
-            <Stack gap={2}>
-              <Text fontSize="sm" color="text.muted">
-                Log in to resend the verification email.
-              </Text>
-              <Link
-                href={`/login?next=${encodeURIComponent('/verify-email/sent')}`}
-                _hover={{ textDecoration: 'none' }}
-              >
-                <Button w="full">Log in</Button>
-              </Link>
-            </Stack>
-          )}
-        </Stack>
-      </Box>
-    </Stack>
-  )
-}
-
-export default function VerifyEmailSentPage() {
-  return (
-    <Suspense fallback={<VerifyEmailSentFallback />}>
-      <VerifyEmailSentContent />
-    </Suspense>
-  )
+export default async function Page() {
+  const locale = await getRequestLocale()
+  return <PageContent key={locale} />
 }

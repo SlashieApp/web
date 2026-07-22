@@ -1,12 +1,14 @@
-import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { BillingPage } from './components/BillingPage'
+import bag from './i11n.json'
 
-export const metadata: Metadata = {
-  title: 'Billing | Slashie',
-  description:
-    'Manage your Slashie Unlimited subscription and monthly quote allowance. Platform billing is separate from job payments between customers and workers.',
+export async function generateMetadata() {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(bag, locale)
+  return metadataFromI11n(copy.metadata, { locale, path: '/billing' })
 }
 
 export default function BillingRoutePage() {
