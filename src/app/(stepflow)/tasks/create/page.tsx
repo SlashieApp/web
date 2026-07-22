@@ -20,7 +20,7 @@ import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificati
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
-import CreateTask from '@/app/(task)/tasks/create/graphql/CreateTask.gql'
+import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import Me from '@/graphql/Me.gql'
 import { useI11n } from '@/i18n/useI11n'
 import {

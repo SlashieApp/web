@@ -22,7 +22,7 @@ import {
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
 
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 
 import { QuoteCard } from './QuoteCard'
 import { QuoteLimitPaywall } from './QuoteLimitPaywall'

@@ -4,7 +4,7 @@ import type { MeQuery } from '@codegen/schema'
 import type { OrderItem } from '@/utils/orderHelpers'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 
-import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
+import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
 
 import {
   type MappedTaskStatus,

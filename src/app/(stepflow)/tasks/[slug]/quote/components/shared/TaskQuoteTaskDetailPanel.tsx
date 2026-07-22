@@ -5,7 +5,7 @@ import { LuArrowLeft } from 'react-icons/lu'
 
 import { Link } from '@ui'
 
-import { useTaskDetail } from '../../../context/TaskDetailProvider'
+import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 
 type TaskQuoteTaskDetailPanelProps = {
   backHref: string

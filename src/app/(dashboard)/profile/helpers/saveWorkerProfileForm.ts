@@ -5,10 +5,10 @@ import type {
 } from '@codegen/schema'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
-import SaveWorkerSetupStep from '@/app/(worker)/worker/setup/graphql/SaveWorkerSetupStep.gql'
-import { categoryEnumFromSlug } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
-import { resolveWorkerSetupLocation } from '@/app/(worker)/worker/setup/helpers/workerSetupLocation'
-import { mergeSaveWorkerSetupIntoMe } from '@/app/(worker)/worker/setup/helpers/workerSetupSyncMe'
+import SaveWorkerSetupStep from '@/app/(stepflow)/worker/setup/graphql/SaveWorkerSetupStep.gql'
+import { categoryEnumFromSlug } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import { resolveWorkerSetupLocation } from '@/app/(stepflow)/worker/setup/helpers/workerSetupLocation'
+import { mergeSaveWorkerSetupIntoMe } from '@/app/(stepflow)/worker/setup/helpers/workerSetupSyncMe'
 
 import type { WorkerFormValues } from '../workerFormSchema'
 

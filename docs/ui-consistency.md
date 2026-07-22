@@ -57,11 +57,9 @@ Routes are already grouped by Next.js route groups, which align to shells:
 | `src/app/(marketing)` — `/`, `/about`, `/pricing` | Marketing | Header only, footer; no sidebar/dock |
 | `src/app/(auth)` — `/login`, `/register`, verify | Marketing (auth) | Header only, centered card |
 | `src/app/(task)` — `/tasks`, `/tasks/[slug]` | Discovery / Task detail | Map+list, mobile bottom dock (max 4); detail = header + quote sidebar |
-| `src/app/(task)` — `/tasks/create`, `/tasks/[slug]/quote` | StepFlow standalone | **`StepFlowLayout` only** — no app `Header` / `Dock` (FE-78) |
+| `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/worker/setup` | StepFlow | Own route-group `layout.tsx` — **`StepFlowLayout` only**, no app `Header` / `Dock` (FE-78) |
 | `src/app/(dashboard)` — `/dashboard`, `/requests`, `/quotes`, `/billing`, `/account` | Dashboard | Icon sidebar + header |
-| `src/app/(worker)` — `/worker/setup`, `/worker/plan`, `/workers/[slug]` | Standalone / Dashboard | Setup = **`StepFlowLayout` only** (no Header/Dock); other worker routes keep app chrome |
-
-**StepFlow rule (FE-78):** `/worker/setup`, `/tasks/create`, and `/tasks/[slug]/quote` strip locale (`/en`, `/zh-hk`) then hide app Header/Dock so only `StepFlowLayout` chrome shows.
+| `src/app/(worker)` — `/worker/plan`, `/workers/[slug]` | App | Header chrome (setup lives under `(stepflow)`) |
 
 **Active-nav rule:** active state uses green accent; icon + label aligned.
 
@@ -97,7 +95,7 @@ Docs foundations: `src/ui/_foundations/*` (Color, Typography, …).
 | High | Brand green ramp in `brand.ts` diverged from Chakra (`#00AB63` as primary) | `src/theme/brand.ts` | ✅ Fixed — ramp now mirrors Chakra, primary `#00DC82` |
 | Med | Hardcoded `#00AB63` in map pin/route/static-image | `taskMap/pin`, `navRoute.ts`, `mapboxStaticImageUrl.ts`, `TaskLocationMapPicker.tsx` | ✅ Fixed — routed through `BRAND_MAP_*` constants (visible: pins now brighter spec green) |
 | Low | Ad-hoc hex gradients in marketing hero | `src/app/(marketing)/page.tsx:465,608` | Open — marketing decorative; tokenize later |
-| Low | Direct `@chakra-ui/react` primitive import | `(worker)/worker/setup/components/WorkerSetupHeader.tsx` | Open — review during worker migration |
+| Low | Direct `@chakra-ui/react` primitive import | `(stepflow)/worker/setup/components/WorkerSetupHeader.tsx` | Open — review during worker migration |
 | Info | Shared Empty primitive intentionally not in `@ui` | features compose `SpotIllustration` | ✅ By design — see Coding Guidebook |
 | Info | Toast exists in `@ui` | `src/ui/Toast` | ✅ |
 

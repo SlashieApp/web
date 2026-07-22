@@ -6,7 +6,7 @@ import {
   isPhoneVerified,
 } from '@/app/(auth)/helpers/phoneVerification'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 
 export type CompletenessItem = {
   key: 'avatar' | 'dateOfBirth' | 'bio' | 'verifiedContact'

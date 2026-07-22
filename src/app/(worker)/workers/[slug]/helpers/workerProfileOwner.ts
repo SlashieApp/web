@@ -1,6 +1,6 @@
 import { WorkerContactAction } from '@codegen/schema'
 
-import { isJunkBio } from '@/app/(worker)/worker/setup/helpers/workerSetupValidation'
+import { isJunkBio } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
 
 import type { WorkerPublicRecord } from './workerProfileHelpers'
 

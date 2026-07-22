@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
-import { categorySlugFromEnum } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
-import { QUALIFICATIONS_MAX } from '@/app/(worker)/worker/setup/helpers/workerSetupQualifications'
+import { categorySlugFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import { QUALIFICATIONS_MAX } from '@/app/(stepflow)/worker/setup/helpers/workerSetupQualifications'
 import {
   SKILLS_MAX,
   SKILLS_MIN,
-} from '@/app/(worker)/worker/setup/helpers/workerSetupSkills'
+} from '@/app/(stepflow)/worker/setup/helpers/workerSetupSkills'
 import {
   BIO_MAX_CHARS,
   BIO_MIN_CHARS,
@@ -14,7 +14,7 @@ import {
   HEADLINE_MIN_CHARS,
   YEARS_EXPERIENCE_MAX,
   isJunkBio,
-} from '@/app/(worker)/worker/setup/helpers/workerSetupValidation'
+} from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
 
 /** Mirrors the setup-flow validation floor — no junk via the dashboard editor. */
 export const workerFormSchema = z.object({

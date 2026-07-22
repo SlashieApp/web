@@ -4,7 +4,7 @@ import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { LuX } from 'react-icons/lu'
 
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { sdlFocusRing } from '@/theme/styles'
 import { Link, ProgressBar } from '@ui'
 

@@ -1,7 +1,7 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuPlus } from 'react-icons/lu'
 
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { Link } from '@ui'
 
 /**

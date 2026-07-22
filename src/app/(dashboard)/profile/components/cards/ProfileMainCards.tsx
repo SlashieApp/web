@@ -20,8 +20,8 @@ import type { MeSnapshot } from '@/app/(auth)/store/user'
 import {
   categoryBySlug,
   categorySlugFromEnum,
-} from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+} from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { formatPhoneForDisplay } from '@/utils/phoneNormalize'

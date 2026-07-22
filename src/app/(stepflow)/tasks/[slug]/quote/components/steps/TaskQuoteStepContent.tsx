@@ -17,7 +17,7 @@ import {
 } from '@ui'
 import type { TextareaProps } from '@ui'
 
-import { useTaskDetail } from '../../../context/TaskDetailProvider'
+import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
   TASK_QUOTE_STEP_COPY,
   type TaskQuoteSubStepId,

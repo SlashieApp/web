@@ -4,13 +4,13 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useRef } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { Box, Stack, Text } from '@chakra-ui/react'
 
 import { Button, Link } from '@ui'
 
-import { QuoteLimitPaywall } from '../../components/quoteSection/QuoteLimitPaywall'
-import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { QuoteLimitPaywall } from '@/app/(task)/tasks/[slug]/components/quoteSection/QuoteLimitPaywall'
+import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { TaskQuoteScreen } from './TaskQuoteScreen'
 import { TaskQuoteGateView } from './shared/TaskQuoteGateView'
 import { TaskQuoteSummaryCard } from './shared/TaskQuoteSummaryCard'

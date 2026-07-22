@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react'
 import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
 import { StepFlowLayout } from '@ui'
 
-import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
   TASK_QUOTE_FIRST_SUB_STEP,
   TASK_QUOTE_STEP_COPY,

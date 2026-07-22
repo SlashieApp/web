@@ -48,8 +48,8 @@ import {
   CreateTaskMapLocationPanel,
   CreateTaskScheduleSection,
   CreateTaskVisualsSection,
-} from '../../create/components'
-import type { CreateTaskFormFieldValues } from '../../create/createTaskFormSchema'
+} from '@/app/(stepflow)/tasks/create/components'
+import type { CreateTaskFormFieldValues } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
 import { EditTaskAcceptedWorkerCapSection } from '../../edit/components/EditTaskAcceptedWorkerCapSection'
 import {
   type EditTaskFormFieldValues,
