@@ -2,6 +2,11 @@
   "en": {
     "tagline": "Help workers reach local jobs — free to browse, free to quote, no platform fee on the work itself.",
     "copyright": "© Slashie 2026",
+    "columns": {
+      "explore": "Explore",
+      "legal": "Legal",
+      "connect": "Connect"
+    },
     "nav": {
       "pricing": "Pricing",
       "about": "About",
@@ -22,6 +27,11 @@
   "zh_hk": {
     "tagline": "幫助工作者接觸本地工作 — 免費瀏覽、免費報價，工作本身不收平台費。",
     "copyright": "© Slashie 2026",
+    "columns": {
+      "explore": "探索",
+      "legal": "法律",
+      "connect": "連結"
+    },
     "nav": {
       "pricing": "收費",
       "about": "關於",
