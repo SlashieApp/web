@@ -54,7 +54,7 @@ export const AllVariants: Story = {
 export const CustomContent: Story = {
   args: {
     variant: 'default',
-    tagline: 'Find local help, fast.',
+    tagline: 'Find local help, hire with confidence.',
     copyright: '© Slashie 2026 — All rights reserved',
   },
 }

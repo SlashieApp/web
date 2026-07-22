@@ -1,0 +1,42 @@
+{
+  "en": {
+    "tagline": "Help workers reach local jobs — free to browse, free to quote, no platform fee on the work itself.",
+    "copyright": "© Slashie 2026",
+    "nav": {
+      "pricing": "Pricing",
+      "about": "About",
+      "login": "Log in",
+      "register": "Register"
+    },
+    "legal": {
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "cookies": "Cookies"
+    },
+    "connect": {
+      "linkedin": "LinkedIn",
+      "github": "GitHub"
+    },
+    "openSourceNote": "Open source. Powered by an AI-driven company. Built with loop engineering."
+  },
+  "zh_hk": {
+    "tagline": "幫助工作者接觸本地工作 — 免費瀏覽、免費報價，工作本身不收平台費。",
+    "copyright": "© Slashie 2026",
+    "nav": {
+      "pricing": "收費",
+      "about": "關於",
+      "login": "登入",
+      "register": "註冊"
+    },
+    "legal": {
+      "terms": "條款",
+      "privacy": "私隱",
+      "cookies": "Cookie"
+    },
+    "connect": {
+      "linkedin": "LinkedIn",
+      "github": "GitHub"
+    },
+    "openSourceNote": "開源專案。由 AI 驅動的公司打造，以 loop engineering 建構。"
+  }
+}

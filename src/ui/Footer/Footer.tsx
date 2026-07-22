@@ -10,8 +10,12 @@ import {
 } from '@chakra-ui/react'
 
 import { COMPANY_REGISTRATION_LINE } from '@/content/legal/company'
+import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
-import { Link, Logo } from '@ui'
+
+import { Link } from '../Link/Link'
+import { Logo } from '../Logo/Logo'
+import messages from './i11n.json'
 
 /**
  * SDL site Footer. Presentational composition built from SDL atoms (`Logo`,
@@ -23,7 +27,7 @@ import { Link, Logo } from '@ui'
  *   `:focus-visible` treatment.
  *
  * Variants (additive, non-breaking — `Footer` still renders with no props):
- * - `default` — full footer: brand block + primary nav + legal row.
+ * - `default` — full footer: brand block + primary nav + connect + legal row.
  * - `minimal` — compact single-row footer (meta + legal only).
  */
 export type UiFooterVariant = 'default' | 'minimal'
@@ -36,18 +40,21 @@ export type UiFooterProps = Omit<BoxProps, 'children'> & {
   copyright?: string
 }
 
-const navLinks = [
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'About', href: '/about' },
-  { label: 'Log in', href: '/login' },
-  { label: 'Register', href: '/register' },
-] as const
+const LINKEDIN_HREF = 'https://www.linkedin.com/company/slashie-app'
+const GITHUB_HREF = 'https://github.com/SlashieApp/web'
 
-const legalLinks = [
-  { label: 'Terms', href: '/terms' },
-  { label: 'Privacy', href: '/privacy' },
-  { label: 'Cookies', href: '/cookies' },
-] as const
+const navHrefs = {
+  pricing: '/pricing',
+  about: '/about',
+  login: '/login',
+  register: '/register',
+} as const
+
+const legalHrefs = {
+  terms: '/terms',
+  privacy: '/privacy',
+  cookies: '/cookies',
+} as const
 
 const linkMotion = {
   transitionProperty: 'color',
@@ -55,12 +62,39 @@ const linkMotion = {
   transitionTimingFunction: sdlMotion.easing.standard,
 } as const
 
+const externalLinkProps = {
+  target: '_blank',
+  rel: 'noopener noreferrer',
+} as const
+
 export function Footer({
   variant = 'default',
-  tagline = 'Map-first local task marketplace.',
-  copyright = '© Slashie 2026',
+  tagline,
+  copyright,
   ...boxProps
 }: UiFooterProps) {
+  const t = useI11n(messages)
+  const resolvedTagline = tagline ?? t.tagline
+  const resolvedCopyright = copyright ?? t.copyright
+
+  const navLinks = [
+    { label: t.nav.pricing, href: navHrefs.pricing },
+    { label: t.nav.about, href: navHrefs.about },
+    { label: t.nav.login, href: navHrefs.login },
+    { label: t.nav.register, href: navHrefs.register },
+  ] as const
+
+  const legalLinks = [
+    { label: t.legal.terms, href: legalHrefs.terms },
+    { label: t.legal.privacy, href: legalHrefs.privacy },
+    { label: t.legal.cookies, href: legalHrefs.cookies },
+  ] as const
+
+  const connectLinks = [
+    { label: t.connect.linkedin, href: LINKEDIN_HREF },
+    { label: t.connect.github, href: GITHUB_HREF },
+  ] as const
+
   const legalRow = (
     <HStack gap={4}>
       {legalLinks.map((link) => (
@@ -97,7 +131,7 @@ export function Footer({
               fontSize="sm"
               color="text.muted"
             >
-              <Text>{copyright}</Text>
+              <Text>{resolvedCopyright}</Text>
               {legalRow}
             </HStack>
             <Text fontSize="xs" color="text.muted">
@@ -112,27 +146,48 @@ export function Footer({
               flexWrap="wrap"
               gap={6}
             >
-              <Stack gap={2}>
+              <Stack gap={2} maxW="md">
                 <Logo />
                 <Text fontSize="sm" color="text.muted">
-                  {tagline}
+                  {resolvedTagline}
+                </Text>
+                <Text fontSize="xs" color="text.muted">
+                  {t.openSourceNote}
                 </Text>
               </Stack>
-              <HStack gap={5} flexWrap="wrap">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    tone="muted"
-                    fontWeight={600}
-                    fontSize="sm"
-                    color="text.default"
-                    {...linkMotion}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </HStack>
+              <Stack gap={4} align={{ base: 'flex-start', md: 'flex-end' }}>
+                <HStack gap={5} flexWrap="wrap">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      tone="muted"
+                      fontWeight={600}
+                      fontSize="sm"
+                      color="text.default"
+                      {...linkMotion}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </HStack>
+                <HStack gap={5} flexWrap="wrap">
+                  {connectLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      tone="muted"
+                      fontWeight={600}
+                      fontSize="sm"
+                      color="text.default"
+                      {...externalLinkProps}
+                      {...linkMotion}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </HStack>
+              </Stack>
             </HStack>
             <Stack gap={3}>
               <HStack
@@ -142,7 +197,7 @@ export function Footer({
                 fontSize="sm"
                 color="text.muted"
               >
-                <Text>{copyright}</Text>
+                <Text>{resolvedCopyright}</Text>
                 {legalRow}
               </HStack>
               <Text fontSize="xs" color="text.muted">

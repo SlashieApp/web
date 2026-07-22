@@ -56,6 +56,7 @@ describe('marketing page dictionaries', () => {
   const requiredDictionaries = [
     'src/ui/Header/i11n.json',
     'src/ui/Dock/i11n.json',
+    'src/ui/Footer/i11n.json',
     'src/ui/LanguageSwitcher/i11n.json',
     'src/app/(dashboard)/i11n.json',
     'src/app/(marketing)/i11n.chrome.json',
