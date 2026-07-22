@@ -22,6 +22,7 @@ import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import Me from '@/graphql/Me.gql'
+import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
 import {
   EVENTS,
@@ -35,6 +36,7 @@ import {
   getGraphQLErrorCode,
   getTaskMutationErrorMessage,
 } from '@/utils/graphqlErrors'
+import { TASK_DRAFT_TITLE_MAX } from '@/utils/taskHandoff'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
 import { StepFlowLayout, StepFlowProgress } from '@ui'
 
@@ -70,6 +72,19 @@ import {
 import bag from './i11n.json'
 
 const POST_TASK_PATH = '/tasks/create'
+
+function readDraftTitleFromUrl(): string {
+  if (typeof window === 'undefined') return ''
+  const raw = new URLSearchParams(window.location.search).get('title')
+  return raw?.trim().slice(0, TASK_DRAFT_TITLE_MAX) ?? ''
+}
+
+function currentCreateTaskReturnPath(): string {
+  if (typeof window === 'undefined') return POST_TASK_PATH
+  const bare = stripLocalePrefix(window.location.pathname)
+  const path = bare && bare !== '/' ? bare : POST_TASK_PATH
+  return `${path}${window.location.search}`
+}
 
 type CreateTaskFormBodyProps = {
   preferredContactDefault: TaskContactMethod
@@ -112,7 +127,7 @@ function CreateTaskFormBody({
   } = useForm<CreateTaskFormFieldValues>({
     resolver: zodResolver(createTaskFormSchema),
     defaultValues: {
-      title: '',
+      title: readDraftTitleFromUrl(),
       category: '',
       description: '',
       streetAddress: '',
@@ -537,7 +552,9 @@ export default function CreateTaskPage() {
   if (!sessionGateRef.current) {
     sessionGateRef.current = true
     if (!getAuthToken()) {
-      router.replace(`/login?redirect=${encodeURIComponent(POST_TASK_PATH)}`)
+      router.replace(
+        `/login?redirect=${encodeURIComponent(currentCreateTaskReturnPath())}`,
+      )
     } else {
       setSessionOk(true)
     }

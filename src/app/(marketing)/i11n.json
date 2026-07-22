@@ -28,13 +28,15 @@
     },
     "landing": {
       "metadata": {
-        "title": "Slashie — Get local help with trusted quotes",
-        "description": "Post a task, get quotes from nearby workers, and pay the worker directly. Slashie takes no cut of the job."
+        "title": "Slashie — Help around the corner",
+        "description": "Trusted local workers. Clear quotes. No platform cut of the job. Post a task and pay the worker directly."
       },
       "hero": {
-        "eyebrow": "Local help, on the map",
-        "heading": "Get local help. Hire with confidence.",
-        "body": "Post a task, get quotes from nearby workers, pick who you want. You pay the worker directly — Slashie takes no cut of the job.",
+        "heading": "Help around the corner.",
+        "body": "Trusted local workers. Clear quotes. No platform cut of the job.",
+        "searchPlaceholder": "What do you need help with?",
+        "searchSubmit": "Get quotes",
+        "searchAriaLabel": "What do you need help with?",
         "trustChips": ["No job fee", "Local workers", "Pay directly"]
       },
       "howItWorks": {
@@ -130,13 +132,15 @@
     },
     "landing": {
       "metadata": {
-        "title": "Slashie — 用可信報價找到本地幫手",
-        "description": "發布任務，取得附近工作者的報價，直接向工作者付款。Slashie 不抽取任務費用。"
+        "title": "Slashie — 幫手就在街角",
+        "description": "可信本地工作者。清楚報價。不抽取任務費用。發布任務，直接向工作者付款。"
       },
       "hero": {
-        "eyebrow": "地圖上的本地幫手",
-        "heading": "找本地幫手，安心聘用。",
-        "body": "發布任務，取得附近工作者的報價，選你想聘用的人。你直接向工作者付款，Slashie 不抽取任務費用。",
+        "heading": "幫手就在街角。",
+        "body": "可信本地工作者。清楚報價。不抽取任務費用。",
+        "searchPlaceholder": "你需要什麼幫忙？",
+        "searchSubmit": "取得報價",
+        "searchAriaLabel": "你需要什麼幫忙？",
         "trustChips": ["不抽任務費", "本地工作者", "直接付款"]
       },
       "howItWorks": {

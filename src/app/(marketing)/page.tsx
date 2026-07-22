@@ -36,7 +36,7 @@ export async function generateMetadata() {
 
 /**
  * Marketing landing. The narrative is fully server-rendered (SEO + no-JS
- * legible); the WebGL living-map hero and scroll motion are client islands
+ * legible); the Spotlight + Spline hero and scroll motion are client islands
  * layered on top. Signed-in visitors stay on the landing (no auto-redirect).
  */
 export default async function MarketingHomePage() {
@@ -84,10 +84,8 @@ export default async function MarketingHomePage() {
       <HeroSection
         copy={landing.hero}
         ctas={{
-          getStarted: ctas.getStarted,
           seeHowItWorks: ctas.seeHowItWorks,
         }}
-        registerHref={hrefs.register}
       />
       <HowItWorks copy={landing.howItWorks} />
       <AudienceSection

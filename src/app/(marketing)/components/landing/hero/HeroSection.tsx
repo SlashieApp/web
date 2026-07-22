@@ -1,12 +1,18 @@
-import { Box, Container, HStack, Heading, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import {
+  Box,
+  Flex,
+  HStack,
+  Heading,
+  Image,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 
-import { Button } from '@ui'
-
-import { Magnetic } from '../Magnetic'
-import { HeroCanvasLayer } from './HeroCanvasLayer'
-import { HeroCursorGlow } from './HeroCursorGlow'
+import { HeroHowItWorksLink } from './HeroHowItWorksLink'
 import { HeroPoster } from './HeroPoster'
+import { HeroSearchCta } from './HeroSearchCta'
+import { HeroSplineLayer } from './HeroSplineLayer'
+import { Spotlight } from './Spotlight'
 
 /** CSS entrance (runs without JS; disabled under reduced motion). */
 function riseIn(delayMs: number) {
@@ -23,27 +29,27 @@ function riseIn(delayMs: number) {
 }
 
 type HeroSectionCopy = {
-  eyebrow: string
   heading: string
   body: string
+  searchPlaceholder: string
+  searchSubmit: string
+  searchAriaLabel: string
   trustChips: readonly string[]
 }
 
 type HeroSectionProps = {
   copy: HeroSectionCopy
   ctas: {
-    getStarted: string
     seeHowItWorks: string
   }
-  registerHref: string
 }
 
 /**
- * Immersive hero: server-rendered copy over the living-map WebGL layer.
- * The section slides under the transparent marketing header (negative top
- * margin equal to the header height), on the SDL inverted ink surface.
+ * Marketing hero: brand-first split composition — copy + search CTA on the
+ * left, Spotlight + lazy Spline 3D human on the right. Slides under the
+ * transparent marketing header (negative top margin = header height).
  */
-export function HeroSection({ copy, ctas, registerHref }: HeroSectionProps) {
+export function HeroSection({ copy, ctas }: HeroSectionProps) {
   return (
     <Box
       as="section"
@@ -53,119 +59,120 @@ export function HeroSection({ copy, ctas, registerHref }: HeroSectionProps) {
       color="text.onInverted"
       mt={{ base: '-56px', md: '-64px' }}
     >
-      <HeroPoster />
-      <HeroCanvasLayer />
-      {/* Legibility scrim above the scene, below the copy. Decorative rgba of
-          the bg.inverted ink (#0C1310), like the auth-page treatments. */}
-      <Box
-        position="absolute"
-        inset={0}
-        aria-hidden
-        pointerEvents="none"
-        bgImage="linear-gradient(100deg, rgba(12, 19, 16, 0.82) 0%, rgba(12, 19, 16, 0.5) 42%, rgba(12, 19, 16, 0) 70%), linear-gradient(0deg, rgba(12, 19, 16, 0.5) 0%, rgba(12, 19, 16, 0) 24%)"
-      />
-      <HeroCursorGlow />
+      <Spotlight />
 
-      <Container
-        maxW="6xl"
-        px={{ base: 4, md: 6 }}
+      <Flex
+        direction={{ base: 'column', md: 'row' }}
+        align="stretch"
+        minH={{ base: '100svh', md: '100vh' }}
         position="relative"
         zIndex={1}
       >
-        <Stack
-          minH={{ base: '100svh', md: '100vh' }}
+        <Flex
+          flex="1 1 50%"
+          direction="column"
           justify="center"
-          py={{ base: '96px', md: '120px' }}
-          maxW="3xl"
-          gap={{ base: 6, md: 8 }}
+          px={{ base: 4, md: 8, lg: 12 }}
+          pt={{ base: '96px', md: '120px' }}
+          pb={{ base: 8, md: '120px' }}
+          maxW={{ md: '50%' }}
         >
-          <HStack gap={2.5} {...riseIn(0)}>
-            <Box
-              boxSize="8px"
-              borderRadius="full"
-              bg="action.primary"
-              aria-hidden
-            />
+          <Stack gap={{ base: 5, md: 7 }} maxW="34rem">
+            <Box {...riseIn(0)}>
+              <Image
+                src="/images/slashie-logo-dark.png"
+                alt="slashie"
+                h={{ base: '40px', md: '52px' }}
+                w="auto"
+                maxW={{ base: '180px', md: '240px' }}
+                objectFit="contain"
+              />
+            </Box>
+
+            <Heading
+              as="h1"
+              fontFamily="display"
+              fontWeight={700}
+              lineHeight={1.08}
+              letterSpacing="-0.02em"
+              fontSize="clamp(2.25rem, 5.5vw, 3.75rem)"
+              {...riseIn(80)}
+            >
+              {copy.heading}
+            </Heading>
+
             <Text
-              fontSize="xs"
-              fontWeight={600}
-              letterSpacing="0.14em"
-              textTransform="uppercase"
+              fontSize={{ base: 'md', md: 'lg' }}
+              lineHeight={1.55}
               color="text.onInvertedMuted"
+              maxW="40ch"
+              {...riseIn(160)}
             >
-              {copy.eyebrow}
+              {copy.body}
             </Text>
-          </HStack>
 
-          <Heading
-            as="h1"
-            fontFamily="display"
-            fontWeight={700}
-            lineHeight={1.08}
-            letterSpacing="-0.02em"
-            fontSize="clamp(2.5rem, 6.5vw, 4.5rem)"
-            {...riseIn(80)}
-          >
-            {copy.heading}
-          </Heading>
+            <Box {...riseIn(240)}>
+              <HeroSearchCta
+                placeholder={copy.searchPlaceholder}
+                submitLabel={copy.searchSubmit}
+                ariaLabel={copy.searchAriaLabel}
+              />
+            </Box>
 
-          <Text
-            fontSize={{ base: 'md', md: 'lg' }}
-            lineHeight={1.55}
-            color="text.onInvertedMuted"
-            maxW="65ch"
-            {...riseIn(160)}
-          >
-            {copy.body}
-          </Text>
-
-          {/* CTAs are single <a> elements styled as buttons (Button asChild):
-              a <button> nested in an <a> is invalid HTML and double-focuses. */}
-          <HStack gap={4} flexWrap="wrap" {...riseIn(240)}>
-            <Magnetic>
-              <Button asChild size="lg" variant="primary">
-                <NextLink href={registerHref}>{ctas.getStarted}</NextLink>
-              </Button>
-            </Magnetic>
-            <Button
-              asChild
-              size="lg"
-              variant="ghost"
-              color="text.onInverted"
-              borderWidth="1px"
-              borderColor="border.glass"
-              _hover={{ bg: 'bg.glass', color: 'text.onInverted' }}
-              _active={{ bg: 'bg.glass', color: 'text.onInverted' }}
+            <Text
+              fontSize="sm"
+              color="text.onInvertedLink"
+              fontWeight={500}
+              {...riseIn(300)}
             >
-              {/* Plain anchor: native CSS smooth scroll (globals.css) — routing
-                  through NextLink makes Next and Lenis fight over the scroll. */}
-              <a href="#how-it-works">{ctas.seeHowItWorks}</a>
-            </Button>
-          </HStack>
+              <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
+            </Text>
 
-          <HStack
-            gap={3}
-            flexWrap="wrap"
-            fontSize="sm"
-            color="text.onInvertedMuted"
-            {...riseIn(320)}
-          >
-            {copy.trustChips.map((item, index) => (
-              <HStack key={item} gap={3}>
-                {index > 0 ? (
-                  <Box
-                    boxSize="3px"
-                    borderRadius="full"
-                    bg="text.onInvertedMuted"
-                    aria-hidden
-                  />
-                ) : null}
-                <Text>{item}</Text>
-              </HStack>
-            ))}
-          </HStack>
-        </Stack>
-      </Container>
+            <HStack
+              gap={3}
+              flexWrap="wrap"
+              fontSize="sm"
+              color="text.onInvertedMuted"
+              {...riseIn(360)}
+            >
+              {copy.trustChips.map((item, index) => (
+                <HStack key={item} gap={3}>
+                  {index > 0 ? (
+                    <Box
+                      boxSize="3px"
+                      borderRadius="full"
+                      bg="text.onInvertedMuted"
+                      aria-hidden
+                    />
+                  ) : null}
+                  <Text>{item}</Text>
+                </HStack>
+              ))}
+            </HStack>
+          </Stack>
+        </Flex>
+
+        <Box
+          flex="1 1 50%"
+          position="relative"
+          minH={{ base: '280px', md: 'auto' }}
+          overflow="hidden"
+          opacity={{ base: 0.85, md: 1 }}
+        >
+          <HeroPoster />
+          <HeroSplineLayer />
+          {/* Soft left fade so copy stays legible where panes meet on desktop. */}
+          <Box
+            position="absolute"
+            insetY={0}
+            left={0}
+            w={{ base: '0', md: '28%' }}
+            pointerEvents="none"
+            aria-hidden
+            bgImage="linear-gradient(90deg, rgba(12, 19, 16, 0.92) 0%, rgba(12, 19, 16, 0) 100%)"
+          />
+        </Box>
+      </Flex>
     </Box>
   )
 }
