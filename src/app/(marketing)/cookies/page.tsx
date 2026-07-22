@@ -1,19 +1,24 @@
-import type { Metadata } from 'next'
-
 import { LegalPageLayout } from '@/app/(marketing)/components/LegalPageLayout'
-import { COOKIES_DOCUMENT } from '@/content/legal/cookies'
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { Footer } from '@/ui'
 
-export const metadata: Metadata = {
-  title: `${COOKIES_DOCUMENT.title} | Slashie`,
-  description: COOKIES_DOCUMENT.description,
-  alternates: { canonical: '/cookies' },
+import messages from './i11n.json'
+
+export async function generateMetadata() {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(messages, locale)
+
+  return metadataFromI11n(copy.metadata, { locale, path: '/cookies' })
 }
 
-export default function CookiesPage() {
+export default async function CookiesPage() {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(messages, locale)
+
   return (
     <>
-      <LegalPageLayout document={COOKIES_DOCUMENT} />
+      <LegalPageLayout document={copy} />
       <Footer variant="minimal" />
     </>
   )

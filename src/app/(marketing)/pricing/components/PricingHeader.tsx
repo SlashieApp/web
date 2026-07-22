@@ -1,6 +1,10 @@
 import { Heading, Stack, Text } from '@chakra-ui/react'
 
-export function PricingHeader() {
+export function PricingHeader({
+  copy,
+}: {
+  copy: { heading: string; body: string }
+}) {
   return (
     <Stack gap={3} align="center" textAlign="center" maxW="40rem" mx="auto">
       <Heading
@@ -8,10 +12,10 @@ export function PricingHeader() {
         letterSpacing="-0.02em"
         fontFamily="var(--font-plus-jakarta)"
       >
-        Choose your Slashie plan
+        {copy.heading}
       </Heading>
       <Text fontSize="md" color="text.muted" lineHeight="tall">
-        Workers choose free or unlimited quotes.
+        {copy.body}
       </Text>
     </Stack>
   )

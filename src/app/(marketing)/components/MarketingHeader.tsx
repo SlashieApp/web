@@ -14,23 +14,31 @@ import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { HeaderToolbarSeparator } from '@/components/Header/GuestHeaderAuth'
 import {
   HEADER_MIN_HEIGHT,
   HEADER_PADDING_X,
 } from '@/components/Header/headerShell'
+import { useLocale, useLocalizedHref } from '@/i18n/LocaleProvider'
+import { loadPageI11n } from '@/i18n/loadPageI11n'
+import { stripLocalePrefix } from '@/i18n/navigation'
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Button, Drawer, Link } from '@ui'
 
+import chromeMessages from '../i11n.chrome.json'
+
 const MARKETING_NAV_LINKS = [
-  { key: 'pricing', label: 'Pricing', href: '/pricing' },
-  { key: 'about', label: 'About', href: '/about' },
+  { key: 'pricing', href: '/pricing' },
+  { key: 'about', href: '/about' },
 ] as const
+
+type MarketingChromeCopy = (typeof chromeMessages)['en']
 
 const SkipLinkAnchor = chakra('a')
 
 /** Keyboard skip link — visually hidden until focused (first tab stop). */
-function SkipLink() {
+function SkipLink({ label }: { label: string }) {
   return (
     <SkipLinkAnchor
       href="#main-content"
@@ -54,7 +62,7 @@ function SkipLink() {
         outlineOffset: '2px',
       }}
     >
-      Skip to content
+      {label}
     </SkipLinkAnchor>
   )
 }
@@ -77,7 +85,14 @@ const drawerLinkProps = {
  * outline — the hero's own CTA stays the one green primary in the first
  * viewport — and becomes the standard green primary once the header solidifies.
  */
-function MarketingAuthButtons({ overlay }: { overlay: boolean }) {
+function MarketingAuthButtons({
+  overlay,
+  copy,
+}: {
+  overlay: boolean
+  copy: Pick<MarketingChromeCopy, 'logIn' | 'getStarted'>
+}) {
+  const href = useLocalizedHref()
   const onDarkGhost = {
     bg: 'transparent',
     color: 'text.onInverted',
@@ -99,7 +114,7 @@ function MarketingAuthButtons({ overlay }: { overlay: boolean }) {
         px={2}
         {...(overlay ? onDarkGhost : null)}
       >
-        <NextLink href="/login">Log in</NextLink>
+        <NextLink href={href('/login')}>{copy.logIn}</NextLink>
       </Button>
       <Button
         asChild
@@ -113,7 +128,7 @@ function MarketingAuthButtons({ overlay }: { overlay: boolean }) {
             }
           : null)}
       >
-        <NextLink href="/register">Get started</NextLink>
+        <NextLink href={href('/register')}>{copy.getStarted}</NextLink>
       </Button>
     </HStack>
   )
@@ -121,14 +136,15 @@ function MarketingAuthButtons({ overlay }: { overlay: boolean }) {
 
 function isNavActive(pathname: string | null, href: string): boolean {
   if (!pathname) return false
-  return pathname === href || pathname.startsWith(`${href}/`)
+  const barePathname = stripLocalePrefix(pathname)
+  return barePathname === href || barePathname.startsWith(`${href}/`)
 }
 
-function IconMenu() {
+function IconMenu({ title }: { title: string }) {
   return (
     <Box as="span" display="flex" color="currentColor" aria-hidden>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <title>Menu</title>
+        <title>{title}</title>
         <path
           d="M4 7h16M4 12h16M4 17h16"
           stroke="currentColor"
@@ -140,8 +156,15 @@ function IconMenu() {
   )
 }
 
-function MarketingNavigation({ overlay }: { overlay: boolean }) {
+function MarketingNavigation({
+  overlay,
+  copy,
+}: {
+  overlay: boolean
+  copy: MarketingChromeCopy
+}) {
   const pathname = usePathname()
+  const href = useLocalizedHref()
   const [hasMounted, setHasMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -175,7 +198,7 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
     >
       <HStack flex={1} minW={0} align="center" gap={{ base: 3, md: 4 }}>
         <Link
-          href={MARKETING_HOME}
+          href={href(MARKETING_HOME)}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
         >
@@ -223,7 +246,7 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
             return (
               <Link
                 key={link.key}
-                href={link.href}
+                href={href(link.href)}
                 {...navLinkProps}
                 aria-current={active ? 'page' : undefined}
                 // Weight + color: the active page is never colour-alone.
@@ -238,7 +261,7 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
                       : 'text.default'
                 }
               >
-                {link.label}
+                {copy[link.key]}
               </Link>
             )
           })}
@@ -249,10 +272,11 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
         <HeaderToolbarSeparator
           color={overlay ? 'border.glass' : 'border.default'}
         />
-        <MarketingAuthButtons overlay={overlay} />
+        <MarketingAuthButtons overlay={overlay} copy={copy} />
+        <LanguageSwitcher overlay={overlay} label={copy.language} />
 
         <IconButton
-          aria-label="Open menu"
+          aria-label={copy.menu}
           variant="ghost"
           display={{ base: 'inline-flex', md: 'none' }}
           minW="44px"
@@ -261,14 +285,14 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
           _hover={overlay ? { bg: 'bg.glass' } : undefined}
           onClick={() => setMobileMenuOpen(true)}
         >
-          <IconMenu />
+          <IconMenu title={copy.menu} />
         </IconButton>
       </HStack>
 
       <Drawer
         open={mobileMenuOpen}
         onOpenChange={setMobileMenuOpen}
-        title="Menu"
+        title={copy.menu}
         placement="end"
         size="xs"
       >
@@ -278,14 +302,14 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
             return (
               <Link
                 key={link.key}
-                href={link.href}
+                href={href(link.href)}
                 {...drawerLinkProps}
                 aria-current={active ? 'page' : undefined}
                 color={active ? 'text.link' : 'text.default'}
                 fontWeight={active ? 700 : 600}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {link.label}
+                {copy[link.key]}
               </Link>
             )
           })}
@@ -298,19 +322,25 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
             borderColor="border.default"
           >
             <Link
-              href="/login"
+              href={href('/login')}
               {...drawerLinkProps}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Log in
+              {copy.logIn}
             </Link>
             <Link
-              href="/register"
+              href={href('/register')}
               {...drawerLinkProps}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Get started
+              {copy.getStarted}
             </Link>
+            <HStack justify="space-between" px={3} py={2}>
+              <Text fontSize="sm" fontWeight={600} color="text.default">
+                {copy.language}
+              </Text>
+              <LanguageSwitcher label={copy.language} />
+            </HStack>
           </Stack>
         </Stack>
       </Drawer>
@@ -328,7 +358,9 @@ export type MarketingHeaderProps = Omit<BoxProps, 'children'>
  */
 export function MarketingHeader(props: MarketingHeaderProps) {
   const pathname = usePathname()
-  const isLanding = pathname === MARKETING_HOME
+  const locale = useLocale()
+  const copy = loadPageI11n(chromeMessages, locale)
+  const isLanding = stripLocalePrefix(pathname ?? '/') === MARKETING_HOME
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -363,9 +395,9 @@ export function MarketingHeader(props: MarketingHeaderProps) {
       top={0}
       {...props}
     >
-      <SkipLink />
+      <SkipLink label={copy.skipToContent} />
       <Box w="full" minH={HEADER_MIN_HEIGHT} display="flex" alignItems="center">
-        <MarketingNavigation overlay={overlay} />
+        <MarketingNavigation overlay={overlay} copy={copy} />
       </Box>
     </Box>
   )

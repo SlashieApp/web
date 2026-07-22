@@ -29,7 +29,13 @@ function ShieldIcon() {
   )
 }
 
-export function PricingDisclaimer() {
+export function PricingDisclaimer({
+  copy,
+  termsHref,
+}: {
+  copy: { body: string; terms: string }
+  termsHref: string
+}) {
   return (
     <Box
       borderWidth="1px"
@@ -42,17 +48,16 @@ export function PricingDisclaimer() {
       <HStack gap={4} align="flex-start">
         <ShieldIcon />
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
-          Job payments are arranged directly between customers and workers.
-          Slashie subscription is for platform access only.{' '}
+          {copy.body}{' '}
           <NextLink
-            href="/terms"
+            href={termsHref}
             style={{
               color: 'var(--chakra-colors-text-link)',
               fontWeight: 600,
               textDecoration: 'none',
             }}
           >
-            Terms apply.
+            {copy.terms}
           </NextLink>
         </Text>
       </HStack>

@@ -2,17 +2,19 @@ import { Stack, Text } from '@chakra-ui/react'
 
 import { Card } from '@ui'
 
-export function PricingErrorState() {
+export function PricingErrorState({
+  copy,
+}: {
+  copy: { eyebrow: string; heading: string; body: string; paymentNote: string }
+}) {
   return (
-    <Card layout="section" eyebrow="Pricing" heading="Pricing unavailable">
+    <Card layout="section" eyebrow={copy.eyebrow} heading={copy.heading}>
       <Stack gap={2}>
         <Text color="text.muted" lineHeight="tall">
-          We could not load plan details right now. Please refresh the page or
-          try again in a few minutes.
+          {copy.body}
         </Text>
         <Text fontSize="sm" color="text.muted">
-          Job payments are always arranged directly between customers and
-          workers outside Slashie.
+          {copy.paymentNote}
         </Text>
       </Stack>
     </Card>

@@ -3,6 +3,7 @@
 import { Box } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Button, Link } from '@ui'
 import type { AccountNavItem } from './accountNav.config'
 import { groupAccountNavItems } from './accountNav.config'
@@ -30,6 +31,7 @@ function AccountNavRow({
   onLogout: () => void
   onOpenNotifications?: () => void
 }) {
+  const href = useLocalizedHref()
   const close = useCallback(() => {
     onNavigate?.()
   }, [onNavigate])
@@ -77,7 +79,7 @@ function AccountNavRow({
   if (!item.href) return null
 
   return (
-    <Link href={item.href} {...accountNavLinkRowProps} onClick={close}>
+    <Link href={href(item.href)} {...accountNavLinkRowProps} onClick={close}>
       {item.label}
     </Link>
   )

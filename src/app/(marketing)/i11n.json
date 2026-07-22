@@ -1,0 +1,214 @@
+{
+  "en": {
+    "common": {
+      "ctas": {
+        "browseTasks": "Browse tasks",
+        "becomeWorker": "Become a worker",
+        "getStarted": "Get started",
+        "logIn": "Log in",
+        "postTask": "Post a task",
+        "seeHowItWorks": "See how it works",
+        "viewPricing": "View pricing"
+      }
+    },
+    "header": {
+      "skipToContent": "Skip to content",
+      "menuIconTitle": "Menu",
+      "menuTitle": "Menu",
+      "openMenu": "Open menu",
+      "languageLabel": "Language",
+      "languages": {
+        "en": "EN",
+        "zhTW": "繁中"
+      },
+      "nav": {
+        "pricing": "Pricing",
+        "about": "About"
+      }
+    },
+    "landing": {
+      "metadata": {
+        "title": "Slashie — Get local help with trusted quotes",
+        "description": "Post a task, get quotes from nearby workers, and pay the worker directly. Slashie takes no cut of the job."
+      },
+      "hero": {
+        "eyebrow": "Local help, on the map",
+        "heading": "Get local help. Hire with confidence.",
+        "body": "Post a task, get quotes from nearby workers, pick who you want. You pay the worker directly — Slashie takes no cut of the job.",
+        "trustChips": [
+          "No job fee",
+          "Local workers",
+          "Pay directly"
+        ]
+      },
+      "howItWorks": {
+        "heading": "How it works",
+        "body": "Three steps from task to done.",
+        "steps": [
+          {
+            "step": "01",
+            "title": "Post",
+            "body": "Tell workers what you need, when, and where."
+          },
+          {
+            "step": "02",
+            "title": "Compare quotes",
+            "body": "See prices, profiles, reviews, and worker details."
+          },
+          {
+            "step": "03",
+            "title": "Hire & pay directly",
+            "body": "Choose a worker and settle payment between you."
+          }
+        ]
+      },
+      "audience": {
+        "heading": "For customers and workers",
+        "customer": {
+          "title": "For customers",
+          "items": [
+            "Post tasks for free",
+            "Compare quotes from nearby workers",
+            "Choose by price, profile, and reviews"
+          ]
+        },
+        "worker": {
+          "title": "For workers",
+          "items": [
+            "Find real tasks on the map",
+            "Send quotes and win work nearby",
+            "Keep the job price you agree with the customer"
+          ]
+        }
+      },
+      "trust": {
+        "points": [
+          "No platform cut from the job",
+          "Payment stays between customer and worker",
+          "Profiles, reviews, and proof of past work",
+          "Local tasks, local workers, clear quotes"
+        ]
+      },
+      "pricingTeaser": {
+        "heading": "Simple pricing",
+        "body": "Customers use Slashie for free. Workers get free quotes each month, then can subscribe for unlimited quoting.",
+        "freePlanLabel": "Workers — Free",
+        "freeHeadline": "{count} quotes a month",
+        "freeBody": "Browse tasks and send quotes on the free tier.",
+        "unlimitedHeadlineFallback": "Unlimited quotes",
+        "unlimitedSublineFallback": "Unlimited quotes for one subscription",
+        "unlimitedSublineWithPrice": "Then {priceLine} · unlimited quotes"
+      },
+      "finalCta": {
+        "heading": "Ready to get local help?",
+        "body": "Post a task or start quoting as a worker. It only takes a minute."
+      }
+    }
+  },
+  "zh_hk": {
+    "common": {
+      "ctas": {
+        "browseTasks": "瀏覽任務",
+        "becomeWorker": "成為工作者",
+        "getStarted": "開始使用",
+        "logIn": "登入",
+        "postTask": "發布任務",
+        "seeHowItWorks": "了解流程",
+        "viewPricing": "查看收費"
+      }
+    },
+    "header": {
+      "skipToContent": "跳到主要內容",
+      "menuIconTitle": "選單",
+      "menuTitle": "選單",
+      "openMenu": "開啟選單",
+      "languageLabel": "語言",
+      "languages": {
+        "en": "EN",
+        "zhTW": "繁中"
+      },
+      "nav": {
+        "pricing": "收費",
+        "about": "關於"
+      }
+    },
+    "landing": {
+      "metadata": {
+        "title": "Slashie — 用可信報價找到本地幫手",
+        "description": "發布任務，取得附近工作者的報價，直接向工作者付款。Slashie 不抽取任務費用。"
+      },
+      "hero": {
+        "eyebrow": "地圖上的本地幫手",
+        "heading": "找本地幫手，安心聘用。",
+        "body": "發布任務，取得附近工作者的報價，選你想聘用的人。你直接向工作者付款，Slashie 不抽取任務費用。",
+        "trustChips": [
+          "不抽任務費",
+          "本地工作者",
+          "直接付款"
+        ]
+      },
+      "howItWorks": {
+        "heading": "運作方式",
+        "body": "三步完成任務。",
+        "steps": [
+          {
+            "step": "01",
+            "title": "發布",
+            "body": "說明你需要什麼、時間和地點。"
+          },
+          {
+            "step": "02",
+            "title": "比較報價",
+            "body": "查看價格、個人檔案、評價和工作者資料。"
+          },
+          {
+            "step": "03",
+            "title": "聘用並直接付款",
+            "body": "選定工作者，雙方自行完成付款。"
+          }
+        ]
+      },
+      "audience": {
+        "heading": "為客戶和工作者而設",
+        "customer": {
+          "title": "給客戶",
+          "items": [
+            "免費發布任務",
+            "比較附近工作者的報價",
+            "按價格、檔案和評價選擇"
+          ]
+        },
+        "worker": {
+          "title": "給工作者",
+          "items": [
+            "在地圖上找到真實任務",
+            "發送報價，接附近的工作",
+            "保留你與客戶議定的任務收入"
+          ]
+        }
+      },
+      "trust": {
+        "points": [
+          "Slashie 不從任務抽成",
+          "付款由客戶和工作者直接安排",
+          "個人檔案、評價和過往作品更清楚",
+          "本地任務、本地工作者、清楚報價"
+        ]
+      },
+      "pricingTeaser": {
+        "heading": "簡單收費",
+        "body": "客戶免費使用 Slashie。工作者每月有免費報價額度，需要更多時可訂閱無限報價。",
+        "freePlanLabel": "工作者 — 免費",
+        "freeHeadline": "每月 {count} 個報價",
+        "freeBody": "用免費方案瀏覽任務並發送報價。",
+        "unlimitedHeadlineFallback": "無限報價",
+        "unlimitedSublineFallback": "一個訂閱，無限報價",
+        "unlimitedSublineWithPrice": "之後 {priceLine} · 無限報價"
+      },
+      "finalCta": {
+        "heading": "準備找本地幫手？",
+        "body": "發布任務，或以工作者身份開始報價。只需一分鐘。"
+      }
+    }
+  }
+}

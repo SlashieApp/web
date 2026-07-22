@@ -33,7 +33,11 @@ function linkifyEmails(paragraph: string): ReactNode[] {
  * Single readable column (~720px) built from SDL semantic roles only; copy
  * comes from `src/content/legal/*` so it can change without touching UI.
  */
-export function LegalPageLayout({ document }: { document: LegalDocument }) {
+export function LegalPageLayout({
+  document,
+}: {
+  document: LegalDocument & { lastUpdatedLabel?: string }
+}) {
   return (
     <Box py={{ base: 10, md: 14 }}>
       <Container maxW="45rem" px={{ base: 4, md: 6 }}>
@@ -43,7 +47,8 @@ export function LegalPageLayout({ document }: { document: LegalDocument }) {
               {document.title}
             </Heading>
             <Text fontSize="sm" color="text.muted">
-              Last updated: {document.lastUpdated}
+              {document.lastUpdatedLabel ?? 'Last updated'}:{' '}
+              {document.lastUpdated}
             </Text>
           </Stack>
           {document.intro?.map((paragraph) => (

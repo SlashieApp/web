@@ -1,0 +1,242 @@
+{
+  "en": {
+    "title": "Terms of Service",
+    "description": "The terms that govern using Slashie, the map-first local task marketplace connecting customers and workers.",
+    "lastUpdated": "8 July 2026",
+    "intro": [
+      "These Terms of Service (\"Terms\") govern your use of slashie.app and the Slashie apps (the \"Service\"). The Service is operated by Slashie Ltd, a company registered in England and Wales (company no. 17276315) with its registered office at 66 Paul Street, London, EC2A 4NA (\"Slashie\", \"we\", \"us\"). By creating an account or using the Service you agree to these Terms."
+    ],
+    "sections": [
+      {
+        "heading": "1. What Slashie is (and what it is not)",
+        "body": [
+          "Slashie is a map-first local task marketplace. Customers post tasks, nearby workers send quotes, and the customer chooses who to hire. Slashie provides listing, discovery, quoting, messaging, and reputation tools only.",
+          "Slashie is not an employer, employment agency, recruitment business, contractor, subcontractor, agent, insurer, escrow service, broker, or guarantor of any user, task, quote, or job. We do not supply workers, we do not supervise or control any work, and we are not a party to any agreement between a customer and a worker."
+        ]
+      },
+      {
+        "heading": "2. Who can use Slashie",
+        "body": [
+          "You must be at least 18 years old to use the Service. Slashie is not available to anyone under 18, and we terminate accounts that we discover belong to under-18s.",
+          "You must provide accurate account information, keep your credentials secure, and you are responsible for all activity on your account. We may decline, suspend, or remove accounts to protect the Service and its users."
+        ]
+      },
+      {
+        "heading": "3. Every job is between users, not with Slashie",
+        "body": [
+          "Every task, quote, acceptance, order, message, meeting, home visit, piece of work, and payment is a direct arrangement between the customer and the worker. When a customer accepts a quote, the resulting contract for the work is formed solely between that customer and that worker. Slashie is not a party to it, does not perform it, and does not guarantee it.",
+          "We have no obligation to mediate, arbitrate, or resolve disputes between users, although we may (at our discretion) provide reporting tools and act on reports to protect the community."
+        ]
+      },
+      {
+        "heading": "4. Payments",
+        "body": [
+          "Payment for jobs is arranged directly between the customer and the worker, outside the Service. Slashie does not collect, hold, process, release, refund, insure, or arbitrate job payments, takes no commission on jobs, and has no visibility of or responsibility for what users agree or pay each other.",
+          "Workers may subscribe to paid plans for quoting. Subscription fees are the only payments Slashie bills, are processed by Stripe, are separate from job payments, and are subject to the pricing shown at the time of purchase. You can cancel at any time and keep access until the end of the paid period."
+        ]
+      },
+      {
+        "heading": "5. Worker responsibilities",
+        "body": [
+          "If you offer or perform work found through Slashie, you are solely responsible for: complying with all laws that apply to you and the work; holding the right to work in the UK where required; holding any licences, certifications, qualifications, or registrations the work requires; holding appropriate insurance for the work you offer (for example public liability insurance); the accuracy of your profile, skills, and quotes; carrying out work safely, lawfully, and with reasonable skill and care; and your own tax, National Insurance, and business obligations.",
+          "Slashie does not verify that any worker meets these responsibilities. A Slashie account, subscription, or verification badge is not confirmation of qualifications, insurance, right to work, or competence."
+        ]
+      },
+      {
+        "heading": "6. Customer responsibilities",
+        "body": [
+          "If you post tasks, you are solely responsible for: describing the task accurately (including location, access, hazards, budget, and timing); ensuring the premises and the requested work are lawful and safe to access; assessing whether a worker is suitable, qualified, and insured for your task; and agreeing scope, price, and payment directly with the worker and paying them as agreed.",
+          "You choose who to hire at your own risk. Slashie does not recommend, endorse, or vouch for any worker."
+        ]
+      },
+      {
+        "heading": "7. Safety and offline interactions",
+        "body": [
+          "Using Slashie can lead to real-world interactions: meeting strangers, entering homes, and performing or receiving physical work. You do so entirely at your own risk. Slashie does not vet, interview, background-check, supervise, or monitor users or jobs, and does not guarantee the identity, honesty, safety, or conduct of any user, online or offline.",
+          "Reviews, ratings, and verification badges are informational signals contributed by users or produced by limited automated checks. They are not warranties, endorsements, or guarantees, and you must do your own due diligence before meeting or hiring anyone."
+        ]
+      },
+      {
+        "heading": "8. Content and acceptable use",
+        "body": [
+          "You keep ownership of content you post (tasks, quotes, profiles, messages, photos, reviews) and grant Slashie a non-exclusive, worldwide, royalty-free licence to host, display, and distribute it for the purpose of operating and promoting the Service.",
+          "You agree not to: post unlawful, misleading, discriminatory, or abusive content; post tasks you do not genuinely intend to have done, or quote work you cannot carry out; request or offer illegal work, or work you are not legally allowed to perform; harass, threaten, defraud, or endanger other users; post fake or incentivised reviews; circumvent the Service to avoid its rules; scrape, copy, or misuse the Service or its data; or interfere with the security or operation of the Service."
+        ]
+      },
+      {
+        "heading": "9. Reporting, suspension, and termination",
+        "body": [
+          "You can report content or behaviour that breaks these Terms from within the Service or by contacting us. We may remove content, restrict features, or suspend or terminate accounts that breach these Terms, put users at risk, or expose Slashie to legal risk. You can close your account at any time."
+        ]
+      },
+      {
+        "heading": "10. The Service is provided \"as is\"",
+        "body": [
+          "The Service is provided \"as is\" and \"as available\". To the fullest extent permitted by law, we make no warranties or representations about the Service, including its availability, reliability, or freedom from errors; the accuracy or completeness of any listing, profile, quote, review, or badge; or the suitability, quality, safety, legality, or outcome of any user, task, or job."
+        ]
+      },
+      {
+        "heading": "11. No responsibility for user conduct",
+        "body": [
+          "To the fullest extent permitted by law, Slashie is not liable for the acts or omissions of any user, online or offline. This includes (without limitation) injury, death, property damage, loss, theft, fraud, misrepresentation, harassment, distress, defective or incomplete work, missed appointments, payment disputes, and negligence claims between users, whether arising from a task posted on Slashie, a quote, a meeting, a home visit, or any other interaction that began on the Service."
+        ]
+      },
+      {
+        "heading": "12. Limitation of liability",
+        "body": [
+          "To the fullest extent permitted by law: (a) Slashie is not liable for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for loss of profits, revenue, business, opportunity, goodwill, or data; and (b) our total aggregate liability to you for all claims arising out of or relating to the Service is limited to the greater of £100 or the amounts you paid to Slashie in the 12 months before the event giving rise to the claim.",
+          "Nothing in these Terms excludes or limits any liability that cannot be excluded or limited under the law of England and Wales, including liability for death or personal injury caused by our own negligence, for fraud or fraudulent misrepresentation, or for your statutory rights as a consumer that cannot lawfully be excluded."
+        ]
+      },
+      {
+        "heading": "13. Indemnity",
+        "body": [
+          "You agree to indemnify and hold Slashie, its directors, and its employees harmless from any claims, liabilities, damages, losses, and reasonable expenses (including legal fees) arising out of or connected with: your content; your tasks, quotes, or work; your interactions with other users; your breach of these Terms; or your breach of any law or the rights of any third party."
+        ]
+      },
+      {
+        "heading": "14. Changes to the Service and these Terms",
+        "body": [
+          "We are improving the Service continuously and may change or withdraw features. We may also update these Terms; if a change is material we will give reasonable notice in the app or by email. Continued use of the Service after a change takes effect means you accept the updated Terms."
+        ]
+      },
+      {
+        "heading": "15. Governing law",
+        "body": [
+          "These Terms, and any dispute or claim arising out of them or the Service, are governed by the law of England and Wales, and the courts of England and Wales have jurisdiction. If you are a consumer, you keep the benefit of any mandatory protections of the law of the country you live in."
+        ]
+      },
+      {
+        "heading": "16. Contact",
+        "body": [
+          "Questions about these Terms: admin@slashie.app. You can also write to Slashie Ltd, 66 Paul Street, London, EC2A 4NA."
+        ]
+      }
+    ],
+    "lastUpdatedLabel": "Last updated",
+    "metadata": {
+      "title": "Terms of Service | Slashie",
+      "description": "The terms that govern using Slashie, the map-first local task marketplace connecting customers and workers."
+    }
+  },
+  "zh_hk": {
+    "title": "服務條款",
+    "description": "規管使用 Slashie（連接客戶和工作者的地圖優先本地任務市場）的條款。",
+    "lastUpdated": "2026 年 7 月 8 日",
+    "lastUpdatedLabel": "最後更新",
+    "intro": [
+      "本服務條款（「條款」）規管你使用 slashie.app 和 Slashie app（「服務」）。建立帳戶或使用服務即表示你同意本條款。"
+    ],
+    "sections": [
+      {
+        "heading": "1. Slashie 是什麼（以及不是什麼）",
+        "body": [
+          "Slashie is a map-first local task marketplace. Customers post tasks, nearby workers send quotes, and the customer chooses who to hire. Slashie provides listing, discovery, quoting, messaging, and reputation tools only.",
+          "Slashie is not an employer, employment agency, recruitment business, contractor, subcontractor, agent, insurer, escrow service, broker, or guarantor of any user, task, quote, or job. We do not supply workers, we do not supervise or control any work, and we are not a party to any agreement between a customer and a worker."
+        ]
+      },
+      {
+        "heading": "2. 誰可以使用 Slashie",
+        "body": [
+          "You must be at least 18 years old to use the Service. Slashie is not available to anyone under 18, and we terminate accounts that we discover belong to under-18s.",
+          "You must provide accurate account information, keep your credentials secure, and you are responsible for all activity on your account. We may decline, suspend, or remove accounts to protect the Service and its users."
+        ]
+      },
+      {
+        "heading": "3. Every job is between users, not with Slashie",
+        "body": [
+          "Every task, quote, acceptance, order, message, meeting, home visit, piece of work, and payment is a direct arrangement between the customer and the worker. When a customer accepts a quote, the resulting contract for the work is formed solely between that customer and that worker. Slashie is not a party to it, does not perform it, and does not guarantee it.",
+          "We have no obligation to mediate, arbitrate, or resolve disputes between users, although we may (at our discretion) provide reporting tools and act on reports to protect the community."
+        ]
+      },
+      {
+        "heading": "4. Payments",
+        "body": [
+          "Payment for jobs is arranged directly between the customer and the worker, outside the Service. Slashie does not collect, hold, process, release, refund, insure, or arbitrate job payments, takes no commission on jobs, and has no visibility of or responsibility for what users agree or pay each other.",
+          "Workers may subscribe to paid plans for quoting. Subscription fees are the only payments Slashie bills, are processed by Stripe, are separate from job payments, and are subject to the pricing shown at the time of purchase. You can cancel at any time and keep access until the end of the paid period."
+        ]
+      },
+      {
+        "heading": "5. Worker responsibilities",
+        "body": [
+          "If you offer or perform work found through Slashie, you are solely responsible for: complying with all laws that apply to you and the work; holding the right to work in the UK where required; holding any licences, certifications, qualifications, or registrations the work requires; holding appropriate insurance for the work you offer (for example public liability insurance); the accuracy of your profile, skills, and quotes; carrying out work safely, lawfully, and with reasonable skill and care; and your own tax, National Insurance, and business obligations.",
+          "Slashie does not verify that any worker meets these responsibilities. A Slashie account, subscription, or verification badge is not confirmation of qualifications, insurance, right to work, or competence."
+        ]
+      },
+      {
+        "heading": "6. Customer responsibilities",
+        "body": [
+          "If you post tasks, you are solely responsible for: describing the task accurately (including location, access, hazards, budget, and timing); ensuring the premises and the requested work are lawful and safe to access; assessing whether a worker is suitable, qualified, and insured for your task; and agreeing scope, price, and payment directly with the worker and paying them as agreed.",
+          "You choose who to hire at your own risk. Slashie does not recommend, endorse, or vouch for any worker."
+        ]
+      },
+      {
+        "heading": "7. Safety and offline interactions",
+        "body": [
+          "Using Slashie can lead to real-world interactions: meeting strangers, entering homes, and performing or receiving physical work. You do so entirely at your own risk. Slashie does not vet, interview, background-check, supervise, or monitor users or jobs, and does not guarantee the identity, honesty, safety, or conduct of any user, online or offline.",
+          "Reviews, ratings, and verification badges are informational signals contributed by users or produced by limited automated checks. They are not warranties, endorsements, or guarantees, and you must do your own due diligence before meeting or hiring anyone."
+        ]
+      },
+      {
+        "heading": "8. Content and acceptable use",
+        "body": [
+          "You keep ownership of content you post (tasks, quotes, profiles, messages, photos, reviews) and grant Slashie a non-exclusive, worldwide, royalty-free licence to host, display, and distribute it for the purpose of operating and promoting the Service.",
+          "You agree not to: post unlawful, misleading, discriminatory, or abusive content; post tasks you do not genuinely intend to have done, or quote work you cannot carry out; request or offer illegal work, or work you are not legally allowed to perform; harass, threaten, defraud, or endanger other users; post fake or incentivised reviews; circumvent the Service to avoid its rules; scrape, copy, or misuse the Service or its data; or interfere with the security or operation of the Service."
+        ]
+      },
+      {
+        "heading": "9. Reporting, suspension, and termination",
+        "body": [
+          "You can report content or behaviour that breaks these Terms from within the Service or by contacting us. We may remove content, restrict features, or suspend or terminate accounts that breach these Terms, put users at risk, or expose Slashie to legal risk. You can close your account at any time."
+        ]
+      },
+      {
+        "heading": "10. The Service is provided \"as is\"",
+        "body": [
+          "The Service is provided \"as is\" and \"as available\". To the fullest extent permitted by law, we make no warranties or representations about the Service, including its availability, reliability, or freedom from errors; the accuracy or completeness of any listing, profile, quote, review, or badge; or the suitability, quality, safety, legality, or outcome of any user, task, or job."
+        ]
+      },
+      {
+        "heading": "11. No responsibility for user conduct",
+        "body": [
+          "To the fullest extent permitted by law, Slashie is not liable for the acts or omissions of any user, online or offline. This includes (without limitation) injury, death, property damage, loss, theft, fraud, misrepresentation, harassment, distress, defective or incomplete work, missed appointments, payment disputes, and negligence claims between users, whether arising from a task posted on Slashie, a quote, a meeting, a home visit, or any other interaction that began on the Service."
+        ]
+      },
+      {
+        "heading": "12. Limitation of liability",
+        "body": [
+          "To the fullest extent permitted by law: (a) Slashie is not liable for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for loss of profits, revenue, business, opportunity, goodwill, or data; and (b) our total aggregate liability to you for all claims arising out of or relating to the Service is limited to the greater of £100 or the amounts you paid to Slashie in the 12 months before the event giving rise to the claim.",
+          "Nothing in these Terms excludes or limits any liability that cannot be excluded or limited under the law of England and Wales, including liability for death or personal injury caused by our own negligence, for fraud or fraudulent misrepresentation, or for your statutory rights as a consumer that cannot lawfully be excluded."
+        ]
+      },
+      {
+        "heading": "13. Indemnity",
+        "body": [
+          "You agree to indemnify and hold Slashie, its directors, and its employees harmless from any claims, liabilities, damages, losses, and reasonable expenses (including legal fees) arising out of or connected with: your content; your tasks, quotes, or work; your interactions with other users; your breach of these Terms; or your breach of any law or the rights of any third party."
+        ]
+      },
+      {
+        "heading": "14. Changes to the Service and these Terms",
+        "body": [
+          "We are improving the Service continuously and may change or withdraw features. We may also update these Terms; if a change is material we will give reasonable notice in the app or by email. Continued use of the Service after a change takes effect means you accept the updated Terms."
+        ]
+      },
+      {
+        "heading": "15. Governing law",
+        "body": [
+          "These Terms, and any dispute or claim arising out of them or the Service, are governed by the law of England and Wales, and the courts of England and Wales have jurisdiction. If you are a consumer, you keep the benefit of any mandatory protections of the law of the country you live in."
+        ]
+      },
+      {
+        "heading": "16. 聯絡",
+        "body": [
+          "Questions about these Terms: admin@slashie.app. You can also write to Slashie Ltd, 66 Paul Street, London, EC2A 4NA."
+        ]
+      }
+    ],
+    "metadata": {
+      "title": "服務條款 | Slashie",
+      "description": "規管使用 Slashie（連接客戶和工作者的地圖優先本地任務市場）的條款。"
+    }
+  }
+}

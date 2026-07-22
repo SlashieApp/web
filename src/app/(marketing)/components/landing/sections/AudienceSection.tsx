@@ -101,7 +101,21 @@ function AudienceCard({
   )
 }
 
-export function AudienceSection() {
+type AudienceSectionCopy = {
+  heading: string
+  customer: { title: string; items: readonly string[] }
+  worker: { title: string; items: readonly string[] }
+}
+
+export function AudienceSection({
+  copy,
+  ctas,
+  registerHref,
+}: {
+  copy: AudienceSectionCopy
+  ctas: { postTask: string; becomeWorker: string }
+  registerHref: string
+}) {
   return (
     <Box as="section" bg="bg.subtle" py={{ base: 16, md: 24 }}>
       <Container maxW="6xl" px={{ base: 4, md: 6 }}>
@@ -114,7 +128,7 @@ export function AudienceSection() {
               letterSpacing="-0.01em"
               textAlign="center"
             >
-              Built for customers and workers
+              {copy.heading}
             </Heading>
           </Reveal>
           <Grid
@@ -124,31 +138,23 @@ export function AudienceSection() {
           >
             <Reveal h="full">
               <AudienceCard
-                title="For customers"
+                title={copy.customer.title}
                 icon={<LuUsers size={22} />}
-                items={[
-                  'Post tasks for free — no platform fee on the job',
-                  'Compare multiple quotes from nearby workers',
-                  'Choose by price, profile, and reviews',
-                ]}
-                ctaLabel="Post a task"
+                items={copy.customer.items}
+                ctaLabel={ctas.postTask}
                 // Registration, not /tasks/create: anonymous visitors hitting
                 // the create flow are bounced to a login wall mid-funnel.
-                href="/register"
+                href={registerHref}
               />
             </Reveal>
             <Reveal delayMs={120} h="full">
               <AudienceCard
-                title="For workers"
+                title={copy.worker.title}
                 icon={<LuWrench size={22} />}
                 featured
-                items={[
-                  'See real local demand on the map',
-                  'Send quotes and win work nearby',
-                  'Keep 100% of the job price — subscription for access',
-                ]}
-                ctaLabel="Become a worker"
-                href="/register"
+                items={copy.worker.items}
+                ctaLabel={ctas.becomeWorker}
+                href={registerHref}
               />
             </Reveal>
           </Grid>

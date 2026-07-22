@@ -16,6 +16,8 @@ import { useCallback } from 'react'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Button, IconButton, Link } from '@ui'
 
 import { AccountMenuHeader } from './AccountMenuHeader'
@@ -29,6 +31,7 @@ export type MobileNavDrawerProps = {
 
 export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
   const me = useMe()
+  const href = useLocalizedHref()
   const user = useUserStore((state) => state.user)
   const logout = useUserStore((state) => state.logout)
   const notifications = useNotificationsOptional()
@@ -42,8 +45,8 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
   const onLogout = useCallback(() => {
     logout()
     close()
-    if (typeof window !== 'undefined') window.location.assign('/')
-  }, [close, logout])
+    if (typeof window !== 'undefined') window.location.assign(href('/'))
+  }, [close, href, logout])
 
   if (!user) return null
   const email = user.email ?? me?.email ?? ''
@@ -78,13 +81,15 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
               </IconButton>
             </DrawerCloseTrigger>
 
+            <LanguageSwitcher />
+
             {postTaskBlocked ? (
               <Button size="sm" variant="secondary" disabled>
                 Post a task
               </Button>
             ) : (
               <Link
-                href="/tasks/create"
+                href={href('/tasks/create')}
                 _hover={{ textDecoration: 'none' }}
                 onClick={close}
               >

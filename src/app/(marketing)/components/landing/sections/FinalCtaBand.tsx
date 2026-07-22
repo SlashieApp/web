@@ -10,7 +10,17 @@ import { Reveal } from '../Reveal'
  * Final conversion band on the SDL inverted ink surface (`bg.inverted` — the
  * semantic role for dark marketing bands), echoing the hero's green glow.
  */
-export function FinalCtaBand() {
+export function FinalCtaBand({
+  copy,
+  ctas,
+  registerHref,
+  loginHref,
+}: {
+  copy: { heading: string; body: string }
+  ctas: { getStarted: string; logIn: string }
+  registerHref: string
+  loginHref: string
+}) {
   return (
     <Box
       as="section"
@@ -48,17 +58,16 @@ export function FinalCtaBand() {
                 letterSpacing="-0.01em"
                 color="text.onInverted"
               >
-                Ready to get things done locally?
+                {copy.heading}
               </Heading>
               <Text color="text.onInvertedMuted" lineHeight="tall">
-                Post your first task or start quoting as a worker — it takes a
-                minute to join.
+                {copy.body}
               </Text>
             </Stack>
             <HStack gap={3} flexWrap="wrap">
               <Magnetic>
                 <Button asChild size="lg" variant="primary">
-                  <NextLink href="/register">Get started</NextLink>
+                  <NextLink href={registerHref}>{ctas.getStarted}</NextLink>
                 </Button>
               </Magnetic>
               <Button
@@ -71,7 +80,7 @@ export function FinalCtaBand() {
                 _hover={{ bg: 'bg.glass', color: 'text.onInverted' }}
                 _active={{ bg: 'bg.glass', color: 'text.onInverted' }}
               >
-                <NextLink href="/login">Log in</NextLink>
+                <NextLink href={loginHref}>{ctas.logIn}</NextLink>
               </Button>
             </HStack>
           </HStack>

@@ -1,7 +1,7 @@
-import { Box, Text } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-export function PricingPlanDetailsLink() {
+export function PricingPlanDetailsLink({ label }: { label: string }) {
   return (
     <Box textAlign="center">
       <NextLink
@@ -13,7 +13,7 @@ export function PricingPlanDetailsLink() {
           textDecoration: 'none',
         }}
       >
-        See all plan details &gt;
+        {label}
       </NextLink>
     </Box>
   )

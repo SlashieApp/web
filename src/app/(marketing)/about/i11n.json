@@ -1,0 +1,24 @@
+{
+  "en": {
+    "metadata": {
+      "title": "About | Slashie",
+      "description": "Slashie connects people who need local tasks done with workers who quote, deliver, and build reputation on the map."
+    },
+    "heading": "About Slashie",
+    "paragraphs": [
+      "Slashie is a map-first local task marketplace. Customers post what needs doing; workers browse nearby tasks and send quotes. When work is booked, payment stays between customer and worker — Slashie focuses on discovery, quoting, and trust.",
+      "Workers can start on a free quote tier or subscribe to Slashie Unlimited for unlimited quoting. Customers post tasks for free. Platform billing is separate from job payments."
+    ]
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "關於 | Slashie",
+      "description": "Slashie 連接需要本地任務幫手的人與能報價、完成工作並在地圖上建立信譽的工作者。"
+    },
+    "heading": "關於 Slashie",
+    "paragraphs": [
+      "Slashie 是地圖優先的本地任務市場。客戶發布需要完成的事項；工作者瀏覽附近任務並發送報價。任務確認後，付款由客戶和工作者直接安排 — Slashie 專注於探索、報價和信任。",
+      "工作者可先使用免費報價額度，或訂閱 Slashie Unlimited 取得無限報價。客戶可免費發布任務。平台訂閱收費與任務付款分開。"
+    ]
+  }
+}

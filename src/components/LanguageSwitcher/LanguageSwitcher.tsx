@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, HStack, Text } from '@chakra-ui/react'
+import { Box, HStack, Text, chakra } from '@chakra-ui/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { LuGlobe } from 'react-icons/lu'
 
@@ -24,6 +24,8 @@ type LanguageSwitcherProps = {
   /** Accessible label for the trigger. */
   label?: string
 }
+
+const LanguageOptionButton = chakra('button')
 
 /**
  * Globe dropdown language switcher. Swaps the `/en` ↔ `/zh-hk` URL slug,
@@ -89,9 +91,8 @@ export function LanguageSwitcher({
             const selected = code === active
             const meta = LOCALE_LABELS[code]
             return (
-              <Box
+              <LanguageOptionButton
                 key={code}
-                as="button"
                 type="button"
                 role="menuitemradio"
                 aria-checked={selected}
@@ -115,7 +116,7 @@ export function LanguageSwitcher({
                     {meta.short}
                   </Text>
                 </HStack>
-              </Box>
+              </LanguageOptionButton>
             )
           })}
         </Box>
