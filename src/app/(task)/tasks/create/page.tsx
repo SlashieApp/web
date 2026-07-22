@@ -42,12 +42,12 @@ import {
   CreateTaskBasicsSection,
   CreateTaskBudgetSection,
   CreateTaskContactSection,
+  CreateTaskHeader,
   CreateTaskMapLocationPanel,
   CreateTaskScheduleSection,
+  CreateTaskStepper,
   CreateTaskVisualsSection,
 } from './components'
-import { CreateTaskHeader } from './components/CreateTaskHeader'
-import { CreateTaskStepper } from './components/CreateTaskStepper'
 import {
   type CreateTaskFormFieldValues,
   type CreateTaskFormValues,

@@ -4,8 +4,7 @@ import { Box } from '@chakra-ui/react'
 
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
-import { WorkerSetupAuthGate } from './components/WorkerSetupAuthGate'
-import { WorkerSetupScreen } from './components/WorkerSetupScreen'
+import { WorkerSetupAuthGate, WorkerSetupScreen } from './components'
 import { WorkerSetupProvider } from './context/WorkerSetupProvider'
 import bag from './i11n.json'
 

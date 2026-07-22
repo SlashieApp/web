@@ -16,10 +16,10 @@ import {
   taskQuotePreviousSubStep,
   taskQuoteProgressPercent,
 } from '../helpers/taskQuoteSteps.config'
-import { TaskQuoteProgressBar } from './TaskQuoteProgressBar'
-import { TaskQuoteStepContent } from './TaskQuoteStepContent'
-import { TaskQuoteStepper } from './TaskQuoteStepper'
-import { TaskQuoteTaskDetailPanel } from './TaskQuoteTaskDetailPanel'
+import { TaskQuoteTaskDetailPanel } from './shared/TaskQuoteTaskDetailPanel'
+import { TaskQuoteProgressBar } from './stepper/TaskQuoteProgressBar'
+import { TaskQuoteStepper } from './stepper/TaskQuoteStepper'
+import { TaskQuoteStepContent } from './steps/TaskQuoteStepContent'
 
 const MESSAGE_MAX = 250
 

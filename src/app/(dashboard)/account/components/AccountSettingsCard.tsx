@@ -8,7 +8,7 @@ import { LuSlidersHorizontal } from 'react-icons/lu'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
-import { DashboardSectionCard } from '@/app/(dashboard)/components/DashboardSectionCard'
+import { DashboardSectionCard } from '@/app/(dashboard)/components/layout/DashboardSectionCard'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useI11n } from '@/i18n/useI11n'
 import { captureApiError } from '@/utils/analytics'

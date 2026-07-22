@@ -11,9 +11,9 @@ import { Button, Link } from '@ui'
 
 import { QuoteLimitPaywall } from '../../components/quoteSection/QuoteLimitPaywall'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { TaskQuoteGateView } from './TaskQuoteGateView'
 import { TaskQuoteScreen } from './TaskQuoteScreen'
-import { TaskQuoteSummaryCard } from './TaskQuoteSummaryCard'
+import { TaskQuoteGateView } from './shared/TaskQuoteGateView'
+import { TaskQuoteSummaryCard } from './shared/TaskQuoteSummaryCard'
 
 function taskDetailHref(taskId: string) {
   return `/tasks/${taskId}`

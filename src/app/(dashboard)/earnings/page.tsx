@@ -3,8 +3,8 @@
 import { Box, Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { LuCircleCheck, LuClock3, LuInfo, LuWallet } from 'react-icons/lu'
 
-import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
-import { DashboardSectionCard } from '@/app/(dashboard)/components/DashboardSectionCard'
+import { DashboardPageLayout } from '@/app/(dashboard)/components/layout/DashboardPageLayout'
+import { DashboardSectionCard } from '@/app/(dashboard)/components/layout/DashboardSectionCard'
 import { useI11n } from '@/i18n/useI11n'
 import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
 import {

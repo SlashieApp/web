@@ -18,8 +18,8 @@ import {
   referenceFromSearchUrlState,
 } from '../helpers/searchQueryParams'
 import { MobileSearchLayout, WebSearchLayout } from './SearchLayouts'
-import { SearchMapLayer } from './SearchMapLayer'
 import { SearchUrlSync } from './SearchUrlSync'
+import { SearchMapLayer } from './map/SearchMapLayer'
 
 /** Per-mode view analytics (tasks = browse_view, workers = workers_view). */
 function SearchViewTracker() {

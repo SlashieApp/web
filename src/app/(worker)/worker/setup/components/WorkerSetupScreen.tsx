@@ -7,11 +7,11 @@ import { StepFlowLayout } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
 import { STEP_COPY } from '../helpers/workerSetupSteps.config'
-import { WorkerSetupHeader } from './WorkerSetupHeader'
-import { WorkerSetupMobileAccordion } from './WorkerSetupMobileAccordion'
-import { WorkerSetupProgressBar } from './WorkerSetupProgressBar'
-import { WorkerSetupStepContent } from './WorkerSetupStepContent'
-import { WorkerSetupStepper } from './WorkerSetupStepper'
+import { WorkerSetupHeader } from './shared/WorkerSetupHeader'
+import { WorkerSetupMobileAccordion } from './steppers/WorkerSetupMobileAccordion'
+import { WorkerSetupProgressBar } from './steppers/WorkerSetupProgressBar'
+import { WorkerSetupStepper } from './steppers/WorkerSetupStepper'
+import { WorkerSetupStepContent } from './steps/WorkerSetupStepContent'
 
 export function WorkerSetupScreen() {
   const {

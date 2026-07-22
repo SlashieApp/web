@@ -4,24 +4,27 @@ import { Box, Stack } from '@chakra-ui/react'
 import { useCallback, useRef, useState } from 'react'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
-import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
+import { DashboardPageLayout } from '@/app/(dashboard)/components/layout/DashboardPageLayout'
 import { useI11n } from '@/i18n/useI11n'
 
 import { getProfileLifecycle } from '../helpers/profileLifecycle'
 import bag from '../i11n.json'
-import { ProfileEditDrawer, type ProfileEditSection } from './ProfileEditDrawer'
-import { ProfileIdentityHero } from './ProfileIdentityHero'
 import {
   ContactCard,
   PersonalInfoCard,
   PublicPreviewCard,
   WorkerProfileCard,
-} from './ProfileMainCards'
+} from './cards/ProfileMainCards'
 import {
   NextStepCard,
   PrivacyVisibilityCard,
   ProfileStrengthCard,
-} from './ProfileSidebarCards'
+} from './cards/ProfileSidebarCards'
+import {
+  ProfileEditDrawer,
+  type ProfileEditSection,
+} from './edit/ProfileEditDrawer'
+import { ProfileIdentityHero } from './hero/ProfileIdentityHero'
 
 export function ProfileHub({
   me,

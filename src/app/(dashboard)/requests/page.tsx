@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react'
 
 import { EVENTS, capture } from '@/utils/analytics'
 
-import { MyRequestsLayout } from './components/MyRequestsLayout'
+import { MyRequestsLayout } from './components/layout/MyRequestsLayout'
 import { MyRequestsProvider } from './context/MyRequestsProvider'
 
 export default function MyRequestsPage() {

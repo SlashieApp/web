@@ -66,8 +66,10 @@ export default function Layout({ children }) { return children }
 
 - **`(web)/`** — Layouts and panels only used in the desktop / split experience.
 - **`(mobile)/`** — Layouts and controls only used on small screens.
-- **Root of `components/`** — Shared across breakpoints; **context-wired wrappers** (read domain hooks next to the widget, not via props from `WebLayout` / `MobileLayout`); dumb primitives; maps and other heavy shells.
-- Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to the **components root**.
+- **Root of `components/`** — Public entry / screen orchestrator (e.g. `ProfileHub.tsx`, `SearchScreen.tsx`) + colocated `*.stories.tsx` for that entry; optional `index.ts` barrel.
+- **Concern subfolders** (same idea as `src/ui/Header/`): group related pieces — e.g. `hero/`, `cards/`, `edit/`, `layout/`, `widgets/`, `sections/`, `shared/`, `inputs/`, `steps/`. Keep stories next to the component they cover; do **not** story internal sub-pieces when the parent entry story already exercises them.
+- Do **not** leave a flat dump of many unrelated `.tsx` files at the components root when they cluster by concern.
+- Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to the **components root** or a shared subfolder.
 
 ## UI atom/reuse architecture
 

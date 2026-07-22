@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 
-import { AccountAuthGate } from './components/AccountAuthGate'
-import { AccountShell } from './components/AccountShell'
+import { AccountAuthGate } from './components/account/AccountAuthGate'
+import { AccountShell } from './components/account/AccountShell'
 import bag from './i11n.json'
 
 export async function generateMetadata(): Promise<Metadata> {

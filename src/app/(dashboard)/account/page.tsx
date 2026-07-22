@@ -5,17 +5,17 @@ import { useRouter } from 'next/navigation'
 import { LuKeyRound, LuLogOut, LuShield } from 'react-icons/lu'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
+import { DashboardPageLayout } from '@/app/(dashboard)/components/layout/DashboardPageLayout'
 import {
   DashboardDetailRow,
   DashboardSectionCard,
-} from '@/app/(dashboard)/components/DashboardSectionCard'
+} from '@/app/(dashboard)/components/layout/DashboardSectionCard'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, Link } from '@ui'
 
-import { MembershipRefreshOnMount } from '../components/MembershipRefreshOnMount'
-import { WorkerMembershipCard } from '../components/WorkerMembershipCard'
+import { MembershipRefreshOnMount } from '../components/membership/MembershipRefreshOnMount'
+import { WorkerMembershipCard } from '../components/membership/WorkerMembershipCard'
 import { AccountContactCard } from './components/AccountContactCard'
 import { AccountSettingsCard } from './components/AccountSettingsCard'
 import bag from './i11n.json'

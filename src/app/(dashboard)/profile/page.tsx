@@ -2,7 +2,7 @@
 
 import { useUserStore } from '@/app/(auth)/store/user'
 
-import { ProfileHub } from './components/ProfileHub'
+import { ProfileHub } from './components'
 
 export default function ProfilePage() {
   const me = useUserStore((s) => s.me)

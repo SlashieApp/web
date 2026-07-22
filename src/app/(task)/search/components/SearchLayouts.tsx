@@ -11,12 +11,12 @@ import { TaskSearch } from '../../components/TaskSearch'
 import { TaskTag } from '../../components/TaskTag'
 import { useTaskBrowseLayout } from '../../context/TaskBrowseProvider'
 import { useSearchMode } from '../context/SearchModeProvider'
-import { MobileWorkerCarousel } from './MobileWorkerCarousel'
-import { SearchModeSelector } from './SearchModeSelector'
-import { SearchResultsListTitle } from './SearchResultsListTitle'
-import { WorkerFilterChips } from './WorkerFilterChips'
-import { WorkerFiltersPanel } from './WorkerFiltersPanel'
-import { WebWorkerSearchBlock } from './WorkerSearchPanel'
+import { SearchModeSelector } from './filters/SearchModeSelector'
+import { WorkerFilterChips } from './filters/WorkerFilterChips'
+import { WorkerFiltersPanel } from './filters/WorkerFiltersPanel'
+import { MobileWorkerCarousel } from './results/MobileWorkerCarousel'
+import { SearchResultsListTitle } from './results/SearchResultsListTitle'
+import { WebWorkerSearchBlock } from './results/WorkerSearchPanel'
 
 /**
  * Desktop split view for /search: mode selector above the location bar; the list/filters region swaps per mode.

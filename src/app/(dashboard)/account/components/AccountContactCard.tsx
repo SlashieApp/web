@@ -2,8 +2,8 @@
 
 import { LuPhone } from 'react-icons/lu'
 
-import { ContactMethodsPanel } from '@/app/(dashboard)/components/ContactMethodsPanel'
-import { DashboardSectionCard } from '@/app/(dashboard)/components/DashboardSectionCard'
+import { ContactMethodsPanel } from '@/app/(dashboard)/components/account/ContactMethodsPanel'
+import { DashboardSectionCard } from '@/app/(dashboard)/components/layout/DashboardSectionCard'
 
 export function AccountContactCard() {
   return (

@@ -275,28 +275,18 @@ const buildExportLineSet = async (root: string, files: string[]) => {
 const generateBarrelForFolder = async (folder: string) => {
   const folderPath = join(process.cwd(), folder)
   if (!existsSync(folderPath)) {
-    console.warn(`[exports-gen] Skipping missing folder: ${folder}`)
     return
   }
   const stats = await stat(folderPath)
   if (!stats.isDirectory()) {
-    console.warn(`[exports-gen] Skipping non-directory path: ${folder}`)
     return
   }
 
   const files = await collectModuleFiles(folderPath)
-  console.log(
-    `[exports-gen] Discovered ${files.length} module files in ${folder}: ${
-      files.length > 0
-        ? files.map((file) => relative(process.cwd(), file)).join(', ')
-        : '(none)'
-    }`,
-  )
   const lines = await buildExportLineSet(folderPath, files)
   const outputPath = join(folderPath, 'index.ts')
   const body = lines.length > 0 ? `${lines.join('\n')}\n` : ''
   await writeFile(outputPath, `${AUTOGEN_HEADER}\n${body}`, 'utf8')
-  console.log(`[exports-gen] Updated ${relative(process.cwd(), outputPath)}`)
   return {
     folder,
     outputPath: relative(process.cwd(), outputPath),
@@ -314,15 +304,14 @@ const main = async () => {
     const result = await generateBarrelForFolder(config.folder)
     if (result) results.push(result)
   }
+  const totalModules = results.reduce((sum, r) => sum + r.moduleCount, 0)
   console.log(
-    `[exports-gen] Success for ${results.length}/${EXPORT_CONFIGS.length} configs: ${results
-      .map((result) => `${result.outputPath} (${result.moduleCount} modules)`)
-      .join('; ')}`,
+    `[exports-gen] Updated ${results.length} barrels (${totalModules} modules)`,
   )
 }
 
 main().catch((error) => {
-  console.error('[exports-gen] Failed to generate export barrels')
+  console.error('[exports-gen] Failed')
   console.error(error)
   process.exit(1)
 })

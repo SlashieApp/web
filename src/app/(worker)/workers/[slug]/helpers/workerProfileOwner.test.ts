@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { WorkerContactAction } from '@codegen/schema'
 
-import { workerProfileFixture } from '../components/workerProfileStoryFixtures'
+import { workerProfileFixture } from '../components/shared/workerProfileStoryFixtures'
 import type { WorkerPublicRecord } from './workerProfileHelpers'
 import {
   isOwnWorkerProfile,

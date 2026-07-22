@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 
-import { InboxActivityPanel } from '@/app/(dashboard)/components/InboxActivityPanel'
+import { InboxActivityPanel } from '@/app/(dashboard)/components/inbox/InboxActivityPanel'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { notificationRowsFromQuery } from '@/app/(dashboard)/helpers/notificationActivity'
 import { useI11n } from '@/i18n/useI11n'

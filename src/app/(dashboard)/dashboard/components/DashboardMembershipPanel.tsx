@@ -5,7 +5,7 @@ import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
 
 import { Button, Card, Link } from '@ui'
 
-import { WorkerMembershipCard } from '@/app/(dashboard)/components/WorkerMembershipCard'
+import { WorkerMembershipCard } from '@/app/(dashboard)/components/membership/WorkerMembershipCard'
 import { useI11n } from '@/i18n/useI11n'
 
 import bag from '../i11n.json'

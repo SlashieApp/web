@@ -23,7 +23,7 @@ import {
   postedTaskStageLabel,
   postedTaskTimelineSteps,
 } from '../../helpers/postedTaskCustomer'
-import { PostedTaskTimeline } from './PostedTaskTimeline'
+import { PostedTaskTimeline } from './calendar/PostedTaskTimeline'
 
 function ChevronIcon({ expanded }: { expanded: boolean }) {
   return (

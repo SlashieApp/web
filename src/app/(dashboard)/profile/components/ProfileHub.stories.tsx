@@ -9,8 +9,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 
-import type { ProfileEditSection } from './ProfileEditDrawer'
 import { ProfileHub } from './ProfileHub'
+import type { ProfileEditSection } from './edit/ProfileEditDrawer'
 
 function profileFixture({
   worker = 'none',

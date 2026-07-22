@@ -38,7 +38,7 @@
     {
       "include": [
         "src/app/(task)/components/TaskCard.tsx",
-        "src/app/(task)/search/components/WorkerSearchCard.tsx"
+        "src/app/(task)/search/components/results/WorkerSearchCard.tsx"
       ],
       "linter": {
         "rules": {

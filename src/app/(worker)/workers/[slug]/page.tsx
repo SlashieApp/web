@@ -9,17 +9,19 @@ import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 
-import { WorkerAboutSection } from './components/WorkerAboutSection'
-import { WorkerContactStickyBar } from './components/WorkerContactStickyBar'
-import { WorkerPortfolioSection } from './components/WorkerPortfolioSection'
-import { WorkerProfileAddPlaceholder } from './components/WorkerProfileAddPlaceholder'
-import { WorkerProfileHero } from './components/WorkerProfileHero'
-import { WorkerProfileOwnerBanner } from './components/WorkerProfileOwnerBanner'
-import { WorkerProfileSidebar } from './components/WorkerProfileSidebar'
-import { WorkerProfileViewCapture } from './components/WorkerProfileViewCapture'
-import { WorkerReviewsSection } from './components/WorkerReviewsSection'
-import { WorkerSkillsSection } from './components/WorkerSkillsSection'
-import { WorkerWorkSection } from './components/WorkerWorkSection'
+import {
+  WorkerAboutSection,
+  WorkerContactStickyBar,
+  WorkerPortfolioSection,
+  WorkerProfileAddPlaceholder,
+  WorkerProfileHero,
+  WorkerProfileOwnerBanner,
+  WorkerProfileSidebar,
+  WorkerProfileViewCapture,
+  WorkerReviewsSection,
+  WorkerSkillsSection,
+  WorkerWorkSection,
+} from './components'
 import { getWorkerForPublicPage } from './helpers/getWorkerForPublicPage'
 import {
   formatCompletedMonth,

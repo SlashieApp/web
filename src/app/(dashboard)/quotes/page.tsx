@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react'
 
 import { EVENTS, capture } from '@/utils/analytics'
 
-import { WorkerQuotesLayout } from './components/WorkerQuotesLayout'
+import { WorkerQuotesLayout } from './components/layout/WorkerQuotesLayout'
 import { WorkerQuotesProvider } from './context/WorkerQuotesProvider'
 
 export default function MyQuotesPage() {
