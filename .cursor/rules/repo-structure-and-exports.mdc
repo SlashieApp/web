@@ -71,6 +71,27 @@ export default function Layout({ children }) { return children }
 - Do **not** leave a flat dump of many unrelated `.tsx` files at the components root when they cluster by concern.
 - Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to the **components root** or a shared subfolder.
 
+### Examples
+
+```text
+# profile
+profile/components/
+  ProfileHub.tsx
+  ProfileHub.stories.tsx
+  hero/
+  cards/
+  edit/
+
+# dashboard shared chrome
+(dashboard)/components/
+  layout/
+  account/
+  inbox/
+  membership/
+  verification/
+  index.ts
+```
+
 ## UI atom/reuse architecture
 
 Three conceptual layers (all shared UI lives under **`src/ui`**):
@@ -136,6 +157,7 @@ Rules:
 - After **adding** a registered folder or **moving** modules between registered folders, run **`bun run exports-gen`**.
 - Do **not** manually maintain generated barrel files where the header marks them auto-generated.
 - Nested folders (e.g. `tasks/create/components/`) are **not** in `EXPORT_CONFIGS` unless you add them; use local imports or add a config entry if a barrel is required.
+- `exports-gen` prints a one-line summary when barrels change (`Updated N barrels (M modules)`).
 
 ## Checklist
 

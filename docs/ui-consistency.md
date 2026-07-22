@@ -75,6 +75,7 @@ Pages import primitives from `@ui` (barrel auto-generated — `bun run exports-g
 | `@ui` display | Card, Badge, Avatar, Thumbnail, Rating, DetailRow, InfoBar, Toast, ProgressBar, Stepper, Tabs, ScheduleChip, SpotIllustration, MapCard, ImageGallery, Logo, Link | `ui/*` |
 | `@ui` layout | Drawer, Dropdown, Modal, MobileCarousel, StepFlowLayout, Footer | `ui/*` |
 | `@ui` shell | Header, Dock | `ui/*` |
+| `@ui` presentational + adapter | LanguageSwitcher (`src/ui`) + connected `src/i18n/LanguageSwitcher.tsx` | `ui/LanguageSwitcher` |
 
 **Not in `@ui` (by design)**
 

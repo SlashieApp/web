@@ -43,9 +43,9 @@ Rules:
 
 ## Story scope
 
-- **Universal `ui` / `layout`**: cover meaningful variants (states, sizes, alignment) as separate exports.
-- **Non-universal feature components** (e.g. `AccountMenu`): **one story file with a single `Default`** that shows the real use case.
-- **Internal sub-components** of a feature (e.g. `AccountMenuHeader`, `AccountNavPanel`, `BellIcon`, `GuestHeaderAuth`, `MembershipStatusCard`): **do not** give them their own stories. Exercise them through the top-level component's state stories (e.g. `header/Header → Dashboard`).
+- **Universal `ui/*`**: cover meaningful variants (states, sizes, alignment) as separate exports.
+- **Non-universal feature components** (e.g. top-level profile hub): **one story file with a single `Default`** that shows the real use case.
+- **Internal sub-components** of shell/feature chrome (e.g. account menu pieces under `Header/`, dock internals): **do not** give them their own stories. Exercise them through the parent (`ui/Header`, `ui/Dock`, or the feature entry).
 
 ## Required story skeleton
 

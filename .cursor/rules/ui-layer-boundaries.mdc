@@ -45,14 +45,17 @@ Import as `@/ui/<Name>` or from `@ui` after `bun run exports-gen`.
 - Cross-route chrome: **`Header`**, **`Dock`** (menus, notifications drawer, dock rail).
 - May read Me / notifications / routes / Apollo.
 - Still live under `src/ui/<Name>/` with colocated `i11n.json`.
-- Stories: `ui/Header`, `ui/Dock` (same ownership title rule as other `@ui` modules).
+- Group internal pieces in concern subfolders (e.g. `Header/account/`, `Header/notifications/`, `Header/dashboard/`, `Header/shell/`).
+- Stories: `ui/Header`, `ui/Dock` (same ownership title rule as other `@ui` modules). No `shell/*` titles.
 - May import from `@/app/**` only when wiring shell behavior (exception to the primitive rule).
+- There is **no** separate `src/components` chrome tree.
 
 ## `src/app` — features
 
-- Route sections, mappers (`helpers/`), providers (`context/`), GraphQL.
+- Route sections, mappers (`helpers/`), providers (`context/`), GraphQL, colocated `i11n.json`.
 - Thin adapters that wire store/context into `@ui` when the primitive is data-agnostic.
 - Domain cards stay presentational; one entity + view/state — no per-route card forks.
+- Feature `components/` use concern subfolders when files cluster (`hero/`, `cards/`, `layout/`, …) — see **`repo-structure-and-exports.mdc`**.
 
 ## Checklist
 

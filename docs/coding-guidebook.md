@@ -2,7 +2,7 @@
 
 **Audience:** engineers and AI agents working on `slashie-web`  
 **Status:** current conventions (App Router + SDL redesign)  
-**Last updated:** 2026-07-17  
+**Last updated:** 2026-07-22  
 **Companion docs:** [UI Consistency](./ui-consistency.md) · [SDL Token Migration](./sdl-token-migration.md) · [AGENTS.md](../AGENTS.md)
 
 This guidebook is the engineering wiki source of truth for **how we structure code**. Visual brand tokens and marketplace UX language live in the design skills / UI consistency doc; this book covers **architecture, layering, data flow, and Storybook**.
@@ -16,7 +16,8 @@ This guidebook is the engineering wiki source of truth for **how we structure co
 | Framework | Next.js 16 App Router |
 | Package manager | **Bun** (`bun install`, `bun run …`) |
 | UI base | Chakra UI 3 + Slashie SDL semantic tokens |
-| Primitives + shell chrome | `src/ui` → import `@ui` / `@/ui/<Name>` |
+| Primitives + shell chrome | `src/ui/<Name>/` → import `@ui` / `@/ui/<Name>` |
+| Copy (i11n) | Colocated `i11n.json` + `useI11n(bag)` |
 | Data | External GraphQL + Apollo Client |
 | Forms | Zod + react-hook-form + `zodResolver` |
 | Lint / format | Biome (`bun run lint` writes fixes) |
@@ -33,14 +34,14 @@ page.tsx
       → design tokens (src/theme)
 ```
 
-**Never import upward.**
+**Never import upward** from primitives into features. Inside `src/ui/**`, import siblings **relatively** (not `@ui`) to avoid barrel cycles.
 
 | Layer | Path | May import | Must not |
 | --- | --- | --- | --- |
-| **Primitives** | `src/ui/<Name>/` (most folders) | `src/theme`, Chakra, React, sibling `@ui` via **relative** imports | Apollo hooks, `useUserStore`, pathname chrome (unless a thin adapter lives outside `src/ui`) |
-| **Shell chrome** | `src/ui/Header`, `src/ui/Dock` | App stores/hooks, Apollo, routes; sibling UI via relative imports | Live outside `src/ui` / a separate `src/components` tree |
+| **Primitives** | `src/ui/<Name>/` (most folders) | `src/theme`, Chakra, React, sibling UI via **relative** imports | Apollo hooks, `useUserStore`, pathname chrome (unless a thin adapter lives outside `src/ui`) |
+| **Shell chrome** | `src/ui/Header`, `src/ui/Dock` | App stores/hooks, Apollo, routes; sibling UI via relative imports | A separate `src/components` tree |
 | **Feature** | `src/app/(…)/…` | `@ui`, `@/ui/<Name>`, colocated helpers/context/graphql | Duplicate primitive markup; put atoms in `@ui` |
-| **page.tsx** | route entry | Feature sections + data hooks | Large inline card/entity trees |
+| **page.tsx** | route entry | Feature sections + data hooks | Large inline card/entity trees; pass-through `PageContent` |
 
 ### Folder shape (`src/ui/<Name>/`)
 
@@ -50,6 +51,7 @@ src/ui/<Name>/
   i11n.json           # when the module owns copy
   <Name>.stories.tsx  # title: ui/<Name>
   index.ts
+  # optional concern subfolders (e.g. Header/account/, Header/notifications/)
 ```
 
 ### What belongs in `src/ui`
@@ -66,7 +68,7 @@ src/ui/<Name>/
 - `Header` (+ account menu, notifications drawer) — `src/ui/Header/`
 - `Dock` — `src/ui/Dock/`
 
-Stories for both: `ui/<Name>`.
+Stories for both: `ui/<Name>`. There is **no** separate `src/components` chrome tree.
 
 **Rules**
 
@@ -75,7 +77,7 @@ Stories for both: `ui/<Name>`.
 - No marketplace-specific defaults on primitives (e.g. no “quotes empty state” component with hardcoded art). Prefer `SpotIllustration` + local composition.
 - Domain status chips (e.g. task `OPEN` / `AWARDED`) live next to the feature (`TaskStatusPill`), composing `Badge`.
 - Extend existing primitives with optional props before forking.
-- Colocate copy in `i11n.json` next to the owner; use `useI11n(bag)` (see Cursor rule **`i11n-colocation`**).
+- Colocate copy in `i11n.json` next to the owner; use `useI11n(bag)` (see §18 and Cursor rule **`i11n-colocation`**).
 
 ### What belongs in `src/app`
 
@@ -90,16 +92,44 @@ Mirror **`src/app/(task)/`**:
 | Path | Role |
 | --- | --- |
 | `page.tsx` | Orchestration map: gates, data, providers, lifecycle, section order |
-| `components/` | Feature sections; shared across breakpoints at root |
+| `layout.tsx` | Optional; holds `generateMetadata` when `page.tsx` is `'use client'` |
+| `components/` | Feature sections; public entry + stories at root when useful |
 | `components/(web)/` | Desktop / split-only |
 | `components/(mobile)/` | Small-viewport-only |
+| `components/<concern>/` | Group related pieces (`hero/`, `cards/`, `edit/`, `layout/`, `widgets/`, …) |
 | `context/` | Segment providers / hooks |
 | `helpers/` | Pure mappers, types, GraphQL → UI slices |
 | `graphql/` | One operation per `.gql` file, beside owning `page.tsx` |
+| `i11n.json` | Route/segment copy bag when the screen owns strings |
 
-**Do not** duplicate the same markup under both `(web)` and `(mobile)` — lift shared UI to `components/` root.
+**Do not** duplicate the same markup under both `(web)` and `(mobile)` — lift shared UI to `components/` root or a shared concern folder.
+
+**Do not** leave a flat dump of many unrelated `.tsx` files at the components root when they cluster by concern.
 
 Nested routes (`tasks/create`, `tasks/[slug]/edit`) own their own `page.tsx` + colocated folders.
+
+Example (dashboard shared chrome):
+
+```text
+src/app/(dashboard)/components/
+  layout/          # DashboardShell, section nav, …
+  account/
+  inbox/
+  membership/
+  verification/
+  index.ts
+```
+
+Example (profile):
+
+```text
+src/app/(dashboard)/profile/components/
+  ProfileHub.tsx
+  ProfileHub.stories.tsx
+  hero/
+  cards/
+  edit/
+```
 
 ---
 
@@ -194,7 +224,21 @@ Multi-field submit forms: **Zod schema** colocated with the route + **react-hook
 
 ## 10. Navigation & links
 
-In-app routes: Chakra `Link` with `as={NextLink}` (or `@ui` `Link` which follows the same pattern). No bare `<a>` for internal routes; no `legacyBehavior` / `passHref`.
+In-app routes: use **`@ui` `Link`**. It prefixes internal string `href`s with the active locale — pass **bare paths** (`href="/tasks"`).
+
+```tsx
+import { Button, Link } from '@ui'
+
+<Link href="/tasks">Browse tasks</Link>
+
+<Button asChild size="sm">
+  <Link href="/tasks/create">Post a task</Link>
+</Button>
+```
+
+- Do **not** wrap Link / IconButton nav hrefs with `useLocalizedHref()` — localization lives inside `@ui` Link.
+- Keep `useLocalizedHref()` only for `router.push`, `window.location`, or non-Link APIs.
+- No bare `<a>` for internal routes; no `legacyBehavior` / `passHref`.
 
 ---
 
@@ -208,7 +252,7 @@ Do **not** introduce `useEffect` by default. Prefer event-driven `useCallback` a
 
 | Source | Title | Examples |
 | --- | --- | --- |
-| `src/ui/<Name>/` | `ui/<Name>` | `ui/Button`, `ui/Dropdown`, `ui/Header`, `ui/Dock` |
+| `src/ui/<Name>/` | `ui/<Name>` | `ui/Button`, `ui/Dropdown`, `ui/Header`, `ui/Dock`, `ui/LanguageSwitcher` |
 | `src/app/(segment)/…` | Folder path (strip `(groups)` + `components/`, drop `[param]`) | `marketing/Header`, `task/TaskCard`, `worker/setup/WorkerSetupBioComposer` |
 
 - Colocate `*.stories.tsx` next to the component.
@@ -217,6 +261,7 @@ Do **not** introduce `useEffect` by default. Prefer event-driven `useCallback` a
 - No stories for internal subcomponents of a menu/header — exercise via parent.
 - Dual theme: semantic tokens only; no hardcoded dark canvas wrappers.
 - Inside `src/ui/**`, import siblings relatively — not `@ui` barrel (avoids cycles).
+- No `shell/*` / `form/*` / `Components/*` / `Patterns/*` / `layout/*` story titles.
 
 ---
 
@@ -249,35 +294,43 @@ bun run storybook     # port 6006
 bun run dev           # runs exports-gen then Next on 3000
 ```
 
-Registered barrels: `EXPORT_CONFIGS` in `scripts/generate-exports.ts`. Do not hand-edit auto-generated `index.ts` files.
+Registered barrels: `EXPORT_CONFIGS` in `scripts/generate-exports.ts`. Do not hand-edit auto-generated `index.ts` files. `exports-gen` prints a one-line summary when barrels change.
 
 ---
 
 ## 15. Anti-patterns (eliminate on touch)
 
+- `page.tsx` that only renders `<PageContent />` / pass-through `*Page`  
 - Inline entity/card JSX in fat `page.tsx` files  
 - Feature UI far from its owning route  
+- Flat dump of unrelated files in `components/` when concern folders fit  
 - Duplicate `(web)` / `(mobile)` markup that should be shared  
 - Full GraphQL types passed deep into presentational components  
-- `if (pathname…)` inside primitives for chrome/actions  
+- `if (pathname…)` inside **primitives** for chrome/actions  
 - Prop-drilling context through shells instead of leaf hooks  
 - Multiple competing state patterns on one page  
 - Silent empty/error; layout-shifting loaders  
 - New abstractions with a single caller (YAGNI)  
-- Scoped widgets (Header, EmptyState-with-marketplace-art, TaskStatusPill) living in `src/ui`  
+- Marketplace EmptyState / TaskStatusPill living in primitives (compose in features)  
 - Route-forked cards (`TaskCardBrowse` + `TaskCardOwner`)  
+- Mega-global i11n dictionaries / thin `useFooI11n` wrappers  
+- Wrapping every Link href with `useLocalizedHref` (Link already localizes)  
+- Separate `src/components` tree for Header/Dock  
 
 ---
 
 ## 16. PR acceptance (structural cleanup)
 
-- [ ] Colocated `components/` (and `context/` / `helpers/` / `graphql/` when needed) next to `page.tsx`  
-- [ ] `page.tsx` shows gates → data → providers → lifecycle → sections  
+- [ ] Colocated `components/` (and `context/` / `helpers/` / `graphql/` / `i11n.json` when needed) next to `page.tsx`  
+- [ ] `page.tsx` shows gates → data → providers → lifecycle → sections (no `PageContent` pass-through)  
+- [ ] Client `page.tsx` + metadata → colocated `layout.tsx` with `generateMetadata`  
 - [ ] Shared UI uses `@ui`; domain cards are presentational with view/state  
 - [ ] GraphQL mapping in helpers; entities have no Apollo  
 - [ ] State owned at the right folder level  
 - [ ] Sections share loading / error / empty / success  
 - [ ] Import direction respects the layer model  
+- [ ] Copy in owning `i11n.json` + `useI11n(bag)`  
+- [ ] In-app nav uses `@ui` Link with bare paths  
 - [ ] Touched `ui` / feature stories titled correctly  
 - [ ] No happy-path / primary empty-error regressions  
 
@@ -287,15 +340,40 @@ Registered barrels: `EXPORT_CONFIGS` in `scripts/generate-exports.ts`. Do not ha
 
 | Rule / skill | Enforces |
 | --- | --- |
-| `.cursor/rules/repo-structure-and-exports.mdc` | Colocation, barrels, Storybook ownership titles |
-| `.cursor/rules/ui-layer-boundaries.mdc` | `src/ui` purity vs shell vs app |
+| `.cursor/rules/repo-structure-and-exports.mdc` | Colocation, `page.tsx`, concern folders, barrels, Storybook titles |
+| `.cursor/rules/ui-layer-boundaries.mdc` | `src/ui` folder shape, primitives vs shell chrome |
+| `.cursor/rules/i11n-colocation.mdc` | Colocated bags + `useI11n` |
 | `.cursor/rules/app-route-page-data-flow.mdc` | `page.tsx` orchestration + lifecycle |
 | `.cursor/rules/graphql-*.mdc` | Colocation + codegen |
 | `.cursor/rules/forms-zod.mdc` | Zod forms |
 | `.cursor/rules/no-useeffect-callback-ref.mdc` | Effect avoidance |
-| `.cursor/rules/chakra-next-link.mdc` | In-app links |
+| `.cursor/rules/chakra-next-link.mdc` | `@ui` Link + locale-aware hrefs |
 | `.cursor/rules/dual-theme-storybook-ui.mdc` | Tokens + stories |
 | `.cursor/skills/storybook-story-conventions` | Story file/title patterns |
 | `.cursor/skills/slashie-design` | Brand / UX language |
+| `.cursor/skills/page-refactor-audit` | Bring a route up to these standards |
 
 When conventions change, update **this guidebook first**, then the matching Cursor rules/skills.
+
+---
+
+## 18. i11n (copy bags)
+
+Locale is **global** (`LocaleProvider` / `useLocale` / `useLocalizedHref`). Copy bags are **local** to the owner.
+
+```ts
+import { useI11n } from '@/i18n/useI11n'
+import bag from './i11n.json'
+
+const t = useI11n(bag)
+```
+
+| Owner | Bag path |
+| --- | --- |
+| `src/ui/<Name>/` | `src/ui/<Name>/i11n.json` |
+| Route / segment | next to `page.tsx` or segment root |
+| Connected adapter | Presentational copy on the `@ui` folder; adapter wires cookies/Apollo |
+
+- No mega-global product dictionary; no thin named wrappers (`useHeaderI11n`, …).
+- Prefer one owner + import over duplicating keys.
+- List required product bags in `src/i18n/locales.test.ts`.

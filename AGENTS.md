@@ -57,9 +57,9 @@ Slashie is a high-trust local task marketplace connecting people who need work d
 
 ## 6. Engineering conventions (wiki)
 
-**Start here:** [`docs/coding-guidebook.md`](docs/coding-guidebook.md) — layers, route colocation, `page.tsx` contract, state, lifecycle, GraphQL, Storybook, checklists.
+**Start here:** [`docs/coding-guidebook.md`](docs/coding-guidebook.md) — layers, route colocation, `page.tsx` contract, i11n, Link locale, GraphQL, Storybook, checklists.
 
-Also: [`docs/ui-consistency.md`](docs/ui-consistency.md) · [`docs/README.md`](docs/README.md) · Cursor rules in [`.cursor/rules/`](.cursor/rules/).
+Also: [`docs/ui-consistency.md`](docs/ui-consistency.md) · [`docs/README.md`](docs/README.md) · Cursor rules in [`.cursor/rules/`](.cursor/rules/) (especially `ui-layer-boundaries`, `i11n-colocation`, `repo-structure-and-exports`, `chakra-next-link`).
 
 ## 7. Current Product Direction
 

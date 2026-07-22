@@ -4,7 +4,7 @@ Wiki-facing engineering notes for the Next.js app. Start here:
 
 | Doc | Purpose |
 | --- | --- |
-| **[Coding Guidebook](./coding-guidebook.md)** | Architecture layers, route colocation, `page.tsx` contract, state, lifecycle, GraphQL, Storybook, checklists |
+| **[Coding Guidebook](./coding-guidebook.md)** | Architecture layers, route colocation, `page.tsx` contract, i11n, Link locale, GraphQL, Storybook, checklists |
 | [UI Consistency](./ui-consistency.md) | Tokens, shells, primitive inventory, a11y do/don’t |
 | [SDL Token Migration](./sdl-token-migration.md) | Token migration notes |
 | [Auth abuse hardening](./auth-abuse-hardening.md) | Turnstile CAPTCHA, rate-limit UX, PostHog auth signals, BE/infra leftovers |
