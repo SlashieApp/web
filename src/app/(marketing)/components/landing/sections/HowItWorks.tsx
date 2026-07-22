@@ -14,30 +14,21 @@ import {
   LuMessagesSquare,
 } from 'react-icons/lu'
 
+import type { Messages } from '@/i18n/getDictionary'
+
 import { Reveal } from '../Reveal'
 
-const STEPS = [
-  {
-    step: '01',
-    title: 'Post a task',
-    body: 'Describe the job, set your budget, and drop a pin where it needs doing.',
-    icon: <LuMapPin size={22} />,
-  },
-  {
-    step: '02',
-    title: 'Compare quotes',
-    body: 'Nearby workers reply with priced quotes, profiles, and reviews.',
-    icon: <LuMessagesSquare size={22} />,
-  },
-  {
-    step: '03',
-    title: 'Accept & pay directly',
-    body: 'Pick your worker and settle up directly, in person — no middleman, no platform fee.',
-    icon: <LuBanknote size={22} />,
-  },
+const STEP_ICONS = [
+  <LuMapPin key="post" size={22} />,
+  <LuMessagesSquare key="quotes" size={22} />,
+  <LuBanknote key="pay" size={22} />,
 ] as const
 
-export function HowItWorks() {
+export function HowItWorks({
+  messages,
+}: {
+  messages: Messages['landing']['howItWorks']
+}) {
   return (
     <Box
       as="section"
@@ -56,10 +47,10 @@ export function HowItWorks() {
                 fontSize={{ base: '28px', md: '36px' }}
                 letterSpacing="-0.01em"
               >
-                How Slashie works
+                {messages.heading}
               </Heading>
               <Text color="text.muted" maxW="65ch">
-                Three steps from “I need a hand” to done — all on the map.
+                {messages.body}
               </Text>
             </Stack>
           </Reveal>
@@ -69,7 +60,7 @@ export function HowItWorks() {
             gap={{ base: 8, md: 6 }}
             alignItems="start"
           >
-            {STEPS.map((item, index) => (
+            {messages.steps.map((item, index) => (
               <Reveal key={item.step} delayMs={index * 110}>
                 <Stack gap={4} position="relative" px={{ md: 3 }}>
                   <HStack justify="space-between" align="center">
@@ -83,9 +74,9 @@ export function HowItWorks() {
                       justifyContent="center"
                       aria-hidden
                     >
-                      {item.icon}
+                      {STEP_ICONS[index]}
                     </Box>
-                    {index < STEPS.length - 1 ? (
+                    {index < messages.steps.length - 1 ? (
                       <Box
                         display={{ base: 'none', md: 'flex' }}
                         color="border.strong"

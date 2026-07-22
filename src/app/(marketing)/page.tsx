@@ -6,6 +6,12 @@ import {
   pricingDisplayPrice,
 } from '@/app/(marketing)/pricing/helpers/formatPricing'
 import { getPricingForPage } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
+import {
+  formatMessage,
+  getDictionary,
+  getLocalizedMetadata,
+  getRequestLocale,
+} from '@/i18n/getDictionary'
 import { Footer } from '@/ui'
 
 import { LenisRoot } from './components/landing/LenisRoot'
@@ -19,26 +25,27 @@ import {
 } from './components/landing/sections/PricingTeaser'
 import { TrustSection } from './components/landing/sections/TrustSection'
 
-const PAGE_TITLE = 'Slashie — Local tasks and trusted quotes'
-const PAGE_DESCRIPTION =
-  'Slashie is a map-first local task marketplace. Post a task, compare quotes from nearby workers, and pay the worker directly — Slashie never takes a cut of the job.'
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  const metadata = getLocalizedMetadata(locale).landing
 
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-  description: PAGE_DESCRIPTION,
-  alternates: { canonical: '/' },
-  openGraph: {
-    type: 'website',
-    siteName: 'Slashie',
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-    url: '/',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-  },
+  return {
+    title: metadata.title,
+    description: metadata.description,
+    alternates: { canonical: '/' },
+    openGraph: {
+      type: 'website',
+      siteName: 'Slashie',
+      title: metadata.title,
+      description: metadata.description,
+      url: '/',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: metadata.title,
+      description: metadata.description,
+    },
+  }
 }
 
 /**
@@ -48,6 +55,8 @@ export const metadata: Metadata = {
  * `HomeAuthRedirect` — unchanged behavior.
  */
 export default async function MarketingHomePage() {
+  const locale = await getRequestLocale()
+  const messages = getDictionary(locale)
   const { pricing } = await getPricingForPage()
 
   // Only claims backed by live pricing render: no fabricated trial or price
@@ -61,25 +70,46 @@ export default async function MarketingHomePage() {
 
   const landingPricing: LandingPricing = {
     productName: pricing?.productName ?? 'Slashie Unlimited',
-    headline: trialLabel ?? priceLine ?? 'Unlimited quotes',
+    headline:
+      trialLabel ??
+      priceLine ??
+      messages.landing.pricingTeaser.unlimitedHeadlineFallback,
     subline: trialLabel
       ? priceLine
-        ? `Then ${priceLine} · unlimited quotes`
-        : 'Unlimited quotes for one subscription'
-      : 'Unlimited quotes for one subscription',
-    freeHeadline: `${freeQuotes} quotes a month`,
+        ? formatMessage(
+            messages.landing.pricingTeaser.unlimitedSublineWithPrice,
+            { priceLine },
+          )
+        : messages.landing.pricingTeaser.unlimitedSublineFallback
+      : messages.landing.pricingTeaser.unlimitedSublineFallback,
+    freeHeadline: formatMessage(messages.landing.pricingTeaser.freeHeadline, {
+      count: freeQuotes,
+    }),
   }
 
   return (
     <>
       <HomeAuthRedirect />
       <LenisRoot />
-      <HeroSection />
-      <HowItWorks />
-      <AudienceSection />
-      <TrustSection />
-      <PricingTeaser pricing={landingPricing} />
-      <FinalCtaBand />
+      <HeroSection
+        ctas={messages.common.ctas}
+        messages={messages.landing.hero}
+      />
+      <HowItWorks messages={messages.landing.howItWorks} />
+      <AudienceSection
+        ctas={messages.common.ctas}
+        messages={messages.landing.audience}
+      />
+      <TrustSection messages={messages.landing.trust} />
+      <PricingTeaser
+        ctas={messages.common.ctas}
+        messages={messages.landing.pricingTeaser}
+        pricing={landingPricing}
+      />
+      <FinalCtaBand
+        ctas={messages.common.ctas}
+        messages={messages.landing.finalCta}
+      />
       <Footer />
     </>
   )

@@ -1,6 +1,7 @@
 import { Box, Container, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import type { Messages } from '@/i18n/getDictionary'
 import { Button } from '@ui'
 
 import { Magnetic } from '../Magnetic'
@@ -22,18 +23,17 @@ function riseIn(delayMs: number) {
   } as const
 }
 
-const TRUST_ROW = [
-  'No platform job fee',
-  'Verified workers',
-  'Payment stays between you',
-] as const
+type HeroSectionProps = {
+  ctas: Messages['common']['ctas']
+  messages: Messages['landing']['hero']
+}
 
 /**
  * Immersive hero: server-rendered copy over the living-map WebGL layer.
  * The section slides under the transparent marketing header (negative top
  * margin equal to the header height), on the SDL inverted ink surface.
  */
-export function HeroSection() {
+export function HeroSection({ ctas, messages }: HeroSectionProps) {
   return (
     <Box
       as="section"
@@ -83,7 +83,7 @@ export function HeroSection() {
               textTransform="uppercase"
               color="text.onInvertedMuted"
             >
-              Map-first local task marketplace
+              {messages.eyebrow}
             </Text>
           </HStack>
 
@@ -96,10 +96,7 @@ export function HeroSection() {
             fontSize="clamp(2.5rem, 6.5vw, 4.5rem)"
             {...riseIn(80)}
           >
-            Post a task. Compare local quotes.{' '}
-            <Box as="span" color="text.onInvertedLink">
-              Pay the worker directly.
-            </Box>
+            {messages.heading}
           </Heading>
 
           <Text
@@ -109,9 +106,7 @@ export function HeroSection() {
             maxW="65ch"
             {...riseIn(160)}
           >
-            Slashie puts real local tasks on a map. Nearby workers send you
-            priced quotes, you choose who to hire, and payment stays between the
-            two of you — Slashie never takes a cut of the job.
+            {messages.body}
           </Text>
 
           {/* CTAs are single <a> elements styled as buttons (Button asChild):
@@ -119,7 +114,7 @@ export function HeroSection() {
           <HStack gap={4} flexWrap="wrap" {...riseIn(240)}>
             <Magnetic>
               <Button asChild size="lg" variant="primary">
-                <NextLink href="/register">Get started</NextLink>
+                <NextLink href="/register">{ctas.postTask}</NextLink>
               </Button>
             </Magnetic>
             <Button
@@ -134,7 +129,7 @@ export function HeroSection() {
             >
               {/* Plain anchor: native CSS smooth scroll (globals.css) — routing
                   through NextLink makes Next and Lenis fight over the scroll. */}
-              <a href="#how-it-works">See how it works</a>
+              <a href="#how-it-works">{ctas.browseTasks}</a>
             </Button>
           </HStack>
 
@@ -145,7 +140,7 @@ export function HeroSection() {
             color="text.onInvertedMuted"
             {...riseIn(320)}
           >
-            {TRUST_ROW.map((item, index) => (
+            {messages.trustChips.map((item, index) => (
               <HStack key={item} gap={3}>
                 {index > 0 ? (
                   <Box

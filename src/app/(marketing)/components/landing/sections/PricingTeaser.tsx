@@ -10,6 +10,7 @@ import {
 import NextLink from 'next/link'
 import { LuSparkles } from 'react-icons/lu'
 
+import type { Messages } from '@/i18n/getDictionary'
 import { Button } from '@ui'
 
 import { Reveal } from '../Reveal'
@@ -25,11 +26,17 @@ export type LandingPricing = {
   freeHeadline: string
 }
 
+type PricingTeaserProps = {
+  ctas: Messages['common']['ctas']
+  messages: Messages['landing']['pricingTeaser']
+  pricing: LandingPricing
+}
+
 /**
  * Pricing teaser. The worker subscription is the product's single premium
  * layer — and the ONLY place plum (`accent.premium`) appears on the landing.
  */
-export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
+export function PricingTeaser({ ctas, messages, pricing }: PricingTeaserProps) {
   return (
     <Box as="section" bg="bg.canvas" py={{ base: 16, md: 24 }}>
       <Container maxW="4xl" px={{ base: 4, md: 6 }}>
@@ -42,11 +49,10 @@ export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
                 fontSize={{ base: '28px', md: '36px' }}
                 letterSpacing="-0.01em"
               >
-                Simple, honest pricing
+                {messages.heading}
               </Heading>
               <Text color="text.muted" maxW="65ch">
-                Customers never pay a platform fee. Workers subscribe for access
-                — and keep 100% of the job price.
+                {messages.body}
               </Text>
             </Stack>
           </Reveal>
@@ -69,13 +75,13 @@ export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
                 align="center"
               >
                 <Text fontSize="sm" fontWeight={700} color="text.muted">
-                  Workers — Free
+                  {messages.freePlanLabel}
                 </Text>
                 <Heading as="h3" fontSize="24px" fontWeight={600}>
                   {pricing.freeHeadline}
                 </Heading>
                 <Text fontSize="sm" color="text.muted">
-                  Browse local tasks and send quotes on the free tier.
+                  {messages.freeBody}
                 </Text>
               </Stack>
             </Reveal>
@@ -109,7 +115,7 @@ export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
 
           <Reveal delayMs={160}>
             <Button asChild variant="premium">
-              <NextLink href="/pricing">View pricing</NextLink>
+              <NextLink href="/pricing">{ctas.viewPricing}</NextLink>
             </Button>
           </Reveal>
         </Stack>

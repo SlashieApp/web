@@ -1,5 +1,6 @@
 'use client'
 
+import { useMutation } from '@apollo/client/react'
 import {
   Box,
   type BoxProps,
@@ -8,29 +9,42 @@ import {
   Image,
   Stack,
   Text,
+  VisuallyHidden,
   chakra,
 } from '@chakra-ui/react'
+import type { UpdateMySettingsMutation } from '@codegen/schema'
 import NextLink from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
+import { useUserStore } from '@/app/(auth)/store/user'
+import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { HeaderToolbarSeparator } from '@/components/Header/GuestHeaderAuth'
 import {
   HEADER_MIN_HEIGHT,
   HEADER_PADDING_X,
 } from '@/components/Header/headerShell'
+import type { Messages } from '@/i18n/getDictionary'
+import { writeBrowserLocaleCookie } from '@/i18n/localeCookie'
+import {
+  type AppLocale,
+  appLocaleToGraphqlLanguage,
+  graphqlLanguageToAppLocale,
+} from '@/i18n/locales'
+import { enMessages } from '@/i18n/messages/en'
+import { captureApiError } from '@/utils/analytics'
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Button, Drawer, Link } from '@ui'
 
 const MARKETING_NAV_LINKS = [
-  { key: 'pricing', label: 'Pricing', href: '/pricing' },
-  { key: 'about', label: 'About', href: '/about' },
+  { key: 'pricing', href: '/pricing' },
+  { key: 'about', href: '/about' },
 ] as const
 
 const SkipLinkAnchor = chakra('a')
 
 /** Keyboard skip link — visually hidden until focused (first tab stop). */
-function SkipLink() {
+function SkipLink({ label }: { label: string }) {
   return (
     <SkipLinkAnchor
       href="#main-content"
@@ -54,7 +68,7 @@ function SkipLink() {
         outlineOffset: '2px',
       }}
     >
-      Skip to content
+      {label}
     </SkipLinkAnchor>
   )
 }
@@ -77,7 +91,13 @@ const drawerLinkProps = {
  * outline — the hero's own CTA stays the one green primary in the first
  * viewport — and becomes the standard green primary once the header solidifies.
  */
-function MarketingAuthButtons({ overlay }: { overlay: boolean }) {
+function MarketingAuthButtons({
+  ctas,
+  overlay,
+}: {
+  ctas: Messages['common']['ctas']
+  overlay: boolean
+}) {
   const onDarkGhost = {
     bg: 'transparent',
     color: 'text.onInverted',
@@ -99,7 +119,7 @@ function MarketingAuthButtons({ overlay }: { overlay: boolean }) {
         px={2}
         {...(overlay ? onDarkGhost : null)}
       >
-        <NextLink href="/login">Log in</NextLink>
+        <NextLink href="/login">{ctas.logIn}</NextLink>
       </Button>
       <Button
         asChild
@@ -113,7 +133,7 @@ function MarketingAuthButtons({ overlay }: { overlay: boolean }) {
             }
           : null)}
       >
-        <NextLink href="/register">Get started</NextLink>
+        <NextLink href="/register">{ctas.getStarted}</NextLink>
       </Button>
     </HStack>
   )
@@ -124,11 +144,11 @@ function isNavActive(pathname: string | null, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-function IconMenu() {
+function IconMenu({ title }: { title: string }) {
   return (
     <Box as="span" display="flex" color="currentColor" aria-hidden>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <title>Menu</title>
+        <title>{title}</title>
         <path
           d="M4 7h16M4 12h16M4 17h16"
           stroke="currentColor"
@@ -140,7 +160,126 @@ function IconMenu() {
   )
 }
 
-function MarketingNavigation({ overlay }: { overlay: boolean }) {
+function LanguageSwitcher({
+  initialLocale,
+  messages,
+  overlay,
+}: {
+  initialLocale: AppLocale
+  messages: Messages['header']
+  overlay: boolean
+}) {
+  const router = useRouter()
+  const me = useUserStore((state) => state.me)
+  const patchMe = useUserStore((state) => state.patchMe)
+  const [pendingLocale, setPendingLocale] = useState<AppLocale | null>(null)
+  const [updateSettings] =
+    useMutation<UpdateMySettingsMutation>(UpdateMySettings)
+
+  const selectedLocale =
+    pendingLocale ??
+    graphqlLanguageToAppLocale(me?.settings?.language ?? initialLocale)
+
+  const persistLocale = useCallback(
+    async (nextLocale: AppLocale) => {
+      if (nextLocale === selectedLocale) return
+
+      setPendingLocale(nextLocale)
+      writeBrowserLocaleCookie(nextLocale)
+
+      if (me?.settings) {
+        const previousSettings = me.settings
+        const language = appLocaleToGraphqlLanguage(nextLocale)
+        patchMe({
+          settings: {
+            ...previousSettings,
+            language,
+          } as typeof previousSettings,
+        })
+
+        try {
+          const result = await updateSettings({
+            variables: { input: { language } },
+          })
+          const updated = result.data?.updateMySettings?.settings
+          if (updated) patchMe({ settings: updated })
+        } catch (error) {
+          captureApiError(error, {
+            flow: 'language_preference',
+            action: 'updateMySettings',
+            source: 'graphql',
+            url_or_operation: 'UpdateMySettings',
+            route: '/marketing',
+            report_global: false,
+          })
+          patchMe({ settings: previousSettings })
+        }
+      }
+
+      router.refresh()
+      setPendingLocale(null)
+    },
+    [me?.settings, patchMe, router, selectedLocale, updateSettings],
+  )
+
+  const buttonBase = {
+    minW: '42px',
+    h: '34px',
+    px: 2.5,
+    fontSize: 'xs',
+    fontWeight: 800,
+    borderRadius: 'full',
+  } as const
+
+  return (
+    <HStack
+      as="fieldset"
+      gap={1}
+      p={0.5}
+      borderWidth="1px"
+      borderColor={overlay ? 'border.glass' : 'border.default'}
+      borderRadius="full"
+      bg={overlay ? 'bg.glass' : 'bg.surface'}
+    >
+      <VisuallyHidden as="legend">{messages.languageLabel}</VisuallyHidden>
+      {(['en', 'zh-TW'] as const).map((locale) => {
+        const selected = selectedLocale === locale
+        return (
+          <Button
+            key={locale}
+            type="button"
+            variant={selected ? 'primary' : 'ghost'}
+            aria-pressed={selected}
+            disabled={pendingLocale !== null}
+            onClick={() => void persistLocale(locale)}
+            {...buttonBase}
+            {...(!selected && overlay
+              ? {
+                  color: 'text.onInverted',
+                  _hover: { bg: 'bg.glass', color: 'text.onInverted' },
+                  _active: { bg: 'bg.glass', color: 'text.onInverted' },
+                }
+              : null)}
+          >
+            {locale === 'en' ? messages.languages.en : messages.languages.zhTW}
+          </Button>
+        )
+      })}
+    </HStack>
+  )
+}
+
+function MarketingNavigation({
+  ctas,
+  initialLocale,
+  messages,
+  overlay,
+}: {
+  ctas: Messages['common']['ctas']
+  initialLocale: AppLocale
+  messages: Messages['header']
+  overlay: boolean
+}) {
   const pathname = usePathname()
   const [hasMounted, setHasMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -238,7 +377,7 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
                       : 'text.default'
                 }
               >
-                {link.label}
+                {messages.nav[link.key]}
               </Link>
             )
           })}
@@ -246,13 +385,18 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
       </HStack>
 
       <HStack gap={{ base: 2, md: 4 }} align="center" flexShrink={0}>
+        <LanguageSwitcher
+          initialLocale={initialLocale}
+          messages={messages}
+          overlay={overlay}
+        />
         <HeaderToolbarSeparator
           color={overlay ? 'border.glass' : 'border.default'}
         />
-        <MarketingAuthButtons overlay={overlay} />
+        <MarketingAuthButtons ctas={ctas} overlay={overlay} />
 
         <IconButton
-          aria-label="Open menu"
+          aria-label={messages.openMenu}
           variant="ghost"
           display={{ base: 'inline-flex', md: 'none' }}
           minW="44px"
@@ -261,14 +405,14 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
           _hover={overlay ? { bg: 'bg.glass' } : undefined}
           onClick={() => setMobileMenuOpen(true)}
         >
-          <IconMenu />
+          <IconMenu title={messages.menuIconTitle} />
         </IconButton>
       </HStack>
 
       <Drawer
         open={mobileMenuOpen}
         onOpenChange={setMobileMenuOpen}
-        title="Menu"
+        title={messages.menuTitle}
         placement="end"
         size="xs"
       >
@@ -285,7 +429,7 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
                 fontWeight={active ? 700 : 600}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {link.label}
+                {messages.nav[link.key]}
               </Link>
             )
           })}
@@ -302,14 +446,14 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
               {...drawerLinkProps}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Log in
+              {ctas.logIn}
             </Link>
             <Link
               href="/register"
               {...drawerLinkProps}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Get started
+              {ctas.getStarted}
             </Link>
           </Stack>
         </Stack>
@@ -318,7 +462,11 @@ function MarketingNavigation({ overlay }: { overlay: boolean }) {
   )
 }
 
-export type MarketingHeaderProps = Omit<BoxProps, 'children'>
+export type MarketingHeaderProps = Omit<BoxProps, 'children'> & {
+  initialLocale?: AppLocale
+  messages?: Messages['header']
+  ctas?: Messages['common']['ctas']
+}
 
 /**
  * Sticky marketing header. On the landing (`/`) it starts transparent over the
@@ -326,7 +474,12 @@ export type MarketingHeaderProps = Omit<BoxProps, 'children'>
  * surface once scrolled. Other marketing routes (and no-JS visitors — the
  * overlay only engages after hydration) always get the solid header.
  */
-export function MarketingHeader(props: MarketingHeaderProps) {
+export function MarketingHeader({
+  ctas = enMessages.common.ctas,
+  initialLocale = 'en',
+  messages = enMessages.header,
+  ...props
+}: MarketingHeaderProps) {
   const pathname = usePathname()
   const isLanding = pathname === MARKETING_HOME
   const [mounted, setMounted] = useState(false)
@@ -363,9 +516,14 @@ export function MarketingHeader(props: MarketingHeaderProps) {
       top={0}
       {...props}
     >
-      <SkipLink />
+      <SkipLink label={messages.skipToContent} />
       <Box w="full" minH={HEADER_MIN_HEIGHT} display="flex" alignItems="center">
-        <MarketingNavigation overlay={overlay} />
+        <MarketingNavigation
+          ctas={ctas}
+          initialLocale={initialLocale}
+          messages={messages}
+          overlay={overlay}
+        />
       </Box>
     </Box>
   )

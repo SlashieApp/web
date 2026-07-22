@@ -1,17 +1,16 @@
 import { Box, Container, Grid, HStack, Text } from '@chakra-ui/react'
 import { LuCheck } from 'react-icons/lu'
 
+import type { Messages } from '@/i18n/getDictionary'
+
 import { Reveal } from '../Reveal'
 
-const TRUST_POINTS = [
-  'Payment is arranged directly between customer and worker',
-  'Slashie never holds or releases job money',
-  'Verified worker profiles and honest reviews',
-  'A local marketplace — real people, real jobs nearby',
-] as const
-
 /** Calm reassurance band — surfaces the payment model plainly, never fee-heavy. */
-export function TrustSection() {
+export function TrustSection({
+  messages,
+}: {
+  messages: Messages['landing']['trust']
+}) {
   return (
     <Box as="section" bg="status.success.soft" py={{ base: 10, md: 12 }}>
       <Container maxW="6xl" px={{ base: 4, md: 6 }}>
@@ -23,7 +22,7 @@ export function TrustSection() {
           }}
           gap={5}
         >
-          {TRUST_POINTS.map((point, index) => (
+          {messages.points.map((point, index) => (
             <Reveal key={point} delayMs={index * 70}>
               <HStack gap={3} align="flex-start">
                 <Box
