@@ -27,13 +27,13 @@ const TARGET_PAGES = [
   'src/app/(dashboard)/quotes/page.tsx',
   'src/app/(dashboard)/requests/page.tsx',
   'src/app/(task)/search/page.tsx',
-  'src/app/(task)/tasks/create/page.tsx',
+  'src/app/(stepflow)/tasks/create/page.tsx',
   'src/app/(task)/tasks/page.tsx',
   'src/app/(task)/tasks/[slug]/edit/page.tsx',
   'src/app/(task)/tasks/[slug]/page.tsx',
-  'src/app/(task)/tasks/[slug]/quote/page.tsx',
+  'src/app/(stepflow)/tasks/[slug]/quote/page.tsx',
   'src/app/(worker)/worker/plan/page.tsx',
-  'src/app/(worker)/worker/setup/page.tsx',
+  'src/app/(stepflow)/worker/setup/page.tsx',
   'src/app/(worker)/workers/[slug]/page.tsx',
 ] as const
 

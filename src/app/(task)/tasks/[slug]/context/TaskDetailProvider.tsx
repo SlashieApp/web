@@ -30,6 +30,8 @@ import {
   hasUnlimitedQuoting,
   isQuoteLimitReached,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
@@ -39,8 +41,6 @@ import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
-import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
 import Me from '@/graphql/Me.gql'
 import {
   EVENTS,

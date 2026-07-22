@@ -10,8 +10,8 @@ import { DashboardSectionNav, Header } from '@/ui/Header'
 import { Button, Footer, Link } from '@ui'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
-import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { resolveAccountNavKey } from '@/utils/accountNav'

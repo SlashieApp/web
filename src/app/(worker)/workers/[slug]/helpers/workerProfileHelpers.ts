@@ -1,6 +1,6 @@
 import type { WorkerPublicProfileQuery } from '@codegen/schema'
 
-import { categoryLabelFromEnum } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
+import { categoryLabelFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 
 export type WorkerPublicRecord = NonNullable<WorkerPublicProfileQuery['worker']>
 

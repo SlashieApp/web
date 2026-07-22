@@ -8,7 +8,7 @@ import {
   TaskPaymentMethod,
 } from '@codegen/schema'
 
-import { taskCreateCategorySchema } from '../../helpers/taskCategories'
+import { taskCreateCategorySchema } from '@/app/(task)/helpers/taskCategories'
 
 export const createTaskFormSchema = z
   .object({

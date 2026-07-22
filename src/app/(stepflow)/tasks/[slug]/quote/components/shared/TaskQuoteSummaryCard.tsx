@@ -4,11 +4,11 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
-import { useTaskDetail } from '../../../context/TaskDetailProvider'
+import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
   budgetKindLabel,
   taskAvailabilityRangeLabel,
-} from '../../../helpers/taskDetailUtils'
+} from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 
 export function TaskQuoteSummaryCard() {
   const { task } = useTaskDetail()

@@ -13,7 +13,7 @@ import {
   type CreateTaskFormValues,
   buildDatetimePayload,
   toYmd,
-} from '../tasks/create/createTaskFormSchema'
+} from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
 import { taskCreateCategorySchema } from './taskCategories'
 
 export type EditableTask = NonNullable<TaskForEditQuery['task']>

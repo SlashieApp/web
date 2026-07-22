@@ -4,7 +4,7 @@ import {
   WORKER_SETUP_FLAT_STEPS,
   type WorkerSetupSubStepId,
   subStepConfig,
-} from '@/app/(worker)/worker/setup/helpers/workerSetupSteps.config'
+} from '@/app/(stepflow)/worker/setup/helpers/workerSetupSteps.config'
 
 export function isWorkerSetupInProgress(
   me: MeSnapshot | null | undefined,

@@ -14,7 +14,7 @@ import {
 import { QuoteStatus } from '@codegen/schema'
 import { LuCheck, LuLock, LuMessagesSquare, LuX } from 'react-icons/lu'
 
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'

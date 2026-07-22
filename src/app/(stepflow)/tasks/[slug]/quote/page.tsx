@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 
 import { Box } from '@chakra-ui/react'
 
+import { TaskNotFoundCard } from '@/app/(task)/tasks/[slug]/components/TaskNotFoundCard'
+import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import { getTaskForTaskDetailPage } from '@/app/(task)/tasks/[slug]/helpers/getTaskForTaskDetailPage'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
-import { TaskNotFoundCard } from '../components/TaskNotFoundCard'
-import { TaskDetailProvider } from '../context/TaskDetailProvider'
-import { getTaskForTaskDetailPage } from '../helpers/getTaskForTaskDetailPage'
 import { TaskQuoteFlow } from './components/TaskQuoteFlow'
 import bag from './i11n.json'
 

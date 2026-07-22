@@ -12,11 +12,11 @@ import {
   WorkerSetupPortfolioInput,
   WorkerSetupQualificationsInput,
   WorkerSetupSkillsInput,
-} from '@/app/(worker)/worker/setup/components'
-import { categoryBySlug } from '@/app/(worker)/worker/setup/helpers/workerSetupCategories'
-import { isWorkerSetupComplete } from '@/app/(worker)/worker/setup/helpers/workerSetupEligibility'
-import { workerSetupHref } from '@/app/(worker)/worker/setup/helpers/workerSetupHref'
-import { HEADLINE_MAX_CHARS } from '@/app/(worker)/worker/setup/helpers/workerSetupValidation'
+} from '@/app/(stepflow)/worker/setup/components'
+import { categoryBySlug } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
+import { HEADLINE_MAX_CHARS } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
 import { apolloClient } from '@/utils/apolloClient'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'

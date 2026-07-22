@@ -2,7 +2,7 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
-import { useTaskDetail } from '../../../context/TaskDetailProvider'
+import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 
 type TaskQuoteReviewStepProps = {
   photoUrls: string[]
