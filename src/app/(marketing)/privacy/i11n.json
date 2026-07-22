@@ -107,82 +107,82 @@
       {
         "heading": "1. 我們收集的資料",
         "body": [
-          "Account data: name, email address, phone number, and password (stored hashed). If you sign in with Google we receive your name, email, and profile picture from Google.",
-          "Profile data: photo, bio, skills, service area, and any verification information you complete.",
-          "Marketplace data: tasks you post (descriptions, photos, budget, timing, and location), quotes you send, orders, messages, and reviews.",
-          "Location data: the location you give a task, and an approximate location from your browser or device when you allow it (used to show nearby tasks on the map).",
-          "Billing data: for worker subscriptions, Stripe processes your payment and we hold billing metadata such as your Stripe customer id, plan, and subscription status. We never see or store full card details.",
-          "Usage data: with your consent, analytics about how you use the product (pages visited, device and browser type, interactions). We do not send your email address to our analytics tool."
+          "帳戶資料：姓名、電郵地址、電話號碼和密碼（以雜湊方式儲存）。如你使用 Google 登入，我們會從 Google 接收你的姓名、電郵和個人頭像。",
+          "個人檔案資料：相片、簡介、技能、服務範圍，以及你完成的任何驗證資料。",
+          "市場資料：你發布的任務（描述、相片、預算、時間和地點）、你發送的報價、訂單、訊息和評價。",
+          "位置資料：你為任務提供的位置，以及你允許時由瀏覽器或裝置提供的大約位置（用於在地圖上顯示附近任務）。",
+          "帳單資料：工作者訂閱由 Stripe 處理付款，我們保存 Stripe 客戶 ID、方案和訂閱狀態等帳單中繼資料。我們不會查看或儲存完整卡資料。",
+          "使用資料：在你同意下，收集你如何使用產品的分析資料（瀏覽頁面、裝置和瀏覽器類型、互動）。我們不會把你的電郵地址傳送到分析工具。"
         ]
       },
       {
         "heading": "2. 我們使用資料的原因（法律基礎）",
         "body": [
-          "To run the marketplace, that is to show tasks on the map, match workers to nearby work, deliver quotes, messages, and notifications, and bill worker subscriptions. Lawful basis: performance of our contract with you.",
-          "To keep the Service safe, prevent fraud, spam, and abuse, enforce our Terms, and improve the product. Lawful basis: our legitimate interests in operating a safe, working service.",
-          "To measure product usage through analytics cookies. Lawful basis: your consent, which you can decline or withdraw at any time.",
-          "To meet legal obligations, such as tax and accounting rules for subscription billing, or responding to lawful requests. Lawful basis: legal obligation."
+          "營運市場，包括在地圖上顯示任務、把工作者配對至附近工作、傳送報價、訊息和通知，以及為工作者訂閱收費。法律基礎：履行我們與你的合約。",
+          "保障服務安全、防止欺詐、垃圾訊息和濫用、執行條款並改善產品。法律基礎：我們營運安全可用服務的合法利益。",
+          "透過分析 cookie 衡量產品使用情況。法律基礎：你的同意；你可隨時拒絕或撤回。",
+          "履行法律責任，例如訂閱帳單的稅務和會計規則，或回應合法要求。法律基礎：法律義務。"
         ]
       },
       {
-        "heading": "3. What other users see",
+        "heading": "3. 其他用戶會看到什麼",
         "body": [
-          "Tasks are public listings: title, description, budget, photos, and an approximate location are visible to workers browsing the map. Your exact address and direct contact details are shared only with the worker whose quote you accept (and, for workers, with the customer who accepts your quote). Worker profiles, verification status, and reviews are public."
+          "任務是公開列表：標題、描述、預算、相片和大約位置會讓瀏覽地圖的工作者看到。你的確切地址和直接聯絡資料只會分享給你接受其報價的工作者（對工作者而言，則分享給接受報價的客戶）。工作者個人檔案、驗證狀態和評價是公開的。"
         ]
       },
       {
-        "heading": "4. Job payments",
+        "heading": "4. 任務付款",
         "body": [
-          "Payment for jobs is arranged directly between customer and worker, outside Slashie. We do not process, record, or hold job payments or job payment card details. The only payments we process are worker subscriptions, via Stripe."
+          "任務付款由客戶和工作者在 Slashie 之外直接安排。我們不處理、記錄或保管任務付款或任務付款卡資料。我們處理的唯一付款是透過 Stripe 的工作者訂閱。"
         ]
       },
       {
-        "heading": "5. Who we share data with",
+        "heading": "5. 我們與誰分享資料",
         "body": [
-          "We share data with service providers who help us run Slashie, under contract and only on our instructions: Stripe (subscription billing), Resend (email delivery), Twilio (SMS and phone verification), PostHog (product analytics, only if you consent), MongoDB Atlas (database hosting), Vercel and Render (application hosting), our content delivery network (serving the site and images), and Mapbox (maps and geocoding).",
-          "We do not sell your personal data. We may disclose data if the law requires it, or as part of a company sale or restructuring (in which case this policy continues to apply)."
+          "我們會與協助營運 Slashie 的服務供應商分享資料，並只按合約和我們的指示處理：Stripe（訂閱帳單）、Resend（電郵傳送）、Twilio（SMS 和電話驗證）、PostHog（產品分析，只在你同意時）、MongoDB Atlas（資料庫託管）、Vercel 和 Render（應用託管）、內容傳遞網絡（提供網站和圖片）以及 Mapbox（地圖和地理編碼）。",
+          "我們不會出售你的個人資料。如法律要求，或公司出售或重組時，我們可能披露資料（在該情況下，本政策仍然適用）。"
         ]
       },
       {
-        "heading": "6. International transfers",
+        "heading": "6. 國際傳輸",
         "body": [
-          "We aim to keep personal data in the UK and EEA. Where a provider processes data outside those regions, we rely on UK adequacy regulations or appropriate safeguards such as the UK International Data Transfer Agreement or Standard Contractual Clauses with the UK addendum."
+          "我們致力把個人資料保存在英國和歐洲經濟區。如供應商在該等地區以外處理資料，我們會依賴英國充分性規例或適當保障，例如英國國際資料傳輸協議，或附英國增補條款的標準合約條款。"
         ]
       },
       {
-        "heading": "7. How long we keep it",
+        "heading": "7. 我們保存資料多久",
         "body": [
-          "Account data is kept while your account is active. Completed task and order records are retained so both parties keep a history of the work. When you close your account we delete or anonymise your personal data, unless we must keep some of it for legal, billing, or safety reasons (for example subscription invoices, or records connected to a safety report)."
+          "帳戶資料會在帳戶有效期間保存。已完成的任務和訂單記錄會保留，讓雙方保有工作歷史。當你關閉帳戶時，我們會刪除或匿名化你的個人資料，除非出於法律、帳單或安全原因必須保留部分資料（例如訂閱發票或與安全報告相關的記錄）。"
         ]
       },
       {
-        "heading": "8. Your rights",
+        "heading": "8. 你的權利",
         "body": [
-          "Under UK GDPR you can ask us for access to, correction of, or deletion of your personal data, object to or restrict processing, take your data with you (portability), and withdraw consent where processing is based on consent (such as analytics). Email admin@slashie.app and we will respond within the statutory timescale. You can also complain to the Information Commissioner's Office (ico.org.uk)."
+          "根據 UK GDPR，你可要求查閱、更正或刪除個人資料，反對或限制處理，取回資料（可攜權），並在處理基於同意時撤回同意（例如分析）。請電郵 admin@slashie.app，我們會在法定期限內回覆。你也可向 Information Commissioner's Office（ico.org.uk）投訴。"
         ]
       },
       {
-        "heading": "9. Cookies and analytics",
+        "heading": "9. Cookie 和分析",
         "body": [
-          "We use essential cookies to keep you signed in and to remember your cookie choice. Analytics cookies (PostHog) are set only if you accept them in the cookie banner; if you decline, the product works exactly the same without analytics. See the Cookie Policy at slashie.app/cookies for the full list."
+          "我們使用必要 cookie 保持登入並記住你的 cookie 選擇。分析 cookie（PostHog）只會在你於 cookie 橫幅接受後設定；如你拒絕，產品仍會一樣運作。完整列表請見 slashie.app/cookies 的 Cookie 政策。"
         ]
       },
       {
-        "heading": "10. Under-18s",
+        "heading": "10. 未滿 18 歲人士",
         "body": [
-          "Slashie is for adults only. We do not knowingly collect personal data from anyone under 18, and we remove accounts that we discover belong to under-18s. If you believe an under-18 is using Slashie, please contact us."
+          "Slashie 只供成年人使用。我們不會明知而收集 18 歲以下人士的個人資料，並會移除我們發現屬於未滿 18 歲人士的帳戶。如你認為有未滿 18 歲人士使用 Slashie，請聯絡我們。"
         ]
       },
       {
-        "heading": "11. Changes to this policy",
+        "heading": "11. 本政策變更",
         "body": [
-          "We will update this policy as the product evolves and will announce material changes in the app or by email. The date at the top shows when it last changed."
+          "我們會隨產品發展更新本政策，並會在 app 或透過電郵公布重大變更。頁首日期顯示最近更改時間。"
         ]
       },
       {
         "heading": "12. 聯絡",
         "body": [
-          "Privacy questions or requests: admin@slashie.app, or write to Slashie Ltd, 66 Paul Street, London, EC2A 4NA."
+          "私隱問題或要求：admin@slashie.app，或郵寄至 Slashie Ltd, 66 Paul Street, London, EC2A 4NA。"
         ]
       }
     ],

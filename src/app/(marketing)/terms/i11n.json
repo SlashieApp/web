@@ -131,106 +131,106 @@
       {
         "heading": "1. Slashie 是什麼（以及不是什麼）",
         "body": [
-          "Slashie is a map-first local task marketplace. Customers post tasks, nearby workers send quotes, and the customer chooses who to hire. Slashie provides listing, discovery, quoting, messaging, and reputation tools only.",
-          "Slashie is not an employer, employment agency, recruitment business, contractor, subcontractor, agent, insurer, escrow service, broker, or guarantor of any user, task, quote, or job. We do not supply workers, we do not supervise or control any work, and we are not a party to any agreement between a customer and a worker."
+          "Slashie 是地圖優先的本地任務市場。客戶發布任務，附近工作者發送報價，客戶選擇聘用誰。Slashie 只提供列表、探索、報價、訊息和信譽工具。",
+          "Slashie 不是任何用戶、任務、報價或工作的僱主、職業介紹所、招聘業務、承包商、分包商、代理、保險人、託管服務、經紀或擔保人。我們不供應工作者，不監督或控制任何工作，也不是客戶與工作者之間任何協議的一方。"
         ]
       },
       {
         "heading": "2. 誰可以使用 Slashie",
         "body": [
-          "You must be at least 18 years old to use the Service. Slashie is not available to anyone under 18, and we terminate accounts that we discover belong to under-18s.",
-          "You must provide accurate account information, keep your credentials secure, and you are responsible for all activity on your account. We may decline, suspend, or remove accounts to protect the Service and its users."
+          "你必須年滿 18 歲才可使用服務。Slashie 不向 18 歲以下人士提供服務，我們會終止發現屬於未滿 18 歲人士的帳戶。",
+          "你必須提供準確帳戶資料、妥善保管憑證，並對帳戶上的所有活動負責。為保護服務和用戶，我們可拒絕、暫停或移除帳戶。"
         ]
       },
       {
-        "heading": "3. Every job is between users, not with Slashie",
+        "heading": "3. 每項工作都在用戶之間，而非與 Slashie 之間",
         "body": [
-          "Every task, quote, acceptance, order, message, meeting, home visit, piece of work, and payment is a direct arrangement between the customer and the worker. When a customer accepts a quote, the resulting contract for the work is formed solely between that customer and that worker. Slashie is not a party to it, does not perform it, and does not guarantee it.",
-          "We have no obligation to mediate, arbitrate, or resolve disputes between users, although we may (at our discretion) provide reporting tools and act on reports to protect the community."
+          "每個任務、報價、接受、訂單、訊息、會面、入屋、工作內容和付款，都是客戶和工作者之間的直接安排。當客戶接受報價時，工作合約只在該客戶和該工作者之間成立。Slashie 不是合約一方，不履行該合約，也不作保證。",
+          "我們沒有義務調解、仲裁或解決用戶之間的爭議，但我們可酌情提供舉報工具，並按舉報採取行動以保護社群。"
         ]
       },
       {
-        "heading": "4. Payments",
+        "heading": "4. 付款",
         "body": [
-          "Payment for jobs is arranged directly between the customer and the worker, outside the Service. Slashie does not collect, hold, process, release, refund, insure, or arbitrate job payments, takes no commission on jobs, and has no visibility of or responsibility for what users agree or pay each other.",
-          "Workers may subscribe to paid plans for quoting. Subscription fees are the only payments Slashie bills, are processed by Stripe, are separate from job payments, and are subject to the pricing shown at the time of purchase. You can cancel at any time and keep access until the end of the paid period."
+          "任務付款由客戶和工作者在服務之外直接安排。Slashie 不收取、保管、處理、發放、退款、投保或仲裁任務付款，不對任務收佣，也無法得知或負責用戶彼此同意或支付的內容。",
+          "工作者可為報價訂閱付費方案。訂閱費是 Slashie 收取的唯一付款，由 Stripe 處理，與任務付款分開，並受購買時顯示的收費約束。你可隨時取消，並保留使用權至已付款期間結束。"
         ]
       },
       {
-        "heading": "5. Worker responsibilities",
+        "heading": "5. 工作者責任",
         "body": [
-          "If you offer or perform work found through Slashie, you are solely responsible for: complying with all laws that apply to you and the work; holding the right to work in the UK where required; holding any licences, certifications, qualifications, or registrations the work requires; holding appropriate insurance for the work you offer (for example public liability insurance); the accuracy of your profile, skills, and quotes; carrying out work safely, lawfully, and with reasonable skill and care; and your own tax, National Insurance, and business obligations.",
-          "Slashie does not verify that any worker meets these responsibilities. A Slashie account, subscription, or verification badge is not confirmation of qualifications, insurance, right to work, or competence."
+          "如果你透過 Slashie 提供或執行工作，你須自行負責遵守適用法律、持有所需權利、牌照、資格和保險、確保個人檔案和報價準確、安全合法地執行工作，以及處理自己的稅務和業務責任。",
+          "Slashie 不會核實任何工作者是否符合這些責任。Slashie 帳戶、訂閱或驗證徽章並不確認資格、保險、工作權或能力。"
         ]
       },
       {
-        "heading": "6. Customer responsibilities",
+        "heading": "6. 客戶責任",
         "body": [
-          "If you post tasks, you are solely responsible for: describing the task accurately (including location, access, hazards, budget, and timing); ensuring the premises and the requested work are lawful and safe to access; assessing whether a worker is suitable, qualified, and insured for your task; and agreeing scope, price, and payment directly with the worker and paying them as agreed.",
-          "You choose who to hire at your own risk. Slashie does not recommend, endorse, or vouch for any worker."
+          "如果你發布任務，你須自行負責準確描述任務、確保場地和要求的工作合法且可安全進入、評估工作者是否適合，並直接與工作者同意範圍、價格和付款。",
+          "你自行承擔選擇聘用誰的風險。Slashie 不推薦、背書或擔保任何工作者。"
         ]
       },
       {
-        "heading": "7. Safety and offline interactions",
+        "heading": "7. 安全和線下互動",
         "body": [
-          "Using Slashie can lead to real-world interactions: meeting strangers, entering homes, and performing or receiving physical work. You do so entirely at your own risk. Slashie does not vet, interview, background-check, supervise, or monitor users or jobs, and does not guarantee the identity, honesty, safety, or conduct of any user, online or offline.",
-          "Reviews, ratings, and verification badges are informational signals contributed by users or produced by limited automated checks. They are not warranties, endorsements, or guarantees, and you must do your own due diligence before meeting or hiring anyone."
+          "使用 Slashie 可能引致真實世界互動：與陌生人會面、進入住宅，以及執行或接受實體工作。你完全自行承擔風險。Slashie 不審查、面試、背景調查、監督或監察用戶或工作，也不保證任何用戶在線上或線下的身份、誠實、安全或行為。",
+          "評價、評分和驗證徽章是資訊信號，不是保證、背書或擔保；在會面或聘用任何人前，你必須自行盡職審查。"
         ]
       },
       {
-        "heading": "8. Content and acceptable use",
+        "heading": "8. 內容和可接受使用",
         "body": [
-          "You keep ownership of content you post (tasks, quotes, profiles, messages, photos, reviews) and grant Slashie a non-exclusive, worldwide, royalty-free licence to host, display, and distribute it for the purpose of operating and promoting the Service.",
-          "You agree not to: post unlawful, misleading, discriminatory, or abusive content; post tasks you do not genuinely intend to have done, or quote work you cannot carry out; request or offer illegal work, or work you are not legally allowed to perform; harass, threaten, defraud, or endanger other users; post fake or incentivised reviews; circumvent the Service to avoid its rules; scrape, copy, or misuse the Service or its data; or interfere with the security or operation of the Service."
+          "你保留你發布內容（任務、報價、個人檔案、訊息、相片、評價）的擁有權，並授予 Slashie 非獨家、全球、免版稅授權，用於託管、顯示和分發內容，以營運和推廣服務。",
+          "你同意不會發布非法、誤導、歧視或辱罵內容；發布虛假任務或評價；要求或提供非法工作；騷擾、威脅、欺詐或危害其他用戶；規避服務規則；抓取、複製或濫用服務或其資料；或干擾服務安全或運作。"
         ]
       },
       {
-        "heading": "9. Reporting, suspension, and termination",
+        "heading": "9. 舉報、暫停和終止",
         "body": [
-          "You can report content or behaviour that breaks these Terms from within the Service or by contacting us. We may remove content, restrict features, or suspend or terminate accounts that breach these Terms, put users at risk, or expose Slashie to legal risk. You can close your account at any time."
+          "你可在服務內或透過聯絡我們舉報違反本條款的內容或行為。我們可移除內容、限制功能，或暫停或終止違反本條款、令用戶受風險影響或令 Slashie 承受法律風險的帳戶。你可隨時關閉帳戶。"
         ]
       },
       {
-        "heading": "10. The Service is provided \"as is\"",
+        "heading": "10. 服務按「現狀」提供",
         "body": [
-          "The Service is provided \"as is\" and \"as available\". To the fullest extent permitted by law, we make no warranties or representations about the Service, including its availability, reliability, or freedom from errors; the accuracy or completeness of any listing, profile, quote, review, or badge; or the suitability, quality, safety, legality, or outcome of any user, task, or job."
+          "服務按「現狀」和「可用狀態」提供。在法律允許的最大範圍內，我們不就服務、列表、個人檔案、報價、評價、徽章、用戶、任務或工作作任何保證或陳述。"
         ]
       },
       {
-        "heading": "11. No responsibility for user conduct",
+        "heading": "11. 不對用戶行為負責",
         "body": [
-          "To the fullest extent permitted by law, Slashie is not liable for the acts or omissions of any user, online or offline. This includes (without limitation) injury, death, property damage, loss, theft, fraud, misrepresentation, harassment, distress, defective or incomplete work, missed appointments, payment disputes, and negligence claims between users, whether arising from a task posted on Slashie, a quote, a meeting, a home visit, or any other interaction that began on the Service."
+          "在法律允許的最大範圍內，Slashie 不對任何用戶在線上或線下的作為或不作為負責，包括傷害、死亡、財產損害、損失、盜竊、欺詐、失實陳述、騷擾、困擾、有缺陷或未完成的工作、失約、付款爭議，以及用戶之間的疏忽索償。"
         ]
       },
       {
-        "heading": "12. Limitation of liability",
+        "heading": "12. 責任限制",
         "body": [
-          "To the fullest extent permitted by law: (a) Slashie is not liable for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for loss of profits, revenue, business, opportunity, goodwill, or data; and (b) our total aggregate liability to you for all claims arising out of or relating to the Service is limited to the greater of £100 or the amounts you paid to Slashie in the 12 months before the event giving rise to the claim.",
-          "Nothing in these Terms excludes or limits any liability that cannot be excluded or limited under the law of England and Wales, including liability for death or personal injury caused by our own negligence, for fraud or fraudulent misrepresentation, or for your statutory rights as a consumer that cannot lawfully be excluded."
+          "在法律允許的最大範圍內，Slashie 不對間接或後果性損害，或利潤、收入、業務、機會、商譽或資料損失負責；我們的總責任以 £100 或你在索償前 12 個月向 Slashie 支付的金額中較高者為限。",
+          "本條款不排除或限制任何根據英格蘭及威爾斯法律不可排除或限制的責任，包括我們自身疏忽造成死亡或人身傷害的責任、欺詐或欺詐性失實陳述，以及消費者不可合法排除的法定權利。"
         ]
       },
       {
-        "heading": "13. Indemnity",
+        "heading": "13. 彌償",
         "body": [
-          "You agree to indemnify and hold Slashie, its directors, and its employees harmless from any claims, liabilities, damages, losses, and reasonable expenses (including legal fees) arising out of or connected with: your content; your tasks, quotes, or work; your interactions with other users; your breach of these Terms; or your breach of any law or the rights of any third party."
+          "你同意就因你的內容、任務、報價、工作、用戶互動、違反本條款、違反法律或第三方權利而引起的索償、責任、損害、損失和合理開支，向 Slashie、其董事和僱員作出彌償並使其免受損害。"
         ]
       },
       {
-        "heading": "14. Changes to the Service and these Terms",
+        "heading": "14. 服務和本條款變更",
         "body": [
-          "We are improving the Service continuously and may change or withdraw features. We may also update these Terms; if a change is material we will give reasonable notice in the app or by email. Continued use of the Service after a change takes effect means you accept the updated Terms."
+          "我們會持續改善服務，並可能變更或撤回功能。我們也可能更新本條款；如變更屬重大，我們會在 app 或透過電郵給予合理通知。變更生效後繼續使用服務，即表示你接受更新後的條款。"
         ]
       },
       {
-        "heading": "15. Governing law",
+        "heading": "15. 管轄法律",
         "body": [
-          "These Terms, and any dispute or claim arising out of them or the Service, are governed by the law of England and Wales, and the courts of England and Wales have jurisdiction. If you are a consumer, you keep the benefit of any mandatory protections of the law of the country you live in."
+          "本條款，以及因本條款或服務引起或相關的任何爭議或索償，受英格蘭及威爾斯法律管轄，英格蘭及威爾斯法院擁有管轄權。如你是消費者，你仍保留你居住國家法律的任何強制性保護。"
         ]
       },
       {
         "heading": "16. 聯絡",
         "body": [
-          "Questions about these Terms: admin@slashie.app. You can also write to Slashie Ltd, 66 Paul Street, London, EC2A 4NA."
+          "本條款相關問題：admin@slashie.app。你也可郵寄至 Slashie Ltd, 66 Paul Street, London, EC2A 4NA。"
         ]
       }
     ],
