@@ -3,7 +3,10 @@
  *
  * Routes here are URL-unprefixed because `(dashboard)` is a Next route group,
  * not a URL segment. Overview owns `/dashboard`; everything else is a sibling.
+ * Locale slugs (`/en`, `/zh-hk`) are stripped before matching.
  */
+
+import { stripLocalePrefix } from '@/i18n/navigation'
 
 export type AccountNavKey =
   | 'overview'
@@ -72,7 +75,7 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
 ] as const
 
 export function resolveAccountNavKey(pathname: string | null): AccountNavKey {
-  const path = pathname ?? ''
+  const path = stripLocalePrefix(pathname ?? '')
   if (path.startsWith('/requests')) return 'requests'
   if (path.startsWith('/quotes')) return 'quotes'
   if (path.startsWith('/earnings')) return 'earnings'

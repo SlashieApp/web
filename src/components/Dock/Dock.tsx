@@ -3,6 +3,8 @@
 import { Box, HStack, Stack } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { stripLocalePrefix } from '@/i18n/navigation'
 import { APP_HOME, GET_APP_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 
 import { IconButton } from '@ui'
@@ -123,6 +125,7 @@ function GetAppPhoneIcon() {
 }
 
 export function Dock() {
+  const href = useLocalizedHref()
   const [hasMounted, setHasMounted] = useState(false)
   const [currentPathname, setCurrentPathname] = useState<string | null>(null)
   const [currentSearch, setCurrentSearch] = useState('')
@@ -168,21 +171,22 @@ export function Dock() {
   )
 
   const isHrefActive = useCallback(
-    (href: string): boolean => {
+    (itemHref: string): boolean => {
       if (!currentPathname) return false
+      const bare = stripLocalePrefix(currentPathname)
       // /search hosts two dock items split by mode: Discovery (tasks, the
       // default) and Workers (?mode=workers).
       const isWorkerMode = currentSearch.includes('mode=workers')
-      if (href === WORKER_SEARCH_HREF) {
-        return currentPathname === APP_HOME && isWorkerMode
+      if (itemHref === WORKER_SEARCH_HREF) {
+        return bare === APP_HOME && isWorkerMode
       }
-      if (href === APP_HOME) {
+      if (itemHref === APP_HOME) {
         return (
-          (currentPathname === APP_HOME && !isWorkerMode) ||
-          currentPathname.startsWith(`${APP_HOME}/`)
+          (bare === APP_HOME && !isWorkerMode) ||
+          bare.startsWith(`${APP_HOME}/`)
         )
       }
-      return currentPathname === href || currentPathname.startsWith(`${href}/`)
+      return bare === itemHref || bare.startsWith(`${itemHref}/`)
     },
     [currentPathname, currentSearch],
   )
@@ -233,7 +237,7 @@ export function Dock() {
               justifyContent="center"
             >
               <IconButton
-                href={item.href}
+                href={href(item.href)}
                 icon={item.icon}
                 caption={item.caption}
                 active={isHrefActive(item.href)}

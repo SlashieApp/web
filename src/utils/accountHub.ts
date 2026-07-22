@@ -1,3 +1,5 @@
+import { stripLocalePrefix } from '@/i18n/navigation'
+
 /** URL prefixes for the signed-in account hub (dashboard route group). */
 const ACCOUNT_HUB_PREFIXES = [
   '/dashboard',
@@ -10,7 +12,7 @@ const ACCOUNT_HUB_PREFIXES = [
 ] as const
 
 export function isAccountHubPath(pathname: string | null | undefined): boolean {
-  const path = pathname ?? ''
+  const path = stripLocalePrefix(pathname ?? '')
   return ACCOUNT_HUB_PREFIXES.some(
     (prefix) => path === prefix || path.startsWith(`${prefix}/`),
   )
