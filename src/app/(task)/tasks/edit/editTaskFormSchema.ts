@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { createTaskFormSchema } from '../create/createTaskFormSchema'
+import { createTaskFormSchema } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
 
 export const editTaskFormSchema = createTaskFormSchema.extend({
   acceptedWorkerCap: z.coerce
