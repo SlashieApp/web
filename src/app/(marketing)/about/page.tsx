@@ -1,4 +1,4 @@
-import { Box, Container, Heading, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Container, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
