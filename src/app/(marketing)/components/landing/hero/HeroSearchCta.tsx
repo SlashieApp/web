@@ -1,9 +1,11 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, HStack, chakra } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { type FormEvent, useState } from 'react'
 import { LuArrowRight, LuSearch } from 'react-icons/lu'
+
+const HeroSearchForm = chakra('form')
 
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { getAuthToken } from '@/utils/auth'
@@ -42,14 +44,7 @@ export function HeroSearchCta({
   }
 
   return (
-    <Box
-      as="form"
-      onSubmit={onSubmit}
-      w="full"
-      maxW="34rem"
-      role="search"
-      aria-label={ariaLabel}
-    >
+    <HeroSearchForm onSubmit={onSubmit} w="full" maxW="34rem">
       <HStack
         gap={2}
         align="stretch"
@@ -90,7 +85,9 @@ export function HeroSearchCta({
           color="text.onInverted"
           _placeholder={{ color: 'text.onInvertedMuted' }}
           css={{
-            '&::placeholder': { color: 'var(--chakra-colors-text-on-inverted-muted)' },
+            '&::placeholder': {
+              color: 'var(--chakra-colors-text-on-inverted-muted)',
+            },
           }}
         />
         <Button
@@ -109,6 +106,6 @@ export function HeroSearchCta({
           <LuArrowRight size={18} aria-hidden />
         </Button>
       </HStack>
-    </Box>
+    </HeroSearchForm>
   )
 }

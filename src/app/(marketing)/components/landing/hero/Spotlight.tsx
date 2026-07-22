@@ -13,10 +13,7 @@ type SpotlightProps = {
  * ReactBits / Aceternity-style spotlight: a soft elliptical cone that drifts
  * over the dark hero surface. Decorative only — pointer-events none.
  */
-export function Spotlight({
-  fill = 'white',
-  rootProps,
-}: SpotlightProps) {
+export function Spotlight({ fill = 'white', rootProps }: SpotlightProps) {
   return (
     <Box
       position="absolute"
