@@ -5,18 +5,19 @@ import type { ReactNode } from 'react'
 import { Box } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 
+import { Dock } from '@/ui/Dock'
 import { Header } from '@/ui/Header'
 import { isStepFlowStandaloneRoute } from '@/utils/stepFlowRoutes'
 
-type WorkerRouteChromeProps = {
+type TaskRouteChromeProps = {
   children: ReactNode
 }
 
 /**
- * Worker routes use Header chrome, except StepFlow standalone onboarding
- * (`/worker/setup`) which owns chrome via StepFlowLayout.
+ * Discovery/task shell with Header + Dock, except StepFlow routes
+ * (`/tasks/create`, `/tasks/[slug]/quote`) which own chrome via StepFlowLayout.
  */
-export function WorkerRouteChrome({ children }: WorkerRouteChromeProps) {
+export function TaskRouteChrome({ children }: TaskRouteChromeProps) {
   const pathname = usePathname()
 
   if (isStepFlowStandaloneRoute(pathname)) {
@@ -43,6 +44,7 @@ export function WorkerRouteChrome({ children }: WorkerRouteChromeProps) {
           minW={0}
           minH={0}
           overflowY="auto"
+          position="relative"
           order={{ base: 1, md: 2 }}
         >
           {children}
@@ -51,7 +53,9 @@ export function WorkerRouteChrome({ children }: WorkerRouteChromeProps) {
           flexShrink={0}
           order={{ base: 2, md: 1 }}
           w={{ base: 'full', md: 'auto' }}
-        />
+        >
+          <Dock />
+        </Box>
       </Box>
     </Box>
   )
