@@ -5,8 +5,10 @@ import { useCallback, useRef, useState } from 'react'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
+import { usePageI11n } from '@/i18n/usePageI11n'
 
 import { getProfileLifecycle } from '../helpers/profileLifecycle'
+import bag from '../i11n.json'
 import { ProfileEditDrawer, type ProfileEditSection } from './ProfileEditDrawer'
 import { ProfileIdentityHero } from './ProfileIdentityHero'
 import {
@@ -21,14 +23,6 @@ import {
   ProfileStrengthCard,
 } from './ProfileSidebarCards'
 
-const SECTION_LINKS = [
-  { label: 'Overview', href: '#overview' },
-  { label: 'Personal info', href: '#personal-info' },
-  { label: 'Contact & verification', href: '#contact-verification' },
-  { label: 'Worker profile', href: '#worker-profile' },
-  { label: 'Preferences', href: '#preferences' },
-] as const
-
 export function ProfileHub({
   me,
   initialEditSection = null,
@@ -36,6 +30,7 @@ export function ProfileHub({
   me: MeSnapshot
   initialEditSection?: ProfileEditSection
 }) {
+  const t = usePageI11n(bag)
   const lifecycle = getProfileLifecycle(me)
   const [editSection, setEditSection] =
     useState<ProfileEditSection>(initialEditSection)
@@ -67,14 +62,21 @@ export function ProfileHub({
       })
     })
   }, [])
+  const sectionLinks = [
+    { label: t.navOverview, href: '#overview' },
+    { label: t.navPersonalInfo, href: '#personal-info' },
+    { label: t.navContactVerification, href: '#contact-verification' },
+    { label: t.navWorkerProfile, href: '#worker-profile' },
+    { label: t.navPreferences, href: '#preferences' },
+  ] as const
 
   return (
     <>
       <DashboardPageLayout
         rootRef={onHubRef}
-        eyebrow="PROFILE"
-        title="Profile & professional presence"
-        description="Manage your private account details and build trust with customers."
+        eyebrow={t.eyebrow}
+        title={t.title}
+        description={t.description}
         afterHeader={
           <Stack gap={4}>
             <Box display={{ base: 'block', lg: 'none' }}>
@@ -94,7 +96,7 @@ export function ProfileHub({
             />
           </Stack>
         }
-        sections={SECTION_LINKS}
+        sections={sectionLinks}
         sidebar={
           <>
             <Box display={{ base: 'none', lg: 'block' }}>

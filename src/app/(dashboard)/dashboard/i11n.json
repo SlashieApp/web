@@ -1,0 +1,32 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Dashboard | Slashie",
+      "description": "Review your Slashie worker jobs, quotes, membership, activity, and upcoming tasks."
+    },
+    "eyebrow": "Worker dashboard",
+    "title": "Your worker cockpit",
+    "description": "Track active jobs, quotes, earnings, and next actions from one focused view.",
+    "browseTasks": "Browse tasks",
+    "postTask": "Post task",
+    "retry": "Retry",
+    "emptyTitle": "No active work yet",
+    "emptyDescription": "Browse open tasks and send quotes to start filling your dashboard.",
+    "primaryCta": "Find tasks"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "Dashboard | Slashie",
+      "description": "查看你的 Slashie worker 工作、報價、會員、活動和即將處理的任務。"
+    },
+    "eyebrow": "Worker dashboard",
+    "title": "你的 worker 工作台",
+    "description": "在一個清晰畫面追蹤進行中的工作、報價、收入和下一步。",
+    "browseTasks": "瀏覽任務",
+    "postTask": "發佈任務",
+    "retry": "重試",
+    "emptyTitle": "暫時沒有進行中的工作",
+    "emptyDescription": "瀏覽公開任務並傳送報價，開始建立你的 dashboard。",
+    "primaryCta": "尋找任務"
+  }
+}

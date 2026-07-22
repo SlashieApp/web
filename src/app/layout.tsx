@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { htmlLang } from '@/i18n/locales'
 import { BRAND_PRIMARY } from '@/theme/brand'
 import { Providers } from './providers'
+
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
@@ -31,13 +34,15 @@ export const viewport: Viewport = {
   themeColor: BRAND_PRIMARY,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getRequestLocale()
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={htmlLang(locale)} suppressHydrationWarning>
       <body className={`${inter.variable} ${plusJakartaSans.variable}`}>
         <Providers>{children}</Providers>
       </body>

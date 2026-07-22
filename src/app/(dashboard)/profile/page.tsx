@@ -1,12 +1,18 @@
-'use client'
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 
-import { useUserStore } from '@/app/(auth)/store/user'
+import PageContent from './PageContent'
+import bag from './i11n.json'
 
-import { ProfileHub } from './components/ProfileHub'
+const PAGE_PATH = '/profile'
 
-export default function ProfilePage() {
-  const me = useUserStore((s) => s.me)
-  if (!me) return null
+export async function generateMetadata() {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(bag, locale)
+  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
+}
 
-  return <ProfileHub me={me} />
+export default async function Page() {
+  const locale = await getRequestLocale()
+  return <PageContent key={locale} />
 }

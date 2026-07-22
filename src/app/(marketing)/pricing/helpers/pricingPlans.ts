@@ -1,27 +1,27 @@
-export function buildWorkerFreePlan(freeQuotesPerMonth: number) {
-  return {
-    key: 'worker-free',
-    title: 'Worker Free',
-    subtitle: 'For new workers',
-    price: '£0',
-    priceSuffix: 'Forever',
-    badge: `${freeQuotesPerMonth} QUOTES / MONTH`,
-    features: [
-      'Browse tasks on the map',
-      `Send up to ${freeQuotesPerMonth} quotes per month`,
-      'Worker profile & reviews',
-      'In-app job coordination',
-      'Upgrade anytime',
-    ],
-  } as const
+import { formatMessage } from '@/i18n/loadPageI11n'
+
+export type WorkerFreePlanCopy = {
+  title: string
+  subtitle: string
+  price: string
+  priceSuffix: string
+  badge: string
+  features: readonly string[]
 }
 
-export const UNLIMITED_PLAN_FEATURES = [
-  'Unlimited quotes every month',
-  'Map-first task discovery',
-  'Full platform access',
-  'Manage billing & cancel anytime',
-  'Same worker profile & reputation tools',
-] as const
-
-export const UNLIMITED_PLAN_RIBBON = 'BEST FOR ACTIVE WORKERS'
+export function buildWorkerFreePlan(
+  freeQuotesPerMonth: number,
+  copy: WorkerFreePlanCopy,
+) {
+  return {
+    key: 'worker-free',
+    title: copy.title,
+    subtitle: copy.subtitle,
+    price: copy.price,
+    priceSuffix: copy.priceSuffix,
+    badge: formatMessage(copy.badge, { count: freeQuotesPerMonth }),
+    features: copy.features.map((feature) =>
+      formatMessage(feature, { count: freeQuotesPerMonth }),
+    ),
+  } as const
+}

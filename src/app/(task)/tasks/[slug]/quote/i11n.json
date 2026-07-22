@@ -1,0 +1,26 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Send quote | Slashie",
+      "description": "Send a clear quote for a Slashie task with price, message, and availability."
+    },
+    "title": "Send a quote",
+    "description": "Share your price, timing, and why you are a good fit for this task.",
+    "submit": "Submit quote",
+    "loading": "Loading quote form...",
+    "notFoundTitle": "Task not found",
+    "notFoundDescription": "This task may have been removed or is no longer available for quotes."
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "傳送報價 | Slashie",
+      "description": "為 Slashie 任務傳送清晰報價，包括價錢、訊息和可提供時間。"
+    },
+    "title": "傳送報價",
+    "description": "分享你的價錢、時間，以及為何適合這個任務。",
+    "submit": "提交報價",
+    "loading": "正在載入報價表格...",
+    "notFoundTitle": "找不到任務",
+    "notFoundDescription": "此任務可能已移除，或已不再接受報價。"
+  }
+}

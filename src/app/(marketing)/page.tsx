@@ -1,11 +1,16 @@
-import type { Metadata } from 'next'
-
 import { HomeAuthRedirect } from '@/app/(marketing)/helpers/HomeAuthRedirect'
 import {
   formatPricingInterval,
   pricingDisplayPrice,
 } from '@/app/(marketing)/pricing/helpers/formatPricing'
 import { getPricingForPage } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import {
+  formatMessage,
+  loadPageI11n,
+  metadataFromI11n,
+} from '@/i18n/loadPageI11n'
+import { withLocale } from '@/i18n/navigation'
 import { Footer } from '@/ui'
 
 import { LenisRoot } from './components/landing/LenisRoot'
@@ -18,27 +23,16 @@ import {
   PricingTeaser,
 } from './components/landing/sections/PricingTeaser'
 import { TrustSection } from './components/landing/sections/TrustSection'
+import messages from './i11n.json'
 
-const PAGE_TITLE = 'Slashie — Local tasks and trusted quotes'
-const PAGE_DESCRIPTION =
-  'Slashie is a map-first local task marketplace. Post a task, compare quotes from nearby workers, and pay the worker directly — Slashie never takes a cut of the job.'
+export async function generateMetadata() {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(messages, locale)
 
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-  description: PAGE_DESCRIPTION,
-  alternates: { canonical: '/' },
-  openGraph: {
-    type: 'website',
-    siteName: 'Slashie',
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-    url: '/',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-  },
+  return metadataFromI11n(copy.landing.metadata, {
+    locale,
+    path: '/',
+  })
 }
 
 /**
@@ -48,7 +42,11 @@ export const metadata: Metadata = {
  * `HomeAuthRedirect` — unchanged behavior.
  */
 export default async function MarketingHomePage() {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(messages, locale)
   const { pricing } = await getPricingForPage()
+  const landing = copy.landing
+  const ctas = copy.common.ctas
 
   // Only claims backed by live pricing render: no fabricated trial or price
   // when the API reports none (or the fetch fails) — the card degrades to a
@@ -61,25 +59,61 @@ export default async function MarketingHomePage() {
 
   const landingPricing: LandingPricing = {
     productName: pricing?.productName ?? 'Slashie Unlimited',
-    headline: trialLabel ?? priceLine ?? 'Unlimited quotes',
+    headline:
+      trialLabel ??
+      priceLine ??
+      landing.pricingTeaser.unlimitedHeadlineFallback,
     subline: trialLabel
       ? priceLine
-        ? `Then ${priceLine} · unlimited quotes`
-        : 'Unlimited quotes for one subscription'
-      : 'Unlimited quotes for one subscription',
-    freeHeadline: `${freeQuotes} quotes a month`,
+        ? formatMessage(landing.pricingTeaser.unlimitedSublineWithPrice, {
+            priceLine,
+          })
+        : landing.pricingTeaser.unlimitedSublineFallback
+      : landing.pricingTeaser.unlimitedSublineFallback,
+    freeHeadline: formatMessage(landing.pricingTeaser.freeHeadline, {
+      count: freeQuotes,
+    }),
+  }
+  const hrefs = {
+    register: withLocale(locale, '/register'),
+    login: withLocale(locale, '/login'),
+    pricing: withLocale(locale, '/pricing'),
   }
 
   return (
     <>
       <HomeAuthRedirect />
       <LenisRoot />
-      <HeroSection />
-      <HowItWorks />
-      <AudienceSection />
-      <TrustSection />
-      <PricingTeaser pricing={landingPricing} />
-      <FinalCtaBand />
+      <HeroSection
+        copy={landing.hero}
+        ctas={{
+          getStarted: ctas.getStarted,
+          seeHowItWorks: ctas.seeHowItWorks,
+        }}
+        registerHref={hrefs.register}
+      />
+      <HowItWorks copy={landing.howItWorks} />
+      <AudienceSection
+        copy={landing.audience}
+        ctas={{
+          postTask: ctas.postTask,
+          becomeWorker: ctas.becomeWorker,
+        }}
+        registerHref={hrefs.register}
+      />
+      <TrustSection points={landing.trust.points} />
+      <PricingTeaser
+        copy={landing.pricingTeaser}
+        pricing={landingPricing}
+        ctaLabel={ctas.viewPricing}
+        pricingHref={hrefs.pricing}
+      />
+      <FinalCtaBand
+        copy={landing.finalCta}
+        ctas={{ getStarted: ctas.getStarted, logIn: ctas.logIn }}
+        registerHref={hrefs.register}
+        loginHref={hrefs.login}
+      />
       <Footer />
     </>
   )

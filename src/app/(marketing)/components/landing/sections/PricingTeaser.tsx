@@ -25,11 +25,28 @@ export type LandingPricing = {
   freeHeadline: string
 }
 
+type PricingTeaserCopy = {
+  heading: string
+  body: string
+  freePlanLabel: string
+  freeBody: string
+}
+
 /**
  * Pricing teaser. The worker subscription is the product's single premium
  * layer — and the ONLY place plum (`accent.premium`) appears on the landing.
  */
-export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
+export function PricingTeaser({
+  copy,
+  pricing,
+  ctaLabel,
+  pricingHref,
+}: {
+  copy: PricingTeaserCopy
+  pricing: LandingPricing
+  ctaLabel: string
+  pricingHref: string
+}) {
   return (
     <Box as="section" bg="bg.canvas" py={{ base: 16, md: 24 }}>
       <Container maxW="4xl" px={{ base: 4, md: 6 }}>
@@ -42,11 +59,10 @@ export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
                 fontSize={{ base: '28px', md: '36px' }}
                 letterSpacing="-0.01em"
               >
-                Simple, honest pricing
+                {copy.heading}
               </Heading>
               <Text color="text.muted" maxW="65ch">
-                Customers never pay a platform fee. Workers subscribe for access
-                — and keep 100% of the job price.
+                {copy.body}
               </Text>
             </Stack>
           </Reveal>
@@ -69,13 +85,13 @@ export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
                 align="center"
               >
                 <Text fontSize="sm" fontWeight={700} color="text.muted">
-                  Workers — Free
+                  {copy.freePlanLabel}
                 </Text>
                 <Heading as="h3" fontSize="24px" fontWeight={600}>
                   {pricing.freeHeadline}
                 </Heading>
                 <Text fontSize="sm" color="text.muted">
-                  Browse local tasks and send quotes on the free tier.
+                  {copy.freeBody}
                 </Text>
               </Stack>
             </Reveal>
@@ -109,7 +125,7 @@ export function PricingTeaser({ pricing }: { pricing: LandingPricing }) {
 
           <Reveal delayMs={160}>
             <Button asChild variant="premium">
-              <NextLink href="/pricing">View pricing</NextLink>
+              <NextLink href={pricingHref}>{ctaLabel}</NextLink>
             </Button>
           </Reveal>
         </Stack>

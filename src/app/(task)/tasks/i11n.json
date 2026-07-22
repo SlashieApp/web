@@ -1,0 +1,22 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Tasks | Slashie",
+      "description": "Browse open Slashie tasks and discover local work opportunities on the map."
+    },
+    "title": "Browse tasks",
+    "description": "Find local tasks, compare details, and send a quote when you are ready.",
+    "emptyTitle": "No tasks found",
+    "emptyDescription": "Try another area or broaden your filters."
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "任務 | Slashie",
+      "description": "瀏覽 Slashie 公開任務，並在地圖上發掘本地工作機會。"
+    },
+    "title": "瀏覽任務",
+    "description": "尋找本地任務、比較詳情，準備好後傳送報價。",
+    "emptyTitle": "找不到任務",
+    "emptyDescription": "請嘗試其他地區或放寬篩選。"
+  }
+}

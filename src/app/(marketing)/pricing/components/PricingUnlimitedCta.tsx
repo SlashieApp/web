@@ -5,13 +5,23 @@ import { Box } from '@chakra-ui/react'
 import { useMe } from '@/app/(auth)/store/user'
 import { useBillingActions } from '@/app/(dashboard)/billing/helpers/useBillingActions'
 import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { getAuthToken } from '@/utils/auth'
 import { Button, Link } from '@ui'
 
 import { resolveUnlimitedPlanCta } from '../helpers/pricingCta'
 
-export function PricingUnlimitedCta() {
+export function PricingUnlimitedCta({
+  copy,
+}: {
+  copy: {
+    currentPlan: string
+    setUpWorkerProfile: string
+    upgrade: string
+  }
+}) {
   const me = useMe()
+  const href = useLocalizedHref()
   const isAuthenticated = Boolean(getAuthToken())
   const hasWorkerProfile = Boolean(me?.worker?.id)
   const hasUnlimitedPlan = hasUnlimitedQuoting(me?.worker?.membership)
@@ -20,13 +30,18 @@ export function PricingUnlimitedCta() {
     hasWorkerProfile,
     hasUnlimitedPlan,
   })
+  const label = hasUnlimitedPlan
+    ? copy.currentPlan
+    : hasWorkerProfile || !isAuthenticated
+      ? copy.upgrade
+      : copy.setUpWorkerProfile
   const { startCheckout, checkoutLoading } = useBillingActions()
 
   if (hasUnlimitedPlan) {
     return (
       <Box mt="auto">
         <Button w="full" disabled opacity={0.72}>
-          {unlimitedCta.label}
+          {label}
         </Button>
       </Box>
     )
@@ -41,7 +56,7 @@ export function PricingUnlimitedCta() {
           loading={checkoutLoading}
           disabled={checkoutLoading}
         >
-          {unlimitedCta.label}
+          {label}
         </Button>
       </Box>
     )
@@ -49,11 +64,11 @@ export function PricingUnlimitedCta() {
 
   return (
     <Link
-      href={unlimitedCta.href}
+      href={href(unlimitedCta.href)}
       mt="auto"
       _hover={{ textDecoration: 'none' }}
     >
-      <Button w="full">{unlimitedCta.label}</Button>
+      <Button w="full">{label}</Button>
     </Link>
   )
 }

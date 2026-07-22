@@ -9,6 +9,7 @@ import {
   hasUnlimitedQuoting,
   membershipStatusDetailText,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Link } from '@ui'
 
 export type AccountMenuHeaderProps = {
@@ -74,6 +75,8 @@ function QuoteUsageMeter({
 }
 
 function CustomerMembershipSection() {
+  const href = useLocalizedHref()
+
   return (
     <Stack gap={1}>
       <Text fontSize="sm" fontWeight={700} color="text.default">
@@ -83,7 +86,7 @@ function CustomerMembershipSection() {
         Compare quotes from local workers on your posted tasks.
       </Text>
       <Link
-        href="/worker/setup"
+        href={href('/worker/setup')}
         fontSize="xs"
         tone="emphasis"
         fontWeight={600}
@@ -100,6 +103,7 @@ function WorkerMembershipSection({
 }: {
   membership: WorkerMembershipFieldsFragment
 }) {
+  const href = useLocalizedHref()
   const unlimited = hasUnlimitedQuoting(membership)
   const detail =
     membership.statusDescription?.trim() ||
@@ -126,7 +130,7 @@ function WorkerMembershipSection({
         <HStack gap={3} flexWrap="wrap">
           {membership.canUpgrade ? (
             <Link
-              href="/billing"
+              href={href('/billing')}
               tone="emphasis"
               fontSize="xs"
               fontWeight={600}
@@ -137,7 +141,7 @@ function WorkerMembershipSection({
           ) : null}
           {membership.canManageBilling ? (
             <Link
-              href="/billing"
+              href={href('/billing')}
               tone="emphasis"
               fontSize="xs"
               fontWeight={600}
@@ -160,6 +164,8 @@ export function AccountMenuHeader({
   hasWorker = false,
   onViewProfile,
 }: AccountMenuHeaderProps) {
+  const href = useLocalizedHref()
+
   return (
     <Stack gap={0}>
       <HStack align="flex-start" gap={3} px={3} py={3}>
@@ -182,7 +188,7 @@ export function AccountMenuHeader({
             {email}
           </Text>
           <Link
-            href="/profile"
+            href={href('/profile')}
             tone="emphasis"
             fontSize="xs"
             fontWeight={600}

@@ -5,8 +5,10 @@ import { Box, Grid, Stack } from '@chakra-ui/react'
 import { Button, Link } from '@ui'
 
 import { DashboardPageLayout } from '@/app/(dashboard)/components/DashboardPageLayout'
+import { usePageI11n } from '@/i18n/usePageI11n'
 
 import { useMyRequestsPage } from '../context/MyRequestsProvider'
+import bag from '../i11n.json'
 
 import { MyRequestsFilterColumn } from './MyRequestsFilterColumn'
 import { MyRequestsMainColumn } from './MyRequestsMainColumn'
@@ -18,15 +20,16 @@ import { PostedTaskUpcoming } from './PostedTaskUpcoming'
 
 export function MyRequestsLayout() {
   const { taskRows } = useMyRequestsPage()
+  const t = usePageI11n(bag)
 
   return (
     <DashboardPageLayout
-      eyebrow="REQUESTS"
-      title="My requests"
-      description="Track posted tasks, incoming quotes, and bookings in one place."
+      eyebrow={t.eyebrow}
+      title={t.title}
+      description={t.description}
       actions={
         <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
-          <Button size="sm">Post a task</Button>
+          <Button size="sm">{t.primaryCta}</Button>
         </Link>
       }
     >

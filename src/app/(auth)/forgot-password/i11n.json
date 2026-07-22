@@ -1,0 +1,26 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Forgot password | Slashie",
+      "description": "Request a secure password reset link for your Slashie account."
+    },
+    "loading": "Loading...",
+    "title": "Reset your password",
+    "description": "Enter your email and we will send a secure link to help you get back into Slashie.",
+    "emailLabel": "Email",
+    "submit": "Send reset link",
+    "backToLogin": "Back to sign in"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "忘記密碼 | Slashie",
+      "description": "為你的 Slashie 帳戶索取安全密碼重設連結。"
+    },
+    "loading": "載入中...",
+    "title": "重設你的密碼",
+    "description": "輸入你的電郵，我們會傳送安全連結，協助你重新登入 Slashie。",
+    "emailLabel": "電郵",
+    "submit": "傳送重設連結",
+    "backToLogin": "返回登入"
+  }
+}

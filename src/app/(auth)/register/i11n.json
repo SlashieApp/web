@@ -1,0 +1,44 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Create account | Slashie",
+      "description": "Create a Slashie account to post tasks, compare quotes, or become a local worker."
+    },
+    "asideBadge": "Join Slashie",
+    "asideTitle": "Create an account for local tasks and quotes.",
+    "asideDescription": "Post tasks, compare quotes from nearby workers, or set up your worker profile to find local work.",
+    "customerLabel": "For customers",
+    "customerText": "Post tasks and compare quotes",
+    "workerLabel": "For workers",
+    "workerText": "Find nearby tasks and send quotes",
+    "eyebrow": "Start with Slashie",
+    "title": "Create your account",
+    "description": "One account for posting tasks, comparing quotes, and earning as a worker.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submit": "Create account",
+    "loginPrompt": "Already have an account?",
+    "loginLink": "Log in"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "建立帳戶 | Slashie",
+      "description": "建立 Slashie 帳戶，發佈任務、比較報價，或成為本地 worker。"
+    },
+    "asideBadge": "加入 Slashie",
+    "asideTitle": "為本地任務和報價建立帳戶。",
+    "asideDescription": "發佈任務、比較附近 worker 的報價，或設定 worker 個人檔案尋找本地工作。",
+    "customerLabel": "給 customers",
+    "customerText": "發佈任務並比較報價",
+    "workerLabel": "給 workers",
+    "workerText": "尋找附近任務並傳送報價",
+    "eyebrow": "開始使用 Slashie",
+    "title": "建立你的帳戶",
+    "description": "一個帳戶即可發佈任務、比較報價，並以 worker 身份賺取收入。",
+    "emailLabel": "電郵",
+    "passwordLabel": "密碼",
+    "submit": "建立帳戶",
+    "loginPrompt": "已有帳戶？",
+    "loginLink": "登入"
+  }
+}

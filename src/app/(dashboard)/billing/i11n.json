@@ -1,0 +1,18 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Billing | Slashie",
+      "description": "Manage Slashie worker membership billing, quote access, checkout, and plan status."
+    },
+    "title": "Billing & membership",
+    "description": "Manage worker membership, quote access, and checkout."
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "帳單 | Slashie",
+      "description": "管理 Slashie worker 會員帳單、報價權限、結帳和方案狀態。"
+    },
+    "title": "帳單與會員",
+    "description": "管理 worker 會員、報價權限和結帳。"
+  }
+}

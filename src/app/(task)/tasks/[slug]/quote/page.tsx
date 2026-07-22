@@ -2,10 +2,13 @@ import type { Metadata } from 'next'
 
 import { Box } from '@chakra-ui/react'
 
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { TaskNotFoundCard } from '../components/TaskNotFoundCard'
 import { TaskDetailProvider } from '../context/TaskDetailProvider'
 import { getTaskForTaskDetailPage } from '../helpers/getTaskForTaskDetailPage'
 import { TaskQuoteFlow } from './components/TaskQuoteFlow'
+import bag from './i11n.json'
 
 function absoluteUrlFromEnv(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl
@@ -23,23 +26,25 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
+  const locale = await getRequestLocale()
   const { slug } = await params
+  const copy = loadPageI11n(bag, locale)
   const { task } = await getTaskForTaskDetailPage(slug)
   const title = task
     ? `Send a quote · ${task.title} | Slashie`
-    : 'Send a quote | Slashie'
+    : copy.metadata.title
   const description = task?.description?.trim()
     ? `Review ${task.title} and send your quote on Slashie.`
-    : 'Send a quote for a task on Slashie.'
+    : copy.metadata.description
   const canonicalPath = `/tasks/${slug}/quote`
+  const base = metadataFromI11n(copy.metadata, { locale, path: canonicalPath })
 
   return {
+    ...base,
     title,
     description,
-    alternates: {
-      canonical: canonicalPath,
-    },
     openGraph: {
+      ...base.openGraph,
       type: 'website',
       url: absoluteUrlFromEnv(canonicalPath),
       title,
@@ -58,10 +63,19 @@ export default async function TaskQuotePage({
 }: {
   params: Promise<{ slug: string }>
 }) {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(bag, locale)
   const { slug } = await params
   const { task } = await getTaskForTaskDetailPage(slug)
 
-  if (!task) return <TaskNotFoundCard />
+  if (!task) {
+    return (
+      <TaskNotFoundCard
+        heading={copy.notFoundTitle}
+        description={copy.notFoundDescription}
+      />
+    )
+  }
 
   return (
     <TaskDetailProvider taskId={slug} initialTask={task}>

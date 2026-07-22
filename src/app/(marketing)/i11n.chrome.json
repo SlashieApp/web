@@ -1,0 +1,20 @@
+{
+  "en": {
+    "skipToContent": "Skip to content",
+    "menu": "Menu",
+    "language": "Language",
+    "pricing": "Pricing",
+    "about": "About",
+    "logIn": "Log in",
+    "getStarted": "Get started"
+  },
+  "zh_hk": {
+    "skipToContent": "跳到主要內容",
+    "menu": "選單",
+    "language": "語言",
+    "pricing": "收費",
+    "about": "關於",
+    "logIn": "登入",
+    "getStarted": "開始使用"
+  }
+}

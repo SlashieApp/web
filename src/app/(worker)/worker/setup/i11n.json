@@ -1,0 +1,20 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Set up worker profile | Slashie",
+      "description": "Create your Slashie worker profile with skills, bio, portfolio, and service details."
+    },
+    "title": "Set up your worker profile",
+    "description": "Add the essentials customers need before they choose your quote.",
+    "loading": "Loading setup..."
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "設定 worker 個人檔案 | Slashie",
+      "description": "建立你的 Slashie worker 個人檔案，加入技能、簡介、作品和服務詳情。"
+    },
+    "title": "設定你的 worker 個人檔案",
+    "description": "加入 customers 選擇你的報價前需要了解的重點。",
+    "loading": "正在載入設定..."
+  }
+}

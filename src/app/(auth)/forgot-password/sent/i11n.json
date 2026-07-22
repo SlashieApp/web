@@ -1,0 +1,28 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Check your reset email | Slashie",
+      "description": "Confirm that Slashie sent your password reset email and request another link if needed."
+    },
+    "loading": "Loading...",
+    "title": "Check your email",
+    "description": "If there is a Slashie account for that address, we sent a password reset link. Links expire after 1 hour.",
+    "descriptionPrefix": "If an account exists for",
+    "descriptionSuffix": ", we sent a password reset link. Open the link to choose a new password - the link expires in 1 hour.",
+    "resend": "Resend reset link",
+    "cta": "Back to sign in"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "查看重設電郵 | Slashie",
+      "description": "確認 Slashie 已傳送密碼重設電郵，並可按需要重新索取連結。"
+    },
+    "loading": "載入中...",
+    "title": "查看你的電郵",
+    "description": "如果該電郵地址有 Slashie 帳戶，我們已傳送密碼重設連結。連結會於 1 小時後失效。",
+    "descriptionPrefix": "如果以下電郵有帳戶：",
+    "descriptionSuffix": "，我們已傳送密碼重設連結。開啟連結即可選擇新密碼；連結會於 1 小時後失效。",
+    "resend": "重新傳送重設連結",
+    "cta": "返回登入"
+  }
+}

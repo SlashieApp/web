@@ -1,3 +1,4 @@
+import { stripLocalePrefix } from '@/i18n/navigation'
 import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
 
 const API_UNAVAILABLE_KEY = 'slashie_api_unavailable'
@@ -18,29 +19,35 @@ export function isApiUnavailable(): boolean {
 }
 
 export function isMarketingRoute(pathname: string): boolean {
+  const path = stripLocalePrefix(pathname)
   return (
-    pathname === MARKETING_HOME ||
-    pathname.startsWith('/pricing') ||
-    pathname.startsWith('/about')
+    path === MARKETING_HOME ||
+    path.startsWith('/pricing') ||
+    path.startsWith('/about') ||
+    path.startsWith('/cookies') ||
+    path.startsWith('/privacy') ||
+    path.startsWith('/terms')
   )
 }
 
 export function isAuthRoute(pathname: string): boolean {
+  const path = stripLocalePrefix(pathname)
   return (
-    pathname.startsWith('/login') ||
-    pathname.startsWith('/register') ||
-    pathname.startsWith('/forgot-password') ||
-    pathname.startsWith('/reset-password') ||
-    pathname.startsWith('/verify-email')
+    path.startsWith('/login') ||
+    path.startsWith('/register') ||
+    path.startsWith('/forgot-password') ||
+    path.startsWith('/reset-password') ||
+    path.startsWith('/verify-email')
   )
 }
 
 /** Map browse + public task detail — readable without login; stay on page if API is down. */
 export function isPublicTaskBrowseRoute(pathname: string): boolean {
-  if (pathname === APP_HOME) return true
-  if (!pathname.startsWith(`${APP_HOME}/`)) return false
+  const path = stripLocalePrefix(pathname)
+  if (path === APP_HOME) return true
+  if (!path.startsWith(`${APP_HOME}/`)) return false
 
-  const rest = pathname.slice(`${APP_HOME}/`.length)
+  const rest = path.slice(`${APP_HOME}/`.length)
   const segment = rest.split('/')[0]
   if (!segment || segment === 'create') return false
   if (rest.includes('/edit') || rest.includes('/quote')) return false

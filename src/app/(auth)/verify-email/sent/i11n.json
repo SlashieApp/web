@@ -1,0 +1,34 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Check your inbox | Slashie",
+      "description": "Open the Slashie verification email or request a new verification link."
+    },
+    "loading": "Loading...",
+    "redirecting": "Redirecting...",
+    "title": "Check your inbox",
+    "descriptionPrefix": "We sent a verification link to",
+    "descriptionFallbackEmail": "your email address",
+    "descriptionSuffix": "Open the link to verify your account - you can keep browsing while you wait.",
+    "resend": "Resend verification email",
+    "continue": "Continue to dashboard",
+    "loginPrompt": "Log in to resend the verification email.",
+    "login": "Log in"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "查看收件箱 | Slashie",
+      "description": "開啟 Slashie 驗證電郵，或重新索取驗證連結。"
+    },
+    "loading": "載入中...",
+    "redirecting": "正在重新導向...",
+    "title": "查看你的收件箱",
+    "descriptionPrefix": "我們已傳送驗證連結至",
+    "descriptionFallbackEmail": "你的電郵地址",
+    "descriptionSuffix": "開啟連結即可驗證帳戶；等候期間你仍可繼續瀏覽。",
+    "resend": "重新傳送驗證電郵",
+    "continue": "前往 dashboard",
+    "loginPrompt": "登入以重新傳送驗證電郵。",
+    "login": "登入"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Task details | Slashie",
+      "description": "View a Slashie task, location context, quotes, and next steps."
+    },
+    "loading": "Loading task...",
+    "notFoundTitle": "Task not found",
+    "notFoundDescription": "This task may have been removed or is no longer available.",
+    "back": "Back to tasks"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "任務詳情 | Slashie",
+      "description": "查看 Slashie 任務、地點內容、報價和下一步。"
+    },
+    "loading": "正在載入任務...",
+    "notFoundTitle": "找不到任務",
+    "notFoundDescription": "此任務可能已移除或不再可用。",
+    "back": "返回任務"
+  }
+}

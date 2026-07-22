@@ -1,0 +1,36 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Verify email | Slashie",
+      "description": "Verify your email address to finish securing your Slashie account."
+    },
+    "loading": "Loading...",
+    "loadingTitle": "Verifying your email...",
+    "loadingDescription": "Hang tight while we confirm your link.",
+    "successTitle": "Email verified",
+    "successDescription": "Redirecting you now...",
+    "invalidTitle": "Invalid link",
+    "invalidDescription": "This verification link is missing or malformed. Open the link from your email, or request a new one.",
+    "errorTitle": "Link expired or invalid",
+    "errorDescription": "This verification link is invalid or has expired.",
+    "resend": "Resend verification email",
+    "loginToResend": "Log in to resend"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "驗證電郵 | Slashie",
+      "description": "驗證你的電郵地址，以完成保護 Slashie 帳戶。"
+    },
+    "loading": "載入中...",
+    "loadingTitle": "正在驗證你的電郵...",
+    "loadingDescription": "請稍候，我們正在確認你的連結。",
+    "successTitle": "電郵已驗證",
+    "successDescription": "正在為你重新導向...",
+    "invalidTitle": "連結無效",
+    "invalidDescription": "此驗證連結遺失或格式不正確。請開啟電郵中的連結，或重新索取。",
+    "errorTitle": "連結已失效或無效",
+    "errorDescription": "此驗證連結無效或已過期。",
+    "resend": "重新傳送驗證電郵",
+    "loginToResend": "登入以重新傳送"
+  }
+}

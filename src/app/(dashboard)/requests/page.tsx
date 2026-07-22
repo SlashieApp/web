@@ -1,26 +1,18 @@
-'use client'
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 
-import { useCallback, useRef } from 'react'
+import PageContent from './PageContent'
+import bag from './i11n.json'
 
-import { EVENTS, capture } from '@/utils/analytics'
+const PAGE_PATH = '/requests'
 
-import { MyRequestsLayout } from './components/MyRequestsLayout'
-import { MyRequestsProvider } from './context/MyRequestsProvider'
+export async function generateMetadata() {
+  const locale = await getRequestLocale()
+  const copy = loadPageI11n(bag, locale)
+  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
+}
 
-export default function MyRequestsPage() {
-  const trackedRef = useRef(false)
-
-  const onMountRef = useCallback((node: HTMLDivElement | null) => {
-    if (!node || trackedRef.current) return
-    trackedRef.current = true
-    capture(EVENTS.requests_view)
-  }, [])
-
-  return (
-    <div ref={onMountRef}>
-      <MyRequestsProvider>
-        <MyRequestsLayout />
-      </MyRequestsProvider>
-    </div>
-  )
+export default async function Page() {
+  const locale = await getRequestLocale()
+  return <PageContent key={locale} />
 }

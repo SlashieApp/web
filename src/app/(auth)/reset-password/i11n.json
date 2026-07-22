@@ -1,0 +1,30 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Reset password | Slashie",
+      "description": "Set a new password for your Slashie account using your secure reset link."
+    },
+    "loading": "Loading...",
+    "missingTitle": "Reset link required",
+    "missingDescription": "Open the password reset link from your email, or request a new one. Links expire after 1 hour.",
+    "missingCta": "Request reset link",
+    "backToLogin": "Back to sign in",
+    "title": "Create a new password",
+    "description": "Choose a strong password to secure your Slashie account.",
+    "submit": "Reset password"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "重設密碼 | Slashie",
+      "description": "使用安全重設連結，為你的 Slashie 帳戶設定新密碼。"
+    },
+    "loading": "載入中...",
+    "missingTitle": "需要重設連結",
+    "missingDescription": "請開啟電郵內的密碼重設連結，或重新索取。連結會於 1 小時後失效。",
+    "missingCta": "索取重設連結",
+    "backToLogin": "返回登入",
+    "title": "建立新密碼",
+    "description": "選擇一個高強度密碼，保護你的 Slashie 帳戶。",
+    "submit": "重設密碼"
+  }
+}

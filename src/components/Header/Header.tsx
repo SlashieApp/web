@@ -8,6 +8,8 @@ import { useCallback, useState } from 'react'
 import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { isAccountHubPath } from '@/utils/accountHub'
 import { resolveAccountNavKey } from '@/utils/accountNav'
 import { GET_APP_HREF, MARKETING_HOME } from '@/utils/appRoutes'
@@ -37,6 +39,11 @@ export { HEADER_MIN_HEIGHT } from './headerShell'
  * an <a> is invalid HTML and double-focuses).
  */
 function GetAppButton() {
+  const href = useLocalizedHref()
+  const getAppHref =
+    GET_APP_HREF === 'https://slashie.app' ? href('/') : GET_APP_HREF
+  const isExternal = getAppHref.startsWith('http')
+
   return (
     <Button
       asChild
@@ -45,7 +52,11 @@ function GetAppButton() {
       display={{ base: 'none', md: 'inline-flex' }}
       flexShrink={0}
     >
-      <a href={GET_APP_HREF} target="_blank" rel="noopener noreferrer">
+      <a
+        href={getAppHref}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
+      >
         Get app
       </a>
     </Button>
@@ -53,9 +64,11 @@ function GetAppButton() {
 }
 
 function PostTaskHeaderButton() {
+  const href = useLocalizedHref()
+
   return (
     <Button asChild size="sm" variant="primary" flexShrink={0}>
-      <NextLink href="/tasks/create">Post a task</NextLink>
+      <NextLink href={href('/tasks/create')}>Post a task</NextLink>
     </Button>
   )
 }
@@ -83,6 +96,7 @@ export type HeaderProps = {
 
 function AppHeaderNavigation() {
   const pathname = usePathname()
+  const href = useLocalizedHref()
   const user = useUserStore((state) => state.user)
   const getUser = useUserStore((state) => state.getUser)
   const notifications = useNotificationsOptional()
@@ -104,14 +118,16 @@ function AppHeaderNavigation() {
   const isLoggedIn = Boolean(user)
   const isDashboard = hasMounted && isAccountHubPath(routePathname)
   const dashboardActive = resolveAccountNavKey(routePathname)
-  const loginHref =
+  const loginHref = href(
     hasMounted && routePathname
       ? `/login?next=${encodeURIComponent(routePathname)}`
-      : '/login'
-  const signupHref =
+      : '/login',
+  )
+  const signupHref = href(
     hasMounted && routePathname
       ? `/register?next=${encodeURIComponent(routePathname)}`
-      : '/register'
+      : '/register',
+  )
 
   return (
     <HStack
@@ -130,7 +146,7 @@ function AppHeaderNavigation() {
         ) : null}
 
         <Link
-          href={MARKETING_HOME}
+          href={href(MARKETING_HOME)}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
         >
@@ -181,6 +197,7 @@ function AppHeaderNavigation() {
               </>
             ) : null}
             <HStack gap={1} align="center" flexShrink={0}>
+              <LanguageSwitcher />
               {notifications ? (
                 <>
                   <Box position="relative" display="inline-flex">
@@ -236,6 +253,7 @@ function AppHeaderNavigation() {
           <>
             {!isDashboard ? <PostTaskHeaderButton /> : null}
             <HeaderToolbarSeparator />
+            <LanguageSwitcher />
             <HeaderGuestAuthButtons
               loginHref={loginHref}
               signupHref={signupHref}
@@ -257,7 +275,7 @@ function AppHeaderNavigation() {
             >
               <Stack as="nav" gap={0} align="stretch" flex={1}>
                 <Link
-                  href="/tasks/create"
+                  href={href('/tasks/create')}
                   {...accountNavLinkRowProps}
                   onClick={() => setGuestDrawerOpen(false)}
                 >

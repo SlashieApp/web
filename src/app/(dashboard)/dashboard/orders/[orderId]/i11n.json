@@ -1,0 +1,26 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Order details | Slashie",
+      "description": "Review a Slashie order, accepted quote, customer details, and job completion steps."
+    },
+    "loading": "Loading order...",
+    "missingOrderId": "Missing order id.",
+    "loadError": "Could not load this order.",
+    "notFoundTitle": "Order not found",
+    "notFoundDescription": "This order may have been removed or is not available to your account.",
+    "back": "Back to dashboard"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "訂單詳情 | Slashie",
+      "description": "查看 Slashie 訂單、已接受報價、customer 資料和工作完成步驟。"
+    },
+    "loading": "正在載入訂單...",
+    "missingOrderId": "缺少訂單 ID。",
+    "loadError": "未能載入此訂單。",
+    "notFoundTitle": "找不到訂單",
+    "notFoundDescription": "此訂單可能已移除，或你的帳戶沒有權限查看。",
+    "back": "返回 dashboard"
+  }
+}
