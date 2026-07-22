@@ -57,8 +57,11 @@ Routes are already grouped by Next.js route groups, which align to shells:
 | `src/app/(marketing)` — `/`, `/about`, `/pricing` | Marketing | Header only, footer; no sidebar/dock |
 | `src/app/(auth)` — `/login`, `/register`, verify | Marketing (auth) | Header only, centered card |
 | `src/app/(task)` — `/tasks`, `/tasks/[slug]` | Discovery / Task detail | Map+list, mobile bottom dock (max 4); detail = header + quote sidebar |
+| `src/app/(task)` — `/tasks/create`, `/tasks/[slug]/quote` | StepFlow standalone | **`StepFlowLayout` only** — no app `Header` / `Dock` (FE-78) |
 | `src/app/(dashboard)` — `/dashboard`, `/requests`, `/quotes`, `/billing`, `/account` | Dashboard | Icon sidebar + header |
-| `src/app/(worker)` — `/worker/setup`, `/worker/plan`, `/workers/[slug]` | Standalone / Dashboard | Setup = standalone (no dashboard chrome) |
+| `src/app/(worker)` — `/worker/setup`, `/worker/plan`, `/workers/[slug]` | Standalone / Dashboard | Setup = **`StepFlowLayout` only** (no Header/Dock); other worker routes keep app chrome |
+
+**StepFlow rule (FE-78):** `/worker/setup`, `/tasks/create`, and `/tasks/[slug]/quote` strip locale (`/en`, `/zh-hk`) then hide app Header/Dock so only `StepFlowLayout` chrome shows.
 
 **Active-nav rule:** active state uses green accent; icon + label aligned.
 

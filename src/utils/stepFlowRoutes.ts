@@ -7,7 +7,8 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 export function isStepFlowStandaloneRoute(
   pathname: string | null | undefined,
 ): boolean {
-  const path = stripLocalePrefix(pathname ?? '')
+  const withoutQuery = (pathname ?? '').split('?')[0] ?? ''
+  const path = stripLocalePrefix(withoutQuery)
 
   if (path === '/worker/setup' || path.startsWith('/worker/setup/')) {
     return true

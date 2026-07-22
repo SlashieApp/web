@@ -7,6 +7,9 @@ describe('isStepFlowStandaloneRoute', () => {
     expect(isStepFlowStandaloneRoute('/worker/setup')).toBe(true)
     expect(isStepFlowStandaloneRoute('/en/worker/setup')).toBe(true)
     expect(isStepFlowStandaloneRoute('/zh-hk/worker/setup')).toBe(true)
+    expect(isStepFlowStandaloneRoute('/en/worker/setup?next=/tasks')).toBe(
+      true,
+    )
   })
 
   it('matches create-task and send-quote step flows', () => {
