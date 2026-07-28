@@ -3,20 +3,19 @@
 import { useEffect, useState } from 'react'
 
 /**
- * Adaptive quality tier for the WebGL hero.
+ * Adaptive quality tier for the WebGL hero globe.
  * - `off`: prefers-reduced-motion or no WebGL — render the static poster only.
- * - `low` / `mid` / `high`: scale particle counts, mesh density, DPR and bloom.
+ * - `low`: static COBE globe (no auto-rotate), lower map samples / DPR.
+ * - `mid` / `high`: gently auto-rotating globe with richer samples.
  */
 export type DeviceTier = 'high' | 'mid' | 'low' | 'off'
 
 export type TierSettings = {
-  /** DPR cap passed to the R3F canvas. */
+  /** DPR cap for the globe canvas. */
   dprMax: number
-  /** Signal-particle count. */
+  /** Legacy density knobs kept for callers that still read the table. */
   particles: number
-  /** Small map-pin count (single Points draw call). */
   pins: number
-  /** Terrain plane segments per axis. */
   terrainSegments: number
   antialias: boolean
 }
