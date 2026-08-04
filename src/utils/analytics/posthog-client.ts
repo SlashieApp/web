@@ -14,8 +14,32 @@ const MAX_QUEUED_CAPTURES = 50
 const queuedCaptures: QueuedCapture[] = []
 let initialized = false
 
+function getPostHogConfig(): { token: string; host: string } | null {
+  const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN?.trim()
+  const host = process.env.NEXT_PUBLIC_POSTHOG_HOST?.trim()
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (!token) {
+      console.error(
+        new Error(
+          'NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN is configured',
+        ),
+      )
+    }
+    if (!host) {
+      console.error(
+        new Error(
+          'NEXT_PUBLIC_POSTHOG_HOST variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once NEXT_PUBLIC_POSTHOG_HOST is configured',
+        ),
+      )
+    }
+  }
+
+  return token && host ? { token, host } : null
+}
+
 export function isPostHogConfigured(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY?.trim())
+  return getPostHogConfig() !== null
 }
 
 export function initPostHogClient(): void {
@@ -26,12 +50,11 @@ export function initPostHogClient(): void {
   // cookie banner. Undecided or rejected -> stay uninitialised.
   if (getCookieConsent() !== 'accepted') return
 
-  const key = process.env.NEXT_PUBLIC_POSTHOG_KEY?.trim()
-  if (!key) return
+  const config = getPostHogConfig()
+  if (!config) return
 
-  posthog.init(key, {
-    api_host:
-      process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://eu.i.posthog.com',
+  posthog.init(config.token, {
+    api_host: config.host,
     person_profiles: 'identified_only',
     capture_pageview: true,
     capture_exceptions: true,

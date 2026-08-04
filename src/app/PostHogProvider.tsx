@@ -8,6 +8,7 @@ import {
   getPostHog,
   initPostHogClient,
   onCookieConsentChange,
+  syncPendingAnalyticsIdentity,
 } from '@/utils/analytics'
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
@@ -27,7 +28,10 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(
     () =>
       onCookieConsentChange((value) => {
-        if (value === 'accepted') initPostHogClient()
+        if (value === 'accepted') {
+          initPostHogClient()
+          syncPendingAnalyticsIdentity()
+        }
       }),
     [],
   )

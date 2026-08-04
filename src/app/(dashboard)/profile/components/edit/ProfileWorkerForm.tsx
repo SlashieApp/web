@@ -17,6 +17,7 @@ import { categoryBySlug } from '@/app/(stepflow)/worker/setup/helpers/workerSetu
 import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { HEADLINE_MAX_CHARS } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -127,9 +128,19 @@ export function ProfileWorkerForm({
       await saveWorkerProfileForm(apolloClient, values, me, setMe)
       reset(values)
       await getUser()
+      trackFlowSucceeded(EVENTS.profile_update_success, {
+        section: 'worker',
+      })
       showAppToast({ title: 'Worker profile saved' })
       onSaved?.()
     } catch (error: unknown) {
+      trackFlowFailed(EVENTS.profile_update_fail, error, {
+        flow: 'profile_update',
+        action: 'saveWorkerProfileForm',
+        operation: 'SaveWorkerSetupStep',
+        route: '/profile',
+        extra: { section: 'worker' },
+      })
       const message = getFriendlyErrorMessage(
         error,
         'Could not save worker profile.',

@@ -29,6 +29,7 @@ export {
 export {
   identifyAuthenticatedUser,
   resetAnalyticsIdentity,
+  syncPendingAnalyticsIdentity,
 } from './identify-user'
 export { sanitizeProperties, truncateMessage } from './sanitize'
 export { trackFlowFailed, trackFlowSucceeded } from './flow-events'

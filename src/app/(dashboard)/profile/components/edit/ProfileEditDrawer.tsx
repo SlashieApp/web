@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { ContactMethodsPanel } from '@/app/(dashboard)/components/account/ContactMethodsPanel'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
+import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, Drawer, FormField, Input } from '@ui'
@@ -152,9 +153,19 @@ function PersonalInfoEditor({
         })
       }
       reset(next)
+      trackFlowSucceeded(EVENTS.profile_update_success, {
+        section: 'personal',
+      })
       showAppToast({ title: 'Personal information saved' })
       onSaved()
     } catch (error) {
+      trackFlowFailed(EVENTS.profile_update_fail, error, {
+        flow: 'profile_update',
+        action: 'updateMyProfile',
+        operation: 'UpdateMyProfile',
+        route: '/profile',
+        extra: { section: 'personal' },
+      })
       showAppToast({
         title: 'Could not save your profile',
         description: getFriendlyErrorMessage(error, 'Please try again.'),
