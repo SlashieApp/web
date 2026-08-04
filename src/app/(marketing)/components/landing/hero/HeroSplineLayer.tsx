@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
 
 import { useDeviceTier } from '../hooks/useDeviceTier'
-import { HERO_SPLINE_SCENE_URL } from './splineScene'
+import { HERO_SPLINE_SCENE_URL } from './heroSplineSceneUrl'
 
 const SplineScene = dynamic(
   () => import('./SplineScene').then((m) => m.SplineScene),

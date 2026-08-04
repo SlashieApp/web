@@ -28,7 +28,7 @@ components/landing/
     Spotlight.tsx            ReactBits-style soft spotlight cone
     SplineScene.tsx          lazy @splinetool/react-spline wrapper
     HeroSplineLayer.tsx      client shell: tier + desktop gate, dynamic load, cross-fade
-    splineScene.ts           scene URL constant (+ NEXT_PUBLIC_HERO_SPLINE_SCENE_URL override)
+    heroSplineSceneUrl.ts    scene URL constant (+ NEXT_PUBLIC_HERO_SPLINE_SCENE_URL override)
   sections/                  HowItWorks · Audience · Trust · PricingTeaser · FinalCtaBand
 ```
 
