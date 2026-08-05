@@ -9,7 +9,7 @@ import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useMe } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
-import { APP_HOME } from '@/utils/appRoutes'
+import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 import bag from './i11n.json'
 
@@ -61,7 +61,7 @@ function VerifyEmailSentContent() {
   return (
     <Stack ref={onMountRef} gap={6} w="full">
       <Link
-        href="/"
+        href={MARKETING_HOME}
         display="block"
         w="full"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}

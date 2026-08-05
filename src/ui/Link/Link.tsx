@@ -15,10 +15,10 @@ import { sdlFocusRing, sdlMotion } from '@/theme/styles'
  * SDL inline Link. Renders the SDL link role (`text.link`, green-700 in light /
  * green-300 in dark) and uses Next.js client navigation for internal `href`s.
  *
- * Internal string `href`s are prefixed with the active locale automatically
- * (`/tasks` → `/en/tasks`). External URLs, `mailto:`, `tel:`, and hash-only
- * links are left unchanged. Call sites should pass bare paths — do not wrap
- * with `useLocalizedHref()`.
+ * Internal string `href`s are localized automatically: default locale (`en`)
+ * stays unprefixed (`/tasks`); `zh-hk` gets `/zh-hk/tasks`. External URLs,
+ * `mailto:`, `tel:`, and hash-only links are left unchanged. Call sites
+ * should pass bare paths — do not wrap with `useLocalizedHref()`.
  *
  * Tones:
  * - `default` — standard inline link (`text.link`), underline on hover.

@@ -1,11 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 import {
+  type AppLocale,
   DEFAULT_LOCALE,
   LOCALE_COOKIE,
   LOCALE_HEADER,
   isAppLocale,
 } from '@/i18n/locales'
+import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
+import { AUTH_COOKIE_NAME } from '@/utils/authCookie'
 
 const PUBLIC_FILE = /\.[^/]+$/
 
@@ -30,10 +33,34 @@ function shouldSkip(pathname: string): boolean {
   return false
 }
 
+function hasAuthCookie(request: NextRequest): boolean {
+  const value = request.cookies.get(AUTH_COOKIE_NAME)?.value?.trim()
+  return Boolean(value)
+}
+
+/** Auth-aware entry destination (bare path, no locale slug). */
+function entryDestination(
+  request: NextRequest,
+): typeof APP_HOME | typeof MARKETING_HOME {
+  return hasAuthCookie(request) ? APP_HOME : MARKETING_HOME
+}
+
+function applyLocale(response: NextResponse, locale: AppLocale): NextResponse {
+  response.headers.set(LOCALE_HEADER, locale)
+  response.cookies.set(LOCALE_COOKIE, locale, {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: 'lax',
+  })
+  return response
+}
+
 /**
  * Locale slug routing (Next.js `proxy` — formerly `middleware`):
- * - `/en/...` and `/zh-hk/...` rewrite to the internal app path (no prefix).
- * - Paths without a locale redirect to `/en/...` (default).
+ * - Default locale (`en`) is unprefixed: `/search`, `/home`, …
+ * - Non-default (`zh-hk`) keeps `/zh-hk/...` and rewrites to the bare path.
+ * - Explicit `/en` and `/en/...` permanently redirect to the unprefixed path.
+ * - `/` and `/zh-hk` are auth-aware: signed-in → `/search`, guest → `/home`.
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -56,25 +83,39 @@ export function proxy(request: NextRequest) {
     const restPath =
       restSegments.length === 0 ? '/' : `/${restSegments.join('/')}`
 
+    // Explicit `/en` / `/en/...` → permanent redirect to unprefixed path.
+    // `/` then applies the auth-aware entry redirect.
+    if (maybeLocale === DEFAULT_LOCALE) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = restPath
+      return NextResponse.redirect(redirectUrl, 308)
+    }
+
+    // Locale root `/zh-hk` → auth-aware entry under that locale.
+    if (restPath === '/') {
+      const dest = entryDestination(request)
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = `/${maybeLocale}${dest}`
+      return NextResponse.redirect(redirectUrl)
+    }
+
     const rewriteUrl = request.nextUrl.clone()
     rewriteUrl.pathname = restPath
 
     const response = NextResponse.rewrite(rewriteUrl)
-    response.headers.set(LOCALE_HEADER, maybeLocale)
-    response.cookies.set(LOCALE_COOKIE, maybeLocale, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: 'lax',
-    })
-    return response
+    return applyLocale(response, maybeLocale)
   }
 
-  // No locale slug → redirect to default `en` (keep query string).
-  const locale = DEFAULT_LOCALE
-  const redirectUrl = request.nextUrl.clone()
-  redirectUrl.pathname =
-    pathname === '/' ? `/${locale}` : `/${locale}${pathname}`
-  return NextResponse.redirect(redirectUrl)
+  // Bare `/` → auth-aware English entry (preserve query string).
+  if (pathname === '/') {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = entryDestination(request)
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  // Unprefixed English path — set locale and continue (no redirect to `/en`).
+  const response = NextResponse.next()
+  return applyLocale(response, DEFAULT_LOCALE)
 }
 
 export const config = {

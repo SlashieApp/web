@@ -25,7 +25,7 @@ import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptch
 import { loginFormSchema } from '@/app/(auth)/login/loginFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
-import { APP_HOME } from '@/utils/appRoutes'
+import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import bag from './i11n.json'
@@ -436,7 +436,7 @@ export default function LoginPage() {
           >
             <Stack gap={6}>
               <Link
-                href="/"
+                href={MARKETING_HOME}
                 display="block"
                 w="full"
                 _hover={{ textDecoration: 'none', opacity: 0.92 }}

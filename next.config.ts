@@ -55,89 +55,129 @@ const nextConfig: NextConfig = {
     ]
   },
   async redirects() {
-    const locale = ':locale(en|zh-hk)'
+    // Non-default locale keeps its slug; English destinations are unprefixed.
+    const zhHk = 'zh-hk'
     return [
       // Legacy browse surfaces merged into the unified map-first /search.
       // Exact-match only: /tasks/:slug and /workers/:slug stay untouched.
-      // Locale-prefixed variants keep the `/en` / `/zh-hk` slug.
       {
-        source: `/${locale}/tasks`,
-        destination: `/${locale}/search?mode=tasks`,
+        source: `/${zhHk}/tasks`,
+        destination: `/${zhHk}/search?mode=tasks`,
+        permanent: false,
+      },
+      {
+        source: '/en/tasks',
+        destination: '/search?mode=tasks',
         permanent: false,
       },
       {
         source: '/tasks',
-        destination: '/en/search?mode=tasks',
+        destination: '/search?mode=tasks',
         permanent: false,
       },
       {
-        source: `/${locale}/workers`,
-        destination: `/${locale}/search?mode=workers`,
+        source: `/${zhHk}/workers`,
+        destination: `/${zhHk}/search?mode=workers`,
+        permanent: false,
+      },
+      {
+        source: '/en/workers',
+        destination: '/search?mode=workers',
         permanent: false,
       },
       {
         source: '/workers',
-        destination: '/en/search?mode=workers',
+        destination: '/search?mode=workers',
         permanent: false,
       },
       {
-        source: `/${locale}/task/:slug`,
-        destination: `/${locale}/tasks/:slug`,
+        source: `/${zhHk}/task/:slug`,
+        destination: `/${zhHk}/tasks/:slug`,
+        permanent: true,
+      },
+      {
+        source: '/en/task/:slug',
+        destination: '/tasks/:slug',
         permanent: true,
       },
       {
         source: '/task/:slug',
-        destination: '/en/tasks/:slug',
+        destination: '/tasks/:slug',
         permanent: true,
       },
       {
-        source: `/${locale}/task/:slug/quote`,
-        destination: `/${locale}/tasks/:slug/quote`,
+        source: `/${zhHk}/task/:slug/quote`,
+        destination: `/${zhHk}/tasks/:slug/quote`,
+        permanent: true,
+      },
+      {
+        source: '/en/task/:slug/quote',
+        destination: '/tasks/:slug/quote',
         permanent: true,
       },
       {
         source: '/task/:slug/quote',
-        destination: '/en/tasks/:slug/quote',
+        destination: '/tasks/:slug/quote',
         permanent: true,
       },
       {
-        source: `/${locale}/requests/:id/order`,
-        destination: `/${locale}/tasks/:id#task-order`,
+        source: `/${zhHk}/requests/:id/order`,
+        destination: `/${zhHk}/tasks/:id#task-order`,
+        permanent: true,
+      },
+      {
+        source: '/en/requests/:id/order',
+        destination: '/tasks/:id#task-order',
         permanent: true,
       },
       {
         source: '/requests/:id/order',
-        destination: '/en/tasks/:id#task-order',
+        destination: '/tasks/:id#task-order',
         permanent: true,
       },
       {
-        source: `/${locale}/tasks/:slug/order`,
-        destination: `/${locale}/tasks/:slug#task-order`,
+        source: `/${zhHk}/tasks/:slug/order`,
+        destination: `/${zhHk}/tasks/:slug#task-order`,
+        permanent: true,
+      },
+      {
+        source: '/en/tasks/:slug/order',
+        destination: '/tasks/:slug#task-order',
         permanent: true,
       },
       {
         source: '/tasks/:slug/order',
-        destination: '/en/tasks/:slug#task-order',
+        destination: '/tasks/:slug#task-order',
         permanent: true,
       },
       {
-        source: `/${locale}/jobs`,
-        destination: `/${locale}/quotes`,
+        source: `/${zhHk}/jobs`,
+        destination: `/${zhHk}/quotes`,
+        permanent: true,
+      },
+      {
+        source: '/en/jobs',
+        destination: '/quotes',
         permanent: true,
       },
       {
         source: '/jobs',
-        destination: '/en/quotes',
+        destination: '/quotes',
         permanent: true,
       },
       {
-        source: `/${locale}/jobs/:path*`,
-        destination: `/${locale}/quotes/:path*`,
+        source: `/${zhHk}/jobs/:path*`,
+        destination: `/${zhHk}/quotes/:path*`,
+        permanent: true,
+      },
+      {
+        source: '/en/jobs/:path*',
+        destination: '/quotes/:path*',
         permanent: true,
       },
       {
         source: '/jobs/:path*',
-        destination: '/en/quotes/:path*',
+        destination: '/quotes/:path*',
         permanent: true,
       },
     ]

@@ -11,18 +11,19 @@ import {
 } from '@/i18n/loadPageI11n'
 import { withLocale } from '@/i18n/navigation'
 import { Footer } from '@/ui'
+import { MARKETING_HOME } from '@/utils/appRoutes'
 
-import { LenisRoot } from './components/landing/LenisRoot'
-import { HeroSection } from './components/landing/hero/HeroSection'
-import { AudienceSection } from './components/landing/sections/AudienceSection'
-import { FinalCtaBand } from './components/landing/sections/FinalCtaBand'
-import { HowItWorks } from './components/landing/sections/HowItWorks'
+import { LenisRoot } from '../components/landing/LenisRoot'
+import { HeroSection } from '../components/landing/hero/HeroSection'
+import { AudienceSection } from '../components/landing/sections/AudienceSection'
+import { FinalCtaBand } from '../components/landing/sections/FinalCtaBand'
+import { HowItWorks } from '../components/landing/sections/HowItWorks'
 import {
   type LandingPricing,
   PricingTeaser,
-} from './components/landing/sections/PricingTeaser'
-import { TrustSection } from './components/landing/sections/TrustSection'
-import messages from './i11n.json'
+} from '../components/landing/sections/PricingTeaser'
+import { TrustSection } from '../components/landing/sections/TrustSection'
+import messages from '../i11n.json'
 
 export async function generateMetadata() {
   const locale = await getRequestLocale()
@@ -30,15 +31,15 @@ export async function generateMetadata() {
 
   return metadataFromI11n(copy.landing.metadata, {
     locale,
-    path: '/',
+    path: MARKETING_HOME,
   })
 }
 
 /**
- * Marketing landing. The narrative is fully server-rendered (SEO + no-JS
- * legible); the Spotlight + COBE globe hero and scroll motion are client
- * islands layered on top. Signed-in visitors stay on the landing (no
- * auto-redirect).
+ * Marketing landing at `/home`. The narrative is fully server-rendered
+ * (SEO + no-JS legible); the Spotlight + COBE globe hero and scroll motion
+ * are client islands layered on top. Root `/` auth-redirects guests here
+ * and signed-in users to `/search`.
  */
 export default async function MarketingHomePage() {
   const locale = await getRequestLocale()

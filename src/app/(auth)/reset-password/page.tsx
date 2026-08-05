@@ -1,5 +1,6 @@
 'use client'
 
+import { MARKETING_HOME } from '@/utils/appRoutes'
 import { useMutation } from '@apollo/client/react'
 import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ResetPasswordMutation } from '@codegen/schema'
@@ -211,7 +212,7 @@ function MissingResetLinkState() {
   return (
     <Stack gap={6} w="full">
       <Link
-        href="/"
+        href={MARKETING_HOME}
         display="block"
         w="full"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}
@@ -332,7 +333,7 @@ function ResetPasswordForm() {
   return (
     <Stack gap={6} w="full">
       <Link
-        href="/"
+        href={MARKETING_HOME}
         display="block"
         w="full"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}

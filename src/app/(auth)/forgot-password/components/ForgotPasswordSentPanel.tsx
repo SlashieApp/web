@@ -1,5 +1,6 @@
 'use client'
 
+import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import { Button, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -65,7 +66,7 @@ export function ForgotPasswordSentPanel() {
   return (
     <Stack gap={6} w="full">
       <Link
-        href="/"
+        href={MARKETING_HOME}
         display="block"
         w="full"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}

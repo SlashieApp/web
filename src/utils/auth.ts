@@ -1,6 +1,8 @@
 'use client'
 
-export const AUTH_COOKIE_NAME = 'auth'
+import { AUTH_COOKIE_NAME } from '@/utils/authCookie'
+
+export { AUTH_COOKIE_NAME }
 
 function decodeCookieValue(value: string) {
   try {
