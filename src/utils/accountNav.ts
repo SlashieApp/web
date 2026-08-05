@@ -3,7 +3,7 @@
  *
  * Routes here are URL-unprefixed because `(dashboard)` is a Next route group,
  * not a URL segment. Overview owns `/dashboard`; everything else is a sibling.
- * Locale slugs (`/en`, `/zh-hk`) are stripped before matching.
+ * Locale slugs (`/zh-hk`, legacy `/en`) are stripped before matching.
  */
 
 import { stripLocalePrefix } from '@/i18n/navigation'

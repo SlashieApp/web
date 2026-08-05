@@ -8,7 +8,7 @@ import { localeFromPathname, withLocale } from '@/i18n/navigation'
 
 type LocaleContextValue = {
   locale: AppLocale
-  /** Prefix an internal href with the active locale. */
+  /** Localize an internal href for the active locale. */
   href: (path: string) => string
 }
 

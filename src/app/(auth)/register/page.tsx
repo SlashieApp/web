@@ -1,5 +1,6 @@
 'use client'
 
+import { MARKETING_HOME } from '@/utils/appRoutes'
 import { useMutation } from '@apollo/client/react'
 import { Box, Checkbox, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
@@ -489,7 +490,7 @@ export default function RegisterPage() {
         >
           <Stack gap={6}>
             <Link
-              href="/"
+              href={MARKETING_HOME}
               display="block"
               w="full"
               _hover={{ textDecoration: 'none', opacity: 0.92 }}

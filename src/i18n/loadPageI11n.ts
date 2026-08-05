@@ -6,6 +6,7 @@ import {
   type I11nKey,
   LOCALE_TO_I11N_KEY,
 } from './locales'
+import { withLocale } from './navigation'
 
 export type PageI11nBag<T extends Record<string, unknown>> = {
   en: T
@@ -32,20 +33,20 @@ type MetadataFields = {
 /**
  * Build Next.js metadata from a page i11n bundle + canonical path
  * (path without locale prefix, e.g. `/pricing`).
+ * English canonicals omit `/en`; `zh-hk` keeps the slug.
  */
 export function metadataFromI11n(
   copy: MetadataFields,
   opts: {
     locale: AppLocale
-    /** Path without locale, e.g. `/` or `/pricing`. */
+    /** Path without locale, e.g. `/home` or `/pricing`. */
     path: string
     siteName?: string
   },
 ): Metadata {
   const title = copy.title ?? 'Slashie'
   const description = copy.description ?? ''
-  const localizedPath =
-    opts.path === '/' ? `/${opts.locale}` : `/${opts.locale}${opts.path}`
+  const localizedPath = withLocale(opts.locale, opts.path)
   const siteName = opts.siteName ?? 'Slashie'
 
   return {
@@ -54,8 +55,8 @@ export function metadataFromI11n(
     alternates: {
       canonical: localizedPath,
       languages: {
-        en: opts.path === '/' ? '/en' : `/en${opts.path}`,
-        'zh-HK': opts.path === '/' ? '/zh-hk' : `/zh-hk${opts.path}`,
+        en: withLocale('en', opts.path),
+        'zh-HK': withLocale('zh-hk', opts.path),
       },
     },
     openGraph: {

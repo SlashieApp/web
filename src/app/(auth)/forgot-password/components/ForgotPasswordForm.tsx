@@ -1,5 +1,6 @@
 'use client'
 
+import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import { Button, FormField, Input, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -59,7 +60,10 @@ export function ForgotPasswordForm() {
 
   return (
     <Stack gap={6} w="full">
-      <Link href="/" _hover={{ textDecoration: 'none', opacity: 0.92 }}>
+      <Link
+        href={MARKETING_HOME}
+        _hover={{ textDecoration: 'none', opacity: 0.92 }}
+      >
         <Logo h="48px" />
       </Link>
 
@@ -155,7 +159,7 @@ export function ForgotPasswordForm() {
       <Text fontSize="sm" color="text.muted" textAlign="center">
         Facing issues?{' '}
         <Link
-          href="/"
+          href={MARKETING_HOME}
           fontWeight={700}
           color="text.link"
           _hover={{ color: 'status.success.fg', textDecoration: 'none' }}

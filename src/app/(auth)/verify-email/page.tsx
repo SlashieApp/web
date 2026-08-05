@@ -16,7 +16,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import VerifyEmail from '@/app/(auth)/verify-email/graphql/VerifyEmail.gql'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
-import { APP_HOME } from '@/utils/appRoutes'
+import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
 import { getAuthToken, setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import bag from './i11n.json'
@@ -120,7 +120,7 @@ function VerifyEmailContent() {
   return (
     <Stack ref={onMountRef} gap={6} w="full">
       <Link
-        href="/"
+        href={MARKETING_HOME}
         display="block"
         w="full"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}

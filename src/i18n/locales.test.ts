@@ -27,14 +27,20 @@ describe('locales', () => {
 })
 
 describe('navigation', () => {
-  it('strips and prefixes locale slugs', () => {
+  it('strips locale slugs; default locale stays unprefixed', () => {
     expect(stripLocalePrefix('/en/pricing')).toBe('/pricing')
     expect(stripLocalePrefix('/zh-hk')).toBe('/')
+    expect(stripLocalePrefix('/home')).toBe('/home')
     expect(withLocale('zh-hk', '/pricing')).toBe('/zh-hk/pricing')
-    expect(withLocale('en', '/')).toBe('/en')
-    expect(withLocale('en', '/search?mode=tasks')).toBe('/en/search?mode=tasks')
+    expect(withLocale('zh-hk', '/home')).toBe('/zh-hk/home')
+    expect(withLocale('en', '/')).toBe('/')
+    expect(withLocale('en', '/home')).toBe('/home')
+    expect(withLocale('en', '/search?mode=tasks')).toBe('/search?mode=tasks')
     expect(localeFromPathname('/zh-hk/about')).toBe('zh-hk')
+    expect(localeFromPathname('/pricing')).toBe('en')
     expect(swapLocaleInPath('/en/pricing', 'zh-hk')).toBe('/zh-hk/pricing')
+    expect(swapLocaleInPath('/zh-hk/home', 'en')).toBe('/home')
+    expect(swapLocaleInPath('/home', 'zh-hk')).toBe('/zh-hk/home')
   })
 })
 

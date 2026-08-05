@@ -352,7 +352,7 @@ function MarketingNavigation({
 export type MarketingHeaderProps = Omit<BoxProps, 'children'>
 
 /**
- * Sticky marketing header. On the landing (`/`) it starts transparent over the
+ * Sticky marketing header. On the landing (`/home`) it starts transparent over the
  * dark WebGL hero with inverted text, then solidifies to the standard light
  * surface once scrolled. Other marketing routes (and no-JS visitors — the
  * overlay only engages after hydration) always get the solid header.

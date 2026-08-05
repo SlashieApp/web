@@ -2,7 +2,7 @@ import { type AppLocale, DEFAULT_LOCALE, LOCALES, isAppLocale } from './locales'
 
 /**
  * Strip a leading locale segment from a pathname.
- * `/en/pricing` → `/pricing`; `/zh-hk` → `/`
+ * `/en/pricing` → `/pricing`; `/zh-hk` → `/`; `/pricing` → `/pricing`
  */
 export function stripLocalePrefix(pathname: string): string {
   const parts = pathname.split('/')
@@ -20,8 +20,9 @@ export function localeFromPathname(pathname: string): AppLocale {
 }
 
 /**
- * Prefix an internal href with the locale slug.
- * External URLs and hash-only links are returned unchanged.
+ * Localize an internal href for the active locale.
+ * Default locale (`en`) stays unprefixed (`/pricing`); non-default keeps a
+ * slug (`/zh-hk/pricing`). External URLs and hash-only links are unchanged.
  * Query strings and hashes are preserved.
  */
 export function withLocale(locale: AppLocale, href: string): string {
@@ -47,6 +48,11 @@ export function withLocale(locale: AppLocale, href: string): string {
   }
 
   const bare = stripLocalePrefix(path || '/')
+
+  if (locale === DEFAULT_LOCALE) {
+    return `${bare}${suffix}`
+  }
+
   const localized =
     bare === '/'
       ? `/${locale}`

@@ -14,7 +14,7 @@ import { buildSearchUrl } from '../helpers/searchQueryParams'
 /**
  * Mirrors mode + viewport + submitted filters into the URL query
  * (history.replaceState — no navigation) so any /search view is shareable.
- * Keeps the active locale prefix so the locale proxy does not bounce `/search` → `/en/search`.
+ * Keeps the active locale in the URL (`/search` for en, `/zh-hk/search` for 繁中).
  */
 export function SearchUrlSync() {
   const locale = useLocale()
