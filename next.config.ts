@@ -1,6 +1,11 @@
 import type { NextConfig } from 'next'
 
+/** First-party PostHog reverse-proxy host (same Vercel project as www). */
+const POSTHOG_PROXY_HOST = 'e.slashie.app'
+
 const nextConfig: NextConfig = {
+  // PostHog capture paths use trailing slashes (e.g. /e/); do not 308-strip them.
+  skipTrailingSlashRedirect: true,
   turbopack: {
     rules: {
       '*.gql': {
@@ -20,6 +25,34 @@ const nextConfig: NextConfig = {
       loader: 'graphql-tag/loader',
     })
     return config
+  },
+  /**
+   * First-party PostHog reverse proxy for EU cloud.
+   * Only active on `e.slashie.app` so www/app routes are untouched.
+   * @see https://posthog.com/docs/advanced/proxy/nextjs
+   */
+  async rewrites() {
+    const onProxyHost = {
+      type: 'host' as const,
+      value: POSTHOG_PROXY_HOST,
+    }
+    return [
+      {
+        source: '/static/:path*',
+        has: [onProxyHost],
+        destination: 'https://eu-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/array/:path*',
+        has: [onProxyHost],
+        destination: 'https://eu-assets.i.posthog.com/array/:path*',
+      },
+      {
+        source: '/:path*',
+        has: [onProxyHost],
+        destination: 'https://eu.i.posthog.com/:path*',
+      },
+    ]
   },
   async redirects() {
     const locale = ':locale(en|zh-hk)'
