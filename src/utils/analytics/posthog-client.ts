@@ -55,6 +55,9 @@ export function initPostHogClient(): void {
 
   posthog.init(config.token, {
     api_host: config.host,
+    // Toolbar / recordings links must hit the real PostHog UI, not the proxy.
+    ui_host: 'https://eu.posthog.com',
+    defaults: '2026-05-30',
     person_profiles: 'identified_only',
     capture_pageview: true,
     capture_exceptions: true,

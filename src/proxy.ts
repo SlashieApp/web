@@ -9,6 +9,16 @@ import {
 
 const PUBLIC_FILE = /\.[^/]+$/
 
+/** Same host as next.config PostHog reverse-proxy rewrites. */
+const POSTHOG_PROXY_HOST = 'e.slashie.app'
+
+function hostnameOf(request: NextRequest): string {
+  return (
+    request.headers.get('host')?.split(':')[0]?.toLowerCase() ??
+    request.nextUrl.hostname.toLowerCase()
+  )
+}
+
 function shouldSkip(pathname: string): boolean {
   if (pathname.startsWith('/_next')) return true
   if (pathname.startsWith('/api')) return true
@@ -27,6 +37,12 @@ function shouldSkip(pathname: string): boolean {
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // First-party PostHog ingest host: never locale-prefix or redirect.
+  // Rewrites in next.config.ts handle /static, /array, and capture paths.
+  if (hostnameOf(request) === POSTHOG_PROXY_HOST) {
+    return NextResponse.next()
+  }
 
   if (shouldSkip(pathname)) {
     return NextResponse.next()
