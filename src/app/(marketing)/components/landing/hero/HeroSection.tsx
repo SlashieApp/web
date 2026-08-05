@@ -8,10 +8,10 @@ import {
   Text,
 } from '@chakra-ui/react'
 
+import { HeroCobeGlobe } from './HeroCobeGlobe'
 import { HeroHowItWorksLink } from './HeroHowItWorksLink'
 import { HeroPoster } from './HeroPoster'
 import { HeroSearchCta } from './HeroSearchCta'
-import { HeroSplineLayer } from './HeroSplineLayer'
 import { Spotlight } from './Spotlight'
 
 /** CSS entrance (runs without JS; disabled under reduced motion). */
@@ -35,6 +35,7 @@ type HeroSectionCopy = {
   searchSubmit: string
   searchAriaLabel: string
   trustChips: readonly string[]
+  globeLabels: readonly { id: string; label: string }[]
 }
 
 type HeroSectionProps = {
@@ -46,7 +47,7 @@ type HeroSectionProps = {
 
 /**
  * Marketing hero: brand-first split composition — copy + search CTA on the
- * left, Spotlight + lazy Spline 3D human on the right. Slides under the
+ * left, Spotlight + COBE WebGL globe on the right. Slides under the
  * transparent marketing header (negative top margin = header height).
  */
 export function HeroSection({ copy, ctas }: HeroSectionProps) {
@@ -160,7 +161,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
           opacity={{ base: 0.85, md: 1 }}
         >
           <HeroPoster />
-          <HeroSplineLayer />
+          <HeroCobeGlobe labels={copy.globeLabels} />
           {/* Soft left fade so copy stays legible where panes meet on desktop. */}
           <Box
             position="absolute"

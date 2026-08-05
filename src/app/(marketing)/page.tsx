@@ -36,8 +36,9 @@ export async function generateMetadata() {
 
 /**
  * Marketing landing. The narrative is fully server-rendered (SEO + no-JS
- * legible); the Spotlight + Spline hero and scroll motion are client islands
- * layered on top. Signed-in visitors stay on the landing (no auto-redirect).
+ * legible); the Spotlight + COBE globe hero and scroll motion are client
+ * islands layered on top. Signed-in visitors stay on the landing (no
+ * auto-redirect).
  */
 export default async function MarketingHomePage() {
   const locale = await getRequestLocale()
