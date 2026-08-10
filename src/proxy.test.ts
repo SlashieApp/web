@@ -78,4 +78,11 @@ describe('proxy locale routing', () => {
     expect(res.status).toBe(200)
     expect(res.headers.get(LOCALE_HEADER)).toBeNull()
   })
+
+  it('skips /api auth mobile-redirect (no locale cookie rewrite)', () => {
+    const res = proxy(request('/api/auth/mobile-redirect?code=test&state=abc'))
+    expect(res.status).toBe(200)
+    expect(res.headers.get(LOCALE_HEADER)).toBeNull()
+    expect(res.headers.get('set-cookie')).toBeNull()
+  })
 })
