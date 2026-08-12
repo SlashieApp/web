@@ -214,8 +214,8 @@ function MarketingNavigation({
             <Image
               src={
                 overlay
-                  ? '/images/slashie-logo-dark.png'
-                  : '/images/slashie-logo-light.png'
+                  ? '/images/slashie-logo-dark.svg'
+                  : '/images/slashie-logo-light.svg'
               }
               alt="Slashie"
               h="full"

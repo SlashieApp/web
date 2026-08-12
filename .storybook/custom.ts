@@ -4,7 +4,7 @@ export default create({
   base: 'light',
   brandTitle: 'Slashie UI',
   brandUrl: 'https://slashie.app',
-  brandImage: '/images/slashie-logo-light.png',
+  brandImage: '/images/slashie-logo-light.svg',
   brandTarget: '_self',
   fontBase: '"Plus Jakarta Sans","Inter", "montserrat","Open Sans", sans-serif',
   fontCode: 'monospace',

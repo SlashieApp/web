@@ -81,7 +81,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
           <Stack gap={{ base: 5, md: 7 }} maxW="34rem">
             <Box {...riseIn(0)}>
               <Image
-                src="/images/slashie-logo-dark.png"
+                src="/images/slashie-logo-dark.svg"
                 alt="slashie"
                 h={{ base: '40px', md: '52px' }}
                 w="auto"

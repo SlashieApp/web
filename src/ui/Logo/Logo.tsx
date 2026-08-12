@@ -86,10 +86,10 @@ export function Logo({
   const isInteractive = interactive ?? Boolean(onClick)
 
   const logoSrc = isMark
-    ? '/images/slashie-logo-mobile.png'
+    ? '/images/slashie-logo-mobile.svg'
     : colorMode === 'light'
-      ? '/images/slashie-logo-light.png'
-      : '/images/slashie-logo-dark.png'
+      ? '/images/slashie-logo-light.svg'
+      : '/images/slashie-logo-dark.svg'
 
   // Mount-gate so the colour-mode-correct artwork is chosen client-side and we
   // avoid a hydration flash of the wrong (or duplicated) logo.
