@@ -86,7 +86,7 @@ export function Logo({
   const isInteractive = interactive ?? Boolean(onClick)
 
   const logoSrc = isMark
-    ? '/images/slashie-logo-mobile.svg'
+    ? '/images/slashie-mark.svg'
     : colorMode === 'light'
       ? '/images/slashie-logo-light.svg'
       : '/images/slashie-logo-dark.svg'
