@@ -377,7 +377,7 @@ function AppHeaderNavigation() {
  */
 export function Header({ children, display, ...props }: HeaderProps) {
   return (
-    <Box display={display}>
+    <Box display={display} flexDirection="column">
       <EmailVerificationBanner />
       <Box
         as="header"
