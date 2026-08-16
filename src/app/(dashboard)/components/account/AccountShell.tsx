@@ -7,6 +7,10 @@ import type { ReactNode } from 'react'
 import bag from '../../i11n.json'
 
 import { DashboardSectionNav, Header } from '@/ui/Header'
+import {
+  MOBILE_BOTTOM_NAV_CLEARANCE,
+  MobileBottomNav,
+} from '@/ui/MobileBottomNav'
 import { Button, Footer, Link } from '@ui'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
@@ -148,7 +152,7 @@ export function AccountShell({ children }: AccountShellProps) {
           flexDirection="column"
           px={{ base: 4, md: 6, xl: 8 }}
           py={{ base: 5, md: 6 }}
-          pb={{ base: 5, lg: 8 }}
+          pb={{ base: MOBILE_BOTTOM_NAV_CLEARANCE, md: 6, lg: 8 }}
         >
           <Box w="full" maxW="1200px" flex="1">
             {children}
@@ -158,6 +162,7 @@ export function AccountShell({ children }: AccountShellProps) {
           <Footer variant="minimal" mt={{ base: 8, md: 10 }} bg="transparent" />
         </Box>
       </Box>
+      <MobileBottomNav />
     </Box>
   )
 }

@@ -1,6 +1,10 @@
 import { Box } from '@chakra-ui/react'
 
 import { Header } from '@/ui/Header'
+import {
+  MOBILE_BOTTOM_NAV_CLEARANCE,
+  MobileBottomNav,
+} from '@/ui/MobileBottomNav'
 
 export default function WorkerLayout({
   children,
@@ -13,21 +17,13 @@ export default function WorkerLayout({
       <Box
         as="main"
         flex={1}
-        display="flex"
-        flexDirection={{ base: 'column', md: 'row' }}
         minH={0}
-        overflow="hidden"
+        overflowY="auto"
+        pb={{ base: MOBILE_BOTTOM_NAV_CLEARANCE, md: 0 }}
       >
-        <Box
-          flex={1}
-          minW={0}
-          minH={0}
-          overflowY="auto"
-          order={{ base: 1, md: 2 }}
-        >
-          {children}
-        </Box>
+        {children}
       </Box>
+      <MobileBottomNav />
     </Box>
   )
 }

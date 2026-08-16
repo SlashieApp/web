@@ -61,7 +61,7 @@ describe('loadPageI11n', () => {
 describe('marketing page dictionaries', () => {
   const requiredDictionaries = [
     'src/ui/Header/i11n.json',
-    'src/ui/Dock/i11n.json',
+    'src/ui/MobileBottomNav/i11n.json',
     'src/ui/Footer/i11n.json',
     'src/ui/LanguageSwitcher/i11n.json',
     'src/app/(dashboard)/i11n.json',

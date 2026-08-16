@@ -1,6 +1,8 @@
 {
   "en": {
     "postTask": "Post a task",
+    "myTasks": "My tasks",
+    "messages": "Messages",
     "logIn": "Log in",
     "signUp": "Sign up",
     "getApp": "Get app",
@@ -21,6 +23,7 @@
       "home": "Home",
       "dashboard": "Dashboard",
       "requests": "My requests",
+      "messages": "Messages",
       "jobs": "Jobs",
       "workers": "Workers",
       "billing": "Billing & plan",
@@ -61,6 +64,8 @@
   },
   "zh_hk": {
     "postTask": "發布任務",
+    "myTasks": "我的任務",
+    "messages": "訊息",
     "logIn": "登入",
     "signUp": "註冊",
     "getApp": "下載 App",
@@ -81,6 +86,7 @@
       "home": "主頁",
       "dashboard": "儀表板",
       "requests": "我的需求",
+      "messages": "訊息",
       "jobs": "工作",
       "workers": "工作者",
       "billing": "帳單與方案",

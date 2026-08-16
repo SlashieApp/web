@@ -43,7 +43,6 @@ export {
   HeaderToolbarSeparator,
 } from './Header'
 export { DetailRow } from './DetailRow'
-export { Dock } from './Dock'
 export { Drawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
 export {
@@ -66,6 +65,11 @@ export { LanguageSwitcher } from './LanguageSwitcher'
 export { Link } from './Link'
 export { Logo } from './Logo'
 export { MapCard } from './MapCard'
+export {
+  MESSAGES_HREF,
+  MOBILE_BOTTOM_NAV_CLEARANCE,
+  MobileBottomNav,
+} from './MobileBottomNav'
 export { MobileCarousel } from './MobileCarousel/MobileCarousel'
 export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'

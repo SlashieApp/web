@@ -1,7 +1,10 @@
 import { Box } from '@chakra-ui/react'
 
-import { Dock } from '@/ui/Dock'
 import { Header } from '@/ui/Header'
+import {
+  MOBILE_BOTTOM_NAV_CLEARANCE,
+  MobileBottomNav,
+} from '@/ui/MobileBottomNav'
 
 export default function TaskLayout({
   children,
@@ -14,29 +17,14 @@ export default function TaskLayout({
       <Box
         as="main"
         flex={1}
-        display="flex"
-        flexDirection={{ base: 'column', md: 'row' }}
         minH={0}
-        overflow="hidden"
+        overflowY="auto"
+        position="relative"
+        pb={{ base: MOBILE_BOTTOM_NAV_CLEARANCE, md: 0 }}
       >
-        <Box
-          flex={1}
-          minW={0}
-          minH={0}
-          overflowY="auto"
-          position="relative"
-          order={{ base: 1, md: 2 }}
-        >
-          {children}
-        </Box>
-        <Box
-          flexShrink={0}
-          order={{ base: 2, md: 1 }}
-          w={{ base: 'full', md: 'auto' }}
-        >
-          <Dock />
-        </Box>
+        {children}
       </Box>
+      <MobileBottomNav />
     </Box>
   )
 }
