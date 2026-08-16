@@ -22,7 +22,7 @@ import { Link } from '../Link'
  * SDL IconButton.
  *
  * Two shapes, one public API (unchanged):
- * - **Nav** (`href` + `icon`, optional `caption`): dock-style route link with an
+ * - **Nav** (`href` + `icon`, optional `caption`): route link with an
  *   active surface. Surfaces use `status.success.*` (the SDL green-tint family).
  * - **Default**: Chakra `IconButton` for ghost actions / `asChild` / drawer close.
  *   Every default IconButton keeps its `aria-label` and meets the 44px touch target.
@@ -34,7 +34,7 @@ import { Link } from '../Link'
  * - Transitions via `sdlMotion` (color/background only — no layout animation).
  */
 
-/** Dock / nav: icon (and optional caption) inside a route link. */
+/** Nav: icon (and optional caption) inside a route link. */
 export type NavIconButtonProps = {
   href: string
   icon: React.ReactNode

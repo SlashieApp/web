@@ -57,6 +57,14 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     audience: 'all',
   },
   {
+    id: 'messages',
+    label: 'Messages',
+    href: '/dashboard/messages',
+    kind: 'link',
+    section: 'main',
+    audience: 'all',
+  },
+  {
     id: 'jobs',
     label: 'Jobs',
     href: '/quotes',

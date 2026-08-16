@@ -39,7 +39,7 @@ function BellIcon() {
 }
 
 /**
- * SDL IconButton. Renders either a dock-style nav link (`href` + `icon`) or a
+ * SDL IconButton. Renders either a nav link (`href` + `icon`) or a
  * standalone ghost action (Chakra `IconButton`). Both keep a visible focus ring
  * and meet the 44px touch target. Stories render under both light and dark via
  * the global theme toolbar — nothing here hardcodes a mode.
@@ -94,14 +94,14 @@ export const Focus: Story = {
   args: { 'aria-label': 'Notifications', children: <BellIcon /> },
 }
 
-/** Dock nav tile in its active (selected route) state. */
+/** Nav tile in its active (selected route) state. */
 export const NavActive: Story = {
   render: () => (
     <IconButton href="/" icon={<BrowseIcon />} caption="Browse" active />
   ),
 }
 
-/** Dock nav tile in its resting (inactive) state. */
+/** Nav tile in its resting (inactive) state. */
 export const NavInactive: Story = {
   render: () => (
     <IconButton href="/requests" icon={<BrowseIcon />} caption="Requests" />

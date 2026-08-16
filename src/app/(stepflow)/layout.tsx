@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react'
 
 /**
  * StepFlow shell — focused multi-step routes only.
- * Does not mount app Header/Dock; each page owns chrome via StepFlowLayout.
+ * Does not mount app Header; each page owns chrome via StepFlowLayout.
  */
 export default function StepFlowLayoutRoute({
   children,

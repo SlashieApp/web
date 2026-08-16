@@ -1,0 +1,14 @@
+{
+  "en": {
+    "eyebrow": "Inbox",
+    "title": "Messages",
+    "description": "In-app messaging is coming soon. For now, use notifications and your task or quote threads to stay in sync.",
+    "backToDashboard": "Back to dashboard"
+  },
+  "zh_hk": {
+    "eyebrow": "收件箱",
+    "title": "訊息",
+    "description": "應用內訊息即將推出。目前可透過通知，以及任務或報價對話保持聯繫。",
+    "backToDashboard": "返回儀表板"
+  }
+}

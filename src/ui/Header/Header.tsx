@@ -9,6 +9,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { formatMessage } from '@/i18n/loadPageI11n'
+import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
 import { isAccountHubPath } from '@/utils/accountHub'
 import { resolveAccountNavKey } from '@/utils/accountNav'
@@ -20,6 +21,7 @@ import { Drawer } from '../Drawer'
 import { IconButton } from '../IconButton'
 import { Link } from '../Link'
 import { Logo } from '../Logo'
+import { MESSAGES_HREF } from '../MobileBottomNav'
 
 import { AccountMenu } from './account/AccountMenu'
 import { accountNavLinkRowProps } from './account/accountNavLinkProps'
@@ -74,11 +76,62 @@ function PostTaskButton() {
   const t = useI11n(bag)
 
   return (
-    <Button asChild size="sm" variant="primary" flexShrink={0}>
+    <Button
+      asChild
+      size="sm"
+      variant="primary"
+      flexShrink={0}
+      display={{ base: 'none', md: 'inline-flex' }}
+    >
       <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
         {t.postTask}
       </Link>
     </Button>
+  )
+}
+
+function DesktopPrimaryNav() {
+  const t = useI11n(bag)
+  const pathname = usePathname()
+  const bare = stripLocalePrefix(pathname ?? '')
+
+  const linkProps = {
+    fontSize: 'sm',
+    fontWeight: 600,
+    px: 2,
+    py: 1,
+    borderRadius: 'md',
+    _hover: { textDecoration: 'none', bg: 'status.success.soft' },
+  } as const
+
+  const items = [
+    { href: '/requests', label: t.myTasks },
+    { href: MESSAGES_HREF, label: t.messages },
+  ] as const
+
+  return (
+    <HStack
+      display={{ base: 'none', md: 'flex' }}
+      gap={1}
+      align="center"
+      flexShrink={0}
+    >
+      {items.map((item) => {
+        const active = bare === item.href || bare.startsWith(`${item.href}/`)
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            color={active ? 'status.success.fg' : 'text.default'}
+            aria-current={active ? 'page' : undefined}
+            {...linkProps}
+          >
+            {item.label}
+          </Link>
+        )
+      })}
+      <PostTaskButton />
+    </HStack>
   )
 }
 
@@ -285,14 +338,10 @@ function AppHeaderNavigation() {
       </HStack>
 
       <HStack align="center" flexShrink={0}>
+        <DesktopPrimaryNav />
         {isLoggedIn ? (
           <>
-            {!isDashboard ? (
-              <>
-                <PostTaskButton />
-                <HeaderToolbarSeparator display="block" ml={2} />
-              </>
-            ) : null}
+            <HeaderToolbarSeparator display="block" ml={2} />
             <HStack gap={1} align="center" flexShrink={0}>
               <LanguageSwitcher />
               <NotificationsBell />
@@ -308,7 +357,6 @@ function AppHeaderNavigation() {
           </>
         ) : (
           <>
-            {!isDashboard ? <PostTaskButton /> : null}
             <HeaderToolbarSeparator />
             <LanguageSwitcher />
             <HeaderGuestAuthButtons

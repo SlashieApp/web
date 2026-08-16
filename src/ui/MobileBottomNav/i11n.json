@@ -1,0 +1,18 @@
+{
+  "en": {
+    "ariaLabel": "Primary navigation",
+    "search": "Search",
+    "myTasks": "My tasks",
+    "createTask": "Post task",
+    "messages": "Messages",
+    "profile": "Profile"
+  },
+  "zh_hk": {
+    "ariaLabel": "主要導覽",
+    "search": "搜尋",
+    "myTasks": "我的任務",
+    "createTask": "發佈任務",
+    "messages": "訊息",
+    "profile": "個人檔案"
+  }
+}
