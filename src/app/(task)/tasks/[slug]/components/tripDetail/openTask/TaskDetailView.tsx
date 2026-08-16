@@ -61,7 +61,7 @@ export function TaskDetailView() {
               rowGap={5}
               alignItems="start"
             >
-              {/* Left column = Overview + Details stacks; right = Quotes. */}
+              {/* Left column = mobile Info tab; right = mobile Quotes tab. */}
               <TaskInfoSections />
               <TaskQuoteSections />
             </Grid>

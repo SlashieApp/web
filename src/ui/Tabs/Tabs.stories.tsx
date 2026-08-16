@@ -1,4 +1,4 @@
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 
@@ -85,38 +85,6 @@ export const ManyTabsWithDisabled: Story = {
         <Text>Archived panel</Text>
       </Tabs.Panel>
     </Tabs>
-  ),
-}
-
-/** Four tabs that overflow on a narrow rail — active tab stays in view. */
-export const OverflowScroll: Story = {
-  args: {
-    tabs: [
-      { key: 'overview', label: 'Overview' },
-      { key: 'details', label: 'Details' },
-      { key: 'quotes', label: 'Quotes', badge: 4 },
-      { key: 'activity', label: 'Activity' },
-    ],
-    'aria-label': 'Task sections',
-    defaultValue: 'activity',
-  },
-  render: (args) => (
-    <Box maxW="280px">
-      <Tabs {...args}>
-        <Tabs.Panel value="overview">
-          <Text>Overview panel</Text>
-        </Tabs.Panel>
-        <Tabs.Panel value="details">
-          <Text>Details panel</Text>
-        </Tabs.Panel>
-        <Tabs.Panel value="quotes">
-          <Text>Quotes panel</Text>
-        </Tabs.Panel>
-        <Tabs.Panel value="activity">
-          <Text>Activity panel</Text>
-        </Tabs.Panel>
-      </Tabs>
-    </Box>
   ),
 }
 

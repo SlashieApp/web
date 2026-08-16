@@ -1,194 +1,129 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Box, Text } from '@chakra-ui/react'
-import {
-  type UIEvent,
-  useCallback,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from 'react'
+import { Box, Skeleton, Stack } from '@chakra-ui/react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { LuShare2 } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
-import { sdlMotion } from '@/theme/styles'
-import { Tabs } from '@ui'
+import { Button, Link, Tabs } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import {
-  type TaskDetailTab,
-  defaultTaskDetailTab,
-  parseTaskDetailTabHash,
-  replaceTaskDetailTabHash,
-} from '../../helpers/taskDetailTabs'
+import { useScrollContainerCollapsed } from '../../helpers/taskDetailHeaderCollapse'
+import { Reveal } from './Reveal'
 import { StatusHeader } from './StatusHeader'
-import { TaskActivitySections } from './TaskActivitySections'
-import { TaskDetailMobileActionBar } from './TaskDetailMobileActionBar'
-import { TaskDetailMobileChips } from './TaskDetailMobileChips'
-import { TaskDetailsSections, TaskQuoteSections } from './TaskDetailSections'
-import { TaskHeaderControls } from './TaskHeaderControls'
-import { TaskOverviewSections } from './TaskOverviewSections'
+import {
+  MOBILE_COLLAPSED_HEADER_H,
+  TaskDetailMobileCollapsedHeader,
+} from './TaskDetailMobileCollapsedHeader'
+import { TaskInfoSections, TaskQuoteSections } from './TaskDetailSections'
+import { useShareTask } from './openTask/shareTask'
 
-const MAP_COLLAPSE_AT = 80
-const MAP_EXPAND_AT = 8
-const MAP_HERO_MAX_H = '260px'
+const TAB_INFO = 'info'
+const TAB_QUOTES = 'quotes'
 
-function subscribeHash(onStoreChange: () => void) {
-  window.addEventListener('hashchange', onStoreChange)
-  return () => window.removeEventListener('hashchange', onStoreChange)
-}
-
-function getHashTabSnapshot(): TaskDetailTab | null {
-  return parseTaskDetailTabHash(window.location.hash)
-}
-
-function getServerHashTabSnapshot(): TaskDetailTab | null {
-  return null
+function readHashTab(): string | null {
+  if (typeof window === 'undefined') return null
+  const hash = window.location.hash.replace('#', '')
+  return hash === TAB_INFO || hash === TAB_QUOTES ? hash : null
 }
 
 /**
- * Mobile (<lg) task detail: map hero can scroll away; header + chips + tabs
- * stay pinned; only the active panel scrolls; a fixed-in-flow action bar
- * keeps Share / primary / Messages void reachable.
+ * Mobile (<lg) task-detail: a pinned hero (status + primary CTA + booking banner)
+ * above Info / Quotes tabs. Tab content reuses the same section components as the
+ * desktop layout. Presentation only.
  */
 export function TaskDetailMobile() {
   const { task, permissions, statusReady } = useTaskDetail()
   const t = useI11n(bag)
+  const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
+
+  // Collapse once the map hero has largely scrolled away, resolved from the
+  // app-shell content pane (not the window — see taskDetailHeaderCollapse).
+  const rootRef = useRef<HTMLDivElement>(null)
+  const collapsed = useScrollContainerCollapsed(rootRef, 140, 80)
+
   const quoteCount = task?.quotes.length ?? 0
+  const defaultTab =
+    permissions.isOwner && quoteCount > 0 ? TAB_QUOTES : TAB_INFO
+  const [activeTab, setActiveTab] = useState(defaultTab)
 
-  const hashTab = useSyncExternalStore(
-    subscribeHash,
-    getHashTabSnapshot,
-    getServerHashTabSnapshot,
-  )
-  const [userTab, setUserTab] = useState<TaskDetailTab | null>(null)
-  const defaultTab = defaultTaskDetailTab({
-    isOwner: statusReady && permissions.isOwner,
-    quoteCount,
-  })
-  const activeTab = userTab ?? hashTab ?? defaultTab
-
-  const mapCollapsedRef = useRef(false)
-  const [mapCollapsed, setMapCollapsed] = useState(false)
-
-  const onPanelScroll = useCallback((event: UIEvent<HTMLDivElement>) => {
-    const y = event.currentTarget.scrollTop
-    const next = mapCollapsedRef.current
-      ? y > MAP_EXPAND_AT
-      : y > MAP_COLLAPSE_AT
-    if (next !== mapCollapsedRef.current) {
-      mapCollapsedRef.current = next
-      setMapCollapsed(next)
-    }
+  useEffect(() => {
+    const fromHash = readHashTab()
+    if (fromHash) setActiveTab(fromHash)
   }, [])
 
   const onTabChange = useCallback((key: string) => {
-    const tab = parseTaskDetailTabHash(key)
-    if (!tab) return
-    setUserTab(tab)
-    replaceTaskDetailTabHash(tab)
+    setActiveTab(key)
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `#${key}`)
+    }
   }, [])
 
   if (!task) return null
 
-  const title = task.title?.trim() || t.fallbackTask
+  const quoteFlowHref = `/tasks/${task.id}/quote`
+
+  // Pinned primary CTA for OPEN states (booking states use the banner below).
+  // Held as a skeleton until the viewer state is confirmed — the CTA choice
+  // (share vs quote vs none) is exactly the state that used to flash wrong.
+  let heroCta: React.ReactNode = null
+  if (!statusReady) {
+    heroCta = <Skeleton h="48px" w="full" borderRadius="md" />
+  } else if (permissions.isOwner && permissions.isOpen) {
+    heroCta = (
+      <Button variant="primary" w="full" onClick={() => void onShare()}>
+        <LuShare2 />
+        {t.mobile.shareTask}
+      </Button>
+    )
+  } else if (permissions.showQuoteForm) {
+    heroCta = (
+      <Link
+        href={quoteFlowHref}
+        _hover={{ textDecoration: 'none' }}
+        display="block"
+      >
+        <Button variant="primary" w="full">
+          {t.mobile.sendQuote}
+        </Button>
+      </Link>
+    )
+  }
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      h="100%"
-      minH="100%"
-      overflow="hidden"
-      bg="bg.canvas"
-    >
-      <Box
-        flexShrink={0}
-        maxH={mapCollapsed ? '0' : MAP_HERO_MAX_H}
-        overflow="hidden"
-        transitionProperty="max-height"
-        transitionDuration={sdlMotion.duration.moderate}
-        transitionTimingFunction={sdlMotion.easing.standard}
-      >
-        <StatusHeader collapsed={mapCollapsed} />
-      </Box>
+    <Box ref={rootRef} pb={28}>
+      {/* Compact header that pins above the tabs once the hero scrolls away. */}
+      <TaskDetailMobileCollapsedHeader collapsed={collapsed} />
 
-      <Box flexShrink={0} bg="bg.canvas" px={4} pt={2} pb={1}>
-        {mapCollapsed ? (
-          <TaskHeaderControls showBackLabel={false}>
-            <Text
-              as="h1"
-              flex="1"
-              minW={0}
-              fontWeight={600}
-              fontSize="md"
-              color="text.default"
-              truncate
-            >
-              {title}
-            </Text>
-          </TaskHeaderControls>
-        ) : (
-          <Box py={1} pr={1}>
-            <Text fontSize="xs" fontWeight={600} color="text.muted">
-              {t.mobile.eyebrow}
-            </Text>
-            <Text
-              as="h1"
-              fontFamily="heading"
-              fontWeight={600}
-              fontSize="lg"
-              lineHeight="1.3"
-              color="text.default"
-            >
-              {title}
-            </Text>
-          </Box>
-        )}
-      </Box>
+      {/* Full-bleed map hero — text aligned to the page container internally.
+          The map fades out once collapsed so it doesn't linger on scroll. */}
+      <StatusHeader collapsed={collapsed} />
 
-      <Box flexShrink={0}>
-        <TaskDetailMobileChips />
-      </Box>
+      <Stack gap={5} w="full" px={4} pt={4}>
+        {heroCta ? <Reveal speed="slow">{heroCta}</Reveal> : null}
 
-      <Tabs
-        fill
-        aria-label={t.nav.taskSectionsAria}
-        value={activeTab}
-        onChange={onTabChange}
-        px={4}
-        flex="1"
-        minH={0}
-        tabs={[
-          { key: 'overview', label: t.mobile.tabOverview },
-          { key: 'details', label: t.mobile.tabDetails },
-          { key: 'quotes', label: t.mobile.tabQuotes, badge: quoteCount },
-          { key: 'activity', label: t.mobile.tabActivity },
-        ]}
-      >
-        <Tabs.Panel value="overview" onScroll={onPanelScroll}>
-          <Box px={0} pt={4} pb={6}>
-            <TaskOverviewSections />
-          </Box>
-        </Tabs.Panel>
-        <Tabs.Panel value="details" onScroll={onPanelScroll}>
-          <Box px={0} pt={4} pb={6}>
-            <TaskDetailsSections />
-          </Box>
-        </Tabs.Panel>
-        <Tabs.Panel value="quotes" onScroll={onPanelScroll}>
-          <Box px={0} pt={4} pb={6}>
+        <Tabs
+          fitted
+          sticky
+          stickyTop={collapsed ? MOBILE_COLLAPSED_HEADER_H : 0}
+          aria-label={t.nav.taskSectionsAria}
+          value={activeTab}
+          onChange={onTabChange}
+          tabs={[
+            { key: TAB_INFO, label: t.mobile.tabInfo },
+            { key: TAB_QUOTES, label: t.mobile.tabQuotes, badge: quoteCount },
+          ]}
+        >
+          <Tabs.Panel value={TAB_INFO}>
+            <TaskInfoSections />
+          </Tabs.Panel>
+
+          <Tabs.Panel value={TAB_QUOTES}>
             <TaskQuoteSections />
-          </Box>
-        </Tabs.Panel>
-        <Tabs.Panel value="activity" onScroll={onPanelScroll}>
-          <Box px={0} pt={4} pb={6}>
-            <TaskActivitySections />
-          </Box>
-        </Tabs.Panel>
-      </Tabs>
-
-      <TaskDetailMobileActionBar onSelectTab={onTabChange} />
+          </Tabs.Panel>
+        </Tabs>
+      </Stack>
     </Box>
   )
 }

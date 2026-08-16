@@ -5,7 +5,6 @@ import { useReducedMotion } from 'motion/react'
 import {
   type KeyboardEvent,
   type ReactNode,
-  type UIEventHandler,
   createContext,
   useCallback,
   useContext,
@@ -46,12 +45,6 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
   sticky?: boolean
   /** Sticky offset from the top (CSS length). */
   stickyTop?: BoxProps['top']
-  /**
-   * Fill the parent height and let each panel scroll independently
-   * (preserves per-panel scroll). Use when the tablist is pinned and only
-   * the active panel should move.
-   */
-  fill?: boolean
   /** Accessible name for the tablist. */
   'aria-label'?: string
   children?: ReactNode
@@ -62,7 +55,6 @@ type TabsContextValue = {
   direction: number
   reducedMotion: boolean
   baseId: string
-  fill: boolean
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null)
@@ -84,7 +76,6 @@ function TabsBase({
   fitted = false,
   sticky = false,
   stickyTop = 0,
-  fill = false,
   children,
   'aria-label': ariaLabel,
   ...boxProps
@@ -132,13 +123,7 @@ function TabsBase({
 
   useLayoutEffect(() => {
     measure()
-    const el = tabRefs.current[activeValue]
-    el?.scrollIntoView({
-      inline: 'center',
-      block: 'nearest',
-      behavior: reducedMotion ? 'auto' : 'smooth',
-    })
-  }, [measure, activeValue, reducedMotion])
+  }, [measure])
 
   useEffect(() => {
     const list = listRef.current
@@ -185,42 +170,28 @@ function TabsBase({
   )
 
   const contextValue = useMemo<TabsContextValue>(
-    () => ({ activeValue, direction, reducedMotion, baseId, fill }),
-    [activeValue, direction, reducedMotion, baseId, fill],
+    () => ({ activeValue, direction, reducedMotion, baseId }),
+    [activeValue, direction, reducedMotion, baseId],
   )
 
   return (
     <TabsContext.Provider value={contextValue}>
-      <Box
-        display={fill ? 'flex' : undefined}
-        flexDirection={fill ? 'column' : undefined}
-        flex={fill ? 1 : undefined}
-        minH={fill ? 0 : undefined}
-        {...boxProps}
-      >
+      <Box {...boxProps}>
         <Box
           position={sticky ? 'sticky' : undefined}
           top={sticky ? stickyTop : undefined}
           zIndex={sticky ? 5 : undefined}
           bg={sticky ? 'bg.canvas' : undefined}
-          flexShrink={0}
         >
           <HStack
             ref={listRef}
             role="tablist"
             aria-label={ariaLabel}
             position="relative"
-            gap={fitted ? 0 : 4}
+            gap={fitted ? 0 : 6}
             borderBottomWidth="1px"
             borderColor="border.default"
             align="stretch"
-            flexWrap="nowrap"
-            overflowX="auto"
-            overflowY="hidden"
-            css={{
-              scrollbarWidth: 'none',
-              '&::-webkit-scrollbar': { display: 'none' },
-            }}
           >
             {tabs.map((tab) => {
               const selected = tab.key === activeValue
@@ -240,14 +211,13 @@ function TabsBase({
                   disabled={tab.disabled}
                   onClick={() => select(tab.key)}
                   onKeyDown={onKeyDown}
-                  flex={fitted ? '1' : '0 0 auto'}
+                  flex={fitted ? '1' : undefined}
                   display="inline-flex"
                   alignItems="center"
                   justifyContent="center"
                   gap={2}
                   minH="44px"
-                  px={fitted ? 2 : 3}
-                  whiteSpace="nowrap"
+                  px={fitted ? 2 : 1}
                   pb={2}
                   fontFamily="body"
                   fontSize="sm"
@@ -298,14 +268,7 @@ function TabsBase({
           </HStack>
         </Box>
 
-        <Box
-          position="relative"
-          flex={fill ? 1 : undefined}
-          minH={fill ? 0 : undefined}
-          overflow={fill ? 'hidden' : undefined}
-        >
-          {children}
-        </Box>
+        <Box position="relative">{children}</Box>
       </Box>
     </TabsContext.Provider>
   )
@@ -314,16 +277,14 @@ function TabsBase({
 export type TabPanelProps = {
   value: string
   children: ReactNode
-  onScroll?: UIEventHandler<HTMLDivElement>
 }
 
 /**
  * A tab panel. Stays mounted when inactive (`hidden`), preserving any form input
  * and scroll. Animates a subtle cross-fade + directional slide on entrance.
  */
-function TabPanel({ value, children, onScroll }: TabPanelProps) {
-  const { activeValue, direction, reducedMotion, baseId, fill } =
-    useTabsContext()
+function TabPanel({ value, children }: TabPanelProps) {
+  const { activeValue, direction, reducedMotion, baseId } = useTabsContext()
   const isActive = activeValue === value
   const [entered, setEntered] = useState(isActive)
   const rafA = useRef(0)
@@ -364,15 +325,9 @@ function TabPanel({ value, children, onScroll }: TabPanelProps) {
       id={panelId(baseId, value)}
       aria-labelledby={tabId(baseId, value)}
       tabIndex={0}
-      hidden={fill ? undefined : !isActive}
+      hidden={!isActive}
       aria-hidden={!isActive}
-      pt={fill ? 0 : 5}
-      position={fill ? 'absolute' : undefined}
-      inset={fill ? 0 : undefined}
-      overflowY={fill ? 'auto' : undefined}
-      visibility={fill && !isActive ? 'hidden' : undefined}
-      pointerEvents={fill && !isActive ? 'none' : undefined}
-      onScroll={onScroll}
+      pt={5}
       _focusVisible={{
         outline: '2px solid',
         outlineColor: 'border.focus',

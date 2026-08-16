@@ -22,37 +22,13 @@
     },
     "mobile": {
       "shareTask": "Share task",
-      "share": "Share",
-      "sendQuote": "Send quote",
-      "viewQuotes": "View quotes",
-      "signIn": "Sign in",
-      "completeJob": "Complete job",
-      "messages": "Messages",
-      "messagesUnavailable": "Messages are not available yet",
+      "sendQuote": "Send a quote",
       "tabInfo": "Info",
-      "tabOverview": "Overview",
-      "tabDetails": "Details",
-      "tabQuotes": "Quotes",
-      "tabActivity": "Activity",
-      "eyebrow": "Task"
-    },
-    "activity": {
-      "emptyTitle": "No activity yet",
-      "emptyCaption": "Quotes and booking updates will show up here.",
-      "someone": "Someone",
-      "quoteCreated": "Quote received from {name}",
-      "quoteAccepted": "Quote accepted from {name}",
-      "quoteDeclined": "Quote declined from {name}",
-      "quoteWithdrawn": "Quote withdrawn by {name}",
-      "orderCreated": "Booking started",
-      "orderWorkCompleted": "Work marked complete",
-      "orderPaymentAcknowledged": "Payment acknowledged",
-      "orderClosed": "Job closed",
-      "orderCancelled": "Booking cancelled"
+      "tabQuotes": "Quotes"
     },
     "statusPill": {
       "OPEN": "Open",
-      "AWARDED": "Booked",
+      "AWARDED": "Awarded",
       "CLOSED": "Closed",
       "CANCELLED": "Cancelled"
     },
@@ -298,37 +274,13 @@
     },
     "mobile": {
       "shareTask": "分享任務",
-      "share": "分享",
       "sendQuote": "傳送報價",
-      "viewQuotes": "查看報價",
-      "signIn": "登入",
-      "completeJob": "完成工作",
-      "messages": "訊息",
-      "messagesUnavailable": "訊息功能尚未開放",
       "tabInfo": "詳情",
-      "tabOverview": "概覽",
-      "tabDetails": "資料",
-      "tabQuotes": "報價",
-      "tabActivity": "動態",
-      "eyebrow": "任務"
-    },
-    "activity": {
-      "emptyTitle": "暫時沒有動態",
-      "emptyCaption": "報價與預訂更新會顯示在這裡。",
-      "someone": "有人",
-      "quoteCreated": "已收到 {name} 的報價",
-      "quoteAccepted": "已接受 {name} 的報價",
-      "quoteDeclined": "已拒絕 {name} 的報價",
-      "quoteWithdrawn": "{name} 已撤回報價",
-      "orderCreated": "預訂已開始",
-      "orderWorkCompleted": "工作已標記完成",
-      "orderPaymentAcknowledged": "已確認收款",
-      "orderClosed": "工作已關閉",
-      "orderCancelled": "預訂已取消"
+      "tabQuotes": "報價"
     },
     "statusPill": {
       "OPEN": "開放中",
-      "AWARDED": "已預訂",
+      "AWARDED": "已選定",
       "CLOSED": "已完成",
       "CANCELLED": "已取消"
     },

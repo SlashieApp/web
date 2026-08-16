@@ -98,13 +98,11 @@ export default async function TaskDetailPage({
 
   return (
     <TaskDetailProvider taskId={slug} initialTask={task}>
-      <Box h={{ base: '100%', lg: 'auto' }}>
-        <Box display={{ base: 'block', lg: 'none' }} h="100%">
-          <TaskDetailMobile />
-        </Box>
-        <Box display={{ base: 'none', lg: 'block' }}>
-          <TaskDetailView />
-        </Box>
+      <Box display={{ base: 'block', lg: 'none' }}>
+        <TaskDetailMobile />
+      </Box>
+      <Box display={{ base: 'none', lg: 'block' }}>
+        <TaskDetailView />
       </Box>
     </TaskDetailProvider>
   )
