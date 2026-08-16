@@ -2,8 +2,7 @@
 
 import { Stack } from '@chakra-ui/react'
 
-import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { TaskOwnerCard } from '../TaskOwnerCard'
+import { TaskOverviewSections } from './TaskOverviewSections'
 import { BookingSection } from './openTask/BookingSection'
 import { PhotosCard } from './openTask/PhotosCard'
 import { QuotesPanel } from './openTask/QuotesPanel'
@@ -11,20 +10,25 @@ import { TaskDetailsCard } from './openTask/TaskDetailsCard'
 import { TrustCard } from './openTask/TrustCard'
 
 /**
- * The two task-detail section groups, shared verbatim by both form factors:
- * desktop renders info as the left column and quotes as the right column;
- * mobile renders them as the Info and Quotes tabs.
+ * Section stacks shared by both form factors. Desktop composes overview +
+ * details in the left column; mobile renders each stack as its own tab.
  */
 
 export function TaskInfoSections() {
-  const { permissions } = useTaskDetail()
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
-      {/* "Your booking" section (active order / closed); null otherwise. */}
-      <BookingSection />
-      <TaskDetailsCard />
-      {permissions.isOwner ? null : <TaskOwnerCard />}
+      <TaskOverviewSections />
+      <TaskDetailsSections />
+    </Stack>
+  )
+}
+
+export function TaskDetailsSections() {
+  return (
+    <Stack gap={5} w="full" minW={0} pointerEvents="auto">
       <PhotosCard />
+      <TaskDetailsCard />
+      <BookingSection />
     </Stack>
   )
 }
@@ -32,8 +36,6 @@ export function TaskInfoSections() {
 export function TaskQuoteSections() {
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
-      {/* Quotes stay visible across states (shows the selected quote once
-          awarded); the payments/trust note sits directly under them. */}
       <QuotesPanel />
       <TrustCard />
     </Stack>
