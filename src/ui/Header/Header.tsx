@@ -375,9 +375,9 @@ function AppHeaderNavigation() {
  * Sticky app header chrome. Pass `children` to replace the default navigation
  * (e.g. marketing). Otherwise renders auth-aware browse/dashboard toolbar.
  */
-export function Header({ children, ...props }: HeaderProps) {
+export function Header({ children, display, ...props }: HeaderProps) {
   return (
-    <>
+    <Box display={display} flexDirection="column">
       <EmailVerificationBanner />
       <Box
         as="header"
@@ -405,6 +405,6 @@ export function Header({ children, ...props }: HeaderProps) {
           {children ?? <AppHeaderNavigation />}
         </Box>
       </Box>
-    </>
+    </Box>
   )
 }

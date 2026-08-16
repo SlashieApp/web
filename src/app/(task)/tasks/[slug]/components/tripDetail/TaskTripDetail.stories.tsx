@@ -19,14 +19,14 @@ import { TaskDetailView } from './openTask/TaskDetailView'
  */
 function TaskTripDetailPreview() {
   return (
-    <>
-      <Box display={{ base: 'block', lg: 'none' }}>
+    <Box h={{ base: '100dvh', lg: 'auto' }}>
+      <Box display={{ base: 'block', lg: 'none' }} h="100%">
         <TaskDetailMobile />
       </Box>
       <Box display={{ base: 'none', lg: 'block' }}>
         <TaskDetailView />
       </Box>
-    </>
+    </Box>
   )
 }
 
