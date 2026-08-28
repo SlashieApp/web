@@ -34,7 +34,7 @@ function readHashTab(): string | null {
  * desktop layout. Presentation only.
  */
 export function TaskDetailMobile() {
-  const { task, permissions, statusReady } = useTaskDetail()
+  const { task, pending, permissions, statusReady } = useTaskDetail()
   const t = useI11n(bag)
   const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
 
@@ -60,15 +60,15 @@ export function TaskDetailMobile() {
     }
   }, [])
 
-  if (!task) return null
+  if (!task && !pending) return null
 
-  const quoteFlowHref = `/tasks/${task.id}/quote`
+  const quoteFlowHref = task ? `/tasks/${task.id}/quote` : '#'
 
   // Pinned primary CTA for OPEN states (booking states use the banner below).
   // Held as a skeleton until the viewer state is confirmed — the CTA choice
   // (share vs quote vs none) is exactly the state that used to flash wrong.
   let heroCta: React.ReactNode = null
-  if (!statusReady) {
+  if (!statusReady || !task) {
     heroCta = <Skeleton h="48px" w="full" borderRadius="md" />
   } else if (permissions.isOwner && permissions.isOpen) {
     heroCta = (

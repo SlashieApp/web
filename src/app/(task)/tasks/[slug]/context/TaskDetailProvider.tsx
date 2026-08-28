@@ -38,6 +38,7 @@ import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
 import CompleteOrderWithVerification from '@/app/(task)/tasks/[slug]/graphql/CompleteOrderWithVerification.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
+import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
@@ -55,9 +56,11 @@ import {
   getGraphQLErrorCode,
   isWorkerQuoteLimitError,
 } from '@/utils/graphqlErrors'
+import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
 import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
 
+import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
 import { TaskDetailViewCapture } from '../components/TaskDetailViewCapture'
 import { TaskDetailContext } from './TaskDetailContext'
 
@@ -70,8 +73,12 @@ const EMPTY_QUOTES: NonNullable<TaskQuery['task']>['quotes'] = []
 
 type TaskDetailProviderProps = {
   taskId: string
-  /** Public task meta from the auth-free SSR TaskCore query. */
-  initialTask: TaskCoreQuery['task'] | null
+  /**
+   * Public task meta from an SSR TaskCore query (quote flow, stories).
+   * The listing→detail navigation omits this so the page can paint from
+   * `seed` while the client fetch is in flight.
+   */
+  initialTask?: TaskCoreQuery['task'] | null
   children: React.ReactNode
 }
 
@@ -83,6 +90,7 @@ export function TaskDetailProvider({
   const router = useRouter()
   const pathname = usePathname()
   const t = useI11n(bag)
+  const [seed] = useState(() => taskHandoffFor(taskId))
   const [quoteAmountInput, setQuoteAmountInput] = useState('')
   const [quoteMessageInput, setQuoteMessageInput] = useState('')
   const [quoteAvailabilityInput, setQuoteAvailabilityInput] = useState('')
@@ -127,16 +135,56 @@ export function TaskDetailProvider({
     [getUser, isAuthenticated],
   )
 
-  // Viewer-scoped task data + quotes: one client fetch after the public SSR
+  const ssrSeeded = initialTask !== undefined
+  const skipCore = ssrSeeded
+  const {
+    data: coreData,
+    loading: coreLoadingRaw,
+    error: coreError,
+    refetch: refetchCore,
+  } = useQuery<TaskCoreQuery>(TaskCore, {
+    variables: taskQueryVariables(taskId),
+    skip: skipCore,
+    fetchPolicy: 'cache-and-network',
+  })
+  const publicTask = ssrSeeded ? initialTask : (coreData?.task ?? null)
+  const coreNotFound =
+    !skipCore &&
+    (isGraphqlTaskNotFound(
+      (coreError as { graphQLErrors?: unknown } | undefined)?.graphQLErrors ??
+        coreError,
+    ) ||
+      (!coreLoadingRaw &&
+        coreData !== undefined &&
+        coreData.task == null &&
+        !coreError))
+  const coreFailed =
+    Boolean(coreError) &&
+    !isGraphqlTaskNotFound(
+      (coreError as { graphQLErrors?: unknown } | undefined)?.graphQLErrors ??
+        coreError,
+    )
+  const settledEmpty = ssrSeeded ? publicTask == null : coreNotFound
+  const pending = publicTask == null && !coreFailed && !settledEmpty
+  const detailError = coreFailed
+    ? coreError instanceof Error
+      ? coreError
+      : new Error('Failed to load task')
+    : null
+
+  // Viewer-scoped task data + quotes: one client fetch after the public
   // shell paints. Guests still receive the public quotes list; authenticated
   // viewers get orders, timeline, contact, exact address, and live status.
   // Polls while an order is live.
-  const { data: clientTaskData, loading: clientTaskLoadingRaw } =
-    useQuery<TaskQuery>(Task, {
-      variables: taskQueryVariables(taskId),
-      fetchPolicy: 'cache-and-network',
-      notifyOnNetworkStatusChange: true,
-    })
+  const {
+    data: clientTaskData,
+    loading: clientTaskLoadingRaw,
+    refetch: refetchClientTask,
+  } = useQuery<TaskQuery>(Task, {
+    variables: taskQueryVariables(taskId),
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  })
   const clientTask = clientTaskData?.task ?? null
   const clientTaskLoading = Boolean(clientTaskLoadingRaw && !clientTask)
   const clientTaskLoaded = Boolean(clientTask)
@@ -159,31 +207,36 @@ export function TaskDetailProvider({
 
   // Merge: public SSR meta + client Task.gql (viewer fields + quotes).
   const task = useMemo<TaskDetailRecord | null>(() => {
-    if (!initialTask) return null
+    if (!publicTask) return null
     return {
-      ...initialTask,
-      status: clientTask?.status ?? initialTask.status,
+      ...publicTask,
+      status: clientTask?.status ?? publicTask.status,
       quotes,
       timeline: clientTask?.timeline ?? [],
       orders: clientTask?.orders ?? [],
       location:
         clientTask?.location ??
-        (initialTask.location
-          ? { ...initialTask.location, address: null }
+        (publicTask.location
+          ? { ...publicTask.location, address: null }
           : null),
       poster:
         clientTask?.poster ??
-        (initialTask.poster
+        (publicTask.poster
           ? {
-              ...initialTask.poster,
+              ...publicTask.poster,
               email: null,
-              profile: initialTask.poster.profile
-                ? { ...initialTask.poster.profile, contactNumber: null }
+              profile: publicTask.poster.profile
+                ? { ...publicTask.poster.profile, contactNumber: null }
                 : null,
             }
           : null),
     } as TaskDetailRecord
-  }, [initialTask, clientTask, quotes])
+  }, [publicTask, clientTask, quotes])
+
+  const refetch = useCallback(() => {
+    if (!skipCore) void refetchCore()
+    void refetchClientTask()
+  }, [refetchClientTask, refetchCore, skipCore])
 
   const myOrder = liveOrder
   const orderLoading = viewerLoading
@@ -584,7 +637,12 @@ export function TaskDetailProvider({
   const value = useMemo(
     () => ({
       permissions,
+      taskId,
       task,
+      seed,
+      pending,
+      error: detailError,
+      refetch,
       myOrder,
       orderLoading,
       viewerLoading,
@@ -628,7 +686,12 @@ export function TaskDetailProvider({
     }),
     [
       permissions,
+      taskId,
       task,
+      seed,
+      pending,
+      detailError,
+      refetch,
       myOrder,
       orderLoading,
       viewerLoading,
@@ -693,4 +756,9 @@ export function TaskDetailProvider({
   )
 }
 
-export { useTaskDetail, useTask } from './TaskDetailContext'
+export {
+  useTaskDetail,
+  useTask,
+  usePending,
+  useSeed,
+} from './TaskDetailContext'

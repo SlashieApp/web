@@ -14,7 +14,7 @@ import {
  * this shell). Returns null if none is found, so callers can fall back to the
  * window.
  */
-function findScrollParent(node: HTMLElement): HTMLElement | null {
+export function findScrollParent(node: HTMLElement): HTMLElement | null {
   let el = node.parentElement
   while (el) {
     const overflowY = getComputedStyle(el).overflowY

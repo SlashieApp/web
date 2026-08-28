@@ -1,109 +1,91 @@
-import type { Metadata } from 'next'
+'use client'
 
-import { Box } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
+import { useParams } from 'next/navigation'
 
-import { getRequestLocale } from '@/i18n/getRequestLocale'
-import {
-  formatMessage,
-  loadPageI11n,
-  metadataFromI11n,
-} from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
+import { Button, Card } from '@ui'
+
 import { TaskNotFoundCard } from './components/TaskNotFoundCard'
 import { TaskDetailMobile } from './components/tripDetail/TaskDetailMobile'
 import { TaskDetailView } from './components/tripDetail/openTask/TaskDetailView'
-import { TaskDetailProvider } from './context/TaskDetailProvider'
-import { getTaskForTaskDetailPage } from './helpers/getTaskForTaskDetailPage'
+import { TaskDetailProvider, useTaskDetail } from './context/TaskDetailProvider'
+import { findScrollParent } from './helpers/taskDetailHeaderCollapse'
+import { useTaskDetailDesktopLayout } from './helpers/useTaskDetailDesktopLayout'
 import bag from './i11n.json'
 
-function absoluteUrlFromEnv(pathOrUrl: string): string {
-  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL.replace(/\/$/, '')}`
-      : '')
-  if (!base) return pathOrUrl
-  return `${base}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}): Promise<Metadata> {
-  const locale = await getRequestLocale()
-  const { slug } = await params
-  const copy = loadPageI11n(bag, locale)
-  const { task } = await getTaskForTaskDetailPage(slug)
-  const title = task
-    ? formatMessage(copy.metadataTitleSuffix, { title: task.title })
-    : copy.metadata.title
-  const rawDescription = task?.description?.trim()
-  const description = rawDescription
-    ? rawDescription.length > 160
-      ? `${rawDescription.slice(0, 157)}…`
-      : rawDescription
-    : copy.metadata.description
-  const firstImage = task?.images?.[0]
-  const ogImageUrl = firstImage ? absoluteUrlFromEnv(firstImage) : undefined
-  const canonicalPath = `/tasks/${slug}`
-  const base = metadataFromI11n(copy.metadata, { locale, path: canonicalPath })
-
-  return {
-    ...base,
-    title,
-    description,
-    openGraph: {
-      ...base.openGraph,
-      type: 'website',
-      url: absoluteUrlFromEnv(canonicalPath),
-      title,
-      description,
-      images: ogImageUrl ? [{ url: ogImageUrl }] : undefined,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: ogImageUrl ? [ogImageUrl] : undefined,
-    },
-  }
-}
-
 /**
- * Task detail page. The page owns the whole composition: the SSR-fetched
- * public task meta seeds `TaskDetailProvider` (viewer/quotes stream in
- * client-side), and the two form-factor views render as direct children —
- * CSS-gated so the server HTML paints the correct layout at any width.
+ * The router's own scroll-to-top is skipped when a navigation runs a view
+ * transition. Reset the app-shell pane (not the window — it never scrolls
+ * in this layout) during the transition's DOM update, before the incoming
+ * snapshot is taken.
  */
-export default async function TaskDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
-  const locale = await getRequestLocale()
-  const copy = loadPageI11n(bag, locale)
-  const { slug } = await params
-  const { task } = await getTaskForTaskDetailPage(slug)
+function TaskDetailScrollReset({ taskId }: { taskId: string }) {
+  return (
+    <span
+      hidden
+      key={taskId}
+      ref={(node) => {
+        if (!node) return
+        const scroller = findScrollParent(node)
+        if (scroller) scroller.scrollTop = 0
+        else window.scrollTo(0, 0)
+      }}
+    />
+  )
+}
 
-  if (!task) {
+function TaskDetailBody() {
+  const t = useI11n(bag)
+  const { task, pending, error, refetch, seed } = useTaskDetail()
+  const isDesktop = useTaskDetailDesktopLayout()
+
+  if (error && !task && !seed) {
+    return (
+      <Box
+        bg="bg.canvas"
+        color="text.default"
+        minH="100vh"
+        py={{ base: 8, md: 10 }}
+      >
+        <Card layout="section" heading={t.error.heading} maxW="lg" mx="auto">
+          <Text color="text.muted" mb={4}>
+            {t.error.description}
+          </Text>
+          <Button type="button" onClick={() => refetch()}>
+            {t.error.retry}
+          </Button>
+        </Card>
+      </Box>
+    )
+  }
+
+  if (!pending && !task) {
     return (
       <TaskNotFoundCard
-        eyebrow={copy.notFound.eyebrow}
-        heading={copy.notFound.title}
-        description={copy.notFound.description}
+        eyebrow={t.notFound.eyebrow}
+        heading={t.notFound.title}
+        description={t.notFound.description}
       />
     )
   }
 
+  return isDesktop ? <TaskDetailView /> : <TaskDetailMobile />
+}
+
+/**
+ * Task detail. Client-owned so a listing click can paint seeded image/title/
+ * price immediately while colocated skeletons stand in for the rest. Direct
+ * loads have no handoff and show the full skeleton until TaskCore resolves.
+ */
+export default function TaskDetailPage() {
+  const { slug } = useParams<{ slug: string }>()
+  const taskId = String(slug ?? '')
+
   return (
-    <TaskDetailProvider taskId={slug} initialTask={task}>
-      <Box display={{ base: 'block', lg: 'none' }}>
-        <TaskDetailMobile />
-      </Box>
-      <Box display={{ base: 'none', lg: 'block' }}>
-        <TaskDetailView />
-      </Box>
+    <TaskDetailProvider taskId={taskId}>
+      <TaskDetailScrollReset taskId={taskId} />
+      <TaskDetailBody />
     </TaskDetailProvider>
   )
 }

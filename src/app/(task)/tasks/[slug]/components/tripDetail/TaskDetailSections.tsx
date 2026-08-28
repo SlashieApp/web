@@ -17,13 +17,13 @@ import { TrustCard } from './openTask/TrustCard'
  */
 
 export function TaskInfoSections() {
-  const { permissions } = useTaskDetail()
+  const { permissions, pending } = useTaskDetail()
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
       {/* "Your booking" section (active order / closed); null otherwise. */}
       <BookingSection />
       <TaskDetailsCard />
-      {permissions.isOwner ? null : <TaskOwnerCard />}
+      {pending || permissions.isOwner ? null : <TaskOwnerCard />}
       <PhotosCard />
     </Stack>
   )

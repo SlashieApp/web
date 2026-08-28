@@ -6,6 +6,12 @@ const POSTHOG_PROXY_HOST = 'e.slashie.app'
 const nextConfig: NextConfig = {
   // PostHog capture paths use trailing slashes (e.g. /e/); do not 308-strip them.
   skipTrailingSlashRedirect: true,
+  experimental: {
+    // Same-document App Router transitions via React <ViewTransition>.
+    // The CSS `@view-transition { navigation: auto }` form is cross-document
+    // only and does nothing here.
+    viewTransition: true,
+  },
   turbopack: {
     rules: {
       '*.gql': {

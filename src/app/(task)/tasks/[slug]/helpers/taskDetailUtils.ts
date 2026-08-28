@@ -96,7 +96,7 @@ export function taskBudgetDisplayLine(
       .filter((price): price is number => price != null)
     if (prices.length === 0) {
       if (task.budget) return formatBudgetAmount(task.budget)
-      return 'Open to quotes'
+      return 'Open'
     }
     const min = Math.min(...prices)
     const max = Math.max(...prices)
@@ -104,7 +104,7 @@ export function taskBudgetDisplayLine(
     return `${formatPoundsFromPence(min)} — ${formatPoundsFromPence(max)}`
   }
   if (task.budget) return formatBudgetAmount(task.budget)
-  return 'Open to quotes'
+  return 'Open'
 }
 
 /** Single chip row from nested `datetime` (replaces weekly availability). */
@@ -163,7 +163,7 @@ export function buildAvailabilityChips(
 /** Budget shown on the owner quick-info card (posted budget, not quote range). */
 export function taskOwnerPostedBudgetLine(task: TaskDetailRecord): string {
   if (task.budget) return formatBudgetAmount(task.budget)
-  return 'Open to quotes'
+  return 'Open'
 }
 
 /** Short label for quick info from `datetime`. */

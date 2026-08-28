@@ -2,6 +2,7 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { MouseEvent, ReactNode } from 'react'
+import { useState } from 'react'
 import {
   LuBookmark,
   LuCalendarDays,
@@ -11,10 +12,16 @@ import {
 } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
+import { ViewTransition } from '@/ui/ViewTransition'
 import { Badge, Button, Card, IconButton, Link, Thumbnail } from '@ui'
 
 import { sdlMotion } from '@/theme/styles'
 
+import {
+  setTaskHandoff,
+  taskHandoffFor,
+  taskVtName,
+} from '../helpers/taskCardHandoff'
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
 
 /** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
@@ -57,6 +64,12 @@ type TaskCardShared = {
    * `button` — focusable control (lists, keyboard).
    */
   activateMode?: 'button' | 'gesture'
+  /**
+   * When true, `onActivate` navigates to task detail (second click on the
+   * selected web row, or a centered mobile card). Arms the shared-element
+   * morph. First-click map selection should leave this false.
+   */
+  navigateOnActivate?: boolean
   onActivate?: () => void
 }
 
@@ -131,6 +144,11 @@ function TaskCardMetaRow({
   )
 }
 
+function taskIdFromDetailsHref(href: string): string | undefined {
+  const match = href.match(/\/tasks\/([^/?#]+)/)
+  return match?.[1]
+}
+
 function TaskCardBrowse(props: TaskCardBrowseProps) {
   const isActive = props.isActive ?? false
   const isExpanded = props.isExpanded ?? false
@@ -138,47 +156,62 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const isSaved = props.isSaved ?? false
   const onToggleSave = props.onToggleSave
   const onActivate = props.onActivate
+  const navigateOnActivate = props.navigateOnActivate ?? false
   const activateCursor = props.activateCursor ?? 'pointer'
   const activateMode = props.activateMode ?? 'button'
 
-  let title: string
-  let description: string
-  let priceLabel: string
-  let metaLine: string
-  let badgeText: string | undefined
-  let distanceLabel: string | undefined
-  let timingLabel: string | undefined
-  let quotesLabel: string | undefined
-  let viewsLabel: string | undefined
-  let thumbnailSrc: string | undefined
+  let cardTask: TaskCardTask
   let detailsHref: string
 
   if (isTaskCardWithTask(props)) {
-    const { task } = props
-    title = task.title
-    description = task.description
-    priceLabel = task.priceLabel
-    metaLine = task.location
-    badgeText = task.badgeText
-    distanceLabel = task.distanceLabel
-    timingLabel = task.timingLabel
-    quotesLabel = task.quotesLabel
-    viewsLabel = task.viewsLabel
-    thumbnailSrc = task.thumbnailSrc
-    detailsHref = props.detailsHref ?? `/tasks/${task.id}`
+    cardTask = props.task
+    detailsHref = props.detailsHref ?? `/tasks/${props.task.id}`
   } else {
-    title = props.title
-    description = props.description
-    priceLabel = props.priceLabel
-    metaLine = props.metaLine
-    badgeText = props.badgeText
-    distanceLabel = props.distanceLabel
-    timingLabel = props.timingLabel
-    quotesLabel = props.quotesLabel
-    viewsLabel = props.viewsLabel
-    thumbnailSrc = props.thumbnailSrc
     detailsHref = props.detailsHref
+    cardTask = {
+      id: taskIdFromDetailsHref(props.detailsHref) ?? props.detailsHref,
+      title: props.title,
+      description: props.description,
+      location: props.metaLine,
+      priceLabel: props.priceLabel,
+      badgeText: props.badgeText,
+      distanceLabel: props.distanceLabel,
+      timingLabel: props.timingLabel,
+      quotesLabel: props.quotesLabel,
+      viewsLabel: props.viewsLabel,
+      thumbnailSrc: props.thumbnailSrc,
+    }
   }
+
+  const {
+    id: taskId,
+    title,
+    description,
+    priceLabel,
+    location: metaLine,
+    badgeText,
+    distanceLabel,
+    timingLabel,
+    quotesLabel,
+    viewsLabel,
+    thumbnailSrc,
+  } = cardTask
+
+  const [morphing, setMorphing] = useState(
+    () => taskHandoffFor(taskId) !== null,
+  )
+
+  const armMorph = () => {
+    setTaskHandoff(cardTask)
+    setMorphing(true)
+  }
+
+  const handleActivate = onActivate
+    ? () => {
+        if (navigateOnActivate) armMorph()
+        onActivate()
+      }
+    : undefined
 
   const detailsCtaLabel = props.detailsCtaLabel ?? 'View task'
   const activateAriaLabel =
@@ -217,7 +250,15 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       }
     >
       <HStack gap={{ base: 3, md: 4 }} align="stretch">
-        <Thumbnail alt={`${title} thumbnail`} src={thumbnailSrc} />
+        <ViewTransition
+          name={
+            morphing && thumbnailSrc ? taskVtName('img', taskId) : undefined
+          }
+          share="auto"
+          default="none"
+        >
+          <Thumbnail alt={`${title} thumbnail`} src={thumbnailSrc} />
+        </ViewTransition>
         <Stack flex={1} minW={0} gap={1}>
           <HStack justify="space-between" align="flex-start" gap={2} minW={0}>
             <Stack gap={1} flex={1} minW={0} align="flex-start">
@@ -228,27 +269,39 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                   {badgeText}
                 </Badge>
               ) : null}
-              <Text
-                fontSize={isExpanded ? 'xl' : 'md'}
-                fontWeight={700}
-                color="text.default"
-                lineClamp={isExpanded ? 2 : 1}
-                truncate={!isExpanded}
-                maxW="full"
+              <ViewTransition
+                name={morphing ? taskVtName('title', taskId) : undefined}
+                share="vt-text"
+                default="none"
               >
-                {title}
-              </Text>
+                <Text
+                  fontSize={isExpanded ? 'xl' : 'md'}
+                  fontWeight={700}
+                  color="text.default"
+                  lineClamp={isExpanded ? 2 : 1}
+                  truncate={!isExpanded}
+                  maxW="full"
+                >
+                  {title}
+                </Text>
+              </ViewTransition>
             </Stack>
-            <Text
-              fontWeight={800}
-              fontSize={{ base: 'lg', md: 'xl' }}
-              lineHeight="1.4"
-              color="text.link"
-              whiteSpace="nowrap"
-              flexShrink={0}
+            <ViewTransition
+              name={morphing ? taskVtName('price', taskId) : undefined}
+              share="vt-text"
+              default="none"
             >
-              {priceLabel}
-            </Text>
+              <Text
+                fontWeight={800}
+                fontSize={{ base: 'lg', md: 'xl' }}
+                lineHeight="1.4"
+                color="text.link"
+                whiteSpace="nowrap"
+                flexShrink={0}
+              >
+                {priceLabel}
+              </Text>
+            </ViewTransition>
           </HStack>
 
           {showDescription ? (
@@ -294,7 +347,10 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               {showDetailsCta ? (
                 <Link
                   href={detailsHref}
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    armMorph()
+                  }}
                   _hover={{ textDecoration: 'none' }}
                   flexShrink={0}
                 >
@@ -343,7 +399,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           cursor={activateCursor}
           aria-current={isActive ? 'true' : undefined}
           aria-label={activateAriaLabel}
-          onClick={onActivate}
+          onClick={handleActivate}
           css={{
             touchAction: 'pan-y',
             WebkitTapHighlightColor: 'transparent',
@@ -361,14 +417,14 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
         tabIndex={0}
         aria-current={isActive ? 'true' : undefined}
         aria-label={activateAriaLabel}
-        onClick={onActivate}
+        onClick={handleActivate}
         onKeyDown={(e) => {
           // Only card-level keypresses activate; inner controls (bookmark,
           // details CTA) handle their own Enter/Space.
           if (e.target !== e.currentTarget) return
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
-            onActivate()
+            handleActivate?.()
           }
         }}
         w="full"

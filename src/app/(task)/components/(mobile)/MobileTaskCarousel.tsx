@@ -4,18 +4,10 @@ import { Box } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 
-import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
-import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
+import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { MobileCarousel } from '@ui'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import {
-  formatBudget,
-  taskDistanceShortLabelFromReference,
-  taskQuotesCountLabel,
-  taskScheduleCompactLabel,
-} from '../../helpers/taskBrowseHelpers'
-import { taskCategoryDisplayLabel } from '../../helpers/taskCategories'
 import { TaskCard } from '../TaskCard'
 import { TaskEmptyState } from '../TaskEmptyState'
 
@@ -37,26 +29,7 @@ export function MobileTaskCarousel() {
 
   const tasks = useMemo(
     () =>
-      filteredSorted.map((task) => {
-        const { main } = formatBudget(task)
-        return {
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          location:
-            taskPublicLocationLabel(task).trim() || 'Location on request',
-          priceLabel: main,
-          badgeText: taskCategoryDisplayLabel(task.category) ?? undefined,
-          thumbnailSrc: task.images?.[0] ?? undefined,
-          distanceLabel: taskDistanceShortLabelFromReference(
-            task,
-            referenceLocation,
-          ),
-          timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,
-          quotesLabel: taskQuotesCountLabel(task) ?? undefined,
-          viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,
-        }
-      }),
+      filteredSorted.map((task) => toBrowseTaskCard(task, referenceLocation)),
     [filteredSorted, referenceLocation],
   )
 
@@ -81,19 +54,11 @@ export function MobileTaskCarousel() {
         <TaskCard
           activateMode="gesture"
           activateCursor={state.activateCursor}
-          title={task.title}
-          description={task.description}
-          priceLabel={task.priceLabel}
-          metaLine={task.location}
-          distanceLabel={task.distanceLabel}
-          timingLabel={task.timingLabel}
-          quotesLabel={task.quotesLabel}
-          viewsLabel={task.viewsLabel}
-          thumbnailSrc={task.thumbnailSrc}
+          task={task}
           detailsHref={`/tasks/${task.id}`}
-          badgeText={task.badgeText}
           isActive={state.isActive}
           showDetailsCta={false}
+          navigateOnActivate={!state.isPeekAdjacent}
           activateAriaLabel={
             state.isPeekAdjacent
               ? `${task.title}. Show ${state.peekDirection === 'next' ? 'next' : 'previous'} task.`

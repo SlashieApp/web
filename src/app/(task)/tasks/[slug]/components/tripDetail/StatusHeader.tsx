@@ -32,6 +32,7 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
     myQuote,
     isAuthenticated,
     task,
+    pending,
     myOrder,
     me,
     statusReady,
@@ -61,7 +62,7 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
     )
   }, [task, showExact, lat, lng, permissions.isOwner, me?.id])
 
-  if (!task) return null
+  if (!task && !pending) return null
 
   const { pill, headline, subtext } = selectStatusHeaderCopy(
     {
@@ -91,7 +92,7 @@ export function StatusHeader({ collapsed = false }: { collapsed?: boolean }) {
       <TaskHeaderControls overlay hidden={collapsed} />
 
       <Box flex={1} />
-      {statusReady ? (
+      {statusReady && task ? (
         <Reveal speed="slow">
           <Stack
             gap={3}

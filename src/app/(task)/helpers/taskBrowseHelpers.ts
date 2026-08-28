@@ -65,7 +65,7 @@ export function formatBudget(task: TaskListItem): {
     }
   }
   return {
-    main: `£${(min / 100).toFixed(0)} – £${(max / 100).toFixed(0)}`,
+    main: `£${(min / 100).toFixed(0)} — £${(max / 100).toFixed(0)}`,
     sub: 'Estimated budget',
   }
 }

@@ -62,12 +62,12 @@ function CollapsibleRow({
  * content below rather than a hard border + shadow.
  */
 export function OpenTaskHeader() {
-  const { task, myQuote, isAuthenticated, permissions, statusReady } =
+  const { task, pending, myQuote, isAuthenticated, permissions, statusReady } =
     useTaskDetail()
   const collapsed = useTaskDetailHeaderCollapsed()
   const t = useI11n(bag)
 
-  if (!task) return null
+  if (!task && !pending) return null
 
   const copy = selectStatusHeaderCopy(
     {
@@ -138,7 +138,7 @@ export function OpenTaskHeader() {
             pointerEvents="none"
             {...collapseTransition}
           >
-            {statusReady ? copy.headline : ''}
+            {statusReady && task ? copy.headline : ''}
           </Text>
         </TaskHeaderControls>
 
@@ -149,7 +149,7 @@ export function OpenTaskHeader() {
           {...collapseTransition}
         />
 
-        {statusReady ? (
+        {statusReady && task ? (
           <Stack
             gap={collapsed ? 0 : 3}
             w="full"

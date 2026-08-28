@@ -26,6 +26,28 @@ html {
   }
 }
 
+::view-transition-group(*) {
+  animation-duration: 280ms;
+}
+
+/* Text pairs only. Default snapshot sizing stretches width:100% and balloons
+   height to keep aspect — a card title morphing into a heading would render
+   enormous mid-flight. Flip the axes for `.vt-text` shares. */
+::view-transition-old(.vt-text),
+::view-transition-new(.vt-text) {
+  height: 100%;
+  width: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

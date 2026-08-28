@@ -92,6 +92,7 @@ export { Tabs } from './Tabs'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail'
 export { Toast } from './Toast'
+export { ViewTransition } from './ViewTransition'
 export * from './Footer'
 export type {
   AvatarGroupItem,

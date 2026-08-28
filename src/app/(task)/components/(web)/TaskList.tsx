@@ -8,23 +8,13 @@ import { useCallback, useMemo, useRef } from 'react'
 import { TaskCard } from '../TaskCard'
 import { TaskEmptyState } from '../TaskEmptyState'
 
-import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
-import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
+import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
+import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-
-import {
-  formatBudget,
-  taskDistanceShortLabelFromReference,
-  taskQuotesCountLabel,
-  taskScheduleCompactLabel,
-} from '../../helpers/taskBrowseHelpers'
-import { taskCategoryDisplayLabel } from '../../helpers/taskCategories'
 
 export function TaskList({ header }: { header?: React.ReactNode }) {
   const router = useRouter()
   const {
-    loading,
-    dataLoaded,
     canShowBrowseEmptyState,
     filteredSorted,
     selectedTaskId,
@@ -67,24 +57,18 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
     })
   }
 
-  const animationKey = loading ? 'loading' : dataLoaded ? 'ready' : 'idle'
-
   const listBody = (
     <>
-      {!loading && filteredSorted.length > 0
+      {filteredSorted.length > 0
         ? filteredSorted.map((task, index) => {
-            const { main } = formatBudget(task)
-            const loc =
-              taskPublicLocationLabel(task).trim() || 'Location on request'
-            const distanceLabel = taskDistanceShortLabelFromReference(
-              task,
-              referenceLocation,
-            )
-            const viewsLabel = taskPublicViewsLabel(task.views)
+            const cardTask = toBrowseTaskCard(task, referenceLocation)
+            // Reverse morph needs this card opaque in the same commit as
+            // the back navigation. An enter fade would snapshot a ghost.
+            const skipEnter = taskHandoffFor(task.id) !== null
             return (
               <motion.div
-                key={`${animationKey}-${task.id}`}
-                initial={{ opacity: 0, x: -18 }}
+                key={task.id}
+                initial={skipEnter ? false : { opacity: 0, x: -18 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
                   duration: 0.42,
@@ -104,22 +88,10 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
                   }}
                 >
                   <TaskCard
-                    title={task.title}
-                    description={task.description}
-                    priceLabel={main}
-                    metaLine={loc}
-                    distanceLabel={distanceLabel}
-                    timingLabel={
-                      taskScheduleCompactLabel(task.datetime) ?? undefined
-                    }
-                    quotesLabel={taskQuotesCountLabel(task) ?? undefined}
-                    viewsLabel={viewsLabel ?? undefined}
-                    thumbnailSrc={task.images?.[0] ?? undefined}
+                    task={cardTask}
                     detailsHref={`/tasks/${task.id}`}
-                    badgeText={
-                      taskCategoryDisplayLabel(task.category) ?? undefined
-                    }
                     isActive={selectedTaskId === task.id}
+                    navigateOnActivate={selectedTaskId === task.id}
                     activateAriaLabel={
                       selectedTaskId === task.id
                         ? `${task.title}. View task details.`

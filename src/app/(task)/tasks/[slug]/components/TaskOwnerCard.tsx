@@ -1,7 +1,7 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Box, HStack, Heading, Image } from '@chakra-ui/react'
+import { Box, HStack, Heading, Image, Skeleton } from '@chakra-ui/react'
 import bag from '../i11n.json'
 
 import { Card } from '@ui'
@@ -15,10 +15,22 @@ function posterDisplayName(task: TaskDetailRecord, fallback: string): string {
   return fallback
 }
 
-export function TaskOwnerCard() {
-  const { task } = useTaskDetail()
+export function TaskOwnerCardSkeleton() {
   const t = useI11n(bag)
-  if (!task) return null
+  return (
+    <Card layout="section" heading={t.details.owner} aria-busy>
+      <HStack align="center" gap={3} w="full">
+        <Skeleton boxSize="48px" borderRadius="full" flexShrink={0} />
+        <Skeleton h="calc(0.875rem * 1.5)" w="40%" borderRadius="md" />
+      </HStack>
+    </Card>
+  )
+}
+
+export function TaskOwnerCard() {
+  const { task, pending } = useTaskDetail()
+  const t = useI11n(bag)
+  if (!task) return pending ? <TaskOwnerCardSkeleton /> : null
 
   const posterName = posterDisplayName(task, t.details.ownerFallback)
   const posterAvatarUrl = task.poster?.profile?.avatarUrl?.trim() || null
