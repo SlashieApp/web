@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack, Text } from '@chakra-ui/react'
+import { Box, HStack, type SystemStyleObject, Text } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 
 import { stripLocalePrefix } from '@/i18n/navigation'
@@ -12,9 +12,74 @@ import { Link } from '../Link'
 
 import bag from './i11n.json'
 
-/** Space to reserve under scrollable content so the floating bar does not cover it. */
+/**
+ * Space under scrollable content so the last row stays reachable above the
+ * fade + floating pill. Taller than the pill alone so the dissolve has runway.
+ */
 export const MOBILE_BOTTOM_NAV_CLEARANCE =
-  'calc(72px + env(safe-area-inset-bottom, 0px))' as const
+  'calc(96px + env(safe-area-inset-bottom, 0px))' as const
+
+/** Full-bleed dissolve behind the pill (taller than the bar itself). */
+const MOBILE_BOTTOM_NAV_FADE_HEIGHT =
+  'calc(128px + env(safe-area-inset-bottom, 0px))' as const
+
+const canvasVar = 'var(--chakra-colors-bg-canvas, #F7F9F8)'
+const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
+
+const reducedTransparencyQuery =
+  '@media (prefers-reduced-transparency: reduce), (prefers-reduced-motion: reduce)' as const
+
+/** Frosted pill: semantic surface at ~72% + blur. More opaque without blur when reduced. */
+const glassPillCss = {
+  background: `color-mix(in srgb, ${surfaceVar} 72%, transparent)`,
+  backdropFilter: 'blur(24px)',
+  WebkitBackdropFilter: 'blur(24px)',
+  [reducedTransparencyQuery]: {
+    background: `color-mix(in srgb, ${surfaceVar} 94%, transparent)`,
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
+  },
+} as SystemStyleObject
+
+/** Blur that softens toward the top — no hard rectangular frost edge. */
+const fadeBlurCss = {
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  maskImage: 'linear-gradient(to top, #000 0%, #000 28%, transparent 100%)',
+  WebkitMaskImage:
+    'linear-gradient(to top, #000 0%, #000 28%, transparent 100%)',
+  [reducedTransparencyQuery]: {
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
+    maskImage: 'none',
+    WebkitMaskImage: 'none',
+  },
+} as SystemStyleObject
+
+/** Transparent → canvas wash behind the pill. Stops short of 100% so glass still reads. */
+const fadeTintCss: SystemStyleObject = {
+  background: `linear-gradient(to top, color-mix(in srgb, ${canvasVar} 62%, transparent) 0%, color-mix(in srgb, ${canvasVar} 38%, transparent) 42%, transparent 100%)`,
+  [reducedTransparencyQuery]: {
+    background: `linear-gradient(to top, color-mix(in srgb, ${canvasVar} 48%, transparent) 0%, color-mix(in srgb, ${canvasVar} 28%, transparent) 50%, transparent 100%)`,
+  },
+}
+
+/** Non-interactive dissolve so scrolling content fades out instead of clipping. */
+function MobileBottomNavFade() {
+  return (
+    <Box
+      aria-hidden
+      position="absolute"
+      insetX={0}
+      bottom={0}
+      h={MOBILE_BOTTOM_NAV_FADE_HEIGHT}
+      pointerEvents="none"
+    >
+      <Box position="absolute" inset={0} css={fadeBlurCss} />
+      <Box position="absolute" inset={0} css={fadeTintCss} />
+    </Box>
+  )
+}
 
 export const MESSAGES_HREF = '/dashboard/messages' as const
 
@@ -165,15 +230,18 @@ export function MobileBottomNav() {
       aria-label={t.ariaLabel}
       display={{ base: 'block', md: 'none' }}
       position="fixed"
-      left={3}
-      right={3}
-      bottom="calc(env(safe-area-inset-bottom, 0px) + 10px)"
+      left={0}
+      right={0}
+      bottom={0}
       zIndex={40}
       pointerEvents="none"
     >
+      <MobileBottomNavFade />
       <HStack
         pointerEvents="auto"
-        bg="bg.canvas"
+        position="relative"
+        mx={3}
+        mb="calc(env(safe-area-inset-bottom, 0px) + 10px)"
         borderWidth="1px"
         borderColor="border.default"
         borderRadius="2xl"
@@ -183,6 +251,7 @@ export function MobileBottomNav() {
         gap={0}
         justify="space-between"
         align="center"
+        css={glassPillCss}
       >
         {items.map((item) => {
           const active = isHrefActive(pathname, item.href)
