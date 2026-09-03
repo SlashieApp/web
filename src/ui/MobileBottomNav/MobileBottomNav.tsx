@@ -29,11 +29,11 @@ const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
 const reducedTransparencyQuery =
   '@media (prefers-reduced-transparency: reduce), (prefers-reduced-motion: reduce)' as const
 
-/** Frosted pill: semantic surface at ~80% + blur. More opaque without blur when reduced. */
+/** Frosted pill: semantic surface at ~72% + blur. More opaque without blur when reduced. */
 const glassPillCss = {
-  background: `color-mix(in srgb, ${surfaceVar} 80%, transparent)`,
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
+  background: `color-mix(in srgb, ${surfaceVar} 72%, transparent)`,
+  backdropFilter: 'blur(24px)',
+  WebkitBackdropFilter: 'blur(24px)',
   [reducedTransparencyQuery]: {
     background: `color-mix(in srgb, ${surfaceVar} 94%, transparent)`,
     backdropFilter: 'none',
@@ -56,11 +56,11 @@ const fadeBlurCss = {
   },
 } as SystemStyleObject
 
-/** Transparent → canvas wash sitting behind the glass pill. */
+/** Transparent → canvas wash behind the pill. Stops short of 100% so glass still reads. */
 const fadeTintCss: SystemStyleObject = {
-  background: `linear-gradient(to top, ${canvasVar} 0%, color-mix(in srgb, ${canvasVar} 72%, transparent) 40%, transparent 100%)`,
+  background: `linear-gradient(to top, color-mix(in srgb, ${canvasVar} 62%, transparent) 0%, color-mix(in srgb, ${canvasVar} 38%, transparent) 42%, transparent 100%)`,
   [reducedTransparencyQuery]: {
-    background: `linear-gradient(to top, ${canvasVar} 0%, color-mix(in srgb, ${canvasVar} 50%, transparent) 52%, transparent 100%)`,
+    background: `linear-gradient(to top, color-mix(in srgb, ${canvasVar} 48%, transparent) 0%, color-mix(in srgb, ${canvasVar} 28%, transparent) 50%, transparent 100%)`,
   },
 }
 
