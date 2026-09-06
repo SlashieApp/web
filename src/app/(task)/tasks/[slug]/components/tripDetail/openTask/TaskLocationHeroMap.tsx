@@ -168,7 +168,7 @@ export function TaskLocationHeroMap({
         justifyContent="space-between"
         gap={5}
         w="full"
-        maxW="6xl"
+        maxW="7xl"
         mx="auto"
         minH={minH}
         px={{ base: 4, md: 6 }}

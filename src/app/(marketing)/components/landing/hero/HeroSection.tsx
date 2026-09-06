@@ -1,5 +1,6 @@
 import {
   Box,
+  Container,
   Flex,
   HStack,
   Heading,
@@ -7,6 +8,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
+
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 
 import { HeroCobeGlobe } from './HeroCobeGlobe'
 import { HeroHowItWorksLink } from './HeroHowItWorksLink'
@@ -62,118 +65,122 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
     >
       <Spotlight />
 
-      <Flex
-        direction={{ base: 'column', md: 'row' }}
-        align="stretch"
-        minH={{ base: '100svh', md: '100vh' }}
+      <Container
+        maxW={PAGE_CONTAINER_MAX_W}
+        px={PAGE_GUTTER_X}
         position="relative"
         zIndex={1}
       >
         <Flex
-          flex="1 1 50%"
-          direction="column"
-          justify="center"
-          px={{ base: 4, md: 8, lg: 12 }}
-          pt={{ base: '96px', md: '120px' }}
-          pb={{ base: 8, md: '120px' }}
-          maxW={{ md: '50%' }}
+          direction={{ base: 'column', md: 'row' }}
+          align="stretch"
+          minH={{ base: '100svh', md: '100vh' }}
         >
-          <Stack gap={{ base: 5, md: 7 }} maxW="34rem">
-            <Box {...riseIn(0)}>
-              <Image
-                src="/images/slashie-logo-dark.svg"
-                alt="slashie"
-                h={{ base: '40px', md: '52px' }}
-                w="auto"
-                maxW={{ base: '180px', md: '240px' }}
-                objectFit="contain"
-              />
-            </Box>
+          <Flex
+            flex="1 1 50%"
+            direction="column"
+            justify="center"
+            pt={{ base: '96px', md: '120px' }}
+            pb={{ base: 8, md: '120px' }}
+            maxW={{ md: '50%' }}
+          >
+            <Stack gap={{ base: 5, md: 7 }} maxW="34rem">
+              <Box {...riseIn(0)}>
+                <Image
+                  src="/images/slashie-logo-dark.svg"
+                  alt="slashie"
+                  h={{ base: '40px', md: '52px' }}
+                  w="auto"
+                  maxW={{ base: '180px', md: '240px' }}
+                  objectFit="contain"
+                />
+              </Box>
 
-            <Heading
-              as="h1"
-              fontFamily="display"
-              fontWeight={700}
-              lineHeight={1.08}
-              letterSpacing="-0.02em"
-              fontSize="clamp(2.25rem, 5.5vw, 3.75rem)"
-              {...riseIn(80)}
-            >
-              {copy.heading}
-            </Heading>
+              <Heading
+                as="h1"
+                fontFamily="display"
+                fontWeight={700}
+                lineHeight={1.08}
+                letterSpacing="-0.02em"
+                fontSize="clamp(2.25rem, 5.5vw, 3.75rem)"
+                {...riseIn(80)}
+              >
+                {copy.heading}
+              </Heading>
 
-            <Text
-              fontSize={{ base: 'md', md: 'lg' }}
-              lineHeight={1.55}
-              color="text.onInvertedMuted"
-              maxW="40ch"
-              {...riseIn(160)}
-            >
-              {copy.body}
-            </Text>
+              <Text
+                fontSize={{ base: 'md', md: 'lg' }}
+                lineHeight={1.55}
+                color="text.onInvertedMuted"
+                maxW="40ch"
+                {...riseIn(160)}
+              >
+                {copy.body}
+              </Text>
 
-            <Box {...riseIn(240)}>
-              <HeroSearchCta
-                placeholder={copy.searchPlaceholder}
-                submitLabel={copy.searchSubmit}
-                ariaLabel={copy.searchAriaLabel}
-              />
-            </Box>
+              <Box {...riseIn(240)}>
+                <HeroSearchCta
+                  placeholder={copy.searchPlaceholder}
+                  submitLabel={copy.searchSubmit}
+                  ariaLabel={copy.searchAriaLabel}
+                />
+              </Box>
 
-            <Text
-              fontSize="sm"
-              color="text.onInvertedLink"
-              fontWeight={500}
-              {...riseIn(300)}
-            >
-              <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
-            </Text>
+              <Text
+                fontSize="sm"
+                color="text.onInvertedLink"
+                fontWeight={500}
+                {...riseIn(300)}
+              >
+                <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
+              </Text>
 
-            <HStack
-              gap={3}
-              flexWrap="wrap"
-              fontSize="sm"
-              color="text.onInvertedMuted"
-              {...riseIn(360)}
-            >
-              {copy.trustChips.map((item, index) => (
-                <HStack key={item} gap={3}>
-                  {index > 0 ? (
-                    <Box
-                      boxSize="3px"
-                      borderRadius="full"
-                      bg="text.onInvertedMuted"
-                      aria-hidden
-                    />
-                  ) : null}
-                  <Text>{item}</Text>
-                </HStack>
-              ))}
-            </HStack>
-          </Stack>
-        </Flex>
+              <HStack
+                gap={3}
+                flexWrap="wrap"
+                fontSize="sm"
+                color="text.onInvertedMuted"
+                {...riseIn(360)}
+              >
+                {copy.trustChips.map((item, index) => (
+                  <HStack key={item} gap={3}>
+                    {index > 0 ? (
+                      <Box
+                        boxSize="3px"
+                        borderRadius="full"
+                        bg="text.onInvertedMuted"
+                        aria-hidden
+                      />
+                    ) : null}
+                    <Text>{item}</Text>
+                  </HStack>
+                ))}
+              </HStack>
+            </Stack>
+          </Flex>
 
-        <Box
-          flex="1 1 50%"
-          position="relative"
-          minH={{ base: '280px', md: 'auto' }}
-          overflow="hidden"
-          opacity={{ base: 0.85, md: 1 }}
-        >
-          <HeroPoster />
-          <HeroCobeGlobe labels={copy.globeLabels} />
-          {/* Soft left fade so copy stays legible where panes meet on desktop. */}
           <Box
-            position="absolute"
-            insetY={0}
-            left={0}
-            w={{ base: '0', md: '28%' }}
-            pointerEvents="none"
-            aria-hidden
-            bgImage="linear-gradient(90deg, rgba(12, 19, 16, 0.92) 0%, rgba(12, 19, 16, 0) 100%)"
-          />
-        </Box>
-      </Flex>
+            flex="1 1 50%"
+            position="relative"
+            minH={{ base: '280px', md: 'auto' }}
+            overflow="hidden"
+            opacity={{ base: 0.85, md: 1 }}
+          >
+            <HeroPoster />
+            <HeroCobeGlobe labels={copy.globeLabels} />
+            {/* Soft left fade so copy stays legible where panes meet on desktop. */}
+            <Box
+              position="absolute"
+              insetY={0}
+              left={0}
+              w={{ base: '0', md: '28%' }}
+              pointerEvents="none"
+              aria-hidden
+              bgImage="linear-gradient(90deg, rgba(12, 19, 16, 0.92) 0%, rgba(12, 19, 16, 0) 100%)"
+            />
+          </Box>
+        </Flex>
+      </Container>
     </Box>
   )
 }

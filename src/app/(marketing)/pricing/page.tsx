@@ -31,7 +31,7 @@ export default async function PricingPage() {
   return (
     <>
       <Box as="section" py={{ base: 8, md: 12 }} pb={{ base: 10, md: 12 }}>
-        <Container maxW="6xl" px={{ base: 4, md: 6 }}>
+        <Container maxW="7xl" px={{ base: 4, md: 6 }}>
           <Stack gap={{ base: 8, md: 10 }}>
             <PricingHeader copy={copy.header} />
             {failed || !pricing ? (

@@ -110,7 +110,7 @@ export function OpenTaskHeader() {
       />
 
       <Box
-        maxW="6xl"
+        maxW="7xl"
         mx="auto"
         w="full"
         px={{ base: 4, md: 6 }}

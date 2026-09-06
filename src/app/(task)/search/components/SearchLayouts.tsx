@@ -1,6 +1,13 @@
 'use client'
 
-import { Box, HStack, Stack } from '@chakra-ui/react'
+import { Box, Container, HStack, Stack } from '@chakra-ui/react'
+
+import {
+  PAGE_CONTAINER_MAX_W,
+  PAGE_GUTTER_X,
+  SEARCH_LIST_COLUMN_W,
+  SEARCH_LIST_SCRIM_W,
+} from '@/theme/pageContainer'
 
 import { MobileTaskBrowseFiltersDrawer } from '../../components/(mobile)/MobileTaskBrowseFiltersDrawer'
 import { MobileTaskCarousel } from '../../components/(mobile)/MobileTaskCarousel'
@@ -33,56 +40,59 @@ export function WebSearchLayout() {
       position="relative"
       overflow="hidden"
     >
-      <TaskBrowseListColumnScrim />
+      {/* Map wash: viewport left → task list right edge. */}
+      <TaskBrowseListColumnScrim w={SEARCH_LIST_SCRIM_W} fadeToEnd />
       <Box
         position="absolute"
+        inset={0}
         zIndex={2}
-        top={2}
-        left={2}
-        bottom={2}
-        w={{ base: 'calc(100% - 24px)', md: '460px' }}
-        maxW="460px"
         display="flex"
-        flexDirection="column"
+        justifyContent="center"
         pointerEvents="none"
       >
-        <Box
-          px={{ base: 1, md: 0 }}
-          pb={2}
-          flex={1}
-          minH={0}
-          display="flex"
-          flexDirection="column"
+        <Container
+          maxW={PAGE_CONTAINER_MAX_W}
+          px={PAGE_GUTTER_X}
+          h="full"
           w="full"
         >
-          <Stack gap={2} flexShrink={0}>
-            <SearchModeSelector />
-            <TaskSearch />
-            <HStack gap={1.5} flexWrap="wrap">
-              {mode === 'workers' ? <WorkerFilterChips /> : <TaskTag />}
-            </HStack>
-          </Stack>
-
           <Box
-            flex={1}
-            minH={0}
-            w="full"
-            pt={2}
+            py={2}
+            w={{ base: 'full', md: SEARCH_LIST_COLUMN_W }}
+            maxW={SEARCH_LIST_COLUMN_W}
+            h="full"
             display="flex"
             flexDirection="column"
-            overflow="hidden"
           >
-            {mode === 'workers' ? (
-              <WebWorkerSearchBlock
-                listHeader={<SearchResultsListTitle mode="workers" />}
-              />
-            ) : (
-              <WebTaskBrowseFiltersBlock
-                listHeader={<SearchResultsListTitle mode="tasks" />}
-              />
-            )}
+            <Stack gap={2} flexShrink={0}>
+              <SearchModeSelector />
+              <TaskSearch />
+              <HStack gap={1.5} flexWrap="wrap">
+                {mode === 'workers' ? <WorkerFilterChips /> : <TaskTag />}
+              </HStack>
+            </Stack>
+
+            <Box
+              flex={1}
+              minH={0}
+              w="full"
+              pt={2}
+              display="flex"
+              flexDirection="column"
+              overflow="hidden"
+            >
+              {mode === 'workers' ? (
+                <WebWorkerSearchBlock
+                  listHeader={<SearchResultsListTitle mode="workers" />}
+                />
+              ) : (
+                <WebTaskBrowseFiltersBlock
+                  listHeader={<SearchResultsListTitle mode="tasks" />}
+                />
+              )}
+            </Box>
           </Box>
-        </Box>
+        </Container>
       </Box>
 
       <TaskBrowseSearchThisAreaButton overlay />
@@ -147,18 +157,22 @@ export function MobileSearchLayout() {
       <Box
         position="absolute"
         top={3}
-        left={3}
-        right={3}
+        left={0}
+        right={0}
         zIndex={4}
         pointerEvents="none"
+        display="flex"
+        justifyContent="center"
       >
-        <Stack gap={2} flexShrink={0} mr={12}>
-          <SearchModeSelector />
-          <TaskSearch />
-          <HStack gap={1.5} flexWrap="wrap">
-            {mode === 'workers' ? <WorkerFilterChips /> : <TaskTag />}
-          </HStack>
-        </Stack>
+        <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X} w="full">
+          <Stack gap={2} flexShrink={0} mr={12}>
+            <SearchModeSelector />
+            <TaskSearch />
+            <HStack gap={1.5} flexWrap="wrap">
+              {mode === 'workers' ? <WorkerFilterChips /> : <TaskTag />}
+            </HStack>
+          </Stack>
+        </Container>
       </Box>
 
       <Box

@@ -1,6 +1,13 @@
 'use client'
 
-import { Badge, Box, type BoxProps, HStack, Stack } from '@chakra-ui/react'
+import {
+  Badge,
+  Box,
+  type BoxProps,
+  Container,
+  HStack,
+  Stack,
+} from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
@@ -11,9 +18,10 @@ import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { isAccountHubPath } from '@/utils/accountHub'
 import { resolveAccountNavKey } from '@/utils/accountNav'
-import { GET_APP_HREF, MARKETING_HOME } from '@/utils/appRoutes'
+import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 
 import { Button } from '../Button'
@@ -36,7 +44,7 @@ import {
   HeaderGuestAuthButtons,
   HeaderToolbarSeparator,
 } from './shell/GuestHeaderAuth'
-import { HEADER_MIN_HEIGHT, HEADER_PADDING_X } from './shell/headerShell'
+import { HEADER_MIN_HEIGHT } from './shell/headerShell'
 import { BellIcon, MenuIcon } from './shell/icons'
 
 export { HEADER_MIN_HEIGHT } from './shell/headerShell'
@@ -296,7 +304,7 @@ function AppHeaderNavigation() {
         ) : null}
 
         <Link
-          href={MARKETING_HOME}
+          href={APP_HOME}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
         >
@@ -388,7 +396,6 @@ export function Header({ children, ...props }: HeaderProps) {
         boxShadow="none"
         borderWidth="1px"
         borderColor="border.default"
-        px={HEADER_PADDING_X}
         minH={HEADER_MIN_HEIGHT}
         display="flex"
         alignItems="center"
@@ -396,14 +403,16 @@ export function Header({ children, ...props }: HeaderProps) {
         top={0}
         {...props}
       >
-        <Box
+        <Container
+          maxW={PAGE_CONTAINER_MAX_W}
+          px={PAGE_GUTTER_X}
           w="full"
           minH={HEADER_MIN_HEIGHT}
           display="flex"
           alignItems="center"
         >
           {children ?? <AppHeaderNavigation />}
-        </Box>
+        </Container>
       </Box>
     </>
   )

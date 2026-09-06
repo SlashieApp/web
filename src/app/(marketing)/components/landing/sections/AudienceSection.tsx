@@ -118,7 +118,7 @@ export function AudienceSection({
 }) {
   return (
     <Box as="section" bg="bg.subtle" py={{ base: 16, md: 24 }}>
-      <Container maxW="6xl" px={{ base: 4, md: 6 }}>
+      <Container maxW="7xl" px={{ base: 4, md: 6 }}>
         <Stack gap={{ base: 10, md: 14 }}>
           <Reveal>
             <Heading

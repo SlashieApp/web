@@ -1,6 +1,8 @@
 'use client'
 
 import { Box, Grid } from '@chakra-ui/react'
+
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { useRef } from 'react'
 
 import {
@@ -46,9 +48,9 @@ export function TaskDetailView() {
           <OpenTaskHeader />
 
           <Box
-            maxW="6xl"
+            maxW={PAGE_CONTAINER_MAX_W}
             mx="auto"
-            px={{ base: 4, md: 6 }}
+            px={PAGE_GUTTER_X}
             pb={{ base: 4, md: 0 }}
             pointerEvents="none"
           >

@@ -64,7 +64,7 @@ export function TaskDetailStickyHeaderBar() {
           transitionDuration={sdlMotion.duration.base}
           transitionTimingFunction={sdlMotion.easing.standard}
         >
-          <Box maxW="6xl" mx="auto" w="full">
+          <Box maxW="7xl" mx="auto" w="full">
             <TaskDetailAppBar />
           </Box>
         </Box>

@@ -3,6 +3,7 @@
 import {
   Box,
   type BoxProps,
+  Container,
   HStack,
   IconButton,
   Image,
@@ -17,11 +18,8 @@ import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'
-import {
-  HEADER_MIN_HEIGHT,
-  HEADER_PADDING_X,
-  HeaderToolbarSeparator,
-} from '@/ui/Header'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from '@/ui/Header'
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Button, Drawer, Link } from '@ui'
 
@@ -388,7 +386,6 @@ export function MarketingHeader(props: MarketingHeaderProps) {
       borderWidth="1px"
       borderColor={overlay ? 'transparent' : 'border.default'}
       transition="background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease"
-      px={HEADER_PADDING_X}
       minH={HEADER_MIN_HEIGHT}
       display="flex"
       alignItems="center"
@@ -397,9 +394,16 @@ export function MarketingHeader(props: MarketingHeaderProps) {
       {...props}
     >
       <SkipLink label={copy.skipToContent} />
-      <Box w="full" minH={HEADER_MIN_HEIGHT} display="flex" alignItems="center">
+      <Container
+        maxW={PAGE_CONTAINER_MAX_W}
+        px={PAGE_GUTTER_X}
+        w="full"
+        minH={HEADER_MIN_HEIGHT}
+        display="flex"
+        alignItems="center"
+      >
         <MarketingNavigation overlay={overlay} copy={copy} />
-      </Box>
+      </Container>
     </Box>
   )
 }

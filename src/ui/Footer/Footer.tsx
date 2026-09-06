@@ -150,7 +150,7 @@ export function Footer({
         />
       ) : null}
       <Container
-        maxW="6xl"
+        maxW="7xl"
         px={{ base: 4, md: 6 }}
         position="relative"
         zIndex={1}

@@ -38,7 +38,7 @@ export function FinalCtaBand({
         bgImage="radial-gradient(38rem 16rem at 82% 120%, rgba(0, 220, 130, 0.14) 0%, transparent 70%)"
       />
       <Container
-        maxW="6xl"
+        maxW="7xl"
         px={{ base: 4, md: 6 }}
         position="relative"
         zIndex={1}
