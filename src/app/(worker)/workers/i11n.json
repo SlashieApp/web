@@ -1,0 +1,60 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Find workers | Slashie",
+      "description": "Search verified local workers by area and skills."
+    },
+    "title": "Find workers",
+    "description": "Choose an area, filter by skill, and browse workers who serve that neighbourhood.",
+    "mapAriaLabel": "Map of the worker search area",
+    "mapUnavailable": "Map preview unavailable",
+    "areaLabel": "Area",
+    "areaPlaceholder": "Neighbourhood or postcode",
+    "areaAriaLabel": "Search workers by area",
+    "useMyLocation": "Use current location",
+    "skillsLabel": "Skills",
+    "skillsPlaceholder": "Name, skill, or tagline",
+    "skillsAriaLabel": "Filter workers by skill or name",
+    "distanceLabel": "Distance",
+    "distanceValue": "{km} km",
+    "verifiedOnly": "Verified only",
+    "search": "Search",
+    "filters": "Filters",
+    "filtersTitle": "Filters",
+    "applyFilters": "Apply filters",
+    "openFilters": "Open filters",
+    "openFiltersWithCount": "Open filters, {count} active",
+    "emptyTitle": "No workers here yet",
+    "emptyDescription": "No workers cover {area} with these filters. Try a wider area or different skills — new workers join Slashie every week.",
+    "clearFilters": "Clear filters"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "尋找工作者 | Slashie",
+      "description": "按地區和技能搜尋已驗證的本地工作者。"
+    },
+    "title": "尋找工作者",
+    "description": "選擇地區、以技能篩選，瀏覽服務該社區的工作者。",
+    "mapAriaLabel": "工作者搜尋範圍地圖",
+    "mapUnavailable": "地圖預覽無法使用",
+    "areaLabel": "地區",
+    "areaPlaceholder": "地區或郵政編碼",
+    "areaAriaLabel": "按地區搜尋工作者",
+    "useMyLocation": "使用目前位置",
+    "skillsLabel": "技能",
+    "skillsPlaceholder": "姓名、技能或簡介",
+    "skillsAriaLabel": "按技能或姓名篩選工作者",
+    "distanceLabel": "距離",
+    "distanceValue": "{km} 公里",
+    "verifiedOnly": "只顯示已驗證",
+    "search": "搜尋",
+    "filters": "篩選",
+    "filtersTitle": "篩選",
+    "applyFilters": "套用篩選",
+    "openFilters": "開啟篩選",
+    "openFiltersWithCount": "開啟篩選，{count} 項生效",
+    "emptyTitle": "這裏還沒有工作者",
+    "emptyDescription": "沒有工作者以這些篩選覆蓋 {area}。試試擴大範圍或更換技能 — 每週都有新工作者加入 Slashie。",
+    "clearFilters": "清除篩選"
+  }
+}

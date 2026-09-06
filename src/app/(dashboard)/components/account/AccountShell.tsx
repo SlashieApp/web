@@ -1,7 +1,7 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Container, HStack, Stack, Text } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 import bag from '../../i11n.json'
@@ -150,13 +150,12 @@ export function AccountShell({ children }: AccountShellProps) {
           overflowY="auto"
           display="flex"
           flexDirection="column"
-          px={{ base: 4, md: 6, xl: 8 }}
           py={{ base: 5, md: 6 }}
           pb={{ base: MOBILE_BOTTOM_NAV_CLEARANCE, md: 6, lg: 8 }}
         >
-          <Box w="full" maxW="1200px" flex="1">
+          <Container flex="1" w="full">
             {children}
-          </Box>
+          </Container>
           {/* Legal strip stays inside the scroll container: the shell itself
               never scrolls, so the footer surfaces at the end of the content. */}
           <Footer variant="minimal" mt={{ base: 8, md: 10 }} bg="transparent" />

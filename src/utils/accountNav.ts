@@ -31,7 +31,7 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
     href: '/dashboard',
     description: 'Quick links and headline stats for your account.',
   },
-  // Worker discovery moved out of the dashboard to /search?mode=workers.
+  // Worker discovery lives at /workers.
   {
     key: 'requests',
     label: 'My Requests',

@@ -47,7 +47,7 @@ export function HowItWorks({ copy }: { copy: HowItWorksCopy }) {
       py={{ base: 16, md: 24 }}
       scrollMarginTop={{ base: '56px', md: '64px' }}
     >
-      <Container maxW="7xl" px={{ base: 4, md: 6 }}>
+      <Container>
         <Stack gap={{ base: 10, md: 14 }}>
           <Reveal>
             <Stack gap={3} textAlign="center" align="center">

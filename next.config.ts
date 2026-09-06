@@ -82,21 +82,6 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
-        source: `/${zhHk}/workers`,
-        destination: `/${zhHk}/search?mode=workers`,
-        permanent: false,
-      },
-      {
-        source: '/en/workers',
-        destination: '/search?mode=workers',
-        permanent: false,
-      },
-      {
-        source: '/workers',
-        destination: '/search?mode=workers',
-        permanent: false,
-      },
-      {
         source: `/${zhHk}/task/:slug`,
         destination: `/${zhHk}/tasks/:slug`,
         permanent: true,
@@ -184,6 +169,21 @@ const nextConfig: NextConfig = {
       {
         source: '/jobs/:path*',
         destination: '/quotes/:path*',
+        permanent: true,
+      },
+      {
+        source: `/${zhHk}/worker/plan`,
+        destination: `/${zhHk}/billing`,
+        permanent: true,
+      },
+      {
+        source: '/en/worker/plan',
+        destination: '/billing',
+        permanent: true,
+      },
+      {
+        source: '/worker/plan',
+        destination: '/billing',
         permanent: true,
       },
     ]

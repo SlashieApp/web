@@ -76,6 +76,7 @@ function GlanceRow({
 /** Sidebar: Trust & verification → At a glance → Get in touch. */
 export function WorkerProfileSidebar() {
   const { worker } = useWorkerProfile()
+  if (!worker) return null
   const firstName = workerFirstName(worker)
   const memberSince = formatMemberSince(
     worker.memberSince ?? worker.user.createdAt,

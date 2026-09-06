@@ -626,7 +626,7 @@ export default function EditTaskPage() {
       <Stack gap={0}>
         <Box as="section" bg="bg.surface" py={{ base: 8, md: 10 }}>
           <Container>
-            <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
+            <Stack gap={8}>
               <EditTaskPageHeader taskTitle={task.title} />
               <EditTaskFormBody
                 taskId={taskId}

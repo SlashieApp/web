@@ -83,7 +83,7 @@ export function WorkerSetupProfilePreview() {
           <WorkerProfileHero />
           <Stack gap={4} px={{ base: 3, md: 5 }}>
             <WorkerAboutSection />
-            <WorkerSkillsSection skills={previewWorker.skills} />
+            <WorkerSkillsSection />
           </Stack>
         </Stack>
       </WorkerProfileProvider>

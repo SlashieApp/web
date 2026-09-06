@@ -14,6 +14,7 @@ import { LuGithub, LuLinkedin } from 'react-icons/lu'
 import { COMPANY_REGISTRATION_LINE } from '@/content/legal/company'
 import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
 import { useI11n } from '@/i18n/useI11n'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 
 import { Link } from '../Link/Link'
@@ -150,8 +151,8 @@ export function Footer({
         />
       ) : null}
       <Container
-        maxW="7xl"
-        px={{ base: 4, md: 6 }}
+        maxW={PAGE_CONTAINER_MAX_W}
+        px={PAGE_GUTTER_X}
         position="relative"
         zIndex={1}
       >

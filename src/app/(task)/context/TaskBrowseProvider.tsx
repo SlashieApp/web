@@ -198,6 +198,8 @@ type TaskBrowseProviderProps = {
   isDesktop: boolean
   /** Seeds filters + viewport once on mount (shareable /search URLs). */
   initialState?: TaskBrowseInitialState
+  /** Location/radius only — used by /workers so the tasks query stays off. */
+  skipTasksQuery?: boolean
 }
 
 /** Left inset used by map center offset in desktop split mode. */
@@ -217,6 +219,7 @@ export function TaskBrowseProvider({
   initialTasks,
   isDesktop,
   initialState,
+  skipTasksQuery = false,
 }: TaskBrowseProviderProps) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const hasMapboxToken = Boolean(mapboxToken?.trim())
@@ -363,7 +366,7 @@ export function TaskBrowseProvider({
     {
       variables: queryVariables,
       notifyOnNetworkStatusChange: true,
-      skip: shouldWaitForMap && !isMapReadyForQuery,
+      skip: skipTasksQuery || (shouldWaitForMap && !isMapReadyForQuery),
     },
   )
 

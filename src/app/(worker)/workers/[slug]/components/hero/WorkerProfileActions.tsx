@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, HStack, Skeleton } from '@chakra-ui/react'
 import type { SaveWorkerMutation, UnsaveWorkerMutation } from '@codegen/schema'
 import { WorkerContactAction } from '@codegen/schema'
 import { useRouter } from 'next/navigation'
@@ -15,6 +15,7 @@ import { showAppToast } from '@/utils/appToast'
 import { useWorkerProfile } from '../../context/WorkerProfileContext'
 import SaveWorker from '../../graphql/SaveWorker.gql'
 import UnsaveWorker from '../../graphql/UnsaveWorker.gql'
+import type { WorkerPublicRecord } from '../../helpers/workerProfileHelpers'
 
 /**
  * Hero actions: Save (heart) + Leave a review, driven by BE-36
@@ -24,8 +25,20 @@ import UnsaveWorker from '../../graphql/UnsaveWorker.gql'
  * with the reviews stage, so an eligible click is a friendly stub for now.
  */
 export function WorkerProfileActions() {
-  const router = useRouter()
   const { worker } = useWorkerProfile()
+  if (!worker) {
+    return (
+      <HStack gap={2} flexWrap="wrap">
+        <Skeleton h="32px" w="72px" borderRadius="md" />
+        <Skeleton h="32px" w="128px" borderRadius="md" />
+      </HStack>
+    )
+  }
+  return <WorkerProfileActionsReady worker={worker} />
+}
+
+function WorkerProfileActionsReady({ worker }: { worker: WorkerPublicRecord }) {
+  const router = useRouter()
   const viewer = worker.viewer ?? null
   const isOwnProfile = viewer?.contactAction === WorkerContactAction.None
 

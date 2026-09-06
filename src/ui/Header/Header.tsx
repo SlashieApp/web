@@ -21,7 +21,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { isAccountHubPath } from '@/utils/accountHub'
 import { resolveAccountNavKey } from '@/utils/accountNav'
-import { APP_HOME, GET_APP_HREF } from '@/utils/appRoutes'
+import { APP_HOME, GET_APP_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 
 import { Button } from '../Button'
@@ -113,6 +113,7 @@ function DesktopPrimaryNav() {
   } as const
 
   const items = [
+    { href: WORKER_SEARCH_HREF, label: t.nav.workers },
     { href: '/requests', label: t.myTasks },
     { href: MESSAGES_HREF, label: t.messages },
   ] as const
@@ -220,6 +221,13 @@ function GuestMobileMenu({
         size="full"
       >
         <Stack as="nav" gap={0} align="stretch" flex={1}>
+          <Link
+            href={WORKER_SEARCH_HREF}
+            {...accountNavLinkRowProps}
+            onClick={() => setOpen(false)}
+          >
+            {t.nav.workers}
+          </Link>
           <Link
             href="/tasks/create"
             {...accountNavLinkRowProps}

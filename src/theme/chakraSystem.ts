@@ -7,6 +7,7 @@ import {
   mergeConfigs,
 } from '@chakra-ui/react'
 
+import { PAGE_CONTAINER_MAX_W_CSS, PAGE_GUTTER_X } from './pageContainer'
 import { sdlElevation, sdlTypeScale } from './styles'
 
 /**
@@ -144,6 +145,10 @@ const sharedTheme = {
         '2xl': { value: '20px' },
         full: { value: '9999px' },
       },
+      sizes: {
+        /** Page column — default `<Container>` max width (worker detail). */
+        page: { value: PAGE_CONTAINER_MAX_W_CSS },
+      },
       shadows: {
         // SDL elevation scale (light). Named aliases + explicit e1..e5.
         e1: { value: sdlElevation.e1 },
@@ -161,6 +166,14 @@ const sharedTheme = {
       },
     },
     textStyles: sdlTextStyles,
+    recipes: {
+      container: {
+        base: {
+          maxWidth: 'page',
+          px: PAGE_GUTTER_X,
+        },
+      },
+    },
     keyframes: {
       /** Marketing entrance: fade + rise. Pair with a reduced-motion override. */
       'rise-in': {

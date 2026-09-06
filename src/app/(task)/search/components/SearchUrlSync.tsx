@@ -7,25 +7,20 @@ import { withLocale } from '@/i18n/navigation'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES } from '../../helpers/taskBrowseHelpers'
-import { useSearchMode } from '../context/SearchModeProvider'
-import { useWorkerSearch } from '../context/WorkerSearchProvider'
 import { buildSearchUrl } from '../helpers/searchQueryParams'
 
 /**
- * Mirrors mode + viewport + submitted filters into the URL query
+ * Mirrors viewport + submitted task filters into the URL query
  * (history.replaceState — no navigation) so any /search view is shareable.
- * Keeps the active locale in the URL (`/search` for en, `/zh-hk/search` for 繁中).
  */
 export function SearchUrlSync() {
   const locale = useLocale()
-  const { mode } = useSearchMode()
   const {
     referenceLocation,
     submittedRadiusMiles,
     submittedCategory,
     submittedSearchText,
   } = useTaskBrowseData()
-  const { submittedWorkerSearchText, submittedVerifiedOnly } = useWorkerSearch()
 
   const hasCustomCenter = referenceLocation.source !== 'default'
   const hasCustomRadius =
@@ -34,14 +29,11 @@ export function SearchUrlSync() {
   const url = withLocale(
     locale,
     buildSearchUrl({
-      mode,
       lat: hasCustomCenter ? referenceLocation.lat : undefined,
       lng: hasCustomCenter ? referenceLocation.lng : undefined,
       radiusMiles: hasCustomRadius ? submittedRadiusMiles : undefined,
       taskSearchText: submittedSearchText || undefined,
       taskCategory: submittedCategory || undefined,
-      workerSearchText: submittedWorkerSearchText || undefined,
-      workerVerifiedOnly: submittedVerifiedOnly || undefined,
     }),
   )
 

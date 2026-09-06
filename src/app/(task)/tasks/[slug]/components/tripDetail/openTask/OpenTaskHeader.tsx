@@ -5,6 +5,7 @@ import { Box, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import bag from '../../../i11n.json'
 
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 import { TaskStatusPill } from '../TaskStatusPill'
 
@@ -110,10 +111,10 @@ export function OpenTaskHeader() {
       />
 
       <Box
-        maxW="7xl"
+        maxW={PAGE_CONTAINER_MAX_W}
         mx="auto"
         w="full"
-        px={{ base: 4, md: 6 }}
+        px={PAGE_GUTTER_X}
         py={2}
         pointerEvents="none"
       >

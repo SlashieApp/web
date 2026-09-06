@@ -5,7 +5,7 @@ design-system modernization pass (FE-47). Quality bar: systematic variants (Uber
 trust-focused card hierarchy and whitespace (Airbnb) — while staying distinctly Slashie
 (green `#00DC82`, map-first marketplace).
 
-Last updated: 2026-07-17 · Owner: web  
+Last updated: 2026-07-17 · Owner: web
 **Architecture / layering:** see [Coding Guidebook](./coding-guidebook.md).
 
 ---
@@ -39,6 +39,16 @@ White text on green = 1.82:1 (**fails** — never use white text on green).
 
 **Deprecated:** template blue `#1447E6` — never a primary CTA. Currently **0 usages** in `src/`.
 
+### Page column
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `sizes.page` | `90rem` (Chakra `8xl`) | Default `<Container>` max width. Worker detail is the reference. |
+| `PAGE_CONTAINER_MAX_W` | `'page'` | Box/Grid overlays that cannot be a `<Container>`. |
+| `PAGE_GUTTER_X` | `{ base: 4, md: 6, lg: 8 }` | Same gutters as `<Container>`. |
+
+Page shells use **`<Container>`** with no `maxW` override. Do not invent `7xl` / `1200px` page widths.
+
 ### Type / radius / shadow
 
 - Fonts: Plus Jakarta Sans (`heading`, marketing) · Inter (`body`, product UI).
@@ -59,7 +69,7 @@ Routes are already grouped by Next.js route groups, which align to shells:
 | `src/app/(task)` — `/tasks`, `/tasks/[slug]` | Discovery / Task detail | Map+list, mobile bottom dock (max 4); detail = header + quote sidebar |
 | `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/worker/setup` | StepFlow | Own route-group `layout.tsx` — **`StepFlowLayout` only**, no app `Header` / `Dock` (FE-78) |
 | `src/app/(dashboard)` — `/dashboard`, `/requests`, `/quotes`, `/billing`, `/account` | Dashboard | Icon sidebar + header |
-| `src/app/(worker)` — `/worker/plan`, `/workers/[slug]` | App | Header chrome (setup lives under `(stepflow)`) |
+| `src/app/(worker)` — `/workers`, `/workers/[slug]` | App | Header chrome (setup lives under `(stepflow)`) |
 
 **Active-nav rule:** active state uses green accent; icon + label aligned.
 
@@ -67,7 +77,7 @@ Routes are already grouped by Next.js route groups, which align to shells:
 
 ## 3. Primitive inventory (`src/ui`) + shell
 
-Pages import primitives from `@ui` (barrel auto-generated — `bun run exports-gen`).  
+Pages import primitives from `@ui` (barrel auto-generated — `bun run exports-gen`).
 **App shell** (`Header`, `Dock`) also lives under **`src/ui`** with colocated `i11n.json` — see [Coding Guidebook](./coding-guidebook.md) §2.
 
 | Layer | Modules | Story title |
@@ -108,7 +118,7 @@ No primary blue CTAs found. ~15 ad-hoc hex values total across `src/app/**` (mos
 - [ ] **Auth** — `/login`, `/register`, verify banners → primitives + Alert
 - [ ] **Discovery** — `/tasks` browse, filters, task cards, map chrome
 - [ ] **Task detail** — `/tasks/[slug]`, quote sidebar, CTAs
-- [ ] **Worker** — setup, `/worker/plan`, billing, `/pricing`
+- [ ] **Worker** — setup, billing, `/pricing`
 - [ ] **Customer** — `/requests`, post-task flow
 - [ ] **Legal** — `/privacy`, `/terms`, `/cookies` (FE-65) — prose layout + footer
 

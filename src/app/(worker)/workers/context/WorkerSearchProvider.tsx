@@ -16,13 +16,10 @@ import {
   useState,
 } from 'react'
 
-import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import type { TaskMapTask } from '../../helpers/taskMap'
+import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
+
 import WorkersSearch from '../graphql/WorkersSearch.gql'
-import {
-  type WorkerSearchItem,
-  workerToMapPoint,
-} from '../helpers/workerSearchHelpers'
+import type { WorkerSearchItem } from '../helpers/workerSearchHelpers'
 
 export type WorkerSearchInitialState = {
   searchText?: string | null
@@ -30,22 +27,18 @@ export type WorkerSearchInitialState = {
 }
 
 type WorkerSearchContextValue = {
-  /** Draft filter fields (edited in the worker filter panel). */
   workerSearchInput: string
   setWorkerSearchInput: (v: string) => void
   verifiedOnly: boolean
   setVerifiedOnly: (v: boolean) => void
-  /** Submitted snapshot (drives the query + chips + URL). */
   submittedWorkerSearchText: string
   submittedVerifiedOnly: boolean
   submitWorkerFilters: () => void
+  clearWorkerFilters: () => void
   syncWorkerDraftFromSubmitted: () => void
+  isFilterOpen: boolean
+  setIsFilterOpen: (open: boolean) => void
   workers: WorkerSearchItem[]
-  /** Approximate service-area pins (workers without coords are excluded). */
-  workerMapPoints: TaskMapTask[]
-  selectedWorkerId: string | null
-  selectedWorkerSelectionToken: number
-  setSelectedWorkerId: (v: string | null) => void
   loading: boolean
   dataLoaded: boolean
   canShowWorkersEmptyState: boolean
@@ -54,31 +47,22 @@ type WorkerSearchContextValue = {
 const WorkerSearchContext = createContext<WorkerSearchContextValue | null>(null)
 
 /**
- * Worker-mode data layer for /search. Shares the map viewport (center +
- * radius) and map-readiness gate with `TaskBrowseProvider`; runs the
- * `WorkersSearch` query only while worker mode is active. Public-safe fields
- * only — see WorkersSearch.gql.
+ * Worker directory data layer. Shares area (center + radius) with
+ * `TaskBrowseProvider`; runs `WorkersSearch` for public-safe fields only.
  */
 export function WorkerSearchProvider({
   children,
-  enabled,
   initialState,
 }: {
   children: React.ReactNode
-  enabled: boolean
   initialState?: WorkerSearchInitialState
 }) {
   const initialStateRef = useRef(initialState)
   const seededSearch = initialStateRef.current?.searchText?.trim() ?? ''
   const seededVerified = initialStateRef.current?.verifiedOnly ?? false
 
-  const {
-    searchCenterLat,
-    searchCenterLng,
-    submittedRadiusMiles,
-    shouldWaitForMap,
-    isMapReadyForQuery,
-  } = useTaskBrowseData()
+  const { searchCenterLat, searchCenterLng, submittedRadiusMiles } =
+    useTaskBrowseData()
 
   const [workerSearchInput, setWorkerSearchInput] = useState(seededSearch)
   const [verifiedOnly, setVerifiedOnly] = useState(seededVerified)
@@ -86,21 +70,19 @@ export function WorkerSearchProvider({
     useState(seededSearch)
   const [submittedVerifiedOnly, setSubmittedVerifiedOnly] =
     useState(seededVerified)
-  const [selectedWorkerId, setSelectedWorkerIdState] = useState<string | null>(
-    null,
-  )
-  const [selectedWorkerSelectionToken, setSelectedWorkerSelectionToken] =
-    useState(0)
-
-  const setSelectedWorkerId = useCallback((value: string | null) => {
-    if (value) setSelectedWorkerSelectionToken((t) => t + 1)
-    setSelectedWorkerIdState(value)
-  }, [])
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const submitWorkerFilters = useCallback(() => {
     setSubmittedWorkerSearchText(workerSearchInput.trim())
     setSubmittedVerifiedOnly(verifiedOnly)
   }, [workerSearchInput, verifiedOnly])
+
+  const clearWorkerFilters = useCallback(() => {
+    setWorkerSearchInput('')
+    setVerifiedOnly(false)
+    setSubmittedWorkerSearchText('')
+    setSubmittedVerifiedOnly(false)
+  }, [])
 
   const syncWorkerDraftFromSubmitted = useCallback(() => {
     setWorkerSearchInput(submittedWorkerSearchText)
@@ -131,26 +113,9 @@ export function WorkerSearchProvider({
   const { data, loading } = useQuery<WorkersSearchQuery>(WorkersSearch, {
     variables,
     notifyOnNetworkStatusChange: true,
-    // Same first-fetch gate as tasks: wait for the map before querying.
-    skip: !enabled || (shouldWaitForMap && !isMapReadyForQuery),
   })
 
   const workers = useMemo(() => data?.workers ?? [], [data])
-
-  const workerMapPoints = useMemo(
-    () =>
-      workers
-        .map(workerToMapPoint)
-        .filter((point): point is TaskMapTask => point !== null),
-    [workers],
-  )
-
-  // Selection auto-clears when the selected worker leaves the result set.
-  const visibleSelectedWorkerId =
-    selectedWorkerId && workers.some((w) => w.id === selectedWorkerId)
-      ? selectedWorkerId
-      : null
-
   const dataLoaded = Boolean(data)
 
   const value = useMemo<WorkerSearchContextValue>(
@@ -162,12 +127,11 @@ export function WorkerSearchProvider({
       submittedWorkerSearchText,
       submittedVerifiedOnly,
       submitWorkerFilters,
+      clearWorkerFilters,
       syncWorkerDraftFromSubmitted,
+      isFilterOpen,
+      setIsFilterOpen,
       workers,
-      workerMapPoints,
-      selectedWorkerId: visibleSelectedWorkerId,
-      selectedWorkerSelectionToken,
-      setSelectedWorkerId,
       loading,
       dataLoaded,
       canShowWorkersEmptyState: dataLoaded && !loading,
@@ -178,12 +142,10 @@ export function WorkerSearchProvider({
       submittedWorkerSearchText,
       submittedVerifiedOnly,
       submitWorkerFilters,
+      clearWorkerFilters,
       syncWorkerDraftFromSubmitted,
+      isFilterOpen,
       workers,
-      workerMapPoints,
-      visibleSelectedWorkerId,
-      selectedWorkerSelectionToken,
-      setSelectedWorkerId,
       loading,
       dataLoaded,
     ],

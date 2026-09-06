@@ -6,7 +6,7 @@ export default function PricingLoading() {
   return (
     <>
       <Box as="section" py={{ base: 8, md: 12 }}>
-        <Container maxW="5xl" px={{ base: 4, md: 6 }}>
+        <Container>
           <Stack gap={8}>
             <Stack gap={3} align="center" textAlign="center">
               <Skeleton h="12px" w="24%" />

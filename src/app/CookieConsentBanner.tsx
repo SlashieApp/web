@@ -48,7 +48,7 @@ export function CookieConsentBanner() {
       py={{ base: 4, md: 5 }}
       boxShadow="0 -4px 24px rgba(10, 21, 18, 0.08)"
     >
-      <Container maxW="7xl" px={{ base: 4, md: 6 }}>
+      <Container>
         <Stack
           direction={{ base: 'column', md: 'row' }}
           gap={{ base: 4, md: 6 }}

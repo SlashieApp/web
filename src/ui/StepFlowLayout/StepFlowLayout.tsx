@@ -12,6 +12,8 @@ import {
 } from '@chakra-ui/react'
 import { LuArrowLeft, LuArrowRight } from 'react-icons/lu'
 
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+
 import { Button } from '../Button/Button'
 import { ProgressBar } from '../ProgressBar'
 
@@ -20,7 +22,7 @@ import { ProgressBar } from '../ProgressBar'
  * worker profile setup, task creation).
  *
  * Anatomy:
- * - Desktop (lg+): a `7xl` grid with a stepper rail, a raised step panel
+ * - Desktop (lg+): a page-column grid with a stepper rail, a raised step panel
  *   (scrollable heading + content, sticky action bar), and an optional
  *   context `aside` third column.
  * - Mobile: optional `mobileTop` context region, the `progress` bar, a
@@ -293,11 +295,11 @@ export function StepFlowLayout({
                 : 'minmax(280px, 320px) minmax(0, 1fr)'
             }
             gap={aside ? 6 : 8}
-            maxW="7xl"
+            maxW={PAGE_CONTAINER_MAX_W}
             mx="auto"
             w="full"
             h="full"
-            px={8}
+            px={PAGE_GUTTER_X}
             py={8}
           >
             <Box pt={2} px={2} overflowY="auto" minH={0}>

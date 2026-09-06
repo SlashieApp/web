@@ -32,8 +32,8 @@ const TARGET_PAGES = [
   'src/app/(task)/tasks/[slug]/edit/page.tsx',
   'src/app/(task)/tasks/[slug]/page.tsx',
   'src/app/(stepflow)/tasks/[slug]/quote/page.tsx',
-  'src/app/(worker)/worker/plan/page.tsx',
   'src/app/(stepflow)/worker/setup/page.tsx',
+  'src/app/(worker)/workers/page.tsx',
   'src/app/(worker)/workers/[slug]/page.tsx',
 ] as const
 

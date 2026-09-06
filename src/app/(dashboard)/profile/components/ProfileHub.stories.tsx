@@ -8,6 +8,7 @@ import {
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
 
 import { ProfileHub } from './ProfileHub'
 import type { ProfileEditSection } from './edit/ProfileEditDrawer'
@@ -123,7 +124,7 @@ function StoryProfile({
   })
   return (
     <Box bg="bg.page" minH="100vh" p={{ base: 4, md: 8 }}>
-      <Box maxW="1200px" mx="auto">
+      <Box maxW={PAGE_CONTAINER_MAX_W} mx="auto">
         <ProfileHub me={me} initialEditSection={initialEditSection} />
       </Box>
     </Box>

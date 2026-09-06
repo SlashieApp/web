@@ -5,6 +5,9 @@
       "description": "View a Slashie worker profile, skills, reviews, service area, and contact actions."
     },
     "loading": "Loading worker profile...",
+    "errorTitle": "Could not load this profile",
+    "errorDescription": "Something went wrong. Check your connection and try again.",
+    "errorRetry": "Try again",
     "notFoundTitle": "Worker not found",
     "notFoundDescription": "This worker profile may be unavailable or no longer active.",
     "addBioTitle": "Add a bio",
@@ -21,6 +24,9 @@
       "description": "查看 Slashie worker 個人檔案、技能、評價、服務地區和聯絡操作。"
     },
     "loading": "正在載入 worker 個人檔案...",
+    "errorTitle": "無法載入此個人檔案",
+    "errorDescription": "發生錯誤。請檢查網絡連線後再試。",
+    "errorRetry": "再試一次",
     "notFoundTitle": "找不到 worker",
     "notFoundDescription": "此 worker 個人檔案可能無法使用或已不再啟用。",
     "addBioTitle": "加入簡介",

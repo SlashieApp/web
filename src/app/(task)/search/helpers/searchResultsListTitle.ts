@@ -14,8 +14,3 @@ export function formatTasksListTitle(count: number, areaLabel: string): string {
   const noun = count === 1 ? 'task' : 'tasks'
   return `${count} ${noun} near ${browseNearPlaceLabel(areaLabel)}`
 }
-
-export function formatWorkersListTitle(count: number): string {
-  const noun = count === 1 ? 'worker' : 'workers'
-  return `${count} ${noun} serving this area`
-}

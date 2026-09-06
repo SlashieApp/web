@@ -3,6 +3,7 @@
 import { Box } from '@chakra-ui/react'
 import { useCallback, useRef, useState } from 'react'
 
+import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 
 import { TaskDetailAppBar } from './TaskDetailAppBar'
@@ -64,7 +65,7 @@ export function TaskDetailStickyHeaderBar() {
           transitionDuration={sdlMotion.duration.base}
           transitionTimingFunction={sdlMotion.easing.standard}
         >
-          <Box maxW="7xl" mx="auto" w="full">
+          <Box maxW={PAGE_CONTAINER_MAX_W} mx="auto" w="full">
             <TaskDetailAppBar />
           </Box>
         </Box>

@@ -1,5 +1,6 @@
 'use client'
 
+import { Skeleton } from '@chakra-ui/react'
 import { WorkerContactAction } from '@codegen/schema'
 import { useRouter } from 'next/navigation'
 
@@ -22,6 +23,15 @@ import { workerFirstName } from '../../helpers/workerProfileHelpers'
 export function WorkerContactButton({ size = 'md' }: { size?: 'md' | 'lg' }) {
   const router = useRouter()
   const { worker } = useWorkerProfile()
+  if (!worker) {
+    return (
+      <Skeleton
+        h={size === 'lg' ? '48px' : '40px'}
+        w="full"
+        borderRadius="md"
+      />
+    )
+  }
   const firstName = workerFirstName(worker)
   const viewer = worker.viewer ?? null
   const action = viewer?.contactAction ?? WorkerContactAction.SignIn

@@ -1,0 +1,15 @@
+# Light public worker meta for generateMetadata only. The profile screen
+# fetches the full WorkerPublicProfile on the client.
+query WorkerPublicSeo($id: ID!) {
+  worker(id: $id) {
+    id
+    tagline
+    bio
+    isVerified
+    serviceAreaLabel
+    profile {
+      name
+      avatarUrl
+    }
+  }
+}

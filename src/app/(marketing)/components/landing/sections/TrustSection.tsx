@@ -7,7 +7,7 @@ import { Reveal } from '../Reveal'
 export function TrustSection({ points }: { points: readonly string[] }) {
   return (
     <Box as="section" bg="status.success.soft" py={{ base: 10, md: 12 }}>
-      <Container maxW="7xl" px={{ base: 4, md: 6 }}>
+      <Container>
         <Grid
           templateColumns={{
             base: '1fr',

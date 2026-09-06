@@ -14,6 +14,7 @@ const COLLAPSE_THRESHOLD = 220
 export function WorkerAboutSection() {
   const { worker } = useWorkerProfile()
   const [expanded, setExpanded] = useState(false)
+  if (!worker) return null
   const bio = worker.bio?.trim()
   const firstName = workerFirstName(worker)
 

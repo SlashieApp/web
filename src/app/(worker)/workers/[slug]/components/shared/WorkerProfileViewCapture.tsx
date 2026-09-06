@@ -25,20 +25,24 @@ export function WorkerProfileViewCapture({
 
   const onMountRef = useCallback(
     (node: HTMLDivElement | null) => {
-      if (!node || capturedRef.current || !authReady) return
+      if (!node || capturedRef.current || !authReady || !worker) return
       capturedRef.current = true
+      const fromTask =
+        typeof window !== 'undefined'
+          ? new URLSearchParams(window.location.search).get('fromTask')
+          : null
       captureWorkerProfileView({
         workerId: worker.id,
         workerUserId: worker.user.id,
         viewerUserId: me?.id,
         isAuthenticated,
-        source,
+        source: source ?? (fromTask?.trim() ? 'quote_card' : undefined),
       })
     },
-    [authReady, isAuthenticated, me?.id, source, worker.id, worker.user.id],
+    [authReady, isAuthenticated, me?.id, source, worker],
   )
 
-  if (!authReady) return null
+  if (!authReady || !worker) return null
 
   return <div ref={onMountRef} hidden aria-hidden />
 }

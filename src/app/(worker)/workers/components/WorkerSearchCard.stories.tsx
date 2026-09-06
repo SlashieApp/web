@@ -7,12 +7,12 @@ import {
 } from './WorkerSearchCard'
 
 const meta = {
-  title: 'task/search/WorkerSearchCard',
+  title: 'worker/workers/WorkerSearchCard',
   component: WorkerSearchCard,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
   render: (args) => (
-    <Box maxW="420px">
+    <Box maxW="280px">
       <WorkerSearchCard {...args} />
     </Box>
   ),
@@ -24,6 +24,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
+    workerId: 'worker-1',
     name: 'Tom H.',
     verified: true,
     subtitle: 'Handyman · Furniture assembly',
@@ -47,28 +48,14 @@ export const NoReviewsYet: Story = {
   },
 }
 
-export const SelectedOnMap: Story = {
-  args: {
-    ...Default.args,
-    isActive: true,
-    activateAriaLabel: 'Tom H. Open profile.',
-  },
-}
-
 export const NoServiceArea: Story = {
   args: {
+    workerId: 'worker-2',
     name: 'Priya Anand',
     verified: false,
     subtitle: '2 yrs experience',
     serviceAreaLabel: null,
     skills: ['Cleaning'],
     profileHref: '/workers/worker-2',
-  },
-}
-
-export const CompactCarousel: Story = {
-  args: {
-    ...Default.args,
-    compact: true,
   },
 }

@@ -19,7 +19,7 @@ export function TaskNotFoundCard({
       <Stack gap={0}>
         <Box as="section" py={{ base: 8, md: 10 }}>
           <Container>
-            <Stack gap={8} maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
+            <Stack gap={8}>
               <Card layout="section" eyebrow={eyebrow} heading={heading}>
                 <TaskNotFoundTracker />
                 <Text color="text.muted">{description}</Text>

@@ -16,21 +16,10 @@ import { TaskBrowseListColumnScrim } from '../../components/(web)/TaskBrowseList
 import { TaskBrowseSearchThisAreaButton } from '../../components/TaskBrowseSearchThisAreaButton'
 import { TaskSearch } from '../../components/TaskSearch'
 import { TaskTag } from '../../components/TaskTag'
-import { useTaskBrowseLayout } from '../../context/TaskBrowseProvider'
-import { useSearchMode } from '../context/SearchModeProvider'
-import { SearchModeSelector } from './filters/SearchModeSelector'
-import { WorkerFilterChips } from './filters/WorkerFilterChips'
-import { WorkerFiltersPanel } from './filters/WorkerFiltersPanel'
-import { MobileWorkerCarousel } from './results/MobileWorkerCarousel'
 import { SearchResultsListTitle } from './results/SearchResultsListTitle'
-import { WebWorkerSearchBlock } from './results/WorkerSearchPanel'
 
-/**
- * Desktop split view for /search: mode selector above the location bar; the list/filters region swaps per mode.
- */
+/** Desktop split view for /search: location bar + task list over the map. */
 export function WebSearchLayout() {
-  const { mode } = useSearchMode()
-
   return (
     <Box
       flex={1}
@@ -40,7 +29,6 @@ export function WebSearchLayout() {
       position="relative"
       overflow="hidden"
     >
-      {/* Map wash: viewport left → task list right edge. */}
       <TaskBrowseListColumnScrim w={SEARCH_LIST_SCRIM_W} fadeToEnd />
       <Box
         position="absolute"
@@ -65,10 +53,9 @@ export function WebSearchLayout() {
             flexDirection="column"
           >
             <Stack gap={2} flexShrink={0}>
-              <SearchModeSelector />
               <TaskSearch />
               <HStack gap={1.5} flexWrap="wrap">
-                {mode === 'workers' ? <WorkerFilterChips /> : <TaskTag />}
+                <TaskTag />
               </HStack>
             </Stack>
 
@@ -81,15 +68,9 @@ export function WebSearchLayout() {
               flexDirection="column"
               overflow="hidden"
             >
-              {mode === 'workers' ? (
-                <WebWorkerSearchBlock
-                  listHeader={<SearchResultsListTitle mode="workers" />}
-                />
-              ) : (
-                <WebTaskBrowseFiltersBlock
-                  listHeader={<SearchResultsListTitle mode="tasks" />}
-                />
-              )}
+              <WebTaskBrowseFiltersBlock
+                listHeader={<SearchResultsListTitle />}
+              />
             </Box>
           </Box>
         </Container>
@@ -100,34 +81,8 @@ export function WebSearchLayout() {
   )
 }
 
-/** Mobile worker filters: same slot the task bottom-sheet uses, panel styling. */
-function MobileWorkerFiltersOverlay() {
-  const { isFilterOpen } = useTaskBrowseLayout()
-  if (!isFilterOpen) return null
-  return (
-    <Box
-      position="absolute"
-      left={3}
-      right={3}
-      top={{ base: 36, sm: 40 }}
-      zIndex={5}
-      maxH="60dvh"
-      overflowY="auto"
-      pointerEvents="auto"
-      borderRadius="2xl"
-    >
-      <WorkerFiltersPanel />
-    </Box>
-  )
-}
-
-/**
- * Mobile /search: map behind, mode selector + location bar on top, bottom
- * card strip per mode (task carousel or worker strip).
- */
+/** Mobile /search: map behind, location bar on top, task carousel at the bottom. */
 export function MobileSearchLayout() {
-  const { mode } = useSearchMode()
-
   return (
     <Box
       flex={1}
@@ -137,8 +92,6 @@ export function MobileSearchLayout() {
       minW={0}
       pointerEvents="none"
     >
-      {/* White top fade (30% of height) so the mode toggle / search / chips
-          read over the map — mobile twin of TaskBrowseListColumnScrim. */}
       <Box
         position="absolute"
         top={0}
@@ -166,10 +119,9 @@ export function MobileSearchLayout() {
       >
         <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X} w="full">
           <Stack gap={2} flexShrink={0} mr={12}>
-            <SearchModeSelector />
             <TaskSearch />
             <HStack gap={1.5} flexWrap="wrap">
-              {mode === 'workers' ? <WorkerFilterChips /> : <TaskTag />}
+              <TaskTag />
             </HStack>
           </Stack>
         </Container>
@@ -187,14 +139,10 @@ export function MobileSearchLayout() {
         pointerEvents="auto"
       >
         <TaskBrowseSearchThisAreaButton />
-        {mode === 'workers' ? <MobileWorkerCarousel /> : <MobileTaskCarousel />}
+        <MobileTaskCarousel />
       </Box>
 
-      {mode === 'workers' ? (
-        <MobileWorkerFiltersOverlay />
-      ) : (
-        <MobileTaskBrowseFiltersDrawer />
-      )}
+      <MobileTaskBrowseFiltersDrawer />
     </Box>
   )
 }

@@ -1,13 +1,12 @@
-import type { Metadata } from 'next'
+'use client'
 
-import { Box, Container, Grid, HStack, Stack } from '@chakra-ui/react'
+import { Box, Container, Grid, Stack, Text } from '@chakra-ui/react'
+import { useParams } from 'next/navigation'
 
-import { Footer, Link } from '@ui'
+import { Button, Card, Footer } from '@ui'
 
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
-import { getRequestLocale } from '@/i18n/getRequestLocale'
-import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
-import { WORKER_SEARCH_HREF } from '@/utils/appRoutes'
+import { useI11n } from '@/i18n/useI11n'
 
 import {
   WorkerAboutSection,
@@ -22,12 +21,14 @@ import {
   WorkerSkillsSection,
   WorkerWorkSection,
 } from './components'
-import { getWorkerForPublicPage } from './helpers/getWorkerForPublicPage'
+import { WorkerProfileSectionSkeleton } from './components/shared/WorkerProfileSkeletons'
+import {
+  WorkerProfileProvider,
+  useWorkerProfile,
+} from './context/WorkerProfileContext'
 import {
   formatCompletedMonth,
-  workerHeadline,
   workerPublicDisplayName,
-  workerServiceAreaDisplay,
 } from './helpers/workerProfileHelpers'
 import {
   isOwnWorkerProfile,
@@ -36,106 +37,113 @@ import {
 } from './helpers/workerProfileOwner'
 import bag from './i11n.json'
 
-function absoluteUrlFromEnv(pathOrUrl: string): string {
-  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL.replace(/\/$/, '')}`
-      : '')
-  if (!base) return pathOrUrl
-  return `${base}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}): Promise<Metadata> {
-  const locale = await getRequestLocale()
-  const { slug } = await params
-  const copy = loadPageI11n(bag, locale)
-  const { worker } = await getWorkerForPublicPage(slug)
-  const displayName = worker ? workerPublicDisplayName(worker) : null
-  const headline = worker ? workerHeadline(worker) : null
-  const title = displayName
-    ? `${displayName} — ${headline ?? 'Worker'} on Slashie`
-    : copy.metadata.title
-  const rawDescription =
-    worker?.tagline?.trim() ||
-    worker?.bio?.trim() ||
-    (worker ? workerServiceAreaDisplay(worker) : null)
-  const description = rawDescription
-    ? rawDescription.length > 160
-      ? `${rawDescription.slice(0, 157)}…`
-      : rawDescription
-    : copy.metadata.description
-  const canonicalPath = `/workers/${slug}`
-  const avatarUrl = worker?.profile?.avatarUrl?.trim()
-  const base = metadataFromI11n(copy.metadata, { locale, path: canonicalPath })
-
-  return {
-    ...base,
-    title,
-    description,
-    openGraph: {
-      ...base.openGraph,
-      type: 'profile',
-      url: absoluteUrlFromEnv(canonicalPath),
-      title,
-      description,
-      images: avatarUrl ? [{ url: absoluteUrlFromEnv(avatarUrl) }] : undefined,
-    },
-    twitter: {
-      card: 'summary',
-      title,
-      description,
-      images: avatarUrl ? [absoluteUrlFromEnv(avatarUrl)] : undefined,
-    },
+function findScrollParent(node: HTMLElement): HTMLElement | null {
+  let el = node.parentElement
+  while (el) {
+    const overflowY = getComputedStyle(el).overflowY
+    if (
+      overflowY === 'auto' ||
+      overflowY === 'scroll' ||
+      overflowY === 'overlay'
+    ) {
+      return el
+    }
+    el = el.parentElement
   }
+  return null
 }
 
-export default async function WorkerProfilePage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>
-  searchParams: Promise<{ fromTask?: string }>
-}) {
-  const locale = await getRequestLocale()
-  const copy = loadPageI11n(bag, locale)
-  const { slug } = await params
-  const { fromTask } = await searchParams
-  const { worker } = await getWorkerForPublicPage(slug)
+/**
+ * The router's own scroll-to-top is skipped when a navigation runs a view
+ * transition. Reset the app-shell pane (not the window — it never scrolls
+ * in this layout) during the transition's DOM update.
+ */
+function WorkerProfileScrollReset({ workerId }: { workerId: string }) {
+  return (
+    <span
+      hidden
+      key={workerId}
+      ref={(node) => {
+        if (!node) return
+        const scroller = findScrollParent(node)
+        if (scroller) scroller.scrollTop = 0
+        else window.scrollTo(0, 0)
+      }}
+    />
+  )
+}
 
-  // Missing workers 404 in the layout (notFound) — this guard is for types.
-  if (!worker) return null
+function WorkerProfileBody() {
+  const t = useI11n(bag)
+  const { worker, seed, pending, error, refetch } = useWorkerProfile()
 
-  const analyticsSource = fromTask?.trim() ? 'quote_card' : undefined
-  const displayName = workerPublicDisplayName(worker)
+  if (error && !worker && !seed) {
+    return (
+      <Box
+        bg="bg.canvas"
+        color="text.default"
+        minH="100vh"
+        py={{ base: 8, md: 10 }}
+      >
+        <Card layout="section" heading={t.errorTitle} maxW="lg" mx="auto">
+          <Text color="text.muted" mb={4}>
+            {t.errorDescription}
+          </Text>
+          <Button type="button" onClick={() => refetch()}>
+            {t.errorRetry}
+          </Button>
+        </Card>
+      </Box>
+    )
+  }
 
-  // Owner vs visitor: visitors never see thin/empty sections; the owner sees
-  // dashed "Add …" prompts and the dismissible strength banner instead.
-  const isOwner = isOwnWorkerProfile(worker)
-  const hasBio = workerHasMeaningfulBio(worker)
-  const hasSkills = worker.skills.some((s) => s.trim())
-  const hasPhotos = worker.portfolioUrls.some((u) => u.trim())
-  const completeness = workerProfileCompleteness(worker)
+  if (!pending && !worker) {
+    return (
+      <Box bg="bg.canvas" color="text.default" minH="100vh">
+        <Stack gap={0}>
+          <Box as="section" py={{ base: 8, md: 10 }}>
+            <Container>
+              <Card
+                layout="section"
+                heading={t.notFoundTitle}
+                maxW="lg"
+                mx="auto"
+              >
+                <Text color="text.muted">{t.notFoundDescription}</Text>
+              </Card>
+            </Container>
+          </Box>
+          <Footer />
+        </Stack>
+      </Box>
+    )
+  }
 
-  const completedJobs = worker.completedJobs.map((job) => ({
-    id: job.taskId,
-    title: job.title,
-    category: taskCategoryDisplayLabel(job.category) ?? job.category,
-    areaLabel: job.areaLabel,
-    completedLabel: formatCompletedMonth(job.completedAt),
-    rating: job.rating,
-  }))
+  const isOwner = worker ? isOwnWorkerProfile(worker) : false
+  const hasBio = worker ? workerHasMeaningfulBio(worker) : false
+  const skills = worker?.skills ?? seed?.skills ?? []
+  const hasSkills = skills.some((s) => s.trim())
+  const completeness = worker ? workerProfileCompleteness(worker) : null
+  const displayName = worker
+    ? workerPublicDisplayName(worker)
+    : (seed?.name ?? 'Worker')
+  const hasPhotos = worker ? worker.portfolioUrls.some((u) => u.trim()) : false
+  const completedJobs = worker
+    ? worker.completedJobs.map((job) => ({
+        id: job.taskId,
+        title: job.title,
+        category: taskCategoryDisplayLabel(job.category) ?? job.category,
+        areaLabel: job.areaLabel,
+        completedLabel: formatCompletedMonth(job.completedAt),
+        rating: job.rating,
+      }))
+    : []
 
   return (
     <>
       <Stack as="section" gap={{ base: 5, md: 8 }} pb={{ base: 32, lg: 10 }}>
         <WorkerProfileHero />
-        <Container px={{ base: 4, md: 8 }}>
+        <Container>
           <Stack gap={{ base: 4, md: 5 }}>
             <Grid
               templateColumns={{
@@ -146,7 +154,10 @@ export default async function WorkerProfilePage({
               alignItems="start"
             >
               <Stack gap={{ base: 5, lg: 6 }} minW={0}>
-                {isOwner && completeness.percent < 100 ? (
+                {worker &&
+                isOwner &&
+                completeness &&
+                completeness.percent < 100 ? (
                   <WorkerProfileOwnerBanner
                     workerId={worker.id}
                     percent={completeness.percent}
@@ -156,42 +167,61 @@ export default async function WorkerProfilePage({
 
                 {hasBio ? (
                   <WorkerAboutSection />
+                ) : pending && !worker ? (
+                  <WorkerProfileSectionSkeleton lines={3} />
                 ) : isOwner ? (
                   <WorkerProfileAddPlaceholder
-                    title={copy.addBioTitle}
-                    description={copy.addBioDescription}
+                    title={t.addBioTitle}
+                    description={t.addBioDescription}
                   />
                 ) : null}
 
                 {hasSkills ? (
-                  <WorkerSkillsSection skills={worker.skills} />
+                  <WorkerSkillsSection />
+                ) : pending && !worker ? (
+                  <WorkerProfileSectionSkeleton lines={2} />
                 ) : isOwner ? (
                   <WorkerProfileAddPlaceholder
-                    title={copy.addSkillsTitle}
-                    description={copy.addSkillsDescription}
+                    title={t.addSkillsTitle}
+                    description={t.addSkillsDescription}
                   />
                 ) : null}
 
-                {completedJobs.length > 0 || isOwner ? (
+                {pending && !worker ? (
+                  <WorkerProfileSectionSkeleton lines={4} />
+                ) : completedJobs.length > 0 || isOwner ? (
                   <WorkerWorkSection jobs={completedJobs} />
                 ) : null}
 
-                <WorkerReviewsSection />
+                {pending && !worker ? (
+                  <WorkerProfileSectionSkeleton lines={3} />
+                ) : (
+                  <WorkerReviewsSection />
+                )}
 
-                {hasPhotos ? (
+                {worker && hasPhotos ? (
                   <WorkerPortfolioSection
                     portfolioUrls={worker.portfolioUrls}
                     workerName={displayName}
                   />
+                ) : pending && !worker ? (
+                  <WorkerProfileSectionSkeleton lines={2} />
                 ) : isOwner ? (
                   <WorkerProfileAddPlaceholder
-                    title={copy.addPhotosTitle}
-                    description={copy.addPhotosDescription}
+                    title={t.addPhotosTitle}
+                    description={t.addPhotosDescription}
                   />
                 ) : null}
               </Stack>
               <Box minW={0}>
-                <WorkerProfileSidebar />
+                {pending && !worker ? (
+                  <Stack gap={5}>
+                    <WorkerProfileSectionSkeleton lines={3} />
+                    <WorkerProfileSectionSkeleton lines={2} />
+                  </Stack>
+                ) : (
+                  <WorkerProfileSidebar />
+                )}
               </Box>
             </Grid>
           </Stack>
@@ -199,7 +229,25 @@ export default async function WorkerProfilePage({
       </Stack>
       <Footer />
       <WorkerContactStickyBar />
-      <WorkerProfileViewCapture source={analyticsSource} />
+      <WorkerProfileViewCapture />
     </>
+  )
+}
+
+/**
+ * Worker profile. Client-owned so a listing click can paint seeded photo /
+ * name / card fields immediately while colocated skeletons stand in for the
+ * rest. Direct loads have no handoff and show the full skeleton until the
+ * public profile query resolves. SSR only runs a light SEO query in layout.
+ */
+export default function WorkerProfilePage() {
+  const { slug } = useParams<{ slug: string }>()
+  const workerId = String(slug ?? '')
+
+  return (
+    <WorkerProfileProvider workerId={workerId}>
+      <WorkerProfileScrollReset workerId={workerId} />
+      <WorkerProfileBody />
+    </WorkerProfileProvider>
   )
 }

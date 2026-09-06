@@ -4,6 +4,7 @@ import { Box } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { useCallback, useRef } from 'react'
 
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 import { useColorMode } from '@/ui/color-mode'
 import { whenElementHasLayout } from '@/utils/whenElementHasLayout'
@@ -168,10 +169,10 @@ export function TaskLocationHeroMap({
         justifyContent="space-between"
         gap={5}
         w="full"
-        maxW="7xl"
+        maxW={PAGE_CONTAINER_MAX_W}
         mx="auto"
         minH={minH}
-        px={{ base: 4, md: 6 }}
+        px={PAGE_GUTTER_X}
         pt={{ base: 4, md: 5 }}
         pb={{ base: 10, md: 14 }}
         pointerEvents="none"
