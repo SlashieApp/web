@@ -125,7 +125,7 @@ export function WorkersDistanceControl({
       max={80}
       step={1}
       value={[radiusKm]}
-      aria-label={t.distanceLabel}
+      aria-label={[t.distanceLabel]}
       onValueChange={(d) => {
         const next = d.value[0]
         if (typeof next === 'number') setRadiusMiles(kmToMilesRounded(next))
