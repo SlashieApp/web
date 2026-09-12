@@ -5,7 +5,9 @@ query WorkerPublicSeo($id: ID!) {
     id
     tagline
     bio
+    skills
     isVerified
+    tasksCompletedCount
     serviceAreaLabel
     profile {
       name

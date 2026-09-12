@@ -15,7 +15,8 @@
     "prestorybook": "node scripts/prebuild-storybook.mjs",
     "prebuild-storybook": "node scripts/prebuild-storybook.mjs",
     "build-storybook": "storybook build",
-    "test:unit": "vitest run --config vitest.unit.config.ts"
+    "test:unit": "vitest run --config vitest.unit.config.ts",
+    "spot-check:marketplace": "bun scripts/spot-check-marketplace-listings.ts"
   },
   "dependencies": {
     "@apollo/client": "^4.1.3",

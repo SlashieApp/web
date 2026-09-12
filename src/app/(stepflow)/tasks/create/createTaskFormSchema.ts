@@ -9,10 +9,28 @@ import {
 } from '@codegen/schema'
 
 import { taskCreateCategorySchema } from '@/app/(task)/helpers/taskCategories'
+import {
+  isFixtureLikeTaskBody,
+  isFixtureLikeTaskTitle,
+} from '@/utils/marketplaceListingQuality'
+
+const TITLE_MIN_CHARS = 8
+const DESCRIPTION_MIN_CHARS = 20
 
 export const createTaskFormSchema = z
   .object({
-    title: z.string().trim().min(1, 'Please add a task title.'),
+    title: z
+      .string()
+      .trim()
+      .min(1, 'Please add a task title.')
+      .min(
+        TITLE_MIN_CHARS,
+        `Write a clearer title (at least ${TITLE_MIN_CHARS} characters).`,
+      )
+      .refine(
+        (value) => !isFixtureLikeTaskTitle(value),
+        'Please use a real task title — this looks like test or placeholder text.',
+      ),
     category: z
       .string()
       .transform((s) => s.trim())
@@ -25,7 +43,15 @@ export const createTaskFormSchema = z
     description: z
       .string()
       .trim()
-      .min(1, 'Please describe what needs to be done.'),
+      .min(1, 'Please describe what needs to be done.')
+      .min(
+        DESCRIPTION_MIN_CHARS,
+        `Add a bit more detail (at least ${DESCRIPTION_MIN_CHARS} characters) so workers know what you need.`,
+      )
+      .refine(
+        (value) => !isFixtureLikeTaskBody(value),
+        'Please describe the real job — this reads as test or placeholder text.',
+      ),
     streetAddress: z
       .string()
       .trim()

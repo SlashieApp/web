@@ -3,12 +3,15 @@ import { cache } from 'react'
 import WorkerPublicSeo from '@/app/(worker)/workers/[slug]/graphql/WorkerPublicSeo.gql'
 import { fetch } from '@/utils/api'
 import { isGraphqlWorkerNotFound } from '@/utils/graphqlResponse'
+import { isPublicMarketplaceWorker } from '@/utils/marketplaceListingQuality'
 
 export type WorkerSeoRecord = {
   id: string
   tagline?: string | null
   bio?: string | null
+  skills?: string[] | null
   isVerified?: boolean | null
+  tasksCompletedCount?: number | null
   serviceAreaLabel?: string | null
   profile?: {
     name?: string | null
@@ -32,6 +35,8 @@ export const getWorkerForSeoPage = cache(
     })
 
     const notFound = isGraphqlWorkerNotFound(json?.errors)
-    return { worker: notFound ? null : (json?.data?.worker ?? null) }
+    const worker = notFound ? null : (json?.data?.worker ?? null)
+    if (worker && !isPublicMarketplaceWorker(worker)) return { worker: null }
+    return { worker }
   },
 )

@@ -18,6 +18,8 @@ import {
 
 import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
 
+import { filterPublicMarketplaceWorkers } from '@/utils/marketplaceListingQuality'
+
 import WorkersSearch from '../graphql/WorkersSearch.gql'
 import type { WorkerSearchItem } from '../helpers/workerSearchHelpers'
 
@@ -115,7 +117,10 @@ export function WorkerSearchProvider({
     notifyOnNetworkStatusChange: true,
   })
 
-  const workers = useMemo(() => data?.workers ?? [], [data])
+  const workers = useMemo(
+    () => filterPublicMarketplaceWorkers(data?.workers ?? []),
+    [data],
+  )
   const dataLoaded = Boolean(data)
 
   const value = useMemo<WorkerSearchContextValue>(
