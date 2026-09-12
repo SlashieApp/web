@@ -113,6 +113,7 @@ export function ReportControl({
     return (
       <>
         <Dropdown
+          contentLabel={t.moreActionsAria}
           trigger={
             <IconButton
               type="button"
