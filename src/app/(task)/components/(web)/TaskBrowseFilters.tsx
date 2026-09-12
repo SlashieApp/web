@@ -21,6 +21,10 @@ import {
 } from '../../context/TaskBrowseProvider'
 import type { TaskBrowseFiltersProps } from '../../helpers/taskBrowseFilters.types'
 import type { UrgencyFilter } from '../../helpers/taskBrowseFilters.types'
+import {
+  BROWSE_BUDGET_SLIDER_MAX,
+  formatBrowseBudgetRange,
+} from '../../helpers/taskBrowseHelpers'
 import { TASK_CREATE_CATEGORY_OPTIONS } from '../../helpers/taskCategories'
 
 import { TaskList } from './TaskList'
@@ -54,14 +58,6 @@ function FilterSectionTitle({
   )
 }
 
-function formatBudgetRange(minBudgetPounds: string, maxBudgetPounds: string) {
-  const min = Number.parseFloat(minBudgetPounds)
-  const max = Number.parseFloat(maxBudgetPounds)
-  const minLabel = Number.isFinite(min) ? `$${Math.round(min)}` : '$0'
-  const maxLabel = Number.isFinite(max) ? `$${Math.round(max)}` : '$150+'
-  return `${minLabel} - ${maxLabel}`
-}
-
 function milesToKm(miles: number): number {
   return Math.round(miles * 1.60934)
 }
@@ -92,7 +88,7 @@ export function TaskBrowseFiltersPanel({
   onScheduledBeforeChange,
 }: TaskBrowseFiltersProps) {
   const radiusKm = milesToKm(radiusMiles)
-  const budgetLabel = formatBudgetRange(minBudgetPounds, maxBudgetPounds)
+  const budgetLabel = formatBrowseBudgetRange(minBudgetPounds, maxBudgetPounds)
 
   return (
     <Stack gap={6}>
@@ -162,7 +158,7 @@ export function TaskBrowseFiltersPanel({
         </HStack>
         <Slider
           min={0}
-          max={150}
+          max={BROWSE_BUDGET_SLIDER_MAX}
           step={1}
           value={[
             Number.isFinite(Number.parseFloat(minBudgetPounds))
@@ -170,7 +166,7 @@ export function TaskBrowseFiltersPanel({
               : 0,
             Number.isFinite(Number.parseFloat(maxBudgetPounds))
               ? Number.parseFloat(maxBudgetPounds)
-              : 150,
+              : BROWSE_BUDGET_SLIDER_MAX,
           ]}
           onValueChange={(d) => {
             const [nextMin, nextMax] = d.value
@@ -179,7 +175,9 @@ export function TaskBrowseFiltersPanel({
             }
             if (typeof nextMax === 'number') {
               onMaxBudgetChange(
-                nextMax >= 150 ? '' : String(Math.round(nextMax)),
+                nextMax >= BROWSE_BUDGET_SLIDER_MAX
+                  ? ''
+                  : String(Math.round(nextMax)),
               )
             }
           }}
@@ -270,7 +268,13 @@ export function TaskBrowseFiltersPanel({
           <UiInput
             rootProps={{ minH: 11, borderRadius: 'lg' }}
             inputMode="decimal"
-            placeholder="Min"
+            placeholder="0"
+            aria-label="Minimum budget in pounds"
+            startElement={
+              <Text fontWeight={700} fontSize="sm" color="text.muted">
+                £
+              </Text>
+            }
             value={minBudgetPounds}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onMinBudgetChange(e.target.value)
@@ -279,7 +283,13 @@ export function TaskBrowseFiltersPanel({
           <UiInput
             rootProps={{ minH: 11, borderRadius: 'lg' }}
             inputMode="decimal"
-            placeholder="Max"
+            placeholder="150+"
+            aria-label="Maximum budget in pounds"
+            startElement={
+              <Text fontWeight={700} fontSize="sm" color="text.muted">
+                £
+              </Text>
+            }
             value={maxBudgetPounds}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onMaxBudgetChange(e.target.value)

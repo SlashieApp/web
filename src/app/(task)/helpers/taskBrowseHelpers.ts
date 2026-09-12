@@ -6,7 +6,7 @@ import {
   formatDistanceAwayLabel,
   parseGeoCoord,
 } from '@/utils/geoDistance'
-import { budgetToPence, priceToPence } from '@/utils/price'
+import { budgetToPence, formatGbpMajor, priceToPence } from '@/utils/price'
 import {
   type TaskDatetimeLike,
   parseTaskScheduleDate,
@@ -18,6 +18,9 @@ import type { UrgencyFilter } from './taskBrowseFilters.types'
 import { taskCategoryDisplayLabel } from './taskCategories'
 
 export const PAGE_SIZE = 5
+
+/** Open-ended slider cap shown as `£150+` when max is unset. */
+export const BROWSE_BUDGET_SLIDER_MAX = 150
 
 export const SORT_OPTIONS = [
   { value: 'nearest', label: 'Nearest' },
@@ -44,7 +47,7 @@ export function formatBudget(task: TaskListItem): {
   const fixed = budgetToPence(task.budget)
   if (fixed != null && fixed > 0) {
     return {
-      main: `£${(fixed / 100).toFixed(0)}`,
+      main: formatGbpMajor(fixed / 100),
       sub: 'Fixed price',
     }
   }
@@ -60,12 +63,12 @@ export function formatBudget(task: TaskListItem): {
   const max = Math.max(...prices)
   if (min === max) {
     return {
-      main: `£${(min / 100).toFixed(0)}`,
+      main: formatGbpMajor(min / 100),
       sub: 'From quotes',
     }
   }
   return {
-    main: `£${(min / 100).toFixed(0)} — £${(max / 100).toFixed(0)}`,
+    main: `${formatGbpMajor(min / 100)} — ${formatGbpMajor(max / 100)}`,
     sub: 'Estimated budget',
   }
 }
@@ -235,14 +238,16 @@ function milesToKmRounded(miles: number): number {
   return Math.round(miles * 1.60934)
 }
 
-function formatSubmittedBudgetRange(
+export function formatBrowseBudgetRange(
   minBudgetPounds: string,
   maxBudgetPounds: string,
 ): string {
   const min = Number.parseFloat(minBudgetPounds)
   const max = Number.parseFloat(maxBudgetPounds)
-  const minLabel = Number.isFinite(min) ? `$${Math.round(min)}` : '$0'
-  const maxLabel = Number.isFinite(max) ? `$${Math.round(max)}` : '$150+'
+  const minLabel = formatGbpMajor(Number.isFinite(min) ? Math.round(min) : 0)
+  const maxLabel = Number.isFinite(max)
+    ? formatGbpMajor(Math.round(max))
+    : `${formatGbpMajor(BROWSE_BUDGET_SLIDER_MAX)}+`
   return `${minLabel} - ${maxLabel}`
 }
 
@@ -297,7 +302,7 @@ export function buildActiveBrowseFilterTags(input: {
   if (minS || maxS) {
     tags.push({
       kind: 'budget',
-      label: formatSubmittedBudgetRange(minS, maxS),
+      label: formatBrowseBudgetRange(minS, maxS),
     })
   }
 

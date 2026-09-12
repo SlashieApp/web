@@ -15,6 +15,10 @@ import type {
   TaskBrowseFiltersProps,
   UrgencyFilter,
 } from '../../helpers/taskBrowseFilters.types'
+import {
+  BROWSE_BUDGET_SLIDER_MAX,
+  formatBrowseBudgetRange,
+} from '../../helpers/taskBrowseHelpers'
 
 const CATEGORY_OPTIONS = [
   'Delivery',
@@ -46,14 +50,6 @@ function kmToMiles(km: number): number {
   return Math.max(1, Math.round(km / 1.60934))
 }
 
-function formatBudgetRange(minBudgetPounds: string, maxBudgetPounds: string) {
-  const min = Number.parseFloat(minBudgetPounds)
-  const max = Number.parseFloat(maxBudgetPounds)
-  const minLabel = Number.isFinite(min) ? `$${Math.round(min)}` : '$0'
-  const maxLabel = Number.isFinite(max) ? `$${Math.round(max)}` : '$150+'
-  return `${minLabel} - ${maxLabel}`
-}
-
 function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
   const { requestUseMyLocation } = useTaskBrowseData()
   const {
@@ -76,7 +72,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
   } = props
 
   const radiusKm = milesToKm(Math.min(50, Math.max(1, radiusMiles)))
-  const budgetLabel = formatBudgetRange(minBudgetPounds, maxBudgetPounds)
+  const budgetLabel = formatBrowseBudgetRange(minBudgetPounds, maxBudgetPounds)
 
   return (
     <Stack gap={6} pb={2}>
@@ -160,7 +156,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
         </HStack>
         <Slider.Root
           min={0}
-          max={150}
+          max={BROWSE_BUDGET_SLIDER_MAX}
           step={1}
           value={[
             Number.isFinite(Number.parseFloat(minBudgetPounds))
@@ -168,7 +164,7 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
               : 0,
             Number.isFinite(Number.parseFloat(maxBudgetPounds))
               ? Number.parseFloat(maxBudgetPounds)
-              : 150,
+              : BROWSE_BUDGET_SLIDER_MAX,
           ]}
           onValueChange={(d) => {
             const [nextMin, nextMax] = d.value
@@ -177,7 +173,9 @@ function MobileBrowseFiltersSheetBody(props: TaskBrowseFiltersProps) {
             }
             if (typeof nextMax === 'number') {
               onMaxBudgetChange(
-                nextMax >= 150 ? '' : String(Math.round(nextMax)),
+                nextMax >= BROWSE_BUDGET_SLIDER_MAX
+                  ? ''
+                  : String(Math.round(nextMax)),
               )
             }
           }}

@@ -14,6 +14,17 @@ function toIsoCurrency(currency: Currency | string) {
   return currency
 }
 
+const gbpMajorFormatter = new Intl.NumberFormat('en-GB', {
+  style: 'currency',
+  currency: 'GBP',
+  maximumFractionDigits: 0,
+})
+
+/** UK-locale pounds in major units (e.g. 150 → `£150`, 1500 → `£1,500`). */
+export function formatGbpMajor(pounds: number) {
+  return gbpMajorFormatter.format(pounds)
+}
+
 export function priceToPence(price: PriceAmountLike): number | null {
   const amount = price?.amount
   if (typeof amount !== 'number' || !Number.isFinite(amount)) return null
