@@ -18,6 +18,7 @@ import {
   mapboxForwardGeocode,
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
+import { filterPublicMarketplaceTasks } from '@/utils/marketplaceListingQuality'
 import {
   type TaskListVariables,
   type TaskSortChoice,
@@ -370,8 +371,13 @@ export function TaskBrowseProvider({
     },
   )
 
+  const marketplaceTasks = useMemo(
+    () => filterPublicMarketplaceTasks(data?.tasks ?? initialTasks),
+    [data, initialTasks],
+  )
+
   const filtered = useMemo(() => {
-    const items = data?.tasks ?? initialTasks
+    const items = marketplaceTasks
     const text = submittedSearchText.trim().toLowerCase()
     const minStr = submittedMinBudget.trim()
     const maxStr = submittedMaxBudget.trim()
@@ -395,8 +401,7 @@ export function TaskBrowseProvider({
       return true
     })
   }, [
-    data,
-    initialTasks,
+    marketplaceTasks,
     submittedMaxBudget,
     submittedMinBudget,
     submittedSearchText,
@@ -533,7 +538,7 @@ export function TaskBrowseProvider({
 
   const initialMapTasksForBox = useMemo(
     () =>
-      initialTasks.map((task) => {
+      filterPublicMarketplaceTasks(initialTasks).map((task) => {
         const { main, sub } = formatBudget(task)
         return {
           id: task.id,
@@ -788,7 +793,7 @@ export function TaskBrowseProvider({
       dataLoaded,
       isInitialTasksLoad,
       canShowBrowseEmptyState,
-      browseSourceTaskCount: (data?.tasks ?? initialTasks).length,
+      browseSourceTaskCount: marketplaceTasks.length,
       filteredSorted,
       pageItems,
       totalPages,
@@ -850,7 +855,7 @@ export function TaskBrowseProvider({
       scheduledAfter,
       scheduledBefore,
       initialMapTasksForBox,
-      initialTasks,
+      marketplaceTasks,
     ],
   )
 

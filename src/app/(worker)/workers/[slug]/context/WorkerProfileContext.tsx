@@ -15,9 +15,11 @@ import {
   workerHandoffFor,
 } from '@/app/(worker)/workers/helpers/workerCardHandoff'
 import { isGraphqlWorkerNotFound } from '@/utils/graphqlResponse'
+import { isPublicMarketplaceWorker } from '@/utils/marketplaceListingQuality'
 
 import WorkerPublicProfile from '../graphql/WorkerPublicProfile.gql'
 import type { WorkerPublicRecord } from '../helpers/workerProfileHelpers'
+import { isOwnWorkerProfile } from '../helpers/workerProfileOwner'
 
 type WorkerProfileContextValue = {
   workerId: string
@@ -58,14 +60,21 @@ export function WorkerProfileProvider({
     },
   )
 
-  const worker = initialWorker ?? data?.worker ?? null
+  const loadedWorker = initialWorker ?? data?.worker ?? null
+  const hideFixtureWorker = Boolean(
+    loadedWorker != null &&
+      !isPublicMarketplaceWorker(loadedWorker) &&
+      !isOwnWorkerProfile(loadedWorker),
+  )
+  const worker = hideFixtureWorker ? null : loadedWorker
   const notFound =
-    !skipQuery &&
-    (isGraphqlWorkerNotFound(
-      (error as { graphQLErrors?: unknown } | undefined)?.graphQLErrors ??
-        error,
-    ) ||
-      (!loading && data !== undefined && data.worker == null && !error))
+    hideFixtureWorker ||
+    (!skipQuery &&
+      (isGraphqlWorkerNotFound(
+        (error as { graphQLErrors?: unknown } | undefined)?.graphQLErrors ??
+          error,
+      ) ||
+        (!loading && data !== undefined && data.worker == null && !error)))
   const failed =
     Boolean(error) &&
     !isGraphqlWorkerNotFound(

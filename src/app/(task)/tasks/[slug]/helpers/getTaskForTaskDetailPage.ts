@@ -5,6 +5,7 @@ import type { TaskCoreQuery } from '@codegen/schema'
 import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
 import { fetch } from '@/utils/api'
 import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
+import { isPublicMarketplaceTask } from '@/utils/marketplaceListingQuality'
 
 import { taskQueryVariables } from './taskQueryVariables'
 
@@ -30,6 +31,8 @@ export const getTaskForTaskDetailPage = cache(
     })
 
     const notFound = isGraphqlTaskNotFound(json?.errors)
-    return { task: notFound ? null : (json?.data?.task ?? null) }
+    const task = notFound ? null : (json?.data?.task ?? null)
+    if (task && !isPublicMarketplaceTask(task)) return { task: null }
+    return { task }
   },
 )

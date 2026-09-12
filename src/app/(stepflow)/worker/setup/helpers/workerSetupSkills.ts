@@ -1,3 +1,5 @@
+import { isFixtureToken } from '@/utils/marketplaceListingQuality'
+
 import { parseSkillsText } from './workerSetupFormState'
 
 export const SKILLS_MIN = 3
@@ -34,7 +36,8 @@ export function normalizeSkillLabel(raw: string): string | null {
   const collapsed = raw.trim().replace(/\s+/g, ' ')
   if (
     collapsed.length < SKILL_LABEL_MIN_CHARS ||
-    collapsed.length > SKILL_LABEL_MAX_CHARS
+    collapsed.length > SKILL_LABEL_MAX_CHARS ||
+    isFixtureToken(collapsed)
   ) {
     return null
   }

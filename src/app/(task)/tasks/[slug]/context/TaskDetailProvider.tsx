@@ -57,6 +57,7 @@ import {
   isWorkerQuoteLimitError,
 } from '@/utils/graphqlErrors'
 import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
+import { isPublicMarketplaceTask } from '@/utils/marketplaceListingQuality'
 import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
 
@@ -206,7 +207,7 @@ export function TaskDetailProvider({
   const viewerLoading = clientTaskLoading
 
   // Merge: public SSR meta + client Task.gql (viewer fields + quotes).
-  const task = useMemo<TaskDetailRecord | null>(() => {
+  const mergedTask = useMemo<TaskDetailRecord | null>(() => {
     if (!publicTask) return null
     return {
       ...publicTask,
@@ -232,6 +233,18 @@ export function TaskDetailProvider({
           : null),
     } as TaskDetailRecord
   }, [publicTask, clientTask, quotes])
+
+  const isFixtureOwner = Boolean(
+    me && mergedTask?.poster?.id && me.id === mergedTask.poster.id,
+  )
+  const viewerReadyForFixtureGate =
+    !isAuthenticated || Boolean(me) || !meLoadingResolved
+  const hideFixtureTask =
+    mergedTask != null &&
+    !isPublicMarketplaceTask(mergedTask) &&
+    viewerReadyForFixtureGate &&
+    !isFixtureOwner
+  const task = hideFixtureTask ? null : mergedTask
 
   const refetch = useCallback(() => {
     if (!skipCore) void refetchCore()

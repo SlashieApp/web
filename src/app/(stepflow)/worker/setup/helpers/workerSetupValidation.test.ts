@@ -233,6 +233,12 @@ describe('skills chips helpers', () => {
     expect(normalizeSkillLabel('a'.repeat(31))).toBeNull()
   })
 
+  it('rejects placeholder fixture skills such as test / y', () => {
+    expect(normalizeSkillLabel('test')).toBeNull()
+    expect(normalizeSkillLabel('y')).toBeNull()
+    expect(addSkills([], 'test, y, TV mounting')).toEqual(['TV Mounting'])
+  })
+
   it('splits pasted lists, dedupes case-insensitively, and caps at 12', () => {
     expect(addSkills(['Painting'], 'painting, tiling; shelving')).toEqual([
       'Painting',
