@@ -11,7 +11,7 @@ describe('buildReportMailto', () => {
       id: 'task-42',
       title: 'Garden tidy in Clapham',
       url: 'https://slashie.app/tasks/task-42',
-      reason: 'Spam or scam',
+      reason: 'Illegal or prohibited',
       details: 'Asks for a deposit before visiting.',
     })
 
@@ -24,7 +24,7 @@ describe('buildReportMailto', () => {
     expect(body).toContain('Task ID: task-42')
     expect(body).toContain('Title: Garden tidy in Clapham')
     expect(body).toContain('URL: https://slashie.app/tasks/task-42')
-    expect(body).toContain('Reason: Spam or scam')
+    expect(body).toContain('Reason: Illegal or prohibited')
     expect(body).toContain('Asks for a deposit before visiting.')
   })
 

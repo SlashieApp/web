@@ -1,13 +1,19 @@
 import { z } from 'zod'
 
-import { createTaskFormSchema } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import {
+  refineTaskSchedule,
+  taskDetailsFields,
+} from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
 
-export const editTaskFormSchema = createTaskFormSchema.extend({
-  acceptedWorkerCap: z.coerce
-    .number()
-    .int('Worker cap must be a whole number.')
-    .min(1, 'Worker cap must be at least 1.'),
-})
+export const editTaskFormSchema = z
+  .object({
+    ...taskDetailsFields,
+    acceptedWorkerCap: z.coerce
+      .number()
+      .int('Worker cap must be a whole number.')
+      .min(1, 'Worker cap must be at least 1.'),
+  })
+  .superRefine(refineTaskSchedule)
 
 export type EditTaskFormValues = z.infer<typeof editTaskFormSchema>
 export type EditTaskFormFieldValues = z.input<typeof editTaskFormSchema>

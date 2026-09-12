@@ -196,7 +196,7 @@ export function WorkerSearchCard({
                 justifyContent="center"
                 borderWidth="2px"
                 borderColor="bg.surface"
-                aria-label="Verified worker"
+                aria-label="Identity verified"
               >
                 <LuCheck size={14} strokeWidth={3.5} aria-hidden />
               </Box>

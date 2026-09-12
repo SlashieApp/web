@@ -96,6 +96,10 @@ export function WorkerProfileSidebar() {
     <Stack gap={5}>
       <Card layout="section" heading="Trust & verification">
         <Stack gap={3}>
+          <Text fontSize="xs" color="text.muted" lineHeight="1.5">
+            Ticks confirm contact or identity checks only. They are not a DBS,
+            insurance, or “verified safe” badge.
+          </Text>
           {/* NOT_STARTED is hidden — a "not verified" row on every new
               profile reads as a warning, not information. */}
           {worker.identityVerification ===
@@ -107,13 +111,17 @@ export function WorkerProfileSidebar() {
           ) : null}
           <CheckRow
             label={
-              worker.phoneVerified ? 'Phone verified' : 'Phone not yet verified'
+              worker.phoneVerified
+                ? 'Phone confirmed (contact proof only)'
+                : 'Phone not yet confirmed'
             }
             verified={worker.phoneVerified}
           />
           <CheckRow
             label={
-              worker.emailVerified ? 'Email verified' : 'Email not yet verified'
+              worker.emailVerified
+                ? 'Email confirmed (contact proof only)'
+                : 'Email not yet confirmed'
             }
             verified={worker.emailVerified}
           />
@@ -159,22 +167,27 @@ export function WorkerProfileSidebar() {
               />
             ) : null}
             {qualifications.length > 0 ? (
-              <HStack
-                gap={1.5}
-                flexWrap="wrap"
+              <Stack
+                gap={2}
                 pt={years != null || avgResponse || quotesSent > 0 ? 1 : 0}
               >
-                {qualifications.map((qualification) => (
-                  <Badge
-                    key={qualification}
-                    variant="neutral"
-                    shape="pill"
-                    size="sm"
-                  >
-                    {qualification}
-                  </Badge>
-                ))}
-              </HStack>
+                <HStack gap={1.5} flexWrap="wrap">
+                  {qualifications.map((qualification) => (
+                    <Badge
+                      key={qualification}
+                      variant="neutral"
+                      shape="pill"
+                      size="sm"
+                    >
+                      {qualification}
+                    </Badge>
+                  ))}
+                </HStack>
+                <Text fontSize="xs" color="text.muted" lineHeight="1.5">
+                  Listed by the worker. Slashie does not verify qualifications,
+                  insurance, or DBS checks.
+                </Text>
+              </Stack>
             ) : null}
           </Stack>
         </Card>

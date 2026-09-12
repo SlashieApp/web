@@ -13,8 +13,6 @@ export const SUGGESTED_QUALIFICATIONS: readonly string[] = [
   'NVQ',
   'CSCS Card',
   'Part P',
-  'DBS Checked',
-  'Fully Insured',
 ]
 
 /**

@@ -10,10 +10,10 @@ import {
 } from '@codegen/schema'
 
 import {
-  type CreateTaskFormValues,
   buildDatetimePayload,
   toYmd,
 } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import type { EditTaskFormValues } from '@/app/(task)/tasks/edit/editTaskFormSchema'
 import { taskCreateCategorySchema } from './taskCategories'
 
 export type EditableTask = NonNullable<TaskForEditQuery['task']>
@@ -44,11 +44,7 @@ export function countAcceptedQuotes(
 }
 
 /** Map a `task(id)` record into create/edit form field values. */
-export function taskToEditFormValues(
-  task: EditableTask,
-): CreateTaskFormValues & {
-  acceptedWorkerCap: number
-} {
+export function taskToEditFormValues(task: EditableTask): EditTaskFormValues {
   const dt = task.datetime
   const datetimeType = dt?.type ?? TaskDateTimeType.Flexible
   const budgetAmount = task.budget?.amount
@@ -89,9 +85,7 @@ export function taskToEditFormValues(
   }
 }
 
-export function buildUpdateTaskInput(
-  values: CreateTaskFormValues & { acceptedWorkerCap: number },
-) {
+export function buildUpdateTaskInput(values: EditTaskFormValues) {
   const parsedBudget = Number.parseFloat(values.budgetMajor)
   return {
     title: values.title.trim(),

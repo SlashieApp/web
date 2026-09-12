@@ -4,12 +4,16 @@ import { LuPhone } from 'react-icons/lu'
 
 import { ContactMethodsPanel } from '@/app/(dashboard)/components/account/ContactMethodsPanel'
 import { DashboardSectionCard } from '@/app/(dashboard)/components/layout/DashboardSectionCard'
+import { useI11n } from '@/i18n/useI11n'
+
+import bag from '../i11n.json'
 
 export function AccountContactCard() {
+  const t = useI11n(bag)
   return (
     <DashboardSectionCard
-      title="Contact methods"
-      description="Verify a contact method to unlock it as a default on your profile and to become a worker."
+      title={t.contactTitle}
+      description={t.contactDescription}
       icon={<LuPhone size={18} aria-hidden />}
     >
       <ContactMethodsPanel showIntro={false} />

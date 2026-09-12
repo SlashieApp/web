@@ -49,6 +49,30 @@ describe('isJunkBio', () => {
   })
 })
 
+describe('validateWorkerSetupSubStep — profile.photo date of birth', () => {
+  const photoMe = {
+    profile: { avatarUrl: 'https://example.com/avatar.jpg' },
+  } as MeWorkerSetupQuery['me']
+
+  it('rejects an under-18 self-report', () => {
+    const errors = validateWorkerSetupSubStep(
+      'profile.photo',
+      form({ dateOfBirth: '2015-01-01' }),
+      photoMe,
+    )
+    expect(errors.dateOfBirth).toMatch(/18/)
+  })
+
+  it('accepts an adult date of birth', () => {
+    const errors = validateWorkerSetupSubStep(
+      'profile.photo',
+      form({ dateOfBirth: '1990-04-12' }),
+      photoMe,
+    )
+    expect(errors.dateOfBirth).toBeUndefined()
+  })
+})
+
 describe('validateWorkerSetupSubStep — profile.bio', () => {
   it('rejects the 1-char junk bio that live MVP accepted', () => {
     const errors = validateWorkerSetupSubStep(

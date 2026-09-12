@@ -367,6 +367,8 @@ export default function RegisterPage() {
     register: registerField,
     handleSubmit,
     control,
+    trigger,
+    watch,
     formState: { errors },
   } = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
@@ -379,6 +381,10 @@ export default function RegisterPage() {
       agreedToTerms: false,
     },
   })
+
+  const isOver18 = watch('isOver18')
+  const agreedToTerms = watch('agreedToTerms')
+  const googleBlocked = !isOver18 || !agreedToTerms
 
   const [registerMutation, { loading }] =
     useMutation<RegisterMutation>(Register)
@@ -494,27 +500,73 @@ export default function RegisterPage() {
             </Text>
           </Box>
 
-          <Stack gap={3}>
-            <GoogleAuthButton
-              next={authQuery.next}
-              redirect={authQuery.redirect}
-            />
-            <Text
-              fontSize="2xs"
-              fontWeight={700}
-              letterSpacing="0.1em"
-              color="text.muted"
-              textTransform="uppercase"
-            >
-              Or continue with email
-            </Text>
-          </Stack>
-
           <Box asChild w="full">
             <form onSubmit={handleSubmit(onValid)} noValidate>
               <Stack gap={4}>
+                <Stack gap={3}>
+                  <ConsentCheckboxField
+                    control={control}
+                    name="isOver18"
+                    errorText={errors.isOver18?.message}
+                    label={t.over18Label}
+                  />
+                  <ConsentCheckboxField
+                    control={control}
+                    name="agreedToTerms"
+                    errorText={errors.agreedToTerms?.message}
+                    label={
+                      <>
+                        {t.termsBefore}{' '}
+                        <Link
+                          href="/terms"
+                          fontWeight={700}
+                          color="text.link"
+                          _hover={{ color: 'status.success.fg' }}
+                        >
+                          {t.termsLink}
+                        </Link>{' '}
+                        {t.termsAnd}{' '}
+                        <Link
+                          href="/privacy"
+                          fontWeight={700}
+                          color="text.link"
+                          _hover={{ color: 'status.success.fg' }}
+                        >
+                          {t.privacyLink}
+                        </Link>
+                        .
+                      </>
+                    }
+                  />
+                </Stack>
+
+                <GoogleAuthButton
+                  next={authQuery.next}
+                  redirect={authQuery.redirect}
+                  blocked={googleBlocked}
+                  blockedTitle={t.googleBlockedTitle}
+                  blockedDescription={t.googleBlockedDescription}
+                  onBlocked={() => {
+                    void trigger(['isOver18', 'agreedToTerms'])
+                  }}
+                />
+                {googleBlocked ? (
+                  <Text fontSize="xs" color="text.muted" lineHeight="tall">
+                    {t.googleConsentHint}
+                  </Text>
+                ) : null}
+                <Text
+                  fontSize="2xs"
+                  fontWeight={700}
+                  letterSpacing="0.1em"
+                  color="text.muted"
+                  textTransform="uppercase"
+                >
+                  Or continue with email
+                </Text>
+
                 <FormField
-                  label="Full name"
+                  label={t.fullNameLabel}
                   errorText={errors.fullName?.message}
                 >
                   <Input
@@ -569,7 +621,7 @@ export default function RegisterPage() {
                     />
                   </FormField>
                   <FormField
-                    label="Confirm password"
+                    label={t.confirmPasswordLabel}
                     flex={1}
                     w={{ base: 'full', sm: 'auto' }}
                     errorText={errors.confirmPassword?.message}
@@ -595,43 +647,6 @@ export default function RegisterPage() {
                     />
                   </FormField>
                 </HStack>
-
-                <Stack gap={3}>
-                  <ConsentCheckboxField
-                    control={control}
-                    name="isOver18"
-                    errorText={errors.isOver18?.message}
-                    label="I confirm I am 18 or over."
-                  />
-                  <ConsentCheckboxField
-                    control={control}
-                    name="agreedToTerms"
-                    errorText={errors.agreedToTerms?.message}
-                    label={
-                      <>
-                        I agree to the{' '}
-                        <Link
-                          href="/terms"
-                          fontWeight={700}
-                          color="text.link"
-                          _hover={{ color: 'status.success.fg' }}
-                        >
-                          Terms of Service
-                        </Link>{' '}
-                        and{' '}
-                        <Link
-                          href="/privacy"
-                          fontWeight={700}
-                          color="text.link"
-                          _hover={{ color: 'status.success.fg' }}
-                        >
-                          Privacy Policy
-                        </Link>
-                        .
-                      </>
-                    }
-                  />
-                </Stack>
 
                 {captcha.requiresCaptcha ? (
                   <TurnstileField

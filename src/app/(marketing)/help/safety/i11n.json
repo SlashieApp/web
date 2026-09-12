@@ -27,6 +27,7 @@
       },
       {
         "heading": "How to report",
+        "id": "report",
         "body": [
           "You can report a task from the task page (the ⋮ menu) and a worker from their public profile. Visitors and signed-in users can both report.",
           "The form opens an email to admin@slashie.app with the task or worker id and the page URL already filled in. We may remove content or restrict accounts that put people at risk.",
@@ -75,6 +76,7 @@
       },
       {
         "heading": "如何舉報",
+        "id": "report",
         "body": [
           "你可以在任務頁（⋮ 選單）舉報任務，或在公開檔案舉報工作者。訪客和已登入用戶都可以舉報。",
           "表格會開啟電郵至 admin@slashie.app，並已填好任務或工作者編號和頁面網址。若內容令人不安全，我們可能移除內容或限制帳戶。",

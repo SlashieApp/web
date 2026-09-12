@@ -1,6 +1,8 @@
 export type LegalSection = {
   heading: string
   body: string[]
+  /** Optional fragment target for in-app help links. */
+  id?: string
 }
 
 /**

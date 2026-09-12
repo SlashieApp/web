@@ -1,6 +1,8 @@
 import type { MeWorkerSetupQuery } from '@codegen/schema'
 import { z } from 'zod'
 
+import { isAtLeast18 } from '@/utils/age'
+
 import { categoryEnumFromSlug } from './workerSetupCategories'
 import type { WorkerSetupFormState } from './workerSetupFormState'
 import { SKILLS_MAX, SKILLS_MIN } from './workerSetupSkills'
@@ -33,20 +35,7 @@ const dateOfBirthSchema = z.object({
     .string()
     .trim()
     .min(1, 'Enter your date of birth.')
-    .refine((value) => {
-      const d = new Date(`${value}T00:00:00.000Z`)
-      if (Number.isNaN(d.getTime())) return false
-      const now = new Date()
-      let age = now.getUTCFullYear() - d.getUTCFullYear()
-      const monthDiff = now.getUTCMonth() - d.getUTCMonth()
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && now.getUTCDate() < d.getUTCDate())
-      ) {
-        age -= 1
-      }
-      return age >= 18
-    }, 'You must be at least 18 years old.'),
+    .refine(isAtLeast18, 'You must be at least 18 years old.'),
 })
 
 const bioSchema = z.object({

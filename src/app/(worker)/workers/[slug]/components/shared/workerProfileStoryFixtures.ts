@@ -29,7 +29,7 @@ export const workerProfileFixture: WorkerPublicRecord = {
     'Mounting',
     'Repairs',
   ],
-  qualifications: ['City & Guilds', 'Fully Insured'],
+  qualifications: ['City & Guilds', 'NICEIC'],
   portfolioUrls: [],
   serviceAreaLabel: 'Camden & Islington (~5 miles)',
   serviceArea: { label: 'Camden & Islington', radiusMiles: 5 },

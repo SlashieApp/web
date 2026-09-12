@@ -23,6 +23,14 @@ type GoogleAuthButtonProps = {
   next?: string | null
   redirect?: string | null
   fallbackPath?: string
+  /**
+   * When true, intercepts the Google widget so a new account cannot be
+   * created without the register-page consent checkboxes.
+   */
+  blocked?: boolean
+  blockedTitle?: string
+  blockedDescription?: string
+  onBlocked?: () => void
 }
 
 export function GoogleAuthButton({
@@ -30,6 +38,10 @@ export function GoogleAuthButton({
   next = null,
   redirect = null,
   fallbackPath = APP_HOME,
+  blocked = false,
+  blockedTitle = 'Confirm you are 18 or over',
+  blockedDescription = 'Tick the confirmation boxes, then continue with Google.',
+  onBlocked,
 }: GoogleAuthButtonProps) {
   const router = useRouter()
   const loginWithGoogle = useUserStore((s) => s.loginWithGoogle)
@@ -49,8 +61,21 @@ export function GoogleAuthButton({
     }
   }, [])
 
+  const showBlocked = useCallback(() => {
+    onBlocked?.()
+    showAppToast({
+      title: blockedTitle,
+      description: blockedDescription,
+      type: 'warning',
+    })
+  }, [blockedDescription, blockedTitle, onBlocked])
+
   const onSuccess = useCallback(
     async (credentialResponse: CredentialResponse) => {
+      if (blocked) {
+        showBlocked()
+        return
+      }
       const idToken = credentialResponse.credential
       if (!idToken) return
 
@@ -74,7 +99,16 @@ export function GoogleAuthButton({
         })
       }
     },
-    [fallbackPath, intent, loginWithGoogle, next, redirect, router],
+    [
+      blocked,
+      fallbackPath,
+      intent,
+      loginWithGoogle,
+      next,
+      redirect,
+      router,
+      showBlocked,
+    ],
   )
 
   const onError = useCallback(() => {
@@ -100,15 +134,29 @@ export function GoogleAuthButton({
         pointerEvents={loading ? 'none' : 'auto'}
       >
         {isClient ? (
-          <GoogleLogin
-            onSuccess={(response) => void onSuccess(response)}
-            onError={onError}
-            useOneTap={false}
-            text="continue_with"
-            shape="pill"
-            size="large"
-            width={`${buttonWidth}`}
-          />
+          <Box position="relative">
+            <GoogleLogin
+              onSuccess={(response) => void onSuccess(response)}
+              onError={onError}
+              useOneTap={false}
+              text="continue_with"
+              shape="pill"
+              size="large"
+              width={`${buttonWidth}`}
+            />
+            {blocked ? (
+              <Box
+                position="absolute"
+                inset={0}
+                cursor="pointer"
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  showBlocked()
+                }}
+              />
+            ) : null}
+          </Box>
         ) : null}
       </Box>
     </GoogleOAuthProvider>

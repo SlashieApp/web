@@ -12,7 +12,11 @@
     "publishTask": "Publish task",
     "missingDetails": "Some details are missing - check earlier steps.",
     "submit": "Post task",
-    "draftSaved": "Draft saved"
+    "draftSaved": "Draft saved",
+    "prohibitedHeading": "Allowed tasks only",
+    "prohibitedBody": "Do not post illegal, unsafe, or licensed work unless the worker holds the right credentials. Slashie does not vet listings.",
+    "prohibitedConfirm": "I confirm this task is legal, and I will not ask for unsafe or unlicensed work.",
+    "prohibitedRequired": "Confirm this task is allowed before publishing."
   },
   "zh_hk": {
     "metadata": {
@@ -27,6 +31,10 @@
     "publishTask": "發佈任務",
     "missingDetails": "部分資料未完成，請檢查前面的步驟。",
     "submit": "發佈任務",
-    "draftSaved": "草稿已儲存"
+    "draftSaved": "草稿已儲存",
+    "prohibitedHeading": "只限允許的任務",
+    "prohibitedBody": "請勿發布非法、不安全的工作，或在對方沒有所需資格時要求持牌工作。Slashie 不會審查刊登內容。",
+    "prohibitedConfirm": "我確認此任務合法，且不會要求不安全或無牌的工作。",
+    "prohibitedRequired": "發布前請確認此任務屬於允許範圍。"
   }
 }
