@@ -46,6 +46,8 @@ export type TaskCardTask = {
 type TaskCardShared = {
   detailsHref?: string
   detailsCtaLabel?: string
+  /** Fires when the details CTA link is clicked (analytics / handoff). */
+  onOpenDetails?: () => void
   isActive?: boolean
   /** Taller layout with description (web list selection). */
   isExpanded?: boolean
@@ -156,6 +158,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const isSaved = props.isSaved ?? false
   const onToggleSave = props.onToggleSave
   const onActivate = props.onActivate
+  const onOpenDetails = props.onOpenDetails
   const navigateOnActivate = props.navigateOnActivate ?? false
   const activateCursor = props.activateCursor ?? 'pointer'
   const activateMode = props.activateMode ?? 'button'
@@ -345,26 +348,28 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             </Stack>
             <HStack gap={1} flexShrink={0} align="center">
               {showDetailsCta ? (
-                <Link
-                  href={detailsHref}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    armMorph()
-                  }}
-                  _hover={{ textDecoration: 'none' }}
+                <Button
+                  asChild
+                  size="sm"
+                  minW={{ md: '106px' }}
+                  h={9}
+                  px={{ base: 3, md: 4 }}
+                  borderRadius="lg"
+                  whiteSpace="nowrap"
                   flexShrink={0}
                 >
-                  <Button
-                    size="sm"
-                    minW={{ md: '106px' }}
-                    h={9}
-                    px={{ base: 3, md: 4 }}
-                    borderRadius="lg"
-                    whiteSpace="nowrap"
+                  <Link
+                    href={detailsHref}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      armMorph()
+                      onOpenDetails?.()
+                    }}
+                    _hover={{ textDecoration: 'none' }}
                   >
                     {detailsCtaLabel}
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               ) : null}
               {handleToggleSave ? (
                 <IconButton

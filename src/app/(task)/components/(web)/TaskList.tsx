@@ -2,7 +2,6 @@
 
 import { Box, Stack } from '@chakra-ui/react'
 import { motion } from 'motion/react'
-import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { TaskCard } from '../TaskCard'
@@ -10,10 +9,12 @@ import { TaskEmptyState } from '../TaskEmptyState'
 
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
+import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 
 export function TaskList({ header }: { header?: React.ReactNode }) {
-  const router = useRouter()
+  const { openTaskDetail, taskDetailHref, captureDetailsLink } =
+    useOpenTaskDetailFromBrowse()
   const {
     canShowBrowseEmptyState,
     filteredSorted,
@@ -48,7 +49,7 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
   const handleActivateTask = (taskId: string) => {
     if (isNavRoutePresenting) return
     if (selectedTaskId === taskId) {
-      router.push(`/tasks/${taskId}`)
+      openTaskDetail(taskId, 'list')
       return
     }
     setSelectedTaskId(taskId)
@@ -89,14 +90,17 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
                 >
                   <TaskCard
                     task={cardTask}
-                    detailsHref={`/tasks/${task.id}`}
+                    detailsHref={taskDetailHref(task.id)}
                     isActive={selectedTaskId === task.id}
+                    isExpanded={selectedTaskId === task.id}
+                    showDetailsCta={selectedTaskId === task.id}
                     navigateOnActivate={selectedTaskId === task.id}
                     activateAriaLabel={
                       selectedTaskId === task.id
                         ? `${task.title}. View task details.`
                         : `${task.title}. Select to highlight on map.`
                     }
+                    onOpenDetails={() => captureDetailsLink(task.id, 'list')}
                     onActivate={() => handleActivateTask(task.id)}
                   />
                 </Box>

@@ -170,4 +170,31 @@ describe('getTaskDetailPermissions', () => {
 
     expect(permissions.canSubmitQuote).toBe(false)
   })
+
+  it('visitor on OPEN task sees a guest quote CTA', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open }),
+      myOrder: null,
+      me: null,
+      myQuote: null,
+      isAuthenticated: false,
+    })
+
+    expect(permissions.showGuestQuoteCta).toBe(true)
+    expect(permissions.showQuoteForm).toBe(false)
+    expect(permissions.showFullAddress).toBe(false)
+  })
+
+  it('signed-in worker does not see the guest quote CTA', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open }),
+      myOrder: null,
+      me: workerMe(),
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(permissions.showGuestQuoteCta).toBe(false)
+    expect(permissions.showQuoteForm).toBe(true)
+  })
 })

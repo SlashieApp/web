@@ -38,6 +38,8 @@ export type TaskDetailPermissions = {
   atCap: boolean
   canSubmitQuote: boolean
   showQuoteForm: boolean
+  /** Guest on an OPEN task — hero CTA that gates quote via login `next`. */
+  showGuestQuoteCta: boolean
   /**
    * Worker viewing an OPEN task who cannot quote and has no pending quote of
    * their own (at cap, or otherwise ineligible). Drives the "task is full" hero.
@@ -109,6 +111,8 @@ export function getTaskDetailPermissions(
     canSubmitQuote && (!myQuote || myQuote.status === QuoteStatus.Pending),
   )
 
+  const showGuestQuoteCta = Boolean(isOpen && !isAuthenticated && !isOwner)
+
   const showQuoteUnavailableNotice = Boolean(
     isOpen &&
       isAuthenticated &&
@@ -146,6 +150,7 @@ export function getTaskDetailPermissions(
     atCap,
     canSubmitQuote,
     showQuoteForm,
+    showGuestQuoteCta,
     showQuoteUnavailableNotice,
     showOwnerQuoteList,
     showAcceptDecline,

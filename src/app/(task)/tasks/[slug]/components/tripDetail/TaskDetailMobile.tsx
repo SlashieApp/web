@@ -79,15 +79,19 @@ export function TaskDetailMobile() {
     )
   } else if (permissions.showQuoteForm) {
     heroCta = (
-      <Link
-        href={quoteFlowHref}
-        _hover={{ textDecoration: 'none' }}
-        display="block"
-      >
-        <Button variant="primary" w="full">
+      <Button asChild variant="primary" w="full">
+        <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
           {t.mobile.sendQuote}
-        </Button>
-      </Link>
+        </Link>
+      </Button>
+    )
+  } else if (permissions.showGuestQuoteCta) {
+    heroCta = (
+      <Button asChild variant="primary" w="full">
+        <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
+          {t.mobile.signInToQuote}
+        </Link>
+      </Button>
     )
   }
 
