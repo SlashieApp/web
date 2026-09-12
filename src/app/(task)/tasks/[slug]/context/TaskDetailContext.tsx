@@ -7,6 +7,7 @@ import type { OrderItem } from '@/utils/orderHelpers'
 
 import type { TaskCardTask } from '@/app/(task)/components/TaskCard'
 import type { TaskDetailPermissions } from '../helpers/getTaskDetailPermissions'
+import type { TaskDetailTab } from '../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
 
 export type TaskDetailData = {
@@ -74,12 +75,17 @@ export type TaskDetailActions = {
   onCancelTask: () => Promise<void>
   scrollToQuoteForm: () => void
   scrollToOwnerPerformance: () => void
+  setActiveTab: (
+    tab: TaskDetailTab,
+    options?: { hash?: string; scrollId?: string },
+  ) => void
 }
 
 export type TaskDetailContextValue = TaskDetailData &
   TaskDetailQuoteForm &
   TaskDetailActions & {
     permissions: TaskDetailPermissions
+    activeTab: TaskDetailTab
   }
 
 const TaskDetailContext = createContext<TaskDetailContextValue | null>(null)

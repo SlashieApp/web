@@ -47,6 +47,8 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
   stickyTop?: BoxProps['top']
   /** Accessible name for the tablist. */
   'aria-label'?: string
+  /** Rendered inside the sticky chrome, above the tablist (e.g. a title bar). */
+  stickyHeader?: ReactNode
   children?: ReactNode
 }
 
@@ -76,6 +78,7 @@ function TabsBase({
   fitted = false,
   sticky = false,
   stickyTop = 0,
+  stickyHeader,
   children,
   'aria-label': ariaLabel,
   ...boxProps
@@ -183,6 +186,7 @@ function TabsBase({
           zIndex={sticky ? 5 : undefined}
           bg={sticky ? 'bg.canvas' : undefined}
         >
+          {stickyHeader}
           <HStack
             ref={listRef}
             role="tablist"

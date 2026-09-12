@@ -1,75 +1,42 @@
 'use client'
 
-import { Box, Grid } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { useRef } from 'react'
 
 import {
-  TaskDetailHeaderCollapsedProvider,
-  useScrollContainerCollapsed,
-} from '../../../helpers/taskDetailHeaderCollapse'
-import { TaskInfoSections, TaskQuoteSections } from '../TaskDetailSections'
-import {
-  OPEN_TASK_HEADER_SCROLL_RESERVE,
-  OpenTaskHeader,
-} from './OpenTaskHeader'
+  TASK_DETAIL_CTA_CLEARANCE,
+  TaskDetailCtaBar,
+} from '../TaskDetailCtaBar'
+import { TaskDetailSectionTabs } from '../TaskDetailSectionTabs'
 import { TaskDetailMapBackground } from './TaskDetailMapBackground'
 
+/** Map show-through above the sticky money chrome on desktop. */
+const DESKTOP_MAP_SPACER = { base: '56px', md: '120px' } as const
+
 /**
- * Single desktop layout for a task detail, used for EVERY status (open, awarded
- * "job in progress", closed, cancelled). Each section branches on `permissions`
- * internally; `StatePanel` swaps the primary content per state. Desktop-only —
- * mobile is handled by `TaskDetailMobile`.
+ * Desktop task detail: map background, sticky title + status + budget +
+ * Overview / Quotes / Activity, floating role CTA. Same hierarchy as mobile.
  */
 export function TaskDetailView() {
-  // Sticky snap collapse, driven by the app-shell content pane (the window
-  // never scrolls in the (task) layout): compact as soon as scrolling starts,
-  // expand only back at the very top.
-  const rootRef = useRef<HTMLDivElement>(null)
-  const collapsed = useScrollContainerCollapsed(rootRef, 2, 0)
-
   return (
-    <TaskDetailHeaderCollapsedProvider value={collapsed}>
-      <Box
-        ref={rootRef}
-        position="relative"
-        // Desktop reserves the expanded header's height at the bottom so
-        // collapsing the header never removes scrollable room mid-gesture
-        // (without it, short pages clamp scrollTop back and the header
-        // oscillates / scrolling feels stuck).
-        pb={{ base: 28, md: 16, lg: OPEN_TASK_HEADER_SCROLL_RESERVE }}
-        bg="bg.canvas"
-      >
-        {/* Fixed map — no document flow height. */}
-        <TaskDetailMapBackground />
+    <Box position="relative" pb={TASK_DETAIL_CTA_CLEARANCE} bg="bg.canvas">
+      <TaskDetailMapBackground />
 
-        <Box position="relative" zIndex={1}>
-          <OpenTaskHeader />
-
-          <Box
-            maxW={PAGE_CONTAINER_MAX_W}
-            mx="auto"
-            px={PAGE_GUTTER_X}
-            pb={{ base: 4, md: 0 }}
-            pointerEvents="none"
-          >
-            <Grid
-              templateColumns={{
-                base: '1fr',
-                lg: 'minmax(0, 1fr) minmax(320px, 400px)',
-              }}
-              columnGap={{ lg: 8 }}
-              rowGap={5}
-              alignItems="start"
-            >
-              {/* Left column = mobile Info tab; right = mobile Quotes tab. */}
-              <TaskInfoSections />
-              <TaskQuoteSections />
-            </Grid>
+      <Box position="relative" zIndex={1}>
+        <Box h={DESKTOP_MAP_SPACER} pointerEvents="none" aria-hidden />
+        <Box
+          maxW={PAGE_CONTAINER_MAX_W}
+          mx="auto"
+          px={PAGE_GUTTER_X}
+          pointerEvents="none"
+        >
+          <Box pointerEvents="auto">
+            <TaskDetailSectionTabs />
+            <TaskDetailCtaBar />
           </Box>
         </Box>
       </Box>
-    </TaskDetailHeaderCollapsedProvider>
+    </Box>
   )
 }
