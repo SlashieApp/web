@@ -1,15 +1,11 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import type {
-  CreateReportMutation,
-  CreateReportMutationVariables,
-} from '@codegen/schema'
 import { useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import CreateReport from '@/graphql/CreateReport.gql'
+import CreateReport from '@/graphql/CreateReport.graphql'
 import { useI11n } from '@/i18n/useI11n'
 import {
   ReportControl as UiReportControl,
@@ -28,6 +24,8 @@ import { getAuthToken } from '@/utils/auth'
 import { isUnauthenticatedError } from '@/utils/graphqlErrors'
 
 import {
+  type CreateReportMutation,
+  type CreateReportMutationVariables,
   consumeReportQueryParam,
   getReportErrorMessage,
   reportReturnPath,

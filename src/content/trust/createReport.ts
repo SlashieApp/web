@@ -1,10 +1,35 @@
-import { type ReportReason, ReportTargetType } from '@codegen/schema'
-
 import type {
   ReportReasonValue,
   ReportTargetKind,
 } from '@/ui/ReportDialog/reportFormSchema'
 import { getGraphQLErrorCode, pickGraphQLError } from '@/utils/graphqlErrors'
+
+/** BE-40 `ReportTargetType` — local so builds do not require codegen enums. */
+export type ReportTargetTypeValue = 'TASK' | 'WORKER' | 'USER'
+
+export type CreateReportInput = {
+  targetType: ReportTargetTypeValue
+  targetId: string
+  reason: ReportReasonValue
+  details?: string | null
+}
+
+export type CreateReportMutationVariables = {
+  input: CreateReportInput
+}
+
+export type CreateReportMutation = {
+  createReport: {
+    id: string
+    targetType: ReportTargetTypeValue
+    targetId: string
+    reason: ReportReasonValue
+    details?: string | null
+    status: string
+    targetUrl?: string | null
+    createdAt: string
+  }
+}
 
 export const REPORT_ERROR_CODE = {
   RATE_LIMITED: 'REPORT_RATE_LIMITED',
@@ -15,12 +40,14 @@ export const REPORT_ERROR_CODE = {
 export const REPORT_QUERY_PARAM = 'report'
 export const REPORT_TARGET_QUERY_PARAM = 'reportTarget'
 
-export function reportTargetType(kind: ReportTargetKind): ReportTargetType {
-  return kind === 'worker' ? ReportTargetType.Worker : ReportTargetType.Task
+export function reportTargetType(
+  kind: ReportTargetKind,
+): Extract<ReportTargetTypeValue, 'TASK' | 'WORKER'> {
+  return kind === 'worker' ? 'WORKER' : 'TASK'
 }
 
-export function toReportReason(reason: ReportReasonValue): ReportReason {
-  return reason as ReportReason
+export function toReportReason(reason: ReportReasonValue): ReportReasonValue {
+  return reason
 }
 
 export function reportReturnPath(targetId: string, href?: string): string {

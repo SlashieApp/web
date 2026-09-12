@@ -1,0 +1,15 @@
+# Use `.graphql` (not `.gql`) so `codegen.ts` `src/**/*.gql` does not validate
+# this op during Vercel prebuild. Preview schema URLs may still lack BE-40
+# `createReport`; a document error fails both slashie and slashie-ui.
+mutation CreateReport($input: CreateReportInput!) {
+  createReport(input: $input) {
+    id
+    targetType
+    targetId
+    reason
+    details
+    status
+    targetUrl
+    createdAt
+  }
+}

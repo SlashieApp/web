@@ -1,4 +1,3 @@
-import { ReportReason, ReportTargetType } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import { REPORT_REASON_VALUES } from '@/ui/ReportDialog/reportFormSchema'
@@ -34,20 +33,20 @@ const copy = {
 
 describe('createReport helpers', () => {
   it('maps UI kinds to BE target types', () => {
-    expect(reportTargetType('task')).toBe(ReportTargetType.Task)
-    expect(reportTargetType('worker')).toBe(ReportTargetType.Worker)
+    expect(reportTargetType('task')).toBe('TASK')
+    expect(reportTargetType('worker')).toBe('WORKER')
   })
 
   it('keeps reason values aligned with the BE enum', () => {
     expect([...REPORT_REASON_VALUES]).toEqual([
-      ReportReason.Spam,
-      ReportReason.Harassment,
-      ReportReason.IllegalOrProhibited,
-      ReportReason.Scam,
-      ReportReason.Other,
+      'SPAM',
+      'HARASSMENT',
+      'ILLEGAL_OR_PROHIBITED',
+      'SCAM',
+      'OTHER',
     ])
     expect(toReportReason('ILLEGAL_OR_PROHIBITED')).toBe(
-      ReportReason.IllegalOrProhibited,
+      'ILLEGAL_OR_PROHIBITED',
     )
   })
 
