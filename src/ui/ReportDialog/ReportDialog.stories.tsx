@@ -15,9 +15,7 @@ const meta = {
     open: true,
     onOpenChange: () => {},
     kind: 'task',
-    targetId: 'task-flat-clearance-hackney',
-    targetTitle: 'Flat clearance in Hackney',
-    pageUrl: 'https://slashie.app/tasks/task-flat-clearance-hackney',
+    onSubmit: async () => true,
   },
 } satisfies Meta<typeof ReportDialog>
 
@@ -41,9 +39,6 @@ export const Default: Story = {
 export const Worker: Story = {
   args: {
     kind: 'worker',
-    targetId: 'worker-amira',
-    targetTitle: 'Amira Chen',
-    pageUrl: 'https://slashie.app/workers/worker-amira',
   },
   render: function Render(args) {
     const [open, setOpen] = useState(true)
@@ -59,18 +54,21 @@ export const Triggers: Story = {
         targetId="task-42"
         targetTitle="Garden tidy"
         variant="button"
+        onSubmit={async () => true}
       />
       <ReportControl
         kind="worker"
         targetId="worker-9"
         targetTitle="Jordan"
         variant="icon"
+        onSubmit={async () => true}
       />
       <ReportControl
         kind="task"
         targetId="task-42"
         targetTitle="Garden tidy"
         variant="overflow"
+        onSubmit={async () => true}
       />
     </HStack>
   ),

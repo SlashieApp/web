@@ -5,6 +5,8 @@ type GraphQLErrorLike = {
   extensions?: {
     code?: string
     missing?: unknown
+    retryAfterSeconds?: unknown
+    retryAfter?: unknown
   }
 }
 
@@ -91,6 +93,11 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
     'Security check failed or expired. Complete it again and retry.',
   TURNSTILE_FAILED:
     'Security check failed or expired. Complete it again and retry.',
+  REPORT_RATE_LIMITED:
+    "You've sent too many reports. Please wait a bit and try again.",
+  REPORT_SELF_NOT_ALLOWED: "You can't report your own listing.",
+  REPORT_TARGET_NOT_FOUND:
+    "We couldn't find that listing. It may have been removed.",
 }
 
 export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =
@@ -112,11 +119,12 @@ export function pickGraphQLError(error: unknown): GraphQLErrorLike | null {
   const fromErrors = Array.isArray(candidate.errors)
     ? (candidate.errors[0] as GraphQLErrorLike | undefined)
     : undefined
-  if (fromErrors?.message) return fromErrors
+  if (fromErrors?.message || fromErrors?.extensions?.code) return fromErrors
   const fromGraphQLErrors = Array.isArray(candidate.graphQLErrors)
     ? (candidate.graphQLErrors[0] as GraphQLErrorLike | undefined)
     : undefined
-  if (fromGraphQLErrors?.message) return fromGraphQLErrors
+  if (fromGraphQLErrors?.message || fromGraphQLErrors?.extensions?.code)
+    return fromGraphQLErrors
   return null
 }
 

@@ -77,7 +77,12 @@ export { PhoneInput } from './PhoneInput'
 export { ProgressBar } from './ProgressBar'
 export { RadioButton } from './RadioButton'
 export { Rating, RatingStars } from './Rating'
-export { ReportControl, ReportDialog } from './ReportDialog'
+export {
+  REPORT_REASON_VALUES,
+  ReportControl,
+  ReportDialog,
+  reportFormSchema,
+} from './ReportDialog'
 export { SafetyConfirmDialog, SafetyNotice } from './SafetyNotice'
 export { ScheduleChip } from './ScheduleChip'
 export { Select } from './Select'
@@ -152,6 +157,9 @@ export type {
   ReportControlProps,
   ReportControlVariant,
   ReportDialogProps,
+  ReportFormValues,
+  ReportReasonValue,
+  ReportTargetKind,
 } from './ReportDialog'
 export type {
   SafetyConfirmDialogProps,
