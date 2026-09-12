@@ -2,14 +2,36 @@
   "en": {
     "metadata": {
       "title": "Dashboard | Slashie",
-      "description": "Review your Slashie worker jobs, quotes, membership, activity, and upcoming tasks."
+      "description": "See what needs you today — tasks you posted and work you’re on."
     },
-    "eyebrow": "Worker dashboard",
+    "eyebrow": "My tasks",
     "title": "Your worker cockpit",
-    "description": "Track active jobs, quotes, earnings, and next actions from one focused view.",
+    "description": "What needs you today — tasks you posted and work you’re on.",
     "browseTasks": "Browse tasks",
     "postTask": "Post a task",
     "retry": "Retry",
+    "inbox": {
+      "title": "Needs you today",
+      "subtitle": "Posted tasks and work you’re on, with one next step each.",
+      "needsYou": "{count} items need you today",
+      "postedTitle": "Posted by me",
+      "workTitle": "Work I’m on",
+      "viewAll": "View all",
+      "loading": "Loading inbox…",
+      "postedEmptyTitle": "No tasks posted yet",
+      "postedEmptyDescription": "Post a task to get quotes from local workers.",
+      "postedEmptyAction": "Post a task",
+      "workEmptyTitle": "No quotes or jobs yet",
+      "workEmptyDescription": "Browse nearby tasks and send a quote to start work.",
+      "workEmptyAction": "Browse tasks",
+      "actions": {
+        "respond": "Respond",
+        "accept": "Accept",
+        "markDone": "Mark done",
+        "contactOffline": "Contact offline",
+        "view": "View"
+      }
+    },
     "emptyTitle": "No active work yet",
     "emptyDescription": "Browse open tasks and send quotes to start filling your dashboard.",
     "primaryCta": "Find tasks",
@@ -69,14 +91,36 @@
   "zh_hk": {
     "metadata": {
       "title": "儀表板 | Slashie",
-      "description": "查看你的 Slashie 工作者工作、報價、會員、活動和即將處理的任務。"
+      "description": "查看今天要處理的事項 — 你發布的任務和正在進行的工作。"
     },
-    "eyebrow": "工作者儀表板",
+    "eyebrow": "我的任務",
     "title": "你的工作者工作台",
-    "description": "在一個清晰畫面追蹤進行中的工作、報價、收入和下一步。",
+    "description": "今天要處理什麼 — 你發布的任務和正在進行的工作。",
     "browseTasks": "瀏覽任務",
     "postTask": "發布任務",
     "retry": "重試",
+    "inbox": {
+      "title": "今天待辦",
+      "subtitle": "你發布的任務和承接的工作，每列一個下一步。",
+      "needsYou": "今天有 {count} 項需要處理",
+      "postedTitle": "我發布的",
+      "workTitle": "我承接的",
+      "viewAll": "查看全部",
+      "loading": "正在載入收件箱…",
+      "postedEmptyTitle": "尚未發布任務",
+      "postedEmptyDescription": "發布任務，向本地工作者索取報價。",
+      "postedEmptyAction": "發布任務",
+      "workEmptyTitle": "尚未有報價或工作",
+      "workEmptyDescription": "瀏覽附近任務並傳送報價。",
+      "workEmptyAction": "瀏覽任務",
+      "actions": {
+        "respond": "回覆",
+        "accept": "接受",
+        "markDone": "標記完成",
+        "contactOffline": "線下聯絡",
+        "view": "查看"
+      }
+    },
     "emptyTitle": "暫時沒有進行中的工作",
     "emptyDescription": "瀏覽公開任務並傳送報價，開始建立你的儀表板。",
     "primaryCta": "尋找任務",
