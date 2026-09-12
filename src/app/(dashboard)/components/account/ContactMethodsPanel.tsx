@@ -161,9 +161,9 @@ export function ContactMethodsPanel({
     <Stack gap={4}>
       {showIntro ? (
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
-          Verify a contact method on your account so customers can trust your
-          profile. Payment is arranged directly between you and the customer
-          outside Slashie.
+          Confirm email or phone so Slashie can reach you. This is contact proof
+          only — not an identity, DBS, or safety check. Payment is arranged
+          directly between you and the customer outside Slashie.
         </Text>
       ) : null}
 

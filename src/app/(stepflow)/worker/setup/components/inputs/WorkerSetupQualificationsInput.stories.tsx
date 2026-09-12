@@ -42,7 +42,7 @@ export const Empty: Story = {
 
 export const WithSelection: Story = {
   args: {
-    value: ['City & Guilds', 'Gas Safe', 'Fully Insured'],
+    value: ['City & Guilds', 'Gas Safe', 'NICEIC'],
     onChange: () => {},
   },
 }

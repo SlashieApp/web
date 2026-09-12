@@ -191,7 +191,7 @@ function PersonalInfoEditor({
         </FormField>
         <FormField
           label="Date of birth"
-          helperText="Private. Used only for age and eligibility checks."
+          helperText="Private. Used only for age and eligibility checks. You must be 18 or over."
           errorText={errors.dateOfBirth?.message}
         >
           <Input

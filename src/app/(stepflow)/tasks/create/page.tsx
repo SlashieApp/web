@@ -142,6 +142,7 @@ function CreateTaskFormBody({
       budgetType: TaskBudgetType.OneOff,
       paymentMethod: TaskPaymentMethod.Cash,
       preferredContactMethod: preferredContactDefault,
+      acceptedProhibitedUse: false,
     },
   })
 
@@ -155,6 +156,7 @@ function CreateTaskFormBody({
   const budgetType = watch('budgetType')
   const paymentMethod = watch('paymentMethod')
   const preferredContactMethod = watch('preferredContactMethod')
+  const acceptedProhibitedUse = watch('acceptedProhibitedUse')
 
   const [runCreateTask, { loading: creating }] =
     useMutation<CreateTaskMutation>(CreateTask)
@@ -500,6 +502,14 @@ function CreateTaskFormBody({
             contactOptions={contactOptions}
             onPreferredContactMethodChange={(m) =>
               setValue('preferredContactMethod', m, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            acceptedProhibitedUse={acceptedProhibitedUse}
+            prohibitedError={errors.acceptedProhibitedUse?.message}
+            onAcceptedProhibitedUseChange={(next) =>
+              setValue('acceptedProhibitedUse', next, {
                 shouldValidate: true,
                 shouldDirty: true,
               })

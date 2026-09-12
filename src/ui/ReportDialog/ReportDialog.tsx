@@ -50,7 +50,7 @@ export function ReportDialog({
   const t = useI11n(bag)
   const form = useForm<ReportFormValues>({
     resolver: zodResolver(reportFormSchema),
-    defaultValues: { reason: 'misleading', details: '' },
+    defaultValues: { details: '' },
   })
 
   const onSubmit = useCallback(
@@ -92,6 +92,7 @@ export function ReportDialog({
       </Text>
       <FormField label={t.reasonLabel} required errorText={reasonError}>
         <Select {...form.register('reason')}>
+          <option value="">{t.reasonPlaceholder}</option>
           {REPORT_REASON_VALUES.map((value) => (
             <option key={value} value={value}>
               {t.reasons[value]}

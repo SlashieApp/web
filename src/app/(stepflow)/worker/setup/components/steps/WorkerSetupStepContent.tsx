@@ -130,7 +130,7 @@ export function WorkerSetupStepContent() {
         <Stack gap={6}>
           <FormField
             label="Date of birth"
-            helperText="Private — used to confirm you meet the minimum age to work on Slashie."
+            helperText="Private. You must be 18 or over to work on Slashie."
             errorText={fieldErrors.dateOfBirth}
           >
             <Input

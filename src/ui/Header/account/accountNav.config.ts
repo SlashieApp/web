@@ -1,4 +1,4 @@
-import { APP_HOME, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
+import { APP_HOME, SAFETY_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 
 import type bag from '../i11n.json'
 
@@ -132,6 +132,14 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     id: 'help',
     label: 'Help',
     href: '/about',
+    kind: 'link',
+    section: 'account',
+    audience: 'all',
+  },
+  {
+    id: 'safety',
+    label: 'Paying & meeting safely',
+    href: SAFETY_HREF,
     kind: 'link',
     section: 'account',
     audience: 'all',
