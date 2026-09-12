@@ -8,14 +8,17 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { LuHeart } from 'react-icons/lu'
 
-import { Button } from '@ui'
+import { Button, ReportControl } from '@ui'
 
 import { showAppToast } from '@/utils/appToast'
 
 import { useWorkerProfile } from '../../context/WorkerProfileContext'
 import SaveWorker from '../../graphql/SaveWorker.gql'
 import UnsaveWorker from '../../graphql/UnsaveWorker.gql'
-import type { WorkerPublicRecord } from '../../helpers/workerProfileHelpers'
+import {
+  type WorkerPublicRecord,
+  workerPublicDisplayName,
+} from '../../helpers/workerProfileHelpers'
 
 /**
  * Hero actions: Save (heart) + Leave a review, driven by BE-36
@@ -117,6 +120,14 @@ function WorkerProfileActionsReady({ worker }: { worker: WorkerPublicRecord }) {
       >
         Leave a review
       </Button>
+      {isOwnProfile ? null : (
+        <ReportControl
+          kind="worker"
+          targetId={worker.id}
+          targetTitle={workerPublicDisplayName(worker)}
+          variant="button"
+        />
+      )}
     </HStack>
   )
 }

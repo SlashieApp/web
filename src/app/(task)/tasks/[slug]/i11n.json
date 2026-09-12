@@ -67,13 +67,9 @@
     "actions": {
       "shareTask": "Share task",
       "editTask": "Edit task",
-      "howPaymentsWork": "How payments work",
-      "howPaymentsDescription": "You pay (or get paid) directly. Slashie never handles job payment.",
-      "reportSafety": "Report a safety issue",
+      "payingMeetingSafely": "Paying & meeting safely",
+      "helpHeading": "Help & actions",
       "getHelp": "Get help",
-      "reportTask": "Report task",
-      "reportReceivedTitle": "Report received",
-      "reportReceivedDescription": "Thanks — our safety team will review this task.",
       "cancelTask": "Cancel task",
       "linkCopied": "Link copied",
       "cancelConfirm": "Cancel this task? Professionals will no longer be able to send quotes."
@@ -325,13 +321,9 @@
     "actions": {
       "shareTask": "分享任務",
       "editTask": "編輯任務",
-      "howPaymentsWork": "付款方式說明",
-      "howPaymentsDescription": "你直接付款（或收款）。Slashie 從不處理工作款項。",
-      "reportSafety": "舉報安全問題",
+      "payingMeetingSafely": "付款與安全見面",
+      "helpHeading": "協助與操作",
       "getHelp": "取得協助",
-      "reportTask": "舉報任務",
-      "reportReceivedTitle": "已收到舉報",
-      "reportReceivedDescription": "謝謝 — 我們的安全團隊會審核此任務。",
       "cancelTask": "取消任務",
       "linkCopied": "連結已複製",
       "cancelConfirm": "取消此任務？專業人士將無法再傳送報價。"

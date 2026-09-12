@@ -19,7 +19,7 @@ import {
   orderTimelineSteps,
   workerQuoteForOrder,
 } from '@/utils/orderHelpers'
-import { Avatar } from '@ui'
+import { Avatar, SafetyNotice } from '@ui'
 
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import { IconWrench } from '../metaSection/VisitorMetaIcons'
@@ -486,9 +486,12 @@ export function OrderSection({ task, order }: OrderSectionProps) {
           >
             <IconInfo />
           </Flex>
-          <Text fontSize="xs" color="text.muted" lineHeight="relaxed">
-            {o.disclaimer}
-          </Text>
+          <Stack gap={2}>
+            <Text fontSize="xs" color="text.muted" lineHeight="relaxed">
+              {o.disclaimer}
+            </Text>
+            <SafetyNotice variant="inline" />
+          </Stack>
         </HStack>
       </Stack>
     </Box>

@@ -1,0 +1,48 @@
+{
+  "en": {
+    "reportTask": "Report task",
+    "reportWorker": "Report worker",
+    "moreActionsAria": "More actions",
+    "reportTaskAria": "Report this task",
+    "reportWorkerAria": "Report this worker",
+    "titleTask": "Report this task",
+    "titleWorker": "Report this worker",
+    "description": "Reports go to Slashie by email. Include anything that helps us find the listing. We may remove content or restrict accounts that put people at risk.",
+    "reasonLabel": "What’s wrong?",
+    "reasonRequired": "Choose a reason.",
+    "reasons": {
+      "misleading": "Misleading or inappropriate listing",
+      "safety": "Safety concern",
+      "spam": "Spam or scam",
+      "harassment": "Harassment or abuse",
+      "other": "Something else"
+    },
+    "detailsLabel": "Details (optional)",
+    "detailsPlaceholder": "What happened? Include dates or messages if you can.",
+    "submit": "Email report",
+    "cancel": "Cancel"
+  },
+  "zh_hk": {
+    "reportTask": "舉報任務",
+    "reportWorker": "舉報工作者",
+    "moreActionsAria": "更多操作",
+    "reportTaskAria": "舉報此任務",
+    "reportWorkerAria": "舉報此工作者",
+    "titleTask": "舉報此任務",
+    "titleWorker": "舉報此工作者",
+    "description": "舉報會以電郵傳送給 Slashie。請提供有助我們找到該項目的資料。若內容令人不安全，我們可能移除內容或限制帳戶。",
+    "reasonLabel": "有什麼問題？",
+    "reasonRequired": "請選擇原因。",
+    "reasons": {
+      "misleading": "誤導或不適當的資料",
+      "safety": "安全疑慮",
+      "spam": "垃圾或詐騙",
+      "harassment": "騷擾或虐待",
+      "other": "其他"
+    },
+    "detailsLabel": "詳情（可選）",
+    "detailsPlaceholder": "發生了什麼事？如可以，請附上日期或訊息。",
+    "submit": "以電郵舉報",
+    "cancel": "取消"
+  }
+}

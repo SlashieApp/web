@@ -1,0 +1,98 @@
+{
+  "en": {
+    "title": "Paying & meeting safely",
+    "description": "Job pay is arranged directly between you. Slashie does not process payments or supervise offline meetings.",
+    "lastUpdated": "12 September 2026",
+    "lastUpdatedLabel": "Last updated",
+    "intro": [
+      "Slashie connects people who need local help with workers nearby. Payment for the job is arranged directly between you. We do not verify, supervise, or monitor what happens when you meet.",
+      "Use this page before you accept a quote, invite someone to your home, or mark a job complete."
+    ],
+    "sections": [
+      {
+        "heading": "Paying for the job",
+        "body": [
+          "Job pay is customer-to-customer: cash, bank transfer, or whatever you both agree. Slashie does not collect, hold, release, refund, or insure job payments, and takes no commission on the work.",
+          "Agree the price in the quote. Pay when you are happy with the work — not as an upfront deposit to a stranger. Slashie never asks you to pay through the app for a job.",
+          "Worker dashboard earnings are history logs only, not payouts from Slashie."
+        ]
+      },
+      {
+        "heading": "Meeting safely",
+        "body": [
+          "Home visits and in-person work mean meeting someone you may not know. Slashie does not background-check users, issue DBS badges, or guarantee anyone’s identity or conduct offline.",
+          "Meet in a way that feels safe: tell a friend where you are, keep a phone on you, and do not share extra personal details you do not need to. If something feels wrong, leave and report it.",
+          "Workers: only enter a home when you are comfortable. You can decline a job that does not feel safe."
+        ]
+      },
+      {
+        "heading": "How to report",
+        "body": [
+          "You can report a task from the task page (the ⋮ menu) and a worker from their public profile. Visitors and signed-in users can both report.",
+          "The form opens an email to admin@slashie.app with the task or worker id and the page URL already filled in. We may remove content or restrict accounts that put people at risk.",
+          "Urgent danger: contact emergency services first, then email us."
+        ]
+      },
+      {
+        "heading": "What Slashie does not do",
+        "body": [
+          "We do not process job payments, mediate payment disputes, or guarantee the outcome of a job.",
+          "We do not interview, vet, or supervise users. Verification ticks on a profile (email, phone, or identity when completed) are not a DBS check and are not a promise of safe conduct.",
+          "See the Terms for the full legal position. Questions: admin@slashie.app."
+        ]
+      }
+    ],
+    "metadata": {
+      "title": "Paying & meeting safely | Slashie",
+      "description": "How job pay works on Slashie, and how to meet and report safely."
+    }
+  },
+  "zh_hk": {
+    "title": "付款與安全見面",
+    "description": "工作酬勞由你們直接安排。Slashie 不處理付款，也不監督線下見面。",
+    "lastUpdated": "2026 年 9 月 12 日",
+    "lastUpdatedLabel": "最後更新",
+    "intro": [
+      "Slashie 連接需要本地協助的人與附近的工作者。工作酬勞由你們直接安排。我們不會核實、監督或監察見面時發生的事。",
+      "在接受報價、邀請對方到府，或標記工作完成前，請先閱讀本頁。"
+    ],
+    "sections": [
+      {
+        "heading": "工作付款",
+        "body": [
+          "工作酬勞是顧客對顧客：現金、銀行轉帳，或雙方同意的方式。Slashie 不代收、保管、發放、退款或承保工作款項，也不抽工作佣金。",
+          "在報價中議定價錢。對工作滿意後才付款 — 不要向陌生人預付訂金。Slashie 絕不會要求你透過 app 支付工作款項。",
+          "工作者儀表板的收入只是歷史紀錄，不是 Slashie 的付款。"
+        ]
+      },
+      {
+        "heading": "安全見面",
+        "body": [
+          "上門和面對面工作代表你可能會見陌生人。Slashie 不會做背景調查、不會發出 DBS 徽章，也不保證任何人的身分或線下行為。",
+          "以你感到安全的方式見面：告知朋友你的去向、隨身帶電話，不要分享不必要的個人資料。若感到不對勁，請離開並舉報。",
+          "工作者：只在你感到安心時進入他人住所。你可以拒絕不安全的工作。"
+        ]
+      },
+      {
+        "heading": "如何舉報",
+        "body": [
+          "你可以在任務頁（⋮ 選單）舉報任務，或在公開檔案舉報工作者。訪客和已登入用戶都可以舉報。",
+          "表格會開啟電郵至 admin@slashie.app，並已填好任務或工作者編號和頁面網址。若內容令人不安全，我們可能移除內容或限制帳戶。",
+          "如有即時危險：先聯絡緊急服務，再電郵我們。"
+        ]
+      },
+      {
+        "heading": "Slashie 不會做的事",
+        "body": [
+          "我們不處理工作付款、不調解付款糾紛，也不保證工作結果。",
+          "我們不會面試、審查或監督用戶。檔案上的驗證標記（電郵、電話，或已完成的身分驗證）不是 DBS 調查，也不保證安全行為。",
+          "完整法律說明見條款。查詢：admin@slashie.app。"
+        ]
+      }
+    ],
+    "metadata": {
+      "title": "付款與安全見面 | Slashie",
+      "description": "Slashie 的工作付款方式，以及如何安全見面與舉報。"
+    }
+  }
+}

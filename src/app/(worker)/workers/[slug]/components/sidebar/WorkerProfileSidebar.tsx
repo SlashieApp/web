@@ -1,7 +1,10 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { IdentityVerificationStatus } from '@codegen/schema'
+import {
+  IdentityVerificationStatus,
+  WorkerContactAction,
+} from '@codegen/schema'
 import {
   LuCalendar,
   LuCheck,
@@ -11,12 +14,13 @@ import {
   LuShieldCheck,
 } from 'react-icons/lu'
 
-import { Badge, Card } from '@ui'
+import { Badge, Card, ReportControl, SafetyNotice } from '@ui'
 
 import { useWorkerProfile } from '../../context/WorkerProfileContext'
 import {
   formatMemberSince,
   workerFirstName,
+  workerPublicDisplayName,
 } from '../../helpers/workerProfileHelpers'
 import { WorkerContactButton } from './WorkerContactButton'
 
@@ -183,6 +187,15 @@ export function WorkerProfileSidebar() {
             a quote on a task.
           </Text>
           <WorkerContactButton />
+          {worker.viewer?.contactAction === WorkerContactAction.None ? null : (
+            <ReportControl
+              kind="worker"
+              targetId={worker.id}
+              targetTitle={workerPublicDisplayName(worker)}
+              variant="button"
+            />
+          )}
+          <SafetyNotice variant="inline" />
           <HStack gap={2} color="text.muted" align="flex-start">
             <Box as="span" display="inline-flex" aria-hidden pt="1px">
               <LuLock size={13} strokeWidth={2} />

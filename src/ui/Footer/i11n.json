@@ -14,6 +14,7 @@
       "register": "Register"
     },
     "legal": {
+      "safety": "Safety",
       "terms": "Terms",
       "privacy": "Privacy",
       "cookies": "Cookies"
@@ -39,6 +40,7 @@
       "register": "註冊"
     },
     "legal": {
+      "safety": "安全",
       "terms": "條款",
       "privacy": "私隱",
       "cookies": "Cookie"

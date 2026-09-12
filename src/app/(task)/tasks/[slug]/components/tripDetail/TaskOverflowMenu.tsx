@@ -4,23 +4,19 @@ import { useI11n } from '@/i18n/useI11n'
 import { Stack } from '@chakra-ui/react'
 import {
   LuCircleHelp,
-  LuFlag,
   LuPencil,
   LuShare2,
   LuShieldCheck,
   LuTrash2,
-  LuWallet,
 } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
-import { showAppToast } from '@/utils/appToast'
-import { Button, Link, useDropdownClose } from '@ui'
+import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
+import { SAFETY_HREF } from '@/utils/appRoutes'
+import { Button, Link, ReportControl, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { useShareTask } from './openTask/shareTask'
-
-const SUPPORT_MAILTO = 'mailto:support@slashie.app'
-const SAFETY_MAILTO = 'mailto:safety@slashie.app'
 
 function MenuAction({
   icon,
@@ -61,9 +57,8 @@ function MenuAction({
 
 /**
  * Shared task-detail overflow menu (the "⋮" dropdown). Holds every task-level
- * action: share, owner edit/cancel, payments info, safety and support links,
- * and report. Used by the desktop header, the compact app bar, and the mobile
- * collapsed header.
+ * action: share, owner edit/cancel, safety, support, and report. Used by the
+ * desktop header, the compact app bar, and the mobile collapsed header.
  */
 export function TaskOverflowMenu() {
   const close = useDropdownClose()
@@ -92,40 +87,22 @@ export function TaskOverflowMenu() {
         />
       ) : null}
       <MenuAction
-        icon={<LuWallet />}
-        label={t.actions.howPaymentsWork}
-        onClick={() => {
-          close()
-          showAppToast({
-            title: t.actions.howPaymentsWork,
-            description: t.actions.howPaymentsDescription,
-            type: 'info',
-          })
-        }}
-      />
-      <MenuAction
         icon={<LuShieldCheck />}
-        label={t.actions.reportSafety}
-        href={SAFETY_MAILTO}
+        label={t.actions.payingMeetingSafely}
+        href={SAFETY_HREF}
         onClick={close}
       />
       <MenuAction
         icon={<LuCircleHelp />}
         label={t.actions.getHelp}
-        href={SUPPORT_MAILTO}
+        href={`mailto:${LEGAL_CONTACT_EMAIL}`}
         onClick={close}
       />
-      <MenuAction
-        icon={<LuFlag />}
-        label={t.actions.reportTask}
-        onClick={() => {
-          close()
-          showAppToast({
-            title: t.actions.reportReceivedTitle,
-            description: t.actions.reportReceivedDescription,
-            type: 'info',
-          })
-        }}
+      <ReportControl
+        kind="task"
+        targetId={task.id}
+        targetTitle={task.title?.trim() || undefined}
+        variant="menu"
       />
       {permissions.canCancelTask ? (
         <MenuAction

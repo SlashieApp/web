@@ -77,6 +77,8 @@ export { PhoneInput } from './PhoneInput'
 export { ProgressBar } from './ProgressBar'
 export { RadioButton } from './RadioButton'
 export { Rating, RatingStars } from './Rating'
+export { ReportControl, ReportDialog } from './ReportDialog'
+export { SafetyConfirmDialog, SafetyNotice } from './SafetyNotice'
 export { ScheduleChip } from './ScheduleChip'
 export { Select } from './Select'
 export { Slider } from './Slider'
@@ -146,6 +148,16 @@ export type {
   UiRadioButtonVariant,
 } from './RadioButton'
 export type { RatingProps, RatingStarsProps, UiRatingSize } from './Rating'
+export type {
+  ReportControlProps,
+  ReportControlVariant,
+  ReportDialogProps,
+} from './ReportDialog'
+export type {
+  SafetyConfirmDialogProps,
+  SafetyNoticeProps,
+  SafetyNoticeVariant,
+} from './SafetyNotice'
 export type { ScheduleChipProps } from './ScheduleChip'
 export type { SelectProps } from './Select'
 export type { SliderProps, UiSliderTone } from './Slider'
