@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, Container, Stack } from '@chakra-ui/react'
 import { useSelectedLayoutSegment } from 'next/navigation'
 import { useCallback, useRef } from 'react'
 
@@ -19,20 +19,6 @@ export default function AuthLayout({
     markedRef.current = true
     markAuthSurfaceSession()
   }, [])
-  const languageBar = (
-    <Box position="absolute" top={4} right={4} zIndex={10}>
-      <LanguageSwitcher />
-    </Box>
-  )
-
-  if (isLoginOrRegister) {
-    return (
-      <Box ref={onAuthSurfaceRef} w="full" minH="100vh" position="relative">
-        {languageBar}
-        {children}
-      </Box>
-    )
-  }
 
   return (
     <Box
@@ -41,23 +27,27 @@ export default function AuthLayout({
       bg="bg.subtle"
       display="flex"
       flexDirection="column"
-      minH={{ base: '100vh', lg: 'auto' }}
+      minH="100vh"
       w="full"
-      position="relative"
     >
-      {languageBar}
-      <Stack
+      <Container
         flex={1}
-        justify="center"
-        px={{ base: 6, md: 10, xl: 16 }}
+        display="flex"
+        flexDirection="column"
+        minH="100vh"
         py={{ base: 10, md: 12 }}
-        maxW="md"
-        w="full"
-        mx="auto"
-        gap={8}
       >
-        {children}
-      </Stack>
+        <Box display="flex" justifyContent="flex-end" mb={{ base: 4, md: 6 }}>
+          <LanguageSwitcher />
+        </Box>
+        {isLoginOrRegister ? (
+          children
+        ) : (
+          <Stack flex={1} justify="center" maxW="md" w="full" gap={8}>
+            {children}
+          </Stack>
+        )}
+      </Container>
     </Box>
   )
 }

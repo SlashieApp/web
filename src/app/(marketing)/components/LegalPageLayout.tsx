@@ -30,8 +30,9 @@ function linkifyEmails(paragraph: string): ReactNode[] {
 
 /**
  * Shared prose shell for the public legal pages (/terms, /privacy, /cookies).
- * Single readable column (~720px) built from SDL semantic roles only; copy
- * comes from `src/content/legal/*` so it can change without touching UI.
+ * Page `<Container>` plus an inner readable measure, left-aligned to the
+ * column. Copy comes from `src/content/legal/*` so it can change without
+ * touching UI.
  */
 export function LegalPageLayout({
   document,
@@ -40,8 +41,8 @@ export function LegalPageLayout({
 }) {
   return (
     <Box py={{ base: 10, md: 14 }}>
-      <Container maxW="45rem" px={{ base: 4, md: 6 }}>
-        <Stack gap={8}>
+      <Container>
+        <Stack gap={8} maxW="45rem">
           <Stack gap={2}>
             <Heading as="h1" size="xl">
               {document.title}
