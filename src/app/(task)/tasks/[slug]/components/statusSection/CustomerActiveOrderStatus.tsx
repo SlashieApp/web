@@ -13,7 +13,7 @@ import {
   orderSnapshotDatetime,
 } from '@/utils/orderHelpers'
 import { formatTaskScheduleLabel } from '@/utils/taskJobSchedule'
-import { Avatar, Button, Card, IconButton } from '@ui'
+import { Avatar, Button, Card, IconButton, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 
@@ -134,6 +134,7 @@ export function CustomerActiveOrderStatus() {
           <Text fontSize="sm" color="text.muted">
             {b.step3}
           </Text>
+          <SafetyNotice variant="inline" />
         </Stack>
 
         {code ? (

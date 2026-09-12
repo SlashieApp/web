@@ -1,30 +1,29 @@
 'use client'
 
-import { useI11n } from '@/i18n/useI11n'
-import { InfoBar } from '@ui'
-import bag from '../../../i11n.json'
+import { Stack } from '@chakra-ui/react'
+
+import { ReportControl, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 
 /**
- * "Payments outside Slashie" trust panel. Copy flips by viewer: the owner pays
- * the worker; the worker gets paid by the customer.
+ * C2C pay + meet-safely panel, plus a report entry so visitors do not have to
+ * hunt through Terms.
  */
 export function TrustCard() {
-  const { permissions } = useTaskDetail()
-  const t = useI11n(bag)
-  const isOwner = permissions.isOwner
+  const { task } = useTaskDetail()
 
   return (
-    <InfoBar
-      tone="success"
-      icon={<span aria-hidden>£</span>}
-      hideBadge
-      heading={isOwner ? t.trust.ownerHeading : t.trust.workerHeading}
-      linkLabel={t.trust.linkLabel}
-      linkHref="#how-payments-work"
-    >
-      {isOwner ? t.trust.ownerBody : t.trust.workerBody}
-    </InfoBar>
+    <Stack gap={3} w="full">
+      <SafetyNotice variant="panel" />
+      {task ? (
+        <ReportControl
+          kind="task"
+          targetId={task.id}
+          targetTitle={task.title?.trim() || undefined}
+          variant="button"
+        />
+      ) : null}
+    </Stack>
   )
 }

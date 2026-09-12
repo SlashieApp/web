@@ -14,7 +14,7 @@ import { LuCheck, LuMapPin } from 'react-icons/lu'
 
 import { sdlMotion } from '@/theme/styles'
 import { ViewTransition } from '@/ui/ViewTransition'
-import { Badge, Card, Link, Rating } from '@ui'
+import { Badge, Card, Link, Rating, ReportControl } from '@ui'
 
 import {
   setWorkerHandoff,
@@ -161,6 +161,27 @@ export function WorkerSearchCard({
                 </Text>
               </Center>
             )}
+            <Box
+              position="absolute"
+              top={2}
+              left={2}
+              zIndex={1}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+              onPointerDown={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+            >
+              <ReportControl
+                kind="worker"
+                targetId={workerId}
+                targetTitle={name}
+                variant="overflow"
+              />
+            </Box>
             {verified ? (
               <Box
                 position="absolute"

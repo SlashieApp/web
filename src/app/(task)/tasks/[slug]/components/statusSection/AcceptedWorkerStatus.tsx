@@ -9,7 +9,7 @@ import {
   countdownToExactSchedule,
   formatTaskScheduleLabel,
 } from '@/utils/taskJobSchedule'
-import { Button, Card, Link } from '@ui'
+import { Button, Card, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 
@@ -137,6 +137,7 @@ export function AcceptedWorkerStatus() {
         <Text fontSize="xs" color="text.muted">
           {b.paymentNote}
         </Text>
+        <SafetyNotice variant="inline" />
       </Stack>
     </Card>
   )
