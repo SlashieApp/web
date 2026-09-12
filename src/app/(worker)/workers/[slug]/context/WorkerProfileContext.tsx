@@ -62,7 +62,7 @@ export function WorkerProfileProvider({
 
   const loadedWorker = initialWorker ?? data?.worker ?? null
   const hideFixtureWorker = Boolean(
-    loadedWorker &&
+    loadedWorker != null &&
       !isPublicMarketplaceWorker(loadedWorker) &&
       !isOwnWorkerProfile(loadedWorker),
   )

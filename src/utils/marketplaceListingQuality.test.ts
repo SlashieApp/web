@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  type FixtureGateEnv,
   KNOWN_PRODUCTION_FIXTURE_TASK_IDS,
   allowFixtureListings,
   filterPublicMarketplaceTasks,
@@ -14,10 +15,10 @@ import {
   isPublicMarketplaceWorker,
 } from './marketplaceListingQuality'
 
-const hideEnv = { NEXT_PUBLIC_ALLOW_FIXTURE_LISTINGS: '' } as NodeJS.ProcessEnv
-const showEnv = {
+const hideEnv: FixtureGateEnv = { NEXT_PUBLIC_ALLOW_FIXTURE_LISTINGS: '' }
+const showEnv: FixtureGateEnv = {
   NEXT_PUBLIC_ALLOW_FIXTURE_LISTINGS: 'true',
-} as NodeJS.ProcessEnv
+}
 
 describe('allowFixtureListings', () => {
   it('is off unless the env flag is an explicit truthy value', () => {

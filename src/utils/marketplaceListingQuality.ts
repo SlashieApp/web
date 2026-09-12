@@ -96,14 +96,23 @@ export type PublicWorkerLike = {
   skills?: readonly (string | null | undefined)[] | null
   isVerified?: boolean | null
   tasksCompletedCount?: number | null
-  user?: { profile?: { name?: string | null } | null } | null
-  profile?: { name?: string | null } | null
+  user?: {
+    id?: string | null
+    profile?: { name?: string | null; avatarUrl?: string | null } | null
+  } | null
+  profile?: { name?: string | null; avatarUrl?: string | null } | null
 }
 
-export function allowFixtureListings(
-  env: NodeJS.ProcessEnv = process.env,
-): boolean {
-  const raw = env.NEXT_PUBLIC_ALLOW_FIXTURE_LISTINGS?.trim().toLowerCase()
+export type FixtureGateEnv = {
+  NEXT_PUBLIC_ALLOW_FIXTURE_LISTINGS?: string
+}
+
+function fixtureFlagFrom(env?: FixtureGateEnv): string | undefined {
+  return (env ?? process.env).NEXT_PUBLIC_ALLOW_FIXTURE_LISTINGS
+}
+
+export function allowFixtureListings(env?: FixtureGateEnv): boolean {
+  const raw = fixtureFlagFrom(env)?.trim().toLowerCase()
   return raw === '1' || raw === 'true' || raw === 'yes'
 }
 
@@ -195,7 +204,7 @@ export function isFixtureLikeWorker(worker: PublicWorkerLike): boolean {
 
 export function isPublicMarketplaceTask(
   task: PublicTaskLike,
-  env: NodeJS.ProcessEnv = process.env,
+  env?: FixtureGateEnv,
 ): boolean {
   if (allowFixtureListings(env)) return true
   return !isFixtureLikeTask(task)
@@ -203,24 +212,26 @@ export function isPublicMarketplaceTask(
 
 export function isPublicMarketplaceWorker(
   worker: PublicWorkerLike,
-  env: NodeJS.ProcessEnv = process.env,
+  env?: FixtureGateEnv,
 ): boolean {
   if (allowFixtureListings(env)) return true
   return !isFixtureLikeWorker(worker)
 }
 
-export function filterPublicMarketplaceTasks<T extends PublicTaskLike>(
+export function filterPublicMarketplaceTasks<T>(
   tasks: readonly T[],
-  env: NodeJS.ProcessEnv = process.env,
+  env?: FixtureGateEnv,
 ): T[] {
   if (allowFixtureListings(env)) return [...tasks]
-  return tasks.filter((task) => !isFixtureLikeTask(task))
+  return tasks.filter((task) => !isFixtureLikeTask(task as PublicTaskLike))
 }
 
-export function filterPublicMarketplaceWorkers<T extends PublicWorkerLike>(
+export function filterPublicMarketplaceWorkers<T>(
   workers: readonly T[],
-  env: NodeJS.ProcessEnv = process.env,
+  env?: FixtureGateEnv,
 ): T[] {
   if (allowFixtureListings(env)) return [...workers]
-  return workers.filter((worker) => !isFixtureLikeWorker(worker))
+  return workers.filter(
+    (worker) => !isFixtureLikeWorker(worker as PublicWorkerLike),
+  )
 }

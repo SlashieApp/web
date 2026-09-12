@@ -240,7 +240,7 @@ export function TaskDetailProvider({
   const viewerReadyForFixtureGate =
     !isAuthenticated || Boolean(me) || !meLoadingResolved
   const hideFixtureTask =
-    Boolean(mergedTask) &&
+    mergedTask != null &&
     !isPublicMarketplaceTask(mergedTask) &&
     viewerReadyForFixtureGate &&
     !isFixtureOwner
