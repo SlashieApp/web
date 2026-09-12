@@ -166,9 +166,12 @@ function LoginMarketingAside() {
       position="relative"
       overflow="hidden"
       display={{ base: 'none', lg: 'flex' }}
+      flex="1 1 50%"
       flexDirection="column"
       justifyContent="space-between"
-      minH="100vh"
+      alignSelf="stretch"
+      minW={0}
+      borderRadius="2xl"
       px={{ lg: 10, xl: 14 }}
       py={{ lg: 12, xl: 14 }}
       bg="bg.brandHero"
@@ -414,240 +417,220 @@ export default function LoginPage() {
   }
 
   return (
-    <Box ref={onMountAuthGuard} w="full" minH="100vh">
-      <HStack align="stretch" gap={0} minH="100vh" w="full">
+    <Box ref={onMountAuthGuard} w="full" flex={1} display="flex" minH={0}>
+      <HStack align="stretch" gap={{ base: 0, lg: 10 }} w="full" flex={1}>
         <LoginMarketingAside />
-        <Box
-          flex={1}
-          bg="bg.subtle"
-          display="flex"
-          flexDirection="column"
-          minH={{ base: '100vh', lg: 'auto' }}
-        >
-          <Stack
-            flex={1}
-            justify="center"
-            px={{ base: 6, md: 10, xl: 16 }}
-            py={{ base: 10, md: 12 }}
-            maxW="md"
-            w="full"
-            mx="auto"
-            gap={8}
-          >
-            <Stack gap={6}>
-              <Link
-                href={MARKETING_HOME}
-                display="block"
-                w="full"
-                _hover={{ textDecoration: 'none', opacity: 0.92 }}
-              >
-                <Logo h="48px" />
-              </Link>
+        <Stack flex="1 1 50%" justify="center" maxW="md" w="full" gap={8}>
+          <Stack gap={6}>
+            <Link
+              href={MARKETING_HOME}
+              display="block"
+              w="full"
+              _hover={{ textDecoration: 'none', opacity: 0.92 }}
+            >
+              <Logo h="48px" />
+            </Link>
 
-              <Box>
+            <Box>
+              <Text
+                fontSize="2xs"
+                fontWeight={700}
+                letterSpacing="0.12em"
+                color="text.muted"
+                textTransform="uppercase"
+              >
+                ACCOUNT
+              </Text>
+              <Heading
+                size="2xl"
+                color="text.default"
+                fontFamily="heading"
+                mt={2}
+              >
+                {t.title}
+              </Heading>
+              <Text mt={2} color="text.muted" fontSize="sm" lineHeight="1.55">
+                {t.description}
+              </Text>
+            </Box>
+
+            <Stack gap={3}>
+              <GoogleAuthButton
+                next={authQuery.next}
+                redirect={authQuery.redirect}
+                fallbackPath="/tasks"
+              />
+
+              <Stack gap={2} pt={1}>
                 <Text
                   fontSize="2xs"
                   fontWeight={700}
-                  letterSpacing="0.12em"
+                  letterSpacing="0.1em"
                   color="text.muted"
                   textTransform="uppercase"
                 >
-                  ACCOUNT
-                </Text>
-                <Heading
-                  size="2xl"
-                  color="text.default"
-                  fontFamily="heading"
-                  mt={2}
-                >
-                  {t.title}
-                </Heading>
-                <Text mt={2} color="text.muted" fontSize="sm" lineHeight="1.55">
-                  {t.description}
-                </Text>
-              </Box>
-
-              <Stack gap={3}>
-                <GoogleAuthButton
-                  next={authQuery.next}
-                  redirect={authQuery.redirect}
-                  fallbackPath="/tasks"
-                />
-
-                <Stack gap={2} pt={1}>
-                  <Text
-                    fontSize="2xs"
-                    fontWeight={700}
-                    letterSpacing="0.1em"
-                    color="text.muted"
-                    textTransform="uppercase"
-                  >
-                    Or continue with email
-                  </Text>
-                </Stack>
-              </Stack>
-
-              <Box asChild w="full">
-                <form onSubmit={handleSubmit(onValid)} noValidate>
-                  <Stack gap={4}>
-                    <FormField
-                      label={t.emailLabel}
-                      errorText={errors.email?.message}
-                    >
-                      <Input
-                        startElement={<FieldIconMail />}
-                        placeholder="you@example.com"
-                        type="email"
-                        autoComplete="email"
-                        rootProps={{ minH: '48px', w: 'full' }}
-                        {...register('email')}
-                      />
-                    </FormField>
-
-                    <FormField
-                      label={
-                        <HStack justify="space-between" w="full" align="center">
-                          <Box as="span">{t.passwordLabel}</Box>
-                          <Link
-                            href={forgotPasswordHref}
-                            fontSize="sm"
-                            fontWeight={600}
-                            color="text.link"
-                            _hover={{
-                              color: 'status.success.fg',
-                              textDecoration: 'none',
-                            }}
-                          >
-                            {t.forgotPassword}
-                          </Link>
-                        </HStack>
-                      }
-                      errorText={errors.password?.message}
-                    >
-                      <Input
-                        startElement={<FieldIconLock />}
-                        endElement={
-                          <PasswordToggleButton
-                            visible={showPassword}
-                            onToggle={() => setShowPassword((v) => !v)}
-                            label={
-                              showPassword ? 'Hide password' : 'Show password'
-                            }
-                          />
-                        }
-                        placeholder="••••••••"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        rootProps={{ minH: '48px', w: 'full' }}
-                        {...register('password')}
-                      />
-                    </FormField>
-
-                    <Controller
-                      name="rememberMe"
-                      control={control}
-                      render={({ field: { value, onChange, ref, name } }) => (
-                        <Checkbox.Root
-                          name={name}
-                          ref={ref}
-                          checked={value}
-                          onCheckedChange={(detail) =>
-                            onChange(Boolean(detail.checked))
-                          }
-                          colorPalette="green"
-                        >
-                          <Checkbox.HiddenInput />
-                          <HStack gap={3} align="center" py={1} minH="44px">
-                            <Checkbox.Control
-                              borderRadius="md"
-                              borderWidth="0"
-                              bg="bg.surface"
-                              boxShadow="sm"
-                              _checked={{
-                                bg: 'action.primary',
-                                color: 'text.onGreen',
-                              }}
-                            >
-                              <Checkbox.Indicator color="inherit" />
-                            </Checkbox.Control>
-                            <Checkbox.Label
-                              fontWeight={500}
-                              color="text.default"
-                            >
-                              {t.remember}
-                            </Checkbox.Label>
-                          </HStack>
-                        </Checkbox.Root>
-                      )}
-                    />
-
-                    {captcha.requiresCaptcha ? (
-                      <TurnstileField
-                        onTokenChange={captcha.setToken}
-                        resetSignal={captcha.resetSignal}
-                      />
-                    ) : null}
-
-                    {serverError ? (
-                      <Text
-                        role="alert"
-                        color="status.danger.fg"
-                        fontSize="sm"
-                        fontWeight={500}
-                      >
-                        {serverError}
-                      </Text>
-                    ) : null}
-
-                    <Button
-                      type="submit"
-                      loading={loading}
-                      disabled={
-                        isBackoffActive ||
-                        (captcha.requiresCaptcha && !captcha.token)
-                      }
-                      w="full"
-                      borderRadius="full"
-                      size="lg"
-                      minH="48px"
-                    >
-                      {isBackoffActive
-                        ? `Try again in ${backoffSeconds}s`
-                        : t.submit}
-                      {!isBackoffActive ? <IconArrowRight /> : null}
-                    </Button>
-                  </Stack>
-                </form>
-              </Box>
-
-              <Stack gap={4} pt={2}>
-                <Text fontSize="sm" color="text.muted" textAlign="center">
-                  {t.registerPrompt}{' '}
-                  <Link
-                    href="/register"
-                    fontWeight={700}
-                    color="text.link"
-                    _hover={{
-                      color: 'status.success.fg',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    {t.registerLink}
-                  </Link>
-                </Text>
-                <Text
-                  fontSize="xs"
-                  color="text.muted"
-                  textAlign="center"
-                  lineHeight="1.5"
-                >
-                  Your account helps keep task details, quotes, and worker
-                  profiles secure.
+                  Or continue with email
                 </Text>
               </Stack>
             </Stack>
+
+            <Box asChild w="full">
+              <form onSubmit={handleSubmit(onValid)} noValidate>
+                <Stack gap={4}>
+                  <FormField
+                    label={t.emailLabel}
+                    errorText={errors.email?.message}
+                  >
+                    <Input
+                      startElement={<FieldIconMail />}
+                      placeholder="you@example.com"
+                      type="email"
+                      autoComplete="email"
+                      rootProps={{ minH: '48px', w: 'full' }}
+                      {...register('email')}
+                    />
+                  </FormField>
+
+                  <FormField
+                    label={
+                      <HStack justify="space-between" w="full" align="center">
+                        <Box as="span">{t.passwordLabel}</Box>
+                        <Link
+                          href={forgotPasswordHref}
+                          fontSize="sm"
+                          fontWeight={600}
+                          color="text.link"
+                          _hover={{
+                            color: 'status.success.fg',
+                            textDecoration: 'none',
+                          }}
+                        >
+                          {t.forgotPassword}
+                        </Link>
+                      </HStack>
+                    }
+                    errorText={errors.password?.message}
+                  >
+                    <Input
+                      startElement={<FieldIconLock />}
+                      endElement={
+                        <PasswordToggleButton
+                          visible={showPassword}
+                          onToggle={() => setShowPassword((v) => !v)}
+                          label={
+                            showPassword ? 'Hide password' : 'Show password'
+                          }
+                        />
+                      }
+                      placeholder="••••••••"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      rootProps={{ minH: '48px', w: 'full' }}
+                      {...register('password')}
+                    />
+                  </FormField>
+
+                  <Controller
+                    name="rememberMe"
+                    control={control}
+                    render={({ field: { value, onChange, ref, name } }) => (
+                      <Checkbox.Root
+                        name={name}
+                        ref={ref}
+                        checked={value}
+                        onCheckedChange={(detail) =>
+                          onChange(Boolean(detail.checked))
+                        }
+                        colorPalette="green"
+                      >
+                        <Checkbox.HiddenInput />
+                        <HStack gap={3} align="center" py={1} minH="44px">
+                          <Checkbox.Control
+                            borderRadius="md"
+                            borderWidth="0"
+                            bg="bg.surface"
+                            boxShadow="sm"
+                            _checked={{
+                              bg: 'action.primary',
+                              color: 'text.onGreen',
+                            }}
+                          >
+                            <Checkbox.Indicator color="inherit" />
+                          </Checkbox.Control>
+                          <Checkbox.Label fontWeight={500} color="text.default">
+                            {t.remember}
+                          </Checkbox.Label>
+                        </HStack>
+                      </Checkbox.Root>
+                    )}
+                  />
+
+                  {captcha.requiresCaptcha ? (
+                    <TurnstileField
+                      onTokenChange={captcha.setToken}
+                      resetSignal={captcha.resetSignal}
+                    />
+                  ) : null}
+
+                  {serverError ? (
+                    <Text
+                      role="alert"
+                      color="status.danger.fg"
+                      fontSize="sm"
+                      fontWeight={500}
+                    >
+                      {serverError}
+                    </Text>
+                  ) : null}
+
+                  <Button
+                    type="submit"
+                    loading={loading}
+                    disabled={
+                      isBackoffActive ||
+                      (captcha.requiresCaptcha && !captcha.token)
+                    }
+                    w="full"
+                    borderRadius="full"
+                    size="lg"
+                    minH="48px"
+                  >
+                    {isBackoffActive
+                      ? `Try again in ${backoffSeconds}s`
+                      : t.submit}
+                    {!isBackoffActive ? <IconArrowRight /> : null}
+                  </Button>
+                </Stack>
+              </form>
+            </Box>
+
+            <Stack gap={4} pt={2}>
+              <Text fontSize="sm" color="text.muted" textAlign="center">
+                {t.registerPrompt}{' '}
+                <Link
+                  href="/register"
+                  fontWeight={700}
+                  color="text.link"
+                  _hover={{
+                    color: 'status.success.fg',
+                    textDecoration: 'none',
+                  }}
+                >
+                  {t.registerLink}
+                </Link>
+              </Text>
+              <Text
+                fontSize="xs"
+                color="text.muted"
+                textAlign="center"
+                lineHeight="1.5"
+              >
+                Your account helps keep task details, quotes, and worker
+                profiles secure.
+              </Text>
+            </Stack>
           </Stack>
-        </Box>
+        </Stack>
       </HStack>
     </Box>
   )

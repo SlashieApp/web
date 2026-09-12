@@ -49,10 +49,10 @@ export function PricingTeaser({
 }) {
   return (
     <Box as="section" bg="bg.canvas" py={{ base: 16, md: 24 }}>
-      <Container maxW="4xl" px={{ base: 4, md: 6 }}>
-        <Stack gap={{ base: 8, md: 10 }} align="center">
+      <Container>
+        <Stack gap={{ base: 8, md: 10 }} maxW="4xl">
           <Reveal>
-            <Stack gap={3} textAlign="center" align="center">
+            <Stack gap={3}>
               <Heading
                 as="h2"
                 fontFamily="display"

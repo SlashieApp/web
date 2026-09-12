@@ -224,9 +224,12 @@ function RegisterMarketingAside() {
       position="relative"
       overflow="hidden"
       display={{ base: 'none', lg: 'flex' }}
+      flex="1 1 50%"
       flexDirection="column"
       justifyContent="space-between"
-      minH="100vh"
+      alignSelf="stretch"
+      minW={0}
+      borderRadius="2xl"
       px={{ lg: 10, xl: 14 }}
       py={{ lg: 12, xl: 14 }}
       bg="bg.brandHero"
@@ -469,235 +472,218 @@ export default function RegisterPage() {
   }
 
   return (
-    <HStack align="stretch" gap={0} minH="100vh" w="full">
+    <HStack align="stretch" gap={{ base: 0, lg: 10 }} w="full" flex={1}>
       <RegisterMarketingAside />
-      <Box
-        flex={1}
-        bg="bg.subtle"
-        display="flex"
-        flexDirection="column"
-        minH={{ base: '100vh', lg: 'auto' }}
-      >
-        <Stack
-          flex={1}
-          justify="center"
-          px={{ base: 6, md: 10, xl: 16 }}
-          py={{ base: 10, md: 12 }}
-          maxW="md"
-          w="full"
-          mx="auto"
-          gap={8}
-        >
-          <Stack gap={6}>
-            <Link
-              href={MARKETING_HOME}
-              display="block"
-              w="full"
-              _hover={{ textDecoration: 'none', opacity: 0.92 }}
+      <Stack flex="1 1 50%" justify="center" maxW="md" w="full" gap={8}>
+        <Stack gap={6}>
+          <Link
+            href={MARKETING_HOME}
+            display="block"
+            w="full"
+            _hover={{ textDecoration: 'none', opacity: 0.92 }}
+          >
+            <Logo h="48px" />
+          </Link>
+
+          <Box>
+            <Heading size="2xl" color="text.default" fontFamily="heading">
+              {t.title}
+            </Heading>
+            <Text mt={2} color="text.muted" fontSize="sm" lineHeight="1.55">
+              {t.description}
+            </Text>
+          </Box>
+
+          <Stack gap={3}>
+            <GoogleAuthButton
+              next={authQuery.next}
+              redirect={authQuery.redirect}
+            />
+            <Text
+              fontSize="2xs"
+              fontWeight={700}
+              letterSpacing="0.1em"
+              color="text.muted"
+              textTransform="uppercase"
             >
-              <Logo h="48px" />
-            </Link>
+              Or continue with email
+            </Text>
+          </Stack>
 
-            <Box>
-              <Heading size="2xl" color="text.default" fontFamily="heading">
-                {t.title}
-              </Heading>
-              <Text mt={2} color="text.muted" fontSize="sm" lineHeight="1.55">
-                {t.description}
-              </Text>
-            </Box>
-
-            <Stack gap={3}>
-              <GoogleAuthButton
-                next={authQuery.next}
-                redirect={authQuery.redirect}
-              />
-              <Text
-                fontSize="2xs"
-                fontWeight={700}
-                letterSpacing="0.1em"
-                color="text.muted"
-                textTransform="uppercase"
-              >
-                Or continue with email
-              </Text>
-            </Stack>
-
-            <Box asChild w="full">
-              <form onSubmit={handleSubmit(onValid)} noValidate>
-                <Stack gap={4}>
-                  <FormField
-                    label="Full name"
-                    errorText={errors.fullName?.message}
-                  >
-                    <Input
-                      placeholder="e.g. John Doe"
-                      autoComplete="name"
-                      rootProps={{ minH: '48px', w: 'full' }}
-                      {...registerField('fullName')}
-                    />
-                  </FormField>
-
-                  <FormField
-                    label={t.emailLabel}
-                    errorText={errors.email?.message}
-                  >
-                    <Input
-                      startElement={<FieldIconMail />}
-                      placeholder="name@company.com"
-                      type="email"
-                      autoComplete="email"
-                      rootProps={{ minH: '48px', w: 'full' }}
-                      {...registerField('email')}
-                    />
-                  </FormField>
-
-                  <HStack
-                    gap={4}
-                    align="flex-start"
-                    flexDir={{ base: 'column', sm: 'row' }}
-                  >
-                    <FormField
-                      label={t.passwordLabel}
-                      flex={1}
-                      w={{ base: 'full', sm: 'auto' }}
-                      errorText={errors.password?.message}
-                    >
-                      <Input
-                        startElement={<FieldIconLock />}
-                        endElement={
-                          <PasswordToggleButton
-                            visible={showPassword}
-                            onToggle={() => setShowPassword((v) => !v)}
-                            label={
-                              showPassword ? 'Hide password' : 'Show password'
-                            }
-                          />
-                        }
-                        placeholder="••••••••"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="new-password"
-                        rootProps={{ minH: '48px', w: 'full' }}
-                        {...registerField('password')}
-                      />
-                    </FormField>
-                    <FormField
-                      label="Confirm password"
-                      flex={1}
-                      w={{ base: 'full', sm: 'auto' }}
-                      errorText={errors.confirmPassword?.message}
-                    >
-                      <Input
-                        startElement={<FieldIconLock />}
-                        endElement={
-                          <PasswordToggleButton
-                            visible={showConfirm}
-                            onToggle={() => setShowConfirm((v) => !v)}
-                            label={
-                              showConfirm
-                                ? 'Hide confirm password'
-                                : 'Show confirm password'
-                            }
-                          />
-                        }
-                        placeholder="••••••••"
-                        type={showConfirm ? 'text' : 'password'}
-                        autoComplete="new-password"
-                        rootProps={{ minH: '48px', w: 'full' }}
-                        {...registerField('confirmPassword')}
-                      />
-                    </FormField>
-                  </HStack>
-
-                  <Stack gap={3}>
-                    <ConsentCheckboxField
-                      control={control}
-                      name="isOver18"
-                      errorText={errors.isOver18?.message}
-                      label="I confirm I am 18 or over."
-                    />
-                    <ConsentCheckboxField
-                      control={control}
-                      name="agreedToTerms"
-                      errorText={errors.agreedToTerms?.message}
-                      label={
-                        <>
-                          I agree to the{' '}
-                          <Link
-                            href="/terms"
-                            fontWeight={700}
-                            color="text.link"
-                            _hover={{ color: 'status.success.fg' }}
-                          >
-                            Terms of Service
-                          </Link>{' '}
-                          and{' '}
-                          <Link
-                            href="/privacy"
-                            fontWeight={700}
-                            color="text.link"
-                            _hover={{ color: 'status.success.fg' }}
-                          >
-                            Privacy Policy
-                          </Link>
-                          .
-                        </>
-                      }
-                    />
-                  </Stack>
-
-                  {captcha.requiresCaptcha ? (
-                    <TurnstileField
-                      onTokenChange={captcha.setToken}
-                      resetSignal={captcha.resetSignal}
-                    />
-                  ) : null}
-
-                  {serverError ? (
-                    <Text color="status.danger.fg" fontSize="sm" role="alert">
-                      {serverError}
-                    </Text>
-                  ) : null}
-
-                  <Button
-                    type="submit"
-                    loading={loading}
-                    disabled={
-                      isBackoffActive ||
-                      (captcha.requiresCaptcha && !captcha.token)
-                    }
-                    w="full"
-                    borderRadius="full"
-                    size="lg"
-                    minH="48px"
-                  >
-                    {isBackoffActive
-                      ? `Try again in ${backoffSeconds}s`
-                      : t.submit}
-                  </Button>
-                </Stack>
-              </form>
-            </Box>
-
-            <Stack gap={2} pt={2}>
-              <Text fontSize="sm" color="text.muted" textAlign="center">
-                {t.loginPrompt}{' '}
-                <Link
-                  href="/login"
-                  fontWeight={700}
-                  color="text.link"
-                  _hover={{
-                    color: 'status.success.fg',
-                    textDecoration: 'none',
-                  }}
+          <Box asChild w="full">
+            <form onSubmit={handleSubmit(onValid)} noValidate>
+              <Stack gap={4}>
+                <FormField
+                  label="Full name"
+                  errorText={errors.fullName?.message}
                 >
-                  {t.loginLink}
-                </Link>
-              </Text>
-            </Stack>
+                  <Input
+                    placeholder="e.g. John Doe"
+                    autoComplete="name"
+                    rootProps={{ minH: '48px', w: 'full' }}
+                    {...registerField('fullName')}
+                  />
+                </FormField>
+
+                <FormField
+                  label={t.emailLabel}
+                  errorText={errors.email?.message}
+                >
+                  <Input
+                    startElement={<FieldIconMail />}
+                    placeholder="name@company.com"
+                    type="email"
+                    autoComplete="email"
+                    rootProps={{ minH: '48px', w: 'full' }}
+                    {...registerField('email')}
+                  />
+                </FormField>
+
+                <HStack
+                  gap={4}
+                  align="flex-start"
+                  flexDir={{ base: 'column', sm: 'row' }}
+                >
+                  <FormField
+                    label={t.passwordLabel}
+                    flex={1}
+                    w={{ base: 'full', sm: 'auto' }}
+                    errorText={errors.password?.message}
+                  >
+                    <Input
+                      startElement={<FieldIconLock />}
+                      endElement={
+                        <PasswordToggleButton
+                          visible={showPassword}
+                          onToggle={() => setShowPassword((v) => !v)}
+                          label={
+                            showPassword ? 'Hide password' : 'Show password'
+                          }
+                        />
+                      }
+                      placeholder="••••••••"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      rootProps={{ minH: '48px', w: 'full' }}
+                      {...registerField('password')}
+                    />
+                  </FormField>
+                  <FormField
+                    label="Confirm password"
+                    flex={1}
+                    w={{ base: 'full', sm: 'auto' }}
+                    errorText={errors.confirmPassword?.message}
+                  >
+                    <Input
+                      startElement={<FieldIconLock />}
+                      endElement={
+                        <PasswordToggleButton
+                          visible={showConfirm}
+                          onToggle={() => setShowConfirm((v) => !v)}
+                          label={
+                            showConfirm
+                              ? 'Hide confirm password'
+                              : 'Show confirm password'
+                          }
+                        />
+                      }
+                      placeholder="••••••••"
+                      type={showConfirm ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      rootProps={{ minH: '48px', w: 'full' }}
+                      {...registerField('confirmPassword')}
+                    />
+                  </FormField>
+                </HStack>
+
+                <Stack gap={3}>
+                  <ConsentCheckboxField
+                    control={control}
+                    name="isOver18"
+                    errorText={errors.isOver18?.message}
+                    label="I confirm I am 18 or over."
+                  />
+                  <ConsentCheckboxField
+                    control={control}
+                    name="agreedToTerms"
+                    errorText={errors.agreedToTerms?.message}
+                    label={
+                      <>
+                        I agree to the{' '}
+                        <Link
+                          href="/terms"
+                          fontWeight={700}
+                          color="text.link"
+                          _hover={{ color: 'status.success.fg' }}
+                        >
+                          Terms of Service
+                        </Link>{' '}
+                        and{' '}
+                        <Link
+                          href="/privacy"
+                          fontWeight={700}
+                          color="text.link"
+                          _hover={{ color: 'status.success.fg' }}
+                        >
+                          Privacy Policy
+                        </Link>
+                        .
+                      </>
+                    }
+                  />
+                </Stack>
+
+                {captcha.requiresCaptcha ? (
+                  <TurnstileField
+                    onTokenChange={captcha.setToken}
+                    resetSignal={captcha.resetSignal}
+                  />
+                ) : null}
+
+                {serverError ? (
+                  <Text color="status.danger.fg" fontSize="sm" role="alert">
+                    {serverError}
+                  </Text>
+                ) : null}
+
+                <Button
+                  type="submit"
+                  loading={loading}
+                  disabled={
+                    isBackoffActive ||
+                    (captcha.requiresCaptcha && !captcha.token)
+                  }
+                  w="full"
+                  borderRadius="full"
+                  size="lg"
+                  minH="48px"
+                >
+                  {isBackoffActive
+                    ? `Try again in ${backoffSeconds}s`
+                    : t.submit}
+                </Button>
+              </Stack>
+            </form>
+          </Box>
+
+          <Stack gap={2} pt={2}>
+            <Text fontSize="sm" color="text.muted" textAlign="center">
+              {t.loginPrompt}{' '}
+              <Link
+                href="/login"
+                fontWeight={700}
+                color="text.link"
+                _hover={{
+                  color: 'status.success.fg',
+                  textDecoration: 'none',
+                }}
+              >
+                {t.loginLink}
+              </Link>
+            </Text>
           </Stack>
         </Stack>
-      </Box>
+      </Stack>
     </HStack>
   )
 }

@@ -5,7 +5,6 @@ import { useRef } from 'react'
 
 import { BrowseGeolocationInit } from '@/app/(task)/components/BrowseGeolocationInit'
 import { TaskBrowseProvider } from '@/app/(task)/context/TaskBrowseProvider'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { Footer } from '@ui'
 
 import {
@@ -44,12 +43,7 @@ function WorkersDirectory() {
           zIndex={2}
         >
           <WorkersStickySearch />
-          <Container
-            maxW={PAGE_CONTAINER_MAX_W}
-            px={PAGE_GUTTER_X}
-            pt={{ base: 4, md: 6 }}
-            pb={{ base: 8, md: 10 }}
-          >
+          <Container pt={{ base: 4, md: 6 }} pb={{ base: 8, md: 10 }}>
             <WorkersResultsGrid />
           </Container>
           <Footer />

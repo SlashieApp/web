@@ -3,7 +3,7 @@
 import { Box, Container } from '@chakra-ui/react'
 import { useCallback, useRef, useState } from 'react'
 
-import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 
 import { WorkersSearchBar } from './WorkersSearchBar'
@@ -60,21 +60,13 @@ export function WorkersStickySearch() {
       >
         <Container
           maxW={stuck ? '100%' : PAGE_CONTAINER_MAX_W}
-          px={stuck ? 0 : { base: 4, md: 12 }}
+          px={stuck ? 0 : PAGE_GUTTER_X}
           w="full"
           transitionProperty="padding, max-width"
           transitionDuration={sdlMotion.duration.moderate}
           transitionTimingFunction={sdlMotion.easing.standard}
         >
-          <Box
-            w={stuck ? 'full' : { base: 'full', md: '90%' }}
-            mx="auto"
-            transitionProperty="width"
-            transitionDuration={sdlMotion.duration.moderate}
-            transitionTimingFunction={sdlMotion.easing.standard}
-          >
-            <WorkersSearchBar stuck={stuck} />
-          </Box>
+          <WorkersSearchBar stuck={stuck} />
         </Container>
       </Box>
     </>

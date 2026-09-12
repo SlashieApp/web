@@ -46,13 +46,8 @@ export default async function AboutPage() {
           aria-hidden
           bgImage="radial-gradient(42rem 22rem at 12% -10%, rgba(0, 220, 130, 0.16) 0%, transparent 68%), radial-gradient(28rem 18rem at 92% 8%, rgba(0, 220, 130, 0.08) 0%, transparent 70%)"
         />
-        <Container
-          maxW="3xl"
-          px={{ base: 4, md: 6 }}
-          position="relative"
-          zIndex={1}
-        >
-          <Stack gap={{ base: 6, md: 7 }}>
+        <Container position="relative" zIndex={1}>
+          <Stack gap={{ base: 6, md: 7 }} maxW="3xl">
             <Stack gap={3}>
               <Text
                 fontSize="xs"
@@ -117,10 +112,11 @@ export default async function AboutPage() {
       </Box>
 
       <Box as="section" bg="status.success.soft" py={{ base: 8, md: 10 }}>
-        <Container maxW="3xl" px={{ base: 4, md: 6 }}>
+        <Container>
           <Grid
             templateColumns={{ base: '1fr', sm: 'repeat(3, 1fr)' }}
             gap={{ base: 4, sm: 6 }}
+            maxW="3xl"
           >
             {copy.trustPoints.map((point) => (
               <HStack key={point} gap={3} align="flex-start">
@@ -149,8 +145,8 @@ export default async function AboutPage() {
       </Box>
 
       <Box as="section" py={{ base: 12, md: 16 }} bg="bg.canvas">
-        <Container maxW="3xl" px={{ base: 4, md: 6 }}>
-          <Stack gap={{ base: 12, md: 14 }}>
+        <Container>
+          <Stack gap={{ base: 12, md: 14 }} maxW="3xl">
             <Reveal>
               <Stack gap={4}>
                 <Heading
@@ -207,13 +203,8 @@ export default async function AboutPage() {
           aria-hidden
           bgImage="radial-gradient(34rem 16rem at 78% 120%, rgba(0, 220, 130, 0.16) 0%, transparent 70%)"
         />
-        <Container
-          maxW="3xl"
-          px={{ base: 4, md: 6 }}
-          position="relative"
-          zIndex={1}
-        >
-          <Reveal>
+        <Container position="relative" zIndex={1}>
+          <Reveal maxW="3xl">
             <Stack gap={5}>
               <Stack gap={3}>
                 <Heading
