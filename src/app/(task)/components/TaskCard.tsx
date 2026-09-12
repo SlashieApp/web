@@ -12,16 +12,9 @@ import {
 } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
+import { ReportControl } from '@/content/trust/ReportControl'
 import { ViewTransition } from '@/ui/ViewTransition'
-import {
-  Badge,
-  Button,
-  Card,
-  IconButton,
-  Link,
-  ReportControl,
-  Thumbnail,
-} from '@ui'
+import { Badge, Button, Card, IconButton, Link, Thumbnail } from '@ui'
 
 import { sdlMotion } from '@/theme/styles'
 

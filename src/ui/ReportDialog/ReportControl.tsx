@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { LuEllipsisVertical, LuFlag } from 'react-icons/lu'
 
-import type { ReportTargetKind } from '@/content/trust/reportMailto'
 import { useI11n } from '@/i18n/useI11n'
 
 import { Button } from '../Button/Button'
@@ -11,6 +10,7 @@ import { Dropdown, useDropdownClose } from '../Dropdown/Dropdown'
 import { IconButton } from '../IconButton/IconButton'
 import { ReportDialog } from './ReportDialog'
 import bag from './i11n.json'
+import type { ReportFormValues, ReportTargetKind } from './reportFormSchema'
 
 export type ReportControlVariant = 'button' | 'menu' | 'icon' | 'overflow'
 
@@ -18,10 +18,16 @@ export type ReportControlProps = {
   kind: ReportTargetKind
   targetId: string
   targetTitle?: string
-  pageUrl?: string
   variant?: ReportControlVariant
   /** Called after the trigger opens the dialog (e.g. close a parent menu). */
   onOpened?: () => void
+  /** Return false to block opening (e.g. redirect to login). */
+  onRequestOpen?: () => boolean
+  onSubmit: (values: ReportFormValues) => Promise<boolean>
+  submitting?: boolean
+  submitError?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 function ReportTrigger({
@@ -74,25 +80,32 @@ function ReportTrigger({
 }
 
 /**
- * Report entry: opens {@link ReportDialog}, then a prefilled admin mailto.
- * `overflow` is the search-card ⋮ menu (report only).
+ * Presentational report entry. The connected adapter supplies `onSubmit`
+ * (GraphQL `createReport`) and auth gating via `onRequestOpen`.
  */
 export function ReportControl({
   kind,
-  targetId,
-  targetTitle,
-  pageUrl,
   variant = 'button',
   onOpened,
+  onRequestOpen,
+  onSubmit,
+  submitting,
+  submitError,
+  open: openProp,
+  onOpenChange,
 }: ReportControlProps) {
   const t = useI11n(bag)
-  const [open, setOpen] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
   const closeDropdown = useDropdownClose()
+  const isControlled = openProp !== undefined
+  const open = isControlled ? openProp : uncontrolledOpen
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setUncontrolledOpen(next)
+    onOpenChange?.(next)
+  }
 
   const openDialog = () => {
-    // Only close *this* overflow dropdown. A `menu` trigger lives inside a
-    // parent ⋮ panel — closing that parent would unmount this control and
-    // kill the dialog before it opens.
+    if (onRequestOpen && !onRequestOpen()) return
     if (variant === 'overflow') closeDropdown()
     onOpened?.()
     setOpen(true)
@@ -103,9 +116,9 @@ export function ReportControl({
       open={open}
       onOpenChange={setOpen}
       kind={kind}
-      targetId={targetId}
-      targetTitle={targetTitle}
-      pageUrl={pageUrl}
+      onSubmit={onSubmit}
+      submitting={submitting}
+      submitError={submitError}
     />
   )
 

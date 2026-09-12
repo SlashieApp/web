@@ -12,8 +12,9 @@ import {
 import bag from '../../i11n.json'
 
 import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
+import { ReportControl } from '@/content/trust/ReportControl'
 import { SAFETY_HREF } from '@/utils/appRoutes'
-import { Button, Link, ReportControl, useDropdownClose } from '@ui'
+import { Button, Link, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { useShareTask } from './openTask/shareTask'
