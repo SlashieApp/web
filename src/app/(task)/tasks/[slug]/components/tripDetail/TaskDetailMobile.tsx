@@ -2,7 +2,7 @@
 
 import { useI11n } from '@/i18n/useI11n'
 import { Box, Skeleton, Stack } from '@chakra-ui/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { LuShare2 } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
@@ -67,7 +67,7 @@ export function TaskDetailMobile() {
   // Pinned primary CTA for OPEN states (booking states use the banner below).
   // Held as a skeleton until the viewer state is confirmed — the CTA choice
   // (share vs quote vs none) is exactly the state that used to flash wrong.
-  let heroCta: React.ReactNode = null
+  let heroCta: ReactNode = null
   if (!statusReady || !task) {
     heroCta = <Skeleton h="48px" w="full" borderRadius="md" />
   } else if (permissions.isOwner && permissions.isOpen) {
