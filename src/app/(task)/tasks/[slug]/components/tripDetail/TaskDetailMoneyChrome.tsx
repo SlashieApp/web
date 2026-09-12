@@ -31,9 +31,7 @@ export function TaskDetailMoneyChrome() {
 
   if (!task && !pending && !seed) return null
 
-  const title = task
-    ? task.title?.trim() || t.fallbackTask
-    : seed?.title?.trim() || t.fallbackTask
+  const title = task?.title?.trim() || seed?.title?.trim() || ''
   const budgetLine = task
     ? taskBudgetDisplayLine(
         task,
@@ -63,7 +61,7 @@ export function TaskDetailMoneyChrome() {
           color="text.default"
           truncate
         >
-          {title}
+          {title || <Skeleton as="span" h="20px" w="55%" borderRadius="md" />}
         </Heading>
       </TaskHeaderControls>
 

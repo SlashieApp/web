@@ -332,6 +332,7 @@ function TabPanel({ value, children }: TabPanelProps) {
       hidden={!isActive}
       aria-hidden={!isActive}
       pt={5}
+      pb={6}
       _focusVisible={{
         outline: '2px solid',
         outlineColor: 'border.focus',

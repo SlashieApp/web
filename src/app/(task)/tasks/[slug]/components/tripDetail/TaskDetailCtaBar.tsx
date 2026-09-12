@@ -4,7 +4,6 @@ import { Box, HStack, Stack, type SystemStyleObject } from '@chakra-ui/react'
 import { LuPencil, LuShare2 } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav'
 import { Button, IconButton, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -29,10 +28,17 @@ const glassBarCss = {
 } as SystemStyleObject
 
 /**
- * Space so the last content line clears this bar. Dock clearance lives on the
- * (task) layout `main`; this is only the CTA stack itself.
+ * Sit the glass bar just above the mobile dock pill (not the full fade
+ * clearance, which left a ~130px hole). Desktop has no dock.
  */
-export const TASK_DETAIL_CTA_CLEARANCE = '112px' as const
+const CTA_DOCK_OFFSET = 'calc(72px + env(safe-area-inset-bottom, 0px))' as const
+
+/**
+ * Space so the last content line can scroll above this bar. Dock clearance
+ * already lives on the (task) layout `main`.
+ */
+export const TASK_DETAIL_CTA_CLEARANCE =
+  'calc(168px + env(safe-area-inset-bottom, 0px))' as const
 
 /**
  * Floating glass primary CTA. Role-mapped via `getTaskDetailPrimaryCta`.
@@ -136,22 +142,22 @@ export function TaskDetailCtaBar() {
   return (
     <Box
       position="sticky"
-      bottom={{ base: MOBILE_BOTTOM_NAV_CLEARANCE, md: 0 }}
+      bottom={{ base: CTA_DOCK_OFFSET, md: 4 }}
       zIndex={25}
       pointerEvents="none"
       px={{ base: 3, md: 0 }}
       pt={2}
-      pb={{ base: 2, md: 3 }}
+      pb={{ base: 1, md: 2 }}
     >
       <Stack
         as="section"
-        gap={2}
+        gap={1.5}
         pointerEvents="auto"
         borderWidth="1px"
         borderColor="border.default"
         borderRadius="xl"
         px={3}
-        py={3}
+        py={2.5}
         css={glassBarCss}
         aria-label={t.cta.barAria}
       >
