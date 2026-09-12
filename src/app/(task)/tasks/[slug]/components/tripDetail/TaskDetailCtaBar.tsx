@@ -31,7 +31,8 @@ const glassBarCss = {
  * Sit the glass bar just above the mobile dock pill (not the full fade
  * clearance, which left a ~130px hole). Desktop has no dock.
  */
-const CTA_DOCK_OFFSET = 'calc(64px + env(safe-area-inset-bottom, 0px))' as const
+/** Main already reserves dock clearance; extra inset stacked a 96px hole. */
+const CTA_DOCK_OFFSET = 0
 
 /**
  * Space so the last content line can scroll above this bar. Dock clearance
