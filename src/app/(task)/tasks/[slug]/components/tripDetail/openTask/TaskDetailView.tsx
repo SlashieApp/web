@@ -20,7 +20,7 @@ const DESKTOP_MAP_SPACER = { base: '56px', md: '120px' } as const
  */
 export function TaskDetailView() {
   return (
-    <Box position="relative" pb={TASK_DETAIL_CTA_CLEARANCE} bg="bg.canvas">
+    <Box position="relative" bg="bg.canvas">
       <TaskDetailMapBackground />
 
       <Box position="relative" zIndex={1}>
@@ -32,7 +32,9 @@ export function TaskDetailView() {
           pointerEvents="none"
         >
           <Box pointerEvents="auto">
-            <TaskDetailSectionTabs />
+            <Box pb={TASK_DETAIL_CTA_CLEARANCE}>
+              <TaskDetailSectionTabs />
+            </Box>
             <TaskDetailCtaBar />
           </Box>
         </Box>

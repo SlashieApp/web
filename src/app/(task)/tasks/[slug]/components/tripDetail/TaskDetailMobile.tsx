@@ -17,9 +17,11 @@ export function TaskDetailMobile() {
   if (!task && !pending) return null
 
   return (
-    <Box pb={TASK_DETAIL_CTA_CLEARANCE}>
+    <Box>
       <StatusHeader />
-      <TaskDetailSectionTabs fitted px={4} />
+      <Box pb={TASK_DETAIL_CTA_CLEARANCE}>
+        <TaskDetailSectionTabs fitted px={4} />
+      </Box>
       <TaskDetailCtaBar />
     </Box>
   )
