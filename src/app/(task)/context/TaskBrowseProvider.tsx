@@ -95,6 +95,10 @@ type TaskBrowseDataContextValue = {
   submitBrowseFilters: () => void
   /** Resets draft filter fields from last submitted snapshot (call when opening the filter panel). */
   syncDraftFiltersFromSubmitted: () => void
+  /** Clears optional list filters (keeps map radius + location). */
+  clearAllBrowseFilters: () => void
+  /** Removes one optional chip (budget / urgency / category / dates / search). */
+  removeBrowseFilterTag: (tag: BrowseFilterTag) => void
   searchCenterLat: number
   searchCenterLng: number
   confirmSearchThisAreaFromMap: (lat: number, lng: number, zoom: number) => void
@@ -712,6 +716,56 @@ export function TaskBrowseProvider({
     urgency,
   ])
 
+  const clearAllBrowseFilters = useCallback(() => {
+    setMinBudget('')
+    setMaxBudget('')
+    setUrgency('any')
+    setCategory('')
+    setScheduledAfter('')
+    setScheduledBefore('')
+    setSearchInputRaw('')
+    setSubmittedMinBudget('')
+    setSubmittedMaxBudget('')
+    setSubmittedUrgency('any')
+    setSubmittedCategory('')
+    setSubmittedScheduledAfter('')
+    setSubmittedScheduledBefore('')
+    setSubmittedSearchText('')
+    setPage(0)
+  }, [])
+
+  const removeBrowseFilterTag = useCallback((tag: BrowseFilterTag) => {
+    switch (tag.kind) {
+      case 'budget':
+        setMinBudget('')
+        setMaxBudget('')
+        setSubmittedMinBudget('')
+        setSubmittedMaxBudget('')
+        break
+      case 'urgency':
+        setUrgency('any')
+        setSubmittedUrgency('any')
+        break
+      case 'category':
+        setCategory('')
+        setSubmittedCategory('')
+        break
+      case 'scheduled':
+        setScheduledAfter('')
+        setSubmittedScheduledAfter('')
+        setScheduledBefore('')
+        setSubmittedScheduledBefore('')
+        break
+      case 'search':
+        setSearchInputRaw('')
+        setSubmittedSearchText('')
+        break
+      default:
+        return
+    }
+    setPage(0)
+  }, [])
+
   const syncDraftFiltersFromSubmitted = useCallback(() => {
     setRadiusMiles(submittedRadiusMiles)
     setMinBudget(submittedMinBudget)
@@ -775,6 +829,8 @@ export function TaskBrowseProvider({
       geolocationStatus,
       submitBrowseFilters,
       syncDraftFiltersFromSubmitted,
+      clearAllBrowseFilters,
+      removeBrowseFilterTag,
       searchCenterLat,
       searchCenterLng,
       confirmSearchThisAreaFromMap,
@@ -814,6 +870,8 @@ export function TaskBrowseProvider({
       requestUseMyLocation,
       submitBrowseFilters,
       syncDraftFiltersFromSubmitted,
+      clearAllBrowseFilters,
+      removeBrowseFilterTag,
       cycleSort,
       data,
       error,

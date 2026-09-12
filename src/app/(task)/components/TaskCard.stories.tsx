@@ -18,10 +18,25 @@ import {
 import {
   TaskCard,
   type TaskCardProps,
+  type TaskCardTask,
   type TaskCardWorkerQuoteProps,
 } from './TaskCard'
 
 type TaskCardBrowseProps = Exclude<TaskCardProps, TaskCardWorkerQuoteProps>
+
+const defaultTask: TaskCardTask = {
+  id: 'task-1',
+  title: 'Mount a 55-inch TV',
+  description: 'Need a worker to mount one TV safely on a plasterboard wall.',
+  location: 'Southwark',
+  priceLabel: '£120',
+  badgeText: 'Tech setup',
+  distanceLabel: '1.2 miles',
+  timingLabel: 'Flexible',
+  thumbnailSrc:
+    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
+  trust: { kind: 'verified' },
+}
 
 const listMeta = {
   title: 'task/TaskCard',
@@ -29,6 +44,10 @@ const listMeta = {
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
+  },
+  args: {
+    task: defaultTask,
+    detailsHref: '/tasks/task-1',
   },
   render: (args: TaskCardBrowseProps) => (
     <Box maxW="520px" w="full">
@@ -56,42 +75,45 @@ export default listMeta
 type ListStory = StoryObj<typeof listMeta>
 type WorkerQuoteStory = StoryObj<typeof workerQuoteMeta>
 
-export const ListItem: ListStory = {
+export const Default: ListStory = {}
+
+export const LongTitle: ListStory = {
   args: {
-    title: 'Mount a 55-inch TV',
-    description: 'Need a worker to mount one TV safely on a plasterboard wall.',
-    priceLabel: '£120',
-    metaLine: 'Southwark',
-    distanceLabel: '1.2 miles',
-    timingLabel: 'Flexible',
-    quotesLabel: '5 quotes',
-    thumbnailSrc:
-      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
-    detailsHref: '/tasks/task-1',
-    badgeText: 'Tech setup',
-    onToggleSave: () => {},
+    task: {
+      ...defaultTask,
+      title:
+        'Need someone to mount a 55-inch TV, hide the cables in the wall, and tidy the living-room plaster this weekend',
+    },
+  },
+}
+
+export const MissingBudget: ListStory = {
+  args: {
+    task: {
+      ...defaultTask,
+      priceLabel: '',
+    },
+  },
+}
+
+export const EmptyTrust: ListStory = {
+  args: {
+    task: {
+      ...defaultTask,
+      trust: undefined,
+    },
   },
 }
 
 export const ListItemSaved: ListStory = {
   args: {
-    ...ListItem.args,
     isSaved: true,
-  },
-}
-
-export const ListItemViewsFallback: ListStory = {
-  args: {
-    ...ListItem.args,
-    quotesLabel: undefined,
-    viewsLabel: '12 views',
-    onToggleSave: undefined,
+    onToggleSave: () => {},
   },
 }
 
 export const ListItemExpanded: ListStory = {
   args: {
-    ...ListItem.args,
     isActive: true,
     isExpanded: true,
     showDetailsCta: true,

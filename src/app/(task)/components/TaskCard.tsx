@@ -1,28 +1,31 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import type { MouseEvent, ReactNode } from 'react'
-import { useState } from 'react'
-import {
-  LuBookmark,
-  LuCalendarDays,
-  LuEye,
-  LuMapPin,
-  LuMessageSquareText,
-} from 'react-icons/lu'
+import type { MouseEvent } from 'react'
+import { Fragment, useState } from 'react'
+import { LuBadgeCheck, LuBookmark } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { ViewTransition } from '@/ui/ViewTransition'
 import { Badge, Button, Card, IconButton, Link, Thumbnail } from '@ui'
 
 import { sdlMotion } from '@/theme/styles'
 
+import { taskCardMetaParts } from '../helpers/taskBrowseHelpers'
 import {
   setTaskHandoff,
   taskHandoffFor,
   taskVtName,
 } from '../helpers/taskCardHandoff'
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
+import bag from './i11n.json'
+
+/** Optional discovery trust crumb — rendered only when the API has a signal. */
+export type TaskCardTrust =
+  | { kind: 'verified' }
+  | { kind: 'jobsDone'; count: number }
 
 /** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
 export type TaskCardTask = {
@@ -30,6 +33,7 @@ export type TaskCardTask = {
   title: string
   description: string
   location: string
+  /** Empty when the task has no budget — the £ slot is omitted. */
   priceLabel: string
   /** Category pill, e.g. "Tech setup". */
   badgeText?: string
@@ -41,6 +45,7 @@ export type TaskCardTask = {
   /** Public views line from GraphQL (`task.views`); fallback when quotes are unavailable. */
   viewsLabel?: string
   thumbnailSrc?: string
+  trust?: TaskCardTrust
 }
 
 type TaskCardShared = {
@@ -49,7 +54,7 @@ type TaskCardShared = {
   /** Fires when the details CTA link is clicked (analytics / handoff). */
   onOpenDetails?: () => void
   isActive?: boolean
-  /** Taller layout with description (web list selection). */
+  /** Taller selected-row treatment (web list). Anatomy stays the same. */
   isExpanded?: boolean
   /** When false, hides the details CTA (e.g. unselected rows in web TaskList). */
   showDetailsCta?: boolean
@@ -91,6 +96,7 @@ type TaskCardLegacy = TaskCardShared & {
   /** Public views line from GraphQL (`task.views`). */
   viewsLabel?: string
   thumbnailSrc?: string
+  trust?: TaskCardTrust
   detailsHref: string
 }
 
@@ -126,32 +132,13 @@ export function TaskCard(props: TaskCardProps) {
   return <TaskCardBrowse {...props} />
 }
 
-/** Icon + text meta line (`text.muted`, xs). Icon is decorative. */
-function TaskCardMetaRow({
-  icon,
-  children,
-}: {
-  icon: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <HStack gap={1.5} color="text.muted" fontSize="xs" minW={0}>
-      <Box as="span" aria-hidden display="inline-flex" flexShrink={0}>
-        {icon}
-      </Box>
-      <Text fontSize="xs" truncate>
-        {children}
-      </Text>
-    </HStack>
-  )
-}
-
 function taskIdFromDetailsHref(href: string): string | undefined {
   const match = href.match(/\/tasks\/([^/?#]+)/)
   return match?.[1]
 }
 
 function TaskCardBrowse(props: TaskCardBrowseProps) {
+  const t = useI11n(bag)
   const isActive = props.isActive ?? false
   const isExpanded = props.isExpanded ?? false
   const showDetailsCta = props.showDetailsCta ?? false
@@ -183,21 +170,19 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       quotesLabel: props.quotesLabel,
       viewsLabel: props.viewsLabel,
       thumbnailSrc: props.thumbnailSrc,
+      trust: props.trust,
     }
   }
 
   const {
     id: taskId,
     title,
-    description,
     priceLabel,
-    location: metaLine,
     badgeText,
     distanceLabel,
     timingLabel,
-    quotesLabel,
-    viewsLabel,
     thumbnailSrc,
+    trust,
   } = cardTask
 
   const [morphing, setMorphing] = useState(
@@ -216,16 +201,21 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       }
     : undefined
 
-  const detailsCtaLabel = props.detailsCtaLabel ?? 'View task'
+  const detailsCtaLabel = props.detailsCtaLabel ?? t.detailsCta
   const activateAriaLabel =
     props.activateAriaLabel ?? `${title}. Select to highlight on map.`
-  const descriptionText = description?.trim()
-  const showDescription = isExpanded && Boolean(descriptionText)
   const showBadge = Boolean(badgeText?.trim())
-  const locationLine = distanceLabel
-    ? `${metaLine} · ${distanceLabel}`
-    : metaLine
-  const engagementLabel = quotesLabel ?? viewsLabel
+  const metaParts = taskCardMetaParts({
+    priceLabel,
+    distanceLabel,
+    timingLabel,
+  })
+  const trustLabel =
+    trust?.kind === 'verified'
+      ? t.trustVerified
+      : trust?.kind === 'jobsDone'
+        ? formatMessage(t.trustJobsDone, { count: trust.count })
+        : null
 
   const handleToggleSave = onToggleSave
     ? (e: MouseEvent<HTMLButtonElement>) => {
@@ -237,7 +227,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const shell = (
     <Card
       isActive={isActive}
-      p={{ base: 3, md: isExpanded ? 4 : 3 }}
+      p={{ base: 3, md: isExpanded ? 3.5 : 3 }}
       maxW="full"
       bg={isActive ? 'status.success.soft' : 'bg.surface'}
       boxShadow={isExpanded ? 'e3' : 'card'}
@@ -252,7 +242,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           : undefined
       }
     >
-      <HStack gap={{ base: 3, md: 4 }} align="stretch">
+      <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
         <ViewTransition
           name={
             morphing && thumbnailSrc ? taskVtName('img', taskId) : undefined
@@ -260,93 +250,100 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           share="auto"
           default="none"
         >
-          <Thumbnail alt={`${title} thumbnail`} src={thumbnailSrc} />
+          <Thumbnail
+            alt={`${title} thumbnail`}
+            src={thumbnailSrc}
+            size="sm"
+            minW={{ base: '72px', md: '80px' }}
+            alignSelf="flex-start"
+          />
         </ViewTransition>
-        <Stack flex={1} minW={0} gap={1}>
-          <HStack justify="space-between" align="flex-start" gap={2} minW={0}>
-            <Stack gap={1} flex={1} minW={0} align="flex-start">
-              {showBadge ? (
-                // Active card bg is the same soft green as the brand pill —
-                // switch the pill to a surface fill so it stays visible.
-                <Badge shape="pill" bg={isActive ? 'bg.surface' : undefined}>
-                  {badgeText}
-                </Badge>
-              ) : null}
-              <ViewTransition
-                name={morphing ? taskVtName('title', taskId) : undefined}
-                share="vt-text"
-                default="none"
-              >
-                <Text
-                  fontSize={isExpanded ? 'xl' : 'md'}
-                  fontWeight={700}
-                  color="text.default"
-                  lineClamp={isExpanded ? 2 : 1}
-                  truncate={!isExpanded}
-                  maxW="full"
-                >
-                  {title}
-                </Text>
-              </ViewTransition>
-            </Stack>
+        <Stack flex={1} minW={0} gap={1.5}>
+          <Stack gap={1} minW={0} align="flex-start">
+            {showBadge ? (
+              // Active card bg is the same soft green as the brand pill —
+              // switch the pill to a surface fill so it stays visible.
+              <Badge shape="pill" bg={isActive ? 'bg.surface' : undefined}>
+                {badgeText}
+              </Badge>
+            ) : null}
             <ViewTransition
-              name={morphing ? taskVtName('price', taskId) : undefined}
+              name={morphing ? taskVtName('title', taskId) : undefined}
               share="vt-text"
               default="none"
             >
               <Text
-                fontWeight={800}
-                fontSize={{ base: 'lg', md: 'xl' }}
-                lineHeight="1.4"
-                color="text.link"
-                whiteSpace="nowrap"
-                flexShrink={0}
+                fontSize="md"
+                fontWeight={700}
+                color="text.default"
+                lineHeight="1.3"
+                lineClamp={2}
+                maxW="full"
               >
-                {priceLabel}
+                {title}
               </Text>
             </ViewTransition>
-          </HStack>
+          </Stack>
 
-          {showDescription ? (
-            <Text
-              display={{ base: 'none', md: 'block' }}
-              fontSize="sm"
-              lineHeight="1.5"
-              color="text.muted"
-              lineClamp={4}
-              pb={1}
-            >
-              {descriptionText}
-            </Text>
+          {metaParts.length > 0 ? (
+            <HStack gap={1} minW={0} flexWrap="wrap" align="baseline">
+              {metaParts.map((part) => {
+                const isBudget = part === priceLabel?.trim()
+                const isFirst = part === metaParts[0]
+                const label = (
+                  <Text
+                    fontSize="sm"
+                    fontWeight={isBudget ? 800 : 500}
+                    color={isBudget ? 'text.link' : 'text.muted'}
+                    lineClamp={1}
+                  >
+                    {part}
+                  </Text>
+                )
+                return (
+                  <Fragment key={part}>
+                    {isFirst ? null : (
+                      <Text
+                        as="span"
+                        color="text.muted"
+                        fontSize="xs"
+                        aria-hidden
+                      >
+                        ·
+                      </Text>
+                    )}
+                    {isBudget ? (
+                      <ViewTransition
+                        name={
+                          morphing ? taskVtName('price', taskId) : undefined
+                        }
+                        share="vt-text"
+                        default="none"
+                      >
+                        {label}
+                      </ViewTransition>
+                    ) : (
+                      label
+                    )}
+                  </Fragment>
+                )
+              })}
+            </HStack>
           ) : null}
 
-          <HStack justify="space-between" align="flex-end" gap={2} minW={0}>
-            <Stack gap={1} flex={1} minW={0} py={0.5}>
-              <TaskCardMetaRow icon={<LuMapPin size={12} strokeWidth={2} />}>
-                {locationLine}
-              </TaskCardMetaRow>
-              {timingLabel ? (
-                <TaskCardMetaRow
-                  icon={<LuCalendarDays size={12} strokeWidth={2} />}
-                >
-                  {timingLabel}
-                </TaskCardMetaRow>
-              ) : null}
-              {engagementLabel ? (
-                <TaskCardMetaRow
-                  icon={
-                    quotesLabel ? (
-                      <LuMessageSquareText size={12} strokeWidth={2} />
-                    ) : (
-                      <LuEye size={12} strokeWidth={2} />
-                    )
-                  }
-                >
-                  {engagementLabel}
-                </TaskCardMetaRow>
-              ) : null}
-            </Stack>
-            <HStack gap={1} flexShrink={0} align="center">
+          {trustLabel ? (
+            <HStack gap={1} color="text.muted" minW={0}>
+              <Box as="span" aria-hidden display="inline-flex" flexShrink={0}>
+                <LuBadgeCheck size={14} strokeWidth={2.25} />
+              </Box>
+              <Text fontSize="xs" fontWeight={600} lineClamp={1}>
+                {trustLabel}
+              </Text>
+            </HStack>
+          ) : null}
+
+          {showDetailsCta || handleToggleSave ? (
+            <HStack gap={1} pt={0.5} justify="flex-end" flexShrink={0}>
               {showDetailsCta ? (
                 <Button
                   asChild
@@ -373,11 +370,10 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               ) : null}
               {handleToggleSave ? (
                 <IconButton
-                  aria-label={
-                    isSaved
-                      ? `Remove bookmark from ${title}`
-                      : `Bookmark ${title}`
-                  }
+                  aria-label={formatMessage(
+                    isSaved ? t.bookmarkRemove : t.bookmarkAdd,
+                    { title },
+                  )}
                   aria-pressed={isSaved}
                   onClick={handleToggleSave}
                   color={isSaved ? 'text.link' : 'text.muted'}
@@ -390,7 +386,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                 </IconButton>
               ) : null}
             </HStack>
-          </HStack>
+          ) : null}
         </Stack>
       </HStack>
     </Card>

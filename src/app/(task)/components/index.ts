@@ -42,6 +42,7 @@ export type { TaskBrowseSearchThisAreaButtonProps } from './TaskBrowseSearchThis
 export type {
   TaskCardProps,
   TaskCardTask,
+  TaskCardTrust,
   TaskCardWorkerQuoteProps,
 } from './TaskCard'
 export type { TaskSearchBaseProps } from './TaskSearch'

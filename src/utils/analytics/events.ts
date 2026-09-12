@@ -5,6 +5,7 @@
 export const EVENTS = {
   // Visitor / discovery
   browse_view: 'browse_view',
+  search_card_impression: 'search_card_impression',
   task_detail_opened_from_search: 'task_detail_opened_from_search',
   task_view: 'task_view',
   task_load: 'task_load',

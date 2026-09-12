@@ -43,33 +43,37 @@ export function endOfLocalDay(d = new Date()) {
 export function formatBudget(task: TaskListItem): {
   main: string
   sub: string
+  /** False when there is no fixed budget or quote range — cards omit the £ slot. */
+  hasBudget: boolean
 } {
+  const open = { main: 'Open', sub: 'Estimated budget', hasBudget: false }
   const fixed = budgetToPence(task.budget)
   if (fixed != null && fixed > 0) {
     return {
       main: formatGbpMajor(fixed / 100),
       sub: 'Fixed price',
+      hasBudget: true,
     }
   }
   const quotes = task.quotes ?? []
-  if (quotes.length === 0) {
-    return { main: 'Open', sub: 'Estimated budget' }
-  }
+  if (quotes.length === 0) return open
   const prices = quotes
     .map((o) => priceToPence(o.price))
     .filter((price): price is number => price != null)
-  if (prices.length === 0) return { main: 'Open', sub: 'Estimated budget' }
+  if (prices.length === 0) return open
   const min = Math.min(...prices)
   const max = Math.max(...prices)
   if (min === max) {
     return {
       main: formatGbpMajor(min / 100),
       sub: 'From quotes',
+      hasBudget: true,
     }
   }
   return {
     main: `${formatGbpMajor(min / 100)} — ${formatGbpMajor(max / 100)}`,
     sub: 'Estimated budget',
+    hasBudget: true,
   }
 }
 
@@ -353,6 +357,28 @@ export function buildActiveBrowseFilterTags(input: {
   }
 
   return tags
+}
+
+/** Radius and location describe the map search, not a removable list filter. */
+export function isClearableBrowseFilterTag(tag: BrowseFilterTag): boolean {
+  return tag.kind !== 'radius' && tag.kind !== 'location'
+}
+
+export function hasClearableBrowseFilterTags(
+  tags: readonly BrowseFilterTag[],
+): boolean {
+  return tags.some(isClearableBrowseFilterTag)
+}
+
+/** Scan-row parts for the card meta line: £ budget · distance · timing. */
+export function taskCardMetaParts(input: {
+  priceLabel?: string | null
+  distanceLabel?: string | null
+  timingLabel?: string | null
+}): string[] {
+  return [input.priceLabel, input.distanceLabel, input.timingLabel]
+    .map((part) => part?.trim())
+    .filter((part): part is string => Boolean(part))
 }
 
 export function matchesUrgency(
