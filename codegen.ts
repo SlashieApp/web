@@ -8,9 +8,6 @@ const config: CodegenConfig = {
       [schemaUrl]: {
         headers: {
           'X-Schema-Token': process.env.SCHEMA_ACCESS_TOKEN || '',
-          // Apollo CSRF: custom headers already trigger preflight; this keeps
-          // GET /schema accepted when the API enforces apollo-require-preflight.
-          'apollo-require-preflight': 'true',
         },
         handleAsSDL: true,
       },
