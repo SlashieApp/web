@@ -20,7 +20,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
-import { Button, Card, Link } from '@ui'
+import { Button, Card, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
@@ -31,6 +31,7 @@ import {
 } from '../../helpers/taskDetailUtils'
 import bag from '../../i11n.json'
 import { QuoteCard, QuoteCardAvatar } from './QuoteCard'
+import { useAcceptQuoteSafety } from './useAcceptQuoteSafety'
 
 type TaskQuote = TaskDetailRecord['quotes'][number]
 type TaskDetailI11n = (typeof bag)['en']
@@ -460,9 +461,9 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     acceptError,
     acceptingQuoteId,
     decliningQuoteId,
-    onAcceptQuote,
     onDeclineQuote,
   } = useTaskDetail()
+  const { requestAccept, dialog: acceptSafetyDialog } = useAcceptQuoteSafety()
 
   const [sort, setSort] = useState<QuoteSort>('recommended')
   const [showOthers, setShowOthers] = useState(false)
@@ -569,7 +570,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
         }
         onAccept={
           pending && permissions.showAcceptDecline
-            ? () => void onAcceptQuote(quote.id)
+            ? () => requestAccept(quote.id)
             : undefined
         }
         onDecline={
@@ -601,6 +602,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       body = (
         <>
           {errorLine}
+          <SafetyNotice variant="inline" />
           {ownerSortSelect}
           <Stack gap={3}>{displayQuotes.map(ownerQuoteCard)}</Stack>
         </>
@@ -611,6 +613,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       body = (
         <>
           {errorLine}
+          <SafetyNotice variant="inline" />
           <Stack gap={3}>{displayQuotes.map(ownerQuoteCard)}</Stack>
         </>
       )
@@ -949,6 +952,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       }
     >
       {body}
+      {acceptSafetyDialog}
     </ModuleShell>
   )
 }

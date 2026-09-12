@@ -13,7 +13,15 @@ import {
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
 import { ViewTransition } from '@/ui/ViewTransition'
-import { Badge, Button, Card, IconButton, Link, Thumbnail } from '@ui'
+import {
+  Badge,
+  Button,
+  Card,
+  IconButton,
+  Link,
+  ReportControl,
+  Thumbnail,
+} from '@ui'
 
 import { sdlMotion } from '@/theme/styles'
 
@@ -347,6 +355,20 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               ) : null}
             </Stack>
             <HStack gap={1} flexShrink={0} align="center">
+              {isExpanded || isActive || showDetailsCta ? (
+                <Box
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
+                  <ReportControl
+                    kind="task"
+                    targetId={taskId}
+                    targetTitle={title}
+                    variant="overflow"
+                  />
+                </Box>
+              ) : null}
               {showDetailsCta ? (
                 <Button
                   asChild

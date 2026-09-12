@@ -2,25 +2,19 @@
 
 import { Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import {
-  LuCircleHelp,
-  LuFlag,
-  LuPencil,
-  LuShieldCheck,
-  LuTrash2,
-  LuWallet,
-} from 'react-icons/lu'
+import { LuCircleHelp, LuPencil, LuShieldCheck, LuTrash2 } from 'react-icons/lu'
 
-import { showAppToast } from '@/utils/appToast'
-import { Button, Card, Link } from '@ui'
+import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
+import { useI11n } from '@/i18n/useI11n'
+import { SAFETY_HREF } from '@/utils/appRoutes'
+import { Button, Card, Link, ReportControl, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import bag from '../../i11n.json'
 
-const SUPPORT_MAILTO = 'mailto:support@slashie.app'
-const SAFETY_MAILTO = 'mailto:safety@slashie.app'
-
-/** Uber-style stacked help/actions footer. */
+/** Help/actions footer: edit/cancel, safety page, report, support. */
 export function TaskActionsFooter() {
+  const t = useI11n(bag)
   const { task, permissions, onCancelTask, cancelingTask, cancelError } =
     useTaskDetail()
 
@@ -29,18 +23,9 @@ export function TaskActionsFooter() {
     const ok =
       typeof window === 'undefined'
         ? true
-        : window.confirm('Cancel this task? This cannot be undone.')
+        : window.confirm(t.actions.cancelConfirm)
     if (ok) void onCancelTask()
-  }, [task, onCancelTask])
-
-  const onPaymentsInfo = useCallback(() => {
-    showAppToast({
-      title: 'How payments work',
-      description:
-        'You pay your worker directly (cash, bank transfer, or card). Slashie never handles job payment.',
-      type: 'info',
-    })
-  }, [])
+  }, [task, onCancelTask, t.actions.cancelConfirm])
 
   if (!task) return null
 
@@ -48,7 +33,7 @@ export function TaskActionsFooter() {
     <Card layout="default" p={{ base: 3, md: 4 }}>
       <Stack gap={2} w="full">
         <Text fontSize="xs" fontWeight={700} color="text.muted" px={1}>
-          Help &amp; actions
+          {t.actions.helpHeading}
         </Text>
 
         {permissions.canEditTask ? (
@@ -58,34 +43,34 @@ export function TaskActionsFooter() {
           >
             <Button variant="ghost" w="full" justifyContent="flex-start">
               <LuPencil />
-              Edit task
+              {t.actions.editTask}
             </Button>
           </Link>
         ) : null}
 
-        <Button
-          variant="ghost"
-          w="full"
-          justifyContent="flex-start"
-          onClick={onPaymentsInfo}
-        >
-          <LuWallet />
-          How payments work
-        </Button>
-
-        <Link href={SAFETY_MAILTO} _hover={{ textDecoration: 'none' }}>
+        <Link href={SAFETY_HREF} _hover={{ textDecoration: 'none' }}>
           <Button variant="ghost" w="full" justifyContent="flex-start">
             <LuShieldCheck />
-            Report a safety issue
+            {t.actions.payingMeetingSafely}
           </Button>
         </Link>
 
-        <Link href={SUPPORT_MAILTO} _hover={{ textDecoration: 'none' }}>
+        <Link
+          href={`mailto:${LEGAL_CONTACT_EMAIL}`}
+          _hover={{ textDecoration: 'none' }}
+        >
           <Button variant="ghost" w="full" justifyContent="flex-start">
             <LuCircleHelp />
-            Get help
+            {t.actions.getHelp}
           </Button>
         </Link>
+
+        <ReportControl
+          kind="task"
+          targetId={task.id}
+          targetTitle={task.title?.trim() || undefined}
+          variant="menu"
+        />
 
         {permissions.canCancelTask ? (
           <>
@@ -98,7 +83,7 @@ export function TaskActionsFooter() {
               onClick={onCancel}
             >
               <LuTrash2 />
-              Cancel task
+              {t.actions.cancelTask}
             </Button>
             {cancelError ? (
               <Text fontSize="sm" color="status.danger.fg" px={1}>
@@ -108,13 +93,7 @@ export function TaskActionsFooter() {
           </>
         ) : null}
 
-        <Text fontSize="xs" color="text.subtle" px={1} pt={1}>
-          <LuFlag
-            style={{ display: 'inline', verticalAlign: '-2px', marginRight: 4 }}
-          />
-          Slashie is a marketplace; payment and work are arranged directly
-          between you and the other party.
-        </Text>
+        <SafetyNotice variant="inline" />
       </Stack>
     </Card>
   )
