@@ -17,6 +17,11 @@ export function pinMilesText(task: TaskMapTask): string {
   return '—'
 }
 
+/** Accessible label for a task pin. Clicking the pin opens task detail. */
+export function pinAriaLabel(task: TaskMapTask): string {
+  return `${pinPriceText(task)}, ${pinMilesText(task)}. View task details.`
+}
+
 /** Initials for `person` pin avatar fallback (from the pin title). */
 export function pinAvatarInitials(task: TaskMapTask): string {
   return (

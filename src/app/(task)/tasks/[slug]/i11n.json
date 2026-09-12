@@ -28,6 +28,7 @@
     "mobile": {
       "shareTask": "Share task",
       "sendQuote": "Send a quote",
+      "signInToQuote": "Sign in to quote",
       "tabInfo": "Info",
       "tabQuotes": "Quotes"
     },
@@ -285,6 +286,7 @@
     "mobile": {
       "shareTask": "分享任務",
       "sendQuote": "傳送報價",
+      "signInToQuote": "登入以報價",
       "tabInfo": "詳情",
       "tabQuotes": "報價"
     },

@@ -6,7 +6,12 @@ import {
   PIN_EASE,
   pinMotionEnabled,
 } from './animation'
-import { pinAvatarInitials, pinMilesText, pinPriceText } from './content'
+import {
+  pinAriaLabel,
+  pinAvatarInitials,
+  pinMilesText,
+  pinPriceText,
+} from './content'
 import {
   type PinDom,
   type PinVisualState,
@@ -171,7 +176,7 @@ function wireSelection(dom: PinDom, task: TaskMapTask, onSelect: () => void) {
     onSelect()
   }
 
-  const label = `${pinPriceText(task)}, ${pinMilesText(task)}. Select to highlight in list.`
+  const label = pinAriaLabel(task)
 
   dom.pricePill.setAttribute('role', 'button')
   dom.pricePill.tabIndex = 0

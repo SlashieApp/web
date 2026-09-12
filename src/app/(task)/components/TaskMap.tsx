@@ -18,6 +18,7 @@ import {
   createTaskMapController,
   tasksMarkerSig,
 } from '../helpers/taskMap'
+import { useSelectBrowseTaskFromMap } from '../helpers/useSelectBrowseTaskFromMap'
 
 import type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
 
@@ -201,8 +202,9 @@ export type TaskBrowseMapLayerProps = {
  */
 export function TaskBrowseMapLayer({ isDesktop }: TaskBrowseMapLayerProps) {
   const mapBindings = useTaskMapBindings()
-  const { windowOffsetWidth, setIsFilterOpen } = useTaskBrowseLayout()
-  const { setSelectedTaskId, onNavRoutePresentingChange } = useTaskBrowseData()
+  const { windowOffsetWidth } = useTaskBrowseLayout()
+  const { onNavRoutePresentingChange } = useTaskBrowseData()
+  const selectFromMap = useSelectBrowseTaskFromMap()
 
   return (
     <Box position="absolute" inset={0} zIndex={isDesktop ? 1 : 0}>
@@ -213,10 +215,7 @@ export function TaskBrowseMapLayer({ isDesktop }: TaskBrowseMapLayerProps) {
           isDesktop ? SINGLE_PANEL_BUTTON_LEFT_INSET : undefined
         }
         onNavRoutePresentingChange={onNavRoutePresentingChange}
-        onSelectTask={(taskId) => {
-          if (taskId) setIsFilterOpen(false)
-          setSelectedTaskId(taskId)
-        }}
+        onSelectTask={selectFromMap}
       />
     </Box>
   )

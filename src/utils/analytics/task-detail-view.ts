@@ -10,6 +10,9 @@ export type TaskDetailViewSource =
   | 'notification'
   | 'search'
 
+export type TaskDetailOpenedFromSearchSurface = 'list' | 'map' | 'carousel'
+export type TaskDetailOpenedFromSearchViewer = 'visitor' | 'signed_in'
+
 export type CaptureTaskDetailViewInput = {
   taskId: string
   taskSlug: string
@@ -71,4 +74,22 @@ export function resolveTaskDetailViewerRole(options: {
   if (options.isOwner) return 'owner'
   if (options.isAuthenticated && options.hasWorkerProfile) return 'worker'
   return 'visitor'
+}
+
+/** Fired when search list, carousel, or map pin opens public task detail. */
+export function captureTaskDetailOpenedFromSearch(input: {
+  taskId: string
+  isAuthenticated: boolean
+  surface: TaskDetailOpenedFromSearchSurface
+}): void {
+  try {
+    capture(EVENTS.task_detail_opened_from_search, {
+      task_id: input.taskId,
+      viewer: input.isAuthenticated ? 'signed_in' : 'visitor',
+      is_authenticated: input.isAuthenticated,
+      surface: input.surface,
+    })
+  } catch {
+    // Never throw from analytics.
+  }
 }

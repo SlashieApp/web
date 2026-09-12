@@ -1,10 +1,10 @@
 'use client'
 
 import { Box } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
+import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
 import { MobileCarousel } from '@ui'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
@@ -17,7 +17,7 @@ import { TaskEmptyState } from '../TaskEmptyState'
  * matching pin; tapping the centered card opens the task.
  */
 export function MobileTaskCarousel() {
-  const router = useRouter()
+  const { openTaskDetail, taskDetailHref } = useOpenTaskDetailFromBrowse()
   const {
     filteredSorted,
     canShowBrowseEmptyState,
@@ -47,7 +47,7 @@ export function MobileTaskCarousel() {
       items={tasks}
       selectedId={selectedTaskId}
       onSnapSelect={setSelectedTaskId}
-      onActivateCentered={(taskId) => router.push(`/tasks/${taskId}`)}
+      onActivateCentered={(taskId) => openTaskDetail(taskId, 'carousel')}
       disabled={isNavRoutePresenting}
     >
       {(task, state) => (
@@ -55,7 +55,7 @@ export function MobileTaskCarousel() {
           activateMode="gesture"
           activateCursor={state.activateCursor}
           task={task}
-          detailsHref={`/tasks/${task.id}`}
+          detailsHref={taskDetailHref(task.id)}
           isActive={state.isActive}
           showDetailsCta={false}
           navigateOnActivate={!state.isPeekAdjacent}

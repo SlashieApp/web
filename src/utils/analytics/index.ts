@@ -8,6 +8,7 @@ export { apiFetch } from './api-fetch'
 export { capture, getCurrentRoute } from './capture'
 export { captureApiError } from './capture-api-error'
 export {
+  captureTaskDetailOpenedFromSearch,
   captureTaskDetailView,
   resolveTaskDetailViewerRole,
 } from './task-detail-view'
@@ -41,6 +42,8 @@ export type {
 export type { AuthenticatedUserIdentity } from './identify-user'
 export type {
   CaptureTaskDetailViewInput,
+  TaskDetailOpenedFromSearchSurface,
+  TaskDetailOpenedFromSearchViewer,
   TaskDetailViewerRole,
   TaskDetailViewSource,
 } from './task-detail-view'
