@@ -15,24 +15,24 @@ import { useMyQuotes } from '../helpers/useMyQuotes'
 import { useMyRequests } from '../helpers/useMyRequests'
 
 import { DashboardMembershipPanel } from './components/DashboardMembershipPanel'
+import { DashboardPipelineInbox } from './components/DashboardPipelineInbox'
 import { DashboardQuickActions } from './components/DashboardQuickActions'
 import { DashboardRecentActivity } from './components/DashboardRecentActivity'
 import { DashboardStatTiles } from './components/DashboardStatTiles'
-import { DashboardUpcomingJobs } from './components/DashboardUpcomingJobs'
 import {
   buildQuickActions,
-  buildUpcomingJobs,
   displayNameFromMe,
   greetingForNow,
 } from './helpers/dashboardOverview'
+import { buildPostedByMeRows, buildWorkImOnRows } from './helpers/pipelineInbox'
 import bag from './i11n.json'
 
 /**
  * Dashboard overview orchestration.
  *
- * Data: useMyRequests (posted tasks) · useMyQuotes (sent quotes) · useAccountOrders (jobs/earnings)
+ * Data: useMyRequests (posted tasks) · useMyQuotes (sent quotes) · useAccountOrders (jobs)
  * Side effects: MembershipRefreshOnMount
- * Sections: stats → upcoming jobs → activity + membership → quick actions
+ * Sections: compact stats → pipeline inbox (hero) → activity + membership → quick actions
  */
 export default function DashboardOverviewPage() {
   const t = useI11n(bag)
@@ -56,7 +56,7 @@ export default function DashboardOverviewPage() {
   const {
     loading: ordersLoading,
     errorMessage: ordersErrorMessage,
-    activeOrders,
+    orders,
     openOrdersCount,
     pendingEarningsPence,
     closedOrdersCount,
@@ -80,9 +80,13 @@ export default function DashboardOverviewPage() {
     ({ quote }) => !isQuoteAwarded(quote.status),
   ).length
 
-  const upcomingJobs = useMemo(
-    () => buildUpcomingJobs(activeOrders, me?.id),
-    [activeOrders, me?.id],
+  const postedRows = useMemo(
+    () => (me?.id ? buildPostedByMeRows(activePostedTasks, orders, me.id) : []),
+    [activePostedTasks, me?.id, orders],
+  )
+  const workRows = useMemo(
+    () => (me?.id ? buildWorkImOnRows(sentQuotes, orders, me.id) : []),
+    [me?.id, orders, sentQuotes],
   )
   const quickActions = useMemo(
     () => buildQuickActions(Boolean(me?.worker?.id), t.quickActions),
@@ -98,14 +102,16 @@ export default function DashboardOverviewPage() {
         description={t.description}
         actions={
           <>
-            <Link href={'/tasks'} _hover={{ textDecoration: 'none' }}>
-              <Button size="sm" variant="secondary">
+            <Button asChild size="sm" variant="secondary">
+              <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
                 {t.browseTasks}
-              </Button>
-            </Link>
-            <Link href={'/tasks/create'} _hover={{ textDecoration: 'none' }}>
-              <Button size="sm">{t.postTask}</Button>
-            </Link>
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+                {t.postTask}
+              </Link>
+            </Button>
           </>
         }
         afterNav={
@@ -139,7 +145,11 @@ export default function DashboardOverviewPage() {
             closedOrdersCount={closedOrdersCount}
           />
 
-          <DashboardUpcomingJobs jobs={upcomingJobs} />
+          <DashboardPipelineInbox
+            postedRows={postedRows}
+            workRows={workRows}
+            loading={loadingAny}
+          />
 
           <Grid templateColumns={{ base: '1fr', xl: '1.3fr 1fr' }} gap={4}>
             <DashboardRecentActivity
