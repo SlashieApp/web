@@ -33,7 +33,7 @@ export function BookingSection() {
   return (
     // `task-order`: anchor target for "Open job details" links (quote accept
     // redirect + the Quotes module W6 state).
-    <Stack gap={4} w="full" id="task-order" scrollMarginTop="96px">
+    <Stack gap={4} w="full" id="task-order" scrollMarginTop="140px">
       <CustomerActiveOrderStatus />
       <AcceptedWorkerStatus />
     </Stack>
