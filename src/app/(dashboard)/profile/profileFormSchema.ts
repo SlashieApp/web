@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 import { TaskContactMethod, type UpdateMyProfileInput } from '@codegen/schema'
 
+import { isAtLeast18, parseIsoDateOnly } from '@/utils/age'
+
 /** Fields backed by `updateMyProfile`. Phone is managed separately on Account. */
 export const profileApiFormSchema = z.object({
   displayName: z
@@ -9,7 +11,17 @@ export const profileApiFormSchema = z.object({
     .trim()
     .min(1, 'Please enter a display name shown on your profile.'),
   /** `yyyy-mm-dd` from a native date input, or empty when unset. */
-  dateOfBirth: z.string(),
+  dateOfBirth: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value === '' || parseIsoDateOnly(value) !== null,
+      'Enter a valid date of birth.',
+    )
+    .refine(
+      (value) => value === '' || isAtLeast18(value),
+      'You must be 18 or over to use Slashie.',
+    ),
   defaultPreferredContactMethod: z.nativeEnum(TaskContactMethod),
 })
 

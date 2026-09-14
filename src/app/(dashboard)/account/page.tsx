@@ -12,6 +12,7 @@ import {
 } from '@/app/(dashboard)/components/layout/DashboardSectionCard'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
+import { SAFETY_HREF } from '@/utils/appRoutes'
 import { Button, Card, Link } from '@ui'
 
 import { MembershipRefreshOnMount } from '../components/membership/MembershipRefreshOnMount'
@@ -115,6 +116,22 @@ export default function AccountPage() {
                   color="text.link"
                 >
                   {t.privacyPreferences}
+                </Link>
+                <Link
+                  href={SAFETY_HREF}
+                  fontSize="sm"
+                  fontWeight={600}
+                  color="text.link"
+                >
+                  {t.safetyGuide}
+                </Link>
+                <Link
+                  href={`${SAFETY_HREF}#report`}
+                  fontSize="sm"
+                  fontWeight={600}
+                  color="text.link"
+                >
+                  {t.reportHelp}
                 </Link>
               </Stack>
             </Card>

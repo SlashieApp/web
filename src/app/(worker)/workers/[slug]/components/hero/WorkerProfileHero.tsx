@@ -143,7 +143,7 @@ export function WorkerProfileHero() {
                     justifyContent="center"
                     borderWidth="2.5px"
                     borderColor="bg.surface"
-                    aria-label="Verified worker"
+                    aria-label="Identity verified"
                   >
                     <LuCheck size={13} strokeWidth={3.2} aria-hidden />
                   </Box>

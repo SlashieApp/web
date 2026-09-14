@@ -168,7 +168,7 @@
         "viewProfile": "View profile",
         "viewProfileFor": "View profile for {name}",
         "messages": "Messages",
-        "verified": "Verified on Slashie",
+        "verified": "Identity verified",
         "avatarAlt": "{name} avatar"
       },
       "respondedJustNow": "Responded just now",
@@ -422,7 +422,7 @@
         "viewProfile": "查看檔案",
         "viewProfileFor": "查看 {name} 的檔案",
         "messages": "訊息",
-        "verified": "已在 Slashie 驗證",
+        "verified": "已核對身分",
         "avatarAlt": "{name} 的頭像"
       },
       "respondedJustNow": "剛剛回覆",

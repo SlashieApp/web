@@ -2,7 +2,7 @@
   "en": {
     "metadata": {
       "title": "Find workers | Slashie",
-      "description": "Search verified local workers by area and skills."
+      "description": "Search local workers by area and skills."
     },
     "title": "Find workers",
     "description": "Choose an area, filter by skill, and browse workers who serve that neighbourhood.",
@@ -17,7 +17,7 @@
     "skillsAriaLabel": "Filter workers by skill or name",
     "distanceLabel": "Distance",
     "distanceValue": "{km} km",
-    "verifiedOnly": "Verified only",
+    "verifiedOnly": "Identity verified",
     "search": "Search",
     "filters": "Filters",
     "filtersTitle": "Filters",
@@ -31,7 +31,7 @@
   "zh_hk": {
     "metadata": {
       "title": "尋找工作者 | Slashie",
-      "description": "按地區和技能搜尋已驗證的本地工作者。"
+      "description": "按地區和技能搜尋本地工作者。"
     },
     "title": "尋找工作者",
     "description": "選擇地區、以技能篩選，瀏覽服務該社區的工作者。",
@@ -46,7 +46,7 @@
     "skillsAriaLabel": "按技能或姓名篩選工作者",
     "distanceLabel": "距離",
     "distanceValue": "{km} 公里",
-    "verifiedOnly": "只顯示已驗證",
+    "verifiedOnly": "已核對身分",
     "search": "搜尋",
     "filters": "篩選",
     "filtersTitle": "篩選",

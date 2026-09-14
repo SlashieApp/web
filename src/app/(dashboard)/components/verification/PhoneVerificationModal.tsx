@@ -200,7 +200,8 @@ export function PhoneVerificationModal({
           submitDisabled={rateLimited}
         >
           <Text fontSize="sm" color="text.muted" lineHeight="tall">
-            Enter your contact phone number below to get verified.
+            Enter your contact phone number. We only confirm we can reach this
+            number — it is not an identity, DBS, or safety check.
           </Text>
           <FormField label="Mobile number">
             <PhoneInput

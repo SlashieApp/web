@@ -10,91 +10,114 @@ import {
 
 import { taskCreateCategorySchema } from '@/app/(task)/helpers/taskCategories'
 
-export const createTaskFormSchema = z
-  .object({
-    title: z.string().trim().min(1, 'Please add a task title.'),
-    category: z
-      .string()
-      .transform((s) => s.trim())
-      .pipe(
-        z
-          .string()
-          .min(1, 'Please choose a task category.')
-          .pipe(taskCreateCategorySchema),
-      ),
-    description: z
-      .string()
-      .trim()
-      .min(1, 'Please describe what needs to be done.'),
-    streetAddress: z
-      .string()
-      .trim()
-      .min(1, 'Please add your property address.'),
-    mapPlaceName: z
-      .string()
-      .trim()
-      .min(1, 'Search or move the map to set your task area.'),
-    locationLat: z
-      .string()
-      .trim()
-      .refine((s) => {
-        const n = Number.parseFloat(s)
-        return Number.isFinite(n) && !Number.isNaN(n)
-      }, 'Could not read map latitude. Try moving the map slightly.'),
-    locationLng: z
-      .string()
-      .trim()
-      .refine((s) => {
-        const n = Number.parseFloat(s)
-        return Number.isFinite(n) && !Number.isNaN(n)
-      }, 'Could not read map longitude. Try moving the map slightly.'),
-    datetimeType: z.nativeEnum(TaskDateTimeType),
-    preferredDate: z.string(),
-    preferredTime: z.string(),
-    budgetMajor: z
-      .string()
-      .trim()
-      .refine((s) => {
-        const n = Number.parseFloat(s)
-        return Number.isFinite(n) && n > 0
-      }, 'Please provide a valid budget amount.'),
-    budgetCurrency: z.nativeEnum(Currency),
-    budgetType: z.nativeEnum(TaskBudgetType),
-    paymentMethod: z.nativeEnum(TaskPaymentMethod),
-    preferredContactMethod: z.nativeEnum(TaskContactMethod),
-  })
-  .superRefine((data, ctx) => {
-    if (
-      data.datetimeType === TaskDateTimeType.Before ||
-      data.datetimeType === TaskDateTimeType.Exact
-    ) {
-      if (!data.preferredDate.trim()) {
+export const taskDetailsFields = {
+  title: z.string().trim().min(1, 'Please add a task title.'),
+  category: z
+    .string()
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, 'Please choose a task category.')
+        .pipe(taskCreateCategorySchema),
+    ),
+  description: z
+    .string()
+    .trim()
+    .min(1, 'Please describe what needs to be done.'),
+  streetAddress: z.string().trim().min(1, 'Please add your property address.'),
+  mapPlaceName: z
+    .string()
+    .trim()
+    .min(1, 'Search or move the map to set your task area.'),
+  locationLat: z
+    .string()
+    .trim()
+    .refine((s) => {
+      const n = Number.parseFloat(s)
+      return Number.isFinite(n) && !Number.isNaN(n)
+    }, 'Could not read map latitude. Try moving the map slightly.'),
+  locationLng: z
+    .string()
+    .trim()
+    .refine((s) => {
+      const n = Number.parseFloat(s)
+      return Number.isFinite(n) && !Number.isNaN(n)
+    }, 'Could not read map longitude. Try moving the map slightly.'),
+  datetimeType: z.nativeEnum(TaskDateTimeType),
+  preferredDate: z.string(),
+  preferredTime: z.string(),
+  budgetMajor: z
+    .string()
+    .trim()
+    .refine((s) => {
+      const n = Number.parseFloat(s)
+      return Number.isFinite(n) && n > 0
+    }, 'Please provide a valid budget amount.'),
+  budgetCurrency: z.nativeEnum(Currency),
+  budgetType: z.nativeEnum(TaskBudgetType),
+  paymentMethod: z.nativeEnum(TaskPaymentMethod),
+  preferredContactMethod: z.nativeEnum(TaskContactMethod),
+}
+
+export function refineTaskSchedule(
+  data: {
+    datetimeType: TaskDateTimeType
+    preferredDate: string
+    preferredTime: string
+  },
+  ctx: z.RefinementCtx,
+) {
+  if (
+    data.datetimeType === TaskDateTimeType.Before ||
+    data.datetimeType === TaskDateTimeType.Exact
+  ) {
+    if (!data.preferredDate.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please choose a date for this timing option.',
+        path: ['preferredDate'],
+      })
+    }
+  }
+  if (data.datetimeType === TaskDateTimeType.Exact) {
+    if (!data.preferredTime.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please choose a time for an exact slot.',
+        path: ['preferredTime'],
+      })
+    } else {
+      const parsed = new Date(`${data.preferredDate}T${data.preferredTime}:00`)
+      if (Number.isNaN(parsed.getTime())) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Please choose a date for this timing option.',
-          path: ['preferredDate'],
+          message: 'Please provide a valid date and time.',
+          path: ['preferredTime'],
         })
       }
     }
-    if (data.datetimeType === TaskDateTimeType.Exact) {
-      if (!data.preferredTime.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Please choose a time for an exact slot.',
-          path: ['preferredTime'],
-        })
-      } else {
-        const parsed = new Date(
-          `${data.preferredDate}T${data.preferredTime}:00`,
-        )
-        if (Number.isNaN(parsed.getTime())) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Please provide a valid date and time.',
-            path: ['preferredTime'],
-          })
-        }
-      }
+  }
+}
+
+/** Shared create/edit fields. Create adds the prohibited-use acknowledgement. */
+export const taskDetailsFormSchema = z
+  .object(taskDetailsFields)
+  .superRefine(refineTaskSchedule)
+
+export const createTaskFormSchema = z
+  .object({
+    ...taskDetailsFields,
+    acceptedProhibitedUse: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    refineTaskSchedule(data, ctx)
+    if (!data.acceptedProhibitedUse) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Confirm this task is allowed before publishing.',
+        path: ['acceptedProhibitedUse'],
+      })
     }
   })
 
@@ -109,7 +132,11 @@ export function toYmd(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-export function buildDatetimePayload(values: CreateTaskFormValues): {
+export function buildDatetimePayload(values: {
+  datetimeType: TaskDateTimeType
+  preferredDate: string
+  preferredTime: string
+}): {
   type: TaskDateTimeType
   date?: string
   time?: string

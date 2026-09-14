@@ -62,7 +62,12 @@ export function LegalPageLayout({
             </Text>
           ))}
           {document.sections.map((section) => (
-            <Stack key={section.heading} gap={3}>
+            <Stack
+              key={section.heading}
+              id={section.id}
+              gap={3}
+              scrollMarginTop="96px"
+            >
               <Heading as="h2" size="md">
                 {section.heading}
               </Heading>

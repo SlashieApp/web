@@ -56,7 +56,7 @@ export function WorkerSetupQualificationsInput({
           Qualifications & certifications
         </WorkerSetupOptionalLabel>
       }
-      helperText="Accreditations customers recognise build trust — they appear on your public profile."
+      helperText="List licences or trade cards you hold. Slashie does not check DBS, insurance, or qualifications — customers see what you write."
     >
       <Box w="full">
         {value.length > 0 ? (

@@ -13,7 +13,7 @@
     "reasonRequired": "Choose a reason.",
     "reasons": {
       "SPAM": "Spam",
-      "HARASSMENT": "Harassment",
+      "HARASSMENT": "Harassment or abuse",
       "ILLEGAL_OR_PROHIBITED": "Illegal or prohibited",
       "SCAM": "Scam",
       "OTHER": "Something else"
@@ -45,8 +45,8 @@
     "reasonRequired": "請選擇原因。",
     "reasons": {
       "SPAM": "垃圾訊息",
-      "HARASSMENT": "騷擾",
-      "ILLEGAL_OR_PROHIBITED": "違法或禁止",
+      "HARASSMENT": "騷擾或虐待",
+      "ILLEGAL_OR_PROHIBITED": "非法或禁止的內容",
       "SCAM": "詐騙",
       "OTHER": "其他"
     },

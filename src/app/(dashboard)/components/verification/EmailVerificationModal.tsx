@@ -69,7 +69,8 @@ export function EmailVerificationModal({
                 {me.email}
               </Text>
               . Open the link in your inbox to confirm this address on your
-              account — you cannot verify a different email.
+              account — contact proof only, not an identity or safety check. You
+              cannot verify a different email.
             </Text>
             {message ? (
               <Text

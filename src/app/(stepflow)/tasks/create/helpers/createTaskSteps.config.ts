@@ -120,7 +120,7 @@ export const CREATE_TASK_STEP_FIELDS: Record<
     'budgetType',
     'paymentMethod',
   ],
-  'publish.contact': ['preferredContactMethod'],
+  'publish.contact': ['preferredContactMethod', 'acceptedProhibitedUse'],
 }
 
 export function createTaskSubStepIndex(id: CreateTaskSubStepId): number {
