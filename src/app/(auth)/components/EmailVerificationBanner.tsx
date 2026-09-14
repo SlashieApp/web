@@ -4,14 +4,15 @@ import { Box, HStack, Text } from '@chakra-ui/react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
-import { useMe } from '@/app/(auth)/store/user'
+import { useAccountDisabled, useMe } from '@/app/(auth)/store/user'
 import { Button, Link } from '@ui'
 
 export function EmailVerificationBanner() {
   const me = useMe()
+  const accountDisabled = useAccountDisabled()
   const { resend, isSending, message } = useResendVerificationEmail()
 
-  if (!me || isEmailVerified(me)) return null
+  if (!me || accountDisabled || isEmailVerified(me)) return null
 
   return (
     <Box

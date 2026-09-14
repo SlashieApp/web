@@ -2,6 +2,7 @@ query MeWorkerSetup {
   me {
     id
     email
+    disabled
     emailVerified
     phoneVerified
     workerEligibility

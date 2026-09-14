@@ -213,7 +213,7 @@ function StepFlowPanel({
 }
 
 export type StepFlowLayoutProps = {
-  /** Full-width strip above everything (e.g. email-verification banner). */
+  /** Full-width strip above everything (e.g. account status banners). */
   banner?: ReactNode
   /** Flow header (e.g. exit + logo bar). Rendered on all breakpoints. */
   header?: ReactNode

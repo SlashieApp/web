@@ -56,7 +56,10 @@ export function NotificationsProvider({
   const toastedIdsRef = useRef<Set<string>>(new Set())
   const bootstrappedRef = useRef(false)
 
-  const skip = !me || !getAuthToken()
+  const accountDisabled = useUserStore(
+    (s) => s.accountDisabled || Boolean(s.me?.disabled),
+  )
+  const skip = !me || !getAuthToken() || accountDisabled
 
   const {
     data,

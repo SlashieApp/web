@@ -18,6 +18,7 @@ import { Dropdown, useDropdownClose } from './Dropdown'
 const accountMenuMe: MeSnapshot = {
   id: 'user-1',
   email: 'ryan@example.com',
+  disabled: false,
   emailVerified: true,
   phoneVerified: true,
   phoneVerifiedAt: '2024-06-01T00:00:00.000Z',

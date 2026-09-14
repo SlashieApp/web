@@ -1,0 +1,18 @@
+{
+  "en": {
+    "suspension": {
+      "ariaLabel": "Account suspension notice",
+      "before": "This account is being suspended. Please contact ",
+      "email": "accounts@slashie.app",
+      "after": "."
+    }
+  },
+  "zh_hk": {
+    "suspension": {
+      "ariaLabel": "帳戶暫停通知",
+      "before": "此帳戶正被暫停，請聯絡 ",
+      "email": "accounts@slashie.app",
+      "after": "。"
+    }
+  }
+}

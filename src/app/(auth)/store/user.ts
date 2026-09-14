@@ -29,6 +29,7 @@ import {
   clearCachedGooglePhotoUrl,
   googlePictureFromIdToken,
 } from '@/utils/googlePhotoCache'
+import { isAccountDisabledError } from '@/utils/graphqlErrors'
 
 const REMEMBER_MAX_AGE = 60 * 60 * 24 * 30
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7
@@ -59,6 +60,11 @@ type UserStore = {
   user: AuthUser | null
   /** Full `me` snapshot mirrored from Apollo. Source of truth for dashboard reads. */
   me: MeSnapshot | null
+  /**
+   * True when `me.disabled` or an `ACCOUNT_DISABLED` GraphQL error was seen.
+   * Survives a failed `me` query so the suspension banner can still render.
+   */
+  accountDisabled: boolean
   isLoading: boolean
   setUser: (user: AuthUser | null) => void
   /** Replace the cached `me` snapshot (typically after `me` query or full mutation). */
@@ -95,10 +101,12 @@ function toAuthUser(user: unknown): AuthUser | null {
 function syncStateFromMe(me: MeQuery['me'] | null | undefined): {
   user: AuthUser | null
   me: MeSnapshot | null
+  accountDisabled: boolean
 } {
   return {
     user: toAuthUser(me),
     me: me ?? null,
+    accountDisabled: Boolean(me?.disabled),
   }
 }
 
@@ -120,6 +128,7 @@ function syncAnalyticsIdentity(me: MeSnapshot | null) {
 export const useUserStore = create<UserStore>((set, get) => ({
   user: null,
   me: null,
+  accountDisabled: false,
   isLoading: false,
   setUser: (user) => set({ user }),
   setMe: (next) => set(syncStateFromMe(next)),
@@ -155,20 +164,39 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
       setAuthToken(token, rememberMe ? REMEMBER_MAX_AGE : SESSION_MAX_AGE)
       clearCachedGooglePhotoUrl()
-      const meResult = await apolloClient.query<MeQuery>({
-        query: Me,
-        fetchPolicy: 'network-only',
-      })
-      const synced = syncStateFromMe(meResult.data?.me)
-      set({ ...synced, isLoading: false })
-      syncAnalyticsIdentity(synced.me)
-      clearApiUnavailable()
-      trackFlowSucceeded(EVENTS.login_success, {
-        method: 'password',
-        had_captcha: hadCaptcha,
-        fail_count_client: analytics?.fail_count_client,
-      })
-      return synced.user
+      const loginUser = toAuthUser(result.data?.login?.user)
+      try {
+        const meResult = await apolloClient.query<MeQuery>({
+          query: Me,
+          fetchPolicy: 'network-only',
+        })
+        const synced = syncStateFromMe(meResult.data?.me)
+        set({ ...synced, isLoading: false })
+        syncAnalyticsIdentity(synced.me)
+        clearApiUnavailable()
+        trackFlowSucceeded(EVENTS.login_success, {
+          method: 'password',
+          had_captcha: hadCaptcha,
+          fail_count_client: analytics?.fail_count_client,
+        })
+        return synced.user
+      } catch (meError) {
+        if (isAccountDisabledError(meError) && getAuthToken()) {
+          set({
+            user: loginUser,
+            accountDisabled: true,
+            isLoading: false,
+          })
+          clearApiUnavailable()
+          trackFlowSucceeded(EVENTS.login_success, {
+            method: 'password',
+            had_captcha: hadCaptcha,
+            fail_count_client: analytics?.fail_count_client,
+          })
+          return loginUser
+        }
+        throw meError
+      }
     } catch (error) {
       set({ isLoading: false })
       const abuse = parseAuthAbuseError(error)
@@ -207,17 +235,32 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
       setAuthToken(token, SESSION_MAX_AGE)
       cacheGooglePhotoUrl(googlePictureFromIdToken(idToken))
+      const loginUser = toAuthUser(result.data?.loginWithMethod?.user)
 
-      const meResult = await apolloClient.query<MeQuery>({
-        query: Me,
-        fetchPolicy: 'network-only',
-      })
-      const synced = syncStateFromMe(meResult.data?.me)
-      set({ ...synced, isLoading: false })
-      syncAnalyticsIdentity(synced.me)
-      clearApiUnavailable()
-      trackFlowSucceeded(EVENTS.google_login_success)
-      return synced.user
+      try {
+        const meResult = await apolloClient.query<MeQuery>({
+          query: Me,
+          fetchPolicy: 'network-only',
+        })
+        const synced = syncStateFromMe(meResult.data?.me)
+        set({ ...synced, isLoading: false })
+        syncAnalyticsIdentity(synced.me)
+        clearApiUnavailable()
+        trackFlowSucceeded(EVENTS.google_login_success)
+        return synced.user
+      } catch (meError) {
+        if (isAccountDisabledError(meError) && getAuthToken()) {
+          set({
+            user: loginUser,
+            accountDisabled: true,
+            isLoading: false,
+          })
+          clearApiUnavailable()
+          trackFlowSucceeded(EVENTS.google_login_success)
+          return loginUser
+        }
+        throw meError
+      }
     } catch (error) {
       set({ isLoading: false })
       trackFlowFailed(EVENTS.google_login_fail, error, {
@@ -233,13 +276,13 @@ export const useUserStore = create<UserStore>((set, get) => ({
     clearAuthToken()
     clearCachedGooglePhotoUrl()
     resetAnalyticsIdentity()
-    set({ user: null, me: null })
+    set({ user: null, me: null, accountDisabled: false })
     void apolloClient.clearStore()
   },
   getUser: async () => {
     const token = getAuthToken()
     if (!token) {
-      set({ user: null, me: null, isLoading: false })
+      set({ user: null, me: null, accountDisabled: false, isLoading: false })
       return null
     }
 
@@ -255,10 +298,23 @@ export const useUserStore = create<UserStore>((set, get) => ({
       clearApiUnavailable()
       return synced.user
     } catch (error) {
+      if (isAccountDisabledError(error)) {
+        const current = get()
+        const nextMe = current.me
+          ? ({ ...current.me, disabled: true } as MeSnapshot)
+          : current.me
+        set({
+          user: current.user,
+          me: nextMe,
+          accountDisabled: true,
+          isLoading: false,
+        })
+        return current.user
+      }
       clearAuthToken()
       clearCachedGooglePhotoUrl()
       resetAnalyticsIdentity()
-      set({ user: null, me: null, isLoading: false })
+      set({ user: null, me: null, accountDisabled: false, isLoading: false })
       return null
     }
   },
@@ -267,4 +323,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
 /** Stable selector hook for the current `me` snapshot (Zustand-mirrored). */
 export function useMe() {
   return useUserStore((state) => state.me)
+}
+
+/** True when this session belongs to a disabled / suspended account. */
+export function useAccountDisabled() {
+  return useUserStore(
+    (state) => state.accountDisabled || Boolean(state.me?.disabled),
+  )
 }

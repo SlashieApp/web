@@ -82,6 +82,8 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
     'Too many reset requests. Please wait a bit and try again.',
   REGISTER_RATE_LIMITED:
     'Too many registration attempts. Please wait a bit and try again, or continue with Google if available.',
+  ACCOUNT_DISABLED:
+    'This account is suspended. Please contact accounts@slashie.app.',
   ACCOUNT_TEMPORARILY_LOCKED:
     'Too many attempts. Please wait a bit and try again, or sign in with Google if available.',
   LOGIN_LOCKED:
@@ -105,6 +107,11 @@ export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =
 
 export const WORKER_QUOTE_LIMIT_ERROR_CODE =
   'WORKER_QUOTE_LIMIT_REACHED' as const
+
+export const ACCOUNT_DISABLED_ERROR_CODE = 'ACCOUNT_DISABLED' as const
+
+export const ACCOUNT_DISABLED_FRIENDLY_MESSAGE =
+  FRIENDLY_ERROR_BY_MESSAGE[ACCOUNT_DISABLED_ERROR_CODE]
 
 function normaliseMessage(message: string) {
   return message.trim().toUpperCase()
@@ -154,6 +161,37 @@ export function isWorkerQuoteLimitError(error: unknown) {
   return (
     normaliseMessage(graphQLError.message) === WORKER_QUOTE_LIMIT_ERROR_CODE
   )
+}
+
+function matchesAccountDisabledCode(code: unknown, message?: string) {
+  if (code === ACCOUNT_DISABLED_ERROR_CODE) return true
+  if (
+    typeof code === 'string' &&
+    normaliseMessage(code) === ACCOUNT_DISABLED_ERROR_CODE
+  )
+    return true
+  if (message && normaliseMessage(message) === ACCOUNT_DISABLED_ERROR_CODE)
+    return true
+  return false
+}
+
+/** Disabled-account GraphQL errors — banner is the primary UX; do not log out. */
+export function isAccountDisabledError(error: unknown) {
+  if (!error || typeof error !== 'object') return false
+  const direct = error as GraphQLErrorLike
+  if (matchesAccountDisabledCode(direct.extensions?.code, direct.message)) {
+    return true
+  }
+  const graphQLError = pickGraphQLError(error)
+  if (
+    matchesAccountDisabledCode(
+      graphQLError?.extensions?.code,
+      graphQLError?.message,
+    )
+  ) {
+    return true
+  }
+  return getGraphQLErrorCode(error) === ACCOUNT_DISABLED_ERROR_CODE
 }
 
 export function getGraphQLErrorCode(error: unknown): string | undefined {

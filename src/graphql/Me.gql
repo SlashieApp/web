@@ -4,6 +4,7 @@ query Me {
   me {
     id
     email
+    disabled
     emailVerified
     phoneVerified
     phoneVerifiedAt

@@ -12,6 +12,7 @@ function meFixture(
   return {
     id: 'user-1',
     email: 'alex@example.com',
+    disabled: false,
     emailVerified: true,
     phoneVerified,
     createdAt: '2026-06-01T00:00:00.000Z',

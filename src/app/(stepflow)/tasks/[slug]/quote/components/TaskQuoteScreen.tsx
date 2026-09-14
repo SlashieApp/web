@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
-import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
+import { AccountStatusBanners } from '@/app/(auth)/components/AccountStatusBanners'
 import { StepFlowLayout } from '@ui'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
@@ -172,7 +172,7 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
 
   return (
     <StepFlowLayout
-      banner={<EmailVerificationBanner />}
+      banner={<AccountStatusBanners />}
       mobileTop={
         <TaskQuoteTaskDetailPanel backHref={backToTask} variant="section" />
       }

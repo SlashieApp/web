@@ -29,6 +29,7 @@ import { Header } from './Header'
 const meWorker: MeSnapshot = {
   id: 'user-1',
   email: 'ryan@example.com',
+  disabled: false,
   emailVerified: true,
   phoneVerified: true,
   phoneVerifiedAt: '2024-06-01T00:00:00.000Z',
@@ -130,12 +131,13 @@ const meWorkerFree: MeSnapshot = {
 
 function seedMe(me: MeSnapshot | null) {
   if (!me) {
-    useUserStore.setState({ user: null, me: null })
+    useUserStore.setState({ user: null, me: null, accountDisabled: false })
     return
   }
   useUserStore.setState({
     user: { id: me.id, email: me.email, createdAt: me.createdAt },
     me,
+    accountDisabled: Boolean(me.disabled),
   })
 }
 
@@ -232,6 +234,18 @@ export const WorkerFreePlan: Story = {
   decorators: [
     (Story) => {
       seedMe(meWorkerFree)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+}
+
+/** Disabled account — persistent suspension banner with mailto support. */
+export const SuspendedAccount: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  decorators: [
+    (Story) => {
+      seedMe({ ...meWorker, disabled: true })
       return <Story />
     },
   ],

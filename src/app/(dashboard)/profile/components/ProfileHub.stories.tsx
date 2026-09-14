@@ -23,6 +23,7 @@ function profileFixture({
   return {
     id: 'user-rk',
     email: 'rikhong124@gmail.com',
+    disabled: false,
     emailVerified: true,
     phoneVerified,
     phoneVerifiedAt: phoneVerified ? '2026-06-08T10:00:00.000Z' : null,

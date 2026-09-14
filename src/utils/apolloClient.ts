@@ -13,7 +13,7 @@ import {
 } from '@/utils/apiAvailability'
 
 import { clearAuthToken, getAuthToken } from './auth'
-import { isUnauthenticatedError } from './graphqlErrors'
+import { isAccountDisabledError, isUnauthenticatedError } from './graphqlErrors'
 
 const httpLink = createHttpLink({
   uri: `${process.env.NEXT_PUBLIC_GRAPHQL_URL}/graphql`,
@@ -34,6 +34,11 @@ const authLink = setContext((_, { headers }) => {
 })
 
 const errorLink = onError(({ error, operation }) => {
+  if (isAccountDisabledError(error)) {
+    // Session stays; the suspension banner is the primary UX.
+    return
+  }
+
   if (isUnauthenticatedError(error)) {
     clearAuthToken()
   }
@@ -49,6 +54,7 @@ const errorLink = onError(({ error, operation }) => {
 
   if (CombinedGraphQLErrors.is(error)) {
     for (const gqlError of error.errors) {
+      if (isAccountDisabledError(gqlError)) continue
       captureApiError(gqlError, {
         flow: 'graphql',
         action: 'apollo_onError',

@@ -3,6 +3,7 @@
 fragment MeShell on User {
   id
   email
+  disabled
   profile {
     name
     avatarUrl
