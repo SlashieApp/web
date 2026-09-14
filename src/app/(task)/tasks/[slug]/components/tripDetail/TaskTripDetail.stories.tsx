@@ -23,7 +23,11 @@ const meta = {
   title: 'task/tasks/tripDetail/TaskTripDetail',
   component: TaskTripDetailPreview,
   tags: ['autodocs'],
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    // Desktop money page is the regression under test (FE-161).
+    viewport: { defaultViewport: 'desktop' },
+  },
 } satisfies Meta<typeof TaskTripDetailPreview>
 
 export default meta

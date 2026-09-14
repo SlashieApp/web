@@ -1,11 +1,12 @@
 'use client'
 
-import type { BoxProps } from '@chakra-ui/react'
+import { Box, type BoxProps, Grid } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
 import { Tabs } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_OVERVIEW_COLUMNS } from '../../helpers/taskDetailLayout'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import bag from '../../i11n.json'
 import { TaskDetailMoneyChrome } from './TaskDetailMoneyChrome'
@@ -65,7 +66,18 @@ export function TaskDetailSectionTabs({
       ]}
     >
       <Tabs.Panel value={TASK_DETAIL_TAB.overview}>
-        <TaskInfoSections />
+        <Grid
+          w="full"
+          templateColumns={TASK_DETAIL_OVERVIEW_COLUMNS}
+          columnGap={{ lg: 8 }}
+          rowGap={5}
+          alignItems="start"
+        >
+          <TaskInfoSections />
+          <Box display={{ base: 'none', lg: 'block' }} minW={0}>
+            <TaskQuoteSections />
+          </Box>
+        </Grid>
       </Tabs.Panel>
       <Tabs.Panel value={TASK_DETAIL_TAB.quotes}>
         <TaskQuoteSections />

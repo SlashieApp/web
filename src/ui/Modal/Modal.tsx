@@ -37,6 +37,9 @@ import { IconButton as UiIconButton } from '../IconButton/IconButton'
 
 const modalPaddingX = { base: 5, md: 6 } as const
 
+/** Above Header (30), task sticky chrome, and dropdowns (50). */
+const MODAL_Z_INDEX = 1400
+
 export type ModalSize = 'sm' | 'md' | 'lg'
 
 const sizeMaxW: Record<ModalSize, string> = {
@@ -106,12 +109,15 @@ export function Modal({
       motionPreset="scale"
     >
       {/* Portal to document.body so the scrim covers Header / map / dock,
-          not a transformed ancestor (tab panels, side columns). */}
+          not a transformed ancestor (tab panels, side columns). z-index sits
+          above Header (30) — a portaled auto-z overlay paints under it. */}
       <Portal>
-        {/* Scrim: dim + blur the canvas behind the dialog, using the SDL
-            `bg.overlay` ink wash (not pure black). */}
-        <DialogBackdrop bg="bg.overlay" backdropFilter="blur(4px)" />
-        <DialogPositioner p={4}>
+        <DialogBackdrop
+          bg="bg.overlay"
+          backdropFilter="blur(4px)"
+          zIndex={MODAL_Z_INDEX}
+        />
+        <DialogPositioner p={4} zIndex={MODAL_Z_INDEX}>
           <DialogContent
             bg="bg.surface"
             borderRadius="lg"
