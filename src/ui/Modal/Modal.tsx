@@ -11,6 +11,7 @@ import {
   DialogRoot,
   DialogTitle,
   HStack,
+  Portal,
   Stack,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
@@ -104,103 +105,116 @@ export function Modal({
       placement="center"
       motionPreset="scale"
     >
-      {/* Scrim: dim + blur the canvas behind the dialog, using the SDL
-          `bg.overlay` ink wash (not pure black). */}
-      <DialogBackdrop bg="bg.overlay" backdropFilter="blur(4px)" />
-      <DialogPositioner p={4}>
-        <DialogContent
-          bg="bg.surface"
-          borderRadius="lg"
-          boxShadow="e5"
-          borderWidth="1px"
-          borderColor="border.default"
-          maxW={sizeMaxW[size]}
-          w="full"
-          mx="auto"
-          overflow="hidden"
-          transitionProperty="opacity, transform"
-          transitionDuration={sdlMotion.duration.moderate}
-          transitionTimingFunction={sdlMotion.easing.standard}
-        >
-          <DialogHeader
-            px={modalPaddingX}
-            pt={5}
-            pb={4}
-            borderBottomWidth="1px"
+      {/* Portal to document.body so the scrim covers Header / map / dock,
+          not a transformed ancestor (tab panels, side columns). */}
+      <Portal>
+        {/* Scrim: dim + blur the canvas behind the dialog, using the SDL
+            `bg.overlay` ink wash (not pure black). */}
+        <DialogBackdrop bg="bg.overlay" backdropFilter="blur(4px)" />
+        <DialogPositioner p={4}>
+          <DialogContent
+            bg="bg.surface"
+            borderRadius="lg"
+            boxShadow="e5"
+            borderWidth="1px"
             borderColor="border.default"
+            maxW={sizeMaxW[size]}
+            w="full"
+            mx="auto"
+            overflow="hidden"
+            transitionProperty="opacity, transform"
+            transitionDuration={sdlMotion.duration.moderate}
+            transitionTimingFunction={sdlMotion.easing.standard}
           >
-            <HStack align="center" justify="space-between" gap={3}>
-              <DialogTitle
-                fontFamily="body"
-                fontSize="20px"
-                fontWeight={600}
-                color="text.default"
-                lineHeight="short"
-                flex={1}
-                minW={0}
-              >
-                {title}
-              </DialogTitle>
-              <DialogCloseTrigger asChild>
-                <UiIconButton aria-label="Close" variant="ghost" flexShrink={0}>
-                  ×
-                </UiIconButton>
-              </DialogCloseTrigger>
-            </HStack>
-          </DialogHeader>
-
-          <DialogBody px={modalPaddingX} py={6}>
-            <Stack gap={6} fontSize="md" color="text.muted" lineHeight="1.625">
-              {children}
-            </Stack>
-          </DialogBody>
-
-          {showFooter ? (
-            <DialogFooter
+            <DialogHeader
               px={modalPaddingX}
-              py={4}
-              borderTopWidth="1px"
+              pt={5}
+              pb={4}
+              borderBottomWidth="1px"
               borderColor="border.default"
-              gap={3}
-              justifyContent="flex-end"
             >
-              {footer ?? (
-                <HStack gap={3} w="full" justify="flex-end">
-                  {backLabel ? (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleBack}
-                    >
-                      {backLabel}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleCancel}
-                    >
-                      {cancelLabel}
-                    </Button>
-                  )}
-                  {submitLabel ? (
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={onSubmit}
-                      loading={submitLoading}
-                      disabled={submitDisabled}
-                      minW="120px"
-                    >
-                      {submitLabel}
-                    </Button>
-                  ) : null}
-                </HStack>
-              )}
-            </DialogFooter>
-          ) : null}
-        </DialogContent>
-      </DialogPositioner>
+              <HStack align="center" justify="space-between" gap={3}>
+                <DialogTitle
+                  fontFamily="body"
+                  fontSize="20px"
+                  fontWeight={600}
+                  color="text.default"
+                  lineHeight="short"
+                  flex={1}
+                  minW={0}
+                >
+                  {title}
+                </DialogTitle>
+                <DialogCloseTrigger asChild>
+                  <UiIconButton
+                    aria-label="Close"
+                    variant="ghost"
+                    flexShrink={0}
+                  >
+                    ×
+                  </UiIconButton>
+                </DialogCloseTrigger>
+              </HStack>
+            </DialogHeader>
+
+            <DialogBody px={modalPaddingX} py={6}>
+              <Stack
+                gap={6}
+                fontSize="md"
+                color="text.muted"
+                lineHeight="1.625"
+              >
+                {children}
+              </Stack>
+            </DialogBody>
+
+            {showFooter ? (
+              <DialogFooter
+                px={modalPaddingX}
+                py={4}
+                borderTopWidth="1px"
+                borderColor="border.default"
+                gap={3}
+                justifyContent="flex-end"
+              >
+                {footer ?? (
+                  <HStack gap={3} w="full" justify="flex-end">
+                    {backLabel ? (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleBack}
+                      >
+                        {backLabel}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleCancel}
+                      >
+                        {cancelLabel}
+                      </Button>
+                    )}
+                    {submitLabel ? (
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={onSubmit}
+                        loading={submitLoading}
+                        disabled={submitDisabled}
+                        minW="120px"
+                      >
+                        {submitLabel}
+                      </Button>
+                    ) : null}
+                  </HStack>
+                )}
+              </DialogFooter>
+            ) : null}
+          </DialogContent>
+        </DialogPositioner>
+      </Portal>
     </DialogRoot>
   )
 }

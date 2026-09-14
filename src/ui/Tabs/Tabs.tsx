@@ -312,11 +312,14 @@ function TabPanel({ value, children }: TabPanelProps) {
   }, [isActive, reducedMotion])
 
   const offset = direction >= 0 ? 12 : -12
+  // Resting state must not keep `transform: translateX(0)` — a non-none
+  // transform makes `position: fixed` overlays (dialogs) size to this panel
+  // instead of the viewport.
   const motionStyle =
     isActive && !reducedMotion
       ? {
           opacity: entered ? 1 : 0,
-          transform: entered ? 'translateX(0)' : `translateX(${offset}px)`,
+          transform: entered ? 'none' : `translateX(${offset}px)`,
           transition: entered
             ? `opacity ${sdlMotion.duration.moderate} ${sdlMotion.easing.standard}, transform ${sdlMotion.duration.moderate} ${sdlMotion.easing.standard}`
             : 'none',

@@ -31,7 +31,7 @@ export function TaskActionsFooter() {
   if (!task) return null
 
   return (
-    <Card layout="default" p={{ base: 3, md: 4 }}>
+    <Card layout="default" maxW="full" p={{ base: 3, md: 4 }}>
       <Stack gap={2} w="full">
         <Text fontSize="xs" fontWeight={700} color="text.muted" px={1}>
           {t.actions.helpHeading}

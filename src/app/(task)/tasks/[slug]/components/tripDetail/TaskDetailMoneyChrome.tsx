@@ -48,7 +48,7 @@ export function TaskDetailMoneyChrome() {
       : null
 
   return (
-    <Box pt={2} pb={1}>
+    <Box pt={2} pb={1} w="full">
       <TaskHeaderControls showBackLabel={false}>
         <Heading
           as="h1"

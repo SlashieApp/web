@@ -1,5 +1,7 @@
 'use client'
 
+import { Grid } from '@chakra-ui/react'
+
 import { useI11n } from '@/i18n/useI11n'
 import { Tabs } from '@ui'
 
@@ -16,6 +18,11 @@ import {
 type TaskDetailSectionTabsProps = {
   fitted?: boolean
   px?: number | string
+  /**
+   * Desktop Overview: two columns (details | quotes) at full container width.
+   * Mobile stays a single stacked column.
+   */
+  splitOverview?: boolean
 }
 
 /**
@@ -25,6 +32,7 @@ type TaskDetailSectionTabsProps = {
 export function TaskDetailSectionTabs({
   fitted = false,
   px,
+  splitOverview = false,
 }: TaskDetailSectionTabsProps) {
   const t = useI11n(bag)
   const { task, activeTab, setActiveTab } = useTaskDetail()
@@ -36,6 +44,7 @@ export function TaskDetailSectionTabs({
       sticky
       stickyTop={0}
       px={px}
+      w="full"
       aria-label={t.nav.taskSectionsAria}
       value={activeTab}
       onChange={(key) => {
@@ -59,7 +68,20 @@ export function TaskDetailSectionTabs({
       ]}
     >
       <Tabs.Panel value={TASK_DETAIL_TAB.overview}>
-        <TaskInfoSections />
+        {splitOverview ? (
+          <Grid
+            w="full"
+            templateColumns="minmax(0, 1fr) minmax(320px, 400px)"
+            columnGap={8}
+            rowGap={5}
+            alignItems="start"
+          >
+            <TaskInfoSections />
+            <TaskQuoteSections />
+          </Grid>
+        ) : (
+          <TaskInfoSections />
+        )}
       </Tabs.Panel>
       <Tabs.Panel value={TASK_DETAIL_TAB.quotes}>
         <TaskQuoteSections />

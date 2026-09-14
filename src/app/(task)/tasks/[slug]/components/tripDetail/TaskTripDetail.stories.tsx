@@ -14,8 +14,9 @@ import { TaskDetailMobile } from './TaskDetailMobile'
 import { TaskDetailView } from './openTask/TaskDetailView'
 
 /**
- * Mirror of the page-level composition (`tasks/[slug]/page.tsx` renders the
- * two form-factor views CSS-gated as direct children of the provider).
+ * Mirror of the page-level composition (`tasks/[slug]/page.tsx` picks one
+ * form factor via `useTaskDetailDesktopLayout`). Stories CSS-gate both so
+ * the Storybook viewport switch still shows mobile vs desktop.
  */
 function TaskTripDetailPreview() {
   return (
