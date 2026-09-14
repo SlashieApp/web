@@ -19,7 +19,11 @@ export {
   onCookieConsentChange,
   setCookieConsent,
 } from './consent'
-export { EVENTS } from './events'
+export {
+  EVENTS,
+  STALE_EVENT_ALIASES,
+  toCanonicalAnalyticsEvent,
+} from './events'
 export {
   getPostHog,
   initPostHogClient,
@@ -40,6 +44,7 @@ export type {
   CaptureApiErrorContext,
 } from './capture-api-error'
 export type { AuthenticatedUserIdentity } from './identify-user'
+export type { CaptureOptions } from './capture'
 export type {
   CaptureTaskDetailViewInput,
   TaskDetailOpenedFromSearchSurface,
@@ -52,3 +57,4 @@ export type {
   WorkerProfileViewSource,
 } from './worker-profile-view'
 export type { CookieConsentStatus, CookieConsentValue } from './consent'
+export type { QueueCaptureOptions } from './posthog-client'

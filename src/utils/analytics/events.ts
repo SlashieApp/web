@@ -74,7 +74,9 @@ export const EVENTS = {
   order_view: 'order_view',
   dashboard_view: 'dashboard_view',
 
-  // Closure
+  // Closure — `job_verify_*` is the live complete-with-code path.
+  // `job_done_*` / `order_confirm_*` stay in the catalogue for the
+  // unused completeOrder / confirmOrder mutations.
   job_done_success: 'job_done_success',
   job_done_fail: 'job_done_fail',
   order_confirm_success: 'order_confirm_success',
@@ -95,3 +97,38 @@ export type CaptureProperties = Record<
   string,
   string | number | boolean | null | undefined
 >
+
+/**
+ * Dead names from the Jun 2026 past-tense catalogue, native app, and
+ * PostHog wizard insights. `capture()` remaps these onto {@link EVENTS}
+ * so they cannot be the only ingested path.
+ */
+export const STALE_EVENT_ALIASES = {
+  task_created: EVENTS.task_create_success,
+  quote_submitted: EVENTS.quote_send_success,
+  quote_accepted: EVENTS.quote_accept_success,
+  order_completed: EVENTS.job_verify_success,
+  job_completed: EVENTS.job_verify_success,
+  membership_checkout_started: EVENTS.checkout_start,
+  billing_portal_opened: EVENTS.billing_portal_open,
+
+  task_create_succeeded: EVENTS.task_create_success,
+  task_create_failed: EVENTS.task_create_fail,
+  quote_send_succeeded: EVENTS.quote_send_success,
+  quote_send_failed: EVENTS.quote_send_fail,
+  quote_accept_succeeded: EVENTS.quote_accept_success,
+  quote_accept_failed: EVENTS.quote_accept_fail,
+  job_verify_code_succeeded: EVENTS.job_verify_success,
+  job_verify_code_failed: EVENTS.job_verify_fail,
+  job_mark_done_succeeded: EVENTS.job_done_success,
+  job_mark_done_failed: EVENTS.job_done_fail,
+  order_confirm_succeeded: EVENTS.order_confirm_success,
+  order_confirm_failed: EVENTS.order_confirm_fail,
+} as const satisfies Record<string, AnalyticsEvent>
+
+export function toCanonicalAnalyticsEvent(event: string): string {
+  if (Object.hasOwn(STALE_EVENT_ALIASES, event)) {
+    return STALE_EVENT_ALIASES[event as keyof typeof STALE_EVENT_ALIASES]
+  }
+  return event
+}

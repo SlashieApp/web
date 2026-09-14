@@ -1,13 +1,24 @@
-import type { AnalyticsEvent, CaptureProperties } from './events'
-import { queueCapture } from './posthog-client'
+import {
+  type AnalyticsEvent,
+  type CaptureProperties,
+  toCanonicalAnalyticsEvent,
+} from './events'
+import { type QueueCaptureOptions, queueCapture } from './posthog-client'
 import { sanitizeProperties } from './sanitize'
+
+export type CaptureOptions = QueueCaptureOptions
 
 export function capture(
   event: AnalyticsEvent | string,
   properties?: CaptureProperties,
+  options?: CaptureOptions,
 ): void {
   try {
-    queueCapture(event, sanitizeProperties(properties))
+    queueCapture(
+      toCanonicalAnalyticsEvent(event),
+      sanitizeProperties(properties),
+      options,
+    )
   } catch {
     // Analytics must never break product flows.
   }

@@ -77,14 +77,24 @@ export function getPostHog(): typeof posthog | null {
   return initialized ? posthog : null
 }
 
+export type QueueCaptureOptions = {
+  /** Flush immediately so StepFlow navigate-after-submit cannot drop it. */
+  sendInstantly?: boolean
+}
+
 export function queueCapture(
   event: string,
   properties?: Record<string, unknown>,
+  options?: QueueCaptureOptions,
 ): void {
   if (typeof window === 'undefined') return
   const ph = getPostHog()
   if (ph) {
-    ph.capture(event, properties)
+    if (options?.sendInstantly) {
+      ph.capture(event, properties, { send_instantly: true })
+    } else {
+      ph.capture(event, properties)
+    }
     return
   }
   // No consent decision yet: hold the event in memory (no cookies are set).
