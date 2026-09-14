@@ -41,6 +41,8 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
   onChange?: (key: string) => void
   /** Equal-width tabs — good for 2 tabs on mobile. */
   fitted?: boolean
+  /** Equal-width tabs only below `lg` (task-detail money page). */
+  fittedBelowLg?: boolean
   /** Stick the tab bar under the page header while the panels scroll. */
   sticky?: boolean
   /** Sticky offset from the top (CSS length). */
@@ -76,6 +78,7 @@ function TabsBase({
   defaultValue,
   onChange,
   fitted = false,
+  fittedBelowLg = false,
   sticky = false,
   stickyTop = 0,
   stickyHeader,
@@ -185,6 +188,7 @@ function TabsBase({
           top={sticky ? stickyTop : undefined}
           zIndex={sticky ? 5 : undefined}
           bg={sticky ? 'bg.canvas' : undefined}
+          w={sticky ? 'full' : undefined}
         >
           {stickyHeader}
           <HStack
@@ -192,7 +196,7 @@ function TabsBase({
             role="tablist"
             aria-label={ariaLabel}
             position="relative"
-            gap={fitted ? 0 : 6}
+            gap={fitted ? 0 : fittedBelowLg ? { base: 0, lg: 6 } : 6}
             borderBottomWidth="1px"
             borderColor="border.default"
             align="stretch"
@@ -215,13 +219,19 @@ function TabsBase({
                   disabled={tab.disabled}
                   onClick={() => select(tab.key)}
                   onKeyDown={onKeyDown}
-                  flex={fitted ? '1' : undefined}
+                  flex={
+                    fitted
+                      ? '1'
+                      : fittedBelowLg
+                        ? { base: '1', lg: 'initial' }
+                        : undefined
+                  }
                   display="inline-flex"
                   alignItems="center"
                   justifyContent="center"
                   gap={2}
                   minH="44px"
-                  px={fitted ? 2 : 1}
+                  px={fitted || fittedBelowLg ? 2 : 1}
                   pb={2}
                   fontFamily="body"
                   fontSize="sm"

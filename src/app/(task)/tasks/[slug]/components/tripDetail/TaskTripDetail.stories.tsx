@@ -1,4 +1,3 @@
-import { Box } from '@chakra-ui/react'
 import { OrderStatus, QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
@@ -10,25 +9,14 @@ import {
   storyTaskOrder,
   storyTaskQuote,
 } from '../../helpers/taskDetailStoryFixtures'
-import { TaskDetailMobile } from './TaskDetailMobile'
 import { TaskDetailView } from './openTask/TaskDetailView'
 
 /**
- * Mirror of the page-level composition (`tasks/[slug]/page.tsx` picks one
- * form factor via `useTaskDetailDesktopLayout`). Stories CSS-gate both so
- * the Storybook viewport switch still shows mobile vs desktop.
+ * Mirror of the page-level composition (`tasks/[slug]/page.tsx` renders one
+ * CSS-responsive tree: mobile hero + desktop map overlay).
  */
 function TaskTripDetailPreview() {
-  return (
-    <>
-      <Box display={{ base: 'block', lg: 'none' }}>
-        <TaskDetailMobile />
-      </Box>
-      <Box display={{ base: 'none', lg: 'block' }}>
-        <TaskDetailView />
-      </Box>
-    </>
-  )
+  return <TaskDetailView />
 }
 
 const meta = {
