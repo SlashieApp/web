@@ -6,6 +6,7 @@ import { Fragment, useState } from 'react'
 import { LuBadgeCheck, LuBookmark } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
+import { ReportControl } from '@/content/trust/ReportControl'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { ViewTransition } from '@/ui/ViewTransition'
@@ -342,8 +343,22 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             </HStack>
           ) : null}
 
-          {showDetailsCta || handleToggleSave ? (
+          {showDetailsCta || handleToggleSave || isExpanded || isActive ? (
             <HStack gap={1} pt={0.5} justify="flex-end" flexShrink={0}>
+              {isExpanded || isActive || showDetailsCta ? (
+                <Box
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
+                  <ReportControl
+                    kind="task"
+                    targetId={taskId}
+                    targetTitle={title}
+                    variant="overflow"
+                  />
+                </Box>
+              ) : null}
               {showDetailsCta ? (
                 <Button
                   asChild

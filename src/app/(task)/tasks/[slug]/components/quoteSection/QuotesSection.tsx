@@ -6,7 +6,7 @@ import { HStack, Heading, NativeSelect, Stack, Text } from '@chakra-ui/react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { priceToPence } from '@/utils/price'
-import { Badge, Button, Card, Link } from '@ui'
+import { Badge, Button, Card, Link, SafetyNotice } from '@ui'
 
 import { QuoteStatus } from '@codegen/schema'
 
@@ -27,6 +27,7 @@ import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSet
 import { QuoteCard } from './QuoteCard'
 import { QuoteLimitPaywall } from './QuoteLimitPaywall'
 import { QuoteWorkerEarnCta } from './QuoteWorkerEarnCta'
+import { useAcceptQuoteSafety } from './useAcceptQuoteSafety'
 
 type QuoteSort = 'recommended' | 'price_low' | 'price_high' | 'recent'
 
@@ -172,10 +173,10 @@ export function QuotesSection() {
     cancelError,
     acceptingQuoteId,
     decliningQuoteId,
-    onAcceptQuote,
     onDeclineQuote,
     quoteLimitReached,
   } = useTaskDetail()
+  const { requestAccept, dialog: acceptSafetyDialog } = useAcceptQuoteSafety()
 
   const {
     showOwnerQuoteList,
@@ -252,6 +253,7 @@ export function QuotesSection() {
             {cancelError}
           </Text>
         ) : null}
+        {showAcceptDecline ? <SafetyNotice variant="inline" /> : null}
         {!hasList ? (
           <Text color="text.muted">
             No quotes yet. Check back for worker responses.
@@ -264,7 +266,7 @@ export function QuotesSection() {
                 priceKind,
                 showAcceptDecline,
                 lowestPricePence,
-                onAcceptQuote: (id) => void onAcceptQuote(id),
+                onAcceptQuote: requestAccept,
                 onDeclineQuote: (id) => void onDeclineQuote(id),
                 acceptingQuoteId,
                 decliningQuoteId,
@@ -272,6 +274,7 @@ export function QuotesSection() {
             )}
           </Stack>
         )}
+        {acceptSafetyDialog}
       </Card>
     )
   }

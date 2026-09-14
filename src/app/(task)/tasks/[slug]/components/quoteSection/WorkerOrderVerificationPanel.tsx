@@ -6,7 +6,7 @@ import { OrderStatus } from '@codegen/schema'
 import { useCallback, useState } from 'react'
 import bag from '../../i11n.json'
 
-import { Button, Card, Input } from '@ui'
+import { Button, Card, Input, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 
@@ -72,6 +72,7 @@ export function WorkerOrderVerificationPanel({
       <Text fontSize="sm" color="text.muted">
         {v.instructions}
       </Text>
+      <SafetyNotice variant="complete" />
 
       {jobActionError ? (
         <Text fontSize="sm" color="status.danger.fg">

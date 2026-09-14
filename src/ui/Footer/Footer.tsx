@@ -16,6 +16,7 @@ import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
+import { SAFETY_HREF } from '@/utils/appRoutes'
 
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
@@ -47,6 +48,7 @@ const navHrefs = {
 } as const
 
 const legalHrefs = {
+  safety: SAFETY_HREF,
   terms: '/terms',
   privacy: '/privacy',
   cookies: '/cookies',
@@ -96,6 +98,7 @@ export function Footer({
   ] as const
 
   const legalLinks = [
+    { label: t.legal.safety, href: legalHrefs.safety },
     { label: t.legal.terms, href: legalHrefs.terms },
     { label: t.legal.privacy, href: legalHrefs.privacy },
     { label: t.legal.cookies, href: legalHrefs.cookies },

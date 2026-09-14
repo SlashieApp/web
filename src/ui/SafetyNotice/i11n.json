@@ -1,0 +1,22 @@
+{
+  "en": {
+    "oneLiner": "Job pay is arranged directly between you — Slashie never handles it. Meet safely.",
+    "linkLabel": "Paying & meeting safely",
+    "heading": "Paying & meeting safely",
+    "body": "Agree the price and settle up yourselves. Slashie does not process job payments, and does not verify or supervise offline meetings. Only meet when you feel safe.",
+    "acceptTitle": "Accept this quote?",
+    "acceptHint": "You will book this worker on Slashie. Payment stays between you. Read the safety notes before inviting someone to your home.",
+    "acceptCta": "Accept quote",
+    "completeOneLiner": "Confirm you were paid directly, then close the job. Meet safely."
+  },
+  "zh_hk": {
+    "oneLiner": "工作酬勞由你們直接安排 — Slashie 從不經手。見面時請注意安全。",
+    "linkLabel": "付款與安全見面",
+    "heading": "付款與安全見面",
+    "body": "雙方自行議價並付款。Slashie 不處理工作款項，也不核實或監督線下見面。只在你感到安全時見面。",
+    "acceptTitle": "接受此報價？",
+    "acceptHint": "你會在 Slashie 預訂此工作者。付款仍由你們自行安排。邀請對方到府前，請先閱讀安全提示。",
+    "acceptCta": "接受報價",
+    "completeOneLiner": "確認對方已直接付款後，再結束工作。見面時請注意安全。"
+  }
+}

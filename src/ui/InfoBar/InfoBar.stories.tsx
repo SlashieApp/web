@@ -27,7 +27,7 @@ const meta = {
     children:
       'Slashie never handles job payment. Agree a price with your worker and settle up between yourselves once the job is done.',
     linkLabel: 'How payments work',
-    linkHref: '/help/payments',
+    linkHref: '/help/safety',
   },
 } satisfies Meta<typeof InfoBar>
 
@@ -45,7 +45,7 @@ export const AllTones: Story = {
         tone="info"
         heading="You pay the worker directly"
         linkLabel="How payments work"
-        linkHref="/help/payments"
+        linkHref="/help/safety"
       >
         Slashie never handles job payment. Agree your price with the worker and
         settle up between yourselves once the job in Clapham is finished.
@@ -64,7 +64,7 @@ export const AllTones: Story = {
         tone="warning"
         heading="Confirm before you pay"
         linkLabel="Read our safety tips"
-        linkHref="/help/staying-safe"
+        linkHref="/help/safety"
       >
         Only release payment once the work is done and you are happy. Never send
         money up front for the gardening job in Richmond.
@@ -73,7 +73,7 @@ export const AllTones: Story = {
         tone="danger"
         heading="This request looks unusual"
         linkLabel="Report this message"
-        linkHref="/help/report"
+        linkHref="/help/safety"
       >
         A worker has asked for a £150 deposit to your bank before starting the
         Camden removals job. Slashie never asks you to pay through the app, so
@@ -93,7 +93,7 @@ export const CustomIcon: Story = {
     children:
       'Meet your worker at the property in Islington, check the work, then pay by cash or bank transfer. Slashie only connects you — we never hold your money.',
     linkLabel: 'See payment guidance',
-    linkHref: '/help/payments',
+    linkHref: '/help/safety',
   },
 }
 
