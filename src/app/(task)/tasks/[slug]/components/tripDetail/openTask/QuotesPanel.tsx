@@ -8,7 +8,6 @@ import bag from '../../../i11n.json'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 import { QuotesModule } from '../../quoteSection/QuotesModule'
-import { WorkerOrderVerificationPanel } from '../../quoteSection/WorkerOrderVerificationPanel'
 
 export function QuotesPanelSkeleton() {
   const t = useI11n(bag)
@@ -23,18 +22,13 @@ export function QuotesPanelSkeleton() {
 }
 
 /**
- * Quotes column content. The booked worker with an ACTIVE order sees the
- * existing job verification panel instead of the Quotes module (W9: never
- * duplicate job UI inside Quotes); every other viewer/state renders the
- * 12-state `QuotesModule`.
+ * Quotes tab content. Complete-with-code lives on Activity so this tab always
+ * shows the 12-state Quotes module.
  */
 export function QuotesPanel() {
-  const { task, pending, permissions } = useTaskDetail()
+  const { task, pending } = useTaskDetail()
 
   if (!task) return pending ? <QuotesPanelSkeleton /> : null
-
-  // The booked worker completes the job (enters the customer's code) here.
-  if (permissions.showCompleteWithCode) return <WorkerOrderVerificationPanel />
 
   return <QuotesModule />
 }

@@ -29,8 +29,36 @@
       "shareTask": "Share task",
       "sendQuote": "Send a quote",
       "signInToQuote": "Sign in to quote",
-      "tabInfo": "Info",
-      "tabQuotes": "Quotes"
+      "tabInfo": "Overview",
+      "tabOverview": "Overview",
+      "tabQuotes": "Quotes",
+      "tabActivity": "Activity"
+    },
+    "cta": {
+      "sendQuote": "Send quote",
+      "signInToQuote": "Sign in to quote",
+      "viewQuotes": "View quotes",
+      "shareTask": "Share task",
+      "complete": "Complete / confirm",
+      "confirm": "Confirm completion",
+      "editAria": "Edit task",
+      "barAria": "Task actions"
+    },
+    "activity": {
+      "heading": "Activity",
+      "empty": "Nothing has happened on this task yet.",
+      "posted": "Task posted",
+      "postedDetail": "Live on Slashie",
+      "waitingQuotes": "Waiting for quotes",
+      "quotesOne": "1 quote received",
+      "quotesMany": "{count} quotes received",
+      "quotesDetail": "Compare and accept a worker",
+      "quotesReceived": "Quotes received",
+      "booked": "Worker booked",
+      "bookedNamed": "Booked · {name}",
+      "bookedActive": "Job in progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     },
     "statusPill": {
       "OPEN": "Open",
@@ -283,8 +311,36 @@
       "shareTask": "分享任務",
       "sendQuote": "傳送報價",
       "signInToQuote": "登入以報價",
-      "tabInfo": "詳情",
-      "tabQuotes": "報價"
+      "tabInfo": "概覽",
+      "tabOverview": "概覽",
+      "tabQuotes": "報價",
+      "tabActivity": "動態"
+    },
+    "cta": {
+      "sendQuote": "傳送報價",
+      "signInToQuote": "登入以報價",
+      "viewQuotes": "查看報價",
+      "shareTask": "分享任務",
+      "complete": "完成 / 確認",
+      "confirm": "確認完成",
+      "editAria": "編輯任務",
+      "barAria": "任務操作"
+    },
+    "activity": {
+      "heading": "動態",
+      "empty": "此任務尚未有動態。",
+      "posted": "任務已發佈",
+      "postedDetail": "已在 Slashie 上線",
+      "waitingQuotes": "等待報價",
+      "quotesOne": "已收到 1 個報價",
+      "quotesMany": "已收到 {count} 個報價",
+      "quotesDetail": "比較並接受一位工作者",
+      "quotesReceived": "已收到報價",
+      "booked": "已預訂工作者",
+      "bookedNamed": "已預訂 · {name}",
+      "bookedActive": "工作進行中",
+      "completed": "已完成",
+      "cancelled": "已取消"
     },
     "statusPill": {
       "OPEN": "開放中",

@@ -65,6 +65,7 @@ export function WorkerOrderVerificationPanel({
     <Card
       layout="section"
       id="worker-job-panel"
+      scrollMarginTop="140px"
       eyebrow={v.eyebrow}
       heading={v.completeHeading}
       bodyGap={3}

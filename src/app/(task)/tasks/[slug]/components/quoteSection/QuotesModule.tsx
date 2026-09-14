@@ -462,6 +462,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     acceptingQuoteId,
     decliningQuoteId,
     onDeclineQuote,
+    setActiveTab,
   } = useTaskDetail()
   const { requestAccept, dialog: acceptSafetyDialog } = useAcceptQuoteSafety()
 
@@ -850,10 +851,17 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           <Text fontSize="sm" color="text.muted">
             {q.seeJobBanner}
           </Text>
-          <Button asChild variant="secondary" w="full">
-            <Link href="#task-order" _hover={{ textDecoration: 'none' }}>
-              {q.openJobDetails}
-            </Link>
+          <Button
+            variant="secondary"
+            w="full"
+            onClick={() =>
+              setActiveTab('activity', {
+                hash: 'task-order',
+                scrollId: 'task-order',
+              })
+            }
+          >
+            {q.openJobDetails}
           </Button>
         </Stack>
       )

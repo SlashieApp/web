@@ -30,7 +30,7 @@ type TaskLocationHeroMapProps = {
   /** Fade the map layer out (used when the mobile header collapses on scroll). */
   hideMap?: boolean
   minH?: ResponsiveHeight
-  children: ReactNode
+  children?: ReactNode
 }
 
 /**
@@ -173,8 +173,8 @@ export function TaskLocationHeroMap({
         mx="auto"
         minH={minH}
         px={PAGE_GUTTER_X}
-        pt={{ base: 4, md: 5 }}
-        pb={{ base: 10, md: 14 }}
+        pt={children ? { base: 4, md: 5 } : 0}
+        pb={children ? { base: 10, md: 14 } : 0}
         pointerEvents="none"
       >
         {children}

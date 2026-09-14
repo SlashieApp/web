@@ -40,6 +40,14 @@ import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
+import {
+  TASK_DETAIL_TAB,
+  type TaskDetailTab,
+  defaultTaskDetailTab,
+  readTaskDetailHash,
+  resolveTaskDetailTab,
+  writeTaskDetailHash,
+} from '@/app/(task)/tasks/[slug]/helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 import Me from '@/graphql/Me.gql'
@@ -102,6 +110,10 @@ export function TaskDetailProvider({
   const [jobActionError, setJobActionError] = useState<string | null>(null)
   const [verificationCode, setVerificationCode] = useState('')
   const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
+  const [explicitTab, setExplicitTab] = useState<TaskDetailTab | null>(() => {
+    const hash = readTaskDetailHash()
+    return hash ? resolveTaskDetailTab(hash, TASK_DETAIL_TAB.overview) : null
+  })
   const isAuthenticated = Boolean(getAuthToken())
   const zustandMe = useMe()
   const getUser = useUserStore((s) => s.getUser)
@@ -256,6 +268,22 @@ export function TaskDetailProvider({
         isAuthenticated,
       }),
     [task, myOrder, me, myQuote, isAuthenticated],
+  )
+
+  const setActiveTab = useCallback(
+    (tab: TaskDetailTab, options?: { hash?: string; scrollId?: string }) => {
+      setExplicitTab(tab)
+      writeTaskDetailHash(options?.hash ?? tab)
+      const scrollId = options?.scrollId
+      if (!scrollId || typeof document === 'undefined') return
+      requestAnimationFrame(() => {
+        document.getElementById(scrollId)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      })
+    },
+    [],
   )
 
   const sortedQuotes = useMemo(() => {
@@ -474,7 +502,10 @@ export function TaskDetailProvider({
           order_id: order.id,
         })
         refreshPageData()
-        router.replace(`/tasks/${task.id}#task-order`)
+        setActiveTab(TASK_DETAIL_TAB.activity, {
+          hash: 'task-order',
+          scrollId: 'task-order',
+        })
       } catch (error: unknown) {
         trackFlowFailed(EVENTS.quote_accept_fail, error, {
           flow: 'quote_accept',
@@ -491,7 +522,7 @@ export function TaskDetailProvider({
       acceptQuote,
       permissions.showAcceptDecline,
       refreshPageData,
-      router,
+      setActiveTab,
       t.provider,
       task,
     ],
@@ -634,9 +665,20 @@ export function TaskDetailProvider({
     clientTaskLoaded && (!isAuthenticated || !meLoadingResolved),
   )
 
+  const activeTab =
+    explicitTab ??
+    defaultTaskDetailTab({
+      isOwner: permissions.isOwner,
+      isOpen: permissions.isOpen,
+      isAwarded: permissions.isAwarded,
+      isOrderWorker: permissions.isOrderWorker,
+      quoteCount: task?.quotes.length ?? 0,
+    })
+
   const value = useMemo(
     () => ({
       permissions,
+      activeTab,
       taskId,
       task,
       seed,
@@ -683,9 +725,11 @@ export function TaskDetailProvider({
       onCancelTask,
       scrollToQuoteForm,
       scrollToOwnerPerformance,
+      setActiveTab,
     }),
     [
       permissions,
+      activeTab,
       taskId,
       task,
       seed,
@@ -728,6 +772,7 @@ export function TaskDetailProvider({
       onCancelTask,
       scrollToQuoteForm,
       scrollToOwnerPerformance,
+      setActiveTab,
     ],
   )
 
