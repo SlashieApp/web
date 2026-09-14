@@ -8,7 +8,7 @@ export function trackFlowSucceeded(
   event: AnalyticsEvent,
   properties?: CaptureProperties,
 ): void {
-  capture(event, properties)
+  capture(event, properties, { sendInstantly: true })
 }
 
 export function trackFlowFailed(
@@ -30,8 +30,12 @@ export function trackFlowFailed(
     route: context.route ?? getCurrentRoute(),
     report_global: false,
   })
-  capture(event, {
-    error_code: getGraphQLErrorCode(error),
-    ...context.extra,
-  })
+  capture(
+    event,
+    {
+      error_code: getGraphQLErrorCode(error),
+      ...context.extra,
+    },
+    { sendInstantly: true },
+  )
 }

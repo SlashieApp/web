@@ -19,7 +19,12 @@ export {
   onCookieConsentChange,
   setCookieConsent,
 } from './consent'
-export { EVENTS } from './events'
+export {
+  EVENTS,
+  isCanonicalAnalyticsEvent,
+  resolveAnalyticsEvent,
+  STALE_EVENT_ALIASES,
+} from './events'
 export {
   getPostHog,
   initPostHogClient,
@@ -34,7 +39,11 @@ export {
 } from './identify-user'
 export { sanitizeProperties, truncateMessage } from './sanitize'
 export { trackFlowFailed, trackFlowSucceeded } from './flow-events'
-export type { AnalyticsEvent, CaptureProperties } from './events'
+export type {
+  AnalyticsEvent,
+  CaptureOptions,
+  CaptureProperties,
+} from './events'
 export type {
   ApiErrorSource,
   CaptureApiErrorContext,
