@@ -22,7 +22,11 @@ import {
   type TaskCardWorkerQuoteProps,
 } from './TaskCard'
 
-type TaskCardBrowseProps = Exclude<TaskCardProps, TaskCardWorkerQuoteProps>
+/** Browse stories use the `task` object shape, not the legacy flat-prop union. */
+type TaskCardBrowseTaskProps = Extract<
+  Exclude<TaskCardProps, TaskCardWorkerQuoteProps>,
+  { task: TaskCardTask }
+>
 
 const defaultTask: TaskCardTask = {
   id: 'task-1',
@@ -49,12 +53,12 @@ const listMeta = {
     task: defaultTask,
     detailsHref: '/tasks/task-1',
   },
-  render: (args: TaskCardBrowseProps) => (
+  render: (args: TaskCardBrowseTaskProps) => (
     <Box maxW="520px" w="full">
       <TaskCard {...args} />
     </Box>
   ),
-} satisfies Meta<TaskCardBrowseProps>
+} satisfies Meta<TaskCardBrowseTaskProps>
 
 const workerQuoteMeta = {
   title: 'task/TaskCard/WorkerQuote',

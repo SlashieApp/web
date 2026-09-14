@@ -15,7 +15,7 @@ export type ReportTargetKind = 'task' | 'worker'
 
 export const reportFormSchema = z.object({
   reason: z.enum(REPORT_REASON_VALUES, {
-    errorMap: () => ({ message: 'Choose a reason.' }),
+    error: 'Choose a reason.',
   }),
   details: z.string().trim().max(2000),
 })
