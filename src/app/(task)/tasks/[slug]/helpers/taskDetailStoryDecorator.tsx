@@ -160,7 +160,7 @@ export function withTaskDetailStory(
   return (Story) => (
     <ApolloProvider client={apolloClient}>
       <TaskDetailStorySeed config={config}>
-        <Box maxW={options?.maxWidth ?? '520px'} w="full">
+        <Box maxW={options?.maxWidth ?? '520px'} w="full" minW={0}>
           <Story />
         </Box>
       </TaskDetailStorySeed>

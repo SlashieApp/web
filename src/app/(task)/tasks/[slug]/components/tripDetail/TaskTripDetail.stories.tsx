@@ -40,7 +40,7 @@ type Story = StoryObj<typeof meta>
  */
 function tripStory(config: TaskDetailStoryConfig): Story {
   return {
-    decorators: [withTaskDetailStory(config)],
+    decorators: [withTaskDetailStory(config, { maxWidth: '100%' })],
     render: () => <TaskTripDetailPreview />,
   }
 }
