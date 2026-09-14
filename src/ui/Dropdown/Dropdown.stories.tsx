@@ -22,6 +22,7 @@ const accountMenuMe: MeSnapshot = {
   phoneVerified: true,
   phoneVerifiedAt: '2024-06-01T00:00:00.000Z',
   createdAt: '2024-01-01T00:00:00.000Z',
+  disabled: false,
   enabledLoginMethods: [LoginMethod.Password],
   profile: {
     name: 'Ryan Kwan',

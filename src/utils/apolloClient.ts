@@ -6,6 +6,7 @@ import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
 import { createHttpLink } from '@apollo/client/link/http'
 
+import { markAccountDisabled } from '@/utils/accountDisabledState'
 import { captureApiError, getCurrentRoute } from '@/utils/analytics'
 import {
   clearApiUnavailable,
@@ -13,7 +14,7 @@ import {
 } from '@/utils/apiAvailability'
 
 import { clearAuthToken, getAuthToken } from './auth'
-import { isUnauthenticatedError } from './graphqlErrors'
+import { isAccountDisabledError, isUnauthenticatedError } from './graphqlErrors'
 
 const httpLink = createHttpLink({
   uri: `${process.env.NEXT_PUBLIC_GRAPHQL_URL}/graphql`,
@@ -34,6 +35,11 @@ const authLink = setContext((_, { headers }) => {
 })
 
 const errorLink = onError(({ error, operation }) => {
+  if (isAccountDisabledError(error)) {
+    if (getAuthToken()) markAccountDisabled()
+    return
+  }
+
   if (isUnauthenticatedError(error)) {
     clearAuthToken()
   }

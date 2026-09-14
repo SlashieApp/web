@@ -13,7 +13,8 @@ import { TaskDetailView } from './openTask/TaskDetailView'
 
 /**
  * Mirror of the page-level composition (`tasks/[slug]/page.tsx` renders one
- * CSS-responsive tree: mobile hero + desktop map overlay).
+ * CSS-responsive tree: mobile hero below `lg`, desktop page column + map
+ * overlay from `lg` up — never the 460px search-list shell).
  */
 function TaskTripDetailPreview() {
   return <TaskDetailView />

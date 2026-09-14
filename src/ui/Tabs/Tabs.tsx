@@ -189,6 +189,9 @@ function TabsBase({
           zIndex={sticky ? 5 : undefined}
           bg={sticky ? 'bg.canvas' : undefined}
           w={sticky ? 'full' : undefined}
+          borderTopRadius={
+            fittedBelowLg ? { base: 'none', lg: 'xl' } : undefined
+          }
         >
           {stickyHeader}
           <HStack
@@ -219,11 +222,15 @@ function TabsBase({
                   disabled={tab.disabled}
                   onClick={() => select(tab.key)}
                   onKeyDown={onKeyDown}
-                  flex={
+                  flexGrow={
+                    fitted ? 1 : fittedBelowLg ? { base: 1, lg: 0 } : undefined
+                  }
+                  flexShrink={fitted ? 1 : 0}
+                  flexBasis={
                     fitted
-                      ? '1'
+                      ? 0
                       : fittedBelowLg
-                        ? { base: '1', lg: 'initial' }
+                        ? { base: 0, lg: 'auto' }
                         : undefined
                   }
                   display="inline-flex"
@@ -231,7 +238,7 @@ function TabsBase({
                   justifyContent="center"
                   gap={2}
                   minH="44px"
-                  px={fitted || fittedBelowLg ? 2 : 1}
+                  px={fitted ? 2 : fittedBelowLg ? { base: 2, lg: 1 } : 1}
                   pb={2}
                   fontFamily="body"
                   fontSize="sm"

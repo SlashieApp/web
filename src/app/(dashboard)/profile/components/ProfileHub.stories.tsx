@@ -27,6 +27,7 @@ function profileFixture({
     phoneVerified,
     phoneVerifiedAt: phoneVerified ? '2026-06-08T10:00:00.000Z' : null,
     createdAt: '2026-06-01T10:00:00.000Z',
+    disabled: false,
     enabledLoginMethods: [],
     workerEligibility: worker !== 'none',
     profile: {

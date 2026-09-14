@@ -75,6 +75,7 @@ describe('marketing page dictionaries', () => {
     'src/app/(marketing)/help/safety/i11n.json',
     'src/ui/ReportDialog/i11n.json',
     'src/ui/SafetyNotice/i11n.json',
+    'src/app/(auth)/components/i11n.json',
   ]
 
   it.each(requiredDictionaries)(

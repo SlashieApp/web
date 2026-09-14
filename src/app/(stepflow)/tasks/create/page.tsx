@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
+import { AppStatusBanners } from '@/app/(auth)/components/AppStatusBanners'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
@@ -521,7 +521,7 @@ function CreateTaskFormBody({
 
   return (
     <StepFlowLayout
-      banner={<EmailVerificationBanner />}
+      banner={<AppStatusBanners />}
       header={<CreateTaskHeader />}
       progress={
         <StepFlowProgress

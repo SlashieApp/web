@@ -2,7 +2,7 @@
 
 import { Box } from '@chakra-ui/react'
 
-import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
+import { AppStatusBanners } from '@/app/(auth)/components/AppStatusBanners'
 import { StepFlowLayout } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
@@ -34,7 +34,7 @@ export function WorkerSetupScreen() {
 
   return (
     <StepFlowLayout
-      banner={<EmailVerificationBanner />}
+      banner={<AppStatusBanners />}
       header={<WorkerSetupHeader exitHref={exitHref} />}
       progress={<WorkerSetupProgressBar />}
       stepper={<WorkerSetupStepper />}
