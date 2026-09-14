@@ -43,6 +43,13 @@ describe('canonical marketplace event catalogue', () => {
     expect(resolveAnalyticsEvent('quote_submitted')).toBe('quote_send_success')
     expect(resolveAnalyticsEvent('quote_sent')).toBe('quote_send_success')
     expect(resolveAnalyticsEvent('quote_accepted')).toBe('quote_accept_success')
+    expect(resolveAnalyticsEvent('order_completed')).toBe('job_verify_success')
+    expect(resolveAnalyticsEvent('membership_checkout_started')).toBe(
+      'checkout_start',
+    )
+    expect(resolveAnalyticsEvent('billing_portal_opened')).toBe(
+      'billing_portal_open',
+    )
     expect(resolveAnalyticsEvent('task_create_succeeded')).toBe(
       'task_create_success',
     )

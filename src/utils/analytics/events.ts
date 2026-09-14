@@ -79,7 +79,9 @@ export const EVENTS = {
   order_view: 'order_view',
   dashboard_view: 'dashboard_view',
 
-  // Closure
+  // Closure — `job_verify_*` is the live complete-with-code path.
+  // `job_done_*` / `order_confirm_*` stay in the catalogue for unused
+  // completeOrder / confirmOrder mutations (no web UI).
   job_done_success: 'job_done_success',
   job_done_fail: 'job_done_fail',
   order_confirm_success: 'order_confirm_success',
@@ -124,6 +126,10 @@ export const STALE_EVENT_ALIASES = {
   quote_sent: EVENTS.quote_send_success,
   quote_send_succeeded: EVENTS.quote_send_success,
   quote_send_failed: EVENTS.quote_send_fail,
+  order_completed: EVENTS.job_verify_success,
+  job_completed: EVENTS.job_verify_success,
+  membership_checkout_started: EVENTS.checkout_start,
+  billing_portal_opened: EVENTS.billing_portal_open,
   quote_accepted: EVENTS.quote_accept_success,
   quote_accept_succeeded: EVENTS.quote_accept_success,
   quote_accept_failed: EVENTS.quote_accept_fail,
