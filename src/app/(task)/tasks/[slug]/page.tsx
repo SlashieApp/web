@@ -7,11 +7,9 @@ import { useI11n } from '@/i18n/useI11n'
 import { Button, Card } from '@ui'
 
 import { TaskNotFoundCard } from './components/TaskNotFoundCard'
-import { TaskDetailMobile } from './components/tripDetail/TaskDetailMobile'
 import { TaskDetailView } from './components/tripDetail/openTask/TaskDetailView'
 import { TaskDetailProvider, useTaskDetail } from './context/TaskDetailProvider'
 import { findScrollParent } from './helpers/taskDetailHeaderCollapse'
-import { useTaskDetailDesktopLayout } from './helpers/useTaskDetailDesktopLayout'
 import bag from './i11n.json'
 
 /**
@@ -38,7 +36,6 @@ function TaskDetailScrollReset({ taskId }: { taskId: string }) {
 function TaskDetailBody() {
   const t = useI11n(bag)
   const { task, pending, error, refetch, seed } = useTaskDetail()
-  const isDesktop = useTaskDetailDesktopLayout()
 
   if (error && !task && !seed) {
     return (
@@ -70,7 +67,7 @@ function TaskDetailBody() {
     )
   }
 
-  return isDesktop ? <TaskDetailView /> : <TaskDetailMobile />
+  return <TaskDetailView />
 }
 
 /**

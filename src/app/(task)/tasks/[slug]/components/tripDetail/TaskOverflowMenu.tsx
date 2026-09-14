@@ -104,6 +104,7 @@ export function TaskOverflowMenu() {
         targetId={task.id}
         targetTitle={task.title?.trim() || undefined}
         variant="menu"
+        onOpened={close}
       />
       {permissions.canCancelTask ? (
         <MenuAction
