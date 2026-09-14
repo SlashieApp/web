@@ -73,6 +73,13 @@ export const sdlRadii = {
   full: 9999,
 } as const
 
+/**
+ * Portalled overlays (Modal / Drawer / ReportDialog) must sit above Header
+ * (30), the mobile dock (40), and dropdowns (50). #217 dropped this and the
+ * report scrim lost to page chrome.
+ */
+export const APP_OVERLAY_Z_INDEX = 1400 as const
+
 /** Keyboard `:focus-visible` mirrors mouse `:hover`; suppress default focus ring. */
 export const focusRingless = {
   outline: 'none',
