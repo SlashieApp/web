@@ -1,10 +1,12 @@
 import posthog from 'posthog-js'
 
 import { getCookieConsent } from './consent'
+import type { CaptureOptions } from './events'
 
 type QueuedCapture = {
   event: string
   properties?: Record<string, unknown>
+  sendInstantly?: boolean
 }
 
 // Events captured before a consent decision wait here; they flush on accept
@@ -66,7 +68,9 @@ export function initPostHogClient(): void {
   initialized = true
 
   for (const item of queuedCaptures) {
-    posthog.capture(item.event, item.properties)
+    captureWithClient(posthog, item.event, item.properties, {
+      sendInstantly: item.sendInstantly,
+    })
   }
   queuedCaptures.length = 0
 }
@@ -77,21 +81,39 @@ export function getPostHog(): typeof posthog | null {
   return initialized ? posthog : null
 }
 
+function captureWithClient(
+  ph: typeof posthog,
+  event: string,
+  properties?: Record<string, unknown>,
+  options?: CaptureOptions,
+): void {
+  if (options?.sendInstantly) {
+    ph.capture(event, properties, { send_instantly: true })
+    return
+  }
+  ph.capture(event, properties)
+}
+
 export function queueCapture(
   event: string,
   properties?: Record<string, unknown>,
+  options?: CaptureOptions,
 ): void {
   if (typeof window === 'undefined') return
   const ph = getPostHog()
   if (ph) {
-    ph.capture(event, properties)
+    captureWithClient(ph, event, properties, options)
     return
   }
   // No consent decision yet: hold the event in memory (no cookies are set).
   // Rejected: drop it — the visitor opted out of analytics.
   if (getCookieConsent() !== 'unset') return
   if (queuedCaptures.length >= MAX_QUEUED_CAPTURES) return
-  queuedCaptures.push({ event, properties })
+  queuedCaptures.push({
+    event,
+    properties,
+    sendInstantly: options?.sendInstantly,
+  })
 }
 
 /**

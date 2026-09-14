@@ -1,5 +1,10 @@
 // Event names follow PostHog-style convention ({object}_view, {action}_success|fail).
 // Keep in sync with apollo src/data/posthog/events.ts (PostHogEvents.TASK_VIEW).
+//
+// Canonical marketplace loop (do not invent new funnel names):
+//   task_create_success, quote_send_success, quote_accept_success,
+//   job_verify_success, job_done_success, order_confirm_success
+//   (+ matching *_fail). Stale names are remapped in resolveAnalyticsEvent.
 
 /** Allowlisted PostHog event names (short snake_case). */
 export const EVENTS = {
@@ -74,7 +79,9 @@ export const EVENTS = {
   order_view: 'order_view',
   dashboard_view: 'dashboard_view',
 
-  // Closure
+  // Closure — `job_verify_*` is the live complete-with-code path.
+  // `job_done_*` / `order_confirm_*` stay in the catalogue for unused
+  // completeOrder / confirmOrder mutations (no web UI).
   job_done_success: 'job_done_success',
   job_done_fail: 'job_done_fail',
   order_confirm_success: 'order_confirm_success',
@@ -95,3 +102,56 @@ export type CaptureProperties = Record<
   string,
   string | number | boolean | null | undefined
 >
+
+export type CaptureOptions = {
+  /**
+   * Flush this event immediately (survives StepFlow `router.replace` after
+   * quote/task submit). Prefer this for mutation success/fail.
+   */
+  sendInstantly?: boolean
+}
+
+/**
+ * Dead names that must not be the only capture path. Values are the
+ * canonical catalogue names that historically fired in PostHog.
+ *
+ * `task_created` still appears from posthog-react-native (Expo). Web rewrites
+ * it if it is ever captured here so Ledger funnels see `task_create_success`.
+ */
+export const STALE_EVENT_ALIASES = {
+  task_created: EVENTS.task_create_success,
+  task_create_succeeded: EVENTS.task_create_success,
+  task_create_failed: EVENTS.task_create_fail,
+  quote_submitted: EVENTS.quote_send_success,
+  quote_sent: EVENTS.quote_send_success,
+  quote_send_succeeded: EVENTS.quote_send_success,
+  quote_send_failed: EVENTS.quote_send_fail,
+  order_completed: EVENTS.job_verify_success,
+  job_completed: EVENTS.job_verify_success,
+  membership_checkout_started: EVENTS.checkout_start,
+  billing_portal_opened: EVENTS.billing_portal_open,
+  quote_accepted: EVENTS.quote_accept_success,
+  quote_accept_succeeded: EVENTS.quote_accept_success,
+  quote_accept_failed: EVENTS.quote_accept_fail,
+  job_verify_code_succeeded: EVENTS.job_verify_success,
+  job_verify_code_failed: EVENTS.job_verify_fail,
+  job_mark_done_succeeded: EVENTS.job_done_success,
+  job_mark_done_failed: EVENTS.job_done_fail,
+  order_confirm_succeeded: EVENTS.order_confirm_success,
+  order_confirm_failed: EVENTS.order_confirm_fail,
+} as const satisfies Record<string, AnalyticsEvent>
+
+const CANONICAL_EVENT_VALUES = new Set<string>(Object.values(EVENTS))
+
+/** Rewrite stale / FE-64 past-tense names to the canonical catalogue. */
+export function resolveAnalyticsEvent(event: string): string {
+  const aliased = STALE_EVENT_ALIASES[event as keyof typeof STALE_EVENT_ALIASES]
+  if (aliased) return aliased
+  return event
+}
+
+export function isCanonicalAnalyticsEvent(
+  event: string,
+): event is AnalyticsEvent {
+  return CANONICAL_EVENT_VALUES.has(event)
+}
