@@ -1,16 +1,18 @@
 'use client'
 
-import { Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useI11n } from '@/i18n/useI11n'
 
+import { Avatar } from '../Avatar/Avatar'
 import { FormField } from '../FormField/FormField'
 import { Modal } from '../Modal/Modal'
 import { Select } from '../Select/Select'
 import { Textarea } from '../Textarea/Textarea'
+import { Thumbnail } from '../Thumbnail/Thumbnail'
 import bag from './i11n.json'
 import {
   REPORT_REASON_VALUES,
@@ -24,6 +26,12 @@ export type ReportDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   kind: ReportTargetKind
+  /** Listing or profile name shown so the reporter can confirm the target. */
+  targetTitle?: string
+  /** Secondary line (location, category, area). */
+  targetMeta?: string
+  /** Task photo or worker avatar. */
+  targetImageSrc?: string
   onSubmit: (values: ReportFormValues) => Promise<boolean>
   submitting?: boolean
   submitError?: string
@@ -33,6 +41,9 @@ export function ReportDialog({
   open,
   onOpenChange,
   kind,
+  targetTitle,
+  targetMeta,
+  targetImageSrc,
   onSubmit,
   submitting = false,
   submitError,
@@ -72,6 +83,58 @@ export function ReportDialog({
       submitDisabled={submitting}
       onSubmit={() => void form.handleSubmit(handleSubmit)()}
     >
+      {targetTitle ? (
+        <Stack
+          gap={2}
+          p={3}
+          borderWidth="1px"
+          borderColor="border.default"
+          borderRadius="md"
+          bg="bg.subtle"
+        >
+          <Text
+            fontSize="xs"
+            fontWeight={700}
+            letterSpacing="0.06em"
+            textTransform="uppercase"
+            color="text.muted"
+          >
+            {kind === 'worker' ? t.subjectWorker : t.subjectTask}
+          </Text>
+          <HStack align="start" gap={3} minW={0}>
+            {kind === 'worker' ? (
+              <Avatar name={targetTitle} src={targetImageSrc} size="lg" />
+            ) : (
+              <Thumbnail
+                src={targetImageSrc}
+                alt=""
+                size="sm"
+                w="56px"
+                h="56px"
+                minW="56px"
+                flexShrink={0}
+                borderRadius="lg"
+                aria-hidden
+              />
+            )}
+            <Stack gap={0.5} minW={0}>
+              <Text
+                fontWeight={700}
+                fontSize="sm"
+                color="text.default"
+                lineClamp={2}
+              >
+                {targetTitle}
+              </Text>
+              {targetMeta ? (
+                <Text fontSize="xs" color="text.muted" lineClamp={2}>
+                  {targetMeta}
+                </Text>
+              ) : null}
+            </Stack>
+          </HStack>
+        </Stack>
+      ) : null}
       <Text fontSize="sm" color="text.muted" lineHeight="tall">
         {t.description}
       </Text>

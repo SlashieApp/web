@@ -15,6 +15,10 @@ const meta = {
     open: true,
     onOpenChange: () => {},
     kind: 'task',
+    targetTitle: 'Mount a 55-inch TV',
+    targetMeta: 'Southwark · Tech setup',
+    targetImageSrc:
+      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
     onSubmit: async () => true,
   },
 } satisfies Meta<typeof ReportDialog>
@@ -39,6 +43,8 @@ export const Default: Story = {
 export const Worker: Story = {
   args: {
     kind: 'worker',
+    targetTitle: 'Jordan Lee',
+    targetMeta: 'Peckham',
   },
   render: function Render(args) {
     const [open, setOpen] = useState(true)
@@ -53,6 +59,8 @@ export const Triggers: Story = {
         kind="task"
         targetId="task-42"
         targetTitle="Garden tidy"
+        targetMeta="Peckham · Cleaning"
+        targetImageSrc="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop"
         variant="button"
         onSubmit={async () => true}
       />
@@ -67,6 +75,8 @@ export const Triggers: Story = {
         kind="task"
         targetId="task-42"
         targetTitle="Garden tidy"
+        targetMeta="Peckham · Cleaning"
+        targetImageSrc="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop"
         variant="overflow"
         onSubmit={async () => true}
       />

@@ -18,6 +18,8 @@ export type ReportControlProps = {
   kind: ReportTargetKind
   targetId: string
   targetTitle?: string
+  targetMeta?: string
+  targetImageSrc?: string
   variant?: ReportControlVariant
   /** Called after the trigger opens the dialog (e.g. close a parent menu). */
   onOpened?: () => void
@@ -86,6 +88,9 @@ function ReportTrigger({
 export function ReportControl({
   kind,
   variant = 'button',
+  targetTitle,
+  targetMeta,
+  targetImageSrc,
   onOpened,
   onRequestOpen,
   onSubmit,
@@ -116,6 +121,9 @@ export function ReportControl({
       open={open}
       onOpenChange={setOpen}
       kind={kind}
+      targetTitle={targetTitle}
+      targetMeta={targetMeta}
+      targetImageSrc={targetImageSrc}
       onSubmit={onSubmit}
       submitting={submitting}
       submitError={submitError}

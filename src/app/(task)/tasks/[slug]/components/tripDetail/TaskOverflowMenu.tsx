@@ -12,11 +12,11 @@ import {
 import bag from '../../i11n.json'
 
 import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
-import { ReportControl } from '@/content/trust/ReportControl'
 import { SAFETY_HREF } from '@/utils/appRoutes'
 import { Button, Link, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TaskReportControl } from './TaskReportControl'
 import { useShareTask } from './openTask/shareTask'
 
 function MenuAction({
@@ -99,13 +99,7 @@ export function TaskOverflowMenu() {
         href={`mailto:${LEGAL_CONTACT_EMAIL}`}
         onClick={close}
       />
-      <ReportControl
-        kind="task"
-        targetId={task.id}
-        targetTitle={task.title?.trim() || undefined}
-        variant="menu"
-        onOpened={close}
-      />
+      <TaskReportControl variant="menu" onOpened={close} />
       {permissions.canCancelTask ? (
         <MenuAction
           icon={<LuTrash2 />}

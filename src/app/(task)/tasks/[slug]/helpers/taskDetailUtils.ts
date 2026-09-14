@@ -405,7 +405,9 @@ const CATEGORY_KEYWORDS: ReadonlyArray<[RegExp, string]> = [
 ]
 
 /** Category chip: prefer API `task.category`, then title/description heuristics. */
-export function taskCategoryLabel(task: TaskDetailRecord): string | null {
+export function taskCategoryLabel(
+  task: Pick<TaskDetailRecord, 'title' | 'description' | 'category'>,
+): string | null {
   const fromApi = taskCategoryDisplayLabel(task.category)
   if (fromApi) return fromApi
   const t = `${task.title} ${task.description}`
@@ -515,6 +517,28 @@ export function buildSecondaryTaskFacts(
   }
 
   return out
+}
+
+/** Fields the report dialog shows so the reporter can confirm the listing. */
+export function taskReportSubject(
+  task: Pick<
+    TaskDetailRecord,
+    'title' | 'description' | 'category' | 'images' | 'location'
+  >,
+  seed?: { thumbnailSrc?: string } | null,
+): {
+  targetTitle?: string
+  targetMeta?: string
+  targetImageSrc?: string
+} {
+  const targetTitle = task.title?.trim() || undefined
+  const location = taskPublicLocationLabel(task).trim()
+  const category = taskCategoryLabel(task)
+  const targetMeta =
+    [location, category].filter(Boolean).join(' · ') || undefined
+  const fromTask = (task.images ?? []).find((src) => src?.trim())?.trim()
+  const targetImageSrc = fromTask || seed?.thumbnailSrc?.trim() || undefined
+  return { targetTitle, targetMeta, targetImageSrc }
 }
 
 export function getSecondaryTaskFact(

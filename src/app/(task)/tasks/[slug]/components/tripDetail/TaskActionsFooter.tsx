@@ -5,13 +5,13 @@ import { useCallback } from 'react'
 import { LuCircleHelp, LuPencil, LuShieldCheck, LuTrash2 } from 'react-icons/lu'
 
 import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
-import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
 import { SAFETY_HREF } from '@/utils/appRoutes'
 import { Button, Card, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
+import { TaskReportControl } from './TaskReportControl'
 
 /** Help/actions footer: edit/cancel, safety page, report, support. */
 export function TaskActionsFooter() {
@@ -66,12 +66,7 @@ export function TaskActionsFooter() {
           </Button>
         </Link>
 
-        <ReportControl
-          kind="task"
-          targetId={task.id}
-          targetTitle={task.title?.trim() || undefined}
-          variant="menu"
-        />
+        <TaskReportControl variant="menu" />
 
         {permissions.canCancelTask ? (
           <>

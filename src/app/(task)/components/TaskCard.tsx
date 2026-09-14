@@ -355,6 +355,12 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                     kind="task"
                     targetId={taskId}
                     targetTitle={title}
+                    targetMeta={
+                      [cardTask.location, badgeText]
+                        .filter(Boolean)
+                        .join(' · ') || undefined
+                    }
+                    targetImageSrc={thumbnailSrc}
                     variant="overflow"
                   />
                 </Box>

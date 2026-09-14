@@ -2,8 +2,8 @@
 
 import { Stack } from '@chakra-ui/react'
 
-import { ReportControl } from '@/content/trust/ReportControl'
 import { SafetyNotice } from '@ui'
+import { TaskReportControl } from './TaskReportControl'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TaskOwnerCard } from '../TaskOwnerCard'
@@ -30,12 +30,7 @@ export function TaskInfoSections() {
       {task ? (
         <Stack gap={2}>
           <SafetyNotice variant="inline" />
-          <ReportControl
-            kind="task"
-            targetId={task.id}
-            targetTitle={task.title?.trim() || undefined}
-            variant="button"
-          />
+          <TaskReportControl variant="button" />
         </Stack>
       ) : null}
     </Stack>
