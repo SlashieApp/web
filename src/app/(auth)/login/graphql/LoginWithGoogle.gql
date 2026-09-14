@@ -4,6 +4,7 @@ mutation LoginWithGoogle($token: String!) {
     user {
       id
       email
+      disabled
       emailVerified
       enabledLoginMethods
     }

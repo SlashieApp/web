@@ -33,6 +33,7 @@ const meWorker: MeSnapshot = {
   phoneVerified: true,
   phoneVerifiedAt: '2024-06-01T00:00:00.000Z',
   createdAt: '2024-01-01T00:00:00.000Z',
+  disabled: false,
   enabledLoginMethods: [LoginMethod.Password],
   profile: {
     name: 'Ryan Kwan',
@@ -232,6 +233,18 @@ export const WorkerFreePlan: Story = {
   decorators: [
     (Story) => {
       seedMe(meWorkerFree)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+}
+
+/** Logged-in suspended account — persistent contact banner above the toolbar. */
+export const SuspendedAccount: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  decorators: [
+    (Story) => {
+      seedMe({ ...meWorker, disabled: true })
       return <Story />
     },
   ],

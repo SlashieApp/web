@@ -11,7 +11,7 @@ import {
 import { usePathname } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
-import { EmailVerificationBanner } from '@/app/(auth)/components/EmailVerificationBanner'
+import { AppStatusBanners } from '@/app/(auth)/components/AppStatusBanners'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
@@ -394,7 +394,7 @@ function AppHeaderNavigation() {
 export function Header({ children, ...props }: HeaderProps) {
   return (
     <>
-      <EmailVerificationBanner />
+      <AppStatusBanners />
       <Box
         as="header"
         zIndex={30}

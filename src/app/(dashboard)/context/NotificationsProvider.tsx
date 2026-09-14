@@ -14,8 +14,13 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react'
 
+import {
+  getAccountDisabledFlag,
+  subscribeAccountDisabled,
+} from '@/app/(auth)/helpers/accountDisabled'
 import { useUserStore } from '@/app/(auth)/store/user'
 import MarkAllNotificationsRead from '@/app/(dashboard)/dashboard/graphql/MarkAllNotificationsRead.gql'
 import MarkNotificationRead from '@/app/(dashboard)/dashboard/graphql/MarkNotificationRead.gql'
@@ -52,11 +57,16 @@ export function NotificationsProvider({
   children,
 }: { children: React.ReactNode }) {
   const me = useUserStore((s) => s.me)
+  const accountDisabled = useSyncExternalStore(
+    subscribeAccountDisabled,
+    getAccountDisabledFlag,
+    () => false,
+  )
   const [drawerOpen, setDrawerOpen] = useState(false)
   const toastedIdsRef = useRef<Set<string>>(new Set())
   const bootstrappedRef = useRef(false)
 
-  const skip = !me || !getAuthToken()
+  const skip = !me || !getAuthToken() || me.disabled === true || accountDisabled
 
   const {
     data,
