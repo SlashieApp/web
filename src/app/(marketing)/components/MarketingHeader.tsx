@@ -14,6 +14,7 @@ import {
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
+import { AccountSuspendedBanner } from '@/app/(auth)/components/AccountSuspendedBanner'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
@@ -378,32 +379,35 @@ export function MarketingHeader(props: MarketingHeaderProps) {
   const overlay = isLanding && mounted && !scrolled
 
   return (
-    <Box
-      as="header"
-      zIndex={30}
-      bg={overlay ? 'transparent' : 'bg.canvas'}
-      color={overlay ? 'text.onInverted' : 'text.default'}
-      borderWidth="1px"
-      borderColor={overlay ? 'transparent' : 'border.default'}
-      transition="background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease"
-      minH={HEADER_MIN_HEIGHT}
-      display="flex"
-      alignItems="center"
-      position="sticky"
-      top={0}
-      {...props}
-    >
-      <SkipLink label={copy.skipToContent} />
-      <Container
-        maxW={PAGE_CONTAINER_MAX_W}
-        px={PAGE_GUTTER_X}
-        w="full"
+    <>
+      <AccountSuspendedBanner />
+      <Box
+        as="header"
+        zIndex={30}
+        bg={overlay ? 'transparent' : 'bg.canvas'}
+        color={overlay ? 'text.onInverted' : 'text.default'}
+        borderWidth="1px"
+        borderColor={overlay ? 'transparent' : 'border.default'}
+        transition="background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease"
         minH={HEADER_MIN_HEIGHT}
         display="flex"
         alignItems="center"
+        position="sticky"
+        top={0}
+        {...props}
       >
-        <MarketingNavigation overlay={overlay} copy={copy} />
-      </Container>
-    </Box>
+        <SkipLink label={copy.skipToContent} />
+        <Container
+          maxW={PAGE_CONTAINER_MAX_W}
+          px={PAGE_GUTTER_X}
+          w="full"
+          minH={HEADER_MIN_HEIGHT}
+          display="flex"
+          alignItems="center"
+        >
+          <MarketingNavigation overlay={overlay} copy={copy} />
+        </Container>
+      </Box>
+    </>
   )
 }

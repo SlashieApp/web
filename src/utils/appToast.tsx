@@ -6,6 +6,7 @@ import {
   createToaster,
 } from '@chakra-ui/react'
 
+import { getAccountDisabledFlag } from '@/utils/accountDisabledState'
 import { Toast } from '@ui'
 
 export const appToaster = createToaster({
@@ -28,6 +29,10 @@ export function showAppToast({
   type = 'success',
   duration = 5000,
 }: AppToastOptions) {
+  if (type === 'error' && getAccountDisabledFlag()) {
+    return
+  }
+
   appToaster.create({
     title,
     description,

@@ -17,6 +17,7 @@ import {
 import { useUserStore } from '@/app/(auth)/store/user'
 import { APP_HOME } from '@/utils/appRoutes'
 import { showAppToast } from '@/utils/appToast'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 type GoogleAuthButtonProps = {
   intent?: AuthRedirectIntent | null
@@ -91,10 +92,13 @@ export function GoogleAuthButton({
             fallback: fallbackPath,
           }),
         )
-      } catch {
+      } catch (error) {
         showAppToast({
           title: 'Could not sign in with Google',
-          description: 'Something went wrong. Try again.',
+          description: getFriendlyErrorMessage(
+            error,
+            'Something went wrong. Try again.',
+          ),
           type: 'error',
         })
       }

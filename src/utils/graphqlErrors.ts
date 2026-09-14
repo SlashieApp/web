@@ -98,6 +98,8 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   REPORT_SELF_NOT_ALLOWED: "You can't report your own listing.",
   REPORT_TARGET_NOT_FOUND:
     "We couldn't find that listing. It may have been removed.",
+  ACCOUNT_DISABLED:
+    'This user is being suspended, please contact accounts@slashie.app.',
 }
 
 export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =
@@ -105,6 +107,8 @@ export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =
 
 export const WORKER_QUOTE_LIMIT_ERROR_CODE =
   'WORKER_QUOTE_LIMIT_REACHED' as const
+
+export const ACCOUNT_DISABLED_ERROR_CODE = 'ACCOUNT_DISABLED' as const
 
 function normaliseMessage(message: string) {
   return message.trim().toUpperCase()
@@ -154,6 +158,14 @@ export function isWorkerQuoteLimitError(error: unknown) {
   return (
     normaliseMessage(graphQLError.message) === WORKER_QUOTE_LIMIT_ERROR_CODE
   )
+}
+
+export function isAccountDisabledError(error: unknown) {
+  const graphQLError = pickGraphQLError(error)
+  if (graphQLError?.extensions?.code === ACCOUNT_DISABLED_ERROR_CODE)
+    return true
+  if (!graphQLError?.message) return false
+  return normaliseMessage(graphQLError.message) === ACCOUNT_DISABLED_ERROR_CODE
 }
 
 export function getGraphQLErrorCode(error: unknown): string | undefined {

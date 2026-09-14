@@ -9,6 +9,12 @@ import type {
 } from '@codegen/schema'
 import { create } from 'zustand/react'
 
+import {
+  clearAccountDisabled,
+  isAccountDisabledError,
+  markAccountDisabled,
+  syncAccountDisabledFromMe,
+} from '@/app/(auth)/helpers/accountDisabled'
 import { parseAuthAbuseError } from '@/app/(auth)/helpers/authAbuseErrors'
 import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationContext'
 import Login from '@/app/(auth)/login/graphql/Login.gql'
@@ -96,9 +102,42 @@ function syncStateFromMe(me: MeQuery['me'] | null | undefined): {
   user: AuthUser | null
   me: MeSnapshot | null
 } {
+  syncAccountDisabledFromMe(me)
   return {
     user: toAuthUser(me),
     me: me ?? null,
+  }
+}
+
+function applyDisabledFromAuthPayload(user: unknown) {
+  if (
+    user &&
+    typeof user === 'object' &&
+    'disabled' in user &&
+    (user as { disabled?: unknown }).disabled === true
+  ) {
+    markAccountDisabled()
+  }
+}
+
+async function hydrateMeAfterAuth(authUser: unknown): Promise<AuthUser | null> {
+  try {
+    const meResult = await apolloClient.query<MeQuery>({
+      query: Me,
+      fetchPolicy: 'network-only',
+    })
+    const synced = syncStateFromMe(meResult.data?.me)
+    applyDisabledFromAuthPayload(authUser)
+    useUserStore.setState({ ...synced, isLoading: false })
+    syncAnalyticsIdentity(synced.me)
+    clearApiUnavailable()
+    return synced.user
+  } catch (error) {
+    if (!isAccountDisabledError(error)) throw error
+    markAccountDisabled()
+    const user = toAuthUser(authUser) ?? useUserStore.getState().user
+    useUserStore.setState({ user, isLoading: false })
+    return user
   }
 }
 
@@ -155,20 +194,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
       setAuthToken(token, rememberMe ? REMEMBER_MAX_AGE : SESSION_MAX_AGE)
       clearCachedGooglePhotoUrl()
-      const meResult = await apolloClient.query<MeQuery>({
-        query: Me,
-        fetchPolicy: 'network-only',
-      })
-      const synced = syncStateFromMe(meResult.data?.me)
-      set({ ...synced, isLoading: false })
-      syncAnalyticsIdentity(synced.me)
-      clearApiUnavailable()
+      applyDisabledFromAuthPayload(result.data?.login?.user)
+      const user = await hydrateMeAfterAuth(result.data?.login?.user)
       trackFlowSucceeded(EVENTS.login_success, {
         method: 'password',
         had_captcha: hadCaptcha,
         fail_count_client: analytics?.fail_count_client,
       })
-      return synced.user
+      return user
     } catch (error) {
       set({ isLoading: false })
       const abuse = parseAuthAbuseError(error)
@@ -207,17 +240,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
       setAuthToken(token, SESSION_MAX_AGE)
       cacheGooglePhotoUrl(googlePictureFromIdToken(idToken))
-
-      const meResult = await apolloClient.query<MeQuery>({
-        query: Me,
-        fetchPolicy: 'network-only',
-      })
-      const synced = syncStateFromMe(meResult.data?.me)
-      set({ ...synced, isLoading: false })
-      syncAnalyticsIdentity(synced.me)
-      clearApiUnavailable()
+      applyDisabledFromAuthPayload(result.data?.loginWithMethod?.user)
+      const user = await hydrateMeAfterAuth(result.data?.loginWithMethod?.user)
       trackFlowSucceeded(EVENTS.google_login_success)
-      return synced.user
+      return user
     } catch (error) {
       set({ isLoading: false })
       trackFlowFailed(EVENTS.google_login_fail, error, {
@@ -233,12 +259,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
     clearAuthToken()
     clearCachedGooglePhotoUrl()
     resetAnalyticsIdentity()
+    clearAccountDisabled()
     set({ user: null, me: null })
     void apolloClient.clearStore()
   },
   getUser: async () => {
     const token = getAuthToken()
     if (!token) {
+      clearAccountDisabled()
       set({ user: null, me: null, isLoading: false })
       return null
     }
@@ -255,9 +283,15 @@ export const useUserStore = create<UserStore>((set, get) => ({
       clearApiUnavailable()
       return synced.user
     } catch (error) {
+      if (isAccountDisabledError(error)) {
+        markAccountDisabled()
+        set({ isLoading: false })
+        return get().user
+      }
       clearAuthToken()
       clearCachedGooglePhotoUrl()
       resetAnalyticsIdentity()
+      clearAccountDisabled()
       set({ user: null, me: null, isLoading: false })
       return null
     }
