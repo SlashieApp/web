@@ -28,8 +28,8 @@
       {
         "heading": "How to report",
         "body": [
-          "You can report a task from the task page (the ⋮ menu) and a worker from their public profile. Visitors and signed-in users can both report.",
-          "The form opens an email to admin@slashie.app with the task or worker id and the page URL already filled in. We may remove content or restrict accounts that put people at risk.",
+          "You can report a task from the task page (the ⋮ menu) and a worker from their public profile. Sign in if you are asked — we need an account so we can follow up.",
+          "Choose a reason, add details if you can, and send the report in the app. We may remove content or restrict accounts that put people at risk.",
           "Urgent danger: contact emergency services first, then email us."
         ]
       },
@@ -76,8 +76,8 @@
       {
         "heading": "如何舉報",
         "body": [
-          "你可以在任務頁（⋮ 選單）舉報任務，或在公開檔案舉報工作者。訪客和已登入用戶都可以舉報。",
-          "表格會開啟電郵至 admin@slashie.app，並已填好任務或工作者編號和頁面網址。若內容令人不安全，我們可能移除內容或限制帳戶。",
+          "你可以在任務頁（⋮ 選單）舉報任務，或在公開檔案舉報工作者。如系統要求，請先登入，以便我們跟進。",
+          "選擇原因，可加上詳情，然後在 app 內送出舉報。若內容令人不安全，我們可能移除內容或限制帳戶。",
           "如有即時危險：先聯絡緊急服務，再電郵我們。"
         ]
       },

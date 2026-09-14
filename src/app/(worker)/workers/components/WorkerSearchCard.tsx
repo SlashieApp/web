@@ -12,9 +12,10 @@ import {
 import { useState } from 'react'
 import { LuCheck, LuMapPin } from 'react-icons/lu'
 
+import { ReportControl } from '@/content/trust/ReportControl'
 import { sdlMotion } from '@/theme/styles'
 import { ViewTransition } from '@/ui/ViewTransition'
-import { Badge, Card, Link, Rating, ReportControl } from '@ui'
+import { Badge, Card, Link, Rating } from '@ui'
 
 import {
   setWorkerHandoff,

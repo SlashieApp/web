@@ -79,6 +79,10 @@ export const EVENTS = {
   order_confirm_success: 'order_confirm_success',
   order_confirm_fail: 'order_confirm_fail',
 
+  // Trust / report
+  report_submit_success: 'report_submit_success',
+  report_submit_fail: 'report_submit_fail',
+
   // Global errors
   graphql_error: 'graphql_error',
   api_fetch_fail: 'api_fetch_fail',

@@ -14,7 +14,8 @@ import {
   LuShieldCheck,
 } from 'react-icons/lu'
 
-import { Badge, Card, ReportControl, SafetyNotice } from '@ui'
+import { ReportControl } from '@/content/trust/ReportControl'
+import { Badge, Card, SafetyNotice } from '@ui'
 
 import { useWorkerProfile } from '../../context/WorkerProfileContext'
 import {
