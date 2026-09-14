@@ -8,7 +8,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { LuHeart } from 'react-icons/lu'
 
-import { Button, ReportControl } from '@ui'
+import { ReportControl } from '@/content/trust/ReportControl'
+import { Button } from '@ui'
 
 import { showAppToast } from '@/utils/appToast'
 

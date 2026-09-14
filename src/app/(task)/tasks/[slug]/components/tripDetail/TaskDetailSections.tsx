@@ -2,7 +2,8 @@
 
 import { Stack } from '@chakra-ui/react'
 
-import { ReportControl, SafetyNotice } from '@ui'
+import { ReportControl } from '@/content/trust/ReportControl'
+import { SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TaskOwnerCard } from '../TaskOwnerCard'
