@@ -2,7 +2,11 @@
 
 import { Box } from '@chakra-ui/react'
 
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import {
+  PAGE_CONTAINER_MAX_W,
+  PAGE_CONTAINER_MAX_W_CSS,
+  PAGE_GUTTER_X,
+} from '@/theme/pageContainer'
 
 import { StatusHeader } from '../StatusHeader'
 import {
@@ -20,13 +24,19 @@ const DESKTOP_MAP_SPACER = { base: '56px', md: '120px' } as const
  * mobile snapshot that left desktop on a phone-width shell).
  *
  * `<lg`: map hero, fitted-style sticky chrome, floating CTA.
- * `lg+`: full-width page column over the map background (not a 460px list
- * shell).
+ * `lg+`: full page column (`sizes.page` / 90rem) over the map background —
+ * never the search-list column width.
  */
 export function TaskDetailView() {
   return (
-    <Box position="relative" bg="bg.canvas" w="full" minW={0}>
-      <Box display={{ base: 'block', lg: 'none' }}>
+    <Box
+      position="relative"
+      bg={{ base: 'bg.canvas', lg: 'transparent' }}
+      w="full"
+      minW={0}
+      css={{ viewTransitionName: 'task-detail-page' }}
+    >
+      <Box display={{ base: 'block', lg: 'none' }} w="full">
         <StatusHeader />
       </Box>
       <TaskDetailMapBackground />
@@ -42,11 +52,15 @@ export function TaskDetailView() {
           w="full"
           maxW={PAGE_CONTAINER_MAX_W}
           mx="auto"
-          px={{ base: 0, lg: PAGE_GUTTER_X }}
+          px={{ base: 0, lg: PAGE_GUTTER_X.lg }}
           pointerEvents="none"
+          css={{
+            width: '100%',
+            maxWidth: PAGE_CONTAINER_MAX_W_CSS,
+          }}
         >
           <Box pointerEvents="auto" w="full" minW={0}>
-            <Box pb={TASK_DETAIL_CTA_CLEARANCE}>
+            <Box pb={TASK_DETAIL_CTA_CLEARANCE} w="full">
               <TaskDetailSectionTabs fittedBelowLg px={{ base: 4, lg: 0 }} />
             </Box>
             <TaskDetailCtaBar />

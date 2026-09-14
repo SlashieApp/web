@@ -88,6 +88,32 @@ export const ManyTabsWithDisabled: Story = {
   ),
 }
 
+/** Equal-width below `lg`, left-aligned shrink-wrap from `lg` up. */
+export const FittedBelowLg: Story = {
+  args: {
+    tabs: MANY,
+    fittedBelowLg: true,
+    'aria-label': 'Task sections',
+  },
+  parameters: { layout: 'fullscreen' },
+  render: (args) => (
+    <Tabs {...args} sticky stickyHeader={<Text px={1}>Task title</Text>}>
+      <Tabs.Panel value="overview">
+        <Text>Overview panel</Text>
+      </Tabs.Panel>
+      <Tabs.Panel value="activity">
+        <Text>Activity panel</Text>
+      </Tabs.Panel>
+      <Tabs.Panel value="settings">
+        <Text>Settings panel</Text>
+      </Tabs.Panel>
+      <Tabs.Panel value="archived">
+        <Text>Archived panel</Text>
+      </Tabs.Panel>
+    </Tabs>
+  ),
+}
+
 /** Controlled usage with external state. */
 export const Controlled: Story = {
   args: { tabs: INFO_QUOTES, 'aria-label': 'Task sections' },
