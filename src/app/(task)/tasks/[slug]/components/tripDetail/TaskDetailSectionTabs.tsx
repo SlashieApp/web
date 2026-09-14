@@ -1,5 +1,7 @@
 'use client'
 
+import type { BoxProps } from '@chakra-ui/react'
+
 import { useI11n } from '@/i18n/useI11n'
 import { Tabs } from '@ui'
 
@@ -15,7 +17,8 @@ import {
 
 type TaskDetailSectionTabsProps = {
   fitted?: boolean
-  px?: number | string
+  fittedBelowLg?: boolean
+  px?: BoxProps['px']
 }
 
 /**
@@ -24,6 +27,7 @@ type TaskDetailSectionTabsProps = {
  */
 export function TaskDetailSectionTabs({
   fitted = false,
+  fittedBelowLg = false,
   px,
 }: TaskDetailSectionTabsProps) {
   const t = useI11n(bag)
@@ -33,8 +37,10 @@ export function TaskDetailSectionTabs({
   return (
     <Tabs
       fitted={fitted}
+      fittedBelowLg={fittedBelowLg}
       sticky
       stickyTop={0}
+      w="full"
       px={px}
       aria-label={t.nav.taskSectionsAria}
       value={activeTab}
