@@ -2,19 +2,21 @@
 
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 
-import { useTaskBrowseData } from '../context/TaskBrowseProvider'
+import { useI11n } from '@/i18n/useI11n'
+import { Button } from '@ui'
 
-type EmptyMode = 'noNearby' | 'filtered'
+import { useTaskBrowseData } from '../context/TaskBrowseProvider'
+import { hasClearableBrowseFilterTags } from '../helpers/taskBrowseHelpers'
+import bag from './i11n.json'
 
 /**
- * Empty-state card for the task browse experience. Reads browse state directly
- * and renders copy for "no nearby tasks" vs "filters exclude everything".
+ * Empty-state card for the task browse experience.
  * Initial load spinner lives on the map ({@link TaskBrowseMapLoader}).
  */
 export function TaskEmptyState() {
-  const { browseSourceTaskCount } = useTaskBrowseData()
-
-  const mode: EmptyMode = browseSourceTaskCount > 0 ? 'filtered' : 'noNearby'
+  const t = useI11n(bag)
+  const { activeFilterTags, clearAllBrowseFilters } = useTaskBrowseData()
+  const canClear = hasClearableBrowseFilterTags(activeFilterTags)
 
   return (
     <Box
@@ -31,25 +33,24 @@ export function TaskEmptyState() {
       pointerEvents="auto"
     >
       <Stack gap={4} align="center" textAlign="center">
-        {mode === 'filtered' ? (
-          <Stack gap={1}>
-            <Heading size="md" color="text.default">
-              No tasks match your filters
-            </Heading>
-            <Text fontSize="sm" color="text.muted">
-              Try clearing your filters or widening your search area.
-            </Text>
-          </Stack>
-        ) : (
-          <Stack gap={1}>
-            <Heading size="md" color="text.default">
-              No nearby tasks right now
-            </Heading>
-            <Text fontSize="sm" color="text.muted">
-              Try expanding your search area or browse tasks in nearby towns.
-            </Text>
-          </Stack>
-        )}
+        <Stack gap={1}>
+          <Heading size="md" color="text.default">
+            {t.emptyTitle}
+          </Heading>
+          <Text fontSize="sm" color="text.muted">
+            {t.emptyDescription}
+          </Text>
+        </Stack>
+        {canClear ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={clearAllBrowseFilters}
+          >
+            {t.clearFilters}
+          </Button>
+        ) : null}
       </Stack>
     </Box>
   )

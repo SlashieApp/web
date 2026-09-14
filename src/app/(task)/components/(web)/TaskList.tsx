@@ -7,6 +7,7 @@ import { useCallback, useMemo, useRef } from 'react'
 import { TaskCard } from '../TaskCard'
 import { TaskEmptyState } from '../TaskEmptyState'
 
+import { captureSearchCardImpression } from '@/app/(task)/helpers/searchCardImpression'
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
@@ -24,6 +25,7 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
     referenceLocation,
   } = useTaskBrowseData()
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  const seenImpressionsRef = useRef(new Set<string>())
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const scrollTaskCardIntoView = useCallback(
@@ -81,6 +83,10 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
                   ref={(node: HTMLDivElement | null) => {
                     if (node) cardRefs.current.set(task.id, node)
                     else cardRefs.current.delete(task.id)
+                    if (node && !seenImpressionsRef.current.has(task.id)) {
+                      seenImpressionsRef.current.add(task.id)
+                      captureSearchCardImpression(task.id, 'list')
+                    }
                     if (node && task.id === selectedTaskId) {
                       requestAnimationFrame(() => {
                         scrollTaskCardIntoView(task.id)

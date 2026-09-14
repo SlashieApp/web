@@ -6,8 +6,8 @@
     },
     "title": "Search tasks",
     "description": "Find open tasks and nearby opportunities on the map.",
-    "emptyTitle": "No tasks nearby",
-    "emptyDescription": "Adjust your filters or move the map to search another area."
+    "emptyTitle": "No tasks match — try broadening search",
+    "emptyDescription": "Clear filters or widen the area to see more tasks."
   },
   "zh_hk": {
     "metadata": {
@@ -16,7 +16,7 @@
     },
     "title": "搜尋任務",
     "description": "在地圖上尋找公開任務和附近機會。",
-    "emptyTitle": "附近沒有任務",
-    "emptyDescription": "調整篩選或移動地圖，搜尋另一個地區。"
+    "emptyTitle": "沒有符合的任務 — 試吓放寬搜尋",
+    "emptyDescription": "清除篩選或擴大範圍，睇更多任務。"
   }
 }

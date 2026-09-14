@@ -1,8 +1,9 @@
 'use client'
 
 import { Box } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 
+import { captureSearchCardImpression } from '@/app/(task)/helpers/searchCardImpression'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
 import { MobileCarousel } from '@ui'
@@ -26,6 +27,7 @@ export function MobileTaskCarousel() {
     isNavRoutePresenting,
     referenceLocation,
   } = useTaskBrowseData()
+  const seenImpressionsRef = useRef(new Set<string>())
 
   const tasks = useMemo(
     () =>
@@ -51,21 +53,29 @@ export function MobileTaskCarousel() {
       disabled={isNavRoutePresenting}
     >
       {(task, state) => (
-        <TaskCard
-          activateMode="gesture"
-          activateCursor={state.activateCursor}
-          task={task}
-          detailsHref={taskDetailHref(task.id)}
-          isActive={state.isActive}
-          showDetailsCta={false}
-          navigateOnActivate={!state.isPeekAdjacent}
-          activateAriaLabel={
-            state.isPeekAdjacent
-              ? `${task.title}. Show ${state.peekDirection === 'next' ? 'next' : 'previous'} task.`
-              : `${task.title}. View task details.`
-          }
-          onActivate={state.activate}
-        />
+        <Box
+          ref={(node: HTMLDivElement | null) => {
+            if (!node || seenImpressionsRef.current.has(task.id)) return
+            seenImpressionsRef.current.add(task.id)
+            captureSearchCardImpression(task.id, 'carousel')
+          }}
+        >
+          <TaskCard
+            activateMode="gesture"
+            activateCursor={state.activateCursor}
+            task={task}
+            detailsHref={taskDetailHref(task.id)}
+            isActive={state.isActive}
+            showDetailsCta={false}
+            navigateOnActivate={!state.isPeekAdjacent}
+            activateAriaLabel={
+              state.isPeekAdjacent
+                ? `${task.title}. Show ${state.peekDirection === 'next' ? 'next' : 'previous'} task.`
+                : `${task.title}. View task details.`
+            }
+            onActivate={state.activate}
+          />
+        </Box>
       )}
     </MobileCarousel>
   )

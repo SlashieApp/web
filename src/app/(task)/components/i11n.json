@@ -1,0 +1,26 @@
+{
+  "en": {
+    "detailsCta": "View task",
+    "trustVerified": "Verified poster",
+    "trustJobsDone": "{count} jobs done",
+    "bookmarkAdd": "Bookmark {title}",
+    "bookmarkRemove": "Remove bookmark from {title}",
+    "emptyTitle": "No tasks match — try broadening search",
+    "emptyDescription": "Clear filters or widen the area to see more tasks.",
+    "clearAll": "Clear all",
+    "clearFilters": "Clear filters",
+    "removeFilter": "Remove {label} filter"
+  },
+  "zh_hk": {
+    "detailsCta": "查看任務",
+    "trustVerified": "已驗證發佈者",
+    "trustJobsDone": "{count} 項已完成工作",
+    "bookmarkAdd": "收藏 {title}",
+    "bookmarkRemove": "取消收藏 {title}",
+    "emptyTitle": "沒有符合的任務 — 試吓放寬搜尋",
+    "emptyDescription": "清除篩選或擴大範圍，睇更多任務。",
+    "clearAll": "全部清除",
+    "clearFilters": "清除篩選",
+    "removeFilter": "移除{label}篩選"
+  }
+}
