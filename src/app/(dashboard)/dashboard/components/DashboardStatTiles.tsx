@@ -35,7 +35,7 @@ function StatTile({
   icon: ReactNode
 }) {
   return (
-    <Card layout="section" p={5}>
+    <Card layout="section" p={{ base: 3.5, md: 4 }}>
       <Stack gap={2}>
         <HStack justify="space-between" align="flex-start">
           <Text fontSize="xs" fontWeight={700} color="text.muted">
