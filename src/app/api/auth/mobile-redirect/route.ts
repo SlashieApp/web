@@ -8,7 +8,8 @@ import { buildMobileRedirectHtml } from './mobileRedirect'
  * Pure redirect bridge for Expo Google OAuth. Does not create sessions or
  * set Slashie auth cookies. Whitelisted in Google Cloud Console as:
  *   https://slashie.app/api/auth/mobile-redirect
- * (also add www if that host is live without apex rewrite)
+ * `www.slashie.app` 308s to the apex, so only the canonical URL needs to be
+ * listed in Google Cloud Console.
  */
 export function GET(request: Request): NextResponse {
   const { search } = new URL(request.url)

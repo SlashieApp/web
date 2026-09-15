@@ -19,7 +19,12 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { APP_HOME, GET_APP_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
+import {
+  APP_HOME,
+  CANONICAL_ORIGIN,
+  GET_APP_HREF,
+  WORKER_SEARCH_HREF,
+} from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 
 import { Button } from '../Button'
@@ -49,7 +54,7 @@ export type HeaderProps = {
 
 function GetAppButton() {
   const t = useI11n(bag)
-  const getAppHref = GET_APP_HREF === 'https://slashie.app' ? '/' : GET_APP_HREF
+  const getAppHref = GET_APP_HREF === CANONICAL_ORIGIN ? '/' : GET_APP_HREF
   const isExternal = getAppHref.startsWith('http')
 
   return (

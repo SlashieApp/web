@@ -73,6 +73,7 @@ export {
 export { MobileCarousel } from './MobileCarousel/MobileCarousel'
 export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
+export { PageLoading } from './PageLoading'
 export { PhoneInput } from './PhoneInput'
 export { ProgressBar } from './ProgressBar'
 export { RadioButton } from './RadioButton'
@@ -143,6 +144,7 @@ export type {
 } from './MobileCarousel/MobileCarousel'
 export type { ModalProps, ModalSize } from './Modal'
 export type { OtpInputProps, OtpInputSize } from './OtpInput'
+export type { PageLoadingProps } from './PageLoading'
 export type { PhoneInputProps } from './PhoneInput'
 export type {
   ProgressBarProps,

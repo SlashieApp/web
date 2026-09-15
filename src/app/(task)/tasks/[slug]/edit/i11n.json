@@ -9,8 +9,9 @@
     "description": "Keep task details accurate so workers can quote with confidence.",
     "backToRequests": "Back to my requests",
     "submit": "Save changes",
-    "loading": "Loading task...",
-    "loadingProfile": "Loading your profile...",
+    "loading": "Loading task",
+    "loadingProfile": "Loading your profile",
+    "sessionLoading": "Just a moment",
     "notFoundTitle": "Task not found",
     "notFoundDescription": "This task may have been removed or the link is invalid."
   },
@@ -24,8 +25,9 @@
     "description": "保持任務詳情準確，讓 workers 更有信心報價。",
     "backToRequests": "返回我的請求",
     "submit": "儲存變更",
-    "loading": "正在載入任務...",
-    "loadingProfile": "正在載入你的個人檔案...",
+    "loading": "正在載入任務",
+    "loadingProfile": "正在載入你的個人檔案",
+    "sessionLoading": "請稍候",
     "notFoundTitle": "找不到任務",
     "notFoundDescription": "此任務可能已移除，或連結無效。"
   }

@@ -7,7 +7,12 @@ import {
   LOCALE_HEADER,
   isAppLocale,
 } from '@/i18n/locales'
-import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
+import {
+  APP_HOME,
+  CANONICAL_HOST,
+  MARKETING_HOME,
+  WWW_HOST,
+} from '@/utils/appRoutes'
 import { AUTH_COOKIE_NAME } from '@/utils/authCookie'
 
 const PUBLIC_FILE = /\.[^/]+$/
@@ -64,11 +69,21 @@ function applyLocale(response: NextResponse, locale: AppLocale): NextResponse {
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const host = hostnameOf(request)
 
   // First-party PostHog ingest host: never locale-prefix or redirect.
   // Rewrites in next.config.ts handle /static, /array, and capture paths.
-  if (hostnameOf(request) === POSTHOG_PROXY_HOST) {
+  if (host === POSTHOG_PROXY_HOST) {
     return NextResponse.next()
+  }
+
+  // One public origin: www → apex. Keep path + query. Skip preview/local hosts.
+  if (host === WWW_HOST) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.hostname = CANONICAL_HOST
+    redirectUrl.protocol = 'https:'
+    redirectUrl.port = ''
+    return NextResponse.redirect(redirectUrl, 308)
   }
 
   if (shouldSkip(pathname)) {

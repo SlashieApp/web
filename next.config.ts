@@ -63,7 +63,22 @@ const nextConfig: NextConfig = {
   async redirects() {
     // Non-default locale keeps its slug; English destinations are unprefixed.
     const zhHk = 'zh-hk'
+    const wwwHost = { type: 'host' as const, value: 'www.slashie.app' }
     return [
+      // Canonical host: www → apex (path + query preserved). e.slashie.app
+      // is the PostHog ingest host and is not included here.
+      {
+        source: '/',
+        has: [wwwHost],
+        destination: 'https://slashie.app/',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [wwwHost],
+        destination: 'https://slashie.app/:path*',
+        permanent: true,
+      },
       // Legacy browse surfaces merged into the unified map-first /search.
       // Exact-match only: /tasks/:slug and /workers/:slug stay untouched.
       {

@@ -79,7 +79,7 @@ export const sdlRadii = {
  *
  *   rest     e1  — task/auth/dashboard cards on the page canvas
  *   raised   e2  — hover, selected, sticky
- *   overlay  e3  — floating map chrome (filters, empty state, search loader)
+ *   overlay  e3  — floating map chrome (filters, empty state)
  */
 export const sdlCard = {
   radius: 'lg',

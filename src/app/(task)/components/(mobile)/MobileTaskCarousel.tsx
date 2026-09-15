@@ -10,6 +10,7 @@ import { MobileCarousel } from '@ui'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { TaskCard } from '../TaskCard'
+import { TaskCardSkeleton } from '../TaskCardSkeleton'
 import { TaskEmptyState } from '../TaskEmptyState'
 
 /**
@@ -25,6 +26,7 @@ export function MobileTaskCarousel() {
     selectedTaskId,
     setSelectedTaskId,
     isNavRoutePresenting,
+    isInitialTasksLoad,
     referenceLocation,
   } = useTaskBrowseData()
   const seenImpressionsRef = useRef(new Set<string>())
@@ -34,6 +36,14 @@ export function MobileTaskCarousel() {
       filteredSorted.map((task) => toBrowseTaskCard(task, referenceLocation)),
     [filteredSorted, referenceLocation],
   )
+
+  if (isInitialTasksLoad) {
+    return (
+      <Box px={{ base: 2, md: 3 }} pb={2}>
+        <TaskCardSkeleton />
+      </Box>
+    )
+  }
 
   if (tasks.length === 0) {
     if (!canShowBrowseEmptyState) return null

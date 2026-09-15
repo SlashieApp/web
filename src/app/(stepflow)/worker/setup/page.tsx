@@ -1,9 +1,8 @@
 import { Suspense } from 'react'
 
-import { Box } from '@chakra-ui/react'
-
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
+import { PageLoading } from '@/ui/PageLoading/PageLoading'
 import { WorkerSetupAuthGate, WorkerSetupScreen } from './components'
 import { WorkerSetupProvider } from './context/WorkerSetupProvider'
 import bag from './i11n.json'
@@ -17,7 +16,7 @@ export async function generateMetadata() {
 export default async function WorkerSetupPage() {
   const locale = await getRequestLocale()
   return (
-    <Suspense key={locale} fallback={<Box minH="100dvh" bg="bg.subtle" />}>
+    <Suspense key={locale} fallback={<PageLoading />}>
       <WorkerSetupAuthGate>
         <WorkerSetupProvider>
           <WorkerSetupScreen />

@@ -30,6 +30,28 @@ describe('search mobile map chrome', () => {
     expect(screenSrc).toContain("inset={{ base: 0, lg: 'auto' }}")
   })
 
+  it('uses task-card skeletons instead of a map spinner overlay', () => {
+    const screenSrc = readFileSync(
+      join(dir, '../components/SearchScreen.tsx'),
+      'utf8',
+    )
+    expect(screenSrc).not.toContain('TaskBrowseMapLoader')
+
+    const listSrc = readFileSync(
+      join(dir, '../../components/(web)/TaskList.tsx'),
+      'utf8',
+    )
+    expect(listSrc).toContain('TaskCardSkeleton')
+    expect(listSrc).toContain('isInitialTasksLoad')
+
+    const carouselSrc = readFileSync(
+      join(dir, '../../components/(mobile)/MobileTaskCarousel.tsx'),
+      'utf8',
+    )
+    expect(carouselSrc).toContain('TaskCardSkeleton')
+    expect(carouselSrc).toContain('isInitialTasksLoad')
+  })
+
   it('sits the mobile carousel flush to the layout bottom', () => {
     const src = readFileSync(
       join(dir, '../components/SearchLayouts.tsx'),

@@ -12,6 +12,22 @@
     "trustPoints": ["Free to browse", "Free to quote", "No fee on the job"],
     "productHeading": "How it works",
     "productBody": "Customers post local tasks on the map. Nearby workers send quotes. You pick who you want and pay the worker directly — Slashie takes no cut of the job. Workers can start on a free quote allowance or subscribe to Slashie Unlimited for unlimited quoting. Customers post tasks for free.",
+    "proofHeading": "Proof, not a placeholder",
+    "proofItems": [
+      {
+        "title": "UK company",
+        "body": "Slashie Ltd is registered in England and Wales, company no. 17276315, at 66 Paul Street, London."
+      },
+      {
+        "title": "No cut of the job",
+        "body": "Customers pay workers directly outside Slashie. We do not hold, release, or settle job payments."
+      },
+      {
+        "title": "Open source",
+        "body": "The web app is public on GitHub. Inspect the code or follow along on LinkedIn."
+      }
+    ],
+    "browseTasks": "Browse tasks",
     "buildHeading": "Open source, AI-built",
     "buildBody": "Slashie is an open-source project, powered by an AI-driven company and created with loop engineering. Follow along on LinkedIn or browse the code on GitHub.",
     "connect": {
@@ -32,6 +48,22 @@
     "trustPoints": ["免費瀏覽", "免費報價", "工作不抽成"],
     "productHeading": "如何運作",
     "productBody": "客戶在地圖上發布本地任務。附近的工作者發送報價。你選人，並直接付款給工作者 — Slashie 不抽工作成數。工作者可先使用免費報價額度，或訂閱 Slashie Unlimited 取得無限報價。客戶可免費發布任務。",
+    "proofHeading": "可以核對的事實",
+    "proofItems": [
+      {
+        "title": "英國公司",
+        "body": "Slashie Ltd 於英格蘭及威爾斯註冊，公司編號 17276315，註冊地址 66 Paul Street, London。"
+      },
+      {
+        "title": "工作不抽成",
+        "body": "客戶直接向工作者付款，不經 Slashie。我們不代管、發放或結算工作款項。"
+      },
+      {
+        "title": "開源",
+        "body": "網頁程式在 GitHub 公開。歡迎檢視程式碼，或在 LinkedIn 追蹤進展。"
+      }
+    ],
+    "browseTasks": "瀏覽任務",
     "buildHeading": "開源，以 AI 打造",
     "buildBody": "Slashie 是開源專案，由 AI 驅動的公司打造，並以 loop engineering 建構。歡迎在 LinkedIn 追蹤我們，或到 GitHub 瀏覽程式碼。",
     "connect": {

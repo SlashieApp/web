@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { TaskCard } from '../TaskCard'
+import { TaskCardSkeleton } from '../TaskCardSkeleton'
 import { TaskEmptyState } from '../TaskEmptyState'
 
 import { captureSearchCardImpression } from '@/app/(task)/helpers/searchCardImpression'
@@ -22,6 +23,7 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
     selectedTaskId,
     setSelectedTaskId,
     isNavRoutePresenting,
+    isInitialTasksLoad,
     referenceLocation,
   } = useTaskBrowseData()
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
@@ -151,6 +153,14 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
       >
         <Stack gap={3} py={5} pb={10}>
           {header ? <Box px={0.5}>{header}</Box> : null}
+          {isInitialTasksLoad ? (
+            <>
+              <TaskCardSkeleton />
+              <TaskCardSkeleton />
+              <TaskCardSkeleton />
+              <TaskCardSkeleton />
+            </>
+          ) : null}
           {canShowBrowseEmptyState && filteredSorted.length === 0 ? (
             <Box px={1}>
               <TaskEmptyState />

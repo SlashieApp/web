@@ -6,7 +6,6 @@ import { useEffect, useRef } from 'react'
 import { EVENTS, capture } from '@/utils/analytics'
 
 import { BrowseGeolocationInit } from '../../components/BrowseGeolocationInit'
-import { TaskBrowseMapLoader } from '../../components/TaskBrowseMapLoader'
 import { TaskBrowseProvider } from '../../context/TaskBrowseProvider'
 import {
   type SearchUrlState,
@@ -73,7 +72,6 @@ export function SearchScreen({
         overflow="hidden"
       >
         <SearchMapLayer isDesktop={isDesktopSplit} />
-        <TaskBrowseMapLoader />
         {isDesktopSplit ? <WebSearchLayout /> : <MobileSearchLayout />}
       </Box>
     </TaskBrowseProvider>

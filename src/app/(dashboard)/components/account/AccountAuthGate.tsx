@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { PageLoading } from '@/ui/PageLoading/PageLoading'
 import { getAuthToken } from '@/utils/auth'
 
 type AccountAuthGateProps = {
@@ -38,7 +39,7 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
   )
 
   if (!hydrated || (hasToken && !me && isLoading)) {
-    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
+    return <PageLoading ref={onMount} />
   }
 
   if (!me) {
@@ -47,7 +48,7 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
       redirectedRef.current = true
       router.replace(`/login?redirect=${encodeURIComponent(redirectPath)}`)
     }
-    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
+    return <PageLoading ref={onMount} />
   }
 
   return <Box ref={onMount}>{children}</Box>

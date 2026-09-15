@@ -5,12 +5,15 @@ import { useCallback, useRef } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 
+import { useI11n } from '@/i18n/useI11n'
+import { PageLoading } from '@/ui/PageLoading/PageLoading'
 import { Button, Link } from '@ui'
 
 import { QuoteLimitPaywall } from '@/app/(task)/tasks/[slug]/components/quoteSection/QuoteLimitPaywall'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import bag from '../i11n.json'
 import { TaskQuoteScreen } from './TaskQuoteScreen'
 import { TaskQuoteGateView } from './shared/TaskQuoteGateView'
 import { TaskQuoteSummaryCard } from './shared/TaskQuoteSummaryCard'
@@ -20,6 +23,7 @@ function taskDetailHref(taskId: string) {
 }
 
 export function TaskQuoteFlow() {
+  const t = useI11n(bag)
   const router = useRouter()
   const {
     task,
@@ -75,23 +79,11 @@ export function TaskQuoteFlow() {
   const loginHref = `/login?next=${encodeURIComponent(`${backToTask}/quote`)}`
 
   if (isAuthenticated && meLoading) {
-    return (
-      <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="bg.subtle">
-        <Stack py={10} align="center">
-          <Text color="text.muted">Loading…</Text>
-        </Stack>
-      </Box>
-    )
+    return <PageLoading ref={redirectToTaskDetailRef} label={t.loading} />
   }
 
   if (shouldRedirectToTaskDetail) {
-    return (
-      <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="bg.subtle">
-        <Stack py={10} align="center">
-          <Text color="text.muted">Redirecting…</Text>
-        </Stack>
-      </Box>
-    )
+    return <PageLoading ref={redirectToTaskDetailRef} label={t.redirecting} />
   }
 
   if (!isAuthenticated) {

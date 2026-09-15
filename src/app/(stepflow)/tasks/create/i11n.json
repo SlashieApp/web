@@ -16,7 +16,9 @@
     "prohibitedHeading": "Allowed tasks only",
     "prohibitedBody": "Do not post illegal, unsafe, or licensed work unless the worker holds the right credentials. Slashie does not vet listings.",
     "prohibitedConfirm": "I confirm this task is legal, and I will not ask for unsafe or unlicensed work.",
-    "prohibitedRequired": "Confirm this task is allowed before publishing."
+    "prohibitedRequired": "Confirm this task is allowed before publishing.",
+    "sessionLoading": "Just a moment",
+    "profileLoading": "Loading your profile"
   },
   "zh_hk": {
     "metadata": {
@@ -35,6 +37,8 @@
     "prohibitedHeading": "只限允許的任務",
     "prohibitedBody": "請勿發布非法、不安全的工作，或在對方沒有所需資格時要求持牌工作。Slashie 不會審查刊登內容。",
     "prohibitedConfirm": "我確認此任務合法，且不會要求不安全或無牌的工作。",
-    "prohibitedRequired": "發布前請確認此任務屬於允許範圍。"
+    "prohibitedRequired": "發布前請確認此任務屬於允許範圍。",
+    "sessionLoading": "請稍候",
+    "profileLoading": "正在載入你的個人檔案"
   }
 }

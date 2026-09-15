@@ -11,7 +11,7 @@ import bag from './i11n.json'
 
 /**
  * Empty-state card for the task browse experience.
- * Initial load spinner lives on the map ({@link TaskBrowseMapLoader}).
+ * Initial load uses TaskCardSkeleton in the list and mobile carousel.
  */
 export function TaskEmptyState() {
   const t = useI11n(bag)

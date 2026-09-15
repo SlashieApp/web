@@ -4,6 +4,7 @@ import './globals.css'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { htmlLang } from '@/i18n/locales'
 import { BRAND_PRIMARY } from '@/theme/brand'
+import { CANONICAL_ORIGIN } from '@/utils/appRoutes'
 import { Providers } from './providers'
 
 const inter = Inter({
@@ -19,8 +20,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   // Absolute base for canonical/og URLs + the opengraph-image route.
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
-      'https://slashie.app',
+    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || CANONICAL_ORIGIN,
   ),
   title: 'Slashie App - Local Trades and Home Tasks Marketplace',
   description:

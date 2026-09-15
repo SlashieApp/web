@@ -1,8 +1,7 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
-
 import { AppStatusBanners } from '@/app/(auth)/components/AppStatusBanners'
+import { PageLoading } from '@/ui/PageLoading/PageLoading'
 import { StepFlowLayout } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
@@ -25,7 +24,7 @@ export function WorkerSetupScreen() {
   } = useWorkerSetup()
 
   if (!isHydrated) {
-    return <Box minH="100dvh" bg="bg.subtle" />
+    return <PageLoading />
   }
 
   const copy = STEP_COPY[activeSubStep]

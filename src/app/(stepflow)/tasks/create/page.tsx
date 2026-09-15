@@ -1,7 +1,6 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import { Box, Text } from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
@@ -24,6 +23,7 @@ import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import Me from '@/graphql/Me.gql'
 import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
+import { PageLoading } from '@/ui/PageLoading/PageLoading'
 import {
   EVENTS,
   capture,
@@ -555,6 +555,7 @@ function CreateTaskFormBody({
 }
 
 export default function CreateTaskPage() {
+  const t = useI11n(bag)
   const router = useRouter()
   const [sessionOk, setSessionOk] = useState(false)
 
@@ -587,37 +588,11 @@ export default function CreateTaskPage() {
   const mePrimedForForm = Boolean(meData?.me) || !meLoading
 
   if (!sessionOk) {
-    return (
-      <Box
-        bg="bg.subtle"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          Checking your session…
-        </Text>
-      </Box>
-    )
+    return <PageLoading label={t.sessionLoading} />
   }
 
   if (!mePrimedForForm) {
-    return (
-      <Box
-        bg="bg.subtle"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          Loading your profile…
-        </Text>
-      </Box>
-    )
+    return <PageLoading label={t.profileLoading} />
   }
 
   return (

@@ -7,7 +7,8 @@
     "title": "Send a quote",
     "description": "Share your price, timing, and why you are a good fit for this task.",
     "submit": "Submit quote",
-    "loading": "Loading quote form...",
+    "loading": "Loading quote form",
+    "redirecting": "Just a moment",
     "notFoundTitle": "Task not found",
     "notFoundDescription": "This task may have been removed or is no longer available for quotes."
   },
@@ -19,7 +20,8 @@
     "title": "傳送報價",
     "description": "分享你的價錢、時間，以及為何適合這個任務。",
     "submit": "提交報價",
-    "loading": "正在載入報價表格...",
+    "loading": "正在載入報價表格",
+    "redirecting": "請稍候",
     "notFoundTitle": "找不到任務",
     "notFoundDescription": "此任務可能已移除，或已不再接受報價。"
   }

@@ -8,6 +8,8 @@ Next.js front end for a local task marketplace: task hunters browse open work on
 
 Slashie ([slashie.app](https://slashie.app)) is a **two-sided local task marketplace**: **customers** post work they need done; **workers** find tasks, send **quotes**, get chosen, complete the job, and build reputation.
 
+Production uses the **apex host** `slashie.app`. `www.slashie.app` permanently redirects there so session cookies, canonical tags, and Open Graph URLs stay on one origin. The PostHog ingest host `e.slashie.app` is separate and is not redirected.
+
 ### As a customer (getting work done)
 
 You **post a task** with a short description of what you need, when you want it, and a budget you are comfortable with. That budget is a starting point—you and workers can still agree changes before work starts.

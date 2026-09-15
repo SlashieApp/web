@@ -97,14 +97,18 @@ export function HeroSearchCta({
           variant="primary"
           flexShrink={0}
           minH={{ base: '48px', md: '52px' }}
-          px={{ base: 4, md: 5 }}
-          gap={2}
+          px={{ base: 3.5, md: 5 }}
+          gap={1.5}
           aria-label={submitLabel}
         >
-          <Box as="span" display={{ base: 'none', sm: 'inline' }}>
-            {submitLabel}
+          <Box as="span">{submitLabel}</Box>
+          <Box
+            as="span"
+            display={{ base: 'none', sm: 'inline-flex' }}
+            aria-hidden
+          >
+            <LuArrowRight size={18} />
           </Box>
-          <LuArrowRight size={18} aria-hidden />
         </Button>
       </HStack>
     </HeroSearchForm>

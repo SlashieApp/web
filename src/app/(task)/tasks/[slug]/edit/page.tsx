@@ -27,6 +27,7 @@ import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import UpdateTask from '@/app/(task)/tasks/[slug]/graphql/UpdateTask.gql'
 import Me from '@/graphql/Me.gql'
 import { useI11n } from '@/i18n/useI11n'
+import { PageLoading } from '@/ui/PageLoading/PageLoading'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getAuthToken } from '@/utils/auth'
 import {
@@ -495,54 +496,15 @@ export default function EditTaskPage() {
   const editable = task ? isTaskEditable(task.status) : false
 
   if (!sessionOk || !taskId) {
-    return (
-      <Box
-        bg="bg.canvas"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          Checking your session…
-        </Text>
-      </Box>
-    )
+    return <PageLoading label={t.sessionLoading} />
   }
 
   if (meLoading && !me) {
-    return (
-      <Box
-        bg="bg.canvas"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          {t.loadingProfile}
-        </Text>
-      </Box>
-    )
+    return <PageLoading label={t.loadingProfile} />
   }
 
   if (taskLoading && !task) {
-    return (
-      <Box
-        bg="bg.canvas"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          {t.loading}
-        </Text>
-      </Box>
-    )
+    return <PageLoading label={t.loading} />
   }
 
   if (taskError || !task) {
