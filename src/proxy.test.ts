@@ -9,9 +9,10 @@ function request(
   path: string,
   opts?: { cookie?: string; host?: string },
 ): NextRequest {
-  const url = new URL(path, 'https://www.slashie.app')
+  const host = opts?.host ?? 'slashie.app'
+  const url = new URL(path, `https://${host}`)
   const headers = new Headers()
-  if (opts?.host) headers.set('host', opts.host)
+  headers.set('host', host)
   if (opts?.cookie) headers.set('cookie', opts.cookie)
   return new NextRequest(url, { headers })
 }
@@ -20,41 +21,35 @@ describe('proxy locale routing', () => {
   it('redirects guest / to /home and preserves query', async () => {
     const res = proxy(request('/?utm=1'))
     expect(res.status).toBe(307)
-    expect(res.headers.get('location')).toBe(
-      'https://www.slashie.app/home?utm=1',
-    )
+    expect(res.headers.get('location')).toBe('https://slashie.app/home?utm=1')
   })
 
   it('redirects signed-in / to /search', () => {
     const res = proxy(request('/', { cookie: `${AUTH_COOKIE_NAME}=token` }))
     expect(res.status).toBe(307)
-    expect(res.headers.get('location')).toBe('https://www.slashie.app/search')
+    expect(res.headers.get('location')).toBe('https://slashie.app/search')
   })
 
   it('redirects /zh-hk guest to /zh-hk/home and signed-in to /zh-hk/search', () => {
     const guest = proxy(request('/zh-hk'))
-    expect(guest.headers.get('location')).toBe(
-      'https://www.slashie.app/zh-hk/home',
-    )
+    expect(guest.headers.get('location')).toBe('https://slashie.app/zh-hk/home')
 
     const authed = proxy(
       request('/zh-hk', { cookie: `${AUTH_COOKIE_NAME}=token` }),
     )
     expect(authed.headers.get('location')).toBe(
-      'https://www.slashie.app/zh-hk/search',
+      'https://slashie.app/zh-hk/search',
     )
   })
 
   it('308-redirects /en/... to unprefixed paths', () => {
     const res = proxy(request('/en/pricing?x=1'))
     expect(res.status).toBe(308)
-    expect(res.headers.get('location')).toBe(
-      'https://www.slashie.app/pricing?x=1',
-    )
+    expect(res.headers.get('location')).toBe('https://slashie.app/pricing?x=1')
 
     const root = proxy(request('/en'))
     expect(root.status).toBe(308)
-    expect(root.headers.get('location')).toBe('https://www.slashie.app/')
+    expect(root.headers.get('location')).toBe('https://slashie.app/')
   })
 
   it('serves bare English paths with en locale (no redirect)', () => {
@@ -71,6 +66,22 @@ describe('proxy locale routing', () => {
     // rewrite: x-middleware-rewrite
     const rewrite = res.headers.get('x-middleware-rewrite')
     expect(rewrite).toContain('/pricing')
+  })
+
+  it('308-redirects www to the canonical apex host', () => {
+    const res = proxy(
+      request('/search?mode=tasks', { host: 'www.slashie.app' }),
+    )
+    expect(res.status).toBe(308)
+    expect(res.headers.get('location')).toBe(
+      'https://slashie.app/search?mode=tasks',
+    )
+  })
+
+  it('does not force localhost onto the public origin', () => {
+    const res = proxy(request('/search', { host: 'localhost' }))
+    expect(res.status).toBe(200)
+    expect(res.headers.get('location')).toBeNull()
   })
 
   it('skips PostHog proxy host', () => {

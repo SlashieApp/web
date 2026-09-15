@@ -1,5 +1,7 @@
 {
   "en": {
+    "sessionLoading": "Just a moment…",
+    "sessionLoadingTrack": "Loading",
     "suspended": {
       "ariaLabel": "Account suspension notice",
       "beforeEmail": "This user is being suspended, please contact ",
@@ -8,6 +10,8 @@
     }
   },
   "zh_hk": {
+    "sessionLoading": "請稍候…",
+    "sessionLoadingTrack": "載入中",
     "suspended": {
       "ariaLabel": "帳戶暫停通知",
       "beforeEmail": "此用戶已被暫停，請聯絡 ",

@@ -14,6 +14,20 @@
     "productBody": "Customers post local tasks on the map. Nearby workers send quotes. You pick who you want and pay the worker directly — Slashie takes no cut of the job. Workers can start on a free quote allowance or subscribe to Slashie Unlimited for unlimited quoting. Customers post tasks for free.",
     "buildHeading": "Open source, AI-built",
     "buildBody": "Slashie is an open-source project, powered by an AI-driven company and created with loop engineering. Follow along on LinkedIn or browse the code on GitHub.",
+    "proof": [
+      {
+        "title": "No cut of the job",
+        "body": "Customers pay the worker directly. Slashie does not take a platform fee on the work."
+      },
+      {
+        "title": "Open source",
+        "body": "The product is public on GitHub — inspect how Slashie is built."
+      },
+      {
+        "title": "Built in public",
+        "body": "Follow the company on LinkedIn for progress in the open."
+      }
+    ],
     "connect": {
       "linkedin": "LinkedIn",
       "github": "GitHub"
@@ -34,6 +48,20 @@
     "productBody": "客戶在地圖上發布本地任務。附近的工作者發送報價。你選人，並直接付款給工作者 — Slashie 不抽工作成數。工作者可先使用免費報價額度，或訂閱 Slashie Unlimited 取得無限報價。客戶可免費發布任務。",
     "buildHeading": "開源，以 AI 打造",
     "buildBody": "Slashie 是開源專案，由 AI 驅動的公司打造，並以 loop engineering 建構。歡迎在 LinkedIn 追蹤我們，或到 GitHub 瀏覽程式碼。",
+    "proof": [
+      {
+        "title": "工作不抽成",
+        "body": "客戶直接付款給工作者。Slashie 不對工作本身收取平台費。"
+      },
+      {
+        "title": "開源",
+        "body": "產品在 GitHub 公開 — 可以查看 Slashie 如何建構。"
+      },
+      {
+        "title": "公開打造",
+        "body": "在 LinkedIn 追蹤公司，了解公開進度。"
+      }
+    ],
     "connect": {
       "linkedin": "LinkedIn",
       "github": "GitHub"

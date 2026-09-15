@@ -5,7 +5,9 @@ import { useCallback, useRef } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
+
+import { SessionLoading } from '@/app/(auth)/components/SessionLoading'
 
 import { Button, Link } from '@ui'
 
@@ -75,23 +77,11 @@ export function TaskQuoteFlow() {
   const loginHref = `/login?next=${encodeURIComponent(`${backToTask}/quote`)}`
 
   if (isAuthenticated && meLoading) {
-    return (
-      <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="bg.subtle">
-        <Stack py={10} align="center">
-          <Text color="text.muted">Loading…</Text>
-        </Stack>
-      </Box>
-    )
+    return <SessionLoading ref={redirectToTaskDetailRef} />
   }
 
   if (shouldRedirectToTaskDetail) {
-    return (
-      <Box ref={redirectToTaskDetailRef} minH="100dvh" bg="bg.subtle">
-        <Stack py={10} align="center">
-          <Text color="text.muted">Redirecting…</Text>
-        </Stack>
-      </Box>
-    )
+    return <SessionLoading ref={redirectToTaskDetailRef} />
   }
 
   if (!isAuthenticated) {

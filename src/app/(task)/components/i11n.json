@@ -9,7 +9,8 @@
     "emptyDescription": "Clear filters or widen the area to see more tasks.",
     "clearAll": "Clear all",
     "clearFilters": "Clear filters",
-    "removeFilter": "Remove {label} filter"
+    "removeFilter": "Remove {label} filter",
+    "loadingTasks": "Finding tasks…"
   },
   "zh_hk": {
     "detailsCta": "查看任務",
@@ -21,6 +22,7 @@
     "emptyDescription": "清除篩選或擴大範圍，睇更多任務。",
     "clearAll": "全部清除",
     "clearFilters": "清除篩選",
-    "removeFilter": "移除{label}篩選"
+    "removeFilter": "移除{label}篩選",
+    "loadingTasks": "正在尋找任務…"
   }
 }

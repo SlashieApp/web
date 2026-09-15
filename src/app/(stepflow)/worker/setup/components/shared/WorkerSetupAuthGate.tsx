@@ -6,6 +6,7 @@ import { Box } from '@chakra-ui/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 
+import { SessionLoading } from '@/app/(auth)/components/SessionLoading'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { getAuthToken } from '@/utils/auth'
 
@@ -36,7 +37,7 @@ export function WorkerSetupAuthGate({ children }: WorkerSetupAuthGateProps) {
   )
 
   if (!hydrated || (hasToken && !me && isLoading)) {
-    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
+    return <SessionLoading ref={onMount} />
   }
 
   if (!me) {
@@ -48,7 +49,7 @@ export function WorkerSetupAuthGate({ children }: WorkerSetupAuthGateProps) {
         `/login?next=${encodeURIComponent(returnPath ?? '/worker/setup')}`,
       )
     }
-    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
+    return <SessionLoading ref={onMount} />
   }
 
   return <Box ref={onMount}>{children}</Box>

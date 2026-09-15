@@ -12,6 +12,7 @@ export {
   isS3OrCdnAvatarUrl,
 } from './Avatar'
 export { Badge } from './Badge'
+export { BrandLoading } from './BrandLoading'
 export { Button } from './Button'
 export { Card } from './Card'
 export {
@@ -110,6 +111,7 @@ export type {
   UiAvatarSize,
   UiAvatarStatus,
 } from './Avatar'
+export type { BrandLoadingProps } from './BrandLoading'
 export type { CardProps } from './Card'
 export type {
   ClickDropdownProps,
