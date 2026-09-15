@@ -3,6 +3,8 @@ import { type ComponentProps, useState } from 'react'
 
 import type { AppLocale } from '@/i18n/locales'
 
+import { Drawer } from '../Drawer'
+
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 const meta = {
@@ -37,4 +39,19 @@ export const Overlay: Story = {
   parameters: {
     backgrounds: { default: 'dark' },
   },
+}
+
+/** Inside an open Drawer the options render inline — no nested sheet. */
+export const InsideDrawer: Story = {
+  render: () => (
+    <Drawer
+      open
+      onOpenChange={() => undefined}
+      title="Account"
+      placement="end"
+      size="sm"
+    >
+      <ControlledSwitcher />
+    </Drawer>
+  ),
 }

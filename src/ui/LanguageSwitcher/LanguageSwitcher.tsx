@@ -6,6 +6,7 @@ import { LuGlobe } from 'react-icons/lu'
 import { type AppLocale, LOCALES, LOCALE_LABELS } from '@/i18n/locales'
 import { useI11n } from '@/i18n/useI11n'
 
+import { useInsideDrawer } from '../Drawer'
 import { Dropdown } from '../Dropdown'
 import { IconButton } from '../IconButton'
 
@@ -36,11 +37,56 @@ export function LanguageSwitcher({
 }: LanguageSwitcherProps) {
   const t = useI11n(bag)
   const resolvedLabel = label?.trim() || t.label
+  const insideDrawer = useInsideDrawer()
+
+  const options = (close?: () => void) => (
+    <Box
+      py={1}
+      role={insideDrawer ? 'group' : undefined}
+      aria-label={resolvedLabel}
+    >
+      {LOCALES.map((code) => {
+        const selected = code === locale
+        const meta = LOCALE_LABELS[code]
+        return (
+          <LanguageOptionButton
+            key={code}
+            type="button"
+            role="menuitemradio"
+            aria-checked={selected}
+            w="full"
+            textAlign="left"
+            px={3}
+            py={2}
+            cursor="pointer"
+            bg={selected ? 'bg.subtle' : 'transparent'}
+            _hover={{ bg: 'bg.subtle' }}
+            onClick={() => {
+              onSelect(code)
+              close?.()
+            }}
+          >
+            <HStack justify="space-between" gap={3}>
+              <Text fontSize="sm" fontWeight={selected ? 700 : 500}>
+                {meta.native}
+              </Text>
+              <Text fontSize="xs" color="text.muted" fontWeight={600}>
+                {meta.short}
+              </Text>
+            </HStack>
+          </LanguageOptionButton>
+        )
+      })}
+    </Box>
+  )
+
+  if (insideDrawer) return options()
 
   return (
     <Dropdown
       align="end"
       width="180px"
+      mobilePlacement="bottom"
       contentLabel={resolvedLabel}
       trigger={
         <IconButton
@@ -58,42 +104,7 @@ export function LanguageSwitcher({
         </IconButton>
       }
     >
-      {({ close }) => (
-        <Box py={1}>
-          {LOCALES.map((code) => {
-            const selected = code === locale
-            const meta = LOCALE_LABELS[code]
-            return (
-              <LanguageOptionButton
-                key={code}
-                type="button"
-                role="menuitemradio"
-                aria-checked={selected}
-                w="full"
-                textAlign="left"
-                px={3}
-                py={2}
-                cursor="pointer"
-                bg={selected ? 'bg.subtle' : 'transparent'}
-                _hover={{ bg: 'bg.subtle' }}
-                onClick={() => {
-                  onSelect(code)
-                  close()
-                }}
-              >
-                <HStack justify="space-between" gap={3}>
-                  <Text fontSize="sm" fontWeight={selected ? 700 : 500}>
-                    {meta.native}
-                  </Text>
-                  <Text fontSize="xs" color="text.muted" fontWeight={600}>
-                    {meta.short}
-                  </Text>
-                </HStack>
-              </LanguageOptionButton>
-            )
-          })}
-        </Box>
-      )}
+      {({ close }) => options(close)}
     </Dropdown>
   )
 }

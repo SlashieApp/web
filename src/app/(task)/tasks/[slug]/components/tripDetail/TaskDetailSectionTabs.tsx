@@ -40,6 +40,8 @@ export function TaskDetailSectionTabs({
       fittedBelowLg={fittedBelowLg}
       sticky
       stickyTop={0}
+      stickyBg="transparent"
+      panelBg={{ base: 'bg.canvas', lg: 'transparent' }}
       w="full"
       px={px}
       aria-label={t.nav.taskSectionsAria}

@@ -43,7 +43,7 @@ export {
   HeaderToolbarSeparator,
 } from './Header'
 export { DetailRow } from './DetailRow'
-export { Drawer } from './Drawer'
+export { Drawer, useInsideDrawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
 export {
   formControlHelperTextProps,
@@ -112,6 +112,7 @@ export type {
 export type { CardProps } from './Card'
 export type {
   ClickDropdownProps,
+  DropdownMobilePlacement,
   DropdownProps,
   DropdownTriggerApi,
   HoverDropdownProps,

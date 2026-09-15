@@ -221,6 +221,9 @@ function GuestMobileMenu({
         size="full"
       >
         <Stack as="nav" gap={0} align="stretch" flex={1}>
+          <HStack justify="flex-end" align="center" mb={3} flexShrink={0}>
+            <LanguageSwitcher />
+          </HStack>
           <Link
             href={WORKER_SEARCH_HREF}
             {...accountNavLinkRowProps}
@@ -359,7 +362,9 @@ function AppHeaderNavigation() {
           <>
             <HeaderToolbarSeparator display="block" ml={2} />
             <HStack gap={1} align="center" flexShrink={0}>
-              <LanguageSwitcher />
+              <Box display={{ base: 'none', md: 'inline-flex' }}>
+                <LanguageSwitcher />
+              </Box>
               <NotificationsBell />
               <AccountMenu />
             </HStack>
@@ -374,7 +379,9 @@ function AppHeaderNavigation() {
         ) : (
           <>
             <HeaderToolbarSeparator />
-            <LanguageSwitcher />
+            <Box display={{ base: 'none', md: 'inline-flex' }}>
+              <LanguageSwitcher />
+            </Box>
             <HeaderGuestAuthButtons
               loginHref={loginHref}
               signupHref={signupHref}
@@ -392,18 +399,29 @@ function AppHeaderNavigation() {
  * (e.g. marketing). Otherwise renders auth-aware browse/dashboard toolbar.
  */
 export function Header({ children, ...props }: HeaderProps) {
+  const pathname = usePathname()
+  const overSearchMap =
+    stripLocalePrefix(pathname ?? '') === APP_HOME ||
+    stripLocalePrefix(pathname ?? '').startsWith(`${APP_HOME}/`)
+
   return (
     <>
       <AppStatusBanners />
       <Box
         as="header"
         zIndex={30}
-        bg="bg.canvas"
+        bg={
+          overSearchMap ? { base: 'transparent', md: 'bg.canvas' } : 'bg.canvas'
+        }
         color="text.default"
         backdropFilter="blur(20px)"
         boxShadow="none"
         borderWidth="1px"
-        borderColor="border.default"
+        borderColor={
+          overSearchMap
+            ? { base: 'transparent', md: 'border.default' }
+            : 'border.default'
+        }
         minH={HEADER_MIN_HEIGHT}
         display="flex"
         alignItems="center"

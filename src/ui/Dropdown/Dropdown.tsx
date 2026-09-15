@@ -1,6 +1,11 @@
 'use client'
 
-import { Box, type BoxProps, chakra } from '@chakra-ui/react'
+import {
+  Box,
+  type BoxProps,
+  chakra,
+  useBreakpointValue,
+} from '@chakra-ui/react'
 import {
   type FocusEvent,
   type ReactElement,
@@ -18,6 +23,8 @@ import {
 } from 'react'
 
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+
+import { Drawer, type DrawerPlacement, useInsideDrawer } from '../Drawer'
 
 /**
  * SDL popover surface. Reduced-motion safe: animates transform/opacity only and
@@ -126,6 +133,9 @@ export type DropdownTriggerApi = {
   }
 }
 
+/** Mobile drawer edge. Maps left/right/bottom onto `@ui` Drawer placement. */
+export type DropdownMobilePlacement = 'start' | 'end' | 'bottom'
+
 type DropdownBaseProps = {
   /** Horizontal alignment of the panel relative to the trigger. */
   align?: 'start' | 'end' | 'center'
@@ -135,6 +145,11 @@ type DropdownBaseProps = {
   onOpenChange?: (open: boolean) => void
   /** Override / extend the default popover surface styling. */
   contentProps?: BoxProps
+  /**
+   * Below `md`, the menu opens as `@ui` Drawer instead of a popover.
+   * Ignored when this dropdown is already inside a Drawer (no nesting).
+   */
+  mobilePlacement?: DropdownMobilePlacement
 }
 
 export type ClickDropdownProps = DropdownBaseProps & {
@@ -255,6 +270,43 @@ function renderClickChildren(
   )
 }
 
+function useMobileDrawerPresentation() {
+  const isMobile =
+    useBreakpointValue({ base: true, md: false }, { fallback: 'base' }) ?? false
+  const insideDrawer = useInsideDrawer()
+  return isMobile && !insideDrawer
+}
+
+function DropdownMobileDrawer({
+  open,
+  onOpenChange,
+  title,
+  placement,
+  children,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  placement: DropdownMobilePlacement
+  children: ReactNode
+}) {
+  const drawerPlacement: DrawerPlacement = placement
+  return (
+    <Drawer
+      open={open}
+      onOpenChange={onOpenChange}
+      title={title}
+      placement={drawerPlacement}
+      size={placement === 'bottom' ? 'xs' : 'sm'}
+      contentProps={
+        placement === 'bottom' ? { h: 'auto', maxH: '80dvh' } : undefined
+      }
+    >
+      {children}
+    </Drawer>
+  )
+}
+
 function ClickDropdown({
   trigger,
   children,
@@ -264,6 +316,7 @@ function ClickDropdown({
   defaultOpen = false,
   onOpenChange,
   contentProps,
+  mobilePlacement = 'bottom',
 }: ClickDropdownProps) {
   const { open, rendered, closing, setOpenState } = useDropdownPhase(
     defaultOpen,
@@ -272,12 +325,20 @@ function ClickDropdown({
   const panelRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelId = useId()
+  const useDrawer = useMobileDrawerPresentation()
+  const presentationRef = useRef(useDrawer)
 
   const close = useCallback(() => setOpenState(false), [setOpenState])
   const toggle = useCallback(() => setOpenState(!open), [open, setOpenState])
 
   useEffect(() => {
-    if (!open) return
+    if (presentationRef.current === useDrawer) return
+    presentationRef.current = useDrawer
+    setOpenState(false)
+  }, [useDrawer, setOpenState])
+
+  useEffect(() => {
+    if (!open || useDrawer) return
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target
       if (!(target instanceof Node)) return
@@ -287,10 +348,10 @@ function ClickDropdown({
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [open, close])
+  }, [open, close, useDrawer])
 
   useEffect(() => {
-    if (!open) return
+    if (!open || useDrawer) return
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
@@ -300,15 +361,15 @@ function ClickDropdown({
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [open, close])
+  }, [open, close, useDrawer])
 
   useEffect(() => {
-    if (!open) return
+    if (!open || useDrawer) return
     const firstFocusable = panelRef.current?.querySelector<HTMLElement>(
       'a, button:not([disabled])',
     )
     firstFocusable?.focus()
-  }, [open])
+  }, [open, useDrawer])
 
   const alignTransform = align === 'center' ? 'translateX(-50%)' : ''
   const alignProps =
@@ -330,11 +391,25 @@ function ClickDropdown({
     },
   }
 
+  const menu = renderClickChildren(children, close)
+
   return (
     <Box position="relative" display="inline-block">
       {renderClickTrigger(trigger, triggerApi)}
 
-      {rendered ? (
+      {useDrawer ? (
+        <DropdownMobileDrawer
+          open={open}
+          onOpenChange={(next) => {
+            setOpenState(next)
+            if (!next) triggerRef.current?.focus()
+          }}
+          title={contentLabel}
+          placement={mobilePlacement}
+        >
+          {menu}
+        </DropdownMobileDrawer>
+      ) : rendered ? (
         <Box
           ref={panelRef}
           id={panelId}
@@ -356,7 +431,7 @@ function ClickDropdown({
           {...alignProps}
           {...contentProps}
         >
-          {renderClickChildren(children, close)}
+          {menu}
         </Box>
       ) : null}
     </Box>
@@ -375,14 +450,23 @@ function HoverDropdown({
   onOpenChange,
   defaultOpen = false,
   rootProps,
+  mobilePlacement = 'bottom',
 }: HoverDropdownProps) {
   const contentDomId = useId()
   const { open, rendered, closing, setOpenState } = useDropdownPhase(
     defaultOpen,
     onOpenChange,
   )
+  const useDrawer = useMobileDrawerPresentation()
+  const presentationRef = useRef(useDrawer)
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (presentationRef.current === useDrawer) return
+    presentationRef.current = useDrawer
+    setOpenState(false)
+  }, [useDrawer, setOpenState])
 
   const clearOpenTimer = useCallback(() => {
     if (openTimerRef.current) {
@@ -459,7 +543,16 @@ function HoverDropdown({
       {...restRootProps}
     >
       {mergeTriggerAria(trigger, open, contentDomId)}
-      {rendered ? (
+      {useDrawer ? (
+        <DropdownMobileDrawer
+          open={open}
+          onOpenChange={setOpenState}
+          title={contentLabel}
+          placement={mobilePlacement}
+        >
+          {children}
+        </DropdownMobileDrawer>
+      ) : rendered ? (
         <Box
           position="absolute"
           top="100%"
@@ -494,7 +587,8 @@ function HoverDropdown({
 
 /**
  * Universal dropdown popover. Default: click to open with click-outside + Escape.
- * Set `hoverExpand` for nav-style hover/focus menus.
+ * Set `hoverExpand` for nav-style hover/focus menus. Below `md` the panel is
+ * `@ui` Drawer unless this menu is already inside a Drawer.
  */
 export function Dropdown(props: DropdownProps) {
   if (props.hoverExpand) {

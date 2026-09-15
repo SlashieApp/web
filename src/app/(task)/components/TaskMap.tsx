@@ -63,6 +63,11 @@ export type TaskMapProps = {
   navRouteEnabled?: boolean
   /** Accessible label for the map container. */
   mapAriaLabel?: string
+  /**
+   * Mobile-only CSS length that lifts Mapbox logo/attribution above overlays
+   * (bottom nav + task carousel). Desktop is unchanged.
+   */
+  mobileCtrlBottomOffset?: string
 }
 
 /**
@@ -173,9 +178,17 @@ export function TaskMap(props: TaskMapProps) {
       css={{
         // Mobile: hide the +/− NavigationControl. Touch has pinch/double-tap
         // zoom, and the control sits inside the map's stacking context so the
-        // top scrim overlay would wash it out. Desktop keeps it.
+        // top scrim overlay would wash it out. Desktop keeps it. Do not hide
+        // the Mapbox logo — only reposition it when an offset is provided.
         '@media (max-width: 47.9975em)': {
           '& .mapboxgl-ctrl-top-right': { display: 'none' },
+          ...(props.mobileCtrlBottomOffset
+            ? {
+                '& .mapboxgl-ctrl-bottom-left, & .mapboxgl-ctrl-bottom-right': {
+                  bottom: props.mobileCtrlBottomOffset,
+                },
+              }
+            : {}),
         },
       }}
     >

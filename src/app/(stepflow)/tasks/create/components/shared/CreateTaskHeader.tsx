@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { LuX } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { Logo } from '@ui'
 import bag from '../../i11n.json'
 
@@ -26,12 +27,19 @@ export function CreateTaskHeader({
       bg="bg.surface"
       borderBottomWidth="1px"
       borderColor="border.default"
-      px={{ base: 4, md: 6 }}
       minH={{ base: '56px', md: '64px' }}
       display="flex"
       alignItems="center"
     >
-      <HStack gap={{ base: 3, md: 4 }} w="full" align="center">
+      <HStack
+        gap={{ base: 3, md: 4 }}
+        w="full"
+        maxW={PAGE_CONTAINER_MAX_W}
+        mx="auto"
+        px={PAGE_GUTTER_X}
+        minH={{ base: '56px', md: '64px' }}
+        align="center"
+      >
         <IconButton
           aria-label={t.closeLabel}
           variant="ghost"

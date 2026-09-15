@@ -12,7 +12,7 @@ import { TaskLocationHeroMap } from './openTask/TaskLocationHeroMap'
 
 /**
  * Mobile map hero. Title / status / budget live in the sticky money chrome
- * below this map so they persist on scroll without covering the hero.
+ * that overlaps the lower hero so the map shows through.
  */
 export function StatusHeader() {
   const { permissions, task, pending, myOrder, me } = useTaskDetail()
@@ -47,7 +47,7 @@ export function StatusHeader() {
       variant={showExact ? 'exact' : 'approximate'}
       enableRoute={showExact}
       pinTask={pinTask}
-      minH={{ base: '220px', md: '280px' }}
+      minH={{ base: '300px', md: '360px' }}
     />
   )
 }
