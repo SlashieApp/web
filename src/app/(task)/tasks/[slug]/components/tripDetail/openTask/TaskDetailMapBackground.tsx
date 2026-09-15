@@ -42,7 +42,8 @@ function desktopMapPadding(
 
 /**
  * Desktop task-detail map layer: fixed to the viewport, zero document flow
- * height. Route + pin render behind the scrolling header and content cards.
+ * height. Lives in the scrolling main pane (`zIndex: 0`) so the app Header
+ * (`isolation` + `zIndex: 30`) stays above it and remains clickable.
  */
 export function TaskDetailMapBackground() {
   const { task, permissions, myOrder, me } = useTaskDetail()
@@ -165,7 +166,8 @@ export function TaskDetailMapBackground() {
       position="fixed"
       inset={0}
       zIndex={0}
-      h="100vh"
+      isolation="isolate"
+      h="100dvh"
       w="full"
       overflow="hidden"
       display={{ base: 'none', lg: 'block' }}

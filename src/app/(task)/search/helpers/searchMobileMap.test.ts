@@ -16,5 +16,18 @@ describe('search mobile map chrome', () => {
     expect(src).toContain("h={{ base: '100dvh', lg: 'full' }}")
     expect(src).toContain('mobileCtrlBottomOffset')
     expect(src).toContain('SEARCH_MOBILE_MAP_CTRL_BOTTOM')
+    expect(src).not.toContain(
+      '96px + env(safe-area-inset-bottom, 0px) + 11.5rem',
+    )
+  })
+
+  it('sits the mobile carousel flush to the viewport bottom', () => {
+    const src = readFileSync(
+      join(dir, '../components/SearchLayouts.tsx'),
+      'utf8',
+    )
+    expect(src).toContain("position={{ base: 'fixed', md: 'absolute' }}")
+    expect(src).toContain('bottom={0}')
+    expect(src).not.toContain('bottom={8}')
   })
 })

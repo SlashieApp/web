@@ -14,6 +14,7 @@ import { useAccountOrders } from '../helpers/useAccountOrders'
 import { useMyQuotes } from '../helpers/useMyQuotes'
 import { useMyRequests } from '../helpers/useMyRequests'
 
+import { DashboardCompleteProfileCard } from './components/DashboardCompleteProfileCard'
 import { DashboardMembershipPanel } from './components/DashboardMembershipPanel'
 import { DashboardPipelineInbox } from './components/DashboardPipelineInbox'
 import { DashboardQuickActions } from './components/DashboardQuickActions'
@@ -156,7 +157,10 @@ export default function DashboardOverviewPage() {
               postedTasks={postedTasks}
               sentQuotes={sentQuotes}
             />
-            <DashboardMembershipPanel membership={me?.worker?.membership} />
+            <Stack gap={4}>
+              <DashboardCompleteProfileCard />
+              <DashboardMembershipPanel membership={me?.worker?.membership} />
+            </Stack>
           </Grid>
 
           <DashboardQuickActions actions={quickActions} />

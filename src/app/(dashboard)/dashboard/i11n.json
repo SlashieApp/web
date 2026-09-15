@@ -73,6 +73,13 @@
       "body": "Compare quotes from local workers. Job payments stay between you and your pro — not through Slashie.",
       "becomeWorker": "Become a worker"
     },
+    "completeProfile": {
+      "title": "Complete your profile",
+      "description": "Stand out and get more work.",
+      "completeCount": "{done}/{total} complete",
+      "manageProfile": "Manage profile",
+      "continueSetup": "Continue setup"
+    },
     "quickActions": {
       "title": "Quick actions",
       "postTitle": "Post a task",
@@ -161,6 +168,13 @@
       "description": "以顧客身份免費發布任務，或成為工作者以傳送報價。",
       "body": "比較本地工作者的報價。工作款項由你與專業人士直接處理 — 不經 Slashie。",
       "becomeWorker": "成為工作者"
+    },
+    "completeProfile": {
+      "title": "完善你的個人檔案",
+      "description": "脫穎而出，爭取更多工作。",
+      "completeCount": "已完成 {done}/{total}",
+      "manageProfile": "管理個人檔案",
+      "continueSetup": "繼續設定"
     },
     "quickActions": {
       "title": "快捷操作",

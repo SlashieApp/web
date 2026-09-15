@@ -13,11 +13,12 @@ import { useSelectBrowseTaskFromMap } from '../../../helpers/useSelectBrowseTask
 const SINGLE_PANEL_BUTTON_LEFT_INSET = '1.25rem + min(420px, 38vw)'
 
 /**
- * Lift Mapbox logo/attribution above the glass bottom nav and the mobile
- * task-card carousel (card ~160px + carousel padding).
+ * Lift Mapbox logo/attribution above the overlapping task-card carousel.
+ * The card sits flush to the glass nav (viewport bottom), so this offset is
+ * card + search-this-area + gaps — not an extra gap above the pill.
  */
 const SEARCH_MOBILE_MAP_CTRL_BOTTOM =
-  'calc(96px + env(safe-area-inset-bottom, 0px) + 11.5rem)'
+  'calc(env(safe-area-inset-bottom, 0px) + 12rem)'
 
 /** Map instance for /search task browse. */
 export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
