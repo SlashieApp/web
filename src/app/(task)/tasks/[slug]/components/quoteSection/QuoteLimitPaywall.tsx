@@ -9,15 +9,15 @@ export function QuoteLimitPaywall() {
     <Stack
       gap={3}
       borderWidth="1px"
-      borderColor="orange.200"
-      borderRadius="xl"
-      bg="orange.50"
+      borderColor="status.warning.solid"
+      borderRadius="lg"
+      bg="status.warning.soft"
       p={4}
     >
-      <Text fontSize="sm" fontWeight={700} color="orange.900">
+      <Text fontSize="sm" fontWeight={700} color="status.warning.fg">
         Monthly quote limit reached
       </Text>
-      <Text fontSize="sm" color="orange.900" lineHeight="tall">
+      <Text fontSize="sm" color="status.warning.fg" lineHeight="tall">
         You&apos;ve used all free quotes this UTC month. Upgrade to Slashie
         Unlimited for unlimited quoting — separate from job payments between you
         and the customer.

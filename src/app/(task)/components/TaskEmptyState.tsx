@@ -21,10 +21,10 @@ export function TaskEmptyState() {
   return (
     <Box
       bg="bg.surface"
-      borderRadius="2xl"
+      borderRadius="lg"
       borderWidth="1px"
       borderColor="border.default"
-      boxShadow="e4"
+      boxShadow="e1"
       w="full"
       mx="auto"
       maxW="full"

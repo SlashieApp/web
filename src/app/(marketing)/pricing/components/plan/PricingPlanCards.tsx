@@ -228,10 +228,10 @@ function PlanCardShell({
       borderWidth={featured ? '2px' : '1px'}
       /* TODO(sdl): featured green accent border mapped to border.focus */
       borderColor={featured ? 'border.focus' : 'border.default'}
-      borderRadius="2xl"
+      borderRadius="lg"
       bg="bg.surface"
       p={{ base: 5, md: 6 }}
-      boxShadow={featured ? 'md' : 'sm'}
+      boxShadow={featured ? 'e2' : 'e1'}
       position="relative"
       h="full"
       overflow="hidden"

@@ -363,12 +363,12 @@ export function OrderSection({ task, order }: OrderSectionProps) {
       ref={onSectionRef}
       id={TASK_ORDER_SECTION_ID}
       w="full"
-      borderRadius="xl"
+      borderRadius="lg"
       borderWidth="1px"
       borderColor="border.default"
       bg="bg.surface"
       overflow="hidden"
-      boxShadow="sm"
+      boxShadow="e1"
     >
       <Stack gap={0}>
         {completed ? (

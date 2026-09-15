@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react'
 
 import { PAGE_CONTAINER_MAX_W_CSS, PAGE_GUTTER_X } from './pageContainer'
-import { sdlElevation, sdlTypeScale } from './styles'
+import { sdlElevation, sdlTextSubtleLight, sdlTypeScale } from './styles'
 
 /**
  * SLASHIE DESIGN LANGUAGE (SDL) — Chakra theme = single source of truth.
@@ -205,12 +205,17 @@ const lightSemanticColors = {
   text: {
     default: { value: { base: '#0A1512' } },
     muted: { value: { base: '#515A56' } },
-    subtle: { value: { base: '#9BA4A0' } },
+    /**
+     * Support copy / placeholders. Must stay ≥4.5:1 on canvas, surface, and
+     * subtle fills (AA). See `sdlTextSubtleLight`.
+     */
+    subtle: { value: { base: sdlTextSubtleLight } },
     onGreen: { value: { base: '#0A1512' } },
     /** Text on the dark brand/auth hero (white + alphas; mode-independent). */
     onBrand: { value: { base: '#FFFFFF' } },
     onBrandMuted: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
-    onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.75)' } },
+    /** xs labels on brand hero — 0.85 white ≈ 5.4:1 on green.800. */
+    onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.85)' } },
     /** Text on `bg.inverted*` dark ink surfaces. Mode-independent. */
     onInverted: { value: { base: '#F2F5F4' } },
     onInvertedMuted: { value: { base: '#A6AFAB' } },
@@ -294,7 +299,8 @@ const darkSemanticColors = {
     /** Text on the dark brand/auth hero (white + alphas; mode-independent). */
     onBrand: { value: { base: '#FFFFFF' } },
     onBrandMuted: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
-    onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.75)' } },
+    /** xs labels on brand hero — 0.85 white ≈ 5.4:1 on green.800. */
+    onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.85)' } },
     /** Text on `bg.inverted*` dark ink surfaces. Mode-independent. */
     onInverted: { value: { base: '#F2F5F4' } },
     onInvertedMuted: { value: { base: '#A6AFAB' } },

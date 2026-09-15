@@ -549,7 +549,7 @@ export default function LoginPage() {
                             borderRadius="md"
                             borderWidth="0"
                             bg="bg.surface"
-                            boxShadow="sm"
+                            boxShadow="e1"
                             _checked={{
                               bg: 'action.primary',
                               color: 'text.onGreen',

@@ -124,11 +124,11 @@ export function WorkerSearchCard({
         overflow="hidden"
         borderRadius="lg"
         bg="bg.surface"
-        boxShadow="card"
+        boxShadow="e1"
         transitionProperty="background-color, border-color, box-shadow"
         transitionDuration={sdlMotion.duration.base}
         transitionTimingFunction={sdlMotion.easing.standard}
-        _hover={{ boxShadow: 'e3' }}
+        _hover={{ boxShadow: 'e2' }}
       >
         <ViewTransition
           name={morphing ? workerVtName('img', workerId) : undefined}

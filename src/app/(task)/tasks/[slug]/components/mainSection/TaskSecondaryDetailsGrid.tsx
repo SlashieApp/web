@@ -151,7 +151,7 @@ export function TaskSecondaryDetailsGrid() {
       w="full"
       borderWidth="1px"
       borderColor="border.default"
-      borderRadius="xl"
+      borderRadius="lg"
       bg="bg.surface"
       p={{ base: 4, md: 5 }}
     >

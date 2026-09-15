@@ -27,7 +27,7 @@ export function TaskBrowseMapLoader() {
         gap={2}
         px={4}
         py={3}
-        borderRadius="xl"
+        borderRadius="lg"
         bg="bg.surface"
         borderWidth="1px"
         borderColor="border.default"

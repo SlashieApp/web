@@ -222,8 +222,11 @@ function MissingResetLinkState() {
 
       <Box
         w="full"
-        bg="bg.subtle"
-        borderRadius="2xl"
+        bg="bg.surface"
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="border.default"
+        boxShadow="e1"
         px={{ base: 6, md: 10 }}
         py={{ base: 8, md: 10 }}
       >
@@ -343,8 +346,11 @@ function ResetPasswordForm() {
 
       <Box
         w="full"
-        bg="bg.subtle"
-        borderRadius="2xl"
+        bg="bg.surface"
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="border.default"
+        boxShadow="e1"
         px={{ base: 6, md: 10 }}
         py={{ base: 8, md: 10 }}
       >

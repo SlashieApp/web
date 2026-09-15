@@ -51,7 +51,7 @@ export function DashboardCompleteProfileCard() {
     : workerSetupHref(pathname ?? '/profile')
 
   return (
-    <Stack p={4} gap={3} bg="status.success.soft" borderRadius="xl">
+    <Stack p={4} gap={3} bg="status.success.soft" borderRadius="lg">
       <Stack gap={0.5}>
         <Text fontSize="sm" fontWeight={700}>
           {t.title}
@@ -73,7 +73,7 @@ export function DashboardCompleteProfileCard() {
             {completion.percent}%
           </Text>
         </HStack>
-        <Box h="6px" borderRadius="full" bg="whiteAlpha.700" overflow="hidden">
+        <Box h="6px" borderRadius="full" bg="bg.surface" overflow="hidden">
           <Box h="full" bg="action.primary" w={`${completion.percent}%`} />
         </Box>
       </Stack>

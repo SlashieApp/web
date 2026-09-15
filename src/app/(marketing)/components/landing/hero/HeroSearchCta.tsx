@@ -49,14 +49,14 @@ export function HeroSearchCta({
         gap={2}
         align="stretch"
         p={{ base: 1.5, md: 2 }}
-        borderRadius="xl"
+        borderRadius="lg"
         borderWidth="1px"
         borderColor="border.glass"
         bg="bg.glass"
-        boxShadow="0 0 0 1px rgba(0, 220, 130, 0.08)"
+        boxShadow="e1"
         _focusWithin={{
           borderColor: 'action.primary',
-          boxShadow: '0 0 0 1px {colors.action.primary}',
+          boxShadow: 'e2',
         }}
       >
         <Input

@@ -12,7 +12,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { ViewTransition } from '@/ui/ViewTransition'
 import { Badge, Button, Card, IconButton, Link, Thumbnail } from '@ui'
 
-import { sdlMotion } from '@/theme/styles'
+import { sdlCardHoverShadow, sdlMotion } from '@/theme/styles'
 
 import { taskCardMetaParts } from '../helpers/taskBrowseHelpers'
 import {
@@ -231,14 +231,14 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       p={{ base: 3, md: isExpanded ? 3.5 : 3 }}
       maxW="full"
       bg={isActive ? 'status.success.soft' : 'bg.surface'}
-      boxShadow={isExpanded ? 'e3' : 'card'}
+      boxShadow={isExpanded ? sdlCardHoverShadow : 'e1'}
       transitionProperty="background-color, box-shadow, transform, border-color, padding"
       transitionDuration={sdlMotion.duration.base}
       transitionTimingFunction={sdlMotion.easing.standard}
       _hover={
         onActivate
           ? {
-              boxShadow: 'e3',
+              boxShadow: sdlCardHoverShadow,
             }
           : undefined
       }

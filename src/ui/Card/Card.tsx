@@ -12,23 +12,24 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import {
+  sdlCardHoverShadow,
+  sdlCardSurface,
+  sdlFocusRing,
+  sdlMotion,
+} from '@/theme/styles'
 
 /**
  * SDL Card. A surface primitive for dashboard / task-detail blocks and
  * clickable rows. References SDL semantic roles only:
- * `bg.surface` fill, `border.default` hairline, `e1` elevation.
+ * `bg.surface` fill, `border.default` hairline, `lg` radius, `e1` elevation.
  *
  * Interactive cards (clickable rows) are keyboard-focusable and show the SDL
  * focus ring; surface hover uses `bg.subtle`. Active/selected cards highlight
  * the border with `action.primary`.
  */
 const cardSurface: SystemStyleObject = {
-  bg: 'bg.surface',
-  borderWidth: '1px',
-  borderColor: 'border.default',
-  borderRadius: 'md',
-  boxShadow: 'e1',
+  ...sdlCardSurface,
 }
 
 const cardInteractive: SystemStyleObject = {
@@ -37,7 +38,7 @@ const cardInteractive: SystemStyleObject = {
   transitionProperty: 'background-color, border-color, box-shadow',
   transitionDuration: sdlMotion.duration.base,
   transitionTimingFunction: sdlMotion.easing.standard,
-  _hover: { bg: 'bg.subtle' },
+  _hover: { bg: 'bg.subtle', boxShadow: sdlCardHoverShadow },
   _focusVisible: sdlFocusRing,
 }
 
@@ -151,7 +152,7 @@ export function Card({
 
   return (
     <Box
-      borderRadius={borderRadius ?? 'md'}
+      borderRadius={borderRadius ?? sdlCardSurface.borderRadius}
       p={p ?? (isSection ? { base: 5, md: 6 } : 6)}
       maxW={maxW ?? (isSection ? 'full' : 'md')}
       w="full"

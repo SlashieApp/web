@@ -69,11 +69,11 @@ export function ForgotPasswordForm() {
 
       <Box
         w="full"
-        bg="bg.subtle"
-        borderRadius="xl"
-        boxShadow="card"
-        borderTopWidth="4px"
-        borderTopColor="action.primary"
+        bg="bg.surface"
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="border.default"
+        boxShadow="e1"
         px={{ base: 6, md: 10 }}
         py={{ base: 8, md: 10 }}
       >

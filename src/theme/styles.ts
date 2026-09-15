@@ -74,6 +74,30 @@ export const sdlRadii = {
 } as const
 
 /**
+ * Canonical resting card. One radius + one elevation rule sitewide:
+ * `lg` corners, 1px `border.default`, `e1` lift. Hover/raised cards step to `e2`.
+ * Light mode reads the shadow; dark mode reads the hairline + surface.
+ * Do not pair a heavy shadow (`e3+`) with a 2xl radius on product cards.
+ */
+export const sdlCardRadius = 'lg' as const
+export const sdlCardHoverShadow = 'e2' as const
+
+export const sdlCardSurface = {
+  bg: 'bg.surface',
+  borderWidth: '1px',
+  borderColor: 'border.default',
+  borderRadius: sdlCardRadius,
+  boxShadow: 'e1',
+} satisfies SystemStyleObject
+
+/**
+ * Light-mode `text.subtle`. Neutral.400 (`#9BA4A0`) is 2.42:1 on `bg.canvas` and
+ * fails WCAG AA for support copy / placeholders. This step stays lighter than
+ * `text.muted` (`#515A56`) while clearing 4.5:1 on canvas, surface, and subtle.
+ */
+export const sdlTextSubtleLight = '#606964'
+
+/**
  * Portalled overlays (Modal / Drawer / ReportDialog) must sit above Header
  * (30), the mobile dock (40), and dropdowns (50). #217 dropped this and the
  * report scrim lost to page chrome.
