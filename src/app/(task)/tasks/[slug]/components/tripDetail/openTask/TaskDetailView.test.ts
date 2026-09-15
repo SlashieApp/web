@@ -29,5 +29,6 @@ describe('TaskDetailView desktop column', () => {
     expect(src).toContain('bg="transparent"')
     expect(src).toContain('position="sticky"')
     expect(src).toContain('MOBILE_MAP_CHROME_OVERLAP')
+    expect(src).toContain('-9.25rem')
   })
 })

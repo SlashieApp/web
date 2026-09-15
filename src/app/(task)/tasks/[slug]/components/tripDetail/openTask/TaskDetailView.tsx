@@ -19,8 +19,8 @@ import { TaskDetailMapBackground } from './TaskDetailMapBackground'
 /** Map show-through above the sticky money chrome on desktop. */
 const DESKTOP_MAP_SPACER = { base: '56px', md: '120px' } as const
 
-/** Pull mobile chrome onto the hero so the map shows through at rest. */
-const MOBILE_MAP_CHROME_OVERLAP = '-4.5rem'
+/** Pull the full money chrome + tabs onto the hero (chrome is ~9rem). */
+const MOBILE_MAP_CHROME_OVERLAP = '-9.25rem'
 
 /**
  * Responsive task detail: one tree for both form factors (avoids the SSR

@@ -136,33 +136,17 @@ export function TaskLocationHeroMap({
         />
       ) : null}
 
-      {/* White fade from the bottom up — legibility scrim behind the anchored
-          hero text. Pointer-transparent so the map stays interactive. */}
+      {/* Soft fade only at the very bottom so overlapping chrome still reads
+          the map. Left/top stay clear for the Mapbox logo.
+          TODO(sdl-dark-mode): rework with the dark map style when dark mode
+          is re-enabled. */}
       <Box
         position="absolute"
         inset={0}
         pointerEvents="none"
         css={{
           background:
-            'linear-gradient(to top, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.72) 26%, rgba(255, 255, 255, 0.28) 48%, rgba(255, 255, 255, 0) 68%)',
-        }}
-      />
-
-      {/* White fade from the left edge — matches the desktop map background's
-          horizontal scrim so the left-aligned copy stays legible.
-          TODO(sdl-dark-mode): the hero scrims (here + TaskDetailMapBackground)
-          are fixed light-mode white; rework alongside the dark map style when
-          dark mode is re-enabled. */}
-      <Box
-        position="absolute"
-        top="3.25rem"
-        left={0}
-        right={0}
-        bottom={0}
-        pointerEvents="none"
-        css={{
-          background:
-            'linear-gradient(to right, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.55) 32%, rgba(255, 255, 255, 0.18) 55%, rgba(255, 255, 255, 0) 75%)',
+            'linear-gradient(to top, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 22%)',
         }}
       />
 
