@@ -11,5 +11,6 @@ describe('Tabs sticky background', () => {
     const src = readFileSync(join(dir, 'Tabs.tsx'), 'utf8')
     expect(src).toContain('stickyBg')
     expect(src).toContain("sticky ? (stickyBg ?? 'bg.canvas')")
+    expect(src).toContain('panelBg')
   })
 })

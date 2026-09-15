@@ -119,6 +119,8 @@ export function TaskLocationHeroMap({
       display="flex"
       css={{
         background: 'linear-gradient(135deg, #EEF3F0 0%, #DCE6E0 50%)',
+        // Keep the required Mapbox mark in the clear top-left (above scrims).
+        '& .mapboxgl-ctrl-top-left': { top: '10px', left: '10px' },
       }}
     >
       {canMountMap ? (
@@ -153,7 +155,10 @@ export function TaskLocationHeroMap({
           dark mode is re-enabled. */}
       <Box
         position="absolute"
-        inset={0}
+        top="3.25rem"
+        left={0}
+        right={0}
+        bottom={0}
         pointerEvents="none"
         css={{
           background:

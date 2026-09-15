@@ -53,6 +53,12 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
    * (task-detail money chrome over the map).
    */
   stickyBg?: BoxProps['bg']
+  /**
+   * Background for the panel stack under the sticky chrome. Keep unset so
+   * other Tabs stay unchanged. Task detail uses a solid mobile surface so
+   * content stays readable while the sticky header stays transparent.
+   */
+  panelBg?: BoxProps['bg']
   /** Accessible name for the tablist. */
   'aria-label'?: string
   /** Rendered inside the sticky chrome, above the tablist (e.g. a title bar). */
@@ -88,6 +94,8 @@ function TabsBase({
   sticky = false,
   stickyTop = 0,
   stickyBg,
+  panelBg,
+  px,
   stickyHeader,
   children,
   'aria-label': ariaLabel,
@@ -187,15 +195,18 @@ function TabsBase({
     [activeValue, direction, reducedMotion, baseId],
   )
 
+  const splitPanelChrome = panelBg != null
+
   return (
     <TabsContext.Provider value={contextValue}>
-      <Box {...boxProps}>
+      <Box {...boxProps} px={splitPanelChrome ? undefined : px}>
         <Box
           position={sticky ? 'sticky' : undefined}
           top={sticky ? stickyTop : undefined}
           zIndex={sticky ? 5 : undefined}
           bg={sticky ? (stickyBg ?? 'bg.canvas') : undefined}
           w={sticky ? 'full' : undefined}
+          px={splitPanelChrome ? px : undefined}
           borderTopRadius={
             fittedBelowLg ? { base: 'none', lg: 'xl' } : undefined
           }
@@ -296,7 +307,13 @@ function TabsBase({
           </HStack>
         </Box>
 
-        <Box position="relative">{children}</Box>
+        <Box
+          position="relative"
+          bg={panelBg}
+          px={splitPanelChrome ? px : undefined}
+        >
+          {children}
+        </Box>
       </Box>
     </TabsContext.Provider>
   )

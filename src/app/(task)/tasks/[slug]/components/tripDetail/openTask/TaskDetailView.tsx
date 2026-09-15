@@ -19,6 +19,9 @@ import { TaskDetailMapBackground } from './TaskDetailMapBackground'
 /** Map show-through above the sticky money chrome on desktop. */
 const DESKTOP_MAP_SPACER = { base: '56px', md: '120px' } as const
 
+/** Pull mobile chrome onto the hero so the map shows through at rest. */
+const MOBILE_MAP_CHROME_OVERLAP = '-4.5rem'
+
 /**
  * Responsive task detail: one tree for both form factors (avoids the SSR
  * mobile snapshot that left desktop on a phone-width shell).
@@ -31,17 +34,29 @@ export function TaskDetailView() {
   return (
     <Box
       position="relative"
-      bg={{ base: 'bg.canvas', lg: 'transparent' }}
+      bg="transparent"
       w="full"
       minW={0}
       css={{ viewTransitionName: 'task-detail-page' }}
     >
-      <Box display={{ base: 'block', lg: 'none' }} w="full">
+      <Box
+        display={{ base: 'block', lg: 'none' }}
+        position="sticky"
+        top={0}
+        zIndex={0}
+        w="full"
+      >
         <StatusHeader />
       </Box>
       <TaskDetailMapBackground />
 
-      <Box position="relative" zIndex={1} w="full" minW={0}>
+      <Box
+        position="relative"
+        zIndex={1}
+        w="full"
+        minW={0}
+        mt={{ base: MOBILE_MAP_CHROME_OVERLAP, lg: 0 }}
+      >
         <Box
           display={{ base: 'none', lg: 'block' }}
           h={DESKTOP_MAP_SPACER}
@@ -60,8 +75,13 @@ export function TaskDetailView() {
           }}
         >
           <Box pointerEvents="auto" w="full" minW={0}>
-            <Box pb={TASK_DETAIL_CTA_CLEARANCE} w="full">
+            <Box w="full">
               <TaskDetailSectionTabs fittedBelowLg px={{ base: 4, lg: 0 }} />
+              <Box
+                bg={{ base: 'bg.canvas', lg: 'transparent' }}
+                h={TASK_DETAIL_CTA_CLEARANCE}
+                aria-hidden
+              />
             </Box>
             <TaskDetailCtaBar />
           </Box>

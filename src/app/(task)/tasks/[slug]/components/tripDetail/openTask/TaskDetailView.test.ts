@@ -23,4 +23,11 @@ describe('TaskDetailView desktop column', () => {
     expect(src).not.toContain('SEARCH_LIST_COLUMN_W')
     expect(src).not.toContain('460px')
   })
+
+  it('keeps the page transparent so the map shows through sticky chrome', () => {
+    const src = readFileSync(join(dir, 'TaskDetailView.tsx'), 'utf8')
+    expect(src).toContain('bg="transparent"')
+    expect(src).toContain('position="sticky"')
+    expect(src).toContain('MOBILE_MAP_CHROME_OVERLAP')
+  })
 })
