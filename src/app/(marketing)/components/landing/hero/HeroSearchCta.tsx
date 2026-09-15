@@ -8,6 +8,7 @@ import { LuArrowRight, LuSearch } from 'react-icons/lu'
 const HeroSearchForm = chakra('form')
 
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { sdlCard } from '@/theme/styles'
 import { getAuthToken } from '@/utils/auth'
 import {
   buildCreateTaskHandoffPath,
@@ -49,14 +50,14 @@ export function HeroSearchCta({
         gap={2}
         align="stretch"
         p={{ base: 1.5, md: 2 }}
-        borderRadius="xl"
+        borderRadius={sdlCard.radius}
         borderWidth="1px"
         borderColor="border.glass"
         bg="bg.glass"
-        boxShadow="0 0 0 1px rgba(0, 220, 130, 0.08)"
+        boxShadow="e1"
         _focusWithin={{
           borderColor: 'action.primary',
-          boxShadow: '0 0 0 1px {colors.action.primary}',
+          boxShadow: 'e2',
         }}
       >
         <Input

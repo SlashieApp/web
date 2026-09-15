@@ -35,7 +35,7 @@ const cardInteractive: SystemStyleObject = {
   transitionProperty: 'background-color, border-color, box-shadow',
   transitionDuration: sdlMotion.duration.base,
   transitionTimingFunction: sdlMotion.easing.standard,
-  _hover: { bg: 'bg.subtle' },
+  _hover: { bg: 'bg.subtle', boxShadow: sdlCard.raisedShadow },
   _focusVisible: sdlFocusRing,
 }
 

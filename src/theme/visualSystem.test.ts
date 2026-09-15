@@ -122,4 +122,24 @@ describe('elevation aliases in feature chrome', () => {
     expect(filters).toContain('e3')
     expect(picker).toContain('e1')
   })
+
+  it('map pin popups and hero search use the card radius / elevation tokens', () => {
+    const pin = readFileSync(
+      join(process.cwd(), 'src/app/(task)/helpers/taskMap/pin/styles.ts'),
+      'utf8',
+    )
+    const heroSearch = readFileSync(
+      join(
+        process.cwd(),
+        'src/app/(marketing)/components/landing/hero/HeroSearchCta.tsx',
+      ),
+      'utf8',
+    )
+    expect(pin).toContain('sdlRadii.lg')
+    expect(pin).toContain('sdlElevation.e1')
+    expect(pin).toContain('sdlElevation.e2')
+    expect(pin).not.toContain('0 4px 16px')
+    expect(heroSearch).toContain('borderRadius={sdlCard.radius}')
+    expect(heroSearch).not.toContain('rgba(0, 220, 130')
+  })
 })

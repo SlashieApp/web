@@ -3,6 +3,8 @@ import {
   BRAND_PRIMARY_HOVER,
   BRAND_PRIMARY_SOFT_BG,
   brandPrimary,
+  sdlElevation,
+  sdlRadii,
 } from '@/theme/system'
 import {
   PIN_STACK_GAP_PX,
@@ -17,19 +19,18 @@ export const PIN = {
   greenBright: BRAND_PRIMARY_HOVER,
   greenSoft: brandPrimary[400],
   greenPale: BRAND_PRIMARY_SOFT_BG,
-  /* TODO(sdl): raw Mapbox/DOM consumer - these map to text.muted / border.strong / bg.surface
-     but have no brand.ts constant yet (theme is out of scope for this migration). */
-  textMuted: '#6B7370',
-  border: '#D1D5D4',
+  /* Raw Mapbox/DOM consumer — hexes match `text.muted` / `border.default`. */
+  textMuted: '#515A56',
+  border: '#E0E5E3',
   white: '#FFFFFF',
-  shadow: '0 2px 10px rgba(11, 23, 20, 0.12)',
-  shadowExpanded: '0 10px 28px rgba(11, 23, 20, 0.16)',
+  shadow: sdlElevation.e1,
+  shadowExpanded: sdlElevation.e2,
 } as const
 
 export const PIN_FONT =
   'Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
 
-const POPUP_RADIUS = '16px'
+const POPUP_RADIUS = `${sdlRadii.lg}px`
 
 export type PinVisualState = {
   selected: boolean
@@ -187,7 +188,7 @@ export function applyPinVisualState(
   Object.assign(dom.popupBody.style, {
     border: pinBorder(selected, expanded),
     // Tighter shadow so the card glow doesn't wash out the dot below.
-    boxShadow: expanded ? '0 4px 16px rgba(11, 23, 20, 0.14)' : 'none',
+    boxShadow: expanded ? sdlElevation.e2 : 'none',
   })
 
   Object.assign(dom.pricePillWrap.style, {
