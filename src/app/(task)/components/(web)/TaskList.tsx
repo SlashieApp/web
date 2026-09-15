@@ -5,15 +5,20 @@ import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { TaskCard } from '../TaskCard'
+import { TaskCardSkeleton } from '../TaskCardSkeleton'
 import { TaskEmptyState } from '../TaskEmptyState'
 
 import { captureSearchCardImpression } from '@/app/(task)/helpers/searchCardImpression'
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
+import { useI11n } from '@/i18n/useI11n'
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 
+import bag from '../i11n.json'
+
 export function TaskList({ header }: { header?: React.ReactNode }) {
+  const t = useI11n(bag)
   const { openTaskDetail, taskDetailHref, captureDetailsLink } =
     useOpenTaskDetailFromBrowse()
   const {
@@ -23,6 +28,7 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
     setSelectedTaskId,
     isNavRoutePresenting,
     referenceLocation,
+    isInitialTasksLoad,
   } = useTaskBrowseData()
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const seenImpressionsRef = useRef(new Set<string>())
@@ -151,6 +157,13 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
       >
         <Stack gap={3} py={5} pb={10}>
           {header ? <Box px={0.5}>{header}</Box> : null}
+          {isInitialTasksLoad ? (
+            <Stack gap={3} aria-busy aria-label={t.loadingTasks}>
+              {['a', 'b', 'c', 'd'].map((key) => (
+                <TaskCardSkeleton key={key} />
+              ))}
+            </Stack>
+          ) : null}
           {canShowBrowseEmptyState && filteredSorted.length === 0 ? (
             <Box px={1}>
               <TaskEmptyState />

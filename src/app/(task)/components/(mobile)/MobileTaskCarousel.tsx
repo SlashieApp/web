@@ -1,16 +1,19 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 import { useMemo, useRef } from 'react'
 
 import { captureSearchCardImpression } from '@/app/(task)/helpers/searchCardImpression'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
+import { useI11n } from '@/i18n/useI11n'
 import { MobileCarousel } from '@ui'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { TaskCard } from '../TaskCard'
+import { TaskCardSkeleton } from '../TaskCardSkeleton'
 import { TaskEmptyState } from '../TaskEmptyState'
+import bag from '../i11n.json'
 
 /**
  * Mobile bottom strip for task mode: center-snapping cards over the map
@@ -18,6 +21,7 @@ import { TaskEmptyState } from '../TaskEmptyState'
  * matching pin; tapping the centered card opens the task.
  */
 export function MobileTaskCarousel() {
+  const t = useI11n(bag)
   const { openTaskDetail, taskDetailHref } = useOpenTaskDetailFromBrowse()
   const {
     filteredSorted,
@@ -26,6 +30,7 @@ export function MobileTaskCarousel() {
     setSelectedTaskId,
     isNavRoutePresenting,
     referenceLocation,
+    isInitialTasksLoad,
   } = useTaskBrowseData()
   const seenImpressionsRef = useRef(new Set<string>())
 
@@ -34,6 +39,21 @@ export function MobileTaskCarousel() {
       filteredSorted.map((task) => toBrowseTaskCard(task, referenceLocation)),
     [filteredSorted, referenceLocation],
   )
+
+  if (isInitialTasksLoad) {
+    return (
+      <Box px={{ base: 2, md: 3 }} pb={2} aria-busy aria-label={t.loadingTasks}>
+        <HStack gap={3} overflow="hidden" align="stretch">
+          <Box minW="85%" maxW="600px" flexShrink={0}>
+            <TaskCardSkeleton />
+          </Box>
+          <Box minW="85%" maxW="600px" flexShrink={0}>
+            <TaskCardSkeleton />
+          </Box>
+        </HStack>
+      </Box>
+    )
+  }
 
   if (tasks.length === 0) {
     if (!canShowBrowseEmptyState) return null

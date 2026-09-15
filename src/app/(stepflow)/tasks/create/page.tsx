@@ -1,7 +1,6 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import { Box, Text } from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
@@ -17,6 +16,7 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { AppStatusBanners } from '@/app/(auth)/components/AppStatusBanners'
+import { SessionLoading } from '@/app/(auth)/components/SessionLoading'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
@@ -586,38 +586,8 @@ export default function CreateTaskPage() {
 
   const mePrimedForForm = Boolean(meData?.me) || !meLoading
 
-  if (!sessionOk) {
-    return (
-      <Box
-        bg="bg.subtle"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          Checking your session…
-        </Text>
-      </Box>
-    )
-  }
-
-  if (!mePrimedForForm) {
-    return (
-      <Box
-        bg="bg.subtle"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          Loading your profile…
-        </Text>
-      </Box>
-    )
+  if (!sessionOk || !mePrimedForForm) {
+    return <SessionLoading minH="50vh" />
   }
 
   return (

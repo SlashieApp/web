@@ -13,6 +13,7 @@ import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { Button } from '@/ui/Button/Button'
+import { Card } from '@/ui/Card/Card'
 import { Footer } from '@/ui/Footer/Footer'
 import { Link } from '@/ui/Link/Link'
 
@@ -190,75 +191,63 @@ export default async function AboutPage() {
         </Container>
       </Box>
 
-      <Box
-        as="section"
-        position="relative"
-        overflow="hidden"
-        bg="bg.inverted"
-        py={{ base: 12, md: 16 }}
-      >
-        <Box
-          position="absolute"
-          inset={0}
-          aria-hidden
-          bgImage="radial-gradient(34rem 16rem at 78% 120%, rgba(0, 220, 130, 0.16) 0%, transparent 70%)"
-        />
-        <Container position="relative" zIndex={1}>
-          <Reveal maxW="3xl">
-            <Stack gap={5}>
-              <Stack gap={3}>
-                <Heading
-                  as="h2"
-                  fontFamily="display"
-                  fontSize={{ base: '28px', md: '36px' }}
-                  letterSpacing="-0.02em"
-                  color="text.onInverted"
-                >
-                  {copy.buildHeading}
-                </Heading>
-                <Text color="text.onInvertedMuted" lineHeight="tall">
-                  {copy.buildBody}
-                </Text>
-              </Stack>
-              <HStack gap={3} flexWrap="wrap">
-                <Button asChild size="md" variant="primary">
-                  <Link
-                    href={SLASHIE_LINKEDIN_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    _hover={{ textDecoration: 'none' }}
-                  >
-                    <HStack gap={2}>
-                      <LuLinkedin size={16} aria-hidden />
-                      <span>{copy.connect.linkedin}</span>
-                    </HStack>
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  size="md"
-                  variant="ghost"
-                  color="text.onInverted"
-                  borderWidth="1px"
-                  borderColor="border.glass"
-                  _hover={{ bg: 'bg.glass', color: 'text.onInverted' }}
-                  _active={{ bg: 'bg.glass', color: 'text.onInverted' }}
-                >
-                  <Link
-                    href={SLASHIE_GITHUB_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    _hover={{ textDecoration: 'none' }}
-                  >
-                    <HStack gap={2}>
-                      <LuGithub size={16} aria-hidden />
-                      <span>{copy.connect.github}</span>
-                    </HStack>
-                  </Link>
-                </Button>
-              </HStack>
+      <Box as="section" bg="bg.subtle" py={{ base: 12, md: 16 }}>
+        <Container>
+          <Stack gap={{ base: 8, md: 10 }} maxW="4xl">
+            <Stack gap={3} maxW="3xl">
+              <Heading
+                as="h2"
+                fontFamily="display"
+                fontSize={{ base: '28px', md: '36px' }}
+                letterSpacing="-0.02em"
+              >
+                {copy.buildHeading}
+              </Heading>
+              <Text color="text.muted" lineHeight="tall">
+                {copy.buildBody}
+              </Text>
             </Stack>
-          </Reveal>
+            <Grid
+              templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
+              gap={4}
+            >
+              {copy.proof.map((item) => (
+                <Card key={item.title} layout="section" heading={item.title}>
+                  <Text fontSize="sm" color="text.muted" lineHeight="tall">
+                    {item.body}
+                  </Text>
+                </Card>
+              ))}
+            </Grid>
+            <HStack gap={3} flexWrap="wrap">
+              <Button asChild size="md" variant="primary">
+                <Link
+                  href={SLASHIE_LINKEDIN_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  <HStack gap={2}>
+                    <LuLinkedin size={16} aria-hidden />
+                    <span>{copy.connect.linkedin}</span>
+                  </HStack>
+                </Link>
+              </Button>
+              <Button asChild size="md" variant="secondary">
+                <Link
+                  href={SLASHIE_GITHUB_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  <HStack gap={2}>
+                    <LuGithub size={16} aria-hidden />
+                    <span>{copy.connect.github}</span>
+                  </HStack>
+                </Link>
+              </Button>
+            </HStack>
+          </Stack>
         </Container>
       </Box>
 

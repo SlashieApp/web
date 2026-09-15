@@ -14,6 +14,9 @@ const PUBLIC_FILE = /\.[^/]+$/
 
 /** Same host as next.config PostHog reverse-proxy rewrites. */
 const POSTHOG_PROXY_HOST = 'e.slashie.app'
+/** Public site origin used by metadataBase / OG URLs. */
+const CANONICAL_HOST = 'slashie.app'
+const WWW_HOST = 'www.slashie.app'
 
 function hostnameOf(request: NextRequest): string {
   return (
@@ -64,11 +67,20 @@ function applyLocale(response: NextResponse, locale: AppLocale): NextResponse {
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const host = hostnameOf(request)
 
   // First-party PostHog ingest host: never locale-prefix or redirect.
   // Rewrites in next.config.ts handle /static, /array, and capture paths.
-  if (hostnameOf(request) === POSTHOG_PROXY_HOST) {
+  if (host === POSTHOG_PROXY_HOST) {
     return NextResponse.next()
+  }
+
+  // One public origin: www is a permanent alias of the apex.
+  if (host === WWW_HOST) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.hostname = CANONICAL_HOST
+    redirectUrl.protocol = 'https:'
+    return NextResponse.redirect(redirectUrl, 308)
   }
 
   if (shouldSkip(pathname)) {

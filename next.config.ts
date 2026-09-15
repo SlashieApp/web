@@ -34,7 +34,7 @@ const nextConfig: NextConfig = {
   },
   /**
    * First-party PostHog reverse proxy for EU cloud.
-   * Only active on `e.slashie.app` so www/app routes are untouched.
+   * Only active on `e.slashie.app` so apex/app routes are untouched.
    * @see https://posthog.com/docs/advanced/proxy/nextjs
    */
   async rewrites() {

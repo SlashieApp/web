@@ -13,6 +13,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { type UseFormRegister, useForm } from 'react-hook-form'
 
+import { SessionLoading } from '@/app/(auth)/components/SessionLoading'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import MyRequests from '@/app/(dashboard)/requests/graphql/MyRequests.gql'
 import Tasks from '@/app/(task)/graphql/Tasks.gql'
@@ -495,54 +496,15 @@ export default function EditTaskPage() {
   const editable = task ? isTaskEditable(task.status) : false
 
   if (!sessionOk || !taskId) {
-    return (
-      <Box
-        bg="bg.canvas"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          Checking your session…
-        </Text>
-      </Box>
-    )
+    return <SessionLoading minH="50vh" />
   }
 
   if (meLoading && !me) {
-    return (
-      <Box
-        bg="bg.canvas"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          {t.loadingProfile}
-        </Text>
-      </Box>
-    )
+    return <SessionLoading minH="50vh" label={t.loadingProfile} />
   }
 
   if (taskLoading && !task) {
-    return (
-      <Box
-        bg="bg.canvas"
-        color="text.default"
-        minH="50vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text color="text.muted" fontSize="sm">
-          {t.loading}
-        </Text>
-      </Box>
-    )
+    return <SessionLoading minH="50vh" label={t.loading} />
   }
 
   if (taskError || !task) {

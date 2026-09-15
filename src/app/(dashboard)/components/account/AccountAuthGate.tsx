@@ -4,6 +4,7 @@ import { Box } from '@chakra-ui/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 
+import { SessionLoading } from '@/app/(auth)/components/SessionLoading'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { getAuthToken } from '@/utils/auth'
 
@@ -38,7 +39,7 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
   )
 
   if (!hydrated || (hasToken && !me && isLoading)) {
-    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
+    return <SessionLoading ref={onMount} />
   }
 
   if (!me) {
@@ -47,7 +48,7 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
       redirectedRef.current = true
       router.replace(`/login?redirect=${encodeURIComponent(redirectPath)}`)
     }
-    return <Box ref={onMount} minH="100dvh" bg="bg.subtle" />
+    return <SessionLoading ref={onMount} />
   }
 
   return <Box ref={onMount}>{children}</Box>
