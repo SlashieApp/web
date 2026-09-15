@@ -35,7 +35,7 @@ export function MobileLayout() {
       </Box>
 
       <Box
-        position={{ base: 'fixed', md: 'absolute' }}
+        position="absolute"
         left={0}
         right={0}
         bottom={0}

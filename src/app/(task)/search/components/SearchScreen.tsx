@@ -59,11 +59,15 @@ export function SearchScreen({
       <SearchViewTracker />
       <Box
         flex={1}
-        height="100%"
         w="full"
         minW={0}
         minH={0}
-        position="relative"
+        // Fill the shell main padding box on mobile so the card can sit on the
+        // glass nav. `height: 100%` only covers the content box above the
+        // MOBILE_BOTTOM_NAV_CLEARANCE padding and leaves a blank strip.
+        position={{ base: 'absolute', lg: 'relative' }}
+        inset={{ base: 0, lg: 'auto' }}
+        height={{ base: 'auto', lg: '100%' }}
         display="flex"
         flexDirection="column"
         overflow="hidden"

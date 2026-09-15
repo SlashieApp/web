@@ -28,12 +28,7 @@ export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
   const selectFromMap = useSelectBrowseTaskFromMap()
 
   return (
-    <Box
-      position={{ base: 'fixed', lg: 'absolute' }}
-      inset={0}
-      h={{ base: '100dvh', lg: 'full' }}
-      zIndex={isDesktop ? 1 : 0}
-    >
+    <Box position="absolute" inset={0} h="full" zIndex={isDesktop ? 1 : 0}>
       <TaskMap
         {...mapBindings}
         leftViewportPadding={isDesktop ? windowOffsetWidth : undefined}
