@@ -12,6 +12,13 @@ import { useSelectBrowseTaskFromMap } from '../../../helpers/useSelectBrowseTask
 
 const SINGLE_PANEL_BUTTON_LEFT_INSET = '1.25rem + min(420px, 38vw)'
 
+/**
+ * Lift Mapbox logo/attribution above the glass bottom nav and the mobile
+ * task-card carousel (card ~160px + carousel padding).
+ */
+const SEARCH_MOBILE_MAP_CTRL_BOTTOM =
+  'calc(96px + env(safe-area-inset-bottom, 0px) + 11.5rem)'
+
 /** Map instance for /search task browse. */
 export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
   const mapBindings = useTaskMapBindings()
@@ -20,12 +27,20 @@ export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
   const selectFromMap = useSelectBrowseTaskFromMap()
 
   return (
-    <Box position="absolute" inset={0} zIndex={isDesktop ? 1 : 0}>
+    <Box
+      position={{ base: 'fixed', lg: 'absolute' }}
+      inset={0}
+      h={{ base: '100dvh', lg: 'full' }}
+      zIndex={isDesktop ? 1 : 0}
+    >
       <TaskMap
         {...mapBindings}
         leftViewportPadding={isDesktop ? windowOffsetWidth : undefined}
         searchAreaButtonLeftInset={
           isDesktop ? SINGLE_PANEL_BUTTON_LEFT_INSET : undefined
+        }
+        mobileCtrlBottomOffset={
+          isDesktop ? undefined : SEARCH_MOBILE_MAP_CTRL_BOTTOM
         }
         onNavRoutePresentingChange={onNavRoutePresentingChange}
         onSelectTask={selectFromMap}

@@ -107,6 +107,7 @@ export function TaskHeaderControls({
         <Dropdown
           contentLabel={t.nav.taskOptionsAria}
           align="end"
+          mobilePlacement="bottom"
           trigger={
             <IconButton
               type="button"

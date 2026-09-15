@@ -139,7 +139,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'SDL popover. Click to open by default (click-outside + Escape + return focus); pass `hoverExpand` for nav-style hover/focus menus. Surfaces use `bg.surface` + `border.default` + elevation, and animate transform/opacity only (reduced-motion safe).',
+          'SDL popover. Click to open by default (click-outside + Escape + return focus); pass `hoverExpand` for nav-style hover/focus menus. Below `md` the panel is `@ui` Drawer (`mobilePlacement`: start / end / bottom) unless the menu is already inside a Drawer. Surfaces use `bg.surface` + `border.default` + elevation, and animate transform/opacity only (reduced-motion safe).',
       },
     },
   },
@@ -160,6 +160,12 @@ const meta = {
     contentLabel: {
       control: 'text',
       description: 'Accessible label for the popover region.',
+    },
+    mobilePlacement: {
+      control: 'inline-radio',
+      options: ['start', 'end', 'bottom'],
+      description:
+        'Drawer edge on viewports below `md` (ignored when nested in a Drawer).',
     },
   },
 } satisfies Meta
@@ -406,6 +412,39 @@ export const AllVariants: Story = {
         </HStack>
       </Stack>
     </Stack>
+  ),
+}
+
+/** Below `md`, the click menu opens as a bottom `@ui` Drawer. */
+export const MobileDrawer: Story = {
+  parameters: {
+    layout: 'fullscreen',
+    viewport: { defaultViewport: 'mobile1' },
+    docs: {
+      description: {
+        story:
+          'On small viewports the menu is a bottom Drawer. Resize to `md+` to see the desktop popover again.',
+      },
+    },
+  },
+  render: () => (
+    <Box display="flex" justifyContent="flex-end" p={4}>
+      <Dropdown
+        contentLabel="Task options"
+        mobilePlacement="bottom"
+        defaultOpen
+        trigger={
+          <Button size="sm" variant="secondary">
+            More
+          </Button>
+        }
+      >
+        <Stack gap={0} p={1}>
+          <DropdownMenuItem>Share task</DropdownMenuItem>
+          <DropdownMenuItem>Report</DropdownMenuItem>
+        </Stack>
+      </Dropdown>
+    </Box>
   ),
 }
 

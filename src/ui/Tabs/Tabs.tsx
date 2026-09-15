@@ -47,6 +47,12 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
   sticky?: boolean
   /** Sticky offset from the top (CSS length). */
   stickyTop?: BoxProps['top']
+  /**
+   * Sticky chrome background. Defaults to `bg.canvas` so other sticky Tabs
+   * keep a solid surface. Pass `transparent` when content should show through
+   * (task-detail money chrome over the map).
+   */
+  stickyBg?: BoxProps['bg']
   /** Accessible name for the tablist. */
   'aria-label'?: string
   /** Rendered inside the sticky chrome, above the tablist (e.g. a title bar). */
@@ -81,6 +87,7 @@ function TabsBase({
   fittedBelowLg = false,
   sticky = false,
   stickyTop = 0,
+  stickyBg,
   stickyHeader,
   children,
   'aria-label': ariaLabel,
@@ -187,7 +194,7 @@ function TabsBase({
           position={sticky ? 'sticky' : undefined}
           top={sticky ? stickyTop : undefined}
           zIndex={sticky ? 5 : undefined}
-          bg={sticky ? 'bg.canvas' : undefined}
+          bg={sticky ? (stickyBg ?? 'bg.canvas') : undefined}
           w={sticky ? 'full' : undefined}
           borderTopRadius={
             fittedBelowLg ? { base: 'none', lg: 'xl' } : undefined

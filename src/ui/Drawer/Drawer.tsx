@@ -16,7 +16,7 @@ import {
   HStack,
   Stack,
 } from '@chakra-ui/react'
-import type { ReactNode } from 'react'
+import { type ReactNode, createContext, useContext } from 'react'
 import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
@@ -28,6 +28,13 @@ import { IconButton as UiIconButton } from '../IconButton/IconButton'
 
 /** Matches `Container`: horizontal page gutters. */
 const drawerGutterX = { base: 4, md: 6 } as const
+
+const DrawerNestingContext = createContext(false)
+
+/** True when rendering inside an open `@ui` Drawer panel (including portals). */
+export function useInsideDrawer() {
+  return useContext(DrawerNestingContext)
+}
 
 export type DrawerPlacement = 'start' | 'end' | 'top' | 'bottom'
 
@@ -198,13 +205,15 @@ export function Drawer({
   )
 
   return (
-    <DrawerRoot
-      open={open}
-      onOpenChange={(d: { open: boolean }) => onOpenChange(d.open)}
-      placement={placement}
-      size={size}
-    >
-      {isBrowser ? createPortal(overlay, document.body) : overlay}
-    </DrawerRoot>
+    <DrawerNestingContext.Provider value={true}>
+      <DrawerRoot
+        open={open}
+        onOpenChange={(d: { open: boolean }) => onOpenChange(d.open)}
+        placement={placement}
+        size={size}
+      >
+        {isBrowser ? createPortal(overlay, document.body) : overlay}
+      </DrawerRoot>
+    </DrawerNestingContext.Provider>
   )
 }
