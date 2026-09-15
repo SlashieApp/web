@@ -38,7 +38,7 @@ export function MobileTaskCarousel() {
   if (tasks.length === 0) {
     if (!canShowBrowseEmptyState) return null
     return (
-      <Box px={{ base: 2, md: 3 }} pb={2}>
+      <Box px={{ base: 2, md: 3 }}>
         <TaskEmptyState />
       </Box>
     )

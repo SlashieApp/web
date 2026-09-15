@@ -15,15 +15,16 @@ import { Header } from './Header'
 
 /**
  * SDL app `Header`. One public API (`children` + `BoxProps`); the default body
- * renders the full app navigation, which adapts to four states:
+ * renders the full app navigation, which adapts to three states:
  *
  * - **guest** — logged-out toolbar (Post a task, Log in / Sign up, mobile menu)
- * - **browse** — logged-in marketing/browse toolbar (Post a task, notifications, account)
- * - **dashboard** — logged-in account-hub toolbar (section nav + context label)
+ * - **browse** — logged-in toolbar (Post a task, notifications, account menu)
  * - **custom** — caller-provided `children` replace the default body
  *
- * Stories seed Zustand auth state and the Next pathname; the global theme toolbar
- * renders each under light and dark — no mode is hardcoded here.
+ * Account-hub routes (`/dashboard`, `/requests`, …) use this same toolbar;
+ * hub destinations live in the account menu. Stories seed Zustand auth state
+ * and the Next pathname; the global theme toolbar renders each under light
+ * and dark — no mode is hardcoded here.
  */
 
 const meWorker: MeSnapshot = {
@@ -140,7 +141,7 @@ function seedMe(me: MeSnapshot | null) {
   })
 }
 
-type HeaderMode = 'guest' | 'browse' | 'dashboard'
+type HeaderMode = 'guest' | 'browse'
 
 function seedForMode(mode: HeaderMode) {
   seedMe(mode === 'guest' ? null : meWorker)
@@ -166,7 +167,7 @@ export const Playground: Story = {
     // @ts-expect-error story-only arg
     mode: {
       control: 'inline-radio',
-      options: ['guest', 'browse', 'dashboard'] satisfies HeaderMode[],
+      options: ['guest', 'browse'] satisfies HeaderMode[],
     },
   },
   // @ts-expect-error story-only arg
@@ -203,7 +204,7 @@ export const BrowseLoggedIn: Story = {
   render: () => <Header />,
 }
 
-/** Account-hub toolbar: section menu trigger + dashboard context label. */
+/** Logged-in toolbar on an account-hub route — same chrome as browse (no section switcher). */
 export const Dashboard: Story = {
   parameters: { nextjs: { navigation: { pathname: '/dashboard' } } },
   decorators: [
@@ -268,7 +269,7 @@ export const CustomChildren: Story = {
  * Overview of the header shell + toolbar slots, rendered with custom children so
  * every row is deterministic (auth/pathname state is global, so a single render
  * tree can only resolve one default-navigation state — see the dedicated Guest /
- * BrowseLoggedIn / Dashboard stories for those). Renders under light and dark.
+ * BrowseLoggedIn stories for those). Renders under light and dark.
  */
 export const AllVariants: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },

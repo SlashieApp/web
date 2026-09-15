@@ -333,7 +333,7 @@ export function MobileCarousel<T extends { id: string }>({
       pointerEvents={disabled ? 'none' : 'auto'}
       overflow="hidden"
       px={CAROUSEL_INSET}
-      mb={1}
+      mb={0}
       cursor={disabled ? 'default' : isGrabbing ? 'grabbing' : 'grab'}
       style={edgeFadeMask}
       css={{ touchAction: 'pan-y' }}

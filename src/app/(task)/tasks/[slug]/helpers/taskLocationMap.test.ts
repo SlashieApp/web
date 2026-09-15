@@ -25,5 +25,7 @@ describe('task detail Mapbox chrome', () => {
     expect(bgSrc).toContain('DESKTOP_LOGO_CLEARANCE')
     expect(bgSrc).toContain('.mapboxgl-ctrl-top-left')
     expect(bgSrc).toContain('HEADER_MIN_HEIGHT.md')
+    expect(bgSrc).toContain('isolation="isolate"')
+    expect(bgSrc).toContain("display={{ base: 'none', lg: 'block' }}")
   })
 })

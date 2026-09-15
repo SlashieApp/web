@@ -65,8 +65,8 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     audience: 'all',
   },
   {
-    id: 'jobs',
-    label: 'Jobs',
+    id: 'quotes',
+    label: 'My quotes',
     href: '/quotes',
     kind: 'link',
     section: 'main',

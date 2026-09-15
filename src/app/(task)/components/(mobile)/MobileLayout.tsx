@@ -38,7 +38,7 @@ export function MobileLayout() {
         position="absolute"
         left={0}
         right={0}
-        bottom={8}
+        bottom={0}
         zIndex={3}
         display="flex"
         flexDirection="column"

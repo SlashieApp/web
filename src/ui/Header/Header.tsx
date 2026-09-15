@@ -19,8 +19,6 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { isAccountHubPath } from '@/utils/accountHub'
-import { resolveAccountNavKey } from '@/utils/accountNav'
 import { APP_HOME, GET_APP_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 
@@ -33,11 +31,6 @@ import { MESSAGES_HREF } from '../MobileBottomNav'
 
 import { AccountMenu } from './account/AccountMenu'
 import { accountNavLinkRowProps } from './account/accountNavLinkProps'
-import {
-  DashboardContextLabel,
-  DashboardSectionDrawer,
-  DashboardSectionMenuButton,
-} from './dashboard/DashboardSectionNav'
 import bag from './i11n.json'
 import { NotificationsDrawer } from './notifications/NotificationsDrawer'
 import {
@@ -267,13 +260,12 @@ function GuestMobileMenu({
   )
 }
 
-/** Default Header body — adapts to guest / browse / dashboard from auth + route. */
+/** Default Header body — guest vs signed-in from auth; same toolbar on every route. */
 function AppHeaderNavigation() {
   const pathname = usePathname()
   const user = useUserStore((state) => state.user)
   const getUser = useUserStore((state) => state.getUser)
   const [hasMounted, setHasMounted] = useState(false)
-  const [dashboardDrawerOpen, setDashboardDrawerOpen] = useState(false)
 
   const onMount = useCallback(
     (node: HTMLDivElement | null) => {
@@ -287,8 +279,6 @@ function AppHeaderNavigation() {
 
   const routePathname = hasMounted ? pathname : null
   const isLoggedIn = Boolean(user)
-  const isDashboard = hasMounted && isAccountHubPath(routePathname)
-  const dashboardActive = resolveAccountNavKey(routePathname)
   const loginHref =
     hasMounted && routePathname
       ? `/login?next=${encodeURIComponent(routePathname)}`
@@ -308,12 +298,6 @@ function AppHeaderNavigation() {
       w="full"
     >
       <HStack gap={{ base: 3, md: 4 }} flex={1} minW={0} align="center">
-        {isLoggedIn && isDashboard ? (
-          <DashboardSectionMenuButton
-            onClick={() => setDashboardDrawerOpen(true)}
-          />
-        ) : null}
-
         <Link
           href={APP_HOME}
           _hover={{ textDecoration: 'none' }}
@@ -327,33 +311,7 @@ function AppHeaderNavigation() {
           </Box>
         </Link>
 
-        {!isDashboard ? <GetAppButton /> : null}
-
-        {isDashboard ? (
-          <Box
-            display={{ base: 'flex', lg: 'none' }}
-            minW={0}
-            flex={1}
-            pl={2}
-            borderLeftWidth="1px"
-            borderColor="border.default"
-          >
-            <DashboardContextLabel active={dashboardActive} />
-          </Box>
-        ) : null}
-
-        {isDashboard ? (
-          <HStack
-            display={{ base: 'none', lg: 'flex' }}
-            gap={2}
-            pl={3}
-            borderLeftWidth="1px"
-            borderColor="border.default"
-            minW={0}
-          >
-            <DashboardContextLabel active={dashboardActive} />
-          </HStack>
-        ) : null}
+        <GetAppButton />
       </HStack>
 
       <HStack align="center" flexShrink={0}>
@@ -368,13 +326,6 @@ function AppHeaderNavigation() {
               <NotificationsBell />
               <AccountMenu />
             </HStack>
-            {isDashboard ? (
-              <DashboardSectionDrawer
-                active={dashboardActive}
-                open={dashboardDrawerOpen}
-                onOpenChange={setDashboardDrawerOpen}
-              />
-            ) : null}
           </>
         ) : (
           <>
@@ -396,7 +347,7 @@ function AppHeaderNavigation() {
 
 /**
  * Sticky app header chrome. Pass `children` to replace the default navigation
- * (e.g. marketing). Otherwise renders auth-aware browse/dashboard toolbar.
+ * (e.g. marketing). Otherwise renders auth-aware browse toolbar.
  */
 export function Header({ children, ...props }: HeaderProps) {
   const pathname = usePathname()
@@ -409,6 +360,7 @@ export function Header({ children, ...props }: HeaderProps) {
       <AppStatusBanners />
       <Box
         as="header"
+        isolation="isolate"
         zIndex={30}
         bg={
           overSearchMap ? { base: 'transparent', md: 'bg.canvas' } : 'bg.canvas'

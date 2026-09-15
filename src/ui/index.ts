@@ -3,6 +3,7 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
+export { AppShell } from './AppShell'
 export {
   Avatar,
   AvatarGroup,
@@ -35,13 +36,6 @@ export {
   statusFamilies,
   statusScale,
 } from './_foundations/ColorSwatches'
-export {
-  DashboardSectionNav,
-  Header,
-  HEADER_MIN_HEIGHT,
-  HEADER_PADDING_X,
-  HeaderToolbarSeparator,
-} from './Header'
 export { DetailRow } from './DetailRow'
 export { Drawer, useInsideDrawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
@@ -57,6 +51,12 @@ export {
   useFormField,
   useFormFieldControlProps,
 } from './FormField'
+export {
+  Header,
+  HEADER_MIN_HEIGHT,
+  HEADER_PADDING_X,
+  HeaderToolbarSeparator,
+} from './Header'
 export { IconButton } from './IconButton'
 export { ImageGallery } from './ImageGallery'
 export { InfoBar } from './InfoBar'
@@ -101,6 +101,7 @@ export { Thumbnail } from './Thumbnail'
 export { Toast } from './Toast'
 export { ViewTransition } from './ViewTransition'
 export * from './Footer'
+export type { AppShellProps } from './AppShell'
 export type {
   AvatarGroupItem,
   AvatarGroupProps,
@@ -122,7 +123,6 @@ export type {
   ColorModeProviderProps,
   UseColorModeReturn,
 } from './color-mode'
-export type { DashboardSectionNavProps, HeaderProps } from './Header'
 export type { DetailRowProps } from './DetailRow'
 export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'
 export type {
@@ -130,6 +130,7 @@ export type {
   FormFieldProps,
   FormFieldState,
 } from './FormField'
+export type { HeaderProps } from './Header'
 export type { IconButtonProps, NavIconButtonProps } from './IconButton'
 export type { ImageGalleryItem, ImageGalleryProps } from './ImageGallery'
 export type { InputProps } from './Input'
