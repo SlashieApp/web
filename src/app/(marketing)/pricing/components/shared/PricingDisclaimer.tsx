@@ -40,7 +40,7 @@ export function PricingDisclaimer({
     <Box
       borderWidth="1px"
       borderColor="border.default"
-      borderRadius="2xl"
+      borderRadius="lg"
       bg="bg.surface"
       px={{ base: 4, md: 5 }}
       py={4}

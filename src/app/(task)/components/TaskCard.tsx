@@ -231,7 +231,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       p={{ base: 3, md: isExpanded ? 3.5 : 3 }}
       maxW="full"
       bg={isActive ? 'status.success.soft' : 'bg.surface'}
-      boxShadow={isExpanded ? 'e3' : 'card'}
+      boxShadow={isExpanded ? 'e3' : 'e1'}
       transitionProperty="background-color, box-shadow, transform, border-color, padding"
       transitionDuration={sdlMotion.duration.base}
       transitionTimingFunction={sdlMotion.easing.standard}

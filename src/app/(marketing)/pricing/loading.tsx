@@ -15,8 +15,8 @@ export default function PricingLoading() {
             </Stack>
             <Skeleton h="72px" w="full" borderRadius="xl" />
             <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-              <Skeleton h="360px" borderRadius="2xl" />
-              <Skeleton h="360px" borderRadius="2xl" />
+              <Skeleton h="360px" borderRadius="lg" />
+              <Skeleton h="360px" borderRadius="lg" />
             </SimpleGrid>
             <Stack gap={3}>
               <Skeleton h="24px" w="30%" />

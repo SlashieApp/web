@@ -2,7 +2,7 @@
 
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
-import { Button, FormField, Input, Link, Logo } from '@ui'
+import { Button, Card, FormField, Input, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
@@ -67,15 +67,12 @@ export function ForgotPasswordForm() {
         <Logo h="48px" />
       </Link>
 
-      <Box
+      <Card
         w="full"
-        bg="bg.subtle"
-        borderRadius="xl"
-        boxShadow="card"
+        maxW="full"
         borderTopWidth="4px"
         borderTopColor="action.primary"
-        px={{ base: 6, md: 10 }}
-        py={{ base: 8, md: 10 }}
+        p={{ base: 6, md: 10 }}
       >
         <Stack gap={6} align="center" textAlign="center">
           <Box
@@ -154,7 +151,7 @@ export function ForgotPasswordForm() {
             {t.backToLogin}
           </Link>
         </Stack>
-      </Box>
+      </Card>
 
       <Text fontSize="sm" color="text.muted" textAlign="center">
         Facing issues?{' '}

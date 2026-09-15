@@ -23,9 +23,11 @@ export function TaskQuoteSummaryCard() {
       align="start"
       gap={3}
       p={3}
-      rounded="xl"
+      rounded="lg"
       bg="bg.surface"
-      boxShadow="card"
+      borderWidth="1px"
+      borderColor="border.default"
+      boxShadow="e1"
     >
       {thumb ? (
         <Box w="72px" h="72px" rounded="lg" overflow="hidden" flexShrink={0}>

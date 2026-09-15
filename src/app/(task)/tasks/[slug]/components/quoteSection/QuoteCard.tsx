@@ -254,10 +254,11 @@ export function QuoteCard({
       <Stack
         gap={3}
         p={4}
-        borderRadius="xl"
+        borderRadius="lg"
         bg="bg.surface"
         borderWidth="1px"
         borderColor="border.default"
+        boxShadow="e1"
         w="full"
       >
         <HStack align="flex-start" gap={3} justify="space-between" w="full">

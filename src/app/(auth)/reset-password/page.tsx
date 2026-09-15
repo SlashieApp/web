@@ -5,7 +5,7 @@ import { useMutation } from '@apollo/client/react'
 import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ResetPasswordMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, FormField, IconButton, Input, Link, Logo } from '@ui'
+import { Button, Card, FormField, IconButton, Input, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { Suspense, useMemo, useState } from 'react'
@@ -220,13 +220,7 @@ function MissingResetLinkState() {
         <Logo h="48px" />
       </Link>
 
-      <Box
-        w="full"
-        bg="bg.subtle"
-        borderRadius="2xl"
-        px={{ base: 6, md: 10 }}
-        py={{ base: 8, md: 10 }}
-      >
+      <Card w="full" maxW="full" p={{ base: 6, md: 10 }}>
         <Stack gap={5} align="center" textAlign="center">
           <Heading size="xl" color="text.default">
             {t.missingTitle}
@@ -249,7 +243,7 @@ function MissingResetLinkState() {
             </Link>
           </Stack>
         </Stack>
-      </Box>
+      </Card>
     </Stack>
   )
 }
@@ -341,13 +335,7 @@ function ResetPasswordForm() {
         <Logo h="48px" />
       </Link>
 
-      <Box
-        w="full"
-        bg="bg.subtle"
-        borderRadius="2xl"
-        px={{ base: 6, md: 10 }}
-        py={{ base: 8, md: 10 }}
-      >
+      <Card w="full" maxW="full" p={{ base: 6, md: 10 }}>
         <Stack gap={6} align="center" textAlign="center">
           <Box
             boxSize={12}
@@ -524,7 +512,7 @@ function ResetPasswordForm() {
             {t.backToLogin}
           </Link>
         </Stack>
-      </Box>
+      </Card>
 
       <HStack gap={2} color="text.muted" justify="center">
         <IconShieldSmall />

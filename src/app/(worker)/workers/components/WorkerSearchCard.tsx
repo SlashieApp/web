@@ -122,9 +122,8 @@ export function WorkerSearchCard({
         w="full"
         h="full"
         overflow="hidden"
-        borderRadius="lg"
         bg="bg.surface"
-        boxShadow="card"
+        boxShadow="e1"
         transitionProperty="background-color, border-color, box-shadow"
         transitionDuration={sdlMotion.duration.base}
         transitionTimingFunction={sdlMotion.easing.standard}

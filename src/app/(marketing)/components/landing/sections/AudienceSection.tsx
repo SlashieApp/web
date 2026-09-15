@@ -58,7 +58,7 @@ function AudienceCard({
       h="full"
       p={{ base: 5, md: 7 }}
       bg="bg.surface"
-      borderRadius="2xl"
+      borderRadius="lg"
       borderWidth={featured ? '2px' : '1px'}
       borderColor={featured ? 'border.focus' : 'border.default'}
       boxShadow="e2"

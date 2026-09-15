@@ -258,7 +258,7 @@ function EmptyBlock({
       borderWidth="2px"
       borderStyle="dashed"
       borderColor="border.default"
-      borderRadius="xl"
+      borderRadius="lg"
       textAlign="center"
     >
       <Box
@@ -360,7 +360,7 @@ function AcceptedPrimaryCard({
     <Stack
       gap={3}
       p={4}
-      borderRadius="xl"
+      borderRadius="lg"
       bg="bg.surface"
       borderWidth="1px"
       borderColor="border.default"
@@ -699,7 +699,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
                 p={4}
                 borderWidth="1px"
                 borderColor="border.default"
-                borderRadius="xl"
+                borderRadius="lg"
               >
                 <Skeleton boxSize="40px" borderRadius="full" />
                 <Stack gap={2} flex={1}>
@@ -770,7 +770,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             <Box
               borderWidth="1.5px"
               borderColor="status.success.solid"
-              borderRadius="xl"
+              borderRadius="lg"
               overflow="hidden"
             >
               <QuoteCard
@@ -830,7 +830,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             w="full"
             borderWidth="1px"
             borderColor="border.default"
-            borderRadius="xl"
+            borderRadius="lg"
             textAlign="left"
           >
             <QuoteCardAvatar
@@ -876,7 +876,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           py={6}
           px={4}
           bg="bg.subtle"
-          borderRadius="xl"
+          borderRadius="lg"
           textAlign="center"
         >
           <StatusCircle tone="neutral">

@@ -5,7 +5,7 @@ design-system modernization pass (FE-47). Quality bar: systematic variants (Uber
 trust-focused card hierarchy and whitespace (Airbnb) — while staying distinctly Slashie
 (green `#00DC82`, map-first marketplace).
 
-Last updated: 2026-07-17 · Owner: web
+Last updated: 2026-09-15 · Owner: web
 **Architecture / layering:** see [Coding Guidebook](./coding-guidebook.md).
 
 ---
@@ -52,9 +52,11 @@ Page shells use **`<Container>`** with no `maxW` override. Do not invent `7xl` /
 ### Type / radius / shadow
 
 - Fonts: Plus Jakarta Sans (`heading`, marketing) · Inter (`body`, product UI).
-- Radii: `sm 6` · `md 8` (buttons/inputs) · `lg 12` (cards) · `xl 16` (modals/cards).
-- Shadows: `xs`–`xl` + semantic `card` (= `xs`), `primary` (green glow). Pick **soft shadow OR
-  border** per card — not both.
+- Radii: `sm 6` · `md 8` (buttons/inputs) · `lg 12` (**all cards / overlays**) · `xl 16` (modals) · `2xl 20` (full-height brand panes only).
+- Shadows: SDL `e1`–`e5` (`src/theme/styles.ts` `sdlElevation`). Card recipe (`sdlCard`):
+  **rest `e1`** · **raised `e2`** · **map overlay `e3`**. Hairline `border.default` + rest
+  shadow together (see Foundations/Elevation). Do not use raw `box-shadow` strings or
+  the leftover Chakra `sm`/`md`/`card` aliases in feature code.
 
 ---
 
@@ -128,7 +130,7 @@ Per route: replace inline UI with primitives → confirm correct shell → remov
 
 - ✅ Dark ink text on green. ❌ White text on green.
 - ✅ Green for action/quotes/money/map pins. ❌ Green for large background fills.
-- ✅ One card pattern sitewide (border **or** soft shadow). ❌ Both at once.
+- ✅ One card recipe sitewide (`lg` + hairline + `e1`/`e2`/`e3`). ❌ Ad-hoc `2xl` cards or raw shadows.
 - ✅ Tokens via `@ui` primitives / Chakra tokens. ❌ Inline `style`/hardcoded hex in pages.
 - ✅ Motion 150–200ms, respect `prefers-reduced-motion`. ❌ `#1447E6` as a primary CTA.
 - ✅ 44px min touch targets on mobile primary actions; visible focus rings.

@@ -78,7 +78,7 @@ export function PricingTeaser({
                 h="full"
                 p={{ base: 5, md: 6 }}
                 bg="bg.surface"
-                borderRadius="2xl"
+                borderRadius="lg"
                 borderWidth="1px"
                 borderColor="border.default"
                 textAlign="center"
@@ -102,7 +102,7 @@ export function PricingTeaser({
                 h="full"
                 p={{ base: 5, md: 6 }}
                 bg="bg.surface"
-                borderRadius="2xl"
+                borderRadius="lg"
                 borderWidth="2px"
                 borderColor="accent.premium"
                 textAlign="center"

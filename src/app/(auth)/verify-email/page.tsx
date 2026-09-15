@@ -3,7 +3,7 @@
 import { useMutation } from '@apollo/client/react'
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { VerifyEmailMutation } from '@codegen/schema'
-import { Button, Link, Logo } from '@ui'
+import { Button, Card, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 
@@ -128,13 +128,7 @@ function VerifyEmailContent() {
         <Logo h="48px" />
       </Link>
 
-      <Box
-        w="full"
-        bg="bg.subtle"
-        borderRadius="2xl"
-        px={{ base: 6, md: 10 }}
-        py={{ base: 8, md: 10 }}
-      >
+      <Card w="full" maxW="full" p={{ base: 6, md: 10 }}>
         <Stack gap={5} align="center" textAlign="center">
           {state === 'loading' ? (
             <>
@@ -239,7 +233,7 @@ function VerifyEmailContent() {
             </Text>
           ) : null}
         </Stack>
-      </Box>
+      </Card>
     </Stack>
   )
 }

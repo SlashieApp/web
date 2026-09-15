@@ -2,7 +2,7 @@
 
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
-import { Button, Link, Logo } from '@ui'
+import { Button, Card, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo, useRef } from 'react'
 
@@ -74,13 +74,7 @@ export function ForgotPasswordSentPanel() {
         <Logo h="48px" />
       </Link>
 
-      <Box
-        w="full"
-        bg="bg.subtle"
-        borderRadius="2xl"
-        px={{ base: 6, md: 10 }}
-        py={{ base: 8, md: 10 }}
-      >
+      <Card w="full" maxW="full" p={{ base: 6, md: 10 }}>
         <Stack gap={5} align="center" textAlign="center">
           <Heading size="xl" color="text.default">
             {t.title}
@@ -137,7 +131,7 @@ export function ForgotPasswordSentPanel() {
             </Link>
           </Stack>
         </Stack>
-      </Box>
+      </Card>
     </Stack>
   )
 }
