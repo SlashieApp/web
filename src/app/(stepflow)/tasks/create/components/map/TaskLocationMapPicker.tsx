@@ -246,9 +246,9 @@ export function TaskLocationMapPicker({
     <Stack gap={4}>
       <Box
         position="relative"
-        borderRadius="xl"
+        borderRadius="lg"
         overflow="hidden"
-        boxShadow="ghostBorder"
+        boxShadow="e1"
         borderWidth="1px"
         borderColor="border.default"
         h={{ base: '240px', md: '320px' }}

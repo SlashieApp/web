@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react'
 
 import { PAGE_CONTAINER_MAX_W_CSS, PAGE_GUTTER_X } from './pageContainer'
-import { sdlElevation, sdlTypeScale } from './styles'
+import { sdlElevation, sdlTextAa, sdlTypeScale } from './styles'
 
 /**
  * SLASHIE DESIGN LANGUAGE (SDL) — Chakra theme = single source of truth.
@@ -205,15 +205,15 @@ const lightSemanticColors = {
   text: {
     default: { value: { base: '#0A1512' } },
     muted: { value: { base: '#515A56' } },
-    subtle: { value: { base: '#9BA4A0' } },
+    subtle: { value: { base: sdlTextAa.lightSubtle } },
     onGreen: { value: { base: '#0A1512' } },
     /** Text on the dark brand/auth hero (white + alphas; mode-independent). */
     onBrand: { value: { base: '#FFFFFF' } },
-    onBrandMuted: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
-    onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.75)' } },
+    onBrandMuted: { value: { base: sdlTextAa.onBrandMuted } },
+    onBrandSubtle: { value: { base: sdlTextAa.onBrandSubtle } },
     /** Text on `bg.inverted*` dark ink surfaces. Mode-independent. */
     onInverted: { value: { base: '#F2F5F4' } },
-    onInvertedMuted: { value: { base: '#A6AFAB' } },
+    onInvertedMuted: { value: { base: sdlTextAa.invertedMuted } },
     /** Green link/accent text on dark surfaces (SDL dark-mode link value). */
     onInvertedLink: { value: { base: '#54DD9D' } },
     /**
@@ -293,11 +293,11 @@ const darkSemanticColors = {
     onGreen: { value: { base: '#0A1512' } },
     /** Text on the dark brand/auth hero (white + alphas; mode-independent). */
     onBrand: { value: { base: '#FFFFFF' } },
-    onBrandMuted: { value: { base: 'rgba(255, 255, 255, 0.88)' } },
-    onBrandSubtle: { value: { base: 'rgba(255, 255, 255, 0.75)' } },
+    onBrandMuted: { value: { base: sdlTextAa.onBrandMuted } },
+    onBrandSubtle: { value: { base: sdlTextAa.onBrandSubtle } },
     /** Text on `bg.inverted*` dark ink surfaces. Mode-independent. */
     onInverted: { value: { base: '#F2F5F4' } },
-    onInvertedMuted: { value: { base: '#A6AFAB' } },
+    onInvertedMuted: { value: { base: sdlTextAa.invertedMuted } },
     /** Green link/accent text on dark surfaces (SDL dark-mode link value). */
     onInvertedLink: { value: { base: '#54DD9D' } },
     link: { value: { base: '#54DD9D' } },

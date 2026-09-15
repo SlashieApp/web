@@ -46,7 +46,7 @@ export function CookieConsentBanner() {
       borderTopWidth="1px"
       borderColor="border.default"
       py={{ base: 4, md: 5 }}
-      boxShadow="0 -4px 24px rgba(10, 21, 18, 0.08)"
+      boxShadow="e3"
     >
       <Container>
         <Stack

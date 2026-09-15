@@ -20,7 +20,7 @@ export function WorkerContactStickyBar() {
       px={4}
       pt={3}
       pb="calc(0.75rem + env(safe-area-inset-bottom))"
-      boxShadow="0 -4px 16px rgba(11, 23, 20, 0.08)"
+      boxShadow="e3"
     >
       <WorkerContactButton size="lg" />
       <HStack gap={1.5} justify="center" pt={2} color="text.muted">

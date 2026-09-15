@@ -10,7 +10,7 @@ export function QuoteLimitPaywall() {
       gap={3}
       borderWidth="1px"
       borderColor="orange.200"
-      borderRadius="xl"
+      borderRadius="lg"
       bg="orange.50"
       p={4}
     >

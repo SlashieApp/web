@@ -40,7 +40,7 @@ type Story = StoryObj<typeof meta>
 /** Interactive playground driven by the Controls panel. */
 export const Playground: Story = {}
 
-/** Plain wrapper card (no title block). */
+/** Plain wrapper card (no title block). `lg` radius + `e1` rest elevation. */
 export const Default: Story = {
   args: { layout: 'default', eyebrow: undefined, heading: undefined },
   render: (args) => (

@@ -20,9 +20,9 @@ drift from code.
 export const LEVELS = Object.keys(sdlElevation)
 
 export const USAGE = {
-  e1: 'Resting cards, inputs, list rows. The default surface lift.',
-  e2: 'Hover/raised cards, sticky bars, low popovers.',
-  e3: 'Dropdowns, menus, comboboxes, date pickers.',
+  e1: 'Resting cards (task, auth, dashboard). The default surface lift.',
+  e2: 'Hover/raised cards, sticky bars, featured pricing.',
+  e3: 'Map overlays, dropdowns, menus, floating chrome.',
   e4: 'Dialogs, drawers, sheets.',
   e5: 'Toasts and transient overlays that float above everything.',
 }
@@ -99,6 +99,18 @@ export const ModeColumn = ({ mode, system }) => (
   <ModeColumn mode="Light" system={lightSystem} />
   <ModeColumn mode="Dark" system={darkSystem} />
 </Box>
+
+## Card recipe
+
+Every card-shaped surface uses `sdlCard` from `@/theme/styles`:
+
+| Role | Radius | Shadow | Examples |
+| --- | --- | --- | --- |
+| Rest | `lg` | `e1` | Task cards, auth form cards, dashboard sections |
+| Raised | `lg` | `e2` | Hover, selected, featured plan |
+| Overlay | `lg` | `e3` | Map empty state, browse filters, search-this-area |
+
+`<Card>` applies the rest recipe. Feature `Box` shells should spread `sdlCardSurface` or `sdlOverlaySurface` instead of inventing a second radius.
 
 ## Dark mode: prefer border over heavy shadow
 

@@ -17,7 +17,7 @@ export function QuoteWorkerEarnCta({
   return (
     <Box
       bg="status.success.soft"
-      borderRadius="xl"
+      borderRadius="lg"
       borderWidth="1px"
       borderColor="status.success.soft"
       p={{ base: 4, md: 5 }}
@@ -33,7 +33,7 @@ export function QuoteWorkerEarnCta({
           alignItems="center"
           justifyContent="center"
           color="text.link"
-          boxShadow="sm"
+          boxShadow="e1"
           aria-hidden
         >
           <LuBriefcase size={22} strokeWidth={2} />

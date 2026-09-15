@@ -74,6 +74,49 @@ export const sdlRadii = {
 } as const
 
 /**
+ * Shared card / overlay recipe. Resting cards, map chrome, auth panels, and
+ * dashboard blocks all use this — do not invent a second radius or shadow.
+ *
+ *   rest     e1  — task/auth/dashboard cards on the page canvas
+ *   raised   e2  — hover, selected, sticky
+ *   overlay  e3  — floating map chrome (filters, empty state, search loader)
+ */
+export const sdlCard = {
+  radius: 'lg',
+  shadow: 'e1',
+  raisedShadow: 'e2',
+  overlayShadow: 'e3',
+} as const
+
+/** Hairline + rest elevation. Spread onto Box when `<Card>` is not the host. */
+export const sdlCardSurface: SystemStyleObject = {
+  bg: 'bg.surface',
+  borderWidth: '1px',
+  borderColor: 'border.default',
+  borderRadius: sdlCard.radius,
+  boxShadow: sdlCard.shadow,
+}
+
+/** Same surface, lifted for chrome that floats over the map. */
+export const sdlOverlaySurface: SystemStyleObject = {
+  ...sdlCardSurface,
+  boxShadow: sdlCard.overlayShadow,
+}
+
+/**
+ * Support-copy colors that must meet WCAG AA on their paired surfaces.
+ * `chakraSystem` semantic tokens consume these; do not re-type the hex.
+ */
+export const sdlTextAa = {
+  /** ≥4.5:1 on `bg.canvas` / `bg.surface` (light). */
+  lightSubtle: '#5F6A65',
+  /** ≥4.5:1 on `bg.inverted` / `bg.invertedSurface`. */
+  invertedMuted: '#C7CECB',
+  onBrandMuted: 'rgba(255, 255, 255, 0.88)',
+  onBrandSubtle: 'rgba(255, 255, 255, 0.82)',
+} as const
+
+/**
  * Portalled overlays (Modal / Drawer / ReportDialog) must sit above Header
  * (30), the mobile dock (40), and dropdowns (50). #217 dropped this and the
  * report scrim lost to page chrome.

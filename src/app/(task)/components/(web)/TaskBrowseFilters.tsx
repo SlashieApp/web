@@ -320,7 +320,7 @@ export function TaskBrowseFilters({ ...props }: TaskBrowseFiltersProps) {
       w="full"
       maxW="full"
       p={{ base: 3, md: 4 }}
-      boxShadow="ghostBorder"
+      boxShadow="e3"
       pointerEvents="auto"
     >
       <Box position="absolute" top={2} right={2} zIndex={1}>

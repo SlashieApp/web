@@ -26,7 +26,7 @@ export function SearchThisAreaButton({
       pointerEvents="auto"
       type="button"
       size="sm"
-      boxShadow="e5"
+      boxShadow="e3"
       borderRadius="full"
       px={5}
       maxW="lg"

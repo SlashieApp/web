@@ -29,8 +29,8 @@ export function TaskQuoteTaskDetailPanel({
       minH={0}
       overflowY={isSection ? 'visible' : 'auto'}
       bg="bg.surface"
-      borderRadius={isSection ? undefined : '2xl'}
-      boxShadow={isSection ? undefined : 'sm'}
+      borderRadius={isSection ? undefined : 'lg'}
+      boxShadow={isSection ? undefined : 'e1'}
       borderWidth={isSection ? '0 0 1px 0' : '1px'}
       borderColor="border.default"
       px={{ base: 4, md: 6 }}

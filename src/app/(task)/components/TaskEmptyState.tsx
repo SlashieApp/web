@@ -1,9 +1,9 @@
 'use client'
 
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Heading, Stack, Text } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Button } from '@ui'
+import { Button, Card } from '@ui'
 
 import { useTaskBrowseData } from '../context/TaskBrowseProvider'
 import { hasClearableBrowseFilterTags } from '../helpers/taskBrowseHelpers'
@@ -19,17 +19,12 @@ export function TaskEmptyState() {
   const canClear = hasClearableBrowseFilterTags(activeFilterTags)
 
   return (
-    <Box
-      bg="bg.surface"
-      borderRadius="2xl"
-      borderWidth="1px"
-      borderColor="border.default"
-      boxShadow="e4"
+    <Card
       w="full"
       mx="auto"
       maxW="full"
-      px={{ base: 5, md: 6 }}
-      py={{ base: 6, md: 7 }}
+      p={{ base: 6, md: 7 }}
+      boxShadow="e3"
       pointerEvents="auto"
     >
       <Stack gap={4} align="center" textAlign="center">
@@ -52,6 +47,6 @@ export function TaskEmptyState() {
           </Button>
         ) : null}
       </Stack>
-    </Box>
+    </Card>
   )
 }

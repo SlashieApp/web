@@ -64,6 +64,7 @@ export function MapCard({
       borderWidth="1px"
       borderColor="border.default"
       bg="bg.surface"
+      boxShadow="e1"
     >
       {mapImage ? (
         <img

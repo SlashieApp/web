@@ -68,7 +68,7 @@ export function PricingTrialBanner({ pricing, copy }: PricingTrialBannerProps) {
       borderWidth="1px"
       /* TODO(sdl): green accent border mapped to border.focus */
       borderColor="border.focus"
-      borderRadius="2xl"
+      borderRadius="lg"
       bg="status.success.soft"
       px={{ base: 4, md: 5 }}
       py={4}

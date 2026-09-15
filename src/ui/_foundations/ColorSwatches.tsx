@@ -44,7 +44,7 @@ export const neutralScale: Swatch[] = [
   { name: 'neutral.100', hex: '#EEF1F0', role: 'bg.subtle (light)' },
   { name: 'neutral.200', hex: '#E0E5E3', role: 'border.default (light)' },
   { name: 'neutral.300', hex: '#C7CECB', role: 'border.strong (light)' },
-  { name: 'neutral.400', hex: '#9BA4A0', role: 'text.subtle (light)' },
+  { name: 'neutral.400', hex: '#9BA4A0' },
   { name: 'neutral.500', hex: '#6E7873' },
   { name: 'neutral.600', hex: '#515A56', role: 'text.muted (light)' },
   { name: 'neutral.700', hex: '#3A423E' },
@@ -106,7 +106,11 @@ export const semanticBg: SemanticRole[] = [
 export const semanticText: SemanticRole[] = [
   { role: 'text.default', token: '--chakra-colors-text-default' },
   { role: 'text.muted', token: '--chakra-colors-text-muted' },
-  { role: 'text.subtle', token: '--chakra-colors-text-subtle' },
+  {
+    role: 'text.subtle',
+    token: '--chakra-colors-text-subtle',
+    note: 'AA support copy (#5F6A65 light)',
+  },
   {
     role: 'text.onGreen',
     token: '--chakra-colors-text-onGreen',
