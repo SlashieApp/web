@@ -1,16 +1,18 @@
 'use client'
 
 import { Box, type BoxProps, Stack } from '@chakra-ui/react'
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 
 import { Logo } from '../Logo/Logo'
 import { ProgressBar } from '../ProgressBar/ProgressBar'
 
-export type BrandLoadingProps = BoxProps & {
+export type BrandLoadingProps = Omit<BoxProps, 'ref'> & {
   /** Caption under the indeterminate bar. Omit for a silent branded wait. */
   label?: ReactNode
   /** Accessible name for the progress track. */
   trackLabel?: string
+  /** Mount callback / host element. Auth gates hydrate session from this node. */
+  ref?: Ref<HTMLDivElement>
 }
 
 /**
@@ -20,6 +22,7 @@ export type BrandLoadingProps = BoxProps & {
 export function BrandLoading({
   label,
   trackLabel = 'Loading',
+  ref,
   ...rest
 }: BrandLoadingProps) {
   return (
@@ -31,6 +34,7 @@ export function BrandLoading({
       alignItems="center"
       justifyContent="center"
       {...rest}
+      ref={ref}
     >
       <Stack align="center" gap={5} px={6} w="full" maxW="16rem">
         <Box

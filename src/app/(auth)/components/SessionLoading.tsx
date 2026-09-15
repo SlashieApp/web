@@ -20,11 +20,13 @@ export type SessionLoadingProps = Omit<
 export function SessionLoading({
   label,
   trackLabel,
+  ref,
   ...rest
 }: SessionLoadingProps) {
   const t = useI11n(bag)
   return (
     <BrandLoading
+      ref={ref}
       label={label ?? t.sessionLoading}
       trackLabel={trackLabel ?? t.sessionLoadingTrack}
       {...rest}
