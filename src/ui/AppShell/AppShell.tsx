@@ -1,45 +1,43 @@
 import { Box, type BoxProps } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-import { Header } from '../Header'
-import {
-  MOBILE_BOTTOM_NAV_CLEARANCE,
-  MobileBottomNav,
-} from '../MobileBottomNav'
+import { AppShellBody } from './AppShellBody'
 
 export type AppShellProps = {
   children: ReactNode
   /** Extra props for the scrolling `main` pane. */
   mainProps?: BoxProps
+  /**
+   * Auth cookie present on this request. Forwarded to Header so logged-in
+   * visitors SSR account skeletons instead of guest Log in / Sign up.
+   */
+  hasSession?: boolean
 } & Omit<BoxProps, 'children'>
 
 /**
- * Shared marketplace / account chrome: sticky Header, scrolling main,
- * glass MobileBottomNav. `isolation` keeps Mapbox canvases under the Header.
+ * Shared marketplace / account chrome: Header, scrolling main, glass
+ * MobileBottomNav. Task detail hides the dock and tucks the header on
+ * scroll-down; search and other routes keep both. `isolation` keeps Mapbox
+ * canvases under the Header.
  */
-export function AppShell({ children, mainProps, ...props }: AppShellProps) {
+export function AppShell({
+  children,
+  mainProps,
+  hasSession = false,
+  ...props
+}: AppShellProps) {
   return (
     <Box
       display="flex"
       flexDirection="column"
       height="100dvh"
       isolation="isolate"
+      overflow="visible"
       {...props}
     >
-      <Header flexShrink={0} />
-      <Box
-        as="main"
-        flex={1}
-        minH={0}
-        overflowY="auto"
-        position="relative"
-        zIndex={0}
-        pb={{ base: MOBILE_BOTTOM_NAV_CLEARANCE, md: 0 }}
-        {...mainProps}
-      >
+      <AppShellBody mainProps={mainProps} hasSession={hasSession}>
         {children}
-      </Box>
-      <MobileBottomNav />
+      </AppShellBody>
     </Box>
   )
 }

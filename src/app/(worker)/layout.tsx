@@ -1,9 +1,11 @@
+import { getHasAuthSession } from '@/app/helpers/getHasAuthSession'
 import { AppShell } from '@/ui/AppShell'
 
-export default function WorkerLayout({
+export default async function WorkerLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return <AppShell>{children}</AppShell>
+  const hasSession = await getHasAuthSession()
+  return <AppShell hasSession={hasSession}>{children}</AppShell>
 }

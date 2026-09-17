@@ -26,7 +26,6 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
     filteredSorted,
     selectedTaskId,
     setSelectedTaskId,
-    isNavRoutePresenting,
     referenceLocation,
     isInitialTasksLoad,
   } = useTaskBrowseData()
@@ -55,7 +54,6 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
   )
 
   const handleActivateTask = (taskId: string) => {
-    if (isNavRoutePresenting) return
     if (selectedTaskId === taskId) {
       openTaskDetail(taskId, 'list')
       return
@@ -75,48 +73,54 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
             // the back navigation. An enter fade would snapshot a ghost.
             const skipEnter = taskHandoffFor(task.id) !== null
             return (
-              <motion.div
+              <Box
                 key={task.id}
-                initial={skipEnter ? false : { opacity: 0, x: -18 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  duration: 0.42,
-                  delay: Math.min(index * 0.06, 0.42),
-                  ease: [0.22, 1, 0.36, 1],
-                }}
+                position="relative"
+                _hover={{ zIndex: 3 }}
+                _focusWithin={{ zIndex: 3 }}
               >
-                <Box
-                  ref={(node: HTMLDivElement | null) => {
-                    if (node) cardRefs.current.set(task.id, node)
-                    else cardRefs.current.delete(task.id)
-                    if (node && !seenImpressionsRef.current.has(task.id)) {
-                      seenImpressionsRef.current.add(task.id)
-                      captureSearchCardImpression(task.id, 'list')
-                    }
-                    if (node && task.id === selectedTaskId) {
-                      requestAnimationFrame(() => {
-                        scrollTaskCardIntoView(task.id)
-                      })
-                    }
+                <motion.div
+                  initial={skipEnter ? false : { opacity: 0, x: -18 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    duration: 0.42,
+                    delay: Math.min(index * 0.06, 0.42),
+                    ease: [0.22, 1, 0.36, 1],
                   }}
                 >
-                  <TaskCard
-                    task={cardTask}
-                    detailsHref={taskDetailHref(task.id)}
-                    isActive={selectedTaskId === task.id}
-                    isExpanded={selectedTaskId === task.id}
-                    showDetailsCta={selectedTaskId === task.id}
-                    navigateOnActivate={selectedTaskId === task.id}
-                    activateAriaLabel={
-                      selectedTaskId === task.id
-                        ? `${task.title}. View task details.`
-                        : `${task.title}. Select to highlight on map.`
-                    }
-                    onOpenDetails={() => captureDetailsLink(task.id, 'list')}
-                    onActivate={() => handleActivateTask(task.id)}
-                  />
-                </Box>
-              </motion.div>
+                  <Box
+                    ref={(node: HTMLDivElement | null) => {
+                      if (node) cardRefs.current.set(task.id, node)
+                      else cardRefs.current.delete(task.id)
+                      if (node && !seenImpressionsRef.current.has(task.id)) {
+                        seenImpressionsRef.current.add(task.id)
+                        captureSearchCardImpression(task.id, 'list')
+                      }
+                      if (node && task.id === selectedTaskId) {
+                        requestAnimationFrame(() => {
+                          scrollTaskCardIntoView(task.id)
+                        })
+                      }
+                    }}
+                  >
+                    <TaskCard
+                      task={cardTask}
+                      detailsHref={taskDetailHref(task.id)}
+                      isActive={selectedTaskId === task.id}
+                      isExpanded={selectedTaskId === task.id}
+                      showDetailsCta={selectedTaskId === task.id}
+                      navigateOnActivate={selectedTaskId === task.id}
+                      activateAriaLabel={
+                        selectedTaskId === task.id
+                          ? `${task.title}. View task details.`
+                          : `${task.title}. Select to highlight on map.`
+                      }
+                      onOpenDetails={() => captureDetailsLink(task.id, 'list')}
+                      onActivate={() => handleActivateTask(task.id)}
+                    />
+                  </Box>
+                </motion.div>
+              </Box>
             )
           })
         : null}

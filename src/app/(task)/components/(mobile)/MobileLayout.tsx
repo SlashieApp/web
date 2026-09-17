@@ -2,6 +2,8 @@
 
 import { Box, HStack, Stack } from '@chakra-ui/react'
 
+import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav'
+
 import { TaskBrowseSearchThisAreaButton } from '../TaskBrowseSearchThisAreaButton'
 import { TaskSearch } from '../TaskSearch'
 import { TaskTag } from '../TaskTag'
@@ -38,7 +40,7 @@ export function MobileLayout() {
         position="absolute"
         left={0}
         right={0}
-        bottom={0}
+        bottom={MOBILE_BOTTOM_NAV_CLEARANCE}
         zIndex={3}
         display="flex"
         flexDirection="column"

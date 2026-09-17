@@ -11,7 +11,6 @@ import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { buildTaskActivitySteps } from '../../helpers/taskDetailActivity'
 import bag from '../../i11n.json'
-import { TaskActionsFooter } from './TaskActionsFooter'
 
 import { WorkerOrderVerificationPanel } from '../quoteSection/WorkerOrderVerificationPanel'
 import { BookingSection } from './openTask/BookingSection'
@@ -105,14 +104,13 @@ function ActivityTimeline() {
   )
 }
 
-/** Activity tab: booking / complete-job, lifecycle strip, help + report. */
+/** Overview activity blocks: booking / complete-job and lifecycle strip. */
 export function TaskActivitySections() {
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
       <BookingSection />
       <WorkerOrderVerificationPanel />
       <ActivityTimeline />
-      <TaskActionsFooter />
     </Stack>
   )
 }

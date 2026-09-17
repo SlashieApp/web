@@ -267,7 +267,7 @@ export function createTaskLocationMapController(args: {
         style: styleUrlForMode(args.themeMode),
         center: [lng, lat],
         zoom: variant === 'exact' ? EXACT_ZOOM : APPROX_ZOOM,
-        logoPosition: 'top-left',
+        logoPosition: 'top-right',
         attributionControl: true,
       })
       // Don't trap page scroll behind the hero; drag/pinch/zoom stay interactive.

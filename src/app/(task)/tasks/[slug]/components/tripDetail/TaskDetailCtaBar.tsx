@@ -16,6 +16,16 @@ const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
 const reducedTransparencyQuery =
   '@media (prefers-reduced-transparency: reduce), (prefers-reduced-motion: reduce)' as const
 
+function QuoteCta({ href, label }: { href: string; label: string }) {
+  return (
+    <Button asChild variant="primary" w="full">
+      <Link href={href} _hover={{ textDecoration: 'none' }}>
+        {label}
+      </Link>
+    </Button>
+  )
+}
+
 const glassBarCss = {
   background: `color-mix(in srgb, ${surfaceVar} 78%, transparent)`,
   backdropFilter: 'blur(20px)',
@@ -28,23 +38,14 @@ const glassBarCss = {
 } as SystemStyleObject
 
 /**
- * Sit the glass bar just above the mobile dock pill (not the full fade
- * clearance, which left a ~130px hole). Desktop has no dock.
- */
-/** Main already reserves dock clearance; extra inset stacked a 96px hole. */
-const CTA_DOCK_OFFSET = 0
-
-/**
- * Space so the last content line can scroll above this bar. Dock clearance
- * already lives on the (task) layout `main`.
+ * Space so the last content line can scroll above the floating CTA.
  */
 export const TASK_DETAIL_CTA_CLEARANCE =
-  'calc(168px + env(safe-area-inset-bottom, 0px))' as const
+  'calc(7.5rem + env(safe-area-inset-bottom, 0px))' as const
 
 /**
  * Floating glass primary CTA. Role-mapped via `getTaskDetailPrimaryCta`.
- * Sits above the mobile dock (safe-area + nav clearance) and does not cover
- * tab content thanks to matching page padding.
+ * Fixed to the viewport bottom on mobile (no dock on task detail).
  */
 export function TaskDetailCtaBar() {
   const t = useI11n(bag)
@@ -66,22 +67,10 @@ export function TaskDetailCtaBar() {
   let action: React.ReactNode = null
   switch (kind) {
     case 'sendQuote':
-      action = (
-        <Button asChild variant="primary" w="full">
-          <Link href={quoteHref} _hover={{ textDecoration: 'none' }}>
-            {t.cta.sendQuote}
-          </Link>
-        </Button>
-      )
+      action = <QuoteCta href={quoteHref} label={t.cta.sendQuote} />
       break
     case 'signInToQuote':
-      action = (
-        <Button asChild variant="primary" w="full">
-          <Link href={quoteHref} _hover={{ textDecoration: 'none' }}>
-            {t.cta.signInToQuote}
-          </Link>
-        </Button>
-      )
+      action = <QuoteCta href={quoteHref} label={t.cta.signInToQuote} />
       break
     case 'viewQuotes':
       action = (
@@ -108,7 +97,7 @@ export function TaskDetailCtaBar() {
           variant="primary"
           w="full"
           onClick={() => {
-            setActiveTab(TASK_DETAIL_TAB.activity, {
+            setActiveTab(TASK_DETAIL_TAB.overview, {
               hash: 'worker-job-panel',
               scrollId: 'worker-job-panel',
             })
@@ -124,7 +113,7 @@ export function TaskDetailCtaBar() {
           variant="primary"
           w="full"
           onClick={() => {
-            setActiveTab(TASK_DETAIL_TAB.activity, {
+            setActiveTab(TASK_DETAIL_TAB.overview, {
               hash: 'task-order',
               scrollId: 'task-order',
             })
@@ -142,13 +131,16 @@ export function TaskDetailCtaBar() {
 
   return (
     <Box
-      position="sticky"
-      bottom={{ base: CTA_DOCK_OFFSET, md: 4 }}
+      display={{ base: 'block', lg: 'none' }}
+      position="fixed"
+      left={0}
+      right={0}
+      bottom={0}
       zIndex={25}
       pointerEvents="none"
-      px={{ base: 3, md: 0 }}
+      px={3}
       pt={2}
-      pb={{ base: 1, md: 2 }}
+      pb="calc(10px + env(safe-area-inset-bottom, 0px))"
     >
       <Stack
         as="section"

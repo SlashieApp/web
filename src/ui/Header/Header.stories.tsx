@@ -18,6 +18,7 @@ import { Header } from './Header'
  * renders the full app navigation, which adapts to three states:
  *
  * - **guest** — logged-out toolbar (Post a task, Log in / Sign up, mobile menu)
+ * - **session** — auth cookie present, `me` not loaded yet (account-slot skeletons)
  * - **browse** — logged-in toolbar (Post a task, notifications, account menu)
  * - **custom** — caller-provided `children` replace the default body
  *
@@ -190,6 +191,18 @@ export const Guest: Story = {
     },
   ],
   render: () => <Header />,
+}
+
+/** Auth cookie present: account-slot skeletons instead of Log in / Sign up. */
+export const SessionSkeleton: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  decorators: [
+    (Story) => {
+      seedMe(null)
+      return <Story />
+    },
+  ],
+  render: () => <Header hasSession />,
 }
 
 /** Logged-in browse toolbar: Post a task, notifications bell, and account menu. */

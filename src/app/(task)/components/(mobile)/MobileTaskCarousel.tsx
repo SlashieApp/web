@@ -28,7 +28,6 @@ export function MobileTaskCarousel() {
     canShowBrowseEmptyState,
     selectedTaskId,
     setSelectedTaskId,
-    isNavRoutePresenting,
     referenceLocation,
     isInitialTasksLoad,
   } = useTaskBrowseData()
@@ -70,7 +69,6 @@ export function MobileTaskCarousel() {
       selectedId={selectedTaskId}
       onSnapSelect={setSelectedTaskId}
       onActivateCentered={(taskId) => openTaskDetail(taskId, 'carousel')}
-      disabled={isNavRoutePresenting}
     >
       {(task, state) => (
         <Box

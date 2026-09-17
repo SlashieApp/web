@@ -55,15 +55,14 @@ export function SearchScreen({
     >
       {seededReference ? null : <BrowseGeolocationInit />}
       <SearchUrlSync />
-      <SearchViewTracker />
+      {/* <SearchViewTracker /> */}
       <Box
         flex={1}
         w="full"
         minW={0}
         minH={0}
-        // Fill the shell main padding box on mobile so the card can sit on the
-        // glass nav. `height: 100%` only covers the content box above the
-        // MOBILE_BOTTOM_NAV_CLEARANCE padding and leaves a blank strip.
+        // Fill the shell main padding box on mobile so the map stays full-bleed
+        // under the glass nav. The carousel is offset above the pill separately.
         position={{ base: 'absolute', lg: 'relative' }}
         inset={{ base: 0, lg: 'auto' }}
         height={{ base: 'auto', lg: '100%' }}

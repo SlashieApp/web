@@ -3,16 +3,16 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { MouseEvent } from 'react'
 import { Fragment, useState } from 'react'
-import { LuBadgeCheck, LuBookmark } from 'react-icons/lu'
+import { LuBadgeCheck, LuBookmark, LuChevronRight } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
 import { ReportControl } from '@/content/trust/ReportControl'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { ViewTransition } from '@/ui/ViewTransition'
-import { Badge, Button, Card, IconButton, Link, Thumbnail } from '@ui'
+import { Badge, Card, IconButton, Link, Thumbnail } from '@ui'
 
-import { sdlMotion } from '@/theme/styles'
+import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 import { taskCardMetaParts } from '../helpers/taskBrowseHelpers'
 import {
@@ -228,187 +228,242 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const shell = (
     <Card
       isActive={isActive}
-      p={{ base: 3, md: isExpanded ? 3.5 : 3 }}
+      p={0}
+      overflow="visible"
+      position="relative"
       maxW="full"
-      bg={isActive ? 'status.success.soft' : 'bg.surface'}
+      bg="bg.surface"
       boxShadow={isExpanded ? 'e3' : 'e1'}
-      transitionProperty="background-color, box-shadow, transform, border-color, padding"
+      transitionProperty="background-color, box-shadow, transform, border-color"
       transitionDuration={sdlMotion.duration.base}
       transitionTimingFunction={sdlMotion.easing.standard}
-      _hover={
-        onActivate
-          ? {
-              boxShadow: 'e3',
-            }
-          : undefined
-      }
+      css={{
+        '& [data-task-card-options]': {
+          opacity: 0,
+          transitionProperty: 'opacity',
+          transitionDuration: sdlMotion.duration.base,
+          transitionTimingFunction: sdlMotion.easing.standard,
+        },
+        _hover: {
+          boxShadow: onActivate ? 'e3' : undefined,
+          '& [data-task-card-options]': { opacity: 1 },
+        },
+        _focusWithin: {
+          '& [data-task-card-options]': { opacity: 1 },
+        },
+        '@media (hover: none)': {
+          '& [data-task-card-options]': { opacity: isActive ? 1 : 0 },
+          _focusWithin: {
+            '& [data-task-card-options]': { opacity: 1 },
+          },
+        },
+      }}
     >
-      <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
-        <ViewTransition
-          name={
-            morphing && thumbnailSrc ? taskVtName('img', taskId) : undefined
-          }
-          share="auto"
-          default="none"
+      <HStack gap={0} align="stretch">
+        <Box
+          flex={1}
+          minW={0}
+          position="relative"
+          p={{ base: 3, md: 3 }}
+          pe={12}
         >
-          <Thumbnail
-            alt={`${title} thumbnail`}
-            src={thumbnailSrc}
-            size="sm"
-            minW={{ base: '72px', md: '80px' }}
-            alignSelf="flex-start"
-          />
-        </ViewTransition>
-        <Stack flex={1} minW={0} gap={1.5}>
-          <Stack gap={1} minW={0} align="flex-start">
-            {showBadge ? (
-              // Active card bg is the same soft green as the brand pill —
-              // switch the pill to a surface fill so it stays visible.
-              <Badge shape="pill" bg={isActive ? 'bg.surface' : undefined}>
-                {badgeText}
-              </Badge>
-            ) : null}
+          <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
             <ViewTransition
-              name={morphing ? taskVtName('title', taskId) : undefined}
-              share="vt-text"
+              name={
+                morphing && thumbnailSrc ? taskVtName('img', taskId) : undefined
+              }
+              share="auto"
               default="none"
             >
-              <Text
-                fontSize="md"
-                fontWeight={700}
-                color="text.default"
-                lineHeight="1.3"
-                lineClamp={2}
-                maxW="full"
-              >
-                {title}
-              </Text>
+              <Thumbnail
+                alt={`${title} thumbnail`}
+                src={thumbnailSrc}
+                size="sm"
+                minW={{ base: '72px', md: '80px' }}
+                alignSelf="flex-start"
+              />
             </ViewTransition>
-          </Stack>
-
-          {metaParts.length > 0 ? (
-            <HStack gap={1} minW={0} flexWrap="wrap" align="baseline">
-              {metaParts.map((part) => {
-                const isBudget = part === priceLabel?.trim()
-                const isFirst = part === metaParts[0]
-                const label = (
+            <Stack flex={1} minW={0} gap={1.5}>
+              <Stack gap={1} minW={0} align="flex-start">
+                {showBadge ? <Badge shape="pill">{badgeText}</Badge> : null}
+                <ViewTransition
+                  name={morphing ? taskVtName('title', taskId) : undefined}
+                  share="vt-text"
+                  default="none"
+                >
                   <Text
-                    fontSize="sm"
-                    fontWeight={isBudget ? 800 : 500}
-                    color={isBudget ? 'text.link' : 'text.muted'}
-                    lineClamp={1}
+                    fontSize="md"
+                    fontWeight={700}
+                    color="text.default"
+                    lineHeight="1.3"
+                    lineClamp={2}
+                    maxW="full"
                   >
-                    {part}
+                    {title}
                   </Text>
-                )
-                return (
-                  <Fragment key={part}>
-                    {isFirst ? null : (
+                </ViewTransition>
+              </Stack>
+
+              {metaParts.length > 0 ? (
+                <HStack gap={1} minW={0} flexWrap="wrap" align="baseline">
+                  {metaParts.map((part) => {
+                    const isBudget = part === priceLabel?.trim()
+                    const isFirst = part === metaParts[0]
+                    const label = (
                       <Text
-                        as="span"
-                        color="text.muted"
-                        fontSize="xs"
-                        aria-hidden
+                        fontSize="sm"
+                        fontWeight={isBudget ? 800 : 500}
+                        color={isBudget ? 'text.link' : 'text.muted'}
+                        lineClamp={1}
                       >
-                        ·
+                        {part}
                       </Text>
-                    )}
-                    {isBudget ? (
-                      <ViewTransition
-                        name={
-                          morphing ? taskVtName('price', taskId) : undefined
-                        }
-                        share="vt-text"
-                        default="none"
-                      >
-                        {label}
-                      </ViewTransition>
-                    ) : (
-                      label
-                    )}
-                  </Fragment>
-                )
-              })}
-            </HStack>
-          ) : null}
-
-          {trustLabel ? (
-            <HStack gap={1} color="text.muted" minW={0}>
-              <Box as="span" aria-hidden display="inline-flex" flexShrink={0}>
-                <LuBadgeCheck size={14} strokeWidth={2.25} />
-              </Box>
-              <Text fontSize="xs" fontWeight={600} lineClamp={1}>
-                {trustLabel}
-              </Text>
-            </HStack>
-          ) : null}
-
-          {showDetailsCta || handleToggleSave || isExpanded || isActive ? (
-            <HStack gap={1} pt={0.5} justify="flex-end" flexShrink={0}>
-              {isExpanded || isActive || showDetailsCta ? (
-                <Box
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                  onPointerDown={(e) => e.stopPropagation()}
-                >
-                  <ReportControl
-                    kind="task"
-                    targetId={taskId}
-                    targetTitle={title}
-                    targetMeta={
-                      [cardTask.location, badgeText]
-                        .filter(Boolean)
-                        .join(' · ') || undefined
-                    }
-                    targetImageSrc={thumbnailSrc}
-                    variant="overflow"
-                  />
-                </Box>
+                    )
+                    return (
+                      <Fragment key={part}>
+                        {isFirst ? null : (
+                          <Text
+                            as="span"
+                            color="text.muted"
+                            fontSize="xs"
+                            aria-hidden
+                          >
+                            ·
+                          </Text>
+                        )}
+                        {isBudget ? (
+                          <ViewTransition
+                            name={
+                              morphing ? taskVtName('price', taskId) : undefined
+                            }
+                            share="vt-text"
+                            default="none"
+                          >
+                            {label}
+                          </ViewTransition>
+                        ) : (
+                          label
+                        )}
+                      </Fragment>
+                    )
+                  })}
+                </HStack>
               ) : null}
-              {showDetailsCta ? (
-                <Button
-                  asChild
-                  size="sm"
-                  minW={{ md: '106px' }}
-                  h={9}
-                  px={{ base: 3, md: 4 }}
-                  borderRadius="lg"
-                  whiteSpace="nowrap"
-                  flexShrink={0}
-                >
-                  <Link
-                    href={detailsHref}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      armMorph()
-                      onOpenDetails?.()
-                    }}
-                    _hover={{ textDecoration: 'none' }}
+
+              {trustLabel ? (
+                <HStack gap={1} color="text.muted" minW={0}>
+                  <Box
+                    as="span"
+                    aria-hidden
+                    display="inline-flex"
+                    flexShrink={0}
                   >
-                    {detailsCtaLabel}
-                  </Link>
-                </Button>
+                    <LuBadgeCheck size={14} strokeWidth={2.25} />
+                  </Box>
+                  <Text fontSize="xs" fontWeight={600} lineClamp={1}>
+                    {trustLabel}
+                  </Text>
+                </HStack>
               ) : null}
-              {handleToggleSave ? (
-                <IconButton
-                  aria-label={formatMessage(
-                    isSaved ? t.bookmarkRemove : t.bookmarkAdd,
-                    { title },
-                  )}
-                  aria-pressed={isSaved}
-                  onClick={handleToggleSave}
-                  color={isSaved ? 'text.link' : 'text.muted'}
-                >
-                  <LuBookmark
-                    size={18}
-                    strokeWidth={2}
-                    fill={isSaved ? 'currentColor' : 'none'}
-                  />
-                </IconButton>
-              ) : null}
-            </HStack>
-          ) : null}
-        </Stack>
+            </Stack>
+          </HStack>
+
+          <HStack
+            data-task-card-options
+            position="absolute"
+            top={1}
+            right={1}
+            gap={0}
+            zIndex={2}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <ReportControl
+              kind="task"
+              targetId={taskId}
+              targetTitle={title}
+              targetMeta={
+                [cardTask.location, badgeText].filter(Boolean).join(' · ') ||
+                undefined
+              }
+              targetImageSrc={thumbnailSrc}
+              variant="overflow"
+            />
+            {handleToggleSave ? (
+              <IconButton
+                aria-label={formatMessage(
+                  isSaved ? t.bookmarkRemove : t.bookmarkAdd,
+                  { title },
+                )}
+                aria-pressed={isSaved}
+                onClick={handleToggleSave}
+                color={isSaved ? 'text.link' : 'text.muted'}
+              >
+                <LuBookmark
+                  size={18}
+                  strokeWidth={2}
+                  fill={isSaved ? 'currentColor' : 'none'}
+                />
+              </IconButton>
+            ) : null}
+          </HStack>
+        </Box>
+
+        <Box
+          flexShrink={0}
+          alignSelf="stretch"
+          display="flex"
+          justifyContent="flex-end"
+          overflow="hidden"
+          borderLeftRadius={0}
+          borderRightRadius="lg"
+          w={showDetailsCta ? '48px' : '0px'}
+          minW={showDetailsCta ? '48px' : '0px'}
+          opacity={showDetailsCta ? 1 : 0}
+          pointerEvents={showDetailsCta ? 'auto' : 'none'}
+          aria-hidden={!showDetailsCta}
+          transitionProperty="width, min-width, opacity"
+          transitionDuration={sdlMotion.duration.slow}
+          transitionTimingFunction={sdlMotion.easing.decelerate}
+          css={{
+            '@media (prefers-reduced-motion: reduce)': {
+              transition: 'none',
+            },
+          }}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <Link
+            href={detailsHref}
+            aria-label={detailsCtaLabel}
+            tabIndex={showDetailsCta ? 0 : -1}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            flexShrink={0}
+            w="48px"
+            minW="48px"
+            h="full"
+            borderLeftRadius={0}
+            borderRightRadius="lg"
+            bg="status.success.soft"
+            color="status.success.fg"
+            _hover={{
+              textDecoration: 'none',
+              bg: 'status.success.border',
+              color: 'status.success.fg',
+            }}
+            _focusVisible={sdlFocusRing}
+            onClick={() => {
+              armMorph()
+              onOpenDetails?.()
+            }}
+          >
+            <LuChevronRight size={22} aria-hidden />
+          </Link>
+        </Box>
       </HStack>
     </Card>
   )

@@ -20,7 +20,14 @@ export default function MarketingLayout({
       <MarketingHeader />
       {/* No `mx="auto"`: an auto cross-axis margin stops flex stretching and
           collapses main to max-content width, breaking full-bleed sections. */}
-      <Box as="main" id="main-content" flex={1} w="full">
+      <Box
+        as="main"
+        id="main-content"
+        flex={1}
+        w="full"
+        minW={0}
+        overflowX="clip"
+      >
         {children}
       </Box>
     </Box>

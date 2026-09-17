@@ -3,6 +3,7 @@
 import { Box } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef } from 'react'
 
+import { mapboxCanvasFadeCss } from '@/app/(task)/helpers/mapboxCanvasFade'
 import { sdlMotion } from '@/theme/styles'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header'
 import { useColorMode } from '@/ui/color-mode'
@@ -20,16 +21,6 @@ import {
   createTaskLocationMapController,
   desktopTaskDetailMapPadding,
 } from '../../../helpers/taskLocationMap'
-
-const HORIZONTAL_SCRIM =
-  'linear-gradient(to right, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.88) 38%, rgba(255, 255, 255, 0.4) 58%, rgba(255, 255, 255, 0) 78%)'
-
-/** White fade from the bottom edge up — softens the map behind scrolling cards. */
-const BOTTOM_SCRIM =
-  'linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.75) 18%, rgba(255, 255, 255, 0.25) 42%, rgba(255, 255, 255, 0) 68%)'
-
-/** Clear band under the app Header so the top-left Mapbox logo stays readable. */
-const DESKTOP_LOGO_CLEARANCE = `calc(${HEADER_MIN_HEIGHT.md} + 2.75rem)`
 
 /** Frame the task pin / zone circle in the header's right column. */
 function desktopMapPadding(
@@ -179,30 +170,16 @@ export function TaskDetailMapBackground() {
       transitionTimingFunction={sdlMotion.easing.standard}
       css={{
         background: 'linear-gradient(135deg, #EEF3F0 0%, #DCE6E0 100%)',
-        '& .mapboxgl-ctrl-top-left': {
+        ...mapboxCanvasFadeCss('taskDetailDesktop'),
+        '& .mapboxgl-ctrl-top-right': {
           top: `calc(${HEADER_MIN_HEIGHT.md} + 8px)`,
-          left: '12px',
+          right: '12px',
         },
       }}
     >
       {canMountMap ? (
         <Box ref={mapContainerRef} position="absolute" inset={0} />
       ) : null}
-      <Box
-        position="absolute"
-        top={DESKTOP_LOGO_CLEARANCE}
-        left={0}
-        right={0}
-        bottom={0}
-        pointerEvents="none"
-        css={{ background: HORIZONTAL_SCRIM }}
-      />
-      <Box
-        position="absolute"
-        inset={0}
-        pointerEvents="none"
-        css={{ background: BOTTOM_SCRIM }}
-      />
     </Box>
   )
 }

@@ -59,6 +59,8 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
    * content stays readable while the sticky header stays transparent.
    */
   panelBg?: BoxProps['bg']
+  /** Extra props for the sticky chrome box (title bar + tablist). */
+  stickyChromeProps?: BoxProps
   /** Accessible name for the tablist. */
   'aria-label'?: string
   /** Rendered inside the sticky chrome, above the tablist (e.g. a title bar). */
@@ -95,6 +97,7 @@ function TabsBase({
   stickyTop = 0,
   stickyBg,
   panelBg,
+  stickyChromeProps,
   px,
   stickyHeader,
   children,
@@ -207,9 +210,11 @@ function TabsBase({
           bg={sticky ? (stickyBg ?? 'bg.canvas') : undefined}
           w={sticky ? 'full' : undefined}
           px={splitPanelChrome ? px : undefined}
+          overflow="visible"
           borderTopRadius={
             fittedBelowLg ? { base: 'none', lg: 'xl' } : undefined
           }
+          {...stickyChromeProps}
         >
           {stickyHeader}
           <HStack

@@ -7,19 +7,25 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('search mobile map chrome', () => {
-  it('offsets Mapbox controls above the overlapping task card', () => {
+  it('offsets Mapbox controls above the overlapping task card below lg', () => {
     const src = readFileSync(
       join(dir, '../components/map/SearchMapLayer.tsx'),
       'utf8',
     )
+    const mapSrc = readFileSync(
+      join(dir, '../../components/TaskMap.tsx'),
+      'utf8',
+    )
     expect(src).toContain('mobileCtrlBottomOffset')
     expect(src).toContain('SEARCH_MOBILE_MAP_CTRL_BOTTOM')
-    expect(src).not.toContain(
-      '96px + env(safe-area-inset-bottom, 0px) + 11.5rem',
-    )
+    expect(src).toContain('logoPosition="bottom-right"')
+    expect(src).toContain('+ 7.5rem')
+    expect(mapSrc).toContain("display: { base: 'none', lg: 'block' }")
+    expect(mapSrc).toContain("lg: '0'")
+    expect(src).not.toContain('+ 12rem')
   })
 
-  it('fills the shell main padding box so the carousel can sit on the nav', () => {
+  it('fills the shell main padding box so the map stays full-bleed under the nav', () => {
     const screenSrc = readFileSync(
       join(dir, '../components/SearchScreen.tsx'),
       'utf8',
@@ -30,12 +36,14 @@ describe('search mobile map chrome', () => {
     expect(screenSrc).toContain("inset={{ base: 0, lg: 'auto' }}")
   })
 
-  it('sits the mobile carousel flush to the layout bottom', () => {
+  it('sits the mobile carousel above the bottom nav', () => {
     const src = readFileSync(
       join(dir, '../components/SearchLayouts.tsx'),
       'utf8',
     )
-    expect(src).toContain('bottom={0}')
-    expect(src).not.toContain('bottom={8}')
+    expect(src).toContain('bottom={MOBILE_BOTTOM_NAV_CLEARANCE}')
+    expect(src).not.toContain('bottom={0}')
+    expect(src).not.toContain('linear-gradient')
+    expect(src).not.toContain('TaskBrowseListColumnScrim')
   })
 })

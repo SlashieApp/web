@@ -26,7 +26,7 @@ export type TaskActivityCopy = {
 }
 
 /**
- * Lifecycle strip for the Activity tab. Derived from existing task/order/quote
+ * Lifecycle strip for Overview. Derived from existing task/order/quote
  * fields — not a new API. Mirrors the posted-task request timeline, localized.
  */
 export function buildTaskActivitySteps(

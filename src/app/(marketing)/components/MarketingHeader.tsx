@@ -195,6 +195,8 @@ function MarketingNavigation({
       align="center"
       gap={{ base: 3, md: 6 }}
       w="full"
+      overflow="visible"
+      flexWrap="wrap"
     >
       <HStack flex={1} minW={0} align="center" gap={{ base: 3, md: 4 }}>
         <Link
@@ -268,7 +270,12 @@ function MarketingNavigation({
         </HStack>
       </HStack>
 
-      <HStack gap={{ base: 2, md: 4 }} align="center" flexShrink={0}>
+      <HStack
+        gap={{ base: 2, md: 4 }}
+        align="center"
+        flexShrink={0}
+        overflow="visible"
+      >
         <HeaderToolbarSeparator
           color={overlay ? 'border.glass' : 'border.default'}
         />
@@ -384,6 +391,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
       <Box
         as="header"
         zIndex={30}
+        overflow="visible"
         bg={overlay ? 'transparent' : 'bg.canvas'}
         color={overlay ? 'text.onInverted' : 'text.default'}
         borderWidth="1px"
@@ -402,6 +410,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
           px={PAGE_GUTTER_X}
           w="full"
           minH={HEADER_MIN_HEIGHT}
+          overflow="visible"
           display="flex"
           alignItems="center"
         >

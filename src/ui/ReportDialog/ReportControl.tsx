@@ -136,6 +136,8 @@ export function ReportControl({
         <Dropdown
           contentLabel={t.moreActionsAria}
           mobilePlacement="bottom"
+          align="end"
+          width="max-content"
           trigger={
             <IconButton
               type="button"

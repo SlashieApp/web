@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { getHasAuthSession } from '@/app/helpers/getHasAuthSession'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 
@@ -13,12 +14,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: copy.metadata.title }
 }
 
-export default function DashboardGroupLayout({
+export default async function DashboardGroupLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const hasSession = await getHasAuthSession()
   return (
     <AccountAuthGate>
-      <AccountShell>{children}</AccountShell>
+      <AccountShell hasSession={hasSession}>{children}</AccountShell>
     </AccountAuthGate>
   )
 }

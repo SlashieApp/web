@@ -8,16 +8,15 @@ import {
   PAGE_GUTTER_X,
 } from '@/theme/pageContainer'
 
+import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '../../../helpers/taskDetailLayout'
 import { StatusHeader } from '../StatusHeader'
 import {
   TASK_DETAIL_CTA_CLEARANCE,
   TaskDetailCtaBar,
 } from '../TaskDetailCtaBar'
 import { TaskDetailSectionTabs } from '../TaskDetailSectionTabs'
+import { TaskBackButton } from '../TaskHeaderControls'
 import { TaskDetailMapBackground } from './TaskDetailMapBackground'
-
-/** Map show-through above the sticky money chrome on desktop. */
-const DESKTOP_MAP_SPACER = { base: '56px', md: '120px' } as const
 
 /** Pull the full money chrome + tabs onto the hero (chrome is ~9rem). */
 const MOBILE_MAP_CHROME_OVERLAP = '-9.25rem'
@@ -32,61 +31,82 @@ const MOBILE_MAP_CHROME_OVERLAP = '-9.25rem'
  */
 export function TaskDetailView() {
   return (
-    <Box
-      position="relative"
-      bg="transparent"
-      w="full"
-      minW={0}
-      css={{ viewTransitionName: 'task-detail-page' }}
-    >
-      <Box
-        display={{ base: 'block', lg: 'none' }}
-        position="sticky"
-        top={0}
-        zIndex={0}
-        w="full"
-      >
-        <StatusHeader />
-      </Box>
-      <TaskDetailMapBackground />
-
+    <>
       <Box
         position="relative"
-        zIndex={1}
+        bg="transparent"
         w="full"
         minW={0}
-        mt={{ base: MOBILE_MAP_CHROME_OVERLAP, lg: 0 }}
+        css={{ viewTransitionName: 'task-detail-page' }}
       >
         <Box
-          display={{ base: 'none', lg: 'block' }}
-          h={DESKTOP_MAP_SPACER}
-          pointerEvents="none"
-          aria-hidden
-        />
-        <Box
+          display={{ base: 'block', lg: 'none' }}
+          position="sticky"
+          top={0}
+          zIndex={0}
           w="full"
-          maxW={PAGE_CONTAINER_MAX_W}
-          mx="auto"
-          px={{ base: 0, lg: PAGE_GUTTER_X.lg }}
-          pointerEvents="none"
-          css={{
-            width: '100%',
-            maxWidth: PAGE_CONTAINER_MAX_W_CSS,
-          }}
         >
-          <Box pointerEvents="auto" w="full" minW={0}>
-            <Box w="full">
+          <StatusHeader />
+        </Box>
+        <TaskDetailMapBackground />
+
+        <Box
+          position="relative"
+          zIndex={1}
+          w="full"
+          minW={0}
+          mt={{ base: MOBILE_MAP_CHROME_OVERLAP, lg: 0 }}
+        >
+          <Box
+            display={{ base: 'none', lg: 'block' }}
+            position="sticky"
+            top={3}
+            zIndex={6}
+            h="44px"
+            mb="-44px"
+            pointerEvents="none"
+          >
+            <Box
+              w="full"
+              maxW={PAGE_CONTAINER_MAX_W}
+              mx="auto"
+              px={PAGE_GUTTER_X}
+            >
+              <Box pointerEvents="auto" w="fit-content">
+                <TaskBackButton overlay />
+              </Box>
+            </Box>
+          </Box>
+          <Box
+            display={{ base: 'none', lg: 'block' }}
+            h={TASK_DETAIL_DESKTOP_MAP_SPACER}
+            pointerEvents="none"
+            aria-hidden
+          />
+          <Box
+            w="full"
+            maxW={PAGE_CONTAINER_MAX_W}
+            mx="auto"
+            px={{ base: 0, lg: PAGE_GUTTER_X.lg }}
+            pointerEvents="none"
+            css={{
+              width: '100%',
+              maxWidth: PAGE_CONTAINER_MAX_W_CSS,
+            }}
+          >
+            <Box pointerEvents="auto" w="full" minW={0}>
               <TaskDetailSectionTabs fittedBelowLg px={{ base: 4, lg: 0 }} />
               <Box
-                bg={{ base: 'bg.canvas', lg: 'transparent' }}
+                display={{ base: 'block', lg: 'none' }}
+                bg="bg.canvas"
                 h={TASK_DETAIL_CTA_CLEARANCE}
                 aria-hidden
               />
             </Box>
-            <TaskDetailCtaBar />
           </Box>
         </Box>
       </Box>
-    </Box>
+      <TaskDetailCtaBar />
+    </>
   )
 }

@@ -38,17 +38,25 @@ export default function AuthLayout({
         flexDirection="column"
         minH="100vh"
         py={{ base: 10, md: 12 }}
+        overflow="visible"
       >
-        <Box display="flex" justifyContent="flex-end" mb={{ base: 4, md: 6 }}>
+        <Box
+          display="flex"
+          justifyContent="flex-end"
+          mb={{ base: 4, md: 6 }}
+          overflow="visible"
+        >
           <LanguageSwitcher />
         </Box>
-        {isLoginOrRegister ? (
-          children
-        ) : (
-          <Stack flex={1} justify="center" maxW="md" w="full" gap={8}>
-            {children}
-          </Stack>
-        )}
+        <Box as="main" flex={1} minW={0} overflowX="clip">
+          {isLoginOrRegister ? (
+            children
+          ) : (
+            <Stack flex={1} justify="center" maxW="md" w="full" gap={8}>
+              {children}
+            </Stack>
+          )}
+        </Box>
       </Container>
     </Box>
   )

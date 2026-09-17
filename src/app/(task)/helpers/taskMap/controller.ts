@@ -324,7 +324,6 @@ export function createTaskMapController(args: {
       selected,
       () =>
         queueMicrotask(() => {
-          if (isNavRoutePresenting) return
           getProps().onSelectTask?.(task.id)
         }),
     )
@@ -524,6 +523,7 @@ export function createTaskMapController(args: {
         zoom: radiusMilesToZoom(initial.effectiveSearchRadiusMiles),
         minZoom: MAP_MIN_ZOOM,
         maxZoom: MAP_MAX_ZOOM,
+        logoPosition: initial.logoPosition ?? 'bottom-left',
       })
       m.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
       map = m

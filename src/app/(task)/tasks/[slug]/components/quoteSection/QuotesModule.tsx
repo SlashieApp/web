@@ -23,6 +23,7 @@ import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { Button, Card, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
   formatPoundsFromPence,
@@ -855,7 +856,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             variant="secondary"
             w="full"
             onClick={() =>
-              setActiveTab('activity', {
+              setActiveTab(TASK_DETAIL_TAB.overview, {
                 hash: 'task-order',
                 scrollId: 'task-order',
               })

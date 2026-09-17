@@ -6,15 +6,19 @@ import { Footer } from '@ui'
 
 type AccountShellProps = {
   children: ReactNode
+  hasSession?: boolean
 }
 
 /**
  * Account-hub page chrome: shared app Header + scrolling main + bottom nav.
  * Page titles live on each route via DashboardPageLayout — not a second header.
  */
-export function AccountShell({ children }: AccountShellProps) {
+export function AccountShell({
+  children,
+  hasSession = false,
+}: AccountShellProps) {
   return (
-    <AppShell bg="bg.subtle" color="text.default">
+    <AppShell hasSession={hasSession} bg="bg.subtle" color="text.default">
       <Box py={{ base: 5, md: 6 }} display="flex" flexDirection="column">
         <Container flex="1" w="full">
           {children}

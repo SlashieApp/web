@@ -4,6 +4,7 @@ import { Box } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { useCallback, useRef } from 'react'
 
+import { mapboxCanvasFadeCss } from '@/app/(task)/helpers/mapboxCanvasFade'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 import { useColorMode } from '@/ui/color-mode'
@@ -119,8 +120,9 @@ export function TaskLocationHeroMap({
       display="flex"
       css={{
         background: 'linear-gradient(135deg, #EEF3F0 0%, #DCE6E0 50%)',
-        // Keep the required Mapbox mark in the clear top-left (above scrims).
-        '& .mapboxgl-ctrl-top-left': { top: '10px', left: '10px' },
+        ...mapboxCanvasFadeCss('taskDetailMobile'),
+        // Required Mapbox mark in the clear top-right (above the bottom wash).
+        '& .mapboxgl-ctrl-top-right': { top: '10px', right: '10px' },
       }}
     >
       {canMountMap ? (
@@ -135,20 +137,6 @@ export function TaskLocationHeroMap({
           transitionTimingFunction={sdlMotion.easing.standard}
         />
       ) : null}
-
-      {/* Soft fade only at the very bottom so overlapping chrome still reads
-          the map. Left/top stay clear for the Mapbox logo.
-          TODO(sdl-dark-mode): rework with the dark map style when dark mode
-          is re-enabled. */}
-      <Box
-        position="absolute"
-        inset={0}
-        pointerEvents="none"
-        css={{
-          background:
-            'linear-gradient(to top, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 22%)',
-        }}
-      />
 
       <Box
         position="relative"

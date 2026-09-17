@@ -6,6 +6,7 @@ import {
   type BoxProps,
   Container,
   HStack,
+  Skeleton,
   Stack,
 } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
@@ -45,6 +46,11 @@ export { HEADER_MIN_HEIGHT } from './shell/headerShell'
 export type HeaderProps = {
   /** When omitted and `children` is omitted, renders the default app navigation. */
   children?: React.ReactNode
+  /**
+   * True when the auth cookie is present on the server. SSRs account-slot
+   * skeletons instead of Log in / Sign up until `me` hydrates.
+   */
+  hasSession?: boolean
 } & Omit<BoxProps, 'children'>
 
 function GetAppButton() {
@@ -57,7 +63,7 @@ function GetAppButton() {
       asChild
       size="sm"
       variant="ghost"
-      display={{ base: 'none', md: 'inline-flex' }}
+      display={{ base: 'none', lg: 'inline-flex' }}
       flexShrink={0}
     >
       {isExternal ? (
@@ -82,7 +88,7 @@ function PostTaskButton() {
       size="sm"
       variant="primary"
       flexShrink={0}
-      display={{ base: 'none', md: 'inline-flex' }}
+      display={{ base: 'none', lg: 'inline-flex' }}
     >
       <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
         {t.postTask}
@@ -113,7 +119,7 @@ function DesktopPrimaryNav() {
 
   return (
     <HStack
-      display={{ base: 'none', md: 'flex' }}
+      display={{ base: 'none', lg: 'flex' }}
       gap={1}
       align="center"
       flexShrink={0}
@@ -201,7 +207,7 @@ function GuestMobileMenu({
       <IconButton
         aria-label={t.openMenu}
         variant="ghost"
-        display={{ base: 'inline-flex', sm: 'none' }}
+        display={{ base: 'inline-flex', lg: 'none' }}
         onClick={() => setOpen(true)}
       >
         <MenuIcon />
@@ -260,25 +266,56 @@ function GuestMobileMenu({
   )
 }
 
+function HeaderAuthSkeleton() {
+  const t = useI11n(bag)
+
+  return (
+    <>
+      <HeaderToolbarSeparator display="block" ml={2} />
+      <HStack
+        gap={1}
+        align="center"
+        flexShrink={0}
+        overflow="visible"
+        aria-busy="true"
+        aria-label={t.authLoadingAria}
+      >
+        <Box display={{ base: 'none', lg: 'inline-flex' }}>
+          <LanguageSwitcher />
+        </Box>
+        <Skeleton boxSize="44px" borderRadius="full" flexShrink={0} />
+        <Skeleton boxSize="44px" borderRadius="full" flexShrink={0} />
+      </HStack>
+    </>
+  )
+}
+
 /** Default Header body — guest vs signed-in from auth; same toolbar on every route. */
-function AppHeaderNavigation() {
+function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
   const pathname = usePathname()
   const user = useUserStore((state) => state.user)
   const getUser = useUserStore((state) => state.getUser)
   const [hasMounted, setHasMounted] = useState(false)
+  const [sessionResolved, setSessionResolved] = useState(!hasSession)
 
   const onMount = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node || hasMounted) return
       setHasMounted(true)
-      if (!getAuthToken()) return
-      void getUser()
+      if (!getAuthToken()) {
+        setSessionResolved(true)
+        return
+      }
+      void getUser().finally(() => {
+        setSessionResolved(true)
+      })
     },
     [getUser, hasMounted],
   )
 
   const routePathname = hasMounted ? pathname : null
   const isLoggedIn = Boolean(user)
+  const showAuthSkeleton = hasSession && !isLoggedIn && !sessionResolved
   const loginHref =
     hasMounted && routePathname
       ? `/login?next=${encodeURIComponent(routePathname)}`
@@ -296,6 +333,8 @@ function AppHeaderNavigation() {
       gap={{ base: 3, md: 6 }}
       minH={HEADER_MIN_HEIGHT}
       w="full"
+      overflow="visible"
+      flexWrap="wrap"
     >
       <HStack gap={{ base: 3, md: 4 }} flex={1} minW={0} align="center">
         <Link
@@ -303,10 +342,7 @@ function AppHeaderNavigation() {
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
         >
-          <Box display={{ base: 'inline-block', md: 'none' }} lineHeight={0}>
-            <Logo mobile h="32px" />
-          </Box>
-          <Box display={{ base: 'none', md: 'inline-block' }} lineHeight={0}>
+          <Box lineHeight={0}>
             <Logo />
           </Box>
         </Link>
@@ -314,13 +350,15 @@ function AppHeaderNavigation() {
         <GetAppButton />
       </HStack>
 
-      <HStack align="center" flexShrink={0}>
+      <HStack align="center" flexShrink={0} overflow="visible">
         <DesktopPrimaryNav />
-        {isLoggedIn ? (
+        {showAuthSkeleton ? (
+          <HeaderAuthSkeleton />
+        ) : isLoggedIn ? (
           <>
             <HeaderToolbarSeparator display="block" ml={2} />
-            <HStack gap={1} align="center" flexShrink={0}>
-              <Box display={{ base: 'none', md: 'inline-flex' }}>
+            <HStack gap={1} align="center" flexShrink={0} overflow="visible">
+              <Box display={{ base: 'none', lg: 'inline-flex' }}>
                 <LanguageSwitcher />
               </Box>
               <NotificationsBell />
@@ -330,7 +368,7 @@ function AppHeaderNavigation() {
         ) : (
           <>
             <HeaderToolbarSeparator />
-            <Box display={{ base: 'none', md: 'inline-flex' }}>
+            <Box display={{ base: 'none', lg: 'inline-flex' }}>
               <LanguageSwitcher />
             </Box>
             <HeaderGuestAuthButtons
@@ -349,11 +387,14 @@ function AppHeaderNavigation() {
  * Sticky app header chrome. Pass `children` to replace the default navigation
  * (e.g. marketing). Otherwise renders auth-aware browse toolbar.
  */
-export function Header({ children, ...props }: HeaderProps) {
+export function Header({
+  children,
+  hasSession = false,
+  ...props
+}: HeaderProps) {
   const pathname = usePathname()
-  const overSearchMap =
-    stripLocalePrefix(pathname ?? '') === APP_HOME ||
-    stripLocalePrefix(pathname ?? '').startsWith(`${APP_HOME}/`)
+  const bare = stripLocalePrefix(pathname ?? '')
+  const overSearchMap = bare === APP_HOME || bare.startsWith(`${APP_HOME}/`)
 
   return (
     <>
@@ -362,16 +403,16 @@ export function Header({ children, ...props }: HeaderProps) {
         as="header"
         isolation="isolate"
         zIndex={30}
+        overflow="visible"
         bg={
-          overSearchMap ? { base: 'transparent', md: 'bg.canvas' } : 'bg.canvas'
+          overSearchMap ? { base: 'transparent', lg: 'bg.canvas' } : 'bg.canvas'
         }
         color="text.default"
-        backdropFilter="blur(20px)"
         boxShadow="none"
         borderWidth="1px"
         borderColor={
           overSearchMap
-            ? { base: 'transparent', md: 'border.default' }
+            ? { base: 'transparent', lg: 'border.default' }
             : 'border.default'
         }
         minH={HEADER_MIN_HEIGHT}
@@ -379,6 +420,14 @@ export function Header({ children, ...props }: HeaderProps) {
         alignItems="center"
         position="sticky"
         top={0}
+        _before={{
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          backdropFilter: 'blur(20px)',
+          pointerEvents: 'none',
+          zIndex: -1,
+        }}
         {...props}
       >
         <Container
@@ -386,10 +435,11 @@ export function Header({ children, ...props }: HeaderProps) {
           px={PAGE_GUTTER_X}
           w="full"
           minH={HEADER_MIN_HEIGHT}
+          overflow="visible"
           display="flex"
           alignItems="center"
         >
-          {children ?? <AppHeaderNavigation />}
+          {children ?? <AppHeaderNavigation hasSession={hasSession} />}
         </Container>
       </Box>
     </>

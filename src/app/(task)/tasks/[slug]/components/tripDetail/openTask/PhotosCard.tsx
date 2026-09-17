@@ -33,7 +33,7 @@ export function PhotosCard() {
     : (seed?.title ?? t.fallbackTask)
 
   return (
-    <Card layout="section" heading={t.details.photos}>
+    <Card layout="section">
       <Wrap gap={2}>
         {images.map((src, index) => {
           const well = (

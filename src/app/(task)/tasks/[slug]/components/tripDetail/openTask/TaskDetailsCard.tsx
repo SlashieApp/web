@@ -1,31 +1,21 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Box, HStack, Skeleton, Stack } from '@chakra-ui/react'
-import {
-  LuCalendar,
-  LuEye,
-  LuMapPin,
-  LuPoundSterling,
-  LuTag,
-  LuWrench,
-} from 'react-icons/lu'
-import bag from '../../../i11n.json'
+import { Skeleton, Stack } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
+import { LuCalendar, LuEye, LuMapPin, LuTag, LuWrench } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
-import { ViewTransition } from '@/ui/ViewTransition'
-import { Badge, Card, DetailRow } from '@ui'
+import { Card, DetailRow } from '@ui'
 
-import { taskVtName } from '@/app/(task)/helpers/taskCardHandoff'
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 import {
-  budgetKindLabel,
   taskAvailabilityRangeLabel,
-  taskBudgetDisplayLine,
   taskCategoryLabel,
   taskDetailLocationLabel,
   taskDetailShowsExactLocation,
 } from '../../../helpers/taskDetailUtils'
+import bag from '../../../i11n.json'
 
 const LINE_BOX = 'calc(0.875rem * 1.5)'
 
@@ -33,16 +23,43 @@ function TextLineSkeleton({ width }: { width: string }) {
   return <Skeleton h={LINE_BOX} w={width} borderRadius="md" />
 }
 
-/** "Task details" card — shared by owner / non-owner / mobile. */
+function FactRow({
+  icon,
+  label,
+  value,
+  pending,
+  skeletonWidth,
+  withDivider = true,
+  subLine,
+}: {
+  icon: ReactNode
+  label: string
+  value?: string | null
+  pending?: boolean
+  skeletonWidth: string
+  withDivider?: boolean
+  subLine?: string
+}) {
+  if (!value && !pending) return null
+  return (
+    <DetailRow
+      icon={icon}
+      label={label}
+      withDivider={withDivider}
+      subLine={subLine}
+    >
+      {value ? value : <TextLineSkeleton width={skeletonWidth} />}
+    </DetailRow>
+  )
+}
+
+/** Task facts card — title lives in the page header, not repeated here. */
 export function TaskDetailsCard() {
-  const { task, seed, pending, taskId, myOrder, me, permissions } =
-    useTaskDetail()
+  const { task, seed, pending, myOrder, permissions } = useTaskDetail()
   const t = useI11n(bag)
 
   if (!task && !pending) return null
 
-  const named = Boolean(task || seed)
-  const title = task ? task.title?.trim() || t.fallbackTask : seed?.title
   const description = task
     ? task.description?.trim()
     : seed?.description?.trim()
@@ -58,14 +75,6 @@ export function TaskDetailsCard() {
       })
     : seed?.location
   const timing = task ? taskAvailabilityRangeLabel(task) : seed?.timingLabel
-  const budgetLine = task
-    ? taskBudgetDisplayLine(
-        task,
-        permissions.isOwner ? 'owner' : 'visitor',
-        me?.id,
-      )
-    : seed?.priceLabel
-  const budgetKind = task ? budgetKindLabel(task.budget?.type) : null
   const viewsCount = task?.views
   const viewsLabel = task
     ? viewsCount == null
@@ -75,87 +84,48 @@ export function TaskDetailsCard() {
           { count: viewsCount },
         )
     : seed?.viewsLabel
+  const loading = pending && !task
 
   return (
-    <Card
-      layout="section"
-      heading={t.details.heading}
-      aria-busy={pending && !task ? true : undefined}
-    >
+    <Card layout="section" aria-busy={loading ? true : undefined}>
       <Stack gap={0}>
-        <DetailRow
+        <FactRow
           icon={<LuWrench />}
           label={t.details.task}
-          subLine={description || undefined}
-          withDivider
-        >
-          <ViewTransition
-            name={named ? taskVtName('title', taskId) : undefined}
-            share="vt-text"
-            default="none"
-          >
-            {title ? (
-              <Box as="span">{title}</Box>
-            ) : (
-              <TextLineSkeleton width="70%" />
-            )}
-          </ViewTransition>
-        </DetailRow>
-        {viewsLabel ? (
-          <DetailRow icon={<LuEye />} label={t.details.views} withDivider>
-            {viewsLabel}
-          </DetailRow>
-        ) : pending && !task ? (
-          <DetailRow icon={<LuEye />} label={t.details.views} withDivider>
-            <TextLineSkeleton width="40%" />
-          </DetailRow>
-        ) : null}
-        {locationLabel ? (
-          <DetailRow icon={<LuMapPin />} label={t.details.location} withDivider>
-            {locationLabel}
-          </DetailRow>
-        ) : pending && !task ? (
-          <DetailRow icon={<LuMapPin />} label={t.details.location} withDivider>
-            <TextLineSkeleton width="55%" />
-          </DetailRow>
-        ) : null}
-        {category ? (
-          <DetailRow icon={<LuTag />} label={t.details.category} withDivider>
-            {category}
-          </DetailRow>
-        ) : pending && !task ? (
-          <DetailRow icon={<LuTag />} label={t.details.category} withDivider>
-            <TextLineSkeleton width="35%" />
-          </DetailRow>
-        ) : null}
-        <DetailRow
+          value={description}
+          pending={loading}
+          skeletonWidth="70%"
+        />
+        <FactRow
+          icon={<LuEye />}
+          label={t.details.views}
+          value={viewsLabel}
+          pending={loading}
+          skeletonWidth="40%"
+        />
+        <FactRow
+          icon={<LuMapPin />}
+          label={t.details.location}
+          value={locationLabel}
+          pending={loading}
+          skeletonWidth="55%"
+        />
+        <FactRow
+          icon={<LuTag />}
+          label={t.details.category}
+          value={category}
+          pending={loading}
+          skeletonWidth="35%"
+        />
+        <FactRow
           icon={<LuCalendar />}
           label={t.details.when}
+          value={timing}
+          pending
+          skeletonWidth="45%"
+          withDivider={false}
           subLine={t.details.preferredTiming}
-          withDivider
-        >
-          {timing ? timing : <TextLineSkeleton width="45%" />}
-        </DetailRow>
-        <DetailRow icon={<LuPoundSterling />} label={t.details.budget}>
-          <HStack as="span" gap={2} align="center">
-            <ViewTransition
-              name={named ? taskVtName('price', taskId) : undefined}
-              share="vt-text"
-              default="none"
-            >
-              {budgetLine ? (
-                <Box as="span">{budgetLine}</Box>
-              ) : (
-                <TextLineSkeleton width="24%" />
-              )}
-            </ViewTransition>
-            {budgetKind ? (
-              <Badge variant="success">{budgetKind}</Badge>
-            ) : pending && !task ? (
-              <Skeleton h="20px" w="72px" borderRadius="full" />
-            ) : null}
-          </HStack>
-        </DetailRow>
+        />
       </Stack>
     </Card>
   )

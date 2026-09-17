@@ -21,7 +21,7 @@ export const MOBILE_BOTTOM_NAV_CLEARANCE =
 
 /** Full-bleed dissolve behind the pill (taller than the bar itself). */
 const MOBILE_BOTTOM_NAV_FADE_HEIGHT =
-  'calc(128px + env(safe-area-inset-bottom, 0px))' as const
+  'calc(64px + env(safe-area-inset-bottom, 0px))' as const
 
 const canvasVar = 'var(--chakra-colors-bg-canvas, #F7F9F8)'
 const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
@@ -228,23 +228,24 @@ export function MobileBottomNav() {
     <Box
       as="nav"
       aria-label={t.ariaLabel}
-      display={{ base: 'block', md: 'none' }}
+      display={{ base: 'block', lg: 'none' }}
       position="fixed"
       left={0}
       right={0}
       bottom={0}
-      zIndex={40}
+      zIndex={10}
       pointerEvents="none"
     >
       <MobileBottomNavFade />
       <HStack
         pointerEvents="auto"
         position="relative"
-        mx={3}
         mb="calc(env(safe-area-inset-bottom, 0px) + 10px)"
         borderWidth="1px"
         borderColor="border.default"
-        borderRadius="2xl"
+        borderRadius="lg"
+        maxW="580px"
+        mx="auto"
         boxShadow={sdlElevation.e3}
         px={2}
         py={1.5}

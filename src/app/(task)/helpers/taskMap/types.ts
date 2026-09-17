@@ -52,4 +52,5 @@ export type TaskMapPropsSnapshot = {
   navRouteEnabled?: boolean
   effectiveSearchRadiusMiles: number
   themeMode: 'light' | 'dark'
+  logoPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 }

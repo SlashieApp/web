@@ -6,13 +6,12 @@ import {
   PAGE_CONTAINER_MAX_W,
   PAGE_GUTTER_X,
   SEARCH_LIST_COLUMN_W,
-  SEARCH_LIST_SCRIM_W,
 } from '@/theme/pageContainer'
 
+import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav'
 import { MobileTaskBrowseFiltersDrawer } from '../../components/(mobile)/MobileTaskBrowseFiltersDrawer'
 import { MobileTaskCarousel } from '../../components/(mobile)/MobileTaskCarousel'
 import { WebTaskBrowseFiltersBlock } from '../../components/(web)/TaskBrowseFilters'
-import { TaskBrowseListColumnScrim } from '../../components/(web)/TaskBrowseListColumnScrim'
 import { TaskBrowseSearchThisAreaButton } from '../../components/TaskBrowseSearchThisAreaButton'
 import { TaskSearch } from '../../components/TaskSearch'
 import { TaskTag } from '../../components/TaskTag'
@@ -29,7 +28,6 @@ export function WebSearchLayout() {
       position="relative"
       overflow="hidden"
     >
-      <TaskBrowseListColumnScrim w={SEARCH_LIST_SCRIM_W} fadeToEnd />
       <Box
         position="absolute"
         inset={0}
@@ -94,21 +92,6 @@ export function MobileSearchLayout() {
     >
       <Box
         position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        h="30%"
-        zIndex={3}
-        pointerEvents="none"
-        aria-hidden
-        css={{
-          background:
-            'linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 45%, rgba(255, 255, 255, 0) 100%)',
-        }}
-      />
-
-      <Box
-        position="absolute"
         top={3}
         left={0}
         right={0}
@@ -131,7 +114,7 @@ export function MobileSearchLayout() {
         position="absolute"
         left={0}
         right={0}
-        bottom={0}
+        bottom={MOBILE_BOTTOM_NAV_CLEARANCE}
         zIndex={3}
         display="flex"
         flexDirection="column"

@@ -10,7 +10,7 @@ import { Link } from '../../Link'
 export function HeaderToolbarSeparator(props: Omit<TextProps, 'children'>) {
   return (
     <Text
-      display={{ base: 'none', sm: 'block' }}
+      display={{ base: 'none', lg: 'block' }}
       color="border.default"
       fontSize="sm"
       lineHeight={1}
@@ -41,7 +41,7 @@ export function HeaderGuestAuthButtons({
       gap={2}
       align="center"
       flexShrink={0}
-      display={{ base: 'none', sm: 'flex' }}
+      display={{ base: 'none', lg: 'flex' }}
     >
       <Button asChild size="sm" variant="ghost" px={2}>
         <Link href={loginHref} _hover={{ textDecoration: 'none' }}>

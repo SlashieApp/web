@@ -296,10 +296,21 @@ export function TaskBrowseProvider({
     useState(0)
   const [isNavRoutePresenting, setIsNavRoutePresenting] = useState(false)
   const isNavRoutePresentingRef = useRef(false)
+  const navRoutePresentingLockTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null)
 
   const onNavRoutePresentingChange = useCallback((presenting: boolean) => {
-    isNavRoutePresentingRef.current = presenting
-    setIsNavRoutePresenting(presenting)
+    if (!presenting) return
+    if (isNavRoutePresentingRef.current) return
+
+    isNavRoutePresentingRef.current = true
+    setIsNavRoutePresenting(true)
+    navRoutePresentingLockTimerRef.current = setTimeout(() => {
+      navRoutePresentingLockTimerRef.current = null
+      isNavRoutePresentingRef.current = false
+      setIsNavRoutePresenting(false)
+    }, 1000)
   }, [])
 
   const setSelectedTaskId = useCallback(

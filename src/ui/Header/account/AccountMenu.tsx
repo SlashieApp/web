@@ -40,14 +40,14 @@ export function AccountMenu({ initialOpen = false }: AccountMenuProps) {
         type="button"
         variant="ghost"
         aria-label={t.accountMenu}
-        display={{ base: 'inline-flex', md: 'none' }}
+        display={{ base: 'inline-flex', lg: 'none' }}
         onClick={() => setMobileOpen(true)}
       >
         {avatar}
       </IconButton>
       <MobileNavDrawer open={mobileOpen} onOpenChange={setMobileOpen} />
 
-      <Box display={{ base: 'none', md: 'block' }}>
+      <Box display={{ base: 'none', lg: 'block' }}>
         <Dropdown
           contentLabel={t.accountMenu}
           defaultOpen={initialOpen}

@@ -502,7 +502,7 @@ export function TaskDetailProvider({
           order_id: order.id,
         })
         refreshPageData()
-        setActiveTab(TASK_DETAIL_TAB.activity, {
+        setActiveTab(TASK_DETAIL_TAB.overview, {
           hash: 'task-order',
           scrollId: 'task-order',
         })

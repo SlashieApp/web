@@ -17,15 +17,15 @@ describe('resolveTaskDetailTab', () => {
     expect(resolveTaskDetailTab('quotes', TASK_DETAIL_TAB.overview)).toBe(
       'quotes',
     )
-    expect(resolveTaskDetailTab('activity', TASK_DETAIL_TAB.overview)).toBe(
-      'activity',
+    expect(resolveTaskDetailTab('activity', TASK_DETAIL_TAB.quotes)).toBe(
+      'overview',
     )
-    expect(resolveTaskDetailTab('task-order', TASK_DETAIL_TAB.overview)).toBe(
-      'activity',
+    expect(resolveTaskDetailTab('task-order', TASK_DETAIL_TAB.quotes)).toBe(
+      'overview',
     )
     expect(
-      resolveTaskDetailTab('worker-job-panel', TASK_DETAIL_TAB.overview),
-    ).toBe('activity')
+      resolveTaskDetailTab('worker-job-panel', TASK_DETAIL_TAB.quotes),
+    ).toBe('overview')
     expect(resolveTaskDetailTab('', TASK_DETAIL_TAB.quotes)).toBe('quotes')
   })
 })
@@ -43,7 +43,7 @@ describe('defaultTaskDetailTab', () => {
     ).toBe('quotes')
   })
 
-  it('sends awarded owner or assigned worker to Activity', () => {
+  it('keeps awarded owner or assigned worker on Overview', () => {
     expect(
       defaultTaskDetailTab({
         isOwner: true,
@@ -52,7 +52,7 @@ describe('defaultTaskDetailTab', () => {
         isOrderWorker: false,
         quoteCount: 1,
       }),
-    ).toBe('activity')
+    ).toBe('overview')
     expect(
       defaultTaskDetailTab({
         isOwner: false,
@@ -61,7 +61,7 @@ describe('defaultTaskDetailTab', () => {
         isOrderWorker: true,
         quoteCount: 1,
       }),
-    ).toBe('activity')
+    ).toBe('overview')
   })
 
   it('defaults visitors and empty owners to Overview', () => {

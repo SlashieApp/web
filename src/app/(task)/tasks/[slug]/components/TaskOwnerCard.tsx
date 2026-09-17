@@ -16,9 +16,8 @@ function posterDisplayName(task: TaskDetailRecord, fallback: string): string {
 }
 
 export function TaskOwnerCardSkeleton() {
-  const t = useI11n(bag)
   return (
-    <Card layout="section" heading={t.details.owner} aria-busy>
+    <Card layout="section" aria-busy>
       <HStack align="center" gap={3} w="full">
         <Skeleton boxSize="48px" borderRadius="full" flexShrink={0} />
         <Skeleton h="calc(0.875rem * 1.5)" w="40%" borderRadius="md" />
@@ -43,7 +42,7 @@ export function TaskOwnerCard() {
       .join('') || 'TO'
 
   return (
-    <Card layout="section" heading={t.details.owner}>
+    <Card layout="section">
       <HStack align="center" gap={3} w="full">
         <Box
           flexShrink={0}

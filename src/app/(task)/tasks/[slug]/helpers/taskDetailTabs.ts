@@ -1,7 +1,6 @@
 export const TASK_DETAIL_TAB = {
   overview: 'overview',
   quotes: 'quotes',
-  activity: 'activity',
 } as const
 
 export type TaskDetailTab =
@@ -9,8 +8,12 @@ export type TaskDetailTab =
 
 const TAB_VALUES = new Set<string>(Object.values(TASK_DETAIL_TAB))
 
-/** Hashes that should open the Activity tab (booking / complete-job anchors). */
-const ACTIVITY_HASHES = new Set(['activity', 'task-order', 'worker-job-panel'])
+/** Hashes that scroll Overview to booking / complete-job anchors. */
+const OVERVIEW_ANCHOR_HASHES = new Set([
+  'activity',
+  'task-order',
+  'worker-job-panel',
+])
 
 export function isTaskDetailTab(value: string): value is TaskDetailTab {
   return TAB_VALUES.has(value)
@@ -23,7 +26,7 @@ export function readTaskDetailHash(): string {
 
 /**
  * Map a URL hash to a task-detail tab. `#info` stays as an alias for Overview.
- * Booking/complete anchors open Activity so accept/complete deep links still work.
+ * Booking/complete anchors (and the retired `#activity` hash) open Overview.
  */
 export function resolveTaskDetailTab(
   hash: string,
@@ -32,7 +35,7 @@ export function resolveTaskDetailTab(
   const key = hash.replace('#', '').trim()
   if (key === 'info' || key === 'overview') return TASK_DETAIL_TAB.overview
   if (key === 'quotes') return TASK_DETAIL_TAB.quotes
-  if (ACTIVITY_HASHES.has(key)) return TASK_DETAIL_TAB.activity
+  if (OVERVIEW_ANCHOR_HASHES.has(key)) return TASK_DETAIL_TAB.overview
   if (isTaskDetailTab(key)) return key
   return fallback
 }
@@ -45,7 +48,7 @@ export function defaultTaskDetailTab(input: {
   quoteCount: number
 }): TaskDetailTab {
   if (input.isAwarded && (input.isOwner || input.isOrderWorker)) {
-    return TASK_DETAIL_TAB.activity
+    return TASK_DETAIL_TAB.overview
   }
   if (input.isOwner && input.isOpen && input.quoteCount > 0) {
     return TASK_DETAIL_TAB.quotes
