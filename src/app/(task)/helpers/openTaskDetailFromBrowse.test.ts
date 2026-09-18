@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isPersistentMarketplaceMapPath,
   isSearchBrowsePath,
+  isTaskDetailPath,
   taskDetailHrefFromBrowse,
 } from './openTaskDetailFromBrowse'
 
@@ -23,6 +24,19 @@ describe('isSearchBrowsePath', () => {
   })
 })
 
+describe('isTaskDetailPath', () => {
+  it('matches public task detail with or without a locale prefix', () => {
+    expect(isTaskDetailPath('/tasks/task-1')).toBe(true)
+    expect(isTaskDetailPath('/zh-hk/tasks/task-1')).toBe(true)
+  })
+
+  it('rejects search, edit, and other task routes', () => {
+    expect(isTaskDetailPath('/search')).toBe(false)
+    expect(isTaskDetailPath('/tasks')).toBe(false)
+    expect(isTaskDetailPath('/tasks/task-1/edit')).toBe(false)
+  })
+})
+
 describe('isPersistentMarketplaceMapPath', () => {
   it('keeps the shared map on search and public task detail', () => {
     expect(isPersistentMarketplaceMapPath('/search')).toBe(true)
@@ -35,23 +49,6 @@ describe('isPersistentMarketplaceMapPath', () => {
     expect(isPersistentMarketplaceMapPath('/tasks')).toBe(false)
     expect(isPersistentMarketplaceMapPath('/tasks/task-1/edit')).toBe(false)
     expect(isPersistentMarketplaceMapPath('/')).toBe(false)
-  })
-})
-
-describe('isSearchBrowsePath', () => {
-  it('matches /search with or without a locale prefix', () => {
-    expect(isSearchBrowsePath('/search')).toBe(true)
-    expect(isSearchBrowsePath('/zh-hk/search')).toBe(true)
-    expect(isSearchBrowsePath('/search?lat=51.5')).toBe(true)
-    expect(isSearchBrowsePath('/zh-hk/search?q=plumber')).toBe(true)
-  })
-
-  it('rejects home, task detail, and other browse paths', () => {
-    expect(isSearchBrowsePath('/')).toBe(false)
-    expect(isSearchBrowsePath('/tasks')).toBe(false)
-    expect(isSearchBrowsePath('/tasks/task-1')).toBe(false)
-    expect(isSearchBrowsePath('/zh-hk/tasks/task-1')).toBe(false)
-    expect(isSearchBrowsePath('/searching')).toBe(false)
   })
 })
 

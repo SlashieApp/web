@@ -22,20 +22,27 @@ import {
   marketplaceMapViewPadding,
   marketplaceMapViewport,
   overlayCtrlBottomOffset,
+  overlaySurfaceForSession,
   overlayWatermarkCss,
   publishedMarketplaceLayerSig,
   resolveMarketplaceMapLayer,
 } from '../helpers/marketplaceMap'
-import { isPersistentMarketplaceMapPath } from '../helpers/openTaskDetailFromBrowse'
+import {
+  isPersistentMarketplaceMapPath,
+  isSearchBrowsePath,
+  isTaskDetailPath,
+} from '../helpers/openTaskDetailFromBrowse'
 
 type MarketplaceMapState = {
   published: MarketplaceMapPublishedLayer | null
   focusTaskId: string | null
+  overlayAhead: 'search' | null
 }
 
 type MarketplaceMapDispatch = {
   publish: (layer: MarketplaceMapPublishedLayer) => void
   prepareDetail: (taskId: string) => void
+  prepareBrowse: () => void
   clearFocus: () => void
 }
 
@@ -43,6 +50,7 @@ const DispatchContext = createContext<MarketplaceMapDispatch | null>(null)
 const StateContext = createContext<MarketplaceMapState>({
   published: null,
   focusTaskId: null,
+  overlayAhead: null,
 })
 
 function MarketplaceMapStateProvider({
@@ -83,7 +91,7 @@ export function usePublishMarketplaceMap(
 
 function PersistentTaskMap() {
   const pathname = usePathname() ?? ''
-  const { published, focusTaskId } = useContext(StateContext)
+  const { published, focusTaskId, overlayAhead } = useContext(StateContext)
   const [size, setSize] = useState(() =>
     typeof window === 'undefined'
       ? { w: 0, h: 0 }
@@ -106,6 +114,11 @@ function PersistentTaskMap() {
   const show = isPersistentMarketplaceMapPath(pathname)
   const viewport = marketplaceMapViewport(size.w)
   const inDetail = published?.cameraMode === 'detail' || Boolean(focusTaskId)
+  const overlaySurface = overlaySurfaceForSession({
+    onSearchPath: isSearchBrowsePath(pathname),
+    onDetailPath: isTaskDetailPath(pathname),
+    overlayAhead,
+  })
   const viewPadding = inDetail
     ? marketplaceMapViewPadding(size.w, size.h, published?.variant ?? 'exact')
     : undefined
@@ -137,7 +150,7 @@ function PersistentTaskMap() {
       data-map-loaded={mapProps.tasksLoaded ? '1' : '0'}
       css={{
         background: 'linear-gradient(135deg, #EEF3F0 0%, #DCE6E0 100%)',
-        ...mapFadeOverlayCss(inDetail ? 'taskDetail' : 'search'),
+        ...mapFadeOverlayCss(overlaySurface),
         ...overlayWatermarkCss(),
       }}
     >
@@ -162,6 +175,7 @@ export function MarketplaceMapHost({ children }: { children: ReactNode }) {
   const [state, setState] = useState<MarketplaceMapState>({
     published: null,
     focusTaskId: null,
+    overlayAhead: null,
   })
 
   const dispatch = useMemo<MarketplaceMapDispatch>(
@@ -178,6 +192,7 @@ export function MarketplaceMapHost({ children }: { children: ReactNode }) {
           return {
             published: layer,
             focusTaskId: prev.focusTaskId,
+            overlayAhead: layer.source === 'browse' ? null : prev.overlayAhead,
           }
         })
       },
@@ -185,11 +200,21 @@ export function MarketplaceMapHost({ children }: { children: ReactNode }) {
         setState((prev) => ({
           ...prev,
           focusTaskId: taskId,
+          overlayAhead: null,
+        }))
+      },
+      prepareBrowse: () => {
+        setState((prev) => ({
+          ...prev,
+          overlayAhead: 'search',
+          focusTaskId: null,
         }))
       },
       clearFocus: () => {
         setState((prev) =>
-          prev.focusTaskId ? { ...prev, focusTaskId: null } : prev,
+          prev.focusTaskId || prev.overlayAhead
+            ? { ...prev, focusTaskId: null, overlayAhead: null }
+            : prev,
         )
       },
     }),

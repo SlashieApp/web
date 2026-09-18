@@ -7,6 +7,7 @@ export {
 export type { MarketplaceMapViewport } from './viewport'
 
 export {
+  MARKETPLACE_MAP_MOTION_DELAY,
   MARKETPLACE_MAP_MOTION_DURATION,
   MARKETPLACE_MAP_MOTION_MS,
   marketplaceMapMotion,
@@ -29,6 +30,7 @@ export {
   MAP_FADE_Z_INDEX,
   SEARCH_MAPBOX_WATERMARK_CSS,
   SEARCH_MOBILE_MAP_CTRL_BOTTOM,
+  COMPACT_DETAIL_HERO_H,
   mapFadeGradient,
   mapFadeOverlayCss,
   mapFadeOverlayMotion,
@@ -40,7 +42,9 @@ export {
   overlayCtrlBottomOffsetForWeb,
   overlayForMobile,
   overlayForTablet,
+  overlayForViewport,
   overlayForWeb,
+  overlaySurfaceForSession,
   overlayWatermarkCss,
 } from './overlay/overlay'
 export type { OverlaySurface } from './overlay/overlay'

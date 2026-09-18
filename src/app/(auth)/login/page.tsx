@@ -11,6 +11,7 @@ import type { z } from 'zod'
 
 import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
 import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
+import { useLoginAutofill } from '@/app/(auth)/helpers/LoginAutofillProvider'
 import {
   getAuthAbuseFriendlyMessage,
   parseAuthAbuseError,
@@ -305,6 +306,7 @@ function LoginMarketingAside() {
 export default function LoginPage() {
   const t = useI11n(bag)
   const router = useRouter()
+  const autofill = useLoginAutofill()
   const login = useUserStore((state) => state.login)
   const getUser = useUserStore((state) => state.getUser)
   const loading = useUserStore((state) => state.isLoading)
@@ -328,8 +330,8 @@ export default function LoginPage() {
   } = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: autofill.email,
+      password: autofill.password,
       rememberMe: false,
     },
   })

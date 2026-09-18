@@ -1,14 +1,11 @@
 import type { SystemStyleObject } from '@chakra-ui/react'
 
-import { marketplaceMapMotion } from '../motion'
+import { MARKETPLACE_MAP_MOTION_DELAY, marketplaceMapMotion } from '../motion'
 import type { MarketplaceMapViewport } from '../viewport'
 import {
   MAPBOX_CTRL_CONTAINER_CLASS,
   MAPBOX_CTRL_Z_INDEX,
-  MAP_FADE_BOTTOM,
   MAP_FADE_COMPACT_CLASS,
-  MAP_FADE_LEFT,
-  MAP_FADE_TOP,
   MAP_FADE_WIDE_CLASS,
   MAP_FADE_Z_INDEX,
   OVERLAY_CTRL_BOTTOM_OFFSET_COMPACT,
@@ -21,15 +18,13 @@ import {
   type OverlayCompactRecipe,
   type OverlaySurface,
   type OverlayWideRecipe,
-  mapFadeGradient,
 } from './config'
 
 export type { OverlaySurface } from './config'
 export {
   COMPACT_DETAIL_BOTTOM_H,
-  COMPACT_DETAIL_TOP_H,
+  COMPACT_DETAIL_HERO_H,
   COMPACT_SEARCH_BOTTOM_H,
-  COMPACT_SEARCH_TOP_H,
   DETAIL_MAP_BOTTOM_FADE_SIZE,
   DETAIL_MAP_LEFT_FADE_SIZE,
   MAPBOX_CTRL_CONTAINER_CLASS,
@@ -37,8 +32,8 @@ export {
   MAP_FADE_BOTTOM,
   MAP_FADE_COMPACT_CLASS,
   MAP_FADE_LEFT,
+  MAP_FADE_MOTION_DELAY,
   MAP_FADE_MOTION_DURATION,
-  MAP_FADE_TOP,
   MAP_FADE_WIDE_CLASS,
   MAP_FADE_Z_INDEX,
   SEARCH_MAP_LEFT_FADE_POS,
@@ -48,19 +43,40 @@ export {
 
 export const mapFadeOverlayMotion = marketplaceMapMotion
 
-const motionCss: SystemStyleObject = {
-  transitionProperty: marketplaceMapMotion.transitionProperty,
-  transitionDuration: marketplaceMapMotion.duration,
-  transitionTimingFunction: marketplaceMapMotion.easing,
-  '@media (prefers-reduced-motion: reduce)': {
-    transition: 'none',
-  },
+/**
+ * Overlay follows the destination page, not the camera handoff.
+ * Search → detail: keep the search wash until the detail route is on screen.
+ * Detail → search: `overlayAhead: 'search'` starts the wash before search mounts.
+ */
+export function overlaySurfaceForSession(input: {
+  onSearchPath: boolean
+  onDetailPath: boolean
+  overlayAhead: OverlaySurface | null
+}): OverlaySurface {
+  if (input.overlayAhead === 'search' || input.onSearchPath) return 'search'
+  if (input.onDetailPath) return 'taskDetail'
+  return 'search'
 }
 
-const bandBase: SystemStyleObject = {
-  position: 'absolute',
-  pointerEvents: 'none',
-  ...motionCss,
+function motionCss(surface: OverlaySurface): SystemStyleObject {
+  return {
+    transitionProperty: marketplaceMapMotion.transitionProperty,
+    transitionDuration: marketplaceMapMotion.duration,
+    transitionTimingFunction: marketplaceMapMotion.easing,
+    transitionDelay:
+      surface === 'taskDetail' ? MARKETPLACE_MAP_MOTION_DELAY : '0ms',
+    '@media (prefers-reduced-motion: reduce)': {
+      transition: 'none',
+    },
+  }
+}
+
+function bandBase(surface: OverlaySurface): SystemStyleObject {
+  return {
+    position: 'absolute',
+    pointerEvents: 'none',
+    ...motionCss(surface),
+  }
 }
 
 const overlayRoot: SystemStyleObject = {
@@ -83,11 +99,11 @@ function fadeRoot(className: string, slots: string[]) {
 }
 
 /**
- * Compact (top/bottom) and wide (left/bottom) washes as siblings of the
+ * Compact (bottom) and wide (left/bottom) washes as siblings of the
  * canvas (above pins) and under `.mapboxgl-control-container` (zoom + logo).
  */
 export function mountMapFadeOverlay(mapRoot: HTMLElement): () => void {
-  const compact = fadeRoot(MAP_FADE_COMPACT_CLASS, ['top', 'bottom'])
+  const compact = fadeRoot(MAP_FADE_COMPACT_CLASS, ['bottom'])
   const wide = fadeRoot(MAP_FADE_WIDE_CLASS, ['left', 'bottom'])
   const ctrl = mapRoot.querySelector(`:scope > .${MAPBOX_CTRL_CONTAINER_CLASS}`)
   if (ctrl) {
@@ -103,8 +119,9 @@ export function mountMapFadeOverlay(mapRoot: HTMLElement): () => void {
 }
 
 /**
- * Phone: compact top/bottom bands. Transparent edge faces the content;
- * full white faces the window. Grows on the height axis.
+ * Phone: compact bottom band. Transparent edge faces the content; full white
+ * faces the window (search carousel). Task detail sits the wash at the hero
+ * edge so height grows upward.
  */
 export function overlayForMobile(
   surface: OverlaySurface,
@@ -113,8 +130,8 @@ export function overlayForMobile(
 }
 
 /**
- * Tablet: compact top/bottom bands on the same axis as phone (separate
- * recipe so sizes can diverge without touching web).
+ * Tablet: compact bottom band on the same axis as phone. Search matches
+ * mobile; detail only overrides hero height and the bottom-band anchor.
  */
 export function overlayForTablet(
   surface: OverlaySurface,
@@ -130,6 +147,23 @@ export function overlayForWeb(surface: OverlaySurface): OverlayWideRecipe {
   return surface === 'search' ? OVERLAY_WEB_SEARCH : OVERLAY_WEB_DETAIL
 }
 
+export function overlayForViewport(
+  viewport: 'mobile' | 'tablet',
+  surface: OverlaySurface,
+): OverlayCompactRecipe
+export function overlayForViewport(
+  viewport: 'web',
+  surface: OverlaySurface,
+): OverlayWideRecipe
+export function overlayForViewport(
+  viewport: MarketplaceMapViewport,
+  surface: OverlaySurface,
+): OverlayCompactRecipe | OverlayWideRecipe {
+  if (viewport === 'web') return overlayForWeb(surface)
+  if (viewport === 'tablet') return overlayForTablet(surface)
+  return overlayForMobile(surface)
+}
+
 function overlayCssForCompact(surface: OverlaySurface): SystemStyleObject {
   const mobile = overlayForMobile(surface)
   const tablet = overlayForTablet(surface)
@@ -138,21 +172,19 @@ function overlayCssForCompact(surface: OverlaySurface): SystemStyleObject {
       ...overlayRoot,
       display: { base: 'block', lg: 'none' },
       '& [data-map-fade="top"]': {
-        ...bandBase,
-        top: 0,
-        left: 0,
-        right: 0,
-        height: { base: mobile.topH, md: tablet.topH },
-        backgroundImage: MAP_FADE_TOP,
-        '@starting-style': { height: '0px' },
+        display: 'none',
       },
       '& [data-map-fade="bottom"]': {
-        ...bandBase,
-        bottom: 0,
+        ...bandBase(surface),
+        top: 'auto',
+        bottom: { base: mobile.bottomPos, md: tablet.bottomPos },
         left: 0,
         right: 0,
         height: { base: mobile.bottomH, md: tablet.bottomH },
-        backgroundImage: MAP_FADE_BOTTOM,
+        backgroundImage: {
+          base: mobile.bottomImage,
+          md: tablet.bottomImage,
+        },
         '@starting-style': { height: '0px' },
       },
     },
@@ -166,21 +198,22 @@ function overlayCssForWebView(surface: OverlaySurface): SystemStyleObject {
       ...overlayRoot,
       display: { base: 'none', lg: 'block' },
       '& [data-map-fade="left"]': {
-        ...bandBase,
+        ...bandBase(surface),
         top: 0,
         bottom: 0,
         left: web.leftPos,
         width: web.leftW,
-        backgroundImage: MAP_FADE_LEFT,
+        backgroundImage: web.leftImage,
         '@starting-style': { width: '0px' },
       },
       '& [data-map-fade="bottom"]': {
-        ...bandBase,
+        ...bandBase(surface),
+        top: 'auto',
         bottom: 0,
         left: 0,
         right: 0,
         height: web.bottomH,
-        backgroundImage: mapFadeGradient('bottom'),
+        backgroundImage: web.bottomImage,
         '@starting-style': { height: '0px' },
       },
     },
@@ -274,7 +307,7 @@ export function overlayCtrlBottomOffset(
 }
 
 /**
- * Compact vertical bands for mobile + tablet; wide horizontal (+ desktop
+ * Compact bottom band for mobile + tablet; wide horizontal (+ desktop
  * bottom) bands from `lg`. Different elements so height and width animations
  * never interpolate across axes.
  */

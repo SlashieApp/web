@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { LuArrowLeft } from 'react-icons/lu'
 
+import { useMarketplaceMapDispatch } from '@/app/(task)/context/MarketplaceMapSession'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
 import { IconButton } from '@ui'
@@ -26,6 +27,7 @@ type OverlayChipProps = {
 export function TaskBackButton({ overlay = false }: OverlayChipProps) {
   const router = useRouter()
   const t = useI11n(bag)
+  const mapSession = useMarketplaceMapDispatch()
 
   return (
     <IconButton
@@ -38,7 +40,10 @@ export function TaskBackButton({ overlay = false }: OverlayChipProps) {
         bg: overlay ? 'whiteAlpha.900' : 'bg.subtle',
         color: 'text.default',
       }}
-      onClick={() => router.back()}
+      onClick={() => {
+        mapSession?.prepareBrowse()
+        router.back()
+      }}
       {...controlTransition}
     >
       <LuArrowLeft />

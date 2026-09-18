@@ -9,14 +9,17 @@ export function isSearchBrowsePath(pathname: string): boolean {
   return barePathname(pathname) === '/search'
 }
 
+/** True for `/tasks/[slug]` (not edit or other nested task routes). */
+export function isTaskDetailPath(pathname: string): boolean {
+  return /^\/tasks\/[^/]+$/.test(barePathname(pathname))
+}
+
 /**
  * Routes that keep the shared marketplace Mapbox instance mounted in the
  * (task) layout: browse search and the public task-detail page (not edit).
  */
 export function isPersistentMarketplaceMapPath(pathname: string): boolean {
-  const path = barePathname(pathname)
-  if (path === '/search') return true
-  return /^\/tasks\/[^/]+$/.test(path)
+  return isSearchBrowsePath(pathname) || isTaskDetailPath(pathname)
 }
 
 export function taskDetailHrefFromBrowse(

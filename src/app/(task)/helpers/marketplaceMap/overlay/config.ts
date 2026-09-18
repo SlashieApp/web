@@ -1,18 +1,25 @@
 import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav'
 
-import { MARKETPLACE_MAP_MOTION_DURATION } from '../motion'
+import {
+  MARKETPLACE_MAP_MOTION_DELAY,
+  MARKETPLACE_MAP_MOTION_DURATION,
+} from '../motion'
 
 export type OverlaySurface = 'search' | 'taskDetail'
 
 export type OverlayCompactRecipe = {
-  topH: string
   bottomH: string
+  bottomImage: string
+  /** CSS `bottom` for the bottom band. `0px` is the canvas edge. */
+  bottomPos: string
 }
 
 export type OverlayWideRecipe = {
   leftW: string
   leftPos: string
   bottomH: string
+  leftImage: string
+  bottomImage: string
 }
 
 export const MAP_FADE_COMPACT_CLASS = 'map-fade-compact'
@@ -28,11 +35,9 @@ export const MAPBOX_CTRL_Z_INDEX = 10
 export const MAPBOX_CTRL_CONTAINER_CLASS = 'mapboxgl-control-container'
 
 export const MAP_FADE_MOTION_DURATION = MARKETPLACE_MAP_MOTION_DURATION
+export const MAP_FADE_MOTION_DELAY = MARKETPLACE_MAP_MOTION_DELAY
 
 const white = (alpha: number) => `rgba(255, 255, 255, ${alpha})`
-
-/** Header-band wash: short falloff, original compact recipe. */
-export const MAP_FADE_TOP = `linear-gradient(to bottom, ${white(0.95)} 0%, ${white(0.55)} 42%, ${white(0)} 100%)`
 
 /** Carousel / CTA-band wash: short falloff, original compact recipe. */
 export const MAP_FADE_BOTTOM = `linear-gradient(to top, ${white(0.92)} 0%, ${white(0.5)} 48%, ${white(0)} 100%)`
@@ -51,28 +56,46 @@ export function mapFadeGradient(side: MapFadeSide): string {
 }
 
 export const MAP_FADE_LEFT = mapFadeGradient('left')
+export const MAP_FADE_WIDE_BOTTOM = mapFadeGradient('bottom')
 
-/** Phone search: header-band and carousel-band heights. */
+/**
+ * Compact task-detail map hero (StatusHeader spacer). The shared Mapbox
+ * canvas is full-bleed; this is the visible window above overlapping chrome.
+ * Offset camera padding uses the same pixel heights.
+ */
+export const COMPACT_DETAIL_HERO_H = {
+  base: '300px',
+  md: '360px',
+} as const
+
+/** Phone search: carousel-band wash only (no header fade). */
 export const OVERLAY_MOBILE_SEARCH: OverlayCompactRecipe = {
-  topH: '30%',
   bottomH: '40%',
-}
-
-/** Phone task-detail: slightly tighter header, slightly taller CTA band. */
-export const OVERLAY_MOBILE_DETAIL: OverlayCompactRecipe = {
-  topH: '28%',
-  bottomH: '42%',
+  bottomImage: MAP_FADE_BOTTOM,
+  bottomPos: '0px',
 }
 
 /**
- * Tablet uses the same compact (vertical) axis as phone. Sizes match until a
- * dedicated tablet chrome lands.
+ * Phone task-detail: wash lives on the bottom band, anchored at the hero
+ * edge so height grows upward (chrome / title), not down from the header.
+ */
+export const OVERLAY_MOBILE_DETAIL: OverlayCompactRecipe = {
+  bottomH: COMPACT_DETAIL_HERO_H.base,
+  bottomImage: MAP_FADE_BOTTOM,
+  bottomPos: `calc(100% - ${COMPACT_DETAIL_HERO_H.base})`,
+}
+
+/**
+ * Tablet uses the same compact (vertical) axis as phone. Search matches
+ * until a dedicated tablet chrome lands; detail only overrides hero height.
  */
 export const OVERLAY_TABLET_SEARCH: OverlayCompactRecipe = {
   ...OVERLAY_MOBILE_SEARCH,
 }
 export const OVERLAY_TABLET_DETAIL: OverlayCompactRecipe = {
   ...OVERLAY_MOBILE_DETAIL,
+  bottomH: COMPACT_DETAIL_HERO_H.md,
+  bottomPos: `calc(100% - ${COMPACT_DETAIL_HERO_H.md})`,
 }
 
 /** Web search: full left half of the map, not only the 460px list. */
@@ -80,6 +103,8 @@ export const OVERLAY_WEB_SEARCH: OverlayWideRecipe = {
   leftW: '50%',
   leftPos: '0',
   bottomH: '0%',
+  leftImage: MAP_FADE_LEFT,
+  bottomImage: MAP_FADE_WIDE_BOTTOM,
 }
 
 /** Web task-detail: content column / camera split + lower cards. */
@@ -87,6 +112,8 @@ export const OVERLAY_WEB_DETAIL: OverlayWideRecipe = {
   leftW: '50%',
   leftPos: '0',
   bottomH: '50%',
+  leftImage: MAP_FADE_LEFT,
+  bottomImage: MAP_FADE_WIDE_BOTTOM,
 }
 
 /**
@@ -95,9 +122,7 @@ export const OVERLAY_WEB_DETAIL: OverlayWideRecipe = {
  */
 export const OVERLAY_CTRL_BOTTOM_OFFSET_COMPACT = `calc(${MOBILE_BOTTOM_NAV_CLEARANCE} + 7.5rem)`
 
-export const COMPACT_SEARCH_TOP_H = OVERLAY_MOBILE_SEARCH.topH
 export const COMPACT_SEARCH_BOTTOM_H = OVERLAY_MOBILE_SEARCH.bottomH
-export const COMPACT_DETAIL_TOP_H = OVERLAY_MOBILE_DETAIL.topH
 export const COMPACT_DETAIL_BOTTOM_H = OVERLAY_MOBILE_DETAIL.bottomH
 export const SEARCH_MAP_LEFT_FADE_SIZE = OVERLAY_WEB_SEARCH.leftW
 export const SEARCH_MAP_LEFT_FADE_POS = OVERLAY_WEB_SEARCH.leftPos

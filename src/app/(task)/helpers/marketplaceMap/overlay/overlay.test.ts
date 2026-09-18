@@ -7,17 +7,17 @@ import { describe, expect, it } from 'vitest'
 import { PIN_Z_INDEX } from '../../taskMap/pin/styles'
 import {
   COMPACT_DETAIL_BOTTOM_H,
-  COMPACT_DETAIL_TOP_H,
+  COMPACT_DETAIL_HERO_H,
   COMPACT_SEARCH_BOTTOM_H,
-  COMPACT_SEARCH_TOP_H,
   DETAIL_MAP_BOTTOM_FADE_SIZE,
   DETAIL_MAP_LEFT_FADE_SIZE,
   MAPBOX_CTRL_CONTAINER_CLASS,
   MAPBOX_CTRL_Z_INDEX,
   MAP_FADE_BOTTOM,
   MAP_FADE_COMPACT_CLASS,
+  MAP_FADE_LEFT,
+  MAP_FADE_MOTION_DELAY,
   MAP_FADE_MOTION_DURATION,
-  MAP_FADE_TOP,
   MAP_FADE_WIDE_CLASS,
   MAP_FADE_Z_INDEX,
   SEARCH_MAP_LEFT_FADE_POS,
@@ -32,7 +32,9 @@ import {
   overlayCtrlBottomOffsetForWeb,
   overlayForMobile,
   overlayForTablet,
+  overlayForViewport,
   overlayForWeb,
+  overlaySurfaceForSession,
 } from './overlay'
 
 const dir = dirname(fileURLToPath(import.meta.url))
@@ -41,26 +43,71 @@ function css(surface: Parameters<typeof mapFadeOverlayCss>[0]) {
   return mapFadeOverlayCss(surface) as Record<string, Record<string, unknown>>
 }
 
+describe('overlaySurfaceForSession', () => {
+  it('keeps the search wash until the detail route is on screen', () => {
+    expect(
+      overlaySurfaceForSession({
+        onSearchPath: true,
+        onDetailPath: false,
+        overlayAhead: null,
+      }),
+    ).toBe('search')
+    expect(
+      overlaySurfaceForSession({
+        onSearchPath: false,
+        onDetailPath: true,
+        overlayAhead: null,
+      }),
+    ).toBe('taskDetail')
+  })
+
+  it('starts the search wash before search mounts when leaving detail', () => {
+    expect(
+      overlaySurfaceForSession({
+        onSearchPath: false,
+        onDetailPath: true,
+        overlayAhead: 'search',
+      }),
+    ).toBe('search')
+  })
+})
+
 describe('overlayForMobile / overlayForTablet / overlayForWeb', () => {
-  it('keeps compact vertical bands on phone and tablet, wide wash on web', () => {
+  it('keeps compact bottom wash on phone and tablet, wide wash on web', () => {
     expect(overlayForMobile('search')).toEqual({
-      topH: COMPACT_SEARCH_TOP_H,
       bottomH: COMPACT_SEARCH_BOTTOM_H,
+      bottomImage: MAP_FADE_BOTTOM,
+      bottomPos: '0px',
     })
     expect(overlayForTablet('search')).toEqual(overlayForMobile('search'))
     expect(overlayForMobile('taskDetail')).toEqual({
-      topH: COMPACT_DETAIL_TOP_H,
       bottomH: COMPACT_DETAIL_BOTTOM_H,
+      bottomImage: MAP_FADE_BOTTOM,
+      bottomPos: `calc(100% - ${COMPACT_DETAIL_HERO_H.base})`,
+    })
+    expect(overlayForTablet('taskDetail')).toEqual({
+      ...overlayForMobile('taskDetail'),
+      bottomH: COMPACT_DETAIL_HERO_H.md,
+      bottomPos: `calc(100% - ${COMPACT_DETAIL_HERO_H.md})`,
     })
     expect(overlayForWeb('search')).toEqual({
       leftW: SEARCH_MAP_LEFT_FADE_SIZE,
       leftPos: SEARCH_MAP_LEFT_FADE_POS,
       bottomH: '0%',
+      leftImage: MAP_FADE_LEFT,
+      bottomImage: mapFadeGradient('bottom'),
     })
     expect(overlayForWeb('taskDetail').leftW).toBe(DETAIL_MAP_LEFT_FADE_SIZE)
     expect(overlayForWeb('taskDetail').bottomH).toBe(
       DETAIL_MAP_BOTTOM_FADE_SIZE,
     )
+    expect(overlayForViewport('mobile', 'search')).toEqual(
+      overlayForMobile('search'),
+    )
+    expect(overlayForViewport('tablet', 'taskDetail')).toEqual(
+      overlayForTablet('taskDetail'),
+    )
+    expect(overlayForViewport('web', 'search')).toEqual(overlayForWeb('search'))
   })
 
   it('lifts Mapbox chrome on phone and tablet only', () => {
@@ -87,7 +134,7 @@ describe('mapFadeGradient', () => {
 })
 
 describe('overlayCss', () => {
-  it('keeps compact top/bottom bands on their own elements, at the original sizes', () => {
+  it('keeps the compact bottom band only, at the original sizes', () => {
     const search = css('search')
     const detail = css('taskDetail')
     const compactSearch = search[`& .${MAP_FADE_COMPACT_CLASS}`]
@@ -97,10 +144,6 @@ describe('overlayCss', () => {
       unknown
     >
     const searchBottom = compactSearch['& [data-map-fade="bottom"]'] as Record<
-      string,
-      unknown
-    >
-    const detailTop = compactDetail['& [data-map-fade="top"]'] as Record<
       string,
       unknown
     >
@@ -117,27 +160,37 @@ describe('overlayCss', () => {
       zIndex: MAPBOX_CTRL_Z_INDEX,
     })
     expect(MAPBOX_CTRL_CONTAINER_CLASS).toBe('mapboxgl-control-container')
-    expect(searchTop.height).toEqual({
-      base: overlayForMobile('search').topH,
-      md: overlayForTablet('search').topH,
-    })
+    expect(searchTop.display).toBe('none')
     expect(searchBottom.height).toEqual({
       base: overlayForMobile('search').bottomH,
       md: overlayForTablet('search').bottomH,
-    })
-    expect(detailTop.height).toEqual({
-      base: overlayForMobile('taskDetail').topH,
-      md: overlayForTablet('taskDetail').topH,
     })
     expect(detailBottom.height).toEqual({
       base: overlayForMobile('taskDetail').bottomH,
       md: overlayForTablet('taskDetail').bottomH,
     })
-    expect(searchTop.backgroundImage).toBe(MAP_FADE_TOP)
-    expect(searchBottom.backgroundImage).toBe(MAP_FADE_BOTTOM)
-    expect(COMPACT_SEARCH_TOP_H).toBe('30%')
+    expect(searchBottom.backgroundImage).toEqual({
+      base: MAP_FADE_BOTTOM,
+      md: MAP_FADE_BOTTOM,
+    })
+    expect(detailBottom.backgroundImage).toEqual({
+      base: MAP_FADE_BOTTOM,
+      md: MAP_FADE_BOTTOM,
+    })
+    expect(detailBottom.bottom).toEqual({
+      base: overlayForMobile('taskDetail').bottomPos,
+      md: overlayForTablet('taskDetail').bottomPos,
+    })
+    expect(detailBottom.top).toBe('auto')
+    expect(searchBottom.bottom).toEqual({
+      base: overlayForMobile('search').bottomPos,
+      md: overlayForTablet('search').bottomPos,
+    })
+    expect(searchBottom.top).toBe('auto')
+    expect(searchBottom.transitionDelay).toBe('0ms')
+    expect(detailBottom.transitionDelay).toBe(MAP_FADE_MOTION_DELAY)
+    expect(COMPACT_DETAIL_BOTTOM_H).toBe(COMPACT_DETAIL_HERO_H.base)
     expect(COMPACT_SEARCH_BOTTOM_H).toBe('40%')
-    expect(MAP_FADE_TOP).toContain('0.55')
     expect(MAP_FADE_BOTTOM).toContain('0.5) 48%')
   })
 
@@ -174,7 +227,10 @@ describe('overlayCss', () => {
     expect(searchLeft.transitionProperty).toBe(
       mapFadeOverlayMotion.transitionProperty,
     )
+    expect(mapFadeOverlayMotion.transitionProperty).toContain('bottom')
     expect(searchLeft.transitionDuration).toBe(MAP_FADE_MOTION_DURATION)
+    expect(searchLeft.transitionDelay).toBe('0ms')
+    expect(detailLeft.transitionDelay).toBe(MAP_FADE_MOTION_DELAY)
     expect(JSON.stringify(searchLeft['@starting-style'])).toContain('0px')
   })
 
@@ -192,9 +248,17 @@ describe('overlayCss', () => {
       join(dir, '../../../search/components/SearchLayouts.tsx'),
       'utf8',
     )
-    expect(host).toContain(
-      "mapFadeOverlayCss(inDetail ? 'taskDetail' : 'search')",
+    expect(host).toContain('overlaySurfaceForSession')
+    expect(host).toContain('mapFadeOverlayCss(overlaySurface)')
+    expect(host).toContain('prepareBrowse')
+    const back = readFileSync(
+      join(
+        dir,
+        '../../../tasks/[slug]/components/tripDetail/TaskHeaderControls.tsx',
+      ),
+      'utf8',
     )
+    expect(back).toContain('prepareBrowse')
     expect(controller).toContain('mountMapFadeOverlay')
     expect(controller).toContain('getContainer()')
     expect(overlay).toContain('MAP_FADE_COMPACT_CLASS')
@@ -202,6 +266,12 @@ describe('overlayCss', () => {
     expect(overlay).toContain('overlayForMobile')
     expect(overlay).toContain('overlayForTablet')
     expect(overlay).toContain('overlayForWeb')
+    expect(overlay).toContain('overlayForViewport')
     expect(searchLayout).not.toContain('linear-gradient')
+    const statusHeader = readFileSync(
+      join(dir, '../../../tasks/[slug]/components/tripDetail/StatusHeader.tsx'),
+      'utf8',
+    )
+    expect(statusHeader).toContain('COMPACT_DETAIL_HERO_H')
   })
 })

@@ -4,6 +4,7 @@ import { PINS_PATH_LINE_WIDTH, PINS_PATH_Z_INDEX } from './config'
 import {
   pinsPathForMobile,
   pinsPathForTablet,
+  pinsPathForViewport,
   pinsPathForWeb,
 } from './pinsPath'
 
@@ -28,5 +29,12 @@ describe('pinsPath', () => {
     expect(Number(PINS_PATH_Z_INDEX.selected)).toBeGreaterThan(
       Number(PINS_PATH_Z_INDEX.me),
     )
+  })
+
+  it('dispatches mobile / tablet / web from viewport', () => {
+    const ctx = { inDetail: false, variant: 'exact' as const }
+    expect(pinsPathForViewport('mobile', ctx)).toEqual(pinsPathForMobile(ctx))
+    expect(pinsPathForViewport('tablet', ctx)).toEqual(pinsPathForTablet(ctx))
+    expect(pinsPathForViewport('web', ctx)).toEqual(pinsPathForWeb(ctx))
   })
 })

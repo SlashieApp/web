@@ -4,6 +4,8 @@
  * pin into the top-right quadrant beside the content column.
  */
 
+import { COMPACT_DETAIL_HERO_H } from '../overlay/config'
+
 export type OffsetMapVariant = 'exact' | 'approximate'
 
 export type OffsetPadding = {
@@ -28,16 +30,27 @@ export type OffsetWebRecipe = {
   bottomRatio: Record<OffsetMapVariant, number>
 }
 
+function cssPx(value: `${number}px`): number {
+  return Number.parseInt(value, 10)
+}
+
+const MOBILE_HERO_PX = cssPx(COMPACT_DETAIL_HERO_H.base)
+const TABLET_HERO_PX = cssPx(COMPACT_DETAIL_HERO_H.md)
+
 export const OFFSET_MOBILE: OffsetCompactRecipe = {
   top: 48,
   right: 20,
-  heroMin: 280,
-  heroMax: 360,
-  heroRatio: 0.38,
+  heroMin: MOBILE_HERO_PX,
+  heroMax: MOBILE_HERO_PX,
+  heroRatio: 1,
 }
 
-/** Tablet uses the same hero-band framing as phone until a dedicated layout. */
-export const OFFSET_TABLET: OffsetCompactRecipe = { ...OFFSET_MOBILE }
+/** Tablet uses the same compact framing; only the hero band is taller. */
+export const OFFSET_TABLET: OffsetCompactRecipe = {
+  ...OFFSET_MOBILE,
+  heroMin: TABLET_HERO_PX,
+  heroMax: TABLET_HERO_PX,
+}
 
 export const OFFSET_WEB: OffsetWebRecipe = {
   top: 58,

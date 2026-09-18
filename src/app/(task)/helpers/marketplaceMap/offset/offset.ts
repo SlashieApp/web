@@ -39,8 +39,7 @@ export function offsetPaddingForMobile(
 }
 
 /**
- * Tablet: same hero-band framing as phone (carousel + header still overlay
- * the map below `lg`).
+ * Tablet: same compact framing as phone; taller hero band matches overlay.
  */
 export function offsetPaddingForTablet(
   width: number,

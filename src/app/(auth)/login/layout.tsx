@@ -1,3 +1,5 @@
+import { LoginAutofillProvider } from '@/app/(auth)/helpers/LoginAutofillProvider'
+import { getLoginAutofill } from '@/app/(auth)/helpers/loginAutofill'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 
@@ -14,5 +16,9 @@ export async function generateMetadata() {
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return children
+  return (
+    <LoginAutofillProvider value={getLoginAutofill()}>
+      {children}
+    </LoginAutofillProvider>
+  )
 }

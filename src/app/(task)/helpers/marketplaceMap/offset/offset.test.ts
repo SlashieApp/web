@@ -12,7 +12,7 @@ describe('offsetPaddingForMobile', () => {
   it('pins the task in the upper hero band', () => {
     const padding = offsetPaddingForMobile(390, 800)
     expect(padding.top).toBe(OFFSET_MOBILE.top)
-    expect(padding.bottom).toBeGreaterThan(400)
+    expect(padding.bottom).toBe(800 - OFFSET_MOBILE.heroMax)
   })
 })
 
@@ -20,7 +20,7 @@ describe('offsetPaddingForTablet', () => {
   it('uses the compact hero-band recipe below lg', () => {
     const padding = offsetPaddingForTablet(800, 800)
     expect(padding.top).toBe(OFFSET_TABLET.top)
-    expect(padding.bottom).toBeGreaterThan(400)
+    expect(padding.bottom).toBe(800 - OFFSET_TABLET.heroMax)
   })
 })
 
