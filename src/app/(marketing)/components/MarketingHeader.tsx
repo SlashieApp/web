@@ -20,6 +20,7 @@ import { useLocale } from '@/i18n/LocaleProvider'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { useOpenFeedbackDialog } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
 import { HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from '@/ui/Header'
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Button, Drawer, Link } from '@ui'
@@ -167,6 +168,7 @@ function MarketingNavigation({
   const pathname = usePathname()
   const [hasMounted, setHasMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const openFeedback = useOpenFeedbackDialog()
 
   const onMountNavigation = useCallback(
     (node: HTMLDivElement | null) => {
@@ -279,6 +281,24 @@ function MarketingNavigation({
         <HeaderToolbarSeparator
           color={overlay ? 'border.glass' : 'border.default'}
         />
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          px={2}
+          display={{ base: 'none', sm: 'inline-flex' }}
+          onClick={() => openFeedback()}
+          {...(overlay
+            ? {
+                bg: 'transparent',
+                color: 'text.onInverted',
+                _hover: { bg: 'bg.glass', color: 'text.onInverted' },
+                _active: { bg: 'bg.glass', color: 'text.onInverted' },
+              }
+            : null)}
+        >
+          {copy.feedback}
+        </Button>
         <MarketingAuthButtons overlay={overlay} copy={copy} />
         <LanguageSwitcher overlay={overlay} label={copy.language} />
 
@@ -320,6 +340,21 @@ function MarketingNavigation({
               </Link>
             )
           })}
+          <Button
+            type="button"
+            variant="ghost"
+            justifyContent="flex-start"
+            w="full"
+            h="auto"
+            minH="44px"
+            {...drawerLinkProps}
+            onClick={() => {
+              openFeedback()
+              setMobileMenuOpen(false)
+            }}
+          >
+            {copy.feedback}
+          </Button>
           <Stack
             gap={0}
             align="stretch"
