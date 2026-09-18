@@ -95,6 +95,8 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
     'Security check failed or expired. Complete it again and retry.',
   REPORT_RATE_LIMITED:
     "You've sent too many reports. Please wait a bit and try again.",
+  FEEDBACK_RATE_LIMITED:
+    "You've sent too much feedback. Please wait a bit and try again.",
   REPORT_SELF_NOT_ALLOWED: "You can't report your own listing.",
   REPORT_TARGET_NOT_FOUND:
     "We couldn't find that listing. It may have been removed.",

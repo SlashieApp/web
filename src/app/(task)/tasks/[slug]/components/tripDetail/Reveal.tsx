@@ -13,7 +13,7 @@ export const SURFACE_ENTER_OFFSET = '1.25rem'
  * `@starting-style` runs on insert, so skeleton and loaded content both rise
  * from the bottom without a mount effect.
  */
-export const surfaceEnterFromBottomCss: SystemStyleObject = {
+export const surfaceEnterFromBottomCss = {
   opacity: 1,
   transform: 'translateY(0)',
   transformOrigin: 'bottom center',
@@ -32,7 +32,7 @@ export const surfaceEnterFromBottomCss: SystemStyleObject = {
       transform: 'none',
     },
   },
-}
+} as SystemStyleObject
 
 /**
  * Whole-section fade-up on surface render. Use around a complete block

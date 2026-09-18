@@ -1,0 +1,12 @@
+# Use `.graphql` (not `.gql`) so `codegen.ts` `src/**/*.gql` does not validate
+# this op during Vercel prebuild if a preview schema still lacks BE-48
+# `createFeedback`.
+mutation CreateFeedback($input: CreateFeedbackInput!) {
+  createFeedback(input: $input) {
+    id
+    category
+    rating
+    status
+    createdAt
+  }
+}

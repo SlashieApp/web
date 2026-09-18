@@ -10,6 +10,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 
 import { Button } from '../Button'
+import { FeedbackDialogProvider } from '../FeedbackDialog/FeedbackDialogProvider'
 
 import { Header } from './Header'
 
@@ -156,6 +157,13 @@ const meta = {
   argTypes: {
     children: { control: false },
   },
+  decorators: [
+    (Story) => (
+      <FeedbackDialogProvider onSubmit={async () => true}>
+        <Story />
+      </FeedbackDialogProvider>
+    ),
+  ],
 } satisfies Meta<typeof Header>
 
 export default meta

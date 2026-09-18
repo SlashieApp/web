@@ -25,6 +25,7 @@ import { getAuthToken } from '@/utils/auth'
 
 import { Button } from '../Button'
 import { Drawer } from '../Drawer'
+import { FeedbackTrigger } from '../FeedbackDialog/FeedbackTrigger'
 import { IconButton } from '../IconButton'
 import { Link } from '../Link'
 import { Logo } from '../Logo'
@@ -237,6 +238,7 @@ function GuestMobileMenu({
           >
             {t.postTask}
           </Link>
+          <FeedbackTrigger variant="nav" onOpened={() => setOpen(false)} />
           <Stack
             gap={0}
             align="stretch"
@@ -370,6 +372,9 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
             <HeaderToolbarSeparator />
             <Box display={{ base: 'none', lg: 'inline-flex' }}>
               <LanguageSwitcher />
+            </Box>
+            <Box display={{ base: 'none', lg: 'inline-flex' }}>
+              <FeedbackTrigger variant="button" />
             </Box>
             <HeaderGuestAuthButtons
               loginHref={loginHref}

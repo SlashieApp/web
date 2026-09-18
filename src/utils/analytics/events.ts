@@ -91,6 +91,10 @@ export const EVENTS = {
   report_submit_success: 'report_submit_success',
   report_submit_fail: 'report_submit_fail',
 
+  // Product feedback
+  feedback_submit_success: 'feedback_submit_success',
+  feedback_submit_fail: 'feedback_submit_fail',
+
   // Global errors
   graphql_error: 'graphql_error',
   api_fetch_fail: 'api_fetch_fail',

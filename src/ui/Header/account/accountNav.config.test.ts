@@ -26,6 +26,13 @@ describe('account nav destinations', () => {
     expect(quotes?.id).toBe('quotes')
     expect(quotes?.label).toBe('My quotes')
   })
+
+  it('includes a Send feedback action for signed-in users', () => {
+    const feedback = ACCOUNT_NAV_ITEMS.find((item) => item.id === 'feedback')
+    expect(feedback?.kind).toBe('action')
+    expect(feedback?.action).toBe('feedback')
+    expect(feedback?.label).toBe('Send feedback')
+  })
 })
 
 describe('Header chrome', () => {
