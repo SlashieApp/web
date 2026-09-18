@@ -34,6 +34,7 @@
       "profile": "Profile",
       "settings": "Settings",
       "help": "Help",
+      "feedback": "Send feedback",
       "safety": "Paying & meeting safely",
       "logout": "Log out"
     },
@@ -99,6 +100,7 @@
       "profile": "個人檔案",
       "settings": "設定",
       "help": "說明",
+      "feedback": "傳送意見",
       "safety": "付款與安全見面",
       "logout": "登出"
     },

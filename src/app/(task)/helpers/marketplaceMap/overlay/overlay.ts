@@ -133,6 +133,8 @@ export function overlayForWeb(surface: OverlaySurface): OverlayWideRecipe {
 function overlayCssForCompact(surface: OverlaySurface): SystemStyleObject {
   const mobile = overlayForMobile(surface)
   const tablet = overlayForTablet(surface)
+  // `@starting-style` is valid CSS; Chakra's SystemStyleObject union does not
+  // model it and overflows TS2590 once more Chakra-heavy modules are compiled.
   return {
     [`& .${MAP_FADE_COMPACT_CLASS}`]: {
       ...overlayRoot,
@@ -156,7 +158,7 @@ function overlayCssForCompact(surface: OverlaySurface): SystemStyleObject {
         '@starting-style': { height: '0px' },
       },
     },
-  }
+  } as SystemStyleObject
 }
 
 function overlayCssForWebView(surface: OverlaySurface): SystemStyleObject {
@@ -184,7 +186,7 @@ function overlayCssForWebView(surface: OverlaySurface): SystemStyleObject {
         '@starting-style': { height: '0px' },
       },
     },
-  }
+  } as SystemStyleObject
 }
 
 const overlayChromeStackCss: SystemStyleObject = {

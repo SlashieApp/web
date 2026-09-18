@@ -8,6 +8,7 @@ import bag from '../i11n.json'
 import { Button } from '../../Button'
 import { Link } from '../../Link'
 
+import { useOpenFeedbackDialog } from '../../FeedbackDialog/FeedbackDialogProvider'
 import type { AccountNavItem } from './accountNav.config'
 import { accountNavLabel, groupAccountNavItems } from './accountNav.config'
 import {
@@ -36,6 +37,7 @@ function AccountNavRow({
 }) {
   const t = useI11n(bag)
   const label = accountNavLabel(t, item.id, item.label)
+  const openFeedback = useOpenFeedbackDialog()
   const close = useCallback(() => {
     onNavigate?.()
   }, [onNavigate])
@@ -70,6 +72,24 @@ function AccountNavRow({
           minH="44px"
           onClick={() => {
             onOpenNotifications?.()
+            close()
+          }}
+        >
+          {label}
+        </Button>
+      )
+    }
+    if (item.action === 'feedback') {
+      return (
+        <Button
+          type="button"
+          variant="ghost"
+          {...accountNavLinkRowProps}
+          justifyContent="flex-start"
+          h="auto"
+          minH="44px"
+          onClick={() => {
+            openFeedback()
             close()
           }}
         >

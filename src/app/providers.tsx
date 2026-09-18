@@ -4,11 +4,11 @@ import { ApolloProvider } from '@apollo/client/react'
 import type { ReactNode } from 'react'
 
 import { NotificationsProvider } from '@/app/(dashboard)/context/NotificationsProvider'
+import { FeedbackProvider } from '@/content/feedback/FeedbackProvider'
+import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { AnalyticsErrorBoundary } from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { AppToastHost } from '@/utils/appToast'
-
-import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { CookieConsentBanner } from './CookieConsentBanner'
 import { PostHogProvider } from './PostHogProvider'
@@ -21,11 +21,13 @@ export function Providers({ children }: { children: ReactNode }) {
         <PostHogProvider>
           <LocaleProvider>
             <NotificationsProvider>
-              <AnalyticsErrorBoundary>
-                <AppToastHost />
-                {children}
-                <CookieConsentBanner />
-              </AnalyticsErrorBoundary>
+              <FeedbackProvider>
+                <AnalyticsErrorBoundary>
+                  <AppToastHost />
+                  {children}
+                  <CookieConsentBanner />
+                </AnalyticsErrorBoundary>
+              </FeedbackProvider>
             </NotificationsProvider>
           </LocaleProvider>
         </PostHogProvider>
