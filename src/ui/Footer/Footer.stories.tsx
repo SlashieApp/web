@@ -1,6 +1,7 @@
 import { Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { FeedbackDialogProvider } from '../FeedbackDialog/FeedbackDialogProvider'
 import { Footer, type UiFooterVariant } from './Footer'
 
 const SDL_VARIANTS: UiFooterVariant[] = ['default', 'minimal']
@@ -16,6 +17,13 @@ const meta = {
     copyright: { control: 'text' },
   },
   args: { variant: 'default' },
+  decorators: [
+    (Story) => (
+      <FeedbackDialogProvider onSubmit={async () => true}>
+        <Story />
+      </FeedbackDialogProvider>
+    ),
+  ],
 } satisfies Meta<typeof Footer>
 
 export default meta

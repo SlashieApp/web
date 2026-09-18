@@ -18,6 +18,7 @@ import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 import { SAFETY_HREF } from '@/utils/appRoutes'
 
+import { FeedbackTrigger } from '../FeedbackDialog/FeedbackTrigger'
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
 import messages from './i11n.json'
@@ -119,6 +120,7 @@ export function Footer({
 
   const legalRow = (
     <HStack gap={4} flexWrap="wrap">
+      <FeedbackTrigger variant="footerMeta" />
       {legalLinks.map((link) => (
         <Link
           key={link.href}
@@ -236,6 +238,7 @@ export function Footer({
               <Stack gap={3}>
                 <ColumnLabel>{t.columns.connect}</ColumnLabel>
                 <Stack gap={2.5}>
+                  <FeedbackTrigger variant="footer" />
                   {connectLinks.map((link) => {
                     const Icon = link.icon
                     return (

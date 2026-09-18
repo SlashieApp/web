@@ -105,4 +105,12 @@ describe('marketplace capture call sites', () => {
     expect(src).toContain('onSubmitQuote')
     expect(src).not.toMatch(/['"]quote_submitted['"]/)
   })
+
+  it('product feedback uses canonical success names', () => {
+    const src = readRepo('src/content/feedback/FeedbackProvider.tsx')
+    expect(src).toContain('EVENTS.feedback_submit_success')
+    expect(src).toContain('EVENTS.feedback_submit_fail')
+    expect(EVENTS.feedback_submit_success).toBe('feedback_submit_success')
+    expect(EVENTS.feedback_submit_fail).toBe('feedback_submit_fail')
+  })
 })

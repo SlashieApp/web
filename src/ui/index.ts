@@ -41,6 +41,18 @@ export { DetailRow } from './DetailRow'
 export { Drawer, useInsideDrawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
 export {
+  FEEDBACK_CATEGORY_VALUES,
+  FEEDBACK_FORM_DEFAULTS,
+  FEEDBACK_MESSAGE_MAX,
+  FEEDBACK_NAME_MAX,
+  FeedbackDialog,
+  FeedbackDialogProvider,
+  feedbackFormSchema,
+  FeedbackTrigger,
+  useFeedbackDialog,
+  useOpenFeedbackDialog,
+} from './FeedbackDialog'
+export {
   formControlHelperTextProps,
   formControlInvalidFieldProps,
   formControlInvalidShellProps,
@@ -127,6 +139,14 @@ export type {
 } from './color-mode'
 export type { DetailRowProps } from './DetailRow'
 export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'
+export type {
+  FeedbackCategoryValue,
+  FeedbackDialogProps,
+  FeedbackDialogProviderProps,
+  FeedbackFormValues,
+  FeedbackTriggerProps,
+  FeedbackTriggerVariant,
+} from './FeedbackDialog'
 export type {
   FormFieldControlProps,
   FormFieldProps,
