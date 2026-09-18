@@ -1,7 +1,14 @@
 'use client'
 
 import { sdlFocusRing } from '@/theme/styles'
-import { Box, HStack, Slider, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Slider,
+  Stack,
+  Text,
+  useBreakpointValue,
+} from '@chakra-ui/react'
 import { Button, Drawer, Input } from '@ui'
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react'
 import { LuLocateFixed, LuSearch } from 'react-icons/lu'
@@ -303,6 +310,13 @@ export function MobileTaskBrowseFiltersDrawer() {
     useTaskBrowseData()
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
   const filterProps = useTaskBrowseFiltersProps()
+  // Search dual-mounts this under `display: none` at `lg`, but `@ui` Drawer
+  // portals to `document.body`, so CSS hiding does not apply. Only open below
+  // `lg`; fallback `lg` avoids a desktop flash before the breakpoint hydrates.
+  const showMobileSheet =
+    useBreakpointValue({ base: true, lg: false }, { fallback: 'lg' }) ?? false
+
+  if (!showMobileSheet) return null
 
   return (
     <Drawer

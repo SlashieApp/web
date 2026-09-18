@@ -18,6 +18,7 @@ import {
   createTaskMapController,
   tasksMarkerSig,
 } from '../helpers/taskMap'
+import { useIsTouchMobileDevice } from '../helpers/touchMobileDevice'
 import { useSelectBrowseTaskFromMap } from '../helpers/useSelectBrowseTaskFromMap'
 
 import type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
@@ -73,6 +74,31 @@ export type TaskMapProps = {
    * (bottom nav + task carousel). Applied below `lg`; desktop is unchanged.
    */
   mobileCtrlBottomOffset?: string
+  /**
+   * Browse keeps the search-center camera + list offset. Detail frames the
+   * selected task with `viewPadding` (top-right on desktop).
+   */
+  cameraMode?: 'browse' | 'detail'
+  /** Mapbox padding used when `cameraMode` is `detail`. */
+  viewPadding?: {
+    top?: number
+    right?: number
+    bottom?: number
+    left?: number
+  }
+  /** Hide the You / search-center marker (direct task-detail loads). */
+  showReferenceMarker?: boolean
+  /**
+   * `all` — every task pin (browse).
+   * `solo` — only the selected task pin.
+   * `none` — no price pins (approximate zone-only).
+   */
+  taskPinMode?: 'all' | 'solo' | 'none'
+  /**
+   * When false, ignore map-background clicks and the search-this-area prompt
+   * (task-detail handoff). Defaults to true.
+   */
+  mapInteractions?: boolean
 }
 
 /**
@@ -85,6 +111,7 @@ export type TaskMapProps = {
  */
 export function TaskMap(props: TaskMapProps) {
   const { colorMode } = useColorMode()
+  const hideZoomControls = useIsTouchMobileDevice()
   const effectiveSearchRadiusMiles = Math.max(
     0,
     Math.min(props.radiusMiles, MAX_SEARCH_RADIUS_MILES),
@@ -102,6 +129,8 @@ export function TaskMap(props: TaskMapProps) {
   // Commit the snapshot before the sync effect below reads it.
   useLayoutEffect(() => {
     propsRef.current = snapshot
+    // Search remounts inside a layout-persistent map: `load` already fired.
+    controllerRef.current?.flushReady()
   })
 
   const accessToken = props.accessToken?.trim() || null
@@ -139,6 +168,13 @@ export function TaskMap(props: TaskMapProps) {
     props.searchAreaButtonOffsetX ?? '',
     Boolean(props.onSearchThisAreaConfirm),
     props.navRouteEnabled ?? true,
+    props.cameraMode ?? 'browse',
+    props.taskPinMode ?? 'all',
+    props.showReferenceMarker ?? true,
+    props.mapInteractions ?? true,
+    props.viewPadding
+      ? `${props.viewPadding.top ?? 0},${props.viewPadding.right ?? 0},${props.viewPadding.bottom ?? 0},${props.viewPadding.left ?? 0}`
+      : '',
     tasksMarkerSig(props.tasks),
   ].join('\x1e')
 
@@ -181,11 +217,11 @@ export function TaskMap(props: TaskMapProps) {
       overflow="hidden"
       zIndex={0}
       css={{
-        // Mobile until `lg`: hide +/− (pinch zoom). Lift logo/attribution when
-        // the parent passes an offset (search carousel + dock).
-        '& .mapboxgl-ctrl-top-right': {
-          display: { base: 'none', lg: 'block' },
-        },
+        // Pinch-zoom phones don't need +/−. Tablets and narrow desktop
+        // viewports still get the control (mouse / trackpad).
+        ...(hideZoomControls
+          ? { '& .mapboxgl-ctrl-top-right': { display: 'none' } }
+          : {}),
         ...(props.mobileCtrlBottomOffset
           ? {
               '& .mapboxgl-ctrl-bottom-left, & .mapboxgl-ctrl-bottom-right': {

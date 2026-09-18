@@ -10,6 +10,7 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import bag from '../../i11n.json'
+import { Reveal } from './Reveal'
 import { useShareTask } from './openTask/shareTask'
 
 const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
@@ -142,30 +143,32 @@ export function TaskDetailCtaBar() {
       pt={2}
       pb="calc(10px + env(safe-area-inset-bottom, 0px))"
     >
-      <Stack
-        as="section"
-        gap={1.5}
-        pointerEvents="auto"
-        borderWidth="1px"
-        borderColor="border.default"
-        borderRadius="xl"
-        px={3}
-        py={2.5}
-        css={glassBarCss}
-        aria-label={t.cta.barAria}
-      >
-        <SafetyNotice variant={safetyVariant} />
-        <HStack gap={2} align="center">
-          {action ? <Box flex="1">{action}</Box> : <Box flex="1" />}
-          {showEdit ? (
-            <IconButton asChild variant="ghost" aria-label={t.cta.editAria}>
-              <Link href={editHref} _hover={{ textDecoration: 'none' }}>
-                <LuPencil />
-              </Link>
-            </IconButton>
-          ) : null}
-        </HStack>
-      </Stack>
+      <Reveal>
+        <Stack
+          as="section"
+          gap={1.5}
+          pointerEvents="auto"
+          borderWidth="1px"
+          borderColor="border.default"
+          borderRadius="xl"
+          px={3}
+          py={2.5}
+          css={glassBarCss}
+          aria-label={t.cta.barAria}
+        >
+          <SafetyNotice variant={safetyVariant} />
+          <HStack gap={2} align="center">
+            {action ? <Box flex="1">{action}</Box> : <Box flex="1" />}
+            {showEdit ? (
+              <IconButton asChild variant="ghost" aria-label={t.cta.editAria}>
+                <Link href={editHref} _hover={{ textDecoration: 'none' }}>
+                  <LuPencil />
+                </Link>
+              </IconButton>
+            ) : null}
+          </HStack>
+        </Stack>
+      </Reveal>
     </Box>
   )
 }

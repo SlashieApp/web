@@ -10,6 +10,8 @@ import {
 } from '@/utils/analytics'
 import { getAuthToken } from '@/utils/auth'
 
+import { useMarketplaceMapDispatch } from '../context/MarketplaceMapSession'
+import { useTaskBrowseData } from '../context/TaskBrowseProvider'
 import {
   isSearchBrowsePath,
   taskDetailHrefFromBrowse,
@@ -20,10 +22,17 @@ export function useOpenTaskDetailFromBrowse() {
   const pathname = usePathname() ?? '/'
   const localize = useLocalizedHref()
   const fromSearch = isSearchBrowsePath(pathname)
+  const { referenceLocation } = useTaskBrowseData()
+  const mapSession = useMarketplaceMapDispatch()
 
   const taskDetailHref = useCallback(
-    (taskId: string) => taskDetailHrefFromBrowse(taskId, { fromSearch }),
-    [fromSearch],
+    (taskId: string) =>
+      taskDetailHrefFromBrowse(taskId, {
+        fromSearch,
+        lat: fromSearch ? referenceLocation.lat : undefined,
+        lng: fromSearch ? referenceLocation.lng : undefined,
+      }),
+    [fromSearch, referenceLocation.lat, referenceLocation.lng],
   )
 
   const openTaskDetail = useCallback(
@@ -34,10 +43,11 @@ export function useOpenTaskDetailFromBrowse() {
           isAuthenticated: Boolean(getAuthToken()),
           surface,
         })
+        mapSession?.prepareDetail(taskId)
       }
       router.push(localize(taskDetailHref(taskId)))
     },
-    [fromSearch, localize, router, taskDetailHref],
+    [fromSearch, localize, mapSession, router, taskDetailHref],
   )
 
   const captureDetailsLink = useCallback(

@@ -9,6 +9,7 @@ import {
 } from '@/theme/pageContainer'
 
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '../../../helpers/taskDetailLayout'
+import { Reveal } from '../Reveal'
 import { StatusHeader } from '../StatusHeader'
 import {
   TASK_DETAIL_CTA_CLEARANCE,
@@ -16,7 +17,7 @@ import {
 } from '../TaskDetailCtaBar'
 import { TaskDetailSectionTabs } from '../TaskDetailSectionTabs'
 import { TaskBackButton } from '../TaskHeaderControls'
-import { TaskDetailMapBackground } from './TaskDetailMapBackground'
+import { TaskDetailMapBinder } from './TaskDetailMapBinder'
 
 /** Pull the full money chrome + tabs onto the hero (chrome is ~9rem). */
 const MOBILE_MAP_CHROME_OVERLAP = '-9.25rem'
@@ -48,7 +49,7 @@ export function TaskDetailView() {
         >
           <StatusHeader />
         </Box>
-        <TaskDetailMapBackground />
+        <TaskDetailMapBinder />
 
         <Box
           position="relative"
@@ -95,13 +96,15 @@ export function TaskDetailView() {
             }}
           >
             <Box pointerEvents="auto" w="full" minW={0}>
-              <TaskDetailSectionTabs fittedBelowLg px={{ base: 4, lg: 0 }} />
-              <Box
-                display={{ base: 'block', lg: 'none' }}
-                bg="bg.canvas"
-                h={TASK_DETAIL_CTA_CLEARANCE}
-                aria-hidden
-              />
+              <Reveal>
+                <TaskDetailSectionTabs fittedBelowLg px={{ base: 4, lg: 0 }} />
+                <Box
+                  display={{ base: 'block', lg: 'none' }}
+                  bg="bg.canvas"
+                  h={TASK_DETAIL_CTA_CLEARANCE}
+                  aria-hidden
+                />
+              </Reveal>
             </Box>
           </Box>
         </Box>

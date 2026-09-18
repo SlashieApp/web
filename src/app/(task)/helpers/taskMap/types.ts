@@ -53,4 +53,29 @@ export type TaskMapPropsSnapshot = {
   effectiveSearchRadiusMiles: number
   themeMode: 'light' | 'dark'
   logoPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  /**
+   * Browse keeps the search-center camera + list offset. Detail frames the
+   * selected task with `viewPadding` (top-right on desktop).
+   */
+  cameraMode?: 'browse' | 'detail'
+  /** Mapbox padding used when `cameraMode` is `detail`. */
+  viewPadding?: {
+    top?: number
+    right?: number
+    bottom?: number
+    left?: number
+  }
+  /** Hide the You / search-center marker (direct task-detail loads). */
+  showReferenceMarker?: boolean
+  /**
+   * `all` — every task pin (browse).
+   * `solo` — only the selected task pin.
+   * `none` — no price pins (approximate zone-only).
+   */
+  taskPinMode?: 'all' | 'solo' | 'none'
+  /**
+   * When false, ignore map-background clicks and the search-this-area prompt
+   * (task-detail handoff). Defaults to true.
+   */
+  mapInteractions?: boolean
 }

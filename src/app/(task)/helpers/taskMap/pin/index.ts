@@ -2,11 +2,12 @@ import { BRAND_MAP_PIN } from '@/theme/brand'
 import type { TaskMapTask } from '../types'
 import { pinMilesText, pinPriceText, taskPinContentSig } from './content'
 import { type TaskMapPinHandle, taskMarkerElement } from './marker'
-import { PIN, PIN_FONT } from './styles'
+import { PIN, PIN_FONT, PIN_Z_INDEX } from './styles'
 
 export type { TaskMapPinHandle }
 
 export { pinMilesText, pinPriceText, taskPinContentSig }
+export { PIN_Z_INDEX, pinStackZIndex } from './styles'
 
 /** GraphQL / JSON often returns coordinates as strings; Mapbox needs finite numbers. */
 export function parseCoord(value: unknown): number | null {
@@ -62,7 +63,7 @@ export function referenceMarkerElement(): HTMLDivElement {
     position: 'relative',
     width: '18px',
     height: '18px',
-    zIndex: '0',
+    zIndex: PIN_Z_INDEX.me,
     pointerEvents: 'none',
   })
 
@@ -115,6 +116,7 @@ export function taskPinDotElement(): HTMLDivElement {
     background: PIN.greenBright,
     border: '2.5px solid #ffffff',
     boxShadow: `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`,
+    zIndex: PIN_Z_INDEX.selected,
     pointerEvents: 'none',
   })
   return root

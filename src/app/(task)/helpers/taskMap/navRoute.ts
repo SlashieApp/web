@@ -7,12 +7,18 @@ import {
   peekDrivingRouteCache,
 } from '@/utils/mapboxDirections'
 
+import {
+  PINS_PATH_ANIM_MS,
+  PINS_PATH_LINE_OPACITY,
+  PINS_PATH_LINE_WIDTH,
+} from '../marketplaceMap/pinsPath/config'
+
 export const TASK_MAP_NAV_ROUTE_SOURCE = 'task-browse-nav-route'
 export const TASK_MAP_NAV_ROUTE_LAYER = 'task-browse-nav-route-line'
 
 const ROUTE_GREEN = BRAND_MAP_ROUTE
 const ROUTE_FADE = 'rgba(0, 220, 130, 0)'
-const ROUTE_ANIM_MS = 400
+const ROUTE_ANIM_MS = PINS_PATH_ANIM_MS
 
 const emptyLine = {
   type: 'Feature' as const,
@@ -77,8 +83,8 @@ export function ensureTaskMapNavRouteLayers(map: MapboxMap) {
           'line-cap': 'round',
         },
         paint: {
-          'line-width': 4,
-          'line-opacity': 0.88,
+          'line-width': PINS_PATH_LINE_WIDTH.mobile,
+          'line-opacity': PINS_PATH_LINE_OPACITY,
           'line-gradient': lineGradient(1),
         },
       },

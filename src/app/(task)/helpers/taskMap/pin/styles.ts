@@ -38,6 +38,26 @@ export type PinVisualState = {
   showPill: boolean
 }
 
+/**
+ * Marker stacking on the Mapbox canvas (higher sits in front):
+ * selected task → me (“You”) → hover peek → other tasks.
+ */
+export const PIN_Z_INDEX = {
+  task: '1',
+  hover: '2',
+  me: '3',
+  selected: '4',
+} as const
+
+export function pinStackZIndex(state: {
+  selected: boolean
+  expanded: boolean
+}): string {
+  if (state.selected) return PIN_Z_INDEX.selected
+  if (state.expanded) return PIN_Z_INDEX.hover
+  return PIN_Z_INDEX.task
+}
+
 type PinDom = {
   root: HTMLDivElement
   popupShell: HTMLDivElement
@@ -167,7 +187,7 @@ export function applyPinVisualState(
   motion: boolean,
 ) {
   const { selected, expanded, showPill } = state
-  const zIndex = expanded ? '2' : '1'
+  const zIndex = pinStackZIndex({ selected, expanded })
   const dotPx = selected ? 14 : 12
 
   Object.assign(dom.root.style, {

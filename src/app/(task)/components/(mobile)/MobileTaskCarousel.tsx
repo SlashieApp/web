@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useMemo, useRef } from 'react'
 
 import { captureSearchCardImpression } from '@/app/(task)/helpers/searchCardImpression'
@@ -41,15 +41,20 @@ export function MobileTaskCarousel() {
 
   if (isInitialTasksLoad) {
     return (
-      <Box px={{ base: 2, md: 3 }} pb={2} aria-busy aria-label={t.loadingTasks}>
-        <HStack gap={3} overflow="hidden" align="stretch">
-          <Box minW="85%" maxW="600px" flexShrink={0}>
-            <TaskCardSkeleton />
-          </Box>
-          <Box minW="85%" maxW="600px" flexShrink={0}>
-            <TaskCardSkeleton />
-          </Box>
-        </HStack>
+      <Box
+        px={{ base: 2, md: 3 }}
+        pb={2}
+        overflow="hidden"
+        aria-busy
+        aria-label={t.loadingTasks}
+      >
+        <Box
+          w={{ base: 'full', md: 'calc(100% - 52px)' }}
+          maxW="600px"
+          mx="auto"
+        >
+          <TaskCardSkeleton />
+        </Box>
       </Box>
     )
   }

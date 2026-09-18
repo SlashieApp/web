@@ -96,7 +96,14 @@ export function Drawer({
           },
         }}
       />
-      <DrawerPositioner position="fixed" inset="0" zIndex={APP_OVERLAY_Z_INDEX}>
+      <DrawerPositioner
+        position="fixed"
+        inset="0"
+        zIndex={APP_OVERLAY_Z_INDEX}
+        {...(placement === 'bottom'
+          ? { justifyContent: 'center', alignItems: 'flex-end' }
+          : {})}
+      >
         <DrawerContent
           colorPalette="green"
           bg="bg.surface"
@@ -114,6 +121,9 @@ export function Drawer({
               transitionDuration: '0ms',
             },
           }}
+          {...(placement === 'bottom'
+            ? { mx: 'auto', w: 'full', maxW: 'lg' }
+            : {})}
           {...radius}
           {...contentProps}
         >

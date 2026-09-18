@@ -1,6 +1,7 @@
 import type { GeoJSONSource, Map as MapboxMap, Marker } from 'mapbox-gl'
 
 import {
+  PIN_Z_INDEX,
   referenceMarkerElement,
   taskMarkerElement,
   taskPinDotElement,
@@ -31,6 +32,8 @@ const CIRCLE_LAYERS = {
 } as const
 const ROUTE_SOURCE = 'task-loc-route'
 const ROUTE_LAYER = 'task-loc-route-line'
+/** Padding around the pin when the shell does not pass a view inset. */
+const ROUTE_FRAME_PAD = 48
 
 export type TaskLocationMapVariant = 'exact' | 'approximate'
 
@@ -60,26 +63,48 @@ export type TaskLocationMapViewPadding = {
   left?: number
 }
 
+export type TaskDetailMapOrigin = { lat: number; lng: number }
+
 /**
- * Frame the fixed desktop hero map so the task location sits in the visible
- * top-right quadrant (left side is scrim + scrolling cards).
+ * Driving-route origin for task detail: only when the visitor arrived from
+ * `/search` with that page's browse center in the query string.
  */
-export function desktopTaskDetailMapPadding(
-  width: number,
-  height: number,
-  variant: TaskLocationMapVariant = 'exact',
-): TaskLocationMapViewPadding {
-  return {
-    top: 58,
-    left: Math.round(width * 0.5),
-    right: 20,
-    // Zone circle sits higher — extra bottom inset lifts it above the quote cards.
-    bottom: Math.round(height * (variant === 'approximate' ? 0.66 : 0.58)),
+export function parseTaskDetailSearchRouteOrigin(input: {
+  from?: string | null
+  lat?: string | null
+  lng?: string | null
+}): TaskDetailMapOrigin | null {
+  if (input.from !== 'search') return null
+  const lat = Number.parseFloat(input.lat ?? '')
+  const lng = Number.parseFloat(input.lng ?? '')
+  if (
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng) ||
+    lat < -90 ||
+    lat > 90 ||
+    lng < -180 ||
+    lng > 180
+  ) {
+    return null
   }
+  return { lat, lng }
+}
+
+export function taskDetailSearchRouteOriginFromLocationSearch(
+  search: string,
+): TaskDetailMapOrigin | null {
+  const params = new URLSearchParams(
+    search.startsWith('?') ? search.slice(1) : search,
+  )
+  return parseTaskDetailSearchRouteOrigin({
+    from: params.get('from'),
+    lat: params.get('lat'),
+    lng: params.get('lng'),
+  })
 }
 
 export type TaskLocationMapController = {
-  /** Draw a driving route from the given origin to the task location and frame both. */
+  /** Draw a driving route from the given origin to the task location. Camera stays on the task. */
   showRouteFrom: (origin: { lat: number; lng: number }) => Promise<void>
   clearRoute: () => void
   /** Shift the map's logical viewport so the pin can sit in a screen zone (e.g. header right). */
@@ -117,12 +142,16 @@ export function createTaskLocationMapController(args: {
   themeMode: 'light' | 'dark'
   viewPadding?: TaskLocationMapViewPadding
   onMapReady?: () => void
+  /** First Mapbox `idle` after load — tiles are on screen, safe to fade in. */
+  onMapPainted?: () => void
   /**
    * When provided (exact variant), the destination renders as the browse-map
    * expanded price pin instead of a bare dot. `distanceLabel` is replaced with
    * the live "x miles away" from the route origin once a route is drawn.
    */
   pinTask?: TaskMapTask
+  /** Search-page browse center. When set, draw You + path without moving the camera. */
+  routeOrigin?: TaskDetailMapOrigin | null
 }): TaskLocationMapController {
   const { container, accessToken, lat, lng, variant } = args
   const pinTask: TaskMapTask | null = args.pinTask ? { ...args.pinTask } : null
@@ -139,6 +168,7 @@ export function createTaskLocationMapController(args: {
     coordinates: [number, number][]
   } | null = null
   let viewPadding: TaskLocationMapViewPadding = args.viewPadding ?? {}
+  let routeRequestId = 0
 
   const applyViewPadding = (
     m: MapboxMap,
@@ -154,9 +184,12 @@ export function createTaskLocationMapController(args: {
 
   const pinViewPadding = (): TaskLocationMapViewPadding => {
     if (Object.keys(viewPadding).length > 0) return viewPadding
-    const w = container.offsetWidth
-    const h = container.offsetHeight
-    return desktopTaskDetailMapPadding(w, h, variant)
+    return {
+      top: ROUTE_FRAME_PAD,
+      right: ROUTE_FRAME_PAD,
+      bottom: ROUTE_FRAME_PAD,
+      left: ROUTE_FRAME_PAD,
+    }
   }
 
   const resetCamera = (m: MapboxMap) => {
@@ -178,6 +211,7 @@ export function createTaskLocationMapController(args: {
       // Non-interactive expanded price pin (no select/view-task actions).
       const handle = taskMarkerElement(pinTask, false, () => {})
       handle.setExpanded(true)
+      handle.el.style.zIndex = PIN_Z_INDEX.selected
       destMarker = new mapboxMod.Marker({
         element: handle.el,
         anchor: 'bottom',
@@ -237,8 +271,6 @@ export function createTaskLocationMapController(args: {
   }
 
   const frameRoute = (m: MapboxMap) => {
-    // Keep the task location anchored like zone/pin mode — draw the route without
-    // fitBounds shifting the map center toward the viewer origin.
     resetCamera(m)
   }
 
@@ -276,14 +308,20 @@ export function createTaskLocationMapController(args: {
 
       m.on('load', () => {
         if (cancelled) return
-        resetCamera(m)
         addOverlays(m)
-        if (pendingRoute) {
-          const origin = pendingRoute
-          pendingRoute = null
-          void runRoute(origin)
+        resetCamera(m)
+        const origin = pendingRoute
+        pendingRoute = null
+        if (origin) void runRoute(origin)
+        const finishLoad = () => {
+          if (cancelled) return
+          args.onMapReady?.()
+          m.once('idle', () => {
+            if (cancelled) return
+            args.onMapPainted?.()
+          })
         }
-        args.onMapReady?.()
+        finishLoad()
       })
       m.on('style.load', () => {
         if (cancelled || !m.isStyleLoaded()) return
@@ -293,10 +331,9 @@ export function createTaskLocationMapController(args: {
   )
 
   const runRoute = async (origin: { lat: number; lng: number }) => {
-    const m = map
-    if (!m || !m.isStyleLoaded()) {
+    const requestId = ++routeRequestId
+    if (!map || !map.isStyleLoaded()) {
       pendingRoute = origin
-      return
     }
     routeAbort?.abort()
     routeAbort = new AbortController()
@@ -307,8 +344,14 @@ export function createTaskLocationMapController(args: {
       lat,
       accessToken,
       routeAbort.signal,
-    ).catch(() => null)
-    if (cancelled || map !== m) return
+    ).catch((err: unknown) => {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return 'aborted' as const
+      }
+      return null
+    })
+    if (cancelled || requestId !== routeRequestId) return
+    if (geometry === 'aborted') return
 
     const coordinates: [number, number][] =
       geometry && geometry.coordinates.length >= 2
@@ -318,6 +361,9 @@ export function createTaskLocationMapController(args: {
             [lng, lat],
           ]
     currentRoute = { origin, coordinates }
+
+    const m = map
+    if (!m || !m.isStyleLoaded()) return
 
     if (pinTask) {
       const awayLabel = formatDistanceAwayLabel(
@@ -332,11 +378,16 @@ export function createTaskLocationMapController(args: {
     renderRoute(m)
   }
 
+  if (args.routeOrigin) {
+    void runRoute(args.routeOrigin)
+  }
+
   return {
     showRouteFrom: (origin) => runRoute(origin),
     clearRoute: () => {
       routeAbort?.abort()
       routeAbort = null
+      routeRequestId += 1
       currentRoute = null
       pendingRoute = null
       originMarker?.remove()
@@ -351,10 +402,6 @@ export function createTaskLocationMapController(args: {
       viewPadding = padding
       const m = map
       if (!m?.isStyleLoaded()) return
-      if (currentRoute) {
-        frameRoute(m)
-        return
-      }
       resetCamera(m)
     },
     reframeRoute: () => {

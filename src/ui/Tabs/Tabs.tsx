@@ -59,6 +59,11 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
    * content stays readable while the sticky header stays transparent.
    */
   panelBg?: BoxProps['bg']
+  /**
+   * Tablist hairline is solid on the left half, then fades out to the right
+   * (task-detail money page over the map).
+   */
+  fadeTabListBorder?: boolean
   /** Extra props for the sticky chrome box (title bar + tablist). */
   stickyChromeProps?: BoxProps
   /** Accessible name for the tablist. */
@@ -97,6 +102,7 @@ function TabsBase({
   stickyTop = 0,
   stickyBg,
   panelBg,
+  fadeTabListBorder = false,
   stickyChromeProps,
   px,
   stickyHeader,
@@ -223,9 +229,26 @@ function TabsBase({
             aria-label={ariaLabel}
             position="relative"
             gap={fitted ? 0 : fittedBelowLg ? { base: 0, lg: 6 } : 6}
-            borderBottomWidth="1px"
+            borderBottomWidth={fadeTabListBorder ? '0' : '1px'}
             borderColor="border.default"
             align="stretch"
+            css={
+              fadeTabListBorder
+                ? {
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: '1px',
+                      pointerEvents: 'none',
+                      backgroundImage:
+                        'linear-gradient(to right, {colors.border.default} 0%, {colors.border.default} 50%, transparent 100%)',
+                    },
+                  }
+                : undefined
+            }
           >
             {tabs.map((tab) => {
               const selected = tab.key === activeValue

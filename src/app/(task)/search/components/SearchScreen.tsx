@@ -63,6 +63,7 @@ export function SearchScreen({
         minH={0}
         // Fill the shell main padding box on mobile so the map stays full-bleed
         // under the glass nav. The carousel is offset above the pill separately.
+        pointerEvents="none"
         position={{ base: 'absolute', lg: 'relative' }}
         inset={{ base: 0, lg: 'auto' }}
         height={{ base: 'auto', lg: '100%' }}
@@ -71,7 +72,11 @@ export function SearchScreen({
         overflow="hidden"
       >
         <SearchMapLayer isDesktop={isDesktopSplit} />
-        {isDesktopSplit ? <WebSearchLayout /> : <MobileSearchLayout />}
+        {/* Both form factors stay mounted. CSS (not `useBreakpointValue`)
+            picks the visible chrome so SSR/first paint matches the viewport
+            instead of flashing the mobile carousel skeleton on desktop. */}
+        <WebSearchLayout />
+        <MobileSearchLayout />
       </Box>
     </TaskBrowseProvider>
   )

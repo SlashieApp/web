@@ -1,41 +1,50 @@
 'use client'
 
-import { motion, useReducedMotion } from 'motion/react'
+import { Box, type BoxProps, type SystemStyleObject } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-/** Durations mirror SDL `sdlMotion.duration.base` (150ms) / `.slow` (300ms). */
-const DURATION: Record<'base' | 'slow', number> = {
-  base: 0.15,
-  slow: 0.3,
+import { sdlMotion } from '@/theme/styles'
+
+/** Distance the section starts below its resting position. */
+export const SURFACE_ENTER_OFFSET = '1.25rem'
+
+/**
+ * First-paint entrance for a task-detail surface (cards, tabs, skeletons).
+ * `@starting-style` runs on insert, so skeleton and loaded content both rise
+ * from the bottom without a mount effect.
+ */
+export const surfaceEnterFromBottomCss: SystemStyleObject = {
+  opacity: 1,
+  transform: 'translateY(0)',
+  transformOrigin: 'bottom center',
+  transitionProperty: 'opacity, transform',
+  transitionDuration: sdlMotion.duration.slow,
+  transitionTimingFunction: sdlMotion.easing.standard,
+  '@starting-style': {
+    opacity: 0,
+    transform: `translateY(${SURFACE_ENTER_OFFSET})`,
+  },
+  '@media (prefers-reduced-motion: reduce)': {
+    transition: 'none',
+    transform: 'none',
+    '@starting-style': {
+      opacity: 1,
+      transform: 'none',
+    },
+  },
 }
 
 /**
- * Entrance reveal for trip-detail blocks. Movement + fade by default; under
- * `prefers-reduced-motion` it becomes an opacity fade with no transform, per SDL.
- * Animates transform/opacity only.
+ * Whole-section fade-up on surface render. Use around a complete block
+ * (including skeleton) so the section enters once from the bottom.
  */
 export function Reveal({
   children,
-  speed = 'base',
-  delay = 0,
-}: {
-  children: ReactNode
-  speed?: 'base' | 'slow'
-  delay?: number
-}) {
-  const reduced = useReducedMotion()
+  ...boxProps
+}: { children: ReactNode } & BoxProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: reduced ? 0 : 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: DURATION[speed],
-        delay,
-        ease: [0.2, 0, 0, 1],
-      }}
-      style={{ width: '100%' }}
-    >
+    <Box w="full" css={surfaceEnterFromBottomCss} {...boxProps}>
       {children}
-    </motion.div>
+    </Box>
   )
 }

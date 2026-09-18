@@ -3,6 +3,8 @@ import type { MapMouseEvent, Map as MapboxMap, Marker } from 'mapbox-gl'
 import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import { distanceMilesBetween } from '@/utils/geoDistance'
 
+import { MARKETPLACE_MAP_MOTION_MS } from '../marketplaceMap/motion'
+import { mountMapFadeOverlay } from '../marketplaceMap/overlay/overlay'
 import { createTaskMapNavRouteController } from './navRoute'
 import {
   referenceMarkerElement,
@@ -37,6 +39,9 @@ const DEFAULT_MAPBOX_STYLE = 'mapbox://styles/mapbox/streets-v12'
 
 export const MAX_SEARCH_RADIUS_MILES = 50
 
+/** Shared duration for search ↔ detail and search-center camera moves. */
+const CAMERA_FLY_MS = MARKETPLACE_MAP_MOTION_MS
+
 /** Inverse of browse `zoomToRadiusMiles` — keeps map zoom aligned with search radius. */
 function radiusMilesToZoom(miles: number): number {
   const clamped = Math.min(
@@ -61,6 +66,17 @@ function fullscreenCenterOffsetPx(
   return [Math.max(0, (leftViewportPadding - 120) / 2), 0]
 }
 
+function viewPaddingSig(
+  padding: TaskMapPropsSnapshot['viewPadding'] | undefined,
+): string {
+  if (!padding) return '0'
+  return `${padding.top ?? 0},${padding.right ?? 0},${padding.bottom ?? 0},${padding.left ?? 0}`
+}
+
+function zeroPadding() {
+  return { top: 0, right: 0, bottom: 0, left: 0 }
+}
+
 function markerRowSig(task: TaskMapTask, lat: number, lng: number): string {
   return `${task.id}:${lat},${lng}:${taskPinContentSig(task)}`
 }
@@ -76,6 +92,8 @@ type MarkerRow = {
 export type TaskMapController = {
   sync: () => void
   scheduleSync: () => void
+  /** If the Mapbox instance is already loaded, notify `onReadyChange` (search remounts). */
+  flushReady: () => void
   destroy: () => void
 }
 
@@ -104,6 +122,7 @@ export function createTaskMapController(args: {
   let map: MapboxMap | null = null
   let mapboxMod: typeof import('mapbox-gl').default | null = null
   let syncQueued = false
+  let unmountFade: (() => void) | null = null
 
   // --- interaction state (owned here, never round-tripped through React)
   let showSearchThisArea = false
@@ -158,6 +177,12 @@ export function createTaskMapController(args: {
     if (mode === 'dark') return darkStyle || DEFAULT_MAPBOX_STYLE
     if (mode === 'light') return lightStyle || DEFAULT_MAPBOX_STYLE
     return DEFAULT_MAPBOX_STYLE
+  }
+
+  const flushReady = () => {
+    if (cancelled || !map) return
+    if (!map.loaded() && !map.isStyleLoaded()) return
+    getProps().onReadyChange?.(true)
   }
 
   const scheduleSync = () => {
@@ -227,9 +252,16 @@ export function createTaskMapController(args: {
 
   // ------------------------------------------------------------- reference
 
+  // ------------------------------------------------------------- reference
+
   const syncReferenceMarker = () => {
     if (!map || !mapboxMod) return
     const p = getProps()
+    if (p.showReferenceMarker === false) {
+      referenceMarker?.remove()
+      referenceMarker = null
+      return
+    }
     if (!referenceMarker) {
       referenceMarker = new mapboxMod.Marker({
         element: referenceMarkerElement(),
@@ -244,16 +276,38 @@ export function createTaskMapController(args: {
 
   // ---------------------------------------------------------------- camera
 
+  const flyCamera = (args: {
+    center: [number, number]
+    zoom: number
+    offset: [number, number]
+    padding: { top: number; right: number; bottom: number; left: number }
+  }) => {
+    if (!map) return
+    const duration = didInitialCamera ? CAMERA_FLY_MS : 0
+    didInitialCamera = true
+    map.stop()
+    beginProgrammaticMove(duration + 400)
+    map.flyTo({
+      center: args.center,
+      zoom: args.zoom,
+      offset: args.offset,
+      padding: args.padding,
+      duration,
+      essential: true,
+    })
+  }
+
   /**
-   * Single search-center camera authority. Runs only when the center /
-   * padding / radius actually changes, and yields entirely to the selection
-   * fly while a task is selected.
+   * Search-center camera. Yields to the selection fly while a task is
+   * selected or the detail camera is up. Stamps the detail key so Back
+   * to search is a real camera change and flyTo runs.
    */
   const syncCamera = () => {
     if (!map) return
     const p = getProps()
     const leftPad = p.leftViewportPadding ?? 48
     const searchKey = `${p.centerLat},${p.centerLng}`
+    const cameraMode = p.cameraMode ?? 'browse'
 
     // New search submitted → drop the stale area prompt, re-anchor the route.
     if (lastSearchCenterKey !== searchKey) {
@@ -278,28 +332,23 @@ export function createTaskMapController(args: {
     }
     prevVisible = visibleNow
 
-    const cameraKey = `${searchKey}|${leftPad}|${p.effectiveSearchRadiusMiles}`
+    const cameraKey = `${searchKey}|${leftPad}|${p.effectiveSearchRadiusMiles}|${cameraMode}|${viewPaddingSig(p.viewPadding)}`
     if (cameraKey === lastCameraKey) return
-    // While a task is selected the selection fly owns the camera; leave the
-    // key unconsumed so the search recenter applies after deselection.
+    if (cameraMode === 'detail') {
+      lastCameraKey = cameraKey
+      return
+    }
+    // Pin-select on browse keeps the search key unconsumed so deselecting
+    // does not yank the camera back to the search center.
     if (p.selectedTaskId) return
     lastCameraKey = cameraKey
 
-    const easeArgs = {
-      center: [p.centerLng, p.centerLat] as [number, number],
+    flyCamera({
+      center: [p.centerLng, p.centerLat],
       zoom: radiusMilesToZoom(p.effectiveSearchRadiusMiles),
       offset: fullscreenCenterOffsetPx(leftPad),
-    }
-
-    if (!didInitialCamera) {
-      // Map was constructed at the search center — apply offset without motion.
-      didInitialCamera = true
-      map.easeTo({ ...easeArgs, duration: 0 })
-      return
-    }
-
-    beginProgrammaticMove(1200)
-    map.easeTo({ ...easeArgs, duration: 450 })
+      padding: zeroPadding(),
+    })
   }
 
   // --------------------------------------------------------------- markers
@@ -348,7 +397,11 @@ export function createTaskMapController(args: {
     const p = getProps()
     if (!(p.visible ?? true) || !(p.tasksLoaded ?? true)) return
 
+    const pinMode = p.taskPinMode ?? 'all'
+    const selectedIdForPins = p.selectedTaskId ?? null
     const withCoords = p.tasks.flatMap((task) => {
+      if (pinMode === 'none') return []
+      if (pinMode === 'solo' && task.id !== selectedIdForPins) return []
       const ll = taskLngLat(task)
       return ll ? [{ task, ...ll }] : []
     })
@@ -456,26 +509,31 @@ export function createTaskMapController(args: {
       )
     }
 
+    const cameraMode = p.cameraMode ?? 'browse'
     const flyKey =
       selectedId && ll
-        ? `${selectedId}|${token}|${ll.lat}|${ll.lng}|${leftPad}`
-        : '__none__'
+        ? `${selectedId}|${token}|${ll.lat}|${ll.lng}|${leftPad}|${cameraMode}|${viewPaddingSig(p.viewPadding)}`
+        : `__none__|${cameraMode}`
     if (flyKey === lastSelectionFlyKey) return
     lastSelectionFlyKey = flyKey
     if (!selectedId || !ll) return
 
-    map.stop()
+    const detail = cameraMode === 'detail'
+    const pad = detail ? (p.viewPadding ?? zeroPadding()) : zeroPadding()
     setShowSearchThisArea(false)
-    beginProgrammaticMove(1200)
-    map.flyTo({
+    flyCamera({
       center: [ll.lng, ll.lat],
       zoom: Math.min(
         MAP_MAX_ZOOM,
-        Math.max(MAP_MIN_ZOOM, Math.max(map.getZoom(), 13.5)),
+        Math.max(MAP_MIN_ZOOM, detail ? 14.5 : Math.max(map.getZoom(), 13.5)),
       ),
-      offset: fullscreenCenterOffsetPx(leftPad),
-      duration: 320,
-      essential: true,
+      offset: detail ? [0, 0] : fullscreenCenterOffsetPx(leftPad),
+      padding: {
+        top: pad.top ?? 0,
+        right: pad.right ?? 0,
+        bottom: pad.bottom ?? 0,
+        left: pad.left ?? 0,
+      },
     })
   }
 
@@ -485,6 +543,8 @@ export function createTaskMapController(args: {
     if (cancelled || !map) return
     // Not ready yet — the `load` / `style.load` handlers re-schedule.
     if (!map.isStyleLoaded()) return
+
+    flushReady()
 
     const p = getProps()
 
@@ -527,6 +587,7 @@ export function createTaskMapController(args: {
       })
       m.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
       map = m
+      unmountFade = mountMapFadeOverlay(m.getContainer())
 
       m.once('load', () => {
         if (cancelled) return
@@ -557,7 +618,12 @@ export function createTaskMapController(args: {
       m.on('idle', idleRun)
 
       moveEndRun = () => {
-        if (!map || !getProps().onSearchThisAreaConfirm) return
+        const live = getProps()
+        if (!map || !live.onSearchThisAreaConfirm) return
+        if (live.cameraMode === 'detail' || live.mapInteractions === false) {
+          setShowSearchThisArea(false)
+          return
+        }
         if (moveEndDebounce) clearTimeout(moveEndDebounce)
         moveEndDebounce = setTimeout(() => {
           if (cancelled || programmaticMove || !map) return
@@ -586,9 +652,10 @@ export function createTaskMapController(args: {
         if (target instanceof Element && target.closest('.mapboxgl-marker')) {
           return
         }
+        const p = getProps()
+        if (p.cameraMode === 'detail' || p.mapInteractions === false) return
         if (isNavRoutePresenting) return
         navRoute.clearRoute()
-        const p = getProps()
         if (p.selectedTaskId) p.onSelectTask?.(null)
         p.onMapClick?.()
       }
@@ -599,8 +666,11 @@ export function createTaskMapController(args: {
   return {
     sync,
     scheduleSync,
+    flushReady,
     destroy: () => {
       cancelled = true
+      unmountFade?.()
+      unmountFade = null
       if (moveEndDebounce) clearTimeout(moveEndDebounce)
       resizeObserver.disconnect()
       if (map && moveEndRun) map.off('moveend', moveEndRun)

@@ -420,14 +420,18 @@ export function Header({
         alignItems="center"
         position="sticky"
         top={0}
-        _before={{
-          content: '""',
-          position: 'absolute',
-          inset: 0,
-          backdropFilter: 'blur(20px)',
-          pointerEvents: 'none',
-          zIndex: -1,
-        }}
+        _before={
+          overSearchMap
+            ? {
+                content: '""',
+                position: 'absolute',
+                inset: 0,
+                backdropFilter: 'blur(20px)',
+                pointerEvents: 'none',
+                zIndex: -1,
+              }
+            : undefined
+        }
         {...props}
       >
         <Container

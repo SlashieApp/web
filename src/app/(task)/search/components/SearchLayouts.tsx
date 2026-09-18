@@ -8,13 +8,13 @@ import {
   SEARCH_LIST_COLUMN_W,
 } from '@/theme/pageContainer'
 
-import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav'
 import { MobileTaskBrowseFiltersDrawer } from '../../components/(mobile)/MobileTaskBrowseFiltersDrawer'
 import { MobileTaskCarousel } from '../../components/(mobile)/MobileTaskCarousel'
 import { WebTaskBrowseFiltersBlock } from '../../components/(web)/TaskBrowseFilters'
 import { TaskBrowseSearchThisAreaButton } from '../../components/TaskBrowseSearchThisAreaButton'
 import { TaskSearch } from '../../components/TaskSearch'
 import { TaskTag } from '../../components/TaskTag'
+import { useIsTouchMobileDevice } from '../../helpers/touchMobileDevice'
 import { SearchResultsListTitle } from './results/SearchResultsListTitle'
 
 /** Desktop split view for /search: location bar + task list over the map. */
@@ -27,6 +27,7 @@ export function WebSearchLayout() {
       w="full"
       position="relative"
       overflow="hidden"
+      display={{ base: 'none', lg: 'block' }}
     >
       <Box
         position="absolute"
@@ -47,6 +48,7 @@ export function WebSearchLayout() {
             w={{ base: 'full', md: SEARCH_LIST_COLUMN_W }}
             maxW={SEARCH_LIST_COLUMN_W}
             h="full"
+            pointerEvents="auto"
             display="flex"
             flexDirection="column"
           >
@@ -81,6 +83,8 @@ export function WebSearchLayout() {
 
 /** Mobile /search: map behind, location bar on top, task carousel at the bottom. */
 export function MobileSearchLayout() {
+  const touchPhone = useIsTouchMobileDevice()
+
   return (
     <Box
       flex={1}
@@ -89,6 +93,7 @@ export function MobileSearchLayout() {
       position="relative"
       minW={0}
       pointerEvents="none"
+      display={{ base: 'block', lg: 'none' }}
     >
       <Box
         position="absolute"
@@ -101,7 +106,7 @@ export function MobileSearchLayout() {
         justifyContent="center"
       >
         <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X} w="full">
-          <Stack gap={2} flexShrink={0} mr={12}>
+          <Stack gap={2} flexShrink={0} mr={touchPhone ? 0 : 12}>
             <TaskSearch />
             <HStack gap={1.5} flexWrap="wrap">
               <TaskTag />
@@ -114,11 +119,12 @@ export function MobileSearchLayout() {
         position="absolute"
         left={0}
         right={0}
-        bottom={MOBILE_BOTTOM_NAV_CLEARANCE}
+        bottom={0}
         zIndex={3}
         display="flex"
         flexDirection="column"
         gap={2}
+        pb={2}
         pointerEvents="auto"
       >
         <TaskBrowseSearchThisAreaButton />

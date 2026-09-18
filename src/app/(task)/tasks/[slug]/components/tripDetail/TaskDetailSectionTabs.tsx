@@ -86,6 +86,7 @@ export function TaskDetailSectionTabs({
           css: isStuck ? STUCK_CHROME_CSS : undefined,
         }}
         panelBg={{ base: 'bg.canvas', lg: 'transparent' }}
+        fadeTabListBorder
         w="full"
         px={px}
         aria-label={t.nav.taskSectionsAria}

@@ -8,21 +8,46 @@ const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('search mobile map chrome', () => {
   it('offsets Mapbox controls above the overlapping task card below lg', () => {
-    const src = readFileSync(
-      join(dir, '../components/map/SearchMapLayer.tsx'),
+    const overlay = readFileSync(
+      join(dir, '../../helpers/marketplaceMap/overlay/overlay.ts'),
+      'utf8',
+    )
+    const overlayConfig = readFileSync(
+      join(dir, '../../helpers/marketplaceMap/overlay/config.ts'),
       'utf8',
     )
     const mapSrc = readFileSync(
       join(dir, '../../components/TaskMap.tsx'),
       'utf8',
     )
-    expect(src).toContain('mobileCtrlBottomOffset')
-    expect(src).toContain('SEARCH_MOBILE_MAP_CTRL_BOTTOM')
-    expect(src).toContain('logoPosition="bottom-right"')
-    expect(src).toContain('+ 7.5rem')
-    expect(mapSrc).toContain("display: { base: 'none', lg: 'block' }")
+    const searchMap = readFileSync(
+      join(dir, '../components/map/SearchMapLayer.tsx'),
+      'utf8',
+    )
+    expect(overlay).toContain('overlayCtrlBottomOffsetForMobile')
+    expect(overlayConfig).toContain('+ 7.5rem')
+    expect(searchMap).toContain('mobileCtrlBottomOffset')
+    expect(searchMap).toContain('overlayCtrlBottomOffsetForMobile')
+    expect(searchMap).toContain("logoPosition: 'bottom-right'")
+    expect(mapSrc).toContain('useIsTouchMobileDevice')
+    expect(mapSrc).toContain("display: 'none'")
+    expect(mapSrc).not.toContain("display: { base: 'none', lg: 'block' }")
     expect(mapSrc).toContain("lg: '0'")
-    expect(src).not.toContain('+ 12rem')
+    expect(overlayConfig).not.toContain('+ 12rem')
+  })
+
+  it('packs the Mapbox logo and compact attribution into a tight corner cluster', () => {
+    const src = readFileSync(
+      join(dir, '../../helpers/marketplaceMap/overlay/overlay.ts'),
+      'utf8',
+    )
+    expect(src).toContain("flexDirection: 'row-reverse'")
+    expect(src).toContain("columnGap: '2px'")
+    expect(src).toContain("right: '4px'")
+    expect(src).toContain("width: '70px'")
+    expect(src).toContain(
+      "'& .mapboxgl-ctrl-attrib .mapboxgl-ctrl-attrib-button'",
+    )
   })
 
   it('fills the shell main padding box so the map stays full-bleed under the nav', () => {
@@ -34,6 +59,13 @@ describe('search mobile map chrome', () => {
       "position={{ base: 'absolute', lg: 'relative' }}",
     )
     expect(screenSrc).toContain("inset={{ base: 0, lg: 'auto' }}")
+    expect(screenSrc).toContain('<WebSearchLayout />')
+    expect(screenSrc).toContain('<MobileSearchLayout />')
+    expect(screenSrc).toContain('pointerEvents="none"')
+    expect(screenSrc).toContain('<SearchMapLayer')
+    expect(screenSrc).not.toContain(
+      'isDesktopSplit ? <WebSearchLayout /> : <MobileSearchLayout />',
+    )
   })
 
   it('sits the mobile carousel above the bottom nav', () => {
@@ -41,9 +73,33 @@ describe('search mobile map chrome', () => {
       join(dir, '../components/SearchLayouts.tsx'),
       'utf8',
     )
-    expect(src).toContain('bottom={MOBILE_BOTTOM_NAV_CLEARANCE}')
-    expect(src).not.toContain('bottom={0}')
+    expect(src).toContain("display={{ base: 'none', lg: 'block' }}")
+    expect(src).toContain("display={{ base: 'block', lg: 'none' }}")
+    expect(src).toContain('bottom={0}')
+    expect(src).toContain('useIsTouchMobileDevice')
+    expect(src).toContain('mr={touchPhone ? 0 : 12}')
+    expect(src).not.toContain('bottom={MOBILE_BOTTOM_NAV_CLEARANCE}')
     expect(src).not.toContain('linear-gradient')
     expect(src).not.toContain('TaskBrowseListColumnScrim')
+  })
+
+  it('does not open the mobile filter sheet on desktop while both layouts stay mounted', () => {
+    const src = readFileSync(
+      join(dir, '../../components/(mobile)/MobileTaskBrowseFiltersDrawer.tsx'),
+      'utf8',
+    )
+    expect(src).toContain("fallback: 'lg'")
+    expect(src).toContain('if (!showMobileSheet) return null')
+    expect(src).toContain('open={isFilterOpen}')
+  })
+
+  it('centers the mobile task-card skeleton to match the carousel snap', () => {
+    const src = readFileSync(
+      join(dir, '../../components/(mobile)/MobileTaskCarousel.tsx'),
+      'utf8',
+    )
+    expect(src).toContain('mx="auto"')
+    expect(src).toContain("w={{ base: 'full', md: 'calc(100% - 52px)' }}")
+    expect(src).not.toContain('minW="85%"')
   })
 })

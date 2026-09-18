@@ -15,6 +15,7 @@ describe('TaskDetailSectionTabs sticky chrome', () => {
     expect(src).toContain('borderRadius: 0')
     expect(src).toContain('&::before')
     expect(src).not.toContain('&::after')
+    expect(src).toContain('fadeTabListBorder')
     expect(src).toContain('TASK_DETAIL_TAB.overview')
     expect(src).toContain('TASK_DETAIL_TAB.quotes')
     expect(src).not.toContain('TASK_DETAIL_TAB.activity')
