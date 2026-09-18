@@ -20,9 +20,13 @@ import {
 import { shouldHideMobileNav } from './shouldHideMobileNav'
 import { useHideHeaderOnScroll } from './useHideHeaderOnScroll'
 
+type AppShellMainProps = BoxProps & {
+  ref?: Ref<HTMLDivElement>
+}
+
 type AppShellBodyProps = {
   children: ReactNode
-  mainProps?: BoxProps
+  mainProps?: AppShellMainProps
   hasSession?: boolean
 }
 
@@ -44,7 +48,7 @@ export function AppShellBody({
   const onMainRef = useCallback(
     (node: HTMLDivElement | null) => {
       onScrollRootRef(node)
-      assignRef(mainPropsRef as Ref<HTMLDivElement> | undefined, node)
+      assignRef(mainPropsRef, node)
     },
     [onScrollRootRef, mainPropsRef],
   )

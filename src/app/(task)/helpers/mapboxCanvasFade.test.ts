@@ -36,10 +36,10 @@ describe('mapboxCanvasFadeCss', () => {
   it('uses top+bottom on mobile task detail and left+half-bottom on desktop', () => {
     const mobile = mapboxCanvasFadeCss('taskDetailMobile')[
       '& .mapboxgl-canvas-container::after'
-    ] as Record<string, string>
+    ] as unknown as Record<string, string>
     const desktop = mapboxCanvasFadeCss('taskDetailDesktop')[
       '& .mapboxgl-canvas-container::after'
-    ] as Record<string, string>
+    ] as unknown as Record<string, string>
     expect(mobile.backgroundImage).toContain('to bottom')
     expect(mobile.backgroundImage).toContain('to top')
     expect(desktop.backgroundSize).toBe('100% 100%, 100% 50%')

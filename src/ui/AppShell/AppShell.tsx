@@ -1,12 +1,12 @@
 import { Box, type BoxProps } from '@chakra-ui/react'
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 
 import { AppShellBody } from './AppShellBody'
 
 export type AppShellProps = {
   children: ReactNode
   /** Extra props for the scrolling `main` pane. */
-  mainProps?: BoxProps
+  mainProps?: BoxProps & { ref?: Ref<HTMLDivElement> }
   /**
    * Auth cookie present on this request. Forwarded to Header so logged-in
    * visitors SSR account skeletons instead of guest Log in / Sign up.
