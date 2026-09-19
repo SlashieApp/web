@@ -146,6 +146,7 @@ function PersistentTaskMap() {
       aria-hidden={false}
       data-map-source={published?.source}
       data-map-camera={inDetail ? 'detail' : 'browse'}
+      data-map-selected={mapProps.selectedTaskId ?? ''}
       data-map-task-count={mapProps.tasks.length}
       data-map-loaded={mapProps.tasksLoaded ? '1' : '0'}
       css={{

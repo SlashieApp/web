@@ -50,6 +50,19 @@ describe('resolveMarketplaceMapLayer', () => {
     expect(resolved?.mapInteractions).toBe(true)
   })
 
+  it('clears browse selection so the host can collapse the pin', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      published: {
+        ...browseLayer,
+        props: { ...browseProps, selectedTaskId: null },
+      },
+      focusTaskId: null,
+    })
+    expect(resolved?.selectedTaskId).toBeNull()
+    expect(resolved?.cameraMode).toBe('browse')
+    expect(resolved?.taskPinMode).toBe('all')
+  })
+
   it('keeps browse pin framing when a search task is selected', () => {
     const resolved = resolveMarketplaceMapLayer({
       published: {

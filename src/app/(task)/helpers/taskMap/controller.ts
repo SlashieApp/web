@@ -429,6 +429,11 @@ export function createTaskMapController(args: {
     }
   }
 
+  /** Always push React's selected id onto pins (deselect must collapse). */
+  const applySelectionVisuals = () => {
+    syncSelection(true)
+  }
+
   /**
    * Fly to the selected task and draw its nav route. Keys include the
    * selection token so re-selecting the SAME task re-flies + redraws.
@@ -502,7 +507,7 @@ export function createTaskMapController(args: {
     syncReferenceMarker()
     syncCamera()
     syncMarkers()
-    syncSelection()
+    applySelectionVisuals()
     syncSelectionFly()
     syncSearchUi()
   }
@@ -592,10 +597,9 @@ export function createTaskMapController(args: {
         }
         const p = getProps()
         if (p.cameraMode === 'detail' || p.mapInteractions === false) return
-        if (isNavRoutePresenting) return
         navRoute.clearRoute()
         if (p.selectedTaskId) p.onSelectTask?.(null)
-        p.onMapClick?.()
+        if (!isNavRoutePresenting) p.onMapClick?.()
       }
       m.on('click', mapClickRun)
     },

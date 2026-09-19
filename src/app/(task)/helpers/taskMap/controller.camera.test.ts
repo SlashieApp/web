@@ -28,5 +28,7 @@ describe('task map camera', () => {
     expect(src).toContain("anchor: 'bottom'")
     expect(src).toContain('row.marker.setOffset([0, 0])')
     expect(src).toContain('setExpanded(isSelected)')
+    expect(src).toContain('applySelectionVisuals')
+    expect(src).toContain('syncSelection(true)')
   })
 })

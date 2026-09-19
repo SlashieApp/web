@@ -49,6 +49,8 @@ export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
     [
       isDesktop,
       mapBindings,
+      mapBindings.selectedTaskId,
+      mapBindings.selectedTaskSelectionToken,
       onNavRoutePresentingChange,
       selectFromMap,
       windowOffsetWidth,
