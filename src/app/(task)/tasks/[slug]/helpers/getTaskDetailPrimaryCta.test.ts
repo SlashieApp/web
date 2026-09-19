@@ -131,4 +131,13 @@ describe('getTaskDetailPrimaryCta', () => {
       }),
     ).toBe('none')
   })
+
+  it('signed-in non-owner non-worker on an open task gets send-quote', () => {
+    expect(
+      getTaskDetailPrimaryCta({
+        permissions: permissions(),
+        quoteCount: 0,
+      }),
+    ).toBe('sendQuote')
+  })
 })

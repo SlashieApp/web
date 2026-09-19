@@ -10,24 +10,46 @@ import { Badge, Button, Card, Link, SafetyNotice } from '@ui'
 
 import { taskVtName } from '@/app/(task)/helpers/taskCardHandoff'
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
+import { getTaskDetailPrimaryCta } from '../../../helpers/getTaskDetailPrimaryCta'
 import {
   budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
   taskBudgetDisplayLine,
 } from '../../../helpers/taskDetailUtils'
 
-function QuoteCta({ href, label }: { href: string; label: string }) {
+function PricingQuoteCta({
+  href,
+  kind,
+}: {
+  href: string
+  kind: 'sendQuote' | 'signInToQuote'
+}) {
+  const t = useI11n(bag)
+  const label = kind === 'signInToQuote' ? t.cta.signInToQuote : t.cta.sendQuote
   return (
-    <Button asChild variant="primary" w="full">
-      <Link href={href} _hover={{ textDecoration: 'none' }}>
-        {label}
-      </Link>
-    </Button>
+    <Stack gap={2}>
+      <SafetyNotice variant="inline" />
+      <Button asChild variant="primary" w="full">
+        <Link href={href} _hover={{ textDecoration: 'none' }}>
+          {label}
+        </Link>
+      </Button>
+    </Stack>
   )
 }
 
-/** Overview pricing card — posted budget, with quote CTAs on the quote path. */
-export function TaskPricingCard() {
+type TaskPricingCardProps = {
+  /**
+   * Pin copy must not share the search→detail price transition name —
+   * the in-flow card already owns it.
+   */
+  sharePriceTransition?: boolean
+}
+
+/** Overview pricing card — posted budget, optional quote / continue CTA. */
+export function TaskPricingCard({
+  sharePriceTransition = true,
+}: TaskPricingCardProps = {}) {
   const { task, seed, pending, taskId, me, permissions } = useTaskDetail()
   const t = useI11n(bag)
 
@@ -43,11 +65,12 @@ export function TaskPricingCard() {
     : seed?.priceLabel
   const budgetKind = task ? budgetKindLabel(task.budget?.type) : null
   const paymentMethod = task?.budget?.paymentMethod?.trim()
-  const quoteHref = task ? `/tasks/${task.id}/quote` : null
-  const showSendQuote = Boolean(quoteHref && permissions.showQuoteForm)
-  const showSignInToQuote = Boolean(quoteHref && permissions.showGuestQuoteCta)
-  const showQuoteCta = showSendQuote || showSignInToQuote
-
+  const quoteKind = task
+    ? getTaskDetailPrimaryCta({
+        permissions,
+        quoteCount: task.quotes.length,
+      })
+    : 'none'
   return (
     <Card layout="section" aria-busy={pending && !task ? true : undefined}>
       <Stack gap={4}>
@@ -62,7 +85,11 @@ export function TaskPricingCard() {
         </Text>
         <HStack align="baseline" gap={3} flexWrap="wrap">
           <ViewTransition
-            name={named ? taskVtName('price', taskId) : undefined}
+            name={
+              sharePriceTransition && named
+                ? taskVtName('price', taskId)
+                : undefined
+            }
             share="vt-text"
             default="none"
           >
@@ -99,15 +126,9 @@ export function TaskPricingCard() {
             </Text>
           </HStack>
         ) : null}
-        {showQuoteCta && quoteHref ? (
-          <Stack gap={2}>
-            {showSendQuote ? (
-              <QuoteCta href={quoteHref} label={t.cta.sendQuote} />
-            ) : (
-              <QuoteCta href={quoteHref} label={t.cta.signInToQuote} />
-            )}
-            <SafetyNotice variant="inline" />
-          </Stack>
+        {task &&
+        (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote') ? (
+          <PricingQuoteCta href={`/tasks/${task.id}/quote`} kind={quoteKind} />
         ) : null}
       </Stack>
     </Card>

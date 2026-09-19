@@ -28,6 +28,16 @@ export function getTaskDetailPrimaryCta(
   if (p.isOwner && p.isOpen && quoteCount > 0) return 'viewQuotes'
   if (p.showQuoteForm) return 'sendQuote'
   if (p.showGuestQuoteCta) return 'signInToQuote'
+  // Signed-in non-owner non-worker on an open task — quote page handles setup.
+  if (
+    p.isOpen &&
+    !p.isOwner &&
+    !p.isOrderWorker &&
+    !p.showQuoteUnavailableNotice &&
+    !p.hasWorkerProfile
+  ) {
+    return 'sendQuote'
+  }
   if (p.isOwner && p.isOpen) return 'share'
   return 'none'
 }

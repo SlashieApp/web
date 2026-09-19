@@ -45,7 +45,12 @@
       "complete": "Complete / confirm",
       "confirm": "Confirm completion",
       "editAria": "Edit task",
-      "barAria": "Task actions"
+      "barAria": "Task actions",
+      "contactTask": "Contact customer"
+    },
+    "share": {
+      "pinHeading": "Share your task",
+      "pinBody": "Nearby workers can see your task. Share it to get quotes faster."
     },
     "activity": {
       "heading": "Activity",
@@ -332,7 +337,12 @@
       "complete": "完成 / 確認",
       "confirm": "確認完成",
       "editAria": "編輯任務",
-      "barAria": "任務操作"
+      "barAria": "任務操作",
+      "contactTask": "聯絡顧客"
+    },
+    "share": {
+      "pinHeading": "分享你的任務",
+      "pinBody": "附近工作者可以看到你的任務。分享可更快收到報價。"
     },
     "activity": {
       "heading": "動態",

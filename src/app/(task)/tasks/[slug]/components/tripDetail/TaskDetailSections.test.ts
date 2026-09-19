@@ -32,6 +32,14 @@ describe('TaskInfoSections overview layout', () => {
     expect(pricing).toContain('SafetyNotice')
   })
 
+  it('places overview cards through SectionSlot so pin vs flow is explicit', () => {
+    const src = readFileSync(join(dir, 'TaskDetailSections.tsx'), 'utf8')
+    expect(src).toContain('sectionFlowCss')
+    expect(src).toContain('id="pricing"')
+    expect(src).toContain('id="owner"')
+    expect(src).not.toContain('TaskShareCard')
+  })
+
   it('puts the mobile overflow on the intro row, not in the overview stack', () => {
     const callout = readFileSync(join(dir, 'TaskDetailMoneyChrome.tsx'), 'utf8')
     const sections = readFileSync(join(dir, 'TaskDetailSections.tsx'), 'utf8')

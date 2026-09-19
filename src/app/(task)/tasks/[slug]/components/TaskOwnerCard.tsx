@@ -7,7 +7,6 @@ import bag from '../i11n.json'
 import { Button, Card, Link } from '@ui'
 
 import { useTaskDetail } from '../context/TaskDetailProvider'
-import { TASK_DETAIL_TAB } from '../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
 
 function posterDisplayName(task: TaskDetailRecord, fallback: string): string {
@@ -27,16 +26,47 @@ export function TaskOwnerCardSkeleton() {
   )
 }
 
-type TaskOwnerCardProps = {
-  /**
-   * Worker role card: contact CTA plus complete-with-code when that flow
-   * is available. Default is identity-only (overview / quotes sidebar).
-   */
-  roleActions?: boolean
+function TaskOwnerContactCta() {
+  const { task, permissions } = useTaskDetail()
+  const t = useI11n(bag)
+  if (!task || !permissions.isOrderWorker || !permissions.isOrderActive) {
+    return null
+  }
+
+  const tel = task.poster?.profile?.contactNumber?.trim() || null
+  const mailto = task.poster?.email?.trim() || null
+  if (tel) {
+    return (
+      <Button asChild variant="primary" w="full" size="sm">
+        <Link
+          href={`tel:${tel.replace(/\s/g, '')}`}
+          _hover={{ textDecoration: 'none' }}
+        >
+          {t.cta.contactTask}
+        </Link>
+      </Button>
+    )
+  }
+  if (mailto) {
+    return (
+      <Button asChild variant="primary" w="full" size="sm">
+        <Link href={`mailto:${mailto}`} _hover={{ textDecoration: 'none' }}>
+          {t.booking.emailCustomer}
+        </Link>
+      </Button>
+    )
+  }
+  return (
+    <Button asChild variant="secondary" w="full" size="sm">
+      <Link href="/account" _hover={{ textDecoration: 'none' }}>
+        {t.booking.addContact}
+      </Link>
+    </Button>
+  )
 }
 
-export function TaskOwnerCard({ roleActions = false }: TaskOwnerCardProps) {
-  const { task, pending, permissions, setActiveTab } = useTaskDetail()
+export function TaskOwnerCard() {
+  const { task, pending } = useTaskDetail()
   const t = useI11n(bag)
   if (!task) return pending ? <TaskOwnerCardSkeleton /> : null
 
@@ -50,15 +80,9 @@ export function TaskOwnerCard({ roleActions = false }: TaskOwnerCardProps) {
       .map((w) => w[0]?.toUpperCase() ?? '')
       .join('') || 'TO'
 
-  const tel = task.poster?.profile?.contactNumber?.trim() || null
-  const mailto = task.poster?.email?.trim() || null
-  const showComplete = roleActions && permissions.showCompleteWithCode
-  const showContact = roleActions && permissions.isOrderWorker
-  const contactVariant = showComplete ? 'secondary' : 'primary'
-
   return (
     <Card layout="section">
-      <Stack gap={4}>
+      <Stack gap={3} w="full">
         <HStack align="center" gap={3} w="full">
           <Box
             flexShrink={0}
@@ -85,66 +109,11 @@ export function TaskOwnerCard({ roleActions = false }: TaskOwnerCardProps) {
               posterInitials
             )}
           </Box>
-          <Stack gap={0} minW={0} flex="1">
-            <Box
-              fontSize="xs"
-              fontWeight={600}
-              color="text.muted"
-              letterSpacing="0.06em"
-              textTransform="uppercase"
-            >
-              {t.details.owner}
-            </Box>
-            <Heading size="sm" lineHeight="short" minW={0}>
-              {posterName}
-            </Heading>
-          </Stack>
+          <Heading size="sm" lineHeight="short" minW={0}>
+            {posterName}
+          </Heading>
         </HStack>
-        {showComplete || showContact ? (
-          <Stack gap={2}>
-            {showComplete ? (
-              <Button
-                variant="primary"
-                w="full"
-                onClick={() => {
-                  setActiveTab(TASK_DETAIL_TAB.overview, {
-                    hash: 'worker-job-panel',
-                    scrollId: 'worker-job-panel',
-                  })
-                }}
-              >
-                {t.cta.complete}
-              </Button>
-            ) : null}
-            {showContact ? (
-              tel ? (
-                <Button asChild variant={contactVariant} w="full">
-                  <Link
-                    href={`tel:${tel.replace(/\s/g, '')}`}
-                    _hover={{ textDecoration: 'none' }}
-                  >
-                    {t.booking.contactCustomer}
-                  </Link>
-                </Button>
-              ) : mailto ? (
-                <Button asChild variant={contactVariant} w="full">
-                  <Link
-                    href={`mailto:${mailto}`}
-                    _hover={{ textDecoration: 'none' }}
-                  >
-                    {t.booking.emailCustomer}
-                  </Link>
-                </Button>
-              ) : (
-                <Button asChild variant="secondary" w="full">
-                  <Link href="/account" _hover={{ textDecoration: 'none' }}>
-                    {t.booking.addContact}
-                  </Link>
-                </Button>
-              )
-            ) : null}
-          </Stack>
-        ) : null}
+        <TaskOwnerContactCta />
       </Stack>
     </Card>
   )
