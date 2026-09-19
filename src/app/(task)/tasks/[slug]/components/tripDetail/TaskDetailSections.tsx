@@ -24,6 +24,7 @@ import { TrustCard } from './openTask/TrustCard'
  * Overview · Quotes tabs.
  */
 
+/** Hide the in-flow twin when that section is the mobile pin (spacer is the view clearance). */
 function SectionSlot({
   id,
   children,

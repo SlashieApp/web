@@ -26,7 +26,7 @@ export function TaskOwnerCardSkeleton() {
   )
 }
 
-function TaskOwnerContactCta() {
+function TaskOwnerContactCta({ size = 'sm' }: { size?: 'sm' | 'lg' }) {
   const { task, permissions } = useTaskDetail()
   const t = useI11n(bag)
   if (!task || !permissions.isOrderWorker || !permissions.isOrderActive) {
@@ -37,7 +37,7 @@ function TaskOwnerContactCta() {
   const mailto = task.poster?.email?.trim() || null
   if (tel) {
     return (
-      <Button asChild variant="primary" w="full" size="sm">
+      <Button asChild variant="primary" w="full" size={size}>
         <Link
           href={`tel:${tel.replace(/\s/g, '')}`}
           _hover={{ textDecoration: 'none' }}
@@ -49,7 +49,7 @@ function TaskOwnerContactCta() {
   }
   if (mailto) {
     return (
-      <Button asChild variant="primary" w="full" size="sm">
+      <Button asChild variant="primary" w="full" size={size}>
         <Link href={`mailto:${mailto}`} _hover={{ textDecoration: 'none' }}>
           {t.booking.emailCustomer}
         </Link>
@@ -57,7 +57,7 @@ function TaskOwnerContactCta() {
     )
   }
   return (
-    <Button asChild variant="secondary" w="full" size="sm">
+    <Button asChild variant="secondary" w="full" size={size}>
       <Link href="/account" _hover={{ textDecoration: 'none' }}>
         {t.booking.addContact}
       </Link>
@@ -65,7 +65,15 @@ function TaskOwnerContactCta() {
   )
 }
 
-export function TaskOwnerCard() {
+type TaskOwnerCardProps = {
+  /**
+   * `stickyBar` — WorkerContactStickyBar chrome (flush mobile pin).
+   * Default is the in-flow / desktop Card.
+   */
+  variant?: 'card' | 'stickyBar'
+}
+
+export function TaskOwnerCard({ variant = 'card' }: TaskOwnerCardProps) {
   const { task, pending } = useTaskDetail()
   const t = useI11n(bag)
   if (!task) return pending ? <TaskOwnerCardSkeleton /> : null
@@ -79,42 +87,48 @@ export function TaskOwnerCard() {
       .slice(0, 2)
       .map((w) => w[0]?.toUpperCase() ?? '')
       .join('') || 'TO'
+  const sticky = variant === 'stickyBar'
 
-  return (
-    <Card layout="section">
-      <Stack gap={3} w="full">
-        <HStack align="center" gap={3} w="full">
-          <Box
-            flexShrink={0}
-            boxSize="48px"
-            borderRadius="full"
-            bg="status.success.soft"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            color="status.success.fg"
-            fontWeight={700}
-            fontSize="sm"
-            overflow="hidden"
-          >
-            {posterAvatarUrl ? (
-              <Image
-                src={posterAvatarUrl}
-                alt={`${posterName} avatar`}
-                w="full"
-                h="full"
-                objectFit="cover"
-              />
-            ) : (
-              posterInitials
-            )}
-          </Box>
-          <Heading size="sm" lineHeight="short" minW={0}>
-            {posterName}
-          </Heading>
-        </HStack>
-        <TaskOwnerContactCta />
-      </Stack>
-    </Card>
+  const identity = (
+    <HStack align="center" gap={3} w="full">
+      <Box
+        flexShrink={0}
+        boxSize={sticky ? '40px' : '48px'}
+        borderRadius="full"
+        bg="status.success.soft"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        color="status.success.fg"
+        fontWeight={700}
+        fontSize="sm"
+        overflow="hidden"
+      >
+        {posterAvatarUrl ? (
+          <Image
+            src={posterAvatarUrl}
+            alt={`${posterName} avatar`}
+            w="full"
+            h="full"
+            objectFit="cover"
+          />
+        ) : (
+          posterInitials
+        )}
+      </Box>
+      <Heading size="sm" lineHeight="short" minW={0}>
+        {posterName}
+      </Heading>
+    </HStack>
   )
+
+  const body = (
+    <Stack gap={3} w="full">
+      {identity}
+      <TaskOwnerContactCta size={sticky ? 'lg' : 'sm'} />
+    </Stack>
+  )
+
+  if (sticky) return body
+  return <Card layout="section">{body}</Card>
 }

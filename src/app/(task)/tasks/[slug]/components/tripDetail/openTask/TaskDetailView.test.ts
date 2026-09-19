@@ -32,7 +32,7 @@ describe('TaskDetailView desktop column', () => {
     expect(src).toContain('-9.25rem')
     expect(src).toContain('TaskBackButton')
     expect(src).toContain("display={{ base: 'block', lg: 'none' }}")
-    expect(src).toContain('TaskDetailStickyCard')
+    expect(src).toContain('TaskDetailCtaBar')
     expect(src).toContain('TASK_DETAIL_DESKTOP_MAP_SPACER')
     expect(src).toContain('taskDetailPinClearance')
     expect(src).toContain('<Reveal>')
