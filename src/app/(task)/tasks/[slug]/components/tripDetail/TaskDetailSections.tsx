@@ -1,10 +1,14 @@
 'use client'
 
 import { Box, Grid, Stack } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 
 import { SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import type { TaskDetailSectionId } from '../../helpers/taskDetailStickySections'
+import { sectionFlowCss } from '../../helpers/taskDetailStickySections'
+import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
 import { TaskOwnerCard } from '../TaskOwnerCard'
 import { TaskActivitySections } from './TaskActivitySections'
 import { TaskDetailStatusCallout } from './TaskDetailMoneyChrome'
@@ -20,11 +24,26 @@ import { TrustCard } from './openTask/TrustCard'
  * Overview · Quotes tabs.
  */
 
+function SectionSlot({
+  id,
+  children,
+  resolved,
+}: {
+  id: TaskDetailSectionId
+  children: ReactNode
+  resolved: ReturnType<typeof useTaskDetailSections>
+}) {
+  return <Box css={sectionFlowCss(id, resolved)}>{children}</Box>
+}
+
 export function TaskInfoSections() {
-  const { task, permissions, pending } = useTaskDetail()
+  const { task } = useTaskDetail()
+  const resolved = useTaskDetailSections()
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
-      <TaskDetailStatusCallout />
+      <SectionSlot id="statusCallout" resolved={resolved}>
+        <TaskDetailStatusCallout />
+      </SectionSlot>
       <Grid
         templateColumns={{
           base: '1fr',
@@ -34,14 +53,26 @@ export function TaskInfoSections() {
         alignItems="start"
       >
         <Stack gap={5} minW={0}>
-          <TaskPricingCard />
-          <TaskDetailsCard />
-          <PhotosCard />
+          <SectionSlot id="pricing" resolved={resolved}>
+            <TaskPricingCard />
+          </SectionSlot>
+          <SectionSlot id="details" resolved={resolved}>
+            <TaskDetailsCard />
+          </SectionSlot>
+          <SectionSlot id="photos" resolved={resolved}>
+            <PhotosCard />
+          </SectionSlot>
         </Stack>
         <Stack gap={5} minW={0}>
-          <TaskHelpActions />
-          <TaskActivitySections />
-          {pending || permissions.isOwner ? null : <TaskOwnerCard />}
+          <SectionSlot id="help" resolved={resolved}>
+            <TaskHelpActions />
+          </SectionSlot>
+          <SectionSlot id="activity" resolved={resolved}>
+            <TaskActivitySections />
+          </SectionSlot>
+          <SectionSlot id="owner" resolved={resolved}>
+            <TaskOwnerCard />
+          </SectionSlot>
         </Stack>
       </Grid>
       {task ? (

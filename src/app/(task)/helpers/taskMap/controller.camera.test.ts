@@ -18,4 +18,13 @@ describe('task map camera', () => {
     expect(src).toContain("if (cameraMode === 'detail')")
     expect(src).toContain('lastCameraKey = cameraKey')
   })
+
+  it('does not draw a selected-task zone circle or lift the pin off lat/lng', () => {
+    const src = readFileSync(join(dir, 'controller.ts'), 'utf8')
+    expect(src).not.toContain('syncZoneCircle')
+    expect(src).not.toContain('SELECTED_ZONE')
+    expect(src).not.toContain('syncSelectedMarkerOffset')
+    expect(src).toContain('setOffset([0, 0])')
+    expect(src).toContain('setExpanded(isSelected)')
+  })
 })

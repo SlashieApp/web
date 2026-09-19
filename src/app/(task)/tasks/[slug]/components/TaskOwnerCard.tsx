@@ -1,10 +1,10 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Box, HStack, Heading, Image, Skeleton } from '@chakra-ui/react'
+import { Box, HStack, Heading, Image, Skeleton, Stack } from '@chakra-ui/react'
 import bag from '../i11n.json'
 
-import { Card } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import { useTaskDetail } from '../context/TaskDetailProvider'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
@@ -26,6 +26,45 @@ export function TaskOwnerCardSkeleton() {
   )
 }
 
+function TaskOwnerContactCta() {
+  const { task, permissions } = useTaskDetail()
+  const t = useI11n(bag)
+  if (!task || !permissions.isOrderWorker || !permissions.isOrderActive) {
+    return null
+  }
+
+  const tel = task.poster?.profile?.contactNumber?.trim() || null
+  const mailto = task.poster?.email?.trim() || null
+  if (tel) {
+    return (
+      <Button asChild variant="primary" w="full" size="sm">
+        <Link
+          href={`tel:${tel.replace(/\s/g, '')}`}
+          _hover={{ textDecoration: 'none' }}
+        >
+          {t.cta.contactTask}
+        </Link>
+      </Button>
+    )
+  }
+  if (mailto) {
+    return (
+      <Button asChild variant="primary" w="full" size="sm">
+        <Link href={`mailto:${mailto}`} _hover={{ textDecoration: 'none' }}>
+          {t.booking.emailCustomer}
+        </Link>
+      </Button>
+    )
+  }
+  return (
+    <Button asChild variant="secondary" w="full" size="sm">
+      <Link href="/account" _hover={{ textDecoration: 'none' }}>
+        {t.booking.addContact}
+      </Link>
+    </Button>
+  )
+}
+
 export function TaskOwnerCard() {
   const { task, pending } = useTaskDetail()
   const t = useI11n(bag)
@@ -43,36 +82,39 @@ export function TaskOwnerCard() {
 
   return (
     <Card layout="section">
-      <HStack align="center" gap={3} w="full">
-        <Box
-          flexShrink={0}
-          boxSize="48px"
-          borderRadius="full"
-          bg="status.success.soft"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          color="status.success.fg"
-          fontWeight={700}
-          fontSize="sm"
-          overflow="hidden"
-        >
-          {posterAvatarUrl ? (
-            <Image
-              src={posterAvatarUrl}
-              alt={`${posterName} avatar`}
-              w="full"
-              h="full"
-              objectFit="cover"
-            />
-          ) : (
-            posterInitials
-          )}
-        </Box>
-        <Heading size="sm" lineHeight="short" minW={0}>
-          {posterName}
-        </Heading>
-      </HStack>
+      <Stack gap={3} w="full">
+        <HStack align="center" gap={3} w="full">
+          <Box
+            flexShrink={0}
+            boxSize="48px"
+            borderRadius="full"
+            bg="status.success.soft"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            color="status.success.fg"
+            fontWeight={700}
+            fontSize="sm"
+            overflow="hidden"
+          >
+            {posterAvatarUrl ? (
+              <Image
+                src={posterAvatarUrl}
+                alt={`${posterName} avatar`}
+                w="full"
+                h="full"
+                objectFit="cover"
+              />
+            ) : (
+              posterInitials
+            )}
+          </Box>
+          <Heading size="sm" lineHeight="short" minW={0}>
+            {posterName}
+          </Heading>
+        </HStack>
+        <TaskOwnerContactCta />
+      </Stack>
     </Card>
   )
 }
