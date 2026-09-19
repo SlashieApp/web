@@ -16,6 +16,13 @@ describe('pinsPath', () => {
     expect(pinsPathForWeb(ctx).taskPinMode).toBe('all')
   })
 
+  it('never hides browse pins for an approximate variant (search stays pin-only)', () => {
+    const ctx = { inDetail: false, variant: 'approximate' as const }
+    expect(pinsPathForMobile(ctx).taskPinMode).toBe('all')
+    expect(pinsPathForTablet(ctx).taskPinMode).toBe('all')
+    expect(pinsPathForWeb(ctx).taskPinMode).toBe('all')
+  })
+
   it('solos the exact target pin in detail and hides pins for a zone', () => {
     expect(
       pinsPathForMobile({ inDetail: true, variant: 'exact' }).taskPinMode,

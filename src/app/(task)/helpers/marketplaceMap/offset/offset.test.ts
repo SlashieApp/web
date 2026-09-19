@@ -31,6 +31,14 @@ describe('offsetPaddingForWeb', () => {
     expect(padding.top).toBe(OFFSET_WEB.top)
     expect(padding.bottom).toBe(Math.round(800 * OFFSET_WEB.bottomRatio.exact))
   })
+
+  it('reserves extra bottom inset only for a detail privacy zone', () => {
+    const exact = offsetPaddingForWeb(1400, 800, 'exact')
+    const approximate = offsetPaddingForWeb(1400, 800, 'approximate')
+    expect(approximate.bottom).toBeGreaterThan(exact.bottom ?? 0)
+    expect(OFFSET_WEB.bottomRatio.exact).toBe(0.58)
+    expect(OFFSET_WEB.bottomRatio.approximate).toBe(0.66)
+  })
 })
 
 describe('marketplaceMapViewPadding', () => {

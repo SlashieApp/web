@@ -7,7 +7,12 @@ import { PIN, PIN_FONT, PIN_Z_INDEX } from './styles'
 export type { TaskMapPinHandle }
 
 export { pinMilesText, pinPriceText, taskPinContentSig }
-export { PIN_Z_INDEX, pinStackZIndex } from './styles'
+export { PIN_Z_INDEX, pinDotVisual, pinStackZIndex } from './styles'
+export {
+  PIN_MAPBOX_ANCHOR,
+  PIN_MAPBOX_OFFSET,
+  pinVisualState,
+} from './marker'
 
 /** GraphQL / JSON often returns coordinates as strings; Mapbox needs finite numbers. */
 export function parseCoord(value: unknown): number | null {

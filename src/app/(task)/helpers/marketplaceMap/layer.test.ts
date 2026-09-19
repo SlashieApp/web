@@ -50,6 +50,34 @@ describe('resolveMarketplaceMapLayer', () => {
     expect(resolved?.mapInteractions).toBe(true)
   })
 
+  it('clears browse selection so the host can collapse the pin', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      published: {
+        ...browseLayer,
+        props: { ...browseProps, selectedTaskId: null },
+      },
+      focusTaskId: null,
+    })
+    expect(resolved?.selectedTaskId).toBeNull()
+    expect(resolved?.cameraMode).toBe('browse')
+    expect(resolved?.taskPinMode).toBe('all')
+  })
+
+  it('keeps browse pin framing when a search task is selected', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      published: {
+        ...browseLayer,
+        props: { ...browseProps, selectedTaskId: 'task-1' },
+      },
+      focusTaskId: null,
+    })
+    expect(resolved?.selectedTaskId).toBe('task-1')
+    expect(resolved?.cameraMode).toBe('browse')
+    expect(resolved?.taskPinMode).toBe('all')
+    expect(resolved?.viewPadding).toBeUndefined()
+    expect(resolved?.mapInteractions).toBe(true)
+  })
+
   it('solos the targeted task and switches to the detail camera on click', () => {
     const padding = { top: 58, left: 700, right: 20, bottom: 400 }
     const resolved = resolveMarketplaceMapLayer({
@@ -67,6 +95,17 @@ describe('resolveMarketplaceMapLayer', () => {
     expect(resolved?.leftViewportPadding).toBe(0)
     expect(resolved?.onSelectTask).toBeUndefined()
     expect(resolved?.onSearchThisAreaConfirm).toBeUndefined()
+  })
+
+  it('keeps a solo pin on exact search→detail handoff (not a zone)', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      published: browseLayer,
+      focusTaskId: 'task-1',
+      viewport: 'mobile',
+    })
+    expect(resolved?.cameraMode).toBe('detail')
+    expect(resolved?.taskPinMode).toBe('solo')
+    expect(resolved?.selectedTaskId).toBe('task-1')
   })
 
   it('hides price pins for an approximate detail layer (zone only)', () => {

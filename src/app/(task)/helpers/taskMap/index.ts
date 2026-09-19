@@ -8,8 +8,11 @@ export type { TaskMapController } from './controller'
 
 export {
   parseCoord,
+  PIN_MAPBOX_ANCHOR,
+  PIN_MAPBOX_OFFSET,
   pinMilesText,
   pinPriceText,
+  pinVisualState,
   referenceMarkerElement,
   taskLngLat,
   taskMarkerElement,

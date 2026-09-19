@@ -19,12 +19,17 @@ describe('task map camera', () => {
     expect(src).toContain('lastCameraKey = cameraKey')
   })
 
-  it('does not draw a selected-task zone circle or lift the pin off lat/lng', () => {
+  it('keeps search selection as a pin on lat/lng (no zone circle or marker lift)', () => {
     const src = readFileSync(join(dir, 'controller.ts'), 'utf8')
     expect(src).not.toContain('syncZoneCircle')
     expect(src).not.toContain('SELECTED_ZONE')
+    expect(src).not.toContain('zoneRadiusPx')
     expect(src).not.toContain('syncSelectedMarkerOffset')
-    expect(src).toContain('setOffset([0, 0])')
+    expect(src).toContain('PIN_MAPBOX_ANCHOR')
+    expect(src).toContain('PIN_MAPBOX_OFFSET')
+    expect(src).toContain('row.marker.setOffset(PIN_MAPBOX_OFFSET)')
     expect(src).toContain('setExpanded(isSelected)')
+    expect(src).toContain('applySelectionVisuals')
+    expect(src).toContain('syncSelection(true)')
   })
 })

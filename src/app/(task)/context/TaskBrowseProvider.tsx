@@ -315,22 +315,16 @@ export function TaskBrowseProvider({
 
   const setSelectedTaskId = useCallback(
     (value: string | null | ((prev: string | null) => string | null)) => {
-      if (isNavRoutePresentingRef.current) return
-
-      if (typeof value === 'function') {
-        setSelectedTaskIdState((prev) => {
-          const next = value(prev)
-          if (next) {
-            setSelectedTaskSelectionToken((t) => t + 1)
-          }
-          return next
-        })
-        return
-      }
-      if (value) {
-        setSelectedTaskSelectionToken((t) => t + 1)
-      }
-      setSelectedTaskIdState(value)
+      setSelectedTaskIdState((prev) => {
+        const next = typeof value === 'function' ? value(prev) : value
+        // Route-draw lock ignores *new* selections (carousel/map fight).
+        // Clearing must always apply so the pin returns to compact.
+        if (next && isNavRoutePresentingRef.current) return prev
+        if (next || next !== prev) {
+          setSelectedTaskSelectionToken((t) => t + 1)
+        }
+        return next
+      })
     },
     [],
   )
