@@ -7,6 +7,8 @@ import { MARKETPLACE_MAP_MOTION_MS } from '../marketplaceMap/motion'
 import { mountMapFadeOverlay } from '../marketplaceMap/overlay/overlay'
 import { createTaskMapNavRouteController } from './navRoute'
 import {
+  PIN_MAPBOX_ANCHOR,
+  PIN_MAPBOX_OFFSET,
   referenceMarkerElement,
   taskLngLat,
   taskMarkerElement,
@@ -347,8 +349,12 @@ export function createTaskMapController(args: {
     )
     if (selected) setExpanded(true)
 
-    const marker = new mapboxMod.Marker({ element: el, anchor: 'bottom' })
+    const marker = new mapboxMod.Marker({
+      element: el,
+      anchor: PIN_MAPBOX_ANCHOR,
+    })
       .setLngLat([lng, lat])
+      .setOffset(PIN_MAPBOX_OFFSET)
       .addTo(map)
 
     return {
@@ -425,7 +431,7 @@ export function createTaskMapController(args: {
       row.setSelected(isSelected)
       row.setExpanded(isSelected)
       // Pin tip stays on the true lat/lng — no zone-era lift offset.
-      row.marker.setOffset([0, 0])
+      row.marker.setOffset(PIN_MAPBOX_OFFSET)
     }
   }
 

@@ -26,6 +26,29 @@ export type TaskMapPinHandle = {
   setExpanded: (v: boolean) => void
 }
 
+/**
+ * Mapbox placement for a browse pin: tip sits on the true lat/lng.
+ * Do not add a pixel lift here — that was the zone-era offset bug.
+ */
+export const PIN_MAPBOX_ANCHOR = 'bottom' as const
+export const PIN_MAPBOX_OFFSET: [number, number] = [0, 0]
+
+/**
+ * Selected = visible tip + expanded label. Compact (pill) only when idle.
+ * Never hide the dot for a zone circle.
+ */
+export function pinVisualState(
+  isSelected: boolean,
+  expanded: boolean,
+): PinVisualState {
+  const isExpanded = expanded || isSelected
+  return {
+    selected: isSelected,
+    expanded: isExpanded,
+    showPill: !isExpanded,
+  }
+}
+
 /** Avatar chip inside a `person` pin pill: photo when available, else initials. */
 function createPersonAvatarElement(task: TaskMapTask): HTMLSpanElement {
   const avatar = document.createElement('span')
@@ -104,15 +127,6 @@ function pulsePinDot(pinDot: HTMLSpanElement, motion: boolean) {
     ],
     { duration: PIN_ANIM_MS + 80, easing: PIN_EASE },
   )
-}
-
-function visualState(isSelected: boolean, expanded: boolean): PinVisualState {
-  const isExpanded = expanded || isSelected
-  return {
-    selected: isSelected,
-    expanded: isExpanded,
-    showPill: !isExpanded,
-  }
 }
 
 function createHoverPeek(
@@ -203,7 +217,7 @@ export function taskMarkerElement(
   wireSelection(dom, task, onSelect)
 
   const render = () => {
-    const state = visualState(isSelected, expanded)
+    const state = pinVisualState(isSelected, expanded)
     const opening = state.expanded && !wasExpanded
 
     applyPinVisualState(dom, state, motion)

@@ -106,6 +106,7 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
                     <TaskCard
                       task={cardTask}
                       detailsHref={taskDetailHref(task.id)}
+                      // Same id as the browse map pin — not a zone marker.
                       isActive={selectedTaskId === task.id}
                       isExpanded={selectedTaskId === task.id}
                       showDetailsCta={selectedTaskId === task.id}

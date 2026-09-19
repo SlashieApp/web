@@ -83,6 +83,21 @@ describe('search mobile map chrome', () => {
     expect(src).not.toContain('TaskBrowseListColumnScrim')
   })
 
+  it('syncs TaskCard active state to the same selectedTaskId as the map pin', () => {
+    const listSrc = readFileSync(
+      join(dir, '../../components/(web)/TaskList.tsx'),
+      'utf8',
+    )
+    const carouselSrc = readFileSync(
+      join(dir, '../../components/(mobile)/MobileTaskCarousel.tsx'),
+      'utf8',
+    )
+    expect(listSrc).toContain('isActive={selectedTaskId === task.id}')
+    expect(listSrc).toContain('setSelectedTaskId(taskId)')
+    expect(carouselSrc).toContain('onSnapSelect={setSelectedTaskId}')
+    expect(carouselSrc).toContain('isActive={state.isActive}')
+  })
+
   it('does not open the mobile filter sheet on desktop while both layouts stay mounted', () => {
     const src = readFileSync(
       join(dir, '../../components/(mobile)/MobileTaskBrowseFiltersDrawer.tsx'),

@@ -97,6 +97,17 @@ describe('resolveMarketplaceMapLayer', () => {
     expect(resolved?.onSearchThisAreaConfirm).toBeUndefined()
   })
 
+  it('keeps a solo pin on exact search→detail handoff (not a zone)', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      published: browseLayer,
+      focusTaskId: 'task-1',
+      viewport: 'mobile',
+    })
+    expect(resolved?.cameraMode).toBe('detail')
+    expect(resolved?.taskPinMode).toBe('solo')
+    expect(resolved?.selectedTaskId).toBe('task-1')
+  })
+
   it('hides price pins for an approximate detail layer (zone only)', () => {
     const resolved = resolveMarketplaceMapLayer({
       published: {
