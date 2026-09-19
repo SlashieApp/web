@@ -9,10 +9,11 @@ import {
 } from '@/theme/pageContainer'
 
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '../../../helpers/taskDetailLayout'
+import { taskDetailPinClearance } from '../../../helpers/taskDetailPinClearance'
 import { useTaskDetailSections } from '../../../helpers/useTaskDetailSections'
 import { Reveal } from '../Reveal'
 import { StatusHeader } from '../StatusHeader'
-import { TaskDetailCtaBar, taskDetailPinClearance } from '../TaskDetailCtaBar'
+import { TaskDetailCtaBar } from '../TaskDetailCtaBar'
 import { TaskDetailSectionTabs } from '../TaskDetailSectionTabs'
 import { TaskBackButton } from '../TaskHeaderControls'
 import { TaskDetailMapBinder } from './TaskDetailMapBinder'

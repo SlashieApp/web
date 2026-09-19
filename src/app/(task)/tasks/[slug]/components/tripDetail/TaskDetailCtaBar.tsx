@@ -9,7 +9,6 @@ import { Button, IconButton, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
-import type { TaskDetailSectionId } from '../../helpers/taskDetailStickySections'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
 import bag from '../../i11n.json'
@@ -32,25 +31,6 @@ const glassBarCss = {
     WebkitBackdropFilter: 'none',
   },
 } as SystemStyleObject
-
-/**
- * Space so the last content line can scroll above the floating pin.
- * Card pins (pricing / share / owner) need more room than the thin confirm bar.
- */
-export const TASK_DETAIL_CTA_CLEARANCE =
-  'calc(7.5rem + env(safe-area-inset-bottom, 0px))' as const
-
-export const TASK_DETAIL_CARD_PIN_CLEARANCE =
-  'calc(18rem + env(safe-area-inset-bottom, 0px))' as const
-
-export function taskDetailPinClearance(
-  pinnedId: TaskDetailSectionId | null,
-): string {
-  if (pinnedId === 'pricing' || pinnedId === 'share' || pinnedId === 'owner') {
-    return TASK_DETAIL_CARD_PIN_CLEARANCE
-  }
-  return TASK_DETAIL_CTA_CLEARANCE
-}
 
 function TaskDetailCompletionBar() {
   const t = useI11n(bag)
@@ -144,7 +124,7 @@ export function TaskDetailCtaBar() {
       pin = <TaskShareCard />
       break
     case 'owner':
-      pin = <TaskOwnerCard />
+      pin = <TaskOwnerCard variant="stickyBar" />
       break
     case 'completion':
       pin = <TaskDetailCompletionBar />
@@ -155,6 +135,8 @@ export function TaskDetailCtaBar() {
 
   if (!pin) return null
 
+  const flushContactBar = pinnedId === 'owner'
+
   return (
     <Box
       data-task-detail-pin={pinnedId}
@@ -163,17 +145,31 @@ export function TaskDetailCtaBar() {
         '@media screen and (min-width: 62em)': { display: 'none' },
       }}
       position="fixed"
-      left={0}
-      right={0}
+      insetX={0}
       bottom={0}
       zIndex={25}
       pointerEvents="none"
-      px={3}
-      pt={2}
-      pb="calc(10px + env(safe-area-inset-bottom, 0px))"
+      px={flushContactBar ? 0 : 3}
+      pt={flushContactBar ? 0 : 2}
+      pb={flushContactBar ? 0 : 'calc(10px + env(safe-area-inset-bottom, 0px))'}
     >
       <Reveal>
-        <Box pointerEvents="auto">{pin}</Box>
+        {flushContactBar ? (
+          <Box
+            pointerEvents="auto"
+            bg="bg.surface"
+            borderTopWidth="1px"
+            borderColor="border.default"
+            px={4}
+            pt={3}
+            pb="calc(0.75rem + env(safe-area-inset-bottom))"
+            boxShadow="e3"
+          >
+            {pin}
+          </Box>
+        ) : (
+          <Box pointerEvents="auto">{pin}</Box>
+        )}
       </Reveal>
     </Box>
   )
