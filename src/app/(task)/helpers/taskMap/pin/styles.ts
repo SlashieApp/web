@@ -181,6 +181,22 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
   })
 }
 
+/** Visible pin tip for browse (selected stays a point, not a zone). */
+export function pinDotVisual(
+  state: Pick<PinVisualState, 'selected' | 'expanded'>,
+) {
+  const { selected, expanded } = state
+  const active = selected || expanded
+  return {
+    sizePx: selected ? 14 : 12,
+    opacity: '1',
+    background: active ? PIN.greenBright : PIN.greenSoft,
+    boxShadow: active
+      ? `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`
+      : PIN.shadow,
+  }
+}
+
 export function applyPinVisualState(
   dom: PinDom,
   state: PinVisualState,
@@ -188,7 +204,6 @@ export function applyPinVisualState(
 ) {
   const { selected, expanded, showPill } = state
   const zIndex = pinStackZIndex({ selected, expanded })
-  const dotPx = selected ? 14 : 12
 
   Object.assign(dom.root.style, {
     zIndex,
@@ -242,24 +257,22 @@ export function applyPinVisualState(
     textAlign: 'center',
   })
 
-  const dotActive = selected || expanded
+  const dot = pinDotVisual({ selected, expanded })
 
   Object.assign(dom.pinDot.style, {
     position: 'relative',
     zIndex: '3',
     display: 'block',
     flexShrink: '0',
-    width: `${dotPx}px`,
-    height: `${dotPx}px`,
+    width: `${dot.sizePx}px`,
+    height: `${dot.sizePx}px`,
     borderRadius: '50%',
-    background: dotActive ? PIN.greenBright : PIN.greenSoft,
+    background: dot.background,
     border: `2.5px solid ${PIN.white}`,
-    boxShadow: dotActive
-      ? `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`
-      : PIN.shadow,
-    // Selected stays a real pin (tip on lat/lng). The expanded label sits
-    // above the visible dot — never hide the point for a zone circle.
-    opacity: '1',
+    boxShadow: dot.boxShadow,
+    // Search selection keeps a visible tip on lat/lng. Privacy zone circles
+    // belong on task-detail approximate maps, not the browse selected marker.
+    opacity: dot.opacity,
     pointerEvents: 'auto',
     transition: pinTransition(motion, ['width', 'height', 'opacity']),
   })

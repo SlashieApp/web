@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  PIN,
   PIN_Z_INDEX,
   type PinDom,
   applyPinVisualState,
+  pinDotVisual,
   pinStackZIndex,
 } from './styles'
 
@@ -40,6 +42,22 @@ describe('pinStackZIndex', () => {
     expect(pinStackZIndex({ selected: false, expanded: false })).toBe(
       PIN_Z_INDEX.task,
     )
+  })
+})
+
+describe('pinDotVisual', () => {
+  it('keeps a visible tip on the selected pin (larger, brighter, opacity 1)', () => {
+    const selected = pinDotVisual({ selected: true, expanded: true })
+    const idle = pinDotVisual({ selected: false, expanded: false })
+    const hover = pinDotVisual({ selected: false, expanded: true })
+
+    expect(selected.opacity).toBe('1')
+    expect(idle.opacity).toBe('1')
+    expect(selected.sizePx).toBe(14)
+    expect(idle.sizePx).toBe(12)
+    expect(selected.background).toBe(PIN.greenBright)
+    expect(hover.background).toBe(PIN.greenBright)
+    expect(idle.background).toBe(PIN.greenSoft)
   })
 })
 

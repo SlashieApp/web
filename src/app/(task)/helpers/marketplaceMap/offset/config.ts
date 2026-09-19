@@ -1,7 +1,12 @@
 /**
  * Camera padding (Mapbox `padding`) that frames the pin in the visible map
- * window. Compact (phone + tablet) uses a top hero band; web view pushes the
+ * window. Used on **task-detail** camera only — `/search` browse selection
+ * keeps a pin on lat/lng and frames with `leftViewportPadding`, not this
+ * inset. Compact (phone + tablet) uses a top hero band; web view pushes the
  * pin into the top-right quadrant beside the content column.
+ *
+ * `approximate` adds extra bottom inset for the privacy zone on detail.
+ * Search selected markers must stay `exact` (pin, not zone).
  */
 
 import { COMPACT_DETAIL_HERO_H } from '../overlay/config'

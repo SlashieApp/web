@@ -50,6 +50,21 @@ describe('resolveMarketplaceMapLayer', () => {
     expect(resolved?.mapInteractions).toBe(true)
   })
 
+  it('keeps browse pin framing when a search task is selected', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      published: {
+        ...browseLayer,
+        props: { ...browseProps, selectedTaskId: 'task-1' },
+      },
+      focusTaskId: null,
+    })
+    expect(resolved?.selectedTaskId).toBe('task-1')
+    expect(resolved?.cameraMode).toBe('browse')
+    expect(resolved?.taskPinMode).toBe('all')
+    expect(resolved?.viewPadding).toBeUndefined()
+    expect(resolved?.mapInteractions).toBe(true)
+  })
+
   it('solos the targeted task and switches to the detail camera on click', () => {
     const padding = { top: 58, left: 700, right: 20, bottom: 400 }
     const resolved = resolveMarketplaceMapLayer({
