@@ -13,7 +13,7 @@ import { Reveal } from '../Reveal'
 import { StatusHeader } from '../StatusHeader'
 import {
   TASK_DETAIL_CTA_CLEARANCE,
-  TaskDetailCtaBar,
+  TaskDetailStickyCard,
 } from '../TaskDetailCtaBar'
 import { TaskDetailSectionTabs } from '../TaskDetailSectionTabs'
 import { TaskBackButton } from '../TaskHeaderControls'
@@ -26,9 +26,9 @@ const MOBILE_MAP_CHROME_OVERLAP = '-9.25rem'
  * Responsive task detail: one tree for both form factors (avoids the SSR
  * mobile snapshot that left desktop on a phone-width shell).
  *
- * `<lg`: map hero, fitted-style sticky chrome, floating CTA.
+ * `<lg`: map hero, fitted-style sticky chrome, one role sticky card.
  * `lg+`: full page column (`sizes.page` / 90rem) over the map background —
- * never the search-list column width.
+ * never the search-list column width. No second sticky system on desktop.
  */
 export function TaskDetailView() {
   return (
@@ -109,7 +109,7 @@ export function TaskDetailView() {
           </Box>
         </Box>
       </Box>
-      <TaskDetailCtaBar />
+      <TaskDetailStickyCard />
     </>
   )
 }

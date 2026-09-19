@@ -6,7 +6,7 @@ import { LuCreditCard } from 'react-icons/lu'
 import bag from '../../../i11n.json'
 
 import { ViewTransition } from '@/ui/ViewTransition'
-import { Badge, Card } from '@ui'
+import { Badge, Button, Card, Link, SafetyNotice } from '@ui'
 
 import { taskVtName } from '@/app/(task)/helpers/taskCardHandoff'
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
@@ -16,7 +16,17 @@ import {
   taskBudgetDisplayLine,
 } from '../../../helpers/taskDetailUtils'
 
-/** Overview pricing card — large posted budget, payment as supporting copy. */
+function QuoteCta({ href, label }: { href: string; label: string }) {
+  return (
+    <Button asChild variant="primary" w="full">
+      <Link href={href} _hover={{ textDecoration: 'none' }}>
+        {label}
+      </Link>
+    </Button>
+  )
+}
+
+/** Overview pricing card — posted budget, with quote CTAs on the quote path. */
 export function TaskPricingCard() {
   const { task, seed, pending, taskId, me, permissions } = useTaskDetail()
   const t = useI11n(bag)
@@ -33,6 +43,10 @@ export function TaskPricingCard() {
     : seed?.priceLabel
   const budgetKind = task ? budgetKindLabel(task.budget?.type) : null
   const paymentMethod = task?.budget?.paymentMethod?.trim()
+  const quoteHref = task ? `/tasks/${task.id}/quote` : null
+  const showSendQuote = Boolean(quoteHref && permissions.showQuoteForm)
+  const showSignInToQuote = Boolean(quoteHref && permissions.showGuestQuoteCta)
+  const showQuoteCta = showSendQuote || showSignInToQuote
 
   return (
     <Card layout="section" aria-busy={pending && !task ? true : undefined}>
@@ -84,6 +98,16 @@ export function TaskPricingCard() {
               {` · ${formatTaskBudgetPaymentMethodLabel(paymentMethod)}`}
             </Text>
           </HStack>
+        ) : null}
+        {showQuoteCta && quoteHref ? (
+          <Stack gap={2}>
+            {showSendQuote ? (
+              <QuoteCta href={quoteHref} label={t.cta.sendQuote} />
+            ) : (
+              <QuoteCta href={quoteHref} label={t.cta.signInToQuote} />
+            )}
+            <SafetyNotice variant="inline" />
+          </Stack>
         ) : null}
       </Stack>
     </Card>

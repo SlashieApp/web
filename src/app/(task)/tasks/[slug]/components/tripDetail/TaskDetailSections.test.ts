@@ -18,6 +18,18 @@ describe('TaskInfoSections overview layout', () => {
     expect(src.indexOf('<TaskHelpActions />')).toBeLessThan(
       src.indexOf('<TaskActivitySections />'),
     )
+    expect(src).toContain('resolveTaskDetailOverviewPlacement')
+    expect(src).toContain('isTaskDetailSectionInFlow')
+  })
+
+  it('merges quote CTAs onto the pricing card, not a separate thin bar', () => {
+    const pricing = readFileSync(
+      join(dir, 'openTask/TaskPricingCard.tsx'),
+      'utf8',
+    )
+    expect(pricing).toContain('t.cta.sendQuote')
+    expect(pricing).toContain('t.cta.signInToQuote')
+    expect(pricing).toContain('SafetyNotice')
   })
 
   it('puts the mobile overflow on the intro row, not in the overview stack', () => {
