@@ -38,8 +38,18 @@ function PricingQuoteCta({
   )
 }
 
+type TaskPricingCardProps = {
+  /**
+   * Pin copy must not share the search→detail price transition name —
+   * the in-flow card already owns it.
+   */
+  sharePriceTransition?: boolean
+}
+
 /** Overview pricing card — posted budget, optional quote / continue CTA. */
-export function TaskPricingCard() {
+export function TaskPricingCard({
+  sharePriceTransition = true,
+}: TaskPricingCardProps = {}) {
   const { task, seed, pending, taskId, me, permissions } = useTaskDetail()
   const t = useI11n(bag)
 
@@ -75,7 +85,11 @@ export function TaskPricingCard() {
         </Text>
         <HStack align="baseline" gap={3} flexWrap="wrap">
           <ViewTransition
-            name={named ? taskVtName('price', taskId) : undefined}
+            name={
+              sharePriceTransition && named
+                ? taskVtName('price', taskId)
+                : undefined
+            }
             share="vt-text"
             default="none"
           >

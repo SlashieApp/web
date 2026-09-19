@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest'
 
 import type { TaskDetailPermissions } from './getTaskDetailPermissions'
 import {
+  TASK_DETAIL_DESKTOP_MQ,
   TASK_DETAIL_PIN_CONFLICT_GROUP,
   TASK_DETAIL_SECTION_RULES,
   TASK_DETAIL_STICKY_PRIORITY,
   type TaskDetailSectionContext,
   resolveTaskDetailSections,
+  sectionFlowCss,
   sectionFlowDisplay,
 } from './taskDetailStickySections'
 
@@ -96,6 +98,10 @@ describe('resolveTaskDetailSections', () => {
     expect(sectionFlowDisplay('pricing', resolved)).toEqual({
       base: 'none',
       lg: 'block',
+    })
+    expect(sectionFlowCss('pricing', resolved)).toEqual({
+      display: 'none',
+      [`@media screen and ${TASK_DETAIL_DESKTOP_MQ}`]: { display: 'block' },
     })
     expect(resolved.mobile.owner).toBe('flow')
     expect(resolved.mobile.share).toBe('hidden')

@@ -216,6 +216,9 @@ export function resolveTaskDetailSections(
   return { mobile, desktop, pinnedId }
 }
 
+/** Chakra `lg` — keep in sync with the default theme (62em). */
+export const TASK_DETAIL_DESKTOP_MQ = '(min-width: 62em)' as const
+
 export function sectionFlowDisplay(
   id: TaskDetailSectionId,
   resolved: TaskDetailSectionResolution,
@@ -224,4 +227,23 @@ export function sectionFlowDisplay(
     base: resolved.mobile[id] === 'flow' ? 'block' : 'none',
     lg: resolved.desktop[id] === 'flow' ? 'block' : 'none',
   }
+}
+
+/**
+ * Viewport-accurate hide/show that does not depend on Chakra's `display`
+ * token map. Used so a pinned mobile card is truly removed from the
+ * scroll body below `lg`.
+ */
+export function sectionFlowCss(
+  id: TaskDetailSectionId,
+  resolved: TaskDetailSectionResolution,
+) {
+  const mobile = resolved.mobile[id] === 'flow' ? 'block' : 'none'
+  const desktop = resolved.desktop[id] === 'flow' ? 'block' : 'none'
+  return {
+    display: mobile,
+    [`@media screen and ${TASK_DETAIL_DESKTOP_MQ}`]: {
+      display: desktop,
+    },
+  } as const
 }

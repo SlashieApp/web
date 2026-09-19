@@ -7,7 +7,7 @@ import { SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailSectionId } from '../../helpers/taskDetailStickySections'
-import { sectionFlowDisplay } from '../../helpers/taskDetailStickySections'
+import { sectionFlowCss } from '../../helpers/taskDetailStickySections'
 import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
 import { TaskOwnerCard } from '../TaskOwnerCard'
 import { TaskActivitySections } from './TaskActivitySections'
@@ -33,7 +33,7 @@ function SectionSlot({
   children: ReactNode
   resolved: ReturnType<typeof useTaskDetailSections>
 }) {
-  return <Box display={sectionFlowDisplay(id, resolved)}>{children}</Box>
+  return <Box css={sectionFlowCss(id, resolved)}>{children}</Box>
 }
 
 export function TaskInfoSections() {

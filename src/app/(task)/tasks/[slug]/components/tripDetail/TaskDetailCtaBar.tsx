@@ -138,7 +138,7 @@ export function TaskDetailCtaBar() {
   let pin: ReactNode = null
   switch (pinnedId) {
     case 'pricing':
-      pin = <TaskPricingCard />
+      pin = <TaskPricingCard sharePriceTransition={false} />
       break
     case 'share':
       pin = <TaskShareCard />
@@ -157,7 +157,11 @@ export function TaskDetailCtaBar() {
 
   return (
     <Box
-      display={{ base: 'block', lg: 'none' }}
+      data-task-detail-pin={pinnedId}
+      css={{
+        display: 'block',
+        '@media screen and (min-width: 62em)': { display: 'none' },
+      }}
       position="fixed"
       left={0}
       right={0}

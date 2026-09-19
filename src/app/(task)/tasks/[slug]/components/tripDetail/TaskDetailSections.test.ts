@@ -22,7 +22,7 @@ describe('TaskInfoSections overview layout', () => {
 
   it('places overview cards through SectionSlot so pin vs flow is explicit', () => {
     const src = readFileSync(join(dir, 'TaskDetailSections.tsx'), 'utf8')
-    expect(src).toContain('sectionFlowDisplay')
+    expect(src).toContain('sectionFlowCss')
     expect(src).toContain('id="pricing"')
     expect(src).toContain('id="owner"')
     expect(src).not.toContain('TaskShareCard')
