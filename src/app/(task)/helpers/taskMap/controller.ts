@@ -13,25 +13,6 @@ import {
   taskPinContentSig,
 } from './pin'
 import type { TaskMapPropsSnapshot, TaskMapTask } from './types'
-import { syncZoneCircle } from './zoneCircle'
-
-/** Zone circle replacing the selected task's pin point on the browse map. */
-const SELECTED_ZONE_LAYERS = {
-  source: 'task-browse-selected-zone',
-  fill: 'task-browse-selected-zone-fill',
-  line: 'task-browse-selected-zone-line',
-} as const
-
-/** Selected-task zone radius on the browse map (tighter than the default). */
-const SELECTED_ZONE_RADIUS_M = 280
-/** Gap between the zone circle's top edge and the selected pin label card. */
-const SELECTED_LABEL_GAP_PX = 6
-/**
- * Invisible layout below the selected label card: the opacity-0 pin dot (14px)
- * + the popup's bottom margin (4px). Subtracted from the lift so the visible
- * card edge — not the hidden dot — sits `SELECTED_LABEL_GAP_PX` above the circle.
- */
-const SELECTED_PIN_HIDDEN_BASE_PX = 18
 
 const MAP_MIN_ZOOM = 10
 const MAP_MAX_ZOOM = 17
@@ -50,14 +31,6 @@ function radiusMilesToZoom(miles: number): number {
   )
   const zoom = 13 - Math.log2(clamped / 10)
   return Math.min(MAP_MAX_ZOOM, Math.max(MAP_MIN_ZOOM, zoom))
-}
-
-/** Zone-circle radius in screen px at the current zoom (512px world tiles). */
-function zoneRadiusPx(map: MapboxMap, lat: number): number {
-  const metersPerPixel =
-    (Math.cos((lat * Math.PI) / 180) * 40075016.686) /
-    (512 * 2 ** map.getZoom())
-  return SELECTED_ZONE_RADIUS_M / Math.max(metersPerPixel, 1e-9)
 }
 
 function fullscreenCenterOffsetPx(
@@ -102,7 +75,7 @@ export type TaskMapController = {
  * through ONE pipeline (`sync`) with a single camera authority per frame:
  *
  *   theme → reference marker → camera (search center, unless a task is
- *   selected) → markers → selection (expand + offset) → zone circle →
+ *   selected) → markers → selection (expand, pin stays on lat/lng) →
  *   selection fly + nav route → search-this-area UI.
  *
  * The controller owns its interaction state (search-area prompt, nav-route
@@ -137,7 +110,6 @@ export function createTaskMapController(args: {
   let lastSearchCenterKey: string | null = null
   let lastCameraKey = ''
   let lastSelectedId: string | null = null
-  let lastZoneKey = ''
   let lastRouteKey = ''
   let lastSelectionFlyKey = ''
   let lastSearchUiSig = ''
@@ -147,14 +119,12 @@ export function createTaskMapController(args: {
   // --- map objects
   const markersById = new Map<string, MarkerRow>()
   let referenceMarker: Marker | null = null
-  let selectedRow: MarkerRow | null = null
   let moveEndDebounce: ReturnType<typeof setTimeout> | null = null
   let resizeFrameRequested = false
 
   let moveEndRun: (() => void) | null = null
   let mapClickRun: ((e: MapMouseEvent) => void) | null = null
   let styleLoadRun: (() => void) | null = null
-  let zoomRun: (() => void) | null = null
   let idleRun: (() => void) | null = null
 
   const navRoute = createTaskMapNavRouteController({
@@ -356,7 +326,6 @@ export function createTaskMapController(args: {
   const clearAllMarkers = () => {
     for (const row of markersById.values()) row.marker.remove()
     markersById.clear()
-    selectedRow = null
     lastMarkerSetSig = ''
   }
 
@@ -446,43 +415,18 @@ export function createTaskMapController(args: {
 
   // ------------------------------------------------------------- selection
 
-  /** Lift the selected marker so its label card sits above the zone circle. */
-  const syncSelectedMarkerOffset = () => {
-    if (!map || !selectedRow) return
-    const ll = selectedRow.marker.getLngLat()
-    const lift =
-      zoneRadiusPx(map, ll.lat) +
-      SELECTED_LABEL_GAP_PX -
-      SELECTED_PIN_HIDDEN_BASE_PX
-    selectedRow.marker.setOffset([0, -Math.max(0, lift)])
-  }
-
   const syncSelection = (force = false) => {
     const selectedId = getProps().selectedTaskId ?? null
     if (!force && selectedId === lastSelectedId) return
     lastSelectedId = selectedId
 
-    selectedRow = null
     for (const row of markersById.values()) {
       const isSelected = row.taskId === selectedId
       row.setSelected(isSelected)
       row.setExpanded(isSelected)
-      if (isSelected) selectedRow = row
-      else row.marker.setOffset([0, 0])
+      // Pin tip stays on the true lat/lng — no zone-era lift offset.
+      row.marker.setOffset([0, 0])
     }
-    syncSelectedMarkerOffset()
-  }
-
-  const syncZone = () => {
-    if (!map?.isStyleLoaded()) return
-    const p = getProps()
-    const selectedId = p.selectedTaskId ?? null
-    const task = selectedId ? p.tasks.find((t) => t.id === selectedId) : null
-    const ll = task ? taskLngLat(task) : null
-    const zoneKey = ll ? `${selectedId}|${ll.lat}|${ll.lng}` : '__none__'
-    if (zoneKey === lastZoneKey) return
-    lastZoneKey = zoneKey
-    syncZoneCircle(map, SELECTED_ZONE_LAYERS, ll, SELECTED_ZONE_RADIUS_M)
   }
 
   /**
@@ -551,7 +495,6 @@ export function createTaskMapController(args: {
     if (p.themeMode && p.themeMode !== lastThemeMode) {
       lastThemeMode = p.themeMode
       // Style swap drops GeoJSON layers; markers are DOM and survive.
-      lastZoneKey = ''
       map.setStyle(getStyleUrlForMode(p.themeMode))
       return // style.load handler re-schedules the full sync
     }
@@ -560,7 +503,6 @@ export function createTaskMapController(args: {
     syncCamera()
     syncMarkers()
     syncSelection()
-    syncZone()
     syncSelectionFly()
     syncSearchUi()
   }
@@ -600,16 +542,12 @@ export function createTaskMapController(args: {
 
       styleLoadRun = () => {
         if (cancelled) return
-        // Style reload drops GeoJSON layers — re-sync zone circle + route.
-        lastZoneKey = ''
+        // Style reload drops GeoJSON layers — re-sync the nav route.
         navRoute.onStyleReload()
         navRoute.flushWhenReady()
         scheduleSync()
       }
       m.on('style.load', styleLoadRun)
-
-      zoomRun = () => syncSelectedMarkerOffset()
-      m.on('zoom', zoomRun)
 
       // Flush route applies deferred while the style was busy (tiles loading
       // mid-fly make `isStyleLoaded()` flicker false — the route would
@@ -676,7 +614,6 @@ export function createTaskMapController(args: {
       if (map && moveEndRun) map.off('moveend', moveEndRun)
       if (map && mapClickRun) map.off('click', mapClickRun)
       if (map && styleLoadRun) map.off('style.load', styleLoadRun)
-      if (map && zoomRun) map.off('zoom', zoomRun)
       if (map && idleRun) map.off('idle', idleRun)
       navRoute.destroy()
       clearAllMarkers()

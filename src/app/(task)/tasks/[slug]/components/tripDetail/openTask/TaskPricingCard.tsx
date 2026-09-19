@@ -6,17 +6,39 @@ import { LuCreditCard } from 'react-icons/lu'
 import bag from '../../../i11n.json'
 
 import { ViewTransition } from '@/ui/ViewTransition'
-import { Badge, Card } from '@ui'
+import { Badge, Button, Card, Link, SafetyNotice } from '@ui'
 
 import { taskVtName } from '@/app/(task)/helpers/taskCardHandoff'
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
+import { getTaskDetailPrimaryCta } from '../../../helpers/getTaskDetailPrimaryCta'
 import {
   budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
   taskBudgetDisplayLine,
 } from '../../../helpers/taskDetailUtils'
 
-/** Overview pricing card — large posted budget, payment as supporting copy. */
+function PricingQuoteCta({
+  href,
+  kind,
+}: {
+  href: string
+  kind: 'sendQuote' | 'signInToQuote'
+}) {
+  const t = useI11n(bag)
+  const label = kind === 'signInToQuote' ? t.cta.signInToQuote : t.cta.sendQuote
+  return (
+    <Stack gap={2}>
+      <SafetyNotice variant="inline" />
+      <Button asChild variant="primary" w="full">
+        <Link href={href} _hover={{ textDecoration: 'none' }}>
+          {label}
+        </Link>
+      </Button>
+    </Stack>
+  )
+}
+
+/** Overview pricing card — posted budget, optional quote / continue CTA. */
 export function TaskPricingCard() {
   const { task, seed, pending, taskId, me, permissions } = useTaskDetail()
   const t = useI11n(bag)
@@ -33,7 +55,12 @@ export function TaskPricingCard() {
     : seed?.priceLabel
   const budgetKind = task ? budgetKindLabel(task.budget?.type) : null
   const paymentMethod = task?.budget?.paymentMethod?.trim()
-
+  const quoteKind = task
+    ? getTaskDetailPrimaryCta({
+        permissions,
+        quoteCount: task.quotes.length,
+      })
+    : 'none'
   return (
     <Card layout="section" aria-busy={pending && !task ? true : undefined}>
       <Stack gap={4}>
@@ -84,6 +111,10 @@ export function TaskPricingCard() {
               {` · ${formatTaskBudgetPaymentMethodLabel(paymentMethod)}`}
             </Text>
           </HStack>
+        ) : null}
+        {task &&
+        (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote') ? (
+          <PricingQuoteCta href={`/tasks/${task.id}/quote`} kind={quoteKind} />
         ) : null}
       </Stack>
     </Card>
