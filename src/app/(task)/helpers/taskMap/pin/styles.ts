@@ -111,6 +111,27 @@ function pinBorder(selected: boolean, expanded: boolean): string {
   return '1px solid transparent'
 }
 
+/**
+ * Search browse keeps a visible location pin in every state (including
+ * selected). Task-detail privacy zones live in `zoneCircle.ts`, not here.
+ */
+export function pinDotChrome(
+  state: Pick<PinVisualState, 'selected' | 'expanded'>,
+) {
+  const { selected, expanded } = state
+  const sizePx = selected ? 14 : 12
+  const active = selected || expanded
+  return {
+    sizePx,
+    opacity: '1' as const,
+    pointerEvents: 'auto' as const,
+    background: active ? PIN.greenBright : PIN.greenSoft,
+    boxShadow: active
+      ? `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`
+      : PIN.shadow,
+  }
+}
+
 export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
   Object.assign(dom.root.style, {
     display: 'flex',
@@ -188,7 +209,7 @@ export function applyPinVisualState(
 ) {
   const { selected, expanded, showPill } = state
   const zIndex = pinStackZIndex({ selected, expanded })
-  const dotPx = selected ? 14 : 12
+  const dot = pinDotChrome({ selected, expanded })
 
   Object.assign(dom.root.style, {
     zIndex,
@@ -242,25 +263,19 @@ export function applyPinVisualState(
     textAlign: 'center',
   })
 
-  const dotActive = selected || expanded
-
   Object.assign(dom.pinDot.style, {
     position: 'relative',
     zIndex: '3',
     display: 'block',
     flexShrink: '0',
-    width: `${dotPx}px`,
-    height: `${dotPx}px`,
+    width: `${dot.sizePx}px`,
+    height: `${dot.sizePx}px`,
     borderRadius: '50%',
-    background: dotActive ? PIN.greenBright : PIN.greenSoft,
+    background: dot.background,
     border: `2.5px solid ${PIN.white}`,
-    boxShadow: dotActive
-      ? `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`
-      : PIN.shadow,
-    // Selected tasks show a zone circle on the map instead of a point — keep
-    // the dot's layout box so the popup stays anchored above the location.
-    opacity: selected ? '0' : '1',
-    pointerEvents: selected ? 'none' : 'auto',
+    boxShadow: dot.boxShadow,
+    opacity: dot.opacity,
+    pointerEvents: dot.pointerEvents,
     transition: pinTransition(motion, ['width', 'height', 'opacity']),
   })
 }

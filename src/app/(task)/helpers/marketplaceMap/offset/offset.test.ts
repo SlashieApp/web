@@ -43,4 +43,11 @@ describe('marketplaceMapViewPadding', () => {
     )
     expect(marketplaceMapViewPadding(1400, 800, 'exact')?.left).toBe(700)
   })
+
+  it('uses exact (pin) framing by default, not the larger approximate-zone recipe', () => {
+    const exact = offsetPaddingForWeb(1400, 800, 'exact')
+    const approximate = offsetPaddingForWeb(1400, 800, 'approximate')
+    expect(exact.bottom).toBe(Math.round(800 * OFFSET_WEB.bottomRatio.exact))
+    expect(approximate.bottom).toBeGreaterThan(exact.bottom ?? 0)
+  })
 })

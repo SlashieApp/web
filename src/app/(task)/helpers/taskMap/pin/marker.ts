@@ -106,7 +106,11 @@ function pulsePinDot(pinDot: HTMLSpanElement, motion: boolean) {
   )
 }
 
-function visualState(isSelected: boolean, expanded: boolean): PinVisualState {
+/** Selected browse pins stay expanded; inactive pins stay compact until hover. */
+export function pinLabelVisualState(
+  isSelected: boolean,
+  expanded: boolean,
+): PinVisualState {
   const isExpanded = expanded || isSelected
   return {
     selected: isSelected,
@@ -203,7 +207,7 @@ export function taskMarkerElement(
   wireSelection(dom, task, onSelect)
 
   const render = () => {
-    const state = visualState(isSelected, expanded)
+    const state = pinLabelVisualState(isSelected, expanded)
     const opening = state.expanded && !wasExpanded
 
     applyPinVisualState(dom, state, motion)

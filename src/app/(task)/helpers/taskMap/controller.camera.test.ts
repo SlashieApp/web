@@ -18,4 +18,15 @@ describe('task map camera', () => {
     expect(src).toContain("if (cameraMode === 'detail')")
     expect(src).toContain('lastCameraKey = cameraKey')
   })
+
+  it('keeps selected browse markers as pins at lat/lng (no zone lift)', () => {
+    const src = readFileSync(join(dir, 'controller.ts'), 'utf8')
+    expect(src).not.toContain('syncZoneCircle')
+    expect(src).not.toContain('SELECTED_ZONE')
+    expect(src).not.toContain('syncSelectedMarkerOffset')
+    expect(src).not.toContain('zoneRadiusPx')
+    expect(src).toContain("anchor: 'bottom'")
+    expect(src).toContain('setSelected(isSelected)')
+    expect(src).toContain('setExpanded(isSelected)')
+  })
 })

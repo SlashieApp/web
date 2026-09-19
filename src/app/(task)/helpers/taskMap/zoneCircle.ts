@@ -2,7 +2,10 @@ import type { GeoJSONSource, Map as MapboxMap } from 'mapbox-gl'
 
 import { BRAND_MAP_RADIUS } from '@/theme/brand'
 
-/** Approximate task zone radius shown instead of an exact point. */
+/**
+ * Approximate-location radius for privacy chrome (task detail / worker area).
+ * Search browse selection uses a location pin — do not draw this there.
+ */
 export const TASK_ZONE_RADIUS_M = 400
 
 export type ZoneCircleLayerIds = {

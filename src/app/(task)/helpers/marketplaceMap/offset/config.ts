@@ -2,6 +2,10 @@
  * Camera padding (Mapbox `padding`) that frames the pin in the visible map
  * window. Compact (phone + tablet) uses a top hero band; web view pushes the
  * pin into the top-right quadrant beside the content column.
+ *
+ * These recipes are for **task-detail** camera mode (`cameraMode: 'detail'`).
+ * Search browse selection frames the pin tip with zero Mapbox padding and a
+ * list-panel offset in `taskMap/controller` — do not add zone-era lift here.
  */
 
 import { COMPACT_DETAIL_HERO_H } from '../overlay/config'
