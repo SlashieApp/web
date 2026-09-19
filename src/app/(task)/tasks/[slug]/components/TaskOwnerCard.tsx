@@ -1,18 +1,32 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Box, HStack, Heading, Image, Skeleton } from '@chakra-ui/react'
+import { Box, HStack, Heading, Image, Skeleton, Stack } from '@chakra-ui/react'
 import bag from '../i11n.json'
 
-import { Card } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import { useTaskDetail } from '../context/TaskDetailProvider'
+import { getTaskOwnerContactAction } from '../helpers/getTaskOwnerContact'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
 
 function posterDisplayName(task: TaskDetailRecord, fallback: string): string {
   const profileName = task.poster?.profile?.name?.trim()
   if (profileName) return profileName
   return fallback
+}
+
+function contactLabel(
+  kind: 'tel' | 'mailto' | 'account',
+  b: {
+    contactCustomer: string
+    emailCustomer: string
+    addContact: string
+  },
+): string {
+  if (kind === 'tel') return b.contactCustomer
+  if (kind === 'mailto') return b.emailCustomer
+  return b.addContact
 }
 
 export function TaskOwnerCardSkeleton() {
@@ -26,8 +40,13 @@ export function TaskOwnerCardSkeleton() {
   )
 }
 
-export function TaskOwnerCard() {
-  const { task, pending } = useTaskDetail()
+type TaskOwnerCardProps = {
+  /** Tighter padding when pinned as the mobile sticky card. */
+  sticky?: boolean
+}
+
+export function TaskOwnerCard({ sticky = false }: TaskOwnerCardProps) {
+  const { task, pending, permissions } = useTaskDetail()
   const t = useI11n(bag)
   if (!task) return pending ? <TaskOwnerCardSkeleton /> : null
 
@@ -40,39 +59,52 @@ export function TaskOwnerCard() {
       .slice(0, 2)
       .map((w) => w[0]?.toUpperCase() ?? '')
       .join('') || 'TO'
+  const showContact =
+    permissions.showWorkerJobBanner ||
+    (permissions.isOrderWorker && permissions.isOrderActive)
+  const contact = showContact ? getTaskOwnerContactAction(task) : null
 
   return (
-    <Card layout="section">
-      <HStack align="center" gap={3} w="full">
-        <Box
-          flexShrink={0}
-          boxSize="48px"
-          borderRadius="full"
-          bg="status.success.soft"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          color="status.success.fg"
-          fontWeight={700}
-          fontSize="sm"
-          overflow="hidden"
-        >
-          {posterAvatarUrl ? (
-            <Image
-              src={posterAvatarUrl}
-              alt={`${posterName} avatar`}
-              w="full"
-              h="full"
-              objectFit="cover"
-            />
-          ) : (
-            posterInitials
-          )}
-        </Box>
-        <Heading size="sm" lineHeight="short" minW={0}>
-          {posterName}
-        </Heading>
-      </HStack>
+    <Card layout="section" p={sticky ? 4 : undefined}>
+      <Stack gap={3}>
+        <HStack align="center" gap={3} w="full">
+          <Box
+            flexShrink={0}
+            boxSize="48px"
+            borderRadius="full"
+            bg="status.success.soft"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            color="status.success.fg"
+            fontWeight={700}
+            fontSize="sm"
+            overflow="hidden"
+          >
+            {posterAvatarUrl ? (
+              <Image
+                src={posterAvatarUrl}
+                alt={`${posterName} avatar`}
+                w="full"
+                h="full"
+                objectFit="cover"
+              />
+            ) : (
+              posterInitials
+            )}
+          </Box>
+          <Heading size="sm" lineHeight="short" minW={0}>
+            {posterName}
+          </Heading>
+        </HStack>
+        {contact ? (
+          <Button asChild variant="primary" w="full">
+            <Link href={contact.href} _hover={{ textDecoration: 'none' }}>
+              {contactLabel(contact.kind, t.booking)}
+            </Link>
+          </Button>
+        ) : null}
+      </Stack>
     </Card>
   )
 }

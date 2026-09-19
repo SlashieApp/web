@@ -15,7 +15,8 @@ export type TaskDetailPrimaryCtaInput = {
 }
 
 /**
- * Single most important action for the viewer's relationship to the task.
+ * Button-kind map for the viewer's relationship to the task.
+ * Mobile *pin* selection lives in `taskDetailSections` (one sticky winner).
  * Uses existing permission flags only — no new eligibility rules.
  */
 export function getTaskDetailPrimaryCta(

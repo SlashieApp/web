@@ -22,5 +22,6 @@ describe('Reveal surface enter', () => {
     expect(view).toContain('<Reveal>')
     expect(view).toContain('TaskDetailSectionTabs')
     expect(cta).toContain('<Reveal>')
+    expect(cta).toContain('resolveStickySection')
   })
 })

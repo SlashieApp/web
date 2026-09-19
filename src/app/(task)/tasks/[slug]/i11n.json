@@ -44,6 +44,10 @@
       "editAria": "Edit task",
       "barAria": "Task actions"
     },
+    "share": {
+      "heading": "Share this task",
+      "body": "Nearby workers can send a quote faster when they have the link."
+    },
     "activity": {
       "heading": "Activity",
       "empty": "Nothing has happened on this task yet.",
@@ -327,6 +331,10 @@
       "confirm": "確認完成",
       "editAria": "編輯任務",
       "barAria": "任務操作"
+    },
+    "share": {
+      "heading": "分享此任務",
+      "body": "附近工作者有連結後可以更快傳送報價。"
     },
     "activity": {
       "heading": "動態",

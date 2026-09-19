@@ -12,6 +12,7 @@ import {
 import { Button, Card, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { getTaskOwnerContactAction } from '../../helpers/getTaskOwnerContact'
 
 function mapsDirectionsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
@@ -49,9 +50,7 @@ export function AcceptedWorkerStatus() {
   // values only to the accepted worker/assignee - exactly this banner's audience
   // (gated by permissions.showWorkerJobBanner above); other viewers get redacted
   // nulls.
-  const poster = task.poster
-  const tel = poster?.profile?.contactNumber?.trim() || null
-  const mailto = poster?.email?.trim() || null
+  const contact = getTaskOwnerContactAction(task)
 
   return (
     <Card layout="default" maxW="full" w="full" px={{ base: 4, md: 5 }} py={4}>
@@ -98,28 +97,18 @@ export function AcceptedWorkerStatus() {
         </Stack>
 
         <HStack gap={2} flexWrap="wrap">
-          {tel ? (
-            <Link
-              href={`tel:${tel.replace(/\s/g, '')}`}
-              _hover={{ textDecoration: 'none' }}
+          <Link href={contact.href} _hover={{ textDecoration: 'none' }}>
+            <Button
+              size="sm"
+              variant={contact.kind === 'account' ? 'secondary' : 'primary'}
             >
-              <Button size="sm" variant="primary">
-                {b.contactCustomer}
-              </Button>
-            </Link>
-          ) : mailto ? (
-            <Link href={`mailto:${mailto}`} _hover={{ textDecoration: 'none' }}>
-              <Button size="sm" variant="primary">
-                {b.emailCustomer}
-              </Button>
-            </Link>
-          ) : (
-            <Link href={'/account'} _hover={{ textDecoration: 'none' }}>
-              <Button size="sm" variant="secondary">
-                {b.addContact}
-              </Button>
-            </Link>
-          )}
+              {contact.kind === 'tel'
+                ? b.contactCustomer
+                : contact.kind === 'mailto'
+                  ? b.emailCustomer
+                  : b.addContact}
+            </Button>
+          </Link>
           {hasCoords ? (
             <Link
               href={mapsDirectionsUrl(lat, lng)}

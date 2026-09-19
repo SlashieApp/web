@@ -1,7 +1,11 @@
+import { OrderStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { withTaskDetailStory } from '../helpers/taskDetailStoryDecorator'
-import { storyTaskDetail } from '../helpers/taskDetailStoryFixtures'
+import {
+  storyTaskDetail,
+  storyTaskOrder,
+} from '../helpers/taskDetailStoryFixtures'
 
 import { TaskOwnerCard } from './TaskOwnerCard'
 
@@ -30,6 +34,16 @@ export const InitialsOnly: Story = {
           profile: { name: 'Alex Chen', avatarUrl: null },
         },
       }),
+    }),
+  ],
+}
+
+export const AssignedWorkerContact: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'worker',
+      task: storyTaskDetail({ status: TaskStatus.QuoteAccepted }),
+      order: storyTaskOrder({ status: OrderStatus.Active }),
     }),
   ],
 }

@@ -26,4 +26,12 @@ describe('TaskInfoSections overview layout', () => {
     expect(callout).toContain('TaskHelpOverflowTrigger')
     expect(sections).not.toContain('TaskHelpOverflowTrigger')
   })
+
+  it('gates overview cards through the section registry', () => {
+    const src = readFileSync(join(dir, 'TaskDetailSections.tsx'), 'utf8')
+    expect(src).toContain('shouldShowInFlow')
+    expect(src).toContain('resolveStickySection')
+    expect(src).toContain('isHiddenOnMobileWhilePinned')
+    expect(src).not.toContain('permissions.isOwner ? null')
+  })
 })
