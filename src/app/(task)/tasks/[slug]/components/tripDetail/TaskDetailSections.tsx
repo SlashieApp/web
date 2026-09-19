@@ -8,6 +8,7 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TaskOwnerCard } from '../TaskOwnerCard'
 import { TaskActivitySections } from './TaskActivitySections'
 import { TaskDetailStatusCallout } from './TaskDetailMoneyChrome'
+import { TaskDetailSectionSlot } from './TaskDetailSectionSlot'
 import { TaskHelpActions } from './TaskOverflowMenu'
 import { PhotosCard } from './openTask/PhotosCard'
 import { QuotesPanel } from './openTask/QuotesPanel'
@@ -21,10 +22,12 @@ import { TrustCard } from './openTask/TrustCard'
  */
 
 export function TaskInfoSections() {
-  const { task, permissions, pending } = useTaskDetail()
+  const { task } = useTaskDetail()
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
-      <TaskDetailStatusCallout />
+      <TaskDetailSectionSlot id="statusCallout">
+        <TaskDetailStatusCallout />
+      </TaskDetailSectionSlot>
       <Grid
         templateColumns={{
           base: '1fr',
@@ -34,20 +37,32 @@ export function TaskInfoSections() {
         alignItems="start"
       >
         <Stack gap={5} minW={0}>
-          <TaskPricingCard />
-          <TaskDetailsCard />
-          <PhotosCard />
+          <TaskDetailSectionSlot id="pricing">
+            <TaskPricingCard />
+          </TaskDetailSectionSlot>
+          <TaskDetailSectionSlot id="details">
+            <TaskDetailsCard />
+          </TaskDetailSectionSlot>
+          <TaskDetailSectionSlot id="photos">
+            <PhotosCard />
+          </TaskDetailSectionSlot>
         </Stack>
         <Stack gap={5} minW={0}>
-          <TaskHelpActions />
+          <TaskDetailSectionSlot id="help">
+            <TaskHelpActions />
+          </TaskDetailSectionSlot>
           <TaskActivitySections />
-          {pending || permissions.isOwner ? null : <TaskOwnerCard />}
+          <TaskDetailSectionSlot id="owner">
+            <TaskOwnerCard />
+          </TaskDetailSectionSlot>
         </Stack>
       </Grid>
       {task ? (
-        <Box display={{ base: 'none', lg: 'block' }}>
-          <SafetyNotice variant="inline" />
-        </Box>
+        <TaskDetailSectionSlot id="safety">
+          <Box display={{ base: 'none', lg: 'block' }}>
+            <SafetyNotice variant="inline" />
+          </Box>
+        </TaskDetailSectionSlot>
       ) : null}
     </Stack>
   )

@@ -20,6 +20,14 @@ describe('TaskInfoSections overview layout', () => {
     )
   })
 
+  it('wraps pinnable overview cards in section slots', () => {
+    const src = readFileSync(join(dir, 'TaskDetailSections.tsx'), 'utf8')
+    expect(src).toContain('id="pricing"')
+    expect(src).toContain('id="owner"')
+    expect(src).toContain('id="details"')
+    expect(src).toContain('TaskDetailSectionSlot')
+  })
+
   it('puts the mobile overflow on the intro row, not in the overview stack', () => {
     const callout = readFileSync(join(dir, 'TaskDetailMoneyChrome.tsx'), 'utf8')
     const sections = readFileSync(join(dir, 'TaskDetailSections.tsx'), 'utf8')

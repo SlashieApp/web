@@ -44,6 +44,12 @@
       "editAria": "Edit task",
       "barAria": "Task actions"
     },
+    "sticky": {
+      "shareHeading": "Share your task",
+      "shareBody": "Nearby workers can see your task. Share it to get quotes faster.",
+      "confirmHeading": "Completion code",
+      "confirmBody": "Give this code to your worker when the job is done."
+    },
     "activity": {
       "heading": "Activity",
       "empty": "Nothing has happened on this task yet.",
@@ -327,6 +333,12 @@
       "confirm": "確認完成",
       "editAria": "編輯任務",
       "barAria": "任務操作"
+    },
+    "sticky": {
+      "shareHeading": "分享你的任務",
+      "shareBody": "附近工作者可以看到你的任務。分享可更快收到報價。",
+      "confirmHeading": "完成驗證碼",
+      "confirmBody": "工作完成後，把此驗證碼交給工作者。"
     },
     "activity": {
       "heading": "動態",

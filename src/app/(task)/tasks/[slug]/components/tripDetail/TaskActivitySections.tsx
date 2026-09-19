@@ -13,6 +13,7 @@ import { buildTaskActivitySteps } from '../../helpers/taskDetailActivity'
 import bag from '../../i11n.json'
 
 import { WorkerOrderVerificationPanel } from '../quoteSection/WorkerOrderVerificationPanel'
+import { TaskDetailSectionSlot } from './TaskDetailSectionSlot'
 import { BookingSection } from './openTask/BookingSection'
 
 function ActivityTimeline() {
@@ -108,9 +109,15 @@ function ActivityTimeline() {
 export function TaskActivitySections() {
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
-      <BookingSection />
-      <WorkerOrderVerificationPanel />
-      <ActivityTimeline />
+      <TaskDetailSectionSlot id="booking">
+        <BookingSection />
+      </TaskDetailSectionSlot>
+      <TaskDetailSectionSlot id="verification">
+        <WorkerOrderVerificationPanel />
+      </TaskDetailSectionSlot>
+      <TaskDetailSectionSlot id="activity">
+        <ActivityTimeline />
+      </TaskDetailSectionSlot>
     </Stack>
   )
 }

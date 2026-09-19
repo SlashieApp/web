@@ -6,15 +6,38 @@ import { LuCreditCard } from 'react-icons/lu'
 import bag from '../../../i11n.json'
 
 import { ViewTransition } from '@/ui/ViewTransition'
-import { Badge, Card } from '@ui'
+import { Badge, Button, Card, Link, SafetyNotice } from '@ui'
 
 import { taskVtName } from '@/app/(task)/helpers/taskCardHandoff'
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
+import { showTaskPricingQuoteCta } from '../../../helpers/taskDetailSectionRegistry'
 import {
   budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
   taskBudgetDisplayLine,
 } from '../../../helpers/taskDetailUtils'
+
+function TaskPricingQuoteActions() {
+  const { task, permissions } = useTaskDetail()
+  const t = useI11n(bag)
+  if (!task || !showTaskPricingQuoteCta(permissions)) return null
+
+  const quoteHref = `/tasks/${task.id}/quote`
+  const label = permissions.showGuestQuoteCta
+    ? t.cta.signInToQuote
+    : t.cta.sendQuote
+
+  return (
+    <Stack gap={2}>
+      <SafetyNotice variant="inline" />
+      <Button asChild variant="primary" w="full">
+        <Link href={quoteHref} _hover={{ textDecoration: 'none' }}>
+          {label}
+        </Link>
+      </Button>
+    </Stack>
+  )
+}
 
 /** Overview pricing card — large posted budget, payment as supporting copy. */
 export function TaskPricingCard() {
@@ -85,6 +108,7 @@ export function TaskPricingCard() {
             </Text>
           </HStack>
         ) : null}
+        <TaskPricingQuoteActions />
       </Stack>
     </Card>
   )

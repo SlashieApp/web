@@ -257,10 +257,8 @@ export function applyPinVisualState(
     boxShadow: dotActive
       ? `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`
       : PIN.shadow,
-    // Selected tasks show a zone circle on the map instead of a point — keep
-    // the dot's layout box so the popup stays anchored above the location.
-    opacity: selected ? '0' : '1',
-    pointerEvents: selected ? 'none' : 'auto',
+    opacity: '1',
+    pointerEvents: 'auto',
     transition: pinTransition(motion, ['width', 'height', 'opacity']),
   })
 }

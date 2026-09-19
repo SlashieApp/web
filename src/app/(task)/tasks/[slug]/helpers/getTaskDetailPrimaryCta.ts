@@ -17,6 +17,7 @@ export type TaskDetailPrimaryCtaInput = {
 /**
  * Single most important action for the viewer's relationship to the task.
  * Uses existing permission flags only — no new eligibility rules.
+ * Mobile pin placement is owned by `taskDetailSectionRegistry` (one card).
  */
 export function getTaskDetailPrimaryCta(
   input: TaskDetailPrimaryCtaInput,
