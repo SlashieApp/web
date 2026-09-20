@@ -18,6 +18,7 @@ import { LuCalendar, LuKeyRound, LuUser } from 'react-icons/lu'
 import { Avatar, Button, Card, DetailRow, IconButton, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 
 function CopyIcon() {
   return (
@@ -79,8 +80,8 @@ export function CustomerActiveOrderStatus() {
 
   return (
     <Card
-      layout="section"
-      heading={b.customerTitle}
+      {...TASK_DETAIL_SECTION_CARD}
+      eyebrow={b.customerTitle}
       description={`${formatOrderAgreedPrice(myOrder)} · ${orderLocationLabel(myOrder)}`}
     >
       <DetailRow icon={<LuUser />} label={b.yourWorker} withDivider>

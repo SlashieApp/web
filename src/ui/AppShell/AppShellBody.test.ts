@@ -15,5 +15,12 @@ describe('AppShellBody main pane', () => {
     expect(src).toContain("'&::-webkit-scrollbar'")
     expect(src).toContain('overflowX="clip"')
     expect(src).toContain('overflowY="auto"')
+    expect(src).toContain("overflowAnchor: 'none'")
+    expect(src).toContain('data-header-hidden')
+    expect(src).toContain("hidden ? 'translateY(-100%)' : 'translateY(0)'")
+    expect(src).toContain('HEADER_SLOT_MAX_H')
+    expect(src).toContain(
+      'style={{ maxHeight: hidden ? 0 : HEADER_SLOT_MAX_H }}',
+    )
   })
 })

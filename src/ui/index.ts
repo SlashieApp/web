@@ -38,7 +38,7 @@ export {
   statusScale,
 } from './_foundations/ColorSwatches'
 export { DetailRow } from './DetailRow'
-export { Drawer, useInsideDrawer } from './Drawer'
+export { Drawer, useDrawerClose, useInsideDrawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
 export {
   FEEDBACK_CATEGORY_VALUES,
@@ -81,6 +81,7 @@ export { MapCard } from './MapCard'
 export {
   MESSAGES_HREF,
   MOBILE_BOTTOM_NAV_CLEARANCE,
+  MOBILE_BOTTOM_NAV_OFFSET,
   MobileBottomNav,
 } from './MobileBottomNav'
 export { MobileCarousel } from './MobileCarousel/MobileCarousel'

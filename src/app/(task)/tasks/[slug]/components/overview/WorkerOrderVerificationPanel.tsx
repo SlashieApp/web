@@ -9,6 +9,7 @@ import bag from '../../i11n.json'
 import { Button, Card, Input, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 
 function normalizeVerificationCode(raw: string): string {
   return raw.replace(/\D/g, '').slice(0, 6)
@@ -49,8 +50,8 @@ export function WorkerOrderVerificationPanel({
   if (status !== OrderStatus.Active) {
     return (
       <Card
-        layout="section"
-        heading={v.awaitingHeading}
+        {...TASK_DETAIL_SECTION_CARD}
+        eyebrow={v.awaitingHeading}
         description={v.inactiveBody}
       />
     )
@@ -58,10 +59,10 @@ export function WorkerOrderVerificationPanel({
 
   return (
     <Card
-      layout="section"
+      {...TASK_DETAIL_SECTION_CARD}
       id="worker-job-panel"
       scrollMarginTop="140px"
-      heading={v.completeHeading}
+      eyebrow={v.completeHeading}
       description={v.instructions}
     >
       <SafetyNotice variant="complete" />

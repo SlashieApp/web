@@ -12,12 +12,39 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { WEB_MQ } from '@/theme/breakpoints'
 import {
   sdlCard,
   sdlCardSurface,
   sdlFocusRing,
   sdlMotion,
 } from '@/theme/styles'
+
+type CardFramed = boolean | { base?: boolean; md?: boolean; lg?: boolean }
+
+function unframedCss(framed?: CardFramed): SystemStyleObject | undefined {
+  if (framed === true || framed == null) return undefined
+  const flush: SystemStyleObject = {
+    bg: 'transparent',
+    borderWidth: 0,
+    boxShadow: 'none',
+    padding: 0,
+    borderRadius: 0,
+  }
+  if (framed === false) return flush
+  const mobileFlush = framed.base === false
+  const webFlush = framed.lg === false
+  if (mobileFlush && framed.lg !== false) {
+    return {
+      '@media screen and (max-width: 1023px)': flush,
+    }
+  }
+  if (webFlush && !mobileFlush) {
+    return { [`@media screen and ${WEB_MQ}`]: flush }
+  }
+  if (mobileFlush && webFlush) return flush
+  return undefined
+}
 
 /**
  * SDL Card. Shared surface recipe (`sdlCard` / `sdlCardSurface`):
@@ -70,6 +97,11 @@ export type CardProps = BoxProps & {
    * Default keeps the section recipe used on task-detail and dashboard.
    */
   density?: 'default' | 'compact'
+  /**
+   * When false, drop surface chrome (padding, border, fill, radius).
+   * Accepts a breakpoint map so tab bodies can go flush on compact.
+   */
+  framed?: boolean | { base?: boolean; md?: boolean; lg?: boolean }
 }
 
 function CardTitleBlock({
@@ -87,30 +119,33 @@ function CardTitleBlock({
     header ??
     (eyebrow || heading || description ? (
       <Stack gap={1}>
-        {eyebrow ? (
-          <Text
-            fontSize="xs"
-            fontWeight={500}
-            color="text.muted"
-            letterSpacing="0.06em"
-            textTransform="uppercase"
-          >
-            {eyebrow}
-          </Text>
-        ) : null}
-        {heading || headingAccessory ? (
+        {eyebrow || (!heading && headingAccessory) ? (
           <HStack gap={2} align="center" flexWrap="wrap">
-            {heading ? (
-              <Heading
-                as="h3"
-                fontSize={{ base: '16px', md: '20px' }}
+            {eyebrow ? (
+              <Text
+                fontSize="xs"
                 fontWeight={500}
-                color="text.default"
-                lineHeight="short"
+                color="text.muted"
+                letterSpacing="0.06em"
+                textTransform="uppercase"
               >
-                {heading}
-              </Heading>
+                {eyebrow}
+              </Text>
             ) : null}
+            {!heading ? headingAccessory : null}
+          </HStack>
+        ) : null}
+        {heading ? (
+          <HStack gap={2} align="center" flexWrap="wrap">
+            <Heading
+              as="h3"
+              fontSize={{ base: '16px', md: '20px' }}
+              fontWeight={500}
+              color="text.default"
+              lineHeight="short"
+            >
+              {heading}
+            </Heading>
             {headingAccessory}
           </HStack>
         ) : null}
@@ -169,9 +204,11 @@ export function Card({
   metric,
   bodyGap,
   density = 'default',
+  framed = true,
   p,
   maxW,
   borderRadius,
+  css,
   ...rest
 }: CardProps) {
   const isSection = layout === 'section'
@@ -181,6 +218,7 @@ export function Card({
   const interactiveA11y = interactive
     ? { tabIndex: 0, role: 'button' as const }
     : {}
+  const flush = unframedCss(framed)
 
   return (
     <Box
@@ -191,6 +229,14 @@ export function Card({
       {...interactiveA11y}
       {...surface}
       borderColor={isActive ? activeBorderColor : 'border.default'}
+      css={
+        flush && css
+          ? {
+              ...flush,
+              ...(typeof css === 'object' && !Array.isArray(css) ? css : {}),
+            }
+          : (flush ?? css)
+      }
       {...rest}
     >
       {isSection ? (

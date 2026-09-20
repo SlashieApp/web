@@ -141,6 +141,7 @@
       "quotesOne": "{count}",
       "quotesMany": "{count}",
       "interest": "Interest",
+      "overallTitle": "{level} interest",
       "interestLevel": {
         "low": "Low",
         "medium": "Medium",
@@ -469,6 +470,7 @@
       "quotesOne": "{count}",
       "quotesMany": "{count}",
       "interest": "興趣",
+      "overallTitle": "{level}興趣",
       "interestLevel": {
         "low": "低",
         "medium": "中",

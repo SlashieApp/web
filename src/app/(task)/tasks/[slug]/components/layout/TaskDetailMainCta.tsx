@@ -1,10 +1,11 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, HStack, type SystemStyleObject } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { LuPencil } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
+import { WEB_MQ } from '@/theme/breakpoints'
 import { Button, IconButton, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -16,6 +17,38 @@ import { TaskOwnerCard } from '../overview/TaskOwnerCard'
 import { TaskPricingCard } from '../overview/TaskPricingCard'
 import { TaskShareCard } from '../overview/TaskShareCard'
 import { TaskDetailPinCard } from '../ui/TaskDetailPinCard'
+import { Reveal } from './Reveal'
+
+const PIN_FADE_HEIGHT =
+  'calc(8.5rem + env(safe-area-inset-bottom, 0px))' as const
+
+const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
+
+const reducedTransparencyQuery =
+  '@media (prefers-reduced-transparency: reduce), (prefers-reduced-motion: reduce)' as const
+
+/** White wash that dissolves upward so scrolling cards fade under the pin. */
+const pinFadeCss: SystemStyleObject = {
+  background: `linear-gradient(to top, ${surfaceVar} 0%, color-mix(in srgb, ${surfaceVar} 88%, transparent) 38%, color-mix(in srgb, ${surfaceVar} 42%, transparent) 68%, transparent 100%)`,
+  [reducedTransparencyQuery]: {
+    background: `linear-gradient(to top, ${surfaceVar} 0%, color-mix(in srgb, ${surfaceVar} 92%, transparent) 55%, transparent 100%)`,
+  },
+}
+
+function TaskDetailMainCtaFade() {
+  return (
+    <Box
+      aria-hidden
+      data-task-detail-main-cta-fade
+      position="absolute"
+      insetX={0}
+      bottom={0}
+      h={PIN_FADE_HEIGHT}
+      pointerEvents="none"
+      css={pinFadeCss}
+    />
+  )
+}
 
 function TaskDetailCompletionBar() {
   const t = useI11n(bag)
@@ -100,8 +133,8 @@ function TaskDetailCompletionBar() {
 }
 
 /**
- * Winning mobile pin card. Sticky chrome lives on TaskDetailTabLayout's
- * `mainCta` slot — this only picks which card to place there.
+ * Compact mobile/tablet pin at the bottom of the page — outside the tabs
+ * so it stays put when the active tab changes.
  */
 export function TaskDetailMainCta() {
   const { pinnedId } = useTaskDetailSections()
@@ -129,5 +162,31 @@ export function TaskDetailMainCta() {
 
   if (!pin) return null
 
-  return <Box data-task-detail-pin={pinnedId}>{pin}</Box>
+  return (
+    <Box
+      data-task-detail-main-cta
+      data-task-detail-pin={pinnedId}
+      css={{
+        display: 'block',
+        [`@media screen and ${WEB_MQ}`]: { display: 'none' },
+      }}
+      position="fixed"
+      insetX={0}
+      bottom={0}
+      zIndex={25}
+      pointerEvents="none"
+    >
+      <TaskDetailMainCtaFade />
+      <Box
+        position="relative"
+        px={3}
+        pt={2}
+        pb="calc(10px + env(safe-area-inset-bottom, 0px))"
+      >
+        <Reveal>
+          <Box pointerEvents="auto">{pin}</Box>
+        </Reveal>
+      </Box>
+    </Box>
+  )
 }

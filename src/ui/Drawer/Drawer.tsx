@@ -30,11 +30,19 @@ import { IconButton as UiIconButton } from '../IconButton/IconButton'
 const drawerGutterX = { base: 4, md: 6 } as const
 
 const DrawerNestingContext = createContext(false)
+const DrawerCloseContext = createContext<(() => void) | null>(null)
 
 /** True when rendering inside an open `@ui` Drawer panel (including portals). */
 export function useInsideDrawer() {
   return useContext(DrawerNestingContext)
 }
+
+/** Close the nearest open `@ui` Drawer. No-op outside a drawer. */
+export function useDrawerClose() {
+  return useContext(DrawerCloseContext) ?? (() => {})
+}
+
+export const DRAWER_PANEL_MAX_W = 'lg' as const
 
 export type DrawerPlacement = 'start' | 'end' | 'top' | 'bottom'
 
@@ -121,9 +129,14 @@ export function Drawer({
               transitionDuration: '0ms',
             },
           }}
-          {...(placement === 'bottom'
-            ? { mx: 'auto', w: 'full', maxW: 'lg' }
-            : {})}
+          w="full"
+          maxW={DRAWER_PANEL_MAX_W}
+          {...(placement === 'bottom' || placement === 'top'
+            ? { mx: 'auto' }
+            : {
+                ml: placement === 'end' ? 'auto' : undefined,
+                mr: placement === 'start' ? 'auto' : undefined,
+              })}
           {...radius}
           {...contentProps}
         >
@@ -177,7 +190,7 @@ export function Drawer({
           >
             <Box
               w="full"
-              maxW="lg"
+              maxW={DRAWER_PANEL_MAX_W}
               mx="auto"
               flex={1}
               display="flex"
@@ -216,14 +229,16 @@ export function Drawer({
 
   return (
     <DrawerNestingContext.Provider value={true}>
-      <DrawerRoot
-        open={open}
-        onOpenChange={(d: { open: boolean }) => onOpenChange(d.open)}
-        placement={placement}
-        size={size}
-      >
-        {isBrowser ? createPortal(overlay, document.body) : overlay}
-      </DrawerRoot>
+      <DrawerCloseContext.Provider value={() => onOpenChange(false)}>
+        <DrawerRoot
+          open={open}
+          onOpenChange={(d: { open: boolean }) => onOpenChange(d.open)}
+          placement={placement}
+          size={size}
+        >
+          {isBrowser ? createPortal(overlay, document.body) : overlay}
+        </DrawerRoot>
+      </DrawerCloseContext.Provider>
     </DrawerNestingContext.Provider>
   )
 }

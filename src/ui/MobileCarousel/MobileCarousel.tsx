@@ -2,7 +2,6 @@
 
 import { Box } from '@chakra-ui/react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { motion } from 'motion/react'
 import { useCallback, useRef, useState } from 'react'
 import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react'
 
@@ -382,21 +381,16 @@ export function MobileCarousel<T extends { id: string }>({
           }
 
           return (
-            <motion.div
+            <Box
               key={item.id}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-              style={{
-                flex: `0 0 ${slideWidthPx > 0 ? `${slideWidthPx}px` : '100%'}`,
-                minWidth: 0,
-                maxWidth: '100%',
-                cursor: slideCursor,
-                touchAction: 'pan-y',
-              }}
+              flex={`0 0 ${slideWidthPx > 0 ? `${slideWidthPx}px` : '100%'}`}
+              minW={0}
+              maxW="100%"
+              cursor={slideCursor}
+              style={{ touchAction: 'pan-y' }}
             >
               {children(item, state)}
-            </motion.div>
+            </Box>
           )
         })}
       </Box>

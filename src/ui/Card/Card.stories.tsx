@@ -204,6 +204,11 @@ export const AllVariants: Story = {
           Tight padding for a floating CTA row.
         </Text>
       </Card>
+      <Card layout="section" framed={false} eyebrow="Photos">
+        <Text fontSize="sm" color="text.muted">
+          Flush section — no card chrome.
+        </Text>
+      </Card>
     </Stack>
   ),
 }

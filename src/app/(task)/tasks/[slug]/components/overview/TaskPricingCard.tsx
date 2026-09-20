@@ -9,6 +9,7 @@ import { Badge, Button, Card, DetailRow, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import {
   budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
@@ -95,8 +96,8 @@ export function TaskPricingCard({ compact = false }: TaskPricingCardProps) {
 
   return (
     <Card
-      layout="section"
-      heading={t.details.budget}
+      {...TASK_DETAIL_SECTION_CARD}
+      eyebrow={t.details.budget}
       metric={budgetLine}
       aria-busy={loading ? true : undefined}
     >

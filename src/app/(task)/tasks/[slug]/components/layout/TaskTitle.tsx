@@ -9,15 +9,17 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
 import { TaskStatusPill } from '../ui/TaskStatusPill'
 import { TaskBackButton } from './TaskHeaderControls'
+import { TaskHelpOverflowTrigger } from './TaskOverflowMenu'
 import { selectStatusHeaderCopy } from './statusHeaderCopy'
 
 type TaskTitleProps = {
-  /** When the sticky chrome is docked, indent for the floating back button. */
+  /** When the sticky chrome is docked, compact the title row. */
   isStuck?: boolean
 }
 
 /**
- * Task title + status badge. Sticky money chrome above the tab headers.
+ * Sticky task title + status badge. Compact viewports also get the
+ * options overflow on the right of this row.
  */
 export function TaskTitle({ isStuck = false }: TaskTitleProps) {
   const {
@@ -82,6 +84,9 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
         ) : (
           <Skeleton h="22px" w="72px" borderRadius="full" flexShrink={0} />
         )}
+        <Box display={{ base: 'block', lg: 'none' }} ml="auto" flexShrink={0}>
+          <TaskHelpOverflowTrigger />
+        </Box>
       </HStack>
     </Box>
   )

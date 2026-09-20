@@ -7,7 +7,6 @@ import {
   PAGE_GUTTER_X,
   SEARCH_LIST_COLUMN_W,
 } from '@/theme/pageContainer'
-
 import { MobileTaskBrowseFiltersDrawer } from '../../../components/(mobile)/layout/MobileTaskBrowseFiltersDrawer'
 import { MobileTaskCarousel } from '../../../components/(mobile)/layout/MobileTaskCarousel'
 import { WebTaskBrowseFiltersBlock } from '../../../components/(web)/layout/TaskBrowseFilters'
@@ -119,12 +118,13 @@ export function MobileSearchLayout() {
         position="absolute"
         left={0}
         right={0}
+        // Search chrome fills main's content box (above CLEARANCE). Keep the
+        // strip inside that box — a negative bottom clips cards.
         bottom={0}
         zIndex={3}
         display="flex"
         flexDirection="column"
         gap={2}
-        pb={2}
         pointerEvents="auto"
       >
         <TaskBrowseSearchThisAreaButton />

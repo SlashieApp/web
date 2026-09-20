@@ -141,15 +141,23 @@ type DropdownBaseProps = {
   align?: 'start' | 'end' | 'center'
   /** Start opened (Storybook / controlled-open scenarios). */
   defaultOpen?: boolean
+  /** Controlled open state. */
+  open?: boolean
   /** Notified whenever open state changes. */
   onOpenChange?: (open: boolean) => void
   /** Override / extend the default popover surface styling. */
   contentProps?: BoxProps
   /**
    * Below `md`, the menu opens as `@ui` Drawer instead of a popover.
-   * Ignored when this dropdown is already inside a Drawer (no nesting).
+   * Ignored when this dropdown is already inside a Drawer (no nesting),
+   * unless `allowNested` is set.
    */
   mobilePlacement?: DropdownMobilePlacement
+  /**
+   * Open as a new overlay even when already inside a Drawer. The parent
+   * overlay should close itself so only the new panel stays on screen.
+   */
+  allowNested?: boolean
 }
 
 export type ClickDropdownProps = DropdownBaseProps & {
@@ -270,11 +278,11 @@ function renderClickChildren(
   )
 }
 
-function useMobileDrawerPresentation() {
+function useMobileDrawerPresentation(allowNested = false) {
   const isMobile =
     useBreakpointValue({ base: true, md: false }, { fallback: 'base' }) ?? false
   const insideDrawer = useInsideDrawer()
-  return isMobile && !insideDrawer
+  return isMobile && (allowNested || !insideDrawer)
 }
 
 function DropdownMobileDrawer({
@@ -314,18 +322,27 @@ function ClickDropdown({
   align = 'end',
   width = '300px',
   defaultOpen = false,
+  open: controlledOpen,
   onOpenChange,
   contentProps,
   mobilePlacement = 'bottom',
+  allowNested = false,
 }: ClickDropdownProps) {
   const { open, rendered, closing, setOpenState } = useDropdownPhase(
     defaultOpen,
     onOpenChange,
   )
+
+  if (controlledOpen === true && !open && !closing) {
+    setOpenState(true)
+  }
+  if (controlledOpen === false && open) {
+    setOpenState(false)
+  }
   const panelRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelId = useId()
-  const useDrawer = useMobileDrawerPresentation()
+  const useDrawer = useMobileDrawerPresentation(allowNested)
   const presentationRef = useRef(useDrawer)
 
   const close = useCallback(() => setOpenState(false), [setOpenState])

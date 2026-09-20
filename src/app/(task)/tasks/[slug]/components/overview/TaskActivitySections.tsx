@@ -10,6 +10,7 @@ import { Card } from '@ui'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { buildTaskActivitySteps } from '../../helpers/taskDetailActivity'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import bag from '../../i11n.json'
 
 import { BookingSection } from './BookingSection'
@@ -51,7 +52,7 @@ function ActivityTimeline() {
   })
 
   return (
-    <Card layout="section" heading={a.heading}>
+    <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={a.heading}>
       <Stack gap={0} w="full">
         {steps.map((step, index) => (
           <HStack

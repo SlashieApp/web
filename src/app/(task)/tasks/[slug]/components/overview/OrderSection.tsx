@@ -23,6 +23,8 @@ import { LuUser } from 'react-icons/lu'
 
 import { Avatar, Card, DetailRow, SafetyNotice } from '@ui'
 
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
+
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 
 type OrderSectionProps = {
@@ -300,8 +302,8 @@ export function OrderSection({ task, order }: OrderSectionProps) {
     <Card
       ref={onSectionRef}
       id={TASK_ORDER_SECTION_ID}
-      layout="section"
-      heading={completed ? o.completed : o.summary}
+      {...TASK_DETAIL_SECTION_CARD}
+      eyebrow={completed ? o.completed : o.summary}
       description={completed ? o.completedBody : undefined}
       headingAccessory={<OrderStatusBadge label={statusLabel} />}
       metric={agreedPrice}

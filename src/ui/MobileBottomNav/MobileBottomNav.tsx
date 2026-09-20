@@ -19,6 +19,14 @@ import bag from './i11n.json'
 export const MOBILE_BOTTOM_NAV_CLEARANCE =
   'calc(96px + env(safe-area-inset-bottom, 0px))' as const
 
+/**
+ * Sit floating chrome (search carousel) just above the raised create button.
+ * Tighter than {@link MOBILE_BOTTOM_NAV_CLEARANCE}, which leaves fade runway
+ * for scrolling pages. Must clear the `mt={-5}` FAB (~20px above the pill).
+ */
+export const MOBILE_BOTTOM_NAV_OFFSET =
+  'calc(88px + env(safe-area-inset-bottom, 0px))' as const
+
 /** Full-bleed dissolve behind the pill (taller than the bar itself). */
 const MOBILE_BOTTOM_NAV_FADE_HEIGHT =
   'calc(64px + env(safe-area-inset-bottom, 0px))' as const
@@ -235,29 +243,90 @@ export function MobileBottomNav() {
       bottom={0}
       zIndex={10}
       pointerEvents="none"
+      overflowX="clip"
     >
       <MobileBottomNavFade />
-      <HStack
-        pointerEvents="auto"
-        position="relative"
-        mb="calc(env(safe-area-inset-bottom, 0px) + 10px)"
-        borderWidth="1px"
-        borderColor="border.default"
-        borderRadius="lg"
-        maxW="580px"
-        mx="auto"
-        boxShadow={sdlElevation.e3}
-        px={2}
-        py={1.5}
-        gap={0}
-        justify="space-between"
-        align="center"
-        css={glassPillCss}
-      >
-        {items.map((item) => {
-          const active = isHrefActive(pathname, item.href)
+      <Box px={2} minW={0} overflow="visible">
+        <HStack
+          pointerEvents="auto"
+          position="relative"
+          mb="calc(env(safe-area-inset-bottom, 0px) + 10px)"
+          borderWidth="1px"
+          borderColor="border.default"
+          borderRadius="lg"
+          w="full"
+          maxW="580px"
+          minW={0}
+          mx="auto"
+          boxShadow={sdlElevation.e3}
+          px={2}
+          py={1.5}
+          gap={0}
+          justify="space-between"
+          align="center"
+          overflow="visible"
+          css={glassPillCss}
+        >
+          {items.map((item) => {
+            const active = isHrefActive(pathname, item.href)
 
-          if (item.emphasize) {
+            if (item.emphasize) {
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  aria-label={item.label}
+                  aria-current={active ? 'page' : undefined}
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  justifyContent="center"
+                  flex={1}
+                  minW={0}
+                  gap={0.5}
+                  textDecoration="none"
+                  _hover={{ textDecoration: 'none' }}
+                  _focus={{ outline: 'none' }}
+                  _focusVisible={{
+                    outline: 'none',
+                    '& [data-create-fab]': sdlFocusRing,
+                  }}
+                >
+                  <Box
+                    data-create-fab
+                    w="48px"
+                    h="48px"
+                    borderRadius="full"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    bg="action.primary"
+                    color="text.onGreen"
+                    mt={-5}
+                    boxShadow={sdlElevation.e2}
+                    transitionProperty="transform, box-shadow"
+                    transitionDuration={sdlMotion.duration.moderate}
+                    transitionTimingFunction={sdlMotion.easing.standard}
+                    _hover={{ transform: 'translateY(-1px)' }}
+                  >
+                    {item.icon}
+                  </Box>
+                  <Text
+                    fontSize="10px"
+                    fontWeight={700}
+                    color={active ? 'status.success.fg' : 'text.muted'}
+                    lineHeight="short"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    maxW="100%"
+                  >
+                    {item.label}
+                  </Text>
+                </Link>
+              )
+            }
+
             return (
               <Link
                 key={item.key}
@@ -270,91 +339,42 @@ export function MobileBottomNav() {
                 justifyContent="center"
                 flex={1}
                 minW={0}
+                minH="44px"
                 gap={0.5}
+                py={1}
+                px={0.5}
+                borderRadius="lg"
+                color={active ? 'status.success.fg' : 'text.muted'}
                 textDecoration="none"
-                _hover={{ textDecoration: 'none' }}
-                _focus={{ outline: 'none' }}
-                _focusVisible={{
-                  outline: 'none',
-                  '& [data-create-fab]': sdlFocusRing,
+                transitionProperty="color, background-color"
+                transitionDuration={sdlMotion.duration.moderate}
+                transitionTimingFunction={sdlMotion.easing.standard}
+                _hover={{
+                  textDecoration: 'none',
+                  color: 'status.success.fg',
+                  bg: 'status.success.soft',
                 }}
+                _focus={{ outline: 'none' }}
+                _focusVisible={sdlFocusRing}
               >
-                <Box
-                  data-create-fab
-                  w="48px"
-                  h="48px"
-                  borderRadius="full"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  bg="action.primary"
-                  color="text.onGreen"
-                  mt={-5}
-                  boxShadow={sdlElevation.e2}
-                  transitionProperty="transform, box-shadow"
-                  transitionDuration={sdlMotion.duration.moderate}
-                  transitionTimingFunction={sdlMotion.easing.standard}
-                  _hover={{ transform: 'translateY(-1px)' }}
-                >
-                  {item.icon}
-                </Box>
+                {item.icon}
                 <Text
                   fontSize="10px"
                   fontWeight={700}
-                  color={active ? 'status.success.fg' : 'text.muted'}
                   lineHeight="short"
                   whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  maxW="100%"
+                  color="inherit"
                 >
                   {item.label}
                 </Text>
               </Link>
             )
-          }
-
-          return (
-            <Link
-              key={item.key}
-              href={item.href}
-              aria-label={item.label}
-              aria-current={active ? 'page' : undefined}
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              flex={1}
-              minW={0}
-              minH="44px"
-              gap={0.5}
-              py={1}
-              px={0.5}
-              borderRadius="lg"
-              color={active ? 'status.success.fg' : 'text.muted'}
-              textDecoration="none"
-              transitionProperty="color, background-color"
-              transitionDuration={sdlMotion.duration.moderate}
-              transitionTimingFunction={sdlMotion.easing.standard}
-              _hover={{
-                textDecoration: 'none',
-                color: 'status.success.fg',
-                bg: 'status.success.soft',
-              }}
-              _focus={{ outline: 'none' }}
-              _focusVisible={sdlFocusRing}
-            >
-              {item.icon}
-              <Text
-                fontSize="10px"
-                fontWeight={700}
-                lineHeight="short"
-                whiteSpace="nowrap"
-                color="inherit"
-              >
-                {item.label}
-              </Text>
-            </Link>
-          )
-        })}
-      </HStack>
+          })}
+        </HStack>
+      </Box>
     </Box>
   )
 }

@@ -153,7 +153,7 @@ export function TaskOverflowMenu() {
 }
 
 /**
- * Mobile overflow: three-dots next to the active tab title.
+ * Compact overflow: three-dots on the right of the sticky task title.
  */
 export function TaskHelpOverflowTrigger() {
   const t = useI11n(bag)

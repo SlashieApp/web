@@ -36,5 +36,6 @@ describe('TaskDetailView desktop column', () => {
     expect(src).toContain('taskDetailPinClearance')
     expect(src).toContain('<Reveal>')
     expect(src).toContain('TaskDetailTabs')
+    expect(src).toContain('TaskDetailMainCta')
   })
 })

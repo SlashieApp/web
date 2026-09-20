@@ -8,6 +8,7 @@ import { LuCalendar, LuMapPin, LuTag, LuWrench } from 'react-icons/lu'
 import { Card, DetailRow } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import {
   taskAvailabilityRangeLabel,
   taskCategoryLabel,
@@ -78,8 +79,8 @@ export function TaskDetailsCard() {
 
   return (
     <Card
-      layout="section"
-      heading={t.details.heading}
+      {...TASK_DETAIL_SECTION_CARD}
+      eyebrow={t.details.heading}
       aria-busy={loading ? true : undefined}
     >
       <Stack gap={0}>

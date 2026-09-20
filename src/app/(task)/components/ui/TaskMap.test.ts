@@ -22,7 +22,7 @@ describe('search mobile map chrome', () => {
       'utf8',
     )
     expect(overlay).toContain('overlayCtrlBottomOffsetForMobile')
-    expect(overlayConfig).toContain('+ 7.5rem')
+    expect(overlayConfig).toContain('+ 8.75rem')
     expect(searchMap).toContain('mobileCtrlBottomOffset')
     expect(searchMap).toContain('overlayCtrlBottomOffsetForMobile')
     expect(searchMap).toContain("logoPosition: 'bottom-right'")
@@ -75,6 +75,7 @@ describe('search mobile map chrome', () => {
     expect(src).toContain('bottom={0}')
     expect(src).toContain('useIsTouchMobileDevice')
     expect(src).toContain('mr={touchPhone ? 0 : 12}')
+    expect(src).not.toContain('MOBILE_BOTTOM_NAV_OFFSET')
     expect(src).not.toContain('bottom={MOBILE_BOTTOM_NAV_CLEARANCE}')
     expect(src).not.toContain('linear-gradient')
     expect(src).not.toContain('TaskBrowseListColumnScrim')

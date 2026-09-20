@@ -16,14 +16,15 @@ describe('Reveal surface enter', () => {
     expect(src).toContain('sdlMotion.duration.slow')
   })
 
-  it('wraps task-detail content and the mobile CTA so skeletons also enter', () => {
+  it('wraps task-detail content and the page-level mobile CTA so skeletons also enter', () => {
     const view = readFileSync(join(dir, 'TaskDetailView.tsx'), 'utf8')
-    const layout = readFileSync(join(dir, 'TaskDetailTabLayout.tsx'), 'utf8')
     const cta = readFileSync(join(dir, 'TaskDetailMainCta.tsx'), 'utf8')
     expect(view).toContain('<Reveal>')
     expect(view).toContain('TaskDetailTabs')
-    expect(layout).toContain('<Reveal>')
-    expect(layout).toContain('mainCta')
+    expect(view).toContain('<TaskDetailMainCta />')
+    expect(cta).toContain('<Reveal>')
     expect(cta).toContain('useTaskDetailSections')
+    expect(cta).toContain('data-task-detail-main-cta')
+    expect(cta).toContain('position="fixed"')
   })
 })

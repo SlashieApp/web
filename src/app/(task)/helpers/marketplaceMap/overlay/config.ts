@@ -76,8 +76,8 @@ export const OVERLAY_MOBILE_SEARCH: OverlayCompactRecipe = {
 }
 
 /**
- * Phone/tablet task-detail: no map-canvas wash. The fade sits on
- * `StatusHeader` so it scrolls with the task chrome.
+ * Phone/tablet task-detail: no map-canvas wash. The fade sits on the
+ * sticky task-detail header so it travels with the title/tabs.
  */
 export const OVERLAY_MOBILE_DETAIL: OverlayCompactRecipe = {
   bottomH: '0%',
@@ -115,10 +115,10 @@ export const OVERLAY_WEB_DETAIL: OverlayWideRecipe = {
 }
 
 /**
- * Lift Mapbox logo/attribution just above the task-card carousel and the glass
- * nav. Search stays in the mobile shell until `lg`. 7.5rem ≈ card + padding.
+ * Lift Mapbox logo/attribution just above the full task-card carousel and the
+ * glass nav. Search stays in the mobile shell until `lg`. 8.75rem ≈ card band.
  */
-export const OVERLAY_CTRL_BOTTOM_OFFSET_COMPACT = `calc(${MOBILE_BOTTOM_NAV_CLEARANCE} + 7.5rem)`
+export const OVERLAY_CTRL_BOTTOM_OFFSET_COMPACT = `calc(${MOBILE_BOTTOM_NAV_CLEARANCE} + 8.75rem)`
 
 export const COMPACT_SEARCH_BOTTOM_H = OVERLAY_MOBILE_SEARCH.bottomH
 export const COMPACT_DETAIL_BOTTOM_H = OVERLAY_MOBILE_DETAIL.bottomH

@@ -3,9 +3,6 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-import { SafetyNotice } from '@ui'
-
-import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailSectionId } from '../../helpers/taskDetailStickySections'
 import { sectionFlowCss } from '../../helpers/taskDetailStickySections'
 import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
@@ -31,7 +28,6 @@ function SectionSlot({
 
 /** Overview tab cards — pricing, details, photos, help, activity, owner. */
 export function OverviewCards() {
-  const { task } = useTaskDetail()
   const resolved = useTaskDetailSections()
   return (
     <>
@@ -66,11 +62,6 @@ export function OverviewCards() {
           </SectionSlot>
         </Stack>
       </Grid>
-      {task ? (
-        <Box display={{ base: 'none', lg: 'block' }}>
-          <SafetyNotice variant="inline" />
-        </Box>
-      ) : null}
     </>
   )
 }

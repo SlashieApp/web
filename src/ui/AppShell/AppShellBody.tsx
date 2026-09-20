@@ -44,9 +44,31 @@ function assignRef<T>(ref: Ref<T> | undefined, node: T | null) {
  */
 const OVERLAY_PANE_SCROLLBAR_CSS = {
   scrollbarWidth: 'none',
+  overflowAnchor: 'none',
   '&::-webkit-scrollbar': {
     width: 0,
     height: 0,
+  },
+} as const
+
+/** Taller than the 56/64px header + borders so the open state does not clip. */
+const HEADER_SLOT_MAX_H = '5rem'
+
+const HEADER_HIDE_MOTION_CSS = {
+  transitionProperty: 'max-height',
+  transitionDuration: sdlMotion.duration.moderate,
+  transitionTimingFunction: sdlMotion.easing.standard,
+  '@media (prefers-reduced-motion: reduce)': {
+    transitionDuration: '0ms',
+  },
+} as const
+
+const HEADER_SLIDE_MOTION_CSS = {
+  transitionProperty: 'transform',
+  transitionDuration: sdlMotion.duration.moderate,
+  transitionTimingFunction: sdlMotion.easing.standard,
+  '@media (prefers-reduced-motion: reduce)': {
+    transitionDuration: '0ms',
   },
 } as const
 
@@ -71,20 +93,19 @@ export function AppShellBody({
     <>
       <Box
         flexShrink={0}
-        display={{ base: 'grid', lg: 'contents' }}
+        display={{ base: 'block', lg: 'contents' }}
         overflow={{ base: 'hidden', lg: 'visible' }}
         inert={hidden || undefined}
-        css={{
-          gridTemplateRows: hidden ? '0fr' : '1fr',
-          transitionProperty: 'grid-template-rows',
-          transitionDuration: sdlMotion.duration.moderate,
-          transitionTimingFunction: sdlMotion.easing.standard,
-          '@media (prefers-reduced-motion: reduce)': {
-            transition: 'none',
-          },
-        }}
+        data-header-hidden={hidden ? '' : undefined}
+        css={HEADER_HIDE_MOTION_CSS}
+        style={{ maxHeight: hidden ? 0 : HEADER_SLOT_MAX_H }}
       >
-        <Box minH={0} overflow={{ base: 'hidden', lg: 'visible' }}>
+        <Box
+          css={HEADER_SLIDE_MOTION_CSS}
+          style={{
+            transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
+          }}
+        >
           <Header flexShrink={0} hasSession={hasSession} overflow="visible" />
         </Box>
       </Box>

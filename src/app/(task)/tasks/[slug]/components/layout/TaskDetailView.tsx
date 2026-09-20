@@ -13,6 +13,7 @@ import { taskDetailPinClearance } from '../../helpers/taskDetailPinClearance'
 import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
 import { Reveal } from './Reveal'
 import { StatusHeader } from './StatusHeader'
+import { TaskDetailMainCta } from './TaskDetailMainCta'
 import { TaskDetailMapBinder } from './TaskDetailMapBinder'
 import { TaskDetailTabs } from './TaskDetailTabs'
 import { TaskBackButton } from './TaskHeaderControls'
@@ -97,6 +98,7 @@ export function TaskDetailView() {
                 aria-hidden
               />
             </Reveal>
+            <TaskDetailMainCta />
           </Box>
         </Box>
       </Box>

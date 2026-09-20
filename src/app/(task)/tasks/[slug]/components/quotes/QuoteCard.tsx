@@ -291,7 +291,13 @@ export function QuoteCard({
   }
 
   return (
-    <Stack gap={3}>
+    <Stack
+      gap={3}
+      py={4}
+      borderBottomWidth="1px"
+      borderColor="border.default"
+      _last={{ borderBottomWidth: 0 }}
+    >
       <HStack align="flex-start" gap={3} justify="space-between" w="full">
         <HStack align="flex-start" gap={3} flex={1} minW={0}>
           {workerProfileHref ? (

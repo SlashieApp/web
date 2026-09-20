@@ -13,6 +13,7 @@ import {
 import { Button, Card, DetailRow, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 
 function mapsDirectionsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
@@ -52,8 +53,8 @@ export function AcceptedWorkerStatus() {
 
   return (
     <Card
-      layout="section"
-      heading={b.workerTitle}
+      {...TASK_DETAIL_SECTION_CARD}
+      eyebrow={b.workerTitle}
       description={countdown || b.flexibleSchedule}
     >
       <DetailRow

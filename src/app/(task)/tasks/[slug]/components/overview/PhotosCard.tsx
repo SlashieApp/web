@@ -8,6 +8,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { Card } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 
 /**
  * "Photos" card — compact square thumbnails (kept small on purpose so the photo
@@ -30,7 +31,7 @@ export function PhotosCard() {
     : (seed?.title ?? t.fallbackTask)
 
   return (
-    <Card layout="section" heading={t.details.photos}>
+    <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={t.details.photos}>
       <Wrap gap={2}>
         {images.map((src, index) => (
           <Box

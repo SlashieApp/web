@@ -7,6 +7,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { Card } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import { taskOwnerAnalytics } from '../../helpers/taskOwnerAnalytics'
 import bag from '../../i11n.json'
 
@@ -23,8 +24,8 @@ function AnalyticsStatCard({
 }) {
   return (
     <Card
-      layout="section"
-      heading={heading}
+      {...TASK_DETAIL_SECTION_CARD}
+      eyebrow={heading}
       description={hint}
       metric={pending ? undefined : value}
     >
@@ -79,7 +80,6 @@ export function AnalyticsCards() {
         { count: stats.acceptedCount },
       )
     : undefined
-  const interestValue = stats ? a.interestLevel[stats.interest] : undefined
   const timeValue = stats
     ? hoursToQuoteLabel(stats.averageHoursToQuote, a.timeToQuote)
     : undefined
@@ -106,12 +106,6 @@ export function AnalyticsCards() {
           heading={a.quotes}
           value={quotesValue}
           hint={a.quotesHint}
-          pending={loading}
-        />
-        <AnalyticsStatCard
-          heading={a.interest}
-          value={interestValue}
-          hint={a.interestHint[stats?.interest ?? 'low']}
           pending={loading}
         />
         <AnalyticsStatCard

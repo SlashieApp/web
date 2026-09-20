@@ -1,6 +1,10 @@
 import { useCallback, useRef, useState } from 'react'
 
-import { nextHeaderHidden } from './nextHeaderHidden'
+import {
+  HEADER_HIDE_LOCK_MS,
+  HEADER_HIDE_TOP_REVEAL_PX,
+  nextHeaderHidden,
+} from './nextHeaderHidden'
 
 /** Matches Chakra `lg` (1024px): hide-on-scroll is mobile-only. */
 const MOBILE_HEADER_QUERY = '(max-width: 63.99rem)'
@@ -18,6 +22,7 @@ export function useHideHeaderOnScroll(enabled: boolean) {
 
   const lastYRef = useRef(0)
   const hiddenRef = useRef(false)
+  const hideLockUntilRef = useRef(0)
   const enabledRef = useRef(enabled)
   const nodeRef = useRef<HTMLElement | null>(null)
   const detachRef = useRef<(() => void) | null>(null)
@@ -31,6 +36,7 @@ export function useHideHeaderOnScroll(enabled: boolean) {
     nodeRef.current = node
     lastYRef.current = 0
     hiddenRef.current = false
+    hideLockUntilRef.current = 0
     setHidden(false)
     if (!node) return
 
@@ -38,6 +44,16 @@ export function useHideHeaderOnScroll(enabled: boolean) {
 
     const apply = (next: boolean) => {
       if (next === hiddenRef.current) return
+      const now = performance.now()
+      if (
+        !next &&
+        hiddenRef.current &&
+        node.scrollTop > HEADER_HIDE_TOP_REVEAL_PX &&
+        now < hideLockUntilRef.current
+      ) {
+        return
+      }
+      if (next) hideLockUntilRef.current = now + HEADER_HIDE_LOCK_MS
       hiddenRef.current = next
       setHidden(next)
     }

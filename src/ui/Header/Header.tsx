@@ -282,9 +282,7 @@ function HeaderAuthSkeleton() {
         aria-busy="true"
         aria-label={t.authLoadingAria}
       >
-        <Box display={{ base: 'none', lg: 'inline-flex' }}>
-          <LanguageSwitcher />
-        </Box>
+        <LanguageSwitcher />
         <Skeleton boxSize="44px" borderRadius="full" flexShrink={0} />
         <Skeleton boxSize="44px" borderRadius="full" flexShrink={0} />
       </HStack>
@@ -360,9 +358,7 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
           <>
             <HeaderToolbarSeparator display="block" ml={2} />
             <HStack gap={1} align="center" flexShrink={0} overflow="visible">
-              <Box display={{ base: 'none', lg: 'inline-flex' }}>
-                <LanguageSwitcher />
-              </Box>
+              <LanguageSwitcher />
               <NotificationsBell />
               <AccountMenu />
             </HStack>
@@ -370,9 +366,7 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
         ) : (
           <>
             <HeaderToolbarSeparator />
-            <Box display={{ base: 'none', lg: 'inline-flex' }}>
-              <LanguageSwitcher />
-            </Box>
+            <LanguageSwitcher />
             <Box display={{ base: 'none', lg: 'inline-flex' }}>
               <FeedbackTrigger variant="button" />
             </Box>

@@ -64,6 +64,8 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
    * (task-detail money page over the map).
    */
   fadeTabListBorder?: boolean
+  /** Cap the tablist width (e.g. half-width on web). */
+  tabListMaxW?: BoxProps['maxW']
   /** Extra props for the sticky chrome box (title bar + tablist). */
   stickyChromeProps?: BoxProps
   /** Accessible name for the tablist. */
@@ -103,6 +105,7 @@ function TabsBase({
   stickyBg,
   panelBg,
   fadeTabListBorder = false,
+  tabListMaxW,
   stickyChromeProps,
   px,
   stickyHeader,
@@ -144,15 +147,25 @@ function TabsBase({
     null,
   )
 
+  const tabCount = tabs.length
+
   const measure = useCallback(() => {
-    const el = tabRefs.current[activeValue]
     const list = listRef.current
-    if (!el || !list) return
-    setIndicator({ x: el.offsetLeft, w: el.offsetWidth })
-  }, [activeValue])
+    const el =
+      list?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]') ??
+      tabRefs.current[activeValue]
+    if (!el || !list || tabCount === 0) return
+    const x = el.offsetLeft
+    const w = el.offsetWidth
+    setIndicator((prev) =>
+      prev && prev.x === x && prev.w === w ? prev : { x, w },
+    )
+  }, [activeValue, tabCount])
 
   useLayoutEffect(() => {
     measure()
+    const id = requestAnimationFrame(() => measure())
+    return () => cancelAnimationFrame(id)
   }, [measure])
 
   useEffect(() => {
@@ -160,8 +173,12 @@ function TabsBase({
     if (!list || typeof ResizeObserver === 'undefined') return
     const ro = new ResizeObserver(() => measure())
     ro.observe(list)
+    for (const tab of tabs) {
+      const el = tabRefs.current[tab.key]
+      if (el) ro.observe(el)
+    }
     return () => ro.disconnect()
-  }, [measure])
+  }, [measure, tabs])
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent<HTMLButtonElement>) => {
@@ -228,6 +245,7 @@ function TabsBase({
             role="tablist"
             aria-label={ariaLabel}
             position="relative"
+            maxW={tabListMaxW}
             gap={fitted ? 0 : fittedBelowLg ? { base: 0, lg: 6 } : 6}
             borderBottomWidth={fadeTabListBorder ? '0' : '1px'}
             borderColor="border.default"
@@ -321,15 +339,16 @@ function TabsBase({
                 aria-hidden
                 position="absolute"
                 bottom="-1px"
-                left={0}
                 height="2px"
                 borderRadius="full"
                 bg="action.primary"
-                width={`${indicator.w}px`}
-                transform={`translateX(${indicator.x}px)`}
-                transitionProperty={reducedMotion ? 'none' : 'transform, width'}
-                transitionDuration={sdlMotion.duration.moderate}
-                transitionTimingFunction={sdlMotion.easing.standard}
+                style={{
+                  left: indicator.x,
+                  width: indicator.w,
+                  transitionProperty: reducedMotion ? 'none' : 'left, width',
+                  transitionDuration: sdlMotion.duration.moderate,
+                  transitionTimingFunction: sdlMotion.easing.standard,
+                }}
               />
             ) : null}
           </HStack>

@@ -41,17 +41,20 @@ export const Overlay: Story = {
   },
 }
 
-/** Inside an open Drawer the options render inline — no nested sheet. */
+/** Nested in a drawer: icon closes the current overlay and opens language. */
 export const InsideDrawer: Story = {
   render: () => (
-    <Drawer
-      open
-      onOpenChange={() => undefined}
-      title="Account"
-      placement="end"
-      size="sm"
-    >
+    <>
       <ControlledSwitcher />
-    </Drawer>
+      <Drawer
+        open
+        onOpenChange={() => undefined}
+        title="Account"
+        placement="end"
+        size="sm"
+      >
+        <ControlledSwitcher />
+      </Drawer>
+    </>
   ),
 }

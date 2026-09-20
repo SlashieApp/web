@@ -7,6 +7,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, IconButton, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import bag from '../../i11n.json'
 import { TaskDetailPinCard } from '../ui/TaskDetailPinCard'
 import { useShareTask } from './shareTask'
@@ -65,8 +66,8 @@ export function TaskShareCard({ compact = false }: TaskShareCardProps) {
 
   return (
     <Card
-      layout="section"
-      heading={t.share.pinHeading}
+      {...TASK_DETAIL_SECTION_CARD}
+      eyebrow={t.share.pinHeading}
       description={t.share.pinBody}
     >
       <HStack gap={2} align="center">

@@ -1,6 +1,7 @@
 'use client'
 
 import { Box } from '@chakra-ui/react'
+import { motion } from 'motion/react'
 import { useMemo, useRef } from 'react'
 
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
@@ -42,7 +43,6 @@ export function MobileTaskCarousel() {
     return (
       <Box
         px={{ base: 2, md: 3 }}
-        pb={2}
         overflow="hidden"
         aria-busy
         aria-label={t.loadingTasks}
@@ -52,7 +52,13 @@ export function MobileTaskCarousel() {
           maxW="600px"
           mx="auto"
         >
-          <TaskCard loading />
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <TaskCard loading />
+          </motion.div>
         </Box>
       </Box>
     )

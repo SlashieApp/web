@@ -7,6 +7,7 @@ import bag from '../../i11n.json'
 import { Avatar, Button, Card, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import { TaskDetailPinCard } from '../ui/TaskDetailPinCard'
 
@@ -19,7 +20,7 @@ function posterDisplayName(task: TaskDetailRecord, fallback: string): string {
 export function TaskOwnerCardSkeleton() {
   const t = useI11n(bag)
   return (
-    <Card layout="section" heading={t.details.owner} aria-busy>
+    <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={t.details.owner} aria-busy>
       <HStack align="center" gap={3} w="full">
         <Skeleton boxSize="40px" borderRadius="full" flexShrink={0} />
         <Skeleton h="calc(0.875rem * 1.5)" w="40%" borderRadius="md" />
@@ -130,7 +131,7 @@ export function TaskOwnerCard({ compact = false }: TaskOwnerCardProps) {
   }
 
   return (
-    <Card layout="section" heading={t.details.owner}>
+    <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={t.details.owner}>
       <HStack align="center" gap={3} w="full">
         {avatar}
         <Text fontSize="sm" fontWeight={600} color="text.default" minW={0}>

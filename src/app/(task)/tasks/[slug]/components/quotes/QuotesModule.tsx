@@ -23,6 +23,7 @@ import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { Button, Card, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
@@ -184,9 +185,9 @@ function ModuleShell({
   const { quotes: q } = useI11n(bag)
   return (
     <Card
-      layout="section"
+      {...TASK_DETAIL_SECTION_CARD}
       id="task-quotes"
-      heading={q.heading}
+      eyebrow={q.heading}
       headingAccessory={pill ? <CountPill label={pill} /> : null}
       description={subtitle}
     >
@@ -540,7 +541,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     return (
       <QuoteCard
         key={quote.id}
-        variant="card"
+        variant="list"
         {...cardProps(quote)}
         workerProfileHref={
           workerEntityId
@@ -572,7 +573,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   /** Read-only competitor card — public identity only, no contact PII. */
   const competitorCard = (quote: TaskQuote) => (
-    <QuoteCard key={quote.id} variant="card" {...cardProps(quote)} />
+    <QuoteCard key={quote.id} variant="list" {...cardProps(quote)} />
   )
 
   let body: React.ReactNode = null
@@ -759,7 +760,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
               overflow="hidden"
             >
               <QuoteCard
-                variant="card"
+                variant="list"
                 {...cardProps(myQuote)}
                 statusBadge="yours"
                 respondedLabel={q.pendingReviewing}

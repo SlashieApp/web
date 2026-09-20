@@ -108,7 +108,7 @@ describe('overlayForMobile / overlayForTablet / overlayForWeb', () => {
   })
 
   it('lifts Mapbox chrome on phone and tablet only', () => {
-    expect(overlayCtrlBottomOffsetForMobile()).toContain('7.5rem')
+    expect(overlayCtrlBottomOffsetForMobile()).toContain('8.75rem')
     expect(overlayCtrlBottomOffsetForTablet()).toBe(
       overlayCtrlBottomOffsetForMobile(),
     )
@@ -270,7 +270,16 @@ describe('overlayCss', () => {
       'utf8',
     )
     expect(statusHeader).toContain('COMPACT_DETAIL_HERO_H')
-    expect(statusHeader).toContain('MAP_FADE_BOTTOM')
+    expect(statusHeader).not.toContain('MAP_FADE_BOTTOM')
     expect(statusHeader).not.toContain('MARKETPLACE_MAP_MOTION_DELAY')
+    const tabLayout = readFileSync(
+      join(
+        dir,
+        '../../../tasks/[slug]/components/layout/TaskDetailTabLayout.tsx',
+      ),
+      'utf8',
+    )
+    expect(tabLayout).toContain('MAP_FADE_BOTTOM')
+    expect(tabLayout).toContain('COMPACT_HEADER_FADE_CSS')
   })
 })

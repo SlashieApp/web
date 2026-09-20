@@ -1,16 +1,8 @@
 'use client'
 
-import { Stack } from '@chakra-ui/react'
-
 import { QuotesPanel } from './QuotesPanel'
-import { TrustCard } from './TrustCard'
 
-/** Quotes tab cards — quote list plus trust / report. */
+/** Quotes tab cards — quote list. Trust copy lives on the tab intro. */
 export function QuotesCards() {
-  return (
-    <Stack gap={5} w="full" minW={0} pointerEvents="auto">
-      <QuotesPanel />
-      <TrustCard />
-    </Stack>
-  )
+  return <QuotesPanel />
 }
