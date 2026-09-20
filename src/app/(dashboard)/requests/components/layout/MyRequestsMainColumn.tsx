@@ -10,8 +10,8 @@ import { Button, Card, Input, Link } from '@ui'
 import { useMyRequestsPage } from '../../context/MyRequestsProvider'
 import bag from '../../i11n.json'
 
-import { PostedTaskCard } from '../PostedTaskCard'
-import { PostedTaskSummaryBar } from '../widgets/PostedTaskSummaryBar'
+import { PostedTaskCard } from '../ui/PostedTaskCard'
+import { PostedTaskSummaryBar } from '../ui/PostedTaskSummaryBar'
 
 export function MyRequestsMainColumn() {
   const t = useI11n(bag)

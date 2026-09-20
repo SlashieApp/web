@@ -3,46 +3,39 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
-export { BrowseGeolocationInit } from './BrowseGeolocationInit'
-export { MobileLayout } from './(mobile)/MobileLayout'
-export {
-  MobileTaskBrowseFiltersDrawer,
-  MobileTaskBrowseFiltersTrigger,
-} from './(mobile)/MobileTaskBrowseFiltersDrawer'
-export { MobileTaskCarousel } from './(mobile)/MobileTaskCarousel'
-export { SearchThisAreaButton } from './SearchThisAreaButton'
+export { BrowseGeolocationInit } from './analytics/BrowseGeolocationInit'
+export { MobileTaskBrowseFiltersDrawer } from './(mobile)/layout/MobileTaskBrowseFiltersDrawer'
+export { MobileTaskCarousel } from './(mobile)/layout/MobileTaskCarousel'
+export { SearchThisAreaButton } from './ui/SearchThisAreaButton'
 export {
   TaskBrowseFilters,
   TaskBrowseFiltersPanel,
   WebTaskBrowseFiltersBlock,
-} from './(web)/TaskBrowseFilters'
-export { TaskBrowseListColumnScrim } from './(web)/TaskBrowseListColumnScrim'
-export { TaskBrowseMapLayer, TaskMap } from './TaskMap'
-export { TaskBrowseSearchThisAreaButton } from './TaskBrowseSearchThisAreaButton'
-export { TaskCard } from './TaskCard'
-export { TaskCardSkeleton } from './TaskCardSkeleton'
-export { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
-export { TaskEmptyState } from './TaskEmptyState'
-export { TaskList } from './(web)/TaskList'
-export { TaskSearch, TaskSearchBase } from './TaskSearch'
-export { TaskTag, useActiveFilterTags } from './TaskTag'
-export { WebLayout } from './(web)/WebLayout'
-export type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
+} from './(web)/layout/TaskBrowseFilters'
+export { TaskBrowseMapLayer, TaskMap } from './ui/TaskMap'
+export { TaskBrowseSearchThisAreaButton } from './ui/TaskBrowseSearchThisAreaButton'
+export { TaskCard } from './ui/TaskCard'
+export { TaskCardWorkerQuote } from './ui/TaskCardWorkerQuote'
+export { TaskEmptyState } from './ui/TaskEmptyState'
+export { TaskList } from './(web)/layout/TaskList'
+export { TaskSearch, TaskSearchBase } from './ui/TaskSearch'
+export { TaskTag, useActiveFilterTags } from './ui/TaskTag'
+export type { SearchThisAreaButtonProps } from './ui/SearchThisAreaButton'
 export type {
   TaskBrowseFiltersPanelProps,
   TaskBrowseFiltersProps,
   UrgencyFilter,
-} from './(web)/TaskBrowseFilters'
+} from './(web)/layout/TaskBrowseFilters'
 export type {
   TaskBrowseMapLayerProps,
   TaskMapProps,
   TaskMapTask,
-} from './TaskMap'
-export type { TaskBrowseSearchThisAreaButtonProps } from './TaskBrowseSearchThisAreaButton'
+} from './ui/TaskMap'
+export type { TaskBrowseSearchThisAreaButtonProps } from './ui/TaskBrowseSearchThisAreaButton'
 export type {
   TaskCardProps,
   TaskCardTask,
   TaskCardTrust,
   TaskCardWorkerQuoteProps,
-} from './TaskCard'
-export type { TaskSearchBaseProps } from './TaskSearch'
+} from './ui/TaskCard'
+export type { TaskSearchBaseProps } from './ui/TaskSearch'

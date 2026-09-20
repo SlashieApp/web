@@ -4,7 +4,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { useCallback } from 'react'
 import bag from '../i11n.json'
 
-import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
+import { MeAvatar } from '@/app/(auth)/components/ui/MeAvatar'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'

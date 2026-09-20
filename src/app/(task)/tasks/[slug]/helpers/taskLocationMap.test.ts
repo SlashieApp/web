@@ -4,19 +4,25 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import { TaskStatus } from '@codegen/schema'
 import { offsetPaddingForMobile } from '../../../helpers/marketplaceMap/offset/offset'
-import { parseTaskDetailSearchRouteOrigin } from './taskLocationMap'
+
+import type { TaskDetailRecord } from './taskDetailUtils'
+import {
+  buildTaskDetailMapPinTask,
+  parseTaskDetailSearchRouteOrigin,
+} from './taskLocationMap'
 
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('task detail Mapbox chrome', () => {
   it('drives the shared marketplace map instead of a second Mapbox instance', () => {
     const binder = readFileSync(
-      join(dir, '../components/tripDetail/openTask/TaskDetailMapBinder.tsx'),
+      join(dir, '../components/layout/TaskDetailMapBinder.tsx'),
       'utf8',
     )
     const view = readFileSync(
-      join(dir, '../components/tripDetail/openTask/TaskDetailView.tsx'),
+      join(dir, '../components/layout/TaskDetailView.tsx'),
       'utf8',
     )
     const host = readFileSync(
@@ -26,6 +32,11 @@ describe('task detail Mapbox chrome', () => {
     expect(view).toContain('TaskDetailMapBinder')
     expect(view).not.toContain('TaskDetailMapBackground')
     expect(binder).toContain('taskDetailSearchRouteOriginFromLocationSearch')
+    expect(binder).toContain('buildTaskDetailMapPinTask')
+    expect(binder).toContain("variant: 'exact'")
+    expect(binder).toContain('selectedTaskId: task.id')
+    expect(binder).not.toContain('taskDetailShowsExactLocation')
+    expect(binder).toContain('origin')
     expect(binder).toContain('showReferenceMarker')
     expect(binder).not.toContain('routeFromViewer')
     expect(host).toContain('top={HEADER_MIN_HEIGHT}')
@@ -77,6 +88,37 @@ describe('parseTaskDetailSearchRouteOrigin', () => {
         lng: 'y',
       }),
     ).toBeNull()
+  })
+})
+
+describe('buildTaskDetailMapPinTask', () => {
+  const task = {
+    id: 'task-1',
+    title: 'Cleaner needed',
+    status: TaskStatus.Open,
+    quotes: [],
+    budget: { amount: 100, currency: 'GBP' },
+  } as unknown as TaskDetailRecord
+
+  it('uses the search-page origin for the same miles-away label as browse', () => {
+    const pin = buildTaskDetailMapPinTask(
+      task,
+      { lat: 51.5085, lng: -0.1278 },
+      'visitor',
+      null,
+      { lat: 51.5074, lng: -0.1278 },
+    )
+    expect(pin.distanceLabel).toMatch(/miles away$/)
+    expect(pin.priceLabel).toBe('£100')
+  })
+
+  it('omits miles when there is no search origin', () => {
+    const pin = buildTaskDetailMapPinTask(
+      task,
+      { lat: 51.5074, lng: -0.1278 },
+      'visitor',
+    )
+    expect(pin.distanceLabel).toBeUndefined()
   })
 })
 

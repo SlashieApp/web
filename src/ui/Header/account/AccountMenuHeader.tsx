@@ -5,8 +5,8 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { WorkerMembershipFieldsFragment } from '@codegen/schema'
 import bag from '../i11n.json'
 
-import { MeAvatar } from '@/app/(auth)/components/MeAvatar'
-import { MembershipStatusBadge } from '@/app/(dashboard)/components/membership/MembershipStatusBadge'
+import { MeAvatar } from '@/app/(auth)/components/ui/MeAvatar'
+import { MembershipStatusBadge } from '@/app/(dashboard)/components/ui/membership/MembershipStatusBadge'
 import {
   hasUnlimitedQuoting,
   membershipStatusDetailText,

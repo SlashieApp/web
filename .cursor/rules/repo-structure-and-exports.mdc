@@ -9,22 +9,44 @@ Canonical write-up: **`docs/coding-guidebook.md`**. Layer boundaries: **`ui-laye
 
 Treat **`src/app/(task)/`** as the **reference template** for other product areas under `src/app/(…)/**`: group by route segment, colocate UI, context, and helpers the same way.
 
+## Searchable classification
+
+Paths are the search index. Three independent axes:
+
+```text
+viewport   (web)     = desktop / split ≥992px
+           (mobile)  = phone + tablet compact <992px
+           no group  = shared / one responsive tree
+
+kind       layout/     shells, grids, page chrome
+           ui/         cards, panels, controls the user sees
+           analytics/  ViewCapture, impression, trackers
+
+state      same file   loading / skeleton / empty via props
+```
+
+Tablet uses the compact `(mobile)` shell (no `(tablet)` layout tree).
+
+**Grep recipes:** `/(web)/` desktop · `/(mobile)/` compact · `/layout/` chrome · `/ui/` feature cards · `/analytics/` trackers · `src/utils/analytics/` hub.
+
 ## Reference tree: `src/app/(task)/` (current)
 
 | Path | Role |
 |---|---|
 | **`page.tsx`** | Route entry: providers, breakpoint/intent split, composes layouts; mount **long-lived** clients here when switching child layouts must not remount them (e.g. map). |
 | **`context/`** | Segment-scoped providers and hooks (e.g. `TaskBrowseProvider.tsx`); optional `index.ts` for re-exports. |
-| **`helpers/`** | Pure helpers and segment-local types (e.g. `taskBrowseHelpers.ts`, `taskBrowseFilters.types.ts`) consumed by `components/` or `context/`. |
-| **`components/`** | Feature UI; **`components/index.ts`** is **auto-generated** (see exports below). |
-| **`components/(web)/`** | Desktop / split-view-only UI (e.g. `WebLayout`, `TaskList`, web-only filter panels). |
-| **`components/(mobile)/`** | Small-viewport-only UI (e.g. `MobileLayout`, bottom sheets, carousels). |
-| **`components/`** (files next to `(web)` / `(mobile)`) | **Cross-breakpoint** pieces: context-wired wrappers, primitives reused by both layouts, map shell (`TaskMap` / `TaskBrowseMapLayer`), shared filter summaries (`TaskTag.tsx`), etc. |
+| **`helpers/`** | Pure mappers and types — no JSX, no `capture()`. |
+| **`components/`** | Screen orchestrator; **`components/index.ts`** is **auto-generated** (see exports below). |
+| **`components/(web)/layout/`** | Desktop / split-only shells (list column, desktop filter chrome). |
+| **`components/(mobile)/layout/`** | Compact-only shells (carousel, filter drawer). |
+| **`components/ui/`** | Shared cards / panels; all visual states in one file (`<TaskCard loading />`). |
+| **`components/layout/`** | Shared layout chrome (no viewport group). |
+| **`components/analytics/`** | ViewCapture, impression, trackers. |
 | **`tasks/create/`** | Nested route: `page.tsx`, schema, and **`tasks/create/components/`** for create-flow sections (colocate with that route). |
 | **`graphql/`** (beside `page.tsx`) | Route-owned GraphQL operations — see **`graphql-route-colocation.mdc`**. |
 | **`task/[slug]/`** | Dynamic route with its own `page.tsx` and colocated `components/` as needed. |
 
-New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by viewport; **`helpers/`** and **`context/`** at the segment when logic or types are shared across pages in that folder.
+New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by viewport; **`layout/`** / **`ui/`** / **`analytics/`** for kind; **`helpers/`** and **`context/`** at the segment when logic or types are shared across pages in that folder.
 
 ## `page.tsx` (any `src/app/**/page.tsx`)
 
@@ -64,12 +86,15 @@ export default function Layout({ children }) { return children }
 
 ## `components/` under a route segment
 
-- **`(web)/`** — Layouts and panels only used in the desktop / split experience.
-- **`(mobile)/`** — Layouts and controls only used on small screens.
+- **`(web)/layout/`** — Shells only used in the desktop / split experience.
+- **`(mobile)/layout/`** — Shells only used on compact screens (phone + tablet).
+- **`ui/`** — Shared cards and panels. One file owns loading/empty (`<TaskCard loading />`), with a colocated `*.stories.tsx` (and `*.test.ts` when tests exist).
+- **`layout/`** — Shared layout chrome (no viewport group).
+- **`analytics/`** — ViewCapture / impression / trackers. No stories.
 - **Root of `components/`** — Public entry / screen orchestrator (e.g. `ProfileHub.tsx`, `SearchScreen.tsx`) + colocated `*.stories.tsx` for that entry; optional `index.ts` barrel.
-- **Concern subfolders** (same idea as `src/ui/Header/`): group related pieces — e.g. `hero/`, `cards/`, `edit/`, `layout/`, `widgets/`, `sections/`, `shared/`, `inputs/`, `steps/`. Keep stories next to the component they cover; do **not** story internal sub-pieces when the parent entry story already exercises them.
-- Do **not** leave a flat dump of many unrelated `.tsx` files at the components root when they cluster by concern.
-- Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to the **components root** or a shared subfolder.
+- **Other concern subfolders** when files cluster (`hero/`, `edit/`, `inputs/`, `steps/`). Prefer `layout/` / `ui/` / `analytics/` over a flat dump or overly granular one-file folders.
+- Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to `components/ui/`.
+- Do **not** story hooks, providers, GraphQL, or analytics adapters. Every remaining **UI file** gets a colocated story.
 
 ### Examples
 
@@ -140,8 +165,8 @@ Rules:
 
 - **No `form/*` / `Components/*` / `Patterns/*` / `layout/*` / `shell/*` titles.** Everything under `src/ui` is `ui/*`.
 - **No duplicate primitive stories.** One story file per universal primitive.
-- **Universal-first.** Generic widgets live in `src/ui` with `ui/*` stories; route adapters get **no story**.
-- **One story per non-universal feature component.** Do **not** story internal sub-components — exercise them through the parent.
+- **Universal-first.** Generic widgets live in `src/ui` with `ui/*` stories. Every remaining **UI file** (presentational) gets a colocated story; hooks / providers / `*ViewCapture` get none.
+- **One story per UI file.** Loading/empty live as args on that story, not a sibling story. Internal Header/Dock pieces stay covered by the parent unless they remain a public UI export.
 
 ### Context colocation (any route provider)
 

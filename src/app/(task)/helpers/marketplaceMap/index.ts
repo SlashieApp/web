@@ -31,6 +31,7 @@ export {
   SEARCH_MAPBOX_WATERMARK_CSS,
   SEARCH_MOBILE_MAP_CTRL_BOTTOM,
   COMPACT_DETAIL_HERO_H,
+  MAP_FADE_BOTTOM,
   mapFadeGradient,
   mapFadeOverlayCss,
   mapFadeOverlayMotion,

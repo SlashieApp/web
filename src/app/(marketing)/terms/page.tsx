@@ -1,4 +1,4 @@
-import { LegalPageLayout } from '@/app/(marketing)/components/LegalPageLayout'
+import { LegalPageLayout } from '@/app/(marketing)/components/layout/LegalPageLayout'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { Footer } from '@/ui'

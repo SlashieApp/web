@@ -43,8 +43,14 @@ export function buildTaskDetailMapPinTask(
   coords: { lat: number; lng: number },
   viewer: TaskBudgetViewerContext,
   viewerUserId?: string | null,
+  origin?: { lat: number; lng: number } | null,
 ): TaskMapTask {
   const priceLabel = taskBudgetDisplayLine(task, viewer, viewerUserId)
+  const distanceLabel = origin
+    ? formatDistanceAwayLabel(
+        distanceMilesBetween(origin.lat, origin.lng, coords.lat, coords.lng),
+      )
+    : undefined
   return {
     id: task.id,
     title: task.title,
@@ -52,7 +58,7 @@ export function buildTaskDetailMapPinTask(
     locationLng: coords.lng,
     priceLabel,
     detailLine: priceLabel,
-    distanceLabel: '—',
+    distanceLabel,
   }
 }
 

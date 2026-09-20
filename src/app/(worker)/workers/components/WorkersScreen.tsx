@@ -3,7 +3,7 @@
 import { Box, Container } from '@chakra-ui/react'
 import { useRef } from 'react'
 
-import { BrowseGeolocationInit } from '@/app/(task)/components/BrowseGeolocationInit'
+import { BrowseGeolocationInit } from '@/app/(task)/components/analytics/BrowseGeolocationInit'
 import { TaskBrowseProvider } from '@/app/(task)/context/TaskBrowseProvider'
 import { Footer } from '@ui'
 
@@ -15,10 +15,10 @@ import {
   type WorkersUrlState,
   referenceFromWorkersUrlState,
 } from '../helpers/workersQueryParams'
-import { WorkersAreaMap } from './WorkersAreaMap'
-import { WorkersResultsGrid } from './WorkersResultsGrid'
-import { WorkersStickySearch } from './WorkersStickySearch'
 import { WorkersUrlSync } from './WorkersUrlSync'
+import { WorkersAreaMap } from './layout/WorkersAreaMap'
+import { WorkersResultsGrid } from './layout/WorkersResultsGrid'
+import { WorkersStickySearch } from './layout/WorkersStickySearch'
 
 function WorkersDirectory() {
   return (

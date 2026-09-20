@@ -36,6 +36,20 @@ function assignRef<T>(ref: Ref<T> | undefined, node: T | null) {
   else (ref as MutableRefObject<T | null>).current = node
 }
 
+/**
+ * Classic `overflow-y: auto` scrollbars shrink the content box. The
+ * marketplace map is `position: fixed` to the viewport, so that leftover
+ * strip shows as a gap on the right of task detail. Overlay the pane
+ * scrollbar so 100% children stay viewport-wide. Scrolling still works.
+ */
+const OVERLAY_PANE_SCROLLBAR_CSS = {
+  scrollbarWidth: 'none',
+  '&::-webkit-scrollbar': {
+    width: 0,
+    height: 0,
+  },
+} as const
+
 /** Header + scrolling main + optional mobile dock. Task detail hides the dock. */
 export function AppShellBody({
   children,
@@ -83,6 +97,7 @@ export function AppShellBody({
         overflowY="auto"
         position="relative"
         zIndex={0}
+        css={hideMobileNav ? OVERLAY_PANE_SCROLLBAR_CSS : undefined}
         pb={hideMobileNav ? 0 : { base: MOBILE_BOTTOM_NAV_CLEARANCE, lg: 0 }}
         {...restMainProps}
         ref={onMainRef}

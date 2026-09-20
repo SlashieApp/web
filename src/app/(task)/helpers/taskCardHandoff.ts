@@ -1,4 +1,4 @@
-import type { TaskCardTask } from '@/app/(task)/components/TaskCard'
+import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 
 let handoff: TaskCardTask | null = null
 

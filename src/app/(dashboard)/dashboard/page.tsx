@@ -7,19 +7,19 @@ import { Button, Link } from '@ui'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { DashboardPageLayout } from '@/app/(dashboard)/components/layout/DashboardPageLayout'
-import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/membership/MembershipRefreshOnMount'
+import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/ui/membership/MembershipRefreshOnMount'
 import { useI11n } from '@/i18n/useI11n'
 import { isQuoteAwarded } from '@/utils/dashboardHelpers'
 import { useAccountOrders } from '../helpers/useAccountOrders'
 import { useMyQuotes } from '../helpers/useMyQuotes'
 import { useMyRequests } from '../helpers/useMyRequests'
 
-import { DashboardCompleteProfileCard } from './components/DashboardCompleteProfileCard'
-import { DashboardMembershipPanel } from './components/DashboardMembershipPanel'
-import { DashboardPipelineInbox } from './components/DashboardPipelineInbox'
-import { DashboardQuickActions } from './components/DashboardQuickActions'
-import { DashboardRecentActivity } from './components/DashboardRecentActivity'
-import { DashboardStatTiles } from './components/DashboardStatTiles'
+import { DashboardCompleteProfileCard } from './components/ui/DashboardCompleteProfileCard'
+import { DashboardMembershipPanel } from './components/ui/DashboardMembershipPanel'
+import { DashboardPipelineInbox } from './components/ui/DashboardPipelineInbox'
+import { DashboardQuickActions } from './components/ui/DashboardQuickActions'
+import { DashboardRecentActivity } from './components/ui/DashboardRecentActivity'
+import { DashboardStatTiles } from './components/ui/DashboardStatTiles'
 import {
   buildQuickActions,
   displayNameFromMe,

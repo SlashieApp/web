@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
 
-import { MarketingHeader } from './components/MarketingHeader'
+import { MarketingHeader } from './components/layout/MarketingHeader'
 
 export default function MarketingLayout({
   children,

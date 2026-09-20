@@ -11,6 +11,16 @@ import {
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 import {
+  formatCalendarDateKey,
+  formatCalendarDateLabel,
+  formatDayGroupLabel,
+  formatDayKey,
+  formatEventTimeLabel,
+  groupUpcomingEvents,
+  startOfDay,
+} from '../../helpers/dashboardSchedule'
+
+import {
   type WorkerQuoteRow,
   workerQuotePricePence,
   workerQuoteStage,
@@ -36,43 +46,6 @@ export type WorkerQuoteSummaryCounts = {
   booked: number
   actionToday: number
   bookedValuePence: number
-}
-
-function startOfDay(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-}
-
-function formatDayKey(when: Date): string {
-  return `${when.getFullYear()}-${when.getMonth()}-${when.getDate()}`
-}
-
-function formatDayGroupLabel(
-  datetime: TaskItem['datetime'],
-  when: Date,
-  now: Date,
-): string {
-  const chip = scheduleChipForTask(datetime, now)
-
-  const weekday = new Intl.DateTimeFormat('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  }).format(when)
-
-  if (chip === 'today') return `Today · ${weekday}`
-  if (chip === 'tomorrow') return `Tomorrow · ${weekday}`
-  return weekday
-}
-
-function formatEventTimeLabel(task: TaskItem, when: Date | null): string {
-  if (!when) {
-    if (task.datetime?.type === TaskDateTimeType.Flexible) return 'Flexible'
-    return 'Time TBC'
-  }
-  return new Intl.DateTimeFormat('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(when)
 }
 
 function isActiveBookedRow(row: WorkerQuoteRow): boolean {
@@ -169,18 +142,7 @@ export function buildWorkerQuoteUpcomingEvents(
 export function groupWorkerQuoteUpcomingEvents(
   events: readonly WorkerQuoteUpcomingEvent[],
 ): { label: string; events: WorkerQuoteUpcomingEvent[] }[] {
-  const groups = new Map<string, WorkerQuoteUpcomingEvent[]>()
-
-  for (const event of events) {
-    const bucket = groups.get(event.dayGroupKey) ?? []
-    bucket.push(event)
-    groups.set(event.dayGroupKey, bucket)
-  }
-
-  return [...groups.entries()].map(([, groupEvents]) => ({
-    label: groupEvents[0]?.dayGroupLabel ?? 'Upcoming',
-    events: groupEvents,
-  }))
+  return groupUpcomingEvents(events)
 }
 
 export function calendarMarksForMonth(
@@ -279,30 +241,11 @@ export function workerQuoteScheduleDateKey(row: WorkerQuoteRow): string | null {
   )
 }
 
-export function formatCalendarDateKey(
-  year: number,
-  month: number,
-  day: number,
-): string {
-  const monthLabel = String(month + 1).padStart(2, '0')
-  const dayLabel = String(day).padStart(2, '0')
-  return `${year}-${monthLabel}-${dayLabel}`
-}
+export { formatCalendarDateKey, formatCalendarDateLabel }
 
 export function workerQuoteRowOnDate(
   row: WorkerQuoteRow,
   dateKey: string,
 ): boolean {
   return workerQuoteScheduleDateKey(row) === dateKey
-}
-
-export function formatCalendarDateLabel(dateKey: string): string {
-  const parsed = new Date(`${dateKey}T12:00:00`)
-  if (Number.isNaN(parsed.getTime())) return dateKey
-  return new Intl.DateTimeFormat('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(parsed)
 }

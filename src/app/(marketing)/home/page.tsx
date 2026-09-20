@@ -13,16 +13,16 @@ import { withLocale } from '@/i18n/navigation'
 import { Footer } from '@/ui'
 import { MARKETING_HOME } from '@/utils/appRoutes'
 
-import { LenisRoot } from '../components/landing/LenisRoot'
-import { HeroSection } from '../components/landing/hero/HeroSection'
-import { AudienceSection } from '../components/landing/sections/AudienceSection'
-import { FinalCtaBand } from '../components/landing/sections/FinalCtaBand'
-import { HowItWorks } from '../components/landing/sections/HowItWorks'
+import { LenisRoot } from '../components/ui/landing/LenisRoot'
+import { HeroSection } from '../components/ui/landing/hero/HeroSection'
+import { AudienceSection } from '../components/ui/landing/sections/AudienceSection'
+import { FinalCtaBand } from '../components/ui/landing/sections/FinalCtaBand'
+import { HowItWorks } from '../components/ui/landing/sections/HowItWorks'
 import {
   type LandingPricing,
   PricingTeaser,
-} from '../components/landing/sections/PricingTeaser'
-import { TrustSection } from '../components/landing/sections/TrustSection'
+} from '../components/ui/landing/sections/PricingTeaser'
+import { TrustSection } from '../components/ui/landing/sections/TrustSection'
 import messages from '../i11n.json'
 
 export async function generateMetadata() {

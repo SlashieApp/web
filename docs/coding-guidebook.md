@@ -1,8 +1,8 @@
 # Slashie Web — Coding Guidebook
 
-**Audience:** engineers and AI agents working on `slashie-web`  
-**Status:** current conventions (App Router + SDL redesign)  
-**Last updated:** 2026-07-22  
+**Audience:** engineers and AI agents working on `slashie-web`
+**Status:** current conventions (App Router + SDL redesign)
+**Last updated:** 2026-09-19
 **Companion docs:** [UI Consistency](./ui-consistency.md) · [SDL Token Migration](./sdl-token-migration.md) · [AGENTS.md](../AGENTS.md)
 
 This guidebook is the engineering wiki source of truth for **how we structure code**. Visual brand tokens and marketplace UX language live in the design skills / UI consistency doc; this book covers **architecture, layering, data flow, and Storybook**.
@@ -87,26 +87,71 @@ Route-owned screens, sections, mappers, GraphQL, segment providers. Thin adapter
 
 ## 3. Route colocation (reference: `(task)`)
 
-Mirror **`src/app/(task)/`**:
+Mirror **`src/app/(task)/`**. Paths are the search index: viewport, kind, and visual state must be findable from the folder (and from props for states).
+
+### Searchable axes
+
+```text
+viewport   (web)     = desktop / split ≥992px (`lg`)
+           (mobile)  = phone + tablet compact <992px
+           no group  = shared / one responsive tree (e.g. TaskDetailView)
+
+kind       layout/     shells, grids, page chrome
+           ui/         cards, panels, controls the user sees
+           analytics/  ViewCapture, impression, trackers
+
+state      same file   loading / skeleton / empty via props — not sibling files
+```
+
+Tablet (768–991px) uses the **compact** `(mobile)` shell. Map overlay/offset may differ; do not add a `(tablet)` layout tree.
+
+**How to find things**
+
+- Desktop-only: `rg --files | rg '/\(web\)/'`
+- Compact-only: `rg --files | rg '/\(mobile\)/'`
+- Layout: `rg --files | rg '/layout/'`
+- Feature UI: `rg --files | rg '/ui/'` (plus `src/ui/<Name>/` for primitives)
+- Analytics: `rg --files | rg '/analytics/'` and `src/utils/analytics/`
+- Shared responsive: files **not** under `(web)` or `(mobile)`
 
 | Path | Role |
 | --- | --- |
 | `page.tsx` | Orchestration map: gates, data, providers, lifecycle, section order |
 | `layout.tsx` | Optional; holds `generateMetadata` when `page.tsx` is `'use client'` |
-| `components/` | Feature sections; public entry + stories at root when useful |
-| `components/(web)/` | Desktop / split-only |
-| `components/(mobile)/` | Small-viewport-only |
-| `components/<concern>/` | Group related pieces (`hero/`, `cards/`, `edit/`, `layout/`, `widgets/`, …) |
+| `components/` | Screen orchestrator + colocated story at the route root when useful |
+| `components/(web)/layout/` | Desktop / split-only shells |
+| `components/(mobile)/layout/` | Compact-only shells (carousel, drawers) |
+| `components/ui/` | Shared cards / panels (all visual states in one file) |
+| `components/analytics/` | ViewCapture, impression, trackers (import `@/utils/analytics`) |
+| `components/layout/` | Shared layout chrome (no viewport group) |
 | `context/` | Segment providers / hooks |
-| `helpers/` | Pure mappers, types, GraphQL → UI slices |
+| `helpers/` | Pure mappers and types — no JSX, no `capture()` |
 | `graphql/` | One operation per `.gql` file, beside owning `page.tsx` |
 | `i11n.json` | Route/segment copy bag when the screen owns strings |
 
-**Do not** duplicate the same markup under both `(web)` and `(mobile)` — lift shared UI to `components/` root or a shared concern folder.
+**Do not** duplicate the same markup under both `(web)` and `(mobile)` — lift shared UI to `components/ui/` or another shared concern folder.
 
-**Do not** leave a flat dump of many unrelated `.tsx` files at the components root when they cluster by concern.
+**Do not** leave a flat dump of many unrelated `.tsx` files at the components root when they cluster by kind.
+
+**Do not** split loading/empty into a sibling `*Skeleton.tsx` when it is 1:1 with one card — use `<TaskCard loading />` (or `empty`) in the same file. Shared multi-consumer skeletons (e.g. a profile `loading.tsx` used by several sections) may stay shared.
 
 Nested routes (`tasks/create`, `tasks/[slug]/edit`) own their own `page.tsx` + colocated folders.
+
+Example (task browse):
+
+```text
+src/app/(task)/
+  search/components/
+    SearchScreen.tsx
+    layout/SearchLayouts.tsx
+    analytics/
+  components/
+    (web)/layout/
+    (mobile)/layout/
+    ui/TaskCard.tsx
+    ui/TaskCard.stories.tsx
+    analytics/
+```
 
 Example (dashboard shared chrome):
 
@@ -137,12 +182,12 @@ src/app/(dashboard)/profile/components/
 
 A reader should understand the page **without spelunking**:
 
-1. Auth / permission gates  
-2. Data sources (queries / mutations) and what each powers  
-3. Loading / error / empty / success branches  
-4. Providers / store boundaries for this page  
-5. Section composition order  
-6. Page-level handlers (nav, top-level mutations) delegated into sections  
+1. Auth / permission gates
+2. Data sources (queries / mutations) and what each powers
+3. Loading / error / empty / success branches
+4. Providers / store boundaries for this page
+5. Section composition order
+6. Page-level handlers (nav, top-level mutations) delegated into sections
 
 **Do**
 
@@ -197,12 +242,12 @@ Make these states first-class and consistent:
 
 Every feature section should follow the same shape:
 
-1. Typed props / hooks at top  
-2. Data read + mapping  
-3. Explicit lifecycle branch (`loading` \| `error` \| `empty` \| `ready`)  
-4. Compose entities + `@ui` primitives  
-5. Callbacks for actions; no hidden side effects in render  
-6. Accessibility: labels, focus rings, ≥44px targets, status not by color alone  
+1. Typed props / hooks at top
+2. Data read + mapping
+3. Explicit lifecycle branch (`loading` \| `error` \| `empty` \| `ready`)
+4. Compose entities + `@ui` primitives
+5. Callbacks for actions; no hidden side effects in render
+6. Accessibility: labels, focus rings, ≥44px targets, status not by color alone
 
 ---
 
@@ -255,10 +300,12 @@ Do **not** introduce `useEffect` by default. Prefer event-driven `useCallback` a
 | `src/ui/<Name>/` | `ui/<Name>` | `ui/Button`, `ui/Dropdown`, `ui/Header`, `ui/Dock`, `ui/LanguageSwitcher` |
 | `src/app/(segment)/…` | Folder path (strip `(groups)` + `components/`, drop `[param]`) | `marketing/Header`, `task/TaskCard`, `worker/setup/WorkerSetupBioComposer` |
 
-- Colocate `*.stories.tsx` next to the component.
-- Universal `ui/*`: cover meaningful variants.
-- Feature components: usually a single `Default` (or state stories for the top-level shell only).
-- No stories for internal subcomponents of a menu/header — exercise via parent.
+- Colocate `*.stories.tsx` next to every **UI file** (presentational `.tsx` that renders visible UI). After grouping, `TaskCard.stories.tsx` covers `loading` via args — no second story file.
+- Tests live in the **same folder** as the source they test (`TaskCard.test.ts` next to `TaskCard.tsx`). Helper tests stay next to `helpers/`.
+- Universal `ui/*`: cover meaningful variants (including `loading` when the component owns a skeleton).
+- Feature UI: usually a single `Default` (plus state stories when the file owns loading/empty).
+- No stories for hooks, providers, GraphQL, or `*ViewCapture` / analytics adapters.
+- Internal Header/Dock pieces stay covered by the parent story unless they remain a public UI export.
 - Dual theme: semantic tokens only; no hardcoded dark canvas wrappers.
 - Inside `src/ui/**`, import siblings relatively — not `@ui` barrel (avoids cycles).
 - No `shell/*` / `form/*` / `Components/*` / `Patterns/*` / `layout/*` story titles.
@@ -300,39 +347,40 @@ Registered barrels: `EXPORT_CONFIGS` in `scripts/generate-exports.ts`. Do not ha
 
 ## 15. Anti-patterns (eliminate on touch)
 
-- `page.tsx` that only renders `<PageContent />` / pass-through `*Page`  
-- Inline entity/card JSX in fat `page.tsx` files  
-- Feature UI far from its owning route  
-- Flat dump of unrelated files in `components/` when concern folders fit  
-- Duplicate `(web)` / `(mobile)` markup that should be shared  
-- Full GraphQL types passed deep into presentational components  
-- `if (pathname…)` inside **primitives** for chrome/actions  
-- Prop-drilling context through shells instead of leaf hooks  
-- Multiple competing state patterns on one page  
-- Silent empty/error; layout-shifting loaders  
-- New abstractions with a single caller (YAGNI)  
-- Marketplace EmptyState / TaskStatusPill living in primitives (compose in features)  
-- Route-forked cards (`TaskCardBrowse` + `TaskCardOwner`)  
-- Mega-global i11n dictionaries / thin `useFooI11n` wrappers  
-- Wrapping every Link href with `useLocalizedHref` (Link already localizes)  
-- Separate `src/components` tree for Header/Dock  
+- `page.tsx` that only renders `<PageContent />` / pass-through `*Page`
+- Inline entity/card JSX in fat `page.tsx` files
+- Feature UI far from its owning route
+- Flat dump of unrelated files in `components/` when `layout/` / `ui/` / `analytics/` fit
+- Sibling `*Skeleton.tsx` for a 1:1 card state (use a `loading` prop)
+- Duplicate `(web)` / `(mobile)` markup that should be shared
+- Full GraphQL types passed deep into presentational components
+- `if (pathname…)` inside **primitives** for chrome/actions
+- Prop-drilling context through shells instead of leaf hooks
+- Multiple competing state patterns on one page
+- Silent empty/error; layout-shifting loaders
+- New abstractions with a single caller (YAGNI)
+- Marketplace EmptyState / TaskStatusPill living in primitives (compose in features)
+- Route-forked cards (`TaskCardBrowse` + `TaskCardOwner`)
+- Mega-global i11n dictionaries / thin `useFooI11n` wrappers
+- Wrapping every Link href with `useLocalizedHref` (Link already localizes)
+- Separate `src/components` tree for Header/Dock
 
 ---
 
 ## 16. PR acceptance (structural cleanup)
 
-- [ ] Colocated `components/` (and `context/` / `helpers/` / `graphql/` / `i11n.json` when needed) next to `page.tsx`  
-- [ ] `page.tsx` shows gates → data → providers → lifecycle → sections (no `PageContent` pass-through)  
-- [ ] Client `page.tsx` + metadata → colocated `layout.tsx` with `generateMetadata`  
-- [ ] Shared UI uses `@ui`; domain cards are presentational with view/state  
-- [ ] GraphQL mapping in helpers; entities have no Apollo  
-- [ ] State owned at the right folder level  
-- [ ] Sections share loading / error / empty / success  
-- [ ] Import direction respects the layer model  
-- [ ] Copy in owning `i11n.json` + `useI11n(bag)`  
-- [ ] In-app nav uses `@ui` Link with bare paths  
-- [ ] Touched `ui` / feature stories titled correctly  
-- [ ] No happy-path / primary empty-error regressions  
+- [ ] Colocated `components/` (and `context/` / `helpers/` / `graphql/` / `i11n.json` when needed) next to `page.tsx`
+- [ ] `page.tsx` shows gates → data → providers → lifecycle → sections (no `PageContent` pass-through)
+- [ ] Client `page.tsx` + metadata → colocated `layout.tsx` with `generateMetadata`
+- [ ] Shared UI uses `@ui`; domain cards are presentational with view/state
+- [ ] GraphQL mapping in helpers; entities have no Apollo
+- [ ] State owned at the right folder level
+- [ ] Sections share loading / error / empty / success
+- [ ] Import direction respects the layer model
+- [ ] Copy in owning `i11n.json` + `useI11n(bag)`
+- [ ] In-app nav uses `@ui` Link with bare paths
+- [ ] Touched `ui` / feature stories titled correctly
+- [ ] No happy-path / primary empty-error regressions
 
 ---
 

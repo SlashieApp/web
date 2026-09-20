@@ -13,11 +13,8 @@ export const EVENTS = {
   search_card_impression: 'search_card_impression',
   task_detail_opened_from_search: 'task_detail_opened_from_search',
   task_view: 'task_view',
-  task_load: 'task_load',
-  task_load_fail: 'task_load_fail',
   task_not_found_view: 'task_not_found_view',
   worker_view: 'worker_view',
-  workers_view: 'workers_view',
   pricing_view: 'pricing_view',
   billing_page_view: 'billing_page_view',
   billing_portal_open: 'billing_portal_open',
@@ -67,7 +64,6 @@ export const EVENTS = {
   worker_setup_fail: 'worker_setup_fail',
   task_save_success: 'task_save_success',
   task_save_fail: 'task_save_fail',
-  quotes_view: 'quotes_view',
   jobs_view: 'jobs_view',
   job_verify_success: 'job_verify_success',
   job_verify_fail: 'job_verify_fail',
@@ -77,7 +73,6 @@ export const EVENTS = {
   profile_update_fail: 'profile_update_fail',
   notification_open: 'notification_open',
   order_view: 'order_view',
-  dashboard_view: 'dashboard_view',
 
   // Closure — `job_verify_*` is the live complete-with-code path.
   // `job_done_*` / `order_confirm_*` stay in the catalogue for unused

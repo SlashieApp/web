@@ -21,7 +21,7 @@ import {
   WorkerSkillsSection,
   WorkerWorkSection,
 } from './components'
-import { WorkerProfileSectionSkeleton } from './components/shared/WorkerProfileSkeletons'
+import { WorkerProfileSectionSkeleton } from './components/ui/shared/WorkerProfileSkeletons'
 import {
   WorkerProfileProvider,
   useWorkerProfile,

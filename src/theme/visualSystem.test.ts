@@ -106,14 +106,14 @@ describe('elevation aliases in feature chrome', () => {
     const filters = readFileSync(
       join(
         process.cwd(),
-        'src/app/(task)/components/(web)/TaskBrowseFilters.tsx',
+        'src/app/(task)/components/(web)/layout/TaskBrowseFilters.tsx',
       ),
       'utf8',
     )
     const picker = readFileSync(
       join(
         process.cwd(),
-        'src/app/(stepflow)/tasks/create/components/map/TaskLocationMapPicker.tsx',
+        'src/app/(stepflow)/tasks/create/components/layout/map/TaskLocationMapPicker.tsx',
       ),
       'utf8',
     )
@@ -131,7 +131,7 @@ describe('elevation aliases in feature chrome', () => {
     const heroSearch = readFileSync(
       join(
         process.cwd(),
-        'src/app/(marketing)/components/landing/hero/HeroSearchCta.tsx',
+        'src/app/(marketing)/components/ui/landing/hero/HeroSearchCta.tsx',
       ),
       'utf8',
     )

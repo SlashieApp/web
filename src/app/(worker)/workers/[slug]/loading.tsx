@@ -5,7 +5,7 @@ import { Footer } from '@ui'
 import {
   WorkerProfileHeroIdentitySkeleton,
   WorkerProfileSectionSkeleton,
-} from './components/shared/WorkerProfileSkeletons'
+} from './components/ui/shared/WorkerProfileSkeletons'
 
 /** Skeleton mirroring the v2 layout: hero band + 65/35 two-column body. */
 export default function WorkerProfileLoading() {

@@ -9,8 +9,8 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
-import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
+import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
+import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
 import { useLoginAutofill } from '@/app/(auth)/helpers/LoginAutofillProvider'
 import {
   getAuthAbuseFriendlyMessage,

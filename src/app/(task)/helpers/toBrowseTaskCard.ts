@@ -1,7 +1,7 @@
 import type {
   TaskCardTask,
   TaskCardTrust,
-} from '@/app/(task)/components/TaskCard'
+} from '@/app/(task)/components/ui/TaskCard'
 import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
 import type { TaskListItem } from '@/graphql/tasks-query.types'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'

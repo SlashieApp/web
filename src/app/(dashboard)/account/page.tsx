@@ -15,10 +15,10 @@ import { useI11n } from '@/i18n/useI11n'
 import { SAFETY_HREF } from '@/utils/appRoutes'
 import { Button, Card, Link } from '@ui'
 
-import { MembershipRefreshOnMount } from '../components/membership/MembershipRefreshOnMount'
-import { WorkerMembershipCard } from '../components/membership/WorkerMembershipCard'
-import { AccountContactCard } from './components/AccountContactCard'
-import { AccountSettingsCard } from './components/AccountSettingsCard'
+import { MembershipRefreshOnMount } from '../components/ui/membership/MembershipRefreshOnMount'
+import { WorkerMembershipCard } from '../components/ui/membership/WorkerMembershipCard'
+import { AccountContactCard } from './components/ui/AccountContactCard'
+import { AccountSettingsCard } from './components/ui/AccountSettingsCard'
 import bag from './i11n.json'
 
 export default function AccountPage() {

@@ -3,7 +3,7 @@
 import { Box, Text } from '@chakra-ui/react'
 import { Suspense } from 'react'
 
-import { ForgotPasswordForm } from './components/ForgotPasswordForm'
+import { ForgotPasswordForm } from './components/ui/ForgotPasswordForm'
 
 export default function ForgotPasswordPage() {
   return (

@@ -5,7 +5,7 @@ import { createContext, useContext } from 'react'
 
 import type { OrderItem } from '@/utils/orderHelpers'
 
-import type { TaskCardTask } from '@/app/(task)/components/TaskCard'
+import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import type { TaskDetailPermissions } from '../helpers/getTaskDetailPermissions'
 import type { TaskDetailTab } from '../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'

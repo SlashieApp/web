@@ -16,9 +16,9 @@ import { useWorkerQuotes } from '../../context/WorkerQuotesProvider'
 import bag from '../../i11n.json'
 
 import { WorkerQuoteCalendar } from '../calendar/WorkerQuoteCalendar'
-import { WorkerQuoteActivity } from '../widgets/WorkerQuoteActivity'
-import { WorkerQuoteQuickStats } from '../widgets/WorkerQuoteQuickStats'
-import { WorkerQuoteUpcoming } from '../widgets/WorkerQuoteUpcoming'
+import { WorkerQuoteActivity } from '../ui/WorkerQuoteActivity'
+import { WorkerQuoteQuickStats } from '../ui/WorkerQuoteQuickStats'
+import { WorkerQuoteUpcoming } from '../ui/WorkerQuoteUpcoming'
 import { WorkerQuoteFilterColumn } from './WorkerQuoteFilterColumn'
 import { WorkerQuotesMainColumn } from './WorkerQuotesMainColumn'
 

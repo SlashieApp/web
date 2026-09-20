@@ -238,8 +238,12 @@ export function taskQuotesCountLabel(task: TaskListItem): string | null {
   return `${count} ${count === 1 ? 'quote' : 'quotes'}`
 }
 
-function milesToKmRounded(miles: number): number {
+export function milesToKmRounded(miles: number): number {
   return Math.round(miles * 1.60934)
+}
+
+export function kmToMilesRounded(km: number): number {
+  return Math.max(1, Math.round(km / 1.60934))
 }
 
 export function formatBrowseBudgetRange(

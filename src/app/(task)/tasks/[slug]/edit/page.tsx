@@ -13,7 +13,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { type UseFormRegister, useForm } from 'react-hook-form'
 
-import { SessionLoading } from '@/app/(auth)/components/SessionLoading'
+import { SessionLoading } from '@/app/(auth)/components/ui/SessionLoading'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import MyRequests from '@/app/(dashboard)/requests/graphql/MyRequests.gql'
 import Tasks from '@/app/(task)/graphql/Tasks.gql'
@@ -51,7 +51,7 @@ import {
   CreateTaskVisualsSection,
 } from '@/app/(stepflow)/tasks/create/components'
 import type { CreateTaskFormFieldValues } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
-import { EditTaskAcceptedWorkerCapSection } from '../../edit/components/EditTaskAcceptedWorkerCapSection'
+import { EditTaskAcceptedWorkerCapSection } from '../../edit/components/ui/EditTaskAcceptedWorkerCapSection'
 import {
   type EditTaskFormFieldValues,
   type EditTaskFormValues,

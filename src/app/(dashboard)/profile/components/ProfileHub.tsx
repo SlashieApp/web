@@ -14,17 +14,17 @@ import {
   PersonalInfoCard,
   PublicPreviewCard,
   WorkerProfileCard,
-} from './cards/ProfileMainCards'
+} from './ui/cards/ProfileMainCards'
 import {
   NextStepCard,
   PrivacyVisibilityCard,
   ProfileStrengthCard,
-} from './cards/ProfileSidebarCards'
+} from './ui/cards/ProfileSidebarCards'
 import {
   ProfileEditDrawer,
   type ProfileEditSection,
-} from './edit/ProfileEditDrawer'
-import { ProfileIdentityHero } from './hero/ProfileIdentityHero'
+} from './ui/edit/ProfileEditDrawer'
+import { ProfileIdentityHero } from './ui/hero/ProfileIdentityHero'
 
 export function ProfileHub({
   me,

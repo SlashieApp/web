@@ -55,7 +55,7 @@ Import as `@/ui/<Name>` or from `@ui` after `bun run exports-gen`.
 - Route sections, mappers (`helpers/`), providers (`context/`), GraphQL, colocated `i11n.json`.
 - Thin adapters that wire store/context into `@ui` when the primitive is data-agnostic.
 - Domain cards stay presentational; one entity + view/state — no per-route card forks.
-- Feature `components/` use concern subfolders when files cluster (`hero/`, `cards/`, `layout/`, …) — see **`repo-structure-and-exports.mdc`**.
+- Feature `components/` use searchable kind folders when files cluster (`layout/`, `ui/`, `analytics/`, plus `hero/` / `edit/` when needed) — see **`repo-structure-and-exports.mdc`**.
 
 ## Checklist
 

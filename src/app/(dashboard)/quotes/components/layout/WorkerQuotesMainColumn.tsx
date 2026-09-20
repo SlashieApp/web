@@ -4,14 +4,14 @@ import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { LuSearch } from 'react-icons/lu'
 
-import { TaskCard } from '@/app/(task)/components/TaskCard'
+import { TaskCard } from '@/app/(task)/components/ui/TaskCard'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, Input, Link } from '@ui'
 
 import { useWorkerQuotes } from '../../context/WorkerQuotesProvider'
 import bag from '../../i11n.json'
 
-import { WorkerQuoteSummaryBar } from '../widgets/WorkerQuoteSummaryBar'
+import { WorkerQuoteSummaryBar } from '../ui/WorkerQuoteSummaryBar'
 
 export function WorkerQuotesMainColumn() {
   const t = useI11n(bag)

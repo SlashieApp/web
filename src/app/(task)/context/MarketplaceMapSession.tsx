@@ -15,7 +15,7 @@ import {
 
 import { HEADER_MIN_HEIGHT } from '@/ui/Header'
 
-import { TaskMap } from '../components/TaskMap'
+import { TaskMap } from '../components/ui/TaskMap'
 import {
   type MarketplaceMapPublishedLayer,
   mapFadeOverlayCss,

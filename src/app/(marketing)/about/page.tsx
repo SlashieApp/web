@@ -17,7 +17,7 @@ import { Card } from '@/ui/Card/Card'
 import { Footer } from '@/ui/Footer/Footer'
 import { Link } from '@/ui/Link/Link'
 
-import { Reveal } from '../components/landing/Reveal'
+import { Reveal } from '../components/ui/landing/Reveal'
 import messages from './i11n.json'
 
 export async function generateMetadata() {

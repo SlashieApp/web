@@ -1,0 +1,169 @@
+'use client'
+
+import { MARKETING_HOME } from '@/utils/appRoutes'
+import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Button, Card, FormField, Input, Link, Logo } from '@ui'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useMemo, useState } from 'react'
+
+import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
+import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
+import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
+import { useI11n } from '@/i18n/useI11n'
+
+import bag from '../../i11n.json'
+import {
+  FieldIconMail,
+  IconArrowRight,
+  IconLockReset,
+} from './ForgotPasswordIcons'
+
+export function ForgotPasswordForm() {
+  const t = useI11n(bag)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialEmail = useMemo(
+    () => searchParams.get('email')?.trim() ?? '',
+    [searchParams],
+  )
+  const [email, setEmail] = useState(initialEmail)
+  const captcha = useProgressiveCaptcha({ alwaysRequire: true })
+
+  const { requestReset, loading, message, cooldownSeconds, canResend } =
+    useForgotPassword()
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (captcha.requiresCaptcha && !captcha.token) {
+      return
+    }
+
+    const result = await requestReset(email, {
+      captchaToken: captcha.token,
+    })
+    if (!result) {
+      captcha.resetChallenge()
+      return
+    }
+    if (result.rateLimited) {
+      captcha.resetChallenge()
+      return
+    }
+
+    router.push(
+      `/forgot-password/sent?email=${encodeURIComponent(email.trim())}`,
+    )
+  }
+
+  const submitDisabled =
+    !canResend || !email.trim() || (captcha.requiresCaptcha && !captcha.token)
+
+  return (
+    <Stack gap={6} w="full">
+      <Link
+        href={MARKETING_HOME}
+        _hover={{ textDecoration: 'none', opacity: 0.92 }}
+      >
+        <Logo h="48px" />
+      </Link>
+
+      <Card
+        w="full"
+        maxW="full"
+        borderTopWidth="4px"
+        borderTopColor="action.primary"
+        p={{ base: 6, md: 10 }}
+      >
+        <Stack gap={6} align="center" textAlign="center">
+          <Box
+            boxSize={14}
+            borderRadius="full"
+            bg="status.success.soft"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <IconLockReset />
+          </Box>
+
+          <Box>
+            <Heading size="xl" color="text.default">
+              {t.title}
+            </Heading>
+            <Text mt={2} color="text.muted" fontSize="sm" maxW="xs" mx="auto">
+              {t.description}
+            </Text>
+          </Box>
+
+          <Box as="form" onSubmit={onSubmit} w="full" textAlign="left">
+            <Stack gap={4}>
+              <FormField label={t.emailLabel}>
+                <Input
+                  startElement={<FieldIconMail />}
+                  placeholder="name@company.com"
+                  value={email}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEmail(e.target.value)
+                  }
+                  type="email"
+                  autoComplete="email"
+                  required
+                  rootProps={{ minH: '48px', w: 'full' }}
+                />
+              </FormField>
+
+              {captcha.requiresCaptcha ? (
+                <TurnstileField
+                  onTokenChange={captcha.setToken}
+                  resetSignal={captcha.resetSignal}
+                />
+              ) : null}
+
+              {message ? (
+                <Text role="alert" color="status.danger.fg" fontSize="sm">
+                  {message}
+                </Text>
+              ) : null}
+
+              <Button
+                type="submit"
+                loading={loading}
+                disabled={submitDisabled}
+                w="full"
+                borderRadius="full"
+                size="lg"
+              >
+                {cooldownSeconds > 0
+                  ? `Send again in ${cooldownSeconds}s`
+                  : t.submit}
+                <IconArrowRight />
+              </Button>
+            </Stack>
+          </Box>
+
+          <Link
+            href="/login"
+            fontSize="sm"
+            fontWeight={700}
+            color="text.link"
+            _hover={{ color: 'status.success.fg', textDecoration: 'none' }}
+          >
+            {t.backToLogin}
+          </Link>
+        </Stack>
+      </Card>
+
+      <Text fontSize="sm" color="text.muted" textAlign="center">
+        Facing issues?{' '}
+        <Link
+          href={MARKETING_HOME}
+          fontWeight={700}
+          color="text.link"
+          _hover={{ color: 'status.success.fg', textDecoration: 'none' }}
+        >
+          Contact Support
+        </Link>
+      </Text>
+    </Stack>
+  )
+}

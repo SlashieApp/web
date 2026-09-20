@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest'
 import { PIN_Z_INDEX } from '../../taskMap/pin/styles'
 import {
   COMPACT_DETAIL_BOTTOM_H,
-  COMPACT_DETAIL_HERO_H,
   COMPACT_SEARCH_BOTTOM_H,
   DETAIL_MAP_BOTTOM_FADE_SIZE,
   DETAIL_MAP_LEFT_FADE_SIZE,
@@ -83,13 +82,11 @@ describe('overlayForMobile / overlayForTablet / overlayForWeb', () => {
     expect(overlayForMobile('taskDetail')).toEqual({
       bottomH: COMPACT_DETAIL_BOTTOM_H,
       bottomImage: MAP_FADE_BOTTOM,
-      bottomPos: `calc(100% - ${COMPACT_DETAIL_HERO_H.base})`,
+      bottomPos: '0px',
     })
-    expect(overlayForTablet('taskDetail')).toEqual({
-      ...overlayForMobile('taskDetail'),
-      bottomH: COMPACT_DETAIL_HERO_H.md,
-      bottomPos: `calc(100% - ${COMPACT_DETAIL_HERO_H.md})`,
-    })
+    expect(overlayForTablet('taskDetail')).toEqual(
+      overlayForMobile('taskDetail'),
+    )
     expect(overlayForWeb('search')).toEqual({
       leftW: SEARCH_MAP_LEFT_FADE_SIZE,
       leftPos: SEARCH_MAP_LEFT_FADE_POS,
@@ -189,7 +186,7 @@ describe('overlayCss', () => {
     expect(searchBottom.top).toBe('auto')
     expect(searchBottom.transitionDelay).toBe('0ms')
     expect(detailBottom.transitionDelay).toBe(MAP_FADE_MOTION_DELAY)
-    expect(COMPACT_DETAIL_BOTTOM_H).toBe(COMPACT_DETAIL_HERO_H.base)
+    expect(COMPACT_DETAIL_BOTTOM_H).toBe('0%')
     expect(COMPACT_SEARCH_BOTTOM_H).toBe('40%')
     expect(MAP_FADE_BOTTOM).toContain('0.5) 48%')
   })
@@ -245,7 +242,7 @@ describe('overlayCss', () => {
       'utf8',
     )
     const searchLayout = readFileSync(
-      join(dir, '../../../search/components/SearchLayouts.tsx'),
+      join(dir, '../../../search/components/layout/SearchLayouts.tsx'),
       'utf8',
     )
     expect(host).toContain('overlaySurfaceForSession')
@@ -254,7 +251,7 @@ describe('overlayCss', () => {
     const back = readFileSync(
       join(
         dir,
-        '../../../tasks/[slug]/components/tripDetail/TaskHeaderControls.tsx',
+        '../../../tasks/[slug]/components/layout/TaskHeaderControls.tsx',
       ),
       'utf8',
     )
@@ -269,9 +266,11 @@ describe('overlayCss', () => {
     expect(overlay).toContain('overlayForViewport')
     expect(searchLayout).not.toContain('linear-gradient')
     const statusHeader = readFileSync(
-      join(dir, '../../../tasks/[slug]/components/tripDetail/StatusHeader.tsx'),
+      join(dir, '../../../tasks/[slug]/components/layout/StatusHeader.tsx'),
       'utf8',
     )
     expect(statusHeader).toContain('COMPACT_DETAIL_HERO_H')
+    expect(statusHeader).toContain('MAP_FADE_BOTTOM')
+    expect(statusHeader).not.toContain('MARKETPLACE_MAP_MOTION_DELAY')
   })
 })

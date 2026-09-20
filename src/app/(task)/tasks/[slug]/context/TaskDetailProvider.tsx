@@ -69,7 +69,7 @@ import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
 
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
-import { TaskDetailViewCapture } from '../components/TaskDetailViewCapture'
+import { TaskDetailViewCapture } from '../components/analytics/TaskDetailViewCapture'
 import { TaskDetailContext } from './TaskDetailContext'
 
 const ORDER_POLL_MS = 30_000

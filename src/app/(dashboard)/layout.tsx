@@ -4,8 +4,8 @@ import { getHasAuthSession } from '@/app/helpers/getHasAuthSession'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 
-import { AccountAuthGate } from './components/account/AccountAuthGate'
-import { AccountShell } from './components/account/AccountShell'
+import { AccountAuthGate } from './components/layout/AccountAuthGate'
+import { AccountShell } from './components/layout/AccountShell'
 import bag from './i11n.json'
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -38,14 +38,17 @@ Rules:
 - **App stories mirror the route folder path**, not a parallel “function” taxonomy. Prefer the full component name as the last segment (`task/TaskCard`, not `task/Card`).
 - **Marketing header** lives under marketing: `marketing/Header` (file may still be `MarketingHeader.tsx`).
 - **No duplicate primitive stories.** Do not story alias/wrapper exports or thin variants already covered by a parent.
-- **Universal-first.** Generic widgets belong in `src/ui` as `ui/*`; route adapters that only wire context get no story.
+- **Universal-first.** Generic widgets belong in `src/ui` as `ui/*`.
+- **Every UI file** (presentational `.tsx`) gets a colocated `<Name>.stories.tsx`. Loading/empty are args on that story, not a sibling file.
+- **No stories** for hooks, providers, GraphQL, or `*ViewCapture` / analytics adapters.
 - **App shell chrome** (`Header`, `Dock`) lives in `src/ui` with `ui/*` stories — same folder shape as other `@ui` modules.
 
 ## Story scope
 
 - **Universal `ui/*`**: cover meaningful variants (states, sizes, alignment) as separate exports.
 - **Non-universal feature components** (e.g. top-level profile hub): **one story file with a single `Default`** that shows the real use case.
-- **Internal sub-components** of shell/feature chrome (e.g. account menu pieces under `Header/`, dock internals): **do not** give them their own stories. Exercise them through the parent (`ui/Header`, `ui/Dock`, or the feature entry).
+- **Internal Header/Dock pieces** stay covered by the parent story unless they remain a public UI export.
+- Tests live in the **same folder** as the source they test.
 
 ## Required story skeleton
 
@@ -97,8 +100,9 @@ Do not add extra provider wrappers in story files unless explicitly requested.
 - Story file is colocated with the component
 - Import type is from `@storybook/nextjs-vite`
 - Title follows `group/ComponentName` with the correct **function** group (`ui` / `layout` / `header` / route-section)
-- Universal widgets live in `src/ui` and are titled `ui/*` (not `form/*`); route adapters get no story
-- Non-universal feature components are a single-story file; internal sub-components have no story
+- Universal widgets live in `src/ui` and are titled `ui/*` (not `form/*`)
+- Every UI file has a colocated story; hooks / analytics adapters do not
+- Loading/empty are args on the same story, not a sibling `*Skeleton.stories.tsx`
 - `tags: ['autodocs']` exists
 - `parameters.layout` is set
 - Args satisfy required component props

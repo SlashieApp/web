@@ -1,31 +1,17 @@
 'use client'
 
 import { Box, useBreakpointValue } from '@chakra-ui/react'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 
-import { EVENTS, capture } from '@/utils/analytics'
-
-import { BrowseGeolocationInit } from '../../components/BrowseGeolocationInit'
+import { BrowseGeolocationInit } from '../../components/analytics/BrowseGeolocationInit'
 import { TaskBrowseProvider } from '../../context/TaskBrowseProvider'
 import {
   type SearchUrlState,
   referenceFromSearchUrlState,
 } from '../helpers/searchQueryParams'
-import { MobileSearchLayout, WebSearchLayout } from './SearchLayouts'
 import { SearchUrlSync } from './SearchUrlSync'
+import { MobileSearchLayout, WebSearchLayout } from './layout/SearchLayouts'
 import { SearchMapLayer } from './map/SearchMapLayer'
-
-function SearchViewTracker() {
-  const trackedRef = useRef(false)
-
-  useEffect(() => {
-    if (trackedRef.current) return
-    trackedRef.current = true
-    capture(EVENTS.browse_view, { source: 'search_map' })
-  }, [])
-
-  return null
-}
 
 /**
  * Map-first task search: map + list shell with location and category filters.
@@ -55,7 +41,7 @@ export function SearchScreen({
     >
       {seededReference ? null : <BrowseGeolocationInit />}
       <SearchUrlSync />
-      {/* <SearchViewTracker /> */}
+      {/* Browse view capture: ./analytics/SearchViewTracker */}
       <Box
         flex={1}
         w="full"

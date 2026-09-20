@@ -11,10 +11,10 @@ import { LuCreditCard, LuGauge, LuInfo } from 'react-icons/lu'
 import { useMe } from '@/app/(auth)/store/user'
 import { DashboardPageLayout } from '@/app/(dashboard)/components/layout/DashboardPageLayout'
 import { DashboardSectionCard } from '@/app/(dashboard)/components/layout/DashboardSectionCard'
-import { MembershipCancelNotice } from '@/app/(dashboard)/components/membership/MembershipCancelNotice'
-import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/membership/MembershipRefreshOnMount'
-import { MembershipStatusBadge } from '@/app/(dashboard)/components/membership/MembershipStatusBadge'
-import { MembershipStatusDetail } from '@/app/(dashboard)/components/membership/MembershipStatusDetail'
+import { MembershipCancelNotice } from '@/app/(dashboard)/components/ui/membership/MembershipCancelNotice'
+import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/ui/membership/MembershipRefreshOnMount'
+import { MembershipStatusBadge } from '@/app/(dashboard)/components/ui/membership/MembershipStatusBadge'
+import { MembershipStatusDetail } from '@/app/(dashboard)/components/ui/membership/MembershipStatusDetail'
 import Pricing from '@/app/(marketing)/pricing/graphql/Pricing.gql'
 import {
   formatPricingInterval,
@@ -32,10 +32,10 @@ import {
   isMembershipPaymentWarning,
   pickMembershipSnapshot,
 } from '../helpers/workerMembershipHelpers'
-import { BillingCheckoutReturnHandler } from './components/BillingCheckoutReturnHandler'
-import { BillingNonWorkerState } from './components/BillingNonWorkerState'
-import { BillingQuoteMeter } from './components/BillingQuoteMeter'
-import { BillingViewCapture } from './components/BillingViewCapture'
+import { BillingViewCapture } from './components/analytics/BillingViewCapture'
+import { BillingCheckoutReturnHandler } from './components/ui/BillingCheckoutReturnHandler'
+import { BillingNonWorkerState } from './components/ui/BillingNonWorkerState'
+import { BillingQuoteMeter } from './components/ui/BillingQuoteMeter'
 import { useBillingActions } from './helpers/useBillingActions'
 import bag from './i11n.json'
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TaskMapProps } from '../../components/TaskMap'
+import type { TaskMapProps } from '../../components/ui/TaskMap'
 
 import {
   type MarketplaceMapPublishedLayer,

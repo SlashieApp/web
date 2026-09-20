@@ -26,8 +26,8 @@ import {
 } from '@/utils/taskListQuery'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
-import type { SearchThisAreaButtonProps } from '../components/SearchThisAreaButton'
-import type { TaskMapProps } from '../components/TaskMap'
+import type { SearchThisAreaButtonProps } from '../components/ui/SearchThisAreaButton'
+import type { TaskMapProps } from '../components/ui/TaskMap'
 import {
   type BrowseGeolocationStatus,
   type BrowseReferenceLocation,

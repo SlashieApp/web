@@ -1,4 +1,4 @@
-import type { TaskMapProps } from '../../components/TaskMap'
+import type { TaskMapProps } from '../../components/ui/TaskMap'
 import { tasksMarkerSig } from '../taskMap'
 import type { OffsetMapVariant, OffsetPadding } from './offset/config'
 import { pinsPathForViewport } from './pinsPath/pinsPath'

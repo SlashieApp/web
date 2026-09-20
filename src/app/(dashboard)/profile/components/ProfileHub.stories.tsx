@@ -11,7 +11,7 @@ import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
 
 import { ProfileHub } from './ProfileHub'
-import type { ProfileEditSection } from './edit/ProfileEditDrawer'
+import type { ProfileEditSection } from './ui/edit/ProfileEditDrawer'
 
 function profileFixture({
   worker = 'none',

@@ -76,26 +76,24 @@ export const OVERLAY_MOBILE_SEARCH: OverlayCompactRecipe = {
 }
 
 /**
- * Phone task-detail: wash lives on the bottom band, anchored at the hero
- * edge so height grows upward (chrome / title), not down from the header.
+ * Phone/tablet task-detail: no map-canvas wash. The fade sits on
+ * `StatusHeader` so it scrolls with the task chrome.
  */
 export const OVERLAY_MOBILE_DETAIL: OverlayCompactRecipe = {
-  bottomH: COMPACT_DETAIL_HERO_H.base,
+  bottomH: '0%',
   bottomImage: MAP_FADE_BOTTOM,
-  bottomPos: `calc(100% - ${COMPACT_DETAIL_HERO_H.base})`,
+  bottomPos: '0px',
 }
 
 /**
  * Tablet uses the same compact (vertical) axis as phone. Search matches
- * until a dedicated tablet chrome lands; detail only overrides hero height.
+ * until a dedicated tablet chrome lands.
  */
 export const OVERLAY_TABLET_SEARCH: OverlayCompactRecipe = {
   ...OVERLAY_MOBILE_SEARCH,
 }
 export const OVERLAY_TABLET_DETAIL: OverlayCompactRecipe = {
   ...OVERLAY_MOBILE_DETAIL,
-  bottomH: COMPACT_DETAIL_HERO_H.md,
-  bottomPos: `calc(100% - ${COMPACT_DETAIL_HERO_H.md})`,
 }
 
 /** Web search: full left half of the map, not only the 460px list. */

@@ -4,7 +4,7 @@ import { Box, Container, Stack } from '@chakra-ui/react'
 import { useSelectedLayoutSegment } from 'next/navigation'
 import { useCallback, useRef } from 'react'
 
-import { AccountSuspendedBanner } from '@/app/(auth)/components/AccountSuspendedBanner'
+import { AccountSuspendedBanner } from '@/app/(auth)/components/ui/AccountSuspendedBanner'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { markAuthSurfaceSession } from '@/utils/analytics'
 

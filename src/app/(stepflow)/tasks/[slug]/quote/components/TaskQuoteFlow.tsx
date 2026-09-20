@@ -7,15 +7,15 @@ import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { Box } from '@chakra-ui/react'
 
-import { SessionLoading } from '@/app/(auth)/components/SessionLoading'
+import { SessionLoading } from '@/app/(auth)/components/ui/SessionLoading'
 
 import { Button, Link } from '@ui'
 
-import { QuoteLimitPaywall } from '@/app/(task)/tasks/[slug]/components/quoteSection/QuoteLimitPaywall'
+import { QuoteLimitPaywall } from '@/app/(task)/tasks/[slug]/components/ui/quoteSection/QuoteLimitPaywall'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { TaskQuoteScreen } from './TaskQuoteScreen'
-import { TaskQuoteGateView } from './shared/TaskQuoteGateView'
-import { TaskQuoteSummaryCard } from './shared/TaskQuoteSummaryCard'
+import { TaskQuoteGateView } from './ui/shared/TaskQuoteGateView'
+import { TaskQuoteSummaryCard } from './ui/shared/TaskQuoteSummaryCard'
 
 function taskDetailHref(taskId: string) {
   return `/tasks/${taskId}`

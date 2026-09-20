@@ -119,9 +119,8 @@ export function mountMapFadeOverlay(mapRoot: HTMLElement): () => void {
 }
 
 /**
- * Phone: compact bottom band. Transparent edge faces the content; full white
- * faces the window (search carousel). Task detail sits the wash at the hero
- * edge so height grows upward.
+ * Phone: compact bottom band on search (carousel). Task-detail compact wash
+ * is on `StatusHeader`, so the map band collapses.
  */
 export function overlayForMobile(
   surface: OverlaySurface,
@@ -131,7 +130,7 @@ export function overlayForMobile(
 
 /**
  * Tablet: compact bottom band on the same axis as phone. Search matches
- * mobile; detail only overrides hero height and the bottom-band anchor.
+ * mobile; detail collapses the map band like phone.
  */
 export function overlayForTablet(
   surface: OverlaySurface,

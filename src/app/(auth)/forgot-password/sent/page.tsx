@@ -3,7 +3,7 @@
 import { Box, Text } from '@chakra-ui/react'
 import { Suspense } from 'react'
 
-import { ForgotPasswordSentPanel } from '../components/ForgotPasswordSentPanel'
+import { ForgotPasswordSentPanel } from '../components/ui/ForgotPasswordSentPanel'
 
 function ForgotPasswordSentFallback() {
   return (

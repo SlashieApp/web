@@ -17,7 +17,7 @@ describe('search mobile map chrome', () => {
       'utf8',
     )
     const mapSrc = readFileSync(
-      join(dir, '../../components/TaskMap.tsx'),
+      join(dir, '../../components/ui/TaskMap.tsx'),
       'utf8',
     )
     const searchMap = readFileSync(
@@ -70,7 +70,7 @@ describe('search mobile map chrome', () => {
 
   it('sits the mobile carousel above the bottom nav', () => {
     const src = readFileSync(
-      join(dir, '../components/SearchLayouts.tsx'),
+      join(dir, '../components/layout/SearchLayouts.tsx'),
       'utf8',
     )
     expect(src).toContain("display={{ base: 'none', lg: 'block' }}")
@@ -85,11 +85,11 @@ describe('search mobile map chrome', () => {
 
   it('syncs TaskCard active state to the same selectedTaskId as the map pin', () => {
     const listSrc = readFileSync(
-      join(dir, '../../components/(web)/TaskList.tsx'),
+      join(dir, '../../components/(web)/layout/TaskList.tsx'),
       'utf8',
     )
     const carouselSrc = readFileSync(
-      join(dir, '../../components/(mobile)/MobileTaskCarousel.tsx'),
+      join(dir, '../../components/(mobile)/layout/MobileTaskCarousel.tsx'),
       'utf8',
     )
     expect(listSrc).toContain('isActive={selectedTaskId === task.id}')
@@ -100,7 +100,10 @@ describe('search mobile map chrome', () => {
 
   it('does not open the mobile filter sheet on desktop while both layouts stay mounted', () => {
     const src = readFileSync(
-      join(dir, '../../components/(mobile)/MobileTaskBrowseFiltersDrawer.tsx'),
+      join(
+        dir,
+        '../../components/(mobile)/layout/MobileTaskBrowseFiltersDrawer.tsx',
+      ),
       'utf8',
     )
     expect(src).toContain("fallback: 'lg'")
@@ -110,7 +113,7 @@ describe('search mobile map chrome', () => {
 
   it('centers the mobile task-card skeleton to match the carousel snap', () => {
     const src = readFileSync(
-      join(dir, '../../components/(mobile)/MobileTaskCarousel.tsx'),
+      join(dir, '../../components/(mobile)/layout/MobileTaskCarousel.tsx'),
       'utf8',
     )
     expect(src).toContain('mx="auto"')

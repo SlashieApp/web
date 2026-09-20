@@ -14,8 +14,8 @@ import type { z } from 'zod'
 
 import type { Control } from 'react-hook-form'
 
-import { GoogleAuthButton } from '@/app/(auth)/components/GoogleAuthButton'
-import { TurnstileField } from '@/app/(auth)/components/TurnstileField'
+import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
+import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
 import {
   getAuthAbuseFriendlyMessage,
   parseAuthAbuseError,

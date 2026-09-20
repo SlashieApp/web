@@ -2,16 +2,16 @@
 
 import { Box } from '@chakra-ui/react'
 
-import { AppStatusBanners } from '@/app/(auth)/components/AppStatusBanners'
+import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { StepFlowLayout } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
 import { STEP_COPY } from '../helpers/workerSetupSteps.config'
-import { WorkerSetupHeader } from './shared/WorkerSetupHeader'
-import { WorkerSetupMobileAccordion } from './steppers/WorkerSetupMobileAccordion'
-import { WorkerSetupProgressBar } from './steppers/WorkerSetupProgressBar'
-import { WorkerSetupStepper } from './steppers/WorkerSetupStepper'
-import { WorkerSetupStepContent } from './steps/WorkerSetupStepContent'
+import { WorkerSetupMobileAccordion } from './layout/steppers/WorkerSetupMobileAccordion'
+import { WorkerSetupProgressBar } from './layout/steppers/WorkerSetupProgressBar'
+import { WorkerSetupStepper } from './layout/steppers/WorkerSetupStepper'
+import { WorkerSetupHeader } from './ui/shared/WorkerSetupHeader'
+import { WorkerSetupStepContent } from './ui/steps/WorkerSetupStepContent'
 
 export function WorkerSetupScreen() {
   const {

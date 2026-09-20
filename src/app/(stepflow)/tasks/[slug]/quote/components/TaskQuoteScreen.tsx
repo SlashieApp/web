@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
-import { AppStatusBanners } from '@/app/(auth)/components/AppStatusBanners'
+import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { StepFlowLayout } from '@ui'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
@@ -16,10 +16,10 @@ import {
   taskQuotePreviousSubStep,
   taskQuoteProgressPercent,
 } from '../helpers/taskQuoteSteps.config'
-import { TaskQuoteTaskDetailPanel } from './shared/TaskQuoteTaskDetailPanel'
-import { TaskQuoteProgressBar } from './stepper/TaskQuoteProgressBar'
-import { TaskQuoteStepper } from './stepper/TaskQuoteStepper'
-import { TaskQuoteStepContent } from './steps/TaskQuoteStepContent'
+import { TaskQuoteProgressBar } from './layout/stepper/TaskQuoteProgressBar'
+import { TaskQuoteStepper } from './layout/stepper/TaskQuoteStepper'
+import { TaskQuoteTaskDetailPanel } from './ui/shared/TaskQuoteTaskDetailPanel'
+import { TaskQuoteStepContent } from './ui/steps/TaskQuoteStepContent'
 
 const MESSAGE_MAX = 250
 
