@@ -92,8 +92,8 @@ Mirror **`src/app/(task)/`**. Paths are the search index: viewport, kind, and vi
 ### Searchable axes
 
 ```text
-viewport   (web)     = desktop / split ≥992px (`lg`)
-           (mobile)  = phone + tablet compact <992px
+viewport   (web)     = desktop / split ≥1024px (`lg`, `WEB_MIN_PX`)
+           (mobile)  = phone + tablet compact <1024px
            no group  = shared / one responsive tree (e.g. TaskDetailView)
 
 kind       layout/     shells, grids, page chrome
@@ -103,7 +103,7 @@ kind       layout/     shells, grids, page chrome
 state      same file   loading / skeleton / empty via props — not sibling files
 ```
 
-Tablet (768–991px) uses the **compact** `(mobile)` shell. Map overlay/offset may differ; do not add a `(tablet)` layout tree.
+Tablet (768–1023px) uses the **compact** `(mobile)` shell. Map overlay/offset may differ; do not add a `(tablet)` layout tree. The compact-vs-web split is `src/theme/breakpoints.ts` (`WEB_MIN_PX` / `WEB_MQ`) — do not hardcode `62em` or `992px`.
 
 **How to find things**
 

@@ -32,6 +32,7 @@
       "tabInfo": "Overview",
       "tabOverview": "Overview",
       "tabQuotes": "Quotes",
+      "tabAnalytics": "Analytics",
       "tabActivity": "Activity"
     },
     "cta": {
@@ -128,6 +129,40 @@
       "viewsColdStart": "New — reaching workers",
       "viewsOne": "{count} view",
       "viewsMany": "{count} views"
+    },
+    "analytics": {
+      "views": "Views",
+      "viewsHint": "Times workers opened this task.",
+      "viewsColdStart": "New — reaching workers",
+      "viewsOne": "{count}",
+      "viewsMany": "{count}",
+      "quotes": "Quotes",
+      "quotesHint": "Workers who sent a price.",
+      "quotesOne": "{count}",
+      "quotesMany": "{count}",
+      "interest": "Interest",
+      "interestLevel": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "interestHint": {
+        "low": "Still early — share the task to get more quotes.",
+        "medium": "Workers are quoting. Compare and accept one.",
+        "high": "Strong interest — several quotes are in."
+      },
+      "timeToQuote": {
+        "heading": "Time to quote",
+        "hint": "Average wait from posting to each quote.",
+        "waiting": "Waiting",
+        "underOneHour": "Under 1 hour",
+        "oneHour": "1 hour",
+        "manyHours": "{count} hours"
+      },
+      "accepted": "Accepted",
+      "acceptedHint": "Quotes you have accepted.",
+      "acceptedOne": "{count}",
+      "acceptedMany": "{count}"
     },
     "trust": {
       "ownerHeading": "You pay the worker directly",
@@ -259,6 +294,7 @@
     },
     "order": {
       "completed": "Task completed",
+      "completedBody": "The job is done and payment is settled directly between you. This task is now closed, and the summary below is for your records.",
       "summary": "Order summary",
       "worker": "Worker",
       "agreedTotal": "Agreed total",
@@ -324,6 +360,7 @@
       "tabInfo": "概覽",
       "tabOverview": "概覽",
       "tabQuotes": "報價",
+      "tabAnalytics": "分析",
       "tabActivity": "動態"
     },
     "cta": {
@@ -420,6 +457,40 @@
       "viewsColdStart": "新任務 — 正在觸達工作者",
       "viewsOne": "{count} 次瀏覽",
       "viewsMany": "{count} 次瀏覽"
+    },
+    "analytics": {
+      "views": "瀏覽次數",
+      "viewsHint": "工作者打開此任務的次數。",
+      "viewsColdStart": "新任務 — 正在觸達工作者",
+      "viewsOne": "{count}",
+      "viewsMany": "{count}",
+      "quotes": "報價",
+      "quotesHint": "已送出價格的工作者。",
+      "quotesOne": "{count}",
+      "quotesMany": "{count}",
+      "interest": "興趣",
+      "interestLevel": {
+        "low": "低",
+        "medium": "中",
+        "high": "高"
+      },
+      "interestHint": {
+        "low": "仍屬早期 — 分享任務可吸引更多報價。",
+        "medium": "已有工作者報價。比較後接受一位。",
+        "high": "興趣很高 — 已收到多個報價。"
+      },
+      "timeToQuote": {
+        "heading": "報價時間",
+        "hint": "由發佈到每份報價的平均等待時間。",
+        "waiting": "等待中",
+        "underOneHour": "少於 1 小時",
+        "oneHour": "1 小時",
+        "manyHours": "{count} 小時"
+      },
+      "accepted": "已接受",
+      "acceptedHint": "你已接受的報價。",
+      "acceptedOne": "{count}",
+      "acceptedMany": "{count}"
     },
     "trust": {
       "ownerHeading": "你直接向工作者付款",
@@ -551,6 +622,7 @@
     },
     "order": {
       "completed": "任務已完成",
+      "completedBody": "工作已完成，款項由雙方直接結清。此任務現已關閉，以下摘要供你查閱。",
       "summary": "訂單摘要",
       "worker": "工作者",
       "agreedTotal": "議定總額",

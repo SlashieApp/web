@@ -1,11 +1,13 @@
+import { TABLET_MIN_PX, WEB_MIN_PX } from '@/theme/breakpoints'
+
 /**
  * Marketplace map viewports. Width is enough because the map shell is
- * viewport-sized. Matches Chakra `md` (48em) and `lg` (62em).
+ * viewport-sized. Matches the shared Chakra `md` / `lg` tokens.
  */
 export type MarketplaceMapViewport = 'mobile' | 'tablet' | 'web'
 
-export const MARKETPLACE_MAP_TABLET_MIN_PX = 768
-export const MARKETPLACE_MAP_WEB_MIN_PX = 992
+export const MARKETPLACE_MAP_TABLET_MIN_PX = TABLET_MIN_PX
+export const MARKETPLACE_MAP_WEB_MIN_PX = WEB_MIN_PX
 
 export function marketplaceMapViewport(width: number): MarketplaceMapViewport {
   if (width >= MARKETPLACE_MAP_WEB_MIN_PX) return 'web'

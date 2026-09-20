@@ -56,9 +56,20 @@ export type CardProps = BoxProps & {
   heading?: string
   /** Full header row; when set, `eyebrow` and `heading` are ignored. */
   header?: ReactNode
+  /** Muted line under the heading (`layout="section"`). */
+  description?: ReactNode
+  /** Trailing control beside the heading (count pill, status, edit). */
+  headingAccessory?: ReactNode
+  /** Primary figure under the title (budget, analytics value). */
+  metric?: ReactNode
   /** Leading title icon — rendered in a soft brand tile beside the heading. */
   icon?: ReactNode
   bodyGap?: StackProps['gap']
+  /**
+   * `compact` tightens padding for floating pins / dense rows.
+   * Default keeps the section recipe used on task-detail and dashboard.
+   */
+  density?: 'default' | 'compact'
 }
 
 function CardTitleBlock({
@@ -66,10 +77,15 @@ function CardTitleBlock({
   heading,
   header,
   icon,
-}: Pick<CardProps, 'eyebrow' | 'heading' | 'header' | 'icon'>) {
+  description,
+  headingAccessory,
+}: Pick<
+  CardProps,
+  'eyebrow' | 'heading' | 'header' | 'icon' | 'description' | 'headingAccessory'
+>) {
   const title =
     header ??
-    (eyebrow || heading ? (
+    (eyebrow || heading || description ? (
       <Stack gap={1}>
         {eyebrow ? (
           <Text
@@ -82,16 +98,30 @@ function CardTitleBlock({
             {eyebrow}
           </Text>
         ) : null}
-        {heading ? (
-          <Heading
-            as="h3"
-            fontSize={{ base: '16px', md: '20px' }}
-            fontWeight={500}
-            color="text.default"
-            lineHeight="short"
-          >
-            {heading}
-          </Heading>
+        {heading || headingAccessory ? (
+          <HStack gap={2} align="center" flexWrap="wrap">
+            {heading ? (
+              <Heading
+                as="h3"
+                fontSize={{ base: '16px', md: '20px' }}
+                fontWeight={500}
+                color="text.default"
+                lineHeight="short"
+              >
+                {heading}
+              </Heading>
+            ) : null}
+            {headingAccessory}
+          </HStack>
+        ) : null}
+        {description ? (
+          typeof description === 'string' ? (
+            <Text fontSize="sm" color="text.muted" lineHeight="short">
+              {description}
+            </Text>
+          ) : (
+            description
+          )
         ) : null}
       </Stack>
     ) : null)
@@ -134,13 +164,18 @@ export function Card({
   heading,
   header,
   icon,
-  bodyGap = 4,
+  description,
+  headingAccessory,
+  metric,
+  bodyGap,
+  density = 'default',
   p,
   maxW,
   borderRadius,
   ...rest
 }: CardProps) {
   const isSection = layout === 'section'
+  const compact = density === 'compact'
   const surface = interactive ? cardInteractive : cardSurface
   // Clickable cards must be reachable + operable by keyboard (WCAG 2.2 AA).
   const interactiveA11y = interactive
@@ -150,7 +185,7 @@ export function Card({
   return (
     <Box
       borderRadius={borderRadius ?? sdlCard.radius}
-      p={p ?? (isSection ? { base: 5, md: 6 } : 6)}
+      p={p ?? (compact ? 3 : isSection ? { base: 5, md: 6 } : 6)}
       maxW={maxW ?? (isSection ? 'full' : 'md')}
       w="full"
       {...interactiveA11y}
@@ -159,13 +194,25 @@ export function Card({
       {...rest}
     >
       {isSection ? (
-        <Stack gap={bodyGap}>
+        <Stack gap={bodyGap ?? (compact ? 2 : 4)}>
           <CardTitleBlock
             eyebrow={eyebrow}
             heading={heading}
             header={header}
             icon={icon}
+            description={description}
+            headingAccessory={headingAccessory}
           />
+          {metric ? (
+            <Text
+              fontSize="lg"
+              fontWeight={600}
+              color="text.default"
+              lineHeight="short"
+            >
+              {metric}
+            </Text>
+          ) : null}
           {children}
         </Stack>
       ) : (

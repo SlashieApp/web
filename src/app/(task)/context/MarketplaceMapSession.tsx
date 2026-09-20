@@ -15,7 +15,7 @@ import {
 
 import { HEADER_MIN_HEIGHT } from '@/ui/Header'
 
-import { TaskMap } from '../components/ui/TaskMap'
+import { TaskMap, type TaskMapProps } from '../components/ui/TaskMap'
 import {
   type MarketplaceMapPublishedLayer,
   mapFadeOverlayCss,
@@ -31,6 +31,7 @@ import {
   isPersistentMarketplaceMapPath,
   isSearchBrowsePath,
   isTaskDetailPath,
+  taskIdFromDetailPath,
 } from '../helpers/openTaskDetailFromBrowse'
 
 type MarketplaceMapState = {
@@ -67,6 +68,10 @@ export function useMarketplaceMapDispatch(): MarketplaceMapDispatch | null {
   return useContext(DispatchContext)
 }
 
+export function useMarketplaceMapState(): MarketplaceMapState {
+  return useContext(StateContext)
+}
+
 /**
  * Push this route's map bindings into the layout-level Mapbox host. Browse
  * remounts clear a leftover detail focus so Back restores every pin.
@@ -98,6 +103,7 @@ function PersistentTaskMap() {
       : { w: window.innerWidth, h: window.innerHeight },
   )
   const observerRef = useRef<ResizeObserver | null>(null)
+  const heldPropsRef = useRef<TaskMapProps | null>(null)
 
   const onShellRef = useCallback((node: HTMLDivElement | null) => {
     observerRef.current?.disconnect()
@@ -112,25 +118,40 @@ function PersistentTaskMap() {
   }, [])
 
   const show = isPersistentMarketplaceMapPath(pathname)
+  const onDetailPath = isTaskDetailPath(pathname)
+  const framingTaskId = focusTaskId ?? taskIdFromDetailPath(pathname)
   const viewport = marketplaceMapViewport(size.w)
-  const inDetail = published?.cameraMode === 'detail' || Boolean(focusTaskId)
+  const publishedDetail = published?.cameraMode === 'detail'
   const overlaySurface = overlaySurfaceForSession({
     onSearchPath: isSearchBrowsePath(pathname),
-    onDetailPath: isTaskDetailPath(pathname),
+    onDetailPath,
     overlayAhead,
   })
-  const viewPadding = inDetail
-    ? marketplaceMapViewPadding(size.w, size.h, published?.variant ?? 'exact')
-    : undefined
+  const viewPadding =
+    publishedDetail || Boolean(framingTaskId)
+      ? marketplaceMapViewPadding(size.w, size.h, published?.variant ?? 'exact')
+      : undefined
 
-  const mapProps = resolveMarketplaceMapLayer({
+  const resolved = resolveMarketplaceMapLayer({
     published,
-    focusTaskId,
+    focusTaskId: framingTaskId,
     viewPadding,
     viewport,
   })
+  const mapProps =
+    resolved && onDetailPath && published?.source === 'browse'
+      ? {
+          ...resolved,
+          mapInteractions: false,
+          onSelectTask: undefined,
+          onSearchThisAreaConfirm: undefined,
+        }
+      : resolved
 
-  if (!show || !mapProps) return null
+  if (mapProps) heldPropsRef.current = mapProps
+  const liveProps = mapProps ?? heldPropsRef.current
+
+  if (!show || !liveProps) return null
 
   return (
     <Box
@@ -145,10 +166,10 @@ function PersistentTaskMap() {
       pointerEvents="auto"
       aria-hidden={false}
       data-map-source={published?.source}
-      data-map-camera={inDetail ? 'detail' : 'browse'}
-      data-map-selected={mapProps.selectedTaskId ?? ''}
-      data-map-task-count={mapProps.tasks.length}
-      data-map-loaded={mapProps.tasksLoaded ? '1' : '0'}
+      data-map-camera={liveProps.cameraMode ?? 'browse'}
+      data-map-selected={liveProps.selectedTaskId ?? ''}
+      data-map-task-count={liveProps.tasks.length}
+      data-map-loaded={liveProps.tasksLoaded ? '1' : '0'}
       css={{
         background: 'linear-gradient(135deg, #EEF3F0 0%, #DCE6E0 100%)',
         ...mapFadeOverlayCss(overlaySurface),
@@ -156,9 +177,9 @@ function PersistentTaskMap() {
       }}
     >
       <TaskMap
-        {...mapProps}
+        {...liveProps}
         mobileCtrlBottomOffset={overlayCtrlBottomOffset(viewport, {
-          inDetail,
+          inDetail: onDetailPath || publishedDetail,
         })}
       />
     </Box>

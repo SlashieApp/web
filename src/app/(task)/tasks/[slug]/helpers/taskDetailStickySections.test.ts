@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { WEB_MQ } from '@/theme/breakpoints'
+
 import type { TaskDetailPermissions } from './getTaskDetailPermissions'
 import {
   TASK_DETAIL_DESKTOP_MQ,
@@ -46,7 +48,6 @@ describe('TASK_DETAIL_SECTION_RULES', () => {
   it('declares every overview section with an explicit conflict group', () => {
     const ids = TASK_DETAIL_SECTION_RULES.map((rule) => rule.id)
     expect(ids).toEqual([
-      'statusCallout',
       'pricing',
       'details',
       'photos',
@@ -84,6 +85,10 @@ describe('TASK_DETAIL_SECTION_RULES', () => {
 })
 
 describe('resolveTaskDetailSections', () => {
+  it('uses the shared web media query for desktop flow CSS', () => {
+    expect(TASK_DETAIL_DESKTOP_MQ).toBe(WEB_MQ)
+  })
+
   it('pins pricing + quote for a guest visitor and keeps pricing out of the mobile body', () => {
     const resolved = resolveTaskDetailSections({
       hasTask: true,

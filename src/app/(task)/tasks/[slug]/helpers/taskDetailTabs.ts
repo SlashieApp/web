@@ -1,6 +1,7 @@
 export const TASK_DETAIL_TAB = {
   overview: 'overview',
   quotes: 'quotes',
+  analytics: 'analytics',
 } as const
 
 export type TaskDetailTab =
@@ -35,6 +36,9 @@ export function resolveTaskDetailTab(
   const key = hash.replace('#', '').trim()
   if (key === 'info' || key === 'overview') return TASK_DETAIL_TAB.overview
   if (key === 'quotes') return TASK_DETAIL_TAB.quotes
+  if (key === 'analytics' || key === 'owner-task-performance') {
+    return TASK_DETAIL_TAB.analytics
+  }
   if (OVERVIEW_ANCHOR_HASHES.has(key)) return TASK_DETAIL_TAB.overview
   if (isTaskDetailTab(key)) return key
   return fallback

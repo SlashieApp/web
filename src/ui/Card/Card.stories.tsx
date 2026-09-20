@@ -12,6 +12,7 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: {
     layout: { control: 'inline-radio', options: ['default', 'section'] },
+    density: { control: 'inline-radio', options: ['default', 'compact'] },
     interactive: { control: 'boolean' },
     isActive: { control: 'boolean' },
     eyebrow: { control: 'text' },
@@ -60,6 +61,22 @@ export const Default: Story = {
 /** Titled dashboard / task-detail block. */
 export const Section: Story = {
   args: { layout: 'section' },
+}
+
+/** Section title plus muted description and a primary figure. */
+export const SectionWithMetric: Story = {
+  args: {
+    layout: 'section',
+    eyebrow: undefined,
+    heading: 'Budget',
+    description: 'Fixed · Cash',
+    metric: '£120',
+  },
+}
+
+/** Tight padding for a floating pin or dense row. */
+export const Compact: Story = {
+  args: { layout: 'section', density: 'compact', heading: 'Share your task' },
 }
 
 /** Section title with the leading icon tile (task-detail sections). */
@@ -180,6 +197,11 @@ export const AllVariants: Story = {
       <Card layout="section" heading="Active selection" isActive>
         <Text fontSize="sm" color="text.muted">
           Border highlighted with action.primary.
+        </Text>
+      </Card>
+      <Card layout="section" density="compact" heading="Compact pin">
+        <Text fontSize="sm" color="text.muted">
+          Tight padding for a floating CTA row.
         </Text>
       </Card>
     </Stack>

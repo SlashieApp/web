@@ -17,6 +17,12 @@ describe('resolveTaskDetailTab', () => {
     expect(resolveTaskDetailTab('quotes', TASK_DETAIL_TAB.overview)).toBe(
       'quotes',
     )
+    expect(resolveTaskDetailTab('analytics', TASK_DETAIL_TAB.overview)).toBe(
+      'analytics',
+    )
+    expect(
+      resolveTaskDetailTab('owner-task-performance', TASK_DETAIL_TAB.overview),
+    ).toBe('analytics')
     expect(resolveTaskDetailTab('activity', TASK_DETAIL_TAB.quotes)).toBe(
       'overview',
     )

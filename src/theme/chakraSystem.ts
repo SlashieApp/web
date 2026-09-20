@@ -7,6 +7,7 @@ import {
   mergeConfigs,
 } from '@chakra-ui/react'
 
+import { chakraBreakpoints } from './breakpoints'
 import { PAGE_CONTAINER_MAX_W_CSS, PAGE_GUTTER_X } from './pageContainer'
 import { sdlElevation, sdlTextAa, sdlTypeScale } from './styles'
 
@@ -57,6 +58,7 @@ const sdlTextStyles = Object.fromEntries(
 
 const sharedTheme = {
   theme: {
+    breakpoints: chakraBreakpoints,
     tokens: {
       colors: {
         green: {

@@ -14,12 +14,23 @@ export function isTaskDetailPath(pathname: string): boolean {
   return /^\/tasks\/[^/]+$/.test(barePathname(pathname))
 }
 
+/** Task id on public `/tasks/[slug]` (locale prefix allowed). */
+export function taskIdFromDetailPath(pathname: string): string | null {
+  const match = barePathname(pathname).match(/^\/tasks\/([^/]+)$/)
+  return match?.[1] ?? null
+}
+
 /**
  * Routes that keep the shared marketplace Mapbox instance mounted in the
  * (task) layout: browse search and the public task-detail page (not edit).
  */
 export function isPersistentMarketplaceMapPath(pathname: string): boolean {
   return isSearchBrowsePath(pathname) || isTaskDetailPath(pathname)
+}
+
+/** True when task detail was opened from `/search` (`?from=search`). */
+export function isTaskDetailFromSearchQuery(search: string): boolean {
+  return new URLSearchParams(search).get('from') === 'search'
 }
 
 export function taskDetailHrefFromBrowse(

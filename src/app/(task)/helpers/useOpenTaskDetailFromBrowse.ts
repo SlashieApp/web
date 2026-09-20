@@ -53,13 +53,14 @@ export function useOpenTaskDetailFromBrowse() {
   const captureDetailsLink = useCallback(
     (taskId: string, surface: TaskDetailOpenedFromSearchSurface) => {
       if (!fromSearch) return
+      mapSession?.prepareDetail(taskId)
       captureTaskDetailOpenedFromSearch({
         taskId,
         isAuthenticated: Boolean(getAuthToken()),
         surface,
       })
     },
-    [fromSearch],
+    [fromSearch, mapSession],
   )
 
   return { fromSearch, taskDetailHref, openTaskDetail, captureDetailsLink }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Stack, Text } from '@chakra-ui/react'
 import {
   LuCircleHelp,
   LuEllipsisVertical,
@@ -14,11 +14,11 @@ import bag from '../../i11n.json'
 
 import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
 import { SAFETY_HREF } from '@/utils/appRoutes'
-import { Button, Card, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
+import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { useShareTask } from '../overview/shareTask'
 import { TaskReportControl } from '../ui/TaskReportControl'
-import { useShareTask } from '../ui/openTask/shareTask'
 
 function MenuAction({
   icon,
@@ -153,8 +153,7 @@ export function TaskOverflowMenu() {
 }
 
 /**
- * Mobile overflow: three-dots next to the overview intro, same actions as the
- * desktop Help & actions card.
+ * Mobile overflow: three-dots next to the active tab title.
  */
 export function TaskHelpOverflowTrigger() {
   const t = useI11n(bag)
@@ -176,18 +175,5 @@ export function TaskHelpOverflowTrigger() {
     >
       <TaskOverflowMenu />
     </Dropdown>
-  )
-}
-
-/** Desktop Help & actions card. Mobile uses {@link TaskHelpOverflowTrigger}. */
-export function TaskHelpActions() {
-  const t = useI11n(bag)
-
-  return (
-    <Box display={{ base: 'none', lg: 'block' }}>
-      <Card layout="section" heading={t.actions.helpHeading}>
-        <TaskOverflowActions />
-      </Card>
-    </Box>
   )
 }

@@ -6,8 +6,10 @@ import { motion } from 'motion/react'
 import { useCallback, useRef, useState } from 'react'
 import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react'
 
+import { TABLET_MQ } from '@/theme/breakpoints'
+
 /** Chakra `md` breakpoint for carousel peek behavior. */
-const MD_MEDIA = '(min-width: 48em)'
+const MD_MEDIA = TABLET_MQ
 /** Horizontal inset on carousel viewport. */
 const CAROUSEL_INSET = { base: 2, md: 3 } as const
 /** Extra peek on md+ so adjacent slides show at the edges. */

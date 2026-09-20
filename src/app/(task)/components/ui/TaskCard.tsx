@@ -2,24 +2,19 @@
 
 import { Box, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { MouseEvent } from 'react'
-import { Fragment, useState } from 'react'
+import { Fragment } from 'react'
 import { LuBadgeCheck, LuBookmark, LuChevronRight } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
 import { ReportControl } from '@/content/trust/ReportControl'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { ViewTransition } from '@/ui/ViewTransition'
 import { Badge, Card, IconButton, Link, Thumbnail } from '@ui'
 
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 import { taskCardMetaParts } from '../../helpers/taskBrowseHelpers'
-import {
-  setTaskHandoff,
-  taskHandoffFor,
-  taskVtName,
-} from '../../helpers/taskCardHandoff'
+import { setTaskHandoff } from '../../helpers/taskCardHandoff'
 import bag from '../i11n.json'
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
 
@@ -224,18 +219,13 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     trust,
   } = cardTask
 
-  const [morphing, setMorphing] = useState(
-    () => taskHandoffFor(taskId) !== null,
-  )
-
-  const armMorph = () => {
+  const seedHandoff = () => {
     setTaskHandoff(cardTask)
-    setMorphing(true)
   }
 
   const handleActivate = onActivate
     ? () => {
-        if (navigateOnActivate) armMorph()
+        if (navigateOnActivate) seedHandoff()
         onActivate()
       }
     : undefined
@@ -306,40 +296,26 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           pe={12}
         >
           <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
-            <ViewTransition
-              name={
-                morphing && thumbnailSrc ? taskVtName('img', taskId) : undefined
-              }
-              share="auto"
-              default="none"
-            >
-              <Thumbnail
-                alt={`${title} thumbnail`}
-                src={thumbnailSrc}
-                size="sm"
-                minW={{ base: '72px', md: '80px' }}
-                alignSelf="flex-start"
-              />
-            </ViewTransition>
+            <Thumbnail
+              alt={`${title} thumbnail`}
+              src={thumbnailSrc}
+              size="sm"
+              minW={{ base: '72px', md: '80px' }}
+              alignSelf="flex-start"
+            />
             <Stack flex={1} minW={0} gap={1.5}>
               <Stack gap={1} minW={0} align="flex-start">
                 {showBadge ? <Badge shape="pill">{badgeText}</Badge> : null}
-                <ViewTransition
-                  name={morphing ? taskVtName('title', taskId) : undefined}
-                  share="vt-text"
-                  default="none"
+                <Text
+                  fontSize="md"
+                  fontWeight={700}
+                  color="text.default"
+                  lineHeight="1.3"
+                  lineClamp={2}
+                  maxW="full"
                 >
-                  <Text
-                    fontSize="md"
-                    fontWeight={700}
-                    color="text.default"
-                    lineHeight="1.3"
-                    lineClamp={2}
-                    maxW="full"
-                  >
-                    {title}
-                  </Text>
-                </ViewTransition>
+                  {title}
+                </Text>
               </Stack>
 
               {metaParts.length > 0 ? (
@@ -369,19 +345,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                             ·
                           </Text>
                         )}
-                        {isBudget ? (
-                          <ViewTransition
-                            name={
-                              morphing ? taskVtName('price', taskId) : undefined
-                            }
-                            share="vt-text"
-                            default="none"
-                          >
-                            {label}
-                          </ViewTransition>
-                        ) : (
-                          label
-                        )}
+                        {label}
                       </Fragment>
                     )
                   })}
@@ -495,7 +459,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             }}
             _focusVisible={sdlFocusRing}
             onClick={() => {
-              armMorph()
+              seedHandoff()
               onOpenDetails?.()
             }}
           >

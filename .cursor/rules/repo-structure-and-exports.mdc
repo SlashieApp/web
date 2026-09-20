@@ -14,8 +14,8 @@ Treat **`src/app/(task)/`** as the **reference template** for other product area
 Paths are the search index. Three independent axes:
 
 ```text
-viewport   (web)     = desktop / split ≥992px
-           (mobile)  = phone + tablet compact <992px
+viewport   (web)     = desktop / split ≥1024px (`lg`, `WEB_MIN_PX`)
+           (mobile)  = phone + tablet compact <1024px
            no group  = shared / one responsive tree
 
 kind       layout/     shells, grids, page chrome

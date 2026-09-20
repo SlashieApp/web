@@ -41,7 +41,7 @@ export function taskCreatedAtIso(
   task: Pick<TaskDetailRecord, 'timeline'>,
 ): string | null {
   return (
-    task.timeline.find((e) => e.type === TaskTimelineEventType.TaskCreated)
+    task.timeline?.find((e) => e.type === TaskTimelineEventType.TaskCreated)
       ?.timestamp ?? null
   )
 }
@@ -181,9 +181,18 @@ export function taskAvailabilityRangeLabel(task: TaskDetailRecord): string {
   return formatTaskDateTimeType(dt.type)
 }
 
+export type OwnerInterestLevel = 'low' | 'medium' | 'high'
+
+export function ownerInterestLevel(quoteCount: number): OwnerInterestLevel {
+  if (quoteCount >= 5) return 'high'
+  if (quoteCount >= 2) return 'medium'
+  return 'low'
+}
+
 export function ownerProInterestLabel(quoteCount: number): string {
-  if (quoteCount >= 5) return 'High'
-  if (quoteCount >= 2) return 'Medium'
+  const level = ownerInterestLevel(quoteCount)
+  if (level === 'high') return 'High'
+  if (level === 'medium') return 'Medium'
   return 'Low'
 }
 

@@ -31,6 +31,7 @@ describe('task detail Mapbox chrome', () => {
     )
     expect(view).toContain('TaskDetailMapBinder')
     expect(view).not.toContain('TaskDetailMapBackground')
+    expect(binder).toContain('shouldKeepBrowseMarketplaceMap')
     expect(binder).toContain('taskDetailSearchRouteOriginFromLocationSearch')
     expect(binder).toContain('buildTaskDetailMapPinTask')
     expect(binder).toContain("variant: 'exact'")
@@ -42,6 +43,9 @@ describe('task detail Mapbox chrome', () => {
     expect(host).toContain('top={HEADER_MIN_HEIGHT}')
     expect(host).toContain('position="fixed"')
     expect(host).toContain("cameraMode === 'detail'")
+    expect(host).toContain('heldPropsRef')
+    expect(host).toContain('framingTaskId')
+    expect(binder).toContain('keepBrowse')
   })
 
   it('keeps the camera on the task pin and only routes from a search-page origin', () => {

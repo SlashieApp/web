@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { setTaskHandoff, taskHandoffFor, taskVtName } from './taskCardHandoff'
+import { setTaskHandoff, taskHandoffFor } from './taskCardHandoff'
 
 const vm = {
   id: 'task-1',
@@ -16,11 +16,5 @@ describe('taskCardHandoff', () => {
     setTaskHandoff(vm)
     expect(taskHandoffFor('task-1')?.title).toBe('Mount a TV')
     expect(taskHandoffFor('task-2')).toBeNull()
-  })
-
-  it('scopes view-transition names to the task id', () => {
-    expect(taskVtName('img', 'task-1')).toBe('task-img-task-1')
-    expect(taskVtName('title', 'task-1')).toBe('task-title-task-1')
-    expect(taskVtName('price', 'task-1')).toBe('task-price-task-1')
   })
 })

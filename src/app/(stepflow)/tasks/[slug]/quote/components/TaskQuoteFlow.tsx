@@ -11,7 +11,7 @@ import { SessionLoading } from '@/app/(auth)/components/ui/SessionLoading'
 
 import { Button, Link } from '@ui'
 
-import { QuoteLimitPaywall } from '@/app/(task)/tasks/[slug]/components/ui/quoteSection/QuoteLimitPaywall'
+import { QuoteLimitPaywall } from '@/app/(task)/tasks/[slug]/components/quotes/QuoteLimitPaywall'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { TaskQuoteScreen } from './TaskQuoteScreen'
 import { TaskQuoteGateView } from './ui/shared/TaskQuoteGateView'

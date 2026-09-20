@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest'
 import {
   isPersistentMarketplaceMapPath,
   isSearchBrowsePath,
+  isTaskDetailFromSearchQuery,
   isTaskDetailPath,
   taskDetailHrefFromBrowse,
+  taskIdFromDetailPath,
 } from './openTaskDetailFromBrowse'
 
 describe('isSearchBrowsePath', () => {
@@ -37,6 +39,15 @@ describe('isTaskDetailPath', () => {
   })
 })
 
+describe('taskIdFromDetailPath', () => {
+  it('reads the public task slug with or without a locale prefix', () => {
+    expect(taskIdFromDetailPath('/tasks/task-1')).toBe('task-1')
+    expect(taskIdFromDetailPath('/zh-hk/tasks/task-1')).toBe('task-1')
+    expect(taskIdFromDetailPath('/tasks/task-1/edit')).toBeNull()
+    expect(taskIdFromDetailPath('/search')).toBeNull()
+  })
+})
+
 describe('isPersistentMarketplaceMapPath', () => {
   it('keeps the shared map on search and public task detail', () => {
     expect(isPersistentMarketplaceMapPath('/search')).toBe(true)
@@ -49,6 +60,15 @@ describe('isPersistentMarketplaceMapPath', () => {
     expect(isPersistentMarketplaceMapPath('/tasks')).toBe(false)
     expect(isPersistentMarketplaceMapPath('/tasks/task-1/edit')).toBe(false)
     expect(isPersistentMarketplaceMapPath('/')).toBe(false)
+  })
+})
+
+describe('isTaskDetailFromSearchQuery', () => {
+  it('reads the from=search handoff flag', () => {
+    expect(isTaskDetailFromSearchQuery('?from=search')).toBe(true)
+    expect(isTaskDetailFromSearchQuery('from=search&lat=51.5')).toBe(true)
+    expect(isTaskDetailFromSearchQuery('?from=requests')).toBe(false)
+    expect(isTaskDetailFromSearchQuery('')).toBe(false)
   })
 })
 

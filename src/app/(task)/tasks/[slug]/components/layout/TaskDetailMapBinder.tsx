@@ -2,8 +2,15 @@
 
 import { useMemo } from 'react'
 
-import { usePublishMarketplaceMap } from '@/app/(task)/context/MarketplaceMapSession'
-import type { MarketplaceMapPublishedLayer } from '@/app/(task)/helpers/marketplaceMap'
+import {
+  useMarketplaceMapState,
+  usePublishMarketplaceMap,
+} from '@/app/(task)/context/MarketplaceMapSession'
+import {
+  type MarketplaceMapPublishedLayer,
+  shouldKeepBrowseMarketplaceMap,
+} from '@/app/(task)/helpers/marketplaceMap'
+import { isTaskDetailFromSearchQuery } from '@/app/(task)/helpers/openTaskDetailFromBrowse'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { taskDetailMapCoordinates } from '../../helpers/taskDetailUtils'
@@ -13,14 +20,26 @@ import {
 } from '../../helpers/taskLocationMap'
 
 /**
- * Drive the shared marketplace Mapbox (search → detail) for this task:
- * the selected search pin (price + miles) only, camera framed to the window.
+ * Drive the shared marketplace Mapbox for a cold task-detail load.
+ * Opening a task from `/search` keeps the live browse canvas (every pin
+ * and the current camera) instead of publishing a replacement layer.
  */
 export function TaskDetailMapBinder() {
-  const { task, permissions, myOrder, me } = useTaskDetail()
+  const { task, taskId, permissions, myOrder, me } = useTaskDetail()
+  const { published, focusTaskId } = useMarketplaceMapState()
+  const fromSearch =
+    typeof window === 'undefined'
+      ? false
+      : isTaskDetailFromSearchQuery(window.location.search)
+  const keepBrowse = shouldKeepBrowseMarketplaceMap({
+    published,
+    taskId,
+    focusTaskId,
+    fromSearch,
+  })
 
   const layer = useMemo<MarketplaceMapPublishedLayer | null>(() => {
-    if (!task) return null
+    if (keepBrowse || !task) return null
     const coords = taskDetailMapCoordinates(task, myOrder)
     const lat = coords?.lat
     const lng = coords?.lng
@@ -58,7 +77,7 @@ export function TaskDetailMapBinder() {
         mapAriaLabel: 'Map of this task location',
       },
     }
-  }, [task, permissions.isOwner, myOrder, me?.id])
+  }, [keepBrowse, task, permissions.isOwner, myOrder, me?.id])
 
   usePublishMarketplaceMap(layer)
 

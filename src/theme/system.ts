@@ -3,5 +3,6 @@
  * Chakra `createSystem` lives in `./chakraSystem` (client-only).
  */
 export * from './brand'
+export * from './breakpoints'
 export * from './pageContainer'
 export * from './styles'

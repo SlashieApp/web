@@ -14,8 +14,24 @@ export type MarketplaceMapPublishedLayer = {
 }
 
 /**
- * Overlay a search→detail handoff onto the last published map layer: solo the
- * targeted pin, freeze browse interactions, and apply detail camera padding.
+ * Keep a live `/search` canvas intact (every pin + camera). Only a published
+ * detail layer (cold task-detail load) may solo/reframe.
+ */
+export function shouldKeepBrowseMarketplaceMap(input: {
+  published: MarketplaceMapPublishedLayer | null
+  taskId?: string | null
+  focusTaskId?: string | null
+  fromSearch: boolean
+}): boolean {
+  if (input.published?.source !== 'browse') return false
+  if (input.fromSearch) return true
+  return Boolean(input.taskId && input.focusTaskId === input.taskId)
+}
+
+/**
+ * Overlay a search→detail handoff onto the last published map layer.
+ * Browse layers keep every pin; `focusTaskId` only reframes the camera
+ * (detail padding / top-right on web) so Mapbox is not rebuilt.
  */
 export function resolveMarketplaceMapLayer(input: {
   published: MarketplaceMapPublishedLayer | null
@@ -25,6 +41,29 @@ export function resolveMarketplaceMapLayer(input: {
 }): TaskMapProps | null {
   const { published, focusTaskId, viewPadding } = input
   if (!published) return null
+
+  if (published.source === 'browse') {
+    if (!focusTaskId) {
+      return {
+        ...published.props,
+        cameraMode: 'browse',
+        viewPadding: undefined,
+        taskPinMode: 'all',
+        mapInteractions: published.props.mapInteractions ?? true,
+      }
+    }
+    return {
+      ...published.props,
+      selectedTaskId: focusTaskId,
+      cameraMode: 'detail',
+      viewPadding,
+      taskPinMode: 'all',
+      mapInteractions: false,
+      leftViewportPadding: 0,
+      onSearchThisAreaConfirm: undefined,
+      onSelectTask: undefined,
+    }
+  }
 
   const inDetail = published.cameraMode === 'detail' || Boolean(focusTaskId)
   const selectedTaskId = focusTaskId ?? published.props.selectedTaskId ?? null

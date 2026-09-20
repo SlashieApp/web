@@ -1,3 +1,5 @@
+import { WEB_MQ } from '@/theme/breakpoints'
+
 import type { TaskDetailPermissions } from './getTaskDetailPermissions'
 import { getTaskDetailPrimaryCta } from './getTaskDetailPrimaryCta'
 
@@ -7,7 +9,6 @@ import { getTaskDetailPrimaryCta } from './getTaskDetailPrimaryCta'
  * scattered ad-hoc in JSX.
  */
 export type TaskDetailSectionId =
-  | 'statusCallout'
   | 'pricing'
   | 'details'
   | 'photos'
@@ -91,13 +92,6 @@ function isQuoteVisitorPath(ctx: TaskDetailSectionContext): boolean {
 
 export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [
   {
-    id: 'statusCallout',
-    pinConflictGroup: null,
-    stickyPriority: TASK_DETAIL_STICKY_PRIORITY.none,
-    showInFlow: (ctx) => ctx.hasTask,
-    canPinMobile: () => false,
-  },
-  {
     id: 'pricing',
     pinConflictGroup: TASK_DETAIL_PIN_CONFLICT_GROUP,
     stickyPriority: TASK_DETAIL_STICKY_PRIORITY.pricing,
@@ -170,7 +164,6 @@ function emptyPlacements(
   value: TaskDetailSectionPlacement,
 ): Record<TaskDetailSectionId, TaskDetailSectionPlacement> {
   return {
-    statusCallout: value,
     pricing: value,
     details: value,
     photos: value,
@@ -216,8 +209,8 @@ export function resolveTaskDetailSections(
   return { mobile, desktop, pinnedId }
 }
 
-/** Chakra `lg` — keep in sync with the default theme (62em). */
-export const TASK_DETAIL_DESKTOP_MQ = '(min-width: 62em)' as const
+/** Shared web split (`lg` / 1024px). Prefer `WEB_MQ` from `@/theme/breakpoints`. */
+export const TASK_DETAIL_DESKTOP_MQ = WEB_MQ
 
 export function sectionFlowDisplay(
   id: TaskDetailSectionId,

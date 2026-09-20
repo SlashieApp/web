@@ -13,10 +13,8 @@ import { findScrollParent } from './helpers/taskDetailHeaderCollapse'
 import bag from './i11n.json'
 
 /**
- * The router's own scroll-to-top is skipped when a navigation runs a view
- * transition. Reset the app-shell pane (not the window — it never scrolls
- * in this layout) during the transition's DOM update, before the incoming
- * snapshot is taken.
+ * Reset the app-shell pane (not the window — it never scrolls in this
+ * layout) when the task id changes.
  */
 function TaskDetailScrollReset({ taskId }: { taskId: string }) {
   return (

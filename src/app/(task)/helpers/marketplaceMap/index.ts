@@ -64,6 +64,7 @@ export type {
 export {
   publishedMarketplaceLayerSig,
   resolveMarketplaceMapLayer,
+  shouldKeepBrowseMarketplaceMap,
 } from './layer'
 export type {
   MarketplaceMapCameraMode,

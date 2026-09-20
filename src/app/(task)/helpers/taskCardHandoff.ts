@@ -10,10 +10,3 @@ export function setTaskHandoff(vm: TaskCardTask): void {
 export function taskHandoffFor(id: string): TaskCardTask | null {
   return handoff?.id === id ? handoff : null
 }
-
-export function taskVtName(
-  kind: 'img' | 'title' | 'price',
-  id: string,
-): string {
-  return `task-${kind}-${id}`
-}

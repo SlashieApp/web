@@ -651,12 +651,11 @@ export function TaskDetailProvider({
   }, [])
 
   const scrollToOwnerPerformance = useCallback(() => {
-    if (typeof document === 'undefined') return
-    document.getElementById('owner-task-performance')?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
+    setActiveTab(TASK_DETAIL_TAB.analytics, {
+      hash: TASK_DETAIL_TAB.analytics,
+      scrollId: 'owner-task-performance',
     })
-  }, [])
+  }, [setActiveTab])
 
   // State-dependent surfaces (status header copy, hero CTA, booking panel)
   // should show loading placeholders until this is true — before that the
@@ -665,7 +664,7 @@ export function TaskDetailProvider({
     clientTaskLoaded && (!isAuthenticated || !meLoadingResolved),
   )
 
-  const activeTab =
+  const resolvedTab =
     explicitTab ??
     defaultTaskDetailTab({
       isOwner: permissions.isOwner,
@@ -674,6 +673,10 @@ export function TaskDetailProvider({
       isOrderWorker: permissions.isOrderWorker,
       quoteCount: task?.quotes.length ?? 0,
     })
+  const activeTab =
+    resolvedTab === TASK_DETAIL_TAB.analytics && !permissions.isOwner
+      ? TASK_DETAIL_TAB.overview
+      : resolvedTab
 
   const value = useMemo(
     () => ({

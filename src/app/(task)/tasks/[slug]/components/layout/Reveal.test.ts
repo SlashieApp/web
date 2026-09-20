@@ -18,11 +18,12 @@ describe('Reveal surface enter', () => {
 
   it('wraps task-detail content and the mobile CTA so skeletons also enter', () => {
     const view = readFileSync(join(dir, 'TaskDetailView.tsx'), 'utf8')
-    const cta = readFileSync(join(dir, 'TaskDetailCtaBar.tsx'), 'utf8')
+    const layout = readFileSync(join(dir, 'TaskDetailTabLayout.tsx'), 'utf8')
+    const cta = readFileSync(join(dir, 'TaskDetailMainCta.tsx'), 'utf8')
     expect(view).toContain('<Reveal>')
-    expect(view).toContain('TaskDetailSectionTabs')
-    expect(cta).toContain('<Reveal>')
-    expect(cta).toContain('TaskDetailCtaBar')
+    expect(view).toContain('TaskDetailTabs')
+    expect(layout).toContain('<Reveal>')
+    expect(layout).toContain('mainCta')
     expect(cta).toContain('useTaskDetailSections')
   })
 })
