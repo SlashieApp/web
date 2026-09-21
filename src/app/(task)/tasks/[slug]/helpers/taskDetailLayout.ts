@@ -30,6 +30,3 @@ export const TASK_DETAIL_RAIL_CARD = {
   density: 'compact',
   maxW: 'full',
 } as const
-
-/** Sticky chrome snap hysteresis — avoid hovering between stuck/unstuck. */
-export const TASK_DETAIL_STICKY_SNAP_OFFSET_PX = 28

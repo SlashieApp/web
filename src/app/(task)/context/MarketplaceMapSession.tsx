@@ -13,8 +13,6 @@ import {
   useState,
 } from 'react'
 
-import { HEADER_MIN_HEIGHT } from '@/ui/Header'
-
 import { TaskMap, type TaskMapProps } from '../components/ui/TaskMap'
 import {
   type MarketplaceMapPublishedLayer,
@@ -157,7 +155,7 @@ function PersistentTaskMap() {
     <Box
       ref={onShellRef}
       position="fixed"
-      top={HEADER_MIN_HEIGHT}
+      top={0}
       right={0}
       bottom={0}
       left={0}

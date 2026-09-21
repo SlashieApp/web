@@ -27,6 +27,8 @@ describe('search mobile map chrome', () => {
     expect(searchMap).toContain('overlayCtrlBottomOffsetForMobile')
     expect(searchMap).toContain("logoPosition: 'bottom-right'")
     expect(mapSrc).toContain('useIsTouchMobileDevice')
+    expect(mapSrc).toContain('HEADER_MIN_HEIGHT')
+    expect(mapSrc).toContain("'& .mapboxgl-ctrl-top-right'")
     expect(mapSrc).toContain("display: 'none'")
     expect(mapSrc).not.toContain("display: { base: 'none', lg: 'block' }")
     expect(mapSrc).toContain("lg: '0'")

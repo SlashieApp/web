@@ -40,7 +40,7 @@ describe('task detail Mapbox chrome', () => {
     expect(binder).toContain('origin')
     expect(binder).toContain('showReferenceMarker')
     expect(binder).not.toContain('routeFromViewer')
-    expect(host).toContain('top={HEADER_MIN_HEIGHT}')
+    expect(host).toContain('top={0}')
     expect(host).toContain('position="fixed"')
     expect(host).toContain("cameraMode === 'detail'")
     expect(host).toContain('heldPropsRef')

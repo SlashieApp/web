@@ -101,6 +101,8 @@ export function AppShellBody({
         style={{ maxHeight: hidden ? 0 : HEADER_SLOT_MAX_H }}
       >
         <Box
+          position="relative"
+          zIndex={30}
           css={HEADER_SLIDE_MOTION_CSS}
           style={{
             transform: hidden ? 'translateY(-100%)' : 'translateY(0)',

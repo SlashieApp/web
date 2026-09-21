@@ -9,6 +9,13 @@ import {
 } from 'react'
 
 /**
+ * The app header is `HEADER_MIN_HEIGHT` plus a 1px border on the top and
+ * bottom. Without this inset the map shows through that strip between the
+ * app header and the stuck task chrome.
+ */
+export const TASK_DETAIL_STUCK_TOP_PADDING = '2px'
+
+/**
  * Nearest scrollable ancestor of `node` — in the (task) app shell this is the
  * content pane (`overflow-y: auto`), NOT the window (which never scrolls in
  * this shell). Returns null if none is found, so callers can fall back to the

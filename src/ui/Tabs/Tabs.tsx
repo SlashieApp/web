@@ -60,8 +60,8 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
    */
   panelBg?: BoxProps['bg']
   /**
-   * Tablist hairline is solid on the left half, then fades out to the right
-   * (task-detail money page over the map).
+   * Tablist hairline spans the full header and fades out by the halfway
+   * point (task-detail money page over the map).
    */
   fadeTabListBorder?: boolean
   /** Cap the tablist width (e.g. two-thirds on web). */
@@ -252,6 +252,7 @@ function TabsBase({
               role="tablist"
               aria-label={ariaLabel}
               position="relative"
+              w={fadeTabListBorder ? 'full' : undefined}
               maxW={tabListMaxW}
               flex={tabListAside ? { base: '1', lg: '2 1 0' } : undefined}
               minW={tabListAside ? 0 : undefined}
@@ -271,7 +272,7 @@ function TabsBase({
                         height: '1px',
                         pointerEvents: 'none',
                         backgroundImage:
-                          'linear-gradient(to right, {colors.border.default} 0%, {colors.border.default} 50%, transparent 100%)',
+                          'linear-gradient(to right, {colors.border.default} 0%, transparent 50%)',
                       },
                     }
                   : undefined

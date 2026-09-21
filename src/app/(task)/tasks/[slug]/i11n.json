@@ -76,6 +76,11 @@
       "CLOSED": "Closed",
       "CANCELLED": "Cancelled"
     },
+    "meta": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "flexible": "Flexible"
+    },
     "statusHeader": {
       "cancelledHeadline": "Task cancelled",
       "cancelledSubtext": "This task is no longer active.",
@@ -416,6 +421,11 @@
       "AWARDED": "已選定",
       "CLOSED": "已完成",
       "CANCELLED": "已取消"
+    },
+    "meta": {
+      "today": "今天",
+      "tomorrow": "明天",
+      "flexible": "時間彈性"
     },
     "statusHeader": {
       "cancelledHeadline": "任務已取消",

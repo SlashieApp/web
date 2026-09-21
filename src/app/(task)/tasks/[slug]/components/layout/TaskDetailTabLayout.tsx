@@ -12,11 +12,11 @@ import {
 import { WEB_MIN_PX } from '@/theme/breakpoints'
 import { Tabs } from '@ui'
 
-import { findScrollParent } from '../../helpers/taskDetailHeaderCollapse'
 import {
-  TASK_DETAIL_STICKY_SNAP_OFFSET_PX,
-  TASK_DETAIL_TAB_BODY_MIN_H,
-} from '../../helpers/taskDetailLayout'
+  TASK_DETAIL_STUCK_TOP_PADDING,
+  findScrollParent,
+} from '../../helpers/taskDetailHeaderCollapse'
+import { TASK_DETAIL_TAB_BODY_MIN_H } from '../../helpers/taskDetailLayout'
 import type { TaskDetailTab } from '../../helpers/taskDetailTabs'
 
 export type TaskDetailTabSlot = {
@@ -74,11 +74,11 @@ const COMPACT_HEADER_FADE_CSS = {
     },
   },
   [`@media screen and (min-width: 768px) and (max-width: ${COMPACT_MAX_PX}px)`]:
-  {
-    '&::before': {
-      height: COMPACT_DETAIL_HERO_H.md,
+    {
+      '&::before': {
+        height: COMPACT_DETAIL_HERO_H.md,
+      },
     },
-  },
 } as const
 
 const STUCK_SURFACE = 'var(--chakra-colors-bg-surface, #FFFFFF)'
@@ -98,7 +98,7 @@ function StuckHeaderBg({ isStuck }: { isStuck: boolean }) {
       }}
       style={{
         position: 'absolute',
-        top: 0,
+        top: `-${TASK_DETAIL_STUCK_TOP_PADDING}`,
         bottom: 0,
         left: '50%',
         width: '100vw',
@@ -163,16 +163,24 @@ export function TaskDetailTabLayout({
   const stickySentinelRef = useCallback((node: HTMLDivElement | null) => {
     sentinelObserverRef.current?.disconnect()
     sentinelObserverRef.current = null
-    if (!node) return
+    if (!node) {
+      document.documentElement.removeAttribute('data-task-detail-stuck')
+      return
+    }
     const scroller = findScrollParent(node)
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsStuck(!entry.isIntersecting)
+        const stuck = !entry.isIntersecting
+        setIsStuck(stuck)
+        document.documentElement.toggleAttribute(
+          'data-task-detail-stuck',
+          stuck,
+        )
       },
       {
         root: scroller,
         threshold: 0,
-        rootMargin: `-${TASK_DETAIL_STICKY_SNAP_OFFSET_PX}px 0px 0px 0px`,
+        rootMargin: '0px',
       },
     )
     observer.observe(node)
@@ -192,7 +200,7 @@ export function TaskDetailTabLayout({
         fitted={fitted}
         fittedBelowLg={fittedBelowLg}
         sticky
-        stickyTop={0}
+        stickyTop={`-${TASK_DETAIL_STUCK_TOP_PADDING}`}
         stickyBg="transparent"
         stickyChromeProps={{
           borderTopRadius: 0,
@@ -200,7 +208,6 @@ export function TaskDetailTabLayout({
         }}
         panelBg={{ base: 'bg.canvas', lg: 'transparent' }}
         fadeTabListBorder
-        tabListMaxW={{ base: 'full', lg: 'calc((100% - 1.5rem) * 2 / 3)' }}
         w="full"
         px={px}
         aria-label={ariaLabel}
@@ -241,7 +248,6 @@ export function TaskDetailTabLayout({
                 position="absolute"
                 right={0}
                 bottom={0}
-                w="calc((100% - 1.5rem) * 1 / 3)"
                 minW={0}
                 pointerEvents="auto"
               >

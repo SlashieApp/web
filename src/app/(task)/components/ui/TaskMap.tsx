@@ -3,6 +3,7 @@
 import { Box, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 
+import { HEADER_MIN_HEIGHT } from '@/ui/Header'
 import { useColorMode } from '@/ui/color-mode'
 
 import {
@@ -217,11 +218,12 @@ export function TaskMap(props: TaskMapProps) {
       overflow="hidden"
       zIndex={0}
       css={{
-        // Pinch-zoom phones don't need +/−. Tablets and narrow desktop
-        // viewports still get the control (mouse / trackpad).
-        ...(hideZoomControls
-          ? { '& .mapboxgl-ctrl-top-right': { display: 'none' } }
-          : {}),
+        // The canvas fills the window, including under the app header.
+        // Keep zoom below that header.
+        '& .mapboxgl-ctrl-top-right': {
+          top: HEADER_MIN_HEIGHT,
+          ...(hideZoomControls ? { display: 'none' as const } : {}),
+        },
         ...(props.mobileCtrlBottomOffset
           ? {
               '& .mapboxgl-ctrl-bottom-left, & .mapboxgl-ctrl-bottom-right': {

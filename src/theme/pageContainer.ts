@@ -9,7 +9,7 @@
 export const PAGE_CONTAINER_MAX_W = 'page' as const
 
 /** CSS size for `sizes.page` / Chakra `8xl`. */
-export const PAGE_CONTAINER_MAX_W_CSS = '90rem' as const
+export const PAGE_CONTAINER_MAX_W_CSS = '80rem' as const
 
 /** Matches the Container recipe gutters (`px` on `<Container>`). */
 export const PAGE_GUTTER_X = { base: 4, md: 6, lg: 8 } as const
