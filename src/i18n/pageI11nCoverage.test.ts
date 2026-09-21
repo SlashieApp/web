@@ -35,6 +35,7 @@ const TARGET_PAGES = [
   'src/app/(stepflow)/worker/setup/page.tsx',
   'src/app/(worker)/workers/page.tsx',
   'src/app/(worker)/workers/[slug]/page.tsx',
+  'src/app/user/[id]/page.tsx',
 ] as const
 
 function readJson(filePath: string): unknown {
@@ -47,7 +48,7 @@ describe('per-page i11n coverage', () => {
     for (const segment of TARGET_PAGE_GLOBS) {
       expect(existsSync(path.join(root, segment))).toBe(true)
     }
-    expect(TARGET_PAGES).toHaveLength(24)
+    expect(TARGET_PAGES).toHaveLength(25)
   })
 
   it('requires en and zh_hk metadata beside every target page', () => {

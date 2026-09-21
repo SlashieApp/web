@@ -1,0 +1,46 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Profile | Slashie",
+      "description": "Public profile on Slashie.",
+      "titleWithName": "{name} | Slashie",
+      "descriptionWithName": "See open tasks posted by {name} on Slashie."
+    },
+    "fallbackName": "Slashie member",
+    "memberSince": "Member since {date}",
+    "viewWorkerProfile": "View worker profile",
+    "openTasksHeading": "Open tasks",
+    "openTasksCountOne": "1 open task",
+    "openTasksCountMany": "{count} open tasks",
+    "openTasksEmpty": "No open tasks right now.",
+    "openTasksEmptyOther": "No other open tasks right now.",
+    "viewTask": "View {title}",
+    "notFoundTitle": "Profile unavailable",
+    "notFoundDescription": "This profile is private or no longer available.",
+    "errorTitle": "Could not load this profile",
+    "errorDescription": "Something went wrong. Check your connection and try again.",
+    "errorRetry": "Try again"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "個人檔案 | Slashie",
+      "description": "Slashie 上的公開個人檔案。",
+      "titleWithName": "{name} | Slashie",
+      "descriptionWithName": "查看 {name} 在 Slashie 發佈的公開任務。"
+    },
+    "fallbackName": "Slashie 會員",
+    "memberSince": "{date} 加入",
+    "viewWorkerProfile": "查看 worker 檔案",
+    "openTasksHeading": "公開任務",
+    "openTasksCountOne": "1 個公開任務",
+    "openTasksCountMany": "{count} 個公開任務",
+    "openTasksEmpty": "目前沒有公開任務。",
+    "openTasksEmptyOther": "目前沒有其他公開任務。",
+    "viewTask": "查看 {title}",
+    "notFoundTitle": "無法查看此檔案",
+    "notFoundDescription": "此個人檔案已設為私人，或已不再提供。",
+    "errorTitle": "無法載入此個人檔案",
+    "errorDescription": "發生錯誤。請檢查網絡連線後再試。",
+    "errorRetry": "再試一次"
+  }
+}

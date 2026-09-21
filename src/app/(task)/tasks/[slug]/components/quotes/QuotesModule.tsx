@@ -16,6 +16,7 @@ import { LuCheck, LuLock, LuMessagesSquare, LuX } from 'react-icons/lu'
 
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
+import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
@@ -767,6 +768,26 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     case 'W6': {
       const pence = myQuote ? priceToPence(myQuote.price) : null
       const posterName = task.poster?.profile?.name?.trim() || fallbackCustomer
+      const posterId = task.poster?.id?.trim()
+      const posterHref = posterId ? publicUserPath(posterId, task.id) : null
+      const customerIdentity = (
+        <HStack gap={3} w="full" textAlign="left">
+          <QuoteCardAvatar
+            name={posterName}
+            avatarLabel={posterName.slice(0, 2)}
+            avatarUrl={task.poster?.profile?.avatarUrl}
+            size="40px"
+          />
+          <Stack gap={0} minW={0}>
+            <Text fontSize="xs" color="text.muted">
+              {q.customerLabel}
+            </Text>
+            <Text fontWeight={600} truncate>
+              {posterName}
+            </Text>
+          </Stack>
+        </HStack>
+      )
       body = (
         <Stack align="center" gap={3} py={2} textAlign="center">
           <StatusCircle tone="success">
@@ -783,30 +804,31 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
               {pence != null ? formatPoundsFromPence(pence) : '—'}
             </Text>
           </Stack>
-          <HStack
-            gap={3}
-            p={3}
-            w="full"
-            borderWidth="1px"
-            borderColor="border.default"
-            borderRadius="lg"
-            textAlign="left"
-          >
-            <QuoteCardAvatar
-              name={posterName}
-              avatarLabel={posterName.slice(0, 2)}
-              avatarUrl={task.poster?.profile?.avatarUrl}
-              size="40px"
-            />
-            <Stack gap={0} minW={0}>
-              <Text fontSize="xs" color="text.muted">
-                {q.customerLabel}
-              </Text>
-              <Text fontWeight={600} truncate>
-                {posterName}
-              </Text>
-            </Stack>
-          </HStack>
+          {posterHref ? (
+            <Link
+              href={posterHref}
+              tone="muted"
+              display="flex"
+              w="full"
+              p={3}
+              borderWidth="1px"
+              borderColor="border.default"
+              borderRadius="lg"
+              _hover={{ textDecoration: 'none' }}
+            >
+              {customerIdentity}
+            </Link>
+          ) : (
+            <Box
+              p={3}
+              w="full"
+              borderWidth="1px"
+              borderColor="border.default"
+              borderRadius="lg"
+            >
+              {customerIdentity}
+            </Box>
+          )}
           <Text fontSize="sm" color="text.muted">
             {q.seeJobBanner}
           </Text>
