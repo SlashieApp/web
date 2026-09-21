@@ -18,3 +18,7 @@ export const Default: Story = {}
 export const Compact: Story = {
   args: { compact: true },
 }
+
+export const Rail: Story = {
+  args: { rail: true },
+}

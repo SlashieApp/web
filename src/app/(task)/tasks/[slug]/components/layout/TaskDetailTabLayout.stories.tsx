@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
+import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { TaskDetailTabs } from './TaskDetailTabs'
 
 const meta: Meta<typeof TaskDetailTabs> = {
@@ -13,4 +15,18 @@ const meta: Meta<typeof TaskDetailTabs> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+export const Default: Story = {
+  decorators: [
+    withTaskDetailStory({ viewer: 'owner' }, { maxWidth: '1100px' }),
+  ],
+}
+
+/** Worker quote path — pricing lives in the rail CTA, not Overview. */
+export const Worker: Story = {
+  decorators: [
+    withTaskDetailStory(
+      { viewer: 'worker', task: storyTaskDetail({ quotes: [] }) },
+      { maxWidth: '1100px' },
+    ),
+  ],
+}

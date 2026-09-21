@@ -68,7 +68,10 @@ export type TaskDetailSectionRule = {
 export type TaskDetailSectionResolution = {
   /** Mobile flow vs pin vs hidden, per section. */
   mobile: Record<TaskDetailSectionId, TaskDetailSectionPlacement>
-  /** Desktop always uses flow/hidden — never the bottom pin. */
+  /**
+   * Desktop flow vs hidden. When pricing is the rail CTA (`pinnedId`),
+   * overview does not also show the full price card.
+   */
   desktop: Record<TaskDetailSectionId, TaskDetailSectionPlacement>
   /** Winning mobile pin, or null when nothing pins. */
   pinnedId: TaskDetailSectionId | null
@@ -116,7 +119,7 @@ export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [
     id: 'help',
     pinConflictGroup: null,
     stickyPriority: TASK_DETAIL_STICKY_PRIORITY.none,
-    // Desktop Help & actions card; mobile uses the overflow trigger.
+    // Desktop Help & actions live on the task-detail rail; compact uses overflow.
     showInFlow: (ctx) => ctx.hasTask,
     canPinMobile: () => false,
   },
@@ -124,6 +127,7 @@ export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [
     id: 'activity',
     pinConflictGroup: null,
     stickyPriority: TASK_DETAIL_STICKY_PRIORITY.none,
+    // Desktop Activity lives on the task-detail rail; compact uses the header icon.
     showInFlow: (ctx) => ctx.hasTask || ctx.pending,
     canPinMobile: () => false,
   },
@@ -201,7 +205,8 @@ export function resolveTaskDetailSections(
 
   for (const rule of TASK_DETAIL_SECTION_RULES) {
     const inFlow = rule.showInFlow(ctx)
-    desktop[rule.id] = inFlow ? 'flow' : 'hidden'
+    const hideDesktopTwin = pinnedId === 'pricing' && rule.id === 'pricing'
+    desktop[rule.id] = inFlow && !hideDesktopTwin ? 'flow' : 'hidden'
     if (rule.id === pinnedId) mobile[rule.id] = 'pin'
     else mobile[rule.id] = inFlow ? 'flow' : 'hidden'
   }

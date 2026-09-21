@@ -23,6 +23,7 @@
       "back": "Back",
       "goBackAria": "Go back",
       "taskOptionsAria": "Task options",
+      "taskActivityAria": "Task activity",
       "taskSectionsAria": "Task sections"
     },
     "mobile": {
@@ -363,6 +364,7 @@
       "back": "返回",
       "goBackAria": "返回上一頁",
       "taskOptionsAria": "任務選項",
+      "taskActivityAria": "任務動態",
       "taskSectionsAria": "任務分頁"
     },
     "mobile": {

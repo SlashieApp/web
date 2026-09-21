@@ -1,7 +1,7 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Skeleton, Stack } from '@chakra-ui/react'
+import { HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
 import { LuCreditCard, LuTag } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
@@ -9,7 +9,10 @@ import { Badge, Button, Card, DetailRow, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
-import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
+import {
+  TASK_DETAIL_RAIL_CARD,
+  TASK_DETAIL_SECTION_CARD,
+} from '../../helpers/taskDetailLayout'
 import {
   budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
@@ -21,10 +24,12 @@ function PricingQuoteCta({
   href,
   kind,
   compact,
+  stretch,
 }: {
   href: string
   kind: 'sendQuote' | 'signInToQuote'
   compact?: boolean
+  stretch?: boolean
 }) {
   const t = useI11n(bag)
   const label = kind === 'signInToQuote' ? t.cta.signInToQuote : t.cta.sendQuote
@@ -33,7 +38,7 @@ function PricingQuoteCta({
       asChild
       variant="primary"
       size={compact ? 'sm' : undefined}
-      w={compact ? undefined : 'full'}
+      w={stretch || !compact ? 'full' : undefined}
     >
       <Link href={href} _hover={{ textDecoration: 'none' }}>
         {label}
@@ -44,10 +49,15 @@ function PricingQuoteCta({
 
 type TaskPricingCardProps = {
   compact?: boolean
+  /** Compact web rail CTA — eyebrow + budget + meta, not the full overview card. */
+  rail?: boolean
 }
 
 /** Overview pricing card — posted budget, optional quote / continue CTA. */
-export function TaskPricingCard({ compact = false }: TaskPricingCardProps) {
+export function TaskPricingCard({
+  compact = false,
+  rail = false,
+}: TaskPricingCardProps) {
   const { task, seed, pending, me, permissions } = useTaskDetail()
   const t = useI11n(bag)
 
@@ -93,6 +103,44 @@ export function TaskPricingCard({ compact = false }: TaskPricingCardProps) {
   }
 
   const loading = pending && !task
+  const quoteCta =
+    showQuoteCta &&
+    (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote') ? (
+      <PricingQuoteCta
+        href={quoteHref}
+        kind={quoteKind}
+        compact={rail}
+        stretch={rail}
+      />
+    ) : null
+
+  if (rail) {
+    return (
+      <Card
+        {...TASK_DETAIL_RAIL_CARD}
+        eyebrow={t.details.budget}
+        metric={budgetLine}
+        aria-busy={loading ? true : undefined}
+      >
+        {loading && !budgetLine ? (
+          <Skeleton h="24px" w="42%" borderRadius="md" />
+        ) : null}
+        {budgetKind || paymentLabel ? (
+          <HStack gap={2} align="center" flexWrap="wrap">
+            {budgetKind ? <Badge variant="success">{budgetKind}</Badge> : null}
+            {paymentLabel ? (
+              <Text fontSize="sm" color="text.muted" lineHeight="short">
+                {paymentLabel}
+              </Text>
+            ) : null}
+          </HStack>
+        ) : loading ? (
+          <Skeleton h="22px" w="88px" borderRadius="full" />
+        ) : null}
+        {quoteCta}
+      </Card>
+    )
+  }
 
   return (
     <Card

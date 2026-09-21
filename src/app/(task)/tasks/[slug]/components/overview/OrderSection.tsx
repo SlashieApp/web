@@ -299,29 +299,29 @@ export function OrderSection({ task, order }: OrderSectionProps) {
   if (!closed) return null
 
   return (
-    <Card
-      ref={onSectionRef}
-      id={TASK_ORDER_SECTION_ID}
-      {...TASK_DETAIL_SECTION_CARD}
-      eyebrow={completed ? o.completed : o.summary}
-      description={completed ? o.completedBody : undefined}
-      headingAccessory={<OrderStatusBadge label={statusLabel} />}
-      metric={agreedPrice}
-    >
-      <DetailRow icon={<LuUser />} label={o.worker} withDivider={false}>
-        <HStack gap={2} align="center">
-          <Avatar name={workerName} src={workerAvatarUrl ?? undefined} />
-          <Text as="span">{workerName}</Text>
-        </HStack>
-      </DetailRow>
-      <Text fontSize="sm" fontWeight={500} color="text.muted">
-        {o.timeline}
-      </Text>
-      <OrderRecordTimeline steps={timeline} />
-      <Text fontSize="sm" color="text.muted" lineHeight="short">
-        {o.disclaimer}
-      </Text>
-      <SafetyNotice variant="inline" />
-    </Card>
+    <Box ref={onSectionRef} id={TASK_ORDER_SECTION_ID} w="full">
+      <Card
+        {...TASK_DETAIL_SECTION_CARD}
+        eyebrow={completed ? o.completed : o.summary}
+        description={completed ? o.completedBody : undefined}
+        headingAccessory={<OrderStatusBadge label={statusLabel} />}
+        metric={agreedPrice}
+      >
+        <DetailRow icon={<LuUser />} label={o.worker} withDivider={false}>
+          <HStack gap={2} align="center">
+            <Avatar name={workerName} src={workerAvatarUrl ?? undefined} />
+            <Text as="span">{workerName}</Text>
+          </HStack>
+        </DetailRow>
+        <Text fontSize="sm" fontWeight={500} color="text.muted">
+          {o.timeline}
+        </Text>
+        <OrderRecordTimeline steps={timeline} />
+        <Text fontSize="sm" color="text.muted" lineHeight="short">
+          {o.disclaimer}
+        </Text>
+        <SafetyNotice variant="inline" />
+      </Card>
+    </Box>
   )
 }

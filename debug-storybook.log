@@ -1,0 +1,24 @@
+[10:12:41.095] [INFO] storybook v10.4.6
+[10:12:41.615] [DEBUG] Getting package.json info for /Users/ryankwan/Projects/SlashieApp/web/package.json...
+[10:12:42.442] [WARN] 🚨 Unable to index ./src/app/(task)/tasks/[slug]/components/layout/TaskDetailTabLayout.stories.tsx:
+  SyntaxError: Identifier 'Story' has already been declared. (22:5)
+    at constructor (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:12164:21)
+    at Parser.raise (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:16342:71)
+    at TypeScriptScopeHandler.checkRedeclarationInScope (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:13130:75)
+    at TypeScriptScopeHandler.declareName (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:15165:97)
+    at Parser.declareNameFromIdentifier (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:16996:20)
+    at Parser.checkIdentifier (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:16993:126)
+    at Parser.tsParseTypeAliasDeclaration (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:17719:55)
+    at Parser.parseStatementContent (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:18170:42)
+    at Parser.parseStatementLike (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:20184:80)
+    at Parser.parseModuleItem (file:///Users/ryankwan/Projects/SlashieApp/web/node_modules/storybook/dist/_node-chunks/chunk-BCIMUOON.js:20170:21)
+[10:12:42.445] [ERROR] Error: Unable to index ./src/app/(task)/tasks/[slug]/components/layout/TaskDetailTabLayout.stories.tsx
+    at _StoryIndexGenerator.getIndexAndStats (file://./node_modules/storybook/dist/core-server/index.js:19468:15)
+    at async _StoryIndexGenerator.getIndex (file://./node_modules/storybook/dist/core-server/index.js:19457:13)
+    at async Object.experimental_serverChannel (file://./node_modules/@storybook/addon-vitest/dist/preset.js:460:14)
+    at async buildDevStandalone (file://./node_modules/storybook/dist/core-server/index.js:12051:32)
+    at async withTelemetry (file://./node_modules/storybook/dist/_node-chunks/chunk-G7NXW2C2.js:650:12)
+    at async dev (file://./node_modules/storybook/dist/bin/core.js:2735:3)
+    at async _Command.<anonymous> (file://./node_modules/storybook/dist/bin/core.js:2805:92)
+[10:12:42.446] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.

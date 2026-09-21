@@ -94,6 +94,7 @@ export const NoMessage: Story = {
 }
 
 export const List: Story = {
+  args: { ...james },
   render: () => (
     <Stack gap={4} maxW="960px" w="full">
       <QuoteCard

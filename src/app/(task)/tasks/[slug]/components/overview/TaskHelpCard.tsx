@@ -1,7 +1,5 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
-
 import { useI11n } from '@/i18n/useI11n'
 import { Card } from '@ui'
 
@@ -14,10 +12,8 @@ export function TaskHelpCard() {
   const t = useI11n(bag)
 
   return (
-    <Box display={{ base: 'none', lg: 'block' }}>
-      <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={t.actions.helpHeading}>
-        <TaskOverflowActions />
-      </Card>
-    </Box>
+    <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={t.actions.helpHeading}>
+      <TaskOverflowActions />
+    </Card>
   )
 }

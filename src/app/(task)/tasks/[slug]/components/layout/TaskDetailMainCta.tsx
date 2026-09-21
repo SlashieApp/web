@@ -1,15 +1,18 @@
 'use client'
 
 import { Box, HStack, type SystemStyleObject } from '@chakra-ui/react'
-import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { LuPencil } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
 import { WEB_MQ } from '@/theme/breakpoints'
-import { Button, IconButton, Link } from '@ui'
+import { useIsBrowser } from '@/utils/useIsBrowser'
+import { Button, Card, IconButton, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
+import { TASK_DETAIL_RAIL_CARD } from '../../helpers/taskDetailLayout'
+import type { TaskDetailSectionId } from '../../helpers/taskDetailStickySections'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
 import bag from '../../i11n.json'
@@ -50,7 +53,7 @@ function TaskDetailMainCtaFade() {
   )
 }
 
-function TaskDetailCompletionBar() {
+function TaskDetailCompletionBar({ web = false }: { web?: boolean }) {
   const t = useI11n(bag)
   const { task, permissions, statusReady, setActiveTab } = useTaskDetail()
 
@@ -107,62 +110,85 @@ function TaskDetailCompletionBar() {
         ? t.verification.enterCodeCta
         : undefined
 
+  const actions = (
+    <HStack gap={web ? 2 : 1} align="center">
+      {action}
+      {showEdit ? (
+        <IconButton
+          asChild
+          variant="ghost"
+          size="sm"
+          aria-label={t.cta.editAria}
+        >
+          <Link href={editHref} _hover={{ textDecoration: 'none' }}>
+            <LuPencil />
+          </Link>
+        </IconButton>
+      ) : null}
+    </HStack>
+  )
+
+  if (web) {
+    return (
+      <Card {...TASK_DETAIL_RAIL_CARD} eyebrow={title} description={subtitle}>
+        {actions}
+      </Card>
+    )
+  }
+
   return (
-    <TaskDetailPinCard
-      title={title}
-      subtitle={subtitle}
-      action={
-        <HStack gap={1} align="center">
-          {action}
-          {showEdit ? (
-            <IconButton
-              asChild
-              variant="ghost"
-              size="sm"
-              aria-label={t.cta.editAria}
-            >
-              <Link href={editHref} _hover={{ textDecoration: 'none' }}>
-                <LuPencil />
-              </Link>
-            </IconButton>
-          ) : null}
-        </HStack>
-      }
-    />
+    <TaskDetailPinCard title={title} subtitle={subtitle} action={actions} />
   )
 }
 
+function MainCtaCard({
+  pinnedId,
+  surface,
+}: {
+  pinnedId: TaskDetailSectionId
+  surface: 'pin' | 'web'
+}) {
+  const compact = surface === 'pin'
+  const web = surface === 'web'
+  switch (pinnedId) {
+    case 'pricing':
+      return <TaskPricingCard compact={compact} rail={web} />
+    case 'share':
+      return <TaskShareCard compact={compact} rail={web} />
+    case 'owner':
+      return <TaskOwnerCard compact={compact} rail={web} />
+    case 'completion':
+      return <TaskDetailCompletionBar web={web} />
+    default:
+      return null
+  }
+}
+
 /**
- * Compact mobile/tablet pin at the bottom of the page — outside the tabs
- * so it stays put when the active tab changes.
+ * Role-aware primary CTA. Compact (phone + tablet): fixed to the viewport
+ * bottom (portaled so Reveal's transform does not contain it). Web: compact
+ * card absolutely aligned to the end (bottom-right) of TabIntro, outside
+ * the cards|rail grid.
  */
 export function TaskDetailMainCta() {
   const { pinnedId } = useTaskDetailSections()
   const { statusReady, task } = useTaskDetail()
+  const isBrowser = useIsBrowser()
 
   if (!statusReady || !task || !pinnedId) return null
-
-  let pin: ReactNode = null
-  switch (pinnedId) {
-    case 'pricing':
-      pin = <TaskPricingCard compact />
-      break
-    case 'share':
-      pin = <TaskShareCard compact />
-      break
-    case 'owner':
-      pin = <TaskOwnerCard compact />
-      break
-    case 'completion':
-      pin = <TaskDetailCompletionBar />
-      break
-    default:
-      pin = null
+  if (
+    pinnedId !== 'pricing' &&
+    pinnedId !== 'share' &&
+    pinnedId !== 'owner' &&
+    pinnedId !== 'completion'
+  ) {
+    return null
   }
 
-  if (!pin) return null
+  const webCard = <MainCtaCard pinnedId={pinnedId} surface="web" />
+  const pinCard = <MainCtaCard pinnedId={pinnedId} surface="pin" />
 
-  return (
+  const compactPin = (
     <Box
       data-task-detail-main-cta
       data-task-detail-pin={pinnedId}
@@ -184,9 +210,24 @@ export function TaskDetailMainCta() {
         pb="calc(10px + env(safe-area-inset-bottom, 0px))"
       >
         <Reveal>
-          <Box pointerEvents="auto">{pin}</Box>
+          <Box pointerEvents="auto">{pinCard}</Box>
         </Reveal>
       </Box>
     </Box>
+  )
+
+  return (
+    <>
+      <Box
+        data-task-detail-main-cta
+        data-task-detail-pin={pinnedId}
+        display={{ base: 'none', lg: 'block' }}
+        w="full"
+        minW={0}
+      >
+        {webCard}
+      </Box>
+      {isBrowser ? createPortal(compactPin, document.body) : compactPin}
+    </>
   )
 }

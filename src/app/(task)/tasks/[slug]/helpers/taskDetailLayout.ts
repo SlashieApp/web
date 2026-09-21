@@ -23,5 +23,13 @@ export const TASK_DETAIL_SECTION_CARD = {
   framed: TASK_DETAIL_SECTION_FRAMED,
 } as const
 
+/** Compact rail CTA — same framed card, tighter padding than tab body cards. */
+export const TASK_DETAIL_RAIL_CARD = {
+  layout: 'section',
+  framed: TASK_DETAIL_SECTION_FRAMED,
+  density: 'compact',
+  maxW: 'full',
+} as const
+
 /** Sticky chrome snap hysteresis — avoid hovering between stuck/unstuck. */
 export const TASK_DETAIL_STICKY_SNAP_OFFSET_PX = 28

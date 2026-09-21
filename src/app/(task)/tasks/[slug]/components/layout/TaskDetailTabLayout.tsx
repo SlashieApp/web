@@ -1,7 +1,7 @@
 'use client'
 
 import type { BoxProps } from '@chakra-ui/react'
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, Grid, Stack } from '@chakra-ui/react'
 import { motion, useReducedMotion } from 'motion/react'
 import { type ReactNode, useCallback, useRef, useState } from 'react'
 
@@ -37,6 +37,13 @@ export type TaskDetailTabLayoutProps = {
   fitted?: boolean
   fittedBelowLg?: boolean
   px?: BoxProps['px']
+  /** Desktop right rail (Help & actions, Activity). Hidden below `lg`. */
+  rail?: ReactNode
+  /**
+   * Desktop main CTA — absolutely pinned to the bottom-right of TabIntro,
+   * outside the cards|rail grid. Hidden below `lg`.
+   */
+  mainCta?: ReactNode
 }
 
 const COMPACT_MAX_PX = WEB_MIN_PX - 1
@@ -67,11 +74,11 @@ const COMPACT_HEADER_FADE_CSS = {
     },
   },
   [`@media screen and (min-width: 768px) and (max-width: ${COMPACT_MAX_PX}px)`]:
-    {
-      '&::before': {
-        height: COMPACT_DETAIL_HERO_H.md,
-      },
+  {
+    '&::before': {
+      height: COMPACT_DETAIL_HERO_H.md,
     },
+  },
 } as const
 
 const STUCK_SURFACE = 'var(--chakra-colors-bg-surface, #FFFFFF)'
@@ -133,8 +140,10 @@ function TabIntro({
 }
 
 /**
- * Task-detail tab chrome: sticky title + tab headers, then per-tab
- * title/description and section cards. The mobile pin lives on the page.
+ * Task-detail tab chrome: sticky title + tab headers, then TabIntro with
+ * the web main CTA absolutely aligned to that block’s end (bottom-right).
+ * Cards and Help/Activity share a top edge in the 2:1 grid. The compact
+ * pin lives in TaskDetailMainCta.
  */
 export function TaskDetailTabLayout({
   title,
@@ -145,6 +154,8 @@ export function TaskDetailTabLayout({
   fitted = false,
   fittedBelowLg = false,
   px,
+  rail,
+  mainCta,
 }: TaskDetailTabLayoutProps) {
   const [isStuck, setIsStuck] = useState(false)
   const sentinelObserverRef = useRef<IntersectionObserver | null>(null)
@@ -169,6 +180,10 @@ export function TaskDetailTabLayout({
   }, [])
 
   const titleNode = typeof title === 'function' ? title({ isStuck }) : title
+  const activeTab = tabs.find((tab) => tab.key === value)
+  const splitColumns = rail
+    ? { base: '1fr', lg: 'minmax(0, 2fr) minmax(0, 1fr)' }
+    : '1fr'
 
   return (
     <>
@@ -185,7 +200,7 @@ export function TaskDetailTabLayout({
         }}
         panelBg={{ base: 'bg.canvas', lg: 'transparent' }}
         fadeTabListBorder
-        tabListMaxW={{ base: 'full', lg: '50%' }}
+        tabListMaxW={{ base: 'full', lg: 'calc((100% - 1.5rem) * 2 / 3)' }}
         w="full"
         px={px}
         aria-label={ariaLabel}
@@ -206,23 +221,66 @@ export function TaskDetailTabLayout({
           badge: tab.badge,
         }))}
       >
-        {tabs.map((tab) => (
-          <Tabs.Panel key={tab.key} value={tab.key}>
-            <Stack
-              gap={5}
+        <Stack gap={5} w="full" pt={5} pb={6}>
+          <Box position="relative" w="full">
+            <Box
               w="full"
-              minW={0}
-              minH={TASK_DETAIL_TAB_BODY_MIN_H}
-              pointerEvents="auto"
+              maxW={{
+                base: 'full',
+                lg: mainCta ? 'calc((100% - 1.5rem) * 2 / 3)' : 'full',
+              }}
             >
               <TabIntro
-                tabTitle={tab.tabTitle}
-                tabDescription={tab.tabDescription}
+                tabTitle={activeTab?.tabTitle}
+                tabDescription={activeTab?.tabDescription}
               />
-              {tab.cards}
-            </Stack>
-          </Tabs.Panel>
-        ))}
+            </Box>
+            {mainCta ? (
+              <Box
+                display={{ base: 'none', lg: 'block' }}
+                position="absolute"
+                right={0}
+                bottom={0}
+                w="calc((100% - 1.5rem) * 1 / 3)"
+                minW={0}
+                pointerEvents="auto"
+              >
+                {mainCta}
+              </Box>
+            ) : null}
+          </Box>
+          <Grid
+            templateColumns={splitColumns}
+            columnGap={6}
+            alignItems="start"
+            w="full"
+          >
+            <Box minW={0}>
+              {tabs.map((tab) => (
+                <Tabs.Panel key={tab.key} value={tab.key} pt={0} pb={0}>
+                  <Stack
+                    gap={5}
+                    w="full"
+                    minW={0}
+                    minH={TASK_DETAIL_TAB_BODY_MIN_H}
+                    pointerEvents="auto"
+                  >
+                    {tab.cards}
+                  </Stack>
+                </Tabs.Panel>
+              ))}
+            </Box>
+            {rail ? (
+              <Box
+                display={{ base: 'none', lg: 'block' }}
+                minW={0}
+                pointerEvents="auto"
+              >
+                {rail}
+              </Box>
+            ) : null}
+          </Grid>
+        </Stack>
       </Tabs>
     </>
   )

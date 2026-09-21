@@ -114,6 +114,27 @@ export const FittedBelowLg: Story = {
   ),
 }
 
+/** Trailing slot beside a 2:1 tablist (task-detail money page). */
+export const WithTabListAside: Story = {
+  args: {
+    tabs: INFO_QUOTES,
+    fadeTabListBorder: true,
+    'aria-label': 'Task sections',
+  },
+  render: (args) => (
+    <Tabs
+      {...args}
+      tabListAside={
+        <Card layout="section" density="compact" maxW="sm">
+          <Text fontWeight={700}>Send a quote</Text>
+        </Card>
+      }
+    >
+      <Panels />
+    </Tabs>
+  ),
+}
+
 /** Controlled usage with external state. */
 export const Controlled: Story = {
   args: { tabs: INFO_QUOTES, 'aria-label': 'Task sections' },

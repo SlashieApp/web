@@ -13,6 +13,8 @@ import bag from '../../i11n.json'
 import { AnalyticsCards } from '../analytics/AnalyticsCards'
 import { OverviewCards } from '../overview/OverviewCards'
 import { QuotesCards } from '../quotes/QuotesCards'
+import { TaskDetailMainCta } from './TaskDetailMainCta'
+import { TaskDetailSideRail } from './TaskDetailSideRail'
 import {
   TaskDetailTabLayout,
   type TaskDetailTabSlot,
@@ -104,6 +106,8 @@ export function TaskDetailTabs({
       ariaLabel={t.nav.taskSectionsAria}
       title={({ isStuck }) => <TaskTitle isStuck={isStuck} />}
       tabs={tabs}
+      mainCta={<TaskDetailMainCta />}
+      rail={<TaskDetailSideRail />}
     />
   )
 }

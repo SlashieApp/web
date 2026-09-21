@@ -64,8 +64,13 @@ export type TabsProps = Omit<BoxProps, 'onChange' | 'children'> & {
    * (task-detail money page over the map).
    */
   fadeTabListBorder?: boolean
-  /** Cap the tablist width (e.g. half-width on web). */
+  /** Cap the tablist width (e.g. two-thirds on web). */
   tabListMaxW?: BoxProps['maxW']
+  /**
+   * Trailing slot beside the tablist (e.g. a floating CTA). Hidden below `lg`
+   * so compact keeps a full-width tab bar.
+   */
+  tabListAside?: ReactNode
   /** Extra props for the sticky chrome box (title bar + tablist). */
   stickyChromeProps?: BoxProps
   /** Accessible name for the tablist. */
@@ -106,6 +111,7 @@ function TabsBase({
   panelBg,
   fadeTabListBorder = false,
   tabListMaxW,
+  tabListAside,
   stickyChromeProps,
   px,
   stickyHeader,
@@ -240,116 +246,141 @@ function TabsBase({
           {...stickyChromeProps}
         >
           {stickyHeader}
-          <HStack
-            ref={listRef}
-            role="tablist"
-            aria-label={ariaLabel}
-            position="relative"
-            maxW={tabListMaxW}
-            gap={fitted ? 0 : fittedBelowLg ? { base: 0, lg: 6 } : 6}
-            borderBottomWidth={fadeTabListBorder ? '0' : '1px'}
-            borderColor="border.default"
-            align="stretch"
-            css={
-              fadeTabListBorder
-                ? {
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      height: '1px',
-                      pointerEvents: 'none',
-                      backgroundImage:
-                        'linear-gradient(to right, {colors.border.default} 0%, {colors.border.default} 50%, transparent 100%)',
-                    },
-                  }
-                : undefined
-            }
-          >
-            {tabs.map((tab) => {
-              const selected = tab.key === activeValue
-              return (
-                <chakra.button
-                  type="button"
-                  key={tab.key}
-                  ref={(el: HTMLButtonElement | null) => {
-                    tabRefs.current[tab.key] = el
-                  }}
-                  role="tab"
-                  id={tabId(baseId, tab.key)}
-                  aria-selected={selected}
-                  aria-controls={panelId(baseId, tab.key)}
-                  aria-disabled={tab.disabled || undefined}
-                  tabIndex={selected ? 0 : -1}
-                  disabled={tab.disabled}
-                  onClick={() => select(tab.key)}
-                  onKeyDown={onKeyDown}
-                  flexGrow={
-                    fitted ? 1 : fittedBelowLg ? { base: 1, lg: 0 } : undefined
-                  }
-                  flexShrink={fitted ? 1 : 0}
-                  flexBasis={
-                    fitted
-                      ? 0
-                      : fittedBelowLg
-                        ? { base: 0, lg: 'auto' }
-                        : undefined
-                  }
-                  display="inline-flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  gap={2}
-                  minH="44px"
-                  px={fitted ? 2 : fittedBelowLg ? { base: 2, lg: 1 } : 1}
-                  pb={2}
-                  fontFamily="body"
-                  fontSize="sm"
-                  fontWeight={600}
-                  lineHeight="1.2"
-                  color={selected ? 'text.default' : 'text.muted'}
-                  cursor={tab.disabled ? 'not-allowed' : 'pointer'}
-                  opacity={tab.disabled ? 0.5 : 1}
-                  bg="transparent"
-                  transitionProperty="color"
-                  transitionDuration={sdlMotion.duration.base}
-                  transitionTimingFunction={sdlMotion.easing.standard}
-                  _hover={tab.disabled ? undefined : { color: 'text.default' }}
-                  _focusVisible={{
-                    outline: '2px solid',
-                    outlineColor: 'border.focus',
-                    outlineOffset: '-2px',
-                    borderRadius: 'sm',
-                  }}
-                >
-                  {tab.label}
-                  {tab.badge !== undefined && tab.badge !== null ? (
-                    <Badge variant={selected ? 'success' : 'neutral'} size="sm">
-                      {tab.badge}
-                    </Badge>
-                  ) : null}
-                </chakra.button>
-              )
-            })}
+          <HStack align="flex-start" w="full" gap={6}>
+            <HStack
+              ref={listRef}
+              role="tablist"
+              aria-label={ariaLabel}
+              position="relative"
+              maxW={tabListMaxW}
+              flex={tabListAside ? { base: '1', lg: '2 1 0' } : undefined}
+              minW={tabListAside ? 0 : undefined}
+              gap={fitted ? 0 : fittedBelowLg ? { base: 0, lg: 6 } : 6}
+              borderBottomWidth={fadeTabListBorder ? '0' : '1px'}
+              borderColor="border.default"
+              align="stretch"
+              css={
+                fadeTabListBorder
+                  ? {
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: '1px',
+                        pointerEvents: 'none',
+                        backgroundImage:
+                          'linear-gradient(to right, {colors.border.default} 0%, {colors.border.default} 50%, transparent 100%)',
+                      },
+                    }
+                  : undefined
+              }
+            >
+              {tabs.map((tab) => {
+                const selected = tab.key === activeValue
+                return (
+                  <chakra.button
+                    type="button"
+                    key={tab.key}
+                    ref={(el: HTMLButtonElement | null) => {
+                      tabRefs.current[tab.key] = el
+                    }}
+                    role="tab"
+                    id={tabId(baseId, tab.key)}
+                    aria-selected={selected}
+                    aria-controls={panelId(baseId, tab.key)}
+                    aria-disabled={tab.disabled || undefined}
+                    tabIndex={selected ? 0 : -1}
+                    disabled={tab.disabled}
+                    onClick={() => select(tab.key)}
+                    onKeyDown={onKeyDown}
+                    flexGrow={
+                      fitted
+                        ? 1
+                        : fittedBelowLg
+                          ? { base: 1, lg: 0 }
+                          : undefined
+                    }
+                    flexShrink={fitted ? 1 : 0}
+                    flexBasis={
+                      fitted
+                        ? 0
+                        : fittedBelowLg
+                          ? { base: 0, lg: 'auto' }
+                          : undefined
+                    }
+                    display="inline-flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={2}
+                    minH="44px"
+                    px={fitted ? 2 : fittedBelowLg ? { base: 2, lg: 1 } : 1}
+                    pb={2}
+                    fontFamily="body"
+                    fontSize="sm"
+                    fontWeight={600}
+                    lineHeight="1.2"
+                    color={selected ? 'text.default' : 'text.muted'}
+                    cursor={tab.disabled ? 'not-allowed' : 'pointer'}
+                    opacity={tab.disabled ? 0.5 : 1}
+                    bg="transparent"
+                    transitionProperty="color"
+                    transitionDuration={sdlMotion.duration.base}
+                    transitionTimingFunction={sdlMotion.easing.standard}
+                    _hover={
+                      tab.disabled ? undefined : { color: 'text.default' }
+                    }
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'border.focus',
+                      outlineOffset: '-2px',
+                      borderRadius: 'sm',
+                    }}
+                  >
+                    {tab.label}
+                    {tab.badge !== undefined && tab.badge !== null ? (
+                      <Badge
+                        variant={selected ? 'success' : 'neutral'}
+                        size="sm"
+                      >
+                        {tab.badge}
+                      </Badge>
+                    ) : null}
+                  </chakra.button>
+                )
+              })}
 
-            {/* Sliding active indicator (brand moment). */}
-            {indicator ? (
+              {/* Sliding active indicator (brand moment). */}
+              {indicator ? (
+                <Box
+                  aria-hidden
+                  position="absolute"
+                  bottom="-1px"
+                  height="2px"
+                  borderRadius="full"
+                  bg="action.primary"
+                  style={{
+                    left: indicator.x,
+                    width: indicator.w,
+                    transitionProperty: reducedMotion ? 'none' : 'left, width',
+                    transitionDuration: sdlMotion.duration.moderate,
+                    transitionTimingFunction: sdlMotion.easing.standard,
+                  }}
+                />
+              ) : null}
+            </HStack>
+            {tabListAside ? (
               <Box
-                aria-hidden
-                position="absolute"
-                bottom="-1px"
-                height="2px"
-                borderRadius="full"
-                bg="action.primary"
-                style={{
-                  left: indicator.x,
-                  width: indicator.w,
-                  transitionProperty: reducedMotion ? 'none' : 'left, width',
-                  transitionDuration: sdlMotion.duration.moderate,
-                  transitionTimingFunction: sdlMotion.easing.standard,
-                }}
-              />
+                display={{ base: 'none', lg: 'flex' }}
+                flex="1 1 0"
+                justifyContent="flex-end"
+                alignItems="flex-start"
+                minW={0}
+                pt={1}
+              >
+                {tabListAside}
+              </Box>
             ) : null}
           </HStack>
         </Box>
@@ -369,13 +400,15 @@ function TabsBase({
 export type TabPanelProps = {
   value: string
   children: ReactNode
+  pt?: BoxProps['pt']
+  pb?: BoxProps['pb']
 }
 
 /**
  * A tab panel. Stays mounted when inactive (`hidden`), preserving any form input
  * and scroll. Animates a subtle cross-fade + directional slide on entrance.
  */
-function TabPanel({ value, children }: TabPanelProps) {
+function TabPanel({ value, children, pt = 5, pb = 6 }: TabPanelProps) {
   const { activeValue, direction, reducedMotion, baseId } = useTabsContext()
   const isActive = activeValue === value
   const [entered, setEntered] = useState(isActive)
@@ -422,8 +455,8 @@ function TabPanel({ value, children }: TabPanelProps) {
       tabIndex={0}
       hidden={!isActive}
       aria-hidden={!isActive}
-      pt={5}
-      pb={6}
+      pt={pt}
+      pb={pb}
       _focusVisible={{
         outline: '2px solid',
         outlineColor: 'border.focus',

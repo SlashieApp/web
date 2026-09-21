@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('OverviewCards layout', () => {
-  it('puts pricing first, then details, then photos; owner on the sidebar', () => {
+  it('stacks pricing, details, photos, then owner in a single column', () => {
     const src = readFileSync(join(dir, 'OverviewCards.tsx'), 'utf8')
     expect(src.indexOf('<TaskPricingCard />')).toBeLessThan(
       src.indexOf('<TaskDetailsCard />'),
@@ -15,19 +15,16 @@ describe('OverviewCards layout', () => {
     expect(src.indexOf('<TaskDetailsCard />')).toBeLessThan(
       src.indexOf('<PhotosCard />'),
     )
-    expect(src.indexOf('<TaskActivitySections />')).toBeGreaterThan(
-      src.indexOf('<PhotosCard />'),
-    )
-    expect(src.indexOf('<TaskHelpCard />')).toBeLessThan(
-      src.indexOf('<TaskActivitySections />'),
-    )
-    expect(src.indexOf('id="owner"')).toBeGreaterThan(
-      src.indexOf('<PhotosCard />'),
+    expect(src.indexOf('<PhotosCard />')).toBeLessThan(
+      src.indexOf('<TaskOwnerCard />'),
     )
     expect(src).toContain('<TaskOwnerCard />')
     expect(src).toContain('sectionFlowCss')
     expect(src).not.toContain('TaskShareCard')
+    expect(src).not.toContain('TaskHelpCard')
+    expect(src).not.toContain('TaskActivitySections')
     expect(src).not.toContain('tabTitle')
+    expect(src).not.toContain('templateColumns')
   })
 
   it('hides the in-flow twin when a card is pinned; spacer lives on the view', () => {
@@ -35,7 +32,7 @@ describe('OverviewCards layout', () => {
     const view = readFileSync(join(dir, '../layout/TaskDetailView.tsx'), 'utf8')
     expect(sections).toContain('sectionFlowCss')
     expect(sections).toContain(
-      'Hide the in-flow twin when that section is the mobile pin',
+      'Hide the in-flow twin when that section is the mobile pin or the web rail CTA',
     )
     expect(view).toContain('taskDetailPinClearance')
     expect(view).toContain('TaskDetailTabs')
@@ -46,5 +43,7 @@ describe('OverviewCards layout', () => {
     expect(pricing).toContain('t.cta.sendQuote')
     expect(pricing).toContain('t.cta.signInToQuote')
     expect(pricing).toContain('SafetyNotice')
+    expect(pricing).toContain('TASK_DETAIL_RAIL_CARD')
+    expect(pricing).toContain('eyebrow={t.details.budget}')
   })
 })

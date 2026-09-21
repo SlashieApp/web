@@ -8,6 +8,7 @@ import { sdlMotion } from '@/theme/styles'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
 import { TaskStatusPill } from '../ui/TaskStatusPill'
+import { TaskActivityTrigger } from './TaskActivityTrigger'
 import { TaskBackButton } from './TaskHeaderControls'
 import { TaskHelpOverflowTrigger } from './TaskOverflowMenu'
 import { selectStatusHeaderCopy } from './statusHeaderCopy'
@@ -18,8 +19,8 @@ type TaskTitleProps = {
 }
 
 /**
- * Sticky task title + status badge. Compact viewports also get the
- * options overflow on the right of this row.
+ * Sticky task title + status badge. Compact viewports also get Activity
+ * and options overflow on the right of this row.
  */
 export function TaskTitle({ isStuck = false }: TaskTitleProps) {
   const {
@@ -84,9 +85,15 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
         ) : (
           <Skeleton h="22px" w="72px" borderRadius="full" flexShrink={0} />
         )}
-        <Box display={{ base: 'block', lg: 'none' }} ml="auto" flexShrink={0}>
+        <HStack
+          display={{ base: 'flex', lg: 'none' }}
+          ml="auto"
+          flexShrink={0}
+          gap={0}
+        >
+          <TaskActivityTrigger />
           <TaskHelpOverflowTrigger />
-        </Box>
+        </HStack>
       </HStack>
     </Box>
   )

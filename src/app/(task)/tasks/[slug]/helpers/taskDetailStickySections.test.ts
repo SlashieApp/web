@@ -99,14 +99,14 @@ describe('resolveTaskDetailSections', () => {
     })
     expect(resolved.pinnedId).toBe('pricing')
     expect(resolved.mobile.pricing).toBe('pin')
-    expect(resolved.desktop.pricing).toBe('flow')
+    expect(resolved.desktop.pricing).toBe('hidden')
     expect(sectionFlowDisplay('pricing', resolved)).toEqual({
       base: 'none',
-      lg: 'block',
+      lg: 'none',
     })
     expect(sectionFlowCss('pricing', resolved)).toEqual({
       display: 'none',
-      [`@media screen and ${TASK_DETAIL_DESKTOP_MQ}`]: { display: 'block' },
+      [`@media screen and ${TASK_DETAIL_DESKTOP_MQ}`]: { display: 'none' },
     })
     expect(resolved.mobile.owner).toBe('flow')
     expect(resolved.mobile.share).toBe('hidden')
@@ -123,6 +123,7 @@ describe('resolveTaskDetailSections', () => {
     })
     expect(resolved.pinnedId).toBe('pricing')
     expect(resolved.mobile.pricing).toBe('pin')
+    expect(resolved.desktop.pricing).toBe('hidden')
   })
 
   it('pins pricing for an eligible quoting worker', () => {
@@ -138,6 +139,7 @@ describe('resolveTaskDetailSections', () => {
       }),
     })
     expect(resolved.pinnedId).toBe('pricing')
+    expect(resolved.desktop.pricing).toBe('hidden')
   })
 
   it('pins the share card for the task owner (including when quotes exist)', () => {
@@ -157,6 +159,7 @@ describe('resolveTaskDetailSections', () => {
     expect(noQuotes.mobile.share).toBe('pin')
     expect(noQuotes.desktop.share).toBe('hidden')
     expect(noQuotes.mobile.pricing).toBe('flow')
+    expect(noQuotes.desktop.pricing).toBe('flow')
 
     const withQuotes = resolveTaskDetailSections({
       hasTask: true,
