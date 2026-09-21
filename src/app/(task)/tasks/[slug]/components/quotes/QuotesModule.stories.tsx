@@ -24,6 +24,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const SIDEBAR = { maxWidth: '380px' }
+const QUOTE_LIST = { maxWidth: '960px' }
 
 const competitorA = storyTaskQuote({
   id: 'quote-a',
@@ -89,7 +90,7 @@ export const C2CustomerList: Story = {
           quotes: [competitorA, competitorB, competitorC],
         }),
       },
-      SIDEBAR,
+      QUOTE_LIST,
     ),
   ],
 }
@@ -109,7 +110,7 @@ export const C3CustomerSlotsFilled: Story = {
           ],
         }),
       },
-      SIDEBAR,
+      QUOTE_LIST,
     ),
   ],
 }
@@ -186,7 +187,7 @@ export const W4WorkerCompeting: Story = {
         viewer: 'worker',
         task: storyTaskDetail({ quotes: [competitorA, competitorB] }),
       },
-      SIDEBAR,
+      QUOTE_LIST,
     ),
   ],
 }
@@ -201,7 +202,7 @@ export const W5WorkerQuotePending: Story = {
           quotes: [myPendingQuote, competitorA, competitorB],
         }),
       },
-      SIDEBAR,
+      QUOTE_LIST,
     ),
   ],
 }

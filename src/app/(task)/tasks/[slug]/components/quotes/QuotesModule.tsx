@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { type ReactNode, useMemo, useState } from 'react'
 
 import {
   Box,
@@ -20,14 +20,14 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
-import { Button, Card, Link, SafetyNotice } from '@ui'
+import { Button, Link, MESSAGES_HREF } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
   formatPoundsFromPence,
+  formatQuoteDurationLabel,
   splitQuoteMessageAvailability,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
@@ -166,37 +166,6 @@ function CountPill({ label }: { label: string }) {
   )
 }
 
-/**
- * Module shell: the shared task-detail section Card (same surface, radius,
- * hairline, and heading treatment as Task details / Task owner / Photos),
- * with the count pill beside the heading and a role-specific subtitle.
- */
-function ModuleShell({
-  subtitle,
-  pill,
-  children,
-  slotsStrip,
-}: {
-  subtitle: string
-  pill?: string | null
-  slotsStrip?: React.ReactNode
-  children: React.ReactNode
-}) {
-  const { quotes: q } = useI11n(bag)
-  return (
-    <Card
-      {...TASK_DETAIL_SECTION_CARD}
-      id="task-quotes"
-      eyebrow={q.heading}
-      headingAccessory={pill ? <CountPill label={pill} /> : null}
-      description={subtitle}
-    >
-      {slotsStrip}
-      {children}
-    </Card>
-  )
-}
-
 /** C3: "2 of 3 worker slots filled" strip with progress dots. */
 function SlotsStrip({ filled, cap }: { filled: number; cap: number }) {
   const { quotes: q } = useI11n(bag)
@@ -274,7 +243,7 @@ function StatusCircle({
   children,
 }: {
   tone: 'success' | 'neutral'
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <Box
@@ -318,9 +287,14 @@ function quoteCardBaseProps(
     avatarLabel: workerNameInitials(name, quote.workerUserId),
     avatarUrl: quote.worker?.profile?.avatarUrl,
     priceLabel: pence != null ? formatPoundsFromPence(pence) : '—',
+    priceKindLabel: quotesCopy.card.fixedPrice,
     showPrice: pence != null,
     message: body,
     availabilityLabel: availability,
+    durationLabel: formatQuoteDurationLabel(
+      quote.estimatedDuration,
+      quotesCopy.card,
+    ),
     showVerified: Boolean(quote.worker?.worker?.isVerified),
     respondedLabel:
       formatRespondedAgo(quote.createdAt, quotesCopy) ?? undefined,
@@ -534,15 +508,20 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     </HStack>
   )
 
-  const ownerQuoteCard = (quote: TaskQuote) => {
+  const ownerQuoteCard = (quote: TaskQuote, index: number) => {
     const pending = quote.status === QuoteStatus.Pending
     const accepted = isAcceptedQuoteStatus(quote.status)
     const workerEntityId = quote.worker?.worker?.id
+    const canAct = pending && permissions.showAcceptDecline
     return (
       <QuoteCard
         key={quote.id}
-        variant="list"
         {...cardProps(quote)}
+        isBestMatch={
+          (state === 'C2' || state === 'C3') &&
+          sort === 'recommended' &&
+          index === 0
+        }
         workerProfileHref={
           workerEntityId
             ? workerProfilePath(workerEntityId, task.id)
@@ -555,16 +534,9 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
               ? 'declined'
               : null
         }
-        onAccept={
-          pending && permissions.showAcceptDecline
-            ? () => requestAccept(quote.id)
-            : undefined
-        }
-        onDecline={
-          pending && permissions.showAcceptDecline
-            ? () => void onDeclineQuote(quote.id)
-            : undefined
-        }
+        onAccept={canAct ? () => requestAccept(quote.id) : undefined}
+        onDecline={canAct ? () => void onDeclineQuote(quote.id) : undefined}
+        messageHref={canAct ? MESSAGES_HREF : undefined}
         acceptLoading={acceptingQuoteId === quote.id}
         declineLoading={decliningQuoteId === quote.id}
       />
@@ -573,10 +545,10 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   /** Read-only competitor card — public identity only, no contact PII. */
   const competitorCard = (quote: TaskQuote) => (
-    <QuoteCard key={quote.id} variant="list" {...cardProps(quote)} />
+    <QuoteCard key={quote.id} {...cardProps(quote)} />
   )
 
-  let body: React.ReactNode = null
+  let body: ReactNode = null
 
   switch (state) {
     case 'C1':
@@ -589,9 +561,16 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       body = (
         <>
           {errorLine}
-          <SafetyNotice variant="inline" />
-          {ownerSortSelect}
-          <Stack gap={3}>{displayQuotes.map(ownerQuoteCard)}</Stack>
+          <HStack
+            justify="space-between"
+            align="center"
+            flexWrap="wrap"
+            gap={3}
+          >
+            {pill ? <CountPill label={pill} /> : null}
+            {ownerSortSelect}
+          </HStack>
+          <Stack gap={4}>{displayQuotes.map(ownerQuoteCard)}</Stack>
         </>
       )
       break
@@ -600,8 +579,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       body = (
         <>
           {errorLine}
-          <SafetyNotice variant="inline" />
-          <Stack gap={3}>{displayQuotes.map(ownerQuoteCard)}</Stack>
+          <Stack gap={4}>{displayQuotes.map(ownerQuoteCard)}</Stack>
         </>
       )
       break
@@ -634,7 +612,9 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
                     )}
               </Button>
               {showOthers ? (
-                <Stack gap={3}>{others.map(ownerQuoteCard)}</Stack>
+                <Stack gap={4}>
+                  {others.map((quote, index) => ownerQuoteCard(quote, index))}
+                </Stack>
               ) : null}
             </>
           ) : null}
@@ -735,7 +715,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     case 'W4':
       body = (
         <Stack gap={4}>
-          <Stack gap={3}>{quotes.map(competitorCard)}</Stack>
+          <Stack gap={4}>{quotes.map(competitorCard)}</Stack>
           <HStack gap={3} align="center" aria-hidden>
             <Box flex={1} h="1px" bg="border.default" />
             <Text fontSize="xs" color="text.muted" fontWeight={600}>
@@ -753,26 +733,19 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       body = (
         <Stack gap={4}>
           {myQuote ? (
-            <Box
-              borderWidth="1.5px"
-              borderColor="status.success.solid"
-              borderRadius="lg"
-              overflow="hidden"
-            >
-              <QuoteCard
-                variant="list"
-                {...cardProps(myQuote)}
-                statusBadge="yours"
-                respondedLabel={q.pendingReviewing}
-              />
-            </Box>
+            <QuoteCard
+              {...cardProps(myQuote)}
+              isOwnQuote
+              statusBadge="yours"
+              respondedLabel={q.pendingReviewing}
+            />
           ) : null}
           {others.length > 0 ? (
             <Stack gap={2}>
               <Text fontSize="sm" fontWeight={700} color="text.default">
                 {q.otherQuotes}
               </Text>
-              <Stack gap={3}>{others.map(competitorCard)}</Stack>
+              <Stack gap={4}>{others.map(competitorCard)}</Stack>
             </Stack>
           ) : null}
           <Button
@@ -936,17 +909,17 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   }
 
   return (
-    <ModuleShell
-      subtitle={q.subtitles[state]}
-      pill={pill}
-      slotsStrip={
-        state === 'C3' ? (
-          <SlotsStrip filled={acceptedQuotes.length} cap={slotsCap} />
-        ) : null
-      }
-    >
+    <Stack id="task-quotes" gap={4} w="full">
+      {state === 'C3' ? (
+        <SlotsStrip filled={acceptedQuotes.length} cap={slotsCap} />
+      ) : null}
+      {pill && state !== 'C2' && state !== 'C3' ? (
+        <HStack>
+          <CountPill label={pill} />
+        </HStack>
+      ) : null}
       {body}
       {acceptSafetyDialog}
-    </ModuleShell>
+    </Stack>
   )
 }

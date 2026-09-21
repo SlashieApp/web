@@ -4,6 +4,7 @@ import {
   taskOwnerViewsLabel,
   taskPublicViewsLabel,
 } from '@/app/(task)/helpers/taskViewLabels'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import {
   type OrderItem,
   isOrderClosed,
@@ -235,6 +236,41 @@ export function splitQuoteMessageAvailability(
   const availability = match[1]?.trim() || null
   const body = trimmed.replace(match[0], '').trim() || null
   return { body, availability }
+}
+
+type QuoteDurationCopy = {
+  durationEst: string
+  durationMinutes: string
+  durationHour: string
+  durationHours: string
+}
+
+/** Format quote `estimatedDuration` for the card meta line (minutes or hours). */
+export function formatQuoteDurationLabel(
+  value: string | number | null | undefined,
+  copy: QuoteDurationCopy,
+): string | null {
+  if (value == null || value === '') return null
+  if (
+    typeof value === 'string' &&
+    /[a-zA-Z\u4e00-\u9fff]/.test(value) &&
+    Number.isNaN(Number(value))
+  ) {
+    return formatMessage(copy.durationEst, { duration: value })
+  }
+  const n = typeof value === 'number' ? value : Number(value)
+  if (!Number.isFinite(n) || n <= 0) return null
+  if (n < 60) {
+    return formatMessage(copy.durationEst, {
+      duration: formatMessage(copy.durationMinutes, { count: Math.round(n) }),
+    })
+  }
+  const hours = Math.round((n / 60) * 2) / 2
+  const duration =
+    hours === 1
+      ? formatMessage(copy.durationHour, { count: 1 })
+      : formatMessage(copy.durationHours, { count: hours })
+  return formatMessage(copy.durationEst, { duration })
 }
 
 /** Relative “Responded … ago” line for quote cards (from `quote.createdAt`). */
