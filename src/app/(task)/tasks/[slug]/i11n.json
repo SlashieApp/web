@@ -132,6 +132,7 @@
       "photoAlt": "{title} photo {n}",
       "owner": "Task owner",
       "ownerFallback": "Task owner",
+      "viewProfile": "View {name}'s profile",
       "viewsColdStart": "New — reaching workers",
       "viewsOne": "{count} view",
       "viewsMany": "{count} views"
@@ -478,6 +479,7 @@
       "photoAlt": "{title} 照片 {n}",
       "owner": "任務發佈者",
       "ownerFallback": "任務發佈者",
+      "viewProfile": "查看 {name} 的公開檔案",
       "viewsColdStart": "新任務 — 正在觸達工作者",
       "viewsOne": "{count} 次瀏覽",
       "viewsMany": "{count} 次瀏覽"

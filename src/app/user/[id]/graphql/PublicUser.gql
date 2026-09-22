@@ -1,0 +1,41 @@
+# Public profile peek. Anonymous OK. Always the PublicUser shell — never
+# email, phone, settings, orders, or `me`. Null when missing, disabled,
+# or private.
+query PublicUser($id: ID!, $excludeTaskId: ID) {
+  user(id: $id) {
+    id
+    profile {
+      name
+      avatarUrl
+    }
+    memberSince
+    createdAt
+    openTaskCount(excludeTaskId: $excludeTaskId)
+    openTasks(first: 10, excludeTaskId: $excludeTaskId) {
+      id
+      title
+      description
+      category
+      status
+      views
+      images
+      budget {
+        amount
+        currency
+        type
+        paymentMethod
+      }
+      datetime {
+        date
+        time
+        type
+      }
+      location {
+        name
+      }
+    }
+    worker {
+      id
+    }
+  }
+}

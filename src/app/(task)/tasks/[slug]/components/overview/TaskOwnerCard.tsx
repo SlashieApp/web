@@ -1,9 +1,12 @@
 'use client'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack, Image, Skeleton, Text } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 import bag from '../../i11n.json'
 
+import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
 import { Avatar, Button, Card, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -88,6 +91,11 @@ export function TaskOwnerCard({
 
   const posterName = posterDisplayName(task, t.details.ownerFallback)
   const posterAvatarUrl = task.poster?.profile?.avatarUrl?.trim() || null
+  const posterId = task.poster?.id?.trim() || null
+  const profileHref = posterId ? publicUserPath(posterId, task.id) : null
+  const profileLabel = formatMessage(t.details.viewProfile, {
+    name: posterName,
+  })
   const posterInitials =
     posterName
       .split(/\s+/)
@@ -127,15 +135,19 @@ export function TaskOwnerCard({
       <Avatar name={posterName} src={posterAvatarUrl ?? undefined} />
     )
 
+  const identity = (
+    <PosterIdentity
+      href={profileHref}
+      label={profileLabel}
+      name={posterName}
+      avatar={avatar}
+    />
+  )
+
   if (rail) {
     return (
       <Card {...TASK_DETAIL_RAIL_CARD} eyebrow={t.details.owner}>
-        <HStack align="center" gap={3} w="full">
-          {avatar}
-          <Text fontSize="sm" fontWeight={600} color="text.default" minW={0}>
-            {posterName}
-          </Text>
-        </HStack>
+        {identity}
         <TaskOwnerContactCta compact />
       </Card>
     )
@@ -144,8 +156,30 @@ export function TaskOwnerCard({
   if (compact) {
     return (
       <TaskDetailPinCard
-        leading={avatar}
-        title={posterName}
+        leading={
+          profileHref ? (
+            <Link
+              href={profileHref}
+              aria-label={profileLabel}
+              display="inline-flex"
+              borderRadius="full"
+              _hover={{ textDecoration: 'none' }}
+            >
+              {avatar}
+            </Link>
+          ) : (
+            avatar
+          )
+        }
+        title={
+          profileHref ? (
+            <Link href={profileHref} tone="muted">
+              {posterName}
+            </Link>
+          ) : (
+            posterName
+          )
+        }
         subtitle={t.details.owner}
         action={<TaskOwnerContactCta compact />}
       />
@@ -154,13 +188,50 @@ export function TaskOwnerCard({
 
   return (
     <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={t.details.owner}>
-      <HStack align="center" gap={3} w="full">
-        {avatar}
-        <Text fontSize="sm" fontWeight={600} color="text.default" minW={0}>
-          {posterName}
-        </Text>
-      </HStack>
+      {identity}
       <TaskOwnerContactCta />
     </Card>
+  )
+}
+
+function PosterIdentity({
+  href,
+  label,
+  name,
+  avatar,
+}: {
+  href: string | null
+  label: string
+  name: string
+  avatar: ReactNode
+}) {
+  const nameText = (
+    <Text fontSize="sm" fontWeight={600} color="text.default" minW={0} truncate>
+      {name}
+    </Text>
+  )
+  if (!href) {
+    return (
+      <HStack align="center" gap={3} w="full" minW={0}>
+        {avatar}
+        {nameText}
+      </HStack>
+    )
+  }
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      tone="muted"
+      display="flex"
+      alignItems="center"
+      gap={3}
+      w="full"
+      minW={0}
+      _hover={{ textDecoration: 'none' }}
+    >
+      {avatar}
+      {nameText}
+    </Link>
   )
 }

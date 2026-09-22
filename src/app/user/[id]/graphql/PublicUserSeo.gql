@@ -1,0 +1,10 @@
+# Name and avatar only — metadata must not include task titles or private fields.
+query PublicUserSeo($id: ID!) {
+  user(id: $id) {
+    id
+    profile {
+      name
+      avatarUrl
+    }
+  }
+}
