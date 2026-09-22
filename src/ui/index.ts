@@ -81,6 +81,7 @@ export { MapCard } from './MapCard'
 export {
   MESSAGES_HREF,
   MOBILE_BOTTOM_NAV_CLEARANCE,
+  MOBILE_BOTTOM_NAV_MAX_W,
   MOBILE_BOTTOM_NAV_OFFSET,
   MobileBottomNav,
 } from './MobileBottomNav'
@@ -109,6 +110,7 @@ export {
   StepFlowProgress,
 } from './StepFlowLayout'
 export { Stepper } from './Stepper'
+export { StickyHeader } from './StickyHeader'
 export { Tabs } from './Tabs'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail'
@@ -205,6 +207,7 @@ export type {
   StepFlowProgressProps,
 } from './StepFlowLayout'
 export type { StepperProps, StepperStep, StepperSubStep } from './Stepper'
+export type { StickyHeaderProps } from './StickyHeader'
 export type { TabItem, TabPanelProps, TabsProps } from './Tabs'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps, ThumbnailSize } from './Thumbnail'

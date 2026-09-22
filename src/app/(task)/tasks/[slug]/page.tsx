@@ -6,10 +6,10 @@ import { useParams } from 'next/navigation'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Card } from '@ui'
 
+import { findScrollParent } from '@/utils/findScrollParent'
 import { TaskDetailView } from './components/layout/TaskDetailView'
 import { TaskNotFoundCard } from './components/ui/TaskNotFoundCard'
 import { TaskDetailProvider, useTaskDetail } from './context/TaskDetailProvider'
-import { findScrollParent } from './helpers/taskDetailHeaderCollapse'
 import bag from './i11n.json'
 
 /**

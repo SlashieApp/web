@@ -10,11 +10,9 @@ import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
 import { Avatar, Button, Card, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import {
-  TASK_DETAIL_RAIL_CARD,
-  TASK_DETAIL_SECTION_CARD,
-} from '../../helpers/taskDetailLayout'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
+import { TaskDetailMainCtaCard } from '../ui/TaskDetailMainCtaCard'
 import { TaskDetailPinCard } from '../ui/TaskDetailPinCard'
 
 function posterDisplayName(task: TaskDetailRecord, fallback: string): string {
@@ -146,10 +144,12 @@ export function TaskOwnerCard({
 
   if (rail) {
     return (
-      <Card {...TASK_DETAIL_RAIL_CARD} eyebrow={t.details.owner}>
+      <TaskDetailMainCtaCard
+        eyebrow={t.details.owner}
+        action={<TaskOwnerContactCta compact />}
+      >
         {identity}
-        <TaskOwnerContactCta compact />
-      </Card>
+      </TaskDetailMainCtaCard>
     )
   }
 

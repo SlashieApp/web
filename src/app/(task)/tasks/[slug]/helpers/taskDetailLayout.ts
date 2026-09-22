@@ -22,11 +22,3 @@ export const TASK_DETAIL_SECTION_CARD = {
   layout: 'section',
   framed: TASK_DETAIL_SECTION_FRAMED,
 } as const
-
-/** Compact rail CTA — same framed card, tighter padding than tab body cards. */
-export const TASK_DETAIL_RAIL_CARD = {
-  layout: 'section',
-  framed: TASK_DETAIL_SECTION_FRAMED,
-  density: 'compact',
-  maxW: 'full',
-} as const

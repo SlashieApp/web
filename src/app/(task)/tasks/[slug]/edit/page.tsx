@@ -1,11 +1,11 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import { Box, Container, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Container, Grid, Stack, Text } from '@chakra-ui/react'
 import {
   type MeQuery,
-  TaskContactMethod,
   type TaskForEditQuery,
+  TaskStatus,
   type UpdateTaskMutation,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -27,6 +27,7 @@ import {
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import UpdateTask from '@/app/(task)/tasks/[slug]/graphql/UpdateTask.gql'
 import Me from '@/graphql/Me.gql'
+import { useLocale, useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { getAuthToken } from '@/utils/auth'
@@ -39,8 +40,12 @@ import {
   nextTaskImageUploadIndex,
   uploadTaskImagesWithPresign,
 } from '@/utils/taskImageUpload'
-import { Button, Footer, Link } from '@ui'
+import { Badge, Button, Footer, Link, StickyHeader } from '@ui'
+import { TaskStatusPill } from '../components/ui/TaskStatusPill'
 import { taskQueryVariables } from '../helpers/taskQueryVariables'
+import { EditTaskHelpCard } from './components/ui/EditTaskHelpCard'
+import { EditTaskPreviewCard } from './components/ui/EditTaskPreviewCard'
+import { editTaskPreviewLabels } from './helpers/editTaskPreview'
 
 import {
   CreateTaskBasicsSection,
@@ -59,44 +64,13 @@ import {
 } from '../../edit/editTaskFormSchema'
 import bag from './i11n.json'
 
-function EditTaskPageHeader({ taskTitle }: { taskTitle: string }) {
-  const t = useI11n(bag)
+const DATE_LOCALE = {
+  en: 'en-GB',
+  'zh-hk': 'zh-HK',
+} as const
 
-  return (
-    <Stack gap={2}>
-      <Link
-        href="/requests"
-        fontSize="sm"
-        fontWeight={600}
-        color="text.link"
-        _hover={{ textDecoration: 'none', color: 'text.link' }}
-      >
-        {t.backToRequests}
-      </Link>
-      <Stack gap={1}>
-        <Text
-          fontSize="xs"
-          fontWeight={700}
-          color="text.muted"
-          letterSpacing="0.06em"
-          textTransform="uppercase"
-        >
-          {t.eyebrow}
-        </Text>
-        <Text
-          fontSize={{ base: '2xl', md: '3xl' }}
-          fontWeight={800}
-          lineHeight="short"
-        >
-          {taskTitle}
-        </Text>
-        <Text color="text.muted" fontSize="sm" maxW="3xl">
-          {t.description}
-        </Text>
-      </Stack>
-    </Stack>
-  )
-}
+/** Rail sits below the compact sticky header (~68px) with a small gap. */
+const RAIL_STICKY_TOP = '84px'
 
 type EditTaskFormBodyProps = {
   taskId: string
@@ -111,6 +85,8 @@ function EditTaskFormBody({
 }: EditTaskFormBodyProps) {
   const t = useI11n(bag)
   const router = useRouter()
+  const localize = useLocalizedHref()
+  const locale = useLocale()
   const apollo = useApolloClient()
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const minAcceptedCap = countAcceptedQuotes(task.quotes)
@@ -145,6 +121,34 @@ function EditTaskFormBody({
   const budgetType = watch('budgetType')
   const paymentMethod = watch('paymentMethod')
   const preferredContactMethod = watch('preferredContactMethod')
+  const title = watch('title')
+  const description = watch('description')
+  const category = watch('category')
+  const budgetMajor = watch('budgetMajor')
+
+  const preview = editTaskPreviewLabels(
+    {
+      mapPlaceName,
+      locationLat,
+      locationLng,
+      datetimeType,
+      preferredDate,
+      preferredTime,
+      category,
+      budgetMajor,
+      budgetCurrency,
+    },
+    t.preview,
+    DATE_LOCALE[locale],
+  )
+
+  const onBack = useCallback(() => {
+    if (window.history.length > 1) {
+      router.back()
+      return
+    }
+    router.push(localize(`/tasks/${taskId}`))
+  }, [router, localize, taskId])
 
   const sharedRegister =
     register as unknown as UseFormRegister<CreateTaskFormFieldValues>
@@ -274,50 +278,15 @@ function EditTaskFormBody({
     }
   }
 
-  const mapScheduleStack = (
-    <Stack gap={6}>
-      <CreateTaskMapLocationPanel
-        mapboxAccessToken={mapboxAccessToken}
-        mapPlaceName={mapPlaceName}
-        locationLat={locationLat}
-        locationLng={locationLng}
-        register={sharedRegister}
-        streetAddressError={errors.streetAddress?.message}
-        onCopyMapPlaceToAddress={onCopyMapPlaceToAddress}
-        locationError={locationError}
-        onLocationChange={onMapPlaceNameChange}
-        onLocationLatChange={onLocationLatChange}
-        onLocationLngChange={onLocationLngChange}
-      />
-      <CreateTaskScheduleSection
-        datetimeType={datetimeType}
-        onDatetimeTypeChange={(v) =>
-          setValue('datetimeType', v, {
-            shouldValidate: true,
-            shouldDirty: true,
-          })
-        }
-        preferredDate={preferredDate}
-        preferredTime={preferredTime}
-        onPreferredDateChange={(v) =>
-          setValue('preferredDate', v, {
-            shouldValidate: true,
-            shouldDirty: true,
-          })
-        }
-        onPreferredTimeChange={(v) =>
-          setValue('preferredTime', v, {
-            shouldValidate: true,
-            shouldDirty: true,
-          })
-        }
-        fieldErrors={{
-          preferredDate: errors.preferredDate?.message,
-          preferredTime: errors.preferredTime?.message,
-        }}
-      />
-    </Stack>
-  )
+  const saving = updating || isSubmitting
+  const statusBadge =
+    task.status === TaskStatus.Draft ? (
+      <Badge variant="neutral" dot shape="pill" size="sm">
+        {t.preview.draft}
+      </Badge>
+    ) : (
+      <TaskStatusPill status="OPEN" size="sm" />
+    )
 
   return (
     <form
@@ -328,21 +297,55 @@ function EditTaskFormBody({
       }}
       noValidate
     >
+      <StickyHeader
+        title={t.title}
+        description={t.description}
+        backLabel={t.back}
+        backAriaLabel={t.backAria}
+        onBack={onBack}
+        action={({ isStuck }) => (
+          <Button type="submit" size={isStuck ? 'sm' : 'md'} loading={saving}>
+            {t.submit}
+          </Button>
+        )}
+      />
+      {serverError ? (
+        <Stack
+          gap={2}
+          mb={4}
+          p={4}
+          borderRadius="lg"
+          bg="status.danger.bg"
+          role="alert"
+        >
+          <Text color="status.danger.fg" fontSize="sm">
+            {serverError}
+          </Text>
+          {serverErrorCode === 'PROFILE_PHONE_REQUIRED' ? (
+            <Link
+              href="/account"
+              fontSize="sm"
+              fontWeight={600}
+              color="text.link"
+            >
+              Add or verify phone in Account
+            </Link>
+          ) : null}
+        </Stack>
+      ) : null}
       <Grid
         w="full"
         templateColumns={{
           base: '1fr',
-          lg: 'minmax(0,1fr) minmax(300px,380px)',
+          lg: 'minmax(0, 1fr) minmax(320px, 400px)',
         }}
-        templateRows={{ base: 'repeat(3, auto)', lg: 'auto auto' }}
-        gap={{ base: 8, lg: 10 }}
+        gap={{ base: 6, lg: 8 }}
         alignItems="start"
+        pb={{ base: 10, md: 16 }}
       >
-        <Box
-          gridColumn={{ base: '1', lg: '1' }}
-          gridRow={{ base: '1', lg: '1' }}
-        >
+        <Stack gap={6} minW={0}>
           <CreateTaskBasicsSection
+            sectionHeading={t.sections.basics}
             register={sharedRegister}
             fieldErrors={{
               title: errors.title?.message,
@@ -350,107 +353,120 @@ function EditTaskFormBody({
               description: errors.description?.message,
             }}
           />
-        </Box>
-        <Box
-          gridColumn={{ base: '1', lg: '2' }}
-          gridRow={{ base: '2', lg: '1 / span 2' }}
+          <CreateTaskScheduleSection
+            sectionHeading={t.sections.timing}
+            datetimeType={datetimeType}
+            onDatetimeTypeChange={(v) =>
+              setValue('datetimeType', v, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            preferredDate={preferredDate}
+            preferredTime={preferredTime}
+            onPreferredDateChange={(v) =>
+              setValue('preferredDate', v, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            onPreferredTimeChange={(v) =>
+              setValue('preferredTime', v, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            fieldErrors={{
+              preferredDate: errors.preferredDate?.message,
+              preferredTime: errors.preferredTime?.message,
+            }}
+          />
+          <CreateTaskMapLocationPanel
+            sectionHeading={t.sections.location}
+            mapboxAccessToken={mapboxAccessToken}
+            mapPlaceName={mapPlaceName}
+            locationLat={locationLat}
+            locationLng={locationLng}
+            register={sharedRegister}
+            streetAddressError={errors.streetAddress?.message}
+            onCopyMapPlaceToAddress={onCopyMapPlaceToAddress}
+            locationError={locationError}
+            onLocationChange={onMapPlaceNameChange}
+            onLocationLatChange={onLocationLatChange}
+            onLocationLngChange={onLocationLngChange}
+          />
+          <CreateTaskBudgetSection
+            sectionHeading={t.sections.budget}
+            register={sharedRegister}
+            budgetCurrency={budgetCurrency}
+            budgetType={budgetType}
+            paymentMethod={paymentMethod}
+            onBudgetCurrencyChange={(currency) =>
+              setValue('budgetCurrency', currency, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            onBudgetTypeChange={(t) =>
+              setValue('budgetType', t, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            onPaymentMethodChange={(m) =>
+              setValue('paymentMethod', m, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            budgetMajorError={errors.budgetMajor?.message}
+          />
+          <CreateTaskVisualsSection
+            sectionHeading={t.sections.photos}
+            existingImageUrls={existingImageUrls}
+            files={imageFiles}
+            previews={imagePreviewUrls}
+            onFilesAdded={onFilesAdded}
+            onRemoveFile={onRemoveFile}
+          />
+          <EditTaskAcceptedWorkerCapSection
+            register={register}
+            minAcceptedCap={minAcceptedCap}
+            errorText={errors.acceptedWorkerCap?.message}
+          />
+          <CreateTaskContactSection
+            sectionHeading={t.sections.contact}
+            preferredContactMethod={preferredContactMethod}
+            contactOptions={contactOptions}
+            onPreferredContactMethodChange={(m) =>
+              setValue('preferredContactMethod', m, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+          />
+        </Stack>
+        <Stack
+          gap={6}
+          minW={0}
           position={{ base: 'static', lg: 'sticky' }}
-          top={{ lg: 4 }}
-          alignSelf="start"
+          top={{ lg: RAIL_STICKY_TOP }}
         >
-          {mapScheduleStack}
-        </Box>
-        <Box
-          gridColumn={{ base: '1', lg: '1' }}
-          gridRow={{ base: '3', lg: '2' }}
-        >
-          <Stack gap={6}>
-            <CreateTaskVisualsSection
-              sectionHeading="Photos"
-              existingImageUrls={existingImageUrls}
-              files={imageFiles}
-              previews={imagePreviewUrls}
-              onFilesAdded={onFilesAdded}
-              onRemoveFile={onRemoveFile}
-            />
-            <CreateTaskBudgetSection
-              register={sharedRegister}
-              budgetCurrency={budgetCurrency}
-              budgetType={budgetType}
-              paymentMethod={paymentMethod}
-              onBudgetCurrencyChange={(currency) =>
-                setValue('budgetCurrency', currency, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-              onBudgetTypeChange={(t) =>
-                setValue('budgetType', t, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-              onPaymentMethodChange={(m) =>
-                setValue('paymentMethod', m, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-              budgetMajorError={errors.budgetMajor?.message}
-            />
-            <EditTaskAcceptedWorkerCapSection
-              register={register}
-              minAcceptedCap={minAcceptedCap}
-              errorText={errors.acceptedWorkerCap?.message}
-            />
-            <CreateTaskContactSection
-              preferredContactMethod={preferredContactMethod}
-              contactOptions={contactOptions}
-              onPreferredContactMethodChange={(m) =>
-                setValue('preferredContactMethod', m, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-            />
-            <Stack gap={3} pt={2}>
-              <HStack justify="space-between" flexWrap="wrap" gap={3}>
-                <Link
-                  href={`/tasks/${taskId}`}
-                  _hover={{ textDecoration: 'none' }}
-                >
-                  <Button type="button" variant="ghost">
-                    Cancel
-                  </Button>
-                </Link>
-                <Button
-                  type="submit"
-                  size="lg"
-                  loading={updating || isSubmitting}
-                >
-                  {t.submit}
-                </Button>
-              </HStack>
-              {serverError ? (
-                <Stack gap={2}>
-                  <Text color="status.danger.fg" fontSize="sm">
-                    {serverError}
-                  </Text>
-                  {serverErrorCode === 'PROFILE_PHONE_REQUIRED' ? (
-                    <Link
-                      href="/account"
-                      fontSize="sm"
-                      fontWeight={600}
-                      color="text.link"
-                    >
-                      Add or verify phone in Account
-                    </Link>
-                  ) : null}
-                </Stack>
-              ) : null}
-            </Stack>
-          </Stack>
-        </Box>
+          <EditTaskPreviewCard
+            eyebrow={t.preview.eyebrow}
+            statusBadge={statusBadge}
+            title={title.trim() || t.preview.untitled}
+            description={description.trim() || t.preview.noDescription}
+            locationLabel={preview.locationLabel}
+            whenLabel={preview.whenLabel}
+            categoryLabel={preview.categoryLabel}
+            budgetLabel={preview.budgetLabel}
+            lat={preview.lat}
+            lng={preview.lng}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <EditTaskHelpCard />
+        </Stack>
       </Grid>
     </form>
   )
@@ -585,21 +601,14 @@ export default function EditTaskPage() {
 
   return (
     <Box bg="bg.canvas" color="text.default" minH="100vh">
-      <Stack gap={0}>
-        <Box as="section" bg="bg.surface" py={{ base: 8, md: 10 }}>
-          <Container>
-            <Stack gap={8}>
-              <EditTaskPageHeader taskTitle={task.title} />
-              <EditTaskFormBody
-                taskId={taskId}
-                task={task}
-                contactOptions={contactOptions}
-              />
-            </Stack>
-          </Container>
-        </Box>
-        <Footer />
-      </Stack>
+      <Container>
+        <EditTaskFormBody
+          taskId={taskId}
+          task={task}
+          contactOptions={contactOptions}
+        />
+      </Container>
+      <Footer />
     </Box>
   )
 }

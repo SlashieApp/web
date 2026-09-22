@@ -10,12 +10,10 @@ import {
   MAP_FADE_BOTTOM,
 } from '@/app/(task)/helpers/marketplaceMap'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
-import { Tabs } from '@ui'
+import { findScrollParent } from '@/utils/findScrollParent'
+import { MOBILE_BOTTOM_NAV_MAX_W, Tabs } from '@ui'
 
-import {
-  TASK_DETAIL_STUCK_TOP_PADDING,
-  findScrollParent,
-} from '../../helpers/taskDetailHeaderCollapse'
+import { TASK_DETAIL_STUCK_TOP_PADDING } from '../../helpers/taskDetailHeaderCollapse'
 import { TASK_DETAIL_TAB_BODY_MIN_H } from '../../helpers/taskDetailLayout'
 import type { TaskDetailTab } from '../../helpers/taskDetailTabs'
 
@@ -47,6 +45,13 @@ export type TaskDetailTabLayoutProps = {
 }
 
 const COMPACT_MAX_PX = WEB_MIN_PX - 1
+
+/**
+ * Web main CTA: half the row (wider than the 1/3 rail cards), capped at the
+ * floating nav width. TabIntro takes what is left beside it.
+ */
+const WEB_MAIN_CTA_W = `min(${MOBILE_BOTTOM_NAV_MAX_W}, calc((100% - 1.5rem) / 2))`
+const WEB_INTRO_BESIDE_CTA_MAX_W = `calc(100% - ${WEB_MAIN_CTA_W} - 1.5rem)`
 
 /**
  * Compact (phone + tablet) wash sits on the sticky title/tab chrome and
@@ -234,7 +239,7 @@ export function TaskDetailTabLayout({
               w="full"
               maxW={{
                 base: 'full',
-                lg: mainCta ? 'calc((100% - 1.5rem) * 2 / 3)' : 'full',
+                lg: mainCta ? WEB_INTRO_BESIDE_CTA_MAX_W : 'full',
               }}
             >
               <TabIntro
@@ -248,6 +253,7 @@ export function TaskDetailTabLayout({
                 position="absolute"
                 right={0}
                 bottom={0}
+                w={WEB_MAIN_CTA_W}
                 minW={0}
                 pointerEvents="auto"
               >

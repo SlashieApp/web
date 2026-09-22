@@ -8,34 +8,14 @@ import {
   useState,
 } from 'react'
 
+import { findScrollParent } from '@/utils/findScrollParent'
+
 /**
  * The app header is `HEADER_MIN_HEIGHT` plus a 1px border on the top and
  * bottom. Without this inset the map shows through that strip between the
  * app header and the stuck task chrome.
  */
 export const TASK_DETAIL_STUCK_TOP_PADDING = '2px'
-
-/**
- * Nearest scrollable ancestor of `node` — in the (task) app shell this is the
- * content pane (`overflow-y: auto`), NOT the window (which never scrolls in
- * this shell). Returns null if none is found, so callers can fall back to the
- * window.
- */
-export function findScrollParent(node: HTMLElement): HTMLElement | null {
-  let el = node.parentElement
-  while (el) {
-    const overflowY = getComputedStyle(el).overflowY
-    if (
-      overflowY === 'auto' ||
-      overflowY === 'scroll' ||
-      overflowY === 'overlay'
-    ) {
-      return el
-    }
-    el = el.parentElement
-  }
-  return null
-}
 
 /**
  * Collapsed flag for the task-detail header + map, driven by the ACTUAL scroll

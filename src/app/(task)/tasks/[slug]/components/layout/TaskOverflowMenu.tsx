@@ -117,7 +117,9 @@ export function TaskOverflowActions({
         href={`mailto:${LEGAL_CONTACT_EMAIL}`}
         onClick={close}
       />
-      <TaskReportControl variant="menu" onOpened={close} />
+      {permissions.isOwner ? null : (
+        <TaskReportControl variant="menu" onOpened={close} />
+      )}
       {permissions.canCancelTask ? (
         <>
           <MenuAction

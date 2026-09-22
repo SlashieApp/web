@@ -66,7 +66,8 @@ type PinDom = {
   pricePillWrap: HTMLDivElement
   pricePill: HTMLDivElement
   priceEl: HTMLDivElement
-  milesEl: HTMLDivElement
+  /** Absent without a reference location; the price then sits centred alone. */
+  milesEl: HTMLDivElement | null
   pinDot: HTMLSpanElement
   /** True for worker `person` pins (avatar chip pill instead of price pill). */
   isPersonPin: boolean
@@ -148,6 +149,7 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
     padding: '10px 12px',
     borderRadius: POPUP_RADIUS,
     background: PIN.white,
+    textAlign: dom.milesEl ? 'left' : 'center',
     transition: pinTransition(motion, ['border-color', 'box-shadow']),
   })
 
@@ -168,17 +170,19 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
     fontWeight: '800',
     lineHeight: '1.1',
     color: PIN.green,
-    marginBottom: '2px',
+    marginBottom: dom.milesEl ? '2px' : '0',
     whiteSpace: 'nowrap',
   })
 
-  Object.assign(dom.milesEl.style, {
-    fontSize: '12px',
-    fontWeight: '600',
-    lineHeight: '1.25',
-    color: PIN.textMuted,
-    whiteSpace: 'nowrap',
-  })
+  if (dom.milesEl) {
+    Object.assign(dom.milesEl.style, {
+      fontSize: '12px',
+      fontWeight: '600',
+      lineHeight: '1.25',
+      color: PIN.textMuted,
+      whiteSpace: 'nowrap',
+    })
+  }
 }
 
 /** Visible pin tip for browse (selected stays a point, not a zone). */

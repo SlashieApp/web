@@ -27,6 +27,9 @@ export const MOBILE_BOTTOM_NAV_CLEARANCE =
 export const MOBILE_BOTTOM_NAV_OFFSET =
   'calc(88px + env(safe-area-inset-bottom, 0px))' as const
 
+/** Widest the floating pill grows; other floating bars match it. */
+export const MOBILE_BOTTOM_NAV_MAX_W = '580px' as const
+
 /** Full-bleed dissolve behind the pill (taller than the bar itself). */
 const MOBILE_BOTTOM_NAV_FADE_HEIGHT =
   'calc(64px + env(safe-area-inset-bottom, 0px))' as const
@@ -255,7 +258,7 @@ export function MobileBottomNav() {
           borderColor="border.default"
           borderRadius="lg"
           w="full"
-          maxW="580px"
+          maxW={MOBILE_BOTTOM_NAV_MAX_W}
           minW={0}
           mx="auto"
           boxShadow={sdlElevation.e3}

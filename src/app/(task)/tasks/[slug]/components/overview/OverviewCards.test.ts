@@ -43,7 +43,7 @@ describe('OverviewCards layout', () => {
     expect(pricing).toContain('t.cta.sendQuote')
     expect(pricing).toContain('t.cta.signInToQuote')
     expect(pricing).toContain('SafetyNotice')
-    expect(pricing).toContain('TASK_DETAIL_RAIL_CARD')
+    expect(pricing).toContain('TaskDetailSplitCta')
     expect(pricing).toContain('eyebrow={t.details.budget}')
   })
 })

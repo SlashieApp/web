@@ -7,6 +7,7 @@ import { Button, Card, Footer } from '@ui'
 
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import { useI11n } from '@/i18n/useI11n'
+import { findScrollParent } from '@/utils/findScrollParent'
 
 import {
   WorkerAboutSection,
@@ -36,22 +37,6 @@ import {
   workerProfileCompleteness,
 } from './helpers/workerProfileOwner'
 import bag from './i11n.json'
-
-function findScrollParent(node: HTMLElement): HTMLElement | null {
-  let el = node.parentElement
-  while (el) {
-    const overflowY = getComputedStyle(el).overflowY
-    if (
-      overflowY === 'auto' ||
-      overflowY === 'scroll' ||
-      overflowY === 'overlay'
-    ) {
-      return el
-    }
-    el = el.parentElement
-  }
-  return null
-}
 
 /**
  * The router's own scroll-to-top is skipped when a navigation runs a view

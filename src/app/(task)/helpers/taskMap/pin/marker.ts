@@ -94,10 +94,15 @@ function createPinDom(task: TaskMapTask): PinDom {
 
   const priceEl = document.createElement('div')
   priceEl.textContent = pinPriceText(task)
-  const milesEl = document.createElement('div')
-  milesEl.textContent = pinMilesText(task)
-
-  popupBody.append(priceEl, milesEl)
+  const milesText = pinMilesText(task)
+  let milesEl: HTMLDivElement | null = null
+  if (milesText) {
+    milesEl = document.createElement('div')
+    milesEl.textContent = milesText
+    popupBody.append(priceEl, milesEl)
+  } else {
+    popupBody.append(priceEl)
+  }
   popupReveal.appendChild(popupBody)
   popupShell.appendChild(popupReveal)
   pricePillWrap.appendChild(pricePill)

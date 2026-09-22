@@ -9,37 +9,25 @@ import { Badge, Button, Card, DetailRow, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
-import {
-  TASK_DETAIL_RAIL_CARD,
-  TASK_DETAIL_SECTION_CARD,
-} from '../../helpers/taskDetailLayout'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import {
   budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
   taskBudgetDisplayLine,
 } from '../../helpers/taskDetailUtils'
-import { TaskDetailPinCard } from '../ui/TaskDetailPinCard'
+import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
 
 function PricingQuoteCta({
   href,
   kind,
-  compact,
-  stretch,
 }: {
   href: string
   kind: 'sendQuote' | 'signInToQuote'
-  compact?: boolean
-  stretch?: boolean
 }) {
   const t = useI11n(bag)
   const label = kind === 'signInToQuote' ? t.cta.signInToQuote : t.cta.sendQuote
   return (
-    <Button
-      asChild
-      variant="primary"
-      size={compact ? 'sm' : undefined}
-      w={stretch || !compact ? 'full' : undefined}
-    >
+    <Button asChild variant="primary" w="full">
       <Link href={href} _hover={{ textDecoration: 'none' }}>
         {label}
       </Link>
@@ -49,7 +37,7 @@ function PricingQuoteCta({
 
 type TaskPricingCardProps = {
   compact?: boolean
-  /** Compact web rail CTA — eyebrow + budget + meta, not the full overview card. */
+  /** Web main CTA — the two-part budget + quote control, not the full card. */
   rail?: boolean
 }
 
@@ -86,59 +74,36 @@ export function TaskPricingCard({
     (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote')
   const quoteHref = task ? `/tasks/${task.id}/quote` : ''
 
-  if (compact) {
-    const subtitle = [budgetKind, paymentLabel].filter(Boolean).join(' · ')
+  const loading = pending && !task
+
+  if (compact || rail) {
+    const meta = [budgetKind, paymentLabel].filter(Boolean).join(' · ')
     return (
-      <TaskDetailPinCard
-        title={budgetLine ?? t.details.budget}
-        subtitle={subtitle || t.details.budget}
+      <TaskDetailSplitCta
+        eyebrow={t.details.budget}
+        value={
+          budgetLine ??
+          (loading ? (
+            <Skeleton as="span" display="block" h="24px" w="64px" />
+          ) : (
+            '—'
+          ))
+        }
+        meta={meta || undefined}
+        fullWidth
         action={
           showQuoteCta &&
-          (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote') ? (
-            <PricingQuoteCta href={quoteHref} kind={quoteKind} compact />
-          ) : undefined
+          (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote')
+            ? {
+                href: quoteHref,
+                label:
+                  quoteKind === 'signInToQuote'
+                    ? t.cta.signInToQuote
+                    : t.cta.sendQuote,
+              }
+            : undefined
         }
       />
-    )
-  }
-
-  const loading = pending && !task
-  const quoteCta =
-    showQuoteCta &&
-    (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote') ? (
-      <PricingQuoteCta
-        href={quoteHref}
-        kind={quoteKind}
-        compact={rail}
-        stretch={rail}
-      />
-    ) : null
-
-  if (rail) {
-    return (
-      <Card
-        {...TASK_DETAIL_RAIL_CARD}
-        eyebrow={t.details.budget}
-        metric={budgetLine}
-        aria-busy={loading ? true : undefined}
-      >
-        {loading && !budgetLine ? (
-          <Skeleton h="24px" w="42%" borderRadius="md" />
-        ) : null}
-        {budgetKind || paymentLabel ? (
-          <HStack gap={2} align="center" flexWrap="wrap">
-            {budgetKind ? <Badge variant="success">{budgetKind}</Badge> : null}
-            {paymentLabel ? (
-              <Text fontSize="sm" color="text.muted" lineHeight="short">
-                {paymentLabel}
-              </Text>
-            ) : null}
-          </HStack>
-        ) : loading ? (
-          <Skeleton h="22px" w="88px" borderRadius="full" />
-        ) : null}
-        {quoteCta}
-      </Card>
     )
   }
 

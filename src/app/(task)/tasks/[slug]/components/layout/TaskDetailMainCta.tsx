@@ -1,17 +1,15 @@
 'use client'
 
-import { Box, HStack, type SystemStyleObject } from '@chakra-ui/react'
+import { Box, type SystemStyleObject, Text } from '@chakra-ui/react'
 import { createPortal } from 'react-dom'
-import { LuPencil } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
 import { WEB_MQ } from '@/theme/breakpoints'
 import { useIsBrowser } from '@/utils/useIsBrowser'
-import { Button, Card, IconButton, Link } from '@ui'
+import { Button, MOBILE_BOTTOM_NAV_MAX_W } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
-import { TASK_DETAIL_RAIL_CARD } from '../../helpers/taskDetailLayout'
 import type { TaskDetailSectionId } from '../../helpers/taskDetailStickySections'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
@@ -19,6 +17,7 @@ import bag from '../../i11n.json'
 import { TaskOwnerCard } from '../overview/TaskOwnerCard'
 import { TaskPricingCard } from '../overview/TaskPricingCard'
 import { TaskShareCard } from '../overview/TaskShareCard'
+import { TaskDetailMainCtaCard } from '../ui/TaskDetailMainCtaCard'
 import { TaskDetailPinCard } from '../ui/TaskDetailPinCard'
 import { Reveal } from './Reveal'
 
@@ -30,11 +29,20 @@ const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
 const reducedTransparencyQuery =
   '@media (prefers-reduced-transparency: reduce), (prefers-reduced-motion: reduce)' as const
 
-/** White wash that dissolves upward so scrolling cards fade under the pin. */
+const PIN_FADE_MASK = 'linear-gradient(to top, #000 45%, transparent 100%)'
+
+/**
+ * Blurred white wash that dissolves upward so scrolling cards fade under
+ * the pin. The mask feathers the blur so it has no hard top edge.
+ */
 const pinFadeCss: SystemStyleObject = {
-  background: `linear-gradient(to top, ${surfaceVar} 0%, color-mix(in srgb, ${surfaceVar} 88%, transparent) 38%, color-mix(in srgb, ${surfaceVar} 42%, transparent) 68%, transparent 100%)`,
+  background: `linear-gradient(to top, ${surfaceVar} 0%, color-mix(in srgb, ${surfaceVar} 80%, transparent) 38%, color-mix(in srgb, ${surfaceVar} 36%, transparent) 68%, transparent 100%)`,
+  backdropFilter: 'blur(10px)',
+  maskImage: PIN_FADE_MASK,
+  WebkitMaskImage: PIN_FADE_MASK,
   [reducedTransparencyQuery]: {
     background: `linear-gradient(to top, ${surfaceVar} 0%, color-mix(in srgb, ${surfaceVar} 92%, transparent) 55%, transparent 100%)`,
+    backdropFilter: 'none',
   },
 }
 
@@ -63,10 +71,7 @@ function TaskDetailCompletionBar({ web = false }: { web?: boolean }) {
     permissions,
     quoteCount: task.quotes.length,
   })
-  const showEdit = permissions.canEditTask
-  if (kind !== 'confirm' && kind !== 'complete' && !showEdit) return null
-
-  const editHref = `/tasks/${task.id}/edit`
+  if (kind !== 'confirm' && kind !== 'complete') return null
 
   const action =
     kind === 'confirm' ? (
@@ -82,7 +87,7 @@ function TaskDetailCompletionBar({ web = false }: { web?: boolean }) {
       >
         {t.cta.confirm}
       </Button>
-    ) : kind === 'complete' ? (
+    ) : (
       <Button
         variant="primary"
         size="sm"
@@ -95,50 +100,24 @@ function TaskDetailCompletionBar({ web = false }: { web?: boolean }) {
       >
         {t.cta.complete}
       </Button>
-    ) : null
+    )
 
   const title =
-    kind === 'confirm'
-      ? t.booking.customerTitle
-      : kind === 'complete'
-        ? t.booking.workerTitle
-        : t.actions.editTask
+    kind === 'confirm' ? t.booking.customerTitle : t.booking.workerTitle
   const subtitle =
-    kind === 'confirm'
-      ? t.booking.completionCode
-      : kind === 'complete'
-        ? t.verification.enterCodeCta
-        : undefined
-
-  const actions = (
-    <HStack gap={web ? 2 : 1} align="center">
-      {action}
-      {showEdit ? (
-        <IconButton
-          asChild
-          variant="ghost"
-          size="sm"
-          aria-label={t.cta.editAria}
-        >
-          <Link href={editHref} _hover={{ textDecoration: 'none' }}>
-            <LuPencil />
-          </Link>
-        </IconButton>
-      ) : null}
-    </HStack>
-  )
+    kind === 'confirm' ? t.booking.completionCode : t.verification.enterCodeCta
 
   if (web) {
     return (
-      <Card {...TASK_DETAIL_RAIL_CARD} eyebrow={title} description={subtitle}>
-        {actions}
-      </Card>
+      <TaskDetailMainCtaCard eyebrow={title} action={action}>
+        <Text fontSize="sm" color="text.muted" lineHeight="short">
+          {subtitle}
+        </Text>
+      </TaskDetailMainCtaCard>
     )
   }
 
-  return (
-    <TaskDetailPinCard title={title} subtitle={subtitle} action={actions} />
-  )
+  return <TaskDetailPinCard title={title} subtitle={subtitle} action={action} />
 }
 
 function MainCtaCard({
@@ -205,12 +184,21 @@ export function TaskDetailMainCta() {
       <TaskDetailMainCtaFade />
       <Box
         position="relative"
-        px={3}
+        px={2}
         pt={2}
         pb="calc(10px + env(safe-area-inset-bottom, 0px))"
       >
         <Reveal>
-          <Box pointerEvents="auto">{pinCard}</Box>
+          <Box
+            pointerEvents="auto"
+            display="flex"
+            justifyContent="center"
+            w="full"
+            maxW={MOBILE_BOTTOM_NAV_MAX_W}
+            mx="auto"
+          >
+            {pinCard}
+          </Box>
         </Reveal>
       </Box>
     </Box>
@@ -221,7 +209,8 @@ export function TaskDetailMainCta() {
       <Box
         data-task-detail-main-cta
         data-task-detail-pin={pinnedId}
-        display={{ base: 'none', lg: 'block' }}
+        display={{ base: 'none', lg: 'flex' }}
+        justifyContent="flex-end"
         w="full"
         minW={0}
       >

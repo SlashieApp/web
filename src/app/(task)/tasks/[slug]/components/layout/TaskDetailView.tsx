@@ -7,6 +7,7 @@ import {
   PAGE_CONTAINER_MAX_W_CSS,
   PAGE_GUTTER_X,
 } from '@/theme/pageContainer'
+import { Footer } from '@ui'
 
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '../../helpers/taskDetailLayout'
 import { taskDetailPinClearance } from '../../helpers/taskDetailPinClearance'
@@ -90,14 +91,17 @@ export function TaskDetailView() {
           <Box pointerEvents="auto" w="full" minW={0}>
             <Reveal>
               <TaskDetailTabs fittedBelowLg px={{ base: 4, lg: 0 }} />
-              <Box
-                display={{ base: 'block', lg: 'none' }}
-                bg="bg.canvas"
-                h={taskDetailPinClearance(pinnedId)}
-                aria-hidden
-              />
             </Reveal>
           </Box>
+        </Box>
+        <Box pointerEvents="auto">
+          <Footer />
+          <Box
+            display={{ base: 'block', lg: 'none' }}
+            bg="status.success.soft"
+            h={taskDetailPinClearance(pinnedId)}
+            aria-hidden
+          />
         </Box>
       </Box>
     </Box>

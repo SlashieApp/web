@@ -10,16 +10,19 @@ export function pinPriceText(task: TaskMapTask): string {
   return head || line
 }
 
-/** Distance from search reference (e.g. "2.1 mi away"). */
-export function pinMilesText(task: TaskMapTask): string {
-  const d = task.distanceLabel?.trim()
-  if (d) return d
-  return '—'
+/**
+ * Distance from search reference (e.g. "2.1 mi away"). Null without a
+ * reference location, so the popup shows the price alone.
+ */
+export function pinMilesText(task: TaskMapTask): string | null {
+  return task.distanceLabel?.trim() || null
 }
 
 /** Accessible label for a task pin. Clicking the pin opens task detail. */
 export function pinAriaLabel(task: TaskMapTask): string {
-  return `${pinPriceText(task)}, ${pinMilesText(task)}. View task details.`
+  const miles = pinMilesText(task)
+  const summary = miles ? `${pinPriceText(task)}, ${miles}` : pinPriceText(task)
+  return `${summary}. View task details.`
 }
 
 /** Initials for `person` pin avatar fallback (from the pin title). */
@@ -38,7 +41,7 @@ export function pinAvatarInitials(task: TaskMapTask): string {
 export function taskPinContentSig(task: TaskMapTask): string {
   return [
     pinPriceText(task),
-    pinMilesText(task),
+    pinMilesText(task) ?? '',
     task.pinKind ?? 'price',
     task.avatarUrl ?? '',
   ].join('\x1f')

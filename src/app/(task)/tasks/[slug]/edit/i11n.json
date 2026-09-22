@@ -5,14 +5,39 @@
       "description": "Update your Slashie task details, timing, budget, quote cap, and contact preference."
     },
     "eyebrow": "Edit task",
-    "title": "Update your task",
-    "description": "Keep task details accurate so workers can quote with confidence.",
+    "title": "Edit task",
+    "description": "Update your task details below. Changes are visible to nearby workers right away.",
+    "back": "Back",
+    "backAria": "Go back",
     "backToRequests": "Back to my requests",
     "submit": "Save changes",
     "loading": "Loading task...",
     "loadingProfile": "Loading your profile...",
     "notFoundTitle": "Task not found",
-    "notFoundDescription": "This task may have been removed or the link is invalid."
+    "notFoundDescription": "This task may have been removed or the link is invalid.",
+    "sections": {
+      "basics": "Basic information",
+      "timing": "Timing",
+      "location": "Location",
+      "budget": "Budget",
+      "photos": "Photos",
+      "contact": "Preferred contact"
+    },
+    "preview": {
+      "eyebrow": "Task preview",
+      "draft": "Draft",
+      "untitled": "Untitled task",
+      "noDescription": "Add a description so workers know what you need.",
+      "flexible": "Flexible",
+      "before": "Before {date}",
+      "anyTime": "Any time"
+    },
+    "help": {
+      "heading": "Need help?",
+      "body": "Questions about posting or managing your task? Our team is happy to help.",
+      "safety": "Paying & meeting safely",
+      "contact": "Contact support"
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -20,13 +45,38 @@
       "description": "更新你的 Slashie 任務詳情、時間、預算、報價名額和聯絡偏好。"
     },
     "eyebrow": "編輯任務",
-    "title": "更新你的任務",
-    "description": "保持任務詳情準確，讓 workers 更有信心報價。",
+    "title": "編輯任務",
+    "description": "在下方更新任務詳情。變更會立即向附近的 workers 顯示。",
+    "back": "返回",
+    "backAria": "返回上一頁",
     "backToRequests": "返回我的請求",
     "submit": "儲存變更",
     "loading": "正在載入任務...",
     "loadingProfile": "正在載入你的個人檔案...",
     "notFoundTitle": "找不到任務",
-    "notFoundDescription": "此任務可能已移除，或連結無效。"
+    "notFoundDescription": "此任務可能已移除，或連結無效。",
+    "sections": {
+      "basics": "基本資料",
+      "timing": "時間",
+      "location": "地點",
+      "budget": "預算",
+      "photos": "相片",
+      "contact": "偏好聯絡方式"
+    },
+    "preview": {
+      "eyebrow": "任務預覽",
+      "draft": "草稿",
+      "untitled": "未命名任務",
+      "noDescription": "加入描述，讓 workers 了解你的需要。",
+      "flexible": "時間彈性",
+      "before": "{date} 前",
+      "anyTime": "任何時間"
+    },
+    "help": {
+      "heading": "需要協助？",
+      "body": "對發佈或管理任務有疑問？我們的團隊樂意協助。",
+      "safety": "安全付款及見面",
+      "contact": "聯絡客服"
+    }
   }
 }

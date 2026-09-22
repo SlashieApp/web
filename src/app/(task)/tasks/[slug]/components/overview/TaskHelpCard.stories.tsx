@@ -6,7 +6,6 @@ import { TaskHelpCard } from './TaskHelpCard'
 const meta: Meta<typeof TaskHelpCard> = {
   title: 'task/tasks/overview/TaskHelpCard',
   component: TaskHelpCard,
-  decorators: [withTaskDetailStory({ viewer: 'owner' })],
   parameters: {
     layout: 'padded',
   },
@@ -15,4 +14,11 @@ const meta: Meta<typeof TaskHelpCard> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+/** Owner: no "Report task" on their own task. */
+export const Default: Story = {
+  decorators: [withTaskDetailStory({ viewer: 'owner' })],
+}
+
+export const Visitor: Story = {
+  decorators: [withTaskDetailStory({ viewer: 'visitor' })],
+}

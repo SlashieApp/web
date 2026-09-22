@@ -215,6 +215,7 @@ function EmptyBlock({
       borderStyle="dashed"
       borderColor="border.default"
       borderRadius="lg"
+      bg="bg.surface"
       textAlign="center"
     >
       <Box

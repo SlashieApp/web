@@ -30,7 +30,7 @@ const DATE_LOCALE = {
   'zh-hk': 'zh-HK',
 } as const
 
-function MetaPill({
+export function MetaPill({
   icon,
   children,
   href,
