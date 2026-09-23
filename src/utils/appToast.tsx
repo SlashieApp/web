@@ -38,6 +38,7 @@ export function showAppToast({
     description,
     type,
     duration,
+    closable: true,
   })
 }
 

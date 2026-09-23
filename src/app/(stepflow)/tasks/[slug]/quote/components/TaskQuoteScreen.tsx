@@ -16,6 +16,7 @@ import {
   taskQuotePreviousSubStep,
   taskQuoteProgressPercent,
 } from '../helpers/taskQuoteSteps.config'
+import { TaskQuoteHeader } from './layout/TaskQuoteHeader'
 import { TaskQuoteProgressBar } from './layout/stepper/TaskQuoteProgressBar'
 import { TaskQuoteStepper } from './layout/stepper/TaskQuoteStepper'
 import { TaskQuoteTaskDetailPanel } from './ui/shared/TaskQuoteTaskDetailPanel'
@@ -184,6 +185,7 @@ export function TaskQuoteScreen({
   return (
     <StepFlowLayout
       banner={<AppStatusBanners />}
+      header={<TaskQuoteHeader exitHref={backToTask} />}
       mobileTop={
         <TaskQuoteTaskDetailPanel backHref={backToTask} variant="section" />
       }

@@ -9,7 +9,6 @@ import { LuSlidersHorizontal } from 'react-icons/lu'
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { DashboardSectionCard } from '@/app/(dashboard)/components/layout/DashboardSectionCard'
-import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useI11n } from '@/i18n/useI11n'
 import { captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -102,17 +101,6 @@ export function AccountSettingsCard() {
       icon={<LuSlidersHorizontal size={18} aria-hidden />}
     >
       <Stack gap={4}>
-        <HStack justify="space-between" align="center" gap={4}>
-          <Stack gap={0} flex="1" minW={0}>
-            <Text fontSize="sm" fontWeight={700}>
-              {t.languageTitle}
-            </Text>
-            <Text fontSize="xs" color="text.muted">
-              {t.languageDescription}
-            </Text>
-          </Stack>
-          <LanguageSwitcher label={t.languageTitle} />
-        </HStack>
         <SettingToggle
           label={t.privateProfile}
           description={t.privateProfileDescription}

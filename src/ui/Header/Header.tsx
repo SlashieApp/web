@@ -15,7 +15,6 @@ import { useCallback, useState } from 'react'
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
-import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
@@ -224,9 +223,6 @@ function GuestMobileMenu({
         size="full"
       >
         <Stack as="nav" gap={0} align="stretch" flex={1}>
-          <HStack justify="flex-end" align="center" mb={3} flexShrink={0}>
-            <LanguageSwitcher />
-          </HStack>
           <Link
             href={WORKER_SEARCH_HREF}
             {...accountNavLinkRowProps}
@@ -285,7 +281,6 @@ function HeaderAuthSkeleton() {
         aria-busy="true"
         aria-label={t.authLoadingAria}
       >
-        <LanguageSwitcher />
         <Skeleton boxSize="44px" borderRadius="full" flexShrink={0} />
         <Skeleton boxSize="44px" borderRadius="full" flexShrink={0} />
       </HStack>
@@ -361,7 +356,6 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
           <>
             <HeaderToolbarSeparator display="block" ml={2} />
             <HStack gap={1} align="center" flexShrink={0} overflow="visible">
-              <LanguageSwitcher />
               <NotificationsBell />
               <AccountMenu />
             </HStack>
@@ -369,7 +363,6 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
         ) : (
           <>
             <HeaderToolbarSeparator />
-            <LanguageSwitcher />
             <Box display={{ base: 'none', lg: 'inline-flex' }}>
               <FeedbackTrigger variant="button" />
             </Box>

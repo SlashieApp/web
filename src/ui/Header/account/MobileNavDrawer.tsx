@@ -5,7 +5,6 @@ import { useCallback } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe } from '@/app/(auth)/store/user'
-import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useI11n } from '@/i18n/useI11n'
 
 import { Button } from '../../Button'
@@ -18,9 +17,14 @@ import { AccountMenuContent } from './AccountMenuContent'
 export type MobileNavDrawerProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onOpenLanguage: () => void
 }
 
-export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
+export function MobileNavDrawer({
+  open,
+  onOpenChange,
+  onOpenLanguage,
+}: MobileNavDrawerProps) {
   const me = useMe()
   const t = useI11n(bag)
   const postTaskBlocked = me != null && !isEmailVerified(me)
@@ -36,7 +40,6 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
       size="full"
     >
       <HStack justify="flex-end" align="center" gap={2} mb={3} flexShrink={0}>
-        <LanguageSwitcher />
         {postTaskBlocked ? (
           <Button size="sm" variant="secondary" disabled>
             {t.postTask}
@@ -54,7 +57,7 @@ export function MobileNavDrawer({ open, onOpenChange }: MobileNavDrawerProps) {
         )}
       </HStack>
 
-      <AccountMenuContent onClose={close} />
+      <AccountMenuContent onClose={close} onOpenLanguage={onOpenLanguage} />
     </Drawer>
   )
 }

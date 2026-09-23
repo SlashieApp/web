@@ -31,10 +31,15 @@ export function AccountMenuAvatar({
 type AccountMenuContentProps = {
   /** Override close handler (e.g. mobile drawer). Defaults to `useDropdownClose()`. */
   onClose?: () => void
+  /** Opens the full-page language list. Hosted outside this panel so it survives close. */
+  onOpenLanguage?: () => void
 }
 
 /** Account menu panel body — slot into `Dropdown` or pass `onClose` for drawers. */
-export function AccountMenuContent({ onClose }: AccountMenuContentProps = {}) {
+export function AccountMenuContent({
+  onClose,
+  onOpenLanguage,
+}: AccountMenuContentProps = {}) {
   const me = useMe()
   const href = useLocalizedHref()
   const user = useUserStore((state) => state.user)
@@ -72,6 +77,7 @@ export function AccountMenuContent({ onClose }: AccountMenuContentProps = {}) {
         onNavigate={close}
         onLogout={onLogout}
         onOpenNotifications={() => notifications?.openDrawer()}
+        onOpenLanguage={onOpenLanguage}
       />
     </>
   )

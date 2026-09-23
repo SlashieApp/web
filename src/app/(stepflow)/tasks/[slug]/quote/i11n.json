@@ -4,6 +4,8 @@
       "title": "Send quote | Slashie",
       "description": "Send a clear quote for a Slashie task with price, message, and availability."
     },
+    "eyebrow": "Send a quote",
+    "closeLabel": "Close quote",
     "title": "Send a quote",
     "description": "Share your price, timing, and why you are a good fit for this task.",
     "submit": "Submit quote",
@@ -16,6 +18,8 @@
       "title": "傳送報價 | Slashie",
       "description": "為 Slashie 任務傳送清晰報價，包括價錢、訊息和可提供時間。"
     },
+    "eyebrow": "傳送報價",
+    "closeLabel": "關閉報價",
     "title": "傳送報價",
     "description": "分享你的價錢、時間，以及為何適合這個任務。",
     "submit": "提交報價",
