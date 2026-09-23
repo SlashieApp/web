@@ -1,28 +1,33 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { HStack, Text } from '@chakra-ui/react'
-import { LuMapPin } from 'react-icons/lu'
+import { Stack, Text } from '@chakra-ui/react'
+import { LuCalendar, LuCreditCard, LuMapPin, LuUser } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
-import { orderSnapshotDatetime } from '@/utils/orderHelpers'
+import {
+  formatOrderAgreedPrice,
+  orderSnapshotDatetime,
+} from '@/utils/orderHelpers'
 import {
   countdownToExactSchedule,
   formatTaskScheduleLabel,
 } from '@/utils/taskJobSchedule'
-import { Button, Card, DetailRow, Link, SafetyNotice } from '@ui'
+import { Card, DetailRow, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
+import { formatTaskBudgetPaymentMethodLabel } from '../../helpers/taskDetailUtils'
+import { AgreementTotal } from './AgreementTotal'
+import { WorkerOrderVerificationPanel } from './WorkerOrderVerificationPanel'
 
 function mapsDirectionsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
 }
 
 /**
- * The worker's "Your job" booking card for an active booking: where to be +
- * contact. The complete-with-code flow lives in the quote section
- * (`WorkerOrderVerificationPanel`), not here.
+ * Worker's booking invoice for an active order: agreed total, where to be,
+ * and complete-job as the secondary action. Contact stays the page primary CTA.
  */
 export function AcceptedWorkerStatus() {
   const { task, myOrder, permissions } = useTaskDetail()
@@ -46,67 +51,62 @@ export function AcceptedWorkerStatus() {
     Number.isFinite(lat) &&
     typeof lng === 'number' &&
     Number.isFinite(lng)
-
-  const poster = task.poster
-  const tel = poster?.profile?.contactNumber?.trim() || null
-  const mailto = poster?.email?.trim() || null
+  const payment = snapshot.paymentMethod?.trim()
+  const paymentLabel = payment
+    ? formatTaskBudgetPaymentMethodLabel(payment)
+    : null
+  const customerName = task.poster?.profile?.name?.trim() || t.fallbackCustomer
 
   return (
     <Card
       {...TASK_DETAIL_SECTION_CARD}
-      eyebrow={b.workerTitle}
+      id="worker-job-panel"
+      scrollMarginTop="140px"
+      eyebrow={b.workerEyebrow}
+      heading={b.workerTitle}
       description={countdown || b.flexibleSchedule}
+      metric={
+        <AgreementTotal
+          label={t.order.agreedTotal}
+          amount={formatOrderAgreedPrice(myOrder)}
+        />
+      }
     >
-      <DetailRow
-        icon={<LuMapPin />}
-        label={b.beOnSite}
-        subLine={scheduleLabel || undefined}
-        withDivider={false}
-      >
-        {address}
+      <DetailRow icon={<LuUser />} label={t.quotes.customerLabel} withDivider>
+        {customerName}
       </DetailRow>
-
-      <HStack gap={2} flexWrap="wrap">
-        {tel ? (
-          <Link
-            href={`tel:${tel.replace(/\s/g, '')}`}
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button size="sm" variant="primary">
-              {b.contactCustomer}
-            </Button>
-          </Link>
-        ) : mailto ? (
-          <Link href={`mailto:${mailto}`} _hover={{ textDecoration: 'none' }}>
-            <Button size="sm" variant="primary">
-              {b.emailCustomer}
-            </Button>
-          </Link>
-        ) : (
-          <Link href={'/account'} _hover={{ textDecoration: 'none' }}>
-            <Button size="sm" variant="secondary">
-              {b.addContact}
-            </Button>
-          </Link>
-        )}
-        {hasCoords ? (
-          <Link
-            href={mapsDirectionsUrl(lat, lng)}
-            target="_blank"
-            rel="noopener noreferrer"
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button size="sm" variant="secondary">
+      <DetailRow icon={<LuCalendar />} label={b.schedule} withDivider>
+        {scheduleLabel || b.flexibleSchedule}
+      </DetailRow>
+      <DetailRow icon={<LuMapPin />} label={b.beOnSite} withDivider>
+        <Stack gap={1} align="flex-start">
+          <Text>{address}</Text>
+          {hasCoords ? (
+            <Link
+              href={mapsDirectionsUrl(lat, lng)}
+              target="_blank"
+              rel="noopener noreferrer"
+              fontSize="sm"
+            >
               {b.openMaps}
-            </Button>
-          </Link>
-        ) : null}
-      </HStack>
+            </Link>
+          ) : null}
+        </Stack>
+      </DetailRow>
+      {paymentLabel ? (
+        <DetailRow
+          icon={<LuCreditCard />}
+          label={t.details.payment}
+          withDivider={false}
+        >
+          {paymentLabel}
+        </DetailRow>
+      ) : null}
 
       <Text fontSize="sm" color="text.muted" lineHeight="short">
         {b.paymentNote}
       </Text>
-      <SafetyNotice variant="inline" />
+      <WorkerOrderVerificationPanel embedded />
     </Card>
   )
 }

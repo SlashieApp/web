@@ -207,7 +207,7 @@ export const W5WorkerQuotePending: Story = {
   ],
 }
 
-/** W6 · worker, quote accepted: success + agreed price + job link. */
+/** W6 · worker, quote accepted: agreement lives on Booking, not this tab. */
 export const W6WorkerAccepted: Story = {
   decorators: [
     withTaskDetailStory(

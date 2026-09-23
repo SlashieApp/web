@@ -16,6 +16,7 @@ describe('Tabs sticky background', () => {
     expect(src).toContain('tabListMaxW')
     expect(src).toContain('tabListAside')
     expect(src).toContain('tabCount')
+    expect(src).toContain('hideTabList')
     expect(src).toContain('stickyChromeProps')
   })
 })

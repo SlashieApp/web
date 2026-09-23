@@ -50,6 +50,7 @@ query TaskForEdit($id: ID!) {
         profile {
           name
           avatarUrl
+          contactNumber
         }
         worker {
           id

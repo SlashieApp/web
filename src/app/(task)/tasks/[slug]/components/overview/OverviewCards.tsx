@@ -12,15 +12,19 @@ import { TaskPricingCard } from './TaskPricingCard'
 
 /** Overview tab cards. A card stays hidden when the main CTA already shows it. */
 export function OverviewCards() {
-  const { mainCta } = useTaskDetail()
+  const { mainCta, permissions } = useTaskDetail()
   const hidden = new Set<TaskDetailOverviewCardId>(
     mainCta?.hideOverviewCards ?? [],
   )
+  const hidePrice =
+    hidden.has('pricing') ||
+    permissions.isAwarded ||
+    (permissions.isClosed && !permissions.isCancelled)
 
   return (
     <Stack gap={5} minW={0} w="full">
       <BookingSection />
-      {hidden.has('pricing') ? null : <TaskPricingCard />}
+      {hidePrice ? null : <TaskPricingCard />}
       <TaskDetailsCard />
       <PhotosCard />
       {hidden.has('owner') ? null : <TaskOwnerCard />}

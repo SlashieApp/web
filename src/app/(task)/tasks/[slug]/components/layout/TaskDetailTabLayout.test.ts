@@ -28,6 +28,7 @@ describe('TaskDetailTabLayout slots', () => {
     expect(src).toContain("width: '100vw'")
     expect(src).toContain('&::before')
     expect(src).toContain('fadeTabListBorder')
+    expect(src).toContain('hideTabList={tabs.length < 2}')
     expect(src).not.toContain('tabListMaxW')
     expect(src).toContain("'minmax(0, 2fr) minmax(0, 1fr)'")
     expect(src).not.toContain('tabListAside')

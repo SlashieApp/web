@@ -44,6 +44,22 @@ export function resolveTaskDetailTab(
   return fallback
 }
 
+/**
+ * MVP is one accepted worker. After a quote is accepted the Quotes tab is
+ * retired — the agreement lives on the Booking / Order card.
+ */
+export function showTaskDetailQuotesTab(input: {
+  isOpen: boolean
+  isAwarded: boolean
+  isClosed: boolean
+  isCancelled: boolean
+  atCap: boolean
+}): boolean {
+  if (!input.isOpen || input.isAwarded || input.atCap) return false
+  if (input.isClosed && !input.isCancelled) return false
+  return true
+}
+
 export function defaultTaskDetailTab(input: {
   isOwner: boolean
   isOpen: boolean

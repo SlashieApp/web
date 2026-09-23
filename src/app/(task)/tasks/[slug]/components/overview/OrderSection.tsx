@@ -24,8 +24,8 @@ import { LuUser } from 'react-icons/lu'
 import { Avatar, Card, DetailRow, SafetyNotice } from '@ui'
 
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
-
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
+import { AgreementTotal } from './AgreementTotal'
 
 type OrderSectionProps = {
   task: TaskDetailRecord
@@ -305,7 +305,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
         eyebrow={completed ? o.completed : o.summary}
         description={completed ? o.completedBody : undefined}
         headingAccessory={<OrderStatusBadge label={statusLabel} />}
-        metric={agreedPrice}
+        metric={<AgreementTotal label={o.agreedTotal} amount={agreedPrice} />}
       >
         <DetailRow icon={<LuUser />} label={o.worker} withDivider={false}>
           <HStack gap={2} align="center">

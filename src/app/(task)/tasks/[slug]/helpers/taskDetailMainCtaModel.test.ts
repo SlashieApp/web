@@ -34,6 +34,12 @@ const copy: TaskDetailMainCtaCopy = {
   flexibleWhen: 'Flexible',
   markCompleted: 'Mark as completed',
   workerEyebrow: 'Your job',
+  contactWorker: 'Contact worker',
+  yourWorker: 'Your worker',
+  workerFallback: 'Your worker',
+  giveReview: 'Give review',
+  goToEarnings: 'Go to earnings',
+  completed: 'Completed',
 }
 
 function permissions(
@@ -157,26 +163,7 @@ describe('buildTaskDetailMainCta', () => {
     })
   })
 
-  it('asks the booked worker to be on site and contact the customer before the job time', () => {
-    const model = buildTaskDetailMainCta({
-      task: task(),
-      myQuote: null,
-      permissions: permissions({
-        isOpen: false,
-        showCompleteWithCode: true,
-      }),
-      schedule: { type: TaskDateTimeType.Flexible },
-      copy,
-    })
-    expect(model).toMatchObject({
-      presentation: 'quoted',
-      buttonLabel: 'Contact customer',
-      href: 'tel:07700900123',
-      content: { eyebrow: 'Be on site', value: 'Flexible' },
-    })
-  })
-
-  it('sends the worker to the price card once the scheduled time has passed', () => {
+  it('keeps contact as the booked worker primary and hides price and owner cards', () => {
     const model = buildTaskDetailMainCta({
       task: task(),
       myQuote: null,
@@ -194,9 +181,101 @@ describe('buildTaskDetailMainCta', () => {
     })
     expect(model).toMatchObject({
       presentation: 'quoted',
-      buttonLabel: 'Complete job & confirm payment',
-      scrollTo: { hash: 'worker-job-panel', scrollId: 'worker-job-panel' },
-      content: { eyebrow: 'Your job', value: 'Mark as completed' },
+      buttonLabel: 'Contact customer',
+      href: 'tel:07700900123',
+      hideOverviewCards: ['pricing', 'owner'],
+      content: { eyebrow: 'Be on site' },
+    })
+    expect(model?.content?.value).toEqual(expect.any(String))
+    expect(model?.scrollTo).toBeUndefined()
+  })
+
+  it('makes contact the booked customer primary and hides the price card', () => {
+    const model = buildTaskDetailMainCta({
+      task: task({
+        quotes: [
+          {
+            id: 'q1',
+            status: 'ACCEPTED',
+            worker: {
+              id: 'worker-user',
+              profile: { name: 'Jordan', contactNumber: '07700 900999' },
+              worker: { id: 'worker-profile' },
+            },
+          } as TaskDetailRecord['quotes'][number],
+        ],
+      }),
+      myQuote: null,
+      permissions: permissions({
+        isOwner: true,
+        isOpen: false,
+        isAwarded: true,
+        showCustomerCompletionCode: true,
+      }),
+      acceptedQuoteId: 'q1',
+      copy,
+    })
+    expect(model).toMatchObject({
+      presentation: 'quoted',
+      buttonLabel: 'Contact worker',
+      href: 'tel:07700900999',
+      hideOverviewCards: ['pricing'],
+      content: { eyebrow: 'Your worker', value: 'Jordan' },
+    })
+  })
+
+  it('sends a completed owner to review the worker', () => {
+    const model = buildTaskDetailMainCta({
+      task: task({
+        quotes: [
+          {
+            id: 'q1',
+            status: 'ACCEPTED',
+            worker: {
+              id: 'worker-user',
+              profile: { name: 'Jordan' },
+              worker: { id: 'worker-profile' },
+            },
+          } as TaskDetailRecord['quotes'][number],
+        ],
+      }),
+      myQuote: null,
+      permissions: permissions({
+        isOwner: true,
+        isOpen: false,
+        isClosed: true,
+        taskStatus: 'CLOSED',
+      }),
+      acceptedQuoteId: 'q1',
+      settled: { role: 'owner', agreedPrice: '£85' },
+      copy,
+    })
+    expect(model).toMatchObject({
+      buttonLabel: 'Give review',
+      href: '/workers/worker-profile?fromTask=task-1',
+      hideOverviewCards: ['pricing'],
+      content: { eyebrow: 'Completed', value: 'Jordan' },
+    })
+  })
+
+  it('sends a completed worker to earnings', () => {
+    const model = buildTaskDetailMainCta({
+      task: task(),
+      myQuote: null,
+      permissions: permissions({
+        isOpen: false,
+        isClosed: true,
+        isOrderWorker: true,
+        taskStatus: 'CLOSED',
+      }),
+      settled: { role: 'worker', agreedPrice: '£85' },
+      copy,
+    })
+    expect(model).toMatchObject({
+      buttonLabel: 'Go to earnings',
+      href: '/earnings',
+      hideOverviewCards: ['pricing'],
+      content: { eyebrow: 'Completed', value: '£85' },
     })
   })
 

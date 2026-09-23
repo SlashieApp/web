@@ -13,12 +13,20 @@ import {
   orderSnapshotDatetime,
 } from '@/utils/orderHelpers'
 import { formatTaskScheduleLabel } from '@/utils/taskJobSchedule'
-import { LuCalendar, LuKeyRound, LuUser } from 'react-icons/lu'
+import {
+  LuCalendar,
+  LuCreditCard,
+  LuKeyRound,
+  LuMapPin,
+  LuUser,
+} from 'react-icons/lu'
 
 import { Avatar, Button, Card, DetailRow, IconButton, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
+import { formatTaskBudgetPaymentMethodLabel } from '../../helpers/taskDetailUtils'
+import { AgreementTotal } from './AgreementTotal'
 
 function CopyIcon() {
   return (
@@ -76,13 +84,24 @@ export function CustomerActiveOrderStatus() {
     quote?.worker?.profile?.name?.trim() || b.yourWorkerFallback
   const workerAvatar = quote?.worker?.profile?.avatarUrl ?? undefined
   const schedule = formatTaskScheduleLabel(orderSnapshotDatetime(myOrder))
+  const location = orderLocationLabel(myOrder)
   const code = myOrder.completionVerificationCode?.trim() ?? ''
+  const payment = myOrder.snapshot.paymentMethod?.trim()
+  const paymentLabel = payment
+    ? formatTaskBudgetPaymentMethodLabel(payment)
+    : null
 
   return (
     <Card
       {...TASK_DETAIL_SECTION_CARD}
-      eyebrow={b.customerTitle}
-      description={`${formatOrderAgreedPrice(myOrder)} · ${orderLocationLabel(myOrder)}`}
+      eyebrow={b.customerEyebrow}
+      heading={b.customerTitle}
+      metric={
+        <AgreementTotal
+          label={t.order.agreedTotal}
+          amount={formatOrderAgreedPrice(myOrder)}
+        />
+      }
     >
       <DetailRow icon={<LuUser />} label={b.yourWorker} withDivider>
         <HStack gap={2} align="center">
@@ -93,6 +112,18 @@ export function CustomerActiveOrderStatus() {
       {schedule ? (
         <DetailRow icon={<LuCalendar />} label={b.schedule} withDivider>
           {schedule}
+        </DetailRow>
+      ) : null}
+      <DetailRow icon={<LuMapPin />} label={t.details.location} withDivider>
+        {location}
+      </DetailRow>
+      {paymentLabel ? (
+        <DetailRow
+          icon={<LuCreditCard />}
+          label={t.details.payment}
+          withDivider={false}
+        >
+          {paymentLabel}
         </DetailRow>
       ) : null}
       <DetailRow icon={<LuKeyRound />} label={b.whatsNext} withDivider={false}>
@@ -135,18 +166,17 @@ export function CustomerActiveOrderStatus() {
               </IconButton>
             </HStack>
           </DetailRow>
+          <Text fontSize="sm" color="text.muted">
+            {b.codePrivateHint}
+          </Text>
           <Button
             type="button"
-            size="sm"
             variant="secondary"
             w="full"
             onClick={() => void copyCode(code)}
           >
-            {b.copyCode}
+            {t.cta.confirm}
           </Button>
-          <Text fontSize="sm" color="text.muted">
-            {b.codePrivateHint}
-          </Text>
         </Stack>
       ) : (
         <Text fontSize="sm" color="text.muted">

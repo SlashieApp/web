@@ -77,7 +77,12 @@ export function WorkerOrderVerificationPanel({
       ) : null}
 
       {!expanded ? (
-        <Button type="button" w="full" onClick={() => setExpanded(true)}>
+        <Button
+          type="button"
+          w="full"
+          variant={embedded ? 'secondary' : 'primary'}
+          onClick={() => setExpanded(true)}
+        >
           {v.enterCodeCta}
         </Button>
       ) : (

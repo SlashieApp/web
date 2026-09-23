@@ -90,6 +90,7 @@ query Task($id: ID!) {
         profile {
           name
           avatarUrl
+          contactNumber
         }
         worker {
           id

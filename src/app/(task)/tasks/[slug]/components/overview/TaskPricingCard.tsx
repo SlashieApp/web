@@ -6,7 +6,6 @@ import { Box, Grid, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
 import { LuCreditCard, LuTag } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
-import { formatOrderAgreedPrice } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import { Badge, Button, Card, DetailRow, Link, SafetyNotice } from '@ui'
 
@@ -20,7 +19,6 @@ import {
   taskBudgetDisplayLine,
 } from '../../helpers/taskDetailUtils'
 import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
-import { WorkerOrderVerificationPanel } from './WorkerOrderVerificationPanel'
 
 function PricingQuoteCta({
   href,
@@ -101,8 +99,7 @@ export function TaskPricingCard({
   compact = false,
   rail = false,
 }: TaskPricingCardProps) {
-  const { task, seed, pending, me, permissions, myQuote, myOrder } =
-    useTaskDetail()
+  const { task, seed, pending, me, permissions, myQuote } = useTaskDetail()
   const t = useI11n(bag)
 
   if (!task && !pending) return null
@@ -132,37 +129,6 @@ export function TaskPricingCard({
   const quoteHref = task ? `/tasks/${task.id}/quote` : ''
 
   const loading = pending && !task
-  const confirmedJob = Boolean(
-    task && myOrder && permissions.showCompleteWithCode,
-  )
-
-  if (confirmedJob && myOrder) {
-    const dealtPrice = myOrder.agreedPrice
-      ? formatOrderAgreedPrice(myOrder)
-      : myQuote?.price
-        ? formatPrice(myQuote.price)
-        : budgetLine
-    return (
-      <Card
-        {...TASK_DETAIL_SECTION_CARD}
-        id="worker-job-panel"
-        scrollMarginTop="140px"
-        eyebrow={t.quotes.agreedPrice}
-        metric={dealtPrice}
-      >
-        {paymentLabel ? (
-          <DetailRow
-            icon={<LuCreditCard />}
-            label={t.details.payment}
-            withDivider={false}
-          >
-            {paymentLabel}
-          </DetailRow>
-        ) : null}
-        <WorkerOrderVerificationPanel embedded />
-      </Card>
-    )
-  }
 
   if (compact || rail) {
     const meta = [budgetKind, paymentLabel].filter(Boolean).join(' · ')
