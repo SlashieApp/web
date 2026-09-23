@@ -10,8 +10,7 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 
 export type AccountNavKey =
   | 'overview'
-  | 'requests'
-  | 'quotes'
+  | 'tasks'
   | 'earnings'
   | 'billing'
   | 'account'
@@ -33,18 +32,11 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
   },
   // Worker discovery lives at /workers.
   {
-    key: 'requests',
-    label: 'My Requests',
-    href: '/requests',
+    key: 'tasks',
+    label: 'My tasks',
+    href: '/tasks',
     description:
-      'Tasks you posted as a customer — quotes, bookings, and completion.',
-  },
-  {
-    key: 'quotes',
-    label: 'My Quotes',
-    href: '/quotes',
-    description:
-      'Quotes you sent on other people’s tasks — pending, booked, or done.',
+      'Tasks you posted and tasks you quoted — open, booked, and completed.',
   },
   {
     key: 'earnings',
@@ -76,8 +68,7 @@ export const ACCOUNT_NAV: ReadonlyArray<AccountNavItem> = [
 
 export function resolveAccountNavKey(pathname: string | null): AccountNavKey {
   const path = stripLocalePrefix(pathname ?? '')
-  if (path.startsWith('/requests')) return 'requests'
-  if (path.startsWith('/quotes')) return 'quotes'
+  if (path === '/tasks') return 'tasks'
   if (path.startsWith('/earnings')) return 'earnings'
   if (path.startsWith('/billing')) return 'billing'
   if (path.startsWith('/account')) return 'account'

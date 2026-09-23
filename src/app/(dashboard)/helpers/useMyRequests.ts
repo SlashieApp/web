@@ -4,7 +4,7 @@ import { useQuery } from '@apollo/client/react'
 import { useMemo } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import MyRequests from '@/app/(dashboard)/requests/graphql/MyRequests.gql'
+import MyRequests from '@/app/(task)/tasks/graphql/MyRequests.gql'
 import type { MyRequestsQueryData } from '@/graphql/tasks-query.types'
 import {
   type TaskItem,

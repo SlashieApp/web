@@ -24,13 +24,13 @@ Slashie is a high-trust local task marketplace connecting people who need work d
 
 - Need: fast and reliable help with clear status tracking.
 - Core flow: post task -> receive quotes -> choose pro -> complete task -> review.
-- App surfaces: `/requests`, and `/profile` (client point of view).
+- App surfaces: `/tasks` (My Tasks hub) and `/profile` (client point of view).
 
 ### Worker
 
 - Need: discover nearby tasks and manage work as a business.
 - Core flow: browse tasks -> open detail -> send quote -> deliver work -> build reputation.
-- App surfaces: `/dashboard/*` for worker-focused tools and analytics.
+- App surfaces: `/search` to browse, `/tasks` for quotes they sent, and `/dashboard/*` for worker tools.
 
 ## 3. Product Behavior in MVP
 

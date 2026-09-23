@@ -64,23 +64,6 @@ const nextConfig: NextConfig = {
     // Non-default locale keeps its slug; English destinations are unprefixed.
     const zhHk = 'zh-hk'
     return [
-      // Legacy browse surfaces merged into the unified map-first /search.
-      // Exact-match only: /tasks/:slug and /workers/:slug stay untouched.
-      {
-        source: `/${zhHk}/tasks`,
-        destination: `/${zhHk}/search?mode=tasks`,
-        permanent: false,
-      },
-      {
-        source: '/en/tasks',
-        destination: '/search?mode=tasks',
-        permanent: false,
-      },
-      {
-        source: '/tasks',
-        destination: '/search?mode=tasks',
-        permanent: false,
-      },
       {
         source: `/${zhHk}/task/:slug`,
         destination: `/${zhHk}/tasks/:slug`,
@@ -143,32 +126,32 @@ const nextConfig: NextConfig = {
       },
       {
         source: `/${zhHk}/jobs`,
-        destination: `/${zhHk}/quotes`,
+        destination: `/${zhHk}/tasks`,
         permanent: true,
       },
       {
         source: '/en/jobs',
-        destination: '/quotes',
+        destination: '/tasks',
         permanent: true,
       },
       {
         source: '/jobs',
-        destination: '/quotes',
+        destination: '/tasks',
         permanent: true,
       },
       {
         source: `/${zhHk}/jobs/:path*`,
-        destination: `/${zhHk}/quotes/:path*`,
+        destination: `/${zhHk}/tasks`,
         permanent: true,
       },
       {
         source: '/en/jobs/:path*',
-        destination: '/quotes/:path*',
+        destination: '/tasks',
         permanent: true,
       },
       {
         source: '/jobs/:path*',
-        destination: '/quotes/:path*',
+        destination: '/tasks',
         permanent: true,
       },
       {

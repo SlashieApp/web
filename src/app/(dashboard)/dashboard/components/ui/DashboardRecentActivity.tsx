@@ -32,7 +32,7 @@ export function DashboardRecentActivity({
     <InboxActivityPanel
       title={t.activity.title}
       description={t.activity.description}
-      viewAllHref="/requests"
+      viewAllHref="/tasks"
       viewAllLabel={t.activity.viewAll}
       rows={rows}
       loading={notifications?.loading}

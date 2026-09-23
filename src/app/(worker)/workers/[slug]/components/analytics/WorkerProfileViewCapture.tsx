@@ -9,7 +9,7 @@ import { getAuthToken } from '@/utils/auth'
 import { useWorkerProfile } from '../../context/WorkerProfileContext'
 
 type WorkerProfileViewCaptureProps = {
-  source?: 'quote_card' | 'quotes_page' | 'direct'
+  source?: 'quote_card' | 'quotes_page' | 'my_tasks' | 'direct'
 }
 
 /** Fires UBA worker_view once per session per worker for non-self viewers. */

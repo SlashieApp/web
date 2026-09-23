@@ -3,7 +3,11 @@ import { EVENTS } from './events'
 
 const SESSION_VIEW_KEY_PREFIX = 'ph_worker_view_'
 
-export type WorkerProfileViewSource = 'quote_card' | 'quotes_page' | 'direct'
+export type WorkerProfileViewSource =
+  | 'quote_card'
+  | 'quotes_page'
+  | 'my_tasks'
+  | 'direct'
 
 export type CaptureWorkerProfileViewInput = {
   workerId: string
@@ -25,6 +29,7 @@ function inferWorkerProfileViewSource(): WorkerProfileViewSource {
     const refUrl = new URL(referrer)
     if (refUrl.origin !== window.location.origin) return 'direct'
     if (refUrl.pathname === '/quotes') return 'quotes_page'
+    if (refUrl.pathname === '/tasks') return 'my_tasks'
   } catch {
     return 'direct'
   }

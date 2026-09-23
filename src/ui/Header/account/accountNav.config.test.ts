@@ -21,10 +21,16 @@ describe('account nav destinations', () => {
     }
   })
 
-  it('labels quotes as My quotes rather than Jobs', () => {
-    const quotes = ACCOUNT_NAV_ITEMS.find((item) => item.href === '/quotes')
-    expect(quotes?.id).toBe('quotes')
-    expect(quotes?.label).toBe('My quotes')
+  it('links My tasks to the hub rather than requests or quotes', () => {
+    const myTasks = ACCOUNT_NAV_ITEMS.find((item) => item.href === '/tasks')
+    expect(myTasks?.id).toBe('my-tasks')
+    expect(myTasks?.label).toBe('My tasks')
+    expect(ACCOUNT_NAV_ITEMS.some((item) => item.href === '/requests')).toBe(
+      false,
+    )
+    expect(ACCOUNT_NAV_ITEMS.some((item) => item.href === '/quotes')).toBe(
+      false,
+    )
   })
 
   it('includes a Send feedback action for signed-in users', () => {

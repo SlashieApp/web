@@ -56,6 +56,7 @@ export const EVENTS = {
   quote_decline_success: 'quote_decline_success',
   quote_decline_fail: 'quote_decline_fail',
   requests_view: 'requests_view',
+  my_tasks_view: 'my_tasks_view',
 
   // Worker
   quote_send_success: 'quote_send_success',

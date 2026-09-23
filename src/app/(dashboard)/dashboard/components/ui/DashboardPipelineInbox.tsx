@@ -55,7 +55,7 @@ export function DashboardPipelineInbox({
       <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={4}>
         <InboxList
           title={t.inbox.postedTitle}
-          viewAllHref="/requests"
+          viewAllHref="/tasks"
           viewAllLabel={t.inbox.viewAll}
           rows={postedRows}
           loading={loading}
@@ -67,13 +67,13 @@ export function DashboardPipelineInbox({
         />
         <InboxList
           title={t.inbox.workTitle}
-          viewAllHref="/quotes"
+          viewAllHref="/tasks"
           viewAllLabel={t.inbox.viewAll}
           rows={workRows}
           loading={loading}
           emptyTitle={t.inbox.workEmptyTitle}
           emptyDescription={t.inbox.workEmptyDescription}
-          emptyHref="/tasks"
+          emptyHref="/search"
           emptyAction={t.inbox.workEmptyAction}
           emptySpot="no-work"
         />

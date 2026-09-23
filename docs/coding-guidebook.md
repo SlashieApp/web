@@ -202,7 +202,7 @@ A reader should understand the page **without spelunking**:
 - Inline entity/card JSX that belongs in a section or entity component.
 - Bury critical fetch/state only in deep leaves with no page-level visibility.
 
-Reference shape: `(dashboard)/dashboard/page.tsx`, `(dashboard)/requests/page.tsx`, `(task)/search/page.tsx`.
+Reference shape: `(dashboard)/dashboard/page.tsx`, `(task)/tasks/page.tsx`, `(task)/search/page.tsx`.
 
 ---
 
