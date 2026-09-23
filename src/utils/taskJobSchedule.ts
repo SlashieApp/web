@@ -67,6 +67,30 @@ export function formatTaskScheduleLabel(
   }).format(when)
 }
 
+/**
+ * Before the scheduled time, or when timing is flexible, the worker should
+ * still be on site. Once an exact or deadline time has passed, they can
+ * mark the job complete.
+ */
+export function workerOnSitePhase(
+  datetime: TaskDatetimeLike | null | undefined,
+  now = new Date(),
+): 'onsite' | 'complete' {
+  if (!datetime || datetime.type === TaskDateTimeType.Flexible) return 'onsite'
+  if (datetime.type === TaskDateTimeType.Before) {
+    const date = datetime.date?.trim()
+    if (!date) return 'onsite'
+    const end = new Date(`${date}T23:59:59`)
+    if (Number.isNaN(end.getTime()) || end.getTime() >= now.getTime()) {
+      return 'onsite'
+    }
+    return 'complete'
+  }
+  const when = parseTaskScheduleDate(datetime)
+  if (!when || when.getTime() > now.getTime()) return 'onsite'
+  return 'complete'
+}
+
 export function countdownToExactSchedule(
   datetime: TaskDatetimeLike | null | undefined,
   now = new Date(),

@@ -56,6 +56,7 @@ import {
   CreateTaskVisualsSection,
 } from '@/app/(stepflow)/tasks/create/components'
 import type { CreateTaskFormFieldValues } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import { resolveSubmittedTaskLocation } from '@/app/(stepflow)/tasks/create/helpers/resolveTaskLocation'
 import { EditTaskAcceptedWorkerCapSection } from '../../edit/components/ui/EditTaskAcceptedWorkerCapSection'
 import {
   type EditTaskFormFieldValues,
@@ -98,11 +99,17 @@ function EditTaskFormBody({
   const [serverErrorCode, setServerErrorCode] = useState<string | null>(null)
 
   const initialValues = useMemo(() => taskToEditFormValues(task), [task])
+  const pinChosenRef = useRef(
+    Number.isFinite(Number.parseFloat(initialValues.locationLat)) &&
+      Number.isFinite(Number.parseFloat(initialValues.locationLng)),
+  )
 
   const {
     register,
     handleSubmit,
     setValue,
+    setError,
+    clearErrors,
     watch,
     getValues,
     formState: { errors, isSubmitting },
@@ -197,6 +204,7 @@ function EditTaskFormBody({
 
   const onLocationLatChange = useCallback(
     (v: string) => {
+      pinChosenRef.current = true
       setValue('locationLat', v, { shouldValidate: true, shouldDirty: true })
     },
     [setValue],
@@ -214,6 +222,39 @@ function EditTaskFormBody({
     if (!name) return
     setValue('streetAddress', name, { shouldValidate: true, shouldDirty: true })
   }, [getValues, setValue])
+
+  const applyResolvedLocation = useCallback(async () => {
+    const values = getValues()
+    const resolved = await resolveSubmittedTaskLocation({
+      streetAddress: values.streetAddress,
+      mapPlaceName: values.mapPlaceName,
+      locationLat: values.locationLat,
+      locationLng: values.locationLng,
+      pinChosen: pinChosenRef.current,
+      accessToken: mapboxAccessToken,
+    })
+    if (!resolved.ok) {
+      setError('mapPlaceName', { message: resolved.error })
+      return false
+    }
+    clearErrors(['mapPlaceName', 'locationLat', 'locationLng'])
+    setValue('locationLat', String(resolved.location.lat), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    setValue('locationLng', String(resolved.location.lng), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    if (!values.mapPlaceName.trim()) {
+      setValue('mapPlaceName', resolved.location.placeName, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+    }
+    pinChosenRef.current = true
+    return true
+  }, [clearErrors, getValues, mapboxAccessToken, setError, setValue])
 
   const locationError =
     errors.mapPlaceName?.message ??
@@ -237,11 +278,15 @@ function EditTaskFormBody({
       return
     }
 
+    const located = await applyResolvedLocation()
+    if (!located) return
+    const locatedValues = getValues()
+
     try {
       await runUpdateTask({
         variables: {
           taskId,
-          input: buildUpdateTaskInput(values),
+          input: buildUpdateTaskInput(locatedValues as EditTaskFormValues),
         },
       })
 
@@ -394,6 +439,12 @@ function EditTaskFormBody({
             onLocationChange={onMapPlaceNameChange}
             onLocationLatChange={onLocationLatChange}
             onLocationLngChange={onLocationLngChange}
+            onStreetAddressEdited={() => {
+              pinChosenRef.current = false
+            }}
+            onStreetAddressBlur={() => {
+              void applyResolvedLocation()
+            }}
           />
           <CreateTaskBudgetSection
             sectionHeading={t.sections.budget}

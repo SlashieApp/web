@@ -13,9 +13,6 @@ import { buildTaskActivitySteps } from '../../helpers/taskDetailActivity'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import bag from '../../i11n.json'
 
-import { BookingSection } from './BookingSection'
-import { WorkerOrderVerificationPanel } from './WorkerOrderVerificationPanel'
-
 function ActivityTimeline() {
   const { task, myOrder, permissions } = useTaskDetail()
   const t = useI11n(bag)
@@ -105,12 +102,10 @@ function ActivityTimeline() {
   )
 }
 
-/** Overview activity blocks: booking / complete-job and lifecycle strip. */
+/** Activity rail: the lifecycle strip. */
 export function TaskActivitySections() {
   return (
     <Stack gap={5} w="full" minW={0} pointerEvents="auto">
-      <BookingSection />
-      <WorkerOrderVerificationPanel />
       <ActivityTimeline />
     </Stack>
   )

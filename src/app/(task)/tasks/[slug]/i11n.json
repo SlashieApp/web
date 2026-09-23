@@ -62,7 +62,9 @@
       "confirm": "Confirm completion",
       "editAria": "Edit task",
       "barAria": "Task actions",
-      "contactTask": "Contact customer"
+      "contactTask": "Contact customer",
+      "flexibleWhen": "Flexible",
+      "markCompleted": "Mark as completed"
     },
     "share": {
       "pinHeading": "Share your task",
@@ -428,7 +430,9 @@
       "confirm": "確認完成",
       "editAria": "編輯任務",
       "barAria": "任務操作",
-      "contactTask": "聯絡顧客"
+      "contactTask": "聯絡顧客",
+      "flexibleWhen": "時間彈性",
+      "markCompleted": "標記為已完成"
     },
     "share": {
       "pinHeading": "分享你的任務",

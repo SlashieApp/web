@@ -64,9 +64,9 @@ export function taskToEditFormValues(task: EditableTask): EditTaskFormValues {
     streetAddress: task.location?.address?.trim() ?? '',
     mapPlaceName: task.location?.name?.trim() ?? '',
     locationLat:
-      typeof lat === 'number' && Number.isFinite(lat) ? String(lat) : '51.5074',
+      typeof lat === 'number' && Number.isFinite(lat) ? String(lat) : '',
     locationLng:
-      typeof lng === 'number' && Number.isFinite(lng) ? String(lng) : '-0.1278',
+      typeof lng === 'number' && Number.isFinite(lng) ? String(lng) : '',
     datetimeType,
     preferredDate: dt?.date?.trim() || toYmd(new Date()),
     preferredTime: dt?.time?.trim() || '09:00',

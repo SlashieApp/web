@@ -1,25 +1,17 @@
 'use client'
 
-import { Box, type SystemStyleObject, Text } from '@chakra-ui/react'
+import { Box, type SystemStyleObject } from '@chakra-ui/react'
 import { createPortal } from 'react-dom'
+import { LuEye } from 'react-icons/lu'
 
-import { useI11n } from '@/i18n/useI11n'
 import { WEB_MQ } from '@/theme/breakpoints'
 import { useIsBrowser } from '@/utils/useIsBrowser'
-import { Button, MOBILE_BOTTOM_NAV_MAX_W } from '@ui'
+import { Button, Link, MOBILE_BOTTOM_NAV_MAX_W } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
-import type { TaskDetailSectionId } from '../../helpers/taskDetailStickySections'
+import type { TaskDetailMainCtaModel } from '../../helpers/taskDetailMainCtaModel'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
-import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
-import bag from '../../i11n.json'
-import { TaskOwnerCard } from '../overview/TaskOwnerCard'
-import { TaskPricingCard } from '../overview/TaskPricingCard'
-import { TaskDetailMainCtaCard } from '../ui/TaskDetailMainCtaCard'
-import { TaskDetailPinCard } from '../ui/TaskDetailPinCard'
-import { TaskPreviewButton } from '../ui/TaskPreviewButton'
-import { TaskQuotedCta } from '../ui/TaskQuotedCta'
+import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
 import { Reveal } from './Reveal'
 
 const PIN_FADE_HEIGHT =
@@ -62,119 +54,92 @@ function TaskDetailMainCtaFade() {
   )
 }
 
-function TaskDetailCompletionBar({ web = false }: { web?: boolean }) {
-  const t = useI11n(bag)
-  const { task, permissions, statusReady, setActiveTab } = useTaskDetail()
-
-  if (!statusReady || !task) return null
-
-  const kind = getTaskDetailPrimaryCta({
-    permissions,
-    quoteCount: task.quotes.length,
-  })
-  if (kind !== 'confirm' && kind !== 'complete') return null
-
-  const action =
-    kind === 'confirm' ? (
-      <Button
-        variant="primary"
-        size="sm"
-        onClick={() => {
-          setActiveTab(TASK_DETAIL_TAB.overview, {
-            hash: 'task-order',
-            scrollId: 'task-order',
-          })
-        }}
-      >
-        {t.cta.confirm}
-      </Button>
-    ) : (
-      <Button
-        variant="primary"
-        size="sm"
-        onClick={() => {
-          setActiveTab(TASK_DETAIL_TAB.overview, {
-            hash: 'worker-job-panel',
-            scrollId: 'worker-job-panel',
-          })
-        }}
-      >
-        {t.cta.complete}
-      </Button>
-    )
-
-  const title =
-    kind === 'confirm' ? t.booking.customerTitle : t.booking.workerTitle
-  const subtitle =
-    kind === 'confirm' ? t.booking.completionCode : t.verification.enterCodeCta
-
-  if (web) {
-    return (
-      <TaskDetailMainCtaCard eyebrow={title} action={action}>
-        <Text fontSize="sm" color="text.muted" lineHeight="short">
-          {subtitle}
-        </Text>
-      </TaskDetailMainCtaCard>
-    )
-  }
-
-  return <TaskDetailPinCard title={title} subtitle={subtitle} action={action} />
-}
-
-function MainCtaCard({
-  pinnedId,
-  surface,
+function MainCtaControl({
+  model,
+  fill,
 }: {
-  pinnedId: TaskDetailSectionId
-  surface: 'pin' | 'web'
+  model: TaskDetailMainCtaModel
+  fill: boolean
 }) {
-  const compact = surface === 'pin'
-  const web = surface === 'web'
-  switch (pinnedId) {
-    case 'pricing':
-      return <TaskPricingCard compact={compact} rail={web} />
-    case 'quoted':
-      return <TaskQuotedCta />
-    case 'preview':
-      return <TaskPreviewButton />
-    case 'owner':
-      return <TaskOwnerCard compact={compact} rail={web} />
-    case 'completion':
-      return <TaskDetailCompletionBar web={web} />
-    default:
-      return null
+  const { setActiveTab } = useTaskDetail()
+  const scroll = model.scrollTo
+    ? () => {
+        const target = model.scrollTo
+        if (!target) return
+        setActiveTab(TASK_DETAIL_TAB.overview, {
+          hash: target.hash,
+          scrollId: target.scrollId,
+        })
+      }
+    : undefined
+
+  if (model.presentation === 'preview' || !model.content) {
+    const label = (
+      <>
+        <LuEye />
+        {model.buttonLabel}
+      </>
+    )
+    if (model.href) {
+      return (
+        <Button
+          asChild
+          variant="primary"
+          boxShadow="e3"
+          w={fill ? 'full' : undefined}
+        >
+          <Link href={model.href} _hover={{ textDecoration: 'none' }}>
+            {label}
+          </Link>
+        </Button>
+      )
+    }
+    return (
+      <Button
+        type="button"
+        variant="primary"
+        boxShadow="e3"
+        w={fill ? 'full' : undefined}
+        onClick={scroll}
+      >
+        {label}
+      </Button>
+    )
   }
+
+  return (
+    <TaskDetailSplitCta
+      eyebrow={model.content.eyebrow}
+      value={model.content.value}
+      meta={model.content.meta}
+      fullWidth={fill || model.presentation === 'quoted'}
+      action={{
+        label: model.buttonLabel,
+        href: model.href,
+        onClick: scroll,
+      }}
+    />
+  )
 }
 
 /**
- * Role-aware primary CTA. Compact (phone + tablet): fixed to the viewport
- * bottom (portaled so Reveal's transform does not contain it). Web: compact
- * card absolutely aligned to the end (bottom-right) of TabIntro, outside
- * the cards|rail grid.
+ * Primary CTA from the provider. Compact (phone + tablet): fixed to the
+ * viewport bottom. Web: aligned to the end of the tab intro. Button-only
+ * uses the preview layout; text plus a button uses the quoted layout.
  */
 export function TaskDetailMainCta() {
-  const { pinnedId } = useTaskDetailSections()
-  const { statusReady, task } = useTaskDetail()
+  const { statusReady, task, mainCta } = useTaskDetail()
   const isBrowser = useIsBrowser()
 
-  if (!statusReady || !task || !pinnedId) return null
-  if (
-    pinnedId !== 'pricing' &&
-    pinnedId !== 'quoted' &&
-    pinnedId !== 'preview' &&
-    pinnedId !== 'owner' &&
-    pinnedId !== 'completion'
-  ) {
-    return null
-  }
+  if (!statusReady || !task || !mainCta) return null
 
-  const webCard = <MainCtaCard pinnedId={pinnedId} surface="web" />
-  const pinCard = <MainCtaCard pinnedId={pinnedId} surface="pin" />
+  const webControl = <MainCtaControl model={mainCta} fill={false} />
+  const pinControl = <MainCtaControl model={mainCta} fill />
 
   const compactPin = (
     <Box
       data-task-detail-main-cta
-      data-task-detail-pin={pinnedId}
+      data-task-detail-pin={mainCta.presentation}
       css={{
         display: 'block',
         [`@media screen and ${WEB_MQ}`]: { display: 'none' },
@@ -202,7 +167,7 @@ export function TaskDetailMainCta() {
             maxW={MOBILE_BOTTOM_NAV_MAX_W}
             mx="auto"
           >
-            {pinCard}
+            {pinControl}
           </Box>
         </Reveal>
       </Box>
@@ -213,13 +178,13 @@ export function TaskDetailMainCta() {
     <>
       <Box
         data-task-detail-main-cta
-        data-task-detail-pin={pinnedId}
+        data-task-detail-pin={mainCta.presentation}
         display={{ base: 'none', lg: 'flex' }}
         justifyContent="flex-end"
         w="full"
         minW={0}
       >
-        {webCard}
+        {webControl}
       </Box>
       {isBrowser ? createPortal(compactPin, document.body) : compactPin}
     </>

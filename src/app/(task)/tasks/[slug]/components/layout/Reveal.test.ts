@@ -25,7 +25,7 @@ describe('Reveal surface enter', () => {
     expect(view).not.toContain('TaskDetailMainCta')
     expect(tabs).toContain('<TaskDetailMainCta />')
     expect(cta).toContain('<Reveal>')
-    expect(cta).toContain('useTaskDetailSections')
+    expect(cta).toContain('mainCta')
     expect(cta).toContain('data-task-detail-main-cta')
     expect(cta).toContain('position="fixed"')
     expect(cta).toContain('createPortal')

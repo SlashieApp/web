@@ -5,6 +5,10 @@ import type { Map as MapboxMap } from 'mapbox-gl'
 import type { ChangeEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
+import {
+  TASK_MAP_PREVIEW_LAT,
+  TASK_MAP_PREVIEW_LNG,
+} from '@/app/(stepflow)/tasks/create/helpers/resolveTaskLocation'
 import { BRAND_MAP_PIN, BRAND_MAP_PIN_STROKE } from '@/theme/brand'
 import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import {
@@ -12,9 +16,6 @@ import {
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
 import { Input } from '@ui'
-
-const DEFAULT_LAT = 51.5074
-const DEFAULT_LNG = -0.1278
 
 function bumpMapResize(map: MapboxMap) {
   map.resize()
@@ -58,6 +59,8 @@ export function TaskLocationMapPicker({
   const [mapReady, setMapReady] = useState(false)
   const skipReverseAfterForwardRef = useRef(false)
   const skipNextMoveEndRef = useRef(false)
+  /** Drag commits the pin. The opening camera must not. */
+  const pinDraggedRef = useRef(false)
   const moveDebounceRef = useRef<number | null>(null)
   const locationGeocodeTimerRef = useRef<number | null>(null)
 
@@ -119,8 +122,10 @@ export function TaskLocationMapPicker({
         if (!el.isConnected) return
         mapboxgl.default.accessToken = token
 
-        const lat = parseCoordString(locationLatRef.current) ?? DEFAULT_LAT
-        const lng = parseCoordString(locationLngRef.current) ?? DEFAULT_LNG
+        const lat =
+          parseCoordString(locationLatRef.current) ?? TASK_MAP_PREVIEW_LAT
+        const lng =
+          parseCoordString(locationLngRef.current) ?? TASK_MAP_PREVIEW_LNG
 
         const map = new mapboxgl.default.Map({
           container: el,
@@ -138,11 +143,16 @@ export function TaskLocationMapPicker({
         resizeObserver.observe(el)
         resizeObserverRef.current = resizeObserver
 
+        map.on('dragstart', () => {
+          pinDraggedRef.current = true
+        })
+
         const onMoveEnd = () => {
           if (skipNextMoveEndRef.current) {
             skipNextMoveEndRef.current = false
             return
           }
+          if (!pinDraggedRef.current) return
           if (moveDebounceRef.current)
             window.clearTimeout(moveDebounceRef.current)
           moveDebounceRef.current = window.setTimeout(() => {
@@ -173,19 +183,7 @@ export function TaskLocationMapPicker({
           if (!el.isConnected) return
           skipNextMoveEndRef.current = true
           bumpMapResize(map)
-          const c = map.getCenter()
-          onLocationLatChangeRef.current(c.lat.toFixed(6))
-          onLocationLngChangeRef.current(c.lng.toFixed(6))
           setMapReady(true)
-
-          const geocodeToken = accessTokenRef.current?.trim()
-          if (geocodeToken && !locationRef.current.trim()) {
-            void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then(
-              (name) => {
-                if (name) onLocationChangeRef.current(name)
-              },
-            )
-          }
         })
       },
     )
@@ -271,6 +269,7 @@ export function TaskLocationMapPicker({
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   onLocationInputChange(e.target.value)
                 }
+                onBlur={() => suggestFromLocationQuery(locationRef.current)}
                 placeholder="Search for your location..."
                 aria-label="Search for your location"
                 rootProps={{

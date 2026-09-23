@@ -9,9 +9,9 @@ import {
 } from '@/theme/pageContainer'
 import { Footer } from '@ui'
 
+import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '../../helpers/taskDetailLayout'
 import { taskDetailPinClearance } from '../../helpers/taskDetailPinClearance'
-import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
 import { Reveal } from './Reveal'
 import { StatusHeader } from './StatusHeader'
 import { TaskDetailMapBinder } from './TaskDetailMapBinder'
@@ -30,7 +30,7 @@ const MOBILE_MAP_CHROME_OVERLAP = '-9.25rem'
  * never the search-list column width.
  */
 export function TaskDetailView() {
-  const { pinnedId } = useTaskDetailSections()
+  const { mainCta } = useTaskDetail()
   return (
     <Box position="relative" bg="transparent" w="full" minW={0}>
       <Box
@@ -99,7 +99,7 @@ export function TaskDetailView() {
           <Box
             display={{ base: 'block', lg: 'none' }}
             bg="status.success.soft"
-            h={taskDetailPinClearance(pinnedId)}
+            h={taskDetailPinClearance(mainCta ? 'pricing' : null)}
             aria-hidden
           />
         </Box>

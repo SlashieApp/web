@@ -69,6 +69,7 @@ import {
   createTaskProgressPercent,
   createTaskStepCaption,
 } from './helpers/createTaskSteps.config'
+import { resolveSubmittedTaskLocation } from './helpers/resolveTaskLocation'
 import bag from './i11n.json'
 
 const POST_TASK_PATH = '/tasks/create'
@@ -108,6 +109,8 @@ function CreateTaskFormBody({
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
   const imagePreviewUrlsUnmountRef = useRef<string[]>([])
   const [serverError, setServerError] = useState<string | null>(null)
+  /** True after a search or a pin drag. The London camera is not a choice. */
+  const pinChosenRef = useRef(false)
 
   const [activeSubStep, setActiveSubStep] = useState<CreateTaskSubStepId>(
     CREATE_TASK_FIRST_SUB_STEP,
@@ -120,6 +123,8 @@ function CreateTaskFormBody({
     register,
     handleSubmit,
     setValue,
+    setError,
+    clearErrors,
     watch,
     getValues,
     trigger,
@@ -132,8 +137,8 @@ function CreateTaskFormBody({
       description: '',
       streetAddress: '',
       mapPlaceName: '',
-      locationLat: '51.5074',
-      locationLng: '-0.1278',
+      locationLat: '',
+      locationLng: '',
       datetimeType: TaskDateTimeType.Flexible,
       preferredDate: toYmd(new Date()),
       preferredTime: '09:00',
@@ -198,6 +203,7 @@ function CreateTaskFormBody({
 
   const onLocationLatChange = useCallback(
     (v: string) => {
+      pinChosenRef.current = true
       setValue('locationLat', v, {
         shouldValidate: true,
         shouldDirty: true,
@@ -224,6 +230,43 @@ function CreateTaskFormBody({
       shouldDirty: true,
     })
   }, [getValues, setValue])
+
+  const applyResolvedLocation = useCallback(async () => {
+    const values = getValues()
+    const resolved = await resolveSubmittedTaskLocation({
+      streetAddress: values.streetAddress,
+      mapPlaceName: values.mapPlaceName,
+      locationLat: values.locationLat,
+      locationLng: values.locationLng,
+      pinChosen: pinChosenRef.current,
+      accessToken: mapboxAccessToken,
+    })
+    if (!resolved.ok) {
+      setError('mapPlaceName', { message: resolved.error })
+      return false
+    }
+    clearErrors(['mapPlaceName', 'locationLat', 'locationLng'])
+    setValue('locationLat', String(resolved.location.lat), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    setValue('locationLng', String(resolved.location.lng), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    if (!values.mapPlaceName.trim()) {
+      setValue('mapPlaceName', resolved.location.placeName, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+    }
+    pinChosenRef.current = true
+    return true
+  }, [clearErrors, getValues, mapboxAccessToken, setError, setValue])
+
+  const onStreetAddressEdited = useCallback(() => {
+    pinChosenRef.current = false
+  }, [])
 
   const locationError =
     errors.mapPlaceName?.message ??
@@ -268,7 +311,14 @@ function CreateTaskFormBody({
       return
     }
 
-    const parsedBudget = Number.parseFloat(values.budgetMajor)
+    const located = await applyResolvedLocation()
+    if (!located) {
+      setActiveSubStep('details.location')
+      return
+    }
+    const locatedValues = getValues()
+
+    const parsedBudget = Number.parseFloat(locatedValues.budgetMajor)
     const datetime = buildDatetimePayload(values)
 
     try {
@@ -285,10 +335,10 @@ function CreateTaskFormBody({
               paymentMethod: values.paymentMethod,
             },
             location: {
-              lat: Number.parseFloat(values.locationLat),
-              lng: Number.parseFloat(values.locationLng),
-              name: values.mapPlaceName.trim(),
-              address: values.streetAddress.trim(),
+              lat: Number.parseFloat(locatedValues.locationLat),
+              lng: Number.parseFloat(locatedValues.locationLng),
+              name: locatedValues.mapPlaceName.trim(),
+              address: locatedValues.streetAddress.trim(),
             },
             datetime,
             preferredContactMethod: values.preferredContactMethod,
@@ -364,6 +414,11 @@ function CreateTaskFormBody({
     const isFinal = activeSubStep === CREATE_TASK_FINAL_SUB_STEP
 
     const fields = CREATE_TASK_STEP_FIELDS[activeSubStep]
+    if (activeSubStep === 'details.location') {
+      const located = await applyResolvedLocation()
+      if (!located) return
+    }
+
     if (fields.length > 0) {
       const valid = await trigger(fields)
       if (!valid) return
@@ -422,6 +477,10 @@ function CreateTaskFormBody({
             onLocationChange={onMapPlaceNameChange}
             onLocationLatChange={onLocationLatChange}
             onLocationLngChange={onLocationLngChange}
+            onStreetAddressEdited={onStreetAddressEdited}
+            onStreetAddressBlur={() => {
+              void applyResolvedLocation()
+            }}
           />
         )
       case 'details.timing':

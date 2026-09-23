@@ -9,6 +9,9 @@ const dir = dirname(fileURLToPath(import.meta.url))
 describe('OverviewCards layout', () => {
   it('stacks pricing, details, photos, then owner in a single column', () => {
     const src = readFileSync(join(dir, 'OverviewCards.tsx'), 'utf8')
+    expect(src.indexOf('<BookingSection />')).toBeLessThan(
+      src.indexOf('<TaskPricingCard />'),
+    )
     expect(src.indexOf('<TaskPricingCard />')).toBeLessThan(
       src.indexOf('<TaskDetailsCard />'),
     )
@@ -19,7 +22,7 @@ describe('OverviewCards layout', () => {
       src.indexOf('<TaskOwnerCard />'),
     )
     expect(src).toContain('<TaskOwnerCard />')
-    expect(src).toContain('sectionFlowCss')
+    expect(src).toContain('hideOverviewCards')
     expect(src).not.toContain('TaskShareCard')
     expect(src).not.toContain('TaskHelpCard')
     expect(src).not.toContain('TaskActivitySections')
@@ -27,13 +30,12 @@ describe('OverviewCards layout', () => {
     expect(src).not.toContain('templateColumns')
   })
 
-  it('hides the in-flow twin when a card is pinned; spacer lives on the view', () => {
+  it('hides overview cards the main CTA already shows; spacer lives on the view', () => {
     const sections = readFileSync(join(dir, 'OverviewCards.tsx'), 'utf8')
     const view = readFileSync(join(dir, '../layout/TaskDetailView.tsx'), 'utf8')
-    expect(sections).toContain('sectionFlowCss')
-    expect(sections).toContain(
-      'Hide the in-flow twin when that section is the mobile pin or the web rail CTA',
-    )
+    expect(sections).toContain('hideOverviewCards')
+    expect(sections).toContain("hidden.has('pricing')")
+    expect(sections).toContain("hidden.has('owner')")
     expect(view).toContain('taskDetailPinClearance')
     expect(view).toContain('TaskDetailTabs')
   })

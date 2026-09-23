@@ -7,6 +7,7 @@ import type { OrderItem } from '@/utils/orderHelpers'
 
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import type { TaskDetailPermissions } from '../helpers/getTaskDetailPermissions'
+import type { TaskDetailMainCtaModel } from '../helpers/taskDetailMainCtaModel'
 import type { TaskDetailTab } from '../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
 
@@ -89,6 +90,8 @@ export type TaskDetailContextValue = TaskDetailData &
   TaskDetailActions & {
     permissions: TaskDetailPermissions
     activeTab: TaskDetailTab
+    /** Primary action. Null when this viewer has none. */
+    mainCta: TaskDetailMainCtaModel | null
   }
 
 const TaskDetailContext = createContext<TaskDetailContextValue | null>(null)

@@ -11,8 +11,8 @@ export type TaskDetailSplitCtaProps = {
   value: ReactNode
   /** Muted line beside the value (e.g. `Fixed price · Cash`). */
   meta?: ReactNode
-  /** Right half. Omit to render the text half alone. */
-  action?: { href: string; label: string }
+  /** Right half. `href` navigates; `onClick` runs in place. */
+  action?: { label: string; href?: string; onClick?: () => void }
   /** Stretch to the container (compact pin). */
   fullWidth?: boolean
 }
@@ -90,18 +90,32 @@ export function TaskDetailSplitCta({
       </Stack>
       {action ? (
         <Box display="flex" flexShrink={0}>
-          <Button
-            asChild
-            variant="primary"
-            h="auto"
-            minH="full"
-            px={5}
-            borderRadius={0}
-          >
-            <Link href={action.href} _hover={{ textDecoration: 'none' }}>
+          {action.href ? (
+            <Button
+              asChild
+              variant="primary"
+              h="auto"
+              minH="full"
+              px={5}
+              borderRadius={0}
+            >
+              <Link href={action.href} _hover={{ textDecoration: 'none' }}>
+                {action.label}
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="primary"
+              h="auto"
+              minH="full"
+              px={5}
+              borderRadius={0}
+              onClick={action.onClick}
+            >
               {action.label}
-            </Link>
-          </Button>
+            </Button>
+          )}
         </Box>
       ) : null}
     </HStack>

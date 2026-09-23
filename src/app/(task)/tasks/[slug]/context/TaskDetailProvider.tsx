@@ -42,6 +42,7 @@ import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
 import WithdrawQuote from '@/app/(task)/tasks/[slug]/graphql/WithdrawQuote.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
+import { buildTaskDetailMainCta } from '@/app/(task)/tasks/[slug]/helpers/taskDetailMainCtaModel'
 import {
   TASK_DETAIL_TAB,
   type TaskDetailTab,
@@ -67,7 +68,11 @@ import {
   isWorkerQuoteLimitError,
 } from '@/utils/graphqlErrors'
 import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
-import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
+import {
+  type OrderItem,
+  isOrderClosed,
+  orderSnapshotDatetime,
+} from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
 
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
@@ -726,10 +731,51 @@ export function TaskDetailProvider({
       ? TASK_DETAIL_TAB.overview
       : resolvedTab
 
+  const mainCta = useMemo(
+    () =>
+      statusReady
+        ? buildTaskDetailMainCta({
+            task,
+            myQuote,
+            permissions,
+            schedule: myOrder ? orderSnapshotDatetime(myOrder) : null,
+            copy: {
+              preview: t.cta.preview,
+              sendQuote: t.cta.sendQuote,
+              signInToQuote: t.cta.signInToQuote,
+              editQuote: t.cta.editQuote,
+              quoteSent: t.cta.quoteSent,
+              yourQuote: t.cta.yourQuote,
+              quoteSentValue: t.cta.quoteSentValue,
+              askingPrice: t.cta.askingPrice,
+              awaitingReview: t.cta.awaitingReview,
+              budget: t.details.budget,
+              confirm: t.cta.confirm,
+              complete: t.cta.complete,
+              customerTitle: t.booking.customerTitle,
+              workerTitle: t.booking.workerTitle,
+              completionCode: t.booking.completionCode,
+              enterCodeCta: t.verification.enterCodeCta,
+              owner: t.details.owner,
+              contactTask: t.cta.contactTask,
+              emailCustomer: t.booking.emailCustomer,
+              addContact: t.booking.addContact,
+              ownerFallback: t.details.ownerFallback,
+              beOnSite: t.booking.beOnSite,
+              flexibleWhen: t.cta.flexibleWhen,
+              markCompleted: t.cta.markCompleted,
+              workerEyebrow: t.booking.workerEyebrow,
+            },
+          })
+        : null,
+    [myOrder, myQuote, permissions, statusReady, t, task],
+  )
+
   const value = useMemo(
     () => ({
       permissions,
       activeTab,
+      mainCta,
       taskId,
       task,
       seed,
@@ -783,6 +829,7 @@ export function TaskDetailProvider({
     [
       permissions,
       activeTab,
+      mainCta,
       taskId,
       task,
       seed,

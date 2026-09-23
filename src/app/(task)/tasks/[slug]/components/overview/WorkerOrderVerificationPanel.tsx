@@ -18,10 +18,13 @@ function normalizeVerificationCode(raw: string): string {
 type WorkerOrderVerificationPanelProps = {
   /** Storybook: start with code entry visible. */
   initialExpanded?: boolean
+  /** Render the form inside another card (the agreed-price card). */
+  embedded?: boolean
 }
 
 export function WorkerOrderVerificationPanel({
   initialExpanded = false,
+  embedded = false,
 }: WorkerOrderVerificationPanelProps = {}) {
   const {
     myOrder,
@@ -48,6 +51,7 @@ export function WorkerOrderVerificationPanel({
 
   const status = myOrder.status
   if (status !== OrderStatus.Active) {
+    if (embedded) return null
     return (
       <Card
         {...TASK_DETAIL_SECTION_CARD}
@@ -57,14 +61,13 @@ export function WorkerOrderVerificationPanel({
     )
   }
 
-  return (
-    <Card
-      {...TASK_DETAIL_SECTION_CARD}
-      id="worker-job-panel"
-      scrollMarginTop="140px"
-      eyebrow={v.completeHeading}
-      description={v.instructions}
-    >
+  const form = (
+    <Stack gap={3} w="full">
+      {embedded ? (
+        <Text fontSize="sm" color="text.muted" lineHeight="short">
+          {v.instructions}
+        </Text>
+      ) : null}
       <SafetyNotice variant="complete" />
 
       {jobActionError ? (
@@ -114,6 +117,20 @@ export function WorkerOrderVerificationPanel({
           </Button>
         </Stack>
       )}
+    </Stack>
+  )
+
+  if (embedded) return form
+
+  return (
+    <Card
+      {...TASK_DETAIL_SECTION_CARD}
+      id="worker-job-panel"
+      scrollMarginTop="140px"
+      eyebrow={v.completeHeading}
+      description={v.instructions}
+    >
+      {form}
     </Card>
   )
 }
