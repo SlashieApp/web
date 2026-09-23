@@ -3,8 +3,6 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 /** URL prefixes for the signed-in account hub (dashboard route group). */
 const ACCOUNT_HUB_PREFIXES = [
   '/dashboard',
-  '/requests',
-  '/quotes',
   '/earnings',
   '/billing',
   '/account',

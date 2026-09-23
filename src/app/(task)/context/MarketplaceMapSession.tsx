@@ -249,7 +249,7 @@ export function MarketplaceMapHost({ children }: { children: ReactNode }) {
           <Box
             position="relative"
             zIndex={1}
-            h="full"
+            h={overMap ? 'full' : 'auto'}
             minH="100%"
             pointerEvents={overMap ? 'none' : 'auto'}
           >

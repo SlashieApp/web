@@ -133,7 +133,7 @@ export function requestOrderHref(taskId: string): string {
 
 /** @deprecated Use {@link taskOrderHref} with `taskId`. */
 export function orderDashboardHref(_orderId: string): string {
-  return '/quotes'
+  return '/tasks'
 }
 
 export type OrderTimelineStep = {

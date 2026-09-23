@@ -6,6 +6,7 @@ import { LuX } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { APP_HOME } from '@/utils/appRoutes'
 import { Logo } from '@ui'
 import bag from '../../../i11n.json'
 
@@ -16,7 +17,7 @@ type CreateTaskHeaderProps = {
 
 /** Exit + logo bar for the create-task StepFlowLayout shell. */
 export function CreateTaskHeader({
-  exitHref = '/search?mode=tasks',
+  exitHref = APP_HOME,
 }: CreateTaskHeaderProps) {
   const router = useRouter()
   const t = useI11n(bag)

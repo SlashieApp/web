@@ -92,14 +92,14 @@ export function buildQuickActions(
       key: 'requests',
       title: copy.requestsTitle,
       subtitle: copy.requestsSubtitle,
-      href: '/requests',
+      href: '/tasks',
       kind: 'requests',
     },
     {
       key: 'quotes',
       title: copy.quotesTitle,
       subtitle: copy.quotesSubtitle,
-      href: '/quotes',
+      href: '/tasks',
       kind: 'quotes',
     },
     {

@@ -17,10 +17,14 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { formatMessage } from '@/i18n/loadPageI11n'
-import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { APP_HOME, GET_APP_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
+import {
+  APP_HOME,
+  GET_APP_HREF,
+  WORKER_SEARCH_HREF,
+  isPrimaryNavHrefActive,
+} from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
 
 import { Button } from '../Button'
@@ -100,8 +104,7 @@ function PostTaskButton() {
 
 function DesktopPrimaryNav() {
   const t = useI11n(bag)
-  const pathname = usePathname()
-  const bare = stripLocalePrefix(pathname ?? '')
+  const pathname = usePathname() ?? ''
 
   const linkProps = {
     fontSize: 'sm',
@@ -114,7 +117,7 @@ function DesktopPrimaryNav() {
 
   const items = [
     { href: WORKER_SEARCH_HREF, label: t.nav.workers },
-    { href: '/requests', label: t.myTasks },
+    { href: '/tasks', label: t.myTasks },
     { href: MESSAGES_HREF, label: t.messages },
   ] as const
 
@@ -126,7 +129,7 @@ function DesktopPrimaryNav() {
       flexShrink={0}
     >
       {items.map((item) => {
-        const active = bare === item.href || bare.startsWith(`${item.href}/`)
+        const active = isPrimaryNavHrefActive(pathname, item.href)
         return (
           <Link
             key={item.href}
@@ -391,9 +394,8 @@ export function Header({
   hasSession = false,
   ...props
 }: HeaderProps) {
-  const pathname = usePathname()
-  const bare = stripLocalePrefix(pathname ?? '')
-  const overSearchMap = bare === APP_HOME || bare.startsWith(`${APP_HOME}/`)
+  const pathname = usePathname() ?? ''
+  const overSearchMap = isPrimaryNavHrefActive(pathname, APP_HOME)
 
   return (
     <>

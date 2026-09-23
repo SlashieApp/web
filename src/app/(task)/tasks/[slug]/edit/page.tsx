@@ -15,7 +15,6 @@ import { type UseFormRegister, useForm } from 'react-hook-form'
 
 import { SessionLoading } from '@/app/(auth)/components/ui/SessionLoading'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
-import MyRequests from '@/app/(dashboard)/requests/graphql/MyRequests.gql'
 import Tasks from '@/app/(task)/graphql/Tasks.gql'
 import {
   buildUpdateTaskInput,
@@ -26,6 +25,7 @@ import {
 } from '@/app/(task)/helpers/taskEditHelpers'
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import UpdateTask from '@/app/(task)/tasks/[slug]/graphql/UpdateTask.gql'
+import MyRequests from '@/app/(task)/tasks/graphql/MyRequests.gql'
 import Me from '@/graphql/Me.gql'
 import { useLocale, useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
@@ -528,7 +528,7 @@ export default function EditTaskPage() {
   const router = useRouter()
   const params = useParams<{ slug: string }>()
   const taskId = typeof params.slug === 'string' ? params.slug : ''
-  const editPath = taskId ? `/tasks/${taskId}/edit` : '/requests'
+  const editPath = taskId ? `/tasks/${taskId}/edit` : '/tasks'
 
   const [sessionOk, setSessionOk] = useState(false)
   const sessionGateRef = useRef(false)
@@ -590,7 +590,7 @@ export default function EditTaskPage() {
             <Text fontSize="sm" color="text.muted">
               {t.notFoundDescription}
             </Text>
-            <Link href="/requests" color="text.link" fontWeight={600}>
+            <Link href="/tasks" color="text.link" fontWeight={600}>
               {t.backToRequests}
             </Link>
           </Stack>

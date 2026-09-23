@@ -3,10 +3,13 @@
 import { Box, HStack, type SystemStyleObject, Text } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 
-import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlElevation, sdlFocusRing, sdlMotion } from '@/theme/styles'
-import { APP_HOME } from '@/utils/appRoutes'
+import {
+  APP_HOME,
+  MY_TASKS_HREF,
+  isPrimaryNavHrefActive,
+} from '@/utils/appRoutes'
 
 import { Link } from '../Link'
 
@@ -94,7 +97,7 @@ function MobileBottomNavFade() {
 
 export const MESSAGES_HREF = '/dashboard/messages' as const
 
-type NavKey = 'search' | 'myTasks' | 'createTask' | 'messages' | 'profile'
+type NavKey = 'search' | 'myTasks' | 'createTask' | 'account'
 
 type NavItem = {
   key: NavKey
@@ -156,20 +159,6 @@ function PlusIcon() {
   )
 }
 
-function MessagesIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Messages</title>
-      <path
-        d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5H9l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 function ProfileIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -185,17 +174,9 @@ function ProfileIcon() {
   )
 }
 
-function isHrefActive(pathname: string, href: string): boolean {
-  const bare = stripLocalePrefix(pathname)
-  if (href === APP_HOME) {
-    return bare === APP_HOME || bare.startsWith(`${APP_HOME}/`)
-  }
-  return bare === href || bare.startsWith(`${href}/`)
-}
-
 /**
- * Mobile-only floating primary nav (md+ uses Header links instead).
- * Items: Search · My tasks · Post task · Messages · Profile.
+ * Mobile-only floating primary nav (lg+ uses Header links instead).
+ * Four items: Search · My tasks · Post task · Account.
  */
 export function MobileBottomNav() {
   const t = useI11n(bag)
@@ -210,7 +191,7 @@ export function MobileBottomNav() {
     },
     {
       key: 'myTasks',
-      href: '/requests',
+      href: MY_TASKS_HREF,
       label: t.myTasks,
       icon: <MyTasksIcon />,
     },
@@ -222,15 +203,9 @@ export function MobileBottomNav() {
       emphasize: true,
     },
     {
-      key: 'messages',
-      href: MESSAGES_HREF,
-      label: t.messages,
-      icon: <MessagesIcon />,
-    },
-    {
-      key: 'profile',
+      key: 'account',
       href: '/profile',
-      label: t.profile,
+      label: t.account,
       icon: <ProfileIcon />,
     },
   ]
@@ -271,7 +246,7 @@ export function MobileBottomNav() {
           css={glassPillCss}
         >
           {items.map((item) => {
-            const active = isHrefActive(pathname, item.href)
+            const active = isPrimaryNavHrefActive(pathname, item.href)
 
             if (item.emphasize) {
               return (

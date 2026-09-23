@@ -74,6 +74,8 @@ type TaskCardShared = {
    */
   navigateOnActivate?: boolean
   onActivate?: () => void
+  /** Role chips pinned to the card's top-right corner (My Tasks hub). */
+  cornerTags?: readonly string[]
 }
 
 type TaskCardWithTask = TaskCardShared & {
@@ -183,6 +185,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const navigateOnActivate = props.navigateOnActivate ?? false
   const activateCursor = props.activateCursor ?? 'pointer'
   const activateMode = props.activateMode ?? 'button'
+  const cornerTags = props.cornerTags ?? []
 
   let cardTask: TaskCardTask
   let detailsHref: string
@@ -215,6 +218,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     badgeText,
     distanceLabel,
     timingLabel,
+    quotesLabel,
     thumbnailSrc,
     trust,
   } = cardTask
@@ -293,7 +297,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           minW={0}
           position="relative"
           p={{ base: 3, md: 3 }}
-          pe={12}
+          pe={cornerTags.length > 1 ? 36 : cornerTags.length === 1 ? 24 : 12}
         >
           <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
             <Thumbnail
@@ -352,6 +356,17 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                 </HStack>
               ) : null}
 
+              {quotesLabel ? (
+                <Text
+                  fontSize="xs"
+                  fontWeight={600}
+                  color="text.muted"
+                  lineClamp={1}
+                >
+                  {quotesLabel}
+                </Text>
+              ) : null}
+
               {trustLabel ? (
                 <HStack gap={1} color="text.muted" minW={0}>
                   <Box
@@ -370,10 +385,28 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             </Stack>
           </HStack>
 
+          {cornerTags.length > 0 ? (
+            <HStack
+              position="absolute"
+              top={2}
+              right={2}
+              gap={1}
+              zIndex={1}
+              pointerEvents="none"
+            >
+              {cornerTags.map((tag) => (
+                <Badge key={tag} size="sm" shape="pill" variant="neutral">
+                  {tag}
+                </Badge>
+              ))}
+            </HStack>
+          ) : null}
+
           <HStack
             data-task-card-options
             position="absolute"
-            top={1}
+            top={cornerTags.length > 0 ? undefined : 1}
+            bottom={cornerTags.length > 0 ? 1 : undefined}
             right={1}
             gap={0}
             zIndex={2}
@@ -510,10 +543,12 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
         m={0}
         p={0}
         border="none"
+        borderRadius="lg"
         textAlign="left"
         bg="transparent"
         cursor={activateCursor}
         style={{ font: 'inherit' }}
+        _focusVisible={sdlFocusRing}
       >
         {shell}
       </Box>

@@ -68,9 +68,9 @@ Routes are already grouped by Next.js route groups, which align to shells:
 | --- | --- | --- |
 | `src/app/(marketing)` — `/`, `/about`, `/pricing` | Marketing | Header only, footer; no sidebar/dock |
 | `src/app/(auth)` — `/login`, `/register`, verify | Marketing (auth) | Header only, centered card |
-| `src/app/(task)` — `/tasks`, `/tasks/[slug]` | Discovery / Task detail | Map+list, mobile bottom dock (max 4); detail = header + quote sidebar |
+| `src/app/(task)` — `/search`, `/tasks` (My Tasks hub), `/tasks/[slug]` | Discovery / My Tasks / Task detail | Map browse on `/search`; hub list on `/tasks`; mobile bottom dock (4); detail = header + quote sidebar |
 | `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/worker/setup` | StepFlow | Own route-group `layout.tsx` — **`StepFlowLayout` only**, no app `Header` / `Dock` (FE-78) |
-| `src/app/(dashboard)` — `/dashboard`, `/requests`, `/quotes`, `/billing`, `/account` | Dashboard | Icon sidebar + header |
+| `src/app/(dashboard)` — `/dashboard`, `/billing`, `/account`, `/profile` | Dashboard | Icon sidebar + header |
 | `src/app/(worker)` — `/workers`, `/workers/[slug]` | App | Header chrome (setup lives under `(stepflow)`) |
 
 **Active-nav rule:** active state uses green accent; icon + label aligned.
@@ -121,7 +121,7 @@ No primary blue CTAs found. ~15 ad-hoc hex values total across `src/app/**` (mos
 - [ ] **Discovery** — `/tasks` browse, filters, task cards, map chrome
 - [ ] **Task detail** — `/tasks/[slug]`, quote sidebar, CTAs
 - [ ] **Worker** — setup, billing, `/pricing`
-- [ ] **Customer** — `/requests`, post-task flow
+- [ ] **Customer** — `/tasks` hub, post-task flow
 - [ ] **Legal** — `/privacy`, `/terms`, `/cookies` (FE-65) — prose layout + footer
 
 Per route: replace inline UI with primitives → confirm correct shell → remove dead CSS.

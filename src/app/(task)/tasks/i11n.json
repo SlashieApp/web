@@ -1,22 +1,76 @@
 {
   "en": {
     "metadata": {
-      "title": "Tasks | Slashie",
-      "description": "Browse open Slashie tasks and discover local work opportunities on the map."
+      "title": "My tasks | Slashie",
+      "description": "Tasks you posted and tasks you quoted — open, booked, and completed."
     },
-    "title": "Browse tasks",
-    "description": "Find local tasks, compare details, and send a quote when you are ready.",
-    "emptyTitle": "No tasks found",
-    "emptyDescription": "Try another area or broaden your filters."
+    "title": "My tasks",
+    "description": "Hosted tasks and quotes you sent, in one list.",
+    "loading": "Loading your tasks…",
+    "errorTitle": "Could not load your tasks",
+    "retry": "Try again",
+    "openTask": "{title}. {tags}. {timing}. Open task",
+    "withWorker": "With {name}",
+    "quoteCountOne": "1 quote",
+    "quoteCount": "{count} quotes",
+    "sections": {
+      "open": "Open",
+      "booked": "Booked / In progress",
+      "completed": "Completed"
+    },
+    "tags": {
+      "hosted": "Hosted",
+      "quoted": "Quoted"
+    },
+    "timing": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "flexible": "Flexible",
+      "before": "Before {date}"
+    },
+    "empty": {
+      "title": "No tasks yet",
+      "description": "Post a task to collect quotes, or browse the map and send a quote.",
+      "post": "Post a task",
+      "browse": "Browse tasks"
+    }
   },
   "zh_hk": {
     "metadata": {
-      "title": "任務 | Slashie",
-      "description": "瀏覽 Slashie 公開任務，並在地圖上發掘本地工作機會。"
+      "title": "我的任務 | Slashie",
+      "description": "你發布的任務同你報過價的任務 — 進行中、已預約同已完成。"
     },
-    "title": "瀏覽任務",
-    "description": "尋找本地任務、比較詳情，準備好後傳送報價。",
-    "emptyTitle": "找不到任務",
-    "emptyDescription": "請嘗試其他地區或放寬篩選。"
+    "title": "我的任務",
+    "description": "你發布的任務同你送出的報價，同一個清單。",
+    "loading": "正在載入你的任務…",
+    "errorTitle": "無法載入你的任務",
+    "retry": "再試一次",
+    "openTask": "{title}。{tags}。{timing}。開啟任務",
+    "withWorker": "工作者：{name}",
+    "quoteCountOne": "1 個報價",
+    "quoteCount": "{count} 個報價",
+    "sections": {
+      "open": "開放中",
+      "booked": "已預約 / 進行中",
+      "completed": "已完成"
+    },
+    "tags": {
+      "hosted": "我發布",
+      "quoted": "我報價"
+    },
+    "timing": {
+      "overdue": "已過期",
+      "today": "今天",
+      "tomorrow": "明天",
+      "flexible": "時間彈性",
+      "before": "{date} 之前"
+    },
+    "empty": {
+      "title": "暫時沒有任務",
+      "description": "發布任務以收集報價，或在地圖上瀏覽並送出報價。",
+      "post": "發布任務",
+      "browse": "瀏覽任務"
+    }
   }
 }

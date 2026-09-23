@@ -5,7 +5,8 @@
     "myTasks": "My tasks",
     "createTask": "Post task",
     "messages": "Messages",
-    "profile": "Profile"
+    "profile": "Profile",
+    "account": "Account"
   },
   "zh_hk": {
     "ariaLabel": "主要導覽",
@@ -13,6 +14,7 @@
     "myTasks": "我的任務",
     "createTask": "發佈任務",
     "messages": "訊息",
-    "profile": "個人檔案"
+    "profile": "個人檔案",
+    "account": "帳戶"
   }
 }
