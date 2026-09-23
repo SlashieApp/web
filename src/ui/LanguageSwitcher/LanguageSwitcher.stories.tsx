@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { type ComponentProps, useState } from 'react'
+import { useState } from 'react'
 
 import type { AppLocale } from '@/i18n/locales'
 
-import { Drawer } from '../Drawer'
-
+import { Button } from '../Button/Button'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 const meta = {
@@ -17,44 +16,40 @@ const meta = {
   args: {
     locale: 'en' as AppLocale,
     onSelect: () => undefined,
+    open: false,
+    onOpenChange: () => undefined,
   },
 } satisfies Meta<typeof LanguageSwitcher>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-function ControlledSwitcher(
-  props: Omit<ComponentProps<typeof LanguageSwitcher>, 'locale' | 'onSelect'>,
-) {
+function ControlledSwitcher({
+  initialOpen = false,
+}: { initialOpen?: boolean }) {
   const [locale, setLocale] = useState<AppLocale>('en')
-  return <LanguageSwitcher locale={locale} onSelect={setLocale} {...props} />
+  const [open, setOpen] = useState(initialOpen)
+  return (
+    <>
+      <Button type="button" onClick={() => setOpen(true)}>
+        Open language
+      </Button>
+      <LanguageSwitcher
+        locale={locale}
+        onSelect={setLocale}
+        open={open}
+        onOpenChange={setOpen}
+      />
+    </>
+  )
 }
 
+/** Closed until the account-menu entry (or this story control) opens it. */
 export const Default: Story = {
   render: () => <ControlledSwitcher />,
 }
 
-export const Overlay: Story = {
-  render: () => <ControlledSwitcher overlay label="Language" />,
-  parameters: {
-    backgrounds: { default: 'dark' },
-  },
-}
-
-/** Nested in a drawer: icon closes the current overlay and opens language. */
-export const InsideDrawer: Story = {
-  render: () => (
-    <>
-      <ControlledSwitcher />
-      <Drawer
-        open
-        onOpenChange={() => undefined}
-        title="Account"
-        placement="end"
-        size="sm"
-      >
-        <ControlledSwitcher />
-      </Drawer>
-    </>
-  ),
+/** Full-page locale list. */
+export const Open: Story = {
+  render: () => <ControlledSwitcher initialOpen />,
 }

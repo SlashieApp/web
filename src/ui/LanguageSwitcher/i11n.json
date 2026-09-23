@@ -1,8 +1,16 @@
 {
   "en": {
-    "label": "Language"
+    "label": "Language",
+    "title": "Language",
+    "description": "Choose the language used across Slashie.",
+    "listLabel": "Languages",
+    "close": "Close"
   },
   "zh_hk": {
-    "label": "語言"
+    "label": "語言",
+    "title": "語言",
+    "description": "選擇 Slashie 全站使用的語言。",
+    "listLabel": "語言",
+    "close": "關閉"
   }
 }

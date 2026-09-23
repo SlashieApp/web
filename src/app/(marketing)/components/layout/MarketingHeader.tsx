@@ -15,7 +15,6 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
 import { AccountSuspendedBanner } from '@/app/(auth)/components/ui/AccountSuspendedBanner'
-import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'
@@ -300,7 +299,6 @@ function MarketingNavigation({
           {copy.feedback}
         </Button>
         <MarketingAuthButtons overlay={overlay} copy={copy} />
-        <LanguageSwitcher overlay={overlay} label={copy.language} />
 
         <IconButton
           aria-label={copy.menu}
@@ -377,12 +375,6 @@ function MarketingNavigation({
             >
               {copy.getStarted}
             </Link>
-            <HStack justify="space-between" px={3} py={2}>
-              <Text fontSize="sm" fontWeight={600} color="text.default">
-                {copy.language}
-              </Text>
-              <LanguageSwitcher label={copy.language} />
-            </HStack>
           </Stack>
         </Stack>
       </Drawer>

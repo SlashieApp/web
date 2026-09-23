@@ -2,10 +2,11 @@
 
 import { useI11n } from '@/i18n/useI11n'
 import { Box } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import bag from '../i11n.json'
 
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { Dropdown } from '../../Dropdown'
 import { IconButton } from '../../IconButton'
 
@@ -22,6 +23,11 @@ export function AccountMenu({ initialOpen = false }: AccountMenuProps) {
   const user = useUserStore((state) => state.user)
   const t = useI11n(bag)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [languageOpen, setLanguageOpen] = useState(false)
+  const openLanguage = useCallback(() => {
+    setMobileOpen(false)
+    setLanguageOpen(true)
+  }, [])
 
   if (!user) return null
 
@@ -45,7 +51,11 @@ export function AccountMenu({ initialOpen = false }: AccountMenuProps) {
       >
         {avatar}
       </IconButton>
-      <MobileNavDrawer open={mobileOpen} onOpenChange={setMobileOpen} />
+      <MobileNavDrawer
+        open={mobileOpen}
+        onOpenChange={setMobileOpen}
+        onOpenLanguage={openLanguage}
+      />
 
       <Box display={{ base: 'none', lg: 'block' }}>
         <Dropdown
@@ -63,9 +73,10 @@ export function AccountMenu({ initialOpen = false }: AccountMenuProps) {
             </IconButton>
           }
         >
-          <AccountMenuContent />
+          <AccountMenuContent onOpenLanguage={openLanguage} />
         </Dropdown>
       </Box>
+      <LanguageSwitcher open={languageOpen} onOpenChange={setLanguageOpen} />
     </>
   )
 }

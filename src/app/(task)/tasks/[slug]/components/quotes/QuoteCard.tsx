@@ -151,9 +151,12 @@ export function QuoteCard({
     </Heading>
   )
 
-  const badgeStyle = statusBadge ? STATUS_BADGE_STYLES[statusBadge] : null
+  const showOwnTag = isOwnQuote || statusBadge === 'yours'
+  const inlineStatus =
+    statusBadge && statusBadge !== 'yours' ? statusBadge : null
+  const badgeStyle = inlineStatus ? STATUS_BADGE_STYLES[inlineStatus] : null
   const statusBadgeEl =
-    badgeStyle && statusBadge ? (
+    badgeStyle && inlineStatus ? (
       <Box
         as="span"
         display="inline-block"
@@ -168,14 +171,43 @@ export function QuoteCard({
         fontWeight={700}
         whiteSpace="nowrap"
       >
-        {statusLabels[statusBadge]}
+        {statusLabels[inlineStatus]}
       </Box>
     ) : null
 
   const hasActions = Boolean(onAccept || onDecline || messageHref || isOwnQuote)
 
   return (
-    <Card layout="default" maxW="full" p={{ base: 4, lg: 5 }} w="full">
+    <Card
+      layout="default"
+      maxW="full"
+      p={{ base: 4, lg: 5 }}
+      pt={showOwnTag ? { base: 10, lg: 11 } : undefined}
+      w="full"
+      position="relative"
+      overflow="hidden"
+      isActive={showOwnTag}
+      activeBorderColor="action.primary"
+      bg={showOwnTag ? 'status.success.soft' : undefined}
+    >
+      {showOwnTag ? (
+        <Box
+          position="absolute"
+          top={0}
+          insetInlineEnd={0}
+          px={3}
+          py={1.5}
+          bg="action.primary"
+          color="text.onGreen"
+          fontSize="xs"
+          fontWeight={700}
+          lineHeight="short"
+          borderBottomStartRadius="md"
+          zIndex={1}
+        >
+          {card.yours}
+        </Box>
+      ) : null}
       <Stack
         direction={{ base: 'column', lg: 'row' }}
         gap={{ base: 5, lg: 8 }}

@@ -5,7 +5,6 @@ import { useSelectedLayoutSegment } from 'next/navigation'
 import { useCallback, useRef } from 'react'
 
 import { AccountSuspendedBanner } from '@/app/(auth)/components/ui/AccountSuspendedBanner'
-import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { markAuthSurfaceSession } from '@/utils/analytics'
 
 export default function AuthLayout({
@@ -40,14 +39,6 @@ export default function AuthLayout({
         py={{ base: 10, md: 12 }}
         overflow="visible"
       >
-        <Box
-          display="flex"
-          justifyContent="flex-end"
-          mb={{ base: 4, md: 6 }}
-          overflow="visible"
-        >
-          <LanguageSwitcher />
-        </Box>
         <Box as="main" flex={1} minW={0} overflowX="clip">
           {isLoginOrRegister ? (
             children

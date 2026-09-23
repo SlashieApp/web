@@ -33,6 +33,13 @@ describe('account nav destinations', () => {
     )
   })
 
+  it('opens language from the account menu', () => {
+    const language = ACCOUNT_NAV_ITEMS.find((item) => item.id === 'language')
+    expect(language?.kind).toBe('action')
+    expect(language?.action).toBe('language')
+    expect(language?.section).toBe('account')
+  })
+
   it('includes a Send feedback action for signed-in users', () => {
     const feedback = ACCOUNT_NAV_ITEMS.find((item) => item.id === 'feedback')
     expect(feedback?.kind).toBe('action')

@@ -4,7 +4,11 @@ import type bag from '../i11n.json'
 
 export type AccountNavAudience = 'all' | 'worker' | 'non-worker'
 
-export type AccountNavAction = 'logout' | 'notifications' | 'feedback'
+export type AccountNavAction =
+  | 'logout'
+  | 'notifications'
+  | 'feedback'
+  | 'language'
 
 export type AccountNavSection = 'main' | 'worker' | 'account'
 
@@ -117,6 +121,14 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     label: 'Settings',
     href: '/account',
     kind: 'link',
+    section: 'account',
+    audience: 'all',
+  },
+  {
+    id: 'language',
+    label: 'Language',
+    kind: 'action',
+    action: 'language',
     section: 'account',
     audience: 'all',
   },

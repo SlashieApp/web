@@ -64,6 +64,7 @@ describe('marketing page dictionaries', () => {
     'src/ui/MobileBottomNav/i11n.json',
     'src/ui/Footer/i11n.json',
     'src/ui/LanguageSwitcher/i11n.json',
+    'src/ui/Toast/i11n.json',
     'src/app/(dashboard)/i11n.json',
     'src/app/(marketing)/i11n.chrome.json',
     'src/app/(marketing)/i11n.json',

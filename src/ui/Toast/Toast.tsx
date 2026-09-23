@@ -9,7 +9,10 @@ import {
 import type { ReactNode } from 'react'
 import { LuX } from 'react-icons/lu'
 
+import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
+
+import bag from './i11n.json'
 
 /**
  * SDL Toast — presentational chrome for a single toast. Render it inside a
@@ -56,6 +59,7 @@ function toToastType(value: string | undefined): UiToastType {
 }
 
 export function Toast({ toast, ...rootProps }: UiToastProps) {
+  const t = useI11n(bag)
   const type = toToastType(toast.type)
   const family = familyByType[type]
 
@@ -116,7 +120,7 @@ export function Toast({ toast, ...rootProps }: UiToastProps) {
 
       {toast.closable ? (
         <ChakraToast.CloseTrigger
-          aria-label="Dismiss notification"
+          aria-label={t.dismiss}
           color="text.muted"
           borderRadius="md"
           _hover={{ color: 'text.default', bg: 'bg.subtle' }}

@@ -21,6 +21,7 @@ export type AccountNavPanelProps = {
   onNavigate?: () => void
   onLogout: () => void
   onOpenNotifications?: () => void
+  onOpenLanguage?: () => void
   showDividers?: boolean
 }
 
@@ -29,11 +30,13 @@ function AccountNavRow({
   onNavigate,
   onLogout,
   onOpenNotifications,
+  onOpenLanguage,
 }: {
   item: AccountNavItem
   onNavigate?: () => void
   onLogout: () => void
   onOpenNotifications?: () => void
+  onOpenLanguage?: () => void
 }) {
   const t = useI11n(bag)
   const label = accountNavLabel(t, item.id, item.label)
@@ -97,6 +100,24 @@ function AccountNavRow({
         </Button>
       )
     }
+    if (item.action === 'language') {
+      return (
+        <Button
+          type="button"
+          variant="ghost"
+          {...accountNavLinkRowProps}
+          justifyContent="flex-start"
+          h="auto"
+          minH="44px"
+          onClick={() => {
+            onOpenLanguage?.()
+            close()
+          }}
+        >
+          {label}
+        </Button>
+      )
+    }
     return null
   }
 
@@ -118,6 +139,7 @@ export function AccountNavPanel({
   onNavigate,
   onLogout,
   onOpenNotifications,
+  onOpenLanguage,
   showDividers = true,
 }: AccountNavPanelProps) {
   const groups = groupAccountNavItems(items)
@@ -131,6 +153,7 @@ export function AccountNavPanel({
           onNavigate={onNavigate}
           onLogout={onLogout}
           onOpenNotifications={onOpenNotifications}
+          onOpenLanguage={onOpenLanguage}
         />
       ))}
 
@@ -142,6 +165,7 @@ export function AccountNavPanel({
           onNavigate={onNavigate}
           onLogout={onLogout}
           onOpenNotifications={onOpenNotifications}
+          onOpenLanguage={onOpenLanguage}
         />
       ))}
 
@@ -153,6 +177,7 @@ export function AccountNavPanel({
           onNavigate={onNavigate}
           onLogout={onLogout}
           onOpenNotifications={onOpenNotifications}
+          onOpenLanguage={onOpenLanguage}
         />
       ))}
     </Box>
