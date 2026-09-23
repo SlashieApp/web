@@ -148,7 +148,8 @@ type DropdownBaseProps = {
   /** Override / extend the default popover surface styling. */
   contentProps?: BoxProps
   /**
-   * Below `md`, the menu opens as `@ui` Drawer instead of a popover.
+   * Below `lg` (phone + tablet), the menu opens as `@ui` Drawer instead of a
+   * popover.
    * Ignored when this dropdown is already inside a Drawer (no nesting),
    * unless `allowNested` is set.
    */
@@ -280,7 +281,7 @@ function renderClickChildren(
 
 function useMobileDrawerPresentation(allowNested = false) {
   const isMobile =
-    useBreakpointValue({ base: true, md: false }, { fallback: 'base' }) ?? false
+    useBreakpointValue({ base: true, lg: false }, { fallback: 'base' }) ?? false
   const insideDrawer = useInsideDrawer()
   return isMobile && (allowNested || !insideDrawer)
 }
@@ -604,7 +605,7 @@ function HoverDropdown({
 
 /**
  * Universal dropdown popover. Default: click to open with click-outside + Escape.
- * Set `hoverExpand` for nav-style hover/focus menus. Below `md` the panel is
+ * Set `hoverExpand` for nav-style hover/focus menus. Below `lg` (phone + tablet) the panel is
  * `@ui` Drawer unless this menu is already inside a Drawer.
  */
 export function Dropdown(props: DropdownProps) {

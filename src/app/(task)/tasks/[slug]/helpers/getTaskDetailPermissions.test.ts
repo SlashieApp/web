@@ -111,6 +111,7 @@ describe('getTaskDetailPermissions', () => {
 
     expect(permissions.canSubmitQuote).toBe(true)
     expect(permissions.showQuoteForm).toBe(true)
+    expect(permissions.hasPendingQuote).toBe(true)
   })
 
   it('order worker with ACTIVE order sees worker job tools', () => {

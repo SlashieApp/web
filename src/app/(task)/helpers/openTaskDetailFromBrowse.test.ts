@@ -32,6 +32,11 @@ describe('isTaskDetailPath', () => {
     expect(isTaskDetailPath('/zh-hk/tasks/task-1')).toBe(true)
   })
 
+  it('treats the owner preview as task detail', () => {
+    expect(isTaskDetailPath('/tasks/task-1/preview')).toBe(true)
+    expect(isTaskDetailPath('/zh-hk/tasks/task-1/preview')).toBe(true)
+  })
+
   it('rejects search, edit, and other task routes', () => {
     expect(isTaskDetailPath('/search')).toBe(false)
     expect(isTaskDetailPath('/tasks')).toBe(false)
@@ -43,6 +48,7 @@ describe('taskIdFromDetailPath', () => {
   it('reads the public task slug with or without a locale prefix', () => {
     expect(taskIdFromDetailPath('/tasks/task-1')).toBe('task-1')
     expect(taskIdFromDetailPath('/zh-hk/tasks/task-1')).toBe('task-1')
+    expect(taskIdFromDetailPath('/tasks/task-1/preview')).toBe('task-1')
     expect(taskIdFromDetailPath('/tasks/task-1/edit')).toBeNull()
     expect(taskIdFromDetailPath('/search')).toBeNull()
   })

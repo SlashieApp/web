@@ -77,10 +77,16 @@ export function TaskDetailTabs({
       key: TASK_DETAIL_TAB.quotes,
       label: t.mobile.tabQuotes,
       badge: quoteCount,
-      tabTitle: permissions.isOwner
-        ? t.trust.ownerHeading
-        : t.trust.workerHeading,
-      tabDescription: <SafetyNotice variant="inline" />,
+      tabTitle: permissions.hasPendingQuote
+        ? t.cta.quoteSentTitle
+        : permissions.isOwner
+          ? t.trust.ownerHeading
+          : t.trust.workerHeading,
+      tabDescription: permissions.hasPendingQuote ? (
+        t.cta.quoteSentDescription
+      ) : (
+        <SafetyNotice variant="inline" />
+      ),
       cards: <QuotesCards />,
     },
     ...(showAnalytics

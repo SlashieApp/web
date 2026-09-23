@@ -1,0 +1,8 @@
+mutation WithdrawQuote($quoteId: ID!) {
+  withdrawQuote(quoteId: $quoteId) {
+    id
+    taskId
+    workerUserId
+    status
+  }
+}

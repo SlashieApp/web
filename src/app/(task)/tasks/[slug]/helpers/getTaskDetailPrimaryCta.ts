@@ -2,9 +2,10 @@ import type { TaskDetailPermissions } from './getTaskDetailPermissions'
 
 export type TaskDetailPrimaryCtaKind =
   | 'sendQuote'
+  | 'editQuote'
   | 'signInToQuote'
   | 'viewQuotes'
-  | 'share'
+  | 'preview'
   | 'complete'
   | 'confirm'
   | 'none'
@@ -26,6 +27,7 @@ export function getTaskDetailPrimaryCta(
   if (p.showCompleteWithCode) return 'complete'
   if (p.showCustomerCompletionCode) return 'confirm'
   if (p.isOwner && p.isOpen && quoteCount > 0) return 'viewQuotes'
+  if (p.hasPendingQuote) return 'editQuote'
   if (p.showQuoteForm) return 'sendQuote'
   if (p.showGuestQuoteCta) return 'signInToQuote'
   // Signed-in non-owner non-worker on an open task — quote page handles setup.
@@ -38,6 +40,6 @@ export function getTaskDetailPrimaryCta(
   ) {
     return 'sendQuote'
   }
-  if (p.isOwner && p.isOpen) return 'share'
+  if (p.isOwner && p.isOpen) return 'preview'
   return 'none'
 }

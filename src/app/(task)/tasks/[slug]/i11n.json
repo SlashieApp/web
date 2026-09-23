@@ -39,6 +39,20 @@
     "cta": {
       "sendQuote": "Send quote",
       "signInToQuote": "Sign in to quote",
+      "editQuote": "Edit quote",
+      "updateQuote": "Update quote",
+      "preview": "Preview",
+      "quoteSent": "Quote sent",
+      "askingPrice": "Your asking price",
+      "yourQuote": "Your quote",
+      "quoteSentValue": "Sent",
+      "awaitingReview": "Waiting for the owner to review",
+      "priceComparison": "Budget vs your quote",
+      "underBudget": "{amount} under budget",
+      "overBudget": "{amount} over budget",
+      "matchesBudget": "Matches the budget",
+      "quoteSentTitle": "Quote sent",
+      "quoteSentDescription": "Waiting for the owner to review your quote.",
       "viewQuotes": "View quotes",
       "shareTask": "Share task",
       "shareEyebrow": "Share",
@@ -115,7 +129,9 @@
       "getHelp": "Get help",
       "cancelTask": "Cancel task",
       "linkCopied": "Link copied",
-      "cancelConfirm": "Cancel this task? Professionals will no longer be able to send quotes."
+      "cancelConfirm": "Cancel this task? Professionals will no longer be able to send quotes.",
+      "withdrawQuote": "Withdraw quote",
+      "withdrawQuoteConfirm": "Withdraw your quote? The customer will no longer see it."
     },
     "details": {
       "heading": "Task details",
@@ -343,7 +359,10 @@
       "jobClosedTitle": "Job closed",
       "jobClosedDescription": "Payment and completion are recorded. This order is now closed.",
       "invalidCode": "Invalid or expired code. Check with the customer and try again.",
-      "cancelFailed": "Could not cancel this task."
+      "cancelFailed": "Could not cancel this task.",
+      "withdrawQuoteFailed": "Could not withdraw your quote.",
+      "quoteWithdrawnTitle": "Quote withdrawn",
+      "quoteWithdrawnSuccess": "The customer will no longer see your quote."
     }
   },
   "zh_hk": {
@@ -386,6 +405,20 @@
     "cta": {
       "sendQuote": "傳送報價",
       "signInToQuote": "登入以報價",
+      "editQuote": "編輯報價",
+      "updateQuote": "更新報價",
+      "preview": "預覽",
+      "quoteSent": "報價已傳送",
+      "askingPrice": "你的報價",
+      "yourQuote": "你的報價",
+      "quoteSentValue": "已傳送",
+      "awaitingReview": "等待任務發佈者審核",
+      "priceComparison": "預算與你的報價",
+      "underBudget": "低於預算 {amount}",
+      "overBudget": "高於預算 {amount}",
+      "matchesBudget": "與預算相同",
+      "quoteSentTitle": "報價已傳送",
+      "quoteSentDescription": "正在等待任務發佈者審核你的報價。",
       "viewQuotes": "查看報價",
       "shareTask": "分享任務",
       "shareEyebrow": "分享",
@@ -462,7 +495,9 @@
       "getHelp": "取得協助",
       "cancelTask": "取消任務",
       "linkCopied": "連結已複製",
-      "cancelConfirm": "取消此任務？專業人士將無法再傳送報價。"
+      "cancelConfirm": "取消此任務？專業人士將無法再傳送報價。",
+      "withdrawQuote": "撤回報價",
+      "withdrawQuoteConfirm": "撤回你的報價？顧客將不會再看到此報價。"
     },
     "details": {
       "heading": "任務詳情",
@@ -690,7 +725,10 @@
       "jobClosedTitle": "工作已關閉",
       "jobClosedDescription": "付款與完成已記錄。此訂單現已關閉。",
       "invalidCode": "驗證碼無效或已過期。請向顧客確認後再試。",
-      "cancelFailed": "無法取消此任務。"
+      "cancelFailed": "無法取消此任務。",
+      "withdrawQuoteFailed": "無法撤回你的報價。",
+      "quoteWithdrawnTitle": "已撤回報價",
+      "quoteWithdrawnSuccess": "顧客將不會再看到你的報價。"
     }
   }
 }

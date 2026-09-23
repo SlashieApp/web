@@ -260,9 +260,9 @@ export function TaskQuoteStepContent({
           {showSummary ? <TaskQuoteSummaryCard /> : null}
           <TaskQuoteReviewStep photoUrls={photoUrls} />
           <TaskQuotePrivateCallout />
-          {quoteError ? (
+          {quoteError || fieldError ? (
             <Text fontSize="sm" color="status.danger.fg" role="alert">
-              {quoteError}
+              {quoteError ?? fieldError}
             </Text>
           ) : null}
           <Text fontSize="xs" color="text.muted" textAlign="center">

@@ -10,7 +10,8 @@ describe('TaskDetailMainCta pin', () => {
   it('pins compact to the viewport and the web card beside TabIntro, with no placement prop', () => {
     const src = readFileSync(join(dir, 'TaskDetailMainCta.tsx'), 'utf8')
     expect(src).toContain('<TaskPricingCard compact={compact} rail={web} />')
-    expect(src).toContain('<TaskShareCard compact={compact} rail={web} />')
+    expect(src).toContain('<TaskPreviewButton />')
+    expect(src).not.toContain('TaskShareCard')
     expect(src).toContain('<TaskOwnerCard compact={compact} rail={web} />')
     expect(src).toContain('<TaskDetailCompletionBar web={web} />')
     expect(src).toContain("surface: 'pin' | 'web'")

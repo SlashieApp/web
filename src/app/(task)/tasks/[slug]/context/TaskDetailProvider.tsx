@@ -11,6 +11,7 @@ import type {
   MeQuery,
   TaskCoreQuery,
   TaskQuery,
+  WithdrawQuoteMutation,
 } from '@codegen/schema'
 import { Currency } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
@@ -39,6 +40,7 @@ import CompleteOrderWithVerification from '@/app/(task)/tasks/[slug]/graphql/Com
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
+import WithdrawQuote from '@/app/(task)/tasks/[slug]/graphql/WithdrawQuote.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import {
   TASK_DETAIL_TAB,
@@ -87,14 +89,21 @@ type TaskDetailProviderProps = {
    * `seed` while the client fetch is in flight.
    */
   initialTask?: TaskCoreQuery['task'] | null
+  /**
+   * `guest` renders the page as a signed-out visitor (owner preview): no
+   * viewer, guest permissions, and only the public task fields.
+   */
+  viewAs?: 'guest'
   children: React.ReactNode
 }
 
 export function TaskDetailProvider({
   taskId,
   initialTask,
+  viewAs,
   children,
 }: TaskDetailProviderProps) {
+  const asGuest = viewAs === 'guest'
   const router = useRouter()
   const pathname = usePathname()
   const t = useI11n(bag)
@@ -114,7 +123,7 @@ export function TaskDetailProvider({
     const hash = readTaskDetailHash()
     return hash ? resolveTaskDetailTab(hash, TASK_DETAIL_TAB.overview) : null
   })
-  const isAuthenticated = Boolean(getAuthToken())
+  const isAuthenticated = !asGuest && Boolean(getAuthToken())
   const zustandMe = useMe()
   const getUser = useUserStore((s) => s.getUser)
   const meHydratedRef = useRef(false)
@@ -123,10 +132,8 @@ export function TaskDetailProvider({
     skip: !isAuthenticated,
     fetchPolicy: 'cache-and-network',
   })
-  const me = zustandMe ?? meData?.me ?? null
-  const meLoadingResolved = Boolean(
-    isAuthenticated && meLoading && !zustandMe && !meData?.me,
-  )
+  const me = asGuest ? null : (zustandMe ?? meData?.me ?? null)
+  const meLoadingResolved = Boolean(isAuthenticated && meLoading && !me)
   const hasWorkerRow = Boolean(me?.worker?.id)
   const hasWorkerProfile = isWorkerSetupComplete(me)
   const workerMembership = me?.worker?.membership ?? null
@@ -200,8 +207,11 @@ export function TaskDetailProvider({
   const clientTask = clientTaskData?.task ?? null
   const clientTaskLoading = Boolean(clientTaskLoadingRaw && !clientTask)
   const clientTaskLoaded = Boolean(clientTask)
+  // The request still carries the owner's token; a guest preview keeps only
+  // what the public (signed-out) response exposes: status and quotes.
+  const viewerTask = asGuest ? null : clientTask
 
-  const liveOrder = (clientTask?.orders?.[0] ?? null) as OrderItem | null
+  const liveOrder = (viewerTask?.orders?.[0] ?? null) as OrderItem | null
   const shouldPollLiveOrder = Boolean(
     isAuthenticated && liveOrder && !isOrderClosed(liveOrder.status),
   )
@@ -224,15 +234,15 @@ export function TaskDetailProvider({
       ...publicTask,
       status: clientTask?.status ?? publicTask.status,
       quotes,
-      timeline: clientTask?.timeline ?? [],
-      orders: clientTask?.orders ?? [],
+      timeline: viewerTask?.timeline ?? [],
+      orders: viewerTask?.orders ?? [],
       location:
-        clientTask?.location ??
+        viewerTask?.location ??
         (publicTask.location
           ? { ...publicTask.location, address: null }
           : null),
       poster:
-        clientTask?.poster ??
+        viewerTask?.poster ??
         (publicTask.poster
           ? {
               ...publicTask.poster,
@@ -243,7 +253,7 @@ export function TaskDetailProvider({
             }
           : null),
     } as TaskDetailRecord
-  }, [publicTask, clientTask, quotes])
+  }, [publicTask, clientTask, viewerTask, quotes])
 
   const refetch = useCallback(() => {
     if (!skipCore) void refetchCore()
@@ -320,6 +330,8 @@ export function TaskDetailProvider({
   const [cancelTask, { loading: cancelingTask }] =
     useMutation<CancelTaskMutation>(CancelTask)
   const [declineQuote] = useMutation<DeclineQuoteMutation>(DeclineQuote)
+  const [withdrawQuote, { loading: withdrawingQuote }] =
+    useMutation<WithdrawQuoteMutation>(WithdrawQuote)
   const [
     completeOrderWithVerification,
     { loading: completingOrderWithVerification },
@@ -642,6 +654,42 @@ export function TaskDetailProvider({
     task,
   ])
 
+  const onWithdrawQuote = useCallback(async () => {
+    if (!myQuote || !permissions.hasPendingQuote) return false
+    const p = t.provider
+
+    setQuoteError(null)
+    const confirmed = window.confirm(t.actions.withdrawQuoteConfirm)
+    if (!confirmed) return false
+
+    try {
+      const result = await withdrawQuote({
+        variables: { quoteId: myQuote.id },
+        refetchQueries: ['MyQuotes'],
+      })
+      if (!result.data?.withdrawQuote?.id) {
+        throw new Error(p.withdrawQuoteFailed)
+      }
+      showAppToast({
+        title: p.quoteWithdrawnTitle,
+        description: p.quoteWithdrawnSuccess,
+        type: 'success',
+      })
+      void refetchClientTask()
+      return true
+    } catch (error: unknown) {
+      setQuoteError(getFriendlyErrorMessage(error, p.withdrawQuoteFailed))
+      return false
+    }
+  }, [
+    myQuote,
+    permissions.hasPendingQuote,
+    refetchClientTask,
+    t.actions.withdrawQuoteConfirm,
+    t.provider,
+    withdrawQuote,
+  ])
+
   const scrollToQuoteForm = useCallback(() => {
     if (typeof document === 'undefined') return
     document.getElementById('task-quote')?.scrollIntoView({
@@ -726,6 +774,8 @@ export function TaskDetailProvider({
       onDeclineQuote,
       onCompleteOrderWithVerification,
       onCancelTask,
+      onWithdrawQuote,
+      withdrawingQuote,
       scrollToQuoteForm,
       scrollToOwnerPerformance,
       setActiveTab,
@@ -773,6 +823,8 @@ export function TaskDetailProvider({
       onDeclineQuote,
       onCompleteOrderWithVerification,
       onCancelTask,
+      onWithdrawQuote,
+      withdrawingQuote,
       scrollToQuoteForm,
       scrollToOwnerPerformance,
       setActiveTab,

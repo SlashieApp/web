@@ -750,17 +750,6 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
               <Stack gap={4}>{others.map(competitorCard)}</Stack>
             </Stack>
           ) : null}
-          <Button
-            asChild
-            variant="ghost"
-            borderWidth="1px"
-            borderColor="border.default"
-            w="full"
-          >
-            <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
-              {q.editQuote}
-            </Link>
-          </Button>
         </Stack>
       )
       break

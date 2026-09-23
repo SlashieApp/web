@@ -29,6 +29,7 @@ function permissions(
     hasWorkerProfile: false,
     atCap: false,
     canSubmitQuote: false,
+    hasPendingQuote: false,
     showQuoteForm: false,
     showGuestQuoteCta: false,
     showQuoteUnavailableNotice: false,
@@ -49,12 +50,13 @@ describe('TASK_DETAIL_SECTION_RULES', () => {
     const ids = TASK_DETAIL_SECTION_RULES.map((rule) => rule.id)
     expect(ids).toEqual([
       'pricing',
+      'quoted',
       'details',
       'photos',
       'help',
       'activity',
       'owner',
-      'share',
+      'preview',
       'completion',
     ])
     expect(
@@ -76,9 +78,12 @@ describe('TASK_DETAIL_SECTION_RULES', () => {
       TASK_DETAIL_STICKY_PRIORITY.owner,
     )
     expect(TASK_DETAIL_STICKY_PRIORITY.owner).toBeGreaterThan(
-      TASK_DETAIL_STICKY_PRIORITY.share,
+      TASK_DETAIL_STICKY_PRIORITY.preview,
     )
-    expect(TASK_DETAIL_STICKY_PRIORITY.share).toBeGreaterThan(
+    expect(TASK_DETAIL_STICKY_PRIORITY.preview).toBeGreaterThan(
+      TASK_DETAIL_STICKY_PRIORITY.quoted,
+    )
+    expect(TASK_DETAIL_STICKY_PRIORITY.quoted).toBeGreaterThan(
       TASK_DETAIL_STICKY_PRIORITY.pricing,
     )
   })
@@ -109,7 +114,7 @@ describe('resolveTaskDetailSections', () => {
       [`@media screen and ${TASK_DETAIL_DESKTOP_MQ}`]: { display: 'none' },
     })
     expect(resolved.mobile.owner).toBe('flow')
-    expect(resolved.mobile.share).toBe('hidden')
+    expect(resolved.mobile.preview).toBe('hidden')
     expect(resolved.mobile.completion).toBe('hidden')
   })
 
@@ -142,7 +147,37 @@ describe('resolveTaskDetailSections', () => {
     expect(resolved.desktop.pricing).toBe('hidden')
   })
 
-  it('pins the share card for the task owner (including when quotes exist)', () => {
+  it('pins the quoted CTA (not pricing) for a worker whose quote awaits review', () => {
+    const resolved = resolveTaskDetailSections({
+      hasTask: true,
+      pending: false,
+      isAuthenticated: true,
+      quoteCount: 1,
+      permissions: permissions({
+        hasWorkerProfile: true,
+        canSubmitQuote: true,
+        showQuoteForm: true,
+        hasPendingQuote: true,
+      }),
+    })
+    expect(resolved.pinnedId).toBe('quoted')
+    expect(resolved.mobile.quoted).toBe('pin')
+    expect(resolved.mobile.pricing).toBe('flow')
+    expect(resolved.desktop.pricing).toBe('flow')
+  })
+
+  it('pins nothing once the worker quote is declined, rejected, or withdrawn', () => {
+    const resolved = resolveTaskDetailSections({
+      hasTask: true,
+      pending: false,
+      isAuthenticated: true,
+      quoteCount: 1,
+      permissions: permissions({ hasWorkerProfile: true }),
+    })
+    expect(resolved.pinnedId).toBeNull()
+  })
+
+  it('pins the preview CTA for the task owner (including when quotes exist)', () => {
     const noQuotes = resolveTaskDetailSections({
       hasTask: true,
       pending: false,
@@ -155,9 +190,9 @@ describe('resolveTaskDetailSections', () => {
         canCancelTask: true,
       }),
     })
-    expect(noQuotes.pinnedId).toBe('share')
-    expect(noQuotes.mobile.share).toBe('pin')
-    expect(noQuotes.desktop.share).toBe('hidden')
+    expect(noQuotes.pinnedId).toBe('preview')
+    expect(noQuotes.mobile.preview).toBe('pin')
+    expect(noQuotes.desktop.preview).toBe('hidden')
     expect(noQuotes.mobile.pricing).toBe('flow')
     expect(noQuotes.desktop.pricing).toBe('flow')
 
@@ -174,7 +209,7 @@ describe('resolveTaskDetailSections', () => {
         canCancelTask: true,
       }),
     })
-    expect(withQuotes.pinnedId).toBe('share')
+    expect(withQuotes.pinnedId).toBe('preview')
     expect(withQuotes.mobile.pricing).toBe('flow')
   })
 
@@ -207,7 +242,7 @@ describe('resolveTaskDetailSections', () => {
     })
   })
 
-  it('lets owner confirm-completion beat share when the order is active', () => {
+  it('lets owner confirm-completion beat preview when the order is active', () => {
     const resolved = resolveTaskDetailSections({
       hasTask: true,
       pending: false,
@@ -226,7 +261,7 @@ describe('resolveTaskDetailSections', () => {
     })
     expect(resolved.pinnedId).toBe('completion')
     expect(resolved.mobile.completion).toBe('pin')
-    expect(resolved.mobile.share).toBe('hidden')
+    expect(resolved.mobile.preview).toBe('hidden')
     expect(resolved.mobile.owner).toBe('hidden')
   })
 

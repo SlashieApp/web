@@ -24,8 +24,8 @@
       "becomeWorker": "Become a worker",
       "platformMembership": "Platform membership",
       "body": "Slashie Unlimited covers platform quoting access. Job payments stay between customer and worker — not through Slashie.",
-      "quotesThisMonth": "Quotes this month",
-      "quotesThisMonthUtc": "Quotes this month (UTC)"
+      "quotesThisMonth": "Tasks quoted this month",
+      "quotesThisMonthUtc": "Tasks quoted this month (UTC)"
     }
   },
   "zh_hk": {
@@ -53,8 +53,8 @@
       "becomeWorker": "成為工作者",
       "platformMembership": "平台會員",
       "body": "Slashie Unlimited 涵蓋平台報價權限。工作款項由顧客與工作者直接處理 — 不經 Slashie。",
-      "quotesThisMonth": "本月報價",
-      "quotesThisMonthUtc": "本月報價（UTC）"
+      "quotesThisMonth": "本月已報價任務",
+      "quotesThisMonthUtc": "本月已報價任務（UTC）"
     }
   }
 }

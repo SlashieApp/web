@@ -18,9 +18,9 @@
       "cta": "Set up worker profile"
     },
     "meter": {
-      "label": "Quotes this month (UTC)",
+      "label": "Tasks quoted this month (UTC)",
       "reset": "Resets at the start of each UTC calendar month.",
-      "aria": "{used} of {total} free quotes used this month"
+      "aria": "{used} of {total} free tasks quoted this month"
     },
     "aboutTitle": "About platform billing",
     "aboutDescription": "Separate from job payments.",
@@ -36,8 +36,8 @@
     "checkoutCancelledTitle": "Checkout cancelled — you can try again anytime.",
     "billingErrorTitle": "Could not load billing details. Refresh the page or try again shortly.",
     "usageTitle": "Free tier usage",
-    "usageDescription": "{count} quotes per UTC month on the free plan.",
-    "usageExhausted": "You've used all free quotes this month. Upgrade for unlimited quoting.",
+    "usageDescription": "Quote up to {count} different tasks per UTC month on the free plan. Editing a quote you've sent is always free.",
+    "usageExhausted": "You've quoted all your free tasks this month. You can still edit those quotes. Upgrade to quote more tasks.",
     "planFallbackName": "Slashie Unlimited",
     "thenPrice": "Then {price} per {interval} unless you cancel",
     "paymentPastDue": "Payment issue — update your payment method to keep unlimited quotes.",
@@ -70,9 +70,9 @@
       "cta": "設定工作者個人檔案"
     },
     "meter": {
-      "label": "本月報價（UTC）",
+      "label": "本月已報價任務（UTC）",
       "reset": "於每個 UTC 曆月開始時重設。",
-      "aria": "本月已使用 {used} / {total} 個免費報價"
+      "aria": "本月已報價 {used} / {total} 個免費任務"
     },
     "aboutTitle": "關於平台帳單",
     "aboutDescription": "與工作款項分開。",
@@ -88,8 +88,8 @@
     "checkoutCancelledTitle": "已取消結帳 — 你可以隨時再試。",
     "billingErrorTitle": "未能載入帳單詳情。請重新整理頁面或稍後再試。",
     "usageTitle": "免費方案用量",
-    "usageDescription": "免費方案每月（UTC）可傳送 {count} 個報價。",
-    "usageExhausted": "你已用完本月免費報價。升級即可無限報價。",
+    "usageDescription": "免費方案每月（UTC）可為最多 {count} 個不同任務報價。編輯已傳送的報價一律免費。",
+    "usageExhausted": "你已用完本月的免費任務報價，但仍可編輯這些報價。升級即可為更多任務報價。",
     "planFallbackName": "Slashie Unlimited",
     "thenPrice": "其後每{interval} {price}，除非你取消",
     "paymentPastDue": "付款出現問題 — 請更新付款方式以繼續無限報價。",

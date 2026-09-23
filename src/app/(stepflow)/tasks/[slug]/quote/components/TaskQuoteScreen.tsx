@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { type ReactNode, useCallback, useState } from 'react'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { StepFlowLayout } from '@ui'
@@ -25,9 +25,20 @@ const MESSAGE_MAX = 250
 
 type TaskQuoteScreenProps = {
   backToTask: string
+  /** Prefill the price step (edit an existing quote). */
+  initialPounds?: string
+  /** Final-step button label. Defaults to "Send quote". */
+  submitLabel?: string
+  /** Extra controls under every step (e.g. withdraw an existing quote). */
+  footer?: ReactNode
 }
 
-export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
+export function TaskQuoteScreen({
+  backToTask,
+  initialPounds = '',
+  submitLabel = 'Send quote',
+  footer,
+}: TaskQuoteScreenProps) {
   const router = useRouter()
   const {
     setQuoteAmountInput,
@@ -43,7 +54,7 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
   const [completedSubSteps, setCompletedSubSteps] = useState<
     Set<TaskQuoteSubStepId>
   >(() => new Set())
-  const [poundsInput, setPoundsInput] = useState('')
+  const [poundsInput, setPoundsInput] = useState(initialPounds)
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [fieldError, setFieldError] = useState<string | null>(null)
 
@@ -51,7 +62,7 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
   const copy = TASK_QUOTE_STEP_COPY[activeSubStep]
   const isFirstStep = activeSubStep === TASK_QUOTE_FIRST_SUB_STEP
   const isReviewStep = activeSubStep === 'review.check'
-  const continueLabel = isReviewStep ? 'Send quote' : 'Continue'
+  const continueLabel = isReviewStep ? submitLabel : 'Continue'
 
   const revokeUrl = useCallback((url: string) => {
     if (url.startsWith('blob:')) {
@@ -202,6 +213,7 @@ export function TaskQuoteScreen({ backToTask }: TaskQuoteScreenProps) {
       }}
     >
       {stepContent}
+      {footer}
     </StepFlowLayout>
   )
 }

@@ -139,7 +139,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'SDL popover. Click to open by default (click-outside + Escape + return focus); pass `hoverExpand` for nav-style hover/focus menus. Below `md` the panel is `@ui` Drawer (`mobilePlacement`: start / end / bottom) unless the menu is already inside a Drawer. Surfaces use `bg.surface` + `border.default` + elevation, and animate transform/opacity only (reduced-motion safe).',
+          'SDL popover. Click to open by default (click-outside + Escape + return focus); pass `hoverExpand` for nav-style hover/focus menus. Below `lg` (phone + tablet) the panel is `@ui` Drawer (`mobilePlacement`: start / end / bottom) unless the menu is already inside a Drawer. Surfaces use `bg.surface` + `border.default` + elevation, and animate transform/opacity only (reduced-motion safe).',
       },
     },
   },
@@ -165,7 +165,7 @@ const meta = {
       control: 'inline-radio',
       options: ['start', 'end', 'bottom'],
       description:
-        'Drawer edge on viewports below `md` (ignored when nested in a Drawer).',
+        'Drawer edge on viewports below `lg` (ignored when nested in a Drawer).',
     },
   },
 } satisfies Meta
@@ -415,7 +415,7 @@ export const AllVariants: Story = {
   ),
 }
 
-/** Below `md`, the click menu opens as a bottom `@ui` Drawer. */
+/** Below `lg`, the click menu opens as a bottom `@ui` Drawer. */
 export const MobileDrawer: Story = {
   parameters: {
     layout: 'fullscreen',
@@ -423,7 +423,7 @@ export const MobileDrawer: Story = {
     docs: {
       description: {
         story:
-          'On small viewports the menu is a bottom Drawer. Resize to `md+` to see the desktop popover again.',
+          'On small viewports the menu is a bottom Drawer. Resize to `lg+` to see the desktop popover again.',
       },
     },
   },

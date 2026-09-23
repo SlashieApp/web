@@ -2,6 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback, useRef } from 'react'
+import { LuUndo2 } from 'react-icons/lu'
+
+import taskDetailBag from '@/app/(task)/tasks/[slug]/i11n.json'
+import { useI11n } from '@/i18n/useI11n'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
@@ -32,19 +36,27 @@ export function TaskQuoteFlow() {
     meLoading,
     quoteLimitReached,
     quoteSuccess,
+    setQuoteMessageInput,
+    onWithdrawQuote,
+    withdrawingQuote,
   } = useTaskDetail()
+  const t = useI11n(taskDetailBag)
 
   const redirectedRef = useRef(false)
+  const prefilledRef = useRef(false)
 
-  const { isOwner, hasWorkerProfile, showQuoteForm } = permissions
+  const { isOwner, hasWorkerProfile, showQuoteForm, hasPendingQuote } =
+    permissions
 
   const backToTask = task ? taskDetailHref(task.id) : '/tasks'
+  // Updating a pending quote sends another addQuote; the latest one wins.
+  const existingQuote = hasPendingQuote ? myQuote : null
 
   const shouldRedirectToTaskDetail = Boolean(
     task &&
       !quoteSuccess &&
       (isOwner ||
-        myQuote ||
+        (myQuote && !hasPendingQuote) ||
         (isAuthenticated &&
           !meLoading &&
           hasWorkerProfile &&
@@ -71,6 +83,20 @@ export function TaskQuoteFlow() {
       task,
     ],
   )
+
+  const prefillExistingQuoteRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node || prefilledRef.current || !existingQuote) return
+      prefilledRef.current = true
+      setQuoteMessageInput(existingQuote.message ?? '')
+    },
+    [existingQuote, setQuoteMessageInput],
+  )
+
+  const withdrawExistingQuote = useCallback(async () => {
+    const withdrawn = await onWithdrawQuote()
+    if (withdrawn) router.replace(backToTask)
+  }, [backToTask, onWithdrawQuote, router])
 
   if (!task) return null
 
@@ -121,12 +147,13 @@ export function TaskQuoteFlow() {
     )
   }
 
-  if (quoteLimitReached) {
+  // The monthly limit caps distinct tasks; edits on a quoted task are unlimited.
+  if (quoteLimitReached && !existingQuote) {
     return (
       <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
           title="Send quote"
-          description="Upgrade to send more quotes this month."
+          description="You've used this month's free tasks. Upgrade to quote more tasks. Quotes you've already sent stay editable."
           backHref={backToTask}
         >
           <TaskQuoteSummaryCard />
@@ -153,9 +180,39 @@ export function TaskQuoteFlow() {
     )
   }
 
+  if (!existingQuote) {
+    return (
+      <Box>
+        <TaskQuoteScreen backToTask={backToTask} />
+      </Box>
+    )
+  }
+
   return (
-    <Box>
-      <TaskQuoteScreen backToTask={backToTask} />
+    <Box ref={prefillExistingQuoteRef}>
+      <TaskQuoteScreen
+        key={existingQuote.id}
+        backToTask={backToTask}
+        initialPounds={
+          existingQuote.price ? String(existingQuote.price.amount) : ''
+        }
+        submitLabel={t.cta.updateQuote}
+        footer={
+          <Button
+            type="button"
+            variant="ghost"
+            color="status.danger.fg"
+            alignSelf="flex-start"
+            mt={6}
+            px={0}
+            loading={withdrawingQuote}
+            onClick={() => void withdrawExistingQuote()}
+          >
+            <LuUndo2 />
+            {t.actions.withdrawQuote}
+          </Button>
+        }
+      />
     </Box>
   )
 }

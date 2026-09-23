@@ -30,3 +30,10 @@ export const Worker: Story = {
     ),
   ],
 }
+
+/** Worker whose quote awaits review — main CTA becomes Edit quote. */
+export const WorkerQuoteSent: Story = {
+  decorators: [
+    withTaskDetailStory({ viewer: 'worker' }, { maxWidth: '1100px' }),
+  ],
+}

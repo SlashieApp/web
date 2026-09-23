@@ -10,12 +10,13 @@ import { getTaskDetailPrimaryCta } from './getTaskDetailPrimaryCta'
  */
 export type TaskDetailSectionId =
   | 'pricing'
+  | 'quoted'
   | 'details'
   | 'photos'
   | 'help'
   | 'activity'
   | 'owner'
-  | 'share'
+  | 'preview'
   | 'completion'
 
 /** Where a section renders for one viewport. */
@@ -37,13 +38,15 @@ export type TaskDetailPinConflictGroup =
  *
  * 1. Owner confirm-completion chrome
  * 2. Assigned worker: owner detail + contact
- * 3. Owner (open): share card — also wins over view-quotes (quotes stay a tab)
- * 4. Visitor / quote path: pricing + send-quote CTA
+ * 3. Owner (open): preview-as-visitor CTA — also wins over view-quotes (quotes stay a tab)
+ * 4. Worker with a pending quote: quote sent + edit-quote CTA
+ * 5. Visitor / not-yet-quoted worker: pricing + send-quote CTA
  */
 export const TASK_DETAIL_STICKY_PRIORITY = {
   completion: 100,
   owner: 80,
-  share: 60,
+  preview: 60,
+  quoted: 50,
   pricing: 40,
   none: 0,
 } as const
@@ -85,8 +88,8 @@ function quoteKind(ctx: TaskDetailSectionContext) {
 }
 
 /**
- * Visitor / guest / signed-in non-owner quote path (typical browse).
- * Assigned workers and owners are excluded.
+ * Visitor / guest / signed-in non-owner who has not quoted yet (typical
+ * browse). Quoted workers, assigned workers, and owners are excluded.
  */
 function isQuoteVisitorPath(ctx: TaskDetailSectionContext): boolean {
   const kind = quoteKind(ctx)
@@ -100,6 +103,14 @@ export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [
     stickyPriority: TASK_DETAIL_STICKY_PRIORITY.pricing,
     showInFlow: (ctx) => ctx.hasTask || ctx.pending,
     canPinMobile: (ctx) => isQuoteVisitorPath(ctx),
+  },
+  {
+    id: 'quoted',
+    pinConflictGroup: TASK_DETAIL_PIN_CONFLICT_GROUP,
+    stickyPriority: TASK_DETAIL_STICKY_PRIORITY.quoted,
+    // Main CTA only; the full pricing card stays in the scroll body.
+    showInFlow: () => false,
+    canPinMobile: (ctx) => quoteKind(ctx) === 'editQuote',
   },
   {
     id: 'details',
@@ -142,12 +153,12 @@ export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [
       ctx.permissions.isOrderWorker && ctx.permissions.isOrderActive,
   },
   {
-    id: 'share',
+    id: 'preview',
     pinConflictGroup: TASK_DETAIL_PIN_CONFLICT_GROUP,
-    stickyPriority: TASK_DETAIL_STICKY_PRIORITY.share,
-    // Share is overflow/help on desktop; not a scroll-body card.
+    stickyPriority: TASK_DETAIL_STICKY_PRIORITY.preview,
+    // Main CTA only; not a scroll-body card.
     showInFlow: () => false,
-    // Owner open task — share wins over view-quotes (quotes stay a tab).
+    // Owner open task — preview wins over view-quotes (quotes stay a tab).
     canPinMobile: (ctx) =>
       ctx.permissions.isOwner &&
       ctx.permissions.isOpen &&
@@ -169,12 +180,13 @@ function emptyPlacements(
 ): Record<TaskDetailSectionId, TaskDetailSectionPlacement> {
   return {
     pricing: value,
+    quoted: value,
     details: value,
     photos: value,
     help: value,
     activity: value,
     owner: value,
-    share: value,
+    preview: value,
     completion: value,
   }
 }

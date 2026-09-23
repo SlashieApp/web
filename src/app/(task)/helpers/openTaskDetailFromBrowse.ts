@@ -9,14 +9,17 @@ export function isSearchBrowsePath(pathname: string): boolean {
   return barePathname(pathname) === '/search'
 }
 
-/** True for `/tasks/[slug]` (not edit or other nested task routes). */
+/** `/tasks/[slug]` and its owner preview `/tasks/[slug]/preview`. */
+const TASK_DETAIL_PATH = /^\/tasks\/([^/]+)(?:\/preview)?$/
+
+/** True for `/tasks/[slug]` or its preview (not edit or other nested routes). */
 export function isTaskDetailPath(pathname: string): boolean {
-  return /^\/tasks\/[^/]+$/.test(barePathname(pathname))
+  return TASK_DETAIL_PATH.test(barePathname(pathname))
 }
 
-/** Task id on public `/tasks/[slug]` (locale prefix allowed). */
+/** Task id on `/tasks/[slug]` or its preview (locale prefix allowed). */
 export function taskIdFromDetailPath(pathname: string): string | null {
-  const match = barePathname(pathname).match(/^\/tasks\/([^/]+)$/)
+  const match = barePathname(pathname).match(TASK_DETAIL_PATH)
   return match?.[1] ?? null
 }
 

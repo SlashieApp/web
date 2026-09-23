@@ -73,6 +73,9 @@ export type TaskDetailActions = {
   onDeclineQuote: (quoteId: string) => Promise<void>
   onCompleteOrderWithVerification: () => Promise<void>
   onCancelTask: () => Promise<void>
+  /** Withdraw the viewer's pending quote. Resolves true once withdrawn. */
+  onWithdrawQuote: () => Promise<boolean>
+  withdrawingQuote: boolean
   scrollToQuoteForm: () => void
   scrollToOwnerPerformance: () => void
   setActiveTab: (

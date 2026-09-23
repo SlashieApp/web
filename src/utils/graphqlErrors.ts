@@ -44,7 +44,7 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   MONTHLY_CONNECTION_LIMIT_REACHED:
     "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade to Slashie Unlimited for unlimited quotes, or try again next month.",
   WORKER_QUOTE_LIMIT_REACHED:
-    "You've used all free quotes this month (UTC). Upgrade to Slashie Unlimited for unlimited quoting, or wait until next month.",
+    "You've quoted your free limit of new tasks this month (UTC). You can still edit quotes on tasks you've already quoted. Upgrade to Slashie Unlimited to quote more tasks, or wait until next month.",
   WORKER_SETUP_INCOMPLETE: 'Finish worker setup before quoting on tasks.',
   WORKER_PROFILE_INCOMPLETE:
     'Complete your profile requirements before finishing setup.',

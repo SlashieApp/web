@@ -37,6 +37,8 @@ export type TaskDetailPermissions = {
   /** Accepted-worker cap reached for this task. */
   atCap: boolean
   canSubmitQuote: boolean
+  /** Viewer's own quote on this OPEN task is sent and awaiting the owner. */
+  hasPendingQuote: boolean
   showQuoteForm: boolean
   /** Guest on an OPEN task — hero CTA that gates quote via login `next`. */
   showGuestQuoteCta: boolean
@@ -107,6 +109,10 @@ export function getTaskDetailPermissions(
       workerCanSubmitOnOpenTask(task, me),
   )
 
+  const hasPendingQuote = Boolean(
+    isOpen && !isOwner && myQuote?.status === QuoteStatus.Pending,
+  )
+
   const showQuoteForm = Boolean(
     canSubmitQuote && (!myQuote || myQuote.status === QuoteStatus.Pending),
   )
@@ -149,6 +155,7 @@ export function getTaskDetailPermissions(
     hasWorkerProfile,
     atCap,
     canSubmitQuote,
+    hasPendingQuote,
     showQuoteForm,
     showGuestQuoteCta,
     showQuoteUnavailableNotice,

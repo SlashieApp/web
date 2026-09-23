@@ -16,9 +16,10 @@ import { useTaskDetailSections } from '../../helpers/useTaskDetailSections'
 import bag from '../../i11n.json'
 import { TaskOwnerCard } from '../overview/TaskOwnerCard'
 import { TaskPricingCard } from '../overview/TaskPricingCard'
-import { TaskShareCard } from '../overview/TaskShareCard'
 import { TaskDetailMainCtaCard } from '../ui/TaskDetailMainCtaCard'
 import { TaskDetailPinCard } from '../ui/TaskDetailPinCard'
+import { TaskPreviewButton } from '../ui/TaskPreviewButton'
+import { TaskQuotedCta } from '../ui/TaskQuotedCta'
 import { Reveal } from './Reveal'
 
 const PIN_FADE_HEIGHT =
@@ -132,8 +133,10 @@ function MainCtaCard({
   switch (pinnedId) {
     case 'pricing':
       return <TaskPricingCard compact={compact} rail={web} />
-    case 'share':
-      return <TaskShareCard compact={compact} rail={web} />
+    case 'quoted':
+      return <TaskQuotedCta />
+    case 'preview':
+      return <TaskPreviewButton />
     case 'owner':
       return <TaskOwnerCard compact={compact} rail={web} />
     case 'completion':
@@ -157,7 +160,8 @@ export function TaskDetailMainCta() {
   if (!statusReady || !task || !pinnedId) return null
   if (
     pinnedId !== 'pricing' &&
-    pinnedId !== 'share' &&
+    pinnedId !== 'quoted' &&
+    pinnedId !== 'preview' &&
     pinnedId !== 'owner' &&
     pinnedId !== 'completion'
   ) {
@@ -192,7 +196,8 @@ export function TaskDetailMainCta() {
           <Box
             pointerEvents="auto"
             display="flex"
-            justifyContent="center"
+            flexDirection="column"
+            alignItems="stretch"
             w="full"
             maxW={MOBILE_BOTTOM_NAV_MAX_W}
             mx="auto"

@@ -18,6 +18,7 @@ function permissions(
     hasWorkerProfile: false,
     atCap: false,
     canSubmitQuote: false,
+    hasPendingQuote: false,
     showQuoteForm: false,
     showGuestQuoteCta: false,
     showQuoteUnavailableNotice: false,
@@ -71,7 +72,7 @@ describe('getTaskDetailPrimaryCta', () => {
     ).toBe('viewQuotes')
   })
 
-  it('owner with no quotes gets share', () => {
+  it('owner with no quotes gets preview', () => {
     expect(
       getTaskDetailPrimaryCta({
         permissions: permissions({
@@ -82,7 +83,7 @@ describe('getTaskDetailPrimaryCta', () => {
         }),
         quoteCount: 0,
       }),
-    ).toBe('share')
+    ).toBe('preview')
   })
 
   it('assigned worker on an active order gets complete', () => {
@@ -120,7 +121,21 @@ describe('getTaskDetailPrimaryCta', () => {
     ).toBe('confirm')
   })
 
-  it('quoting worker with a pending quote has no primary CTA', () => {
+  it('worker whose quote awaits review gets edit-quote', () => {
+    expect(
+      getTaskDetailPrimaryCta({
+        permissions: permissions({
+          hasWorkerProfile: true,
+          canSubmitQuote: true,
+          showQuoteForm: true,
+          hasPendingQuote: true,
+        }),
+        quoteCount: 1,
+      }),
+    ).toBe('editQuote')
+  })
+
+  it('eligible worker without the form or a pending quote has no primary CTA', () => {
     expect(
       getTaskDetailPrimaryCta({
         permissions: permissions({
