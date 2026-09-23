@@ -7,7 +7,10 @@ import { useI11n } from '@/i18n/useI11n'
 import { SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
+import {
+  TASK_DETAIL_TAB,
+  showTaskDetailQuotesTab,
+} from '../../helpers/taskDetailTabs'
 import { taskOwnerAnalytics } from '../../helpers/taskOwnerAnalytics'
 import bag from '../../i11n.json'
 import { AnalyticsCards } from '../analytics/AnalyticsCards'
@@ -65,6 +68,7 @@ export function TaskDetailTabs({
         )
       : null
 
+  const quotesVisible = showTaskDetailQuotesTab(permissions)
   const tabs: TaskDetailTabSlot[] = [
     {
       key: TASK_DETAIL_TAB.overview,
@@ -73,22 +77,26 @@ export function TaskDetailTabs({
       tabDescription: copy?.subtext,
       cards: <OverviewCards />,
     },
-    {
-      key: TASK_DETAIL_TAB.quotes,
-      label: t.mobile.tabQuotes,
-      badge: quoteCount,
-      tabTitle: permissions.hasPendingQuote
-        ? t.cta.quoteSentTitle
-        : permissions.isOwner
-          ? t.trust.ownerHeading
-          : t.trust.workerHeading,
-      tabDescription: permissions.hasPendingQuote ? (
-        t.cta.quoteSentDescription
-      ) : (
-        <SafetyNotice variant="inline" />
-      ),
-      cards: <QuotesCards />,
-    },
+    ...(quotesVisible
+      ? [
+          {
+            key: TASK_DETAIL_TAB.quotes,
+            label: t.mobile.tabQuotes,
+            badge: quoteCount,
+            tabTitle: permissions.hasPendingQuote
+              ? t.cta.quoteSentTitle
+              : permissions.isOwner
+                ? t.trust.ownerHeading
+                : t.trust.workerHeading,
+            tabDescription: permissions.hasPendingQuote ? (
+              t.cta.quoteSentDescription
+            ) : (
+              <SafetyNotice variant="inline" />
+            ),
+            cards: <QuotesCards />,
+          } satisfies TaskDetailTabSlot,
+        ]
+      : []),
     ...(showAnalytics
       ? [
           {
@@ -107,11 +115,15 @@ export function TaskDetailTabs({
       fitted={fitted}
       fittedBelowLg={fittedBelowLg}
       px={px}
-      value={activeTab}
       onChange={setActiveTab}
       ariaLabel={t.nav.taskSectionsAria}
       title={({ isStuck }) => <TaskTitle isStuck={isStuck} />}
       tabs={tabs}
+      value={
+        tabs.some((tab) => tab.key === activeTab)
+          ? activeTab
+          : TASK_DETAIL_TAB.overview
+      }
       mainCta={<TaskDetailMainCta />}
       rail={<TaskDetailSideRail />}
     />

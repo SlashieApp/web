@@ -4,6 +4,7 @@ import {
   TASK_DETAIL_TAB,
   defaultTaskDetailTab,
   resolveTaskDetailTab,
+  showTaskDetailQuotesTab,
 } from './taskDetailTabs'
 
 describe('resolveTaskDetailTab', () => {
@@ -33,6 +34,41 @@ describe('resolveTaskDetailTab', () => {
       resolveTaskDetailTab('worker-job-panel', TASK_DETAIL_TAB.quotes),
     ).toBe('overview')
     expect(resolveTaskDetailTab('', TASK_DETAIL_TAB.quotes)).toBe('quotes')
+  })
+})
+
+describe('showTaskDetailQuotesTab', () => {
+  it('keeps Quotes while the task is still open', () => {
+    expect(
+      showTaskDetailQuotesTab({
+        isOpen: true,
+        isAwarded: false,
+        isClosed: false,
+        isCancelled: false,
+        atCap: false,
+      }),
+    ).toBe(true)
+  })
+
+  it('hides Quotes after accept and after completion', () => {
+    expect(
+      showTaskDetailQuotesTab({
+        isOpen: false,
+        isAwarded: true,
+        isClosed: false,
+        isCancelled: false,
+        atCap: true,
+      }),
+    ).toBe(false)
+    expect(
+      showTaskDetailQuotesTab({
+        isOpen: false,
+        isAwarded: false,
+        isClosed: true,
+        isCancelled: false,
+        atCap: true,
+      }),
+    ).toBe(false)
   })
 })
 

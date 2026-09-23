@@ -105,7 +105,11 @@ function TaskDetailStorySeed({
                 ? {
                     __typename: 'User',
                     ...q.worker,
-                    profile: { __typename: 'Profile', ...q.worker.profile },
+                    profile: {
+                      __typename: 'Profile',
+                      contactNumber: null,
+                      ...q.worker.profile,
+                    },
                     worker: q.worker.worker
                       ? { __typename: 'Worker', ...q.worker.worker }
                       : null,

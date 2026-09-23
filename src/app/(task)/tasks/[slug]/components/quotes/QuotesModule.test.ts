@@ -15,5 +15,7 @@ describe('QuotesModule list chrome', () => {
     expect(src).not.toContain('variant="list"')
     expect(src).toContain('isBestMatch')
     expect(src).toContain('MESSAGES_HREF')
+    expect(src).not.toContain('q.quoteAccepted')
+    expect(src).not.toContain('q.agreedPrice')
   })
 })

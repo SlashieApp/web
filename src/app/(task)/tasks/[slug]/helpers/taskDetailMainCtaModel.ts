@@ -1,8 +1,10 @@
+import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
+import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
 import { formatPrice } from '@/utils/price'
 import {
   type TaskDatetimeLike,
   formatTaskScheduleLabel,
-  workerOnSitePhase,
+  isAcceptedQuoteStatus,
 } from '@/utils/taskJobSchedule'
 import { TaskDateTimeType } from '@codegen/schema'
 
@@ -60,6 +62,20 @@ export type TaskDetailMainCtaCopy = {
   flexibleWhen: string
   markCompleted: string
   workerEyebrow: string
+  contactWorker: string
+  yourWorker: string
+  workerFallback: string
+  giveReview: string
+  goToEarnings: string
+  completed: string
+}
+
+/** Worker earnings home. Completed-job primary CTA. */
+export const TASK_DETAIL_EARNINGS_HREF = '/earnings'
+
+export type TaskDetailSettledCta = {
+  role: 'owner' | 'worker'
+  agreedPrice: string
 }
 
 function quoted(
@@ -104,6 +120,43 @@ function onSiteWhen(
   return formatTaskScheduleLabel(datetime) ?? copy.flexibleWhen
 }
 
+type WorkerProfileFields = {
+  name?: string | null
+  contactNumber?: string | null
+}
+
+function acceptedQuote(
+  task: TaskDetailRecord,
+  quoteId?: string | null,
+): TaskDetailRecord['quotes'][number] | null {
+  if (quoteId) {
+    const match = task.quotes.find((quote) => quote.id === quoteId)
+    if (match) return match
+  }
+  return (
+    task.quotes.find((quote) => isAcceptedQuoteStatus(quote.status)) ?? null
+  )
+}
+
+/** Booked worker the customer contacts, and later reviews. */
+function workerParty(
+  task: TaskDetailRecord,
+  copy: TaskDetailMainCtaCopy,
+  quoteId?: string | null,
+): { name: string; contactHref: string; reviewHref: string } {
+  const worker = acceptedQuote(task, quoteId)?.worker
+  const profile = (worker?.profile ?? null) as WorkerProfileFields | null
+  const name = profile?.name?.trim() || copy.workerFallback
+  const tel = profile?.contactNumber?.trim() || ''
+  const profileHref = worker?.worker?.id
+    ? workerProfilePath(worker.worker.id, task.id)
+    : null
+  const userHref = worker?.id ? publicUserPath(worker.id, task.id) : null
+  const reviewHref = profileHref ?? userHref ?? '/workers'
+  const contactHref = tel ? `tel:${tel.replace(/\s/g, '')}` : reviewHref
+  return { name, contactHref, reviewHref }
+}
+
 function ownerContact(
   task: TaskDetailRecord,
   copy: TaskDetailMainCtaCopy,
@@ -130,9 +183,39 @@ export function buildTaskDetailMainCta(input: {
   /** Order snapshot schedule. Flexible and future times stay "be on site". */
   schedule?: TaskDatetimeLike | null
   now?: Date
+  /** Accepted quote behind the live or closed order. */
+  acceptedQuoteId?: string | null
+  /** Closed agreement. Drives the completed-job primary CTA. */
+  settled?: TaskDetailSettledCta | null
 }): TaskDetailMainCtaModel | null {
-  const { task, myQuote, permissions, copy, schedule, now } = input
+  const {
+    task,
+    myQuote,
+    permissions,
+    copy,
+    schedule,
+    acceptedQuoteId,
+    settled,
+  } = input
   if (!task) return null
+
+  if (settled && permissions.isClosed && !permissions.isCancelled) {
+    if (settled.role === 'owner') {
+      const party = workerParty(task, copy, acceptedQuoteId)
+      return quoted(
+        copy.giveReview,
+        { eyebrow: copy.completed, value: party.name },
+        { href: party.reviewHref },
+        ['pricing'],
+      )
+    }
+    return quoted(
+      copy.goToEarnings,
+      { eyebrow: copy.completed, value: settled.agreedPrice },
+      { href: TASK_DETAIL_EARNINGS_HREF },
+      ['pricing'],
+    )
+  }
 
   const kind = getTaskDetailPrimaryCta({
     permissions,
@@ -177,33 +260,22 @@ export function buildTaskDetailMainCta(input: {
   }
 
   if (kind === 'confirm') {
+    const party = workerParty(task, copy, acceptedQuoteId)
     return quoted(
-      copy.confirm,
-      { eyebrow: copy.customerTitle, value: copy.completionCode },
-      {
-        scrollTo: { hash: 'task-order', scrollId: 'task-order' },
-      },
+      copy.contactWorker,
+      { eyebrow: copy.yourWorker, value: party.name },
+      { href: party.contactHref },
+      ['pricing'],
     )
   }
 
   if (kind === 'complete') {
-    if (workerOnSitePhase(schedule, now) === 'complete') {
-      return quoted(
-        copy.enterCodeCta,
-        { eyebrow: copy.workerEyebrow, value: copy.markCompleted },
-        {
-          scrollTo: {
-            hash: 'worker-job-panel',
-            scrollId: 'worker-job-panel',
-          },
-        },
-      )
-    }
     const contact = ownerContact(task, copy)
     return quoted(
       contact.label,
       { eyebrow: copy.beOnSite, value: onSiteWhen(schedule, copy) },
       { href: contact.href },
+      ['pricing', 'owner'],
     )
   }
 

@@ -213,6 +213,7 @@ export function TaskDetailTabLayout({
         }}
         panelBg={{ base: 'bg.canvas', lg: 'transparent' }}
         fadeTabListBorder
+        hideTabList={tabs.length < 2}
         w="full"
         px={px}
         aria-label={ariaLabel}

@@ -18,6 +18,7 @@ describe('TaskDetailTabs slot wiring', () => {
     expect(src).toContain('rail={<TaskDetailSideRail />}')
     expect(src).toContain('cards: <OverviewCards />')
     expect(src).toContain('cards: <QuotesCards />')
+    expect(src).toContain('showTaskDetailQuotesTab')
     expect(src).toContain('t.trust.ownerHeading')
     expect(src).toContain('t.trust.workerHeading')
     expect(src).toContain('SafetyNotice')

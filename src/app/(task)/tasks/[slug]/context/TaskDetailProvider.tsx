@@ -70,6 +70,7 @@ import {
 import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
 import {
   type OrderItem,
+  formatOrderAgreedPrice,
   isOrderClosed,
   orderSnapshotDatetime,
 } from '@/utils/orderHelpers'
@@ -739,6 +740,17 @@ export function TaskDetailProvider({
             myQuote,
             permissions,
             schedule: myOrder ? orderSnapshotDatetime(myOrder) : null,
+            acceptedQuoteId: myOrder?.quoteId ?? null,
+            settled:
+              myOrder &&
+              permissions.isClosed &&
+              !permissions.isCancelled &&
+              (permissions.isOwner || permissions.isOrderWorker)
+                ? {
+                    role: permissions.isOwner ? 'owner' : 'worker',
+                    agreedPrice: formatOrderAgreedPrice(myOrder),
+                  }
+                : null,
             copy: {
               preview: t.cta.preview,
               sendQuote: t.cta.sendQuote,
@@ -765,6 +777,12 @@ export function TaskDetailProvider({
               flexibleWhen: t.cta.flexibleWhen,
               markCompleted: t.cta.markCompleted,
               workerEyebrow: t.booking.workerEyebrow,
+              contactWorker: t.cta.contactWorker,
+              yourWorker: t.booking.yourWorker,
+              workerFallback: t.booking.yourWorkerFallback,
+              giveReview: t.cta.giveReview,
+              goToEarnings: t.cta.goToEarnings,
+              completed: t.cta.completed,
             },
           })
         : null,
