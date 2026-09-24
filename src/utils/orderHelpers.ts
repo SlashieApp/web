@@ -146,7 +146,8 @@ export type OrderTimelineStep = {
 
 export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
   const status = order.status
-  const closed = status === OrderStatus.Completed
+  // Terminal success is COMPLETED (BE-58). Do not also treat CLOSED as done.
+  const completed = String(status).trim().toUpperCase() === 'COMPLETED'
   const cancelled = status === OrderStatus.Cancelled
 
   if (cancelled) {
@@ -172,16 +173,16 @@ export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
     Boolean(order.workCompletedAt) ||
     status === OrderStatus.WorkCompleted ||
     status === OrderStatus.PaymentAcknowledged ||
-    closed
+    completed
 
   const paymentAcknowledged =
     Boolean(order.workerPaymentAcknowledgedAt) ||
     status === OrderStatus.PaymentAcknowledged ||
-    closed
+    completed
 
   const workCompletedCurrent = status === OrderStatus.WorkCompleted
   const paymentCurrent = status === OrderStatus.PaymentAcknowledged
-  const closedCurrent = closed
+  const closedCurrent = completed
 
   return [
     {
@@ -215,7 +216,7 @@ export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
       key: 'closed',
       label: 'Order completed',
       at: order.closedAt,
-      done: closed,
+      done: completed,
       current: closedCurrent,
     },
   ]
