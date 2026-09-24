@@ -65,7 +65,6 @@ export function sortOrdersByClosedAtDesc(orders: OrderItem[]): OrderItem[] {
 }
 
 export function orderStatusChipLabel(status: OrderStatus | string): string {
-  if (String(status).trim().toUpperCase() === 'COMPLETED') return 'Completed'
   switch (status) {
     case OrderStatus.Active:
       return 'Active'
@@ -73,8 +72,8 @@ export function orderStatusChipLabel(status: OrderStatus | string): string {
       return 'Done'
     case OrderStatus.PaymentAcknowledged:
       return 'Awaiting payment'
-    case OrderStatus.Closed:
-      return 'Closed'
+    case OrderStatus.Completed:
+      return 'Completed'
     case OrderStatus.Cancelled:
       return 'Cancelled'
     default:
@@ -83,7 +82,7 @@ export function orderStatusChipLabel(status: OrderStatus | string): string {
 }
 
 export function isOrderClosed(status: OrderStatus | string): boolean {
-  return status === OrderStatus.Closed || status === OrderStatus.Cancelled
+  return status === OrderStatus.Completed || status === OrderStatus.Cancelled
 }
 
 /** Worker pending earnings: only orders still in progress. */
@@ -91,11 +90,11 @@ export function isOrderPendingEarnings(status: OrderStatus | string): boolean {
   return status === OrderStatus.Active
 }
 
-/** Worker completed earnings tally: closed orders only. */
+/** Worker completed earnings tally: completed orders only. */
 export function isOrderCompletedEarnings(
   status: OrderStatus | string,
 ): boolean {
-  return status === OrderStatus.Closed
+  return status === OrderStatus.Completed
 }
 
 export type OrderPartyRole = 'customer' | 'worker'
@@ -147,7 +146,7 @@ export type OrderTimelineStep = {
 
 export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
   const status = order.status
-  const closed = status === OrderStatus.Closed
+  const closed = status === OrderStatus.Completed
   const cancelled = status === OrderStatus.Cancelled
 
   if (cancelled) {
@@ -214,7 +213,7 @@ export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
     },
     {
       key: 'closed',
-      label: 'Order closed',
+      label: 'Order completed',
       at: order.closedAt,
       done: closed,
       current: closedCurrent,

@@ -147,7 +147,7 @@ describe('getTaskDetailPermissions', () => {
   it('CLOSED task disables open-phase actions', () => {
     const permissions = getTaskDetailPermissions({
       task: baseTask({ status: TaskStatus.Confirmed }),
-      myOrder: baseOrder({ status: OrderStatus.Closed }),
+      myOrder: baseOrder({ status: OrderStatus.Completed }),
       me: { id: OWNER_ID, worker: null } as never,
       myQuote: null,
       isAuthenticated: true,
@@ -182,7 +182,7 @@ describe('getTaskDetailPermissions', () => {
   it('does not treat a legacy CLOSED order as completed', () => {
     const permissions = getTaskDetailPermissions({
       task: baseTask({ status: TaskStatus.InProgress }),
-      myOrder: baseOrder({ status: OrderStatus.Closed }),
+      myOrder: baseOrder({ status: 'CLOSED' as OrderStatus }),
       me: workerMe(),
       myQuote: null,
       isAuthenticated: true,

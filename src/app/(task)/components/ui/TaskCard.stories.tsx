@@ -222,7 +222,7 @@ export const WorkerQuoteCompletedOrder: WorkerQuoteStory = {
     ...storyQuoteRow({
       quote: storyQuote({ status: 'ACCEPTED' }),
       workerOrder: storyOrder({
-        status: OrderStatus.Closed,
+        status: OrderStatus.Completed,
         closedAt: '2026-05-20T16:00:00.000Z',
       }),
     }),
