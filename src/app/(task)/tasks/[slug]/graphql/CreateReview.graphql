@@ -1,0 +1,11 @@
+# BE-59. One review per party per COMPLETED order.
+mutation CreateReview($input: CreateReviewInput!) {
+  createReview(input: $input) {
+    id
+    rating
+    comment
+    createdAt
+    orderId
+    taskId
+  }
+}

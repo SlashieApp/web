@@ -1,0 +1,36 @@
+{
+  "en": {
+    "titleCreate": "Review this job",
+    "titleEdit": "Edit your review",
+    "titleLocked": "Your review",
+    "starsLabel": "Rating",
+    "starsHint": "1 to 5 stars",
+    "starsRequired": "Choose a star rating.",
+    "commentLabel": "Comment (optional)",
+    "commentPlaceholder": "What should they know about this job?",
+    "disclaimer": "Reviews are opinions between the customer and the worker. They are not a warranty, and Slashie does not check or endorse anyone through a review.",
+    "submit": "Submit review",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "close": "Close",
+    "locked": "Reviews can be edited for 48 hours after they are submitted.",
+    "errorFallback": "We couldn’t save your review. Try again shortly."
+  },
+  "zh_hk": {
+    "titleCreate": "評價這份工作",
+    "titleEdit": "編輯你的評價",
+    "titleLocked": "你的評價",
+    "starsLabel": "評分",
+    "starsHint": "1 至 5 星",
+    "starsRequired": "請選擇星級。",
+    "commentLabel": "留言（可選）",
+    "commentPlaceholder": "關於這份工作，對方應該知道什麼？",
+    "disclaimer": "評價是顧客與工作者之間的意見。評價不是保養承諾，Slashie 亦不會透過評價審查或認可任何人。",
+    "submit": "提交評價",
+    "save": "儲存變更",
+    "cancel": "取消",
+    "close": "關閉",
+    "locked": "評價提交後 48 小時內可以修改。",
+    "errorFallback": "未能儲存評價。請稍後再試。"
+  }
+}

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import { ACCOUNT_NAV } from '@/utils/accountNav'
 
-import { ACCOUNT_NAV_ITEMS } from './accountNav.config'
+import { ACCOUNT_NAV_ITEMS, resolveAccountNavItems } from './accountNav.config'
 
 const dir = dirname(fileURLToPath(import.meta.url))
 
@@ -38,6 +38,17 @@ describe('account nav destinations', () => {
     expect(language?.kind).toBe('action')
     expect(language?.action).toBe('language')
     expect(language?.section).toBe('account')
+  })
+
+  it('shows send-a-notification only for Slashie admins', () => {
+    const hidden = resolveAccountNavItems(true).some(
+      (item) => item.id === 'admin-notifications',
+    )
+    const shown = resolveAccountNavItems(false, { isAdmin: true }).some(
+      (item) => item.href === '/admin/notifications',
+    )
+    expect(hidden).toBe(false)
+    expect(shown).toBe(true)
   })
 
   it('includes a Send feedback action for signed-in users', () => {

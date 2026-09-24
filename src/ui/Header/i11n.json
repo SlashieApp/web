@@ -38,6 +38,7 @@
       "help": "Help",
       "feedback": "Send feedback",
       "safety": "Paying & meeting safely",
+      "admin-notifications": "Send a notification",
       "logout": "Log out"
     },
     "notifications": {
@@ -50,6 +51,14 @@
       "loading": "Loading…",
       "empty": "No notifications yet. Activity on your tasks and quotes will show up here.",
       "openTaskDetails": "Open the task for details.",
+      "close": "Close",
+      "closeAria": "Close notification",
+      "closeFailed": "Couldn’t close that notification.",
+      "dismiss": "Not now",
+      "popupLabel": "Notification",
+      "extraCta": "Open link",
+      "reviewCta": "Review",
+      "openCta": "Open",
       "types": {
         "quoteReceived": "New quote on your task",
         "quoteAccepted": "Your quote was accepted",
@@ -106,6 +115,7 @@
       "help": "說明",
       "feedback": "傳送意見",
       "safety": "付款與安全見面",
+      "admin-notifications": "傳送通知",
       "logout": "登出"
     },
     "notifications": {
@@ -118,6 +128,14 @@
       "loading": "載入中…",
       "empty": "暫時沒有通知。任務與報價的動態會顯示在這裡。",
       "openTaskDetails": "開啟任務以查看詳情。",
+      "close": "關閉",
+      "closeAria": "關閉通知",
+      "closeFailed": "未能關閉這則通知。",
+      "dismiss": "稍後",
+      "popupLabel": "通知",
+      "extraCta": "開啟連結",
+      "reviewCta": "評價",
+      "openCta": "開啟",
       "types": {
         "quoteReceived": "你的任務有新報價",
         "quoteAccepted": "你的報價已被接受",

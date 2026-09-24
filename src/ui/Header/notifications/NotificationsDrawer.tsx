@@ -3,6 +3,7 @@
 import { useI11n } from '@/i18n/useI11n'
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { LuX } from 'react-icons/lu'
 import bag from '../i11n.json'
 
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
@@ -14,8 +15,10 @@ import {
   notificationDisplayText,
   notificationTaskHref,
 } from '@/utils/notifications'
+
 import { Button } from '../../Button'
 import { Drawer } from '../../Drawer'
+import { IconButton } from '../../IconButton/IconButton'
 import { Link } from '../../Link'
 
 import { focusVisibleMatchesHover } from '@/theme/system'
@@ -94,6 +97,8 @@ export function NotificationsDrawer() {
     openDrawer,
     closeDrawer,
     markAllRead,
+    canClose,
+    closeNotification,
   } = notifications
 
   return (
@@ -137,46 +142,78 @@ export function NotificationsDrawer() {
               const { title, description } = notificationDisplayText(item, t)
               const unread = !item.readAt
               return (
-                <Link
-                  key={item.id}
-                  href={notificationTaskHref(item.taskId, item.orderId)}
-                  display="block"
-                  p={3}
-                  borderRadius="lg"
-                  borderWidth="1px"
-                  borderColor={unread ? 'green.200' : 'border.default'}
-                  bg={unread ? 'status.success.soft' : 'bg.surface'}
-                  _hover={notificationItemHover}
-                  {...focusVisibleMatchesHover(notificationItemHover)}
-                  onClick={() => void onOpenItem(item.id, item.readAt)}
-                >
-                  <Stack gap={1}>
-                    <HStack justify="space-between" gap={2}>
-                      <Text fontSize="sm" fontWeight={700} lineClamp={2}>
-                        {title}
+                <Box key={item.id} position="relative">
+                  <Link
+                    href={notificationTaskHref(item.taskId, item.orderId)}
+                    display="block"
+                    p={3}
+                    pr={canClose ? 12 : 3}
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor={unread ? 'green.200' : 'border.default'}
+                    bg={unread ? 'status.success.soft' : 'bg.surface'}
+                    _hover={notificationItemHover}
+                    {...focusVisibleMatchesHover(notificationItemHover)}
+                    onClick={() => void onOpenItem(item.id, item.readAt)}
+                  >
+                    <Stack gap={1}>
+                      <HStack justify="space-between" gap={2}>
+                        <Text fontSize="sm" fontWeight={700} lineClamp={2}>
+                          {title}
+                        </Text>
+                        {unread ? (
+                          <Box
+                            boxSize="8px"
+                            borderRadius="full"
+                            bg="status.success.solid"
+                            flexShrink={0}
+                            aria-hidden
+                          />
+                        ) : null}
+                      </HStack>
+                      <Text fontSize="xs" color="text.muted" lineClamp={2}>
+                        {description}
                       </Text>
-                      {unread ? (
-                        <Box
-                          boxSize="8px"
-                          borderRadius="full"
-                          bg="status.success.solid"
-                          flexShrink={0}
-                          aria-hidden
-                        />
-                      ) : null}
-                    </HStack>
-                    <Text fontSize="xs" color="text.muted" lineClamp={2}>
-                      {description}
-                    </Text>
-                    <Text fontSize="xs" color="text.muted">
-                      {formatNotificationRelativeTime(
-                        item.createdAt,
-                        t.relative,
-                        locale,
-                      )}
-                    </Text>
-                  </Stack>
-                </Link>
+                      <Text fontSize="xs" color="text.muted">
+                        {formatNotificationRelativeTime(
+                          item.createdAt,
+                          t.relative,
+                          locale,
+                        )}
+                      </Text>
+                    </Stack>
+                  </Link>
+                  {canClose ? (
+                    <IconButton
+                      type="button"
+                      aria-label={t.closeAria}
+                      variant="ghost"
+                      position="absolute"
+                      top={1}
+                      right={1}
+                      onClick={() => {
+                        capture(EVENTS.notification_close, {
+                          notification_id: item.id,
+                        })
+                        void closeNotification(item.id)
+                      }}
+                    >
+                      <LuX />
+                    </IconButton>
+                  ) : null}
+                  {item.extraCtaUrl?.trim() ? (
+                    <Link
+                      href={item.extraCtaUrl.trim()}
+                      fontSize="xs"
+                      tone="emphasis"
+                      display="inline-flex"
+                      mt={1}
+                      onClick={() => notifications?.closeDrawer()}
+                    >
+                      {t.extraCta}
+                    </Link>
+                  ) : null}
+                </Box>
               )
             })
           )}

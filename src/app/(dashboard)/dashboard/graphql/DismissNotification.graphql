@@ -1,0 +1,8 @@
+mutation DismissNotification($id: ID!) {
+  dismissNotification(id: $id) {
+    id
+    dismissedAt
+    readAt
+    isClosed
+  }
+}

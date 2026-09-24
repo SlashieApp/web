@@ -75,6 +75,8 @@ import {
   orderSnapshotDatetime,
 } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
+import { isOrderCompletedStatus } from '../helpers/taskDetailCompleted'
+import { useOrderReviewState } from '../helpers/useOrderReviewState'
 
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
 import { TaskDetailViewCapture } from '../components/analytics/TaskDetailViewCapture'
@@ -124,6 +126,8 @@ export function TaskDetailProvider({
   const [cancelError, setCancelError] = useState<string | null>(null)
   const [jobActionError, setJobActionError] = useState<string | null>(null)
   const [verificationCode, setVerificationCode] = useState('')
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
+  const [submittedOrderId, setSubmittedOrderId] = useState<string | null>(null)
   const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
   const [explicitTab, setExplicitTab] = useState<TaskDetailTab | null>(() => {
     const hash = readTaskDetailHash()
@@ -285,6 +289,22 @@ export function TaskDetailProvider({
       }),
     [task, myOrder, me, myQuote, isAuthenticated],
   )
+
+  const reviewEnabled = Boolean(
+    myOrder &&
+      isOrderCompletedStatus(myOrder.status) &&
+      !permissions.isCancelled &&
+      (permissions.isOwner || permissions.isOrderWorker),
+  )
+  const orderReview = useOrderReviewState(myOrder?.id ?? null, reviewEnabled)
+  const viewerHasSubmittedReview =
+    orderReview.viewerHasSubmittedReview ||
+    (submittedOrderId != null && submittedOrderId === myOrder?.id)
+  const openReviewModal = useCallback(() => setReviewModalOpen(true), [])
+  const closeReviewModal = useCallback(() => setReviewModalOpen(false), [])
+  const markReviewSubmitted = useCallback(() => {
+    if (myOrder?.id) setSubmittedOrderId(myOrder.id)
+  }, [myOrder?.id])
 
   const setActiveTab = useCallback(
     (tab: TaskDetailTab, options?: { hash?: string; scrollId?: string }) => {
@@ -742,15 +762,13 @@ export function TaskDetailProvider({
             schedule: myOrder ? orderSnapshotDatetime(myOrder) : null,
             acceptedQuoteId: myOrder?.quoteId ?? null,
             settled:
-              myOrder &&
-              permissions.isClosed &&
-              !permissions.isCancelled &&
-              (permissions.isOwner || permissions.isOrderWorker)
+              reviewEnabled && myOrder
                 ? {
                     role: permissions.isOwner ? 'owner' : 'worker',
                     agreedPrice: formatOrderAgreedPrice(myOrder),
                   }
                 : null,
+            viewerHasSubmittedReview,
             copy: {
               preview: t.cta.preview,
               sendQuote: t.cta.sendQuote,
@@ -780,13 +798,22 @@ export function TaskDetailProvider({
               contactWorker: t.cta.contactWorker,
               yourWorker: t.booking.yourWorker,
               workerFallback: t.booking.yourWorkerFallback,
-              giveReview: t.cta.giveReview,
-              goToEarnings: t.cta.goToEarnings,
+              review: t.cta.review,
+              getReceipt: t.cta.getReceipt,
               completed: t.cta.completed,
             },
           })
         : null,
-    [myOrder, myQuote, permissions, statusReady, t, task],
+    [
+      myOrder,
+      myQuote,
+      permissions,
+      reviewEnabled,
+      statusReady,
+      t,
+      task,
+      viewerHasSubmittedReview,
+    ],
   )
 
   const value = useMemo(
@@ -794,6 +821,12 @@ export function TaskDetailProvider({
       permissions,
       activeTab,
       mainCta,
+      viewerHasSubmittedReview,
+      reviewModalOpen,
+      openReviewModal,
+      closeReviewModal,
+      markReviewSubmitted,
+      orderReview,
       taskId,
       task,
       seed,
@@ -848,6 +881,12 @@ export function TaskDetailProvider({
       permissions,
       activeTab,
       mainCta,
+      viewerHasSubmittedReview,
+      reviewModalOpen,
+      openReviewModal,
+      closeReviewModal,
+      markReviewSubmitted,
+      orderReview,
       taskId,
       task,
       seed,

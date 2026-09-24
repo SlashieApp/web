@@ -8,9 +8,14 @@ import { WEB_MQ } from '@/theme/breakpoints'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 import { Button, Link, MOBILE_BOTTOM_NAV_MAX_W } from '@ui'
 
+import { downloadOrderReceiptPdf } from '@/content/reviews/downloadOrderReceipt'
+import { useI11n } from '@/i18n/useI11n'
+import { showAppToast } from '@/utils/appToast'
+
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailMainCtaModel } from '../../helpers/taskDetailMainCtaModel'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
+import bag from '../../i11n.json'
 import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
 import { Reveal } from './Reveal'
 
@@ -61,7 +66,8 @@ function MainCtaControl({
   model: TaskDetailMainCtaModel
   fill: boolean
 }) {
-  const { setActiveTab } = useTaskDetail()
+  const { setActiveTab, openReviewModal, myOrder } = useTaskDetail()
+  const reviews = useI11n(bag).reviews
   const scroll = model.scrollTo
     ? () => {
         const target = model.scrollTo
@@ -107,6 +113,13 @@ function MainCtaControl({
     )
   }
 
+  const onReceipt = () => {
+    if (!myOrder) return
+    void downloadOrderReceiptPdf(myOrder.id).catch(() => {
+      showAppToast({ title: reviews.receiptFailed, type: 'error' })
+    })
+  }
+
   return (
     <TaskDetailSplitCta
       eyebrow={model.content.eyebrow}
@@ -115,8 +128,13 @@ function MainCtaControl({
       fullWidth={fill || model.presentation === 'quoted'}
       action={{
         label: model.buttonLabel,
-        href: model.href,
-        onClick: scroll,
+        href: model.intent ? undefined : model.href,
+        onClick:
+          model.intent === 'review'
+            ? openReviewModal
+            : model.intent === 'receipt'
+              ? onReceipt
+              : scroll,
       }}
     />
   )

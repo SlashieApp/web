@@ -181,7 +181,7 @@ function WorkerProfileBody() {
                 {pending && !worker ? (
                   <WorkerProfileSectionSkeleton lines={3} />
                 ) : (
-                  <WorkerReviewsSection />
+                  <WorkerReviewsSection summary={worker?.ratingSummary} />
                 )}
 
                 {worker && hasPhotos ? (

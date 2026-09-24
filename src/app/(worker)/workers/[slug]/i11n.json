@@ -16,7 +16,14 @@
     "addSkillsDescription": "Skills become searchable tags, so customers find you for the right tasks.",
     "addPhotosTitle": "Add photos of your work",
     "addPhotosDescription": "Workers with photos win more quotes. Add pictures of finished jobs.",
-    "back": "Back to workers"
+    "back": "Back to workers",
+    "reviewsHeading": "Reviews",
+    "reviewsNone": "No reviews yet",
+    "reviewsEmptyBody": "Reviews appear after completed jobs.",
+    "reviewsCountOne": "{count} review",
+    "reviewsCount": "{count} reviews",
+    "reviewsAverage": "{average} from {count} reviews",
+    "reviewsThreshold": "The average is shown after 3 reviews."
   },
   "zh_hk": {
     "metadata": {
@@ -35,6 +42,13 @@
     "addSkillsDescription": "技能會成為可搜尋標籤，幫助 customers 找到適合任務的你。",
     "addPhotosTitle": "加入工作相片",
     "addPhotosDescription": "有相片的 workers 較容易贏得報價。加入已完成工作的相片。",
-    "back": "返回 workers"
+    "back": "返回 workers",
+    "reviewsHeading": "評價",
+    "reviewsNone": "暫時沒有評價",
+    "reviewsEmptyBody": "完成工作後會顯示評價。",
+    "reviewsCountOne": "{count} 則評價",
+    "reviewsCount": "{count} 則評價",
+    "reviewsAverage": "{average}（{count} 則評價）",
+    "reviewsThreshold": "累積 3 則評價後才會顯示平均分。"
   }
 }

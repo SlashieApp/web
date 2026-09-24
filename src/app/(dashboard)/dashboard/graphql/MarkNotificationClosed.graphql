@@ -1,0 +1,8 @@
+mutation MarkNotificationClosed($id: ID!) {
+  markNotificationClosed(id: $id) {
+    id
+    isClosed
+    readAt
+    dismissedAt
+  }
+}

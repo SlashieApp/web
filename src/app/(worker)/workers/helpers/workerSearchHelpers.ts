@@ -2,6 +2,7 @@ import type { WorkersSearchQuery } from '@codegen/schema'
 
 import { DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES } from '@/app/(task)/helpers/taskBrowseHelpers'
 import { browseNearPlaceLabel } from '@/app/(task)/search/helpers/searchResultsListTitle'
+import { publicRatingAverage } from '@/content/reviews/reviewModel'
 
 export type WorkerSearchItem = WorkersSearchQuery['workers'][number]
 
@@ -40,8 +41,9 @@ export function workerSubtitle(worker: WorkerSearchItem): string {
 
 export function workerRatingLabel(worker: WorkerSearchItem): string | null {
   const summary = worker.ratingSummary
-  if (!summary || summary.count <= 0 || summary.average == null) return null
-  return `${summary.average.toFixed(1)} (${summary.count})`
+  const average = publicRatingAverage(summary)
+  if (!summary || average == null) return null
+  return `${average.toFixed(1)} (${summary.count})`
 }
 
 export function workerExperienceShortLabel(

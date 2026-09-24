@@ -3,6 +3,7 @@
 import type { MeQuery } from '@codegen/schema'
 import { createContext, useContext } from 'react'
 
+import type { C2CReview } from '@/content/reviews/reviewModel'
 import type { OrderItem } from '@/utils/orderHelpers'
 
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
@@ -92,6 +93,18 @@ export type TaskDetailContextValue = TaskDetailData &
     activeTab: TaskDetailTab
     /** Primary action. Null when this viewer has none. */
     mainCta: TaskDetailMainCtaModel | null
+    viewerHasSubmittedReview: boolean
+    reviewModalOpen: boolean
+    openReviewModal: () => void
+    closeReviewModal: () => void
+    markReviewSubmitted: () => void
+    orderReview: {
+      viewerReview: C2CReview | null
+      counterpartyReview: C2CReview | null
+      unavailable: boolean
+      loading: boolean
+      refetch: () => Promise<void>
+    }
   }
 
 const TaskDetailContext = createContext<TaskDetailContextValue | null>(null)

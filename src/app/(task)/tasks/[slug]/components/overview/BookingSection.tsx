@@ -2,7 +2,13 @@
 
 import { Stack } from '@chakra-ui/react'
 
+import { ReportControl } from '@/content/trust/ReportControl'
+import { useI11n } from '@/i18n/useI11n'
+
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { isOrderCompletedStatus } from '../../helpers/taskDetailCompleted'
+import bag from '../../i11n.json'
+import { OrderReviewsCard } from '../ui/OrderReviewsCard'
 import { AcceptedWorkerStatus } from './AcceptedWorkerStatus'
 import { CustomerActiveOrderStatus } from './CustomerActiveOrderStatus'
 import { OrderSection } from './OrderSection'
@@ -16,17 +22,57 @@ import { OrderSection } from './OrderSection'
  * (Task.gql) and read from context.
  */
 export function BookingSection() {
-  const { task, myOrder, permissions } = useTaskDetail()
+  const {
+    task,
+    myOrder,
+    permissions,
+    orderReview,
+    viewerHasSubmittedReview,
+    openReviewModal,
+  } = useTaskDetail()
+  const reviews = useI11n(bag).reviews
   if (!task) return null
+
+  const reviewsCard =
+    myOrder &&
+    isOrderCompletedStatus(myOrder.status) &&
+    !permissions.isCancelled &&
+    (permissions.isOwner || permissions.isOrderWorker) ? (
+      <OrderReviewsCard
+        copy={reviews}
+        viewerReview={orderReview.viewerReview}
+        counterpartyReview={orderReview.counterpartyReview}
+        viewerHasSubmitted={viewerHasSubmittedReview}
+        onEdit={openReviewModal}
+        report={
+          orderReview.counterpartyReview ? (
+            <ReportControl
+              kind="review"
+              targetId={orderReview.counterpartyReview.id}
+              targetTitle={reviews.theirs}
+              variant="button"
+            />
+          ) : null
+        }
+      />
+    ) : null
 
   if (permissions.isJobCompleted) {
     return myOrder ? (
-      <OrderSection task={task} order={myOrder} showRecord />
+      <Stack gap={4}>
+        <OrderSection task={task} order={myOrder} showRecord />
+        {reviewsCard}
+      </Stack>
     ) : null
   }
 
   if (permissions.isClosed) {
-    return myOrder ? <OrderSection task={task} order={myOrder} /> : null
+    return myOrder ? (
+      <Stack gap={4}>
+        <OrderSection task={task} order={myOrder} />
+        {reviewsCard}
+      </Stack>
+    ) : null
   }
 
   const hasBooking =
