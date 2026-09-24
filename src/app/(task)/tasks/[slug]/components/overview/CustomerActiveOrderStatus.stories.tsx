@@ -51,7 +51,7 @@ export const ClosedWithInvoice: Story = {
       viewer: 'customer',
       task: storyTaskDetail(),
       order: storyTaskOrder({
-        status: OrderStatus.Closed,
+        status: OrderStatus.Completed,
         closedAt: '2026-05-20T16:00:00.000Z',
       }),
     }),

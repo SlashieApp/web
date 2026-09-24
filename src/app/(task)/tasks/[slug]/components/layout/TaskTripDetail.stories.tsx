@@ -93,7 +93,7 @@ export const WorkerJobConfirmed = tripStory({
 export const Closed = tripStory({
   viewer: 'owner',
   task: storyTaskDetail({ status: TaskStatus.Completed }),
-  order: storyTaskOrder({ status: OrderStatus.Closed }),
+  order: storyTaskOrder({ status: OrderStatus.Completed }),
 })
 
 export const Cancelled = tripStory({
