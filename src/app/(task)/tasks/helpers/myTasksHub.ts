@@ -91,9 +91,30 @@ const BOOKED_TASK = new Set([
   'QUOTE_ACCEPTED',
 ])
 
-const COMPLETED_TASK = new Set(['COMPLETED', 'CONFIRMED', 'CANCELLED'])
+/**
+ * Task statuses filed under Completed before an order is considered.
+ * Task detail uses the same set for its no-order fallback.
+ */
+export const HUB_COMPLETED_TASK_STATUSES = [
+  'COMPLETED',
+  'CONFIRMED',
+  'CANCELLED',
+] as const
 
-const DONE_ORDER = new Set(['WORK_COMPLETED', 'PAYMENT_ACKNOWLEDGED', 'CLOSED'])
+/**
+ * Order statuses filed under Completed.
+ * Terminal success is `COMPLETED`. BE-58 renames `CLOSED` → `COMPLETED`;
+ * `CLOSED` is not a second terminal status.
+ */
+export const HUB_DONE_ORDER_STATUSES = [
+  'WORK_COMPLETED',
+  'PAYMENT_ACKNOWLEDGED',
+  'COMPLETED',
+] as const
+
+const COMPLETED_TASK = new Set<string>(HUB_COMPLETED_TASK_STATUSES)
+
+const DONE_ORDER = new Set<string>(HUB_DONE_ORDER_STATUSES)
 
 const BUCKET_RANK: Record<MyTaskSortBucket, number> = {
   overdue: 0,
@@ -102,11 +123,29 @@ const BUCKET_RANK: Record<MyTaskSortBucket, number> = {
   past: 3,
 }
 
-function norm(status: string): string {
+export function normHubStatus(status: string): string {
   return status
     .trim()
     .toUpperCase()
     .replace(/[\s-]+/g, '_')
+}
+
+function norm(status: string): string {
+  return normHubStatus(status)
+}
+
+export function isHubCompletedTaskStatus(
+  status: string | null | undefined,
+): boolean {
+  if (!status) return false
+  return COMPLETED_TASK.has(norm(status))
+}
+
+export function isHubDoneOrderStatus(
+  status: string | null | undefined,
+): boolean {
+  if (!status) return false
+  return DONE_ORDER.has(norm(status))
 }
 
 function timeOf(value: unknown): number {

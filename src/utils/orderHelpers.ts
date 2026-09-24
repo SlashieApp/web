@@ -65,6 +65,7 @@ export function sortOrdersByClosedAtDesc(orders: OrderItem[]): OrderItem[] {
 }
 
 export function orderStatusChipLabel(status: OrderStatus | string): string {
+  if (String(status).trim().toUpperCase() === 'COMPLETED') return 'Completed'
   switch (status) {
     case OrderStatus.Active:
       return 'Active'

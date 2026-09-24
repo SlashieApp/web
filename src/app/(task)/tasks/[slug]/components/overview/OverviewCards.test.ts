@@ -36,6 +36,7 @@ describe('OverviewCards layout', () => {
     expect(sections).toContain('hideOverviewCards')
     expect(sections).toContain('hidePrice')
     expect(sections).toContain('permissions.isAwarded')
+    expect(sections).toContain('permissions.isJobCompleted')
     expect(sections).toContain('permissions.isCancelled')
     expect(sections).toContain("hidden.has('owner')")
     expect(view).toContain('taskDetailPinClearance')

@@ -5,9 +5,9 @@ import type { ReactNode } from 'react'
 import bag from '../../i11n.json'
 
 import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
-import { OrderStatus } from '@codegen/schema'
 import { useCallback, useMemo, useRef } from 'react'
 
+import { isHubDoneOrderStatus } from '@/app/(task)/tasks/helpers/myTasksHub'
 import { formatDate } from '@/utils/dashboardHelpers'
 import {
   type OrderItem,
@@ -20,6 +20,7 @@ import {
   workerQuoteForOrder,
 } from '@/utils/orderHelpers'
 import { LuUser } from 'react-icons/lu'
+import { isOrderCompletedStatus } from '../../helpers/taskDetailCompleted'
 
 import { Avatar, Card, DetailRow, SafetyNotice } from '@ui'
 
@@ -30,6 +31,11 @@ import { AgreementTotal } from './AgreementTotal'
 type OrderSectionProps = {
   task: TaskDetailRecord
   order: OrderItem
+  /**
+   * Show the agreement record even when the order is not terminal yet.
+   * Used when the task itself is already in the hub Completed set.
+   */
+  showRecord?: boolean
 }
 
 function IconRailCheck() {
@@ -263,7 +269,11 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
   )
 }
 
-export function OrderSection({ task, order }: OrderSectionProps) {
+export function OrderSection({
+  task,
+  order,
+  showRecord = false,
+}: OrderSectionProps) {
   const t = useI11n(bag)
   const o = t.order
 
@@ -278,10 +288,11 @@ export function OrderSection({ task, order }: OrderSectionProps) {
   const timeline = orderTimelineSteps(order)
   const agreedPrice = formatOrderAgreedPrice(order)
   const statusLabel = orderStatusChipLabel(order.status)
-  // A closed (not cancelled) order means the worker entered the customer's
-  // completion code and the job is done + paid.
-  const completed = order.status === OrderStatus.Closed
-  const closed = isOrderClosed(order.status)
+  // COMPLETED is the terminal order status (BE-58 renames CLOSED → COMPLETED).
+  // Hub done-order statuses share the agreement record so booking chrome can hide.
+  const completed =
+    isOrderCompletedStatus(order.status) || isHubDoneOrderStatus(order.status)
+  const closed = completed || isOrderClosed(order.status)
 
   const scrolledToHashRef = useRef(false)
 
@@ -296,7 +307,7 @@ export function OrderSection({ task, order }: OrderSectionProps) {
     }
   }, [])
 
-  if (!closed) return null
+  if (!closed && !showRecord) return null
 
   return (
     <Box ref={onSectionRef} id={TASK_ORDER_SECTION_ID} w="full">
