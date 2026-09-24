@@ -37,6 +37,14 @@ export function selectStatusHeaderCopy(
     }
   }
 
+  if (p.isJobCompleted) {
+    return {
+      pill: 'COMPLETED',
+      headline: copy.completedHeadline,
+      subtext: copy.completedSubtext,
+    }
+  }
+
   if (p.isClosed) {
     return {
       pill: 'CLOSED',

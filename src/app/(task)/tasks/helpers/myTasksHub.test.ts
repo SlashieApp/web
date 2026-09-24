@@ -103,7 +103,7 @@ describe('buildMyTasksHub', () => {
       orders: [
         order({
           taskId: 'done-old',
-          status: 'CLOSED',
+          status: 'COMPLETED',
           customerUserId: ME,
           closedAt: '2026-09-01T12:00:00',
         }),
@@ -265,5 +265,50 @@ describe('buildMyTasksHub', () => {
       booked?.rows.find((row) => row.id === 'awarded')?.acceptedWorkerName,
     ).toBe('Alex')
     expect(completed?.rows.map((row) => row.id)).toEqual(['cancelled', 'lost'])
+  })
+
+  it('files a COMPLETED order under Completed and leaves legacy CLOSED booked', () => {
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      orders: [
+        order({
+          taskId: 'done',
+          status: 'COMPLETED',
+          customerUserId: ME,
+          closedAt: '2026-09-20T12:00:00',
+        }),
+        order({
+          taskId: 'legacy',
+          status: 'CLOSED',
+          customerUserId: ME,
+          closedAt: '2026-09-19T12:00:00',
+        }),
+      ],
+      posted: [
+        task({
+          id: 'done',
+          title: 'Done order',
+          status: 'IN_PROGRESS',
+        }),
+        task({
+          id: 'legacy',
+          title: 'Legacy closed',
+          status: 'IN_PROGRESS',
+        }),
+      ],
+      sentQuotes: [],
+    })
+
+    expect(
+      sections
+        .find((section) => section.id === 'completed')
+        ?.rows.map((row) => row.id),
+    ).toEqual(['done'])
+    expect(
+      sections
+        .find((section) => section.id === 'booked')
+        ?.rows.map((row) => row.id),
+    ).toEqual(['legacy'])
   })
 })

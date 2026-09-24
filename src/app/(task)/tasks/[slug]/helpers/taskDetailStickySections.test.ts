@@ -24,6 +24,7 @@ function permissions(
     isAwarded: false,
     isClosed: false,
     isCancelled: false,
+    isJobCompleted: false,
     isOrderWorker: false,
     isOrderActive: false,
     hasWorkerProfile: false,

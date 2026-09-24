@@ -154,9 +154,67 @@ describe('getTaskDetailPermissions', () => {
     })
 
     expect(permissions.isClosed).toBe(true)
+    expect(permissions.isJobCompleted).toBe(true)
     expect(permissions.showAcceptDecline).toBe(false)
     expect(permissions.canCancelTask).toBe(false)
     expect(permissions.showCustomerCompletionCode).toBe(false)
+  })
+
+  it('COMPLETED order shows completed chrome and hides booking tools', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.InProgress }),
+      myOrder: baseOrder({
+        status: 'COMPLETED' as OrderStatus,
+        closedAt: '2026-05-20T16:00:00.000Z',
+      }),
+      me: workerMe(),
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(permissions.isJobCompleted).toBe(true)
+    expect(permissions.isAwarded).toBe(true)
+    expect(permissions.showWorkerJobBanner).toBe(false)
+    expect(permissions.showCompleteWithCode).toBe(false)
+    expect(permissions.showCustomerCompletionCode).toBe(false)
+  })
+
+  it('does not treat a legacy CLOSED order as completed', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.InProgress }),
+      myOrder: baseOrder({ status: OrderStatus.Closed }),
+      me: workerMe(),
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(permissions.isJobCompleted).toBe(false)
+  })
+
+  it('completed task with no order still counts as completed', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Completed }),
+      myOrder: null,
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(permissions.isJobCompleted).toBe(true)
+    expect(permissions.isCancelled).toBe(false)
+  })
+
+  it('cancelled tasks keep cancelled chrome', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Cancelled }),
+      myOrder: null,
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(permissions.isCancelled).toBe(true)
+    expect(permissions.isJobCompleted).toBe(false)
   })
 
   it('respects atCap override for workers', () => {

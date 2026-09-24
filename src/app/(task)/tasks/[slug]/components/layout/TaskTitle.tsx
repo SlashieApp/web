@@ -1,11 +1,16 @@
 'use client'
 
-import { Box, HStack, Heading, Skeleton } from '@chakra-ui/react'
+import { Box, HStack, Heading, Skeleton, Text } from '@chakra-ui/react'
 
+import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import {
+  formatTaskDetailCompletedDate,
+  taskDetailCompletedAt,
+} from '../../helpers/taskDetailCompleted'
 import bag from '../../i11n.json'
 import { TaskStatusPill } from '../ui/TaskStatusPill'
 import { TaskActivityTrigger } from './TaskActivityTrigger'
@@ -37,8 +42,10 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
     statusReady,
     myQuote,
     isAuthenticated,
+    myOrder,
   } = useTaskDetail()
   const t = useI11n(bag)
+  const locale = useLocale()
 
   if (!task && !pending && !seed) return null
 
@@ -50,18 +57,45 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
           t.statusHeader,
         )
       : null
+  const completedDate =
+    statusReady && task && permissions.isJobCompleted
+      ? formatTaskDetailCompletedDate(
+          taskDetailCompletedAt({
+            taskStatus: task.status,
+            order: myOrder,
+            timeline: task.timeline,
+          }),
+          locale,
+        )
+      : null
 
   const statusPill = copy ? (
     <TaskStatusPill status={copy.pill} size="sm" flexShrink={0} />
   ) : (
     <Skeleton h="22px" w="72px" borderRadius="full" flexShrink={0} />
   )
+  const statusChrome = (
+    <HStack gap={2} align="center" minW={0} flexShrink={0}>
+      {statusPill}
+      {completedDate ? (
+        <Text
+          fontSize="sm"
+          fontWeight={500}
+          color="text.muted"
+          lineHeight="short"
+          whiteSpace="nowrap"
+        >
+          {completedDate}
+        </Text>
+      ) : null}
+    </HStack>
+  )
 
   return (
     <Box pt={2} pb={4} w="full">
       {isStuck ? null : (
         <Box mb={1} w="fit-content" pl={{ base: COMPACT_TITLE_OFFSET, lg: 0 }}>
-          {statusPill}
+          {statusChrome}
         </Box>
       )}
       <HStack
@@ -98,7 +132,7 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
           >
             {title || <Skeleton as="span" h="20px" w="55%" borderRadius="md" />}
           </Heading>
-          {isStuck ? statusPill : null}
+          {isStuck ? statusChrome : null}
         </HStack>
         <HStack
           display={{ base: 'flex', lg: 'none' }}

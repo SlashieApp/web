@@ -11,6 +11,7 @@ import {
   isCancelledTaskStatus,
   mapTaskStatus,
 } from './mapTaskStatus'
+import { isTaskDetailJobCompleted } from './taskDetailCompleted'
 import type { TaskDetailRecord } from './taskDetailUtils'
 
 export type TaskDetailPermissionsInput = {
@@ -31,6 +32,11 @@ export type TaskDetailPermissions = {
   isClosed: boolean
   /** Raw status is a cancellation (mapTaskStatus collapses this into CLOSED). */
   isCancelled: boolean
+  /**
+   * Job reads as completed: order `COMPLETED` (and the hub's other done
+   * order statuses) or a hub terminal task status other than cancelled.
+   */
+  isJobCompleted: boolean
   isOrderWorker: boolean
   isOrderActive: boolean
   hasWorkerProfile: boolean
@@ -90,9 +96,17 @@ export function getTaskDetailPermissions(
   const isAwarded = taskStatus === 'AWARDED'
   const isClosed = taskStatus === 'CLOSED'
   const isCancelled = isCancelledTaskStatus(task?.status)
+  const isJobCompleted = Boolean(
+    task &&
+      isTaskDetailJobCompleted({
+        taskStatus: task.status,
+        orderStatus: myOrder?.status ?? null,
+      }),
+  )
 
   const isOrderWorker = Boolean(me && myOrder && myOrder.workerUserId === me.id)
-  const isOrderActive = myOrder?.status === OrderStatus.Active
+  const isOrderActive =
+    myOrder?.status === OrderStatus.Active && !isJobCompleted
 
   const hasWorkerProfile = isWorkerSetupComplete(me)
 
@@ -150,6 +164,7 @@ export function getTaskDetailPermissions(
     isAwarded,
     isClosed,
     isCancelled,
+    isJobCompleted,
     isOrderWorker,
     isOrderActive,
     hasWorkerProfile,

@@ -93,6 +93,7 @@
     "statusPill": {
       "OPEN": "Open",
       "AWARDED": "Awarded",
+      "COMPLETED": "Completed",
       "CLOSED": "Closed",
       "CANCELLED": "Cancelled"
     },
@@ -104,6 +105,8 @@
     "statusHeader": {
       "cancelledHeadline": "Task cancelled",
       "cancelledSubtext": "This task is no longer active.",
+      "completedHeadline": "This job is finished",
+      "completedSubtext": "The details below are your record of the work.",
       "closedHeadline": "Job complete",
       "closedSubtext": "This job has been completed and closed.",
       "awardedCustomerHeadline": "Worker booked - share your code when done",
@@ -335,7 +338,7 @@
     },
     "order": {
       "completed": "Task completed",
-      "completedBody": "The job is done and payment is settled directly between you. This task is now closed, and the summary below is for your records.",
+      "completedBody": "The job is done and payment is settled directly between you. The summary below is for your records.",
       "summary": "Order summary",
       "worker": "Worker",
       "agreedTotal": "Agreed total",
@@ -465,7 +468,8 @@
     "statusPill": {
       "OPEN": "開放中",
       "AWARDED": "已選定",
-      "CLOSED": "已完成",
+      "COMPLETED": "已完成",
+      "CLOSED": "已關閉",
       "CANCELLED": "已取消"
     },
     "meta": {
@@ -476,6 +480,8 @@
     "statusHeader": {
       "cancelledHeadline": "任務已取消",
       "cancelledSubtext": "此任務已不再活躍。",
+      "completedHeadline": "此工作已完成",
+      "completedSubtext": "以下是這份工作的紀錄。",
       "closedHeadline": "工作已完成",
       "closedSubtext": "此工作已完成並關閉。",
       "awardedCustomerHeadline": "已預訂工作者 — 完成後分享驗證碼",
@@ -707,7 +713,7 @@
     },
     "order": {
       "completed": "任務已完成",
-      "completedBody": "工作已完成，款項由雙方直接結清。此任務現已關閉，以下摘要供你查閱。",
+      "completedBody": "工作已完成，款項由雙方直接結清。以下摘要供你查閱。",
       "summary": "訂單摘要",
       "worker": "工作者",
       "agreedTotal": "議定總額",

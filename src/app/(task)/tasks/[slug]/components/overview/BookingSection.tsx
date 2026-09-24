@@ -10,13 +10,20 @@ import { OrderSection } from './OrderSection'
 /**
  * Booking section — the "Your booking" info for an active order (completion code
  * for the customer; job + complete-with-code for the worker) and the order
- * summary once closed. It's a normal section card placed inside the existing
- * layout (not a full-width banner). Renders nothing for OPEN / CANCELLED.
- * Order data is client-fetched (Task.gql) and read from context.
+ * summary once the job is completed or the task is closed. Completed jobs hide
+ * the in-progress booking chrome and keep the agreement record.
+ * Renders nothing for OPEN tasks with no order. Order data is client-fetched
+ * (Task.gql) and read from context.
  */
 export function BookingSection() {
   const { task, myOrder, permissions } = useTaskDetail()
   if (!task) return null
+
+  if (permissions.isJobCompleted) {
+    return myOrder ? (
+      <OrderSection task={task} order={myOrder} showRecord />
+    ) : null
+  }
 
   if (permissions.isClosed) {
     return myOrder ? <OrderSection task={task} order={myOrder} /> : null

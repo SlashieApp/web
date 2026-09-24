@@ -19,6 +19,7 @@ export function OverviewCards() {
   const hidePrice =
     hidden.has('pricing') ||
     permissions.isAwarded ||
+    permissions.isJobCompleted ||
     (permissions.isClosed && !permissions.isCancelled)
 
   return (

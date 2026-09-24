@@ -44,9 +44,13 @@ export function buildTaskActivitySteps(
   const quotingDone =
     quoteCount > 0 || permissions.isAwarded || permissions.isClosed
   const bookedDone =
+    permissions.isJobCompleted ||
     permissions.isClosed ||
     Boolean(myOrder && myOrder.status !== OrderStatus.Cancelled)
-  const doneDone = permissions.isClosed || permissions.isCancelled
+  const doneDone =
+    permissions.isJobCompleted ||
+    permissions.isClosed ||
+    permissions.isCancelled
 
   return [
     {
@@ -71,14 +75,17 @@ export function buildTaskActivitySteps(
         myOrder?.status === OrderStatus.Active ? copy.bookedActive : undefined,
       at: myOrder?.createdAt,
       done: bookedDone,
-      current: permissions.isAwarded,
+      current: permissions.isAwarded && !permissions.isJobCompleted,
     },
     {
       key: 'done',
       label: permissions.isCancelled ? copy.cancelled : copy.completed,
       at: myOrder?.closedAt ?? myOrder?.workCompletedAt,
       done: doneDone,
-      current: permissions.isClosed || permissions.isCancelled,
+      current:
+        permissions.isJobCompleted ||
+        permissions.isClosed ||
+        permissions.isCancelled,
     },
   ]
 }
