@@ -45,6 +45,10 @@ export type MyTaskSource = {
   } | null
   location?: { name?: string | null; address?: string | null } | null
   budget?: { amount: number } | null
+  poster?: {
+    id: string
+    profile?: { name?: string | null } | null
+  } | null
   quotes?: readonly MyTaskQuoteSource[] | null
 }
 
@@ -69,7 +73,12 @@ export type MyTaskHubRow = {
   description: string
   location: string
   priceLabel: string
+  /** Raw category code (`Task.category`), used by `filter.category`. */
+  category: string | null
   categoryLabel: string | null
+  /** Task poster (`Task.user` / `poster.id`), used by `filter.ownerUserId`. */
+  ownerUserId: string
+  ownerName: string | null
   thumbnailSrc?: string
   roles: MyTaskRole[]
   section: MyTaskSectionId
@@ -324,6 +333,18 @@ function priceLabel(
   return ''
 }
 
+function ownerFields(
+  task: MyTaskSource,
+  userId: string,
+  hosted: boolean,
+): { ownerUserId: string; ownerName: string | null } {
+  const posterId = task.poster?.id?.trim() || ''
+  return {
+    ownerUserId: posterId || (hosted ? userId : ''),
+    ownerName: task.poster?.profile?.name?.trim() || null,
+  }
+}
+
 function acceptedWorkerName(
   quotes: readonly MyTaskQuoteSource[] | null | undefined,
   userId: string,
@@ -426,13 +447,17 @@ export function buildMyTasksHub(input: {
     if (hosted) roles.push('hosted')
     if (myQuote) roles.push('quoted')
 
+    const owner = ownerFields(task, userId, hosted)
     sortable.push({
       id: task.id,
       title: task.title,
       description: task.description?.trim() || '',
       location: taskPublicLocationLabel(task),
       priceLabel: priceLabel(task, myQuote),
+      category: task.category?.trim() || null,
       categoryLabel: taskCategoryDisplayLabel(task.category),
+      ownerUserId: owner.ownerUserId,
+      ownerName: owner.ownerName,
       thumbnailSrc: task.images?.[0],
       roles,
       section,

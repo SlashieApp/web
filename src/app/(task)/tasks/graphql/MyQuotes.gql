@@ -27,6 +27,9 @@ query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
         }
         poster {
           id
+          profile {
+            name
+          }
         }
         quotes {
           id
