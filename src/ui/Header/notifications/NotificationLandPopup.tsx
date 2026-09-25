@@ -4,7 +4,6 @@ import { Image, Stack, Text } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
 
-import { Link } from '../../Link'
 import { Modal } from '../../Modal/Modal'
 import bag from '../i11n.json'
 
@@ -13,7 +12,6 @@ export type NotificationLandPopupProps = {
   title: string
   body: string
   imageUrl?: string | null
-  extraCtaUrl?: string | null
   primaryLabel: string
   onPrimary: () => void
   onDismiss: () => void
@@ -28,7 +26,6 @@ export function NotificationLandPopup({
   title,
   body,
   imageUrl,
-  extraCtaUrl,
   primaryLabel,
   onPrimary,
   onDismiss,
@@ -36,7 +33,6 @@ export function NotificationLandPopup({
 }: NotificationLandPopupProps) {
   const t = useI11n(bag).notifications
   const image = imageUrl?.trim()
-  const extra = extraCtaUrl?.trim()
 
   return (
     <Modal
@@ -69,11 +65,6 @@ export function NotificationLandPopup({
           <Text fontSize="sm" color="text.default" lineHeight="tall">
             {body}
           </Text>
-        ) : null}
-        {extra ? (
-          <Link href={extra} tone="emphasis">
-            {t.extraCta}
-          </Link>
         ) : null}
       </Stack>
     </Modal>

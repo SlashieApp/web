@@ -93,3 +93,66 @@ export function countUnreadNotifications(
 ): number {
   return items.filter((n) => !n.readAt).length
 }
+
+const TASK_DETAIL_NOTIFICATION_TYPES = new Set<string>([
+  NotificationType.QuoteReceived,
+  NotificationType.QuoteAccepted,
+  NotificationType.QuoteDeclined,
+  NotificationType.TaskCompleted,
+  NotificationType.TaskConfirmed,
+  NotificationType.OrderWorkCompleted,
+  NotificationType.OrderCompleted,
+])
+
+/**
+ * Drawer, land-popup, and push clicks share this path.
+ * Review prompts open the review page. Other task-linked types open the task.
+ */
+export function notificationHref(
+  notification: Pick<NotificationLike, 'type' | 'taskId' | 'orderId'>,
+): string {
+  const taskId = notification.taskId?.trim()
+  if (notification.type === 'REVIEW_PROMPT') {
+    if (!taskId) return '/tasks'
+    const orderId = notification.orderId?.trim()
+    const path = `/tasks/${taskId}/review`
+    return orderId ? `${path}?orderId=${encodeURIComponent(orderId)}` : path
+  }
+  if (TASK_DETAIL_NOTIFICATION_TYPES.has(notification.type)) {
+    return notificationTaskHref(taskId, notification.orderId)
+  }
+  if (taskId) return notificationTaskHref(taskId, notification.orderId)
+  return '/tasks'
+}
+
+export type ToastableNotification = {
+  id: string
+  readAt?: string | null
+  isPopup?: boolean | null
+}
+
+/**
+ * First authenticated paint toasts every unread non-popup and marks the
+ * current ids seen. Later polls toast only newly arrived unread non-popups.
+ */
+export function notificationToastPlan(input: {
+  items: readonly ToastableNotification[]
+  bootstrapped: boolean
+  seenIds: ReadonlySet<string>
+}): { toastIds: string[]; seenIds: Set<string> } {
+  const seenIds = new Set(input.seenIds)
+  const toastIds: string[] = []
+  if (!input.bootstrapped) {
+    for (const item of input.items) {
+      seenIds.add(item.id)
+      if (!item.readAt && item.isPopup !== true) toastIds.push(item.id)
+    }
+    return { toastIds, seenIds }
+  }
+  for (const item of input.items) {
+    if (item.readAt || item.isPopup === true || seenIds.has(item.id)) continue
+    seenIds.add(item.id)
+    toastIds.push(item.id)
+  }
+  return { toastIds, seenIds }
+}

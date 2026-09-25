@@ -60,7 +60,6 @@ export function AdminNotificationComposer({
     title: values.title ?? '',
     body: values.body ?? '',
     imageUrl: values.imageUrl ?? '',
-    extraCtaUrl: values.extraCtaUrl ?? '',
     userIdsText: values.userIdsText ?? '',
     cohortKeys: values.cohortKeys ?? [],
   })
@@ -114,13 +113,6 @@ export function AdminNotificationComposer({
             errorText={form.formState.errors.imageUrl?.message}
           >
             <Input {...form.register('imageUrl')} inputMode="url" />
-          </FormField>
-          <FormField
-            label={t.ctaLabel}
-            helperText={t.ctaHint}
-            errorText={form.formState.errors.extraCtaUrl?.message}
-          >
-            <Input {...form.register('extraCtaUrl')} inputMode="url" />
           </FormField>
           <FormField
             label={t.usersLabel}
@@ -230,11 +222,6 @@ export function AdminNotificationComposer({
           <Text fontSize="sm" color="text.muted" lineHeight="tall">
             {values.body?.trim() || t.bodyLabel}
           </Text>
-          {values.extraCtaUrl?.trim() ? (
-            <Text fontSize="sm" color="text.link">
-              {values.extraCtaUrl.trim()}
-            </Text>
-          ) : null}
         </Stack>
       </Card>
     </Grid>

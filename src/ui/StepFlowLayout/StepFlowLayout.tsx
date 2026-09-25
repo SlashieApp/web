@@ -69,6 +69,7 @@ export function StepFlowHeading({
 
 export type StepFlowActionsProps = {
   showBack?: boolean
+  backLabel?: string
   continueLabel?: string
   continueLoading?: boolean
   /** Final submit action: drops the trailing arrow. */
@@ -81,6 +82,7 @@ export type StepFlowActionsProps = {
 /** Back / Continue bar. Sticky on mobile; static inside the desktop panel. */
 export function StepFlowActions({
   showBack = false,
+  backLabel = 'Back',
   continueLabel = 'Continue',
   continueLoading = false,
   isFinal = false,
@@ -115,7 +117,7 @@ export function StepFlowActions({
           >
             <HStack gap={2}>
               <LuArrowLeft size={18} aria-hidden />
-              <span>Back</span>
+              <span>{backLabel}</span>
             </HStack>
           </Button>
         ) : (

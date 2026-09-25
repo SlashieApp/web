@@ -244,17 +244,17 @@ describe('buildTaskDetailMainCta', () => {
       permissions: permissions({
         isOwner: true,
         isOpen: false,
-        isClosed: true,
-        taskStatus: 'CLOSED',
+        isClosed: false,
+        taskStatus: 'AWARDED',
       }),
       acceptedQuoteId: 'q1',
-      settled: { role: 'owner', agreedPrice: '£85' },
+      settled: { role: 'owner', agreedPrice: '£85', orderId: 'order-1' },
       copy,
     })
     expect(model).toMatchObject({
       buttonLabel: 'Review',
-      intent: 'review',
-      href: undefined,
+      intent: undefined,
+      href: '/tasks/task-1/review?orderId=order-1',
       hideOverviewCards: ['pricing'],
       content: { eyebrow: 'Completed', value: 'Jordan' },
     })
@@ -270,7 +270,7 @@ describe('buildTaskDetailMainCta', () => {
         isOrderWorker: true,
         taskStatus: 'CLOSED',
       }),
-      settled: { role: 'worker', agreedPrice: '£85' },
+      settled: { role: 'worker', agreedPrice: '£85', orderId: 'order-1' },
       viewerHasSubmittedReview: true,
       copy,
     })

@@ -66,7 +66,7 @@ function MainCtaControl({
   model: TaskDetailMainCtaModel
   fill: boolean
 }) {
-  const { setActiveTab, openReviewModal, myOrder } = useTaskDetail()
+  const { setActiveTab, myOrder } = useTaskDetail()
   const reviews = useI11n(bag).reviews
   const scroll = model.scrollTo
     ? () => {
@@ -129,12 +129,7 @@ function MainCtaControl({
       action={{
         label: model.buttonLabel,
         href: model.intent ? undefined : model.href,
-        onClick:
-          model.intent === 'review'
-            ? openReviewModal
-            : model.intent === 'receipt'
-              ? onReceipt
-              : scroll,
+        onClick: model.intent === 'receipt' ? onReceipt : scroll,
       }}
     />
   )

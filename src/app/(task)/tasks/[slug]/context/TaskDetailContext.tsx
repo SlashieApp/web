@@ -94,11 +94,8 @@ export type TaskDetailContextValue = TaskDetailData &
     /** Primary action. Null when this viewer has none. */
     mainCta: TaskDetailMainCtaModel | null
     viewerHasSubmittedReview: boolean
-    reviewModalOpen: boolean
-    openReviewModal: () => void
-    closeReviewModal: () => void
-    markReviewSubmitted: () => void
     orderReview: {
+      canSubmit: boolean
       viewerReview: C2CReview | null
       counterpartyReview: C2CReview | null
       unavailable: boolean

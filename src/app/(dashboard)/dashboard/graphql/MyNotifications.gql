@@ -13,6 +13,10 @@ query MyNotifications($first: Int, $after: String, $unreadOnly: Boolean) {
         actorUserId
         readAt
         createdAt
+        isPopup
+        isClosed
+        dismissedAt
+        imageUrl
       }
     }
   }

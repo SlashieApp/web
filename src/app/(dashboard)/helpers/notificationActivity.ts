@@ -2,6 +2,7 @@ import { NotificationType } from '@codegen/schema'
 import type { MyNotificationsQuery } from '@codegen/schema'
 
 import { timeFromUnknown } from '@/utils/dashboardHelpers'
+import { notificationHref } from '@/utils/notifications'
 
 export type ActivityTone = 'green' | 'purple' | 'blue' | 'mint' | 'red'
 
@@ -50,8 +51,6 @@ export function notificationRowsFromQuery(
       subtitle: item.body?.trim() || 'Open task',
       happenedAt: item.createdAt,
       tone: toneForType(item.type),
-      href: item.orderId
-        ? `/tasks/${item.taskId}?orderId=${item.orderId}`
-        : `/tasks/${item.taskId}`,
+      href: notificationHref(item),
     }))
 }

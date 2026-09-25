@@ -28,13 +28,6 @@ export const adminNotificationFormSchema = z.object({
       (value) => value === '' || isHttpUrl(value),
       'Enter an https image URL.',
     ),
-  extraCtaUrl: z
-    .string()
-    .trim()
-    .refine(
-      (value) => value === '' || isHttpUrl(value) || value.startsWith('/'),
-      'Enter a link path or https URL.',
-    ),
   userIdsText: z.string(),
   cohortKeys: z.array(cohortKeySchema),
 })
@@ -47,7 +40,6 @@ export type AdminNotificationDraft = {
   title: string
   body: string
   imageUrl: string
-  extraCtaUrl: string
   userIds: string[]
   cohortKeys: NotificationCohortKey[]
 }
@@ -56,7 +48,6 @@ export const ADMIN_NOTIFICATION_DEFAULTS: AdminNotificationFormValues = {
   title: '',
   body: '',
   imageUrl: '',
-  extraCtaUrl: '',
   userIdsText: '',
   cohortKeys: [],
 }
@@ -108,7 +99,6 @@ export function parseAdminNotificationDraft(
       title: values.title.trim(),
       body: values.body.trim(),
       imageUrl: values.imageUrl.trim(),
-      extraCtaUrl: values.extraCtaUrl.trim(),
       userIds,
       cohortKeys,
     },
@@ -122,7 +112,6 @@ export function adminNotificationDraftKey(
     title: draft.title,
     body: draft.body,
     imageUrl: draft.imageUrl,
-    extraCtaUrl: draft.extraCtaUrl,
     userIds: [...draft.userIds].sort(),
     cohortKeys: [...draft.cohortKeys].sort(),
   })

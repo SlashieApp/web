@@ -27,7 +27,6 @@ export const WithImageAndLink: Story = {
     title: 'Founding workers in Watford',
     body: 'A note for people in the Watford and Bushey cohort.',
     imageUrl: '/images/slashie-mark.svg',
-    extraCtaUrl: 'https://slashie.app/help/safety',
     primaryLabel: 'Open',
   },
 }

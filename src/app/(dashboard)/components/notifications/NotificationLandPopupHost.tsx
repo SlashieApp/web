@@ -16,7 +16,7 @@ import { useI11n } from '@/i18n/useI11n'
 import bag from '@/ui/Header/i11n.json'
 import { NotificationLandPopup } from '@/ui/Header/notifications/NotificationLandPopup'
 import { EVENTS, capture } from '@/utils/analytics'
-import { notificationTaskHref } from '@/utils/notifications'
+import { notificationHref } from '@/utils/notifications'
 
 /**
  * Land popup for eligible isPopup rows. Never shown on map home (`/search`).
@@ -57,11 +57,7 @@ export function NotificationLandPopupHost() {
 
   const onPrimary = useCallback(() => {
     if (!popup || !notifications) return
-    const taskHref = notificationTaskHref(popup.taskId, popup.orderId)
-    const reviewHref = `${taskHref}${taskHref.includes('?') ? '&' : '?'}review=1`
-    const destination = isReviewPrompt(popup.type)
-      ? reviewHref
-      : popup.extraCtaUrl?.trim() || taskHref
+    const destination = notificationHref(popup)
     setSuppressedIds(rememberDismissedPopupId(popup.id))
     void notifications.dismissPopup(popup)
     router.push(href(destination))
@@ -75,7 +71,6 @@ export function NotificationLandPopupHost() {
       title={popup.title}
       body={popup.body}
       imageUrl={popup.imageUrl}
-      extraCtaUrl={isReviewPrompt(popup.type) ? null : popup.extraCtaUrl}
       primaryLabel={isReviewPrompt(popup.type) ? t.reviewCta : t.openCta}
       onPrimary={onPrimary}
       onDismiss={() => void onDismiss()}

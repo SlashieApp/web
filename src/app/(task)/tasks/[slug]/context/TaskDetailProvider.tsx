@@ -126,8 +126,6 @@ export function TaskDetailProvider({
   const [cancelError, setCancelError] = useState<string | null>(null)
   const [jobActionError, setJobActionError] = useState<string | null>(null)
   const [verificationCode, setVerificationCode] = useState('')
-  const [reviewModalOpen, setReviewModalOpen] = useState(false)
-  const [submittedOrderId, setSubmittedOrderId] = useState<string | null>(null)
   const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
   const [explicitTab, setExplicitTab] = useState<TaskDetailTab | null>(() => {
     const hash = readTaskDetailHash()
@@ -297,14 +295,7 @@ export function TaskDetailProvider({
       (permissions.isOwner || permissions.isOrderWorker),
   )
   const orderReview = useOrderReviewState(myOrder?.id ?? null, reviewEnabled)
-  const viewerHasSubmittedReview =
-    orderReview.viewerHasSubmittedReview ||
-    (submittedOrderId != null && submittedOrderId === myOrder?.id)
-  const openReviewModal = useCallback(() => setReviewModalOpen(true), [])
-  const closeReviewModal = useCallback(() => setReviewModalOpen(false), [])
-  const markReviewSubmitted = useCallback(() => {
-    if (myOrder?.id) setSubmittedOrderId(myOrder.id)
-  }, [myOrder?.id])
+  const viewerHasSubmittedReview = orderReview.viewerHasSubmittedReview
 
   const setActiveTab = useCallback(
     (tab: TaskDetailTab, options?: { hash?: string; scrollId?: string }) => {
@@ -766,6 +757,7 @@ export function TaskDetailProvider({
                 ? {
                     role: permissions.isOwner ? 'owner' : 'worker',
                     agreedPrice: formatOrderAgreedPrice(myOrder),
+                    orderId: myOrder.id,
                   }
                 : null,
             viewerHasSubmittedReview,
@@ -822,10 +814,6 @@ export function TaskDetailProvider({
       activeTab,
       mainCta,
       viewerHasSubmittedReview,
-      reviewModalOpen,
-      openReviewModal,
-      closeReviewModal,
-      markReviewSubmitted,
       orderReview,
       taskId,
       task,
@@ -882,10 +870,6 @@ export function TaskDetailProvider({
       activeTab,
       mainCta,
       viewerHasSubmittedReview,
-      reviewModalOpen,
-      openReviewModal,
-      closeReviewModal,
-      markReviewSubmitted,
       orderReview,
       taskId,
       task,

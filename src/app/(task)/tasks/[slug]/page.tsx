@@ -1,22 +1,27 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import { useParams } from 'next/navigation'
+import { getRequestLocale } from '@/i18n/getRequestLocale'
+import { withLocale } from '@/i18n/navigation'
 
-import { TaskDetailBody } from './components/layout/TaskDetailBody'
-import { TaskDetailProvider } from './context/TaskDetailProvider'
+import { TaskDetailScreen } from './components/layout/TaskDetailScreen'
 
-/**
- * Task detail. Client-owned so a listing click can paint seeded image/title/
- * price immediately while colocated skeletons stand in for the rest. Direct
- * loads have no handoff and show the full skeleton until TaskCore resolves.
- */
-export default function TaskDetailPage() {
-  const { slug } = useParams<{ slug: string }>()
-  const taskId = String(slug ?? '')
+export default async function TaskDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ review?: string; orderId?: string }>
+}) {
+  const { slug } = await params
+  const query = await searchParams
+  if (query.review === '1') {
+    const locale = await getRequestLocale()
+    const orderId = query.orderId?.trim()
+    const path = `/tasks/${slug}/review${
+      orderId ? `?orderId=${encodeURIComponent(orderId)}` : ''
+    }`
+    redirect(withLocale(locale, path))
+  }
 
-  return (
-    <TaskDetailProvider taskId={taskId}>
-      <TaskDetailBody taskId={taskId} />
-    </TaskDetailProvider>
-  )
+  return <TaskDetailScreen taskId={slug} />
 }

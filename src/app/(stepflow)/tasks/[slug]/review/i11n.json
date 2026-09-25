@@ -1,0 +1,76 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Review a job | Slashie",
+      "description": "Leave a star rating and an optional comment for a completed Slashie job."
+    },
+    "eyebrow": "Review",
+    "closeLabel": "Close review",
+    "back": "Back",
+    "continue": "Continue",
+    "steps": {
+      "stars": "Stars",
+      "comment": "Comment",
+      "submit": "Submit"
+    },
+    "starsTitle": "How did the job go?",
+    "starsDescription": "Choose 1 to 5 stars. You can edit this for 48 hours after you submit.",
+    "commentTitle": "Add a comment",
+    "commentDescription": "Optional. Say what the other person should know about this job.",
+    "submitTitle": "Send your review",
+    "submitDescription": "Reviews are opinions between the customer and the worker. Slashie does not check or endorse anyone through a review.",
+    "submit": "Submit review",
+    "save": "Save changes",
+    "saved": "Review saved",
+    "progress": "Step {step} of {total} · {label}",
+    "progressTrack": "Review progress",
+    "commentTooLong": "Comment must be {max} characters or fewer.",
+    "lockedTitle": "Your review",
+    "lockedBody": "Reviews can be edited for 48 hours after they are submitted.",
+    "backToTask": "Back to task",
+    "signInTitle": "Sign in to review",
+    "signInBody": "Sign in as the customer or worker on this completed job to leave a review.",
+    "signIn": "Sign in",
+    "ineligibleTitle": "This job is not ready for a review",
+    "ineligibleBody": "A review opens after the order is completed, for the customer and the booked worker.",
+    "unavailable": "Reviews are not available right now. Try again shortly.",
+    "loading": "Loading review…"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "評價工作 | Slashie",
+      "description": "為已完成的 Slashie 工作留下星級和可選留言。"
+    },
+    "eyebrow": "評價",
+    "closeLabel": "關閉評價",
+    "back": "返回",
+    "continue": "繼續",
+    "steps": {
+      "stars": "星級",
+      "comment": "留言",
+      "submit": "提交"
+    },
+    "starsTitle": "這份工作如何？",
+    "starsDescription": "選擇 1 至 5 星。提交後 48 小時內可以修改。",
+    "commentTitle": "加上留言",
+    "commentDescription": "可選。告訴對方關於這份工作你想他們知道的事。",
+    "submitTitle": "送出評價",
+    "submitDescription": "評價是顧客與工作者之間的意見。Slashie 不會透過評價審查或認可任何人。",
+    "submit": "提交評價",
+    "save": "儲存變更",
+    "saved": "已儲存評價",
+    "progress": "第 {step} 步，共 {total} 步 · {label}",
+    "progressTrack": "評價進度",
+    "commentTooLong": "留言不可超過 {max} 個字。",
+    "lockedTitle": "你的評價",
+    "lockedBody": "評價提交後 48 小時內可以修改。",
+    "backToTask": "返回任務",
+    "signInTitle": "登入以評價",
+    "signInBody": "請以這份已完成工作的顧客或工作者身分登入，然後留下評價。",
+    "signIn": "登入",
+    "ineligibleTitle": "這份工作還不能評價",
+    "ineligibleBody": "訂單完成後，顧客和已預約的工作者可以留下評價。",
+    "unavailable": "暫時未能載入評價。請稍後再試。",
+    "loading": "正在載入評價…"
+  }
+}

@@ -52,7 +52,6 @@ export default function AdminNotificationsPage() {
               title: draft.title,
               body: draft.body,
               imageUrl: draft.imageUrl || null,
-              extraCtaUrl: draft.extraCtaUrl || null,
               userIds: draft.userIds,
               cohortKeys: draft.cohortKeys,
               dryRun,

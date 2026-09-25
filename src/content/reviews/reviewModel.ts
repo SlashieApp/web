@@ -18,7 +18,7 @@ export type NotificationCohortKey = (typeof NOTIFICATION_COHORT_KEYS)[number]
 
 export type C2CReview = {
   id: string
-  rating: number
+  stars: number
   comment?: string | null
   createdAt?: string | null
 }
@@ -102,9 +102,9 @@ export function isReviewPrompt(type: string | null | undefined): boolean {
  * `dismissNotification`. Neither marks the row closed.
  */
 export function popupDismissKind(
-  item: Pick<PopupCandidate, 'type' | 'orderId'>,
+  item: Pick<PopupCandidate, 'type'>,
 ): 'review-prompt' | 'notification' {
-  if (isReviewPrompt(item.type) && item.orderId?.trim()) return 'review-prompt'
+  if (isReviewPrompt(item.type)) return 'review-prompt'
   return 'notification'
 }
 

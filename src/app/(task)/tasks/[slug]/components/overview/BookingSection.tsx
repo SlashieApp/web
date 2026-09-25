@@ -22,14 +22,8 @@ import { OrderSection } from './OrderSection'
  * (Task.gql) and read from context.
  */
 export function BookingSection() {
-  const {
-    task,
-    myOrder,
-    permissions,
-    orderReview,
-    viewerHasSubmittedReview,
-    openReviewModal,
-  } = useTaskDetail()
+  const { task, myOrder, permissions, orderReview, viewerHasSubmittedReview } =
+    useTaskDetail()
   const reviews = useI11n(bag).reviews
   if (!task) return null
 
@@ -43,7 +37,7 @@ export function BookingSection() {
         viewerReview={orderReview.viewerReview}
         counterpartyReview={orderReview.counterpartyReview}
         viewerHasSubmitted={viewerHasSubmittedReview}
-        onEdit={openReviewModal}
+        editHref={`/tasks/${task.id}/review?orderId=${encodeURIComponent(myOrder.id)}`}
         report={
           orderReview.counterpartyReview ? (
             <ReportControl
