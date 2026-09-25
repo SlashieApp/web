@@ -38,7 +38,8 @@
     },
     "filters": {
       "searchLabel": "Search tasks",
-      "searchPlaceholder": "Title, description, or place",
+      "searchPlaceholder": "Search by task name, location or keyword…",
+      "toggle": "Filters",
       "ownerLabel": "Task owner",
       "ownerAll": "All owners",
       "ownerUnknown": "Task owner",
@@ -118,7 +119,8 @@
     },
     "filters": {
       "searchLabel": "搜尋任務",
-      "searchPlaceholder": "標題、描述或地點",
+      "searchPlaceholder": "搜尋任務名稱、地點或關鍵字…",
+      "toggle": "篩選",
       "ownerLabel": "任務發布者",
       "ownerAll": "所有發布者",
       "ownerUnknown": "發布者",

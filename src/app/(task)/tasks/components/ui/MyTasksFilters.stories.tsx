@@ -13,7 +13,11 @@ const categories = [
   { category: 'HANDYMAN', label: 'Handyman' },
 ]
 
-function FiltersDemo() {
+function FiltersDemo({
+  defaultExpanded = false,
+}: {
+  defaultExpanded?: boolean
+}) {
   const [search, setSearch] = useState('')
   const [ownerUserId, setOwnerUserId] = useState('')
   const [category, setCategory] = useState('')
@@ -32,6 +36,7 @@ function FiltersDemo() {
       hubSection={hubSection}
       onHubSectionChange={setHubSection}
       active={active}
+      defaultExpanded={defaultExpanded}
       onClear={() => {
         setSearch('')
         setOwnerUserId('')
@@ -68,6 +73,10 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: () => <FiltersDemo />,
+}
+
+export const Expanded: Story = {
+  render: () => <FiltersDemo defaultExpanded />,
 }
 
 export const NoMatch: Story = {
