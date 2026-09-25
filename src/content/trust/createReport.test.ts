@@ -35,6 +35,7 @@ describe('createReport helpers', () => {
   it('maps UI kinds to BE target types', () => {
     expect(reportTargetType('task')).toBe('TASK')
     expect(reportTargetType('worker')).toBe('WORKER')
+    expect(reportTargetType('user')).toBe('USER')
     expect(reportTargetType('review')).toBe('REVIEW')
   })
 

@@ -120,7 +120,7 @@ export function taskDetailCategoryTag(
   }
 }
 
-/** Owner chip. Profile route is not built yet — `/user/:id` is a placeholder. */
+/** Owner chip. Public presence lives at `/profile/[userId]`. */
 export function taskDetailOwnerTag(
   task: Pick<TaskDetailRecord, 'poster'>,
   fallbackName: string,
@@ -128,5 +128,5 @@ export function taskDetailOwnerTag(
   if (!task.poster) return null
   const name = task.poster.profile?.name?.trim() || fallbackName
   const avatarUrl = task.poster.profile?.avatarUrl?.trim() || null
-  return { name, avatarUrl, href: `/user/${task.poster.id}` }
+  return { name, avatarUrl, href: `/profile/${task.poster.id}` }
 }

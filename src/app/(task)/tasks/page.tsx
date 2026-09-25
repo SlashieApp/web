@@ -8,6 +8,7 @@ import { AccountAuthGate } from '@/app/(dashboard)/components/layout/AccountAuth
 import { useAccountOrders } from '@/app/(dashboard)/helpers/useAccountOrders'
 import { useMyQuotes } from '@/app/(dashboard)/helpers/useMyQuotes'
 import { useMyRequests } from '@/app/(dashboard)/helpers/useMyRequests'
+import { publicProfileAchievementsPath } from '@/app/helpers/publicProfilePath'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -50,8 +51,8 @@ import bag from './i11n.json'
  * on the hosted and quoted list queries. `me.hubTaskCategories` fills the category menu.
  * Your activity: desktop sticky rail, mobile corner switch. Worker and
  * customer panels stay separate and read `me.taskAchievements`.
- * More opens a fuller in-hub sheet on `/tasks`.
- * TODO(FE-187, train 2): rewire More to `/profile/[own-user-id]#achievements`.
+ * More opens `/profile/[ownUserId]#achievements`.
+ * The compact corner switch still toggles the list and this summary.
  * States: loading skeleton, error + retry, empty with post/browse, filter miss, sectioned list.
  * Cards navigate to `/tasks/[id]` — they do not expand in place.
  */
@@ -314,6 +315,9 @@ export default function MyTasksPage() {
                 <MyTasksAchievements
                   panels={panels}
                   loading={achievements.loading}
+                  moreHref={
+                    userId ? publicProfileAchievementsPath(userId) : null
+                  }
                 />
               </Box>
             ) : null}
@@ -329,6 +333,7 @@ export default function MyTasksPage() {
               <MyTasksAchievements
                 panels={panels}
                 loading={achievements.loading}
+                moreHref={userId ? publicProfileAchievementsPath(userId) : null}
               />
             </Box>
           ) : null}

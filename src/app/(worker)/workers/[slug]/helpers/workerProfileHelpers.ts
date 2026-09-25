@@ -1,5 +1,7 @@
 import type { WorkerPublicProfileQuery } from '@codegen/schema'
 
+import { publicProfilePath } from '@/app/helpers/publicProfilePath'
+
 import { categoryLabelFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import { publicRatingAverage } from '@/content/reviews/reviewModel'
 
@@ -104,13 +106,12 @@ export function formatCompletedMonth(completedAt: unknown): string {
   return date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 }
 
+/** Public presence for a user id (`users._id`), not a worker document id. */
 export function workerProfilePath(
-  workerId: string,
+  userId: string,
   fromTask?: string | null,
 ): string {
-  const base = `/workers/${workerId}`
-  if (!fromTask?.trim()) return base
-  return `${base}?fromTask=${encodeURIComponent(fromTask.trim())}`
+  return publicProfilePath(userId, { fromTask })
 }
 
 export function formatMemberSince(createdAt: unknown): string | null {

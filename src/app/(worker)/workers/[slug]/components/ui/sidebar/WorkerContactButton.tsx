@@ -41,7 +41,7 @@ export function WorkerContactButton({ size = 'md' }: { size?: 'md' | 'lg' }) {
     switch (action) {
       case WorkerContactAction.SignIn:
         router.push(
-          `/login?next=${encodeURIComponent(`/workers/${worker.id}`)}`,
+          `/login?next=${encodeURIComponent(`/profile/${worker.user.id}`)}`,
         )
         return
       case WorkerContactAction.OpenQuote: {

@@ -1,0 +1,15 @@
+# Name and avatar for metadata. Null profile → noindex blank shell.
+query PublicProfileSeo($userId: ID!) {
+  publicProfile(userId: $userId) {
+    id
+    profile {
+      name
+      avatarUrl
+    }
+    worker {
+      tagline
+      bio
+      serviceAreaLabel
+    }
+  }
+}

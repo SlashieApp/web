@@ -44,6 +44,7 @@ const meta = {
   args: {
     panels: dual,
     loading: false,
+    moreHref: '/profile/user-1#achievements',
   },
 } satisfies Meta<typeof MyTasksAchievements>
 

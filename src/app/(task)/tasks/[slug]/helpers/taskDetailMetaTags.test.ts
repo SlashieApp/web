@@ -44,7 +44,7 @@ describe('task detail meta tags', () => {
     expect(taskDetailOwnerTag(task, 'Task owner')).toEqual({
       name: 'Alex Chen',
       avatarUrl: task.poster?.profile?.avatarUrl,
-      href: '/user/owner-detail-1',
+      href: '/profile/owner-detail-1',
     })
   })
 

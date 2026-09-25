@@ -1,0 +1,133 @@
+# Public presence for /profile/[userId]. Anonymous OK.
+# Strangers: trust subset only. Owner (isSelf): taskAchievements + workHistory.
+# Never select email, phone, street, lat/lng, or agreed amounts on public rows.
+query PublicProfile($userId: ID!, $excludeTaskId: ID) {
+  publicProfile(userId: $userId) {
+    id
+    isSelf
+    userType
+    profile {
+      name
+      avatarUrl
+    }
+    memberSince
+    openTaskCount(excludeTaskId: $excludeTaskId)
+    openTasks(first: 10, excludeTaskId: $excludeTaskId) {
+      id
+      title
+      description
+      category
+      status
+      views
+      images
+      budget {
+        amount
+        currency
+        type
+        paymentMethod
+      }
+      datetime {
+        date
+        time
+        type
+      }
+      location {
+        name
+      }
+    }
+    reviews {
+      id
+      stars
+      comment
+      createdAt
+      authorRole
+    }
+    ratingSummary {
+      average
+      count
+    }
+    worker {
+      id
+      bio
+      tagline
+      primaryCategory
+      skills
+      qualifications
+      serviceAreaLabel
+      yearsExperience
+      portfolioUrls
+      isVerified
+      phoneVerified
+      emailVerified
+      completedJobs {
+        taskId
+        title
+        category
+        areaLabel
+        completedAt
+        rating
+      }
+      viewer {
+        isSaved
+        canLeaveReview
+        contactAction
+        relatedTaskId
+        relatedQuoteId
+      }
+    }
+    reportTarget {
+      targetType
+      targetId
+    }
+    taskAchievements {
+      worker {
+        hasActivity
+        completedJobsCount
+        categoryMix {
+          category
+          count
+          percent
+        }
+        mostWorkedLocation {
+          label
+          count
+        }
+        quotesThisMonth
+        freeQuotesPerMonth
+        hasUnlimitedQuotes
+        streakWeeks
+        agreedTotalsOnCompletedJobs {
+          amount
+          currency
+        }
+      }
+      customer {
+        hasActivity
+        hostedCompletedCount
+        categoryMix {
+          category
+          count
+          percent
+        }
+        mostUsedLocation {
+          label
+          count
+        }
+        quotesReceived
+        agreedTotalsOnCompletedJobs {
+          amount
+          currency
+        }
+      }
+    }
+    workHistory {
+      orderId
+      taskId
+      role
+      title
+      category
+      areaLabel
+      completedAt
+    }
+  }
+}

@@ -1,4 +1,3 @@
-import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
 import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
 import { formatPrice } from '@/utils/price'
 import {
@@ -156,11 +155,8 @@ function workerParty(
   const profile = (worker?.profile ?? null) as WorkerProfileFields | null
   const name = profile?.name?.trim() || copy.workerFallback
   const tel = profile?.contactNumber?.trim() || ''
-  const profileHref = worker?.worker?.id
-    ? workerProfilePath(worker.worker.id, task.id)
-    : null
   const userHref = worker?.id ? publicUserPath(worker.id, task.id) : null
-  const reviewHref = profileHref ?? userHref ?? '/workers'
+  const reviewHref = userHref ?? '/workers'
   const contactHref = tel ? `tel:${tel.replace(/\s/g, '')}` : reviewHref
   return { name, contactHref, reviewHref }
 }

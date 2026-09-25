@@ -15,6 +15,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Card, SpotIllustration } from '@ui'
 
+import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useWorkerSearch } from '../../context/WorkerSearchProvider'
 import {
   buildWorkerActiveFilterTags,
@@ -29,6 +30,7 @@ import {
   workerSubtitle,
 } from '../../helpers/workerSearchHelpers'
 import bag from '../../i11n.json'
+
 import { WorkerSearchCard } from '../ui/WorkerSearchCard'
 
 function WorkersEmptyState() {
@@ -174,7 +176,7 @@ export function WorkersResultsGrid() {
                 respondsLabel={workerRespondsLabel(worker)}
                 serviceAreaLabel={workerServiceAreaLabel(worker)}
                 skills={worker.skills ?? []}
-                profileHref={`/workers/${worker.id}`}
+                profileHref={publicProfilePath(worker.user.id)}
               />
             </Box>
           ))}

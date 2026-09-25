@@ -38,7 +38,7 @@ export function getProfileLifecycle(me: MeSnapshot): ProfileLifecycle {
     }
   }
 
-  const publicProfileHref = `/workers/${me.worker.id}`
+  const publicProfileHref = `/profile/${me.id}`
   if (!isWorkerSetupComplete(me)) {
     return {
       kind: 'setupInProgress',

@@ -44,6 +44,7 @@ export function reportTargetType(
   kind: ReportTargetKind,
 ): ReportTargetTypeValue {
   if (kind === 'worker') return 'WORKER'
+  if (kind === 'user') return 'USER'
   if (kind === 'review') return 'REVIEW'
   return 'TASK'
 }
