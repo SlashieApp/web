@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, HStack, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { PublicProfileWorkRole } from '@codegen/schema'
 import { useCallback, useState } from 'react'
 
 import { MyTasksActivityDetails } from '@/app/(task)/tasks/components/ui/MyTasksActivityDetails'
@@ -15,7 +16,6 @@ import {
   type PublicWorkHistoryItem,
   filterWorkHistory,
 } from '../../helpers/publicProfileModel'
-import { PublicProfileWorkRole } from '../../helpers/publicProfileTypes'
 import bag from '../../i11n.json'
 
 const RANGES: ActivityRange[] = ['month', 'lastMonth', 'year']

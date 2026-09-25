@@ -10,7 +10,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { WorkerContactAction } from '@codegen/schema'
+import { PublicProfileUserType, WorkerContactAction } from '@codegen/schema'
 import { useState } from 'react'
 import { LuCalendar, LuCheck, LuHeart, LuLock, LuMapPin } from 'react-icons/lu'
 
@@ -24,7 +24,6 @@ import { Avatar, Badge, Button, Card, Link, SafetyNotice } from '@ui'
 
 import type { PublicProfileView } from '../../helpers/publicProfileModel'
 import { isWorkerProfile } from '../../helpers/publicProfileModel'
-import { PublicProfileUserType } from '../../helpers/publicProfileTypes'
 import bag from '../../i11n.json'
 import { PublicProfileAchievements } from './PublicProfileAchievements'
 

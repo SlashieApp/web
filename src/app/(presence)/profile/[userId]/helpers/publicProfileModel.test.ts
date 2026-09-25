@@ -1,3 +1,4 @@
+import { PublicProfileWorkRole } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -8,7 +9,6 @@ import {
   resolveReviewHref,
   reviewFormPath,
 } from './publicProfileModel'
-import { PublicProfileWorkRole } from './publicProfileTypes'
 
 describe('pickReviewTarget', () => {
   const orders = [
