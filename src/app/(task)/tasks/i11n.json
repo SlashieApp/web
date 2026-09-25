@@ -5,11 +5,11 @@
       "description": "Tasks you posted and tasks you quoted — open, booked, and completed."
     },
     "title": "My tasks",
-    "description": "Hosted tasks and quotes you sent, in one list.",
+    "description": "View and manage the tasks you've posted and quoted, along with their progress and status.",
     "loading": "Loading your tasks…",
     "errorTitle": "Could not load your tasks",
     "retry": "Try again",
-    "openTask": "{title}. {tags}. {timing}. Open task",
+    "openTask": "{title}. {tags}. {status}. {timing}. Open task",
     "withWorker": "With {name}",
     "quoteCountOne": "1 quote",
     "quoteCount": "{count} quotes",
@@ -22,6 +22,11 @@
     "tags": {
       "hosted": "Hosted",
       "quoted": "Quoted"
+    },
+    "status": {
+      "open": "Open",
+      "booked": "Booked",
+      "completed": "Completed"
     },
     "timing": {
       "overdue": "Overdue",
@@ -55,13 +60,19 @@
       "resultCount": "{count} tasks"
     },
     "achievements": {
-      "title": "Achievements",
-      "switchLabel": "Tasks and achievements",
+      "title": "Your activity",
+      "more": "More",
+      "moreAria": "View your activity details",
+      "detailDescription": "Category mix, places, and agreed totals on completed jobs.",
+      "switchLabel": "Tasks and your activity",
       "tasksTab": "Show tasks",
-      "open": "Show achievements",
+      "open": "Show your activity",
+      "statEmpty": "\u2014",
+      "agreedTotalShort": "Agreed total",
+      "quotesReceivedLabel": "Quotes received",
       "worker": "Worker",
       "customer": "Customer",
-      "loading": "Loading achievements…",
+      "loading": "Loading your activity…",
       "emptyWorker": "Completed jobs you worked will show up here.",
       "emptyCustomer": "Completed tasks you hosted will show up here.",
       "completedJobs": "Completed jobs",
@@ -86,11 +97,11 @@
       "description": "你發布的任務同你報過價的任務 — 進行中、已預約同已完成。"
     },
     "title": "我的任務",
-    "description": "你發布的任務同你送出的報價，同一個清單。",
+    "description": "查看同管理你發布同報價過的任務，包括進度同狀態。",
     "loading": "正在載入你的任務…",
     "errorTitle": "無法載入你的任務",
     "retry": "再試一次",
-    "openTask": "{title}。{tags}。{timing}。開啟任務",
+    "openTask": "{title}。{tags}。{status}。{timing}。開啟任務",
     "withWorker": "工作者：{name}",
     "quoteCountOne": "1 個報價",
     "quoteCount": "{count} 個報價",
@@ -103,6 +114,11 @@
     "tags": {
       "hosted": "我發布",
       "quoted": "我報價"
+    },
+    "status": {
+      "open": "開放中",
+      "booked": "已預約",
+      "completed": "已完成"
     },
     "timing": {
       "overdue": "已過期",
@@ -136,13 +152,19 @@
       "resultCount": "{count} 個任務"
     },
     "achievements": {
-      "title": "成就",
-      "switchLabel": "任務同成就",
+      "title": "你的活動",
+      "more": "更多",
+      "moreAria": "查看活動詳情",
+      "detailDescription": "類別比例、地點，同已完成工作的協定總額。",
+      "switchLabel": "任務同你的活動",
       "tasksTab": "顯示任務",
-      "open": "顯示成就",
+      "open": "顯示你的活動",
+      "statEmpty": "\u2014",
+      "agreedTotalShort": "協定總額",
+      "quotesReceivedLabel": "收到的報價",
       "worker": "工作者",
       "customer": "客戶",
-      "loading": "正在載入成就…",
+      "loading": "正在載入你的活動…",
       "emptyWorker": "你完成的工作會顯示喺呢度。",
       "emptyCustomer": "你發布並完成的任務會顯示喺呢度。",
       "completedJobs": "已完成工作",

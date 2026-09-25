@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import {
   achievementRoleVisibility,
   buildAchievementPanels,
+  categoryMixShares,
 } from './taskAchievements'
 
 const allowance = { used: 1, cap: 3, unlimited: false }
@@ -133,6 +134,28 @@ describe('buildAchievementPanels', () => {
     })
     expect(worker?.agreedTotalLabel).toBe('£0')
     expect(worker?.completedCount).toBe(0)
+  })
+})
+
+describe('categoryMixShares', () => {
+  it('rounds count shares so they sum to 100', () => {
+    expect(
+      categoryMixShares([
+        {
+          category: 'CLEANING',
+          label: 'Cleaning',
+          count: 4,
+          percent: 67,
+        },
+        { category: 'MOVING', label: 'Moving', count: 2, percent: 33 },
+      ]).map((item) => item.percent),
+    ).toEqual([67, 33])
+    const even = categoryMixShares([
+      { category: 'CLEANING', label: 'Cleaning', count: 1, percent: null },
+      { category: 'HANDYMAN', label: 'Handyman', count: 1, percent: null },
+    ])
+    expect(even.map((item) => item.percent)).toEqual([50, 50])
+    expect(even.reduce((sum, item) => sum + item.percent, 0)).toBe(100)
   })
 })
 

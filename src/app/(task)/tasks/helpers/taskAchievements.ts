@@ -170,6 +170,69 @@ function categoryMix(
   })
 }
 
+export type CategoryMixShare = {
+  category: string
+  label: string
+  count: number
+  percent: number
+}
+
+/**
+ * Integer shares of the mix that sum to 100. Used by the in-hub pie.
+ * Compact cards still read `AchievementCategoryMix.percent`, which stays null
+ * until `CATEGORY_MIX_PERCENT_MIN` completed jobs.
+ */
+export function categoryMixShares(
+  mix: readonly AchievementCategoryMix[],
+): CategoryMixShare[] {
+  const counted = mix.flatMap((item) => {
+    const count = item.count
+    if (typeof count !== 'number' || count <= 0) return []
+    return [{ item, count }]
+  })
+  const total = counted.reduce((sum, row) => sum + row.count, 0)
+  if (total <= 0) {
+    return mix.flatMap((item) => {
+      const percent = item.percent
+      if (typeof percent !== 'number' || percent <= 0) return []
+      return [
+        {
+          category: item.category,
+          label: item.label,
+          count: item.count ?? 0,
+          percent: Math.round(percent),
+        },
+      ]
+    })
+  }
+
+  const exact = counted.map(({ item, count }) => ({
+    category: item.category,
+    label: item.label,
+    count,
+    exact: (count / total) * 100,
+  }))
+  const floors = exact.map((row) => Math.floor(row.exact))
+  let leftover = 100 - floors.reduce((sum, value) => sum + value, 0)
+  const order = exact
+    .map((row, index) => ({
+      index,
+      frac: row.exact - (floors[index] ?? 0),
+    }))
+    .sort((a, b) => b.frac - a.frac || a.index - b.index)
+  for (const entry of order) {
+    if (leftover <= 0) break
+    floors[entry.index] = (floors[entry.index] ?? 0) + 1
+    leftover -= 1
+  }
+  return exact.map((row, index) => ({
+    category: row.category,
+    label: row.label,
+    count: row.count,
+    percent: floors[index] ?? 0,
+  }))
+}
+
 function workerQuotes(
   worker: WorkerAchievementsInput | null,
   allowance: QuoteAllowanceInput,
