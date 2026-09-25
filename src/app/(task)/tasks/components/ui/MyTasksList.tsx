@@ -1,16 +1,11 @@
 'use client'
 
-import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { Box, HStack, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 
-import {
-  TaskCard,
-  type TaskCardTask,
-} from '@/app/(task)/components/ui/TaskCard'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Button, Link } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import type {
   MyTaskHubRow,
@@ -18,6 +13,7 @@ import type {
   MyTaskTiming,
 } from '../../helpers/myTasksHub'
 import bag from '../../i11n.json'
+import { MyTasksHubCard } from './MyTasksHubCard'
 
 export type MyTasksListProps = {
   sections: readonly MyTaskHubSection[]
@@ -73,49 +69,18 @@ function detailLine(
   return undefined
 }
 
-function HubTaskCard({
-  row,
-  timingLabel,
-  detail,
-  tags,
-  openLabel,
-  onOpen,
-}: {
-  row: MyTaskHubRow
-  timingLabel: string
-  detail?: string
-  tags: readonly string[]
-  openLabel: string
-  onOpen: (taskId: string) => void
-}) {
-  const task: TaskCardTask = {
-    id: row.id,
-    title: row.title,
-    description: row.description,
-    location: row.location,
-    priceLabel: row.priceLabel,
-    badgeText: row.categoryLabel ?? undefined,
-    timingLabel,
-    quotesLabel: detail,
-    thumbnailSrc: row.thumbnailSrc,
-  }
-  const handleOpen = useCallback(() => {
-    onOpen(row.id)
-  }, [onOpen, row.id])
-
+function HubCardSkeleton() {
   return (
-    <TaskCard
-      task={task}
-      cornerTags={tags}
-      navigateOnActivate
-      showDetailsCta={false}
-      activateAriaLabel={formatMessage(openLabel, {
-        title: row.title,
-        tags: tags.join(', '),
-        timing: timingLabel,
-      })}
-      onActivate={handleOpen}
-    />
+    <Card maxW="full" p={4} aria-hidden>
+      <HStack gap={3} align="flex-start">
+        <Skeleton boxSize="56px" borderRadius="lg" flexShrink={0} />
+        <Stack flex={1} gap={2}>
+          <Skeleton h="12px" w="28%" borderRadius="full" />
+          <Skeleton h="16px" w="72%" borderRadius="md" />
+          <Skeleton h="12px" w="88%" borderRadius="md" />
+        </Stack>
+      </HStack>
+    </Card>
   )
 }
 
@@ -136,9 +101,9 @@ export function MyTasksList({
         <Text fontSize="sm" color="text.muted">
           {t.loading}
         </Text>
-        <TaskCard loading />
-        <TaskCard loading />
-        <TaskCard loading />
+        <HubCardSkeleton />
+        <HubCardSkeleton />
+        <HubCardSkeleton />
       </Stack>
     )
   }
@@ -193,7 +158,7 @@ export function MyTasksList({
   }
 
   return (
-    <Stack gap={6}>
+    <Stack gap={8}>
       {errorMessage ? (
         <HStack
           gap={3}
@@ -219,38 +184,38 @@ export function MyTasksList({
         </HStack>
       ) : null}
       {sections.map((section) => (
-        <Stack key={section.id} gap={2}>
-          <HStack justify="space-between" align="baseline" gap={3}>
-            <Heading
-              as="h2"
-              fontSize="sm"
-              fontWeight={700}
-              letterSpacing="0.04em"
-              textTransform="uppercase"
-              color="text.muted"
-            >
-              {t.sections[section.id]}
-            </Heading>
-            <Text
-              fontSize="xs"
-              fontWeight={700}
-              color="text.muted"
-              fontVariantNumeric="tabular-nums"
-            >
-              {section.rows.length}
-            </Text>
-          </HStack>
-          <Stack gap={2}>
+        <Stack key={section.id} gap={3}>
+          <Heading
+            as="h2"
+            fontSize="md"
+            fontWeight={700}
+            color="text.default"
+            letterSpacing="-0.01em"
+          >
+            {t.sections[section.id]} ({section.rows.length})
+          </Heading>
+          <Stack gap={3}>
             {section.rows.map((row) => {
               const tags = row.roles.map((role) => t.tags[role])
+              const timingLabel = formatTiming(row.timing, t, locale)
               return (
-                <HubTaskCard
+                <MyTasksHubCard
                   key={row.id}
                   row={row}
                   tags={tags}
-                  timingLabel={formatTiming(row.timing, t, locale)}
+                  timingLabel={timingLabel}
                   detail={detailLine(row, t)}
-                  openLabel={t.openTask}
+                  statusLabel={t.status[section.id]}
+                  section={section.id}
+                  activateAriaLabel={formatMessage(t.openTask, {
+                    title: row.title,
+                    tags:
+                      tags.join(', ') ||
+                      row.categoryLabel ||
+                      t.status[section.id],
+                    status: t.status[section.id],
+                    timing: timingLabel,
+                  })}
                   onOpen={onOpen}
                 />
               )

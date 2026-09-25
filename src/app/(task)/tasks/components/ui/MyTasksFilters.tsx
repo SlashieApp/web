@@ -141,6 +141,43 @@ export function MyTasksFilters({
           <LuSlidersHorizontal size={18} strokeWidth={2} />
         </IconButton>
       </HStack>
+      <Stack as="fieldset" gap={2} borderWidth={0} p={0} m={0}>
+        <Text as="legend" srOnly>
+          {t.filters.sectionLabel}
+        </Text>
+        <HStack gap={2} flexWrap="wrap">
+          {sections.map((section) => {
+            const selected = hubSection === section.value
+            return (
+              <Button
+                key={section.value || 'all'}
+                type="button"
+                size="sm"
+                minH="44px"
+                cursor="pointer"
+                variant={selected ? 'primary' : 'secondary'}
+                aria-pressed={selected}
+                data-section={section.value}
+                onClick={onSection}
+              >
+                {section.label}
+              </Button>
+            )
+          })}
+          {active ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              minH="44px"
+              cursor="pointer"
+              onClick={onClear}
+            >
+              {t.filters.clear}
+            </Button>
+          ) : null}
+        </HStack>
+      </Stack>
       {expanded ? (
         <Stack id={filtersId} gap={3}>
           <Stack direction={{ base: 'column', md: 'row' }} gap={3}>
@@ -169,49 +206,6 @@ export function MyTasksFilters({
               </FormField>
             </Box>
           </Stack>
-          <Stack as="fieldset" gap={2} borderWidth={0} p={0} m={0}>
-            <Text
-              as="legend"
-              fontSize="sm"
-              fontWeight={600}
-              color="text.default"
-            >
-              {t.filters.sectionLabel}
-            </Text>
-            <HStack gap={2} flexWrap="wrap">
-              {sections.map((section) => {
-                const selected = hubSection === section.value
-                return (
-                  <Button
-                    key={section.value || 'all'}
-                    type="button"
-                    size="sm"
-                    minH="44px"
-                    cursor="pointer"
-                    variant={selected ? 'primary' : 'secondary'}
-                    aria-pressed={selected}
-                    data-section={section.value}
-                    onClick={onSection}
-                  >
-                    {section.label}
-                  </Button>
-                )
-              })}
-            </HStack>
-          </Stack>
-          {active ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              alignSelf="flex-start"
-              minH="44px"
-              cursor="pointer"
-              onClick={onClear}
-            >
-              {t.filters.clear}
-            </Button>
-          ) : null}
         </Stack>
       ) : null}
     </Stack>

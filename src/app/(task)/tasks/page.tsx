@@ -12,6 +12,7 @@ import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 import { EVENTS, capture } from '@/utils/analytics'
 import { buildTaskFilter } from '@/utils/taskListQuery'
 
@@ -47,8 +48,10 @@ import bag from './i11n.json'
  * Data: useMyRequests (hosted) · useMyQuotes (quoted) · useAccountOrders (booked/completed dates).
  * Search/filter: `TaskFilter.search`, `ownerUserId`, `category`, and `hubSection`
  * on the hosted and quoted list queries. `me.hubTaskCategories` fills the category menu.
- * Achievements: desktop rail, mobile corner switch. Worker and customer panels
- * stay separate and read `me.taskAchievements`.
+ * Your activity: desktop sticky rail, mobile corner switch. Worker and
+ * customer panels stay separate and read `me.taskAchievements`.
+ * More opens a fuller in-hub sheet on `/tasks`.
+ * TODO(FE-187, train 2): rewire More to `/profile/[own-user-id]#achievements`.
  * States: loading skeleton, error + retry, empty with post/browse, filter miss, sectioned list.
  * Cards navigate to `/tasks/[id]` — they do not expand in place.
  */
@@ -250,7 +253,10 @@ export default function MyTasksPage() {
               base: achievementsView ? 'none' : 'grid',
               lg: 'grid',
             }}
-            gridTemplateColumns={{ base: '1fr', lg: 'minmax(0, 1fr) 22rem' }}
+            gridTemplateColumns={{
+              base: '1fr',
+              lg: 'minmax(0, 1fr) minmax(18rem, 22rem)',
+            }}
             gap={{ base: 4, lg: 6 }}
             alignItems="start"
           >
@@ -301,8 +307,9 @@ export default function MyTasksPage() {
               <Box
                 display={{ base: 'none', lg: 'block' }}
                 position="sticky"
-                top={4}
+                top={`calc(${HEADER_MIN_HEIGHT.md} + 1rem)`}
                 alignSelf="start"
+                zIndex={1}
               >
                 <MyTasksAchievements
                   panels={panels}
