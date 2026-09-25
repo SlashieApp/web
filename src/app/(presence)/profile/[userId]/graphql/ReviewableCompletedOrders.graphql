@@ -1,3 +1,7 @@
+# Use `.graphql` (not `.gql`) so `codegen.ts` `src/**/*.gql` does not validate
+# this op during Vercel prebuild. Preview schemas may still lack `publicProfile`;
+# a document error fails both slashie and slashie-ui.
+
 # Owner-scoped completed orders used to pick a Leave a review target.
 # Only requested after publicProfile.worker.viewer.canLeaveReview is true.
 query ReviewableCompletedOrders {

@@ -1,9 +1,4 @@
-import type { PublicProfileQuery } from '@codegen/schema'
-import {
-  PublicProfileUserType,
-  type PublicProfileWorkRole,
-  type WorkerContactAction,
-} from '@codegen/schema'
+import type { WorkerContactAction } from '@codegen/schema'
 
 import { categoryLabelFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
@@ -17,6 +12,12 @@ import { formatCompletedMonth } from '@/app/(worker)/workers/[slug]/helpers/work
 import { toPublicUserTaskCard } from '@/app/user/[id]/helpers/publicUserHelpers'
 import { publicRatingAverage } from '@/content/reviews/reviewModel'
 import type { AppLocale } from '@/i18n/locales'
+
+import {
+  type PublicProfileQuery,
+  PublicProfileUserType,
+  type PublicProfileWorkRole,
+} from './publicProfileTypes'
 
 export type PublicProfileRecord = NonNullable<
   PublicProfileQuery['publicProfile']

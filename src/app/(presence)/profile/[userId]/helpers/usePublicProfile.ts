@@ -1,14 +1,14 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
+
+import PublicProfile from '../graphql/PublicProfile.graphql'
+import ReviewableCompletedOrders from '../graphql/ReviewableCompletedOrders.graphql'
 import type {
   PublicProfileQuery,
   PublicProfileQueryVariables,
   ReviewableCompletedOrdersQuery,
-} from '@codegen/schema'
-
-import PublicProfile from '../graphql/PublicProfile.gql'
-import ReviewableCompletedOrders from '../graphql/ReviewableCompletedOrders.gql'
+} from './publicProfileTypes'
 
 export function usePublicProfile(userId: string, excludeTaskId: string | null) {
   const exclude = excludeTaskId?.trim() || null

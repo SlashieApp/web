@@ -1,12 +1,12 @@
-import {
-  PublicProfileUserType,
-  PublicProfileWorkRole,
-  WorkerContactAction,
-} from '@codegen/schema'
+import { WorkerContactAction } from '@codegen/schema'
 
 import { buildAchievementPanels } from '@/app/(task)/tasks/helpers/taskAchievements'
 
 import type { PublicProfileView } from '../../helpers/publicProfileModel'
+import {
+  PublicProfileUserType,
+  PublicProfileWorkRole,
+} from '../../helpers/publicProfileTypes'
 
 const achievements = buildAchievementPanels({
   showWorker: true,

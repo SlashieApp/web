@@ -1,9 +1,9 @@
 import { cache } from 'react'
 
 import { fetch } from '@/utils/api'
-import type { PublicProfileSeoQuery } from '@codegen/schema'
 
-import PublicProfileSeo from '../graphql/PublicProfileSeo.gql'
+import PublicProfileSeo from '../graphql/PublicProfileSeo.graphql'
+import type { PublicProfileSeoQuery } from './publicProfileTypes'
 
 export type PublicProfileSeoRecord = NonNullable<
   PublicProfileSeoQuery['publicProfile']
