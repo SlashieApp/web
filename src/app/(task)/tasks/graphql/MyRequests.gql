@@ -26,6 +26,9 @@ query MyRequests($filter: TaskFilter, $sort: TaskSort) {
       }
       poster {
         id
+        profile {
+          name
+        }
       }
       quotes {
         id

@@ -67,6 +67,9 @@ function detailLine(
       { count: row.quoteCount },
     )
   }
+  if (row.ownerName && !row.roles.includes('hosted')) {
+    return formatMessage(copy.hostedBy, { name: row.ownerName })
+  }
   return undefined
 }
 

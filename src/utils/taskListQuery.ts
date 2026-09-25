@@ -80,6 +80,16 @@ export type BuildTaskFilterInput = {
   lat?: number | null
   lng?: number | null
   radiusMiles?: number | null
+  /**
+   * Task poster. Hub lists only (`tasksPosted`, `quotedTasks`); discovery
+   * `tasks` ignores this field.
+   */
+  ownerUserId?: string | null
+  /**
+   * My Tasks section narrow (`OPEN` / `BOOKED` / `COMPLETED`). Hub lists only;
+   * discovery `tasks` ignores this field. An empty list is omitted.
+   */
+  hubSection?: readonly string[] | null
 }
 
 /**
@@ -116,6 +126,16 @@ export function buildTaskFilter(
   if (typeof input.lng === 'number') filter.lng = input.lng
   if (typeof input.radiusMiles === 'number') {
     filter.radiusMiles = input.radiusMiles
+  }
+
+  const ownerUserId = cleanText(input.ownerUserId)
+  if (ownerUserId) filter.ownerUserId = ownerUserId
+
+  const hubSection = (input.hubSection ?? [])
+    .map((section) => section.trim())
+    .filter(Boolean)
+  if (hubSection.length > 0) {
+    filter.hubSection = hubSection as TaskFilter['hubSection']
   }
 
   return Object.keys(filter).length > 0 ? filter : undefined
