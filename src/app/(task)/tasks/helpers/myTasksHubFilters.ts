@@ -3,8 +3,9 @@ import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import type { MyTaskHubSection, MyTaskSectionId } from './myTasksHub'
 
 /**
- * Hub narrow values from BE-61 `filter.hubSection`.
- * Applied on the loaded hub until that input exists on `TaskFilter`.
+ * Hub narrow values from `TaskFilter.hubSection` (`MyTaskHubSection`).
+ * The `/tasks` page sends these on the hub list queries. This helper mirrors
+ * that narrow for unit tests.
  */
 export const HUB_SECTION_FILTERS = ['OPEN', 'BOOKED', 'COMPLETED'] as const
 
@@ -74,7 +75,7 @@ export function countHubRows(sections: readonly MyTaskHubSection[]): number {
   return sections.reduce((sum, section) => sum + section.rows.length, 0)
 }
 
-/** Distinct categories on the viewer's hub (`User.hubTaskCategories` equivalent). */
+/** Distinct categories on loaded hub rows. The filter menu uses `me.hubTaskCategories`. */
 export function collectHubTaskCategories(
   sections: readonly MyTaskHubSection[],
 ): { category: string; label: string }[] {
@@ -85,6 +86,21 @@ export function collectHubTaskCategories(
       if (!category || seen.has(category)) continue
       seen.set(category, taskCategoryDisplayLabel(category) ?? category)
     }
+  }
+  return [...seen.entries()]
+    .map(([category, label]) => ({ category, label }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+}
+
+/** Labels for `me.hubTaskCategories` codes. Duplicates are dropped. */
+export function hubCategoryOptions(
+  codes: readonly string[],
+): { category: string; label: string }[] {
+  const seen = new Map<string, string>()
+  for (const code of codes) {
+    const category = code.trim()
+    if (!category || seen.has(category)) continue
+    seen.set(category, taskCategoryDisplayLabel(category) ?? category)
   }
   return [...seen.entries()]
     .map(([category, label]) => ({ category, label }))

@@ -140,22 +140,24 @@ function AchievementCard({ panel }: { panel: AchievementPanel }) {
             })}
           </Text>
         ) : null}
-        <Stack gap={1}>
-          <Text fontSize="xs" fontWeight={700} color="text.muted">
-            {t.achievements.agreedTotals}
-          </Text>
-          <Text
-            fontSize="lg"
-            fontWeight={700}
-            color="text.default"
-            fontVariantNumeric="tabular-nums"
-          >
-            {panel.agreedTotalLabel ?? t.achievements.totalPending}
-          </Text>
-          <Text fontSize="xs" color="text.muted" lineHeight="1.5">
-            {t.achievements.disclaimer}
-          </Text>
-        </Stack>
+        {panel.agreedTotalLabel ? (
+          <Stack gap={1}>
+            <Text fontSize="xs" fontWeight={700} color="text.muted">
+              {t.achievements.agreedTotals}
+            </Text>
+            <Text
+              fontSize="lg"
+              fontWeight={700}
+              color="text.default"
+              fontVariantNumeric="tabular-nums"
+            >
+              {panel.agreedTotalLabel}
+            </Text>
+            <Text fontSize="xs" color="text.muted" lineHeight="1.5">
+              {t.achievements.disclaimer}
+            </Text>
+          </Stack>
+        ) : null}
       </Stack>
     </Card>
   )

@@ -15,6 +15,12 @@ export type CategoryMixInput = {
 export type AgreedTotalInput = {
   amount?: number | null
   currency?: string | null
+}
+
+/** `TaskAchievementLocationStat` — most-worked or most-used place. */
+export type AchievementLocationInput = {
+  label?: string | null
+  count?: number | null
 } | null
 
 /** `me.taskAchievements.worker` (BE-62). */
@@ -22,12 +28,12 @@ export type WorkerAchievementsInput = {
   hasActivity?: boolean | null
   completedJobsCount?: number | null
   categoryMix?: readonly CategoryMixInput[] | null
-  mostWorkedLocation?: string | null
+  mostWorkedLocation?: AchievementLocationInput
   quotesThisMonth?: number | null
-  quotesFreeCap?: number | null
-  quotesUnlimited?: boolean | null
+  freeQuotesPerMonth?: number | null
+  hasUnlimitedQuotes?: boolean | null
   streakWeeks?: number | null
-  agreedTotalsOnCompletedJobs?: AgreedTotalInput
+  agreedTotalsOnCompletedJobs?: readonly AgreedTotalInput[] | null
 }
 
 /** `me.taskAchievements.customer` (BE-62). */
@@ -35,9 +41,9 @@ export type CustomerAchievementsInput = {
   hasActivity?: boolean | null
   hostedCompletedCount?: number | null
   categoryMix?: readonly CategoryMixInput[] | null
-  mostUsedLocation?: string | null
+  mostUsedLocation?: AchievementLocationInput
   quotesReceived?: number | null
-  agreedTotalsOnCompletedJobs?: AgreedTotalInput
+  agreedTotalsOnCompletedJobs?: readonly AgreedTotalInput[] | null
 }
 
 export type QuoteAllowanceInput = {
@@ -103,10 +109,27 @@ export function formatAgreedTotal(amount: number, currency: string): string {
   }
 }
 
-function agreedTotalLabel(total: AgreedTotalInput | undefined): string | null {
-  const amount = total?.amount
-  if (typeof amount !== 'number' || !Number.isFinite(amount)) return null
-  return formatAgreedTotal(amount, total?.currency ?? 'GBP')
+function locationLabel(
+  stat: AchievementLocationInput | undefined,
+): string | null {
+  return stat?.label?.trim() || null
+}
+
+/**
+ * Agreed totals are a list grouped by currency. An empty list is £0 (the API
+ * answered). A missing list means the payload has not arrived.
+ */
+function agreedTotalLabel(
+  totals: readonly AgreedTotalInput[] | null | undefined,
+): string | null {
+  if (totals == null) return null
+  const rows = totals.flatMap((total) => {
+    const amount = total?.amount
+    if (typeof amount !== 'number' || !Number.isFinite(amount)) return []
+    return [formatAgreedTotal(amount, total.currency ?? 'GBP')]
+  })
+  if (rows.length === 0) return formatAgreedTotal(0, 'GBP')
+  return rows.join(' · ')
 }
 
 function categoryMix(
@@ -151,10 +174,10 @@ function workerQuotes(
   worker: WorkerAchievementsInput | null,
   allowance: QuoteAllowanceInput,
 ): AchievementQuotes | null {
-  const unlimited = worker?.quotesUnlimited === true || allowance.unlimited
+  const unlimited = worker?.hasUnlimitedQuotes ?? allowance.unlimited
   if (unlimited) return { kind: 'unlimited' }
   const used = worker?.quotesThisMonth ?? allowance.used
-  const cap = worker?.quotesFreeCap ?? allowance.cap
+  const cap = worker?.freeQuotesPerMonth ?? allowance.cap
   if (
     typeof used === 'number' &&
     typeof cap === 'number' &&
@@ -185,15 +208,13 @@ export function buildAchievementPanels(input: {
   worker: WorkerAchievementsInput | null
   customer: CustomerAchievementsInput | null
   quoteAllowance: QuoteAllowanceInput
-  /** Quotes on hosted tasks, used until `customer.quotesReceived` is returned. */
-  localQuotesReceived: number | null
 }): AchievementPanel[] {
   const panels: AchievementPanel[] = []
 
   if (input.showWorker) {
     const completedCount = finiteCount(input.worker?.completedJobsCount)
     const mix = categoryMix(input.worker?.categoryMix, completedCount)
-    const location = input.worker?.mostWorkedLocation?.trim() || null
+    const location = locationLabel(input.worker?.mostWorkedLocation)
     const agreed = agreedTotalLabel(input.worker?.agreedTotalsOnCompletedJobs)
     panels.push({
       role: 'worker',
@@ -211,11 +232,9 @@ export function buildAchievementPanels(input: {
   if (input.showCustomer) {
     const completedCount = finiteCount(input.customer?.hostedCompletedCount)
     const mix = categoryMix(input.customer?.categoryMix, completedCount)
-    const location = input.customer?.mostUsedLocation?.trim() || null
+    const location = locationLabel(input.customer?.mostUsedLocation)
     const agreed = agreedTotalLabel(input.customer?.agreedTotalsOnCompletedJobs)
-    const received =
-      finiteCount(input.customer?.quotesReceived) ??
-      finiteCount(input.localQuotesReceived)
+    const received = finiteCount(input.customer?.quotesReceived)
     panels.push({
       role: 'customer',
       completedCount,

@@ -1,0 +1,46 @@
+query MyTaskAchievements {
+  me {
+    hubTaskCategories
+    taskAchievements {
+      worker {
+        hasActivity
+        completedJobsCount
+        categoryMix {
+          category
+          count
+          percent
+        }
+        mostWorkedLocation {
+          label
+          count
+        }
+        quotesThisMonth
+        freeQuotesPerMonth
+        hasUnlimitedQuotes
+        streakWeeks
+        agreedTotalsOnCompletedJobs {
+          amount
+          currency
+        }
+      }
+      customer {
+        hasActivity
+        hostedCompletedCount
+        categoryMix {
+          category
+          count
+          percent
+        }
+        mostUsedLocation {
+          label
+          count
+        }
+        quotesReceived
+        agreedTotalsOnCompletedJobs {
+          amount
+          currency
+        }
+      }
+    }
+  }
+}

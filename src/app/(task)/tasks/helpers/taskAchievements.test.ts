@@ -46,21 +46,21 @@ describe('buildAchievementPanels', () => {
       showWorker: true,
       showCustomer: true,
       quoteAllowance: allowance,
-      localQuotesReceived: 4,
       worker: {
         completedJobsCount: 6,
         categoryMix: [
           { category: 'CLEANING', count: 4 },
           { category: 'MOVING', count: 2 },
         ],
-        mostWorkedLocation: 'Mong Kok',
+        mostWorkedLocation: { label: 'Mong Kok', count: 4 },
         streakWeeks: 3,
-        agreedTotalsOnCompletedJobs: { amount: 840, currency: 'GBP' },
+        agreedTotalsOnCompletedJobs: [{ amount: 840, currency: 'GBP' }],
       },
       customer: {
         hostedCompletedCount: 2,
-        mostUsedLocation: 'Central',
-        agreedTotalsOnCompletedJobs: { amount: 200, currency: 'GBP' },
+        mostUsedLocation: { label: 'Central', count: 2 },
+        quotesReceived: 4,
+        agreedTotalsOnCompletedJobs: [{ amount: 200, currency: 'GBP' }],
       },
     })
 
@@ -88,14 +88,12 @@ describe('buildAchievementPanels', () => {
       showWorker: true,
       showCustomer: false,
       quoteAllowance: { used: null, cap: null, unlimited: true },
-      localQuotesReceived: null,
       worker: {
         completedJobsCount: 2,
         categoryMix: [
           { category: 'CLEANING', count: 1 },
           { category: 'MOVING', count: 1 },
         ],
-        quotesUnlimited: false,
       },
       customer: null,
     })
@@ -113,14 +111,28 @@ describe('buildAchievementPanels', () => {
       showWorker: false,
       showCustomer: true,
       quoteAllowance: allowance,
-      localQuotesReceived: 0,
       worker: null,
       customer: null,
     })
     expect(customer?.completedCount).toBeNull()
     expect(customer?.agreedTotalLabel).toBeNull()
-    expect(customer?.sparse).toBe(false)
-    expect(customer?.quotes).toEqual({ kind: 'received', count: 0 })
+    expect(customer?.quotes).toBeNull()
+    expect(customer?.sparse).toBe(true)
+  })
+
+  it('formats an empty agreed-totals list as zero', () => {
+    const [worker] = buildAchievementPanels({
+      showWorker: true,
+      showCustomer: false,
+      quoteAllowance: allowance,
+      worker: {
+        completedJobsCount: 0,
+        agreedTotalsOnCompletedJobs: [],
+      },
+      customer: null,
+    })
+    expect(worker?.agreedTotalLabel).toBe('£0')
+    expect(worker?.completedCount).toBe(0)
   })
 })
 
@@ -138,5 +150,6 @@ describe('achievements copy', () => {
     )
     expect(serialized).not.toContain('earnings')
     expect(serialized).not.toContain('stripe')
+    expect(serialized).not.toContain('not available yet')
   })
 })

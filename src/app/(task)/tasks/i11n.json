@@ -76,8 +76,7 @@
       "streak": "Streak",
       "streakWeeks": "{count} weeks",
       "agreedTotals": "Agreed totals on completed jobs",
-      "disclaimer": "Payment is arranged directly between the customer and the worker, outside Slashie.",
-      "totalPending": "Not available yet"
+      "disclaimer": "Payment is arranged directly between the customer and the worker, outside Slashie."
     }
   },
   "zh_hk": {
@@ -157,8 +156,7 @@
       "streak": "連續週數",
       "streakWeeks": "{count} 週",
       "agreedTotals": "已完成工作的協定總額",
-      "disclaimer": "工作款項由客戶與工作者在 Slashie 以外直接安排。",
-      "totalPending": "暫時未有"
+      "disclaimer": "工作款項由客戶與工作者在 Slashie 以外直接安排。"
     }
   }
 }

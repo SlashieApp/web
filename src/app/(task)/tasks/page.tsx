@@ -13,6 +13,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { EVENTS, capture } from '@/utils/analytics'
+import { buildTaskFilter } from '@/utils/taskListQuery'
 
 import { MyTasksAchievements } from './components/ui/MyTasksAchievements'
 import {
@@ -27,10 +28,9 @@ import {
 import { buildMyTasksHub } from './helpers/myTasksHub'
 import {
   type HubSectionFilter,
-  applyMyTasksHubFilter,
   collectHubOwners,
-  collectHubTaskCategories,
   countHubRows,
+  hubCategoryOptions,
   isHubFilterActive,
 } from './helpers/myTasksHubFilters'
 import {
@@ -45,10 +45,10 @@ import bag from './i11n.json'
  *
  * Auth: AccountAuthGate redirects guests to login.
  * Data: useMyRequests (hosted) · useMyQuotes (quoted) · useAccountOrders (booked/completed dates).
- * Search/filter: title, description, and place, plus owner, category, and
- * Open / Booked / Completed — applied on the loaded hub (BE-61 field names).
+ * Search/filter: `TaskFilter.search`, `ownerUserId`, `category`, and `hubSection`
+ * on the hosted and quoted list queries. `me.hubTaskCategories` fills the category menu.
  * Achievements: desktop rail, mobile corner switch. Worker and customer panels
- * stay separate; `me.taskAchievements` fills them when that query is enabled.
+ * stay separate and read `me.taskAchievements`.
  * States: loading skeleton, error + retry, empty with post/browse, filter miss, sectioned list.
  * Cards navigate to `/tasks/[id]` — they do not expand in place.
  */
@@ -63,68 +63,75 @@ export default function MyTasksPage() {
   const orders = useAccountOrders()
   const achievements = useMyTaskAchievements()
 
+  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [ownerUserId, setOwnerUserId] = useState('')
   const [category, setCategory] = useState('')
   const [hubSection, setHubSection] = useState<HubSectionFilter | ''>('')
   const [mobileView, setMobileView] = useState<MyTasksMobileView>('tasks')
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const listVariables = useMemo(() => {
+    const filter = buildTaskFilter({
+      search,
+      category,
+      ownerUserId,
+      hubSection: hubSection ? [hubSection] : undefined,
+    })
+    return filter ? { filter } : undefined
+  }, [category, hubSection, ownerUserId, search])
+
+  const filteredRequests = useMyRequests(listVariables)
+  const filteredQuotes = useMyQuotes(listVariables)
+
+  const userId = requests.me?.id ?? quotes.me?.id ?? orders.me?.id
   const sections = useMemo(
     () =>
       buildMyTasksHub({
         posted: requests.postedTasks,
         sentQuotes: quotes.sentQuotes,
         orders: orders.orders,
-        userId: requests.me?.id ?? quotes.me?.id ?? orders.me?.id,
+        userId,
       }),
-    [
-      orders.me?.id,
-      orders.orders,
-      quotes.me?.id,
-      quotes.sentQuotes,
-      requests.me?.id,
-      requests.postedTasks,
-    ],
+    [orders.orders, quotes.sentQuotes, requests.postedTasks, userId],
   )
+  const visibleSections = useMemo(() => {
+    if (!listVariables) return sections
+    return buildMyTasksHub({
+      posted: filteredRequests.postedTasks,
+      sentQuotes: filteredQuotes.sentQuotes,
+      orders: orders.orders,
+      userId,
+    })
+  }, [
+    filteredQuotes.sentQuotes,
+    filteredRequests.postedTasks,
+    listVariables,
+    orders.orders,
+    sections,
+    userId,
+  ])
 
-  const filter = useMemo(
-    () => ({ search, ownerUserId, category, hubSection }),
-    [category, hubSection, ownerUserId, search],
-  )
-  const filterActive = isHubFilterActive(filter)
-  const visibleSections = useMemo(
-    () => applyMyTasksHubFilter(sections, filter),
-    [filter, sections],
-  )
-
-  const viewerId = requests.me?.id ?? quotes.me?.id ?? orders.me?.id
+  const filterActive = isHubFilterActive({
+    search: searchInput,
+    ownerUserId,
+    category,
+    hubSection,
+  })
+  // Owner options stay on the unfiltered hub. Categories come from
+  // `me.hubTaskCategories`, which the API keeps stable while filters change.
   const owners = useMemo(() => {
-    return collectHubOwners(sections, viewerId).map((owner) => ({
+    return collectHubOwners(sections, userId).map((owner) => ({
       ownerUserId: owner.ownerUserId,
       label:
         owner.label ||
-        (owner.ownerUserId === viewerId
-          ? t.filters.you
-          : t.filters.ownerUnknown),
+        (owner.ownerUserId === userId ? t.filters.you : t.filters.ownerUnknown),
     }))
-  }, [sections, t.filters.ownerUnknown, t.filters.you, viewerId])
+  }, [sections, t.filters.ownerUnknown, t.filters.you, userId])
   const categories = useMemo(
-    () => collectHubTaskCategories(sections),
-    [sections],
+    () => hubCategoryOptions(achievements.hubTaskCategories),
+    [achievements.hubTaskCategories],
   )
-
-  const localQuotesReceived = useMemo(() => {
-    let count = 0
-    let hosted = false
-    for (const section of sections) {
-      for (const row of section.rows) {
-        if (!row.roles.includes('hosted')) continue
-        hosted = true
-        count += row.quoteCount
-      }
-    }
-    return hosted ? count : null
-  }, [sections])
 
   const roles = achievementRoleVisibility({
     hasWorkerProfile: achievements.hasWorkerProfile,
@@ -141,13 +148,11 @@ export default function MyTasksPage() {
         worker: achievements.worker,
         customer: achievements.customer,
         quoteAllowance: achievements.quoteAllowance,
-        localQuotesReceived,
       }),
     [
       achievements.customer,
       achievements.quoteAllowance,
       achievements.worker,
-      localQuotesReceived,
       roles.customer,
       roles.worker,
     ],
@@ -156,9 +161,17 @@ export default function MyTasksPage() {
   const achievementsView = showAchievements && mobileView === 'achievements'
 
   const loading = requests.loading || quotes.loading || orders.loading
+  const filtering =
+    Boolean(listVariables) &&
+    (filteredRequests.loading || filteredQuotes.loading)
   const initialLoading = loading && countHubRows(sections) === 0
   const errorMessage =
-    requests.errorMessage || quotes.errorMessage || orders.errorMessage
+    requests.errorMessage ||
+    quotes.errorMessage ||
+    orders.errorMessage ||
+    (listVariables
+      ? filteredRequests.errorMessage || filteredQuotes.errorMessage
+      : null)
   const hubEmpty = countHubRows(sections) === 0
   const visibleEmpty = countHubRows(visibleSections) === 0
   const visibleCount = countHubRows(visibleSections)
@@ -172,8 +185,11 @@ export default function MyTasksPage() {
   const onRetry = useCallback(() => {
     void requests.refetch()
     void quotes.refetch()
+    void filteredRequests.refetch()
+    void filteredQuotes.refetch()
     void orders.refetch()
-  }, [orders, quotes, requests])
+    void achievements.refetch()
+  }, [achievements, filteredQuotes, filteredRequests, orders, quotes, requests])
 
   const onOpen = useCallback(
     (taskId: string) => {
@@ -182,7 +198,17 @@ export default function MyTasksPage() {
     [localize, router],
   )
 
+  const onSearchChange = useCallback((value: string) => {
+    setSearchInput(value)
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => {
+      setSearch(value.trim())
+    }, 300)
+  }, [])
+
   const clearFilters = useCallback(() => {
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    setSearchInput('')
     setSearch('')
     setOwnerUserId('')
     setCategory('')
@@ -231,8 +257,8 @@ export default function MyTasksPage() {
             <Stack gap={4} minW={0}>
               {!hubEmpty ? (
                 <MyTasksFilters
-                  search={search}
-                  onSearchChange={setSearch}
+                  search={searchInput}
+                  onSearchChange={onSearchChange}
                   ownerUserId={ownerUserId}
                   onOwnerChange={setOwnerUserId}
                   owners={owners}
@@ -255,12 +281,16 @@ export default function MyTasksPage() {
                   )}
                 </Text>
               )}
-              {!initialLoading && !errorMessage && !hubEmpty && visibleEmpty ? (
+              {!initialLoading &&
+              !filtering &&
+              !errorMessage &&
+              !hubEmpty &&
+              visibleEmpty ? (
                 <MyTasksFilterEmpty onClear={clearFilters} />
               ) : (
                 <MyTasksList
                   sections={visibleSections}
-                  loading={initialLoading}
+                  loading={initialLoading || (filtering && visibleEmpty)}
                   errorMessage={errorMessage}
                   onRetry={onRetry}
                   onOpen={onOpen}

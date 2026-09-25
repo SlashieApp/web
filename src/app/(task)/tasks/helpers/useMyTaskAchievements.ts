@@ -1,83 +1,25 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import { gql } from 'graphql-tag'
 import { useMemo } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import type { MyTaskAchievementsQuery } from '@codegen/schema'
 
-import type {
-  CustomerAchievementsInput,
-  QuoteAllowanceInput,
-  WorkerAchievementsInput,
-} from './taskAchievements'
+import MyTaskAchievements from '../graphql/MyTaskAchievements.gql'
+import type { QuoteAllowanceInput } from './taskAchievements'
 
 /**
- * BE-62 shape. Kept as a string (not a `.gql` document) so codegen does not
- * validate it against the current schema. The deployed `User` type does not
- * have `taskAchievements` yet — requesting it returns HTTP 400, and the Apollo
- * error link treats that as a network failure that can leave `/tasks`.
- * Flip {@link TASK_ACHIEVEMENTS_QUERY_ENABLED} once the field is live.
+ * `me.taskAchievements` and `me.hubTaskCategories` for the My Tasks hub.
+ * Categories stay unfiltered on the server so the menu does not shrink while
+ * search, owner, or section filters change.
  */
-export const TASK_ACHIEVEMENTS_QUERY_ENABLED = false
-
-const MY_TASK_ACHIEVEMENTS = gql`
-  query MyTaskAchievements {
-    me {
-      taskAchievements {
-        worker {
-          hasActivity
-          completedJobsCount
-          categoryMix {
-            category
-            count
-            percent
-          }
-          mostWorkedLocation
-          quotesThisMonth
-          quotesFreeCap
-          quotesUnlimited
-          streakWeeks
-          agreedTotalsOnCompletedJobs {
-            amount
-            currency
-          }
-        }
-        customer {
-          hasActivity
-          hostedCompletedCount
-          categoryMix {
-            category
-            count
-            percent
-          }
-          mostUsedLocation
-          quotesReceived
-          agreedTotalsOnCompletedJobs {
-            amount
-            currency
-          }
-        }
-      }
-    }
-  }
-`
-
-type TaskAchievementsQuery = {
-  me: {
-    taskAchievements: {
-      worker: WorkerAchievementsInput | null
-      customer: CustomerAchievementsInput | null
-    } | null
-  } | null
-}
-
 export function useMyTaskAchievements() {
   const me = useUserStore((state) => state.me)
-  const { data, loading, error } = useQuery<TaskAchievementsQuery>(
-    MY_TASK_ACHIEVEMENTS,
+  const { data, loading, error, refetch } = useQuery<MyTaskAchievementsQuery>(
+    MyTaskAchievements,
     {
-      skip: !me || !TASK_ACHIEVEMENTS_QUERY_ENABLED,
+      skip: !me,
       fetchPolicy: 'cache-and-network',
       errorPolicy: 'all',
     },
@@ -98,11 +40,13 @@ export function useMyTaskAchievements() {
   const stats = data?.me?.taskAchievements
 
   return {
-    loading: TASK_ACHIEVEMENTS_QUERY_ENABLED && loading && !stats,
-    unavailable: TASK_ACHIEVEMENTS_QUERY_ENABLED && Boolean(error) && !stats,
+    loading: Boolean(me) && loading && !stats,
+    unavailable: Boolean(error) && !stats,
     worker: stats?.worker ?? null,
     customer: stats?.customer ?? null,
+    hubTaskCategories: data?.me?.hubTaskCategories ?? [],
     quoteAllowance,
     hasWorkerProfile: Boolean(me?.worker),
+    refetch,
   }
 }

@@ -6,6 +6,7 @@ import {
   applyMyTasksHubFilter,
   collectHubOwners,
   collectHubTaskCategories,
+  hubCategoryOptions,
   isHubFilterActive,
 } from './myTasksHubFilters'
 
@@ -122,6 +123,10 @@ describe('hub option lists', () => {
       { ownerUserId: 'me', label: 'Sam' },
       { ownerUserId: 'alex', label: 'Alex' },
       { ownerUserId: 'pat', label: '' },
+    ])
+    expect(hubCategoryOptions([' MOVING ', 'MOVING', 'CLEANING'])).toEqual([
+      { category: 'CLEANING', label: 'Cleaning' },
+      { category: 'MOVING', label: 'Moving' },
     ])
   })
 })

@@ -9,23 +9,22 @@ const dual = buildAchievementPanels({
   showWorker: true,
   showCustomer: true,
   quoteAllowance: allowance,
-  localQuotesReceived: 5,
   worker: {
     completedJobsCount: 6,
     categoryMix: [
       { category: 'CLEANING', count: 4 },
       { category: 'HANDYMAN', count: 2 },
     ],
-    mostWorkedLocation: 'Mong Kok',
+    mostWorkedLocation: { label: 'Mong Kok', count: 4 },
     streakWeeks: 3,
-    agreedTotalsOnCompletedJobs: { amount: 840, currency: 'GBP' },
+    agreedTotalsOnCompletedJobs: [{ amount: 840, currency: 'GBP' }],
   },
   customer: {
     hostedCompletedCount: 2,
     categoryMix: [{ category: 'MOVING', count: 2 }],
-    mostUsedLocation: 'Central',
+    mostUsedLocation: { label: 'Central', count: 2 },
     quotesReceived: 5,
-    agreedTotalsOnCompletedJobs: { amount: 200, currency: 'GBP' },
+    agreedTotalsOnCompletedJobs: [{ amount: 200, currency: 'GBP' }],
   },
 })
 
@@ -33,7 +32,6 @@ const workerOnly = buildAchievementPanels({
   showWorker: true,
   showCustomer: false,
   quoteAllowance: allowance,
-  localQuotesReceived: null,
   worker: null,
   customer: null,
 })
