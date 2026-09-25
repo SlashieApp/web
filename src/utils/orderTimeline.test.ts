@@ -1,10 +1,10 @@
-import { OrderStatus } from '@codegen/schema'
+import type { OrderStatus } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import type { OrderItem } from './orderHelpers'
 import { orderTimelineSteps } from './orderHelpers'
 
-function order(status: OrderStatus | 'COMPLETED'): OrderItem {
+function order(status: OrderStatus | 'COMPLETED' | 'CLOSED'): OrderItem {
   return {
     status,
     createdAt: '2026-06-01T09:00:00.000Z',
@@ -19,7 +19,7 @@ describe('orderTimelineSteps', () => {
     const steps = orderTimelineSteps(order('COMPLETED'))
     const terminal = steps.find((step) => step.key === 'closed')
     expect(terminal).toMatchObject({
-      label: 'Completed',
+      label: 'Order completed',
       done: true,
       current: true,
     })
@@ -28,7 +28,7 @@ describe('orderTimelineSteps', () => {
   })
 
   it('does not mark a legacy CLOSED order as the completed terminal step', () => {
-    const steps = orderTimelineSteps(order(OrderStatus.Closed))
+    const steps = orderTimelineSteps(order('CLOSED'))
     expect(steps.find((step) => step.key === 'closed')?.done).toBe(false)
   })
 })
