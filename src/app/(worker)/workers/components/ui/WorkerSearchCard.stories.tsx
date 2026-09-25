@@ -33,7 +33,7 @@ export const Default: Story = {
     respondsLabel: 'Responds in ~30 min',
     serviceAreaLabel: 'Southwark & Lambeth',
     skills: ['Assembly', 'Mounting', 'Flat-pack', 'Painting', 'Repairs'],
-    profileHref: '/workers/worker-1',
+    profileHref: '/profile/user-1',
   },
 }
 
@@ -56,6 +56,6 @@ export const NoServiceArea: Story = {
     subtitle: '2 yrs experience',
     serviceAreaLabel: null,
     skills: ['Cleaning'],
-    profileHref: '/workers/worker-2',
+    profileHref: '/profile/user-2',
   },
 }

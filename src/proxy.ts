@@ -66,7 +66,7 @@ function applyLocale(response: NextResponse, locale: AppLocale): NextResponse {
 /**
  * 301 `/user/[id]` (already a user id) and `/workers/[workerId]` (document id
  * mapped through `workerProfileRedirect`) onto `/profile/[userId]`.
- * A failed worker lookup falls through so the page can 404 or retry.
+ * A missing worker id is 404. A failed lookup falls through so the page can retry.
  */
 async function redirectLegacyWorker(
   request: NextRequest,
@@ -74,6 +74,12 @@ async function redirectLegacyWorker(
   localePrefix: '' | '/zh-hk',
 ): Promise<NextResponse> {
   const lookup = await fetchWorkerProfileUserId(workerId)
+  if (lookup.status === 'missing') {
+    return new NextResponse('Profile unavailable', {
+      status: 404,
+      headers: { 'content-type': 'text/plain; charset=utf-8' },
+    })
+  }
   if (lookup.status !== 'ok') return localeProxy(request)
   const redirectUrl = request.nextUrl.clone()
   redirectUrl.pathname = profileRedirectPath(lookup.userId, localePrefix)

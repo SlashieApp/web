@@ -135,6 +135,19 @@ describe('proxy locale routing', async () => {
     expect(fetchMock).toHaveBeenCalled()
   })
 
+  it('404s /workers/[workerId] when the document id does not resolve', async () => {
+    vi.stubEnv('NEXT_PUBLIC_GRAPHQL_URL', 'https://apollo.example')
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ data: { workerProfileRedirect: null } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+    const res = await proxy(request('/workers/missing-worker'))
+    expect(res.status).toBe(404)
+    expect(res.headers.get('location')).toBeNull()
+  })
+
   it('leaves the workers directory in place', async () => {
     const res = await proxy(request('/workers'))
     expect(res.status).toBe(200)
