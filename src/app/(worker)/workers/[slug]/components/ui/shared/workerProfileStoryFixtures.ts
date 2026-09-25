@@ -34,7 +34,7 @@ export const workerProfileFixture: WorkerPublicRecord = {
   serviceAreaLabel: 'Camden & Islington (~5 miles)',
   serviceArea: { label: 'Camden & Islington', radiusMiles: 5 },
   preferredLocation: { name: 'Camden & Islington' },
-  ratingSummary: { average: 5, count: 1 },
+  ratingSummary: { average: 4.8, count: 4 },
   completedJobs: [
     {
       taskId: 'task-1',

@@ -66,9 +66,22 @@
       "contactWorker": "Contact worker",
       "giveReview": "Give review",
       "goToEarnings": "Go to earnings",
+      "review": "Review",
+      "getReceipt": "Get receipt",
       "completed": "Completed",
       "flexibleWhen": "Flexible",
       "markCompleted": "Mark as completed"
+    },
+    "reviews": {
+      "heading": "Reviews",
+      "yours": "Your review",
+      "theirs": "Their review",
+      "edit": "Edit review",
+      "locked": "Editing closed after 48 hours.",
+      "waiting": "You’ll see their review when you have both submitted, or 14 days after the job was completed.",
+      "empty": "Review this completed job when you’re ready. The receipt is available after you submit.",
+      "receiptFailed": "Couldn’t download the receipt. Try again shortly.",
+      "saved": "Review saved"
     },
     "share": {
       "pinHeading": "Share your task",
@@ -441,9 +454,22 @@
       "contactWorker": "聯絡工作者",
       "giveReview": "撰寫評價",
       "goToEarnings": "前往收入",
+      "review": "評價",
+      "getReceipt": "取得收據",
       "completed": "已完成",
       "flexibleWhen": "時間彈性",
       "markCompleted": "標記為已完成"
+    },
+    "reviews": {
+      "heading": "評價",
+      "yours": "你的評價",
+      "theirs": "對方的評價",
+      "edit": "編輯評價",
+      "locked": "提交 48 小時後不能再修改。",
+      "waiting": "雙方都提交後，或工作完成 14 日後，你就會看到對方的評價。",
+      "empty": "這份工作已完成，你可以留下評價。提交後即可取得收據。",
+      "receiptFailed": "未能下載收據。請稍後再試。",
+      "saved": "已儲存評價"
     },
     "share": {
       "pinHeading": "分享你的任務",

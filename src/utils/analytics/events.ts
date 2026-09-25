@@ -73,6 +73,10 @@ export const EVENTS = {
   profile_update_success: 'profile_update_success',
   profile_update_fail: 'profile_update_fail',
   notification_open: 'notification_open',
+  notification_close: 'notification_close',
+  notification_dismiss: 'notification_dismiss',
+  review_submit_success: 'review_submit_success',
+  review_submit_fail: 'review_submit_fail',
   order_view: 'order_view',
 
   // Closure — `job_verify_*` is the live complete-with-code path.

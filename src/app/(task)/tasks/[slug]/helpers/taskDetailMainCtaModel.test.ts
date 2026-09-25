@@ -37,8 +37,8 @@ const copy: TaskDetailMainCtaCopy = {
   contactWorker: 'Contact worker',
   yourWorker: 'Your worker',
   workerFallback: 'Your worker',
-  giveReview: 'Give review',
-  goToEarnings: 'Go to earnings',
+  review: 'Review',
+  getReceipt: 'Get receipt',
   completed: 'Completed',
 }
 
@@ -225,7 +225,7 @@ describe('buildTaskDetailMainCta', () => {
     })
   })
 
-  it('sends a completed owner to review the worker', () => {
+  it('asks a completed party to review before the receipt', () => {
     const model = buildTaskDetailMainCta({
       task: task({
         quotes: [
@@ -252,14 +252,15 @@ describe('buildTaskDetailMainCta', () => {
       copy,
     })
     expect(model).toMatchObject({
-      buttonLabel: 'Give review',
-      href: '/workers/worker-profile?fromTask=task-1',
+      buttonLabel: 'Review',
+      intent: 'review',
+      href: undefined,
       hideOverviewCards: ['pricing'],
       content: { eyebrow: 'Completed', value: 'Jordan' },
     })
   })
 
-  it('sends a completed worker to earnings', () => {
+  it('offers the receipt after this viewer has reviewed, without waiting', () => {
     const model = buildTaskDetailMainCta({
       task: task(),
       myQuote: null,
@@ -270,11 +271,13 @@ describe('buildTaskDetailMainCta', () => {
         taskStatus: 'CLOSED',
       }),
       settled: { role: 'worker', agreedPrice: '£85' },
+      viewerHasSubmittedReview: true,
       copy,
     })
     expect(model).toMatchObject({
-      buttonLabel: 'Go to earnings',
-      href: '/earnings',
+      buttonLabel: 'Get receipt',
+      intent: 'receipt',
+      href: undefined,
       hideOverviewCards: ['pricing'],
       content: { eyebrow: 'Completed', value: '£85' },
     })

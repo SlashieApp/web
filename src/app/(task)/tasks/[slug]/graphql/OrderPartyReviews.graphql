@@ -1,0 +1,19 @@
+# BE-59 mutual unlock. Counterparty review is null until both submitted
+# or 14 days after closedAt. Hidden reviews are omitted by the API.
+query OrderPartyReviews($id: ID!) {
+  order(id: $id) {
+    id
+    viewerReview {
+      id
+      rating
+      comment
+      createdAt
+    }
+    counterpartyReview {
+      id
+      rating
+      comment
+      createdAt
+    }
+  }
+}

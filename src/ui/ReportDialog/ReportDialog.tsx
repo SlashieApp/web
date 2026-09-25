@@ -21,6 +21,7 @@ import {
   type ReportTargetKind,
   reportFormSchema,
 } from './reportFormSchema'
+import { reportKindPhrases } from './reportKindCopy'
 
 export type ReportDialogProps = {
   open: boolean
@@ -76,7 +77,7 @@ export function ReportDialog({
         if (!next) form.reset({ details: '' })
         onOpenChange(next)
       }}
-      title={kind === 'worker' ? t.titleWorker : t.titleTask}
+      title={reportKindPhrases(kind, t).title}
       cancelLabel={t.cancel}
       submitLabel={t.submit}
       submitLoading={submitting}
@@ -99,10 +100,10 @@ export function ReportDialog({
             textTransform="uppercase"
             color="text.muted"
           >
-            {kind === 'worker' ? t.subjectWorker : t.subjectTask}
+            {reportKindPhrases(kind, t).subject}
           </Text>
           <HStack align="start" gap={3} minW={0}>
-            {kind === 'worker' ? (
+            {kind === 'review' ? null : kind === 'worker' ? (
               <Avatar name={targetTitle} src={targetImageSrc} size="lg" />
             ) : (
               <Thumbnail

@@ -1,6 +1,7 @@
 import type { WorkerPublicProfileQuery } from '@codegen/schema'
 
 import { categoryLabelFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import { publicRatingAverage } from '@/content/reviews/reviewModel'
 
 export type WorkerPublicRecord = NonNullable<WorkerPublicProfileQuery['worker']>
 
@@ -76,12 +77,17 @@ export function workerFirstName(worker: WorkerPublicRecord): string {
 /** Hero stats row: reviews · jobs completed · member since. */
 export function workerHeroStats(worker: WorkerPublicRecord): string[] {
   const stats: string[] = []
-  const { average, count } = worker.ratingSummary
-  stats.push(
-    count > 0 && average != null
-      ? `${average.toFixed(1)} (${count} review${count === 1 ? '' : 's'})`
-      : 'No reviews yet',
-  )
+  const count = worker.ratingSummary?.count ?? 0
+  const average = publicRatingAverage(worker.ratingSummary)
+  if (count <= 0) {
+    stats.push('No reviews yet')
+  } else if (average == null) {
+    stats.push(`${count} review${count === 1 ? '' : 's'}`)
+  } else {
+    stats.push(
+      `${average.toFixed(1)} (${count} review${count === 1 ? '' : 's'})`,
+    )
+  }
   const jobs = worker.completedJobs.length || (worker.tasksCompletedCount ?? 0)
   stats.push(`${jobs} job${jobs === 1 ? '' : 's'} completed`)
   const memberSince = formatMemberSince(

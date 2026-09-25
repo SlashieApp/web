@@ -11,7 +11,7 @@ export const REPORT_REASON_VALUES = [
 
 export type ReportReasonValue = (typeof REPORT_REASON_VALUES)[number]
 
-export type ReportTargetKind = 'task' | 'worker'
+export type ReportTargetKind = 'task' | 'worker' | 'review'
 
 export const reportFormSchema = z.object({
   reason: z.enum(REPORT_REASON_VALUES, {

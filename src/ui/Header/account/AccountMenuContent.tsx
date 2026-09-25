@@ -7,6 +7,7 @@ import bag from '../i11n.json'
 import { MeAvatar } from '@/app/(auth)/components/ui/MeAvatar'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
+import { isSlashieAdminEmail } from '@/content/admin/isSlashieAdminEmail'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useDropdownClose } from '../../Dropdown'
 
@@ -50,7 +51,10 @@ export function AccountMenuContent({
   const t = useI11n(bag)
 
   const hasWorker = Boolean(me?.worker)
-  const navItems = resolveAccountNavItems(hasWorker)
+  const email = user?.email ?? me?.email ?? ''
+  const navItems = resolveAccountNavItems(hasWorker, {
+    isAdmin: isSlashieAdminEmail(email),
+  })
 
   const onLogout = useCallback(() => {
     logout()
@@ -59,7 +63,6 @@ export function AccountMenuContent({
 
   if (!user) return null
 
-  const email = user.email ?? me?.email ?? ''
   const displayName = me?.profile?.name?.trim() || email || t.accountFallback
 
   return (

@@ -25,12 +25,17 @@ export type TaskDetailMainCtaContent = {
   meta?: string
 }
 
+/** Completed-job primary action. Review until this viewer submits, then the receipt. */
+export type TaskDetailCompletedIntent = 'review' | 'receipt'
+
 /** Button-only (`preview`) or text plus button (`quoted`). */
 export type TaskDetailMainCtaModel = {
   presentation: 'preview' | 'quoted'
   buttonLabel: string
   href?: string
   scrollTo?: { hash: string; scrollId: string }
+  /** In-place action. Takes precedence over `href`. */
+  intent?: TaskDetailCompletedIntent
   content?: TaskDetailMainCtaContent
   /** Overview cards that repeat this CTA, so they stay hidden. */
   hideOverviewCards: TaskDetailOverviewCardId[]
@@ -65,13 +70,10 @@ export type TaskDetailMainCtaCopy = {
   contactWorker: string
   yourWorker: string
   workerFallback: string
-  giveReview: string
-  goToEarnings: string
+  review: string
+  getReceipt: string
   completed: string
 }
-
-/** Worker earnings home. Completed-job primary CTA. */
-export const TASK_DETAIL_EARNINGS_HREF = '/earnings'
 
 export type TaskDetailSettledCta = {
   role: 'owner' | 'worker'
@@ -81,14 +83,19 @@ export type TaskDetailSettledCta = {
 function quoted(
   buttonLabel: string,
   content: TaskDetailMainCtaContent,
-  action: { href?: string; scrollTo?: TaskDetailMainCtaModel['scrollTo'] },
+  action: {
+    href?: string
+    scrollTo?: TaskDetailMainCtaModel['scrollTo']
+    intent?: TaskDetailMainCtaModel['intent']
+  },
   hideOverviewCards: TaskDetailOverviewCardId[] = [],
 ): TaskDetailMainCtaModel {
   return {
     presentation: 'quoted',
     buttonLabel,
-    href: action.href,
+    href: action.intent ? undefined : action.href,
     scrollTo: action.scrollTo,
+    intent: action.intent,
     content,
     hideOverviewCards,
   }
@@ -185,8 +192,12 @@ export function buildTaskDetailMainCta(input: {
   now?: Date
   /** Accepted quote behind the live or closed order. */
   acceptedQuoteId?: string | null
-  /** Closed agreement. Drives the completed-job primary CTA. */
+  /**
+   * Party on a COMPLETED order. Drives Review, then Get receipt.
+   * The receipt does not wait for the other party.
+   */
   settled?: TaskDetailSettledCta | null
+  viewerHasSubmittedReview?: boolean
 }): TaskDetailMainCtaModel | null {
   const {
     task,
@@ -197,22 +208,24 @@ export function buildTaskDetailMainCta(input: {
     acceptedQuoteId,
     settled,
   } = input
+  const viewerHasSubmittedReview = input.viewerHasSubmittedReview === true
   if (!task) return null
 
   if (settled && permissions.isClosed && !permissions.isCancelled) {
-    if (settled.role === 'owner') {
-      const party = workerParty(task, copy, acceptedQuoteId)
+    const party = workerParty(task, copy, acceptedQuoteId)
+    const value = settled.role === 'owner' ? party.name : settled.agreedPrice
+    if (viewerHasSubmittedReview) {
       return quoted(
-        copy.giveReview,
-        { eyebrow: copy.completed, value: party.name },
-        { href: party.reviewHref },
+        copy.getReceipt,
+        { eyebrow: copy.completed, value },
+        { intent: 'receipt' },
         ['pricing'],
       )
     }
     return quoted(
-      copy.goToEarnings,
-      { eyebrow: copy.completed, value: settled.agreedPrice },
-      { href: TASK_DETAIL_EARNINGS_HREF },
+      copy.review,
+      { eyebrow: copy.completed, value },
+      { intent: 'review' },
       ['pricing'],
     )
   }

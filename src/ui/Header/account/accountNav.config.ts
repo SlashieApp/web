@@ -2,7 +2,7 @@ import { APP_HOME, SAFETY_HREF, WORKER_SEARCH_HREF } from '@/utils/appRoutes'
 
 import type bag from '../i11n.json'
 
-export type AccountNavAudience = 'all' | 'worker' | 'non-worker'
+export type AccountNavAudience = 'all' | 'worker' | 'non-worker' | 'admin'
 
 export type AccountNavAction =
   | 'logout'
@@ -157,6 +157,14 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     audience: 'all',
   },
   {
+    id: 'admin-notifications',
+    label: 'Send a notification',
+    href: '/admin/notifications',
+    kind: 'link',
+    section: 'account',
+    audience: 'admin',
+  },
+  {
     id: 'logout',
     label: 'Log out',
     kind: 'action',
@@ -182,8 +190,13 @@ export function groupAccountNavItems(
   }
 }
 
-export function resolveAccountNavItems(hasWorker: boolean): AccountNavItem[] {
+export function resolveAccountNavItems(
+  hasWorker: boolean,
+  options?: { isAdmin?: boolean },
+): AccountNavItem[] {
+  const isAdmin = options?.isAdmin ?? false
   return ACCOUNT_NAV_ITEMS.filter((item) => {
+    if (item.audience === 'admin') return isAdmin
     if (item.audience === 'all') return true
     if (item.audience === 'worker') return hasWorker
     return !hasWorker

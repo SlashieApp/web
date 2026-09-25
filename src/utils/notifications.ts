@@ -8,7 +8,7 @@ export type NotificationLike = {
   type: NotificationTypeEnum | string
   title: string
   body: string
-  taskId: string
+  taskId?: string | null
   orderId?: string | null
   readAt?: string | null
   createdAt: unknown
@@ -39,13 +39,15 @@ const DEFAULT_DISPLAY_COPY: NotificationDisplayCopy = {
 }
 
 export function notificationTaskHref(
-  taskId: string,
+  taskId?: string | null,
   orderId?: string | null,
 ): string {
+  const task = taskId?.trim()
+  if (!task) return '/tasks'
   if (orderId?.trim()) {
-    return `/tasks/${taskId}?orderId=${encodeURIComponent(orderId.trim())}`
+    return `/tasks/${task}?orderId=${encodeURIComponent(orderId.trim())}`
   }
-  return `/tasks/${taskId}`
+  return `/tasks/${task}`
 }
 
 /** Prefer API title/body; fall back to type-based copy. */

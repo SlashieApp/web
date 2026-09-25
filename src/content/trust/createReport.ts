@@ -5,7 +5,7 @@ import type {
 import { getGraphQLErrorCode, pickGraphQLError } from '@/utils/graphqlErrors'
 
 /** BE-40 `ReportTargetType` — local so builds do not require codegen enums. */
-export type ReportTargetTypeValue = 'TASK' | 'WORKER' | 'USER'
+export type ReportTargetTypeValue = 'TASK' | 'WORKER' | 'USER' | 'REVIEW'
 
 export type CreateReportInput = {
   targetType: ReportTargetTypeValue
@@ -42,8 +42,10 @@ export const REPORT_TARGET_QUERY_PARAM = 'reportTarget'
 
 export function reportTargetType(
   kind: ReportTargetKind,
-): Extract<ReportTargetTypeValue, 'TASK' | 'WORKER'> {
-  return kind === 'worker' ? 'WORKER' : 'TASK'
+): ReportTargetTypeValue {
+  if (kind === 'worker') return 'WORKER'
+  if (kind === 'review') return 'REVIEW'
+  return 'TASK'
 }
 
 export function toReportReason(reason: ReportReasonValue): ReportReasonValue {

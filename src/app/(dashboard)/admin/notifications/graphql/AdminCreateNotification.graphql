@@ -1,0 +1,9 @@
+# BE-60. dryRun returns a recipient count and does not send.
+# userIds and/or cohortKeys are required. There is no push-to-all input.
+mutation AdminCreateNotification($input: AdminCreateNotificationInput!) {
+  adminCreateNotification(input: $input) {
+    dryRun
+    recipientCount
+    auditId
+  }
+}

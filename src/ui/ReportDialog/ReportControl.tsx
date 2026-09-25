@@ -11,6 +11,7 @@ import { IconButton } from '../IconButton/IconButton'
 import { ReportDialog } from './ReportDialog'
 import bag from './i11n.json'
 import type { ReportFormValues, ReportTargetKind } from './reportFormSchema'
+import { reportKindPhrases } from './reportKindCopy'
 
 export type ReportControlVariant = 'button' | 'menu' | 'icon' | 'overflow'
 
@@ -42,8 +43,9 @@ function ReportTrigger({
   onOpen: () => void
 }) {
   const t = useI11n(bag)
-  const label = kind === 'worker' ? t.reportWorker : t.reportTask
-  const aria = kind === 'worker' ? t.reportWorkerAria : t.reportTaskAria
+  const phrases = reportKindPhrases(kind, t)
+  const label = phrases.label
+  const aria = phrases.aria
 
   if (variant === 'icon') {
     return (

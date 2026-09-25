@@ -1,0 +1,7 @@
+mutation DismissReviewPrompt($orderId: ID!) {
+  dismissReviewPrompt(orderId: $orderId) {
+    id
+    dismissedAt
+    readAt
+  }
+}
