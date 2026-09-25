@@ -139,7 +139,7 @@ export function storyQuoteRowsMixed(): WorkerQuoteRow[] {
         id: 'order-done',
         taskId: 'task-done',
         quoteId: 'quote-done',
-        status: OrderStatus.Closed,
+        status: OrderStatus.Completed,
         closedAt: '2026-05-20T16:00:00.000Z',
       }),
     }),
