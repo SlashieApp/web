@@ -119,12 +119,8 @@ describe('popup snooze', () => {
     )
     expect(picked?.id).toBe('b')
     expect(isReviewPrompt(picked?.type)).toBe(true)
-    expect(popupDismissKind(picked ?? { type: '', orderId: null })).toBe(
-      'review-prompt',
-    )
-    expect(popupDismissKind({ type: 'GENERAL', orderId: 'o1' })).toBe(
-      'notification',
-    )
+    expect(popupDismissKind(picked ?? { type: '' })).toBe('review-prompt')
+    expect(popupDismissKind({ type: 'GENERAL' })).toBe('notification')
   })
 })
 

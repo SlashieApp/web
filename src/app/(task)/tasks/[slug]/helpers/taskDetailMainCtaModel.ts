@@ -78,6 +78,7 @@ export type TaskDetailMainCtaCopy = {
 export type TaskDetailSettledCta = {
   role: 'owner' | 'worker'
   agreedPrice: string
+  orderId: string
 }
 
 function quoted(
@@ -211,9 +212,10 @@ export function buildTaskDetailMainCta(input: {
   const viewerHasSubmittedReview = input.viewerHasSubmittedReview === true
   if (!task) return null
 
-  if (settled && permissions.isClosed && !permissions.isCancelled) {
+  if (settled && !permissions.isCancelled) {
     const party = workerParty(task, copy, acceptedQuoteId)
     const value = settled.role === 'owner' ? party.name : settled.agreedPrice
+    const reviewHref = `/tasks/${task.id}/review?orderId=${encodeURIComponent(settled.orderId)}`
     if (viewerHasSubmittedReview) {
       return quoted(
         copy.getReceipt,
@@ -225,7 +227,7 @@ export function buildTaskDetailMainCta(input: {
     return quoted(
       copy.review,
       { eyebrow: copy.completed, value },
-      { intent: 'review' },
+      { href: reviewHref },
       ['pricing'],
     )
   }

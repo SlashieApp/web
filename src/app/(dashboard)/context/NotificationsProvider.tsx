@@ -24,41 +24,25 @@ import {
   subscribeAccountDisabled,
 } from '@/app/(auth)/helpers/accountDisabled'
 import { useUserStore } from '@/app/(auth)/store/user'
-import DismissNotification from '@/app/(dashboard)/dashboard/graphql/DismissNotification.graphql'
-import DismissReviewPrompt from '@/app/(dashboard)/dashboard/graphql/DismissReviewPrompt.graphql'
+import { WebPushSync } from '@/app/(dashboard)/components/notifications/WebPushSync'
+import DismissNotification from '@/app/(dashboard)/dashboard/graphql/DismissNotification.gql'
+import DismissReviewPrompt from '@/app/(dashboard)/dashboard/graphql/DismissReviewPrompt.gql'
 import MarkAllNotificationsRead from '@/app/(dashboard)/dashboard/graphql/MarkAllNotificationsRead.gql'
-import MarkNotificationClosed from '@/app/(dashboard)/dashboard/graphql/MarkNotificationClosed.graphql'
+import MarkNotificationClosed from '@/app/(dashboard)/dashboard/graphql/MarkNotificationClosed.gql'
 import MarkNotificationRead from '@/app/(dashboard)/dashboard/graphql/MarkNotificationRead.gql'
-import MyNotificationSurfaces from '@/app/(dashboard)/dashboard/graphql/MyNotificationSurfaces.graphql'
 import MyNotifications from '@/app/(dashboard)/dashboard/graphql/MyNotifications.gql'
 import { popupDismissKind } from '@/content/reviews/reviewModel'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
-import { isGraphQLSchemaMismatch } from '@/utils/graphqlSchemaMismatch'
 import {
   countUnreadNotifications,
   notificationDisplayText,
+  notificationToastPlan,
 } from '@/utils/notifications'
-
-type NotificationSurface = {
-  id: string
-  isPopup?: boolean | null
-  isClosed?: boolean | null
-  dismissedAt?: string | null
-  imageUrl?: string | null
-  extraCtaUrl?: string | null
-}
-
-type NotificationSurfacesQuery = {
-  me?: {
-    notifications?: { items?: NotificationSurface[] | null } | null
-  } | null
-}
 
 export type AppNotification = NonNullable<
   NonNullable<MyNotificationsQuery['me']>['notifications']
->['items'][number] &
-  Partial<NotificationSurface>
+>['items'][number]
 
 const POLL_MS = 45_000
 const PAGE_SIZE = 30
@@ -67,7 +51,7 @@ type NotificationsContextValue = {
   items: AppNotification[]
   unreadCount: number
   loading: boolean
-  /** Close (isClosed) is available when the surfaces query matches the API. */
+  /** Close (isClosed) is on the notifications query. */
   canClose: boolean
   drawerOpen: boolean
   openDrawer: () => void
@@ -97,7 +81,6 @@ export function NotificationsProvider({
   const [hiddenIds, setHiddenIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   )
-  const [pauseSurfaces, setPauseSurfaces] = useState(false)
   const toastedIdsRef = useRef<Set<string>>(new Set())
   const bootstrappedRef = useRef(false)
 
@@ -115,39 +98,17 @@ export function NotificationsProvider({
     notifyOnNetworkStatusChange: true,
   })
 
-  const surfaces = useQuery<NotificationSurfacesQuery>(MyNotificationSurfaces, {
-    variables: { first: PAGE_SIZE },
-    skip: skip || pauseSurfaces,
-    fetchPolicy: 'cache-and-network',
-    pollInterval: skip || pauseSurfaces ? 0 : POLL_MS,
-    errorPolicy: 'all',
-  })
-  if (
-    surfaces.error &&
-    !pauseSurfaces &&
-    isGraphQLSchemaMismatch(surfaces.error)
-  ) {
-    setPauseSurfaces(true)
-  }
-
-  const surfaceById = new Map(
-    (surfaces.data?.me?.notifications?.items ?? []).map((item) => [
-      item.id,
-      item,
-    ]),
-  )
-  const canClose = Boolean(surfaces.data) && !pauseSurfaces
   const baseItems = data?.me?.notifications?.items ?? []
-  const items: AppNotification[] = baseItems
-    .map((item) => ({ ...item, ...surfaceById.get(item.id) }))
-    .filter((item) => !item.isClosed && !hiddenIds.has(item.id))
+  const items = baseItems.filter(
+    (item) => !item.isClosed && !hiddenIds.has(item.id),
+  )
   const unreadCount = countUnreadNotifications(items)
+  const canClose = Boolean(data)
 
   const refetch = useCallback(async () => {
     if (skip) return
     await refetchQuery()
-    if (!pauseSurfaces) await surfaces.refetch()
-  }, [pauseSurfaces, refetchQuery, skip, surfaces])
+  }, [refetchQuery, skip])
 
   const [markReadMutation] =
     useMutation<MarkNotificationReadMutation>(MarkNotificationRead)
@@ -194,9 +155,8 @@ export function NotificationsProvider({
 
   const dismissPopup = useCallback(
     async (item: AppNotification) => {
-      const orderId = item.orderId?.trim()
-      if (popupDismissKind(item) === 'review-prompt' && orderId) {
-        await dismissReviewMutation({ variables: { orderId } })
+      if (popupDismissKind(item) === 'review-prompt') {
+        await dismissReviewMutation({ variables: { id: item.id } })
       } else {
         await dismissMutation({ variables: { id: item.id } })
       }
@@ -206,21 +166,26 @@ export function NotificationsProvider({
   )
 
   useEffect(() => {
-    if (skip || items.length === 0) return
-    if (!bootstrappedRef.current) {
-      for (const item of items) {
-        toastedIdsRef.current.add(item.id)
-      }
-      bootstrappedRef.current = true
+    if (skip) {
+      bootstrappedRef.current = false
+      toastedIdsRef.current = new Set()
       return
     }
-    for (const item of items) {
-      if (item.readAt || toastedIdsRef.current.has(item.id)) continue
-      toastedIdsRef.current.add(item.id)
+    if (loading && items.length === 0) return
+    const plan = notificationToastPlan({
+      items,
+      bootstrapped: bootstrappedRef.current,
+      seenIds: toastedIdsRef.current,
+    })
+    toastedIdsRef.current = plan.seenIds
+    bootstrappedRef.current = true
+    for (const id of plan.toastIds) {
+      const item = items.find((entry) => entry.id === id)
+      if (!item) continue
       const { title, description } = notificationDisplayText(item)
       showAppToast({ title, description, type: 'info' })
     }
-  }, [items, skip])
+  }, [items, loading, skip])
 
   const value = useMemo<NotificationsContextValue>(
     () => ({
@@ -253,6 +218,7 @@ export function NotificationsProvider({
 
   return (
     <NotificationsContext.Provider value={value}>
+      <WebPushSync />
       {children}
     </NotificationsContext.Provider>
   )

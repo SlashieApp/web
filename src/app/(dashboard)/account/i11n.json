@@ -45,6 +45,12 @@
     "privateProfileDescription": "Hide your profile from public discovery and search.",
     "marketingEmails": "Marketing emails",
     "marketingEmailsDescription": "Receive occasional product news and tips by email.",
+    "webPush": "Browser notifications",
+    "webPushDescription": "Get a notification when a quote, job update, or review request arrives and this tab is in the background.",
+    "webPushUnavailable": "Browser notifications are not available until the server is configured.",
+    "webPushUnsupported": "This browser does not support notifications.",
+    "webPushDenied": "Notifications stay off until you allow them in the browser.",
+    "webPushError": "Could not update browser notifications.",
     "settingsError": "Could not update your settings."
   },
   "zh_hk": {
@@ -93,6 +99,12 @@
     "privateProfileDescription": "在公開搜尋和探索中隱藏你的個人檔案。",
     "marketingEmails": "市場推廣電郵",
     "marketingEmailsDescription": "偶爾透過電郵接收產品消息和小貼士。",
+    "webPush": "瀏覽器通知",
+    "webPushDescription": "當報價、工作更新或評價邀請到達，而此分頁在背景時，接收通知。",
+    "webPushUnavailable": "伺服器尚未設定，暫時未能使用瀏覽器通知。",
+    "webPushUnsupported": "此瀏覽器不支援通知。",
+    "webPushDenied": "請先在瀏覽器允許通知。",
+    "webPushError": "未能更新瀏覽器通知。",
     "settingsError": "未能更新你的設定。"
   }
 }

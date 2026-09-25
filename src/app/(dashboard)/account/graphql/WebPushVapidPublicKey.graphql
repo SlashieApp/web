@@ -1,0 +1,5 @@
+# BE-63. `.graphql` until `webPushVapidPublicKey` is on the schema codegen fetches.
+# Public query. Null when the server has not configured VAPID.
+query WebPushVapidPublicKey {
+  webPushVapidPublicKey
+}

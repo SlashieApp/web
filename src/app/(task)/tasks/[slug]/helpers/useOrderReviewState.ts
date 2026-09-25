@@ -6,35 +6,40 @@ import { useCallback } from 'react'
 import type { C2CReview } from '@/content/reviews/reviewModel'
 import { isGraphQLSchemaMismatch } from '@/utils/graphqlSchemaMismatch'
 
-import OrderPartyReviews from '../graphql/OrderPartyReviews.graphql'
-import OrderViewerReviewFlag from '../graphql/OrderViewerReviewFlag.graphql'
+import OrderReviewState from '../graphql/OrderReviewState.gql'
 
-type ReviewFlagQuery = {
-  order?: { id: string; viewerHasSubmittedReview?: boolean | null } | null
+type ReviewNode = {
+  id: string
+  stars: number
+  comment?: string | null
+  createdAt?: string | null
 }
 
-type PartyReviewsQuery = {
+type OrderReviewStateQuery = {
   order?: {
     id: string
-    viewerReview?: C2CReview | null
-    counterpartyReview?: C2CReview | null
+    reviewState?: {
+      canSubmit?: boolean | null
+      viewerHasSubmittedReview?: boolean | null
+      viewerReview?: ReviewNode | null
+      counterpartReview?: ReviewNode | null
+    } | null
   } | null
 }
 
-function asReview(value: C2CReview | null | undefined): C2CReview | null {
-  if (!value?.id || typeof value.rating !== 'number') return null
-  return value
+function asReview(value: ReviewNode | null | undefined): C2CReview | null {
+  if (!value?.id || typeof value.stars !== 'number') return null
+  return {
+    id: value.id,
+    stars: value.stars,
+    comment: value.comment,
+    createdAt: value.createdAt,
+  }
 }
 
 export function useOrderReviewState(orderId: string | null, enabled: boolean) {
   const skip = !enabled || !orderId
-  const flag = useQuery<ReviewFlagQuery>(OrderViewerReviewFlag, {
-    variables: { id: orderId ?? '' },
-    skip,
-    fetchPolicy: 'cache-and-network',
-    errorPolicy: 'all',
-  })
-  const parties = useQuery<PartyReviewsQuery>(OrderPartyReviews, {
+  const query = useQuery<OrderReviewStateQuery>(OrderReviewState, {
     variables: { id: orderId ?? '' },
     skip,
     fetchPolicy: 'cache-and-network',
@@ -43,19 +48,18 @@ export function useOrderReviewState(orderId: string | null, enabled: boolean) {
 
   const refetch = useCallback(async () => {
     if (skip) return
-    await Promise.all([flag.refetch(), parties.refetch()])
-  }, [flag, parties, skip])
+    await query.refetch()
+  }, [query, skip])
 
-  const flagMismatch = isGraphQLSchemaMismatch(flag.error)
-  const viewerHasSubmittedReview =
-    flag.data?.order?.viewerHasSubmittedReview === true
+  const state = query.data?.order?.reviewState
 
   return {
-    viewerHasSubmittedReview,
-    viewerReview: asReview(parties.data?.order?.viewerReview),
-    counterpartyReview: asReview(parties.data?.order?.counterpartyReview),
-    unavailable: flagMismatch,
-    loading: !skip && flag.loading && !flag.data,
+    canSubmit: state?.canSubmit === true,
+    viewerHasSubmittedReview: state?.viewerHasSubmittedReview === true,
+    viewerReview: asReview(state?.viewerReview),
+    counterpartyReview: asReview(state?.counterpartReview),
+    unavailable: isGraphQLSchemaMismatch(query.error),
+    loading: !skip && query.loading && !query.data,
     refetch,
   }
 }

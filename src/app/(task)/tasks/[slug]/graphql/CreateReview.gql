@@ -1,8 +1,8 @@
-# BE-59. One review per party per COMPLETED order.
+# One review per party per COMPLETED order. Stars are 1–5; comment is optional.
 mutation CreateReview($input: CreateReviewInput!) {
   createReview(input: $input) {
     id
-    rating
+    stars
     comment
     createdAt
     orderId

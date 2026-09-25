@@ -1,0 +1,9 @@
+# BE-63. `.graphql` until the mutation is on the schema codegen fetches.
+# Upsert the browser PushSubscription for the signed-in user.
+mutation RegisterWebPushSubscription(
+  $endpoint: String!
+  $p256dh: String!
+  $auth: String!
+) {
+  registerWebPushSubscription(endpoint: $endpoint, p256dh: $p256dh, auth: $auth)
+}

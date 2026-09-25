@@ -1,0 +1,22 @@
+# Party review state for one order. Receipt stays hidden until this viewer submits.
+query OrderReviewState($id: ID!) {
+  order(id: $id) {
+    id
+    reviewState {
+      canSubmit
+      viewerHasSubmittedReview
+      viewerReview {
+        id
+        stars
+        comment
+        createdAt
+      }
+      counterpartReview {
+        id
+        stars
+        comment
+        createdAt
+      }
+    }
+  }
+}

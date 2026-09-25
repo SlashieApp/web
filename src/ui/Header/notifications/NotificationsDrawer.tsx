@@ -13,7 +13,7 @@ import type { AppLocale } from '@/i18n/locales'
 import { EVENTS, capture } from '@/utils/analytics'
 import {
   notificationDisplayText,
-  notificationTaskHref,
+  notificationHref,
 } from '@/utils/notifications'
 
 import { Button } from '../../Button'
@@ -144,7 +144,7 @@ export function NotificationsDrawer() {
               return (
                 <Box key={item.id} position="relative">
                   <Link
-                    href={notificationTaskHref(item.taskId, item.orderId)}
+                    href={notificationHref(item)}
                     display="block"
                     p={3}
                     pr={canClose ? 12 : 3}
@@ -200,18 +200,6 @@ export function NotificationsDrawer() {
                     >
                       <LuX />
                     </IconButton>
-                  ) : null}
-                  {item.extraCtaUrl?.trim() ? (
-                    <Link
-                      href={item.extraCtaUrl.trim()}
-                      fontSize="xs"
-                      tone="emphasis"
-                      display="inline-flex"
-                      mt={1}
-                      onClick={() => notifications?.closeDrawer()}
-                    >
-                      {t.extraCta}
-                    </Link>
                   ) : null}
                 </Box>
               )

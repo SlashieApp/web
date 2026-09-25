@@ -8,7 +8,6 @@ import { Button, Card } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
-import { CompletedReviewHost } from '../ui/CompletedReviewHost'
 import { TaskNotFoundCard } from '../ui/TaskNotFoundCard'
 import { TaskDetailView } from './TaskDetailView'
 
@@ -40,7 +39,6 @@ export function TaskDetailBody({ taskId }: { taskId: string }) {
     <>
       <TaskDetailScrollReset taskId={taskId} />
       <TaskDetailContent />
-      <CompletedReviewHost />
     </>
   )
 }

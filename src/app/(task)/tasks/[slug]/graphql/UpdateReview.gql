@@ -1,8 +1,8 @@
-# BE-59. Edit is rejected after 48 hours; the client locks the form too.
+# Edit is rejected after 48 hours; the client locks the form too.
 mutation UpdateReview($id: ID!, $input: UpdateReviewInput!) {
   updateReview(id: $id, input: $input) {
     id
-    rating
+    stars
     comment
     createdAt
   }

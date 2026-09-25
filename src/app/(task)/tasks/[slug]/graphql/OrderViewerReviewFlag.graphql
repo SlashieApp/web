@@ -1,8 +1,0 @@
-# BE-59. `.graphql` so codegen does not fail before this field is on the
-# deployed schema. CTA gate: the viewer's own review, not the other party's.
-query OrderViewerReviewFlag($id: ID!) {
-  order(id: $id) {
-    id
-    viewerHasSubmittedReview
-  }
-}

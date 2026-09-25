@@ -39,7 +39,7 @@ export const WaitingOnTheOtherParty: Story = {
     viewerHasSubmitted: true,
     viewerReview: {
       id: 'rev-1',
-      rating: 5,
+      stars: 5,
       comment: 'Clear about the time and left the place tidy.',
       createdAt: new Date().toISOString(),
     },
@@ -52,13 +52,13 @@ export const BothVisible: Story = {
     viewerHasSubmitted: true,
     viewerReview: {
       id: 'rev-1',
-      rating: 5,
+      stars: 5,
       comment: 'Clear about the time and left the place tidy.',
       createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     },
     counterpartyReview: {
       id: 'rev-2',
-      rating: 4,
+      stars: 4,
       comment: 'Straightforward job and fair about the price.',
       createdAt: new Date().toISOString(),
     },

@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 
 import type { C2CReview } from '@/content/reviews/reviewModel'
 import { reviewCanEdit } from '@/content/reviews/reviewModel'
-import { Button, Card, RatingStars } from '@ui'
+import { Button, Card, Link, RatingStars } from '@ui'
 
 export type OrderReviewsCopy = {
   heading: string
@@ -22,7 +22,7 @@ export type OrderReviewsCardProps = {
   viewerReview: C2CReview | null
   counterpartyReview: C2CReview | null
   viewerHasSubmitted: boolean
-  onEdit?: () => void
+  editHref?: string
   report?: ReactNode
 }
 
@@ -42,7 +42,7 @@ function ReviewBlock({
         <Text fontSize="sm" fontWeight={700} color="text.default">
           {label}
         </Text>
-        <RatingStars value={review.rating} label={label} size="sm" />
+        <RatingStars value={review.stars} label={label} size="sm" />
       </HStack>
       {comment ? (
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
@@ -60,7 +60,7 @@ export function OrderReviewsCard({
   viewerReview,
   counterpartyReview,
   viewerHasSubmitted,
-  onEdit,
+  editHref,
   report,
 }: OrderReviewsCardProps) {
   const canEdit = viewerReview ? reviewCanEdit(viewerReview) : false
@@ -72,15 +72,16 @@ export function OrderReviewsCard({
             label={copy.yours}
             review={viewerReview}
             action={
-              canEdit && onEdit ? (
+              canEdit && editHref ? (
                 <Button
-                  type="button"
+                  asChild
                   size="sm"
                   variant="secondary"
                   alignSelf="flex-start"
-                  onClick={onEdit}
                 >
-                  {copy.edit}
+                  <Link href={editHref} _hover={{ textDecoration: 'none' }}>
+                    {copy.edit}
+                  </Link>
                 </Button>
               ) : (
                 <Text fontSize="xs" color="text.muted">

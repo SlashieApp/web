@@ -1,0 +1,8 @@
+# Snooze a REVIEW_PROMPT by notification id. Does not mark the row read or closed.
+mutation DismissReviewPrompt($id: ID!) {
+  dismissReviewPrompt(id: $id) {
+    id
+    dismissedAt
+    readAt
+  }
+}

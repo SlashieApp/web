@@ -13,6 +13,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import bag from '../../i11n.json'
+import { WebPushControl } from '../WebPushControl'
 
 type ToggleKey = 'isProfilePrivate' | 'marketingEmails'
 
@@ -115,6 +116,7 @@ export function AccountSettingsCard() {
           disabled={pending === 'marketingEmails'}
           onChange={(next) => void update('marketingEmails', next)}
         />
+        <WebPushControl />
         {error ? (
           <Text color="status.danger.fg" fontSize="sm">
             {error}

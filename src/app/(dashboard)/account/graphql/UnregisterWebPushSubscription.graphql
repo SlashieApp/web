@@ -1,0 +1,4 @@
+# BE-63. `.graphql` until the mutation is on the schema codegen fetches.
+mutation UnregisterWebPushSubscription($endpoint: String!) {
+  unregisterWebPushSubscription(endpoint: $endpoint)
+}
