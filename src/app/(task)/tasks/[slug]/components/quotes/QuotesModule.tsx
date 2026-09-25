@@ -311,9 +311,9 @@ function AcceptedPrimaryCard({
 }) {
   const { quotes: q, fallbackWorker } = useI11n(bag)
   const base = quoteCardBaseProps(quote, fallbackWorker, q)
-  const workerEntityId = quote.worker?.worker?.id
-  const profileHref = workerEntityId
-    ? workerProfilePath(workerEntityId, taskId)
+  const profileUserId = quote.worker?.id
+  const profileHref = profileUserId
+    ? workerProfilePath(profileUserId, taskId)
     : null
 
   return (
@@ -510,7 +510,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const ownerQuoteCard = (quote: TaskQuote, index: number) => {
     const pending = quote.status === QuoteStatus.Pending
     const accepted = isAcceptedQuoteStatus(quote.status)
-    const workerEntityId = quote.worker?.worker?.id
+    const profileUserId = quote.worker?.id
     const canAct = pending && permissions.showAcceptDecline
     return (
       <QuoteCard
@@ -522,9 +522,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           index === 0
         }
         workerProfileHref={
-          workerEntityId
-            ? workerProfilePath(workerEntityId, task.id)
-            : undefined
+          profileUserId ? workerProfilePath(profileUserId, task.id) : undefined
         }
         statusBadge={
           accepted

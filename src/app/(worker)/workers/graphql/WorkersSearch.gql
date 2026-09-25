@@ -24,6 +24,7 @@ query WorkersSearch($filter: WorkerFilter, $sort: WorkerSort) {
       lng
     }
     user {
+      id
       profile {
         name
         avatarUrl

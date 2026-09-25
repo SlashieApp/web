@@ -52,7 +52,9 @@ function WorkerProfileActionsReady({ worker }: { worker: WorkerPublicRecord }) {
 
   const onSave = async () => {
     if (!viewer) {
-      router.push(`/login?next=${encodeURIComponent(`/workers/${worker.id}`)}`)
+      router.push(
+        `/login?next=${encodeURIComponent(`/profile/${worker.user.id}`)}`,
+      )
       return
     }
     const next = !saved

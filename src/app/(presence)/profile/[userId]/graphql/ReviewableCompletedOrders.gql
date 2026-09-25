@@ -1,0 +1,14 @@
+# Owner-scoped completed orders used to pick a Leave a review target.
+# Only requested after publicProfile.worker.viewer.canLeaveReview is true.
+query ReviewableCompletedOrders {
+  me {
+    id
+    orders(filter: { status: [COMPLETED] }) {
+      id
+      taskId
+      workerUserId
+      closedAt
+      createdAt
+    }
+  }
+}

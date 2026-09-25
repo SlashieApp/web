@@ -40,14 +40,14 @@ function openTask(
 
 describe('publicUserPath', () => {
   it('links to the public profile and omits a blank exclude id', () => {
-    expect(publicUserPath('user-1')).toBe('/user/user-1')
-    expect(publicUserPath('user-1', '  ')).toBe('/user/user-1')
-    expect(publicUserPath('user-1', null)).toBe('/user/user-1')
+    expect(publicUserPath('user-1')).toBe('/profile/user-1')
+    expect(publicUserPath('user-1', '  ')).toBe('/profile/user-1')
+    expect(publicUserPath('user-1', null)).toBe('/profile/user-1')
   })
 
   it('passes the current task so the profile can omit it', () => {
     expect(publicUserPath('user-1', 'task 2')).toBe(
-      '/user/user-1?excludeTaskId=task%202',
+      '/profile/user-1?excludeTaskId=task%202',
     )
   })
 })

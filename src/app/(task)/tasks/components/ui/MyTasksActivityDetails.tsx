@@ -334,9 +334,8 @@ export type MyTasksActivityDetailsProps = {
 }
 
 /**
- * Fuller in-hub Your activity. Train 1 stays on `/tasks`.
- * TODO(FE-187, train 2): the More control should navigate to
- * `/profile/[own-user-id]#achievements` instead of opening this view.
+ * Owner activity detail. The My Tasks hub links here from
+ * `/profile/[ownUserId]#achievements` instead of opening this in a sheet.
  */
 export function MyTasksActivityDetails({
   panels,

@@ -62,7 +62,7 @@
     "achievements": {
       "title": "Your activity",
       "more": "More",
-      "moreAria": "View your activity details",
+      "moreAria": "Open your activity on your public profile",
       "detailDescription": "Category mix, places, and agreed totals on completed jobs.",
       "switchLabel": "Tasks and your activity",
       "tasksTab": "Show tasks",
@@ -154,7 +154,7 @@
     "achievements": {
       "title": "你的活動",
       "more": "更多",
-      "moreAria": "查看活動詳情",
+      "moreAria": "在公開檔案打開你的活動",
       "detailDescription": "類別比例、地點，同已完成工作的協定總額。",
       "switchLabel": "任務同你的活動",
       "tasksTab": "顯示任務",

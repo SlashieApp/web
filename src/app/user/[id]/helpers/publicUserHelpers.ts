@@ -1,5 +1,7 @@
 import type { PublicUserQuery } from '@codegen/schema'
 
+import { publicProfilePath } from '@/app/helpers/publicProfilePath'
+
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { taskScheduleCompactLabel } from '@/app/(task)/helpers/taskBrowseHelpers'
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
@@ -16,10 +18,7 @@ export function publicUserPath(
   userId: string,
   excludeTaskId?: string | null,
 ): string {
-  const base = `/user/${userId}`
-  const exclude = excludeTaskId?.trim()
-  if (!exclude) return base
-  return `${base}?excludeTaskId=${encodeURIComponent(exclude)}`
+  return publicProfilePath(userId, { excludeTaskId })
 }
 
 /** "June 2026" / "2026年6月" for the hero membership line. */

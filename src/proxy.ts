@@ -1,6 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 import {
+  fetchWorkerProfileUserId,
+  matchLegacyPublicProfile,
+  profileRedirectPath,
+} from '@/app/helpers/legacyProfileRedirect'
+import {
   type AppLocale,
   DEFAULT_LOCALE,
   LOCALE_COOKIE,
@@ -59,13 +64,39 @@ function applyLocale(response: NextResponse, locale: AppLocale): NextResponse {
 }
 
 /**
+ * 301 `/user/[id]` (already a user id) and `/workers/[workerId]` (document id
+ * mapped through `workerProfileRedirect`) onto `/profile/[userId]`.
+ * A missing worker id is 404. A failed lookup falls through so the page can retry.
+ */
+async function redirectLegacyWorker(
+  request: NextRequest,
+  workerId: string,
+  localePrefix: '' | '/zh-hk',
+): Promise<NextResponse> {
+  const lookup = await fetchWorkerProfileUserId(workerId)
+  if (lookup.status === 'missing') {
+    return new NextResponse('Profile unavailable', {
+      status: 404,
+      headers: { 'content-type': 'text/plain; charset=utf-8' },
+    })
+  }
+  if (lookup.status !== 'ok') return localeProxy(request)
+  const redirectUrl = request.nextUrl.clone()
+  redirectUrl.pathname = profileRedirectPath(lookup.userId, localePrefix)
+  return NextResponse.redirect(redirectUrl, 301)
+}
+
+/**
  * Locale slug routing (Next.js `proxy` — formerly `middleware`):
  * - Default locale (`en`) is unprefixed: `/search`, `/home`, …
  * - Non-default (`zh-hk`) keeps `/zh-hk/...` and rewrites to the bare path.
  * - Explicit `/en` and `/en/...` permanently redirect to the unprefixed path.
  * - `/` and `/zh-hk` are auth-aware: signed-in → `/search`, guest → `/home`.
+ * - Legacy public profiles 301 to `/profile/[userId]`.
  */
-export function proxy(request: NextRequest) {
+export function proxy(
+  request: NextRequest,
+): NextResponse | Promise<NextResponse> {
   const { pathname } = request.nextUrl
   const host = hostnameOf(request)
 
@@ -87,6 +118,21 @@ export function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
+  const legacy = matchLegacyPublicProfile(pathname)
+  if (legacy?.kind === 'user') {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = profileRedirectPath(legacy.id, legacy.localePrefix)
+    return NextResponse.redirect(redirectUrl, 301)
+  }
+  if (legacy?.kind === 'worker') {
+    return redirectLegacyWorker(request, legacy.id, legacy.localePrefix)
+  }
+
+  return localeProxy(request)
+}
+
+function localeProxy(request: NextRequest): NextResponse {
+  const { pathname } = request.nextUrl
   const segments = pathname.split('/')
   const maybeLocale = segments[1]
 
