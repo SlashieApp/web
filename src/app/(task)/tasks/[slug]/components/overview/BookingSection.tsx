@@ -6,7 +6,7 @@ import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { isOrderCompletedStatus } from '../../helpers/taskDetailCompleted'
+import { canReviewCompletedOrder } from '../../helpers/reviewEligibility'
 import bag from '../../i11n.json'
 import { OrderReviewsCard } from '../ui/OrderReviewsCard'
 import { AcceptedWorkerStatus } from './AcceptedWorkerStatus'
@@ -22,16 +22,25 @@ import { OrderSection } from './OrderSection'
  * (Task.gql) and read from context.
  */
 export function BookingSection() {
-  const { task, myOrder, permissions, orderReview, viewerHasSubmittedReview } =
-    useTaskDetail()
+  const {
+    task,
+    myOrder,
+    me,
+    permissions,
+    orderReview,
+    viewerHasSubmittedReview,
+  } = useTaskDetail()
   const reviews = useI11n(bag).reviews
   if (!task) return null
 
   const reviewsCard =
     myOrder &&
-    isOrderCompletedStatus(myOrder.status) &&
-    !permissions.isCancelled &&
-    (permissions.isOwner || permissions.isOrderWorker) ? (
+    canReviewCompletedOrder({
+      userId: me?.id,
+      posterId: task.poster?.id,
+      order: myOrder,
+      taskCancelled: permissions.isCancelled,
+    }) ? (
       <OrderReviewsCard
         copy={reviews}
         viewerReview={orderReview.viewerReview}

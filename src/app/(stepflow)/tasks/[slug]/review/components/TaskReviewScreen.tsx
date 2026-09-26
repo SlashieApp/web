@@ -10,7 +10,7 @@ import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import CreateReview from '@/app/(task)/tasks/[slug]/graphql/CreateReview.gql'
 import UpdateReview from '@/app/(task)/tasks/[slug]/graphql/UpdateReview.gql'
-import { isOrderCompletedStatus } from '@/app/(task)/tasks/[slug]/helpers/taskDetailCompleted'
+import { canReviewCompletedOrder } from '@/app/(task)/tasks/[slug]/helpers/reviewEligibility'
 import {
   REVIEW_COMMENT_MAX,
   reviewCanEdit,
@@ -314,26 +314,35 @@ export function TaskReviewScreen({
   const localize = useLocalizedHref()
   const t = useI11n(bag)
   const {
+    taskId: routeTaskId,
     task,
+    me,
     myOrder,
+    pending,
     permissions,
     statusReady,
     isAuthenticated,
     orderReview,
   } = useTaskDetail()
-  const taskId = task?.id ?? ''
+  const taskId = task?.id || routeTaskId
   const taskHref = taskId ? `/tasks/${taskId}` : '/tasks'
   const orderId = myOrder?.id ?? orderIdFromLink ?? null
-  const eligible = Boolean(
-    task &&
-      myOrder &&
-      orderId &&
-      isOrderCompletedStatus(myOrder.status) &&
-      !permissions.isCancelled &&
-      (permissions.isOwner || permissions.isOrderWorker),
-  )
+  const eligible = canReviewCompletedOrder({
+    userId: me?.id,
+    posterId: task?.poster?.id,
+    order: myOrder,
+    taskCancelled: permissions.isCancelled,
+  })
 
-  if (!statusReady || (eligible && orderReview.loading)) {
+  // `pending` covers the authenticated refetch. A public `task(id)` miss
+  // (typical for COMPLETED) must not fall through to the ineligible screen
+  // while that refetch is still in flight, and must not spin once it settles
+  // empty.
+  if (
+    pending ||
+    (Boolean(task) && !statusReady) ||
+    (eligible && orderReview.loading)
+  ) {
     return (
       <MessageScreen
         exitHref={taskHref}
