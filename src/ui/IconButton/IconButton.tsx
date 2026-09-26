@@ -12,8 +12,10 @@ import * as React from 'react'
 
 import {
   focusVisibleMatchesHover,
+  mergeSdlPressCss,
   sdlFocusRing,
-  sdlMotion,
+  sdlPressActiveCss,
+  sdlTransitionWithPress,
 } from '@/theme/styles'
 
 import { Link } from '../Link'
@@ -31,7 +33,8 @@ import { Link } from '../Link'
  * - Visible focus ring on both shapes via `sdlFocusRing` (nav also keeps its
  *   hover surface tint on keyboard focus).
  * - >=44px hit area (nav tiles are 56/60px; default enforces a 44px minimum).
- * - Transitions via `sdlMotion` (color/background only — no layout animation).
+ * - Transitions via `sdlMotion` (color/background). Pointer-down scales the
+ *   control ~0.97 in 100ms; reduced motion skips the scale.
  */
 
 /** Nav: icon (and optional caption) inside a route link. */
@@ -96,6 +99,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
               ...sdlFocusRing,
             },
           }}
+          css={sdlPressActiveCss('[data-nav-icon]')}
         >
           <Box
             data-nav-icon
@@ -110,9 +114,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
             py={1.5}
             px={1}
             flexShrink={0}
-            transitionProperty="color, background-color"
-            transitionDuration={sdlMotion.duration.moderate}
-            transitionTimingFunction={sdlMotion.easing.standard}
+            {...sdlTransitionWithPress('color, background-color')}
             {...surfaceInteraction}
           >
             <Stack
@@ -153,7 +155,13 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       )
     }
 
-    const { borderRadius = 'full', variant = 'ghost', _hover, ...rest } = props
+    const {
+      borderRadius = 'full',
+      variant = 'ghost',
+      _hover,
+      css,
+      ...rest
+    } = props
     const hoverStyles = _hover ?? (variant === 'ghost' ? ghostSurfaceHover : {})
 
     return (
@@ -164,13 +172,14 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         minW="44px"
         minH="44px"
         color="text.default"
-        transitionProperty="color, background-color, border-color, box-shadow"
-        transitionDuration={sdlMotion.duration.moderate}
-        transitionTimingFunction={sdlMotion.easing.standard}
         _hover={hoverStyles}
         _focusVisible={sdlFocusRing}
         _disabled={{ color: 'text.subtle', cursor: 'not-allowed' }}
         {...rest}
+        {...sdlTransitionWithPress(
+          'color, background-color, border-color, box-shadow',
+        )}
+        css={mergeSdlPressCss(css)}
       />
     )
   },

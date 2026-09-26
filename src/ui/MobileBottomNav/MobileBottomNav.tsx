@@ -4,7 +4,13 @@ import { Box, HStack, type SystemStyleObject, Text } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 
 import { useI11n } from '@/i18n/useI11n'
-import { sdlElevation, sdlFocusRing, sdlMotion } from '@/theme/styles'
+import {
+  sdlElevation,
+  sdlFocusRing,
+  sdlMotion,
+  sdlPressActiveCss,
+  sdlTransitionWithPress,
+} from '@/theme/styles'
 import {
   APP_HOME,
   MY_TASKS_HREF,
@@ -269,6 +275,8 @@ export function MobileBottomNav() {
                     outline: 'none',
                     '& [data-create-fab]': sdlFocusRing,
                   }}
+                  {...sdlTransitionWithPress('transform')}
+                  css={sdlPressActiveCss()}
                 >
                   <Box
                     data-create-fab
@@ -324,9 +332,8 @@ export function MobileBottomNav() {
                 borderRadius="lg"
                 color={active ? 'status.success.fg' : 'text.muted'}
                 textDecoration="none"
-                transitionProperty="color, background-color"
-                transitionDuration={sdlMotion.duration.moderate}
-                transitionTimingFunction={sdlMotion.easing.standard}
+                {...sdlTransitionWithPress('color, background-color')}
+                css={sdlPressActiveCss()}
                 _hover={{
                   textDecoration: 'none',
                   color: 'status.success.fg',
