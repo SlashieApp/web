@@ -14,10 +14,12 @@ import type { ReactNode } from 'react'
 
 import { WEB_MQ } from '@/theme/breakpoints'
 import {
+  mergeSdlPressCss,
   sdlCard,
   sdlCardSurface,
   sdlFocusRing,
   sdlMotion,
+  sdlTransitionWithPress,
 } from '@/theme/styles'
 
 type CardFramed = boolean | { base?: boolean; md?: boolean; lg?: boolean }
@@ -51,17 +53,15 @@ function unframedCss(framed?: CardFramed): SystemStyleObject | undefined {
  * `bg.surface`, `border.default` hairline, `lg` radius, `e1` rest elevation.
  *
  * Interactive cards (clickable rows) are keyboard-focusable and show the SDL
- * focus ring; surface hover uses `bg.subtle`. Active/selected cards highlight
- * the border with `action.primary`.
+ * focus ring; surface hover uses `bg.subtle`. Pointer-down scales the card
+ * ~0.97 in 100ms (no scale when reduced motion is on). Active/selected cards
+ * highlight the border with `action.primary`.
  */
 const cardSurface: SystemStyleObject = sdlCardSurface
 
 const cardInteractive: SystemStyleObject = {
   ...cardSurface,
   cursor: 'pointer',
-  transitionProperty: 'background-color, border-color, box-shadow',
-  transitionDuration: sdlMotion.duration.base,
-  transitionTimingFunction: sdlMotion.easing.standard,
   _hover: { bg: 'bg.subtle', boxShadow: sdlCard.raisedShadow },
   _focusVisible: sdlFocusRing,
 }
@@ -219,6 +219,18 @@ export function Card({
     ? { tabIndex: 0, role: 'button' as const }
     : {}
   const flush = unframedCss(framed)
+  const mergedCss =
+    flush && css
+      ? {
+          ...flush,
+          ...(typeof css === 'object' && !Array.isArray(css) ? css : {}),
+        }
+      : (flush ?? css)
+  const resolvedCss = interactive
+    ? mergeSdlPressCss(
+        mergedCss && typeof mergedCss === 'object' ? mergedCss : undefined,
+      )
+    : mergedCss
 
   return (
     <Box
@@ -229,15 +241,14 @@ export function Card({
       {...interactiveA11y}
       {...surface}
       borderColor={isActive ? activeBorderColor : 'border.default'}
-      css={
-        flush && css
-          ? {
-              ...flush,
-              ...(typeof css === 'object' && !Array.isArray(css) ? css : {}),
-            }
-          : (flush ?? css)
-      }
+      css={resolvedCss}
       {...rest}
+      {...(interactive
+        ? sdlTransitionWithPress(
+            'background-color, border-color, box-shadow',
+            sdlMotion.duration.base,
+          )
+        : {})}
     >
       {isSection ? (
         <Stack gap={bodyGap ?? (compact ? 2 : 4)}>

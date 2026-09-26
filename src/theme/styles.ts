@@ -211,6 +211,101 @@ export const statusDangerSolidFocusRing: SystemStyleObject = {
   boxShadow: '0 0 0 4px var(--chakra-colors-status-danger-ring)',
 }
 
+/**
+ * Pointer-down scale for Button, IconButton, interactive Card, and the mobile
+ * dock. Same `:active` transform idea as Thumbnail / Logo, at the Apple press
+ * size: 0.97 over 100ms. Color, shadow, and focus rings stay on the caller.
+ * Disabled controls are excluded. Reduced motion drops the scale entirely.
+ */
+export const SDL_PRESS_SCALE = 'scale(0.97)' as const
+
+const PRESS_ACTIVE_SELECTOR =
+  '&:active:not(:disabled):not([data-disabled]):not([aria-disabled="true"]):not([data-loading])'
+
+const REDUCED_MOTION_QUERY = '@media (prefers-reduced-motion: reduce)'
+
+/**
+ * Append a 100ms transform timing to an existing color/shadow transition.
+ * `transform` is listed once, last, so a caller can keep its own durations.
+ */
+export function sdlTransitionWithPress(
+  properties: string,
+  colorDuration: string = sdlMotion.duration.moderate,
+  easing: string = sdlMotion.easing.standard,
+): SystemStyleObject {
+  const list = [
+    ...new Set(
+      properties
+        .split(',')
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0 && part !== 'transform'),
+    ),
+    'transform',
+  ]
+
+  return {
+    transformOrigin: 'center',
+    transitionProperty: list.join(', '),
+    transitionDuration: list
+      .map((property) =>
+        property === 'transform' ? sdlMotion.duration.fast : colorDuration,
+      )
+      .join(', '),
+    transitionTimingFunction: list.map(() => easing).join(', '),
+  }
+}
+
+/** `:active` scale. `target` scales a descendant (nav tile) instead of the hit area. */
+export function sdlPressActiveCss(target?: string): SystemStyleObject {
+  const selector = target
+    ? `${PRESS_ACTIVE_SELECTOR} ${target}`
+    : PRESS_ACTIVE_SELECTOR
+
+  // Computed selectors are valid Chakra `css` keys (`&…`, `@media …`) but
+  // too wide for `SystemStyleObject`'s selector map, so the object is asserted.
+  return {
+    [selector]: {
+      transform: SDL_PRESS_SCALE,
+      transformOrigin: 'center',
+    },
+    [REDUCED_MOTION_QUERY]: {
+      [selector]: { transform: 'none' },
+    },
+  } as SystemStyleObject
+}
+
+/**
+ * Merge press-scale onto a `css` prop. An existing reduced-motion block is
+ * kept and extended so caller rules are not replaced.
+ */
+export function mergeSdlPressCss(
+  css?: SystemStyleObject | readonly SystemStyleObject[] | null,
+  target?: string,
+): SystemStyleObject {
+  const press = sdlPressActiveCss(target)
+  const layers = (Array.isArray(css) ? css : [css]).filter(
+    (layer): layer is SystemStyleObject =>
+      layer != null && typeof layer === 'object',
+  )
+  const base: SystemStyleObject = {}
+  for (const layer of layers) Object.assign(base, layer)
+  const baseMedia = base[REDUCED_MOTION_QUERY]
+  const pressMedia = press[REDUCED_MOTION_QUERY]
+  const media =
+    baseMedia &&
+    pressMedia &&
+    typeof baseMedia === 'object' &&
+    typeof pressMedia === 'object'
+      ? { [REDUCED_MOTION_QUERY]: { ...baseMedia, ...pressMedia } }
+      : null
+
+  return {
+    ...base,
+    ...press,
+    ...media,
+  }
+}
+
 /** Standalone bordered field (`Textarea`, `OtpInput`). */
 export const formControlFieldInteraction = {
   outline: 'none',

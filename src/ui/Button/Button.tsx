@@ -6,7 +6,11 @@ import {
   type SystemStyleObject,
 } from '@chakra-ui/react'
 
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import {
+  mergeSdlPressCss,
+  sdlFocusRing,
+  sdlTransitionWithPress,
+} from '@/theme/styles'
 
 /**
  * SDL Button. Variants: primary | secondary | ghost | danger | premium.
@@ -147,6 +151,7 @@ export function Button(props: UiButtonProps) {
     borderRadius = 'md',
     fontFamily = 'body',
     fontWeight = 600,
+    css,
     ...restProps
   } = props
 
@@ -162,12 +167,13 @@ export function Button(props: UiButtonProps) {
       borderRadius={borderRadius}
       fontFamily={fontFamily}
       fontWeight={fontWeight}
-      transitionProperty="color, background-color, border-color, box-shadow, filter"
-      transitionDuration={sdlMotion.duration.moderate}
-      transitionTimingFunction={sdlMotion.easing.standard}
       {...buttonSizes[sizeAlias[size]]}
       {...variantStyles(variantAlias[variant])}
       {...restProps}
+      {...sdlTransitionWithPress(
+        'color, background-color, border-color, box-shadow, filter',
+      )}
+      css={mergeSdlPressCss(css)}
     />
   )
 }
