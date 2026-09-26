@@ -20,11 +20,12 @@ import { type ReactNode, createContext, useContext } from 'react'
 import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
-import { APP_OVERLAY_Z_INDEX, sdlMotion } from '@/theme/styles'
+import { APP_OVERLAY_Z_INDEX } from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 
 import { Button } from '../Button'
 import { IconButton as UiIconButton } from '../IconButton/IconButton'
+import { useDrawerSheet } from './useDrawerSheet'
 
 /** Matches `Container`: horizontal page gutters. */
 const drawerGutterX = { base: 4, md: 6 } as const
@@ -63,6 +64,30 @@ export type DrawerProps = {
   contentProps?: DrawerContentProps
 }
 
+const sheetMotionCss = {
+  animation: 'none !important',
+  '@media (prefers-reduced-motion: reduce)': {
+    animation: 'none !important',
+    transition: 'none !important',
+  },
+} as const
+
+function SheetHandle() {
+  return (
+    <Box
+      aria-hidden
+      data-sheet-handle=""
+      w="36px"
+      h="4px"
+      borderRadius="full"
+      bg="border.strong"
+      mx="auto"
+      mb={3}
+      flexShrink={0}
+    />
+  )
+}
+
 function drawerPanelRadius(placement: DrawerPlacement) {
   if (placement === 'end') return { borderLeftRadius: 'lg' }
   if (placement === 'start') return { borderRightRadius: 'lg' }
@@ -84,25 +109,25 @@ export function Drawer({
 }: DrawerProps) {
   const radius = drawerPanelRadius(placement)
   const isBrowser = useIsBrowser()
+  const { present, setPanel, setBackdrop, touchAction } = useDrawerSheet({
+    open,
+    placement,
+    onOpenChange,
+  })
 
   const overlay = (
     <>
       {/* Scrim: dim + blur the page behind the panel. Click + ESC close are
-          handled by DrawerRoot, which also traps focus inside the panel. */}
+          handled by DrawerRoot, which also traps focus inside the panel.
+          Opacity follows the finger; Chakra's fade keyframes are disabled. */}
       <DrawerBackdrop
+        ref={setBackdrop}
         bg="bg.overlay"
         backdropFilter="blur(4px)"
         position="fixed"
         inset="0"
         zIndex={APP_OVERLAY_Z_INDEX}
-        transitionProperty="opacity"
-        transitionDuration={sdlMotion.duration.moderate}
-        transitionTimingFunction={sdlMotion.easing.standard}
-        css={{
-          '@media (prefers-reduced-motion: reduce)': {
-            transitionDuration: '0ms',
-          },
-        }}
+        css={sheetMotionCss}
       />
       <DrawerPositioner
         position="fixed"
@@ -121,14 +146,6 @@ export function Drawer({
           display="flex"
           flexDirection="column"
           maxH="100dvh"
-          transitionProperty="transform, opacity"
-          transitionDuration={sdlMotion.duration.moderate}
-          transitionTimingFunction={sdlMotion.easing.decelerate}
-          css={{
-            '@media (prefers-reduced-motion: reduce)': {
-              transitionDuration: '0ms',
-            },
-          }}
           w="full"
           maxW={DRAWER_PANEL_MAX_W}
           {...(placement === 'bottom' || placement === 'top'
@@ -139,9 +156,18 @@ export function Drawer({
               })}
           {...radius}
           {...contentProps}
+          ref={setPanel}
+          touchAction={touchAction}
+          css={{
+            ...sheetMotionCss,
+            '& input, & textarea, & select, & [role="slider"]': {
+              touchAction: 'auto',
+            },
+          }}
         >
           <DrawerHeader px={drawerGutterX} pt={4} pb={4} flexShrink={0}>
             <Stack gap={description ? 2 : 0} align="stretch">
+              {placement === 'bottom' ? <SheetHandle /> : null}
               <HStack align="center" justify="space-between" gap={3} minH={11}>
                 <DrawerTitle
                   fontFamily="body"
@@ -187,6 +213,7 @@ export function Drawer({
             overflowY="auto"
             display="flex"
             flexDirection="column"
+            overscrollBehavior="contain"
           >
             <Box
               w="full"
@@ -231,10 +258,12 @@ export function Drawer({
     <DrawerNestingContext.Provider value={true}>
       <DrawerCloseContext.Provider value={() => onOpenChange(false)}>
         <DrawerRoot
-          open={open}
+          open={present}
           onOpenChange={(d: { open: boolean }) => onOpenChange(d.open)}
           placement={placement}
           size={size}
+          lazyMount
+          unmountOnExit
         >
           {isBrowser ? createPortal(overlay, document.body) : overlay}
         </DrawerRoot>

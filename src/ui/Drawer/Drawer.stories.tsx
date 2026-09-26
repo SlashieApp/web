@@ -7,11 +7,13 @@ import { Button } from '../Button'
 import { Drawer, type DrawerPlacement, type DrawerSize } from './Drawer'
 
 /**
- * SDL Drawer (Foundations). A scrim-backed panel that slides in from an edge.
+ * SDL Drawer (Foundations). A scrim-backed sheet that tracks the finger 1:1,
+ * dismisses on drag, and settles with a critically damped spring (a slight
+ * bounce only when the release is a flick). Grabbing mid-open or mid-close
+ * retargets that spring. `prefers-reduced-motion` snaps open and closed.
  * Chakra's `DrawerRoot` provides the focus trap, ESC-to-close, and click-scrim
- * close; SDL layers in semantic surfaces, a 44px close target, reduced-motion
- * awareness, and `sdlMotion` transitions. Renders under light + dark via the
- * global theme toolbar (do not hardcode a mode).
+ * close. Bottom placement shows a drag handle. Renders under light + dark via
+ * the global theme toolbar (do not hardcode a mode).
  */
 const meta = {
   title: 'ui/Drawer',
