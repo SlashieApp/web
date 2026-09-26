@@ -348,8 +348,15 @@ export function TaskBrowseFilters({ ...props }: TaskBrowseFiltersProps) {
  * region as `TaskList`; otherwise the list is shown.
  */
 const filterPanelEase = [0.22, 1, 0.36, 1] as const
-/** Shared horizontal slide distance (px): enter from left (−), exit to right (+). */
+/**
+ * Leading-edge slide (px). Enter and exit share this offset so the column
+ * returns the way it arrived. `AnimatePresence` waits, so the outgoing
+ * panel finishes on the same x the incoming panel starts from — no
+ * opposite-edge reversal and no jump when close hands off to the list.
+ */
 const browsePanelSlidePx = 22
+const browsePanelEdge = { opacity: 0, x: -browsePanelSlidePx }
+const browsePanelRest = { opacity: 1, x: 0 }
 
 export function WebTaskBrowseFiltersBlock({
   listHeader,
@@ -374,9 +381,9 @@ export function WebTaskBrowseFiltersBlock({
         {isFilterOpen ? (
           <motion.div
             key="task-browse-filters"
-            initial={{ opacity: 0, x: -browsePanelSlidePx }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: browsePanelSlidePx }}
+            initial={browsePanelEdge}
+            animate={browsePanelRest}
+            exit={browsePanelEdge}
             transition={{ duration: 0.32, ease: filterPanelEase }}
             style={{
               flex: 1,
@@ -393,9 +400,9 @@ export function WebTaskBrowseFiltersBlock({
         ) : (
           <motion.div
             key="task-browse-list"
-            initial={{ opacity: 0, x: -browsePanelSlidePx }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: browsePanelSlidePx }}
+            initial={browsePanelEdge}
+            animate={browsePanelRest}
+            exit={browsePanelEdge}
             transition={{ duration: 0.26, ease: filterPanelEase }}
             style={{
               flex: 1,
