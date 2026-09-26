@@ -75,7 +75,7 @@ import {
   orderSnapshotDatetime,
 } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
-import { isOrderCompletedStatus } from '../helpers/taskDetailCompleted'
+import { canReviewCompletedOrder } from '../helpers/reviewEligibility'
 import { useOrderReviewState } from '../helpers/useOrderReviewState'
 
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
@@ -288,12 +288,12 @@ export function TaskDetailProvider({
     [task, myOrder, me, myQuote, isAuthenticated],
   )
 
-  const reviewEnabled = Boolean(
-    myOrder &&
-      isOrderCompletedStatus(myOrder.status) &&
-      !permissions.isCancelled &&
-      (permissions.isOwner || permissions.isOrderWorker),
-  )
+  const reviewEnabled = canReviewCompletedOrder({
+    userId: me?.id,
+    posterId: task?.poster?.id,
+    order: myOrder,
+    taskCancelled: permissions.isCancelled,
+  })
   const orderReview = useOrderReviewState(myOrder?.id ?? null, reviewEnabled)
   const viewerHasSubmittedReview = orderReview.viewerHasSubmittedReview
 

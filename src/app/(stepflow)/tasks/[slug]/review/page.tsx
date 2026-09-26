@@ -1,7 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import type { Metadata } from 'next'
 
-import { TaskNotFoundCard } from '@/app/(task)/tasks/[slug]/components/ui/TaskNotFoundCard'
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { getTaskForTaskDetailPage } from '@/app/(task)/tasks/[slug]/helpers/getTaskForTaskDetailPage'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
@@ -29,23 +28,17 @@ export default async function TaskReviewPage({
   params: Promise<{ slug: string }>
   searchParams: Promise<{ orderId?: string }>
 }) {
-  const locale = await getRequestLocale()
-  const copy = loadPageI11n(bag, locale)
   const { slug } = await params
   const query = await searchParams
   const { task } = await getTaskForTaskDetailPage(slug)
 
-  if (!task) {
-    return (
-      <TaskNotFoundCard
-        heading={copy.ineligibleTitle}
-        description={copy.ineligibleBody}
-      />
-    )
-  }
-
+  // Anonymous `task(id)` returns null for a COMPLETED job (NOT_FOUND or an
+  // empty payload). Gating the page on that response shows "not ready for a
+  // review" before the signed-in client fetch can load the party's order.
+  // Omit `initialTask` when the public shell is missing so TaskCore still runs
+  // with the viewer's token. A public shell, when present, still seeds paint.
   return (
-    <TaskDetailProvider taskId={slug} initialTask={task}>
+    <TaskDetailProvider taskId={slug} {...(task ? { initialTask: task } : {})}>
       <Box minH="100dvh" display="flex" flexDirection="column">
         <TaskReviewScreen orderIdFromLink={query.orderId} />
       </Box>
