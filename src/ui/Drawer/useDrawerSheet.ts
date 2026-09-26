@@ -505,7 +505,7 @@ export function useDrawerSheet({
       animRef.current?.stop()
       animRef.current = null
       detachPointerRef.current?.()
-      panelCleanupRef.current?.()
+      sessionRef.current = null
     }
   }, [])
 
