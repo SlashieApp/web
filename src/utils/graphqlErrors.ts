@@ -102,6 +102,37 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
     "We couldn't find that listing. It may have been removed.",
   ACCOUNT_DISABLED:
     'This user is being suspended, please contact accounts@slashie.app.',
+  INVALID_SLOT_COUNT: 'Offer one or two times.',
+  INVALID_SLOT:
+    'One of those times is not valid. Check the start time and length.',
+  SLOT_IN_PAST: 'That time has already passed. Pick a time in the future.',
+  SLOT_NOT_FOUND: 'That time is no longer available. Refresh and pick again.',
+  QUOTE_NOT_FOUND: 'This quote could not be found. It may have been withdrawn.',
+  QUOTE_NOT_PENDING:
+    'This quote has already been accepted, declined or withdrawn. Refresh to see the latest.',
+  QUOTE_ALREADY_EXISTS:
+    "You've already quoted on this task. Edit your quote instead.",
+  INVALID_QUOTE_AMOUNT: 'Enter a price greater than zero.',
+  CANNOT_QUOTE_OWN_TASK: "You can't quote on your own task.",
+  TASK_NOT_OPEN: 'This task is no longer taking quotes.',
+  TASK_ACCEPTED_WORKER_CAP_REACHED:
+    'This task already has all the workers it needs.',
+  TASK_HAS_ACCEPTED_QUOTE:
+    'This task already has an accepted quote, so it can no longer be changed this way.',
+  ORDER_NOT_FOUND: 'This booking could not be found.',
+  ORDER_REQUEST_PENDING:
+    'A request is already waiting on this booking. Answer or withdraw it first.',
+  ORDER_NOT_ACTIVE: 'This booking can no longer be changed.',
+  ORDER_ALREADY_STARTED:
+    'The booked time has started. Mark the job Done or Failed instead.',
+  ORDER_NOT_STARTED:
+    'You can mark the job Done or Failed once the booked time starts.',
+  ORDER_NO_PENDING_REQUEST:
+    'That request is no longer open. Refresh to see the latest.',
+  ORDER_OWN_REQUEST: "You can't answer your own request.",
+  ORDER_NOT_REQUESTER: 'Only the person who made this request can withdraw it.',
+  ORDER_CHANGED:
+    'This booking just changed. We have loaded the latest, so check it and try again.',
 }
 
 export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =
@@ -172,13 +203,16 @@ export function isAccountDisabledError(error: unknown) {
 
 export function getGraphQLErrorCode(error: unknown): string | undefined {
   const graphQLError = pickGraphQLError(error)
-  const code = graphQLError?.extensions?.code
-  if (typeof code === 'string' && code.trim()) return code
+  const rawCode = graphQLError?.extensions?.code
+  const code = typeof rawCode === 'string' && rawCode.trim() ? rawCode : null
+  // Apollo Server tags every plain `throw new Error('CODE')` as
+  // INTERNAL_SERVER_ERROR, so the real code is the message.
+  if (code && code !== 'INTERNAL_SERVER_ERROR') return code
   if (graphQLError?.message) {
     const normalised = normaliseMessage(graphQLError.message)
     if (FRIENDLY_ERROR_BY_MESSAGE[normalised]) return normalised
   }
-  return undefined
+  return code ?? undefined
 }
 
 export function getFriendlyErrorMessage(error: unknown, fallback: string) {
