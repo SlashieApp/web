@@ -16,6 +16,16 @@
       "unavailable": "Sign in with Apple is unavailable right now. Try again or use email instead.",
       "blockedTitle": "Confirm you are 18 or over",
       "blockedDescription": "Tick the confirmation boxes, then continue with Apple."
+    },
+    "restore": {
+      "title": "Your account is scheduled for deletion",
+      "body": "It will be permanently deleted on {date}. Until then your profile, tasks and quotes are hidden.",
+      "bodyNoDate": "It will be permanently deleted 30 days after you asked. Until then your profile, tasks and quotes are hidden.",
+      "keepNote": "Restoring brings your profile back. Tasks and quotes that were cancelled stay cancelled.",
+      "restore": "Restore my account",
+      "signOut": "Sign out",
+      "restored": "Welcome back. Your account is restored.",
+      "restoreFailed": "We couldn't restore your account. Please try again."
     }
   },
   "zh_hk": {
@@ -35,6 +45,16 @@
       "unavailable": "暫時未能使用 Apple 登入，請再試或改用電郵。",
       "blockedTitle": "請確認你年滿 18 歲",
       "blockedDescription": "先勾選確認選項，再使用 Apple 繼續。"
+    },
+    "restore": {
+      "title": "你的帳戶已安排刪除",
+      "body": "帳戶將於 {date} 永久刪除。在此之前，你的個人檔案、任務和報價會被隱藏。",
+      "bodyNoDate": "帳戶將於你提出要求 30 天後永久刪除。在此之前，你的個人檔案、任務和報價會被隱藏。",
+      "keepNote": "還原後個人檔案會重新顯示。已取消的任務和報價會維持取消。",
+      "restore": "還原我的帳戶",
+      "signOut": "登出",
+      "restored": "歡迎回來，你的帳戶已還原。",
+      "restoreFailed": "未能還原帳戶，請再試一次。"
     }
   }
 }

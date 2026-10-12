@@ -1,0 +1,6 @@
+mutation RequestAccountDeletion($password: String) {
+  requestAccountDeletion(password: $password) {
+    id
+    deletionScheduledFor
+  }
+}

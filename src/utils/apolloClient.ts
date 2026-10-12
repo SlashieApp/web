@@ -22,8 +22,14 @@ import {
   redirectToLandingIfAppRoute,
 } from '@/utils/apiAvailability'
 
+import { markDeletionScheduled } from './accountDeletionState'
 import { clearAuthToken, getAuthToken } from './auth'
-import { isAccountDisabledError, isUnauthenticatedError } from './graphqlErrors'
+import {
+  isAccountDeletedError,
+  isAccountDeletionScheduledError,
+  isAccountDisabledError,
+  isUnauthenticatedError,
+} from './graphqlErrors'
 
 const httpLink = createHttpLink({
   uri: `${process.env.NEXT_PUBLIC_GRAPHQL_URL}/graphql`,
@@ -49,7 +55,14 @@ const errorLink = onError(({ error, operation }) => {
     return
   }
 
-  if (isUnauthenticatedError(error)) {
+  // Waiting for deletion: the app swaps to the restore screen.
+  if (isAccountDeletionScheduledError(error)) {
+    if (getAuthToken()) markDeletionScheduled()
+    return
+  }
+
+  // A deleted account's session is worthless: drop it like an expired one.
+  if (isUnauthenticatedError(error) || isAccountDeletedError(error)) {
     clearAuthToken()
   }
 

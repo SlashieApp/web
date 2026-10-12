@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Badge, Button, FormField, IconButton, Input, Link, Logo } from '@ui'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
@@ -13,6 +13,11 @@ import { AppleAuthButton } from '@/app/(auth)/components/ui/AppleAuthButton'
 import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
 import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
 import { useLoginAutofill } from '@/app/(auth)/helpers/LoginAutofillProvider'
+import {
+  type DeletionNotice,
+  deletionNoticeFromParams,
+  formatDeletionDate,
+} from '@/app/(auth)/helpers/accountDeletion'
 import {
   getAuthAbuseFriendlyMessage,
   parseAuthAbuseError,
@@ -26,6 +31,8 @@ import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { loginFormSchema } from '@/app/(auth)/login/loginFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
@@ -457,6 +464,8 @@ export default function LoginPage() {
               </Text>
             </Box>
 
+            <LoginDeletionNotice />
+
             <Stack gap={3}>
               <GoogleAuthButton
                 next={authQuery.next}
@@ -641,5 +650,48 @@ export default function LoginPage() {
         </Stack>
       </HStack>
     </Box>
+  )
+}
+
+/**
+ * FE-198: after requesting deletion (`?deletion=DATE`) or from the deletion
+ * emails (`?restore=1`). Read after mount so server and client markup match.
+ */
+function LoginDeletionNotice() {
+  const t = useI11n(bag)
+  const locale = useLocale()
+  const [notice, setNotice] = useState<DeletionNotice | null>(null)
+
+  useEffect(() => {
+    setNotice(
+      deletionNoticeFromParams(new URLSearchParams(window.location.search)),
+    )
+  }, [])
+
+  if (!notice) return null
+  const text =
+    notice.kind === 'restore'
+      ? t.restoreNotice
+      : notice.date
+        ? formatMessage(t.deletionScheduled, {
+            // Midday UTC so the day doesn't shift across time zones.
+            date: formatDeletionDate(`${notice.date}T12:00:00Z`, locale),
+          })
+        : t.deletionScheduledNoDate
+
+  return (
+    <Text
+      as="output"
+      display="block"
+      p={3}
+      borderRadius="md"
+      bg="status.warning.soft"
+      color="status.warning.fg"
+      fontSize="sm"
+      fontWeight={600}
+      lineHeight="tall"
+    >
+      {text}
+    </Text>
   )
 }

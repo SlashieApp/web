@@ -62,7 +62,12 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     getAccountDisabledFlag,
     () => false,
   )
-  const signedIn = Boolean(meId) && !disabled && Boolean(getAuthToken())
+  // An account waiting for deletion can't use Messages (restore screen shows).
+  const pendingDeletion = useUserStore((s) =>
+    Boolean(s.me?.deletionScheduledFor),
+  )
+  const signedIn =
+    Boolean(meId) && !disabled && !pendingDeletion && Boolean(getAuthToken())
 
   const { data, loading, error, refetch } = useQuery<MessageThreadsQuery>(
     MessageThreads,

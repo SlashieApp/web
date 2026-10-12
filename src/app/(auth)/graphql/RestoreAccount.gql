@@ -1,0 +1,6 @@
+mutation RestoreAccount {
+  restoreAccount {
+    id
+    deletionScheduledFor
+  }
+}

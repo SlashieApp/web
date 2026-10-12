@@ -2,6 +2,7 @@
 
 import { Box, Stack, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
+import { Suspense } from 'react'
 import { LuKeyRound, LuLogOut, LuShield } from 'react-icons/lu'
 
 import { useUserStore } from '@/app/(auth)/store/user'
@@ -19,6 +20,7 @@ import { MembershipRefreshOnMount } from '../components/ui/membership/Membership
 import { WorkerMembershipCard } from '../components/ui/membership/WorkerMembershipCard'
 import { AccountContactCard } from './components/ui/AccountContactCard'
 import { AccountSettingsCard } from './components/ui/AccountSettingsCard'
+import { DeleteAccountSection } from './components/ui/DeleteAccountSection'
 import bag from './i11n.json'
 
 export default function AccountPage() {
@@ -45,6 +47,7 @@ export default function AccountPage() {
     { label: t.navSecurity, href: '#security' },
     { label: t.navSettings, href: '#settings' },
     { label: t.navSession, href: '#session' },
+    { label: t.navDelete, href: '#delete' },
   ] as const
 
   return (
@@ -186,6 +189,12 @@ export default function AccountPage() {
             {t.logout}
           </Button>
         </DashboardSectionCard>
+
+        <Suspense fallback={null}>
+          <DeleteAccountSection
+            enabledLoginMethods={me.enabledLoginMethods ?? []}
+          />
+        </Suspense>
       </DashboardPageLayout>
     </>
   )

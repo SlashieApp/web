@@ -106,6 +106,13 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
     "We couldn't find that listing. It may have been removed.",
   ACCOUNT_DISABLED:
     'This user is being suspended, please contact accounts@slashie.app.',
+  ACCOUNT_DELETION_SCHEDULED:
+    'This account is waiting to be deleted. Restore it to keep using Slashie.',
+  ACCOUNT_DELETED: 'This account has been deleted.',
+  REAUTH_REQUIRED:
+    'For your security, sign in again, then delete your account within 10 minutes.',
+  ACCOUNT_HAS_LIVE_ORDERS:
+    'Finish or cancel your active bookings before deleting your account.',
   INVALID_SLOT_COUNT: 'Offer one or two times.',
   INVALID_SLOT:
     'One of those times is not valid. Check the start time and length.',
@@ -153,6 +160,9 @@ export const WORKER_QUOTE_LIMIT_ERROR_CODE =
   'WORKER_QUOTE_LIMIT_REACHED' as const
 
 export const ACCOUNT_DISABLED_ERROR_CODE = 'ACCOUNT_DISABLED' as const
+export const ACCOUNT_DELETION_SCHEDULED_ERROR_CODE =
+  'ACCOUNT_DELETION_SCHEDULED' as const
+export const ACCOUNT_DELETED_ERROR_CODE = 'ACCOUNT_DELETED' as const
 
 function normaliseMessage(message: string) {
   return message.trim().toUpperCase()
@@ -210,6 +220,15 @@ export function isAccountDisabledError(error: unknown) {
     return true
   if (!graphQLError?.message) return false
   return normaliseMessage(graphQLError.message) === ACCOUNT_DISABLED_ERROR_CODE
+}
+
+/** The account is waiting for deletion: only `me` and `restoreAccount` work. */
+export function isAccountDeletionScheduledError(error: unknown) {
+  return getGraphQLErrorCode(error) === ACCOUNT_DELETION_SCHEDULED_ERROR_CODE
+}
+
+export function isAccountDeletedError(error: unknown) {
+  return getGraphQLErrorCode(error) === ACCOUNT_DELETED_ERROR_CODE
 }
 
 export function getGraphQLErrorCode(error: unknown): string | undefined {

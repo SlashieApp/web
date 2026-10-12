@@ -4,6 +4,8 @@ import {
   ACCOUNT_DISABLED_ERROR_CODE,
   getFriendlyErrorMessage,
   getGraphQLErrorCode,
+  isAccountDeletedError,
+  isAccountDeletionScheduledError,
   isAccountDisabledError,
 } from './graphqlErrors'
 
@@ -38,5 +40,32 @@ describe('plain resolver errors', () => {
 
   it('keeps INTERNAL_SERVER_ERROR for unknown messages', () => {
     expect(getGraphQLErrorCode(internal('boom'))).toBe('INTERNAL_SERVER_ERROR')
+  })
+})
+
+describe('account deletion (BE-74)', () => {
+  const internal = (message: string): unknown => ({
+    errors: [{ message, extensions: { code: 'INTERNAL_SERVER_ERROR' } }],
+  })
+
+  it('spots the pending-deletion and deleted states', () => {
+    expect(
+      isAccountDeletionScheduledError(internal('ACCOUNT_DELETION_SCHEDULED')),
+    ).toBe(true)
+    expect(isAccountDeletedError(internal('ACCOUNT_DELETED'))).toBe(true)
+    expect(isAccountDeletionScheduledError(internal('ACCOUNT_DELETED'))).toBe(
+      false,
+    )
+  })
+
+  it('has copy for the request errors', () => {
+    expect(getGraphQLErrorCode(internal('REAUTH_REQUIRED'))).toBe(
+      'REAUTH_REQUIRED',
+    )
+    expect(
+      getFriendlyErrorMessage(internal('ACCOUNT_HAS_LIVE_ORDERS'), 'fallback'),
+    ).toBe(
+      'Finish or cancel your active bookings before deleting your account.',
+    )
   })
 })

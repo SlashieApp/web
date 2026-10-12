@@ -23,6 +23,7 @@ import Login from '@/app/(auth)/login/graphql/Login.gql'
 import LoginWithApple from '@/app/(auth)/login/graphql/LoginWithApple.gql'
 import LoginWithGoogle from '@/app/(auth)/login/graphql/LoginWithGoogle.gql'
 import Me from '@/graphql/Me.gql'
+import { clearDeletionScheduled } from '@/utils/accountDeletionState'
 import {
   EVENTS,
   identifyAuthenticatedUser,
@@ -302,6 +303,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     clearCachedGooglePhotoUrl()
     resetAnalyticsIdentity()
     clearAccountDisabled()
+    clearDeletionScheduled()
     set({ user: null, me: null })
     void apolloClient.clearStore()
   },

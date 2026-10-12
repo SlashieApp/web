@@ -51,7 +51,32 @@
     "webPushUnsupported": "This browser does not support notifications.",
     "webPushDenied": "Notifications stay off until you allow them in the browser.",
     "webPushError": "Could not update browser notifications.",
-    "settingsError": "Could not update your settings."
+    "settingsError": "Could not update your settings.",
+    "navDelete": "Delete account",
+    "deleteTitle": "Delete account",
+    "deleteDescription": "Close your Slashie account. You have 30 days to change your mind.",
+    "deleteButton": "Delete account",
+    "deleteDialogTitle": "Delete your account?",
+    "deleteIntro": "Here is what happens:",
+    "deletePoints": [
+      "Your account is switched off straight away: your profile, open tasks and quotes are hidden.",
+      "Open tasks are cancelled and pending quotes withdrawn. They stay that way even if you come back.",
+      "Sign in within 30 days and choose Restore to keep your account.",
+      "After 30 days your details are removed for good. People you worked with still see past bookings and reviews, shown as \"Deleted user\"."
+    ],
+    "deletePasswordLabel": "Your password",
+    "deletePasswordHelp": "Enter your password to confirm it's you.",
+    "deleteReauthBody": "For your security, sign in again first. Then confirm here within 10 minutes.",
+    "deleteReauthDone": "Thanks, you signed in again. You can confirm now.",
+    "deleteConfirm": "Delete my account",
+    "deleteCancel": "Cancel",
+    "deleteWrongPassword": "That password isn't right.",
+    "deleteLiveOrders": "You have an active booking. Finish or cancel it before deleting your account.",
+    "deleteLiveOrdersLink": "Go to My tasks",
+    "deleteReauthExpired": "That sign-in was more than 10 minutes ago. Sign in again to continue.",
+    "deleteFailed": "We couldn't delete your account. Please try again.",
+    "deleteScheduled": "Your account will be deleted on {date}. Sign in before then to restore it.",
+    "deleteScheduledNoDate": "Your account will be deleted in 30 days. Sign in before then to restore it."
   },
   "zh_hk": {
     "metadata": {
@@ -105,6 +130,31 @@
     "webPushUnsupported": "此瀏覽器不支援通知。",
     "webPushDenied": "請先在瀏覽器允許通知。",
     "webPushError": "未能更新瀏覽器通知。",
-    "settingsError": "未能更新你的設定。"
+    "settingsError": "未能更新你的設定。",
+    "navDelete": "刪除帳戶",
+    "deleteTitle": "刪除帳戶",
+    "deleteDescription": "關閉你的 Slashie 帳戶。你有 30 天時間改變主意。",
+    "deleteButton": "刪除帳戶",
+    "deleteDialogTitle": "確定刪除帳戶？",
+    "deleteIntro": "刪除後會發生以下事情：",
+    "deletePoints": [
+      "帳戶會立即停用：你的個人檔案、開放中的任務和報價會被隱藏。",
+      "開放中的任務會被取消，待處理的報價會被撤回。即使你之後還原帳戶，它們也會維持這樣。",
+      "在 30 天內登入並選擇「還原」，即可保留帳戶。",
+      "30 天後你的資料會被永久移除。與你合作過的人仍會看到過往的預約和評價，顯示為「已刪除的用戶」。"
+    ],
+    "deletePasswordLabel": "你的密碼",
+    "deletePasswordHelp": "輸入密碼以確認是你本人。",
+    "deleteReauthBody": "為了你的帳戶安全，請先重新登入，然後在 10 分鐘內回來確認。",
+    "deleteReauthDone": "多謝，你已重新登入，現在可以確認。",
+    "deleteConfirm": "刪除我的帳戶",
+    "deleteCancel": "取消",
+    "deleteWrongPassword": "密碼不正確。",
+    "deleteLiveOrders": "你有進行中的預約。請先完成或取消，然後再刪除帳戶。",
+    "deleteLiveOrdersLink": "前往我的任務",
+    "deleteReauthExpired": "你重新登入已超過 10 分鐘，請再登入一次以繼續。",
+    "deleteFailed": "未能刪除帳戶，請再試一次。",
+    "deleteScheduled": "你的帳戶將於 {date} 刪除。在此之前登入即可還原。",
+    "deleteScheduledNoDate": "你的帳戶將於 30 天後刪除。在此之前登入即可還原。"
   }
 }

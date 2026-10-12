@@ -3,6 +3,7 @@
 import { ApolloProvider } from '@apollo/client/react'
 import type { ReactNode } from 'react'
 
+import { AccountRestoreGate } from '@/app/(auth)/components/ui/AccountRestoreGate'
 import { MessagesProvider } from '@/app/(messages)/messages/context/MessagesProvider'
 import { FeedbackProvider } from '@/content/feedback/FeedbackProvider'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
@@ -24,7 +25,7 @@ export function Providers({ children }: { children: ReactNode }) {
               <FeedbackProvider>
                 <AnalyticsErrorBoundary>
                   <AppToastHost />
-                  {children}
+                  <AccountRestoreGate>{children}</AccountRestoreGate>
                   <CookieConsentBanner />
                 </AnalyticsErrorBoundary>
               </FeedbackProvider>
