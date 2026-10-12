@@ -33,10 +33,12 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   RESEND_VERIFICATION_RATE_LIMITED: 'Please wait 2 minutes before resending.',
   EMAIL_MISMATCH:
     'This link is no longer valid. Request a new verification email.',
-  PHONE_MISMATCH:
-    "Phone doesn't match your profile. Save your number first, then verify.",
-  CONTACT_ALREADY_VERIFIED:
-    'Already verified. Change your phone in profile to use a new number.',
+  PHONE_CHANGE_REQUIRES_VERIFICATION:
+    'To change a verified number, confirm the new one with the code we text you.',
+  EMAIL_CHANGE_NOT_ALLOWED:
+    'This account signs in with Google, so its email can only change in Google.',
+  INVALID_EMAIL: 'Enter a valid email address.',
+  EMAIL_UNCHANGED: "That's already your email.",
   EMAIL_OR_PHONE_IN_USE:
     'This email or phone is already registered to another account.',
   EMAIL_NOT_VERIFIED: 'Verify your email to continue.',

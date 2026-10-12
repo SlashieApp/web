@@ -8,6 +8,8 @@ query Me {
     emailVerified
     phoneVerified
     phoneVerifiedAt
+    pendingEmail
+    pendingPhone
     createdAt
     enabledLoginMethods
     profile {

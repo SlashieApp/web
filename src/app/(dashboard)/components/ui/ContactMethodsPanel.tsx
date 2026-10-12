@@ -1,18 +1,35 @@
 'use client'
 
+import { useMutation } from '@apollo/client/react'
 import { HStack, Stack, Text } from '@chakra-ui/react'
-import { useState } from 'react'
+import type {
+  CancelEmailChangeMutation,
+  CancelPhoneChangeMutation,
+} from '@codegen/schema'
+import { type ReactNode, useState } from 'react'
 
-import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
+import {
+  canChangeEmail,
+  isEmailVerified,
+  pendingEmailChange,
+} from '@/app/(auth)/helpers/emailVerification'
 import {
   hasVerifiedContactMethod,
   isPhoneVerified,
+  pendingPhoneChange,
   profileContactNumber,
 } from '@/app/(auth)/helpers/phoneVerification'
+import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
+import CancelEmailChange from '@/app/(dashboard)/account/graphql/CancelEmailChange.gql'
+import CancelPhoneChange from '@/app/(dashboard)/account/graphql/CancelPhoneChange.gql'
+import { EVENTS, trackFlowSucceeded } from '@/utils/analytics'
+import { showAppToast } from '@/utils/appToast'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { formatPhoneForDisplay } from '@/utils/phoneNormalize'
 import { Badge, Button } from '@ui'
 
+import { EmailChangeModal } from './verification/EmailChangeModal'
 import { EmailVerificationModal } from './verification/EmailVerificationModal'
 import { PhoneVerificationModal } from './verification/PhoneVerificationModal'
 
@@ -24,14 +41,85 @@ function VerifiedBadge({ verified }: { verified: boolean }) {
   )
 }
 
+/** A new email or phone waiting to be verified; the old one stays live. */
+function PendingChange({
+  channel,
+  children,
+  action,
+  status,
+}: {
+  channel: 'email' | 'phone'
+  children: ReactNode
+  action: ReactNode
+  /** Result of the action, e.g. "Verification email sent." */
+  status?: { text: string; ok: boolean } | null
+}) {
+  const getUser = useUserStore((s) => s.getUser)
+  const [cancel, { loading }] = useMutation<
+    CancelEmailChangeMutation | CancelPhoneChangeMutation
+  >(channel === 'email' ? CancelEmailChange : CancelPhoneChange)
+
+  const onCancel = async () => {
+    try {
+      await cancel()
+      await getUser()
+      trackFlowSucceeded(EVENTS.contact_change_cancel, { channel })
+    } catch (e) {
+      showAppToast({
+        title: getFriendlyErrorMessage(e, 'Could not cancel the change.'),
+        type: 'error',
+      })
+    }
+  }
+
+  return (
+    <Stack
+      gap={2}
+      p={3}
+      borderRadius="md"
+      bg="bg.subtle"
+      borderWidth="1px"
+      borderColor="border.default"
+    >
+      <Text fontSize="sm" color="text.default">
+        {children}
+      </Text>
+      <HStack gap={2} flexWrap="wrap">
+        {action}
+        <Button
+          size="sm"
+          variant="ghost"
+          loading={loading}
+          onClick={() => void onCancel()}
+        >
+          Cancel change
+        </Button>
+      </HStack>
+      {status ? (
+        <Text
+          as="output"
+          display="block"
+          fontSize="sm"
+          color={status.ok ? 'text.link' : 'status.danger.fg'}
+        >
+          {status.text}
+        </Text>
+      ) : null}
+    </Stack>
+  )
+}
+
 function EmailContactRow({
   onContactUpdated,
 }: { onContactUpdated?: () => void }) {
   const me = useUserStore((s) => s.me)
   const [modalOpen, setModalOpen] = useState(false)
+  const [changeOpen, setChangeOpen] = useState(false)
+  const { resend, isSending, isSent, message } = useResendVerificationEmail()
 
   if (!me) return null
   const verified = isEmailVerified(me)
+  const pending = pendingEmailChange(me)
 
   return (
     <>
@@ -57,7 +145,8 @@ function EmailContactRow({
           </Stack>
           <HStack gap={3} flexWrap="wrap">
             <VerifiedBadge verified={verified} />
-            {!verified ? (
+            {/* With a change pending, a resend goes to the new address. */}
+            {!verified && !pending ? (
               <Button
                 size="sm"
                 variant="secondary"
@@ -66,13 +155,49 @@ function EmailContactRow({
                 Verify
               </Button>
             ) : null}
+            {canChangeEmail(me) && !pending ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setChangeOpen(true)}
+              >
+                Change
+              </Button>
+            ) : null}
           </HStack>
         </HStack>
+        {pending ? (
+          <PendingChange
+            channel="email"
+            status={message ? { text: message, ok: isSent } : null}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                loading={isSending}
+                onClick={() => void resend()}
+              >
+                Resend link
+              </Button>
+            }
+          >
+            Waiting for you to open the link we sent to{' '}
+            <Text as="span" fontWeight={600}>
+              {pending}
+            </Text>
+            . Your current email stays on your account until then.
+          </PendingChange>
+        ) : null}
       </Stack>
       <EmailVerificationModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         onContactUpdated={onContactUpdated}
+      />
+      <EmailChangeModal
+        open={changeOpen}
+        onOpenChange={setChangeOpen}
+        onRequested={onContactUpdated}
       />
     </>
   )
@@ -88,6 +213,7 @@ export function PhoneContactRow({
 
   const savedPhone = profileContactNumber(me)
   const verified = isPhoneVerified(me)
+  const pending = pendingPhoneChange(me)
   const displayPhone = savedPhone
     ? formatPhoneForDisplay(savedPhone)
     : 'No number saved'
@@ -111,17 +237,37 @@ export function PhoneContactRow({
           </Stack>
           <HStack gap={3} flexWrap="wrap">
             {savedPhone ? <VerifiedBadge verified={verified} /> : null}
-            {!verified ? (
+            {!pending ? (
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => setModalOpen(true)}
               >
-                {savedPhone ? 'Verify' : 'Add phone'}
+                {verified ? 'Change' : savedPhone ? 'Verify' : 'Add phone'}
               </Button>
             ) : null}
           </HStack>
         </HStack>
+        {pending ? (
+          <PendingChange
+            channel="phone"
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setModalOpen(true)}
+              >
+                Enter code
+              </Button>
+            }
+          >
+            Waiting for the code we texted to{' '}
+            <Text as="span" fontWeight={600}>
+              {formatPhoneForDisplay(pending)}
+            </Text>
+            . Your current number stays on your account until then.
+          </PendingChange>
+        ) : null}
       </Stack>
       <PhoneVerificationModal
         open={modalOpen}
@@ -162,7 +308,7 @@ export function ContactMethodsPanel({
       {showIntro ? (
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
           Confirm email or phone so Slashie can reach you. This is contact proof
-          only — not an identity, DBS, or safety check. Payment is arranged
+          only, not an identity, DBS, or safety check. Payment is arranged
           directly between you and the customer outside Slashie.
         </Text>
       ) : null}
@@ -179,7 +325,7 @@ export function ContactMethodsPanel({
       ) : (
         <Text fontSize="sm" color="text.muted">
           {requirePhone
-            ? 'Verify your phone number to continue — a verified phone is required to send quotes.'
+            ? 'Verify your phone number to continue. A verified phone is required to send quotes.'
             : 'Verify your email or phone to continue.'}
         </Text>
       )}

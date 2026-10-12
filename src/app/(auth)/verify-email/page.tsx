@@ -14,9 +14,11 @@ import {
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
 import VerifyEmail from '@/app/(auth)/verify-email/graphql/VerifyEmail.gql'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
+import { showAppToast } from '@/utils/appToast'
 import { getAuthToken, setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import bag from './i11n.json'
@@ -70,6 +72,8 @@ function VerifyEmailContent() {
     setState('loading')
     setErrorMessage(null)
 
+    // A link for a pending address completes an email change (BE-71).
+    const previous = useUserStore.getState().me
     try {
       const result = await verifyEmail({ variables: { token: tokenFromUrl } })
       const authToken = result.data?.verifyEmail?.token?.trim()
@@ -81,7 +85,21 @@ function VerifyEmailContent() {
 
       setAuthToken(authToken)
       await getUser()
-      trackFlowSucceeded(EVENTS.email_verify_success)
+      const verified = result.data?.verifyEmail?.user
+      const email = verified?.email
+      const changed = Boolean(
+        previous && verified?.id === previous.id && email !== previous.email,
+      )
+      if (changed) {
+        showAppToast({
+          title: t.changedTitle,
+          description: formatMessage(t.changedDescription, {
+            email: email ?? '',
+          }),
+          type: 'success',
+        })
+      }
+      trackFlowSucceeded(EVENTS.email_verify_success, { change: changed })
       setState('success')
       router.replace(nextPath)
     } catch (error: unknown) {
@@ -104,7 +122,16 @@ function VerifyEmailContent() {
         getFriendlyErrorMessage(error, 'Could not verify your email.'),
       )
     }
-  }, [getUser, nextPath, router, t.errorDescription, tokenFromUrl, verifyEmail])
+  }, [
+    getUser,
+    nextPath,
+    router,
+    t.changedDescription,
+    t.changedTitle,
+    t.errorDescription,
+    tokenFromUrl,
+    verifyEmail,
+  ])
 
   const onMountRef = useCallback(
     (node: HTMLDivElement | null) => {

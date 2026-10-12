@@ -47,6 +47,9 @@ export const EVENTS = {
   phone_verify_send_fail: 'phone_verify_send_fail',
   phone_verify_success: 'phone_verify_success',
   phone_verify_fail: 'phone_verify_fail',
+  email_change_request_success: 'email_change_request_success',
+  email_change_request_fail: 'email_change_request_fail',
+  contact_change_cancel: 'contact_change_cancel',
 
   // Customer
   task_create_success: 'task_create_success',

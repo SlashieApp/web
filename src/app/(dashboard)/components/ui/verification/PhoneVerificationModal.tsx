@@ -12,6 +12,8 @@ import { useCallback, useState } from 'react'
 import {
   isPhoneVerificationRateLimited,
   isPhoneVerified,
+  isSamePhone,
+  pendingPhoneChange,
   profileContactNumber,
 } from '@/app/(auth)/helpers/phoneVerification'
 import { useUserStore } from '@/app/(auth)/store/user'
@@ -46,6 +48,9 @@ export function PhoneVerificationModal({
   const getUser = useUserStore((s) => s.getUser)
 
   const savedPhone = profileContactNumber(me)
+  // A verified number is changed through a pending number: it stays live
+  // until the new one's code is approved (BE-71).
+  const changing = isPhoneVerified(me)
   const [step, setStep] = useState<Step>('phone')
   const [phoneDraft, setPhoneDraft] = useState('')
   const [activePhone, setActivePhone] = useState('')
@@ -72,7 +77,14 @@ export function PhoneVerificationModal({
   const onModalRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node || !open) return
-      setPhoneDraft(savedPhone || '')
+      const pending = pendingPhoneChange(me)
+      if (pending) {
+        setPhoneDraft(pending)
+        setActivePhone(pending)
+        setStep('code')
+        return
+      }
+      setPhoneDraft(isPhoneVerified(me) ? '' : savedPhone || '')
       if (!savedPhone || isPhoneVerified(me)) {
         setStep('phone')
       }
@@ -100,9 +112,15 @@ export function PhoneVerificationModal({
       return
     }
 
+    if (changing && isSamePhone(e164, savedPhone)) {
+      setError("That's already your verified number.")
+      return
+    }
+
     setError(null)
     try {
-      if (e164 !== savedPhone) {
+      // Unverified numbers are still saved straight away.
+      if (!changing && e164 !== savedPhone) {
         const result = await updateMyProfile({
           variables: { input: { contactNumber: e164 } },
         })
@@ -123,16 +141,18 @@ export function PhoneVerificationModal({
         throw new Error('Could not send verification code.')
       }
 
+      if (changing) patchMe({ pendingPhone: e164 })
       setActivePhone(e164)
       setStep('code')
       setCode('')
       setRateLimited(false)
-      trackFlowSucceeded(EVENTS.phone_verify_send_success)
+      trackFlowSucceeded(EVENTS.phone_verify_send_success, { change: changing })
     } catch (e) {
       trackFlowFailed(EVENTS.phone_verify_send_fail, e, {
         flow: 'phone_verify',
         action: 'sendPhoneVerification',
         operation: 'SendPhoneVerification',
+        extra: { change: changing },
       })
       if (isPhoneVerificationRateLimited(e)) {
         setRateLimited(true)
@@ -161,10 +181,12 @@ export function PhoneVerificationModal({
         throw new Error('Could not verify your phone number.')
       }
       await getUser()
-      trackFlowSucceeded(EVENTS.phone_verify_success)
+      trackFlowSucceeded(EVENTS.phone_verify_success, { change: changing })
       showAppToast({
-        title: 'Phone verified',
-        description: 'Your phone number is now verified on your account.',
+        title: changing ? 'Phone number changed' : 'Phone verified',
+        description: changing
+          ? 'Your new number is verified and now on your account.'
+          : 'Your phone number is now verified on your account.',
         type: 'success',
       })
       onVerified?.()
@@ -174,6 +196,7 @@ export function PhoneVerificationModal({
         flow: 'phone_verify',
         action: 'verifyPhone',
         operation: 'VerifyPhone',
+        extra: { change: changing },
       })
       setError(getFriendlyErrorMessage(e, 'That code did not work. Try again.'))
     }
@@ -186,13 +209,15 @@ export function PhoneVerificationModal({
 
   if (!me) return null
 
+  const title = changing ? 'Change phone number' : 'Add contact phone number'
+
   return (
     <div ref={onModalRef}>
       {step === 'phone' ? (
         <Modal
           open={open}
           onOpenChange={handleOpenChange}
-          title="Add contact phone number"
+          title={title}
           cancelLabel="Cancel"
           submitLabel="Submit"
           onSubmit={() => void saveAndSendCode()}
@@ -200,8 +225,9 @@ export function PhoneVerificationModal({
           submitDisabled={rateLimited}
         >
           <Text fontSize="sm" color="text.muted" lineHeight="tall">
-            Enter your contact phone number. We only confirm we can reach this
-            number — it is not an identity, DBS, or safety check.
+            {changing
+              ? 'Enter your new mobile number. Your current number stays on your account until you confirm the new one with the code we text you.'
+              : 'Enter your contact phone number. We only confirm we can reach this number. It is not an identity, DBS, or safety check.'}
           </Text>
           <FormField label="Mobile number">
             <PhoneInput
@@ -224,7 +250,7 @@ export function PhoneVerificationModal({
         <Modal
           open={open}
           onOpenChange={handleOpenChange}
-          title="Add contact phone number"
+          title={title}
           backLabel="Back"
           onBack={() => {
             setStep('phone')

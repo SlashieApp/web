@@ -1,3 +1,5 @@
+import { LoginMethod } from '@codegen/schema'
+
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 
@@ -32,4 +34,14 @@ export function isResendVerificationRateLimitedError(error: unknown): boolean {
 
 export function isEmailMismatchError(error: unknown): boolean {
   return getGraphQLErrorCode(error) === EMAIL_MISMATCH_ERROR_CODE
+}
+
+/** New email waiting for its verify link; `me.email` stays live until then. */
+export function pendingEmailChange(me: MeSnapshot | null | undefined): string {
+  return me?.pendingEmail?.trim() ?? ''
+}
+
+/** Only password accounts can change email; Google-only keeps its Google email. */
+export function canChangeEmail(me: MeSnapshot | null | undefined): boolean {
+  return me?.enabledLoginMethods?.includes(LoginMethod.Password) ?? false
 }

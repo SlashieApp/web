@@ -1,0 +1,3 @@
+mutation RequestEmailChange($newEmail: String!, $password: String!) {
+  requestEmailChange(newEmail: $newEmail, password: $password)
+}
