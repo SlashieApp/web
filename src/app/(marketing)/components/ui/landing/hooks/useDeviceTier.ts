@@ -3,45 +3,22 @@
 import { useEffect, useState } from 'react'
 
 /**
- * Adaptive quality tier for the WebGL hero globe.
- * - `off`: prefers-reduced-motion or no WebGL — render the static poster only.
- * - `low`: static COBE globe (no auto-rotate), lower map samples / DPR.
- * - `mid` / `high`: gently auto-rotating globe with richer samples.
+ * Adaptive quality tier for the landing's 3D scene.
+ * - `off`: prefers-reduced-motion or no WebGL: no canvas, the still poster.
+ * - `low`: three objects, lower pixel ratio.
+ * - `mid` / `high`: the full scene (`high` = desktop-class hardware).
  */
 export type DeviceTier = 'high' | 'mid' | 'low' | 'off'
 
 export type TierSettings = {
-  /** DPR cap for the globe canvas. */
+  /** Device-pixel-ratio cap for the canvas. */
   dprMax: number
-  /** Legacy density knobs kept for callers that still read the table. */
-  particles: number
-  pins: number
-  terrainSegments: number
-  antialias: boolean
 }
 
 export const TIER_SETTINGS: Record<Exclude<DeviceTier, 'off'>, TierSettings> = {
-  high: {
-    dprMax: 2,
-    particles: 1400,
-    pins: 26,
-    terrainSegments: 160,
-    antialias: true,
-  },
-  mid: {
-    dprMax: 1.5,
-    particles: 700,
-    pins: 18,
-    terrainSegments: 110,
-    antialias: true,
-  },
-  low: {
-    dprMax: 1.25,
-    particles: 320,
-    pins: 12,
-    terrainSegments: 72,
-    antialias: false,
-  },
+  high: { dprMax: 2 },
+  mid: { dprMax: 1.5 },
+  low: { dprMax: 1.25 },
 }
 
 function supportsWebgl(): boolean {

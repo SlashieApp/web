@@ -37,73 +37,7 @@
         "searchPlaceholder": "What do you need help with?",
         "searchSubmit": "Get quotes",
         "searchAriaLabel": "What do you need help with?",
-        "trustChips": ["No job fee", "Local workers", "Pay directly"],
-        "globeLabels": [
-          {
-            "id": "london",
-            "label": "Furniture assembly · London"
-          },
-          {
-            "id": "nyc",
-            "label": "Garden tidy · NYC"
-          },
-          {
-            "id": "tokyo",
-            "label": "Moving help · Tokyo"
-          },
-          {
-            "id": "hongkong",
-            "label": "Home cleaning · Hong Kong"
-          },
-          {
-            "id": "sydney",
-            "label": "IKEA build · Sydney"
-          },
-          {
-            "id": "singapore",
-            "label": "Pet sitting · Singapore"
-          }
-        ]
-      },
-      "howItWorks": {
-        "heading": "How it works",
-        "body": "Three steps from task to done.",
-        "steps": [
-          {
-            "step": "01",
-            "title": "Post",
-            "body": "Tell workers what you need, when, and where."
-          },
-          {
-            "step": "02",
-            "title": "Compare quotes",
-            "body": "See prices, profiles, reviews, and worker details."
-          },
-          {
-            "step": "03",
-            "title": "Hire & pay directly",
-            "body": "Choose a worker and settle payment between you."
-          }
-        ]
-      },
-      "audience": {
-        "heading": "For customers and workers",
-        "customer": {
-          "title": "For customers",
-          "items": [
-            "Post tasks for free",
-            "Compare quotes from nearby workers",
-            "Choose by price, profile, and reviews"
-          ]
-        },
-        "worker": {
-          "title": "For workers",
-          "items": [
-            "Find real tasks on the map",
-            "Send quotes and win work nearby",
-            "Keep the job price you agree with the customer"
-          ]
-        }
+        "trustChips": ["No job fee", "Local workers", "Pay directly"]
       },
       "trust": {
         "points": [
@@ -389,73 +323,7 @@
         "searchPlaceholder": "你需要什麼幫忙？",
         "searchSubmit": "取得報價",
         "searchAriaLabel": "你需要什麼幫忙？",
-        "trustChips": ["不抽任務費", "本地工作者", "直接付款"],
-        "globeLabels": [
-          {
-            "id": "london",
-            "label": "傢俬組裝 · 倫敦"
-          },
-          {
-            "id": "nyc",
-            "label": "花園整理 · 紐約"
-          },
-          {
-            "id": "tokyo",
-            "label": "搬家幫手 · 東京"
-          },
-          {
-            "id": "hongkong",
-            "label": "家居清潔 · 香港"
-          },
-          {
-            "id": "sydney",
-            "label": "傢俬組裝 · 悉尼"
-          },
-          {
-            "id": "singapore",
-            "label": "寵物照顧 · 新加坡"
-          }
-        ]
-      },
-      "howItWorks": {
-        "heading": "運作方式",
-        "body": "三步完成任務。",
-        "steps": [
-          {
-            "step": "01",
-            "title": "發布",
-            "body": "說明你需要什麼、時間和地點。"
-          },
-          {
-            "step": "02",
-            "title": "比較報價",
-            "body": "查看價格、個人檔案、評價和工作者資料。"
-          },
-          {
-            "step": "03",
-            "title": "聘用並直接付款",
-            "body": "選定工作者，雙方自行完成付款。"
-          }
-        ]
-      },
-      "audience": {
-        "heading": "為客戶和工作者而設",
-        "customer": {
-          "title": "給客戶",
-          "items": [
-            "免費發布任務",
-            "比較附近工作者的報價",
-            "按價格、檔案和評價選擇"
-          ]
-        },
-        "worker": {
-          "title": "給工作者",
-          "items": [
-            "在地圖上找到真實任務",
-            "發送報價，接附近的工作",
-            "保留你與客戶議定的任務收入"
-          ]
-        }
+        "trustChips": ["不抽任務費", "本地工作者", "直接付款"]
       },
       "trust": {
         "points": [
