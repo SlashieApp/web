@@ -14,23 +14,10 @@ export function mapTaskStatus(
     return 'OPEN'
   }
 
-  if (
-    s === 'QUOTE_ACCEPTED' ||
-    s === 'AWARDED' ||
-    s === 'IN_PROGRESS' ||
-    s === 'INPROGRESS'
-  ) {
-    return 'AWARDED'
-  }
+  // A finished job stays AWARDED; completion lives on the order.
+  if (s === 'AWARDED') return 'AWARDED'
 
-  if (
-    s === 'COMPLETED' ||
-    s === 'CONFIRMED' ||
-    s === 'CANCELLED' ||
-    s === 'CLOSED'
-  ) {
-    return 'CLOSED'
-  }
+  if (s === 'CANCELLED' || s === 'CLOSED') return 'CLOSED'
 
   return 'OPEN'
 }

@@ -2,13 +2,7 @@
 
 import { Box, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { type ReactNode, useState } from 'react'
-import {
-  LuCalendar,
-  LuCheck,
-  LuClock,
-  LuMapPin,
-  LuMessageCircle,
-} from 'react-icons/lu'
+import { LuCalendar, LuCheck, LuMapPin, LuMessageCircle } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -37,8 +31,6 @@ export type QuoteCardProps = {
   respondedLabel?: string | null
   /** Availability line, e.g. "Available tomorrow". */
   availabilityLabel?: string | null
-  /** Duration line, e.g. "2–3 hrs est." */
-  durationLabel?: string | null
   distanceLabel?: string | null
   /** Status badge under the price: Accepted / Declined / Your quote. */
   statusBadge?: QuoteCardStatusBadge | null
@@ -91,7 +83,6 @@ export function QuoteCard({
   message,
   respondedLabel,
   availabilityLabel,
-  durationLabel,
   distanceLabel,
   statusBadge,
   showVerified = false,
@@ -306,9 +297,6 @@ export function QuoteCard({
             <MetaLine icon={<LuCalendar size={16} />}>
               {availabilityLabel}
             </MetaLine>
-          ) : null}
-          {durationLabel ? (
-            <MetaLine icon={<LuClock size={16} />}>{durationLabel}</MetaLine>
           ) : null}
           {showVerified ? (
             <MetaLine icon={<LuCheck size={16} />} tone="success">

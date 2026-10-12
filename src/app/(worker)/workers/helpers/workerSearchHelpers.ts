@@ -54,11 +54,6 @@ export function workerExperienceShortLabel(
   return `${years} yr${years === 1 ? '' : 's'} exp`
 }
 
-export function workerRespondsLabel(worker: WorkerSearchItem): string | null {
-  const avg = worker.averageResponseTime?.trim()
-  return avg ? `Responds in ${avg}` : null
-}
-
 export function formatWorkersListTitle(
   count: number,
   areaLabel: string,

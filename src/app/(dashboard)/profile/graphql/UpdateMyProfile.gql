@@ -5,7 +5,6 @@ mutation UpdateMyProfile($input: UpdateMyProfileInput!) {
       name
       contactNumber
       avatarUrl
-      bio
       dateOfBirth
       defaultPreferredContactMethod
       emailVerified

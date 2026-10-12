@@ -90,7 +90,7 @@ export function workerHeroStats(worker: WorkerPublicRecord): string[] {
       `${average.toFixed(1)} (${count} review${count === 1 ? '' : 's'})`,
     )
   }
-  const jobs = worker.completedJobs.length || (worker.tasksCompletedCount ?? 0)
+  const jobs = worker.completedJobs.length
   stats.push(`${jobs} job${jobs === 1 ? '' : 's'} completed`)
   const memberSince = formatMemberSince(
     worker.memberSince ?? worker.user.createdAt,

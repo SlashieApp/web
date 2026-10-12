@@ -88,11 +88,11 @@ export const workerFormSchema = z.object({
 export type WorkerFormValues = z.infer<typeof workerFormSchema>
 
 export function workerFormValuesFromMe(me: MeSnapshot): WorkerFormValues {
-  const lat = me.worker?.location?.lat ?? me.worker?.locationLat
-  const lng = me.worker?.location?.lng ?? me.worker?.locationLng
+  const lat = me.worker?.preferredLocation?.lat ?? me.worker?.locationLat
+  const lng = me.worker?.preferredLocation?.lng ?? me.worker?.locationLng
   const locationLabel =
-    me.worker?.location?.name?.trim() ||
-    me.worker?.location?.address?.trim() ||
+    me.worker?.preferredLocation?.name?.trim() ||
+    me.worker?.preferredLocation?.address?.trim() ||
     me.worker?.locationAddress?.trim() ||
     ''
 

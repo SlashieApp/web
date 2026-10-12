@@ -61,7 +61,6 @@ export type WorkerSearchCardProps = {
   subtitle?: string | null
   ratingLabel?: string | null
   experienceLabel?: string | null
-  respondsLabel?: string | null
   serviceAreaLabel?: string | null
   skills?: readonly string[]
   profileHref: string
@@ -79,7 +78,6 @@ export function WorkerSearchCard({
   subtitle,
   ratingLabel,
   experienceLabel,
-  respondsLabel,
   serviceAreaLabel,
   skills = [],
   profileHref,
@@ -100,7 +98,6 @@ export function WorkerSearchCard({
       subtitle,
       ratingLabel,
       experienceLabel,
-      respondsLabel,
       serviceAreaLabel,
       skills,
     })
@@ -275,21 +272,6 @@ export function WorkerSearchCard({
               </Text>
             </HStack>
           </ViewTransition>
-
-          {respondsLabel ? (
-            <ViewTransition
-              name={morphing ? workerVtName('responds', workerId) : undefined}
-              share="vt-text"
-              default="none"
-            >
-              <HStack gap={1.5} fontSize="xs" minW={0}>
-                <CheckDisc size={12} />
-                <Text color="text.muted" lineClamp={1}>
-                  {respondsLabel}
-                </Text>
-              </HStack>
-            </ViewTransition>
-          ) : null}
 
           {visibleSkills.length > 0 ? (
             <ViewTransition

@@ -42,8 +42,6 @@ export function WorkerSetupProfilePreview() {
     phoneVerified: isPhoneVerified(me),
     emailVerified: isEmailVerified(me),
     yearsExperience: Number.isInteger(years) && years >= 0 ? years : null,
-    averageResponseTime: null,
-    tasksCompletedCount: 0,
     quotesSentCount: 0,
     memberSince: null,
     legalName: fullName || null,

@@ -117,7 +117,6 @@ export function storyTaskQuote(
     message: 'I can do this Saturday morning with my own tools.',
     status: QuoteStatus.Pending,
     createdAt: '2026-05-29T14:30:00.000Z',
-    estimatedDuration: '150',
     worker: {
       id: STORY_WORKER_ID,
       profile: { name: 'Jordan Lee', avatarUrl: STORY_AVATAR },
@@ -209,7 +208,6 @@ export function storyMe(
             tagline: null,
             yearsExperience: 5,
             isVerified: true,
-            tasksCompletedCount: 42,
             locationAddress: 'London',
             profile: { name: 'Jordan Lee' },
             // Required by isWorkerSetupComplete — without it worker stories

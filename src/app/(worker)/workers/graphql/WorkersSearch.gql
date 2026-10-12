@@ -7,8 +7,6 @@ query WorkersSearch($filter: WorkerFilter, $sort: WorkerSort) {
     tagline
     isVerified
     yearsExperience
-    averageResponseTime
-    tasksCompletedCount
     skills
     serviceAreaLabel
     ratingSummary {

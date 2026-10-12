@@ -26,7 +26,6 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
   formatPoundsFromPence,
-  formatQuoteDurationLabel,
   splitQuoteMessageAvailability,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
@@ -291,10 +290,6 @@ function quoteCardBaseProps(
     showPrice: pence != null,
     message: body,
     availabilityLabel: availability,
-    durationLabel: formatQuoteDurationLabel(
-      quote.estimatedDuration,
-      quotesCopy.card,
-    ),
     showVerified: Boolean(quote.worker?.worker?.isVerified),
     respondedLabel:
       formatRespondedAgo(quote.createdAt, quotesCopy) ?? undefined,

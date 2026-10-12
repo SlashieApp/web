@@ -30,7 +30,6 @@ export const Default: Story = {
     subtitle: 'Handyman · Furniture assembly',
     ratingLabel: '4.9 (128)',
     experienceLabel: '5 yrs exp',
-    respondsLabel: 'Responds in ~30 min',
     serviceAreaLabel: 'Southwark & Lambeth',
     skills: ['Assembly', 'Mounting', 'Flat-pack', 'Painting', 'Repairs'],
     profileHref: '/profile/user-1',
@@ -43,7 +42,6 @@ export const NoReviewsYet: Story = {
     name: 'Priya Anand',
     verified: false,
     ratingLabel: null,
-    respondsLabel: null,
     experienceLabel: '2 yrs exp',
   },
 }

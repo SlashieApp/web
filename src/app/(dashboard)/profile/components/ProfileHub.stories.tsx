@@ -35,7 +35,6 @@ function profileFixture({
       contactNumber: '+447878154432',
       avatarUrl:
         'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=128&h=128&fit=crop',
-      bio: null,
       dateOfBirth: '1992-04-12T00:00:00.000Z',
       defaultPreferredContactMethod: null,
       emailVerified: true,
@@ -66,11 +65,10 @@ function profileFixture({
                   ]
                 : [],
             isVerified: false,
-            tasksCompletedCount: 12,
             locationAddress: 'Watford',
             locationLat: 51.6565,
             locationLng: -0.3903,
-            location: {
+            preferredLocation: {
               name: 'Watford',
               address: 'Private street address',
               lat: 51.6565,

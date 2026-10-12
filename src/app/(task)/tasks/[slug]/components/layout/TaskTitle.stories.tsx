@@ -26,7 +26,7 @@ export const Completed: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'customer',
-      task: storyTaskDetail({ status: TaskStatus.InProgress }),
+      task: storyTaskDetail({ status: TaskStatus.Awarded }),
       order: storyTaskOrder({
         status: 'COMPLETED' as OrderStatus,
         closedAt: '2026-05-20T16:00:00.000Z',

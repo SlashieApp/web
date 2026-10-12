@@ -126,14 +126,14 @@ export function ContactCard({
 
 function workerLocationLabel(me: MeSnapshot, notAdded: string): string {
   return (
-    me.worker?.location?.name?.trim() ||
+    me.worker?.preferredLocation?.name?.trim() ||
     me.worker?.locationAddress?.trim() ||
     notAdded
   )
 }
 
 function publicServiceAreaLabel(me: MeSnapshot, notAdded: string): string {
-  return me.worker?.location?.name?.trim() || notAdded
+  return me.worker?.preferredLocation?.name?.trim() || notAdded
 }
 
 function workerCategoryLabel(me: MeSnapshot, notAdded: string): string {

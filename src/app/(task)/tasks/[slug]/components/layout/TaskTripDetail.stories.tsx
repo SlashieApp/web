@@ -77,7 +77,7 @@ export const OwnerWithQuotes = tripStory({
 
 export const OwnerAwardedWithCode = tripStory({
   viewer: 'customer',
-  task: storyTaskDetail({ status: TaskStatus.QuoteAccepted }),
+  task: storyTaskDetail({ status: TaskStatus.Awarded }),
   order: storyTaskOrder({
     status: OrderStatus.Active,
     completionVerificationCode: '482913',
@@ -86,13 +86,13 @@ export const OwnerAwardedWithCode = tripStory({
 
 export const WorkerJobConfirmed = tripStory({
   viewer: 'worker',
-  task: storyTaskDetail({ status: TaskStatus.QuoteAccepted }),
+  task: storyTaskDetail({ status: TaskStatus.Awarded }),
   order: storyTaskOrder({ status: OrderStatus.Active }),
 })
 
 export const Closed = tripStory({
   viewer: 'owner',
-  task: storyTaskDetail({ status: TaskStatus.Completed }),
+  task: storyTaskDetail({ status: TaskStatus.Awarded }),
   order: storyTaskOrder({ status: OrderStatus.Completed }),
 })
 

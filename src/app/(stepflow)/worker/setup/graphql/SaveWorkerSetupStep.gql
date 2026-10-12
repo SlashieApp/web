@@ -10,7 +10,7 @@ mutation SaveWorkerSetupStep($input: SaveWorkerSetupStepInput!) {
     qualifications
     travelRadiusMiles
     portfolioUrls
-    location {
+    preferredLocation {
       address
       lat
       lng

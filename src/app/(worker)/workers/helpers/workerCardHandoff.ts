@@ -9,7 +9,6 @@ export type WorkerCardHandoff = {
   subtitle?: string | null
   ratingLabel?: string | null
   experienceLabel?: string | null
-  respondsLabel?: string | null
   serviceAreaLabel?: string | null
   skills?: readonly string[]
 }
@@ -24,7 +23,7 @@ export function workerHandoffFor(id: string): WorkerCardHandoff | null {
 }
 
 export function workerVtName(
-  kind: 'img' | 'name' | 'subtitle' | 'rating' | 'area' | 'responds' | 'skills',
+  kind: 'img' | 'name' | 'subtitle' | 'rating' | 'area' | 'skills',
   id: string,
 ): string {
   return `worker-${kind}-${id}`

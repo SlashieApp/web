@@ -21,7 +21,8 @@ export function mergeMeWorkerSetupQuery(
         skills: bootstrap.worker.skills ?? base.worker?.skills ?? [],
         portfolioUrls:
           bootstrap.worker.portfolioUrls ?? base.worker?.portfolioUrls ?? [],
-        location: bootstrap.worker.location ?? base.worker?.location,
+        preferredLocation:
+          bootstrap.worker.preferredLocation ?? base.worker?.preferredLocation,
         setupProgress:
           bootstrap.worker.setupProgress ?? base.worker?.setupProgress,
         membership: base.worker?.membership,
@@ -56,15 +57,16 @@ export function mergeSaveWorkerSetupIntoMe(
     travelRadiusMiles:
       saved.travelRadiusMiles ?? currentWorker?.travelRadiusMiles,
     portfolioUrls: saved.portfolioUrls ?? currentWorker?.portfolioUrls ?? [],
-    location: saved.location ?? currentWorker?.location,
+    preferredLocation:
+      saved.preferredLocation ?? currentWorker?.preferredLocation,
     setupProgress: saved.setupProgress ?? currentWorker?.setupProgress,
     membership: currentWorker?.membership,
     earnings: currentWorker?.earnings,
     isVerified: currentWorker?.isVerified ?? false,
-    tasksCompletedCount: currentWorker?.tasksCompletedCount,
-    locationAddress: saved.location?.address ?? currentWorker?.locationAddress,
-    locationLat: saved.location?.lat ?? currentWorker?.locationLat,
-    locationLng: saved.location?.lng ?? currentWorker?.locationLng,
+    locationAddress:
+      saved.preferredLocation?.address ?? currentWorker?.locationAddress,
+    locationLat: saved.preferredLocation?.lat ?? currentWorker?.locationLat,
+    locationLng: saved.preferredLocation?.lng ?? currentWorker?.locationLng,
   } as NonNullable<MeQuery['me']['worker']>
 
   return {

@@ -51,12 +51,11 @@ function baseOrder(overrides: Partial<OrderItem> = {}): OrderItem {
 }
 
 describe('mapTaskStatus', () => {
-  it('maps legacy statuses to canonical phases', () => {
+  it('maps API statuses to canonical phases', () => {
+    expect(mapTaskStatus('DRAFT')).toBe('OPEN')
     expect(mapTaskStatus('OPEN')).toBe('OPEN')
-    expect(mapTaskStatus('QUOTE_ACCEPTED')).toBe('AWARDED')
-    expect(mapTaskStatus('IN_PROGRESS')).toBe('AWARDED')
-    expect(mapTaskStatus('CONFIRMED')).toBe('CLOSED')
-    expect(mapTaskStatus('COMPLETED')).toBe('CLOSED')
+    expect(mapTaskStatus('AWARDED')).toBe('AWARDED')
+    expect(mapTaskStatus('CANCELLED')).toBe('CLOSED')
   })
 })
 
@@ -116,7 +115,7 @@ describe('getTaskDetailPermissions', () => {
 
   it('order worker with ACTIVE order sees worker job tools', () => {
     const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.QuoteAccepted }),
+      task: baseTask({ status: TaskStatus.Awarded }),
       myOrder: baseOrder(),
       me: workerMe(),
       myQuote: null,
@@ -133,7 +132,7 @@ describe('getTaskDetailPermissions', () => {
 
   it('owner with ACTIVE order sees completion code', () => {
     const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.InProgress }),
+      task: baseTask({ status: TaskStatus.Awarded }),
       myOrder: baseOrder(),
       me: { id: OWNER_ID, worker: null } as never,
       myQuote: null,
@@ -144,16 +143,15 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.showFullAddress).toBe(true)
   })
 
-  it('CLOSED task disables open-phase actions', () => {
+  it('finished job disables open-phase actions', () => {
     const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.Confirmed }),
+      task: baseTask({ status: TaskStatus.Awarded }),
       myOrder: baseOrder({ status: OrderStatus.Completed }),
       me: { id: OWNER_ID, worker: null } as never,
       myQuote: null,
       isAuthenticated: true,
     })
 
-    expect(permissions.isClosed).toBe(true)
     expect(permissions.isJobCompleted).toBe(true)
     expect(permissions.showAcceptDecline).toBe(false)
     expect(permissions.canCancelTask).toBe(false)
@@ -162,7 +160,7 @@ describe('getTaskDetailPermissions', () => {
 
   it('COMPLETED order shows completed chrome and hides booking tools', () => {
     const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.InProgress }),
+      task: baseTask({ status: TaskStatus.Awarded }),
       myOrder: baseOrder({
         status: 'COMPLETED' as OrderStatus,
         closedAt: '2026-05-20T16:00:00.000Z',
@@ -181,7 +179,7 @@ describe('getTaskDetailPermissions', () => {
 
   it('does not treat a legacy CLOSED order as completed', () => {
     const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.InProgress }),
+      task: baseTask({ status: TaskStatus.Awarded }),
       myOrder: baseOrder({ status: 'CLOSED' as OrderStatus }),
       me: workerMe(),
       myQuote: null,
@@ -189,19 +187,6 @@ describe('getTaskDetailPermissions', () => {
     })
 
     expect(permissions.isJobCompleted).toBe(false)
-  })
-
-  it('completed task with no order still counts as completed', () => {
-    const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.Completed }),
-      myOrder: null,
-      me: { id: OWNER_ID, worker: null } as never,
-      myQuote: null,
-      isAuthenticated: true,
-    })
-
-    expect(permissions.isJobCompleted).toBe(true)
-    expect(permissions.isCancelled).toBe(false)
   })
 
   it('cancelled tasks keep cancelled chrome', () => {

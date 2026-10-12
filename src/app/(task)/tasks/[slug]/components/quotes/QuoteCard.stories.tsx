@@ -29,7 +29,6 @@ const james = {
   message:
     "Hi! I can help with this tomorrow. I've got the right tools and plenty of experience with small home jobs. Happy to get it sorted for you.",
   availabilityLabel: 'Available tomorrow',
-  durationLabel: '2–3 hrs est.',
   distanceLabel: '1.2 miles away',
   ratingLine: '4.9 (124 reviews)',
   showVerified: true,

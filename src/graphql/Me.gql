@@ -14,7 +14,6 @@ query Me {
       name
       contactNumber
       avatarUrl
-      bio
       dateOfBirth
       defaultPreferredContactMethod
       emailVerified
@@ -38,11 +37,10 @@ query Me {
       travelRadiusMiles
       portfolioUrls
       isVerified
-      tasksCompletedCount
       locationAddress
       locationLat
       locationLng
-      location {
+      preferredLocation {
         address
         lat
         lng

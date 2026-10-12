@@ -14,8 +14,6 @@ query WorkerPublicProfile($id: ID!) {
     emailVerified
     qualifications
     yearsExperience
-    averageResponseTime
-    tasksCompletedCount
     quotesSentCount
     memberSince
     legalName

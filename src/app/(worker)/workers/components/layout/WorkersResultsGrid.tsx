@@ -25,7 +25,6 @@ import {
   workerDisplayName,
   workerExperienceShortLabel,
   workerRatingLabel,
-  workerRespondsLabel,
   workerServiceAreaLabel,
   workerSubtitle,
 } from '../../helpers/workerSearchHelpers'
@@ -173,7 +172,6 @@ export function WorkersResultsGrid() {
                 subtitle={workerSubtitle(worker)}
                 ratingLabel={workerRatingLabel(worker)}
                 experienceLabel={workerExperienceShortLabel(worker)}
-                respondsLabel={workerRespondsLabel(worker)}
                 serviceAreaLabel={workerServiceAreaLabel(worker)}
                 skills={worker.skills ?? []}
                 profileHref={publicProfilePath(worker.user.id)}

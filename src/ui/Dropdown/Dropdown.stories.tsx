@@ -28,7 +28,6 @@ const accountMenuMe: MeSnapshot = {
     name: 'Ryan Kwan',
     contactNumber: '+447878154432',
     avatarUrl: null,
-    bio: 'Handyman covering North London.',
     dateOfBirth: '1990-04-12T00:00:00.000Z',
     defaultPreferredContactMethod: null,
     emailVerified: true,
@@ -49,7 +48,7 @@ const accountMenuMe: MeSnapshot = {
     skills: ['Plumbing', 'Assembly'],
     qualifications: [],
     portfolioUrls: [],
-    location: {
+    preferredLocation: {
       address: 'London',
       lat: 51.5074,
       lng: -0.1278,
@@ -61,7 +60,6 @@ const accountMenuMe: MeSnapshot = {
       isComplete: true,
     },
     isVerified: true,
-    tasksCompletedCount: 12,
     locationAddress: 'London',
     locationLat: 51.5074,
     locationLng: -0.1278,

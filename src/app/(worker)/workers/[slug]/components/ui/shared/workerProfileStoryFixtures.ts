@@ -15,8 +15,6 @@ export const workerProfileFixture: WorkerPublicRecord = {
   phoneVerified: true,
   emailVerified: true,
   yearsExperience: 3,
-  averageResponseTime: 'under 2 hours',
-  tasksCompletedCount: 2,
   quotesSentCount: 12,
   memberSince: '2026-06-05T10:00:00.000Z',
   legalName: 'James Thornton',

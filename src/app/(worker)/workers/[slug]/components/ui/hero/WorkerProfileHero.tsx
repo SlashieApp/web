@@ -59,11 +59,6 @@ export function WorkerProfileHero() {
   const serviceArea = worker
     ? workerServiceAreaDisplay(worker)
     : (seed?.serviceAreaLabel?.trim() ?? null)
-  const respondsLabel = worker
-    ? worker.averageResponseTime?.trim()
-      ? `Responds in ${worker.averageResponseTime.trim()}`
-      : null
-    : (seed?.respondsLabel ?? null)
   const verified = worker ? Boolean(worker.isVerified) : Boolean(seed?.verified)
   const avatarUrl =
     worker?.profile?.avatarUrl?.trim() || seed?.avatarUrl?.trim() || undefined
@@ -228,18 +223,6 @@ export function WorkerProfileHero() {
                 </ViewTransition>
               ) : !worker ? (
                 <Skeleton h="16px" w="50%" borderRadius="md" />
-              ) : null}
-
-              {respondsLabel ? (
-                <ViewTransition
-                  name={named ? workerVtName('responds', workerId) : undefined}
-                  share="vt-text"
-                  default="none"
-                >
-                  <Text fontSize="sm" color="text.muted">
-                    {respondsLabel}
-                  </Text>
-                </ViewTransition>
               ) : null}
 
               {serviceArea ? (

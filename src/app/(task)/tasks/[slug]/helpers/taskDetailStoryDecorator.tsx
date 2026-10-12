@@ -98,7 +98,6 @@ function TaskDetailStorySeed({
             })),
             quotes: task.quotes.map((q) => ({
               __typename: 'Quote',
-              estimatedDuration: null,
               ...q,
               price: q.price ? { __typename: 'Price', ...q.price } : null,
               worker: q.worker

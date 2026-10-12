@@ -7,7 +7,6 @@ mutation RegisterAsPro($input: ProRegistrationInput!) {
     tagline
     yearsExperience
     isVerified
-    tasksCompletedCount
     locationAddress
     profile {
       name

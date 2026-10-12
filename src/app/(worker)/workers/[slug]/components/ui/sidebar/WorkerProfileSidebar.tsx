@@ -8,7 +8,6 @@ import {
 import {
   LuCalendar,
   LuCheck,
-  LuClock,
   LuLock,
   LuSend,
   LuShieldCheck,
@@ -87,7 +86,6 @@ export function WorkerProfileSidebar() {
     worker.memberSince ?? worker.user.createdAt,
   )
   const years = worker.yearsExperience
-  const avgResponse = worker.averageResponseTime?.trim()
   const quotesSent = worker.quotesSentCount
   const qualifications = worker.qualifications
     .map((q) => q.trim())
@@ -143,10 +141,7 @@ export function WorkerProfileSidebar() {
         </Stack>
       </Card>
 
-      {years != null ||
-      avgResponse ||
-      quotesSent > 0 ||
-      qualifications.length > 0 ? (
+      {years != null || quotesSent > 0 || qualifications.length > 0 ? (
         <Card layout="section" heading="At a glance">
           <Stack gap={3}>
             {years != null && years > 0 ? (
@@ -161,17 +156,8 @@ export function WorkerProfileSidebar() {
                 label={`${quotesSent} quote${quotesSent === 1 ? '' : 's'} sent`}
               />
             ) : null}
-            {avgResponse ? (
-              <GlanceRow
-                icon={<LuClock size={15} strokeWidth={2} />}
-                label={`Avg response ${avgResponse}`}
-              />
-            ) : null}
             {qualifications.length > 0 ? (
-              <Stack
-                gap={2}
-                pt={years != null || avgResponse || quotesSent > 0 ? 1 : 0}
-              >
+              <Stack gap={2} pt={years != null || quotesSent > 0 ? 1 : 0}>
                 <HStack gap={1.5} flexWrap="wrap">
                   {qualifications.map((qualification) => (
                     <Badge

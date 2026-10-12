@@ -19,8 +19,8 @@ export type ProfileStrengthItem = {
 export function getProfileStrengthItems(me: MeSnapshot): ProfileStrengthItem[] {
   const worker = me.worker
   const serviceArea =
-    worker?.location?.name?.trim() ||
-    worker?.location?.address?.trim() ||
+    worker?.preferredLocation?.name?.trim() ||
+    worker?.preferredLocation?.address?.trim() ||
     worker?.locationAddress?.trim()
 
   return [

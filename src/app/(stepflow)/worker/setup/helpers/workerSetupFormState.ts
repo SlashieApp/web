@@ -68,9 +68,11 @@ export function formStateFromMeWorkerSetup(
   const lastName = fromLegal.lastName || fromProfile.lastName
 
   const locationLabel =
-    worker?.location?.name?.trim() || worker?.location?.address?.trim() || ''
-  const lat = worker?.location?.lat
-  const lng = worker?.location?.lng
+    worker?.preferredLocation?.name?.trim() ||
+    worker?.preferredLocation?.address?.trim() ||
+    ''
+  const lat = worker?.preferredLocation?.lat
+  const lng = worker?.preferredLocation?.lng
 
   return {
     firstName,

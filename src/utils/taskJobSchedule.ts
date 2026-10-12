@@ -114,11 +114,7 @@ export function isAcceptedQuoteStatus(status: string): boolean {
 }
 
 export function isJobClosedStatus(status: string): boolean {
-  return (
-    status === TaskStatus.Confirmed ||
-    status === TaskStatus.Cancelled ||
-    /confirm|closed/i.test(status)
-  )
+  return status === TaskStatus.Cancelled || /confirm|closed/i.test(status)
 }
 
 export function canSubmitNewQuote(

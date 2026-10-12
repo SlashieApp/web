@@ -323,7 +323,7 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
             qualifications: saved.qualifications,
             travelRadiusMiles: saved.travelRadiusMiles,
             portfolioUrls: saved.portfolioUrls,
-            location: saved.location,
+            preferredLocation: saved.preferredLocation,
             setupProgress: saved.setupProgress,
           },
         }
