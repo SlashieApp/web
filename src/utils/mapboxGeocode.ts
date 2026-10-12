@@ -3,13 +3,24 @@
  * Requires `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` on the client.
  */
 
+/**
+ * Slashie is UK-only, so matches stay in the UK; without this, a common
+ * address such as "11 High Street" resolves to Australia. `proximity`
+ * (the pin or map centre) picks the nearest of several UK matches.
+ */
 export async function mapboxForwardGeocode(
   query: string,
   accessToken: string,
+  opts?: { proximity?: { lat: number; lng: number } | null },
 ): Promise<{ lat: number; lng: number; placeName: string } | null> {
   const q = query.trim()
   if (!q) return null
-  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${encodeURIComponent(accessToken)}&limit=1`
+  const near = opts?.proximity
+  const proximity =
+    near && Number.isFinite(near.lat) && Number.isFinite(near.lng)
+      ? `&proximity=${near.lng},${near.lat}`
+      : ''
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${encodeURIComponent(accessToken)}&limit=1&country=gb${proximity}`
   const res = await fetch(url)
   if (!res.ok) return null
   const data = (await res.json()) as {

@@ -28,8 +28,6 @@ export type CreateTaskMapLocationPanelProps = {
   onCopyMapPlaceToAddress: () => void
   /** First relevant map/location validation message from the form. */
   locationError?: string
-  /** Poster edited the street address, so a previous pin is no longer the place. */
-  onStreetAddressEdited?: () => void
   /** Geocode the street address when the field is left. */
   onStreetAddressBlur?: () => void
 }
@@ -49,7 +47,6 @@ export function CreateTaskMapLocationPanel({
   streetAddressError,
   onCopyMapPlaceToAddress,
   locationError,
-  onStreetAddressEdited,
   onStreetAddressBlur,
 }: CreateTaskMapLocationPanelProps) {
   const canCopyPlace = Boolean(mapPlaceName.trim())
@@ -117,10 +114,6 @@ export function CreateTaskMapLocationPanel({
           <Input
             {...streetAddress}
             placeholder="Apt, street, unit number…"
-            onChange={(event) => {
-              onStreetAddressEdited?.()
-              streetAddress.onChange(event)
-            }}
             onBlur={(event) => {
               streetAddress.onBlur(event)
               onStreetAddressBlur?.()

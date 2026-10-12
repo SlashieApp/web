@@ -46,6 +46,9 @@ describe('resolveSubmittedTaskLocation', () => {
       'fetch',
       vi.fn(async (url: string) => {
         expect(url).toContain(encodeURIComponent('Bushey'))
+        // UK-only, nearest to where the map is.
+        expect(url).toContain('country=gb')
+        expect(url).toContain('proximity=-0.1278,51.5074')
         return {
           ok: true,
           json: async () => ({

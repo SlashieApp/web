@@ -434,10 +434,6 @@ function CreateTaskFormBody({
     return true
   }, [clearErrors, getValues, mapboxAccessToken, setError, setValue])
 
-  const onStreetAddressEdited = useCallback(() => {
-    pinChosenRef.current = false
-  }, [])
-
   const locationError =
     errors.mapPlaceName?.message ??
     errors.locationLat?.message ??
@@ -659,7 +655,6 @@ function CreateTaskFormBody({
             streetAddressError={errors.streetAddress?.message}
             locationError={locationError}
             locateUnavailable={locateUnavailable}
-            onStreetAddressEdited={onStreetAddressEdited}
             onStreetAddressBlur={() => {
               void applyResolvedLocation()
             }}

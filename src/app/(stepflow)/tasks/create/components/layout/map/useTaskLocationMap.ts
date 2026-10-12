@@ -230,7 +230,10 @@ export function useTaskLocationMap({
       const q = query.trim()
       if (q.length < 3) return
 
-      void mapboxForwardGeocode(q, accessToken).then((hit) => {
+      const centre = mapRef.current?.getCenter()
+      void mapboxForwardGeocode(q, accessToken, {
+        proximity: centre ? { lat: centre.lat, lng: centre.lng } : null,
+      }).then((hit) => {
         if (!hit) return
         onLocationLatChangeRef.current(hit.lat.toFixed(6))
         onLocationLngChangeRef.current(hit.lng.toFixed(6))

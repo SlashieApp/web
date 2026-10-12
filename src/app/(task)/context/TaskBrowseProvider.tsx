@@ -558,7 +558,9 @@ export function TaskBrowseProvider({
     if (lastResolvedAreaSearchQueryRef.current === q) return
 
     pendingAreaSearchQueryRef.current = q
-    void mapboxForwardGeocode(q, token)
+    void mapboxForwardGeocode(q, token, {
+      proximity: { lat: referenceLocation.lat, lng: referenceLocation.lng },
+    })
       .then((hit) => {
         if (hit) {
           applyReference({
@@ -575,7 +577,13 @@ export function TaskBrowseProvider({
           pendingAreaSearchQueryRef.current = null
         }
       })
-  }, [applyReference, areaLocationInput, mapboxToken])
+  }, [
+    applyReference,
+    areaLocationInput,
+    mapboxToken,
+    referenceLocation.lat,
+    referenceLocation.lng,
+  ])
 
   // Deep links carry lat/lng only — resolve a human label once on mount.
   useEffect(() => {

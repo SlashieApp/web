@@ -19,8 +19,6 @@ export type CreateTaskLocationSectionProps = {
   locationError?: string
   /** Current location was denied or unavailable. */
   locateUnavailable?: boolean
-  /** Poster edited the street address, so a previous pin is no longer the place. */
-  onStreetAddressEdited?: () => void
   /** Geocode the street address when the field is left. */
   onStreetAddressBlur?: () => void
 }
@@ -35,7 +33,6 @@ export function CreateTaskLocationSection({
   streetAddressError,
   locationError,
   locateUnavailable = false,
-  onStreetAddressEdited,
   onStreetAddressBlur,
 }: CreateTaskLocationSectionProps) {
   const t = useI11n(bag).location
@@ -104,10 +101,6 @@ export function CreateTaskLocationSection({
         <Input
           {...streetAddress}
           placeholder={t.addressPlaceholder}
-          onChange={(event) => {
-            onStreetAddressEdited?.()
-            streetAddress.onChange(event)
-          }}
           onBlur={(event) => {
             streetAddress.onBlur(event)
             onStreetAddressBlur?.()

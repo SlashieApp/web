@@ -459,9 +459,6 @@ function EditTaskFormBody({
             onLocationChange={onMapPlaceNameChange}
             onLocationLatChange={onLocationLatChange}
             onLocationLngChange={onLocationLngChange}
-            onStreetAddressEdited={() => {
-              pinChosenRef.current = false
-            }}
             onStreetAddressBlur={() => {
               void applyResolvedLocation()
             }}

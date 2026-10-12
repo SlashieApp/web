@@ -64,7 +64,10 @@ export async function resolveSubmittedTaskLocation(input: {
   const token = input.accessToken?.trim()
   if (!token) return { ok: false, error: TASK_LOCATION_GEOCODE_ERROR }
 
-  const hit = await mapboxForwardGeocode(query, token)
+  // Prefer matches near where the map is (the camera centre).
+  const hit = await mapboxForwardGeocode(query, token, {
+    proximity: lat != null && lng != null ? { lat, lng } : null,
+  })
   if (!hit) return { ok: false, error: TASK_LOCATION_GEOCODE_ERROR }
 
   return {
