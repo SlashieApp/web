@@ -1,0 +1,11 @@
+#import "./threadFields.gql"
+#import "./threadItemFields.gql"
+
+query MessageThread($threadId: ID!, $first: Int, $before: ID) {
+  thread(id: $threadId) {
+    ...ThreadFields
+  }
+  threadItems(threadId: $threadId, first: $first, before: $before) {
+    ...ThreadItemFields
+  }
+}

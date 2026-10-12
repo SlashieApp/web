@@ -12,19 +12,19 @@ import {
   adminNotificationFormSchema,
   parseAdminNotificationDraft,
 } from '@/content/admin/adminNotificationDraft'
-import type { NotificationCohortKey } from '@/content/reviews/reviewModel'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { AdminCohortKey } from '@codegen/schema'
 import { Button, Card, FormField, Input, Textarea } from '@ui'
 
 import bag from '../../i11n.json'
 
 const COHORTS: {
-  key: NotificationCohortKey
+  key: AdminCohortKey
   labelKey: 'cohortFounding' | 'cohortGeo'
 }[] = [
-  { key: 'founding_workers', labelKey: 'cohortFounding' },
-  { key: 'geo_watford_bushey', labelKey: 'cohortGeo' },
+  { key: AdminCohortKey.FoundingWorkers, labelKey: 'cohortFounding' },
+  { key: AdminCohortKey.GeoWatfordBushey, labelKey: 'cohortGeo' },
 ]
 
 export type AdminNotificationComposerProps = {

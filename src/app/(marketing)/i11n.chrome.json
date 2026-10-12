@@ -7,7 +7,8 @@
     "about": "About",
     "feedback": "Feedback",
     "logIn": "Log in",
-    "getStarted": "Get started"
+    "getStarted": "Get started",
+    "openInApp": "Open in app"
   },
   "zh_hk": {
     "skipToContent": "跳到主要內容",
@@ -17,6 +18,7 @@
     "about": "關於",
     "feedback": "意見",
     "logIn": "登入",
-    "getStarted": "開始使用"
+    "getStarted": "開始使用",
+    "openInApp": "在應用程式中開啟"
   }
 }

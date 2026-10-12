@@ -1,7 +1,7 @@
 import { isQuoteAwarded, timeFromUnknown } from '@/utils/dashboardHelpers'
 import { taskOrderSectionHref } from '@/utils/orderHelpers'
 
-import type { NotificationActivityRow } from '../../helpers/notificationActivity'
+import type { ActivityRow } from '../../helpers/activityRow'
 import {
   type WorkerQuoteRow,
   workerQuoteStage,
@@ -10,8 +10,8 @@ import {
 export function buildWorkerQuoteActivityFallback(
   rows: readonly WorkerQuoteRow[],
   limit = 8,
-): NotificationActivityRow[] {
-  const activity: NotificationActivityRow[] = []
+): ActivityRow[] {
+  const activity: ActivityRow[] = []
 
   for (const row of rows) {
     const stage = workerQuoteStage(row.task, row.quote, row.workerOrder)

@@ -4,7 +4,7 @@ import { Stack, Text } from '@chakra-ui/react'
 
 import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
 import { useI11n } from '@/i18n/useI11n'
-import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav'
+import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav/mobileBottomNavLayout'
 import { Drawer } from '@ui'
 
 import { useWorkerSearch } from '../../context/WorkerSearchProvider'

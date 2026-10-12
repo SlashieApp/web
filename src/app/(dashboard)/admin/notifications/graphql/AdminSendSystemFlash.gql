@@ -1,0 +1,11 @@
+# BE-69: an announcement as a flash in each recipient's Slashie system thread,
+# with push. dryRun returns the recipient count and sends nothing.
+mutation AdminSendSystemFlash($input: AdminSendSystemFlashInput!) {
+  adminSendSystemFlash(input: $input) {
+    dryRun
+    recipientCount
+    audit {
+      id
+    }
+  }
+}

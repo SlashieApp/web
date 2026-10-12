@@ -24,7 +24,6 @@ function baseTask(overrides: Partial<TaskDetailRecord> = {}): TaskDetailRecord {
     title: 'Test task',
     description: 'Desc',
     category: 'HANDYMAN',
-    acceptedWorkerCap: 1,
     status: TaskStatus.Open,
     quotes: [],
     poster: { id: OWNER_ID, profile: { name: 'Alex' } },

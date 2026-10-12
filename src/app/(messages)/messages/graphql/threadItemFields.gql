@@ -1,0 +1,20 @@
+fragment ThreadItemFields on ThreadItem {
+  id
+  threadId
+  type
+  flashKind
+  title
+  body
+  imageUrl
+  isMine
+  taskId
+  quoteId
+  orderId
+  createdAt
+  author {
+    userId
+    name
+    avatarUrl
+    deleted
+  }
+}

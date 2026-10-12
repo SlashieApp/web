@@ -1,8 +1,20 @@
 'use client'
 
-import { Box, HStack, type SystemStyleObject, Text } from '@chakra-ui/react'
+import {
+  Badge,
+  Box,
+  HStack,
+  type SystemStyleObject,
+  Text,
+  chakra,
+} from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
+import { useUserStore } from '@/app/(auth)/store/user'
+import { useMessagesOptional } from '@/app/(messages)/messages/context/MessagesProvider'
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import {
   sdlElevation,
@@ -18,27 +30,11 @@ import {
 } from '@/utils/appRoutes'
 import { useCreateTaskHref } from '@/utils/taskHandoff'
 
+import { MobileNavDrawer } from '../Header/account/MobileNavDrawer'
 import { Link } from '../Link'
 
 import bag from './i11n.json'
-
-/**
- * Space under scrollable content so the last row stays reachable above the
- * fade + floating pill. Taller than the pill alone so the dissolve has runway.
- */
-export const MOBILE_BOTTOM_NAV_CLEARANCE =
-  'calc(96px + env(safe-area-inset-bottom, 0px))' as const
-
-/**
- * Sit floating chrome (search carousel) just above the raised create button.
- * Tighter than {@link MOBILE_BOTTOM_NAV_CLEARANCE}, which leaves fade runway
- * for scrolling pages. Must clear the `mt={-5}` FAB (~20px above the pill).
- */
-export const MOBILE_BOTTOM_NAV_OFFSET =
-  'calc(88px + env(safe-area-inset-bottom, 0px))' as const
-
-/** Widest the floating pill grows; other floating bars match it. */
-export const MOBILE_BOTTOM_NAV_MAX_W = '580px' as const
+import { MESSAGES_HREF, MOBILE_BOTTOM_NAV_MAX_W } from './mobileBottomNavLayout'
 
 /** Full-bleed dissolve behind the pill (taller than the bar itself). */
 const MOBILE_BOTTOM_NAV_FADE_HEIGHT =
@@ -102,9 +98,7 @@ function MobileBottomNavFade() {
   )
 }
 
-export const MESSAGES_HREF = '/dashboard/messages' as const
-
-type NavKey = 'search' | 'myTasks' | 'createTask' | 'account'
+type NavKey = 'search' | 'myTasks' | 'createTask' | 'messages' | 'account'
 
 type NavItem = {
   key: NavKey
@@ -112,6 +106,24 @@ type NavItem = {
   label: string
   icon: React.ReactNode
   emphasize?: boolean
+  /** Unread count badge (Messages). */
+  badge?: number
+  /** Opens the account drawer instead of navigating (signed in). */
+  onPress?: () => void
+}
+
+function MessagesIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <title>Messages</title>
+      <path
+        d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
 }
 
 function SearchIcon() {
@@ -183,12 +195,18 @@ function ProfileIcon() {
 
 /**
  * Mobile-only floating primary nav (lg+ uses Header links instead).
- * Four items: Search · My tasks · Post task · Account.
+ * Five items (Mobile-Navigation-IA): Search · My tasks · Post task ·
+ * Messages (unread badge) · Account. Account opens the full-page account
+ * drawer when signed in, and goes to log in for guests.
  */
 export function MobileBottomNav() {
   const t = useI11n(bag)
   const pathname = usePathname() ?? ''
   const createTaskHref = useCreateTaskHref()
+  const signedIn = Boolean(useUserStore((s) => s.user))
+  const unread = useMessagesOptional()?.unreadCount ?? 0
+  const [accountOpen, setAccountOpen] = useState(false)
+  const [languageOpen, setLanguageOpen] = useState(false)
 
   const items: NavItem[] = [
     {
@@ -211,10 +229,20 @@ export function MobileBottomNav() {
       emphasize: true,
     },
     {
+      key: 'messages',
+      href: MESSAGES_HREF,
+      label: t.messages,
+      icon: <MessagesIcon />,
+      badge: unread,
+    },
+    {
       key: 'account',
-      href: '/profile',
+      href: signedIn
+        ? '/profile'
+        : `/login?next=${encodeURIComponent(pathname || '/')}`,
       label: t.account,
       icon: <ProfileIcon />,
+      onPress: signedIn ? () => setAccountOpen(true) : undefined,
     },
   ]
 
@@ -315,36 +343,59 @@ export function MobileBottomNav() {
               )
             }
 
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                aria-label={item.label}
-                aria-current={active ? 'page' : undefined}
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-                flex={1}
-                minW={0}
-                minH="44px"
-                gap={0.5}
-                py={1}
-                px={0.5}
-                borderRadius="lg"
-                color={active ? 'status.success.fg' : 'text.muted'}
-                textDecoration="none"
-                {...sdlTransitionWithPress('color, background-color')}
-                css={sdlPressActiveCss()}
-                _hover={{
-                  textDecoration: 'none',
-                  color: 'status.success.fg',
-                  bg: 'status.success.soft',
-                }}
-                _focus={{ outline: 'none' }}
-                _focusVisible={sdlFocusRing}
-              >
-                {item.icon}
+            const badge = item.badge ?? 0
+            const label =
+              badge > 0
+                ? formatMessage(t.messagesUnread, { count: badge })
+                : item.label
+            const itemProps = {
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1,
+              minW: 0,
+              minH: '44px',
+              gap: 0.5,
+              py: 1,
+              px: 0.5,
+              borderRadius: 'lg',
+              color: active ? 'status.success.fg' : 'text.muted',
+              textDecoration: 'none',
+              ...sdlTransitionWithPress('color, background-color'),
+              css: sdlPressActiveCss(),
+              _hover: {
+                textDecoration: 'none',
+                color: 'status.success.fg',
+                bg: 'status.success.soft',
+              },
+              _focus: { outline: 'none' },
+              _focusVisible: sdlFocusRing,
+            } as const
+            const content = (
+              <>
+                <Box position="relative" display="inline-flex">
+                  {item.icon}
+                  {badge > 0 ? (
+                    <Badge
+                      position="absolute"
+                      top="-6px"
+                      right="-10px"
+                      minW="16px"
+                      h="16px"
+                      px={1}
+                      borderRadius="full"
+                      justifyContent="center"
+                      bg="status.success.solid"
+                      color="text.onGreen"
+                      fontSize="9px"
+                      fontWeight={800}
+                      aria-hidden
+                    >
+                      {badge > 99 ? '99+' : badge}
+                    </Badge>
+                  ) : null}
+                </Box>
                 <Text
                   fontSize="10px"
                   fontWeight={700}
@@ -357,11 +408,53 @@ export function MobileBottomNav() {
                 >
                   {item.label}
                 </Text>
+              </>
+            )
+
+            if (item.onPress) {
+              return (
+                <chakra.button
+                  key={item.key}
+                  type="button"
+                  aria-label={label}
+                  aria-haspopup="dialog"
+                  bg="transparent"
+                  cursor="pointer"
+                  onClick={item.onPress}
+                  {...itemProps}
+                >
+                  {content}
+                </chakra.button>
+              )
+            }
+
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                aria-label={label}
+                aria-current={active ? 'page' : undefined}
+                {...itemProps}
+              >
+                {content}
               </Link>
             )
           })}
         </HStack>
       </Box>
+      {signedIn ? (
+        <>
+          <MobileNavDrawer
+            open={accountOpen}
+            onOpenChange={setAccountOpen}
+            onOpenLanguage={() => setLanguageOpen(true)}
+          />
+          <LanguageSwitcher
+            open={languageOpen}
+            onOpenChange={setLanguageOpen}
+          />
+        </>
+      ) : null}
     </Box>
   )
 }

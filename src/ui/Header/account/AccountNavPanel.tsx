@@ -20,7 +20,6 @@ export type AccountNavPanelProps = {
   items: AccountNavItem[]
   onNavigate?: () => void
   onLogout: () => void
-  onOpenNotifications?: () => void
   onOpenLanguage?: () => void
   showDividers?: boolean
 }
@@ -29,13 +28,11 @@ function AccountNavRow({
   item,
   onNavigate,
   onLogout,
-  onOpenNotifications,
   onOpenLanguage,
 }: {
   item: AccountNavItem
   onNavigate?: () => void
   onLogout: () => void
-  onOpenNotifications?: () => void
   onOpenLanguage?: () => void
 }) {
   const t = useI11n(bag)
@@ -57,24 +54,6 @@ function AccountNavRow({
           minH="44px"
           onClick={() => {
             onLogout()
-            close()
-          }}
-        >
-          {label}
-        </Button>
-      )
-    }
-    if (item.action === 'notifications') {
-      return (
-        <Button
-          type="button"
-          variant="ghost"
-          {...accountNavLinkRowProps}
-          justifyContent="flex-start"
-          h="auto"
-          minH="44px"
-          onClick={() => {
-            onOpenNotifications?.()
             close()
           }}
         >
@@ -138,7 +117,6 @@ export function AccountNavPanel({
   items,
   onNavigate,
   onLogout,
-  onOpenNotifications,
   onOpenLanguage,
   showDividers = true,
 }: AccountNavPanelProps) {
@@ -152,7 +130,6 @@ export function AccountNavPanel({
           item={item}
           onNavigate={onNavigate}
           onLogout={onLogout}
-          onOpenNotifications={onOpenNotifications}
           onOpenLanguage={onOpenLanguage}
         />
       ))}
@@ -164,7 +141,6 @@ export function AccountNavPanel({
           item={item}
           onNavigate={onNavigate}
           onLogout={onLogout}
-          onOpenNotifications={onOpenNotifications}
           onOpenLanguage={onOpenLanguage}
         />
       ))}
@@ -176,7 +152,6 @@ export function AccountNavPanel({
           item={item}
           onNavigate={onNavigate}
           onLogout={onLogout}
-          onOpenNotifications={onOpenNotifications}
           onOpenLanguage={onOpenLanguage}
         />
       ))}

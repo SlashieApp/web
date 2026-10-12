@@ -135,6 +135,13 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
     'That request is no longer open. Refresh to see the latest.',
   ORDER_OWN_REQUEST: "You can't answer your own request.",
   ORDER_NOT_REQUESTER: 'Only the person who made this request can withdraw it.',
+  MESSAGE_EMPTY: 'Write a message first.',
+  MESSAGE_TOO_LONG: 'Messages can be up to 2,000 characters.',
+  MESSAGE_LOCKED: 'You can message here once a quote is accepted.',
+  MESSAGE_BLOCKED: 'Messages are blocked between you and this person.',
+  MESSAGE_RATE_LIMITED:
+    "You're sending messages too quickly. Wait a moment and try again.",
+  CANNOT_BLOCK_SELF: "You can't block yourself.",
   ORDER_CHANGED:
     'This booking just changed. We have loaded the latest, so check it and try again.',
 }

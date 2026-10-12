@@ -1,14 +1,10 @@
+import { AdminCohortKey } from '@codegen/schema'
 import { z } from 'zod'
-
-import {
-  NOTIFICATION_COHORT_KEYS,
-  type NotificationCohortKey,
-} from '@/content/reviews/reviewModel'
 
 export const ADMIN_NOTIFICATION_TITLE_MAX = 120
 export const ADMIN_NOTIFICATION_BODY_MAX = 500
 
-const cohortKeySchema = z.enum(NOTIFICATION_COHORT_KEYS)
+const cohortKeySchema = z.enum(AdminCohortKey)
 
 export const adminNotificationFormSchema = z.object({
   title: z
@@ -41,7 +37,7 @@ export type AdminNotificationDraft = {
   body: string
   imageUrl: string
   userIds: string[]
-  cohortKeys: NotificationCohortKey[]
+  cohortKeys: AdminCohortKey[]
 }
 
 export const ADMIN_NOTIFICATION_DEFAULTS: AdminNotificationFormValues = {

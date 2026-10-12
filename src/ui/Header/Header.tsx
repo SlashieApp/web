@@ -14,7 +14,7 @@ import { useCallback, useState } from 'react'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { useUserStore } from '@/app/(auth)/store/user'
-import { useNotificationsOptional } from '@/app/(dashboard)/context/NotificationsProvider'
+import { useMessagesOptional } from '@/app/(messages)/messages/context/MessagesProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
@@ -33,18 +33,16 @@ import { FeedbackTrigger } from '../FeedbackDialog/FeedbackTrigger'
 import { IconButton } from '../IconButton'
 import { Link } from '../Link'
 import { Logo } from '../Logo'
-import { MESSAGES_HREF } from '../MobileBottomNav'
+import { MESSAGES_HREF } from '../MobileBottomNav/mobileBottomNavLayout'
 
 import { AccountMenu } from './account/AccountMenu'
 import { accountNavLinkRowProps } from './account/accountNavLinkProps'
 import bag from './i11n.json'
-import { NotificationsDrawer } from './notifications/NotificationsDrawer'
 import {
   HeaderGuestAuthButtons,
   HeaderToolbarSeparator,
 } from './shell/GuestHeaderAuth'
 import { HEADER_MIN_HEIGHT } from './shell/headerShell'
-import { BellIcon, MenuIcon } from './shell/icons'
 
 export { HEADER_MIN_HEIGHT } from './shell/headerShell'
 
@@ -106,6 +104,7 @@ function PostTaskButton() {
 function DesktopPrimaryNav() {
   const t = useI11n(bag)
   const pathname = usePathname() ?? ''
+  const unread = useMessagesOptional()?.unreadCount ?? 0
 
   const linkProps = {
     fontSize: 'sm',
@@ -137,136 +136,38 @@ function DesktopPrimaryNav() {
             href={item.href}
             color={active ? 'status.success.fg' : 'text.default'}
             aria-current={active ? 'page' : undefined}
+            aria-label={
+              item.href === MESSAGES_HREF && unread > 0
+                ? formatMessage(t.messagesUnread, { count: unread })
+                : undefined
+            }
+            display="inline-flex"
+            alignItems="center"
+            gap={1.5}
             {...linkProps}
           >
             {item.label}
+            {item.href === MESSAGES_HREF && unread > 0 ? (
+              <Badge
+                minW="18px"
+                h="18px"
+                px={1}
+                borderRadius="full"
+                fontSize="10px"
+                fontWeight={700}
+                bg="status.success.solid"
+                color="text.onGreen"
+                justifyContent="center"
+                aria-hidden
+              >
+                {unread > 99 ? '99+' : unread}
+              </Badge>
+            ) : null}
           </Link>
         )
       })}
       <PostTaskButton />
     </HStack>
-  )
-}
-
-function NotificationsBell() {
-  const notifications = useNotificationsOptional()
-  const copy = useI11n(bag).notifications
-
-  if (!notifications) return null
-
-  return (
-    <>
-      <Box position="relative" display="inline-flex">
-        <IconButton
-          type="button"
-          aria-label={
-            notifications.unreadCount > 0
-              ? formatMessage(copy.ariaLabelUnread, {
-                  count: notifications.unreadCount,
-                })
-              : copy.ariaLabel
-          }
-          variant="ghost"
-          onClick={notifications.openDrawer}
-        >
-          <BellIcon />
-        </IconButton>
-        {notifications.unreadCount > 0 ? (
-          <Badge
-            position="absolute"
-            top="-2px"
-            right="-2px"
-            minW="18px"
-            h="18px"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            borderRadius="full"
-            fontSize="10px"
-            fontWeight={700}
-            bg="status.success.solid"
-            color="text.onGreen"
-            px={1}
-          >
-            {notifications.unreadCount > 9 ? '9+' : notifications.unreadCount}
-          </Badge>
-        ) : null}
-      </Box>
-      <NotificationsDrawer />
-    </>
-  )
-}
-
-function GuestMobileMenu({
-  loginHref,
-  signupHref,
-}: {
-  loginHref: string
-  signupHref: string
-}) {
-  const t = useI11n(bag)
-  const [open, setOpen] = useState(false)
-  const createTaskHref = useCreateTaskHref()
-
-  return (
-    <>
-      <IconButton
-        aria-label={t.openMenu}
-        variant="ghost"
-        display={{ base: 'inline-flex', lg: 'none' }}
-        onClick={() => setOpen(true)}
-      >
-        <MenuIcon />
-      </IconButton>
-      <Drawer
-        open={open}
-        onOpenChange={setOpen}
-        title={t.menu}
-        placement="end"
-        size="full"
-      >
-        <Stack as="nav" gap={0} align="stretch" flex={1}>
-          <Link
-            href={WORKER_SEARCH_HREF}
-            {...accountNavLinkRowProps}
-            onClick={() => setOpen(false)}
-          >
-            {t.nav.workers}
-          </Link>
-          <Link
-            href={createTaskHref}
-            {...accountNavLinkRowProps}
-            onClick={() => setOpen(false)}
-          >
-            {t.postTask}
-          </Link>
-          <FeedbackTrigger variant="nav" onOpened={() => setOpen(false)} />
-          <Stack
-            gap={0}
-            align="stretch"
-            mt="auto"
-            pt={3}
-            borderTopWidth="1px"
-            borderColor="border.default"
-          >
-            <Link
-              href={loginHref}
-              {...accountNavLinkRowProps}
-              onClick={() => setOpen(false)}
-            >
-              {t.logIn}
-            </Link>
-            <Link
-              href={signupHref}
-              {...accountNavLinkRowProps}
-              onClick={() => setOpen(false)}
-            >
-              {t.signUp}
-            </Link>
-          </Stack>
-        </Stack>
-      </Drawer>
-    </>
   )
 }
 
@@ -359,7 +260,6 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
           <>
             <HeaderToolbarSeparator display="block" ml={2} />
             <HStack gap={1} align="center" flexShrink={0} overflow="visible">
-              <NotificationsBell />
               <AccountMenu />
             </HStack>
           </>
@@ -373,7 +273,6 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
               loginHref={loginHref}
               signupHref={signupHref}
             />
-            <GuestMobileMenu loginHref={loginHref} signupHref={signupHref} />
           </>
         )}
       </HStack>
@@ -390,9 +289,6 @@ export function Header({
   hasSession = false,
   ...props
 }: HeaderProps) {
-  const pathname = usePathname() ?? ''
-  const overSearchMap = isPrimaryNavHrefActive(pathname, APP_HOME)
-
   return (
     <>
       <AppStatusBanners />
@@ -401,19 +297,15 @@ export function Header({
         isolation="isolate"
         zIndex={30}
         overflow="visible"
-        bg={
-          overSearchMap ? { base: 'transparent', lg: 'bg.canvas' } : 'bg.canvas'
-        }
+        bg="bg.canvas"
         color="text.default"
         boxShadow="none"
         borderWidth="1px"
-        borderColor={
-          overSearchMap
-            ? { base: 'transparent', lg: 'border.default' }
-            : 'border.default'
-        }
+        borderColor="border.default"
         minH={HEADER_MIN_HEIGHT}
-        display="flex"
+        // No mobile header in the app (Mobile-Navigation-IA): the bottom bar
+        // carries navigation below lg. Status banners above still show.
+        display={{ base: 'none', lg: 'flex' }}
         alignItems="center"
         position="sticky"
         top={0}
@@ -422,18 +314,6 @@ export function Header({
             borderBottomColor: '{colors.bg.surface}',
           },
         }}
-        _before={
-          overSearchMap
-            ? {
-                content: '""',
-                position: 'absolute',
-                inset: 0,
-                backdropFilter: 'blur(20px)',
-                pointerEvents: 'none',
-                zIndex: -1,
-              }
-            : undefined
-        }
         {...props}
       >
         <Container

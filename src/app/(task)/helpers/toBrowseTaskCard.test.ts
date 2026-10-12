@@ -18,7 +18,6 @@ function listTask(overrides: Partial<TaskListItem> = {}): TaskListItem {
     title: 'Mount a TV',
     description: 'Need a worker.',
     category: 'TECH_SETUP',
-    acceptedWorkerCap: 1,
     status: 'OPEN',
     createdAt: '2026-06-01T10:00:00.000Z',
     location: {

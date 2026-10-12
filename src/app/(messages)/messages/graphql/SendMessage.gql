@@ -1,0 +1,7 @@
+#import "./threadItemFields.gql"
+
+mutation SendMessage($threadId: ID!, $body: String!) {
+  sendMessage(threadId: $threadId, body: $body) {
+    ...ThreadItemFields
+  }
+}

@@ -20,6 +20,14 @@ export function reportKindPhrases(kind: ReportTargetKind, t: ReportCopy) {
       subject: t.subjectUser,
     }
   }
+  if (kind === 'message') {
+    return {
+      label: t.reportMessage,
+      aria: t.reportMessageAria,
+      title: t.titleMessage,
+      subject: t.subjectMessage,
+    }
+  }
   if (kind === 'review') {
     return {
       label: t.reportReview,

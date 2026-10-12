@@ -29,7 +29,6 @@ export type TaskListItem = {
   title: string
   description: string
   category: string
-  acceptedWorkerCap: number
   location?: TaskMapLocationFields | null
   status: string
   /** Public view count; null during cold-start. Browse `tasks` only. */

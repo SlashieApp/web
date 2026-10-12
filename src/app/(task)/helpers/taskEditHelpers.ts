@@ -32,17 +32,6 @@ export function isTaskEditable(status: string): boolean {
   return status === TaskStatus.Open || status === TaskStatus.Draft
 }
 
-export function countAcceptedQuotes(
-  quotes: ReadonlyArray<{ status: string }> | undefined,
-): number {
-  if (!quotes?.length) return 0
-  return quotes.filter(
-    (q) =>
-      q.status === QuoteStatus.Accepted ||
-      /accept|award|select|win|approved|chosen/i.test(q.status.trim()),
-  ).length
-}
-
 /** Map a `task(id)` record into create/edit form field values. */
 export function taskToEditFormValues(task: EditableTask): EditTaskFormValues {
   const dt = task.datetime
@@ -77,11 +66,9 @@ export function taskToEditFormValues(task: EditableTask): EditTaskFormValues {
     budgetCurrency: task.budget?.currency ?? Currency.Gbp,
     budgetType: task.budget?.type ?? TaskBudgetType.OneOff,
     paymentMethod: task.budget?.paymentMethod ?? TaskPaymentMethod.Cash,
-    // contactMethod + acceptedWorkerCap were removed from the Task type; the edit
-    // form starts from defaults (per-task contact method now lives on the poster
-    // profile, and the single-worker cap is the default).
+    // contactMethod was removed from the Task type; the edit form starts from
+    // the default (per-task contact method now lives on the poster profile).
     preferredContactMethod: TaskContactMethod.InApp,
-    acceptedWorkerCap: 1,
   }
 }
 
@@ -105,6 +92,5 @@ export function buildUpdateTaskInput(values: EditTaskFormValues) {
     },
     datetime: buildDatetimePayload(values),
     preferredContactMethod: values.preferredContactMethod,
-    acceptedWorkerCap: values.acceptedWorkerCap,
   }
 }

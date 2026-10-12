@@ -18,7 +18,6 @@ import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import Tasks from '@/app/(task)/graphql/Tasks.gql'
 import {
   buildUpdateTaskInput,
-  countAcceptedQuotes,
   isTaskEditable,
   taskImageUrls,
   taskToEditFormValues,
@@ -62,7 +61,6 @@ import {
   usePublicTaskArea,
 } from '@/app/(stepflow)/tasks/create/helpers/publicTaskArea'
 import { resolveSubmittedTaskLocation } from '@/app/(stepflow)/tasks/create/helpers/resolveTaskLocation'
-import { EditTaskAcceptedWorkerCapSection } from '../../edit/components/ui/EditTaskAcceptedWorkerCapSection'
 import {
   type EditTaskFormFieldValues,
   type EditTaskFormValues,
@@ -95,7 +93,6 @@ function EditTaskFormBody({
   const locale = useLocale()
   const apollo = useApolloClient()
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
-  const minAcceptedCap = countAcceptedQuotes(task.quotes)
   const existingImageUrls = useMemo(() => taskImageUrls(task), [task])
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
@@ -277,13 +274,6 @@ function EditTaskFormBody({
     if (!getAuthToken()) {
       router.replace(
         `/login?redirect=${encodeURIComponent(`/tasks/${taskId}/edit`)}`,
-      )
-      return
-    }
-
-    if (values.acceptedWorkerCap < minAcceptedCap) {
-      setServerError(
-        `Worker cap cannot be below ${minAcceptedCap} — you already have that many accepted quotes.`,
       )
       return
     }
@@ -496,11 +486,6 @@ function EditTaskFormBody({
             previews={imagePreviewUrls}
             onFilesAdded={onFilesAdded}
             onRemoveFile={onRemoveFile}
-          />
-          <EditTaskAcceptedWorkerCapSection
-            register={register}
-            minAcceptedCap={minAcceptedCap}
-            errorText={errors.acceptedWorkerCap?.message}
           />
           <CreateTaskContactSection
             sectionHeading={t.sections.contact}

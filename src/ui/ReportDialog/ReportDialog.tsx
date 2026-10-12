@@ -103,7 +103,8 @@ export function ReportDialog({
             {reportKindPhrases(kind, t).subject}
           </Text>
           <HStack align="start" gap={3} minW={0}>
-            {kind === 'review' ? null : kind === 'worker' ? (
+            {kind === 'review' || kind === 'message' ? null : kind ===
+              'worker' ? (
               <Avatar name={targetTitle} src={targetImageSrc} size="lg" />
             ) : (
               <Thumbnail

@@ -3,7 +3,7 @@
 import { Box, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 
-import { HEADER_MIN_HEIGHT } from '@/ui/Header'
+import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 import { useColorMode } from '@/ui/color-mode'
 
 import {
@@ -229,16 +229,17 @@ export function TaskMap(props: TaskMapProps) {
       overflow="hidden"
       zIndex={0}
       css={{
-        // The canvas fills the window, including under the app header.
-        // Keep the controls below that header (and any touch overlay).
+        // The canvas fills the window, including under the app header (lg+;
+        // there is no mobile header). Keep the controls below that header
+        // and any touch overlay.
         '& .mapboxgl-ctrl-top-right': {
           top:
             hideZoomControls && props.touchCtrlTopOffset
               ? {
-                  base: `calc(${HEADER_MIN_HEIGHT.base} + ${props.touchCtrlTopOffset})`,
-                  md: `calc(${HEADER_MIN_HEIGHT.md} + ${props.touchCtrlTopOffset})`,
+                  base: props.touchCtrlTopOffset,
+                  lg: `calc(${HEADER_MIN_HEIGHT.md} + ${props.touchCtrlTopOffset})`,
                 }
-              : HEADER_MIN_HEIGHT,
+              : { base: '0px', lg: HEADER_MIN_HEIGHT.md },
         },
         // Touch phones pinch to zoom: hide the zoom buttons, keep the compass.
         ...(hideZoomControls

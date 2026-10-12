@@ -8,10 +8,6 @@ import {
 export const editTaskFormSchema = z
   .object({
     ...taskDetailsFields,
-    acceptedWorkerCap: z.coerce
-      .number()
-      .int('Worker cap must be a whole number.')
-      .min(1, 'Worker cap must be at least 1.'),
   })
   .superRefine(refineTaskSchedule)
 

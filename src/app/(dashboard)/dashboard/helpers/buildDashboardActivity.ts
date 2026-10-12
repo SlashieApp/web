@@ -6,15 +6,15 @@ import {
   timeFromUnknown,
 } from '@/utils/dashboardHelpers'
 
-import type { NotificationActivityRow } from '../../helpers/notificationActivity'
+import type { ActivityRow } from '../../helpers/activityRow'
 
 /** Fallback activity when notifications are empty — derived from posted tasks + sent quotes. */
 export function buildDashboardActivityFallback(
   postedTasks: readonly TaskItem[],
   sentQuotes: readonly MyQuoteItem[],
   limit = 6,
-): NotificationActivityRow[] {
-  const activity: NotificationActivityRow[] = []
+): ActivityRow[] {
+  const activity: ActivityRow[] = []
 
   for (const task of postedTasks) {
     activity.push({

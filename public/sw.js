@@ -1,4 +1,9 @@
-/* Web Push click routes must stay aligned with `notificationHref` in src/utils/notifications.ts. */
+/*
+ * Web Push for Messages (FE-202). The API pushes a flash or message with
+ * `data: { threadId, itemId, type, flashKind, taskId, orderId }`; the text is
+ * exactly the flash title and body. A tap opens the thread, or the review
+ * page for review prompts.
+ */
 
 self.addEventListener('push', (event) => {
   const payload = readPushPayload(event)
@@ -6,11 +11,11 @@ self.addEventListener('push', (event) => {
     payload.data && typeof payload.data === 'object' ? payload.data : {}
   const title = textField(payload.title) || textField(data.title) || 'Slashie'
   const body = textField(payload.body) || textField(data.body) || ''
-  const url = notificationPath({
-    type: textField(data.type) || textField(payload.type),
-    taskId: textField(data.taskId) || textField(payload.taskId),
-    orderId: textField(data.orderId) || textField(payload.orderId),
-    url: textField(data.url) || textField(payload.url),
+  const url = pushPath({
+    threadId: textField(data.threadId),
+    flashKind: textField(data.flashKind),
+    taskId: textField(data.taskId),
+    orderId: textField(data.orderId),
   })
   event.waitUntil(
     self.registration.showNotification(title, {
@@ -22,14 +27,14 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const url = event.notification.data?.url || '/tasks'
+  const url = event.notification.data?.url || '/messages'
   event.waitUntil(
     self.clients
       .matchAll({ type: 'window', includeUncontrolled: true })
       .then((windows) => {
+        const target = new URL(url, self.location.origin).href
         for (const client of windows) {
-          if (client.url.includes(url) && 'focus' in client)
-            return client.focus()
+          if (client.url === target && 'focus' in client) return client.focus()
         }
         if (self.clients.openWindow) return self.clients.openWindow(url)
         return undefined
@@ -51,16 +56,14 @@ function textField(value) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
-function notificationPath(input) {
-  if (input.url.startsWith('/')) return input.url
+/** In-app path only: every route is built here, never taken from the payload. */
+function pushPath(input) {
   const taskId = input.taskId
-  if (input.type === 'REVIEW_PROMPT' && taskId) {
+  if (input.flashKind === 'REVIEW_PROMPT' && taskId) {
     return input.orderId
-      ? `/tasks/${taskId}/review?orderId=${encodeURIComponent(input.orderId)}`
-      : `/tasks/${taskId}/review`
+      ? `/tasks/${encodeURIComponent(taskId)}/review?orderId=${encodeURIComponent(input.orderId)}`
+      : `/tasks/${encodeURIComponent(taskId)}/review`
   }
-  if (!taskId) return '/tasks'
-  return input.orderId
-    ? `/tasks/${taskId}?orderId=${encodeURIComponent(input.orderId)}`
-    : `/tasks/${taskId}`
+  if (input.threadId) return `/messages/${encodeURIComponent(input.threadId)}`
+  return '/messages'
 }

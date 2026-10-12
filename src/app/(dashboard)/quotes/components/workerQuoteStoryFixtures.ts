@@ -17,7 +17,6 @@ export function storyTask(overrides: Partial<TaskItem> = {}): TaskItem {
     title: 'Mount bookshelf on living room wall',
     description: 'Need someone with a drill and spirit level.',
     category: 'HANDYMAN',
-    acceptedWorkerCap: 1,
     budget: {
       amount: 120,
       currency: 'GBP',

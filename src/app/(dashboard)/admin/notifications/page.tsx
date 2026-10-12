@@ -2,6 +2,7 @@
 
 import { useMutation } from '@apollo/client/react'
 import { Text } from '@chakra-ui/react'
+import type { AdminSendSystemFlashMutation } from '@codegen/schema'
 import { useCallback, useState } from 'react'
 
 import { useMe } from '@/app/(auth)/store/user'
@@ -17,24 +18,15 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { isGraphQLSchemaMismatch } from '@/utils/graphqlSchemaMismatch'
 
 import { AdminNotificationComposer } from './components/ui/AdminNotificationComposer'
-import AdminCreateNotification from './graphql/AdminCreateNotification.graphql'
+import AdminSendSystemFlash from './graphql/AdminSendSystemFlash.gql'
 import bag from './i11n.json'
-
-type AdminCreateNotificationResult = {
-  adminCreateNotification?: {
-    dryRun: boolean
-    recipientCount: number
-    auditId?: string | null
-  } | null
-}
 
 export default function AdminNotificationsPage() {
   const t = useI11n(bag)
   const me = useMe()
   const isAdmin = isSlashieAdminEmail(me?.email)
-  const [mutate] = useMutation<AdminCreateNotificationResult>(
-    AdminCreateNotification,
-  )
+  const [mutate] =
+    useMutation<AdminSendSystemFlashMutation>(AdminSendSystemFlash)
   const [dryRunKey, setDryRunKey] = useState<string | null>(null)
   const [recipientCount, setRecipientCount] = useState<number | null>(null)
   const [auditId, setAuditId] = useState<string | null>(null)
@@ -58,13 +50,13 @@ export default function AdminNotificationsPage() {
             },
           },
         })
-        const result = data?.adminCreateNotification
+        const result = data?.adminSendSystemFlash
         if (!result) {
           setError(t.errorFallback)
           return
         }
         setRecipientCount(result.recipientCount)
-        setAuditId(result.auditId ?? null)
+        setAuditId(result.audit.id)
         setDryRunKey(adminNotificationDraftKey(draft))
         if (!dryRun) {
           showAppToast({ title: t.sent, type: 'success' })

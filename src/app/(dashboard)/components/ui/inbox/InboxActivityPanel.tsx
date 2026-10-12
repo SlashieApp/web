@@ -7,10 +7,7 @@ import bag from '../../../i11n.json'
 import { formatRelativeAgo } from '@/utils/dashboardHelpers'
 import { Button, Card, Link, SpotIllustration } from '@ui'
 
-import type {
-  ActivityTone,
-  NotificationActivityRow,
-} from '../../../helpers/notificationActivity'
+import type { ActivityRow, ActivityTone } from '../../../helpers/activityRow'
 
 export function InboxActivityPanel({
   rows,
@@ -23,7 +20,7 @@ export function InboxActivityPanel({
   viewAllHref,
   viewAllLabel,
 }: {
-  rows: readonly NotificationActivityRow[]
+  rows: readonly ActivityRow[]
   loading?: boolean
   emptyMessage?: string
   emptyActionHref?: string

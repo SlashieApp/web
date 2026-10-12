@@ -1,0 +1,113 @@
+'use client'
+
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { ThreadItemType } from '@codegen/schema'
+import type { ThreadItemFieldsFragment } from '@codegen/schema'
+
+import { ReportControl } from '@/content/trust/ReportControl'
+import { useI11n } from '@/i18n/useI11n'
+import { Button, Link } from '@ui'
+
+import { flashAction, formatMessageTime } from '../helpers/messagesFormat'
+import bag from '../i11n.json'
+
+/**
+ * One timeline entry: a chat bubble (mine on the right) or a flash card for
+ * an event (quote, booking, review prompt, announcement) with its link.
+ */
+export function ThreadTimelineItem({
+  item,
+  locale,
+}: {
+  item: ThreadItemFieldsFragment
+  locale: string
+}) {
+  const t = useI11n(bag)
+  const time = formatMessageTime(item.createdAt, locale, t)
+
+  if (item.type === ThreadItemType.Flash) {
+    const action = flashAction(item)
+    return (
+      <Stack
+        alignSelf="center"
+        w="full"
+        maxW="420px"
+        gap={2}
+        p={4}
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="border.default"
+        bg="bg.subtle"
+      >
+        {item.imageUrl ? (
+          <Box borderRadius="md" overflow="hidden">
+            <img
+              src={item.imageUrl}
+              alt=""
+              style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }}
+            />
+          </Box>
+        ) : null}
+        <HStack justify="space-between" align="baseline" gap={3}>
+          <Text fontWeight={700} fontSize="sm">
+            {item.title}
+          </Text>
+          <Text fontSize="xs" color="text.muted" flexShrink={0}>
+            {time}
+          </Text>
+        </HStack>
+        {item.body ? (
+          <Text fontSize="sm" color="text.muted" whiteSpace="pre-line">
+            {item.body}
+          </Text>
+        ) : null}
+        {action ? (
+          <Box>
+            <Button asChild size="sm" variant="secondary">
+              <Link href={action.href} _hover={{ textDecoration: 'none' }}>
+                {action.kind === 'review' ? t.leaveReview : t.viewTask}
+              </Link>
+            </Button>
+          </Box>
+        ) : null}
+      </Stack>
+    )
+  }
+
+  const mine = item.isMine
+  return (
+    <Stack
+      alignSelf={mine ? 'flex-end' : 'flex-start'}
+      maxW="80%"
+      gap={1}
+      align={mine ? 'flex-end' : 'flex-start'}
+    >
+      <Box
+        px={3.5}
+        py={2}
+        borderRadius="xl"
+        borderBottomRightRadius={mine ? 'sm' : 'xl'}
+        borderBottomLeftRadius={mine ? 'xl' : 'sm'}
+        bg={mine ? 'action.primary' : 'bg.subtle'}
+        color={mine ? 'text.onGreen' : 'text.default'}
+      >
+        <Text fontSize="sm" whiteSpace="pre-wrap" wordBreak="break-word">
+          {item.body}
+        </Text>
+      </Box>
+      <HStack gap={1}>
+        <Text fontSize="xs" color="text.muted">
+          {time}
+        </Text>
+        {mine ? null : (
+          <ReportControl
+            kind="message"
+            targetId={item.id}
+            targetTitle={item.body}
+            variant="icon"
+          />
+        )}
+      </HStack>
+    </Stack>
+  )
+}

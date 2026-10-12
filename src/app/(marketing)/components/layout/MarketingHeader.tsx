@@ -21,7 +21,7 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { useOpenFeedbackDialog } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
 import { HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from '@/ui/Header'
-import { MARKETING_HOME } from '@/utils/appRoutes'
+import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
 import { Button, Drawer, Link } from '@ui'
 
 import chromeMessages from '../../i11n.chrome.json'
@@ -102,7 +102,7 @@ function MarketingAuthButtons({
       gap={2}
       align="center"
       flexShrink={0}
-      display={{ base: 'none', sm: 'flex' }}
+      display={{ base: 'none', md: 'flex' }}
     >
       <Button
         asChild
@@ -159,9 +159,11 @@ function IconMenu({ title }: { title: string }) {
 
 function MarketingNavigation({
   overlay,
+  isLanding,
   copy,
 }: {
   overlay: boolean
+  isLanding: boolean
   copy: MarketingChromeCopy
 }) {
   const pathname = usePathname()
@@ -285,7 +287,7 @@ function MarketingNavigation({
           size="sm"
           variant="ghost"
           px={2}
-          display={{ base: 'none', sm: 'inline-flex' }}
+          display={{ base: 'none', md: 'inline-flex' }}
           onClick={() => openFeedback()}
           {...(overlay
             ? {
@@ -299,11 +301,32 @@ function MarketingNavigation({
           {copy.feedback}
         </Button>
         <MarketingAuthButtons overlay={overlay} copy={copy} />
+        {/* Mobile-Navigation-IA: on phones the header is the logo plus one
+            way into the app. */}
+        <Button
+          asChild
+          size="sm"
+          variant={overlay ? 'ghost' : 'primary'}
+          display={{ base: 'inline-flex', md: 'none' }}
+          {...(overlay
+            ? {
+                color: 'text.onInverted',
+                borderWidth: '1px',
+                borderColor: 'border.glass',
+                _hover: { bg: 'bg.glass', color: 'text.onInverted' },
+              }
+            : null)}
+        >
+          <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
+            {copy.openInApp}
+          </Link>
+        </Button>
 
+        {/* Pricing and About still need a way in on other marketing pages. */}
         <IconButton
           aria-label={copy.menu}
           variant="ghost"
-          display={{ base: 'inline-flex', md: 'none' }}
+          display={{ base: isLanding ? 'none' : 'inline-flex', md: 'none' }}
           minW="44px"
           minH="44px"
           color={overlay ? 'text.onInverted' : undefined}
@@ -441,7 +464,11 @@ export function MarketingHeader(props: MarketingHeaderProps) {
           display="flex"
           alignItems="center"
         >
-          <MarketingNavigation overlay={overlay} copy={copy} />
+          <MarketingNavigation
+            overlay={overlay}
+            isLanding={isLanding}
+            copy={copy}
+          />
         </Container>
       </Box>
     </>

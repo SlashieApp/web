@@ -1,11 +1,15 @@
 import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { messagesValue } from '@/app/(messages)/messages/components/messagesStoryFixtures'
+import { MessagesContext } from '@/app/(messages)/messages/context/MessagesProvider'
+
 import { Card } from '../Card/Card'
-import { MOBILE_BOTTOM_NAV_CLEARANCE, MobileBottomNav } from './MobileBottomNav'
+import { MobileBottomNav } from './MobileBottomNav'
+import { MOBILE_BOTTOM_NAV_CLEARANCE } from './mobileBottomNavLayout'
 
 /**
- * Mobile floating glass nav. Hidden from `md` up (Header owns those links).
+ * Mobile floating glass nav. Hidden from `lg` up (Header owns those links).
  * Scroll the sample cards to see the fade dissolve content behind the pill.
  */
 const meta = {
@@ -62,5 +66,16 @@ export const Default: Story = {
       </Stack>
       <MobileBottomNav />
     </Box>
+  ),
+}
+
+/** Unread messages badge on the Messages item. */
+export const WithUnread: Story = {
+  render: () => (
+    <MessagesContext.Provider value={messagesValue({ unreadCount: 3 })}>
+      <Box minH="100dvh" bg="bg.subtle" position="relative">
+        <MobileBottomNav />
+      </Box>
+    </MessagesContext.Provider>
   ),
 }

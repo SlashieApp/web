@@ -45,7 +45,7 @@ export const BestMatch: Story = {
     ...james,
     isBestMatch: true,
     onAccept: () => {},
-    messageHref: '/dashboard/messages',
+    messageHref: '/messages',
   },
 }
 
@@ -61,7 +61,7 @@ export const OwnerWithActions: Story = {
       "I can do this for you tomorrow morning. I'll bring my own tools and make sure it's done properly.",
     onAccept: () => {},
     onDecline: () => {},
-    messageHref: '/dashboard/messages',
+    messageHref: '/messages',
   },
 }
 
@@ -100,7 +100,7 @@ export const List: Story = {
         {...james}
         isBestMatch
         onAccept={() => {}}
-        messageHref="/dashboard/messages"
+        messageHref="/messages"
       />
       <QuoteCard
         {...james}
@@ -111,7 +111,7 @@ export const List: Story = {
         distanceLabel="1.6 miles away"
         message="I can do this for you tomorrow morning. I'll bring my own tools and make sure it's done properly."
         onAccept={() => {}}
-        messageHref="/dashboard/messages"
+        messageHref="/messages"
       />
       <QuoteCard
         {...james}
@@ -124,7 +124,7 @@ export const List: Story = {
         availabilityLabel="Available Saturday, 16 Sep"
         message="I'm free this weekend if that works for you. Let me know if you have any questions!"
         onAccept={() => {}}
-        messageHref="/dashboard/messages"
+        messageHref="/messages"
       />
     </Stack>
   ),

@@ -14,10 +14,23 @@ describe('Header mobile polish', () => {
       'utf8',
     )
     const menuSrc = readFileSync(join(dir, 'account/AccountMenu.tsx'), 'utf8')
+    const dockSrc = readFileSync(
+      join(dir, '../MobileBottomNav/MobileBottomNav.tsx'),
+      'utf8',
+    )
     expect(src).not.toContain('LanguageSwitcher')
-    expect(src).toContain('GuestMobileMenu')
     expect(drawerSrc).not.toContain('LanguageSwitcher')
     expect(menuSrc).toContain('LanguageSwitcher')
     expect(menuSrc).toContain('onOpenLanguage')
+    // Phones: the dock's Account item hosts the drawer and the switcher.
+    expect(dockSrc).toContain('MobileNavDrawer')
+    expect(dockSrc).toContain('LanguageSwitcher')
+  })
+
+  it('has no mobile header and no bell (Mobile-Navigation-IA, FE-202)', () => {
+    const src = readFileSync(join(dir, 'Header.tsx'), 'utf8')
+    expect(src).toContain("display={{ base: 'none', lg: 'flex' }}")
+    expect(src).not.toContain('NotificationsBell')
+    expect(src).not.toContain('GuestMobileMenu')
   })
 })

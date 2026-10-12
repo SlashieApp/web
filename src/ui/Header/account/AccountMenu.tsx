@@ -11,23 +11,19 @@ import { Dropdown } from '../../Dropdown'
 import { IconButton } from '../../IconButton'
 
 import { AccountMenuAvatar, AccountMenuContent } from './AccountMenuContent'
-import { MobileNavDrawer } from './MobileNavDrawer'
 
 export type AccountMenuProps = {
   /** Storybook: start with desktop panel open. */
   initialOpen?: boolean
 }
 
+/** Desktop account dropdown. Below lg the bottom bar's Account opens `MobileNavDrawer`. */
 export function AccountMenu({ initialOpen = false }: AccountMenuProps) {
   const me = useMe()
   const user = useUserStore((state) => state.user)
   const t = useI11n(bag)
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [languageOpen, setLanguageOpen] = useState(false)
-  const openLanguage = useCallback(() => {
-    setMobileOpen(false)
-    setLanguageOpen(true)
-  }, [])
+  const openLanguage = useCallback(() => setLanguageOpen(true), [])
 
   if (!user) return null
 
@@ -42,21 +38,6 @@ export function AccountMenu({ initialOpen = false }: AccountMenuProps) {
 
   return (
     <>
-      <IconButton
-        type="button"
-        variant="ghost"
-        aria-label={t.accountMenu}
-        display={{ base: 'inline-flex', lg: 'none' }}
-        onClick={() => setMobileOpen(true)}
-      >
-        {avatar}
-      </IconButton>
-      <MobileNavDrawer
-        open={mobileOpen}
-        onOpenChange={setMobileOpen}
-        onOpenLanguage={openLanguage}
-      />
-
       <Box display={{ base: 'none', lg: 'block' }}>
         <Dropdown
           contentLabel={t.accountMenu}

@@ -169,6 +169,22 @@ const nextConfig: NextConfig = {
         destination: '/billing',
         permanent: true,
       },
+      // FE-202: the dashboard placeholder became the /messages inbox.
+      {
+        source: `/${zhHk}/dashboard/messages`,
+        destination: `/${zhHk}/messages`,
+        permanent: true,
+      },
+      {
+        source: '/en/dashboard/messages',
+        destination: '/messages',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/messages',
+        destination: '/messages',
+        permanent: true,
+      },
     ]
   },
   images: {

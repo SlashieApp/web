@@ -39,7 +39,11 @@
     "rateLimitedGeneric": "You’ve sent too many reports. Please wait a bit and try again.",
     "selfNotAllowed": "You can’t report your own listing.",
     "targetNotFound": "We couldn’t find that listing. It may have been removed.",
-    "loginRequired": "Sign in to send a report."
+    "loginRequired": "Sign in to send a report.",
+    "reportMessage": "Report message",
+    "reportMessageAria": "Report this message",
+    "titleMessage": "Report this message",
+    "subjectMessage": "You’re reporting this message"
   },
   "zh_hk": {
     "reportTask": "舉報任務",
@@ -81,6 +85,10 @@
     "rateLimitedGeneric": "舉報次數過多。請稍後再試。",
     "selfNotAllowed": "你不能舉報自己的項目。",
     "targetNotFound": "找不到該項目，可能已被移除。",
-    "loginRequired": "請登入後再送出舉報。"
+    "loginRequired": "請登入後再送出舉報。",
+    "reportMessage": "檢舉訊息",
+    "reportMessageAria": "檢舉此訊息",
+    "titleMessage": "檢舉此訊息",
+    "subjectMessage": "你正在檢舉此訊息"
   }
 }

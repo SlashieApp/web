@@ -1,4 +1,4 @@
-import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav'
+import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav/mobileBottomNavLayout'
 
 import {
   MARKETPLACE_MAP_MOTION_DELAY,

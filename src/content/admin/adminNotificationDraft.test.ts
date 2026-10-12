@@ -1,3 +1,4 @@
+import { AdminCohortKey } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -32,7 +33,10 @@ describe('admin notification targeting', () => {
       ...ADMIN_NOTIFICATION_DEFAULTS,
       title: 'Hello',
       body: 'A note',
-      cohortKeys: ['founding_workers', 'geo_watford_bushey'],
+      cohortKeys: [
+        AdminCohortKey.FoundingWorkers,
+        AdminCohortKey.GeoWatfordBushey,
+      ],
     })
     expect(cohort.ok).toBe(true)
   })
@@ -42,13 +46,13 @@ describe('admin notification targeting', () => {
       ...ADMIN_NOTIFICATION_DEFAULTS,
       title: 'Hello',
       body: 'A note',
-      cohortKeys: ['founding_workers'],
+      cohortKeys: [AdminCohortKey.FoundingWorkers],
     })
     const second = parseAdminNotificationDraft({
       ...ADMIN_NOTIFICATION_DEFAULTS,
       title: 'Hello',
       body: 'A note',
-      cohortKeys: ['geo_watford_bushey'],
+      cohortKeys: [AdminCohortKey.GeoWatfordBushey],
     })
     expect(first.ok && second.ok).toBe(true)
     if (first.ok && second.ok) {

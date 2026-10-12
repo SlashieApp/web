@@ -4,11 +4,7 @@ import type bag from '../i11n.json'
 
 export type AccountNavAudience = 'all' | 'worker' | 'non-worker' | 'admin'
 
-export type AccountNavAction =
-  | 'logout'
-  | 'notifications'
-  | 'feedback'
-  | 'language'
+export type AccountNavAction = 'logout' | 'feedback' | 'language'
 
 export type AccountNavSection = 'main' | 'worker' | 'account'
 
@@ -63,7 +59,7 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
   {
     id: 'messages',
     label: 'Messages',
-    href: '/dashboard/messages',
+    href: '/messages',
     kind: 'link',
     section: 'main',
     audience: 'all',
@@ -99,14 +95,6 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     kind: 'link',
     section: 'worker',
     audience: 'non-worker',
-  },
-  {
-    id: 'notifications',
-    label: 'Notifications',
-    kind: 'action',
-    action: 'notifications',
-    section: 'account',
-    audience: 'all',
   },
   {
     id: 'profile',
@@ -158,7 +146,7 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
   },
   {
     id: 'admin-notifications',
-    label: 'Send a notification',
+    label: 'Send an announcement',
     href: '/admin/notifications',
     kind: 'link',
     section: 'account',

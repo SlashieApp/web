@@ -3,8 +3,7 @@
 import { ApolloProvider } from '@apollo/client/react'
 import type { ReactNode } from 'react'
 
-import { NotificationLandPopupHost } from '@/app/(dashboard)/components/notifications/NotificationLandPopupHost'
-import { NotificationsProvider } from '@/app/(dashboard)/context/NotificationsProvider'
+import { MessagesProvider } from '@/app/(messages)/messages/context/MessagesProvider'
 import { FeedbackProvider } from '@/content/feedback/FeedbackProvider'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { AnalyticsErrorBoundary } from '@/utils/analytics'
@@ -21,16 +20,15 @@ export function Providers({ children }: { children: ReactNode }) {
       <ThemeProvider>
         <PostHogProvider>
           <LocaleProvider>
-            <NotificationsProvider>
+            <MessagesProvider>
               <FeedbackProvider>
                 <AnalyticsErrorBoundary>
                   <AppToastHost />
-                  <NotificationLandPopupHost />
                   {children}
                   <CookieConsentBanner />
                 </AnalyticsErrorBoundary>
               </FeedbackProvider>
-            </NotificationsProvider>
+            </MessagesProvider>
           </LocaleProvider>
         </PostHogProvider>
       </ThemeProvider>

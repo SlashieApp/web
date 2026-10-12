@@ -1,0 +1,6 @@
+mutation MarkThreadRead($threadId: ID!) {
+  markThreadRead(threadId: $threadId) {
+    id
+    unreadCount
+  }
+}

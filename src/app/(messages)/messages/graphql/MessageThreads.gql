@@ -1,0 +1,11 @@
+#import "./threadFields.gql"
+
+query MessageThreads {
+  me {
+    id
+    unreadMessageCount
+    threads {
+      ...ThreadFields
+    }
+  }
+}

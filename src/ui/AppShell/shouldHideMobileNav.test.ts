@@ -12,4 +12,10 @@ describe('shouldHideMobileNav', () => {
     expect(shouldHideMobileNav('/search')).toBe(false)
     expect(shouldHideMobileNav('/')).toBe(false)
   })
+
+  it('hides the dock inside a message thread, not the inbox', () => {
+    expect(shouldHideMobileNav('/messages/t1')).toBe(true)
+    expect(shouldHideMobileNav('/zh-hk/messages/t1')).toBe(true)
+    expect(shouldHideMobileNav('/messages')).toBe(false)
+  })
 })

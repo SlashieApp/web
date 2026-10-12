@@ -1,7 +1,7 @@
 import { isTaskCompleted, timeFromUnknown } from '@/utils/dashboardHelpers'
 import { taskOrderSectionHref } from '@/utils/orderHelpers'
 
-import type { NotificationActivityRow } from '../../helpers/notificationActivity'
+import type { ActivityRow } from '../../helpers/activityRow'
 import {
   type PostedTaskRow,
   postedTaskStage,
@@ -10,8 +10,8 @@ import {
 export function buildPostedTaskActivityFallback(
   rows: readonly PostedTaskRow[],
   limit = 8,
-): NotificationActivityRow[] {
-  const activity: NotificationActivityRow[] = []
+): ActivityRow[] {
+  const activity: ActivityRow[] = []
 
   for (const row of rows) {
     const stage = postedTaskStage(row.task, row.customerOrder)

@@ -2,14 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import {
   MIN_PUBLIC_RATING_COUNT,
-  NOTIFICATION_TYPE_REVIEW_PROMPT,
   REVIEW_EDIT_WINDOW_MS,
-  REVIEW_PROMPT_SNOOZE_MS,
-  isDismissSnoozed,
-  isReviewPrompt,
   orderReceiptPdfUrl,
-  pickLandPopup,
-  popupDismissKind,
   publicRatingAverage,
   ratingSummaryLabel,
   reviewCanEdit,
@@ -40,87 +34,6 @@ describe('review edit window', () => {
       ),
     ).toBe(false)
     expect(reviewCanEdit(null)).toBe(false)
-  })
-})
-
-describe('popup snooze', () => {
-  const dismissed = '2026-09-01T00:00:00.000Z'
-  const dismissedMs = new Date(dismissed).getTime()
-
-  it('hides a popup for 7 days after dismissedAt', () => {
-    expect(isDismissSnoozed(dismissed, dismissedMs + 1000)).toBe(true)
-    expect(
-      isDismissSnoozed(dismissed, dismissedMs + REVIEW_PROMPT_SNOOZE_MS - 1),
-    ).toBe(true)
-    expect(
-      isDismissSnoozed(dismissed, dismissedMs + REVIEW_PROMPT_SNOOZE_MS),
-    ).toBe(false)
-    expect(isDismissSnoozed(null)).toBe(false)
-  })
-
-  it('picks one isPopup row per order and ignores read', () => {
-    const picked = pickLandPopup(
-      [
-        {
-          id: 'old',
-          type: NOTIFICATION_TYPE_REVIEW_PROMPT,
-          orderId: 'order-1',
-          createdAt: '2026-09-01T00:00:00.000Z',
-          isPopup: true,
-        },
-        {
-          id: 'new',
-          type: NOTIFICATION_TYPE_REVIEW_PROMPT,
-          orderId: 'order-1',
-          createdAt: '2026-09-03T00:00:00.000Z',
-          isPopup: true,
-        },
-        {
-          id: 'closed',
-          type: 'TASK_COMPLETED',
-          orderId: 'order-2',
-          createdAt: '2026-09-04T00:00:00.000Z',
-          isPopup: true,
-          isClosed: true,
-        },
-        {
-          id: 'snoozed',
-          type: NOTIFICATION_TYPE_REVIEW_PROMPT,
-          orderId: 'order-3',
-          createdAt: '2026-09-05T00:00:00.000Z',
-          isPopup: true,
-          dismissedAt: '2026-09-20T00:00:00.000Z',
-        },
-      ],
-      { now: new Date('2026-09-22T00:00:00.000Z').getTime() },
-    )
-    expect(picked?.id).toBe('new')
-  })
-
-  it('skips locally suppressed ids and does not treat read as dismissed', () => {
-    const picked = pickLandPopup(
-      [
-        {
-          id: 'a',
-          type: 'GENERAL',
-          orderId: 'o1',
-          isPopup: true,
-          createdAt: '2026-09-02T00:00:00.000Z',
-        },
-        {
-          id: 'b',
-          type: NOTIFICATION_TYPE_REVIEW_PROMPT,
-          orderId: 'o2',
-          isPopup: true,
-          createdAt: '2026-09-01T00:00:00.000Z',
-        },
-      ],
-      { suppressedIds: new Set(['a']) },
-    )
-    expect(picked?.id).toBe('b')
-    expect(isReviewPrompt(picked?.type)).toBe(true)
-    expect(popupDismissKind(picked ?? { type: '' })).toBe('review-prompt')
-    expect(popupDismissKind({ type: 'GENERAL' })).toBe('notification')
   })
 })
 

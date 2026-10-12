@@ -1,0 +1,24 @@
+#import "./threadItemFields.gql"
+
+fragment ThreadFields on Thread {
+  id
+  kind
+  title
+  unreadCount
+  canSend
+  blockedByMe
+  updatedAt
+  task {
+    id
+    title
+  }
+  otherParty {
+    userId
+    name
+    avatarUrl
+    deleted
+  }
+  lastItem {
+    ...ThreadItemFields
+  }
+}
