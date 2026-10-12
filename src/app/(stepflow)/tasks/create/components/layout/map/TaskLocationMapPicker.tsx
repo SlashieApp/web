@@ -1,35 +1,45 @@
 'use client'
 
 import { Box, Stack, Text } from '@chakra-ui/react'
-import type { Map as MapboxMap } from 'mapbox-gl'
 import type { ChangeEvent } from 'react'
-import { useCallback, useRef, useState } from 'react'
 
-import {
-  TASK_MAP_PREVIEW_LAT,
-  TASK_MAP_PREVIEW_LNG,
-} from '@/app/(stepflow)/tasks/create/helpers/resolveTaskLocation'
 import { BRAND_MAP_PIN, BRAND_MAP_PIN_STROKE } from '@/theme/brand'
-import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
-import {
-  mapboxForwardGeocode,
-  mapboxReverseGeocode,
-} from '@/utils/mapboxGeocode'
 import { Input } from '@ui'
 
-function bumpMapResize(map: MapboxMap) {
-  map.resize()
-  requestAnimationFrame(() => {
-    map.resize()
-    requestAnimationFrame(() => {
-      map.resize()
-    })
-  })
-}
+import { useTaskLocationMap } from './useTaskLocationMap'
 
-function parseCoordString(value: string): number | null {
-  const n = Number.parseFloat(value.trim())
-  return Number.isFinite(n) ? n : null
+/** Fixed centre pin: the tip sits on the map centre. Decorative. */
+export function TaskLocationCentrePin() {
+  return (
+    <Box
+      pointerEvents="none"
+      position="absolute"
+      left="50%"
+      top="50%"
+      w="32px"
+      h="32px"
+      ml="-16px"
+      mt="-28px"
+      zIndex={2}
+      aria-hidden
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <title>Selected location</title>
+        <path
+          d="M12 0C5.383 0 0 5.285 0 11.8c0 6.515 12 20.2 12 20.2s12-13.685 12-20.2C24 5.285 18.617 0 12 0z"
+          fill={BRAND_MAP_PIN}
+          stroke={BRAND_MAP_PIN_STROKE}
+          strokeWidth="2"
+        />
+      </svg>
+    </Box>
+  )
 }
 
 export type TaskLocationMapPickerProps = {
@@ -54,189 +64,19 @@ export function TaskLocationMapPicker({
   onLocationLngChange,
   showCoordinateHelpText = true,
 }: TaskLocationMapPickerProps) {
-  const mapRef = useRef<MapboxMap | null>(null)
-  const resizeObserverRef = useRef<ResizeObserver | null>(null)
-  const [mapReady, setMapReady] = useState(false)
-  const skipReverseAfterForwardRef = useRef(false)
-  const skipNextMoveEndRef = useRef(false)
-  /** Drag commits the pin. The opening camera must not. */
-  const pinDraggedRef = useRef(false)
-  const moveDebounceRef = useRef<number | null>(null)
-  const locationGeocodeTimerRef = useRef<number | null>(null)
-
-  const accessTokenRef = useRef(accessToken)
-  accessTokenRef.current = accessToken
-
-  const locationLatRef = useRef(locationLat)
-  const locationLngRef = useRef(locationLng)
-  const locationRef = useRef(location)
-  locationLatRef.current = locationLat
-  locationLngRef.current = locationLng
-  locationRef.current = location
-
-  const onLocationChangeRef = useRef(onLocationChange)
-  const onLocationLatChangeRef = useRef(onLocationLatChange)
-  const onLocationLngChangeRef = useRef(onLocationLngChange)
-  onLocationChangeRef.current = onLocationChange
-  onLocationLatChangeRef.current = onLocationLatChange
-  onLocationLngChangeRef.current = onLocationLngChange
-
-  const applyCenter = useCallback(
-    (lat: number, lng: number, opts?: { animate?: boolean }) => {
-      const map = mapRef.current
-      if (!map?.isStyleLoaded()) return
-      skipNextMoveEndRef.current = true
-      const animate = opts?.animate ?? true
-      if (animate) {
-        map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 13) })
-      } else {
-        map.jumpTo({ center: [lng, lat] })
-      }
-    },
-    [],
-  )
-
-  const attachMapContainer = useCallback((el: HTMLDivElement | null) => {
-    resizeObserverRef.current?.disconnect()
-    resizeObserverRef.current = null
-    if (locationGeocodeTimerRef.current) {
-      window.clearTimeout(locationGeocodeTimerRef.current)
-      locationGeocodeTimerRef.current = null
-    }
-    if (moveDebounceRef.current) {
-      window.clearTimeout(moveDebounceRef.current)
-      moveDebounceRef.current = null
-    }
-    mapRef.current?.remove()
-    mapRef.current = null
-    skipNextMoveEndRef.current = false
-    setMapReady(false)
-
-    if (!el) return
-
-    const token = accessTokenRef.current?.trim()
-    if (!token) return
-
-    void Promise.all([ensureMapboxStyles(), import('mapbox-gl')]).then(
-      ([, mapboxgl]) => {
-        if (!el.isConnected) return
-        mapboxgl.default.accessToken = token
-
-        const lat =
-          parseCoordString(locationLatRef.current) ?? TASK_MAP_PREVIEW_LAT
-        const lng =
-          parseCoordString(locationLngRef.current) ?? TASK_MAP_PREVIEW_LNG
-
-        const map = new mapboxgl.default.Map({
-          container: el,
-          style: 'mapbox://styles/mapbox/streets-v12',
-          center: [lng, lat],
-          zoom: 12,
-        })
-
-        map.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
-        mapRef.current = map
-
-        const resizeObserver = new ResizeObserver(() => {
-          mapRef.current?.resize()
-        })
-        resizeObserver.observe(el)
-        resizeObserverRef.current = resizeObserver
-
-        map.on('dragstart', () => {
-          pinDraggedRef.current = true
-        })
-
-        const onMoveEnd = () => {
-          if (skipNextMoveEndRef.current) {
-            skipNextMoveEndRef.current = false
-            return
-          }
-          if (!pinDraggedRef.current) return
-          if (moveDebounceRef.current)
-            window.clearTimeout(moveDebounceRef.current)
-          moveDebounceRef.current = window.setTimeout(() => {
-            const c = map.getCenter()
-            const latStr = c.lat.toFixed(6)
-            const lngStr = c.lng.toFixed(6)
-            onLocationLatChangeRef.current(latStr)
-            onLocationLngChangeRef.current(lngStr)
-
-            if (skipReverseAfterForwardRef.current) {
-              skipReverseAfterForwardRef.current = false
-              return
-            }
-
-            const geocodeToken = accessTokenRef.current?.trim()
-            if (!geocodeToken) return
-            void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then(
-              (name) => {
-                if (name) onLocationChangeRef.current(name)
-              },
-            )
-          }, 350)
-        }
-
-        map.on('moveend', onMoveEnd)
-
-        map.on('load', () => {
-          if (!el.isConnected) return
-          skipNextMoveEndRef.current = true
-          bumpMapResize(map)
-          setMapReady(true)
-        })
+  const { attachMapContainer, onLocationInputChange, commitLocationQuery } =
+    useTaskLocationMap({
+      accessToken,
+      location,
+      locationLat,
+      locationLng,
+      onLocationChange,
+      onLocationLatChange,
+      onLocationLngChange,
+      onMapCreated: (map, mapboxgl) => {
+        map.addControl(new mapboxgl.NavigationControl(), 'top-right')
       },
-    )
-  }, [])
-
-  const prevCoordsKeyRef = useRef<string | null>(null)
-  const coordsKey = `${locationLat}|${locationLng}`
-  if (
-    mapReady &&
-    mapRef.current?.isStyleLoaded() &&
-    coordsKey !== prevCoordsKeyRef.current
-  ) {
-    const lat = parseCoordString(locationLat)
-    const lng = parseCoordString(locationLng)
-    prevCoordsKeyRef.current = coordsKey
-    if (lat != null && lng != null) {
-      const current = mapRef.current.getCenter()
-      const delta = Math.abs(current.lat - lat) + Math.abs(current.lng - lng)
-      if (delta >= 1e-7) {
-        queueMicrotask(() => {
-          skipNextMoveEndRef.current = true
-          mapRef.current?.jumpTo({ center: [lng, lat] })
-        })
-      }
-    }
-  }
-
-  const suggestFromLocationQuery = useCallback(
-    (query: string) => {
-      if (!accessToken?.trim()) return
-      const q = query.trim()
-      if (q.length < 3) return
-
-      void mapboxForwardGeocode(q, accessToken).then((hit) => {
-        if (!hit) return
-        skipReverseAfterForwardRef.current = true
-        onLocationLatChangeRef.current(hit.lat.toFixed(6))
-        onLocationLngChangeRef.current(hit.lng.toFixed(6))
-        onLocationChangeRef.current(hit.placeName)
-        applyCenter(hit.lat, hit.lng)
-      })
-    },
-    [accessToken, applyCenter],
-  )
-
-  const onLocationInputChange = (value: string) => {
-    onLocationChangeRef.current(value)
-    if (locationGeocodeTimerRef.current)
-      window.clearTimeout(locationGeocodeTimerRef.current)
-    locationGeocodeTimerRef.current = window.setTimeout(() => {
-      suggestFromLocationQuery(value)
-    }, 600)
-  }
+    })
 
   const token = accessToken?.trim()
 
@@ -269,7 +109,7 @@ export function TaskLocationMapPicker({
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   onLocationInputChange(e.target.value)
                 }
-                onBlur={() => suggestFromLocationQuery(locationRef.current)}
+                onBlur={commitLocationQuery}
                 placeholder="Search for your location..."
                 aria-label="Search for your location"
                 rootProps={{
@@ -280,34 +120,7 @@ export function TaskLocationMapPicker({
                 }}
               />
             </Box>
-            <Box
-              pointerEvents="none"
-              position="absolute"
-              left="50%"
-              top="50%"
-              w="32px"
-              h="32px"
-              ml="-16px"
-              mt="-28px"
-              zIndex={2}
-              aria-hidden
-            >
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <title>Selected location</title>
-                <path
-                  d="M12 0C5.383 0 0 5.285 0 11.8c0 6.515 12 20.2 12 20.2s12-13.685 12-20.2C24 5.285 18.617 0 12 0z"
-                  fill={BRAND_MAP_PIN}
-                  stroke={BRAND_MAP_PIN_STROKE}
-                  strokeWidth="2"
-                />
-              </svg>
-            </Box>
+            <TaskLocationCentrePin />
             <Text
               position="absolute"
               bottom={2}

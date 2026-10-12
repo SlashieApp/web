@@ -547,6 +547,8 @@ export function createTaskMapController(args: {
         m.resize()
         requestAnimationFrame(() => m.resize())
         getProps().onReadyChange?.(true)
+        const c = m.getCenter()
+        getProps().onCenterChange?.(c.lat, c.lng)
         navRoute.flushWhenReady()
         scheduleSync()
       })
@@ -568,6 +570,10 @@ export function createTaskMapController(args: {
 
       moveEndRun = () => {
         const live = getProps()
+        if (map && live.onCenterChange) {
+          const c = map.getCenter()
+          live.onCenterChange(c.lat, c.lng)
+        }
         if (!map || !live.onSearchThisAreaConfirm) return
         if (live.cameraMode === 'detail' || live.mapInteractions === false) {
           setShowSearchThisArea(false)

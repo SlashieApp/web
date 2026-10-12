@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 
+import { publishSearchMapCentre } from '@/utils/taskHandoff'
 import { usePublishMarketplaceMap } from '../../../context/MarketplaceMapSession'
 import {
   useTaskBrowseData,
@@ -44,6 +45,7 @@ export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
           : overlayCtrlBottomOffsetForMobile(),
         onNavRoutePresentingChange,
         onSelectTask: selectFromMap,
+        onCenterChange: publishSearchMapCentre,
       },
     }),
     [

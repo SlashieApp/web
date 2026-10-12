@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useMe } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
+import { useCreateTaskHref } from '@/utils/taskHandoff'
 
 import { Button } from '../../Button'
 import { Drawer } from '../../Drawer'
@@ -27,6 +28,7 @@ export function MobileNavDrawer({
 }: MobileNavDrawerProps) {
   const me = useMe()
   const t = useI11n(bag)
+  const createTaskHref = useCreateTaskHref()
   const postTaskBlocked = me != null && !isEmailVerified(me)
 
   const close = useCallback(() => onOpenChange(false), [onOpenChange])
@@ -47,7 +49,7 @@ export function MobileNavDrawer({
         ) : (
           <Button asChild size="sm" variant="primary">
             <Link
-              href="/tasks/create"
+              href={createTaskHref}
               _hover={{ textDecoration: 'none' }}
               onClick={close}
             >
