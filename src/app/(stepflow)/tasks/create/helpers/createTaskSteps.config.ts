@@ -10,8 +10,8 @@ import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
  */
 
 export type CreateTaskSubStepId =
-  | 'details.basics'
   | 'details.location'
+  | 'details.basics'
   | 'details.timing'
   | 'publish.photos'
   | 'publish.budget'
@@ -34,8 +34,8 @@ export const CREATE_TASK_MAJOR_STEPS: CreateTaskMajorStep[] = [
     id: 'details',
     label: 'Task details',
     subSteps: [
-      { id: 'details.basics', label: 'Basics' },
       { id: 'details.location', label: 'Location' },
+      { id: 'details.basics', label: 'Basics' },
       { id: 'details.timing', label: 'Timing' },
     ],
   },
@@ -62,7 +62,8 @@ const FLAT_STEPS: CreateTaskSubStep[] = CREATE_TASK_MAJOR_STEPS.flatMap(
   (major) => major.subSteps,
 )
 
-export const CREATE_TASK_FIRST_SUB_STEP: CreateTaskSubStepId = 'details.basics'
+export const CREATE_TASK_FIRST_SUB_STEP: CreateTaskSubStepId =
+  'details.location'
 
 export const CREATE_TASK_FINAL_SUB_STEP: CreateTaskSubStepId = 'publish.contact'
 
@@ -70,14 +71,14 @@ export const CREATE_TASK_STEP_COPY: Record<
   CreateTaskSubStepId,
   { title: string; description?: string }
 > = {
-  'details.basics': {
-    title: 'What needs doing?',
-    description: 'Give your task a clear title, category, and description.',
-  },
   'details.location': {
     title: 'Where is the task?',
     description:
       'Drop a pin so nearby workers can find it. Your exact address is only shared with the worker you accept.',
+  },
+  'details.basics': {
+    title: 'What needs doing?',
+    description: 'Give your task a clear title, category, and description.',
   },
   'details.timing': {
     title: 'When do you need it?',
@@ -105,13 +106,13 @@ export const CREATE_TASK_STEP_FIELDS: Record<
   CreateTaskSubStepId,
   Array<keyof CreateTaskFormFieldValues>
 > = {
-  'details.basics': ['title', 'category', 'description'],
   'details.location': [
     'mapPlaceName',
     'locationLat',
     'locationLng',
     'streetAddress',
   ],
+  'details.basics': ['title', 'category', 'description'],
   'details.timing': ['datetimeType', 'preferredDate', 'preferredTime'],
   'publish.photos': [],
   'publish.budget': [
@@ -151,6 +152,18 @@ export function createTaskStepCaption(id: CreateTaskSubStepId): string {
   const index = createTaskSubStepIndex(id)
   const label = FLAT_STEPS[index]?.label ?? ''
   return `Step ${index + 1} of ${FLAT_STEPS.length} · ${label}`
+}
+
+/** First step (in flow order) that owns one of the errored form fields. */
+export function createTaskFirstErroredSubStep(
+  erroredFields: readonly string[],
+): CreateTaskSubStepId | null {
+  const step = FLAT_STEPS.find((s) =>
+    CREATE_TASK_STEP_FIELDS[s.id].some((field) =>
+      erroredFields.includes(field),
+    ),
+  )
+  return step?.id ?? null
 }
 
 /** Unlocked when completed, active, or every prior required step is complete. */

@@ -1,4 +1,4 @@
-import { COMPACT_DETAIL_HERO_H } from '@/app/(task)/helpers/marketplaceMap'
+import { COMPACT_DETAIL_HERO_H } from '@/app/(task)/helpers/marketplaceMap/overlay/config'
 
 /**
  * Desktop map show-through above the sticky chrome: ~26% of the window,

@@ -16,6 +16,7 @@ import {
   MY_TASKS_HREF,
   isPrimaryNavHrefActive,
 } from '@/utils/appRoutes'
+import { useCreateTaskHref } from '@/utils/taskHandoff'
 
 import { Link } from '../Link'
 
@@ -187,6 +188,7 @@ function ProfileIcon() {
 export function MobileBottomNav() {
   const t = useI11n(bag)
   const pathname = usePathname() ?? ''
+  const createTaskHref = useCreateTaskHref()
 
   const items: NavItem[] = [
     {
@@ -203,7 +205,7 @@ export function MobileBottomNav() {
     },
     {
       key: 'createTask',
-      href: '/tasks/create',
+      href: createTaskHref,
       label: t.createTask,
       icon: <PlusIcon />,
       emphasize: true,

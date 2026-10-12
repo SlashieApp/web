@@ -25,6 +25,7 @@ import {
   isPrimaryNavHrefActive,
 } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
+import { useCreateTaskHref } from '@/utils/taskHandoff'
 
 import { Button } from '../Button'
 import { Drawer } from '../Drawer'
@@ -85,6 +86,7 @@ function GetAppButton() {
 
 function PostTaskButton() {
   const t = useI11n(bag)
+  const createTaskHref = useCreateTaskHref()
 
   return (
     <Button
@@ -94,7 +96,7 @@ function PostTaskButton() {
       flexShrink={0}
       display={{ base: 'none', lg: 'inline-flex' }}
     >
-      <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
+      <Link href={createTaskHref} _hover={{ textDecoration: 'none' }}>
         {t.postTask}
       </Link>
     </Button>
@@ -204,6 +206,7 @@ function GuestMobileMenu({
 }) {
   const t = useI11n(bag)
   const [open, setOpen] = useState(false)
+  const createTaskHref = useCreateTaskHref()
 
   return (
     <>
@@ -231,7 +234,7 @@ function GuestMobileMenu({
             {t.nav.workers}
           </Link>
           <Link
-            href="/tasks/create"
+            href={createTaskHref}
             {...accountNavLinkRowProps}
             onClick={() => setOpen(false)}
           >

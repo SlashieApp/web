@@ -56,6 +56,8 @@ export type TaskMapProps = {
   onMapClick?: () => void
   /** Emits map style readiness state for parent loading orchestration. */
   onReadyChange?: (ready: boolean) => void
+  /** Live camera centre after load and every move (create-task hand-off). */
+  onCenterChange?: (lat: number, lng: number) => void
   selectedTaskId?: string | null
   selectedTaskSelectionToken?: number
   onSelectTask?: (taskId: string | null) => void

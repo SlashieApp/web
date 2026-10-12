@@ -38,6 +38,7 @@ export type TaskMapPropsSnapshot = {
   searchAreaButtonOffsetX?: string
   onMapClick?: () => void
   onReadyChange?: (ready: boolean) => void
+  onCenterChange?: (lat: number, lng: number) => void
   selectedTaskId?: string | null
   /** Bumps when the same task is selected again so the map can redraw the route. */
   selectedTaskSelectionToken?: number

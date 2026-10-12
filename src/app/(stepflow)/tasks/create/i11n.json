@@ -16,7 +16,17 @@
     "prohibitedHeading": "Allowed tasks only",
     "prohibitedBody": "Do not post illegal, unsafe, or licensed work unless the worker holds the right credentials. Slashie does not vet listings.",
     "prohibitedConfirm": "I confirm this task is legal, and I will not ask for unsafe or unlicensed work.",
-    "prohibitedRequired": "Confirm this task is allowed before publishing."
+    "prohibitedRequired": "Confirm this task is allowed before publishing.",
+    "location": {
+      "searchLabel": "Search for your task location",
+      "searchPlaceholder": "Search a street, area, or postcode",
+      "locateLabel": "Use current location",
+      "locateUnavailable": "We couldn't get your location. Search or drag the map instead.",
+      "placeLabel": "Task area",
+      "placeEmpty": "Search or move the map to drop your pin.",
+      "addressLabel": "Exact address",
+      "addressPlaceholder": "Apt, street, unit number…"
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -35,6 +45,16 @@
     "prohibitedHeading": "只限允許的任務",
     "prohibitedBody": "請勿發布非法、不安全的工作，或在對方沒有所需資格時要求持牌工作。Slashie 不會審查刊登內容。",
     "prohibitedConfirm": "我確認此任務合法，且不會要求不安全或無牌的工作。",
-    "prohibitedRequired": "發布前請確認此任務屬於允許範圍。"
+    "prohibitedRequired": "發布前請確認此任務屬於允許範圍。",
+    "location": {
+      "searchLabel": "搜尋任務地點",
+      "searchPlaceholder": "搜尋街道、地區或郵遞區號",
+      "locateLabel": "使用目前位置",
+      "locateUnavailable": "無法取得你的位置，請搜尋或拖動地圖。",
+      "placeLabel": "任務地區",
+      "placeEmpty": "搜尋或移動地圖以放置圖釘。",
+      "addressLabel": "詳細地址",
+      "addressPlaceholder": "單位、街道、門牌號碼…"
+    }
   }
 }

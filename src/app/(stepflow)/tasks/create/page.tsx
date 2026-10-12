@@ -11,8 +11,16 @@ import {
   TaskPaymentMethod,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useReducedMotion } from 'motion/react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useForm } from 'react-hook-form'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
@@ -21,6 +29,7 @@ import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
+import { MARKETPLACE_MAP_MOTION_MS } from '@/app/(task)/helpers/marketplaceMap/motion'
 import Me from '@/graphql/Me.gql'
 import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
@@ -36,16 +45,19 @@ import {
   getGraphQLErrorCode,
   getTaskMutationErrorMessage,
 } from '@/utils/graphqlErrors'
+import { mapboxReverseGeocode } from '@/utils/mapboxGeocode'
 import { TASK_DRAFT_TITLE_MAX } from '@/utils/taskHandoff'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
-import { StepFlowLayout, StepFlowProgress } from '@ui'
+import { StepFlowProgress } from '@ui'
 
 import {
   CreateTaskBasicsSection,
   CreateTaskBudgetSection,
   CreateTaskContactSection,
   CreateTaskHeader,
-  CreateTaskMapLocationPanel,
+  CreateTaskLocationMap,
+  CreateTaskLocationSection,
+  CreateTaskMapLayout,
   CreateTaskScheduleSection,
   CreateTaskStepper,
   CreateTaskVisualsSection,
@@ -58,11 +70,17 @@ import {
   toYmd,
 } from './createTaskFormSchema'
 import {
+  type CreateTaskLatLng,
+  type CreateTaskStartCentre,
+  resolveCreateTaskStartCentre,
+} from './helpers/createTaskStartCentre'
+import {
   CREATE_TASK_FINAL_SUB_STEP,
   CREATE_TASK_FIRST_SUB_STEP,
   CREATE_TASK_STEP_COPY,
   CREATE_TASK_STEP_FIELDS,
   type CreateTaskSubStepId,
+  createTaskFirstErroredSubStep,
   createTaskIsSubStepUnlocked,
   createTaskNextSubStep,
   createTaskPreviousSubStep,
@@ -78,6 +96,33 @@ function readDraftTitleFromUrl(): string {
   if (typeof window === 'undefined') return ''
   const raw = new URLSearchParams(window.location.search).get('title')
   return raw?.trim().slice(0, TASK_DRAFT_TITLE_MAX) ?? ''
+}
+
+function readStartCentreFromUrl(): CreateTaskStartCentre {
+  return resolveCreateTaskStartCentre({
+    search: typeof window === 'undefined' ? '' : window.location.search,
+  })
+}
+
+/** Browser location, or null when denied, unavailable, or too slow. */
+function currentPosition(
+  highAccuracy: boolean,
+): Promise<CreateTaskLatLng | null> {
+  return new Promise((resolve) => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      resolve(null)
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        }),
+      () => resolve(null),
+      { enableHighAccuracy: highAccuracy, timeout: 12_000, maximumAge: 60_000 },
+    )
+  })
 }
 
 function currentCreateTaskReturnPath(): string {
@@ -109,8 +154,16 @@ function CreateTaskFormBody({
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
   const imagePreviewUrlsUnmountRef = useRef<string[]>([])
   const [serverError, setServerError] = useState<string | null>(null)
-  /** True after a search or a pin drag. The London camera is not a choice. */
-  const pinChosenRef = useRef(false)
+  const [startCentre] = useState(readStartCentreFromUrl)
+  /**
+   * True after a search, a pin drag, or a `/search` / current-location
+   * start. The London camera is not a choice.
+   */
+  const pinChosenRef = useRef(startCentre.source !== 'default')
+  const [locating, setLocating] = useState(false)
+  const [locateUnavailable, setLocateUnavailable] = useState(false)
+  const headingRef = useRef<HTMLDivElement>(null)
+  const reducedMotion = useReducedMotion() ?? false
 
   const [activeSubStep, setActiveSubStep] = useState<CreateTaskSubStepId>(
     CREATE_TASK_FIRST_SUB_STEP,
@@ -137,8 +190,10 @@ function CreateTaskFormBody({
       description: '',
       streetAddress: '',
       mapPlaceName: '',
-      locationLat: '',
-      locationLng: '',
+      locationLat:
+        startCentre.source === 'default' ? '' : startCentre.lat.toFixed(6),
+      locationLng:
+        startCentre.source === 'default' ? '' : startCentre.lng.toFixed(6),
       datetimeType: TaskDateTimeType.Flexible,
       preferredDate: toYmd(new Date()),
       preferredTime: '09:00',
@@ -204,6 +259,7 @@ function CreateTaskFormBody({
   const onLocationLatChange = useCallback(
     (v: string) => {
       pinChosenRef.current = true
+      setLocateUnavailable(false)
       setValue('locationLat', v, {
         shouldValidate: true,
         shouldDirty: true,
@@ -222,14 +278,74 @@ function CreateTaskFormBody({
     [setValue],
   )
 
-  const onCopyMapPlaceToAddress = useCallback(() => {
-    const name = getValues('mapPlaceName').trim()
-    if (!name) return
-    setValue('streetAddress', name, {
-      shouldValidate: true,
-      shouldDirty: true,
+  /** Reverse geocode a label. Keeps one the poster already has unless `replace`. */
+  const labelPin = useCallback(
+    (lat: number, lng: number, replace: boolean) => {
+      const token = mapboxAccessToken?.trim()
+      if (!token) return
+      void mapboxReverseGeocode(lat, lng, token).then((name) => {
+        if (!name) return
+        if (!replace && getValues('mapPlaceName').trim()) return
+        setValue('mapPlaceName', name, {
+          shouldValidate: true,
+          shouldDirty: true,
+        })
+      })
+    },
+    [getValues, mapboxAccessToken, setValue],
+  )
+
+  const placePin = useCallback(
+    (lat: number, lng: number, replaceLabel: boolean) => {
+      pinChosenRef.current = true
+      setLocateUnavailable(false)
+      setValue('locationLat', lat.toFixed(6), {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      setValue('locationLng', lng.toFixed(6), {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      labelPin(lat, lng, replaceLabel)
+    },
+    [labelPin, setValue],
+  )
+
+  // Start centre: a `/search` centre is already the pin (it only needs a
+  // label). Otherwise London shows at once and current location replaces it
+  // when it arrives, unless the poster has already dragged, searched, or typed.
+  useEffect(() => {
+    if (startCentre.source !== 'default') {
+      labelPin(startCentre.lat, startCentre.lng, false)
+      return
+    }
+    let cancelled = false
+    void currentPosition(false).then((geolocated) => {
+      if (cancelled) return
+      const touched =
+        pinChosenRef.current || Boolean(getValues('mapPlaceName').trim())
+      if (!geolocated) {
+        if (!touched) setLocateUnavailable(true)
+        return
+      }
+      if (touched) return
+      const start = resolveCreateTaskStartCentre({ search: '', geolocated })
+      if (start.source === 'geolocation') placePin(start.lat, start.lng, false)
     })
-  }, [getValues, setValue])
+    return () => {
+      cancelled = true
+    }
+  }, [getValues, labelPin, placePin, startCentre])
+
+  const onLocate = useCallback(() => {
+    setLocating(true)
+    void currentPosition(true).then((geolocated) => {
+      setLocating(false)
+      if (geolocated) placePin(geolocated.lat, geolocated.lng, true)
+      else setLocateUnavailable(true)
+    })
+  }, [placePin])
 
   const applyResolvedLocation = useCallback(async () => {
     const values = getValues()
@@ -399,13 +515,25 @@ function CreateTaskFormBody({
 
   /** On full-form failure, jump to the first step that owns an errored field. */
   const jumpToFirstErroredStep = useCallback((erroredFields: string[]) => {
-    for (const [stepId, fields] of Object.entries(CREATE_TASK_STEP_FIELDS)) {
-      if (fields.some((field) => erroredFields.includes(field))) {
-        setActiveSubStep(stepId as CreateTaskSubStepId)
-        return
-      }
-    }
+    const step = createTaskFirstErroredSubStep(erroredFields)
+    if (step) setActiveSubStep(step)
   }, [])
+
+  // Move focus to the new step's title, after the map finishes resizing when
+  // the step swaps between the full-screen map and the band.
+  const prevSubStepRef = useRef(activeSubStep)
+  useEffect(() => {
+    const prev = prevSubStepRef.current
+    if (prev === activeSubStep) return
+    prevSubStepRef.current = activeSubStep
+    const mapResized =
+      (prev === 'details.location') !== (activeSubStep === 'details.location')
+    const timer = window.setTimeout(
+      () => headingRef.current?.focus(),
+      mapResized && !reducedMotion ? MARKETPLACE_MAP_MOTION_MS : 0,
+    )
+    return () => window.clearTimeout(timer)
+  }, [activeSubStep, reducedMotion])
 
   // Plain function (not useCallback): it closes over the per-render onSubmit,
   // and the layout's `actions` object is rebuilt every render anyway.
@@ -445,6 +573,7 @@ function CreateTaskFormBody({
   }
 
   const copy = CREATE_TASK_STEP_COPY[activeSubStep]
+  const isLocationStep = activeSubStep === 'details.location'
   const isFirstStep = activeSubStep === CREATE_TASK_FIRST_SUB_STEP
   const isFinalStep = activeSubStep === CREATE_TASK_FINAL_SUB_STEP
 
@@ -464,19 +593,12 @@ function CreateTaskFormBody({
         )
       case 'details.location':
         return (
-          <CreateTaskMapLocationPanel
-            bare
-            mapboxAccessToken={mapboxAccessToken}
+          <CreateTaskLocationSection
             mapPlaceName={mapPlaceName}
-            locationLat={locationLat}
-            locationLng={locationLng}
             register={register}
             streetAddressError={errors.streetAddress?.message}
-            onCopyMapPlaceToAddress={onCopyMapPlaceToAddress}
             locationError={locationError}
-            onLocationChange={onMapPlaceNameChange}
-            onLocationLatChange={onLocationLatChange}
-            onLocationLngChange={onLocationLngChange}
+            locateUnavailable={locateUnavailable}
             onStreetAddressEdited={onStreetAddressEdited}
             onStreetAddressBlur={() => {
               void applyResolvedLocation()
@@ -579,7 +701,7 @@ function CreateTaskFormBody({
   })()
 
   return (
-    <StepFlowLayout
+    <CreateTaskMapLayout
       banner={<AppStatusBanners />}
       header={<CreateTaskHeader />}
       progress={
@@ -596,6 +718,22 @@ function CreateTaskFormBody({
           onSelectSubStep={goToSubStep}
         />
       }
+      map={
+        <CreateTaskLocationMap
+          accessToken={mapboxAccessToken}
+          location={mapPlaceName}
+          locationLat={locationLat}
+          locationLng={locationLng}
+          onLocationChange={onMapPlaceNameChange}
+          onLocationLatChange={onLocationLatChange}
+          onLocationLngChange={onLocationLngChange}
+          collapsed={!isLocationStep}
+          onLocate={onLocate}
+          locating={locating}
+        />
+      }
+      mapExpanded={isLocationStep}
+      headingRef={headingRef}
       title={copy.title}
       description={copy.description}
       errorText={serverError}
@@ -609,7 +747,7 @@ function CreateTaskFormBody({
       }}
     >
       {stepContent}
-    </StepFlowLayout>
+    </CreateTaskMapLayout>
   )
 }
 
