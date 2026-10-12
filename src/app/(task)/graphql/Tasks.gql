@@ -1,5 +1,5 @@
-query Tasks($filter: TaskFilter, $sort: TaskSort) {
-  tasks(filter: $filter, sort: $sort) {
+query Tasks($filter: TaskFilter, $sort: TaskSort, $first: Int, $after: ID) {
+  tasks(filter: $filter, sort: $sort, first: $first, after: $after) {
     id
     title
     description

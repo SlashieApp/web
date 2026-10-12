@@ -12,20 +12,25 @@ import {
   useSyncExternalStore,
 } from 'react'
 
+import { useMe } from '@/app/(auth)/store/user'
 import Tasks from '@/app/(task)/graphql/Tasks.gql'
 import type { TaskListItem, TasksQueryData } from '@/graphql/tasks-query.types'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
+import { EVENTS, capture } from '@/utils/analytics'
+import { showAppToast } from '@/utils/appToast'
 import {
   mapboxForwardGeocode,
   mapboxReverseGeocode,
 } from '@/utils/mapboxGeocode'
 import {
   type TaskListVariables,
-  type TaskSortChoice,
   buildTaskFilter,
   taskSortToInput,
 } from '@/utils/taskListQuery'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
+import bag from '../components/i11n.json'
 import type { SearchThisAreaButtonProps } from '../components/ui/SearchThisAreaButton'
 import type { TaskMapProps } from '../components/ui/TaskMap'
 import {
@@ -36,51 +41,36 @@ import {
   URL_SEEDED_AREA_LABEL,
   browseGeolocationPermission,
 } from '../helpers/browseReferenceLocation'
-import type {
-  TaskBrowseFiltersProps,
-  UrgencyFilter,
-} from '../helpers/taskBrowseFilters.types'
 import {
+  type BrowseBudgetFilter,
+  type BrowseDateFilter,
   type BrowseFilterTag,
   DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
-  PAGE_SIZE,
-  SORT_OPTIONS,
   buildActiveBrowseFilterTags,
-  effectiveTaskPricePenceForFilter,
   formatBudget,
-  matchesUrgency,
-  taskCreatedTime,
+  parseBrowseBudget,
   taskDistanceLabelFromReference,
-  taskDistanceMilesFromReference,
 } from '../helpers/taskBrowseHelpers'
 
+type BrowseMapTask = {
+  id: string
+  title: string
+  description: string | null | undefined
+  category?: string | null | undefined
+  location: string | null | undefined
+  locationLat: number | null | undefined
+  locationLng: number | null | undefined
+  priceLabel: string
+  detailLine: string
+  distanceLabel?: string
+}
+
 type TaskBrowseDataContextValue = {
-  sort: string
-  setSort: (v: string) => void
-  cycleSort: () => void
-  page: number
-  setPage: (v: number | ((prev: number) => number)) => void
+  // --- Area + radius: /workers edits these through draft → submit.
   radiusMiles: number
-  /** Last submitted radius (drives fetch + map query disc); draft {@link radiusMiles} is edited in the filter UI. */
+  /** Last submitted radius: map camera zoom and the /workers query. Tasks search everywhere. */
   submittedRadiusMiles: number
-  /** Last submitted category / search text (URL sync reads these). */
-  submittedCategory: string
-  submittedSearchText: string
   setRadiusMiles: (v: number) => void
-  minBudget: string
-  setMinBudget: (v: string) => void
-  maxBudget: string
-  setMaxBudget: (v: string) => void
-  urgency: UrgencyFilter
-  setUrgency: (v: UrgencyFilter) => void
-  category: string
-  setCategory: (v: string) => void
-  scheduledAfter: string
-  setScheduledAfter: (v: string) => void
-  scheduledBefore: string
-  setScheduledBefore: (v: string) => void
-  searchInput: string
-  setSearchInput: (v: string) => void
   areaLocationInput: string
   setAreaLocationInput: (v: string) => void
   commitAreaLocationSearch: () => void
@@ -91,17 +81,35 @@ type TaskBrowseDataContextValue = {
   initGeolocationOnLoad: () => void
   referenceLocation: BrowseReferenceLocation
   geolocationStatus: BrowseGeolocationStatus
-  /** Copies draft filter UI → submitted; triggers fetch (radius) + list filters. */
+  /** Copies the draft radius → submitted (/workers filters). */
   submitBrowseFilters: () => void
-  /** Resets draft filter fields from last submitted snapshot (call when opening the filter panel). */
+  /** Resets the draft radius and area field from the submitted values. */
   syncDraftFiltersFromSubmitted: () => void
-  /** Clears optional list filters (keeps map radius + location). */
-  clearAllBrowseFilters: () => void
-  /** Removes one optional chip (budget / urgency / category / dates / search). */
-  removeBrowseFilterTag: (tag: BrowseFilterTag) => void
   searchCenterLat: number
   searchCenterLng: number
   confirmSearchThisAreaFromMap: (lat: number, lng: number, zoom: number) => void
+
+  // --- Task search (FE-201): applied live, shared by map pins and list.
+  searchInput: string
+  setSearchInput: (v: string) => void
+  /** Applies the typed text now (Enter), without waiting for the pause. */
+  commitSearch: () => void
+  /** Search text sent to the API. */
+  searchText: string
+  /** Typed text not applied yet, or results still loading. */
+  isSearchPending: boolean
+  dateFilter: BrowseDateFilter | null
+  setDateFilter: (v: BrowseDateFilter | null) => void
+  budgetMinInput: string
+  budgetMaxInput: string
+  setBudgetMinInput: (v: string) => void
+  setBudgetMaxInput: (v: string) => void
+  /** Minimum above maximum: the budget filter is not sent. */
+  budgetRangeInvalid: boolean
+  activeFilterTags: readonly BrowseFilterTag[]
+  removeBrowseFilterTag: (tag: BrowseFilterTag) => void
+  clearAllBrowseFilters: () => void
+
   selectedTaskId: string | null
   /** Bumps on every non-null selection (including re-selecting the same task). */
   selectedTaskSelectionToken: number
@@ -111,37 +119,29 @@ type TaskBrowseDataContextValue = {
   /** True while the map nav route is fetching or animating. */
   isNavRoutePresenting: boolean
   onNavRoutePresentingChange: (presenting: boolean) => void
+
   loading: boolean
+  /** New results loading while the previous ones stay on screen. */
+  isRefreshing: boolean
   error: { message: string } | null | undefined
+  retryTasks: () => void
   dataLoaded: boolean
   /** Map/list loader: waiting for map readiness and/or the first tasks query. */
   isInitialTasksLoad: boolean
-  /** Empty-state card may render (first fetch finished). */
+  /** Empty-state card may render (the latest fetch settled). */
   canShowBrowseEmptyState: boolean
-  /** Task count from the latest `tasks` query (or SSR initial list) before client-side filters. Discovery is cap-aware server-side. */
+  /** Tasks loaded so far (all pages). */
   browseSourceTaskCount: number
+  /** Results nearest first, every loaded page. */
   filteredSorted: TaskListItem[]
-  pageItems: TaskListItem[]
-  totalPages: number
-  safePage: number
-  effectiveMapTasksForBox: {
-    id: string
-    title: string
-    description: string | null | undefined
-    category?: string | null | undefined
-    location: string | null | undefined
-    locationLat: number | null | undefined
-    locationLng: number | null | undefined
-    priceLabel: string
-    detailLine: string
-    distanceLabel?: string
-  }[]
+  hasMoreTasks: boolean
+  loadingMoreTasks: boolean
+  loadMoreTasks: () => void
+  effectiveMapTasksForBox: BrowseMapTask[]
   shouldWaitForMap: boolean
   /** True once the map signalled readiness (or immediately when no Mapbox token). */
   isMapReadyForQuery: boolean
   markMapReadyForQuery: (ready: boolean) => void
-  /** Chips derived from last submitted filters (see {@link submitBrowseFilters}). */
-  activeFilterTags: readonly BrowseFilterTag[]
 }
 
 type TaskBrowseLayoutContextValue = {
@@ -164,6 +164,11 @@ const MAX_RADIUS_MILES = 50
 const DESKTOP_MAP_CENTER_LEFT_INSET_PX = 420
 /** Mobile (base < lg) should not offset map center. */
 const MOBILE_MAP_CENTER_LEFT_INSET_PX = 0
+/** Discovery `tasks` page size (server default and max). */
+const TASKS_PAGE_SIZE = 100
+/** Pause after typing before search text or budget is sent. */
+const SEARCH_DEBOUNCE_MS = 300
+const NO_BUDGET: BrowseBudgetFilter = { min: null, max: null }
 
 function clampRadiusMiles(value: number): number {
   if (!Number.isFinite(value)) return 10
@@ -173,26 +178,20 @@ function clampRadiusMiles(value: number): number {
   )
 }
 
-/** Maps the browse sort control value to a {@link TaskSortChoice} for the server. */
-function browseSortToChoice(sort: string): TaskSortChoice {
-  if (sort === 'newest') return 'newest'
-  if (sort === 'oldest') return 'oldest'
-  if (sort === 'scheduled') return 'scheduled'
-  if (sort === 'title') return 'title'
-  return 'nearest'
-}
-
 function zoomToRadiusMiles(zoom: number): number {
   const normalized = Number.isFinite(zoom) ? zoom : 11
   const miles = 10 * 2 ** (11 - normalized)
   return clampRadiusMiles(miles)
 }
 
+function coordsLabel(lat: number, lng: number): string {
+  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`
+}
+
 /** Deep-link state hydrated from /search URL params (all optional). */
 export type TaskBrowseInitialState = {
   reference?: BrowseReferenceLocation | null
   radiusMiles?: number | null
-  category?: string | null
   searchText?: string | null
 }
 
@@ -218,6 +217,25 @@ function subscribeWindowResize(onStoreChange: () => void) {
   return () => window.removeEventListener('resize', onStoreChange)
 }
 
+function toBrowseMapTask(
+  task: TaskListItem,
+  reference: BrowseReferenceLocation,
+): BrowseMapTask {
+  const { main, sub } = formatBudget(task)
+  return {
+    id: task.id,
+    title: task.title,
+    description: task.description,
+    category: task.category,
+    location: taskPublicLocationLabel(task),
+    locationLat: task.location?.lat ?? null,
+    locationLng: task.location?.lng ?? null,
+    priceLabel: main,
+    detailLine: `${main} · ${sub}`,
+    distanceLabel: taskDistanceLabelFromReference(task, reference),
+  }
+}
+
 export function TaskBrowseProvider({
   children,
   initialTasks,
@@ -227,6 +245,9 @@ export function TaskBrowseProvider({
 }: TaskBrowseProviderProps) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const hasMapboxToken = Boolean(mapboxToken?.trim())
+  const t = useI11n(bag)
+  const dateLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
+  const me = useMe()
 
   // Mount-only URL hydration snapshot — later prop changes are ignored.
   const initialStateRef = useRef(initialState)
@@ -236,7 +257,6 @@ export function TaskBrowseProvider({
     initialStateRef.current?.radiusMiles ??
       DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
   )
-  const seededCategory = initialStateRef.current?.category ?? ''
   const seededSearchText = initialStateRef.current?.searchText?.trim() ?? ''
 
   const windowOffsetWidth = useSyncExternalStore(
@@ -258,29 +278,68 @@ export function TaskBrowseProvider({
       offsetX: '0px',
       onClick: () => {},
     })
-  const [sort, setSort] = useState<string>('nearest')
-  const [page, setPage] = useState(0)
   const [radiusMiles, setRadiusMiles] = useState(seededRadius)
-  const [minBudget, setMinBudget] = useState('')
-  const [maxBudget, setMaxBudget] = useState('')
-  const [urgency, setUrgency] = useState<UrgencyFilter>('any')
-  const [category, setCategory] = useState(seededCategory)
-  const [scheduledAfter, setScheduledAfter] = useState('')
-  const [scheduledBefore, setScheduledBefore] = useState('')
   const [submittedRadiusMiles, setSubmittedRadiusMiles] = useState(seededRadius)
-  const [submittedMinBudget, setSubmittedMinBudget] = useState('')
-  const [submittedMaxBudget, setSubmittedMaxBudget] = useState('')
-  const [submittedUrgency, setSubmittedUrgency] = useState<UrgencyFilter>('any')
-  const [submittedCategory, setSubmittedCategory] = useState(seededCategory)
-  const [submittedScheduledAfter, setSubmittedScheduledAfter] = useState('')
-  const [submittedScheduledBefore, setSubmittedScheduledBefore] = useState('')
-  const [submittedSearchText, setSubmittedSearchText] =
-    useState(seededSearchText)
+
+  // Task search: typed values apply after a short pause (or Enter); dates
+  // and clearing apply at once.
   const [searchInput, setSearchInputRaw] = useState(seededSearchText)
+  const [searchText, setSearchText] = useState(seededSearchText)
+  const [dateFilter, setDateFilterState] = useState<BrowseDateFilter | null>(
+    null,
+  )
+  const [budgetMinInput, setBudgetMinInput] = useState('')
+  const [budgetMaxInput, setBudgetMaxInput] = useState('')
+  const [budget, setBudget] = useState<BrowseBudgetFilter>(NO_BUDGET)
 
   const setSearchInput = useCallback((v: string) => {
     setSearchInputRaw(v)
   }, [])
+  const commitSearch = useCallback(() => {
+    setSearchText(searchInput.trim())
+  }, [searchInput])
+
+  useEffect(() => {
+    const next = searchInput.trim()
+    if (next === searchText) return
+    const timer = setTimeout(() => setSearchText(next), SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [searchInput, searchText])
+
+  const parsedBudget = useMemo(
+    () => parseBrowseBudget(budgetMinInput, budgetMaxInput),
+    [budgetMinInput, budgetMaxInput],
+  )
+  useEffect(() => {
+    const next = parsedBudget.invalid
+      ? NO_BUDGET
+      : { min: parsedBudget.min, max: parsedBudget.max }
+    if (next.min === budget.min && next.max === budget.max) return
+    const timer = setTimeout(() => setBudget(next), SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [parsedBudget, budget])
+
+  // Search / filter usage (no search text leaves the browser).
+  const lastTrackedSearchRef = useRef(seededSearchText)
+  useEffect(() => {
+    if (skipTasksQuery || !searchText) return
+    if (searchText === lastTrackedSearchRef.current) return
+    lastTrackedSearchRef.current = searchText
+    capture(EVENTS.browse_search, { query_length: searchText.length })
+  }, [searchText, skipTasksQuery])
+  useEffect(() => {
+    if (skipTasksQuery || (budget.min == null && budget.max == null)) return
+    capture(EVENTS.browse_filter_budget, {
+      has_min: budget.min != null,
+      has_max: budget.max != null,
+    })
+  }, [budget, skipTasksQuery])
+
+  const setDateFilter = useCallback((next: BrowseDateFilter | null) => {
+    setDateFilterState(next)
+    if (next) capture(EVENTS.browse_filter_date, { preset: next.preset })
+  }, [])
+
   const [referenceLocation, setReferenceLocation] =
     useState<BrowseReferenceLocation>(seededReference)
   const [geolocationStatus, setGeolocationStatus] =
@@ -338,134 +397,105 @@ export function TaskBrowseProvider({
     setAreaLocationInput(next.label)
   }, [])
 
+  // Sort centre fallback: a worker's saved area beats London. A shared
+  // link, current location or "Search this area" all win over it.
+  const preferred = me?.worker?.preferredLocation
+  useEffect(() => {
+    if (skipTasksQuery || referenceLocation.source !== 'default') return
+    const lat = preferred?.lat
+    const lng = preferred?.lng
+    if (typeof lat !== 'number' || typeof lng !== 'number') return
+    applyReference({
+      lat,
+      lng,
+      label: preferred?.name?.trim() || coordsLabel(lat, lng),
+      source: 'preferred',
+    })
+  }, [applyReference, preferred, referenceLocation.source, skipTasksQuery])
+
   const prevHasMapboxTokenRef = useRef(hasMapboxToken)
   if (hasMapboxToken !== prevHasMapboxTokenRef.current) {
     prevHasMapboxTokenRef.current = hasMapboxToken
     setIsMapReadyForQuery(!hasMapboxToken)
   }
 
-  const queryVariables = useMemo<TaskListVariables>(() => {
-    const radius = clampRadiusMiles(submittedRadiusMiles)
-    return {
+  // Everywhere, nearest first from the sort centre (BE-68): no radius.
+  const queryVariables = useMemo<TaskListVariables>(
+    () => ({
       filter: buildTaskFilter({
         lat: searchCenterLat,
         lng: searchCenterLng,
-        radiusMiles: radius,
-        search: submittedSearchText,
-        category: submittedCategory,
-        scheduledAfter: submittedScheduledAfter,
-        scheduledBefore: submittedScheduledBefore,
+        search: searchText,
+        scheduledAfter: dateFilter?.from,
+        scheduledBefore: dateFilter?.to,
+        budgetMin: budget.min,
+        budgetMax: budget.max,
       }),
-      sort: taskSortToInput(browseSortToChoice(sort)),
-    }
-  }, [
-    searchCenterLat,
-    searchCenterLng,
-    submittedRadiusMiles,
-    submittedSearchText,
-    submittedCategory,
-    submittedScheduledAfter,
-    submittedScheduledBefore,
-    sort,
-  ])
-
-  const shouldWaitForMap = hasMapboxToken
-  const { data, loading, error } = useQuery<TasksQueryData, TaskListVariables>(
-    Tasks,
-    {
-      variables: queryVariables,
-      notifyOnNetworkStatusChange: true,
-      skip: skipTasksQuery || (shouldWaitForMap && !isMapReadyForQuery),
-    },
+      sort: taskSortToInput('nearest'),
+      first: TASKS_PAGE_SIZE,
+    }),
+    [budget, dateFilter, searchCenterLat, searchCenterLng, searchText],
   )
 
-  const filtered = useMemo(() => {
-    const items = data?.tasks ?? initialTasks
-    const text = submittedSearchText.trim().toLowerCase()
-    const minStr = submittedMinBudget.trim()
-    const maxStr = submittedMaxBudget.trim()
-    const minP = minStr === '' ? null : Number.parseFloat(minStr) * 100
-    const maxP = maxStr === '' ? null : Number.parseFloat(maxStr) * 100
+  const shouldWaitForMap = hasMapboxToken
+  const tasksQuerySkipped = shouldWaitForMap && !isMapReadyForQuery
+  const { data, previousData, loading, error, fetchMore, refetch } = useQuery<
+    TasksQueryData,
+    TaskListVariables
+  >(Tasks, {
+    variables: queryVariables,
+    notifyOnNetworkStatusChange: true,
+    skip: skipTasksQuery || tasksQuerySkipped,
+  })
 
-    return items.filter((task) => {
-      if (text) {
-        const hay = `${task.title} ${task.description}`.toLowerCase()
-        if (!hay.includes(text)) return false
-      }
-      if (!matchesUrgency(task, submittedUrgency)) return false
+  // The previous results stay on screen (list and pins) while new ones load.
+  const shown = data ?? previousData
+  const filteredSorted = shown?.tasks ?? initialTasks
 
-      const eff = effectiveTaskPricePenceForFilter(task)
-      if (minP != null && Number.isFinite(minP)) {
-        if (eff == null || eff < Math.round(minP)) return false
-      }
-      if (maxP != null && Number.isFinite(maxP)) {
-        if (eff != null && eff > Math.round(maxP)) return false
-      }
-      return true
-    })
-  }, [
-    data,
-    initialTasks,
-    submittedMaxBudget,
-    submittedMinBudget,
-    submittedSearchText,
-    submittedUrgency,
-  ])
+  const [loadingMoreTasks, setLoadingMoreTasks] = useState(false)
+  const [exhaustedKey, setExhaustedKey] = useState<string | null>(null)
+  const variablesKey = JSON.stringify(queryVariables)
+  const loadedCount = data?.tasks.length ?? 0
+  const hasMoreTasks =
+    loadedCount > 0 &&
+    loadedCount % TASKS_PAGE_SIZE === 0 &&
+    exhaustedKey !== variablesKey
+
+  const loadMoreTasks = useCallback(() => {
+    const last = data?.tasks.at(-1)
+    if (!last || loadingMoreTasks) return
+    setLoadingMoreTasks(true)
+    void fetchMore({ variables: { after: last.id } })
+      .then((result) => {
+        if ((result.data?.tasks.length ?? 0) < TASKS_PAGE_SIZE) {
+          setExhaustedKey(variablesKey)
+        }
+      })
+      .catch(() => {
+        showAppToast({ title: t.loadMoreFailed, type: 'error' })
+      })
+      .finally(() => setLoadingMoreTasks(false))
+  }, [data, fetchMore, loadingMoreTasks, t.loadMoreFailed, variablesKey])
+
+  const retryTasks = useCallback(() => {
+    void refetch()
+  }, [refetch])
 
   const activeFilterTags = useMemo(
     () =>
-      buildActiveBrowseFilterTags({
-        submittedRadiusMiles,
-        submittedMinBudget,
-        submittedMaxBudget,
-        submittedUrgency,
-        submittedCategory,
-        submittedScheduledAfter,
-        submittedScheduledBefore,
-        submittedSearchText,
-        referenceLabel: referenceLocation.label,
-      }),
-    [
-      referenceLocation.label,
-      submittedCategory,
-      submittedScheduledAfter,
-      submittedScheduledBefore,
-      submittedMaxBudget,
-      submittedMinBudget,
-      submittedRadiusMiles,
-      submittedSearchText,
-      submittedUrgency,
-    ],
-  )
-
-  const filteredSorted = useMemo(() => {
-    let next = filtered
-    if (sort === 'nearest') {
-      next = [...next].sort((a, b) => {
-        const da =
-          taskDistanceMilesFromReference(a, referenceLocation) ??
-          Number.POSITIVE_INFINITY
-        const db =
-          taskDistanceMilesFromReference(b, referenceLocation) ??
-          Number.POSITIVE_INFINITY
-        return da - db
-      })
-    } else if (sort === 'newest' || sort === 'oldest') {
-      next = [...next].sort((a, b) => {
-        const ta = taskCreatedTime(a)
-        const tb = taskCreatedTime(b)
-        return sort === 'oldest' ? ta - tb : tb - ta
-      })
-    }
-    return next
-  }, [filtered, referenceLocation, sort])
-
-  const totalPages = Math.max(1, Math.ceil(filteredSorted.length / PAGE_SIZE))
-  const maxPageIndex = Math.max(0, totalPages - 1)
-  const safePage = Math.min(page, maxPageIndex)
-  const pageItems = filteredSorted.slice(
-    safePage * PAGE_SIZE,
-    safePage * PAGE_SIZE + PAGE_SIZE,
+      buildActiveBrowseFilterTags(
+        { searchText, dateFilter, budget },
+        {
+          today: t.filterToday,
+          thisWeek: t.filterThisWeek,
+          fromDate: t.filterFromDate,
+          untilDate: t.filterUntilDate,
+          budgetFrom: t.filterBudgetFrom,
+          budgetUpTo: t.filterBudgetUpTo,
+        },
+        dateLocale,
+      ),
+    [budget, dateFilter, dateLocale, searchText, t],
   )
 
   const visibleSelectedTaskId =
@@ -491,76 +521,10 @@ export function TaskBrowseProvider({
     staleSelectionRef.current = null
   }
 
-  const selectionPageSyncRef = useRef<{
-    selectedTaskId: string | null
-    filteredSorted: TaskListItem[]
-  }>({ selectedTaskId: null, filteredSorted: [] })
-
-  if (
-    visibleSelectedTaskId !== selectionPageSyncRef.current.selectedTaskId ||
-    filteredSorted !== selectionPageSyncRef.current.filteredSorted
-  ) {
-    selectionPageSyncRef.current = {
-      selectedTaskId: visibleSelectedTaskId,
-      filteredSorted,
-    }
-    if (visibleSelectedTaskId) {
-      const idx = filteredSorted.findIndex(
-        (task) => task.id === visibleSelectedTaskId,
-      )
-      if (idx >= 0) {
-        const desiredPage = Math.floor(idx / PAGE_SIZE)
-        if (page !== desiredPage) {
-          queueMicrotask(() => setPage(desiredPage))
-        }
-      }
-    }
-  }
-
-  const mapTasksForBox = useMemo(
+  const effectiveMapTasksForBox = useMemo(
     () =>
-      filtered.map((task) => {
-        const { main, sub } = formatBudget(task)
-        return {
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          category: task.category,
-          location: taskPublicLocationLabel(task),
-          locationLat: task.location?.lat ?? null,
-          locationLng: task.location?.lng ?? null,
-          priceLabel: main,
-          detailLine: `${main} · ${sub}`,
-          distanceLabel: taskDistanceLabelFromReference(
-            task,
-            referenceLocation,
-          ),
-        }
-      }),
-    [filtered, referenceLocation],
-  )
-
-  const initialMapTasksForBox = useMemo(
-    () =>
-      initialTasks.map((task) => {
-        const { main, sub } = formatBudget(task)
-        return {
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          category: task.category,
-          location: taskPublicLocationLabel(task),
-          locationLat: task.location?.lat ?? null,
-          locationLng: task.location?.lng ?? null,
-          priceLabel: main,
-          detailLine: `${main} · ${sub}`,
-          distanceLabel: taskDistanceLabelFromReference(
-            task,
-            referenceLocation,
-          ),
-        }
-      }),
-    [initialTasks, referenceLocation],
+      filteredSorted.map((task) => toBrowseMapTask(task, referenceLocation)),
+    [filteredSorted, referenceLocation],
   )
 
   const confirmSearchThisAreaFromMap = useCallback(
@@ -569,23 +533,19 @@ export function TaskBrowseProvider({
       setRadiusMiles(nextRadius)
       setSubmittedRadiusMiles(nextRadius)
       const token = mapboxToken?.trim()
-      if (token) {
-        void mapboxReverseGeocode(lat, lng, token).then((name) => {
-          applyReference({
-            lat,
-            lng,
-            label: name?.trim() || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
-            source: 'manual',
-          })
+      const apply = (name?: string | null) =>
+        applyReference({
+          lat,
+          lng,
+          label: name?.trim() || coordsLabel(lat, lng),
+          source: 'manual',
         })
+      if (!token) {
+        apply()
         return
       }
-      applyReference({
-        lat,
-        lng,
-        label: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
-        source: 'manual',
-      })
+      // A failed place lookup still moves the centre (coordinates label).
+      void mapboxReverseGeocode(lat, lng, token).then(apply, () => apply())
     },
     [applyReference, mapboxToken],
   )
@@ -693,137 +653,49 @@ export function TaskBrowseProvider({
     })
   }, [requestUseMyLocation])
 
-  const cycleSort = useCallback(() => {
-    const idx = SORT_OPTIONS.findIndex((opt) => opt.value === sort)
-    const next =
-      SORT_OPTIONS[(idx + 1 + SORT_OPTIONS.length) % SORT_OPTIONS.length]
-    setSort(next.value)
-  }, [sort])
-
   const submitBrowseFilters = useCallback(() => {
     setSubmittedRadiusMiles(radiusMiles)
-    setSubmittedMinBudget(minBudget)
-    setSubmittedMaxBudget(maxBudget)
-    setSubmittedUrgency(urgency)
-    setSubmittedCategory(category)
-    setSubmittedScheduledAfter(scheduledAfter)
-    setSubmittedScheduledBefore(scheduledBefore)
-    setSubmittedSearchText(searchInput.trim())
-    setPage(0)
-  }, [
-    category,
-    maxBudget,
-    minBudget,
-    radiusMiles,
-    scheduledAfter,
-    scheduledBefore,
-    searchInput,
-    urgency,
-  ])
-
-  const clearAllBrowseFilters = useCallback(() => {
-    setMinBudget('')
-    setMaxBudget('')
-    setUrgency('any')
-    setCategory('')
-    setScheduledAfter('')
-    setScheduledBefore('')
-    setSearchInputRaw('')
-    setSubmittedMinBudget('')
-    setSubmittedMaxBudget('')
-    setSubmittedUrgency('any')
-    setSubmittedCategory('')
-    setSubmittedScheduledAfter('')
-    setSubmittedScheduledBefore('')
-    setSubmittedSearchText('')
-    setPage(0)
-  }, [])
-
-  const removeBrowseFilterTag = useCallback((tag: BrowseFilterTag) => {
-    switch (tag.kind) {
-      case 'budget':
-        setMinBudget('')
-        setMaxBudget('')
-        setSubmittedMinBudget('')
-        setSubmittedMaxBudget('')
-        break
-      case 'urgency':
-        setUrgency('any')
-        setSubmittedUrgency('any')
-        break
-      case 'category':
-        setCategory('')
-        setSubmittedCategory('')
-        break
-      case 'scheduled':
-        setScheduledAfter('')
-        setSubmittedScheduledAfter('')
-        setScheduledBefore('')
-        setSubmittedScheduledBefore('')
-        break
-      case 'search':
-        setSearchInputRaw('')
-        setSubmittedSearchText('')
-        break
-      default:
-        return
-    }
-    setPage(0)
-  }, [])
+  }, [radiusMiles])
 
   const syncDraftFiltersFromSubmitted = useCallback(() => {
     setRadiusMiles(submittedRadiusMiles)
-    setMinBudget(submittedMinBudget)
-    setMaxBudget(submittedMaxBudget)
-    setUrgency(submittedUrgency)
-    setCategory(submittedCategory)
-    setScheduledAfter(submittedScheduledAfter)
-    setScheduledBefore(submittedScheduledBefore)
-    setSearchInputRaw(submittedSearchText)
     setAreaLocationInput(referenceLocation.label)
-  }, [
-    referenceLocation.label,
-    submittedCategory,
-    submittedScheduledAfter,
-    submittedScheduledBefore,
-    submittedMaxBudget,
-    submittedMinBudget,
-    submittedRadiusMiles,
-    submittedSearchText,
-    submittedUrgency,
-  ])
+  }, [referenceLocation.label, submittedRadiusMiles])
+
+  const clearAllBrowseFilters = useCallback(() => {
+    setSearchInputRaw('')
+    setSearchText('')
+    setDateFilterState(null)
+    setBudgetMinInput('')
+    setBudgetMaxInput('')
+    setBudget(NO_BUDGET)
+    capture(EVENTS.browse_filters_clear)
+  }, [])
+
+  const removeBrowseFilterTag = useCallback((tag: BrowseFilterTag) => {
+    if (tag.kind === 'search') {
+      setSearchInputRaw('')
+      setSearchText('')
+    } else if (tag.kind === 'date') {
+      setDateFilterState(null)
+    } else {
+      setBudgetMinInput('')
+      setBudgetMaxInput('')
+      setBudget(NO_BUDGET)
+    }
+  }, [])
 
   const dataLoaded = Boolean(data)
-  const tasksQuerySkipped = shouldWaitForMap && !isMapReadyForQuery
-  const isInitialTasksLoad = tasksQuerySkipped || (loading && !dataLoaded)
-  const canShowBrowseEmptyState = !isInitialTasksLoad && dataLoaded
+  const isInitialTasksLoad = tasksQuerySkipped || (loading && !shown)
+  const isRefreshing = loading && Boolean(shown) && !loadingMoreTasks
+  const canShowBrowseEmptyState = !loading && dataLoaded
+  const isSearchPending = searchInput.trim() !== searchText || isRefreshing
 
   const dataValue = useMemo<TaskBrowseDataContextValue>(
     () => ({
-      sort,
-      setSort,
-      cycleSort,
-      page,
-      setPage,
       radiusMiles,
       submittedRadiusMiles,
-      submittedCategory,
-      submittedSearchText,
       setRadiusMiles,
-      minBudget,
-      setMinBudget,
-      maxBudget,
-      setMaxBudget,
-      urgency,
-      setUrgency,
-      category,
-      setCategory,
-      scheduledAfter,
-      setScheduledAfter,
-      scheduledBefore,
-      setScheduledBefore,
-      searchInput,
-      setSearchInput,
       areaLocationInput,
       setAreaLocationInput,
       commitAreaLocationSearch,
@@ -834,86 +706,95 @@ export function TaskBrowseProvider({
       geolocationStatus,
       submitBrowseFilters,
       syncDraftFiltersFromSubmitted,
-      clearAllBrowseFilters,
-      removeBrowseFilterTag,
       searchCenterLat,
       searchCenterLng,
       confirmSearchThisAreaFromMap,
+      searchInput,
+      setSearchInput,
+      commitSearch,
+      searchText,
+      isSearchPending,
+      dateFilter,
+      setDateFilter,
+      budgetMinInput,
+      budgetMaxInput,
+      setBudgetMinInput,
+      setBudgetMaxInput,
+      budgetRangeInvalid: parsedBudget.invalid,
+      activeFilterTags,
+      removeBrowseFilterTag,
+      clearAllBrowseFilters,
       selectedTaskId: visibleSelectedTaskId,
       selectedTaskSelectionToken,
       setSelectedTaskId,
       isNavRoutePresenting,
       onNavRoutePresentingChange,
       loading,
+      isRefreshing,
       error,
+      retryTasks,
       dataLoaded,
       isInitialTasksLoad,
       canShowBrowseEmptyState,
-      browseSourceTaskCount: (data?.tasks ?? initialTasks).length,
+      browseSourceTaskCount: filteredSorted.length,
       filteredSorted,
-      pageItems,
-      totalPages,
-      safePage,
-      effectiveMapTasksForBox:
-        data?.tasks != null ? mapTasksForBox : initialMapTasksForBox,
+      hasMoreTasks,
+      loadingMoreTasks,
+      loadMoreTasks,
+      effectiveMapTasksForBox,
       shouldWaitForMap,
       isMapReadyForQuery,
       markMapReadyForQuery: (ready) => {
         if (ready) setIsMapReadyForQuery(true)
       },
-      activeFilterTags,
     }),
     [
       activeFilterTags,
-      areaLocationInput,
       applyGeolocatedSearch,
-      commitAreaLocationSearch,
-      confirmSearchThisAreaFromMap,
-      geolocationStatus,
-      initGeolocationOnLoad,
-      referenceLocation,
-      requestUseMyLocation,
-      submitBrowseFilters,
-      syncDraftFiltersFromSubmitted,
+      areaLocationInput,
+      budgetMaxInput,
+      budgetMinInput,
+      canShowBrowseEmptyState,
       clearAllBrowseFilters,
-      removeBrowseFilterTag,
-      cycleSort,
-      data,
+      commitAreaLocationSearch,
+      commitSearch,
+      confirmSearchThisAreaFromMap,
+      dataLoaded,
+      dateFilter,
+      effectiveMapTasksForBox,
       error,
       filteredSorted,
-      loading,
-      dataLoaded,
+      geolocationStatus,
+      hasMoreTasks,
+      initGeolocationOnLoad,
       isInitialTasksLoad,
-      canShowBrowseEmptyState,
-      mapTasksForBox,
-      maxBudget,
-      minBudget,
-      page,
-      pageItems,
+      isMapReadyForQuery,
+      isNavRoutePresenting,
+      isRefreshing,
+      isSearchPending,
+      loadMoreTasks,
+      loading,
+      loadingMoreTasks,
+      onNavRoutePresentingChange,
+      parsedBudget.invalid,
       radiusMiles,
-      submittedRadiusMiles,
-      submittedCategory,
-      submittedSearchText,
-      safePage,
+      referenceLocation,
+      removeBrowseFilterTag,
+      requestUseMyLocation,
+      retryTasks,
       searchCenterLat,
       searchCenterLng,
       searchInput,
-      setSearchInput,
-      visibleSelectedTaskId,
+      searchText,
       selectedTaskSelectionToken,
+      setDateFilter,
+      setSearchInput,
       setSelectedTaskId,
-      isNavRoutePresenting,
-      onNavRoutePresentingChange,
       shouldWaitForMap,
-      isMapReadyForQuery,
-      sort,
-      totalPages,
-      urgency,
-      category,
-      scheduledAfter,
-      scheduledBefore,
-      initialMapTasksForBox,
-      initialTasks,
+      submitBrowseFilters,
+      submittedRadiusMiles,
+      syncDraftFiltersFromSubmitted,
+      visibleSelectedTaskId,
     ],
   )
 
@@ -953,34 +834,6 @@ export function useTaskBrowseLayout() {
     )
   }
   return ctx
-}
-
-export function useTaskBrowseFiltersProps(): TaskBrowseFiltersProps {
-  const data = useTaskBrowseData()
-  return {
-    searchQuery: data.searchInput,
-    onSearchChange: data.setSearchInput,
-    areaLocationInput: data.areaLocationInput,
-    onAreaLocationChange: data.setAreaLocationInput,
-    onAreaLocationCommit: data.commitAreaLocationSearch,
-    radiusMiles: data.radiusMiles,
-    onRadiusChange: data.setRadiusMiles,
-    minBudgetPounds: data.minBudget,
-    maxBudgetPounds: data.maxBudget,
-    onMinBudgetChange: data.setMinBudget,
-    onMaxBudgetChange: data.setMaxBudget,
-    urgency: data.urgency,
-    onUrgencyChange: data.setUrgency,
-    category: data.category,
-    onCategoryChange: data.setCategory,
-    scheduledAfter: data.scheduledAfter,
-    onScheduledAfterChange: data.setScheduledAfter,
-    scheduledBefore: data.scheduledBefore,
-    onScheduledBeforeChange: data.setScheduledBefore,
-    sortValue: data.sort,
-    sortOptions: SORT_OPTIONS,
-    onSortChange: data.setSort,
-  }
 }
 
 type SharedTaskMapBindings = Pick<

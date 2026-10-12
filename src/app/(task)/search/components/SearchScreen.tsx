@@ -14,7 +14,8 @@ import { MobileSearchLayout, WebSearchLayout } from './layout/SearchLayouts'
 import { SearchMapLayer } from './map/SearchMapLayer'
 
 /**
- * Map-first task search: map + list shell with location and category filters.
+ * Map-first task search: map + search panel (desktop) or sheet (mobile),
+ * sharing one search / date / budget filter.
  */
 export function SearchScreen({
   initialUrlState,
@@ -35,7 +36,6 @@ export function SearchScreen({
       initialState={{
         reference: seededReference,
         radiusMiles: initial.radiusMiles,
-        category: initial.taskCategory,
         searchText: initial.taskSearchText,
       }}
     >

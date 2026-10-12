@@ -1,6 +1,7 @@
 'use client'
 
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Button } from '@ui'
 import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef } from 'react'
 
@@ -15,7 +16,18 @@ import { TaskEmptyState } from '../../ui/TaskEmptyState'
 
 import bag from '../../i11n.json'
 
-export function TaskList({ header }: { header?: React.ReactNode }) {
+/**
+ * Search results, nearest first (FE-201). Desktop: the first tap highlights
+ * the pin, the second opens the task. In the mobile sheet (`onSelectTask`),
+ * the card body hands the task to the map and the arrow opens the task.
+ */
+export function TaskList({
+  header,
+  onSelectTask,
+}: {
+  header?: React.ReactNode
+  onSelectTask?: (taskId: string) => void
+}) {
   const t = useI11n(bag)
   const { openTaskDetail, taskDetailHref, captureDetailsLink } =
     useOpenTaskDetailFromBrowse()
@@ -26,7 +38,16 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
     setSelectedTaskId,
     referenceLocation,
     isInitialTasksLoad,
+    isRefreshing,
+    loading,
+    error,
+    retryTasks,
+    hasMoreTasks,
+    loadingMoreTasks,
+    loadMoreTasks,
   } = useTaskBrowseData()
+  const sheetMode = Boolean(onSelectTask)
+  const showError = Boolean(error) && !loading
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const seenImpressionsRef = useRef(new Set<string>())
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -52,6 +73,10 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
   )
 
   const handleActivateTask = (taskId: string) => {
+    if (onSelectTask) {
+      onSelectTask(taskId)
+      return
+    }
     if (selectedTaskId === taskId) {
       openTaskDetail(taskId, 'list')
       return
@@ -107,10 +132,12 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
                       // Same id as the browse map pin — not a zone marker.
                       isActive={selectedTaskId === task.id}
                       isExpanded={selectedTaskId === task.id}
-                      showDetailsCta={selectedTaskId === task.id}
-                      navigateOnActivate={selectedTaskId === task.id}
+                      showDetailsCta={sheetMode || selectedTaskId === task.id}
+                      navigateOnActivate={
+                        !sheetMode && selectedTaskId === task.id
+                      }
                       activateAriaLabel={
-                        selectedTaskId === task.id
+                        !sheetMode && selectedTaskId === task.id
                           ? `${task.title}. View task details.`
                           : `${task.title}. Select to highlight on map.`
                       }
@@ -147,6 +174,41 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
       style={scrollWindowStyles}
       pointerEvents="auto"
     >
+      {/* New results loading: the old ones stay, a slim bar shows progress. */}
+      {isRefreshing ? (
+        <Box
+          role="progressbar"
+          aria-label={t.updatingResults}
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          h="3px"
+          zIndex={2}
+          overflow="hidden"
+          borderRadius="full"
+          bg="bg.subtle"
+        >
+          <Box
+            h="full"
+            w="40%"
+            borderRadius="full"
+            bg="action.primary"
+            css={{
+              animation: 'slashieSearchProgress 1.1s ease-in-out infinite',
+              '@keyframes slashieSearchProgress': {
+                from: { transform: 'translateX(-100%)' },
+                to: { transform: 'translateX(250%)' },
+              },
+              '@media (prefers-reduced-motion: reduce)': {
+                animation: 'none',
+                width: '100%',
+                opacity: 0.6,
+              },
+            }}
+          />
+        </Box>
+      ) : null}
       <Box
         ref={scrollRef}
         h="full"
@@ -167,12 +229,48 @@ export function TaskList({ header }: { header?: React.ReactNode }) {
               ))}
             </Stack>
           ) : null}
+          {showError ? (
+            <HStack
+              role="alert"
+              justify="space-between"
+              gap={3}
+              px={4}
+              py={3}
+              borderRadius="lg"
+              bg="status.warning.soft"
+              borderWidth="1px"
+              borderColor="border.default"
+            >
+              <Text fontSize="sm" color="text.default">
+                {t.loadError}
+              </Text>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={retryTasks}
+              >
+                {t.retry}
+              </Button>
+            </HStack>
+          ) : null}
           {canShowBrowseEmptyState && filteredSorted.length === 0 ? (
             <Box px={1}>
               <TaskEmptyState />
             </Box>
           ) : null}
           {listBody}
+          {hasMoreTasks ? (
+            <Button
+              type="button"
+              variant="secondary"
+              alignSelf="center"
+              loading={loadingMoreTasks}
+              onClick={loadMoreTasks}
+            >
+              {t.loadMore}
+            </Button>
+          ) : null}
         </Stack>
       </Box>
     </Box>

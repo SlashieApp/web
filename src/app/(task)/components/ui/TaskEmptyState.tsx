@@ -6,7 +6,6 @@ import { useI11n } from '@/i18n/useI11n'
 import { Button, Card } from '@ui'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import { hasClearableBrowseFilterTags } from '../../helpers/taskBrowseHelpers'
 import bag from '../i11n.json'
 
 /**
@@ -16,7 +15,7 @@ import bag from '../i11n.json'
 export function TaskEmptyState() {
   const t = useI11n(bag)
   const { activeFilterTags, clearAllBrowseFilters } = useTaskBrowseData()
-  const canClear = hasClearableBrowseFilterTags(activeFilterTags)
+  const canClear = activeFilterTags.length > 0
 
   return (
     <Card

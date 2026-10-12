@@ -5,12 +5,16 @@ import { Skeleton, Text } from '@chakra-ui/react'
 import { useTaskBrowseData } from '../../../context/TaskBrowseProvider'
 import { formatTasksListTitle } from '../../helpers/searchResultsListTitle'
 
-/** Web /search list heading — “24 tasks near London”. */
+/** /search list heading: “24 tasks near London”, or “100+” with more pages. */
 export function SearchResultsListTitle() {
-  const { filteredSorted, loading, dataLoaded, referenceLocation } =
-    useTaskBrowseData()
+  const {
+    filteredSorted,
+    isInitialTasksLoad,
+    hasMoreTasks,
+    referenceLocation,
+  } = useTaskBrowseData()
 
-  if (loading && !dataLoaded) {
+  if (isInitialTasksLoad) {
     return <Skeleton h="18px" w="11rem" borderRadius="md" flexShrink={0} />
   }
 
@@ -24,7 +28,11 @@ export function SearchResultsListTitle() {
       flexShrink={0}
       px={0.5}
     >
-      {formatTasksListTitle(filteredSorted.length, referenceLocation.label)}
+      {formatTasksListTitle(
+        filteredSorted.length,
+        referenceLocation.label,
+        hasMoreTasks,
+      )}
     </Text>
   )
 }

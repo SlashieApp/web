@@ -24,6 +24,10 @@ export type TaskSortChoice =
 export type TaskListVariables = {
   filter?: TaskFilter
   sort?: TaskSort
+  /** Discovery `tasks` page size (server default and max 100). */
+  first?: number
+  /** Last task id of the previous page. */
+  after?: string
 }
 
 export function taskSortToInput(choice: TaskSortChoice): TaskSort {
@@ -80,6 +84,9 @@ export type BuildTaskFilterInput = {
   lat?: number | null
   lng?: number | null
   radiusMiles?: number | null
+  /** Inclusive range on the raw `budget.amount` in pounds (discovery `tasks`). */
+  budgetMin?: number | null
+  budgetMax?: number | null
   /**
    * Task poster. Hub lists only (`tasksPosted`, `quotedTasks`); discovery
    * `tasks` ignores this field.
@@ -127,6 +134,8 @@ export function buildTaskFilter(
   if (typeof input.radiusMiles === 'number') {
     filter.radiusMiles = input.radiusMiles
   }
+  if (typeof input.budgetMin === 'number') filter.budgetMin = input.budgetMin
+  if (typeof input.budgetMax === 'number') filter.budgetMax = input.budgetMax
 
   const ownerUserId = cleanText(input.ownerUserId)
   if (ownerUserId) filter.ownerUserId = ownerUserId

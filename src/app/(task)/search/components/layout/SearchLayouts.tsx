@@ -7,16 +7,17 @@ import {
   PAGE_GUTTER_X,
   SEARCH_LIST_COLUMN_W,
 } from '@/theme/pageContainer'
-import { MobileTaskBrowseFiltersDrawer } from '../../../components/(mobile)/layout/MobileTaskBrowseFiltersDrawer'
 import { MobileTaskCarousel } from '../../../components/(mobile)/layout/MobileTaskCarousel'
-import { WebTaskBrowseFiltersBlock } from '../../../components/(web)/layout/TaskBrowseFilters'
+import { MobileTaskSearchSheet } from '../../../components/(mobile)/layout/MobileTaskSearchSheet'
+import { TaskList } from '../../../components/(web)/layout/TaskList'
 import { TaskBrowseSearchThisAreaButton } from '../../../components/ui/TaskBrowseSearchThisAreaButton'
 import { TaskSearch } from '../../../components/ui/TaskSearch'
+import { TaskSearchFilters } from '../../../components/ui/TaskSearchFilters'
 import { TaskTag } from '../../../components/ui/TaskTag'
 import { useIsTouchMobileDevice } from '../../../helpers/touchMobileDevice'
 import { SearchResultsListTitle } from '../results/SearchResultsListTitle'
 
-/** Desktop split view for /search: location bar + task list over the map. */
+/** Desktop split view for /search: search panel (field, chips, results) over the map. */
 export function WebSearchLayout() {
   return (
     <Box
@@ -52,10 +53,8 @@ export function WebSearchLayout() {
             flexDirection="column"
           >
             <Stack gap={2} flexShrink={0}>
-              <TaskSearch />
-              <HStack gap={1.5} flexWrap="wrap">
-                <TaskTag />
-              </HStack>
+              <TaskSearch mode="input" />
+              <TaskSearchFilters />
             </Stack>
 
             <Box
@@ -67,9 +66,7 @@ export function WebSearchLayout() {
               flexDirection="column"
               overflow="hidden"
             >
-              <WebTaskBrowseFiltersBlock
-                listHeader={<SearchResultsListTitle />}
-              />
+              <TaskList header={<SearchResultsListTitle />} />
             </Box>
           </Box>
         </Container>
@@ -80,7 +77,7 @@ export function WebSearchLayout() {
   )
 }
 
-/** Mobile /search: map behind, location bar on top, task carousel at the bottom. */
+/** Mobile /search: map behind, search bar on top (opens the search sheet), task carousel at the bottom. */
 export function MobileSearchLayout() {
   const touchPhone = useIsTouchMobileDevice()
 
@@ -106,7 +103,7 @@ export function MobileSearchLayout() {
       >
         <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X} w="full">
           <Stack gap={2} flexShrink={0} mr={touchPhone ? 0 : 12}>
-            <TaskSearch />
+            <TaskSearch mode="trigger" />
             <HStack gap={1.5} flexWrap="wrap">
               <TaskTag />
             </HStack>
@@ -131,7 +128,7 @@ export function MobileSearchLayout() {
         <MobileTaskCarousel />
       </Box>
 
-      <MobileTaskBrowseFiltersDrawer />
+      <MobileTaskSearchSheet listHeader={<SearchResultsListTitle />} />
     </Box>
   )
 }

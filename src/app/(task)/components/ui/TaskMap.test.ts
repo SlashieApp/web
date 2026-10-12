@@ -98,9 +98,9 @@ describe('search mobile map chrome', () => {
     expect(carouselSrc).toContain('isActive={state.isActive}')
   })
 
-  it('does not open the mobile filter sheet on desktop while both layouts stay mounted', () => {
+  it('does not open the mobile search sheet on desktop while both layouts stay mounted', () => {
     const src = readFileSync(
-      join(dir, '../(mobile)/layout/MobileTaskBrowseFiltersDrawer.tsx'),
+      join(dir, '../(mobile)/layout/MobileTaskSearchSheet.tsx'),
       'utf8',
     )
     expect(src).toContain("fallback: 'lg'")

@@ -3,11 +3,10 @@ import { describe, expect, it } from 'vitest'
 import type { TaskListItem } from '@/graphql/tasks-query.types'
 
 import {
+  browseDatePresetRange,
   buildActiveBrowseFilterTags,
-  formatBrowseBudgetRange,
   formatBudget,
-  hasClearableBrowseFilterTags,
-  isClearableBrowseFilterTag,
+  parseBrowseBudget,
   taskCardMetaParts,
 } from './taskBrowseHelpers'
 
@@ -24,73 +23,88 @@ function listTask(overrides: Partial<TaskListItem> = {}): TaskListItem {
   }
 }
 
-describe('formatBrowseBudgetRange', () => {
-  it('defaults to an open-ended sterling range', () => {
-    expect(formatBrowseBudgetRange('', '')).toBe('£0 - £150+')
+const copy = {
+  today: 'Today',
+  thisWeek: 'This week',
+  fromDate: 'From {date}',
+  untilDate: 'Until {date}',
+  budgetFrom: '{amount}+',
+  budgetUpTo: 'Up to {amount}',
+}
+
+describe('buildActiveBrowseFilterTags', () => {
+  it('has no chips when nothing is applied', () => {
+    expect(
+      buildActiveBrowseFilterTags(
+        {
+          searchText: ' ',
+          dateFilter: null,
+          budget: { min: null, max: null },
+        },
+        copy,
+      ),
+    ).toEqual([])
   })
 
-  it('formats a closed range with UK grouping', () => {
-    expect(formatBrowseBudgetRange('50', '300')).toBe('£50 - £300')
-    expect(formatBrowseBudgetRange('1000', '1500')).toBe('£1,000 - £1,500')
+  it('labels search, date and a sterling budget', () => {
+    const tags = buildActiveBrowseFilterTags(
+      {
+        searchText: 'garden',
+        dateFilter: { preset: 'custom', from: '2026-10-12', to: '2026-10-20' },
+        budget: { min: 1000, max: null },
+      },
+      copy,
+    )
+    expect(tags).toEqual([
+      { kind: 'search', label: '“garden”' },
+      { kind: 'date', label: '12 Oct – 20 Oct' },
+      { kind: 'budget', label: '£1,000+' },
+    ])
   })
 
-  it('keeps the open-ended cap when only a minimum is set', () => {
-    expect(formatBrowseBudgetRange('40', '')).toBe('£40 - £150+')
+  it('names the quick picks and an upper-only budget', () => {
+    const tags = buildActiveBrowseFilterTags(
+      {
+        searchText: '',
+        dateFilter: { preset: 'week', from: '2026-10-12', to: '2026-10-18' },
+        budget: { min: null, max: 80 },
+      },
+      copy,
+    )
+    expect(tags.map((tag) => tag.label)).toEqual(['This week', 'Up to £80'])
   })
 })
 
-describe('buildActiveBrowseFilterTags', () => {
-  it('uses sterling on the budget chip', () => {
-    const tags = buildActiveBrowseFilterTags({
-      submittedRadiusMiles: 10,
-      submittedMinBudget: '25',
-      submittedMaxBudget: '',
-      submittedUrgency: 'any',
-      submittedCategory: '',
-      submittedScheduledAfter: '',
-      submittedScheduledBefore: '',
-      submittedSearchText: '',
-      referenceLabel: '',
+describe('browseDatePresetRange', () => {
+  it('runs This week from today to Sunday', () => {
+    // Monday 12 Oct 2026.
+    const monday = new Date(2026, 9, 12, 9)
+    expect(browseDatePresetRange('week', monday)).toEqual({
+      preset: 'week',
+      from: '2026-10-12',
+      to: '2026-10-18',
     })
-
-    expect(tags.find((tag) => tag.kind === 'budget')?.label).toBe('£25 - £150+')
-    expect(tags.some((tag) => tag.label.includes('$'))).toBe(false)
+    expect(browseDatePresetRange('today', monday).to).toBe('2026-10-12')
+    // Sunday is a one-day week.
+    expect(browseDatePresetRange('week', new Date(2026, 9, 18)).to).toBe(
+      '2026-10-18',
+    )
   })
+})
 
-  it('treats radius and location as context, not clearable chips', () => {
-    const tags = buildActiveBrowseFilterTags({
-      submittedRadiusMiles: 10,
-      submittedMinBudget: '',
-      submittedMaxBudget: '',
-      submittedUrgency: 'any',
-      submittedCategory: '',
-      submittedScheduledAfter: '',
-      submittedScheduledBefore: '',
-      submittedSearchText: '',
-      referenceLabel: 'London',
+describe('parseBrowseBudget', () => {
+  it('reads whole pounds and flags min above max', () => {
+    expect(parseBrowseBudget('20', '')).toEqual({
+      min: 20,
+      max: null,
+      invalid: false,
     })
-
-    expect(tags.every((tag) => !isClearableBrowseFilterTag(tag))).toBe(true)
-    expect(hasClearableBrowseFilterTags(tags)).toBe(false)
-  })
-
-  it('marks category and search chips as clearable', () => {
-    const tags = buildActiveBrowseFilterTags({
-      submittedRadiusMiles: 10,
-      submittedMinBudget: '',
-      submittedMaxBudget: '',
-      submittedUrgency: 'any',
-      submittedCategory: 'HANDYMAN',
-      submittedScheduledAfter: '',
-      submittedScheduledBefore: '',
-      submittedSearchText: 'plumber',
-      referenceLabel: 'London',
+    expect(parseBrowseBudget('abc', '-5')).toEqual({
+      min: null,
+      max: null,
+      invalid: false,
     })
-
-    expect(hasClearableBrowseFilterTags(tags)).toBe(true)
-    expect(
-      tags.filter(isClearableBrowseFilterTag).map((tag) => tag.kind),
-    ).toEqual(['category', 'search'])
+    expect(parseBrowseBudget('90', '40').invalid).toBe(true)
   })
 })
 

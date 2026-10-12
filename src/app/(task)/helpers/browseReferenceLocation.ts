@@ -1,4 +1,9 @@
-export type BrowseReferenceSource = 'geolocation' | 'manual' | 'default'
+/** `preferred` = the worker's saved `preferredLocation` (never written to the URL). */
+export type BrowseReferenceSource =
+  | 'geolocation'
+  | 'manual'
+  | 'preferred'
+  | 'default'
 
 export type BrowseReferenceLocation = {
   lat: number

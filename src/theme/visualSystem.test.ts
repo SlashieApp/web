@@ -103,13 +103,6 @@ describe('WCAG AA support copy', () => {
 
 describe('elevation aliases in feature chrome', () => {
   it('does not use the leftover ghostBorder shadow', () => {
-    const filters = readFileSync(
-      join(
-        process.cwd(),
-        'src/app/(task)/components/(web)/layout/TaskBrowseFilters.tsx',
-      ),
-      'utf8',
-    )
     const picker = readFileSync(
       join(
         process.cwd(),
@@ -117,9 +110,7 @@ describe('elevation aliases in feature chrome', () => {
       ),
       'utf8',
     )
-    expect(filters).not.toContain('ghostBorder')
     expect(picker).not.toContain('ghostBorder')
-    expect(filters).toContain('e3')
     expect(picker).toContain('e1')
   })
 

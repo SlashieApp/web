@@ -10,7 +10,12 @@ export function browseNearPlaceLabel(areaLabel: string): string {
   return areaLabel
 }
 
-export function formatTasksListTitle(count: number, areaLabel: string): string {
-  const noun = count === 1 ? 'task' : 'tasks'
-  return `${count} ${noun} near ${browseNearPlaceLabel(areaLabel)}`
+/** `hasMore`: another page exists, so the count reads as `100+`. */
+export function formatTasksListTitle(
+  count: number,
+  areaLabel: string,
+  hasMore = false,
+): string {
+  const noun = count === 1 && !hasMore ? 'task' : 'tasks'
+  return `${count}${hasMore ? '+' : ''} ${noun} near ${browseNearPlaceLabel(areaLabel)}`
 }

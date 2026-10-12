@@ -14,21 +14,6 @@ import {
 } from '@/utils/taskJobSchedule'
 
 import type { BrowseReferenceLocation } from './browseReferenceLocation'
-import type { UrgencyFilter } from './taskBrowseFilters.types'
-import { taskCategoryDisplayLabel } from './taskCategories'
-
-export const PAGE_SIZE = 5
-
-/** Open-ended slider cap shown as `£150+` when max is unset. */
-export const BROWSE_BUDGET_SLIDER_MAX = 150
-
-export const SORT_OPTIONS = [
-  { value: 'nearest', label: 'Nearest' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'oldest', label: 'Oldest' },
-  { value: 'scheduled', label: 'Scheduled date' },
-  { value: 'title', label: 'Title (A–Z)' },
-] as const
 
 export function startOfLocalDay(d = new Date()) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
@@ -75,18 +60,6 @@ export function formatBudget(task: TaskListItem): {
     sub: 'Estimated budget',
     hasBudget: true,
   }
-}
-
-export function taskCreatedTime(task: TaskListItem): number {
-  const raw = task.createdAt
-  const d =
-    typeof raw === 'string' || typeof raw === 'number'
-      ? new Date(raw)
-      : raw instanceof Date
-        ? raw
-        : null
-  if (!d || Number.isNaN(d.getTime())) return 0
-  return d.getTime()
 }
 
 export function inferBadge(task: TaskListItem): { text?: string } {
@@ -138,35 +111,24 @@ export function taskPosterAvatarUrl(task: TaskListItem): string | undefined {
   return u || undefined
 }
 
-/**
- * Best-effort price for budget filters when the server query is geo-only.
- * Uses fixed quote price when set; otherwise the lowest worker quote.
- */
-export function effectiveTaskPricePenceForFilter(
-  task: TaskListItem,
-): number | null {
-  const fixed = budgetToPence(task.budget)
-  if (fixed != null && fixed > 0) return fixed
-  const quotes = task.quotes ?? []
-  if (!quotes.length) return null
-  const prices = quotes
-    .map((o) => priceToPence(o.price))
-    .filter((price): price is number => price != null)
-  if (prices.length === 0) return null
-  return Math.min(...prices)
-}
-
 /** Matches initial `submittedRadiusMiles` in browse context. */
 export const DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES = 10
 
-export type BrowseFilterTag =
-  | { kind: 'radius'; label: string; miles: number }
-  | { kind: 'location'; label: string }
-  | { kind: 'budget'; label: string }
-  | { kind: 'urgency'; label: string; value: UrgencyFilter }
-  | { kind: 'category'; label: string; value: string }
-  | { kind: 'scheduled'; label: string }
-  | { kind: 'search'; label: string; query: string }
+/** Applied search filters (FE-201); every chip can be removed on its own. */
+export type BrowseFilterTag = {
+  kind: 'search' | 'date' | 'budget'
+  label: string
+}
+
+/** Scheduled-date filter; `from` / `to` are inclusive local `YYYY-MM-DD`. */
+export type BrowseDateFilter = {
+  preset: 'today' | 'week' | 'custom'
+  from: string
+  to: string
+}
+
+/** Budget filter in whole pounds (raw `budget.amount`, any budget type). */
+export type BrowseBudgetFilter = { min: number | null; max: number | null }
 
 export function taskDistanceMilesFromReference(
   task: TaskListItem,
@@ -246,132 +208,107 @@ export function kmToMilesRounded(km: number): number {
   return Math.max(1, Math.round(km / 1.60934))
 }
 
-export function formatBrowseBudgetRange(
-  minBudgetPounds: string,
-  maxBudgetPounds: string,
-): string {
-  const min = Number.parseFloat(minBudgetPounds)
-  const max = Number.parseFloat(maxBudgetPounds)
-  const minLabel = formatGbpMajor(Number.isFinite(min) ? Math.round(min) : 0)
-  const maxLabel = Number.isFinite(max)
-    ? formatGbpMajor(Math.round(max))
-    : `${formatGbpMajor(BROWSE_BUDGET_SLIDER_MAX)}+`
-  return `${minLabel} - ${maxLabel}`
-}
-
-function submittedUrgencyChipLabel(u: UrgencyFilter): string | null {
-  if (u === 'any') return null
-  const map: Record<Exclude<UrgencyFilter, 'any'>, string> = {
-    emergency: 'ASAP',
-    today: 'Today',
-    week: 'Flexible',
-  }
-  return map[u]
-}
-
 function truncateChipLabel(s: string, maxLen: number): string {
   if (s.length <= maxLen) return s
   return `${s.slice(0, maxLen - 1)}…`
 }
 
-/** Human-readable chips for the last submitted browse filters (list + fetch). */
-export function buildActiveBrowseFilterTags(input: {
-  submittedRadiusMiles: number
-  submittedMinBudget: string
-  submittedMaxBudget: string
-  submittedUrgency: UrgencyFilter
-  submittedCategory: string
-  submittedScheduledAfter: string
-  submittedScheduledBefore: string
-  submittedSearchText: string
-  referenceLabel: string
-}): BrowseFilterTag[] {
+/** Local calendar day as `YYYY-MM-DD`. */
+export function localDateKey(d: Date): string {
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${mm}-${dd}`
+}
+
+/** Today, or today through Sunday ("This week"). */
+export function browseDatePresetRange(
+  preset: 'today' | 'week',
+  now = new Date(),
+): BrowseDateFilter {
+  const from = localDateKey(now)
+  if (preset === 'today') return { preset, from, to: from }
+  const sunday = new Date(now)
+  sunday.setDate(now.getDate() + ((7 - now.getDay()) % 7))
+  return { preset, from, to: localDateKey(sunday) }
+}
+
+/**
+ * Whole-pound budget bounds from the typed inputs. Blank or invalid → null;
+ * a minimum above the maximum is reported so nothing is sent.
+ */
+export function parseBrowseBudget(
+  minInput: string,
+  maxInput: string,
+): BrowseBudgetFilter & { invalid: boolean } {
+  const parse = (raw: string) => {
+    const n = Number.parseFloat(raw.trim())
+    return Number.isFinite(n) && n >= 0 ? Math.round(n) : null
+  }
+  const min = parse(minInput)
+  const max = parse(maxInput)
+  return { min, max, invalid: min != null && max != null && min > max }
+}
+
+function shortDay(key: string, locale: string): string {
+  const d = new Date(`${key}T12:00:00`)
+  if (Number.isNaN(d.getTime())) return key
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+  }).format(d)
+}
+
+export type BrowseFilterTagCopy = {
+  today: string
+  thisWeek: string
+  /** `{date}` placeholder. */
+  fromDate: string
+  untilDate: string
+  /** `{amount}` placeholder. */
+  budgetFrom: string
+  budgetUpTo: string
+}
+
+/** Chips for the applied search text, date and budget. */
+export function buildActiveBrowseFilterTags(
+  input: {
+    searchText: string
+    dateFilter: BrowseDateFilter | null
+    budget: BrowseBudgetFilter
+  },
+  copy: BrowseFilterTagCopy,
+  locale = 'en-GB',
+): BrowseFilterTag[] {
   const tags: BrowseFilterTag[] = []
-  const {
-    submittedRadiusMiles,
-    submittedMinBudget,
-    submittedMaxBudget,
-    submittedUrgency,
-    submittedCategory,
-    submittedScheduledAfter,
-    submittedScheduledBefore,
-    submittedSearchText,
-    referenceLabel,
-  } = input
+  const q = input.searchText.trim()
+  if (q) tags.push({ kind: 'search', label: `“${truncateChipLabel(q, 24)}”` })
 
-  tags.push({
-    kind: 'radius',
-    label: `Within ${milesToKmRounded(submittedRadiusMiles)} km`,
-    miles: submittedRadiusMiles,
-  })
-
-  const minS = submittedMinBudget.trim()
-  const maxS = submittedMaxBudget.trim()
-  if (minS || maxS) {
-    tags.push({
-      kind: 'budget',
-      label: formatBrowseBudgetRange(minS, maxS),
-    })
+  const date = input.dateFilter
+  if (date && (date.from || date.to)) {
+    const label =
+      date.preset === 'today'
+        ? copy.today
+        : date.preset === 'week'
+          ? copy.thisWeek
+          : date.from && date.to
+            ? `${shortDay(date.from, locale)} – ${shortDay(date.to, locale)}`
+            : date.from
+              ? copy.fromDate.replace('{date}', shortDay(date.from, locale))
+              : copy.untilDate.replace('{date}', shortDay(date.to, locale))
+    tags.push({ kind: 'date', label })
   }
 
-  const urgencyLabel = submittedUrgencyChipLabel(submittedUrgency)
-  if (urgencyLabel) {
-    tags.push({
-      kind: 'urgency',
-      label: urgencyLabel,
-      value: submittedUrgency,
-    })
+  const { min, max } = input.budget
+  if (min != null || max != null) {
+    const label =
+      min != null && max != null
+        ? `${formatGbpMajor(min)} – ${formatGbpMajor(max)}`
+        : min != null
+          ? copy.budgetFrom.replace('{amount}', formatGbpMajor(min))
+          : copy.budgetUpTo.replace('{amount}', formatGbpMajor(max ?? 0))
+    tags.push({ kind: 'budget', label })
   }
-
-  const categoryValue = submittedCategory.trim()
-  if (categoryValue) {
-    tags.push({
-      kind: 'category',
-      label: taskCategoryDisplayLabel(categoryValue) ?? categoryValue,
-      value: categoryValue,
-    })
-  }
-
-  const scheduledAfter = submittedScheduledAfter.trim()
-  const scheduledBefore = submittedScheduledBefore.trim()
-  if (scheduledAfter || scheduledBefore) {
-    const from = scheduledAfter || '…'
-    const to = scheduledBefore || '…'
-    tags.push({
-      kind: 'scheduled',
-      label: `Scheduled ${from} – ${to}`,
-    })
-  }
-
-  const q = submittedSearchText.trim()
-  if (q) {
-    tags.push({
-      kind: 'search',
-      label: truncateChipLabel(q, 24),
-      query: q,
-    })
-  }
-
-  const area = referenceLabel.trim()
-  if (area) {
-    tags.push({
-      kind: 'location',
-      label: truncateChipLabel(area, 28),
-    })
-  }
-
   return tags
-}
-
-/** Radius and location describe the map search, not a removable list filter. */
-export function isClearableBrowseFilterTag(tag: BrowseFilterTag): boolean {
-  return tag.kind !== 'radius' && tag.kind !== 'location'
-}
-
-export function hasClearableBrowseFilterTags(
-  tags: readonly BrowseFilterTag[],
-): boolean {
-  return tags.some(isClearableBrowseFilterTag)
 }
 
 /** Scan-row parts for the card meta line: £ budget · distance · timing. */
@@ -383,27 +320,4 @@ export function taskCardMetaParts(input: {
   return [input.priceLabel, input.distanceLabel, input.timingLabel]
     .map((part) => part?.trim())
     .filter((part): part is string => Boolean(part))
-}
-
-export function matchesUrgency(
-  task: TaskListItem,
-  urgency: UrgencyFilter,
-): boolean {
-  if (urgency === 'any') return true
-  const t = `${task.title} ${task.description}`.toLowerCase()
-  if (urgency === 'emergency') {
-    return (
-      t.includes('emergency') ||
-      t.includes('urgent') ||
-      t.includes('asap') ||
-      t.includes('burst')
-    )
-  }
-  const ms = taskCreatedTime(task)
-  if (!ms) return true
-  const age = Date.now() - ms
-  const day = 86_400_000
-  if (urgency === 'today') return age <= day
-  if (urgency === 'week') return age <= 7 * day
-  return true
 }

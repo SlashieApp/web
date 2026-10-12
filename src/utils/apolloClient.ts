@@ -1,6 +1,11 @@
 'use client'
 
-import { ApolloClient, InMemoryCache, from } from '@apollo/client/core'
+import {
+  ApolloClient,
+  InMemoryCache,
+  type Reference,
+  from,
+} from '@apollo/client/core'
 import { CombinedGraphQLErrors } from '@apollo/client/errors'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
@@ -85,5 +90,29 @@ const errorLink = onError(({ error, operation }) => {
 
 export const apolloClient = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          // Discovery pages (FE-201): one list per filter + sort; a page
+          // fetched with `after` appends, a fresh query replaces.
+          tasks: {
+            keyArgs: ['filter', 'sort'],
+            merge(
+              existing: readonly Reference[] | undefined,
+              incoming: readonly Reference[],
+              { args, readField },
+            ) {
+              if (!args?.after || !existing) return incoming
+              const seen = new Set(existing.map((ref) => readField('id', ref)))
+              return [
+                ...existing,
+                ...incoming.filter((ref) => !seen.has(readField('id', ref))),
+              ]
+            },
+          },
+        },
+      },
+    },
+  }),
 })

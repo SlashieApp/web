@@ -6,34 +6,27 @@ import { useLocale } from '@/i18n/LocaleProvider'
 import { withLocale } from '@/i18n/navigation'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import { DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES } from '../../helpers/taskBrowseHelpers'
 import { buildSearchUrl } from '../helpers/searchQueryParams'
 
 /**
- * Mirrors viewport + submitted task filters into the URL query
+ * Mirrors the search centre and search text into the URL query
  * (history.replaceState — no navigation) so any /search view is shareable.
+ * A worker's saved area (`preferred`) is personal and stays out of the URL.
  */
 export function SearchUrlSync() {
   const locale = useLocale()
-  const {
-    referenceLocation,
-    submittedRadiusMiles,
-    submittedCategory,
-    submittedSearchText,
-  } = useTaskBrowseData()
+  const { referenceLocation, searchText } = useTaskBrowseData()
 
-  const hasCustomCenter = referenceLocation.source !== 'default'
-  const hasCustomRadius =
-    submittedRadiusMiles !== DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES
+  const hasCustomCenter =
+    referenceLocation.source !== 'default' &&
+    referenceLocation.source !== 'preferred'
 
   const url = withLocale(
     locale,
     buildSearchUrl({
       lat: hasCustomCenter ? referenceLocation.lat : undefined,
       lng: hasCustomCenter ? referenceLocation.lng : undefined,
-      radiusMiles: hasCustomRadius ? submittedRadiusMiles : undefined,
-      taskSearchText: submittedSearchText || undefined,
-      taskCategory: submittedCategory || undefined,
+      taskSearchText: searchText || undefined,
     }),
   )
 
