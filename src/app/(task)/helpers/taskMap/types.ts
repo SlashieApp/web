@@ -23,6 +23,9 @@ export type TaskMapTask = {
   avatarUrl?: string | null
 }
 
+/** Tasks at one spot that cannot split; `x`/`y` are map-container px. */
+export type TaskMapStack = { taskIds: string[]; x: number; y: number }
+
 export type TaskMapPropsSnapshot = {
   accessToken: string | undefined
   centerLat: number
@@ -43,6 +46,8 @@ export type TaskMapPropsSnapshot = {
   /** Bumps when the same task is selected again so the map can redraw the route. */
   selectedTaskSelectionToken?: number
   onSelectTask?: (taskId: string | null) => void
+  /** Opens (or, with null, closes) the list for a cluster that cannot split. */
+  onOpenTaskStack?: (stack: TaskMapStack | null) => void
   onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
   onNavRoutePresentingChange?: (presenting: boolean) => void
   /**

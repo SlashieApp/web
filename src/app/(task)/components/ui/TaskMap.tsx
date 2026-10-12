@@ -15,6 +15,7 @@ import {
   MAX_SEARCH_RADIUS_MILES,
   type TaskMapController,
   type TaskMapPropsSnapshot,
+  type TaskMapStack,
   type TaskMapTask,
   createTaskMapController,
   tasksMarkerSig,
@@ -24,7 +25,7 @@ import { useSelectBrowseTaskFromMap } from '../../helpers/useSelectBrowseTaskFro
 
 import type { SearchThisAreaButtonProps } from './SearchThisAreaButton'
 
-export type { TaskMapTask } from '../../helpers/taskMap'
+export type { TaskMapStack, TaskMapTask } from '../../helpers/taskMap'
 
 export type TaskMapProps = {
   accessToken: string | undefined
@@ -61,6 +62,8 @@ export type TaskMapProps = {
   selectedTaskId?: string | null
   selectedTaskSelectionToken?: number
   onSelectTask?: (taskId: string | null) => void
+  /** Opens (or, with null, closes) the list for a cluster that cannot split. */
+  onOpenTaskStack?: (stack: TaskMapStack | null) => void
   onSearchThisAreaUiChange?: (ui: SearchThisAreaButtonProps) => void
   onNavRoutePresentingChange?: (presenting: boolean) => void
   /** Draw a driving route to the selected pin (off for approximate worker pins). */

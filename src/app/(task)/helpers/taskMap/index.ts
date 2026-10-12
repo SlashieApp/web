@@ -1,4 +1,8 @@
-export type { TaskMapPropsSnapshot, TaskMapTask } from './types'
+export type {
+  TaskMapPropsSnapshot,
+  TaskMapStack,
+  TaskMapTask,
+} from './types'
 
 export {
   createTaskMapController,

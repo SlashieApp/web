@@ -1,10 +1,25 @@
-import type { MapMouseEvent, Map as MapboxMap, Marker } from 'mapbox-gl'
+import type {
+  GeoJSONSource,
+  MapMouseEvent,
+  Map as MapboxMap,
+  Marker,
+} from 'mapbox-gl'
 
 import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import { distanceMilesBetween } from '@/utils/geoDistance'
 
 import { MARKETPLACE_MAP_MOTION_MS } from '../marketplaceMap/motion'
 import { mountMapFadeOverlay } from '../marketplaceMap/overlay/overlay'
+import {
+  CLUSTER_SOURCE_ID,
+  TASK_STACK_LIMIT,
+  type TaskCluster,
+  clusterFeatureCollection,
+  clusterMarkerElement,
+  clusterViewFromFeatures,
+  ensureClusterSource,
+  shouldOpenTaskStack,
+} from './clusters'
 import { createTaskMapNavRouteController } from './navRoute'
 import {
   PIN_MAPBOX_ANCHOR,
@@ -14,6 +29,7 @@ import {
   taskMarkerElement,
   taskPinContentSig,
 } from './pin'
+import { pinMotionEnabled } from './pin/animation'
 import type { TaskMapPropsSnapshot, TaskMapTask } from './types'
 
 const MAP_MIN_ZOOM = 10
@@ -24,6 +40,8 @@ export const MAX_SEARCH_RADIUS_MILES = 50
 
 /** Shared duration for search ↔ detail and search-center camera moves. */
 const CAMERA_FLY_MS = MARKETPLACE_MAP_MOTION_MS
+/** Zooming into a tapped cluster. */
+const CLUSTER_ZOOM_MS = 500
 
 /** Inverse of browse `zoomToRadiusMiles` — keeps map zoom aligned with search radius. */
 function radiusMilesToZoom(miles: number): number {
@@ -58,6 +76,8 @@ function markerRowSig(task: TaskMapTask, lat: number, lng: number): string {
 
 type MarkerRow = {
   marker: Marker
+  /** False while the pin is folded into a cluster. */
+  onMap: boolean
   taskId: string
   markerSig: string
   setSelected: (v: boolean) => void
@@ -117,9 +137,13 @@ export function createTaskMapController(args: {
   let lastSearchUiSig = ''
   let didInitialCamera = false
   let prevVisible = false
+  let lastClusterDataSig: string | null = null
+  let lastClusterViewSig = ''
+  let stackOpen = false
 
   // --- map objects
   const markersById = new Map<string, MarkerRow>()
+  const clusterMarkers = new Map<number, { marker: Marker; count: number }>()
   let referenceMarker: Marker | null = null
   let moveEndDebounce: ReturnType<typeof setTimeout> | null = null
   let resizeFrameRequested = false
@@ -128,6 +152,8 @@ export function createTaskMapController(args: {
   let mapClickRun: ((e: MapMouseEvent) => void) | null = null
   let styleLoadRun: (() => void) | null = null
   let idleRun: (() => void) | null = null
+  let renderRun: (() => void) | null = null
+  let moveStartRun: (() => void) | null = null
 
   const navRoute = createTaskMapNavRouteController({
     getMap: () => map,
@@ -349,21 +375,34 @@ export function createTaskMapController(args: {
     )
     if (selected) setExpanded(true)
 
+    // Added by `applyClusterView` once it knows the pin is not in a cluster.
     const marker = new mapboxMod.Marker({
       element: el,
       anchor: PIN_MAPBOX_ANCHOR,
     })
       .setLngLat([lng, lat])
       .setOffset(PIN_MAPBOX_OFFSET)
-      .addTo(map)
 
     return {
       marker,
+      onMap: false,
       taskId: task.id,
       markerSig: markerRowSig(task, lat, lng),
       setSelected,
       setExpanded,
     }
+  }
+
+  /** Tasks that get a pin in the current pin mode. */
+  const pinCandidates = (p: TaskMapPropsSnapshot) => {
+    const pinMode = p.taskPinMode ?? 'all'
+    const selectedIdForPins = p.selectedTaskId ?? null
+    return p.tasks.flatMap((task) => {
+      if (pinMode === 'none') return []
+      if (pinMode === 'solo' && task.id !== selectedIdForPins) return []
+      const ll = taskLngLat(task)
+      return ll ? [{ task, ...ll }] : []
+    })
   }
 
   /** Diff task markers against props; synchronous and signature-guarded. */
@@ -372,14 +411,7 @@ export function createTaskMapController(args: {
     const p = getProps()
     if (!(p.visible ?? true) || !(p.tasksLoaded ?? true)) return
 
-    const pinMode = p.taskPinMode ?? 'all'
-    const selectedIdForPins = p.selectedTaskId ?? null
-    const withCoords = p.tasks.flatMap((task) => {
-      if (pinMode === 'none') return []
-      if (pinMode === 'solo' && task.id !== selectedIdForPins) return []
-      const ll = taskLngLat(task)
-      return ll ? [{ task, ...ll }] : []
-    })
+    const withCoords = pinCandidates(p)
 
     const setSig = withCoords
       .map(({ task, lat, lng }) => markerRowSig(task, lat, lng))
@@ -416,7 +448,152 @@ export function createTaskMapController(args: {
     }
 
     // Rebuilt markers carry fresh DOM — re-derive the selection bindings.
-    if (structureChanged) syncSelection(true)
+    if (structureChanged) {
+      syncSelection(true)
+      lastClusterViewSig = ''
+    }
+  }
+
+  // -------------------------------------------------------------- clusters
+
+  const setRowOnMap = (row: MarkerRow, on: boolean) => {
+    if (!map || row.onMap === on) return
+    row.onMap = on
+    if (on) row.marker.addTo(map)
+    else row.marker.remove()
+  }
+
+  const clearClusterMarkers = () => {
+    for (const entry of clusterMarkers.values()) entry.marker.remove()
+    clusterMarkers.clear()
+  }
+
+  /**
+   * Feeds browse pins into the clustered source. The selected task stays
+   * out so it always shows as its own pin.
+   */
+  const syncClusterData = () => {
+    if (!map) return
+    const p = getProps()
+    if (!(p.visible ?? true) || !(p.tasksLoaded ?? true)) return
+    const selectedId = p.selectedTaskId ?? null
+    const points =
+      (p.taskPinMode ?? 'all') === 'all'
+        ? pinCandidates(p).flatMap(({ task, lat, lng }) =>
+            task.id === selectedId ? [] : [{ id: task.id, lat, lng }],
+          )
+        : []
+    const sig = points.map((pt) => `${pt.id}:${pt.lat},${pt.lng}`).join('|')
+    if (sig === lastClusterDataSig) return
+    lastClusterDataSig = sig
+    lastClusterViewSig = ''
+    ensureClusterSource(map, MAP_MAX_ZOOM).setData(
+      clusterFeatureCollection(points),
+    )
+  }
+
+  /**
+   * Shows pins that are on their own at this zoom and a count bubble per
+   * cluster. Runs every frame, so it bails on an unchanged view.
+   */
+  const applyClusterView = () => {
+    if (!map || !mapboxMod) return
+    const p = getProps()
+    const selectedId = p.selectedTaskId ?? null
+
+    if ((p.taskPinMode ?? 'all') !== 'all') {
+      for (const row of markersById.values()) setRowOnMap(row, true)
+      clearClusterMarkers()
+      lastClusterViewSig = ''
+      return
+    }
+    if (
+      !map.getSource(CLUSTER_SOURCE_ID) ||
+      !map.isSourceLoaded(CLUSTER_SOURCE_ID)
+    ) {
+      return
+    }
+
+    const view = clusterViewFromFeatures(
+      map.querySourceFeatures(CLUSTER_SOURCE_ID),
+    )
+    const viewSig = [
+      selectedId ?? '',
+      [...view.loose].sort().join(','),
+      view.clusters
+        .map((c) => `${c.id}:${c.count}`)
+        .sort()
+        .join(','),
+    ].join('|')
+    if (viewSig === lastClusterViewSig) return
+    lastClusterViewSig = viewSig
+
+    for (const row of markersById.values()) {
+      setRowOnMap(row, row.taskId === selectedId || view.loose.has(row.taskId))
+    }
+
+    const nextIds = new Set(view.clusters.map((c) => c.id))
+    for (const [id, entry] of clusterMarkers) {
+      if (nextIds.has(id)) continue
+      entry.marker.remove()
+      clusterMarkers.delete(id)
+    }
+    for (const cluster of view.clusters) {
+      const existing = clusterMarkers.get(cluster.id)
+      if (existing?.count === cluster.count) continue
+      existing?.marker.remove()
+      const marker = new mapboxMod.Marker({
+        element: clusterMarkerElement(cluster.count, () =>
+          openCluster(cluster),
+        ),
+        anchor: 'center',
+      })
+        .setLngLat([cluster.lng, cluster.lat])
+        .addTo(map)
+      clusterMarkers.set(cluster.id, { marker, count: cluster.count })
+    }
+  }
+
+  /** Zoom to where the cluster splits, or list it when it never will. */
+  const openCluster = (cluster: TaskCluster) => {
+    const m = map
+    const p = getProps()
+    if (!m || p.mapInteractions === false) return
+    const source = m.getSource(CLUSTER_SOURCE_ID) as GeoJSONSource | undefined
+    if (!source) return
+
+    source.getClusterExpansionZoom(cluster.id, (err, zoom) => {
+      if (cancelled || map !== m || err || zoom == null) return
+
+      if (shouldOpenTaskStack(zoom, m.getZoom(), MAP_MAX_ZOOM)) {
+        source.getClusterLeaves(
+          cluster.id,
+          TASK_STACK_LIMIT,
+          0,
+          (leafErr, leaves) => {
+            if (cancelled || map !== m || leafErr || !leaves) return
+            const taskIds = leaves.flatMap((leaf) => {
+              const id = leaf.properties?.id
+              return typeof id === 'string' ? [id] : []
+            })
+            const point = m.project([cluster.lng, cluster.lat])
+            stackOpen = true
+            getProps().onOpenTaskStack?.({ taskIds, x: point.x, y: point.y })
+          },
+        )
+        return
+      }
+
+      const duration = pinMotionEnabled() ? CLUSTER_ZOOM_MS : 0
+      beginProgrammaticMove(duration + 400)
+      m.flyTo({
+        center: [cluster.lng, cluster.lat],
+        zoom: Math.min(zoom, MAP_MAX_ZOOM),
+        offset: fullscreenCenterOffsetPx(getProps().leftViewportPadding ?? 48),
+        duration,
+        essential: true,
+      })
+    })
   }
 
   // ------------------------------------------------------------- selection
@@ -514,6 +691,8 @@ export function createTaskMapController(args: {
     syncCamera()
     syncMarkers()
     applySelectionVisuals()
+    syncClusterData()
+    applyClusterView()
     syncSelectionFly()
     syncSearchUi()
   }
@@ -555,6 +734,9 @@ export function createTaskMapController(args: {
 
       styleLoadRun = () => {
         if (cancelled) return
+        // Style reload drops the cluster source; re-add it on the next sync.
+        lastClusterDataSig = null
+        lastClusterViewSig = ''
         // Style reload drops GeoJSON layers — re-sync the nav route.
         navRoute.onStyleReload()
         navRoute.flushWhenReady()
@@ -567,6 +749,18 @@ export function createTaskMapController(args: {
       // otherwise silently never draw). No-op unless a deferral is pending.
       idleRun = () => navRoute.flushWhenReady()
       m.on('idle', idleRun)
+
+      // Clusters split and merge as the zoom changes, frame by frame.
+      renderRun = () => applyClusterView()
+      m.on('render', renderRun)
+
+      // The same-spot list belongs to where the map was; moving closes it.
+      moveStartRun = () => {
+        if (!stackOpen) return
+        stackOpen = false
+        getProps().onOpenTaskStack?.(null)
+      }
+      m.on('movestart', moveStartRun)
 
       moveEndRun = () => {
         const live = getProps()
@@ -631,8 +825,11 @@ export function createTaskMapController(args: {
       if (map && mapClickRun) map.off('click', mapClickRun)
       if (map && styleLoadRun) map.off('style.load', styleLoadRun)
       if (map && idleRun) map.off('idle', idleRun)
+      if (map && renderRun) map.off('render', renderRun)
+      if (map && moveStartRun) map.off('movestart', moveStartRun)
       navRoute.destroy()
       clearAllMarkers()
+      clearClusterMarkers()
       referenceMarker?.remove()
       referenceMarker = null
       map?.remove()

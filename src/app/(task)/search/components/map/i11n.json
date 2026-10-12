@@ -1,0 +1,8 @@
+{
+  "en": {
+    "stackTitle": "{count} tasks here"
+  },
+  "zh_hk": {
+    "stackTitle": "呢度有 {count} 個任務"
+  }
+}
