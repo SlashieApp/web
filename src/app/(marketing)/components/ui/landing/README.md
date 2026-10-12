@@ -1,67 +1,94 @@
 # Slashie marketing landing
 
-The `/` marketing page: a server-rendered narrative with a Spotlight + COBE
-WebGL globe hero layered on top as a lazy client island. Lives inside the
-production app (Chakra v3 + SDL tokens) — **no Tailwind, no styling-system fork**.
+`/home`: a scroll story that introduces Slashie. A fixed mint backdrop with
+floating real-time 3D objects (toolbox, mop bucket, boxes, paint roller,
+screwdriver, map pin) sits behind a server-rendered narrative, and an HTML
+phone demos the real app as you scroll. Lives inside the production app
+(Chakra v3 + SDL tokens): **no Tailwind, no styling-system fork** (FE-205).
 
 ## Run / build
 
 ```bash
 bun install
-bun run dev        # http://localhost:3000/
+bun run dev        # http://localhost:3000/home
 bun run build
 ```
+
+## Story
+
+| Stage | Copy (`landing.story`) | Phone screen | 3D formation |
+| --- | --- | --- | --- |
+| `hero` | hero heading + search CTA | Search (customer) | `hero`: around the phone |
+| `post` · `quotes` · `chat` · `hire` · `review` | customer act | Post · Quotes · Chat · Hire · Review | `customer`: right half |
+| `workerFind` · `workerQuote` · `workerProfile` | worker act | Search (worker) · Quote form · Profile | `worker`: tools forward |
+| `trust` · `pricing` | trust panel, live pricing | (phone has left) | `scatter`: right side |
+| `cta` | Post a task / Become a worker | | `gather`: around the CTA |
+
+Each step also pulls one "focus" object beside the phone (`formations.ts`).
 
 ## Architecture
 
 ```
-page.tsx                     server shell: metadata, live GraphQL pricing, section order
-components/landing/
-  LenisRoot.tsx              smooth scroll (landing only; skipped under reduced motion)
-  Reveal.tsx                 IO-based scroll reveal — visible without JS, inert under reduced motion
-  Magnetic.tsx               magnetic CTA wrapper (motion springs; mouse-only)
-  hooks/useDeviceTier.ts     adaptive quality: high | mid | low | off
-  hero/
-    HeroSection.tsx          brand + headline + search CTA (left) over Spotlight/COBE (right)
-    HeroSearchCta.tsx        primary search-bar CTA → register/create-task handoff
-    HeroPoster.tsx           static ink atmosphere — no-JS / reduced-motion fallback
-    Spotlight.tsx            ReactBits-style soft spotlight cone
-    HeroCobeGlobe.tsx        COBE WebGL globe + floating task labels
-    heroGlobeMarkers.ts      demo pin lat/lon + brand colors
-  sections/                  HowItWorks · Audience · Trust · PricingTeaser · FinalCtaBand
+home/page.tsx                server shell: metadata, live pricing, section order
+components/ui/landing/
+  LenisRoot.tsx              smooth scroll (skipped under reduced motion)
+  Reveal.tsx · Magnetic.tsx  scroll reveal · magnetic CTA
+  hooks/useDeviceTier.ts     high | mid | low | off (off = reduced motion / no WebGL)
+  hero/HeroSection.tsx       centred heading, search CTA (create-task handoff), chips
+  story/
+    storyState.ts            module store: active stage, pointer, scene-ready
+    StoryTracker.tsx         stage markers + IntersectionObserver on the viewport middle
+    LandingStory.tsx         hero, both acts, the pinned phone track (desktop)
+  phone/
+    PhoneFrame.tsx           device chrome; 375x812 screens scaled to the frame width
+    PhoneDemo.tsx            stage -> screen; StickyPhone (desktop) / StepPhone (inline)
+    screens/*                one scripted beat per screen (useDemoBeat: tap or autoplay)
+    PhoneMap.tsx             drawn London map + the app's price pins
+  scene/
+    LandingBackdrop.tsx      fixed mint wash + lazy three.js scene (next/dynamic, ssr: false)
+    LandingScene.tsx         Canvas, lightformer reflections, damped formation moves
+    formations.ts            poses per formation (viewport fractions), unit-tested
+    objects/*                procedural models (drei RoundedBox, lathe/extrude/tube geometry)
+    HeroObjectsPoster.tsx    still render of the hero objects (public/images/landing/)
+  sections/                  TrustSection · PricingTeaser · FinalCtaBand
 ```
 
-## Hero conversion
+## Behaviour by device
 
-The primary CTA is the search bar. Submit routes:
+- **Desktop (`lg`+):** one phone in an absolutely positioned track that spans
+  from under the hero text to the end of the worker act. Vertically it is
+  pure CSS sticky (starts under the hero, pins at mid-screen, lets go when
+  the story ends); sideways it slides into the right column as the hero
+  scrolls away. Server HTML starts centred, so there is no first-paint jump.
+- **Below `lg`:** no pinned phone. Each step is its text followed by its own
+  phone, which plays once a third of it is on screen and resets only after
+  it has left. The scene shows three objects (`COMPACT_OBJECTS`).
+- **Reduced motion / no WebGL / no JS:** no canvas. The hero shows the still
+  poster, phone screens show their finished state, and the desktop phone
+  snaps to the right column instead of sliding. Every transition inside the
+  phone is zeroed by `PhoneFrame`.
 
-- signed-in → `/tasks/create?title=…` (title omitted when empty)
-- guest → `/register?next=/tasks/create?title=…`
+## Updating the poster
 
-Create-task reads `title` from the query to prefill the draft.
+The poster is rendered from the `PosterWide` / `PosterCompact` stories of
+`LandingScene` (transparent background). Re-render it after changing the
+hero formation or the models: screenshot those stories headlessly (e.g.
+Playwright with `omitBackground: true` at 1440x900 and 390x844, 1.5x) and save
+WebP files to `public/images/landing/hero-objects-{wide,compact}.webp`.
 
 ## Brand tokens
 
-UI-side references SDL semantic tokens (`src/theme/chakraSystem.ts`). Mode-
-independent inverted roles power the hero: `bg.inverted{,Surface,Raised}`,
-`text.onInverted{,Muted,Link}`, `border.inverted`, `bg.glass`, `border.glass`.
-**Green-ink rule**: green fills use dark ink text (`#0A1512`), never white.
+UI references SDL semantic tokens only (`src/theme/chakraSystem.ts`). WebGL
+can't read tokens, so `scene/scenePalette.ts` mirrors the SDL greens plus the
+material colours (cardboard, wood, metal, fabric): the only raw hex here.
+**Green-ink rule:** green fills use dark ink text, never white.
 
-## Device-tier / performance
+## Deliberate calls
 
-`hooks/useDeviceTier.ts` gates the COBE globe. WebGL mounts when:
-
-- tier is not `off` (reduced-motion / no-WebGL stay on the static poster)
-- `mid` / `high` auto-rotate; `low` shows a static globe
-
-The poster underneath is always present for LCP and tap safety. The globe layer
-is `pointer-events: none` so it never blocks the search CTA.
-
-## Deliberate calls / integration notes
-
-- **Header**: shared `MarketingHeader` is transparent with inverted text over
-  the hero on `/` only, solidifying after 24px of scroll. Header “Get started”
-  remains register; hero conversion centers on search → post-task intent.
-- **Landing stays public**: signed-in visitors are not auto-redirected away from `/`.
-- Scroll storytelling uses IO + CSS + `motion` rather than GSAP.
-- Globe pins / labels are static marketing demo data (not live GraphQL).
+- Phone screens are lightweight replicas styled with SDL tokens, not the app
+  components (those pull in Apollo, auth and routing). Keep them close to the
+  real UI when the app changes: bottom bar, price pins, task detail, thread.
+- The 3D tone mapping is Khronos PBR Neutral (ACES greyed the greens).
+- No HDR environment file is fetched: reflections come from drei lightformers.
+- Demo people, tasks and prices are fictional and live in the i11n bag
+  (`landing.phone`), in English and Traditional Chinese.

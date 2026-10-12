@@ -182,6 +182,17 @@ const sharedTheme = {
         from: { opacity: '0', transform: 'translateY(28px)' },
         to: { opacity: '1', transform: 'translateY(0)' },
       },
+      /** Landing phone demo: "tap here" ring. Pair with a reduced-motion override. */
+      'tap-pulse': {
+        '0%': { opacity: '0.7', transform: 'scale(0.92)' },
+        '70%': { opacity: '0', transform: 'scale(1.18)' },
+        '100%': { opacity: '0', transform: 'scale(1.18)' },
+      },
+      /** Typing dots in the landing chat demo. */
+      'typing-dot': {
+        '0%, 80%, 100%': { opacity: '0.3', transform: 'translateY(0)' },
+        '40%': { opacity: '1', transform: 'translateY(-3px)' },
+      },
     },
   },
 }

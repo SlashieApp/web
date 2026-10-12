@@ -77,26 +77,19 @@ const drawerLinkProps = {
 } as const
 
 /**
- * Marketing auth actions: Log in + the green Get started CTA, rendered as
- * single <a> elements via Button asChild (a <button> inside an <a> is invalid
- * HTML and double-focuses). Over the dark landing hero the CTA is an inverted
- * outline — the hero's own CTA stays the one green primary in the first
- * viewport — and becomes the standard green primary once the header solidifies.
+ * Marketing auth actions: Log in + Get started, rendered as single <a>
+ * elements via Button asChild (a <button> inside an <a> is invalid HTML and
+ * double-focuses). Over the landing hero (`quiet`) Get started is secondary
+ * so the hero's search stays the one green primary in the first viewport; it
+ * becomes the green primary once the header solidifies.
  */
 function MarketingAuthButtons({
-  overlay,
+  quiet,
   copy,
 }: {
-  overlay: boolean
+  quiet: boolean
   copy: Pick<MarketingChromeCopy, 'logIn' | 'getStarted'>
 }) {
-  const onDarkGhost = {
-    bg: 'transparent',
-    color: 'text.onInverted',
-    _hover: { bg: 'bg.glass', color: 'text.onInverted' },
-    _active: { bg: 'bg.glass', color: 'text.onInverted' },
-  } as const
-
   return (
     <HStack
       gap={2}
@@ -104,29 +97,12 @@ function MarketingAuthButtons({
       flexShrink={0}
       display={{ base: 'none', md: 'flex' }}
     >
-      <Button
-        asChild
-        size="sm"
-        variant="ghost"
-        px={2}
-        {...(overlay ? onDarkGhost : null)}
-      >
+      <Button asChild size="sm" variant="ghost" px={2}>
         <Link href="/login" _hover={{ textDecoration: 'none' }}>
           {copy.logIn}
         </Link>
       </Button>
-      <Button
-        asChild
-        size="sm"
-        variant={overlay ? 'ghost' : 'primary'}
-        {...(overlay
-          ? {
-              ...onDarkGhost,
-              borderWidth: '1px',
-              borderColor: 'border.glass',
-            }
-          : null)}
-      >
+      <Button asChild size="sm" variant={quiet ? 'secondary' : 'primary'}>
         <Link href="/register" _hover={{ textDecoration: 'none' }}>
           {copy.getStarted}
         </Link>
@@ -158,11 +134,12 @@ function IconMenu({ title }: { title: string }) {
 }
 
 function MarketingNavigation({
-  overlay,
+  quiet,
   isLanding,
   copy,
 }: {
-  overlay: boolean
+  /** Over the landing hero: no second green primary next to the hero's. */
+  quiet: boolean
   isLanding: boolean
   copy: MarketingChromeCopy
 }) {
@@ -187,7 +164,7 @@ function MarketingNavigation({
     transition: 'color 0.2s ease',
     _hover: {
       textDecoration: 'none',
-      color: overlay ? 'text.onInvertedLink' : 'text.link',
+      color: 'text.link',
     },
   } as const
 
@@ -207,8 +184,8 @@ function MarketingNavigation({
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
         >
-          {/* Fixed-size slot: reserving the box prevents CLS from the logo
-              image loading or the light/dark artwork swap over the hero. */}
+          {/* Fixed-size slot: reserving the box prevents CLS while the logo
+              image loads. */}
           <Box
             w={{ base: '96px', md: '126px' }}
             h={{ base: '24px', md: '32px' }}
@@ -216,11 +193,7 @@ function MarketingNavigation({
             alignItems="center"
           >
             <Image
-              src={
-                overlay
-                  ? '/images/slashie-logo-dark.svg'
-                  : '/images/slashie-logo-light.svg'
-              }
+              src="/images/slashie-logo-light.svg"
               alt="Slashie"
               h="full"
               w="auto"
@@ -231,7 +204,7 @@ function MarketingNavigation({
 
         <Text
           display={{ base: 'none', md: 'block' }}
-          color={overlay ? 'border.glass' : 'border.default'}
+          color="border.default"
           fontSize="sm"
           lineHeight={1}
           aria-hidden
@@ -256,15 +229,7 @@ function MarketingNavigation({
                 aria-current={active ? 'page' : undefined}
                 // Weight + color: the active page is never colour-alone.
                 fontWeight={active ? 700 : 600}
-                color={
-                  active
-                    ? overlay
-                      ? 'text.onInvertedLink'
-                      : 'text.link'
-                    : overlay
-                      ? 'text.onInverted'
-                      : 'text.default'
-                }
+                color={active ? 'text.link' : 'text.default'}
               >
                 {copy[link.key]}
               </Link>
@@ -279,9 +244,7 @@ function MarketingNavigation({
         flexShrink={0}
         overflow="visible"
       >
-        <HeaderToolbarSeparator
-          color={overlay ? 'border.glass' : 'border.default'}
-        />
+        <HeaderToolbarSeparator color="border.default" />
         <Button
           type="button"
           size="sm"
@@ -289,33 +252,17 @@ function MarketingNavigation({
           px={2}
           display={{ base: 'none', md: 'inline-flex' }}
           onClick={() => openFeedback()}
-          {...(overlay
-            ? {
-                bg: 'transparent',
-                color: 'text.onInverted',
-                _hover: { bg: 'bg.glass', color: 'text.onInverted' },
-                _active: { bg: 'bg.glass', color: 'text.onInverted' },
-              }
-            : null)}
         >
           {copy.feedback}
         </Button>
-        <MarketingAuthButtons overlay={overlay} copy={copy} />
+        <MarketingAuthButtons quiet={quiet} copy={copy} />
         {/* Mobile-Navigation-IA: on phones the header is the logo plus one
             way into the app. */}
         <Button
           asChild
           size="sm"
-          variant={overlay ? 'ghost' : 'primary'}
+          variant={quiet ? 'secondary' : 'primary'}
           display={{ base: 'inline-flex', md: 'none' }}
-          {...(overlay
-            ? {
-                color: 'text.onInverted',
-                borderWidth: '1px',
-                borderColor: 'border.glass',
-                _hover: { bg: 'bg.glass', color: 'text.onInverted' },
-              }
-            : null)}
         >
           <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
             {copy.openInApp}
@@ -329,8 +276,6 @@ function MarketingNavigation({
           display={{ base: isLanding ? 'none' : 'inline-flex', md: 'none' }}
           minW="44px"
           minH="44px"
-          color={overlay ? 'text.onInverted' : undefined}
-          _hover={overlay ? { bg: 'bg.glass' } : undefined}
           onClick={() => setMobileMenuOpen(true)}
         >
           <IconMenu title={copy.menu} />
@@ -408,22 +353,17 @@ function MarketingNavigation({
 export type MarketingHeaderProps = Omit<BoxProps, 'children'>
 
 /**
- * Sticky marketing header. On the landing (`/home`) it starts transparent over the
- * dark WebGL hero with inverted text, then solidifies to the standard light
- * surface once scrolled. Other marketing routes (and no-JS visitors — the
- * overlay only engages after hydration) always get the solid header.
+ * Sticky marketing header. On the landing (`/home`) it starts transparent
+ * over the mint backdrop and solidifies to the standard light surface once
+ * scrolled. Text colours are the same either way, so this is safe from the
+ * first server paint. Other marketing routes always get the solid header.
  */
 export function MarketingHeader(props: MarketingHeaderProps) {
   const pathname = usePathname()
   const locale = useLocale()
   const copy = loadPageI11n(chromeMessages, locale)
   const isLanding = stripLocalePrefix(pathname ?? '/') === MARKETING_HOME
-  const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     if (!isLanding) return
@@ -433,7 +373,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [isLanding])
 
-  const overlay = isLanding && mounted && !scrolled
+  const transparent = isLanding && !scrolled
 
   return (
     <>
@@ -442,11 +382,11 @@ export function MarketingHeader(props: MarketingHeaderProps) {
         as="header"
         zIndex={30}
         overflow="visible"
-        bg={overlay ? 'transparent' : 'bg.canvas'}
-        color={overlay ? 'text.onInverted' : 'text.default'}
+        bg={transparent ? 'transparent' : 'bg.canvas'}
+        color="text.default"
         borderWidth="1px"
-        borderColor={overlay ? 'transparent' : 'border.default'}
-        transition="background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease"
+        borderColor={transparent ? 'transparent' : 'border.default'}
+        transition="background-color 0.25s ease, border-color 0.25s ease"
         minH={HEADER_MIN_HEIGHT}
         display="flex"
         alignItems="center"
@@ -465,7 +405,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
           alignItems="center"
         >
           <MarketingNavigation
-            overlay={overlay}
+            quiet={transparent}
             isLanding={isLanding}
             copy={copy}
           />

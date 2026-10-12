@@ -1,4 +1,4 @@
-import { Box, Container, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Container, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { Button } from '@ui'
@@ -7,80 +7,55 @@ import { Magnetic } from '../Magnetic'
 import { Reveal } from '../Reveal'
 
 /**
- * Final conversion band on the SDL inverted ink surface (`bg.inverted` — the
- * semantic role for dark marketing bands), echoing the hero's green glow.
+ * The story's last beat: one line, two ways in. Transparent so the 3D
+ * objects gather around it; both paths go through sign-up first.
  */
 export function FinalCtaBand({
   copy,
   ctas,
-  registerHref,
-  loginHref,
+  postTaskHref,
+  becomeWorkerHref,
 }: {
   copy: { heading: string; body: string }
-  ctas: { getStarted: string; logIn: string }
-  registerHref: string
-  loginHref: string
+  ctas: { postTask: string; becomeWorker: string }
+  postTaskHref: string
+  becomeWorkerHref: string
 }) {
   return (
-    <Box
-      as="section"
-      position="relative"
-      overflow="hidden"
-      bg="bg.inverted"
-      borderTopWidth="1px"
-      borderColor="border.inverted"
-      py={{ base: 14, md: 20 }}
-    >
-      <Box
-        position="absolute"
-        inset={0}
-        aria-hidden
-        bgImage="radial-gradient(38rem 16rem at 82% 120%, rgba(0, 220, 130, 0.14) 0%, transparent 70%)"
-      />
-      <Container position="relative" zIndex={1}>
-        <Reveal>
-          <HStack
-            justify="space-between"
-            align={{ base: 'flex-start', md: 'center' }}
-            flexDirection={{ base: 'column', md: 'row' }}
-            gap={8}
-          >
-            <Stack gap={2.5} maxW="lg">
-              <Heading
-                as="h2"
-                fontFamily="display"
-                fontSize={{ base: '28px', md: '36px' }}
-                letterSpacing="-0.01em"
-                color="text.onInverted"
-              >
-                {copy.heading}
-              </Heading>
-              <Text color="text.onInvertedMuted" lineHeight="tall">
-                {copy.body}
-              </Text>
-            </Stack>
-            <HStack gap={3} flexWrap="wrap">
-              <Magnetic>
-                <Button asChild size="lg" variant="primary">
-                  <NextLink href={registerHref}>{ctas.getStarted}</NextLink>
-                </Button>
-              </Magnetic>
-              <Button
-                asChild
-                size="lg"
-                variant="ghost"
-                color="text.onInverted"
-                borderWidth="1px"
-                borderColor="border.glass"
-                _hover={{ bg: 'bg.glass', color: 'text.onInverted' }}
-                _active={{ bg: 'bg.glass', color: 'text.onInverted' }}
-              >
-                <NextLink href={loginHref}>{ctas.logIn}</NextLink>
+    <Container as="section" py={{ base: 20, md: 32 }}>
+      <Reveal>
+        <Stack align="center" textAlign="center" gap={6} maxW="40rem" mx="auto">
+          <Stack gap={3}>
+            <Heading
+              as="h2"
+              fontFamily="display"
+              fontWeight={800}
+              fontSize={{ base: '34px', md: '52px' }}
+              lineHeight={1.08}
+              letterSpacing="-0.025em"
+            >
+              {copy.heading}
+            </Heading>
+            <Text
+              fontSize={{ base: 'md', md: 'lg' }}
+              color="text.muted"
+              lineHeight="tall"
+            >
+              {copy.body}
+            </Text>
+          </Stack>
+          <HStack gap={3} flexWrap="wrap" justify="center">
+            <Magnetic>
+              <Button asChild size="lg" variant="primary">
+                <NextLink href={postTaskHref}>{ctas.postTask}</NextLink>
               </Button>
-            </HStack>
+            </Magnetic>
+            <Button asChild size="lg" variant="secondary">
+              <NextLink href={becomeWorkerHref}>{ctas.becomeWorker}</NextLink>
+            </Button>
           </HStack>
-        </Reveal>
-      </Container>
-    </Box>
+        </Stack>
+      </Reveal>
+    </Container>
   )
 }

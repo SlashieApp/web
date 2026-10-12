@@ -48,7 +48,7 @@ export function PricingTeaser({
   pricingHref: string
 }) {
   return (
-    <Box as="section" bg="bg.canvas" py={{ base: 16, md: 24 }}>
+    <Box as="section" py={{ base: 16, md: 24 }}>
       <Container>
         <Stack gap={{ base: 8, md: 10 }} maxW="4xl">
           <Reveal>

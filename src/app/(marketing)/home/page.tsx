@@ -1,3 +1,5 @@
+import { Box } from '@chakra-ui/react'
+
 import {
   formatPricingInterval,
   pricingDisplayPrice,
@@ -15,14 +17,18 @@ import { MARKETING_HOME } from '@/utils/appRoutes'
 
 import { LenisRoot } from '../components/ui/landing/LenisRoot'
 import { HeroSection } from '../components/ui/landing/hero/HeroSection'
-import { AudienceSection } from '../components/ui/landing/sections/AudienceSection'
+import { LandingBackdrop } from '../components/ui/landing/scene/LandingBackdrop'
 import { FinalCtaBand } from '../components/ui/landing/sections/FinalCtaBand'
-import { HowItWorks } from '../components/ui/landing/sections/HowItWorks'
 import {
   type LandingPricing,
   PricingTeaser,
 } from '../components/ui/landing/sections/PricingTeaser'
 import { TrustSection } from '../components/ui/landing/sections/TrustSection'
+import { LandingStory } from '../components/ui/landing/story/LandingStory'
+import {
+  StoryStageMarker,
+  StoryTracker,
+} from '../components/ui/landing/story/StoryTracker'
 import messages from '../i11n.json'
 
 export async function generateMetadata() {
@@ -36,9 +42,11 @@ export async function generateMetadata() {
 }
 
 /**
- * Marketing landing at `/home`. The narrative is fully server-rendered
- * (SEO + no-JS legible); the Spotlight + COBE globe hero and scroll motion
- * are client islands layered on top. Root `/` auth-redirects guests here
+ * Marketing landing at `/home`: a scroll story (hero, customer act, worker
+ * act, trust, pricing, close) over a fixed mint backdrop with floating 3D
+ * objects, and a demo phone that follows the story. All copy is
+ * server-rendered (SEO + no-JS legible); the scene, phone motion and scroll
+ * tracking are client layers on top. Root `/` auth-redirects guests here
  * and signed-in users to `/search`.
  */
 export default async function MarketingHomePage() {
@@ -74,44 +82,53 @@ export default async function MarketingHomePage() {
       count: freeQuotes,
     }),
   }
+  // Same shape as `buildRegisterHandoffPath` (that module pulls in client
+  // hooks, so this server page can't import it).
+  const registerThen = (next: string) =>
+    withLocale(locale, `/register?next=${encodeURIComponent(next)}`)
   const hrefs = {
-    register: withLocale(locale, '/register'),
-    login: withLocale(locale, '/login'),
     pricing: withLocale(locale, '/pricing'),
+    postTask: registerThen('/tasks/create'),
+    becomeWorker: registerThen('/worker/setup'),
   }
 
   return (
-    <>
+    <Box position="relative" isolation="isolate">
       <LenisRoot />
-      <HeroSection
-        copy={landing.hero}
-        ctas={{
-          seeHowItWorks: ctas.seeHowItWorks,
-        }}
-      />
-      <HowItWorks copy={landing.howItWorks} />
-      <AudienceSection
-        copy={landing.audience}
-        ctas={{
-          postTask: ctas.postTask,
-          becomeWorker: ctas.becomeWorker,
-        }}
-        registerHref={hrefs.register}
-      />
-      <TrustSection points={landing.trust.points} />
-      <PricingTeaser
-        copy={landing.pricingTeaser}
-        pricing={landingPricing}
-        ctaLabel={ctas.viewPricing}
-        pricingHref={hrefs.pricing}
-      />
-      <FinalCtaBand
-        copy={landing.finalCta}
-        ctas={{ getStarted: ctas.getStarted, logIn: ctas.logIn }}
-        registerHref={hrefs.register}
-        loginHref={hrefs.login}
-      />
-      <Footer />
-    </>
+      <LandingBackdrop />
+      <Box position="relative" zIndex={1}>
+        <LandingStory
+          hero={
+            <HeroSection
+              copy={landing.hero}
+              ctas={{ seeHowItWorks: ctas.seeHowItWorks }}
+            />
+          }
+          story={landing.story}
+          phone={landing.phone}
+        />
+        <StoryStageMarker stage="trust">
+          <TrustSection points={landing.trust.points} />
+        </StoryStageMarker>
+        <StoryStageMarker stage="pricing">
+          <PricingTeaser
+            copy={landing.pricingTeaser}
+            pricing={landingPricing}
+            ctaLabel={ctas.viewPricing}
+            pricingHref={hrefs.pricing}
+          />
+        </StoryStageMarker>
+        <StoryStageMarker stage="cta">
+          <FinalCtaBand
+            copy={landing.finalCta}
+            ctas={{ postTask: ctas.postTask, becomeWorker: ctas.becomeWorker }}
+            postTaskHref={hrefs.postTask}
+            becomeWorkerHref={hrefs.becomeWorker}
+          />
+        </StoryStageMarker>
+        <Footer />
+      </Box>
+      <StoryTracker />
+    </Box>
   )
 }

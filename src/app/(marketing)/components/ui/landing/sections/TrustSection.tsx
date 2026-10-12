@@ -3,12 +3,22 @@ import { LuCheck } from 'react-icons/lu'
 
 import { Reveal } from '../Reveal'
 
-/** Calm reassurance band — surfaces the payment model plainly, never fee-heavy. */
+/**
+ * Calm reassurance panel: surfaces the payment model plainly, never
+ * fee-heavy. A white card on the transparent landing so the 3D objects
+ * drift past around it.
+ */
 export function TrustSection({ points }: { points: readonly string[] }) {
   return (
-    <Box as="section" bg="status.success.soft" py={{ base: 10, md: 12 }}>
+    <Box as="section" py={{ base: 10, md: 16 }}>
       <Container>
         <Grid
+          p={{ base: 6, md: 8 }}
+          bg="bg.surface"
+          borderRadius="2xl"
+          borderWidth="1px"
+          borderColor="border.default"
+          boxShadow="e3"
           templateColumns={{
             base: '1fr',
             sm: '1fr 1fr',

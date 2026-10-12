@@ -1,21 +1,9 @@
-import {
-  Box,
-  Container,
-  Flex,
-  HStack,
-  Heading,
-  Image,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Container, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 
-import { HeroCobeGlobe } from './HeroCobeGlobe'
 import { HeroHowItWorksLink } from './HeroHowItWorksLink'
-import { HeroPoster } from './HeroPoster'
 import { HeroSearchCta } from './HeroSearchCta'
-import { Spotlight } from './Spotlight'
 
 /** CSS entrance (runs without JS; disabled under reduced motion). */
 function riseIn(delayMs: number) {
@@ -38,7 +26,6 @@ type HeroSectionCopy = {
   searchSubmit: string
   searchAriaLabel: string
   trustChips: readonly string[]
-  globeLabels: readonly { id: string; label: string }[]
 }
 
 type HeroSectionProps = {
@@ -49,137 +36,91 @@ type HeroSectionProps = {
 }
 
 /**
- * Marketing hero: brand-first split composition — copy + search CTA on the
- * left, Spotlight + COBE WebGL globe on the right. Slides under the
- * transparent marketing header (negative top margin = header height).
+ * Hero copy and the search CTA, centred over the mint backdrop. The demo
+ * phone sits just below it (pinned layer on desktop, inline on phones) and
+ * the 3D objects float around both.
  */
 export function HeroSection({ copy, ctas }: HeroSectionProps) {
   return (
     <Box
       as="section"
       position="relative"
-      overflow="hidden"
-      bg="bg.inverted"
-      color="text.onInverted"
-      mt={{ base: '-56px', md: '-64px' }}
+      aria-labelledby="landing-hero-heading"
     >
-      <Spotlight />
-
-      <Container
-        maxW={PAGE_CONTAINER_MAX_W}
-        px={PAGE_GUTTER_X}
-        position="relative"
-        zIndex={1}
-      >
-        <Flex
-          direction={{ base: 'column', md: 'row' }}
-          align="stretch"
-          minH={{ base: '100svh', md: '100vh' }}
+      <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X}>
+        <Stack
+          align="center"
+          textAlign="center"
+          gap={{ base: 5, md: 6 }}
+          pt={{ base: 10, md: 16 }}
+          pb={{ base: 8, md: 10 }}
+          mx="auto"
+          maxW="54rem"
         >
-          <Flex
-            flex="1 1 50%"
-            direction="column"
-            justify="center"
-            pt={{ base: '96px', md: '120px' }}
-            pb={{ base: 8, md: '120px' }}
-            maxW={{ md: '50%' }}
+          <Heading
+            as="h1"
+            id="landing-hero-heading"
+            fontFamily="display"
+            fontWeight={800}
+            lineHeight={1.05}
+            letterSpacing="-0.03em"
+            fontSize="clamp(2.5rem, 6vw, 4.5rem)"
+            {...riseIn(0)}
           >
-            <Stack gap={{ base: 5, md: 7 }} maxW="34rem">
-              <Box {...riseIn(0)}>
-                <Image
-                  src="/images/slashie-logo-dark.svg"
-                  alt="slashie"
-                  h={{ base: '40px', md: '52px' }}
-                  w="auto"
-                  maxW={{ base: '180px', md: '240px' }}
-                  objectFit="contain"
-                />
-              </Box>
+            {copy.heading}
+          </Heading>
 
-              <Heading
-                as="h1"
-                fontFamily="display"
-                fontWeight={700}
-                lineHeight={1.08}
-                letterSpacing="-0.02em"
-                fontSize="clamp(2.25rem, 5.5vw, 3.75rem)"
-                {...riseIn(80)}
-              >
-                {copy.heading}
-              </Heading>
-
-              <Text
-                fontSize={{ base: 'md', md: 'lg' }}
-                lineHeight={1.55}
-                color="text.onInvertedMuted"
-                maxW="40ch"
-                {...riseIn(160)}
-              >
-                {copy.body}
-              </Text>
-
-              <Box {...riseIn(240)}>
-                <HeroSearchCta
-                  placeholder={copy.searchPlaceholder}
-                  submitLabel={copy.searchSubmit}
-                  ariaLabel={copy.searchAriaLabel}
-                />
-              </Box>
-
-              <Text
-                fontSize="sm"
-                color="text.onInvertedLink"
-                fontWeight={500}
-                {...riseIn(300)}
-              >
-                <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
-              </Text>
-
-              <HStack
-                gap={3}
-                flexWrap="wrap"
-                fontSize="sm"
-                color="text.onInvertedMuted"
-                {...riseIn(360)}
-              >
-                {copy.trustChips.map((item, index) => (
-                  <HStack key={item} gap={3}>
-                    {index > 0 ? (
-                      <Box
-                        boxSize="3px"
-                        borderRadius="full"
-                        bg="text.onInvertedMuted"
-                        aria-hidden
-                      />
-                    ) : null}
-                    <Text>{item}</Text>
-                  </HStack>
-                ))}
-              </HStack>
-            </Stack>
-          </Flex>
-
-          <Box
-            flex="1 1 50%"
-            position="relative"
-            minH={{ base: '280px', md: 'auto' }}
-            overflow="hidden"
-            opacity={{ base: 0.85, md: 1 }}
+          <Text
+            fontSize={{ base: 'md', md: 'xl' }}
+            lineHeight={1.55}
+            color="text.muted"
+            maxW="36ch"
+            {...riseIn(90)}
           >
-            <HeroPoster />
-            <HeroCobeGlobe labels={copy.globeLabels} />
-            {/* Soft left fade so copy stays legible where panes meet on desktop. */}
-            <Box
-              position="absolute"
-              insetY={0}
-              left={0}
-              w={{ base: '0', md: '28%' }}
-              pointerEvents="none"
-              aria-hidden
-              bgImage="linear-gradient(90deg, rgba(12, 19, 16, 0.92) 0%, rgba(12, 19, 16, 0) 100%)"
+            {copy.body}
+          </Text>
+
+          <Box w="full" display="flex" justifyContent="center" {...riseIn(170)}>
+            <HeroSearchCta
+              placeholder={copy.searchPlaceholder}
+              submitLabel={copy.searchSubmit}
+              ariaLabel={copy.searchAriaLabel}
             />
           </Box>
-        </Flex>
+
+          <HStack
+            gap={3}
+            flexWrap="wrap"
+            justify="center"
+            fontSize="sm"
+            fontWeight={600}
+            color="text.muted"
+            {...riseIn(240)}
+          >
+            {copy.trustChips.map((item, index) => (
+              <HStack key={item} gap={3}>
+                {index > 0 ? (
+                  <Box
+                    boxSize="4px"
+                    borderRadius="full"
+                    bg="action.primary"
+                    aria-hidden
+                  />
+                ) : null}
+                <Text>{item}</Text>
+              </HStack>
+            ))}
+          </HStack>
+
+          <Text
+            fontSize="sm"
+            fontWeight={600}
+            color="text.link"
+            {...riseIn(300)}
+          >
+            <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
+          </Text>
+        </Stack>
       </Container>
     </Box>
   )

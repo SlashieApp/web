@@ -52,12 +52,12 @@ export function HeroSearchCta({
         p={{ base: 1.5, md: 2 }}
         borderRadius={sdlCard.radius}
         borderWidth="1px"
-        borderColor="border.glass"
-        bg="bg.glass"
-        boxShadow="e1"
+        borderColor="border.default"
+        bg="bg.surface"
+        boxShadow="e3"
         _focusWithin={{
           borderColor: 'action.primary',
-          boxShadow: 'e2',
+          boxShadow: 'e4',
         }}
       >
         <Input
@@ -69,7 +69,7 @@ export function HeroSearchCta({
           autoComplete="off"
           enterKeyHint="go"
           startElement={
-            <Box color="text.onInvertedMuted" display="flex" aria-hidden>
+            <Box color="text.muted" display="flex" aria-hidden>
               <LuSearch size={18} />
             </Box>
           }
@@ -83,13 +83,8 @@ export function HeroSearchCta({
             _hover: { borderColor: 'transparent' },
             _focusWithin: { borderColor: 'transparent', boxShadow: 'none' },
           }}
-          color="text.onInverted"
-          _placeholder={{ color: 'text.onInvertedMuted' }}
-          css={{
-            '&::placeholder': {
-              color: 'var(--chakra-colors-text-on-inverted-muted)',
-            },
-          }}
+          color="text.default"
+          _placeholder={{ color: 'text.muted' }}
         />
         <Button
           type="submit"

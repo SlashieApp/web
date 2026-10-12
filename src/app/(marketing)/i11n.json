@@ -39,12 +39,30 @@
         "searchAriaLabel": "What do you need help with?",
         "trustChips": ["No job fee", "Local workers", "Pay directly"],
         "globeLabels": [
-          { "id": "london", "label": "Furniture assembly · London" },
-          { "id": "nyc", "label": "Garden tidy · NYC" },
-          { "id": "tokyo", "label": "Moving help · Tokyo" },
-          { "id": "hongkong", "label": "Home cleaning · Hong Kong" },
-          { "id": "sydney", "label": "IKEA build · Sydney" },
-          { "id": "singapore", "label": "Pet sitting · Singapore" }
+          {
+            "id": "london",
+            "label": "Furniture assembly · London"
+          },
+          {
+            "id": "nyc",
+            "label": "Garden tidy · NYC"
+          },
+          {
+            "id": "tokyo",
+            "label": "Moving help · Tokyo"
+          },
+          {
+            "id": "hongkong",
+            "label": "Home cleaning · Hong Kong"
+          },
+          {
+            "id": "sydney",
+            "label": "IKEA build · Sydney"
+          },
+          {
+            "id": "singapore",
+            "label": "Pet sitting · Singapore"
+          }
         ]
       },
       "howItWorks": {
@@ -108,6 +126,228 @@
       "finalCta": {
         "heading": "Ready to get local help?",
         "body": "Post a task or start quoting as a worker. It only takes a minute."
+      },
+      "story": {
+        "tapHint": "Try it: tap the glowing part of the phone.",
+        "customer": {
+          "eyebrow": "For customers",
+          "heading": "Get it done, your way",
+          "steps": {
+            "post": {
+              "title": "Post a task in a minute",
+              "body": "Say what you need, where and when. Posting is free."
+            },
+            "quotes": {
+              "title": "Compare quotes",
+              "body": "Local workers send you prices. Check their profiles, reviews and past work before you choose."
+            },
+            "chat": {
+              "title": "Chat before you choose",
+              "body": "Ask questions in the task thread. Quotes, bookings and replies all land in Messages."
+            },
+            "hire": {
+              "title": "Hire and pay directly",
+              "body": "Accept the quote you like and pay the worker directly. Slashie takes no cut of the job."
+            },
+            "review": {
+              "title": "Leave a review",
+              "body": "A few words help your neighbours pick the right person next time."
+            }
+          }
+        },
+        "worker": {
+          "eyebrow": "For workers",
+          "heading": "Turn your skills into local work",
+          "steps": {
+            "workerFind": {
+              "title": "Find work nearby",
+              "body": "Browse real tasks on the map, close to home."
+            },
+            "workerQuote": {
+              "title": "Send a quote",
+              "body": "Set your price and say when you can do it. You get free quotes every month."
+            },
+            "workerProfile": {
+              "title": "Get booked, build a reputation",
+              "body": "Every finished job adds reviews to your profile. You keep the price you agree."
+            }
+          }
+        }
+      },
+      "phone": {
+        "demoLabel": "Slashie app demo",
+        "nav": {
+          "search": "Search",
+          "myTasks": "My tasks",
+          "postTask": "Post task",
+          "messages": "Messages",
+          "account": "Account"
+        },
+        "search": {
+          "placeholder": "Search a task",
+          "workerPlaceholder": "Tasks near you",
+          "quotes": "{count} quotes",
+          "sendQuote": "Send quote",
+          "selectPin": "Show the {price} task"
+        },
+        "tasks": {
+          "move": {
+            "title": "Help moving two boxes",
+            "area": "Camden",
+            "price": "£45",
+            "quotes": 3
+          },
+          "wardrobe": {
+            "title": "Assemble a wardrobe",
+            "area": "Islington",
+            "price": "£60",
+            "quotes": 2
+          },
+          "paint": {
+            "title": "Paint a bedroom wall",
+            "area": "Fulham",
+            "price": "£95",
+            "quotes": 1
+          },
+          "hedge": {
+            "title": "Hedge trimming and garden tidy-up",
+            "area": "Clapham",
+            "price": "£80",
+            "quotes": 3
+          },
+          "clean": {
+            "title": "End of tenancy clean",
+            "area": "Brixton",
+            "price": "£120",
+            "quotes": 4
+          }
+        },
+        "post": {
+          "header": "Post a task",
+          "whatLabel": "What do you need?",
+          "whatValue": "Hedge trimming and garden tidy-up",
+          "whereLabel": "Where?",
+          "whereValue": "Clapham, London",
+          "whenLabel": "When?",
+          "whenValue": "This weekend",
+          "whenOther": "Flexible",
+          "budgetLabel": "Budget",
+          "budgetValue": "£80",
+          "submit": "Post task",
+          "postedTitle": "Task posted",
+          "postedBody": "Workers nearby can now send you quotes."
+        },
+        "quotes": {
+          "status": "Open",
+          "overview": "Overview",
+          "tab": "Quotes",
+          "category": "Gardening",
+          "reviews": "({count})",
+          "jobs": "{count} jobs done",
+          "replies": "Replies in about an hour",
+          "expand": "Read {name}'s quote",
+          "items": [
+            {
+              "name": "Alex M.",
+              "initials": "AM",
+              "rating": "4.9",
+              "reviews": 32,
+              "jobs": 48,
+              "price": "£80",
+              "note": "I can come on Saturday morning and take all the cuttings away."
+            },
+            {
+              "name": "Jordan K.",
+              "initials": "JK",
+              "rating": "4.8",
+              "reviews": 19,
+              "jobs": 27,
+              "price": "£95",
+              "note": "Free on Sunday afternoon."
+            },
+            {
+              "name": "Sam R.",
+              "initials": "SR",
+              "rating": "5.0",
+              "reviews": 7,
+              "jobs": 9,
+              "price": "£110",
+              "note": "Price includes green-waste bags."
+            }
+          ]
+        },
+        "chat": {
+          "back": "Back",
+          "worker": "Alex M.",
+          "viewTask": "View task",
+          "today": "Today",
+          "flashTitle": "New quote: £80",
+          "flashBody": "Alex M. can come on Saturday morning.",
+          "theirs": "Hi! Is there side access to the garden?",
+          "mine": "Yes, through the side gate.",
+          "composer": "Message Alex",
+          "send": "Send",
+          "sent": "Great, see you on Saturday!",
+          "reply": "See you then!",
+          "sendLabel": "Send a message"
+        },
+        "hire": {
+          "price": "£80",
+          "when": "Saturday, 9:00",
+          "note": "Pay Alex directly when the job is done.",
+          "accept": "Accept quote",
+          "acceptedTitle": "Quote accepted",
+          "acceptedBody": "Booked for Saturday at 9:00. Pay Alex directly, with no platform fee."
+        },
+        "review": {
+          "title": "How did it go?",
+          "body": "Leave a review for Alex M.",
+          "rate": "Rate Alex five stars",
+          "text": "Brilliant job, the garden looks great.",
+          "placeholder": "Write a few words",
+          "submit": "Post review",
+          "thanks": "Thanks for your review!"
+        },
+        "worker": {
+          "header": "Send a quote",
+          "postedBy": "Posted by Priya S.",
+          "budget": "Budget {price}",
+          "priceLabel": "Your price",
+          "price": "£60",
+          "messageLabel": "Message",
+          "message": "Hi Priya, I can build it on Thursday evening.",
+          "submit": "Send quote",
+          "sentTitle": "Quote sent",
+          "sentBody": "You'll hear in Messages when Priya replies."
+        },
+        "profile": {
+          "name": "Alex M.",
+          "initials": "AM",
+          "trade": "Gardener · Clapham",
+          "rating": "4.9",
+          "reviews": "32 reviews",
+          "jobs": "48",
+          "jobsLabel": "Jobs done",
+          "response": "~1 h",
+          "responseLabel": "Replies in",
+          "skills": ["Gardening", "Hedge trimming", "Fencing"],
+          "reviewsTitle": "Reviews",
+          "items": [
+            {
+              "author": "Priya S.",
+              "text": "Arrived on time and left the garden spotless."
+            },
+            {
+              "author": "Tom W.",
+              "text": "Fair price and careful work."
+            },
+            {
+              "author": "Leah B.",
+              "text": "Would book again in a heartbeat."
+            }
+          ],
+          "seeAll": "See all reviews"
+        }
       }
     }
   },
@@ -151,12 +391,30 @@
         "searchAriaLabel": "你需要什麼幫忙？",
         "trustChips": ["不抽任務費", "本地工作者", "直接付款"],
         "globeLabels": [
-          { "id": "london", "label": "傢俬組裝 · 倫敦" },
-          { "id": "nyc", "label": "花園整理 · 紐約" },
-          { "id": "tokyo", "label": "搬家幫手 · 東京" },
-          { "id": "hongkong", "label": "家居清潔 · 香港" },
-          { "id": "sydney", "label": "傢俬組裝 · 悉尼" },
-          { "id": "singapore", "label": "寵物照顧 · 新加坡" }
+          {
+            "id": "london",
+            "label": "傢俬組裝 · 倫敦"
+          },
+          {
+            "id": "nyc",
+            "label": "花園整理 · 紐約"
+          },
+          {
+            "id": "tokyo",
+            "label": "搬家幫手 · 東京"
+          },
+          {
+            "id": "hongkong",
+            "label": "家居清潔 · 香港"
+          },
+          {
+            "id": "sydney",
+            "label": "傢俬組裝 · 悉尼"
+          },
+          {
+            "id": "singapore",
+            "label": "寵物照顧 · 新加坡"
+          }
         ]
       },
       "howItWorks": {
@@ -220,6 +478,228 @@
       "finalCta": {
         "heading": "準備找本地幫手？",
         "body": "發布任務，或以工作者身份開始報價。只需一分鐘。"
+      },
+      "story": {
+        "tapHint": "試試看：點按手機上發亮的位置。",
+        "customer": {
+          "eyebrow": "給客戶",
+          "heading": "按你的方式把事情辦妥",
+          "steps": {
+            "post": {
+              "title": "一分鐘發布任務",
+              "body": "說明你需要什麼、地點和時間。發布完全免費。"
+            },
+            "quotes": {
+              "title": "比較報價",
+              "body": "本地工作者會向你報價。選擇前可先查看他們的個人檔案、評價和過往作品。"
+            },
+            "chat": {
+              "title": "先傾清楚再決定",
+              "body": "在任務對話中直接提問。報價、預約和回覆都會出現在訊息中。"
+            },
+            "hire": {
+              "title": "聘用並直接付款",
+              "body": "接受合適的報價，直接付款給工作者。Slashie 不從任務抽成。"
+            },
+            "review": {
+              "title": "留下評價",
+              "body": "簡單幾句，幫街坊下次揀到合適的人。"
+            }
+          }
+        },
+        "worker": {
+          "eyebrow": "給工作者",
+          "heading": "將你的技能變成本地工作",
+          "steps": {
+            "workerFind": {
+              "title": "搵附近的工作",
+              "body": "在地圖上瀏覽真實任務，就在你家附近。"
+            },
+            "workerQuote": {
+              "title": "發送報價",
+              "body": "自訂價格，說明你何時可以做。每月都有免費報價。"
+            },
+            "workerProfile": {
+              "title": "接單並建立口碑",
+              "body": "每完成一份工作，個人檔案都會累積評價。你保留議定的價錢。"
+            }
+          }
+        }
+      },
+      "phone": {
+        "demoLabel": "Slashie 應用程式示範",
+        "nav": {
+          "search": "搜尋",
+          "myTasks": "我的任務",
+          "postTask": "發佈任務",
+          "messages": "訊息",
+          "account": "帳戶"
+        },
+        "search": {
+          "placeholder": "搜尋任務",
+          "workerPlaceholder": "你附近的任務",
+          "quotes": "{count} 個報價",
+          "sendQuote": "發送報價",
+          "selectPin": "顯示 {price} 的任務"
+        },
+        "tasks": {
+          "move": {
+            "title": "幫忙搬兩個箱",
+            "area": "Camden",
+            "price": "£45",
+            "quotes": 3
+          },
+          "wardrobe": {
+            "title": "組裝衣櫃",
+            "area": "Islington",
+            "price": "£60",
+            "quotes": 2
+          },
+          "paint": {
+            "title": "油一幅睡房牆",
+            "area": "Fulham",
+            "price": "£95",
+            "quotes": 1
+          },
+          "hedge": {
+            "title": "修剪樹籬及整理花園",
+            "area": "Clapham",
+            "price": "£80",
+            "quotes": 3
+          },
+          "clean": {
+            "title": "退租清潔",
+            "area": "Brixton",
+            "price": "£120",
+            "quotes": 4
+          }
+        },
+        "post": {
+          "header": "發佈任務",
+          "whatLabel": "你需要什麼幫忙？",
+          "whatValue": "修剪樹籬及整理花園",
+          "whereLabel": "地點",
+          "whereValue": "Clapham，倫敦",
+          "whenLabel": "時間",
+          "whenValue": "這個週末",
+          "whenOther": "時間彈性",
+          "budgetLabel": "預算",
+          "budgetValue": "£80",
+          "submit": "發佈任務",
+          "postedTitle": "任務已發佈",
+          "postedBody": "附近的工作者現在可以向你報價。"
+        },
+        "quotes": {
+          "status": "開放中",
+          "overview": "概覽",
+          "tab": "報價",
+          "category": "園藝",
+          "reviews": "（{count}）",
+          "jobs": "已完成 {count} 份工作",
+          "replies": "通常一小時內回覆",
+          "expand": "查看 {name} 的報價",
+          "items": [
+            {
+              "name": "Alex M.",
+              "initials": "AM",
+              "rating": "4.9",
+              "reviews": 32,
+              "jobs": 48,
+              "price": "£80",
+              "note": "我星期六早上可以過來，並把剪下的枝葉全部帶走。"
+            },
+            {
+              "name": "Jordan K.",
+              "initials": "JK",
+              "rating": "4.8",
+              "reviews": 19,
+              "jobs": 27,
+              "price": "£95",
+              "note": "星期日下午有空。"
+            },
+            {
+              "name": "Sam R.",
+              "initials": "SR",
+              "rating": "5.0",
+              "reviews": 7,
+              "jobs": 9,
+              "price": "£110",
+              "note": "價錢已包括園藝垃圾袋。"
+            }
+          ]
+        },
+        "chat": {
+          "back": "返回",
+          "worker": "Alex M.",
+          "viewTask": "查看任務",
+          "today": "今天",
+          "flashTitle": "新報價：£80",
+          "flashBody": "Alex M. 星期六早上可以過來。",
+          "theirs": "你好！花園有側門可以進出嗎？",
+          "mine": "有，可以經側閘進來。",
+          "composer": "傳訊息給 Alex",
+          "send": "發送",
+          "sent": "好，星期六見！",
+          "reply": "到時見！",
+          "sendLabel": "發送訊息"
+        },
+        "hire": {
+          "price": "£80",
+          "when": "星期六 9:00",
+          "note": "完工後直接付款給 Alex。",
+          "accept": "接受報價",
+          "acceptedTitle": "已接受報價",
+          "acceptedBody": "已預約星期六 9:00。直接付款給 Alex，不收平台費。"
+        },
+        "review": {
+          "title": "這次服務如何？",
+          "body": "為 Alex M. 留下評價",
+          "rate": "給 Alex 五星評價",
+          "text": "做得非常好，花園煥然一新。",
+          "placeholder": "寫幾句",
+          "submit": "發佈評價",
+          "thanks": "多謝你的評價！"
+        },
+        "worker": {
+          "header": "發送報價",
+          "postedBy": "由 Priya S. 發佈",
+          "budget": "預算 {price}",
+          "priceLabel": "你的價格",
+          "price": "£60",
+          "messageLabel": "訊息",
+          "message": "你好 Priya，我星期四晚上可以幫你組裝。",
+          "submit": "發送報價",
+          "sentTitle": "報價已發送",
+          "sentBody": "Priya 回覆時，你會在訊息中收到通知。"
+        },
+        "profile": {
+          "name": "Alex M.",
+          "initials": "AM",
+          "trade": "園藝師 · Clapham",
+          "rating": "4.9",
+          "reviews": "32 個評價",
+          "jobs": "48",
+          "jobsLabel": "已完成工作",
+          "response": "約 1 小時",
+          "responseLabel": "回覆時間",
+          "skills": ["園藝", "修剪樹籬", "圍欄"],
+          "reviewsTitle": "評價",
+          "items": [
+            {
+              "author": "Priya S.",
+              "text": "準時到達，花園清理得一塵不染。"
+            },
+            {
+              "author": "Tom W.",
+              "text": "價錢公道，做事細心。"
+            },
+            {
+              "author": "Leah B.",
+              "text": "一定會再預約。"
+            }
+          ],
+          "seeAll": "查看所有評價"
+        }
       }
     }
   }
