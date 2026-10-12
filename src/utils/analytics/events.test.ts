@@ -84,7 +84,7 @@ describe('marketplace capture call sites', () => {
     expect(src).not.toMatch(/['"]task_create_succeeded['"]/)
   })
 
-  it('quote send / accept / verify use canonical success names', () => {
+  it('quote send / accept / close use canonical success names', () => {
     const src = readRepo(
       'src/app/(task)/tasks/[slug]/context/TaskDetailProvider.tsx',
     )
@@ -92,8 +92,9 @@ describe('marketplace capture call sites', () => {
     expect(src).toContain('EVENTS.quote_send_fail')
     expect(src).toContain('EVENTS.quote_accept_success')
     expect(src).toContain('EVENTS.quote_accept_fail')
-    expect(src).toContain('EVENTS.job_verify_success')
-    expect(src).toContain('EVENTS.job_verify_fail')
+    expect(src).toContain('EVENTS.job_done_success')
+    expect(src).toContain('EVENTS.job_done_fail')
+    expect(src).toContain('EVENTS.order_confirm_success')
     expect(src).not.toMatch(/['"]quote_submitted['"]/)
     expect(src).not.toMatch(/['"]quote_send_succeeded['"]/)
   })

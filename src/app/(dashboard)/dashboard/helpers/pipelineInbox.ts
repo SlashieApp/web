@@ -21,6 +21,8 @@ import {
 import {
   type OrderItem,
   isOrderClosed,
+  orderCloseView,
+  orderRequestView,
   orderStatusChipLabel,
   taskOrderSectionHref,
 } from '@/utils/orderHelpers'
@@ -56,12 +58,10 @@ export type PipelineInboxRow = {
 
 export type PipelineInboxCopy = {
   waitingForQuotes: string
-  awaitingConfirm: string
 }
 
 const DEFAULT_COPY: PipelineInboxCopy = {
   waitingForQuotes: 'Waiting for quotes',
-  awaitingConfirm: 'Awaiting your confirm',
 }
 
 function isQuotePending(status: string): boolean {
@@ -104,35 +104,29 @@ function workStatusTone(stage: WorkerQuoteStage): PipelineStatusTone {
   }
 }
 
-function customerBookedAction(order: OrderItem | null): {
-  actionKind: PipelineActionKind
-  statusLabel: string
-  copyKey?: keyof PipelineInboxCopy
-} {
-  if (order?.status === OrderStatus.WorkCompleted) {
-    return {
-      actionKind: 'markDone',
-      statusLabel: '',
-      copyKey: 'awaitingConfirm',
-    }
+/**
+ * What a booked order asks of this party: answer a request, mark it
+ * Done (the booked time has started and they have not acted), look at a
+ * conflict, or nothing (contact offline while the job runs).
+ */
+function bookedOrderAction(
+  order: OrderItem | null,
+  userId: string,
+  now: Date,
+): { actionKind: PipelineActionKind; needsAttention: boolean } {
+  if (!order) return { actionKind: 'contactOffline', needsAttention: false }
+  const request = orderRequestView(order, userId)
+  if (request && !request.mine) {
+    return { actionKind: 'respond', needsAttention: true }
   }
-  if (order?.status === OrderStatus.PaymentAcknowledged) {
-    return {
-      actionKind: 'contactOffline',
-      statusLabel: orderStatusChipLabel(order.status),
-    }
+  if (order.status === OrderStatus.Conflict) {
+    return { actionKind: 'view', needsAttention: true }
   }
-  return { actionKind: 'contactOffline', statusLabel: '' }
-}
-
-function workerBookedAction(order: OrderItem | null): PipelineActionKind {
-  if (
-    order?.status === OrderStatus.WorkCompleted ||
-    order?.status === OrderStatus.PaymentAcknowledged
-  ) {
-    return 'contactOffline'
+  const close = orderCloseView(order, now)
+  if (close.canClose && !close.mine) {
+    return { actionKind: 'markDone', needsAttention: true }
   }
-  return 'markDone'
+  return { actionKind: 'contactOffline', needsAttention: false }
 }
 
 function sortInboxRows(rows: PipelineInboxRow[]): PipelineInboxRow[] {
@@ -149,6 +143,7 @@ export function buildPostedByMeRows(
   orders: readonly OrderItem[],
   userId: string,
   copy: PipelineInboxCopy = DEFAULT_COPY,
+  now = new Date(),
 ): PipelineInboxRow[] {
   const rows: PipelineInboxRow[] = []
 
@@ -177,13 +172,13 @@ export function buildPostedByMeRows(
     } else if (stage === 'draft') {
       statusLabel = copy.waitingForQuotes
     } else if (stage === 'booked') {
-      const booked = customerBookedAction(order)
+      const booked = bookedOrderAction(order, userId, now)
       actionKind = booked.actionKind
       actionHref = taskOrderSectionHref(task.id)
-      needsAttention = true
-      statusLabel = booked.copyKey
-        ? copy[booked.copyKey]
-        : booked.statusLabel || postedTaskStageLabel(stage)
+      needsAttention = booked.needsAttention
+      if (order && order.status !== OrderStatus.Active) {
+        statusLabel = orderStatusChipLabel(order.status)
+      }
     }
 
     rows.push({
@@ -206,6 +201,7 @@ export function buildWorkImOnRows(
   sentQuotes: readonly MyQuoteItem[],
   orders: readonly OrderItem[],
   userId: string,
+  now = new Date(),
 ): PipelineInboxRow[] {
   const quoteRows = buildWorkerQuoteRows(sentQuotes, orders, userId)
   const rows: PipelineInboxRow[] = []
@@ -223,9 +219,10 @@ export function buildWorkImOnRows(
     let needsAttention = false
 
     if (stage === 'booked') {
-      actionKind = workerBookedAction(workerOrder)
+      const booked = bookedOrderAction(workerOrder, userId, now)
+      actionKind = booked.actionKind
       actionHref = taskOrderSectionHref(task.id)
-      needsAttention = true
+      needsAttention = booked.needsAttention
       if (workerOrder && workerOrder.status !== OrderStatus.Active) {
         statusLabel = orderStatusChipLabel(workerOrder.status)
       }
@@ -249,16 +246,16 @@ export function buildWorkImOnRows(
     if (isOrderClosed(order.status)) continue
     if (seenTaskIds.has(order.taskId)) continue
 
-    const actionKind = workerBookedAction(order)
+    const booked = bookedOrderAction(order, userId, now)
     rows.push({
       id: `work-order-${order.id}`,
       title: order.snapshot.title,
       href: `/tasks/${order.taskId}`,
       statusLabel: orderStatusChipLabel(order.status),
       statusTone: 'success',
-      actionKind,
+      actionKind: booked.actionKind,
       actionHref: taskOrderSectionHref(order.taskId),
-      needsAttention: true,
+      needsAttention: booked.needsAttention,
       happenedAt: order.createdAt,
     })
   }

@@ -75,12 +75,13 @@ export const OwnerWithQuotes = tripStory({
   task: storyTaskDetail({ status: TaskStatus.Open }),
 })
 
-export const OwnerAwardedWithCode = tripStory({
+export const OwnerAwarded = tripStory({
   viewer: 'customer',
   task: storyTaskDetail({ status: TaskStatus.Awarded }),
   order: storyTaskOrder({
     status: OrderStatus.Active,
-    completionVerificationCode: '482913',
+    bookedStart: '2030-06-10T09:00:00.000Z',
+    bookedEnd: null,
   }),
 })
 

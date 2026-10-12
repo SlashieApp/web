@@ -10,7 +10,7 @@ import { InfoBar } from '../InfoBar/InfoBar'
 import { Link } from '../Link/Link'
 import bag from './i11n.json'
 
-export type SafetyNoticeVariant = 'inline' | 'panel' | 'complete'
+export type SafetyNoticeVariant = 'inline' | 'panel'
 
 export type SafetyNoticeProps = {
   variant?: SafetyNoticeVariant
@@ -39,7 +39,7 @@ export function SafetyNotice({ variant = 'inline' }: SafetyNoticeProps) {
     )
   }
 
-  const line = variant === 'complete' ? t.completeOneLiner : t.oneLiner
+  const line = t.oneLiner
   return (
     <Text fontSize="sm" color="text.muted" lineHeight="tall">
       {line}{' '}

@@ -1,4 +1,5 @@
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
+import { orderBookedDatetime } from '@/utils/orderHelpers'
 import { budgetToPence, formatGbpMajor, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
@@ -62,9 +63,9 @@ export type MyTaskOrderSource = {
   customerUserId: string
   workerUserId: string
   status: string
-  workCompletedAt?: unknown
+  /** Booked start (accepted or rescheduled slot); dates booked rows. */
+  bookedStart?: unknown
   closedAt?: unknown
-  workerPaymentAcknowledgedAt?: unknown
 }
 
 export type MyTaskHubRow = {
@@ -93,33 +94,17 @@ export type MyTaskHubSection = {
   rows: MyTaskHubRow[]
 }
 
-const BOOKED_TASK = new Set([
-  'AWARDED',
-  'IN_PROGRESS',
-  'OFFER_ACCEPTED',
-  'QUOTE_ACCEPTED',
-])
+const BOOKED_TASK = new Set(['AWARDED', 'OFFER_ACCEPTED'])
+
+/** Task statuses filed under Completed before an order is considered. */
+export const HUB_COMPLETED_TASK_STATUSES = ['CANCELLED'] as const
 
 /**
- * Task statuses filed under Completed before an order is considered.
- * Task detail uses the same set for its no-order fallback.
+ * Order statuses filed under Completed: mutual Done (or 7-day auto-Done),
+ * and cancelled bookings. A cancelled order leaves its task AWARDED, so the
+ * order decides.
  */
-export const HUB_COMPLETED_TASK_STATUSES = [
-  'COMPLETED',
-  'CONFIRMED',
-  'CANCELLED',
-] as const
-
-/**
- * Order statuses filed under Completed.
- * Terminal success is `COMPLETED`. BE-58 renames `CLOSED` → `COMPLETED`;
- * `CLOSED` is not a second terminal status.
- */
-export const HUB_DONE_ORDER_STATUSES = [
-  'WORK_COMPLETED',
-  'PAYMENT_ACKNOWLEDGED',
-  'COMPLETED',
-] as const
+export const HUB_DONE_ORDER_STATUSES = ['COMPLETED', 'CANCELLED'] as const
 
 const COMPLETED_TASK = new Set<string>(HUB_COMPLETED_TASK_STATUSES)
 
@@ -275,10 +260,7 @@ function completedMs(
   order: MyTaskOrderSource | null,
 ): number {
   if (order) {
-    const fromOrder =
-      timeOf(order.workCompletedAt) ||
-      timeOf(order.closedAt) ||
-      timeOf(order.workerPaymentAcknowledgedAt)
+    const fromOrder = timeOf(order.closedAt)
     if (fromOrder) return fromOrder
   }
   return timeOf(task.completedAt) || timeOf(task.confirmedAt) || 0
@@ -300,20 +282,13 @@ function sectionFor(input: {
 
   if (COMPLETED_TASK.has(taskStatus)) return 'completed'
   if (orderStatus && DONE_ORDER.has(orderStatus)) return 'completed'
-  if (
-    orderStatus === 'CANCELLED' &&
-    !taskOpen &&
-    !BOOKED_TASK.has(taskStatus)
-  ) {
-    return 'completed'
-  }
 
+  // Live bookings and CONFLICT (still needs both parties) stay Booked.
+  const orderOpen = orderStatus != null && !DONE_ORDER.has(orderStatus)
   const hostedBooked =
     input.hosted &&
-    (BOOKED_TASK.has(taskStatus) ||
-      input.someoneElseAwarded ||
-      orderStatus === 'ACTIVE')
-  const workerBooked = myAwarded || (!input.hosted && orderStatus === 'ACTIVE')
+    (BOOKED_TASK.has(taskStatus) || input.someoneElseAwarded || orderOpen)
+  const workerBooked = myAwarded || (!input.hosted && orderOpen)
   if (hostedBooked || workerBooked) return 'booked'
 
   if (input.hosted && taskOpen) return 'open'
@@ -440,7 +415,12 @@ export function buildMyTasksHub(input: {
       someoneElseAwarded,
       orderStatus: order?.status ?? null,
     })
-    const point = schedulePoint(task.datetime, now)
+    // A booked row runs on the booking, not the poster's original timing.
+    const datetime =
+      section === 'booked' && order?.bookedStart
+        ? orderBookedDatetime({ bookedStart: order.bookedStart })
+        : task.datetime
+    const point = schedulePoint(datetime, now)
     const bucket: MyTaskSortBucket =
       section === 'completed' ? 'past' : point.bucket
     const roles: MyTaskRole[] = []
@@ -461,7 +441,7 @@ export function buildMyTasksHub(input: {
       thumbnailSrc: task.images?.[0],
       roles,
       section,
-      timing: timingFor(task.datetime, point, now),
+      timing: timingFor(datetime, point, now),
       quoteCount: hosted ? (task.quotes?.length ?? 0) : 0,
       acceptedWorkerName: hosted
         ? acceptedWorkerName(task.quotes, userId)

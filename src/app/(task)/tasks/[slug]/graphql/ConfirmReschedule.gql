@@ -1,0 +1,7 @@
+#import "./taskDetailOrderFields.gql"
+
+mutation ConfirmReschedule($orderId: ID!, $slotId: ID!) {
+  confirmReschedule(orderId: $orderId, slotId: $slotId) {
+    ...TaskDetailOrderFields
+  }
+}

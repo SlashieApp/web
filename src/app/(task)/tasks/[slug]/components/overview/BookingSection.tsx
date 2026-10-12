@@ -1,9 +1,13 @@
 'use client'
 
 import { Stack } from '@chakra-ui/react'
+import { OrderStatus } from '@codegen/schema'
+import { LuRepeat } from 'react-icons/lu'
 
 import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
+import { repostTaskHref } from '@/utils/taskHandoff'
+import { Button, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { canReviewCompletedOrder } from '../../helpers/reviewEligibility'
@@ -14,12 +18,10 @@ import { CustomerActiveOrderStatus } from './CustomerActiveOrderStatus'
 import { OrderSection } from './OrderSection'
 
 /**
- * Booking section — the "Your booking" info for an active order (completion code
- * for the customer; job + complete-with-code for the worker) and the order
- * summary once the job is completed or the task is closed. Completed jobs hide
- * the in-progress booking chrome and keep the agreement record.
- * Renders nothing for OPEN tasks with no order. Order data is client-fetched
- * (Task.gql) and read from context.
+ * Booking section: the live booking for either party (details plus the
+ * Done/Failed, reschedule, cancel, and conflict states), and the order
+ * record once it is completed or cancelled. Renders nothing for OPEN tasks
+ * with no order. Order data is client-fetched (Task.gql) and read from context.
  */
 export function BookingSection() {
   const {
@@ -30,8 +32,18 @@ export function BookingSection() {
     orderReview,
     viewerHasSubmittedReview,
   } = useTaskDetail()
-  const reviews = useI11n(bag).reviews
+  const t = useI11n(bag)
+  const reviews = t.reviews
   if (!task) return null
+
+  const repost = permissions.canRepostTask ? (
+    <Button asChild variant="secondary" alignSelf="flex-start">
+      <Link href={repostTaskHref(task.id)} _hover={{ textDecoration: 'none' }}>
+        <LuRepeat aria-hidden />
+        {t.actions.repostTask}
+      </Link>
+    </Button>
+  ) : null
 
   const reviewsCard =
     myOrder &&
@@ -65,24 +77,25 @@ export function BookingSection() {
       <Stack gap={4}>
         <OrderSection task={task} order={myOrder} showRecord />
         {reviewsCard}
+        {repost}
       </Stack>
     ) : null
   }
 
-  if (permissions.isClosed) {
+  if (
+    permissions.isClosed ||
+    (myOrder && myOrder.status === OrderStatus.Cancelled)
+  ) {
     return myOrder ? (
       <Stack gap={4}>
         <OrderSection task={task} order={myOrder} />
         {reviewsCard}
+        {repost}
       </Stack>
     ) : null
   }
 
-  const hasBooking =
-    permissions.showCustomerCompletionCode ||
-    permissions.showWorkerJobBanner ||
-    permissions.showCompleteWithCode
-  if (!hasBooking) return null
+  if (!permissions.showOrderActions) return null
 
   return (
     // `task-order`: anchor target for "Open job details" links (quote accept

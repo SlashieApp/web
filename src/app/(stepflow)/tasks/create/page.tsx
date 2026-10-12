@@ -8,6 +8,7 @@ import {
   TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
+  type TaskForEditQuery,
   TaskPaymentMethod,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -30,6 +31,8 @@ import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import { MARKETPLACE_MAP_MOTION_MS } from '@/app/(task)/helpers/marketplaceMap/motion'
+import { taskToEditFormValues } from '@/app/(task)/helpers/taskEditHelpers'
+import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import Me from '@/graphql/Me.gql'
 import { stripLocalePrefix } from '@/i18n/navigation'
 import { useI11n } from '@/i18n/useI11n'
@@ -98,6 +101,14 @@ function readDraftTitleFromUrl(): string {
   return raw?.trim().slice(0, TASK_DRAFT_TITLE_MAX) ?? ''
 }
 
+/** `?repost=<taskId>`: prefill from one of the poster's earlier tasks. */
+function readRepostTaskIdFromUrl(): string | null {
+  if (typeof window === 'undefined') return null
+  return (
+    new URLSearchParams(window.location.search).get('repost')?.trim() || null
+  )
+}
+
 function readStartCentreFromUrl(): CreateTaskStartCentre {
   return resolveCreateTaskStartCentre({
     search: typeof window === 'undefined' ? '' : window.location.search,
@@ -160,6 +171,7 @@ function CreateTaskFormBody({
    * start. The London camera is not a choice.
    */
   const pinChosenRef = useRef(startCentre.source !== 'default')
+  const [repostTaskId] = useState(readRepostTaskIdFromUrl)
   const [locating, setLocating] = useState(false)
   const [locateUnavailable, setLocateUnavailable] = useState(false)
   const headingRef = useRef<HTMLDivElement>(null)
@@ -180,6 +192,7 @@ function CreateTaskFormBody({
     clearErrors,
     watch,
     getValues,
+    reset,
     trigger,
     formState: { errors, isSubmitting },
   } = useForm<CreateTaskFormFieldValues>({
@@ -320,6 +333,8 @@ function CreateTaskFormBody({
       labelPin(startCentre.lat, startCentre.lng, false)
       return
     }
+    // A repost starts from its old task location, so don't ask for location.
+    if (repostTaskId) return
     let cancelled = false
     void currentPosition(false).then((geolocated) => {
       if (cancelled) return
@@ -336,7 +351,36 @@ function CreateTaskFormBody({
     return () => {
       cancelled = true
     }
-  }, [getValues, labelPin, placePin, startCentre])
+  }, [getValues, labelPin, placePin, repostTaskId, startCentre])
+
+  // Repost: copy the earlier task's details once (not its timing, which has
+  // likely passed, or its photos, whose URLs can expire).
+  const { data: repostData } = useQuery<TaskForEditQuery>(TaskForEdit, {
+    variables: { id: repostTaskId ?? '' },
+    skip: !repostTaskId,
+  })
+  const repostAppliedRef = useRef(false)
+  useEffect(() => {
+    const source = repostData?.task
+    if (!source || repostAppliedRef.current) return
+    repostAppliedRef.current = true
+    const values = taskToEditFormValues(source)
+    if (values.locationLat && values.locationLng) pinChosenRef.current = true
+    reset({
+      ...getValues(),
+      title: values.title,
+      category: values.category,
+      description: values.description,
+      streetAddress: values.streetAddress,
+      mapPlaceName: values.mapPlaceName,
+      locationLat: values.locationLat,
+      locationLng: values.locationLng,
+      budgetMajor: values.budgetMajor,
+      budgetCurrency: values.budgetCurrency,
+      budgetType: values.budgetType,
+      paymentMethod: values.paymentMethod,
+    })
+  }, [getValues, repostData, reset])
 
   const onLocate = useCallback(() => {
     setLocating(true)

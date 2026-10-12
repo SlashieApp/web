@@ -117,6 +117,15 @@ export function storyTaskQuote(
     message: 'I can do this Saturday morning with my own tools.',
     status: QuoteStatus.Pending,
     createdAt: '2026-05-29T14:30:00.000Z',
+    // Far-future so the accept dialog can pick them in stories.
+    proposedSlots: [
+      {
+        id: 'slot-1',
+        start: '2030-06-10T09:00:00.000Z',
+        end: '2030-06-10T11:00:00.000Z',
+      },
+      { id: 'slot-2', start: '2030-06-11T14:00:00.000Z', end: null },
+    ],
     worker: {
       id: STORY_WORKER_ID,
       profile: { name: 'Jordan Lee', avatarUrl: STORY_AVATAR },
@@ -135,7 +144,6 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
     workerUserId: STORY_WORKER_ID,
     status: OrderStatus.Active,
     agreedPrice: { amount: 85, currency: Currency.Gbp },
-    completionVerificationCode: '482913',
     snapshot: {
       title: 'Mount bookshelf on living room wall',
       description: 'Need a worker to mount one IKEA bookshelf safely.',
@@ -152,9 +160,14 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
       budgetAmount: 120,
       paymentMethod: 'CASH',
     },
+    // In the past, so booked stories show Done/Failed by default.
+    bookedStart: '2026-06-10T14:00:00.000Z',
+    bookedEnd: '2026-06-10T16:00:00.000Z',
+    pendingRequest: null,
+    myCloseAction: null,
+    counterpartyCloseAction: null,
+    autoDoneAt: null,
     createdAt: '2026-06-01T09:00:00.000Z',
-    workCompletedAt: null,
-    workerPaymentAcknowledgedAt: null,
     closedAt: null,
     ...overrides,
   } as OrderItem

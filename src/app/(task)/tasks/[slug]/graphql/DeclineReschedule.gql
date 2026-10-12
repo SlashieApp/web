@@ -1,0 +1,7 @@
+#import "./taskDetailOrderFields.gql"
+
+mutation DeclineReschedule($orderId: ID!) {
+  declineReschedule(orderId: $orderId) {
+    ...TaskDetailOrderFields
+  }
+}

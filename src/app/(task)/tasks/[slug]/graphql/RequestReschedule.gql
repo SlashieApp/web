@@ -1,0 +1,7 @@
+#import "./taskDetailOrderFields.gql"
+
+mutation RequestReschedule($orderId: ID!, $proposedSlots: [TimeSlotInput!]!) {
+  requestReschedule(orderId: $orderId, proposedSlots: $proposedSlots) {
+    ...TaskDetailOrderFields
+  }
+}

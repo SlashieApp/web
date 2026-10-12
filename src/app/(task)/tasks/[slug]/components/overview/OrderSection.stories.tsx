@@ -26,10 +26,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const completedOrder = storyTaskOrder({
-  // BE-58 renames CLOSED → COMPLETED. The generated enum may still be CLOSED.
-  status: 'COMPLETED' as OrderStatus,
-  workCompletedAt: '2026-05-19T11:30:00.000Z',
-  workerPaymentAcknowledgedAt: '2026-05-20T09:15:00.000Z',
+  status: OrderStatus.Completed,
   closedAt: '2026-05-20T16:00:00.000Z',
   customerUserId: STORY_OWNER_ID,
 })

@@ -20,8 +20,16 @@ export type NotificationDisplayCopy = {
     quoteReceived: string
     quoteAccepted: string
     quoteDeclined: string
-    taskCompleted: string
-    taskConfirmed: string
+    orderMarkedDone: string
+    orderMarkedFailed: string
+    orderCompleted: string
+    orderConflict: string
+    orderCancelled: string
+    rescheduleRequested: string
+    rescheduleConfirmed: string
+    rescheduleDeclined: string
+    cancellationRequested: string
+    cancellationDeclined: string
     default: string
   }
 }
@@ -32,8 +40,16 @@ const DEFAULT_DISPLAY_COPY: NotificationDisplayCopy = {
     quoteReceived: 'New quote on your task',
     quoteAccepted: 'Your quote was accepted',
     quoteDeclined: 'Your quote was declined',
-    taskCompleted: 'Job marked complete',
-    taskConfirmed: 'Job confirmed',
+    orderMarkedDone: 'Job marked Done',
+    orderMarkedFailed: 'Job marked Failed',
+    orderCompleted: 'Job completed',
+    orderConflict: 'Booking needs resolving',
+    orderCancelled: 'Booking cancelled',
+    rescheduleRequested: 'New time requested',
+    rescheduleConfirmed: 'New time confirmed',
+    rescheduleDeclined: 'Time change declined',
+    cancellationRequested: 'Cancellation requested',
+    cancellationDeclined: 'Cancellation declined',
     default: 'Slashie update',
   },
 }
@@ -79,10 +95,26 @@ function defaultNotificationTitle(
       return copy.types.quoteAccepted
     case NotificationType.QuoteDeclined:
       return copy.types.quoteDeclined
-    case NotificationType.TaskCompleted:
-      return copy.types.taskCompleted
-    case NotificationType.TaskConfirmed:
-      return copy.types.taskConfirmed
+    case NotificationType.OrderMarkedDone:
+      return copy.types.orderMarkedDone
+    case NotificationType.OrderMarkedFailed:
+      return copy.types.orderMarkedFailed
+    case NotificationType.OrderCompleted:
+      return copy.types.orderCompleted
+    case NotificationType.OrderConflict:
+      return copy.types.orderConflict
+    case NotificationType.OrderCancelled:
+      return copy.types.orderCancelled
+    case NotificationType.RescheduleRequested:
+      return copy.types.rescheduleRequested
+    case NotificationType.RescheduleConfirmed:
+      return copy.types.rescheduleConfirmed
+    case NotificationType.RescheduleDeclined:
+      return copy.types.rescheduleDeclined
+    case NotificationType.CancellationRequested:
+      return copy.types.cancellationRequested
+    case NotificationType.CancellationDeclined:
+      return copy.types.cancellationDeclined
     default:
       return copy.types.default
   }
@@ -98,10 +130,16 @@ const TASK_DETAIL_NOTIFICATION_TYPES = new Set<string>([
   NotificationType.QuoteReceived,
   NotificationType.QuoteAccepted,
   NotificationType.QuoteDeclined,
-  NotificationType.TaskCompleted,
-  NotificationType.TaskConfirmed,
-  NotificationType.OrderWorkCompleted,
+  NotificationType.OrderMarkedDone,
+  NotificationType.OrderMarkedFailed,
   NotificationType.OrderCompleted,
+  NotificationType.OrderConflict,
+  NotificationType.OrderCancelled,
+  NotificationType.RescheduleRequested,
+  NotificationType.RescheduleConfirmed,
+  NotificationType.RescheduleDeclined,
+  NotificationType.CancellationRequested,
+  NotificationType.CancellationDeclined,
 ])
 
 /**

@@ -95,10 +95,36 @@ function TaskDetailStorySeed({
                       : null,
                   }
                 : o.snapshot,
+              pendingRequest: o.pendingRequest
+                ? {
+                    __typename: 'OrderPendingRequest',
+                    ...o.pendingRequest,
+                    proposedSlots: o.pendingRequest.proposedSlots.map(
+                      (slot) => ({ __typename: 'TimeSlot', ...slot }),
+                    ),
+                  }
+                : null,
+              myCloseAction: o.myCloseAction
+                ? {
+                    __typename: 'OrderCloseAction',
+                    failedReason: null,
+                    ...o.myCloseAction,
+                  }
+                : null,
+              counterpartyCloseAction: o.counterpartyCloseAction
+                ? {
+                    __typename: 'OrderCloseAction',
+                    ...o.counterpartyCloseAction,
+                  }
+                : null,
             })),
             quotes: task.quotes.map((q) => ({
               __typename: 'Quote',
               ...q,
+              proposedSlots: (q.proposedSlots ?? []).map((slot) => ({
+                __typename: 'TimeSlot',
+                ...slot,
+              })),
               price: q.price ? { __typename: 'Price', ...q.price } : null,
               worker: q.worker
                 ? {

@@ -1,6 +1,6 @@
 import { OrderStatus } from '@codegen/schema'
 
-import type { OrderItem } from '@/utils/orderHelpers'
+import { type OrderItem, isOrderLive } from '@/utils/orderHelpers'
 
 import type { TaskDetailPermissions } from './getTaskDetailPermissions'
 import type { TaskDetailRecord } from './taskDetailUtils'
@@ -72,7 +72,7 @@ export function buildTaskActivitySteps(
       key: 'booked',
       label: copy.bookedLabel,
       detail:
-        myOrder?.status === OrderStatus.Active ? copy.bookedActive : undefined,
+        myOrder && isOrderLive(myOrder.status) ? copy.bookedActive : undefined,
       at: myOrder?.createdAt,
       done: bookedDone,
       current: permissions.isAwarded && !permissions.isJobCompleted,
@@ -80,7 +80,7 @@ export function buildTaskActivitySteps(
     {
       key: 'done',
       label: permissions.isCancelled ? copy.cancelled : copy.completed,
-      at: myOrder?.closedAt ?? myOrder?.workCompletedAt,
+      at: myOrder?.closedAt,
       done: doneDone,
       current:
         permissions.isJobCompleted ||

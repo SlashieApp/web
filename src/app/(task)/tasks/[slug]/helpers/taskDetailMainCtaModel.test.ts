@@ -19,12 +19,10 @@ const copy: TaskDetailMainCtaCopy = {
   askingPrice: 'Your asking price',
   awaitingReview: 'Waiting for the owner to review',
   budget: 'Budget',
-  confirm: 'Confirm completion',
-  complete: 'Complete / confirm',
   customerTitle: 'Job in progress',
   workerTitle: 'You are booked for this job',
-  completionCode: 'Completion code',
-  enterCodeCta: 'Complete job & confirm payment',
+  closeEyebrow: 'Job time has started',
+  slideDone: 'Slide to mark Done',
   owner: 'Owner',
   contactTask: 'Contact customer',
   emailCustomer: 'Email customer',
@@ -32,7 +30,6 @@ const copy: TaskDetailMainCtaCopy = {
   ownerFallback: 'Task owner',
   beOnSite: 'Be on site',
   flexibleWhen: 'Flexible',
-  markCompleted: 'Mark as completed',
   workerEyebrow: 'Your job',
   contactWorker: 'Contact worker',
   yourWorker: 'Your worker',
@@ -55,6 +52,7 @@ function permissions(
     isJobCompleted: false,
     isOrderWorker: false,
     isOrderActive: false,
+    isOrderConflict: false,
     hasWorkerProfile: true,
     atCap: false,
     canSubmitQuote: false,
@@ -65,11 +63,11 @@ function permissions(
     showOwnerQuoteList: false,
     showAcceptDecline: false,
     showWorkerJobBanner: false,
-    showCompleteWithCode: false,
-    showCustomerCompletionCode: false,
+    showOrderActions: false,
     showFullAddress: false,
     canCancelTask: false,
     canEditTask: false,
+    canRepostTask: false,
     ...overrides,
   }
 }
@@ -144,33 +142,14 @@ describe('buildTaskDetailMainCta', () => {
     })
   })
 
-  it('hides the owner card for the assigned worker contact action', () => {
-    const model = buildTaskDetailMainCta({
-      task: task(),
-      myQuote: null,
-      permissions: permissions({
-        isOpen: false,
-        isOrderWorker: true,
-        isOrderActive: true,
-      }),
-      copy,
-    })
-    expect(model).toMatchObject({
-      presentation: 'quoted',
-      buttonLabel: 'Contact customer',
-      href: 'tel:07700900123',
-      hideOverviewCards: ['owner'],
-      content: { eyebrow: 'Owner', value: 'Ava' },
-    })
-  })
-
   it('keeps contact as the booked worker primary and hides price and owner cards', () => {
     const model = buildTaskDetailMainCta({
       task: task(),
       myQuote: null,
       permissions: permissions({
         isOpen: false,
-        showCompleteWithCode: true,
+        isOrderWorker: true,
+        showOrderActions: true,
       }),
       schedule: {
         type: TaskDateTimeType.Exact,
@@ -189,6 +168,41 @@ describe('buildTaskDetailMainCta', () => {
     })
     expect(model?.content?.value).toEqual(expect.any(String))
     expect(model?.scrollTo).toBeUndefined()
+  })
+
+  it('swaps to the close control once the booked time starts, until the viewer acts', () => {
+    const close = {
+      canClose: true,
+      startsAt: new Date('2026-01-01T09:00:00'),
+      mine: null,
+      theirs: null,
+      autoDoneAt: null,
+    }
+    const input = {
+      task: task(),
+      myQuote: null,
+      permissions: permissions({
+        isOpen: false,
+        isOrderWorker: true,
+        showOrderActions: true,
+      }),
+      copy,
+    }
+    expect(buildTaskDetailMainCta({ ...input, close })).toMatchObject({
+      presentation: 'close',
+      buttonLabel: 'Slide to mark Done',
+      content: { eyebrow: 'Job time has started' },
+      hideOverviewCards: ['pricing', 'owner'],
+    })
+    expect(
+      buildTaskDetailMainCta({ ...input, close: { ...close, mine: 'DONE' } }),
+    ).toMatchObject({ presentation: 'quoted', buttonLabel: 'Contact customer' })
+    expect(
+      buildTaskDetailMainCta({
+        ...input,
+        close: { ...close, canClose: false },
+      }),
+    ).toMatchObject({ presentation: 'quoted' })
   })
 
   it('makes contact the booked customer primary and hides the price card', () => {
@@ -211,7 +225,7 @@ describe('buildTaskDetailMainCta', () => {
         isOwner: true,
         isOpen: false,
         isAwarded: true,
-        showCustomerCompletionCode: true,
+        showOrderActions: true,
       }),
       acceptedQuoteId: 'q1',
       copy,

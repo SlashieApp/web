@@ -1,3 +1,5 @@
+# KEEP IN SYNC with TaskDetailOrderFields
+# (src/app/(task)/tasks/[slug]/graphql/taskDetailOrderFields.gql).
 fragment OrderFields on Order {
   id
   taskId
@@ -29,8 +31,28 @@ fragment OrderFields on Order {
     budgetAmount
     paymentMethod
   }
+  bookedStart
+  bookedEnd
+  pendingRequest {
+    kind
+    requestedByUserId
+    requestedAt
+    proposedSlots {
+      id
+      start
+      end
+    }
+  }
+  myCloseAction {
+    kind
+    at
+    failedReason
+  }
+  counterpartyCloseAction {
+    kind
+    at
+  }
+  autoDoneAt
   createdAt
-  workCompletedAt
-  workerPaymentAcknowledgedAt
   closedAt
 }

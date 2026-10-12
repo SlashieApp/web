@@ -1,0 +1,7 @@
+#import "./taskDetailOrderFields.gql"
+
+mutation AcceptOrderCancellation($orderId: ID!) {
+  acceptOrderCancellation(orderId: $orderId) {
+    ...TaskDetailOrderFields
+  }
+}

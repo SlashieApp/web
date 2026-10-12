@@ -6,6 +6,7 @@ import { LuUndo2 } from 'react-icons/lu'
 
 import taskDetailBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import { useI11n } from '@/i18n/useI11n'
+import { timeSlotDraftFromSlot } from '@/utils/timeSlots'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
@@ -37,6 +38,7 @@ export function TaskQuoteFlow() {
     quoteLimitReached,
     quoteSuccess,
     setQuoteMessageInput,
+    setQuoteSlots,
     onWithdrawQuote,
     withdrawingQuote,
   } = useTaskDetail()
@@ -89,8 +91,15 @@ export function TaskQuoteFlow() {
       if (!node || prefilledRef.current || !existingQuote) return
       prefilledRef.current = true
       setQuoteMessageInput(existingQuote.message ?? '')
+      // Slot ids are reissued on every addQuote; keep the still-future times.
+      setQuoteSlots(
+        existingQuote.proposedSlots.flatMap((slot) => {
+          const draft = timeSlotDraftFromSlot(slot)
+          return draft ? [draft] : []
+        }),
+      )
     },
-    [existingQuote, setQuoteMessageInput],
+    [existingQuote, setQuoteMessageInput, setQuoteSlots],
   )
 
   const withdrawExistingQuote = useCallback(async () => {

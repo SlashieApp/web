@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, type SystemStyleObject } from '@chakra-ui/react'
+import { Box, Stack, type SystemStyleObject, Text } from '@chakra-ui/react'
 import { createPortal } from 'react-dom'
 import { LuEye } from 'react-icons/lu'
 
@@ -16,6 +16,7 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailMainCtaModel } from '../../helpers/taskDetailMainCtaModel'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import bag from '../../i11n.json'
+import { OrderCloseControls } from '../overview/OrderCloseControls'
 import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
 import { Reveal } from './Reveal'
 
@@ -78,6 +79,32 @@ function MainCtaControl({
         })
       }
     : undefined
+
+  if (model.presentation === 'close') {
+    return (
+      <Box
+        w="full"
+        bg="bg.surface"
+        borderRadius="xl"
+        boxShadow="e3"
+        borderWidth="1px"
+        borderColor="border.default"
+        p={4}
+      >
+        <Stack gap={3}>
+          {model.content ? (
+            <Stack gap={0}>
+              <Text fontSize="xs" fontWeight={700} color="text.muted">
+                {model.content.eyebrow}
+              </Text>
+              <Text fontWeight={700}>{model.content.value}</Text>
+            </Stack>
+          ) : null}
+          <OrderCloseControls />
+        </Stack>
+      </Box>
+    )
+  }
 
   if (model.presentation === 'preview' || !model.content) {
     const label = (

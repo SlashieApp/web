@@ -162,16 +162,17 @@ export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [
     canPinMobile: (ctx) =>
       ctx.permissions.isOwner &&
       ctx.permissions.isOpen &&
-      !ctx.permissions.showCustomerCompletionCode,
+      !(ctx.permissions.isOwner && ctx.permissions.showOrderActions),
   },
   {
     id: 'completion',
     pinConflictGroup: TASK_DETAIL_PIN_CONFLICT_GROUP,
     stickyPriority: TASK_DETAIL_STICKY_PRIORITY.completion,
     showInFlow: () => false,
-    // Owner confirm-code chrome. Assigned workers keep complete-with-code
-    // in the scroll body so the owner+contact card can pin.
-    canPinMobile: (ctx) => ctx.permissions.showCustomerCompletionCode,
+    // Owner booking chrome. Assigned workers keep the booking panel in the
+    // scroll body so the owner+contact card can pin.
+    canPinMobile: (ctx) =>
+      ctx.permissions.isOwner && ctx.permissions.showOrderActions,
   },
 ]
 

@@ -27,20 +27,19 @@ export const JobInProgress: Story = {
       viewer: 'customer',
       order: storyTaskOrder({
         status: OrderStatus.Active,
-        completionVerificationCode: '482913',
+        bookedStart: '2030-06-10T09:00:00.000Z',
+        bookedEnd: null,
       }),
     }),
   ],
 }
 
-export const NoCompletionCodeYet: Story = {
+/** Booked time has passed: Done/Failed open for both parties. */
+export const ReadyToClose: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'customer',
-      order: storyTaskOrder({
-        status: OrderStatus.Active,
-        completionVerificationCode: null,
-      }),
+      order: storyTaskOrder({ status: OrderStatus.Active }),
     }),
   ],
 }

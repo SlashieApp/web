@@ -1,29 +1,51 @@
 'use client'
 
+import { Stack, Text } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 
-import { SafetyConfirmDialog } from '@ui'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
+import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
+import { RadioButton, SafetyConfirmDialog } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import bag from '../../i11n.json'
 
 /**
- * Opens the C2C + meet-safely confirm before `onAcceptQuote`. Used by
+ * Accept confirm: the owner picks one of the quote's proposed times (it
+ * becomes the booking), then sees the C2C + meet-safely notice. Used by
  * QuotesModule.
  */
 export function useAcceptQuoteSafety() {
-  const { onAcceptQuote, acceptingQuoteId } = useTaskDetail()
+  const { onAcceptQuote, acceptingQuoteId, task } = useTaskDetail()
+  const q = useI11n(bag).quotes
+  const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const [pendingQuoteId, setPendingQuoteId] = useState<string | null>(null)
+  const [slotId, setSlotId] = useState<string | null>(null)
 
-  const requestAccept = useCallback((quoteId: string) => {
-    setPendingQuoteId(quoteId)
-  }, [])
+  const slots =
+    task?.quotes.find((quote) => quote.id === pendingQuoteId)?.proposedSlots ??
+    []
+  const futureSlots = slots.filter((slot) => !isTimeSlotPast(slot))
+
+  const requestAccept = useCallback(
+    (quoteId: string) => {
+      const proposed =
+        task?.quotes.find((quote) => quote.id === quoteId)?.proposedSlots ?? []
+      const open = proposed.filter((slot) => !isTimeSlotPast(slot))
+      // One remaining time is still an explicit pick the owner confirms.
+      setSlotId(open.length === 1 ? open[0].id : null)
+      setPendingQuoteId(quoteId)
+    },
+    [task],
+  )
 
   const confirm = useCallback(() => {
-    if (!pendingQuoteId) return
+    if (!pendingQuoteId || !slotId) return
     const quoteId = pendingQuoteId
     setPendingQuoteId(null)
-    void onAcceptQuote(quoteId)
-  }, [onAcceptQuote, pendingQuoteId])
+    void onAcceptQuote(quoteId, slotId)
+  }, [onAcceptQuote, pendingQuoteId, slotId])
 
   const dialog = (
     <SafetyConfirmDialog
@@ -32,10 +54,41 @@ export function useAcceptQuoteSafety() {
         if (!open) setPendingQuoteId(null)
       }}
       onConfirm={confirm}
+      confirmDisabled={!slotId}
       confirmLoading={
         pendingQuoteId != null && acceptingQuoteId === pendingQuoteId
       }
-    />
+    >
+      <Stack gap={2}>
+        <Text fontWeight={700}>{q.pickSlot}</Text>
+        {futureSlots.length === 0 ? (
+          <Text fontSize="sm" color="status.danger.fg">
+            {q.noFutureSlots}
+          </Text>
+        ) : (
+          <>
+            <Stack gap={2} role="radiogroup" aria-label={q.pickSlot}>
+              {slots.map((slot) => {
+                const past = isTimeSlotPast(slot)
+                const label = formatTimeSlotLabel(slot, locale)
+                return (
+                  <RadioButton
+                    key={slot.id}
+                    checked={slotId === slot.id}
+                    disabled={past}
+                    label={past ? `${label} · ${q.pastSlot}` : label}
+                    onChange={() => setSlotId(slot.id)}
+                  />
+                )
+              })}
+            </Stack>
+            <Text fontSize="sm" color="text.muted">
+              {q.pickSlotHint}
+            </Text>
+          </>
+        )}
+      </Stack>
+    </SafetyConfirmDialog>
   )
 
   return { requestAccept, dialog }

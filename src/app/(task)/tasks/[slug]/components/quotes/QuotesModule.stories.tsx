@@ -30,16 +30,14 @@ const competitorA = storyTaskQuote({
   id: 'quote-a',
   workerUserId: 'worker-user-a',
   price: { amount: 95, currency: 'GBP' as never },
-  message:
-    'I can assemble your wardrobe carefully and quickly.\n\nAvailability: Available this week',
+  message: 'I can assemble your wardrobe carefully and quickly.',
 })
 
 const competitorB = storyTaskQuote({
   id: 'quote-b',
   workerUserId: 'worker-user-b',
   price: { amount: 85, currency: 'GBP' as never },
-  message:
-    'Happy to help with your build.\n\nAvailability: Available this week',
+  message: 'Happy to help with your build.',
   worker: {
     id: 'worker-user-b',
     profile: { name: 'Maria L.', avatarUrl: null },
@@ -51,7 +49,7 @@ const competitorC = storyTaskQuote({
   id: 'quote-c',
   workerUserId: 'worker-user-c',
   price: { amount: 110, currency: 'GBP' as never },
-  message: 'Experienced flat-pack specialist.\n\nAvailability: Next 3 days',
+  message: 'Experienced flat-pack specialist.',
   worker: {
     id: 'worker-user-c',
     profile: { name: 'Sam K.', avatarUrl: null },
@@ -63,8 +61,7 @@ const myPendingQuote = storyTaskQuote({
   id: 'quote-mine',
   workerUserId: STORY_WORKER_ID,
   price: { amount: 90, currency: 'GBP' as never },
-  message:
-    'I can assemble your wardrobe with care and attention.\n\nAvailability: Available this week',
+  message: 'I can assemble your wardrobe with care and attention.',
   status: QuoteStatus.Pending,
 })
 

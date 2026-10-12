@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { type ReactNode, useCallback, useState } from 'react'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
+import { useI11n } from '@/i18n/useI11n'
+import { validateTimeSlotDrafts } from '@/utils/timeSlots'
 import { StepFlowLayout } from '@ui'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
@@ -21,6 +23,8 @@ import { TaskQuoteProgressBar } from './layout/stepper/TaskQuoteProgressBar'
 import { TaskQuoteStepper } from './layout/stepper/TaskQuoteStepper'
 import { TaskQuoteTaskDetailPanel } from './ui/shared/TaskQuoteTaskDetailPanel'
 import { TaskQuoteStepContent } from './ui/steps/TaskQuoteStepContent'
+
+import bag from '../i11n.json'
 
 const MESSAGE_MAX = 250
 
@@ -44,10 +48,12 @@ export function TaskQuoteScreen({
   const {
     setQuoteAmountInput,
     quoteMessageInput,
+    quoteSlots,
     onSubmitQuote,
     quoting,
     quoteError,
   } = useTaskDetail()
+  const flowCopy = useI11n(bag)
 
   const [activeSubStep, setActiveSubStep] = useState<TaskQuoteSubStepId>(
     TASK_QUOTE_FIRST_SUB_STEP,
@@ -135,8 +141,26 @@ export function TaskQuoteScreen({
       return true
     }
 
+    if (activeSubStep === 'quote.availability') {
+      if (
+        quoteSlots.length === 0 ||
+        validateTimeSlotDrafts(quoteSlots).some((error) => error != null)
+      ) {
+        setFieldError(flowCopy.slotsInvalid)
+        return false
+      }
+      return true
+    }
+
     return true
-  }, [activeSubStep, poundsInput, quoteMessageInput, setQuoteAmountInput])
+  }, [
+    activeSubStep,
+    flowCopy.slotsInvalid,
+    poundsInput,
+    quoteMessageInput,
+    quoteSlots,
+    setQuoteAmountInput,
+  ])
 
   const continueFlow = useCallback(async () => {
     if (!validateCurrentStep()) return

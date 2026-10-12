@@ -109,9 +109,9 @@ describe('buildMyTasksHub', () => {
         }),
         order({
           taskId: 'done-new',
-          status: 'WORK_COMPLETED',
+          status: 'CANCELLED',
           customerUserId: ME,
-          workCompletedAt: '2026-09-20T12:00:00',
+          closedAt: '2026-09-20T12:00:00',
         }),
       ],
       posted: [
@@ -154,12 +154,12 @@ describe('buildMyTasksHub', () => {
         task({
           id: 'done-old',
           title: 'Done old',
-          status: 'COMPLETED',
+          status: 'AWARDED',
         }),
         task({
           id: 'done-new',
           title: 'Done new',
-          status: 'COMPLETED',
+          status: 'AWARDED',
         }),
       ],
       sentQuotes: [],
@@ -204,7 +204,7 @@ describe('buildMyTasksHub', () => {
         task({
           id: 'awarded',
           title: 'Awarded',
-          status: 'QUOTE_ACCEPTED',
+          status: 'AWARDED',
           quotes: [
             {
               id: 'w1',
@@ -237,7 +237,7 @@ describe('buildMyTasksHub', () => {
           task: task({
             id: 'active',
             title: 'My booking',
-            status: 'IN_PROGRESS',
+            status: 'AWARDED',
           }),
           quote: { id: 'mine', workerUserId: ME, status: 'ACCEPTED' },
         },
@@ -245,7 +245,7 @@ describe('buildMyTasksHub', () => {
           task: task({
             id: 'lost',
             title: 'Lost bid',
-            status: 'QUOTE_ACCEPTED',
+            status: 'AWARDED',
           }),
           quote: { id: 'lost', workerUserId: ME, status: 'DECLINED' },
         },
@@ -265,6 +265,59 @@ describe('buildMyTasksHub', () => {
       booked?.rows.find((row) => row.id === 'awarded')?.acceptedWorkerName,
     ).toBe('Alex')
     expect(completed?.rows.map((row) => row.id)).toEqual(['cancelled', 'lost'])
+  })
+
+  it('files cancelled bookings as Completed, keeps CONFLICT booked, and dates booked rows from the booking', () => {
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      orders: [
+        order({
+          taskId: 'cancelled-booking',
+          status: 'CANCELLED',
+          customerUserId: ME,
+          closedAt: '2026-09-21T12:00:00',
+        }),
+        order({
+          taskId: 'conflict',
+          status: 'CONFLICT',
+          customerUserId: ME,
+        }),
+        order({
+          taskId: 'booked',
+          status: 'ACTIVE',
+          customerUserId: ME,
+          bookedStart: new Date('2026-09-23T18:00:00').toISOString(),
+        }),
+      ],
+      posted: [
+        task({
+          id: 'cancelled-booking',
+          title: 'Cancelled',
+          status: 'AWARDED',
+        }),
+        task({ id: 'conflict', title: 'Conflict', status: 'AWARDED' }),
+        task({
+          id: 'booked',
+          title: 'Booked',
+          status: 'AWARDED',
+          datetime: { type: 'FLEXIBLE' },
+        }),
+      ],
+      sentQuotes: [],
+    })
+
+    const ids = (id: string) =>
+      sections.find((section) => section.id === id)?.rows.map((row) => row.id)
+    expect(ids('completed')).toEqual(['cancelled-booking'])
+    expect(ids('booked')).toEqual(
+      expect.arrayContaining(['conflict', 'booked']),
+    )
+    expect(
+      sections
+        .find((section) => section.id === 'booked')
+        ?.rows.find((row) => row.id === 'booked')?.timing.kind,
+    ).toBe('today')
   })
 
   it('files a COMPLETED order under Completed and leaves legacy CLOSED booked', () => {
@@ -289,12 +342,12 @@ describe('buildMyTasksHub', () => {
         task({
           id: 'done',
           title: 'Done order',
-          status: 'IN_PROGRESS',
+          status: 'AWARDED',
         }),
         task({
           id: 'legacy',
           title: 'Legacy closed',
-          status: 'IN_PROGRESS',
+          status: 'AWARDED',
         }),
       ],
       sentQuotes: [],

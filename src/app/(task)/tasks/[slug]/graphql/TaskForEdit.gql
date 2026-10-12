@@ -42,6 +42,11 @@ query TaskForEdit($id: ID!) {
         amount
       }
       message
+      proposedSlots {
+        id
+        start
+        end
+      }
       status
       createdAt
       worker {

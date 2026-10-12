@@ -40,6 +40,7 @@ export {
 export { DetailRow } from './DetailRow'
 export { Drawer, useDrawerClose, useInsideDrawer } from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
+export { emptyTimeSlotDraft, TimeSlotPicker } from './TimeSlotPicker'
 export {
   FEEDBACK_CATEGORY_VALUES,
   FEEDBACK_FORM_DEFAULTS,
@@ -107,6 +108,7 @@ export { SafetyConfirmDialog, SafetyNotice } from './SafetyNotice'
 export { ScheduleChip } from './ScheduleChip'
 export { Select } from './Select'
 export { Slider } from './Slider'
+export { SlideToConfirm } from './SlideToConfirm'
 export { SpotIllustration } from './SpotIllustration/SpotIllustration'
 export {
   StepFlowActions,
@@ -206,6 +208,7 @@ export type {
 export type { ScheduleChipProps } from './ScheduleChip'
 export type { SelectProps } from './Select'
 export type { SliderProps, UiSliderTone } from './Slider'
+export type { SlideToConfirmProps } from './SlideToConfirm'
 export type {
   SpotIllustrationProps,
   SpotIllustrationVariant,
@@ -221,6 +224,7 @@ export type { StickyHeaderProps } from './StickyHeader'
 export type { TabItem, TabPanelProps, TabsProps } from './Tabs'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps, ThumbnailSize } from './Thumbnail'
+export type { TimeSlotPickerProps } from './TimeSlotPicker'
 export type {
   UiBadgeProps,
   UiBadgeShape,

@@ -3,7 +3,6 @@
 query OrderDetail($id: ID!) {
   order(id: $id) {
     ...OrderFields
-    completionVerificationCode
     task {
       id
       quotes {

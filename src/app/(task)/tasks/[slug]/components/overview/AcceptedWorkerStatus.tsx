@@ -7,7 +7,7 @@ import bag from '../../i11n.json'
 
 import {
   formatOrderAgreedPrice,
-  orderSnapshotDatetime,
+  orderBookedDatetime,
 } from '@/utils/orderHelpers'
 import {
   countdownToExactSchedule,
@@ -19,15 +19,15 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import { formatTaskBudgetPaymentMethodLabel } from '../../helpers/taskDetailUtils'
 import { AgreementTotal } from './AgreementTotal'
-import { WorkerOrderVerificationPanel } from './WorkerOrderVerificationPanel'
+import { OrderProgressPanel } from './OrderProgressPanel'
 
 function mapsDirectionsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
 }
 
 /**
- * Worker's booking invoice for an active order: agreed total, where to be,
- * and complete-job as the secondary action. Contact stays the page primary CTA.
+ * Worker's booking invoice: agreed total, when and where to be, and the
+ * booking's progress. Contact (or slide-to-Done) stays the page primary CTA.
  */
 export function AcceptedWorkerStatus() {
   const { task, myOrder, permissions } = useTaskDetail()
@@ -41,7 +41,7 @@ export function AcceptedWorkerStatus() {
     snapshot.location?.address?.trim() ||
     snapshot.location?.name?.trim() ||
     b.addressFallback
-  const datetime = orderSnapshotDatetime(myOrder)
+  const datetime = orderBookedDatetime(myOrder)
   const scheduleLabel = formatTaskScheduleLabel(datetime)
   const countdown = countdownToExactSchedule(datetime)
   const lat = snapshot.location?.lat
@@ -106,7 +106,7 @@ export function AcceptedWorkerStatus() {
       <Text fontSize="sm" color="text.muted" lineHeight="short">
         {b.paymentNote}
       </Text>
-      <WorkerOrderVerificationPanel embedded />
+      <OrderProgressPanel />
     </Card>
   )
 }

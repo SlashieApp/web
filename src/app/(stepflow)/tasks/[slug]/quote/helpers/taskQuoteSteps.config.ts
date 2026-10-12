@@ -26,7 +26,7 @@ export const TASK_QUOTE_MAJOR_STEPS: TaskQuoteMajorStepConfig[] = [
     subSteps: [
       { id: 'quote.price', label: 'Your price' },
       { id: 'quote.message', label: 'Message' },
-      { id: 'quote.availability', label: 'Availability' },
+      { id: 'quote.availability', label: 'Times' },
       { id: 'quote.photos', label: 'Photos', optional: true },
     ],
   },
@@ -59,7 +59,8 @@ export const TASK_QUOTE_STEP_COPY: Record<
   },
   'quote.availability': {
     title: 'When can you do the work?',
-    description: 'Let the customer know when you are available.',
+    description:
+      'Offer one or two exact times. The customer picks one when they accept your quote.',
   },
   'quote.photos': {
     title: 'Add photos',

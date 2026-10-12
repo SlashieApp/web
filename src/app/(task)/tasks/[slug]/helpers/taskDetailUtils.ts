@@ -221,22 +221,6 @@ export function formatAvgResponseHours(hours: number): string {
   return `${Math.max(1, Math.round(hours / 24))}d`
 }
 
-/**
- * Split a quote message into its body and the "Availability: X" line the
- * quote flow appends — the availability renders as a chip on quote cards.
- */
-export function splitQuoteMessageAvailability(
-  message: string | null | undefined,
-): { body: string | null; availability: string | null } {
-  const trimmed = message?.trim()
-  if (!trimmed) return { body: null, availability: null }
-  const match = trimmed.match(/(?:^|\n)\s*Availability:\s*(.+?)\s*$/i)
-  if (!match) return { body: trimmed, availability: null }
-  const availability = match[1]?.trim() || null
-  const body = trimmed.replace(match[0], '').trim() || null
-  return { body, availability }
-}
-
 /** Relative “Responded … ago” line for quote cards (from `quote.createdAt`). */
 export function formatQuoteRespondedAgo(
   iso: string | null | undefined,

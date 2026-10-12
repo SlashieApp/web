@@ -1,0 +1,38 @@
+{
+  "en": {
+    "slotHeading": "Time {n}",
+    "startTime": "Start time",
+    "duration": "How long",
+    "noSetEnd": "No set end",
+    "durationMinutes": "{count} min",
+    "durationHour": "1 hour",
+    "durationHours": "{count} hours",
+    "addSlot": "Add another time",
+    "removeSlot": "Remove",
+    "errors": {
+      "incomplete": "Pick a day and a start time.",
+      "past": "Pick a time in the future.",
+      "too_far": "Pick a time within the next year.",
+      "duplicate": "Each time needs a different start.",
+      "duration": "Pick a length between 15 minutes and 24 hours."
+    }
+  },
+  "zh_hk": {
+    "slotHeading": "時間 {n}",
+    "startTime": "開始時間",
+    "duration": "所需時間",
+    "noSetEnd": "不設結束時間",
+    "durationMinutes": "{count} 分鐘",
+    "durationHour": "1 小時",
+    "durationHours": "{count} 小時",
+    "addSlot": "加入另一個時間",
+    "removeSlot": "移除",
+    "errors": {
+      "incomplete": "請選擇日期和開始時間。",
+      "past": "請選擇未來的時間。",
+      "too_far": "請選擇一年內的時間。",
+      "duplicate": "每個時間的開始時間都要不同。",
+      "duration": "請選擇 15 分鐘至 24 小時之間的長度。"
+    }
+  }
+}

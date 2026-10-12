@@ -27,6 +27,7 @@ function permissions(
     isJobCompleted: false,
     isOrderWorker: false,
     isOrderActive: false,
+    isOrderConflict: false,
     hasWorkerProfile: false,
     atCap: false,
     canSubmitQuote: false,
@@ -37,11 +38,11 @@ function permissions(
     showOwnerQuoteList: false,
     showAcceptDecline: false,
     showWorkerJobBanner: false,
-    showCompleteWithCode: false,
-    showCustomerCompletionCode: false,
+    showOrderActions: false,
     showFullAddress: false,
     canCancelTask: false,
     canEditTask: false,
+    canRepostTask: false,
     ...overrides,
   }
 }
@@ -228,7 +229,7 @@ describe('resolveTaskDetailSections', () => {
         isOrderActive: true,
         hasWorkerProfile: true,
         showWorkerJobBanner: true,
-        showCompleteWithCode: true,
+        showOrderActions: true,
         showFullAddress: true,
       }),
     })
@@ -255,7 +256,7 @@ describe('resolveTaskDetailSections', () => {
         isAwarded: true,
         taskStatus: 'AWARDED',
         isOrderActive: true,
-        showCustomerCompletionCode: true,
+        showOrderActions: true,
         showFullAddress: true,
         showOwnerQuoteList: true,
       }),
@@ -294,7 +295,7 @@ describe('resolveTaskDetailSections', () => {
         permissions: permissions({
           isOrderWorker: true,
           isOrderActive: true,
-          showCompleteWithCode: true,
+          showOrderActions: true,
           showWorkerJobBanner: true,
         }),
       },

@@ -126,11 +126,29 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.isOrderWorker).toBe(true)
     expect(permissions.isOrderActive).toBe(true)
     expect(permissions.showWorkerJobBanner).toBe(true)
-    expect(permissions.showCompleteWithCode).toBe(true)
+    expect(permissions.showOrderActions).toBe(true)
     expect(permissions.showFullAddress).toBe(true)
   })
 
-  it('owner with ACTIVE order sees completion code', () => {
+  it('keeps booking tools for reschedule, cancel requests, and CONFLICT', () => {
+    for (const status of [
+      OrderStatus.Rescheduling,
+      OrderStatus.CancelRequested,
+      OrderStatus.Conflict,
+    ]) {
+      const permissions = getTaskDetailPermissions({
+        task: baseTask({ status: TaskStatus.Awarded }),
+        myOrder: baseOrder({ status }),
+        me: workerMe(),
+        myQuote: null,
+        isAuthenticated: true,
+      })
+      expect(permissions.showOrderActions).toBe(true)
+      expect(permissions.isOrderConflict).toBe(status === OrderStatus.Conflict)
+    }
+  })
+
+  it('owner with ACTIVE order sees the booking', () => {
     const permissions = getTaskDetailPermissions({
       task: baseTask({ status: TaskStatus.Awarded }),
       myOrder: baseOrder(),
@@ -139,8 +157,9 @@ describe('getTaskDetailPermissions', () => {
       isAuthenticated: true,
     })
 
-    expect(permissions.showCustomerCompletionCode).toBe(true)
+    expect(permissions.showOrderActions).toBe(true)
     expect(permissions.showFullAddress).toBe(true)
+    expect(permissions.canRepostTask).toBe(false)
   })
 
   it('finished job disables open-phase actions', () => {
@@ -155,7 +174,21 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.isJobCompleted).toBe(true)
     expect(permissions.showAcceptDecline).toBe(false)
     expect(permissions.canCancelTask).toBe(false)
-    expect(permissions.showCustomerCompletionCode).toBe(false)
+    expect(permissions.showOrderActions).toBe(false)
+    expect(permissions.canRepostTask).toBe(true)
+  })
+
+  it('owner can repost after a cancelled booking', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Awarded }),
+      myOrder: baseOrder({ status: OrderStatus.Cancelled }),
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(permissions.showOrderActions).toBe(false)
+    expect(permissions.canRepostTask).toBe(true)
   })
 
   it('COMPLETED order shows completed chrome and hides booking tools', () => {
@@ -173,8 +206,8 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.isJobCompleted).toBe(true)
     expect(permissions.isAwarded).toBe(true)
     expect(permissions.showWorkerJobBanner).toBe(false)
-    expect(permissions.showCompleteWithCode).toBe(false)
-    expect(permissions.showCustomerCompletionCode).toBe(false)
+    expect(permissions.showOrderActions).toBe(false)
+    expect(permissions.canRepostTask).toBe(false)
   })
 
   it('does not treat a legacy CLOSED order as completed', () => {

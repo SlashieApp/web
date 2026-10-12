@@ -8,6 +8,11 @@ mutation AddQuote($input: AddQuoteInput!) {
       amount
     }
     message
+    proposedSlots {
+      id
+      start
+      end
+    }
     status
     createdAt
     worker {

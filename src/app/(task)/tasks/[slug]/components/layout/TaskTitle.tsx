@@ -63,7 +63,6 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
           taskDetailCompletedAt({
             taskStatus: task.status,
             order: myOrder,
-            timeline: task.timeline,
           }),
           locale,
         )

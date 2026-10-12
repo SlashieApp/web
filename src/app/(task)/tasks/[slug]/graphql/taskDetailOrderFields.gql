@@ -1,0 +1,59 @@
+# Order selection shared by the task-detail queries and order mutations. KEEP IN
+# SYNC with OrderFields (src/app/(dashboard)/earnings/graphql/orderFields.gql):
+# divergent selections on the same normalized Order cause cache merge gaps.
+fragment TaskDetailOrderFields on Order {
+  id
+  taskId
+  quoteId
+  customerUserId
+  workerUserId
+  status
+  agreedPrice {
+    amount
+    currency
+  }
+  snapshot {
+    title
+    description
+    category
+    location {
+      lat
+      lng
+      name
+      address
+    }
+    datetime {
+      date
+      time
+      type
+    }
+    contactMethod
+    quoteMessage
+    budgetAmount
+    paymentMethod
+  }
+  bookedStart
+  bookedEnd
+  pendingRequest {
+    kind
+    requestedByUserId
+    requestedAt
+    proposedSlots {
+      id
+      start
+      end
+    }
+  }
+  myCloseAction {
+    kind
+    at
+    failedReason
+  }
+  counterpartyCloseAction {
+    kind
+    at
+  }
+  autoDoneAt
+  createdAt
+  closedAt
+}

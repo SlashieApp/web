@@ -16,6 +16,7 @@ function permissions(
     isJobCompleted: false,
     isOrderWorker: false,
     isOrderActive: false,
+    isOrderConflict: false,
     hasWorkerProfile: false,
     atCap: false,
     canSubmitQuote: false,
@@ -26,11 +27,11 @@ function permissions(
     showOwnerQuoteList: false,
     showAcceptDecline: false,
     showWorkerJobBanner: false,
-    showCompleteWithCode: false,
-    showCustomerCompletionCode: false,
+    showOrderActions: false,
     showFullAddress: false,
     canCancelTask: false,
     canEditTask: false,
+    canRepostTask: false,
     ...overrides,
   }
 }
@@ -87,7 +88,7 @@ describe('getTaskDetailPrimaryCta', () => {
     ).toBe('preview')
   })
 
-  it('assigned worker on an active order gets complete', () => {
+  it('assigned worker on a live order gets workerBooked', () => {
     expect(
       getTaskDetailPrimaryCta({
         permissions: permissions({
@@ -97,15 +98,15 @@ describe('getTaskDetailPrimaryCta', () => {
           isOrderWorker: true,
           isOrderActive: true,
           showWorkerJobBanner: true,
-          showCompleteWithCode: true,
+          showOrderActions: true,
           showFullAddress: true,
         }),
         quoteCount: 1,
       }),
-    ).toBe('complete')
+    ).toBe('workerBooked')
   })
 
-  it('customer owner on an active order gets confirm', () => {
+  it('customer owner on a live order gets ownerBooked', () => {
     expect(
       getTaskDetailPrimaryCta({
         permissions: permissions({
@@ -114,12 +115,12 @@ describe('getTaskDetailPrimaryCta', () => {
           isAwarded: true,
           taskStatus: 'AWARDED',
           isOrderActive: true,
-          showCustomerCompletionCode: true,
+          showOrderActions: true,
           showFullAddress: true,
         }),
         quoteCount: 1,
       }),
-    ).toBe('confirm')
+    ).toBe('ownerBooked')
   })
 
   it('worker whose quote awaits review gets edit-quote', () => {

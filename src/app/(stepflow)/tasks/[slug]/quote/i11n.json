@@ -11,7 +11,9 @@
     "submit": "Submit quote",
     "loading": "Loading quote form...",
     "notFoundTitle": "Task not found",
-    "notFoundDescription": "This task may have been removed or is no longer available for quotes."
+    "notFoundDescription": "This task may have been removed or is no longer available for quotes.",
+    "slotsInvalid": "Add at least one time with a day and a start time in the future.",
+    "proposedTimes": "Proposed times"
   },
   "zh_hk": {
     "metadata": {
@@ -25,6 +27,8 @@
     "submit": "提交報價",
     "loading": "正在載入報價表格...",
     "notFoundTitle": "找不到任務",
-    "notFoundDescription": "此任務可能已移除，或已不再接受報價。"
+    "notFoundDescription": "此任務可能已移除，或已不再接受報價。",
+    "slotsInvalid": "請最少加入一個時間，包括日期和未來的開始時間。",
+    "proposedTimes": "建議時間"
   }
 }

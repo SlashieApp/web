@@ -16,17 +16,18 @@ import { LuCheck, LuLock, LuMessagesSquare, LuX } from 'react-icons/lu'
 
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
+import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
+import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
 import { Button, Link, MESSAGES_HREF } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
   formatPoundsFromPence,
-  splitQuoteMessageAvailability,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
 import bag from '../../i11n.json'
@@ -273,12 +274,27 @@ function workerNameInitials(name: string, workerUserId: string): string {
   return initials || workerQuoteAvatarLabel(workerUserId)
 }
 
+/** The quote's proposed times on one line; passed times are marked. */
+function proposedTimesLabel(
+  quote: TaskQuote,
+  quotesCopy: QuotesCopy,
+  locale: string,
+): string | null {
+  if (quote.proposedSlots.length === 0) return null
+  return quote.proposedSlots
+    .map((slot) => {
+      const label = formatTimeSlotLabel(slot, locale)
+      return isTimeSlotPast(slot) ? `${label} (${quotesCopy.pastSlot})` : label
+    })
+    .join(' · ')
+}
+
 function quoteCardBaseProps(
   quote: TaskQuote,
   workerFallback: string,
   quotesCopy: QuotesCopy,
+  locale: string,
 ) {
-  const { body, availability } = splitQuoteMessageAvailability(quote.message)
   const pence = priceToPence(quote.price)
   const name = quote.worker?.profile?.name?.trim() || workerFallback
   return {
@@ -288,8 +304,8 @@ function quoteCardBaseProps(
     priceLabel: pence != null ? formatPoundsFromPence(pence) : '—',
     priceKindLabel: quotesCopy.card.fixedPrice,
     showPrice: pence != null,
-    message: body,
-    availabilityLabel: availability,
+    message: quote.message?.trim() || null,
+    availabilityLabel: proposedTimesLabel(quote, quotesCopy, locale),
     showVerified: Boolean(quote.worker?.worker?.isVerified),
     respondedLabel:
       formatRespondedAgo(quote.createdAt, quotesCopy) ?? undefined,
@@ -305,7 +321,8 @@ function AcceptedPrimaryCard({
   taskId: string
 }) {
   const { quotes: q, fallbackWorker } = useI11n(bag)
-  const base = quoteCardBaseProps(quote, fallbackWorker, q)
+  const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
+  const base = quoteCardBaseProps(quote, fallbackWorker, q, locale)
   const profileUserId = quote.worker?.id
   const profileHref = profileUserId
     ? workerProfilePath(profileUserId, taskId)
@@ -407,6 +424,7 @@ export type QuotesModuleProps = {
  */
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const { quotes: q, fallbackWorker } = useI11n(bag)
+  const intlLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const {
     task,
     permissions,
@@ -451,7 +469,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const quoteFlowHref = `/tasks/${task.id}/quote`
   const nextHref = encodeURIComponent(quoteFlowHref)
   const cardProps = (quote: TaskQuote) =>
-    quoteCardBaseProps(quote, fallbackWorker, q)
+    quoteCardBaseProps(quote, fallbackWorker, q, intlLocale)
 
   const pill =
     state === 'W8'

@@ -54,7 +54,14 @@ export function selectStatusHeaderCopy(
   }
 
   if (p.isAwarded) {
-    if (p.showCustomerCompletionCode) {
+    if (p.isOrderConflict) {
+      return {
+        pill: 'AWARDED',
+        headline: copy.conflictHeadline,
+        subtext: copy.conflictSubtext,
+      }
+    }
+    if (p.isOwner && p.showOrderActions) {
       return {
         pill: 'AWARDED',
         headline: copy.awardedCustomerHeadline,

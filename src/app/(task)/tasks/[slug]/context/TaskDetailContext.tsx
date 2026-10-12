@@ -1,10 +1,11 @@
 'use client'
 
-import type { MeQuery } from '@codegen/schema'
+import type { MeQuery, OrderFailedReason } from '@codegen/schema'
 import { createContext, useContext } from 'react'
 
 import type { C2CReview } from '@/content/reviews/reviewModel'
-import type { OrderItem } from '@/utils/orderHelpers'
+import type { OrderCloseView, OrderItem } from '@/utils/orderHelpers'
+import type { TimeSlotDraft } from '@/utils/timeSlots'
 
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import type { TaskDetailPermissions } from '../helpers/getTaskDetailPermissions'
@@ -26,6 +27,8 @@ export type TaskDetailData = {
   error: Error | null
   refetch: () => void
   myOrder: OrderItem | null
+  /** Done/Failed state of `myOrder`, re-evaluated at the booked start. */
+  orderClose: OrderCloseView | null
   orderLoading: boolean
   /** Client Task.gql data (viewer fields + quotes) is loading. */
   viewerLoading: boolean
@@ -51,29 +54,44 @@ export type TaskDetailData = {
 export type TaskDetailQuoteForm = {
   quoteAmountInput: string
   quoteMessageInput: string
-  quoteAvailabilityInput: string
+  /** 1–2 proposed times (local wall time) sent with the quote. */
+  quoteSlots: TimeSlotDraft[]
   setQuoteAmountInput: (v: string) => void
   setQuoteMessageInput: (v: string) => void
-  setQuoteAvailabilityInput: (v: string) => void
+  setQuoteSlots: (v: TimeSlotDraft[]) => void
   quoteError: string | null
   quoteSuccess: string | null
 }
 
+/** Mutations on the viewer's order (mutual close and booking requests). */
+export type OrderAction =
+  | { type: 'markDone' }
+  | { type: 'markFailed'; reason: OrderFailedReason }
+  | { type: 'requestReschedule'; slots: TimeSlotDraft[] }
+  | { type: 'confirmReschedule'; slotId: string }
+  | { type: 'declineReschedule' }
+  | { type: 'cancelRescheduleRequest' }
+  | { type: 'requestCancellation' }
+  | { type: 'acceptCancellation' }
+  | { type: 'declineCancellation' }
+  | { type: 'withdrawCancellation' }
+
 export type TaskDetailActions = {
   acceptError: string | null
   cancelError: string | null
+  /** Last failed order action, shown in the booking panel. */
   jobActionError: string | null
-  verificationCode: string
-  setVerificationCode: (v: string) => void
   acceptingQuoteId: string | null
   decliningQuoteId: string | null
   quoting: boolean
   cancelingTask: boolean
-  completingOrderWithVerification: boolean
+  /** The order action in flight, if any. */
+  orderActionPending: OrderAction['type'] | null
   onSubmitQuote: () => Promise<boolean>
-  onAcceptQuote: (quoteId: string) => Promise<void>
+  onAcceptQuote: (quoteId: string, selectedSlotId: string) => Promise<void>
   onDeclineQuote: (quoteId: string) => Promise<void>
-  onCompleteOrderWithVerification: () => Promise<void>
+  /** Resolves true when the order action succeeded. */
+  runOrderAction: (action: OrderAction) => Promise<boolean>
   onCancelTask: () => Promise<void>
   /** Withdraw the viewer's pending quote. Resolves true once withdrawn. */
   onWithdrawQuote: () => Promise<boolean>

@@ -3,6 +3,15 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
+import {
+  formatTimeSlotLabel,
+  timeSlotDraftStart,
+  timeSlotInputsFromDrafts,
+} from '@/utils/timeSlots'
+
+import bag from '../../../i11n.json'
 
 type TaskQuoteReviewStepProps = {
   photoUrls: string[]
@@ -19,8 +28,19 @@ function formatReviewPrice(pence: number): string {
 }
 
 export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
-  const { quoteAmountInput, quoteMessageInput, quoteAvailabilityInput } =
-    useTaskDetail()
+  const { quoteAmountInput, quoteMessageInput, quoteSlots } = useTaskDetail()
+  const copy = useI11n(bag)
+  const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
+  const times = quoteSlots.flatMap((draft) => {
+    const start = timeSlotDraftStart(draft)
+    if (!start) return []
+    const [input] = timeSlotInputsFromDrafts([draft])
+    const end =
+      input?.durationMinutes != null
+        ? new Date(start.getTime() + input.durationMinutes * 60_000)
+        : null
+    return [formatTimeSlotLabel({ start, end }, locale)]
+  })
 
   const pence = Number(quoteAmountInput) || 0
   const reviewPriceLabel = formatReviewPrice(pence)
@@ -34,12 +54,20 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
         <Text fontSize="md" color="text.link">
           {reviewPriceLabel}
         </Text>
-        {quoteAvailabilityInput.trim() ? (
-          <Text fontSize="sm" color="text.muted">
-            Availability: {quoteAvailabilityInput.trim()}
-          </Text>
-        ) : null}
       </Stack>
+
+      {times.length > 0 ? (
+        <Stack gap={2}>
+          <Text fontWeight={700} fontSize="sm" color="text.link">
+            {copy.proposedTimes}
+          </Text>
+          {times.map((label) => (
+            <Text key={label} fontSize="sm" color="text.link">
+              {label}
+            </Text>
+          ))}
+        </Stack>
+      ) : null}
 
       <Stack gap={2}>
         <Text fontWeight={700} fontSize="sm" color="text.link">

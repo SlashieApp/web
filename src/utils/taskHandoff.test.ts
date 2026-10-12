@@ -5,6 +5,7 @@ import {
   buildCreateTaskHandoffPath,
   buildRegisterHandoffPath,
   createTaskHrefWithSearchCentre,
+  repostTaskHref,
 } from './taskHandoff'
 
 describe('taskHandoff', () => {
@@ -54,5 +55,9 @@ describe('taskHandoff', () => {
         lng: 0,
       }),
     ).toBe('/tasks/create')
+  })
+
+  it('builds the repost link', () => {
+    expect(repostTaskHref('t 1')).toBe('/tasks/create?repost=t%201')
   })
 })

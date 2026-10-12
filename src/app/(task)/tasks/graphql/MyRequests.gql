@@ -39,6 +39,11 @@ query MyRequests($filter: TaskFilter, $sort: TaskSort) {
           amount
         }
         message
+        proposedSlots {
+          id
+          start
+          end
+        }
         status
         createdAt
         worker {

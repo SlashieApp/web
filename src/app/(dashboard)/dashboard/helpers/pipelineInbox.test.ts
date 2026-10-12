@@ -1,4 +1,4 @@
-import { OrderStatus } from '@codegen/schema'
+import { OrderCloseKind, OrderRequestKind, OrderStatus } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -17,6 +17,9 @@ import {
 
 const CUSTOMER_ID = 'customer-story-1'
 const WORKER_ID = 'worker-story-1'
+/** storyOrder books 2026-06-10 14:00 UTC. */
+const BEFORE_START = new Date('2026-06-09T12:00:00.000Z')
+const AFTER_START = new Date('2026-06-10T15:00:00.000Z')
 
 function quoteItem(
   taskId: string,
@@ -88,7 +91,7 @@ describe('buildPostedByMeRows', () => {
     })
   })
 
-  it('asks the customer to contact offline on an active booking', () => {
+  it('asks the customer to contact offline before the booked time', () => {
     const rows = buildPostedByMeRows(
       [storyTask({ id: 't4', title: 'Mount TV', status: 'AWARDED' })],
       [
@@ -100,34 +103,65 @@ describe('buildPostedByMeRows', () => {
         }),
       ],
       CUSTOMER_ID,
+      undefined,
+      BEFORE_START,
     )
 
     expect(rows[0]).toMatchObject({
       actionKind: 'contactOffline',
       actionHref: '/tasks/t4#task-order',
-      needsAttention: true,
-      statusLabel: 'In progress',
+      needsAttention: false,
     })
   })
 
-  it('asks the customer to mark done after the worker completes', () => {
+  it('asks the customer to mark Done once the booked time starts', () => {
     const rows = buildPostedByMeRows(
-      [storyTask({ id: 't5', title: 'Garden tidy' })],
+      [storyTask({ id: 't5', title: 'Garden tidy', status: 'AWARDED' })],
       [
         storyOrder({
           id: 'o5',
           taskId: 't5',
           customerUserId: CUSTOMER_ID,
-          status: OrderStatus.WorkCompleted,
+          status: OrderStatus.Active,
         }),
       ],
       CUSTOMER_ID,
+      undefined,
+      AFTER_START,
     )
 
     expect(rows[0]).toMatchObject({
       actionKind: 'markDone',
       needsAttention: true,
-      statusLabel: 'Awaiting your confirm',
+    })
+  })
+
+  it("asks the customer to respond to the worker's reschedule request", () => {
+    const rows = buildPostedByMeRows(
+      [storyTask({ id: 't6', title: 'Fix gate', status: 'AWARDED' })],
+      [
+        storyOrder({
+          id: 'o6',
+          taskId: 't6',
+          customerUserId: CUSTOMER_ID,
+          status: OrderStatus.Rescheduling,
+          pendingRequest: {
+            kind: OrderRequestKind.Reschedule,
+            requestedByUserId: WORKER_ID,
+            requestedAt: '2026-06-08T10:00:00.000Z',
+            proposedSlots: [],
+          },
+        }),
+      ],
+      CUSTOMER_ID,
+      undefined,
+      BEFORE_START,
+    )
+
+    expect(rows[0]).toMatchObject({
+      actionKind: 'respond',
+      needsAttention: true,
+      statusLabel: 'Reschedule requested',
     })
   })
 
@@ -198,7 +232,7 @@ describe('buildWorkImOnRows', () => {
     })
   })
 
-  it('asks the worker to mark done on an active job', () => {
+  it('asks the worker to mark Done once the booked time starts', () => {
     const item = quoteItem('tw2', 'IKEA desk', 'ACCEPTED')
     const rows = buildWorkImOnRows(
       [item],
@@ -212,6 +246,7 @@ describe('buildWorkImOnRows', () => {
         }),
       ],
       WORKER_ID,
+      AFTER_START,
     )
 
     expect(rows[0]).toMatchObject({
@@ -222,7 +257,7 @@ describe('buildWorkImOnRows', () => {
     })
   })
 
-  it('asks the worker to contact offline after work is completed', () => {
+  it('stops asking once the worker has marked Done', () => {
     const item = quoteItem('tw3', 'Paint hallway', 'ACCEPTED')
     const rows = buildWorkImOnRows(
       [item],
@@ -232,16 +267,44 @@ describe('buildWorkImOnRows', () => {
           taskId: 'tw3',
           quoteId: item.quote.id,
           workerUserId: WORKER_ID,
-          status: OrderStatus.WorkCompleted,
+          status: OrderStatus.Active,
+          myCloseAction: {
+            kind: OrderCloseKind.Done,
+            at: '2026-06-10T16:00:00.000Z',
+          },
         }),
       ],
       WORKER_ID,
+      AFTER_START,
     )
 
     expect(rows[0]).toMatchObject({
       actionKind: 'contactOffline',
-      statusLabel: 'Done',
+      needsAttention: false,
+    })
+  })
+
+  it('flags a CONFLICT booking for attention', () => {
+    const item = quoteItem('tw4', 'Fence repair', 'ACCEPTED')
+    const rows = buildWorkImOnRows(
+      [item],
+      [
+        storyOrder({
+          id: 'ow4',
+          taskId: 'tw4',
+          quoteId: item.quote.id,
+          workerUserId: WORKER_ID,
+          status: OrderStatus.Conflict,
+        }),
+      ],
+      WORKER_ID,
+      AFTER_START,
+    )
+
+    expect(rows[0]).toMatchObject({
+      actionKind: 'view',
       needsAttention: true,
+      statusLabel: 'Needs resolving',
     })
   })
 
@@ -261,6 +324,7 @@ describe('buildWorkImOnRows', () => {
         }),
       ],
       WORKER_ID,
+      AFTER_START,
     )
 
     expect(rows).toHaveLength(1)

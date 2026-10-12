@@ -23,14 +23,19 @@ function toneForType(type: string): ActivityTone {
       return 'blue'
     case NotificationType.QuoteDeclined:
       return 'red'
-    case NotificationType.TaskCompleted:
-      return 'purple'
-    case NotificationType.TaskConfirmed:
-      return 'mint'
-    case NotificationType.OrderWorkCompleted:
+    case NotificationType.OrderMarkedDone:
+    case NotificationType.RescheduleRequested:
+    case NotificationType.CancellationRequested:
       return 'purple'
     case NotificationType.OrderCompleted:
+    case NotificationType.RescheduleConfirmed:
       return 'mint'
+    case NotificationType.OrderMarkedFailed:
+    case NotificationType.OrderConflict:
+    case NotificationType.OrderCancelled:
+    case NotificationType.RescheduleDeclined:
+    case NotificationType.CancellationDeclined:
+      return 'red'
     default:
       return 'green'
   }

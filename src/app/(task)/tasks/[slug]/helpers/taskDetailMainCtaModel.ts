@@ -1,4 +1,5 @@
 import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
+import type { OrderCloseView } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import {
   type TaskDatetimeLike,
@@ -27,9 +28,12 @@ export type TaskDetailMainCtaContent = {
 /** Completed-job primary action. Review until this viewer submits, then the receipt. */
 export type TaskDetailCompletedIntent = 'review' | 'receipt'
 
-/** Button-only (`preview`) or text plus button (`quoted`). */
+/**
+ * Button-only (`preview`), text plus button (`quoted`), or the mutual-close
+ * control (`close`: slide Done plus "something went wrong").
+ */
 export type TaskDetailMainCtaModel = {
-  presentation: 'preview' | 'quoted'
+  presentation: 'preview' | 'quoted' | 'close'
   buttonLabel: string
   href?: string
   scrollTo?: { hash: string; scrollId: string }
@@ -51,12 +55,10 @@ export type TaskDetailMainCtaCopy = {
   askingPrice: string
   awaitingReview: string
   budget: string
-  confirm: string
-  complete: string
   customerTitle: string
   workerTitle: string
-  completionCode: string
-  enterCodeCta: string
+  closeEyebrow: string
+  slideDone: string
   owner: string
   contactTask: string
   emailCustomer: string
@@ -64,7 +66,6 @@ export type TaskDetailMainCtaCopy = {
   ownerFallback: string
   beOnSite: string
   flexibleWhen: string
-  markCompleted: string
   workerEyebrow: string
   contactWorker: string
   yourWorker: string
@@ -184,8 +185,10 @@ export function buildTaskDetailMainCta(input: {
   myQuote: TaskDetailRecord['quotes'][number] | null
   permissions: TaskDetailPermissions
   copy: TaskDetailMainCtaCopy
-  /** Order snapshot schedule. Flexible and future times stay "be on site". */
+  /** Booked start as an exact schedule (see `orderBookedDatetime`). */
   schedule?: TaskDatetimeLike | null
+  /** Done/Failed state; the close control shows once the viewer can act. */
+  close?: OrderCloseView | null
   now?: Date
   /** Accepted quote behind the live or closed order. */
   acceptedQuoteId?: string | null
@@ -202,6 +205,7 @@ export function buildTaskDetailMainCta(input: {
     permissions,
     copy,
     schedule,
+    close,
     acceptedQuoteId,
     settled,
   } = input
@@ -270,7 +274,21 @@ export function buildTaskDetailMainCta(input: {
     )
   }
 
-  if (kind === 'confirm') {
+  const booked = kind === 'workerBooked' || kind === 'ownerBooked'
+  if (booked && close?.canClose && !close.mine) {
+    return {
+      presentation: 'close',
+      buttonLabel: copy.slideDone,
+      content: {
+        eyebrow: copy.closeEyebrow,
+        value: onSiteWhen(schedule, copy),
+      },
+      hideOverviewCards:
+        kind === 'workerBooked' ? ['pricing', 'owner'] : ['pricing'],
+    }
+  }
+
+  if (kind === 'ownerBooked') {
     const party = workerParty(task, copy, acceptedQuoteId)
     return quoted(
       copy.contactWorker,
@@ -280,24 +298,13 @@ export function buildTaskDetailMainCta(input: {
     )
   }
 
-  if (kind === 'complete') {
+  if (kind === 'workerBooked') {
     const contact = ownerContact(task, copy)
     return quoted(
       contact.label,
       { eyebrow: copy.beOnSite, value: onSiteWhen(schedule, copy) },
       { href: contact.href },
       ['pricing', 'owner'],
-    )
-  }
-
-  if (permissions.isOrderWorker && permissions.isOrderActive) {
-    const contact = ownerContact(task, copy)
-    const name = task.poster?.profile?.name?.trim() || copy.ownerFallback
-    return quoted(
-      contact.label,
-      { eyebrow: copy.owner, value: name },
-      { href: contact.href },
-      ['owner'],
     )
   }
 

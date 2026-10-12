@@ -5,7 +5,11 @@ import {
   isQuoteAwarded,
   isTaskCompleted,
 } from '@/utils/dashboardHelpers'
-import { type OrderItem, isOrderClosed } from '@/utils/orderHelpers'
+import {
+  type OrderItem,
+  isOrderClosed,
+  isOrderLive,
+} from '@/utils/orderHelpers'
 
 export type PostedTaskRow = {
   task: TaskItem
@@ -147,7 +151,7 @@ export function postedTaskTimelineSteps(
       key: 'booked',
       label: workerName ? `Booked · ${workerName}` : 'Worker booked',
       detail:
-        customerOrder?.status === OrderStatus.Active
+        customerOrder && isOrderLive(customerOrder.status)
           ? 'Job in progress'
           : undefined,
       at: customerOrder?.createdAt,

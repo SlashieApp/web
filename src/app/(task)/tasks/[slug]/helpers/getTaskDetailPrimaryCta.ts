@@ -6,8 +6,8 @@ export type TaskDetailPrimaryCtaKind =
   | 'signInToQuote'
   | 'viewQuotes'
   | 'preview'
-  | 'complete'
-  | 'confirm'
+  | 'workerBooked'
+  | 'ownerBooked'
   | 'none'
 
 export type TaskDetailPrimaryCtaInput = {
@@ -24,8 +24,8 @@ export function getTaskDetailPrimaryCta(
 ): TaskDetailPrimaryCtaKind {
   const { permissions: p, quoteCount } = input
 
-  if (p.showCompleteWithCode) return 'complete'
-  if (p.showCustomerCompletionCode) return 'confirm'
+  if (p.showOrderActions && p.isOrderWorker) return 'workerBooked'
+  if (p.showOrderActions && p.isOwner) return 'ownerBooked'
   if (p.isOwner && p.isOpen && quoteCount > 0) return 'viewQuotes'
   if (p.hasPendingQuote) return 'editQuote'
   if (p.showQuoteForm) return 'sendQuote'

@@ -1,0 +1,7 @@
+#import "./taskDetailOrderFields.gql"
+
+mutation MarkOrderDone($orderId: ID!) {
+  markOrderDone(orderId: $orderId) {
+    ...TaskDetailOrderFields
+  }
+}

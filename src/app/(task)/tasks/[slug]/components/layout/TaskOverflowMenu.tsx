@@ -6,6 +6,7 @@ import {
   LuCircleHelp,
   LuEllipsisVertical,
   LuPencil,
+  LuRepeat,
   LuShare2,
   LuShieldCheck,
   LuTrash2,
@@ -14,6 +15,7 @@ import bag from '../../i11n.json'
 
 import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
 import { SAFETY_HREF } from '@/utils/appRoutes'
+import { repostTaskHref } from '@/utils/taskHandoff'
 import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -102,6 +104,14 @@ export function TaskOverflowActions({
           icon={<LuPencil />}
           label={t.actions.editTask}
           href={`/tasks/${task.id}/edit`}
+          onClick={close}
+        />
+      ) : null}
+      {permissions.canRepostTask ? (
+        <MenuAction
+          icon={<LuRepeat />}
+          label={t.actions.repostTask}
+          href={repostTaskHref(task.id)}
           onClick={close}
         />
       ) : null}

@@ -1,7 +1,7 @@
 import { OrderStatus, QuoteStatus } from '@codegen/schema'
 import type { MeQuery } from '@codegen/schema'
 
-import type { OrderItem } from '@/utils/orderHelpers'
+import { type OrderItem, isOrderLive } from '@/utils/orderHelpers'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 
 import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
@@ -38,7 +38,13 @@ export type TaskDetailPermissions = {
    */
   isJobCompleted: boolean
   isOrderWorker: boolean
+  /**
+   * The viewer's order is booked and still on: ACTIVE, or waiting on a
+   * reschedule or cancellation request. Not CONFLICT or terminal.
+   */
   isOrderActive: boolean
+  /** The viewer's order is CONFLICT (one Done, one Failed). */
+  isOrderConflict: boolean
   hasWorkerProfile: boolean
   /** Accepted-worker cap reached for this task. */
   atCap: boolean
@@ -57,11 +63,13 @@ export type TaskDetailPermissions = {
   showOwnerQuoteList: boolean
   showAcceptDecline: boolean
   showWorkerJobBanner: boolean
-  showCompleteWithCode: boolean
-  showCustomerCompletionCode: boolean
+  /** Either party on a live or CONFLICT order: booking status and actions. */
+  showOrderActions: boolean
   showFullAddress: boolean
   canCancelTask: boolean
   canEditTask: boolean
+  /** Owner on a finished job, cancelled booking, or cancelled task: post it again. */
+  canRepostTask: boolean
 }
 
 function countAcceptedQuotes(task: TaskDetailRecord): number {
@@ -105,8 +113,8 @@ export function getTaskDetailPermissions(
   )
 
   const isOrderWorker = Boolean(me && myOrder && myOrder.workerUserId === me.id)
-  const isOrderActive =
-    myOrder?.status === OrderStatus.Active && !isJobCompleted
+  const isOrderActive = Boolean(myOrder && isOrderLive(myOrder.status))
+  const isOrderConflict = myOrder?.status === OrderStatus.Conflict
 
   const hasWorkerProfile = isWorkerSetupComplete(me)
 
@@ -145,17 +153,24 @@ export function getTaskDetailPermissions(
 
   const showAcceptDecline = Boolean(isOwner && isOpen)
 
-  const showWorkerJobBanner = Boolean(isOrderWorker && isOrderActive)
+  const showOrderActions = Boolean(
+    myOrder && (isOwner || isOrderWorker) && (isOrderActive || isOrderConflict),
+  )
 
-  const showCompleteWithCode = Boolean(isOrderWorker && isOrderActive)
-
-  const showCustomerCompletionCode = Boolean(isOwner && isOrderActive)
+  const showWorkerJobBanner = Boolean(isOrderWorker && showOrderActions)
 
   const showFullAddress = Boolean(isOwner || isOrderWorker)
 
   const canCancelTask = Boolean(isOwner && isOpen)
 
   const canEditTask = Boolean(isOwner && isOpen)
+
+  const canRepostTask = Boolean(
+    isOwner &&
+      (isCancelled ||
+        isJobCompleted ||
+        myOrder?.status === OrderStatus.Cancelled),
+  )
 
   return {
     isOwner,
@@ -167,6 +182,7 @@ export function getTaskDetailPermissions(
     isJobCompleted,
     isOrderWorker,
     isOrderActive,
+    isOrderConflict,
     hasWorkerProfile,
     atCap,
     canSubmitQuote,
@@ -177,10 +193,10 @@ export function getTaskDetailPermissions(
     showOwnerQuoteList,
     showAcceptDecline,
     showWorkerJobBanner,
-    showCompleteWithCode,
-    showCustomerCompletionCode,
+    showOrderActions,
     showFullAddress,
     canCancelTask,
     canEditTask,
+    canRepostTask,
   }
 }

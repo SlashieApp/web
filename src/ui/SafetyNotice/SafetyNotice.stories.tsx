@@ -23,10 +23,6 @@ export const Panel: Story = {
   args: { variant: 'panel' },
 }
 
-export const Complete: Story = {
-  args: { variant: 'complete' },
-}
-
 export const AcceptConfirm: Story = {
   render: () => {
     const [open, setOpen] = useState(true)

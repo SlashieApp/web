@@ -12,6 +12,7 @@ import {
 import {
   type OrderItem,
   isOrderClosed,
+  isOrderLive,
   orderAgreedPricePence,
 } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
@@ -230,8 +231,8 @@ export function workerQuoteTimelineSteps(
       key: 'job',
       label: 'Job in progress',
       detail:
-        workerOrder?.status === OrderStatus.Active
-          ? 'Complete work and enter the customer code on the task page'
+        workerOrder && isOrderLive(workerOrder.status)
+          ? 'When the job is done, mark it Done on the task page'
           : undefined,
       at: workerOrder?.createdAt,
       done: orderClosed || stage === 'closed',

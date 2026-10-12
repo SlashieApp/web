@@ -1,0 +1,7 @@
+#import "./taskDetailOrderFields.gql"
+
+mutation MarkOrderFailed($orderId: ID!, $reason: OrderFailedReason!) {
+  markOrderFailed(orderId: $orderId, reason: $reason) {
+    ...TaskDetailOrderFields
+  }
+}

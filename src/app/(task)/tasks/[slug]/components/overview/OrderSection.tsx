@@ -7,7 +7,6 @@ import bag from '../../i11n.json'
 import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef } from 'react'
 
-import { isHubDoneOrderStatus } from '@/app/(task)/tasks/helpers/myTasksHub'
 import { formatDate } from '@/utils/dashboardHelpers'
 import {
   type OrderItem,
@@ -47,20 +46,6 @@ function IconRailCheck() {
         stroke="currentColor"
         strokeWidth="2.5"
         strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function IconWorkCompleted() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Work completed</title>
-      <path
-        d="M9 11l2 2 4-4M8 4h8l4 4v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
         strokeLinejoin="round"
       />
     </svg>
@@ -109,24 +94,6 @@ function IconDocument() {
   )
 }
 
-function IconCard() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Payment acknowledged</title>
-      <rect
-        x="2"
-        y="5"
-        width="20"
-        height="14"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <path d="M2 10h20" stroke="currentColor" strokeWidth="1.6" />
-    </svg>
-  )
-}
-
 function IconWrench() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -144,9 +111,7 @@ function IconWrench() {
 
 const TIMELINE_STEP_ICONS: Record<string, () => ReactNode> = {
   created: IconDocument,
-  active: IconWrench,
-  'work-completed': IconWorkCompleted,
-  payment: IconCard,
+  booked: IconWrench,
   closed: IconLock,
   cancelled: IconLock,
 }
@@ -288,10 +253,7 @@ export function OrderSection({
   const timeline = orderTimelineSteps(order)
   const agreedPrice = formatOrderAgreedPrice(order)
   const statusLabel = orderStatusChipLabel(order.status)
-  // COMPLETED is the terminal order status (BE-58 renames CLOSED → COMPLETED).
-  // Hub done-order statuses share the agreement record so booking chrome can hide.
-  const completed =
-    isOrderCompletedStatus(order.status) || isHubDoneOrderStatus(order.status)
+  const completed = isOrderCompletedStatus(order.status)
   const closed = completed || isOrderClosed(order.status)
 
   const scrolledToHashRef = useRef(false)

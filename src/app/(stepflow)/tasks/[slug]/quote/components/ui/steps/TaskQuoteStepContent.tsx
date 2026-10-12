@@ -3,7 +3,7 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { ChangeEvent } from 'react'
 import { useRef } from 'react'
-import { LuCalendar, LuPlus, LuX } from 'react-icons/lu'
+import { LuPlus, LuX } from 'react-icons/lu'
 
 import { formatBudgetAmount } from '@/utils/price'
 import {
@@ -11,8 +11,8 @@ import {
   IconButton,
   Input,
   Link,
-  Select,
   Textarea,
+  TimeSlotPicker,
   formControlRootProps,
 } from '@ui'
 import type { TextareaProps } from '@ui'
@@ -27,14 +27,6 @@ import { TaskQuoteSummaryCard } from '../shared/TaskQuoteSummaryCard'
 import { TaskQuoteReviewStep } from './TaskQuoteReviewStep'
 
 const MESSAGE_MAX = 250
-
-export const AVAILABILITY_PRESETS = [
-  'Tomorrow, 9:00 AM – 12:00 PM',
-  'Tomorrow, 1:00 PM – 5:00 PM',
-  'This week (flexible)',
-  'Next week (flexible)',
-  "Let's discuss",
-] as const
 
 type TaskQuoteStepContentProps = {
   activeSubStep: TaskQuoteSubStepId
@@ -106,9 +98,9 @@ export function TaskQuoteStepContent({
   const {
     task,
     quoteMessageInput,
-    quoteAvailabilityInput,
+    quoteSlots,
     setQuoteMessageInput,
-    setQuoteAvailabilityInput,
+    setQuoteSlots,
   } = useTaskDetail()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -169,25 +161,17 @@ export function TaskQuoteStepContent({
 
     case 'quote.availability':
       return (
-        <Stack gap={6}>
-          <FormField
-            label="Availability"
-            helperText={TASK_QUOTE_STEP_COPY['quote.availability'].description}
-            icon={<LuCalendar size={20} />}
-          >
-            <Select
-              value={quoteAvailabilityInput}
-              onChange={(e) => setQuoteAvailabilityInput(e.target.value)}
-              rootProps={formControlRootProps}
-            >
-              <option value="">Select a time window</option>
-              {AVAILABILITY_PRESETS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </Select>
-          </FormField>
+        <Stack gap={4}>
+          <TimeSlotPicker
+            value={quoteSlots}
+            onChange={setQuoteSlots}
+            showErrors={Boolean(fieldError)}
+          />
+          {fieldError ? (
+            <Text fontSize="sm" color="status.danger.fg" role="alert">
+              {fieldError}
+            </Text>
+          ) : null}
         </Stack>
       )
 

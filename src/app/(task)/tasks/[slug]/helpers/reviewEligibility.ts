@@ -8,8 +8,8 @@ import { isOrderCompletedStatus } from './taskDetailCompleted'
  * when those ids match; a missing poster still counts when the order
  * names them as the customer.
  *
- * `CLOSED` is not a second completed status. In-progress done statuses
- * (`WORK_COMPLETED`, `PAYMENT_ACKNOWLEDGED`) stay locked until `COMPLETED`.
+ * Only `COMPLETED` (mutual Done or 7-day auto-Done) unlocks reviews; a
+ * one-sided Done, CONFLICT, or CANCELLED stays locked.
  */
 export function canReviewCompletedOrder(input: {
   userId: string | null | undefined

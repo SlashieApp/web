@@ -18,6 +18,11 @@ export function buildCreateTaskHandoffPath(query: string): string {
   return `/tasks/create?title=${encodeURIComponent(trimmed)}`
 }
 
+/** Create a new task prefilled from one of the poster's earlier tasks. */
+export function repostTaskHref(taskId: string): string {
+  return `/tasks/create?repost=${encodeURIComponent(taskId)}`
+}
+
 /**
  * Guest handoff: register first, then land on the create flow (with intent).
  */

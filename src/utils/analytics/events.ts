@@ -3,7 +3,7 @@
 //
 // Canonical marketplace loop (do not invent new funnel names):
 //   task_create_success, quote_send_success, quote_accept_success,
-//   job_verify_success, job_done_success, order_confirm_success
+//   job_done_success, order_confirm_success
 //   (+ matching *_fail). Stale names are remapped in resolveAnalyticsEvent.
 
 /** Allowlisted PostHog event names (short snake_case). */
@@ -66,6 +66,8 @@ export const EVENTS = {
   task_save_success: 'task_save_success',
   task_save_fail: 'task_save_fail',
   jobs_view: 'jobs_view',
+  // Retired 2026-10-12 with the completion-code path; kept so historical
+  // PostHog data still resolves. Nothing emits these now.
   job_verify_success: 'job_verify_success',
   job_verify_fail: 'job_verify_fail',
 
@@ -79,13 +81,19 @@ export const EVENTS = {
   review_submit_fail: 'review_submit_fail',
   order_view: 'order_view',
 
-  // Closure — `job_verify_*` is the live complete-with-code path.
-  // `job_done_*` / `order_confirm_*` stay in the catalogue for unused
-  // completeOrder / confirmOrder mutations (no web UI).
+  // Closure (mutual Done/Failed). `job_done_*` is the viewer's markOrderDone;
+  // `order_confirm_success` fires when that Done completes the order.
   job_done_success: 'job_done_success',
   job_done_fail: 'job_done_fail',
   order_confirm_success: 'order_confirm_success',
   order_confirm_fail: 'order_confirm_fail',
+  order_failed_success: 'order_failed_success',
+  order_failed_fail: 'order_failed_fail',
+  // Booking requests; `action` says which (request / confirm / decline / withdraw).
+  order_reschedule_success: 'order_reschedule_success',
+  order_reschedule_fail: 'order_reschedule_fail',
+  order_cancel_success: 'order_cancel_success',
+  order_cancel_fail: 'order_cancel_fail',
 
   // Trust / report
   report_submit_success: 'report_submit_success',

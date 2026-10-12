@@ -1,6 +1,9 @@
 import {
   type MyOrdersQuery,
+  OrderCloseKind,
+  OrderRequestKind,
   OrderStatus,
+  TaskDateTimeType,
   type TaskQuery,
 } from '@codegen/schema'
 
@@ -24,29 +27,36 @@ export function orderAgreedPricePence(order: OrderItem): number {
   return Math.round(amount * 100)
 }
 
-export function orderSnapshotDatetime(
-  order: OrderItem,
+const pad2 = (n: number) => String(n).padStart(2, '0')
+
+/**
+ * The booked start (from the accepted or rescheduled slot) as an exact
+ * schedule in local time, so the shared schedule helpers (chips, labels,
+ * countdowns) read the booking, not the poster's original preference.
+ */
+export function orderBookedDatetime(
+  order: Pick<OrderItem, 'bookedStart'>,
 ): TaskDatetimeLike | null {
-  const dt = order.snapshot?.datetime
-  if (!dt) return null
+  const start = new Date(String(order.bookedStart))
+  if (Number.isNaN(start.getTime())) return null
   return {
-    date: dt.date,
-    time: dt.time,
-    type: dt.type,
+    date: `${start.getFullYear()}-${pad2(start.getMonth() + 1)}-${pad2(start.getDate())}`,
+    time: `${pad2(start.getHours())}:${pad2(start.getMinutes())}`,
+    type: TaskDateTimeType.Exact,
   }
 }
 
 export function scheduleChipForOrder(order: OrderItem) {
-  return scheduleChipForTask(orderSnapshotDatetime(order))
+  return scheduleChipForTask(orderBookedDatetime(order))
 }
 
 export function sortOrdersBySchedule(orders: OrderItem[]): OrderItem[] {
   return [...orders].sort((a, b) => {
     const aWhen =
-      parseTaskScheduleDate(orderSnapshotDatetime(a))?.getTime() ??
+      parseTaskScheduleDate(orderBookedDatetime(a))?.getTime() ??
       Number.MAX_SAFE_INTEGER
     const bWhen =
-      parseTaskScheduleDate(orderSnapshotDatetime(b))?.getTime() ??
+      parseTaskScheduleDate(orderBookedDatetime(b))?.getTime() ??
       Number.MAX_SAFE_INTEGER
     return aWhen - bWhen
   })
@@ -67,11 +77,13 @@ export function sortOrdersByClosedAtDesc(orders: OrderItem[]): OrderItem[] {
 export function orderStatusChipLabel(status: OrderStatus | string): string {
   switch (status) {
     case OrderStatus.Active:
-      return 'Active'
-    case OrderStatus.WorkCompleted:
-      return 'Done'
-    case OrderStatus.PaymentAcknowledged:
-      return 'Awaiting payment'
+      return 'Booked'
+    case OrderStatus.Rescheduling:
+      return 'Reschedule requested'
+    case OrderStatus.CancelRequested:
+      return 'Cancellation requested'
+    case OrderStatus.Conflict:
+      return 'Needs resolving'
     case OrderStatus.Completed:
       return 'Completed'
     case OrderStatus.Cancelled:
@@ -85,9 +97,21 @@ export function isOrderClosed(status: OrderStatus | string): boolean {
   return status === OrderStatus.Completed || status === OrderStatus.Cancelled
 }
 
-/** Worker pending earnings: only orders still in progress. */
+/**
+ * Booked and still on: the job is happening (a reschedule or cancellation
+ * request may be waiting). CONFLICT and the terminal statuses are not live.
+ */
+export function isOrderLive(status: OrderStatus | string): boolean {
+  return (
+    status === OrderStatus.Active ||
+    status === OrderStatus.Rescheduling ||
+    status === OrderStatus.CancelRequested
+  )
+}
+
+/** Worker pending earnings: booked jobs not yet settled or in dispute. */
 export function isOrderPendingEarnings(status: OrderStatus | string): boolean {
-  return status === OrderStatus.Active
+  return isOrderLive(status)
 }
 
 /** Worker completed earnings tally: completed orders only. */
@@ -136,6 +160,73 @@ export function orderDashboardHref(_orderId: string): string {
   return '/tasks'
 }
 
+export type OrderCloseActionKind = 'DONE' | 'FAILED'
+
+/** Who has marked Done/Failed, and whether the viewer can act now. */
+export type OrderCloseView = {
+  /** ACTIVE, on/after the booked start: Done and Failed are available. */
+  canClose: boolean
+  startsAt: Date | null
+  mine: OrderCloseActionKind | null
+  theirs: OrderCloseActionKind | null
+  /** Seven days after a one-sided Done, the silent party becomes Done. */
+  autoDoneAt: Date | null
+}
+
+function closeKind(
+  action: { kind: OrderCloseKind | string } | null | undefined,
+): OrderCloseActionKind | null {
+  if (!action) return null
+  return action.kind === OrderCloseKind.Failed ? 'FAILED' : 'DONE'
+}
+
+export function orderCloseView(
+  order: Pick<
+    OrderItem,
+    | 'status'
+    | 'bookedStart'
+    | 'myCloseAction'
+    | 'counterpartyCloseAction'
+    | 'autoDoneAt'
+  >,
+  now = new Date(),
+): OrderCloseView {
+  const startsAt = new Date(String(order.bookedStart))
+  const validStart = Number.isNaN(startsAt.getTime()) ? null : startsAt
+  const autoDone = order.autoDoneAt ? new Date(String(order.autoDoneAt)) : null
+  return {
+    canClose:
+      order.status === OrderStatus.Active &&
+      validStart != null &&
+      validStart.getTime() <= now.getTime(),
+    startsAt: validStart,
+    mine: closeKind(order.myCloseAction),
+    theirs: closeKind(order.counterpartyCloseAction),
+    autoDoneAt: autoDone && !Number.isNaN(autoDone.getTime()) ? autoDone : null,
+  }
+}
+
+export type OrderRequestView = {
+  kind: 'RESCHEDULE' | 'CANCEL'
+  /** The viewer made the request (can withdraw); otherwise they must answer. */
+  mine: boolean
+  proposedSlots: NonNullable<OrderItem['pendingRequest']>['proposedSlots']
+}
+
+export function orderRequestView(
+  order: Pick<OrderItem, 'pendingRequest'>,
+  viewerId: string | null | undefined,
+): OrderRequestView | null {
+  const request = order.pendingRequest
+  if (!request) return null
+  return {
+    kind:
+      request.kind === OrderRequestKind.Reschedule ? 'RESCHEDULE' : 'CANCEL',
+    mine: Boolean(viewerId && request.requestedByUserId === viewerId),
+    proposedSlots: request.proposedSlots,
+  }
+}
+
 export type OrderTimelineStep = {
   key: string
   label: string
@@ -146,19 +237,25 @@ export type OrderTimelineStep = {
 
 export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
   const status = order.status
-  // Terminal success is COMPLETED (BE-58). Do not also treat CLOSED as done.
-  const completed = String(status).trim().toUpperCase() === 'COMPLETED'
-  const cancelled = status === OrderStatus.Cancelled
+  const created: OrderTimelineStep = {
+    key: 'created',
+    label: 'Order created',
+    at: order.createdAt,
+    done: true,
+    current: false,
+  }
+  const booked: OrderTimelineStep = {
+    key: 'booked',
+    label: 'Booked',
+    at: order.bookedStart,
+    done: !isOrderLive(status),
+    current: isOrderLive(status),
+  }
 
-  if (cancelled) {
+  if (status === OrderStatus.Cancelled) {
     return [
-      {
-        key: 'created',
-        label: 'Order created',
-        at: order.createdAt,
-        done: true,
-        current: false,
-      },
+      created,
+      booked,
       {
         key: 'cancelled',
         label: 'Order cancelled',
@@ -169,55 +266,29 @@ export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
     ]
   }
 
-  const workCompleted =
-    Boolean(order.workCompletedAt) ||
-    status === OrderStatus.WorkCompleted ||
-    status === OrderStatus.PaymentAcknowledged ||
-    completed
+  if (status === OrderStatus.Conflict) {
+    return [
+      created,
+      booked,
+      {
+        key: 'conflict',
+        label: 'Needs resolving',
+        done: false,
+        current: true,
+      },
+    ]
+  }
 
-  const paymentAcknowledged =
-    Boolean(order.workerPaymentAcknowledgedAt) ||
-    status === OrderStatus.PaymentAcknowledged ||
-    completed
-
-  const workCompletedCurrent = status === OrderStatus.WorkCompleted
-  const paymentCurrent = status === OrderStatus.PaymentAcknowledged
-  const closedCurrent = completed
-
+  const completed = status === OrderStatus.Completed
   return [
-    {
-      key: 'created',
-      label: 'Order created',
-      at: order.createdAt,
-      done: true,
-      current: false,
-    },
-    {
-      key: 'active',
-      label: 'Job in progress',
-      done: status !== OrderStatus.Active,
-      current: status === OrderStatus.Active,
-    },
-    {
-      key: 'work-completed',
-      label: 'Work completed',
-      at: order.workCompletedAt,
-      done: workCompleted,
-      current: workCompletedCurrent,
-    },
-    {
-      key: 'payment',
-      label: 'Payment acknowledged',
-      at: order.workerPaymentAcknowledgedAt,
-      done: paymentAcknowledged,
-      current: paymentCurrent,
-    },
+    created,
+    booked,
     {
       key: 'closed',
       label: 'Order completed',
       at: order.closedAt,
       done: completed,
-      current: closedCurrent,
+      current: completed,
     },
   ]
 }

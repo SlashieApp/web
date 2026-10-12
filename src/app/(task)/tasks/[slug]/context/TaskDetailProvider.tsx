@@ -1,22 +1,23 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
-import { useMutation, useQuery } from '@apollo/client/react'
+import type { DocumentNode } from '@apollo/client'
+import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
 import type {
   AcceptQuoteMutation,
   AddQuoteMutation,
   CancelTaskMutation,
-  CompleteOrderWithVerificationMutation,
   DeclineQuoteMutation,
   MeQuery,
   TaskCoreQuery,
   TaskQuery,
   WithdrawQuoteMutation,
 } from '@codegen/schema'
-import { Currency } from '@codegen/schema'
+import { Currency, OrderStatus } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -33,13 +34,22 @@ import {
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
+import AcceptOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/AcceptOrderCancellation.gql'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
+import CancelRescheduleRequest from '@/app/(task)/tasks/[slug]/graphql/CancelRescheduleRequest.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
-import CompleteOrderWithVerification from '@/app/(task)/tasks/[slug]/graphql/CompleteOrderWithVerification.gql'
+import ConfirmReschedule from '@/app/(task)/tasks/[slug]/graphql/ConfirmReschedule.gql'
+import DeclineOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/DeclineOrderCancellation.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
+import DeclineReschedule from '@/app/(task)/tasks/[slug]/graphql/DeclineReschedule.gql'
+import MarkOrderDone from '@/app/(task)/tasks/[slug]/graphql/MarkOrderDone.gql'
+import MarkOrderFailed from '@/app/(task)/tasks/[slug]/graphql/MarkOrderFailed.gql'
+import RequestOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/RequestOrderCancellation.gql'
+import RequestReschedule from '@/app/(task)/tasks/[slug]/graphql/RequestReschedule.gql'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
+import WithdrawOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/WithdrawOrderCancellation.gql'
 import WithdrawQuote from '@/app/(task)/tasks/[slug]/graphql/WithdrawQuote.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
 import { buildTaskDetailMainCta } from '@/app/(task)/tasks/[slug]/helpers/taskDetailMainCtaModel'
@@ -72,17 +82,115 @@ import {
   type OrderItem,
   formatOrderAgreedPrice,
   isOrderClosed,
-  orderSnapshotDatetime,
+  orderBookedDatetime,
+  orderCloseView,
 } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
+import {
+  type TimeSlotDraft,
+  timeSlotInputsFromDrafts,
+  validateTimeSlotDrafts,
+} from '@/utils/timeSlots'
 import { canReviewCompletedOrder } from '../helpers/reviewEligibility'
 import { useOrderReviewState } from '../helpers/useOrderReviewState'
 
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
 import { TaskDetailViewCapture } from '../components/analytics/TaskDetailViewCapture'
-import { TaskDetailContext } from './TaskDetailContext'
+import { type OrderAction, TaskDetailContext } from './TaskDetailContext'
 
 const ORDER_POLL_MS = 30_000
+
+/** setTimeout's ceiling (~24.8 days); longer waits re-arm on the next render. */
+const MAX_TIMER_MS = 2_147_000_000
+
+type OrderActionSpec = {
+  document: DocumentNode
+  variables: Record<string, unknown>
+  /** Mutation root field returning the updated Order. */
+  field: string
+  flow: 'order_close' | 'order_reschedule' | 'order_cancel'
+}
+
+function orderActionSpec(
+  action: OrderAction,
+  orderId: string,
+): OrderActionSpec {
+  switch (action.type) {
+    case 'markDone':
+      return {
+        document: MarkOrderDone,
+        variables: { orderId },
+        field: 'markOrderDone',
+        flow: 'order_close',
+      }
+    case 'markFailed':
+      return {
+        document: MarkOrderFailed,
+        variables: { orderId, reason: action.reason },
+        field: 'markOrderFailed',
+        flow: 'order_close',
+      }
+    case 'requestReschedule':
+      return {
+        document: RequestReschedule,
+        variables: {
+          orderId,
+          proposedSlots: timeSlotInputsFromDrafts(action.slots),
+        },
+        field: 'requestReschedule',
+        flow: 'order_reschedule',
+      }
+    case 'confirmReschedule':
+      return {
+        document: ConfirmReschedule,
+        variables: { orderId, slotId: action.slotId },
+        field: 'confirmReschedule',
+        flow: 'order_reschedule',
+      }
+    case 'declineReschedule':
+      return {
+        document: DeclineReschedule,
+        variables: { orderId },
+        field: 'declineReschedule',
+        flow: 'order_reschedule',
+      }
+    case 'cancelRescheduleRequest':
+      return {
+        document: CancelRescheduleRequest,
+        variables: { orderId },
+        field: 'cancelRescheduleRequest',
+        flow: 'order_reschedule',
+      }
+    case 'requestCancellation':
+      return {
+        document: RequestOrderCancellation,
+        variables: { orderId },
+        field: 'requestOrderCancellation',
+        flow: 'order_cancel',
+      }
+    case 'acceptCancellation':
+      return {
+        document: AcceptOrderCancellation,
+        variables: { orderId },
+        field: 'acceptOrderCancellation',
+        flow: 'order_cancel',
+      }
+    case 'declineCancellation':
+      return {
+        document: DeclineOrderCancellation,
+        variables: { orderId },
+        field: 'declineOrderCancellation',
+        flow: 'order_cancel',
+      }
+    case 'withdrawCancellation':
+      return {
+        document: WithdrawOrderCancellation,
+        variables: { orderId },
+        field: 'withdrawOrderCancellation',
+        flow: 'order_cancel',
+      }
+  }
+}
 const clientSnapshot = () => true
 const serverSnapshot = () => false
 const subscribeNoop = () => () => {}
@@ -118,14 +226,16 @@ export function TaskDetailProvider({
   const [seed] = useState(() => taskHandoffFor(taskId))
   const [quoteAmountInput, setQuoteAmountInput] = useState('')
   const [quoteMessageInput, setQuoteMessageInput] = useState('')
-  const [quoteAvailabilityInput, setQuoteAvailabilityInput] = useState('')
+  const [quoteSlots, setQuoteSlots] = useState<TimeSlotDraft[]>([])
   const [quoteError, setQuoteError] = useState<string | null>(null)
   const [quoteSuccess, setQuoteSuccess] = useState<string | null>(null)
   const [acceptError, setAcceptError] = useState<string | null>(null)
   const [acceptingQuoteId, setAcceptingQuoteId] = useState<string | null>(null)
   const [cancelError, setCancelError] = useState<string | null>(null)
   const [jobActionError, setJobActionError] = useState<string | null>(null)
-  const [verificationCode, setVerificationCode] = useState('')
+  const [orderActionPending, setOrderActionPending] = useState<
+    OrderAction['type'] | null
+  >(null)
   const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
   const [explicitTab, setExplicitTab] = useState<TaskDetailTab | null>(() => {
     const hash = readTaskDetailHash()
@@ -269,6 +379,24 @@ export function TaskDetailProvider({
   }, [refetchClientTask, refetchCore, skipCore])
 
   const myOrder = liveOrder
+
+  // Done/Failed open at the booked start: re-render then without polling.
+  const bookedStartMs = myOrder
+    ? new Date(String(myOrder.bookedStart)).getTime()
+    : Number.NaN
+  const [nowMs, setNowMs] = useState(() => Date.now())
+  useEffect(() => {
+    if (!Number.isFinite(bookedStartMs) || bookedStartMs <= nowMs) return
+    const timer = window.setTimeout(
+      () => setNowMs(Date.now()),
+      Math.min(bookedStartMs - nowMs + 250, MAX_TIMER_MS),
+    )
+    return () => window.clearTimeout(timer)
+  }, [bookedStartMs, nowMs])
+  const orderClose = useMemo(
+    () => (myOrder ? orderCloseView(myOrder, new Date(nowMs)) : null),
+    [myOrder, nowMs],
+  )
   const orderLoading = viewerLoading
 
   const myQuote = useMemo(() => {
@@ -349,12 +477,7 @@ export function TaskDetailProvider({
   const [declineQuote] = useMutation<DeclineQuoteMutation>(DeclineQuote)
   const [withdrawQuote, { loading: withdrawingQuote }] =
     useMutation<WithdrawQuoteMutation>(WithdrawQuote)
-  const [
-    completeOrderWithVerification,
-    { loading: completingOrderWithVerification },
-  ] = useMutation<CompleteOrderWithVerificationMutation>(
-    CompleteOrderWithVerification,
-  )
+  const apollo = useApolloClient()
 
   const onSubmitQuote = useCallback(async () => {
     setQuoteError(null)
@@ -411,14 +534,14 @@ export function TaskDetailProvider({
       return false
     }
 
-    const trimmedMessage = quoteMessageInput.trim()
-    const trimmedAvailability = quoteAvailabilityInput.trim()
-    const messageParts = [trimmedMessage]
-    if (trimmedAvailability) {
-      messageParts.push(`Availability: ${trimmedAvailability}`)
+    const slots = quoteSlots.length > 0 ? quoteSlots : []
+    if (
+      slots.length === 0 ||
+      validateTimeSlotDrafts(slots).some((error) => error != null)
+    ) {
+      setQuoteError(p.slotsInvalid)
+      return false
     }
-    const combinedMessage =
-      messageParts.filter(Boolean).join('\n\n') || undefined
 
     try {
       const result = await addQuote({
@@ -429,7 +552,8 @@ export function TaskDetailProvider({
               amount: (Number(quoteAmountInput) || 0) / 100,
               currency: Currency.Gbp,
             },
-            message: combinedMessage,
+            message: quoteMessageInput.trim() || undefined,
+            proposedSlots: timeSlotInputsFromDrafts(slots),
           },
         },
         // Refetch by operation name so active `/quotes` queries refresh
@@ -495,8 +619,8 @@ export function TaskDetailProvider({
     permissions.canSubmitQuote,
     permissions.hasWorkerProfile,
     quoteAmountInput,
-    quoteAvailabilityInput,
     quoteMessageInput,
+    quoteSlots,
     quotesLoading,
     refreshPageData,
     router,
@@ -506,7 +630,7 @@ export function TaskDetailProvider({
   ])
 
   const onAcceptQuote = useCallback(
-    async (quoteId: string) => {
+    async (quoteId: string, selectedSlotId: string) => {
       if (!task || !permissions.showAcceptDecline) return
       const p = t.provider
 
@@ -515,7 +639,7 @@ export function TaskDetailProvider({
 
       try {
         const result = await acceptQuote({
-          variables: { input: { quoteId } },
+          variables: { input: { quoteId, selectedSlotId } },
         })
         const order = result.data?.acceptQuote?.order
         if (!order?.id) {
@@ -599,51 +723,99 @@ export function TaskDetailProvider({
     ],
   )
 
-  const onCompleteOrderWithVerification = useCallback(async () => {
-    if (!myOrder || !permissions.showCompleteWithCode) return
-    const p = t.provider
-    const code = verificationCode.trim()
-    if (code.length !== 6) {
-      setJobActionError(p.enterCode)
-      return
-    }
-    setJobActionError(null)
-    try {
-      const result = await completeOrderWithVerification({
-        variables: { orderId: myOrder.id, code },
-      })
-      if (!result.data?.completeOrderWithVerification?.id) {
-        throw new Error(p.completeFailed)
+  const runOrderAction = useCallback(
+    async (action: OrderAction) => {
+      if (!myOrder || !permissions.showOrderActions) return false
+      const c = t.close
+      const r = t.requests
+      const spec = orderActionSpec(action, myOrder.id)
+      const failEvent =
+        action.type === 'markDone'
+          ? EVENTS.job_done_fail
+          : action.type === 'markFailed'
+            ? EVENTS.order_failed_fail
+            : spec.flow === 'order_reschedule'
+              ? EVENTS.order_reschedule_fail
+              : EVENTS.order_cancel_fail
+      setJobActionError(null)
+      setOrderActionPending(action.type)
+      try {
+        const result = await apollo.mutate<
+          Record<string, { id: string; status: OrderStatus } | null>
+        >({ mutation: spec.document, variables: spec.variables })
+        const order = result.data?.[spec.field]
+        if (!order?.id) throw new Error(c.actionFailed)
+
+        const props = {
+          order_id: myOrder.id,
+          task_id: taskId,
+          action: action.type,
+          status: order.status,
+        }
+        if (action.type === 'markDone') {
+          trackFlowSucceeded(EVENTS.job_done_success, props)
+          if (order.status === OrderStatus.Completed) {
+            trackFlowSucceeded(EVENTS.order_confirm_success, props)
+          }
+        } else if (action.type === 'markFailed') {
+          trackFlowSucceeded(EVENTS.order_failed_success, props)
+        } else {
+          trackFlowSucceeded(
+            spec.flow === 'order_reschedule'
+              ? EVENTS.order_reschedule_success
+              : EVENTS.order_cancel_success,
+            props,
+          )
+        }
+
+        const title =
+          order.status === OrderStatus.Completed
+            ? c.completedToast
+            : order.status === OrderStatus.Conflict
+              ? c.conflictToast
+              : order.status === OrderStatus.Cancelled
+                ? c.cancelledToast
+                : action.type === 'markDone'
+                  ? c.markedDoneToast
+                  : action.type === 'markFailed'
+                    ? c.markedFailedToast
+                    : action.type === 'requestReschedule' ||
+                        action.type === 'requestCancellation'
+                      ? r.requestSentToast
+                      : r.updatedToast
+        showAppToast({ title, type: 'success' })
+        refreshPageData()
+        return true
+      } catch (error: unknown) {
+        trackFlowFailed(failEvent, error, {
+          flow: spec.flow,
+          action: action.type,
+          operation: spec.field,
+          extra: { order_id: myOrder.id, task_id: taskId },
+        })
+        const message = getFriendlyErrorMessage(error, c.actionFailed)
+        setJobActionError(message)
+        showAppToast({ title: message, type: 'error' })
+        // Someone else changed the order first: show its latest state.
+        if (getGraphQLErrorCode(error) === 'ORDER_CHANGED') {
+          void refetchClientTask()
+        }
+        return false
+      } finally {
+        setOrderActionPending(null)
       }
-      setVerificationCode('')
-      showAppToast({
-        title: p.jobClosedTitle,
-        description: p.jobClosedDescription,
-        type: 'success',
-      })
-      trackFlowSucceeded(EVENTS.job_verify_success, {
-        order_id: myOrder.id,
-        task_id: taskId,
-      })
-      refreshPageData()
-    } catch (error: unknown) {
-      trackFlowFailed(EVENTS.job_verify_fail, error, {
-        flow: 'job_verify_code',
-        action: 'onCompleteOrderWithVerification',
-        operation: 'CompleteOrderWithVerification',
-        extra: { order_id: myOrder.id, task_id: taskId },
-      })
-      setJobActionError(getFriendlyErrorMessage(error, p.invalidCode))
-    }
-  }, [
-    completeOrderWithVerification,
-    myOrder,
-    permissions.showCompleteWithCode,
-    refreshPageData,
-    t.provider,
-    taskId,
-    verificationCode,
-  ])
+    },
+    [
+      apollo,
+      myOrder,
+      permissions.showOrderActions,
+      refetchClientTask,
+      refreshPageData,
+      t.close,
+      t.requests,
+      taskId,
+    ],
+  )
 
   const onCancelTask = useCallback(async () => {
     if (!task || !permissions.canCancelTask) return
@@ -750,7 +922,8 @@ export function TaskDetailProvider({
             task,
             myQuote,
             permissions,
-            schedule: myOrder ? orderSnapshotDatetime(myOrder) : null,
+            schedule: myOrder ? orderBookedDatetime(myOrder) : null,
+            close: orderClose,
             acceptedQuoteId: myOrder?.quoteId ?? null,
             settled:
               reviewEnabled && myOrder
@@ -772,12 +945,10 @@ export function TaskDetailProvider({
               askingPrice: t.cta.askingPrice,
               awaitingReview: t.cta.awaitingReview,
               budget: t.details.budget,
-              confirm: t.cta.confirm,
-              complete: t.cta.complete,
               customerTitle: t.booking.customerTitle,
               workerTitle: t.booking.workerTitle,
-              completionCode: t.booking.completionCode,
-              enterCodeCta: t.verification.enterCodeCta,
+              closeEyebrow: t.close.eyebrowReady,
+              slideDone: t.close.slideDone,
               owner: t.details.owner,
               contactTask: t.cta.contactTask,
               emailCustomer: t.booking.emailCustomer,
@@ -785,7 +956,6 @@ export function TaskDetailProvider({
               ownerFallback: t.details.ownerFallback,
               beOnSite: t.booking.beOnSite,
               flexibleWhen: t.cta.flexibleWhen,
-              markCompleted: t.cta.markCompleted,
               workerEyebrow: t.booking.workerEyebrow,
               contactWorker: t.cta.contactWorker,
               yourWorker: t.booking.yourWorker,
@@ -799,6 +969,7 @@ export function TaskDetailProvider({
     [
       myOrder,
       myQuote,
+      orderClose,
       permissions,
       reviewEnabled,
       statusReady,
@@ -822,6 +993,7 @@ export function TaskDetailProvider({
       error: detailError,
       refetch,
       myOrder,
+      orderClose,
       orderLoading,
       viewerLoading,
       statusReady,
@@ -838,26 +1010,24 @@ export function TaskDetailProvider({
       quoteLimitReached,
       quoteAmountInput,
       quoteMessageInput,
-      quoteAvailabilityInput,
+      quoteSlots,
       setQuoteAmountInput,
       setQuoteMessageInput,
-      setQuoteAvailabilityInput,
+      setQuoteSlots,
       quoteError,
       quoteSuccess,
       acceptError,
       cancelError,
       jobActionError,
-      verificationCode,
-      setVerificationCode,
       acceptingQuoteId,
       decliningQuoteId,
       quoting,
       cancelingTask,
-      completingOrderWithVerification,
+      orderActionPending,
       onSubmitQuote,
       onAcceptQuote,
       onDeclineQuote,
-      onCompleteOrderWithVerification,
+      runOrderAction,
       onCancelTask,
       onWithdrawQuote,
       withdrawingQuote,
@@ -878,6 +1048,7 @@ export function TaskDetailProvider({
       detailError,
       refetch,
       myOrder,
+      orderClose,
       orderLoading,
       viewerLoading,
       statusReady,
@@ -894,22 +1065,21 @@ export function TaskDetailProvider({
       quoteLimitReached,
       quoteAmountInput,
       quoteMessageInput,
-      quoteAvailabilityInput,
+      quoteSlots,
       quoteError,
       quoteSuccess,
       acceptError,
       cancelError,
       jobActionError,
-      verificationCode,
       acceptingQuoteId,
       decliningQuoteId,
       quoting,
       cancelingTask,
-      completingOrderWithVerification,
+      orderActionPending,
       onSubmitQuote,
       onAcceptQuote,
       onDeclineQuote,
-      onCompleteOrderWithVerification,
+      runOrderAction,
       onCancelTask,
       onWithdrawQuote,
       withdrawingQuote,
