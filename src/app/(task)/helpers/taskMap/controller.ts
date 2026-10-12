@@ -20,6 +20,7 @@ import {
   ensureClusterSource,
   shouldOpenTaskStack,
 } from './clusters'
+import { createCompassControl } from './compass'
 import { createTaskMapNavRouteController } from './navRoute'
 import {
   PIN_MAPBOX_ANCHOR,
@@ -717,7 +718,11 @@ export function createTaskMapController(args: {
         maxZoom: MAP_MAX_ZOOM,
         logoPosition: initial.logoPosition ?? 'bottom-left',
       })
-      m.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
+      m.addControl(
+        new mapboxgl.default.NavigationControl({ showCompass: false }),
+        'top-right',
+      )
+      m.addControl(createCompassControl(), 'top-right')
       map = m
       unmountFade = mountMapFadeOverlay(m.getContainer())
 

@@ -20,6 +20,7 @@ import {
   createTaskMapController,
   tasksMarkerSig,
 } from '../../helpers/taskMap'
+import { COMPASS_CONTROL_CLASS } from '../../helpers/taskMap/compass'
 import { useIsTouchMobileDevice } from '../../helpers/touchMobileDevice'
 import { useSelectBrowseTaskFromMap } from '../../helpers/useSelectBrowseTaskFromMap'
 
@@ -80,6 +81,11 @@ export type TaskMapProps = {
    * (bottom nav + task carousel). Applied below `lg`; desktop is unchanged.
    */
   mobileCtrlBottomOffset?: string
+  /**
+   * Touch phones only: extra CSS length below the header for the top-right
+   * controls (compass), so they clear an overlay such as the search bar.
+   */
+  touchCtrlTopOffset?: string
   /**
    * Browse keeps the search-center camera + list offset. Detail frames the
    * selected task with `viewPadding` (top-right on desktop).
@@ -224,11 +230,23 @@ export function TaskMap(props: TaskMapProps) {
       zIndex={0}
       css={{
         // The canvas fills the window, including under the app header.
-        // Keep zoom below that header.
+        // Keep the controls below that header (and any touch overlay).
         '& .mapboxgl-ctrl-top-right': {
-          top: HEADER_MIN_HEIGHT,
-          ...(hideZoomControls ? { display: 'none' as const } : {}),
+          top:
+            hideZoomControls && props.touchCtrlTopOffset
+              ? {
+                  base: `calc(${HEADER_MIN_HEIGHT.base} + ${props.touchCtrlTopOffset})`,
+                  md: `calc(${HEADER_MIN_HEIGHT.md} + ${props.touchCtrlTopOffset})`,
+                }
+              : HEADER_MIN_HEIGHT,
         },
+        // Touch phones pinch to zoom: hide the zoom buttons, keep the compass.
+        ...(hideZoomControls
+          ? {
+              [`& .mapboxgl-ctrl-top-right .mapboxgl-ctrl-group:not(.${COMPASS_CONTROL_CLASS})`]:
+                { display: 'none' },
+            }
+          : {}),
         ...(props.mobileCtrlBottomOffset
           ? {
               '& .mapboxgl-ctrl-bottom-left, & .mapboxgl-ctrl-bottom-right': {

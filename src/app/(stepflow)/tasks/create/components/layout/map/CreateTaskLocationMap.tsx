@@ -22,7 +22,10 @@ import { useColorMode } from '@/ui/color-mode'
 import { Button, Input } from '@ui'
 
 import bag from '../../../i11n.json'
-import { TaskLocationCentrePin } from './TaskLocationMapPicker'
+import {
+  TaskLocationAreaHalo,
+  TaskLocationCentrePin,
+} from './TaskLocationMapPicker'
 import { useTaskLocationMap } from './useTaskLocationMap'
 
 const DEFAULT_STYLE = 'mapbox://styles/mapbox/streets-v12'
@@ -190,6 +193,7 @@ export function CreateTaskLocationMap({
         pointerEvents="none"
         aria-hidden
       >
+        {collapsed ? null : <TaskLocationAreaHalo />}
         <TaskLocationCentrePin />
       </Box>
 

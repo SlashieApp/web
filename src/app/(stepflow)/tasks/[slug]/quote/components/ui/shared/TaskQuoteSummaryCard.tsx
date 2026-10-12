@@ -2,6 +2,7 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
+import { useI11n } from '@/i18n/useI11n'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
@@ -10,8 +11,11 @@ import {
   taskAvailabilityRangeLabel,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 
+import bag from '../../../i11n.json'
+
 export function TaskQuoteSummaryCard() {
   const { task } = useTaskDetail()
+  const t = useI11n(bag)
   if (!task) return null
   const thumb = task.images?.[0]?.trim()
   const locationLine = taskPublicLocationLabel(task)
@@ -55,6 +59,10 @@ export function TaskQuoteSummaryCard() {
             {locationLine}
           </Text>
         ) : null}
+        {/* FE-70: the quoting worker sees only the approximate area. */}
+        <Text fontSize="xs" color="text.muted">
+          {t.locationNote}
+        </Text>
         <Text fontSize="xs" color="text.muted">
           {when}
         </Text>

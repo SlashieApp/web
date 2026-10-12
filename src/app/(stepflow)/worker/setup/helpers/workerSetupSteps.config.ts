@@ -108,7 +108,7 @@ export const STEP_COPY: Record<
   'area.location': {
     title: 'Where do you work?',
     description:
-      'We only ever show customers an approximate area — never your address.',
+      'Customers only ever see an approximate area, never your address.',
   },
   'area.travel': {
     title: 'How far will you travel?',

@@ -40,3 +40,23 @@ export async function mapboxReverseGeocode(
   const name = data.features?.[0]?.place_name?.trim()
   return name && name.length > 0 ? name : null
 }
+
+/**
+ * Town / locality for a point, never a street or postcode: the public place
+ * name for a task (FE-70). Returns the full Mapbox label, e.g.
+ * "Bushey, Hertfordshire, England, United Kingdom".
+ */
+export async function mapboxReverseGeocodeArea(
+  lat: number,
+  lng: number,
+  accessToken: string,
+): Promise<string | null> {
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?types=locality,place&limit=1&access_token=${encodeURIComponent(accessToken)}`
+  const res = await fetch(url)
+  if (!res.ok) return null
+  const data = (await res.json()) as {
+    features?: { place_name?: string }[]
+  }
+  const name = data.features?.[0]?.place_name?.trim()
+  return name && name.length > 0 ? name : null
+}

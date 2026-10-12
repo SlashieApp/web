@@ -19,7 +19,7 @@ const meta = {
   component: CreateTaskLocationSectionDemo,
   parameters: { layout: 'padded' },
   args: {
-    mapPlaceName: 'Watford, Hertfordshire, England, United Kingdom',
+    publicArea: 'Watford',
   },
 } satisfies Meta<typeof CreateTaskLocationSectionDemo>
 
@@ -28,15 +28,15 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
 
-export const NoPinYet: Story = { args: { mapPlaceName: '' } }
+export const AreaLookingUp: Story = { args: { publicArea: '' } }
 
 export const LocateUnavailable: Story = {
-  args: { mapPlaceName: '', locateUnavailable: true },
+  args: { publicArea: '', locateUnavailable: true },
 }
 
 export const WithErrors: Story = {
   args: {
-    mapPlaceName: '',
+    publicArea: '',
     streetAddressError: 'Enter your exact address.',
     locationError: 'Search or move the map to set your task area.',
   },

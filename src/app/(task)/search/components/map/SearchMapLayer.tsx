@@ -49,6 +49,8 @@ export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
         mobileCtrlBottomOffset: isDesktop
           ? undefined
           : overlayCtrlBottomOffsetForMobile(),
+        // Compass sits under the search bar and filter chips.
+        touchCtrlTopOffset: '96px',
         onNavRoutePresentingChange,
         onSelectTask: selectFromMap,
         onOpenTaskStack: setStack,

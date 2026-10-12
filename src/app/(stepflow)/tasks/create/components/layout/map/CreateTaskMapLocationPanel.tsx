@@ -1,7 +1,8 @@
 'use client'
 
-import { HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
+import { LuLock, LuMapPin } from 'react-icons/lu'
 
 import { Button, FormField, Input } from '@ui'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
@@ -15,6 +16,8 @@ export type CreateTaskMapLocationPanelProps = {
   sectionHeading?: string
   mapboxAccessToken: string | undefined
   mapPlaceName: string
+  /** What workers see before accept (town at the pin); empty while looking up. */
+  publicArea?: string
   locationLat: string
   locationLng: string
   onLocationChange: (value: string) => void
@@ -36,6 +39,7 @@ export function CreateTaskMapLocationPanel({
   sectionHeading = '2. Task location',
   mapboxAccessToken,
   mapPlaceName,
+  publicArea = '',
   locationLat,
   locationLng,
   onLocationChange,
@@ -53,6 +57,23 @@ export function CreateTaskMapLocationPanel({
 
   return (
     <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={4}>
+      <HStack
+        align="flex-start"
+        gap={2.5}
+        p={3}
+        borderRadius="lg"
+        bg="bg.subtle"
+        borderWidth="1px"
+        borderColor="border.default"
+      >
+        <Box color="text.default" pt={0.5} flexShrink={0} aria-hidden>
+          <LuLock size={16} />
+        </Box>
+        <Text fontSize="sm" color="text.default">
+          Your exact address stays private until you accept a worker. Until
+          then, workers only see an approximate area on the map.
+        </Text>
+      </HStack>
       <TaskLocationMapPicker
         accessToken={mapboxAccessToken}
         location={mapPlaceName}
@@ -63,10 +84,33 @@ export function CreateTaskMapLocationPanel({
         onLocationLngChange={onLocationLngChange}
         showCoordinateHelpText={false}
       />
+      <HStack
+        gap={1.5}
+        alignSelf="flex-start"
+        px={3}
+        py={1.5}
+        borderRadius="full"
+        bg="status.success.soft"
+        aria-live="polite"
+      >
+        <Box color="action.primary" flexShrink={0} aria-hidden>
+          <LuMapPin size={14} />
+        </Box>
+        <Text fontSize="sm" fontWeight={600} lineClamp={1}>
+          {publicArea
+            ? `Workers will see: ${publicArea}`
+            : 'Move the map to set the area.'}
+        </Text>
+      </HStack>
 
       <FormField
-        label="Exact address"
-        helperText="Only shared with the worker you hire — not shown on your public listing until you accept a quote."
+        label={
+          <HStack as="span" gap={1.5}>
+            <LuLock size={14} aria-hidden />
+            Exact address
+          </HStack>
+        }
+        helperText="Shared only with the worker you accept, after you hire them."
         errorText={streetAddressError}
       >
         <Stack gap={2}>
@@ -101,10 +145,6 @@ export function CreateTaskMapLocationPanel({
         </Stack>
       </FormField>
 
-      <Text fontSize="sm" color="text.muted">
-        Workers see the map area for search only. Your exact address stays
-        private until you hire someone.
-      </Text>
       {locationError ? (
         <Text fontSize="sm" color="status.danger.fg">
           {locationError}

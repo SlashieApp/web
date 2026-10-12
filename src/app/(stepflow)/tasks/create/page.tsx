@@ -51,6 +51,7 @@ import {
 import { mapboxReverseGeocode } from '@/utils/mapboxGeocode'
 import { TASK_DRAFT_TITLE_MAX } from '@/utils/taskHandoff'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
+import { publicAreaFromName } from '@/utils/taskLocationDisplay'
 import { StepFlowProgress } from '@ui'
 
 import {
@@ -90,6 +91,10 @@ import {
   createTaskProgressPercent,
   createTaskStepCaption,
 } from './helpers/createTaskSteps.config'
+import {
+  resolvePublicAreaName,
+  usePublicTaskArea,
+} from './helpers/publicTaskArea'
 import { resolveSubmittedTaskLocation } from './helpers/resolveTaskLocation'
 import bag from './i11n.json'
 
@@ -222,6 +227,11 @@ function CreateTaskFormBody({
   const mapPlaceName = watch('mapPlaceName')
   const locationLat = watch('locationLat')
   const locationLng = watch('locationLng')
+  const publicArea = usePublicTaskArea(
+    locationLat,
+    locationLng,
+    mapboxAccessToken,
+  )
   const preferredDate = watch('preferredDate')
   const preferredTime = watch('preferredTime')
   const datetimeType = watch('datetimeType')
@@ -497,7 +507,13 @@ function CreateTaskFormBody({
             location: {
               lat: Number.parseFloat(locatedValues.locationLat),
               lng: Number.parseFloat(locatedValues.locationLng),
-              name: locatedValues.mapPlaceName.trim(),
+              // Town at the pin, never the map's street label (FE-70).
+              name: await resolvePublicAreaName({
+                lat: Number.parseFloat(locatedValues.locationLat),
+                lng: Number.parseFloat(locatedValues.locationLng),
+                fallbackLabel: locatedValues.mapPlaceName,
+                accessToken: mapboxAccessToken,
+              }),
               address: locatedValues.streetAddress.trim(),
             },
             datetime,
@@ -638,7 +654,7 @@ function CreateTaskFormBody({
       case 'details.location':
         return (
           <CreateTaskLocationSection
-            mapPlaceName={mapPlaceName}
+            publicArea={publicAreaFromName(publicArea)}
             register={register}
             streetAddressError={errors.streetAddress?.message}
             locationError={locationError}

@@ -8,6 +8,32 @@ import { Input } from '@ui'
 
 import { useTaskLocationMap } from './useTaskLocationMap'
 
+/**
+ * Soft circle behind the centre pin (FE-70): workers see an approximate
+ * area, not this exact point. Decorative.
+ */
+export function TaskLocationAreaHalo() {
+  return (
+    <Box
+      pointerEvents="none"
+      position="absolute"
+      left="50%"
+      top="50%"
+      w="128px"
+      h="128px"
+      ml="-64px"
+      mt="-64px"
+      zIndex={1}
+      borderRadius="full"
+      bg="color-mix(in srgb, var(--chakra-colors-action-primary) 14%, transparent)"
+      borderWidth="1.5px"
+      borderStyle="dashed"
+      borderColor="action.primary"
+      aria-hidden
+    />
+  )
+}
+
 /** Fixed centre pin: the tip sits on the map centre. Decorative. */
 export function TaskLocationCentrePin() {
   return (
@@ -120,6 +146,7 @@ export function TaskLocationMapPicker({
                 }}
               />
             </Box>
+            <TaskLocationAreaHalo />
             <TaskLocationCentrePin />
             <Text
               position="absolute"
@@ -137,8 +164,8 @@ export function TaskLocationMapPicker({
               textAlign="center"
               pointerEvents="none"
             >
-              Drag the map or search — the pin marks where workers will find
-              your task.
+              Drag the map or search. Workers see an approximate area around the
+              pin, not your exact address.
             </Text>
           </>
         ) : (
@@ -162,10 +189,8 @@ export function TaskLocationMapPicker({
 
       {showCoordinateHelpText ? (
         <Text fontSize="sm" color="text.muted">
-          Adjust the map or use the search box. Map coordinates and the place
-          label from Mapbox are saved for matching only — workers see
-          approximate area, not your full street address, until you accept a
-          quote.
+          Adjust the map or use the search box. Workers see an approximate area,
+          never your street address, until you accept a quote.
         </Text>
       ) : null}
     </Stack>

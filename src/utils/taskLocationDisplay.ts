@@ -15,3 +15,31 @@ export function taskPublicLocationLabel(task: {
   if (fromName) return fromName
   return task.location?.address?.trim() || ''
 }
+
+const UK_POSTCODE_RE = /\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i
+
+/**
+ * What non-participants see for a stored place name: the first comma
+ * segment without a postcode (same trim as the API's discovery label).
+ */
+export function publicAreaFromName(name: string | null | undefined): string {
+  const first = (name ?? '').split(',')[0] ?? ''
+  return first
+    .replace(UK_POSTCODE_RE, '')
+    .replace(/[,\s]+$/g, '')
+    .trim()
+}
+
+/**
+ * Fallback when the area lookup fails: drops comma segments with digits
+ * (house numbers, postcodes), so no street number is stored publicly.
+ */
+export function stripStreetFromPlaceName(
+  name: string | null | undefined,
+): string {
+  return (name ?? '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part && !/\d/.test(part))
+    .join(', ')
+}

@@ -13,7 +13,8 @@
     "notFoundTitle": "Task not found",
     "notFoundDescription": "This task may have been removed or is no longer available for quotes.",
     "slotsInvalid": "Add at least one time with a day and a start time in the future.",
-    "proposedTimes": "Proposed times"
+    "proposedTimes": "Proposed times",
+    "locationNote": "Approximate area. The exact address is shared once your quote is accepted."
   },
   "zh_hk": {
     "metadata": {
@@ -29,6 +30,7 @@
     "notFoundTitle": "找不到任務",
     "notFoundDescription": "此任務可能已移除，或已不再接受報價。",
     "slotsInvalid": "請最少加入一個時間，包括日期和未來的開始時間。",
-    "proposedTimes": "建議時間"
+    "proposedTimes": "建議時間",
+    "locationNote": "大概地區。你的報價被接受後，才會分享確實地址。"
   }
 }

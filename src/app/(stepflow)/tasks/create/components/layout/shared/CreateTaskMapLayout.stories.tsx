@@ -1,3 +1,4 @@
+import { publicAreaFromName } from '@/utils/taskLocationDisplay'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -84,7 +85,7 @@ function CreateTaskMapDemo({
     >
       {mapExpanded ? (
         <CreateTaskLocationSection
-          mapPlaceName={location}
+          publicArea={publicAreaFromName(location)}
           register={register}
           locateUnavailable={locateUnavailable}
         />

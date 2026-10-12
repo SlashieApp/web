@@ -40,6 +40,7 @@ import {
   nextTaskImageUploadIndex,
   uploadTaskImagesWithPresign,
 } from '@/utils/taskImageUpload'
+import { publicAreaFromName } from '@/utils/taskLocationDisplay'
 import { Badge, Button, Footer, Link, StickyHeader } from '@ui'
 import { TaskStatusPill } from '../components/ui/TaskStatusPill'
 import { taskQueryVariables } from '../helpers/taskQueryVariables'
@@ -56,6 +57,10 @@ import {
   CreateTaskVisualsSection,
 } from '@/app/(stepflow)/tasks/create/components'
 import type { CreateTaskFormFieldValues } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import {
+  resolvePublicAreaName,
+  usePublicTaskArea,
+} from '@/app/(stepflow)/tasks/create/helpers/publicTaskArea'
 import { resolveSubmittedTaskLocation } from '@/app/(stepflow)/tasks/create/helpers/resolveTaskLocation'
 import { EditTaskAcceptedWorkerCapSection } from '../../edit/components/ui/EditTaskAcceptedWorkerCapSection'
 import {
@@ -121,6 +126,11 @@ function EditTaskFormBody({
   const mapPlaceName = watch('mapPlaceName')
   const locationLat = watch('locationLat')
   const locationLng = watch('locationLng')
+  const publicArea = usePublicTaskArea(
+    locationLat,
+    locationLng,
+    mapboxAccessToken,
+  )
   const preferredDate = watch('preferredDate')
   const preferredTime = watch('preferredTime')
   const datetimeType = watch('datetimeType')
@@ -286,7 +296,16 @@ function EditTaskFormBody({
       await runUpdateTask({
         variables: {
           taskId,
-          input: buildUpdateTaskInput(locatedValues as EditTaskFormValues),
+          input: buildUpdateTaskInput({
+            ...(locatedValues as EditTaskFormValues),
+            // Town at the pin, never the map's street label (FE-70).
+            mapPlaceName: await resolvePublicAreaName({
+              lat: Number.parseFloat(locatedValues.locationLat),
+              lng: Number.parseFloat(locatedValues.locationLng),
+              fallbackLabel: locatedValues.mapPlaceName,
+              accessToken: mapboxAccessToken,
+            }),
+          }),
         },
       })
 
@@ -430,6 +449,7 @@ function EditTaskFormBody({
             sectionHeading={t.sections.location}
             mapboxAccessToken={mapboxAccessToken}
             mapPlaceName={mapPlaceName}
+            publicArea={publicAreaFromName(publicArea)}
             locationLat={locationLat}
             locationLng={locationLng}
             register={sharedRegister}

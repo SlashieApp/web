@@ -22,6 +22,7 @@ import type { WorkerSetupFormState } from '../../../helpers/workerSetupFormState
 import { HEADLINE_MAX_CHARS } from '../../../helpers/workerSetupValidation'
 
 import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
+import { WorkerSetupAreaLocationInput } from '../inputs/WorkerSetupAreaLocationInput'
 import { WorkerSetupBioComposer } from '../inputs/WorkerSetupBioComposer'
 import { WorkerSetupCategoryTiles } from '../inputs/WorkerSetupCategoryTiles'
 import { WorkerSetupPortfolioInput } from '../inputs/WorkerSetupPortfolioInput'
@@ -301,26 +302,7 @@ export function WorkerSetupStepContent() {
       )
 
     case 'area.location':
-      return (
-        <FormField
-          label="Primary service area"
-          helperText="City or postcode where you usually take jobs. We look up coordinates when you continue."
-          errorText={fieldErrors.locationName}
-        >
-          <Input
-            value={form.locationName}
-            onChange={(e) =>
-              patchForm({
-                locationName: e.target.value,
-                locationLat: null,
-                locationLng: null,
-              })
-            }
-            placeholder="London or WD17 2AW"
-            rootProps={formControlRootProps}
-          />
-        </FormField>
-      )
+      return <WorkerSetupAreaLocationInput />
 
     case 'area.travel':
       return (

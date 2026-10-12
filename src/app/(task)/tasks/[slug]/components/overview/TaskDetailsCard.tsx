@@ -64,16 +64,21 @@ export function TaskDetailsCard() {
     ? task.description?.trim()
     : seed?.description?.trim()
   const category = task ? taskCategoryLabel(task) : seed?.badgeText
+  const showExactLocation = taskDetailShowsExactLocation({
+    myOrder,
+    showFullAddress: permissions.showFullAddress,
+  })
   const locationLabel = task
-    ? taskDetailLocationLabel({
-        task,
-        myOrder,
-        showExactLocation: taskDetailShowsExactLocation({
-          myOrder,
-          showFullAddress: permissions.showFullAddress,
-        }),
-      })
+    ? taskDetailLocationLabel({ task, myOrder, showExactLocation })
     : seed?.location
+  // FE-70: say who sees what before a quote is accepted.
+  const locationNote = myOrder
+    ? undefined
+    : !showExactLocation
+      ? t.details.locationApproxNote
+      : permissions.isOwner
+        ? t.details.locationOwnerNote
+        : undefined
   const timing = task ? taskAvailabilityRangeLabel(task) : seed?.timingLabel
   const loading = pending && !task
 
@@ -97,6 +102,7 @@ export function TaskDetailsCard() {
           value={locationLabel}
           pending={loading}
           skeletonWidth="55%"
+          subLine={locationNote}
         />
         <FactRow
           icon={<LuTag />}

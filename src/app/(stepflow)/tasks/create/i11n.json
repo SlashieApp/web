@@ -22,10 +22,13 @@
       "searchPlaceholder": "Search a street, area, or postcode",
       "locateLabel": "Use current location",
       "locateUnavailable": "We couldn't get your location. Search or drag the map instead.",
-      "placeLabel": "Task area",
-      "placeEmpty": "Search or move the map to drop your pin.",
       "addressLabel": "Exact address",
-      "addressPlaceholder": "Apt, street, unit number…"
+      "addressPlaceholder": "Apt, street, unit number…",
+      "privacyCallout": "Your exact address stays private until you accept a worker. Until then, workers only see an approximate area on the map.",
+      "areaLabel": "Approximate area, shown on the map",
+      "workersWillSee": "Workers will see: {area}",
+      "areaPending": "Move the map to set the area.",
+      "addressHelper": "Shared only with the worker you accept, after you hire them."
     }
   },
   "zh_hk": {
@@ -51,10 +54,13 @@
       "searchPlaceholder": "搜尋街道、地區或郵遞區號",
       "locateLabel": "使用目前位置",
       "locateUnavailable": "無法取得你的位置，請搜尋或拖動地圖。",
-      "placeLabel": "任務地區",
-      "placeEmpty": "搜尋或移動地圖以放置圖釘。",
       "addressLabel": "詳細地址",
-      "addressPlaceholder": "單位、街道、門牌號碼…"
+      "addressPlaceholder": "單位、街道、門牌號碼…",
+      "privacyCallout": "你接受工作者之前，你的確實地址會保密。在此之前，工作者只會在地圖上看到大概地區。",
+      "areaLabel": "大概地區，會顯示在地圖上",
+      "workersWillSee": "工作者會看到：{area}",
+      "areaPending": "移動地圖以設定地區。",
+      "addressHelper": "只會在你聘用工作者後，分享給你接受的工作者。"
     }
   }
 }

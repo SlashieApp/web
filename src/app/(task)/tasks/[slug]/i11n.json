@@ -173,7 +173,9 @@
       "viewProfile": "View {name}'s profile",
       "viewsColdStart": "New — reaching workers",
       "viewsOne": "{count} view",
-      "viewsMany": "{count} views"
+      "viewsMany": "{count} views",
+      "locationApproxNote": "Approximate area. The exact address is shared once your quote is accepted.",
+      "locationOwnerNote": "Workers only see an approximate area until you accept a quote."
     },
     "analytics": {
       "views": "Views",
@@ -599,7 +601,9 @@
       "viewProfile": "查看 {name} 的公開檔案",
       "viewsColdStart": "新任務 — 正在觸達工作者",
       "viewsOne": "{count} 次瀏覽",
-      "viewsMany": "{count} 次瀏覽"
+      "viewsMany": "{count} 次瀏覽",
+      "locationApproxNote": "大概地區。你的報價被接受後，才會分享確實地址。",
+      "locationOwnerNote": "你接受報價之前，工作者只會看到大概地區。"
     },
     "analytics": {
       "views": "瀏覽次數",

@@ -74,7 +74,7 @@ export const CREATE_TASK_STEP_COPY: Record<
   'details.location': {
     title: 'Where is the task?',
     description:
-      'Drop a pin so nearby workers can find it. Your exact address is only shared with the worker you accept.',
+      'Move the map to your task. Workers only see an approximate area until you accept one of them.',
   },
   'details.basics': {
     title: 'What needs doing?',
