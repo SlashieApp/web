@@ -31,7 +31,7 @@ import { Header } from './Header'
 
 const meWorker: MeSnapshot = {
   id: 'user-1',
-  email: 'ryan@example.com',
+  email: 'sam@example.com',
   emailVerified: true,
   phoneVerified: true,
   phoneVerifiedAt: '2024-06-01T00:00:00.000Z',
@@ -39,10 +39,10 @@ const meWorker: MeSnapshot = {
   disabled: false,
   enabledLoginMethods: [LoginMethod.Password],
   profile: {
-    name: 'Ryan Kwan',
-    contactNumber: '+447878154432',
+    name: 'Sam Carter',
+    contactNumber: '+447700900123',
     avatarUrl: null,
-    dateOfBirth: '1990-04-12T00:00:00.000Z',
+    dateOfBirth: '1990-01-01T00:00:00.000Z',
     defaultPreferredContactMethod: null,
     emailVerified: true,
     phoneVerified: true,
@@ -55,7 +55,7 @@ const meWorker: MeSnapshot = {
   workerEligibility: true,
   worker: {
     id: 'worker-1',
-    legalName: 'Ryan Kwan',
+    legalName: 'Sam Carter',
     bio: 'Handyman covering North London.',
     tagline: 'Reliable local help',
     yearsExperience: 8,

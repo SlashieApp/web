@@ -28,7 +28,7 @@ describe('profileApiFormSchema', () => {
     expect(
       profileApiFormSchema.safeParse({
         ...valid,
-        dateOfBirth: '1990-04-12',
+        dateOfBirth: '1990-01-01',
       }).success,
     ).toBe(true)
   })

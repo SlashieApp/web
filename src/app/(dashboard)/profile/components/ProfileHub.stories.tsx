@@ -22,7 +22,7 @@ function profileFixture({
 }): MeSnapshot {
   return {
     id: 'user-rk',
-    email: 'rikhong124@gmail.com',
+    email: 'sam@example.com',
     emailVerified: true,
     phoneVerified,
     phoneVerifiedAt: phoneVerified ? '2026-06-08T10:00:00.000Z' : null,
@@ -31,11 +31,11 @@ function profileFixture({
     enabledLoginMethods: [],
     workerEligibility: worker !== 'none',
     profile: {
-      name: 'R K',
-      contactNumber: '+447878154432',
+      name: 'Sam Carter',
+      contactNumber: '+447700900123',
       avatarUrl:
         'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=128&h=128&fit=crop',
-      dateOfBirth: '1992-04-12T00:00:00.000Z',
+      dateOfBirth: '1990-01-01T00:00:00.000Z',
       defaultPreferredContactMethod: null,
       emailVerified: true,
       phoneVerified,
@@ -50,7 +50,7 @@ function profileFixture({
         ? null
         : ({
             id: 'worker-rk',
-            legalName: 'R K',
+            legalName: 'Sam Carter',
             bio: 'Reliable local handyman with experience in flat-pack assembly, mounting, and everyday home repairs.',
             tagline: 'Reliable handyman and flat-pack expert',
             primaryCategory: WorkerPrimaryCategory.Handyman,

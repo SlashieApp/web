@@ -38,8 +38,8 @@ export const Default: Story = {
 
 export const SignedIn: Story = {
   args: {
-    defaultEmail: 'ryan@example.com',
-    defaultName: 'Ryan Kwan',
+    defaultEmail: 'sam@example.com',
+    defaultName: 'Sam Carter',
     emailLocked: true,
   },
   render: function Render(args) {

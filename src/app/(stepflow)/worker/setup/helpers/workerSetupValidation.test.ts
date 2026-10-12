@@ -66,7 +66,7 @@ describe('validateWorkerSetupSubStep — profile.photo date of birth', () => {
   it('accepts an adult date of birth', () => {
     const errors = validateWorkerSetupSubStep(
       'profile.photo',
-      form({ dateOfBirth: '1990-04-12' }),
+      form({ dateOfBirth: '1990-01-01' }),
       photoMe,
     )
     expect(errors.dateOfBirth).toBeUndefined()
