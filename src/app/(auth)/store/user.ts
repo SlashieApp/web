@@ -3,6 +3,8 @@
 import type {
   LoginMutation,
   LoginMutationVariables,
+  LoginWithAppleMutation,
+  LoginWithAppleMutationVariables,
   LoginWithGoogleMutation,
   LoginWithGoogleMutationVariables,
   MeQuery,
@@ -18,6 +20,7 @@ import {
 import { parseAuthAbuseError } from '@/app/(auth)/helpers/authAbuseErrors'
 import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationContext'
 import Login from '@/app/(auth)/login/graphql/Login.gql'
+import LoginWithApple from '@/app/(auth)/login/graphql/LoginWithApple.gql'
 import LoginWithGoogle from '@/app/(auth)/login/graphql/LoginWithGoogle.gql'
 import Me from '@/graphql/Me.gql'
 import {
@@ -73,6 +76,11 @@ type UserStore = {
   patchMe: (patch: Partial<MeSnapshot>) => void
   login: (input: LoginInput) => Promise<AuthUser | null>
   loginWithGoogle: (idToken: string) => Promise<AuthUser | null>
+  /** Apple identity token; `name` only on the first authorization. */
+  loginWithApple: (
+    idToken: string,
+    name?: { firstName?: string; lastName?: string },
+  ) => Promise<AuthUser | null>
   logout: () => void
   getUser: () => Promise<AuthUser | null>
 }
@@ -250,6 +258,40 @@ export const useUserStore = create<UserStore>((set, get) => ({
         flow: 'google_login',
         action: 'loginWithGoogle',
         operation: 'LoginWithGoogle',
+        route: '/login',
+      })
+      throw error
+    }
+  },
+  loginWithApple: async (idToken, name) => {
+    set({ isLoading: true })
+    try {
+      const result = await apolloClient.mutate<
+        LoginWithAppleMutation,
+        LoginWithAppleMutationVariables
+      >({
+        mutation: LoginWithApple,
+        variables: { token: idToken, ...name },
+      })
+
+      const token = result.data?.loginWithMethod?.token?.trim()
+      if (!token) {
+        throw new Error(
+          'Apple sign-in succeeded but no session token was returned.',
+        )
+      }
+
+      setAuthToken(token, SESSION_MAX_AGE)
+      applyDisabledFromAuthPayload(result.data?.loginWithMethod?.user)
+      const user = await hydrateMeAfterAuth(result.data?.loginWithMethod?.user)
+      trackFlowSucceeded(EVENTS.apple_login_success)
+      return user
+    } catch (error) {
+      set({ isLoading: false })
+      trackFlowFailed(EVENTS.apple_login_fail, error, {
+        flow: 'apple_login',
+        action: 'loginWithApple',
+        operation: 'LoginWithApple',
         route: '/login',
       })
       throw error

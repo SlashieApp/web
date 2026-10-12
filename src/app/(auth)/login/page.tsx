@@ -9,6 +9,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
+import { AppleAuthButton } from '@/app/(auth)/components/ui/AppleAuthButton'
 import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
 import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
 import { useLoginAutofill } from '@/app/(auth)/helpers/LoginAutofillProvider'
@@ -458,6 +459,11 @@ export default function LoginPage() {
 
             <Stack gap={3}>
               <GoogleAuthButton
+                next={authQuery.next}
+                redirect={authQuery.redirect}
+                fallbackPath="/tasks"
+              />
+              <AppleAuthButton
                 next={authQuery.next}
                 redirect={authQuery.redirect}
                 fallbackPath="/tasks"

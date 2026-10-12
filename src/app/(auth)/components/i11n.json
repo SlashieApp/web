@@ -7,6 +7,15 @@
       "beforeEmail": "This user is being suspended, please contact ",
       "afterEmail": ".",
       "email": "accounts@slashie.app"
+    },
+    "apple": {
+      "continue": "Continue with Apple",
+      "failedTitle": "Could not sign in with Apple",
+      "failedDescription": "Something went wrong. Try again.",
+      "popupBlocked": "Allow pop-ups for this site, then continue with Apple.",
+      "unavailable": "Sign in with Apple is unavailable right now. Try again or use email instead.",
+      "blockedTitle": "Confirm you are 18 or over",
+      "blockedDescription": "Tick the confirmation boxes, then continue with Apple."
     }
   },
   "zh_hk": {
@@ -17,6 +26,15 @@
       "beforeEmail": "此用戶已被暫停，請聯絡 ",
       "afterEmail": "。",
       "email": "accounts@slashie.app"
+    },
+    "apple": {
+      "continue": "使用 Apple 繼續",
+      "failedTitle": "未能使用 Apple 登入",
+      "failedDescription": "出現問題，請再試。",
+      "popupBlocked": "請允許此網站的彈出視窗，然後再使用 Apple 繼續。",
+      "unavailable": "暫時未能使用 Apple 登入，請再試或改用電郵。",
+      "blockedTitle": "請確認你年滿 18 歲",
+      "blockedDescription": "先勾選確認選項，再使用 Apple 繼續。"
     }
   }
 }

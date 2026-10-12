@@ -14,6 +14,7 @@ import type { z } from 'zod'
 
 import type { Control } from 'react-hook-form'
 
+import { AppleAuthButton } from '@/app/(auth)/components/ui/AppleAuthButton'
 import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
 import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
 import {
@@ -384,7 +385,7 @@ export default function RegisterPage() {
 
   const isOver18 = watch('isOver18')
   const agreedToTerms = watch('agreedToTerms')
-  const googleBlocked = !isOver18 || !agreedToTerms
+  const oauthBlocked = !isOver18 || !agreedToTerms
 
   const [registerMutation, { loading }] =
     useMutation<RegisterMutation>(Register)
@@ -543,14 +544,22 @@ export default function RegisterPage() {
                 <GoogleAuthButton
                   next={authQuery.next}
                   redirect={authQuery.redirect}
-                  blocked={googleBlocked}
+                  blocked={oauthBlocked}
                   blockedTitle={t.googleBlockedTitle}
                   blockedDescription={t.googleBlockedDescription}
                   onBlocked={() => {
                     void trigger(['isOver18', 'agreedToTerms'])
                   }}
                 />
-                {googleBlocked ? (
+                <AppleAuthButton
+                  next={authQuery.next}
+                  redirect={authQuery.redirect}
+                  blocked={oauthBlocked}
+                  onBlocked={() => {
+                    void trigger(['isOver18', 'agreedToTerms'])
+                  }}
+                />
+                {oauthBlocked ? (
                   <Text fontSize="xs" color="text.muted" lineHeight="tall">
                     {t.googleConsentHint}
                   </Text>

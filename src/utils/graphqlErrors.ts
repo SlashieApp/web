@@ -14,9 +14,11 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   UNAUTHENTICATED: 'You need to log in to continue.',
   INVALID_CREDENTIALS: 'Email or password is incorrect.',
   INVALID_OAUTH_TOKEN:
-    'Google sign-in could not be verified. Try again or use email instead.',
+    'Sign-in could not be verified. Try again or use email instead.',
   OAUTH_ACCOUNT_CONFLICT:
-    'This Google account is linked to a different login method. Sign in with email or the original provider.',
+    'This email is already linked to a different Google or Apple account. Sign in with that account, or use email.',
+  OAUTH_LINK_REQUIRES_VERIFIED_EMAIL:
+    'An account with this email already exists. Sign in with your password and verify your email first, then you can use Google or Apple.',
   WEAK_PASSWORD: 'Password must meet the minimum complexity requirements.',
   INVALID_OR_EXPIRED_RESET_TOKEN: 'This reset link is invalid or has expired.',
   INVALID_OR_EXPIRED_VERIFICATION:

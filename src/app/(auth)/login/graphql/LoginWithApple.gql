@@ -1,0 +1,23 @@
+mutation LoginWithApple(
+  $token: String!
+  $firstName: String
+  $lastName: String
+) {
+  loginWithMethod(
+    input: {
+      method: APPLE
+      oauthToken: $token
+      firstName: $firstName
+      lastName: $lastName
+    }
+  ) {
+    token
+    user {
+      id
+      email
+      disabled
+      emailVerified
+      enabledLoginMethods
+    }
+  }
+}
