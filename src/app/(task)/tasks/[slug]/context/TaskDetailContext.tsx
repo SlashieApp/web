@@ -97,7 +97,6 @@ export type TaskDetailActions = {
   onWithdrawQuote: () => Promise<boolean>
   withdrawingQuote: boolean
   scrollToQuoteForm: () => void
-  scrollToOwnerPerformance: () => void
   setActiveTab: (
     tab: TaskDetailTab,
     options?: { hash?: string; scrollId?: string },

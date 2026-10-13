@@ -8,34 +8,33 @@ import {
 
 describe('resolveTaskDetailTab', () => {
   it('maps overview aliases and booking hashes', () => {
-    expect(resolveTaskDetailTab('overview', TASK_DETAIL_TAB.analytics)).toBe(
+    expect(resolveTaskDetailTab('overview', TASK_DETAIL_TAB.overview)).toBe(
       'overview',
     )
-    expect(resolveTaskDetailTab('info', TASK_DETAIL_TAB.analytics)).toBe(
+    expect(resolveTaskDetailTab('info', TASK_DETAIL_TAB.overview)).toBe(
       'overview',
     )
     // Quotes are an Overview section now (FE-258).
-    expect(resolveTaskDetailTab('quotes', TASK_DETAIL_TAB.analytics)).toBe(
+    expect(resolveTaskDetailTab('quotes', TASK_DETAIL_TAB.overview)).toBe(
       'overview',
     )
+    // Analytics is an owner card / drawer on Overview now (FE-258).
     expect(resolveTaskDetailTab('analytics', TASK_DETAIL_TAB.overview)).toBe(
-      'analytics',
+      'overview',
     )
     expect(
       resolveTaskDetailTab('owner-task-performance', TASK_DETAIL_TAB.overview),
-    ).toBe('analytics')
-    expect(resolveTaskDetailTab('activity', TASK_DETAIL_TAB.analytics)).toBe(
+    ).toBe('overview')
+    expect(resolveTaskDetailTab('activity', TASK_DETAIL_TAB.overview)).toBe(
       'overview',
     )
-    expect(resolveTaskDetailTab('task-order', TASK_DETAIL_TAB.analytics)).toBe(
+    expect(resolveTaskDetailTab('task-order', TASK_DETAIL_TAB.overview)).toBe(
       'overview',
     )
     expect(
-      resolveTaskDetailTab('worker-job-panel', TASK_DETAIL_TAB.analytics),
+      resolveTaskDetailTab('worker-job-panel', TASK_DETAIL_TAB.overview),
     ).toBe('overview')
-    expect(resolveTaskDetailTab('', TASK_DETAIL_TAB.analytics)).toBe(
-      'analytics',
-    )
+    expect(resolveTaskDetailTab('', TASK_DETAIL_TAB.overview)).toBe('overview')
   })
 })
 

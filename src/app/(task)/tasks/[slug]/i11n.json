@@ -193,6 +193,7 @@
       "showLess": "Show less"
     },
     "analytics": {
+      "heading": "Analytics",
       "views": "Views",
       "viewsHint": "Times workers opened this task.",
       "viewsColdStart": "New — reaching workers",
@@ -637,6 +638,7 @@
       "showLess": "顯示較少"
     },
     "analytics": {
+      "heading": "數據分析",
       "views": "瀏覽次數",
       "viewsHint": "工作者打開此任務的次數。",
       "viewsColdStart": "新任務 — 正在觸達工作者",

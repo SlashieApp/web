@@ -20,9 +20,8 @@ describe('TaskDetailTabs slot wiring', () => {
     // Quotes are an Overview section (FE-258), not a tab.
     expect(src).not.toContain('QuotesCards')
     expect(src).not.toContain('TASK_DETAIL_TAB.quotes')
-    expect(src).toContain('cards: <AnalyticsCards />')
-    expect(src).toContain('t.analytics.overallTitle')
-    expect(src).toContain('tabTitle: analyticsTitle')
+    // Analytics is an owner card / drawer (FE-258), not a tab.
+    expect(src).not.toContain('AnalyticsCards')
     expect(src).toContain(
       'title={({ isStuck }) => <TaskTitle isStuck={isStuck} />}',
     )

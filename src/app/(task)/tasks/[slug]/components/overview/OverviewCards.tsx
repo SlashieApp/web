@@ -5,6 +5,7 @@ import { Stack } from '@chakra-ui/react'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailOverviewCardId } from '../../helpers/taskDetailMainCtaModel'
 import { showTaskDetailQuotesSection } from '../../helpers/taskDetailTabs'
+import { TaskAnalyticsTrigger } from '../analytics/AnalyticsCards'
 import { QuotesPanel } from '../quotes/QuotesPanel'
 import { BookingSection } from './BookingSection'
 import { PhotosCard } from './PhotosCard'
@@ -14,7 +15,8 @@ import { TaskPricingCard } from './TaskPricingCard'
 /**
  * Overview cards. A card stays hidden when the main CTA already shows it.
  * The poster is a row in Task details, not its own card, and quotes are a
- * section here instead of a tab (FE-258).
+ * section here instead of a tab. Owners get an Analytics button (phones)
+ * that opens the rail card's snapshot in a sheet (FE-258).
  */
 export function OverviewCards() {
   const { mainCta, permissions } = useTaskDetail()
@@ -33,6 +35,7 @@ export function OverviewCards() {
       {hidePrice ? null : <TaskPricingCard />}
       <TaskDetailsCard />
       <PhotosCard />
+      <TaskAnalyticsTrigger />
       {showTaskDetailQuotesSection(permissions) ? <QuotesPanel /> : null}
     </Stack>
   )

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
-import { AnalyticsCards } from './AnalyticsCards'
+import { AnalyticsCards, TaskAnalyticsTrigger } from './AnalyticsCards'
 
 const meta: Meta<typeof AnalyticsCards> = {
   title: 'task/tasks/analytics/AnalyticsCards',
@@ -25,4 +25,10 @@ export const NoQuotes: Story = {
       task: storyTaskDetail({ quotes: [], views: 2 }),
     }),
   ],
+}
+
+/** Phones: the Overview button that opens the snapshot in a sheet. */
+export const PhoneTrigger: Story = {
+  render: () => <TaskAnalyticsTrigger />,
+  globals: { viewport: { value: 'mobile1' } },
 }

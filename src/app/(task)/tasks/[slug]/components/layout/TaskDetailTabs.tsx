@@ -2,13 +2,10 @@
 
 import type { BoxProps } from '@chakra-ui/react'
 
-import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
-import { taskOwnerAnalytics } from '../../helpers/taskOwnerAnalytics'
 import bag from '../../i11n.json'
-import { AnalyticsCards } from '../analytics/AnalyticsCards'
 import { OverviewCards } from '../overview/OverviewCards'
 import { TaskDetailMainCta } from './TaskDetailMainCta'
 import { TaskDetailSideRail } from './TaskDetailSideRail'
@@ -43,16 +40,6 @@ export function TaskDetailTabs({
     myQuote,
     isAuthenticated,
   } = useTaskDetail()
-  const showAnalytics = permissions.isOwner
-  const analytics = task ? taskOwnerAnalytics(task) : null
-  const analyticsTitle = analytics
-    ? formatMessage(t.analytics.overallTitle, {
-        level: t.analytics.interestLevel[analytics.interest],
-      })
-    : t.analytics.interest
-  const analyticsDescription = analytics
-    ? t.analytics.interestHint[analytics.interest]
-    : undefined
   const copy =
     statusReady && task
       ? selectStatusHeaderCopy(
@@ -69,17 +56,6 @@ export function TaskDetailTabs({
       tabDescription: copy?.subtext,
       cards: <OverviewCards />,
     },
-    ...(showAnalytics
-      ? [
-          {
-            key: TASK_DETAIL_TAB.analytics,
-            label: t.mobile.tabAnalytics,
-            tabTitle: analyticsTitle,
-            tabDescription: analyticsDescription,
-            cards: <AnalyticsCards />,
-          } satisfies TaskDetailTabSlot,
-        ]
-      : []),
   ]
 
   return (

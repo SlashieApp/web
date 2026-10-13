@@ -886,13 +886,6 @@ export function TaskDetailProvider({
     })
   }, [])
 
-  const scrollToOwnerPerformance = useCallback(() => {
-    setActiveTab(TASK_DETAIL_TAB.analytics, {
-      hash: TASK_DETAIL_TAB.analytics,
-      scrollId: 'owner-task-performance',
-    })
-  }, [setActiveTab])
-
   // State-dependent surfaces (status header copy, hero CTA, booking panel)
   // should show loading placeholders until this is true — before that the
   // permission flags are guest-shaped defaults, not the confirmed viewer state.
@@ -901,10 +894,7 @@ export function TaskDetailProvider({
   )
 
   const resolvedTab = explicitTab ?? TASK_DETAIL_TAB.overview
-  const activeTab =
-    resolvedTab === TASK_DETAIL_TAB.analytics && !permissions.isOwner
-      ? TASK_DETAIL_TAB.overview
-      : resolvedTab
+  const activeTab = resolvedTab
 
   const mainCta = useMemo(
     () =>
@@ -1024,7 +1014,6 @@ export function TaskDetailProvider({
       onWithdrawQuote,
       withdrawingQuote,
       scrollToQuoteForm,
-      scrollToOwnerPerformance,
       setActiveTab,
     }),
     [
@@ -1076,7 +1065,6 @@ export function TaskDetailProvider({
       onWithdrawQuote,
       withdrawingQuote,
       scrollToQuoteForm,
-      scrollToOwnerPerformance,
       setActiveTab,
     ],
   )

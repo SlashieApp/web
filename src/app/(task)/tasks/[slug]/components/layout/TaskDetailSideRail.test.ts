@@ -7,8 +7,11 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('TaskDetailSideRail', () => {
-  it('hosts Help and Activity outside the tab body', () => {
+  it('hosts owner Analytics, Help and Activity outside the tab body', () => {
     const src = readFileSync(join(dir, 'TaskDetailSideRail.tsx'), 'utf8')
+    expect(src.indexOf('<AnalyticsCards />')).toBeLessThan(
+      src.indexOf('<TaskHelpCard />'),
+    )
     expect(src).toContain('<TaskHelpCard />')
     expect(src).toContain('<TaskActivitySections />')
     expect(src).not.toContain('TaskDetailMainCta')

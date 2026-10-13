@@ -1,6 +1,5 @@
 export const TASK_DETAIL_TAB = {
   overview: 'overview',
-  analytics: 'analytics',
 } as const
 
 export type TaskDetailTab =
@@ -8,15 +7,22 @@ export type TaskDetailTab =
 
 const TAB_VALUES = new Set<string>(Object.values(TASK_DETAIL_TAB))
 
+/** Old Analytics tab links: the owner card (desktop) or drawer (phones). */
+export const TASK_ANALYTICS_HASHES = new Set([
+  'analytics',
+  'owner-task-performance',
+])
+
 /**
  * Hashes that open Overview: booking / complete-job anchors, the retired
- * `#activity`, and `#quotes` (quotes are an Overview section since FE-258).
+ * `#activity`, and `#quotes` / `#analytics` (Overview sections since FE-258).
  */
 const OVERVIEW_ANCHOR_HASHES = new Set([
   'activity',
   'quotes',
   'task-order',
   'worker-job-panel',
+  ...TASK_ANALYTICS_HASHES,
 ])
 
 export function isTaskDetailTab(value: string): value is TaskDetailTab {
@@ -38,9 +44,6 @@ export function resolveTaskDetailTab(
 ): TaskDetailTab {
   const key = hash.replace('#', '').trim()
   if (key === 'info' || key === 'overview') return TASK_DETAIL_TAB.overview
-  if (key === 'analytics' || key === 'owner-task-performance') {
-    return TASK_DETAIL_TAB.analytics
-  }
   if (OVERVIEW_ANCHOR_HASHES.has(key)) return TASK_DETAIL_TAB.overview
   if (isTaskDetailTab(key)) return key
   return fallback
