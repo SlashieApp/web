@@ -5,6 +5,14 @@
 
 export { AnalyticsErrorBoundary } from './AnalyticsErrorBoundary'
 export { apiFetch } from './api-fetch'
+export {
+  applyCookieConsent,
+  getPostHog,
+  initPostHogClient,
+  isPostHogConfigured,
+  markAuthSurfaceSession,
+  queueCapture,
+} from './posthog-client'
 export { capture, getCurrentRoute } from './capture'
 export { captureApiError } from './capture-api-error'
 export {
@@ -17,6 +25,8 @@ export {
   COOKIE_CONSENT_STORAGE_KEY,
   getCookieConsent,
   onCookieConsentChange,
+  onCookieSettingsOpen,
+  openCookieSettings,
   setCookieConsent,
 } from './consent'
 export {
@@ -25,13 +35,6 @@ export {
   resolveAnalyticsEvent,
   STALE_EVENT_ALIASES,
 } from './events'
-export {
-  getPostHog,
-  initPostHogClient,
-  isPostHogConfigured,
-  markAuthSurfaceSession,
-  queueCapture,
-} from './posthog-client'
 export {
   identifyAuthenticatedUser,
   resetAnalyticsIdentity,

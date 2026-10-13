@@ -43,3 +43,20 @@ export function onCookieConsentChange(listener: ConsentListener): () => void {
     listeners.delete(listener)
   }
 }
+
+const SETTINGS_EVENT = 'slashie:cookie-settings'
+
+/**
+ * Footer "Cookie settings": reopen the banner so a visitor can change or
+ * withdraw their choice (PECR: withdrawing is as easy as giving consent).
+ */
+export function openCookieSettings(): void {
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new Event(SETTINGS_EVENT))
+}
+
+/** The banner listens here. Returns an unsubscribe. */
+export function onCookieSettingsOpen(listener: () => void): () => void {
+  window.addEventListener(SETTINGS_EVENT, listener)
+  return () => window.removeEventListener(SETTINGS_EVENT, listener)
+}

@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
 import {
+  applyCookieConsent,
   capture,
   getPostHog,
   initPostHogClient,
@@ -23,15 +24,13 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     initializedRef.current = true
   }
 
-  // If consent is granted after load (banner "Accept all"), start PostHog
-  // immediately; queued pre-decision events flush inside init.
+  // A decision made after load (banner, or Cookie settings in the footer):
+  // accepting starts PostHog and flushes queued events; rejecting stops it.
   useEffect(
     () =>
       onCookieConsentChange((value) => {
-        if (value === 'accepted') {
-          initPostHogClient()
-          syncPendingAnalyticsIdentity()
-        }
+        applyCookieConsent(value)
+        if (value === 'accepted') syncPendingAnalyticsIdentity()
       }),
     [],
   )

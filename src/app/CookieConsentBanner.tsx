@@ -7,6 +7,7 @@ import { useI11n } from '@/i18n/useI11n'
 import {
   type CookieConsentValue,
   getCookieConsent,
+  onCookieSettingsOpen,
   setCookieConsent,
 } from '@/utils/analytics'
 import { Button, Link } from '@ui'
@@ -30,6 +31,8 @@ export function CookieConsentBanner() {
 
   useEffect(() => {
     setVisible(getCookieConsent() === 'unset')
+    // Footer "Cookie settings" reopens the banner to change the choice.
+    return onCookieSettingsOpen(() => setVisible(true))
   }, [])
 
   if (!visible) return null

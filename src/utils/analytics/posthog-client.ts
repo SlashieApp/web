@@ -1,6 +1,6 @@
 import posthog from 'posthog-js'
 
-import { getCookieConsent } from './consent'
+import { type CookieConsentValue, getCookieConsent } from './consent'
 import type { CaptureOptions } from './events'
 import { scrubEventUrls } from './scrubUrls'
 
@@ -77,6 +77,23 @@ export function initPostHogClient(): void {
     })
   }
   queuedCaptures.length = 0
+}
+
+/**
+ * Honour a consent change made this session. Rejecting after accepting stops
+ * capture now (PostHog keeps the opt-out on later loads too); accepting again
+ * starts or resumes it.
+ */
+export function applyCookieConsent(value: CookieConsentValue): void {
+  if (value === 'rejected') {
+    queuedCaptures.length = 0
+    if (initialized) posthog.opt_out_capturing()
+    return
+  }
+  initPostHogClient()
+  if (initialized && posthog.has_opted_out_capturing()) {
+    posthog.opt_in_capturing()
+  }
 }
 
 export function getPostHog(): typeof posthog | null {
