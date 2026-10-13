@@ -465,12 +465,10 @@ export default function LoginPage() {
               <GoogleAuthButton
                 next={authQuery.next}
                 redirect={authQuery.redirect}
-                fallbackPath="/tasks"
               />
               <AppleAuthButton
                 next={authQuery.next}
                 redirect={authQuery.redirect}
-                fallbackPath="/tasks"
               />
 
               <Stack gap={2} pt={1}>

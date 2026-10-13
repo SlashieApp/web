@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { authSwitchHref, getSafeNextPath } from './authRedirect'
+import { APP_HOME } from '@/utils/appRoutes'
+
+import {
+  authSwitchHref,
+  getSafeNextPath,
+  resolvePostAuthRedirect,
+} from './authRedirect'
 
 describe('getSafeNextPath', () => {
   it('keeps in-app paths with their query and hash', () => {
@@ -36,5 +42,19 @@ describe('authSwitchHref', () => {
       authSwitchHref('/register', new URLSearchParams({ next: '//evil' })),
     ).toBe('/register')
     expect(authSwitchHref('/register', new URLSearchParams())).toBe('/register')
+  })
+})
+
+// FE-212: every login method returns to the carried link, else search.
+describe('resolvePostAuthRedirect', () => {
+  it('goes to the carried link after login', () => {
+    expect(
+      resolvePostAuthRedirect({ next: '/tasks/t1', emailVerified: true }),
+    ).toBe('/tasks/t1')
+  })
+
+  it('falls back to search, not My Tasks', () => {
+    expect(resolvePostAuthRedirect({ emailVerified: true })).toBe(APP_HOME)
+    expect(APP_HOME).toBe('/search')
   })
 })
