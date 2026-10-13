@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Accordion,
   Box,
   type BoxProps,
   Container,
@@ -10,13 +11,14 @@ import {
   Text,
   chakra,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { LuGithub, LuGlobe, LuLinkedin } from 'react-icons/lu'
 
 import {
   COMPANY_LEGAL_NAME,
   COMPANY_NUMBER,
   COMPANY_REGISTERED_OFFICE,
+  LEGAL_CONTACT_EMAIL,
 } from '@/content/legal/company'
 import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
@@ -26,6 +28,7 @@ import { LOCALE_LABELS } from '@/i18n/locales'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { openCookieSettings } from '@/utils/analytics'
 import { APP_HOME, SAFETY_HREF } from '@/utils/appRoutes'
 
 import { FeedbackTrigger } from '../FeedbackDialog/FeedbackTrigger'
@@ -36,10 +39,11 @@ import messages from './i11n.json'
 /**
  * SDL site footer (cross-route chrome).
  *
- * - Default: tonal soft-green wash; brand column (tagline + language
- *   switch, the only language control guests have on phones) and Product /
- *   Company / Help & legal columns (two up on phones), then the company line.
- * - Minimal: compact copyright + legal row (dashboard shells).
+ * - Default: tonal soft-green wash; brand block (tagline, language switch,
+ *   the only language control guests have on phones, and social icons),
+ *   then Product / Workers / Company / Support / Legal: columns on desktop,
+ *   accordions below `lg` (FE-72 redesign). Then the company line.
+ * - Minimal: compact copyright + legal row (legal pages, dashboard shells).
  */
 export type UiFooterVariant = 'default' | 'minimal'
 
@@ -54,8 +58,13 @@ export type UiFooterProps = Omit<BoxProps, 'children'> & {
 const productHrefs = {
   search: APP_HOME,
   postTask: '/tasks/create',
-  becomeWorker: '/worker/setup',
+  howItWorks: '/home#how-it-works',
   pricing: '/pricing',
+} as const
+
+const workerHrefs = {
+  becomeWorker: '/worker/setup',
+  findWorkers: '/workers',
 } as const
 
 const legalHrefs = {
@@ -115,48 +124,97 @@ export function Footer({
     />
   )
 
-  const productLinks = [
-    { label: t.product.search, href: productHrefs.search },
-    { label: t.product.postTask, href: productHrefs.postTask },
-    { label: t.product.becomeWorker, href: productHrefs.becomeWorker },
-    { label: t.product.pricing, href: productHrefs.pricing },
-  ] as const
+  const linkItems = (links: readonly { label: string; href: string }[]) =>
+    links.map((link) => (
+      <FooterLink key={link.href} href={link.href}>
+        {link.label}
+      </FooterLink>
+    ))
 
   const legalLinks = [
-    { label: t.legal.safety, href: legalHrefs.safety },
     { label: t.legal.terms, href: legalHrefs.terms },
     { label: t.legal.privacy, href: legalHrefs.privacy },
     { label: t.legal.cookies, href: legalHrefs.cookies },
   ] as const
 
-  const connectLinks = [
+  const cookieSettings = (
+    <FooterLinkButton key="cookie-settings" onClick={openCookieSettings}>
+      {t.legal.cookieSettings}
+    </FooterLinkButton>
+  )
+
+  const groups: FooterGroup[] = [
     {
-      label: t.connect.linkedin,
-      href: SLASHIE_LINKEDIN_URL,
-      icon: LuLinkedin,
+      key: 'product',
+      label: t.columns.product,
+      items: linkItems([
+        { label: t.product.search, href: productHrefs.search },
+        { label: t.product.postTask, href: productHrefs.postTask },
+        { label: t.product.howItWorks, href: productHrefs.howItWorks },
+        { label: t.product.pricing, href: productHrefs.pricing },
+      ]),
     },
     {
-      label: t.connect.github,
-      href: SLASHIE_GITHUB_URL,
-      icon: LuGithub,
+      key: 'workers',
+      label: t.columns.workers,
+      items: linkItems([
+        { label: t.workers.becomeWorker, href: workerHrefs.becomeWorker },
+        { label: t.workers.findWorkers, href: workerHrefs.findWorkers },
+      ]),
     },
+    {
+      key: 'company',
+      label: t.columns.company,
+      items: linkItems([
+        { label: t.company.about, href: '/about' },
+        { label: t.company.contact, href: `mailto:${LEGAL_CONTACT_EMAIL}` },
+      ]),
+    },
+    {
+      key: 'support',
+      label: t.columns.support,
+      items: [
+        ...linkItems([{ label: t.legal.safety, href: legalHrefs.safety }]),
+        <FeedbackTrigger key="feedback" variant="footer" />,
+      ],
+    },
+    {
+      key: 'legal',
+      label: t.columns.legal,
+      items: [...linkItems(legalLinks), cookieSettings],
+    },
+  ]
+
+  const socialLinks = [
+    { label: t.connect.linkedin, href: SLASHIE_LINKEDIN_URL, icon: LuLinkedin },
+    { label: t.connect.github, href: SLASHIE_GITHUB_URL, icon: LuGithub },
   ] as const
 
   const legalRow = (
     <HStack gap={4} flexWrap="wrap">
       <FeedbackTrigger variant="footerMeta" />
-      {legalLinks.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          tone="muted"
-          fontSize="sm"
-          color="text.muted"
-          {...linkMotion}
-        >
-          {link.label}
-        </Link>
-      ))}
+      {[{ label: t.legal.safety, href: legalHrefs.safety }, ...legalLinks].map(
+        (link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            tone="muted"
+            fontSize="sm"
+            color="text.muted"
+            {...linkMotion}
+          >
+            {link.label}
+          </Link>
+        ),
+      )}
+      <FooterLinkButton
+        onClick={openCookieSettings}
+        fontWeight={400}
+        color="text.muted"
+        minH="auto"
+      >
+        {t.legal.cookieSettings}
+      </FooterLinkButton>
     </HStack>
   )
 
@@ -204,20 +262,16 @@ export function Footer({
             {languageButton}
           </Stack>
         ) : (
-          <Stack gap={{ base: 10, md: 12 }}>
+          <Stack gap={{ base: 8, lg: 12 }}>
             <Grid
               templateColumns={{
-                base: 'repeat(2, minmax(0, 1fr))',
-                md: 'minmax(0, 1.4fr) repeat(3, minmax(0, 0.7fr))',
+                base: 'minmax(0, 1fr)',
+                lg: 'minmax(0, 1.3fr) repeat(5, minmax(0, 0.75fr))',
               }}
-              gap={{ base: 8, md: 10 }}
+              gap={{ base: 8, lg: 8 }}
               alignItems="flex-start"
             >
-              <Stack
-                gap={3}
-                maxW="md"
-                gridColumn={{ base: '1 / -1', md: 'auto' }}
-              >
+              <Stack gap={3} maxW="md">
                 <Logo />
                 <Text fontSize="sm" color="text.muted" lineHeight="tall">
                   {resolvedTagline}
@@ -226,39 +280,81 @@ export function Footer({
                   {t.openSourceNote}
                 </Text>
                 {languageButton}
+                <HStack gap={1} ml={-2.5}>
+                  {socialLinks.map((link) => {
+                    const Icon = link.icon
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        aria-label={link.label}
+                        title={link.label}
+                        {...externalLinkProps}
+                        display="inline-flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        boxSize="44px"
+                        borderRadius="md"
+                        color="text.muted"
+                        _hover={{ color: 'text.link', bg: 'bg.surface' }}
+                        {...linkMotion}
+                      >
+                        <Icon size={18} aria-hidden />
+                      </Link>
+                    )
+                  })}
+                </HStack>
               </Stack>
 
-              <FooterColumn label={t.columns.product}>
-                {productLinks.map((link) => (
-                  <FooterLink key={link.href} href={link.href}>
-                    {link.label}
-                  </FooterLink>
-                ))}
-              </FooterColumn>
+              {groups.map((group) => (
+                <Box key={group.key} display={{ base: 'none', lg: 'block' }}>
+                  <FooterColumn label={group.label}>{group.items}</FooterColumn>
+                </Box>
+              ))}
 
-              <FooterColumn label={t.columns.company}>
-                <FooterLink href="/about">{t.company.about}</FooterLink>
-                <FeedbackTrigger variant="footer" />
-                {connectLinks.map((link) => {
-                  const Icon = link.icon
-                  return (
-                    <FooterLink key={link.href} href={link.href} external>
-                      <HStack gap={2} as="span">
-                        <Icon size={15} aria-hidden />
-                        <span>{link.label}</span>
-                      </HStack>
-                    </FooterLink>
-                  )
-                })}
-              </FooterColumn>
-
-              <FooterColumn label={t.columns.help}>
-                {legalLinks.map((link) => (
-                  <FooterLink key={link.href} href={link.href}>
-                    {link.label}
-                  </FooterLink>
+              <Accordion.Root
+                multiple
+                collapsible
+                variant="plain"
+                display={{ base: 'block', lg: 'none' }}
+                borderTopWidth="1px"
+                borderColor="border.default"
+              >
+                {groups.map((group) => (
+                  <Accordion.Item
+                    key={group.key}
+                    value={group.key}
+                    borderBottomWidth="1px"
+                    borderColor="border.default"
+                  >
+                    <Accordion.ItemTrigger
+                      minH="52px"
+                      cursor="pointer"
+                      fontSize="sm"
+                      fontWeight={700}
+                      color="text.default"
+                      _focusVisible={sdlFocusRing}
+                    >
+                      <Text as="span" flex={1} textAlign="start">
+                        {group.label}
+                      </Text>
+                      <Accordion.ItemIndicator color="text.muted" />
+                    </Accordion.ItemTrigger>
+                    <Accordion.ItemContent>
+                      <Accordion.ItemBody pt={0} pb={3}>
+                        <Stack
+                          as="nav"
+                          aria-label={group.label}
+                          gap={0}
+                          align="flex-start"
+                        >
+                          {group.items}
+                        </Stack>
+                      </Accordion.ItemBody>
+                    </Accordion.ItemContent>
+                  </Accordion.Item>
                 ))}
-              </FooterColumn>
+              </Accordion.Root>
             </Grid>
 
             <Stack
@@ -289,12 +385,52 @@ export function Footer({
   )
 }
 
+type FooterGroup = {
+  key: string
+  label: string
+  items: ReactNode[]
+}
+
+const FooterButton = chakra('button')
+
+/** A footer action styled like a footer link (Cookie settings). */
+function FooterLinkButton({
+  onClick,
+  children,
+  ...props
+}: {
+  onClick: () => void
+  children: ReactNode
+} & Pick<BoxProps, 'fontWeight' | 'color' | 'minH'>) {
+  return (
+    <FooterButton
+      type="button"
+      onClick={onClick}
+      display="inline-flex"
+      alignItems="center"
+      minH={{ base: '44px', md: 'auto' }}
+      fontWeight={600}
+      fontSize="sm"
+      color="text.default"
+      textAlign="start"
+      cursor="pointer"
+      borderRadius="sm"
+      _hover={{ color: 'text.link' }}
+      _focusVisible={sdlFocusRing}
+      {...linkMotion}
+      {...props}
+    >
+      {children}
+    </FooterButton>
+  )
+}
+
 function FooterColumn({
   label,
   children,
 }: {
   label: string
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <Stack gap={3} as="nav" aria-label={label}>
@@ -313,7 +449,7 @@ function FooterLink({
 }: {
   href: string
   external?: boolean
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <Link

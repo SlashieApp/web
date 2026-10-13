@@ -4,27 +4,35 @@
     "copyright": "© {year} Slashie Ltd",
     "columns": {
       "product": "Product",
+      "workers": "Workers",
       "company": "Company",
-      "help": "Help & legal"
+      "support": "Support",
+      "legal": "Legal"
     },
     "product": {
       "search": "Search tasks",
       "postTask": "Post a task",
-      "becomeWorker": "Become a worker",
+      "howItWorks": "How it works",
       "pricing": "Pricing"
     },
+    "workers": {
+      "becomeWorker": "Become a worker",
+      "findWorkers": "Find workers"
+    },
     "company": {
-      "about": "About"
+      "about": "About",
+      "contact": "Contact"
     },
     "legal": {
       "safety": "Paying & meeting safely",
       "terms": "Terms",
       "privacy": "Privacy",
-      "cookies": "Cookies"
+      "cookies": "Cookies",
+      "cookieSettings": "Cookie settings"
     },
     "connect": {
-      "linkedin": "LinkedIn",
-      "github": "GitHub"
+      "linkedin": "Slashie on LinkedIn",
+      "github": "Slashie on GitHub"
     },
     "language": "Language: {name}",
     "openSourceNote": "Open source. Powered by an AI-driven company. Built with loop engineering.",
@@ -35,27 +43,35 @@
     "copyright": "© {year} Slashie Ltd",
     "columns": {
       "product": "產品",
+      "workers": "工作者",
       "company": "公司",
-      "help": "協助與法律"
+      "support": "支援",
+      "legal": "法律"
     },
     "product": {
       "search": "搜尋任務",
       "postTask": "發布任務",
-      "becomeWorker": "成為工作者",
+      "howItWorks": "運作方式",
       "pricing": "收費"
     },
+    "workers": {
+      "becomeWorker": "成為工作者",
+      "findWorkers": "尋找工作者"
+    },
     "company": {
-      "about": "關於"
+      "about": "關於",
+      "contact": "聯絡我們"
     },
     "legal": {
       "safety": "付款與安全見面",
       "terms": "條款",
       "privacy": "私隱",
-      "cookies": "Cookie"
+      "cookies": "Cookie",
+      "cookieSettings": "Cookie 設定"
     },
     "connect": {
-      "linkedin": "LinkedIn",
-      "github": "GitHub"
+      "linkedin": "Slashie 的 LinkedIn",
+      "github": "Slashie 的 GitHub"
     },
     "language": "語言：{name}",
     "openSourceNote": "開源專案。由 AI 驅動的公司打造，以 loop engineering 建構。",
