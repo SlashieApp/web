@@ -8,6 +8,9 @@ import {
 export type OverlaySurface = 'search' | 'taskDetail'
 
 export type OverlayCompactRecipe = {
+  /** Top band behind the floating search chrome; `0px` hides it. */
+  topH: string
+  topImage: string
   bottomH: string
   bottomImage: string
   /** CSS `bottom` for the bottom band. `0px` is the canvas edge. */
@@ -42,6 +45,9 @@ const white = (alpha: number) => `rgba(255, 255, 255, ${alpha})`
 /** Carousel / CTA-band wash: short falloff, original compact recipe. */
 export const MAP_FADE_BOTTOM = `linear-gradient(to top, ${white(0.92)} 0%, ${white(0.5)} 48%, ${white(0)} 100%)`
 
+/** The same wash from the top, behind the logo and search bar (FE-208). */
+export const MAP_FADE_TOP = `linear-gradient(to bottom, ${white(0.92)} 0%, ${white(0.5)} 48%, ${white(0)} 100%)`
+
 export type MapFadeSide = 'left' | 'right' | 'top' | 'bottom'
 
 const GRADIENT_TOWARD_CONTENT: Record<MapFadeSide, string> = {
@@ -68,8 +74,10 @@ export const COMPACT_DETAIL_HERO_H = {
   md: '360px',
 } as const
 
-/** Phone search: carousel-band wash only (no header fade). */
+/** Phone search: top wash behind the logo and search bar, carousel wash below. */
 export const OVERLAY_MOBILE_SEARCH: OverlayCompactRecipe = {
+  topH: '200px',
+  topImage: MAP_FADE_TOP,
   bottomH: '40%',
   bottomImage: MAP_FADE_BOTTOM,
   bottomPos: '0px',
@@ -80,6 +88,8 @@ export const OVERLAY_MOBILE_SEARCH: OverlayCompactRecipe = {
  * sticky task-detail header so it travels with the title/tabs.
  */
 export const OVERLAY_MOBILE_DETAIL: OverlayCompactRecipe = {
+  topH: '0px',
+  topImage: MAP_FADE_TOP,
   bottomH: '0%',
   bottomImage: MAP_FADE_BOTTOM,
   bottomPos: '0px',
@@ -121,6 +131,7 @@ export const OVERLAY_WEB_DETAIL: OverlayWideRecipe = {
 export const OVERLAY_CTRL_BOTTOM_OFFSET_COMPACT = `calc(${MOBILE_BOTTOM_NAV_CLEARANCE} + 8.75rem)`
 
 export const COMPACT_SEARCH_BOTTOM_H = OVERLAY_MOBILE_SEARCH.bottomH
+export const COMPACT_SEARCH_TOP_H = OVERLAY_MOBILE_SEARCH.topH
 export const COMPACT_DETAIL_BOTTOM_H = OVERLAY_MOBILE_DETAIL.bottomH
 export const SEARCH_MAP_LEFT_FADE_SIZE = OVERLAY_WEB_SEARCH.leftW
 export const SEARCH_MAP_LEFT_FADE_POS = OVERLAY_WEB_SEARCH.leftPos

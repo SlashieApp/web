@@ -8,6 +8,7 @@ import {
   SEARCH_LIST_COLUMN_W,
 } from '@/theme/pageContainer'
 import { Logo } from '@ui'
+
 import { MobileTaskCarousel } from '../../../components/(mobile)/layout/MobileTaskCarousel'
 import { MobileTaskSearchSheet } from '../../../components/(mobile)/layout/MobileTaskSearchSheet'
 import { TaskList } from '../../../components/(web)/layout/TaskList'
@@ -16,6 +17,11 @@ import { TaskSearch } from '../../../components/ui/TaskSearch'
 import { TaskSearchFilters } from '../../../components/ui/TaskSearchFilters'
 import { TaskTag } from '../../../components/ui/TaskTag'
 import { useIsTouchMobileDevice } from '../../../helpers/touchMobileDevice'
+import {
+  SEARCH_CHROME_TOP_PX,
+  SEARCH_LOGO_BAND_PX,
+  SEARCH_LOGO_PX,
+} from '../../helpers/searchChrome'
 import { SearchResultsListTitle } from '../results/SearchResultsListTitle'
 
 /** Desktop split view for /search: search panel (field, chips, results) over the map. */
@@ -94,7 +100,7 @@ export function MobileSearchLayout() {
     >
       <Box
         position="absolute"
-        top={3}
+        top={`${SEARCH_CHROME_TOP_PX}px`}
         left={0}
         right={0}
         zIndex={4}
@@ -107,12 +113,13 @@ export function MobileSearchLayout() {
               holds the height so the bar doesn't jump when the logo mounts;
               it sits outside the stack's map-control margin to stay centred. */}
           <Box
-            h={{ base: '28px', md: '32px' }}
-            mb={2}
+            h={`${SEARCH_LOGO_BAND_PX}px`}
+            py={2}
             display="flex"
+            alignItems="center"
             justifyContent="center"
           >
-            <Logo h={{ base: '28px', md: '32px' }} />
+            <Logo h={`${SEARCH_LOGO_PX}px`} />
           </Box>
           <Stack gap={2} flexShrink={0} mr={touchPhone ? 0 : 12}>
             <TaskSearch mode="trigger" />

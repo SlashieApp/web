@@ -25,6 +25,7 @@ export {
   COMPACT_DETAIL_BOTTOM_H,
   COMPACT_DETAIL_HERO_H,
   COMPACT_SEARCH_BOTTOM_H,
+  COMPACT_SEARCH_TOP_H,
   DETAIL_MAP_BOTTOM_FADE_SIZE,
   DETAIL_MAP_LEFT_FADE_SIZE,
   MAPBOX_CTRL_CONTAINER_CLASS,
@@ -34,6 +35,7 @@ export {
   MAP_FADE_LEFT,
   MAP_FADE_MOTION_DELAY,
   MAP_FADE_MOTION_DURATION,
+  MAP_FADE_TOP,
   MAP_FADE_WIDE_CLASS,
   MAP_FADE_Z_INDEX,
   SEARCH_MAP_LEFT_FADE_POS,
@@ -103,7 +105,7 @@ function fadeRoot(className: string, slots: string[]) {
  * canvas (above pins) and under `.mapboxgl-control-container` (zoom + logo).
  */
 export function mountMapFadeOverlay(mapRoot: HTMLElement): () => void {
-  const compact = fadeRoot(MAP_FADE_COMPACT_CLASS, ['bottom'])
+  const compact = fadeRoot(MAP_FADE_COMPACT_CLASS, ['top', 'bottom'])
   const wide = fadeRoot(MAP_FADE_WIDE_CLASS, ['left', 'bottom'])
   const ctrl = mapRoot.querySelector(`:scope > .${MAPBOX_CTRL_CONTAINER_CLASS}`)
   if (ctrl) {
@@ -173,7 +175,14 @@ function overlayCssForCompact(surface: OverlaySurface): SystemStyleObject {
       ...overlayRoot,
       display: { base: 'block', lg: 'none' },
       '& [data-map-fade="top"]': {
-        display: 'none',
+        ...bandBase(surface),
+        top: 0,
+        bottom: 'auto',
+        left: 0,
+        right: 0,
+        height: { base: mobile.topH, md: tablet.topH },
+        backgroundImage: { base: mobile.topImage, md: tablet.topImage },
+        '@starting-style': { height: '0px' },
       },
       '& [data-map-fade="bottom"]': {
         ...bandBase(surface),

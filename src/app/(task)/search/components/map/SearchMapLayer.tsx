@@ -15,6 +15,10 @@ import {
 } from '../../../helpers/marketplaceMap'
 import type { TaskMapStack } from '../../../helpers/taskMap'
 import { useSelectBrowseTaskFromMap } from '../../../helpers/useSelectBrowseTaskFromMap'
+import {
+  SEARCH_CTRL_TOP,
+  SEARCH_TOUCH_CTRL_TOP,
+} from '../../helpers/searchChrome'
 import { TaskStackList } from './TaskStackList'
 
 const SINGLE_PANEL_BUTTON_LEFT_INSET = '1.25rem + min(420px, 38vw)'
@@ -49,8 +53,10 @@ export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
         mobileCtrlBottomOffset: isDesktop
           ? undefined
           : overlayCtrlBottomOffsetForMobile(),
-        // Compass sits under the search bar and filter chips.
-        touchCtrlTopOffset: '96px',
+        // Zoom lines up with the search bar; on touch phones the compass
+        // sits under the bar and chips (FE-208).
+        compactCtrlTopOffset: SEARCH_CTRL_TOP,
+        touchCtrlTopOffset: SEARCH_TOUCH_CTRL_TOP,
         onNavRoutePresentingChange,
         onSelectTask: selectFromMap,
         onOpenTaskStack: setStack,

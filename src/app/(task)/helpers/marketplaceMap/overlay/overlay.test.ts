@@ -8,6 +8,7 @@ import { PIN_Z_INDEX } from '../../taskMap/pin/styles'
 import {
   COMPACT_DETAIL_BOTTOM_H,
   COMPACT_SEARCH_BOTTOM_H,
+  COMPACT_SEARCH_TOP_H,
   DETAIL_MAP_BOTTOM_FADE_SIZE,
   DETAIL_MAP_LEFT_FADE_SIZE,
   MAPBOX_CTRL_CONTAINER_CLASS,
@@ -17,6 +18,7 @@ import {
   MAP_FADE_LEFT,
   MAP_FADE_MOTION_DELAY,
   MAP_FADE_MOTION_DURATION,
+  MAP_FADE_TOP,
   MAP_FADE_WIDE_CLASS,
   MAP_FADE_Z_INDEX,
   SEARCH_MAP_LEFT_FADE_POS,
@@ -74,12 +76,16 @@ describe('overlaySurfaceForSession', () => {
 describe('overlayForMobile / overlayForTablet / overlayForWeb', () => {
   it('keeps compact bottom wash on phone and tablet, wide wash on web', () => {
     expect(overlayForMobile('search')).toEqual({
+      topH: COMPACT_SEARCH_TOP_H,
+      topImage: MAP_FADE_TOP,
       bottomH: COMPACT_SEARCH_BOTTOM_H,
       bottomImage: MAP_FADE_BOTTOM,
       bottomPos: '0px',
     })
     expect(overlayForTablet('search')).toEqual(overlayForMobile('search'))
     expect(overlayForMobile('taskDetail')).toEqual({
+      topH: '0px',
+      topImage: MAP_FADE_TOP,
       bottomH: COMPACT_DETAIL_BOTTOM_H,
       bottomImage: MAP_FADE_BOTTOM,
       bottomPos: '0px',
@@ -131,7 +137,7 @@ describe('mapFadeGradient', () => {
 })
 
 describe('overlayCss', () => {
-  it('keeps the compact bottom band only, at the original sizes', () => {
+  it('adds a search top band and keeps the bottom band sizes', () => {
     const search = css('search')
     const detail = css('taskDetail')
     const compactSearch = search[`& .${MAP_FADE_COMPACT_CLASS}`]
@@ -157,7 +163,13 @@ describe('overlayCss', () => {
       zIndex: MAPBOX_CTRL_Z_INDEX,
     })
     expect(MAPBOX_CTRL_CONTAINER_CLASS).toBe('mapboxgl-control-container')
-    expect(searchTop.display).toBe('none')
+    // FE-208: the top band mirrors the bottom wash, on search only.
+    expect(searchTop.height).toEqual({ base: '200px', md: '200px' })
+    expect(searchTop.backgroundImage).toEqual({
+      base: MAP_FADE_TOP,
+      md: MAP_FADE_TOP,
+    })
+    expect(MAP_FADE_TOP.startsWith('linear-gradient(to bottom,')).toBe(true)
     expect(searchBottom.height).toEqual({
       base: overlayForMobile('search').bottomH,
       md: overlayForTablet('search').bottomH,

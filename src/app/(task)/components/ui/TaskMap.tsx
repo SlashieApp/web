@@ -87,6 +87,11 @@ export type TaskMapProps = {
    */
   touchCtrlTopOffset?: string
   /**
+   * Below `lg`, on mouse devices: CSS top for the top-right controls, e.g.
+   * level with a floating search bar. Defaults to the canvas edge.
+   */
+  compactCtrlTopOffset?: string
+  /**
    * Browse keeps the search-center camera + list offset. Detail frames the
    * selected task with `viewPadding` (top-right on desktop).
    */
@@ -239,7 +244,10 @@ export function TaskMap(props: TaskMapProps) {
                   base: props.touchCtrlTopOffset,
                   lg: `calc(${HEADER_MIN_HEIGHT.md} + ${props.touchCtrlTopOffset})`,
                 }
-              : { base: '0px', lg: HEADER_MIN_HEIGHT.md },
+              : {
+                  base: props.compactCtrlTopOffset ?? '0px',
+                  lg: HEADER_MIN_HEIGHT.md,
+                },
         },
         // Touch phones pinch to zoom: hide the zoom buttons, keep the compass.
         ...(hideZoomControls
