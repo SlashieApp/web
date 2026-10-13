@@ -10,10 +10,12 @@ import { Button, Link } from '@ui'
 
 import { flashAction, formatMessageTime } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
+import { ThreadQuote } from './ThreadQuote'
 
 /**
  * One timeline entry: a chat bubble (mine on the right) or a flash card for
  * an event (quote, booking, review prompt, announcement) with its link.
+ * Quote flashes carry the quote itself, with owner actions (BE-81).
  */
 export function ThreadTimelineItem({
   item,
@@ -61,6 +63,7 @@ export function ThreadTimelineItem({
             {item.body}
           </Text>
         ) : null}
+        {item.quote ? <ThreadQuote quote={item.quote} locale={locale} /> : null}
         {action ? (
           <Box>
             <Button asChild size="sm" variant="secondary">

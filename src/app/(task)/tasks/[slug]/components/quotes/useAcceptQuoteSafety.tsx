@@ -5,47 +5,62 @@ import { useCallback, useState } from 'react'
 
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
-import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
+import {
+  type TimeSlotLike,
+  formatTimeSlotLabel,
+  isTimeSlotPast,
+} from '@/utils/timeSlots'
 import { RadioButton, SafetyConfirmDialog } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
 
+type AcceptableQuote = {
+  id: string
+  proposedSlots: readonly (TimeSlotLike & { id: string })[]
+}
+
 /**
- * Accept confirm: the owner picks one of the quote's proposed times (it
- * becomes the booking), then sees the C2C + meet-safely notice. Used by
- * QuotesModule.
+ * Accept confirm without task-detail context: the owner picks one of the
+ * quote's proposed times (it becomes the booking), then sees the C2C +
+ * meet-safely notice. Messages uses this directly (BE-81).
  */
-export function useAcceptQuoteSafety() {
-  const { onAcceptQuote, acceptingQuoteId, task } = useTaskDetail()
+export function useAcceptQuoteDialog({
+  quotes,
+  onAccept,
+  acceptingQuoteId,
+}: {
+  quotes: readonly AcceptableQuote[]
+  onAccept: (quoteId: string, slotId: string) => unknown
+  acceptingQuoteId: string | null
+}) {
   const q = useI11n(bag).quotes
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const [pendingQuoteId, setPendingQuoteId] = useState<string | null>(null)
   const [slotId, setSlotId] = useState<string | null>(null)
 
   const slots =
-    task?.quotes.find((quote) => quote.id === pendingQuoteId)?.proposedSlots ??
-    []
+    quotes.find((quote) => quote.id === pendingQuoteId)?.proposedSlots ?? []
   const futureSlots = slots.filter((slot) => !isTimeSlotPast(slot))
 
   const requestAccept = useCallback(
     (quoteId: string) => {
       const proposed =
-        task?.quotes.find((quote) => quote.id === quoteId)?.proposedSlots ?? []
+        quotes.find((quote) => quote.id === quoteId)?.proposedSlots ?? []
       const open = proposed.filter((slot) => !isTimeSlotPast(slot))
       // One remaining time is still an explicit pick the owner confirms.
       setSlotId(open.length === 1 ? open[0].id : null)
       setPendingQuoteId(quoteId)
     },
-    [task],
+    [quotes],
   )
 
   const confirm = useCallback(() => {
     if (!pendingQuoteId || !slotId) return
     const quoteId = pendingQuoteId
     setPendingQuoteId(null)
-    void onAcceptQuote(quoteId, slotId)
-  }, [onAcceptQuote, pendingQuoteId, slotId])
+    void onAccept(quoteId, slotId)
+  }, [onAccept, pendingQuoteId, slotId])
 
   const dialog = (
     <SafetyConfirmDialog
@@ -92,4 +107,14 @@ export function useAcceptQuoteSafety() {
   )
 
   return { requestAccept, dialog }
+}
+
+/** Task-detail accept confirm, wired to the provider. Used by QuotesModule. */
+export function useAcceptQuoteSafety() {
+  const { onAcceptQuote, acceptingQuoteId, task } = useTaskDetail()
+  return useAcceptQuoteDialog({
+    quotes: task?.quotes ?? [],
+    onAccept: onAcceptQuote,
+    acceptingQuoteId,
+  })
 }

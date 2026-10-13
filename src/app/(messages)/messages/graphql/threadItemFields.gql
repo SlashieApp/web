@@ -17,4 +17,28 @@ fragment ThreadItemFields on ThreadItem {
     avatarUrl
     deleted
   }
+  # BE-81: the quote a quote flash is about (owner and quoting worker only).
+  quote {
+    id
+    taskId
+    workerUserId
+    status
+    message
+    price {
+      amount
+      currency
+    }
+    proposedSlots {
+      id
+      start
+      end
+    }
+    worker {
+      id
+      profile {
+        name
+        avatarUrl
+      }
+    }
+  }
 }

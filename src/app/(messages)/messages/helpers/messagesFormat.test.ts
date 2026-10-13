@@ -1,9 +1,10 @@
-import { FlashKind, ThreadItemType } from '@codegen/schema'
+import { FlashKind, QuoteStatus, ThreadItemType } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import {
   flashAction,
   formatMessageTime,
+  quoteFlashStatus,
   threadPreviewText,
   wasNotSelected,
 } from './messagesFormat'
@@ -104,5 +105,16 @@ describe('wasNotSelected', () => {
       ]),
     ).toBe(true)
     expect(wasNotSelected([])).toBe(false)
+  })
+})
+
+describe('quoteFlashStatus (BE-81)', () => {
+  it('maps live quote statuses, including the new ones', () => {
+    expect(quoteFlashStatus(QuoteStatus.Pending)).toBe('pending')
+    expect(quoteFlashStatus(QuoteStatus.Accepted)).toBe('accepted')
+    expect(quoteFlashStatus(QuoteStatus.Declined)).toBe('declined')
+    expect(quoteFlashStatus(QuoteStatus.NotSelected)).toBe('notSelected')
+    expect(quoteFlashStatus(QuoteStatus.Withdrawn)).toBe('withdrawn')
+    expect(quoteFlashStatus(QuoteStatus.Expired)).toBe('replaced')
   })
 })

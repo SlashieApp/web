@@ -1,4 +1,10 @@
-import { FlashKind, ThreadItemType, ThreadKind } from '@codegen/schema'
+import {
+  Currency,
+  FlashKind,
+  QuoteStatus,
+  ThreadItemType,
+  ThreadKind,
+} from '@codegen/schema'
 import type {
   ThreadFieldsFragment,
   ThreadItemFieldsFragment,
@@ -33,6 +39,26 @@ export const quoteFlash: ThreadItemFieldsFragment = {
   orderId: null,
   createdAt: today(9, 5),
   author: null,
+  quote: {
+    id: 'q1',
+    taskId: 'task-1',
+    workerUserId: 'u-worker',
+    status: QuoteStatus.Pending,
+    message: 'I can come on Saturday morning with my own tools.',
+    price: { amount: 80, currency: Currency.Gbp },
+    proposedSlots: [
+      {
+        id: 's1',
+        start: '2026-10-17T09:00:00.000Z',
+        end: '2026-10-17T11:00:00.000Z',
+      },
+      { id: 's2', start: '2026-10-18T14:00:00.000Z', end: null },
+    ],
+    worker: {
+      id: 'u-worker',
+      profile: { name: 'Sample Worker', avatarUrl: null },
+    },
+  },
 }
 
 export const reviewFlash: ThreadItemFieldsFragment = {
@@ -44,6 +70,7 @@ export const reviewFlash: ThreadItemFieldsFragment = {
   quoteId: null,
   orderId: 'o1',
   createdAt: today(12, 0),
+  quote: null,
 }
 
 export const theirMessage: ThreadItemFieldsFragment = {

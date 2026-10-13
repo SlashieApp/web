@@ -37,7 +37,26 @@
     "blockedNotice": "You blocked {name}. Unblock them to send messages.",
     "today": "Today",
     "yesterday": "Yesterday",
-    "deletedUser": "user is already deleted"
+    "deletedUser": "user is already deleted",
+    "quote": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "acceptedToast": "Quote accepted",
+      "acceptedToastHint": "The booking is on the task page.",
+      "declinedToast": "Quote declined",
+      "declinedToastHint": "The worker will be notified.",
+      "acceptFailed": "Couldn't accept this quote.",
+      "declineFailed": "Couldn't decline this quote.",
+      "status": {
+        "pending": "Awaiting reply",
+        "accepted": "Accepted",
+        "declined": "Declined",
+        "notSelected": "Not selected",
+        "withdrawn": "Withdrawn",
+        "replaced": "Replaced by a newer quote"
+      },
+      "workerFallback": "Worker"
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -77,6 +96,25 @@
     "blockedNotice": "你已封鎖 {name}。解除封鎖後才可傳送訊息。",
     "today": "今日",
     "yesterday": "昨日",
-    "deletedUser": "用戶已刪除"
+    "deletedUser": "用戶已刪除",
+    "quote": {
+      "accept": "接受",
+      "decline": "拒絕",
+      "acceptedToast": "報價已接受",
+      "acceptedToastHint": "預約詳情在任務頁面。",
+      "declinedToast": "報價已拒絕",
+      "declinedToastHint": "將通知工作者。",
+      "acceptFailed": "無法接受此報價。",
+      "declineFailed": "無法拒絕此報價。",
+      "status": {
+        "pending": "等待回覆",
+        "accepted": "已接受",
+        "declined": "已拒絕",
+        "notSelected": "未獲選",
+        "withdrawn": "已撤回",
+        "replaced": "已由較新的報價取代"
+      },
+      "workerFallback": "工作者"
+    }
   }
 }

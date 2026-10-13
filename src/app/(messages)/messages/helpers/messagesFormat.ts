@@ -1,4 +1,4 @@
-import { FlashKind, ThreadItemType } from '@codegen/schema'
+import { FlashKind, QuoteStatus, ThreadItemType } from '@codegen/schema'
 
 type ItemLike = {
   type: ThreadItemType | string
@@ -68,4 +68,31 @@ export function flashAction(item: ItemLike): FlashAction | null {
 /** A worker who was not picked sees the not-selected flash in the thread. */
 export function wasNotSelected(items: readonly ItemLike[]): boolean {
   return items.some((item) => item.flashKind === FlashKind.QuoteNotSelected)
+}
+
+export type QuoteFlashStatus =
+  | 'pending'
+  | 'accepted'
+  | 'declined'
+  | 'notSelected'
+  | 'withdrawn'
+  | 'replaced'
+
+/** Where a flash's quote stands now (BE-81 resolves `status` live). */
+export function quoteFlashStatus(status: QuoteStatus): QuoteFlashStatus {
+  switch (status) {
+    case QuoteStatus.Accepted:
+      return 'accepted'
+    case QuoteStatus.Declined:
+    case QuoteStatus.Rejected:
+      return 'declined'
+    case QuoteStatus.NotSelected:
+      return 'notSelected'
+    case QuoteStatus.Withdrawn:
+      return 'withdrawn'
+    case QuoteStatus.Expired:
+      return 'replaced'
+    case QuoteStatus.Pending:
+      return 'pending'
+  }
 }
