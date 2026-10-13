@@ -28,7 +28,8 @@
       "areaLabel": "Approximate area, shown on the map",
       "workersWillSee": "Workers will see: {area}",
       "areaPending": "Move the map to set the area.",
-      "addressHelper": "Shared only with the worker you accept, after you hire them."
+      "addressHelper": "Shared only with the worker you accept, after you hire them.",
+      "usePinAddress": "Use pin address"
     }
   },
   "zh_hk": {
@@ -60,7 +61,8 @@
       "areaLabel": "大概地區，會顯示在地圖上",
       "workersWillSee": "工作者會看到：{area}",
       "areaPending": "移動地圖以設定地區。",
-      "addressHelper": "只會在你聘用工作者後，分享給你接受的工作者。"
+      "addressHelper": "只會在你聘用工作者後，分享給你接受的工作者。",
+      "usePinAddress": "使用地圖位置的地址"
     }
   }
 }

@@ -123,16 +123,16 @@ export function CreateTaskMapLocationPanel({
             <Button
               type="button"
               size="sm"
-              variant="ghost"
+              variant="secondary"
               flexShrink={0}
               disabled={!canCopyPlace}
               onClick={onCopyMapPlaceToAddress}
             >
-              Copy map place to address
+              <LuMapPin size={14} aria-hidden />
+              Use pin address
             </Button>
             <Text fontSize="xs" color="text.muted" flex={1} minW="0" py={1}>
-              Fills the field with the map search label (you can edit it
-              afterward).
+              Fills in the address at the map pin. You can edit it.
             </Text>
           </HStack>
         </Stack>

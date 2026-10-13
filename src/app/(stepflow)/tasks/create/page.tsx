@@ -307,6 +307,16 @@ function CreateTaskFormBody({
     [setValue],
   )
 
+  /**
+   * Exact address from the pin (FE-209): the pin's reverse-geocoded street
+   * address, copied only on tap so a later pin move never overwrites edits.
+   */
+  const onUsePinAddress = useCallback(() => {
+    const name = getValues('mapPlaceName').trim()
+    if (!name) return
+    setValue('streetAddress', name, { shouldValidate: true, shouldDirty: true })
+  }, [getValues, setValue])
+
   /** Reverse geocode a label. Keeps one the poster already has unless `replace`. */
   const labelPin = useCallback(
     (lat: number, lng: number, replace: boolean) => {
@@ -700,6 +710,8 @@ function CreateTaskFormBody({
             onStreetAddressBlur={() => {
               void applyResolvedLocation()
             }}
+            pinAddress={mapPlaceName}
+            onUsePinAddress={onUsePinAddress}
           />
         )
       case 'details.timing':

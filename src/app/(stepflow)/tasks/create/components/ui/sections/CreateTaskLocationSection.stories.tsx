@@ -8,10 +8,16 @@ import {
 } from './CreateTaskLocationSection'
 
 function CreateTaskLocationSectionDemo(
-  props: Omit<CreateTaskLocationSectionProps, 'register'>,
+  props: Omit<CreateTaskLocationSectionProps, 'register' | 'onUsePinAddress'>,
 ) {
-  const { register } = useForm<CreateTaskFormFieldValues>()
-  return <CreateTaskLocationSection {...props} register={register} />
+  const { register, setValue } = useForm<CreateTaskFormFieldValues>()
+  return (
+    <CreateTaskLocationSection
+      {...props}
+      register={register}
+      onUsePinAddress={() => setValue('streetAddress', props.pinAddress ?? '')}
+    />
+  )
 }
 
 const meta = {
@@ -29,6 +35,11 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {}
 
 export const AreaLookingUp: Story = { args: { publicArea: '' } }
+
+/** FE-209: copy the pin's street address into Exact address. */
+export const WithPinAddress: Story = {
+  args: { pinAddress: '12 Clarendon Road, Watford WD17 1JJ, United Kingdom' },
+}
 
 export const LocateUnavailable: Story = {
   args: { publicArea: '', locateUnavailable: true },

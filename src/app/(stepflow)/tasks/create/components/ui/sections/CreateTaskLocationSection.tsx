@@ -6,7 +6,7 @@ import { LuLock, LuMapPin } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { FormField, Input } from '@ui'
+import { Button, FormField, Input } from '@ui'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
 import bag from '../../../i11n.json'
 
@@ -21,6 +21,10 @@ export type CreateTaskLocationSectionProps = {
   locateUnavailable?: boolean
   /** Geocode the street address when the field is left. */
   onStreetAddressBlur?: () => void
+  /** The pin's current street address (reverse geocoded); empty until known. */
+  pinAddress?: string
+  /** Copy the pin's address into Exact address (FE-209). */
+  onUsePinAddress?: () => void
 }
 
 /**
@@ -34,6 +38,8 @@ export function CreateTaskLocationSection({
   locationError,
   locateUnavailable = false,
   onStreetAddressBlur,
+  pinAddress = '',
+  onUsePinAddress,
 }: CreateTaskLocationSectionProps) {
   const t = useI11n(bag).location
   const streetAddress = register('streetAddress')
@@ -98,14 +104,29 @@ export function CreateTaskLocationSection({
         helperText={t.addressHelper}
         errorText={streetAddressError}
       >
-        <Input
-          {...streetAddress}
-          placeholder={t.addressPlaceholder}
-          onBlur={(event) => {
-            streetAddress.onBlur(event)
-            onStreetAddressBlur?.()
-          }}
-        />
+        <Stack gap={2}>
+          <Input
+            {...streetAddress}
+            placeholder={t.addressPlaceholder}
+            onBlur={(event) => {
+              streetAddress.onBlur(event)
+              onStreetAddressBlur?.()
+            }}
+          />
+          {onUsePinAddress ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              alignSelf="flex-start"
+              disabled={!pinAddress.trim()}
+              onClick={onUsePinAddress}
+            >
+              <LuMapPin size={14} aria-hidden />
+              {t.usePinAddress}
+            </Button>
+          ) : null}
+        </Stack>
       </FormField>
 
       {locationError ? (
