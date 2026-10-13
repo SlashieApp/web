@@ -9,6 +9,7 @@ import {
   type SearchUrlState,
   referenceFromSearchUrlState,
 } from '../helpers/searchQueryParams'
+import { SearchRefreshListener } from './SearchRefreshListener'
 import { SearchUrlSync } from './SearchUrlSync'
 import { MobileSearchLayout, WebSearchLayout } from './layout/SearchLayouts'
 import { SearchMapLayer } from './map/SearchMapLayer'
@@ -41,6 +42,7 @@ export function SearchScreen({
     >
       {seededReference ? null : <BrowseGeolocationInit />}
       <SearchUrlSync />
+      <SearchRefreshListener />
       {/* Browse view capture: ./analytics/SearchViewTracker */}
       <Box
         flex={1}

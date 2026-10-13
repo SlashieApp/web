@@ -7,7 +7,8 @@
     "title": "Search tasks",
     "description": "Find open tasks and nearby opportunities on the map.",
     "emptyTitle": "No tasks match — try broadening search",
-    "emptyDescription": "Clear filters or widen the area to see more tasks."
+    "emptyDescription": "Clear filters or widen the area to see more tasks.",
+    "refreshLabel": "Slashie: refresh tasks"
   },
   "zh_hk": {
     "metadata": {
@@ -17,6 +18,7 @@
     "title": "搜尋任務",
     "description": "在地圖上尋找公開任務和附近機會。",
     "emptyTitle": "沒有符合的任務 — 試吓放寬搜尋",
-    "emptyDescription": "清除篩選或擴大範圍，睇更多任務。"
+    "emptyDescription": "清除篩選或擴大範圍，睇更多任務。",
+    "refreshLabel": "Slashie：重新載入任務"
   }
 }

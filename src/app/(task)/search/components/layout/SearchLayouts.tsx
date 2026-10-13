@@ -2,6 +2,7 @@
 
 import { Box, Container, HStack, Stack } from '@chakra-ui/react'
 
+import { useI11n } from '@/i18n/useI11n'
 import {
   PAGE_CONTAINER_MAX_W,
   PAGE_GUTTER_X,
@@ -9,7 +10,9 @@ import {
 } from '@/theme/pageContainer'
 import { Logo } from '@ui'
 
+import { useTaskBrowseData } from '../../../context/TaskBrowseProvider'
 import { SEARCH_BOTTOM_CHROME_VAR } from '../../../helpers/marketplaceMap/overlay/config'
+import searchBag from '../../i11n.json'
 
 import { MobileTaskCarousel } from '../../../components/(mobile)/layout/MobileTaskCarousel'
 import { MobileTaskSearchSheet } from '../../../components/(mobile)/layout/MobileTaskSearchSheet'
@@ -109,6 +112,8 @@ function trackBottomChrome(node: HTMLDivElement | null) {
 
 export function MobileSearchLayout() {
   const touchPhone = useIsTouchMobileDevice()
+  const t = useI11n(searchBag)
+  const { retryTasks } = useTaskBrowseData()
 
   return (
     <Box
@@ -141,7 +146,15 @@ export function MobileSearchLayout() {
             alignItems="center"
             justifyContent="center"
           >
-            <Logo h={`${SEARCH_LOGO_PX}px`} />
+            {/* Tapping the brand refreshes the results (it doesn't navigate).
+                The chrome is click-through for the map; only the logo isn't. */}
+            <Box pointerEvents="auto" display="inline-flex">
+              <Logo
+                h={`${SEARCH_LOGO_PX}px`}
+                label={t.refreshLabel}
+                onClick={retryTasks}
+              />
+            </Box>
           </Box>
           <Stack gap={2} flexShrink={0} mr={touchPhone ? 0 : 12}>
             <TaskSearch mode="trigger" />

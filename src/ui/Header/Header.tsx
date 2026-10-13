@@ -25,6 +25,7 @@ import {
   isPrimaryNavHrefActive,
 } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
+import { requestSearchRefresh } from '@/utils/searchRefresh'
 import { useCreateTaskHref } from '@/utils/taskHandoff'
 
 import { Button } from '../Button'
@@ -252,6 +253,17 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
           href={APP_HOME}
           _hover={{ textDecoration: 'none' }}
           flexShrink={0}
+          onClick={(event) => {
+            // Already on search: refresh the results, don't navigate.
+            if (
+              !routePathname ||
+              !isPrimaryNavHrefActive(routePathname, APP_HOME)
+            ) {
+              return
+            }
+            event.preventDefault()
+            requestSearchRefresh()
+          }}
         >
           <Box lineHeight={0}>
             <Logo />
