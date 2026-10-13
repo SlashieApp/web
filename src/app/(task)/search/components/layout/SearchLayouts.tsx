@@ -9,6 +9,8 @@ import {
 } from '@/theme/pageContainer'
 import { Logo } from '@ui'
 
+import { SEARCH_BOTTOM_CHROME_VAR } from '../../../helpers/marketplaceMap/overlay/config'
+
 import { MobileTaskCarousel } from '../../../components/(mobile)/layout/MobileTaskCarousel'
 import { MobileTaskSearchSheet } from '../../../components/(mobile)/layout/MobileTaskSearchSheet'
 import { TaskList } from '../../../components/(web)/layout/TaskList'
@@ -85,6 +87,26 @@ export function WebSearchLayout() {
 }
 
 /** Mobile /search: map behind, search bar on top (opens the search sheet), task carousel at the bottom. */
+/**
+ * Publish the card stack's height so the Mapbox mark always sits just above
+ * it, whether or not Search this area shows or a title wraps.
+ */
+function trackBottomChrome(node: HTMLDivElement | null) {
+  if (!node || typeof ResizeObserver === 'undefined') return
+  const root = document.documentElement
+  const observer = new ResizeObserver(() => {
+    root.style.setProperty(
+      SEARCH_BOTTOM_CHROME_VAR,
+      `${Math.ceil(node.getBoundingClientRect().height)}px`,
+    )
+  })
+  observer.observe(node)
+  return () => {
+    observer.disconnect()
+    root.style.removeProperty(SEARCH_BOTTOM_CHROME_VAR)
+  }
+}
+
 export function MobileSearchLayout() {
   const touchPhone = useIsTouchMobileDevice()
 
@@ -114,7 +136,7 @@ export function MobileSearchLayout() {
               it sits outside the stack's map-control margin to stay centred. */}
           <Box
             h={`${SEARCH_LOGO_BAND_PX}px`}
-            py={2}
+            pb={4}
             display="flex"
             alignItems="center"
             justifyContent="center"
@@ -142,6 +164,7 @@ export function MobileSearchLayout() {
         flexDirection="column"
         gap={2}
         pointerEvents="auto"
+        ref={trackBottomChrome}
       >
         <TaskBrowseSearchThisAreaButton />
         <MobileTaskCarousel />

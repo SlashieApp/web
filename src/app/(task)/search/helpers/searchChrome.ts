@@ -5,7 +5,7 @@
  */
 export const SEARCH_CHROME_TOP_PX = 12
 export const SEARCH_LOGO_PX = 32
-/** Logo plus py-2. */
+/** Logo plus pb-4 (all the band's padding sits under the logo). */
 export const SEARCH_LOGO_BAND_PX = SEARCH_LOGO_PX + 16
 /** Search bar top edge, measured from the map's top. */
 export const SEARCH_BAR_TOP_PX = SEARCH_CHROME_TOP_PX + SEARCH_LOGO_BAND_PX

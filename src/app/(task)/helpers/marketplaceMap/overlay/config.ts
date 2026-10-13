@@ -125,10 +125,18 @@ export const OVERLAY_WEB_DETAIL: OverlayWideRecipe = {
 }
 
 /**
- * Lift Mapbox logo/attribution just above the full task-card carousel and the
- * glass nav. Search stays in the mobile shell until `lg`. 8.75rem ≈ card band.
+ * Measured height of search's bottom chrome (Search this area + task card),
+ * set by the phone/tablet search layout. The card's height varies (button
+ * shown, title wrapping), so the Mapbox mark reads the real value.
  */
-export const OVERLAY_CTRL_BOTTOM_OFFSET_COMPACT = `calc(${MOBILE_BOTTOM_NAV_CLEARANCE} + 8.75rem)`
+export const SEARCH_BOTTOM_CHROME_VAR = '--search-bottom-chrome'
+
+/**
+ * Lift Mapbox logo/attribution just above the task-card stack and the glass
+ * nav. Search stays in the mobile shell until `lg`. 8.75rem ≈ card band until
+ * the first measurement lands.
+ */
+export const OVERLAY_CTRL_BOTTOM_OFFSET_COMPACT = `calc(${MOBILE_BOTTOM_NAV_CLEARANCE} + var(${SEARCH_BOTTOM_CHROME_VAR}, 8.75rem) + 0.5rem)`
 
 export const COMPACT_SEARCH_BOTTOM_H = OVERLAY_MOBILE_SEARCH.bottomH
 export const COMPACT_SEARCH_TOP_H = OVERLAY_MOBILE_SEARCH.topH

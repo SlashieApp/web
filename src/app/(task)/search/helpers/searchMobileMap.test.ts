@@ -25,7 +25,7 @@ describe('search mobile map chrome', () => {
       'utf8',
     )
     expect(overlay).toContain('overlayCtrlBottomOffsetForMobile')
-    expect(overlayConfig).toContain('+ 8.75rem')
+    expect(overlayConfig).toContain('var(${SEARCH_BOTTOM_CHROME_VAR}, 8.75rem)')
     expect(searchMap).toContain('mobileCtrlBottomOffset')
     expect(searchMap).toContain('overlayCtrlBottomOffsetForMobile')
     expect(searchMap).toContain("logoPosition: 'bottom-right'")
