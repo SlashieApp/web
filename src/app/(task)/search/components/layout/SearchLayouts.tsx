@@ -7,6 +7,7 @@ import {
   PAGE_GUTTER_X,
   SEARCH_LIST_COLUMN_W,
 } from '@/theme/pageContainer'
+import { Logo } from '@ui'
 import { MobileTaskCarousel } from '../../../components/(mobile)/layout/MobileTaskCarousel'
 import { MobileTaskSearchSheet } from '../../../components/(mobile)/layout/MobileTaskSearchSheet'
 import { TaskList } from '../../../components/(web)/layout/TaskList'
@@ -102,6 +103,17 @@ export function MobileSearchLayout() {
         justifyContent="center"
       >
         <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X} w="full">
+          {/* Brand above the search bar on phones and tablets (FE-208). The box
+              holds the height so the bar doesn't jump when the logo mounts;
+              it sits outside the stack's map-control margin to stay centred. */}
+          <Box
+            h={{ base: '28px', md: '32px' }}
+            mb={2}
+            display="flex"
+            justifyContent="center"
+          >
+            <Logo h={{ base: '28px', md: '32px' }} />
+          </Box>
           <Stack gap={2} flexShrink={0} mr={touchPhone ? 0 : 12}>
             <TaskSearch mode="trigger" />
             <HStack gap={1.5} flexWrap="wrap">
