@@ -17,7 +17,8 @@ describe('TaskDetailView desktop column', () => {
     const src = readFileSync(join(dir, 'TaskDetailView.tsx'), 'utf8')
     expect(SEARCH_LIST_COLUMN_W).toBe('460px')
     expect(PAGE_CONTAINER_MAX_W).toBe('page')
-    expect(PAGE_CONTAINER_MAX_W_CSS).toBe('90rem')
+    // Page width tightened to 80rem in 8024b97 (2026-09-21).
+    expect(PAGE_CONTAINER_MAX_W_CSS).toBe('80rem')
     expect(src).toContain('PAGE_CONTAINER_MAX_W')
     expect(src).toContain('PAGE_CONTAINER_MAX_W_CSS')
     expect(src).not.toContain('SEARCH_LIST_COLUMN_W')

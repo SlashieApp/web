@@ -39,7 +39,7 @@ import {
   nextTaskImageUploadIndex,
   uploadTaskImagesWithPresign,
 } from '@/utils/taskImageUpload'
-import { publicAreaFromName } from '@/utils/taskLocationDisplay'
+import { townOnly } from '@/utils/taskLocationDisplay'
 import { Badge, Button, Footer, Link, StickyHeader } from '@ui'
 import { TaskStatusPill } from '../components/ui/TaskStatusPill'
 import { taskQueryVariables } from '../helpers/taskQueryVariables'
@@ -439,7 +439,7 @@ function EditTaskFormBody({
             sectionHeading={t.sections.location}
             mapboxAccessToken={mapboxAccessToken}
             mapPlaceName={mapPlaceName}
-            publicArea={publicAreaFromName(publicArea)}
+            publicArea={townOnly(publicArea) ?? ''}
             locationLat={locationLat}
             locationLng={locationLng}
             register={sharedRegister}

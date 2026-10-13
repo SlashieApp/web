@@ -449,7 +449,7 @@ export default function LoginPage() {
                 color="text.muted"
                 textTransform="uppercase"
               >
-                ACCOUNT
+                {t.accountEyebrow}
               </Text>
               <Heading
                 size="2xl"

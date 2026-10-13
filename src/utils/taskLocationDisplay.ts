@@ -16,30 +16,50 @@ export function taskPublicLocationLabel(task: {
   return task.location?.address?.trim() || ''
 }
 
-const UK_POSTCODE_RE = /\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i
+// Mirrors apollo `townOnly` (src/utils/helpers.ts, BE-72): what anyone who
+// isn't a participant sees for a place. Keep the two in step.
+const UK_POSTCODE_RE = /\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b/gi
+/** Postcode district on its own, e.g. "WD23" in "Bushey WD23". */
+const UK_OUTWARD_CODE_RE = /\b[A-Z]{1,2}\d[A-Z\d]?\b/gi
+const COUNTRY_RE =
+  /^(united kingdom|uk|great britain|gb|england|scotland|wales|northern ireland)$/i
+/** Segment ends like a street ("High St", "Herkomer Road"). */
+const STREET_RE =
+  /\b(road|rd|street|st|lane|ln|avenue|ave|close|cl|drive|dr|way|crescent|cres|terrace|tce|mews|grove|gardens|gdns|court|ct|place|pl|square|sq|walk|row|parade|boulevard|blvd|hill|rise|view|vale|green|park)\.?$/i
+/** Segment starts like a unit ("Flat 3", "Apartment B"). */
+const UNIT_RE =
+  /^(flat|apartment|apt|unit|suite|floor|room|block|building|house)\b/i
 
 /**
- * What non-participants see for a stored place name: the first comma
- * segment without a postcode (same trim as the API's discovery label).
+ * Town or locality only: drops postcodes, the country, and every comma
+ * segment with a digit, a unit or a street name, then returns the first
+ * segment left (`"54 Herkomer Road, Bushey, WD23 3LU, United Kingdom"` gives
+ * `"Bushey"`). Errs coarse: a town named like a street ("Burgess Hill") falls
+ * through to the next segment. Takes candidates in order and returns the
+ * first that has a town.
  */
-export function publicAreaFromName(name: string | null | undefined): string {
-  const first = (name ?? '').split(',')[0] ?? ''
-  return first
-    .replace(UK_POSTCODE_RE, '')
-    .replace(/[,\s]+$/g, '')
-    .trim()
-}
-
-/**
- * Fallback when the area lookup fails: drops comma segments with digits
- * (house numbers, postcodes), so no street number is stored publicly.
- */
-export function stripStreetFromPlaceName(
-  name: string | null | undefined,
-): string {
-  return (name ?? '')
-    .split(',')
-    .map((part) => part.trim())
-    .filter((part) => part && !/\d/.test(part))
-    .join(', ')
+export function townOnly(
+  ...candidates: Array<string | null | undefined>
+): string | null {
+  for (const candidate of candidates) {
+    for (const raw of (candidate ?? '').split(',')) {
+      const segment = raw
+        .replace(/\(.*?\)/g, '')
+        .replace(UK_POSTCODE_RE, '')
+        .replace(UK_OUTWARD_CODE_RE, '')
+        .trim()
+        .replace(/\s+/g, ' ')
+      if (
+        !segment ||
+        /\d/.test(segment) ||
+        COUNTRY_RE.test(segment) ||
+        STREET_RE.test(segment) ||
+        UNIT_RE.test(segment)
+      ) {
+        continue
+      }
+      return segment
+    }
+  }
+  return null
 }

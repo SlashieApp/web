@@ -27,7 +27,8 @@ describe('task detail meta tags', () => {
         showExactLocation: false,
       }),
     ).toEqual({
-      label: 'London',
+      // The fixture's public name is town-only since BE-72.
+      label: 'Westminster',
       href: '/search?lat=51.50740&lng=-0.12780',
     })
     expect(

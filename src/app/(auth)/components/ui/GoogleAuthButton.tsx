@@ -32,6 +32,8 @@ type GoogleAuthButtonProps = {
   blockedTitle?: string
   blockedDescription?: string
   onBlocked?: () => void
+  /** Runs after sign-in succeeds, before the redirect (e.g. sign-up opt-ins). */
+  onSignedIn?: () => Promise<void> | void
 }
 
 export function GoogleAuthButton({
@@ -43,6 +45,7 @@ export function GoogleAuthButton({
   blockedTitle = 'Confirm you are 18 or over',
   blockedDescription = 'Tick the confirmation boxes, then continue with Google.',
   onBlocked,
+  onSignedIn,
 }: GoogleAuthButtonProps) {
   const router = useRouter()
   const loginWithGoogle = useUserStore((s) => s.loginWithGoogle)
@@ -82,6 +85,7 @@ export function GoogleAuthButton({
 
       try {
         await loginWithGoogle(idToken)
+        await onSignedIn?.()
         const me = useUserStore.getState().me
         router.push(
           resolvePostAuthRedirect({
@@ -109,6 +113,7 @@ export function GoogleAuthButton({
       intent,
       loginWithGoogle,
       next,
+      onSignedIn,
       redirect,
       router,
       showBlocked,

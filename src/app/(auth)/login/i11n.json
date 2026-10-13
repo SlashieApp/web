@@ -19,7 +19,8 @@
     "registerLink": "Create an account",
     "deletionScheduled": "Your account will be deleted on {date}. Sign in before then to restore it.",
     "deletionScheduledNoDate": "Your account will be deleted in 30 days. Sign in before then to restore it.",
-    "restoreNotice": "Sign in to restore your account. You'll be asked to confirm."
+    "restoreNotice": "Sign in to restore your account. You'll be asked to confirm.",
+    "accountEyebrow": "Account"
   },
   "zh_hk": {
     "metadata": {
@@ -41,6 +42,7 @@
     "registerLink": "建立帳戶",
     "deletionScheduled": "你的帳戶將於 {date} 刪除。在此之前登入即可還原。",
     "deletionScheduledNoDate": "你的帳戶將於 30 天後刪除。在此之前登入即可還原。",
-    "restoreNotice": "登入即可還原你的帳戶，系統會請你確認。"
+    "restoreNotice": "登入即可還原你的帳戶，系統會請你確認。",
+    "accountEyebrow": "帳戶"
   }
 }

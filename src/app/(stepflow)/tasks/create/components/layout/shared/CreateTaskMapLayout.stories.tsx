@@ -1,4 +1,4 @@
-import { publicAreaFromName } from '@/utils/taskLocationDisplay'
+import { townOnly } from '@/utils/taskLocationDisplay'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -85,7 +85,7 @@ function CreateTaskMapDemo({
     >
       {mapExpanded ? (
         <CreateTaskLocationSection
-          publicArea={publicAreaFromName(location)}
+          publicArea={townOnly(location) ?? ''}
           register={register}
           locateUnavailable={locateUnavailable}
         />

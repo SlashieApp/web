@@ -259,13 +259,16 @@ export function PublicPreviewCard({
   const t = useI11n(bag)
   if (!me.worker?.id) return null
   const published = profileIsPublished(lifecycle)
-  const area = publicServiceAreaLabel(me, t.serviceAreaNotAdded)
-  const servesLabel = me.worker.travelRadiusMiles
-    ? formatMessage(t.servesAreaMiles, {
-        area,
-        miles: me.worker.travelRadiusMiles,
-      })
-    : formatMessage(t.servesArea, { area })
+  const areaName = me.worker.preferredLocation?.name?.trim()
+  // No area yet: say so plainly (not "Serves Service area not added").
+  const servesLabel = !areaName
+    ? t.serviceAreaNotAdded
+    : me.worker.travelRadiusMiles
+      ? formatMessage(t.servesAreaMiles, {
+          area: areaName,
+          miles: me.worker.travelRadiusMiles,
+        })
+      : formatMessage(t.servesArea, { area: areaName })
 
   return (
     <ProfileSectionCard

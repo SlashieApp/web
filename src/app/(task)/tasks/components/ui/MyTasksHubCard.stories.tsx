@@ -7,7 +7,7 @@ const row: MyTaskHubRow = {
   id: 'cleaning',
   title: 'open task',
   description: '',
-  location: 'Westminster, London',
+  location: 'Westminster',
   priceLabel: '£22',
   category: 'CLEANING',
   categoryLabel: 'Cleaning',

@@ -109,6 +109,8 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   ACCOUNT_DELETION_SCHEDULED:
     'This account is waiting to be deleted. Restore it to keep using Slashie.',
   ACCOUNT_DELETED: 'This account has been deleted.',
+  ACCOUNT_BANNED:
+    "This email or phone number can't be used on Slashie. Contact accounts@slashie.app if you think this is a mistake.",
   REAUTH_REQUIRED:
     'For your security, sign in again, then delete your account within 10 minutes.',
   ACCOUNT_HAS_LIVE_ORDERS:

@@ -64,7 +64,31 @@
     "profilePublicHint": "Customers can find and view your public worker profile.",
     "contactStaysPrivate": "Contact info stays private",
     "contactStaysPrivateHint": "Email, phone, and exact address never appear in the preview.",
-    "manageAccountPrivacy": "Manage account privacy"
+    "manageAccountPrivacy": "Manage account privacy",
+    "editor": {
+      "photoTitle": "Edit profile photo",
+      "photoDescription": "Upload a clear photo that represents you.",
+      "personalTitle": "Edit personal information",
+      "personalDescription": "Update your display name and private date of birth.",
+      "contactTitle": "Contact & verification",
+      "contactDescription": "Manage private contact channels and their verification.",
+      "workerTitle": "Edit worker profile",
+      "workerDescription": "Update the professional details customers see.",
+      "displayName": "Display name",
+      "displayNameHelp": "Shown publicly on your profile, tasks, and quotes.",
+      "dateOfBirth": "Date of birth",
+      "dateOfBirthHelp": "Private. Used only for age and eligibility checks. You must be 18 or over.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saved": "Personal information saved",
+      "saveFailed": "Could not save your profile",
+      "tryAgain": "Please try again."
+    },
+    "hero": {
+      "editPhoto": "Edit profile photo",
+      "joined": "Joined {date}",
+      "viewPublicProfile": "View public profile"
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -131,6 +155,30 @@
     "profilePublicHint": "顧客可以找到並查看你的公開工作者個人檔案。",
     "contactStaysPrivate": "聯絡資料保持私人",
     "contactStaysPrivateHint": "電郵、電話和詳細地址絕不會出現在預覽中。",
-    "manageAccountPrivacy": "管理帳戶私隱"
+    "manageAccountPrivacy": "管理帳戶私隱",
+    "editor": {
+      "photoTitle": "編輯個人照片",
+      "photoDescription": "上載一張清晰、能代表你的照片。",
+      "personalTitle": "編輯個人資料",
+      "personalDescription": "更新你的顯示名稱和私人出生日期。",
+      "contactTitle": "聯絡方式與驗證",
+      "contactDescription": "管理私人聯絡渠道及其驗證。",
+      "workerTitle": "編輯工作者檔案",
+      "workerDescription": "更新客戶會看到的專業資料。",
+      "displayName": "顯示名稱",
+      "displayNameHelp": "會公開顯示在你的個人檔案、任務和報價上。",
+      "dateOfBirth": "出生日期",
+      "dateOfBirthHelp": "私人資料，只用於年齡及資格檢查。你必須年滿 18 歲。",
+      "cancel": "取消",
+      "save": "儲存",
+      "saved": "已儲存個人資料",
+      "saveFailed": "未能儲存你的個人檔案",
+      "tryAgain": "請再試一次。"
+    },
+    "hero": {
+      "editPhoto": "編輯個人照片",
+      "joined": "{date} 加入",
+      "viewPublicProfile": "查看公開檔案"
+    }
   }
 }

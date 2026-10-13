@@ -28,7 +28,8 @@
     "googleBlockedDescription": "Tick both boxes below, then continue with Google.",
     "submit": "Create account",
     "loginPrompt": "Already have an account?",
-    "loginLink": "Log in"
+    "loginLink": "Log in",
+    "marketingOptIn": "Send me Slashie news and tips (optional). You can turn this off any time in Account settings."
   },
   "zh_hk": {
     "metadata": {
@@ -59,6 +60,7 @@
     "googleBlockedDescription": "先勾選下面兩項，再繼續使用 Google。",
     "submit": "建立帳戶",
     "loginPrompt": "已有帳戶？",
-    "loginLink": "登入"
+    "loginLink": "登入",
+    "marketingOptIn": "向我發送 Slashie 的最新消息和貼士（可選）。你可隨時在帳戶設定中關閉。"
   }
 }

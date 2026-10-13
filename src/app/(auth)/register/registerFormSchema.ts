@@ -12,6 +12,8 @@ export const registerFormSchema = z
     confirmPassword: z.string(),
     isOver18: z.boolean(),
     agreedToTerms: z.boolean(),
+    /** Optional, unticked (BE-65: marketing email is opt-in). */
+    marketingOptIn: z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {

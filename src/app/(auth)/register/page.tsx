@@ -35,6 +35,7 @@ import {
   registerFormSchema,
 } from '@/app/(auth)/register/registerFormSchema'
 import { useUserStore } from '@/app/(auth)/store/user'
+import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { setAuthToken } from '@/utils/auth'
@@ -134,8 +135,8 @@ function PasswordToggleButton({
 }
 
 /**
- * Required consent checkbox (18+ confirmation, Terms/Privacy agreement).
- * Renders unticked; the zod schema blocks submission until checked.
+ * Consent checkbox, always unticked by default. 18+ and Terms are required
+ * (the zod schema blocks submission); marketing email is optional.
  */
 function ConsentCheckboxField({
   control,
@@ -144,7 +145,7 @@ function ConsentCheckboxField({
   errorText,
 }: {
   control: Control<RegisterFormValues>
-  name: 'isOver18' | 'agreedToTerms'
+  name: 'isOver18' | 'agreedToTerms' | 'marketingOptIn'
   label: ReactNode
   errorText?: string
 }) {
@@ -380,12 +381,25 @@ export default function RegisterPage() {
       confirmPassword: '',
       isOver18: false,
       agreedToTerms: false,
+      marketingOptIn: false,
     },
   })
 
   const isOver18 = watch('isOver18')
   const agreedToTerms = watch('agreedToTerms')
+  const marketingOptIn = watch('marketingOptIn')
   const oauthBlocked = !isOver18 || !agreedToTerms
+  const [updateSettings] = useMutation(UpdateMySettings)
+
+  /** BE-65: accounts start opted out; apply an explicit opt-in once signed in. */
+  const applyMarketingOptIn = async () => {
+    if (!marketingOptIn) return
+    try {
+      await updateSettings({ variables: { input: { marketingEmails: true } } })
+    } catch {
+      // Best effort: the toggle on Account settings stays available.
+    }
+  }
 
   const [registerMutation, { loading }] =
     useMutation<RegisterMutation>(Register)
@@ -430,6 +444,7 @@ export default function RegisterPage() {
 
       setAuthToken(token)
       await getUser()
+      await applyMarketingOptIn()
       clearRegisterFailCount()
       captcha.setFailCount(0)
       trackFlowSucceeded(EVENTS.register_success, {
@@ -539,6 +554,11 @@ export default function RegisterPage() {
                       </>
                     }
                   />
+                  <ConsentCheckboxField
+                    control={control}
+                    name="marketingOptIn"
+                    label={t.marketingOptIn}
+                  />
                 </Stack>
 
                 <GoogleAuthButton
@@ -550,6 +570,7 @@ export default function RegisterPage() {
                   onBlocked={() => {
                     void trigger(['isOver18', 'agreedToTerms'])
                   }}
+                  onSignedIn={applyMarketingOptIn}
                 />
                 <AppleAuthButton
                   next={authQuery.next}
@@ -558,6 +579,7 @@ export default function RegisterPage() {
                   onBlocked={() => {
                     void trigger(['isOver18', 'agreedToTerms'])
                   }}
+                  onSignedIn={applyMarketingOptIn}
                 />
                 {oauthBlocked ? (
                   <Text fontSize="xs" color="text.muted" lineHeight="tall">

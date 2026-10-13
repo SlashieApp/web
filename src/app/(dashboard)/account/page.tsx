@@ -166,11 +166,14 @@ export default function AccountPage() {
               value={t.passwordValue}
             />
             <Box>
-              <Link href="/forgot-password" _hover={{ textDecoration: 'none' }}>
-                <Button size="sm" variant="ghost">
+              <Button asChild size="sm" variant="ghost">
+                <Link
+                  href="/forgot-password"
+                  _hover={{ textDecoration: 'none' }}
+                >
                   {t.resetPassword}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </Box>
           </Stack>
         </DashboardSectionCard>

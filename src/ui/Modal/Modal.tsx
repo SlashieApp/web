@@ -15,12 +15,15 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { LuX } from 'react-icons/lu'
 
+import { useI11n } from '@/i18n/useI11n'
 import { APP_OVERLAY_Z_INDEX, sdlMotion } from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 
 import { Button } from '../Button'
 import { IconButton as UiIconButton } from '../IconButton/IconButton'
+import bag from './i11n.json'
 
 /**
  * SDL Modal. A centred dialog built on Chakra/Ark `Dialog`, so it keeps a focus
@@ -85,6 +88,7 @@ export function Modal({
   hideFooter = false,
   footer,
 }: ModalProps) {
+  const t = useI11n(bag)
   const showFooter = !hideFooter && (footer != null || submitLabel != null)
   const isBrowser = useIsBrowser()
 
@@ -152,8 +156,12 @@ export function Modal({
                 {title}
               </DialogTitle>
               <DialogCloseTrigger asChild>
-                <UiIconButton aria-label="Close" variant="ghost" flexShrink={0}>
-                  ×
+                <UiIconButton
+                  aria-label={t.close}
+                  variant="ghost"
+                  flexShrink={0}
+                >
+                  <LuX size={20} strokeWidth={2} aria-hidden />
                 </UiIconButton>
               </DialogCloseTrigger>
             </HStack>

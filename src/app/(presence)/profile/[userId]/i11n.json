@@ -79,7 +79,10 @@
     "notFoundDescription": "This profile is private or no longer available.",
     "errorTitle": "Could not load this profile",
     "errorDescription": "Something went wrong. Check your connection and try again.",
-    "errorRetry": "Try again"
+    "errorRetry": "Try again",
+    "back": "Back",
+    "starsLabel": "{count} out of 5 stars",
+    "jobRatingLabel": "{title}: {count} out of 5 stars"
   },
   "zh_hk": {
     "metadata": {
@@ -161,6 +164,9 @@
     "notFoundDescription": "此檔案已設為私人，或已無法查看。",
     "errorTitle": "無法載入此檔案",
     "errorDescription": "發生錯誤。請檢查連線後再試。",
-    "errorRetry": "再試一次"
+    "errorRetry": "再試一次",
+    "back": "返回",
+    "starsLabel": "5 星中的 {count} 星",
+    "jobRatingLabel": "{title}：5 星中的 {count} 星"
   }
 }

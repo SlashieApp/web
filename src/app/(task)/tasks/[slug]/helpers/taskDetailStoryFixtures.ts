@@ -77,7 +77,7 @@ export function storyTaskDetail(
     location: {
       lat: 51.5074,
       lng: -0.1278,
-      name: 'Westminster, London',
+      name: 'Westminster',
       address: '12 Example Street, London SW1A 1AA',
     },
     poster: {
@@ -151,7 +151,7 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
       location: {
         lat: 51.5074,
         lng: -0.1278,
-        name: 'Westminster, London',
+        name: 'Westminster',
         address: '12 Example Street, London SW1A 1AA',
       },
       datetime: { date: '2026-06-10', time: '14:00', type: 'EXACT' },

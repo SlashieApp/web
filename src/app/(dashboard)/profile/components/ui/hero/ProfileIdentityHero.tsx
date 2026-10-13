@@ -5,7 +5,11 @@ import { LuCalendarDays, LuCamera, LuExternalLink } from 'react-icons/lu'
 
 import { MeAvatar } from '@/app/(auth)/components/ui/MeAvatar'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { Badge, Button, Card, Link } from '@ui'
+
+import bag from '../../../i11n.json'
 
 import type { ProfileLifecycle } from '../../../helpers/profileLifecycle'
 import {
@@ -22,7 +26,9 @@ export function ProfileIdentityHero({
   lifecycle: ProfileLifecycle
   onEditPhoto: () => void
 }) {
+  const t = useI11n(bag).hero
   const name = displayNameFromMe(me)
+  const joined = joinMonthYear(me.createdAt)
 
   return (
     <Card
@@ -34,17 +40,17 @@ export function ProfileIdentityHero({
       <SimpleGrid columns={{ base: 1, md: 2 }} gap={5} alignItems="center">
         <HStack gap={4} align="center">
           <Stack position="relative" flexShrink={0}>
-            <MeAvatar size="lg" name={name} />
+            <MeAvatar size="xl" name={name} fallback="initials" />
             <Button
               type="button"
               size="sm"
               variant="secondary"
-              aria-label="Edit profile photo"
+              aria-label={t.editPhoto}
               position="absolute"
-              right="-8px"
-              bottom="-6px"
-              boxSize="32px"
-              minW="32px"
+              right="-2px"
+              bottom="-2px"
+              boxSize="36px"
+              minW="36px"
               p={0}
               borderRadius="full"
               onClick={onEditPhoto}
@@ -59,10 +65,12 @@ export function ProfileIdentityHero({
             <Text fontSize="sm" color="text.muted" truncate>
               {me.email}
             </Text>
-            {joinMonthYear(me.createdAt) ? (
+            {joined ? (
               <HStack gap={1.5} color="text.muted">
                 <LuCalendarDays size={14} aria-hidden />
-                <Text fontSize="xs">Joined {joinMonthYear(me.createdAt)}</Text>
+                <Text fontSize="xs">
+                  {formatMessage(t.joined, { date: joined })}
+                </Text>
               </HStack>
             ) : null}
           </Stack>
@@ -73,15 +81,15 @@ export function ProfileIdentityHero({
             {lifecycle.badge}
           </Badge>
           {lifecycle.publicProfileHref ? (
-            <Link
-              href={lifecycle.publicProfileHref}
-              _hover={{ textDecoration: 'none' }}
-            >
-              <Button size="sm" variant="secondary">
-                View public profile
+            <Button asChild size="sm" variant="secondary">
+              <Link
+                href={lifecycle.publicProfileHref}
+                _hover={{ textDecoration: 'none' }}
+              >
+                {t.viewPublicProfile}
                 <LuExternalLink size={14} aria-hidden />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           ) : null}
         </Stack>
       </SimpleGrid>

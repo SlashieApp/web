@@ -48,7 +48,8 @@ export function HeaderGuestAuthButtons({
           {t.logIn}
         </Link>
       </Button>
-      <Button asChild size="sm" variant="primary">
+      {/* Secondary: "Post a task" is the header's one green primary. */}
+      <Button asChild size="sm" variant="secondary">
         <Link href={signupHref} _hover={{ textDecoration: 'none' }}>
           {t.signUp}
         </Link>

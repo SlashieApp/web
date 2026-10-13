@@ -121,6 +121,8 @@ type AppleAuthButtonProps = {
    */
   blocked?: boolean
   onBlocked?: () => void
+  /** Runs after sign-in succeeds, before the redirect (e.g. sign-up opt-ins). */
+  onSignedIn?: () => Promise<void> | void
 }
 
 /**
@@ -135,6 +137,7 @@ export function AppleAuthButton({
   fallbackPath = APP_HOME,
   blocked = false,
   onBlocked,
+  onSignedIn,
 }: AppleAuthButtonProps) {
   const t = useI11n(bag).apple
   const locale = useLocale()
@@ -223,6 +226,7 @@ export function AppleAuthButton({
     }
     try {
       await loginWithApple(idToken, appleFirstLoginName(response.user?.name))
+      await onSignedIn?.()
       const me = useUserStore.getState().me
       router.push(
         resolvePostAuthRedirect({
@@ -247,6 +251,7 @@ export function AppleAuthButton({
     loginWithApple,
     next,
     onBlocked,
+    onSignedIn,
     redirect,
     router,
     t,

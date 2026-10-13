@@ -1,16 +1,35 @@
+import { Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { NextStepCard } from './ProfileSidebarCards'
+import { getProfileLifecycle } from '../../../helpers/profileLifecycle'
+import { meStoryFixture } from '../../profileStoryFixtures'
+import {
+  NextStepCard,
+  PrivacyVisibilityCard,
+  ProfileStrengthCard,
+} from './ProfileSidebarCards'
 
-const meta: Meta<typeof NextStepCard> = {
-  title: 'dashboard/profile/ui/cards/ProfileSidebarCards',
-  component: NextStepCard,
-  parameters: {
-    layout: 'padded',
-  },
+function SidebarCards({ worker }: { worker: boolean }) {
+  const me = meStoryFixture(worker)
+  return (
+    <Stack gap={5} maxW="360px">
+      <NextStepCard lifecycle={getProfileLifecycle(me)} />
+      <ProfileStrengthCard me={me} />
+      <PrivacyVisibilityCard me={me} />
+    </Stack>
+  )
 }
+
+const meta = {
+  title: 'dashboard/profile/ui/cards/ProfileSidebarCards',
+  component: SidebarCards,
+  parameters: { layout: 'padded' },
+  args: { worker: false },
+} satisfies Meta<typeof SidebarCards>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
+
+export const Worker: Story = { args: { worker: true } }

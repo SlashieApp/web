@@ -13,7 +13,7 @@ const panels = buildAchievementPanels({
       { category: 'CLEANING', count: 1 },
       { category: 'HANDYMAN', count: 1 },
     ],
-    mostWorkedLocation: { label: 'Westminster, London', count: 1 },
+    mostWorkedLocation: { label: 'Westminster', count: 1 },
     quotesThisMonth: 3,
     freeQuotesPerMonth: 5,
     streakWeeks: 2,
@@ -22,7 +22,7 @@ const panels = buildAchievementPanels({
   customer: {
     hostedCompletedCount: 0,
     categoryMix: [{ category: 'CLEANING', count: 1 }],
-    mostUsedLocation: { label: 'Westminster, London', count: 1 },
+    mostUsedLocation: { label: 'Westminster', count: 1 },
     quotesReceived: 1,
     agreedTotalsOnCompletedJobs: [{ amount: 22, currency: 'GBP' }],
   },

@@ -1,30 +1,34 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  publicAreaFromName,
-  stripStreetFromPlaceName,
-} from './taskLocationDisplay'
+import { townOnly } from './taskLocationDisplay'
 
-describe('publicAreaFromName', () => {
-  it('shows the town for an area-level name', () => {
-    expect(publicAreaFromName('Bushey, Hertfordshire, England')).toBe('Bushey')
-  })
-
-  it('is what leaks for a street-level name (why create stores areas)', () => {
-    expect(publicAreaFromName('54 Herkomer Road, Bushey, WD23 3LU')).toBe(
-      '54 Herkomer Road',
+// Examples from wiki 02-Engineering/Location-Privacy.md (BE-72).
+describe('townOnly', () => {
+  it('keeps only the town', () => {
+    expect(townOnly('54 Herkomer Road, Bushey, WD23 3LU, United Kingdom')).toBe(
+      'Bushey',
     )
-    expect(publicAreaFromName('WD23 3LU, Bushey')).toBe('')
+    expect(townOnly('Bushey, Hertfordshire, England, United Kingdom')).toBe(
+      'Bushey',
+    )
+    expect(townOnly('Flat 3, 12 High Street, Watford, WD17 2AB')).toBe(
+      'Watford',
+    )
   })
-})
 
-describe('stripStreetFromPlaceName', () => {
-  it('drops house numbers and postcodes', () => {
-    expect(
-      stripStreetFromPlaceName(
-        '54 Herkomer Road, Bushey, WD23 3LU, United Kingdom',
-      ),
-    ).toBe('Bushey, United Kingdom')
-    expect(stripStreetFromPlaceName('')).toBe('')
+  it('has no town for a bare postcode or empty input', () => {
+    expect(townOnly('WD23 3LU')).toBeNull()
+    expect(townOnly('')).toBeNull()
+    expect(townOnly(null)).toBeNull()
+  })
+
+  it('errs coarse for towns named like streets', () => {
+    expect(townOnly('Burgess Hill, West Sussex')).toBe('West Sussex')
+  })
+
+  it('drops brackets and postcode districts, then tries the next candidate', () => {
+    expect(townOnly('Camden (~5 miles)')).toBe('Camden')
+    expect(townOnly('Bushey WD23')).toBe('Bushey')
+    expect(townOnly('12 High Street', 'Watford, WD17 2AB')).toBe('Watford')
   })
 })

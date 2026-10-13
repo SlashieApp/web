@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react'
 
 import { mapboxReverseGeocodeArea } from '@/utils/mapboxGeocode'
-import { stripStreetFromPlaceName } from '@/utils/taskLocationDisplay'
+import { townOnly } from '@/utils/taskLocationDisplay'
 
 /**
  * The public place name stored on a task (FE-70): the town or locality at
  * the pin, never a street. The map's own label can be a full street
  * address, and the API shows the stored name to everyone. Falls back to
- * the label with street numbers and postcodes removed.
+ * the town in the map's label (same rule as the API, BE-72).
  */
 export async function resolvePublicAreaName(input: {
   lat: number
@@ -23,10 +23,10 @@ export async function resolvePublicAreaName(input: {
       const area = await mapboxReverseGeocodeArea(input.lat, input.lng, token)
       if (area) return area
     } catch {
-      // Network or Mapbox error: use the stripped label below.
+      // Network or Mapbox error: use the town from the label below.
     }
   }
-  return stripStreetFromPlaceName(input.fallbackLabel)
+  return townOnly(input.fallbackLabel) ?? ''
 }
 
 const AREA_LOOKUP_DELAY_MS = 400

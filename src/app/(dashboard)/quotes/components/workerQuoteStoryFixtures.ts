@@ -33,7 +33,7 @@ export function storyTask(overrides: Partial<TaskItem> = {}): TaskItem {
     location: {
       lat: 51.5074,
       lng: -0.1278,
-      name: 'Westminster, London',
+      name: 'Westminster',
       address: null,
     },
     poster: { id: STORY_CUSTOMER_ID },
@@ -73,7 +73,7 @@ export function storyOrder(overrides: Partial<OrderItem> = {}): OrderItem {
       location: {
         lat: 51.5074,
         lng: -0.1278,
-        name: 'Westminster, London',
+        name: 'Westminster',
         address: '12 Example Street',
       },
       datetime: { date: '2026-06-10', time: '14:00', type: 'EXACT' },

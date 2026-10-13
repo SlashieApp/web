@@ -9,6 +9,7 @@ const valid = {
   confirmPassword: 'password1',
   isOver18: true,
   agreedToTerms: true,
+  marketingOptIn: false,
 }
 
 describe('registerFormSchema', () => {
@@ -27,6 +28,7 @@ describe('registerFormSchema', () => {
     const result = registerFormSchema.safeParse({
       ...valid,
       agreedToTerms: false,
+      marketingOptIn: false,
     })
     expect(result.success).toBe(false)
   })

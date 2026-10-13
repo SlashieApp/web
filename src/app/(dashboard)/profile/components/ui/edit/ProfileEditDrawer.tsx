@@ -13,11 +13,13 @@ import { useForm } from 'react-hook-form'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { ContactMethodsPanel } from '@/app/(dashboard)/components/ui/ContactMethodsPanel'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, Drawer, FormField, Input } from '@ui'
 
+import bag from '../../../i11n.json'
 import { initialDisplayNameForForm } from '../../../profileDisplayHelpers'
 import {
   type ProfileApiFormValues,
@@ -35,28 +37,6 @@ export type ProfileEditSection =
   | 'worker'
   | null
 
-const drawerMeta: Record<
-  Exclude<ProfileEditSection, null>,
-  { title: string; description: string }
-> = {
-  photo: {
-    title: 'Edit profile photo',
-    description: 'Upload a clear photo that represents you.',
-  },
-  personal: {
-    title: 'Edit personal information',
-    description: 'Update your display name and private date of birth.',
-  },
-  contact: {
-    title: 'Contact & verification',
-    description: 'Manage private contact channels and their verification.',
-  },
-  worker: {
-    title: 'Edit worker profile',
-    description: 'Update the professional details customers see.',
-  },
-}
-
 export function ProfileEditDrawer({
   section,
   onOpenChange,
@@ -64,8 +44,14 @@ export function ProfileEditDrawer({
   section: ProfileEditSection
   onOpenChange: (section: ProfileEditSection) => void
 }) {
+  const t = useI11n(bag).editor
   const open = section !== null
-  const meta = section ? drawerMeta[section] : drawerMeta.personal
+  const meta = {
+    photo: { title: t.photoTitle, description: t.photoDescription },
+    personal: { title: t.personalTitle, description: t.personalDescription },
+    contact: { title: t.contactTitle, description: t.contactDescription },
+    worker: { title: t.workerTitle, description: t.workerDescription },
+  }[section ?? 'personal']
 
   return (
     <Drawer
@@ -113,6 +99,7 @@ function PersonalInfoEditor({
   onCancel: () => void
   onSaved: () => void
 }) {
+  const t = useI11n(bag).editor
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
 
@@ -156,7 +143,7 @@ function PersonalInfoEditor({
       trackFlowSucceeded(EVENTS.profile_update_success, {
         section: 'personal',
       })
-      showAppToast({ title: 'Personal information saved' })
+      showAppToast({ title: t.saved })
       onSaved()
     } catch (error) {
       trackFlowFailed(EVENTS.profile_update_fail, error, {
@@ -167,8 +154,8 @@ function PersonalInfoEditor({
         extra: { section: 'personal' },
       })
       showAppToast({
-        title: 'Could not save your profile',
-        description: getFriendlyErrorMessage(error, 'Please try again.'),
+        title: t.saveFailed,
+        description: getFriendlyErrorMessage(error, t.tryAgain),
         type: 'error',
       })
     }
@@ -183,20 +170,21 @@ function PersonalInfoEditor({
     >
       <Stack gap={5}>
         <FormField
-          label="Display name"
-          helperText="Shown publicly on your profile, tasks, and quotes."
+          label={t.displayName}
+          helperText={t.displayNameHelp}
           errorText={errors.displayName?.message}
         >
-          <Input {...register('displayName')} />
+          <Input {...register('displayName')} autoComplete="name" />
         </FormField>
         <FormField
-          label="Date of birth"
-          helperText="Private. Used only for age and eligibility checks. You must be 18 or over."
+          label={t.dateOfBirth}
+          helperText={t.dateOfBirthHelp}
           errorText={errors.dateOfBirth?.message}
         >
           <Input
             {...register('dateOfBirth')}
             type="date"
+            autoComplete="bday"
             max={new Date().toISOString().slice(0, 10)}
           />
         </FormField>
@@ -218,14 +206,14 @@ function PersonalInfoEditor({
             }}
             disabled={loading}
           >
-            Cancel
+            {t.cancel}
           </Button>
           <Button
             type="submit"
             loading={loading || isSubmitting}
             disabled={!isDirty}
           >
-            Save
+            {t.save}
           </Button>
         </HStack>
       </Stack>

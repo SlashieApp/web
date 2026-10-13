@@ -4,7 +4,12 @@ import type { BoxProps } from '@chakra-ui/react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { readCachedGooglePhotoUrl } from '@/utils/googlePhotoCache'
-import { Avatar, type UiAvatarSize, buildAvatarSrcCandidates } from '@ui'
+import {
+  Avatar,
+  type UiAvatarFallback,
+  type UiAvatarSize,
+  buildAvatarSrcCandidates,
+} from '@ui'
 
 export type MeAvatarProps = {
   size?: UiAvatarSize
@@ -17,6 +22,8 @@ export type MeAvatarProps = {
   googlePhotoUrl?: string | null
   /** Accessible name; defaults to profile name / email. */
   name?: string
+  /** What shows with no photo (or after every URL fails). Default: icon. */
+  fallback?: UiAvatarFallback
   rootProps?: BoxProps
 }
 
@@ -29,6 +36,7 @@ export function MeAvatar({
   avatarUrl: avatarUrlProp,
   googlePhotoUrl: googlePhotoUrlProp,
   name: nameProp,
+  fallback = 'icon',
   rootProps,
 }: MeAvatarProps) {
   const me = useUserStore((s) => s.me)
@@ -52,7 +60,7 @@ export function MeAvatar({
       name={label}
       size={size}
       srcCandidates={buildAvatarSrcCandidates(profileAvatar, googlePhoto)}
-      fallback="icon"
+      fallback={fallback}
       rootProps={rootProps}
     />
   )

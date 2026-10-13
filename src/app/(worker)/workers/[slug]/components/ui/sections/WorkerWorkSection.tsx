@@ -4,8 +4,8 @@ import { LuChevronRight } from 'react-icons/lu'
 import { Badge, Card, RatingStars, SpotIllustration } from '@ui'
 
 /**
- * Display shape for a BE-36 `completedJobs` row. `areaLabel` is an
- * approximate area ("Camden, London") — never an address.
+ * Display shape for a BE-36 `completedJobs` row. `areaLabel` is the town
+ * only ("Camden", BE-72), never an address.
  */
 export type WorkerCompletedJob = {
   id: string

@@ -11,16 +11,38 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { PublicProfileUserType, WorkerContactAction } from '@codegen/schema'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { LuCalendar, LuCheck, LuHeart, LuLock, LuMapPin } from 'react-icons/lu'
+import {
+  LuArrowLeft,
+  LuCalendar,
+  LuCheck,
+  LuHeart,
+  LuLock,
+  LuMapPin,
+} from 'react-icons/lu'
 
 import { TaskCard } from '@/app/(task)/components/ui/TaskCard'
 import { WorkerPortfolioSection } from '@/app/(worker)/workers/[slug]/components'
 import { ReportControl } from '@/content/trust/ReportControl'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import {
+  MOBILE_BOTTOM_NAV_MAX_W,
+  MOBILE_BOTTOM_NAV_OFFSET,
+} from '@/ui/MobileBottomNav/mobileBottomNavLayout'
 import { RatingStars } from '@/ui/Rating/Rating'
-import { Avatar, Badge, Button, Card, Link, SafetyNotice } from '@ui'
+import { APP_HOME } from '@/utils/appRoutes'
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  IconButton,
+  Link,
+  SafetyNotice,
+} from '@ui'
 
 import type { PublicProfileView } from '../../helpers/publicProfileModel'
 import { isWorkerProfile } from '../../helpers/publicProfileModel'
@@ -99,12 +121,13 @@ export function PublicProfileScreen({
 
       <Box
         w="full"
-        borderWidth="1px"
+        borderYWidth="1px"
         borderColor="border.default"
         bg="bg.surface"
         bgImage="linear-gradient(180deg, var(--chakra-colors-status-success-soft) 0%, var(--chakra-colors-bg-surface) 78%)"
       >
-        <Container py={{ base: 6, md: 8 }}>
+        <Container py={{ base: 6, md: 8 }} position="relative">
+          <ProfileBackButton />
           <Stack
             direction={{ base: 'column', md: 'row' }}
             gap={{ base: 4, md: 6 }}
@@ -129,10 +152,11 @@ export function PublicProfileScreen({
                 {view.verified ? (
                   <Box
                     as="span"
+                    role="img"
                     color="text.link"
                     aria-label={t.identityVerified}
                   >
-                    <LuCheck size={18} strokeWidth={3} />
+                    <LuCheck size={18} strokeWidth={3} aria-hidden />
                   </Box>
                 ) : null}
               </HStack>
@@ -161,7 +185,7 @@ export function PublicProfileScreen({
               <RatingLine view={view} />
               {view.serviceAreaLabel ? (
                 <HStack gap={1.5} color="text.muted" fontSize="sm">
-                  <LuMapPin size={14} />
+                  <LuMapPin size={14} aria-hidden />
                   <Text>
                     {t.serviceArea}: {view.serviceAreaLabel}
                   </Text>
@@ -185,7 +209,9 @@ export function PublicProfileScreen({
         <Grid
           templateColumns={{
             base: 'minmax(0, 1fr)',
-            lg: 'minmax(0, 65fr) minmax(0, 35fr)',
+            lg: showWorker
+              ? 'minmax(0, 65fr) minmax(0, 35fr)'
+              : 'minmax(0, 1fr)',
           }}
           gap={{ base: 5, lg: 6 }}
           alignItems="start"
@@ -289,7 +315,10 @@ export function PublicProfileScreen({
                           {job.rating != null ? (
                             <RatingStars
                               value={job.rating}
-                              label={`${job.title} rating`}
+                              label={formatMessage(t.jobRatingLabel, {
+                                title: job.title,
+                                count: job.rating,
+                              })}
                             />
                           ) : null}
                         </HStack>
@@ -307,12 +336,23 @@ export function PublicProfileScreen({
               />
             ) : null}
           </Stack>
-          <ProfileSidebar
-            view={view}
-            name={name}
-            firstName={firstName}
-            onContact={onContact}
-          />
+          {showWorker ? (
+            <ProfileSidebar
+              view={view}
+              name={name}
+              firstName={firstName}
+              onContact={onContact}
+            />
+          ) : view.isSelf ? null : (
+            // Customers have no sidebar: keep Report at the end instead of
+            // alone in an empty column.
+            <ReportControl
+              kind="user"
+              targetId={view.reportTargetId}
+              targetTitle={name}
+              variant="button"
+            />
+          )}
         </Grid>
       </Container>
 
@@ -323,20 +363,24 @@ export function PublicProfileScreen({
       ) : null}
 
       {showWorker && !view.isSelf ? (
+        // Floats just above the mobile bottom nav (both used to sit at
+        // bottom: 0 and overlap).
         <Box
           display={{ base: 'block', lg: 'none' }}
           position="fixed"
-          insetX={0}
-          bottom={0}
+          insetX={4}
+          bottom={MOBILE_BOTTOM_NAV_OFFSET}
           zIndex={10}
-          bg="bg.surface"
-          borderTopWidth="1px"
-          borderColor="border.default"
-          px={4}
-          pt={3}
-          pb="calc(0.75rem + env(safe-area-inset-bottom))"
+          maxW={MOBILE_BOTTOM_NAV_MAX_W}
+          mx="auto"
         >
-          <Button type="button" w="full" size="lg" onClick={onContact}>
+          <Button
+            type="button"
+            w="full"
+            size="lg"
+            boxShadow="e3"
+            onClick={onContact}
+          >
             {formatMessage(t.contact, { name: firstName })}
           </Button>
         </Box>
@@ -491,7 +535,8 @@ function ReviewsBlock({ view }: { view: PublicProfileView }) {
     <Card layout="section" heading={t.reviewsHeading}>
       <Stack gap={4}>
         <Stack gap={1}>
-          <Text fontWeight={600}>{title}</Text>
+          {/* The hero already says "No reviews yet". */}
+          {count > 0 ? <Text fontWeight={600}>{title}</Text> : null}
           <Text fontSize="sm" color="text.muted">
             {count > 0 && view.ratingAverage == null
               ? t.reviewsThreshold
@@ -507,7 +552,10 @@ function ReviewsBlock({ view }: { view: PublicProfileView }) {
             borderColor="border.default"
           >
             <HStack justify="space-between">
-              <RatingStars value={review.stars} label={`${review.stars}`} />
+              <RatingStars
+                value={review.stars}
+                label={formatMessage(t.starsLabel, { count: review.stars })}
+              />
               <Text fontSize="xs" color="text.muted">
                 {review.createdLabel}
               </Text>
@@ -585,7 +633,7 @@ function ProfileSidebar({
             />
             {view.yearsExperience != null ? (
               <HStack gap={2} color="text.muted" fontSize="sm">
-                <LuCalendar size={14} />
+                <LuCalendar size={14} aria-hidden />
                 <Text>
                   {view.yearsExperience === 1
                     ? t.yearsExperienceOne
@@ -622,7 +670,7 @@ function ProfileSidebar({
             </Button>
             <SafetyNotice variant="inline" />
             <HStack gap={2} color="text.muted" align="flex-start">
-              <LuLock size={13} />
+              <LuLock size={13} aria-hidden />
               <Text fontSize="xs">{t.detailsSafe}</Text>
             </HStack>
           </Stack>
@@ -637,5 +685,31 @@ function ProfileSidebar({
         />
       )}
     </Stack>
+  )
+}
+
+/**
+ * Phones have no app header, so give the profile its own way back (to the
+ * previous page, or search when opened directly).
+ */
+function ProfileBackButton() {
+  const t = useI11n(bag)
+  const router = useRouter()
+  const localize = useLocalizedHref()
+  return (
+    <IconButton
+      aria-label={t.back}
+      variant="ghost"
+      display={{ base: 'inline-flex', lg: 'none' }}
+      position="absolute"
+      top={{ base: 3, md: 4 }}
+      left={2}
+      onClick={() => {
+        if (window.history.length > 1) router.back()
+        else router.push(localize(APP_HOME))
+      }}
+    >
+      <LuArrowLeft aria-hidden />
+    </IconButton>
   )
 }

@@ -51,7 +51,7 @@ import {
 import { mapboxReverseGeocode } from '@/utils/mapboxGeocode'
 import { TASK_DRAFT_TITLE_MAX } from '@/utils/taskHandoff'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
-import { publicAreaFromName } from '@/utils/taskLocationDisplay'
+import { townOnly } from '@/utils/taskLocationDisplay'
 import { StepFlowProgress } from '@ui'
 
 import {
@@ -650,7 +650,7 @@ function CreateTaskFormBody({
       case 'details.location':
         return (
           <CreateTaskLocationSection
-            publicArea={publicAreaFromName(publicArea)}
+            publicArea={townOnly(publicArea) ?? ''}
             register={register}
             streetAddressError={errors.streetAddress?.message}
             locationError={locationError}

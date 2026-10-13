@@ -20,11 +20,13 @@ import { type ReactNode, createContext, useContext } from 'react'
 import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
+import { useI11n } from '@/i18n/useI11n'
 import { APP_OVERLAY_Z_INDEX } from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 
 import { Button } from '../Button'
 import { IconButton as UiIconButton } from '../IconButton/IconButton'
+import bag from './i11n.json'
 import { useDrawerSheet } from './useDrawerSheet'
 
 /** Matches `Container`: horizontal page gutters. */
@@ -107,6 +109,7 @@ export function Drawer({
   onPrimaryAction,
   contentProps,
 }: DrawerProps) {
+  const t = useI11n(bag)
   const radius = drawerPanelRadius(placement)
   const isBrowser = useIsBrowser()
   const { present, setPanel, setBackdrop, touchAction } = useDrawerSheet({
@@ -182,7 +185,7 @@ export function Drawer({
                 </DrawerTitle>
                 <DrawerCloseTrigger asChild>
                   <UiIconButton
-                    aria-label="Close drawer"
+                    aria-label={t.close}
                     variant="ghost"
                     flexShrink={0}
                     minW="44px"

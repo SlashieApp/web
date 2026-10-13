@@ -155,7 +155,7 @@ const activity = buildAchievementPanels({
   },
   customer: {
     hostedCompletedCount: 0,
-    mostUsedLocation: { label: 'Westminster, London', count: 1 },
+    mostUsedLocation: { label: 'Westminster', count: 1 },
     quotesReceived: 0,
     agreedTotalsOnCompletedJobs: [],
   },
