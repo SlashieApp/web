@@ -3,7 +3,7 @@ mutation UpdateTask($taskId: ID!, $input: UpdateTaskInput!) {
     id
     title
     description
-    category
+    categories
     status
     budget {
       amount

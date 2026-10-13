@@ -42,8 +42,31 @@ export function taskCategoryDisplayLabel(
   if (!category?.trim()) return null
   const key = category.trim().toUpperCase().replace(/\s+/g, '_')
   if (key in LABELS) return LABELS[key as TaskCreateCategoryValue]
-  return category
+  const trimmed = category.trim()
+  // Legacy codes (SOME_CODE) read as words; open strings (BE-79) stay as typed.
+  if (!/^[A-Z0-9_]+$/.test(trimmed)) return trimmed
+  return trimmed
     .replace(/_/g, ' ')
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+/** Labels for a task's categories (BE-79: open strings; legacy codes read nicely). */
+export function taskCategoryLabels(
+  categories: readonly string[] | null | undefined,
+): string[] {
+  return (categories ?? [])
+    .map((category) => taskCategoryDisplayLabel(category))
+    .filter((label): label is string => Boolean(label))
+}
+
+/** One line for tight spots: "Cleaning", or "Cleaning, Moving +1" with `max` 2. */
+export function taskCategoriesSummary(
+  categories: readonly string[] | null | undefined,
+  max = 1,
+): string | null {
+  const labels = taskCategoryLabels(categories)
+  if (labels.length === 0) return null
+  const shown = labels.slice(0, max).join(', ')
+  return labels.length > max ? `${shown} +${labels.length - max}` : shown
 }

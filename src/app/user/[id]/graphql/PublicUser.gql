@@ -15,7 +15,7 @@ query PublicUser($id: ID!, $excludeTaskId: ID) {
       id
       title
       description
-      category
+      categories
       status
       views
       images

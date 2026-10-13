@@ -16,7 +16,7 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
       id
       title
       description
-      category
+      categories
       status
       views
       images
@@ -62,7 +62,7 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
       completedJobs {
         taskId
         title
-        category
+        categories
         areaLabel
         completedAt
         rating
@@ -125,7 +125,7 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
       taskId
       role
       title
-      category
+      categories
       areaLabel
       completedAt
     }

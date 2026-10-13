@@ -1,4 +1,4 @@
-import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
+import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import { orderBookedDatetime } from '@/utils/orderHelpers'
 import { budgetToPence, formatGbpMajor, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
@@ -34,7 +34,7 @@ export type MyTaskSource = {
   id: string
   title: string
   description?: string | null
-  category?: string | null
+  categories?: readonly string[] | null
   status: string
   images?: readonly string[] | null
   completedAt?: unknown
@@ -74,8 +74,8 @@ export type MyTaskHubRow = {
   description: string
   location: string
   priceLabel: string
-  /** Raw category code (`Task.category`), used by `filter.category`. */
-  category: string | null
+  /** The task's categories (BE-79), used by `filter.category` (matches any). */
+  categories: string[]
   categoryLabel: string | null
   /** Task poster (`Task.user` / `poster.id`), used by `filter.ownerUserId`. */
   ownerUserId: string
@@ -434,8 +434,8 @@ export function buildMyTasksHub(input: {
       description: task.description?.trim() || '',
       location: taskPublicLocationLabel(task),
       priceLabel: priceLabel(task, myQuote),
-      category: task.category?.trim() || null,
-      categoryLabel: taskCategoryDisplayLabel(task.category),
+      categories: (task.categories ?? []).map((c) => c.trim()).filter(Boolean),
+      categoryLabel: taskCategoriesSummary(task.categories),
       ownerUserId: owner.ownerUserId,
       ownerName: owner.ownerName,
       thumbnailSrc: task.images?.[0],

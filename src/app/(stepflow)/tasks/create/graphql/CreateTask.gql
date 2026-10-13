@@ -3,7 +3,7 @@ mutation CreateTask($input: CreateTaskInput!) {
     id
     title
     description
-    category
+    categories
     budget {
       amount
       currency

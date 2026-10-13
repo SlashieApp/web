@@ -37,7 +37,7 @@ export const workerProfileFixture: WorkerPublicRecord = {
     {
       taskId: 'task-1',
       title: 'IKEA wardrobe assembly',
-      category: 'Handyman',
+      categories: ['Handyman'],
       areaLabel: 'Camden',
       completedAt: '2026-03-14T10:00:00.000Z',
       rating: 5,
@@ -45,7 +45,7 @@ export const workerProfileFixture: WorkerPublicRecord = {
     {
       taskId: 'task-2',
       title: 'Kitchen tap repair',
-      category: 'Plumbing',
+      categories: ['Plumbing'],
       areaLabel: 'Islington',
       completedAt: '2026-01-20T10:00:00.000Z',
       rating: null,

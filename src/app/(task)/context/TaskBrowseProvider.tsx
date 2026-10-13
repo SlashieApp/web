@@ -226,7 +226,7 @@ function toBrowseMapTask(
     id: task.id,
     title: task.title,
     description: task.description,
-    category: task.category,
+    category: task.categories?.[0],
     location: taskPublicLocationLabel(task),
     locationLat: task.location?.lat ?? null,
     locationLng: task.location?.lng ?? null,

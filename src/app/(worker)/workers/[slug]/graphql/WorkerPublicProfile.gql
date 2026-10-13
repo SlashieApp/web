@@ -34,7 +34,7 @@ query WorkerPublicProfile($id: ID!) {
     completedJobs {
       taskId
       title
-      category
+      categories
       areaLabel
       completedAt
       rating

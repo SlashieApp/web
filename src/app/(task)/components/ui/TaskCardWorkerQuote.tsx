@@ -25,7 +25,7 @@ import {
   workerQuoteOnsiteCountdown,
   workerQuoteOnsiteScheduleLabel,
 } from '@/app/(dashboard)/quotes/helpers/workerQuoteSchedule'
-import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
+import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import { budgetKindLabel } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { sdlMotion } from '@/theme/styles'
 import { formatPounds, formatRelativePosted } from '@/utils/dashboardHelpers'
@@ -57,7 +57,7 @@ export function TaskCardWorkerQuote({
   const orderClosed = workerOrder ? isOrderClosed(workerOrder.status) : false
   const taskHref = `/tasks/${task.id}`
   const jobHref = taskOrderSectionHref(task.id)
-  const categoryLabel = taskCategoryDisplayLabel(task.category)
+  const categoryLabel = taskCategoriesSummary(task.categories)
   const priceKindLabel = budgetKindLabel(task.budget?.type)
   const locationLabel = taskPublicLocationLabel(task) || 'Location TBC'
   const sentLabel = formatRelativePosted(quote.createdAt).replace(

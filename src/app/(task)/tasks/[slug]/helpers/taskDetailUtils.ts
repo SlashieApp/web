@@ -1,4 +1,4 @@
-import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
+import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import {
   appendViewsToStatusLabel,
   taskOwnerViewsLabel,
@@ -397,11 +397,11 @@ const CATEGORY_KEYWORDS: ReadonlyArray<[RegExp, string]> = [
   [/tech|computer|wifi|setup|router/i, 'Tech setup'],
 ]
 
-/** Category chip: prefer API `task.category`, then title/description heuristics. */
+/** Category chip: the task's categories (BE-79), then title/description heuristics. */
 export function taskCategoryLabel(
-  task: Pick<TaskDetailRecord, 'title' | 'description' | 'category'>,
+  task: Pick<TaskDetailRecord, 'title' | 'description' | 'categories'>,
 ): string | null {
-  const fromApi = taskCategoryDisplayLabel(task.category)
+  const fromApi = taskCategoriesSummary(task.categories, 2)
   if (fromApi) return fromApi
   const t = `${task.title} ${task.description}`
   for (const [re, label] of CATEGORY_KEYWORDS) {
@@ -516,7 +516,7 @@ export function buildSecondaryTaskFacts(
 export function taskReportSubject(
   task: Pick<
     TaskDetailRecord,
-    'title' | 'description' | 'category' | 'images' | 'location'
+    'title' | 'description' | 'categories' | 'images' | 'location'
   >,
   seed?: { thumbnailSrc?: string } | null,
 ): {

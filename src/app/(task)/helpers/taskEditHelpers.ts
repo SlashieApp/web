@@ -14,7 +14,10 @@ import {
   toYmd,
 } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
 import type { EditTaskFormValues } from '@/app/(task)/tasks/edit/editTaskFormSchema'
-import { taskCreateCategorySchema } from './taskCategories'
+import {
+  taskCategoryDisplayLabel,
+  taskCreateCategorySchema,
+} from './taskCategories'
 
 export type EditableTask = NonNullable<TaskForEditQuery['task']>
 
@@ -41,7 +44,7 @@ export function taskToEditFormValues(task: EditableTask): EditTaskFormValues {
   const lng = task.location?.lng
 
   const categoryParsed = taskCreateCategorySchema.safeParse(
-    task.category?.trim() ?? '',
+    task.categories?.[0]?.trim().toUpperCase().replace(/\s+/g, '_') ?? '',
   )
 
   return {
@@ -77,7 +80,7 @@ export function buildUpdateTaskInput(values: EditTaskFormValues) {
   return {
     title: values.title.trim(),
     description: values.description.trim(),
-    category: values.category,
+    categories: [taskCategoryDisplayLabel(values.category) ?? values.category],
     budget: {
       amount: parsedBudget,
       currency: values.budgetCurrency,

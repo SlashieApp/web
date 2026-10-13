@@ -58,7 +58,7 @@ export function storyTaskDetail(
     title: 'Mount bookshelf on living room wall',
     description:
       'Need a worker to mount one IKEA bookshelf safely. Wall is plasterboard; fixings supplied.',
-    category: 'HANDYMAN',
+    categories: ['HANDYMAN'],
     budget: {
       amount: 120,
       currency: Currency.Gbp,
@@ -147,7 +147,7 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
     snapshot: {
       title: 'Mount bookshelf on living room wall',
       description: 'Need a worker to mount one IKEA bookshelf safely.',
-      category: 'HANDYMAN',
+      categories: ['HANDYMAN'],
       location: {
         lat: 51.5074,
         lng: -0.1278,

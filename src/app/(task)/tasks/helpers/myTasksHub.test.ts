@@ -15,7 +15,7 @@ function task(
 ): MyTaskSource {
   return {
     description: '',
-    category: 'HANDYMAN',
+    categories: ['HANDYMAN'],
     ...partial,
   }
 }

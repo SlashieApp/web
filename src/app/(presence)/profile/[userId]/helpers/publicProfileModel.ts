@@ -7,7 +7,7 @@ import {
 
 import { categoryLabelFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
-import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
+import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import {
   type AchievementPanel,
   buildAchievementPanels,
@@ -250,9 +250,8 @@ export function toPublicProfileView(
           taskId: item.taskId,
           role: item.role,
           title: item.title,
-          category: item.category,
-          categoryLabel:
-            taskCategoryDisplayLabel(item.category) ?? item.category,
+          category: item.categories[0] ?? '',
+          categoryLabel: taskCategoriesSummary(item.categories, 2) ?? '',
           areaLabel: item.areaLabel?.trim() || null,
           completedAt: String(item.completedAt),
         }))
@@ -283,7 +282,7 @@ export function toPublicProfileView(
       ? worker.completedJobs.map((job) => ({
           id: job.taskId,
           title: job.title,
-          category: taskCategoryDisplayLabel(job.category) ?? job.category,
+          category: taskCategoriesSummary(job.categories, 2) ?? '',
           areaLabel: job.areaLabel,
           completedLabel: formatCompletedMonth(job.completedAt),
           rating: job.rating,

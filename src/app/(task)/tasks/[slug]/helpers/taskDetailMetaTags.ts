@@ -1,4 +1,3 @@
-import { TASK_CREATE_CATEGORY_VALUES } from '@/app/(task)/helpers/taskCategories'
 import { buildSearchUrl } from '@/app/(task)/search/helpers/searchQueryParams'
 import type { OrderItem } from '@/utils/orderHelpers'
 
@@ -106,17 +105,16 @@ export function taskDetailDurationTag(
   return time
 }
 
-/** Category chip. Links to search filtered by a known category code. */
+/** Category chip. Links to search filtered by the first category (BE-79 matches any entry). */
 export function taskDetailCategoryTag(
-  task: Pick<TaskDetailRecord, 'title' | 'description' | 'category'>,
+  task: Pick<TaskDetailRecord, 'title' | 'description' | 'categories'>,
 ): TaskDetailLinkTag | null {
   const label = taskCategoryLabel(task)?.trim()
   if (!label) return null
-  const code = task.category?.trim().toUpperCase().replace(/\s+/g, '_')
-  const known = TASK_CREATE_CATEGORY_VALUES.find((value) => value === code)
+  const first = task.categories?.[0]?.trim()
   return {
     label,
-    href: known ? buildSearchUrl({ taskCategory: known }) : null,
+    href: first ? buildSearchUrl({ taskCategory: first }) : null,
   }
 }
 

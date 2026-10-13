@@ -9,7 +9,7 @@ const row: MyTaskHubRow = {
   description: '',
   location: 'Westminster',
   priceLabel: '£22',
-  category: 'CLEANING',
+  categories: ['CLEANING'],
   categoryLabel: 'Cleaning',
   ownerUserId: 'me',
   ownerName: 'Sam',
@@ -50,7 +50,7 @@ export const Booked: Story = {
     row: {
       ...row,
       id: 'booked',
-      category: 'HANDYMAN',
+      categories: ['HANDYMAN'],
       categoryLabel: 'Handyman',
       priceLabel: '£1',
       section: 'booked',
@@ -68,7 +68,7 @@ export const Completed: Story = {
     row: {
       ...row,
       id: 'done',
-      category: 'GENERAL',
+      categories: ['GENERAL'],
       categoryLabel: 'General / other',
       priceLabel: '£983',
       section: 'completed',

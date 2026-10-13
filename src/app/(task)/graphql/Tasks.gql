@@ -3,7 +3,7 @@ query Tasks($filter: TaskFilter, $sort: TaskSort, $first: Int, $after: ID) {
     id
     title
     description
-    category
+    categories
     budget {
       amount
       currency

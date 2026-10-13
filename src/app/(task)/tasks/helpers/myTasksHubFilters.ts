@@ -60,7 +60,12 @@ export function applyMyTasksHubFilter(
     if (sectionId && section.id !== sectionId) return []
     const rows = section.rows.filter((row) => {
       if (ownerUserId && row.ownerUserId !== ownerUserId) return false
-      if (category && row.category !== category) return false
+      if (
+        category &&
+        !row.categories.some((c) => c.toLowerCase() === category.toLowerCase())
+      ) {
+        return false
+      }
       if (tokens.length === 0) return true
       const haystack = [row.title, row.description, row.location]
         .join('\n')
@@ -82,9 +87,10 @@ export function collectHubTaskCategories(
   const seen = new Map<string, string>()
   for (const section of sections) {
     for (const row of section.rows) {
-      const category = row.category?.trim()
-      if (!category || seen.has(category)) continue
-      seen.set(category, taskCategoryDisplayLabel(category) ?? category)
+      for (const category of row.categories) {
+        if (!category || seen.has(category)) continue
+        seen.set(category, taskCategoryDisplayLabel(category) ?? category)
+      }
     }
   }
   return [...seen.entries()]

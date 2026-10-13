@@ -4,7 +4,7 @@ import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { taskScheduleCompactLabel } from '@/app/(task)/helpers/taskBrowseHelpers'
-import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
+import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
 import type { AppLocale } from '@/i18n/locales'
 import { formatBudgetAmount } from '@/utils/price'
@@ -56,7 +56,7 @@ export function toPublicUserTaskCard(task: PublicUserOpenTask): TaskCardTask {
     description: task.description,
     location: taskPublicLocationLabel(task).trim(),
     priceLabel: hasBudget ? formatBudgetAmount(task.budget) : '',
-    badgeText: taskCategoryDisplayLabel(task.category) ?? undefined,
+    badgeText: taskCategoriesSummary(task.categories) ?? undefined,
     thumbnailSrc: task.images[0],
     timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,
     viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,

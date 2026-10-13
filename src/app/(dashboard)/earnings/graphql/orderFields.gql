@@ -14,7 +14,7 @@ fragment OrderFields on Order {
   snapshot {
     title
     description
-    category
+    categories
     location {
       lat
       lng

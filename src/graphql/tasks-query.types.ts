@@ -28,7 +28,8 @@ export type TaskListItem = {
   id: string
   title: string
   description: string
-  category: string
+  /** BE-79: open strings, 1 to 10 per task. */
+  categories: string[]
   location?: TaskMapLocationFields | null
   status: string
   /** Public view count; null during cold-start. Browse `tasks` only. */

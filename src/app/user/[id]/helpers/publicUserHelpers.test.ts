@@ -22,7 +22,7 @@ function openTask(
     id: 'task-1',
     title: 'Fix a leaking tap',
     description: 'Kitchen tap drips overnight.',
-    category: 'HANDYMAN',
+    categories: ['HANDYMAN'],
     status: TaskStatus.Open,
     views: 1,
     images: [],

@@ -13,7 +13,7 @@ import {
   taskQuotesCountLabel,
   taskScheduleCompactLabel,
 } from './taskBrowseHelpers'
-import { taskCategoryDisplayLabel } from './taskCategories'
+import { taskCategoriesSummary } from './taskCategories'
 
 /** Trust crumb for discovery cards — omitted when the API has no signal. */
 export function taskTrustFromPoster(
@@ -41,7 +41,7 @@ export function toBrowseTaskCard(
     description: task.description,
     location: taskPublicLocationLabel(task).trim() || 'Location on request',
     priceLabel: hasBudget ? main : '',
-    badgeText: taskCategoryDisplayLabel(task.category) ?? undefined,
+    badgeText: taskCategoriesSummary(task.categories) ?? undefined,
     thumbnailSrc: task.images?.[0] ?? undefined,
     distanceLabel: taskDistanceShortLabelFromReference(task, referenceLocation),
     timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,

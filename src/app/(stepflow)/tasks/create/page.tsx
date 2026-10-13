@@ -31,6 +31,7 @@ import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import { MARKETPLACE_MAP_MOTION_MS } from '@/app/(task)/helpers/marketplaceMap/motion'
+import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import { taskToEditFormValues } from '@/app/(task)/helpers/taskEditHelpers'
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import Me from '@/graphql/Me.gql'
@@ -510,7 +511,9 @@ function CreateTaskFormBody({
           input: {
             title: values.title.trim(),
             description: values.description.trim(),
-            category: values.category,
+            categories: [
+              taskCategoryDisplayLabel(values.category) ?? values.category,
+            ],
             budget: {
               amount: parsedBudget,
               currency: values.budgetCurrency,

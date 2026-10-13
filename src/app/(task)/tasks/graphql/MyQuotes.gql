@@ -5,7 +5,7 @@ query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
         id
         title
         description
-        category
+        categories
         budget {
           amount
           currency

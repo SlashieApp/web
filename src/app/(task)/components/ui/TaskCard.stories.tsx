@@ -180,7 +180,7 @@ export const WorkerQuoteBookedActiveJob: WorkerQuoteStory = {
     ...storyQuoteRow({
       task: storyTask({
         title: 'Fix leaking tap',
-        category: 'PLUMBING',
+        categories: ['PLUMBING'],
         datetime: {
           date: '2026-06-21',
           time: '14:00',

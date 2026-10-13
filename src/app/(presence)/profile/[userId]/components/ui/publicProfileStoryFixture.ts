@@ -84,7 +84,7 @@ export function samplePublicProfile(
         taskId: 'task-1',
         role: PublicProfileWorkRole.Worker,
         title: 'Assemble a wardrobe',
-        category: 'HANDYMAN',
+        category: 'Handyman',
         categoryLabel: 'Handyman',
         areaLabel: 'Camden',
         completedAt: '2026-09-12T12:00:00.000Z',
