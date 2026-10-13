@@ -1,11 +1,12 @@
 'use client'
 
-import { Stack } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailOverviewCardId } from '../../helpers/taskDetailMainCtaModel'
 import { showTaskDetailQuotesSection } from '../../helpers/taskDetailTabs'
 import { TaskAnalyticsTrigger } from '../analytics/AnalyticsCards'
+import { staggerChildrenCss } from '../layout/Reveal'
 import { QuotesPanel } from '../quotes/QuotesPanel'
 import { BookingSection } from './BookingSection'
 import { PhotosCard } from './PhotosCard'
@@ -18,7 +19,11 @@ import { TaskPricingCard } from './TaskPricingCard'
  * section here instead of a tab. Owners get an Analytics button (phones)
  * that opens the rail card's snapshot in a sheet (FE-258).
  */
-export function OverviewCards() {
+/**
+ * Pricing shows unless the main CTA already carries it, or the job is booked
+ * or done. Phones keep it in Overview; desktop puts it at the top of the rail.
+ */
+export function useShowPricingCard(): boolean {
   const { mainCta, permissions } = useTaskDetail()
   const hidden = new Set<TaskDetailOverviewCardId>(
     mainCta?.hideOverviewCards ?? [],
@@ -28,11 +33,21 @@ export function OverviewCards() {
     permissions.isAwarded ||
     permissions.isJobCompleted ||
     (permissions.isClosed && !permissions.isCancelled)
+  return !hidePrice
+}
+
+export function OverviewCards() {
+  const { permissions } = useTaskDetail()
+  const showPricing = useShowPricingCard()
 
   return (
-    <Stack gap={5} minW={0} w="full">
+    <Stack gap={5} minW={0} w="full" css={staggerChildrenCss}>
       <BookingSection />
-      {hidePrice ? null : <TaskPricingCard />}
+      {showPricing ? (
+        <Box display={{ base: 'block', lg: 'none' }}>
+          <TaskPricingCard />
+        </Box>
+      ) : null}
       <TaskDetailsCard />
       <PhotosCard />
       <TaskAnalyticsTrigger />

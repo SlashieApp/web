@@ -190,7 +190,9 @@
       "nearTown": "Near {town}",
       "locationHint": "About this location",
       "showMore": "Show more",
-      "showLess": "Show less"
+      "showLess": "Show less",
+      "quoteCountOne": "{count} quote",
+      "quoteCountMany": "{count} quotes"
     },
     "analytics": {
       "heading": "Analytics",
@@ -635,7 +637,9 @@
       "nearTown": "{town}附近",
       "locationHint": "關於這個位置",
       "showMore": "顯示更多",
-      "showLess": "顯示較少"
+      "showLess": "顯示較少",
+      "quoteCountOne": "{count} 份報價",
+      "quoteCountMany": "{count} 份報價"
     },
     "analytics": {
       "heading": "數據分析",

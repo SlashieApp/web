@@ -34,6 +34,34 @@ export const surfaceEnterFromBottomCss = {
   },
 } as SystemStyleObject
 
+const STAGGER_STEP_MS = 40
+const STAGGER_MAX = 6
+
+/**
+ * FE-258: each child card fades in and rises 4px, 40ms apart. Put on the
+ * stack that holds the cards; reduced motion turns it off.
+ */
+export const staggerChildrenCss = {
+  '& > *': {
+    transitionProperty: 'opacity, transform',
+    transitionDuration: sdlMotion.duration.base,
+    transitionTimingFunction: sdlMotion.easing.standard,
+    '@starting-style': { opacity: 0, transform: 'translateY(4px)' },
+  },
+  ...Object.fromEntries(
+    Array.from({ length: STAGGER_MAX - 1 }, (_, i) => [
+      `& > *:nth-child(${i + 2})`,
+      { transitionDelay: `${(i + 1) * STAGGER_STEP_MS}ms` },
+    ]),
+  ),
+  '@media (prefers-reduced-motion: reduce)': {
+    '& > *': {
+      transition: 'none',
+      '@starting-style': { opacity: 1, transform: 'none' },
+    },
+  },
+} as SystemStyleObject
+
 /**
  * Whole-section fade-up on surface render. Use around a complete block
  * (including skeleton) so the section enters once from the bottom.

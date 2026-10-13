@@ -2,12 +2,12 @@
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Box, Grid, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
-import { LuCreditCard, LuTag } from 'react-icons/lu'
+import { Box, Grid, Skeleton, Stack, Text, Wrap } from '@chakra-ui/react'
+import { LuCreditCard } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
 import { formatPrice } from '@/utils/price'
-import { Badge, Button, Card, DetailRow, Link, SafetyNotice } from '@ui'
+import { Badge, Button, Card, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
@@ -95,7 +95,7 @@ type TaskPricingCardProps = {
   rail?: boolean
 }
 
-/** Overview pricing card — posted budget, optional quote / continue CTA. */
+/** Pricing hero: posted budget, type and payment, quote count, quote CTA. */
 export function TaskPricingCard({
   compact = false,
   rail = false,
@@ -203,35 +203,59 @@ export function TaskPricingCard({
     )
   }
 
+  const quoteCount = task?.quotes.length ?? 0
+  const quoteCountLabel =
+    task && permissions.isOpen && quoteCount > 0
+      ? formatMessage(
+          quoteCount === 1 ? t.details.quoteCountOne : t.details.quoteCountMany,
+          { count: quoteCount },
+        )
+      : null
+
+  // FE-258 hero: big price on brand-soft, type and payment as badges.
   return (
     <Card
       {...TASK_DETAIL_SECTION_CARD}
       eyebrow={t.details.budget}
-      metric={budgetLine}
+      bg="status.success.soft"
+      borderColor="status.success.border"
       aria-busy={loading ? true : undefined}
     >
-      {loading && !budgetLine ? (
-        <Skeleton h="28px" w="42%" borderRadius="md" />
-      ) : null}
-      {budgetKind ? (
-        <DetailRow
-          icon={<LuTag />}
-          label={t.details.pricing}
-          withDivider={Boolean(paymentLabel)}
+      {budgetLine ? (
+        <Text
+          fontSize={{ base: '4xl', lg: '5xl' }}
+          fontWeight={800}
+          lineHeight="1"
+          letterSpacing="-0.02em"
+          color="status.success.fg"
+          fontVariantNumeric="tabular-nums"
         >
-          <Badge variant="success">{budgetKind}</Badge>
-        </DetailRow>
+          {budgetLine}
+        </Text>
+      ) : loading ? (
+        <Skeleton h="40px" w="42%" borderRadius="md" />
+      ) : null}
+      {budgetKind || paymentLabel ? (
+        <Wrap gap={1.5}>
+          {budgetKind ? (
+            <Badge variant="brand" shape="pill" bg="bg.surface">
+              {budgetKind}
+            </Badge>
+          ) : null}
+          {paymentLabel ? (
+            <Badge variant="neutral" shape="pill" bg="bg.surface">
+              <LuCreditCard aria-hidden />
+              {paymentLabel}
+            </Badge>
+          ) : null}
+        </Wrap>
       ) : loading ? (
         <Skeleton h="22px" w="88px" borderRadius="full" />
       ) : null}
-      {paymentLabel ? (
-        <DetailRow
-          icon={<LuCreditCard />}
-          label={t.details.payment}
-          withDivider={false}
-        >
-          {paymentLabel}
-        </DetailRow>
+      {quoteCountLabel ? (
+        <Text fontSize="sm" color="text.muted" fontWeight={500}>
+          {quoteCountLabel}
+        </Text>
       ) : null}
       {quoteCta ? (
         <Stack gap={2}>
