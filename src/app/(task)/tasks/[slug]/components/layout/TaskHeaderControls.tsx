@@ -4,6 +4,12 @@ import { useRouter } from 'next/navigation'
 import { LuArrowLeft } from 'react-icons/lu'
 
 import { useMarketplaceMapDispatch } from '@/app/(task)/context/MarketplaceMapSession'
+import {
+  isSearchBrowsePath,
+  readRememberedSearchHref,
+  taskDetailBackHref,
+} from '@/app/(task)/helpers/openTaskDetailFromBrowse'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
 import { IconButton } from '@ui'
@@ -23,9 +29,11 @@ type OverlayChipProps = {
 
 /**
  * Back control for task detail. Ghost on solid chrome; frosted over the map.
+ * Only ever goes to My Tasks or search (FE-210), never browser history.
  */
 export function TaskBackButton({ overlay = false }: OverlayChipProps) {
   const router = useRouter()
+  const localize = useLocalizedHref()
   const t = useI11n(bag)
   const mapSession = useMarketplaceMapDispatch()
 
@@ -41,8 +49,12 @@ export function TaskBackButton({ overlay = false }: OverlayChipProps) {
         color: 'text.default',
       }}
       onClick={() => {
-        mapSession?.prepareBrowse()
-        router.back()
+        const href = taskDetailBackHref(
+          window.location.search,
+          readRememberedSearchHref(),
+        )
+        if (isSearchBrowsePath(href)) mapSession?.prepareBrowse()
+        router.push(localize(href))
       }}
       {...controlTransition}
     >

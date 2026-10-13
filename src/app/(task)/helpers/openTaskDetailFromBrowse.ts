@@ -1,4 +1,5 @@
 import { stripLocalePrefix } from '@/i18n/navigation'
+import { APP_HOME, MY_TASKS_HREF } from '@/utils/appRoutes'
 
 function barePathname(pathname: string): string {
   return stripLocalePrefix(pathname.split('?')[0] || pathname)
@@ -52,4 +53,50 @@ export function taskDetailHrefFromBrowse(
     params.set('lng', options.lng.toFixed(5))
   }
   return `/tasks/${taskId}?${params}`
+}
+
+/** Task detail opened from My Tasks (back returns there, FE-210). */
+export function taskDetailHrefFromMyTasks(taskId: string): string {
+  return `/tasks/${taskId}?from=tasks`
+}
+
+const LAST_SEARCH_KEY = 'slashie.last-search-href'
+
+/** Remember the current search view (bare path + query) for task detail's back. */
+export function rememberSearchHref(href: string): void {
+  try {
+    sessionStorage.setItem(LAST_SEARCH_KEY, href)
+  } catch {
+    // Storage can be blocked; back then lands on plain /search.
+  }
+}
+
+export function readRememberedSearchHref(): string | null {
+  try {
+    return sessionStorage.getItem(LAST_SEARCH_KEY)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Where task detail's back goes (FE-210): only ever My Tasks or search.
+ * From My Tasks it returns there; from search it returns to the search view
+ * the poster left (query and map centre); every other entry (direct link,
+ * message, after create, edit or quote) lands on /search.
+ */
+export function taskDetailBackHref(
+  locationSearch: string,
+  rememberedSearchHref: string | null,
+): string {
+  const from = new URLSearchParams(locationSearch).get('from')
+  if (from === 'tasks') return MY_TASKS_HREF
+  if (
+    from === 'search' &&
+    rememberedSearchHref &&
+    isSearchBrowsePath(rememberedSearchHref)
+  ) {
+    return rememberedSearchHref
+  }
+  return APP_HOME
 }

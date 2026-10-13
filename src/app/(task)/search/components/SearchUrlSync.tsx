@@ -6,6 +6,7 @@ import { useLocale } from '@/i18n/LocaleProvider'
 import { withLocale } from '@/i18n/navigation'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
+import { rememberSearchHref } from '../../helpers/openTaskDetailFromBrowse'
 import { buildSearchUrl } from '../helpers/searchQueryParams'
 
 /**
@@ -21,21 +22,21 @@ export function SearchUrlSync() {
     referenceLocation.source !== 'default' &&
     referenceLocation.source !== 'preferred'
 
-  const url = withLocale(
-    locale,
-    buildSearchUrl({
-      lat: hasCustomCenter ? referenceLocation.lat : undefined,
-      lng: hasCustomCenter ? referenceLocation.lng : undefined,
-      taskSearchText: searchText || undefined,
-    }),
-  )
+  const searchHref = buildSearchUrl({
+    lat: hasCustomCenter ? referenceLocation.lat : undefined,
+    lng: hasCustomCenter ? referenceLocation.lng : undefined,
+    taskSearchText: searchText || undefined,
+  })
+  const url = withLocale(locale, searchHref)
 
   const lastUrlRef = useRef<string | null>(null)
   useEffect(() => {
     if (lastUrlRef.current === url) return
     lastUrlRef.current = url
     window.history.replaceState(window.history.state, '', url)
-  }, [url])
+    // Task detail's back returns to this view (FE-210).
+    rememberSearchHref(searchHref)
+  }, [url, searchHref])
 
   return null
 }

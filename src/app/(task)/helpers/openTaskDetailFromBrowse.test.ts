@@ -5,7 +5,9 @@ import {
   isSearchBrowsePath,
   isTaskDetailFromSearchQuery,
   isTaskDetailPath,
+  taskDetailBackHref,
   taskDetailHrefFromBrowse,
+  taskDetailHrefFromMyTasks,
   taskIdFromDetailPath,
 } from './openTaskDetailFromBrowse'
 
@@ -94,5 +96,28 @@ describe('taskDetailHrefFromBrowse', () => {
         lng: -0.1278,
       }),
     ).toBe('/tasks/task-1?from=search&lat=51.50740&lng=-0.12780')
+  })
+})
+
+describe('taskDetailBackHref (FE-210)', () => {
+  it('returns to My Tasks when opened from there', () => {
+    expect(taskDetailBackHref('?from=tasks', '/search?q=paint')).toBe('/tasks')
+    expect(taskDetailHrefFromMyTasks('t1')).toBe('/tasks/t1?from=tasks')
+  })
+
+  it('returns to the search view the user left', () => {
+    expect(
+      taskDetailBackHref(
+        '?from=search&lat=51.5&lng=-0.1',
+        '/search?lat=51.50000&lng=-0.10000&q=paint',
+      ),
+    ).toBe('/search?lat=51.50000&lng=-0.10000&q=paint')
+  })
+
+  it('lands on plain search for every other entry', () => {
+    expect(taskDetailBackHref('', '/search?q=paint')).toBe('/search')
+    expect(taskDetailBackHref('?from=search', null)).toBe('/search')
+    // Never anywhere but search, even if storage holds something else.
+    expect(taskDetailBackHref('?from=search', '/tasks/t9/edit')).toBe('/search')
   })
 })

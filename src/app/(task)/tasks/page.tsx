@@ -8,6 +8,7 @@ import { AccountAuthGate } from '@/app/(dashboard)/components/layout/AccountAuth
 import { useAccountOrders } from '@/app/(dashboard)/helpers/useAccountOrders'
 import { useMyQuotes } from '@/app/(dashboard)/helpers/useMyQuotes'
 import { useMyRequests } from '@/app/(dashboard)/helpers/useMyRequests'
+import { taskDetailHrefFromMyTasks } from '@/app/(task)/helpers/openTaskDetailFromBrowse'
 import { publicProfileAchievementsPath } from '@/app/helpers/publicProfilePath'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -197,7 +198,7 @@ export default function MyTasksPage() {
 
   const onOpen = useCallback(
     (taskId: string) => {
-      router.push(localize(`/tasks/${taskId}`))
+      router.push(localize(taskDetailHrefFromMyTasks(taskId)))
     },
     [localize, router],
   )
