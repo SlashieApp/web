@@ -95,6 +95,7 @@ import {
   resolvePublicAreaName,
   usePublicTaskArea,
 } from './helpers/publicTaskArea'
+import { publishOnce } from './helpers/publishOnce'
 import { resolveSubmittedTaskLocation } from './helpers/resolveTaskLocation'
 import bag from './i11n.json'
 
@@ -243,6 +244,11 @@ function CreateTaskFormBody({
 
   const [runCreateTask, { loading: creating }] =
     useMutation<CreateTaskMutation>(CreateTask)
+  // One publish at a time, and none after a success (FE-213): the button
+  // used to come back while the new task page loaded, and a second tap
+  // created the task twice.
+  const publishLockRef = useRef(false)
+  const [publishing, setPublishing] = useState(false)
 
   useLayoutEffect(() => {
     const next = imageFiles.map((file) => URL.createObjectURL(file))
@@ -439,7 +445,8 @@ function CreateTaskFormBody({
     errors.locationLat?.message ??
     errors.locationLng?.message
 
-  async function onSubmit(values: CreateTaskFormValues) {
+  /** True once the task exists (the page is navigating to it). */
+  async function onSubmit(values: CreateTaskFormValues): Promise<boolean> {
     setServerError(null)
     if (!getAuthToken()) {
       capture(EVENTS.login_gate, {
@@ -447,7 +454,7 @@ function CreateTaskFormBody({
         gate_reason: 'post_task',
       })
       router.replace(`/login?redirect=${encodeURIComponent(POST_TASK_PATH)}`)
-      return
+      return false
     }
 
     if (!emailVerified) {
@@ -459,7 +466,7 @@ function CreateTaskFormBody({
         description: message,
         type: 'warning',
       })
-      return
+      return false
     }
 
     if (
@@ -474,13 +481,13 @@ function CreateTaskFormBody({
         description: message,
         type: 'warning',
       })
-      return
+      return false
     }
 
     const located = await applyResolvedLocation()
     if (!located) {
       setActiveSubStep('details.location')
-      return
+      return false
     }
     const locatedValues = getValues()
 
@@ -523,13 +530,30 @@ function CreateTaskFormBody({
       if (!createdTaskId) throw new Error('Task creation failed.')
 
       if (imageFiles.length > 0) {
-        await uploadTaskImagesWithPresign(apollo, createdTaskId, imageFiles)
+        try {
+          await uploadTaskImagesWithPresign(apollo, createdTaskId, imageFiles)
+        } catch (uploadErr: unknown) {
+          // The task exists: never offer Publish again (it would create a
+          // second one). Go to it and say how to add the photos.
+          trackFlowFailed(EVENTS.task_create_fail, uploadErr, {
+            flow: 'task_create',
+            action: 'uploadTaskImages',
+            operation: 'CreateTask',
+            route: POST_TASK_PATH,
+          })
+          showAppToast({
+            title: 'Task posted, but the photos did not upload',
+            description: 'Add them from Edit task on the task page.',
+            type: 'warning',
+          })
+        }
       }
 
       trackFlowSucceeded(EVENTS.task_create_success, {
         task_id: createdTaskId,
       })
       router.push(`/tasks/${createdTaskId}`)
+      return true
     } catch (err: unknown) {
       trackFlowFailed(EVENTS.task_create_fail, err, {
         flow: 'task_create',
@@ -550,6 +574,7 @@ function CreateTaskFormBody({
           type: 'warning',
         })
       }
+      return false
     }
   }
 
@@ -594,8 +619,12 @@ function CreateTaskFormBody({
   // Plain function (not useCallback): it closes over the per-render onSubmit,
   // and the layout's `actions` object is rebuilt every render anyway.
   async function continueStep() {
-    setServerError(null)
     const isFinal = activeSubStep === CREATE_TASK_FINAL_SUB_STEP
+    if (isFinal) {
+      await publishOnce(publishLockRef, publish)
+      return
+    }
+    setServerError(null)
 
     const fields = CREATE_TASK_STEP_FIELDS[activeSubStep]
     if (activeSubStep === 'details.location') {
@@ -608,17 +637,6 @@ function CreateTaskFormBody({
       if (!valid) return
     }
 
-    if (isFinal) {
-      await handleSubmit(
-        (raw) => onSubmit(raw as CreateTaskFormValues),
-        (formErrors) => {
-          setServerError(t.missingDetails)
-          jumpToFirstErroredStep(Object.keys(formErrors))
-        },
-      )()
-      return
-    }
-
     setCompletedSubSteps((prev) => {
       const next = new Set(prev)
       next.add(activeSubStep)
@@ -626,6 +644,30 @@ function CreateTaskFormBody({
     })
     const next = createTaskNextSubStep(activeSubStep)
     if (next) setActiveSubStep(next)
+  }
+
+  /** Final step: validate, then create. True once the task exists. */
+  async function publish(): Promise<boolean> {
+    setServerError(null)
+    setPublishing(true)
+    let created = false
+    try {
+      const fields = CREATE_TASK_STEP_FIELDS[CREATE_TASK_FINAL_SUB_STEP]
+      if (fields.length > 0 && !(await trigger(fields))) return false
+      await handleSubmit(
+        async (raw) => {
+          created = await onSubmit(raw as CreateTaskFormValues)
+        },
+        (formErrors) => {
+          setServerError(t.missingDetails)
+          jumpToFirstErroredStep(Object.keys(formErrors))
+        },
+      )()
+      return created
+    } finally {
+      // Stay "Publishing…" after a success until the task page replaces this one.
+      if (!created) setPublishing(false)
+    }
   }
 
   const copy = CREATE_TASK_STEP_COPY[activeSubStep]
@@ -795,7 +837,8 @@ function CreateTaskFormBody({
       actions={{
         showBack: !isFirstStep,
         continueLabel: isFinalStep ? t.publishTask : t.continue,
-        continueLoading: isFinalStep && (creating || isSubmitting),
+        continueLoading:
+          isFinalStep && (publishing || creating || isSubmitting),
         isFinal: isFinalStep,
         onBack: goBack,
         onContinue: () => void continueStep(),
