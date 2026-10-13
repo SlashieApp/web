@@ -7,6 +7,7 @@ import { Button, Card, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 
+import { getSafeNextPath } from '@/app/(auth)/helpers/authRedirect'
 import {
   isEmailMismatchError,
   isInvalidOrExpiredVerificationError,
@@ -45,8 +46,8 @@ function VerifyEmailContent() {
     [searchParams],
   )
   const nextPath = useMemo(() => {
-    const next = searchParams.get('next')?.trim() ?? ''
-    if (next.startsWith('/') && !next.startsWith('//')) return next
+    const next = getSafeNextPath(searchParams.get('next'))
+    if (next) return next
     return APP_HOME
   }, [searchParams])
 

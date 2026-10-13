@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Text } from '@chakra-ui/react'
+import { Box, Text, VisuallyHidden } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
@@ -29,6 +29,8 @@ export function MessagesScreen({ threadId }: { threadId: string | null }) {
       borderXWidth={{ base: 0, lg: '1px' }}
       borderColor="border.default"
     >
+      {/* Phones show one pane at a time, so the h1 can't live in either. */}
+      <VisuallyHidden as="h1">{t.title}</VisuallyHidden>
       <Box
         display={{ base: open ? 'none' : 'flex', lg: 'flex' }}
         flexDirection="column"

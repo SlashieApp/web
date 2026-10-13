@@ -73,6 +73,7 @@ export default async function TaskQuotePage({
       <TaskNotFoundCard
         heading={copy.notFoundTitle}
         description={copy.notFoundDescription}
+        browseLabel={copy.notFoundBrowse}
       />
     )
   }

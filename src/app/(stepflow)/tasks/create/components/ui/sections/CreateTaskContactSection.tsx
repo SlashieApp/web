@@ -141,15 +141,15 @@ export function CreateTaskContactSection({
           <Text fontSize="sm" color="text.muted">
             Phone contact requires a verified mobile number on your account.
           </Text>
-          <Link
-            href="/account"
-            alignSelf="flex-start"
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button size="sm" variant="secondary">
+          <Button asChild size="sm" variant="secondary">
+            <Link
+              href="/account"
+              alignSelf="flex-start"
+              _hover={{ textDecoration: 'none' }}
+            >
               Verify phone in Account
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </Stack>
       ) : null}
 

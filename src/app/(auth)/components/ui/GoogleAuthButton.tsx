@@ -123,8 +123,7 @@ export function GoogleAuthButton({
   const onError = useCallback(() => {
     showAppToast({
       title: 'Google sign-in failed',
-      description:
-        'Allow popups for this site and try again. In Google testing mode, add your account as a test user in the developer console.',
+      description: 'Allow pop-ups for this site, then try again.',
       type: 'error',
     })
   }, [])

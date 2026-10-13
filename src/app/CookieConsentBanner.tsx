@@ -3,12 +3,15 @@
 import { Box, Container, HStack, Stack, Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
+import { useI11n } from '@/i18n/useI11n'
 import {
   type CookieConsentValue,
   getCookieConsent,
   setCookieConsent,
 } from '@/utils/analytics'
 import { Button, Link } from '@ui'
+
+import bag from './i11n.json'
 
 /**
  * PECR cookie-consent banner. Shown on first visit (no stored choice) on every
@@ -18,9 +21,11 @@ import { Button, Link } from '@ui'
  *
  * Mounted after hydration via effect: the choice lives in localStorage, so
  * rendering nothing on the server (and first client paint) avoids a
- * hydration mismatch.
+ * hydration mismatch. Both choices share one button style: ICO guidance
+ * wants rejecting to be as easy and prominent as accepting.
  */
 export function CookieConsentBanner() {
+  const t = useI11n(bag).cookieBanner
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -28,6 +33,8 @@ export function CookieConsentBanner() {
   }, [])
 
   if (!visible) return null
+
+  const [policyBefore, policyAfter = ''] = t.body.split('{link}')
 
   const decide = (value: CookieConsentValue) => {
     setCookieConsent(value)
@@ -37,7 +44,7 @@ export function CookieConsentBanner() {
   return (
     <Box
       as="section"
-      aria-label="Cookie consent"
+      aria-label={t.ariaLabel}
       position="fixed"
       insetX={0}
       bottom={0}
@@ -56,12 +63,11 @@ export function CookieConsentBanner() {
           justify="space-between"
         >
           <Text fontSize="sm" color="text.default" lineHeight="1.55">
-            We use essential cookies to keep you signed in, and optional
-            analytics cookies to understand how Slashie is used. See our{' '}
+            {policyBefore}
             <Link href="/cookies" fontSize="sm">
-              Cookie Policy
+              {t.policy}
             </Link>
-            .
+            {policyAfter}
           </Text>
           <HStack
             gap={3}
@@ -73,10 +79,14 @@ export function CookieConsentBanner() {
               size="md"
               onClick={() => decide('rejected')}
             >
-              Essential only
+              {t.essentialOnly}
             </Button>
-            <Button size="md" onClick={() => decide('accepted')}>
-              Accept all
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => decide('accepted')}
+            >
+              {t.acceptAll}
             </Button>
           </HStack>
         </Stack>

@@ -61,12 +61,14 @@ export function PricingUnlimitedCta({
   }
 
   return (
-    <Link
-      href={unlimitedCta.href}
-      mt="auto"
-      _hover={{ textDecoration: 'none' }}
-    >
-      <Button w="full">{label}</Button>
-    </Link>
+    <Button asChild w="full">
+      <Link
+        href={unlimitedCta.href}
+        mt="auto"
+        _hover={{ textDecoration: 'none' }}
+      >
+        {label}
+      </Link>
+    </Button>
   )
 }

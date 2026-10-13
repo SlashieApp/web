@@ -146,7 +146,7 @@ export function PublicProfileScreen({
                 flexWrap="wrap"
                 justify={{ base: 'center', md: 'flex-start' }}
               >
-                <Heading size="2xl" color="text.default">
+                <Heading as="h1" size="2xl" color="text.default">
                   {name}
                 </Heading>
                 {view.verified ? (

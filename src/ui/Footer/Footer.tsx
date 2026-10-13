@@ -13,7 +13,11 @@ import {
 import { useState } from 'react'
 import { LuGithub, LuGlobe, LuLinkedin } from 'react-icons/lu'
 
-import { COMPANY_REGISTRATION_LINE } from '@/content/legal/company'
+import {
+  COMPANY_LEGAL_NAME,
+  COMPANY_NUMBER,
+  COMPANY_REGISTERED_OFFICE,
+} from '@/content/legal/company'
 import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useLocale } from '@/i18n/LocaleProvider'
@@ -95,10 +99,21 @@ export function Footer({
 }: UiFooterProps) {
   const t = useI11n(messages)
   const resolvedTagline = tagline ?? t.tagline
-  const resolvedCopyright = copyright ?? t.copyright
-
+  const resolvedCopyright =
+    copyright ?? formatMessage(t.copyright, { year: new Date().getFullYear() })
+  const registrationLine = formatMessage(t.registration, {
+    company: COMPANY_LEGAL_NAME,
+    number: COMPANY_NUMBER,
+    office: COMPANY_REGISTERED_OFFICE,
+  })
   const locale = useLocale()
   const [languageOpen, setLanguageOpen] = useState(false)
+  const languageButton = (
+    <FooterLanguageButton
+      label={formatMessage(t.language, { name: LOCALE_LABELS[locale].native })}
+      onOpen={() => setLanguageOpen(true)}
+    />
+  )
 
   const productLinks = [
     { label: t.product.search, href: productHrefs.search },
@@ -183,8 +198,10 @@ export function Footer({
               {legalRow}
             </HStack>
             <Text fontSize="xs" color="text.muted">
-              {COMPANY_REGISTRATION_LINE}
+              {registrationLine}
             </Text>
+            {/* Legal pages use this variant: keep the language switch. */}
+            {languageButton}
           </Stack>
         ) : (
           <Stack gap={{ base: 10, md: 12 }}>
@@ -208,32 +225,7 @@ export function Footer({
                 <Text fontSize="xs" color="text.muted" lineHeight="tall">
                   {t.openSourceNote}
                 </Text>
-                <chakra.button
-                  type="button"
-                  onClick={() => setLanguageOpen(true)}
-                  display="inline-flex"
-                  alignItems="center"
-                  gap={2}
-                  alignSelf="flex-start"
-                  minH="44px"
-                  px={3}
-                  borderRadius="md"
-                  borderWidth="1px"
-                  borderColor="border.default"
-                  bg="bg.surface"
-                  fontSize="sm"
-                  fontWeight={600}
-                  color="text.default"
-                  cursor="pointer"
-                  _hover={{ bg: 'bg.subtle' }}
-                  _focusVisible={sdlFocusRing}
-                  {...linkMotion}
-                >
-                  <LuGlobe size={16} aria-hidden />
-                  {formatMessage(t.language, {
-                    name: LOCALE_LABELS[locale].native,
-                  })}
-                </chakra.button>
+                {languageButton}
               </Stack>
 
               <FooterColumn label={t.columns.product}>
@@ -285,16 +277,14 @@ export function Footer({
               >
                 <Text>{resolvedCopyright}</Text>
                 <Text fontSize="xs" color="text.muted">
-                  {COMPANY_REGISTRATION_LINE}
+                  {registrationLine}
                 </Text>
               </HStack>
             </Stack>
           </Stack>
         )}
       </Container>
-      {variant === 'default' ? (
-        <LanguageSwitcher open={languageOpen} onOpenChange={setLanguageOpen} />
-      ) : null}
+      <LanguageSwitcher open={languageOpen} onOpenChange={setLanguageOpen} />
     </Box>
   )
 }
@@ -309,7 +299,9 @@ function FooterColumn({
   return (
     <Stack gap={3} as="nav" aria-label={label}>
       <ColumnLabel>{label}</ColumnLabel>
-      <Stack gap={2.5}>{children}</Stack>
+      <Stack gap={{ base: 0, md: 2.5 }} align="flex-start">
+        {children}
+      </Stack>
     </Stack>
   )
 }
@@ -330,10 +322,50 @@ function FooterLink({
       fontWeight={600}
       fontSize="sm"
       color="text.default"
+      // 44px tap targets on phones (the stack gap closes on base to match).
+      display="inline-flex"
+      alignItems="center"
+      minH={{ base: '44px', md: 'auto' }}
       {...(external ? externalLinkProps : null)}
       {...linkMotion}
     >
       {children}
     </Link>
+  )
+}
+
+function FooterLanguageButton({
+  label,
+  onOpen,
+}: {
+  label: string
+  onOpen: () => void
+}) {
+  return (
+    <chakra.button
+      type="button"
+      onClick={onOpen}
+      aria-haspopup="dialog"
+      display="inline-flex"
+      alignItems="center"
+      gap={2}
+      alignSelf="flex-start"
+      minH="44px"
+      px={3}
+      borderRadius="md"
+      borderWidth="1px"
+      borderColor="border.default"
+      bg="bg.surface"
+      fontSize="sm"
+      fontWeight={600}
+      color="text.default"
+      cursor="pointer"
+      _hover={{ bg: 'bg.subtle' }}
+      _focusVisible={sdlFocusRing}
+      {...linkMotion}
+    >
+      <LuGlobe size={16} aria-hidden />
+      {label}
+    </chakra.button>
   )
 }

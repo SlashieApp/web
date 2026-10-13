@@ -32,11 +32,11 @@ export function DashboardMembershipPanel({
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
           {t.membershipEmpty.body}
         </Text>
-        <Link href={'/worker/setup'} _hover={{ textDecoration: 'none' }}>
-          <Button size="sm" w={{ base: 'full', md: 'auto' }}>
+        <Button asChild size="sm" w={{ base: 'full', md: 'auto' }}>
+          <Link href={'/worker/setup'} _hover={{ textDecoration: 'none' }}>
             {t.membershipEmpty.becomeWorker}
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </Stack>
     </Card>
   )

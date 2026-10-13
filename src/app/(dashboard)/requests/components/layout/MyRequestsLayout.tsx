@@ -28,9 +28,11 @@ export function MyRequestsLayout() {
       title={t.title}
       description={t.description}
       actions={
-        <Link href={'/tasks/create'} _hover={{ textDecoration: 'none' }}>
-          <Button size="sm">{t.primaryCta}</Button>
-        </Link>
+        <Button asChild size="sm">
+          <Link href={'/tasks/create'} _hover={{ textDecoration: 'none' }}>
+            {t.primaryCta}
+          </Link>
+        </Button>
       }
     >
       <Grid

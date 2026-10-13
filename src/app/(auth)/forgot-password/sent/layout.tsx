@@ -8,7 +8,12 @@ const PAGE_PATH = '/forgot-password/sent'
 export async function generateMetadata() {
   const locale = await getRequestLocale()
   const copy = loadPageI11n(bag, locale)
-  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
+  return metadataFromI11n(copy.metadata, {
+    locale,
+    path: PAGE_PATH,
+    // Carries a one-time token or a just-used email: never index.
+    noIndex: true,
+  })
 }
 
 export default function Layout({

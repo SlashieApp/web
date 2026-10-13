@@ -8,12 +8,14 @@
     "notFound": {
       "eyebrow": "Task",
       "title": "Task not found",
-      "description": "This task may have been removed or is no longer available."
+      "description": "This task may have been removed or is no longer available.",
+      "browse": "Search tasks"
     },
     "error": {
       "heading": "Couldn't load this task",
       "description": "Check your connection and try again.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "browse": "Search tasks"
     },
     "loading": "Loading task...",
     "fallbackTask": "Task",
@@ -150,7 +152,7 @@
       "getHelp": "Get help",
       "cancelTask": "Cancel task",
       "linkCopied": "Link copied",
-      "cancelConfirm": "Cancel this task? Professionals will no longer be able to send quotes.",
+      "cancelConfirm": "Cancel this task? Workers will no longer be able to send quotes.",
       "withdrawQuote": "Withdraw quote",
       "withdrawQuoteConfirm": "Withdraw your quote? The customer will no longer see it.",
       "repostTask": "Repost this task"
@@ -436,12 +438,14 @@
     "notFound": {
       "eyebrow": "任務",
       "title": "找不到任務",
-      "description": "此任務可能已移除或不再可用。"
+      "description": "此任務可能已移除或不再可用。",
+      "browse": "搜尋任務"
     },
     "error": {
       "heading": "無法載入此任務",
       "description": "請檢查網絡連線後再試。",
-      "retry": "再試一次"
+      "retry": "再試一次",
+      "browse": "搜尋任務"
     },
     "loading": "正在載入任務...",
     "fallbackTask": "任務",
@@ -578,7 +582,7 @@
       "getHelp": "取得協助",
       "cancelTask": "取消任務",
       "linkCopied": "連結已複製",
-      "cancelConfirm": "取消此任務？專業人士將無法再傳送報價。",
+      "cancelConfirm": "取消此任務？工作者將無法再傳送報價。",
       "withdrawQuote": "撤回報價",
       "withdrawQuoteConfirm": "撤回你的報價？顧客將不會再看到此報價。",
       "repostTask": "重新發佈這個任務"

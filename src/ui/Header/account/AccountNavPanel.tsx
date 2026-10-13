@@ -123,7 +123,7 @@ export function AccountNavPanel({
   const groups = groupAccountNavItems(items)
 
   return (
-    <Box role="menu">
+    <Box>
       {groups.main.map((item) => (
         <AccountNavRow
           key={item.id}

@@ -1,3 +1,5 @@
+import { VisuallyHidden } from '@chakra-ui/react'
+
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 
@@ -20,5 +22,12 @@ export default async function WorkersPage({
   searchParams: Promise<WorkersPageSearchParams>
 }) {
   const params = await searchParams
-  return <WorkersScreen initialUrlState={parseWorkersUrlState(params)} />
+  const locale = await getRequestLocale()
+  return (
+    <>
+      {/* The map screen has no visible title; keep one h1 for headings nav. */}
+      <VisuallyHidden as="h1">{loadPageI11n(bag, locale).title}</VisuallyHidden>
+      <WorkersScreen initialUrlState={parseWorkersUrlState(params)} />
+    </>
+  )
 }

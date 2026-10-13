@@ -142,12 +142,12 @@ export function MyTasksList({
           {t.empty.description}
         </Text>
         <HStack gap={2} flexWrap="wrap">
-          <Button asChild size="sm">
+          <Button asChild>
             <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
               {t.empty.post}
             </Link>
           </Button>
-          <Button asChild size="sm" variant="secondary">
+          <Button asChild variant="secondary">
             <Link href="/search" _hover={{ textDecoration: 'none' }}>
               {t.empty.browse}
             </Link>

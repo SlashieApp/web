@@ -65,13 +65,13 @@ export function WorkerMembershipCard({
           />
         ) : null}
 
-        <Link href={'/billing'} _hover={{ textDecoration: 'none' }}>
-          <Button size="sm" w={{ base: 'full', md: 'auto' }}>
+        <Button asChild size="sm" w={{ base: 'full', md: 'auto' }}>
+          <Link href={'/billing'} _hover={{ textDecoration: 'none' }}>
             {membership.canManageBilling || membership.canUpgrade
               ? t.membership.manageBilling
               : t.membership.viewBilling}
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </Stack>
     </Card>
   )

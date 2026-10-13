@@ -35,7 +35,12 @@
     "passwordValue": "Use the reset flow to change.",
     "resetPassword": "Reset password",
     "sessionTitle": "Session",
-    "sessionDescription": "Logging out clears the session token and the cached me snapshot.",
+    "sessionDescription": "Log out of Slashie on this device.",
+    "loginMethodLabels": {
+      "PASSWORD": "Email and password",
+      "GOOGLE": "Google",
+      "APPLE": "Apple"
+    },
     "logout": "Log out",
     "settingsTitle": "Settings",
     "settingsDescription": "Control discovery, language, and product email preferences.",
@@ -114,7 +119,12 @@
     "passwordValue": "使用重設流程更改。",
     "resetPassword": "重設密碼",
     "sessionTitle": "工作階段",
-    "sessionDescription": "登出會清除 session token 和已快取的 me 資料。",
+    "sessionDescription": "在這部裝置登出 Slashie。",
+    "loginMethodLabels": {
+      "PASSWORD": "電郵及密碼",
+      "GOOGLE": "Google",
+      "APPLE": "Apple"
+    },
     "logout": "登出",
     "settingsTitle": "設定",
     "settingsDescription": "控制公開搜尋、語言和產品電郵偏好。",

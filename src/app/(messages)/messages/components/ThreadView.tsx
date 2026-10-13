@@ -1,7 +1,7 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { ThreadKind } from '@codegen/schema'
 import type {
   MessageThreadQuery,
@@ -205,7 +205,7 @@ export function ThreadView({ threadId }: { threadId: string }) {
       void refetch()
     } catch (err) {
       showAppToast({
-        title: getFriendlyErrorMessage(err, t.loadError),
+        title: getFriendlyErrorMessage(err, t.blockFailed),
         type: 'error',
       })
     }
@@ -222,9 +222,14 @@ export function ThreadView({ threadId }: { threadId: string }) {
           {loading ? t.loading : t.loadError}
         </Text>
         {loading ? null : (
-          <Link href="/messages" fontSize="sm" fontWeight={600}>
-            {t.back}
-          </Link>
+          <HStack gap={3}>
+            <Button size="sm" variant="secondary" onClick={() => refetch()}>
+              {t.retry}
+            </Button>
+            <Link href="/messages" fontSize="sm" fontWeight={600}>
+              {t.back}
+            </Link>
+          </HStack>
         )}
       </Stack>
     )
@@ -256,9 +261,9 @@ export function ThreadView({ threadId }: { threadId: string }) {
           </Link>
         </IconButton>
         <Stack gap={0} minW={0} flex={1}>
-          <Text fontWeight={700} lineClamp={1}>
+          <Heading as="h2" fontSize="md" fontWeight={700} lineClamp={1}>
             {thread.title}
-          </Text>
+          </Heading>
           <Text fontSize="xs" color="text.muted" lineClamp={1}>
             {thread.kind === ThreadKind.System
               ? t.systemSubtitle
@@ -320,9 +325,12 @@ export function ThreadView({ threadId }: { threadId: string }) {
               {t.loadEarlier}
             </Button>
           ) : null}
-          {timeline.map((item) => (
-            <ThreadTimelineItem key={item.id} item={item} locale={locale} />
-          ))}
+          {/* A log region reads new messages out as they arrive. */}
+          <Stack gap={3} role="log" aria-label={thread.title}>
+            {timeline.map((item) => (
+              <ThreadTimelineItem key={item.id} item={item} locale={locale} />
+            ))}
+          </Stack>
         </Stack>
       </Box>
 

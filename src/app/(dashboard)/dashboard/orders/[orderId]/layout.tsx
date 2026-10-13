@@ -3,12 +3,20 @@ import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 
 import bag from './i11n.json'
 
-const PAGE_PATH = '/dashboard/orders/[orderId]'
-
-export async function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ orderId: string }>
+}) {
   const locale = await getRequestLocale()
   const copy = loadPageI11n(bag, locale)
-  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
+  const { orderId } = await params
+  // Private screen: keep it out of search results.
+  return metadataFromI11n(copy.metadata, {
+    locale,
+    path: `/dashboard/orders/${orderId}`,
+    noIndex: true,
+  })
 }
 
 export default function Layout({

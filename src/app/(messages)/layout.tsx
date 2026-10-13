@@ -1,6 +1,10 @@
+import type { Metadata } from 'next'
+
 import { AccountAuthGate } from '@/app/(dashboard)/components/layout/AccountAuthGate'
 import { getHasAuthSession } from '@/app/helpers/getHasAuthSession'
 import { AppShell } from '@/ui/AppShell'
+
+export const metadata: Metadata = { robots: { index: false, follow: false } }
 
 /**
  * Messages (FE-202): signed-in only, app chrome without the account-hub

@@ -6,6 +6,7 @@ import { LuSearch } from 'react-icons/lu'
 
 import { TaskCard } from '@/app/(task)/components/ui/TaskCard'
 import { useI11n } from '@/i18n/useI11n'
+import { APP_HOME } from '@/utils/appRoutes'
 import { Button, Card, Input, Link } from '@ui'
 
 import { useWorkerQuotes } from '../../context/WorkerQuotesProvider'
@@ -67,11 +68,11 @@ export function WorkerQuotesMainColumn() {
             <Text color="text.muted" fontSize="sm">
               {t.emptyDescription}
             </Text>
-            <Link href={'/tasks'} _hover={{ textDecoration: 'none' }}>
-              <Button alignSelf="flex-start" size="sm">
+            <Button asChild alignSelf="flex-start" size="sm">
+              <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
                 {t.primaryCta}
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </Stack>
         </Card>
       ) : null}

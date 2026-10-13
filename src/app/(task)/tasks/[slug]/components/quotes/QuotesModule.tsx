@@ -19,6 +19,7 @@ import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerP
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { APP_HOME } from '@/utils/appRoutes'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
@@ -804,7 +805,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
             {q.thanksOffer}
           </Text>
           <Button asChild variant="secondary" w="full">
-            <Link href={'/tasks'} _hover={{ textDecoration: 'none' }}>
+            <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
               {q.browseOtherTasks}
             </Link>
           </Button>

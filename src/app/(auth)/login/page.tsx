@@ -27,6 +27,8 @@ import {
   getLoginFailCount,
   incrementLoginFailCount,
 } from '@/app/(auth)/helpers/authFailCount'
+import { getSafeNextPath } from '@/app/(auth)/helpers/authRedirect'
+import { stashResetEmail } from '@/app/(auth)/helpers/resetEmailHandoff'
 import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { loginFormSchema } from '@/app/(auth)/login/loginFormSchema'
@@ -122,8 +124,6 @@ function PasswordToggleButton({
       variant="ghost"
       onClick={onToggle}
       aria-label={label}
-      minW="var(--input-height)"
-      h="var(--input-height)"
       borderRadius="md"
     >
       <IconEye open={!visible} />
@@ -237,8 +237,9 @@ function LoginMarketingAside() {
         </Badge>
 
         <Box>
+          {/* Desktop-only marketing line; the form title is the page h1. */}
           <Heading
-            as="h1"
+            as="p"
             fontSize={{ lg: '4xl', xl: '5xl' }}
             lineHeight="1.1"
             fontWeight={800}
@@ -353,16 +354,10 @@ export default function LoginPage() {
       redirect: params.get('redirect'),
     }
   }, [])
-  const nextPath = useMemo(() => {
-    const requestedNextPath = authQuery.redirect ?? authQuery.next
-    if (
-      requestedNextPath?.startsWith('/') &&
-      !requestedNextPath.startsWith('//')
-    ) {
-      return requestedNextPath
-    }
-    return APP_HOME
-  }, [authQuery])
+  const nextPath = useMemo(
+    () => getSafeNextPath(authQuery.redirect ?? authQuery.next) ?? APP_HOME,
+    [authQuery],
+  )
   const onMountAuthGuard = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node || authGuardCheckedRef.current) return
@@ -376,12 +371,6 @@ export default function LoginPage() {
   )
 
   const emailValue = useWatch({ control, name: 'email', defaultValue: '' })
-  const forgotPasswordHref = useMemo(() => {
-    const trimmed = emailValue?.trim()
-    return trimmed
-      ? `/forgot-password?email=${encodeURIComponent(trimmed)}`
-      : '/forgot-password'
-  }, [emailValue])
 
   const onValid = async (data: z.infer<typeof loginFormSchema>) => {
     setServerError(null)
@@ -452,6 +441,7 @@ export default function LoginPage() {
                 {t.accountEyebrow}
               </Text>
               <Heading
+                as="h1"
                 size="2xl"
                 color="text.default"
                 fontFamily="heading"
@@ -508,44 +498,41 @@ export default function LoginPage() {
                     />
                   </FormField>
 
-                  <FormField
-                    label={
-                      <HStack justify="space-between" w="full" align="center">
-                        <Box as="span">{t.passwordLabel}</Box>
-                        <Link
-                          href={forgotPasswordHref}
-                          fontSize="sm"
-                          fontWeight={600}
-                          color="text.link"
-                          _hover={{
-                            color: 'status.success.fg',
-                            textDecoration: 'none',
-                          }}
-                        >
-                          {t.forgotPassword}
-                        </Link>
-                      </HStack>
-                    }
-                    errorText={errors.password?.message}
-                  >
-                    <Input
-                      startElement={<FieldIconLock />}
-                      endElement={
-                        <PasswordToggleButton
-                          visible={showPassword}
-                          onToggle={() => setShowPassword((v) => !v)}
-                          label={
-                            showPassword ? 'Hide password' : 'Show password'
-                          }
-                        />
-                      }
-                      placeholder="••••••••"
-                      type={showPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
-                      rootProps={{ minH: '48px', w: 'full' }}
-                      {...register('password')}
-                    />
-                  </FormField>
+                  <Stack gap={1.5}>
+                    <FormField
+                      label={t.passwordLabel}
+                      errorText={errors.password?.message}
+                    >
+                      <Input
+                        startElement={<FieldIconLock />}
+                        endElement={
+                          <PasswordToggleButton
+                            visible={showPassword}
+                            onToggle={() => setShowPassword((v) => !v)}
+                            label={
+                              showPassword ? 'Hide password' : 'Show password'
+                            }
+                          />
+                        }
+                        placeholder="••••••••"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="current-password"
+                        rootProps={{ minH: '48px', w: 'full' }}
+                        {...register('password')}
+                      />
+                    </FormField>
+                    {/* Outside the label so the field's name stays "Password". */}
+                    <Link
+                      href="/forgot-password"
+                      alignSelf="flex-end"
+                      fontSize="sm"
+                      fontWeight={600}
+                      color="text.link"
+                      onClick={() => stashResetEmail(emailValue ?? '')}
+                    >
+                      {t.forgotPassword}
+                    </Link>
+                  </Stack>
 
                   <Controller
                     name="rememberMe"

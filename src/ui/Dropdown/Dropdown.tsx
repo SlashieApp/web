@@ -125,10 +125,9 @@ export type DropdownTriggerApi = {
   close: () => void
   /** Attach to the trigger element so focus returns here on Escape. */
   triggerRef: Ref<HTMLButtonElement>
-  /** Spread onto the trigger for menu ARIA wiring. */
+  /** Spread onto the trigger for disclosure ARIA wiring. */
   triggerProps: {
     'aria-expanded': boolean
-    'aria-haspopup': 'menu'
     'aria-controls': string
   }
 }
@@ -216,7 +215,6 @@ function mergeTriggerAria(
   if (!isValidElement(trigger)) return trigger
   return cloneElement(trigger as ReactElement<Record<string, unknown>>, {
     'aria-expanded': open,
-    'aria-haspopup': true,
     'aria-controls': controlsId,
   })
 }
@@ -402,9 +400,10 @@ function ClickDropdown({
     toggle,
     close,
     triggerRef,
+    // Disclosure pattern: the panel holds ordinary links and buttons, not
+    // ARIA menu items with arrow-key handling, so no menu roles.
     triggerProps: {
       'aria-expanded': open,
-      'aria-haspopup': 'menu',
       'aria-controls': panelId,
     },
   }
@@ -431,8 +430,6 @@ function ClickDropdown({
         <Box
           ref={panelRef}
           id={panelId}
-          role="menu"
-          aria-label={contentLabel}
           aria-hidden={closing}
           position="absolute"
           top="calc(100% + 8px)"

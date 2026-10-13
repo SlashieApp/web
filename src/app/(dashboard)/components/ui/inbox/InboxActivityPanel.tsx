@@ -73,9 +73,14 @@ export function InboxActivityPanel({
               <Text fontSize="lg" fontWeight={600} color="text.default">
                 {resolvedEmptyMessage}
               </Text>
-              <Link href={emptyActionHref} _hover={{ textDecoration: 'none' }}>
-                <Button size="sm">{emptyActionLabel}</Button>
-              </Link>
+              <Button asChild size="sm">
+                <Link
+                  href={emptyActionHref}
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  {emptyActionLabel}
+                </Link>
+              </Button>
             </Stack>
           ) : (
             <Text color="text.muted" fontSize="sm">

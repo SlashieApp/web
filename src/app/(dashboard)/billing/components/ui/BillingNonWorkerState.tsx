@@ -22,9 +22,11 @@ export function BillingNonWorkerState() {
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
           {t.nonWorker.body}
         </Text>
-        <Link href={'/worker/setup'} _hover={{ textDecoration: 'none' }}>
-          <Button w={{ base: 'full', md: 'auto' }}>{t.nonWorker.cta}</Button>
-        </Link>
+        <Button asChild w={{ base: 'full', md: 'auto' }}>
+          <Link href={'/worker/setup'} _hover={{ textDecoration: 'none' }}>
+            {t.nonWorker.cta}
+          </Link>
+        </Button>
       </Stack>
     </DashboardSectionCard>
   )

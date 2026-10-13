@@ -2,6 +2,7 @@ import posthog from 'posthog-js'
 
 import { getCookieConsent } from './consent'
 import type { CaptureOptions } from './events'
+import { scrubEventUrls } from './scrubUrls'
 
 type QueuedCapture = {
   event: string
@@ -64,6 +65,9 @@ export function initPostHogClient(): void {
     capture_pageview: true,
     capture_exceptions: true,
     persistence: 'localStorage+cookie',
+    // Reset / verification tokens and emails ride in query strings: strip
+    // them from every URL property before anything is sent.
+    before_send: scrubEventUrls,
   })
   initialized = true
 

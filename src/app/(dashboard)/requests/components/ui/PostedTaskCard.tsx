@@ -145,11 +145,11 @@ export function PostedTaskCard({
         borderTopWidth="1px"
         borderColor="border.default"
       >
-        <Link href={taskHref} _hover={{ textDecoration: 'none' }}>
-          <Button size="sm" variant="primary">
+        <Button asChild size="sm" variant="primary">
+          <Link href={taskHref} _hover={{ textDecoration: 'none' }}>
             Open task
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </HStack>
 
       {expanded ? (
@@ -165,21 +165,24 @@ export function PostedTaskCard({
 
           <HStack justify="flex-end" flexWrap="wrap" gap={2}>
             {isTaskEditable(task.status) ? (
-              <Link
-                href={`/tasks/${task.id}/edit`}
-                _hover={{ textDecoration: 'none' }}
-              >
-                <Button size="sm" variant="ghost">
+              <Button asChild size="sm" variant="ghost">
+                <Link
+                  href={`/tasks/${task.id}/edit`}
+                  _hover={{ textDecoration: 'none' }}
+                >
                   Edit
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             ) : null}
             {showSecondaryCta ? (
-              <Link href={primaryCta.href} _hover={{ textDecoration: 'none' }}>
-                <Button size="sm" variant={primaryCta.variant}>
+              <Button asChild size="sm" variant={primaryCta.variant}>
+                <Link
+                  href={primaryCta.href}
+                  _hover={{ textDecoration: 'none' }}
+                >
                   {primaryCta.label}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             ) : null}
           </HStack>
         </Stack>

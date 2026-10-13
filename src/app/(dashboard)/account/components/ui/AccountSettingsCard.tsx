@@ -45,7 +45,8 @@ function SettingToggle({
         disabled={disabled}
         onCheckedChange={(details) => onChange(details.checked)}
       >
-        <Switch.HiddenInput />
+        {/* The visible label sits outside Switch.Root: name the input. */}
+        <Switch.HiddenInput aria-label={label} />
         <Switch.Control _checked={{ bg: 'action.primary' }}>
           <Switch.Thumb />
         </Switch.Control>

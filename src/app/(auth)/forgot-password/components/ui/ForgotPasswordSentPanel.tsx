@@ -3,10 +3,11 @@
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import { Button, Card, Link, Logo } from '@ui'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useMemo, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
+import { readResetEmail } from '@/app/(auth)/helpers/resetEmailHandoff'
 import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { useI11n } from '@/i18n/useI11n'
@@ -15,27 +16,22 @@ import bag from '../../sent/i11n.json'
 export function ForgotPasswordSentPanel() {
   const t = useI11n(bag)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const email = useMemo(
-    () => searchParams.get('email')?.trim() ?? '',
-    [searchParams],
-  )
+  // null until read from sessionStorage after mount; '' means none saved.
+  const [email, setEmail] = useState<string | null>(null)
   const captcha = useProgressiveCaptcha({ alwaysRequire: true })
 
   const { requestReset, loading, message, cooldownSeconds, canResend } =
     useForgotPassword()
 
-  const redirectedRef = useRef(false)
-  const onMountRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node || redirectedRef.current || email) return
-      redirectedRef.current = true
-      router.replace('/forgot-password')
-    },
-    [email, router],
-  )
+  useEffect(() => {
+    const saved = readResetEmail()
+    setEmail(saved)
+    // Opened directly (no email from the form): start over.
+    if (!saved) router.replace('/forgot-password')
+  }, [router])
 
   async function onResend() {
+    if (!email) return
     if (captcha.requiresCaptcha && !captcha.token) return
     const result = await requestReset(email, {
       captchaToken: captcha.token,
@@ -47,7 +43,6 @@ export function ForgotPasswordSentPanel() {
   if (!email) {
     return (
       <Box
-        ref={onMountRef}
         minH="40vh"
         display="flex"
         alignItems="center"

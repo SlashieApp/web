@@ -42,6 +42,8 @@ export function metadataFromI11n(
     /** Path without locale, e.g. `/home` or `/pricing`. */
     path: string
     siteName?: string
+    /** Keep the page out of search results (token and private screens). */
+    noIndex?: boolean
   },
 ): Metadata {
   const title = copy.title ?? 'Slashie'
@@ -72,6 +74,7 @@ export function metadataFromI11n(
       title,
       description,
     },
+    ...(opts.noIndex ? { robots: { index: false, follow: false } } : {}),
   }
 }
 

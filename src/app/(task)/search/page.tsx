@@ -1,3 +1,4 @@
+import { VisuallyHidden } from '@chakra-ui/react'
 import { redirect } from 'next/navigation'
 
 import {
@@ -44,5 +45,11 @@ export default async function SearchPage({
     )
   }
 
-  return <SearchScreen initialUrlState={parseSearchUrlState(params)} />
+  return (
+    <>
+      {/* The map screen has no visible title; keep one h1 for headings nav. */}
+      <VisuallyHidden as="h1">{loadPageI11n(bag, locale).title}</VisuallyHidden>
+      <SearchScreen initialUrlState={parseSearchUrlState(params)} />
+    </>
+  )
 }

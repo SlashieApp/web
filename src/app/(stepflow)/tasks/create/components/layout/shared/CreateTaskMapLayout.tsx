@@ -122,7 +122,7 @@ export function CreateTaskMapLayout({
     </Box>
   )
   const error = errorText ? (
-    <Text color="status.danger.fg" fontSize="sm">
+    <Text color="status.danger.fg" fontSize="sm" role="alert">
       {errorText}
     </Text>
   ) : null

@@ -9,6 +9,7 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { DashboardPageLayout } from '@/app/(dashboard)/components/layout/DashboardPageLayout'
 import { MembershipRefreshOnMount } from '@/app/(dashboard)/components/ui/membership/MembershipRefreshOnMount'
 import { useI11n } from '@/i18n/useI11n'
+import { APP_HOME } from '@/utils/appRoutes'
 import { isQuoteAwarded } from '@/utils/dashboardHelpers'
 import { useAccountOrders } from '../helpers/useAccountOrders'
 import { useMyQuotes } from '../helpers/useMyQuotes'
@@ -104,7 +105,7 @@ export default function DashboardOverviewPage() {
         actions={
           <>
             <Button asChild size="sm" variant="secondary">
-              <Link href="/tasks" _hover={{ textDecoration: 'none' }}>
+              <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
                 {t.browseTasks}
               </Link>
             </Button>

@@ -5,6 +5,7 @@ import { Button, Card, Link, Logo } from '@ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useMemo, useRef } from 'react'
 
+import { getSafeNextPath } from '@/app/(auth)/helpers/authRedirect'
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useMe } from '@/app/(auth)/store/user'
@@ -31,8 +32,8 @@ function VerifyEmailSentContent() {
   const { resend, isSending, message, isSent } = useResendVerificationEmail()
 
   const nextPath = useMemo(() => {
-    const next = searchParams.get('next')?.trim() ?? ''
-    if (next.startsWith('/') && !next.startsWith('//')) return next
+    const next = getSafeNextPath(searchParams.get('next'))
+    if (next) return next
     return null
   }, [searchParams])
 
@@ -119,12 +120,14 @@ function VerifyEmailSentContent() {
               <Text fontSize="sm" color="text.muted">
                 {t.loginPrompt}
               </Text>
-              <Link
-                href={`/login?next=${encodeURIComponent('/verify-email/sent')}`}
-                _hover={{ textDecoration: 'none' }}
-              >
-                <Button w="full">{t.login}</Button>
-              </Link>
+              <Button asChild w="full">
+                <Link
+                  href={`/login?next=${encodeURIComponent('/verify-email/sent')}`}
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  {t.login}
+                </Link>
+              </Button>
             </Stack>
           )}
         </Stack>

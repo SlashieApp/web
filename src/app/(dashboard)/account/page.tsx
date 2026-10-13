@@ -37,8 +37,9 @@ export default function AccountPage() {
 
   if (!me) return null
 
+  const methodLabels: Record<string, string> = t.loginMethodLabels
   const enabledMethods = me.enabledLoginMethods?.length
-    ? me.enabledLoginMethods.join(', ')
+    ? me.enabledLoginMethods.map((m) => methodLabels[m] ?? m).join(', ')
     : t.passwordFallback
   const sectionLinks = [
     { label: t.navOverview, href: '#overview' },

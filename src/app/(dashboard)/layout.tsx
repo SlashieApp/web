@@ -11,7 +11,8 @@ import bag from './i11n.json'
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
   const copy = loadPageI11n(bag, locale)
-  return { title: copy.metadata.title }
+  // Signed-in account pages: keep them out of search results.
+  return { title: copy.metadata.title, robots: { index: false, follow: false } }
 }
 
 export default async function DashboardGroupLayout({

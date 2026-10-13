@@ -79,12 +79,14 @@ export function ProfileWorkerForm({
               directly for completed work.
             </Text>
           </Stack>
-          <Link
-            href={workerSetupHref('/profile')}
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button w={{ base: 'full', sm: 'auto' }}>Start worker setup</Button>
-          </Link>
+          <Button asChild w={{ base: 'full', sm: 'auto' }}>
+            <Link
+              href={workerSetupHref('/profile')}
+              _hover={{ textDecoration: 'none' }}
+            >
+              Start worker setup
+            </Link>
+          </Button>
         </Stack>
       </Card>
     )
@@ -100,18 +102,19 @@ export function ProfileWorkerForm({
             saved so far:
           </Text>
           <WorkerProfileSummary values={formValues} />
-          <Link
-            href={workerSetupHref('/profile')}
-            _hover={{ textDecoration: 'none' }}
+          <Button
+            asChild
+            size="sm"
+            variant="primary"
+            w={{ base: 'full', sm: 'auto' }}
           >
-            <Button
-              size="sm"
-              variant="primary"
-              w={{ base: 'full', sm: 'auto' }}
+            <Link
+              href={workerSetupHref('/profile')}
+              _hover={{ textDecoration: 'none' }}
             >
               Continue setup
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </Stack>
       </Card>
     )

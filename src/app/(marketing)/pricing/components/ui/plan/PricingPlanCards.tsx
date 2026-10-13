@@ -206,11 +206,11 @@ function WorkerFreePlanCta({
   }
 
   return (
-    <Link href={'/register'} _hover={{ textDecoration: 'none' }}>
-      <Button w="full" variant="secondary">
+    <Button asChild w="full" variant="secondary">
+      <Link href={'/register'} _hover={{ textDecoration: 'none' }}>
         {copy.getStarted}
-      </Button>
-    </Link>
+      </Link>
+    </Button>
   )
 }
 

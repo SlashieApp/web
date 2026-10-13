@@ -2,8 +2,9 @@
 
 import { Box, HStack, Image, Stack, Text } from '@chakra-ui/react'
 import { useRef } from 'react'
+import { LuX } from 'react-icons/lu'
 
-import { Button } from '@ui'
+import { Button, IconButton } from '@ui'
 import { CreateTaskSection } from '../../layout/shared/CreateTaskSection'
 
 export type CreateTaskVisualsSectionProps = {
@@ -111,17 +112,19 @@ export function CreateTaskVisualsSection({
                   borderWidth="1px"
                   borderColor="border.default"
                 />
-                <Button
+                {/* 44px target hangs off the corner to cover less of the photo. */}
+                <IconButton
                   type="button"
-                  size="xs"
-                  variant="ghost"
+                  aria-label={file ? `Remove ${file.name}` : 'Remove photo'}
                   position="absolute"
-                  top={1}
-                  right={1}
+                  top={-2}
+                  right={-2}
+                  bg="bg.surface"
+                  boxShadow="e2"
                   onClick={() => onRemoveFile(i)}
                 >
-                  ×
-                </Button>
+                  <LuX aria-hidden />
+                </IconButton>
               </Box>
             )
           })}

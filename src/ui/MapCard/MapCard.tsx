@@ -99,21 +99,20 @@ export function MapCard({
         </Box>
       )}
       {openInMaps ? (
-        <Link
-          href={mapsSearchUrl(lat, lng)}
-          target="_blank"
-          rel="noopener noreferrer"
-          display="block"
-          w="full"
-          borderTopWidth="1px"
-          borderColor="border.default"
-          bg="bg.surface"
-          _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
-        >
-          <Button type="button" size="sm" variant="ghost" w="full">
+        <Button asChild size="sm" variant="ghost" w="full">
+          <Link
+            href={mapsSearchUrl(lat, lng)}
+            target="_blank"
+            rel="noopener noreferrer"
+            borderRadius="0"
+            borderTopWidth="1px"
+            borderColor="border.default"
+            bg="bg.surface"
+            _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
+          >
             Open in Maps
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       ) : null}
     </Box>
   )

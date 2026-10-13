@@ -67,11 +67,11 @@ export function MyRequestsMainColumn() {
             <Text color="text.muted" fontSize="sm">
               {t.emptyDescription}
             </Text>
-            <Link href={'/tasks/create'} _hover={{ textDecoration: 'none' }}>
-              <Button alignSelf="flex-start" size="sm">
+            <Button asChild alignSelf="flex-start" size="sm">
+              <Link href={'/tasks/create'} _hover={{ textDecoration: 'none' }}>
                 {t.primaryCta}
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </Stack>
         </Card>
       ) : null}

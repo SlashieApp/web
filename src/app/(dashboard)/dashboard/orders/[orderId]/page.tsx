@@ -11,7 +11,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, capture, captureApiError } from '@/utils/analytics'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { taskOrderSectionHref } from '@/utils/orderHelpers'
-import { Card } from '@ui'
+import { Button, Card, Link } from '@ui'
 import bag from './i11n.json'
 
 /** Legacy URL — redirects to `/tasks/:taskId#task-order`. */
@@ -57,10 +57,15 @@ export default function LegacyOrderDetailRedirect() {
 
   if (!loading && !taskId) {
     return (
-      <Card layout="section" p={6}>
-        <Text color="text.muted" fontSize="sm">
+      <Card layout="section" p={6} heading={t.notFoundTitle}>
+        <Text color="text.muted" fontSize="sm" mb={4}>
           {t.notFoundDescription}
         </Text>
+        <Button asChild size="sm" variant="secondary">
+          <Link href="/dashboard" _hover={{ textDecoration: 'none' }}>
+            {t.back}
+          </Link>
+        </Button>
       </Card>
     )
   }

@@ -1,7 +1,7 @@
 {
   "en": {
     "tagline": "Help around the corner. Post a task, compare quotes from local workers and pay them directly.",
-    "copyright": "© Slashie 2026",
+    "copyright": "© {year} Slashie Ltd",
     "columns": {
       "product": "Product",
       "company": "Company",
@@ -27,11 +27,12 @@
       "github": "GitHub"
     },
     "language": "Language: {name}",
-    "openSourceNote": "Open source. Powered by an AI-driven company. Built with loop engineering."
+    "openSourceNote": "Open source. Powered by an AI-driven company. Built with loop engineering.",
+    "registration": "{company} is a company registered in England and Wales. Company no. {number}. Registered office: {office}."
   },
   "zh_hk": {
     "tagline": "幫手就在街角。發布任務、比較本地工作者的報價，並直接付款給他們。",
-    "copyright": "© Slashie 2026",
+    "copyright": "© {year} Slashie Ltd",
     "columns": {
       "product": "產品",
       "company": "公司",
@@ -57,6 +58,7 @@
       "github": "GitHub"
     },
     "language": "語言：{name}",
-    "openSourceNote": "開源專案。由 AI 驅動的公司打造，以 loop engineering 建構。"
+    "openSourceNote": "開源專案。由 AI 驅動的公司打造，以 loop engineering 建構。",
+    "registration": "{company} 是一家在英格蘭及威爾斯註冊的公司。公司編號：{number}。註冊辦事處：{office}。"
   }
 }

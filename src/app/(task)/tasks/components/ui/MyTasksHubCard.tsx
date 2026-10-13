@@ -90,7 +90,7 @@ export function MyTasksHubCard({
                   <Text
                     fontSize="sm"
                     fontWeight={600}
-                    color="text.link"
+                    color="text.muted"
                     lineClamp={1}
                   >
                     {category}

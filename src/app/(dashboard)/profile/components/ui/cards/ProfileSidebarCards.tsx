@@ -57,14 +57,14 @@ export function NextStepCard({
             {lifecycle.ctaLabel}
           </Button>
         ) : (
-          <Link href={lifecycle.ctaHref} _hover={{ textDecoration: 'none' }}>
-            <Button w="full" size="sm" variant="primary">
+          <Button asChild w="full" size="sm" variant="primary">
+            <Link href={lifecycle.ctaHref} _hover={{ textDecoration: 'none' }}>
               {lifecycle.ctaLabel}
               {lifecycle.publicProfileHref === lifecycle.ctaHref ? (
                 <LuExternalLink size={14} aria-hidden />
               ) : null}
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         )}
       </Stack>
     </Card>

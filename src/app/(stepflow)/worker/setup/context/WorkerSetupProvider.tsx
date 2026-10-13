@@ -17,6 +17,7 @@ import {
   useState,
 } from 'react'
 
+import { getSafeNextPath } from '@/app/(auth)/helpers/authRedirect'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { APP_HOME } from '@/utils/appRoutes'
@@ -128,7 +129,8 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
   const me = useUserStore((s) => s.me)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const exitHref = searchParams.get('next')?.trim() || APP_HOME
+  // Validated: `next` comes from the URL (open-redirect guard).
+  const exitHref = getSafeNextPath(searchParams.get('next')) ?? APP_HOME
   const redirectRef = useRef(false)
   const hydratedRef = useRef(false)
 
@@ -175,7 +177,9 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
           redirectRef.current = true
           // Already-complete workers edit on /profile instead of re-entering
           // setup; an explicit ?next (e.g. from a login round-trip) wins.
-          router.replace(searchParams.get('next')?.trim() || '/profile')
+          router.replace(
+            getSafeNextPath(searchParams.get('next')) ?? '/profile',
+          )
         }
       }
     },

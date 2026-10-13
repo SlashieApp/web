@@ -369,7 +369,7 @@ function EditTaskFormBody({
           mb={4}
           p={4}
           borderRadius="lg"
-          bg="status.danger.bg"
+          bg="status.danger.soft"
           role="alert"
         >
           <Text color="status.danger.fg" fontSize="sm">

@@ -101,8 +101,6 @@ function PasswordToggleButton({
       variant="ghost"
       onClick={onToggle}
       aria-label={label}
-      minW="var(--input-height)"
-      h="var(--input-height)"
       borderRadius="md"
     >
       <IconEye open={!visible} />
@@ -229,9 +227,11 @@ function MissingResetLinkState() {
             {t.missingDescription}
           </Text>
           <Stack gap={3} w="full" maxW="xs">
-            <Link href="/forgot-password" _hover={{ textDecoration: 'none' }}>
-              <Button w="full">{t.missingCta}</Button>
-            </Link>
+            <Button asChild w="full">
+              <Link href="/forgot-password" _hover={{ textDecoration: 'none' }}>
+                {t.missingCta}
+              </Link>
+            </Button>
             <Link
               href="/login"
               fontSize="sm"

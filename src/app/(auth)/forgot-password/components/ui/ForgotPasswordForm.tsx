@@ -3,10 +3,14 @@
 import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import { Button, Card, FormField, Input, Link, Logo } from '@ui'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
+import {
+  readResetEmail,
+  stashResetEmail,
+} from '@/app/(auth)/helpers/resetEmailHandoff'
 import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { useI11n } from '@/i18n/useI11n'
@@ -21,12 +25,13 @@ import {
 export function ForgotPasswordForm() {
   const t = useI11n(bag)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const initialEmail = useMemo(
-    () => searchParams.get('email')?.trim() ?? '',
-    [searchParams],
-  )
-  const [email, setEmail] = useState(initialEmail)
+  const [email, setEmail] = useState('')
+
+  // Prefill from login (sessionStorage, never the URL).
+  useEffect(() => {
+    const saved = readResetEmail()
+    if (saved) setEmail((current) => current || saved)
+  }, [])
   const captcha = useProgressiveCaptcha({ alwaysRequire: true })
 
   const { requestReset, loading, message, cooldownSeconds, canResend } =
@@ -50,9 +55,8 @@ export function ForgotPasswordForm() {
       return
     }
 
-    router.push(
-      `/forgot-password/sent?email=${encodeURIComponent(email.trim())}`,
-    )
+    stashResetEmail(email)
+    router.push('/forgot-password/sent')
   }
 
   const submitDisabled =

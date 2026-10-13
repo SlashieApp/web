@@ -164,12 +164,14 @@ export function WorkerProfileCard({
           <Text fontSize="sm" color="text.muted">
             {t.workerEmptyBody}
           </Text>
-          <Link
-            href={workerSetupHref('/profile?section=worker')}
-            _hover={{ textDecoration: 'none' }}
-          >
-            <Button size="sm">{t.becomeWorker}</Button>
-          </Link>
+          <Button asChild size="sm">
+            <Link
+              href={workerSetupHref('/profile?section=worker')}
+              _hover={{ textDecoration: 'none' }}
+            >
+              {t.becomeWorker}
+            </Link>
+          </Button>
         </Stack>
       </ProfileSectionCard>
     )
@@ -193,12 +195,14 @@ export function WorkerProfileCard({
             {draft ? t.notPublished : t.published}
           </Badge>
           {draft ? (
-            <Link
-              href={workerSetupHref('/profile?section=worker')}
-              _hover={{ textDecoration: 'none' }}
-            >
-              <Button size="sm">{t.continueSetup}</Button>
-            </Link>
+            <Button asChild size="sm">
+              <Link
+                href={workerSetupHref('/profile?section=worker')}
+                _hover={{ textDecoration: 'none' }}
+              >
+                {t.continueSetup}
+              </Link>
+            </Button>
           ) : null}
         </HStack>
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>

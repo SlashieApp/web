@@ -38,6 +38,7 @@ export {
   syncPendingAnalyticsIdentity,
 } from './identify-user'
 export { sanitizeProperties, truncateMessage } from './sanitize'
+export { scrubAnalyticsUrl, scrubEventUrls } from './scrubUrls'
 export { trackFlowFailed, trackFlowSucceeded } from './flow-events'
 export type {
   AnalyticsEvent,

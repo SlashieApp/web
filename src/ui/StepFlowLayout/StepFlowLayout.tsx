@@ -121,7 +121,12 @@ export function StepFlowActions({
             </HStack>
           </Button>
         ) : (
-          <Box flexShrink={0} w={{ base: 0, lg: '88px' }} />
+          // Desktop only: a zero-width spacer would still take the 12px gap.
+          <Box
+            flexShrink={0}
+            w="88px"
+            display={{ base: 'none', lg: 'block' }}
+          />
         )}
         <Button
           type="button"
@@ -129,7 +134,8 @@ export function StepFlowActions({
           onClick={onContinue}
           loading={continueLoading}
           minH="44px"
-          minW={{ base: 'full', lg: 'auto' }}
+          // minW 0, not full: flex fills the row without overflowing it.
+          minW={{ base: 0, lg: 'auto' }}
           flex={{ base: 1, lg: 'none' }}
           ml="auto"
           borderRadius="md"
@@ -203,7 +209,7 @@ function StepFlowPanel({
       >
         <StepFlowHeading title={title} description={description} />
         {errorText ? (
-          <Text color="status.danger.fg" fontSize="sm">
+          <Text color="status.danger.fg" fontSize="sm" role="alert">
             {errorText}
           </Text>
         ) : null}
@@ -278,7 +284,7 @@ export function StepFlowLayout({
               <Stack gap={6} px={4} py={5} pb={4}>
                 <StepFlowHeading title={title} description={description} />
                 {errorText ? (
-                  <Text color="status.danger.fg" fontSize="sm">
+                  <Text color="status.danger.fg" fontSize="sm" role="alert">
                     {errorText}
                   </Text>
                 ) : null}

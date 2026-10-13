@@ -2,7 +2,7 @@
   "en": {
     "metadata": {
       "title": "Edit task | Slashie",
-      "description": "Update your Slashie task details, timing, budget, quote cap, and contact preference."
+      "description": "Update your Slashie task details, timing, budget and contact preference."
     },
     "eyebrow": "Edit task",
     "title": "Edit task",
@@ -42,7 +42,7 @@
   "zh_hk": {
     "metadata": {
       "title": "編輯任務 | Slashie",
-      "description": "更新你的 Slashie 任務詳情、時間、預算、報價名額和聯絡偏好。"
+      "description": "更新你的 Slashie 任務詳情、時間、預算和聯絡偏好。"
     },
     "eyebrow": "編輯任務",
     "title": "編輯任務",

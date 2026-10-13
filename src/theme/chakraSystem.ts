@@ -256,7 +256,9 @@ const lightSemanticColors = {
   status: {
     success: {
       soft: { value: { base: '#E7FBF0' } },
-      fg: { value: { base: '#048654' } },
+      // green-800: green-700 (#048654) was 4.07-4.37:1 on bg.subtle / the
+      // soft tint / bg.canvas (under WCAG AA 4.5:1), same fix as text.link.
+      fg: { value: { base: '#05683F' } },
       solid: { value: { base: '#00DC82' } },
       /** Soft success-tinted border (parity with legacy green.200). */
       border: { value: { base: '#92ECC0' } },

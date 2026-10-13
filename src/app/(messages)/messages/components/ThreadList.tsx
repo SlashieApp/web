@@ -111,7 +111,7 @@ export function ThreadList({ selectedId }: { selectedId: string | null }) {
   return (
     <>
       <Box px={4} py={4} borderBottomWidth="1px" borderColor="border.default">
-        <Heading as="h1" size="lg">
+        <Heading as="h2" size="lg">
           {t.title}
         </Heading>
       </Box>

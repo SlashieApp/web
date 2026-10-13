@@ -3,12 +3,20 @@ import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 
 import bag from './i11n.json'
 
-const PAGE_PATH = '/tasks/[slug]/edit'
-
-export async function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
   const locale = await getRequestLocale()
   const copy = loadPageI11n(bag, locale)
-  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
+  const { slug } = await params
+  // Private screen: keep it out of search results.
+  return metadataFromI11n(copy.metadata, {
+    locale,
+    path: `/tasks/${slug}/edit`,
+    noIndex: true,
+  })
 }
 
 export default function Layout({

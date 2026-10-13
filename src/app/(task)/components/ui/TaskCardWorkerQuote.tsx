@@ -221,29 +221,29 @@ export function TaskCardWorkerQuote({
 
                 <HStack gap={2} flexWrap="wrap">
                   {hasCoords ? (
+                    <Button asChild size="sm" variant="outline">
+                      <Link
+                        href={mapsDirectionsUrl(lat, lng)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={stopCardToggle}
+                        _hover={{ textDecoration: 'none' }}
+                      >
+                        <LuMap size={16} />
+                        Open in Maps
+                      </Link>
+                    </Button>
+                  ) : null}
+                  <Button asChild size="sm" variant="outline">
                     <Link
-                      href={mapsDirectionsUrl(lat, lng)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={jobHref}
                       onClick={stopCardToggle}
                       _hover={{ textDecoration: 'none' }}
                     >
-                      <Button size="sm" variant="outline">
-                        <LuMap size={16} />
-                        Open in Maps
-                      </Button>
-                    </Link>
-                  ) : null}
-                  <Link
-                    href={jobHref}
-                    onClick={stopCardToggle}
-                    _hover={{ textDecoration: 'none' }}
-                  >
-                    <Button size="sm" variant="outline">
                       <LuMessageCircle size={16} />
                       Contact customer
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </HStack>
               </HStack>
             </Box>

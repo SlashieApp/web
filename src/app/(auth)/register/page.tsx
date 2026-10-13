@@ -125,8 +125,6 @@ function PasswordToggleButton({
       variant="ghost"
       onClick={onToggle}
       aria-label={label}
-      minW="var(--input-height)"
-      h="var(--input-height)"
       borderRadius="md"
     >
       <IconEye open={!visible} />
@@ -275,8 +273,9 @@ function RegisterMarketingAside() {
         </Badge>
 
         <Box>
+          {/* Desktop-only marketing line; the form title is the page h1. */}
           <Heading
-            as="h1"
+            as="p"
             fontSize={{ lg: '4xl', xl: '5xl' }}
             lineHeight="1.1"
             fontWeight={800}
@@ -508,7 +507,12 @@ export default function RegisterPage() {
           </Link>
 
           <Box>
-            <Heading size="2xl" color="text.default" fontFamily="heading">
+            <Heading
+              as="h1"
+              size="2xl"
+              color="text.default"
+              fontFamily="heading"
+            >
               {t.title}
             </Heading>
             <Text mt={2} color="text.muted" fontSize="sm" lineHeight="1.55">
@@ -622,15 +626,9 @@ export default function RegisterPage() {
                   />
                 </FormField>
 
-                <HStack
-                  gap={4}
-                  align="flex-start"
-                  flexDir={{ base: 'column', sm: 'row' }}
-                >
+                <Stack gap={4}>
                   <FormField
                     label={t.passwordLabel}
-                    flex={1}
-                    w={{ base: 'full', sm: 'auto' }}
                     errorText={errors.password?.message}
                   >
                     <Input
@@ -653,8 +651,6 @@ export default function RegisterPage() {
                   </FormField>
                   <FormField
                     label={t.confirmPasswordLabel}
-                    flex={1}
-                    w={{ base: 'full', sm: 'auto' }}
                     errorText={errors.confirmPassword?.message}
                   >
                     <Input
@@ -677,7 +673,7 @@ export default function RegisterPage() {
                       {...registerField('confirmPassword')}
                     />
                   </FormField>
-                </HStack>
+                </Stack>
 
                 {captcha.requiresCaptcha ? (
                   <TurnstileField

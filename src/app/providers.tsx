@@ -1,6 +1,7 @@
 'use client'
 
 import { ApolloProvider } from '@apollo/client/react'
+import { MotionConfig } from 'motion/react'
 import type { ReactNode } from 'react'
 
 import { AccountRestoreGate } from '@/app/(auth)/components/ui/AccountRestoreGate'
@@ -24,9 +25,12 @@ export function Providers({ children }: { children: ReactNode }) {
             <MessagesProvider>
               <FeedbackProvider>
                 <AnalyticsErrorBoundary>
-                  <AppToastHost />
-                  <AccountRestoreGate>{children}</AccountRestoreGate>
-                  <CookieConsentBanner />
+                  {/* Honour the OS reduced-motion setting in every motion component. */}
+                  <MotionConfig reducedMotion="user">
+                    <AppToastHost />
+                    <AccountRestoreGate>{children}</AccountRestoreGate>
+                    <CookieConsentBanner />
+                  </MotionConfig>
                 </AnalyticsErrorBoundary>
               </FeedbackProvider>
             </MessagesProvider>

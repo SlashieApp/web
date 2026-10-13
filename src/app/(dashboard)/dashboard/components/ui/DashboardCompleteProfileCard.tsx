@@ -78,11 +78,11 @@ export function DashboardCompleteProfileCard() {
         </Box>
       </Stack>
 
-      <Link href={profileLinkHref} _hover={{ textDecoration: 'none' }}>
-        <Button size="sm" w="full">
+      <Button asChild size="sm" w="full">
+        <Link href={profileLinkHref} _hover={{ textDecoration: 'none' }}>
           {profileLinkLabel}
-        </Button>
-      </Link>
+        </Link>
+      </Button>
     </Stack>
   )
 }
