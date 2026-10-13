@@ -38,7 +38,10 @@ describe('plain resolver errors', () => {
     )
   })
 
-  it('reads the BE-79 codes', () => {
+  it('reads the BE-76 and BE-79 codes', () => {
+    expect(getGraphQLErrorCode(internal('INVALID_UNSUBSCRIBE_TOKEN'))).toBe(
+      'INVALID_UNSUBSCRIBE_TOKEN',
+    )
     expect(getGraphQLErrorCode(internal('TOO_MANY_CATEGORIES'))).toBe(
       'TOO_MANY_CATEGORIES',
     )

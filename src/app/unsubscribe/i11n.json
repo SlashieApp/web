@@ -1,0 +1,36 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Unsubscribe | Slashie",
+      "description": "Stop Slashie news emails."
+    },
+    "loadingTitle": "Unsubscribing…",
+    "loadingBody": "One moment.",
+    "doneTitle": "You're unsubscribed",
+    "doneBody": "You're unsubscribed from Slashie news. You'll still get emails about your account and bookings.",
+    "doneLink": "Changed your mind? Turn it back on in Account settings",
+    "invalidTitle": "This link doesn't work",
+    "invalidBody": "This unsubscribe link doesn't work. You can turn off marketing emails in Account settings.",
+    "accountLink": "Go to Account settings",
+    "errorTitle": "We couldn't unsubscribe you",
+    "errorBody": "Check your connection and try again.",
+    "retry": "Try again"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "取消訂閱 | Slashie",
+      "description": "停止接收 Slashie 最新消息電郵。"
+    },
+    "loadingTitle": "正在取消訂閱…",
+    "loadingBody": "請稍候。",
+    "doneTitle": "你已取消訂閱",
+    "doneBody": "你已取消訂閱 Slashie 最新消息。你仍會收到有關帳戶及預約的電郵。",
+    "doneLink": "改變主意？可在帳戶設定重新開啟",
+    "invalidTitle": "此連結無效",
+    "invalidBody": "此取消訂閱連結無效。你可以在帳戶設定關閉推廣電郵。",
+    "accountLink": "前往帳戶設定",
+    "errorTitle": "未能取消訂閱",
+    "errorBody": "請檢查網絡連線後再試。",
+    "retry": "再試一次"
+  }
+}

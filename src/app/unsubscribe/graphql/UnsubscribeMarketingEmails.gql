@@ -1,0 +1,4 @@
+# BE-76: no login needed; safe to call more than once.
+mutation UnsubscribeMarketingEmails($token: String!) {
+  unsubscribeMarketingEmails(token: $token)
+}
