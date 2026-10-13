@@ -101,7 +101,12 @@ function PostTaskButton() {
   )
 }
 
-function DesktopPrimaryNav() {
+/**
+ * Desktop links. My Tasks, Messages and Post task need an account (FE-216):
+ * they show only once a signed-in user has loaded, so guests never see them
+ * flash while the session resolves.
+ */
+function DesktopPrimaryNav({ signedIn }: { signedIn: boolean }) {
   const t = useI11n(bag)
   const pathname = usePathname() ?? ''
   const unread = useMessagesOptional()?.unreadCount ?? 0
@@ -117,9 +122,13 @@ function DesktopPrimaryNav() {
 
   const items = [
     { href: WORKER_SEARCH_HREF, label: t.nav.workers },
-    { href: '/tasks', label: t.myTasks },
-    { href: MESSAGES_HREF, label: t.messages },
-  ] as const
+    ...(signedIn
+      ? [
+          { href: '/tasks', label: t.myTasks },
+          { href: MESSAGES_HREF, label: t.messages },
+        ]
+      : []),
+  ]
 
   return (
     <HStack
@@ -166,7 +175,7 @@ function DesktopPrimaryNav() {
           </Link>
         )
       })}
-      <PostTaskButton />
+      {signedIn ? <PostTaskButton /> : null}
     </HStack>
   )
 }
@@ -253,7 +262,7 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
       </HStack>
 
       <HStack align="center" flexShrink={0} overflow="visible">
-        <DesktopPrimaryNav />
+        <DesktopPrimaryNav signedIn={isLoggedIn} />
         {showAuthSkeleton ? (
           <HeaderAuthSkeleton />
         ) : isLoggedIn ? (
