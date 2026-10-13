@@ -15,7 +15,6 @@ export type TaskDetailSectionId =
   | 'photos'
   | 'help'
   | 'activity'
-  | 'owner'
   | 'preview'
   | 'completion'
 
@@ -37,14 +36,14 @@ export type TaskDetailPinConflictGroup =
  * cards could pin:
  *
  * 1. Owner confirm-completion chrome
- * 2. Assigned worker: owner detail + contact
- * 3. Owner (open): preview-as-visitor CTA — also wins over view-quotes (quotes stay a tab)
- * 4. Worker with a pending quote: quote sent + edit-quote CTA
- * 5. Visitor / not-yet-quoted worker: pricing + send-quote CTA
+ * 2. Owner (open): preview-as-visitor CTA
+ * 3. Worker with a pending quote: quote sent + edit-quote CTA
+ * 4. Visitor / not-yet-quoted worker: pricing + send-quote CTA
+ *
+ * The assigned worker's contact lives on the main CTA (FE-258).
  */
 export const TASK_DETAIL_STICKY_PRIORITY = {
   completion: 100,
-  owner: 80,
   preview: 60,
   quoted: 50,
   pricing: 40,
@@ -143,22 +142,12 @@ export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [
     canPinMobile: () => false,
   },
   {
-    id: 'owner',
-    pinConflictGroup: TASK_DETAIL_PIN_CONFLICT_GROUP,
-    stickyPriority: TASK_DETAIL_STICKY_PRIORITY.owner,
-    showInFlow: (ctx) =>
-      !ctx.permissions.isOwner && (ctx.hasTask || ctx.pending),
-    // Assigned worker on an active job — owner identity + contact.
-    canPinMobile: (ctx) =>
-      ctx.permissions.isOrderWorker && ctx.permissions.isOrderActive,
-  },
-  {
     id: 'preview',
     pinConflictGroup: TASK_DETAIL_PIN_CONFLICT_GROUP,
     stickyPriority: TASK_DETAIL_STICKY_PRIORITY.preview,
     // Main CTA only; not a scroll-body card.
     showInFlow: () => false,
-    // Owner open task — preview wins over view-quotes (quotes stay a tab).
+    // Owner open task — preview wins over view-quotes.
     canPinMobile: (ctx) =>
       ctx.permissions.isOwner &&
       ctx.permissions.isOpen &&
@@ -170,7 +159,7 @@ export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [
     stickyPriority: TASK_DETAIL_STICKY_PRIORITY.completion,
     showInFlow: () => false,
     // Owner booking chrome. Assigned workers keep the booking panel in the
-    // scroll body so the owner+contact card can pin.
+    // scroll body; their contact sits on the main CTA.
     canPinMobile: (ctx) =>
       ctx.permissions.isOwner && ctx.permissions.showOrderActions,
   },
@@ -186,7 +175,6 @@ function emptyPlacements(
     photos: value,
     help: value,
     activity: value,
-    owner: value,
     preview: value,
     completion: value,
   }

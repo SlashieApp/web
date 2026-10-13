@@ -1,3 +1,4 @@
+import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import { buildSearchUrl } from '@/app/(task)/search/helpers/searchQueryParams'
 import type { OrderItem } from '@/utils/orderHelpers'
 
@@ -115,6 +116,92 @@ export function taskDetailCategoryTag(
   return {
     label,
     href: first ? buildSearchUrl({ taskCategory: first }) : null,
+  }
+}
+
+/**
+ * Every category as a chip (FE-258), each linking to search for it. Tasks
+ * without API categories fall back to the title heuristic.
+ */
+export function taskDetailCategoryChips(
+  task: Pick<TaskDetailRecord, 'title' | 'description' | 'categories'>,
+): TaskDetailLinkTag[] {
+  const categories = (task.categories ?? [])
+    .map((category) => category.trim())
+    .filter(Boolean)
+  if (categories.length === 0) {
+    const label = taskCategoryLabel(task)?.trim()
+    return label ? [{ label, href: null }] : []
+  }
+  return categories.map((category) => ({
+    label: taskCategoryDisplayLabel(category) ?? category,
+    href: buildSearchUrl({ taskCategory: category }),
+  }))
+}
+
+export type TaskDetailTimeChipCopy = TaskDetailTimeTagCopy & {
+  /** "By {date}" for a BEFORE schedule. */
+  byDate: string
+  startsInHours: string
+  startsInMinutes: string
+}
+
+export type TaskDetailTimeChip = {
+  label: string
+  tone: 'neutral' | 'success' | 'warning'
+  /** "Starts in 5 h" within 48 h of a known start time. */
+  countdown: string | null
+}
+
+const HOUR_MS = 60 * 60 * 1000
+
+/**
+ * Time chip for the Task details card: Flexible, or the date plus the start
+ * time. Success tone today, warning within 24 h of a known start.
+ */
+export function taskDetailTimeChip(
+  task: Pick<TaskDetailRecord, 'datetime'>,
+  copy: TaskDetailTimeChipCopy,
+  now = new Date(),
+  locale = 'en-GB',
+): TaskDetailTimeChip {
+  const day = taskDetailTimeTag(task, copy, now, locale)
+  const datePart = task.datetime?.date?.trim()
+  if (!day || !datePart || day === copy.flexible) {
+    return { label: copy.flexible, tone: 'neutral', countdown: null }
+  }
+  const clock = task.datetime?.time?.trim().match(CLOCK_TIME)?.[0] ?? null
+  const dayLabel =
+    task.datetime?.type === 'BEFORE' ? copy.byDate.replace('{date}', day) : day
+  const start = clock
+    ? new Date(`${datePart}T${clock.padStart(5, '0')}:00`)
+    : null
+  const untilStart =
+    start && !Number.isNaN(start.getTime())
+      ? start.getTime() - now.getTime()
+      : null
+  const upcoming = untilStart != null && untilStart > 0
+  const countdown =
+    upcoming && untilStart <= 48 * HOUR_MS
+      ? untilStart < HOUR_MS
+        ? copy.startsInMinutes.replace(
+            '{count}',
+            String(Math.max(1, Math.ceil(untilStart / 60_000))),
+          )
+        : copy.startsInHours.replace(
+            '{count}',
+            String(Math.round(untilStart / HOUR_MS)),
+          )
+      : null
+  return {
+    label: clock ? `${dayLabel} · ${clock}` : dayLabel,
+    tone:
+      day === copy.today
+        ? 'success'
+        : upcoming && untilStart <= 24 * HOUR_MS
+          ? 'warning'
+          : 'neutral',
+    countdown,
   }
 }
 

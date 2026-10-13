@@ -113,7 +113,10 @@
     "meta": {
       "today": "Today",
       "tomorrow": "Tomorrow",
-      "flexible": "Flexible"
+      "flexible": "Flexible",
+      "byDate": "By {date}",
+      "startsInHours": "Starts in {count} h",
+      "startsInMinutes": "Starts in {count} min"
     },
     "statusHeader": {
       "cancelledHeadline": "Task cancelled",
@@ -167,7 +170,6 @@
       "task": "Task",
       "views": "Views",
       "location": "Location",
-      "category": "Category",
       "when": "When",
       "preferredTiming": "Preferred timing",
       "budget": "Budget",
@@ -182,7 +184,13 @@
       "viewsOne": "{count} view",
       "viewsMany": "{count} views",
       "locationApproxNote": "Approximate area: the town and a map point within about 250 m. The exact address is shared once your quote is accepted.",
-      "locationOwnerNote": "Until you accept a quote, workers only see the town and a map point within about 250 m."
+      "locationOwnerNote": "Until you accept a quote, workers only see the town and a map point within about 250 m.",
+      "categories": "Categories",
+      "postedBy": "Posted by",
+      "nearTown": "Near {town}",
+      "locationHint": "About this location",
+      "showMore": "Show more",
+      "showLess": "Show less"
     },
     "analytics": {
       "views": "Views",
@@ -548,7 +556,10 @@
     "meta": {
       "today": "今天",
       "tomorrow": "明天",
-      "flexible": "時間彈性"
+      "flexible": "時間彈性",
+      "byDate": "{date}前",
+      "startsInHours": "{count} 小時後開始",
+      "startsInMinutes": "{count} 分鐘後開始"
     },
     "statusHeader": {
       "cancelledHeadline": "任務已取消",
@@ -602,7 +613,6 @@
       "task": "任務",
       "views": "瀏覽次數",
       "location": "地點",
-      "category": "類別",
       "when": "時間",
       "preferredTiming": "偏好時段",
       "budget": "預算",
@@ -617,7 +627,13 @@
       "viewsOne": "{count} 次瀏覽",
       "viewsMany": "{count} 次瀏覽",
       "locationApproxNote": "大約位置：只顯示地區名稱，以及約 250 米範圍內的地圖位置。報價被接受後才會提供確實地址。",
-      "locationOwnerNote": "在你接受報價前，工作者只會看到地區名稱，以及約 250 米範圍內的地圖位置。"
+      "locationOwnerNote": "在你接受報價前，工作者只會看到地區名稱，以及約 250 米範圍內的地圖位置。",
+      "categories": "類別",
+      "postedBy": "發佈者",
+      "nearTown": "{town}附近",
+      "locationHint": "關於這個位置",
+      "showMore": "顯示更多",
+      "showLess": "顯示較少"
     },
     "analytics": {
       "views": "瀏覽次數",

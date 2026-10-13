@@ -2,11 +2,13 @@ import { TaskDateTimeType } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import {
+  taskDetailCategoryChips,
   taskDetailCategoryTag,
   taskDetailDurationTag,
   taskDetailLocationTag,
   taskDetailLocationTown,
   taskDetailOwnerTag,
+  taskDetailTimeChip,
   taskDetailTimeTag,
 } from './taskDetailMetaTags'
 import { storyTaskDetail } from './taskDetailStoryFixtures'
@@ -87,5 +89,79 @@ describe('task detail meta tags', () => {
         timeCopy,
       ),
     ).toBe('Flexible')
+  })
+})
+
+describe('task detail card chips (FE-258)', () => {
+  const chipCopy = {
+    ...timeCopy,
+    byDate: 'By {date}',
+    startsInHours: 'Starts in {count} h',
+    startsInMinutes: 'Starts in {count} min',
+  }
+  const at = (date: string | null, time: string | null, type = 'EXACT') => ({
+    datetime: { type, date, time },
+  })
+
+  it('lists every category, linked to search, with no +N', () => {
+    const chips = taskDetailCategoryChips({
+      title: 'x',
+      description: 'y',
+      categories: ['Cleaning', 'MOVING', ' Painting '],
+    })
+    expect(chips.map((chip) => chip.label)).toEqual([
+      'Cleaning',
+      'Moving',
+      'Painting',
+    ])
+    expect(chips[2]?.href).toBe('/search?category=Painting')
+    expect(
+      taskDetailCategoryChips({
+        title: 'Deep clean',
+        description: '',
+        categories: [],
+      }),
+    ).toEqual([{ label: 'Cleaning', href: null }])
+  })
+
+  it('shows Flexible without a date, and date plus start time otherwise', () => {
+    const now = new Date('2026-10-13T08:00:00')
+    expect(
+      taskDetailTimeChip(at(null, null, 'FLEXIBLE') as never, chipCopy, now),
+    ).toEqual({ label: 'Flexible', tone: 'neutral', countdown: null })
+    expect(
+      taskDetailTimeChip(at('2026-10-18', '09:00') as never, chipCopy, now),
+    ).toEqual({ label: 'Sun 18 Oct · 09:00', tone: 'neutral', countdown: null })
+    expect(
+      taskDetailTimeChip(
+        at('2026-10-18', null, 'BEFORE') as never,
+        chipCopy,
+        now,
+      ).label,
+    ).toBe('By Sun 18 Oct')
+  })
+
+  it('counts down within 48 h, warns within 24 h, and marks today', () => {
+    const now = new Date('2026-10-13T08:00:00')
+    expect(
+      taskDetailTimeChip(at('2026-10-14', '20:00') as never, chipCopy, now),
+    ).toEqual({
+      label: 'Tomorrow · 20:00',
+      tone: 'neutral',
+      countdown: 'Starts in 36 h',
+    })
+    expect(
+      taskDetailTimeChip(at('2026-10-14', '7:00') as never, chipCopy, now),
+    ).toMatchObject({ tone: 'warning', countdown: 'Starts in 23 h' })
+    expect(
+      taskDetailTimeChip(at('2026-10-13', '08:20') as never, chipCopy, now),
+    ).toEqual({
+      label: 'Today · 08:20',
+      tone: 'success',
+      countdown: 'Starts in 20 min',
+    })
+    expect(
+      taskDetailTimeChip(at('2026-10-13', '07:00') as never, chipCopy, now),
+    ).toMatchObject({ tone: 'success', countdown: null })
   })
 })

@@ -7,10 +7,12 @@ import type { TaskDetailOverviewCardId } from '../../helpers/taskDetailMainCtaMo
 import { BookingSection } from './BookingSection'
 import { PhotosCard } from './PhotosCard'
 import { TaskDetailsCard } from './TaskDetailsCard'
-import { TaskOwnerCard } from './TaskOwnerCard'
 import { TaskPricingCard } from './TaskPricingCard'
 
-/** Overview tab cards. A card stays hidden when the main CTA already shows it. */
+/**
+ * Overview cards. A card stays hidden when the main CTA already shows it.
+ * The poster is a row in Task details, not its own card (FE-258).
+ */
 export function OverviewCards() {
   const { mainCta, permissions } = useTaskDetail()
   const hidden = new Set<TaskDetailOverviewCardId>(
@@ -28,7 +30,6 @@ export function OverviewCards() {
       {hidePrice ? null : <TaskPricingCard />}
       <TaskDetailsCard />
       <PhotosCard />
-      {hidden.has('owner') ? null : <TaskOwnerCard />}
     </Stack>
   )
 }

@@ -58,7 +58,6 @@ describe('TASK_DETAIL_SECTION_RULES', () => {
       'photos',
       'help',
       'activity',
-      'owner',
       'preview',
       'completion',
     ])
@@ -78,9 +77,6 @@ describe('TASK_DETAIL_SECTION_RULES', () => {
     const ranks = pinnable.map((rule) => rule.stickyPriority)
     expect(new Set(ranks).size).toBe(ranks.length)
     expect(TASK_DETAIL_STICKY_PRIORITY.completion).toBeGreaterThan(
-      TASK_DETAIL_STICKY_PRIORITY.owner,
-    )
-    expect(TASK_DETAIL_STICKY_PRIORITY.owner).toBeGreaterThan(
       TASK_DETAIL_STICKY_PRIORITY.preview,
     )
     expect(TASK_DETAIL_STICKY_PRIORITY.preview).toBeGreaterThan(
@@ -119,7 +115,6 @@ describe('resolveTaskDetailSections', () => {
       display: 'none',
       [`@media screen and ${TASK_DETAIL_DESKTOP_MQ}`]: { display: 'none' },
     })
-    expect(resolved.mobile.owner).toBe('flow')
     expect(resolved.mobile.preview).toBe('hidden')
     expect(resolved.mobile.completion).toBe('hidden')
   })
@@ -219,7 +214,7 @@ describe('resolveTaskDetailSections', () => {
     expect(withQuotes.mobile.pricing).toBe('flow')
   })
 
-  it('pins owner + contact for an assigned worker and leaves completion in the body', () => {
+  it('pins nothing in the body for an assigned worker (contact is on the main CTA)', () => {
     const resolved = resolveTaskDetailSections({
       hasTask: true,
       pending: false,
@@ -237,15 +232,9 @@ describe('resolveTaskDetailSections', () => {
         showFullAddress: true,
       }),
     })
-    expect(resolved.pinnedId).toBe('owner')
-    expect(resolved.mobile.owner).toBe('pin')
-    expect(resolved.desktop.owner).toBe('flow')
+    expect(resolved.pinnedId).toBeNull()
     expect(resolved.mobile.completion).toBe('hidden')
     expect(resolved.mobile.pricing).toBe('flow')
-    expect(sectionFlowDisplay('owner', resolved)).toEqual({
-      base: 'none',
-      lg: 'block',
-    })
   })
 
   it('lets owner confirm-completion beat preview when the order is active', () => {
@@ -268,7 +257,6 @@ describe('resolveTaskDetailSections', () => {
     expect(resolved.pinnedId).toBe('completion')
     expect(resolved.mobile.completion).toBe('pin')
     expect(resolved.mobile.preview).toBe('hidden')
-    expect(resolved.mobile.owner).toBe('hidden')
   })
 
   it('never pins two mobile-bottom cards at once', () => {

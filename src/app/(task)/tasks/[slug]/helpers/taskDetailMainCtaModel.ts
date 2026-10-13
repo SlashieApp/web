@@ -20,7 +20,7 @@ import {
 } from './taskDetailUtils'
 import type { TaskDetailRecord } from './taskDetailUtils'
 
-export type TaskDetailOverviewCardId = 'pricing' | 'owner'
+export type TaskDetailOverviewCardId = 'pricing'
 
 export type TaskDetailMainCtaContent = {
   eyebrow: string
@@ -298,8 +298,7 @@ export function buildTaskDetailMainCta(input: {
         eyebrow: copy.closeEyebrow,
         value: onSiteWhen(schedule, copy),
       },
-      hideOverviewCards:
-        kind === 'workerBooked' ? ['pricing', 'owner'] : ['pricing'],
+      hideOverviewCards: ['pricing'],
     }
   }
 
@@ -319,7 +318,7 @@ export function buildTaskDetailMainCta(input: {
       contact.label,
       { eyebrow: copy.beOnSite, value: onSiteWhen(schedule, copy) },
       { href: contact.href },
-      ['pricing', 'owner'],
+      ['pricing'],
     )
   }
 

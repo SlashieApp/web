@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('OverviewCards layout', () => {
-  it('stacks pricing, details, photos, then owner in a single column', () => {
+  it('stacks pricing, details, then photos in a single column, with no owner card', () => {
     const src = readFileSync(join(dir, 'OverviewCards.tsx'), 'utf8')
     expect(src.indexOf('<BookingSection />')).toBeLessThan(
       src.indexOf('<TaskPricingCard />'),
@@ -18,10 +18,7 @@ describe('OverviewCards layout', () => {
     expect(src.indexOf('<TaskDetailsCard />')).toBeLessThan(
       src.indexOf('<PhotosCard />'),
     )
-    expect(src.indexOf('<PhotosCard />')).toBeLessThan(
-      src.indexOf('<TaskOwnerCard />'),
-    )
-    expect(src).toContain('<TaskOwnerCard />')
+    expect(src).not.toContain('TaskOwnerCard')
     expect(src).toContain('hideOverviewCards')
     expect(src).not.toContain('TaskShareCard')
     expect(src).not.toContain('TaskHelpCard')
@@ -38,7 +35,6 @@ describe('OverviewCards layout', () => {
     expect(sections).toContain('permissions.isAwarded')
     expect(sections).toContain('permissions.isJobCompleted')
     expect(sections).toContain('permissions.isCancelled')
-    expect(sections).toContain("hidden.has('owner')")
     expect(view).toContain('taskDetailPinClearance')
     expect(view).toContain('TaskDetailTabs')
   })

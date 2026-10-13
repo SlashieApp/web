@@ -213,7 +213,7 @@ describe('buildTaskDetailMainCta', () => {
       presentation: 'quoted',
       buttonLabel: 'Contact customer',
       href: 'tel:07700900123',
-      hideOverviewCards: ['pricing', 'owner'],
+      hideOverviewCards: ['pricing'],
       content: { eyebrow: 'Be on site' },
     })
     expect(model?.content?.value).toEqual(expect.any(String))
@@ -242,7 +242,7 @@ describe('buildTaskDetailMainCta', () => {
       presentation: 'close',
       buttonLabel: 'Slide to mark Done',
       content: { eyebrow: 'Job time has started' },
-      hideOverviewCards: ['pricing', 'owner'],
+      hideOverviewCards: ['pricing'],
     })
     expect(
       buildTaskDetailMainCta({ ...input, close: { ...close, mine: 'DONE' } }),
