@@ -1,6 +1,7 @@
 'use client'
 
-import { HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Image, Stack, Text } from '@chakra-ui/react'
+import { useState } from 'react'
 import { LuBadgeCheck, LuMessageCircle } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -8,7 +9,6 @@ import { useI11n } from '@/i18n/useI11n'
 import { Badge, Button, IconButton, Link } from '@ui'
 
 import bag from '../../i11n.json'
-import { QuoteCardAvatar } from './QuoteCard'
 
 export type QuoteRowStatus = 'accepted' | 'declined' | 'notSelected' | 'yours'
 
@@ -77,7 +77,7 @@ export function QuoteRow({
     : null
   const meta = [availabilityLabel, respondedLabel].filter(Boolean).join(' · ')
   const avatar = (
-    <QuoteCardAvatar
+    <QuoteAvatar
       name={name}
       avatarLabel={avatarLabel}
       avatarUrl={avatarUrl}
@@ -207,5 +207,60 @@ export function QuoteRow({
         </HStack>
       ) : null}
     </Stack>
+  )
+}
+
+function avatarGradient(seed: string): string {
+  let h = 0
+  for (let i = 0; i < seed.length; i += 1)
+    h = (h * 31 + seed.charCodeAt(i)) >>> 0
+  const hue = h % 360
+  return `linear-gradient(135deg, hsl(${hue} 55% 42%) 0%, hsl(${(hue + 40) % 360} 60% 36%) 100%)`
+}
+
+/** Photo, or initials on a name-seeded gradient when there is none. */
+function QuoteAvatar({
+  name,
+  avatarLabel,
+  avatarUrl,
+  size = '48px',
+}: {
+  name: string
+  avatarLabel: string
+  avatarUrl?: string | null
+  size?: string
+}) {
+  const [imageFailed, setImageFailed] = useState(false)
+  const { quotes: q } = useI11n(bag)
+  const showImage = Boolean(avatarUrl?.trim()) && !imageFailed
+
+  return (
+    <Box
+      flexShrink={0}
+      boxSize={size}
+      borderRadius="full"
+      bg={avatarGradient(name + avatarLabel)}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      color="white"
+      fontWeight={700}
+      fontSize="sm"
+      letterSpacing="0.02em"
+      overflow="hidden"
+    >
+      {showImage && avatarUrl ? (
+        <Image
+          src={avatarUrl}
+          alt={formatMessage(q.card.avatarAlt, { name })}
+          w="full"
+          h="full"
+          objectFit="cover"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        avatarLabel.slice(0, 2).toUpperCase()
+      )}
+    </Box>
   )
 }
