@@ -44,6 +44,9 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   EMAIL_OR_PHONE_IN_USE:
     'This email or phone is already registered to another account.',
   EMAIL_NOT_VERIFIED: 'Verify your email to continue.',
+  CATEGORY_REQUIRED: 'Add at least one category.',
+  TOO_MANY_CATEGORIES: 'Use up to 10 categories.',
+  CATEGORY_TOO_LONG: 'Keep each category under 64 characters.',
   PHONE_NOT_VERIFIED: 'Verify your phone to continue.',
   MONTHLY_CONNECTION_LIMIT_REACHED:
     "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade to Slashie Unlimited for unlimited quotes, or try again next month.",

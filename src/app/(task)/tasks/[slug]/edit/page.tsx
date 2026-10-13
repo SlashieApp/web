@@ -137,7 +137,7 @@ function EditTaskFormBody({
   const preferredContactMethod = watch('preferredContactMethod')
   const title = watch('title')
   const description = watch('description')
-  const category = watch('category')
+  const categories = watch('categories')
   const budgetMajor = watch('budgetMajor')
 
   const preview = editTaskPreviewLabels(
@@ -148,7 +148,7 @@ function EditTaskFormBody({
       datetimeType,
       preferredDate,
       preferredTime,
-      category,
+      categories,
       budgetMajor,
       budgetCurrency,
     },
@@ -401,9 +401,16 @@ function EditTaskFormBody({
           <CreateTaskBasicsSection
             sectionHeading={t.sections.basics}
             register={sharedRegister}
+            categories={categories}
+            onCategoriesChange={(next) =>
+              setValue('categories', next, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
             fieldErrors={{
               title: errors.title?.message,
-              category: errors.category?.message,
+              categories: errors.categories?.message,
               description: errors.description?.message,
             }}
           />

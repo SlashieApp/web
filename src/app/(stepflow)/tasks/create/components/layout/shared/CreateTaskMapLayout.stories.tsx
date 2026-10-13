@@ -90,7 +90,12 @@ function CreateTaskMapDemo({
           locateUnavailable={locateUnavailable}
         />
       ) : (
-        <CreateTaskBasicsSection bare register={register} />
+        <CreateTaskBasicsSection
+          bare
+          register={register}
+          categories={['Plumbing']}
+          onCategoriesChange={() => {}}
+        />
       )}
     </CreateTaskMapLayout>
   )

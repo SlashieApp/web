@@ -31,7 +31,6 @@ import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import { MARKETPLACE_MAP_MOTION_MS } from '@/app/(task)/helpers/marketplaceMap/motion'
-import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import { taskToEditFormValues } from '@/app/(task)/helpers/taskEditHelpers'
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import Me from '@/graphql/Me.gql'
@@ -206,7 +205,7 @@ function CreateTaskFormBody({
     resolver: zodResolver(createTaskFormSchema),
     defaultValues: {
       title: readDraftTitleFromUrl(),
-      category: '',
+      categories: [],
       description: '',
       streetAddress: '',
       mapPlaceName: '',
@@ -226,6 +225,7 @@ function CreateTaskFormBody({
     },
   })
 
+  const categories = watch('categories')
   const mapPlaceName = watch('mapPlaceName')
   const locationLat = watch('locationLat')
   const locationLng = watch('locationLng')
@@ -396,7 +396,7 @@ function CreateTaskFormBody({
     reset({
       ...getValues(),
       title: values.title,
-      category: values.category,
+      categories: values.categories,
       description: values.description,
       streetAddress: values.streetAddress,
       mapPlaceName: values.mapPlaceName,
@@ -511,9 +511,7 @@ function CreateTaskFormBody({
           input: {
             title: values.title.trim(),
             description: values.description.trim(),
-            categories: [
-              taskCategoryDisplayLabel(values.category) ?? values.category,
-            ],
+            categories: values.categories,
             budget: {
               amount: parsedBudget,
               currency: values.budgetCurrency,
@@ -695,9 +693,16 @@ function CreateTaskFormBody({
           <CreateTaskBasicsSection
             bare
             register={register}
+            categories={categories}
+            onCategoriesChange={(next) =>
+              setValue('categories', next, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
             fieldErrors={{
               title: errors.title?.message,
-              category: errors.category?.message,
+              categories: errors.categories?.message,
               description: errors.description?.message,
             }}
           />

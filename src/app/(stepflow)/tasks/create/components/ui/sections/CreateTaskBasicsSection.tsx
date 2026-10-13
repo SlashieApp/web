@@ -2,10 +2,10 @@
 
 import type { UseFormRegister } from 'react-hook-form'
 
-import { TASK_CREATE_CATEGORY_OPTIONS } from '@/app/(task)/helpers/taskCategories'
-import { FormField, Input, Select, Textarea } from '@ui'
+import { FormField, Input, Textarea } from '@ui'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
 import { CreateTaskSection } from '../../layout/shared/CreateTaskSection'
+import { CreateTaskCategoriesInput } from './CreateTaskCategoriesInput'
 
 export type CreateTaskBasicsSectionProps = {
   /** Bare mode for the stepped create flow (no Card/heading). */
@@ -13,9 +13,12 @@ export type CreateTaskBasicsSectionProps = {
   /** Card header text (card mode only). */
   sectionHeading?: string
   register: UseFormRegister<CreateTaskFormFieldValues>
+  /** Tag-style categories (FE-211); not a registered input. */
+  categories: string[]
+  onCategoriesChange: (categories: string[]) => void
   fieldErrors?: {
     title?: string
-    category?: string
+    categories?: string
     description?: string
   }
 }
@@ -24,6 +27,8 @@ export function CreateTaskBasicsSection({
   bare = false,
   sectionHeading = '1. Task basics',
   register,
+  categories,
+  onCategoriesChange,
   fieldErrors,
 }: CreateTaskBasicsSectionProps) {
   return (
@@ -35,25 +40,11 @@ export function CreateTaskBasicsSection({
         />
       </FormField>
 
-      <FormField
-        label="Category"
-        errorText={fieldErrors?.category}
-        helperText="Choose the closest match—workers filter discovery by category."
-        helperTextProps={{
-          fontSize: 'xs',
-          color: 'text.muted',
-          mt: 1,
-        }}
-      >
-        <Select {...register('category')}>
-          <option value="">Select a category…</option>
-          {TASK_CREATE_CATEGORY_OPTIONS.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </Select>
-      </FormField>
+      <CreateTaskCategoriesInput
+        value={categories}
+        onChange={onCategoriesChange}
+        errorText={fieldErrors?.categories}
+      />
 
       <FormField label="Description" errorText={fieldErrors?.description}>
         <Textarea

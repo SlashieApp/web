@@ -14,10 +14,7 @@ import {
   toYmd,
 } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
 import type { EditTaskFormValues } from '@/app/(task)/tasks/edit/editTaskFormSchema'
-import {
-  taskCategoryDisplayLabel,
-  taskCreateCategorySchema,
-} from './taskCategories'
+import { taskCategoryLabels } from './taskCategories'
 
 export type EditableTask = NonNullable<TaskForEditQuery['task']>
 
@@ -43,15 +40,10 @@ export function taskToEditFormValues(task: EditableTask): EditTaskFormValues {
   const lat = task.location?.lat
   const lng = task.location?.lng
 
-  const categoryParsed = taskCreateCategorySchema.safeParse(
-    task.categories?.[0]?.trim().toUpperCase().replace(/\s+/g, '_') ?? '',
-  )
-
   return {
     title: task.title?.trim() ?? '',
-    category: categoryParsed.success
-      ? categoryParsed.data
-      : taskCreateCategorySchema.parse('GENERAL'),
+    // Legacy codes (HANDYMAN) become their labels, so a save tidies them.
+    categories: taskCategoryLabels(task.categories),
     description: task.description?.trim() ?? '',
     streetAddress: task.location?.address?.trim() ?? '',
     mapPlaceName: task.location?.name?.trim() ?? '',
@@ -80,7 +72,7 @@ export function buildUpdateTaskInput(values: EditTaskFormValues) {
   return {
     title: values.title.trim(),
     description: values.description.trim(),
-    categories: [taskCategoryDisplayLabel(values.category) ?? values.category],
+    categories: values.categories,
     budget: {
       amount: parsedBudget,
       currency: values.budgetCurrency,

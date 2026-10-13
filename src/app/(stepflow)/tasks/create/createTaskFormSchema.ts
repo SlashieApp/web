@@ -8,19 +8,11 @@ import {
   TaskPaymentMethod,
 } from '@codegen/schema'
 
-import { taskCreateCategorySchema } from '@/app/(task)/helpers/taskCategories'
+import { taskCategoriesSchema } from '@/app/(task)/helpers/taskCategories'
 
 export const taskDetailsFields = {
   title: z.string().trim().min(1, 'Please add a task title.'),
-  category: z
-    .string()
-    .transform((s) => s.trim())
-    .pipe(
-      z
-        .string()
-        .min(1, 'Please choose a task category.')
-        .pipe(taskCreateCategorySchema),
-    ),
+  categories: taskCategoriesSchema,
   description: z
     .string()
     .trim()

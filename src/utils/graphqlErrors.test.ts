@@ -38,6 +38,12 @@ describe('plain resolver errors', () => {
     )
   })
 
+  it('reads the BE-79 codes', () => {
+    expect(getGraphQLErrorCode(internal('TOO_MANY_CATEGORIES'))).toBe(
+      'TOO_MANY_CATEGORIES',
+    )
+  })
+
   it('keeps INTERNAL_SERVER_ERROR for unknown messages', () => {
     expect(getGraphQLErrorCode(internal('boom'))).toBe('INTERNAL_SERVER_ERROR')
   })

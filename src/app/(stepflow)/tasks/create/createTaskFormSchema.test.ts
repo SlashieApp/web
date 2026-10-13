@@ -11,7 +11,7 @@ import { createTaskFormSchema } from './createTaskFormSchema'
 
 const valid = {
   title: 'Garden tidy',
-  category: 'GENERAL',
+  categories: ['General'],
   description: 'Clear the patio and bag the waste.',
   streetAddress: '1 High Street',
   mapPlaceName: 'Clapham',

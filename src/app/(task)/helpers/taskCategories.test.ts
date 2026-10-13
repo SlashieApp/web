@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { taskCategoriesSummary, taskCategoryLabels } from './taskCategories'
+import {
+  TASK_CATEGORIES_MAX,
+  addTaskCategories,
+  suggestedTaskCategories,
+  taskCategoriesSchema,
+  taskCategoriesSummary,
+  taskCategoryLabels,
+} from './taskCategories'
 
 describe('task categories (BE-79)', () => {
   it('labels open strings and legacy codes', () => {
@@ -20,5 +27,36 @@ describe('task categories (BE-79)', () => {
       'Cleaning, Moving +1',
     )
     expect(taskCategoriesSummary([])).toBeNull()
+  })
+})
+
+describe('addTaskCategories', () => {
+  it('normalises, splits on commas and skips duplicates ignoring case', () => {
+    expect(
+      addTaskCategories(['Cleaning'], '  dog   walking , cleaning,'),
+    ).toEqual({ categories: ['Cleaning', 'dog walking'] })
+  })
+
+  it('stops at the API limits', () => {
+    const full = Array.from({ length: TASK_CATEGORIES_MAX }, (_, i) => `C${i}`)
+    expect(addTaskCategories(full, 'One more').error).toBe('tooMany')
+    expect(addTaskCategories([], 'x'.repeat(65)).error).toBe('tooLong')
+  })
+})
+
+describe('suggestedTaskCategories', () => {
+  it('puts popular first, adds starters, hides added, dedupes', () => {
+    const out = suggestedTaskCategories(['Dog walking', 'cleaning'], ['Moving'])
+    expect(out.slice(0, 2)).toEqual(['Dog walking', 'cleaning'])
+    expect(out).not.toContain('Cleaning')
+    expect(out).not.toContain('Moving')
+    expect(out).toContain('Plumbing')
+  })
+})
+
+describe('taskCategoriesSchema', () => {
+  it('needs 1 to 10 categories', () => {
+    expect(taskCategoriesSchema.safeParse([]).success).toBe(false)
+    expect(taskCategoriesSchema.safeParse(['Cleaning']).success).toBe(true)
   })
 })

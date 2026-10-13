@@ -70,3 +70,79 @@ export function taskCategoriesSummary(
   const shown = labels.slice(0, max).join(', ')
   return labels.length > max ? `${shown} +${labels.length - max}` : shown
 }
+
+/** BE-79 limits, mirrored so the form says so before the API does. */
+export const TASK_CATEGORIES_MAX = 10
+export const TASK_CATEGORY_MAX_CHARS = 64
+
+/** Offered until real tasks make `popularTaskCategories` useful. */
+export const STARTER_TASK_CATEGORIES: readonly string[] = [
+  'Cleaning',
+  'Moving',
+  'Repairs',
+  'Plumbing',
+  'Electrical',
+  'Gardening',
+  'Painting',
+  'Assembly',
+]
+
+/** Trim and collapse inner spaces, as the API does. */
+export function normaliseTaskCategory(raw: string): string {
+  return raw.trim().replace(/\s+/g, ' ')
+}
+
+export type AddTaskCategoryResult = {
+  categories: string[]
+  error?: 'tooMany' | 'tooLong'
+}
+
+/**
+ * Add a typed or suggested category. Comma-separated input adds several.
+ * Duplicates (ignoring case) and blanks are skipped, like the API.
+ */
+export function addTaskCategories(
+  current: readonly string[],
+  raw: string,
+): AddTaskCategoryResult {
+  const next = [...current]
+  const seen = new Set(next.map((c) => c.toLowerCase()))
+  for (const part of raw.split(',')) {
+    const category = normaliseTaskCategory(part)
+    if (!category || seen.has(category.toLowerCase())) continue
+    if (category.length > TASK_CATEGORY_MAX_CHARS) {
+      return { categories: next, error: 'tooLong' }
+    }
+    if (next.length >= TASK_CATEGORIES_MAX) {
+      return { categories: next, error: 'tooMany' }
+    }
+    next.push(category)
+    seen.add(category.toLowerCase())
+  }
+  return { categories: next }
+}
+
+/** Popular categories first, then the starter list; none already added. */
+export function suggestedTaskCategories(
+  popular: readonly string[],
+  added: readonly string[],
+  limit = 12,
+): string[] {
+  const seen = new Set(added.map((c) => c.toLowerCase()))
+  const out: string[] = []
+  for (const raw of [...popular, ...STARTER_TASK_CATEGORIES]) {
+    const category = normaliseTaskCategory(raw)
+    const key = category.toLowerCase()
+    if (!category || seen.has(key)) continue
+    seen.add(key)
+    out.push(category)
+    if (out.length >= limit) break
+  }
+  return out
+}
+
+/** Form field: 1 to 10 categories, each up to 64 characters. */
+export const taskCategoriesSchema = z
+  .array(z.string().trim().min(1).max(TASK_CATEGORY_MAX_CHARS))
+  .min(1, 'Add at least one category.')
+  .max(TASK_CATEGORIES_MAX, `Up to ${TASK_CATEGORIES_MAX} categories.`)

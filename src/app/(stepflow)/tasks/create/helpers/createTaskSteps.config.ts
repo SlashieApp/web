@@ -78,7 +78,7 @@ export const CREATE_TASK_STEP_COPY: Record<
   },
   'details.basics': {
     title: 'What needs doing?',
-    description: 'Give your task a clear title, category, and description.',
+    description: 'Give your task a clear title, categories, and description.',
   },
   'details.timing': {
     title: 'When do you need it?',
@@ -112,7 +112,7 @@ export const CREATE_TASK_STEP_FIELDS: Record<
     'locationLng',
     'streetAddress',
   ],
-  'details.basics': ['title', 'category', 'description'],
+  'details.basics': ['title', 'categories', 'description'],
   'details.timing': ['datetimeType', 'preferredDate', 'preferredTime'],
   'publish.photos': [],
   'publish.budget': [

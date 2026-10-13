@@ -1,6 +1,6 @@
 import { TaskDateTimeType } from '@codegen/schema'
 
-import { TASK_CREATE_CATEGORY_OPTIONS } from '@/app/(task)/helpers/taskCategories'
+import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { formatBudgetAmount } from '@/utils/price'
 
@@ -19,7 +19,7 @@ type EditTaskPreviewInput = {
   datetimeType: TaskDateTimeType
   preferredDate: string
   preferredTime: string
-  category: string
+  categories: readonly string[]
   budgetMajor: string | number | undefined
   budgetCurrency: string
 }
@@ -67,9 +67,6 @@ export function editTaskPreviewLabels(
   dateLocale: string,
 ) {
   const place = values.mapPlaceName.trim()
-  const category = TASK_CREATE_CATEGORY_OPTIONS.find(
-    (option) => option.value === values.category,
-  )
   const amount = Number(values.budgetMajor)
   const hasBudget =
     values.budgetMajor !== '' && Number.isFinite(amount) && amount > 0
@@ -77,7 +74,7 @@ export function editTaskPreviewLabels(
   return {
     locationLabel: place ? taskDetailLocationTown(place) : null,
     whenLabel: editTaskPreviewWhen(values, copy, dateLocale),
-    categoryLabel: category?.label ?? null,
+    categoryLabel: taskCategoriesSummary(values.categories, 2),
     budgetLabel: hasBudget
       ? formatBudgetAmount({ amount, currency: values.budgetCurrency })
       : null,

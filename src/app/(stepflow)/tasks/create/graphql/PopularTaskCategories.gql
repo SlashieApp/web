@@ -1,0 +1,4 @@
+# BE-79: most-used categories on open tasks (anonymous OK).
+query PopularTaskCategories($first: Int) {
+  popularTaskCategories(first: $first)
+}
