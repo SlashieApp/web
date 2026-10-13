@@ -492,7 +492,7 @@ export default function LoginPage() {
                       startElement={<FieldIconMail />}
                       placeholder="you@example.com"
                       type="email"
-                      autoComplete="email"
+                      autoComplete="username"
                       rootProps={{ minH: '48px', w: 'full' }}
                       {...register('email')}
                     />

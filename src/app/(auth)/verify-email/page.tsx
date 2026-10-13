@@ -61,6 +61,7 @@ function VerifyEmailContent() {
   const {
     resend,
     isSending,
+    isSent,
     message: resendMessage,
   } = useResendVerificationEmail()
 
@@ -160,7 +161,7 @@ function VerifyEmailContent() {
         <Stack gap={5} align="center" textAlign="center">
           {state === 'loading' ? (
             <>
-              <Heading size="xl" color="text.default">
+              <Heading as="h1" size="xl" color="text.default">
                 {t.loadingTitle}
               </Heading>
               <Text color="text.muted" fontSize="sm">
@@ -171,7 +172,7 @@ function VerifyEmailContent() {
 
           {state === 'success' ? (
             <>
-              <Heading size="xl" color="text.default">
+              <Heading as="h1" size="xl" color="text.default">
                 {t.successTitle}
               </Heading>
               <Text color="text.muted" fontSize="sm">
@@ -182,7 +183,7 @@ function VerifyEmailContent() {
 
           {state === 'invalid-link' ? (
             <>
-              <Heading size="xl" color="text.default">
+              <Heading as="h1" size="xl" color="text.default">
                 {t.invalidTitle}
               </Heading>
               <Text color="text.muted" fontSize="sm">
@@ -214,7 +215,7 @@ function VerifyEmailContent() {
 
           {state === 'error' ? (
             <>
-              <Heading size="xl" color="text.default">
+              <Heading as="h1" size="xl" color="text.default">
                 {t.errorTitle}
               </Heading>
               <Text color="text.muted" fontSize="sm">
@@ -256,9 +257,13 @@ function VerifyEmailContent() {
           ) : null}
 
           {resendMessage && state !== 'loading' ? (
-            <Text fontSize="sm" color="status.success.fg">
+            <Box
+              as="output"
+              fontSize="sm"
+              color={isSent ? 'status.success.fg' : 'status.danger.fg'}
+            >
               {resendMessage}
-            </Text>
+            </Box>
           ) : null}
         </Stack>
       </Card>

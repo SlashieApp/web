@@ -4,7 +4,7 @@
     "sessionLoadingTrack": "Loading",
     "suspended": {
       "ariaLabel": "Account suspension notice",
-      "beforeEmail": "This user is being suspended, please contact ",
+      "beforeEmail": "Your account has been suspended. Contact ",
       "afterEmail": ".",
       "email": "accounts@slashie.app"
     },
@@ -33,7 +33,7 @@
     "sessionLoadingTrack": "載入中",
     "suspended": {
       "ariaLabel": "帳戶暫停通知",
-      "beforeEmail": "此用戶已被暫停，請聯絡 ",
+      "beforeEmail": "你的帳戶已被暫停，請聯絡 ",
       "afterEmail": "。",
       "email": "accounts@slashie.app"
     },

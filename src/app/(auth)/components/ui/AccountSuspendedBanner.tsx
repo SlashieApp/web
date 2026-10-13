@@ -44,7 +44,7 @@ export function AccountSuspendedBanner() {
       <Box ref={onHydrateRef} display="none" aria-hidden />
       {visible ? (
         <Box
-          as="section"
+          role="alert"
           aria-label={t.ariaLabel}
           bg="status.warning.soft"
           borderBottomWidth="1px"

@@ -91,7 +91,7 @@ export function ForgotPasswordForm() {
           </Box>
 
           <Box>
-            <Heading size="xl" color="text.default">
+            <Heading as="h1" size="xl" color="text.default">
               {t.title}
             </Heading>
             <Text mt={2} color="text.muted" fontSize="sm" maxW="xs" mx="auto">

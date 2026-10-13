@@ -71,7 +71,7 @@ export function ForgotPasswordSentPanel() {
 
       <Card w="full" maxW="full" p={{ base: 6, md: 10 }}>
         <Stack gap={5} align="center" textAlign="center">
-          <Heading size="xl" color="text.default">
+          <Heading as="h1" size="xl" color="text.default">
             {t.title}
           </Heading>
           <Text color="text.muted" fontSize="sm" lineHeight="1.6">

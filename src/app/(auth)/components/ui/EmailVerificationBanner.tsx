@@ -9,7 +9,7 @@ import { Button, Link } from '@ui'
 
 export function EmailVerificationBanner() {
   const me = useMe()
-  const { resend, isSending, message } = useResendVerificationEmail()
+  const { resend, isSending, isSent, message } = useResendVerificationEmail()
 
   if (!me || isEmailVerified(me)) return null
 
@@ -33,9 +33,13 @@ export function EmailVerificationBanner() {
         </Text>
         <HStack gap={2} flexWrap="wrap" align="center">
           {message ? (
-            <Text fontSize="xs" color="status.success.fg">
+            <Box
+              as="output"
+              fontSize="xs"
+              color={isSent ? 'status.success.fg' : 'status.danger.fg'}
+            >
               {message}
-            </Text>
+            </Box>
           ) : null}
           <Link
             href="/verify-email/sent"

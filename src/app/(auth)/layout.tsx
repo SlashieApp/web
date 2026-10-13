@@ -27,7 +27,7 @@ export default function AuthLayout({
       bg="bg.subtle"
       display="flex"
       flexDirection="column"
-      minH="100vh"
+      minH="100dvh"
       w="full"
     >
       <AccountSuspendedBanner />
@@ -35,7 +35,7 @@ export default function AuthLayout({
         flex={1}
         display="flex"
         flexDirection="column"
-        minH="100vh"
+        minH="100dvh"
         py={{ base: 10, md: 12 }}
         overflow="visible"
       >
@@ -43,7 +43,14 @@ export default function AuthLayout({
           {isLoginOrRegister ? (
             children
           ) : (
-            <Stack flex={1} justify="center" maxW="md" w="full" gap={8}>
+            <Stack
+              flex={1}
+              justify="center"
+              maxW="md"
+              w="full"
+              mx="auto"
+              gap={8}
+            >
               {children}
             </Stack>
           )}
