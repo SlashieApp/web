@@ -1,6 +1,5 @@
 export const TASK_DETAIL_TAB = {
   overview: 'overview',
-  quotes: 'quotes',
   analytics: 'analytics',
 } as const
 
@@ -9,9 +8,13 @@ export type TaskDetailTab =
 
 const TAB_VALUES = new Set<string>(Object.values(TASK_DETAIL_TAB))
 
-/** Hashes that scroll Overview to booking / complete-job anchors. */
+/**
+ * Hashes that open Overview: booking / complete-job anchors, the retired
+ * `#activity`, and `#quotes` (quotes are an Overview section since FE-258).
+ */
 const OVERVIEW_ANCHOR_HASHES = new Set([
   'activity',
+  'quotes',
   'task-order',
   'worker-job-panel',
 ])
@@ -35,7 +38,6 @@ export function resolveTaskDetailTab(
 ): TaskDetailTab {
   const key = hash.replace('#', '').trim()
   if (key === 'info' || key === 'overview') return TASK_DETAIL_TAB.overview
-  if (key === 'quotes') return TASK_DETAIL_TAB.quotes
   if (key === 'analytics' || key === 'owner-task-performance') {
     return TASK_DETAIL_TAB.analytics
   }
@@ -45,10 +47,10 @@ export function resolveTaskDetailTab(
 }
 
 /**
- * MVP is one accepted worker. After a quote is accepted the Quotes tab is
- * retired — the agreement lives on the Booking / Order card.
+ * MVP is one accepted worker. After a quote is accepted the Quotes section is
+ * retired; the agreement lives on the Booking / Order card.
  */
-export function showTaskDetailQuotesTab(input: {
+export function showTaskDetailQuotesSection(input: {
   isOpen: boolean
   isAwarded: boolean
   isClosed: boolean
@@ -58,22 +60,6 @@ export function showTaskDetailQuotesTab(input: {
   if (!input.isOpen || input.isAwarded || input.atCap) return false
   if (input.isClosed && !input.isCancelled) return false
   return true
-}
-
-export function defaultTaskDetailTab(input: {
-  isOwner: boolean
-  isOpen: boolean
-  isAwarded: boolean
-  isOrderWorker: boolean
-  quoteCount: number
-}): TaskDetailTab {
-  if (input.isAwarded && (input.isOwner || input.isOrderWorker)) {
-    return TASK_DETAIL_TAB.overview
-  }
-  if (input.isOwner && input.isOpen && input.quoteCount > 0) {
-    return TASK_DETAIL_TAB.quotes
-  }
-  return TASK_DETAIL_TAB.overview
 }
 
 export function writeTaskDetailHash(hash: string) {

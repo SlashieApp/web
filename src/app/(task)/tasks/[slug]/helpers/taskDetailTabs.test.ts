@@ -2,21 +2,21 @@ import { describe, expect, it } from 'vitest'
 
 import {
   TASK_DETAIL_TAB,
-  defaultTaskDetailTab,
   resolveTaskDetailTab,
-  showTaskDetailQuotesTab,
+  showTaskDetailQuotesSection,
 } from './taskDetailTabs'
 
 describe('resolveTaskDetailTab', () => {
   it('maps overview aliases and booking hashes', () => {
-    expect(resolveTaskDetailTab('overview', TASK_DETAIL_TAB.quotes)).toBe(
+    expect(resolveTaskDetailTab('overview', TASK_DETAIL_TAB.analytics)).toBe(
       'overview',
     )
-    expect(resolveTaskDetailTab('info', TASK_DETAIL_TAB.quotes)).toBe(
+    expect(resolveTaskDetailTab('info', TASK_DETAIL_TAB.analytics)).toBe(
       'overview',
     )
-    expect(resolveTaskDetailTab('quotes', TASK_DETAIL_TAB.overview)).toBe(
-      'quotes',
+    // Quotes are an Overview section now (FE-258).
+    expect(resolveTaskDetailTab('quotes', TASK_DETAIL_TAB.analytics)).toBe(
+      'overview',
     )
     expect(resolveTaskDetailTab('analytics', TASK_DETAIL_TAB.overview)).toBe(
       'analytics',
@@ -24,23 +24,25 @@ describe('resolveTaskDetailTab', () => {
     expect(
       resolveTaskDetailTab('owner-task-performance', TASK_DETAIL_TAB.overview),
     ).toBe('analytics')
-    expect(resolveTaskDetailTab('activity', TASK_DETAIL_TAB.quotes)).toBe(
+    expect(resolveTaskDetailTab('activity', TASK_DETAIL_TAB.analytics)).toBe(
       'overview',
     )
-    expect(resolveTaskDetailTab('task-order', TASK_DETAIL_TAB.quotes)).toBe(
+    expect(resolveTaskDetailTab('task-order', TASK_DETAIL_TAB.analytics)).toBe(
       'overview',
     )
     expect(
-      resolveTaskDetailTab('worker-job-panel', TASK_DETAIL_TAB.quotes),
+      resolveTaskDetailTab('worker-job-panel', TASK_DETAIL_TAB.analytics),
     ).toBe('overview')
-    expect(resolveTaskDetailTab('', TASK_DETAIL_TAB.quotes)).toBe('quotes')
+    expect(resolveTaskDetailTab('', TASK_DETAIL_TAB.analytics)).toBe(
+      'analytics',
+    )
   })
 })
 
-describe('showTaskDetailQuotesTab', () => {
-  it('keeps Quotes while the task is still open', () => {
+describe('showTaskDetailQuotesSection', () => {
+  it('keeps the Quotes section while the task is still open', () => {
     expect(
-      showTaskDetailQuotesTab({
+      showTaskDetailQuotesSection({
         isOpen: true,
         isAwarded: false,
         isClosed: false,
@@ -50,9 +52,9 @@ describe('showTaskDetailQuotesTab', () => {
     ).toBe(true)
   })
 
-  it('hides Quotes after accept and after completion', () => {
+  it('hides the Quotes section after accept and after completion', () => {
     expect(
-      showTaskDetailQuotesTab({
+      showTaskDetailQuotesSection({
         isOpen: false,
         isAwarded: true,
         isClosed: false,
@@ -61,7 +63,7 @@ describe('showTaskDetailQuotesTab', () => {
       }),
     ).toBe(false)
     expect(
-      showTaskDetailQuotesTab({
+      showTaskDetailQuotesSection({
         isOpen: false,
         isAwarded: false,
         isClosed: true,
@@ -69,61 +71,5 @@ describe('showTaskDetailQuotesTab', () => {
         atCap: true,
       }),
     ).toBe(false)
-  })
-})
-
-describe('defaultTaskDetailTab', () => {
-  it('sends owners with quotes to Quotes', () => {
-    expect(
-      defaultTaskDetailTab({
-        isOwner: true,
-        isOpen: true,
-        isAwarded: false,
-        isOrderWorker: false,
-        quoteCount: 2,
-      }),
-    ).toBe('quotes')
-  })
-
-  it('keeps awarded owner or assigned worker on Overview', () => {
-    expect(
-      defaultTaskDetailTab({
-        isOwner: true,
-        isOpen: false,
-        isAwarded: true,
-        isOrderWorker: false,
-        quoteCount: 1,
-      }),
-    ).toBe('overview')
-    expect(
-      defaultTaskDetailTab({
-        isOwner: false,
-        isOpen: false,
-        isAwarded: true,
-        isOrderWorker: true,
-        quoteCount: 1,
-      }),
-    ).toBe('overview')
-  })
-
-  it('defaults visitors and empty owners to Overview', () => {
-    expect(
-      defaultTaskDetailTab({
-        isOwner: false,
-        isOpen: true,
-        isAwarded: false,
-        isOrderWorker: false,
-        quoteCount: 0,
-      }),
-    ).toBe('overview')
-    expect(
-      defaultTaskDetailTab({
-        isOwner: true,
-        isOpen: true,
-        isAwarded: false,
-        isOrderWorker: false,
-        quoteCount: 0,
-      }),
-    ).toBe('overview')
   })
 })

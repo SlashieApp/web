@@ -1,38 +1,29 @@
 'use client'
 
-import { type ReactNode, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
-import {
-  Box,
-  HStack,
-  Heading,
-  NativeSelect,
-  Skeleton,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
 import { QuoteStatus } from '@codegen/schema'
-import { LuCheck, LuLock, LuMessagesSquare, LuX } from 'react-icons/lu'
+import { LuMessagesSquare } from 'react-icons/lu'
 
-import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { APP_HOME } from '@/utils/appRoutes'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
-import { Button, Link, MESSAGES_HREF } from '@ui'
+import { Badge, Card, MESSAGES_HREF, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
   formatPoundsFromPence,
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
 import bag from '../../i11n.json'
-import { QuoteCard, QuoteCardAvatar } from './QuoteCard'
+import { QuoteRow, type QuoteRowStatus } from './QuoteRow'
 import { useAcceptQuoteSafety } from './useAcceptQuoteSafety'
 
 type TaskQuote = TaskDetailRecord['quotes'][number]
@@ -148,55 +139,7 @@ function formatRespondedAgo(
 
 // ---------------------------------------------------------------- chrome
 
-function CountPill({ label }: { label: string }) {
-  return (
-    <Box
-      as="span"
-      px={2.5}
-      py={0.5}
-      borderRadius="full"
-      bg="status.success.soft"
-      color="status.success.fg"
-      fontSize="xs"
-      fontWeight={700}
-      whiteSpace="nowrap"
-    >
-      {label}
-    </Box>
-  )
-}
-
-/** C3: "2 of 3 worker slots filled" strip with progress dots. */
-function SlotsStrip({ filled, cap }: { filled: number; cap: number }) {
-  const { quotes: q } = useI11n(bag)
-  return (
-    <HStack
-      justify="space-between"
-      align="center"
-      px={4}
-      py={2.5}
-      bg="status.success.soft"
-      borderRadius="lg"
-    >
-      <Text fontSize="sm" fontWeight={600} color="status.success.fg">
-        {formatMessage(q.slotsFilled, { filled, cap })}
-      </Text>
-      <HStack gap={1.5} aria-hidden>
-        {Array.from({ length: cap }, (_, i) => (
-          <Box
-            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size dots
-            key={i}
-            boxSize="8px"
-            borderRadius="full"
-            bg={i < filled ? 'status.success.solid' : 'border.default'}
-          />
-        ))}
-      </HStack>
-    </HStack>
-  )
-}
-
-/** Dashed empty block (C1 / W3). */
+/** Dashed empty block (owner, no quotes yet). */
 function EmptyBlock({
   title,
   caption,
@@ -236,29 +179,6 @@ function EmptyBlock({
         {caption}
       </Text>
     </Stack>
-  )
-}
-
-function StatusCircle({
-  tone,
-  children,
-}: {
-  tone: 'success' | 'neutral'
-  children: ReactNode
-}) {
-  return (
-    <Box
-      boxSize="48px"
-      borderRadius="full"
-      bg={tone === 'success' ? 'status.success.soft' : 'bg.subtle'}
-      color={tone === 'success' ? 'status.success.fg' : 'text.muted'}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      aria-hidden
-    >
-      {children}
-    </Box>
   )
 }
 
@@ -303,107 +223,11 @@ function quoteCardBaseProps(
     avatarLabel: workerNameInitials(name, quote.workerUserId),
     avatarUrl: quote.worker?.profile?.avatarUrl,
     priceLabel: pence != null ? formatPoundsFromPence(pence) : '—',
-    priceKindLabel: quotesCopy.card.fixedPrice,
     showPrice: pence != null,
     message: quote.message?.trim() || null,
     availabilityLabel: proposedTimesLabel(quote, quotesCopy, locale),
     showVerified: Boolean(quote.worker?.worker?.isVerified),
-    respondedLabel:
-      formatRespondedAgo(quote.createdAt, quotesCopy) ?? undefined,
   }
-}
-
-/** C4 primary card / W6-adjacent: accepted worker, "Job in progress" rail. */
-function AcceptedPrimaryCard({
-  quote,
-  taskId,
-}: {
-  quote: TaskQuote
-  taskId: string
-}) {
-  const { quotes: q, fallbackWorker } = useI11n(bag)
-  const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
-  const base = quoteCardBaseProps(quote, fallbackWorker, q, locale)
-  const profileUserId = quote.worker?.id
-  const profileHref = profileUserId
-    ? workerProfilePath(profileUserId, taskId)
-    : null
-
-  return (
-    <Stack
-      gap={3}
-      p={4}
-      borderRadius="lg"
-      bg="bg.surface"
-      borderWidth="1px"
-      borderColor="border.default"
-      borderLeftWidth="4px"
-      borderLeftColor="status.success.solid"
-      w="full"
-    >
-      <HStack gap={1.5} align="center">
-        <Box
-          boxSize="8px"
-          borderRadius="full"
-          bg="status.success.solid"
-          aria-hidden
-        />
-        <Text fontSize="sm" fontWeight={700} color="status.success.fg">
-          {q.jobInProgress}
-        </Text>
-      </HStack>
-      <HStack align="flex-start" gap={3} justify="space-between">
-        <HStack align="flex-start" gap={3} flex={1} minW={0}>
-          <QuoteCardAvatar
-            name={base.name}
-            avatarLabel={base.avatarLabel}
-            avatarUrl={base.avatarUrl}
-            size="44px"
-          />
-          <Stack gap={0.5} flex={1} minW={0}>
-            <Heading size="sm" lineHeight="short">
-              {base.name}
-            </Heading>
-            <Text fontSize="sm" color="text.muted">
-              ★ {q.noReviewsYet}
-            </Text>
-          </Stack>
-        </HStack>
-        {base.showPrice ? (
-          <Text fontWeight={700} fontSize="2xl" lineHeight="shorter">
-            {base.priceLabel}
-          </Text>
-        ) : null}
-      </HStack>
-      {base.message ? (
-        <Text fontSize="sm" color="text.default" lineHeight="tall">
-          {base.message}
-        </Text>
-      ) : null}
-      {base.availabilityLabel ? (
-        <Box
-          as="span"
-          w="fit-content"
-          px={2.5}
-          py={1}
-          borderRadius="full"
-          bg="status.success.soft"
-          color="status.success.fg"
-          fontSize="xs"
-          fontWeight={600}
-        >
-          {base.availabilityLabel}
-        </Box>
-      ) : null}
-      {profileHref ? (
-        <Button asChild size="sm" variant="secondary" w="full">
-          <Link href={profileHref} _hover={{ textDecoration: 'none' }}>
-            {q.viewProfile}
-          </Link>
-        </Button>
-      ) : null}
-    </Stack>
-  )
 }
 
 // ------------------------------------------------------------------ module
@@ -411,20 +235,30 @@ function AcceptedPrimaryCard({
 export type QuotesModuleProps = {
   /**
    * Accepted-worker cap. The API's current model is single-worker (a task is
-   * full at 1 accepted quote); pass a higher cap to exercise the C3 partial
-   * state (kept generic per the approved design).
+   * full at 1 accepted quote).
    */
   slotsCap?: number
 }
 
+function rowStatus(
+  status: QuoteStatus | string,
+  own: boolean,
+): QuoteRowStatus | null {
+  if (isAcceptedQuoteStatus(status)) return 'accepted'
+  if (status === QuoteStatus.Declined) return 'declined'
+  if (status === QuoteStatus.NotSelected) return 'notSelected'
+  return own ? 'yours' : null
+}
+
 /**
- * The task-detail Quotes module — one permission-gated component implementing
- * the approved 12-state redesign (C1–C4 owner, W1–W8 worker/visitor). State is
- * derived from `getTaskDetailPermissions` output + quote data; no role checks
- * scattered in JSX.
+ * Overview Quotes section (FE-258): every quote as a row, replacing the old
+ * Quotes tab. Owners sort and accept or decline; workers see their own quote
+ * first and the others read-only. Sign-in, worker setup and Send quote stay
+ * on the main CTA, so the section hides when there is nothing to list.
  */
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
-  const { quotes: q, fallbackWorker } = useI11n(bag)
+  const t = useI11n(bag)
+  const { quotes: q, fallbackWorker } = t
   const intlLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const {
     task,
@@ -438,16 +272,12 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     onDeclineQuote,
   } = useTaskDetail()
   const { requestAccept, dialog: acceptSafetyDialog } = useAcceptQuoteSafety()
-
   const [sort, setSort] = useState<QuoteSort>('recommended')
-  const [showOthers, setShowOthers] = useState(false)
 
   const quotes = task?.quotes ?? []
-  const acceptedQuotes = useMemo(
-    () => quotes.filter((qq) => isAcceptedQuoteStatus(qq.status)),
-    [quotes],
-  )
-
+  const acceptedCount = quotes.filter((qq) =>
+    isAcceptedQuoteStatus(qq.status),
+  ).length
   const state = deriveQuotesModuleState({
     isOwner: permissions.isOwner,
     isOpen: permissions.isOpen,
@@ -455,414 +285,116 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     hasWorkerProfile: permissions.hasWorkerProfile,
     canSubmitQuote: permissions.canSubmitQuote,
     quoteCount: quotes.length,
-    acceptedCount: acceptedQuotes.length,
+    acceptedCount,
     slotsCap,
     myQuoteStatus: (myQuote?.status as QuoteStatus | undefined) ?? null,
   })
-
   const displayQuotes = useMemo(
     () => sortQuotes(sortedQuotes, sort),
     [sortedQuotes, sort],
   )
 
-  if (!task) return null
+  // The accepted worker's agreement lives on the Booking card.
+  if (!task || state === 'W6') return null
 
-  const quoteFlowHref = `/tasks/${task.id}/quote`
-  const nextHref = encodeURIComponent(quoteFlowHref)
-  const cardProps = (quote: TaskQuote) =>
-    quoteCardBaseProps(quote, fallbackWorker, q, intlLocale)
+  const isOwner = permissions.isOwner
+  const rows = isOwner
+    ? displayQuotes
+    : [
+        ...(myQuote ? [myQuote] : []),
+        ...quotes.filter((qq) => qq.id !== myQuote?.id),
+      ]
+  if (!isOwner && rows.length === 0) return null
 
-  const pill =
-    state === 'W8'
-      ? q.pillFull
-      : state === 'C4' || state === 'C3'
-        ? formatMessage(q.pillAccepted, { count: acceptedQuotes.length })
-        : quotes.length > 0 && (state === 'C2' || state === 'W4')
-          ? formatMessage(
-              quotes.length === 1 ? q.pillOffersOne : q.pillOffersMany,
-              { count: quotes.length },
-            )
-          : null
-
-  const sendQuoteCta = (
-    <Button asChild variant="primary" w="full">
-      <Link href={quoteFlowHref} _hover={{ textDecoration: 'none' }}>
-        {q.sendQuote}
-      </Link>
-    </Button>
-  )
-
-  const errorLine = acceptError ? (
-    <Text color="status.danger.fg" fontSize="sm">
-      {acceptError}
-    </Text>
-  ) : null
-
-  const ownerSortSelect = (
-    <HStack gap={2} align="center">
-      <Text fontSize="sm" color="text.muted" fontWeight={500} flexShrink={0}>
-        {q.sortLabel}
-      </Text>
-      <NativeSelect.Root w="full" maxW="220px">
-        <NativeSelect.Field
-          bg="bg.surface"
-          borderWidth="1px"
-          borderColor="border.default"
-          borderRadius="lg"
-          fontSize="sm"
-          value={sort}
-          onChange={(e) => setSort(e.target.value as QuoteSort)}
-        >
-          <option value="recommended">{q.sortRecommended}</option>
-          <option value="price_low">{q.sortPriceLow}</option>
-          <option value="recent">{q.sortNewest}</option>
-        </NativeSelect.Field>
-      </NativeSelect.Root>
-    </HStack>
-  )
-
-  const ownerQuoteCard = (quote: TaskQuote, index: number) => {
-    const pending = quote.status === QuoteStatus.Pending
-    const accepted = isAcceptedQuoteStatus(quote.status)
+  const quoteRow = (quote: TaskQuote, index: number) => {
+    const own = !isOwner && quote.id === myQuote?.id
+    const canAct =
+      isOwner &&
+      quote.status === QuoteStatus.Pending &&
+      permissions.showAcceptDecline
     const profileUserId = quote.worker?.id
-    const canAct = pending && permissions.showAcceptDecline
     return (
-      <QuoteCard
+      <QuoteRow
         key={quote.id}
-        {...cardProps(quote)}
+        {...quoteCardBaseProps(quote, fallbackWorker, q, intlLocale)}
+        respondedLabel={
+          own && quote.status === QuoteStatus.Pending
+            ? q.pendingReviewing
+            : formatRespondedAgo(quote.createdAt, q)
+        }
+        status={rowStatus(quote.status, own)}
         isBestMatch={
-          (state === 'C2' || state === 'C3') &&
-          sort === 'recommended' &&
-          index === 0
+          canAct && sort === 'recommended' && index === 0 && rows.length > 1
         }
         workerProfileHref={
           profileUserId ? workerProfilePath(profileUserId, task.id) : undefined
-        }
-        statusBadge={
-          accepted
-            ? 'accepted'
-            : quote.status === QuoteStatus.Declined
-              ? 'declined'
-              : null
         }
         onAccept={canAct ? () => requestAccept(quote.id) : undefined}
         onDecline={canAct ? () => void onDeclineQuote(quote.id) : undefined}
         messageHref={canAct ? MESSAGES_HREF : undefined}
         acceptLoading={acceptingQuoteId === quote.id}
         declineLoading={decliningQuoteId === quote.id}
+        withDivider={index < rows.length - 1}
       />
     )
   }
 
-  /** Read-only competitor card — public identity only, no contact PII. */
-  const competitorCard = (quote: TaskQuote) => (
-    <QuoteCard key={quote.id} {...cardProps(quote)} />
-  )
-
-  let body: ReactNode = null
-
-  switch (state) {
-    case 'C1':
-      body = (
-        <EmptyBlock title={q.emptyOwnerTitle} caption={q.emptyOwnerCaption} />
-      )
-      break
-
-    case 'C2':
-      body = (
-        <>
-          {errorLine}
-          <HStack
-            justify="space-between"
-            align="center"
-            flexWrap="wrap"
-            gap={3}
-          >
-            {pill ? <CountPill label={pill} /> : null}
-            {ownerSortSelect}
-          </HStack>
-          <Stack gap={4}>{displayQuotes.map(ownerQuoteCard)}</Stack>
-        </>
-      )
-      break
-
-    case 'C3':
-      body = (
-        <>
-          {errorLine}
-          <Stack gap={4}>{displayQuotes.map(ownerQuoteCard)}</Stack>
-        </>
-      )
-      break
-
-    case 'C4': {
-      const primary = acceptedQuotes[0]
-      const others = quotes.filter((qq) => qq.id !== primary?.id)
-      body = (
-        <>
-          {errorLine}
-          {primary ? (
-            <AcceptedPrimaryCard quote={primary} taskId={task.id} />
-          ) : null}
-          {others.length > 0 ? (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                color="text.link"
-                alignSelf="center"
-                onClick={() => setShowOthers((v) => !v)}
-              >
-                {showOthers
-                  ? q.hideOtherQuotes
-                  : formatMessage(
-                      others.length === 1
-                        ? q.showOtherQuotesOne
-                        : q.showOtherQuotesMany,
-                      { count: others.length },
-                    )}
-              </Button>
-              {showOthers ? (
-                <Stack gap={4}>
-                  {others.map((quote, index) => ownerQuoteCard(quote, index))}
-                </Stack>
-              ) : null}
-            </>
-          ) : null}
-        </>
-      )
-      break
-    }
-
-    case 'W1':
-      body = (
-        <Stack align="center" gap={4} py={4} textAlign="center">
-          <StatusCircle tone="success">
-            <LuLock size={22} />
-          </StatusCircle>
-          <Text fontWeight={600} color="text.default" maxW="240px">
-            {q.joinAsWorker}
-          </Text>
-          <Stack gap={2} w="full">
-            <Button asChild variant="primary" w="full">
-              <Link
-                href={`/register?next=${nextHref}`}
-                _hover={{ textDecoration: 'none' }}
-              >
-                {q.getStarted}
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" w="full">
-              <Link
-                href={`/login?next=${nextHref}`}
-                _hover={{ textDecoration: 'none' }}
-              >
-                {q.logIn}
-              </Link>
-            </Button>
-          </Stack>
-        </Stack>
-      )
-      break
-
-    case 'W2':
-      body = (
-        <Stack gap={4}>
-          <Stack gap={3} aria-hidden>
-            {[0, 1, 2].map((i) => (
-              <HStack
-                key={i}
-                gap={3}
-                p={4}
-                borderWidth="1px"
-                borderColor="border.default"
-                borderRadius="lg"
-              >
-                <Skeleton boxSize="40px" borderRadius="full" />
-                <Stack gap={2} flex={1}>
-                  <Skeleton h="12px" w="60%" borderRadius="md" />
-                  <Skeleton h="10px" w="85%" borderRadius="md" />
-                </Stack>
-              </HStack>
-            ))}
-          </Stack>
-          <Stack gap={1} align="center">
-            <Button asChild variant="primary" w="full">
-              <Link
-                href={workerSetupHref(quoteFlowHref)}
-                _hover={{ textDecoration: 'none' }}
-              >
-                {q.setupProfile}
-              </Link>
-            </Button>
-            <Text fontSize="xs" color="text.muted">
-              {q.setupMinutes}
-            </Text>
-          </Stack>
-        </Stack>
-      )
-      break
-
-    case 'W3':
-      body = (
-        <Stack gap={4}>
-          <EmptyBlock
-            title={q.emptyWorkerTitle}
-            caption={q.emptyWorkerCaption}
-          />
-          <Stack gap={2}>
-            <Text fontWeight={700} color="text.default">
-              {q.submitQuoteTitle}
-            </Text>
-            <Text fontSize="sm" color="text.muted">
-              {q.submitQuoteCaption}
-            </Text>
-            {sendQuoteCta}
-          </Stack>
-        </Stack>
-      )
-      break
-
-    case 'W4':
-      body = (
-        <Stack gap={4}>
-          <Stack gap={4}>{quotes.map(competitorCard)}</Stack>
-          <HStack gap={3} align="center" aria-hidden>
-            <Box flex={1} h="1px" bg="border.default" />
-            <Text fontSize="xs" color="text.muted" fontWeight={600}>
-              {q.yourTurn}
-            </Text>
-            <Box flex={1} h="1px" bg="border.default" />
-          </HStack>
-          {sendQuoteCta}
-        </Stack>
-      )
-      break
-
-    case 'W5': {
-      const others = quotes.filter((qq) => qq.id !== myQuote?.id)
-      body = (
-        <Stack gap={4}>
-          {myQuote ? (
-            <QuoteCard
-              {...cardProps(myQuote)}
-              isOwnQuote
-              statusBadge="yours"
-              respondedLabel={q.pendingReviewing}
-            />
-          ) : null}
-          {others.length > 0 ? (
-            <Stack gap={2}>
-              <Text fontSize="sm" fontWeight={700} color="text.default">
-                {q.otherQuotes}
-              </Text>
-              <Stack gap={4}>{others.map(competitorCard)}</Stack>
-            </Stack>
-          ) : null}
-        </Stack>
-      )
-      break
-    }
-
-    case 'W6':
-      // Accepted agreement lives on the Booking card. The Quotes tab is hidden
-      // after accept; this state must not repeat "Quote accepted / Agreed price".
-      body = null
-      break
-
-    case 'W7':
-      body = (
-        <Stack
-          align="center"
-          gap={3}
-          py={6}
-          px={4}
-          bg="bg.subtle"
-          borderRadius="lg"
-          textAlign="center"
-        >
-          <StatusCircle tone="neutral">
-            <LuX size={22} />
-          </StatusCircle>
-          <Box
-            as="span"
-            px={3}
-            py={0.5}
-            borderRadius="full"
-            bg="bg.surface"
-            borderWidth="1px"
-            borderColor="border.default"
-            fontSize="xs"
-            fontWeight={700}
-            color="text.muted"
-          >
-            {q.declined}
-          </Box>
-          <Text fontWeight={600} color="text.default" maxW="260px">
-            {q.choseAnother}
-          </Text>
-          <Text fontSize="sm" color="text.muted">
-            {q.thanksOffer}
-          </Text>
-          <Button asChild variant="secondary" w="full">
-            <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
-              {q.browseOtherTasks}
-            </Link>
-          </Button>
-        </Stack>
-      )
-      break
-
-    case 'W8':
-      body = (
-        <Stack align="center" gap={3} py={4} textAlign="center">
-          <StatusCircle tone="success">
-            <LuCheck size={24} strokeWidth={3} />
-          </StatusCircle>
-          <Text fontWeight={700} color="text.default">
-            {q.allSlotsFilled}
-          </Text>
-          <Text fontSize="sm" color="text.muted" maxW="260px">
-            {q.maxQuotesAccepted}
-          </Text>
-          {acceptedQuotes.length > 0 ? (
-            <Stack gap={2} align="center">
-              <Text fontSize="xs" fontWeight={700} color="text.muted">
-                {q.acceptedWorkers}
-              </Text>
-              <HStack gap={2}>
-                {acceptedQuotes.map((qq) => {
-                  const base = cardProps(qq)
-                  return (
-                    <QuoteCardAvatar
-                      key={qq.id}
-                      name={base.name}
-                      avatarLabel={base.avatarLabel}
-                      avatarUrl={base.avatarUrl}
-                      size="44px"
-                    />
-                  )
-                })}
-              </HStack>
-            </Stack>
-          ) : null}
-        </Stack>
-      )
-      break
-  }
-
   return (
-    <Stack id="task-quotes" gap={4} w="full">
-      {state === 'C3' ? (
-        <SlotsStrip filled={acceptedQuotes.length} cap={slotsCap} />
+    <Card
+      {...TASK_DETAIL_SECTION_CARD}
+      id="task-quotes"
+      eyebrow={q.heading}
+      headingAccessory={
+        rows.length > 0 ? (
+          <Badge variant="neutral" size="sm" shape="pill">
+            {rows.length}
+          </Badge>
+        ) : undefined
+      }
+    >
+      {acceptError ? (
+        <Text color="status.danger.fg" fontSize="sm">
+          {acceptError}
+        </Text>
       ) : null}
-      {pill && state !== 'C2' && state !== 'C3' ? (
-        <HStack>
-          <CountPill label={pill} />
-        </HStack>
-      ) : null}
-      {body}
+      {rows.length === 0 ? (
+        <EmptyBlock title={q.emptyOwnerTitle} caption={q.emptyOwnerCaption} />
+      ) : (
+        <>
+          {isOwner && rows.length > 1 ? (
+            <HStack gap={2} align="center">
+              <Text
+                fontSize="sm"
+                color="text.muted"
+                fontWeight={500}
+                flexShrink={0}
+              >
+                {q.sortLabel}
+              </Text>
+              <NativeSelect.Root w="full" maxW="220px" size="sm">
+                <NativeSelect.Field
+                  bg="bg.surface"
+                  borderWidth="1px"
+                  borderColor="border.default"
+                  borderRadius="lg"
+                  fontSize="sm"
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as QuoteSort)}
+                >
+                  <option value="recommended">{q.sortRecommended}</option>
+                  <option value="price_low">{q.sortPriceLow}</option>
+                  <option value="recent">{q.sortNewest}</option>
+                </NativeSelect.Field>
+              </NativeSelect.Root>
+            </HStack>
+          ) : null}
+          <Stack gap={0}>{rows.map(quoteRow)}</Stack>
+          {isOwner && permissions.showAcceptDecline ? (
+            <SafetyNotice variant="inline" />
+          ) : null}
+        </>
+      )}
       {acceptSafetyDialog}
-    </Stack>
+    </Card>
   )
 }

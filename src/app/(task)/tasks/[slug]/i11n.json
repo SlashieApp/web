@@ -312,7 +312,8 @@
         "viewProfileFor": "View profile for {name}",
         "messages": "Messages",
         "verified": "Identity verified",
-        "avatarAlt": "{name} avatar"
+        "avatarAlt": "{name} avatar",
+        "notSelected": "Not selected"
       },
       "respondedJustNow": "Responded just now",
       "respondedMinutes": "Responded {count} min ago",
@@ -755,7 +756,8 @@
         "viewProfileFor": "查看 {name} 的檔案",
         "messages": "訊息",
         "verified": "已核對身分",
-        "avatarAlt": "{name} 的頭像"
+        "avatarAlt": "{name} 的頭像",
+        "notSelected": "未獲選"
       },
       "respondedJustNow": "剛剛回覆",
       "respondedMinutes": "{count} 分鐘前回覆",

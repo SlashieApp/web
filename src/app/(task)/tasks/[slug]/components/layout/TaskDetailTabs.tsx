@@ -4,18 +4,12 @@ import type { BoxProps } from '@chakra-ui/react'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { SafetyNotice } from '@ui'
-
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import {
-  TASK_DETAIL_TAB,
-  showTaskDetailQuotesTab,
-} from '../../helpers/taskDetailTabs'
+import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import { taskOwnerAnalytics } from '../../helpers/taskOwnerAnalytics'
 import bag from '../../i11n.json'
 import { AnalyticsCards } from '../analytics/AnalyticsCards'
 import { OverviewCards } from '../overview/OverviewCards'
-import { QuotesCards } from '../quotes/QuotesCards'
 import { TaskDetailMainCta } from './TaskDetailMainCta'
 import { TaskDetailSideRail } from './TaskDetailSideRail'
 import {
@@ -49,7 +43,6 @@ export function TaskDetailTabs({
     myQuote,
     isAuthenticated,
   } = useTaskDetail()
-  const quoteCount = task?.quotes.length ?? 0
   const showAnalytics = permissions.isOwner
   const analytics = task ? taskOwnerAnalytics(task) : null
   const analyticsTitle = analytics
@@ -68,7 +61,6 @@ export function TaskDetailTabs({
         )
       : null
 
-  const quotesVisible = showTaskDetailQuotesTab(permissions)
   const tabs: TaskDetailTabSlot[] = [
     {
       key: TASK_DETAIL_TAB.overview,
@@ -77,26 +69,6 @@ export function TaskDetailTabs({
       tabDescription: copy?.subtext,
       cards: <OverviewCards />,
     },
-    ...(quotesVisible
-      ? [
-          {
-            key: TASK_DETAIL_TAB.quotes,
-            label: t.mobile.tabQuotes,
-            badge: quoteCount,
-            tabTitle: permissions.hasPendingQuote
-              ? t.cta.quoteSentTitle
-              : permissions.isOwner
-                ? t.trust.ownerHeading
-                : t.trust.workerHeading,
-            tabDescription: permissions.hasPendingQuote ? (
-              t.cta.quoteSentDescription
-            ) : (
-              <SafetyNotice variant="inline" />
-            ),
-            cards: <QuotesCards />,
-          } satisfies TaskDetailTabSlot,
-        ]
-      : []),
     ...(showAnalytics
       ? [
           {

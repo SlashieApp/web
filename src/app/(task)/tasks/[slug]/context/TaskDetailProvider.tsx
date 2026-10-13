@@ -56,7 +56,6 @@ import { buildTaskDetailMainCta } from '@/app/(task)/tasks/[slug]/helpers/taskDe
 import {
   TASK_DETAIL_TAB,
   type TaskDetailTab,
-  defaultTaskDetailTab,
   readTaskDetailHash,
   resolveTaskDetailTab,
   writeTaskDetailHash,
@@ -901,15 +900,7 @@ export function TaskDetailProvider({
     clientTaskLoaded && (!isAuthenticated || !meLoadingResolved),
   )
 
-  const resolvedTab =
-    explicitTab ??
-    defaultTaskDetailTab({
-      isOwner: permissions.isOwner,
-      isOpen: permissions.isOpen,
-      isAwarded: permissions.isAwarded,
-      isOrderWorker: permissions.isOrderWorker,
-      quoteCount: task?.quotes.length ?? 0,
-    })
+  const resolvedTab = explicitTab ?? TASK_DETAIL_TAB.overview
   const activeTab =
     resolvedTab === TASK_DETAIL_TAB.analytics && !permissions.isOwner
       ? TASK_DETAIL_TAB.overview

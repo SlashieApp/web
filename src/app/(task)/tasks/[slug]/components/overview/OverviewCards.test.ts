@@ -19,6 +19,10 @@ describe('OverviewCards layout', () => {
       src.indexOf('<PhotosCard />'),
     )
     expect(src).not.toContain('TaskOwnerCard')
+    expect(src.indexOf('<PhotosCard />')).toBeLessThan(
+      src.indexOf('<QuotesPanel />'),
+    )
+    expect(src).toContain('showTaskDetailQuotesSection(permissions)')
     expect(src).toContain('hideOverviewCards')
     expect(src).not.toContain('TaskShareCard')
     expect(src).not.toContain('TaskHelpCard')
