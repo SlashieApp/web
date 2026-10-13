@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 
 import {
   taskDetailCategoryChips,
-  taskDetailCategoryTag,
   taskDetailDurationTag,
   taskDetailLocationTag,
   taskDetailLocationTown,
@@ -40,10 +39,9 @@ describe('task detail meta tags', () => {
       taskDetailTimeTag(task, timeCopy, new Date('2026-06-10T12:00:00')),
     ).toBe('Today')
     expect(taskDetailDurationTag(task)).toBeNull()
-    expect(taskDetailCategoryTag(task)).toEqual({
-      label: 'Handyman',
-      href: '/search?category=HANDYMAN',
-    })
+    expect(taskDetailCategoryChips(task)).toEqual([
+      { label: 'Handyman', href: '/search?category=HANDYMAN' },
+    ])
     expect(taskDetailOwnerTag(task, 'Task owner')).toEqual({
       name: 'Alex Chen',
       avatarUrl: task.poster?.profile?.avatarUrl,

@@ -106,19 +106,6 @@ export function taskDetailDurationTag(
   return time
 }
 
-/** Category chip. Links to search filtered by the first category (BE-79 matches any entry). */
-export function taskDetailCategoryTag(
-  task: Pick<TaskDetailRecord, 'title' | 'description' | 'categories'>,
-): TaskDetailLinkTag | null {
-  const label = taskCategoryLabel(task)?.trim()
-  if (!label) return null
-  const first = task.categories?.[0]?.trim()
-  return {
-    label,
-    href: first ? buildSearchUrl({ taskCategory: first }) : null,
-  }
-}
-
 /**
  * Every category as a chip (FE-258), each linking to search for it. Tasks
  * without API categories fall back to the title heuristic.

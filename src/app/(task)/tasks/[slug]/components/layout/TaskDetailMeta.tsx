@@ -12,11 +12,12 @@ import {
 
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
+import { WEB_MQ } from '@/theme/breakpoints'
 import { Avatar, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
-  taskDetailCategoryTag,
+  taskDetailCategoryChips,
   taskDetailDurationTag,
   taskDetailLocationTag,
   taskDetailOwnerTag,
@@ -66,6 +67,7 @@ export function MetaPill({
     flexShrink: 0,
     minH: '32px',
     whiteSpace: 'nowrap',
+    scrollSnapAlign: 'start',
   } as const
 
   if (!href) {
@@ -98,16 +100,32 @@ type TaskDetailMetaProps = {
   isStuck?: boolean
 }
 
-const STUCK_ROW_SCROLL_CSS = {
+const ROW_SCROLL_CSS = {
   scrollbarWidth: 'none',
   overscrollBehaviorX: 'contain',
   '&::-webkit-scrollbar': { display: 'none' },
 } as const
 
+const EDGE_FADE =
+  'linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%)'
+
+/** Phones: one swipeable line with snap and faded edges (FE-258). */
+const MOBILE_ROW_CSS = {
+  ...ROW_SCROLL_CSS,
+  scrollSnapType: 'x proximity',
+  scrollPaddingInline: '12px',
+  maskImage: EDGE_FADE,
+  WebkitMaskImage: EDGE_FADE,
+  [`@media screen and ${WEB_MQ}`]: {
+    maskImage: 'none',
+    WebkitMaskImage: 'none',
+  },
+} as const
+
 /**
- * Sticky meta row under the task title: location, when, duration, category,
- * and owner. Interest (medium) is not a chip. Location, category, and owner
- * navigate.
+ * Sticky meta row under the task title: location, when, duration, every
+ * category, and owner. Interest (medium) is not a chip. Location, category,
+ * and owner navigate.
  */
 export function TaskDetailMeta({ isStuck = false }: TaskDetailMetaProps) {
   const { task, myOrder, permissions } = useTaskDetail()
@@ -126,24 +144,28 @@ export function TaskDetailMeta({ isStuck = false }: TaskDetailMetaProps) {
   })
   const time = taskDetailTimeTag(task, t.meta, new Date(), DATE_LOCALE[locale])
   const duration = taskDetailDurationTag(task)
-  const category = taskDetailCategoryTag(task)
+  const categories = taskDetailCategoryChips(task)
   const owner = taskDetailOwnerTag(task, t.details.ownerFallback)
 
-  if (!location && !time && !duration && !category && !owner) return null
+  if (!location && !time && !duration && categories.length === 0 && !owner) {
+    return null
+  }
 
   return (
     <Box
-      w="full"
       minW={0}
-      maxW={{ base: 'full', lg: isStuck ? 'full' : '50%' }}
-      overflowX={isStuck ? 'auto' : 'visible'}
-      css={isStuck ? STUCK_ROW_SCROLL_CSS : undefined}
+      // Bleed into the page gutter so the edge fade sits outside the chips.
+      mx={{ base: -3, lg: 0 }}
+      maxW={{ base: 'none', lg: isStuck ? 'full' : '50%' }}
+      overflowX={{ base: 'auto', lg: isStuck ? 'auto' : 'visible' }}
+      css={isStuck ? { ...MOBILE_ROW_CSS, ...ROW_SCROLL_CSS } : MOBILE_ROW_CSS}
     >
       <HStack
         gap={2}
-        flexWrap={isStuck ? 'nowrap' : 'wrap'}
+        flexWrap={{ base: 'nowrap', lg: isStuck ? 'nowrap' : 'wrap' }}
         alignItems="center"
-        w={isStuck ? 'max-content' : 'full'}
+        w={{ base: 'max-content', lg: isStuck ? 'max-content' : 'full' }}
+        px={{ base: 3, lg: 0 }}
         minW={0}
       >
         {location ? (
@@ -157,11 +179,15 @@ export function TaskDetailMeta({ isStuck = false }: TaskDetailMetaProps) {
         {duration ? (
           <MetaPill icon={<LuClock size={16} />}>{duration}</MetaPill>
         ) : null}
-        {category ? (
-          <MetaPill href={category.href} icon={<LuTag size={16} />}>
+        {categories.map((category) => (
+          <MetaPill
+            key={category.label.toLowerCase()}
+            href={category.href}
+            icon={<LuTag size={16} />}
+          >
             {category.label}
           </MetaPill>
-        ) : null}
+        ))}
         {owner ? (
           <MetaPill
             href={owner.href}
