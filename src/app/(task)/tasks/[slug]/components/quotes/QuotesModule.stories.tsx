@@ -67,7 +67,7 @@ const myPendingQuote = storyTaskQuote({
 
 // ------------------------------------------------------------- customer
 
-/** C1 · owner, no quotes: empty + reassurance. */
+/** C1 · owner, no quotes: the section is hidden (renders nothing). */
 export const C1CustomerEmpty: Story = {
   decorators: [
     withTaskDetailStory(

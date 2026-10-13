@@ -2,9 +2,8 @@
 
 import { useMemo, useState } from 'react'
 
-import { Box, HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
+import { HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
 import { QuoteStatus } from '@codegen/schema'
-import { LuMessagesSquare } from 'react-icons/lu'
 
 import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
 import { useLocale } from '@/i18n/LocaleProvider'
@@ -137,51 +136,6 @@ function formatRespondedAgo(
   })
 }
 
-// ---------------------------------------------------------------- chrome
-
-/** Dashed empty block (owner, no quotes yet). */
-function EmptyBlock({
-  title,
-  caption,
-}: {
-  title: string
-  caption: string
-}) {
-  return (
-    <Stack
-      align="center"
-      gap={2}
-      py={8}
-      px={4}
-      borderWidth="2px"
-      borderStyle="dashed"
-      borderColor="border.default"
-      borderRadius="lg"
-      bg="bg.surface"
-      textAlign="center"
-    >
-      <Box
-        boxSize="48px"
-        borderRadius="full"
-        bg="status.success.soft"
-        color="status.success.fg"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        aria-hidden
-      >
-        <LuMessagesSquare size={22} />
-      </Box>
-      <Text fontWeight={700} color="text.default">
-        {title}
-      </Text>
-      <Text fontSize="sm" color="text.muted">
-        {caption}
-      </Text>
-    </Stack>
-  )
-}
-
 // ------------------------------------------------------------ quote cards
 
 /** Initials from the display name (e.g. "Maria L." → "ML"); ID-based fallback. */
@@ -253,8 +207,8 @@ function rowStatus(
 /**
  * Overview Quotes section (FE-258): every quote as a row, replacing the old
  * Quotes tab. Owners sort and accept or decline; workers see their own quote
- * first and the others read-only. Sign-in, worker setup and Send quote stay
- * on the main CTA, so the section hides when there is nothing to list.
+ * first and the others read-only. Hidden until there is a quote to list;
+ * sign-in, worker setup and Send quote stay on the main CTA.
  */
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const t = useI11n(bag)
@@ -304,7 +258,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
         ...(myQuote ? [myQuote] : []),
         ...quotes.filter((qq) => qq.id !== myQuote?.id),
       ]
-  if (!isOwner && rows.length === 0) return null
+  if (rows.length === 0) return null
 
   const quoteRow = (quote: TaskQuote, index: number) => {
     const own = !isOwner && quote.id === myQuote?.id
@@ -345,11 +299,9 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       id="task-quotes"
       eyebrow={q.heading}
       headingAccessory={
-        rows.length > 0 ? (
-          <Badge variant="neutral" size="sm" shape="pill">
-            {rows.length}
-          </Badge>
-        ) : undefined
+        <Badge variant="neutral" size="sm" shape="pill">
+          {rows.length}
+        </Badge>
       }
     >
       {acceptError ? (
@@ -357,43 +309,37 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           {acceptError}
         </Text>
       ) : null}
-      {rows.length === 0 ? (
-        <EmptyBlock title={q.emptyOwnerTitle} caption={q.emptyOwnerCaption} />
-      ) : (
-        <>
-          {isOwner && rows.length > 1 ? (
-            <HStack gap={2} align="center">
-              <Text
-                fontSize="sm"
-                color="text.muted"
-                fontWeight={500}
-                flexShrink={0}
-              >
-                {q.sortLabel}
-              </Text>
-              <NativeSelect.Root w="full" maxW="220px" size="sm">
-                <NativeSelect.Field
-                  bg="bg.surface"
-                  borderWidth="1px"
-                  borderColor="border.default"
-                  borderRadius="lg"
-                  fontSize="sm"
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as QuoteSort)}
-                >
-                  <option value="recommended">{q.sortRecommended}</option>
-                  <option value="price_low">{q.sortPriceLow}</option>
-                  <option value="recent">{q.sortNewest}</option>
-                </NativeSelect.Field>
-              </NativeSelect.Root>
-            </HStack>
-          ) : null}
-          <Stack gap={0}>{rows.map(quoteRow)}</Stack>
-          {isOwner && permissions.showAcceptDecline ? (
-            <SafetyNotice variant="inline" />
-          ) : null}
-        </>
-      )}
+      {isOwner && rows.length > 1 ? (
+        <HStack gap={2} align="center">
+          <Text
+            fontSize="sm"
+            color="text.muted"
+            fontWeight={500}
+            flexShrink={0}
+          >
+            {q.sortLabel}
+          </Text>
+          <NativeSelect.Root w="full" maxW="220px" size="sm">
+            <NativeSelect.Field
+              bg="bg.surface"
+              borderWidth="1px"
+              borderColor="border.default"
+              borderRadius="lg"
+              fontSize="sm"
+              value={sort}
+              onChange={(e) => setSort(e.target.value as QuoteSort)}
+            >
+              <option value="recommended">{q.sortRecommended}</option>
+              <option value="price_low">{q.sortPriceLow}</option>
+              <option value="recent">{q.sortNewest}</option>
+            </NativeSelect.Field>
+          </NativeSelect.Root>
+        </HStack>
+      ) : null}
+      <Stack gap={0}>{rows.map(quoteRow)}</Stack>
+      {isOwner && permissions.showAcceptDecline ? (
+        <SafetyNotice variant="inline" />
+      ) : null}
       {acceptSafetyDialog}
     </Card>
   )

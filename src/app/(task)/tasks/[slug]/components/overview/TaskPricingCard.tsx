@@ -212,13 +212,11 @@ export function TaskPricingCard({
         )
       : null
 
-  // FE-258 hero: big price on brand-soft, type and payment as badges.
+  // FE-258: big price, type and payment as badges, on the white card.
   return (
     <Card
       {...TASK_DETAIL_SECTION_CARD}
       eyebrow={t.details.budget}
-      bg="status.success.soft"
-      borderColor="status.success.border"
       aria-busy={loading ? true : undefined}
     >
       {budgetLine ? (
@@ -238,12 +236,12 @@ export function TaskPricingCard({
       {budgetKind || paymentLabel ? (
         <Wrap gap={1.5}>
           {budgetKind ? (
-            <Badge variant="brand" shape="pill" bg="bg.surface">
+            <Badge variant="brand" shape="pill">
               {budgetKind}
             </Badge>
           ) : null}
           {paymentLabel ? (
-            <Badge variant="neutral" shape="pill" bg="bg.surface">
+            <Badge variant="neutral" shape="pill">
               <LuCreditCard aria-hidden />
               {paymentLabel}
             </Badge>

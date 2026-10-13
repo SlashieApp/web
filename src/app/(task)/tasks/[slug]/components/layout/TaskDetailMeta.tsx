@@ -12,7 +12,6 @@ import {
 
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
-import { WEB_MQ } from '@/theme/breakpoints'
 import { Avatar, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -93,34 +92,96 @@ export function MetaPill({
 }
 
 type TaskDetailMetaProps = {
-  /**
-   * Before the chrome sticks, web chips wrap inside half the page.
-   * Once stuck, they stay on one row and scroll sideways.
-   */
+  /** Desktop: half the page before the chrome sticks, full width once stuck. */
   isStuck?: boolean
 }
-
-const ROW_SCROLL_CSS = {
-  scrollbarWidth: 'none',
-  overscrollBehaviorX: 'contain',
-  '&::-webkit-scrollbar': { display: 'none' },
-} as const
 
 const EDGE_FADE =
   'linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%)'
 
-/** Phones: one swipeable line with snap and faded edges (FE-258). */
-const MOBILE_ROW_CSS = {
-  ...ROW_SCROLL_CSS,
+/**
+ * One line on every viewport (FE-258): sideways scroll with snap, no
+ * scrollbar, faded edges. Mouse users drag it (grab cursor).
+ */
+const ROW_CSS = {
+  scrollbarWidth: 'none',
+  overscrollBehaviorX: 'contain',
+  '&::-webkit-scrollbar': { display: 'none' },
   scrollSnapType: 'x proximity',
   scrollPaddingInline: '12px',
   maskImage: EDGE_FADE,
   WebkitMaskImage: EDGE_FADE,
-  [`@media screen and ${WEB_MQ}`]: {
-    maskImage: 'none',
-    WebkitMaskImage: 'none',
+  '@media (pointer: fine)': { cursor: 'grab' },
+  '&[data-dragging]': {
+    cursor: 'grabbing',
+    scrollSnapType: 'none',
+    userSelect: 'none',
+    '& *': { cursor: 'grabbing' },
   },
 } as const
+
+const DRAG_THRESHOLD_PX = 4
+
+/**
+ * Mouse drag scrolls the row sideways. A drag never opens a chip's link, and
+ * links don't start a native drag. Touch and trackpads scroll natively.
+ */
+function dragScroll(node: HTMLDivElement | null) {
+  if (!node) return
+  let startX = 0
+  let startLeft = 0
+  let pressed = false
+  let dragged = false
+
+  const onDown = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return
+    pressed = true
+    dragged = false
+    startX = e.clientX
+    startLeft = node.scrollLeft
+  }
+  const onMove = (e: PointerEvent) => {
+    if (!pressed) return
+    const dx = e.clientX - startX
+    if (!dragged) {
+      if (Math.abs(dx) < DRAG_THRESHOLD_PX) return
+      dragged = true
+      node.setAttribute('data-dragging', '')
+      node.setPointerCapture(e.pointerId)
+    }
+    node.scrollLeft = startLeft - dx
+  }
+  const onUp = (e: PointerEvent) => {
+    if (!pressed) return
+    pressed = false
+    node.removeAttribute('data-dragging')
+    if (node.hasPointerCapture(e.pointerId)) {
+      node.releasePointerCapture(e.pointerId)
+    }
+  }
+  const onClick = (e: MouseEvent) => {
+    if (!dragged) return
+    dragged = false
+    e.preventDefault()
+    e.stopPropagation()
+  }
+  const onDragStart = (e: DragEvent) => e.preventDefault()
+
+  node.addEventListener('pointerdown', onDown)
+  node.addEventListener('pointermove', onMove)
+  node.addEventListener('pointerup', onUp)
+  node.addEventListener('pointercancel', onUp)
+  node.addEventListener('click', onClick, true)
+  node.addEventListener('dragstart', onDragStart)
+  return () => {
+    node.removeEventListener('pointerdown', onDown)
+    node.removeEventListener('pointermove', onMove)
+    node.removeEventListener('pointerup', onUp)
+    node.removeEventListener('pointercancel', onUp)
+    node.removeEventListener('click', onClick, true)
+    node.removeEventListener('dragstart', onDragStart)
+  }
+}
 
 /**
  * Sticky meta row under the task title: location, when, duration, every
@@ -153,19 +214,20 @@ export function TaskDetailMeta({ isStuck = false }: TaskDetailMetaProps) {
 
   return (
     <Box
+      ref={dragScroll}
       minW={0}
       // Bleed into the page gutter so the edge fade sits outside the chips.
-      mx={{ base: -3, lg: 0 }}
-      maxW={{ base: 'none', lg: isStuck ? 'full' : '50%' }}
-      overflowX={{ base: 'auto', lg: isStuck ? 'auto' : 'visible' }}
-      css={isStuck ? { ...MOBILE_ROW_CSS, ...ROW_SCROLL_CSS } : MOBILE_ROW_CSS}
+      mx={-3}
+      maxW={{ base: 'none', lg: isStuck ? 'none' : 'calc(50% + 1.5rem)' }}
+      overflowX="auto"
+      css={ROW_CSS}
     >
       <HStack
         gap={2}
-        flexWrap={{ base: 'nowrap', lg: isStuck ? 'nowrap' : 'wrap' }}
+        flexWrap="nowrap"
         alignItems="center"
-        w={{ base: 'max-content', lg: isStuck ? 'max-content' : 'full' }}
-        px={{ base: 3, lg: 0 }}
+        w="max-content"
+        px={3}
         minW={0}
       >
         {location ? (

@@ -5,7 +5,6 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import {
   Box,
-  Grid,
   HStack,
   Popover,
   Portal,
@@ -21,17 +20,11 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react'
-import {
-  LuCalendar,
-  LuCircleHelp,
-  LuMapPin,
-  LuTag,
-  LuUser,
-} from 'react-icons/lu'
+import { LuCalendar, LuInfo, LuMapPin, LuTag, LuUser } from 'react-icons/lu'
 
 import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
 import { sdlFocusRing } from '@/theme/styles'
-import { Avatar, Badge, Button, Card, DetailRow, Link, MapCard } from '@ui'
+import { Avatar, Badge, Button, Card, DetailRow, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
@@ -42,7 +35,6 @@ import {
 } from '../../helpers/taskDetailMetaTags'
 import {
   taskDetailLocationLabel,
-  taskDetailMapCoordinates,
   taskDetailShowsExactLocation,
 } from '../../helpers/taskDetailUtils'
 import bag from '../../i11n.json'
@@ -51,7 +43,6 @@ const LINE_BOX = 'calc(0.875rem * 1.5)'
 const DESCRIPTION_LINES = 6
 const DATE_LOCALE = { en: 'en-GB', 'zh-hk': 'zh-HK' } as const
 const MINUTE_MS = 60_000
-const WIDE_CARD = '@container (min-width: 600px)'
 
 const HintButton = chakra('button')
 
@@ -73,7 +64,7 @@ function TextLineSkeleton({ width }: { width: string }) {
   return <Skeleton h={LINE_BOX} w={width} borderRadius="md" />
 }
 
-/** "?" next to an approximate location: opens on hover (mouse) or tap. */
+/** Info icon next to an approximate address: shows the note on hover or tap. */
 function LocationHint({ label, note }: { label: string; note: string }) {
   const [open, setOpen] = useState(false)
   return (
@@ -104,7 +95,7 @@ function LocationHint({ label, note }: { label: string; note: string }) {
             if (e.pointerType === 'mouse') setOpen(false)
           }}
         >
-          <LuCircleHelp size={16} aria-hidden />
+          <LuInfo size={16} aria-hidden />
         </HintButton>
       </Popover.Trigger>
       <Portal>
@@ -227,8 +218,8 @@ function Row({
 }
 
 /**
- * Task facts (FE-258): description first, then location (with an
- * approximate-area hint), every category, the time chip, and who posted it.
+ * Task facts (FE-258): description first, then location (an info icon marks
+ * an approximate address), every category, the time chip, and who posted it.
  * The title lives in the page header, not here.
  */
 export function TaskDetailsCard() {
@@ -250,7 +241,6 @@ export function TaskDetailsCard() {
   const locationLabel = task
     ? taskDetailLocationLabel({ task, myOrder, showExactLocation })
     : seed?.location
-  const coords = task ? taskDetailMapCoordinates(task, myOrder) : null
   const categories = task ? taskDetailCategoryChips(task) : []
   // Day labels need a clock; the countdown waits for the client minute.
   const time = task
@@ -384,37 +374,7 @@ export function TaskDetailsCard() {
           <TextLineSkeleton width="70%" />
         </Stack>
       ) : null}
-      {coords ? (
-        // Map beside the rows only when the card is wide; phones already
-        // have the map hero above.
-        <Box css={{ containerType: 'inline-size' }}>
-          <Grid
-            gap={5}
-            alignItems="start"
-            css={{
-              gridTemplateColumns: 'minmax(0, 1fr)',
-              [WIDE_CARD]: { gridTemplateColumns: 'minmax(0, 1fr) 220px' },
-            }}
-          >
-            {rows}
-            <Box
-              pt={3}
-              css={{ display: 'none', [WIDE_CARD]: { display: 'block' } }}
-            >
-              <MapCard
-                accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-                lat={coords.lat}
-                lng={coords.lng}
-                height="140px"
-                variant={showExactLocation ? 'exact' : 'approximate'}
-                showOpenInMaps={false}
-              />
-            </Box>
-          </Grid>
-        </Box>
-      ) : (
-        rows
-      )}
+      {rows}
     </Card>
   )
 }

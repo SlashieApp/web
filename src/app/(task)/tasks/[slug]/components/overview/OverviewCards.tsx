@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailOverviewCardId } from '../../helpers/taskDetailMainCtaModel'
@@ -21,9 +21,9 @@ import { TaskPricingCard } from './TaskPricingCard'
  */
 /**
  * Pricing shows unless the main CTA already carries it, or the job is booked
- * or done. Phones keep it in Overview; desktop puts it at the top of the rail.
+ * or done. It sits above Task details on every viewport.
  */
-export function useShowPricingCard(): boolean {
+function useShowPricingCard(): boolean {
   const { mainCta, permissions } = useTaskDetail()
   const hidden = new Set<TaskDetailOverviewCardId>(
     mainCta?.hideOverviewCards ?? [],
@@ -43,11 +43,7 @@ export function OverviewCards() {
   return (
     <Stack gap={5} minW={0} w="full" css={staggerChildrenCss}>
       <BookingSection />
-      {showPricing ? (
-        <Box display={{ base: 'block', lg: 'none' }}>
-          <TaskPricingCard />
-        </Box>
-      ) : null}
+      {showPricing ? <TaskPricingCard /> : null}
       <TaskDetailsCard />
       <PhotosCard />
       <TaskAnalyticsTrigger />
