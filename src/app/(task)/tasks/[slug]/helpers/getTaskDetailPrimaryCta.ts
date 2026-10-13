@@ -1,9 +1,11 @@
+import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
+
 import type { TaskDetailPermissions } from './getTaskDetailPermissions'
 
 export type TaskDetailPrimaryCtaKind =
   | 'sendQuote'
   | 'editQuote'
-  | 'signInToQuote'
+  | 'becomeWorker'
   | 'viewQuotes'
   | 'preview'
   | 'workerBooked'
@@ -29,17 +31,24 @@ export function getTaskDetailPrimaryCta(
   if (p.isOwner && p.isOpen && quoteCount > 0) return 'viewQuotes'
   if (p.hasPendingQuote) return 'editQuote'
   if (p.showQuoteForm) return 'sendQuote'
-  if (p.showGuestQuoteCta) return 'signInToQuote'
-  // Signed-in non-owner non-worker on an open task — quote page handles setup.
-  if (
-    p.isOpen &&
-    !p.isOwner &&
-    !p.isOrderWorker &&
-    !p.showQuoteUnavailableNotice &&
-    !p.hasWorkerProfile
-  ) {
-    return 'sendQuote'
-  }
+  if (p.showBecomeWorkerCta) return 'becomeWorker'
   if (p.isOwner && p.isOpen) return 'preview'
   return 'none'
+}
+
+/**
+ * Where a quote CTA goes. Become a worker returns to the task once setup is
+ * done; guests sign up first (register carries `next` through to setup).
+ */
+export function taskQuoteCtaHref(
+  kind: 'sendQuote' | 'becomeWorker',
+  taskId: string,
+  permissions: Pick<TaskDetailPermissions, 'showGuestQuoteCta'>,
+): string {
+  const taskPath = `/tasks/${taskId}`
+  if (kind === 'sendQuote') return `${taskPath}/quote`
+  const setup = workerSetupHref(taskPath)
+  return permissions.showGuestQuoteCta
+    ? `/register?next=${encodeURIComponent(setup)}`
+    : setup
 }

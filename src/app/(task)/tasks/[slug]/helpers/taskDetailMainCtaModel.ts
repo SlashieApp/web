@@ -9,7 +9,10 @@ import {
 import { TaskDateTimeType } from '@codegen/schema'
 
 import type { TaskDetailPermissions } from './getTaskDetailPermissions'
-import { getTaskDetailPrimaryCta } from './getTaskDetailPrimaryCta'
+import {
+  getTaskDetailPrimaryCta,
+  taskQuoteCtaHref,
+} from './getTaskDetailPrimaryCta'
 import {
   budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
@@ -47,7 +50,9 @@ export type TaskDetailMainCtaModel = {
 export type TaskDetailMainCtaCopy = {
   preview: string
   sendQuote: string
-  signInToQuote: string
+  becomeWorker: string
+  /** Budget eyebrow for non-workers ("You can earn"). */
+  youCanEarn: string
   editQuote: string
   quoteSent: string
   yourQuote: string
@@ -265,11 +270,21 @@ export function buildTaskDetailMainCta(input: {
     )
   }
 
-  if (kind === 'sendQuote' || kind === 'signInToQuote') {
+  if (kind === 'sendQuote') {
     return quoted(
-      kind === 'signInToQuote' ? copy.signInToQuote : copy.sendQuote,
+      copy.sendQuote,
       budgetContent(task, copy),
-      { href: `/tasks/${task.id}/quote` },
+      { href: taskQuoteCtaHref(kind, task.id, permissions) },
+      ['pricing'],
+    )
+  }
+
+  if (kind === 'becomeWorker') {
+    const budget = budgetContent(task, copy)
+    return quoted(
+      copy.becomeWorker,
+      task.budget ? { ...budget, eyebrow: copy.youCanEarn } : budget,
+      { href: taskQuoteCtaHref(kind, task.id, permissions) },
       ['pricing'],
     )
   }

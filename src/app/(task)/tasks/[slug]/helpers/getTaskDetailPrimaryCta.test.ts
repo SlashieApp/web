@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import type { TaskDetailPermissions } from './getTaskDetailPermissions'
-import { getTaskDetailPrimaryCta } from './getTaskDetailPrimaryCta'
+import {
+  getTaskDetailPrimaryCta,
+  taskQuoteCtaHref,
+} from './getTaskDetailPrimaryCta'
 
 function permissions(
   overrides: Partial<TaskDetailPermissions> = {},
@@ -23,6 +26,7 @@ function permissions(
     hasPendingQuote: false,
     showQuoteForm: false,
     showGuestQuoteCta: false,
+    showBecomeWorkerCta: false,
     showQuoteUnavailableNotice: false,
     showOwnerQuoteList: false,
     showAcceptDecline: false,
@@ -37,13 +41,16 @@ function permissions(
 }
 
 describe('getTaskDetailPrimaryCta', () => {
-  it('visitor on an open task gets sign-in-to-quote', () => {
+  it('visitor on an open task gets become-worker', () => {
     expect(
       getTaskDetailPrimaryCta({
-        permissions: permissions({ showGuestQuoteCta: true }),
+        permissions: permissions({
+          showGuestQuoteCta: true,
+          showBecomeWorkerCta: true,
+        }),
         quoteCount: 2,
       }),
-    ).toBe('signInToQuote')
+    ).toBe('becomeWorker')
   })
 
   it('eligible worker on an open task gets send-quote', () => {
@@ -149,12 +156,50 @@ describe('getTaskDetailPrimaryCta', () => {
     ).toBe('none')
   })
 
-  it('signed-in non-owner non-worker on an open task gets send-quote', () => {
+  it('signed-in non-worker on an open task gets become-worker', () => {
     expect(
       getTaskDetailPrimaryCta({
-        permissions: permissions(),
+        permissions: permissions({ showBecomeWorkerCta: true }),
         quoteCount: 0,
       }),
-    ).toBe('sendQuote')
+    ).toBe('becomeWorker')
+  })
+
+  it('non-worker on a full task has no primary CTA', () => {
+    expect(
+      getTaskDetailPrimaryCta({
+        permissions: permissions({
+          atCap: true,
+          showQuoteUnavailableNotice: true,
+        }),
+        quoteCount: 1,
+      }),
+    ).toBe('none')
+  })
+})
+
+describe('taskQuoteCtaHref', () => {
+  it('sends workers to the quote flow', () => {
+    expect(taskQuoteCtaHref('sendQuote', 't1', permissions())).toBe(
+      '/tasks/t1/quote',
+    )
+  })
+
+  it('sends non-workers to setup, returning to the task', () => {
+    expect(taskQuoteCtaHref('becomeWorker', 't1', permissions())).toBe(
+      '/worker/setup?next=%2Ftasks%2Ft1',
+    )
+  })
+
+  it('sends guests to sign up first, carrying setup as next', () => {
+    expect(
+      taskQuoteCtaHref(
+        'becomeWorker',
+        't1',
+        permissions({ showGuestQuoteCta: true }),
+      ),
+    ).toBe(
+      `/register?next=${encodeURIComponent('/worker/setup?next=%2Ftasks%2Ft1')}`,
+    )
   })
 })

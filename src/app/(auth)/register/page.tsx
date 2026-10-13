@@ -6,7 +6,7 @@ import { Box, Checkbox, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Badge, Button, FormField, IconButton, Input, Link, Logo } from '@ui'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -26,6 +26,7 @@ import {
   getRegisterFailCount,
   incrementRegisterFailCount,
 } from '@/app/(auth)/helpers/authFailCount'
+import { authSwitchHref } from '@/app/(auth)/helpers/authRedirect'
 import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationContext'
 import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
@@ -351,6 +352,8 @@ function RegisterMarketingAside() {
 export default function RegisterPage() {
   const t = useI11n(bag)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const loginHref = authSwitchHref('/login', searchParams)
   const getUser = useUserStore((s) => s.getUser)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -712,7 +715,7 @@ export default function RegisterPage() {
             <Text fontSize="sm" color="text.muted" textAlign="center">
               {t.loginPrompt}{' '}
               <Link
-                href="/login"
+                href={loginHref}
                 fontWeight={700}
                 color="text.link"
                 _hover={{

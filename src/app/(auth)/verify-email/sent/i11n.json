@@ -11,7 +11,7 @@
     "descriptionFallbackEmail": "your email address",
     "descriptionSuffix": "Open the link to verify your account - you can keep browsing while you wait.",
     "resend": "Resend verification email",
-    "continue": "Continue to dashboard",
+    "continue": "Continue",
     "loginPrompt": "Log in to resend the verification email.",
     "login": "Log in"
   },
@@ -27,7 +27,7 @@
     "descriptionFallbackEmail": "你的電郵地址",
     "descriptionSuffix": "開啟連結即可驗證帳戶；等候期間你仍可繼續瀏覽。",
     "resend": "重新傳送驗證電郵",
-    "continue": "前往 dashboard",
+    "continue": "繼續",
     "loginPrompt": "登入以重新傳送驗證電郵。",
     "login": "登入"
   }

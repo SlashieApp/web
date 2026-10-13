@@ -1,4 +1,5 @@
 import { formatMessage } from '@/i18n/loadPageI11n'
+import { formatBudgetAmount } from '@/utils/price'
 import { QuoteStatus } from '@codegen/schema'
 
 import type { TaskDetailContextValue } from '../../context/TaskDetailContext'
@@ -12,6 +13,24 @@ export type StatusHeaderCopy = {
   pill: TaskStatusValue
   headline: string
   subtext: string
+}
+
+/** "You can earn £120" (an hour / a day for those budgets); no budget falls back. */
+function earnHeadline(
+  task: TaskDetailContextValue['task'],
+  copy: TaskDetailI11n['statusHeader'],
+): string {
+  const budget = task?.budget
+  const amount = budget ? formatBudgetAmount(budget, '') : ''
+  if (!amount) return copy.openQuotesHeadline
+  const type = budget?.type?.trim().toUpperCase().replaceAll(' ', '_')
+  const template =
+    type === 'PER_HOUR'
+      ? copy.earnHourlyHeadline
+      : type === 'PER_DAY'
+        ? copy.earnDailyHeadline
+        : copy.earnHeadline
+  return formatMessage(template, { amount })
 }
 
 /**
@@ -120,6 +139,14 @@ export function selectStatusHeaderCopy(
             })
           : copy.openQuotesHeadline,
       subtext: copy.openQuotesSubtext,
+    }
+  }
+
+  if (p.showBecomeWorkerCta) {
+    return {
+      pill: 'OPEN',
+      headline: earnHeadline(task, copy),
+      subtext: copy.earnSubtext,
     }
   }
 

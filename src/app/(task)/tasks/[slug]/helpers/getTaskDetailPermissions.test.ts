@@ -273,4 +273,71 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.showGuestQuoteCta).toBe(false)
     expect(permissions.showQuoteForm).toBe(true)
   })
+
+  // FE-207: not being a worker is not the same as the task being full.
+  it('signed-in non-worker on an OPEN task gets Become a worker, not "full"', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open }),
+      myOrder: null,
+      me: { id: 'customer-2', worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(permissions.showBecomeWorkerCta).toBe(true)
+    expect(permissions.showQuoteUnavailableNotice).toBe(false)
+  })
+
+  it('visitor on an OPEN task gets Become a worker too', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open }),
+      myOrder: null,
+      me: null,
+      myQuote: null,
+      isAuthenticated: false,
+    })
+
+    expect(permissions.showBecomeWorkerCta).toBe(true)
+    expect(permissions.showQuoteUnavailableNotice).toBe(false)
+  })
+
+  it('a full task reads as full for non-workers and visitors', () => {
+    for (const viewer of [
+      {
+        me: { id: 'customer-2', worker: null } as never,
+        isAuthenticated: true,
+      },
+      { me: null, isAuthenticated: false },
+    ]) {
+      const permissions = getTaskDetailPermissions({
+        task: baseTask({ status: TaskStatus.Open }),
+        myOrder: null,
+        myQuote: null,
+        atCap: true,
+        ...viewer,
+      })
+      expect(permissions.showBecomeWorkerCta).toBe(false)
+      expect(permissions.showQuoteUnavailableNotice).toBe(true)
+    }
+  })
+
+  it('owners and workers never get Become a worker', () => {
+    const owner = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open }),
+      myOrder: null,
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+    const worker = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open }),
+      myOrder: null,
+      me: workerMe(),
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(owner.showBecomeWorkerCta).toBe(false)
+    expect(worker.showBecomeWorkerCta).toBe(false)
+  })
 })

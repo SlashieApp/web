@@ -25,6 +25,19 @@ export function getSafeNextPath(
   }
 }
 
+/**
+ * Log in / sign up cross-link that keeps the caller's validated `next`, so
+ * switching pages mid-journey (e.g. Become a worker from a task) still
+ * returns to where it started.
+ */
+export function authSwitchHref(
+  path: '/login' | '/register',
+  params: { get(name: string): string | null },
+): string {
+  const next = getSafeNextPath(params.get('next'), params.get('redirect'))
+  return next ? `${path}?next=${encodeURIComponent(next)}` : path
+}
+
 export function resolvePostAuthRedirect(options: {
   next?: string | null
   redirect?: string | null

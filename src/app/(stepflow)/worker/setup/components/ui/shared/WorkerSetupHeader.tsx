@@ -1,18 +1,20 @@
 'use client'
 
-import { Box, HStack, IconButton, Text } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
+import { Box, HStack, Text } from '@chakra-ui/react'
 import { LuX } from 'react-icons/lu'
 
+import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { Logo } from '@ui'
+import { IconButton, Link, Logo } from '@ui'
+
+import bag from '../../../i11n.json'
 
 type WorkerSetupHeaderProps = {
   exitHref: string
 }
 
 export function WorkerSetupHeader({ exitHref }: WorkerSetupHeaderProps) {
-  const router = useRouter()
+  const t = useI11n(bag)
 
   return (
     <Box
@@ -33,15 +35,11 @@ export function WorkerSetupHeader({ exitHref }: WorkerSetupHeaderProps) {
         minH={{ base: '56px', md: '64px' }}
         align="center"
       >
-        <IconButton
-          aria-label="Close worker setup"
-          variant="ghost"
-          size="sm"
-          minW="44px"
-          minH="44px"
-          onClick={() => router.push(exitHref)}
-        >
-          <LuX size={20} aria-hidden />
+        {/* A link, so leaving keeps the locale and works without JS. */}
+        <IconButton asChild aria-label={t.closeLabel} variant="ghost">
+          <Link href={exitHref}>
+            <LuX size={20} aria-hidden />
+          </Link>
         </IconButton>
         <Logo containerProps={{ flexShrink: 0 }} />
         <Text
@@ -52,7 +50,7 @@ export function WorkerSetupHeader({ exitHref }: WorkerSetupHeaderProps) {
           textAlign={{ base: 'left', md: 'center' }}
           truncate
         >
-          Set up your worker profile
+          {t.title}
         </Text>
         <Box
           display={{ base: 'none', md: 'block' }}

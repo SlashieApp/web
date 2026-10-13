@@ -6,15 +6,161 @@
     },
     "title": "Set up your worker profile",
     "description": "Add the essentials customers need before they choose your quote.",
-    "loading": "Loading setup..."
+    "loading": "Loading setup...",
+    "closeLabel": "Close worker setup",
+    "progressCaption": "Step {current} of {total} · {label}",
+    "progressLabel": "Worker setup progress",
+    "back": "Back",
+    "continue": "Continue",
+    "finish": "Start quoting",
+    "loadErrorTitle": "We couldn't load your setup",
+    "loadErrorBody": "Check your connection and try again. Anything you saved is still there.",
+    "retry": "Try again",
+    "leave": "Leave setup",
+    "completeTitle": "You're set up as a worker",
+    "completeBody": "You can send quotes now.",
+    "majors": {
+      "profile": "Your profile",
+      "services": "Your services",
+      "area": "Service area",
+      "verify": "Verify & trust",
+      "review": "Review and go"
+    },
+    "subSteps": {
+      "profile.details": "Personal details",
+      "profile.photo": "Profile photo",
+      "profile.bio": "Headline and bio",
+      "services.skills": "Skills",
+      "services.experience": "Experience",
+      "area.location": "Location",
+      "area.travel": "Travel distance",
+      "verify.phone": "Phone",
+      "verify.portfolio": "Portfolio",
+      "review.submit": "Review"
+    },
+    "steps": {
+      "profile.details": {
+        "title": "Tell us your name",
+        "description": "About 5 minutes. You'll need your date of birth, a photo, a short bio, your skills, your area and a phone to verify. Travel distance and portfolio are optional."
+      },
+      "profile.photo": {
+        "title": "Add a profile photo",
+        "description": "A clear, friendly photo helps customers choose you. We also ask for your date of birth."
+      },
+      "profile.bio": {
+        "title": "Write a headline and short bio",
+        "description": "Customers read this before they accept your quote. Two or three sentences about the work you do best."
+      },
+      "services.skills": {
+        "title": "What work do you do?",
+        "description": "Your skills decide which tasks you show up for."
+      },
+      "services.experience": {
+        "title": "How much experience do you have?",
+        "description": "Shown next to your rating on your profile."
+      },
+      "area.location": {
+        "title": "Where do you work?",
+        "description": "Customers only see an approximate area, never your address."
+      },
+      "area.travel": {
+        "title": "How far will you travel?",
+        "description": "Optional. A wider radius shows you more tasks."
+      },
+      "verify.phone": {
+        "title": "Verify your phone",
+        "description": "You need a verified phone to send quotes. Customers see a Phone verified badge on your profile."
+      },
+      "verify.portfolio": {
+        "title": "Show your work",
+        "description": "Optional. Photos of finished jobs help you win more quotes."
+      },
+      "review.submit": {
+        "title": "Your profile, as customers see it",
+        "description": "Check the preview below, then start quoting."
+      }
+    }
   },
   "zh_hk": {
     "metadata": {
-      "title": "設定 worker 個人檔案 | Slashie",
-      "description": "建立你的 Slashie worker 個人檔案，加入技能、簡介、作品和服務詳情。"
+      "title": "設定工作者個人檔案 | Slashie",
+      "description": "建立你的 Slashie 工作者個人檔案，加入技能、簡介、作品和服務詳情。"
     },
-    "title": "設定你的 worker 個人檔案",
-    "description": "加入 customers 選擇你的報價前需要了解的重點。",
-    "loading": "正在載入設定..."
+    "title": "設定你的工作者個人檔案",
+    "description": "加入顧客選擇你的報價前需要知道的重點。",
+    "loading": "正在載入設定...",
+    "closeLabel": "關閉工作者設定",
+    "progressCaption": "第 {current} 步（共 {total} 步）· {label}",
+    "progressLabel": "工作者設定進度",
+    "back": "返回",
+    "continue": "繼續",
+    "finish": "開始報價",
+    "loadErrorTitle": "未能載入你的設定",
+    "loadErrorBody": "請檢查網絡連線後再試。你已儲存的內容仍然保留。",
+    "retry": "再試一次",
+    "leave": "離開設定",
+    "completeTitle": "你已成為工作者",
+    "completeBody": "你現在可以傳送報價。",
+    "majors": {
+      "profile": "你的個人檔案",
+      "services": "你的服務",
+      "area": "服務地區",
+      "verify": "驗證與信任",
+      "review": "檢查並完成"
+    },
+    "subSteps": {
+      "profile.details": "個人資料",
+      "profile.photo": "個人頭像",
+      "profile.bio": "標題及簡介",
+      "services.skills": "技能",
+      "services.experience": "經驗",
+      "area.location": "地點",
+      "area.travel": "服務距離",
+      "verify.phone": "電話",
+      "verify.portfolio": "作品集",
+      "review.submit": "檢查"
+    },
+    "steps": {
+      "profile.details": {
+        "title": "你的名字",
+        "description": "大約需時 5 分鐘。你需要提供出生日期、頭像、簡短自我介紹、技能、服務地區，以及驗證電話號碼。服務距離及作品集可選填。"
+      },
+      "profile.photo": {
+        "title": "加入個人頭像",
+        "description": "清晰友善的頭像有助顧客選擇你。我們亦需要你的出生日期。"
+      },
+      "profile.bio": {
+        "title": "撰寫標題及簡介",
+        "description": "顧客接受你的報價前會先看這部分。用兩三句介紹你最擅長的工作。"
+      },
+      "services.skills": {
+        "title": "你做哪類工作？",
+        "description": "你的技能決定你會看到哪些任務。"
+      },
+      "services.experience": {
+        "title": "你有多少年經驗？",
+        "description": "會顯示在你個人檔案的評分旁邊。"
+      },
+      "area.location": {
+        "title": "你在哪裡工作？",
+        "description": "顧客只會看到大概地區，絕不會看到你的地址。"
+      },
+      "area.travel": {
+        "title": "你願意走多遠？",
+        "description": "可選填。範圍越大，你會看到越多任務。"
+      },
+      "verify.phone": {
+        "title": "驗證你的電話",
+        "description": "你需要已驗證的電話才能傳送報價。顧客會在你的個人檔案看到「電話已驗證」標記。"
+      },
+      "verify.portfolio": {
+        "title": "展示你的作品",
+        "description": "可選填。完成工作的相片有助你贏得更多報價。"
+      },
+      "review.submit": {
+        "title": "顧客眼中的你",
+        "description": "檢查以下預覽，然後開始報價。"
+      }
+    }
   }
 }

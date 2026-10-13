@@ -89,7 +89,17 @@ function VerifyEmailSentContent() {
 
           {isLoggedIn ? (
             <Stack gap={3} w="full" maxW="xs">
+              {/* Verifying can wait; carrying on (e.g. into worker setup) is the next step. */}
+              <Button asChild w="full">
+                <Link
+                  href={nextPath ?? APP_HOME}
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  {t.continue}
+                </Link>
+              </Button>
               <Button
+                variant="secondary"
                 loading={isSending}
                 onClick={() => void resend()}
                 w="full"
@@ -105,15 +115,6 @@ function VerifyEmailSentContent() {
                   {message}
                 </Box>
               ) : null}
-              <Link
-                href={nextPath ?? APP_HOME}
-                fontSize="sm"
-                fontWeight={600}
-                color="text.link"
-                _hover={{ textDecoration: 'none', color: 'status.success.fg' }}
-              >
-                {t.continue}
-              </Link>
             </Stack>
           ) : (
             <Stack gap={2}>

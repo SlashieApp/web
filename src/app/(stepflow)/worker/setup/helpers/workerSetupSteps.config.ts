@@ -1,3 +1,5 @@
+import { formatMessage } from '@/i18n/loadPageI11n'
+
 export type WorkerSetupSubStepId =
   | 'profile.details'
   | 'profile.photo'
@@ -19,54 +21,47 @@ export type WorkerSetupMajorStepId =
 
 export type WorkerSetupSubStepConfig = {
   id: WorkerSetupSubStepId
-  label: string
   optional?: boolean
 }
 
 export type WorkerSetupMajorStepConfig = {
   id: WorkerSetupMajorStepId
-  label: string
   subSteps: WorkerSetupSubStepConfig[]
+}
+
+/** Step labels and captions live in the setup i11n bag. */
+export type WorkerSetupStepLabels = {
+  majors: Record<WorkerSetupMajorStepId, string>
+  subSteps: Record<WorkerSetupSubStepId, string>
 }
 
 export const WORKER_SETUP_MAJOR_STEPS: WorkerSetupMajorStepConfig[] = [
   {
     id: 'profile',
-    label: 'Build your profile',
     subSteps: [
-      { id: 'profile.details', label: 'Personal details' },
-      { id: 'profile.photo', label: 'Profile photo' },
-      { id: 'profile.bio', label: 'Public bio' },
+      { id: 'profile.details' },
+      { id: 'profile.photo' },
+      { id: 'profile.bio' },
     ],
   },
   {
     id: 'services',
-    label: 'Your services',
-    subSteps: [
-      { id: 'services.skills', label: 'Skills' },
-      { id: 'services.experience', label: 'Experience' },
-    ],
+    subSteps: [{ id: 'services.skills' }, { id: 'services.experience' }],
   },
   {
     id: 'area',
-    label: 'Service area',
-    subSteps: [
-      { id: 'area.location', label: 'Location' },
-      { id: 'area.travel', label: 'Travel', optional: true },
-    ],
+    subSteps: [{ id: 'area.location' }, { id: 'area.travel', optional: true }],
   },
   {
     id: 'verify',
-    label: 'Verify & trust',
     subSteps: [
-      { id: 'verify.phone', label: 'Contact' },
-      { id: 'verify.portfolio', label: 'Portfolio', optional: true },
+      { id: 'verify.phone' },
+      { id: 'verify.portfolio', optional: true },
     ],
   },
   {
     id: 'review',
-    label: 'Review & go',
-    subSteps: [{ id: 'review.submit', label: 'Review' }],
+    subSteps: [{ id: 'review.submit' }],
   },
 ]
 
@@ -75,62 +70,6 @@ export const WORKER_SETUP_FLAT_STEPS: WorkerSetupSubStepConfig[] =
 
 export const WORKER_SETUP_FIRST_SUB_STEP: WorkerSetupSubStepId =
   WORKER_SETUP_FLAT_STEPS[0]?.id ?? 'profile.details'
-
-export const STEP_COPY: Record<
-  WorkerSetupSubStepId,
-  { title: string; description?: string }
-> = {
-  'profile.details': {
-    title: 'Tell us your name',
-    description:
-      'Your name appears on your public profile and every quote you send — customers want to know who is turning up.',
-  },
-  'profile.photo': {
-    title: 'Add a profile photo',
-    description:
-      'Profiles with a clear, friendly photo win more work — customers pick faces they recognise and trust.',
-  },
-  'profile.bio': {
-    title: 'Write your headline and bio',
-    description:
-      'Customers read this before accepting your quote. A sharp headline and two or three sentences about the work you do best.',
-  },
-  'services.skills': {
-    title: 'What work do you do?',
-    description:
-      'Your trade and skills become searchable tags — they decide which tasks you show up for.',
-  },
-  'services.experience': {
-    title: 'How much experience do you have?',
-    description:
-      'Years of experience appear next to your rating — one of the first things customers compare.',
-  },
-  'area.location': {
-    title: 'Where do you work?',
-    description:
-      'Customers only ever see an approximate area, never your address.',
-  },
-  'area.travel': {
-    title: 'How far will you travel?',
-    description:
-      'Optional — a wider radius means more tasks in your search results.',
-  },
-  'verify.phone': {
-    title: 'Verify your phone',
-    description:
-      'A verified phone number is required to send quotes — customers see a "Phone verified" badge on your profile.',
-  },
-  'verify.portfolio': {
-    title: 'Show your work',
-    description:
-      'Optional, but workers with photos win more quotes — add pictures of finished jobs.',
-  },
-  'review.submit': {
-    title: 'Your profile, as customers see it',
-    description:
-      'Check the preview below — this is exactly what customers see when they open your profile.',
-  },
-}
 
 export function subStepIndex(id: WorkerSetupSubStepId): number {
   return WORKER_SETUP_FLAT_STEPS.findIndex((step) => step.id === id)
@@ -158,11 +97,27 @@ export function progressPercent(activeSubStep: WorkerSetupSubStepId): number {
   return Math.round(((index + 1) / total) * 100)
 }
 
-export function stepCaption(activeSubStep: WorkerSetupSubStepId): string {
-  const majorIndex = majorIndexForSubStep(activeSubStep)
-  const major = WORKER_SETUP_MAJOR_STEPS[majorIndex]
-  const sub = subStepConfig(activeSubStep)
-  return `Step ${majorIndex + 1} of ${WORKER_SETUP_MAJOR_STEPS.length} · ${sub?.label ?? activeSubStep}`
+export function stepCaption(
+  activeSubStep: WorkerSetupSubStepId,
+  copy: WorkerSetupStepLabels & { progressCaption: string },
+): string {
+  return formatMessage(copy.progressCaption, {
+    current: majorIndexForSubStep(activeSubStep) + 1,
+    total: WORKER_SETUP_MAJOR_STEPS.length,
+    label: copy.subSteps[activeSubStep],
+  })
+}
+
+/** Steps with localised labels, for the Stepper and the phone accordion. */
+export function workerSetupStepsWithLabels(copy: WorkerSetupStepLabels) {
+  return WORKER_SETUP_MAJOR_STEPS.map((major) => ({
+    ...major,
+    label: copy.majors[major.id],
+    subSteps: major.subSteps.map((sub) => ({
+      ...sub,
+      label: copy.subSteps[sub.id],
+    })),
+  }))
 }
 
 export function previousSubStep(

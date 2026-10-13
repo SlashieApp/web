@@ -46,7 +46,7 @@ describe('OverviewCards layout', () => {
   it('merges quote CTAs onto the pricing card, not a separate thin bar', () => {
     const pricing = readFileSync(join(dir, 'TaskPricingCard.tsx'), 'utf8')
     expect(pricing).toContain('t.cta.sendQuote')
-    expect(pricing).toContain('t.cta.signInToQuote')
+    expect(pricing).toContain('t.cta.becomeWorker')
     expect(pricing).toContain('SafetyNotice')
     expect(pricing).toContain('TaskDetailSplitCta')
     expect(pricing).toContain('eyebrow={t.details.budget}')

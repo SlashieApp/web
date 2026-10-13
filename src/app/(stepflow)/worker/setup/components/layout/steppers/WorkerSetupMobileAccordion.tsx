@@ -1,19 +1,26 @@
 'use client'
 
-import { Box, Collapsible, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Collapsible, Stack, Text, chakra } from '@chakra-ui/react'
 import { LuCheck, LuChevronDown, LuChevronRight } from 'react-icons/lu'
 
+import { useI11n } from '@/i18n/useI11n'
+import { sdlFocusRing } from '@/theme/styles'
 import { StepFlowHeading } from '@ui'
 import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
 import {
-  STEP_COPY,
-  WORKER_SETUP_MAJOR_STEPS,
   type WorkerSetupSubStepId,
   majorIndexForSubStep,
+  workerSetupStepsWithLabels,
 } from '../../../helpers/workerSetupSteps.config'
+import bag from '../../../i11n.json'
 import { WorkerSetupStepContent } from '../../ui/steps/WorkerSetupStepContent'
 
+/**
+ * Phone stepper: one disclosure per major step. Headers and sub-steps are
+ * real buttons (expanded / current / locked states, 44px rows).
+ */
 export function WorkerSetupMobileAccordion() {
+  const t = useI11n(bag)
   const {
     activeSubStep,
     completedSubSteps,
@@ -25,16 +32,17 @@ export function WorkerSetupMobileAccordion() {
   } = useWorkerSetup()
 
   const activeMajorIndex = majorIndexForSubStep(activeSubStep)
-  const copy = STEP_COPY[activeSubStep]
+  const copy = t.steps[activeSubStep]
 
   return (
     <Stack gap={0} w="full" bg="bg.surface">
-      {WORKER_SETUP_MAJOR_STEPS.map((major, majorIdx) => {
+      {workerSetupStepsWithLabels(t).map((major, majorIdx) => {
         const isExpanded = expandedMajor === majorIdx
         const isActiveMajor = majorIdx === activeMajorIndex
         const majorComplete = major.subSteps.every((sub) =>
           completedSubSteps.has(sub.id),
         )
+        const panelId = `worker-setup-${major.id}`
 
         return (
           <Box
@@ -44,12 +52,21 @@ export function WorkerSetupMobileAccordion() {
             borderColor="border.default"
             _last={{ borderBottomWidth: 0 }}
           >
-            <HStack
+            <chakra.button
+              type="button"
+              aria-expanded={isExpanded}
+              aria-controls={panelId}
+              onClick={() => toggleMajor(majorIdx)}
+              display="flex"
+              alignItems="center"
               gap={3}
+              w="full"
+              minH="44px"
               px={4}
               py={3}
+              textAlign="left"
               cursor="pointer"
-              onClick={() => toggleMajor(majorIdx)}
+              _focusVisible={sdlFocusRing}
             >
               <Box
                 boxSize="24px"
@@ -57,12 +74,13 @@ export function WorkerSetupMobileAccordion() {
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-                bg={majorComplete ? 'status.success.soft' : 'neutral.100'}
+                bg={majorComplete ? 'status.success.soft' : 'bg.subtle'}
                 color={majorComplete ? 'status.success.fg' : 'text.muted'}
                 flexShrink={0}
+                aria-hidden
               >
                 {majorComplete ? (
-                  <LuCheck size={14} aria-hidden />
+                  <LuCheck size={14} />
                 ) : (
                   <Text fontSize="xs" fontWeight={700}>
                     {majorIdx + 1}
@@ -70,6 +88,7 @@ export function WorkerSetupMobileAccordion() {
                 )}
               </Box>
               <Text
+                as="span"
                 flex={1}
                 fontSize="sm"
                 fontWeight={600}
@@ -81,38 +100,44 @@ export function WorkerSetupMobileAccordion() {
                 <LuChevronDown
                   size={18}
                   color="var(--chakra-colors-text-muted)"
+                  aria-hidden
                 />
               ) : (
                 <LuChevronRight
                   size={18}
                   color="var(--chakra-colors-text-muted)"
+                  aria-hidden
                 />
               )}
-            </HStack>
+            </chakra.button>
 
             <Collapsible.Root open={isExpanded}>
-              <Collapsible.Content>
+              <Collapsible.Content id={panelId}>
                 <Stack gap={0} px={4} pb={4}>
                   <Stack gap={0} pl={9}>
                     {major.subSteps.map((sub) => {
-                      const isActive = sub.id === activeSubStep
-                      const isComplete = completedSubSteps.has(sub.id)
-                      const unlocked = isSubStepUnlocked(
-                        sub.id as WorkerSetupSubStepId,
-                      )
+                      const id = sub.id as WorkerSetupSubStepId
+                      const isActive = id === activeSubStep
+                      const isComplete = completedSubSteps.has(id)
+                      const unlocked = isSubStepUnlocked(id)
 
                       return (
-                        <HStack
-                          key={sub.id}
+                        <chakra.button
+                          key={id}
+                          type="button"
+                          disabled={!unlocked}
+                          aria-current={isActive ? 'step' : undefined}
+                          onClick={() => goToSubStep(id)}
+                          display="flex"
+                          alignItems="center"
                           gap={3}
-                          py={2}
-                          cursor={unlocked ? 'pointer' : 'not-allowed'}
-                          opacity={unlocked ? 1 : 0.45}
-                          onClick={() => {
-                            if (unlocked) {
-                              goToSubStep(sub.id as WorkerSetupSubStepId)
-                            }
-                          }}
+                          w="full"
+                          minH="44px"
+                          textAlign="left"
+                          cursor="pointer"
+                          borderRadius="md"
+                          _disabled={{ cursor: 'not-allowed', opacity: 0.45 }}
+                          _focusVisible={sdlFocusRing}
                         >
                           <Box
                             boxSize="8px"
@@ -127,15 +152,17 @@ export function WorkerSetupMobileAccordion() {
                             borderWidth={isActive || isComplete ? '0' : '2px'}
                             borderColor="border.strong"
                             flexShrink={0}
+                            aria-hidden
                           />
                           <Text
+                            as="span"
                             fontSize="sm"
                             fontWeight={isActive ? 600 : 500}
                             color={isActive ? 'text.link' : 'text.muted'}
                           >
                             {sub.label}
                           </Text>
-                        </HStack>
+                        </chakra.button>
                       )
                     })}
                   </Stack>
@@ -154,7 +181,11 @@ export function WorkerSetupMobileAccordion() {
                         compact
                       />
                       {saveError ? (
-                        <Text color="status.danger.fg" fontSize="sm">
+                        <Text
+                          color="status.danger.fg"
+                          fontSize="sm"
+                          role="alert"
+                        >
                           {saveError}
                         </Text>
                       ) : null}

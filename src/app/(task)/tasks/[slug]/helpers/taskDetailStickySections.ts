@@ -93,7 +93,7 @@ function quoteKind(ctx: TaskDetailSectionContext) {
  */
 function isQuoteVisitorPath(ctx: TaskDetailSectionContext): boolean {
   const kind = quoteKind(ctx)
-  return kind === 'sendQuote' || kind === 'signInToQuote'
+  return kind === 'sendQuote' || kind === 'becomeWorker'
 }
 
 export const TASK_DETAIL_SECTION_RULES: readonly TaskDetailSectionRule[] = [

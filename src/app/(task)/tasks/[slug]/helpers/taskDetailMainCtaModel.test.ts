@@ -11,7 +11,8 @@ import type { TaskDetailRecord } from './taskDetailUtils'
 const copy: TaskDetailMainCtaCopy = {
   preview: 'Preview',
   sendQuote: 'Send quote',
-  signInToQuote: 'Sign in to quote',
+  becomeWorker: 'Become a worker',
+  youCanEarn: 'You can earn',
   editQuote: 'Edit quote',
   quoteSent: 'Quote sent',
   yourQuote: 'Your quote',
@@ -59,6 +60,7 @@ function permissions(
     hasPendingQuote: false,
     showQuoteForm: false,
     showGuestQuoteCta: false,
+    showBecomeWorkerCta: false,
     showQuoteUnavailableNotice: false,
     showOwnerQuoteList: false,
     showAcceptDecline: false,
@@ -119,6 +121,54 @@ describe('buildTaskDetailMainCta', () => {
     expect(model?.content?.eyebrow).toBe('Budget')
     expect(model?.href).toBe('/tasks/task-1/quote')
     expect(model?.hideOverviewCards).toEqual(['pricing'])
+  })
+
+  it('offers Become a worker with the earn line to a non-worker', () => {
+    const model = buildTaskDetailMainCta({
+      task: task(),
+      myQuote: null,
+      permissions: permissions({
+        hasWorkerProfile: false,
+        showBecomeWorkerCta: true,
+      }),
+      copy,
+    })
+    expect(model).toMatchObject({
+      presentation: 'quoted',
+      buttonLabel: 'Become a worker',
+      href: '/worker/setup?next=%2Ftasks%2Ftask-1',
+      hideOverviewCards: ['pricing'],
+      content: { eyebrow: 'You can earn' },
+    })
+  })
+
+  it('sends a guest to sign up before setup', () => {
+    const model = buildTaskDetailMainCta({
+      task: task(),
+      myQuote: null,
+      permissions: permissions({
+        hasWorkerProfile: false,
+        showGuestQuoteCta: true,
+        showBecomeWorkerCta: true,
+      }),
+      copy,
+    })
+    expect(model?.href).toBe(
+      `/register?next=${encodeURIComponent('/worker/setup?next=%2Ftasks%2Ftask-1')}`,
+    )
+  })
+
+  it('keeps the Budget eyebrow when a non-worker task has no budget', () => {
+    const model = buildTaskDetailMainCta({
+      task: task({ budget: null }),
+      myQuote: null,
+      permissions: permissions({
+        hasWorkerProfile: false,
+        showBecomeWorkerCta: true,
+      }),
+      copy,
+    })
+    expect(model?.content?.eyebrow).toBe('Budget')
   })
 
   it('shows the sent quote and leaves the pricing card visible', () => {

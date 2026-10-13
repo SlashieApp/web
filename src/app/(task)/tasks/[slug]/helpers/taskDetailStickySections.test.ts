@@ -34,6 +34,7 @@ function permissions(
     hasPendingQuote: false,
     showQuoteForm: false,
     showGuestQuoteCta: false,
+    showBecomeWorkerCta: false,
     showQuoteUnavailableNotice: false,
     showOwnerQuoteList: false,
     showAcceptDecline: false,
@@ -102,7 +103,10 @@ describe('resolveTaskDetailSections', () => {
       pending: false,
       isAuthenticated: false,
       quoteCount: 1,
-      permissions: permissions({ showGuestQuoteCta: true }),
+      permissions: permissions({
+        showGuestQuoteCta: true,
+        showBecomeWorkerCta: true,
+      }),
     })
     expect(resolved.pinnedId).toBe('pricing')
     expect(resolved.mobile.pricing).toBe('pin')
@@ -126,7 +130,7 @@ describe('resolveTaskDetailSections', () => {
       pending: false,
       isAuthenticated: true,
       quoteCount: 0,
-      permissions: permissions(),
+      permissions: permissions({ showBecomeWorkerCta: true }),
     })
     expect(resolved.pinnedId).toBe('pricing')
     expect(resolved.mobile.pricing).toBe('pin')
@@ -274,7 +278,10 @@ describe('resolveTaskDetailSections', () => {
         pending: false,
         isAuthenticated: false,
         quoteCount: 0,
-        permissions: permissions({ showGuestQuoteCta: true }),
+        permissions: permissions({
+          showGuestQuoteCta: true,
+          showBecomeWorkerCta: true,
+        }),
       },
       {
         hasTask: true,

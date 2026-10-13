@@ -937,7 +937,8 @@ export function TaskDetailProvider({
             copy: {
               preview: t.cta.preview,
               sendQuote: t.cta.sendQuote,
-              signInToQuote: t.cta.signInToQuote,
+              becomeWorker: t.cta.becomeWorker,
+              youCanEarn: t.cta.youCanEarn,
               editQuote: t.cta.editQuote,
               quoteSent: t.cta.quoteSent,
               yourQuote: t.cta.yourQuote,

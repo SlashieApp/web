@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { withWorkerSetup } from '../../workerSetupStoryFixtures'
 import { WorkerSetupStepContent } from './WorkerSetupStepContent'
 
 const meta: Meta<typeof WorkerSetupStepContent> = {
@@ -13,4 +14,4 @@ const meta: Meta<typeof WorkerSetupStepContent> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+export const Default: Story = { decorators: [withWorkerSetup()] }

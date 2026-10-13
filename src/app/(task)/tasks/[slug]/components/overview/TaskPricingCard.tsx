@@ -10,7 +10,10 @@ import { formatPrice } from '@/utils/price'
 import { Badge, Button, Card, DetailRow, Link, SafetyNotice } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { getTaskDetailPrimaryCta } from '../../helpers/getTaskDetailPrimaryCta'
+import {
+  getTaskDetailPrimaryCta,
+  taskQuoteCtaHref,
+} from '../../helpers/getTaskDetailPrimaryCta'
 import { quoteBudgetComparison } from '../../helpers/quoteBudgetComparison'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import {
@@ -22,13 +25,11 @@ import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
 
 function PricingQuoteCta({
   href,
-  kind,
+  label,
 }: {
   href: string
-  kind: 'sendQuote' | 'signInToQuote'
+  label: string
 }) {
-  const t = useI11n(bag)
-  const label = kind === 'signInToQuote' ? t.cta.signInToQuote : t.cta.sendQuote
   return (
     <Button asChild variant="primary" w="full">
       <Link href={href} _hover={{ textDecoration: 'none' }}>
@@ -123,10 +124,15 @@ export function TaskPricingCard({
         quoteCount: task.quotes.length,
       })
     : 'none'
-  const showQuoteCta =
-    Boolean(task) &&
-    (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote')
-  const quoteHref = task ? `/tasks/${task.id}/quote` : ''
+  // Send quote, or Become a worker for guests and non-workers (FE-207).
+  const quoteCta =
+    task && (quoteKind === 'sendQuote' || quoteKind === 'becomeWorker')
+      ? {
+          href: taskQuoteCtaHref(quoteKind, task.id, permissions),
+          label:
+            quoteKind === 'becomeWorker' ? t.cta.becomeWorker : t.cta.sendQuote,
+        }
+      : undefined
 
   const loading = pending && !task
 
@@ -145,18 +151,7 @@ export function TaskPricingCard({
         }
         meta={meta || undefined}
         fullWidth
-        action={
-          showQuoteCta &&
-          (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote')
-            ? {
-                href: quoteHref,
-                label:
-                  quoteKind === 'signInToQuote'
-                    ? t.cta.signInToQuote
-                    : t.cta.sendQuote,
-              }
-            : undefined
-        }
+        action={quoteCta}
       />
     )
   }
@@ -238,11 +233,10 @@ export function TaskPricingCard({
           {paymentLabel}
         </DetailRow>
       ) : null}
-      {showQuoteCta &&
-      (quoteKind === 'sendQuote' || quoteKind === 'signInToQuote') ? (
+      {quoteCta ? (
         <Stack gap={2}>
           <SafetyNotice variant="inline" />
-          <PricingQuoteCta href={quoteHref} kind={quoteKind} />
+          <PricingQuoteCta href={quoteCta.href} label={quoteCta.label} />
         </Stack>
       ) : null}
     </Card>

@@ -19,8 +19,11 @@ import {
 
 import { getSafeNextPath } from '@/app/(auth)/helpers/authRedirect'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { APP_HOME } from '@/utils/appRoutes'
+import { showAppToast } from '@/utils/appToast'
 
 import MeWorkerSetup from '../graphql/MeWorkerSetup.gql'
 import SaveWorkerSetupStep from '../graphql/SaveWorkerSetupStep.gql'
@@ -51,13 +54,17 @@ import {
   subStepsToSaveOnContinue,
   validateWorkerSetupSubStep,
 } from '../helpers/workerSetupValidation'
+import bag from '../i11n.json'
 
-type WorkerSetupContextValue = {
+export type WorkerSetupContextValue = {
   bootstrap: MeWorkerSetupQuery['me'] | null
   form: WorkerSetupFormState
   activeSubStep: WorkerSetupSubStepId
   completedSubSteps: Set<string>
   isHydrated: boolean
+  /** The setup query failed before hydration; the screen offers a retry. */
+  loadError: boolean
+  retryLoad: () => void
   isSaving: boolean
   fieldErrors: Record<string, string>
   saveError: string | null
@@ -74,7 +81,10 @@ type WorkerSetupContextValue = {
   exitHref: string
 }
 
-const WorkerSetupContext = createContext<WorkerSetupContextValue | null>(null)
+/** Exported for Storybook fixtures; app code goes through the provider. */
+export const WorkerSetupContext = createContext<WorkerSetupContextValue | null>(
+  null,
+)
 
 export function useWorkerSetup() {
   const ctx = useContext(WorkerSetupContext)
@@ -129,6 +139,8 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
   const me = useUserStore((s) => s.me)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useI11n(bag)
+  const localize = useLocalizedHref()
   // Validated: `next` comes from the URL (open-redirect guard).
   const exitHref = getSafeNextPath(searchParams.get('next')) ?? APP_HOME
   const redirectRef = useRef(false)
@@ -153,9 +165,13 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
     majorIndexForSubStep(WORKER_SETUP_FIRST_SUB_STEP),
   )
 
-  const { data, loading } = useQuery<MeWorkerSetupQuery>(MeWorkerSetup, {
-    fetchPolicy: 'network-only',
-  })
+  const { data, loading, error, refetch } = useQuery<MeWorkerSetupQuery>(
+    MeWorkerSetup,
+    { fetchPolicy: 'network-only' },
+  )
+  const retryLoad = useCallback(() => {
+    void refetch()
+  }, [refetch])
 
   const onHydrationRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -178,12 +194,12 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
           // Already-complete workers edit on /profile instead of re-entering
           // setup; an explicit ?next (e.g. from a login round-trip) wins.
           router.replace(
-            getSafeNextPath(searchParams.get('next')) ?? '/profile',
+            localize(getSafeNextPath(searchParams.get('next')) ?? '/profile'),
           )
         }
       }
     },
-    [data?.me, loading, me, router, searchParams, setMe],
+    [data?.me, loading, localize, me, router, searchParams, setMe],
   )
 
   const [saveStep, { loading: isSaving }] =
@@ -359,7 +375,14 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
         trackFlowSucceeded(EVENTS.worker_setup_success, {
           is_new_worker: true,
         })
-        router.replace(exitHref)
+        // Clear finish, then straight back to where they started (e.g. the
+        // task they wanted to quote on).
+        showAppToast({
+          title: t.completeTitle,
+          description: t.completeBody,
+          type: 'success',
+        })
+        router.replace(localize(exitHref))
       }
     } catch (error: unknown) {
       trackFlowFailed(EVENTS.worker_setup_fail, error, {
@@ -378,10 +401,12 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
     effectiveBootstrap,
     exitHref,
     form,
+    localize,
     me,
     router,
     saveStep,
     setMe,
+    t,
   ])
 
   const toggleMajor = useCallback((majorIndex: number) => {
@@ -395,6 +420,8 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
       activeSubStep,
       completedSubSteps,
       isHydrated,
+      loadError: Boolean(error),
+      retryLoad,
       isSaving,
       fieldErrors,
       saveError,
@@ -422,6 +449,8 @@ export function WorkerSetupProvider({ children }: WorkerSetupProviderProps) {
       goBack,
       goToSubStep,
       isHydrated,
+      error,
+      retryLoad,
       isSaving,
       patchForm,
       clearSetupErrors,

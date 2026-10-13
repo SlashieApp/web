@@ -3,7 +3,7 @@
 import { Box, Checkbox, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Badge, Button, FormField, IconButton, Input, Link, Logo } from '@ui'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
@@ -27,7 +27,10 @@ import {
   getLoginFailCount,
   incrementLoginFailCount,
 } from '@/app/(auth)/helpers/authFailCount'
-import { getSafeNextPath } from '@/app/(auth)/helpers/authRedirect'
+import {
+  authSwitchHref,
+  getSafeNextPath,
+} from '@/app/(auth)/helpers/authRedirect'
 import { stashResetEmail } from '@/app/(auth)/helpers/resetEmailHandoff'
 import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
@@ -315,6 +318,8 @@ function LoginMarketingAside() {
 export default function LoginPage() {
   const t = useI11n(bag)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const registerHref = authSwitchHref('/register', searchParams)
   const autofill = useLoginAutofill()
   const login = useUserStore((state) => state.login)
   const getUser = useUserStore((state) => state.getUser)
@@ -612,7 +617,7 @@ export default function LoginPage() {
               <Text fontSize="sm" color="text.muted" textAlign="center">
                 {t.registerPrompt}{' '}
                 <Link
-                  href="/register"
+                  href={registerHref}
                   fontWeight={700}
                   color="text.link"
                   _hover={{
