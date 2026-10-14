@@ -16,7 +16,11 @@ import { Button, Link } from '@ui'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
 import { OrderCloseControls } from './OrderCloseControls'
-import { OrderCancelDialog, OrderRescheduleDialog } from './OrderRequestDialogs'
+import {
+  OrderCancelDialog,
+  OrderRescheduleDialog,
+  useOrderRequestOptions,
+} from './OrderRequestDialogs'
 
 /**
  * Where the booking stands for either party: booked time, a pending
@@ -37,6 +41,7 @@ export function OrderProgressPanel() {
   } = useTaskDetail()
   const t = useI11n(bag)
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
+  const requestOptions = useOrderRequestOptions()
   const [rescheduleOpen, setRescheduleOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
 
@@ -95,8 +100,7 @@ export function OrderProgressPanel() {
           }),
         })
       : null
-  const canRequest =
-    myOrder.status === OrderStatus.Active && beforeStart && !request
+  const canRequest = Boolean(requestOptions?.canReschedule)
 
   return (
     <Stack

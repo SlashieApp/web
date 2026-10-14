@@ -5,6 +5,7 @@ import {
   flashAction,
   formatMessageTime,
   quoteFlashStatus,
+  threadMenuActions,
   threadPreviewText,
   wasNotSelected,
 } from './messagesFormat'
@@ -116,5 +117,40 @@ describe('quoteFlashStatus (BE-81)', () => {
     expect(quoteFlashStatus(QuoteStatus.NotSelected)).toBe('notSelected')
     expect(quoteFlashStatus(QuoteStatus.Withdrawn)).toBe('withdrawn')
     expect(quoteFlashStatus(QuoteStatus.Expired)).toBe('replaced')
+  })
+})
+
+describe('threadMenuActions (FE-272)', () => {
+  const none = { hasPendingQuote: false, canCancelTask: false, booking: null }
+
+  it('offers withdraw to a worker and cancel task to an owner before booking', () => {
+    expect(threadMenuActions({ ...none, hasPendingQuote: true })).toEqual([
+      'withdrawQuote',
+    ])
+    expect(threadMenuActions({ ...none, canCancelTask: true })).toEqual([
+      'cancelTask',
+    ])
+  })
+
+  it('offers reschedule and cancel booking once booked, as task detail allows', () => {
+    expect(
+      threadMenuActions({
+        ...none,
+        booking: { canReschedule: true, canCancel: true },
+      }),
+    ).toEqual(['reschedule', 'cancelBooking'])
+    // In CONFLICT only cancelling is possible; a pending request blocks both.
+    expect(
+      threadMenuActions({
+        ...none,
+        booking: { canReschedule: false, canCancel: true },
+      }),
+    ).toEqual(['cancelBooking'])
+    expect(
+      threadMenuActions({
+        ...none,
+        booking: { canReschedule: false, canCancel: false },
+      }),
+    ).toEqual([])
   })
 })

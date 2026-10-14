@@ -17,7 +17,6 @@
     "you": "You",
     "unread": "{count} unread",
     "back": "Back to messages",
-    "viewTask": "View task",
     "leaveReview": "Leave a review",
     "loadEarlier": "Load earlier",
     "threadMenu": "Conversation options",
@@ -56,7 +55,14 @@
         "replaced": "Replaced by a newer quote"
       },
       "workerFallback": "Worker"
-    }
+    },
+    "menu": {
+      "withdrawQuote": "Withdraw quote",
+      "cancelTask": "Cancel task",
+      "reschedule": "Reschedule",
+      "cancelBooking": "Cancel booking"
+    },
+    "openTask": "Open task: {title}"
   },
   "zh_hk": {
     "metadata": {
@@ -76,7 +82,6 @@
     "you": "你",
     "unread": "{count} 則未讀",
     "back": "返回訊息",
-    "viewTask": "查看任務",
     "leaveReview": "留下評價",
     "loadEarlier": "載入較早訊息",
     "threadMenu": "對話選項",
@@ -115,6 +120,13 @@
         "replaced": "已由較新的報價取代"
       },
       "workerFallback": "工作者"
-    }
+    },
+    "menu": {
+      "withdrawQuote": "撤回報價",
+      "cancelTask": "取消任務",
+      "reschedule": "更改時間",
+      "cancelBooking": "取消預約"
+    },
+    "openTask": "開啟任務：{title}"
   }
 }

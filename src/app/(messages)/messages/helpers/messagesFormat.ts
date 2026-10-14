@@ -96,3 +96,27 @@ export function quoteFlashStatus(status: QuoteStatus): QuoteFlashStatus {
       return 'pending'
   }
 }
+
+export type ThreadMenuAction =
+  | 'withdrawQuote'
+  | 'cancelTask'
+  | 'reschedule'
+  | 'cancelBooking'
+
+/**
+ * Quote / booking actions the thread menu offers (FE-272). Worker before
+ * acceptance: withdraw the quote; owner before acceptance: cancel the task.
+ * Either party once booked: reschedule or cancel, when task detail allows it.
+ */
+export function threadMenuActions(input: {
+  hasPendingQuote: boolean
+  canCancelTask: boolean
+  booking: { canReschedule: boolean; canCancel: boolean } | null
+}): ThreadMenuAction[] {
+  const actions: ThreadMenuAction[] = []
+  if (input.hasPendingQuote) actions.push('withdrawQuote')
+  if (input.canCancelTask) actions.push('cancelTask')
+  if (input.booking?.canReschedule) actions.push('reschedule')
+  if (input.booking?.canCancel) actions.push('cancelBooking')
+  return actions
+}

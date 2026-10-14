@@ -4,7 +4,6 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { ThreadItemType } from '@codegen/schema'
 import type { ThreadItemFieldsFragment } from '@codegen/schema'
 
-import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Link } from '@ui'
 
@@ -14,8 +13,9 @@ import { ThreadQuote } from './ThreadQuote'
 
 /**
  * One timeline entry: a chat bubble (mine on the right) or a flash card for
- * an event (quote, booking, review prompt, announcement) with its link.
- * Quote flashes carry the quote itself, with owner actions (BE-81).
+ * an event (quote, booking, review prompt, announcement). Quote flashes carry
+ * the quote itself, with owner actions (BE-81). The header opens the task and
+ * holds the one Report for the conversation (FE-267).
  */
 export function ThreadTimelineItem({
   item,
@@ -64,11 +64,11 @@ export function ThreadTimelineItem({
           </Text>
         ) : null}
         {item.quote ? <ThreadQuote quote={item.quote} locale={locale} /> : null}
-        {action ? (
+        {action?.kind === 'review' ? (
           <Box>
             <Button asChild size="sm" variant="secondary">
               <Link href={action.href} _hover={{ textDecoration: 'none' }}>
-                {action.kind === 'review' ? t.leaveReview : t.viewTask}
+                {t.leaveReview}
               </Link>
             </Button>
           </Box>
@@ -98,19 +98,9 @@ export function ThreadTimelineItem({
           {item.body}
         </Text>
       </Box>
-      <HStack gap={1}>
-        <Text fontSize="xs" color="text.muted">
-          {time}
-        </Text>
-        {mine ? null : (
-          <ReportControl
-            kind="message"
-            targetId={item.id}
-            targetTitle={item.body}
-            variant="icon"
-          />
-        )}
-      </HStack>
+      <Text fontSize="xs" color="text.muted">
+        {time}
+      </Text>
     </Stack>
   )
 }

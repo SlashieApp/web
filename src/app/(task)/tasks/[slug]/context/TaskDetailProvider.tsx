@@ -211,6 +211,8 @@ type TaskDetailProviderProps = {
    * viewer, guest permissions, and only the public task fields.
    */
   viewAs?: 'guest'
+  /** False outside the task page (e.g. a Messages thread): no task-view analytics. */
+  captureView?: boolean
   children: React.ReactNode
 }
 
@@ -218,6 +220,7 @@ export function TaskDetailProvider({
   taskId,
   initialTask,
   viewAs,
+  captureView = true,
   children,
 }: TaskDetailProviderProps) {
   const asGuest = viewAs === 'guest'
@@ -1087,7 +1090,8 @@ export function TaskDetailProvider({
     serverSnapshot,
   )
   const authReadyForTaskView = !isAuthenticated || !meLoadingResolved
-  const canCaptureTaskView = isClient && Boolean(task) && authReadyForTaskView
+  const canCaptureTaskView =
+    captureView && isClient && Boolean(task) && authReadyForTaskView
 
   return (
     <TaskDetailContext.Provider value={value}>

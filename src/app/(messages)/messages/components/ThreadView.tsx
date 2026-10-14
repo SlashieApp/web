@@ -1,7 +1,7 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { ThreadKind } from '@codegen/schema'
 import type {
   MessageThreadQuery,
@@ -16,7 +16,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { LuArrowLeft, LuEllipsis } from 'react-icons/lu'
 
 import {
   THREAD_PAGE_SIZE,
@@ -32,10 +31,11 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Button, Dropdown, IconButton, Link, Textarea } from '@ui'
+import { Button, Link, Textarea } from '@ui'
 
 import { wasNotSelected } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
+import { ThreadHeader } from './ThreadHeader'
 import { ThreadTimelineItem } from './ThreadTimelineItem'
 
 type Copy = (typeof bag)['en']
@@ -237,73 +237,11 @@ export function ThreadView({ threadId }: { threadId: string }) {
 
   const timeline = [...items].reverse()
   const notice = composerNotice(thread, items, t)
-  const party = thread.otherParty
-  const name = party?.name ?? thread.title
-  const canBlock = Boolean(party && !party.deleted)
+  const name = thread.otherParty?.name ?? thread.title
 
   return (
     <>
-      <HStack
-        gap={2}
-        px={{ base: 2, lg: 4 }}
-        py={2.5}
-        borderBottomWidth="1px"
-        borderColor="border.default"
-      >
-        <IconButton
-          asChild
-          variant="ghost"
-          aria-label={t.back}
-          display={{ base: 'inline-flex', lg: 'none' }}
-        >
-          <Link href="/messages">
-            <LuArrowLeft aria-hidden />
-          </Link>
-        </IconButton>
-        <Stack gap={0} minW={0} flex={1}>
-          <Heading as="h2" fontSize="md" fontWeight={700} lineClamp={1}>
-            {thread.title}
-          </Heading>
-          <Text fontSize="xs" color="text.muted" lineClamp={1}>
-            {thread.kind === ThreadKind.System
-              ? t.systemSubtitle
-              : (party?.name ?? t.awaitingWorker)}
-          </Text>
-        </Stack>
-        {thread.task ? (
-          <Button asChild size="sm" variant="ghost">
-            <Link
-              href={`/tasks/${thread.task.id}`}
-              _hover={{ textDecoration: 'none' }}
-            >
-              {t.viewTask}
-            </Link>
-          </Button>
-        ) : null}
-        {canBlock ? (
-          <Dropdown
-            contentLabel={t.threadMenu}
-            align="end"
-            width="220px"
-            trigger={
-              <IconButton variant="ghost" aria-label={t.threadMenu}>
-                <LuEllipsis aria-hidden />
-              </IconButton>
-            }
-          >
-            <Button
-              variant="ghost"
-              w="full"
-              justifyContent="flex-start"
-              onClick={() => void toggleBlock()}
-            >
-              {formatMessage(thread.blockedByMe ? t.unblock : t.block, {
-                name,
-              })}
-            </Button>
-          </Dropdown>
-        ) : null}
-      </HStack>
+      <ThreadHeader thread={thread} onToggleBlock={() => void toggleBlock()} />
 
       <Box
         ref={scrollRef}
