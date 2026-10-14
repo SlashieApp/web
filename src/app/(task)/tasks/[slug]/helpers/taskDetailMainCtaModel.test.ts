@@ -25,14 +25,11 @@ const copy: TaskDetailMainCtaCopy = {
   closeEyebrow: 'Job time has started',
   slideDone: 'Slide to mark Done',
   owner: 'Owner',
-  contactTask: 'Contact customer',
-  emailCustomer: 'Email customer',
-  addContact: 'Add contact in Account',
+  message: 'Message',
+  yourCustomer: 'Your customer',
   ownerFallback: 'Task owner',
-  beOnSite: 'Be on site',
   flexibleWhen: 'Flexible',
   workerEyebrow: 'Your job',
-  contactWorker: 'Contact worker',
   yourWorker: 'Your worker',
   workerFallback: 'Your worker',
   review: 'Review',
@@ -192,7 +189,7 @@ describe('buildTaskDetailMainCta', () => {
     })
   })
 
-  it('keeps contact as the booked worker primary and hides price and owner cards', () => {
+  it('shows the customer and their contact details; Message opens the thread (FE-271)', () => {
     const model = buildTaskDetailMainCta({
       task: task(),
       myQuote: null,
@@ -208,15 +205,19 @@ describe('buildTaskDetailMainCta', () => {
       },
       now: new Date('2026-01-01T12:00:00'),
       copy,
+      messageHref: '/messages/thread-1',
     })
     expect(model).toMatchObject({
       presentation: 'quoted',
-      buttonLabel: 'Contact customer',
-      href: 'tel:07700900123',
+      buttonLabel: 'Message',
+      href: '/messages/thread-1',
       hideOverviewCards: ['pricing'],
-      content: { eyebrow: 'Be on site' },
+      content: {
+        eyebrow: 'Your customer',
+        value: 'Ava',
+        meta: '07700 900123 · ava@example.com',
+      },
     })
-    expect(model?.content?.value).toEqual(expect.any(String))
     expect(model?.scrollTo).toBeUndefined()
   })
 
@@ -246,7 +247,7 @@ describe('buildTaskDetailMainCta', () => {
     })
     expect(
       buildTaskDetailMainCta({ ...input, close: { ...close, mine: 'DONE' } }),
-    ).toMatchObject({ presentation: 'quoted', buttonLabel: 'Contact customer' })
+    ).toMatchObject({ presentation: 'quoted', buttonLabel: 'Message' })
     expect(
       buildTaskDetailMainCta({
         ...input,
@@ -255,7 +256,7 @@ describe('buildTaskDetailMainCta', () => {
     ).toMatchObject({ presentation: 'quoted' })
   })
 
-  it('makes contact the booked customer primary and hides the price card', () => {
+  it('shows the booked worker and their phone; Message falls back to the inbox', () => {
     const model = buildTaskDetailMainCta({
       task: task({
         quotes: [
@@ -282,10 +283,14 @@ describe('buildTaskDetailMainCta', () => {
     })
     expect(model).toMatchObject({
       presentation: 'quoted',
-      buttonLabel: 'Contact worker',
-      href: 'tel:07700900999',
+      buttonLabel: 'Message',
+      href: '/messages',
       hideOverviewCards: ['pricing'],
-      content: { eyebrow: 'Your worker', value: 'Jordan' },
+      content: {
+        eyebrow: 'Your worker',
+        value: 'Jordan',
+        meta: '07700 900999',
+      },
     })
   })
 

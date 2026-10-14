@@ -81,7 +81,8 @@ export function TaskDetailSplitCta({
               fontSize="sm"
               color="text.muted"
               lineHeight="short"
-              whiteSpace="nowrap"
+              // Contact details (phone · email) wrap rather than clip (FE-271).
+              overflowWrap="anywhere"
             >
               {meta}
             </Text>

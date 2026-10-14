@@ -63,14 +63,14 @@
       "shareBody": "Workers nearby find tasks faster when you share the link.",
       "editAria": "Edit task",
       "barAria": "Task actions",
-      "contactTask": "Contact customer",
-      "contactWorker": "Contact worker",
       "giveReview": "Give review",
       "goToEarnings": "Go to earnings",
       "review": "Review",
       "getReceipt": "Get receipt",
       "completed": "Completed",
-      "flexibleWhen": "Flexible"
+      "flexibleWhen": "Flexible",
+      "message": "Message",
+      "yourCustomer": "Your customer"
     },
     "reviews": {
       "heading": "Reviews",
@@ -345,9 +345,6 @@
       "flexibleSchedule": "Agree timing with the customer if the schedule is flexible.",
       "beOnSite": "Be on site",
       "addressFallback": "Address shared by customer",
-      "contactCustomer": "Contact customer",
-      "emailCustomer": "Email customer",
-      "addContact": "Add contact in Account",
       "openMaps": "Open in Maps",
       "paymentNote": "Payment is arranged directly with the customer outside Slashie."
     },
@@ -510,14 +507,14 @@
       "shareBody": "附近工作者看到分享連結時，會更快找到你的任務。",
       "editAria": "編輯任務",
       "barAria": "任務操作",
-      "contactTask": "聯絡顧客",
-      "contactWorker": "聯絡工作者",
       "giveReview": "撰寫評價",
       "goToEarnings": "前往收入",
       "review": "評價",
       "getReceipt": "取得收據",
       "completed": "已完成",
-      "flexibleWhen": "時間彈性"
+      "flexibleWhen": "時間彈性",
+      "message": "傳送訊息",
+      "yourCustomer": "你的客戶"
     },
     "reviews": {
       "heading": "評價",
@@ -792,9 +789,6 @@
       "flexibleSchedule": "若時間彈性，請與顧客協調。",
       "beOnSite": "到達現場",
       "addressFallback": "顧客已分享地址",
-      "contactCustomer": "聯絡顧客",
-      "emailCustomer": "電郵顧客",
-      "addContact": "在帳戶新增聯絡方式",
       "openMaps": "在地圖開啟",
       "paymentNote": "付款由你與顧客在 Slashie 以外直接安排。"
     },

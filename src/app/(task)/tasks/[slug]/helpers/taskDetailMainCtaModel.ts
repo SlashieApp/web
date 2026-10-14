@@ -1,4 +1,3 @@
-import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
 import type { OrderCloseView } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import {
@@ -65,14 +64,13 @@ export type TaskDetailMainCtaCopy = {
   closeEyebrow: string
   slideDone: string
   owner: string
-  contactTask: string
-  emailCustomer: string
-  addContact: string
+  /** Booked CTA: opens the task's Messages thread (FE-271). */
+  message: string
+  /** Worker's booked CTA eyebrow. */
+  yourCustomer: string
   ownerFallback: string
-  beOnSite: string
   flexibleWhen: string
   workerEyebrow: string
-  contactWorker: string
   yourWorker: string
   workerFallback: string
   review: string
@@ -151,33 +149,44 @@ function acceptedQuote(
   )
 }
 
+/** Contact details shown on the booked CTA: phone and/or email. */
+function contactLine(
+  ...parts: (string | null | undefined)[]
+): string | undefined {
+  return (
+    parts
+      .map((part) => part?.trim())
+      .filter(Boolean)
+      .join(' · ') || undefined
+  )
+}
+
 /** Booked worker the customer contacts, and later reviews. */
 function workerParty(
   task: TaskDetailRecord,
   copy: TaskDetailMainCtaCopy,
   quoteId?: string | null,
-): { name: string; contactHref: string; reviewHref: string } {
-  const worker = acceptedQuote(task, quoteId)?.worker
-  const profile = (worker?.profile ?? null) as WorkerProfileFields | null
-  const name = profile?.name?.trim() || copy.workerFallback
-  const tel = profile?.contactNumber?.trim() || ''
-  const userHref = worker?.id ? publicUserPath(worker.id, task.id) : null
-  const reviewHref = userHref ?? '/workers'
-  const contactHref = tel ? `tel:${tel.replace(/\s/g, '')}` : reviewHref
-  return { name, contactHref, reviewHref }
+): { name: string; contact?: string } {
+  const profile = (acceptedQuote(task, quoteId)?.worker?.profile ??
+    null) as WorkerProfileFields | null
+  return {
+    name: profile?.name?.trim() || copy.workerFallback,
+    contact: contactLine(profile?.contactNumber),
+  }
 }
 
-function ownerContact(
+/** The poster, as the booked worker sees them. */
+function ownerParty(
   task: TaskDetailRecord,
   copy: TaskDetailMainCtaCopy,
-): { href: string; label: string } {
-  const tel = task.poster?.profile?.contactNumber?.trim()
-  const email = task.poster?.email?.trim()
-  if (tel) {
-    return { href: `tel:${tel.replace(/\s/g, '')}`, label: copy.contactTask }
+): { name: string; contact?: string } {
+  return {
+    name: task.poster?.profile?.name?.trim() || copy.ownerFallback,
+    contact: contactLine(
+      task.poster?.profile?.contactNumber,
+      task.poster?.email,
+    ),
   }
-  if (email) return { href: `mailto:${email}`, label: copy.emailCustomer }
-  return { href: '/account', label: copy.addContact }
 }
 
 /**
@@ -203,6 +212,8 @@ export function buildTaskDetailMainCta(input: {
    */
   settled?: TaskDetailSettledCta | null
   viewerHasSubmittedReview?: boolean
+  /** The task's Messages thread, or the inbox when it is not known yet. */
+  messageHref?: string
 }): TaskDetailMainCtaModel | null {
   const {
     task,
@@ -213,6 +224,7 @@ export function buildTaskDetailMainCta(input: {
     close,
     acceptedQuoteId,
     settled,
+    messageHref = '/messages',
   } = input
   const viewerHasSubmittedReview = input.viewerHasSubmittedReview === true
   if (!task) return null
@@ -302,22 +314,21 @@ export function buildTaskDetailMainCta(input: {
     }
   }
 
-  if (kind === 'ownerBooked') {
-    const party = workerParty(task, copy, acceptedQuoteId)
+  // FE-271: once booked, show the other party's contact details; the
+  // button opens the task's Messages thread.
+  if (kind === 'ownerBooked' || kind === 'workerBooked') {
+    const party =
+      kind === 'ownerBooked'
+        ? workerParty(task, copy, acceptedQuoteId)
+        : ownerParty(task, copy)
     return quoted(
-      copy.contactWorker,
-      { eyebrow: copy.yourWorker, value: party.name },
-      { href: party.contactHref },
-      ['pricing'],
-    )
-  }
-
-  if (kind === 'workerBooked') {
-    const contact = ownerContact(task, copy)
-    return quoted(
-      contact.label,
-      { eyebrow: copy.beOnSite, value: onSiteWhen(schedule, copy) },
-      { href: contact.href },
+      copy.message,
+      {
+        eyebrow: kind === 'ownerBooked' ? copy.yourWorker : copy.yourCustomer,
+        value: party.name,
+        meta: party.contact,
+      },
+      { href: messageHref },
       ['pricing'],
     )
   }

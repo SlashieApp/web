@@ -110,6 +110,8 @@ export type TaskDetailContextValue = TaskDetailData &
     activeTab: TaskDetailTab
     /** Primary action. Null when this viewer has none. */
     mainCta: TaskDetailMainCtaModel | null
+    /** The task's Messages thread, or the inbox until it is known (FE-271). */
+    taskThreadHref: string
     viewerHasSubmittedReview: boolean
     orderReview: {
       canSubmit: boolean

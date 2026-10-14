@@ -93,7 +93,9 @@ import {
 import { canReviewCompletedOrder } from '../helpers/reviewEligibility'
 import { useOrderReviewState } from '../helpers/useOrderReviewState'
 
+import { useMessagesOptional } from '@/app/(messages)/messages/context/MessagesProvider'
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
+import { MESSAGES_HREF } from '@ui'
 import { TaskDetailViewCapture } from '../components/analytics/TaskDetailViewCapture'
 import { type OrderAction, TaskDetailContext } from './TaskDetailContext'
 
@@ -896,11 +898,21 @@ export function TaskDetailProvider({
   const resolvedTab = explicitTab ?? TASK_DETAIL_TAB.overview
   const activeTab = resolvedTab
 
+  // One Messages thread per task (BE-81); the inbox until it is known.
+  const messageThreads = useMessagesOptional()?.threads
+  const taskThreadHref = useMemo(() => {
+    const thread = task
+      ? messageThreads?.find((row) => row.task?.id === task.id)
+      : null
+    return thread ? `/messages/${thread.id}` : MESSAGES_HREF
+  }, [messageThreads, task])
+
   const mainCta = useMemo(
     () =>
       statusReady
         ? buildTaskDetailMainCta({
             task,
+            messageHref: taskThreadHref,
             myQuote,
             permissions,
             schedule: myOrder ? orderBookedDatetime(myOrder) : null,
@@ -932,14 +944,11 @@ export function TaskDetailProvider({
               closeEyebrow: t.close.eyebrowReady,
               slideDone: t.close.slideDone,
               owner: t.details.owner,
-              contactTask: t.cta.contactTask,
-              emailCustomer: t.booking.emailCustomer,
-              addContact: t.booking.addContact,
+              message: t.cta.message,
+              yourCustomer: t.cta.yourCustomer,
               ownerFallback: t.details.ownerFallback,
-              beOnSite: t.booking.beOnSite,
               flexibleWhen: t.cta.flexibleWhen,
               workerEyebrow: t.booking.workerEyebrow,
-              contactWorker: t.cta.contactWorker,
               yourWorker: t.booking.yourWorker,
               workerFallback: t.booking.yourWorkerFallback,
               review: t.cta.review,
@@ -957,6 +966,7 @@ export function TaskDetailProvider({
       statusReady,
       t,
       task,
+      taskThreadHref,
       viewerHasSubmittedReview,
     ],
   )
@@ -966,6 +976,7 @@ export function TaskDetailProvider({
       permissions,
       activeTab,
       mainCta,
+      taskThreadHref,
       viewerHasSubmittedReview,
       orderReview,
       taskId,
@@ -1020,6 +1031,7 @@ export function TaskDetailProvider({
       permissions,
       activeTab,
       mainCta,
+      taskThreadHref,
       viewerHasSubmittedReview,
       orderReview,
       taskId,

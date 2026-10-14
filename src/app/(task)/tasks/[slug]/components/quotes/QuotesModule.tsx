@@ -12,7 +12,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
-import { Badge, Card, MESSAGES_HREF } from '@ui'
+import { Badge, Card } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
@@ -224,6 +224,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     acceptingQuoteId,
     decliningQuoteId,
     onDeclineQuote,
+    taskThreadHref,
   } = useTaskDetail()
   const { requestAccept, dialog: acceptSafetyDialog } = useAcceptQuoteSafety()
   const [sort, setSort] = useState<QuoteSort>('recommended')
@@ -285,7 +286,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
         }
         onAccept={canAct ? () => requestAccept(quote.id) : undefined}
         onDecline={canAct ? () => void onDeclineQuote(quote.id) : undefined}
-        messageHref={canAct ? MESSAGES_HREF : undefined}
+        messageHref={canAct ? taskThreadHref : undefined}
         acceptLoading={acceptingQuoteId === quote.id}
         declineLoading={decliningQuoteId === quote.id}
         withDivider={index < rows.length - 1}
