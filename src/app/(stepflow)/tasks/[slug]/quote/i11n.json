@@ -14,7 +14,7 @@
     "notFoundDescription": "This task may have been removed or is no longer available for quotes.",
     "slotsInvalid": "Add at least one time with a day and a start time in the future.",
     "proposedTimes": "Proposed times",
-    "locationNote": "Approximate area: the town and a map point within about 250 m. The exact address is shared once your quote is accepted.",
+    "locationNote": "Approximate area. The exact address is shared once a quote is accepted.",
     "notFoundBrowse": "Search tasks"
   },
   "zh_hk": {
@@ -32,7 +32,7 @@
     "notFoundDescription": "此任務可能已移除，或已不再接受報價。",
     "slotsInvalid": "請最少加入一個時間，包括日期和未來的開始時間。",
     "proposedTimes": "建議時間",
-    "locationNote": "大約位置：只顯示地區名稱，以及約 250 米範圍內的地圖位置。報價被接受後才會提供確實地址。",
+    "locationNote": "大約位置。報價被接受後才會提供確實地址。",
     "notFoundBrowse": "搜尋任務"
   }
 }
