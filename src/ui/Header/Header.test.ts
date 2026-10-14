@@ -20,6 +20,8 @@ describe('Header mobile polish', () => {
     )
     expect(src).not.toContain('LanguageSwitcher')
     expect(drawerSrc).not.toContain('LanguageSwitcher')
+    // FE-269: Post a task is the dock's centre item, not an account action.
+    expect(drawerSrc).not.toContain('postTask')
     expect(menuSrc).toContain('LanguageSwitcher')
     expect(menuSrc).toContain('onOpenLanguage')
     // Phones: the dock's Account item hosts the drawer and the switcher.

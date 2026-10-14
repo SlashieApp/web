@@ -1,16 +1,10 @@
 'use client'
 
-import { HStack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
-import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
-import { useMe } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
-import { useCreateTaskHref } from '@/utils/taskHandoff'
 
-import { Button } from '../../Button'
 import { Drawer } from '../../Drawer'
-import { Link } from '../../Link'
 
 import bag from '../i11n.json'
 import { AccountMenuContent } from './AccountMenuContent'
@@ -21,16 +15,13 @@ export type MobileNavDrawerProps = {
   onOpenLanguage: () => void
 }
 
+/** Phone account menu. Post a task lives in the bottom nav, not here (FE-269). */
 export function MobileNavDrawer({
   open,
   onOpenChange,
   onOpenLanguage,
 }: MobileNavDrawerProps) {
-  const me = useMe()
   const t = useI11n(bag)
-  const createTaskHref = useCreateTaskHref()
-  const postTaskBlocked = me != null && !isEmailVerified(me)
-
   const close = useCallback(() => onOpenChange(false), [onOpenChange])
 
   return (
@@ -41,24 +32,6 @@ export function MobileNavDrawer({
       placement="end"
       size="full"
     >
-      <HStack justify="flex-end" align="center" gap={2} mb={3} flexShrink={0}>
-        {postTaskBlocked ? (
-          <Button size="sm" variant="secondary" disabled>
-            {t.postTask}
-          </Button>
-        ) : (
-          <Button asChild size="sm" variant="primary">
-            <Link
-              href={createTaskHref}
-              _hover={{ textDecoration: 'none' }}
-              onClick={close}
-            >
-              {t.postTask}
-            </Link>
-          </Button>
-        )}
-      </HStack>
-
       <AccountMenuContent onClose={close} onOpenLanguage={onOpenLanguage} />
     </Drawer>
   )
