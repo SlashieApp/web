@@ -104,6 +104,7 @@ export function publishedMarketplaceLayerSig(
     p.radiusMiles,
     p.selectedTaskId ?? '',
     p.selectedTaskSelectionToken ?? 0,
+    p.recenterToken ?? 0,
     p.leftViewportPadding ?? '',
     p.tasksLoaded ?? true,
     p.visible ?? true,

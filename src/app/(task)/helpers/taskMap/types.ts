@@ -45,6 +45,8 @@ export type TaskMapPropsSnapshot = {
   selectedTaskId?: string | null
   /** Bumps when the same task is selected again so the map can redraw the route. */
   selectedTaskSelectionToken?: number
+  /** Bumps to fly back to the search centre even when it has not changed. */
+  recenterToken?: number
   onSelectTask?: (taskId: string | null) => void
   /** Opens (or, with null, closes) the list for a cluster that cannot split. */
   onOpenTaskStack?: (stack: TaskMapStack | null) => void

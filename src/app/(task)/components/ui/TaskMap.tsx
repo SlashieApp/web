@@ -62,6 +62,8 @@ export type TaskMapProps = {
   onCenterChange?: (lat: number, lng: number) => void
   selectedTaskId?: string | null
   selectedTaskSelectionToken?: number
+  /** Bumps to fly back to the search centre even when it has not changed. */
+  recenterToken?: number
   onSelectTask?: (taskId: string | null) => void
   /** Opens (or, with null, closes) the list for a cluster that cannot split. */
   onOpenTaskStack?: (stack: TaskMapStack | null) => void
@@ -180,6 +182,7 @@ export function TaskMap(props: TaskMapProps) {
     props.leftViewportPadding ?? '',
     props.selectedTaskId ?? '',
     props.selectedTaskSelectionToken ?? 0,
+    props.recenterToken ?? 0,
     props.searchAreaButtonLeftInset ?? '',
     props.searchAreaButtonPosition ?? '',
     props.searchAreaButtonOffsetX ?? '',

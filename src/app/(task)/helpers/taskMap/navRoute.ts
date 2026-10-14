@@ -234,12 +234,14 @@ export function createTaskMapNavRouteController(args: {
     setPresenting(false)
     activeDisplayKey = ''
     pendingDisplayKey = ''
-    needsFlushWhenReady = false
     selected = null
     const map = args.getMap()
-    if (map?.isStyleLoaded() && map.getSource(TASK_MAP_NAV_ROUTE_SOURCE)) {
-      clearTaskMapNavRouteData(map)
-    }
+    const drawn = Boolean(map?.getSource(TASK_MAP_NAV_ROUTE_SOURCE))
+    const busy = !map?.isStyleLoaded()
+    // Tiles loading mid-fly make the style read as busy. Clear on the next
+    // idle (flushWhenReady) instead of leaving the old line drawn.
+    needsFlushWhenReady = drawn && busy
+    if (map && drawn && !busy) clearTaskMapNavRouteData(map)
   }
 
   const applyRoute = (
@@ -353,7 +355,7 @@ export function createTaskMapNavRouteController(args: {
   }
 
   /**
-   * Retry a route apply that was deferred because the style was busy. Cheap
+   * Retry a route apply (or clear) deferred because the style was busy. Cheap
    * no-op unless a deferral is actually pending — safe to call from the map's
    * `idle` event.
    */
@@ -362,7 +364,12 @@ export function createTaskMapNavRouteController(args: {
     const map = args.getMap()
     if (!map?.isStyleLoaded()) return
     needsFlushWhenReady = false
-    if (!selected) return
+    if (!selected) {
+      // A clear deferred while the style was busy.
+      if (map.getSource(TASK_MAP_NAV_ROUTE_SOURCE))
+        clearTaskMapNavRouteData(map)
+      return
+    }
     loadRouteTo(selected.lng, selected.lat, { force: true })
   }
 

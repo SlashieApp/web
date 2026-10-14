@@ -99,6 +99,21 @@ describe('search mobile map chrome', () => {
     expect(carouselSrc).toContain('isActive={state.isActive}')
   })
 
+  it('locate-me drops the selected task and always re-centres (FE-266)', () => {
+    const provider = readFileSync(
+      join(dir, '../../context/TaskBrowseProvider.tsx'),
+      'utf8',
+    )
+    const controller = readFileSync(
+      join(dir, '../../helpers/taskMap/controller.ts'),
+      'utf8',
+    )
+    expect(provider).toMatch(
+      /requestUseMyLocation = useCallback\(\(\) => \{\s+setSelectedTaskId\(null\)\s+locateUser\(\{ recenter: true \}\)/,
+    )
+    expect(controller).toContain('|${p.recenterToken ?? 0}`')
+  })
+
   it('does not open the mobile search sheet on desktop while both layouts stay mounted', () => {
     const src = readFileSync(
       join(dir, '../../components/(mobile)/layout/MobileTaskSearchSheet.tsx'),

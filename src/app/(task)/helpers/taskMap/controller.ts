@@ -331,7 +331,7 @@ export function createTaskMapController(args: {
     }
     prevVisible = visibleNow
 
-    const cameraKey = `${searchKey}|${leftPad}|${p.effectiveSearchRadiusMiles}|${cameraMode}|${viewPaddingSig(p.viewPadding)}`
+    const cameraKey = `${searchKey}|${leftPad}|${p.effectiveSearchRadiusMiles}|${cameraMode}|${viewPaddingSig(p.viewPadding)}|${p.recenterToken ?? 0}`
     if (cameraKey === lastCameraKey) return
     if (cameraMode === 'detail') {
       lastCameraKey = cameraKey

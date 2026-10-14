@@ -113,6 +113,8 @@ type TaskBrowseDataContextValue = {
   selectedTaskId: string | null
   /** Bumps on every non-null selection (including re-selecting the same task). */
   selectedTaskSelectionToken: number
+  /** Bumps when the user asks for their location: the map flies there even if the centre is unchanged. */
+  recenterToken: number
   setSelectedTaskId: (
     v: string | null | ((prev: string | null) => string | null),
   ) => void
@@ -353,6 +355,7 @@ export function TaskBrowseProvider({
   const [selectedTaskId, setSelectedTaskIdState] = useState<string | null>(null)
   const [selectedTaskSelectionToken, setSelectedTaskSelectionToken] =
     useState(0)
+  const [recenterToken, setRecenterToken] = useState(0)
   const [isNavRoutePresenting, setIsNavRoutePresenting] = useState(false)
   const isNavRoutePresentingRef = useRef(false)
   const navRoutePresentingLockTimerRef = useRef<ReturnType<
@@ -622,8 +625,8 @@ export function TaskBrowseProvider({
     [applyReference],
   )
 
-  const requestUseMyLocation = useCallback(
-    (opts?: { highAccuracy?: boolean }) => {
+  const locateUser = useCallback(
+    (opts?: { highAccuracy?: boolean; recenter?: boolean }) => {
       if (typeof navigator === 'undefined' || !navigator.geolocation) {
         setGeolocationStatus('unsupported')
         return
@@ -635,6 +638,7 @@ export function TaskBrowseProvider({
             position.coords.latitude,
             position.coords.longitude,
           )
+          if (opts?.recenter) setRecenterToken((token) => token + 1)
         },
         () => {
           setGeolocationStatus('denied')
@@ -649,6 +653,13 @@ export function TaskBrowseProvider({
     [applyGeolocatedSearch],
   )
 
+  // FE-266: the location button drops any selected task and always flies
+  // to the user, even when the search centre has not changed.
+  const requestUseMyLocation = useCallback(() => {
+    setSelectedTaskId(null)
+    locateUser({ recenter: true })
+  }, [locateUser, setSelectedTaskId])
+
   const initGeolocationOnLoad = useCallback(() => {
     if (geolocationInitStartedRef.current) return
     geolocationInitStartedRef.current = true
@@ -657,9 +668,9 @@ export function TaskBrowseProvider({
       // Otherwise keep the default/URL reference — no permission prompt or
       // "Geolocation information is not available" noise on first visit.
       if (permission !== 'granted') return
-      requestUseMyLocation({ highAccuracy: false })
+      locateUser({ highAccuracy: false })
     })
-  }, [requestUseMyLocation])
+  }, [locateUser])
 
   const submitBrowseFilters = useCallback(() => {
     setSubmittedRadiusMiles(radiusMiles)
@@ -734,6 +745,7 @@ export function TaskBrowseProvider({
       clearAllBrowseFilters,
       selectedTaskId: visibleSelectedTaskId,
       selectedTaskSelectionToken,
+      recenterToken,
       setSelectedTaskId,
       isNavRoutePresenting,
       onNavRoutePresentingChange,
@@ -795,6 +807,7 @@ export function TaskBrowseProvider({
       searchInput,
       searchText,
       selectedTaskSelectionToken,
+      recenterToken,
       setDateFilter,
       setSearchInput,
       setSelectedTaskId,
@@ -858,6 +871,7 @@ type SharedTaskMapBindings = Pick<
   | 'onReadyChange'
   | 'selectedTaskId'
   | 'selectedTaskSelectionToken'
+  | 'recenterToken'
   | 'onSelectTask'
   | 'onSearchThisAreaUiChange'
 >
@@ -879,6 +893,7 @@ export function useTaskMapBindings(): SharedTaskMapBindings {
     onReadyChange: data.markMapReadyForQuery,
     selectedTaskId: data.selectedTaskId,
     selectedTaskSelectionToken: data.selectedTaskSelectionToken,
+    recenterToken: data.recenterToken,
     onSelectTask: data.setSelectedTaskId,
     onSearchThisAreaUiChange: layout.setSearchThisAreaUi,
   }
