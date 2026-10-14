@@ -47,7 +47,8 @@ describe('OverviewCards layout', () => {
     const pricing = readFileSync(join(dir, 'TaskPricingCard.tsx'), 'utf8')
     expect(pricing).toContain('t.cta.sendQuote')
     expect(pricing).toContain('t.cta.becomeWorker')
-    expect(pricing).toContain('SafetyNotice')
+    // FE-268: no inline safety tip under the CTA (the Accept dialog keeps it).
+    expect(pricing).not.toContain('SafetyNotice')
     expect(pricing).toContain('TaskDetailSplitCta')
     expect(pricing).toContain('eyebrow={t.details.budget}')
   })

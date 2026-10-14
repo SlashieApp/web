@@ -21,7 +21,7 @@ import {
 import { LuUser } from 'react-icons/lu'
 import { isOrderCompletedStatus } from '../../helpers/taskDetailCompleted'
 
-import { Avatar, Card, DetailRow, SafetyNotice } from '@ui'
+import { Avatar, Card, DetailRow } from '@ui'
 
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
@@ -293,7 +293,6 @@ export function OrderSection({
         <Text fontSize="sm" color="text.muted" lineHeight="short">
           {o.disclaimer}
         </Text>
-        <SafetyNotice variant="inline" />
       </Card>
     </Box>
   )

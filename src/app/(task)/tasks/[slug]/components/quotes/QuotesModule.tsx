@@ -12,7 +12,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
-import { Badge, Card, MESSAGES_HREF, SafetyNotice } from '@ui'
+import { Badge, Card, MESSAGES_HREF } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
@@ -337,9 +337,6 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
         </HStack>
       ) : null}
       <Stack gap={0}>{rows.map(quoteRow)}</Stack>
-      {isOwner && permissions.showAcceptDecline ? (
-        <SafetyNotice variant="inline" />
-      ) : null}
       {acceptSafetyDialog}
     </Card>
   )

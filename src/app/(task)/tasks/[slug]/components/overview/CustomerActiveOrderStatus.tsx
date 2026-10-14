@@ -19,7 +19,7 @@ import {
   LuUser,
 } from 'react-icons/lu'
 
-import { Avatar, Card, DetailRow, SafetyNotice } from '@ui'
+import { Avatar, Card, DetailRow } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
@@ -106,7 +106,6 @@ export function CustomerActiveOrderStatus() {
           </Text>
         </Stack>
       </DetailRow>
-      <SafetyNotice variant="inline" />
       <OrderProgressPanel />
     </Card>
   )

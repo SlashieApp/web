@@ -7,7 +7,7 @@ import { LuCreditCard } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
 import { formatPrice } from '@/utils/price'
-import { Badge, Button, Card, Link, SafetyNotice } from '@ui'
+import { Badge, Button, Card, Link } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import {
@@ -256,10 +256,7 @@ export function TaskPricingCard({
         </Text>
       ) : null}
       {quoteCta ? (
-        <Stack gap={2}>
-          <SafetyNotice variant="inline" />
-          <PricingQuoteCta href={quoteCta.href} label={quoteCta.label} />
-        </Stack>
+        <PricingQuoteCta href={quoteCta.href} label={quoteCta.label} />
       ) : null}
     </Card>
   )
