@@ -7,10 +7,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { Drawer } from '@ui'
 
 import { TaskList } from '../../(web)/layout/TaskList'
-import {
-  useTaskBrowseData,
-  useTaskBrowseLayout,
-} from '../../../context/TaskBrowseProvider'
+import { useTaskBrowseLayout } from '../../../context/TaskBrowseProvider'
 import bag from '../../i11n.json'
 import { TaskSearch } from '../../ui/TaskSearch'
 import { TaskSearchFilters } from '../../ui/TaskSearchFilters'
@@ -18,8 +15,8 @@ import { TaskSearchFilters } from '../../ui/TaskSearchFilters'
 /**
  * Mobile task search (FE-201): a full-height gesture sheet with the search
  * field, Date / Budget chips and results nearest first. Closing keeps the
- * filter applied to the carousel and map pins. A card body closes the sheet
- * and flies the map to its pin; the card arrow opens the task.
+ * filter applied to the carousel and map pins. Tapping a card closes the
+ * sheet and opens the task (FE-263).
  */
 export function MobileTaskSearchSheet({
   listHeader,
@@ -28,7 +25,6 @@ export function MobileTaskSearchSheet({
 }) {
   const t = useI11n(bag)
   const { isFilterOpen, setIsFilterOpen } = useTaskBrowseLayout()
-  const { setSelectedTaskId } = useTaskBrowseData()
   // Search dual-mounts this under `display: none` at `lg`, but `@ui` Drawer
   // portals to `document.body`, so CSS hiding does not apply. Only open below
   // `lg`; fallback `lg` avoids a desktop flash before the breakpoint hydrates.
@@ -50,10 +46,7 @@ export function MobileTaskSearchSheet({
         <TaskSearchFilters />
         <TaskList
           header={listHeader}
-          onSelectTask={(taskId) => {
-            setIsFilterOpen(false)
-            setSelectedTaskId(taskId)
-          }}
+          onOpenTask={() => setIsFilterOpen(false)}
         />
       </Stack>
     </Drawer>

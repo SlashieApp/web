@@ -18,15 +18,16 @@ import bag from '../../i11n.json'
 
 /**
  * Search results, nearest first (FE-201). Desktop: the first tap highlights
- * the pin, the second opens the task. In the mobile sheet (`onSelectTask`),
- * the card body hands the task to the map and the arrow opens the task.
+ * the pin, the second opens the task. In the mobile sheet (`onOpenTask`),
+ * tapping a card opens the task straight away (FE-263).
  */
 export function TaskList({
   header,
-  onSelectTask,
+  onOpenTask,
 }: {
   header?: React.ReactNode
-  onSelectTask?: (taskId: string) => void
+  /** Mobile sheet: runs before a card opens its task (e.g. close the sheet). */
+  onOpenTask?: () => void
 }) {
   const t = useI11n(bag)
   const { openTaskDetail, taskDetailHref, captureDetailsLink } =
@@ -46,7 +47,7 @@ export function TaskList({
     loadingMoreTasks,
     loadMoreTasks,
   } = useTaskBrowseData()
-  const sheetMode = Boolean(onSelectTask)
+  const sheetMode = Boolean(onOpenTask)
   const showError = Boolean(error) && !loading
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const seenImpressionsRef = useRef(new Set<string>())
@@ -73,8 +74,9 @@ export function TaskList({
   )
 
   const handleActivateTask = (taskId: string) => {
-    if (onSelectTask) {
-      onSelectTask(taskId)
+    if (onOpenTask) {
+      onOpenTask()
+      openTaskDetail(taskId, 'list')
       return
     }
     if (selectedTaskId === taskId) {
@@ -132,12 +134,12 @@ export function TaskList({
                       // Same id as the browse map pin — not a zone marker.
                       isActive={selectedTaskId === task.id}
                       isExpanded={selectedTaskId === task.id}
-                      showDetailsCta={sheetMode || selectedTaskId === task.id}
+                      showDetailsCta={!sheetMode && selectedTaskId === task.id}
                       navigateOnActivate={
-                        !sheetMode && selectedTaskId === task.id
+                        sheetMode || selectedTaskId === task.id
                       }
                       activateAriaLabel={
-                        !sheetMode && selectedTaskId === task.id
+                        sheetMode || selectedTaskId === task.id
                           ? `${task.title}. View task details.`
                           : `${task.title}. Select to highlight on map.`
                       }
