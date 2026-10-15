@@ -1,133 +1,23 @@
 import { Box } from '@chakra-ui/react'
-import {
-  Currency,
-  UserLanguage,
-  WorkerPrimaryCategory,
-  WorkerSubscriptionStatus,
-} from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
-import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
+import {
+  storyAvatarUrl,
+  storyMe,
+  storyWorker,
+  storyWorkerDraft,
+  storyWorkerMe,
+} from '@/app/(auth)/helpers/authStoryFixtures'
+import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
 
 import { ProfileHub } from './ProfileHub'
-import type { ProfileEditSection } from './ui/edit/ProfileEditDrawer'
 
-function profileFixture({
-  worker = 'none',
-  phoneVerified = false,
-}: {
-  worker?: 'none' | 'setup' | 'active'
-  phoneVerified?: boolean
-}): MeSnapshot {
-  return {
-    id: 'user-rk',
-    email: 'sam@example.com',
-    emailVerified: true,
-    phoneVerified,
-    phoneVerifiedAt: phoneVerified ? '2026-06-08T10:00:00.000Z' : null,
-    createdAt: '2026-06-01T10:00:00.000Z',
-    disabled: false,
-    enabledLoginMethods: [],
-    workerEligibility: worker !== 'none',
-    profile: {
-      name: 'Sam Carter',
-      contactNumber: '+447700900123',
-      avatarUrl:
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=128&h=128&fit=crop',
-      dateOfBirth: '1990-01-01T00:00:00.000Z',
-      defaultPreferredContactMethod: null,
-      emailVerified: true,
-      phoneVerified,
-    },
-    settings: {
-      isProfilePrivate: false,
-      language: UserLanguage.En,
-      marketingEmails: true,
-    },
-    worker:
-      worker === 'none'
-        ? null
-        : ({
-            id: 'worker-rk',
-            legalName: 'Sam Carter',
-            bio: 'Reliable local handyman with experience in flat-pack assembly, mounting, and everyday home repairs.',
-            tagline: 'Reliable handyman and flat-pack expert',
-            primaryCategory: WorkerPrimaryCategory.Handyman,
-            yearsExperience: 6,
-            skills: ['Handyman', 'Furniture assembly', 'Flat-pack expert'],
-            qualifications: [],
-            travelRadiusMiles: 10,
-            portfolioUrls:
-              worker === 'active'
-                ? [
-                    'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
-                  ]
-                : [],
-            isVerified: false,
-            locationAddress: 'Watford',
-            locationLat: 51.6565,
-            locationLng: -0.3903,
-            preferredLocation: {
-              name: 'Watford',
-              address: 'Private street address',
-              lat: 51.6565,
-              lng: -0.3903,
-            },
-            setupProgress: {
-              currentSubStep:
-                worker === 'setup' ? 'services.skills' : 'complete',
-              completedSubSteps:
-                worker === 'setup'
-                  ? ['profile.details', 'profile.bio']
-                  : [
-                      'profile.details',
-                      'profile.bio',
-                      'services.skills',
-                      'services.experience',
-                    ],
-              isComplete: worker === 'active',
-            },
-            membership: {
-              planName: 'Free',
-              statusLabel: 'Free',
-              statusDescription: null,
-              subscriptionStatus: WorkerSubscriptionStatus.None,
-              hasUnlimitedQuotes: false,
-              cancelAtPeriodEnd: false,
-              canceledAt: null,
-              freeQuotesPerMonth: 3,
-              quotesUsedThisMonth: 2,
-              quotesRemainingThisMonth: 1,
-              trialEndsAt: null,
-              currentPeriodEnd: '2026-12-09T00:00:00.000Z',
-              canStartTrial: false,
-              canManageBilling: false,
-              canUpgrade: true,
-            },
-            earnings: { pending: { amount: 0, currency: Currency.Gbp } },
-          } as NonNullable<MeSnapshot['worker']>),
-  } as MeSnapshot
-}
-
-function StoryProfile({
-  me,
-  initialEditSection,
-}: {
-  me: MeSnapshot
-  initialEditSection?: ProfileEditSection
-}) {
-  useUserStore.setState({
-    user: { id: me.id, email: me.email, createdAt: String(me.createdAt) },
-    me,
-  })
-  return (
-    <Box bg="bg.page" minH="100vh" p={{ base: 4, md: 8 }}>
-      <Box maxW={PAGE_CONTAINER_MAX_W} mx="auto">
-        <ProfileHub me={me} initialEditSection={initialEditSection} />
-      </Box>
-    </Box>
-  )
+/** Story for one signed-in user: the hub reads `me` as a prop and from the store. */
+function hubFor(me: MeSnapshot): Story {
+  return { args: { me }, decorators: [withSession({ me })] }
 }
 
 const meta = {
@@ -135,42 +25,88 @@ const meta = {
   component: ProfileHub,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
-  args: { me: profileFixture({ worker: 'active', phoneVerified: true }) },
+  args: { me: storyWorkerMe() },
+  decorators: [
+    (Story) => (
+      <Box bg="bg.page" minH="100vh" p={{ base: 4, md: 8 }}>
+        <Box maxW={PAGE_CONTAINER_MAX_W} mx="auto">
+          <Story />
+        </Box>
+      </Box>
+    ),
+  ],
 } satisfies Meta<typeof ProfileHub>
 
 export default meta
-
 type Story = StoryObj<typeof meta>
 
+/** Customer account, no worker profile yet. */
 export const Registered: Story = {
-  render: () => <StoryProfile me={profileFixture({ worker: 'none' })} />,
+  ...hubFor(storyMe({ profile: { contactNumber: '+447700900123' } })),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      (await canvas.findAllByRole('link', { name: 'Become a worker' })).length,
+    ).toBeGreaterThan(0)
+  },
 }
 
-export const SetupInProgress: Story = {
-  render: () => <StoryProfile me={profileFixture({ worker: 'setup' })} />,
-}
+/** Worker setup in progress: a private draft, Continue setup. */
+export const SetupInProgress: Story = hubFor(
+  storyMe({
+    profile: { contactNumber: '+447700900123' },
+    worker: storyWorkerDraft(),
+  }),
+)
 
+/** Published worker with a verified phone. */
 export const ActiveWorker: Story = {
-  render: () => (
-    <StoryProfile
-      me={profileFixture({ worker: 'active', phoneVerified: true })}
-    />
-  ),
+  ...hubFor(storyWorkerMe()),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findAllByText('Worker active'),
+    ).not.toHaveLength(0)
+  },
 }
 
-export const ActionRequired: Story = {
-  render: () => (
-    <StoryProfile
-      me={profileFixture({ worker: 'active', phoneVerified: false })}
-    />
-  ),
-}
+/** Setup complete but the phone is not verified: the next step asks for it. */
+export const ActionRequired: Story = hubFor(
+  storyWorkerMe({ phoneVerified: false }),
+)
 
+/** A fully filled-in worker with a photo and a private profile. */
+export const PrivateProfile: Story = hubFor(
+  storyWorkerMe({
+    profile: { avatarUrl: storyAvatarUrl('SC') },
+    settings: { isProfilePrivate: true },
+    worker: storyWorker({ portfolioUrls: [storyAvatarUrl('P1', '#b4533c')] }),
+  }),
+)
+
+/** The personal information drawer open over the hub. */
 export const EditDrawer: Story = {
-  render: () => (
-    <StoryProfile
-      me={profileFixture({ worker: 'active', phoneVerified: true })}
-      initialEditSection="personal"
-    />
-  ),
+  ...hubFor(storyWorkerMe()),
+  args: { me: storyWorkerMe(), initialEditSection: 'personal' },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+        name: 'Edit personal information',
+      }),
+    ).toBeInTheDocument()
+  },
+}
+
+/** The contact drawer opened from the action-required next step. */
+export const EditContactDrawer: Story = {
+  ...hubFor(storyWorkerMe({ phoneVerified: false })),
+  args: {
+    me: storyWorkerMe({ phoneVerified: false }),
+    initialEditSection: 'contact',
+  },
+}
+
+/** Phones: the next step sits above the hero and the sidebar cards stack under the body. */
+export const Phone: Story = {
+  ...hubFor(storyWorkerMe({ phoneVerified: false })),
+  globals: { viewport: { value: 'mobile1' } },
 }

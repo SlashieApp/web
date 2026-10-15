@@ -2,18 +2,18 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { AppleSignInButton } from './AppleAuthButton'
 
-const meta: Meta<typeof AppleSignInButton> = {
+const meta = {
   title: 'Auth/AppleAuthButton',
   component: AppleSignInButton,
   parameters: { layout: 'padded' },
   args: { label: 'Continue with Apple', onClick: () => {} },
-}
+} satisfies Meta<typeof AppleSignInButton>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** The live button renders this once Apple's script is ready. */
+/** Ready: the live button renders this once Apple's script has loaded. */
 export const Default: Story = {}
 
-/** Before Apple's script loads, or while signing in. */
+/** Disabled: before Apple's script loads, or while a sign-in is running. */
 export const Disabled: Story = { args: { disabled: true } }

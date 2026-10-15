@@ -1,5 +1,6 @@
 import { OrderStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
 import {
   storyOrder,
@@ -9,6 +10,7 @@ import {
 import type { MyQuoteItem } from '@/utils/dashboardHelpers'
 
 import {
+  type PipelineInboxRow,
   buildPostedByMeRows,
   buildWorkImOnRows,
 } from '../../helpers/pipelineInbox'
@@ -128,11 +130,140 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+/** Posted tasks and work in progress, with items that need an answer. */
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText(/items need you today/)).toBeVisible()
+  },
+}
 
+/** Nothing posted and no work: both columns invite a first step. */
 export const Empty: Story = {
   args: {
     postedRows: [],
     workRows: [],
   },
+}
+
+/** Still fetching: skeleton rows in both columns. */
+export const Loading: Story = {
+  args: { postedRows: [], workRows: [], loading: true },
+}
+
+/** Rows exist but none need the user: the quiet subtitle. */
+export const AllCaughtUp: Story = {
+  args: {
+    postedRows: postedRows.map((row) => ({ ...row, needsAttention: false })),
+    workRows: workRows.map((row) => ({ ...row, needsAttention: false })),
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText(
+        'Posted tasks and work you’re on, with one next step each.',
+      ),
+    ).toBeVisible()
+  },
+}
+
+/** Tasks posted but no work yet: the work column is empty. */
+export const OnlyPosted: Story = {
+  args: { workRows: [] },
+}
+
+/** Work in progress but nothing posted: the posted column is empty. */
+export const OnlyWork: Story = {
+  args: { postedRows: [] },
+}
+
+const row = (
+  overrides: Partial<PipelineInboxRow> & Pick<PipelineInboxRow, 'id'>,
+): PipelineInboxRow => ({
+  title: 'Mount bookshelf on living room wall',
+  href: `/tasks/${overrides.id}`,
+  statusLabel: 'Quoting',
+  statusTone: 'warning',
+  actionKind: 'view',
+  actionHref: `/tasks/${overrides.id}`,
+  needsAttention: false,
+  happenedAt: '2026-10-01T10:00:00.000Z',
+  ...overrides,
+})
+
+/** Every action button and status tone the rows can carry. */
+export const ActionsAndTones: Story = {
+  args: {
+    postedRows: [
+      row({
+        id: 'a',
+        statusLabel: 'Quoting',
+        statusTone: 'warning',
+        actionKind: 'respond',
+        needsAttention: true,
+      }),
+      row({
+        id: 'b',
+        statusLabel: 'Quote received',
+        statusTone: 'warning',
+        actionKind: 'accept',
+        needsAttention: true,
+      }),
+      row({
+        id: 'c',
+        statusLabel: 'Booked',
+        statusTone: 'success',
+        actionKind: 'markDone',
+        needsAttention: true,
+      }),
+      row({
+        id: 'd',
+        statusLabel: 'Waiting for quotes',
+        statusTone: 'neutral',
+        actionKind: 'view',
+      }),
+    ],
+    workRows: [
+      row({
+        id: 'e',
+        statusLabel: 'Quote sent',
+        statusTone: 'info',
+        actionKind: 'view',
+      }),
+      row({
+        id: 'f',
+        statusLabel: 'Booked',
+        statusTone: 'success',
+        actionKind: 'contactOffline',
+      }),
+      row({
+        id: 'g',
+        statusLabel: 'Conflict',
+        statusTone: 'danger',
+        actionKind: 'view',
+        needsAttention: true,
+      }),
+    ],
+  },
+}
+
+/** Long titles clamp to two lines beside the action. */
+export const LongTitles: Story = {
+  args: {
+    postedRows: [
+      row({
+        id: 'long',
+        title:
+          'Mount a very large floor-to-ceiling bookshelf on a plasterboard living room wall, with the fixings supplied, before the weekend',
+        statusLabel: 'Quoting',
+        actionKind: 'respond',
+        needsAttention: true,
+      }),
+    ],
+    workRows: [],
+  },
+}
+
+/** Phones: the two columns stack. */
+export const Phone: Story = {
+  globals: { viewport: { value: 'mobile1' } },
 }
