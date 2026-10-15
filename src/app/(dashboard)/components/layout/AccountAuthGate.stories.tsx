@@ -47,7 +47,7 @@ export const SignedOut: Story = {
     await expect(await canvas.findByText('Just a moment…')).toBeVisible()
     await waitFor(() =>
       expect(getRouter().replace).toHaveBeenCalledWith(
-        '/login?redirect=%2Fdashboard',
+        '/login?next=%2Fdashboard',
       ),
     )
   },

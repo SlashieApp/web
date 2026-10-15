@@ -5,16 +5,13 @@ export type AuthRedirectIntent = 'customer' | 'worker'
 const SAME_ORIGIN_BASE = 'https://slashie.invalid'
 
 /**
- * An in-app path from `?next=` / `?redirect=`, or null. Only same-origin
- * paths pass: browsers read a backslash after the first slash as `//`
+ * An in-app path from `?next=`, or null. Only same-origin paths pass:
+ * browsers read a backslash after the first slash as `//`
  * (protocol-relative), so the value is parsed as a URL and its origin
  * checked, not just its prefix.
  */
-export function getSafeNextPath(
-  next?: string | null,
-  redirect?: string | null,
-): string | null {
-  const requested = (next ?? redirect)?.trim()
+export function getSafeNextPath(next?: string | null): string | null {
+  const requested = next?.trim()
   if (!requested?.startsWith('/') || requested.includes('\\')) return null
   try {
     const url = new URL(requested, SAME_ORIGIN_BASE)
@@ -34,19 +31,18 @@ export function authSwitchHref(
   path: '/login' | '/register',
   params: { get(name: string): string | null },
 ): string {
-  const next = getSafeNextPath(params.get('next'), params.get('redirect'))
+  const next = getSafeNextPath(params.get('next'))
   return next ? `${path}?next=${encodeURIComponent(next)}` : path
 }
 
 export function resolvePostAuthRedirect(options: {
   next?: string | null
-  redirect?: string | null
   intent?: AuthRedirectIntent | null
   emailVerified?: boolean
   /** Where to send the user when no `next` / `redirect` / register intent applies. */
   fallback?: string
 }): string {
-  const safeNext = getSafeNextPath(options.next, options.redirect)
+  const safeNext = getSafeNextPath(options.next)
 
   if (options.emailVerified === false) {
     const params = new URLSearchParams()

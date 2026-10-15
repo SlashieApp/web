@@ -464,7 +464,7 @@ function CreateTaskFormBody({
         route: POST_TASK_PATH,
         gate_reason: 'post_task',
       })
-      router.replace(`/login?redirect=${encodeURIComponent(POST_TASK_PATH)}`)
+      router.replace(`/login?next=${encodeURIComponent(POST_TASK_PATH)}`)
       return false
     }
 
@@ -878,7 +878,7 @@ export default function CreateTaskPage() {
     sessionGateRef.current = true
     if (!getAuthToken()) {
       router.replace(
-        `/login?redirect=${encodeURIComponent(currentCreateTaskReturnPath())}`,
+        `/login?next=${encodeURIComponent(currentCreateTaskReturnPath())}`,
       )
     } else {
       setSessionOk(true)

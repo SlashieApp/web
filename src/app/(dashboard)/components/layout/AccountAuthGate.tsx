@@ -15,7 +15,7 @@ type AccountAuthGateProps = {
 /**
  * Auth-gates the merged dashboard. Hydrates Zustand `me` on first mount via a
  * callback ref (no useEffect). Unauthenticated users are sent to
- * `/login?redirect=<current path>` instead of an inline sign-in panel.
+ * `/login?next=<current path>` instead of an inline sign-in panel.
  */
 export function AccountAuthGate({ children }: AccountAuthGateProps) {
   const me = useUserStore((s) => s.me)
@@ -46,7 +46,7 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
     const redirectPath = pathname?.startsWith('/') ? pathname : '/dashboard'
     if (!redirectedRef.current) {
       redirectedRef.current = true
-      router.replace(`/login?redirect=${encodeURIComponent(redirectPath)}`)
+      router.replace(`/login?next=${encodeURIComponent(redirectPath)}`)
     }
     return <SessionLoading ref={onMount} />
   }

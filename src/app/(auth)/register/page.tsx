@@ -407,14 +407,8 @@ export default function RegisterPage() {
     useMutation<RegisterMutation>(Register)
 
   const authQuery = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return { next: null as string | null, redirect: null as string | null }
-    }
-    const params = new URLSearchParams(window.location.search)
-    return {
-      next: params.get('next'),
-      redirect: params.get('redirect'),
-    }
+    if (typeof window === 'undefined') return { next: null as string | null }
+    return { next: new URLSearchParams(window.location.search).get('next') }
   }, [])
 
   const onValid = async (data: z.infer<typeof registerFormSchema>) => {
@@ -456,7 +450,7 @@ export default function RegisterPage() {
       })
 
       const sentParams = new URLSearchParams()
-      const explicitNextPath = authQuery.redirect ?? authQuery.next
+      const explicitNextPath = authQuery.next
       if (explicitNextPath) sentParams.set('next', explicitNextPath)
       const sentQuery = sentParams.toString()
       router.push(
@@ -570,7 +564,6 @@ export default function RegisterPage() {
 
                 <GoogleAuthButton
                   next={authQuery.next}
-                  redirect={authQuery.redirect}
                   blocked={oauthBlocked}
                   blockedTitle={t.googleBlockedTitle}
                   blockedDescription={t.googleBlockedDescription}
@@ -581,7 +574,6 @@ export default function RegisterPage() {
                 />
                 <AppleAuthButton
                   next={authQuery.next}
-                  redirect={authQuery.redirect}
                   blocked={oauthBlocked}
                   onBlocked={() => {
                     void trigger(['isOver18', 'agreedToTerms'])

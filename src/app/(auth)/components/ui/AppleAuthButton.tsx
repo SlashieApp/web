@@ -113,7 +113,6 @@ export function AppleSignInButton({
 type AppleAuthButtonProps = {
   intent?: AuthRedirectIntent | null
   next?: string | null
-  redirect?: string | null
   fallbackPath?: string
   /**
    * When true, a press shows the consent prompt instead, so a new account
@@ -133,7 +132,6 @@ type AppleAuthButtonProps = {
 export function AppleAuthButton({
   intent = null,
   next = null,
-  redirect = null,
   fallbackPath = APP_HOME,
   blocked = false,
   onBlocked,
@@ -231,7 +229,6 @@ export function AppleAuthButton({
       router.push(
         resolvePostAuthRedirect({
           next,
-          redirect,
           intent,
           emailVerified: me?.emailVerified,
           fallback: fallbackPath,
@@ -252,7 +249,6 @@ export function AppleAuthButton({
     next,
     onBlocked,
     onSignedIn,
-    redirect,
     router,
     t,
   ])

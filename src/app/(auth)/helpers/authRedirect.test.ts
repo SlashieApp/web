@@ -13,7 +13,7 @@ describe('getSafeNextPath', () => {
     expect(getSafeNextPath('/tasks/abc?tab=quotes#owner-quotes')).toBe(
       '/tasks/abc?tab=quotes#owner-quotes',
     )
-    expect(getSafeNextPath(null, '/account')).toBe('/account')
+    expect(getSafeNextPath('/account')).toBe('/account')
   })
 
   it('refuses anything that could leave the site', () => {

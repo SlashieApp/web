@@ -273,7 +273,7 @@ function EditTaskFormBody({
     setServerErrorCode(null)
     if (!getAuthToken()) {
       router.replace(
-        `/login?redirect=${encodeURIComponent(`/tasks/${taskId}/edit`)}`,
+        `/login?next=${encodeURIComponent(`/tasks/${taskId}/edit`)}`,
       )
       return
     }
@@ -320,7 +320,7 @@ function EditTaskFormBody({
       })
       if (isUnauthenticatedError(err)) {
         router.replace(
-          `/login?redirect=${encodeURIComponent(`/tasks/${taskId}/edit`)}`,
+          `/login?next=${encodeURIComponent(`/tasks/${taskId}/edit`)}`,
         )
         return
       }
@@ -544,7 +544,7 @@ export default function EditTaskPage() {
   if (!sessionGateRef.current) {
     sessionGateRef.current = true
     if (!getAuthToken()) {
-      router.replace(`/login?redirect=${encodeURIComponent(editPath)}`)
+      router.replace(`/login?next=${encodeURIComponent(editPath)}`)
     } else {
       setSessionOk(true)
     }
