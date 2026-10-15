@@ -1,4 +1,6 @@
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client/core'
 import { ApolloProvider } from '@apollo/client/react'
+import { Observable } from '@apollo/client/utilities'
 import { ChakraProvider } from '@chakra-ui/react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import type { Preview } from '@storybook/nextjs-vite'
@@ -8,7 +10,16 @@ import type React from 'react'
 import { ThemeProvider } from 'next-themes'
 
 import { darkSystem, lightSystem } from '../src/theme/chakraSystem'
-import { apolloClient } from '../src/utils/apolloClient'
+
+/**
+ * Default client for every story: requests never answer, so a story can't
+ * reach the API (`.env` points at production). Stories that need data wrap
+ * themselves in their own seeded client.
+ */
+const storyApolloClient = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: new ApolloLink(() => new Observable(() => {})),
+})
 
 /** Mirrors `next/font` CSS variables from `app/layout.tsx` so theme `fonts.heading` / `fonts.body` resolve in Storybook. */
 const storybookFontRootStyle = {
@@ -39,7 +50,7 @@ const preview: Preview = {
   },
   decorators: [
     (Story, context) => (
-      <ApolloProvider client={apolloClient}>
+      <ApolloProvider client={storyApolloClient}>
         <ThemeProvider
           attribute="class"
           disableTransitionOnChange
@@ -87,7 +98,15 @@ const preview: Preview = {
           'UI',
           'Shell',
           'Task detail',
-          ['Summary', 'Layout', 'Overview', 'Quotes', 'Analytics', 'Parts'],
+          [
+            'Page',
+            'Summary',
+            'Layout',
+            'Overview',
+            'Quotes',
+            'Analytics',
+            'Parts',
+          ],
           'Search',
           'Tasks',
           'My tasks',
