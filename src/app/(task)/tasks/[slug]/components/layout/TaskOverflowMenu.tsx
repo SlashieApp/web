@@ -6,6 +6,8 @@ import { type ReactNode, useState } from 'react'
 import {
   LuCalendarClock,
   LuCalendarX,
+  LuCircleAlert,
+  LuCircleCheck,
   LuCircleHelp,
   LuEllipsisVertical,
   LuPencil,
@@ -26,6 +28,8 @@ import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_VIEWS, type TaskDetailAction } from '../../views'
+import { OrderDoneDialog } from '../overview/OrderCloseControls'
+import { OrderFailedDialog } from '../overview/OrderFailedDialog'
 import {
   OrderCancelDialog,
   OrderRescheduleDialog,
@@ -34,11 +38,11 @@ import {
 import { useShareTask } from '../overview/shareTask'
 import { TaskReportControl } from '../ui/TaskReportControl'
 
-type BookingDialog = 'reschedule' | 'cancel'
+type BookingDialog = 'reschedule' | 'cancel' | 'failed' | 'done'
 
 /**
- * The reschedule and cancel dialogs behind the booking actions. They live
- * outside the menu, so they stay open after the phone menu (a drawer) closes.
+ * The dialogs behind the booking actions. They live outside the menu, so
+ * they stay open after the phone menu (a drawer) closes.
  */
 export function useBookingDialogs() {
   const options = useOrderRequestOptions()
@@ -60,9 +64,28 @@ export function useBookingDialogs() {
           onOpenChange={toggle('cancel')}
           counterpartName={options.counterpartName}
         />
+        <OrderFailedDialog
+          open={dialog === 'failed'}
+          onOpenChange={toggle('failed')}
+        />
+        <OrderDoneDialog
+          open={dialog === 'done'}
+          onOpenChange={toggle('done')}
+        />
       </>
     ) : null,
   }
+}
+
+const ACTION_DIALOG: Record<
+  Exclude<TaskDetailAction, 'reportOtherParty' | 'withdrawRequest'>,
+  BookingDialog
+> = {
+  reschedule: 'reschedule',
+  cancelBooking: 'cancel',
+  askToCancel: 'cancel',
+  switchToFailed: 'failed',
+  switchToDone: 'done',
 }
 
 const BOOKING_ICONS: Record<
@@ -73,6 +96,8 @@ const BOOKING_ICONS: Record<
   cancelBooking: <LuCalendarX />,
   askToCancel: <LuCalendarX />,
   withdrawRequest: <LuUndo2 />,
+  switchToFailed: <LuCircleAlert />,
+  switchToDone: <LuCircleCheck />,
 }
 
 function MenuAction({
@@ -145,6 +170,8 @@ function BookingActions({
     cancelBooking: t.requests.cancelBooking,
     askToCancel: t.conflict.askToCancel,
     withdrawRequest: t.requests.withdraw,
+    switchToFailed: t.close.switchToFailed,
+    switchToDone: t.close.switchToDone,
   }
 
   return (
@@ -174,10 +201,9 @@ function BookingActions({
             }
             onClick={() => {
               onDone()
-              if (action === 'reschedule') onOpenDialog('reschedule')
-              else if (action === 'withdrawRequest') {
+              if (action === 'withdrawRequest') {
                 void runOrderAction({ type: withdraw })
-              } else onOpenDialog('cancel')
+              } else onOpenDialog(ACTION_DIALOG[action])
             }}
           />
         ),

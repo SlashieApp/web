@@ -10,7 +10,6 @@ import { Button } from '@ui'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 import bag from '../../../i11n.json'
-import { OrderCloseControls } from '../../overview/OrderCloseControls'
 import { useDateLocale } from './TaskFacts'
 
 /**
@@ -121,16 +120,5 @@ export function RequestFact() {
         </HStack>
       )}
     </Stack>
-  )
-}
-
-/** After marking Done or Failed: switch to the other choice. */
-export function CloseSwitchFact() {
-  const { orderClose } = useTaskDetail()
-  if (!orderClose?.canClose || !orderClose.mine) return null
-  return (
-    <Box py={3}>
-      <OrderCloseControls />
-    </Box>
   )
 }

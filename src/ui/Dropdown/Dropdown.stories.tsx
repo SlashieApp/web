@@ -6,12 +6,15 @@ import {
   WorkerSubscriptionStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { useState } from 'react'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { AccountMenu } from '@/ui/Header/account/AccountMenu'
 
 import { Button } from '../Button'
 import { Link } from '../Link'
+import { Modal } from '../Modal'
 
 import { Dropdown, useDropdownClose } from './Dropdown'
 
@@ -121,6 +124,55 @@ function DropdownMenuItem({ children }: { children: React.ReactNode }) {
     <Text {...navItem} role="menuitem" tabIndex={0} onClick={close}>
       {children}
     </Text>
+  )
+}
+
+/** Closes the menu and opens a dialog in the same tap (like Reschedule). */
+function DialogMenuItem({ onSelect }: { onSelect: () => void }) {
+  const close = useDropdownClose()
+  return (
+    <Text
+      {...navItem}
+      role="menuitem"
+      tabIndex={0}
+      onClick={() => {
+        close()
+        onSelect()
+      }}
+    >
+      Reschedule
+    </Text>
+  )
+}
+
+function MenuThatOpensDialog() {
+  const [dialogOpen, setDialogOpen] = useState(false)
+  return (
+    <>
+      <Dropdown
+        contentLabel="Task options"
+        mobilePlacement="bottom"
+        trigger={
+          <Button size="sm" variant="secondary">
+            More
+          </Button>
+        }
+      >
+        <Stack gap={0} p={1}>
+          <DialogMenuItem onSelect={() => setDialogOpen(true)} />
+        </Stack>
+      </Dropdown>
+      <Modal
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Propose new times"
+        cancelLabel="Keep booking"
+        submitLabel="Send request"
+        onSubmit={() => setDialogOpen(false)}
+      >
+        <Text fontSize="sm">Offer one or two times.</Text>
+      </Modal>
+    </>
   )
 }
 
@@ -444,6 +496,36 @@ export const MobileDrawer: Story = {
       </Dropdown>
     </Box>
   ),
+}
+
+/**
+ * Phones: an item that opens a dialog keeps the menu under it until the
+ * dialog closes. Closing the drawer first would dismiss the dialog with it.
+ */
+export const MobileItemOpensDialog: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  parameters: { layout: 'fullscreen' },
+  render: () => (
+    <Box display="flex" justifyContent="flex-end" p={4}>
+      <MenuThatOpensDialog />
+    </Box>
+  ),
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body)
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'More' }),
+    )
+    await userEvent.click(
+      await page.findByRole('menuitem', { name: 'Reschedule' }),
+    )
+    // Past the drawer's exit animation, the dialog is still open.
+    await new Promise((resolve) => setTimeout(resolve, 700))
+    await expect(
+      page.getByRole('dialog', { name: 'Propose new times' }),
+    ).toBeVisible()
+    await userEvent.click(page.getByRole('button', { name: 'Keep booking' }))
+    await waitFor(() => expect(page.queryByRole('dialog')).toBeNull())
+  },
 }
 
 /** Real product composition: `AccountMenu` on `Dropdown` with the auth store seeded. */

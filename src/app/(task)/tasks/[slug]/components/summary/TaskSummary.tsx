@@ -23,7 +23,7 @@ import {
   summaryBudgetType,
 } from '../../views/resolveSummaryCopy'
 import { TaskStatusPill } from '../ui/TaskStatusPill'
-import { CloseSwitchFact, RequestFact } from './facts/BookingActionFacts'
+import { RequestFact } from './facts/BookingActionFacts'
 import {
   AgreedPriceFact,
   OtherPartyFact,
@@ -58,7 +58,6 @@ const SUMMARY_FACTS: Record<TaskSummaryFact, ComponentType> = {
   description: DescriptionFact,
   photos: PhotosFact,
   request: RequestFact,
-  closeSwitch: CloseSwitchFact,
   record: RecordFact,
   reviews: ReviewsFact,
 }

@@ -79,8 +79,6 @@ export type TaskSummaryFact =
   | 'photos'
   /** A pending reschedule or cancellation; the other side's answer buttons. */
   | 'request'
-  /** After marking Done or Failed: switch to the other choice. */
-  | 'closeSwitch'
   /** The booking record: timeline and closed date. */
   | 'record'
   | 'reviews'
@@ -95,6 +93,10 @@ export type TaskDetailAction =
   | 'askToCancel'
   /** Conflict: report the other person. */
   | 'reportOtherParty'
+  /** After marking Done: "Something went wrong?" (mark it Failed). */
+  | 'switchToFailed'
+  /** After marking Failed: "Changed your mind? Mark it Done". */
+  | 'switchToDone'
 
 /** The one main button for the view (the page CTA). */
 export type TaskDetailPrimaryAction =
