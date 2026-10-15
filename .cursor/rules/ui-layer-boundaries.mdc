@@ -46,7 +46,7 @@ Import as `@/ui/<Name>` or from `@ui` after `bun run exports-gen`.
 - May read Me / notifications / routes / Apollo.
 - Still live under `src/ui/<Name>/` with colocated `i11n.json`.
 - Group internal pieces in concern subfolders (e.g. `Header/account/`, `Header/notifications/`, `Header/dashboard/`, `Header/shell/`).
-- Stories: `ui/Header`, `ui/Dock` (same ownership title rule as other `@ui` modules). No `shell/*` titles.
+- Stories: `Shell/Header`, `Shell/Footer`, `Shell/MobileBottomNav` (see `docs/coding-guidebook.md` §12).
 - May import from `@/app/**` only when wiring shell behavior (exception to the primitive rule).
 - There is **no** separate `src/components` chrome tree.
 

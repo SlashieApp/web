@@ -1,119 +1,89 @@
 # Story Examples
 
-## UI Example
+## UI component: one story per situation
 
-```ts
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Card } from './card';
+```tsx
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+
+import { Badge } from './Badge'
 
 const meta = {
-  title: 'ui/Card',
-  component: Card,
-  tags: ['autodocs'],
+  title: 'UI/Badge',
+  component: Badge,
   parameters: { layout: 'padded' },
-  args: {
-    thumbnail: '/press_release.png',
-    link: 'https://example.com',
-    title: 'Title',
-    excerpt: 'Content',
-  },
-} satisfies Meta<typeof Card>;
+  args: { children: 'Open' },
+} satisfies Meta<typeof Badge>
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
-export const Default: Story = {};
+/** Default variant. */
+export const Default: Story = {}
+
+/** Success: positive state such as Completed. */
+export const Success: Story = { args: { variant: 'success' } }
+
+/** Long label: wraps instead of overflowing. */
+export const LongLabel: Story = {
+  args: { children: 'Waiting for the other person to confirm' },
+}
 ```
 
-## Section Example
+## Route component: seed the real provider
 
-```ts
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { PressReleasesSection } from './pressReleasesSection';
+Components that read a route context get a story-only decorator. Task detail
+uses `withTaskDetailStory` (fixtures plus an Apollo client whose link never
+resolves, so nothing reaches the network).
 
-const meta = {
-  title: 'section/PressReleasesSection',
-  component: PressReleasesSection,
-  tags: ['autodocs'],
-  parameters: { layout: 'fullscreen' },
-  args: {
-    content: {
-      sectionTitle: '**Press** Releases',
-      buttonText: 'View All',
-      buttonLink: '/press-releases',
-    },
-    blogs: [
-      {
-        id: 1,
-        title: 'The 1st Blog',
-        slug: 'the-1st-blog',
-        excerpt: 'Example excerpt...',
-        status: 'published',
-        published_at: 'Oct 1, 2025',
-        featured_image: 'https://example.com/image.png',
-        featured_image_path: 'blogs/image.png',
-      },
-    ],
-  },
-} satisfies Meta<typeof PressReleasesSection>;
+```tsx
+import { TaskStatus } from '@codegen/schema'
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
+import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
+import { TaskTitle } from './TaskTitle'
 
-export const Default: Story = {};
-```
-
-## Layout Example
-
-```ts
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Dropdown } from './Dropdown';
-
-const meta = {
-  title: 'ui/Dropdown',
-  tags: ['autodocs'],
+const meta: Meta<typeof TaskTitle> = {
+  title: 'Task detail/Layout/TaskTitle',
+  component: TaskTitle,
   parameters: { layout: 'padded' },
-} satisfies Meta;
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
-export const ClickWithJsxSlots: Story = { /* … */ };
+/** Owner of an open task. */
+export const Default: Story = {
+  decorators: [withTaskDetailStory({ viewer: 'owner' })],
+}
+
+/** Phones: booked worker, the menu adds the booking actions. */
+export const PhoneMenuBooked: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'worker',
+      task: storyTaskDetail({ status: TaskStatus.Awarded }),
+    }),
+  ],
+}
 ```
 
-## Header Example
+## Interaction check with a play function
 
-```ts
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Header } from './Header';
+`npx vitest run --project storybook <file>` runs play functions as tests.
 
-const meta = {
-  title: 'header/Header',
-  component: Header,
-  tags: ['autodocs'],
-  parameters: { layout: 'fullscreen' },
-} satisfies Meta<typeof Header>;
+```tsx
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-/** Top-level headers get state stories (browse, dashboard, guest). */
-export const BrowseLoggedIn: Story = {
-  parameters: { nextjs: { navigation: { pathname: '/' } } },
-  render: () => <Header />,
-};
-```
-
-Non-universal menus get a single story:
-
-```ts
-const meta = {
-  title: 'header/AccountMenu',
-  component: AccountMenu,
-  tags: ['autodocs'],
-  parameters: { layout: 'fullscreen' },
-  args: { initialOpen: true },
-} satisfies Meta<typeof AccountMenu>;
-
-export const Default: Story = {};
+/** Phones: a menu item that opens a dialog keeps it open. */
+export const MobileItemOpensDialog: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body)
+    await userEvent.click(await page.findByRole('button', { name: 'Open menu' }))
+    await userEvent.click(await page.findByRole('menuitem', { name: 'Cancel booking' }))
+    await waitFor(() => expect(page.getByRole('dialog')).toBeVisible())
+  },
+}
 ```

@@ -84,10 +84,10 @@ Pages import primitives from `@ui` (barrel auto-generated — `bun run exports-g
 
 | Layer | Modules | Story title |
 | --- | --- | --- |
-| `@ui` controls | Button, Input, Textarea, Select, PhoneInput, OtpInput, FormField, RadioButton, Slider, IconButton | `ui/*` |
-| `@ui` display | Card, Badge, Avatar, Thumbnail, Rating, DetailRow, InfoBar, Toast, ProgressBar, Stepper, Tabs, ScheduleChip, SpotIllustration, MapCard, ImageGallery, Logo, Link | `ui/*` |
-| `@ui` layout | Drawer, Dropdown, Modal, MobileCarousel, StepFlowLayout, Footer | `ui/*` |
-| `@ui` shell | Header, Dock | `ui/*` |
+| `@ui` controls | Button, Input, Textarea, Select, PhoneInput, OtpInput, FormField, RadioButton, Slider, IconButton | `UI/*` |
+| `@ui` display | Card, Badge, Avatar, Thumbnail, Rating, DetailRow, InfoBar, Toast, ProgressBar, Stepper, Tabs, ScheduleChip, SpotIllustration, MapCard, ImageGallery, Logo, Link | `UI/*` |
+| `@ui` layout | Drawer, Dropdown, Modal, MobileCarousel, StepFlowLayout | `UI/*` |
+| `@ui` shell | Header, Footer, MobileBottomNav | `Shell/*` |
 | `@ui` presentational + adapter | LanguageSwitcher (`src/ui`) + connected `src/i18n/LanguageSwitcher.tsx` | `ui/LanguageSwitcher` |
 
 **Not in `@ui` (by design)**

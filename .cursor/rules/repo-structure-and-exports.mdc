@@ -154,19 +154,40 @@ Three conceptual layers (all shared UI lives under **`src/ui`**):
 
 ### Storybook grouping (see `storybook-story-conventions` skill)
 
-Stories are titled **by source ownership**:
+Stories are titled **by product area** (FE-275):
 
-| Source | Title | Examples |
-|---|---|---|
-| `src/ui` | `ui/*` | `ui/Input`, `ui/Header`, `ui/Dock`, `ui/LanguageSwitcher` |
-| `src/app/(…)` | folder path (strip groups + `components/`) | `marketing/Header`, `task/TaskCard`, `worker/setup/WorkerSetupBioComposer` |
+| Source | Title |
+| --- | --- |
+| `src/ui/<Name>/` | `UI/<Name>` (more components in the folder: `UI/<Name>/<Component>`) |
+| `src/ui/Header`, `Footer`, `MobileBottomNav`, `AppShell`; root app chrome (`src/app/*.tsx`) | `Shell/<Name>` |
+| `src/app/(task)/tasks/[slug]/components/<section>/` | `Task detail/<Section>/<Component>` (Summary, Layout, Overview, Quotes, Analytics, Parts = `ui`); page stories `Task detail/Page` |
+| `src/app/(task)/search/` | `Search/<Component>` |
+| `src/app/(task)/components/` | `Tasks/<Component>` |
+| `src/app/(task)/tasks/components/` | `My tasks/<Component>` |
+| `src/app/(task)/tasks/[slug]/edit/` | `Edit task/<Component>` |
+| `src/app/(stepflow)/tasks/create/` | `Create task/<Component>` |
+| `src/app/(stepflow)/tasks/[slug]/quote/` | `Quote flow/<Component>` |
+| `src/app/(stepflow)/tasks/[slug]/review/` | `Review flow/<Component>` |
+| `src/app/(stepflow)/worker/setup/` | `Worker setup/<Component>` |
+| `src/app/(worker)/workers/[slug]/` | `Worker profile/<Component>` |
+| `src/app/(worker)/workers/` | `Workers/<Component>` |
+| `src/app/(dashboard)/<section>/` | `Dashboard/<Section>/<Component>` (Account, Billing, Profile, Home, Earnings, Admin, Shared) |
+| `src/app/(messages)/` | `Messages/<Component>` |
+| `src/app/(auth)/` | `Auth/<Component>` |
+| `src/app/(presence)/`, `src/app/user/` | `Public profile/<Component>` |
+| `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*` |
 
 Rules:
 
-- **No `form/*` / `Components/*` / `Patterns/*` / `layout/*` / `shell/*` titles.** Everything under `src/ui` is `ui/*`.
-- **No duplicate primitive stories.** One story file per universal primitive.
-- **Universal-first.** Generic widgets live in `src/ui` with `ui/*` stories. Every remaining **UI file** (presentational) gets a colocated story; hooks / providers / `*ViewCapture` get none.
-- **One story per UI file.** Loading/empty live as args on that story, not a sibling story. Internal Header/Dock pieces stay covered by the parent unless they remain a public UI export.
+- Colocate `<Component>.stories.tsx` next to every component that renders visible UI.
+- One named story per situation the component can be in (data states, viewer roles, loading / empty / error, open / closed, phone vs desktop), each with a one-line JSDoc saying which situation it shows. Phone layouts: `globals: { viewport: { value: 'mobile1' } }`.
+- No stories for hooks, providers, GraphQL, analytics view capture, trackers, URL sync, or anything else that renders nothing visible.
+- Components that read a route context get a story-only decorator that seeds the real provider with fixtures and a story-only Apollo client (a link that never resolves, plus a seeded cache), e.g. `withTaskDetailStory` in `src/app/(task)/tasks/[slug]/helpers/`. Stories must never reach the network (`.env` points at production).
+- Story tests: `npx vitest run --project storybook [paths]` renders every story and runs play functions (e.g. `UI/Dropdown` "Mobile Item Opens Dialog").
+- The sidebar order lives in `.storybook/preview.tsx` (`storySort`); add new areas there.
+- Don't add non-story helper files under auto-generated barrel folders (`src/ui`, `src/app/(task)/components`); keep `src/ui` story helpers inside the story file.
+- Inside `src/ui/**`, import siblings relatively, not through the `@ui` barrel.
+- Dual theme: semantic tokens only; no hardcoded dark canvas wrappers.
 
 ### Context colocation (any route provider)
 

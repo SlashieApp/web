@@ -5,127 +5,85 @@ description: Create and update Storybook stories using this repository's require
 
 # Storybook Story Conventions
 
-Canonical ownership titles: **`docs/coding-guidebook.md`** §12.
+Canonical source: **`docs/coding-guidebook.md`** §12 (product-area grouping, FE-275).
 
-Apply these rules whenever creating or updating stories.
+## Stack
 
-## Repo-specific stack
+- Framework: `@storybook/nextjs-vite` (Storybook 10)
+- Discovery: `../src/**/*.mdx` and `../src/**/*.stories.@(js|jsx|mjs|ts|tsx)`
+- Global decorators: `.storybook/preview.tsx` (Chakra provider, theme, sidebar `storySort`)
+- Story tests: `npx vitest run --project storybook [paths]` (each story renders as a test; play functions run)
 
-- Framework: `@storybook/nextjs-vite`
-- Story discovery: `../components/**/*.stories.@(js|jsx|mjs|ts|tsx)`
-- Static assets: `public/` via `.storybook/main.ts` `staticDirs`
-- Global decorator: `.storybook/preview.tsx` already wraps stories with app provider
+## Titles (by product area)
 
-## File placement rules
+| Source | Title |
+| --- | --- |
+| `src/ui/<Name>/` | `UI/<Name>` (more components in the folder: `UI/<Name>/<Component>`) |
+| `src/ui/Header`, `Footer`, `MobileBottomNav`, `AppShell`; root app chrome (`src/app/*.tsx`) | `Shell/<Name>` |
+| `src/app/(task)/tasks/[slug]/components/<section>/` | `Task detail/<Section>/<Component>` (Summary, Layout, Overview, Quotes, Analytics, Parts = `ui`); page stories `Task detail/Page` |
+| `src/app/(task)/search/` | `Search/<Component>` |
+| `src/app/(task)/components/` | `Tasks/<Component>` |
+| `src/app/(task)/tasks/components/` | `My tasks/<Component>` |
+| `src/app/(task)/tasks/[slug]/edit/` | `Edit task/<Component>` |
+| `src/app/(stepflow)/tasks/create/` | `Create task/<Component>` |
+| `src/app/(stepflow)/tasks/[slug]/quote/` | `Quote flow/<Component>` |
+| `src/app/(stepflow)/tasks/[slug]/review/` | `Review flow/<Component>` |
+| `src/app/(stepflow)/worker/setup/` | `Worker setup/<Component>` |
+| `src/app/(worker)/workers/[slug]/` | `Worker profile/<Component>` |
+| `src/app/(worker)/workers/` | `Workers/<Component>` |
+| `src/app/(dashboard)/<section>/` | `Dashboard/<Section>/<Component>` (Account, Billing, Profile, Home, Earnings, Admin, Shared) |
+| `src/app/(messages)/` | `Messages/<Component>` |
+| `src/app/(auth)/` | `Auth/<Component>` |
+| `src/app/(presence)/`, `src/app/user/` | `Public profile/<Component>` |
+| `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*` |
 
-Always colocate the story beside its component:
+## Rules
 
-- `src/ui/<Component>/<Component>.stories.tsx` — universal atoms/molecules.
-- `src/app/**/components/**/<Component>.stories.tsx` — route/feature components.
+- Colocate `<Component>.stories.tsx` next to every component that renders visible UI.
+- One named story per situation the component can be in (data states, viewer roles, loading / empty / error, open / closed, phone vs desktop), each with a one-line JSDoc saying which situation it shows. Phone layouts: `globals: { viewport: { value: 'mobile1' } }`.
+- No stories for hooks, providers, GraphQL, analytics view capture, trackers, URL sync, or anything else that renders nothing visible.
+- Components that read a route context get a story-only decorator that seeds the real provider with fixtures and a story-only Apollo client (a link that never resolves, plus a seeded cache), e.g. `withTaskDetailStory` in `src/app/(task)/tasks/[slug]/helpers/`. Stories must never reach the network (`.env` points at production).
+- Story tests: `npx vitest run --project storybook [paths]` renders every story and runs play functions (e.g. `UI/Dropdown` "Mobile Item Opens Dialog").
+- The sidebar order lives in `.storybook/preview.tsx` (`storySort`); add new areas there.
+- Don't add non-story helper files under auto-generated barrel folders (`src/ui`, `src/app/(task)/components`); keep `src/ui` story helpers inside the story file.
+- Inside `src/ui/**`, import siblings relatively, not through the `@ui` barrel.
+- Dual theme: semantic tokens only; no hardcoded dark canvas wrappers.
 
-Do not create story files in a separate stories tree; they live next to source.
-
-## Title groups follow source ownership
-
-| Source | Title pattern | Examples |
-|---|---|---|
-| `src/ui/<Name>/` | `ui/<Name>` | `ui/Input`, `ui/Dropdown`, `ui/Drawer`, `ui/Footer`, `ui/Stepper`, `ui/Header`, `ui/Dock` |
-| `src/app/(segment)/…` | folder path (strip route groups + `components/`, drop `[param]` segments) | `marketing/Header`, `task/TaskCard`, `task/search/SearchModeSelector`, `worker/setup/WorkerSetupBioComposer`, `dashboard/profile/ProfileHub` |
-
-Rules:
-
-- **Every `src/ui` story is `ui/*`.** No `Components/*`, `Patterns/*`, `layout/*`, `form/*`, or `shell/*` titles.
-- **App stories mirror the route folder path**, not a parallel “function” taxonomy. Prefer the full component name as the last segment (`task/TaskCard`, not `task/Card`).
-- **Marketing header** lives under marketing: `marketing/Header` (file may still be `MarketingHeader.tsx`).
-- **No duplicate primitive stories.** Do not story alias/wrapper exports or thin variants already covered by a parent.
-- **Universal-first.** Generic widgets belong in `src/ui` as `ui/*`.
-- **Every UI file** (presentational `.tsx`) gets a colocated `<Name>.stories.tsx`. Loading/empty are args on that story, not a sibling file.
-- **No stories** for hooks, providers, GraphQL, or `*ViewCapture` / analytics adapters.
-- **App shell chrome** (`Header`, `Dock`) lives in `src/ui` with `ui/*` stories — same folder shape as other `@ui` modules.
-
-## Story scope
-
-- **Universal `ui/*`**: cover meaningful variants (states, sizes, alignment) as separate exports.
-- **Non-universal feature components** (e.g. top-level profile hub): **one story file with a single `Default`** that shows the real use case.
-- **Internal Header/Dock pieces** stay covered by the parent story unless they remain a public UI export.
-- Tests live in the **same folder** as the source they test.
-
-## Required story skeleton
+## Skeleton
 
 ```ts
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { ComponentName } from './ComponentName';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+
+import { ComponentName } from './ComponentName'
 
 const meta = {
-  title: 'group/ComponentName',
+  title: 'Area/ComponentName',
   component: ComponentName,
-  tags: ['autodocs'],
-  parameters: {
-    layout: 'padded' | 'fullscreen',
-  },
+  parameters: { layout: 'padded' },
   args: {},
-} satisfies Meta<typeof ComponentName>;
+} satisfies Meta<typeof ComponentName>
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
-export const Default: Story = {};
+/** Populated: what most people see. */
+export const Default: Story = {}
+
+/** Loading: skeleton while the data is fetched. */
+export const Loading: Story = { args: { loading: true } }
 ```
 
-## Title convention
+## Layout and args
 
-- `ui/Card`, `ui/Stepper`, `ui/Dropdown`, `ui/Header`, `ui/Dock` — anything under `src/ui`
-- `marketing/Header`, `task/tasks/quoteSection/QuoteCard` — app routes by folder path
+- `fullscreen` for page-like or full-width components, `padded` for contained ones; match siblings when unsure.
+- Realistic, production-like args with complete object shapes; reuse the area's story fixtures.
 
-## Layout convention
+## Checklist
 
-- Use `fullscreen` for section-like/full-width/page-like components
-- Use `padded` for contained widgets
-- If unsure: inspect sibling stories and match the dominant pattern
-
-## Args convention
-
-- Prefer `meta.args` for default args
-- Use realistic defaults that render without runtime errors
-- Use existing static assets (for example `/press_release.png`)
-- Provide minimally complete object/array shapes for required props
-- Keep values production-like (ids, slug, dates, URLs)
-
-## Provider rule
-
-Do not add extra provider wrappers in story files unless explicitly requested.
-
-## Quality checklist
-
-- Story file is colocated with the component
-- Import type is from `@storybook/nextjs-vite`
-- Title follows `group/ComponentName` with the correct **function** group (`ui` / `layout` / `header` / route-section)
-- Universal widgets live in `src/ui` and are titled `ui/*` (not `form/*`)
-- Every UI file has a colocated story; hooks / analytics adapters do not
-- Loading/empty are args on the same story, not a sibling `*Skeleton.stories.tsx`
-- `tags: ['autodocs']` exists
-- `parameters.layout` is set
-- Args satisfy required component props
-- No linter/type errors in the story file
-
-## Prompt template
-
-Use this prompt for story generation:
-
-```md
-Create/Update Storybook story for `<component-path>`.
-
-Follow repo conventions:
-1. Use `import type { Meta, StoryObj } from '@storybook/nextjs-vite'`.
-2. Place story next to component as `<Component>.stories.tsx`.
-3. Use title format by ownership: `ui/<Name>` for `src/ui`, or the `src/app` folder path (strip `(groups)` + `components/`) for feature stories. No `form/*` / `Components/*` / `Patterns/*` / `shell/*` titles.
-4. Include `tags: ['autodocs']`.
-5. Set `parameters.layout` (`fullscreen` for section/full-width, `padded` for contained widgets).
-6. Add realistic default args with complete mock object shapes.
-7. Export `meta`, `type Story = StoryObj<typeof meta>`, and `Default`.
-8. Non-universal feature components: a single `Default` story; no stories for internal sub-components.
-9. Do not add extra providers; Storybook preview already wraps with app Provider.
-```
+- Story file is colocated, titled by product area, and listed in the right `storySort` group
+- One story per situation, each with a one-line JSDoc
+- Route contexts come from a story-only decorator; nothing reaches the network
+- `npx vitest run --project storybook <file>` passes; no Biome or tsc errors
 
 ## Examples
 

@@ -293,22 +293,39 @@ Do **not** introduce `useEffect` by default. Prefer event-driven `useCallback` a
 
 ---
 
-## 12. Storybook titles (by source ownership)
+## 12. Storybook (grouped by product area, FE-275)
 
-| Source | Title | Examples |
-| --- | --- | --- |
-| `src/ui/<Name>/` | `ui/<Name>` | `ui/Button`, `ui/Dropdown`, `ui/Header`, `ui/Dock`, `ui/LanguageSwitcher` |
-| `src/app/(segment)/…` | Folder path (strip `(groups)` + `components/`, drop `[param]`) | `marketing/Header`, `task/TaskCard`, `worker/setup/WorkerSetupBioComposer` |
+| Source | Title |
+| --- | --- |
+| `src/ui/<Name>/` | `UI/<Name>` (more components in the folder: `UI/<Name>/<Component>`) |
+| `src/ui/Header`, `Footer`, `MobileBottomNav`, `AppShell`; root app chrome (`src/app/*.tsx`) | `Shell/<Name>` |
+| `src/app/(task)/tasks/[slug]/components/<section>/` | `Task detail/<Section>/<Component>` (Summary, Layout, Overview, Quotes, Analytics, Parts = `ui`); page stories `Task detail/Page` |
+| `src/app/(task)/search/` | `Search/<Component>` |
+| `src/app/(task)/components/` | `Tasks/<Component>` |
+| `src/app/(task)/tasks/components/` | `My tasks/<Component>` |
+| `src/app/(task)/tasks/[slug]/edit/` | `Edit task/<Component>` |
+| `src/app/(stepflow)/tasks/create/` | `Create task/<Component>` |
+| `src/app/(stepflow)/tasks/[slug]/quote/` | `Quote flow/<Component>` |
+| `src/app/(stepflow)/tasks/[slug]/review/` | `Review flow/<Component>` |
+| `src/app/(stepflow)/worker/setup/` | `Worker setup/<Component>` |
+| `src/app/(worker)/workers/[slug]/` | `Worker profile/<Component>` |
+| `src/app/(worker)/workers/` | `Workers/<Component>` |
+| `src/app/(dashboard)/<section>/` | `Dashboard/<Section>/<Component>` (Account, Billing, Profile, Home, Earnings, Admin, Shared) |
+| `src/app/(messages)/` | `Messages/<Component>` |
+| `src/app/(auth)/` | `Auth/<Component>` |
+| `src/app/(presence)/`, `src/app/user/` | `Public profile/<Component>` |
+| `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*` |
 
-- Colocate `*.stories.tsx` next to every **UI file** (presentational `.tsx` that renders visible UI). After grouping, `TaskCard.stories.tsx` covers `loading` via args — no second story file.
-- Tests live in the **same folder** as the source they test (`TaskCard.test.ts` next to `TaskCard.tsx`). Helper tests stay next to `helpers/`.
-- Universal `ui/*`: cover meaningful variants (including `loading` when the component owns a skeleton).
-- Feature UI: usually a single `Default` (plus state stories when the file owns loading/empty).
-- No stories for hooks, providers, GraphQL, or `*ViewCapture` / analytics adapters.
-- Internal Header/Dock pieces stay covered by the parent story unless they remain a public UI export.
+- Colocate `<Component>.stories.tsx` next to every component that renders visible UI.
+- One named story per situation the component can be in (data states, viewer roles, loading / empty / error, open / closed, phone vs desktop), each with a one-line JSDoc saying which situation it shows. Phone layouts: `globals: { viewport: { value: 'mobile1' } }`.
+- No stories for hooks, providers, GraphQL, analytics view capture, trackers, URL sync, or anything else that renders nothing visible.
+- Components that read a route context get a story-only decorator that seeds the real provider with fixtures and a story-only Apollo client (a link that never resolves, plus a seeded cache), e.g. `withTaskDetailStory` in `src/app/(task)/tasks/[slug]/helpers/`. Stories must never reach the network (`.env` points at production).
+- Story tests: `npx vitest run --project storybook [paths]` renders every story and runs play functions (e.g. `UI/Dropdown` "Mobile Item Opens Dialog").
+- The sidebar order lives in `.storybook/preview.tsx` (`storySort`); add new areas there.
+- Don't add non-story helper files under auto-generated barrel folders (`src/ui`, `src/app/(task)/components`); keep `src/ui` story helpers inside the story file.
+- Inside `src/ui/**`, import siblings relatively, not through the `@ui` barrel.
 - Dual theme: semantic tokens only; no hardcoded dark canvas wrappers.
-- Inside `src/ui/**`, import siblings relatively — not `@ui` barrel (avoids cycles).
-- No `shell/*` / `form/*` / `Components/*` / `Patterns/*` / `layout/*` story titles.
+- Tests live in the **same folder** as the source they test (`TaskCard.test.ts` next to `TaskCard.tsx`).
 
 ---
 
@@ -338,6 +355,7 @@ bun run codegen       # after .gql changes
 bun run lint          # Biome --write
 bun run test:unit
 bun run storybook     # port 6006
+npx vitest run --project storybook   # render every story as a test
 bun run dev           # runs exports-gen then Next on 3000
 ```
 
@@ -379,7 +397,7 @@ Registered barrels: `EXPORT_CONFIGS` in `scripts/generate-exports.ts`. Do not ha
 - [ ] Import direction respects the layer model
 - [ ] Copy in owning `i11n.json` + `useI11n(bag)`
 - [ ] In-app nav uses `@ui` Link with bare paths
-- [ ] Touched `ui` / feature stories titled correctly
+- [ ] Touched stories titled by product area (§12), one story per situation, story tests pass
 - [ ] No happy-path / primary empty-error regressions
 
 ---
