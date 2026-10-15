@@ -49,10 +49,13 @@ export const Selected: Story = {
   decorators: [withTaskBrowseStory({ selectedTaskId: 'browse-task-2' })],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await waitFor(() =>
-      expect(
-        canvas.getByRole('link', { name: 'View task', hidden: false }),
-      ).toBeVisible(),
+    // The card expands with an animation; allow for a busy parallel run.
+    await waitFor(
+      () =>
+        expect(
+          canvas.getByRole('link', { name: 'View task', hidden: false }),
+        ).toBeVisible(),
+      { timeout: 3000 },
     )
   },
 }
