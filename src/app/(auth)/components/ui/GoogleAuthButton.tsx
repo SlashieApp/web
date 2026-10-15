@@ -15,14 +15,16 @@ import {
   isGoogleAuthConfigured,
 } from '@/app/(auth)/helpers/googleAuthConfig'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { useI11n } from '@/i18n/useI11n'
 import { APP_HOME } from '@/utils/appRoutes'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
+import bag from '../i11n.json'
+
 type GoogleAuthButtonProps = {
   intent?: AuthRedirectIntent | null
   next?: string | null
-  redirect?: string | null
   fallbackPath?: string
   /**
    * When true, intercepts the Google widget so a new account cannot be
@@ -39,14 +41,14 @@ type GoogleAuthButtonProps = {
 export function GoogleAuthButton({
   intent = null,
   next = null,
-  redirect = null,
   fallbackPath = APP_HOME,
   blocked = false,
-  blockedTitle = 'Confirm you are 18 or over',
-  blockedDescription = 'Tick the confirmation boxes, then continue with Google.',
+  blockedTitle,
+  blockedDescription,
   onBlocked,
   onSignedIn,
 }: GoogleAuthButtonProps) {
+  const t = useI11n(bag).google
   const router = useRouter()
   const loginWithGoogle = useUserStore((s) => s.loginWithGoogle)
   const loading = useUserStore((s) => s.isLoading)
@@ -68,11 +70,11 @@ export function GoogleAuthButton({
   const showBlocked = useCallback(() => {
     onBlocked?.()
     showAppToast({
-      title: blockedTitle,
-      description: blockedDescription,
+      title: blockedTitle ?? t.blockedTitle,
+      description: blockedDescription ?? t.blockedDescription,
       type: 'warning',
     })
-  }, [blockedDescription, blockedTitle, onBlocked])
+  }, [blockedDescription, blockedTitle, onBlocked, t])
 
   const onSuccess = useCallback(
     async (credentialResponse: CredentialResponse) => {
@@ -90,7 +92,6 @@ export function GoogleAuthButton({
         router.push(
           resolvePostAuthRedirect({
             next,
-            redirect,
             intent,
             emailVerified: me?.emailVerified,
             fallback: fallbackPath,
@@ -98,11 +99,8 @@ export function GoogleAuthButton({
         )
       } catch (error) {
         showAppToast({
-          title: 'Could not sign in with Google',
-          description: getFriendlyErrorMessage(
-            error,
-            'Something went wrong. Try again.',
-          ),
+          title: t.failedTitle,
+          description: getFriendlyErrorMessage(error, t.failedDescription),
           type: 'error',
         })
       }
@@ -114,19 +112,19 @@ export function GoogleAuthButton({
       loginWithGoogle,
       next,
       onSignedIn,
-      redirect,
       router,
       showBlocked,
+      t,
     ],
   )
 
   const onError = useCallback(() => {
     showAppToast({
-      title: 'Google sign-in failed',
-      description: 'Allow pop-ups for this site, then try again.',
+      title: t.popupFailedTitle,
+      description: t.popupFailedDescription,
       type: 'error',
     })
-  }, [])
+  }, [t])
 
   if (!isGoogleAuthConfigured()) return null
 

@@ -26,21 +26,29 @@ describe('parseAuthAbuseError', () => {
     expect(signal.retryAfterSeconds).toBe(46)
   })
 
+  it('ignores codes the API never sends', () => {
+    expect(parseAuthAbuseError(gqlError('TOO_MANY_REQUESTS')).rateLimited).toBe(
+      false,
+    )
+  })
+
   it('detects captcha required / failed', () => {
     expect(
       parseAuthAbuseError(gqlError('CAPTCHA_REQUIRED')).captchaRequired,
     ).toBe(true)
-    expect(parseAuthAbuseError(gqlError('INVALID_CAPTCHA')).captchaFailed).toBe(
+    expect(parseAuthAbuseError(gqlError('CAPTCHA_FAILED')).captchaFailed).toBe(
       true,
     )
   })
 
   it('returns calm non-enumerating copy', () => {
     const message = getAuthAbuseFriendlyMessage(
-      gqlError('RATE_LIMITED', { retryAfterSeconds: 30 }),
+      gqlError('LOGIN_LOCKED', { retryAfterSeconds: 30 }),
       'fallback',
     )
     expect(message).toContain('30 seconds')
     expect(message.toLowerCase()).not.toContain('email')
+    // The IP limit covers Google and Apple too, so don't suggest them.
+    expect(message).not.toContain('Google')
   })
 })

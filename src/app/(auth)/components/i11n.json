@@ -26,6 +26,14 @@
       "signOut": "Sign out",
       "restored": "Welcome back. Your account is restored.",
       "restoreFailed": "We couldn't restore your account. Please try again."
+    },
+    "google": {
+      "failedTitle": "Could not sign in with Google",
+      "failedDescription": "Something went wrong. Try again.",
+      "popupFailedTitle": "Google sign-in failed",
+      "popupFailedDescription": "Allow pop-ups for this site, then try again.",
+      "blockedTitle": "Confirm you are 18 or over",
+      "blockedDescription": "Tick the confirmation boxes, then continue with Google."
     }
   },
   "zh_hk": {
@@ -55,6 +63,14 @@
       "signOut": "登出",
       "restored": "歡迎回來，你的帳戶已還原。",
       "restoreFailed": "未能還原帳戶，請再試一次。"
+    },
+    "google": {
+      "failedTitle": "未能使用 Google 登入",
+      "failedDescription": "出現問題，請再試。",
+      "popupFailedTitle": "Google 登入失敗",
+      "popupFailedDescription": "請允許此網站的彈出視窗，然後再試。",
+      "blockedTitle": "請確認你年滿 18 歲",
+      "blockedDescription": "先勾選確認選項，再使用 Google 繼續。"
     }
   }
 }

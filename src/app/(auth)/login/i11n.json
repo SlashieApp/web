@@ -7,7 +7,6 @@
     "asideBadge": "Local task marketplace",
     "asideTitle": "Get local tasks done with confidence.",
     "asideDescription": "Post a task, compare quotes from nearby workers, and manage everything in one place.",
-    "eyebrow": "Welcome back",
     "title": "Log in to Slashie",
     "description": "Manage requests, quotes, and worker tools from one account.",
     "emailLabel": "Email",
@@ -20,7 +19,35 @@
     "deletionScheduled": "Your account will be deleted on {date}. Sign in before then to restore it.",
     "deletionScheduledNoDate": "Your account will be deleted in 30 days. Sign in before then to restore it.",
     "restoreNotice": "Sign in to restore your account. You'll be asked to confirm.",
-    "accountEyebrow": "Account"
+    "asideStats": [
+      {
+        "title": "Fast quotes",
+        "caption": "From local workers"
+      },
+      {
+        "title": "Map-first",
+        "caption": "Find help nearby"
+      }
+    ],
+    "orEmail": "Or continue with email",
+    "emailPlaceholder": "you@example.com",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "trustNote": "Your account helps keep task details, quotes, and worker profiles secure.",
+    "tryAgainIn": "Try again in {seconds}s",
+    "validation": {
+      "emailRequired": "Enter your email.",
+      "emailInvalid": "Enter a valid email.",
+      "passwordRequired": "Password is required."
+    },
+    "messages": {
+      "invalidCredentials": "Email or password is incorrect.",
+      "securityCheckRequired": "Complete the security check to continue.",
+      "securityCheckFailed": "Security check failed or expired. Complete it again and retry.",
+      "rateLimited": "Too many attempts right now. Please wait a bit and try again.",
+      "networkError": "Can't reach Slashie. Check your connection and try again.",
+      "failed": "Login failed."
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -30,7 +57,6 @@
     "asideBadge": "本地任務平台",
     "asideTitle": "安心完成本地任務。",
     "asideDescription": "發佈任務、比較附近 worker 的報價，並在同一處管理所有事項。",
-    "eyebrow": "歡迎回來",
     "title": "登入 Slashie",
     "description": "用一個帳戶管理請求、報價和 worker 工具。",
     "emailLabel": "電郵",
@@ -43,6 +69,34 @@
     "deletionScheduled": "你的帳戶將於 {date} 刪除。在此之前登入即可還原。",
     "deletionScheduledNoDate": "你的帳戶將於 30 天後刪除。在此之前登入即可還原。",
     "restoreNotice": "登入即可還原你的帳戶，系統會請你確認。",
-    "accountEyebrow": "帳戶"
+    "asideStats": [
+      {
+        "title": "快速報價",
+        "caption": "來自本地 worker"
+      },
+      {
+        "title": "地圖優先",
+        "caption": "尋找附近幫手"
+      }
+    ],
+    "orEmail": "或使用電郵繼續",
+    "emailPlaceholder": "you@example.com",
+    "showPassword": "顯示密碼",
+    "hidePassword": "隱藏密碼",
+    "trustNote": "你的帳戶有助保障任務詳情、報價及 worker 個人檔案的安全。",
+    "tryAgainIn": "{seconds} 秒後再試",
+    "validation": {
+      "emailRequired": "請輸入電郵。",
+      "emailInvalid": "請輸入有效的電郵。",
+      "passwordRequired": "請輸入密碼。"
+    },
+    "messages": {
+      "invalidCredentials": "電郵或密碼不正確。",
+      "securityCheckRequired": "請先完成安全檢查。",
+      "securityCheckFailed": "安全檢查失敗或已逾時，請重新完成後再試。",
+      "rateLimited": "嘗試次數過多，請稍後再試。",
+      "networkError": "無法連接 Slashie，請檢查網絡連線後再試。",
+      "failed": "登入失敗。"
+    }
   }
 }
