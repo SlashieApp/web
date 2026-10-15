@@ -14,4 +14,15 @@ const meta: Meta<typeof WorkerSetupProgressBar> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Mid-flow: the headline and bio step. */
 export const Default: Story = { decorators: [withWorkerSetup()] }
+
+/** First step: the bar has barely started. */
+export const FirstStep: Story = {
+  decorators: [withWorkerSetup({ activeSubStep: 'profile.details' })],
+}
+
+/** Last step: the bar is full. */
+export const ReviewStep: Story = {
+  decorators: [withWorkerSetup({ activeSubStep: 'review.submit' })],
+}

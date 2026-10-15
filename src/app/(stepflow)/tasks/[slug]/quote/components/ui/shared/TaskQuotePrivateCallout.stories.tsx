@@ -13,4 +13,5 @@ const meta: Meta<typeof TaskQuotePrivateCallout> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** The reminder that a quote is only visible to the customer once sent. */
 export const Default: Story = {}

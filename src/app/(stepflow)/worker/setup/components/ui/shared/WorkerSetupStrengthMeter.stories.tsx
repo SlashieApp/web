@@ -40,6 +40,7 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+/** Starter tier: nothing done yet, so all seven signals are fix links. */
 export const Starter: Story = {
   args: {
     strength: computeProfileStrength({
@@ -51,6 +52,7 @@ export const Starter: Story = {
   },
 }
 
+/** Good tier: four of seven done, three fix links left. */
 export const Good: Story = {
   args: {
     strength: computeProfileStrength({
@@ -62,6 +64,19 @@ export const Good: Story = {
   },
 }
 
+/** All-star tier with one gap: six of seven done, one fix link left. */
+export const AllStarOneMissing: Story = {
+  args: {
+    strength: computeProfileStrength({
+      form: { ...completeForm, portfolioUrls: [] },
+      avatarUrl: 'https://example.com/avatar.jpg',
+      phoneVerified: true,
+    }),
+    onGoToStep: () => {},
+  },
+}
+
+/** All-star tier: every signal done, so there are no fix links. */
 export const AllStar: Story = {
   args: {
     strength: computeProfileStrength({

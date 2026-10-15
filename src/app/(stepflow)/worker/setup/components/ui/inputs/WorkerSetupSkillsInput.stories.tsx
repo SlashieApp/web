@@ -32,10 +32,12 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+/** Empty: the field, the 0 / 12 counter and the default suggestions. */
 export const Empty: Story = {
   args: { value: [], onChange: () => {} },
 }
 
+/** Three chosen: they leave the suggestions and show as removable chips. */
 export const WithSelection: Story = {
   args: {
     value: ['Furniture Assembly', 'TV Mounting', 'Shelving'],
@@ -43,6 +45,7 @@ export const WithSelection: Story = {
   },
 }
 
+/** Continue pressed with fewer than three skills: the error shows. */
 export const BelowMinimumError: Story = {
   args: {
     value: ['Painting'],
@@ -52,6 +55,7 @@ export const BelowMinimumError: Story = {
   },
 }
 
+/** Twelve chosen: the field, Add button and suggestions are all gone. */
 export const AtCap: Story = {
   args: {
     value: [
@@ -67,6 +71,34 @@ export const AtCap: Story = {
       'Deep Cleaning',
       'Removals',
       'Tiling',
+    ],
+    onChange: () => {},
+  },
+}
+
+/** A plumber's suggestions: the chips follow the chosen trade. */
+export const TradeSuggestions: Story = {
+  args: {
+    value: ['Tap Repairs'],
+    suggestions: [
+      'Tap Repairs',
+      'Leak Fixes',
+      'Toilet Installs',
+      'Radiator Bleeding',
+      'Shower Fitting',
+      'Waste Unblocking',
+    ],
+    onChange: () => {},
+  },
+}
+
+/** Skills near the 30 character limit: the long chips wrap onto new rows. */
+export const LongSkills: Story = {
+  args: {
+    value: [
+      'Bathroom suite fitting service',
+      'Kitchen worktop installation',
+      'Underfloor heating repairs',
     ],
     onChange: () => {},
   },
