@@ -33,12 +33,14 @@ describe('TaskDetailTabLayout slots', () => {
     expect(src).toContain("'minmax(0, 2fr) minmax(0, 1fr)'")
     expect(src).not.toContain('tabListAside')
     expect(src).toContain('rail')
-    // FE-274: the status intro moved into the Task summary; the web CTA
-    // stays top right, above the cards and rail.
+    // FE-274: the status intro moved into the Task summary. The web CTA
+    // shares the sticky title row (right, bottom-aligned), above the grid.
     expect(src).not.toContain('tabTitle')
     expect(src).not.toContain('TabIntro')
     expect(src).toContain('WEB_MAIN_CTA_W')
     expect(src.indexOf('{mainCta}')).toBeLessThan(src.indexOf('<Grid'))
+    expect(src.indexOf('{mainCta}')).toBeLessThan(src.indexOf('tabs={tabs.map'))
+    expect(src).toContain('align="flex-end"')
     expect(src).not.toContain('syncIntroMinHeight')
     expect(src).not.toContain('ctaObserverRef')
     expect(src).not.toContain('intro.style.minHeight')

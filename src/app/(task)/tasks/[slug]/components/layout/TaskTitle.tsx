@@ -72,7 +72,7 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
         </HStack>
       </HStack>
       <Box mt={1} minW={0} w="full">
-        <TaskDetailMeta isStuck={isStuck} />
+        <TaskDetailMeta />
       </Box>
     </Box>
   )

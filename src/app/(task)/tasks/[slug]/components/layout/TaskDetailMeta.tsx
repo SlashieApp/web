@@ -91,11 +91,6 @@ export function MetaPill({
   )
 }
 
-type TaskDetailMetaProps = {
-  /** Desktop: half the page before the chrome sticks, full width once stuck. */
-  isStuck?: boolean
-}
-
 const EDGE_FADE =
   'linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%)'
 
@@ -188,7 +183,7 @@ function dragScroll(node: HTMLDivElement | null) {
  * category, and owner. Interest (medium) is not a chip. Location, category,
  * and owner navigate.
  */
-export function TaskDetailMeta({ isStuck = false }: TaskDetailMetaProps) {
+export function TaskDetailMeta() {
   const { task, myOrder, permissions } = useTaskDetail()
   const t = useI11n(bag)
   const locale = useLocale()
@@ -218,7 +213,6 @@ export function TaskDetailMeta({ isStuck = false }: TaskDetailMetaProps) {
       minW={0}
       // Bleed into the page gutter so the edge fade sits outside the chips.
       mx={-3}
-      maxW={{ base: 'none', lg: isStuck ? 'none' : 'calc(50% + 1.5rem)' }}
       overflowX="auto"
       css={ROW_CSS}
     >

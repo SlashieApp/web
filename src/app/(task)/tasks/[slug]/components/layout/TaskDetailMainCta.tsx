@@ -69,6 +69,14 @@ const BUTTON_ICONS: Partial<Record<TaskDetailPrimaryAction, IconType>> = {
   browseTasks: LuSearch,
 }
 
+/** The action renders as a lone button (no eyebrow and value card). */
+export function isButtonOnlyMainCta(model: TaskDetailMainCtaModel): boolean {
+  return (
+    model.presentation !== 'close' &&
+    (model.presentation === 'button' || !model.content)
+  )
+}
+
 function MainCtaControl({
   model,
   fill,
@@ -105,7 +113,7 @@ function MainCtaControl({
     )
   }
 
-  if (model.presentation === 'button' || !model.content) {
+  if (isButtonOnlyMainCta(model) || !model.content) {
     const Icon = BUTTON_ICONS[model.action]
     return (
       <Button
@@ -146,7 +154,7 @@ function MainCtaControl({
 
 /**
  * The view's primary action. Compact (phone + tablet): fixed to the viewport
- * bottom. Web: top right, above the cards and rail.
+ * bottom. Web: right end of the title row.
  */
 export function TaskDetailMainCta() {
   const { mainCta } = useTaskDetail()

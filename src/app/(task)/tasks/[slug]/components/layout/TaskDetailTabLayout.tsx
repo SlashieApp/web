@@ -1,7 +1,7 @@
 'use client'
 
 import type { BoxProps } from '@chakra-ui/react'
-import { Box, Grid, Stack } from '@chakra-ui/react'
+import { Box, Grid, HStack, Stack } from '@chakra-ui/react'
 import { motion, useReducedMotion } from 'motion/react'
 import { type ReactNode, useCallback, useRef, useState } from 'react'
 
@@ -35,8 +35,10 @@ export type TaskDetailTabLayoutProps = {
   px?: BoxProps['px']
   /** Desktop right rail (Help & actions, Analytics, Activity). Hidden below `lg`. */
   rail?: ReactNode
-  /** Desktop main CTA, top right above the cards and rail. Hidden below `lg`. */
+  /** Desktop main CTA, in the title row at the right, bottom-aligned. Hidden below `lg`. */
   mainCta?: ReactNode
+  /** The desktop CTA is a lone button: size it to its content, not half the row. */
+  mainCtaFit?: boolean
 }
 
 const COMPACT_MAX_PX = WEB_MIN_PX - 1
@@ -111,9 +113,10 @@ function StuckHeaderBg({ isStuck }: { isStuck: boolean }) {
 }
 
 /**
- * Task-detail tab chrome: sticky title + tab headers, the web main CTA at the
- * top right, then the cards and the desktop rail sharing a top edge in the
- * 2:1 grid. The compact pin lives in TaskDetailMainCta.
+ * Task-detail tab chrome: sticky title + tab headers with the web main CTA at
+ * the right of the title row (bottom edges aligned), then the cards and the
+ * desktop rail sharing a top edge in the 2:1 grid. The compact pin lives in
+ * TaskDetailMainCta.
  */
 export function TaskDetailTabLayout({
   title,
@@ -126,6 +129,7 @@ export function TaskDetailTabLayout({
   px,
   rail,
   mainCta,
+  mainCtaFit = false,
 }: TaskDetailTabLayoutProps) {
   const [isStuck, setIsStuck] = useState(false)
   const sentinelObserverRef = useRef<IntersectionObserver | null>(null)
@@ -189,7 +193,25 @@ export function TaskDetailTabLayout({
         stickyHeader={
           <>
             <StuckHeaderBg isStuck={isStuck} />
-            {titleNode}
+            {mainCta ? (
+              <HStack align="flex-end" gap={6} w="full">
+                <Box flex="1" minW={0}>
+                  {titleNode}
+                </Box>
+                {/* Bottom padding matches the title block, so the CTA lines up with the chips. */}
+                <Box
+                  display={{ base: 'none', lg: 'block' }}
+                  w={mainCtaFit ? 'auto' : WEB_MAIN_CTA_W}
+                  flexShrink={0}
+                  pb={4}
+                  pointerEvents="auto"
+                >
+                  {mainCta}
+                </Box>
+              </HStack>
+            ) : (
+              titleNode
+            )}
           </>
         }
         tabs={tabs.map((tab) => ({
@@ -199,18 +221,6 @@ export function TaskDetailTabLayout({
         }))}
       >
         <Stack gap={5} w="full" pt={5} pb={6}>
-          {mainCta ? (
-            <Box
-              display={{ base: 'none', lg: 'flex' }}
-              justifyContent="flex-end"
-              w="full"
-              pointerEvents="auto"
-            >
-              <Box w={WEB_MAIN_CTA_W} minW={0}>
-                {mainCta}
-              </Box>
-            </Box>
-          ) : null}
           <Grid
             templateColumns={splitColumns}
             columnGap={6}
