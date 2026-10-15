@@ -247,7 +247,7 @@ export const Default: Story = {
   ),
 }
 
-/** Opened on mount (focus moves to the first item; press Escape to dismiss). */
+/** Open menu: opened by a click in `play`, since `defaultOpen` closes itself on desktop. */
 export const OpenState: Story = {
   render: () => (
     <Box display="flex" justifyContent="flex-end" py={6} minH="180px">
@@ -269,6 +269,21 @@ export const OpenState: Story = {
       </Dropdown>
     </Box>
   ),
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole('button', {
+      name: 'Open menu',
+    })
+    // `defaultOpen` starts in the phone presentation and closes itself once the
+    // desktop breakpoint resolves (Dropdown.tsx), so open it for real.
+    if (trigger.getAttribute('aria-expanded') !== 'true') {
+      await userEvent.click(trigger)
+    }
+    await expect(
+      await within(canvasElement.ownerDocument.body).findByRole('menuitem', {
+        name: 'Profile',
+      }),
+    ).toBeVisible()
+  },
 }
 
 /** Disabled trigger: the menu cannot be opened. */
@@ -518,6 +533,12 @@ export const MobileItemOpensDialog: Story = {
     const item = await page.findByRole('menuitem', { name: 'Reschedule' })
     // The phone menu is a drawer (the case that used to drop the dialog).
     await expect(item.closest('[data-dropdown-drawer]')).not.toBeNull()
+    // The drawer hides the page behind it one frame after opening. Tapping
+    // before that (throttled frames in parallel runs) lets the late hide cover
+    // the dialog too, so wait for it like a person would.
+    await waitFor(() =>
+      expect(canvasElement.closest('[aria-hidden="true"]')).not.toBeNull(),
+    )
     await userEvent.click(item)
     // Past the drawer's exit animation, the dialog is still open.
     await new Promise((resolve) => setTimeout(resolve, 700))
@@ -525,7 +546,10 @@ export const MobileItemOpensDialog: Story = {
       page.getByRole('dialog', { name: 'Propose new times' }),
     ).toBeVisible()
     await userEvent.click(page.getByRole('button', { name: 'Keep booking' }))
-    await waitFor(() => expect(page.queryByRole('dialog')).toBeNull())
+    // Then the menu closes too (after both exit animations).
+    await waitFor(() => expect(page.queryByRole('dialog')).toBeNull(), {
+      timeout: 3000,
+    })
   },
 }
 

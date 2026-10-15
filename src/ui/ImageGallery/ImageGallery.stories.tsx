@@ -1,19 +1,29 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { Stack, Text } from '@chakra-ui/react'
 import { ImageGallery } from './ImageGallery'
 
+/** Inline SVG placeholder photo, so stories never fetch a remote image. */
+function photo(label: string, from: string, to: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><circle cx="610" cy="150" r="64" fill="#fff" fill-opacity=".35"/><path d="M0 470 230 300l190 130 150-110L800 440v160H0z" fill="#000" fill-opacity=".18"/><text x="400" y="320" text-anchor="middle" font-family="sans-serif" font-size="46" fill="#fff">${label}</text></svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
+
+/** Not a decodable image: fires `onError` without any network request. */
+const brokenSrc = 'data:image/png;base64,AAAA'
+
 const sampleItems = [
   {
-    src: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&h=1000&fit=crop',
+    src: photo('Kitchen tap', '#2f6f9f', '#8fc1de'),
     alt: 'Kitchen faucet with water droplets',
   },
   {
-    src: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=600&fit=crop',
+    src: photo('Pipes', '#7a5a3a', '#d2b48c'),
     alt: 'Plumbing pipes under a sink',
   },
   {
-    src: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&h=600&fit=crop',
+    src: photo('Tools', '#3f6b4f', '#9bc9a6'),
     alt: 'Tools on a workbench',
   },
 ]
@@ -71,32 +81,75 @@ export const ThreeImages: Story = {
   },
 }
 
-/** Only the first three items display — extras are silently dropped. */
+/** Only the first three items display; extras are silently dropped. */
 export const ExtraImagesIgnored: Story = {
   args: {
     items: [
       ...sampleItems,
       {
-        src: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=600&fit=crop',
+        src: photo('Extra', '#8a3f6b', '#d9a6c4'),
         alt: 'Extra image that is not shown',
       },
     ],
   },
 }
 
-/**
- * Error / fallback state: a broken `src` falls back to the
- * "Image unavailable" tile (rendered on `bg.subtle` with `text.muted`).
- */
+/** Broken image: a failing `src` falls back to the "Image unavailable" tile on `bg.subtle`. */
 export const BrokenImage: Story = {
   args: {
     items: [
       {
-        src: 'https://example.invalid/this-image-does-not-exist.jpg',
+        src: brokenSrc,
         alt: 'Broken image fallback',
       },
       sampleItems[1],
     ],
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText('Image unavailable'),
+    ).toBeVisible()
+  },
+}
+
+/** Phone, three images: swipeable carousel with arrows and slide indicators. */
+export const PhoneCarousel: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('button', { name: 'Previous image' }),
+    ).toBeDisabled()
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Next image' }),
+    )
+    await expect(
+      await canvas.findByRole('button', { name: 'Image 2 of 3' }),
+    ).toHaveAttribute('aria-current', 'true')
+  },
+}
+
+/** Phone, single image: one slide with no arrows and no indicators. */
+export const PhoneSingleImage: Story = {
+  args: { items: sampleItems.slice(0, 1) },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByRole('img')).toBeVisible()
+    await expect(canvas.queryByRole('button')).toBeNull()
+  },
+}
+
+/** Phone, broken image: the carousel slide shows the "Image unavailable" tile. */
+export const PhoneBrokenImage: Story = {
+  args: {
+    items: [{ src: brokenSrc, alt: 'Broken image fallback' }, sampleItems[1]],
+  },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText('Image unavailable'),
+    ).toBeVisible()
   },
 }
 

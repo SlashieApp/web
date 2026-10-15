@@ -24,7 +24,7 @@ const meta = {
     dot: {
       control: 'boolean',
       description:
-        'Leading status dot. On by default — status is never colour alone.',
+        'Leading status dot. On by default: status is never colour alone.',
     },
   },
   args: { chip: 'today', size: 'sm', shape: 'default', dot: true },
@@ -33,6 +33,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground driven by the Controls panel (chip, size, shape, dot). */
 export const Playground: Story = {}
 
 /** today → success (green), tomorrow → info (blue), overdue → danger (red). */
@@ -46,19 +47,22 @@ export const AllVariants: Story = {
   ),
 }
 
+/** Today: success tone (green) for a task scheduled for today. */
 export const Today: Story = {
   args: { chip: 'today' },
 }
 
+/** Tomorrow: info tone (blue) for a task scheduled for tomorrow. */
 export const Tomorrow: Story = {
   args: { chip: 'tomorrow' },
 }
 
+/** Overdue: danger tone (red) for a task whose date has passed. */
 export const Overdue: Story = {
   args: { chip: 'overdue' },
 }
 
-/** `chip={null}` renders nothing — useful when a task has no exact schedule. */
+/** `chip={null}` renders nothing, for a task with no exact schedule. */
 export const Empty: Story = {
   args: { chip: null },
   render: (args) => (
@@ -82,6 +86,7 @@ export const WithoutDot: Story = {
   ),
 }
 
+/** Sizes: `sm` (default) next to `lg`. */
 export const Sizes: Story = {
   render: () => (
     <HStack gap={2} alignItems="center">
@@ -91,6 +96,7 @@ export const Sizes: Story = {
   ),
 }
 
+/** Pill shape: fully rounded chips for all three schedule values. */
 export const PillShape: Story = {
   render: () => (
     <HStack gap={2} flexWrap="wrap">
@@ -99,4 +105,14 @@ export const PillShape: Story = {
       ))}
     </HStack>
   ),
+}
+
+/** Large: the `lg` size with a bigger label and more padding. */
+export const Large: Story = {
+  args: { chip: 'tomorrow', size: 'lg' },
+}
+
+/** Pill: a single fully rounded chip (default is a rounded rectangle). */
+export const Pill: Story = {
+  args: { chip: 'today', shape: 'pill' },
 }

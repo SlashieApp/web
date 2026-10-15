@@ -49,8 +49,10 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+/** Default: green fill at 55% with a step caption (size sm). */
 export const Default: Story = {}
 
+/** Paused: dimmed with the `opacity` pass-through (no disabled prop). */
 export const Disabled: Story = {
   args: {
     value: 30,
@@ -60,6 +62,7 @@ export const Disabled: Story = {
   },
 }
 
+/** Loading: indeterminate sweep while the amount of work is unknown. */
 export const Loading: Story = {
   args: {
     indeterminate: true,
@@ -68,6 +71,7 @@ export const Loading: Story = {
   },
 }
 
+/** Error: danger fill plus a status dot and caption (never colour alone). */
 export const ErrorState: Story = {
   args: {
     value: 40,
@@ -77,6 +81,7 @@ export const ErrorState: Story = {
   },
 }
 
+/** Early progress: 25% through a four step setup flow. */
 export const SetupEarly: Story = {
   args: {
     value: 25,
@@ -84,6 +89,7 @@ export const SetupEarly: Story = {
   },
 }
 
+/** Mid progress: 55% through the setup flow. */
 export const SetupMid: Story = {
   args: {
     value: 55,
@@ -91,6 +97,7 @@ export const SetupMid: Story = {
   },
 }
 
+/** Complete: 100% with the final caption. */
 export const SetupComplete: Story = {
   args: {
     value: 100,
@@ -98,6 +105,7 @@ export const SetupComplete: Story = {
   },
 }
 
+/** Overview: every tone, size and state together for visual review. */
 export const AllVariants: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
@@ -138,4 +146,57 @@ export const AllVariants: Story = {
       </Stack>
     </Stack>
   ),
+}
+
+/** Empty: 0% leaves only the track visible. */
+export const Empty: Story = {
+  args: { value: 0, label: 'Not started yet' },
+}
+
+/** Success tone: a completed or healthy measure. */
+export const Success: Story = {
+  args: { tone: 'success', value: 80, label: 'Profile strength: strong' },
+}
+
+/** Warning tone: a limit is getting close. */
+export const Warning: Story = {
+  args: { tone: 'warning', value: 85, label: 'Photo storage almost full' },
+}
+
+/** Danger tone: danger fill on its own (error adds the dot and red caption). */
+export const Danger: Story = {
+  args: { tone: 'danger', value: 20, label: 'Profile strength: weak' },
+}
+
+/** Info tone: neutral background progress. */
+export const Info: Story = {
+  args: { tone: 'info', value: 60, label: 'Syncing your calendar' },
+}
+
+/** Medium size: 6px track. */
+export const SizeMedium: Story = {
+  args: { size: 'md' },
+}
+
+/** Large size: 8px track. */
+export const SizeLarge: Story = {
+  args: { size: 'lg' },
+}
+
+/** Custom track height: `trackHeight` overrides the size preset. */
+export const CustomTrackHeight: Story = {
+  args: { trackHeight: '12px' },
+}
+
+/** No caption: the track on its own, without the label row. */
+export const WithoutLabel: Story = {
+  args: { label: undefined },
+}
+
+/** Long caption: wraps below the track instead of overflowing. */
+export const LongLabel: Story = {
+  args: {
+    label:
+      'Step 3 of 4 · Tell customers where you work and how far you are happy to travel for a job',
+  },
 }

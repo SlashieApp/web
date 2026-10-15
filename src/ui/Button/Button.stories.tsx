@@ -1,5 +1,6 @@
 import { HStack, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { LuPlus } from 'react-icons/lu'
 
 import { Button, type UiButtonVariant } from './Button'
 
@@ -29,7 +30,42 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground: drive variant, size, loading and disabled from Controls. */
 export const Playground: Story = {}
+
+/** Primary: the one main action in a region (green fill, dark ink). */
+export const Primary: Story = {
+  args: { variant: 'primary', children: 'Post a task' },
+}
+
+/** Secondary: supporting action on a bordered surface. */
+export const Secondary: Story = {
+  args: { variant: 'secondary', children: 'Save draft' },
+}
+
+/** Ghost: low-emphasis action with no fill or border until hover. */
+export const Ghost: Story = {
+  args: { variant: 'ghost', children: 'Dismiss' },
+}
+
+/** Danger: destructive action such as cancelling a task. */
+export const Danger: Story = {
+  args: { variant: 'danger', children: 'Cancel task' },
+}
+
+/** Premium: paid upgrade prompt (plum fill, white ink). */
+export const Premium: Story = {
+  args: { variant: 'premium', children: 'Go Unlimited' },
+}
+
+/** Small (`sm`): 36px tall, for dense rows and desktop toolbars. */
+export const Small: Story = { args: { size: 'sm' } }
+
+/** Medium (`md`, the default): 44px tall, meets the touch target. */
+export const Medium: Story = { args: { size: 'md' } }
+
+/** Large (`lg`): 52px tall, for the main call to action on a page. */
+export const Large: Story = { args: { size: 'lg' } }
 
 /** Every variant at the default size. */
 export const AllVariants: Story = {
@@ -74,5 +110,49 @@ export const States: Story = {
   ),
 }
 
+/** Loading: spinner replaces the label and the button stops taking clicks. */
 export const Loading: Story = { args: { loading: true } }
+/** Disabled: muted fill and text, not focusable and not clickable. */
 export const Disabled: Story = { args: { disabled: true } }
+
+/** Disabled secondary: surface fill with muted text, no border or shadow. */
+export const DisabledSecondary: Story = {
+  args: { variant: 'secondary', disabled: true, children: 'Save draft' },
+}
+
+/** Disabled ghost: muted text on a transparent fill. */
+export const DisabledGhost: Story = {
+  args: { variant: 'ghost', disabled: true, children: 'Dismiss' },
+}
+
+/** Loading with text: the spinner sits beside a loading label. */
+export const LoadingWithText: Story = {
+  args: { loading: true, loadingText: 'Posting...', children: 'Post a task' },
+}
+
+/** With icon: a leading icon sits before the label. */
+export const WithLeadingIcon: Story = {
+  render: (args) => (
+    <Button {...args}>
+      <LuPlus aria-hidden />
+      Post a task
+    </Button>
+  ),
+}
+
+/** Full width: stretches to its container, as in sheet footers. */
+export const FullWidth: Story = { args: { w: 'full' } }
+
+/** As a link: `asChild` puts the button styling on an anchor. */
+export const AsLink: Story = {
+  render: (args) => (
+    <Button {...args} asChild>
+      <a href="/tasks/create">Post a task</a>
+    </Button>
+  ),
+}
+
+/** Long label: the button stays on one line and grows with its text. */
+export const LongLabel: Story = {
+  args: { children: 'Send my quote and message to the customer' },
+}

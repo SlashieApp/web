@@ -1,11 +1,12 @@
 import { Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, within } from 'storybook/test'
 
 import { PhoneInput } from './PhoneInput'
 
 /**
- * SDL PhoneInput — a UK (+44) phone field. A non-interactive dialling-code
+ * SDL PhoneInput: a UK (+44) phone field. A non-interactive dialling-code
  * prefix sits beside the national-number {@link Input}, which carries the SDL
  * focus ring and the 44px touch target via the shared bordered shell.
  *
@@ -46,9 +47,10 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground driven by the Controls panel (value, label, helper, error). */
 export const Playground: Story = {}
 
-/** Bare field — relies on `aria-label` (no visible label). */
+/** Bare field: relies on `aria-label` (no visible label). */
 export const Default: Story = {}
 
 /** With a value pre-filled. */
@@ -64,15 +66,12 @@ export const WithLabel: Story = {
   },
 }
 
-/** Disabled — both the prefix and the field are non-interactive and dimmed. */
+/** Disabled: the prefix and the field are non-interactive and dimmed. */
 export const Disabled: Story = {
   args: { label: 'Mobile number', value: '+447700900123', disabled: true },
 }
 
-/**
- * Error state via `FormField`. The shell shows the danger border and the error
- * message is tied to the input through `aria-describedby` (not colour alone).
- */
+/** Error: danger border plus a message tied via `aria-describedby`. */
 export const ErrorState: Story = {
   name: 'Error',
   args: {
@@ -82,12 +81,24 @@ export const ErrorState: Story = {
   },
 }
 
-/**
- * Focus state. Tab into the field (or click it) to see the SDL focus ring on
- * the bordered shell — `border.focus` with a 2px ring.
- */
+/** Focus: the field starts focused, showing the SDL focus ring. */
 export const Focus: Story = {
   args: { label: 'Mobile number' },
+  play: async ({ canvasElement }) => {
+    const field = within(canvasElement).getByRole('textbox', {
+      name: 'Mobile number',
+    })
+    field.focus()
+    await expect(field).toHaveFocus()
+  },
+}
+
+/** Error on an empty field: the placeholder shows under the danger border. */
+export const ErrorEmpty: Story = {
+  args: {
+    label: 'Mobile number',
+    errorText: 'Enter your mobile number so workers can reach you.',
+  },
 }
 
 /** Overview across the field's key states (renders in light and dark). */

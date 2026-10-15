@@ -1,6 +1,7 @@
 import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, within } from 'storybook/test'
 
 import { FormField } from '../FormField'
 import { Textarea } from './Textarea'
@@ -31,13 +32,10 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground driven by the Controls panel (placeholder, rows, states). */
 export const Playground: Story = {}
 
-/**
- * Every state at a glance — renders correctly under both the light and dark
- * theme toolbar (no hardcoded mode). Tab into the default field to see the
- * SDL focus ring.
- */
+/** Overview: every state at a glance, in both themes via the toolbar. */
 export const AllVariants: Story = {
   render: () => (
     <Stack gap={5} maxW="480px">
@@ -91,8 +89,10 @@ export const AllVariants: Story = {
   ),
 }
 
+/** Default: an empty field showing its placeholder. */
 export const Default: Story = {}
 
+/** Disabled: muted surface and text, not focusable. */
 export const Disabled: Story = {
   args: {
     disabled: true,
@@ -100,6 +100,7 @@ export const Disabled: Story = {
   },
 }
 
+/** Read only: focusable and selectable, but not editable. */
 export const ReadOnly: Story = {
   args: {
     readOnly: true,
@@ -115,15 +116,16 @@ export const Invalid: Story = {
   },
 }
 
-/** Tab into the field to see the visible SDL focus ring (`border.focus`). */
+/** Focus: the field starts focused, showing the SDL focus ring. */
 export const Focus: Story = {
-  parameters: { pseudo: { focusVisible: true } },
+  play: async ({ canvasElement }) => {
+    const field = within(canvasElement).getByRole('textbox')
+    field.focus()
+    await expect(field).toHaveFocus()
+  },
 }
 
-/**
- * Paired with {@link FormField} for a persistent `<label>` — never rely on the
- * placeholder as the label.
- */
+/** With label: a persistent `<label>` plus helper text from `FormField`. */
 export const WithLabel: Story = {
   render: () => (
     <Box maxW="480px">
@@ -137,10 +139,7 @@ export const WithLabel: Story = {
   ),
 }
 
-/**
- * Error message is tied to the field via `aria-describedby` / `aria-invalid`
- * (wired by {@link FormField}), so assistive tech announces it.
- */
+/** With error: `FormField` ties the message via `aria-describedby`. */
 export const WithError: Story = {
   render: () => (
     <Box maxW="480px">
@@ -153,6 +152,28 @@ export const WithError: Story = {
       </FormField>
     </Box>
   ),
+}
+
+/** Filled: a short brief already entered in the field. */
+export const Filled: Story = {
+  args: {
+    defaultValue:
+      'Need a leaking kitchen tap fixed, ideally this week. Side gate access available.',
+  },
+}
+
+/** Long text: content past the visible rows scrolls inside the field. */
+export const LongText: Story = {
+  args: {
+    defaultValue: [
+      'The kitchen tap has been dripping for about two weeks and the drip is getting faster.',
+      'It is a mixer tap on a granite worktop, so please bring a basin wrench in case the nuts are awkward to reach.',
+      'Access is through the side gate (code 4821), and the isolation valve under the sink is stiff.',
+      'I work from home on weekdays, so any morning before eleven is fine.',
+      'There is also a small leak from the dishwasher hose that I would like looked at while you are here.',
+      'Parking is available on the drive, and please ring the bell once rather than knocking.',
+    ].join('\n\n'),
+  },
 }
 
 /** Controlled usage with a live character counter. */
@@ -184,4 +205,43 @@ export const WithCharCount: Story = {
       </Box>
     )
   },
+}
+
+/** Story-only counter field, so the limit state can start pre-filled. */
+function CharCountField({ initial }: { initial: string }) {
+  const [value, setValue] = useState(initial)
+  const maxLength = 300
+  return (
+    <Box position="relative" w="full" maxW="480px">
+      <Textarea
+        value={value}
+        maxLength={maxLength}
+        pb={10}
+        rows={5}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Tell customers about your experience, skills, and service area."
+      />
+      <Text
+        position="absolute"
+        bottom={3}
+        right={4}
+        fontSize="xs"
+        color="text.muted"
+        pointerEvents="none"
+        aria-hidden
+      >
+        {value.length} / {maxLength}
+      </Text>
+    </Box>
+  )
+}
+
+const LIMIT_TEXT =
+  'I have fixed taps, boilers and radiators across north London for twelve years. '
+    .repeat(4)
+    .slice(0, 300)
+
+/** Character limit reached: the counter reads 300 / 300 and typing stops. */
+export const CharCountAtLimit: Story = {
+  render: () => <CharCountField initial={LIMIT_TEXT} />,
 }

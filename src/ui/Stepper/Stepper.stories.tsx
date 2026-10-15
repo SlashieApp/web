@@ -75,7 +75,7 @@ type Story = StoryObj<typeof meta>
 /** Default: first sub-step active, nothing completed. */
 export const Default: Story = {}
 
-/** Interactive sidebar — click or keyboard-focus a sub-step to jump. */
+/** Interactive sidebar: click or keyboard-focus a sub-step to jump to it. */
 export const WorkerSetup: Story = {
   args: {
     activeSubStepId: 'services.skills',
@@ -125,13 +125,55 @@ export const DisabledSubSteps: Story = {
   },
 }
 
-/** Flat steps (no sub-steps) — no chevron, no expanded rail. */
+/** Flat steps (no sub-steps): no chevron, no expanded rail. */
 export const FlatSteps: Story = {
   args: {
     steps: flatSteps,
     activeSubStepId: 'verify',
     completedSubStepIds: ['account'],
   },
+}
+
+/** In progress: one sub-step done, one active and one still upcoming. */
+export const InProgress: Story = {
+  args: {
+    activeSubStepId: 'services.experience',
+    completedSubStepIds: [
+      'profile.details',
+      'profile.photo',
+      'profile.bio',
+      'services.skills',
+    ],
+  },
+}
+
+/** Flat steps, last one active: earlier steps show the check tick. */
+export const FlatStepsLastActive: Story = {
+  args: {
+    steps: flatSteps,
+    activeSubStepId: 'done',
+    completedSubStepIds: ['account', 'verify'],
+  },
+}
+
+const longLabelSteps: StepperStep[] = [
+  {
+    id: 'about',
+    label: 'Tell customers about yourself and the kind of work you take on',
+    subSteps: [
+      {
+        id: 'about.intro',
+        label: 'Write a short public introduction for your profile page',
+      },
+      { id: 'about.photo', label: 'Profile photo' },
+    ],
+  },
+  { id: 'area', label: 'Where you are happy to travel for a job' },
+]
+
+/** Long labels: step and sub-step names wrap instead of overflowing. */
+export const LongLabels: Story = {
+  args: { steps: longLabelSteps, activeSubStepId: 'about.intro' },
 }
 
 /** Overview of every meaningful state side by side. */

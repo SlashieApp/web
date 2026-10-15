@@ -89,10 +89,7 @@ export const SectionWithIcon: Story = {
   },
 }
 
-/**
- * Clickable row. Keyboard-focusable (role=button, tabIndex=0) with a visible
- * SDL focus ring and `bg.subtle` hover surface.
- */
+/** Interactive: clickable row, keyboard-focusable (role=button) with a focus ring and `bg.subtle` hover. */
 export const Interactive: Story = {
   args: {
     layout: 'default',
@@ -114,7 +111,7 @@ export const Interactive: Story = {
   ),
 }
 
-/** Active/selected card — border highlighted with `action.primary`. */
+/** Active/selected card: border highlighted with `action.primary`. */
 export const Active: Story = {
   args: { heading: 'Garden tidy-up', isActive: true },
   render: (args) => (
@@ -171,6 +168,66 @@ export const CustomHeader: Story = {
   ),
 }
 
+/** Section title with a muted description line and no metric. */
+export const WithDescription: Story = {
+  args: {
+    layout: 'section',
+    eyebrow: undefined,
+    heading: 'Budget',
+    description: 'Fixed price, paid directly to the worker.',
+  },
+}
+
+/** Count pill beside the heading (`headingAccessory`). */
+export const WithHeadingAccessory: Story = {
+  args: { layout: 'section', eyebrow: undefined, heading: 'Quotes' },
+  render: (args) => (
+    <Card
+      {...args}
+      headingAccessory={
+        <Badge variant="info" shape="pill">
+          3
+        </Badge>
+      }
+    >
+      <Text fontSize="sm" color="text.muted" lineHeight="tall">
+        Compare quotes and choose a worker.
+      </Text>
+    </Card>
+  ),
+}
+
+/** Unframed (`framed={false}`): flush section, no padding, border, fill or radius. */
+export const Unframed: Story = {
+  args: {
+    layout: 'section',
+    framed: false,
+    eyebrow: 'Photos',
+    heading: undefined,
+  },
+}
+
+/** Phone: `framed={{ base: false }}` drops the chrome below `lg` (tab bodies). */
+export const FlushOnPhone: Story = {
+  args: {
+    layout: 'section',
+    framed: { base: false },
+    eyebrow: undefined,
+    heading: 'Quote details',
+  },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/** Web: `framed={{ lg: false }}` drops the chrome from `lg` up (desktop columns). */
+export const FlushOnWeb: Story = {
+  args: {
+    layout: 'section',
+    framed: { lg: false },
+    eyebrow: undefined,
+    heading: 'Quote details',
+  },
+}
+
 /** Overview of every Card configuration in a single canvas. */
 export const AllVariants: Story = {
   render: () => (
@@ -206,7 +263,7 @@ export const AllVariants: Story = {
       </Card>
       <Card layout="section" framed={false} eyebrow="Photos">
         <Text fontSize="sm" color="text.muted">
-          Flush section — no card chrome.
+          Flush section: no card chrome.
         </Text>
       </Card>
     </Stack>

@@ -1,9 +1,10 @@
 import { Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { FormField } from '../FormField'
-import { OtpInput } from './OtpInput'
+import { OtpInput, type OtpInputProps } from './OtpInput'
 
 const meta = {
   title: 'UI/OtpInput',
@@ -41,7 +42,7 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-/** Controllable playground — toggle size, length, and disabled in the controls panel. */
+/** Playground: toggle size, length and disabled in the Controls panel. */
 export const Playground: Story = {
   render: function PlaygroundStory(args) {
     const [value, setValue] = useState('')
@@ -82,7 +83,7 @@ export const Filled: Story = {
   },
 }
 
-/** Disabled state — cells are non-interactive and use the subtle surface. */
+/** Disabled: cells are non-interactive and use the subtle surface. */
 export const Disabled: Story = {
   args: { disabled: true },
   render: function DisabledStory(args) {
@@ -91,11 +92,7 @@ export const Disabled: Story = {
   },
 }
 
-/**
- * Error state. The error is tied to the field via `aria-describedby` /
- * `aria-invalid` from FormField (never placeholder-only), and cells render the
- * SDL danger border. Status is conveyed by text, not color alone.
- */
+/** Error: danger border on the cells plus a message under the field. */
 export const ErrorState: Story = {
   name: 'Error',
   render: function ErrorStory(args) {
@@ -119,6 +116,71 @@ export const Large: Story = {
   render: function LargeStory(args) {
     const [value, setValue] = useState('12')
     return <OtpInput {...args} value={value} onChange={setValue} />
+  },
+}
+
+/** Story-only wrapper that owns the value so typing and paste work. */
+function ControlledOtp({
+  initial = '',
+  ...args
+}: Omit<OtpInputProps, 'value' | 'onChange'> & { initial?: string }) {
+  const [value, setValue] = useState(initial)
+  return <OtpInput {...args} value={value} onChange={setValue} />
+}
+
+/** Partially filled: three of six digits entered, the rest still empty. */
+export const PartiallyFilled: Story = {
+  render: (args) => <ControlledOtp {...args} initial="123" />,
+}
+
+/** Large and complete: all six digits in the lg cells. */
+export const LargeFilled: Story = {
+  args: { size: 'lg' },
+  render: (args) => <ControlledOtp {...args} initial="123456" />,
+}
+
+/** Auto focus: the first cell takes focus on mount and shows the focus ring. */
+export const AutoFocus: Story = {
+  args: { autoFocus: true },
+  render: (args) => <ControlledOtp {...args} />,
+  play: async ({ canvasElement }) => {
+    const first = within(canvasElement).getByLabelText('Digit 1 of 6')
+    await waitFor(() => expect(first).toHaveFocus(), { timeout: 3000 })
+  },
+}
+
+/** Typing: each digit moves focus on, and the last one fires `onComplete`. */
+export const TypeCode: Story = {
+  args: { autoFocus: true, onComplete: fn() },
+  render: (args) => <ControlledOtp {...args} />,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.keyboard('123456')
+    await waitFor(
+      () => expect(args.onComplete).toHaveBeenCalledWith('123456'),
+      { timeout: 3000 },
+    )
+    for (const [index, digit] of [...'123456'].entries()) {
+      await expect(
+        canvas.getByLabelText(`Digit ${index + 1} of 6`),
+      ).toHaveValue(digit)
+    }
+  },
+}
+
+/** Paste: a pasted code (spaces ignored) fills every cell and completes. */
+export const PasteCode: Story = {
+  args: { onComplete: fn() },
+  render: (args) => <ControlledOtp {...args} />,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByLabelText('Digit 1 of 6'))
+    await userEvent.paste('654 321')
+    await waitFor(
+      () => expect(args.onComplete).toHaveBeenCalledWith('654321'),
+      { timeout: 3000 },
+    )
+    await expect(canvas.getByLabelText('Digit 6 of 6')).toHaveValue('1')
   },
 }
 

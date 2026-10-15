@@ -1,7 +1,7 @@
 import { HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Rating } from './Rating'
+import { Rating, RatingStars } from './Rating'
 
 const meta = {
   title: 'UI/Rating',
@@ -11,7 +11,7 @@ const meta = {
   argTypes: {
     value: {
       control: 'text',
-      description: 'Score to display (e.g. "4.9", or "—" when no reviews).',
+      description: 'Score to display (e.g. "4.9", or "–" when no reviews).',
     },
     size: {
       control: 'inline-radio',
@@ -33,18 +33,22 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+/** Default: amber star and score at the md size. */
 export const Default: Story = {
   args: { value: '4.9' },
 }
 
+/** Small: the compact sm density used on dense cards. */
 export const Small: Story = {
   args: { value: '4.9', size: 'sm' },
 }
 
+/** No reviews yet: a placeholder dash stands in for the score. */
 export const NoReviewsYet: Story = {
-  args: { value: '—', label: 'Rating' },
+  args: { value: '–', label: 'Rating' },
 }
 
+/** With label: the aria-label gives the score context for screen readers. */
 export const WithLabel: Story = {
   args: { value: '5.0', label: 'Worker rating' },
 }
@@ -63,7 +67,7 @@ export const AllVariants: Story = {
             <Rating value="4.9" size={size} />
             <Rating value="4.2" size={size} />
             <Rating value="3.5" size={size} />
-            <Rating value="—" size={size} />
+            <Rating value="–" size={size} />
           </HStack>
         </Stack>
       ))}
@@ -79,4 +83,28 @@ export const ProfileComparison: Story = {
       <Rating value="4.2" label="Worker rating" />
     </HStack>
   ),
+}
+
+/** RatingStars: four of five stars filled at the md size (review rows). */
+export const Stars: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => <RatingStars value={4} label="Job rating" />,
+}
+
+/** RatingStars, all filled: a perfect five star score. */
+export const StarsAllFilled: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => <RatingStars value={5} label="Job rating" />,
+}
+
+/** RatingStars, none filled: no stars given yet (muted outlines only). */
+export const StarsNoneFilled: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => <RatingStars value={0} label="Job rating" />,
+}
+
+/** RatingStars, fractions: 3.6 rounds to the nearest whole star (four). */
+export const StarsRoundedFraction: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => <RatingStars value={3.6} label="Job rating" />,
 }

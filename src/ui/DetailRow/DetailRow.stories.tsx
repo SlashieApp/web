@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/react'
+import { Box, HStack, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import {
   LuCalendar,
@@ -27,8 +27,10 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground: one row with an icon, a label and a value. */
 export const Playground: Story = {}
 
+/** With sub-line: a muted second line under the value. */
 export const WithSubLine: Story = {
   args: {
     icon: <LuCalendar />,
@@ -36,6 +38,37 @@ export const WithSubLine: Story = {
     children: 'Flexible',
     subLine: 'Preferred timing',
   },
+}
+
+/** With divider: a hairline under the row, for stacked lists. */
+export const WithDivider: Story = { args: { withDivider: true } }
+
+/** Rich value: the value slot takes any node, here a price plus a badge. */
+export const RichValue: Story = {
+  args: { icon: <LuPoundSterling />, label: 'Budget' },
+  render: (args) => (
+    <DetailRow {...args}>
+      <HStack gap={2}>
+        £80
+        <Badge variant="success">Fixed price</Badge>
+      </HStack>
+    </DetailRow>
+  ),
+}
+
+/** Long value: wraps inside the value column and the row grows taller. */
+export const LongValue: Story = {
+  args: {
+    icon: <LuMapPin />,
+    label: 'Location',
+    children:
+      'Flat 4, Example House, 12 Sample Road, Westminster, London, near the north entrance',
+  },
+  render: (args) => (
+    <Box maxW="320px">
+      <DetailRow {...args} />
+    </Box>
+  ),
 }
 
 /** As used in the Task details card: stacked rows with dividers + rich values. */

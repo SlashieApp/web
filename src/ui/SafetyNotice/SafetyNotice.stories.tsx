@@ -17,12 +17,26 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Inline: one muted line with a link, shown next to accept and complete actions. */
 export const Default: Story = {}
 
+/** Panel: the fuller trust card with icon, heading, body and link. */
 export const Panel: Story = {
   args: { variant: 'panel' },
 }
 
+/** Inline on a phone: the line wraps over several rows at the narrow width. */
+export const InlineMobile: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/** Panel on a phone: the trust card tightens its padding and gaps. */
+export const PanelMobile: Story = {
+  args: { variant: 'panel' },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/** Accept confirm: the dialog that shows the inline notice before accepting a quote. */
 export const AcceptConfirm: Story = {
   render: () => {
     const [open, setOpen] = useState(true)

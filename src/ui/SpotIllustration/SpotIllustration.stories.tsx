@@ -21,12 +21,22 @@ export const Quotes: Story = {
   args: { variant: 'quotes', width: 120 },
 }
 
-/** E04 — chair + lamp (reviews empty state). */
+/** E04: chair + lamp (reviews empty state). */
 export const Reviews: Story = {
   args: { variant: 'reviews' },
 }
 
-/** E14 — briefcase (no completed jobs on Slashie yet). */
+/** E14: briefcase (no completed jobs on Slashie yet). */
 export const NoWork: Story = {
   args: { variant: 'no-work' },
+}
+
+/** Small width: the line art scales down for inline or compact empty rows. */
+export const SmallWidth: Story = {
+  args: { variant: 'quotes', width: 72 },
+}
+
+/** Large width: hero empty state, strokes scale with the SVG. */
+export const LargeWidth: Story = {
+  args: { variant: 'quotes', width: 280 },
 }

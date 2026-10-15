@@ -1,0 +1,258 @@
+import {
+  Currency,
+  LoginMethod,
+  UserLanguage,
+  WorkerSubscriptionStatus,
+} from '@codegen/schema'
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
+import { useState } from 'react'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
+
+import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+
+import { Button } from '../../Button/Button'
+import { FeedbackDialogProvider } from '../../FeedbackDialog/FeedbackDialogProvider'
+import { MobileNavDrawer, type MobileNavDrawerProps } from './MobileNavDrawer'
+
+type Membership = NonNullable<MeSnapshot['worker']>['membership']
+
+/** Worker on the 6-month trial: unlimited quotes. */
+const trial: Membership = {
+  planName: 'Slashie Unlimited',
+  statusLabel: 'Trial',
+  statusDescription: 'Unlimited quotes until 9 Dec 2026',
+  subscriptionStatus: WorkerSubscriptionStatus.Trialing,
+  hasUnlimitedQuotes: true,
+  cancelAtPeriodEnd: false,
+  canceledAt: null,
+  freeQuotesPerMonth: 3,
+  quotesUsedThisMonth: 0,
+  quotesRemainingThisMonth: 3,
+  trialEndsAt: '2026-12-09T00:00:00.000Z',
+  currentPeriodEnd: '2026-12-09T00:00:00.000Z',
+  canStartTrial: false,
+  canManageBilling: true,
+  canUpgrade: false,
+}
+
+/** Worker on the free plan: capped quotes, upgrade offered. */
+const free: Membership = {
+  ...trial,
+  planName: 'Free',
+  statusLabel: 'Free',
+  statusDescription: null,
+  subscriptionStatus: WorkerSubscriptionStatus.None,
+  hasUnlimitedQuotes: false,
+  quotesUsedThisMonth: 2,
+  quotesRemainingThisMonth: 1,
+  trialEndsAt: null,
+  canManageBilling: false,
+  canUpgrade: true,
+}
+
+/** Signed-in fixture. A `null` membership means a customer with no worker profile. */
+function buildMe({
+  name = 'Sam Carter',
+  email = 'sam@example.com',
+  membership = trial,
+}: {
+  name?: string
+  email?: string
+  membership?: Membership | null
+} = {}): MeSnapshot {
+  return {
+    id: 'user-1',
+    email,
+    emailVerified: true,
+    phoneVerified: true,
+    phoneVerifiedAt: '2024-06-01T00:00:00.000Z',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    disabled: false,
+    enabledLoginMethods: [LoginMethod.Password],
+    profile: {
+      name,
+      contactNumber: '+447700900123',
+      avatarUrl: null,
+      dateOfBirth: '1990-01-01T00:00:00.000Z',
+      defaultPreferredContactMethod: null,
+      emailVerified: true,
+      phoneVerified: true,
+    },
+    settings: {
+      isProfilePrivate: false,
+      language: UserLanguage.En,
+      marketingEmails: false,
+    },
+    workerEligibility: membership !== null,
+    worker: membership && {
+      id: 'worker-1',
+      legalName: name,
+      bio: 'Handyman covering North London.',
+      tagline: 'Reliable local help',
+      yearsExperience: 8,
+      skills: ['Plumbing', 'Assembly'],
+      qualifications: [],
+      portfolioUrls: [],
+      preferredLocation: {
+        address: 'London',
+        lat: 51.5074,
+        lng: -0.1278,
+        name: 'London',
+      },
+      setupProgress: {
+        currentSubStep: 'review.submit',
+        completedSubSteps: ['review.submit'],
+        isComplete: true,
+      },
+      isVerified: true,
+      locationAddress: 'London',
+      locationLat: 51.5074,
+      locationLng: -0.1278,
+      membership,
+      earnings: { pending: { amount: 120, currency: Currency.Gbp } },
+    },
+  }
+}
+
+const meTrial = buildMe()
+const meFree = buildMe({ membership: free })
+const meCustomer = buildMe({ membership: null })
+const meLongText = buildMe({
+  name: 'Alexandria Montgomery-Featherstonehaugh',
+  email:
+    'alexandria.montgomery-featherstonehaugh@a-very-long-company-domain.example.com',
+})
+
+/** Seeds the auth store before the story renders (no live API is called). */
+const withMe =
+  (me: MeSnapshot): Decorator =>
+  (Story) => {
+    if (useUserStore.getState().me !== me) {
+      useUserStore.setState({
+        user: { id: me.id, email: me.email, createdAt: me.createdAt },
+        me,
+      })
+    }
+    return <Story />
+  }
+
+/** The drawer with a button that opens it, so it can be closed and reopened. */
+function DrawerHarness({
+  startOpen,
+  onOpenChange,
+  ...args
+}: MobileNavDrawerProps & { startOpen: boolean }) {
+  const [open, setOpen] = useState(startOpen)
+  return (
+    <>
+      <Button type="button" m={4} onClick={() => setOpen(true)}>
+        Open account menu
+      </Button>
+      <MobileNavDrawer
+        {...args}
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next)
+          onOpenChange(next)
+        }}
+      />
+    </>
+  )
+}
+
+const meta = {
+  title: 'Shell/Header/MobileNavDrawer',
+  component: MobileNavDrawer,
+  tags: ['autodocs'],
+  parameters: { layout: 'fullscreen' },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  args: { open: true, onOpenChange: fn(), onOpenLanguage: fn() },
+  decorators: [
+    (Story) => (
+      <FeedbackDialogProvider onSubmit={async () => true}>
+        <Story />
+      </FeedbackDialogProvider>
+    ),
+  ],
+  render: (args) => <DrawerHarness {...args} startOpen={args.open} />,
+} satisfies Meta<typeof MobileNavDrawer>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+/** Open, worker on trial: full-height account drawer with unlimited-quotes header and links. */
+export const OpenWorkerOnTrial: Story = {
+  decorators: [withMe(meTrial)],
+}
+
+/** Open, free plan: the header shows the quote-usage meter and Upgrade. */
+export const OpenWorkerFreePlan: Story = {
+  decorators: [withMe(meFree)],
+}
+
+/** Open, customer: no worker profile, so the upsell card and "Become a worker" show. */
+export const OpenCustomer: Story = {
+  decorators: [withMe(meCustomer)],
+}
+
+/** Open, long text: a long name and email truncate instead of wrapping. */
+export const OpenLongNameAndEmail: Story = {
+  decorators: [withMe(meLongText)],
+}
+
+/** Closed: only the trigger button is on screen, the drawer is not mounted. */
+export const Closed: Story = {
+  args: { open: false },
+  decorators: [withMe(meTrial)],
+}
+
+/** Opening: the trigger button slides the account drawer in. */
+export const OpensFromTrigger: Story = {
+  args: { open: false },
+  decorators: [withMe(meTrial)],
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Open account menu' }),
+    )
+    await waitFor(
+      () =>
+        expect(
+          within(canvasElement.ownerDocument.body).getByRole('dialog', {
+            name: 'Account menu',
+          }),
+        ).toBeVisible(),
+      { timeout: 3000 },
+    )
+  },
+}
+
+/** Closing: the close button reports `onOpenChange(false)` and dismisses the drawer. */
+export const ClosesFromCloseButton: Story = {
+  decorators: [withMe(meTrial)],
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+    const drawer = within(
+      await body.findByRole('dialog', { name: 'Account menu' }),
+    )
+    await userEvent.click(drawer.getByRole('button', { name: 'Close' }))
+    await expect(args.onOpenChange).toHaveBeenCalledWith(false)
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull(), {
+      timeout: 3000,
+    })
+  },
+}
+
+/** Language: the Language row hands over to `onOpenLanguage` and closes the drawer. */
+export const LanguageRowCallsHandler: Story = {
+  decorators: [withMe(meTrial)],
+  play: async ({ args, canvasElement }) => {
+    const drawer = within(
+      await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+        name: 'Account menu',
+      }),
+    )
+    await userEvent.click(drawer.getByRole('button', { name: 'Language' }))
+    await expect(args.onOpenLanguage).toHaveBeenCalledTimes(1)
+    await expect(args.onOpenChange).toHaveBeenCalledWith(false)
+  },
+}

@@ -31,6 +31,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground: a controlled single thumb, driven by the Controls panel. */
 export const Playground: Story = {
   render: (args) => {
     const [value, setValue] = useState([15])
@@ -46,7 +47,7 @@ export const Playground: Story = {
   },
 }
 
-/** Every tone, plus single + range thumbs. Tab to a thumb to see the focus ring. */
+/** Overview: every tone side by side. Tab to a thumb to see the focus ring. */
 export const AllVariants: Story = {
   render: () => (
     <Stack gap={6} maxW="420px">
@@ -72,6 +73,7 @@ export const SingleAndRange: Story = {
   ),
 }
 
+/** Disabled: grey thumb that cannot be dragged or focused. */
 export const Disabled: Story = {
   args: { disabled: true, defaultValue: [30] },
 }
@@ -79,6 +81,16 @@ export const Disabled: Story = {
 /** Danger tone (uses `status.danger.solid` fill). */
 export const DangerTone: Story = {
   args: { tone: 'danger', defaultValue: [60], min: 0, max: 100 },
+}
+
+/** Range: two thumbs pick a from-to span (a price band, for example). */
+export const Range: Story = {
+  args: {
+    min: 0,
+    max: 150,
+    defaultValue: [20, 120],
+    'aria-label': ['Minimum price', 'Maximum price'],
+  },
 }
 
 function SingleSliderDemo() {

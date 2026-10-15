@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuShieldCheck } from 'react-icons/lu'
 
@@ -37,7 +37,75 @@ type Story = StoryObj<typeof meta>
 /** The canonical payment-trust panel. */
 export const Playground: Story = {}
 
-/** Every tone uses an icon pod + Badge (dot + label) — never colour alone. */
+/** Info (the default tone): neutral advisory such as the payment-trust notice. */
+export const Info: Story = { args: { tone: 'info' } }
+
+/** Success: confirmation such as an accepted quote. */
+export const Success: Story = {
+  args: {
+    tone: 'success',
+    heading: 'Quote accepted: £85 agreed',
+    badgeLabel: 'Confirmed',
+    children:
+      'You and your worker have agreed £85 for the flat clearance in Hackney. Payment is arranged directly between the two of you.',
+    linkLabel: 'View the job',
+    linkHref: '/tasks/flat-clearance-hackney',
+  },
+}
+
+/** Warning: caution before the user acts, such as releasing payment. */
+export const Warning: Story = {
+  args: {
+    tone: 'warning',
+    heading: 'Confirm before you pay',
+    children:
+      'Only release payment once the work is done and you are happy. Never send money up front for the gardening job in Richmond.',
+    linkLabel: 'Read our safety tips',
+  },
+}
+
+/** Danger: something looks wrong and needs action, such as a risky request. */
+export const Danger: Story = {
+  args: {
+    tone: 'danger',
+    heading: 'This request looks unusual',
+    children:
+      'A worker has asked for a £150 deposit before starting the Camden removals job. Slashie never asks you to pay through the app, so treat upfront-deposit requests with caution.',
+    linkLabel: 'Report this message',
+  },
+}
+
+/** Without link: heading, badge and body, no call to action. */
+export const WithoutLink: Story = {
+  args: { linkLabel: undefined, linkHref: undefined },
+}
+
+/** Heading only: no body copy and no link. */
+export const HeadingOnly: Story = {
+  args: { children: undefined, linkLabel: undefined, linkHref: undefined },
+}
+
+/** Long text: heading, body and link wrap inside a narrow panel. */
+export const LongText: Story = {
+  args: {
+    heading:
+      'You pay the worker directly once the job is finished and you are happy with it',
+    children:
+      'Slashie never handles job payment. Agree a price with your worker before they start, keep every message in the app, and settle up between yourselves once the job is done. If anything changes on the day, agree it in writing first.',
+  },
+  render: (args) => (
+    <Box maxW="360px">
+      <InfoBar {...args} />
+    </Box>
+  ),
+}
+
+/** Phone: tighter padding and smaller type below `md`. */
+export const Phone: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/** Every tone uses an icon pod and a Badge (dot plus label), never colour alone. */
 export const AllTones: Story = {
   render: () => (
     <Stack gap={4} maxW="640px">
@@ -52,7 +120,7 @@ export const AllTones: Story = {
       </InfoBar>
       <InfoBar
         tone="success"
-        heading="Quote accepted — £85 agreed"
+        heading="Quote accepted: £85 agreed"
         badgeLabel="Confirmed"
         linkLabel="View the job"
         linkHref="/tasks/flat-clearance-hackney"
@@ -91,7 +159,7 @@ export const CustomIcon: Story = {
     badgeLabel: 'Secure',
     heading: 'Keep payments off-platform and in person',
     children:
-      'Meet your worker at the property in Islington, check the work, then pay by cash or bank transfer. Slashie only connects you — we never hold your money.',
+      'Meet your worker at the property in Islington, check the work, then pay by cash or bank transfer. Slashie only connects you and never holds your money.',
     linkLabel: 'See payment guidance',
     linkHref: '/help/safety',
   },

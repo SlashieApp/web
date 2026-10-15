@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { LuCalendar } from 'react-icons/lu'
@@ -11,7 +11,7 @@ import { Textarea } from '../Textarea/Textarea'
 import { FormField } from './FormField'
 
 /**
- * SDL FormField — the labelled wrapper that supplies a persistent `<label>`,
+ * SDL FormField: the labelled wrapper that supplies a persistent `<label>`,
  * helper copy, and an error message wired via `aria-describedby` to whatever
  * control it wraps. The error message never relies on color alone: it pairs a
  * danger dot with the label text. Renders under both light and dark via the
@@ -41,7 +41,7 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-/** Interactive playground — toggle helperText / errorText / disabled / required. */
+/** Playground: toggle helperText, errorText, disabled and required. */
 export const Playground: Story = {
   render: (args) => (
     <FormField {...args}>
@@ -84,7 +84,7 @@ export const AllVariants: Story = {
   ),
 }
 
-/** Default — label + helper text, no error. */
+/** Default: label and helper text, no error. */
 export const Default: Story = {
   render: (args) => (
     <FormField {...args}>
@@ -93,7 +93,7 @@ export const Default: Story = {
   ),
 }
 
-/** Disabled — field context disables the wrapped control. */
+/** Disabled: the field context disables the wrapped control. */
 export const Disabled: Story = {
   args: { disabled: true, helperText: 'Locked while we save your draft.' },
   render: (args) => (
@@ -103,7 +103,7 @@ export const Disabled: Story = {
   ),
 }
 
-/** Required — the field advertises required state to the control. */
+/** Required: the field passes the required state to the control. */
 export const Required: Story = {
   args: { required: true, helperText: 'You must confirm an email.' },
   render: (args) => (
@@ -113,7 +113,7 @@ export const Required: Story = {
   ),
 }
 
-/** Error — message is tied via aria-describedby and shows a dot + label. */
+/** Error: the message is tied via aria-describedby and shows a dot plus label. */
 export const WithError: Story = {
   args: {
     helperText: undefined,
@@ -126,7 +126,62 @@ export const WithError: Story = {
   ),
 }
 
-/** Focus — autofocus the control to show the SDL focus ring on the shell. */
+/** Label only: no helper text and no error. */
+export const LabelOnly: Story = {
+  args: { helperText: undefined },
+  render: (args) => (
+    <FormField {...args}>
+      <Input placeholder="you@example.com" type="email" />
+    </FormField>
+  ),
+}
+
+/** Helper and error together: the error follows the helper text. */
+export const HelperAndError: Story = {
+  args: { errorText: 'Enter a valid email address' },
+  render: (args) => (
+    <FormField {...args}>
+      <Input placeholder="you@example.com" type="email" />
+    </FormField>
+  ),
+}
+
+/** Long text: label, helper and error wrap inside the field width. */
+export const LongText: Story = {
+  args: {
+    label: 'How should the worker get into the property on the day?',
+    helperText:
+      'Include parking, door codes and whether anyone will be home when the worker arrives, so they can plan the visit.',
+    errorText: 'Add a little more detail so the worker knows how to get in',
+  },
+  render: (args) => (
+    <Box maxW="360px">
+      <FormField {...args}>
+        <Input placeholder="e.g. Key safe by the side gate" />
+      </FormField>
+    </Box>
+  ),
+}
+
+/** Render prop: children receive the resolved field state instead of a node. */
+export const RenderProp: Story = {
+  args: {
+    required: true,
+    helperText: undefined,
+    errorText: 'Pick a date for the work',
+  },
+  render: (args) => (
+    <FormField {...args}>
+      {(field) => (
+        <Text id={field.controlId} fontSize="sm" color="text.muted">
+          {`invalid: ${field.invalid}, disabled: ${field.disabled}, required: ${field.required}`}
+        </Text>
+      )}
+    </FormField>
+  ),
+}
+
+/** Focus: the control is autofocused to show the SDL focus ring on the shell. */
 export const Focus: Story = {
   args: { helperText: 'The shell expresses the focus ring.' },
   render: (args) => (
@@ -193,7 +248,7 @@ export const WithTextarea: Story = {
 export const WithPhoneInput: Story = {
   args: {
     label: 'Mobile number',
-    helperText: 'UK numbers only — we text a verification code.',
+    helperText: 'UK numbers only. We text a verification code.',
   },
   render: function WithPhoneInputStory(args) {
     const [phone, setPhone] = useState('')
@@ -205,7 +260,7 @@ export const WithPhoneInput: Story = {
   },
 }
 
-/** OTP entry — surfaces an error once a partial code is entered. */
+/** OTP entry: surfaces an error once a partial code is entered. */
 export const WithOtp: Story = {
   args: {
     label: 'Verification code',

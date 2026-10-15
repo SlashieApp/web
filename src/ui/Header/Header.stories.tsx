@@ -1,3 +1,5 @@
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client/core'
+import { ApolloProvider } from '@apollo/client/react'
 import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import {
   Currency,
@@ -6,8 +8,13 @@ import {
   WorkerSubscriptionStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { NEVER } from 'rxjs'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { messagesValue } from '@/app/(messages)/messages/components/messagesStoryFixtures'
+import { MessagesContext } from '@/app/(messages)/messages/context/MessagesProvider'
+import { AUTH_COOKIE_NAME } from '@/utils/auth'
 
 import { Button } from '../Button'
 import { FeedbackDialogProvider } from '../FeedbackDialog/FeedbackDialogProvider'
@@ -18,15 +25,15 @@ import { Header } from './Header'
  * SDL app `Header`. One public API (`children` + `BoxProps`); the default body
  * renders the full app navigation, which adapts to three states:
  *
- * - **guest** — logged-out toolbar (Post a task, Log in / Sign up, mobile menu)
- * - **session** — auth cookie present, `me` not loaded yet (account-slot skeletons)
- * - **browse** — logged-in toolbar (Post a task, notifications, account menu)
- * - **custom** — caller-provided `children` replace the default body
+ * - **guest**: logged-out toolbar (Feedback, Log in / Sign up)
+ * - **session**: auth cookie present, `me` not loaded yet (account-slot skeletons)
+ * - **browse**: logged-in toolbar (Post a task, nav links, account menu)
+ * - **custom**: caller-provided `children` replace the default body
  *
  * Account-hub routes (`/dashboard`, `/requests`, …) use this same toolbar;
  * hub destinations live in the account menu. Stories seed Zustand auth state
  * and the Next pathname; the global theme toolbar renders each under light
- * and dark — no mode is hardcoded here.
+ * and dark, so no mode is hardcoded here.
  */
 
 const meWorker: MeSnapshot = {
@@ -130,16 +137,57 @@ const meWorkerFree: MeSnapshot = {
     : null,
 }
 
+/** Stands in for the live `getUser`: it just returns whoever is seeded. */
+const stubGetUser = async () => useUserStore.getState().user
+
+/**
+ * Seeds the auth store. `getUser` is stubbed because the Header calls it on
+ * mount when an auth cookie exists, and stories must never reach the live API.
+ */
 function seedMe(me: MeSnapshot | null) {
-  if (!me) {
-    useUserStore.setState({ user: null, me: null })
-    return
-  }
   useUserStore.setState({
-    user: { id: me.id, email: me.email, createdAt: me.createdAt },
+    user: me ? { id: me.id, email: me.email, createdAt: me.createdAt } : null,
     me,
+    getUser: stubGetUser,
   })
 }
+
+/**
+ * Story-only: this page's `document.cookie` reports the auth cookie. Real
+ * cookies are shared by every test file running at the same time, so setting
+ * or clearing one here could flip other stories between signed in and out.
+ */
+function stubAuthCookie(token: string) {
+  Object.defineProperty(document, 'cookie', {
+    configurable: true,
+    get: () => `${AUTH_COOKIE_NAME}=${token}`,
+    set: () => {},
+  })
+  return () => {
+    Reflect.deleteProperty(document, 'cookie')
+  }
+}
+
+/**
+ * Signed-out store whose `getUser` never settles, so the session stays loading.
+ * The Header only shows skeletons while an auth cookie exists: the story's
+ * `beforeEach` stubs one.
+ */
+function seedPendingSession() {
+  useUserStore.setState({
+    user: null,
+    me: null,
+    getUser: () => new Promise(() => undefined),
+  })
+}
+
+/** Story-only Apollo client: operations never resolve, so nothing reaches the live API. */
+const neverClient = new ApolloClient({
+  link: new ApolloLink(() => NEVER),
+  cache: new InMemoryCache(),
+})
+
+const meUnverified: MeSnapshot = { ...meWorker, emailVerified: false }
 
 type HeaderMode = 'guest' | 'browse'
 
@@ -156,11 +204,19 @@ const meta = {
     children: { control: false },
   },
   decorators: [
-    (Story) => (
-      <FeedbackDialogProvider onSubmit={async () => true}>
-        <Story />
-      </FeedbackDialogProvider>
-    ),
+    (Story) => {
+      // Stories that do not seed (custom children) must not reach the API either.
+      if (useUserStore.getState().getUser !== stubGetUser) {
+        useUserStore.setState({ getUser: stubGetUser })
+      }
+      return (
+        <ApolloProvider client={neverClient}>
+          <FeedbackDialogProvider onSubmit={async () => true}>
+            <Story />
+          </FeedbackDialogProvider>
+        </ApolloProvider>
+      )
+    },
   ],
 } satisfies Meta<typeof Header>
 
@@ -187,7 +243,7 @@ export const Playground: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },
 }
 
-/** Logged-out toolbar: Post a task, Log in / Sign up, and the mobile menu trigger. */
+/** Guest: Feedback button and Log in / Sign up links (Post a task and My tasks need an account). */
 export const Guest: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },
   decorators: [
@@ -199,19 +255,25 @@ export const Guest: Story = {
   render: () => <Header />,
 }
 
-/** Auth cookie present: account-slot skeletons instead of Log in / Sign up. */
+/** Session loading: auth cookie present, so account-slot skeletons replace Log in / Sign up. */
 export const SessionSkeleton: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },
+  beforeEach: () => stubAuthCookie('story-session-token'),
   decorators: [
     (Story) => {
-      seedMe(null)
+      seedPendingSession()
       return <Story />
     },
   ],
   render: () => <Header hasSession />,
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByLabelText('Loading account'),
+    ).toBeInTheDocument()
+  },
 }
 
-/** Logged-in browse toolbar: Post a task, notifications bell, and account menu. */
+/** Signed in: Workers, My tasks and Messages links, Post a task, and the account menu. */
 export const BrowseLoggedIn: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },
   decorators: [
@@ -223,7 +285,7 @@ export const BrowseLoggedIn: Story = {
   render: () => <Header />,
 }
 
-/** Logged-in toolbar on an account-hub route — same chrome as browse (no section switcher). */
+/** Logged-in toolbar on an account-hub route: same chrome as browse (no section switcher). */
 export const Dashboard: Story = {
   parameters: { nextjs: { navigation: { pathname: '/dashboard' } } },
   decorators: [
@@ -235,7 +297,7 @@ export const Dashboard: Story = {
   render: () => <Header />,
 }
 
-/** Customer (no worker profile) — account menu surfaces the upsell card. */
+/** Customer (no worker profile): the account menu surfaces the upsell card. */
 export const CustomerAccount: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },
   decorators: [
@@ -247,7 +309,7 @@ export const CustomerAccount: Story = {
   render: () => <Header />,
 }
 
-/** Worker on the free plan — account menu shows the quote-usage meter. */
+/** Worker on the free plan: the account menu shows the quote-usage meter. */
 export const WorkerFreePlan: Story = {
   parameters: { nextjs: { navigation: { pathname: '/dashboard' } } },
   decorators: [
@@ -259,7 +321,7 @@ export const WorkerFreePlan: Story = {
   render: () => <Header />,
 }
 
-/** Logged-in suspended account — persistent contact banner above the toolbar. */
+/** Logged-in suspended account: persistent contact banner above the toolbar. */
 export const SuspendedAccount: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },
   decorators: [
@@ -269,6 +331,123 @@ export const SuspendedAccount: Story = {
     },
   ],
   render: () => <Header />,
+}
+
+/** Unverified email: a banner above the toolbar asks to verify and offers Resend. */
+export const UnverifiedEmail: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  decorators: [
+    (Story) => {
+      seedMe(meUnverified)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+}
+
+/** Unread messages: the Messages link carries a count badge and a spoken count. */
+export const UnreadMessages: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  decorators: [
+    (Story) => {
+      seedMe(meWorker)
+      return (
+        <MessagesContext.Provider value={messagesValue({ unreadCount: 3 })}>
+          <Story />
+        </MessagesContext.Provider>
+      )
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole('link', { name: 'Messages, 3 unread' }),
+    ).toBeVisible()
+  },
+}
+
+/** Many unread messages: the badge caps at 99+ while the spoken count stays exact. */
+export const UnreadMessagesOver99: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  decorators: [
+    (Story) => {
+      seedMe(meWorker)
+      return (
+        <MessagesContext.Provider value={messagesValue({ unreadCount: 120 })}>
+          <Story />
+        </MessagesContext.Provider>
+      )
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    const link = within(canvasElement).getByRole('link', {
+      name: 'Messages, 120 unread',
+    })
+    await expect(link).toHaveTextContent('99+')
+  },
+}
+
+/** Active link: on /tasks the My tasks link is highlighted and marked as the current page. */
+export const ActiveNavLink: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/tasks' } } },
+  decorators: [
+    (Story) => {
+      seedMe(meWorker)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole('link', { name: 'My tasks' }),
+    ).toHaveAttribute('aria-current', 'page')
+  },
+}
+
+/** Account menu open: the avatar button opens the account panel under the toolbar. */
+export const AccountMenuOpen: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  decorators: [
+    (Story) => {
+      seedMe(meWorker)
+      return (
+        <Box minH="1000px">
+          <Story />
+        </Box>
+      )
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Account menu' }))
+    await waitFor(
+      () =>
+        expect(canvas.getByRole('button', { name: 'Log out' })).toBeVisible(),
+      { timeout: 3000 },
+    )
+  },
+}
+
+/** Phone: the toolbar is hidden below `lg`; only status banners (here: verify email) remain. */
+export const MobileBannersOnly: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  parameters: { nextjs: { navigation: { pathname: '/' } } },
+  decorators: [
+    (Story) => {
+      seedMe(meUnverified)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByText('Verify your email to post tasks and send quotes.'),
+    ).toBeVisible()
+    await expect(canvas.queryByRole('link', { name: 'Workers' })).toBeNull()
+  },
 }
 
 /** Caller-supplied children replace the default navigation body. */
@@ -284,12 +463,7 @@ export const CustomChildren: Story = {
   ),
 }
 
-/**
- * Overview of the header shell + toolbar slots, rendered with custom children so
- * every row is deterministic (auth/pathname state is global, so a single render
- * tree can only resolve one default-navigation state — see the dedicated Guest /
- * BrowseLoggedIn stories for those). Renders under light and dark.
- */
+/** Overview: shell and toolbar slots with custom children, so each row is deterministic. */
 export const AllVariants: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },
   render: () => {

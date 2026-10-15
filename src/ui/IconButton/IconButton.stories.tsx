@@ -42,7 +42,7 @@ function BellIcon() {
  * SDL IconButton. Renders either a nav link (`href` + `icon`) or a
  * standalone ghost action (Chakra `IconButton`). Both keep a visible focus ring
  * and meet the 44px touch target. Stories render under both light and dark via
- * the global theme toolbar — nothing here hardcodes a mode.
+ * the global theme toolbar, so nothing here hardcodes a mode.
  */
 const meta = {
   title: 'UI/IconButton',
@@ -73,6 +73,7 @@ export const Default: Story = {
   args: { 'aria-label': 'Notifications', children: <BellIcon /> },
 }
 
+/** Disabled: muted icon with a not-allowed cursor, not focusable. */
 export const Disabled: Story = {
   args: {
     'aria-label': 'Notifications',
@@ -81,6 +82,7 @@ export const Disabled: Story = {
   },
 }
 
+/** Loading: spinner replaces the icon and the button stops taking clicks. */
 export const Loading: Story = {
   args: {
     'aria-label': 'Notifications',
@@ -89,7 +91,27 @@ export const Loading: Story = {
   },
 }
 
-/** Focusable example — Tab in to verify the 2px ring + offset. */
+/** Outline: bordered action for places that need a visible edge. */
+export const Outline: Story = {
+  args: {
+    variant: 'outline',
+    'aria-label': 'Notifications',
+    children: <BellIcon />,
+  },
+}
+
+/** As link: `asChild` puts the control styling on an anchor (close and back actions). */
+export const AsLink: Story = {
+  render: (args) => (
+    <IconButton {...args} asChild aria-label="Open messages">
+      <a href="/messages">
+        <BellIcon />
+      </a>
+    </IconButton>
+  ),
+}
+
+/** Focus: Tab in to verify the 2px ring and offset. */
 export const Focus: Story = {
   args: { 'aria-label': 'Notifications', children: <BellIcon /> },
 }
@@ -106,6 +128,11 @@ export const NavInactive: Story = {
   render: () => (
     <IconButton href="/requests" icon={<BrowseIcon />} caption="Requests" />
   ),
+}
+
+/** Nav tile with no caption: icon only (nothing gives it an accessible name). */
+export const NavIconOnly: Story = {
+  render: () => <IconButton href="/alerts" icon={<BellIcon />} />,
 }
 
 /** Overview of every shape and state side by side. */

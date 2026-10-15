@@ -1,10 +1,25 @@
 import { HStack, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { Button } from '../Button/Button'
 import { ReportControl } from './ReportControl'
-import { ReportDialog } from './ReportDialog'
+import { ReportDialog, type ReportDialogProps } from './ReportDialog'
+
+/** Fictional illustrations as data URIs, so stories never fetch remote images. */
+const svgImage = (body: string) =>
+  `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">${body}</svg>`,
+  )}`
+
+const TASK_PHOTO = svgImage(
+  '<rect width="120" height="120" fill="#d8efe3"/><rect x="22" y="38" width="76" height="46" rx="5" fill="#1f6f4a"/><rect x="30" y="45" width="60" height="32" rx="2" fill="#0f3d2a"/><rect x="48" y="88" width="24" height="6" rx="2" fill="#1f6f4a"/>',
+)
+
+const PROFILE_PHOTO = svgImage(
+  '<rect width="120" height="120" fill="#e6e9f5"/><circle cx="60" cy="46" r="20" fill="#5b6bb5"/><path d="M20 112c4-26 22-36 40-36s36 10 40 36z" fill="#5b6bb5"/>',
+)
 
 const meta = {
   title: 'UI/ReportDialog',
@@ -17,8 +32,7 @@ const meta = {
     kind: 'task',
     targetTitle: 'Mount a 55-inch TV',
     targetMeta: 'Southwark · Tech setup',
-    targetImageSrc:
-      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
+    targetImageSrc: TASK_PHOTO,
     onSubmit: async () => true,
   },
 } satisfies Meta<typeof ReportDialog>
@@ -26,32 +40,187 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** The open dialog. It renders in a portal on `document.body`, not the canvas. */
+async function findDialog(canvasElement: HTMLElement, name: string) {
+  return within(
+    await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+      name,
+    }),
+  )
+}
+
+/** A trigger button next to a dialog that opens and closes itself. */
+function TriggeredDialog({
+  startOpen,
+  ...args
+}: ReportDialogProps & { startOpen: boolean }) {
+  const [open, setOpen] = useState(startOpen)
+  return (
+    <Stack gap={4} align="flex-start">
+      <Button type="button" onClick={() => setOpen(true)}>
+        Report task
+      </Button>
+      <ReportDialog {...args} open={open} onOpenChange={setOpen} />
+    </Stack>
+  )
+}
+
+/** Task: reporting a listing, with its photo, title and location in the summary card. */
 export const Default: Story = {
-  render: function Render(args) {
-    const [open, setOpen] = useState(true)
-    return (
-      <Stack gap={4}>
-        <Button type="button" onClick={() => setOpen(true)}>
-          Report task
-        </Button>
-        <ReportDialog {...args} open={open} onOpenChange={setOpen} />
-      </Stack>
+  render: (args) => <TriggeredDialog {...args} startOpen />,
+}
+
+/** Closed: only the trigger button is on screen, the dialog is not mounted. */
+export const Closed: Story = {
+  render: (args) => <TriggeredDialog {...args} startOpen={false} />,
+}
+
+/** Opening: clicking the trigger button opens the report dialog. */
+export const OpensFromTrigger: Story = {
+  render: (args) => <TriggeredDialog {...args} startOpen={false} />,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Report task' }),
     )
+    const dialog = await findDialog(canvasElement, 'Report this task')
+    await waitFor(() => expect(dialog.getByRole('combobox')).toBeVisible(), {
+      timeout: 3000,
+    })
   },
 }
 
+/** Worker: reporting a profile, with the round avatar in the summary card. */
 export const Worker: Story = {
   args: {
     kind: 'worker',
     targetTitle: 'Jordan Lee',
     targetMeta: 'Peckham',
+    targetImageSrc: PROFILE_PHOTO,
   },
   render: function Render(args) {
-    const [open, setOpen] = useState(true)
-    return <ReportDialog {...args} open={open} onOpenChange={() => undefined} />
+    return <ReportDialog {...args} open onOpenChange={() => undefined} />
   },
 }
 
+/** Worker without a photo: the avatar falls back to the person's initials. */
+export const WorkerWithoutPhoto: Story = {
+  args: {
+    kind: 'worker',
+    targetTitle: 'Jordan Lee',
+    targetMeta: 'Peckham',
+    targetImageSrc: undefined,
+  },
+}
+
+/** User: reporting a customer profile (square photo slot, not the round avatar). */
+export const User: Story = {
+  args: {
+    kind: 'user',
+    targetTitle: 'Alex Morgan',
+    targetMeta: 'Member since 2024',
+    targetImageSrc: PROFILE_PHOTO,
+  },
+}
+
+/** Review: reporting a review, so the summary card shows text only (no image). */
+export const Review: Story = {
+  args: {
+    kind: 'review',
+    targetTitle: 'Did not match what we agreed.',
+    targetMeta: '2 stars, 3 days ago',
+    targetImageSrc: undefined,
+  },
+}
+
+/** Message: reporting a chat message, so the summary card shows text only (no image). */
+export const Message: Story = {
+  args: {
+    kind: 'message',
+    targetTitle: 'Is there parking near the building?',
+    targetMeta: 'Sent today at 9:20 am',
+    targetImageSrc: undefined,
+  },
+}
+
+/** Task without a photo: the thumbnail shows the neutral image placeholder. */
+export const TaskWithoutPhoto: Story = {
+  args: { targetImageSrc: undefined },
+}
+
+/** No target: without a title the summary card is left out entirely. */
+export const WithoutTarget: Story = {
+  args: {
+    targetTitle: undefined,
+    targetMeta: undefined,
+    targetImageSrc: undefined,
+  },
+}
+
+/** Long target: a long title and location clamp to two lines in the summary card. */
+export const LongTarget: Story = {
+  args: {
+    targetTitle:
+      'Assemble and wall-mount three flat-pack wardrobes, two chests of drawers and a very long set of shelving units in the spare room',
+    targetMeta:
+      'Southwark, South East London, near the old brewery building and the canal towpath · Furniture assembly and general handyman help',
+  },
+}
+
+/** Validation: sending without choosing a reason shows the reason error. */
+export const ValidationError: Story = {
+  play: async ({ canvasElement }) => {
+    const dialog = await findDialog(canvasElement, 'Report this task')
+    await userEvent.click(dialog.getByRole('button', { name: 'Send report' }))
+    await waitFor(
+      () => expect(dialog.getByText('Choose a reason.')).toBeVisible(),
+      { timeout: 3000 },
+    )
+  },
+}
+
+/** Submitting: the send button shows its spinner and is disabled. */
+export const Submitting: Story = {
+  args: { submitting: true },
+}
+
+/** Error: the host reports a failed send and the message appears above the buttons. */
+export const SubmitError: Story = {
+  args: {
+    submitError: 'We could not send your report. Please try again.',
+  },
+}
+
+/** Success: a reason is chosen, the report is sent and the dialog closes itself. */
+export const SubmitClosesDialog: Story = {
+  args: { onSubmit: fn(async () => true as const) },
+  render: (args) => <TriggeredDialog {...args} startOpen />,
+  play: async ({ args, canvasElement }) => {
+    const dialog = await findDialog(canvasElement, 'Report this task')
+    await userEvent.selectOptions(dialog.getByRole('combobox'), 'SCAM')
+    await userEvent.click(dialog.getByRole('button', { name: 'Send report' }))
+    await waitFor(() => expect(args.onSubmit).toHaveBeenCalledTimes(1), {
+      timeout: 3000,
+    })
+    await expect(args.onSubmit).toHaveBeenCalledWith({
+      reason: 'SCAM',
+      details: '',
+    })
+    await waitFor(
+      () =>
+        expect(
+          within(canvasElement.ownerDocument.body).queryByRole('dialog'),
+        ).toBeNull(),
+      { timeout: 3000 },
+    )
+  },
+}
+
+/** Phone: the dialog fills the narrow viewport width. */
+export const Mobile: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/** Triggers: the report control variants that open this dialog. */
 export const Triggers: Story = {
   render: () => (
     <HStack gap={3} flexWrap="wrap">
@@ -60,7 +229,7 @@ export const Triggers: Story = {
         targetId="task-42"
         targetTitle="Garden tidy"
         targetMeta="Peckham · Cleaning"
-        targetImageSrc="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop"
+        targetImageSrc={TASK_PHOTO}
         variant="button"
         onSubmit={async () => true}
       />
@@ -76,7 +245,7 @@ export const Triggers: Story = {
         targetId="task-42"
         targetTitle="Garden tidy"
         targetMeta="Peckham · Cleaning"
-        targetImageSrc="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop"
+        targetImageSrc={TASK_PHOTO}
         variant="overflow"
         onSubmit={async () => true}
       />

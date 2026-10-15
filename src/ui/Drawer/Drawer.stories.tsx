@@ -2,6 +2,7 @@ import { Box, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import type { ComponentProps } from 'react'
 import { useState } from 'react'
+import { expect, within } from 'storybook/test'
 
 import { Button } from '../Button'
 import { Drawer, type DrawerPlacement, type DrawerSize } from './Drawer'
@@ -65,13 +66,31 @@ function BodyCopy() {
   )
 }
 
+/** Enough rows to overflow the drawer body and make it scroll. */
+function LongBody() {
+  return (
+    <Stack gap={4}>
+      {Array.from({ length: 24 }, (_, i) => `row-${i + 1}`).map((rowKey, i) => (
+        <Text key={rowKey} fontSize="sm" color="text.default">
+          Row {i + 1}: scrollable drawer body content.
+        </Text>
+      ))}
+    </Stack>
+  )
+}
+
 /** Reusable trigger + controlled-open wrapper so each story is self-contained. */
 function DrawerDemo({
   label = 'Open drawer',
   children = <BodyCopy />,
+  initialOpen = false,
   ...args
-}: Partial<ComponentProps<typeof Drawer>> & { label?: string }) {
-  const [open, setOpen] = useState(false)
+}: Partial<ComponentProps<typeof Drawer>> & {
+  label?: string
+  /** Render the drawer already open (the trigger stays behind the scrim). */
+  initialOpen?: boolean
+}) {
+  const [open, setOpen] = useState(initialOpen)
   return (
     <Box p={6}>
       <Button type="button" onClick={() => setOpen(true)}>
@@ -84,12 +103,26 @@ function DrawerDemo({
   )
 }
 
+/** Required props for stories whose `DrawerDemo` supplies open state and body. */
+const controlled = {
+  open: false,
+  onOpenChange: () => {},
+  children: null,
+} as const
+
+/** Play for open stories: the dialog is on screen without any interaction. */
+async function expectOpen(canvasElement: HTMLElement, name: string) {
+  const page = within(canvasElement.ownerDocument.body)
+  await expect(await page.findByRole('dialog', { name })).toBeVisible()
+}
+
+/** Default: closed with a trigger; opens from the start edge with a footer action. */
 export const Default: Story = {
   args: { open: false, onOpenChange: () => {}, children: null },
   render: (args) => <DrawerDemo {...args} />,
 }
 
-/** No description and no footer action — the minimal header-only drawer. */
+/** Title only: no description and no footer action, the minimal drawer. */
 export const TitleOnly: Story = {
   args: { open: false, onOpenChange: () => {}, children: null },
   render: (args) => (
@@ -112,17 +145,108 @@ export const ScrollingBody: Story = {
   args: { open: false, onOpenChange: () => {}, children: null },
   render: (args) => (
     <DrawerDemo {...args} label="Open long drawer">
-      <Stack gap={4}>
-        {Array.from({ length: 24 }, (_, i) => `row-${i + 1}`).map(
-          (rowKey, i) => (
-            <Text key={rowKey} fontSize="sm" color="text.default">
-              Row {i + 1} — scrollable drawer body content.
-            </Text>
-          ),
-        )}
-      </Stack>
+      <LongBody />
     </DrawerDemo>
   ),
+}
+
+// Open stories are left off the autodocs page: an open drawer would cover it.
+/** Open, start edge: side panel with description and footer action. */
+export const OpenStart: Story = {
+  tags: ['!autodocs'],
+  args: controlled,
+  render: (args) => <DrawerDemo {...args} initialOpen />,
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Filters'),
+}
+
+/** Open, end edge: trailing side panel, as used for profile editing. */
+export const OpenEnd: Story = {
+  tags: ['!autodocs'],
+  args: {
+    ...controlled,
+    placement: 'end',
+    title: 'Edit profile',
+    description: 'Changes show on your public profile.',
+    primaryActionLabel: 'Save',
+  },
+  render: (args) => <DrawerDemo {...args} initialOpen />,
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Edit profile'),
+}
+
+/** Open, top edge: sheet that drops down and is as tall as its content. */
+export const OpenTop: Story = {
+  tags: ['!autodocs'],
+  args: { ...controlled, placement: 'top', title: 'Announcement' },
+  render: (args) => <DrawerDemo {...args} initialOpen />,
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Announcement'),
+}
+
+/** Open, bottom edge: sheet with a drag handle, as tall as its content. */
+export const OpenBottom: Story = {
+  tags: ['!autodocs'],
+  args: { ...controlled, placement: 'bottom' },
+  render: (args) => <DrawerDemo {...args} initialOpen />,
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Filters'),
+}
+
+/** Open, bottom edge with `size="full"`: the sheet fills the viewport height. */
+export const OpenBottomFull: Story = {
+  tags: ['!autodocs'],
+  args: { ...controlled, placement: 'bottom', size: 'full' },
+  render: (args) => <DrawerDemo {...args} initialOpen />,
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Filters'),
+}
+
+/** Open, phone: bottom sheet at phone width, as used by search and filters. */
+export const OpenBottomPhone: Story = {
+  tags: ['!autodocs'],
+  args: { ...controlled, placement: 'bottom' },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: (args) => <DrawerDemo {...args} initialOpen />,
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Filters'),
+}
+
+/** Open, phone: side panel fills the screen width, as in the account and site menus. */
+export const OpenEndPhone: Story = {
+  tags: ['!autodocs'],
+  args: {
+    ...controlled,
+    placement: 'end',
+    title: 'Menu',
+    primaryActionLabel: 'Log out',
+  },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: (args) => (
+    <DrawerDemo {...args} description={undefined} initialOpen />
+  ),
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Menu'),
+}
+
+/** Open, title only: header and body, no description and no footer action. */
+export const OpenTitleOnly: Story = {
+  tags: ['!autodocs'],
+  args: { ...controlled, title: 'Quick view' },
+  render: (args) => (
+    <DrawerDemo
+      {...args}
+      description={undefined}
+      primaryActionLabel={undefined}
+      initialOpen
+    />
+  ),
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Quick view'),
+}
+
+/** Open, long content: the body scrolls while header and footer stay pinned. */
+export const OpenScrollingBody: Story = {
+  tags: ['!autodocs'],
+  args: controlled,
+  render: (args) => (
+    <DrawerDemo {...args} initialOpen>
+      <LongBody />
+    </DrawerDemo>
+  ),
+  play: ({ canvasElement }) => expectOpen(canvasElement, 'Filters'),
 }
 
 /** Every placement, each with its own trigger. */
@@ -148,7 +272,7 @@ export const Placements: Story = {
   },
 }
 
-/** Every size option at a fixed placement. */
+/** Every size option at the end edge (the panel is capped at `lg`, so widths match). */
 export const Sizes: Story = {
   args: { open: false, onOpenChange: () => {}, children: null },
   render: () => {

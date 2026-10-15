@@ -1,8 +1,9 @@
 import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { LuLock, LuMail, LuSearch } from 'react-icons/lu'
+import { LuEye, LuLock, LuMail, LuSearch } from 'react-icons/lu'
 
 import { FormField } from '../FormField'
+import { IconButton } from '../IconButton/IconButton'
 import { Input } from './Input'
 
 const searchIcon = (
@@ -60,44 +61,80 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground: drive placeholder, type and state from Controls. */
 export const Playground: Story = {}
 
-/** Default standalone field. */
+/** Default: standalone field with a placeholder. */
 export const Default: Story = {
   args: { placeholder: 'e.g. Assemble flat-pack wardrobe' },
 }
 
-/** With a leading icon inside the bordered shell. */
+/** With start element: a leading icon inside the bordered shell. */
 export const WithStartElement: Story = {
-  args: {
-    placeholder: 'Search tasks near you...',
-    startElement: searchIcon,
-  },
+  args: { placeholder: 'Search tasks near you...' },
+  render: (args) => <Input {...args} startElement={searchIcon} />,
 }
 
-/** Disabled field -- non-interactive; the shell dims to `bg.subtle` and the
- * field text mutes to `text.subtle`, matching Textarea/Select. */
+/** Disabled: the shell dims to `bg.subtle` and the text mutes to `text.subtle`. */
 export const Disabled: Story = {
   args: { placeholder: 'Filter by keyword', disabled: true },
 }
 
-/** Read-only field -- selectable but not editable. */
+/** Read only: selectable but not editable. */
 export const ReadOnly: Story = {
   args: { defaultValue: 'you@example.com', readOnly: true },
 }
 
-/**
- * Focus state. Tab into the field (or click it) to see the SDL focus ring on
- * the shell -- `border.focus` with a 2px ring.
- */
+/** With value: a filled field. */
+export const WithValue: Story = {
+  args: { defaultValue: 'Assemble flat-pack wardrobe' },
+}
+
+/** With end element: trailing control inside the shell, here a show-password toggle. */
+export const WithEndElement: Story = {
+  args: { type: 'password', defaultValue: 'not-a-real-password' },
+  render: (args) => (
+    <Input
+      {...args}
+      startElement={lockIcon}
+      endElement={
+        <IconButton aria-label="Show password" variant="ghost" size="xs">
+          <LuEye size={18} aria-hidden />
+        </IconButton>
+      }
+    />
+  ),
+}
+
+/** Password: typed characters are masked. */
+export const Password: Story = {
+  args: { type: 'password', defaultValue: 'not-a-real-password' },
+}
+
+/** Long value: the text stays on one line and scrolls inside the field. */
+export const LongValue: Story = {
+  args: {
+    defaultValue:
+      'Assemble the flat-pack wardrobe, fit the shelves and hang both doors in the spare bedroom',
+  },
+  render: (args) => (
+    <Box maxW="320px">
+      <Input {...args} />
+    </Box>
+  ),
+}
+
+/** Disabled with value: a locked, filled field with muted text. */
+export const DisabledWithValue: Story = {
+  args: { defaultValue: 'you@example.com', disabled: true },
+}
+
+/** Focus: Tab into the field (or click it) to see the `border.focus` ring on the shell. */
 export const Focus: Story = {
   args: { placeholder: 'Tab here to see the focus ring' },
 }
 
-/**
- * Wrapped in `FormField` for a persistent label + helper text. The label is a
- * real `<label>`, and helper text is tied to the input via `aria-describedby`.
- */
+/** With label: inside `FormField`, a real `<label>` plus helper text tied by `aria-describedby`. */
 export const WithLabel: Story = {
   render: (args) => (
     <FormField label="Email address" helperText="We'll never share this.">
@@ -111,10 +148,7 @@ export const WithLabel: Story = {
   ),
 }
 
-/**
- * Error state via `FormField`. The shell shows the danger border, and the error
- * message is tied to the input through `aria-describedby` (not color alone).
- */
+/** Error: via `FormField`, a danger border plus a message tied by `aria-describedby`. */
 export const ErrorState: Story = {
   name: 'Error',
   render: (args) => (
@@ -132,7 +166,7 @@ export const ErrorState: Story = {
   ),
 }
 
-/** Overview of the field across its key states (renders in light and dark). */
+/** Overview: the field across its key states. */
 export const AllVariants: Story = {
   render: () => (
     <Stack gap={4} maxW="420px">

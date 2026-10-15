@@ -1,6 +1,7 @@
 import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { LuTag } from 'react-icons/lu'
+import { LuChevronsUpDown, LuTag } from 'react-icons/lu'
+import { expect, within } from 'storybook/test'
 
 import { FormField } from '../FormField'
 import { Select } from './Select'
@@ -59,6 +60,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground driven by the Controls panel (disabled, required). */
 export const Playground: Story = {
   args: { defaultValue: 'recommended' },
   render: (args) => <Select {...args}>{sortOptions}</Select>,
@@ -92,22 +94,21 @@ export const Disabled: Story = {
   ),
 }
 
-/**
- * Focus state. Tab into the select (or click it) to see the SDL focus ring on
- * the shell -- `border.focus` with a 2px ring.
- */
+/** Focus: the select starts focused, showing the SDL focus ring. */
 export const Focus: Story = {
   render: (args) => (
     <Select {...args} defaultValue="">
       {categoryOptions}
     </Select>
   ),
+  play: async ({ canvasElement }) => {
+    const select = within(canvasElement).getByRole('combobox')
+    select.focus()
+    await expect(select).toHaveFocus()
+  },
 }
 
-/**
- * Wrapped in `FormField` for a persistent label + helper text. The label is a
- * real `<label>`, and helper text is tied to the select via `aria-describedby`.
- */
+/** With label: a real `<label>` and helper text tied via `aria-describedby`. */
 export const WithLabel: Story = {
   render: (args) => (
     <FormField
@@ -121,10 +122,7 @@ export const WithLabel: Story = {
   ),
 }
 
-/**
- * Error state via `FormField`. The shell shows the danger border, and the error
- * message is tied to the select through `aria-describedby` (not color alone).
- */
+/** Error: danger border plus a message tied via `aria-describedby`. */
 export const ErrorState: Story = {
   name: 'Error',
   render: (args) => (
@@ -133,6 +131,42 @@ export const ErrorState: Story = {
         {categoryOptions}
       </Select>
     </FormField>
+  ),
+}
+
+/** Selected: shows the chosen option instead of the placeholder option. */
+export const WithValue: Story = {
+  render: (args) => (
+    <Select {...args} defaultValue="gardening">
+      {categoryOptions}
+    </Select>
+  ),
+}
+
+/** Long option: the selected label truncates inside the shell. */
+export const LongOption: Story = {
+  render: (args) => (
+    <Box maxW="320px">
+      <Select {...args} defaultValue="everything">
+        {categoryOptions}
+        <option value="everything">
+          Anything around the house, garden or garage, including awkward jobs
+        </option>
+      </Select>
+    </Box>
+  ),
+}
+
+/** With end element: a custom icon replaces the default chevron. */
+export const WithEndElement: Story = {
+  render: (args) => (
+    <Select
+      {...args}
+      defaultValue="recommended"
+      endElement={<LuChevronsUpDown size={18} strokeWidth={2} />}
+    >
+      {sortOptions}
+    </Select>
   ),
 }
 

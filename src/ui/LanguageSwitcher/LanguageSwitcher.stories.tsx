@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import type { AppLocale } from '@/i18n/locales'
 
@@ -15,7 +16,7 @@ const meta = {
   },
   args: {
     locale: 'en' as AppLocale,
-    onSelect: () => undefined,
+    onSelect: fn(),
     open: false,
     onOpenChange: () => undefined,
   },
@@ -26,8 +27,14 @@ type Story = StoryObj<typeof meta>
 
 function ControlledSwitcher({
   initialOpen = false,
-}: { initialOpen?: boolean }) {
-  const [locale, setLocale] = useState<AppLocale>('en')
+  initialLocale = 'en',
+  onSelect,
+}: {
+  initialOpen?: boolean
+  initialLocale?: AppLocale
+  onSelect?: (locale: AppLocale) => void
+}) {
+  const [locale, setLocale] = useState<AppLocale>(initialLocale)
   const [open, setOpen] = useState(initialOpen)
   return (
     <>
@@ -36,7 +43,10 @@ function ControlledSwitcher({
       </Button>
       <LanguageSwitcher
         locale={locale}
-        onSelect={setLocale}
+        onSelect={(next) => {
+          setLocale(next)
+          onSelect?.(next)
+        }}
         open={open}
         onOpenChange={setOpen}
       />
@@ -46,10 +56,44 @@ function ControlledSwitcher({
 
 /** Closed until the account-menu entry (or this story control) opens it. */
 export const Default: Story = {
-  render: () => <ControlledSwitcher />,
+  render: (args) => <ControlledSwitcher onSelect={args.onSelect} />,
 }
 
 /** Full-page locale list. */
 export const Open: Story = {
-  render: () => <ControlledSwitcher initialOpen />,
+  render: (args) => <ControlledSwitcher initialOpen onSelect={args.onSelect} />,
+}
+
+/** Traditional Chinese active: its row is highlighted with the check mark. */
+export const ChineseSelected: Story = {
+  render: (args) => (
+    <ControlledSwitcher
+      initialOpen
+      initialLocale="zh-hk"
+      onSelect={args.onSelect}
+    />
+  ),
+}
+
+/** Phone: the list fills the narrow viewport. */
+export const Mobile: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: (args) => <ControlledSwitcher initialOpen onSelect={args.onSelect} />,
+}
+
+/** Picking a locale: choosing Traditional Chinese reports it and closes the list. */
+export const PicksLocale: Story = {
+  render: (args) => <ControlledSwitcher onSelect={args.onSelect} />,
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Open language' }),
+    )
+    const dialog = within(await body.findByRole('dialog', { name: 'Language' }))
+    await userEvent.click(dialog.getByRole('radio', { name: /繁體中文/ }))
+    await expect(args.onSelect).toHaveBeenCalledWith('zh-hk')
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull(), {
+      timeout: 3000,
+    })
+  },
 }

@@ -1,0 +1,313 @@
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client/core'
+import { ApolloProvider } from '@apollo/client/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
+import {
+  Currency,
+  LoginMethod,
+  UserLanguage,
+  WorkerSubscriptionStatus,
+} from '@codegen/schema'
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
+import { NEVER } from 'rxjs'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
+
+import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+
+import { FeedbackDialogProvider } from '../../FeedbackDialog/FeedbackDialogProvider'
+import { AccountMenu, type AccountMenuProps } from './AccountMenu'
+
+type Membership = NonNullable<MeSnapshot['worker']>['membership']
+
+/** Worker on the 6-month trial: unlimited quotes. */
+const trial: Membership = {
+  planName: 'Slashie Unlimited',
+  statusLabel: 'Trial',
+  statusDescription: 'Unlimited quotes until 9 Dec 2026',
+  subscriptionStatus: WorkerSubscriptionStatus.Trialing,
+  hasUnlimitedQuotes: true,
+  cancelAtPeriodEnd: false,
+  canceledAt: null,
+  freeQuotesPerMonth: 3,
+  quotesUsedThisMonth: 0,
+  quotesRemainingThisMonth: 3,
+  trialEndsAt: '2026-12-09T00:00:00.000Z',
+  currentPeriodEnd: '2026-12-09T00:00:00.000Z',
+  canStartTrial: false,
+  canManageBilling: true,
+  canUpgrade: false,
+}
+
+/** Worker on the free plan: capped quotes, upgrade offered. */
+const free: Membership = {
+  ...trial,
+  planName: 'Free',
+  statusLabel: 'Free',
+  statusDescription: null,
+  subscriptionStatus: WorkerSubscriptionStatus.None,
+  hasUnlimitedQuotes: false,
+  quotesUsedThisMonth: 2,
+  quotesRemainingThisMonth: 1,
+  trialEndsAt: null,
+  canManageBilling: false,
+  canUpgrade: true,
+}
+
+/** Fictional profile photo as a data URI, so stories never fetch remote images. */
+const PROFILE_PHOTO = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#e6e9f5"/><circle cx="60" cy="46" r="20" fill="#5b6bb5"/><path d="M20 112c4-26 22-36 40-36s36 10 40 36z" fill="#5b6bb5"/></svg>',
+)}`
+
+/** Signed-in fixture. A `null` membership means a customer with no worker profile. */
+function buildMe({
+  name = 'Sam Carter',
+  email = 'sam@example.com',
+  avatarUrl = null,
+  membership = trial,
+}: {
+  name?: string
+  email?: string
+  avatarUrl?: string | null
+  membership?: Membership | null
+} = {}): MeSnapshot {
+  return {
+    id: 'user-1',
+    email,
+    emailVerified: true,
+    phoneVerified: true,
+    phoneVerifiedAt: '2024-06-01T00:00:00.000Z',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    disabled: false,
+    enabledLoginMethods: [LoginMethod.Password],
+    profile: {
+      name,
+      contactNumber: '+447700900123',
+      avatarUrl,
+      dateOfBirth: '1990-01-01T00:00:00.000Z',
+      defaultPreferredContactMethod: null,
+      emailVerified: true,
+      phoneVerified: true,
+    },
+    settings: {
+      isProfilePrivate: false,
+      language: UserLanguage.En,
+      marketingEmails: false,
+    },
+    workerEligibility: membership !== null,
+    worker: membership && {
+      id: 'worker-1',
+      legalName: name,
+      bio: 'Handyman covering North London.',
+      tagline: 'Reliable local help',
+      yearsExperience: 8,
+      skills: ['Plumbing', 'Assembly'],
+      qualifications: [],
+      portfolioUrls: [],
+      preferredLocation: {
+        address: 'London',
+        lat: 51.5074,
+        lng: -0.1278,
+        name: 'London',
+      },
+      setupProgress: {
+        currentSubStep: 'review.submit',
+        completedSubSteps: ['review.submit'],
+        isComplete: true,
+      },
+      isVerified: true,
+      locationAddress: 'London',
+      locationLat: 51.5074,
+      locationLng: -0.1278,
+      membership,
+      earnings: { pending: { amount: 120, currency: Currency.Gbp } },
+    },
+  }
+}
+
+const meTrial = buildMe()
+const meFree = buildMe({ membership: free })
+const meCustomer = buildMe({ membership: null })
+const meWithPhoto = buildMe({ avatarUrl: PROFILE_PHOTO })
+const meLongText = buildMe({
+  name: 'Alexandria Montgomery-Featherstonehaugh',
+  email:
+    'alexandria.montgomery-featherstonehaugh@a-very-long-company-domain.example.com',
+})
+
+/** Seeds the auth store before the story renders (no live API is called). */
+const withMe =
+  (me: MeSnapshot): Decorator =>
+  (Story) => {
+    if (useUserStore.getState().me !== me) {
+      useUserStore.setState({
+        user: { id: me.id, email: me.email, createdAt: me.createdAt },
+        me,
+      })
+    }
+    return <Story />
+  }
+
+/** Story-only Apollo client: operations never resolve, so nothing reaches the live API. */
+const neverClient = new ApolloClient({
+  link: new ApolloLink(() => NEVER),
+  cache: new InMemoryCache(),
+})
+
+/** Right-aligned like the header toolbar. */
+function ClosedSlot(args: AccountMenuProps) {
+  return (
+    <Box display="flex" justifyContent="flex-end" p={6}>
+      <AccountMenu {...args} />
+    </Box>
+  )
+}
+
+/** Same slot with room below, so the open panel is not clipped. */
+function OpenSlot(args: AccountMenuProps) {
+  return (
+    <Box display="flex" justifyContent="flex-end" p={6} minH="1000px">
+      <AccountMenu {...args} />
+    </Box>
+  )
+}
+
+/**
+ * Opens the panel with a click. `initialOpen` is not used: the dropdown starts
+ * in its phone (drawer) mode, then closes itself once the desktop breakpoint
+ * resolves, so it never stays open on mount.
+ */
+async function openMenu(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement)
+  await userEvent.click(canvas.getByRole('button', { name: 'Account menu' }))
+  await waitFor(
+    () => expect(canvas.getByRole('button', { name: 'Log out' })).toBeVisible(),
+    { timeout: 3000 },
+  )
+  return canvas
+}
+
+const meta = {
+  title: 'Shell/Header/AccountMenu',
+  component: AccountMenu,
+  tags: ['autodocs'],
+  parameters: { layout: 'fullscreen' },
+  // `initialOpen` never stays open on desktop (see `openMenu`), so no control.
+  argTypes: { initialOpen: { control: false } },
+  args: { initialOpen: false },
+  decorators: [
+    (Story) => (
+      <ApolloProvider client={neverClient}>
+        <FeedbackDialogProvider onSubmit={async () => true}>
+          <Story />
+        </FeedbackDialogProvider>
+      </ApolloProvider>
+    ),
+  ],
+  render: (args) => <ClosedSlot {...args} />,
+} satisfies Meta<typeof AccountMenu>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+/** Closed: only the avatar button of a signed-in worker is shown. */
+export const Closed: Story = {
+  decorators: [withMe(meTrial)],
+}
+
+/** Open: the panel for a worker on trial (unlimited quotes, billing, all links). */
+export const Open: Story = {
+  decorators: [withMe(meTrial)],
+  render: (args) => <OpenSlot {...args} />,
+  play: async ({ canvasElement }) => {
+    await openMenu(canvasElement)
+  },
+}
+
+/** Open, free plan: the panel header shows the quote-usage meter and Upgrade. */
+export const OpenWorkerFreePlan: Story = {
+  decorators: [withMe(meFree)],
+  render: (args) => <OpenSlot {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = await openMenu(canvasElement)
+    await expect(canvas.getByText('Tasks quoted this month')).toBeVisible()
+  },
+}
+
+/** Open, customer: no worker profile, so the upsell card and "Become a worker" show. */
+export const OpenCustomer: Story = {
+  decorators: [withMe(meCustomer)],
+  render: (args) => <OpenSlot {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = await openMenu(canvasElement)
+    await expect(canvas.getByText('Post tasks for free')).toBeVisible()
+  },
+}
+
+/** Open, long text: a long name and email truncate inside the 300px panel. */
+export const OpenLongNameAndEmail: Story = {
+  decorators: [withMe(meLongText)],
+  render: (args) => <OpenSlot {...args} />,
+  play: async ({ canvasElement }) => {
+    await openMenu(canvasElement)
+  },
+}
+
+/** Profile photo: the avatar button shows the uploaded photo instead of the icon. */
+export const WithProfilePhoto: Story = {
+  decorators: [withMe(meWithPhoto)],
+}
+
+/** Language: the Language row closes the panel and opens the full-page locale list. */
+export const LanguageListOpen: Story = {
+  decorators: [withMe(meTrial)],
+  play: async ({ canvasElement }) => {
+    const canvas = await openMenu(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Language' }))
+    await waitFor(
+      () =>
+        expect(
+          within(canvasElement.ownerDocument.body).getByRole('dialog', {
+            name: 'Language',
+          }),
+        ).toBeVisible(),
+      { timeout: 3000 },
+    )
+  },
+}
+
+/** Feedback: the Send feedback row closes the panel and opens the feedback dialog. */
+export const FeedbackDialogOpen: Story = {
+  decorators: [withMe(meTrial)],
+  play: async ({ canvasElement }) => {
+    const canvas = await openMenu(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Send feedback' }))
+    await waitFor(
+      () =>
+        expect(
+          within(canvasElement.ownerDocument.body).getByRole('dialog', {
+            name: 'Send feedback',
+          }),
+        ).toBeVisible(),
+      { timeout: 3000 },
+    )
+  },
+}
+
+/** Phone: the desktop menu is hidden below `lg`; the bottom bar's Account drawer replaces it. */
+export const HiddenOnPhone: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  decorators: [withMe(meTrial)],
+  render: (args) => (
+    <Stack gap={3} p={4}>
+      <Text fontSize="sm" color="text.muted">
+        Below lg the account menu is not rendered. Phones use the Account item
+        in the bottom bar, which opens MobileNavDrawer.
+      </Text>
+      <AccountMenu {...args} />
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).queryByRole('button', { name: 'Account menu' }),
+    ).toBeNull()
+  },
+}

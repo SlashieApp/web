@@ -1,6 +1,7 @@
 import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, within } from 'storybook/test'
 
 import {
   RadioButton,
@@ -36,6 +37,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground driven by the Controls panel (variant, size, checked). */
 export const Playground: Story = {
   render: (args) => (
     <Box maxW="360px">
@@ -72,6 +74,7 @@ export const Sizes: Story = {
   ),
 }
 
+/** Default: an unselected primary row at the md size. */
 export const Default: Story = {
   args: { checked: false, label: 'Today' },
   render: (args) => (
@@ -81,6 +84,7 @@ export const Default: Story = {
   ),
 }
 
+/** Selected: success tint, green ink and the filled indicator dot. */
 export const Selected: Story = {
   args: { checked: true },
   render: (args) => (
@@ -90,6 +94,7 @@ export const Selected: Story = {
   ),
 }
 
+/** Disabled: dimmed and not clickable, shown unselected and selected. */
 export const Disabled: Story = {
   args: { disabled: true },
   render: (args) => (
@@ -100,7 +105,7 @@ export const Disabled: Story = {
   ),
 }
 
-/** Tab into the group to see the SDL focus ring on the focused row. */
+/** Focus: the first row starts focused, showing the SDL focus ring. */
 export const Focus: Story = {
   render: () => (
     <Stack gap={2} maxW="360px">
@@ -108,6 +113,11 @@ export const Focus: Story = {
       <RadioButton checked={false} label="…then to me" />
     </Stack>
   ),
+  play: async ({ canvasElement }) => {
+    const row = within(canvasElement).getByRole('button', { name: 'Tab to me' })
+    row.focus()
+    await expect(row).toHaveFocus()
+  },
 }
 
 /** A controlled exclusive group wrapped in a labelled radiogroup container. */
@@ -139,4 +149,44 @@ export const Group: Story = {
       </Stack>
     )
   },
+}
+
+const singleRow: Story['render'] = (args) => (
+  <Box maxW="360px">
+    <RadioButton {...args} />
+  </Box>
+)
+
+/** Subtle variant, unselected: transparent row on a neutral surface. */
+export const Subtle: Story = {
+  args: { variant: 'subtle', checked: false, label: 'Flexible' },
+  render: singleRow,
+}
+
+/** Subtle variant, selected: neutral tint with a dark indicator dot. */
+export const SubtleSelected: Story = {
+  args: { variant: 'subtle', checked: true, label: 'Flexible' },
+  render: singleRow,
+}
+
+/** Small size: 40px row for dense desktop lists. */
+export const SizeSmall: Story = {
+  args: { size: 'sm', checked: true, label: 'Today' },
+  render: singleRow,
+}
+
+/** Large size: 52px row with a bigger indicator and label. */
+export const SizeLarge: Story = {
+  args: { size: 'lg', checked: true, label: 'Today' },
+  render: singleRow,
+}
+
+/** Long label: wraps onto extra lines and the row grows with it. */
+export const LongLabel: Story = {
+  args: {
+    checked: false,
+    label:
+      'Any time that suits the worker over the next two weeks, as long as they message me an hour before arriving',
+  },
+  render: singleRow,
 }

@@ -15,13 +15,14 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Named boundary: renders its child as is (passes through outside Next). */
 export const Default: Story = {
-  args: {
-    name: 'task-card',
-    children: (
+  args: { name: 'task-card' },
+  render: (args) => (
+    <ViewTransition {...args}>
       <Box bg="bg.surface" p={4} borderRadius="lg" boxShadow="e2">
         <Text fontSize="sm">Named view-transition boundary</Text>
       </Box>
-    ),
-  },
+    </ViewTransition>
+  ),
 }

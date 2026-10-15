@@ -1,6 +1,7 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { Link } from '../Link/Link'
 import { ColorModeProvider } from '../color-mode'
 import { Logo, type UiLogoSize, type UiLogoVariant } from './Logo'
 
@@ -33,6 +34,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Playground: drive variant, size and interactive mode from Controls. */
 export const Playground: Story = {}
 
 /** Both artwork variants at the default size. */
@@ -67,20 +69,23 @@ export const Sizes: Story = {
   ),
 }
 
-/** Default presentational logo — no focus ring (a wrapping Link owns focus). */
+/** Small (`sm`): 20px tall on phones, 24px from `md` up. */
+export const Small: Story = { args: { size: 'sm' } }
+
+/** Large (`lg`): 32px tall on phones, 40px from `md` up. */
+export const Large: Story = { args: { size: 'lg' } }
+
+/** Default: presentational wordmark at `md`, no focus ring (a wrapping Link owns focus). */
 export const Default: Story = {
   args: { variant: 'wordmark' },
 }
 
-/** Compact mark for tight/mobile layouts. */
+/** Mark: the compact symbol for tight and mobile layouts. */
 export const Mark: Story = {
   args: { variant: 'mark' },
 }
 
-/**
- * Interactive logo control. Tab to it to see the SDL visible focus ring; the
- * touch target is >=44px and it carries an accessible label.
- */
+/** Interactive: Tab to see the focus ring; 44px touch target and an accessible label. */
 export const Interactive: Story = {
   args: {
     interactive: true,
@@ -89,7 +94,7 @@ export const Interactive: Story = {
   },
 }
 
-/** Focus state — rendered interactive so the SDL focus ring is reachable by keyboard. */
+/** Focus: rendered interactive so the SDL focus ring is reachable by keyboard. */
 export const Focus: Story = {
   args: {
     interactive: true,
@@ -98,10 +103,16 @@ export const Focus: Story = {
   parameters: { pseudo: { focusVisible: true } },
 }
 
-/**
- * Legacy `mobile` boolean still works as an alias for `variant="mark"` so existing
- * call sites keep rendering.
- */
+/** Legacy alias: `mobile` still maps to `variant="mark"` so old call sites render. */
 export const LegacyMobileAlias: Story = {
   args: { mobile: true },
+}
+
+/** Inside a link: the usual header usage, where the Link owns focus and navigation. */
+export const InsideLink: Story = {
+  render: (args) => (
+    <Link href="/" aria-label="Slashie home">
+      <Logo {...args} />
+    </Link>
+  ),
 }
