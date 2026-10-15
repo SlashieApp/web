@@ -1,4 +1,4 @@
-import type { PublicUserQuery } from '@codegen/schema'
+import type { PublicProfileQuery } from '@codegen/schema'
 
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 
@@ -6,12 +6,13 @@ import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { taskScheduleCompactLabel } from '@/app/(task)/helpers/taskBrowseHelpers'
 import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
-import type { AppLocale } from '@/i18n/locales'
 import { formatBudgetAmount } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
-export type PublicUserRecord = NonNullable<PublicUserQuery['user']>
-export type PublicUserOpenTask = PublicUserRecord['openTasks'][number]
+/** One open task on a public profile. */
+export type PublicUserOpenTask = NonNullable<
+  PublicProfileQuery['publicProfile']
+>['openTasks'][number]
 
 /** Public profile URL. `excludeTaskId` omits that task from the open-task list. */
 export function publicUserPath(
@@ -19,27 +20,6 @@ export function publicUserPath(
   excludeTaskId?: string | null,
 ): string {
   return publicProfilePath(userId, { excludeTaskId })
-}
-
-/** "June 2026" / "2026年6月" for the hero membership line. */
-export function formatPublicMemberSince(
-  value: unknown,
-  locale: AppLocale,
-): string | null {
-  if (!value) return null
-  const date = new Date(String(value))
-  if (Number.isNaN(date.getTime())) return null
-  return date.toLocaleDateString(locale === 'zh-hk' ? 'zh-HK' : 'en-GB', {
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
-export function publicUserDisplayName(
-  user: { profile?: { name?: string | null } | null },
-  fallback: string,
-): string {
-  return user.profile?.name?.trim() || fallback
 }
 
 /** Browse-card view model for one poster-owned open task. */
