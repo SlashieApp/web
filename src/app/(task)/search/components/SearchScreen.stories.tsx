@@ -50,7 +50,7 @@ async function expectShown(find: () => HTMLElement[]) {
 const desktop = { globals: { viewport: { value: 'desktop' } } } as const
 const phone = { globals: { viewport: { value: 'mobile1' } } } as const
 
-/** Desktop: the search panel lists tasks nearest first over the map. */
+/** Desktop: the search panel lists tasks nearest first, none selected until picked. */
 export const Desktop: Story = {
   ...desktop,
   decorators: [withTaskBrowseQuery()],
@@ -58,6 +58,14 @@ export const Desktop: Story = {
     const canvas = within(canvasElement)
     await canvas.findByRole('heading', { name: '5 tasks near London' })
     await expectShown(() => canvas.queryAllByText(storyBrowseTasks[0].title))
+    // The phone carousel stays mounted (hidden) on desktop and used to select
+    // its first card while setting up, a moment after the results showed.
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    await expect(
+      canvas.getByRole('button', {
+        name: `${storyBrowseTasks[0].title}. Select to highlight on map.`,
+      }),
+    ).not.toHaveAttribute('aria-current')
   },
 }
 
@@ -120,6 +128,12 @@ export const Mobile: Story = {
     const canvas = within(canvasElement)
     await expectShown(() => canvas.queryAllByText(storyBrowseTasks[0].title))
     await canvas.findByRole('textbox', { name: 'Search a task' })
+    // The centred card starts selected, so its pin is highlighted.
+    await expectShown(() =>
+      canvas
+        .queryAllByLabelText(`${storyBrowseTasks[0].title}. View task details.`)
+        .filter((el) => el.getAttribute('aria-current') === 'true'),
+    )
   },
 }
 

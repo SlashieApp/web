@@ -181,6 +181,9 @@ export function MobileCarousel<T extends { id: string }>({
 
   const syncSelectionFromCarousel = useCallback(() => {
     if (disabledRef.current) return
+    // Hidden by CSS (the phone layout stays mounted on desktop), Embla still
+    // reports snap 0: only a strip on screen may change the selection.
+    if (!viewportElRef.current?.getClientRects().length) return
     const live = emblaApiRef.current
     if (!live) return
     const idx = live.selectedScrollSnap()
