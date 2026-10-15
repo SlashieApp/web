@@ -192,6 +192,9 @@ export const apolloClient = new ApolloClient({
           },
         },
       },
+      // Profile has no id: combine partial loads (e.g. name + avatar) with the
+      // full one instead of replacing it, which dropped phone and date of birth.
+      Profile: { merge: true },
     },
   }),
 })
