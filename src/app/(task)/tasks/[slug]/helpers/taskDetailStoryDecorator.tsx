@@ -21,6 +21,12 @@ import {
   storyMe,
 } from './taskDetailStoryFixtures'
 
+// The real `getUser()` asks the live API (through the app Apollo client)
+// whenever an auth cookie exists, and a failed answer wipes the seeded `me`.
+// Test iframes share one cookie jar, so another story's token can reach a
+// render before the effect below stubs it: stub it at import instead.
+useUserStore.setState({ getUser: async () => useUserStore.getState().user })
+
 /**
  * Story-only Apollo client: all data comes from the seeded cache and network
  * requests never resolve. Using the real app client would hit the live API,

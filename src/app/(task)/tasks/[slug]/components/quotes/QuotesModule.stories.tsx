@@ -1,5 +1,6 @@
 import { QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { userEvent, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -149,7 +150,7 @@ export const W2NoWorkerProfile: Story = {
   decorators: [
     withTaskDetailStory(
       {
-        // storyMe('owner') identity, but the task belongs to someone else —
+        // storyMe('owner') identity, but the task belongs to someone else:
         // an authenticated customer without a worker profile.
         viewer: 'customer',
         task: storyTaskDetail({
@@ -248,4 +249,69 @@ export const W8WorkerTaskFull: Story = {
       SIDEBAR,
     ),
   ],
+}
+
+// ------------------------------------------------------------ accept flow
+
+/** The accept confirmation portals to the page, outside the story canvas. */
+const page = (canvasElement: HTMLElement) =>
+  within(canvasElement.ownerDocument.body)
+
+/** C2 · owner presses Accept: pick one of the worker's times, then confirm. */
+export const C2AcceptPickATime: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [competitorA, competitorB, competitorC],
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const [accept] = await within(canvasElement).findAllByRole('button', {
+      name: 'Accept',
+    })
+    await userEvent.click(accept)
+    const dialog = page(canvasElement)
+    await dialog.findByText('Pick a time')
+    await dialog.findByText('The time you pick becomes the booking.')
+  },
+}
+
+/** C2 · every time the worker offered has passed: the dialog says to ask again. */
+export const C2AcceptNoFutureTimes: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [
+            {
+              ...competitorA,
+              proposedSlots: [
+                {
+                  id: 'slot-past',
+                  start: '2020-01-01T09:00:00.000Z',
+                  end: null,
+                },
+              ],
+            },
+          ],
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const accept = await within(canvasElement).findByRole('button', {
+      name: 'Accept',
+    })
+    await userEvent.click(accept)
+    await page(canvasElement).findByText(
+      "All of this worker's times have passed. Ask them to send a new quote.",
+    )
+  },
 }

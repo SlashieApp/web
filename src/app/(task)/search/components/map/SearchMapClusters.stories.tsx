@@ -89,5 +89,11 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Watford–Bushey and London zoomed out; three Bushey tasks share one point. */
+/** Desktop: Watford–Bushey and London zoomed out; three Bushey tasks share one point. */
 export const WatfordAndLondon: Story = {}
+
+/** Phone: the same map; a same-spot cluster opens its list as a bottom sheet. */
+export const WatfordAndLondonPhone: Story = {
+  args: { isDesktop: false },
+  globals: { viewport: { value: 'mobile1' } },
+}

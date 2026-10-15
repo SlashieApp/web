@@ -1,19 +1,10 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
-import {
-  Currency,
-  OrderStatus,
-  QuoteStatus,
-  TaskDateTimeType,
-} from '@codegen/schema'
+import { storyQuoteRow } from '@/app/(dashboard)/quotes/components/workerQuoteStoryFixtures'
 
-import {
-  storyOrder,
-  storyQuote,
-  storyQuoteRow,
-  storyTask,
-} from '@/app/(dashboard)/quotes/components/workerQuoteStoryFixtures'
+import { withIdleApollo } from '../../helpers/taskBrowseStoryDecorator'
 
 import {
   TaskCard,
@@ -42,13 +33,13 @@ const defaultTask: TaskCardTask = {
   trust: { kind: 'verified' },
 }
 
-const listMeta = {
+const meta = {
   title: 'Tasks/TaskCard',
   component: TaskCard,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
+  parameters: { layout: 'padded' },
+  // The card's report control holds a mutation: keep it off the real API.
+  decorators: [withIdleApollo],
   args: {
     task: defaultTask,
     detailsHref: '/tasks/task-1',
@@ -60,28 +51,15 @@ const listMeta = {
   ),
 } satisfies Meta<TaskCardBrowseTaskProps>
 
-const workerQuoteMeta = {
-  title: 'task/TaskCard/WorkerQuote',
-  component: TaskCard,
-  tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-  render: (args: TaskCardWorkerQuoteProps) => (
-    <Box maxW="520px" w="full">
-      <TaskCard {...args} />
-    </Box>
-  ),
-} satisfies Meta<TaskCardWorkerQuoteProps>
+export default meta
 
-export default listMeta
+type Story = StoryObj<typeof meta>
 
-type ListStory = StoryObj<typeof listMeta>
-type WorkerQuoteStory = StoryObj<typeof workerQuoteMeta>
+/** Poster is verified: badge, budget, distance and timing, verified crumb. */
+export const Default: Story = {}
 
-export const Default: ListStory = {}
-
-export const Loading: ListStory = {
+/** Results loading: the card-shaped skeleton. */
+export const Loading: Story = {
   render: () => (
     <Box maxW="520px" w="full">
       <TaskCard loading />
@@ -89,7 +67,8 @@ export const Loading: ListStory = {
   ),
 }
 
-export const LongTitle: ListStory = {
+/** Long title: clamps to two lines. */
+export const LongTitle: Story = {
   args: {
     task: {
       ...defaultTask,
@@ -99,183 +78,122 @@ export const LongTitle: ListStory = {
   },
 }
 
-export const MissingBudget: ListStory = {
-  args: {
-    task: {
-      ...defaultTask,
-      priceLabel: '',
-    },
+/** No budget: the pound amount is left out of the meta line. */
+export const MissingBudget: Story = {
+  args: { task: { ...defaultTask, priceLabel: '' } },
+}
+
+/** No trust signal from the API: the crumb is omitted. */
+export const EmptyTrust: Story = {
+  args: { task: { ...defaultTask, trust: undefined } },
+}
+
+/** Poster has finished jobs but is not verified: the jobs-done crumb. */
+export const JobsDoneTrust: Story = {
+  args: { task: { ...defaultTask, trust: { kind: 'jobsDone', count: 12 } } },
+}
+
+/** No photo: the thumbnail falls back to its placeholder. */
+export const NoThumbnail: Story = {
+  args: { task: { ...defaultTask, thumbnailSrc: undefined } },
+}
+
+/** No category: the badge is left out and the title leads. */
+export const NoBadge: Story = {
+  args: { task: { ...defaultTask, badgeText: undefined } },
+}
+
+/** My tasks and worker lists: the quote count line under the meta row. */
+export const WithQuotesLabel: Story = {
+  args: { task: { ...defaultTask, quotesLabel: '5 quotes' } },
+}
+
+/** Role chips pinned to the top-right corner (Hosted, Quoted). */
+export const WithCornerTags: Story = {
+  args: { cornerTags: ['Hosted', 'Quoted'] },
+}
+
+/** Highlighted because its pin is selected on the map. */
+export const Active: Story = {
+  args: { isActive: true },
+}
+
+/** Bookmark button, not saved yet. */
+export const Bookmarkable: Story = {
+  args: { isSaved: false, onToggleSave: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('button', {
+        name: /Bookmark Mount a 55-inch TV/,
+      }),
+    )
+    await expect(args.onToggleSave).toHaveBeenCalledOnce()
   },
 }
 
-export const EmptyTrust: ListStory = {
-  args: {
-    task: {
-      ...defaultTask,
-      trust: undefined,
-    },
+/** Bookmarked: the button is filled and offers to remove it. */
+export const ListItemSaved: Story = {
+  args: { isSaved: true, onToggleSave: fn() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('button', { name: /Remove bookmark from/ })
   },
 }
 
-export const ListItemSaved: ListStory = {
-  args: {
-    isSaved: true,
-    onToggleSave: () => {},
-  },
-}
-
-export const ListItemExpanded: ListStory = {
+/** Selected row on desktop: taller card with the details arrow. */
+export const ListItemExpanded: Story = {
   args: {
     isActive: true,
     isExpanded: true,
     showDetailsCta: true,
     detailsCtaLabel: 'View task',
   },
-  parameters: {
-    viewport: { defaultViewport: 'desktop' },
+}
+
+/** A list row: the whole card is a button that selects the task on the map. */
+export const ActivatableRow: Story = {
+  args: { onActivate: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('button', { name: /Select to highlight on map/ }),
+    )
+    await expect(args.onActivate).toHaveBeenCalledOnce()
   },
 }
 
-export const WorkerQuotePendingCollapsed: WorkerQuoteStory = {
+/** Mobile carousel card: a plain surface that lets horizontal swipes through. */
+export const CarouselCard: Story = {
   args: {
-    variant: 'workerQuote',
-    ...storyQuoteRow({
-      quote: storyQuote({ status: 'PENDING' }),
-      workerOrder: null,
-    }),
+    activateMode: 'gesture',
+    activateCursor: 'grab',
+    activateAriaLabel: 'Mount a 55-inch TV. View task details.',
+    onActivate: fn(),
   },
 }
 
-export const WorkerQuotePendingExpanded: WorkerQuoteStory = {
-  args: {
-    ...WorkerQuotePendingCollapsed.args,
-    initialExpanded: true,
-  },
+/** Old flat props (title, price, meta line) still render the same card. */
+export const LegacyFlatProps: Story = {
+  render: () => (
+    <Box maxW="520px" w="full">
+      <TaskCard
+        title="Fix a leaking kitchen tap"
+        description="Tap drips into the cabinet."
+        priceLabel="£80"
+        metaLine="Islington"
+        badgeText="Handyman"
+        detailsHref="/tasks/task-9"
+      />
+    </Box>
+  ),
 }
 
-export const WorkerQuotePendingNoMessage: WorkerQuoteStory = {
-  args: {
-    variant: 'workerQuote',
-    ...storyQuoteRow({
-      quote: storyQuote({ status: 'PENDING', message: null }),
-      workerOrder: null,
-    }),
-  },
-}
-
-export const WorkerQuotePendingNoThumbnail: WorkerQuoteStory = {
-  args: {
-    variant: 'workerQuote',
-    ...storyQuoteRow({
-      task: storyTask({ images: [] }),
-      quote: storyQuote({ status: 'PENDING' }),
-      workerOrder: null,
-    }),
-  },
-}
-
-export const WorkerQuoteBookedActiveJob: WorkerQuoteStory = {
-  args: {
-    variant: 'workerQuote',
-    ...storyQuoteRow({
-      task: storyTask({
-        title: 'Fix leaking tap',
-        categories: ['PLUMBING'],
-        datetime: {
-          date: '2026-06-21',
-          time: '14:00',
-          type: TaskDateTimeType.Exact,
-        },
-        location: {
-          lat: 51.5014,
-          lng: -0.1419,
-          name: 'Westminster',
-          address: null,
-        },
-      }),
-      quote: storyQuote({
-        status: 'ACCEPTED',
-        price: { amount: 95, currency: Currency.Gbp },
-        message:
-          "Hi! I can fix the tap and check for any leaks. I'll bring all tools and parts.",
-        createdAt: '2026-06-20T10:00:00.000Z',
-      }),
-      workerOrder: storyOrder({
-        status: OrderStatus.Active,
-        createdAt: '2026-06-20T14:00:00.000Z',
-        agreedPrice: { amount: 95, currency: Currency.Gbp },
-      }),
-    }),
-  },
-}
-
-export const WorkerQuoteBookedActiveJobExpanded: WorkerQuoteStory = {
-  args: {
-    ...WorkerQuoteBookedActiveJob.args,
-    initialExpanded: true,
-  },
-}
-
-export const WorkerQuoteCompletedOrder: WorkerQuoteStory = {
-  args: {
-    variant: 'workerQuote',
-    ...storyQuoteRow({
-      quote: storyQuote({ status: 'ACCEPTED' }),
-      workerOrder: storyOrder({
-        status: OrderStatus.Completed,
-        closedAt: '2026-05-20T16:00:00.000Z',
-      }),
-    }),
-  },
-}
-
-export const WorkerQuoteCompletedOrderExpanded: WorkerQuoteStory = {
-  args: {
-    ...WorkerQuoteCompletedOrder.args,
-    initialExpanded: true,
-  },
-}
-
-export const WorkerQuoteEndedDeclined: WorkerQuoteStory = {
-  args: {
-    variant: 'workerQuote',
-    ...storyQuoteRow({
-      quote: storyQuote({ status: 'DECLINED' }),
-      workerOrder: null,
-    }),
-  },
-}
-
-export const WorkerQuoteEndedAnotherWorkerBooked: WorkerQuoteStory = {
-  args: {
-    variant: 'workerQuote',
-    ...storyQuoteRow({
-      task: storyTask({
-        quotes: [
-          {
-            id: 'quote-other',
-            taskId: 'task-story-1',
-            workerUserId: 'worker-other',
-            price: { amount: 90, currency: Currency.Gbp },
-            message: null,
-            status: QuoteStatus.Accepted,
-            createdAt: '2026-05-30T10:00:00.000Z',
-          },
-        ],
-      }),
-      quote: storyQuote({ status: 'PENDING' }),
-      workerOrder: null,
-    }),
-  },
-}
-
-export const WorkerQuoteEndedTaskCancelled: WorkerQuoteStory = {
-  args: {
-    variant: 'workerQuote',
-    ...storyQuoteRow({
-      task: storyTask({ status: 'CANCELLED' }),
-      quote: storyQuote({ status: 'PENDING' }),
-      workerOrder: null,
-    }),
-  },
+/** `variant="workerQuote"` hands over to the worker quote card. */
+export const WorkerQuoteVariant: Story = {
+  render: () => (
+    <Box maxW="520px" w="full">
+      <TaskCard variant="workerQuote" {...storyQuoteRow()} />
+    </Box>
+  ),
 }

@@ -1,6 +1,7 @@
 import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 import type { MyTaskHubSection } from '../../helpers/myTasksHub'
 import { buildAchievementPanels } from '../../helpers/taskAchievements'
@@ -107,6 +108,7 @@ const sections: MyTaskHubSection[] = [
   },
 ]
 
+/** The hub's sections (Open, Booked, Completed) with a card per task. */
 const meta = {
   title: 'My tasks/MyTasksList',
   component: MyTasksList,
@@ -114,28 +116,89 @@ const meta = {
   parameters: { layout: 'padded' },
   args: {
     sections,
-    onOpen: () => undefined,
+    onOpen: fn(),
   },
+  decorators: [
+    (Story) => (
+      <div style={{ maxWidth: '720px' }}>
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof MyTasksList>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+/** Three sections of tasks you posted or quoted; pressing a card opens it. */
+export const Default: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Open (3)' })
+    await canvas.findByRole('heading', { name: 'Booked / In progress (1)' })
+    await canvas.findByRole('heading', { name: 'Completed (1)' })
+    await userEvent.click(
+      await canvas.findByRole('button', { name: /Weekend dog walk/ }),
+    )
+    await expect(args.onOpen).toHaveBeenCalledWith('booked')
+  },
+}
 
+/** Only one section has tasks: the others are left out. */
+export const OneSection: Story = {
+  args: { sections: sections.filter((section) => section.id === 'open') },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Open (3)' })
+    expect(canvas.queryByRole('heading', { name: /Completed/ })).toBeNull()
+  },
+}
+
+/** First load: skeleton cards. */
 export const Loading: Story = {
   args: { sections: [], loading: true },
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText('Loading your tasks…')
+  },
 }
 
+/** No tasks at all: Post a task or Browse tasks. */
 export const Empty: Story = {
   args: { sections: [] },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: 'Post a task' })
+    await canvas.findByRole('link', { name: 'Browse tasks' })
+  },
 }
 
+/** The load failed and there is nothing to show: message and Try again. */
 export const LoadError: Story = {
   args: {
     sections: [],
     errorMessage: 'Could not load your tasks.',
-    onRetry: () => undefined,
+    onRetry: fn(),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Try again' }),
+    )
+    await expect(args.onRetry).toHaveBeenCalledOnce()
+  },
+}
+
+/** A refresh failed but earlier tasks are still shown: an inline notice above them. */
+export const RefreshFailed: Story = {
+  args: {
+    errorMessage: 'Could not refresh your tasks.',
+    onRetry: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('alert')
+    await canvas.findByRole('button', { name: 'Try again' })
+    await canvas.findByRole('heading', { name: 'Open (3)' })
   },
 }
 
@@ -218,6 +281,7 @@ function HubPreview() {
   )
 }
 
+/** The whole hub on desktop: header, filters, list column and the activity rail. */
 export const Hub: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => <HubPreview />,
