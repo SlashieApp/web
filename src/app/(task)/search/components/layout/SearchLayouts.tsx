@@ -8,8 +8,10 @@ import {
   PAGE_GUTTER_X,
   SEARCH_LIST_COLUMN_W,
 } from '@/theme/pageContainer'
+import { sdlMotion } from '@/theme/styles'
 import { Logo } from '@ui'
 
+import { useMarketplaceMapState } from '../../../context/MarketplaceMapSession'
 import { useTaskBrowseData } from '../../../context/TaskBrowseProvider'
 import { SEARCH_BOTTOM_CHROME_VAR } from '../../../helpers/marketplaceMap/overlay/config'
 import searchBag from '../../i11n.json'
@@ -110,10 +112,26 @@ function trackBottomChrome(node: HTMLDivElement | null) {
   }
 }
 
+/**
+ * FE-208 logo motion: fades up and out once a task starts opening (the map
+ * session's `prepareDetail` runs before the route changes, so it plays while
+ * task detail loads), and fades down and in whenever search mounts.
+ */
+const SEARCH_LOGO_MOTION_CSS = {
+  transitionProperty: 'opacity, transform',
+  transitionDuration: sdlMotion.duration.moderate,
+  transitionTimingFunction: sdlMotion.easing.standard,
+  '@starting-style': { opacity: 0, transform: 'translateY(-16px)' },
+  '&[data-leaving]': { opacity: 0, transform: 'translateY(-16px)' },
+  '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
+} as const
+
 export function MobileSearchLayout() {
   const touchPhone = useIsTouchMobileDevice()
   const t = useI11n(searchBag)
   const { retryTasks } = useTaskBrowseData()
+  // SearchMapLayer clears a leftover focus before first paint on Back.
+  const leavingForTask = useMarketplaceMapState().focusTaskId != null
 
   return (
     <Box
@@ -147,8 +165,14 @@ export function MobileSearchLayout() {
             justifyContent="center"
           >
             {/* Tapping the brand refreshes the results (it doesn't navigate).
-                The chrome is click-through for the map; only the logo isn't. */}
-            <Box pointerEvents="auto" display="inline-flex">
+                The chrome is click-through for the map; only the logo isn't.
+                Opening a task fades it up and out; search fades it back in. */}
+            <Box
+              pointerEvents={leavingForTask ? 'none' : 'auto'}
+              display="inline-flex"
+              data-leaving={leavingForTask || undefined}
+              css={SEARCH_LOGO_MOTION_CSS}
+            >
               <Logo
                 h={`${SEARCH_LOGO_PX}px`}
                 label={t.refreshLabel}

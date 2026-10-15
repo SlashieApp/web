@@ -98,6 +98,23 @@ describe('resolveMarketplaceMapLayer', () => {
     expect(resolved?.leftViewportPadding).toBe(0)
   })
 
+  it('drops the search logo / bar space for map controls on task detail (FE-208)', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      published: {
+        ...browseLayer,
+        props: {
+          ...browseProps,
+          compactCtrlTopOffset: '50px',
+          touchCtrlTopOffset: '134px',
+        },
+      },
+      focusTaskId: 'task-1',
+      viewport: 'mobile',
+    })
+    expect(resolved?.compactCtrlTopOffset).toBeUndefined()
+    expect(resolved?.touchCtrlTopOffset).toBeUndefined()
+  })
+
   it('does not solo the browse layer on a search→detail handoff', () => {
     const resolved = resolveMarketplaceMapLayer({
       published: browseLayer,

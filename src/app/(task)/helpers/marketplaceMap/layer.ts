@@ -60,6 +60,10 @@ export function resolveMarketplaceMapLayer(input: {
       taskPinMode: 'all',
       mapInteractions: false,
       leftViewportPadding: 0,
+      // Task detail has no search logo or bar over the map: controls go back
+      // to the top instead of keeping search's space for them.
+      compactCtrlTopOffset: undefined,
+      touchCtrlTopOffset: undefined,
       onSearchThisAreaConfirm: undefined,
       onSelectTask: undefined,
     }
