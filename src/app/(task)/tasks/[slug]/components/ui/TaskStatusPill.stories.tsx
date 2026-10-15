@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskStatusPill } from './TaskStatusPill'
 
 const meta: Meta<typeof TaskStatusPill> = {
-  title: 'task/tasks/ui/TaskStatusPill',
+  title: 'Task detail/Parts/TaskStatusPill',
   component: TaskStatusPill,
   parameters: {
     layout: 'padded',

@@ -36,7 +36,7 @@ function SceneFrame({
 }
 
 const meta = {
-  title: 'marketing/landing/LandingScene',
+  title: 'Marketing/Landing/LandingScene',
   component: SceneFrame,
   parameters: { layout: 'fullscreen' },
   args: { stage: 'hero', compact: false },

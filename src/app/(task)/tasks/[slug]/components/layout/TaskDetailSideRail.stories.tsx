@@ -4,7 +4,7 @@ import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { TaskDetailSideRail } from './TaskDetailSideRail'
 
 const meta: Meta<typeof TaskDetailSideRail> = {
-  title: 'task/tasks/layout/TaskDetailSideRail',
+  title: 'Task detail/Layout/TaskDetailSideRail',
   component: TaskDetailSideRail,
   decorators: [withTaskDetailStory({ viewer: 'owner' })],
   parameters: {

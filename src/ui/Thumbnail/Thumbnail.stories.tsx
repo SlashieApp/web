@@ -7,7 +7,7 @@ const PHOTO =
   'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=600&fit=crop'
 
 const meta = {
-  title: 'ui/Thumbnail',
+  title: 'UI/Thumbnail',
   component: Thumbnail,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

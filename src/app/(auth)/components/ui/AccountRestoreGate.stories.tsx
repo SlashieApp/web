@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { AccountRestoreScreen } from './AccountRestoreGate'
 
 const meta = {
-  title: 'auth/AccountRestoreScreen',
+  title: 'Auth/AccountRestoreGate',
   component: AccountRestoreScreen,
   parameters: { layout: 'fullscreen' },
   args: { scheduledFor: '2026-11-12T10:00:00.000Z' },

@@ -28,7 +28,7 @@ const thread: ThreadFieldsFragment = {
  * render here; its rules are covered by `threadMenuActions` tests.
  */
 const meta = {
-  title: 'messages/ThreadHeader',
+  title: 'Messages/ThreadHeader',
   component: ThreadHeader,
   args: { thread, onToggleBlock: () => {} },
   parameters: { layout: 'fullscreen' },

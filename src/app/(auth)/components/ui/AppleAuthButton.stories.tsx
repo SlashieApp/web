@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { AppleSignInButton } from './AppleAuthButton'
 
 const meta: Meta<typeof AppleSignInButton> = {
-  title: 'auth/ui/AppleAuthButton',
+  title: 'Auth/AppleAuthButton',
   component: AppleSignInButton,
   parameters: { layout: 'padded' },
   args: { label: 'Continue with Apple', onClick: () => {} },

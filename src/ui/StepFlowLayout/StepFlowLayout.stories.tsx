@@ -15,7 +15,7 @@ import { StepFlowLayout, StepFlowProgress } from './StepFlowLayout'
  * state/validation stay in each flow — the layout owns structure only.
  */
 const meta = {
-  title: 'ui/StepFlowLayout',
+  title: 'UI/StepFlowLayout',
   component: StepFlowLayout,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

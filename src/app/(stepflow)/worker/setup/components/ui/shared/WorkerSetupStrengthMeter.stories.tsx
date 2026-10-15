@@ -25,7 +25,7 @@ const completeForm = form({
 })
 
 const meta = {
-  title: 'stepflow/worker/setup/ui/shared/WorkerSetupStrengthMeter',
+  title: 'Worker setup/WorkerSetupStrengthMeter',
   component: WorkerSetupStrengthMeter,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

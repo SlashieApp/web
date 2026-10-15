@@ -15,7 +15,7 @@ function ControlledComposer(
 }
 
 const meta = {
-  title: 'stepflow/worker/setup/ui/inputs/WorkerSetupBioComposer',
+  title: 'Worker setup/WorkerSetupBioComposer',
   component: WorkerSetupBioComposer,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

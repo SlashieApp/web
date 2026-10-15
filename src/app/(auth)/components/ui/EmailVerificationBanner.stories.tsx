@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { EmailVerificationBanner } from './EmailVerificationBanner'
 
 const meta: Meta<typeof EmailVerificationBanner> = {
-  title: 'auth/ui/EmailVerificationBanner',
+  title: 'Auth/EmailVerificationBanner',
   component: EmailVerificationBanner,
   parameters: {
     layout: 'padded',

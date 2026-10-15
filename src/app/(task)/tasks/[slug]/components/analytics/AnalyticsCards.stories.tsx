@@ -5,7 +5,7 @@ import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { AnalyticsCards, TaskAnalyticsTrigger } from './AnalyticsCards'
 
 const meta: Meta<typeof AnalyticsCards> = {
-  title: 'task/tasks/analytics/AnalyticsCards',
+  title: 'Task detail/Analytics/AnalyticsCards',
   component: AnalyticsCards,
   decorators: [withTaskDetailStory({ viewer: 'owner' })],
   parameters: {

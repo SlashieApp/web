@@ -148,7 +148,7 @@ function seedForMode(mode: HeaderMode) {
 }
 
 const meta = {
-  title: 'ui/Header',
+  title: 'Shell/Header',
   component: Header,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

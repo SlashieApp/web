@@ -17,7 +17,7 @@ function ControlledTiles(
 }
 
 const meta = {
-  title: 'stepflow/worker/setup/ui/inputs/WorkerSetupCategoryTiles',
+  title: 'Worker setup/WorkerSetupCategoryTiles',
   component: WorkerSetupCategoryTiles,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

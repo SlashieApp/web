@@ -4,7 +4,7 @@ import { Button } from '../Button/Button'
 import { ReviewForm } from './ReviewForm'
 
 const meta = {
-  title: 'ui/ReviewForm',
+  title: 'UI/ReviewForm',
   component: ReviewForm,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

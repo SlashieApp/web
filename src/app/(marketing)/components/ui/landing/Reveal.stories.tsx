@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { Reveal } from './Reveal'
 
 const meta: Meta<typeof Reveal> = {
-  title: 'marketing/ui/landing/Reveal',
+  title: 'Marketing/Landing/Reveal',
   component: Reveal,
   parameters: {
     layout: 'padded',

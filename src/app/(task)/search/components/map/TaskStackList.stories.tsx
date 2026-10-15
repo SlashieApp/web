@@ -25,7 +25,7 @@ const tasks: TaskMapTask[] = [
 ]
 
 const meta = {
-  title: 'search/map/TaskStackList',
+  title: 'Search/TaskStackList',
   component: TaskStackList,
   parameters: { layout: 'fullscreen' },
   args: {

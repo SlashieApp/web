@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { ViewTransition } from './ViewTransition'
 
 const meta = {
-  title: 'ui/ViewTransition',
+  title: 'UI/ViewTransition',
   component: ViewTransition,
   tags: ['autodocs'],
   parameters: {

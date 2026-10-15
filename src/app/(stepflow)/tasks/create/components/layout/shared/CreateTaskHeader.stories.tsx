@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { CreateTaskHeader } from './CreateTaskHeader'
 
 const meta: Meta<typeof CreateTaskHeader> = {
-  title: 'stepflow/tasks/create/layout/shared/CreateTaskHeader',
+  title: 'Create task/CreateTaskHeader',
   component: CreateTaskHeader,
   parameters: {
     layout: 'padded',

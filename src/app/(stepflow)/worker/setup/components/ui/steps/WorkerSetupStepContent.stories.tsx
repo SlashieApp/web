@@ -4,7 +4,7 @@ import { withWorkerSetup } from '../../workerSetupStoryFixtures'
 import { WorkerSetupStepContent } from './WorkerSetupStepContent'
 
 const meta: Meta<typeof WorkerSetupStepContent> = {
-  title: 'stepflow/worker/setup/ui/steps/WorkerSetupStepContent',
+  title: 'Worker setup/WorkerSetupStepContent',
   component: WorkerSetupStepContent,
   parameters: {
     layout: 'padded',

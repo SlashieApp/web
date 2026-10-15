@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
 
 const meta: Meta<typeof TaskCardWorkerQuote> = {
-  title: 'task/ui/TaskCardWorkerQuote',
+  title: 'Tasks/TaskCardWorkerQuote',
   component: TaskCardWorkerQuote,
   parameters: {
     layout: 'padded',

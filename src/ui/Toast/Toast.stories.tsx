@@ -52,7 +52,7 @@ function fire(type: UiToastType) {
 }
 
 const meta = {
-  title: 'ui/Toast',
+  title: 'UI/Toast',
   component: Toast,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { DashboardStatTiles } from './DashboardStatTiles'
 
 const meta: Meta<typeof DashboardStatTiles> = {
-  title: 'dashboard/dashboard/ui/DashboardStatTiles',
+  title: 'Dashboard/Home/DashboardStatTiles',
   component: DashboardStatTiles,
   parameters: {
     layout: 'padded',

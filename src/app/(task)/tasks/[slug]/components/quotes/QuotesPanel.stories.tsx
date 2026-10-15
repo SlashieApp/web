@@ -5,7 +5,7 @@ import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { QuotesPanel } from './QuotesPanel'
 
 const meta: Meta<typeof QuotesPanel> = {
-  title: 'task/tasks/quotes/QuotesPanel',
+  title: 'Task detail/Quotes/QuotesPanel',
   component: QuotesPanel,
   parameters: {
     layout: 'padded',

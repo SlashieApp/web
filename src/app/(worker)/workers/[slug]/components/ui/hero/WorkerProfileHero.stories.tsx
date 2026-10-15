@@ -10,7 +10,7 @@ import { workerProfileFixture } from '../shared/workerProfileStoryFixtures'
 import { WorkerProfileHero } from './WorkerProfileHero'
 
 const meta = {
-  title: 'worker/workers/ui/hero/WorkerProfileHero',
+  title: 'Worker profile/WorkerProfileHero',
   component: WorkerProfileHero,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

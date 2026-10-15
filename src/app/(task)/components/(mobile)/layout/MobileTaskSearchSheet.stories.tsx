@@ -7,7 +7,7 @@ import { TaskTag } from '../../ui/TaskTag'
 import { MobileTaskSearchSheet } from './MobileTaskSearchSheet'
 
 const meta: Meta = {
-  title: 'task/mobile/MobileTaskSearchSheet',
+  title: 'Tasks/MobileTaskSearchSheet',
   parameters: { layout: 'padded', viewport: { defaultViewport: 'mobile1' } },
   render: () => (
     // No map in the story, so results stay in their loading skeleton.

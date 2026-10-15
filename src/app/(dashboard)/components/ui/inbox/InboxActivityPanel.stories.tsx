@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { InboxActivityPanel } from './InboxActivityPanel'
 
 const meta: Meta<typeof InboxActivityPanel> = {
-  title: 'dashboard/ui/inbox/InboxActivityPanel',
+  title: 'Dashboard/Shared/InboxActivityPanel',
   component: InboxActivityPanel,
   parameters: {
     layout: 'padded',

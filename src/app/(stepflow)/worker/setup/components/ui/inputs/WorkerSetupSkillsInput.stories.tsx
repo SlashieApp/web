@@ -17,7 +17,7 @@ function ControlledSkillsInput(
 }
 
 const meta = {
-  title: 'stepflow/worker/setup/ui/inputs/WorkerSetupSkillsInput',
+  title: 'Worker setup/WorkerSetupSkillsInput',
   component: WorkerSetupSkillsInput,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { EditTaskHelpCard } from './EditTaskHelpCard'
 
 const meta: Meta<typeof EditTaskHelpCard> = {
-  title: 'task/tasks/edit/ui/EditTaskHelpCard',
+  title: 'Edit task/EditTaskHelpCard',
   component: EditTaskHelpCard,
   parameters: { layout: 'padded' },
   decorators: [

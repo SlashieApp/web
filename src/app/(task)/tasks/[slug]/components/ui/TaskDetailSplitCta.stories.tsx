@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskDetailSplitCta } from './TaskDetailSplitCta'
 
 const meta: Meta<typeof TaskDetailSplitCta> = {
-  title: 'task/tasks/ui/TaskDetailSplitCta',
+  title: 'Task detail/Parts/TaskDetailSplitCta',
   component: TaskDetailSplitCta,
   parameters: { layout: 'padded' },
   args: {

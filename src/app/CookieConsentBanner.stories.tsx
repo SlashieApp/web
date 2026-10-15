@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { CookieConsentBanner } from './CookieConsentBanner'
 
 const meta: Meta<typeof CookieConsentBanner> = {
-  title: 'app/CookieConsentBanner',
+  title: 'Shell/CookieConsentBanner',
   component: CookieConsentBanner,
   parameters: {
     layout: 'padded',

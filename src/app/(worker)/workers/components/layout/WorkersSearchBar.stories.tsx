@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WorkersSearchBar } from './WorkersSearchBar'
 
 const meta: Meta<typeof WorkersSearchBar> = {
-  title: 'worker/workers/layout/WorkersSearchBar',
+  title: 'Workers/WorkersSearchBar',
   component: WorkersSearchBar,
   parameters: {
     layout: 'padded',

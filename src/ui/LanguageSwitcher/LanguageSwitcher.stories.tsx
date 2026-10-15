@@ -7,7 +7,7 @@ import { Button } from '../Button/Button'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 const meta = {
-  title: 'ui/LanguageSwitcher',
+  title: 'UI/LanguageSwitcher',
   component: LanguageSwitcher,
   tags: ['autodocs'],
   parameters: {

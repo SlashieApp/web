@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { MembershipStatusDetail } from './MembershipStatusDetail'
 
 const meta: Meta<typeof MembershipStatusDetail> = {
-  title: 'dashboard/ui/membership/MembershipStatusDetail',
+  title: 'Dashboard/Shared/MembershipStatusDetail',
   component: MembershipStatusDetail,
   parameters: {
     layout: 'padded',

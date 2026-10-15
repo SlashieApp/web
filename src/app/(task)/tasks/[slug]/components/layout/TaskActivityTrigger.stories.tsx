@@ -4,7 +4,7 @@ import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { TaskActivityTrigger } from './TaskActivityTrigger'
 
 const meta: Meta<typeof TaskActivityTrigger> = {
-  title: 'task/tasks/layout/TaskActivityTrigger',
+  title: 'Task detail/Layout/TaskActivityTrigger',
   component: TaskActivityTrigger,
   decorators: [withTaskDetailStory({ viewer: 'owner' })],
   parameters: {

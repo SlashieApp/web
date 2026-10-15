@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskReviewStep } from './TaskReviewStep'
 
 const meta = {
-  title: 'task/tasks/review/TaskReviewStep',
+  title: 'Review flow/TaskReviewStep',
   component: TaskReviewStep,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

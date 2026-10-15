@@ -12,7 +12,7 @@ const FAMILIES: UiBadgeVariant[] = [
 ]
 
 const meta = {
-  title: 'ui/Badge',
+  title: 'UI/Badge',
   component: Badge,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

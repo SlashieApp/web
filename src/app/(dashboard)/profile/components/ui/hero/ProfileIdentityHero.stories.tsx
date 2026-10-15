@@ -16,7 +16,7 @@ function Hero({ worker }: { worker: boolean }) {
 }
 
 const meta = {
-  title: 'dashboard/profile/ui/hero/ProfileIdentityHero',
+  title: 'Dashboard/Profile/ProfileIdentityHero',
   component: Hero,
   parameters: { layout: 'padded' },
   args: { worker: false },

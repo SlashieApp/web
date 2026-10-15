@@ -104,7 +104,7 @@ function CreateTaskMapDemo({
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
 const meta = {
-  title: 'stepflow/tasks/create/layout/shared/CreateTaskMapLayout',
+  title: 'Create task/CreateTaskMapLayout',
   component: CreateTaskMapDemo,
   parameters: { layout: 'fullscreen' },
   args: {

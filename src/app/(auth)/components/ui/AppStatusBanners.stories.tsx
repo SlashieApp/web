@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { AppStatusBanners } from './AppStatusBanners'
 
 const meta: Meta<typeof AppStatusBanners> = {
-  title: 'auth/ui/AppStatusBanners',
+  title: 'Auth/AppStatusBanners',
   component: AppStatusBanners,
   parameters: {
     layout: 'padded',

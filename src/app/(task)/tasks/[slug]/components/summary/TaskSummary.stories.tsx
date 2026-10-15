@@ -53,7 +53,7 @@ function SummaryScene() {
  * can render the guest view on first load; reload the frame.
  */
 const meta: Meta<typeof TaskSummary> = {
-  title: 'task/tasks/summary/TaskSummary',
+  title: 'Task detail/Summary/TaskSummary',
   component: TaskSummary,
   render: () => <SummaryScene />,
   parameters: { layout: 'padded' },

@@ -13,7 +13,7 @@ import { MOBILE_BOTTOM_NAV_CLEARANCE } from './mobileBottomNavLayout'
  * Scroll the sample cards to see the fade dissolve content behind the pill.
  */
 const meta = {
-  title: 'ui/MobileBottomNav',
+  title: 'Shell/MobileBottomNav',
   component: MobileBottomNav,
   tags: ['autodocs'],
   parameters: {

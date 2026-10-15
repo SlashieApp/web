@@ -80,7 +80,7 @@ function ClusterMap({ isDesktop }: { isDesktop: boolean }) {
 }
 
 const meta = {
-  title: 'search/map/Clusters',
+  title: 'Search/SearchMapClusters',
   component: ClusterMap,
   parameters: { layout: 'fullscreen' },
   args: { isDesktop: true },

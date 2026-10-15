@@ -5,7 +5,7 @@ import { WorkerProfileAddPlaceholder } from '../shared/WorkerProfileAddPlacehold
 import { WorkerProfileOwnerBanner } from './WorkerProfileOwnerBanner'
 
 const meta = {
-  title: 'worker/workers/ui/hero/WorkerProfileOwnerBanner',
+  title: 'Worker profile/WorkerProfileOwnerBanner',
   component: WorkerProfileOwnerBanner,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

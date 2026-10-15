@@ -52,7 +52,7 @@ function DemoCarousel() {
 // `component` omitted: MobileCarousel is generic with a required render
 // prop, so these are render-only stories.
 const meta = {
-  title: 'ui/MobileCarousel',
+  title: 'UI/MobileCarousel',
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
 } satisfies Meta

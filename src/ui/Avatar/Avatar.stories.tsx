@@ -9,7 +9,7 @@ const workerSrc =
   'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=128&h=128&fit=crop'
 
 const meta = {
-  title: 'ui/Avatar',
+  title: 'UI/Avatar',
   component: Avatar,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

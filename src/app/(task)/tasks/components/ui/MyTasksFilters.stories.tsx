@@ -48,7 +48,7 @@ function FiltersDemo({
 }
 
 const meta = {
-  title: 'task/tasks/ui/MyTasksFilters',
+  title: 'My tasks/MyTasksFilters',
   component: MyTasksFilters,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

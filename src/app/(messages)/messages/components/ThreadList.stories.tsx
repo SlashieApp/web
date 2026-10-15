@@ -6,7 +6,7 @@ import { ThreadList } from './ThreadList'
 import { messagesValue } from './messagesStoryFixtures'
 
 const meta = {
-  title: 'messages/ThreadList',
+  title: 'Messages/ThreadList',
   component: ThreadList,
   args: { selectedId: 't1' },
   parameters: { layout: 'fullscreen' },

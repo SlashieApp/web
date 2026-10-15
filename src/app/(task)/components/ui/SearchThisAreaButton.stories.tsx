@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { SearchThisAreaButton } from './SearchThisAreaButton'
 
 const meta: Meta<typeof SearchThisAreaButton> = {
-  title: 'task/ui/SearchThisAreaButton',
+  title: 'Tasks/SearchThisAreaButton',
   component: SearchThisAreaButton,
   parameters: {
     layout: 'padded',

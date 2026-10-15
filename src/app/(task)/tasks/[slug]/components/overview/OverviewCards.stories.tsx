@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { OverviewCards } from './OverviewCards'
 
 const meta: Meta<typeof OverviewCards> = {
-  title: 'task/tasks/overview/OverviewCards',
+  title: 'Task detail/Overview/OverviewCards',
   component: OverviewCards,
   parameters: {
     layout: 'padded',

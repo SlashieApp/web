@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskDetailView } from './TaskDetailView'
 
 const meta: Meta<typeof TaskDetailView> = {
-  title: 'task/tasks/layout/TaskDetailView',
+  title: 'Task detail/Layout/TaskDetailView',
   component: TaskDetailView,
   parameters: {
     layout: 'padded',

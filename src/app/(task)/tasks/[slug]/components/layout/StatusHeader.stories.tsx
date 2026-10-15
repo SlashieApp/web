@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { StatusHeader } from './StatusHeader'
 
 const meta: Meta<typeof StatusHeader> = {
-  title: 'task/tasks/layout/StatusHeader',
+  title: 'Task detail/Layout/StatusHeader',
   component: StatusHeader,
   parameters: {
     layout: 'padded',

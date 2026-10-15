@@ -17,7 +17,7 @@ function ControlledPortfolio(
 }
 
 const meta = {
-  title: 'stepflow/worker/setup/ui/inputs/WorkerSetupPortfolioInput',
+  title: 'Worker setup/WorkerSetupPortfolioInput',
   component: WorkerSetupPortfolioInput,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

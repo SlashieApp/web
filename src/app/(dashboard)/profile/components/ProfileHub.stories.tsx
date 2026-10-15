@@ -131,7 +131,7 @@ function StoryProfile({
 }
 
 const meta = {
-  title: 'dashboard/profile/ProfileHub',
+  title: 'Dashboard/Profile/ProfileHub',
   component: ProfileHub,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

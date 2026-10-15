@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { SearchResultsListTitle } from './SearchResultsListTitle'
 
 const meta: Meta<typeof SearchResultsListTitle> = {
-  title: 'task/search/results/SearchResultsListTitle',
+  title: 'Search/SearchResultsListTitle',
   component: SearchResultsListTitle,
   parameters: {
     layout: 'padded',

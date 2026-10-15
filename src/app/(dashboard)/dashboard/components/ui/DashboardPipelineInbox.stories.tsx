@@ -114,7 +114,7 @@ const workRows = buildWorkImOnRows(
 )
 
 const meta = {
-  title: 'dashboard/dashboard/DashboardPipelineInbox',
+  title: 'Dashboard/Home/DashboardPipelineInbox',
   component: DashboardPipelineInbox,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

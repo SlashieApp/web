@@ -6,7 +6,7 @@ import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailSto
 import { TaskQuoteFlow } from './TaskQuoteFlow'
 
 const meta: Meta<typeof TaskQuoteFlow> = {
-  title: 'stepflow/tasks/quote/TaskQuoteFlow',
+  title: 'Quote flow/TaskQuoteFlow',
   component: TaskQuoteFlow,
   parameters: {
     layout: 'fullscreen',

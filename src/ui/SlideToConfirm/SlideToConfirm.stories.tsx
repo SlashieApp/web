@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { SlideToConfirm } from './SlideToConfirm'
 
 const meta = {
-  title: 'ui/SlideToConfirm',
+  title: 'UI/SlideToConfirm',
   component: SlideToConfirm,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

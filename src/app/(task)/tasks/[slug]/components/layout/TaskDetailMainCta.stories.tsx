@@ -11,7 +11,7 @@ import {
 import { TaskDetailMainCta } from './TaskDetailMainCta'
 
 const meta: Meta<typeof TaskDetailMainCta> = {
-  title: 'task/tasks/layout/TaskDetailMainCta',
+  title: 'Task detail/Layout/TaskDetailMainCta',
   component: TaskDetailMainCta,
   parameters: {
     layout: 'padded',

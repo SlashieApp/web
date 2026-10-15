@@ -29,7 +29,7 @@ const panels = buildAchievementPanels({
 })
 
 const meta = {
-  title: 'task/tasks/ui/MyTasksActivityDetails',
+  title: 'My tasks/MyTasksActivityDetails',
   component: MyTasksActivityDetails,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

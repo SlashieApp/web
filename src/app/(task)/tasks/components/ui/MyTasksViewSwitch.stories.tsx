@@ -9,7 +9,7 @@ function SwitchDemo() {
 }
 
 const meta = {
-  title: 'task/tasks/ui/MyTasksViewSwitch',
+  title: 'My tasks/MyTasksViewSwitch',
   component: MyTasksViewSwitch,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

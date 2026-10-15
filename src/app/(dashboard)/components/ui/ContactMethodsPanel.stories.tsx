@@ -29,7 +29,7 @@ const verified = {
 type StoryArgs = { me: MeSnapshot }
 
 const meta = {
-  title: 'dashboard/ui/ContactMethodsPanel',
+  title: 'Dashboard/Shared/ContactMethodsPanel',
   parameters: { layout: 'padded' },
   render: ({ me }) => {
     useUserStore.setState({

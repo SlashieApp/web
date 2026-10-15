@@ -13,7 +13,7 @@ import { TaskTitle } from './TaskTitle'
  * Help & actions menu. The status badge lives on the Task summary.
  */
 const meta: Meta<typeof TaskTitle> = {
-  title: 'task/tasks/layout/TaskTitle',
+  title: 'Task detail/Layout/TaskTitle',
   component: TaskTitle,
   parameters: { layout: 'padded' },
 }

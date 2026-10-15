@@ -8,7 +8,7 @@ import { Input } from '../Input/Input'
 import { Modal } from './Modal'
 
 const meta = {
-  title: 'ui/Modal',
+  title: 'UI/Modal',
   component: Modal,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

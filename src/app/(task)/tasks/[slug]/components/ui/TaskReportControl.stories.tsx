@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskReportControl } from './TaskReportControl'
 
 const meta: Meta<typeof TaskReportControl> = {
-  title: 'task/tasks/ui/TaskReportControl',
+  title: 'Task detail/Parts/TaskReportControl',
   component: TaskReportControl,
   parameters: {
     layout: 'padded',

@@ -4,7 +4,7 @@ import { PublicProfileAchievements } from './PublicProfileAchievements'
 import { sampleOwnerProfile } from './publicProfileStoryFixture'
 
 const meta = {
-  title: 'profile/ui/PublicProfileAchievements',
+  title: 'Public profile/PublicProfileAchievements',
   component: PublicProfileAchievements,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

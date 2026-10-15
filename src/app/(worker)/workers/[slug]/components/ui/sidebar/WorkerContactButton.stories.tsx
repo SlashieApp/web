@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WorkerContactButton } from './WorkerContactButton'
 
 const meta: Meta<typeof WorkerContactButton> = {
-  title: 'worker/workers/ui/sidebar/WorkerContactButton',
+  title: 'Worker profile/WorkerContactButton',
   component: WorkerContactButton,
   parameters: {
     layout: 'padded',

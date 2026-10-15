@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { BrandLoading } from './BrandLoading'
 
 const meta = {
-  title: 'ui/BrandLoading',
+  title: 'UI/BrandLoading',
   component: BrandLoading,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskQuotePrivateCallout } from './TaskQuotePrivateCallout'
 
 const meta: Meta<typeof TaskQuotePrivateCallout> = {
-  title: 'stepflow/tasks/quote/ui/shared/TaskQuotePrivateCallout',
+  title: 'Quote flow/TaskQuotePrivateCallout',
   component: TaskQuotePrivateCallout,
   parameters: {
     layout: 'padded',

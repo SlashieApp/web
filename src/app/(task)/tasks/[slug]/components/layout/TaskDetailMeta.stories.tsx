@@ -5,7 +5,7 @@ import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { TaskDetailMeta } from './TaskDetailMeta'
 
 const meta: Meta<typeof TaskDetailMeta> = {
-  title: 'task/tasks/layout/TaskDetailMeta',
+  title: 'Task detail/Layout/TaskDetailMeta',
   component: TaskDetailMeta,
   decorators: [withTaskDetailStory({ viewer: 'owner' })],
   parameters: {

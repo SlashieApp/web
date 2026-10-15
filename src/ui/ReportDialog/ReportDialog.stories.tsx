@@ -7,7 +7,7 @@ import { ReportControl } from './ReportControl'
 import { ReportDialog } from './ReportDialog'
 
 const meta = {
-  title: 'ui/ReportDialog',
+  title: 'UI/ReportDialog',
   component: ReportDialog,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

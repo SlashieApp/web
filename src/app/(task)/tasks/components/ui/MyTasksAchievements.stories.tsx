@@ -37,7 +37,7 @@ const workerOnly = buildAchievementPanels({
 })
 
 const meta = {
-  title: 'task/tasks/ui/MyTasksAchievements',
+  title: 'My tasks/MyTasksAchievements',
   component: MyTasksAchievements,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

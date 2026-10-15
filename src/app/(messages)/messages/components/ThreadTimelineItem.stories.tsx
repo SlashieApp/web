@@ -13,7 +13,7 @@ import {
 } from './messagesStoryFixtures'
 
 const meta = {
-  title: 'messages/ThreadTimelineItem',
+  title: 'Messages/ThreadTimelineItem',
   component: ThreadTimelineItem,
   args: { item: quoteFlash, locale: 'en-GB' },
 } satisfies Meta<typeof ThreadTimelineItem>

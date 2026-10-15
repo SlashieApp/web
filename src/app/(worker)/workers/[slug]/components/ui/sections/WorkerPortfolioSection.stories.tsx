@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WorkerPortfolioSection } from './WorkerPortfolioSection'
 
 const meta: Meta<typeof WorkerPortfolioSection> = {
-  title: 'worker/workers/ui/sections/WorkerPortfolioSection',
+  title: 'Worker profile/WorkerPortfolioSection',
   component: WorkerPortfolioSection,
   parameters: {
     layout: 'padded',

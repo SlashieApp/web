@@ -24,7 +24,7 @@ function MainCards({ worker }: { worker: boolean }) {
 }
 
 const meta = {
-  title: 'dashboard/profile/ui/cards/ProfileMainCards',
+  title: 'Dashboard/Profile/ProfileMainCards',
   component: MainCards,
   parameters: { layout: 'padded' },
   args: { worker: false },

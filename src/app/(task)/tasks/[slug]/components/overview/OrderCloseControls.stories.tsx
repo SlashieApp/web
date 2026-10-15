@@ -8,7 +8,7 @@ import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
 import { OrderCloseControls } from './OrderCloseControls'
 
 const meta = {
-  title: 'task/tasks/overview/OrderCloseControls',
+  title: 'Task detail/Overview/OrderCloseControls',
   component: OrderCloseControls,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

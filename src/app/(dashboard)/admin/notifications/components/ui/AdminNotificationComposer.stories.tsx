@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { AdminNotificationComposer } from './AdminNotificationComposer'
 
 const meta = {
-  title: 'dashboard/admin/notifications/AdminNotificationComposer',
+  title: 'Dashboard/Admin/AdminNotificationComposer',
   component: AdminNotificationComposer,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

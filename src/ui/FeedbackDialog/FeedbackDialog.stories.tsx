@@ -8,7 +8,7 @@ import { FeedbackDialogProvider } from './FeedbackDialogProvider'
 import { FeedbackTrigger } from './FeedbackTrigger'
 
 const meta = {
-  title: 'ui/FeedbackDialog',
+  title: 'UI/FeedbackDialog',
   component: FeedbackDialog,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -26,7 +26,7 @@ function CreateTaskBasicsSectionDemo({
 }
 
 const meta = {
-  title: 'stepflow/tasks/create/ui/sections/CreateTaskBasicsSection',
+  title: 'Create task/CreateTaskBasicsSection',
   component: CreateTaskBasicsSectionDemo,
   parameters: { layout: 'padded' },
 } satisfies Meta<typeof CreateTaskBasicsSectionDemo>

@@ -5,7 +5,7 @@ import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { TaskDetailTabs } from './TaskDetailTabs'
 
 const meta: Meta<typeof TaskDetailTabs> = {
-  title: 'task/tasks/layout/TaskDetailTabs',
+  title: 'Task detail/Layout/TaskDetailTabLayout',
   component: TaskDetailTabs,
   parameters: {
     layout: 'padded',

@@ -16,7 +16,7 @@ import { Drawer, type DrawerPlacement, type DrawerSize } from './Drawer'
  * the global theme toolbar (do not hardcode a mode).
  */
 const meta = {
-  title: 'ui/Drawer',
+  title: 'UI/Drawer',
   component: Drawer,
   tags: ['autodocs'],
   parameters: {

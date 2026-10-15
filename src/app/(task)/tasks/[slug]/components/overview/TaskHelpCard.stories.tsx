@@ -4,7 +4,7 @@ import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { TaskHelpCard } from './TaskHelpCard'
 
 const meta: Meta<typeof TaskHelpCard> = {
-  title: 'task/tasks/overview/TaskHelpCard',
+  title: 'Task detail/Overview/TaskHelpCard',
   component: TaskHelpCard,
   parameters: {
     layout: 'padded',

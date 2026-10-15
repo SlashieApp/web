@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WorkersStickySearch } from './WorkersStickySearch'
 
 const meta: Meta<typeof WorkersStickySearch> = {
-  title: 'worker/workers/layout/WorkersStickySearch',
+  title: 'Workers/WorkersStickySearch',
   component: WorkersStickySearch,
   parameters: {
     layout: 'padded',

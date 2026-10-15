@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { AppShell } from './AppShell'
 
 const meta = {
-  title: 'ui/AppShell',
+  title: 'Shell/AppShell',
   component: AppShell,
   tags: ['autodocs'],
   parameters: {

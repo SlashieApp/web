@@ -21,7 +21,7 @@ const row: MyTaskHubRow = {
 }
 
 const meta = {
-  title: 'task/tasks/ui/MyTasksHubCard',
+  title: 'My tasks/MyTasksHubCard',
   component: MyTasksHubCard,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

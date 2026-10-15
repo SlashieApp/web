@@ -108,7 +108,7 @@ const sections: MyTaskHubSection[] = [
 ]
 
 const meta = {
-  title: 'task/tasks/ui/MyTasksList',
+  title: 'My tasks/MyTasksList',
   component: MyTasksList,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

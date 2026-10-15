@@ -4,7 +4,7 @@ import { FeedbackDialogProvider } from '@/ui/FeedbackDialog/FeedbackDialogProvid
 import { MarketingHeader } from './MarketingHeader'
 
 const meta = {
-  title: 'marketing/layout/MarketingHeader',
+  title: 'Marketing/Layout/MarketingHeader',
   component: MarketingHeader,
   tags: ['autodocs'],
   parameters: {

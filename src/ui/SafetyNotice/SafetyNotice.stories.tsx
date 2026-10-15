@@ -7,7 +7,7 @@ import { SafetyConfirmDialog } from './SafetyConfirmDialog'
 import { SafetyNotice } from './SafetyNotice'
 
 const meta = {
-  title: 'ui/SafetyNotice',
+  title: 'UI/SafetyNotice',
   component: SafetyNotice,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

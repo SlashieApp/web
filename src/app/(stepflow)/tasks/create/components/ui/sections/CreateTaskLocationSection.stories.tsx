@@ -21,7 +21,7 @@ function CreateTaskLocationSectionDemo(
 }
 
 const meta = {
-  title: 'stepflow/tasks/create/ui/sections/CreateTaskLocationSection',
+  title: 'Create task/CreateTaskLocationSection',
   component: CreateTaskLocationSectionDemo,
   parameters: { layout: 'padded' },
   args: {

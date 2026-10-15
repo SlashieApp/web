@@ -4,7 +4,7 @@ import { withWorkerSetup } from '../../workerSetupStoryFixtures'
 import { WorkerSetupMobileAccordion } from './WorkerSetupMobileAccordion'
 
 const meta: Meta<typeof WorkerSetupMobileAccordion> = {
-  title: 'stepflow/worker/setup/layout/steppers/WorkerSetupMobileAccordion',
+  title: 'Worker setup/WorkerSetupMobileAccordion',
   component: WorkerSetupMobileAccordion,
   parameters: {
     layout: 'padded',

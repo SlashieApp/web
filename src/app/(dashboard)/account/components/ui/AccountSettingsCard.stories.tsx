@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { AccountSettingsCard } from './AccountSettingsCard'
 
 const meta: Meta<typeof AccountSettingsCard> = {
-  title: 'dashboard/account/ui/AccountSettingsCard',
+  title: 'Dashboard/Account/AccountSettingsCard',
   component: AccountSettingsCard,
   parameters: {
     layout: 'padded',

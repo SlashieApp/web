@@ -6,7 +6,7 @@ import {
 } from './SpotIllustration'
 
 const meta = {
-  title: 'ui/SpotIllustration',
+  title: 'UI/SpotIllustration',
   component: SpotIllustration,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

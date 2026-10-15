@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WorkerSetupOptionalBadge } from './WorkerSetupOptionalBadge'
 
 const meta: Meta<typeof WorkerSetupOptionalBadge> = {
-  title: 'stepflow/worker/setup/ui/shared/WorkerSetupOptionalBadge',
+  title: 'Worker setup/WorkerSetupOptionalBadge',
   component: WorkerSetupOptionalBadge,
   parameters: {
     layout: 'padded',

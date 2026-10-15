@@ -27,7 +27,7 @@ function CreateTaskLocationMapDemo({ collapsed }: { collapsed: boolean }) {
 }
 
 const meta = {
-  title: 'stepflow/tasks/create/layout/map/CreateTaskLocationMap',
+  title: 'Create task/CreateTaskLocationMap',
   component: CreateTaskLocationMapDemo,
   parameters: { layout: 'fullscreen' },
   args: { collapsed: false },

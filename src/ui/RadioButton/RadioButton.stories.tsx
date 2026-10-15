@@ -12,7 +12,7 @@ const SDL_VARIANTS: UiRadioButtonVariant[] = ['primary', 'subtle']
 const SDL_SIZES: UiRadioButtonSize[] = ['sm', 'md', 'lg']
 
 const meta = {
-  title: 'ui/RadioButton',
+  title: 'UI/RadioButton',
   component: RadioButton,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

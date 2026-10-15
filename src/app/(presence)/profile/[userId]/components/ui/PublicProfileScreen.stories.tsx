@@ -7,7 +7,7 @@ import {
 } from './publicProfileStoryFixture'
 
 const meta = {
-  title: 'profile/ui/PublicProfileScreen',
+  title: 'Public profile/PublicProfileScreen',
   component: PublicProfileScreen,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

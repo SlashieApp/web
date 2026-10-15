@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { MembershipCancelNotice } from './MembershipCancelNotice'
 
 const meta: Meta<typeof MembershipCancelNotice> = {
-  title: 'dashboard/ui/membership/MembershipCancelNotice',
+  title: 'Dashboard/Shared/MembershipCancelNotice',
   component: MembershipCancelNotice,
   parameters: {
     layout: 'padded',

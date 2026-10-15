@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { DashboardMembershipPanel } from './DashboardMembershipPanel'
 
 const meta: Meta<typeof DashboardMembershipPanel> = {
-  title: 'dashboard/dashboard/ui/DashboardMembershipPanel',
+  title: 'Dashboard/Home/DashboardMembershipPanel',
   component: DashboardMembershipPanel,
   parameters: {
     layout: 'padded',

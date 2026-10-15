@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { PublicUserStatus } from './PublicUserStatus'
 
 const meta = {
-  title: 'user/ui/PublicUserStatus',
+  title: 'Public profile/PublicUserStatus',
   component: PublicUserStatus,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

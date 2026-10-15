@@ -7,7 +7,7 @@ import { FinalCtaBand } from './FinalCtaBand'
 const { ctas } = messages.en.common
 
 const meta: Meta<typeof FinalCtaBand> = {
-  title: 'marketing/ui/landing/sections/FinalCtaBand',
+  title: 'Marketing/Landing/FinalCtaBand',
   component: FinalCtaBand,
   parameters: {
     layout: 'padded',

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WebSearchLayout } from './SearchLayouts'
 
 const meta: Meta<typeof WebSearchLayout> = {
-  title: 'task/search/layout/SearchLayouts',
+  title: 'Search/SearchLayouts',
   component: WebSearchLayout,
   parameters: {
     layout: 'padded',

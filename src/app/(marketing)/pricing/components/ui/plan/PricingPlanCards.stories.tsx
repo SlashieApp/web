@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { PricingPlanCards } from './PricingPlanCards'
 
 const meta: Meta<typeof PricingPlanCards> = {
-  title: 'marketing/pricing/ui/plan/PricingPlanCards',
+  title: 'Marketing/Pricing/PricingPlanCards',
   component: PricingPlanCards,
   parameters: {
     layout: 'padded',

@@ -21,7 +21,7 @@ function ControlledQualifications(
 }
 
 const meta = {
-  title: 'stepflow/worker/setup/ui/inputs/WorkerSetupQualificationsInput',
+  title: 'Worker setup/WorkerSetupQualificationsInput',
   component: WorkerSetupQualificationsInput,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

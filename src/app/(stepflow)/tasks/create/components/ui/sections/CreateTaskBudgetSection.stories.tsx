@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { CreateTaskBudgetSection } from './CreateTaskBudgetSection'
 
 const meta: Meta<typeof CreateTaskBudgetSection> = {
-  title: 'stepflow/tasks/create/ui/sections/CreateTaskBudgetSection',
+  title: 'Create task/CreateTaskBudgetSection',
   component: CreateTaskBudgetSection,
   parameters: {
     layout: 'padded',

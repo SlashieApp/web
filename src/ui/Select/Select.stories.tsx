@@ -38,7 +38,7 @@ const sortOptions = (
  * and `aria-describedby` wiring -- never rely on the first option as the label.
  */
 const meta = {
-  title: 'ui/Select',
+  title: 'UI/Select',
   component: Select,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

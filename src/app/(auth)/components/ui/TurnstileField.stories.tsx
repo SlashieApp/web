@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TurnstileField } from './TurnstileField'
 
 const meta: Meta<typeof TurnstileField> = {
-  title: 'auth/ui/TurnstileField',
+  title: 'Auth/TurnstileField',
   component: TurnstileField,
   parameters: {
     layout: 'padded',

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskQuoteProgressBar } from './TaskQuoteProgressBar'
 
 const meta: Meta<typeof TaskQuoteProgressBar> = {
-  title: 'stepflow/tasks/quote/layout/stepper/TaskQuoteProgressBar',
+  title: 'Quote flow/TaskQuoteProgressBar',
   component: TaskQuoteProgressBar,
   parameters: {
     layout: 'padded',

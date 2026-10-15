@@ -6,7 +6,7 @@ import { Badge } from '@/ui/Badge'
 import { Card } from './Card'
 
 const meta = {
-  title: 'ui/Card',
+  title: 'UI/Card',
   component: Card,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

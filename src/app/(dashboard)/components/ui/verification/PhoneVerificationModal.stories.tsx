@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { PhoneVerificationModal } from './PhoneVerificationModal'
 
 const meta: Meta<typeof PhoneVerificationModal> = {
-  title: 'dashboard/ui/verification/PhoneVerificationModal',
+  title: 'Dashboard/Shared/PhoneVerificationModal',
   component: PhoneVerificationModal,
   parameters: {
     layout: 'padded',

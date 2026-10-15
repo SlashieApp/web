@@ -16,7 +16,7 @@ import { PhoneInput } from './PhoneInput'
  * the global theme toolbar.
  */
 const meta = {
-  title: 'ui/PhoneInput',
+  title: 'UI/PhoneInput',
   component: PhoneInput,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

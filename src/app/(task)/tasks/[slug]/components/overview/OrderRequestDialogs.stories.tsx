@@ -8,7 +8,7 @@ import { OrderCancelDialog, OrderRescheduleDialog } from './OrderRequestDialogs'
 const order = storyTaskOrder({ bookedStart: '2030-06-10T09:00:00.000Z' })
 
 const meta = {
-  title: 'task/tasks/overview/OrderRequestDialogs',
+  title: 'Task detail/Overview/OrderRequestDialogs',
   component: OrderRescheduleDialog,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

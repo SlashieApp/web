@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { PricingErrorState } from './PricingErrorState'
 
 const meta: Meta<typeof PricingErrorState> = {
-  title: 'marketing/pricing/ui/state/PricingErrorState',
+  title: 'Marketing/Pricing/PricingErrorState',
   component: PricingErrorState,
   parameters: {
     layout: 'padded',

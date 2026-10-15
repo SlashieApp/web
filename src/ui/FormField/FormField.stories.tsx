@@ -18,7 +18,7 @@ import { FormField } from './FormField'
  * global theme toolbar.
  */
 const meta = {
-  title: 'ui/FormField',
+  title: 'UI/FormField',
   component: FormField,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -43,7 +43,7 @@ const defaultTask: TaskCardTask = {
 }
 
 const listMeta = {
-  title: 'task/TaskCard',
+  title: 'Tasks/TaskCard',
   component: TaskCard,
   tags: ['autodocs'],
   parameters: {

@@ -7,7 +7,7 @@ import { Link, type UiLinkTone } from './Link'
 const TONES: UiLinkTone[] = ['default', 'muted', 'emphasis']
 
 const meta = {
-  title: 'ui/Link',
+  title: 'UI/Link',
   component: Link,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

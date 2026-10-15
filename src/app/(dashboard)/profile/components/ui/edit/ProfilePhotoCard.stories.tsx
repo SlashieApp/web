@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { ProfilePhotoCard } from './ProfilePhotoCard'
 
 const meta: Meta<typeof ProfilePhotoCard> = {
-  title: 'dashboard/profile/ui/edit/ProfilePhotoCard',
+  title: 'Dashboard/Profile/ProfilePhotoCard',
   component: ProfilePhotoCard,
   parameters: {
     layout: 'padded',

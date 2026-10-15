@@ -4,7 +4,7 @@ import { withWorkerSetup } from '../../workerSetupStoryFixtures'
 import { WorkerSetupProgressBar } from './WorkerSetupProgressBar'
 
 const meta: Meta<typeof WorkerSetupProgressBar> = {
-  title: 'stepflow/worker/setup/layout/steppers/WorkerSetupProgressBar',
+  title: 'Worker setup/WorkerSetupProgressBar',
   component: WorkerSetupProgressBar,
   parameters: {
     layout: 'padded',

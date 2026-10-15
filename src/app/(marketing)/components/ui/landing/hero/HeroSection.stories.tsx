@@ -5,7 +5,7 @@ import messages from '@/app/(marketing)/i11n.json'
 import { HeroSection } from './HeroSection'
 
 const meta: Meta<typeof HeroSection> = {
-  title: 'marketing/ui/landing/hero/HeroSection',
+  title: 'Marketing/Landing/HeroSection',
   component: HeroSection,
   parameters: {
     layout: 'padded',

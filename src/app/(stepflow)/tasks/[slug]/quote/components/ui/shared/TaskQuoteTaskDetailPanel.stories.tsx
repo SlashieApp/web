@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskQuoteTaskDetailPanel } from './TaskQuoteTaskDetailPanel'
 
 const meta: Meta<typeof TaskQuoteTaskDetailPanel> = {
-  title: 'stepflow/tasks/quote/ui/shared/TaskQuoteTaskDetailPanel',
+  title: 'Quote flow/TaskQuoteTaskDetailPanel',
   component: TaskQuoteTaskDetailPanel,
   parameters: {
     layout: 'padded',

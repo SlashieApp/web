@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { ForgotPasswordForm } from './ForgotPasswordForm'
 
 const meta: Meta<typeof ForgotPasswordForm> = {
-  title: 'auth/forgot-password/ui/ForgotPasswordForm',
+  title: 'Auth/ForgotPasswordForm',
   component: ForgotPasswordForm,
   parameters: {
     layout: 'padded',

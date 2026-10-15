@@ -13,7 +13,7 @@ import { Card } from '../Card/Card'
 import { DetailRow } from './DetailRow'
 
 const meta = {
-  title: 'ui/DetailRow',
+  title: 'UI/DetailRow',
   component: DetailRow,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

@@ -6,7 +6,7 @@ import { FormField } from '../FormField'
 import { Textarea } from './Textarea'
 
 const meta = {
-  title: 'ui/Textarea',
+  title: 'UI/Textarea',
   component: Textarea,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

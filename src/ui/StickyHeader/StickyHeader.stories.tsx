@@ -5,7 +5,7 @@ import { Button } from '../Button/Button'
 import { StickyHeader } from './StickyHeader'
 
 const meta: Meta<typeof StickyHeader> = {
-  title: 'ui/StickyHeader',
+  title: 'UI/StickyHeader',
   component: StickyHeader,
   parameters: { layout: 'fullscreen' },
   args: {

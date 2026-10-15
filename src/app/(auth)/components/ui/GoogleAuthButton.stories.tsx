@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { GoogleAuthButton } from './GoogleAuthButton'
 
 const meta: Meta<typeof GoogleAuthButton> = {
-  title: 'auth/ui/GoogleAuthButton',
+  title: 'Auth/GoogleAuthButton',
   component: GoogleAuthButton,
   parameters: {
     layout: 'padded',

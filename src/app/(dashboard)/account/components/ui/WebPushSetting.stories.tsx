@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WebPushSetting } from './WebPushSetting'
 
 const meta = {
-  title: 'dashboard/account/ui/WebPushSetting',
+  title: 'Dashboard/Account/WebPushSetting',
   component: WebPushSetting,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

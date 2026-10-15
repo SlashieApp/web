@@ -6,7 +6,7 @@ import { Card } from '../Card/Card'
 import { type TabItem, Tabs } from './Tabs'
 
 const meta = {
-  title: 'ui/Tabs',
+  title: 'UI/Tabs',
   component: Tabs,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

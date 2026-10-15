@@ -182,7 +182,7 @@ function MenuThatOpensDialog() {
  * shared controls.
  */
 const meta = {
-  title: 'ui/Dropdown',
+  title: 'UI/Dropdown',
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',

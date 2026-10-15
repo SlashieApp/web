@@ -6,7 +6,7 @@ import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
 import { OrderFailedDialog } from './OrderFailedDialog'
 
 const meta = {
-  title: 'task/tasks/overview/OrderFailedDialog',
+  title: 'Task detail/Overview/OrderFailedDialog',
   component: OrderFailedDialog,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

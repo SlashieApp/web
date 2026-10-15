@@ -5,7 +5,7 @@ import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { EmailChangeModal } from './EmailChangeModal'
 
 const meta = {
-  title: 'dashboard/ui/verification/EmailChangeModal',
+  title: 'Dashboard/Shared/EmailChangeModal',
   component: EmailChangeModal,
   parameters: { layout: 'padded' },
   args: { open: true, onOpenChange: () => {} },

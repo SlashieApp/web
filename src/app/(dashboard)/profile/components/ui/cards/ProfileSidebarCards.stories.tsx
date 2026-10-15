@@ -21,7 +21,7 @@ function SidebarCards({ worker }: { worker: boolean }) {
 }
 
 const meta = {
-  title: 'dashboard/profile/ui/cards/ProfileSidebarCards',
+  title: 'Dashboard/Profile/ProfileSidebarCards',
   component: SidebarCards,
   parameters: { layout: 'padded' },
   args: { worker: false },

@@ -7,7 +7,7 @@ import {
 } from '../ui/WorkerSearchCard'
 
 const meta = {
-  title: 'worker/workers/ui/WorkerSearchCard',
+  title: 'Workers/WorkerSearchCard',
   component: WorkerSearchCard,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },

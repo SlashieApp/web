@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LegalPageLayout } from './LegalPageLayout'
 
 const meta: Meta<typeof LegalPageLayout> = {
-  title: 'marketing/layout/LegalPageLayout',
+  title: 'Marketing/Layout/LegalPageLayout',
   component: LegalPageLayout,
   parameters: {
     layout: 'padded',

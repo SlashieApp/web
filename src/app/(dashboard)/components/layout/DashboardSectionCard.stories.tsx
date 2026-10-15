@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { DashboardSectionCard } from './DashboardSectionCard'
 
 const meta: Meta<typeof DashboardSectionCard> = {
-  title: 'dashboard/layout/DashboardSectionCard',
+  title: 'Dashboard/Shared/DashboardSectionCard',
   component: DashboardSectionCard,
   parameters: {
     layout: 'padded',

@@ -11,7 +11,7 @@ const copy = {
 }
 
 const meta: Meta = {
-  title: 'task/ui/TaskSearch',
+  title: 'Tasks/TaskSearch',
   parameters: {
     layout: 'padded',
   },

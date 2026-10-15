@@ -5,7 +5,7 @@ import { TaskStatusPill } from '../../../components/ui/TaskStatusPill'
 import { EditTaskPreviewCard } from './EditTaskPreviewCard'
 
 const meta: Meta<typeof EditTaskPreviewCard> = {
-  title: 'task/tasks/edit/ui/EditTaskPreviewCard',
+  title: 'Edit task/EditTaskPreviewCard',
   component: EditTaskPreviewCard,
   parameters: { layout: 'padded' },
   args: {

@@ -15,7 +15,7 @@ function SignedInDrawer({ section }: { section: ProfileEditSection }) {
 }
 
 const meta = {
-  title: 'dashboard/profile/ui/edit/ProfileEditDrawer',
+  title: 'Dashboard/Profile/ProfileEditDrawer',
   component: SignedInDrawer,
   parameters: { layout: 'padded' },
   args: { section: 'personal' },

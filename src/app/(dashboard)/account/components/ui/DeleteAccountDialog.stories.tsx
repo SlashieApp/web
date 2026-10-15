@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { DeleteAccountDialog } from './DeleteAccountDialog'
 
 const meta = {
-  title: 'dashboard/account/DeleteAccountDialog',
+  title: 'Dashboard/Account/DeleteAccountDialog',
   component: DeleteAccountDialog,
   args: {
     open: true,

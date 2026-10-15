@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TaskQuoteStepper } from './TaskQuoteStepper'
 
 const meta: Meta<typeof TaskQuoteStepper> = {
-  title: 'stepflow/tasks/quote/layout/stepper/TaskQuoteStepper',
+  title: 'Quote flow/TaskQuoteStepper',
   component: TaskQuoteStepper,
   parameters: {
     layout: 'padded',

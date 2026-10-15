@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { ForgotPasswordSentPanel } from './ForgotPasswordSentPanel'
 
 const meta: Meta<typeof ForgotPasswordSentPanel> = {
-  title: 'auth/forgot-password/ui/ForgotPasswordSentPanel',
+  title: 'Auth/ForgotPasswordSentPanel',
   component: ForgotPasswordSentPanel,
   parameters: {
     layout: 'padded',

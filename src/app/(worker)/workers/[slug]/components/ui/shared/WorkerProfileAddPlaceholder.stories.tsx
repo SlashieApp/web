@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WorkerProfileAddPlaceholder } from './WorkerProfileAddPlaceholder'
 
 const meta: Meta<typeof WorkerProfileAddPlaceholder> = {
-  title: 'worker/workers/ui/shared/WorkerProfileAddPlaceholder',
+  title: 'Worker profile/WorkerProfileAddPlaceholder',
   component: WorkerProfileAddPlaceholder,
   parameters: {
     layout: 'padded',

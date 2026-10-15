@@ -6,7 +6,7 @@ import { TaskSearch } from './TaskSearch'
 import { TaskSearchFilters } from './TaskSearchFilters'
 
 const meta: Meta = {
-  title: 'task/ui/TaskSearchFilters',
+  title: 'Tasks/TaskSearchFilters',
   parameters: { layout: 'padded' },
   render: () => (
     <TaskBrowseProvider initialTasks={[]} isDesktop skipTasksQuery>

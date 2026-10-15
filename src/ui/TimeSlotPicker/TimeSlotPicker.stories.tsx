@@ -33,7 +33,7 @@ function Demo({
 }
 
 const meta = {
-  title: 'ui/TimeSlotPicker',
+  title: 'UI/TimeSlotPicker',
   component: Demo,
   parameters: { layout: 'padded' },
   args: { initial: [] },

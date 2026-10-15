@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { WorkersAreaInput } from './WorkersSearchFields'
 
 const meta: Meta<typeof WorkersAreaInput> = {
-  title: 'worker/workers/ui/WorkersSearchFields',
+  title: 'Workers/WorkersSearchFields',
   component: WorkersAreaInput,
   parameters: {
     layout: 'padded',

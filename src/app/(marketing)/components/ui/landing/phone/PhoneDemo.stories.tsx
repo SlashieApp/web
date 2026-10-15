@@ -20,7 +20,7 @@ function DemoPhone({ stage, width }: { stage: StoryStage; width: number }) {
 }
 
 const meta = {
-  title: 'marketing/landing/PhoneDemo',
+  title: 'Marketing/Landing/PhoneDemo',
   component: DemoPhone,
   args: { stage: 'hero', width: 300 },
   argTypes: {
