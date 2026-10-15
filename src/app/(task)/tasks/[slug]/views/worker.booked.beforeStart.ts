@@ -11,7 +11,8 @@ export const workerBookedBeforeStart: TaskDetailViewConfig = {
     'agreedPrice',
     'location',
     'description',
-    'bookingActions',
+    'photos',
   ],
+  actions: ['reschedule', 'cancelBooking'],
   primaryAction: 'message',
 }

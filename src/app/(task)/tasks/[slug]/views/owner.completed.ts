@@ -12,7 +12,7 @@ export const ownerCompleted: TaskDetailViewConfig = {
     'bookedTime',
     'reviews',
     'description',
-    'repost',
+    'photos',
   ],
   primaryAction: 'review',
 }

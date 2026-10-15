@@ -11,7 +11,7 @@ import {
 } from '@/app/(task)/helpers/marketplaceMap'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
 import { findScrollParent } from '@/utils/findScrollParent'
-import { Tabs } from '@ui'
+import { MOBILE_BOTTOM_NAV_MAX_W, Tabs } from '@ui'
 
 import { TASK_DETAIL_STUCK_TOP_PADDING } from '../../helpers/taskDetailHeaderCollapse'
 import { TASK_DETAIL_TAB_BODY_MIN_H } from '../../helpers/taskDetailLayout'
@@ -35,9 +35,17 @@ export type TaskDetailTabLayoutProps = {
   px?: BoxProps['px']
   /** Desktop right rail (Help & actions, Analytics, Activity). Hidden below `lg`. */
   rail?: ReactNode
+  /** Desktop main CTA, top right above the cards and rail. Hidden below `lg`. */
+  mainCta?: ReactNode
 }
 
 const COMPACT_MAX_PX = WEB_MIN_PX - 1
+
+/**
+ * Web main CTA: half the row (wider than the 1/3 rail cards), capped at the
+ * floating nav width.
+ */
+const WEB_MAIN_CTA_W = `min(${MOBILE_BOTTOM_NAV_MAX_W}, calc((100% - 1.5rem) / 2))`
 
 /**
  * Compact (phone + tablet) wash sits on the sticky title/tab chrome and
@@ -103,9 +111,9 @@ function StuckHeaderBg({ isStuck }: { isStuck: boolean }) {
 }
 
 /**
- * Task-detail tab chrome: sticky title + tab headers, then the cards and the
- * desktop rail sharing a top edge in the 2:1 grid. The main CTA lives in the
- * Task summary (web) and its compact pin (TaskDetailMainCta).
+ * Task-detail tab chrome: sticky title + tab headers, the web main CTA at the
+ * top right, then the cards and the desktop rail sharing a top edge in the
+ * 2:1 grid. The compact pin lives in TaskDetailMainCta.
  */
 export function TaskDetailTabLayout({
   title,
@@ -117,6 +125,7 @@ export function TaskDetailTabLayout({
   fittedBelowLg = false,
   px,
   rail,
+  mainCta,
 }: TaskDetailTabLayoutProps) {
   const [isStuck, setIsStuck] = useState(false)
   const sentinelObserverRef = useRef<IntersectionObserver | null>(null)
@@ -189,39 +198,51 @@ export function TaskDetailTabLayout({
           badge: tab.badge,
         }))}
       >
-        <Grid
-          templateColumns={splitColumns}
-          columnGap={6}
-          alignItems="start"
-          w="full"
-          pt={5}
-          pb={6}
-        >
-          <Box minW={0}>
-            {tabs.map((tab) => (
-              <Tabs.Panel key={tab.key} value={tab.key} pt={0} pb={0}>
-                <Stack
-                  gap={5}
-                  w="full"
-                  minW={0}
-                  minH={TASK_DETAIL_TAB_BODY_MIN_H}
-                  pointerEvents="auto"
-                >
-                  {tab.cards}
-                </Stack>
-              </Tabs.Panel>
-            ))}
-          </Box>
-          {rail ? (
+        <Stack gap={5} w="full" pt={5} pb={6}>
+          {mainCta ? (
             <Box
-              display={{ base: 'none', lg: 'block' }}
-              minW={0}
+              display={{ base: 'none', lg: 'flex' }}
+              justifyContent="flex-end"
+              w="full"
               pointerEvents="auto"
             >
-              {rail}
+              <Box w={WEB_MAIN_CTA_W} minW={0}>
+                {mainCta}
+              </Box>
             </Box>
           ) : null}
-        </Grid>
+          <Grid
+            templateColumns={splitColumns}
+            columnGap={6}
+            alignItems="start"
+            w="full"
+          >
+            <Box minW={0}>
+              {tabs.map((tab) => (
+                <Tabs.Panel key={tab.key} value={tab.key} pt={0} pb={0}>
+                  <Stack
+                    gap={5}
+                    w="full"
+                    minW={0}
+                    minH={TASK_DETAIL_TAB_BODY_MIN_H}
+                    pointerEvents="auto"
+                  >
+                    {tab.cards}
+                  </Stack>
+                </Tabs.Panel>
+              ))}
+            </Box>
+            {rail ? (
+              <Box
+                display={{ base: 'none', lg: 'block' }}
+                minW={0}
+                pointerEvents="auto"
+              >
+                {rail}
+              </Box>
+            ) : null}
+          </Grid>
+        </Stack>
       </Tabs>
     </>
   )

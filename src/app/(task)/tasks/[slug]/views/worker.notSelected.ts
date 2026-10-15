@@ -5,6 +5,6 @@ export const workerNotSelected: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'notSelectedHeadline',
   subline: 'notSelectedSubline',
-  facts: ['location', 'categories', 'postedBy', 'description'],
+  facts: ['location', 'categories', 'postedBy', 'description', 'photos'],
   primaryAction: 'browseTasks',
 }

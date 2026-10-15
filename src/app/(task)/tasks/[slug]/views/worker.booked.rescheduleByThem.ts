@@ -12,6 +12,7 @@ export const workerBookedRescheduleByThem: TaskDetailViewConfig = {
     'agreedPrice',
     'location',
     'description',
+    'photos',
   ],
   primaryAction: 'message',
 }

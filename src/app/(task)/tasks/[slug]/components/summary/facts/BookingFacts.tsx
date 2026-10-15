@@ -2,7 +2,7 @@
 
 import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { LuReceipt, LuRepeat, LuUser } from 'react-icons/lu'
+import { LuReceipt, LuUser } from 'react-icons/lu'
 
 import { type C2CReview, reviewCanEdit } from '@/content/reviews/reviewModel'
 import { ReportControl } from '@/content/trust/ReportControl'
@@ -13,7 +13,6 @@ import {
   formatOrderAgreedPrice,
   orderTimelineSteps,
 } from '@/utils/orderHelpers'
-import { repostTaskHref } from '@/utils/taskHandoff'
 import { Avatar, Button, DetailRow, Link, RatingStars } from '@ui'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
@@ -367,26 +366,5 @@ export function ReviewsFact() {
         </Text>
       ) : null}
     </Stack>
-  )
-}
-
-/** Owner, finished job: post the task again (secondary to Review). */
-export function RepostFact() {
-  const { task } = useTaskDetail()
-  const t = useI11n(bag)
-  if (!task) return null
-
-  return (
-    <Box py={3}>
-      <Button asChild variant="secondary">
-        <Link
-          href={repostTaskHref(task.id)}
-          _hover={{ textDecoration: 'none' }}
-        >
-          <LuRepeat aria-hidden />
-          {t.actions.repostTask}
-        </Link>
-      </Button>
-    </Box>
   )
 }

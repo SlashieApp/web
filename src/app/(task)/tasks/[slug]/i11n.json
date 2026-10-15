@@ -139,7 +139,6 @@
       "budget": "Budget",
       "pricing": "Pricing",
       "payment": "Payment",
-      "photos": "Photos",
       "photoAlt": "{title} photo {n}",
       "ownerFallback": "Task owner",
       "viewProfile": "View {name}'s profile",
@@ -370,7 +369,6 @@
       "askToCancel": "Ask to cancel"
     },
     "summary": {
-      "heading": "Task summary",
       "ownerLiveHeadline": "Your task is live - reaching workers",
       "ownerLiveSubline": "Nearby workers can see your task. Share it to get quotes faster.",
       "ownerQuotesHeadlineOne": "{count} quote - compare and accept",
@@ -571,7 +569,6 @@
       "budget": "預算",
       "pricing": "價格",
       "payment": "付款",
-      "photos": "照片",
       "photoAlt": "{title} 照片 {n}",
       "ownerFallback": "任務發佈者",
       "viewProfile": "查看 {name} 的公開檔案",
@@ -802,7 +799,6 @@
       "askToCancel": "要求取消"
     },
     "summary": {
-      "heading": "任務摘要",
       "ownerLiveHeadline": "你的任務已上線，正在觸達工作者",
       "ownerLiveSubline": "附近工作者可以看到你的任務。分享可更快收到報價。",
       "ownerQuotesHeadlineOne": "{count} 個報價：比較並接受",

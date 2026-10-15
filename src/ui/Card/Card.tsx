@@ -218,29 +218,30 @@ export function Card({
   const interactiveA11y = interactive
     ? { tabIndex: 0, role: 'button' as const }
     : {}
-  const flush = unframedCss(framed)
-  const mergedCss =
-    flush && css
-      ? {
-          ...flush,
-          ...(typeof css === 'object' && !Array.isArray(css) ? css : {}),
-        }
-      : (flush ?? css)
+  // The frame goes through `css`, ahead of the flush and the caller's `css`.
+  // Chakra applies style props after `css`, so a frame passed as props
+  // could never be dropped by `framed`.
+  const frame: SystemStyleObject = {
+    ...surface,
+    borderColor: isActive ? activeBorderColor : 'border.default',
+    borderRadius: borderRadius ?? sdlCard.radius,
+    padding: p ?? (compact ? 3 : isSection ? { base: 5, md: 6 } : 6),
+  }
+  const layers = [
+    frame,
+    unframedCss(framed),
+    ...(Array.isArray(css) ? css : [css]),
+  ].filter((layer): layer is SystemStyleObject => layer != null)
+  // One merged object: passing `css` as an array broke SSR hydration ids.
   const resolvedCss = interactive
-    ? mergeSdlPressCss(
-        mergedCss && typeof mergedCss === 'object' ? mergedCss : undefined,
-      )
-    : mergedCss
+    ? mergeSdlPressCss(layers)
+    : Object.assign({}, ...layers)
 
   return (
     <Box
-      borderRadius={borderRadius ?? sdlCard.radius}
-      p={p ?? (compact ? 3 : isSection ? { base: 5, md: 6 } : 6)}
       maxW={maxW ?? (isSection ? 'full' : 'md')}
       w="full"
       {...interactiveA11y}
-      {...surface}
-      borderColor={isActive ? activeBorderColor : 'border.default'}
       css={resolvedCss}
       {...rest}
       {...(interactive

@@ -2,7 +2,10 @@
 
 import { useI11n } from '@/i18n/useI11n'
 import { Stack, Text } from '@chakra-ui/react'
+import { type ReactNode, useState } from 'react'
 import {
+  LuCalendarClock,
+  LuCalendarX,
   LuCircleHelp,
   LuEllipsisVertical,
   LuPencil,
@@ -10,17 +13,67 @@ import {
   LuShare2,
   LuShieldCheck,
   LuTrash2,
+  LuUndo2,
 } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
 import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
+import { ReportControl } from '@/content/trust/ReportControl'
 import { SAFETY_HREF } from '@/utils/appRoutes'
+import { orderRequestView } from '@/utils/orderHelpers'
 import { repostTaskHref } from '@/utils/taskHandoff'
 import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { TASK_DETAIL_VIEWS, type TaskDetailAction } from '../../views'
+import {
+  OrderCancelDialog,
+  OrderRescheduleDialog,
+  useOrderRequestOptions,
+} from '../overview/OrderRequestDialogs'
 import { useShareTask } from '../overview/shareTask'
 import { TaskReportControl } from '../ui/TaskReportControl'
+
+type BookingDialog = 'reschedule' | 'cancel'
+
+/**
+ * The reschedule and cancel dialogs behind the booking actions. They live
+ * outside the menu, so they stay open after the phone menu (a drawer) closes.
+ */
+export function useBookingDialogs() {
+  const options = useOrderRequestOptions()
+  const [dialog, setDialog] = useState<BookingDialog | null>(null)
+  const toggle = (kind: BookingDialog) => (open: boolean) =>
+    setDialog(open ? kind : null)
+
+  return {
+    openDialog: setDialog,
+    dialogs: options ? (
+      <>
+        <OrderRescheduleDialog
+          open={dialog === 'reschedule'}
+          onOpenChange={toggle('reschedule')}
+          counterpartName={options.counterpartName}
+        />
+        <OrderCancelDialog
+          open={dialog === 'cancel'}
+          onOpenChange={toggle('cancel')}
+          counterpartName={options.counterpartName}
+        />
+      </>
+    ) : null,
+  }
+}
+
+const BOOKING_ICONS: Record<
+  Exclude<TaskDetailAction, 'reportOtherParty'>,
+  ReactNode
+> = {
+  reschedule: <LuCalendarClock />,
+  cancelBooking: <LuCalendarX />,
+  askToCancel: <LuCalendarX />,
+  withdrawRequest: <LuUndo2 />,
+}
 
 function MenuAction({
   icon,
@@ -69,11 +122,78 @@ function MenuAction({
   )
 }
 
+/** The view's booking actions (Reschedule, Cancel booking, ...), listed first. */
+function BookingActions({
+  onDone,
+  onOpenDialog,
+}: {
+  onDone: () => void
+  onOpenDialog: (dialog: BookingDialog) => void
+}) {
+  const { view, myOrder, me, permissions, runOrderAction, orderActionPending } =
+    useTaskDetail()
+  const t = useI11n(bag)
+  const options = useOrderRequestOptions()
+  if (!myOrder || !options) return null
+  const request = orderRequestView(myOrder, me?.id)
+  const withdraw =
+    request?.kind === 'RESCHEDULE'
+      ? 'cancelRescheduleRequest'
+      : 'withdrawCancellation'
+  const labels = {
+    reschedule: t.requests.reschedule,
+    cancelBooking: t.requests.cancelBooking,
+    askToCancel: t.conflict.askToCancel,
+    withdrawRequest: t.requests.withdraw,
+  }
+
+  return (
+    <>
+      {(TASK_DETAIL_VIEWS[view].actions ?? []).map((action) =>
+        action === 'reportOtherParty' ? (
+          <ReportControl
+            key={action}
+            kind="user"
+            targetId={
+              permissions.isOwner
+                ? myOrder.workerUserId
+                : myOrder.customerUserId
+            }
+            targetTitle={options.counterpartName}
+            variant="menu"
+            onOpened={onDone}
+          />
+        ) : (
+          <MenuAction
+            key={action}
+            icon={BOOKING_ICONS[action]}
+            label={labels[action]}
+            danger={action === 'cancelBooking' || action === 'askToCancel'}
+            loading={
+              action === 'withdrawRequest' && orderActionPending === withdraw
+            }
+            onClick={() => {
+              onDone()
+              if (action === 'reschedule') onOpenDialog('reschedule')
+              else if (action === 'withdrawRequest') {
+                void runOrderAction({ type: withdraw })
+              } else onOpenDialog('cancel')
+            }}
+          />
+        ),
+      )}
+    </>
+  )
+}
+
 export function TaskOverflowActions({
   onDone,
+  onOpenDialog,
   packed = false,
 }: {
   onDone?: () => void
+  /** Opens a booking dialog held outside the menu (`useBookingDialogs`). */
+  onOpenDialog: (dialog: BookingDialog) => void
   packed?: boolean
 }) {
   const close = onDone ?? (() => {})
@@ -91,6 +211,7 @@ export function TaskOverflowActions({
       minW={packed ? '220px' : undefined}
       w="full"
     >
+      <BookingActions onDone={close} onOpenDialog={onOpenDialog} />
       <MenuAction
         icon={<LuShare2 />}
         label={t.actions.shareTask}
@@ -156,12 +277,18 @@ export function TaskOverflowActions({
 }
 
 /**
- * Shared task-detail overflow menu. Holds every task-level action: share,
- * owner edit/cancel, safety, support, and report.
+ * Shared task-detail overflow menu. Holds every action: the view's booking
+ * actions, share, owner edit/repost/cancel, safety, support, and report.
  */
-export function TaskOverflowMenu() {
+export function TaskOverflowMenu({
+  onOpenDialog,
+}: {
+  onOpenDialog: (dialog: BookingDialog) => void
+}) {
   const close = useDropdownClose()
-  return <TaskOverflowActions onDone={close} packed />
+  return (
+    <TaskOverflowActions onDone={close} onOpenDialog={onOpenDialog} packed />
+  )
 }
 
 /**
@@ -169,23 +296,27 @@ export function TaskOverflowMenu() {
  */
 export function TaskHelpOverflowTrigger() {
   const t = useI11n(bag)
+  const { openDialog, dialogs } = useBookingDialogs()
 
   return (
-    <Dropdown
-      contentLabel={t.nav.taskOptionsAria}
-      align="end"
-      mobilePlacement="bottom"
-      trigger={
-        <IconButton
-          type="button"
-          variant="ghost"
-          aria-label={t.nav.taskOptionsAria}
-        >
-          <LuEllipsisVertical />
-        </IconButton>
-      }
-    >
-      <TaskOverflowMenu />
-    </Dropdown>
+    <>
+      <Dropdown
+        contentLabel={t.nav.taskOptionsAria}
+        align="end"
+        mobilePlacement="bottom"
+        trigger={
+          <IconButton
+            type="button"
+            variant="ghost"
+            aria-label={t.nav.taskOptionsAria}
+          >
+            <LuEllipsisVertical />
+          </IconButton>
+        }
+      >
+        <TaskOverflowMenu onOpenDialog={openDialog} />
+      </Dropdown>
+      {dialogs}
+    </>
   )
 }

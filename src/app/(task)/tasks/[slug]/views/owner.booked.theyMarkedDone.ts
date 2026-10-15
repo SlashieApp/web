@@ -5,6 +5,6 @@ export const ownerBookedTheyMarkedDone: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'theyMarkedDoneHeadline',
   subline: 'theyMarkedDoneSubline',
-  facts: ['otherParty', 'agreedPrice', 'bookedTime', 'description'],
+  facts: ['otherParty', 'agreedPrice', 'bookedTime', 'description', 'photos'],
   primaryAction: 'markDone',
 }

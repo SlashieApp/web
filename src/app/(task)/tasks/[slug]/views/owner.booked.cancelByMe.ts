@@ -5,6 +5,14 @@ export const ownerBookedCancelByMe: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'cancelByMeHeadline',
   subline: 'cancelByMeSubline',
-  facts: ['request', 'bookedTime', 'otherParty', 'agreedPrice', 'description'],
+  facts: [
+    'request',
+    'bookedTime',
+    'otherParty',
+    'agreedPrice',
+    'description',
+    'photos',
+  ],
+  actions: ['withdrawRequest'],
   primaryAction: 'message',
 }

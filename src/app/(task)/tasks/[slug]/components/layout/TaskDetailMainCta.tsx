@@ -146,7 +146,7 @@ function MainCtaControl({
 
 /**
  * The view's primary action. Compact (phone + tablet): fixed to the viewport
- * bottom. Web: in the Task summary header.
+ * bottom. Web: top right, above the cards and rail.
  */
 export function TaskDetailMainCta() {
   const { mainCta } = useTaskDetail()

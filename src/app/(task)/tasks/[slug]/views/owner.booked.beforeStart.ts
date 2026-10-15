@@ -5,12 +5,7 @@ export const ownerBookedBeforeStart: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'ownerBookedHeadline',
   subline: 'ownerBookedSubline',
-  facts: [
-    'bookedTime',
-    'otherParty',
-    'agreedPrice',
-    'description',
-    'bookingActions',
-  ],
+  facts: ['bookedTime', 'otherParty', 'agreedPrice', 'description', 'photos'],
+  actions: ['reschedule', 'cancelBooking'],
   primaryAction: 'message',
 }

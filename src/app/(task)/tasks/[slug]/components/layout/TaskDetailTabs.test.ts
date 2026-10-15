@@ -14,7 +14,7 @@ describe('TaskDetailTabs slot wiring', () => {
     expect(src).not.toContain('tabIconButton')
     expect(src).not.toContain('TaskHelpOverflowTrigger')
     expect(src).not.toContain('tabListAside')
-    expect(src).not.toContain('TaskDetailMainCta')
+    expect(src).toContain('mainCta={mainCta ? <TaskDetailMainCta /> : null}')
     expect(src).toContain('rail={<TaskDetailSideRail />}')
     expect(src).toContain('cards: <OverviewCards />')
     // Quotes are an Overview section (FE-258), not a tab.

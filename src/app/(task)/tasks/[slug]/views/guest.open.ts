@@ -19,6 +19,7 @@ export const guestOpen: TaskDetailViewConfig = {
     'categories',
     'postedBy',
     'description',
+    'photos',
   ],
   primaryAction: 'signInToQuote',
 }

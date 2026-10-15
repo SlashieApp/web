@@ -5,6 +5,13 @@ export const ownerBookedRescheduleByThem: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'rescheduleByThemHeadline',
   subline: 'rescheduleByThemSubline',
-  facts: ['request', 'bookedTime', 'otherParty', 'agreedPrice', 'description'],
+  facts: [
+    'request',
+    'bookedTime',
+    'otherParty',
+    'agreedPrice',
+    'description',
+    'photos',
+  ],
   primaryAction: 'message',
 }

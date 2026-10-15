@@ -11,6 +11,13 @@ export const ownerOpenQuotes: TaskDetailViewConfig = {
     },
   },
   subline: 'ownerQuotesSubline',
-  facts: ['budget', 'preferredTime', 'location', 'categories', 'description'],
+  facts: [
+    'budget',
+    'preferredTime',
+    'location',
+    'categories',
+    'description',
+    'photos',
+  ],
   primaryAction: 'preview',
 }

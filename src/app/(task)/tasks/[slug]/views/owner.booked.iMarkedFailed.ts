@@ -10,6 +10,7 @@ export const ownerBookedIMarkedFailed: TaskDetailViewConfig = {
     'agreedPrice',
     'bookedTime',
     'description',
+    'photos',
     'closeSwitch',
   ],
   primaryAction: 'message',

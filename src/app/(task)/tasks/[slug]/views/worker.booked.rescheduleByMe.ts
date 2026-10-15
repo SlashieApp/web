@@ -12,6 +12,8 @@ export const workerBookedRescheduleByMe: TaskDetailViewConfig = {
     'agreedPrice',
     'location',
     'description',
+    'photos',
   ],
+  actions: ['withdrawRequest'],
   primaryAction: 'message',
 }

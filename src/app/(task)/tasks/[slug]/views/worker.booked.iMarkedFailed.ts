@@ -10,6 +10,7 @@ export const workerBookedIMarkedFailed: TaskDetailViewConfig = {
     'agreedPrice',
     'bookedTime',
     'description',
+    'photos',
     'closeSwitch',
   ],
   primaryAction: 'message',

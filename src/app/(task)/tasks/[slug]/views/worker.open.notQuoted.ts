@@ -18,6 +18,7 @@ export const workerOpenNotQuoted: TaskDetailViewConfig = {
     'categories',
     'postedBy',
     'description',
+    'photos',
   ],
   primaryAction: 'sendQuote',
 }

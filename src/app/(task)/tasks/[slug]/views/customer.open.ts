@@ -19,6 +19,7 @@ export const customerOpen: TaskDetailViewConfig = {
     'categories',
     'postedBy',
     'description',
+    'photos',
   ],
   primaryAction: 'becomeWorker',
 }

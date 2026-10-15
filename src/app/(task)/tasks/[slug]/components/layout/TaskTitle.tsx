@@ -5,8 +5,6 @@ import { Box, HStack, Heading, Skeleton } from '@chakra-ui/react'
 import { sdlMotion } from '@/theme/styles'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { TASK_DETAIL_VIEWS } from '../../views'
-import { TaskStatusPill } from '../ui/TaskStatusPill'
 import { TaskDetailMeta } from './TaskDetailMeta'
 import { TaskBackButton } from './TaskHeaderControls'
 import { TaskHelpOverflowTrigger } from './TaskOverflowMenu'
@@ -16,36 +14,19 @@ type TaskTitleProps = {
   isStuck?: boolean
 }
 
-/** Matches the compact back button (44px) plus the title-row gap. */
-const COMPACT_TITLE_OFFSET = 'calc(44px + 0.75rem)'
-
 /**
- * Sticky task title. Until the chrome is stuck, the status badge sits above
- * the title as an eyebrow and the compact back control lines up with the
- * title only. Once stuck, the badge sits inline beside the title. Meta chips
- * sit under the title.
+ * Sticky task title with the compact back control, then the meta chips. The
+ * status badge is the Task summary's eyebrow, not here.
  */
 export function TaskTitle({ isStuck = false }: TaskTitleProps) {
-  const { task, seed, pending, view } = useTaskDetail()
+  const { task, seed, pending } = useTaskDetail()
 
   if (!task && !pending && !seed) return null
 
   const title = task?.title?.trim() || seed?.title?.trim() || ''
-  const pill = TASK_DETAIL_VIEWS[view].pill
-  // The closed date lives in the summary's booking record, not here.
-  const statusChrome = pill ? (
-    <TaskStatusPill status={pill} size="sm" flexShrink={0} />
-  ) : (
-    <Skeleton h="22px" w="72px" borderRadius="full" flexShrink={0} />
-  )
 
   return (
     <Box pt={2} pb={4} w="full">
-      {isStuck ? null : (
-        <Box mb={1} w="fit-content" pl={{ base: COMPACT_TITLE_OFFSET, lg: 0 }}>
-          {statusChrome}
-        </Box>
-      )}
       <HStack
         gap={3}
         align="center"
@@ -80,7 +61,6 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
           >
             {title || <Skeleton as="span" h="20px" w="55%" borderRadius="md" />}
           </Heading>
-          {isStuck ? statusChrome : null}
         </HStack>
         <HStack
           display={{ base: 'flex', lg: 'none' }}

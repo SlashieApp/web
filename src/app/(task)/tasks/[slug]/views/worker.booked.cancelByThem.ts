@@ -12,6 +12,7 @@ export const workerBookedCancelByThem: TaskDetailViewConfig = {
     'agreedPrice',
     'location',
     'description',
+    'photos',
   ],
   primaryAction: 'message',
 }

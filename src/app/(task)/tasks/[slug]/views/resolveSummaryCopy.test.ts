@@ -80,7 +80,7 @@ describe('summary copy', () => {
       ...keysOf(view.headline),
       ...keysOf(view.subline),
     ])
-    for (const key of new Set([...used, 'heading' as const])) {
+    for (const key of new Set(used)) {
       expect(bag.en.summary[key], `en.summary.${key}`).toEqual(
         expect.any(String),
       )

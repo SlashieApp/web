@@ -12,6 +12,7 @@ export const workerOpenQuoted: TaskDetailViewConfig = {
     'categories',
     'postedBy',
     'description',
+    'photos',
   ],
   primaryAction: 'editQuote',
 }

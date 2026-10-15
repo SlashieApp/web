@@ -1,3 +1,4 @@
+import { Box, Grid, Stack } from '@chakra-ui/react'
 import {
   Currency,
   OrderCloseKind,
@@ -19,7 +20,33 @@ import {
   storyTaskOrder,
   storyTaskQuote,
 } from '../../helpers/taskDetailStoryFixtures'
+import { TaskDetailMainCta } from '../layout/TaskDetailMainCta'
+import { TaskHelpCard } from '../overview/TaskHelpCard'
 import { TaskSummary } from './TaskSummary'
+
+/**
+ * The summary as the page lays it out: the main button top right (pinned at
+ * the bottom on phones), the summary, and Help & actions with the view's
+ * booking actions. Phones get Help & actions from the title's menu; it shows
+ * here at every width so each view's actions are visible.
+ */
+function SummaryScene() {
+  return (
+    <Stack gap={5}>
+      <Box alignSelf="flex-end" w="min(580px, 50%)">
+        <TaskDetailMainCta />
+      </Box>
+      <Grid
+        templateColumns={{ base: '1fr', lg: 'minmax(0, 2fr) minmax(0, 1fr)' }}
+        gap={6}
+        alignItems="start"
+      >
+        <TaskSummary />
+        <TaskHelpCard />
+      </Grid>
+    </Stack>
+  )
+}
 
 /**
  * One story per view, named after it (see `views/README.md`). Owner stories
@@ -28,6 +55,7 @@ import { TaskSummary } from './TaskSummary'
 const meta: Meta<typeof TaskSummary> = {
   title: 'task/tasks/summary/TaskSummary',
   component: TaskSummary,
+  render: () => <SummaryScene />,
   parameters: { layout: 'padded' },
 }
 
@@ -143,7 +171,7 @@ const ownerOrders = bookingOrders(STORY_OWNER_ID, STORY_WORKER_ID)
 const workerOrders = bookingOrders(STORY_WORKER_ID, STORY_OWNER_ID)
 
 function view(config: Partial<TaskDetailStoryConfig>): Story {
-  return { decorators: [withTaskDetailStory(config, { maxWidth: '760px' })] }
+  return { decorators: [withTaskDetailStory(config, { maxWidth: '1200px' })] }
 }
 
 function owner(o: OrderItem): Story {

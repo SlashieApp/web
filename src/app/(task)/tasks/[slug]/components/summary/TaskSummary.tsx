@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Flex, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { ComponentType } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
@@ -22,18 +22,12 @@ import {
   resolveSummaryCopy,
   summaryBudgetType,
 } from '../../views/resolveSummaryCopy'
-import { TaskDetailMainCta } from '../layout/TaskDetailMainCta'
-import {
-  BookingActionsFact,
-  CloseSwitchFact,
-  ConflictActionsFact,
-  RequestFact,
-} from './facts/BookingActionFacts'
+import { TaskStatusPill } from '../ui/TaskStatusPill'
+import { CloseSwitchFact, RequestFact } from './facts/BookingActionFacts'
 import {
   AgreedPriceFact,
   OtherPartyFact,
   RecordFact,
-  RepostFact,
   ReviewsFact,
 } from './facts/BookingFacts'
 import {
@@ -44,6 +38,7 @@ import {
   LocationFact,
   MyQuoteFact,
   PaymentFact,
+  PhotosFact,
   PostedByFact,
   PreferredTimeFact,
   useDateLocale,
@@ -61,13 +56,11 @@ const SUMMARY_FACTS: Record<TaskSummaryFact, ComponentType> = {
   otherParty: OtherPartyFact,
   agreedPrice: AgreedPriceFact,
   description: DescriptionFact,
+  photos: PhotosFact,
   request: RequestFact,
-  bookingActions: BookingActionsFact,
-  conflictActions: ConflictActionsFact,
   closeSwitch: CloseSwitchFact,
   record: RecordFact,
   reviews: ReviewsFact,
-  repost: RepostFact,
 }
 
 /** Hairline between facts; a fact with nothing to show renders nothing. */
@@ -104,74 +97,52 @@ function useSummaryLines(config: TaskDetailViewConfig) {
 }
 
 /**
- * Task summary (FE-274): a headline, one sub-line saying what to do next,
- * then the facts that matter in the order the view lists them. The view is
- * worked out by `getTaskDetailView`; this only renders its config. On web
- * the main button sits in the header; compact pins it to the bottom.
+ * Task summary (FE-274): the status badge, a headline, one sub-line saying
+ * what to do next, then the facts that matter in the order the view lists
+ * them. The view is worked out by `getTaskDetailView`; this only renders its
+ * config. A card on web; flush on phones and tablets. The main button and
+ * Help & actions sit outside it.
  */
 export function TaskSummary() {
-  const { view, mainCta, jobActionError } = useTaskDetail()
-  const t = useI11n(bag)
+  const { view, jobActionError } = useTaskDetail()
   const config = TASK_DETAIL_VIEWS[view]
   const { headline, subline } = useSummaryLines(config)
 
   return (
     <Card
       {...TASK_DETAIL_SECTION_CARD}
+      framed={{ base: false, lg: true }}
       id={TASK_ORDER_SECTION_ID}
       scrollMarginTop="140px"
       aria-busy={headline ? undefined : true}
       header={
-        <Flex
-          columnGap={6}
-          rowGap={4}
-          wrap="wrap"
-          align="flex-start"
-          justify="space-between"
-        >
-          <Stack gap={1} flex="1 1 16rem" minW={0} aria-live="polite">
-            <Text
-              fontSize="xs"
-              fontWeight={500}
-              color="text.muted"
-              letterSpacing="0.06em"
-              textTransform="uppercase"
+        <Stack gap={1.5} align="flex-start" aria-live="polite">
+          {config.pill ? (
+            <TaskStatusPill status={config.pill} size="sm" />
+          ) : (
+            <Skeleton h="22px" w="72px" borderRadius="full" />
+          )}
+          {headline ? (
+            <Heading
+              as="h2"
+              fontSize="lg"
+              fontWeight={700}
+              lineHeight="short"
+              color="text.default"
             >
-              {t.summary.heading}
+              {headline}
+            </Heading>
+          ) : (
+            <Skeleton h="28px" w="60%" borderRadius="md" />
+          )}
+          {subline ? (
+            <Text fontSize="sm" color="text.muted" lineHeight="short">
+              {subline}
             </Text>
-            {headline ? (
-              <Heading
-                as="h2"
-                fontSize="lg"
-                fontWeight={700}
-                lineHeight="short"
-                color="text.default"
-              >
-                {headline}
-              </Heading>
-            ) : (
-              <Skeleton h="28px" w="60%" borderRadius="md" />
-            )}
-            {subline ? (
-              <Text fontSize="sm" color="text.muted" lineHeight="short">
-                {subline}
-              </Text>
-            ) : headline ? null : (
-              <Skeleton h="20px" w="85%" borderRadius="md" />
-            )}
-          </Stack>
-          {mainCta ? (
-            <Box
-              display={{ base: 'none', lg: 'block' }}
-              flex="1 1 18rem"
-              maxW="24rem"
-              minW={0}
-              ml="auto"
-            >
-              <TaskDetailMainCta />
-            </Box>
-          ) : null}
-        </Flex>
+          ) : headline ? null : (
+            <Skeleton h="20px" w="85%" borderRadius="md" />
+          )}
+        </Stack>
       }
     >
       {jobActionError ? (

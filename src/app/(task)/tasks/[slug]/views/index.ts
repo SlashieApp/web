@@ -100,6 +100,7 @@ export type {
   TaskDetailViewer,
 } from './getTaskDetailView'
 export type {
+  TaskDetailAction,
   TaskDetailPrimaryAction,
   TaskDetailViewConfig,
   TaskDetailViewName,

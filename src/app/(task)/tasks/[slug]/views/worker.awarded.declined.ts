@@ -5,6 +5,13 @@ export const workerAwardedDeclined: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'declinedHeadline',
   subline: 'declinedClosedSubline',
-  facts: ['preferredTime', 'location', 'categories', 'postedBy', 'description'],
+  facts: [
+    'preferredTime',
+    'location',
+    'categories',
+    'postedBy',
+    'description',
+    'photos',
+  ],
   primaryAction: 'browseTasks',
 }

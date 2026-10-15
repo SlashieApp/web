@@ -4,6 +4,7 @@ import {
   Box,
   Grid,
   HStack,
+  Image,
   Popover,
   Portal,
   Skeleton,
@@ -608,5 +609,44 @@ export function DescriptionFact() {
         </Stack>
       )}
     </Box>
+  )
+}
+
+/** Square thumbnails under the description; no title. */
+export function PhotosFact() {
+  const { task, seed } = useTaskDetail()
+  const t = useI11n(bag)
+  const seedImage = seed?.thumbnailSrc?.trim()
+  const images = task
+    ? task.images.filter((src): src is string => Boolean(src?.trim()))
+    : seedImage
+      ? [seedImage]
+      : []
+  if (images.length === 0) return null
+  const title = (task ?? seed)?.title?.trim() || t.fallbackTask
+
+  return (
+    <Wrap gap={2} py={3}>
+      {images.map((src, index) => (
+        <Box
+          key={src}
+          boxSize={{ base: '84px', md: '96px' }}
+          borderRadius="lg"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="border.default"
+          bg="bg.subtle"
+          flexShrink={0}
+        >
+          <Image
+            src={src}
+            alt={formatMessage(t.details.photoAlt, { title, n: index + 1 })}
+            w="full"
+            h="full"
+            objectFit="cover"
+          />
+        </Box>
+      ))}
+    </Wrap>
   )
 }

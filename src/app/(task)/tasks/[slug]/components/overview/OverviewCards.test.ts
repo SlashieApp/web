@@ -7,11 +7,10 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('OverviewCards layout', () => {
-  it('leads with the Task summary, then photos, the phone section cards, and quotes', () => {
+  it('leads with the Task summary, then the phone section cards and quotes', () => {
     const src = readFileSync(join(dir, 'OverviewCards.tsx'), 'utf8')
     const order = [
       '<TaskSummary />',
-      '<PhotosCard />',
       '<TaskAnalyticsTrigger />',
       '<TaskActivityTrigger />',
       '<QuotesPanel />',
@@ -19,11 +18,12 @@ describe('OverviewCards layout', () => {
     expect(order.every((at) => at >= 0)).toBe(true)
     expect([...order].sort((a, b) => a - b)).toEqual(order)
     expect(src).toContain('showTaskDetailQuotesSection(permissions)')
-    // FE-274: status, booking, budget and details are one summary card.
+    // FE-274: status, booking, budget, details and photos are one summary.
     for (const gone of [
       'BookingSection',
       'TaskPricingCard',
       'TaskDetailsCard',
+      'PhotosCard',
       'hideOverviewCards',
     ]) {
       expect(src).not.toContain(gone)

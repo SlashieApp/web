@@ -37,14 +37,13 @@ describe('TaskActivityTrigger', () => {
 })
 
 describe('TaskTitle compact actions', () => {
-  it('shows the options icon on compact, not on web; Activity is an Overview card', () => {
+  it('shows the options icon on compact, not on web; no status badge (it is the summary eyebrow)', () => {
     const src = readFileSync(join(dir, 'TaskTitle.tsx'), 'utf8')
     expect(src).not.toContain('TaskActivityTrigger')
+    expect(src).not.toContain('TaskStatusPill')
     expect(src).toContain('TaskHelpOverflowTrigger')
     expect(src).toContain("display={{ base: 'flex', lg: 'none' }}")
     expect(src).toContain('TaskDetailMeta')
-    expect(src).toContain('isStuck ? null')
-    expect(src).toContain('COMPACT_TITLE_OFFSET')
     expect(src).toContain('flex="0 1 auto"')
   })
 })

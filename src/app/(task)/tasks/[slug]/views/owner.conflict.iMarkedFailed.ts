@@ -5,12 +5,7 @@ export const ownerConflictIMarkedFailed: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'conflictHeadline',
   subline: 'conflictIMarkedFailedSubline',
-  facts: [
-    'otherParty',
-    'agreedPrice',
-    'bookedTime',
-    'conflictActions',
-    'description',
-  ],
+  facts: ['otherParty', 'agreedPrice', 'bookedTime', 'description', 'photos'],
+  actions: ['askToCancel', 'reportOtherParty'],
   primaryAction: 'message',
 }

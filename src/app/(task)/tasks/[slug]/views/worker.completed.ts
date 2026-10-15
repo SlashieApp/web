@@ -12,6 +12,7 @@ export const workerCompleted: TaskDetailViewConfig = {
     'bookedTime',
     'reviews',
     'description',
+    'photos',
   ],
   primaryAction: 'review',
 }

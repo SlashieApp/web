@@ -10,6 +10,7 @@ export const ownerBookedIMarkedDone: TaskDetailViewConfig = {
     'agreedPrice',
     'bookedTime',
     'description',
+    'photos',
     'closeSwitch',
   ],
   primaryAction: 'message',

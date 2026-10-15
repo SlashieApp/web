@@ -5,6 +5,6 @@ export const visitorAwarded: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'awardedHeadline',
   subline: 'awardedSubline',
-  facts: ['location', 'categories', 'postedBy', 'description'],
+  facts: ['location', 'categories', 'postedBy', 'description', 'photos'],
   primaryAction: null,
 }

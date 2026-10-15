@@ -8,6 +8,13 @@ export const loading: TaskDetailViewConfig = {
   pill: null,
   headline: null,
   subline: null,
-  facts: ['budget', 'preferredTime', 'location', 'categories', 'description'],
+  facts: [
+    'budget',
+    'preferredTime',
+    'location',
+    'categories',
+    'description',
+    'photos',
+  ],
   primaryAction: null,
 }

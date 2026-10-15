@@ -12,6 +12,7 @@ export const workerOpenDeclined: TaskDetailViewConfig = {
     'categories',
     'postedBy',
     'description',
+    'photos',
   ],
   primaryAction: 'sendQuote',
 }

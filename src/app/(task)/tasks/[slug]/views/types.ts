@@ -75,19 +75,26 @@ export type TaskSummaryFact =
   /** Agreed total and payment method. */
   | 'agreedPrice'
   | 'description'
-  /** A pending reschedule or cancellation, with its answer buttons. */
+  /** Task photos as thumbnails, under the description. */
+  | 'photos'
+  /** A pending reschedule or cancellation; the other side's answer buttons. */
   | 'request'
-  /** Reschedule and Cancel booking, before the booked start. */
-  | 'bookingActions'
-  /** Conflict: Safety and help, Report, Ask to cancel. */
-  | 'conflictActions'
   /** After marking Done or Failed: switch to the other choice. */
   | 'closeSwitch'
-  /** The booking record: status, timeline, closed date. */
+  /** The booking record: timeline and closed date. */
   | 'record'
   | 'reviews'
-  /** Owner: post the task again (secondary). */
-  | 'repost'
+
+/** Booking actions the view adds to the Help & actions card. */
+export type TaskDetailAction =
+  | 'reschedule'
+  | 'cancelBooking'
+  /** Withdraw the viewer's own pending reschedule or cancellation. */
+  | 'withdrawRequest'
+  /** Conflict: ask the other side to cancel. */
+  | 'askToCancel'
+  /** Conflict: report the other person. */
+  | 'reportOtherParty'
 
 /** The one main button for the view (the page CTA). */
 export type TaskDetailPrimaryAction =
@@ -135,4 +142,6 @@ export type TaskDetailViewConfig = {
   subline: TaskSummaryCopy | null
   facts: readonly TaskSummaryFact[]
   primaryAction: TaskDetailPrimaryAction | null
+  /** Booking actions in Help & actions, before the task-level ones. */
+  actions?: readonly TaskDetailAction[]
 }
