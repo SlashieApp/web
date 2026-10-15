@@ -12,6 +12,7 @@ import type { TaskDetailPermissions } from '../helpers/getTaskDetailPermissions'
 import type { TaskDetailMainCtaModel } from '../helpers/taskDetailMainCtaModel'
 import type { TaskDetailTab } from '../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
+import type { TaskDetailViewName } from '../views'
 
 export type TaskDetailData = {
   taskId: string
@@ -107,8 +108,10 @@ export type TaskDetailContextValue = TaskDetailData &
   TaskDetailQuoteForm &
   TaskDetailActions & {
     permissions: TaskDetailPermissions
+    /** What this viewer sees right now (see `views/README.md`). */
+    view: TaskDetailViewName
     activeTab: TaskDetailTab
-    /** Primary action. Null when this viewer has none. */
+    /** The view's primary action. Null when it has none. */
     mainCta: TaskDetailMainCtaModel | null
     /** The task's Messages thread, or the inbox until it is known (FE-271). */
     taskThreadHref: string

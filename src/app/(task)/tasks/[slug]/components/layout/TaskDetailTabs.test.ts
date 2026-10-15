@@ -7,14 +7,14 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('TaskDetailTabs slot wiring', () => {
-  it('passes tabTitle, tabDescription, and cards into the layout', () => {
+  it('passes the cards and rail into the layout', () => {
     const src = readFileSync(join(dir, 'TaskDetailTabs.tsx'), 'utf8')
-    expect(src).toContain('tabTitle: copy?.headline')
-    expect(src).toContain('tabDescription: copy?.subtext')
+    expect(src).not.toContain('tabTitle')
+    expect(src).not.toContain('statusHeaderCopy')
     expect(src).not.toContain('tabIconButton')
     expect(src).not.toContain('TaskHelpOverflowTrigger')
     expect(src).not.toContain('tabListAside')
-    expect(src).toContain('mainCta={<TaskDetailMainCta />}')
+    expect(src).not.toContain('TaskDetailMainCta')
     expect(src).toContain('rail={<TaskDetailSideRail />}')
     expect(src).toContain('cards: <OverviewCards />')
     // Quotes are an Overview section (FE-258), not a tab.

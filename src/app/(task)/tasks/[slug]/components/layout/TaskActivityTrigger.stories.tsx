@@ -15,4 +15,7 @@ const meta: Meta<typeof TaskActivityTrigger> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+/** Phones: the Overview section card that opens Activity in a sheet. */
+export const Default: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+}

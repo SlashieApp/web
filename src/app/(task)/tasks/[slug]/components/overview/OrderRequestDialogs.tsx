@@ -13,12 +13,13 @@ import { validateTimeSlotDrafts } from '@/utils/timeSlots'
 import { Modal, TimeSlotPicker } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { orderCounterpart } from '../../helpers/taskDetailUtils'
 import bag from '../../i11n.json'
 
 /**
  * Who the booking is with, and whether a reschedule or cancellation can be
  * asked now: no request pending and before the booked start (cancel also
- * while in CONFLICT). Shared by the booking panel and the Messages menu.
+ * while in CONFLICT). Shared by the Task summary and the Messages menu.
  */
 export function useOrderRequestOptions(): {
   counterpartName: string
@@ -30,10 +31,12 @@ export function useOrderRequestOptions(): {
   if (!task || !myOrder || !orderClose || !permissions.showOrderActions) {
     return null
   }
-  const quote = task.quotes.find((q) => q.id === myOrder.quoteId)
-  const counterpartName = permissions.isOwner
-    ? quote?.worker?.profile?.name?.trim() || t.booking.yourWorkerFallback
-    : task.poster?.profile?.name?.trim() || t.fallbackCustomer
+  const counterpartName = orderCounterpart(
+    task,
+    myOrder,
+    permissions.isOwner,
+    t,
+  ).name
   const pending = orderRequestView(myOrder, me?.id) != null
   const beforeStart = orderClose.startsAt
     ? orderClose.startsAt.getTime() > Date.now()

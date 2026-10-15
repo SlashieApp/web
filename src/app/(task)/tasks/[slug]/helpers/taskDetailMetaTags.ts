@@ -1,6 +1,7 @@
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import { buildSearchUrl } from '@/app/(task)/search/helpers/searchQueryParams'
 import type { OrderItem } from '@/utils/orderHelpers'
+import type { TaskDatetimeLike } from '@/utils/taskJobSchedule'
 
 import {
   type TaskDetailRecord,
@@ -69,7 +70,7 @@ export function taskDetailLocationTag(input: {
  * Flexible when the task has a schedule type but no date.
  */
 export function taskDetailTimeTag(
-  task: Pick<TaskDetailRecord, 'datetime'>,
+  task: { datetime?: TaskDatetimeLike | null },
   copy: TaskDetailTimeTagCopy,
   now = new Date(),
   locale = 'en-GB',
@@ -147,7 +148,7 @@ const HOUR_MS = 60 * 60 * 1000
  * time. Success tone today, warning within 24 h of a known start.
  */
 export function taskDetailTimeChip(
-  task: Pick<TaskDetailRecord, 'datetime'>,
+  task: { datetime?: TaskDatetimeLike | null },
   copy: TaskDetailTimeChipCopy,
   now = new Date(),
   locale = 'en-GB',

@@ -91,24 +91,6 @@ export function workerOnSitePhase(
   return 'complete'
 }
 
-export function countdownToExactSchedule(
-  datetime: TaskDatetimeLike | null | undefined,
-  now = new Date(),
-): string | null {
-  const when = parseTaskScheduleDate(datetime)
-  if (!when) return null
-  const diffMs = when.getTime() - now.getTime()
-  if (diffMs <= 0) return 'Scheduled time has passed'
-  const hours = Math.floor(diffMs / (60 * 60 * 1000))
-  const minutes = Math.floor((diffMs % (60 * 60 * 1000)) / (60 * 1000))
-  if (hours >= 48) {
-    const days = Math.floor(hours / 24)
-    return `${days} day${days === 1 ? '' : 's'} until job`
-  }
-  if (hours >= 1) return `${hours}h ${minutes}m until job`
-  return `${minutes} minute${minutes === 1 ? '' : 's'} until job`
-}
-
 export function isAcceptedQuoteStatus(status: string): boolean {
   return status === QuoteStatus.Accepted || /accept|award|select/i.test(status)
 }

@@ -293,20 +293,6 @@ export function orderTimelineSteps(order: OrderItem): OrderTimelineStep[] {
   ]
 }
 
-export function workerQuoteForOrder(
-  quotes: ReadonlyArray<{
-    id: string
-    status: string
-    worker?: {
-      id: string
-      profile?: { name?: string | null; avatarUrl?: string | null } | null
-    } | null
-  }>,
-  quoteId: string,
-) {
-  return quotes.find((q) => q.id === quoteId) ?? null
-}
-
 export function orderLocationLabel(order: OrderItem): string {
   const loc = order.snapshot?.location
   return (

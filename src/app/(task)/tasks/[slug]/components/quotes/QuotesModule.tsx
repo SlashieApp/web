@@ -194,21 +194,18 @@ export type QuotesModuleProps = {
   slotsCap?: number
 }
 
-function rowStatus(
-  status: QuoteStatus | string,
-  own: boolean,
-): QuoteRowStatus | null {
+function rowStatus(status: QuoteStatus | string): QuoteRowStatus | null {
   if (isAcceptedQuoteStatus(status)) return 'accepted'
   if (status === QuoteStatus.Declined) return 'declined'
   if (status === QuoteStatus.NotSelected) return 'notSelected'
-  return own ? 'yours' : null
+  return null
 }
 
 /**
  * Overview Quotes section (FE-258): every quote as a row, replacing the old
- * Quotes tab. Owners sort and accept or decline; workers see their own quote
- * first and the others read-only. Hidden until there is a quote to list;
- * sign-in, worker setup and Send quote stay on the main CTA.
+ * Quotes tab. Owners sort and accept or decline; workers see the other
+ * quotes read-only (their own is in the Task summary). Hidden until there is
+ * a quote to list; sign-in, worker setup and Send quote stay on the main CTA.
  */
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const t = useI11n(bag)
@@ -253,16 +250,13 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   if (!task || state === 'W6') return null
 
   const isOwner = permissions.isOwner
+  // A worker's own quote is in the Task summary (FE-274); list the others.
   const rows = isOwner
     ? displayQuotes
-    : [
-        ...(myQuote ? [myQuote] : []),
-        ...quotes.filter((qq) => qq.id !== myQuote?.id),
-      ]
+    : quotes.filter((qq) => qq.id !== myQuote?.id)
   if (rows.length === 0) return null
 
   const quoteRow = (quote: TaskQuote, index: number) => {
-    const own = !isOwner && quote.id === myQuote?.id
     const canAct =
       isOwner &&
       quote.status === QuoteStatus.Pending &&
@@ -272,12 +266,8 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       <QuoteRow
         key={quote.id}
         {...quoteCardBaseProps(quote, fallbackWorker, q, intlLocale)}
-        respondedLabel={
-          own && quote.status === QuoteStatus.Pending
-            ? q.pendingReviewing
-            : formatRespondedAgo(quote.createdAt, q)
-        }
-        status={rowStatus(quote.status, own)}
+        respondedLabel={formatRespondedAgo(quote.createdAt, q)}
+        status={rowStatus(quote.status)}
         isBestMatch={
           canAct && sort === 'recommended' && index === 0 && rows.length > 1
         }

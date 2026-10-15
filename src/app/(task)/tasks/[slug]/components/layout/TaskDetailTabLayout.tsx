@@ -11,7 +11,7 @@ import {
 } from '@/app/(task)/helpers/marketplaceMap'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
 import { findScrollParent } from '@/utils/findScrollParent'
-import { MOBILE_BOTTOM_NAV_MAX_W, Tabs } from '@ui'
+import { Tabs } from '@ui'
 
 import { TASK_DETAIL_STUCK_TOP_PADDING } from '../../helpers/taskDetailHeaderCollapse'
 import { TASK_DETAIL_TAB_BODY_MIN_H } from '../../helpers/taskDetailLayout'
@@ -21,8 +21,6 @@ export type TaskDetailTabSlot = {
   key: TaskDetailTab
   label: string
   badge?: number
-  tabTitle?: ReactNode
-  tabDescription?: ReactNode
   cards: ReactNode
 }
 
@@ -35,23 +33,11 @@ export type TaskDetailTabLayoutProps = {
   fitted?: boolean
   fittedBelowLg?: boolean
   px?: BoxProps['px']
-  /** Desktop right rail (Help & actions, Activity). Hidden below `lg`. */
+  /** Desktop right rail (Help & actions, Analytics, Activity). Hidden below `lg`. */
   rail?: ReactNode
-  /**
-   * Desktop main CTA — absolutely pinned to the bottom-right of TabIntro,
-   * outside the cards|rail grid. Hidden below `lg`.
-   */
-  mainCta?: ReactNode
 }
 
 const COMPACT_MAX_PX = WEB_MIN_PX - 1
-
-/**
- * Web main CTA: half the row (wider than the 1/3 rail cards), capped at the
- * floating nav width. TabIntro takes what is left beside it.
- */
-const WEB_MAIN_CTA_W = `min(${MOBILE_BOTTOM_NAV_MAX_W}, calc((100% - 1.5rem) / 2))`
-const WEB_INTRO_BESIDE_CTA_MAX_W = `calc(100% - ${WEB_MAIN_CTA_W} - 1.5rem)`
 
 /**
  * Compact (phone + tablet) wash sits on the sticky title/tab chrome and
@@ -116,39 +102,10 @@ function StuckHeaderBg({ isStuck }: { isStuck: boolean }) {
   )
 }
 
-function TabIntro({
-  tabTitle,
-  tabDescription,
-}: Pick<TaskDetailTabSlot, 'tabTitle' | 'tabDescription'>) {
-  if (!tabTitle && !tabDescription) return null
-
-  return (
-    <Stack gap={1} w="full" minW={0}>
-      {tabTitle ? (
-        <Box
-          as="h2"
-          fontWeight={700}
-          fontSize="lg"
-          color="text.default"
-          lineHeight="short"
-        >
-          {tabTitle}
-        </Box>
-      ) : null}
-      {tabDescription ? (
-        <Box fontSize="sm" color="text.muted" lineHeight="short">
-          {tabDescription}
-        </Box>
-      ) : null}
-    </Stack>
-  )
-}
-
 /**
- * Task-detail tab chrome: sticky title + tab headers, then TabIntro with
- * the web main CTA absolutely aligned to that block’s end (bottom-right).
- * Cards and Help/Activity share a top edge in the 2:1 grid. The compact
- * pin lives in TaskDetailMainCta.
+ * Task-detail tab chrome: sticky title + tab headers, then the cards and the
+ * desktop rail sharing a top edge in the 2:1 grid. The main CTA lives in the
+ * Task summary (web) and its compact pin (TaskDetailMainCta).
  */
 export function TaskDetailTabLayout({
   title,
@@ -160,7 +117,6 @@ export function TaskDetailTabLayout({
   fittedBelowLg = false,
   px,
   rail,
-  mainCta,
 }: TaskDetailTabLayoutProps) {
   const [isStuck, setIsStuck] = useState(false)
   const sentinelObserverRef = useRef<IntersectionObserver | null>(null)
@@ -193,7 +149,6 @@ export function TaskDetailTabLayout({
   }, [])
 
   const titleNode = typeof title === 'function' ? title({ isStuck }) : title
-  const activeTab = tabs.find((tab) => tab.key === value)
   const splitColumns = rail
     ? { base: '1fr', lg: 'minmax(0, 2fr) minmax(0, 1fr)' }
     : '1fr'
@@ -234,66 +189,39 @@ export function TaskDetailTabLayout({
           badge: tab.badge,
         }))}
       >
-        <Stack gap={5} w="full" pt={5} pb={6}>
-          <Box position="relative" w="full">
-            <Box
-              w="full"
-              maxW={{
-                base: 'full',
-                lg: mainCta ? WEB_INTRO_BESIDE_CTA_MAX_W : 'full',
-              }}
-            >
-              <TabIntro
-                tabTitle={activeTab?.tabTitle}
-                tabDescription={activeTab?.tabDescription}
-              />
-            </Box>
-            {mainCta ? (
-              <Box
-                display={{ base: 'none', lg: 'block' }}
-                position="absolute"
-                right={0}
-                bottom={0}
-                w={WEB_MAIN_CTA_W}
-                minW={0}
-                pointerEvents="auto"
-              >
-                {mainCta}
-              </Box>
-            ) : null}
+        <Grid
+          templateColumns={splitColumns}
+          columnGap={6}
+          alignItems="start"
+          w="full"
+          pt={5}
+          pb={6}
+        >
+          <Box minW={0}>
+            {tabs.map((tab) => (
+              <Tabs.Panel key={tab.key} value={tab.key} pt={0} pb={0}>
+                <Stack
+                  gap={5}
+                  w="full"
+                  minW={0}
+                  minH={TASK_DETAIL_TAB_BODY_MIN_H}
+                  pointerEvents="auto"
+                >
+                  {tab.cards}
+                </Stack>
+              </Tabs.Panel>
+            ))}
           </Box>
-          <Grid
-            templateColumns={splitColumns}
-            columnGap={6}
-            alignItems="start"
-            w="full"
-          >
-            <Box minW={0}>
-              {tabs.map((tab) => (
-                <Tabs.Panel key={tab.key} value={tab.key} pt={0} pb={0}>
-                  <Stack
-                    gap={5}
-                    w="full"
-                    minW={0}
-                    minH={TASK_DETAIL_TAB_BODY_MIN_H}
-                    pointerEvents="auto"
-                  >
-                    {tab.cards}
-                  </Stack>
-                </Tabs.Panel>
-              ))}
+          {rail ? (
+            <Box
+              display={{ base: 'none', lg: 'block' }}
+              minW={0}
+              pointerEvents="auto"
+            >
+              {rail}
             </Box>
-            {rail ? (
-              <Box
-                display={{ base: 'none', lg: 'block' }}
-                minW={0}
-                pointerEvents="auto"
-              >
-                {rail}
-              </Box>
-            ) : null}
-          </Grid>
-        </Stack>
+          ) : null}
+        </Grid>
       </Tabs>
     </>
   )

@@ -9,14 +9,17 @@ import { Card } from '@ui'
 
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { buildTaskActivitySteps } from '../../helpers/taskDetailActivity'
+import {
+  type TaskActivityStep,
+  buildTaskActivitySteps,
+} from '../../helpers/taskDetailActivity'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import bag from '../../i11n.json'
 
-function ActivityTimeline() {
+/** The lifecycle steps (posted, quotes, booked, done), or null before load. */
+export function useActivitySteps(): TaskActivityStep[] | null {
   const { task, myOrder, permissions } = useTaskDetail()
-  const t = useI11n(bag)
-  const a = t.activity
+  const a = useI11n(bag).activity
 
   if (!task) return null
 
@@ -33,7 +36,7 @@ function ActivityTimeline() {
     ? formatMessage(a.bookedNamed, { name: workerName })
     : a.booked
 
-  const steps = buildTaskActivitySteps(task, myOrder, permissions, {
+  return buildTaskActivitySteps(task, myOrder, permissions, {
     posted: a.posted,
     postedDetail: a.postedDetail,
     quotesLabel,
@@ -47,66 +50,68 @@ function ActivityTimeline() {
     completed: a.completed,
     cancelled: a.cancelled,
   })
+}
 
+export function ActivitySteps({ steps }: { steps: TaskActivityStep[] }) {
   return (
-    <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={a.heading}>
-      <Stack gap={0} w="full">
-        {steps.map((step, index) => (
-          <HStack
-            key={step.key}
-            align="flex-start"
-            gap={3}
-            py={2}
-            borderBottomWidth={index < steps.length - 1 ? '1px' : undefined}
-            borderColor="border.default"
-          >
-            <Box
-              w={2}
-              h={2}
-              mt={2}
-              borderRadius="full"
-              bg={
-                step.done
-                  ? 'action.primary'
-                  : step.current
-                    ? 'status.success.solid'
-                    : 'neutral.300'
-              }
-              flexShrink={0}
-            />
-            <Stack gap={0} flex={1} minW={0}>
-              <Text
-                fontSize="sm"
-                fontWeight={step.current ? 700 : 600}
-                color={
-                  step.done || step.current ? 'text.default' : 'text.muted'
-                }
-              >
-                {step.label}
+    <Stack gap={0} w="full">
+      {steps.map((step, index) => (
+        <HStack
+          key={step.key}
+          align="flex-start"
+          gap={3}
+          py={2}
+          borderBottomWidth={index < steps.length - 1 ? '1px' : undefined}
+          borderColor="border.default"
+        >
+          <Box
+            w={2}
+            h={2}
+            mt={2}
+            borderRadius="full"
+            bg={
+              step.done
+                ? 'action.primary'
+                : step.current
+                  ? 'status.success.solid'
+                  : 'neutral.300'
+            }
+            flexShrink={0}
+          />
+          <Stack gap={0} flex={1} minW={0}>
+            <Text
+              fontSize="sm"
+              fontWeight={step.current ? 700 : 600}
+              color={step.done || step.current ? 'text.default' : 'text.muted'}
+            >
+              {step.label}
+            </Text>
+            {step.detail ? (
+              <Text fontSize="xs" color="text.muted">
+                {step.detail}
               </Text>
-              {step.detail ? (
-                <Text fontSize="xs" color="text.muted">
-                  {step.detail}
-                </Text>
-              ) : null}
-              {step.at ? (
-                <Text fontSize="xs" color="text.muted">
-                  {formatDate(step.at)}
-                </Text>
-              ) : null}
-            </Stack>
-          </HStack>
-        ))}
-      </Stack>
-    </Card>
+            ) : null}
+            {step.at ? (
+              <Text fontSize="xs" color="text.muted">
+                {formatDate(step.at)}
+              </Text>
+            ) : null}
+          </Stack>
+        </HStack>
+      ))}
+    </Stack>
   )
 }
 
-/** Activity rail: the lifecycle strip. */
+/** Desktop rail card: the lifecycle strip, always open. */
 export function TaskActivitySections() {
+  const steps = useActivitySteps()
+  const a = useI11n(bag).activity
+  if (!steps) return null
+
   return (
-    <Stack gap={5} w="full" minW={0} pointerEvents="auto">
-      <ActivityTimeline />
-    </Stack>
+    <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={a.heading}>
+      <ActivitySteps steps={steps} />
+    </Card>
   )
 }

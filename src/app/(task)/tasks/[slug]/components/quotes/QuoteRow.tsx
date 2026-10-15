@@ -10,7 +10,7 @@ import { Badge, Button, IconButton, Link } from '@ui'
 
 import bag from '../../i11n.json'
 
-export type QuoteRowStatus = 'accepted' | 'declined' | 'notSelected' | 'yours'
+export type QuoteRowStatus = 'accepted' | 'declined' | 'notSelected'
 
 export type QuoteRowProps = {
   name: string
@@ -38,7 +38,6 @@ const STATUS_VARIANT = {
   accepted: 'success',
   declined: 'neutral',
   notSelected: 'neutral',
-  yours: 'brand',
 } as const
 
 /**
@@ -72,7 +71,6 @@ export function QuoteRow({
         accepted: card.accepted,
         declined: card.declined,
         notSelected: card.notSelected,
-        yours: card.yours,
       }[status]
     : null
   const meta = [availabilityLabel, respondedLabel].filter(Boolean).join(' · ')

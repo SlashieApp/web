@@ -5,12 +5,7 @@ import { Badge, type UiBadgeProps } from '@ui'
 import bag from '../../i11n.json'
 
 /** Task lifecycle status → Badge family (always renders a dot + label). */
-export type TaskStatusValue =
-  | 'OPEN'
-  | 'AWARDED'
-  | 'COMPLETED'
-  | 'CLOSED'
-  | 'CANCELLED'
+export type TaskStatusValue = 'OPEN' | 'AWARDED' | 'COMPLETED' | 'CANCELLED'
 
 const taskStatusFamily: Record<
   TaskStatusValue,
@@ -19,7 +14,6 @@ const taskStatusFamily: Record<
   OPEN: 'success',
   AWARDED: 'warning',
   COMPLETED: 'success',
-  CLOSED: 'info',
   CANCELLED: 'danger',
 }
 

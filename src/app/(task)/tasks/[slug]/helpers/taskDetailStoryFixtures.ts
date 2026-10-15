@@ -16,6 +16,8 @@ import type { TaskDetailRecord } from './taskDetailUtils'
 export const STORY_TASK_ID = 'task-detail-story-1'
 export const STORY_OWNER_ID = 'owner-detail-1'
 export const STORY_WORKER_ID = 'worker-detail-1'
+/** Signed in, no worker profile, not the poster. */
+export const STORY_VIEWER_ID = 'viewer-detail-3'
 
 const STORY_THUMBNAIL =
   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop'
@@ -173,20 +175,34 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
   } as OrderItem
 }
 
-export type TaskDetailStoryViewer = 'owner' | 'worker' | 'customer' | 'visitor'
+export type TaskDetailStoryViewer =
+  | 'owner'
+  | 'worker'
+  | 'customer'
+  | 'nonWorker'
+  | 'visitor'
+
+const STORY_PEOPLE = {
+  owner: { id: STORY_OWNER_ID, email: 'alex@example.com', name: 'Alex Chen' },
+  worker: {
+    id: STORY_WORKER_ID,
+    email: 'jordan@example.com',
+    name: 'Jordan Lee',
+  },
+  nonWorker: {
+    id: STORY_VIEWER_ID,
+    email: 'casey@example.com',
+    name: 'Casey Morgan',
+  },
+}
 
 export function storyMe(
   viewer: Exclude<TaskDetailStoryViewer, 'visitor'>,
 ): NonNullable<MeQuery['me']> {
+  const person = STORY_PEOPLE[viewer === 'customer' ? 'owner' : viewer]
   const base = {
-    id:
-      viewer === 'owner' || viewer === 'customer'
-        ? STORY_OWNER_ID
-        : STORY_WORKER_ID,
-    email:
-      viewer === 'owner' || viewer === 'customer'
-        ? 'alex@example.com'
-        : 'jordan@example.com',
+    id: person.id,
+    email: person.email,
     emailVerified: true,
     phoneVerified: true,
     phoneVerifiedAt: '2025-01-01T00:00:00.000Z',
@@ -194,10 +210,7 @@ export function storyMe(
     disabled: false,
     enabledLoginMethods: [LoginMethod.Password],
     profile: {
-      name:
-        viewer === 'owner' || viewer === 'customer'
-          ? 'Alex Chen'
-          : 'Jordan Lee',
+      name: person.name,
       contactNumber: '+44 7700 900123',
       avatarUrl: STORY_AVATAR,
       bio: null,

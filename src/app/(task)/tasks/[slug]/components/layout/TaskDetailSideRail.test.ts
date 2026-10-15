@@ -23,19 +23,23 @@ describe('TaskDetailSideRail', () => {
 })
 
 describe('TaskActivityTrigger', () => {
-  it('opens Activity in a drawer from a compact icon button', () => {
+  it('opens Activity in a bottom sheet from a section card, like Analytics', () => {
     const src = readFileSync(join(dir, 'TaskActivityTrigger.tsx'), 'utf8')
-    expect(src).toContain('t.nav.taskActivityAria')
+    const analytics = readFileSync(
+      join(dir, '../analytics/AnalyticsCards.tsx'),
+      'utf8',
+    )
     expect(src).toContain('LuHistory')
-    expect(src).toContain('Drawer')
-    expect(src).toContain('<TaskActivitySections />')
+    expect(src).toContain('<TaskSectionSheet')
+    expect(src).toContain('<ActivitySteps')
+    expect(analytics).toContain('<TaskSectionSheet')
   })
 })
 
 describe('TaskTitle compact actions', () => {
-  it('shows Activity and options icons on compact, not on web', () => {
+  it('shows the options icon on compact, not on web; Activity is an Overview card', () => {
     const src = readFileSync(join(dir, 'TaskTitle.tsx'), 'utf8')
-    expect(src).toContain('TaskActivityTrigger')
+    expect(src).not.toContain('TaskActivityTrigger')
     expect(src).toContain('TaskHelpOverflowTrigger')
     expect(src).toContain("display={{ base: 'flex', lg: 'none' }}")
     expect(src).toContain('TaskDetailMeta')

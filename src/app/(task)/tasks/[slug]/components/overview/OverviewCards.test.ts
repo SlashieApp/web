@@ -7,49 +7,32 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('OverviewCards layout', () => {
-  it('stacks pricing, details, then photos in a single column, with no owner card', () => {
+  it('leads with the Task summary, then photos, the phone section cards, and quotes', () => {
     const src = readFileSync(join(dir, 'OverviewCards.tsx'), 'utf8')
-    expect(src.indexOf('<BookingSection />')).toBeLessThan(
-      src.indexOf('<TaskPricingCard />'),
-    )
-    expect(src.indexOf('<TaskPricingCard />')).toBeLessThan(
-      src.indexOf('<TaskDetailsCard />'),
-    )
-    expect(src.indexOf('<TaskDetailsCard />')).toBeLessThan(
-      src.indexOf('<PhotosCard />'),
-    )
-    expect(src).not.toContain('TaskOwnerCard')
-    expect(src.indexOf('<PhotosCard />')).toBeLessThan(
-      src.indexOf('<QuotesPanel />'),
-    )
+    const order = [
+      '<TaskSummary />',
+      '<PhotosCard />',
+      '<TaskAnalyticsTrigger />',
+      '<TaskActivityTrigger />',
+      '<QuotesPanel />',
+    ].map((tag) => src.indexOf(tag))
+    expect(order.every((at) => at >= 0)).toBe(true)
+    expect([...order].sort((a, b) => a - b)).toEqual(order)
     expect(src).toContain('showTaskDetailQuotesSection(permissions)')
-    expect(src).toContain('hideOverviewCards')
-    expect(src).not.toContain('TaskShareCard')
-    expect(src).not.toContain('TaskHelpCard')
-    expect(src).not.toContain('TaskActivitySections')
-    expect(src).not.toContain('tabTitle')
-    expect(src).not.toContain('templateColumns')
+    // FE-274: status, booking, budget and details are one summary card.
+    for (const gone of [
+      'BookingSection',
+      'TaskPricingCard',
+      'TaskDetailsCard',
+      'hideOverviewCards',
+    ]) {
+      expect(src).not.toContain(gone)
+    }
   })
 
-  it('hides overview cards the main CTA already shows; spacer lives on the view', () => {
-    const sections = readFileSync(join(dir, 'OverviewCards.tsx'), 'utf8')
+  it('keeps the pin clearance on the view', () => {
     const view = readFileSync(join(dir, '../layout/TaskDetailView.tsx'), 'utf8')
-    expect(sections).toContain('hideOverviewCards')
-    expect(sections).toContain('hidePrice')
-    expect(sections).toContain('permissions.isAwarded')
-    expect(sections).toContain('permissions.isJobCompleted')
-    expect(sections).toContain('permissions.isCancelled')
-    expect(view).toContain('taskDetailPinClearance')
+    expect(view).toContain('TASK_DETAIL_PIN_CLEARANCE')
     expect(view).toContain('TaskDetailTabs')
-  })
-
-  it('merges quote CTAs onto the pricing card, not a separate thin bar', () => {
-    const pricing = readFileSync(join(dir, 'TaskPricingCard.tsx'), 'utf8')
-    expect(pricing).toContain('t.cta.sendQuote')
-    expect(pricing).toContain('t.cta.becomeWorker')
-    // FE-268: no inline safety tip under the CTA (the Accept dialog keeps it).
-    expect(pricing).not.toContain('SafetyNotice')
-    expect(pricing).toContain('TaskDetailSplitCta')
-    expect(pricing).toContain('eyebrow={t.details.budget}')
   })
 })

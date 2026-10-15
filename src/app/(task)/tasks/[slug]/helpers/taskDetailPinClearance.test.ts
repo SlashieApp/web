@@ -1,17 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  TASK_DETAIL_PIN_CLEARANCE,
-  taskDetailPinClearance,
-} from './taskDetailPinClearance'
+import { TASK_DETAIL_PIN_CLEARANCE } from './taskDetailPinClearance'
 
-describe('taskDetailPinClearance', () => {
-  it('uses the same compact height for every pin', () => {
-    expect(taskDetailPinClearance('pricing')).toBe(TASK_DETAIL_PIN_CLEARANCE)
-    expect(taskDetailPinClearance('preview')).toBe(TASK_DETAIL_PIN_CLEARANCE)
-    expect(taskDetailPinClearance('preview')).toBe(TASK_DETAIL_PIN_CLEARANCE)
-    expect(taskDetailPinClearance('completion')).toBe(TASK_DETAIL_PIN_CLEARANCE)
-    expect(taskDetailPinClearance(null)).toBe(TASK_DETAIL_PIN_CLEARANCE)
+describe('TASK_DETAIL_PIN_CLEARANCE', () => {
+  it('clears the compact two-row pin and the safe area', () => {
     expect(TASK_DETAIL_PIN_CLEARANCE).toContain('7.5rem')
+    expect(TASK_DETAIL_PIN_CLEARANCE).toContain('safe-area-inset-bottom')
   })
 })

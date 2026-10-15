@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { TaskActivitySections } from './TaskActivitySections'
 
 const meta: Meta<typeof TaskActivitySections> = {
   title: 'task/tasks/overview/TaskActivitySections',
   component: TaskActivitySections,
+  decorators: [withTaskDetailStory({ viewer: 'owner' })],
   parameters: {
     layout: 'padded',
   },

@@ -7,10 +7,10 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('TaskDetailMainCta pin', () => {
-  it('pins compact to the viewport and the web card beside TabIntro, with no placement prop', () => {
+  it('pins compact to the viewport and renders web in place, with no placement prop', () => {
     const src = readFileSync(join(dir, 'TaskDetailMainCta.tsx'), 'utf8')
     expect(src).toContain('TaskDetailSplitCta')
-    expect(src).toContain('<LuEye />')
+    expect(src).toContain('LuEye')
     expect(src).not.toContain('TaskShareCard')
     expect(src).not.toContain('TaskPricingCard')
     expect(src).not.toContain('TaskOwnerCard')

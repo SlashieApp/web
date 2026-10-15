@@ -86,11 +86,10 @@ describe('getTaskDetailPermissions', () => {
     })
 
     expect(permissions.canSubmitQuote).toBe(true)
-    expect(permissions.showQuoteForm).toBe(true)
     expect(permissions.showFullAddress).toBe(false)
   })
 
-  it('worker with pending quote shows quote form only when allowed', () => {
+  it('worker with a pending quote can edit it', () => {
     const myQuote = {
       id: 'q1',
       taskId: 'task-1',
@@ -108,8 +107,43 @@ describe('getTaskDetailPermissions', () => {
     })
 
     expect(permissions.canSubmitQuote).toBe(true)
-    expect(permissions.showQuoteForm).toBe(true)
     expect(permissions.hasPendingQuote).toBe(true)
+  })
+
+  // FE-274: a decline doesn't stop a new quote while the task is open.
+  it('declined worker on an OPEN task can quote again', () => {
+    for (const status of [QuoteStatus.Declined, QuoteStatus.Rejected]) {
+      const myQuote = {
+        id: 'q1',
+        workerUserId: WORKER_ID,
+        status,
+      } as TaskDetailRecord['quotes'][number]
+      const permissions = getTaskDetailPermissions({
+        task: baseTask({ status: TaskStatus.Open, quotes: [myQuote] }),
+        myOrder: null,
+        me: workerMe(),
+        myQuote,
+        isAuthenticated: true,
+      })
+      expect(permissions.canSubmitQuote).toBe(true)
+      expect(permissions.hasPendingQuote).toBe(false)
+    }
+  })
+
+  it('no one can quote once a quote is accepted', () => {
+    const accepted = {
+      id: 'q2',
+      workerUserId: 'worker-2',
+      status: QuoteStatus.Accepted,
+    } as TaskDetailRecord['quotes'][number]
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open, quotes: [accepted] }),
+      myOrder: null,
+      me: workerMe(),
+      myQuote: null,
+      isAuthenticated: true,
+    })
+    expect(permissions.canSubmitQuote).toBe(false)
   })
 
   it('order worker with ACTIVE order sees worker job tools', () => {
@@ -124,7 +158,6 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.isAwarded).toBe(true)
     expect(permissions.isOrderWorker).toBe(true)
     expect(permissions.isOrderActive).toBe(true)
-    expect(permissions.showWorkerJobBanner).toBe(true)
     expect(permissions.showOrderActions).toBe(true)
     expect(permissions.showFullAddress).toBe(true)
   })
@@ -204,7 +237,6 @@ describe('getTaskDetailPermissions', () => {
 
     expect(permissions.isJobCompleted).toBe(true)
     expect(permissions.isAwarded).toBe(true)
-    expect(permissions.showWorkerJobBanner).toBe(false)
     expect(permissions.showOrderActions).toBe(false)
     expect(permissions.canRepostTask).toBe(false)
   })
@@ -247,7 +279,7 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.canSubmitQuote).toBe(false)
   })
 
-  it('visitor on OPEN task sees a guest quote CTA', () => {
+  it("visitor on an OPEN task can't quote or see the address", () => {
     const permissions = getTaskDetailPermissions({
       task: baseTask({ status: TaskStatus.Open }),
       myOrder: null,
@@ -256,88 +288,7 @@ describe('getTaskDetailPermissions', () => {
       isAuthenticated: false,
     })
 
-    expect(permissions.showGuestQuoteCta).toBe(true)
-    expect(permissions.showQuoteForm).toBe(false)
+    expect(permissions.canSubmitQuote).toBe(false)
     expect(permissions.showFullAddress).toBe(false)
-  })
-
-  it('signed-in worker does not see the guest quote CTA', () => {
-    const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.Open }),
-      myOrder: null,
-      me: workerMe(),
-      myQuote: null,
-      isAuthenticated: true,
-    })
-
-    expect(permissions.showGuestQuoteCta).toBe(false)
-    expect(permissions.showQuoteForm).toBe(true)
-  })
-
-  // FE-207: not being a worker is not the same as the task being full.
-  it('signed-in non-worker on an OPEN task gets Become a worker, not "full"', () => {
-    const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.Open }),
-      myOrder: null,
-      me: { id: 'customer-2', worker: null } as never,
-      myQuote: null,
-      isAuthenticated: true,
-    })
-
-    expect(permissions.showBecomeWorkerCta).toBe(true)
-    expect(permissions.showQuoteUnavailableNotice).toBe(false)
-  })
-
-  it('visitor on an OPEN task gets Become a worker too', () => {
-    const permissions = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.Open }),
-      myOrder: null,
-      me: null,
-      myQuote: null,
-      isAuthenticated: false,
-    })
-
-    expect(permissions.showBecomeWorkerCta).toBe(true)
-    expect(permissions.showQuoteUnavailableNotice).toBe(false)
-  })
-
-  it('a full task reads as full for non-workers and visitors', () => {
-    for (const viewer of [
-      {
-        me: { id: 'customer-2', worker: null } as never,
-        isAuthenticated: true,
-      },
-      { me: null, isAuthenticated: false },
-    ]) {
-      const permissions = getTaskDetailPermissions({
-        task: baseTask({ status: TaskStatus.Open }),
-        myOrder: null,
-        myQuote: null,
-        atCap: true,
-        ...viewer,
-      })
-      expect(permissions.showBecomeWorkerCta).toBe(false)
-      expect(permissions.showQuoteUnavailableNotice).toBe(true)
-    }
-  })
-
-  it('owners and workers never get Become a worker', () => {
-    const owner = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.Open }),
-      myOrder: null,
-      me: { id: OWNER_ID, worker: null } as never,
-      myQuote: null,
-      isAuthenticated: true,
-    })
-    const worker = getTaskDetailPermissions({
-      task: baseTask({ status: TaskStatus.Open }),
-      myOrder: null,
-      me: workerMe(),
-      myQuote: null,
-      isAuthenticated: true,
-    })
-
-    expect(owner.showBecomeWorkerCta).toBe(false)
-    expect(worker.showBecomeWorkerCta).toBe(false)
   })
 })

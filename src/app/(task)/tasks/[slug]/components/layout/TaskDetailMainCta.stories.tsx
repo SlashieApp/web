@@ -21,7 +21,10 @@ const meta: Meta<typeof TaskDetailMainCta> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+/** Owner of an open task: Preview. */
+export const Default: Story = {
+  decorators: [withTaskDetailStory({ viewer: 'owner' })],
+}
 
 /** Booked time has started: slide Done or "something went wrong". */
 export const WorkerReadyToClose: Story = {

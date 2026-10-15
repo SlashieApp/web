@@ -13,7 +13,10 @@ import { formatBudgetAmount, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { QuoteStatus, TaskTimelineEventType } from '@codegen/schema'
 import type { TaskCoreQuery, TaskQuery } from '@codegen/schema'
+import type bag from '../i11n.json'
 import { mapTaskStatus } from './mapTaskStatus'
+
+type TaskDetailCopy = (typeof bag)['en']
 
 export type TaskCoreRecord = NonNullable<TaskCoreQuery['task']>
 export type TaskClientRecord = NonNullable<TaskQuery['task']>
@@ -310,6 +313,34 @@ export function taskDetailLocationLabel(input: {
     )
   }
   return taskPublicLocationLabel(input.task) || 'Approximate area'
+}
+
+export type OrderCounterpart = {
+  name: string
+  avatarUrl: string | null
+  phone: string | null
+  /** Only the poster's email is fetched (for the booked worker). */
+  email: string | null
+}
+
+/** The other person on the viewer's booking: the worker for the owner, else the poster. */
+export function orderCounterpart(
+  task: Pick<TaskDetailRecord, 'quotes' | 'poster'>,
+  order: Pick<OrderItem, 'quoteId'>,
+  isOwner: boolean,
+  copy: Pick<TaskDetailCopy, 'fallbackCustomer' | 'booking'>,
+): OrderCounterpart {
+  const profile = isOwner
+    ? task.quotes.find((quote) => quote.id === order.quoteId)?.worker?.profile
+    : task.poster?.profile
+  return {
+    name:
+      profile?.name?.trim() ||
+      (isOwner ? copy.booking.yourWorkerFallback : copy.fallbackCustomer),
+    avatarUrl: profile?.avatarUrl?.trim() || null,
+    phone: profile?.contactNumber?.trim() || null,
+    email: isOwner ? null : task.poster?.email?.trim() || null,
+  }
 }
 
 /** Short label for budget `type` (e.g. badge next to amount). */

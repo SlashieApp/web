@@ -1,23 +1,15 @@
 'use client'
 
-import { Box, HStack, Heading, Skeleton, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Skeleton } from '@chakra-ui/react'
 
-import { useLocale } from '@/i18n/LocaleProvider'
-import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import {
-  formatTaskDetailCompletedDate,
-  taskDetailCompletedAt,
-} from '../../helpers/taskDetailCompleted'
-import bag from '../../i11n.json'
+import { TASK_DETAIL_VIEWS } from '../../views'
 import { TaskStatusPill } from '../ui/TaskStatusPill'
-import { TaskActivityTrigger } from './TaskActivityTrigger'
 import { TaskDetailMeta } from './TaskDetailMeta'
 import { TaskBackButton } from './TaskHeaderControls'
 import { TaskHelpOverflowTrigger } from './TaskOverflowMenu'
-import { selectStatusHeaderCopy } from './statusHeaderCopy'
 
 type TaskTitleProps = {
   /** When the sticky chrome is docked, compact the title row. */
@@ -34,60 +26,17 @@ const COMPACT_TITLE_OFFSET = 'calc(44px + 0.75rem)'
  * sit under the title.
  */
 export function TaskTitle({ isStuck = false }: TaskTitleProps) {
-  const {
-    task,
-    seed,
-    pending,
-    permissions,
-    statusReady,
-    myQuote,
-    isAuthenticated,
-    myOrder,
-  } = useTaskDetail()
-  const t = useI11n(bag)
-  const locale = useLocale()
+  const { task, seed, pending, view } = useTaskDetail()
 
   if (!task && !pending && !seed) return null
 
   const title = task?.title?.trim() || seed?.title?.trim() || ''
-  const copy =
-    statusReady && task
-      ? selectStatusHeaderCopy(
-          { permissions, myQuote, isAuthenticated, task },
-          t.statusHeader,
-        )
-      : null
-  const completedDate =
-    statusReady && task && permissions.isJobCompleted
-      ? formatTaskDetailCompletedDate(
-          taskDetailCompletedAt({
-            taskStatus: task.status,
-            order: myOrder,
-          }),
-          locale,
-        )
-      : null
-
-  const statusPill = copy ? (
-    <TaskStatusPill status={copy.pill} size="sm" flexShrink={0} />
+  const pill = TASK_DETAIL_VIEWS[view].pill
+  // The closed date lives in the summary's booking record, not here.
+  const statusChrome = pill ? (
+    <TaskStatusPill status={pill} size="sm" flexShrink={0} />
   ) : (
     <Skeleton h="22px" w="72px" borderRadius="full" flexShrink={0} />
-  )
-  const statusChrome = (
-    <HStack gap={2} align="center" minW={0} flexShrink={0}>
-      {statusPill}
-      {completedDate ? (
-        <Text
-          fontSize="sm"
-          fontWeight={500}
-          color="text.muted"
-          lineHeight="short"
-          whiteSpace="nowrap"
-        >
-          {completedDate}
-        </Text>
-      ) : null}
-    </HStack>
   )
 
   return (
@@ -139,7 +88,6 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
           flexShrink={0}
           gap={0}
         >
-          <TaskActivityTrigger />
           <TaskHelpOverflowTrigger />
         </HStack>
       </HStack>

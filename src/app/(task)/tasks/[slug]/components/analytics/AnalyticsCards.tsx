@@ -1,10 +1,8 @@
 'use client'
 
-import { Box, HStack, Skeleton, Stack, Text, chakra } from '@chakra-ui/react'
-import { useState } from 'react'
+import { Skeleton, Stack } from '@chakra-ui/react'
 import {
   LuChartColumn,
-  LuChevronRight,
   LuEye,
   LuFlame,
   LuMessageSquareText,
@@ -14,8 +12,7 @@ import {
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { WEB_MQ } from '@/theme/breakpoints'
-import { sdlFocusRing } from '@/theme/styles'
-import { Badge, Card, DetailRow, Drawer } from '@ui'
+import { Badge, Card, DetailRow } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
@@ -25,14 +22,13 @@ import {
 } from '../../helpers/taskDetailTabs'
 import { taskOwnerAnalytics } from '../../helpers/taskOwnerAnalytics'
 import bag from '../../i11n.json'
+import { TaskSectionSheet } from '../ui/TaskSectionSheet'
 
 const INTEREST_BADGE = {
   low: 'neutral',
   medium: 'info',
   high: 'success',
 } as const
-
-const TriggerButton = chakra('button')
 
 function hoursToQuoteLabel(
   hours: number | null,
@@ -131,78 +127,30 @@ export function AnalyticsCards() {
 }
 
 /**
- * Phones: an Analytics button in Overview opens the same snapshot in a
+ * Phones: an Analytics section card in Overview opens the same snapshot in a
  * bottom sheet. Old `#analytics` links open it straight away.
  */
 export function TaskAnalyticsTrigger() {
   const { task, permissions } = useTaskDetail()
   const a = useI11n(bag).analytics
-  const [open, setOpen] = useState(
-    () =>
-      TASK_ANALYTICS_HASHES.has(readTaskDetailHash()) &&
-      !window.matchMedia(`screen and ${WEB_MQ}`).matches,
-  )
 
   if (!permissions.isOwner || !task) return null
 
   const stats = taskOwnerAnalytics(task)
 
   return (
-    <Box display={{ base: 'block', lg: 'none' }}>
-      <TriggerButton
-        type="button"
-        onClick={() => setOpen(true)}
-        display="flex"
-        alignItems="center"
-        gap={3}
-        w="full"
-        minH="56px"
-        px={4}
-        py={3}
-        borderRadius="xl"
-        borderWidth="1px"
-        borderColor="border.default"
-        bg="bg.surface"
-        textAlign="start"
-        cursor="pointer"
-        _hover={{ bg: 'bg.subtle' }}
-        _focusVisible={sdlFocusRing}
-      >
-        <Box
-          aria-hidden
-          display="inline-flex"
-          alignItems="center"
-          justifyContent="center"
-          boxSize="36px"
-          flexShrink={0}
-          borderRadius="lg"
-          bg="status.success.soft"
-          color="status.success.fg"
-        >
-          <LuChartColumn size={18} />
-        </Box>
-        <Stack gap={0} flex={1} minW={0}>
-          <Text fontWeight={600} color="text.default">
-            {a.heading}
-          </Text>
-          <Text fontSize="sm" color="text.muted" truncate>
-            {formatMessage(a.overallTitle, {
-              level: a.interestLevel[stats.interest],
-            })}
-          </Text>
-        </Stack>
-        <HStack color="text.muted" aria-hidden>
-          <LuChevronRight size={18} />
-        </HStack>
-      </TriggerButton>
-      <Drawer
-        open={open}
-        onOpenChange={setOpen}
-        title={a.heading}
-        placement="bottom"
-      >
-        <AnalyticsRows />
-      </Drawer>
-    </Box>
+    <TaskSectionSheet
+      icon={<LuChartColumn size={18} />}
+      title={a.heading}
+      summary={formatMessage(a.overallTitle, {
+        level: a.interestLevel[stats.interest],
+      })}
+      defaultOpen={
+        TASK_ANALYTICS_HASHES.has(readTaskDetailHash()) &&
+        !window.matchMedia(`screen and ${WEB_MQ}`).matches
+      }
+    >
+      <AnalyticsRows />
+    </TaskSectionSheet>
   )
 }

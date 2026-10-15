@@ -7,14 +7,12 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import bag from '../../i11n.json'
 import { OverviewCards } from '../overview/OverviewCards'
-import { TaskDetailMainCta } from './TaskDetailMainCta'
 import { TaskDetailSideRail } from './TaskDetailSideRail'
 import {
   TaskDetailTabLayout,
   type TaskDetailTabSlot,
 } from './TaskDetailTabLayout'
 import { TaskTitle } from './TaskTitle'
-import { selectStatusHeaderCopy } from './statusHeaderCopy'
 
 type TaskDetailTabsProps = {
   fitted?: boolean
@@ -31,29 +29,12 @@ export function TaskDetailTabs({
   px,
 }: TaskDetailTabsProps) {
   const t = useI11n(bag)
-  const {
-    task,
-    activeTab,
-    setActiveTab,
-    permissions,
-    statusReady,
-    myQuote,
-    isAuthenticated,
-  } = useTaskDetail()
-  const copy =
-    statusReady && task
-      ? selectStatusHeaderCopy(
-          { permissions, myQuote, isAuthenticated, task },
-          t.statusHeader,
-        )
-      : null
+  const { activeTab, setActiveTab } = useTaskDetail()
 
   const tabs: TaskDetailTabSlot[] = [
     {
       key: TASK_DETAIL_TAB.overview,
       label: t.mobile.tabOverview,
-      tabTitle: copy?.headline,
-      tabDescription: copy?.subtext,
       cards: <OverviewCards />,
     },
   ]
@@ -72,7 +53,6 @@ export function TaskDetailTabs({
           ? activeTab
           : TASK_DETAIL_TAB.overview
       }
-      mainCta={<TaskDetailMainCta />}
       rail={<TaskDetailSideRail />}
     />
   )

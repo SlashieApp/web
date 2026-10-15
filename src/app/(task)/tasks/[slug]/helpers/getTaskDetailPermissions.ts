@@ -48,26 +48,16 @@ export type TaskDetailPermissions = {
   hasWorkerProfile: boolean
   /** Accepted-worker cap reached for this task. */
   atCap: boolean
+  /**
+   * Worker (not the owner) can send a quote on this OPEN task, edit their
+   * pending one, or send a new one after a decline. Blocked once any quote
+   * is accepted.
+   */
   canSubmitQuote: boolean
   /** Viewer's own quote on this OPEN task is sent and awaiting the owner. */
   hasPendingQuote: boolean
-  showQuoteForm: boolean
-  /** Guest on an OPEN task (the auth step comes before anything else). */
-  showGuestQuoteCta: boolean
-  /**
-   * Guest or signed-in non-worker on a task that can still take quotes:
-   * the "You can earn" line and Become a worker (FE-207).
-   */
-  showBecomeWorkerCta: boolean
-  /**
-   * Non-owner on an OPEN task that can't take a quote from them, and who has
-   * no pending quote: the "task is full" hero. Non-workers only see it once
-   * the task itself is full; otherwise they get Become a worker.
-   */
-  showQuoteUnavailableNotice: boolean
   showOwnerQuoteList: boolean
   showAcceptDecline: boolean
-  showWorkerJobBanner: boolean
   /** Either party on a live or CONFLICT order: booking status and actions. */
   showOrderActions: boolean
   showFullAddress: boolean
@@ -140,24 +130,6 @@ export function getTaskDetailPermissions(
     isOpen && !isOwner && myQuote?.status === QuoteStatus.Pending,
   )
 
-  const showQuoteForm = Boolean(
-    canSubmitQuote && (!myQuote || myQuote.status === QuoteStatus.Pending),
-  )
-
-  const showGuestQuoteCta = Boolean(isOpen && !isAuthenticated && !isOwner)
-
-  const showBecomeWorkerCta = Boolean(
-    isOpen && !atCap && !isOwner && !hasWorkerProfile,
-  )
-
-  const showQuoteUnavailableNotice = Boolean(
-    isOpen &&
-      !isOwner &&
-      !showQuoteForm &&
-      !showBecomeWorkerCta &&
-      myQuote?.status !== QuoteStatus.Pending,
-  )
-
   const showOwnerQuoteList = Boolean(isOwner && (isOpen || isAwarded))
 
   const showAcceptDecline = Boolean(isOwner && isOpen)
@@ -165,8 +137,6 @@ export function getTaskDetailPermissions(
   const showOrderActions = Boolean(
     myOrder && (isOwner || isOrderWorker) && (isOrderActive || isOrderConflict),
   )
-
-  const showWorkerJobBanner = Boolean(isOrderWorker && showOrderActions)
 
   const showFullAddress = Boolean(isOwner || isOrderWorker)
 
@@ -196,13 +166,8 @@ export function getTaskDetailPermissions(
     atCap,
     canSubmitQuote,
     hasPendingQuote,
-    showQuoteForm,
-    showGuestQuoteCta,
-    showBecomeWorkerCta,
-    showQuoteUnavailableNotice,
     showOwnerQuoteList,
     showAcceptDecline,
-    showWorkerJobBanner,
     showOrderActions,
     showFullAddress,
     canCancelTask,

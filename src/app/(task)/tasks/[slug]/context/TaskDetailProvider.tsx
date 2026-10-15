@@ -62,6 +62,10 @@ import {
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
+import {
+  TASK_DETAIL_VIEWS,
+  getTaskDetailView,
+} from '@/app/(task)/tasks/[slug]/views'
 import Me from '@/graphql/Me.gql'
 import {
   EVENTS,
@@ -79,9 +83,7 @@ import {
 import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
 import {
   type OrderItem,
-  formatOrderAgreedPrice,
   isOrderClosed,
-  orderBookedDatetime,
   orderCloseView,
 } from '@/utils/orderHelpers'
 import { priceToPence } from '@/utils/price'
@@ -891,9 +893,8 @@ export function TaskDetailProvider({
     })
   }, [])
 
-  // State-dependent surfaces (status header copy, hero CTA, booking panel)
-  // should show loading placeholders until this is true — before that the
-  // permission flags are guest-shaped defaults, not the confirmed viewer state.
+  // The view stays `loading` until this is true: before that the permission
+  // flags are guest-shaped defaults, not the confirmed viewer state.
   const statusReady = Boolean(
     clientTaskLoaded && (!isAuthenticated || !meLoadingResolved),
   )
@@ -910,73 +911,55 @@ export function TaskDetailProvider({
     return thread ? `/messages/${thread.id}` : MESSAGES_HREF
   }, [messageThreads, task])
 
+  const view = useMemo(
+    () =>
+      getTaskDetailView(
+        statusReady && task
+          ? {
+              status: task.status,
+              posterId: task.poster?.id ?? null,
+              quotes: task.quotes,
+            }
+          : null,
+        myOrder,
+        me
+          ? { userId: me.id, hasWorkerProfile: permissions.hasWorkerProfile }
+          : null,
+        new Date(nowMs),
+      ),
+    [statusReady, task, myOrder, me, permissions.hasWorkerProfile, nowMs],
+  )
+
   const mainCta = useMemo(
     () =>
-      statusReady
+      task
         ? buildTaskDetailMainCta({
+            action: TASK_DETAIL_VIEWS[view].primaryAction,
             task,
-            messageHref: taskThreadHref,
+            order: myOrder,
             myQuote,
-            permissions,
-            schedule: myOrder ? orderBookedDatetime(myOrder) : null,
-            close: orderClose,
-            acceptedQuoteId: myOrder?.quoteId ?? null,
-            settled:
-              reviewEnabled && myOrder
-                ? {
-                    role: permissions.isOwner ? 'owner' : 'worker',
-                    agreedPrice: formatOrderAgreedPrice(myOrder),
-                    orderId: myOrder.id,
-                  }
-                : null,
+            isOwner: permissions.isOwner,
             viewerHasSubmittedReview,
-            copy: {
-              preview: t.cta.preview,
-              sendQuote: t.cta.sendQuote,
-              becomeWorker: t.cta.becomeWorker,
-              youCanEarn: t.cta.youCanEarn,
-              editQuote: t.cta.editQuote,
-              quoteSent: t.cta.quoteSent,
-              yourQuote: t.cta.yourQuote,
-              quoteSentValue: t.cta.quoteSentValue,
-              askingPrice: t.cta.askingPrice,
-              awaitingReview: t.cta.awaitingReview,
-              budget: t.details.budget,
-              customerTitle: t.booking.customerTitle,
-              workerTitle: t.booking.workerTitle,
-              closeEyebrow: t.close.eyebrowReady,
-              slideDone: t.close.slideDone,
-              owner: t.details.owner,
-              message: t.cta.message,
-              yourCustomer: t.cta.yourCustomer,
-              ownerFallback: t.details.ownerFallback,
-              flexibleWhen: t.cta.flexibleWhen,
-              workerEyebrow: t.booking.workerEyebrow,
-              yourWorker: t.booking.yourWorker,
-              workerFallback: t.booking.yourWorkerFallback,
-              review: t.cta.review,
-              getReceipt: t.cta.getReceipt,
-              completed: t.cta.completed,
-            },
+            messageHref: taskThreadHref,
+            copy: t,
           })
         : null,
     [
+      view,
+      task,
       myOrder,
       myQuote,
-      orderClose,
-      permissions,
-      reviewEnabled,
-      statusReady,
-      t,
-      task,
-      taskThreadHref,
+      permissions.isOwner,
       viewerHasSubmittedReview,
+      taskThreadHref,
+      t,
     ],
   )
 
   const value = useMemo(
     () => ({
       permissions,
+      view,
       activeTab,
       mainCta,
       taskThreadHref,
@@ -1032,6 +1015,7 @@ export function TaskDetailProvider({
     }),
     [
       permissions,
+      view,
       activeTab,
       mainCta,
       taskThreadHref,

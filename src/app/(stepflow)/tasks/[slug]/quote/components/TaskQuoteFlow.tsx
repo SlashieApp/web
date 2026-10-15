@@ -47,7 +47,7 @@ export function TaskQuoteFlow() {
   const redirectedRef = useRef(false)
   const prefilledRef = useRef(false)
 
-  const { isOwner, hasWorkerProfile, showQuoteForm, hasPendingQuote } =
+  const { isOwner, hasWorkerProfile, canSubmitQuote, hasPendingQuote } =
     permissions
 
   const backToTask = task ? taskDetailHref(task.id) : '/tasks'
@@ -58,14 +58,15 @@ export function TaskQuoteFlow() {
     task &&
       !quoteSuccess &&
       (isOwner ||
-        (myQuote && !hasPendingQuote) ||
+        // A declined worker can send a new quote (FE-274).
+        (myQuote && !hasPendingQuote && !canSubmitQuote) ||
         (isAuthenticated &&
           !meLoading &&
           hasWorkerProfile &&
           me &&
           isEmailVerified(me) &&
           !quoteLimitReached &&
-          !showQuoteForm)),
+          !canSubmitQuote)),
   )
 
   const redirectToTaskDetailRef = useCallback(

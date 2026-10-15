@@ -2,7 +2,8 @@
 
 import { Box, Stack, type SystemStyleObject, Text } from '@chakra-ui/react'
 import { createPortal } from 'react-dom'
-import { LuEye } from 'react-icons/lu'
+import type { IconType } from 'react-icons'
+import { LuEye, LuLogIn, LuRepeat, LuSearch } from 'react-icons/lu'
 
 import { WEB_MQ } from '@/theme/breakpoints'
 import { useIsBrowser } from '@/utils/useIsBrowser'
@@ -14,8 +15,8 @@ import { showAppToast } from '@/utils/appToast'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailMainCtaModel } from '../../helpers/taskDetailMainCtaModel'
-import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import bag from '../../i11n.json'
+import type { TaskDetailPrimaryAction } from '../../views'
 import { OrderCloseControls } from '../overview/OrderCloseControls'
 import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
 import { Reveal } from './Reveal'
@@ -60,6 +61,14 @@ function TaskDetailMainCtaFade() {
   )
 }
 
+/** Icons for the button-only actions. */
+const BUTTON_ICONS: Partial<Record<TaskDetailPrimaryAction, IconType>> = {
+  preview: LuEye,
+  signInToQuote: LuLogIn,
+  repost: LuRepeat,
+  browseTasks: LuSearch,
+}
+
 function MainCtaControl({
   model,
   fill,
@@ -67,18 +76,8 @@ function MainCtaControl({
   model: TaskDetailMainCtaModel
   fill: boolean
 }) {
-  const { setActiveTab, myOrder } = useTaskDetail()
+  const { myOrder } = useTaskDetail()
   const reviews = useI11n(bag).reviews
-  const scroll = model.scrollTo
-    ? () => {
-        const target = model.scrollTo
-        if (!target) return
-        setActiveTab(TASK_DETAIL_TAB.overview, {
-          hash: target.hash,
-          scrollId: target.scrollId,
-        })
-      }
-    : undefined
 
   if (model.presentation === 'close') {
     return (
@@ -106,36 +105,19 @@ function MainCtaControl({
     )
   }
 
-  if (model.presentation === 'preview' || !model.content) {
-    const label = (
-      <>
-        <LuEye />
-        {model.buttonLabel}
-      </>
-    )
-    if (model.href) {
-      return (
-        <Button
-          asChild
-          variant="primary"
-          boxShadow="e3"
-          w={fill ? 'full' : undefined}
-        >
-          <Link href={model.href} _hover={{ textDecoration: 'none' }}>
-            {label}
-          </Link>
-        </Button>
-      )
-    }
+  if (model.presentation === 'button' || !model.content) {
+    const Icon = BUTTON_ICONS[model.action]
     return (
       <Button
-        type="button"
+        asChild
         variant="primary"
         boxShadow="e3"
         w={fill ? 'full' : undefined}
-        onClick={scroll}
       >
-        {label}
+        <Link href={model.href ?? ''} _hover={{ textDecoration: 'none' }}>
+          {Icon ? <Icon aria-hidden /> : null}
+          {model.buttonLabel}
+        </Link>
       </Button>
     )
   }
@@ -155,23 +137,22 @@ function MainCtaControl({
       fullWidth={fill || model.presentation === 'quoted'}
       action={{
         label: model.buttonLabel,
-        href: model.intent ? undefined : model.href,
-        onClick: model.intent === 'receipt' ? onReceipt : scroll,
+        href: model.href,
+        onClick: model.receipt ? onReceipt : undefined,
       }}
     />
   )
 }
 
 /**
- * Primary CTA from the provider. Compact (phone + tablet): fixed to the
- * viewport bottom. Web: aligned to the end of the tab intro. Button-only
- * uses the preview layout; text plus a button uses the quoted layout.
+ * The view's primary action. Compact (phone + tablet): fixed to the viewport
+ * bottom. Web: in the Task summary header.
  */
 export function TaskDetailMainCta() {
-  const { statusReady, task, mainCta } = useTaskDetail()
+  const { mainCta } = useTaskDetail()
   const isBrowser = useIsBrowser()
 
-  if (!statusReady || !task || !mainCta) return null
+  if (!mainCta) return null
 
   const webControl = <MainCtaControl model={mainCta} fill={false} />
   const pinControl = <MainCtaControl model={mainCta} fill />

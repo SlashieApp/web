@@ -154,9 +154,7 @@ function TaskDetailStorySeed({
     }
 
     setAuthToken('storybook-task-detail-token')
-    const me = storyMe(
-      viewer === 'customer' ? 'owner' : viewer === 'owner' ? 'owner' : 'worker',
-    )
+    const me = storyMe(viewer)
     useUserStore.getState().setMe(me)
     useUserStore.getState().setUser({ id: me.id, email: me.email })
     // The real getUser() hits the live API, fails on the fake story token,
