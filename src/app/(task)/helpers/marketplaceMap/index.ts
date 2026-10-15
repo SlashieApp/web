@@ -32,6 +32,7 @@ export {
   SEARCH_MOBILE_MAP_CTRL_BOTTOM,
   COMPACT_DETAIL_HERO_H,
   MAP_FADE_BOTTOM,
+  MAP_FADE_EDGE,
   mapFadeGradient,
   mapFadeOverlayCss,
   mapFadeOverlayMotion,

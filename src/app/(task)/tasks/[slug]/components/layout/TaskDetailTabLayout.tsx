@@ -8,6 +8,7 @@ import { type ReactNode, useCallback, useRef, useState } from 'react'
 import {
   COMPACT_DETAIL_HERO_H,
   MAP_FADE_BOTTOM,
+  MAP_FADE_EDGE,
 } from '@/app/(task)/helpers/marketplaceMap'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
 import { findScrollParent } from '@/utils/findScrollParent'
@@ -35,7 +36,9 @@ export type TaskDetailTabLayoutProps = {
   px?: BoxProps['px']
   /** Desktop right rail (Help & actions, Analytics, Activity). Hidden below `lg`. */
   rail?: ReactNode
-  /** Desktop main CTA, in the title row at the right, bottom-aligned. Hidden below `lg`. */
+  /** Row under the sticky title (chips). Scrolls away with the page. */
+  meta?: ReactNode
+  /** Desktop main CTA beside the title, bottom-aligned with `meta`; scrolls away. Hidden below `lg`. */
   mainCta?: ReactNode
   /** The desktop CTA is a lone button: size it to its content, not half the row. */
   mainCtaFit?: boolean
@@ -48,6 +51,9 @@ const COMPACT_MAX_PX = WEB_MIN_PX - 1
  * floating nav width.
  */
 const WEB_MAIN_CTA_W = `min(${MOBILE_BOTTOM_NAV_MAX_W}, calc((100% - 1.5rem) / 2))`
+
+/** Title and chips stop short of a card CTA that rises beside them. */
+const BESIDE_CTA_MAX_W = `calc(100% - ${WEB_MAIN_CTA_W} - 1.5rem)`
 
 /**
  * Compact (phone + tablet) wash sits on the sticky title/tab chrome and
@@ -82,6 +88,29 @@ const COMPACT_HEADER_FADE_CSS = {
     },
 } as const
 
+/**
+ * Compact: the chips continue the title's wash (full bleed), so there's no
+ * seam between them. Isolated only here, so the web card CTA can still rise
+ * above the clear title chrome.
+ */
+const COMPACT_META_BAND_CSS = {
+  [`@media screen and (max-width: ${COMPACT_MAX_PX}px)`]: {
+    isolation: 'isolate',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      left: '50%',
+      width: '100vw',
+      transform: 'translateX(-50%)',
+      top: 0,
+      bottom: 0,
+      background: MAP_FADE_EDGE,
+      pointerEvents: 'none',
+      zIndex: -1,
+    },
+  },
+} as const
+
 const STUCK_SURFACE = 'var(--chakra-colors-bg-surface, #FFFFFF)'
 
 function StuckHeaderBg({ isStuck }: { isStuck: boolean }) {
@@ -113,10 +142,10 @@ function StuckHeaderBg({ isStuck }: { isStuck: boolean }) {
 }
 
 /**
- * Task-detail tab chrome: sticky title + tab headers with the web main CTA at
- * the right of the title row (bottom edges aligned), then the cards and the
- * desktop rail sharing a top edge in the 2:1 grid. The compact pin lives in
- * TaskDetailMainCta.
+ * Task-detail tab chrome: only the title (+ tab headers) sticks. The chips and
+ * the web main CTA sit under and beside it (CTA bottom-aligned with the chips)
+ * and scroll away, then the cards and the desktop rail share a top edge in the
+ * 2:1 grid. The compact pin lives in TaskDetailMainCta.
  */
 export function TaskDetailTabLayout({
   title,
@@ -128,6 +157,7 @@ export function TaskDetailTabLayout({
   fittedBelowLg = false,
   px,
   rail,
+  meta,
   mainCta,
   mainCtaFit = false,
 }: TaskDetailTabLayoutProps) {
@@ -162,6 +192,12 @@ export function TaskDetailTabLayout({
   }, [])
 
   const titleNode = typeof title === 'function' ? title({ isStuck }) : title
+  // A card CTA rises beside the title (out of flow); a lone button sits in the chip row.
+  const cardCta = mainCta != null && !mainCtaFit
+  const besideCtaMaxW = {
+    base: 'none',
+    lg: cardCta ? BESIDE_CTA_MAX_W : 'none',
+  } as const
   const splitColumns = rail
     ? { base: '1fr', lg: 'minmax(0, 2fr) minmax(0, 1fr)' }
     : '1fr'
@@ -193,25 +229,7 @@ export function TaskDetailTabLayout({
         stickyHeader={
           <>
             <StuckHeaderBg isStuck={isStuck} />
-            {mainCta ? (
-              <HStack align="flex-end" gap={6} w="full">
-                <Box flex="1" minW={0}>
-                  {titleNode}
-                </Box>
-                {/* Bottom padding matches the title block, so the CTA lines up with the chips. */}
-                <Box
-                  display={{ base: 'none', lg: 'block' }}
-                  w={mainCtaFit ? 'auto' : WEB_MAIN_CTA_W}
-                  flexShrink={0}
-                  pb={4}
-                  pointerEvents="auto"
-                >
-                  {mainCta}
-                </Box>
-              </HStack>
-            ) : (
-              titleNode
-            )}
+            <Box maxW={isStuck ? 'none' : besideCtaMaxW}>{titleNode}</Box>
           </>
         }
         tabs={tabs.map((tab) => ({
@@ -220,6 +238,33 @@ export function TaskDetailTabLayout({
           badge: tab.badge,
         }))}
       >
+        {meta || mainCta ? (
+          <Box position="relative" pb={4} css={COMPACT_META_BAND_CSS}>
+            <HStack align="flex-end" gap={6}>
+              <Box flex="1" minW={0} maxW={besideCtaMaxW}>
+                {meta}
+              </Box>
+              {mainCta && !cardCta ? (
+                <Box display={{ base: 'none', lg: 'block' }} flexShrink={0}>
+                  {mainCta}
+                </Box>
+              ) : null}
+            </HStack>
+            {cardCta ? (
+              // Above the clear title chrome until it docks, then under it.
+              <Box
+                display={{ base: 'none', lg: 'block' }}
+                position="absolute"
+                right={0}
+                bottom={4}
+                w={WEB_MAIN_CTA_W}
+                zIndex={isStuck ? undefined : 6}
+              >
+                {mainCta}
+              </Box>
+            ) : null}
+          </Box>
+        ) : null}
         <Stack gap={5} w="full" pt={5} pb={6}>
           <Grid
             templateColumns={splitColumns}

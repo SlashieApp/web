@@ -18,6 +18,12 @@ const cards = (
   </>
 )
 
+const chips = (
+  <Text fontSize="sm" color="text.muted">
+    Westminster · Wed 10 Jun · Handyman
+  </Text>
+)
+
 const rail = (
   <Card layout="section" framed eyebrow="Help & actions">
     <Text color="text.muted">The desktop rail shares the cards' top edge.</Text>
@@ -74,18 +80,31 @@ export const WithRail: Story = {
   },
 }
 
-/** Desktop: the main button shares the title row, at the right with bottoms aligned. */
+/** Desktop: a card main button rises beside the title, bottom-aligned with the chips; both scroll away. */
 export const WithRailAndMainCta: Story = {
-  args: { rail, mainCta: <Button w="full">Message</Button> },
+  args: {
+    rail,
+    meta: chips,
+    mainCta: (
+      <Card layout="section" framed eyebrow="Quote sent">
+        <Button w="full">Edit quote</Button>
+      </Card>
+    ),
+  },
   globals: { viewport: { value: 'desktop' } },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByRole('button', { name: 'Message' })
+    await within(canvasElement).findByRole('button', { name: 'Edit quote' })
   },
 }
 
 /** Desktop: a lone button only takes its own width, so the title keeps the rest of the row. */
 export const WithButtonOnlyMainCta: Story = {
-  args: { rail, mainCta: <Button>Preview</Button>, mainCtaFit: true },
+  args: {
+    rail,
+    meta: chips,
+    mainCta: <Button>Preview</Button>,
+    mainCtaFit: true,
+  },
   globals: { viewport: { value: 'desktop' } },
   play: async ({ canvasElement }) => {
     await within(canvasElement).findByRole('button', { name: 'Preview' })

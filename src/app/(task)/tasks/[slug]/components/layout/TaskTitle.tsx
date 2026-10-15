@@ -5,7 +5,6 @@ import { Box, HStack, Heading, Skeleton } from '@chakra-ui/react'
 import { sdlMotion } from '@/theme/styles'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
-import { TaskDetailMeta } from './TaskDetailMeta'
 import { TaskBackButton } from './TaskHeaderControls'
 import { TaskHelpOverflowTrigger } from './TaskOverflowMenu'
 
@@ -15,8 +14,9 @@ type TaskTitleProps = {
 }
 
 /**
- * Sticky task title with the compact back control, then the meta chips. The
- * status badge is the Task summary's eyebrow, not here.
+ * Sticky task title with the compact back control and, on phones, the Help &
+ * actions menu. The chips sit under it in the page and scroll away; the
+ * status badge is the Task summary's eyebrow.
  */
 export function TaskTitle({ isStuck = false }: TaskTitleProps) {
   const { task, seed, pending } = useTaskDetail()
@@ -26,7 +26,7 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
   const title = task?.title?.trim() || seed?.title?.trim() || ''
 
   return (
-    <Box pt={2} pb={4} w="full">
+    <Box pt={2} pb={isStuck ? 2 : 1} w="full">
       <HStack
         gap={3}
         align="center"
@@ -71,9 +71,6 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
           <TaskHelpOverflowTrigger />
         </HStack>
       </HStack>
-      <Box mt={1} minW={0} w="full">
-        <TaskDetailMeta />
-      </Box>
     </Box>
   )
 }

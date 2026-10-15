@@ -8,6 +8,7 @@ import { TASK_DETAIL_TAB } from '../../helpers/taskDetailTabs'
 import bag from '../../i11n.json'
 import { OverviewCards } from '../overview/OverviewCards'
 import { TaskDetailMainCta, isButtonOnlyMainCta } from './TaskDetailMainCta'
+import { TaskDetailMeta } from './TaskDetailMeta'
 import { TaskDetailSideRail } from './TaskDetailSideRail'
 import {
   TaskDetailTabLayout,
@@ -54,6 +55,7 @@ export function TaskDetailTabs({
           ? activeTab
           : TASK_DETAIL_TAB.overview
       }
+      meta={<TaskDetailMeta />}
       mainCta={mainCta ? <TaskDetailMainCta /> : null}
       mainCtaFit={mainCta ? isButtonOnlyMainCta(mainCta) : false}
       rail={<TaskDetailSideRail />}

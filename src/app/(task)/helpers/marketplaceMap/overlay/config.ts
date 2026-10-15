@@ -43,7 +43,10 @@ export const MAP_FADE_MOTION_DELAY = MARKETPLACE_MAP_MOTION_DELAY
 const white = (alpha: number) => `rgba(255, 255, 255, ${alpha})`
 
 /** Carousel / CTA-band wash: short falloff, original compact recipe. */
-export const MAP_FADE_BOTTOM = `linear-gradient(to top, ${white(0.92)} 0%, ${white(0.5)} 48%, ${white(0)} 100%)`
+/** The wash's solid edge, for bands that continue it (task-detail chips). */
+export const MAP_FADE_EDGE = white(0.92)
+
+export const MAP_FADE_BOTTOM = `linear-gradient(to top, ${MAP_FADE_EDGE} 0%, ${white(0.5)} 48%, ${white(0)} 100%)`
 
 /** The same wash from the top, behind the logo and search bar (FE-208). */
 export const MAP_FADE_TOP = `linear-gradient(to bottom, ${white(0.92)} 0%, ${white(0.5)} 48%, ${white(0)} 100%)`

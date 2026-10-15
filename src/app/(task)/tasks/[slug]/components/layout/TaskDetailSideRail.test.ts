@@ -43,7 +43,8 @@ describe('TaskTitle compact actions', () => {
     expect(src).not.toContain('TaskStatusPill')
     expect(src).toContain('TaskHelpOverflowTrigger')
     expect(src).toContain("display={{ base: 'flex', lg: 'none' }}")
-    expect(src).toContain('TaskDetailMeta')
+    // The chips scroll away under the sticky title (TaskDetailTabs `meta`).
+    expect(src).not.toContain('TaskDetailMeta')
     expect(src).toContain('flex="0 1 auto"')
   })
 })

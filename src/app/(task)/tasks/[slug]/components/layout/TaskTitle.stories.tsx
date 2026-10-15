@@ -12,8 +12,8 @@ import {
 import { TaskTitle } from './TaskTitle'
 
 /**
- * Sticky title: back control (phones), title, meta chips, and the phones'
- * Help & actions menu. The status badge lives on the Task summary.
+ * Sticky title: back control (phones), title and the phones' Help & actions
+ * menu. Chips scroll away under it; the status badge lives on the Task summary.
  */
 const meta = {
   title: 'Task detail/Layout/TaskTitle',
