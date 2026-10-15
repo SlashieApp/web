@@ -515,9 +515,10 @@ export const MobileItemOpensDialog: Story = {
     await userEvent.click(
       within(canvasElement).getByRole('button', { name: 'More' }),
     )
-    await userEvent.click(
-      await page.findByRole('menuitem', { name: 'Reschedule' }),
-    )
+    const item = await page.findByRole('menuitem', { name: 'Reschedule' })
+    // The phone menu is a drawer (the case that used to drop the dialog).
+    await expect(item.closest('[data-dropdown-drawer]')).not.toBeNull()
+    await userEvent.click(item)
     // Past the drawer's exit animation, the dialog is still open.
     await new Promise((resolve) => setTimeout(resolve, 700))
     await expect(

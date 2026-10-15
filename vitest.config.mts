@@ -6,7 +6,6 @@ import { defineConfig } from 'vitest/config'
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
 
 import { playwright } from '@vitest/browser-playwright'
-import graphqlLoader from 'vite-plugin-graphql-loader'
 
 const dirname =
   typeof __dirname !== 'undefined'
@@ -14,8 +13,9 @@ const dirname =
     : path.dirname(fileURLToPath(import.meta.url))
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
+// `.gql` loading comes from the Storybook Vite config (`.storybook/main.ts`);
+// adding the loader here too runs it twice.
 export default defineConfig({
-  plugins: [graphqlLoader()],
   test: {
     projects: [
       {

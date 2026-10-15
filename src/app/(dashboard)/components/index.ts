@@ -5,7 +5,6 @@ export { AccountAuthGate } from './layout/AccountAuthGate'
 export { AccountShell } from './layout/AccountShell'
 export { ContactMethodsPanel } from './ui/ContactMethodsPanel'
 export { InboxActivityPanel } from './ui/inbox/InboxActivityPanel'
-export { InboxUpcomingEventRow } from './ui/inbox/InboxUpcomingEventRow'
 export { DashboardPageHeader } from './layout/DashboardPageHeader'
 export { DashboardPageLayout } from './layout/DashboardPageLayout'
 export {
