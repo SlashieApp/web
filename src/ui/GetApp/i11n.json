@@ -1,0 +1,22 @@
+{
+  "en": {
+    "getApp": "Get app",
+    "title": "Get the Slashie app",
+    "body": "The app is coming soon to iPhone and Android. Until then, Slashie works right here in your browser.",
+    "scan": "Scan to open Slashie on your phone",
+    "qrLabel": "QR code that opens slashie.app",
+    "comingSoon": "Coming soon",
+    "appStore": "App Store",
+    "googlePlay": "Google Play"
+  },
+  "zh_hk": {
+    "getApp": "下載應用程式",
+    "title": "下載 Slashie 應用程式",
+    "body": "應用程式即將登陸 iPhone 及 Android。在此之前，你可以繼續在瀏覽器使用 Slashie。",
+    "scan": "用手機掃描，即可開啟 Slashie",
+    "qrLabel": "開啟 slashie.app 的二維碼",
+    "comingSoon": "即將推出",
+    "appStore": "App Store",
+    "googlePlay": "Google Play"
+  }
+}

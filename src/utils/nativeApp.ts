@@ -2,6 +2,9 @@
 const ANDROID_PACKAGE = 'app.slashie.mobile'
 const APP_SCHEME = 'slashie'
 
+/** How long a page that is still showing means the app didn't open. */
+const APP_OPEN_WAIT_MS = 2000
+
 /**
  * Android link that opens the Slashie app when it's installed; when it
  * isn't, the browser loads `fallbackUrl` itself, with no error page. iPhone
@@ -31,6 +34,36 @@ export function openAppOnAndroid(event: {
   const timer = window.setTimeout(() => {
     if (document.visibilityState === 'visible') window.location.href = webUrl
   }, 1500)
+  document.addEventListener('visibilitychange', () => clearTimeout(timer), {
+    once: true,
+  })
+}
+
+/** Phones and tablets that can run the app: Android, iPhone, iPad (iPadOS reports as a Mac with touch). */
+export function isMobileOs(userAgent: string, maxTouchPoints: number): boolean {
+  if (/Android|iPhone|iPad|iPod/i.test(userAgent)) return true
+  return /Macintosh/i.test(userAgent) && maxTouchPoints > 1
+}
+
+/**
+ * Tries the Slashie app on a phone or tablet. Android uses an intent link
+ * whose fallback stays on this page (a `#get-app` jump, no reload); iOS opens
+ * the `slashie://` scheme (Safari asks first, and shows an error when the app
+ * isn't installed). If the page is still showing after 2 s, `onUnavailable`
+ * runs.
+ */
+export function tryOpenApp(onUnavailable: () => void) {
+  const here = window.location.href.split('#')[0]
+  window.location.href = isAndroidBrowser(navigator.userAgent)
+    ? androidAppIntentUrl(`${here}#get-app`)
+    : `${APP_SCHEME}://`
+  const timer = window.setTimeout(() => {
+    if (document.visibilityState !== 'visible') return
+    if (window.location.hash === '#get-app') {
+      window.history.replaceState(window.history.state, '', here)
+    }
+    onUnavailable()
+  }, APP_OPEN_WAIT_MS)
   document.addEventListener('visibilitychange', () => clearTimeout(timer), {
     once: true,
   })

@@ -9,7 +9,7 @@ import {
   SEARCH_LIST_COLUMN_W,
 } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
-import { Logo } from '@ui'
+import { GetAppButton, Logo } from '@ui'
 
 import { useMarketplaceMapState } from '../../../context/MarketplaceMapSession'
 import { useTaskBrowseData } from '../../../context/TaskBrowseProvider'
@@ -163,6 +163,7 @@ export function MobileSearchLayout() {
             display="flex"
             alignItems="center"
             justifyContent="center"
+            position="relative"
           >
             {/* Tapping the brand refreshes the results (it doesn't navigate).
                 The chrome is click-through for the map; only the logo isn't.
@@ -178,6 +179,20 @@ export function MobileSearchLayout() {
                 label={t.refreshLabel}
                 onClick={retryTasks}
               />
+            </Box>
+            {/* Get app sits in the top-right corner of the logo row. */}
+            <Box
+              position="absolute"
+              top={0}
+              bottom={4}
+              right={0}
+              display="flex"
+              alignItems="center"
+              pointerEvents={leavingForTask ? 'none' : 'auto'}
+              data-leaving={leavingForTask || undefined}
+              css={SEARCH_LOGO_MOTION_CSS}
+            >
+              <GetAppButton variant="secondary" />
             </Box>
           </Box>
           <Stack gap={2} flexShrink={0} mr={touchPhone ? 0 : 12}>

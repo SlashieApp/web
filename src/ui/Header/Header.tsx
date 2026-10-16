@@ -20,7 +20,6 @@ import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import {
   APP_HOME,
-  GET_APP_HREF,
   WORKER_SEARCH_HREF,
   isPrimaryNavHrefActive,
 } from '@/utils/appRoutes'
@@ -31,6 +30,7 @@ import { useCreateTaskHref } from '@/utils/taskHandoff'
 import { Button } from '../Button'
 import { Drawer } from '../Drawer'
 import { FeedbackTrigger } from '../FeedbackDialog/FeedbackTrigger'
+import { GetAppButton } from '../GetApp/GetAppButton'
 import { IconButton } from '../IconButton'
 import { Link } from '../Link'
 import { Logo } from '../Logo'
@@ -56,32 +56,6 @@ export type HeaderProps = {
    */
   hasSession?: boolean
 } & Omit<BoxProps, 'children'>
-
-function GetAppButton() {
-  const t = useI11n(bag)
-  const getAppHref = GET_APP_HREF === 'https://slashie.app' ? '/' : GET_APP_HREF
-  const isExternal = getAppHref.startsWith('http')
-
-  return (
-    <Button
-      asChild
-      size="sm"
-      variant="ghost"
-      display={{ base: 'none', lg: 'inline-flex' }}
-      flexShrink={0}
-    >
-      {isExternal ? (
-        <a href={getAppHref} target="_blank" rel="noopener noreferrer">
-          {t.getApp}
-        </a>
-      ) : (
-        <Link href={getAppHref} _hover={{ textDecoration: 'none' }}>
-          {t.getApp}
-        </Link>
-      )}
-    </Button>
-  )
-}
 
 function PostTaskButton() {
   const t = useI11n(bag)
@@ -270,7 +244,7 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
           </Box>
         </Link>
 
-        <GetAppButton />
+        <GetAppButton display={{ base: 'none', lg: 'inline-flex' }} />
       </HStack>
 
       <HStack align="center" flexShrink={0} overflow="visible">

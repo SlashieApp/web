@@ -70,6 +70,8 @@ export {
   useFormField,
   useFormFieldControlProps,
 } from './FormField'
+export { GetAppButton } from './GetApp/GetAppButton'
+export { GetAppDialog } from './GetApp/GetAppDialog'
 export {
   Header,
   HEADER_MIN_HEIGHT,
