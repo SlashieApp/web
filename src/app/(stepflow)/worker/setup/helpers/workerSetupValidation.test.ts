@@ -1,293 +1,246 @@
 import { describe, expect, it } from 'vitest'
 
-import type { MeWorkerSetupQuery } from '@codegen/schema'
-
+import bag from '../i11n.json'
 import {
   type WorkerSetupFormState,
   emptyWorkerSetupFormState,
 } from './workerSetupFormState'
 import {
-  SKILLS_MAX,
-  addSkills,
-  normalizeSkillLabel,
-  removeSkill,
-} from './workerSetupSkills'
-import {
+  type WorkerSetupAccount,
   buildSavePayload,
   isJunkBio,
-  validateWorkerSetupSubStep,
+  textWeight,
+  validateWorkerSetupScreen,
+  wordCount,
+  workerSetupErrorText,
 } from './workerSetupValidation'
-
-/** `me` is only read by the verify sub-step; other cases never touch it. */
-const meStub = {} as MeWorkerSetupQuery['me']
 
 const GOOD_BIO =
   'I fit and repair kitchens across North London. Customers choose me for tidy, ' +
   'reliable work and clear quotes with no surprises on the day.'
-
 const GOOD_HEADLINE = 'Handyman with 8 years experience'
+const READY = { avatarUrl: 'https://example.com/me.jpg', phoneVerified: true }
 
 function form(patch: Partial<WorkerSetupFormState>): WorkerSetupFormState {
   return { ...emptyWorkerSetupFormState(), ...patch }
 }
 
-describe('isJunkBio', () => {
-  it('rejects a single repeated character even at length', () => {
+const about = (
+  patch: Partial<WorkerSetupFormState>,
+  account: WorkerSetupAccount = READY,
+) =>
+  validateWorkerSetupScreen(
+    'about',
+    form({ firstName: 'Sam', lastName: 'Taylor', ...patch }),
+    account,
+  )
+
+const profile = (patch: Partial<WorkerSetupFormState>) =>
+  validateWorkerSetupScreen(
+    'profile',
+    form({ tagline: GOOD_HEADLINE, bio: GOOD_BIO, ...patch }),
+    READY,
+  )
+
+describe('About you', () => {
+  it('needs a first and last name', () => {
+    expect(
+      validateWorkerSetupScreen(
+        'about',
+        form({ dateOfBirth: '1990-01-01' }),
+        READY,
+      ),
+    ).toEqual({ firstName: 'firstNameRequired', lastName: 'lastNameRequired' })
+  })
+
+  it('asks for a date of birth', () => {
+    expect(about({}).dateOfBirth).toBe('dateOfBirthRequired')
+  })
+
+  it('turns away a date in the future or too long ago', () => {
+    expect(about({ dateOfBirth: '2999-01-01' }).dateOfBirth).toBe(
+      'dateOfBirthInvalid',
+    )
+    expect(about({ dateOfBirth: '1850-01-01' }).dateOfBirth).toBe(
+      'dateOfBirthInvalid',
+    )
+  })
+
+  it('turns away anyone under 18', () => {
+    expect(about({ dateOfBirth: '2015-01-01' }).dateOfBirth).toBe('underage')
+  })
+
+  it('needs a profile photo', () => {
+    expect(
+      about({ dateOfBirth: '1990-01-01' }, { ...READY, avatarUrl: null })
+        .avatar,
+    ).toBe('photoRequired')
+  })
+
+  it('passes an adult with a name and a photo', () => {
+    expect(about({ dateOfBirth: '1990-01-01' })).toEqual({})
+  })
+})
+
+describe('Your work', () => {
+  const work = (patch: Partial<WorkerSetupFormState>) =>
+    validateWorkerSetupScreen(
+      'work',
+      form({
+        primaryCategory: 'handyman',
+        skills: ['Painting', 'Tiling', 'Shelving'],
+        yearsExperience: '8',
+        ...patch,
+      }),
+      READY,
+    )
+
+  it('needs the main trade', () => {
+    expect(work({ primaryCategory: '' }).primaryCategory).toBe('tradeRequired')
+  })
+
+  it('needs 3 to 12 skills', () => {
+    expect(work({ skills: ['Test'] }).skills).toBe('skillsTooFew')
+    expect(
+      work({ skills: Array.from({ length: 13 }, (_, i) => `Skill ${i}`) })
+        .skills,
+    ).toBe('skillsTooMany')
+  })
+
+  it.each(['', '-1', '61', '2.5', 'abc'])('turns away %j years', (value) => {
+    expect(work({ yearsExperience: value }).yearsExperience).toBeTruthy()
+  })
+
+  it.each(['0', '8', '60'])('accepts %s years', (value) => {
+    expect(work({ yearsExperience: value })).toEqual({})
+  })
+})
+
+describe('Your profile', () => {
+  it('passes a real headline and bio', () => {
+    expect(profile({})).toEqual({})
+  })
+
+  it('needs a headline of a few words', () => {
+    expect(profile({ tagline: '' }).tagline).toBe('headlineTooShort')
+    expect(profile({ tagline: 'Electrician' }).tagline).toBe('headlineOneWord')
+    expect(
+      profile({ tagline: `Handyman ${'and decorator '.repeat(7)}` }).tagline,
+    ).toBe('headlineTooLong')
+  })
+
+  it('accepts a Chinese headline, which has no spaces', () => {
+    expect(profile({ tagline: '專業水喉師傅' })).toEqual({})
+  })
+
+  it('turns away a bio that is too short, too long or placeholder text', () => {
+    expect(profile({ bio: 'o' }).bio).toBe('bioTooShort')
+    expect(profile({ bio: 'o'.repeat(120) }).bio).toBe('bioJunk')
+    expect(
+      profile({ bio: `${GOOD_BIO} ${'More detail. '.repeat(20)}` }).bio,
+    ).toBe('bioTooLong')
+  })
+
+  it('accepts a Chinese bio of about half the characters', () => {
+    expect(
+      profile({
+        bio: '我在北倫敦安裝和維修廚房及浴室，已有八年經驗。顧客選擇我，是因為我做事整齊、報價誠實，而且準時到達。',
+      }),
+    ).toEqual({})
+  })
+
+  it('never needs the optional work photos', () => {
+    expect(profile({ portfolioUrls: [] })).toEqual({})
+  })
+})
+
+describe('Where you work and phone', () => {
+  it('needs a town or postcode, but not a travel distance', () => {
+    expect(validateWorkerSetupScreen('area', form({}), READY)).toEqual({
+      locationName: 'areaRequired',
+    })
+    expect(
+      validateWorkerSetupScreen(
+        'area',
+        form({ locationName: 'Watford' }),
+        READY,
+      ),
+    ).toEqual({})
+  })
+
+  it('needs a verified phone; a verified email alone is not enough', () => {
+    expect(
+      validateWorkerSetupScreen('phone', form({}), {
+        ...READY,
+        phoneVerified: false,
+      }),
+    ).toEqual({ contact: 'phoneRequired' })
+    expect(validateWorkerSetupScreen('phone', form({}), READY)).toEqual({})
+  })
+})
+
+describe('text measures', () => {
+  it('counts each Chinese character as a word, and twice for length', () => {
+    expect(wordCount('專業水喉師傅')).toBe(6)
+    expect(wordCount('Handyman with 8 years')).toBe(4)
+    expect(textWeight('水喉')).toBe(4)
+    expect(textWeight('tap')).toBe(3)
+  })
+
+  it('spots placeholder bios', () => {
     expect(isJunkBio('o'.repeat(120))).toBe(true)
-  })
-
-  it('rejects a single long word', () => {
+    expect(isJunkBio('好'.repeat(60))).toBe(true)
     expect(isJunkBio('plumbingplumbingplumbing')).toBe(true)
-  })
-
-  it('accepts a real sentence (10+ distinct characters)', () => {
     expect(isJunkBio(GOOD_BIO)).toBe(false)
-  })
-
-  it('accepts 12+ words even with a narrow alphabet', () => {
     expect(isJunkBio('a be do go an on it at is as no so up')).toBe(false)
   })
 })
 
-describe('validateWorkerSetupSubStep — profile.photo date of birth', () => {
-  const photoMe = {
-    profile: { avatarUrl: 'https://example.com/avatar.jpg' },
-  } as MeWorkerSetupQuery['me']
-
-  it('rejects an under-18 self-report', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.photo',
-      form({ dateOfBirth: '2015-01-01' }),
-      photoMe,
+describe('workerSetupErrorText', () => {
+  it('fills in the limits', () => {
+    expect(workerSetupErrorText(bag.en.errors, 'skillsTooFew')).toBe(
+      'Add at least 3 skills so customers can find you for the right tasks.',
     )
-    expect(errors.dateOfBirth).toMatch(/18/)
-  })
-
-  it('accepts an adult date of birth', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.photo',
-      form({ dateOfBirth: '1990-01-01' }),
-      photoMe,
+    expect(workerSetupErrorText(bag.zh_hk.errors, 'bioTooLong')).toBe(
+      '簡介請少於 300 個字元。',
     )
-    expect(errors.dateOfBirth).toBeUndefined()
+    expect(workerSetupErrorText(bag.en.errors, undefined)).toBeUndefined()
   })
 })
 
-describe('validateWorkerSetupSubStep — profile.bio', () => {
-  it('rejects the 1-char junk bio that live MVP accepted', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.bio',
-      form({ bio: 'o', tagline: GOOD_HEADLINE }),
-      meStub,
-    )
-    expect(errors.bio).toMatch(/80 characters/)
-  })
-
-  it('rejects an 80+ char junk bio via the content heuristic', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.bio',
-      // 120 chars, clears the length floor, but 1 distinct char / 1 word.
-      form({ bio: 'o'.repeat(120), tagline: GOOD_HEADLINE }),
-      meStub,
-    )
-    expect(errors.bio).toMatch(/full sentences/)
-  })
-
-  it('rejects a bio over 300 characters', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.bio',
-      form({
-        bio: `${GOOD_BIO} ${'More detail. '.repeat(20)}`,
-        tagline: GOOD_HEADLINE,
-      }),
-      meStub,
-    )
-    expect(errors.bio).toMatch(/300/)
-  })
-
-  it('accepts a real bio with a valid headline', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.bio',
-      form({ bio: GOOD_BIO, tagline: GOOD_HEADLINE }),
-      meStub,
-    )
-    expect(errors).toEqual({})
-  })
-})
-
-describe('validateWorkerSetupSubStep — headline (tagline)', () => {
-  it('requires a headline', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.bio',
-      form({ bio: GOOD_BIO, tagline: '' }),
-      meStub,
-    )
-    expect(errors.tagline).toBeTruthy()
-  })
-
-  it('rejects a single word even when long enough', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.bio',
-      form({ bio: GOOD_BIO, tagline: 'Electrician' }),
-      meStub,
-    )
-    expect(errors.tagline).toMatch(/few words/)
-  })
-
-  it('rejects under 10 characters', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.bio',
-      form({ bio: GOOD_BIO, tagline: 'Top pro' }),
-      meStub,
-    )
-    expect(errors.tagline).toMatch(/10/)
-  })
-
-  it('rejects over 80 characters', () => {
-    const errors = validateWorkerSetupSubStep(
-      'profile.bio',
-      form({
-        bio: GOOD_BIO,
-        tagline: `Handyman ${'and decorator '.repeat(7)}`,
-      }),
-      meStub,
-    )
-    expect(errors.tagline).toMatch(/80/)
-  })
-})
-
-describe('validateWorkerSetupSubStep — services.skills', () => {
-  it('rejects fewer than 3 skills (the "test" single-skill case)', () => {
-    const errors = validateWorkerSetupSubStep(
-      'services.skills',
-      form({ skills: ['Test'] }),
-      meStub,
-    )
-    expect(errors.skills).toMatch(/at least 3/)
-  })
-
-  it('accepts a category plus exactly 3 skills', () => {
-    const errors = validateWorkerSetupSubStep(
-      'services.skills',
-      form({
-        primaryCategory: 'handyman',
-        skills: ['Painting', 'Tiling', 'Shelving'],
-      }),
-      meStub,
-    )
-    expect(errors).toEqual({})
-  })
-
-  it('requires a primary category', () => {
-    const errors = validateWorkerSetupSubStep(
-      'services.skills',
-      form({ skills: ['Painting', 'Tiling', 'Shelving'] }),
-      meStub,
-    )
-    expect(errors.primaryCategory).toMatch(/kind of work/)
-  })
-
-  it('rejects more than 12 skills', () => {
-    const errors = validateWorkerSetupSubStep(
-      'services.skills',
-      form({ skills: Array.from({ length: 13 }, (_, i) => `Skill ${i}`) }),
-      meStub,
-    )
-    expect(errors.skills).toMatch(/12/)
-  })
-})
-
-describe('validateWorkerSetupSubStep — services.experience', () => {
-  it.each(['-1', '61', '2.5', 'abc'])('rejects %s', (value) => {
-    const errors = validateWorkerSetupSubStep(
-      'services.experience',
-      form({ yearsExperience: value }),
-      meStub,
-    )
-    expect(errors.yearsExperience).toBeTruthy()
-  })
-
-  it.each(['0', '8', '60'])('accepts %s', (value) => {
-    const errors = validateWorkerSetupSubStep(
-      'services.experience',
-      form({ yearsExperience: value }),
-      meStub,
-    )
-    expect(errors).toEqual({})
-  })
-})
-
-describe('validateWorkerSetupSubStep — verify.phone (BE requires phone)', () => {
-  const emailOnlyMe = {
-    emailVerified: true,
-    phoneVerified: false,
-  } as MeWorkerSetupQuery['me']
-  const phoneVerifiedMe = {
-    emailVerified: false,
-    phoneVerified: true,
-  } as MeWorkerSetupQuery['me']
-
-  it('rejects an email-only account (BE finalize throws PHONE_NOT_VERIFIED)', () => {
-    const errors = validateWorkerSetupSubStep(
-      'verify.phone',
-      form({}),
-      emailOnlyMe,
-    )
-    expect(errors.contact).toMatch(/phone/i)
-  })
-
-  it('passes with a verified phone', () => {
-    const errors = validateWorkerSetupSubStep(
-      'verify.phone',
-      form({}),
-      phoneVerifiedMe,
-    )
-    expect(errors).toEqual({})
-  })
-})
-
-describe('skills chips helpers', () => {
-  it('title-cases and preserves existing capitals', () => {
-    expect(normalizeSkillLabel('  tv   mounting ')).toBe('Tv Mounting')
-    expect(normalizeSkillLabel('TV mounting')).toBe('TV Mounting')
-  })
-
-  it('rejects labels outside 2–30 chars', () => {
-    expect(normalizeSkillLabel('x')).toBeNull()
-    expect(normalizeSkillLabel('a'.repeat(31))).toBeNull()
-  })
-
-  it('splits pasted lists, dedupes case-insensitively, and caps at 12', () => {
-    expect(addSkills(['Painting'], 'painting, tiling; shelving')).toEqual([
-      'Painting',
-      'Tiling',
-      'Shelving',
-    ])
-    const full = Array.from({ length: SKILLS_MAX }, (_, i) => `Skill ${i}`)
-    expect(addSkills(full, 'One More')).toHaveLength(SKILLS_MAX)
-  })
-
-  it('removes a chip', () => {
-    expect(removeSkill(['Painting', 'Tiling'], 'Painting')).toEqual(['Tiling'])
-  })
-})
-
-describe('buildSavePayload — wire format unchanged', () => {
-  it('sends skills as a plain string array', () => {
-    expect(
-      buildSavePayload(
-        'services.skills',
-        form({ skills: ['Painting', 'Tiling', 'Shelving'] }),
-      ),
-    ).toEqual({ skills: ['Painting', 'Tiling', 'Shelving'] })
-  })
-
-  it('saves the headline to the existing tagline field', () => {
+describe('buildSavePayload', () => {
+  it('saves the headline to the tagline field', () => {
     expect(
       buildSavePayload(
         'profile.bio',
-        form({ bio: GOOD_BIO, tagline: GOOD_HEADLINE }),
+        form({ bio: ` ${GOOD_BIO} `, tagline: GOOD_HEADLINE }),
       ),
     ).toEqual({ tagline: GOOD_HEADLINE, bio: GOOD_BIO })
+  })
+
+  it('sends the date of birth with the name', () => {
+    expect(
+      buildSavePayload(
+        'profile.details',
+        form({
+          firstName: ' Sam ',
+          lastName: 'Taylor',
+          dateOfBirth: '1990-04-12',
+        }),
+      ),
+    ).toEqual({
+      firstName: 'Sam',
+      lastName: 'Taylor',
+      dateOfBirth: '1990-04-12T00:00:00.000Z',
+    })
+  })
+
+  it('sends the travel distance as a number, or nothing', () => {
+    expect(
+      buildSavePayload('area.travel', form({ travelRadiusMiles: '10' })),
+    ).toEqual({ travelRadiusMiles: 10 })
+    expect(buildSavePayload('area.travel', form({}))).toEqual({
+      travelRadiusMiles: undefined,
+    })
   })
 })

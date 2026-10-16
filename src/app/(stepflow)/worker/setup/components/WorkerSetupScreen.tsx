@@ -1,5 +1,7 @@
 'use client'
 
+import { Box } from '@chakra-ui/react'
+
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { StatusScreen } from '@/app/StatusScreen'
 import { useI11n } from '@/i18n/useI11n'
@@ -7,28 +9,31 @@ import { BrandLoading } from '@/ui/BrandLoading/BrandLoading'
 import { Button, Link, StepFlowHeader, StepFlowLayout } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
+import { previousScreen } from '../helpers/workerSetupScreens'
 import bag from '../i11n.json'
-import { WorkerSetupMobileAccordion } from './layout/steppers/WorkerSetupMobileAccordion'
+import { WORKER_SETUP_VIEWS, getWorkerSetupView } from '../views'
 import { WorkerSetupProgressBar } from './layout/steppers/WorkerSetupProgressBar'
 import { WorkerSetupStepper } from './layout/steppers/WorkerSetupStepper'
 import { WorkerSetupStepContent } from './ui/steps/WorkerSetupStepContent'
 
+/** /worker/setup for a signed-in user: what `getWorkerSetupView` picks. */
 export function WorkerSetupScreen() {
   const t = useI11n(bag)
   const {
-    activeSubStep,
+    status,
+    screen,
     exitHref,
     goBack,
-    isHydrated,
     isSaving,
-    loadError,
     retryLoad,
     saveAndContinue,
     saveError,
+    headingRef,
+    contentRef,
   } = useWorkerSetup()
+  const view = WORKER_SETUP_VIEWS[getWorkerSetupView({ status, screen })]
 
-  // A failed load used to leave a blank screen forever (FE-207).
-  if (!isHydrated && loadError) {
+  if (view.layout === 'error') {
     return (
       <StatusScreen
         title={t.loadErrorTitle}
@@ -49,13 +54,11 @@ export function WorkerSetupScreen() {
     )
   }
 
-  if (!isHydrated) {
-    return <BrandLoading label={t.loading} />
-  }
+  // Loading, or an existing worker being sent on.
+  if (view.layout !== 'screen') return <BrandLoading label={t.loading} />
 
-  const copy = t.steps[activeSubStep]
-  const isFirstStep = activeSubStep === 'profile.details'
-  const isLastStep = activeSubStep === 'review.submit'
+  const copy = t.screens[view.screen]
+  const finish = view.primary === 'finish'
 
   return (
     <StepFlowLayout
@@ -69,21 +72,23 @@ export function WorkerSetupScreen() {
       }
       progress={<WorkerSetupProgressBar />}
       stepper={<WorkerSetupStepper />}
-      mobileBody={<WorkerSetupMobileAccordion />}
       title={copy.title}
       description={copy.description}
+      headingRef={headingRef}
       errorText={saveError}
       actions={{
-        showBack: !isFirstStep,
+        showBack: previousScreen(view.screen) !== null,
         backLabel: t.back,
-        continueLabel: isLastStep ? t.finish : t.continue,
+        continueLabel: finish ? t.finish : t.continue,
         continueLoading: isSaving,
-        isFinal: isLastStep,
+        isFinal: finish,
         onBack: goBack,
         onContinue: () => void saveAndContinue(),
       }}
     >
-      <WorkerSetupStepContent />
+      <Box ref={contentRef}>
+        <WorkerSetupStepContent view={view} />
+      </Box>
     </StepFlowLayout>
   )
 }

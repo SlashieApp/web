@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, userEvent, within } from 'storybook/test'
 
-import { workerSetupStoryErrors } from '../../workerSetupStoryFixtures'
+import { ZH_HK_SETUP, withZhHk } from '../../workerSetupStoryFixtures'
 import {
   WorkerSetupBioComposer,
   type WorkerSetupBioComposerProps,
@@ -37,7 +37,7 @@ export const Empty: Story = {
   args: { value: '', onChange: () => {} },
 }
 
-/** Under 80 characters: the meter reads "Too short to build trust". */
+/** Under 80 characters: the meter reads "Too short yet". */
 export const TooShort: Story = {
   args: { value: 'I do handyman jobs around London.', onChange: () => {} },
 }
@@ -74,18 +74,33 @@ export const RejectedJunk: Story = {
   args: {
     value: 'o',
     onChange: () => {},
-    errorText: workerSetupStoryErrors('profile.bio', { bio: 'o' }).bio,
+    errorText:
+      'Write at least 80 characters. Customers read this before they accept your quote.',
   },
 }
 
-/** "See an example bio" opened: a sample bio shows under the meter. */
+/** "See an example" opened: a sample bio shows under the meter. */
 export const ExampleOpen: Story = {
   args: { value: '', onChange: () => {} },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(
-      canvas.getByRole('button', { name: /see an example bio/i }),
+      canvas.getByRole('button', { name: /see an example/i }),
     )
     await expect(canvas.getByText(/City & Guilds qualified/)).toBeVisible()
+  },
+}
+
+/** zh-HK: starters, meter and example in Traditional Chinese. */
+export const ZhHk: Story = {
+  parameters: ZH_HK_SETUP,
+  decorators: [withZhHk],
+  args: { value: '', onChange: () => {} },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      canvas.getByRole('button', { name: '加入「我最擅長的工作是」' }),
+    )
+    await expect(canvas.getByRole('textbox')).toHaveValue('我最擅長的工作是')
   },
 }

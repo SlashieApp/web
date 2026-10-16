@@ -1,30 +1,27 @@
 'use client'
 
-import { HStack, Stack, Text } from '@chakra-ui/react'
+import { HStack, Text } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Badge } from '@ui'
+
+import bag from '../../../i11n.json'
 
 export function WorkerSetupOptionalBadge() {
   return (
-    <Badge
-      bg="bg.subtle"
-      color="text.muted"
-      fontSize="xs"
-      fontWeight={600}
-      letterSpacing="normal"
-      textTransform="none"
-      px={2}
-      py={0.5}
-      borderRadius="md"
-    >
-      Optional
+    <Badge variant="neutral" shape="pill">
+      {useI11n(bag).optional}
     </Badge>
   )
 }
 
-export function WorkerSetupOptionalLabel({ children }: { children: string }) {
+/** A field label with an Optional badge. */
+export function WorkerSetupOptionalLabel({
+  children,
+}: { children: ReactNode }) {
   return (
-    <HStack gap={2} align="center">
+    <HStack as="span" gap={2} align="center">
       <Text as="span">{children}</Text>
       <WorkerSetupOptionalBadge />
     </HStack>

@@ -21,8 +21,8 @@ export type RadioButtonGroupProps<T extends string> = {
   onChange: (value: T) => void
   helperText?: ReactNode
   errorText?: ReactNode
-  /** Options per row from `sm` up; phones stack them. */
-  columns?: number
+  /** Options per row from `sm` up (phones stack them), or per breakpoint. */
+  columns?: number | { base: number; sm: number }
 }
 
 /**
@@ -65,7 +65,9 @@ export function RadioButtonGroup<T extends string>({
           [helperId, errorId].filter(Boolean).join(' ') || undefined
         }
         aria-invalid={errorText ? true : undefined}
-        columns={{ base: 1, sm: columns }}
+        columns={
+          typeof columns === 'number' ? { base: 1, sm: columns } : columns
+        }
         gap={2}
       >
         {options.map((option) => (

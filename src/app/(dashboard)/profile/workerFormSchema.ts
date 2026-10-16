@@ -14,6 +14,8 @@ import {
   HEADLINE_MIN_CHARS,
   YEARS_EXPERIENCE_MAX,
   isJunkBio,
+  textWeight,
+  wordCount,
 } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
@@ -47,16 +49,20 @@ export function createWorkerFormSchema(errors: WorkerFormErrors) {
     tagline: z
       .string()
       .trim()
-      .min(HEADLINE_MIN_CHARS, count(errors.headlineShort, HEADLINE_MIN_CHARS))
-      .max(HEADLINE_MAX_CHARS, count(errors.headlineLong, HEADLINE_MAX_CHARS))
+      // Chinese counts by weight and per character, as in setup.
       .refine(
-        (v) => v.split(/\s+/).filter(Boolean).length >= 2,
-        errors.headlineWords,
-      ),
+        (v) => textWeight(v) >= HEADLINE_MIN_CHARS,
+        count(errors.headlineShort, HEADLINE_MIN_CHARS),
+      )
+      .max(HEADLINE_MAX_CHARS, count(errors.headlineLong, HEADLINE_MAX_CHARS))
+      .refine((v) => wordCount(v) >= 2, errors.headlineWords),
     bio: z
       .string()
       .trim()
-      .min(BIO_MIN_CHARS, count(errors.bioShort, BIO_MIN_CHARS))
+      .refine(
+        (v) => textWeight(v) >= BIO_MIN_CHARS,
+        count(errors.bioShort, BIO_MIN_CHARS),
+      )
       .max(BIO_MAX_CHARS, count(errors.bioLong, BIO_MAX_CHARS))
       .refine((v) => !isJunkBio(v), errors.bioJunk),
     primaryCategory: z.string().min(1, errors.category),

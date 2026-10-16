@@ -33,7 +33,6 @@ const meta = {
     aside: { control: false, table: { disable: true } },
     mobileTop: { control: false, table: { disable: true } },
     progress: { control: false, table: { disable: true } },
-    mobileBody: { control: false, table: { disable: true } },
     actions: { control: false },
     title: { control: 'text' },
     description: { control: 'text' },
@@ -175,50 +174,6 @@ const demoMobileTop = (
       Westminster, London · Budget £120
     </Text>
   </Box>
-)
-
-/** Demo custom mobile body: a step accordion with the first step open. */
-const demoAccordionBody = (
-  <Stack gap={0} bg="bg.surface">
-    {['Profile details', 'Skills & services', 'Service area'].map(
-      (label, index) => (
-        <Box key={label} borderBottomWidth="1px" borderColor="border.default">
-          <HStack gap={3} px={4} py={4}>
-            <Box
-              boxSize="24px"
-              borderRadius="full"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              fontSize="xs"
-              fontWeight={700}
-              borderWidth="1px"
-              borderColor={
-                index === 0 ? 'status.success.solid' : 'border.default'
-              }
-              color={index === 0 ? 'status.success.fg' : 'text.muted'}
-              flexShrink={0}
-            >
-              {index + 1}
-            </Box>
-            <Text
-              flex={1}
-              fontSize="sm"
-              fontWeight={index === 0 ? 700 : 600}
-              color={index === 0 ? 'text.default' : 'text.muted'}
-            >
-              {label}
-            </Text>
-          </HStack>
-          {index === 0 ? (
-            <Box px={4} pb={5}>
-              {demoFields}
-            </Box>
-          ) : null}
-        </Box>
-      ),
-    )}
-  </Stack>
 )
 
 /** Enough fields that the step overflows and has to scroll. */
@@ -426,13 +381,6 @@ export const MobileWithContext: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   args: { ...WithAside.args, aside: undefined },
   render: (args) => <StepFlowLayout {...args} mobileTop={demoMobileTop} />,
-}
-
-/** Phone, custom body: a step accordion replaces heading and content. */
-export const MobileCustomBody: Story = {
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
-  args: { ...TwoColumn.args },
-  render: (args) => <StepFlowLayout {...args} mobileBody={demoAccordionBody} />,
 }
 
 /** Phone, error: the save error shows above the step content. */

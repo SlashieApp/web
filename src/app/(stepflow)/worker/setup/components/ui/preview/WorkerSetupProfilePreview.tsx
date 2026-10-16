@@ -11,20 +11,25 @@ import {
   profileStats,
   workerHeadline,
 } from '@/app/(presence)/profile/[userId]/helpers/publicProfileModel'
+import { useI11n } from '@/i18n/useI11n'
+import { townOnly } from '@/utils/taskLocationDisplay'
 
 import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
 import { categoryEnumFromSlug } from '../../../helpers/workerSetupCategories'
+import bag from '../../../i11n.json'
 
 /**
- * Review-step preview drawn with the public profile's own hero, About and
- * Skills, fed from the in-progress form. Static: pointer events are off.
+ * The review's preview, drawn with the public profile's own hero, About and
+ * Skills from the form. Shows the town only, as the API does. Static:
+ * pointer events are off.
  */
 export function WorkerSetupProfilePreview() {
-  const { form, bootstrap } = useWorkerSetup()
+  const trades = useI11n(bag).trades
+  const { form, account } = useWorkerSetup()
 
   const years = Number.parseInt(form.yearsExperience.trim(), 10)
   const radius = Number.parseFloat(form.travelRadiusMiles.trim())
-  const area = form.locationName.trim()
+  const town = townOnly(form.locationName)
   const stats = profileStats(['experience'], {
     ratingCount: 0,
     ratingAverage: null,
@@ -50,18 +55,19 @@ export function WorkerSetupProfilePreview() {
           stats={stats}
           model={{
             name: `${form.firstName} ${form.lastName}`.trim(),
-            avatarUrl: bootstrap?.profile?.avatarUrl?.trim() || null,
+            avatarUrl: account.avatarUrl,
             verified: false,
             isWorker: true,
             headline: workerHeadline(
               categoryEnumFromSlug(form.primaryCategory),
               form.skills,
+              trades,
             ),
             tagline: form.tagline.trim() || null,
             serviceAreaLabel:
-              area && Number.isFinite(radius) && radius > 0
-                ? `${area} (~${Math.round(radius)} miles)`
-                : area || null,
+              town && Number.isFinite(radius) && radius > 0
+                ? `${town} (~${Math.round(radius)} miles)`
+                : town,
           }}
         />
         <ProfileAboutSection bio={form.bio.trim() || null} />

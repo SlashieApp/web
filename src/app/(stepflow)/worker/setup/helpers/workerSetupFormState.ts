@@ -103,17 +103,3 @@ export function formStateFromMeWorkerSetup(
       .filter(Boolean),
   }
 }
-
-export function parseSkillsText(text: string): string[] {
-  return text
-    .split(/[,;\n]+/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-}
-
-export function parsePortfolioText(text: string): string[] {
-  return text
-    .split(/[\n,]+/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-}

@@ -1,28 +1,49 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
-import { withWorkerSetup } from '../../workerSetupStoryFixtures'
+import {
+  ZH_HK_SETUP,
+  withWorkerSetup,
+  withZhHk,
+} from '../../workerSetupStoryFixtures'
 import { WorkerSetupProgressBar } from './WorkerSetupProgressBar'
 
 const meta: Meta<typeof WorkerSetupProgressBar> = {
   title: 'Worker setup/WorkerSetupProgressBar',
   component: WorkerSetupProgressBar,
-  parameters: {
-    layout: 'padded',
-  },
+  parameters: { layout: 'padded' },
 }
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Mid-flow: the headline and bio step. */
-export const Default: Story = { decorators: [withWorkerSetup()] }
-
-/** First step: the bar has barely started. */
-export const FirstStep: Story = {
-  decorators: [withWorkerSetup({ activeSubStep: 'profile.details' })],
+/** Mid-flow: step 3 of 6. */
+export const Default: Story = {
+  decorators: [withWorkerSetup()],
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText('Step 3 of 6 · Your profile'),
+    ).toBeVisible()
+  },
 }
 
-/** Last step: the bar is full. */
+/** First screen. */
+export const FirstStep: Story = {
+  decorators: [withWorkerSetup({ screen: 'about' })],
+}
+
+/** The review: the bar is full. */
 export const ReviewStep: Story = {
-  decorators: [withWorkerSetup({ activeSubStep: 'review.submit' })],
+  decorators: [withWorkerSetup({ screen: 'review' })],
+}
+
+/** zh-HK. */
+export const ZhHk: Story = {
+  parameters: ZH_HK_SETUP,
+  decorators: [withWorkerSetup({ screen: 'area' }), withZhHk],
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText('第 4 步（共 6 步）· 工作地區'),
+    ).toBeVisible()
+  },
 }

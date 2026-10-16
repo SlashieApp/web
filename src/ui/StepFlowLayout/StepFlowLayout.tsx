@@ -29,8 +29,8 @@ import { ProgressBar } from '../ProgressBar'
  *   (scrollable heading + content, sticky action bar), and an optional
  *   context `aside` third column.
  * - Mobile: optional `mobileTop` context region, the `progress` bar, a
- *   scrollable body (default: heading + content on `bg.surface`; or a custom
- *   `mobileBody` such as an accordion), and the sticky action bar.
+ *   scrollable body (heading + content on `bg.surface`), and the sticky
+ *   action bar.
  *
  * The layout owns structure only — step state, validation, and navigation
  * stay in each flow's context/config. Compose the flow's own stepper and
@@ -111,6 +111,8 @@ export type StepFlowHeadingProps = {
   title: string
   description?: string
   compact?: boolean
+  /** Callback ref for the title, e.g. to focus it when the step changes. */
+  headingRef?: (node: HTMLElement | null) => void
 }
 
 /** Step title + supporting copy (`h1` of the flow screen). */
@@ -118,11 +120,15 @@ export function StepFlowHeading({
   title,
   description,
   compact = false,
+  headingRef,
 }: StepFlowHeadingProps) {
   return (
     <Stack gap={compact ? 1 : 2}>
       <Text
         as="h1"
+        ref={headingRef}
+        tabIndex={headingRef ? -1 : undefined}
+        outline="none"
         fontSize={compact ? 'xl' : { base: '2xl', md: '3xl' }}
         fontWeight={800}
         lineHeight="short"
@@ -256,6 +262,7 @@ export function StepFlowProgress({
 type StepFlowPanelProps = {
   title: string
   description?: string
+  headingRef?: StepFlowHeadingProps['headingRef']
   errorText?: string | null
   actions: Omit<StepFlowActionsProps, 'sticky'>
   children: ReactNode
@@ -265,6 +272,7 @@ type StepFlowPanelProps = {
 function StepFlowPanel({
   title,
   description,
+  headingRef,
   errorText,
   actions,
   children,
@@ -280,7 +288,11 @@ function StepFlowPanel({
         py={{ base: 5, md: 8 }}
         pb={{ base: 4, md: 8 }}
       >
-        <StepFlowHeading title={title} description={description} />
+        <StepFlowHeading
+          title={title}
+          description={description}
+          headingRef={headingRef}
+        />
         {errorText ? (
           <Text color="status.danger.fg" fontSize="sm" role="alert">
             {errorText}
@@ -306,14 +318,11 @@ export type StepFlowLayoutProps = {
   mobileTop?: ReactNode
   /** Mobile progress strip (compose with {@link StepFlowProgress}). */
   progress?: ReactNode
-  /**
-   * Custom mobile body (e.g. a step accordion). When omitted, the mobile body
-   * is the step heading + `children` on a scrollable `bg.surface` region.
-   */
-  mobileBody?: ReactNode
   /** Active step heading. */
   title: string
   description?: string
+  /** Callback ref for the step title (focus it when the step changes). */
+  headingRef?: StepFlowHeadingProps['headingRef']
   /** Save/submit error shown above the step content. */
   errorText?: string | null
   actions: Omit<StepFlowActionsProps, 'sticky'>
@@ -327,15 +336,15 @@ export function StepFlowLayout({
   aside,
   mobileTop,
   progress,
-  mobileBody,
   title,
   description,
+  headingRef,
   errorText,
   actions,
   children,
 }: StepFlowLayoutProps) {
   // JS breakpoint (not CSS hiding) so form state inside `children` is mounted
-  // exactly once — the accordion/panel variants would otherwise double-mount.
+  // exactly once: the phone and desktop bodies would otherwise both mount it.
   const showDesktopLayout =
     useBreakpointValue({ base: false, lg: true }, { fallback: 'base' }) ?? false
 
@@ -348,23 +357,21 @@ export function StepFlowLayout({
         <Stack flex={1} minH={0} gap={0}>
           {mobileTop}
           {progress}
-          {mobileBody ? (
-            <Box flex={1} minH={0} overflowY="auto">
-              {mobileBody}
-            </Box>
-          ) : (
-            <Box flex={1} minH={0} overflowY="auto" bg="bg.surface">
-              <Stack gap={6} px={4} py={5} pb={4}>
-                <StepFlowHeading title={title} description={description} />
-                {errorText ? (
-                  <Text color="status.danger.fg" fontSize="sm" role="alert">
-                    {errorText}
-                  </Text>
-                ) : null}
-                {children}
-              </Stack>
-            </Box>
-          )}
+          <Box flex={1} minH={0} overflowY="auto" bg="bg.surface">
+            <Stack gap={6} px={4} py={5} pb={4}>
+              <StepFlowHeading
+                title={title}
+                description={description}
+                headingRef={headingRef}
+              />
+              {errorText ? (
+                <Text color="status.danger.fg" fontSize="sm" role="alert">
+                  {errorText}
+                </Text>
+              ) : null}
+              {children}
+            </Stack>
+          </Box>
           <StepFlowActions {...actions} sticky />
         </Stack>
       ) : (
@@ -402,6 +409,7 @@ export function StepFlowLayout({
               <StepFlowPanel
                 title={title}
                 description={description}
+                headingRef={headingRef}
                 errorText={errorText}
                 actions={actions}
               >

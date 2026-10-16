@@ -6,7 +6,11 @@ import type {
 } from '@codegen/schema'
 import { PublicProfileUserType, ReviewPartyRole } from '@codegen/schema'
 
-import { categoryLabelFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import {
+  type WorkerTradesCopy,
+  categoryLabelFromEnum,
+} from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import {
@@ -14,6 +18,7 @@ import {
   buildAchievementPanels,
 } from '@/app/(task)/tasks/helpers/taskAchievements'
 import { publicRatingAverage } from '@/content/reviews/reviewModel'
+import { loadPageI11n } from '@/i18n/loadPageI11n'
 import type { AppLocale } from '@/i18n/locales'
 
 import type {
@@ -126,12 +131,13 @@ function formatDate(
   )
 }
 
-/** "Handyman · Furniture assembly": the trade, then a skill or two. */
+/** "Handyman · Furniture assembly": the trade (in the reader's language), then a skill or two. */
 export function workerHeadline(
   primaryCategory: WorkerPrimaryCategory | null | undefined,
   skills: readonly string[],
+  trades: WorkerTradesCopy,
 ): string | null {
-  const categoryLabel = categoryLabelFromEnum(primaryCategory)
+  const categoryLabel = categoryLabelFromEnum(primaryCategory, trades)
   const skillParts = cleanList(skills).slice(0, categoryLabel ? 1 : 2)
   const parts = categoryLabel ? [categoryLabel, ...skillParts] : skillParts
   return parts.length > 0 ? parts.join(' · ') : null
@@ -290,7 +296,11 @@ export function toPublicProfileModel(
         year: 'numeric',
       }) || null,
     headline: worker
-      ? workerHeadline(worker.primaryCategory, worker.skills)
+      ? workerHeadline(
+          worker.primaryCategory,
+          worker.skills,
+          loadPageI11n(setupBag, locale).trades,
+        )
       : null,
     tagline: worker?.tagline?.trim() || null,
     serviceAreaLabel: worker?.serviceAreaLabel?.trim() || null,

@@ -1,11 +1,13 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { computeProfileStrength } from '../../../helpers/workerProfileStrength'
 import {
   type WorkerSetupFormState,
   emptyWorkerSetupFormState,
 } from '../../../helpers/workerSetupFormState'
+import { ZH_HK_SETUP, withZhHk } from '../../workerSetupStoryFixtures'
 import {
   WorkerSetupStrengthMeter,
   type WorkerSetupStrengthMeterProps,
@@ -48,11 +50,11 @@ export const Starter: Story = {
       avatarUrl: null,
       phoneVerified: false,
     }),
-    onGoToStep: () => {},
+    onGoToScreen: () => {},
   },
 }
 
-/** Good tier: four of seven done, three fix links left. */
+/** Good tier: four of seven done; each fix link opens its screen. */
 export const Good: Story = {
   args: {
     strength: computeProfileStrength({
@@ -60,7 +62,15 @@ export const Good: Story = {
       avatarUrl: 'https://example.com/avatar.jpg',
       phoneVerified: false,
     }),
-    onGoToStep: () => {},
+    onGoToScreen: fn(),
+  },
+  play: async ({ args, canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', {
+        name: 'Write a bio of at least 80 characters',
+      }),
+    )
+    await expect(args.onGoToScreen).toHaveBeenCalledWith('profile')
   },
 }
 
@@ -72,7 +82,7 @@ export const AllStarOneMissing: Story = {
       avatarUrl: 'https://example.com/avatar.jpg',
       phoneVerified: true,
     }),
-    onGoToStep: () => {},
+    onGoToScreen: () => {},
   },
 }
 
@@ -84,6 +94,18 @@ export const AllStar: Story = {
       avatarUrl: 'https://example.com/avatar.jpg',
       phoneVerified: true,
     }),
-    onGoToStep: () => {},
+    onGoToScreen: () => {},
+  },
+}
+
+/** zh-HK. */
+export const ZhHk: Story = {
+  parameters: ZH_HK_SETUP,
+  decorators: [withZhHk],
+  args: { ...Good.args, onGoToScreen: () => {} },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText('個人檔案完整度'),
+    ).toBeVisible()
   },
 }

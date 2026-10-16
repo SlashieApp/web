@@ -3,33 +3,30 @@
 import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { LuPlus } from 'react-icons/lu'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { sdlFocusRing } from '@/theme/styles'
 import { Badge, ProgressBar } from '@ui'
 
 import type { ProfileStrength } from '../../../helpers/workerProfileStrength'
-import type { WorkerSetupSubStepId } from '../../../helpers/workerSetupSteps.config'
+import { SKILLS_MIN } from '../../../helpers/workerSetupSkills'
+import { BIO_MIN_CHARS } from '../../../helpers/workerSetupValidation'
+import bag from '../../../i11n.json'
+import type { WorkerSetupScreenId } from '../../../views'
 
 const FixLink = chakra('button')
 
-const TIER_DESCRIPTIONS: Record<ProfileStrength['tier'], string> = {
-  starter: 'A few more details and customers will take you seriously.',
-  good: 'Solid profile — a couple more details make it stand out.',
-  allStar: 'Your profile has everything customers look for.',
-}
-
 export type WorkerSetupStrengthMeterProps = {
   strength: ProfileStrength
-  onGoToStep: (subStep: WorkerSetupSubStepId) => void
+  onGoToScreen: (screen: WorkerSetupScreenId) => void
 }
 
-/**
- * Review-step profile strength (Starter / Good / All-star). Every missing
- * signal is a one-click link back to its setup step.
- */
+/** Starter, Good or All-star; every missing item links to the screen that fixes it. */
 export function WorkerSetupStrengthMeter({
   strength,
-  onGoToStep,
+  onGoToScreen,
 }: WorkerSetupStrengthMeterProps) {
+  const copy = useI11n(bag).review
   const missing = strength.items.filter((item) => !item.done)
 
   return (
@@ -43,14 +40,14 @@ export function WorkerSetupStrengthMeter({
       <Stack gap={3}>
         <HStack justify="space-between" align="center" gap={3}>
           <Text fontSize="md" fontWeight={700} color="text.default">
-            Profile strength
+            {copy.strengthTitle}
           </Text>
           <Badge
             variant={strength.tier === 'starter' ? 'neutral' : 'brand'}
             shape="pill"
             size="lg"
           >
-            {strength.tierLabel}
+            {copy.tiers[strength.tier]}
           </Badge>
         </HStack>
 
@@ -58,25 +55,29 @@ export function WorkerSetupStrengthMeter({
           value={strength.percent}
           tone={strength.tier === 'starter' ? 'warning' : 'success'}
           size="sm"
-          trackLabel="Profile strength"
+          trackLabel={copy.strengthTitle}
         />
 
         <Text fontSize="sm" color="text.muted" lineHeight="tall">
-          {TIER_DESCRIPTIONS[strength.tier]} ({strength.doneCount} of{' '}
-          {strength.totalCount} complete)
+          {copy.tierDescriptions[strength.tier]}{' '}
+          {formatMessage(copy.doneCount, {
+            done: strength.doneCount,
+            total: strength.items.length,
+          })}
         </Text>
 
         {missing.length > 0 ? (
-          <Stack gap={1.5} pt={1}>
+          <Stack gap={0}>
             {missing.map((item) => (
               <FixLink
                 key={item.key}
                 type="button"
-                onClick={() => onGoToStep(item.subStep)}
+                onClick={() => onGoToScreen(item.screen)}
                 display="inline-flex"
                 alignItems="center"
                 gap={2}
                 alignSelf="flex-start"
+                minH="44px"
                 fontSize="sm"
                 fontWeight={600}
                 color="text.link"
@@ -89,7 +90,9 @@ export function WorkerSetupStrengthMeter({
                 <Box as="span" display="inline-flex" aria-hidden>
                   <LuPlus size={14} strokeWidth={2.5} />
                 </Box>
-                {item.label}
+                {formatMessage(copy.items[item.key], {
+                  min: item.key === 'skills' ? SKILLS_MIN : BIO_MIN_CHARS,
+                })}
               </FixLink>
             ))}
           </Stack>

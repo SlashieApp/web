@@ -13,8 +13,9 @@ import {
   WorkerSetupQualificationsInput,
   WorkerSetupSkillsInput,
 } from '@/app/(stepflow)/worker/setup/components'
-import { categoryBySlug } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import { categorySkills } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import { HEADLINE_MAX_CHARS } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
+import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
@@ -41,6 +42,7 @@ export function ProfileWorkerForm({
   onSaved?: () => void
 }) {
   const { workerForm: t, editor } = useI11n(bag)
+  const trades = useI11n(setupBag).trades
   const me = useUserStore((s) => s.me)
   const setMe = useUserStore((s) => s.setMe)
   const getUser = useUserStore((s) => s.getUser)
@@ -94,8 +96,6 @@ export function ProfileWorkerForm({
     }
   }
 
-  const category = categoryBySlug(watch('primaryCategory'))
-
   return (
     <form
       id="profile-worker"
@@ -144,21 +144,18 @@ export function ProfileWorkerForm({
           errorText={errors.bio?.message}
         />
 
-        <FormField
+        <WorkerSetupCategoryTiles
           label={t.category}
           helperText={t.categoryHelp}
           errorText={errors.primaryCategory?.message}
-        >
-          <WorkerSetupCategoryTiles
-            value={watch('primaryCategory')}
-            onChange={(slug) =>
-              setValue('primaryCategory', slug, {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-            }
-          />
-        </FormField>
+          value={watch('primaryCategory')}
+          onChange={(slug) =>
+            setValue('primaryCategory', slug, {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
+        />
 
         <WorkerSetupSkillsInput
           value={watch('skills')}
@@ -168,11 +165,7 @@ export function ProfileWorkerForm({
               shouldValidate: true,
             })
           }
-          suggestions={
-            category?.suggestedSkills.length
-              ? category.suggestedSkills
-              : undefined
-          }
+          suggestions={categorySkills(watch('primaryCategory'), trades)}
           errorText={errors.skills?.message}
         />
 

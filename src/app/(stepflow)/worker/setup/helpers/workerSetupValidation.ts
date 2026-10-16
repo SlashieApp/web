@@ -1,18 +1,50 @@
-import type { MeWorkerSetupQuery } from '@codegen/schema'
 import { z } from 'zod'
 
-import { isAtLeast18 } from '@/utils/age'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { ageFromIsoDateOnly } from '@/utils/age'
 
+import type bag from '../i11n.json'
+import {
+  type WorkerSetupScreenId,
+  type WorkerSetupSubStepId,
+  workerSetupScreen,
+} from '../views'
 import { categoryEnumFromSlug } from './workerSetupCategories'
 import type { WorkerSetupFormState } from './workerSetupFormState'
 import { SKILLS_MAX, SKILLS_MIN } from './workerSetupSkills'
-import type { WorkerSetupSubStepId } from './workerSetupSteps.config'
 
 export const BIO_MIN_CHARS = 80
 export const BIO_MAX_CHARS = 300
 export const HEADLINE_MIN_CHARS = 10
 export const HEADLINE_MAX_CHARS = 80
 export const YEARS_EXPERIENCE_MAX = 60
+const AGE_MIN = 18
+const AGE_MAX = 120
+
+/** Validation errors are keys of the setup bag's `errors` group. */
+export type WorkerSetupErrorKey = keyof (typeof bag)['en']['errors']
+export type WorkerSetupFieldErrors = Partial<
+  Record<string, WorkerSetupErrorKey>
+>
+
+/** What the account already has (the photo is uploaded, the phone verified elsewhere). */
+export type WorkerSetupAccount = {
+  avatarUrl?: string | null
+  phoneVerified?: boolean | null
+}
+
+const CJK = /[⺀-鿿가-힯豈-﫿]/g
+
+/** Length with Chinese, Japanese and Korean characters counted twice: each says about as much as two letters. */
+export function textWeight(text: string): number {
+  return text.length + (text.match(CJK)?.length ?? 0)
+}
+
+/** Words, counting each CJK character as one, since those aren't spaced. */
+export function wordCount(text: string): number {
+  const cjk = text.match(CJK)?.length ?? 0
+  return cjk + text.replace(CJK, ' ').split(/\s+/).filter(Boolean).length
+}
 
 /**
  * Junk-content floor for the bio: passes with at least 10 distinct characters
@@ -21,157 +53,107 @@ export const YEARS_EXPERIENCE_MAX = 60
  */
 export function isJunkBio(bio: string): boolean {
   const distinctChars = new Set(bio.replace(/\s+/g, '').toLowerCase()).size
-  const wordCount = bio.split(/\s+/).filter(Boolean).length
-  return distinctChars < 10 && wordCount < 12
+  const words = bio.split(/\s+/).filter(Boolean).length
+  return distinctChars < 10 && words < 12
 }
 
-const detailsSchema = z.object({
-  firstName: z.string().trim().min(1, 'Enter your first name.'),
-  lastName: z.string().trim().min(1, 'Enter your last name.'),
-})
+function isRealAge(value: string): boolean {
+  const age = ageFromIsoDateOnly(value)
+  return age !== null && age >= 0 && age <= AGE_MAX
+}
 
-const dateOfBirthSchema = z.object({
-  dateOfBirth: z
-    .string()
-    .trim()
-    .min(1, 'Enter your date of birth.')
-    .refine(isAtLeast18, 'You must be at least 18 years old.'),
-})
+/** Rules per API sub-step; the first problem with each field wins. */
+const SCHEMAS: Partial<Record<WorkerSetupSubStepId, z.ZodType>> = {
+  'profile.details': z.object({
+    firstName: z.string().trim().min(1, 'firstNameRequired'),
+    lastName: z.string().trim().min(1, 'lastNameRequired'),
+  }),
+  'profile.photo': z.object({
+    dateOfBirth: z
+      .string()
+      .trim()
+      .min(1, 'dateOfBirthRequired')
+      .refine(isRealAge, 'dateOfBirthInvalid')
+      .refine((v) => (ageFromIsoDateOnly(v) ?? 0) >= AGE_MIN, 'underage'),
+  }),
+  'profile.bio': z.object({
+    tagline: z
+      .string()
+      .trim()
+      .refine((v) => textWeight(v) >= HEADLINE_MIN_CHARS, 'headlineTooShort')
+      .max(HEADLINE_MAX_CHARS, 'headlineTooLong')
+      .refine((v) => wordCount(v) >= 2, 'headlineOneWord'),
+    bio: z
+      .string()
+      .trim()
+      .refine((v) => textWeight(v) >= BIO_MIN_CHARS, 'bioTooShort')
+      .max(BIO_MAX_CHARS, 'bioTooLong')
+      .refine((v) => !isJunkBio(v), 'bioJunk'),
+  }),
+  'services.skills': z.object({
+    primaryCategory: z.string().min(1, 'tradeRequired'),
+    skills: z
+      .array(z.string())
+      .min(SKILLS_MIN, 'skillsTooFew')
+      .max(SKILLS_MAX, 'skillsTooMany'),
+  }),
+  'services.experience': z.object({
+    yearsExperience: z
+      .string()
+      .trim()
+      .min(1, 'yearsRequired')
+      .refine((v) => {
+        const n = Number(v)
+        return Number.isInteger(n) && n >= 0 && n <= YEARS_EXPERIENCE_MAX
+      }, 'yearsInvalid'),
+  }),
+  'area.location': z.object({
+    locationName: z.string().trim().min(1, 'areaRequired'),
+  }),
+}
 
-const bioSchema = z.object({
-  bio: z
-    .string()
-    .trim()
-    .min(
-      BIO_MIN_CHARS,
-      `Write at least ${BIO_MIN_CHARS} characters — customers read this before accepting your quote.`,
-    )
-    .max(BIO_MAX_CHARS, `Keep your bio under ${BIO_MAX_CHARS} characters.`)
-    .refine(
-      (v) => !isJunkBio(v),
-      'Tell customers about your work in full sentences — this reads as placeholder text.',
-    ),
-  tagline: z
-    .string()
-    .trim()
-    .min(
-      HEADLINE_MIN_CHARS,
-      `Add a professional headline of at least ${HEADLINE_MIN_CHARS} characters.`,
-    )
-    .max(
-      HEADLINE_MAX_CHARS,
-      `Keep your headline under ${HEADLINE_MAX_CHARS} characters.`,
-    )
-    .refine(
-      (v) => v.split(/\s+/).filter(Boolean).length >= 2,
-      'Use a few words, e.g. "Handyman with 8 years experience".',
-    ),
-})
-
-const experienceSchema = z.object({
-  yearsExperience: z
-    .string()
-    .trim()
-    .min(1, 'Enter your years of experience.')
-    .refine((v) => {
-      const n = Number(v)
-      return Number.isInteger(n) && n >= 0 && n <= YEARS_EXPERIENCE_MAX
-    }, `Enter a whole number between 0 and ${YEARS_EXPERIENCE_MAX}.`),
-})
-
-const locationSchema = z.object({
-  locationName: z.string().trim().min(1, 'Add your primary service area.'),
-})
-
-export function validateWorkerSetupSubStep(
-  subStepId: WorkerSetupSubStepId,
+/** Problems that stop the worker leaving a screen, by field. */
+export function validateWorkerSetupScreen(
+  screen: WorkerSetupScreenId,
   form: WorkerSetupFormState,
-  me: MeWorkerSetupQuery['me'],
-): Record<string, string> {
-  const errors: Record<string, string> = {}
-
-  // First issue per field wins — length errors read better than the
-  // content-heuristic message when both fire.
-  const mergeZodErrors = (result: {
-    success: boolean
-    error?: z.ZodError
-  }) => {
-    if (result.success || !result.error) return
-    for (const issue of result.error.issues) {
-      const key = issue.path[0]
-      if (typeof key === 'string' && !(key in errors)) {
-        errors[key] = issue.message
+  account: WorkerSetupAccount,
+): WorkerSetupFieldErrors {
+  const errors: WorkerSetupFieldErrors = {}
+  for (const step of workerSetupScreen(screen).subSteps) {
+    const result = SCHEMAS[step]?.safeParse(form)
+    for (const issue of result?.error?.issues ?? []) {
+      const field = issue.path[0]
+      if (typeof field === 'string' && !(field in errors)) {
+        errors[field] = issue.message as WorkerSetupErrorKey
       }
+    }
+    if (step === 'profile.photo' && !account.avatarUrl?.trim()) {
+      errors.avatar = 'photoRequired'
+    }
+    // The API finishes setup only with a verified phone, not an email.
+    if (step === 'verify.phone' && !account.phoneVerified) {
+      errors.contact = 'phoneRequired'
     }
   }
-
-  switch (subStepId) {
-    case 'profile.details': {
-      // Headline + bio moved to their dedicated `profile.bio` step — asking
-      // for an 80-char bio on the first screen buries the flow.
-      mergeZodErrors(detailsSchema.safeParse(form))
-      break
-    }
-    case 'profile.photo': {
-      mergeZodErrors(dateOfBirthSchema.safeParse(form))
-      if (!me.profile?.avatarUrl?.trim()) {
-        errors.avatar = 'Add a profile photo to continue.'
-      }
-      break
-    }
-    case 'profile.bio': {
-      mergeZodErrors(bioSchema.safeParse(form))
-      break
-    }
-    case 'services.skills': {
-      if (!form.primaryCategory) {
-        errors.primaryCategory = 'Choose the kind of work you do most.'
-      }
-      if (form.skills.length < SKILLS_MIN) {
-        errors.skills = `Add at least ${SKILLS_MIN} skills so customers can find you for the right tasks.`
-      } else if (form.skills.length > SKILLS_MAX) {
-        errors.skills = `Keep it to ${SKILLS_MAX} skills — lead with the work you do best.`
-      }
-      break
-    }
-    case 'services.experience': {
-      const result = experienceSchema.safeParse(form)
-      if (!result.success) {
-        errors.yearsExperience = result.error.issues[0]?.message ?? 'Required'
-      }
-      break
-    }
-    case 'area.location': {
-      const result = locationSchema.safeParse(form)
-      if (!result.success) {
-        errors.locationName = result.error.issues[0]?.message ?? 'Required'
-      }
-      break
-    }
-    case 'verify.phone':
-      // BE finalize + registerAsPro require a strictly verified PHONE
-      // (2026-07-13) — a verified email alone no longer unlocks quoting.
-      if (!me.phoneVerified) {
-        errors.contact =
-          'Verify your phone number below before continuing — Slashie requires a verified phone to send quotes.'
-      }
-      break
-    default:
-      break
-  }
-
   return errors
 }
 
-export function subStepsToSaveOnContinue(
-  subStepId: WorkerSetupSubStepId,
-): WorkerSetupSubStepId[] {
-  switch (subStepId) {
-    case 'profile.photo':
-      return ['profile.details', 'profile.photo']
-    default:
-      return [subStepId]
-  }
+const ERROR_VARS = {
+  bioMin: BIO_MIN_CHARS,
+  bioMax: BIO_MAX_CHARS,
+  headlineMin: HEADLINE_MIN_CHARS,
+  headlineMax: HEADLINE_MAX_CHARS,
+  skillsMin: SKILLS_MIN,
+  skillsMax: SKILLS_MAX,
+  yearsMax: YEARS_EXPERIENCE_MAX,
+}
+
+/** An error key in the reader's language, with its limits filled in. */
+export function workerSetupErrorText(
+  copy: Record<WorkerSetupErrorKey, string>,
+  key: WorkerSetupErrorKey | undefined,
+): string | undefined {
+  return key ? formatMessage(copy[key], ERROR_VARS) : undefined
 }
 
 export function buildSavePayload(
@@ -210,27 +192,17 @@ export function buildSavePayload(
       }
     case 'area.location': {
       const label = form.locationName.trim()
-      if (
-        form.locationLat == null ||
-        form.locationLng == null ||
-        !Number.isFinite(form.locationLat) ||
-        !Number.isFinite(form.locationLng)
-      ) {
-        return {
-          location: {
-            name: label,
-            address: label,
-            lat: null,
-            lng: null,
-          },
-        }
-      }
+      const placed =
+        form.locationLat != null &&
+        form.locationLng != null &&
+        Number.isFinite(form.locationLat) &&
+        Number.isFinite(form.locationLng)
       return {
         location: {
           name: label,
           address: label,
-          lat: form.locationLat,
-          lng: form.locationLng,
+          lat: placed ? form.locationLat : null,
+          lng: placed ? form.locationLng : null,
         },
       }
     }

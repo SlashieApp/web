@@ -1,205 +1,42 @@
 import { WorkerPrimaryCategory as WorkerPrimaryCategoryEnum } from '@codegen/schema'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { townOnly } from '@/utils/taskLocationDisplay'
+
+import type bag from '../i11n.json'
+import type { WorkerSetupFormState } from './workerSetupFormState'
+
+type SetupCopy = (typeof bag)['en']
+
+/** Trade names, headline nouns and suggested skills (setup bag `trades`). */
+export type WorkerTradesCopy = SetupCopy['trades']
+export type WorkerTradeSlug = keyof WorkerTradesCopy
+
 /**
- * Primary-trade taxonomy for worker setup (ticket 1.1), persisted via the
- * dedicated `Worker.primaryCategory` enum (BE shipped 2026-07-13). The BE is
- * rollout-tolerant: legacy workers whose `skills[0]` is a trade label are
- * inferred + stripped server-side, so the FE reads `primaryCategory` only.
+ * The worker's main trade, saved as the `Worker.primaryCategory` enum. Copy
+ * for each lives in the setup bag under the slug.
  */
 export type WorkerPrimaryCategory = {
-  /** Stable FE identifier (lowercase form of the GraphQL enum). */
-  slug: string
-  /** GraphQL enum value sent on the `services.skills` payload. */
+  slug: WorkerTradeSlug
   enum: WorkerPrimaryCategoryEnum
-  /** Tile + display label. */
-  label: string
-  /** Noun used to compose the suggested professional headline. */
-  headlineNoun: string
-  /** Skills-chip suggestions seeded when this category is selected. */
-  suggestedSkills: readonly string[]
 }
 
 export const WORKER_PRIMARY_CATEGORIES: readonly WorkerPrimaryCategory[] = [
-  {
-    slug: 'handyman',
-    enum: WorkerPrimaryCategoryEnum.Handyman,
-    label: 'Handyman',
-    headlineNoun: 'Handyman',
-    suggestedSkills: [
-      'Home Repairs',
-      'Furniture Assembly',
-      'TV Mounting',
-      'Shelf Mounting',
-      'Hang Pictures',
-      'Drywall Repairs',
-      'Curtains & Blinds',
-      'Light Installation',
-    ],
-  },
+  { slug: 'handyman', enum: WorkerPrimaryCategoryEnum.Handyman },
   {
     slug: 'furniture-assembly',
     enum: WorkerPrimaryCategoryEnum.FurnitureAssembly,
-    label: 'Furniture Assembly',
-    headlineNoun: 'Furniture assembly specialist',
-    suggestedSkills: [
-      'Flat-pack Assembly',
-      'IKEA Furniture',
-      'Bed Assembly',
-      'Desk Assembly',
-      'Wardrobe Fitting',
-      'Office Furniture',
-      'Bookshelf Assembly',
-      'Sofa Assembly',
-      'Furniture Disassembly',
-    ],
   },
-  {
-    slug: 'mounting',
-    enum: WorkerPrimaryCategoryEnum.MountingInstallation,
-    label: 'Mounting & Installation',
-    headlineNoun: 'Mounting & installation specialist',
-    suggestedSkills: [
-      'TV Mounting',
-      'Shelf Mounting',
-      'Light Installation',
-      'Hang Pictures',
-      'Curtains & Blinds',
-      'Christmas Lights',
-    ],
-  },
-  {
-    slug: 'plumbing',
-    enum: WorkerPrimaryCategoryEnum.Plumbing,
-    label: 'Plumbing',
-    headlineNoun: 'Plumber',
-    suggestedSkills: [
-      'Tap Repairs',
-      'Leak Fixes',
-      'Toilet Installs',
-      'Radiator Bleeding',
-      'Shower Fitting',
-      'Waste Unblocking',
-    ],
-  },
-  {
-    slug: 'electrical',
-    enum: WorkerPrimaryCategoryEnum.Electrical,
-    label: 'Electrical Work',
-    headlineNoun: 'Electrician',
-    suggestedSkills: [
-      'Light Fittings',
-      'Socket Replacement',
-      'Fault Finding',
-      'Smart Home Setup',
-      'EV Charger Install',
-      'Fuse Boards',
-    ],
-  },
-  {
-    slug: 'carpentry',
-    enum: WorkerPrimaryCategoryEnum.Carpentry,
-    label: 'Carpentry',
-    headlineNoun: 'Carpenter',
-    suggestedSkills: [
-      'Custom Shelving',
-      'Door Hanging',
-      'Skirting Boards',
-      'Decking',
-      'Kitchen Fitting',
-      'Wardrobes',
-    ],
-  },
-  {
-    slug: 'painting',
-    enum: WorkerPrimaryCategoryEnum.Painting,
-    label: 'Painting',
-    headlineNoun: 'Painter & decorator',
-    suggestedSkills: [
-      'Interior Painting',
-      'Exterior Painting',
-      'Wallpapering',
-      'Plaster Repairs',
-      'Fence Staining',
-      'Feature Walls',
-    ],
-  },
-  {
-    slug: 'cleaning',
-    enum: WorkerPrimaryCategoryEnum.Cleaning,
-    label: 'Cleaning',
-    headlineNoun: 'Cleaner',
-    suggestedSkills: [
-      'House Cleaning',
-      'Deep Cleaning',
-      'End Of Tenancy Cleaning',
-      'Move-in Cleaning',
-      'Office Cleaning',
-      'Spring Cleaning',
-      'Airbnb Cleaning',
-      'Oven Cleaning',
-      'Pressure Washing',
-      'Car Washing',
-      'Laundry Help',
-    ],
-  },
-  {
-    slug: 'gardening',
-    enum: WorkerPrimaryCategoryEnum.Gardening,
-    label: 'Gardening',
-    headlineNoun: 'Gardener',
-    suggestedSkills: [
-      'Lawn Mowing',
-      'Lawn Care',
-      'Hedge Trimming',
-      'Tree Trimming & Removal',
-      'Landscaping',
-      'Leaf Raking & Removal',
-      'Roof & Gutter Cleaning',
-      'Garden Tidy-up',
-    ],
-  },
-  {
-    slug: 'removals',
-    enum: WorkerPrimaryCategoryEnum.Removals,
-    label: 'Removals',
-    headlineNoun: 'Removals specialist',
-    suggestedSkills: [
-      'House Removals',
-      'Man With A Van',
-      'Furniture Removal',
-      'Sofa Removal',
-      'Packing',
-      'Unpacking',
-      'Heavy Lifting',
-      'Furniture Delivery',
-      'Rubbish Removal',
-      'Pool Table Moving',
-    ],
-  },
-  {
-    slug: 'delivery',
-    enum: WorkerPrimaryCategoryEnum.DeliveryErrands,
-    label: 'Delivery & Errands',
-    headlineNoun: 'Delivery & errands specialist',
-    suggestedSkills: [
-      'Delivery Service',
-      'Shopping Services',
-      'Food Shopping',
-      'Run Errands',
-      'Queuing',
-      'Collection & Drop-off',
-      'Returning Items',
-      'Waiting For Deliveries',
-      'Donation Drop-offs',
-    ],
-  },
-  {
-    slug: 'other',
-    enum: WorkerPrimaryCategoryEnum.Other,
-    label: 'Other',
-    headlineNoun: 'Local specialist',
-    suggestedSkills: [],
-  },
+  { slug: 'mounting', enum: WorkerPrimaryCategoryEnum.MountingInstallation },
+  { slug: 'plumbing', enum: WorkerPrimaryCategoryEnum.Plumbing },
+  { slug: 'electrical', enum: WorkerPrimaryCategoryEnum.Electrical },
+  { slug: 'carpentry', enum: WorkerPrimaryCategoryEnum.Carpentry },
+  { slug: 'painting', enum: WorkerPrimaryCategoryEnum.Painting },
+  { slug: 'cleaning', enum: WorkerPrimaryCategoryEnum.Cleaning },
+  { slug: 'gardening', enum: WorkerPrimaryCategoryEnum.Gardening },
+  { slug: 'removals', enum: WorkerPrimaryCategoryEnum.Removals },
+  { slug: 'delivery', enum: WorkerPrimaryCategoryEnum.DeliveryErrands },
+  { slug: 'other', enum: WorkerPrimaryCategoryEnum.Other },
 ]
 
 export function categoryBySlug(
@@ -212,7 +49,7 @@ export function categoryBySlug(
 /** Wire → form: GraphQL enum to the FE slug ('' when unset). */
 export function categorySlugFromEnum(
   value: WorkerPrimaryCategoryEnum | null | undefined,
-): string {
+): WorkerTradeSlug | '' {
   if (!value) return ''
   return WORKER_PRIMARY_CATEGORIES.find((c) => c.enum === value)?.slug ?? ''
 }
@@ -224,47 +61,53 @@ export function categoryEnumFromSlug(
   return categoryBySlug(slug)?.enum
 }
 
-/** Display label for a saved enum value, e.g. profile hero headline. */
+/** A saved trade's name in the reader's language, e.g. on the profile. */
 export function categoryLabelFromEnum(
   value: WorkerPrimaryCategoryEnum | null | undefined,
+  trades: WorkerTradesCopy,
 ): string | null {
-  if (!value) return null
-  return WORKER_PRIMARY_CATEGORIES.find((c) => c.enum === value)?.label ?? null
+  const slug = categorySlugFromEnum(value)
+  return slug ? trades[slug].label : null
+}
+
+/** Skill chips to suggest for a trade; none until one is chosen. */
+export function categorySkills(
+  slug: string,
+  trades: WorkerTradesCopy,
+): readonly string[] {
+  const category = categoryBySlug(slug)
+  return category ? trades[category.slug].skills : []
 }
 
 /**
- * Suggested professional headline from what the worker has told us so far
- * (ticket 1.2), e.g. "Handyman with 8 years experience" or
- * "Plumber serving Watford". Null until a category is chosen.
+ * A headline from what the worker has told us, e.g. "Plumber with 8 years
+ * experience", else "Plumber serving Watford" (the town only), else "Plumber
+ * for local jobs". Null until a trade is chosen.
  */
-export function suggestedHeadline(input: {
-  primaryCategory: string
-  yearsExperience: string
-  locationName: string
-}): string | null {
+export function suggestedHeadline(
+  input: Pick<
+    WorkerSetupFormState,
+    'primaryCategory' | 'yearsExperience' | 'locationName'
+  >,
+  copy: Pick<SetupCopy, 'trades' | 'headlines'>,
+): string | null {
   const category = categoryBySlug(input.primaryCategory)
   if (!category) return null
+  const noun = copy.trades[category.slug].noun
   const years = Number.parseInt(input.yearsExperience.trim(), 10)
-  if (Number.isInteger(years) && years > 0) {
-    return `${category.headlineNoun} with ${years} year${years === 1 ? '' : 's'} experience`
-  }
-  const area = input.locationName.trim()
-  if (area) return `${category.headlineNoun} serving ${area}`
-  return `${category.headlineNoun} for local jobs`
+  if (years === 1) return formatMessage(copy.headlines.oneYear, { noun })
+  if (years > 1) return formatMessage(copy.headlines.years, { noun, years })
+  const area = townOnly(input.locationName)
+  if (area) return formatMessage(copy.headlines.area, { noun, area })
+  return formatMessage(copy.headlines.local, { noun })
 }
 
-/**
- * True when the current headline is empty or one we composed earlier — those
- * are safe to replace when the category/experience answers change. A headline
- * the worker typed themselves is never overwritten.
- */
-export function canReplaceHeadline(current: string): boolean {
-  const cleaned = current.trim()
-  if (!cleaned) return true
-  return WORKER_PRIMARY_CATEGORIES.some(
-    (c) =>
-      cleaned.startsWith(`${c.headlineNoun} with `) ||
-      cleaned.startsWith(`${c.headlineNoun} serving `) ||
-      cleaned === `${c.headlineNoun} for local jobs`,
-  )
+/** Opening the profile screen without a headline: start from the suggestion. */
+export function prefillHeadline(
+  form: WorkerSetupFormState,
+  copy: Pick<SetupCopy, 'trades' | 'headlines'>,
+): WorkerSetupFormState {
+  if (form.tagline.trim()) return form
+  const suggestion = suggestedHeadline(form, copy)
+  return suggestion ? { ...form, tagline: suggestion } : form
 }

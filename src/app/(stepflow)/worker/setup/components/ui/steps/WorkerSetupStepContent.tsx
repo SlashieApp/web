@@ -1,361 +1,435 @@
 'use client'
 
 import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import { type ComponentType, useRef, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { ContactMethodsPanel } from '@/app/(dashboard)/components/ui/ContactMethodsPanel'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { apolloClient } from '@/utils/apolloClient'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {
+  AVATAR_ACCEPTED_TYPES,
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
-import { Button, FormField, Input, formControlRootProps } from '@ui'
-
 import {
-  canReplaceHeadline,
-  categoryBySlug,
+  Button,
+  FormField,
+  Input,
+  RadioButtonGroup,
+  formControlRootProps,
+} from '@ui'
+
+import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
+import { computeProfileStrength } from '../../../helpers/workerProfileStrength'
+import {
+  categorySkills,
   suggestedHeadline,
 } from '../../../helpers/workerSetupCategories'
 import type { WorkerSetupFormState } from '../../../helpers/workerSetupFormState'
-import { HEADLINE_MAX_CHARS } from '../../../helpers/workerSetupValidation'
-
-import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
+import {
+  HEADLINE_MAX_CHARS,
+  workerSetupErrorText,
+} from '../../../helpers/workerSetupValidation'
+import bag from '../../../i11n.json'
+import type { WorkerSetupScreenView, WorkerSetupSection } from '../../../views'
 import { WorkerSetupAreaLocationInput } from '../inputs/WorkerSetupAreaLocationInput'
 import { WorkerSetupBioComposer } from '../inputs/WorkerSetupBioComposer'
 import { WorkerSetupCategoryTiles } from '../inputs/WorkerSetupCategoryTiles'
 import { WorkerSetupPortfolioInput } from '../inputs/WorkerSetupPortfolioInput'
 import { WorkerSetupQualificationsInput } from '../inputs/WorkerSetupQualificationsInput'
 import { WorkerSetupSkillsInput } from '../inputs/WorkerSetupSkillsInput'
+import { WorkerSetupProfilePreview } from '../preview/WorkerSetupProfilePreview'
 import { WorkerSetupOptionalLabel } from '../shared/WorkerSetupOptionalBadge'
-import { WorkerSetupReviewStep } from './WorkerSetupReviewStep'
+import { WorkerSetupStrengthMeter } from '../shared/WorkerSetupStrengthMeter'
 
-const HEADLINE_PLACEHOLDER = 'e.g. Handyman with 8 years experience'
-const HEADLINE_HELPER = 'Shown under your name on your public profile.'
+/** Travel distances offered, in miles (the API allows up to 50). */
+const TRAVEL_MILES = [5, 10, 15, 25, 50]
 
-export function WorkerSetupStepContent() {
-  const {
-    activeSubStep,
-    bootstrap,
-    form,
-    fieldErrors,
-    patchForm,
-    clearSetupErrors,
-  } = useWorkerSetup()
+/** Copy, form and a field's error text in the reader's language. */
+function useSetupField() {
+  const t = useI11n(bag)
+  const setup = useWorkerSetup()
+  const error = (field: keyof WorkerSetupFormState | 'avatar' | 'contact') =>
+    workerSetupErrorText(t.errors, setup.fieldErrors[field])
+  return { t, error, ...setup }
+}
+
+function NameSection() {
+  const { t, form, patchForm, error } = useSetupField()
+  return (
+    <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
+      <FormField label={t.fields.firstName} errorText={error('firstName')}>
+        <Input
+          value={form.firstName}
+          onChange={(e) => patchForm({ firstName: e.target.value })}
+          autoComplete="given-name"
+          rootProps={formControlRootProps}
+        />
+      </FormField>
+      <FormField label={t.fields.lastName} errorText={error('lastName')}>
+        <Input
+          value={form.lastName}
+          onChange={(e) => patchForm({ lastName: e.target.value })}
+          autoComplete="family-name"
+          rootProps={formControlRootProps}
+        />
+      </FormField>
+    </Grid>
+  )
+}
+
+/** Latest birthday that is 18 today, for the date picker's `max`. */
+function latestAdultBirthday(): string {
+  const date = new Date()
+  date.setFullYear(date.getFullYear() - 18)
+  return date.toISOString().slice(0, 10)
+}
+
+function DateOfBirthSection() {
+  const { t, form, patchForm, error } = useSetupField()
+  return (
+    <FormField
+      label={t.fields.dateOfBirth}
+      helperText={t.fields.dateOfBirthHelper}
+      errorText={error('dateOfBirth')}
+      maxW={{ md: '280px' }}
+    >
+      <Input
+        type="date"
+        value={form.dateOfBirth}
+        max={latestAdultBirthday()}
+        onChange={(e) => patchForm({ dateOfBirth: e.target.value })}
+        autoComplete="bday"
+        rootProps={formControlRootProps}
+      />
+    </FormField>
+  )
+}
+
+type PhotoProblem = 'photoWrongType' | 'photoTooLarge' | 'photoUploadFailed'
+
+function PhotoSection() {
+  const { t, form, account, clearErrors, error } = useSetupField()
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState<string | null>(null)
-
-  if (!bootstrap) return null
-
-  const avatarUrl = bootstrap.profile?.avatarUrl?.trim() || null
-  const displayInitial =
+  const [problem, setProblem] = useState<PhotoProblem | null>(null)
+  const initial =
     `${form.firstName}${form.lastName}`.trim().charAt(0).toUpperCase() || '?'
 
-  /**
-   * Patch category/experience and refresh the suggested headline alongside it
-   * — but only while the current headline is empty or one we composed, so a
-   * headline the worker typed is never overwritten (ticket 1.2).
-   */
-  const patchWithHeadlineSuggestion = (
-    patch: Partial<WorkerSetupFormState>,
-  ) => {
-    if (canReplaceHeadline(form.tagline)) {
-      const suggestion = suggestedHeadline({ ...form, ...patch })
-      if (suggestion) {
-        patchForm({ ...patch, tagline: suggestion })
-        return
-      }
-    }
-    patchForm(patch)
-  }
-
-  const headlineSuggestion = suggestedHeadline(form)
-
-  const handleAvatarPick = () => inputRef.current?.click()
-
-  const handleAvatarFile = async (file: File | undefined) => {
-    if (!file || !bootstrap.profile) return
-    const problem = validateAvatarFile(file)
-    if (problem) {
-      // Worker setup copy is English until FE-296 translates the flow.
-      setUploadError(
-        problem === 'type'
-          ? 'Use a JPG, PNG, or WebP image.'
-          : 'Image must be 5MB or smaller.',
-      )
+  const upload = async (file: File | undefined) => {
+    if (!file) return
+    const invalid = validateAvatarFile(file)
+    if (invalid) {
+      setProblem(invalid === 'type' ? 'photoWrongType' : 'photoTooLarge')
       return
     }
     setUploading(true)
-    setUploadError(null)
+    setProblem(null)
     try {
       const url = await uploadProfileAvatar(apolloClient, file)
-      patchMe({
-        profile: { ...bootstrap.profile, avatarUrl: url },
-      })
-      patchForm({})
-    } catch (error: unknown) {
-      setUploadError(
-        getFriendlyErrorMessage(error, 'Could not upload profile photo.'),
-      )
+      // Saved to the account with this screen's Continue.
+      if (me) patchMe({ profile: { ...me.profile, avatarUrl: url } })
+      clearErrors(['avatar'])
+    } catch {
+      setProblem('photoUploadFailed')
     } finally {
       setUploading(false)
     }
   }
 
-  switch (activeSubStep) {
-    case 'profile.details':
-      return (
-        <Stack gap={6}>
-          <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
-            <FormField label="First name" errorText={fieldErrors.firstName}>
-              <Input
-                value={form.firstName}
-                onChange={(e) => patchForm({ firstName: e.target.value })}
-                placeholder="e.g. Jordan"
-                rootProps={formControlRootProps}
-              />
-            </FormField>
-            <FormField label="Last name" errorText={fieldErrors.lastName}>
-              <Input
-                value={form.lastName}
-                onChange={(e) => patchForm({ lastName: e.target.value })}
-                placeholder="e.g. Lee"
-                rootProps={formControlRootProps}
-              />
-            </FormField>
-          </Grid>
-        </Stack>
-      )
-
-    case 'profile.photo':
-      return (
-        <Stack gap={6}>
-          <FormField
-            label="Date of birth"
-            helperText="Private. You must be 18 or over to work on Slashie."
-            errorText={fieldErrors.dateOfBirth}
+  return (
+    <FormField
+      label={t.fields.photo}
+      helperText={t.fields.photoHelper}
+      errorText={problem ? t.fields[problem] : error('avatar')}
+    >
+      {(field) => (
+        <HStack gap={4} align="center">
+          <Box
+            boxSize="88px"
+            borderRadius="full"
+            bg="status.success.soft"
+            color="status.success.fg"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            fontWeight={800}
+            fontSize="2xl"
+            overflow="hidden"
+            flexShrink={0}
           >
-            <Input
-              type="date"
-              value={form.dateOfBirth}
-              onChange={(e) => patchForm({ dateOfBirth: e.target.value })}
-              rootProps={formControlRootProps}
-            />
-          </FormField>
-          <Stack gap={3}>
-            <Text fontSize="sm" color="text.muted" lineHeight="tall">
-              Customers trust workers with a clear profile photo. Use a friendly
-              headshot or work photo.
-            </Text>
-            <HStack gap={4} align="center">
-              <Box
-                boxSize="88px"
-                borderRadius="full"
-                bg="status.success.soft"
-                color="status.success.fg"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontWeight={800}
-                fontSize="2xl"
-                overflow="hidden"
-                flexShrink={0}
-              >
-                {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={avatarUrl}
-                    alt="Profile preview"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                ) : (
-                  displayInitial
-                )}
-              </Box>
-              <Stack gap={2} align="flex-start">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  loading={uploading}
-                  onClick={handleAvatarPick}
-                >
-                  {avatarUrl ? 'Change photo' : 'Upload photo'}
-                </Button>
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={(e) => void handleAvatarFile(e.target.files?.[0])}
-                />
-              </Stack>
-            </HStack>
-            {uploadError ? (
-              <Text color="status.danger.fg" fontSize="sm">
-                {uploadError}
-              </Text>
-            ) : null}
-            {fieldErrors.avatar ? (
-              <Text color="status.danger.fg" fontSize="sm">
-                {fieldErrors.avatar}
-              </Text>
-            ) : null}
-          </Stack>
-        </Stack>
-      )
-
-    case 'profile.bio':
-      return (
-        <Stack gap={6}>
-          <Stack gap={2}>
-            <FormField
-              label="Professional headline"
-              helperText={HEADLINE_HELPER}
-              errorText={fieldErrors.tagline}
-            >
-              <Input
-                value={form.tagline}
-                onChange={(e) => patchForm({ tagline: e.target.value })}
-                placeholder={HEADLINE_PLACEHOLDER}
-                maxLength={HEADLINE_MAX_CHARS}
-                rootProps={formControlRootProps}
+            {account.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={account.avatarUrl}
+                alt={t.fields.photoAlt}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
-            </FormField>
-            {headlineSuggestion && headlineSuggestion !== form.tagline ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                alignSelf="flex-start"
-                color="text.link"
-                fontWeight={600}
-                px={2}
-                onClick={() => patchForm({ tagline: headlineSuggestion })}
-              >
-                Try: “{headlineSuggestion}”
-              </Button>
-            ) : null}
-          </Stack>
-          <WorkerSetupBioComposer
-            value={form.bio}
-            onChange={(bio) => patchForm({ bio })}
-            errorText={fieldErrors.bio}
-          />
-        </Stack>
-      )
-
-    case 'services.skills':
-      return (
-        <Stack gap={7}>
-          <FormField
-            label="What kind of work do you do most?"
-            helperText="This becomes your professional headline and helps customers find you."
-            errorText={fieldErrors.primaryCategory}
+            ) : (
+              <span aria-hidden>{initial}</span>
+            )}
+          </Box>
+          <Button
+            id={field.controlId}
+            type="button"
+            variant="secondary"
+            minH="44px"
+            loading={uploading}
+            aria-describedby={field.describedBy}
+            onClick={() => inputRef.current?.click()}
           >
-            <WorkerSetupCategoryTiles
-              value={form.primaryCategory}
-              onChange={(slug) =>
-                patchWithHeadlineSuggestion({ primaryCategory: slug })
-              }
-            />
-          </FormField>
-          <WorkerSetupSkillsInput
-            value={form.skills}
-            onChange={(skills) => patchForm({ skills })}
-            suggestions={
-              categoryBySlug(form.primaryCategory)?.suggestedSkills.length
-                ? categoryBySlug(form.primaryCategory)?.suggestedSkills
-                : undefined
-            }
-            errorText={fieldErrors.skills}
+            {account.avatarUrl ? t.fields.changePhoto : t.fields.uploadPhoto}
+          </Button>
+          {/* Listing the types makes iPhones send HEIC photos as JPEG. */}
+          <input
+            ref={inputRef}
+            type="file"
+            accept={AVATAR_ACCEPTED_TYPES.join(',')}
+            hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              e.target.value = ''
+              void upload(file)
+            }}
           />
-        </Stack>
-      )
+        </HStack>
+      )}
+    </FormField>
+  )
+}
 
-    case 'services.experience':
-      return (
-        <Stack gap={6}>
-          <FormField
-            label="Years of experience"
-            helperText="Shown on your profile — customers filter for experienced workers."
-            errorText={fieldErrors.yearsExperience}
-          >
-            <Input
-              value={form.yearsExperience}
-              onChange={(e) =>
-                patchWithHeadlineSuggestion({ yearsExperience: e.target.value })
-              }
-              inputMode="numeric"
-              placeholder="3"
-              rootProps={formControlRootProps}
-            />
-          </FormField>
-          <WorkerSetupQualificationsInput
-            value={form.qualifications}
-            onChange={(qualifications) => patchForm({ qualifications })}
-          />
-        </Stack>
-      )
+function TradeSection() {
+  const { t, form, patchForm, error } = useSetupField()
+  return (
+    <WorkerSetupCategoryTiles
+      label={t.fields.trade}
+      helperText={t.fields.tradeHelper}
+      value={form.primaryCategory}
+      onChange={(slug) => patchForm({ primaryCategory: slug })}
+      errorText={error('primaryCategory')}
+    />
+  )
+}
 
-    case 'area.location':
-      return <WorkerSetupAreaLocationInput />
+function SkillsSection() {
+  const { t, form, patchForm, error } = useSetupField()
+  return (
+    <WorkerSetupSkillsInput
+      value={form.skills}
+      onChange={(skills) => patchForm({ skills })}
+      suggestions={categorySkills(form.primaryCategory, t.trades)}
+      errorText={error('skills')}
+    />
+  )
+}
 
-    case 'area.travel':
-      return (
-        <FormField
-          label={
-            <WorkerSetupOptionalLabel>
-              Travel radius (miles)
-            </WorkerSetupOptionalLabel>
-          }
-          helperText="How far you are willing to travel for jobs."
-        >
-          <Input
-            value={form.travelRadiusMiles}
-            onChange={(e) => patchForm({ travelRadiusMiles: e.target.value })}
-            inputMode="decimal"
-            placeholder="10"
-            rootProps={formControlRootProps}
-          />
-        </FormField>
-      )
+function ExperienceSection() {
+  const { t, form, patchForm, error } = useSetupField()
+  return (
+    <FormField
+      label={t.fields.years}
+      helperText={t.fields.yearsHelper}
+      errorText={error('yearsExperience')}
+      maxW={{ md: '280px' }}
+    >
+      <Input
+        value={form.yearsExperience}
+        onChange={(e) => patchForm({ yearsExperience: e.target.value })}
+        inputMode="numeric"
+        rootProps={formControlRootProps}
+      />
+    </FormField>
+  )
+}
 
-    case 'verify.phone':
-      return (
-        <Stack gap={4}>
-          <ContactMethodsPanel
-            requirePhone
-            onContactUpdated={clearSetupErrors}
-          />
-          {fieldErrors.contact ? (
-            <Text color="status.danger.fg" fontSize="sm">
-              {fieldErrors.contact}
-            </Text>
-          ) : null}
-        </Stack>
-      )
+function QualificationsSection() {
+  const { form, patchForm } = useSetupField()
+  return (
+    <WorkerSetupQualificationsInput
+      value={form.qualifications}
+      onChange={(qualifications) => patchForm({ qualifications })}
+    />
+  )
+}
 
-    case 'verify.portfolio':
-      return (
-        <WorkerSetupPortfolioInput
-          value={form.portfolioUrls}
-          onChange={(portfolioUrls) => patchForm({ portfolioUrls })}
+function HeadlineSection() {
+  const { t, form, patchForm, error } = useSetupField()
+  const suggestion = suggestedHeadline(form, t)
+  return (
+    <Stack gap={1}>
+      <FormField
+        label={t.fields.headline}
+        helperText={t.fields.headlineHelper}
+        errorText={error('tagline')}
+      >
+        <Input
+          value={form.tagline}
+          onChange={(e) => patchForm({ tagline: e.target.value })}
+          placeholder={t.fields.headlinePlaceholder}
+          maxLength={HEADLINE_MAX_CHARS}
+          rootProps={formControlRootProps}
         />
-      )
+      </FormField>
+      {suggestion && suggestion !== form.tagline.trim() ? (
+        <Button
+          type="button"
+          variant="ghost"
+          alignSelf="flex-start"
+          minH="44px"
+          px={2}
+          color="text.link"
+          fontWeight={600}
+          whiteSpace="normal"
+          textAlign="left"
+          onClick={() => patchForm({ tagline: suggestion })}
+        >
+          {formatMessage(t.fields.useSuggestion, { suggestion })}
+        </Button>
+      ) : null}
+    </Stack>
+  )
+}
 
-    case 'review.submit':
-      return <WorkerSetupReviewStep />
+function BioSection() {
+  const { form, patchForm, error } = useSetupField()
+  return (
+    <WorkerSetupBioComposer
+      value={form.bio}
+      onChange={(bio) => patchForm({ bio })}
+      errorText={error('bio')}
+    />
+  )
+}
 
-    default:
-      return null
-  }
+function PortfolioSection() {
+  const { form, patchForm } = useSetupField()
+  return (
+    <WorkerSetupPortfolioInput
+      value={form.portfolioUrls}
+      onChange={(portfolioUrls) => patchForm({ portfolioUrls })}
+    />
+  )
+}
+
+function TravelSection() {
+  const { t, form, patchForm } = useSetupField()
+  const saved = Number.parseFloat(form.travelRadiusMiles)
+  // A distance saved before these choices existed stays on the list.
+  const miles = [
+    ...new Set([...TRAVEL_MILES, ...(saved > 0 && saved <= 50 ? [saved] : [])]),
+  ].sort((a, b) => a - b)
+  return (
+    <RadioButtonGroup
+      label={
+        <WorkerSetupOptionalLabel>{t.fields.travel}</WorkerSetupOptionalLabel>
+      }
+      helperText={t.fields.travelHelper}
+      value={Number.isFinite(saved) ? String(saved) : null}
+      options={miles.map((value) => ({
+        value: String(value),
+        label: formatMessage(t.fields.miles, { miles: value }),
+      }))}
+      onChange={(value) => patchForm({ travelRadiusMiles: value })}
+      columns={{ base: 3, sm: miles.length }}
+    />
+  )
+}
+
+function PhoneSection() {
+  const { clearErrors, error } = useSetupField()
+  const problem = error('contact')
+  return (
+    <Stack gap={3} data-invalid={problem ? '' : undefined}>
+      <ContactMethodsPanel
+        requirePhone
+        onContactUpdated={() => clearErrors(['contact'])}
+      />
+      {problem ? (
+        <Text color="status.danger.fg" fontSize="sm" role="alert">
+          {problem}
+        </Text>
+      ) : null}
+    </Stack>
+  )
+}
+
+function StrengthSection() {
+  const { form, account, goToScreen } = useSetupField()
+  return (
+    <WorkerSetupStrengthMeter
+      strength={computeProfileStrength({
+        form,
+        avatarUrl: account.avatarUrl,
+        phoneVerified: account.phoneVerified,
+      })}
+      onGoToScreen={goToScreen}
+    />
+  )
+}
+
+function PreviewSection() {
+  const { t } = useSetupField()
+  return (
+    <Stack gap={2}>
+      <Text as="h2" fontSize="md" fontWeight={700} color="text.default">
+        {t.review.previewTitle}
+      </Text>
+      <WorkerSetupProfilePreview />
+    </Stack>
+  )
+}
+
+function NotesSection() {
+  const { t, account } = useSetupField()
+  return (
+    <Stack gap={2}>
+      {account.emailVerified ? null : (
+        <Text fontSize="sm" color="text.default" lineHeight="tall">
+          {t.review.verifyEmailNote}
+        </Text>
+      )}
+      <Text fontSize="sm" color="text.muted" lineHeight="tall">
+        {t.review.paymentsNote}
+      </Text>
+    </Stack>
+  )
+}
+
+const SECTIONS: Record<WorkerSetupSection, ComponentType> = {
+  name: NameSection,
+  dateOfBirth: DateOfBirthSection,
+  photo: PhotoSection,
+  trade: TradeSection,
+  skills: SkillsSection,
+  experience: ExperienceSection,
+  qualifications: QualificationsSection,
+  headline: HeadlineSection,
+  bio: BioSection,
+  portfolio: PortfolioSection,
+  area: WorkerSetupAreaLocationInput,
+  travel: TravelSection,
+  phone: PhoneSection,
+  strength: StrengthSection,
+  preview: PreviewSection,
+  notes: NotesSection,
+}
+
+/** A setup screen: its view's sections, in order. */
+export function WorkerSetupStepContent({
+  view,
+}: {
+  view: WorkerSetupScreenView
+}) {
+  return (
+    <Stack gap={8}>
+      {view.sections.map((section) => {
+        const Section = SECTIONS[section]
+        return <Section key={section} />
+      })}
+    </Stack>
+  )
 }

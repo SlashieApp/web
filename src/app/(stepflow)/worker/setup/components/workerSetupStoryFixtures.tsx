@@ -4,6 +4,7 @@ import { type ReactNode, useRef } from 'react'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
+import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import {
   WorkerSetupContext,
@@ -13,21 +14,19 @@ import {
   type WorkerSetupFormState,
   emptyWorkerSetupFormState,
 } from '../helpers/workerSetupFormState'
-import {
-  WORKER_SETUP_FLAT_STEPS,
-  type WorkerSetupSubStepId,
-  isSubStepUnlocked,
-  majorIndexForSubStep,
-  progressPercent,
-} from '../helpers/workerSetupSteps.config'
-import { validateWorkerSetupSubStep } from '../helpers/workerSetupValidation'
+import { isScreenUnlocked } from '../helpers/workerSetupScreens'
+import { validateWorkerSetupScreen } from '../helpers/workerSetupValidation'
+import { WORKER_SETUP_SCREENS, type WorkerSetupScreenId } from '../views'
 
 export const STORY_WORKER_AVATAR = storyImage('#7fcfa6', 120)
 
-/** Every sub-step done except the last, as when a worker reaches Review. */
-export const ALL_STEPS_BUT_REVIEW = new Set<string>(
-  WORKER_SETUP_FLAT_STEPS.slice(0, -1).map((step) => step.id),
-)
+/** Sub-steps saved by every screen before `screen`. */
+export function savedBefore(screen: WorkerSetupScreenId): Set<string> {
+  const index = WORKER_SETUP_SCREENS.findIndex((view) => view.screen === screen)
+  return new Set(
+    WORKER_SETUP_SCREENS.slice(0, index).flatMap((view) => view.subSteps),
+  )
+}
 
 /** A finished form: every profile strength signal is done. */
 export const completedWorkerSetupForm: WorkerSetupFormState = {
@@ -54,29 +53,11 @@ export const completedWorkerSetupForm: WorkerSetupFormState = {
   portfolioUrls: [storyImage('#9ec5e8', 200), storyImage('#f0c987', 200)],
 }
 
-/** The signed-in worker: their photo and whether their phone is verified. */
+/** The signed-in worker: photo, verified phone and email. */
 export type StoryAccount = {
   avatarUrl?: string | null
   phoneVerified?: boolean
-}
-
-/**
- * The `me` the setup query returns, cut down to what the setup screens read
- * (hence the cast).
- */
-export function workerSetupStoryBootstrap({
-  avatarUrl = null,
-  phoneVerified = false,
-}: StoryAccount = {}) {
-  return {
-    id: 'story-user',
-    email: 'sam@example.com',
-    emailVerified: true,
-    phoneVerified,
-    workerEligibility: true,
-    profile: { name: 'Sam Taylor', avatarUrl },
-    worker: null,
-  } as never
+  emailVerified?: boolean
 }
 
 /** An empty form with a few fields filled in. */
@@ -86,69 +67,62 @@ export function workerSetupStoryForm(
   return { ...emptyWorkerSetupFormState(), ...patch }
 }
 
-/** The field errors a worker would see after pressing Continue on a step. */
+/** The errors a worker would see after pressing Continue on a screen. */
 export function workerSetupStoryErrors(
-  subStep: WorkerSetupSubStepId,
+  screen: WorkerSetupScreenId,
   form: Partial<WorkerSetupFormState> = {},
   account: StoryAccount = {},
 ) {
-  return validateWorkerSetupSubStep(
-    subStep,
-    workerSetupStoryForm(form),
-    workerSetupStoryBootstrap(account),
-  )
+  return validateWorkerSetupScreen(screen, workerSetupStoryForm(form), account)
 }
 
 /** Static setup context for stories (the real provider queries the API). */
 export function workerSetupStoryValue(
   overrides: Partial<WorkerSetupContextValue> = {},
+  account: StoryAccount = {},
 ): WorkerSetupContextValue {
-  const activeSubStep = overrides.activeSubStep ?? 'profile.bio'
-  const completedSubSteps =
-    overrides.completedSubSteps ?? new Set(['profile.details', 'profile.photo'])
+  const screen = overrides.screen ?? 'profile'
+  const completed = overrides.completed ?? savedBefore(screen)
   return {
-    bootstrap: workerSetupStoryBootstrap(),
-    form: {
-      ...emptyWorkerSetupFormState(),
-      firstName: 'Sam',
-      lastName: 'Taylor',
-    },
-    activeSubStep,
-    completedSubSteps,
-    isHydrated: true,
-    loadError: false,
+    status: 'ready',
     retryLoad: () => {},
+    account: {
+      avatarUrl: account.avatarUrl ?? null,
+      phoneVerified: account.phoneVerified ?? false,
+      emailVerified: account.emailVerified ?? true,
+    },
+    form: workerSetupStoryForm({ firstName: 'Sam', lastName: 'Taylor' }),
+    screen,
+    completed,
     isSaving: false,
     fieldErrors: {},
     saveError: null,
-    expandedMajor: majorIndexForSubStep(activeSubStep),
-    progressPercent: progressPercent(activeSubStep),
-    workerEligibility: true,
     patchForm: () => {},
-    clearSetupErrors: () => {},
-    goToSubStep: () => {},
-    saveAndContinue: async () => {},
+    clearErrors: () => {},
+    goToScreen: () => {},
     goBack: () => {},
-    toggleMajor: () => {},
-    isSubStepUnlocked: (id) =>
-      isSubStepUnlocked(id, activeSubStep, completedSubSteps),
+    saveAndContinue: async () => {},
+    isScreenUnlocked: (target) => isScreenUnlocked(target, screen, completed),
     exitHref: '/tasks/story-task',
+    headingRef: () => {},
+    contentRef: () => {},
     ...overrides,
   }
 }
 
-/** The signed-in user the verify step and review preview read from the store. */
-export function workerSetupStoryMe(phoneVerified = false): MeSnapshot {
+/** The signed-in user that the phone panel and photo upload read from the store. */
+export function workerSetupStoryMe(account: StoryAccount = {}): MeSnapshot {
+  const phoneVerified = account.phoneVerified ?? false
   return {
     id: 'story-user',
     email: 'sam@example.com',
-    emailVerified: true,
+    emailVerified: account.emailVerified ?? true,
     phoneVerified,
     enabledLoginMethods: [LoginMethod.Password],
     profile: {
       name: 'Sam Taylor',
       contactNumber: phoneVerified ? '+447700900123' : null,
-      avatarUrl: null,
+      avatarUrl: account.avatarUrl ?? null,
     },
   } as MeSnapshot
 }
@@ -178,21 +152,29 @@ export function withWorkerAccount(me: MeSnapshot | null): Decorator {
   )
 }
 
-/** Setup context plus the signed-in account, mid-flow on the bio step by default. */
+/** Setup context plus the signed-in account; the profile screen by default. */
 export function withWorkerSetup(
   overrides: Partial<WorkerSetupContextValue> = {},
   account: StoryAccount = {},
 ): Decorator {
   return (Story) => (
-    <SeedAccount me={workerSetupStoryMe(account.phoneVerified)}>
+    <SeedAccount me={workerSetupStoryMe(account)}>
       <WorkerSetupContext.Provider
-        value={workerSetupStoryValue({
-          bootstrap: workerSetupStoryBootstrap(account),
-          ...overrides,
-        })}
+        value={workerSetupStoryValue(overrides, account)}
       >
         <Story />
       </WorkerSetupContext.Provider>
     </SeedAccount>
   )
+}
+
+/** zh-HK: pair with `ZH_HK_SETUP` parameters (the locale comes from the path). */
+export const withZhHk: Decorator = (Story) => (
+  <LocaleProvider>
+    <Story />
+  </LocaleProvider>
+)
+
+export const ZH_HK_SETUP = {
+  nextjs: { navigation: { pathname: '/zh-hk/worker/setup' } },
 }

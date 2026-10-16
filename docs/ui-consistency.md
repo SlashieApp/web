@@ -74,7 +74,7 @@ Routes are already grouped by Next.js route groups, which align to shells:
 | `src/app/(marketing)` — `/`, `/about`, `/pricing` | Marketing | Header only, footer; no sidebar/dock |
 | `src/app/(auth)` — `/login`, `/register`, verify | Marketing (auth) | Header only, centered card |
 | `src/app/(task)` — `/search`, `/tasks` (My Tasks hub), `/tasks/[slug]` | Discovery / My Tasks / Task detail | Map browse on `/search`; hub list on `/tasks`; mobile bottom dock (4); detail = header + quote sidebar |
-| `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/tasks/[slug]/review`, `/worker/setup` | StepFlow | Own route-group `layout.tsx`, no app `Header` / `Dock` (FE-78). Every flow uses `StepFlowHeader`; quote, review and worker setup use `StepFlowLayout`; create uses its map variant `CreateTaskMapLayout` (full-screen map, then the band) with the same heading, progress and action bar (FE-295) |
+| `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/tasks/[slug]/review`, `/worker/setup` | StepFlow | Own route-group `layout.tsx`, no app `Header` / `Dock` (FE-78). Every flow uses `StepFlowHeader`; quote, review, edit and worker setup (six screens, the standard phone body, FE-296) use `StepFlowLayout`; create uses its map variant `CreateTaskMapLayout` (full-screen map, then the band) with the same heading, progress and action bar (FE-295) |
 | `src/app/(dashboard)`: `/profile`, `/account`, `/billing` | Settings | App header + bottom nav; sticky page header (h1 = menu label, Back on phones) |
 | `src/app/(worker)`: `/workers` (and the `/workers/[id]` redirect to `/profile/[userId]`) | App | Header chrome (setup lives under `(stepflow)`) |
 
@@ -112,7 +112,7 @@ Docs foundations: `src/ui/_foundations/*` (Color, Typography, …).
 | High | Brand green ramp in `brand.ts` diverged from Chakra (`#00AB63` as primary) | `src/theme/brand.ts` | ✅ Fixed — ramp now mirrors Chakra, primary `#00DC82` |
 | Med | Hardcoded `#00AB63` in map pin/route/static-image | `taskMap/pin`, `navRoute.ts`, `mapboxStaticImageUrl.ts`, `TaskLocationMapPicker.tsx` | ✅ Fixed — routed through `BRAND_MAP_*` constants (visible: pins now brighter spec green) |
 | Low | Ad-hoc hex gradients in marketing hero | `src/app/(marketing)/page.tsx:465,608` | Open — marketing decorative; tokenize later |
-| Low | Direct `@chakra-ui/react` primitive import | `(stepflow)/worker/setup/components/WorkerSetupHeader.tsx` | Open — review during worker migration |
+| Low | Direct `@chakra-ui/react` primitive import | `(stepflow)/worker/setup/components/WorkerSetupHeader.tsx` | ✅ Gone — every flow uses `@ui` `StepFlowHeader` (FE-296) |
 | Info | Shared Empty primitive intentionally not in `@ui` | features compose `SpotIllustration` | ✅ By design — see Coding Guidebook |
 | Info | Toast exists in `@ui` | `src/ui/Toast` | ✅ |
 

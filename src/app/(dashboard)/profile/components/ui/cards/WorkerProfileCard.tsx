@@ -5,11 +5,9 @@ import { LuBriefcaseBusiness, LuCircle } from 'react-icons/lu'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { DashboardSectionCard } from '@/app/(dashboard)/components/layout/DashboardSectionCard'
-import {
-  categoryBySlug,
-  categorySlugFromEnum,
-} from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import { categoryLabelFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
+import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Badge, Button, Link } from '@ui'
@@ -47,9 +45,9 @@ function Fact({ label, value }: { label: string; value: string }) {
 /** Headline, service, experience, area, bio and skills as customers see them. */
 function WorkerFacts({ me }: { me: MeSnapshot }) {
   const t = useI11n(bag).worker
+  const trades = useI11n(setupBag).trades
   const worker = me.worker
   if (!worker) return null
-  const category = categoryBySlug(categorySlugFromEnum(worker.primaryCategory))
   const area =
     worker.preferredLocation?.name?.trim() || worker.locationAddress?.trim()
 
@@ -57,7 +55,12 @@ function WorkerFacts({ me }: { me: MeSnapshot }) {
     <Stack gap={4}>
       <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
         <Fact label={t.headline} value={worker.tagline?.trim() || t.notAdded} />
-        <Fact label={t.primaryService} value={category?.label ?? t.notAdded} />
+        <Fact
+          label={t.primaryService}
+          value={
+            categoryLabelFromEnum(worker.primaryCategory, trades) ?? t.notAdded
+          }
+        />
         <Fact
           label={t.yearsExperience}
           value={

@@ -1,165 +1,776 @@
 {
   "en": {
     "metadata": {
-      "title": "Set up worker profile | Slashie",
-      "description": "Create your Slashie worker profile with skills, bio, portfolio, and service details."
+      "title": "Set up your worker profile | Slashie",
+      "description": "Set up your Slashie worker profile with your trade, skills, area and a verified phone, then quote on local tasks."
     },
     "title": "Set up your worker profile",
-    "description": "Add the essentials customers need before they choose your quote.",
-    "loading": "Loading setup...",
+    "loading": "Loading your setup...",
     "closeLabel": "Close worker setup",
     "progressCaption": "Step {current} of {total} · {label}",
     "progressLabel": "Worker setup progress",
     "back": "Back",
     "continue": "Continue",
     "finish": "Start quoting",
+    "optional": "Optional",
     "loadErrorTitle": "We couldn't load your setup",
     "loadErrorBody": "Check your connection and try again. Anything you saved is still there.",
     "retry": "Try again",
     "leave": "Leave setup",
     "completeTitle": "You're set up as a worker",
     "completeBody": "You can send quotes now.",
-    "majors": {
-      "profile": "Your profile",
-      "services": "Your services",
-      "area": "Service area",
-      "verify": "Verify & trust",
-      "review": "Review and go"
-    },
-    "subSteps": {
-      "profile.details": "Personal details",
-      "profile.photo": "Profile photo",
-      "profile.bio": "Headline and bio",
-      "services.skills": "Skills",
-      "services.experience": "Experience",
-      "area.location": "Location",
-      "area.travel": "Travel distance",
-      "verify.phone": "Phone",
-      "verify.portfolio": "Portfolio",
-      "review.submit": "Review"
-    },
-    "steps": {
-      "profile.details": {
-        "title": "Tell us your name",
-        "description": "About 5 minutes. You'll need your date of birth, a photo, a short bio, your skills, your area and a phone to verify. Travel distance and portfolio are optional."
+    "completeBodyVerifyEmail": "Verify your email next: you need it to send quotes.",
+    "saveFailed": "We couldn't save this step. Try again.",
+    "screens": {
+      "about": {
+        "label": "About you",
+        "title": "About you",
+        "description": "About 5 minutes in all. Your name and photo go on your profile; your date of birth stays private."
       },
-      "profile.photo": {
-        "title": "Add a profile photo",
-        "description": "A clear, friendly photo helps customers choose you. We also ask for your date of birth."
-      },
-      "profile.bio": {
-        "title": "Write a headline and short bio",
-        "description": "Customers read this before they accept your quote. Two or three sentences about the work you do best."
-      },
-      "services.skills": {
+      "work": {
+        "label": "Your work",
         "title": "What work do you do?",
-        "description": "Your skills decide which tasks you show up for."
+        "description": "Your trade and skills lead your profile and help customers find you."
       },
-      "services.experience": {
-        "title": "How much experience do you have?",
-        "description": "Shown next to your rating on your profile."
+      "profile": {
+        "label": "Your profile",
+        "title": "Introduce yourself",
+        "description": "Customers read your headline and bio before they accept a quote."
       },
-      "area.location": {
+      "area": {
+        "label": "Where you work",
         "title": "Where do you work?",
-        "description": "Customers only see an approximate area, never your address."
+        "description": "Customers see your town, never your address."
       },
-      "area.travel": {
-        "title": "How far will you travel?",
-        "description": "Optional. A wider radius shows you more tasks."
-      },
-      "verify.phone": {
+      "phone": {
+        "label": "Phone",
         "title": "Verify your phone",
         "description": "You need a verified phone to send quotes. Customers see a Phone verified badge on your profile."
       },
-      "verify.portfolio": {
-        "title": "Show your work",
-        "description": "Optional. Photos of finished jobs help you win more quotes."
+      "review": {
+        "label": "Review",
+        "title": "Check your profile",
+        "description": "This is how customers will see you. Change anything you like, then start quoting."
+      }
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "dateOfBirth": "Date of birth",
+      "dateOfBirthHelper": "Private. You must be 18 or over to work on Slashie.",
+      "photo": "Profile photo",
+      "photoHelper": "A clear, friendly photo of your face. JPG, PNG or WebP, up to 5 MB.",
+      "uploadPhoto": "Upload photo",
+      "changePhoto": "Change photo",
+      "photoAlt": "Your profile photo",
+      "photoWrongType": "Use a JPG, PNG or WebP photo.",
+      "photoTooLarge": "Use a photo under 5 MB.",
+      "photoUploadFailed": "We couldn't upload your photo. Try again.",
+      "trade": "What kind of work do you do most?",
+      "tradeHelper": "It leads your profile and suggests your skills and headline.",
+      "years": "Years of experience",
+      "yearsHelper": "Shown on your profile.",
+      "headline": "Headline",
+      "headlineHelper": "Shown under your name on your profile.",
+      "headlinePlaceholder": "e.g. Handyman with 8 years experience",
+      "useSuggestion": "Use “{suggestion}”",
+      "travel": "How far will you travel?",
+      "travelHelper": "Further away means more tasks.",
+      "miles": "{miles} miles"
+    },
+    "skills": {
+      "label": "Skills and services",
+      "helper": "Pick at least {min}, so customers can find you for the right tasks.",
+      "placeholder": "e.g. Boiler servicing",
+      "add": "Add",
+      "count": "{count} of {max} · at least {min}",
+      "suggestions": "Suggestions",
+      "addItem": "Add {item}",
+      "removeItem": "Remove {item}",
+      "tooShort": "“{text}” is too short. Use at least {min} characters.",
+      "tooLong": "Keep each skill under {max} characters.",
+      "duplicate": "You've already added {text}.",
+      "full": "That's the most skills ({max}). Remove one to add another.",
+      "defaults": [
+        "Furniture Assembly",
+        "TV Mounting",
+        "Shelving",
+        "Door Repairs",
+        "Flat-pack",
+        "Painting",
+        "Plumbing Repairs",
+        "Electrical Fixes",
+        "Garden Tidy-up",
+        "Deep Cleaning",
+        "Removals",
+        "Tiling"
+      ]
+    },
+    "qualifications": {
+      "label": "Qualifications and certificates",
+      "helper": "Licences or trade cards you hold. Slashie doesn't check DBS, insurance or qualifications: customers see what you write.",
+      "placeholder": "e.g. City & Guilds Level 2",
+      "add": "Add",
+      "addItem": "Add {item}",
+      "removeItem": "Remove {item}",
+      "tooShort": "“{text}” is too short. Use at least {min} characters.",
+      "tooLong": "Keep each qualification under {max} characters.",
+      "duplicate": "You've already added {text}.",
+      "full": "That's the most qualifications ({max}). Remove one to add another."
+    },
+    "bio": {
+      "label": "Short bio",
+      "helper": "Two or three sentences: the work you do best and why customers choose you.",
+      "placeholder": "What you do best, and why customers choose you",
+      "starters": [
+        "The work I do best is ",
+        "Customers choose me because ",
+        "Tools and qualifications: "
+      ],
+      "insertStarter": "Add “{starter}”",
+      "count": "{count} / {max}",
+      "qualityLabel": "Bio quality",
+      "tooShort": "Too short yet",
+      "good": "Good",
+      "great": "Great",
+      "showExample": "See an example",
+      "hideExample": "Hide example",
+      "example": "I fit and repair kitchens and bathrooms across North London, with 8 years on the tools. Customers choose me for tidy work, honest quotes and turning up when I say I will. Fully insured, City & Guilds qualified."
+    },
+    "portfolio": {
+      "label": "Work photos and links",
+      "helper": "Links to photos of finished jobs. Two or more work best.",
+      "placeholder": "https://example.com/finished-kitchen.jpg",
+      "add": "Add",
+      "removeItem": "Remove {item}",
+      "notALink": "Enter a full link starting with https://",
+      "duplicate": "That link is already in your portfolio.",
+      "full": "You can add up to {max} links."
+    },
+    "area": {
+      "label": "Town or postcode",
+      "helper": "Where you usually take jobs.",
+      "placeholder": "e.g. Watford or WD17 2AW",
+      "mapCaption": "Customers see this approximate area on your profile.",
+      "shownAs": "Customers see: {town}"
+    },
+    "review": {
+      "strengthTitle": "Profile strength",
+      "tiers": {
+        "starter": "Starter",
+        "good": "Good",
+        "allStar": "All-star"
       },
-      "review.submit": {
-        "title": "Your profile, as customers see it",
-        "description": "Check the preview below, then start quoting."
+      "tierDescriptions": {
+        "starter": "A few more details and customers will take you seriously.",
+        "good": "A solid profile. A couple more details make it stand out.",
+        "allStar": "Your profile has everything customers look for."
+      },
+      "doneCount": "{done} of {total} done",
+      "items": {
+        "photo": "Add a profile photo",
+        "headline": "Write a headline",
+        "bio": "Write a bio of at least {min} characters",
+        "skills": "Add at least {min} skills",
+        "serviceArea": "Set your area",
+        "phoneVerified": "Verify your phone number",
+        "portfolio": "Add photos of your work"
+      },
+      "previewTitle": "How customers will see you",
+      "paymentsNote": "Customers pay you directly for the work. Slashie doesn't handle job payments.",
+      "verifyEmailNote": "You'll also need to verify your email before you can send quotes."
+    },
+    "errors": {
+      "firstNameRequired": "Enter your first name.",
+      "lastNameRequired": "Enter your last name.",
+      "dateOfBirthRequired": "Enter your date of birth.",
+      "dateOfBirthInvalid": "Enter a real date of birth.",
+      "underage": "You must be 18 or over to work on Slashie.",
+      "photoRequired": "Add a profile photo to continue.",
+      "tradeRequired": "Choose the kind of work you do most.",
+      "skillsTooFew": "Add at least {skillsMin} skills so customers can find you for the right tasks.",
+      "skillsTooMany": "Keep it to {skillsMax} skills. Lead with the work you do best.",
+      "yearsRequired": "Enter your years of experience.",
+      "yearsInvalid": "Enter a whole number from 0 to {yearsMax}.",
+      "headlineTooShort": "Add a headline of at least {headlineMin} characters.",
+      "headlineTooLong": "Keep your headline under {headlineMax} characters.",
+      "headlineOneWord": "Use a few words, like “Handyman with 8 years experience”.",
+      "bioTooShort": "Write at least {bioMin} characters. Customers read this before they accept your quote.",
+      "bioTooLong": "Keep your bio under {bioMax} characters.",
+      "bioJunk": "Tell customers about your work in full sentences. This reads like placeholder text.",
+      "areaRequired": "Add the town or postcode where you usually work.",
+      "areaNotFound": "We couldn't find that place. Try a town or a full postcode, like Watford or WD17 2AW.",
+      "phoneRequired": "Verify your phone number to continue. You need it to send quotes."
+    },
+    "serverErrors": {
+      "INVALID_SETUP_SUB_STEP": "Something went wrong with this step. Refresh the page and try again.",
+      "INVALID_NAME": "Enter your first and last name.",
+      "INVALID_DATE_OF_BIRTH": "Enter a real date of birth.",
+      "UNDERAGE": "You must be 18 or over to work on Slashie.",
+      "AVATAR_REQUIRED": "Add a profile photo before you continue.",
+      "PRIMARY_CATEGORY_REQUIRED": "Choose the kind of work you do most.",
+      "YEARS_EXPERIENCE_REQUIRED": "Enter your years of experience.",
+      "TOO_MANY_QUALIFICATIONS": "Keep it to 10 qualifications.",
+      "QUALIFICATION_TOO_SHORT": "Each qualification needs at least 2 characters.",
+      "QUALIFICATION_TOO_LONG": "Keep each qualification under 40 characters.",
+      "LOCATION_REQUIRED": "We couldn't find that place. Try a town or a full postcode.",
+      "LOCATION_LABEL_REQUIRED": "Add the town or postcode where you usually work.",
+      "INVALID_COORDINATES": "We couldn't put that place on the map. Try a town or a full postcode.",
+      "INVALID_RADIUS": "Choose a travel distance of up to 50 miles.",
+      "PHONE_NOT_VERIFIED": "Verify your phone number before you continue.",
+      "WORKER_SETUP_INCOMPLETE": "Finish the earlier steps first.",
+      "WORKER_PROFILE_INCOMPLETE": "Your profile isn't complete yet."
+    },
+    "missing": {
+      "VERIFIED_CONTACT_METHOD": "Verify your phone number.",
+      "AVATAR": "Add a profile photo.",
+      "DATE_OF_BIRTH": "Add your date of birth.",
+      "AGE_REQUIREMENT": "You must be 18 or over to work on Slashie."
+    },
+    "headlines": {
+      "years": "{noun} with {years} years experience",
+      "oneYear": "{noun} with 1 year experience",
+      "area": "{noun} serving {area}",
+      "local": "{noun} for local jobs"
+    },
+    "trades": {
+      "handyman": {
+        "label": "Handyman",
+        "noun": "Handyman",
+        "skills": [
+          "Home Repairs",
+          "Furniture Assembly",
+          "TV Mounting",
+          "Shelf Mounting",
+          "Hang Pictures",
+          "Drywall Repairs",
+          "Curtains & Blinds",
+          "Light Installation"
+        ]
+      },
+      "furniture-assembly": {
+        "label": "Furniture Assembly",
+        "noun": "Furniture assembly specialist",
+        "skills": [
+          "Flat-pack Assembly",
+          "IKEA Furniture",
+          "Bed Assembly",
+          "Desk Assembly",
+          "Wardrobe Fitting",
+          "Office Furniture",
+          "Bookshelf Assembly",
+          "Sofa Assembly",
+          "Furniture Disassembly"
+        ]
+      },
+      "mounting": {
+        "label": "Mounting & Installation",
+        "noun": "Mounting & installation specialist",
+        "skills": [
+          "TV Mounting",
+          "Shelf Mounting",
+          "Light Installation",
+          "Hang Pictures",
+          "Curtains & Blinds",
+          "Christmas Lights"
+        ]
+      },
+      "plumbing": {
+        "label": "Plumbing",
+        "noun": "Plumber",
+        "skills": [
+          "Tap Repairs",
+          "Leak Fixes",
+          "Toilet Installs",
+          "Radiator Bleeding",
+          "Shower Fitting",
+          "Waste Unblocking"
+        ]
+      },
+      "electrical": {
+        "label": "Electrical Work",
+        "noun": "Electrician",
+        "skills": [
+          "Light Fittings",
+          "Socket Replacement",
+          "Fault Finding",
+          "Smart Home Setup",
+          "EV Charger Install",
+          "Fuse Boards"
+        ]
+      },
+      "carpentry": {
+        "label": "Carpentry",
+        "noun": "Carpenter",
+        "skills": [
+          "Custom Shelving",
+          "Door Hanging",
+          "Skirting Boards",
+          "Decking",
+          "Kitchen Fitting",
+          "Wardrobes"
+        ]
+      },
+      "painting": {
+        "label": "Painting",
+        "noun": "Painter & decorator",
+        "skills": [
+          "Interior Painting",
+          "Exterior Painting",
+          "Wallpapering",
+          "Plaster Repairs",
+          "Fence Staining",
+          "Feature Walls"
+        ]
+      },
+      "cleaning": {
+        "label": "Cleaning",
+        "noun": "Cleaner",
+        "skills": [
+          "House Cleaning",
+          "Deep Cleaning",
+          "End Of Tenancy Cleaning",
+          "Move-in Cleaning",
+          "Office Cleaning",
+          "Spring Cleaning",
+          "Airbnb Cleaning",
+          "Oven Cleaning",
+          "Pressure Washing",
+          "Car Washing",
+          "Laundry Help"
+        ]
+      },
+      "gardening": {
+        "label": "Gardening",
+        "noun": "Gardener",
+        "skills": [
+          "Lawn Mowing",
+          "Lawn Care",
+          "Hedge Trimming",
+          "Tree Trimming & Removal",
+          "Landscaping",
+          "Leaf Raking & Removal",
+          "Roof & Gutter Cleaning",
+          "Garden Tidy-up"
+        ]
+      },
+      "removals": {
+        "label": "Removals",
+        "noun": "Removals specialist",
+        "skills": [
+          "House Removals",
+          "Man With A Van",
+          "Furniture Removal",
+          "Sofa Removal",
+          "Packing",
+          "Unpacking",
+          "Heavy Lifting",
+          "Furniture Delivery",
+          "Rubbish Removal",
+          "Pool Table Moving"
+        ]
+      },
+      "delivery": {
+        "label": "Delivery & Errands",
+        "noun": "Delivery & errands specialist",
+        "skills": [
+          "Delivery Service",
+          "Shopping Services",
+          "Food Shopping",
+          "Run Errands",
+          "Queuing",
+          "Collection & Drop-off",
+          "Returning Items",
+          "Waiting For Deliveries",
+          "Donation Drop-offs"
+        ]
+      },
+      "other": {
+        "label": "Other",
+        "noun": "Local specialist",
+        "skills": []
       }
     }
   },
   "zh_hk": {
     "metadata": {
       "title": "設定工作者個人檔案 | Slashie",
-      "description": "建立你的 Slashie 工作者個人檔案，加入技能、簡介、作品和服務詳情。"
+      "description": "設定你的 Slashie 工作者個人檔案，加入你的行業、技能、工作地區和已驗證的電話，然後為本地任務報價。"
     },
     "title": "設定你的工作者個人檔案",
-    "description": "加入顧客選擇你的報價前需要知道的重點。",
-    "loading": "正在載入設定...",
+    "loading": "正在載入你的設定...",
     "closeLabel": "關閉工作者設定",
     "progressCaption": "第 {current} 步（共 {total} 步）· {label}",
     "progressLabel": "工作者設定進度",
     "back": "返回",
     "continue": "繼續",
     "finish": "開始報價",
+    "optional": "可選填",
     "loadErrorTitle": "未能載入你的設定",
     "loadErrorBody": "請檢查網絡連線後再試。你已儲存的內容仍然保留。",
     "retry": "再試一次",
     "leave": "離開設定",
     "completeTitle": "你已成為工作者",
     "completeBody": "你現在可以傳送報價。",
-    "majors": {
-      "profile": "你的個人檔案",
-      "services": "你的服務",
-      "area": "服務地區",
-      "verify": "驗證與信任",
-      "review": "檢查並完成"
-    },
-    "subSteps": {
-      "profile.details": "個人資料",
-      "profile.photo": "個人頭像",
-      "profile.bio": "標題及簡介",
-      "services.skills": "技能",
-      "services.experience": "經驗",
-      "area.location": "地點",
-      "area.travel": "服務距離",
-      "verify.phone": "電話",
-      "verify.portfolio": "作品集",
-      "review.submit": "檢查"
-    },
-    "steps": {
-      "profile.details": {
-        "title": "你的名字",
-        "description": "大約需時 5 分鐘。你需要提供出生日期、頭像、簡短自我介紹、技能、服務地區，以及驗證電話號碼。服務距離及作品集可選填。"
+    "completeBodyVerifyEmail": "下一步請驗證你的電郵：傳送報價前必須完成驗證。",
+    "saveFailed": "未能儲存這一步，請再試一次。",
+    "screens": {
+      "about": {
+        "label": "關於你",
+        "title": "關於你",
+        "description": "全程大約 5 分鐘。你的名字和頭像會顯示在個人檔案；出生日期不會公開。"
       },
-      "profile.photo": {
-        "title": "加入個人頭像",
-        "description": "清晰友善的頭像有助顧客選擇你。我們亦需要你的出生日期。"
-      },
-      "profile.bio": {
-        "title": "撰寫標題及簡介",
-        "description": "顧客接受你的報價前會先看這部分。用兩三句介紹你最擅長的工作。"
-      },
-      "services.skills": {
+      "work": {
+        "label": "你的工作",
         "title": "你做哪類工作？",
-        "description": "你的技能決定你會看到哪些任務。"
+        "description": "你的行業和技能會顯示在個人檔案最前，幫助顧客找到你。"
       },
-      "services.experience": {
-        "title": "你有多少年經驗？",
-        "description": "會顯示在你個人檔案的評分旁邊。"
+      "profile": {
+        "label": "你的簡介",
+        "title": "介紹你自己",
+        "description": "顧客接受報價前，會先看你的標題和簡介。"
       },
-      "area.location": {
+      "area": {
+        "label": "工作地區",
         "title": "你在哪裡工作？",
-        "description": "顧客只會看到大概地區，絕不會看到你的地址。"
+        "description": "顧客只會看到你所在的城鎮，絕不會看到你的地址。"
       },
-      "area.travel": {
-        "title": "你願意走多遠？",
-        "description": "可選填。範圍越大，你會看到越多任務。"
-      },
-      "verify.phone": {
+      "phone": {
+        "label": "電話",
         "title": "驗證你的電話",
         "description": "你需要已驗證的電話才能傳送報價。顧客會在你的個人檔案看到「電話已驗證」標記。"
       },
-      "verify.portfolio": {
-        "title": "展示你的作品",
-        "description": "可選填。完成工作的相片有助你贏得更多報價。"
+      "review": {
+        "label": "檢查",
+        "title": "檢查你的個人檔案",
+        "description": "這是顧客眼中的你。你可以修改任何內容，然後開始報價。"
+      }
+    },
+    "fields": {
+      "firstName": "名字",
+      "lastName": "姓氏",
+      "dateOfBirth": "出生日期",
+      "dateOfBirthHelper": "不會公開。你必須年滿 18 歲才可在 Slashie 工作。",
+      "photo": "個人頭像",
+      "photoHelper": "清晰友善的面部相片。JPG、PNG 或 WebP，最大 5 MB。",
+      "uploadPhoto": "上載相片",
+      "changePhoto": "更換相片",
+      "photoAlt": "你的個人頭像",
+      "photoWrongType": "請使用 JPG、PNG 或 WebP 相片。",
+      "photoTooLarge": "請使用小於 5 MB 的相片。",
+      "photoUploadFailed": "未能上載你的相片，請再試一次。",
+      "trade": "你最常做哪類工作？",
+      "tradeHelper": "它會顯示在你的個人檔案最前，並為你建議技能和標題。",
+      "years": "經驗年數",
+      "yearsHelper": "會顯示在你的個人檔案。",
+      "headline": "標題",
+      "headlineHelper": "會顯示在你個人檔案的名字下方。",
+      "headlinePlaceholder": "例如：8 年經驗的雜工師傅",
+      "useSuggestion": "使用「{suggestion}」",
+      "travel": "你願意走多遠？",
+      "travelHelper": "範圍越大，任務越多。",
+      "miles": "{miles} 英里"
+    },
+    "skills": {
+      "label": "技能及服務",
+      "helper": "最少選擇 {min} 項，讓顧客為合適的任務找到你。",
+      "placeholder": "例如：鍋爐保養",
+      "add": "加入",
+      "count": "{count} / {max} 項 · 最少 {min} 項",
+      "suggestions": "建議",
+      "addItem": "加入「{item}」",
+      "removeItem": "移除「{item}」",
+      "tooShort": "「{text}」太短，最少需要 {min} 個字元。",
+      "tooLong": "每項技能請少於 {max} 個字元。",
+      "duplicate": "你已加入「{text}」。",
+      "full": "技能已達上限（{max} 項）。請先移除一項再加入。",
+      "defaults": [
+        "傢俬組裝",
+        "掛牆電視安裝",
+        "層架",
+        "門窗維修",
+        "板式傢俬",
+        "油漆",
+        "水喉維修",
+        "電器維修",
+        "整理花園",
+        "深層清潔",
+        "搬運",
+        "鋪瓷磚"
+      ]
+    },
+    "qualifications": {
+      "label": "資格及證書",
+      "helper": "你持有的牌照或行業證。Slashie 不會核實 DBS、保險或資格：顧客會看到你填寫的內容。",
+      "placeholder": "例如：City & Guilds Level 2",
+      "add": "加入",
+      "addItem": "加入「{item}」",
+      "removeItem": "移除「{item}」",
+      "tooShort": "「{text}」太短，最少需要 {min} 個字元。",
+      "tooLong": "每項資格請少於 {max} 個字元。",
+      "duplicate": "你已加入「{text}」。",
+      "full": "資格已達上限（{max} 項）。請先移除一項再加入。"
+    },
+    "bio": {
+      "label": "簡短自我介紹",
+      "helper": "兩三句說明你最擅長的工作，以及顧客選擇你的原因。",
+      "placeholder": "你最擅長甚麼，顧客為何選擇你",
+      "starters": ["我最擅長的工作是", "顧客選擇我，因為", "工具及資格："],
+      "insertStarter": "加入「{starter}」",
+      "count": "{count} / {max}",
+      "qualityLabel": "簡介質素",
+      "tooShort": "內容仍然太短",
+      "good": "良好",
+      "great": "出色",
+      "showExample": "查看範例",
+      "hideExample": "隱藏範例",
+      "example": "我在北倫敦安裝和維修廚房及浴室，已有 8 年經驗。顧客選擇我，是因為我做事整齊、報價誠實，而且準時到達。已購買保險，持有 City & Guilds 資格。"
+    },
+    "portfolio": {
+      "label": "作品相片及連結",
+      "helper": "已完成工作的相片連結。兩個或以上效果最好。",
+      "placeholder": "https://example.com/finished-kitchen.jpg",
+      "add": "加入",
+      "removeItem": "移除 {item}",
+      "notALink": "請輸入以 https:// 開頭的完整連結",
+      "duplicate": "這個連結已在你的作品集中。",
+      "full": "最多可加入 {max} 個連結。"
+    },
+    "area": {
+      "label": "城鎮或郵遞區號",
+      "helper": "你通常接工作的地方。",
+      "placeholder": "例如：Watford 或 WD17 2AW",
+      "mapCaption": "顧客會在你的個人檔案看到這個大概範圍。",
+      "shownAs": "顧客會看到：{town}"
+    },
+    "review": {
+      "strengthTitle": "個人檔案完整度",
+      "tiers": {
+        "starter": "入門",
+        "good": "良好",
+        "allStar": "全明星"
       },
-      "review.submit": {
-        "title": "顧客眼中的你",
-        "description": "檢查以下預覽，然後開始報價。"
+      "tierDescriptions": {
+        "starter": "再加幾項資料，顧客就會更信任你。",
+        "good": "個人檔案不錯。再加幾項資料會更突出。",
+        "allStar": "你的個人檔案已具備顧客想看的一切。"
+      },
+      "doneCount": "已完成 {done} / {total} 項",
+      "items": {
+        "photo": "加入個人頭像",
+        "headline": "撰寫標題",
+        "bio": "撰寫最少 {min} 個字元的簡介",
+        "skills": "加入最少 {min} 項技能",
+        "serviceArea": "設定你的工作地區",
+        "phoneVerified": "驗證你的電話號碼",
+        "portfolio": "加入你的作品相片"
+      },
+      "previewTitle": "顧客眼中的你",
+      "paymentsNote": "顧客會直接向你支付工作費用。Slashie 不處理工作款項。",
+      "verifyEmailNote": "傳送報價前，你亦需要驗證你的電郵。"
+    },
+    "errors": {
+      "firstNameRequired": "請輸入你的名字。",
+      "lastNameRequired": "請輸入你的姓氏。",
+      "dateOfBirthRequired": "請輸入你的出生日期。",
+      "dateOfBirthInvalid": "請輸入有效的出生日期。",
+      "underage": "你必須年滿 18 歲才可在 Slashie 工作。",
+      "photoRequired": "請加入個人頭像以繼續。",
+      "tradeRequired": "請選擇你最常做的工作類別。",
+      "skillsTooFew": "請加入最少 {skillsMin} 項技能，讓顧客為合適的任務找到你。",
+      "skillsTooMany": "請保留最多 {skillsMax} 項技能，先列出你最擅長的工作。",
+      "yearsRequired": "請輸入你的經驗年數。",
+      "yearsInvalid": "請輸入 0 至 {yearsMax} 之間的整數。",
+      "headlineTooShort": "請加入最少 {headlineMin} 個字元的標題。",
+      "headlineTooLong": "標題請少於 {headlineMax} 個字元。",
+      "headlineOneWord": "請用幾個詞語，例如「8 年經驗的雜工師傅」。",
+      "bioTooShort": "請寫最少 {bioMin} 個字元。顧客接受你的報價前會先看這部分。",
+      "bioTooLong": "簡介請少於 {bioMax} 個字元。",
+      "bioJunk": "請用完整句子介紹你的工作。目前內容看似佔位文字。",
+      "areaRequired": "請加入你通常工作的城鎮或郵遞區號。",
+      "areaNotFound": "找不到這個地方。請試用城鎮名稱或完整郵遞區號，例如 Watford 或 WD17 2AW。",
+      "phoneRequired": "請驗證你的電話號碼以繼續。傳送報價需要已驗證的電話。"
+    },
+    "serverErrors": {
+      "INVALID_SETUP_SUB_STEP": "這一步出現問題。請重新整理頁面再試。",
+      "INVALID_NAME": "請輸入你的名字和姓氏。",
+      "INVALID_DATE_OF_BIRTH": "請輸入有效的出生日期。",
+      "UNDERAGE": "你必須年滿 18 歲才可在 Slashie 工作。",
+      "AVATAR_REQUIRED": "繼續之前請加入個人頭像。",
+      "PRIMARY_CATEGORY_REQUIRED": "請選擇你最常做的工作類別。",
+      "YEARS_EXPERIENCE_REQUIRED": "請輸入你的經驗年數。",
+      "TOO_MANY_QUALIFICATIONS": "最多只可加入 10 項資格。",
+      "QUALIFICATION_TOO_SHORT": "每項資格最少需要 2 個字元。",
+      "QUALIFICATION_TOO_LONG": "每項資格請少於 40 個字元。",
+      "LOCATION_REQUIRED": "找不到這個地方。請試用城鎮名稱或完整郵遞區號。",
+      "LOCATION_LABEL_REQUIRED": "請加入你通常工作的城鎮或郵遞區號。",
+      "INVALID_COORDINATES": "未能在地圖上找到這個地方。請試用城鎮名稱或完整郵遞區號。",
+      "INVALID_RADIUS": "請選擇最多 50 英里的服務距離。",
+      "PHONE_NOT_VERIFIED": "繼續之前請驗證你的電話號碼。",
+      "WORKER_SETUP_INCOMPLETE": "請先完成之前的步驟。",
+      "WORKER_PROFILE_INCOMPLETE": "你的個人檔案尚未完成。"
+    },
+    "missing": {
+      "VERIFIED_CONTACT_METHOD": "請驗證你的電話號碼。",
+      "AVATAR": "請加入個人頭像。",
+      "DATE_OF_BIRTH": "請加入你的出生日期。",
+      "AGE_REQUIREMENT": "你必須年滿 18 歲才可在 Slashie 工作。"
+    },
+    "headlines": {
+      "years": "{years} 年經驗的{noun}",
+      "oneYear": "1 年經驗的{noun}",
+      "area": "服務{area}的{noun}",
+      "local": "接本地工作的{noun}"
+    },
+    "trades": {
+      "handyman": {
+        "label": "雜工維修",
+        "noun": "雜工師傅",
+        "skills": [
+          "家居維修",
+          "傢俬組裝",
+          "掛牆電視安裝",
+          "層架安裝",
+          "掛畫",
+          "石膏板修補",
+          "窗簾及百葉簾",
+          "燈具安裝"
+        ]
+      },
+      "furniture-assembly": {
+        "label": "傢俬組裝",
+        "noun": "傢俬組裝師傅",
+        "skills": [
+          "板式傢俬組裝",
+          "IKEA 傢俬",
+          "床架組裝",
+          "書枱組裝",
+          "衣櫃安裝",
+          "辦公室傢俬",
+          "書架組裝",
+          "梳化組裝",
+          "傢俬拆卸"
+        ]
+      },
+      "mounting": {
+        "label": "安裝工程",
+        "noun": "安裝師傅",
+        "skills": [
+          "掛牆電視安裝",
+          "層架安裝",
+          "燈具安裝",
+          "掛畫",
+          "窗簾及百葉簾",
+          "聖誕燈飾"
+        ]
+      },
+      "plumbing": {
+        "label": "水喉",
+        "noun": "水喉師傅",
+        "skills": [
+          "水龍頭維修",
+          "修理漏水",
+          "安裝座廁",
+          "暖氣片放氣",
+          "花灑安裝",
+          "通渠"
+        ]
+      },
+      "electrical": {
+        "label": "電器工程",
+        "noun": "電工",
+        "skills": [
+          "燈具安裝",
+          "更換插座",
+          "故障檢查",
+          "智能家居設定",
+          "電動車充電器安裝",
+          "電箱"
+        ]
+      },
+      "carpentry": {
+        "label": "木工",
+        "noun": "木工師傅",
+        "skills": ["訂造層架", "裝門", "踢腳線", "木地台", "廚櫃安裝", "衣櫃"]
+      },
+      "painting": {
+        "label": "油漆",
+        "noun": "油漆師傅",
+        "skills": [
+          "室內油漆",
+          "外牆油漆",
+          "貼牆紙",
+          "批盪修補",
+          "圍欄上色",
+          "主題牆"
+        ]
+      },
+      "cleaning": {
+        "label": "清潔",
+        "noun": "清潔員",
+        "skills": [
+          "家居清潔",
+          "深層清潔",
+          "退租清潔",
+          "入伙清潔",
+          "辦公室清潔",
+          "大掃除",
+          "Airbnb 清潔",
+          "焗爐清潔",
+          "高壓水槍清洗",
+          "洗車",
+          "洗衣協助"
+        ]
+      },
+      "gardening": {
+        "label": "園藝",
+        "noun": "園藝師",
+        "skills": [
+          "剪草",
+          "草地護理",
+          "修剪樹籬",
+          "修剪及移除樹木",
+          "園景設計",
+          "清理落葉",
+          "清理屋頂及坑渠",
+          "整理花園"
+        ]
+      },
+      "removals": {
+        "label": "搬屋搬運",
+        "noun": "搬運師傅",
+        "skills": [
+          "搬屋",
+          "貨車連司機",
+          "搬運傢俬",
+          "搬運梳化",
+          "打包",
+          "拆箱",
+          "搬重物",
+          "送貨上門",
+          "清理垃圾",
+          "搬運桌球枱"
+        ]
+      },
+      "delivery": {
+        "label": "送遞及跑腿",
+        "noun": "跑腿師傅",
+        "skills": [
+          "送遞服務",
+          "代購",
+          "買餸",
+          "跑腿",
+          "代排隊",
+          "收取及送遞",
+          "代退貨",
+          "代收包裹",
+          "捐贈物品送遞"
+        ]
+      },
+      "other": {
+        "label": "其他",
+        "noun": "本地師傅",
+        "skills": []
       }
     }
   }

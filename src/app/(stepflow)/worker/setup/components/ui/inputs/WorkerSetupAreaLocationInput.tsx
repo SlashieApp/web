@@ -3,43 +3,49 @@
 import { Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { mapboxForwardGeocode } from '@/utils/mapboxGeocode'
+import { townOnly } from '@/utils/taskLocationDisplay'
 import { FormField, Input, MapCard, formControlRootProps } from '@ui'
 
 import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
+import { workerSetupErrorText } from '../../../helpers/workerSetupValidation'
+import bag from '../../../i11n.json'
+
+type Preview = { lat: number; lng: number; placeName: string }
 
 /**
- * Service-area step (FE-70): the area field plus an approximate-area map
- * preview, so it is clear customers see a circle, not an address. The
- * preview geocodes on blur for display only; saving still resolves the
- * place when the worker continues.
+ * Town or postcode, with an approximate-area map and the town customers will
+ * see (the API keeps the town only). The preview looks the place up on blur;
+ * Continue resolves it again to save.
  */
 export function WorkerSetupAreaLocationInput() {
+  const t = useI11n(bag)
   const { form, patchForm, fieldErrors } = useWorkerSetup()
-  const [preview, setPreview] = useState<{ lat: number; lng: number } | null>(
-    null,
-  )
+  const [preview, setPreview] = useState<Preview | null>(null)
   const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const point =
     form.locationLat != null && form.locationLng != null
       ? { lat: form.locationLat, lng: form.locationLng }
       : preview
+  const town = townOnly(preview?.placeName, form.locationName)
 
   const lookUpPreview = () => {
     const token = accessToken?.trim()
     const label = form.locationName.trim()
     if (!token || label.length < 2) return
     void mapboxForwardGeocode(label, token)
-      .then((hit) => setPreview(hit ? { lat: hit.lat, lng: hit.lng } : null))
+      .then((hit) => setPreview(hit))
       .catch(() => setPreview(null))
   }
 
   return (
     <Stack gap={3}>
       <FormField
-        label="Primary service area"
-        helperText="City or postcode where you usually take jobs. Customers see an approximate area around it, never your address."
-        errorText={fieldErrors.locationName}
+        label={t.area.label}
+        helperText={t.area.helper}
+        errorText={workerSetupErrorText(t.errors, fieldErrors.locationName)}
       >
         <Input
           value={form.locationName}
@@ -52,7 +58,8 @@ export function WorkerSetupAreaLocationInput() {
             })
           }}
           onBlur={lookUpPreview}
-          placeholder="London or WD17 2AW"
+          placeholder={t.area.placeholder}
+          autoComplete="address-level2"
           rootProps={formControlRootProps}
         />
       </FormField>
@@ -65,8 +72,8 @@ export function WorkerSetupAreaLocationInput() {
             height="160px"
             variant="approximate"
           />
-          <Text fontSize="xs" color="text.muted">
-            Customers see this approximate area on your profile.
+          <Text fontSize="sm" color="text.muted" px={1}>
+            {town ? formatMessage(t.area.shownAs, { town }) : t.area.mapCaption}
           </Text>
         </Stack>
       ) : null}

@@ -24,7 +24,7 @@ const meta: Meta<typeof WorkerSetupAreaLocationInput> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-const area = { activeSubStep: 'area.location' } as const
+const area = { screen: 'area' } as const
 
 /** Empty: no area typed yet, so there is no map preview. */
 export const Empty: Story = {
@@ -61,7 +61,7 @@ export const AreaRequired: Story = {
     withWorkerSetup({
       ...area,
       form: workerSetupStoryForm(),
-      fieldErrors: workerSetupStoryErrors('area.location'),
+      fieldErrors: workerSetupStoryErrors('area'),
     }),
   ],
 }
