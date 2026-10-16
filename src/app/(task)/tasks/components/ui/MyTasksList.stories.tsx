@@ -1,288 +1,173 @@
-import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { useState } from 'react'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
-import type { MyTaskHubSection } from '../../helpers/myTasksHub'
-import { buildAchievementPanels } from '../../helpers/taskAchievements'
-import { MyTasksAchievements } from './MyTasksAchievements'
-import { MyTasksFilters } from './MyTasksFilters'
+import { LocaleProvider } from '@/i18n/LocaleProvider'
+
+import { MY_TASKS_VIEWS } from '../../views'
+import {
+  customerSections,
+  dualRoleSections,
+  workerSections,
+} from '../myTasksStoryFixtures'
 import { MyTasksList } from './MyTasksList'
-import { type MyTasksMobileView, MyTasksViewSwitch } from './MyTasksViewSwitch'
 
-const sections: MyTaskHubSection[] = [
-  {
-    id: 'open',
-    rows: [
-      {
-        id: 'overdue',
-        title: 'Fix a leaking kitchen tap',
-        description: 'Tap drips into the cabinet.',
-        location: 'Mong Kok',
-        priceLabel: '£80',
-        categories: ['HANDYMAN'],
-        categoryLabel: 'Handyman',
-        ownerUserId: 'me',
-        ownerName: 'Sam',
-        roles: ['hosted'],
-        section: 'open',
-        timing: { kind: 'overdue' },
-        quoteCount: 3,
-        acceptedWorkerName: null,
-      },
-      {
-        id: 'dual',
-        title: 'Move two boxes across the harbour',
-        description: '',
-        location: 'Wan Chai',
-        priceLabel: '£120',
-        categories: ['MOVING'],
-        categoryLabel: 'Moving',
-        ownerUserId: 'me',
-        ownerName: 'Sam',
-        roles: ['hosted', 'quoted'],
-        section: 'open',
-        timing: { kind: 'tomorrow' },
-        quoteCount: 1,
-        acceptedWorkerName: null,
-      },
-      {
-        id: 'quoted',
-        title: 'Assemble a standing desk',
-        description: '',
-        location: 'Central',
-        priceLabel: '£60',
-        categories: ['HANDYMAN'],
-        categoryLabel: 'Handyman',
-        ownerUserId: 'alex',
-        ownerName: 'Alex',
-        roles: ['quoted'],
-        section: 'open',
-        timing: { kind: 'flexible' },
-        quoteCount: 0,
-        acceptedWorkerName: null,
-      },
-    ],
-  },
-  {
-    id: 'booked',
-    rows: [
-      {
-        id: 'booked',
-        title: 'Weekend dog walk',
-        description: '',
-        location: 'Victoria Park',
-        priceLabel: '£40',
-        categories: ['GENERAL'],
-        categoryLabel: 'General / other',
-        ownerUserId: 'me',
-        ownerName: 'Sam',
-        roles: ['hosted'],
-        section: 'booked',
-        timing: { kind: 'today' },
-        quoteCount: 2,
-        acceptedWorkerName: 'Alex',
-      },
-    ],
-  },
-  {
-    id: 'completed',
-    rows: [
-      {
-        id: 'done',
-        title: 'Deep-clean a studio',
-        description: '',
-        location: 'Sai Ying Pun',
-        priceLabel: '£150',
-        categories: ['CLEANING'],
-        categoryLabel: 'Cleaning',
-        ownerUserId: 'alex',
-        ownerName: 'Alex',
-        roles: ['quoted'],
-        section: 'completed',
-        timing: { kind: 'scheduled', at: '2026-09-12T09:00:00.000Z' },
-        quoteCount: 0,
-        acceptedWorkerName: null,
-      },
-    ],
-  },
-]
-
-/** The hub's sections (Open, Booked, Completed) with a card per task. */
 const meta = {
   title: 'My tasks/MyTasksList',
   component: MyTasksList,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
   args: {
-    sections,
+    config: MY_TASKS_VIEWS.list,
+    sections: dualRoleSections,
+    filtered: false,
+    errorMessage: null,
+    onRetry: fn(),
+    onClearFilters: fn(),
     onOpen: fn(),
   },
-  decorators: [
-    (Story) => (
-      <div style={{ maxWidth: '720px' }}>
-        <Story />
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof MyTasksList>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Three sections of tasks you posted or quoted; pressing a card opens it. */
-export const Default: Story = {
-  play: async ({ args, canvasElement }) => {
+function headings(canvasElement: HTMLElement) {
+  return within(canvasElement)
+    .getAllByRole('heading', { level: 2 })
+    .map((heading) => heading.textContent)
+}
+
+/** `list`, posts and quotes: Booked / In progress first, Completed shows 3 of 5. */
+export const DualRole: Story = {
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', { name: 'Open (3)' })
-    await canvas.findByRole('heading', { name: 'Booked / In progress (1)' })
-    await canvas.findByRole('heading', { name: 'Completed (1)' })
+    await expect(headings(canvasElement)).toEqual([
+      'Booked / In progress (2)',
+      'Open (2)',
+      'Completed (5)',
+    ])
+    const completed = canvas.getByRole('region', { name: 'Completed' })
+    await expect(
+      within(completed).getAllByRole('button', { name: /Open task/ }),
+    ).toHaveLength(3)
+    await userEvent.click(canvas.getByRole('button', { name: 'Show all (5)' }))
+    await expect(
+      within(completed).getAllByRole('button', { name: /Open task/ }),
+    ).toHaveLength(5)
     await userEvent.click(
-      await canvas.findByRole('button', { name: /Weekend dog walk/ }),
+      canvas.getByRole('button', { name: /^Mount a 55-inch TV/ }),
     )
-    await expect(args.onOpen).toHaveBeenCalledWith('booked')
+    await expect(args.onOpen).toHaveBeenCalledWith('booked-today')
   },
 }
 
-/** Only one section has tasks: the others are left out. */
-export const OneSection: Story = {
-  args: { sections: sections.filter((section) => section.id === 'open') },
+/** `list`, posts only: every card says Hosted; the booked time leads. */
+export const CustomerOnly: Story = {
+  args: { sections: customerSections },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', { name: 'Open (3)' })
-    expect(canvas.queryByRole('heading', { name: /Completed/ })).toBeNull()
+    await expect(canvas.getAllByText('Hosted')).toHaveLength(3)
+    await expect(canvas.getByText('Today 14:00')).toBeVisible()
+    await expect(canvas.getAllByText('With Alex Kim')).toHaveLength(2)
   },
 }
 
-/** First load: skeleton cards. */
-export const Loading: Story = {
-  args: { sections: [], loading: true },
-  play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Loading your tasks…')
-  },
-}
-
-/** No tasks at all: Post a task or Browse tasks. */
-export const Empty: Story = {
-  args: { sections: [] },
+/** `list`, quotes only: Quoted, Overdue in red on the booked job, Not selected on a lost quote. */
+export const WorkerOnly: Story = {
+  args: { sections: workerSections },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('link', { name: 'Post a task' })
-    await canvas.findByRole('link', { name: 'Browse tasks' })
+    await expect(canvas.getByText('Not selected')).toBeVisible()
+    await expect(canvas.getByText('Overdue')).toBeVisible()
+    await expect(canvas.getByText('Hosted by Jordan Lee')).toBeVisible()
   },
 }
 
-/** The load failed and there is nothing to show: message and Try again. */
-export const LoadError: Story = {
-  args: {
-    sections: [],
-    errorMessage: 'Could not load your tasks.',
-    onRetry: fn(),
-  },
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement)
-    await userEvent.click(
-      await canvas.findByRole('button', { name: 'Try again' }),
-    )
-    await expect(args.onRetry).toHaveBeenCalledOnce()
+/** A search is on: Completed shows every match. */
+export const Filtered: Story = {
+  args: { filtered: true },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).queryByRole('button', { name: /Show all/ }),
+    ).toBeNull()
   },
 }
 
-/** A refresh failed but earlier tasks are still shown: an inline notice above them. */
+/** A refresh failed with tasks still on screen: the note and Try again above the groups. */
 export const RefreshFailed: Story = {
+  args: { errorMessage: "Can't reach Slashie. Check your connection." },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Try again' }),
+    )
+    await expect(args.onRetry).toHaveBeenCalled()
+  },
+}
+
+/** `loading`: card placeholders on the first load. */
+export const Loading: Story = {
+  args: { config: MY_TASKS_VIEWS.loading, sections: [] },
+}
+
+/** `searching`: placeholders while a new search loads. */
+export const Searching: Story = {
+  args: { config: MY_TASKS_VIEWS.searching, sections: [], filtered: true },
+}
+
+/** `error`: nothing loaded; the reason and Try again. */
+export const LoadFailed: Story = {
   args: {
-    errorMessage: 'Could not refresh your tasks.',
-    onRetry: fn(),
+    config: MY_TASKS_VIEWS.error,
+    sections: [],
+    errorMessage: "Can't reach Slashie. Check your connection.",
   },
   play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole('alert')).toHaveTextContent(
+      'Could not load your tasks',
+    )
+  },
+}
+
+/** `empty`: a new user; Post a task or Browse tasks. */
+export const Empty: Story = {
+  args: { config: MY_TASKS_VIEWS.empty, sections: [] },
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('alert')
-    await canvas.findByRole('button', { name: 'Try again' })
-    await canvas.findByRole('heading', { name: 'Open (3)' })
+    await expect(
+      canvas.getByRole('link', { name: 'Post a task' }),
+    ).toHaveAttribute('href', '/tasks/create')
+    await expect(
+      canvas.getByRole('link', { name: 'Browse tasks' }),
+    ).toHaveAttribute('href', '/search')
   },
 }
 
-const activity = buildAchievementPanels({
-  showWorker: true,
-  showCustomer: true,
-  quoteAllowance: { used: 3, cap: 5, unlimited: false },
-  worker: {
-    completedJobsCount: 0,
-    categoryMix: [
-      { category: 'CLEANING', count: 1 },
-      { category: 'HANDYMAN', count: 1 },
-    ],
-    quotesThisMonth: 3,
-    freeQuotesPerMonth: 5,
-    agreedTotalsOnCompletedJobs: [{ amount: 0, currency: 'GBP' }],
+/** `noMatches`: the search leaves nothing; Clear filters. */
+export const NoMatches: Story = {
+  args: { config: MY_TASKS_VIEWS.noMatches, sections: [], filtered: true },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Clear filters' }),
+    )
+    await expect(args.onClearFilters).toHaveBeenCalled()
   },
-  customer: {
-    hostedCompletedCount: 0,
-    mostUsedLocation: { label: 'Westminster', count: 1 },
-    quotesReceived: 0,
-    agreedTotalsOnCompletedJobs: [],
-  },
-})
-
-/** Desktop hub chrome: list column plus the sticky Your activity rail. */
-function HubPreview() {
-  const [view, setView] = useState<MyTasksMobileView>('tasks')
-  const showTasks = view === 'tasks'
-  return (
-    <Box bg="bg.canvas" px={{ base: 4, lg: 8 }} py={6}>
-      <Stack gap={4} maxW="1120px" mx="auto">
-        <HStack justify="space-between" align="flex-start" gap={3}>
-          <Stack gap={1} minW={0}>
-            <Heading as="h1" size="lg" color="text.default">
-              My tasks
-            </Heading>
-            <Text fontSize="sm" color="text.muted">
-              View and manage the tasks you've posted and quoted, along with
-              their progress and status.
-            </Text>
-          </Stack>
-          <MyTasksViewSwitch view={view} onChange={setView} />
-        </HStack>
-        <Box
-          display={{ base: showTasks ? 'grid' : 'none', lg: 'grid' }}
-          gridTemplateColumns={{ base: '1fr', lg: 'minmax(0, 1fr) 22rem' }}
-          gap={6}
-          alignItems="start"
-        >
-          <Stack gap={4} minW={0}>
-            <MyTasksFilters
-              search=""
-              onSearchChange={() => undefined}
-              ownerUserId=""
-              onOwnerChange={() => undefined}
-              owners={[{ ownerUserId: 'me', label: 'You' }]}
-              category=""
-              onCategoryChange={() => undefined}
-              categories={[
-                { category: 'CLEANING', label: 'Cleaning' },
-                { category: 'HANDYMAN', label: 'Handyman' },
-              ]}
-              hubSection=""
-              onHubSectionChange={() => undefined}
-              active={false}
-              onClear={() => undefined}
-            />
-            <MyTasksList sections={sections} onOpen={() => undefined} />
-          </Stack>
-          <Box display={{ base: 'none', lg: 'block' }}>
-            <MyTasksAchievements panels={activity} />
-          </Box>
-        </Box>
-        <Box display={{ base: showTasks ? 'none' : 'block', lg: 'none' }}>
-          <MyTasksAchievements panels={activity} />
-        </Box>
-      </Stack>
-    </Box>
-  )
 }
 
-/** The whole hub on desktop: header, filters, list column and the activity rail. */
-export const Hub: Story = {
-  parameters: { layout: 'fullscreen' },
-  render: () => <HubPreview />,
+/** Phone width: one column of cards. */
+export const Mobile: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/** Traditional Chinese copy (from the `/zh-hk` URL prefix). */
+export const TraditionalChinese: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/tasks' } } },
+  decorators: [
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await expect(headings(canvasElement)[0]).toBe('已預約 / 進行中 (2)')
+  },
 }

@@ -25,7 +25,7 @@ const defaultTask: TaskCardTask = {
   description: 'Need a worker to mount one TV safely on a plasterboard wall.',
   location: 'Southwark',
   priceLabel: '£120',
-  badgeText: 'Tech setup',
+  categories: ['Tech setup'],
   distanceLabel: '1.2 miles',
   timingLabel: 'Flexible',
   thumbnailSrc:
@@ -97,19 +97,59 @@ export const NoThumbnail: Story = {
   args: { task: { ...defaultTask, thumbnailSrc: undefined } },
 }
 
-/** No category: the badge is left out and the title leads. */
-export const NoBadge: Story = {
-  args: { task: { ...defaultTask, badgeText: undefined } },
+/** No category: the pill row is left out and the title leads. */
+export const NoCategories: Story = {
+  args: { task: { ...defaultTask, categories: undefined } },
+}
+
+/** Several categories: one pill each on one row, fading out before the ⋮ button. */
+export const ManyCategories: Story = {
+  args: {
+    task: {
+      ...defaultTask,
+      categories: [
+        'Tech setup',
+        'Handyman',
+        'Mounting',
+        'Electrical',
+        'Assembly',
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const pill = within(canvasElement).getByText('Assembly')
+    // Still in the row (one line), past the visible edge.
+    await expect(pill).toBeInTheDocument()
+    const row = pill.parentElement as HTMLElement
+    await expect(row.scrollWidth).toBeGreaterThan(row.clientWidth)
+  },
+}
+
+/** My tasks: status pills (Quoted, Not selected) lead the category pills. */
+export const WithTags: Story = {
+  args: {
+    tags: ['Quoted', 'Not selected'],
+    task: { ...defaultTask, categories: ['Tech setup', 'Handyman'] },
+  },
+}
+
+/** A booked job: the time leads the meta line in bold. */
+export const BookedTimeLeads: Story = {
+  args: {
+    task: { ...defaultTask, timingLabel: 'Today 14:00', timingTone: 'lead' },
+  },
+}
+
+/** A booked job past its date: the time leads, in red. */
+export const OverdueTime: Story = {
+  args: {
+    task: { ...defaultTask, timingLabel: 'Overdue', timingTone: 'overdue' },
+  },
 }
 
 /** My tasks and worker lists: the quote count line under the meta row. */
 export const WithQuotesLabel: Story = {
   args: { task: { ...defaultTask, quotesLabel: '5 quotes' } },
-}
-
-/** Role chips pinned to the top-right corner (Hosted, Quoted). */
-export const WithCornerTags: Story = {
-  args: { cornerTags: ['Hosted', 'Quoted'] },
 }
 
 /** Highlighted because its pin is selected on the map. */
@@ -170,22 +210,6 @@ export const CarouselCard: Story = {
     activateAriaLabel: 'Mount a 55-inch TV. View task details.',
     onActivate: fn(),
   },
-}
-
-/** Old flat props (title, price, meta line) still render the same card. */
-export const LegacyFlatProps: Story = {
-  render: () => (
-    <Box maxW="520px" w="full">
-      <TaskCard
-        title="Fix a leaking kitchen tap"
-        description="Tap drips into the cabinet."
-        priceLabel="£80"
-        metaLine="Islington"
-        badgeText="Handyman"
-        detailsHref="/tasks/task-9"
-      />
-    </Box>
-  ),
 }
 
 /** `variant="workerQuote"` hands over to the worker quote card. */

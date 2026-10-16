@@ -249,6 +249,14 @@ describe('buildMyTasksHub', () => {
           }),
           quote: { id: 'lost', workerUserId: ME, status: 'DECLINED' },
         },
+        {
+          task: task({
+            id: 'beaten',
+            title: 'Someone else got it',
+            status: 'AWARDED',
+          }),
+          quote: { id: 'beaten', workerUserId: ME, status: 'NOT_SELECTED' },
+        },
       ],
     })
 
@@ -264,7 +272,19 @@ describe('buildMyTasksHub', () => {
     expect(
       booked?.rows.find((row) => row.id === 'awarded')?.acceptedWorkerName,
     ).toBe('Alex')
-    expect(completed?.rows.map((row) => row.id)).toEqual(['cancelled', 'lost'])
+    expect(completed?.rows.map((row) => row.id)).toEqual([
+      'cancelled',
+      'lost',
+      'beaten',
+    ])
+    expect(
+      completed?.rows.filter((row) => row.notSelected).map((row) => row.id),
+    ).toEqual(['beaten'])
+    expect(sections.map((section) => section.id)).toEqual([
+      'booked',
+      'open',
+      'completed',
+    ])
   })
 
   it('files cancelled bookings as Completed, keeps CONFLICT booked, and dates booked rows from the booking', () => {

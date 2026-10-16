@@ -7,11 +7,7 @@ import { Button, Card, Link } from '@ui'
 
 import type { AchievementPanel } from '../../helpers/taskAchievements'
 import bag from '../../i11n.json'
-import {
-  ActivityCategoryMix,
-  ActivityPaymentNote,
-  ActivityStatGrid,
-} from './MyTasksActivityDetails'
+import { ActivityCategoryMix, ActivityStatGrid } from './MyTasksActivityDetails'
 
 export type MyTasksAchievementsProps = {
   panels: readonly AchievementPanel[]
@@ -40,8 +36,6 @@ export function MyTasksAchievements({
   const t = useI11n(bag)
 
   if (!loading && panels.length === 0) return null
-
-  const showNote = panels.some((panel) => panel.agreedTotalLabel != null)
 
   return (
     <Card maxW="full" p={{ base: 4, md: 5 }} aria-label={t.achievements.title}>
@@ -94,7 +88,6 @@ export function MyTasksAchievements({
             </Stack>
           ))
         )}
-        {!loading && showNote ? <ActivityPaymentNote /> : null}
       </Stack>
     </Card>
   )

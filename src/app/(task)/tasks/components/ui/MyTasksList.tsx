@@ -1,157 +1,181 @@
 'use client'
 
-import { Box, HStack, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { useState } from 'react'
 
-import { useLocale } from '@/i18n/LocaleProvider'
+import { TaskCard } from '@/app/(task)/components/ui/TaskCard'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Button, Card, Link } from '@ui'
+import { Button, Link } from '@ui'
 
-import type {
-  MyTaskHubRow,
-  MyTaskHubSection,
-  MyTaskTiming,
-} from '../../helpers/myTasksHub'
+import type { MyTaskHubSection } from '../../helpers/myTasksHub'
 import bag from '../../i11n.json'
-import { MyTasksHubCard } from './MyTasksHubCard'
+import type { MyTasksAction, MyTasksViewConfig } from '../../views'
+import { MyTaskCard } from './MyTaskCard'
+
+/** Completed shows the newest few until asked for the rest. */
+const COMPLETED_PREVIEW = 3
 
 export type MyTasksListProps = {
+  config: MyTasksViewConfig
   sections: readonly MyTaskHubSection[]
-  loading?: boolean
-  errorMessage?: string | null
-  onRetry?: () => void
+  /** Search, a category or Hosted / Quoted is set: Completed shows in full. */
+  filtered: boolean
+  errorMessage: string | null
+  onRetry: () => void
+  onClearFilters: () => void
   onOpen: (taskId: string) => void
 }
 
-function formatTiming(
-  timing: MyTaskTiming,
-  copy: (typeof bag)['en'],
-  locale: string,
-): string {
-  switch (timing.kind) {
-    case 'overdue':
-      return copy.timing.overdue
-    case 'today':
-      return copy.timing.today
-    case 'tomorrow':
-      return copy.timing.tomorrow
-    case 'flexible':
-      return copy.timing.flexible
-    case 'before':
-      return formatMessage(copy.timing.before, { date: timing.date })
-    case 'scheduled':
-      return new Intl.DateTimeFormat(locale === 'zh-hk' ? 'zh-HK' : 'en-GB', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(new Date(timing.at))
-  }
-}
-
-function detailLine(
-  row: MyTaskHubRow,
-  copy: (typeof bag)['en'],
-): string | undefined {
-  if (row.acceptedWorkerName) {
-    return formatMessage(copy.withWorker, { name: row.acceptedWorkerName })
-  }
-  if (row.quoteCount > 0) {
-    return formatMessage(
-      row.quoteCount === 1 ? copy.quoteCountOne : copy.quoteCount,
-      { count: row.quoteCount },
+function ActionButton({
+  action,
+  primary,
+  onRetry,
+  onClearFilters,
+}: {
+  action: MyTasksAction
+  primary: boolean
+  onRetry: () => void
+  onClearFilters: () => void
+}) {
+  const t = useI11n(bag)
+  const label = t.views.actions[action]
+  const variant = primary ? 'primary' : 'secondary'
+  if (action === 'postTask' || action === 'browseTasks') {
+    return (
+      <Button asChild variant={variant}>
+        <Link
+          href={action === 'postTask' ? '/tasks/create' : '/search'}
+          _hover={{ textDecoration: 'none' }}
+        >
+          {label}
+        </Link>
+      </Button>
     )
   }
-  if (row.ownerName && !row.roles.includes('hosted')) {
-    return formatMessage(copy.hostedBy, { name: row.ownerName })
-  }
-  return undefined
-}
-
-function HubCardSkeleton() {
   return (
-    <Card maxW="full" p={4} aria-hidden>
-      <HStack gap={3} align="flex-start">
-        <Skeleton boxSize="56px" borderRadius="lg" flexShrink={0} />
-        <Stack flex={1} gap={2}>
-          <Skeleton h="12px" w="28%" borderRadius="full" />
-          <Skeleton h="16px" w="72%" borderRadius="md" />
-          <Skeleton h="12px" w="88%" borderRadius="md" />
-        </Stack>
-      </HStack>
-    </Card>
+    <Button
+      type="button"
+      variant={variant}
+      onClick={action === 'retry' ? onRetry : onClearFilters}
+    >
+      {label}
+    </Button>
   )
 }
 
+function SectionGroup({
+  section,
+  collapsible,
+  onOpen,
+}: {
+  section: MyTaskHubSection
+  collapsible: boolean
+  onOpen: (taskId: string) => void
+}) {
+  const t = useI11n(bag)
+  const [showAll, setShowAll] = useState(false)
+  const collapsed =
+    collapsible && !showAll && section.rows.length > COMPLETED_PREVIEW
+  const rows = collapsed
+    ? section.rows.slice(0, COMPLETED_PREVIEW)
+    : section.rows
+
+  return (
+    <Stack as="section" gap={3} aria-label={t.sections[section.id]}>
+      <Heading
+        as="h2"
+        fontSize="md"
+        fontWeight={700}
+        color="text.default"
+        letterSpacing="-0.01em"
+      >
+        {t.sections[section.id]} ({section.rows.length})
+      </Heading>
+      <Stack gap={3}>
+        {rows.map((row) => (
+          <MyTaskCard key={row.id} row={row} onOpen={onOpen} />
+        ))}
+      </Stack>
+      {collapsible && section.rows.length > COMPLETED_PREVIEW ? (
+        <Button
+          type="button"
+          variant="ghost"
+          alignSelf="flex-start"
+          onClick={() => setShowAll(!showAll)}
+        >
+          {showAll
+            ? t.showFewer
+            : formatMessage(t.showAll, { count: section.rows.length })}
+        </Button>
+      ) : null}
+    </Stack>
+  )
+}
+
+/**
+ * The list column of My Tasks, rendered from the view config: card
+ * placeholders, a message with its buttons, or the status groups (Booked /
+ * In progress, Open, Completed). No status logic here; `getMyTasksView`
+ * picks the config.
+ */
 export function MyTasksList({
+  config,
   sections,
-  loading = false,
-  errorMessage = null,
+  filtered,
+  errorMessage,
   onRetry,
+  onClearFilters,
   onOpen,
 }: MyTasksListProps) {
   const t = useI11n(bag)
-  const locale = useLocale()
-  const isEmpty = sections.every((section) => section.rows.length === 0)
 
-  if (loading && isEmpty) {
+  if (config.body === 'skeleton') {
     return (
-      <Stack gap={2} aria-busy="true" aria-live="polite">
-        <Text fontSize="sm" color="text.muted">
+      <Stack gap={3} aria-busy="true">
+        <Text srOnly aria-live="polite">
           {t.loading}
         </Text>
-        <HubCardSkeleton />
-        <HubCardSkeleton />
-        <HubCardSkeleton />
+        <TaskCard loading />
+        <TaskCard loading />
+        <TaskCard loading />
       </Stack>
     )
   }
 
-  if (errorMessage && isEmpty) {
+  if (config.body === 'message' && config.message) {
+    const copy = t.views[config.message]
+    const description =
+      config.message === 'error'
+        ? errorMessage
+        : 'description' in copy
+          ? copy.description
+          : null
     return (
-      <Stack gap={3} role="alert" maxW="36rem" py={6}>
+      <Stack
+        gap={3}
+        maxW="36rem"
+        py={4}
+        role={config.message === 'error' ? 'alert' : undefined}
+      >
         <Heading as="h2" size="md" color="text.default">
-          {t.errorTitle}
+          {copy.title}
         </Heading>
-        <Text fontSize="sm" color="text.muted" lineHeight="1.5">
-          {errorMessage}
-        </Text>
-        {onRetry ? (
-          <Button
-            type="button"
-            variant="secondary"
-            alignSelf="flex-start"
-            minH="44px"
-            onClick={onRetry}
-          >
-            {t.retry}
-          </Button>
+        {description ? (
+          <Text fontSize="sm" color="text.muted" lineHeight="1.5">
+            {description}
+          </Text>
         ) : null}
-      </Stack>
-    )
-  }
-
-  if (isEmpty) {
-    return (
-      <Stack gap={3} maxW="36rem" py={4}>
-        <Heading as="h2" size="md" color="text.default">
-          {t.empty.title}
-        </Heading>
-        <Text fontSize="sm" color="text.muted" lineHeight="1.5">
-          {t.empty.description}
-        </Text>
         <HStack gap={2} flexWrap="wrap">
-          <Button asChild>
-            <Link href="/tasks/create" _hover={{ textDecoration: 'none' }}>
-              {t.empty.post}
-            </Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href="/search" _hover={{ textDecoration: 'none' }}>
-              {t.empty.browse}
-            </Link>
-          </Button>
+          {config.actions.map((action, index) => (
+            <ActionButton
+              key={action}
+              action={action}
+              primary={index === 0}
+              onRetry={onRetry}
+              onClearFilters={onClearFilters}
+            />
+          ))}
         </HStack>
       </Stack>
     )
@@ -170,58 +194,18 @@ export function MyTasksList({
           <Text fontSize="sm" color="text.muted">
             {errorMessage}
           </Text>
-          {onRetry ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              minH="44px"
-              onClick={onRetry}
-            >
-              {t.retry}
-            </Button>
-          ) : null}
+          <Button type="button" variant="ghost" size="sm" onClick={onRetry}>
+            {t.views.actions.retry}
+          </Button>
         </HStack>
       ) : null}
       {sections.map((section) => (
-        <Stack key={section.id} gap={3}>
-          <Heading
-            as="h2"
-            fontSize="md"
-            fontWeight={700}
-            color="text.default"
-            letterSpacing="-0.01em"
-          >
-            {t.sections[section.id]} ({section.rows.length})
-          </Heading>
-          <Stack gap={3}>
-            {section.rows.map((row) => {
-              const tags = row.roles.map((role) => t.tags[role])
-              const timingLabel = formatTiming(row.timing, t, locale)
-              return (
-                <MyTasksHubCard
-                  key={row.id}
-                  row={row}
-                  tags={tags}
-                  timingLabel={timingLabel}
-                  detail={detailLine(row, t)}
-                  statusLabel={t.status[section.id]}
-                  section={section.id}
-                  activateAriaLabel={formatMessage(t.openTask, {
-                    title: row.title,
-                    tags:
-                      tags.join(', ') ||
-                      row.categoryLabel ||
-                      t.status[section.id],
-                    status: t.status[section.id],
-                    timing: timingLabel,
-                  })}
-                  onOpen={onOpen}
-                />
-              )
-            })}
-          </Stack>
-        </Stack>
+        <SectionGroup
+          key={section.id}
+          section={section}
+          collapsible={section.id === 'completed' && !filtered}
+          onOpen={onOpen}
+        />
       ))}
       <Box aria-hidden h={1} />
     </Stack>

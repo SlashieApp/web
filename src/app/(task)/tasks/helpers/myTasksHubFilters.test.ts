@@ -3,11 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { buildMyTasksHub } from './myTasksHub'
 import type { MyTaskHubSection } from './myTasksHub'
 import {
-  applyMyTasksHubFilter,
-  collectHubOwners,
-  collectHubTaskCategories,
+  countHubRows,
+  filterHubByRole,
   hubCategoryOptions,
-  isHubFilterActive,
+  hubHasBothRoles,
+  isMyTasksQueryActive,
+  myTasksQueryString,
+  parseMyTasksQuery,
 } from './myTasksHubFilters'
 
 const sections: MyTaskHubSection[] = [
@@ -21,14 +23,13 @@ const sections: MyTaskHubSection[] = [
         location: 'Mong Kok',
         priceLabel: '£80',
         categories: ['HANDYMAN'],
-        categoryLabel: 'Handyman',
-        ownerUserId: 'me',
         ownerName: 'Sam',
         roles: ['hosted'],
         section: 'open',
         timing: { kind: 'flexible' },
         quoteCount: 1,
         acceptedWorkerName: null,
+        notSelected: false,
       },
       {
         id: 'quoted',
@@ -37,14 +38,13 @@ const sections: MyTaskHubSection[] = [
         location: 'Central',
         priceLabel: '£60',
         categories: ['HANDYMAN'],
-        categoryLabel: 'Handyman',
-        ownerUserId: 'alex',
         ownerName: 'Alex',
         roles: ['quoted'],
         section: 'open',
         timing: { kind: 'flexible' },
         quoteCount: 0,
         acceptedWorkerName: null,
+        notSelected: false,
       },
     ],
   },
@@ -58,72 +58,61 @@ const sections: MyTaskHubSection[] = [
         location: 'Sai Ying Pun',
         priceLabel: '£150',
         categories: ['CLEANING'],
-        categoryLabel: 'Cleaning',
-        ownerUserId: 'pat',
         ownerName: null,
         roles: ['quoted'],
         section: 'completed',
         timing: { kind: 'flexible' },
         quoteCount: 0,
         acceptedWorkerName: null,
+        notSelected: false,
       },
     ],
   },
 ]
 
-describe('applyMyTasksHubFilter', () => {
-  it('matches a word that appears only in the description', () => {
-    const visible = applyMyTasksHubFilter(sections, { search: 'cabinet' })
+describe('My Tasks query', () => {
+  it('reads q, category and role from the URL and ignores an unknown role', () => {
     expect(
-      visible.flatMap((section) => section.rows.map((row) => row.id)),
-    ).toEqual(['hosted'])
-    expect(visible[0]?.id).toBe('open')
-  })
-
-  it('matches title and place, and requires every word', () => {
-    expect(
-      applyMyTasksHubFilter(sections, { search: 'standing desk' }).flatMap(
-        (section) => section.rows.map((row) => row.id),
+      parseMyTasksQuery(
+        new URLSearchParams('q=+tap+&category=MOVING&role=quoted'),
       ),
-    ).toEqual(['quoted'])
-    expect(
-      applyMyTasksHubFilter(sections, { search: 'mong kok' }).flatMap(
-        (section) => section.rows.map((row) => row.id),
-      ),
-    ).toEqual(['hosted'])
-    expect(applyMyTasksHubFilter(sections, { search: 'cabinet desk' })).toEqual(
-      [],
-    )
-  })
-
-  it('filters by owner and category without dropping role tags', () => {
-    const visible = applyMyTasksHubFilter(sections, {
-      ownerUserId: 'alex',
-      category: 'HANDYMAN',
+    ).toEqual({ q: 'tap', category: 'MOVING', role: 'quoted' })
+    expect(parseMyTasksQuery(new URLSearchParams('role=boss'))).toEqual({
+      q: '',
+      category: '',
+      role: '',
     })
-    expect(visible[0]?.rows[0]?.roles).toEqual(['quoted'])
-    expect(visible[0]?.rows.map((row) => row.id)).toEqual(['quoted'])
   })
 
-  it('narrows a section instead of flattening the hub', () => {
-    const visible = applyMyTasksHubFilter(sections, { hubSection: 'COMPLETED' })
-    expect(visible.map((section) => section.id)).toEqual(['completed'])
-    expect(visible[0]?.rows[0]?.id).toBe('done')
-    expect(isHubFilterActive({ hubSection: 'OPEN' })).toBe(true)
-    expect(isHubFilterActive({})).toBe(false)
+  it('writes only what is set, and nothing for an empty query', () => {
+    expect(
+      myTasksQueryString({ q: ' tap ', category: '', role: 'hosted' }),
+    ).toBe('?q=tap&role=hosted')
+    expect(myTasksQueryString({ q: '', category: '', role: '' })).toBe('')
+    expect(isMyTasksQueryActive({ q: ' ', category: '', role: '' })).toBe(false)
+    expect(isMyTasksQueryActive({ q: '', category: 'MOVING', role: '' })).toBe(
+      true,
+    )
   })
 })
 
-describe('hub option lists', () => {
-  it('collects distinct categories and owners, viewer first', () => {
-    expect(
-      collectHubTaskCategories(sections).map((item) => item.category),
-    ).toEqual(['CLEANING', 'HANDYMAN'])
-    expect(collectHubOwners(sections, 'me')).toEqual([
-      { ownerUserId: 'me', label: 'Sam' },
-      { ownerUserId: 'alex', label: 'Alex' },
-      { ownerUserId: 'pat', label: '' },
-    ])
+describe('hub role filter', () => {
+  it('keeps the rows with the role and drops sections it empties', () => {
+    const hosted = filterHubByRole(sections, 'hosted')
+    expect(hosted.map((section) => section.id)).toEqual(['open'])
+    expect(countHubRows(hosted)).toBe(1)
+    expect(countHubRows(filterHubByRole(sections, 'quoted'))).toBe(2)
+    expect(countHubRows(filterHubByRole(sections, ''))).toBe(3)
+  })
+
+  it('offers Hosted / Quoted only when both kinds of task are there', () => {
+    expect(hubHasBothRoles(sections)).toBe(true)
+    expect(hubHasBothRoles(filterHubByRole(sections, 'quoted'))).toBe(false)
+  })
+})
+
+describe('hub category options', () => {
+  it('labels category codes once, sorted', () => {
     expect(hubCategoryOptions([' MOVING ', 'MOVING', 'CLEANING'])).toEqual([
       { category: 'CLEANING', label: 'Cleaning' },
       { category: 'MOVING', label: 'Moving' },
@@ -131,8 +120,8 @@ describe('hub option lists', () => {
   })
 })
 
-describe('buildMyTasksHub owner and category', () => {
-  it('keeps the poster id and raw category for filters', () => {
+describe('buildMyTasksHub poster and category', () => {
+  it("keeps the raw categories and the poster's name", () => {
     const hub = buildMyTasksHub({
       now: new Date(2026, 8, 23, 15, 0, 0),
       userId: 'me',
@@ -166,13 +155,11 @@ describe('buildMyTasksHub owner and category', () => {
     const rows = hub.flatMap((section) => section.rows)
     expect(rows.find((row) => row.id === 'hosted-open')).toMatchObject({
       categories: ['TECH_SETUP'],
-      ownerUserId: 'me',
       ownerName: 'Sam',
       description: 'Bring a screwdriver',
     })
     expect(rows.find((row) => row.id === 'quoted')).toMatchObject({
       categories: ['MOVING'],
-      ownerUserId: 'alex',
       ownerName: 'Alex',
       roles: ['quoted'],
     })

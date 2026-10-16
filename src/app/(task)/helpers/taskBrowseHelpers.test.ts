@@ -132,13 +132,30 @@ describe('taskCardMetaParts', () => {
         distanceLabel: '1.2 miles',
         timingLabel: 'Flexible',
       }),
-    ).toEqual(['£120', '1.2 miles', 'Flexible'])
+    ).toEqual([
+      { kind: 'budget', label: '£120' },
+      { kind: 'distance', label: '1.2 miles' },
+      { kind: 'timing', label: 'Flexible' },
+    ])
     expect(
       taskCardMetaParts({
         priceLabel: '',
         distanceLabel: 'Nearby',
         timingLabel: null,
       }),
-    ).toEqual(['Nearby'])
+    ).toEqual([{ kind: 'distance', label: 'Nearby' }])
+  })
+
+  it('puts the timing first when it leads', () => {
+    expect(
+      taskCardMetaParts({
+        priceLabel: '£120',
+        timingLabel: 'Today 14:00',
+        timingFirst: true,
+      }),
+    ).toEqual([
+      { kind: 'timing', label: 'Today 14:00' },
+      { kind: 'budget', label: '£120' },
+    ])
   })
 })

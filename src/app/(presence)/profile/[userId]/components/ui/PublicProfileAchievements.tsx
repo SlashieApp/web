@@ -44,7 +44,7 @@ export type PublicProfileAchievementsProps = {
 
 /**
  * Owner-only block at `#achievements`. Reuses the My Tasks activity detail
- * (agreed totals + off-platform disclaimer) and adds the day calendar plus
+ * (agreed totals) and adds the day calendar plus
  * searchable completed-work history. Strangers never mount this.
  */
 export function PublicProfileAchievements({

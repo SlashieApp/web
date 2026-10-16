@@ -13,7 +13,7 @@ import {
   taskQuotesCountLabel,
   taskScheduleCompactLabel,
 } from './taskBrowseHelpers'
-import { taskCategoriesSummary } from './taskCategories'
+import { taskCategoryLabels } from './taskCategories'
 
 /** "{n} jobs done" crumb from the poster's completed orders; omitted at 0. */
 export function taskTrustFromPoster(
@@ -35,7 +35,7 @@ export function toBrowseTaskCard(
     description: task.description,
     location: taskPublicLocationLabel(task).trim() || 'Location on request',
     priceLabel: hasBudget ? main : '',
-    badgeText: taskCategoriesSummary(task.categories) ?? undefined,
+    categories: taskCategoryLabels(task.categories),
     thumbnailSrc: task.images?.[0] ?? undefined,
     distanceLabel: taskDistanceShortLabelFromReference(task, referenceLocation),
     timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,

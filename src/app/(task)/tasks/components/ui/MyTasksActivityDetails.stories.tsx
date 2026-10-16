@@ -54,7 +54,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** A worker who also posts: both panels, the payment note at the end. */
+/** A worker who also posts: both panels. */
 export const WorkerAndCustomer: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -138,7 +138,7 @@ export const CustomerNoActivity: Story = {
   },
 }
 
-/** No agreed totals: the payment note is left out. */
+/** No agreed totals yet: the agreed-totals line is left out. */
 export const NoAgreedTotals: Story = {
   args: {
     panels: buildAchievementPanels({

@@ -2,14 +2,12 @@
   "en": {
     "metadata": {
       "title": "My tasks | Slashie",
-      "description": "Tasks you posted and tasks you quoted — open, booked, and completed."
+      "description": "Tasks you posted and tasks you quoted: booked, open and completed."
     },
     "title": "My tasks",
     "description": "View and manage the tasks you've posted and quoted, along with their progress and status.",
     "loading": "Loading your tasks…",
-    "errorTitle": "Could not load your tasks",
-    "retry": "Try again",
-    "openTask": "{title}. {tags}. {status}. {timing}. Open task",
+    "openTask": "{title}. {tags}. Open task",
     "withWorker": "With {name}",
     "quoteCountOne": "1 quote",
     "quoteCount": "{count} quotes",
@@ -21,43 +19,53 @@
     },
     "tags": {
       "hosted": "Hosted",
-      "quoted": "Quoted"
-    },
-    "status": {
-      "open": "Open",
-      "booked": "Booked",
-      "completed": "Completed"
+      "quoted": "Quoted",
+      "notSelected": "Not selected"
     },
     "timing": {
       "overdue": "Overdue",
       "today": "Today",
       "tomorrow": "Tomorrow",
       "flexible": "Flexible",
-      "before": "Before {date}"
-    },
-    "empty": {
-      "title": "No tasks yet",
-      "description": "Post a task to collect quotes, or browse the map and send a quote.",
-      "post": "Post a task",
-      "browse": "Browse tasks"
+      "before": "Before {date}",
+      "todayAt": "Today {time}",
+      "tomorrowAt": "Tomorrow {time}"
     },
     "filters": {
-      "searchLabel": "Search tasks",
       "searchPlaceholder": "Search by task name, location or keyword…",
-      "toggle": "Filters",
-      "ownerLabel": "Task owner",
-      "ownerAll": "All owners",
-      "ownerUnknown": "Task owner",
-      "you": "You",
-      "categoryLabel": "Category",
-      "categoryAll": "All categories",
-      "sectionLabel": "Section",
-      "sectionAll": "All",
-      "clear": "Clear filters",
-      "noMatchTitle": "No matching tasks",
-      "noMatchDescription": "Try a different search, owner, category, or section.",
+      "clearSearch": "Clear search",
+      "categoryChip": "Category",
+      "roleChip": "Hosted / Quoted",
+      "removeFilter": "Remove {label} filter",
+      "clearAll": "Clear all",
       "resultCountOne": "1 task",
       "resultCount": "{count} tasks"
+    },
+    "views": {
+      "error": {
+        "title": "Could not load your tasks"
+      },
+      "empty": {
+        "title": "No tasks yet",
+        "description": "Post a task to collect quotes, or browse the map and send a quote."
+      },
+      "noMatches": {
+        "title": "No matching tasks",
+        "description": "Try a different search, category, or Hosted / Quoted."
+      },
+      "actions": {
+        "postTask": "Post a task",
+        "browseTasks": "Browse tasks",
+        "retry": "Try again",
+        "clearFilters": "Clear filters"
+      }
+    },
+    "showAll": "Show all ({count})",
+    "showFewer": "Show fewer",
+    "menu": {
+      "aria": "Task options",
+      "share": "Share task",
+      "edit": "Edit task"
     },
     "achievements": {
       "title": "Your activity",
@@ -67,7 +75,7 @@
       "switchLabel": "Tasks and your activity",
       "tasksTab": "Show tasks",
       "open": "Show your activity",
-      "statEmpty": "\u2014",
+      "statEmpty": "—",
       "agreedTotalShort": "Agreed total",
       "quotesReceivedLabel": "Quotes received",
       "worker": "Worker",
@@ -87,21 +95,18 @@
       "quotesReceived": "{count} quotes received",
       "streak": "Streak",
       "streakWeeks": "{count} weeks",
-      "agreedTotals": "Agreed totals on completed jobs",
-      "disclaimer": "Payment is arranged directly between the customer and the worker, outside Slashie."
+      "agreedTotals": "Agreed totals on completed jobs"
     }
   },
   "zh_hk": {
     "metadata": {
       "title": "我的任務 | Slashie",
-      "description": "你發布的任務同你報過價的任務 — 進行中、已預約同已完成。"
+      "description": "你發布的任務同你報過價的任務：已預約、進行中同已完成。"
     },
     "title": "我的任務",
     "description": "查看同管理你發布同報價過的任務，包括進度同狀態。",
     "loading": "正在載入你的任務…",
-    "errorTitle": "無法載入你的任務",
-    "retry": "再試一次",
-    "openTask": "{title}。{tags}。{status}。{timing}。開啟任務",
+    "openTask": "{title}。{tags}。開啟任務",
     "withWorker": "工作者：{name}",
     "quoteCountOne": "1 個報價",
     "quoteCount": "{count} 個報價",
@@ -113,43 +118,53 @@
     },
     "tags": {
       "hosted": "我發布",
-      "quoted": "我報價"
-    },
-    "status": {
-      "open": "開放中",
-      "booked": "已預約",
-      "completed": "已完成"
+      "quoted": "我報價",
+      "notSelected": "未獲選"
     },
     "timing": {
       "overdue": "已過期",
       "today": "今天",
       "tomorrow": "明天",
       "flexible": "時間彈性",
-      "before": "{date} 之前"
-    },
-    "empty": {
-      "title": "暫時沒有任務",
-      "description": "發布任務以收集報價，或在地圖上瀏覽並送出報價。",
-      "post": "發布任務",
-      "browse": "瀏覽任務"
+      "before": "{date} 之前",
+      "todayAt": "今天 {time}",
+      "tomorrowAt": "明天 {time}"
     },
     "filters": {
-      "searchLabel": "搜尋任務",
       "searchPlaceholder": "搜尋任務名稱、地點或關鍵字…",
-      "toggle": "篩選",
-      "ownerLabel": "任務發布者",
-      "ownerAll": "所有發布者",
-      "ownerUnknown": "發布者",
-      "you": "你",
-      "categoryLabel": "類別",
-      "categoryAll": "所有類別",
-      "sectionLabel": "範圍",
-      "sectionAll": "全部",
-      "clear": "清除篩選",
-      "noMatchTitle": "沒有符合的任務",
-      "noMatchDescription": "試下其他搜尋、發布者、類別或範圍。",
+      "clearSearch": "清除搜尋",
+      "categoryChip": "類別",
+      "roleChip": "我發布 / 我報價",
+      "removeFilter": "移除{label}篩選",
+      "clearAll": "全部清除",
       "resultCountOne": "1 個任務",
       "resultCount": "{count} 個任務"
+    },
+    "views": {
+      "error": {
+        "title": "無法載入你的任務"
+      },
+      "empty": {
+        "title": "暫時沒有任務",
+        "description": "發布任務以收集報價，或在地圖上瀏覽並送出報價。"
+      },
+      "noMatches": {
+        "title": "沒有符合的任務",
+        "description": "試下其他搜尋、類別，或我發布 / 我報價。"
+      },
+      "actions": {
+        "postTask": "發布任務",
+        "browseTasks": "瀏覽任務",
+        "retry": "再試一次",
+        "clearFilters": "清除篩選"
+      }
+    },
+    "showAll": "顯示全部（{count}）",
+    "showFewer": "顯示較少",
+    "menu": {
+      "aria": "任務選項",
+      "share": "分享任務",
+      "edit": "編輯任務"
     },
     "achievements": {
       "title": "你的活動",
@@ -159,7 +174,7 @@
       "switchLabel": "任務同你的活動",
       "tasksTab": "顯示任務",
       "open": "顯示你的活動",
-      "statEmpty": "\u2014",
+      "statEmpty": "—",
       "agreedTotalShort": "協定總額",
       "quotesReceivedLabel": "收到的報價",
       "worker": "工作者",
@@ -179,8 +194,7 @@
       "quotesReceived": "收到 {count} 個報價",
       "streak": "連續週數",
       "streakWeeks": "{count} 週",
-      "agreedTotals": "已完成工作的協定總額",
-      "disclaimer": "工作款項由客戶與工作者在 Slashie 以外直接安排。"
+      "agreedTotals": "已完成工作的協定總額"
     }
   }
 }

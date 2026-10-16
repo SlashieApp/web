@@ -7,10 +7,15 @@ import bag from '../../i11n.json'
 import { showAppToast } from '@/utils/appToast'
 
 /** Share the current task via the Web Share API, falling back to clipboard copy. */
-export function useShareTask(title: string) {
+/** Shares `url()` (default: this page) with the share sheet, or copies it. */
+export function useShareTask(title: string, shareUrl?: () => string) {
   const t = useI11n(bag)
   return useCallback(async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : ''
+    const url = shareUrl
+      ? shareUrl()
+      : typeof window !== 'undefined'
+        ? window.location.href
+        : ''
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({ title, url })
@@ -21,5 +26,5 @@ export function useShareTask(title: string) {
     } catch {
       // user dismissed the share sheet — no-op
     }
-  }, [t.actions.linkCopied, title])
+  }, [shareUrl, t.actions.linkCopied, title])
 }

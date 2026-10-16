@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
-import type { MouseEvent } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 import { Fragment } from 'react'
 import { LuBookmark, LuChevronRight, LuCircleCheck } from 'react-icons/lu'
 
@@ -13,13 +13,39 @@ import { Badge, Card, IconButton, Link, Thumbnail } from '@ui'
 
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
-import { taskCardMetaParts } from '../../helpers/taskBrowseHelpers'
+import {
+  type TaskCardMetaPart,
+  taskCardMetaParts,
+} from '../../helpers/taskBrowseHelpers'
 import { setTaskHandoff } from '../../helpers/taskCardHandoff'
 import bag from '../i11n.json'
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
 
 /** Discovery trust crumb: the poster's completed jobs, shown only when above 0. */
 export type TaskCardTrust = { kind: 'jobsDone'; count: number }
+
+/** One row of pills; anything past the edge fades out before the ⋮ button. */
+const BADGE_ROW_FADE = {
+  maskImage: 'linear-gradient(to right, #000 calc(100% - 1.5rem), transparent)',
+  WebkitMaskImage:
+    'linear-gradient(to right, #000 calc(100% - 1.5rem), transparent)',
+} as const
+
+const META_PART_STYLE = {
+  budget: { fontWeight: 800, color: 'text.link' },
+  muted: { fontWeight: 500, color: 'text.muted' },
+  lead: { fontWeight: 700, color: 'text.default' },
+  overdue: { fontWeight: 700, color: 'status.danger.fg' },
+} as const
+
+function metaPartStyle(
+  part: TaskCardMetaPart,
+  timingTone: TaskCardTask['timingTone'],
+): keyof typeof META_PART_STYLE {
+  if (part.kind === 'budget') return 'budget'
+  if (part.kind === 'timing' && timingTone) return timingTone
+  return 'muted'
+}
 
 /** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
 export type TaskCardTask = {
@@ -29,11 +55,13 @@ export type TaskCardTask = {
   location: string
   /** Empty when the task has no budget — the £ slot is omitted. */
   priceLabel: string
-  /** Category pill, e.g. "Tech setup". */
-  badgeText?: string
+  /** Category labels, one pill each on a single row that fades at the end. */
+  categories?: readonly string[]
   distanceLabel?: string
   /** Compact schedule line, e.g. "Flexible" / "Tomorrow". */
   timingLabel?: string
+  /** `lead` puts the timing first in bold (a booked job); `overdue` also turns it red. */
+  timingTone?: 'lead' | 'overdue'
   /** Quote-count line, e.g. "5 quotes" (owner/worker lists only). */
   quotesLabel?: string
   /** Public views line from GraphQL (`task.views`); fallback when quotes are unavailable. */
@@ -72,28 +100,14 @@ type TaskCardShared = {
    */
   navigateOnActivate?: boolean
   onActivate?: () => void
-  /** Role chips pinned to the card's top-right corner (My Tasks hub). */
-  cornerTags?: readonly string[]
+  /** Status pills before the categories, e.g. Hosted or Not selected (My Tasks). */
+  tags?: readonly string[]
+  /** Replaces the default ⋮ menu (Report task). */
+  menu?: ReactNode
 }
 
 type TaskCardWithTask = TaskCardShared & {
   task: TaskCardTask
-}
-
-type TaskCardLegacy = TaskCardShared & {
-  title: string
-  description: string
-  priceLabel: string
-  metaLine: string
-  badgeText?: string
-  distanceLabel?: string
-  timingLabel?: string
-  quotesLabel?: string
-  /** Public views line from GraphQL (`task.views`). */
-  viewsLabel?: string
-  thumbnailSrc?: string
-  trust?: TaskCardTrust
-  detailsHref: string
 }
 
 export type TaskCardWorkerQuoteProps = WorkerQuoteRow & {
@@ -102,7 +116,7 @@ export type TaskCardWorkerQuoteProps = WorkerQuoteRow & {
   initialExpanded?: boolean
 }
 
-type TaskCardBrowseProps = (TaskCardWithTask | TaskCardLegacy) & {
+type TaskCardBrowseProps = TaskCardWithTask & {
   variant?: 'browse'
 }
 
@@ -125,12 +139,6 @@ function isWorkerQuoteCard(
   props: TaskCardProps,
 ): props is TaskCardWorkerQuoteProps {
   return 'variant' in props && props.variant === 'workerQuote'
-}
-
-function isTaskCardWithTask(
-  props: TaskCardBrowseProps,
-): props is TaskCardWithTask {
-  return 'task' in props && props.task != null
 }
 
 export function TaskCard(props: TaskCardProps) {
@@ -166,11 +174,6 @@ function TaskCardLoading() {
   )
 }
 
-function taskIdFromDetailsHref(href: string): string | undefined {
-  const match = href.match(/\/tasks\/([^/?#]+)/)
-  return match?.[1]
-}
-
 function TaskCardBrowse(props: TaskCardBrowseProps) {
   const t = useI11n(bag)
   const isActive = props.isActive ?? false
@@ -183,39 +186,19 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const navigateOnActivate = props.navigateOnActivate ?? false
   const activateCursor = props.activateCursor ?? 'pointer'
   const activateMode = props.activateMode ?? 'button'
-  const cornerTags = props.cornerTags ?? []
+  const tags = props.tags ?? []
 
-  let cardTask: TaskCardTask
-  let detailsHref: string
-
-  if (isTaskCardWithTask(props)) {
-    cardTask = props.task
-    detailsHref = props.detailsHref ?? `/tasks/${props.task.id}`
-  } else {
-    detailsHref = props.detailsHref
-    cardTask = {
-      id: taskIdFromDetailsHref(props.detailsHref) ?? props.detailsHref,
-      title: props.title,
-      description: props.description,
-      location: props.metaLine,
-      priceLabel: props.priceLabel,
-      badgeText: props.badgeText,
-      distanceLabel: props.distanceLabel,
-      timingLabel: props.timingLabel,
-      quotesLabel: props.quotesLabel,
-      viewsLabel: props.viewsLabel,
-      thumbnailSrc: props.thumbnailSrc,
-      trust: props.trust,
-    }
-  }
+  const cardTask = props.task
+  const detailsHref = props.detailsHref ?? `/tasks/${props.task.id}`
 
   const {
     id: taskId,
     title,
     priceLabel,
-    badgeText,
+    categories = [],
     distanceLabel,
     timingLabel,
+    timingTone,
     quotesLabel,
     thumbnailSrc,
     trust,
@@ -235,11 +218,11 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const detailsCtaLabel = props.detailsCtaLabel ?? t.detailsCta
   const activateAriaLabel =
     props.activateAriaLabel ?? `${title}. Select to highlight on map.`
-  const showBadge = Boolean(badgeText?.trim())
   const metaParts = taskCardMetaParts({
     priceLabel,
     distanceLabel,
     timingLabel,
+    timingFirst: Boolean(timingTone),
   })
   const trustLabel = trust
     ? formatMessage(t.trustJobsDone, { count: trust.count })
@@ -264,27 +247,33 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       transitionProperty="background-color, box-shadow, transform, border-color"
       transitionDuration={sdlMotion.duration.base}
       transitionTimingFunction={sdlMotion.easing.standard}
-      css={{
-        '& [data-task-card-options]': {
-          opacity: 0,
-          transitionProperty: 'opacity',
-          transitionDuration: sdlMotion.duration.base,
-          transitionTimingFunction: sdlMotion.easing.standard,
-        },
-        _hover: {
-          boxShadow: onActivate ? 'e3' : undefined,
-          '& [data-task-card-options]': { opacity: 1 },
-        },
-        _focusWithin: {
-          '& [data-task-card-options]': { opacity: 1 },
-        },
-        '@media (hover: none)': {
-          '& [data-task-card-options]': { opacity: isActive ? 1 : 0 },
-          _focusWithin: {
-            '& [data-task-card-options]': { opacity: 1 },
-          },
-        },
-      }}
+      // A card's own menu (My Tasks) stays visible; the browse ⋮ waits for
+      // hover, focus or selection.
+      css={
+        props.menu
+          ? { _hover: { boxShadow: onActivate ? 'e3' : undefined } }
+          : {
+              '& [data-task-card-options]': {
+                opacity: 0,
+                transitionProperty: 'opacity',
+                transitionDuration: sdlMotion.duration.base,
+                transitionTimingFunction: sdlMotion.easing.standard,
+              },
+              _hover: {
+                boxShadow: onActivate ? 'e3' : undefined,
+                '& [data-task-card-options]': { opacity: 1 },
+              },
+              _focusWithin: {
+                '& [data-task-card-options]': { opacity: 1 },
+              },
+              '@media (hover: none)': {
+                '& [data-task-card-options]': { opacity: isActive ? 1 : 0 },
+                _focusWithin: {
+                  '& [data-task-card-options]': { opacity: 1 },
+                },
+              },
+            }
+      }
     >
       <HStack gap={0} align="stretch">
         <Box
@@ -292,7 +281,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           minW={0}
           position="relative"
           p={{ base: 3, md: 3 }}
-          pe={cornerTags.length > 1 ? 36 : cornerTags.length === 1 ? 24 : 12}
+          pe={12}
         >
           <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
             <Thumbnail
@@ -304,7 +293,32 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             />
             <Stack flex={1} minW={0} gap={1.5}>
               <Stack gap={1} minW={0} align="flex-start">
-                {showBadge ? <Badge shape="pill">{badgeText}</Badge> : null}
+                {tags.length > 0 || categories.length > 0 ? (
+                  <HStack
+                    gap={1}
+                    w="full"
+                    minW={0}
+                    overflow="hidden"
+                    flexWrap="nowrap"
+                    css={BADGE_ROW_FADE}
+                  >
+                    {tags.map((tag) => (
+                      <Badge
+                        key={`tag-${tag}`}
+                        shape="pill"
+                        variant="neutral"
+                        flexShrink={0}
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                    {categories.map((category) => (
+                      <Badge key={category} shape="pill" flexShrink={0}>
+                        {category}
+                      </Badge>
+                    ))}
+                  </HStack>
+                ) : null}
                 <Text
                   fontSize="md"
                   fontWeight={700}
@@ -319,21 +333,19 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
 
               {metaParts.length > 0 ? (
                 <HStack gap={1} minW={0} flexWrap="wrap" align="baseline">
-                  {metaParts.map((part) => {
-                    const isBudget = part === priceLabel?.trim()
-                    const isFirst = part === metaParts[0]
+                  {metaParts.map((part, index) => {
+                    const isFirst = index === 0
                     const label = (
                       <Text
                         fontSize="sm"
-                        fontWeight={isBudget ? 800 : 500}
-                        color={isBudget ? 'text.link' : 'text.muted'}
                         lineClamp={1}
+                        {...META_PART_STYLE[metaPartStyle(part, timingTone)]}
                       >
-                        {part}
+                        {part.label}
                       </Text>
                     )
                     return (
-                      <Fragment key={part}>
+                      <Fragment key={part.kind}>
                         {isFirst ? null : (
                           <Text
                             as="span"
@@ -380,28 +392,10 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             </Stack>
           </HStack>
 
-          {cornerTags.length > 0 ? (
-            <HStack
-              position="absolute"
-              top={2}
-              right={2}
-              gap={1}
-              zIndex={1}
-              pointerEvents="none"
-            >
-              {cornerTags.map((tag) => (
-                <Badge key={tag} size="sm" shape="pill" variant="neutral">
-                  {tag}
-                </Badge>
-              ))}
-            </HStack>
-          ) : null}
-
           <HStack
             data-task-card-options
             position="absolute"
-            top={cornerTags.length > 0 ? undefined : 1}
-            bottom={cornerTags.length > 0 ? 1 : undefined}
+            top={1}
             right={1}
             gap={0}
             zIndex={2}
@@ -409,17 +403,20 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             onKeyDown={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <ReportControl
-              kind="task"
-              targetId={taskId}
-              targetTitle={title}
-              targetMeta={
-                [cardTask.location, badgeText].filter(Boolean).join(' · ') ||
-                undefined
-              }
-              targetImageSrc={thumbnailSrc}
-              variant="overflow"
-            />
+            {props.menu ?? (
+              <ReportControl
+                kind="task"
+                targetId={taskId}
+                targetTitle={title}
+                targetMeta={
+                  [cardTask.location, categories[0]]
+                    .filter(Boolean)
+                    .join(' · ') || undefined
+                }
+                targetImageSrc={thumbnailSrc}
+                variant="overflow"
+              />
+            )}
             {handleToggleSave ? (
               <IconButton
                 aria-label={formatMessage(

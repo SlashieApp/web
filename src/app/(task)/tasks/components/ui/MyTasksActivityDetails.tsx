@@ -6,7 +6,6 @@ import {
   LuCalendar,
   LuCircleCheck,
   LuFlame,
-  LuInfo,
   LuMapPin,
   LuMessageSquare,
   LuWallet,
@@ -298,37 +297,6 @@ function CategoryPie({ panel }: { panel: AchievementPanel }) {
   )
 }
 
-export function ActivityPaymentNote() {
-  const t = useI11n(bag)
-  return (
-    <HStack
-      gap={2}
-      align="flex-start"
-      p={3}
-      borderRadius="lg"
-      bg="status.success.soft"
-    >
-      <Box
-        as="span"
-        aria-hidden
-        display="inline-flex"
-        color="status.success.fg"
-        flexShrink={0}
-        mt={0.5}
-      >
-        <LuInfo size={16} strokeWidth={2} />
-      </Box>
-      <Text fontSize="xs" color="text.muted" lineHeight="1.5">
-        {t.achievements.disclaimer}
-      </Text>
-    </HStack>
-  )
-}
-
-function panelHasAgreedTotal(panels: readonly AchievementPanel[]): boolean {
-  return panels.some((panel) => panel.agreedTotalLabel != null)
-}
-
 export type MyTasksActivityDetailsProps = {
   panels: readonly AchievementPanel[]
 }
@@ -341,7 +309,6 @@ export function MyTasksActivityDetails({
   panels,
 }: MyTasksActivityDetailsProps) {
   const t = useI11n(bag)
-  const showNote = panelHasAgreedTotal(panels)
 
   return (
     <Stack gap={6}>
@@ -417,7 +384,6 @@ export function MyTasksActivityDetails({
           </Stack>
         )
       })}
-      {showNote ? <ActivityPaymentNote /> : null}
     </Stack>
   )
 }

@@ -1,9 +1,9 @@
-import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import { orderBookedDatetime } from '@/utils/orderHelpers'
 import { budgetToPence, formatGbpMajor, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
-export const MY_TASK_SECTION_ORDER = ['open', 'booked', 'completed'] as const
+/** Live work first: Booked / In progress, then Open, then Completed. */
+export const MY_TASK_SECTION_ORDER = ['booked', 'open', 'completed'] as const
 
 export type MyTaskSectionId = (typeof MY_TASK_SECTION_ORDER)[number]
 
@@ -13,8 +13,9 @@ export type MyTaskSortBucket = 'overdue' | 'upcoming' | 'flex' | 'past'
 
 export type MyTaskTiming =
   | { kind: 'overdue' }
-  | { kind: 'today' }
-  | { kind: 'tomorrow' }
+  /** `time` (HH:MM) when the task has an exact time. */
+  | { kind: 'today'; time?: string }
+  | { kind: 'tomorrow'; time?: string }
   | { kind: 'flexible' }
   | { kind: 'before'; date: string }
   | { kind: 'scheduled'; at: string }
@@ -76,9 +77,7 @@ export type MyTaskHubRow = {
   priceLabel: string
   /** The task's categories (BE-79), used by `filter.category` (matches any). */
   categories: string[]
-  categoryLabel: string | null
-  /** Task poster (`Task.user` / `poster.id`), used by `filter.ownerUserId`. */
-  ownerUserId: string
+  /** Task poster's name, for quoted rows ("Hosted by …"). */
   ownerName: string | null
   thumbnailSrc?: string
   roles: MyTaskRole[]
@@ -87,6 +86,8 @@ export type MyTaskHubRow = {
   quoteCount: number
   /** The one accepted worker on a hosted task. Never a multi-worker list. */
   acceptedWorkerName: string | null
+  /** My quote lost: someone else got the job. */
+  notSelected: boolean
 }
 
 export type MyTaskHubSection = {
@@ -158,10 +159,9 @@ function startOfLocalDay(date: Date): number {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
 }
 
+/** Exact `QuoteStatus.Accepted`: `NOT_SELECTED` means someone else got the job. */
 export function isAwardedQuoteStatus(status: string): boolean {
-  const key = norm(status)
-  if (key === 'ACCEPTED' || key === 'AWARDED') return true
-  return /ACCEPT|AWARD|SELECT|WIN|APPROVED|CHOSEN/.test(key)
+  return norm(status) === 'ACCEPTED'
 }
 
 function isPendingQuoteStatus(status: string): boolean {
@@ -250,8 +250,11 @@ function timingFor(
   const day = startOfLocalDay(point.parsed)
   const today = startOfLocalDay(now)
   const dayMs = 24 * 60 * 60 * 1000
-  if (day === today) return { kind: 'today' }
-  if (day === today + dayMs) return { kind: 'tomorrow' }
+  const time = datetime?.time?.trim()
+    ? `${String(point.parsed.getHours()).padStart(2, '0')}:${String(point.parsed.getMinutes()).padStart(2, '0')}`
+    : undefined
+  if (day === today) return { kind: 'today', time }
+  if (day === today + dayMs) return { kind: 'tomorrow', time }
   return { kind: 'scheduled', at: point.parsed.toISOString() }
 }
 
@@ -308,18 +311,6 @@ function priceLabel(
   return ''
 }
 
-function ownerFields(
-  task: MyTaskSource,
-  userId: string,
-  hosted: boolean,
-): { ownerUserId: string; ownerName: string | null } {
-  const posterId = task.poster?.id?.trim() || ''
-  return {
-    ownerUserId: posterId || (hosted ? userId : ''),
-    ownerName: task.poster?.profile?.name?.trim() || null,
-  }
-}
-
 function acceptedWorkerName(
   quotes: readonly MyTaskQuoteSource[] | null | undefined,
   userId: string,
@@ -355,7 +346,7 @@ function orderForTask(
 }
 
 /**
- * Merge hosted tasks and sent quotes into Open → Booked / In progress →
+ * Merge hosted tasks and sent quotes into Booked / In progress → Open →
  * Completed. Within a section: overdue, then soonest upcoming, then flexible,
  * then completed (newest completion first).
  */
@@ -427,7 +418,6 @@ export function buildMyTasksHub(input: {
     if (hosted) roles.push('hosted')
     if (myQuote) roles.push('quoted')
 
-    const owner = ownerFields(task, userId, hosted)
     sortable.push({
       id: task.id,
       title: task.title,
@@ -435,9 +425,7 @@ export function buildMyTasksHub(input: {
       location: taskPublicLocationLabel(task),
       priceLabel: priceLabel(task, myQuote),
       categories: (task.categories ?? []).map((c) => c.trim()).filter(Boolean),
-      categoryLabel: taskCategoriesSummary(task.categories),
-      ownerUserId: owner.ownerUserId,
-      ownerName: owner.ownerName,
+      ownerName: task.poster?.profile?.name?.trim() || null,
       thumbnailSrc: task.images?.[0],
       roles,
       section,
@@ -446,6 +434,8 @@ export function buildMyTasksHub(input: {
       acceptedWorkerName: hosted
         ? acceptedWorkerName(task.quotes, userId)
         : null,
+      notSelected:
+        !hosted && myQuote != null && norm(myQuote.status) === 'NOT_SELECTED',
       bucket,
       at: point.at,
       completed: completedMs(task, order),

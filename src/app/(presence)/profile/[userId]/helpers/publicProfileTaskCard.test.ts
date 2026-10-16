@@ -43,7 +43,7 @@ describe('toPublicUserTaskCard', () => {
       title: 'Fix a leaking tap',
       location: 'Kennedy Town',
       priceLabel: '£85',
-      badgeText: 'Handyman',
+      categories: ['Handyman'],
       timingLabel: 'Flexible',
     })
     expect(card.viewsLabel).toBeUndefined()

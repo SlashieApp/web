@@ -9,17 +9,15 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
-import {
-  type BrowseFilterTag,
-  browseDatePresetRange,
-} from '../../helpers/taskBrowseHelpers'
+import { browseDatePresetRange } from '../../helpers/taskBrowseHelpers'
 import bag from '../i11n.json'
 
 type Panel = 'date' | 'budget'
 
-function FilterChip({
+/** A filter chip: green with its value and a clear button once set. Shared with My Tasks. */
+export function FilterChip({
   label,
-  tag,
+  activeLabel,
   expanded,
   panelId,
   onToggle,
@@ -27,14 +25,15 @@ function FilterChip({
   clearLabel,
 }: {
   label: string
-  tag: BrowseFilterTag | undefined
+  /** The chosen value; the chip turns active when set. */
+  activeLabel?: string
   expanded: boolean
   panelId: string
   onToggle: () => void
   onClear: () => void
   clearLabel: string
 }) {
-  const active = Boolean(tag)
+  const active = Boolean(activeLabel)
   const chipColors = active
     ? {
         bg: 'action.primary',
@@ -66,7 +65,7 @@ function FilterChip({
         onClick={onToggle}
         {...chipColors}
       >
-        {tag?.label ?? label}
+        {activeLabel ?? label}
         <LuChevronDown size={12} strokeWidth={2.5} aria-hidden />
       </Button>
       {active ? (
@@ -92,7 +91,8 @@ function FilterChip({
   )
 }
 
-function OptionButton({
+/** One choice in a filter chip's panel. Shared with My Tasks. */
+export function OptionButton({
   pressed,
   onPress,
   children,
@@ -147,7 +147,7 @@ export function TaskSearchFilters() {
       <HStack gap={2} flexWrap="wrap">
         <FilterChip
           label={t.dateChip}
-          tag={dateTag}
+          activeLabel={dateTag?.label}
           expanded={open === 'date'}
           panelId={`${baseId}-date`}
           onToggle={() => toggle('date')}
@@ -159,7 +159,7 @@ export function TaskSearchFilters() {
         />
         <FilterChip
           label={t.budgetChip}
-          tag={budgetTag}
+          activeLabel={budgetTag?.label}
           expanded={open === 'budget'}
           panelId={`${baseId}-budget`}
           onToggle={() => toggle('budget')}

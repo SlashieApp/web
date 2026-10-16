@@ -54,7 +54,7 @@ describe('toBrowseTaskCard', () => {
   it('omits price when the task has no budget', () => {
     const card = toBrowseTaskCard(listTask({ budget: null }), reference)
     expect(card.priceLabel).toBe('')
-    expect(card.badgeText).toBe('Tech setup')
+    expect(card.categories).toEqual(['Tech setup'])
     expect(card.trust).toBeUndefined()
   })
 

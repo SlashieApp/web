@@ -87,16 +87,6 @@ export type BuildTaskFilterInput = {
   /** Inclusive range on the raw `budget.amount` in pounds (discovery `tasks`). */
   budgetMin?: number | null
   budgetMax?: number | null
-  /**
-   * Task poster. Hub lists only (`tasksPosted`, `quotedTasks`); discovery
-   * `tasks` ignores this field.
-   */
-  ownerUserId?: string | null
-  /**
-   * My Tasks section narrow (`OPEN` / `BOOKED` / `COMPLETED`). Hub lists only;
-   * discovery `tasks` ignores this field. An empty list is omitted.
-   */
-  hubSection?: readonly string[] | null
 }
 
 /**
@@ -136,16 +126,6 @@ export function buildTaskFilter(
   }
   if (typeof input.budgetMin === 'number') filter.budgetMin = input.budgetMin
   if (typeof input.budgetMax === 'number') filter.budgetMax = input.budgetMax
-
-  const ownerUserId = cleanText(input.ownerUserId)
-  if (ownerUserId) filter.ownerUserId = ownerUserId
-
-  const hubSection = (input.hubSection ?? [])
-    .map((section) => section.trim())
-    .filter(Boolean)
-  if (hubSection.length > 0) {
-    filter.hubSection = hubSection as TaskFilter['hubSection']
-  }
 
   return Object.keys(filter).length > 0 ? filter : undefined
 }

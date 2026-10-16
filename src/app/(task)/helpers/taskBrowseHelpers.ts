@@ -311,13 +311,30 @@ export function buildActiveBrowseFilterTags(
   return tags
 }
 
-/** Scan-row parts for the card meta line: £ budget · distance · timing. */
+export type TaskCardMetaPart = {
+  kind: 'budget' | 'distance' | 'timing'
+  label: string
+}
+
+/**
+ * Scan-row parts for the card meta line: £ budget · distance · timing, or
+ * timing first when it leads (a booked job's time).
+ */
 export function taskCardMetaParts(input: {
   priceLabel?: string | null
   distanceLabel?: string | null
   timingLabel?: string | null
-}): string[] {
-  return [input.priceLabel, input.distanceLabel, input.timingLabel]
-    .map((part) => part?.trim())
-    .filter((part): part is string => Boolean(part))
+  timingFirst?: boolean
+}): TaskCardMetaPart[] {
+  const parts: TaskCardMetaPart[] = [
+    { kind: 'budget', label: input.priceLabel?.trim() ?? '' },
+    { kind: 'distance', label: input.distanceLabel?.trim() ?? '' },
+    { kind: 'timing', label: input.timingLabel?.trim() ?? '' },
+  ]
+  const shown = parts.filter((part) => part.label)
+  if (!input.timingFirst) return shown
+  return [
+    ...shown.filter((part) => part.kind === 'timing'),
+    ...shown.filter((part) => part.kind !== 'timing'),
+  ]
 }

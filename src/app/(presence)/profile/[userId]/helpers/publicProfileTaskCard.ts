@@ -2,7 +2,7 @@ import type { PublicProfileQuery } from '@codegen/schema'
 
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { taskScheduleCompactLabel } from '@/app/(task)/helpers/taskBrowseHelpers'
-import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
+import { taskCategoryLabels } from '@/app/(task)/helpers/taskCategories'
 import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
 import { formatBudgetAmount } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
@@ -26,7 +26,7 @@ export function toPublicUserTaskCard(task: PublicUserOpenTask): TaskCardTask {
     description: task.description,
     location: taskPublicLocationLabel(task).trim(),
     priceLabel: hasBudget ? formatBudgetAmount(task.budget) : '',
-    badgeText: taskCategoriesSummary(task.categories) ?? undefined,
+    categories: taskCategoryLabels(task.categories),
     thumbnailSrc: task.images[0],
     timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,
     viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,

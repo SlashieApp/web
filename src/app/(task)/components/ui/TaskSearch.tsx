@@ -26,13 +26,13 @@ export type TaskSearchBaseProps = {
   onCommit: () => void
   onClear: () => void
   /** `trigger` mode: press / Enter / Space. */
-  onOpen: () => void
-  /** Moves the nearest-first sort centre to the visitor. */
-  onUseCurrentLocation: () => void
+  onOpen?: () => void
+  /** Moves the nearest-first sort centre to the visitor (map search only). */
+  onUseCurrentLocation?: () => void
   copy: {
     placeholder: string
     clearSearch: string
-    useCurrentLocation: string
+    useCurrentLocation?: string
   }
 }
 
@@ -108,12 +108,14 @@ export function TaskSearchBase({
           <LuX size={16} strokeWidth={2} aria-hidden />
         </SearchFieldButton>
       ) : null}
-      <SearchFieldButton
-        label={copy.useCurrentLocation}
-        onPress={onUseCurrentLocation}
-      >
-        <LuLocateFixed size={18} strokeWidth={2} aria-hidden />
-      </SearchFieldButton>
+      {onUseCurrentLocation && copy.useCurrentLocation ? (
+        <SearchFieldButton
+          label={copy.useCurrentLocation}
+          onPress={onUseCurrentLocation}
+        >
+          <LuLocateFixed size={18} strokeWidth={2} aria-hidden />
+        </SearchFieldButton>
+      ) : null}
     </HStack>
   )
   const startElement = (
@@ -130,7 +132,7 @@ export function TaskSearchBase({
           onMouseDown: (e: MouseEvent<HTMLDivElement>) => {
             if (isFromFieldButton(e.target)) return
             e.preventDefault()
-            onOpen()
+            onOpen?.()
           },
         }}
         startElement={startElement}
@@ -143,7 +145,7 @@ export function TaskSearchBase({
         onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
           if (e.key !== 'Enter' && e.key !== ' ') return
           e.preventDefault()
-          onOpen()
+          onOpen?.()
         }}
         type="text"
         autoComplete="off"

@@ -48,7 +48,7 @@ export const storyListingSeed: TaskCardTask = {
     'Need a worker to mount one IKEA bookshelf safely. Wall is plasterboard; fixings supplied.',
   location: 'Westminster',
   priceLabel: '£120',
-  badgeText: 'Handyman',
+  categories: ['Handyman'],
   distanceLabel: '1.2 miles',
   timingLabel: 'Flexible',
   thumbnailSrc:

@@ -127,7 +127,7 @@ export const FewJobsNoPercent: Story = {
   },
 }
 
-/** No payment totals: the "totals are not payments" note is left out. */
+/** No agreed totals yet: the agreed-totals line is left out. */
 export const NoAgreedTotals: Story = {
   args: {
     panels: buildAchievementPanels({
