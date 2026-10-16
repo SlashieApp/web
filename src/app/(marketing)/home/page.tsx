@@ -120,9 +120,8 @@ export default async function MarketingHomePage() {
         <StoryStageMarker stage="cta">
           <FinalCtaBand
             copy={landing.finalCta}
-            ctas={{ postTask: ctas.postTask, becomeWorker: ctas.becomeWorker }}
-            postTaskHref={hrefs.postTask}
-            becomeWorkerHref={hrefs.becomeWorker}
+            primary={{ label: ctas.postTask, href: hrefs.postTask }}
+            secondary={{ label: ctas.becomeWorker, href: hrefs.becomeWorker }}
           />
         </StoryStageMarker>
         <Footer />

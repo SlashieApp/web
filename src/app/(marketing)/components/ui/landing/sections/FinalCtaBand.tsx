@@ -6,20 +6,20 @@ import { Button } from '@ui'
 import { Magnetic } from '../Magnetic'
 import { Reveal } from '../Reveal'
 
+type CtaLink = { label: string; href: string }
+
 /**
- * The story's last beat: one line, two ways in. Transparent so the 3D
- * objects gather around it; both paths go through sign-up first.
+ * A closing beat: one line, two ways in (primary, then secondary). Transparent
+ * so the landing's 3D objects gather around it. Hrefs come localized.
  */
 export function FinalCtaBand({
   copy,
-  ctas,
-  postTaskHref,
-  becomeWorkerHref,
+  primary,
+  secondary,
 }: {
   copy: { heading: string; body: string }
-  ctas: { postTask: string; becomeWorker: string }
-  postTaskHref: string
-  becomeWorkerHref: string
+  primary: CtaLink
+  secondary: CtaLink
 }) {
   return (
     <Container as="section" py={{ base: 20, md: 32 }}>
@@ -47,11 +47,11 @@ export function FinalCtaBand({
           <HStack gap={3} flexWrap="wrap" justify="center">
             <Magnetic>
               <Button asChild size="lg" variant="primary">
-                <NextLink href={postTaskHref}>{ctas.postTask}</NextLink>
+                <NextLink href={primary.href}>{primary.label}</NextLink>
               </Button>
             </Magnetic>
             <Button asChild size="lg" variant="secondary">
-              <NextLink href={becomeWorkerHref}>{ctas.becomeWorker}</NextLink>
+              <NextLink href={secondary.href}>{secondary.label}</NextLink>
             </Button>
           </HStack>
         </Stack>

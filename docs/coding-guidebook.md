@@ -314,7 +314,7 @@ Do **not** introduce `useEffect` by default. Prefer event-driven `useCallback` a
 | `src/app/(messages)/` | `Messages/<Component>` |
 | `src/app/(auth)/` | `Auth/<Component>` |
 | `src/app/(presence)/`, `src/app/user/` | `Public profile/<Component>` |
-| `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*` |
+| `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*`, `Marketing/About/*` |
 
 - Colocate `<Component>.stories.tsx` next to every component that renders visible UI.
 - One named story per situation the component can be in (data states, viewer roles, loading / empty / error, open / closed, phone vs desktop), each with a one-line JSDoc saying which situation it shows. Phone layouts: `globals: { viewport: { value: 'mobile1' } }`.

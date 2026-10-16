@@ -15,9 +15,11 @@ const meta = {
   },
   args: {
     copy: messages.en.landing.finalCta,
-    ctas: { postTask: ctas.postTask, becomeWorker: ctas.becomeWorker },
-    postTaskHref: '/register?next=%2Ftasks%2Fcreate',
-    becomeWorkerHref: '/register?next=%2Fworker%2Fsetup',
+    primary: { label: ctas.postTask, href: '/register?next=%2Ftasks%2Fcreate' },
+    secondary: {
+      label: ctas.becomeWorker,
+      href: '/register?next=%2Fworker%2Fsetup',
+    },
   },
 } satisfies Meta<typeof FinalCtaBand>
 
@@ -46,9 +48,13 @@ export const Mobile: Story = {
 export const TraditionalChinese: Story = {
   args: {
     copy: messages.zh_hk.landing.finalCta,
-    ctas: {
-      postTask: messages.zh_hk.common.ctas.postTask,
-      becomeWorker: messages.zh_hk.common.ctas.becomeWorker,
+    primary: {
+      label: messages.zh_hk.common.ctas.postTask,
+      href: '/zh-hk/register?next=%2Ftasks%2Fcreate',
+    },
+    secondary: {
+      label: messages.zh_hk.common.ctas.becomeWorker,
+      href: '/zh-hk/register?next=%2Fworker%2Fsetup',
     },
   },
 }

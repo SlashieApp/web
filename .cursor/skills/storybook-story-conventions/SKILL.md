@@ -35,7 +35,7 @@ Canonical source: **`docs/coding-guidebook.md`** §12 (product-area grouping, FE
 | `src/app/(messages)/` | `Messages/<Component>` |
 | `src/app/(auth)/` | `Auth/<Component>` |
 | `src/app/(presence)/`, `src/app/user/` | `Public profile/<Component>` |
-| `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*` |
+| `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*`, `Marketing/About/*` |
 
 ## Rules
 

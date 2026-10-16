@@ -2,69 +2,125 @@
   "en": {
     "metadata": {
       "title": "About | Slashie",
-      "description": "Slashie helps workers reach local jobs — free to browse, free to quote, no platform fee on the work itself. Open source and built with loop engineering."
+      "description": "Slashie is a map-first marketplace for local tasks. Customers post for free, nearby workers send quotes, and Slashie takes no cut of the job."
     },
-    "eyebrow": "About",
-    "brand": "slashie",
-    "heroSupport": "Free to browse. Free to quote. No platform fee on the work itself.",
-    "missionHeading": "That's the pitch",
-    "lead": "Slashie is a platform that helps workers reach local jobs — free to browse, free to quote, no platform fee on the work itself. AI is eating a lot of careers — we're trying to help the people on the wrong side of that shift find paid work instead of sitting idle. Improve the unemployment rate a bit. Make the world a better place.",
-    "trustPoints": ["Free to browse", "Free to quote", "No fee on the job"],
-    "productHeading": "How it works",
-    "productBody": "Customers post local tasks on the map. Nearby workers send quotes. You pick who you want and pay the worker directly — Slashie takes no cut of the job. Workers can start on a free quote allowance or subscribe to Slashie Unlimited for unlimited quoting. Customers post tasks for free.",
-    "buildHeading": "Open source, AI-built",
-    "buildBody": "Slashie is an open-source project, powered by an AI-driven company and created with loop engineering. Follow along on LinkedIn or browse the code on GitHub.",
-    "proof": [
-      {
-        "title": "No cut of the job",
-        "body": "Customers pay the worker directly. Slashie does not take a platform fee on the work."
+    "hero": {
+      "heading": "About Slashie",
+      "body": "Slashie is a map-first marketplace for local tasks. Post what you need, get quotes from workers nearby, and choose who does the job."
+    },
+    "how": {
+      "heading": "How it works",
+      "customers": {
+        "title": "If you need a hand",
+        "steps": [
+          "Post your task with where and when. It's free.",
+          "Compare quotes from nearby workers, with their reviews.",
+          "Choose a worker, get it done, then leave a review."
+        ]
       },
-      {
-        "title": "Open source",
-        "body": "The product is public on GitHub — inspect how Slashie is built."
-      },
-      {
-        "title": "Built in public",
-        "body": "Follow the company on LinkedIn for progress in the open."
+      "workers": {
+        "title": "If you do the work",
+        "steps": [
+          "Browse tasks near you on the map.",
+          "Send a quote with your price and when you can start.",
+          "Do the job, get paid directly, and build your reviews."
+        ]
       }
-    ],
-    "connect": {
-      "linkedin": "LinkedIn",
-      "github": "GitHub"
+    },
+    "costs": {
+      "heading": "What it costs",
+      "points": [
+        {
+          "title": "Free for customers",
+          "body": "Posting a task, comparing quotes and choosing a worker cost nothing."
+        },
+        {
+          "title": "Free quotes for workers",
+          "body": "Every worker gets free quotes each month. Slashie Unlimited removes the limit."
+        },
+        {
+          "title": "No cut of the job",
+          "body": "Customers pay workers directly, outside Slashie. We never take a share of the job."
+        }
+      ],
+      "pricingLink": "See pricing"
+    },
+    "mission": {
+      "heading": "Why we're building it",
+      "body": "AI is changing a lot of careers, and not everyone lands on the right side of that shift. We want to help those people find paid work close to home instead of sitting idle. If that brings unemployment down a little, the world gets a little better."
+    },
+    "open": {
+      "heading": "Built in the open",
+      "body": "Slashie is open source and built in public by an AI-driven company. Read the code on GitHub, or follow our progress on LinkedIn.",
+      "github": "View the code on GitHub",
+      "linkedin": "Follow Slashie on LinkedIn",
+      "newTab": "(opens in a new tab)"
+    },
+    "closing": {
+      "heading": "Ready when you are",
+      "body": "Post a task in a minute, or start quoting on tasks near you."
     }
   },
   "zh_hk": {
     "metadata": {
       "title": "關於 | Slashie",
-      "description": "Slashie 幫助工作者接觸本地工作 — 免費瀏覽、免費報價，工作本身不收平台費。開源專案，以 loop engineering 建構。"
+      "description": "Slashie 是以地圖為主的本地任務平台。客戶免費發布任務，附近的工作者報價，Slashie 不會從工作中抽取佣金。"
     },
-    "eyebrow": "關於",
-    "brand": "slashie",
-    "heroSupport": "免費瀏覽。免費報價。工作本身不收平台費。",
-    "missionHeading": "這就是我們的主張",
-    "lead": "Slashie 是一個幫助工作者接觸本地工作的平台 — 免費瀏覽、免費報價，工作本身不收平台費。AI 正在吞噬許多職業 — 我們想幫助處於這波轉變劣勢的人找到有薪工作，而不是閒置。稍微改善失業率。讓世界好一點。",
-    "trustPoints": ["免費瀏覽", "免費報價", "工作不抽成"],
-    "productHeading": "如何運作",
-    "productBody": "客戶在地圖上發布本地任務。附近的工作者發送報價。你選人，並直接付款給工作者 — Slashie 不抽工作成數。工作者可先使用免費報價額度，或訂閱 Slashie Unlimited 取得無限報價。客戶可免費發布任務。",
-    "buildHeading": "開源，以 AI 打造",
-    "buildBody": "Slashie 是開源專案，由 AI 驅動的公司打造，並以 loop engineering 建構。歡迎在 LinkedIn 追蹤我們，或到 GitHub 瀏覽程式碼。",
-    "proof": [
-      {
-        "title": "工作不抽成",
-        "body": "客戶直接付款給工作者。Slashie 不對工作本身收取平台費。"
+    "hero": {
+      "heading": "關於 Slashie",
+      "body": "Slashie 是以地圖為主的本地任務平台。發布你需要完成的事，收取附近工作者的報價，再選擇由誰來做。"
+    },
+    "how": {
+      "heading": "如何運作",
+      "customers": {
+        "title": "需要幫手時",
+        "steps": [
+          "寫下任務內容、地點和時間，免費發布。",
+          "比較附近工作者的報價和評價。",
+          "選定工作者，完成任務後留下評價。"
+        ]
       },
-      {
-        "title": "開源",
-        "body": "產品在 GitHub 公開 — 可以查看 Slashie 如何建構。"
-      },
-      {
-        "title": "公開打造",
-        "body": "在 LinkedIn 追蹤公司，了解公開進度。"
+      "workers": {
+        "title": "想接工作時",
+        "steps": [
+          "在地圖上瀏覽附近的任務。",
+          "發送報價，寫明價錢和可開始的時間。",
+          "完成工作，直接收款，累積評價。"
+        ]
       }
-    ],
-    "connect": {
-      "linkedin": "LinkedIn",
-      "github": "GitHub"
+    },
+    "costs": {
+      "heading": "收費",
+      "points": [
+        {
+          "title": "客戶免費",
+          "body": "發布任務、比較報價和選擇工作者，全部免費。"
+        },
+        {
+          "title": "工作者每月免費報價",
+          "body": "每位工作者每月都有免費報價額度；訂閱 Slashie Unlimited 即可無限報價。"
+        },
+        {
+          "title": "不抽佣金",
+          "body": "客戶在 Slashie 以外直接付款給工作者，我們不會從工作中抽取任何佣金。"
+        }
+      ],
+      "pricingLink": "查看收費"
+    },
+    "mission": {
+      "heading": "我們為何要做 Slashie",
+      "body": "AI 正在改變很多行業，並非每個人都站在有利的一方。我們希望幫助這些人在附近找到有薪工作，而不是賦閒在家。如果能令失業率降低一點，世界也會好一點。"
+    },
+    "open": {
+      "heading": "公開開發",
+      "body": "Slashie 是開源項目，由一間以 AI 驅動的公司公開開發。歡迎到 GitHub 查看程式碼，或在 LinkedIn 追蹤我們的進度。",
+      "github": "在 GitHub 查看程式碼",
+      "linkedin": "在 LinkedIn 追蹤 Slashie",
+      "newTab": "（在新分頁開啟）"
+    },
+    "closing": {
+      "heading": "隨時開始",
+      "body": "一分鐘發布任務，或開始為附近的任務報價。"
     }
   }
 }
