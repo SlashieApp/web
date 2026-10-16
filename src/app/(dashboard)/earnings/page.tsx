@@ -31,19 +31,13 @@ export default function EarningsPage() {
     pendingWorkerOrders,
     closedWorkerOrders,
   } = useAccountOrders()
-  const sectionLinks = [
-    { label: t.navOverview, href: '#overview' },
-    { label: t.navPending, href: '#pending' },
-    { label: t.navClosed, href: '#closed' },
-  ] as const
 
   return (
     <DashboardPageLayout
-      eyebrow={t.eyebrow}
       title={t.title}
       description={t.description}
-      sections={sectionLinks}
-      afterNav={
+      width="wide"
+      afterHeader={
         errorMessage ? (
           <Text color="status.danger.fg" fontSize="sm">
             {errorMessage}

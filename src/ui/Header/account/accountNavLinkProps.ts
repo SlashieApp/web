@@ -19,6 +19,7 @@ export const accountNavLinkRowProps = {
   color: 'text.default',
   _hover: navRowHover,
   ...focusVisibleMatchesHover(navRowHover),
+  _currentPage: { bg: 'status.success.soft', color: 'status.success.fg' },
 } as const
 
 const logoutHover = {

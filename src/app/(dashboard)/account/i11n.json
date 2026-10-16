@@ -1,17 +1,10 @@
 {
   "en": {
     "metadata": {
-      "title": "Account & security | Slashie",
+      "title": "Account | Slashie",
       "description": "Manage Slashie account contact details, sign-in methods, security, language, and preferences."
     },
-    "eyebrow": "Account",
-    "title": "Account & security",
-    "navOverview": "Overview",
-    "navContact": "Contact",
-    "navLogin": "Login",
-    "navSecurity": "Security",
-    "navSettings": "Settings",
-    "navSession": "Session",
+    "title": "Account",
     "descriptionBefore": "Login, security, and contact settings. Your photo, name, bio, and date of birth live on",
     "profileLink": "Profile",
     "descriptionAfter": ".",
@@ -57,7 +50,6 @@
     "webPushDenied": "Notifications stay off until you allow them in the browser.",
     "webPushError": "Could not update browser notifications.",
     "settingsError": "Could not update your settings.",
-    "navDelete": "Delete account",
     "deleteTitle": "Delete account",
     "deleteDescription": "Close your Slashie account. You have 30 days to change your mind.",
     "deleteButton": "Delete account",
@@ -85,17 +77,10 @@
   },
   "zh_hk": {
     "metadata": {
-      "title": "帳戶與安全 | Slashie",
+      "title": "帳戶 | Slashie",
       "description": "管理 Slashie 帳戶聯絡資料、登入方式、安全、語言和偏好。"
     },
-    "eyebrow": "帳戶",
-    "title": "帳戶與安全",
-    "navOverview": "總覽",
-    "navContact": "聯絡",
-    "navLogin": "登入",
-    "navSecurity": "安全",
-    "navSettings": "設定",
-    "navSession": "工作階段",
+    "title": "帳戶",
     "descriptionBefore": "登入、安全和聯絡設定。你的相片、姓名、簡介和出生日期位於",
     "profileLink": "個人檔案",
     "descriptionAfter": "。",
@@ -141,7 +126,6 @@
     "webPushDenied": "請先在瀏覽器允許通知。",
     "webPushError": "未能更新瀏覽器通知。",
     "settingsError": "未能更新你的設定。",
-    "navDelete": "刪除帳戶",
     "deleteTitle": "刪除帳戶",
     "deleteDescription": "關閉你的 Slashie 帳戶。你有 30 天時間改變主意。",
     "deleteButton": "刪除帳戶",

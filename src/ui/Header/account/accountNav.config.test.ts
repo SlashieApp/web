@@ -3,22 +3,19 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-import { ACCOUNT_NAV } from '@/utils/accountNav'
-
 import { ACCOUNT_NAV_ITEMS, resolveAccountNavItems } from './accountNav.config'
 
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('account nav destinations', () => {
-  it('includes every dashboard hub href from ACCOUNT_NAV', () => {
-    const hrefs = new Set(
-      ACCOUNT_NAV_ITEMS.filter((item) => item.kind === 'link' && item.href).map(
-        (item) => item.href,
-      ),
-    )
-    for (const item of ACCOUNT_NAV) {
-      expect(hrefs.has(item.href)).toBe(true)
-    }
+  it('names the settings pages the way their headings do', () => {
+    const labelOf = (href: string) =>
+      ACCOUNT_NAV_ITEMS.find((item) => item.href === href)?.label
+    expect(labelOf('/profile')).toBe('Profile')
+    expect(labelOf('/account')).toBe('Account')
+    expect(labelOf('/billing')).toBe('Plan & billing')
+    expect(labelOf('/search')).toBe('Search')
+    expect(labelOf('/about')).toBe('About')
   })
 
   it('links My tasks to the hub rather than requests or quotes', () => {
@@ -37,7 +34,7 @@ describe('account nav destinations', () => {
     const language = ACCOUNT_NAV_ITEMS.find((item) => item.id === 'language')
     expect(language?.kind).toBe('action')
     expect(language?.action).toBe('language')
-    expect(language?.section).toBe('account')
+    expect(language?.section).toBe('more')
   })
 
   it('shows send-a-notification only for Slashie admins', () => {

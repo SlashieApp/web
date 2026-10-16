@@ -6,7 +6,7 @@ export type AccountNavAudience = 'all' | 'worker' | 'non-worker' | 'admin'
 
 export type AccountNavAction = 'logout' | 'feedback' | 'language'
 
-export type AccountNavSection = 'main' | 'worker' | 'account'
+export type AccountNavSection = 'main' | 'settings' | 'more'
 
 export type AccountNavItem = {
   id: string
@@ -33,8 +33,8 @@ export function accountNavLabel(
 /** Single source of account navigation links for mobile drawer and desktop dropdown. */
 export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
   {
-    id: 'home',
-    label: 'Home',
+    id: 'search',
+    label: 'Search',
     href: APP_HOME,
     kind: 'link',
     section: 'main',
@@ -73,11 +73,27 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     audience: 'all',
   },
   {
+    id: 'profile',
+    label: 'Profile',
+    href: '/profile',
+    kind: 'link',
+    section: 'settings',
+    audience: 'all',
+  },
+  {
+    id: 'account',
+    label: 'Account',
+    href: '/account',
+    kind: 'link',
+    section: 'settings',
+    audience: 'all',
+  },
+  {
     id: 'billing',
-    label: 'Billing & plan',
+    label: 'Plan & billing',
     href: '/billing',
     kind: 'link',
-    section: 'worker',
+    section: 'settings',
     audience: 'worker',
   },
   {
@@ -85,7 +101,7 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     label: 'Earnings',
     href: '/earnings',
     kind: 'link',
-    section: 'worker',
+    section: 'settings',
     audience: 'worker',
   },
   {
@@ -93,39 +109,23 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     label: 'Become a worker',
     href: '/worker/setup',
     kind: 'link',
-    section: 'worker',
+    section: 'settings',
     audience: 'non-worker',
-  },
-  {
-    id: 'profile',
-    label: 'Profile',
-    href: '/profile',
-    kind: 'link',
-    section: 'account',
-    audience: 'all',
-  },
-  {
-    id: 'settings',
-    label: 'Settings',
-    href: '/account',
-    kind: 'link',
-    section: 'account',
-    audience: 'all',
   },
   {
     id: 'language',
     label: 'Language',
     kind: 'action',
     action: 'language',
-    section: 'account',
+    section: 'more',
     audience: 'all',
   },
   {
-    id: 'help',
-    label: 'Help',
+    id: 'about',
+    label: 'About',
     href: '/about',
     kind: 'link',
-    section: 'account',
+    section: 'more',
     audience: 'all',
   },
   {
@@ -133,7 +133,7 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     label: 'Send feedback',
     kind: 'action',
     action: 'feedback',
-    section: 'account',
+    section: 'more',
     audience: 'all',
   },
   {
@@ -141,7 +141,7 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     label: 'Paying & meeting safely',
     href: SAFETY_HREF,
     kind: 'link',
-    section: 'account',
+    section: 'more',
     audience: 'all',
   },
   {
@@ -149,7 +149,7 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     label: 'Send an announcement',
     href: '/admin/notifications',
     kind: 'link',
-    section: 'account',
+    section: 'more',
     audience: 'admin',
   },
   {
@@ -157,25 +157,19 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     label: 'Log out',
     kind: 'action',
     action: 'logout',
-    section: 'account',
+    section: 'more',
     audience: 'all',
   },
 ] as const
 
-export type AccountNavGroups = {
-  main: AccountNavItem[]
-  worker: AccountNavItem[]
-  account: AccountNavItem[]
-}
-
+/** Main links, then the settings pages, then language, help and Log out. */
 export function groupAccountNavItems(
   items: readonly AccountNavItem[],
-): AccountNavGroups {
-  return {
-    main: items.filter((item) => item.section === 'main'),
-    worker: items.filter((item) => item.section === 'worker'),
-    account: items.filter((item) => item.section === 'account'),
-  }
+): AccountNavItem[][] {
+  const sections: AccountNavSection[] = ['main', 'settings', 'more']
+  return sections
+    .map((section) => items.filter((item) => item.section === section))
+    .filter((group) => group.length > 0)
 }
 
 export function resolveAccountNavItems(

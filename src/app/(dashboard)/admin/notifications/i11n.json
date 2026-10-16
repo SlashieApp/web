@@ -4,7 +4,6 @@
       "title": "Send an announcement | Slashie",
       "description": "Send a Slashie announcement to specific people or cohorts. There is no send-to-everyone."
     },
-    "eyebrow": "Admin",
     "title": "Send an announcement",
     "description": "It lands in each person's Slashie thread in Messages, with a push. Pick people, a cohort, or both, check the recipient count, then send. Nothing here reaches everyone.",
     "unavailableTitle": "Admin only",
@@ -36,7 +35,6 @@
       "title": "發送公告 | Slashie",
       "description": "向指定用戶或群組發送 Slashie 公告。沒有全體發送。"
     },
-    "eyebrow": "管理",
     "title": "發送公告",
     "description": "公告會出現在每位用戶「訊息」內的 Slashie 對話，並發送推送通知。選擇用戶、群組或兩者，檢查收件人數後再發送。這裡不會發送給所有人。",
     "unavailableTitle": "只限管理員",

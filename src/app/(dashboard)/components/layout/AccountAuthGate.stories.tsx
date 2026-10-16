@@ -12,7 +12,7 @@ const meta = {
   component: AccountAuthGate,
   parameters: {
     layout: 'fullscreen',
-    nextjs: { navigation: { pathname: '/dashboard' } },
+    nextjs: { navigation: { pathname: '/account' } },
   },
   args: { children: 'Signed-in page' },
 } satisfies Meta<typeof AccountAuthGate>
@@ -47,8 +47,24 @@ export const SignedOut: Story = {
     await expect(await canvas.findByText('Just a moment…')).toBeVisible()
     await waitFor(() =>
       expect(getRouter().replace).toHaveBeenCalledWith(
-        '/login?next=%2Fdashboard',
+        '/login?next=%2Faccount',
       ),
     )
+  },
+}
+
+/** The session is there but the account didn't load: Try again or Log out, no sign-in. */
+export const LoadFailed: Story = {
+  decorators: [withSession({ token: true })],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText("We couldn't load your account"),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Try again' }),
+    ).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Log out' })).toBeVisible()
+    await expect(canvas.queryByText('Signed-in page')).toBeNull()
   },
 }

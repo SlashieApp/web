@@ -222,23 +222,31 @@ export const Open: Story = {
   },
 }
 
-/** Open, free plan: the panel header shows the quote-usage meter and Upgrade. */
+/** Open, free plan: the menu links to Plan & billing; the quote meter lives on that page. */
 export const OpenWorkerFreePlan: Story = {
   decorators: [withMe(meFree)],
   render: (args) => <OpenSlot {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = await openMenu(canvasElement)
-    await expect(canvas.getByText('Tasks quoted this month')).toBeVisible()
+    await expect(
+      canvas.getByRole('link', { name: 'Plan & billing' }),
+    ).toBeVisible()
+    await expect(canvas.queryByText('Tasks quoted this month')).toBeNull()
   },
 }
 
-/** Open, customer: no worker profile, so the upsell card and "Become a worker" show. */
+/** Open, customer: no worker profile, so Become a worker replaces Plan & billing. */
 export const OpenCustomer: Story = {
   decorators: [withMe(meCustomer)],
   render: (args) => <OpenSlot {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = await openMenu(canvasElement)
-    await expect(canvas.getByText('Post tasks for free')).toBeVisible()
+    await expect(
+      canvas.getByRole('link', { name: 'Become a worker' }),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByRole('link', { name: 'Plan & billing' }),
+    ).toBeNull()
   },
 }
 

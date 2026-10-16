@@ -1,6 +1,6 @@
 'use client'
 
-import { Grid, Stack, Text } from '@chakra-ui/react'
+import { Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 
 import { Button, Link } from '@ui'
@@ -99,11 +99,11 @@ export default function DashboardOverviewPage() {
     <>
       <MembershipRefreshOnMount />
       <DashboardPageLayout
-        eyebrow={t.eyebrow}
+        width="wide"
         title={`${greetingForNow(t.greeting)}, ${displayNameFromMe(me, t.greeting.fallbackName)}`}
         description={t.description}
-        actions={
-          <>
+        action={
+          <HStack gap={2}>
             <Button asChild size="sm" variant="secondary">
               <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
                 {t.browseTasks}
@@ -114,9 +114,9 @@ export default function DashboardOverviewPage() {
                 {t.postTask}
               </Link>
             </Button>
-          </>
+          </HStack>
         }
-        afterNav={
+        afterHeader={
           errorMessageCombined ? (
             <Stack
               direction={{ base: 'column', sm: 'row' }}

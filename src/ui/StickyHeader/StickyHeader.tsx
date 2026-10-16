@@ -19,6 +19,8 @@ export type StickyHeaderProps = {
   backLabel?: string
   /** Accessible label for the compact icon back button. */
   backAriaLabel?: string
+  /** Hide the back controls from this breakpoint up (the app header covers it). */
+  hideBackFrom?: 'md' | 'lg'
   /** Primary action pinned to the right. Receives `isStuck` to compact itself. */
   action?: ReactNode | ((ctx: { isStuck: boolean }) => ReactNode)
 }
@@ -41,6 +43,7 @@ export function StickyHeader({
   onBack,
   backLabel,
   backAriaLabel,
+  hideBackFrom,
   action,
 }: StickyHeaderProps) {
   const [isStuck, setIsStuck] = useState(false)
@@ -59,6 +62,9 @@ export function StickyHeader({
   }, [])
 
   const actionNode = typeof action === 'function' ? action({ isStuck }) : action
+  const backDisplay = hideBackFrom
+    ? { base: 'inline-flex', [hideBackFrom]: 'none' }
+    : undefined
 
   return (
     <>
@@ -103,6 +109,8 @@ export function StickyHeader({
                 type="button"
                 variant="ghost"
                 size="sm"
+                minH="44px"
+                display={backDisplay}
                 alignSelf="flex-start"
                 ml={-3}
                 color="text.muted"
@@ -118,6 +126,7 @@ export function StickyHeader({
                   type="button"
                   variant="ghost"
                   aria-label={backAriaLabel ?? backLabel ?? 'Back'}
+                  display={backDisplay}
                   flexShrink={0}
                   ml={-2}
                   onClick={onBack}

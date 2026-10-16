@@ -1,7 +1,9 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
+import { isPrimaryNavHrefActive } from '@/utils/appRoutes'
 import { Box } from '@chakra-ui/react'
+import { usePathname } from 'next/navigation'
 import { useCallback } from 'react'
 import bag from '../i11n.json'
 
@@ -36,6 +38,7 @@ function AccountNavRow({
   onOpenLanguage?: () => void
 }) {
   const t = useI11n(bag)
+  const pathname = usePathname() ?? ''
   const label = accountNavLabel(t, item.id, item.label)
   const openFeedback = useOpenFeedbackDialog()
   const close = useCallback(() => {
@@ -103,7 +106,14 @@ function AccountNavRow({
   if (!item.href) return null
 
   return (
-    <Link href={item.href} {...accountNavLinkRowProps} onClick={close}>
+    <Link
+      href={item.href}
+      {...accountNavLinkRowProps}
+      aria-current={
+        isPrimaryNavHrefActive(pathname, item.href) ? 'page' : undefined
+      }
+      onClick={close}
+    >
       {label}
     </Link>
   )
@@ -124,36 +134,19 @@ export function AccountNavPanel({
 
   return (
     <Box>
-      {groups.main.map((item) => (
-        <AccountNavRow
-          key={item.id}
-          item={item}
-          onNavigate={onNavigate}
-          onLogout={onLogout}
-          onOpenLanguage={onOpenLanguage}
-        />
-      ))}
-
-      {showDividers && groups.worker.length > 0 ? <NavDivider /> : null}
-      {groups.worker.map((item) => (
-        <AccountNavRow
-          key={item.id}
-          item={item}
-          onNavigate={onNavigate}
-          onLogout={onLogout}
-          onOpenLanguage={onOpenLanguage}
-        />
-      ))}
-
-      {showDividers && groups.account.length > 0 ? <NavDivider /> : null}
-      {groups.account.map((item) => (
-        <AccountNavRow
-          key={item.id}
-          item={item}
-          onNavigate={onNavigate}
-          onLogout={onLogout}
-          onOpenLanguage={onOpenLanguage}
-        />
+      {groups.map((group, index) => (
+        <Box key={group[0].section}>
+          {showDividers && index > 0 ? <NavDivider /> : null}
+          {group.map((item) => (
+            <AccountNavRow
+              key={item.id}
+              item={item}
+              onNavigate={onNavigate}
+              onLogout={onLogout}
+              onOpenLanguage={onOpenLanguage}
+            />
+          ))}
+        </Box>
       ))}
     </Box>
   )

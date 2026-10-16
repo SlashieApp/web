@@ -39,6 +39,7 @@ import {
   clearCachedGooglePhotoUrl,
   googlePictureFromIdToken,
 } from '@/utils/googlePhotoCache'
+import { isSessionEndedError } from '@/utils/graphqlErrors'
 
 const REMEMBER_MAX_AGE = 60 * 60 * 24 * 30
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7
@@ -329,6 +330,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
     } catch (error) {
       if (isAccountDisabledError(error)) {
         markAccountDisabled()
+        set({ isLoading: false })
+        return get().user
+      }
+      // Network or server trouble is not a sign-out: keep the session.
+      if (!isSessionEndedError(error)) {
         set({ isLoading: false })
         return get().user
       }

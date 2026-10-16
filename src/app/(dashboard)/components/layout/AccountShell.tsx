@@ -11,7 +11,7 @@ type AccountShellProps = {
 
 /**
  * Account-hub page chrome: shared app Header + scrolling main + bottom nav.
- * Page titles live on each route via DashboardPageLayout — not a second header.
+ * Page titles live on each route via DashboardPageLayout, not a second header.
  */
 export function AccountShell({
   children,
@@ -19,7 +19,8 @@ export function AccountShell({
 }: AccountShellProps) {
   return (
     <AppShell hasSession={hasSession} bg="bg.subtle" color="text.default">
-      <Box py={{ base: 5, md: 6 }} display="flex" flexDirection="column">
+      {/* The page's sticky header brings its own top spacing. */}
+      <Box pb={{ base: 5, md: 6 }} display="flex" flexDirection="column">
         <Container flex="1" w="full">
           {children}
         </Container>

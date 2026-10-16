@@ -45,10 +45,25 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Worker: main links, then Billing and Earnings, then account links. */
+/** Worker: main links, then Profile, Account, Plan & billing and Earnings, then language, help and Log out. */
 export const Worker: Story = {}
 
-/** Customer: no worker profile, so "Become a worker" replaces Billing and Earnings. */
+/** On /account: the Account row is marked as the current page. */
+export const CurrentPage: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/account' } } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('link', { name: 'Account' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    await expect(
+      canvas.getByRole('link', { name: 'Profile' }),
+    ).not.toHaveAttribute('aria-current')
+  },
+}
+
+/** Customer: no worker profile, so "Become a worker" sits where Plan & billing and Earnings would. */
 export const Customer: Story = {
   args: { items: resolveAccountNavItems(false) },
 }

@@ -1,117 +1,106 @@
 'use client'
 
-import { Box, Grid, HStack, Stack } from '@chakra-ui/react'
-import type { ReactNode, Ref } from 'react'
+import { Box, Grid, Stack } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
+import { type ReactNode, type Ref, useCallback } from 'react'
 
-import { DashboardPageHeader } from './DashboardPageHeader'
-import {
-  DashboardSectionNav,
-  type DashboardSectionNavItem,
-} from './DashboardSectionNav'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
+import { APP_HOME } from '@/utils/appRoutes'
+import { StickyHeader } from '@ui'
+
+import bag from '../../i11n.json'
+
+/** One readable column for settings pages. */
+const NARROW_MAX_W = '720px'
 
 export type DashboardPageLayoutProps = {
-  eyebrow: string
-  title: ReactNode
+  /** The h1: the same words as the menu item and the browser tab. */
+  title: string
+  /** One short line under the title. */
   description?: ReactNode
-  /** Right-aligned controls beside the page title (e.g. primary CTAs). */
-  actions?: ReactNode
-  /** Content between the header and section nav (hero, banners). */
+  /** At most one button beside the title. */
+  action?: ReactNode
+  /** Between the header and the body (hero, notices). */
   afterHeader?: ReactNode
-  /** Content between section nav and the body (checkout notices, errors). */
-  afterNav?: ReactNode
-  sections?: readonly DashboardSectionNavItem[]
-  activeSectionHref?: string
-  /**
-   * When set, renders a 65/35 main + sidebar grid on large screens.
-   * Omit for full-width body content (lists, overview dashboards).
-   */
+  /** `narrow`: one readable column. `wide`: the page width, with an optional rail. */
+  width?: 'narrow' | 'wide'
+  /** Rail beside the body on large screens; stacks under it on phones. */
   sidebar?: ReactNode
-  /** When false, sidebar is desktop-only (default true). */
+  /** When false, the rail is desktop-only (default true). */
   sidebarOnMobile?: boolean
-  /** Anchor id for the page root (default `overview`). */
-  id?: string
   rootRef?: Ref<HTMLDivElement>
   children: ReactNode
 }
 
 /**
- * Shared shell for dashboard hub pages: eyebrow header, optional section nav,
- * and either a full-width body or a main + sidebar split.
+ * Page contract for the signed-in dashboard pages: a sticky header whose h1
+ * matches the menu label, a back control on phones (no app header there),
+ * then the body in one readable column or with a rail.
  */
 export function DashboardPageLayout({
-  eyebrow,
   title,
   description,
-  actions,
+  action,
   afterHeader,
-  afterNav,
-  sections,
-  activeSectionHref,
+  width = 'narrow',
   sidebar,
   sidebarOnMobile = true,
-  id = 'overview',
   rootRef,
   children,
 }: DashboardPageLayoutProps) {
-  const header = (
-    <DashboardPageHeader
-      eyebrow={eyebrow}
-      title={title}
-      description={description}
-    />
-  )
+  const t = useI11n(bag)
+  const router = useRouter()
+  const localize = useLocalizedHref()
+  const onBack = useCallback(() => {
+    if (window.history.length > 1) router.back()
+    else router.push(localize(APP_HOME))
+  }, [localize, router])
 
   return (
-    <Stack ref={rootRef} gap={{ base: 5, md: 6 }} id={id}>
-      {actions ? (
-        <HStack
-          justify="space-between"
-          align="flex-start"
-          gap={4}
-          flexWrap="wrap"
-        >
-          <Box flex="1" minW={{ base: '100%', sm: '240px' }}>
-            {header}
-          </Box>
-          <HStack gap={2} flexWrap="wrap" flexShrink={0}>
-            {actions}
-          </HStack>
-        </HStack>
-      ) : (
-        header
-      )}
-
-      {afterHeader}
-
-      {sections && sections.length > 0 ? (
-        <DashboardSectionNav items={sections} activeHref={activeSectionHref} />
-      ) : null}
-
-      {afterNav}
-
-      {sidebar ? (
-        <Grid
-          templateColumns={{
-            base: '1fr',
-            lg: 'minmax(0, 1.85fr) minmax(280px, 1fr)',
-          }}
-          gap={6}
-          alignItems="start"
-        >
+    <Box
+      ref={rootRef}
+      w="full"
+      maxW={width === 'narrow' ? NARROW_MAX_W : undefined}
+      mx="auto"
+    >
+      <StickyHeader
+        title={title}
+        description={description}
+        action={action}
+        onBack={onBack}
+        backLabel={t.page.back}
+        backAriaLabel={t.page.backAria}
+        hideBackFrom="lg"
+      />
+      <Stack gap={{ base: 4, md: 5 }}>
+        {afterHeader}
+        {sidebar ? (
+          <Grid
+            templateColumns={{
+              base: '1fr',
+              lg: 'minmax(0, 1.85fr) minmax(280px, 1fr)',
+            }}
+            gap={6}
+            alignItems="start"
+          >
+            <Stack gap={4} minW={0}>
+              {children}
+            </Stack>
+            <Stack
+              gap={4}
+              minW={0}
+              display={{ base: sidebarOnMobile ? 'flex' : 'none', lg: 'flex' }}
+            >
+              {sidebar}
+            </Stack>
+          </Grid>
+        ) : (
           <Stack gap={4} minW={0}>
             {children}
           </Stack>
-          <Stack
-            gap={4}
-            minW={0}
-            display={{ base: sidebarOnMobile ? 'flex' : 'none', lg: 'flex' }}
-          >
-            {sidebar}
-          </Stack>
-        </Grid>
-      ) : (
-        children
-      )}
-    </Stack>
+        )}
+      </Stack>
+    </Box>
   )
 }

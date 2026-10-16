@@ -115,11 +115,6 @@ function Page() {
   const me = useMe()
   const searchParams = useSearchParams()
   const checkoutState = searchParams.get('checkout')
-  const sectionLinks = [
-    { label: t.navOverview, href: '#overview' },
-    { label: t.navUsage, href: '#usage' },
-    { label: t.navPlan, href: '#plan' },
-  ] as const
 
   const {
     data: billingData,
@@ -169,7 +164,6 @@ function Page() {
         <MembershipRefreshOnMount />
         <BillingViewCapture />
         <DashboardPageLayout
-          eyebrow={t.eyebrow}
           title={t.title}
           description={t.descriptionNonWorker}
         >
@@ -188,11 +182,10 @@ function Page() {
         onRefetchBilling={refetch}
       />
       <DashboardPageLayout
-        eyebrow={t.eyebrow}
         title={t.title}
         description={t.description}
-        sections={sectionLinks}
-        afterNav={
+        width="wide"
+        afterHeader={
           <>
             {showCheckoutSuccess ? (
               <BillingNotice

@@ -26,6 +26,7 @@ import {
 import {
   APP_HOME,
   MY_TASKS_HREF,
+  isAccountTabActive,
   isPrimaryNavHrefActive,
 } from '@/utils/appRoutes'
 import { useCreateTaskHref } from '@/utils/taskHandoff'
@@ -282,7 +283,10 @@ export function MobileBottomNav() {
           css={glassPillCss}
         >
           {items.map((item) => {
-            const active = isPrimaryNavHrefActive(pathname, item.href)
+            const active =
+              item.key === 'account'
+                ? isAccountTabActive(pathname)
+                : isPrimaryNavHrefActive(pathname, item.href)
 
             if (item.emphasize) {
               return (
@@ -418,6 +422,7 @@ export function MobileBottomNav() {
                   type="button"
                   aria-label={label}
                   aria-haspopup="dialog"
+                  aria-current={active ? 'page' : undefined}
                   bg="transparent"
                   cursor="pointer"
                   onClick={item.onPress}

@@ -4,7 +4,6 @@
       "title": "Dashboard | Slashie",
       "description": "See what needs you today — tasks you posted and work you’re on."
     },
-    "eyebrow": "My tasks",
     "title": "Your worker cockpit",
     "description": "What needs you today — tasks you posted and work you’re on.",
     "browseTasks": "Browse tasks",
@@ -100,7 +99,6 @@
       "title": "儀表板 | Slashie",
       "description": "查看今天要處理的事項 — 你發布的任務和正在進行的工作。"
     },
-    "eyebrow": "我的任務",
     "title": "你的工作者工作台",
     "description": "今天要處理什麼 — 你發布的任務和正在進行的工作。",
     "browseTasks": "瀏覽任務",

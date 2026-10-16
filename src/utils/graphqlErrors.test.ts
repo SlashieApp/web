@@ -7,6 +7,7 @@ import {
   isAccountDeletedError,
   isAccountDeletionScheduledError,
   isAccountDisabledError,
+  isSessionEndedError,
 } from './graphqlErrors'
 
 function gqlError(code: string): unknown {
@@ -76,5 +77,17 @@ describe('account deletion (BE-74)', () => {
     ).toBe(
       'Finish or cancel your active bookings before deleting your account.',
     )
+  })
+})
+
+describe('when a failed request ends the session', () => {
+  it('ends it when the API rejects the token or the account is gone', () => {
+    expect(isSessionEndedError(gqlError('UNAUTHENTICATED'))).toBe(true)
+    expect(isSessionEndedError(gqlError('ACCOUNT_DELETED'))).toBe(true)
+  })
+
+  it('keeps it through network and server trouble', () => {
+    expect(isSessionEndedError(new TypeError('Failed to fetch'))).toBe(false)
+    expect(isSessionEndedError(gqlError('INTERNAL_SERVER_ERROR'))).toBe(false)
   })
 })

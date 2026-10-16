@@ -23,9 +23,19 @@
       "viewBilling": "View billing",
       "becomeWorker": "Become a worker",
       "platformMembership": "Platform membership",
-      "body": "Slashie Unlimited covers platform quoting access. Job payments stay between customer and worker — not through Slashie.",
+      "body": "Slashie Unlimited covers platform quoting access. Job payments stay between customer and worker, not through Slashie.",
       "quotesThisMonth": "Tasks quoted this month",
       "quotesThisMonthUtc": "Tasks quoted this month (UTC)"
+    },
+    "page": {
+      "back": "Back",
+      "backAria": "Go back"
+    },
+    "session": {
+      "errorTitle": "We couldn't load your account",
+      "errorBody": "Check your connection and try again.",
+      "retry": "Try again",
+      "logout": "Log out"
     }
   },
   "zh_hk": {
@@ -52,9 +62,19 @@
       "viewBilling": "查看帳單",
       "becomeWorker": "成為工作者",
       "platformMembership": "平台會員",
-      "body": "Slashie Unlimited 涵蓋平台報價權限。工作款項由顧客與工作者直接處理 — 不經 Slashie。",
+      "body": "Slashie Unlimited 涵蓋平台報價權限。工作款項由顧客與工作者直接處理，不經 Slashie。",
       "quotesThisMonth": "本月已報價任務",
       "quotesThisMonthUtc": "本月已報價任務（UTC）"
+    },
+    "page": {
+      "back": "返回",
+      "backAria": "返回上一頁"
+    },
+    "session": {
+      "errorTitle": "無法載入你的帳戶",
+      "errorBody": "請檢查網絡連線，然後再試一次。",
+      "retry": "再試一次",
+      "logout": "登出"
     }
   }
 }

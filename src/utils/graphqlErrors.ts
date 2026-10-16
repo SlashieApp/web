@@ -237,6 +237,11 @@ export function isAccountDeletedError(error: unknown) {
   return getGraphQLErrorCode(error) === ACCOUNT_DELETED_ERROR_CODE
 }
 
+/** The API rejected the session: drop it. Network or server trouble keeps it. */
+export function isSessionEndedError(error: unknown) {
+  return isUnauthenticatedError(error) || isAccountDeletedError(error)
+}
+
 export function getGraphQLErrorCode(error: unknown): string | undefined {
   const graphQLError = pickGraphQLError(error)
   const rawCode = graphQLError?.extensions?.code

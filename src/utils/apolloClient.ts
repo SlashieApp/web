@@ -25,10 +25,9 @@ import {
 import { markDeletionScheduled } from './accountDeletionState'
 import { clearAuthToken, getAuthToken } from './auth'
 import {
-  isAccountDeletedError,
   isAccountDeletionScheduledError,
   isAccountDisabledError,
-  isUnauthenticatedError,
+  isSessionEndedError,
 } from './graphqlErrors'
 
 const httpLink = createHttpLink({
@@ -62,9 +61,7 @@ const errorLink = onError(({ error, operation }) => {
   }
 
   // A deleted account's session is worthless: drop it like an expired one.
-  if (isUnauthenticatedError(error) || isAccountDeletedError(error)) {
-    clearAuthToken()
-  }
+  if (isSessionEndedError(error)) clearAuthToken()
 
   const operationName = operation?.operationName ?? 'unknown'
   const operationType = operation?.query.definitions.find(

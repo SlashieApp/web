@@ -22,6 +22,18 @@ export function isPrimaryNavHrefActive(
   return bare === href || bare.startsWith(`${href}/`)
 }
 
+/** Settings pages behind the phone bar's Account tab (public profiles excluded). */
+const ACCOUNT_TAB_PATHS: readonly string[] = [
+  '/profile',
+  '/account',
+  '/billing',
+]
+
+export function isAccountTabActive(pathname: string): boolean {
+  const bare = stripLocalePrefix(pathname.split('?')[0] || '/')
+  return ACCOUNT_TAB_PATHS.includes(bare)
+}
+
 /** Public worker directory. */
 export const WORKER_SEARCH_HREF = '/workers' as const
 

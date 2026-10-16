@@ -268,15 +268,36 @@ export const MessagesActive: Story = {
   },
 }
 
-/** Account active: signed in on /profile, the Account button turns green. */
+/** Account active: on Plan & billing (like Profile and Account) the Account button is current. */
 export const AccountActive: Story = {
-  parameters: { nextjs: { navigation: { pathname: '/profile' } } },
+  parameters: { nextjs: { navigation: { pathname: '/billing' } } },
   decorators: [withMe(meWorker)],
   render: () => (
     <Screen>
       <MobileBottomNav />
     </Screen>
   ),
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole('button', { name: 'Account' }),
+    ).toHaveAttribute('aria-current', 'page')
+  },
+}
+
+/** Someone else's public profile: the Account button stays off. */
+export const AccountOffOnPublicProfile: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/profile/user-2' } } },
+  decorators: [withMe(meWorker)],
+  render: () => (
+    <Screen>
+      <MobileBottomNav />
+    </Screen>
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole('button', { name: 'Account' }),
+    ).not.toHaveAttribute('aria-current')
+  },
 }
 
 /** Signed in: tapping Account opens the full-page account drawer instead of the login page. */

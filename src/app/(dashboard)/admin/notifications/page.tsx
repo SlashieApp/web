@@ -77,7 +77,6 @@ export default function AdminNotificationsPage() {
   if (!isAdmin) {
     return (
       <DashboardPageLayout
-        eyebrow={t.eyebrow}
         title={t.unavailableTitle}
         description={t.unavailableBody}
       >
@@ -89,11 +88,7 @@ export default function AdminNotificationsPage() {
   }
 
   return (
-    <DashboardPageLayout
-      eyebrow={t.eyebrow}
-      title={t.title}
-      description={t.description}
-    >
+    <DashboardPageLayout title={t.title} description={t.description}>
       <AdminNotificationComposer
         onDryRun={(draft) => run(draft, true)}
         onSend={(draft) => run(draft, false)}

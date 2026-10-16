@@ -65,20 +65,13 @@ export function ProfileHub({
       })
     })
   }, [])
-  const sectionLinks = [
-    { label: t.navOverview, href: '#overview' },
-    { label: t.navPersonalInfo, href: '#personal-info' },
-    { label: t.navContactVerification, href: '#contact-verification' },
-    { label: t.navWorkerProfile, href: '#worker-profile' },
-    { label: t.navPreferences, href: '#preferences' },
-  ] as const
 
   return (
     <>
       <DashboardPageLayout
         rootRef={onHubRef}
-        eyebrow={t.eyebrow}
         title={t.title}
+        width="wide"
         description={t.description}
         afterHeader={
           <Stack gap={4}>
@@ -99,7 +92,6 @@ export function ProfileHub({
             />
           </Stack>
         }
-        sections={sectionLinks}
         sidebar={
           <>
             <Box display={{ base: 'none', lg: 'block' }}>

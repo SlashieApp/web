@@ -1,22 +1,17 @@
 import { Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuInfo, LuUser } from 'react-icons/lu'
+import { expect, within } from 'storybook/test'
 
 import { Button, Link } from '@ui'
 
 import { DashboardPageLayout } from './DashboardPageLayout'
 import { DashboardSectionCard } from './DashboardSectionCard'
 
-const sections = [
-  { label: 'Overview', href: '#overview' },
-  { label: 'Contact', href: '#contact' },
-  { label: 'Security', href: '#security' },
-]
-
 const body = (
   <>
     <DashboardSectionCard
-      title="Contact methods"
+      title="Contact"
       description="How Slashie reaches you."
       icon={<LuUser size={18} aria-hidden />}
     >
@@ -25,8 +20,8 @@ const body = (
       </Text>
     </DashboardSectionCard>
     <DashboardSectionCard
-      title="Security"
-      description="Sign-in and password."
+      title="Sign-in and security"
+      description="How you sign in."
       icon={<LuInfo size={18} aria-hidden />}
     >
       <Text fontSize="sm" color="text.muted">
@@ -37,10 +32,9 @@ const body = (
 )
 
 const sidebar = (
-  <DashboardSectionCard title="Related" description="Other account areas.">
+  <DashboardSectionCard title="Visibility" description="Who can find you.">
     <Stack gap={2}>
       <Link href="/profile">Profile</Link>
-      <Link href="/billing">Billing</Link>
     </Stack>
   </DashboardSectionCard>
 )
@@ -50,68 +44,58 @@ const meta = {
   component: DashboardPageLayout,
   parameters: { layout: 'padded' },
   args: {
-    eyebrow: 'Account',
-    title: 'Account & security',
-    description: 'Login, security and contact settings.',
-    children: <Stack gap={4}>{body}</Stack>,
+    title: 'Account',
+    description: 'Email, phone and sign-in.',
+    children: body,
   },
 } satisfies Meta<typeof DashboardPageLayout>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Header and a full-width body. */
-export const Default: Story = {}
-
-/** Actions sit to the right of the title. */
-export const WithActions: Story = {
-  args: {
-    actions: (
-      <>
-        <Button size="sm" variant="secondary">
-          Browse tasks
-        </Button>
-        <Button size="sm">Post a task</Button>
-      </>
-    ),
+/** Desktop: one readable column, the title is the h1 and there is no back button. */
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('heading', { level: 1, name: 'Account' }),
+    ).toBeVisible()
+    await expect(canvas.queryByRole('button', { name: 'Back' })).toBeNull()
   },
 }
 
-/** Section links under the header, the second one active. */
-export const WithSectionNav: Story = {
-  args: { sections, activeSectionHref: '#contact' },
+/** One button beside the title. */
+export const WithAction: Story = {
+  args: { action: <Button size="sm">Edit profile</Button> },
 }
 
-/** Body plus a sidebar, side by side on large screens. */
-export const WithSidebar: Story = {
-  args: { sidebar },
+/** A wide page with a rail beside the body. */
+export const WideWithSidebar: Story = {
+  args: { width: 'wide', title: 'Profile', sidebar },
 }
 
-/** Banners above the nav and between the nav and the body. */
-export const WithBanners: Story = {
+/** A hero or notice between the header and the body. */
+export const WithAfterHeader: Story = {
   args: {
-    sections,
     afterHeader: (
       <Text fontSize="sm" p={4} bg="status.success.soft" borderRadius="lg">
-        Content between the header and the section nav (hero, banners).
-      </Text>
-    ),
-    afterNav: (
-      <Text fontSize="sm" color="status.danger.fg" role="alert">
-        Content between the nav and the body (notices, errors).
+        Content between the header and the body (hero, notices).
       </Text>
     ),
   },
 }
 
-/** Phones: the sidebar stacks under the body. */
-export const PhoneSidebarStacked: Story = {
+/** Phones: there is no app header, so the page header has Back. */
+export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
-  args: { sections, sidebar },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('button', { name: 'Back' })).toBeVisible()
+  },
 }
 
-/** Phones: a desktop-only sidebar is hidden. */
-export const PhoneSidebarHidden: Story = {
+/** Phones: the rail stacks under the body. */
+export const PhoneSidebarStacked: Story = {
   globals: { viewport: { value: 'mobile1' } },
-  args: { sections, sidebar, sidebarOnMobile: false },
+  args: { width: 'wide', title: 'Profile', sidebar },
 }

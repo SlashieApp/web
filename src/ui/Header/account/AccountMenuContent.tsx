@@ -68,8 +68,6 @@ export function AccountMenuContent({
       <AccountMenuHeader
         displayName={displayName}
         email={email}
-        membership={me?.worker?.membership}
-        hasWorker={hasWorker}
         onViewProfile={close}
       />
 

@@ -41,22 +41,13 @@ export default function AccountPage() {
   const enabledMethods = me.enabledLoginMethods?.length
     ? me.enabledLoginMethods.map((m) => methodLabels[m] ?? m).join(', ')
     : t.passwordFallback
-  const sectionLinks = [
-    { label: t.navOverview, href: '#overview' },
-    { label: t.navContact, href: '#contact' },
-    { label: t.navLogin, href: '#login' },
-    { label: t.navSecurity, href: '#security' },
-    { label: t.navSettings, href: '#settings' },
-    { label: t.navSession, href: '#session' },
-    { label: t.navDelete, href: '#delete' },
-  ] as const
 
   return (
     <>
       <MembershipRefreshOnMount />
       <DashboardPageLayout
-        eyebrow={t.eyebrow}
         title={t.title}
+        width="wide"
         description={
           <>
             {t.descriptionBefore}{' '}
@@ -66,7 +57,6 @@ export default function AccountPage() {
             {t.descriptionAfter}
           </>
         }
-        sections={sectionLinks}
         sidebar={
           <>
             {me.worker?.membership ? (

@@ -4,7 +4,7 @@ import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe, storyWorkerMe } from '@/app/(auth)/helpers/authStoryFixtures'
 
 import { AccountShell } from './AccountShell'
-import { DashboardPageHeader } from './DashboardPageHeader'
+import { DashboardPageLayout } from './DashboardPageLayout'
 
 const meta = {
   title: 'Dashboard/Shared/AccountShell',
@@ -12,11 +12,12 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: {
     children: (
-      <DashboardPageHeader
-        eyebrow="Account"
-        title="Account & security"
-        description="Login, security and contact settings."
-      />
+      <DashboardPageLayout
+        title="Account"
+        description="Email, phone and sign-in."
+      >
+        Page body
+      </DashboardPageLayout>
     ),
   },
 } satisfies Meta<typeof AccountShell>
