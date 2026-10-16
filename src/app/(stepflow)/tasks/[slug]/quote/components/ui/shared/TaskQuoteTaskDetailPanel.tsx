@@ -6,6 +6,9 @@ import { LuArrowLeft } from 'react-icons/lu'
 import { Link } from '@ui'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import { useI11n } from '@/i18n/useI11n'
+
+import bag from '../../../i11n.json'
 
 type TaskQuoteTaskDetailPanelProps = {
   backHref: string
@@ -17,6 +20,7 @@ export function TaskQuoteTaskDetailPanel({
   variant = 'sidebar',
 }: TaskQuoteTaskDetailPanelProps) {
   const { task } = useTaskDetail()
+  const backLabel = useI11n(bag).gate.backToTask
   if (!task) return null
 
   const isSection = variant === 'section'
@@ -49,7 +53,7 @@ export function TaskQuoteTaskDetailPanel({
         _hover={{ textDecoration: 'none', color: 'text.link' }}
       >
         <LuArrowLeft size={16} aria-hidden />
-        Back to task
+        {backLabel}
       </Link>
 
       <Stack gap={3}>

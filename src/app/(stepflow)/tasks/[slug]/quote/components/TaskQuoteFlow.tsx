@@ -18,6 +18,7 @@ import { Button, Link } from '@ui'
 
 import { QuoteLimitPaywall } from '@/app/(task)/tasks/[slug]/components/quotes/QuoteLimitPaywall'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import quoteBag from '../i11n.json'
 import { TaskQuoteScreen } from './TaskQuoteScreen'
 import { TaskQuoteGateView } from './ui/shared/TaskQuoteGateView'
 import { TaskQuoteSummaryCard } from './ui/shared/TaskQuoteSummaryCard'
@@ -43,6 +44,7 @@ export function TaskQuoteFlow() {
     withdrawingQuote,
   } = useTaskDetail()
   const t = useI11n(taskDetailBag)
+  const gate = useI11n(quoteBag).gate
 
   const redirectedRef = useRef(false)
   const prefilledRef = useRef(false)
@@ -124,14 +126,14 @@ export function TaskQuoteFlow() {
     return (
       <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
-          title="Send quote"
-          description="Sign in to send a quote for this task."
+          title={t.cta.sendQuote}
+          description={gate.signInBody}
           backHref={backToTask}
         >
           <TaskQuoteSummaryCard />
           <Button asChild w="full">
             <Link href={loginHref} _hover={{ textDecoration: 'none' }}>
-              Log in
+              {gate.logIn}
             </Link>
           </Button>
         </TaskQuoteGateView>
@@ -143,8 +145,8 @@ export function TaskQuoteFlow() {
     return (
       <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
-          title="Send quote"
-          description="Create your worker profile before you can send quotes."
+          title={t.cta.sendQuote}
+          description={gate.workerProfileBody}
           backHref={backToTask}
         >
           <TaskQuoteSummaryCard />
@@ -153,7 +155,7 @@ export function TaskQuoteFlow() {
               href={workerSetupHref(`${backToTask}/quote`)}
               _hover={{ textDecoration: 'none' }}
             >
-              Create worker profile
+              {gate.createWorkerProfile}
             </Link>
           </Button>
         </TaskQuoteGateView>
@@ -166,8 +168,8 @@ export function TaskQuoteFlow() {
     return (
       <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
-          title="Send quote"
-          description="You've used this month's free tasks. Upgrade to quote more tasks. Quotes you've already sent stay editable."
+          title={t.cta.sendQuote}
+          description={gate.limitBody}
           backHref={backToTask}
         >
           <TaskQuoteSummaryCard />
@@ -181,14 +183,14 @@ export function TaskQuoteFlow() {
     return (
       <Box minH="100dvh" bg="bg.subtle">
         <TaskQuoteGateView
-          title="Verify your email"
-          description="Verify your email before sending quotes. Check your inbox or resend from the banner."
+          title={gate.verifyEmailTitle}
+          description={t.provider.verifyEmailBeforeQuote}
           backHref={backToTask}
         >
           <TaskQuoteSummaryCard />
           <Button asChild w="full">
             <Link href="/verify-email/sent" _hover={{ textDecoration: 'none' }}>
-              Check inbox
+              {gate.checkInbox}
             </Link>
           </Button>
         </TaskQuoteGateView>

@@ -15,7 +15,17 @@
     "slotsInvalid": "Add at least one time with a day and a start time in the future.",
     "proposedTimes": "Proposed times",
     "locationNote": "Approximate area. The exact address is shared once a quote is accepted.",
-    "notFoundBrowse": "Search tasks"
+    "notFoundBrowse": "Search tasks",
+    "gate": {
+      "backToTask": "Back to task",
+      "signInBody": "Sign in to send a quote for this task.",
+      "logIn": "Log in",
+      "workerProfileBody": "Create your worker profile before you can send quotes.",
+      "createWorkerProfile": "Create worker profile",
+      "limitBody": "You've used this month's free quotes. Quotes you've already sent stay editable.",
+      "verifyEmailTitle": "Verify your email",
+      "checkInbox": "Check inbox"
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -33,6 +43,16 @@
     "slotsInvalid": "請最少加入一個時間，包括日期和未來的開始時間。",
     "proposedTimes": "建議時間",
     "locationNote": "大約位置。報價被接受後才會提供確實地址。",
-    "notFoundBrowse": "搜尋任務"
+    "notFoundBrowse": "搜尋任務",
+    "gate": {
+      "backToTask": "返回任務",
+      "signInBody": "登入後即可為此任務傳送報價。",
+      "logIn": "登入",
+      "workerProfileBody": "傳送報價前，請先建立你的工作者檔案。",
+      "createWorkerProfile": "建立工作者檔案",
+      "limitBody": "你已用完本月的免費報價。已傳送的報價仍可修改。",
+      "verifyEmailTitle": "驗證你的電郵",
+      "checkInbox": "查看收件匣"
+    }
   }
 }

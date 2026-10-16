@@ -5,7 +5,10 @@ import type { ReactNode } from 'react'
 import { Stack, Text } from '@chakra-ui/react'
 import { LuArrowLeft } from 'react-icons/lu'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Link } from '@ui'
+
+import bag from '../../../i11n.json'
 
 type TaskQuoteGateViewProps = {
   title: string
@@ -15,6 +18,7 @@ type TaskQuoteGateViewProps = {
 }
 
 function BackToTaskLink({ href }: { href: string }) {
+  const backLabel = useI11n(bag).gate.backToTask
   return (
     <Link
       href={href}
@@ -28,7 +32,7 @@ function BackToTaskLink({ href }: { href: string }) {
       _hover={{ textDecoration: 'none', color: 'text.link' }}
     >
       <LuArrowLeft size={16} aria-hidden />
-      Back to task
+      {backLabel}
     </Link>
   )
 }

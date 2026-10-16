@@ -427,6 +427,11 @@
       "guestSubline": "Sign in as a worker to send a quote.",
       "awardedHeadline": "Worker booked",
       "awardedSubline": "This task has been awarded to a worker."
+    },
+    "quoteLimit": {
+      "heading": "Slashie Unlimited",
+      "body": "Quote on as many tasks as you like. Your free quotes reset on {date}.",
+      "action": "Go unlimited"
     }
   },
   "zh_hk": {
@@ -857,6 +862,11 @@
       "guestSubline": "請以工作者身分登入以傳送報價。",
       "awardedHeadline": "已預訂工作者",
       "awardedSubline": "此任務已選定工作者。"
+    },
+    "quoteLimit": {
+      "heading": "Slashie Unlimited",
+      "body": "可為任何數量的任務報價。你的免費報價於 {date} 重設。",
+      "action": "升級為無限報價"
     }
   }
 }
