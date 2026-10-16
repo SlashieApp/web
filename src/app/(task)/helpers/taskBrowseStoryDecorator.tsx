@@ -108,6 +108,7 @@ function tasksQueryData(tasks: readonly TaskListItem[]) {
         ? {
             __typename: 'User',
             id: task.poster.id,
+            hostedCompletedCount: task.poster.hostedCompletedCount ?? 0,
             profile: {
               __typename: 'Profile',
               name: task.poster.profile?.name ?? null,

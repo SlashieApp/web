@@ -3,7 +3,7 @@
 import { Box, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { MouseEvent } from 'react'
 import { Fragment } from 'react'
-import { LuBadgeCheck, LuBookmark, LuChevronRight } from 'react-icons/lu'
+import { LuBookmark, LuChevronRight, LuCircleCheck } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
 import { ReportControl } from '@/content/trust/ReportControl'
@@ -18,10 +18,8 @@ import { setTaskHandoff } from '../../helpers/taskCardHandoff'
 import bag from '../i11n.json'
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
 
-/** Optional discovery trust crumb — rendered only when the API has a signal. */
-export type TaskCardTrust =
-  | { kind: 'verified' }
-  | { kind: 'jobsDone'; count: number }
+/** Discovery trust crumb: the poster's completed jobs, shown only when above 0. */
+export type TaskCardTrust = { kind: 'jobsDone'; count: number }
 
 /** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
 export type TaskCardTask = {
@@ -243,12 +241,9 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     distanceLabel,
     timingLabel,
   })
-  const trustLabel =
-    trust?.kind === 'verified'
-      ? t.trustVerified
-      : trust?.kind === 'jobsDone'
-        ? formatMessage(t.trustJobsDone, { count: trust.count })
-        : null
+  const trustLabel = trust
+    ? formatMessage(t.trustJobsDone, { count: trust.count })
+    : null
 
   const handleToggleSave = onToggleSave
     ? (e: MouseEvent<HTMLButtonElement>) => {
@@ -375,7 +370,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                     display="inline-flex"
                     flexShrink={0}
                   >
-                    <LuBadgeCheck size={14} strokeWidth={2.25} />
+                    <LuCircleCheck size={14} strokeWidth={2.25} />
                   </Box>
                   <Text fontSize="xs" fontWeight={600} lineClamp={1}>
                     {trustLabel}

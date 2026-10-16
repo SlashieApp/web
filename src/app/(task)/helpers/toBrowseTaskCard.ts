@@ -15,21 +15,12 @@ import {
 } from './taskBrowseHelpers'
 import { taskCategoriesSummary } from './taskCategories'
 
-/**
- * Trust crumb for discovery cards, omitted when the API has no signal.
- * Dead until BE-85: public `tasks` has no poster trust signal (FE-307).
- */
+/** "{n} jobs done" crumb from the poster's completed orders; omitted at 0. */
 export function taskTrustFromPoster(
   task: TaskListItem,
 ): TaskCardTrust | undefined {
-  if (task.poster?.emailVerified || task.poster?.phoneVerified) {
-    return { kind: 'verified' }
-  }
-  const jobs = task.poster?.completedJobsCount
-  if (typeof jobs === 'number' && Number.isFinite(jobs) && jobs > 0) {
-    return { kind: 'jobsDone', count: Math.round(jobs) }
-  }
-  return undefined
+  const count = task.poster?.hostedCompletedCount ?? 0
+  return count > 0 ? { kind: 'jobsDone', count } : undefined
 }
 
 /** Browse-list view model for TaskCard + the listing→detail handoff. */

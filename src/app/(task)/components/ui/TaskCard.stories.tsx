@@ -30,7 +30,7 @@ const defaultTask: TaskCardTask = {
   timingLabel: 'Flexible',
   thumbnailSrc:
     'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
-  trust: { kind: 'verified' },
+  trust: { kind: 'jobsDone', count: 12 },
 }
 
 const meta = {
@@ -55,8 +55,12 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-/** Poster is verified: badge, budget, distance and timing, verified crumb. */
-export const Default: Story = {}
+/** Poster with completed jobs: badge, budget, distance and timing, jobs-done crumb. */
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText('12 jobs done')).toBeVisible()
+  },
+}
 
 /** Results loading: the card-shaped skeleton. */
 export const Loading: Story = {
@@ -83,14 +87,9 @@ export const MissingBudget: Story = {
   args: { task: { ...defaultTask, priceLabel: '' } },
 }
 
-/** No trust signal from the API: the crumb is omitted. */
+/** Poster has no completed jobs yet: the crumb is omitted. */
 export const EmptyTrust: Story = {
   args: { task: { ...defaultTask, trust: undefined } },
-}
-
-/** Poster has finished jobs but is not verified: the jobs-done crumb. */
-export const JobsDoneTrust: Story = {
-  args: { task: { ...defaultTask, trust: { kind: 'jobsDone', count: 12 } } },
 }
 
 /** No photo: the thumbnail falls back to its placeholder. */

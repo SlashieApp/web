@@ -30,31 +30,21 @@ function listTask(overrides: Partial<TaskListItem> = {}): TaskListItem {
 }
 
 describe('taskTrustFromPoster', () => {
-  it('returns verified when the poster has a verified contact', () => {
+  it('returns jobs done when the poster has completed jobs', () => {
     expect(
       taskTrustFromPoster(
         listTask({
-          poster: { id: 'user-1', emailVerified: true },
-        }),
-      ),
-    ).toEqual({ kind: 'verified' })
-  })
-
-  it('returns jobs done when a positive count exists', () => {
-    expect(
-      taskTrustFromPoster(
-        listTask({
-          poster: { id: 'user-1', completedJobsCount: 4 },
+          poster: { id: 'user-1', hostedCompletedCount: 4 },
         }),
       ),
     ).toEqual({ kind: 'jobsDone', count: 4 })
   })
 
-  it('is empty when the API has no trust signal', () => {
+  it('is empty when the poster has no completed jobs', () => {
     expect(taskTrustFromPoster(listTask())).toBeUndefined()
     expect(
       taskTrustFromPoster(
-        listTask({ poster: { id: 'user-1', completedJobsCount: 0 } }),
+        listTask({ poster: { id: 'user-1', hostedCompletedCount: 0 } }),
       ),
     ).toBeUndefined()
   })
@@ -68,15 +58,15 @@ describe('toBrowseTaskCard', () => {
     expect(card.trust).toBeUndefined()
   })
 
-  it('maps a fixed budget and verified poster onto the scan card', () => {
+  it("maps a fixed budget and the poster's completed jobs onto the scan card", () => {
     const card = toBrowseTaskCard(
       listTask({
         budget: { amount: 85, currency: 'GBP' } as TaskListItem['budget'],
-        poster: { id: 'user-1', phoneVerified: true },
+        poster: { id: 'user-1', hostedCompletedCount: 2 },
       }),
       reference,
     )
     expect(card.priceLabel).toBe('£85')
-    expect(card.trust).toEqual({ kind: 'verified' })
+    expect(card.trust).toEqual({ kind: 'jobsDone', count: 2 })
   })
 })

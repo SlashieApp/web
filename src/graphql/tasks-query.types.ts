@@ -43,10 +43,8 @@ export type TaskListItem = {
   images?: string[]
   poster?: {
     id: string
-    emailVerified?: boolean | null
-    phoneVerified?: boolean | null
-    /** Completed customer jobs, when the API exposes a count. */
-    completedJobsCount?: number | null
+    /** Completed orders as customer; public on browse `tasks` (BE-85). */
+    hostedCompletedCount?: number | null
     profile?: { name?: string | null; avatarUrl?: string | null } | null
   } | null
   /**

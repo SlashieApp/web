@@ -1,7 +1,6 @@
 {
   "en": {
     "detailsCta": "View task",
-    "trustVerified": "Verified poster",
     "trustJobsDone": "{count} jobs done",
     "bookmarkAdd": "Bookmark {title}",
     "bookmarkRemove": "Remove bookmark from {title}",
@@ -37,7 +36,6 @@
   },
   "zh_hk": {
     "detailsCta": "查看任務",
-    "trustVerified": "已驗證發佈者",
     "trustJobsDone": "{count} 項已完成工作",
     "bookmarkAdd": "收藏 {title}",
     "bookmarkRemove": "取消收藏 {title}",
