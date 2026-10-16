@@ -19,11 +19,7 @@ import {
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
-import {
-  sdlFocusRing,
-  sdlPressActiveCss,
-  sdlTransitionWithPress,
-} from '@/theme/styles'
+import { sdlFocusRing } from '@/theme/styles'
 import { APP_HOME } from '@/utils/appRoutes'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -71,7 +67,12 @@ function loadAppleScript(locale: string): Promise<void> {
   return appleScript
 }
 
-/** Apple's black "Continue with Apple" button (HIG), pill-shaped like Google's. */
+/**
+ * Google's outline button, matched exactly: their widget can't be restyled (it
+ * provides the ID token the API verifies), so Apple follows it. Apple's
+ * guidelines allow this white, outlined style. The colours are Google's
+ * fixed values, not theme tokens: their widget stays white in dark mode too.
+ */
 export function AppleSignInButton({
   label,
   disabled = false,
@@ -85,27 +86,34 @@ export function AppleSignInButton({
     <chakra.button
       type="button"
       w="full"
+      maxW="400px"
       h="40px"
-      px={4}
+      px="12px"
       display="flex"
       alignItems="center"
-      justifyContent="center"
-      gap={2}
+      gap="8px"
       borderRadius="full"
-      bg="black"
-      color="white"
-      fontFamily='-apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif'
-      fontSize="15px"
+      borderWidth="1px"
+      borderColor="#dadce0"
+      bg="white"
+      color="#3c4043"
+      fontFamily='"Google Sans", arial, sans-serif'
+      fontSize="14px"
       fontWeight={500}
+      letterSpacing="0.25px"
       cursor="pointer"
+      transition="background-color 0.218s, border-color 0.218s"
+      _hover={{ bg: '#f8faff', borderColor: '#d2e3fc' }}
       disabled={disabled}
       _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
       _focusVisible={sdlFocusRing}
-      css={{ ...sdlTransitionWithPress('opacity'), ...sdlPressActiveCss() }}
       onClick={onClick}
     >
-      <FaApple size={18} aria-hidden />
-      {label}
+      <FaApple size={18} color="#000" aria-hidden style={{ flexShrink: 0 }} />
+      {/* Centred in the space after the logo, like Google's label. */}
+      <chakra.span flex={1} textAlign="center">
+        {label}
+      </chakra.span>
     </chakra.button>
   )
 }

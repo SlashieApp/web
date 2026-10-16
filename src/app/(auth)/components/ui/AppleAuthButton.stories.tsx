@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { AppleSignInButton } from './AppleAuthButton'
 
+/** Apple's button, styled to match Google's outline widget beside it. */
 const meta = {
   title: 'Auth/AppleAuthButton',
   component: AppleSignInButton,
