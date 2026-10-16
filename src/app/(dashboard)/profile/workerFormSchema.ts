@@ -15,77 +15,89 @@ import {
   YEARS_EXPERIENCE_MAX,
   isJunkBio,
 } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
+import { formatMessage } from '@/i18n/loadPageI11n'
 
-/** Mirrors the setup-flow validation floor — no junk via the dashboard editor. */
-export const workerFormSchema = z.object({
-  legalName: z
-    .string()
-    .trim()
-    .min(
-      1,
-      'Please enter your legal name as it should appear on your worker profile.',
-    ),
-  tagline: z
-    .string()
-    .trim()
-    .min(
-      HEADLINE_MIN_CHARS,
-      `Add a professional headline of at least ${HEADLINE_MIN_CHARS} characters.`,
-    )
-    .max(
-      HEADLINE_MAX_CHARS,
-      `Keep your headline under ${HEADLINE_MAX_CHARS} characters.`,
-    )
-    .refine(
-      (v) => v.split(/\s+/).filter(Boolean).length >= 2,
-      'Use a few words, e.g. "Handyman with 8 years experience".',
-    ),
-  bio: z
-    .string()
-    .trim()
-    .min(
-      BIO_MIN_CHARS,
-      `Write at least ${BIO_MIN_CHARS} characters — customers read this before accepting your quote.`,
-    )
-    .max(BIO_MAX_CHARS, `Keep your bio under ${BIO_MAX_CHARS} characters.`)
-    .refine(
-      (v) => !isJunkBio(v),
-      'Tell customers about your work in full sentences — this reads as placeholder text.',
-    ),
-  primaryCategory: z.string().min(1, 'Choose the kind of work you do most.'),
-  skills: z
-    .array(z.string())
-    .min(
-      SKILLS_MIN,
-      `Add at least ${SKILLS_MIN} skills so customers can find you for the right tasks.`,
-    )
-    .max(
-      SKILLS_MAX,
-      `Keep it to ${SKILLS_MAX} skills — lead with the work you do best.`,
-    ),
-  qualifications: z.array(z.string()).max(QUALIFICATIONS_MAX),
-  yearsExperience: z
-    .string()
-    .trim()
-    .min(1, 'Enter your years of experience.')
-    .refine((v) => {
-      const n = Number(v)
-      return Number.isInteger(n) && n >= 0 && n <= YEARS_EXPERIENCE_MAX
-    }, `Enter a whole number between 0 and ${YEARS_EXPERIENCE_MAX}.`),
-  locationName: z.string().trim().min(1, 'Please add a service area.'),
-  locationLat: z.number().nullable(),
-  locationLng: z.number().nullable(),
-  travelRadiusMiles: z
-    .string()
-    .trim()
-    .refine(
-      (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) > 0),
-      'Travel radius must be a positive number of miles.',
-    ),
-  portfolioUrls: z.array(z.string()),
-})
+export type WorkerFormErrors = {
+  legalName: string
+  headlineShort: string
+  headlineLong: string
+  headlineWords: string
+  bioShort: string
+  bioLong: string
+  bioJunk: string
+  category: string
+  skillsFew: string
+  skillsMany: string
+  qualificationsMany: string
+  yearsMissing: string
+  yearsRange: string
+  area: string
+  radius: string
+}
 
-export type WorkerFormValues = z.infer<typeof workerFormSchema>
+/**
+ * Mirrors the setup-flow validation floor (no junk via the dashboard editor),
+ * with errors in the page's language.
+ */
+export function createWorkerFormSchema(errors: WorkerFormErrors) {
+  const count = (message: string, value: number) =>
+    formatMessage(message, { count: value })
+  return z.object({
+    legalName: z.string().trim().min(1, errors.legalName),
+    tagline: z
+      .string()
+      .trim()
+      .min(HEADLINE_MIN_CHARS, count(errors.headlineShort, HEADLINE_MIN_CHARS))
+      .max(HEADLINE_MAX_CHARS, count(errors.headlineLong, HEADLINE_MAX_CHARS))
+      .refine(
+        (v) => v.split(/\s+/).filter(Boolean).length >= 2,
+        errors.headlineWords,
+      ),
+    bio: z
+      .string()
+      .trim()
+      .min(BIO_MIN_CHARS, count(errors.bioShort, BIO_MIN_CHARS))
+      .max(BIO_MAX_CHARS, count(errors.bioLong, BIO_MAX_CHARS))
+      .refine((v) => !isJunkBio(v), errors.bioJunk),
+    primaryCategory: z.string().min(1, errors.category),
+    skills: z
+      .array(z.string())
+      .min(SKILLS_MIN, count(errors.skillsFew, SKILLS_MIN))
+      .max(SKILLS_MAX, count(errors.skillsMany, SKILLS_MAX)),
+    qualifications: z
+      .array(z.string())
+      .max(
+        QUALIFICATIONS_MAX,
+        count(errors.qualificationsMany, QUALIFICATIONS_MAX),
+      ),
+    yearsExperience: z
+      .string()
+      .trim()
+      .min(1, errors.yearsMissing)
+      .refine(
+        (v) => {
+          const n = Number(v)
+          return Number.isInteger(n) && n >= 0 && n <= YEARS_EXPERIENCE_MAX
+        },
+        count(errors.yearsRange, YEARS_EXPERIENCE_MAX),
+      ),
+    locationName: z.string().trim().min(1, errors.area),
+    locationLat: z.number().nullable(),
+    locationLng: z.number().nullable(),
+    travelRadiusMiles: z
+      .string()
+      .trim()
+      .refine(
+        (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) > 0),
+        errors.radius,
+      ),
+    portfolioUrls: z.array(z.string()),
+  })
+}
+
+export type WorkerFormValues = z.infer<
+  ReturnType<typeof createWorkerFormSchema>
+>
 
 export function workerFormValuesFromMe(me: MeSnapshot): WorkerFormValues {
   const lat = me.worker?.preferredLocation?.lat ?? me.worker?.locationLat

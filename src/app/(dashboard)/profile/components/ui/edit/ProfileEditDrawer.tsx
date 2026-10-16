@@ -11,31 +11,24 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
-import { ContactMethodsPanel } from '@/app/(dashboard)/components/ui/ContactMethodsPanel'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, Drawer, FormField, Input } from '@ui'
 
 import bag from '../../../i11n.json'
 import { initialDisplayNameForForm } from '../../../profileDisplayHelpers'
 import {
   type ProfileApiFormValues,
+  createProfileApiFormSchema,
   dateInputValueFromIso,
-  profileApiFormSchema,
   profileFormToMutationInput,
 } from '../../../profileFormSchema'
 import { ProfilePhotoCard } from './ProfilePhotoCard'
 import { ProfileWorkerForm } from './ProfileWorkerForm'
 
-export type ProfileEditSection =
-  | 'photo'
-  | 'personal'
-  | 'contact'
-  | 'worker'
-  | null
+export type ProfileEditSection = 'photo' | 'personal' | 'worker' | null
 
 export function ProfileEditDrawer({
   section,
@@ -49,7 +42,6 @@ export function ProfileEditDrawer({
   const meta = {
     photo: { title: t.photoTitle, description: t.photoDescription },
     personal: { title: t.personalTitle, description: t.personalDescription },
-    contact: { title: t.contactTitle, description: t.contactDescription },
     worker: { title: t.workerTitle, description: t.workerDescription },
   }[section ?? 'personal']
 
@@ -80,10 +72,8 @@ export function ProfileEditDrawer({
           onSaved={() => onOpenChange(null)}
         />
       ) : null}
-      {section === 'contact' ? <ContactMethodsPanel showIntro={false} /> : null}
       {section === 'worker' ? (
         <ProfileWorkerForm
-          embedded
           onCancel={() => onOpenChange(null)}
           onSaved={() => onOpenChange(null)}
         />
@@ -102,6 +92,7 @@ function PersonalInfoEditor({
   const t = useI11n(bag).editor
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
+  const schema = useMemo(() => createProfileApiFormSchema(t.errors), [t.errors])
 
   const values = useMemo<ProfileApiFormValues>(
     () => ({
@@ -119,7 +110,7 @@ function PersonalInfoEditor({
     reset,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<ProfileApiFormValues>({
-    resolver: zodResolver(profileApiFormSchema),
+    resolver: zodResolver(schema),
     values,
   })
   const [updateMyProfile, { loading }] =
@@ -155,7 +146,7 @@ function PersonalInfoEditor({
       })
       showAppToast({
         title: t.saveFailed,
-        description: getFriendlyErrorMessage(error, t.tryAgain),
+        description: t.tryAgain,
         type: 'error',
       })
     }

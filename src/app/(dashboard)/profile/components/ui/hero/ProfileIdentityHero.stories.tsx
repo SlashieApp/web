@@ -10,13 +10,13 @@ import {
 } from '@/app/(auth)/helpers/authStoryFixtures'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 
-import { getProfileLifecycle } from '../../../helpers/profileLifecycle'
+import { PROFILE_VIEWS, type ProfileView } from '../../../views'
 import { ProfileIdentityHero } from './ProfileIdentityHero'
 
-/** Story for one signed-in user: the hero reads the lifecycle derived from `me`. */
-function heroFor(me: MeSnapshot): Story {
+/** Story for one signed-in user in one view. */
+function heroFor(me: MeSnapshot, view: ProfileView): Story {
   return {
-    args: { me, lifecycle: getProfileLifecycle(me) },
+    args: { me, config: PROFILE_VIEWS[view] },
     decorators: [withSession({ me })],
   }
 }
@@ -27,76 +27,98 @@ const meta = {
   parameters: { layout: 'padded' },
   args: {
     me: storyMe(),
-    lifecycle: getProfileLifecycle(storyMe()),
+    config: PROFILE_VIEWS.customer,
     onEditPhoto: fn(),
+    onEditDetails: fn(),
   },
 } satisfies Meta<typeof ProfileIdentityHero>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Customer account: neutral badge, no public profile link. */
+/** Customer: Customer badge, Edit details and the public profile link. */
 export const Customer: Story = {
-  ...heroFor(storyMe()),
-  play: async ({ canvasElement, args }) => {
+  ...heroFor(storyMe(), 'customer'),
+  play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText('Customer account')).toBeVisible()
+    await expect(await canvas.findByText('Customer')).toBeVisible()
     await expect(
-      canvas.queryByRole('link', { name: /View public profile/ }),
-    ).toBeNull()
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Edit profile photo' }),
-    )
-    await expect(args.onEditPhoto).toHaveBeenCalled()
+      canvas.getByRole('link', { name: /View public profile/ }),
+    ).toHaveAttribute('href', '/profile/user-story')
+    await userEvent.click(canvas.getByRole('button', { name: 'Edit details' }))
+    await expect(args.onEditDetails).toHaveBeenCalled()
   },
 }
 
-/** Worker setup unfinished: warning badge, the public profile link already points at the draft. */
-export const SetupInProgress: Story = heroFor(
-  storyMe({
-    profile: { contactNumber: '+447700900123' },
-    worker: storyWorkerDraft(),
-  }),
-)
-
-/** Published worker with a verified phone: success badge and the public profile link. */
-export const ActiveWorker: Story = {
-  ...heroFor(storyWorkerMe()),
+/** Private profile: Hidden badge and no public link (there is no page to open). */
+export const Hidden: Story = {
+  ...heroFor(
+    storyMe({ settings: { isProfilePrivate: true } }),
+    'customerHidden',
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText('Worker active')).toBeVisible()
+    await expect(await canvas.findByText('Hidden')).toBeVisible()
     await expect(
-      canvas.getByRole('link', { name: /View public profile/ }),
+      canvas.queryByRole('link', { name: /View public profile/ }),
+    ).toBeNull()
+  },
+}
+
+/** Worker setup unfinished: Setup in progress, no public link. */
+export const WorkerSetup: Story = heroFor(
+  storyWorkerMe({ worker: storyWorkerDraft() }),
+  'workerSetup',
+)
+
+/** Finished worker without a verified phone: Action required. */
+export const WorkerVerifyPhone: Story = heroFor(
+  storyWorkerMe({ phoneVerified: false }),
+  'workerVerifyPhone',
+)
+
+/** Finished, verified worker: Worker active and the public link. */
+export const WorkerReady: Story = {
+  ...heroFor(storyWorkerMe(), 'workerReady'),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText('Worker active'),
     ).toBeVisible()
   },
 }
 
-/** Worker whose phone is not verified yet: danger badge asks for action. */
-export const ActionRequired: Story = heroFor(
-  storyWorkerMe({ phoneVerified: false }),
-)
+const ready = heroFor(storyWorkerMe(), 'workerReady')
+
+/** Suspended: no photo button and no Edit details. */
+export const ReadOnly: Story = {
+  ...ready,
+  args: { ...ready.args, readOnly: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Worker active')).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Edit profile photo' }),
+    ).toBeNull()
+    await expect(
+      canvas.queryByRole('button', { name: 'Edit details' }),
+    ).toBeNull()
+  },
+}
 
 /** With a profile photo. */
 export const WithPhoto: Story = heroFor(
   storyWorkerMe({ profile: { avatarUrl: storyAvatarUrl('SC') } }),
+  'workerReady',
 )
 
-/** No display name: the name falls back to the email address. */
-export const NoDisplayName: Story = heroFor(
-  storyMe({ email: 'jordan.lee@example.com', profile: { name: null } }),
+/** A long name wraps inside the hero. */
+export const LongName: Story = heroFor(
+  storyMe({ profile: { name: 'Alexandria Montgomery-Featherstonehaugh' } }),
+  'customer',
 )
 
-/** A long name and email truncate instead of overflowing. */
-export const LongNameAndEmail: Story = heroFor(
-  storyMe({
-    email:
-      'alexandria.montgomery-featherstonehaugh@a-very-long-company-name.example.com',
-    profile: { name: 'Alexandria Montgomery-Featherstonehaugh' },
-  }),
-)
-
-/** Phones: avatar and details stack above the badge. */
+/** Phones: the actions wrap under the name. */
 export const Phone: Story = {
-  ...heroFor(storyWorkerMe()),
+  ...heroFor(storyWorkerMe(), 'workerReady'),
   globals: { viewport: { value: 'mobile1' } },
 }

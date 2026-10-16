@@ -1,7 +1,10 @@
 import { TaskContactMethod } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
-import { profileApiFormSchema } from './profileFormSchema'
+import bag from './i11n.json'
+import { createProfileApiFormSchema } from './profileFormSchema'
+
+const profileApiFormSchema = createProfileApiFormSchema(bag.en.editor.errors)
 
 const valid = {
   displayName: 'Alex Chen',

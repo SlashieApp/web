@@ -1,2 +1,2 @@
-export { ProfileHub } from './ProfileHub'
+export { ProfileScreen } from './ProfileScreen'
 export type { ProfileEditSection } from './ui/edit/ProfileEditDrawer'

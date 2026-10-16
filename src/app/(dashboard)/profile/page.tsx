@@ -1,12 +1,5 @@
-'use client'
-
-import { useUserStore } from '@/app/(auth)/store/user'
-
-import { ProfileHub } from './components'
+import { ProfileScreen } from './components/ProfileScreen'
 
 export default function ProfilePage() {
-  const me = useUserStore((s) => s.me)
-  if (!me) return null
-
-  return <ProfileHub me={me} />
+  return <ProfileScreen />
 }

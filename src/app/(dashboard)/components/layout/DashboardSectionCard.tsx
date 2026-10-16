@@ -77,7 +77,7 @@ export function DashboardSectionCard({
                   variant="ghost"
                   onClick={onEdit}
                   flexShrink={0}
-                  minH="40px"
+                  minH="44px"
                 >
                   <LuPencil size={14} aria-hidden />
                   {editLabel}

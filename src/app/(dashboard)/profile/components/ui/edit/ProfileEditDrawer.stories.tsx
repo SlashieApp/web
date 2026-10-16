@@ -5,7 +5,6 @@ import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import {
   storyAvatarUrl,
   storyMe,
-  storyWorkerDraft,
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
 
@@ -24,13 +23,13 @@ type Story = StoryObj<typeof meta>
 const drawer = (canvasElement: HTMLElement) =>
   within(canvasElement.ownerDocument.body)
 
-/** Personal information: display name and date of birth. */
+/** Edit details: display name and private date of birth. */
 export const Personal: Story = {
   decorators: [withSession({ me: storyMe() })],
   play: async ({ canvasElement }) => {
     await expect(
       await drawer(canvasElement).findByRole('dialog', {
-        name: 'Edit personal information',
+        name: 'Edit details',
       }),
     ).toBeInTheDocument()
     await expect(
@@ -56,23 +55,6 @@ export const Photo: Story = {
   },
 }
 
-/** Contact and verification: email and phone rows. */
-export const Contact: Story = {
-  args: { section: 'contact' },
-  decorators: [
-    withSession({
-      me: storyMe({ profile: { contactNumber: '+447700900123' } }),
-    }),
-  ],
-  play: async ({ canvasElement }) => {
-    await expect(
-      await drawer(canvasElement).findByRole('dialog', {
-        name: 'Contact & verification',
-      }),
-    ).toBeInTheDocument()
-  },
-}
-
 /** Worker profile of a published worker: the full editor. */
 export const Worker: Story = {
   args: { section: 'worker' },
@@ -81,37 +63,6 @@ export const Worker: Story = {
     await expect(
       await drawer(canvasElement).findByRole('dialog', {
         name: 'Edit worker profile',
-      }),
-    ).toBeInTheDocument()
-  },
-}
-
-/** Worker profile while setup is unfinished: a summary and Continue setup. */
-export const WorkerSetupInProgress: Story = {
-  args: { section: 'worker' },
-  decorators: [
-    withSession({
-      me: storyMe({
-        profile: { contactNumber: '+447700900123' },
-        worker: storyWorkerDraft(),
-      }),
-    }),
-  ],
-  play: async ({ canvasElement }) => {
-    await expect(
-      await drawer(canvasElement).findByText('Worker profile (in progress)'),
-    ).toBeInTheDocument()
-  },
-}
-
-/** Worker section opened by a customer: the Become a worker card. */
-export const WorkerSectionForCustomer: Story = {
-  args: { section: 'worker' },
-  decorators: [withSession({ me: storyMe() })],
-  play: async ({ canvasElement }) => {
-    await expect(
-      await drawer(canvasElement).findByRole('link', {
-        name: 'Start worker setup',
       }),
     ).toBeInTheDocument()
   },
@@ -133,7 +84,7 @@ export const Phone: Story = {
   play: async ({ canvasElement }) => {
     await expect(
       await drawer(canvasElement).findByRole('dialog', {
-        name: 'Edit personal information',
+        name: 'Edit details',
       }),
     ).toBeInTheDocument()
   },

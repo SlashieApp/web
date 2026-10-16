@@ -11,14 +11,12 @@ export const AVATAR_ACCEPTED_TYPES = [
   'image/webp',
 ] as const
 
-/** Client-side validation. Returns an error message or `null` when the file is acceptable. */
-export function validateAvatarFile(file: File): string | null {
-  if (!AVATAR_ACCEPTED_TYPES.includes(file.type as never)) {
-    return 'Use a JPG, PNG, or WebP image.'
-  }
-  if (file.size > AVATAR_MAX_BYTES) {
-    return 'Image must be 5MB or smaller.'
-  }
+export type AvatarFileProblem = 'type' | 'size'
+
+/** Why a picked file can't be a profile photo (callers word it), or null. */
+export function validateAvatarFile(file: File): AvatarFileProblem | null {
+  if (!AVATAR_ACCEPTED_TYPES.includes(file.type as never)) return 'type'
+  if (file.size > AVATAR_MAX_BYTES) return 'size'
   return null
 }
 

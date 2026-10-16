@@ -79,9 +79,14 @@ export function WorkerSetupStepContent() {
 
   const handleAvatarFile = async (file: File | undefined) => {
     if (!file || !bootstrap.profile) return
-    const validationError = validateAvatarFile(file)
-    if (validationError) {
-      setUploadError(validationError)
+    const problem = validateAvatarFile(file)
+    if (problem) {
+      // Worker setup copy is English until FE-296 translates the flow.
+      setUploadError(
+        problem === 'type'
+          ? 'Use a JPG, PNG, or WebP image.'
+          : 'Image must be 5MB or smaller.',
+      )
       return
     }
     setUploading(true)

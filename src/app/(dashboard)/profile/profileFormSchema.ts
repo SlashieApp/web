@@ -4,28 +4,32 @@ import { TaskContactMethod, type UpdateMyProfileInput } from '@codegen/schema'
 
 import { isAtLeast18, parseIsoDateOnly } from '@/utils/age'
 
-/** Fields backed by `updateMyProfile`. Phone is managed separately on Account. */
-export const profileApiFormSchema = z.object({
-  displayName: z
-    .string()
-    .trim()
-    .min(1, 'Please enter a display name shown on your profile.'),
-  /** `yyyy-mm-dd` from a native date input, or empty when unset. */
-  dateOfBirth: z
-    .string()
-    .trim()
-    .refine(
-      (value) => value === '' || parseIsoDateOnly(value) !== null,
-      'Enter a valid date of birth.',
-    )
-    .refine(
-      (value) => value === '' || isAtLeast18(value),
-      'You must be 18 or over to use Slashie.',
-    ),
-  defaultPreferredContactMethod: z.nativeEnum(TaskContactMethod),
-})
+export type ProfileFormErrors = {
+  displayName: string
+  dateOfBirth: string
+  under18: string
+}
 
-export type ProfileApiFormValues = z.infer<typeof profileApiFormSchema>
+/** Fields backed by `updateMyProfile`; errors in the page's language. */
+export function createProfileApiFormSchema(errors: ProfileFormErrors) {
+  return z.object({
+    displayName: z.string().trim().min(1, errors.displayName),
+    /** `yyyy-mm-dd` from a native date input, or empty when unset. */
+    dateOfBirth: z
+      .string()
+      .trim()
+      .refine(
+        (value) => value === '' || parseIsoDateOnly(value) !== null,
+        errors.dateOfBirth,
+      )
+      .refine((value) => value === '' || isAtLeast18(value), errors.under18),
+    defaultPreferredContactMethod: z.nativeEnum(TaskContactMethod),
+  })
+}
+
+export type ProfileApiFormValues = z.infer<
+  ReturnType<typeof createProfileApiFormSchema>
+>
 
 /** `Date` (DateTime) → `yyyy-mm-dd` for a native date input. */
 export function dateInputValueFromIso(iso: unknown): string {

@@ -8,6 +8,7 @@ import { useRef, useState } from 'react'
 import { MeAvatar } from '@/app/(auth)/components/ui/MeAvatar'
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
+import { useI11n } from '@/i18n/useI11n'
 import {
   EVENTS,
   captureApiError,
@@ -16,16 +17,17 @@ import {
 } from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { showAppToast } from '@/utils/appToast'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
 import { Button, Card } from '@ui'
 
+import bag from '../../../i11n.json'
 import { displayNameFromMe } from '../../../profileDisplayHelpers'
 
 export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
+  const t = useI11n(bag).photo
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -47,9 +49,9 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
 
   const handleFile = async (file: File | undefined) => {
     if (!file) return
-    const validationError = validateAvatarFile(file)
-    if (validationError) {
-      setError(validationError)
+    const problem = validateAvatarFile(file)
+    if (problem) {
+      setError(problem === 'type' ? t.wrongType : t.tooBig)
       return
     }
 
@@ -71,7 +73,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
         })
       }
       trackFlowSucceeded(EVENTS.profile_update_success, { section: 'avatar' })
-      showAppToast({ title: 'Profile photo updated' })
+      showAppToast({ title: t.updated })
       onSaved?.()
     } catch (uploadError) {
       captureApiError(uploadError, {
@@ -89,12 +91,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
         route: '/profile',
         extra: { section: 'avatar' },
       })
-      setError(
-        getFriendlyErrorMessage(
-          uploadError,
-          'Could not upload your photo. Please try again.',
-        ),
-      )
+      setError(t.failed)
       setPreviewUrl(null)
     } finally {
       setUploading(false)
@@ -106,9 +103,9 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
     <Card layout="section" id="profile-photo" p={{ base: 5, md: 6 }}>
       <Stack gap={4}>
         <Stack gap={1}>
-          <Heading size="md">Profile photo</Heading>
+          <Heading size="md">{t.heading}</Heading>
           <Text fontSize="sm" color="text.muted">
-            A clear photo helps customers and workers trust your profile.
+            {t.body}
           </Text>
         </Stack>
 
@@ -124,15 +121,16 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
             <HStack gap={3} flexWrap="wrap">
               <Button
                 size="sm"
+                minH="44px"
                 variant="secondary"
                 onClick={handlePick}
                 loading={uploading}
               >
-                {currentAvatar ? 'Replace photo' : 'Upload photo'}
+                {currentAvatar ? t.replace : t.upload}
               </Button>
             </HStack>
             <Text fontSize="xs" color="text.muted">
-              JPG, PNG, or WebP. Up to 5MB.
+              {t.hint}
             </Text>
           </Stack>
         </HStack>
