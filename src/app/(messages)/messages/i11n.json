@@ -7,6 +7,8 @@
     "title": "Messages",
     "loading": "Loading messages…",
     "loadError": "Couldn't load your messages.",
+    "notFoundTitle": "This conversation isn't available",
+    "notFoundBody": "It may have been removed, or you no longer have access.",
     "retry": "Try again",
     "emptyTitle": "No messages yet",
     "emptyBody": "Quotes, bookings and messages for your tasks show up here.",
@@ -24,7 +26,6 @@
     "unblock": "Unblock {name}",
     "blocked": "{name} is blocked",
     "unblocked": "{name} is unblocked",
-    "reportMessage": "Report message",
     "composerLabel": "Message {name}",
     "composerPlaceholder": "Write a message",
     "send": "Send",
@@ -36,7 +37,6 @@
     "blockedNotice": "You blocked {name}. Unblock them to send messages.",
     "today": "Today",
     "yesterday": "Yesterday",
-    "deletedUser": "user is already deleted",
     "quote": {
       "accept": "Accept",
       "decline": "Decline",
@@ -62,6 +62,14 @@
       "reschedule": "Reschedule",
       "cancelBooking": "Cancel booking"
     },
+    "pin": {
+      "worker": "Worker",
+      "customer": "Customer",
+      "viewProfile": "View profile",
+      "agreed": "{price} agreed",
+      "compareQuotes": "Compare quotes",
+      "openTask": "Open task"
+    },
     "openTask": "Open task: {title}"
   },
   "zh_hk": {
@@ -72,6 +80,8 @@
     "title": "訊息",
     "loading": "正在載入訊息…",
     "loadError": "未能載入你的訊息。",
+    "notFoundTitle": "無法查看此對話",
+    "notFoundBody": "對話可能已被移除，或你已無權查看。",
     "retry": "再試",
     "emptyTitle": "未有訊息",
     "emptyBody": "你任務的報價、預約及訊息會在這裡顯示。",
@@ -89,7 +99,6 @@
     "unblock": "解除封鎖 {name}",
     "blocked": "已封鎖 {name}",
     "unblocked": "已解除封鎖 {name}",
-    "reportMessage": "檢舉訊息",
     "composerLabel": "傳送訊息給 {name}",
     "composerPlaceholder": "輸入訊息",
     "send": "傳送",
@@ -101,7 +110,6 @@
     "blockedNotice": "你已封鎖 {name}。解除封鎖後才可傳送訊息。",
     "today": "今日",
     "yesterday": "昨日",
-    "deletedUser": "用戶已刪除",
     "quote": {
       "accept": "接受",
       "decline": "拒絕",
@@ -126,6 +134,14 @@
       "cancelTask": "取消任務",
       "reschedule": "更改時間",
       "cancelBooking": "取消預約"
+    },
+    "pin": {
+      "worker": "工作者",
+      "customer": "客戶",
+      "viewProfile": "查看檔案",
+      "agreed": "議定價 {price}",
+      "compareQuotes": "比較報價",
+      "openTask": "開啟任務"
     },
     "openTask": "開啟任務：{title}"
   }

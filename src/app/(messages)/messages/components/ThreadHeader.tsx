@@ -22,6 +22,7 @@ import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
 
 import { threadMenuActions } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
+import { ThreadPin } from './ThreadPin'
 
 type HeaderProps = {
   thread: ThreadFieldsFragment
@@ -216,18 +217,17 @@ function HeaderBar({
   menu: ReactNode
 }) {
   const t = useI11n(bag)
-  const subtitle =
-    thread.kind === ThreadKind.System
-      ? t.systemSubtitle
-      : (thread.otherParty?.name ?? t.awaitingWorker)
+  // Task threads name the other person in the pinned card (FE-291).
   const title = (
     <Stack gap={0} minW={0}>
       <Heading as="h2" fontSize="md" fontWeight={700} lineClamp={1}>
         {thread.title}
       </Heading>
-      <Text fontSize="xs" color="text.muted" lineClamp={1}>
-        {subtitle}
-      </Text>
+      {thread.kind === ThreadKind.System ? (
+        <Text fontSize="xs" color="text.muted" lineClamp={1}>
+          {t.systemSubtitle}
+        </Text>
+      ) : null}
     </Stack>
   )
 
@@ -249,7 +249,7 @@ function HeaderBar({
           <LuArrowLeft aria-hidden />
         </Link>
       </IconButton>
-      {/* FE-267: the task title and name open task detail. */}
+      {/* FE-267: the task title opens task detail. */}
       {thread.task ? (
         <Link
           href={`/tasks/${thread.task.id}`}
@@ -273,8 +273,8 @@ function HeaderBar({
 }
 
 /**
- * Thread header. Task threads load the task behind the menu so its actions
- * match task detail; system threads only offer Block.
+ * Thread header. Task threads load the task behind the menu and the pinned
+ * card, so both match task detail; system threads only offer Block.
  */
 export function ThreadHeader({ thread, onToggleBlock }: HeaderProps) {
   if (!thread.task) {
@@ -298,6 +298,7 @@ export function ThreadHeader({ thread, onToggleBlock }: HeaderProps) {
         thread={thread}
         menu={<TaskThreadMenu thread={thread} onToggleBlock={onToggleBlock} />}
       />
+      <ThreadPin party={thread.otherParty} />
       <TaskActionError />
     </TaskDetailProvider>
   )

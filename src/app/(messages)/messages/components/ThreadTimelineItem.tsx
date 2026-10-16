@@ -7,7 +7,7 @@ import type { ThreadItemFieldsFragment } from '@codegen/schema'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Link } from '@ui'
 
-import { flashAction, formatMessageTime } from '../helpers/messagesFormat'
+import { clockTime, flashAction } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
 import { ThreadQuote } from './ThreadQuote'
 
@@ -15,17 +15,20 @@ import { ThreadQuote } from './ThreadQuote'
  * One timeline entry: a chat bubble (mine on the right) or a flash card for
  * an event (quote, booking, review prompt, announcement). Quote flashes carry
  * the quote itself, with owner actions (BE-81). The header opens the task and
- * holds the one Report for the conversation (FE-267).
+ * holds the one Report for the conversation (FE-267). Day dividers carry the
+ * date, so times are clock times; a run of messages shows one (FE-291).
  */
 export function ThreadTimelineItem({
   item,
   locale,
+  showTime = true,
 }: {
   item: ThreadItemFieldsFragment
   locale: string
+  showTime?: boolean
 }) {
   const t = useI11n(bag)
-  const time = formatMessageTime(item.createdAt, locale, t)
+  const time = clockTime(item.createdAt, locale)
 
   if (item.type === ThreadItemType.Flash) {
     const action = flashAction(item)
@@ -98,9 +101,11 @@ export function ThreadTimelineItem({
           {item.body}
         </Text>
       </Box>
-      <Text fontSize="xs" color="text.muted">
-        {time}
-      </Text>
+      {showTime ? (
+        <Text fontSize="xs" color="text.muted">
+          {time}
+        </Text>
+      ) : null}
     </Stack>
   )
 }

@@ -75,7 +75,7 @@ const FACT_DIVIDERS = {
 } as const
 
 /** The view's headline and sub-line, with counts, names and dates filled in. */
-function useSummaryLines(config: TaskDetailViewConfig) {
+export function useSummaryLines(config: TaskDetailViewConfig) {
   const { task, myOrder, orderClose, permissions } = useTaskDetail()
   const t = useI11n(bag)
   const locale = useDateLocale()

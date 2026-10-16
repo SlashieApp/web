@@ -1,6 +1,15 @@
 'use client'
 
-import { Badge, Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import {
+  Badge,
+  Box,
+  HStack,
+  Heading,
+  Skeleton,
+  Stack,
+  Text,
+  VisuallyHidden,
+} from '@chakra-ui/react'
 import { ThreadItemType, ThreadKind } from '@codegen/schema'
 import type { ThreadFieldsFragment } from '@codegen/schema'
 
@@ -12,6 +21,7 @@ import { Avatar, Button, Link } from '@ui'
 
 import { formatMessageTime, threadPreviewText } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
+import { INBOX_VIEWS, getInboxView } from '../views'
 
 type Copy = (typeof bag)['en']
 
@@ -102,11 +112,47 @@ function ThreadRow({
   )
 }
 
-/** Task threads and the Slashie thread, most recently active first. */
+/** First load: rows shaped like threads. */
+function InboxSkeleton({ label }: { label: string }) {
+  return (
+    <Box aria-busy="true">
+      <VisuallyHidden>{label}</VisuallyHidden>
+      {[0, 1, 2].map((row) => (
+        <HStack
+          key={row}
+          gap={3}
+          px={4}
+          py={3}
+          borderBottomWidth="1px"
+          borderColor="border.default"
+          aria-hidden
+        >
+          <Skeleton boxSize="40px" borderRadius="full" flexShrink={0} />
+          <Stack gap={2} flex={1}>
+            <Skeleton h="14px" w="60%" borderRadius="md" />
+            <Skeleton h="12px" w="85%" borderRadius="md" />
+          </Stack>
+        </HStack>
+      ))}
+    </Box>
+  )
+}
+
+/**
+ * Task threads and the Slashie thread, most recently active first. What
+ * shows is the inbox's named view (`getInboxView`, views/README.md).
+ */
 export function ThreadList({ selectedId }: { selectedId: string | null }) {
   const t = useI11n(bag)
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const { threads, loading, error, refetchThreads } = useMessages()
+  const { body } =
+    INBOX_VIEWS[
+      getInboxView({
+        query: loading ? 'loading' : error ? 'error' : 'ready',
+        threadCount: threads.length,
+      })
+    ]
 
   return (
     <>
@@ -116,18 +162,16 @@ export function ThreadList({ selectedId }: { selectedId: string | null }) {
         </Heading>
       </Box>
       <Box flex={1} minH={0} overflowY="auto">
-        {loading ? (
-          <Text px={4} py={6} fontSize="sm" color="text.muted">
-            {t.loading}
-          </Text>
-        ) : error ? (
+        {body === 'skeleton' ? (
+          <InboxSkeleton label={t.loading} />
+        ) : body === 'error' ? (
           <Stack px={4} py={6} gap={3} align="flex-start" role="alert">
             <Text fontSize="sm">{t.loadError}</Text>
             <Button size="sm" variant="secondary" onClick={refetchThreads}>
               {t.retry}
             </Button>
           </Stack>
-        ) : threads.length === 0 ? (
+        ) : body === 'empty' ? (
           <Stack px={4} py={8} gap={1}>
             <Text fontWeight={700}>{t.emptyTitle}</Text>
             <Text fontSize="sm" color="text.muted">

@@ -9,8 +9,18 @@ type ItemLike = {
   body: string
 }
 
+/** Clock time, e.g. 09:42 (the timeline's day dividers carry the date). */
+export function clockTime(iso: string, locale: string): string {
+  const at = new Date(iso)
+  if (Number.isNaN(at.getTime())) return ''
+  return new Intl.DateTimeFormat(locale, {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(at)
+}
+
 /**
- * Inbox / timeline time: clock time today, "Yesterday", the weekday within
+ * Inbox time: clock time today, "Yesterday", the weekday within
  * a week, otherwise the date.
  */
 export function formatMessageTime(
@@ -25,12 +35,7 @@ export function formatMessageTime(
   const day = (d: Date) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
   const days = Math.round((day(now) - day(at)) / 86_400_000)
-  if (days <= 0) {
-    return new Intl.DateTimeFormat(locale, {
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(at)
-  }
+  if (days <= 0) return clockTime(iso, locale)
   if (days === 1) return copy.yesterday
   if (days < 7) {
     return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(at)

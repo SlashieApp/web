@@ -1,16 +1,18 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { ThreadKind } from '@codegen/schema'
-import type {
-  MessageThreadQuery,
-  SendMessageMutation,
-  ThreadFieldsFragment,
-  ThreadItemFieldsFragment,
-} from '@codegen/schema'
+import {
+  Box,
+  HStack,
+  Skeleton,
+  Stack,
+  Text,
+  VisuallyHidden,
+} from '@chakra-ui/react'
+import type { MessageThreadQuery, SendMessageMutation } from '@codegen/schema'
 import {
   type KeyboardEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -34,27 +36,15 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, Link, Textarea } from '@ui'
 
 import { wasNotSelected } from '../helpers/messagesFormat'
+import { threadQueryState, timelineRows } from '../helpers/messagesThread'
 import bag from '../i11n.json'
+import { THREAD_VIEWS, getThreadView } from '../views'
 import { ThreadHeader } from './ThreadHeader'
 import { ThreadTimelineItem } from './ThreadTimelineItem'
 
 type Copy = (typeof bag)['en']
 
 const MESSAGE_MAX = 2000
-
-/** Why there is no composer here, or null when the viewer can send. */
-function composerNotice(
-  thread: ThreadFieldsFragment,
-  items: readonly ThreadItemFieldsFragment[],
-  t: Copy,
-): string | null {
-  if (thread.canSend) return null
-  if (thread.kind === ThreadKind.System) return t.systemNotice
-  const name = thread.otherParty?.name ?? ''
-  if (thread.blockedByMe) return formatMessage(t.blockedNotice, { name })
-  if (wasNotSelected(items)) return t.notSelectedNotice
-  return t.lockedNotice
-}
 
 function Composer({
   threadId,
@@ -123,6 +113,7 @@ function Composer({
         rows={1}
         maxLength={MESSAGE_MAX}
         resize="none"
+        minH="44px"
         maxH="160px"
         autoresize
         placeholder={t.composerPlaceholder}
@@ -135,8 +126,63 @@ function Composer({
   )
 }
 
-/** One conversation: header, timeline (oldest at the top) and composer. */
-export function ThreadView({ threadId }: { threadId: string }) {
+const SKELETON_BUBBLES = [
+  { mine: false, w: '55%' },
+  { mine: true, w: '40%' },
+  { mine: false, w: '65%' },
+  { mine: true, w: '30%' },
+] as const
+
+/** First load: the header bar and a few bubbles. */
+function ThreadSkeleton({ label }: { label: string }) {
+  return (
+    <Stack flex={1} minH={0} gap={0} aria-busy="true">
+      <VisuallyHidden>{label}</VisuallyHidden>
+      <HStack
+        px={{ base: 4, lg: 5 }}
+        py={4}
+        borderBottomWidth="1px"
+        borderColor="border.default"
+        aria-hidden
+      >
+        <Skeleton h="20px" w="50%" borderRadius="md" />
+      </HStack>
+      <Stack gap={3} px={{ base: 3, lg: 6 }} py={4} aria-hidden>
+        {SKELETON_BUBBLES.map((bubble, index) => (
+          <Skeleton
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed placeholder list
+            key={index}
+            alignSelf={bubble.mine ? 'flex-end' : 'flex-start'}
+            h="40px"
+            w={bubble.w}
+            borderRadius="xl"
+          />
+        ))}
+      </Stack>
+    </Stack>
+  )
+}
+
+function Centered({ children }: { children: ReactNode }) {
+  return (
+    <Stack
+      flex={1}
+      align="center"
+      justify="center"
+      gap={3}
+      px={6}
+      textAlign="center"
+    >
+      {children}
+    </Stack>
+  )
+}
+
+/**
+ * One conversation: header, timeline (oldest at the top) and composer. What
+ * shows is the thread's named view (`getThreadView`, views/README.md).
+ */
+export function ThreadView({ threadId }: { threadId: string | null }) {
   const t = useI11n(bag)
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const { refetchThreads } = useMessages()
@@ -146,7 +192,8 @@ export function ThreadView({ threadId }: { threadId: string }) {
 
   const { data, loading, error, fetchMore, refetch } =
     useQuery<MessageThreadQuery>(MessageThread, {
-      variables: { threadId, first: THREAD_PAGE_SIZE },
+      variables: { threadId: threadId ?? '', first: THREAD_PAGE_SIZE },
+      skip: !threadId,
       fetchPolicy: 'cache-and-network',
     })
   const [markRead] = useMutation(MarkThreadRead)
@@ -156,12 +203,23 @@ export function ThreadView({ threadId }: { threadId: string }) {
   const thread = data?.thread ?? null
   const items = data?.threadItems ?? []
   const newestId = items[0]?.id
+  const config =
+    THREAD_VIEWS[
+      getThreadView({
+        threadId,
+        query: threadQueryState({ loading, thread, error }),
+        thread,
+        notSelected: wasNotSelected(items),
+      })
+    ]
 
   // Opening the thread, and each new item while it is open, marks it read.
   useEffect(() => {
     if (!thread || thread.unreadCount === 0) return
-    void markRead({ variables: { threadId } }).then(() => refetchThreads())
-  }, [markRead, refetchThreads, thread, threadId])
+    void markRead({ variables: { threadId: thread.id } }).then(() =>
+      refetchThreads(),
+    )
+  }, [markRead, refetchThreads, thread])
 
   // Follow the newest item down.
   useEffect(() => {
@@ -211,33 +269,48 @@ export function ThreadView({ threadId }: { threadId: string }) {
     }
   }
 
-  if (!thread) {
+  if (config.layout === 'pick') {
     return (
-      <Stack flex={1} align="center" justify="center" gap={3} px={6}>
-        <Text
-          fontSize="sm"
-          color="text.muted"
-          role={error ? 'alert' : undefined}
-        >
-          {loading ? t.loading : t.loadError}
+      <Centered>
+        <Text color="text.muted" fontSize="sm">
+          {t.pickThread}
         </Text>
-        {loading ? null : (
-          <HStack gap={3}>
-            <Button size="sm" variant="secondary" onClick={() => refetch()}>
-              {t.retry}
-            </Button>
-            <Link href="/messages" fontSize="sm" fontWeight={600}>
-              {t.back}
-            </Link>
-          </HStack>
-        )}
-      </Stack>
+      </Centered>
     )
   }
 
-  const timeline = [...items].reverse()
-  const notice = composerNotice(thread, items, t)
+  if (config.layout === 'skeleton') return <ThreadSkeleton label={t.loading} />
+
+  if (config.layout === 'status') {
+    return (
+      <Centered>
+        <Stack gap={1} role={config.retry ? 'alert' : undefined}>
+          <Text fontSize="sm" fontWeight={config.body ? 700 : 400}>
+            {t[config.title]}
+          </Text>
+          {config.body ? (
+            <Text fontSize="sm" color="text.muted">
+              {t[config.body]}
+            </Text>
+          ) : null}
+        </Stack>
+        <HStack gap={3}>
+          {config.retry ? (
+            <Button size="sm" variant="secondary" onClick={() => refetch()}>
+              {t.retry}
+            </Button>
+          ) : null}
+          <Link href="/messages" fontSize="sm" fontWeight={600}>
+            {t.back}
+          </Link>
+        </HStack>
+      </Centered>
+    )
+  }
+
+  if (!thread) return null
   const name = thread.otherParty?.name ?? thread.title
+  const rows = timelineRows([...items].reverse(), locale, t)
 
   return (
     <>
@@ -264,15 +337,35 @@ export function ThreadView({ threadId }: { threadId: string }) {
             </Button>
           ) : null}
           {/* A log region reads new messages out as they arrive. */}
-          <Stack gap={3} role="log" aria-label={thread.title}>
-            {timeline.map((item) => (
-              <ThreadTimelineItem key={item.id} item={item} locale={locale} />
-            ))}
+          <Stack gap={2} role="log" aria-label={thread.title}>
+            {rows.map((row) =>
+              row.kind === 'day' ? (
+                <Text
+                  key={row.key}
+                  alignSelf="center"
+                  pt={2}
+                  fontSize="xs"
+                  fontWeight={600}
+                  color="text.muted"
+                >
+                  {row.label}
+                </Text>
+              ) : (
+                <ThreadTimelineItem
+                  key={row.item.id}
+                  item={row.item}
+                  locale={locale}
+                  showTime={row.showTime}
+                />
+              ),
+            )}
           </Stack>
         </Stack>
       </Box>
 
-      {notice ? (
+      {config.composer === 'open' ? (
+        <Composer threadId={thread.id} name={name} t={t} />
+      ) : (
         <Box
           px={4}
           py={3}
@@ -281,11 +374,9 @@ export function ThreadView({ threadId }: { threadId: string }) {
           bg="bg.subtle"
         >
           <Text fontSize="sm" color="text.muted">
-            {notice}
+            {formatMessage(t[config.composer], { name })}
           </Text>
         </Box>
-      ) : (
-        <Composer threadId={threadId} name={name} t={t} />
       )}
     </>
   )

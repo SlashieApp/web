@@ -2,6 +2,8 @@ import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
+import { LocaleProvider } from '@/i18n/LocaleProvider'
+
 import { MessagesContext } from '../context/MessagesProvider'
 import { ThreadList } from './ThreadList'
 import {
@@ -63,7 +65,7 @@ const threadFrom = (id: string, title: string, days: number) => {
   return taskThread('owner', { id, title, updatedAt: last.createdAt }, [last])
 }
 
-/** Task threads with unread counts, one with no worker yet, and the Slashie thread. */
+/** inbox.list: task threads with unread counts, one with no worker yet, and the Slashie thread. */
 export const Default: Story = {
   render: (args) => <Frame value={messagesValue()} {...args} />,
   play: async ({ canvasElement }) => {
@@ -81,7 +83,7 @@ export const NothingSelected: Story = {
   render: (args) => <Frame value={messagesValue()} {...args} />,
 }
 
-/** The inbox request has not settled. */
+/** inbox.loading: the request has not settled: skeleton rows. */
 export const Loading: Story = {
   args: { selectedId: null },
   render: (args) => (
@@ -90,24 +92,52 @@ export const Loading: Story = {
   play: async ({ canvasElement }) => {
     await expect(
       await within(canvasElement).findByText('Loading messages…'),
-    ).toBeVisible()
+    ).toBeInTheDocument()
+    await expect(
+      canvasElement.querySelector('[aria-busy="true"]'),
+    ).not.toBeNull()
   },
 }
 
-/** No threads yet: an empty message. */
+/** inbox.empty: no threads yet. */
 export const Empty: Story = {
   args: { selectedId: null },
   render: (args) => (
     <Frame value={messagesValue({ threads: [], unreadCount: 0 })} {...args} />
   ),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText('No messages yet'),
+    ).toBeVisible()
+  },
 }
 
-/** The inbox request failed: an error with Try again. */
+/** inbox.error: the request failed: an error with Try again. */
 export const LoadError: Story = {
   args: { selectedId: null },
   render: (args) => (
     <Frame value={messagesValue({ threads: [], error: true })} {...args} />
   ),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByRole('button', { name: 'Try again' }),
+    ).toBeVisible()
+  },
+}
+
+/** zh-HK: the inbox in Traditional Chinese. */
+export const ZhHk: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/messages' } } },
+  render: (args) => (
+    <LocaleProvider>
+      <Frame value={messagesValue()} {...args} />
+    </LocaleProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('訊息')).toBeVisible()
+    await expect(canvas.getByText('Slashie 的更新')).toBeVisible()
+  },
 }
 
 /** Counts above 99 show as 99+. */

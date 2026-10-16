@@ -74,12 +74,17 @@ export const TaskThread: Story = {
   },
 }
 
-/** The thread's task is still loading: the header shows, the options menu has not appeared. */
+/** The thread's task is still loading: the title shows; the pinned card and the options menu have not appeared. */
 export const TaskLoading: Story = {
   decorators: messagesStory({ viewer: 'owner' }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText('Jordan Lee')).toBeVisible()
+    await expect(
+      await canvas.findByRole('link', {
+        name: `Open task: ${STORY_THREAD_TITLE}`,
+      }),
+    ).toBeVisible()
+    await expect(canvas.queryByText('Jordan Lee')).toBeNull()
     await expect(
       canvas.queryByRole('button', { name: 'Conversation options' }),
     ).toBeNull()
@@ -147,15 +152,18 @@ export const BlockedUserMenu: Story = {
   },
 }
 
-/** Nobody accepted yet: the subtitle says so, and there is no one to report or block. */
+/** Nobody accepted yet: the card asks the owner to compare quotes, and there is no one to report or block. */
 export const AwaitingWorker: Story = {
   args: { thread: taskThread('owner', { otherParty: null, canSend: false }) },
   decorators: messagesStory({ viewer: 'owner', task: openTask }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByText('No worker accepted yet'),
+      await canvas.findByText('2 quotes - compare and accept'),
     ).toBeVisible()
+    await expect(
+      canvas.getByRole('link', { name: 'Compare quotes' }),
+    ).toHaveAttribute('href', `/tasks/${openTask.id}#task-quotes`)
     const menu = await openMenu(canvasElement)
     await expect(
       await menu.findByRole('button', { name: 'Cancel task' }),

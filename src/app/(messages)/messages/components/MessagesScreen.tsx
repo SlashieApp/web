@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Text, VisuallyHidden } from '@chakra-ui/react'
+import { Box, VisuallyHidden } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
@@ -46,21 +46,7 @@ export function MessagesScreen({ threadId }: { threadId: string | null }) {
         minH={0}
         minW={0}
       >
-        {threadId ? (
-          <ThreadView key={threadId} threadId={threadId} />
-        ) : (
-          <Box
-            flex={1}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            px={6}
-          >
-            <Text color="text.muted" fontSize="sm">
-              {t.pickThread}
-            </Text>
-          </Box>
-        )}
+        <ThreadView key={threadId ?? 'none'} threadId={threadId} />
       </Box>
     </Box>
   )

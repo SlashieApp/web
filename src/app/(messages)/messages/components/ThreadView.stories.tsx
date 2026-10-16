@@ -1,8 +1,14 @@
-import { FlashKind, QuoteStatus } from '@codegen/schema'
+import { FlashKind, QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
-import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import {
+  storyTaskDetail,
+  storyTaskOrder,
+  storyTaskQuote,
+} from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import { LocaleProvider } from '@/i18n/LocaleProvider'
+
 import { ThreadView } from './ThreadView'
 
 import { messagesStory } from './messagesStoryDecorator'
@@ -22,6 +28,20 @@ import {
 const openTask = storyTaskDetail()
 
 const FRAME = { height: '640px', maxW: '720px', task: openTask } as const
+
+/** Jordan booked for a future slot: the pinned card shows the time and price. */
+const bookedTask = storyTaskDetail({
+  status: TaskStatus.Awarded,
+  quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
+  orders: [
+    storyTaskOrder({
+      bookedStart: '2030-06-10T14:00:00.000Z',
+      bookedEnd: '2030-06-10T16:00:00.000Z',
+    }),
+  ],
+})
+
+const BOOKED = { ...FRAME, task: bookedTask } as const
 
 const meta = {
   title: 'Messages/ThreadView',
@@ -51,23 +71,54 @@ const pendingItems = [
   ),
 ]
 
-/** Owner and worker chatting about a booked task: the composer is ready. */
+/**
+ * thread.open: owner and worker chatting about a booked task. Day dividers,
+ * the pinned card under the header, and a one-line composer.
+ */
 export const Conversation: Story = {
   decorators: messagesStory({
     viewer: 'owner',
     thread: taskThread('owner', {}, ownerItems),
     items: ownerItems,
-    ...FRAME,
+    ...BOOKED,
   }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByRole('log')).toHaveTextContent(
-      'the spare key is with the neighbour',
-    )
-    await expect(
-      canvas.getByRole('textbox', { name: 'Message Jordan Lee' }),
-    ).toBeEnabled()
+    const log = await canvas.findByRole('log')
+    await expect(log).toHaveTextContent('the spare key is with the neighbour')
+    await expect(within(log).getByText('Yesterday')).toBeVisible()
+    await expect(within(log).getByText('Today')).toBeVisible()
+    const composer = canvas.getByRole('textbox', { name: 'Message Jordan Lee' })
+    await expect(composer).toBeEnabled()
+    await expect(composer.getBoundingClientRect().height).toBeLessThan(56)
     await expect(canvas.getByRole('button', { name: 'Send' })).toBeDisabled()
+  },
+}
+
+/** zh-HK: day dividers and the composer in Traditional Chinese. */
+export const ZhHk: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/messages' } } },
+  decorators: [
+    ...messagesStory({
+      viewer: 'owner',
+      thread: taskThread('owner', {}, ownerItems),
+      items: ownerItems,
+      ...BOOKED,
+    }),
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const log = await canvas.findByRole('log')
+    await expect(within(log).getByText('今日')).toBeVisible()
+    await expect(within(log).getByText('昨日')).toBeVisible()
+    await expect(
+      canvas.getByRole('textbox', { name: '傳送訊息給 Jordan Lee' }),
+    ).toHaveAttribute('placeholder', '輸入訊息')
   },
 }
 
@@ -77,7 +128,7 @@ export const AsWorker: Story = {
     viewer: 'worker',
     thread: taskThread('worker', {}, workerItems),
     items: workerItems,
-    ...FRAME,
+    ...BOOKED,
   }),
   play: async ({ canvasElement }) => {
     await expect(
@@ -88,7 +139,7 @@ export const AsWorker: Story = {
   },
 }
 
-/** Owner with a pending quote: Accept and Decline on the card, no composer yet. */
+/** thread.locked: owner with a pending quote: Accept and Decline on the card, no composer yet. */
 export const OwnerPendingQuote: Story = {
   decorators: messagesStory({
     viewer: 'owner',
@@ -107,7 +158,7 @@ export const OwnerPendingQuote: Story = {
   },
 }
 
-/** Worker who has quoted and is waiting: the card says Awaiting reply and the thread is locked. */
+/** thread.locked: worker who has quoted and is waiting: the card says Awaiting reply. */
 export const WorkerAwaitingReply: Story = {
   decorators: messagesStory({
     viewer: 'worker',
@@ -122,7 +173,7 @@ export const WorkerAwaitingReply: Story = {
   },
 }
 
-/** The owner chose another worker: the notice explains the thread is closed. */
+/** thread.notSelected: the owner chose another worker: the notice explains the thread is closed. */
 export const NotSelected: Story = {
   decorators: (() => {
     const items = [
@@ -154,7 +205,7 @@ export const NotSelected: Story = {
   },
 }
 
-/** The viewer blocked the other person: the notice says so and offers no composer. */
+/** thread.blocked: the viewer blocked the other person: the notice says so and offers no composer. */
 export const BlockedByMe: Story = {
   decorators: messagesStory({
     viewer: 'owner',
@@ -175,7 +226,7 @@ export const BlockedByMe: Story = {
   },
 }
 
-/** The Slashie announcements thread: read-only. */
+/** thread.system: the Slashie announcements thread: read-only, no pinned card. */
 export const Announcements: Story = {
   args: { threadId: 't-system' },
   decorators: messagesStory({
@@ -211,7 +262,7 @@ export const ReviewPrompt: Story = {
       viewer: 'owner',
       thread: taskThread('owner', {}, items),
       items,
-      ...FRAME,
+      ...BOOKED,
     })
   })(),
   play: async ({ canvasElement }) => {
@@ -231,7 +282,7 @@ export const LongHistory: Story = {
       viewer: 'owner',
       thread: taskThread('owner', {}, items),
       items,
-      ...FRAME,
+      ...BOOKED,
     })
   })(),
   play: async ({ canvasElement }) => {
@@ -266,7 +317,7 @@ export const LongMessages: Story = {
       viewer: 'owner',
       thread: taskThread('owner', {}, items),
       items,
-      ...FRAME,
+      ...BOOKED,
     })
   })(),
 }
@@ -278,11 +329,12 @@ export const Phone: Story = {
     viewer: 'owner',
     thread: taskThread('owner', {}, ownerItems),
     items: ownerItems,
+    task: bookedTask,
     height: '560px',
   }),
 }
 
-/** The thread request has not settled: a loading line, no header. */
+/** thread.loading: the request has not settled: skeleton bubbles, no header. */
 export const Loading: Story = {
   decorators: messagesStory({
     viewer: 'owner',
@@ -290,13 +342,55 @@ export const Loading: Story = {
     ...FRAME,
   }),
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
     await expect(
-      await within(canvasElement).findByText('Loading messages…'),
+      await canvas.findByText('Loading messages…'),
+    ).toBeInTheDocument()
+    await expect(
+      canvasElement.querySelector('[aria-busy="true"]'),
+    ).not.toBeNull()
+    await expect(canvas.queryByRole('log')).toBeNull()
+  },
+}
+
+/** thread.none: desktop with no conversation picked. */
+export const NothingPicked: Story = {
+  args: { threadId: null },
+  decorators: messagesStory({ viewer: 'owner', ...FRAME }),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText(
+        'Choose a conversation to read it.',
+      ),
     ).toBeVisible()
   },
 }
 
-/** The thread request failed: an error with Try again and a way back. */
+/** thread.notFound: not your conversation (the API answers FORBIDDEN): no Try again, a way back. */
+export const NotAvailable: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    threadRequest: 'forbidden',
+    ...FRAME,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText("This conversation isn't available"),
+    ).toBeVisible()
+    await expect(
+      canvas.getByText(
+        'It may have been removed, or you no longer have access.',
+      ),
+    ).toBeVisible()
+    await expect(canvas.queryByRole('button', { name: 'Try again' })).toBeNull()
+    await expect(
+      canvas.getByRole('link', { name: 'Back to messages' }),
+    ).toHaveAttribute('href', '/messages')
+  },
+}
+
+/** thread.loadError: the request failed: an error with Try again and a way back. */
 export const LoadError: Story = {
   decorators: messagesStory({
     viewer: 'owner',

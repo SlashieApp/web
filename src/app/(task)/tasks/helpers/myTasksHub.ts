@@ -31,7 +31,7 @@ export type MyTaskAsk =
   | 'conflict'
 
 /** Task detail's views that wait on this viewer, and the ask each makes. */
-const ASK_BY_VIEW: Partial<Record<TaskDetailViewName, MyTaskAsk>> = {
+export const ASK_BY_VIEW: Partial<Record<TaskDetailViewName, MyTaskAsk>> = {
   'owner.open.quotes': 'compareQuotes',
   'owner.booked.rescheduleByThem': 'answerReschedule',
   'worker.booked.rescheduleByThem': 'answerReschedule',

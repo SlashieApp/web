@@ -77,6 +77,40 @@ export function isButtonOnlyMainCta(model: TaskDetailMainCtaModel): boolean {
   )
 }
 
+/** Downloads the receipt for the viewer's booking, in place. */
+function useReceiptDownload() {
+  const { myOrder } = useTaskDetail()
+  const reviews = useI11n(bag).reviews
+  return () => {
+    if (!myOrder) return
+    void downloadOrderReceiptPdf(myOrder.id).catch(() => {
+      showAppToast({ title: reviews.receiptFailed, type: 'error' })
+    })
+  }
+}
+
+/**
+ * The main action as a small button on its own, for a `quoted` or `button`
+ * model (Messages' pinned card shows the facts itself).
+ */
+export function MainCtaButton({ model }: { model: TaskDetailMainCtaModel }) {
+  const onReceipt = useReceiptDownload()
+  if (model.receipt) {
+    return (
+      <Button type="button" size="sm" variant="secondary" onClick={onReceipt}>
+        {model.buttonLabel}
+      </Button>
+    )
+  }
+  return (
+    <Button asChild size="sm" variant="secondary">
+      <Link href={model.href ?? ''} _hover={{ textDecoration: 'none' }}>
+        {model.buttonLabel}
+      </Link>
+    </Button>
+  )
+}
+
 function MainCtaControl({
   model,
   fill,
@@ -84,8 +118,7 @@ function MainCtaControl({
   model: TaskDetailMainCtaModel
   fill: boolean
 }) {
-  const { myOrder } = useTaskDetail()
-  const reviews = useI11n(bag).reviews
+  const onReceipt = useReceiptDownload()
 
   if (model.presentation === 'close') {
     return (
@@ -128,13 +161,6 @@ function MainCtaControl({
         </Link>
       </Button>
     )
-  }
-
-  const onReceipt = () => {
-    if (!myOrder) return
-    void downloadOrderReceiptPdf(myOrder.id).catch(() => {
-      showAppToast({ title: reviews.receiptFailed, type: 'error' })
-    })
   }
 
   return (

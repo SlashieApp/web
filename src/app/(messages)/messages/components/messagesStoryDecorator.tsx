@@ -41,9 +41,10 @@ export type MessagesStoryConfig = {
   items?: readonly ThreadItemFieldsFragment[]
   /**
    * What the open thread's request does: `loaded` reads the seeded thread,
-   * `loading` never settles, `failed` errors.
+   * `loading` never settles, `failed` errors, `forbidden` is the API's answer
+   * for a conversation you're not in.
    */
-  threadRequest?: 'loaded' | 'loading' | 'failed'
+  threadRequest?: 'loaded' | 'loading' | 'failed' | 'forbidden'
   /** The thread's task, loaded behind the header menu. */
   task?: TaskDetailRecord
   /** Fixed frame height for thread and screen stories. */
@@ -192,7 +193,15 @@ export function messagesStory<TArgs>(
       responses:
         threadRequest === 'failed'
           ? { MessageThread: { kind: 'networkError' } }
-          : undefined,
+          : threadRequest === 'forbidden'
+            ? {
+                MessageThread: {
+                  kind: 'graphqlError',
+                  code: 'INTERNAL_SERVER_ERROR',
+                  message: 'FORBIDDEN',
+                },
+              }
+            : undefined,
     }),
   ]
 }
