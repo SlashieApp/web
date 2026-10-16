@@ -182,6 +182,8 @@ function PriceColumn({
       gap={1}
       minW={0}
       p={4}
+      justify="center"
+      textAlign="center"
       borderRadius="lg"
       borderWidth="1px"
       borderColor={highlight ? 'status.success.solid' : 'border.default'}
@@ -385,7 +387,7 @@ export function MyQuoteFact() {
     <Stack gap={0} pt={3}>
       <Grid templateColumns="repeat(2, minmax(0, 1fr))" gap={3}>
         <PriceColumn
-          label={t.details.budget}
+          label={t.cta.clientBudget}
           value={taskBudgetDisplayLine(task, 'visitor')}
           detail={[
             budgetKindLabel(task.budget?.type),

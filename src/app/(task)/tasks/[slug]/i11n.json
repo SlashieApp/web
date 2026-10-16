@@ -70,7 +70,8 @@
       "message": "Message",
       "yourCustomer": "Your customer",
       "signInToQuote": "Sign in to quote",
-      "browseTasks": "Browse other tasks"
+      "browseTasks": "Browse other tasks",
+      "clientBudget": "Client budget"
     },
     "reviews": {
       "heading": "Reviews",
@@ -500,7 +501,8 @@
       "message": "傳送訊息",
       "yourCustomer": "你的客戶",
       "signInToQuote": "登入以報價",
-      "browseTasks": "瀏覽其他任務"
+      "browseTasks": "瀏覽其他任務",
+      "clientBudget": "客戶預算"
     },
     "reviews": {
       "heading": "評價",
