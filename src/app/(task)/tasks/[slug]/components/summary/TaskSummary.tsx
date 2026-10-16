@@ -62,9 +62,16 @@ const SUMMARY_FACTS: Record<TaskSummaryFact, ComponentType> = {
   reviews: ReviewsFact,
 }
 
-/** Hairline between facts; a fact with nothing to show renders nothing. */
+/**
+ * Hairline between facts; a fact with nothing to show renders nothing.
+ * Photos sit straight under the description, as one block.
+ */
 const FACT_DIVIDERS = {
   '& > * + *': { borderTopWidth: '1px', borderTopColor: 'border.default' },
+  '& > [data-fact=description] + [data-fact=photos]': {
+    borderTopWidth: 0,
+    paddingTop: 0,
+  },
 } as const
 
 /** The view's headline and sub-line, with counts, names and dates filled in. */

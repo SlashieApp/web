@@ -601,7 +601,7 @@ export function DescriptionFact() {
   if (task && !text) return null
 
   return (
-    <Box py={3}>
+    <Box py={3} data-fact="description">
       {text ? (
         <Description text={text} />
       ) : (
@@ -628,7 +628,7 @@ export function PhotosFact() {
   const title = (task ?? seed)?.title?.trim() || t.fallbackTask
 
   return (
-    <Wrap gap={2} py={3}>
+    <Wrap gap={2} py={3} data-fact="photos">
       {images.map((src, index) => (
         <Box
           key={src}

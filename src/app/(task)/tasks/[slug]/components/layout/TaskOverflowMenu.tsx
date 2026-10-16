@@ -8,7 +8,6 @@ import {
   LuCalendarX,
   LuCircleAlert,
   LuCircleCheck,
-  LuCircleHelp,
   LuEllipsisVertical,
   LuPencil,
   LuRepeat,
@@ -19,7 +18,6 @@ import {
 } from 'react-icons/lu'
 import bag from '../../i11n.json'
 
-import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
 import { ReportControl } from '@/content/trust/ReportControl'
 import { SAFETY_HREF } from '@/utils/appRoutes'
 import { orderRequestView } from '@/utils/orderHelpers'
@@ -266,12 +264,6 @@ export function TaskOverflowActions({
         icon={<LuShieldCheck />}
         label={t.actions.payingMeetingSafely}
         href={SAFETY_HREF}
-        onClick={close}
-      />
-      <MenuAction
-        icon={<LuCircleHelp />}
-        label={t.actions.getHelp}
-        href={`mailto:${LEGAL_CONTACT_EMAIL}`}
         onClick={close}
       />
       {permissions.isOwner ? null : (

@@ -79,7 +79,7 @@ export const Closed: Story = {
   },
 }
 
-/** Owner of an open task: share, edit, safety, help and Cancel task. */
+/** Owner of an open task: share, edit, safety and Cancel task. */
 export const OwnerOpenTask: Story = {
   ...desktop,
   ...menu({ viewer: 'owner' }),
@@ -88,13 +88,13 @@ export const OwnerOpenTask: Story = {
     await panel.findByRole('button', { name: 'Share task' })
     await panel.findByRole('link', { name: 'Edit task' })
     await panel.findByRole('link', { name: 'Paying & meeting safely' })
-    await panel.findByRole('link', { name: 'Get help' })
+    expect(panel.queryByRole('link', { name: 'Get help' })).toBeNull()
     await panel.findByRole('button', { name: 'Cancel task' })
     expect(panel.queryByRole('button', { name: 'Report task' })).toBeNull()
   },
 }
 
-/** A visitor: share, safety, help and Report task; nothing to edit or cancel. */
+/** A visitor: share, safety and Report task; nothing to edit or cancel. */
 export const Visitor: Story = {
   ...desktop,
   ...menu({ viewer: 'visitor' }),
