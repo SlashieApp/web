@@ -1,31 +1,7 @@
 {
   "en": {
     "metadata": {
-      "title": "Dashboard · Slashie"
-    },
-    "inbox": {
-      "activity": "Activity",
-      "viewAll": "View all",
-      "description": "Latest updates on your tasks and bookings.",
-      "empty": "No activity yet.",
-      "loading": "Loading activity…",
-      "search": "Search",
-      "category": "Category",
-      "sort": "Sort",
-      "status": "Status",
-      "edit": "Edit",
-      "newestFirst": "Newest first",
-      "oldestFirst": "Oldest first"
-    },
-    "membership": {
-      "title": "Membership",
-      "manageBilling": "Manage billing",
-      "viewBilling": "View billing",
-      "becomeWorker": "Become a worker",
-      "platformMembership": "Platform membership",
-      "body": "Slashie Unlimited covers platform quoting access. Job payments stay between customer and worker, not through Slashie.",
-      "quotesThisMonth": "Tasks quoted this month",
-      "quotesThisMonthUtc": "Tasks quoted this month (UTC)"
+      "title": "Slashie"
     },
     "page": {
       "back": "Back",
@@ -40,31 +16,7 @@
   },
   "zh_hk": {
     "metadata": {
-      "title": "儀表板 · Slashie"
-    },
-    "inbox": {
-      "activity": "活動",
-      "viewAll": "查看全部",
-      "description": "你的任務和預約的最新更新。",
-      "empty": "暫時沒有活動。",
-      "loading": "正在載入活動…",
-      "search": "搜尋",
-      "category": "類別",
-      "sort": "排序",
-      "status": "狀態",
-      "edit": "編輯",
-      "newestFirst": "最新優先",
-      "oldestFirst": "最舊優先"
-    },
-    "membership": {
-      "title": "會員",
-      "manageBilling": "管理帳單",
-      "viewBilling": "查看帳單",
-      "becomeWorker": "成為工作者",
-      "platformMembership": "平台會員",
-      "body": "Slashie Unlimited 涵蓋平台報價權限。工作款項由顧客與工作者直接處理，不經 Slashie。",
-      "quotesThisMonth": "本月已報價任務",
-      "quotesThisMonthUtc": "本月已報價任務（UTC）"
+      "title": "Slashie"
     },
     "page": {
       "back": "返回",

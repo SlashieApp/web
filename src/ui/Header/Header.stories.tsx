@@ -30,7 +30,7 @@ import { Header } from './Header'
  * - **browse**: logged-in toolbar (Post a task, nav links, account menu)
  * - **custom**: caller-provided `children` replace the default body
  *
- * Account-hub routes (`/dashboard`, `/requests`, …) use this same toolbar;
+ * Account-hub routes (`/account`, `/profile`, …) use this same toolbar;
  * hub destinations live in the account menu. Stories seed Zustand auth state
  * and the Next pathname; the global theme toolbar renders each under light
  * and dark, so no mode is hardcoded here.
@@ -109,32 +109,6 @@ const meCustomer: MeSnapshot = {
   ...meWorker,
   workerEligibility: false,
   worker: null,
-}
-
-const meWorkerFree: MeSnapshot = {
-  ...meWorker,
-  worker: meWorker.worker
-    ? {
-        ...meWorker.worker,
-        membership: {
-          planName: 'Free',
-          statusLabel: 'Free',
-          statusDescription: null,
-          subscriptionStatus: WorkerSubscriptionStatus.None,
-          hasUnlimitedQuotes: false,
-          cancelAtPeriodEnd: false,
-          canceledAt: null,
-          freeQuotesPerMonth: 3,
-          quotesUsedThisMonth: 2,
-          quotesRemainingThisMonth: 1,
-          trialEndsAt: null,
-          currentPeriodEnd: '2026-12-09T00:00:00.000Z',
-          canStartTrial: false,
-          canManageBilling: false,
-          canUpgrade: true,
-        },
-      }
-    : null,
 }
 
 /** Stands in for the live `getUser`: it just returns whoever is seeded. */
@@ -286,8 +260,8 @@ export const BrowseLoggedIn: Story = {
 }
 
 /** Logged-in toolbar on an account-hub route: same chrome as browse (no section switcher). */
-export const Dashboard: Story = {
-  parameters: { nextjs: { navigation: { pathname: '/dashboard' } } },
+export const AccountHub: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/account' } } },
   decorators: [
     (Story) => {
       seedMe(meWorker)
@@ -297,24 +271,12 @@ export const Dashboard: Story = {
   render: () => <Header />,
 }
 
-/** Customer (no worker profile): the account menu surfaces the upsell card. */
+/** Customer (no worker profile): the account menu offers Become a worker. */
 export const CustomerAccount: Story = {
   parameters: { nextjs: { navigation: { pathname: '/' } } },
   decorators: [
     (Story) => {
       seedMe(meCustomer)
-      return <Story />
-    },
-  ],
-  render: () => <Header />,
-}
-
-/** Worker on the free plan: the account menu shows the quote-usage meter. */
-export const WorkerFreePlan: Story = {
-  parameters: { nextjs: { navigation: { pathname: '/dashboard' } } },
-  decorators: [
-    (Story) => {
-      seedMe(meWorkerFree)
       return <Story />
     },
   ],

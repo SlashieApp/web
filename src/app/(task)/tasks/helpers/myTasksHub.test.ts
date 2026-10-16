@@ -330,9 +330,13 @@ describe('buildMyTasksHub', () => {
     const ids = (id: string) =>
       sections.find((section) => section.id === id)?.rows.map((row) => row.id)
     expect(ids('completed')).toEqual(['cancelled-booking'])
-    expect(ids('booked')).toEqual(
-      expect.arrayContaining(['conflict', 'booked']),
-    )
+    expect(ids('booked')).toEqual(['booked'])
+    // A CONFLICT booking still counts as booked, and it waits on you.
+    const conflict = sections
+      .find((section) => section.id === 'needsYou')
+      ?.rows.find((row) => row.id === 'conflict')
+    expect(conflict?.section).toBe('booked')
+    expect(conflict?.ask).toBe('conflict')
     expect(
       sections
         .find((section) => section.id === 'booked')
@@ -383,5 +387,114 @@ describe('buildMyTasksHub', () => {
         .find((section) => section.id === 'booked')
         ?.rows.map((row) => row.id),
     ).toEqual(['legacy'])
+  })
+
+  it('files what waits on you under Needs you, using task detail views', () => {
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [
+        task({
+          id: 'compare',
+          title: 'Quotes to compare',
+          status: 'OPEN',
+          quotes: [
+            { id: 'q1', workerUserId: 'w1', status: 'PENDING' },
+            { id: 'q2', workerUserId: 'w2', status: 'PENDING' },
+            { id: 'q3', workerUserId: 'w3', status: 'DECLINED' },
+          ],
+        }),
+        task({ id: 'calm', title: 'No quotes yet', status: 'OPEN' }),
+        task({
+          id: 'moving',
+          title: 'Asked to move',
+          status: 'AWARDED',
+          quotes: [
+            {
+              id: 'qa',
+              workerUserId: 'worker',
+              status: 'ACCEPTED',
+              worker: { profile: { name: 'Alex Kim' } },
+            },
+          ],
+        }),
+      ],
+      sentQuotes: [
+        {
+          task: task({
+            id: 'started',
+            title: 'Job time has started',
+            status: 'AWARDED',
+            poster: { id: 'customer', profile: { name: 'Priya Shah' } },
+          }),
+          quote: { id: 'mine', workerUserId: ME, status: 'ACCEPTED' },
+        },
+      ],
+      orders: [
+        order({
+          taskId: 'moving',
+          status: 'ACTIVE',
+          customerUserId: ME,
+          bookedStart: '2026-09-30T10:00:00.000Z',
+          pendingRequest: { kind: 'RESCHEDULE', requestedByUserId: 'worker' },
+        }),
+        order({
+          taskId: 'started',
+          status: 'ACTIVE',
+          workerUserId: ME,
+          bookedStart: '2026-09-23T09:00:00.000Z',
+        }),
+      ],
+    })
+
+    const needsYou = sections.find((section) => section.id === 'needsYou')
+    expect(
+      needsYou?.rows.map((row) => [row.id, row.ask, row.counterpartyName]),
+    ).toEqual([
+      ['started', 'markDone', 'Priya Shah'],
+      ['moving', 'answerReschedule', 'Alex Kim'],
+      ['compare', 'compareQuotes', null],
+    ])
+    expect(
+      needsYou?.rows.find((row) => row.id === 'compare')?.liveQuoteCount,
+    ).toBe(2)
+    // Rows keep their status and leave their old group.
+    expect(needsYou?.rows.map((row) => row.section)).toEqual([
+      'booked',
+      'booked',
+      'open',
+    ])
+    expect(
+      sections
+        .find((section) => section.id === 'open')
+        ?.rows.map((row) => row.id),
+    ).toEqual(['calm'])
+    expect(sections.find((section) => section.id === 'booked')).toBeUndefined()
+  })
+
+  it('shows the agreed price on booked work instead of the budget', () => {
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [
+        task({
+          id: 'booked',
+          title: 'Booked',
+          status: 'AWARDED',
+          budget: { amount: 80 },
+        }),
+      ],
+      sentQuotes: [],
+      orders: [
+        order({
+          taskId: 'booked',
+          status: 'ACTIVE',
+          customerUserId: ME,
+          bookedStart: '2026-09-30T10:00:00.000Z',
+          agreedPrice: { amount: 95 },
+        }),
+      ],
+    })
+    expect(sections[0]?.rows[0]?.priceLabel).toBe('£95')
   })
 })

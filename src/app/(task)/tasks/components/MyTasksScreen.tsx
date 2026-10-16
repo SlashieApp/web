@@ -4,6 +4,7 @@ import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
+import { useUserStore } from '@/app/(auth)/store/user'
 import { AccountAuthGate } from '@/app/(dashboard)/components/layout/AccountAuthGate'
 import { useAccountOrders } from '@/app/(dashboard)/helpers/useAccountOrders'
 import { useMyQuotes } from '@/app/(dashboard)/helpers/useMyQuotes'
@@ -29,6 +30,7 @@ import {
   myTasksQueryString,
   parseMyTasksQuery,
 } from '../helpers/myTasksHubFilters'
+import { quoteBlocker } from '../helpers/quoteBlocker'
 import {
   achievementRoleVisibility,
   buildAchievementPanels,
@@ -38,6 +40,7 @@ import bag from '../i11n.json'
 import { MY_TASKS_VIEWS, getMyTasksView } from '../views'
 import { MyTasksAchievements } from './ui/MyTasksAchievements'
 import { MyTasksList } from './ui/MyTasksList'
+import { MyTasksQuoteBlocker } from './ui/MyTasksQuoteBlocker'
 import { MyTasksSearch } from './ui/MyTasksSearch'
 import {
   type MyTasksMobileView,
@@ -49,7 +52,8 @@ const SEARCH_PAUSE_MS = 400
 
 /**
  * My Tasks hub at `/tasks` (views/README.md): your posted tasks and quotes,
- * grouped Booked / In progress, Open, Completed. Search, Category and
+ * grouped Needs you, Booked / In progress, Open, Completed, under a "Before
+ * you can quote" strip when something blocks a worker from quoting. Search, Category and
  * Hosted / Quoted live in the URL (`?q=&category=&role=`) like /search.
  * Your activity sits in the desktop rail; phones switch to it in the corner.
  */
@@ -81,6 +85,7 @@ export function MyTasksScreen() {
     [localize, router],
   )
 
+  const blocker = quoteBlocker(useUserStore((s) => s.me))
   const requests = useMyRequests()
   const quotes = useMyQuotes()
   const orders = useAccountOrders()
@@ -252,6 +257,8 @@ export function MyTasksScreen() {
               <MyTasksViewSwitch view={mobileView} onChange={setMobileView} />
             ) : null}
           </Stack>
+
+          {blocker ? <MyTasksQuoteBlocker blocker={blocker} /> : null}
 
           <Box
             display={{

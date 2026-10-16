@@ -5,13 +5,5 @@ query MyOrders($filter: MyOrdersFilter) {
     orders(filter: $filter) {
       ...OrderFields
     }
-    worker {
-      earnings {
-        pending {
-          amount
-          currency
-        }
-      }
-    }
   }
 }

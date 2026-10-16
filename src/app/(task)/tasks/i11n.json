@@ -13,6 +13,7 @@
     "quoteCount": "{count} quotes",
     "hostedBy": "Hosted by {name}",
     "sections": {
+      "needsYou": "Needs you",
       "open": "Open",
       "booked": "Booked / In progress",
       "completed": "Completed"
@@ -96,6 +97,44 @@
       "streak": "Streak",
       "streakWeeks": "{count} weeks",
       "agreedTotals": "Agreed totals on completed jobs"
+    },
+    "needsYou": {
+      "asks": {
+        "compareQuotes": "{count} quotes to compare",
+        "compareQuotesOne": "1 quote to compare",
+        "answerReschedule": "{name} wants to move the booking",
+        "answerRescheduleNoName": "They want to move the booking",
+        "answerCancel": "{name} asked to cancel",
+        "answerCancelNoName": "They asked to cancel",
+        "markDone": "Job time has started",
+        "confirmDone": "{name} marked it Done",
+        "confirmDoneNoName": "They marked it Done",
+        "answerFailed": "{name} marked it Failed",
+        "answerFailedNoName": "They marked it Failed",
+        "conflict": "This booking needs resolving"
+      },
+      "actions": {
+        "compareQuotes": "Compare",
+        "answerReschedule": "Respond",
+        "answerCancel": "Respond",
+        "markDone": "Mark done",
+        "confirmDone": "Mark done",
+        "answerFailed": "Respond",
+        "conflict": "View"
+      }
+    },
+    "blocker": {
+      "lead": "Before you can quote:",
+      "reasons": {
+        "finishSetup": "finish your worker setup.",
+        "fixPayment": "your last payment failed.",
+        "quotesUsed": "your free quotes for this month are used."
+      },
+      "actions": {
+        "finishSetup": "Finish setup",
+        "fixPayment": "Fix payment",
+        "quotesUsed": "See plans"
+      }
     }
   },
   "zh_hk": {
@@ -112,6 +151,7 @@
     "quoteCount": "{count} 個報價",
     "hostedBy": "發布者：{name}",
     "sections": {
+      "needsYou": "需要你處理",
       "open": "開放中",
       "booked": "已預約 / 進行中",
       "completed": "已完成"
@@ -195,6 +235,44 @@
       "streak": "連續週數",
       "streakWeeks": "{count} 週",
       "agreedTotals": "已完成工作的協定總額"
+    },
+    "needsYou": {
+      "asks": {
+        "compareQuotes": "{count} 個報價待比較",
+        "compareQuotesOne": "1 個報價待比較",
+        "answerReschedule": "{name} 想更改預約時間",
+        "answerRescheduleNoName": "對方想更改預約時間",
+        "answerCancel": "{name} 要求取消",
+        "answerCancelNoName": "對方要求取消",
+        "markDone": "工作時間已開始",
+        "confirmDone": "{name} 已標記為完成",
+        "confirmDoneNoName": "對方已標記為完成",
+        "answerFailed": "{name} 已標記為未完成",
+        "answerFailedNoName": "對方已標記為未完成",
+        "conflict": "這個預約需要處理"
+      },
+      "actions": {
+        "compareQuotes": "比較",
+        "answerReschedule": "回應",
+        "answerCancel": "回應",
+        "markDone": "標記完成",
+        "confirmDone": "標記完成",
+        "answerFailed": "回應",
+        "conflict": "查看"
+      }
+    },
+    "blocker": {
+      "lead": "報價前：",
+      "reasons": {
+        "finishSetup": "請完成工作者設定。",
+        "fixPayment": "你上次的付款未能成功。",
+        "quotesUsed": "你本月的免費報價已用完。"
+      },
+      "actions": {
+        "finishSetup": "完成設定",
+        "fixPayment": "處理付款",
+        "quotesUsed": "查看方案"
+      }
     }
   }
 }

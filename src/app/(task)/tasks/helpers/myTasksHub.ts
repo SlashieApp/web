@@ -1,11 +1,53 @@
+import {
+  getTaskDetailView,
+  liveQuoteCount,
+} from '@/app/(task)/tasks/[slug]/views/getTaskDetailView'
+import type { TaskDetailViewName } from '@/app/(task)/tasks/[slug]/views/types'
 import { orderBookedDatetime } from '@/utils/orderHelpers'
 import { budgetToPence, formatGbpMajor, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
-/** Live work first: Booked / In progress, then Open, then Completed. */
+/** A row's status: Booked / In progress, then Open, then Completed. */
 export const MY_TASK_SECTION_ORDER = ['booked', 'open', 'completed'] as const
 
 export type MyTaskSectionId = (typeof MY_TASK_SECTION_ORDER)[number]
+
+/** Groups on the page: anything waiting on you first, then by status. */
+export const MY_TASK_GROUP_ORDER = [
+  'needsYou',
+  ...MY_TASK_SECTION_ORDER,
+] as const
+
+export type MyTaskGroupId = (typeof MY_TASK_GROUP_ORDER)[number]
+
+/** What a row asks of you now; it files the row under Needs you. */
+export type MyTaskAsk =
+  | 'compareQuotes'
+  | 'answerReschedule'
+  | 'answerCancel'
+  | 'markDone'
+  | 'confirmDone'
+  | 'answerFailed'
+  | 'conflict'
+
+/** Task detail's views that wait on this viewer, and the ask each makes. */
+const ASK_BY_VIEW: Partial<Record<TaskDetailViewName, MyTaskAsk>> = {
+  'owner.open.quotes': 'compareQuotes',
+  'owner.booked.rescheduleByThem': 'answerReschedule',
+  'worker.booked.rescheduleByThem': 'answerReschedule',
+  'owner.booked.cancelByThem': 'answerCancel',
+  'worker.booked.cancelByThem': 'answerCancel',
+  'owner.booked.ready': 'markDone',
+  'worker.booked.ready': 'markDone',
+  'owner.booked.theyMarkedDone': 'confirmDone',
+  'worker.booked.theyMarkedDone': 'confirmDone',
+  'owner.booked.theyMarkedFailed': 'answerFailed',
+  'worker.booked.theyMarkedFailed': 'answerFailed',
+  'owner.conflict.iMarkedDone': 'conflict',
+  'owner.conflict.iMarkedFailed': 'conflict',
+  'worker.conflict.iMarkedDone': 'conflict',
+  'worker.conflict.iMarkedFailed': 'conflict',
+}
 
 export type MyTaskRole = 'hosted' | 'quoted'
 
@@ -67,6 +109,11 @@ export type MyTaskOrderSource = {
   /** Booked start (accepted or rescheduled slot); dates booked rows. */
   bookedStart?: unknown
   closedAt?: unknown
+  /** The price both sides agreed (major units); what booked rows show. */
+  agreedPrice?: { amount: number } | null
+  myCloseAction?: { kind: string } | null
+  counterpartyCloseAction?: { kind: string } | null
+  pendingRequest?: { kind: string; requestedByUserId: string } | null
 }
 
 export type MyTaskHubRow = {
@@ -88,10 +135,16 @@ export type MyTaskHubRow = {
   acceptedWorkerName: string | null
   /** My quote lost: someone else got the job. */
   notSelected: boolean
+  /** What it asks of you now (from task detail's view); files it under Needs you. */
+  ask: MyTaskAsk | null
+  /** Live quotes from others on your open task ("3 quotes to compare"). */
+  liveQuoteCount: number
+  /** The other side of the job, for asks ("Alex asked to reschedule"). */
+  counterpartyName: string | null
 }
 
 export type MyTaskHubSection = {
-  id: MyTaskSectionId
+  id: MyTaskGroupId
   rows: MyTaskHubRow[]
 }
 
@@ -303,7 +356,11 @@ function sectionFor(input: {
 function priceLabel(
   task: MyTaskSource,
   myQuote: MyTaskQuoteSource | null,
+  order: MyTaskOrderSource | null,
 ): string {
+  // Booked work shows what both sides agreed, not the original budget.
+  const agreed = priceToPence(order?.agreedPrice)
+  if (agreed != null && agreed > 0) return formatGbpMajor(agreed / 100)
   const budget = budgetToPence(task.budget)
   if (budget != null && budget > 0) return formatGbpMajor(budget / 100)
   const quote = priceToPence(myQuote?.price)
@@ -345,10 +402,35 @@ function orderForTask(
   return related.find((order) => order.workerUserId === userId) ?? null
 }
 
+/** What this row waits on you for, from the view task detail would show. */
+function askFor(
+  task: MyTaskSource,
+  hosted: boolean,
+  order: MyTaskOrderSource | null,
+  userId: string,
+  now: Date,
+): MyTaskAsk | null {
+  const view = getTaskDetailView(
+    {
+      status: task.status,
+      posterId: hosted ? userId : (task.poster?.id ?? null),
+      // Your own quote on your own task is nothing to compare.
+      quotes: (task.quotes ?? []).filter(
+        (quote) => !hosted || quote.workerUserId !== userId,
+      ),
+    },
+    order ? { ...order, bookedStart: order.bookedStart } : null,
+    { userId, hasWorkerProfile: true },
+    now,
+  )
+  return ASK_BY_VIEW[view] ?? null
+}
+
 /**
- * Merge hosted tasks and sent quotes into Booked / In progress → Open →
- * Completed. Within a section: overdue, then soonest upcoming, then flexible,
- * then completed (newest completion first).
+ * Merge hosted tasks and sent quotes into Needs you (anything waiting on
+ * you, from task detail's views) → Booked / In progress → Open → Completed.
+ * Within a group: overdue, then soonest upcoming, then flexible, then
+ * completed (newest completion first).
  */
 export function buildMyTasksHub(input: {
   posted: readonly MyTaskSource[]
@@ -423,7 +505,7 @@ export function buildMyTasksHub(input: {
       title: task.title,
       description: task.description?.trim() || '',
       location: taskPublicLocationLabel(task),
-      priceLabel: priceLabel(task, myQuote),
+      priceLabel: priceLabel(task, myQuote, order),
       categories: (task.categories ?? []).map((c) => c.trim()).filter(Boolean),
       ownerName: task.poster?.profile?.name?.trim() || null,
       thumbnailSrc: task.images?.[0],
@@ -436,6 +518,20 @@ export function buildMyTasksHub(input: {
         : null,
       notSelected:
         !hosted && myQuote != null && norm(myQuote.status) === 'NOT_SELECTED',
+      ask:
+        section === 'completed'
+          ? null
+          : askFor(task, hosted, order, userId, now),
+      liveQuoteCount: hosted
+        ? liveQuoteCount(
+            (task.quotes ?? []).filter(
+              (quote) => quote.workerUserId !== userId,
+            ),
+          )
+        : 0,
+      counterpartyName: hosted
+        ? acceptedWorkerName(task.quotes, userId)
+        : task.poster?.profile?.name?.trim() || null,
       bucket,
       at: point.at,
       completed: completedMs(task, order),
@@ -453,9 +549,11 @@ export function buildMyTasksHub(input: {
     return a.title.localeCompare(b.title)
   })
 
-  return MY_TASK_SECTION_ORDER.flatMap((id) => {
+  return MY_TASK_GROUP_ORDER.flatMap((id) => {
     const rows = sortable
-      .filter((row) => row.section === id)
+      .filter((row) =>
+        id === 'needsYou' ? row.ask != null : !row.ask && row.section === id,
+      )
       .map(({ bucket: _bucket, at: _at, completed: _completed, ...row }) => row)
     return rows.length > 0 ? [{ id, rows }] : []
   })

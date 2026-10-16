@@ -66,6 +66,8 @@ export type TaskCardTask = {
   timingTone?: 'lead' | 'overdue'
   /** Quote-count line, e.g. "5 quotes" (owner/worker lists only). */
   quotesLabel?: string
+  /** What the task asks of you now, in bold in place of `quotesLabel` (My Tasks). */
+  askLabel?: string
   /** Public views line from GraphQL (`task.views`); fallback when quotes are unavailable. */
   viewsLabel?: string
   thumbnailSrc?: string
@@ -106,6 +108,8 @@ type TaskCardShared = {
   tags?: readonly string[]
   /** Replaces the default ⋮ menu (Report task). */
   menu?: ReactNode
+  /** One button under the row (My Tasks' Needs you); taps don't open the card. */
+  action?: ReactNode
 }
 
 type TaskCardWithTask = TaskCardShared & {
@@ -203,6 +207,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     timingLabel,
     timingTone,
     quotesLabel,
+    askLabel,
     thumbnailSrc,
     trust,
   } = cardTask
@@ -371,7 +376,16 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                 </HStack>
               ) : null}
 
-              {quotesLabel ? (
+              {askLabel ? (
+                <Text
+                  fontSize="sm"
+                  fontWeight={700}
+                  color="text.default"
+                  lineClamp={2}
+                >
+                  {askLabel}
+                </Text>
+              ) : quotesLabel ? (
                 <Text
                   fontSize="xs"
                   fontWeight={600}
@@ -399,6 +413,17 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               ) : null}
             </Stack>
           </HStack>
+
+          {props.action ? (
+            <Box
+              pt={3}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              {props.action}
+            </Box>
+          ) : null}
 
           <HStack
             data-task-card-options

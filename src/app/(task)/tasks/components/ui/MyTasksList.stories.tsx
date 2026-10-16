@@ -36,11 +36,12 @@ function headings(canvasElement: HTMLElement) {
     .map((heading) => heading.textContent)
 }
 
-/** `list`, posts and quotes: Booked / In progress first, Completed shows 3 of 5. */
+/** `list`, posts and quotes: Needs you first, then Booked / In progress; Completed shows 3 of 5. */
 export const DualRole: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
     await expect(headings(canvasElement)).toEqual([
+      'Needs you (3)',
       'Booked / In progress (2)',
       'Open (2)',
       'Completed (5)',
@@ -168,6 +169,9 @@ export const TraditionalChinese: Story = {
     ),
   ],
   play: async ({ canvasElement }) => {
-    await expect(headings(canvasElement)[0]).toBe('已預約 / 進行中 (2)')
+    await expect(headings(canvasElement).slice(0, 2)).toEqual([
+      '需要你處理 (3)',
+      '已預約 / 進行中 (2)',
+    ])
   },
 }

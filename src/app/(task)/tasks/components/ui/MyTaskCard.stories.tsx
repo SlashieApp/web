@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
-import { storyRows } from '../myTasksStoryFixtures'
+import { needsYouRows, storyRows } from '../myTasksStoryFixtures'
 import { MyTaskCard } from './MyTaskCard'
 
 const meta = {
@@ -72,5 +72,48 @@ export const NotSelected: Story = {
   args: { row: storyRows.notSelected },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByText('Not selected')).toBeVisible()
+  },
+}
+
+/** Needs you, quotes to compare: the ask in bold and Compare to the quotes. */
+export const NeedsYouCompare: Story = {
+  args: { row: needsYouRows.compareQuotes },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('3 quotes to compare')).toBeVisible()
+    await expect(canvas.getByRole('link', { name: 'Compare' })).toHaveAttribute(
+      'href',
+      '/tasks/needs-compare?from=tasks#task-quotes',
+    )
+  },
+}
+
+/** Needs you, a reschedule to answer: Respond goes to the booking. */
+export const NeedsYouReschedule: Story = {
+  args: { row: needsYouRows.answerReschedule },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByText('Priya Shah wants to move the booking'),
+    ).toBeVisible()
+    const respond = canvas.getByRole('link', { name: 'Respond' })
+    await expect(respond).toHaveAttribute(
+      'href',
+      '/tasks/needs-reschedule?from=tasks#task-order',
+    )
+    // The button doesn't also open the card.
+    respond.addEventListener('click', (event) => event.preventDefault())
+    await userEvent.click(respond)
+    await expect(args.onOpen).not.toHaveBeenCalled()
+  },
+}
+
+/** Needs you, the job time has started: Mark done. */
+export const NeedsYouMarkDone: Story = {
+  args: { row: needsYouRows.markDone },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole('link', { name: 'Mark done' }),
+    ).toBeVisible()
   },
 }

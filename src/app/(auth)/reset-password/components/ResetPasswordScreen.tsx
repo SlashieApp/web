@@ -18,8 +18,10 @@ import {
   commonAuthMessage,
 } from '@/app/(auth)/helpers/authMessages'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
+import { MY_TASKS_HREF } from '@/utils/appRoutes'
 import { setAuthToken } from '@/utils/auth'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 import { Button, FormField, Input, Link } from '@ui'
@@ -81,6 +83,7 @@ export function ResetPasswordScreen() {
   const t = useI11n(bag)
   const shared = useI11n(authBag)
   const router = useRouter()
+  const localize = useLocalizedHref()
   const tokenFromUrl = useSearchParams().get('token')?.trim() ?? ''
   const [showTokenField, setShowTokenField] = useState(
     () => isDev && !tokenFromUrl,
@@ -124,7 +127,7 @@ export function ResetPasswordScreen() {
       setAuthToken(authToken)
       await getUser()
       trackFlowSucceeded(EVENTS.password_reset_success)
-      router.push('/dashboard')
+      router.push(localize(MY_TASKS_HREF))
     } catch (error: unknown) {
       trackFlowFailed(EVENTS.password_reset_fail, error, {
         flow: 'password_reset',

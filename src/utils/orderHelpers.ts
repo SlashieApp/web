@@ -74,25 +74,6 @@ export function sortOrdersByClosedAtDesc(orders: OrderItem[]): OrderItem[] {
   })
 }
 
-export function orderStatusChipLabel(status: OrderStatus | string): string {
-  switch (status) {
-    case OrderStatus.Active:
-      return 'Booked'
-    case OrderStatus.Rescheduling:
-      return 'Reschedule requested'
-    case OrderStatus.CancelRequested:
-      return 'Cancellation requested'
-    case OrderStatus.Conflict:
-      return 'Needs resolving'
-    case OrderStatus.Completed:
-      return 'Completed'
-    case OrderStatus.Cancelled:
-      return 'Cancelled'
-    default:
-      return String(status).replaceAll('_', ' ').toLowerCase()
-  }
-}
-
 export function isOrderClosed(status: OrderStatus | string): boolean {
   return status === OrderStatus.Completed || status === OrderStatus.Cancelled
 }
@@ -107,18 +88,6 @@ export function isOrderLive(status: OrderStatus | string): boolean {
     status === OrderStatus.Rescheduling ||
     status === OrderStatus.CancelRequested
   )
-}
-
-/** Worker pending earnings: booked jobs not yet settled or in dispute. */
-export function isOrderPendingEarnings(status: OrderStatus | string): boolean {
-  return isOrderLive(status)
-}
-
-/** Worker completed earnings tally: completed orders only. */
-export function isOrderCompletedEarnings(
-  status: OrderStatus | string,
-): boolean {
-  return status === OrderStatus.Completed
 }
 
 export type OrderPartyRole = 'customer' | 'worker'
@@ -304,31 +273,6 @@ export function orderLocationLabel(order: OrderItem): string {
 
 export function formatOrderAgreedPrice(order: OrderItem): string {
   return formatPounds(orderAgreedPricePence(order))
-}
-
-export function sumOrderAgreedPricePence(orders: readonly OrderItem[]): number {
-  return orders.reduce((sum, o) => sum + orderAgreedPricePence(o), 0)
-}
-
-export function activeOrdersForUser(
-  orders: readonly OrderItem[],
-  userId: string,
-): OrderItem[] {
-  return orders.filter((o) => !isOrderClosed(o.status))
-}
-
-export function customerOrders(
-  orders: readonly OrderItem[],
-  userId: string,
-): OrderItem[] {
-  return orders.filter((o) => o.customerUserId === userId)
-}
-
-export function workerOrders(
-  orders: readonly OrderItem[],
-  userId: string,
-): OrderItem[] {
-  return orders.filter((o) => o.workerUserId === userId)
 }
 
 export function findOrderForTask(

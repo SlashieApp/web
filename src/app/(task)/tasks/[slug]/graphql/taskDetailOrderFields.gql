@@ -1,5 +1,5 @@
 # Order selection shared by the task-detail queries and order mutations. KEEP IN
-# SYNC with OrderFields (src/app/(dashboard)/earnings/graphql/orderFields.gql):
+# SYNC with OrderFields (src/app/(dashboard)/graphql/orderFields.gql):
 # divergent selections on the same normalized Order cause cache merge gaps.
 fragment TaskDetailOrderFields on Order {
   id

@@ -97,7 +97,7 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
     if (hasToken && getAuthToken()) {
       return <SessionError onRetry={() => void getUser()} onLogout={logout} />
     }
-    const redirectPath = pathname?.startsWith('/') ? pathname : '/dashboard'
+    const redirectPath = pathname?.startsWith('/') ? pathname : '/tasks'
     if (!redirectedRef.current) {
       redirectedRef.current = true
       router.replace(`/login?next=${encodeURIComponent(redirectPath)}`)

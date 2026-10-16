@@ -47,7 +47,7 @@ export function WorkerContactButton({ size = 'md' }: { size?: 'md' | 'lg' }) {
       case WorkerContactAction.OpenQuote: {
         const taskId = viewer?.relatedTaskId
         if (taskId) {
-          router.push(`/tasks/${taskId}#owner-quotes`)
+          router.push(`/tasks/${taskId}#task-quotes`)
           return
         }
         break

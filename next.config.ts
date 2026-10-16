@@ -169,6 +169,37 @@ const nextConfig: NextConfig = {
         destination: '/billing',
         permanent: true,
       },
+      // FE-285 / FE-286: Dashboard and Earnings folded into My tasks.
+      {
+        source: `/${zhHk}/dashboard`,
+        destination: `/${zhHk}/tasks`,
+        permanent: true,
+      },
+      {
+        source: '/en/dashboard',
+        destination: '/tasks',
+        permanent: true,
+      },
+      {
+        source: '/dashboard',
+        destination: '/tasks',
+        permanent: true,
+      },
+      {
+        source: `/${zhHk}/earnings`,
+        destination: `/${zhHk}/tasks`,
+        permanent: true,
+      },
+      {
+        source: '/en/earnings',
+        destination: '/tasks',
+        permanent: true,
+      },
+      {
+        source: '/earnings',
+        destination: '/tasks',
+        permanent: true,
+      },
       // FE-202: the dashboard placeholder became the /messages inbox.
       {
         source: `/${zhHk}/dashboard/messages`,

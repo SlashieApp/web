@@ -169,6 +169,30 @@ export const WithQuotesLabel: Story = {
   args: { task: { ...defaultTask, quotesLabel: '5 quotes' } },
 }
 
+/** My tasks' Needs you: the ask in bold in place of the quote line, and one button. */
+export const WithAskAndAction: Story = {
+  args: {
+    task: {
+      ...defaultTask,
+      quotesLabel: '5 quotes',
+      askLabel: '3 quotes to compare',
+    },
+    onActivate: fn(),
+    action: (
+      <button type="button" style={{ minHeight: 44 }}>
+        Compare
+      </button>
+    ),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('3 quotes to compare')).toBeVisible()
+    await expect(canvas.queryByText('5 quotes')).toBeNull()
+    await userEvent.click(canvas.getByRole('button', { name: 'Compare' }))
+    await expect(args.onActivate).not.toHaveBeenCalled()
+  },
+}
+
 /** Highlighted because its pin is selected on the map. */
 export const Active: Story = {
   args: { isActive: true },

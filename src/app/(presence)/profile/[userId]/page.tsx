@@ -99,7 +99,7 @@ export default function PublicProfilePage() {
       return
     }
     if (action === WorkerContactAction.OpenQuote && taskId) {
-      router.push(localize(`/tasks/${taskId}#owner-quotes`))
+      router.push(localize(`/tasks/${taskId}#task-quotes`))
       return
     }
     if (action === WorkerContactAction.OpenTask && taskId) {

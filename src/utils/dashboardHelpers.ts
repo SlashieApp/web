@@ -1,5 +1,7 @@
 'use client'
 
+import { QuoteStatus } from '@codegen/schema'
+
 import type { MyRequestsQueryData } from '@/graphql/tasks-query.types'
 import { budgetToPence, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
@@ -94,8 +96,9 @@ export function isTaskCompleted(status: string) {
   )
 }
 
+/** Exactly ACCEPTED: NOT_SELECTED means someone else got the job. */
 export function isQuoteAwarded(status: string) {
-  return /accept|award|select|win|approved|chosen/i.test(status.trim())
+  return status.trim().toUpperCase() === QuoteStatus.Accepted
 }
 
 export function matchesSearch(task: TaskItem, q: string) {

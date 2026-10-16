@@ -45,7 +45,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Worker: main links, then Profile, Account, Plan & billing and Earnings, then language, help and Log out. */
+/** Worker: main links, then Profile, Account and Plan & billing, then language, help and Log out. */
 export const Worker: Story = {}
 
 /** On /account: the Account row is marked as the current page. */
@@ -63,7 +63,7 @@ export const CurrentPage: Story = {
   },
 }
 
-/** Customer: no worker profile, so "Become a worker" sits where Plan & billing and Earnings would. */
+/** Customer: no worker profile, so "Become a worker" sits where Plan & billing would. */
 export const Customer: Story = {
   args: { items: resolveAccountNavItems(false) },
 }

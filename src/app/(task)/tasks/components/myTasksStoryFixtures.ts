@@ -17,6 +17,9 @@ function row(
     quoteCount: 0,
     acceptedWorkerName: null,
     notSelected: false,
+    ask: null,
+    liveQuoteCount: 0,
+    counterpartyName: null,
     ...base,
   }
 }
@@ -94,6 +97,43 @@ export const storyRows = {
     }),
 }
 
+/** Rows waiting on you, one per kind of ask. */
+export const needsYouRows = {
+  compareQuotes: row({
+    id: 'needs-compare',
+    title: 'Unblock a bathroom sink',
+    section: 'open',
+    timing: { kind: 'before', date: '20 Oct' },
+    quoteCount: 3,
+    liveQuoteCount: 3,
+    ask: 'compareQuotes',
+    categories: ['Plumbing'],
+  }),
+  answerReschedule: row({
+    id: 'needs-reschedule',
+    title: 'Hang a mirror in the hall',
+    section: 'booked',
+    roles: ['quoted'],
+    timing: { kind: 'tomorrow', time: '10:00' },
+    ownerName: 'Priya Shah',
+    counterpartyName: 'Priya Shah',
+    ask: 'answerReschedule',
+    categories: ['Tech setup'],
+    priceLabel: '£120',
+  }),
+  markDone: row({
+    id: 'needs-done',
+    title: 'Replace a light fitting',
+    section: 'booked',
+    timing: { kind: 'overdue' },
+    acceptedWorkerName: 'Alex Kim',
+    counterpartyName: 'Alex Kim',
+    ask: 'markDone',
+    categories: ['Painting'],
+    priceLabel: '£150',
+  }),
+}
+
 /** Posts tasks, no worker profile. */
 export const customerSections: MyTaskHubSection[] = [
   { id: 'booked', rows: [storyRows.bookedToday] },
@@ -110,6 +150,14 @@ export const workerSections: MyTaskHubSection[] = [
 
 /** Posts and quotes; five completed rows, so Completed starts collapsed. */
 export const dualRoleSections: MyTaskHubSection[] = [
+  {
+    id: 'needsYou',
+    rows: [
+      needsYouRows.compareQuotes,
+      needsYouRows.answerReschedule,
+      needsYouRows.markDone,
+    ],
+  },
   { id: 'booked', rows: [storyRows.bookedToday, storyRows.bookedOverdue] },
   { id: 'open', rows: [storyRows.openHosted, storyRows.openQuoted] },
   {
