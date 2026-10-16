@@ -32,6 +32,8 @@ describe('TaskDetailView desktop column', () => {
     expect(src).toContain('MOBILE_MAP_CHROME_OVERLAP')
     expect(src).toContain('-9.25rem')
     expect(src).toContain('TaskBackButton')
+    // The desktop back button pins at the docked title row's top.
+    expect(src).toContain('top={TASK_DETAIL_STUCK_ROW_TOP}')
     expect(src).toContain("display={{ base: 'block', lg: 'none' }}")
     expect(src).toContain('TASK_DETAIL_DESKTOP_MAP_SPACER')
     expect(src).toContain('TASK_DETAIL_PIN_CLEARANCE')

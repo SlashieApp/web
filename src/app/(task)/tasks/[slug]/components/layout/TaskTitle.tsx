@@ -26,6 +26,8 @@ export function TaskTitle({ isStuck = false }: TaskTitleProps) {
   const title = task?.title?.trim() || seed?.title?.trim() || ''
 
   return (
+    // pt={2} is TASK_DETAIL_STUCK_ROW_TOP's offset: the desktop back button
+    // pins there to line up with the docked title.
     <Box pt={2} pb={isStuck ? 2 : 1} w="full">
       <HStack
         gap={3}

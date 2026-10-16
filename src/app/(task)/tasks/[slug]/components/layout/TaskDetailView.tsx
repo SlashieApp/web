@@ -9,6 +9,7 @@ import {
 } from '@/theme/pageContainer'
 import { Footer } from '@ui'
 
+import { TASK_DETAIL_STUCK_ROW_TOP } from '../../helpers/taskDetailHeaderCollapse'
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '../../helpers/taskDetailLayout'
 import { TASK_DETAIL_PIN_CLEARANCE } from '../../helpers/taskDetailPinClearance'
 import { Reveal } from './Reveal'
@@ -49,10 +50,11 @@ export function TaskDetailView() {
         minW={0}
         mt={{ base: MOBILE_MAP_CHROME_OVERLAP, lg: 0 }}
       >
+        {/* Pinned at the docked title row's top, so the two line up. */}
         <Box
           display={{ base: 'none', lg: 'block' }}
           position="sticky"
-          top={3}
+          top={TASK_DETAIL_STUCK_ROW_TOP}
           zIndex={6}
           h="44px"
           mb="-44px"

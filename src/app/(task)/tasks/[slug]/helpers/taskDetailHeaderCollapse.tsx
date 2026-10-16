@@ -18,6 +18,13 @@ import { findScrollParent } from '@/utils/findScrollParent'
 export const TASK_DETAIL_STUCK_TOP_PADDING = '2px'
 
 /**
+ * Where the docked title row starts: TaskTitle's top padding (`pt={2}`,
+ * 0.5rem) under the chrome's `-TASK_DETAIL_STUCK_TOP_PADDING` sticky top.
+ * The desktop back button pins here so it lines up with the title.
+ */
+export const TASK_DETAIL_STUCK_ROW_TOP = `calc(0.5rem - ${TASK_DETAIL_STUCK_TOP_PADDING})`
+
+/**
  * Collapsed flag for the task-detail header + map, driven by the ACTUAL scroll
  * container resolved from `ref` — the app-shell content pane, since the window
  * stays at scrollY 0 in this layout (this is why the old window-based hook
