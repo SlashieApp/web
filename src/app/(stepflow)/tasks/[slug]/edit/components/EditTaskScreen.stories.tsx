@@ -1,0 +1,160 @@
+import type { TaskForEditQuery } from '@codegen/schema'
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
+
+import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
+import { storyDateInDays } from '@/app/(stepflow)/stepflowStoryHelpers'
+import { withPopularCategories } from '@/app/(stepflow)/tasks/create/components/createTaskStoryFixtures'
+import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import { LocaleProvider } from '@/i18n/LocaleProvider'
+
+import { EditTaskScreen } from './EditTaskScreen'
+
+type EditTask = NonNullable<TaskForEditQuery['task']>
+
+/** The fixture task, due in a week (a past date can't be saved). */
+const task = {
+  ...storyTaskDetail(),
+  images: [],
+  datetime: { date: storyDateInDays(7), time: '14:00', type: 'EXACT' },
+} as unknown as EditTask
+
+/**
+ * The edit form in the step-flow shell: create's sections on one page and
+ * one Save. The status screens (why a task can't be edited) are
+ * `Edit task/EditTaskStatus`.
+ */
+const meta = {
+  title: 'Edit task/EditTaskScreen',
+  component: EditTaskScreen,
+  parameters: { layout: 'fullscreen' },
+  decorators: [withPopularCategories()],
+  args: {
+    task,
+    contactOptions: getContactOptions({
+      emailVerified: true,
+      phoneVerified: true,
+    } as MeSnapshot),
+    liveQuotes: 0,
+    quotesWarning: false,
+  },
+} satisfies Meta<typeof EditTaskScreen>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+/** edit.open: the task's title heads the form; Save at the bottom. */
+export const Open: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', {
+        name: 'Mount bookshelf on living room wall',
+      }),
+    ).toBeVisible()
+    await expect(canvas.getByLabelText(/Task title/)).toHaveValue(
+      'Mount bookshelf on living room wall',
+    )
+    await expect(
+      canvas.getByRole('button', { name: 'Save changes' }),
+    ).toBeVisible()
+  },
+}
+
+/** edit.openWithQuotes: workers who quoted aren't told about changes. */
+export const OpenWithQuotes: Story = {
+  args: { liveQuotes: 2, quotesWarning: true },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText(
+        "2 workers have already quoted. They won't be told about your changes, so message them if something important changes.",
+      ),
+    ).toBeVisible()
+  },
+}
+
+/** The contact method starts unchosen: leaving it keeps the task's current one. */
+export const ContactKeepsCurrent: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('Leave this to keep your current choice.'),
+    ).toBeVisible()
+    for (const name of ['In-app chat', 'Phone', 'Email']) {
+      await expect(canvas.getByRole('radio', { name })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+    }
+  },
+}
+
+/** Save with a missing title: the message sits under the field and up top. */
+export const SaveNeedsFixing: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.clear(await canvas.findByLabelText(/Task title/))
+    await userEvent.click(canvas.getByRole('button', { name: 'Save changes' }))
+    await expect(await canvas.findByText('Add a title.')).toBeVisible()
+    await expect(
+      canvas.getByText(
+        'Some details need fixing. We’ve highlighted them.'.replace('’', "'"),
+      ),
+    ).toBeVisible()
+  },
+}
+
+/** Close with changes asks before throwing them away. */
+export const DiscardChanges: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.type(await canvas.findByLabelText(/Task title/), ' today')
+    await userEvent.click(
+      canvas.getByRole('link', { name: 'Close and go back to the task' }),
+    )
+    // The dialog animates in; under a full test run that can take a while.
+    const dialog = within(canvasElement.ownerDocument.body)
+    await waitFor(
+      () => expect(dialog.getByText('Discard your changes?')).toBeVisible(),
+      { timeout: 5000 },
+    )
+    await expect(
+      dialog.getByRole('button', { name: 'Keep editing' }),
+    ).toBeVisible()
+  },
+}
+
+/** zh-HK. */
+export const ZhHk: Story = {
+  parameters: {
+    nextjs: { navigation: { pathname: '/zh-hk/tasks/task-1/edit' } },
+  },
+  decorators: [
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByRole('button', { name: '儲存變更' }),
+    ).toBeVisible()
+  },
+}
+
+/** Phones: status and the guest view above the form, Save at the bottom. */
+export const Phone: Story = {
+  args: { liveQuotes: 1, quotesWarning: true },
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('link', { name: /See it as workers do/ }),
+    ).toHaveAttribute('href', '/tasks/task-detail-story-1/preview')
+    await expect(
+      canvas.getByRole('button', { name: 'Save changes' }),
+    ).toBeVisible()
+  },
+}

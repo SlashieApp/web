@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 
 import {
   Box,
@@ -44,6 +44,8 @@ export type StepFlowHeaderProps = {
   exitHref: string
   /** Accessible name for Close. */
   closeLabel: string
+  /** Runs before leaving; call `preventDefault()` to stay (e.g. unsaved changes). */
+  onExit?: (event: MouseEvent<HTMLAnchorElement>) => void
 }
 
 /**
@@ -55,6 +57,7 @@ export function StepFlowHeader({
   title,
   exitHref,
   closeLabel,
+  onExit,
 }: StepFlowHeaderProps) {
   return (
     <Box
@@ -72,7 +75,7 @@ export function StepFlowHeader({
         minH={{ base: '56px', md: '64px' }}
       >
         <IconButton asChild aria-label={closeLabel} variant="ghost">
-          <Link href={exitHref}>
+          <Link href={exitHref} onClick={onExit}>
             <LuX size={20} aria-hidden />
           </Link>
         </IconButton>

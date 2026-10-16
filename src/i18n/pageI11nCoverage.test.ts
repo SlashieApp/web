@@ -26,7 +26,7 @@ const TARGET_PAGES = [
   'src/app/(task)/search/page.tsx',
   'src/app/(stepflow)/tasks/create/page.tsx',
   'src/app/(task)/tasks/page.tsx',
-  'src/app/(task)/tasks/[slug]/edit/page.tsx',
+  'src/app/(stepflow)/tasks/[slug]/edit/page.tsx',
   'src/app/(task)/tasks/[slug]/page.tsx',
   'src/app/(stepflow)/tasks/[slug]/quote/page.tsx',
   'src/app/(stepflow)/worker/setup/page.tsx',

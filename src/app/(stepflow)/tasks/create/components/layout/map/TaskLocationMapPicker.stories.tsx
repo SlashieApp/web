@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, within } from 'storybook/test'
 
 import {
   TaskLocationAreaHalo,
@@ -12,10 +13,8 @@ const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
 function TaskLocationMapPickerDemo({
   accessToken,
-  showCoordinateHelpText = true,
 }: {
   accessToken?: string
-  showCoordinateHelpText?: boolean
 }) {
   const [location, setLocation] = useState('Watford, Hertfordshire')
   const [locationLat, setLocationLat] = useState('51.656500')
@@ -30,7 +29,6 @@ function TaskLocationMapPickerDemo({
       onLocationChange={setLocation}
       onLocationLatChange={setLocationLat}
       onLocationLngChange={setLocationLng}
-      showCoordinateHelpText={showCoordinateHelpText}
     />
   )
 }
@@ -45,17 +43,27 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Map with a search field, centre pin and area halo, plus the help text. */
-export const Default: Story = {}
-
-/** The parent supplies its own copy, so the help text under the map is off. */
-export const WithoutHelpText: Story = {
-  args: { showCoordinateHelpText: false },
+/** The edit page's map: search, centre pin and area halo; two fingers move it on touch. */
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole('textbox', {
+        name: 'Search for your task location',
+      }),
+    ).toBeVisible()
+  },
 }
 
-/** No Mapbox token configured: a message replaces the map. */
+/** No Mapbox token configured: plain copy replaces the map. */
 export const MissingMapboxToken: Story = {
   args: { accessToken: undefined },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText(
+        "The map isn't available right now. Type the address instead.",
+      ),
+    ).toBeVisible()
+  },
 }
 
 /** Map overlay: the dashed circle that stands for the approximate area. */

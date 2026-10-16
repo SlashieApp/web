@@ -13,8 +13,11 @@ export type CreateTaskContactSectionProps = {
   /** Bare inside the create flow's step; a titled section on edit. */
   bare?: boolean
   sectionHeading?: string
-  preferredContactMethod: TaskContactMethod
+  /** Null on edit until a new choice is made (the task keeps its current one). */
+  preferredContactMethod: TaskContactMethod | null
   onPreferredContactMethodChange: (value: TaskContactMethod) => void
+  /** Replaces the default "shared only with the worker you accept". */
+  helperText?: string
   /** Which methods this account can use (verified phone / email). */
   contactOptions: ContactOption[]
 }
@@ -26,6 +29,7 @@ export function CreateTaskContactSection({
   preferredContactMethod,
   onPreferredContactMethodChange,
   contactOptions,
+  helperText,
 }: CreateTaskContactSectionProps) {
   const f = useI11n(bag).fields
   const enabled = (method: TaskContactMethod) =>
@@ -39,7 +43,7 @@ export function CreateTaskContactSection({
     <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={5}>
       <RadioButtonGroup
         label={f.contact}
-        helperText={f.contactHelper}
+        helperText={helperText ?? f.contactHelper}
         value={preferredContactMethod}
         options={[
           { value: TaskContactMethod.InApp, label: f.inApp },

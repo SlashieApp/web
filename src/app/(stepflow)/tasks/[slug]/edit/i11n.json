@@ -1,0 +1,122 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Edit task | Slashie",
+      "description": "Update your Slashie task details, timing, budget and contact preference."
+    },
+    "eyebrow": "Edit task",
+    "closeLabel": "Close and go back to the task",
+    "title": "Edit task",
+    "description": "Changes show to workers straight away.",
+    "save": "Save changes",
+    "saved": "Changes saved",
+    "quotesWarning": "{count} workers have already quoted. They won't be told about your changes, so message them if something important changes.",
+    "quotesWarningOne": "1 worker has already quoted. They won't be told about your changes, so message them if something important changes.",
+    "quotesWarningHeading": "Workers have quoted",
+    "contactKeep": "Leave this to keep your current choice.",
+    "sections": {
+      "photos": "Photos",
+      "contact": "Contact"
+    },
+    "rail": {
+      "viewTask": "View task",
+      "preview": "See it as workers do",
+      "quotes": "{count} quotes",
+      "oneQuote": "1 quote",
+      "helpHeading": "Need help?",
+      "safety": "Paying & meeting safely",
+      "contactSupport": "Contact support"
+    },
+    "status": {
+      "loadErrorTitle": "We couldn't load this task",
+      "loadErrorBody": "Check your connection and try again.",
+      "notFoundTitle": "This task isn't available",
+      "notFoundBody": "It may have been removed, or the link is wrong.",
+      "notOwnerTitle": "Only the poster can edit this task",
+      "notOwnerBody": "You can still view it and send a quote.",
+      "bookedTitle": "This task can't be edited now",
+      "bookedBody": "A worker is booked, so the details are locked. Message them about any change.",
+      "cancelledTitle": "This task was cancelled",
+      "cancelledBody": "Post it again if you still need help."
+    },
+    "actions": {
+      "retry": "Try again",
+      "viewTask": "View task",
+      "myTasks": "Back to my tasks",
+      "repost": "Post it again"
+    },
+    "discard": {
+      "title": "Discard your changes?",
+      "body": "Your changes to this task won't be saved.",
+      "keep": "Keep editing",
+      "discard": "Discard"
+    },
+    "errors": {
+      "saveFailed": "We couldn't save your changes. Try again.",
+      "fixFields": "Some details need fixing. We've highlighted them.",
+      "photosFailed": "Saved, but {count} photos didn't upload",
+      "photoFailed": "Saved, but 1 photo didn't upload",
+      "photosFailedBody": "Try adding them again from Edit task."
+    }
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "編輯任務 | Slashie",
+      "description": "更新你的 Slashie 任務詳情、時間、預算和聯絡偏好。"
+    },
+    "eyebrow": "編輯任務",
+    "closeLabel": "關閉並返回任務",
+    "title": "編輯任務",
+    "description": "變更會立即向工作者顯示。",
+    "save": "儲存變更",
+    "saved": "已儲存變更",
+    "quotesWarning": "已有 {count} 位工作者報價。他們不會收到你的變更通知，如有重要變更，請傳訊息告訴他們。",
+    "quotesWarningOne": "已有 1 位工作者報價。對方不會收到你的變更通知，如有重要變更，請傳訊息告訴對方。",
+    "quotesWarningHeading": "已有工作者報價",
+    "contactKeep": "不揀選便會保留你目前的選擇。",
+    "sections": {
+      "photos": "相片",
+      "contact": "聯絡方式"
+    },
+    "rail": {
+      "viewTask": "查看任務",
+      "preview": "以工作者角度查看",
+      "quotes": "{count} 個報價",
+      "oneQuote": "1 個報價",
+      "helpHeading": "需要協助？",
+      "safety": "付款與安全見面",
+      "contactSupport": "聯絡客服"
+    },
+    "status": {
+      "loadErrorTitle": "未能載入此任務",
+      "loadErrorBody": "請檢查網絡連線再試。",
+      "notFoundTitle": "此任務無法查看",
+      "notFoundBody": "任務可能已被移除，或連結有誤。",
+      "notOwnerTitle": "只有發佈者可以編輯此任務",
+      "notOwnerBody": "你仍可查看任務並傳送報價。",
+      "bookedTitle": "此任務暫時無法編輯",
+      "bookedBody": "已預約工作者，詳情已鎖定。如有任何變更，請傳訊息告訴對方。",
+      "cancelledTitle": "此任務已取消",
+      "cancelledBody": "如仍需要協助，可以重新發佈。"
+    },
+    "actions": {
+      "retry": "再試一次",
+      "viewTask": "查看任務",
+      "myTasks": "返回我的任務",
+      "repost": "重新發佈"
+    },
+    "discard": {
+      "title": "要捨棄你的變更嗎？",
+      "body": "你對此任務的變更將不會儲存。",
+      "keep": "繼續編輯",
+      "discard": "捨棄"
+    },
+    "errors": {
+      "saveFailed": "未能儲存你的變更，請再試一次。",
+      "fixFields": "部分資料需要修改，已為你標示出來。",
+      "photosFailed": "已儲存，但有 {count} 張相片未能上載",
+      "photoFailed": "已儲存，但有 1 張相片未能上載",
+      "photosFailedBody": "請在編輯任務中再加入一次。"
+    }
+  }
+}

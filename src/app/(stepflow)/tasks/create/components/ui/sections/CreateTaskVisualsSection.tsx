@@ -29,6 +29,8 @@ export type CreateTaskVisualsSectionProps = {
   /** Bare inside the create flow's step; a titled section on edit. */
   bare?: boolean
   sectionHeading?: string
+  /** False when a heading above already says "Photos" (edit). */
+  labelled?: boolean
 }
 
 const THUMB = '88px'
@@ -43,6 +45,7 @@ export function CreateTaskVisualsSection({
   existingImageUrls = [],
   bare = false,
   sectionHeading = '',
+  labelled = true,
 }: CreateTaskVisualsSectionProps) {
   const f = useI11n(bag).fields
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -62,14 +65,18 @@ export function CreateTaskVisualsSection({
   return (
     <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={3}>
       <HStack gap={2} justify="space-between">
-        <HStack gap={2}>
-          <Text fontSize="14px" fontWeight={500} color="text.default" px={1}>
-            {f.photos}
-          </Text>
-          <Badge variant="neutral" shape="pill">
-            {f.optional}
-          </Badge>
-        </HStack>
+        {labelled ? (
+          <HStack gap={2}>
+            <Text fontSize="14px" fontWeight={500} color="text.default" px={1}>
+              {f.photos}
+            </Text>
+            <Badge variant="neutral" shape="pill">
+              {f.optional}
+            </Badge>
+          </HStack>
+        ) : (
+          <span />
+        )}
         {count > 0 ? (
           <Text fontSize="sm" color="text.muted">
             {formatMessage(f.photoCount, { count, max: TASK_PHOTOS_MAX })}

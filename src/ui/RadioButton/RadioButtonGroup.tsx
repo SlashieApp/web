@@ -15,7 +15,8 @@ export type RadioButtonGroupOption<T extends string> = {
 
 export type RadioButtonGroupProps<T extends string> = {
   label: ReactNode
-  value: T
+  /** Null: nothing chosen yet. */
+  value: T | null
   options: readonly RadioButtonGroupOption<T>[]
   onChange: (value: T) => void
   helperText?: ReactNode

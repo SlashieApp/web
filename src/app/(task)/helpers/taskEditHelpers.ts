@@ -1,19 +1,16 @@
 import {
   Currency,
-  QuoteStatus,
   TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
   type TaskForEditQuery,
   TaskPaymentMethod,
-  TaskStatus,
 } from '@codegen/schema'
 
 import {
-  buildDatetimePayload,
+  type CreateTaskFormFieldValues,
   toYmd,
 } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
-import type { EditTaskFormValues } from '@/app/(task)/tasks/edit/editTaskFormSchema'
 import { taskCategoryLabels } from './taskCategories'
 
 export type EditableTask = NonNullable<TaskForEditQuery['task']>
@@ -28,12 +25,10 @@ export function taskImageUrls(
   )
 }
 
-export function isTaskEditable(status: string): boolean {
-  return status === TaskStatus.Open || status === TaskStatus.Draft
-}
-
 /** Map a `task(id)` record into create/edit form field values. */
-export function taskToEditFormValues(task: EditableTask): EditTaskFormValues {
+export function taskToEditFormValues(
+  task: EditableTask,
+): Omit<CreateTaskFormFieldValues, 'acceptedProhibitedUse'> {
   const dt = task.datetime
   const datetimeType = dt?.type ?? TaskDateTimeType.Flexible
   const budgetAmount = task.budget?.amount
@@ -64,28 +59,5 @@ export function taskToEditFormValues(task: EditableTask): EditTaskFormValues {
     // contactMethod was removed from the Task type; the edit form starts from
     // the default (per-task contact method now lives on the poster profile).
     preferredContactMethod: TaskContactMethod.InApp,
-  }
-}
-
-export function buildUpdateTaskInput(values: EditTaskFormValues) {
-  const parsedBudget = Number.parseFloat(values.budgetMajor)
-  return {
-    title: values.title.trim(),
-    description: values.description.trim(),
-    categories: values.categories,
-    budget: {
-      amount: parsedBudget,
-      currency: values.budgetCurrency,
-      type: values.budgetType,
-      paymentMethod: values.paymentMethod,
-    },
-    location: {
-      lat: Number.parseFloat(values.locationLat),
-      lng: Number.parseFloat(values.locationLng),
-      name: values.mapPlaceName.trim(),
-      address: values.streetAddress.trim(),
-    },
-    datetime: buildDatetimePayload(values),
-    preferredContactMethod: values.preferredContactMethod,
   }
 }
