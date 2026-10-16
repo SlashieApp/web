@@ -1,358 +1,254 @@
-'use client'
+import {
+  Box,
+  Grid,
+  HStack,
+  Heading,
+  List,
+  Skeleton,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
+import type { ReactNode } from 'react'
+import { LuBriefcase, LuCheck, LuZap } from 'react-icons/lu'
 
-import { Box, Grid, HStack, Heading, List, Stack, Text } from '@chakra-ui/react'
-
-import { useMe } from '@/app/(auth)/store/user'
-import { hasUnlimitedQuoting } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import { formatMessage } from '@/i18n/loadPageI11n'
-import { getAuthToken } from '@/utils/auth'
 import { Badge, Button, Link } from '@ui'
 
 import {
-  formatPricingInterval,
+  formatPricingAmount,
   pricingDisplayPrice,
+  pricingIntervalLabel,
+  pricingTrialLength,
 } from '../../../helpers/formatPricing'
 import type { PricingRecord } from '../../../helpers/getPricingForPage'
-import { buildWorkerFreePlan } from '../../../helpers/pricingPlans'
-import { PricingUnlimitedCta } from './PricingUnlimitedCta'
+import type messages from '../../../i11n.json'
+import type { PricingAction, PricingViewConfig } from '../../../views'
+import { PricingCheckoutButton } from './PricingCheckoutButton'
 
-type PricingPlanCopy = {
-  currentPlan: string
-  getStarted: string
-  setUpWorkerProfile: string
-  upgrade: string
-  free: {
-    title: string
-    subtitle: string
-    price: string
-    priceSuffix: string
-    badge: string
-    features: readonly string[]
-  }
-  unlimited: {
-    descriptionFallback: string
-    trialFallback: string
-    afterTrialLine: string
-    intervals: Record<string, string>
-    badge: string
-    ribbon: string
-    features: readonly string[]
-  }
-}
+type PricingCopy = (typeof messages)['en']
+export type PricingPlansCopy = PricingCopy['plans']
 
-type PricingPlanCardsProps = {
-  pricing: PricingRecord
-  copy: PricingPlanCopy
-}
-
-function PlanFeature({ children }: { children: React.ReactNode }) {
-  return (
-    <List.Item display="flex" gap={3} alignItems="flex-start">
-      <Box
-        as="span"
-        display="inline-flex"
-        alignItems="center"
-        justifyContent="center"
-        boxSize="18px"
-        borderRadius="full"
-        bg="action.primary"
-        color="text.onGreen"
-        flexShrink={0}
-        mt="2px"
-        aria-hidden
-      >
-        <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-          <title>Included</title>
-          <path
-            d="M2.5 6l2.5 2.5 4.5-5"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </Box>
-      <Text as="span" fontSize="sm" color="text.default" lineHeight="tall">
-        {children}
-      </Text>
-    </List.Item>
-  )
-}
-
-function PlanTypeIcon({ children }: { children: React.ReactNode }) {
-  return (
-    <Box
-      boxSize="44px"
-      borderRadius="full"
-      bg="status.success.soft"
-      color="status.success.fg"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      flexShrink={0}
-      aria-hidden
-    >
-      {children}
-    </Box>
-  )
-}
-
-function WorkerIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <title>Worker</title>
-      <rect
-        x="4"
-        y="7"
-        width="16"
-        height="12"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M9 7V5h6v2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
-function UnlimitedIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <title>Unlimited</title>
-      <path
-        d="M13 2 4 14h7l-1 8 10-14h-7l0-6Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function PlanBadge({ children }: { children: React.ReactNode }) {
-  return (
-    <Badge
-      bg="transparent"
-      color="text.link"
-      borderWidth="1px"
-      /* TODO(sdl): green accent border mapped to border.focus */
-      borderColor="border.focus"
-      borderRadius="full"
-      px={3}
-      py={1}
-      fontSize="2xs"
-      fontWeight={800}
-      letterSpacing="0.08em"
-      w="fit-content"
-    >
-      {children}
-    </Badge>
-  )
-}
-
-function PlanPrice({
-  amount,
-  suffix,
-  accent = false,
+function PlanAction({
+  action,
+  labels,
+  featured,
 }: {
-  amount: string
-  suffix?: string
-  accent?: boolean
+  action: PricingAction
+  labels: PricingPlansCopy['actions']
+  featured: boolean
 }) {
-  return (
-    <HStack gap={2} align="baseline" flexWrap="wrap">
-      <Text
-        fontSize="3xl"
-        fontWeight={800}
-        color={accent ? 'text.link' : 'text.default'}
-        lineHeight="1"
-      >
-        {amount}
-      </Text>
-      {suffix ? (
-        <Text fontSize="md" fontWeight={600} color="text.muted">
-          {suffix}
-        </Text>
-      ) : null}
-    </HStack>
-  )
-}
-
-function WorkerFreePlanCta({
-  copy,
-}: {
-  copy: Pick<PricingPlanCopy, 'currentPlan' | 'getStarted'>
-}) {
-  const me = useMe()
-  const isAuthenticated = Boolean(getAuthToken())
-  const hasWorkerProfile = Boolean(me?.worker?.id)
-  const isCurrentFreePlan =
-    isAuthenticated &&
-    hasWorkerProfile &&
-    !hasUnlimitedQuoting(me?.worker?.membership)
-
-  if (isCurrentFreePlan) {
-    return (
-      <Button w="full" variant="secondary" disabled opacity={0.72}>
-        {copy.currentPlan}
-      </Button>
-    )
+  if (action.kind === 'pending') {
+    return <Skeleton h="44px" borderRadius="full" />
   }
-
+  if (action.kind === 'checkout') {
+    return <PricingCheckoutButton label={labels[action.label]} />
+  }
   return (
-    <Button asChild w="full" variant="secondary">
-      <Link href={'/register'} _hover={{ textDecoration: 'none' }}>
-        {copy.getStarted}
+    <Button asChild w="full" variant={featured ? 'primary' : 'secondary'}>
+      <Link href={action.href} _hover={{ textDecoration: 'none' }}>
+        {labels[action.label]}
       </Link>
     </Button>
   )
 }
 
-function PlanCardShell({
-  children,
+function PlanCard({
   featured = false,
-  ribbon,
+  icon,
+  title,
+  subtitle,
+  amount,
+  suffix,
+  note,
+  features,
+  current,
+  yourPlan,
+  action,
+  labels,
 }: {
-  children: React.ReactNode
   featured?: boolean
-  ribbon?: string
+  icon: ReactNode
+  title: string
+  subtitle: string
+  amount: string
+  suffix?: string
+  note?: string
+  features: readonly string[]
+  current: boolean
+  yourPlan: string
+  action: PricingAction | null
+  labels: PricingPlansCopy['actions']
 }) {
   return (
-    <Box
+    <Stack
+      gap={5}
+      h="full"
       borderWidth={featured ? '2px' : '1px'}
-      /* TODO(sdl): featured green accent border mapped to border.focus */
       borderColor={featured ? 'border.focus' : 'border.default'}
       borderRadius="lg"
       bg="bg.surface"
-      p={{ base: 5, md: 6 }}
       boxShadow={featured ? 'e2' : 'e1'}
-      position="relative"
-      h="full"
-      overflow="hidden"
+      p={{ base: 5, md: 6 }}
     >
-      {ribbon ? (
-        <Badge
-          position="absolute"
-          top={4}
-          right={4}
-          bg="action.primary"
-          color="text.onGreen"
-          borderRadius="md"
-          px={2.5}
-          py={1}
-          fontSize="2xs"
-          fontWeight={800}
-          letterSpacing="0.04em"
-          maxW="9rem"
-          textAlign="center"
-          lineHeight="short"
+      <HStack justify="space-between" align="flex-start">
+        <Box
+          boxSize="44px"
+          borderRadius="full"
+          bg="status.success.soft"
+          color="status.success.fg"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          aria-hidden
         >
-          ⭐ {ribbon}
-        </Badge>
+          {icon}
+        </Box>
+        {current ? (
+          <Badge
+            bg="status.success.soft"
+            color="status.success.fg"
+            borderRadius="full"
+            px={3}
+            py={1}
+            fontSize="xs"
+            fontWeight={700}
+          >
+            {yourPlan}
+          </Badge>
+        ) : null}
+      </HStack>
+      <Stack gap={1}>
+        <Heading as="h2" size="md">
+          {title}
+        </Heading>
+        <Text fontSize="sm" color="text.muted">
+          {subtitle}
+        </Text>
+      </Stack>
+      <Stack gap={1.5}>
+        <HStack gap={2} align="baseline" flexWrap="wrap">
+          <Text
+            fontSize="3xl"
+            fontWeight={800}
+            lineHeight="1"
+            color={featured ? 'text.link' : 'text.default'}
+          >
+            {amount}
+          </Text>
+          {suffix ? (
+            <Text fontSize="md" fontWeight={600} color="text.muted">
+              {suffix}
+            </Text>
+          ) : null}
+        </HStack>
+        {note ? (
+          <Text fontSize="sm" color="text.muted">
+            {note}
+          </Text>
+        ) : null}
+      </Stack>
+      <List.Root gap={3} ps={0} listStyle="none">
+        {features.map((feature) => (
+          <List.Item
+            key={feature}
+            display="flex"
+            gap={3}
+            alignItems="flex-start"
+          >
+            <Box
+              as="span"
+              display="inline-flex"
+              alignItems="center"
+              justifyContent="center"
+              boxSize="18px"
+              borderRadius="full"
+              bg="action.primary"
+              color="text.onGreen"
+              flexShrink={0}
+              mt="2px"
+              aria-hidden
+            >
+              <LuCheck size={11} strokeWidth={3} />
+            </Box>
+            <Text as="span" fontSize="sm" lineHeight="tall">
+              {feature}
+            </Text>
+          </List.Item>
+        ))}
+      </List.Root>
+      {action ? (
+        <Box mt="auto">
+          <PlanAction action={action} labels={labels} featured={featured} />
+        </Box>
       ) : null}
-      {children}
-    </Box>
+    </Stack>
   )
 }
 
-function afterTrialLine(
-  pricing: PricingRecord,
-  copy: PricingPlanCopy['unlimited'],
-): string {
-  const rawInterval = formatPricingInterval(pricing.priceInterval)
-  const interval = copy.intervals[rawInterval] ?? rawInterval
-  return formatMessage(copy.afterTrialLine, {
-    price: pricingDisplayPrice(pricing),
-    interval,
-  })
-}
-
-export function PricingPlanCards({ pricing, copy }: PricingPlanCardsProps) {
-  const workerFreePlan = buildWorkerFreePlan(
-    pricing.freeQuotesPerMonth,
-    copy.free,
-  )
-  const trialLabel = pricing.trialLabel?.trim()
+/**
+ * Free and Slashie Unlimited side by side (stacked on phones), rendered from
+ * the view's config: which card is "Your plan", whether Unlimited leads with
+ * the trial, and each card's button. Prices and trial come from the API.
+ */
+export function PricingPlanCards({
+  pricing,
+  config,
+  copy,
+  intervals,
+}: {
+  pricing: PricingRecord
+  config: PricingViewConfig
+  copy: PricingPlansCopy
+  intervals: PricingCopy['intervals']
+}) {
+  const interval = pricingIntervalLabel(pricing.priceInterval, intervals)
+  const perInterval = formatMessage(copy.perInterval, { interval })
+  const price = pricingDisplayPrice(pricing)
+  const trial = config.trial ? pricingTrialLength(pricing.trialDays) : null
+  const count = pricing.freeQuotesPerMonth
 
   return (
     <Grid
-      templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+      templateColumns={{ base: '1fr', md: '1fr 1fr' }}
       gap={5}
       w="full"
       maxW="4xl"
       mx="auto"
-      alignItems="stretch"
     >
-      <PlanCardShell>
-        <Stack gap={5} h="full">
-          <Stack gap={3}>
-            <PlanTypeIcon>
-              <WorkerIcon />
-            </PlanTypeIcon>
-            <Stack gap={1}>
-              <Heading size="md">{workerFreePlan.title}</Heading>
-              <Text fontSize="sm" color="text.muted">
-                {workerFreePlan.subtitle}
-              </Text>
-            </Stack>
-          </Stack>
-          <Stack gap={3}>
-            <PlanPrice
-              amount={workerFreePlan.price}
-              suffix={workerFreePlan.priceSuffix}
-            />
-            <PlanBadge>{workerFreePlan.badge}</PlanBadge>
-          </Stack>
-          <List.Root gap={3} ps={0} style={{ listStyle: 'none' }}>
-            {workerFreePlan.features.map((feature) => (
-              <PlanFeature key={feature}>{feature}</PlanFeature>
-            ))}
-          </List.Root>
-          <Box mt="auto">
-            <WorkerFreePlanCta copy={copy} />
-          </Box>
-        </Stack>
-      </PlanCardShell>
-
-      <PlanCardShell featured ribbon={copy.unlimited.ribbon}>
-        <Stack gap={5} h="full">
-          <Stack gap={3} pe={{ base: 0, lg: 28 }}>
-            <PlanTypeIcon>
-              <UnlimitedIcon />
-            </PlanTypeIcon>
-            <Stack gap={1}>
-              <Heading size="md">{pricing.productName}</Heading>
-              <Text fontSize="sm" color="text.muted">
-                {pricing.description?.trim() ||
-                  copy.unlimited.descriptionFallback}
-              </Text>
-            </Stack>
-          </Stack>
-          <Stack gap={3}>
-            <PlanPrice
-              amount={trialLabel || copy.unlimited.trialFallback}
-              suffix=""
-              accent
-            />
-            <Text fontSize="sm" color="text.muted">
-              {afterTrialLine(pricing, copy.unlimited)}
-            </Text>
-            <PlanBadge>{copy.unlimited.badge}</PlanBadge>
-          </Stack>
-          <List.Root gap={3} ps={0} style={{ listStyle: 'none' }}>
-            {copy.unlimited.features.map((feature) => (
-              <PlanFeature key={feature}>{feature}</PlanFeature>
-            ))}
-          </List.Root>
-          <PricingUnlimitedCta copy={copy} />
-        </Stack>
-      </PlanCardShell>
+      <PlanCard
+        icon={<LuBriefcase size={22} />}
+        title={copy.free.title}
+        subtitle={copy.free.subtitle}
+        amount={formatPricingAmount(0, pricing.priceCurrency)}
+        suffix={perInterval}
+        features={copy.free.features.map((feature) =>
+          formatMessage(feature, { count }),
+        )}
+        current={config.current === 'free'}
+        yourPlan={copy.yourPlan}
+        action={config.free}
+        labels={copy.actions}
+      />
+      <PlanCard
+        featured
+        icon={<LuZap size={22} />}
+        title={pricing.productName}
+        subtitle={copy.unlimited.subtitle}
+        amount={
+          trial
+            ? formatMessage(copy.trial[trial.unit], { count: trial.count })
+            : price
+        }
+        suffix={trial ? undefined : perInterval}
+        note={
+          trial ? formatMessage(copy.thenPrice, { price, interval }) : undefined
+        }
+        features={copy.unlimited.features}
+        current={config.current === 'unlimited'}
+        yourPlan={copy.yourPlan}
+        action={config.unlimited}
+        labels={copy.actions}
+      />
     </Grid>
   )
 }

@@ -8,22 +8,22 @@ import Pricing from '../graphql/Pricing.gql'
 export type PricingRecord = PricingQuery['pricing']
 
 export type PricingPageData = {
+  /** Null when the API didn't return plans. */
   pricing: PricingRecord | null
-  failed: boolean
 }
 
+/**
+ * Public plans, data-cached for 5 minutes. GraphQL errors arrive as HTTP 200,
+ * so a failure can be cached too: a miss gets one uncached retry, and an API
+ * blip doesn't stick for the whole window.
+ */
 export const getPricingForPage = cache(async (): Promise<PricingPageData> => {
-  const json = await fetch<PricingQuery>({
+  const cached = await fetch<PricingQuery>({
     query: Pricing,
-    // Public, slow-changing data: 5-minute ISR instead of the helper's
-    // `revalidate: 0` default, so the marketing landing + /pricing are not
-    // dynamically rendered (TTFB blocked on GraphQL) for every visitor.
     next: { revalidate: 300 },
   })
+  if (cached?.data?.pricing) return { pricing: cached.data.pricing }
 
-  if (!json?.data?.pricing) {
-    return { pricing: null, failed: true }
-  }
-
-  return { pricing: json.data.pricing, failed: false }
+  const fresh = await fetch<PricingQuery>({ query: Pricing })
+  return { pricing: fresh?.data?.pricing ?? null }
 })

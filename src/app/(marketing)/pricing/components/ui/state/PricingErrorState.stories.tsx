@@ -8,26 +8,22 @@ const meta = {
   title: 'Marketing/Pricing/PricingErrorState',
   component: PricingErrorState,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-  args: {
-    copy: pricingBag.en.error,
-  },
+  parameters: { layout: 'padded' },
+  args: { copy: pricingBag.en.unavailable },
 } satisfies Meta<typeof PricingErrorState>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** The pricing API failed to load: a calm notice with the payment reminder. */
+/** `unavailable`: what's always true, Try again, and Browse tasks. */
 export const Default: Story = {}
 
-/** Phone width: the notice card fills the screen. */
+/** Phone width: the card fills the screen and the buttons wrap. */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
 
 /** Traditional Chinese copy. */
 export const TraditionalChinese: Story = {
-  args: { copy: pricingBag.zh_hk.error },
+  args: { copy: pricingBag.zh_hk.unavailable },
 }

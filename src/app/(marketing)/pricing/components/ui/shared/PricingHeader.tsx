@@ -11,7 +11,7 @@ export function PricingHeader({
         as="h1"
         size={{ base: 'xl', md: '2xl' }}
         letterSpacing="-0.02em"
-        fontFamily="var(--font-plus-jakarta)"
+        fontFamily="display"
       >
         {copy.heading}
       </Heading>

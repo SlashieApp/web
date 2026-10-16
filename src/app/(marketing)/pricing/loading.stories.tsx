@@ -14,7 +14,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Route loading screen: skeleton header, banner, two plan cards and FAQ rows above the footer. */
+/** Route loading screen: skeleton header, two plan cards and FAQ rows above the footer. */
 export const Default: Story = {}
 
 /** Phone width: the plan card skeletons stack into one column. */

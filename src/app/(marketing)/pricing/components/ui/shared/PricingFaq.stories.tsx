@@ -3,87 +3,65 @@ import { expect, within } from 'storybook/test'
 
 import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 
-import type { PricingRecord } from '../../../helpers/getPricingForPage'
+import { storyPricing } from '../../pricingStoryFixtures'
 import { PricingFaq } from './PricingFaq'
-
-const pricing: PricingRecord = {
-  productName: 'Slashie Unlimited',
-  description: 'For active workers',
-  priceAmount: 999,
-  priceCurrency: 'gbp',
-  priceInterval: 'month',
-  trialDays: 30,
-  trialLabel: 'Free for 30 days',
-  freeQuotesPerMonth: 3,
-  stripePriceId: 'price_storybook',
-  stripeProductId: 'prod_storybook',
-}
 
 const meta = {
   title: 'Marketing/Pricing/PricingFaq',
   component: PricingFaq,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
+  parameters: { layout: 'padded' },
   args: {
-    pricing,
+    pricing: storyPricing,
     copy: pricingBag.en.faq,
+    intervals: pricingBag.en.intervals,
   },
 } satisfies Meta<typeof PricingFaq>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** All five questions; the trial answer shows the live monthly price. */
+/** Six questions with the live price, interval and free allowance filled in. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getAllByRole('heading', { level: 3 })).toHaveLength(6)
     await expect(
-      within(canvasElement).getByText(/continues at £9\.99 per month/),
+      canvas.getByText(/continues at £19\.99 \/ month unless/),
     ).toBeVisible()
+    await expect(canvas.getByRole('link', { name: 'Terms' })).toHaveAttribute(
+      'href',
+      '/terms',
+    )
   },
 }
 
-/** A short list: two questions under the heading. */
-export const TwoQuestions: Story = {
+/** The API reports no trial: the trial question is left out. */
+export const NoTrial: Story = {
+  args: { pricing: { ...storyPricing, trialDays: null, trialLabel: null } },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getAllByRole('heading', { level: 3 }),
+    ).toHaveLength(5)
+  },
+}
+
+/** Yearly price: the trial answer says "/ year". */
+export const YearlyPrice: Story = {
   args: {
-    copy: {
-      heading: pricingBag.en.faq.heading,
-      items: pricingBag.en.faq.items.slice(0, 2),
-    },
+    pricing: { ...storyPricing, priceAmount: 19900, priceInterval: 'year' },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/£199 \/ year/)).toBeVisible()
   },
 }
 
-/** Heading only: no questions to show. */
-export const NoQuestions: Story = {
-  args: {
-    copy: { heading: pricingBag.en.faq.heading, items: [] },
-  },
-}
-
-/** Long questions and answers wrap inside their cards. */
-export const LongAnswers: Story = {
-  args: {
-    copy: {
-      heading: pricingBag.en.faq.heading,
-      items: [
-        {
-          question:
-            'What exactly happens to my quotes and my worker profile if I decide to stop paying for Slashie Unlimited after the trial ends?',
-          answer:
-            'Your worker profile, reviews, and history all stay exactly as they are. You go back to the free allowance of quotes each month, and you can upgrade again at {price} per month whenever you like, with no penalty and no setup fee.',
-        },
-      ],
-    },
-  },
-}
-
-/** Phone width: cards use the tighter padding. */
+/** Phone width. */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
 
 /** Traditional Chinese copy. */
 export const TraditionalChinese: Story = {
-  args: { copy: pricingBag.zh_hk.faq },
+  args: { copy: pricingBag.zh_hk.faq, intervals: pricingBag.zh_hk.intervals },
 }

@@ -2,179 +2,177 @@
   "en": {
     "metadata": {
       "title": "Pricing | Slashie",
-      "description": "Customers use Slashie for free. Workers can send free quotes each month or subscribe to Slashie Unlimited. Job payments stay between customer and worker."
+      "description": "Customers use Slashie for free. Workers get free quotes every month, or unlimited quotes with Slashie Unlimited. Job payments stay between customer and worker."
     },
     "header": {
       "heading": "Simple plans. Clear quotes.",
-      "body": "Customers post for free. Workers start free, then upgrade when they want unlimited quotes."
+      "body": "Customers post tasks for free. Workers start free and upgrade when they want unlimited quotes."
     },
-    "error": {
-      "eyebrow": "Pricing",
-      "heading": "Pricing unavailable",
-      "body": "We could not load plan details right now. Refresh the page or try again in a few minutes.",
-      "paymentNote": "Job payments are always arranged directly between customers and workers outside Slashie."
-    },
-    "trialBanner": {
-      "defaultBody": "Try Slashie Unlimited free. Cancel anytime.",
-      "bodyWithTrial": "Try Slashie Unlimited {trial}. Cancel anytime.",
-      "badgeFallback": "FREE TRIAL"
+    "intervals": {
+      "month": "month",
+      "year": "year"
     },
     "plans": {
-      "currentPlan": "Current plan",
-      "getStarted": "Get started",
-      "setUpWorkerProfile": "Set up worker profile",
-      "upgrade": "Upgrade",
+      "yourPlan": "Your plan",
+      "perInterval": "/ {interval}",
+      "trial": {
+        "days": "{count} days free",
+        "month": "1 month free",
+        "months": "{count} months free"
+      },
+      "thenPrice": "Then {price} / {interval}",
+      "actions": {
+        "getStarted": "Get started",
+        "becomeWorker": "Become a worker",
+        "startTrial": "Start free trial",
+        "finishSetup": "Finish worker setup",
+        "resubscribe": "Resubscribe",
+        "manageBilling": "Manage billing"
+      },
       "free": {
-        "title": "Worker Free",
-        "subtitle": "Start finding tasks",
-        "price": "£0",
-        "priceSuffix": "Forever",
-        "badge": "{count} QUOTES / MONTH",
+        "title": "Free",
+        "subtitle": "For getting started",
         "features": [
+          "Quote on up to {count} new tasks a month",
           "Browse tasks on the map",
-          "Send up to {count} quotes per month",
-          "Show your worker profile and reviews",
-          "Coordinate task details in Slashie",
-          "Upgrade anytime"
+          "Show your profile and reviews",
+          "Message customers about their tasks"
         ]
       },
       "unlimited": {
-        "descriptionFallback": "For active workers",
-        "trialFallback": "Free trial",
-        "afterTrialLine": "{price} / {interval} after trial",
-        "intervals": {
-          "month": "month",
-          "year": "year"
-        },
-        "badge": "UNLIMITED QUOTES",
-        "ribbon": "BEST FOR ACTIVE WORKERS",
+        "subtitle": "For active workers",
         "features": [
-          "Unlimited quotes every month",
-          "Map-first task discovery",
-          "Full platform access",
-          "Manage billing and cancel anytime",
-          "Keep the same worker profile and reputation"
+          "Unlimited quotes, every month",
+          "Everything in Free",
+          "Cancel anytime from Billing"
         ]
       }
     },
-    "detailsLink": "See all plan details >",
-    "faq": {
-      "heading": "Frequently asked questions",
-      "items": [
-        {
-          "question": "What am I paying for?",
-          "answer": "Slashie Unlimited is a subscription for workers who want unlimited quotes. It is not a fee for completing tasks or receiving job payment."
-        },
-        {
-          "question": "Do customers pay Slashie?",
-          "answer": "No. Customers post tasks, compare quotes, and accept a worker for free in the current MVP."
-        },
-        {
-          "question": "How do workers get paid?",
-          "answer": "The customer and worker arrange payment directly outside Slashie. Slashie does not hold, process, or release job money."
-        },
-        {
-          "question": "What happens after the trial?",
-          "answer": "After your trial ends, Slashie Unlimited continues at {price} per month unless you cancel before the trial period ends."
-        },
-        {
-          "question": "Can I cancel?",
-          "answer": "Yes. You can cancel from your worker plan page when billing management is available. Canceling stops future subscription charges."
-        }
-      ]
+    "unavailable": {
+      "heading": "Pricing isn't loading",
+      "body": "We couldn't load plan details just now. Customers always post tasks for free, and workers can start free.",
+      "retry": "Try again",
+      "browse": "Browse tasks"
     },
-    "disclaimer": {
-      "body": "Job payments are arranged directly between customers and workers. Slashie subscription is for platform access only.",
-      "terms": "Terms apply."
+    "faq": {
+      "heading": "Questions",
+      "customers": {
+        "question": "Do customers pay anything?",
+        "answer": "No. Posting a task, comparing quotes and choosing a worker are free."
+      },
+      "freeQuotes": {
+        "question": "How do free quotes work?",
+        "answer": "On the free plan you can quote on up to {count} new tasks a month. The count resets on the 1st of each month."
+      },
+      "unlimited": {
+        "question": "What does Slashie Unlimited include?",
+        "answer": "Unlimited quotes. It's a subscription for sending quotes, not a fee on the jobs you win."
+      },
+      "payments": {
+        "question": "How do workers get paid?",
+        "answer": "Customers pay workers directly, outside Slashie. Slashie never holds or handles job money, and takes no cut."
+      },
+      "trial": {
+        "question": "What happens after the free trial?",
+        "answer": "Slashie Unlimited continues at {price} / {interval} unless you cancel before the trial ends."
+      },
+      "cancel": {
+        "question": "Can I cancel?",
+        "answer": "Yes, anytime from Billing. You keep unlimited quotes until the end of your trial or billing period, then move to the free plan."
+      },
+      "terms": {
+        "before": "Full details are in our ",
+        "link": "Terms",
+        "after": "."
+      }
     }
   },
   "zh_hk": {
     "metadata": {
       "title": "收費方案 | Slashie",
-      "description": "客戶免費使用 Slashie。工作者每月可發送免費報價，或訂閱 Slashie Unlimited。任務付款由客戶和工作者直接安排。"
+      "description": "客戶免費使用 Slashie。工作者每月有免費報價，或訂閱 Slashie Unlimited 無限報價。任務付款由客戶和工作者直接安排。"
     },
     "header": {
       "heading": "簡單方案，清楚報價。",
       "body": "客戶免費發布任務。工作者先免費開始，需要無限報價時再升級。"
     },
-    "error": {
-      "eyebrow": "收費",
-      "heading": "暫時無法載入收費",
-      "body": "目前無法載入方案詳情。請重新整理頁面，或稍後再試。",
-      "paymentNote": "任務付款一律由客戶和工作者在 Slashie 之外直接安排。"
-    },
-    "trialBanner": {
-      "defaultBody": "免費試用 Slashie Unlimited，可隨時取消。",
-      "bodyWithTrial": "免費試用 Slashie Unlimited {trial}，可隨時取消。",
-      "badgeFallback": "免費試用"
+    "intervals": {
+      "month": "月",
+      "year": "年"
     },
     "plans": {
-      "currentPlan": "目前方案",
-      "getStarted": "開始使用",
-      "setUpWorkerProfile": "設定工作者檔案",
-      "upgrade": "升級",
+      "yourPlan": "你的方案",
+      "perInterval": "/ {interval}",
+      "trial": {
+        "days": "免費 {count} 日",
+        "month": "免費 1 個月",
+        "months": "免費 {count} 個月"
+      },
+      "thenPrice": "之後 {price} / {interval}",
+      "actions": {
+        "getStarted": "開始使用",
+        "becomeWorker": "成為工作者",
+        "startTrial": "開始免費試用",
+        "finishSetup": "完成工作者設定",
+        "resubscribe": "重新訂閱",
+        "manageBilling": "管理帳單"
+      },
       "free": {
-        "title": "工作者免費方案",
-        "subtitle": "開始尋找任務",
-        "price": "£0",
-        "priceSuffix": "永久",
-        "badge": "每月 {count} 個報價",
+        "title": "免費方案",
+        "subtitle": "適合剛開始",
         "features": [
+          "每月可為最多 {count} 個新任務報價",
           "在地圖上瀏覽任務",
-          "每月最多發送 {count} 個報價",
-          "展示工作者檔案和評價",
-          "在 Slashie 協調任務細節",
-          "可隨時升級"
+          "展示你的檔案和評價",
+          "就任務與客戶傳送訊息"
         ]
       },
       "unlimited": {
-        "descriptionFallback": "適合活躍工作者",
-        "trialFallback": "免費試用",
-        "afterTrialLine": "試用後 {price} / {interval}",
-        "intervals": {
-          "month": "月",
-          "year": "年"
-        },
-        "badge": "無限報價",
-        "ribbon": "最適合活躍工作者",
+        "subtitle": "適合活躍工作者",
         "features": [
-          "每月無限發送報價",
-          "地圖優先的任務探索",
-          "完整平台使用權",
-          "管理帳單並可隨時取消",
-          "沿用同一工作者檔案和口碑"
+          "每月無限報價",
+          "包含免費方案的所有功能",
+          "可隨時在帳單頁取消"
         ]
       }
     },
-    "detailsLink": "查看所有方案詳情 >",
+    "unavailable": {
+      "heading": "暫時無法載入收費",
+      "body": "目前未能載入方案詳情。客戶發布任務一律免費，工作者亦可免費開始。",
+      "retry": "再試一次",
+      "browse": "瀏覽任務"
+    },
     "faq": {
       "heading": "常見問題",
-      "items": [
-        {
-          "question": "我付費買的是什麼？",
-          "answer": "Slashie Unlimited 是給需要無限報價的工作者使用的訂閱方案。這不是完成任務或收取任務款項的費用。"
-        },
-        {
-          "question": "客戶需要付費給 Slashie 嗎？",
-          "answer": "不需要。在目前 MVP 中，客戶可以免費發布任務、比較報價並接受工作者。"
-        },
-        {
-          "question": "工作者如何收取任務款項？",
-          "answer": "客戶和工作者在 Slashie 之外直接安排付款。Slashie 不保管、處理或發放任務款項。"
-        },
-        {
-          "question": "試用結束後會怎樣？",
-          "answer": "試用期結束後，Slashie Unlimited 會以每月 {price} 繼續訂閱；如不想續用，請在試用期結束前取消。"
-        },
-        {
-          "question": "可以取消嗎？",
-          "answer": "可以。帳單管理可用後，你可在工作者方案頁取消。取消後不會再產生之後的訂閱費。"
-        }
-      ]
-    },
-    "disclaimer": {
-      "body": "任務付款由客戶和工作者直接安排。Slashie 訂閱只用於平台使用權。",
-      "terms": "適用條款。"
+      "customers": {
+        "question": "客戶需要付費嗎？",
+        "answer": "不需要。發布任務、比較報價和選擇工作者都是免費的。"
+      },
+      "freeQuotes": {
+        "question": "免費報價如何計算？",
+        "answer": "使用免費方案時，你每月可為最多 {count} 個新任務報價，額度於每月 1 日重設。"
+      },
+      "unlimited": {
+        "question": "Slashie Unlimited 包括甚麼？",
+        "answer": "無限報價。這是發送報價的訂閱，並非從你接到的工作中收取的費用。"
+      },
+      "payments": {
+        "question": "工作者如何收款？",
+        "answer": "客戶在 Slashie 以外直接付款給工作者。Slashie 不會持有或經手任何工作款項，亦不抽佣金。"
+      },
+      "trial": {
+        "question": "免費試用結束後會怎樣？",
+        "answer": "除非你在試用期結束前取消，Slashie Unlimited 會以 {price} / {interval} 繼續。"
+      },
+      "cancel": {
+        "question": "可以取消嗎？",
+        "answer": "可以，隨時在帳單頁取消。你可繼續無限報價至試用期或計費期結束，之後轉回免費方案。"
+      },
+      "terms": {
+        "before": "詳情請參閱我們的",
+        "link": "條款",
+        "after": "。"
+      }
     }
   }
 }
