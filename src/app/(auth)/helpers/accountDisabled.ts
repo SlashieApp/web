@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from 'react'
+
 import {
   clearAccountDisabled,
   getAccountDisabledFlag,
@@ -24,6 +26,16 @@ type DisabledLike = { disabled?: boolean | null } | null | undefined
 
 export function isMeAccountDisabled(me: DisabledLike) {
   return me?.disabled === true
+}
+
+/** Suspended: `me.disabled`, or a request already failed with ACCOUNT_DISABLED. */
+export function useAccountSuspended(me: DisabledLike): boolean {
+  const flagged = useSyncExternalStore(
+    subscribeAccountDisabled,
+    getAccountDisabledFlag,
+    () => false,
+  )
+  return flagged || isMeAccountDisabled(me)
 }
 
 export function syncAccountDisabledFromMe(me: DisabledLike) {

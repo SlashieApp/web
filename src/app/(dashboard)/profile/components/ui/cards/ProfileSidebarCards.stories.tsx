@@ -108,12 +108,16 @@ export const FullStrength: Story = {
   },
 }
 
-/** Private profile: the privacy card says only the owner can see it. */
+/** Private profile: the switch is on and says only the owner can see it. */
 export const PrivateProfile: Story = {
   ...cardsFor(storyWorkerMe({ settings: { isProfilePrivate: true } })),
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
     await expect(
-      await within(canvasElement).findByText('Your profile is private'),
+      await canvas.findByRole('checkbox', { name: 'Private profile' }),
+    ).toBeChecked()
+    await expect(
+      canvas.getByText('Only you can view your full profile.'),
     ).toBeVisible()
   },
 }

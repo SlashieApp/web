@@ -15,7 +15,7 @@ import bag from '../../i11n.json'
 import { DeleteAccountDialog } from './DeleteAccountDialog'
 
 /**
- * "Delete account" on Account & security (FE-198). Coming back from the
+ * "Delete account" at the end of Account (FE-198). Coming back from the
  * Google / Apple re-auth (`?delete=confirm`) reopens the dialog ready to
  * confirm, then drops the query so a refresh doesn't reopen it.
  */
@@ -42,6 +42,7 @@ export function DeleteAccountSection({
   return (
     <DashboardSectionCard
       id="delete"
+      tone="danger"
       title={t.deleteTitle}
       description={t.deleteDescription}
       icon={<LuTrash2 size={18} aria-hidden />}
@@ -51,7 +52,12 @@ export function DeleteAccountSection({
           {t.deletePoints[2]}
         </Text>
         <Box>
-          <Button size="sm" variant="danger" onClick={() => setOpen(true)}>
+          <Button
+            size="sm"
+            minH="44px"
+            variant="danger"
+            onClick={() => setOpen(true)}
+          >
             {t.deleteButton}
           </Button>
         </Box>

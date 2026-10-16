@@ -1,0 +1,68 @@
+{
+  "en": {
+    "email": "Email",
+    "phone": "Phone",
+    "noPhone": "No number yet",
+    "badge": {
+      "verified": "Verified",
+      "notVerified": "Not verified"
+    },
+    "actions": {
+      "verifyEmail": "Verify",
+      "changeEmail": "Change",
+      "addPhone": "Add phone",
+      "verifyPhone": "Verify",
+      "changePhone": "Change"
+    },
+    "locked": "Comes from your {provider} sign-in.",
+    "pendingEmail": "Waiting for you to open the link we sent to {email}. Your current email stays on your account until then.",
+    "pendingPhone": "Waiting for the code we texted to {phone}. Your current number stays on your account until then.",
+    "resendLink": "Resend link",
+    "linkSent": "Link sent. Check your inbox.",
+    "linkTooSoon": "Please wait 2 minutes before resending.",
+    "linkFailed": "Couldn't send the link. Try again shortly.",
+    "enterCode": "Enter code",
+    "cancelChange": "Cancel change",
+    "cancelFailed": "Couldn't cancel the change. Try again.",
+    "panel": {
+      "intro": "Confirm email or phone so Slashie can reach you. This is contact proof only, not an identity, DBS, or safety check. Payment is arranged directly between you and the customer outside Slashie.",
+      "readyPhone": "Your phone number is verified. You can continue when ready.",
+      "readyAny": "At least one contact method is verified. You can continue when ready.",
+      "needPhone": "Verify your phone number to continue. A verified phone is required to send quotes.",
+      "needAny": "Verify your email or phone to continue."
+    }
+  },
+  "zh_hk": {
+    "email": "電郵",
+    "phone": "電話",
+    "noPhone": "尚未加入號碼",
+    "badge": {
+      "verified": "已驗證",
+      "notVerified": "未驗證"
+    },
+    "actions": {
+      "verifyEmail": "驗證",
+      "changeEmail": "更改",
+      "addPhone": "加入電話",
+      "verifyPhone": "驗證",
+      "changePhone": "更改"
+    },
+    "locked": "來自你的 {provider} 登入。",
+    "pendingEmail": "請打開我們傳送到 {email} 的連結。在此之前，你現有的電郵仍會保留在帳戶上。",
+    "pendingPhone": "請輸入我們以短訊傳送到 {phone} 的驗證碼。在此之前，你現有的號碼仍會保留在帳戶上。",
+    "resendLink": "重新傳送連結",
+    "linkSent": "連結已傳送，請查看你的收件匣。",
+    "linkTooSoon": "請等候 2 分鐘再重新傳送。",
+    "linkFailed": "無法傳送連結，請稍後再試。",
+    "enterCode": "輸入驗證碼",
+    "cancelChange": "取消更改",
+    "cancelFailed": "無法取消更改，請再試一次。",
+    "panel": {
+      "intro": "確認你的電郵或電話，讓 Slashie 可以聯絡你。這只證明聯絡方式屬於你，並非身份、DBS 或安全審查。工作款項由你與顧客在 Slashie 以外直接安排。",
+      "readyPhone": "你的電話號碼已驗證，準備好便可繼續。",
+      "readyAny": "至少一種聯絡方式已驗證，準備好便可繼續。",
+      "needPhone": "請驗證你的電話號碼以繼續。發送報價需要已驗證的電話。",
+      "needAny": "請驗證你的電郵或電話以繼續。"
+    }
+  }
+}

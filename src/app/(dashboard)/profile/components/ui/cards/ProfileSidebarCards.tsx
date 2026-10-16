@@ -10,7 +10,10 @@ import {
   LuUsers,
 } from 'react-icons/lu'
 
+import { useAccountSuspended } from '@/app/(auth)/helpers/accountDisabled'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { SettingToggle } from '@/app/(dashboard)/components/ui/SettingToggle'
+import { useMySettingToggle } from '@/app/(dashboard)/helpers/useMySettingToggle'
 import { useI11n } from '@/i18n/useI11n'
 import { Badge, Button, Card, Link, ProgressBar } from '@ui'
 
@@ -136,6 +139,9 @@ export function ProfileStrengthCard({ me }: { me: MeSnapshot }) {
 
 export function PrivacyVisibilityCard({ me }: { me: MeSnapshot }) {
   const t = useI11n(bag)
+  const suspended = useAccountSuspended(me)
+  const { update, pending, error } = useMySettingToggle(t.privacyError)
+  const isPrivate = me.settings.isProfilePrivate
   return (
     <Card layout="section" p={5}>
       <Stack gap={4}>
@@ -148,37 +154,26 @@ export function PrivacyVisibilityCard({ me }: { me: MeSnapshot }) {
         <Text fontSize="xs" color="text.muted" lineHeight="tall">
           {t.privacyDescription}
         </Text>
-        <Stack gap={3}>
-          <HStack gap={3} align="flex-start">
-            <LuUsers size={17} aria-hidden />
-            <Stack gap={0}>
-              <Text fontSize="sm" fontWeight={600}>
-                {me.settings.isProfilePrivate
-                  ? t.profileIsPrivate
-                  : t.profileIsPublic}
-              </Text>
-              <Text fontSize="xs" color="text.muted">
-                {me.settings.isProfilePrivate
-                  ? t.profilePrivateHint
-                  : t.profilePublicHint}
-              </Text>
-            </Stack>
-          </HStack>
-          <HStack gap={3} align="flex-start">
-            <LuLock size={17} aria-hidden />
-            <Stack gap={0}>
-              <Text fontSize="sm" fontWeight={600}>
-                {t.contactStaysPrivate}
-              </Text>
-              <Text fontSize="xs" color="text.muted">
-                {t.contactStaysPrivateHint}
-              </Text>
-            </Stack>
-          </HStack>
-        </Stack>
-        <Link href={'/account'} fontSize="sm" fontWeight={600}>
-          {t.manageAccountPrivacy}
-        </Link>
+        <SettingToggle
+          label={t.privateProfile}
+          description={
+            error ?? (isPrivate ? t.profilePrivateHint : t.profilePublicHint)
+          }
+          checked={isPrivate}
+          disabled={suspended || pending === 'isProfilePrivate'}
+          onChange={(next) => void update('isProfilePrivate', next)}
+        />
+        <HStack gap={3} align="flex-start">
+          <LuLock size={17} aria-hidden />
+          <Stack gap={0}>
+            <Text fontSize="sm" fontWeight={600}>
+              {t.contactStaysPrivate}
+            </Text>
+            <Text fontSize="xs" color="text.muted">
+              {t.contactStaysPrivateHint}
+            </Text>
+          </Stack>
+        </HStack>
       </Stack>
     </Card>
   )

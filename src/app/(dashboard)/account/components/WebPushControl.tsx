@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from '@apollo/client/react'
 import { useCallback, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 import RegisterWebPushSubscription from '@/app/(dashboard)/account/graphql/RegisterWebPushSubscription.graphql'
 import UnregisterWebPushSubscription from '@/app/(dashboard)/account/graphql/UnregisterWebPushSubscription.graphql'
@@ -16,8 +17,8 @@ import {
 import { useI11n } from '@/i18n/useI11n'
 import { isGraphQLSchemaMismatch } from '@/utils/graphqlSchemaMismatch'
 
+import { SettingToggle } from '../../components/ui/SettingToggle'
 import bag from '../i11n.json'
-import { WebPushSetting } from './ui/WebPushSetting'
 
 type VapidQuery = {
   webPushVapidPublicKey?: string | null
@@ -27,7 +28,12 @@ type VapidQuery = {
  * Permission is requested only from this toggle. The call starts synchronously
  * in the click handler so the browser still treats it as a user gesture.
  */
-export function WebPushControl() {
+export function WebPushControl({
+  disabled = false,
+}: {
+  /** Off while suspended: the API refuses changes. */
+  disabled?: boolean
+}) {
   const t = useI11n(bag)
   const [checked, setChecked] = useState(false)
   const [known, setKnown] = useState(false)
@@ -67,7 +73,7 @@ export function WebPushControl() {
     setError(null)
     if (!next) {
       setPending(true)
-      setChecked(false)
+      flushSync(() => setChecked(false))
       void (async () => {
         try {
           const endpoint = await unsubscribeWebPush()
@@ -85,6 +91,10 @@ export function WebPushControl() {
     }
     if (!publicKey || typeof Notification === 'undefined') return
     const permissionPromise = Notification.requestPermission()
+    // Optimistic, then reverted on refusal. flushSync renders the optimistic
+    // value first: batched with a quick revert it would be no change at all,
+    // and the switch's checkbox would keep the browser's toggled state.
+    flushSync(() => setChecked(true))
     setPending(true)
     void (async () => {
       try {
@@ -109,12 +119,13 @@ export function WebPushControl() {
 
   return (
     <div ref={onMount}>
-      <WebPushSetting
+      <SettingToggle
         label={t.webPush}
-        description={error ?? t.webPushDescription}
-        unavailable={unavailable}
+        description={unavailable ?? error ?? t.webPushDescription}
         checked={checked}
-        disabled={pending || vapid.loading || !known}
+        disabled={
+          disabled || pending || vapid.loading || !known || Boolean(unavailable)
+        }
         onChange={onChange}
       />
     </div>

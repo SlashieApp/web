@@ -13,6 +13,7 @@ export function DashboardSectionCard({
   icon,
   onEdit,
   editLabel = 'Edit',
+  tone = 'default',
   children,
 }: {
   id?: string
@@ -21,14 +22,18 @@ export function DashboardSectionCard({
   icon?: ReactNode
   onEdit?: () => void
   editLabel?: string
+  /** `danger`: red icon tile and border (Delete account). */
+  tone?: 'default' | 'danger'
   children: ReactNode
 }) {
+  const danger = tone === 'danger'
   return (
     <Card
       id={id}
       layout="section"
       p={{ base: 4, md: 5 }}
       scrollMarginTop="96px"
+      borderColor={danger ? 'status.danger.fg' : undefined}
       header={
         <HStack gap={3} align="flex-start" w="full">
           {icon ? (
@@ -40,8 +45,8 @@ export function DashboardSectionCard({
               flexShrink={0}
               boxSize="40px"
               borderRadius="lg"
-              bg="status.success.soft"
-              color="status.success.fg"
+              bg={danger ? 'status.danger.soft' : 'status.success.soft'}
+              color={danger ? 'status.danger.fg' : 'status.success.fg'}
               fontSize="20px"
               lineHeight="1"
             >

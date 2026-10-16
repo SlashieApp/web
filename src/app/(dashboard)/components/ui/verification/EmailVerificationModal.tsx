@@ -1,12 +1,15 @@
 'use client'
 
 import { Text } from '@chakra-ui/react'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
+import { useI11n } from '@/i18n/useI11n'
 import { Link, Modal } from '@ui'
+
+import bag from './i11n.json'
 
 type EmailVerificationModalProps = {
   open: boolean
@@ -19,8 +22,9 @@ export function EmailVerificationModal({
   onOpenChange,
   onContactUpdated,
 }: EmailVerificationModalProps) {
+  const { cancel, email: t } = useI11n(bag)
   const me = useUserStore((s) => s.me)
-  const { resend, isSending, message, isSent, reset } =
+  const { resend, isSending, isSent, failure, reset } =
     useResendVerificationEmail()
 
   const handleOpenChange = (next: boolean) => {
@@ -44,40 +48,46 @@ export function EmailVerificationModal({
   if (!me) return null
 
   const verified = isEmailVerified(me)
+  const [before, after = ''] = t.body.split('{email}')
+  const status = isSent
+    ? t.sent
+    : failure
+      ? failure === 'tooSoon'
+        ? t.tooSoon
+        : t.failed
+      : null
 
   return (
     <div ref={onModalRef}>
       <Modal
         open={open}
         onOpenChange={handleOpenChange}
-        title="Verify your email"
-        cancelLabel="Cancel"
-        submitLabel={verified ? undefined : 'Resend email'}
+        title={t.title}
+        cancelLabel={cancel}
+        submitLabel={verified ? undefined : t.resend}
         onSubmit={verified ? undefined : () => void handleResend()}
         submitLoading={isSending}
         hideFooter={verified}
       >
         {verified ? (
           <Text fontSize="sm" color="text.link" fontWeight={600}>
-            Your email is verified.
+            {t.verified}
           </Text>
         ) : (
           <>
             <Text fontSize="sm" color="text.muted" lineHeight="tall">
-              We&apos;ll send a verification link to{' '}
+              {before}
               <Text as="span" fontWeight={600} color="text.default">
                 {me.email}
               </Text>
-              . Open the link in your inbox to confirm this address on your
-              account. This is contact proof only, not an identity or safety
-              check.
+              {after}
             </Text>
-            {message ? (
+            {status ? (
               <Text
                 fontSize="sm"
                 color={isSent ? 'text.link' : 'status.danger.fg'}
               >
-                {message}
+                {status}
               </Text>
             ) : null}
             <Link
@@ -87,7 +97,7 @@ export function EmailVerificationModal({
               color="text.link"
               _hover={{ textDecoration: 'none', color: 'action.primaryHover' }}
             >
-              Check inbox
+              {t.checkInbox}
             </Link>
           </>
         )}

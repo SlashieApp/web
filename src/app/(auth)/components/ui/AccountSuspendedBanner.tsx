@@ -1,13 +1,9 @@
 'use client'
 
 import { Box, Text } from '@chakra-ui/react'
-import { useCallback, useRef, useSyncExternalStore } from 'react'
+import { useCallback, useRef } from 'react'
 
-import {
-  getAccountDisabledFlag,
-  isMeAccountDisabled,
-  subscribeAccountDisabled,
-} from '@/app/(auth)/helpers/accountDisabled'
+import { useAccountSuspended } from '@/app/(auth)/helpers/accountDisabled'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
 import { getAuthToken } from '@/utils/auth'
@@ -19,11 +15,7 @@ export function AccountSuspendedBanner() {
   const t = useI11n(bag).suspended
   const me = useMe()
   const getUser = useUserStore((s) => s.getUser)
-  const flagged = useSyncExternalStore(
-    subscribeAccountDisabled,
-    getAccountDisabledFlag,
-    () => false,
-  )
+  const visible = useAccountSuspended(me)
   const hydratedRef = useRef(false)
 
   const onHydrateRef = useCallback(
@@ -36,7 +28,6 @@ export function AccountSuspendedBanner() {
     [getUser],
   )
 
-  const visible = isMeAccountDisabled(me) || flagged
   const mailto = `mailto:${t.email}`
 
   return (

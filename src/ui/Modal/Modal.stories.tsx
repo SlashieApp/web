@@ -1,7 +1,7 @@
 import { HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
-import { expect, userEvent, waitFor, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { Button } from '../Button'
 import { FormField } from '../FormField/FormField'
@@ -303,6 +303,33 @@ export const OpensAndCancels: Story = {
     await waitFor(() => expect(page.queryByRole('dialog')).toBeNull(), {
       timeout: 3000,
     })
+  },
+}
+
+/** Enter in a field submits, like the primary button. */
+export const EnterSubmits: Story = {
+  args: {
+    title: 'Add contact phone number',
+    submitLabel: 'Send code',
+    onSubmit: fn(),
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Verify phone number">
+      {verifyPhoneBody}
+    </ModalDemo>
+  ),
+  play: async ({ args, canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body)
+    const dialog = await page.findByRole(
+      'dialog',
+      { name: 'Add contact phone number' },
+      { timeout: 3000 },
+    )
+    await userEvent.type(
+      within(dialog).getByRole('textbox'),
+      '07700900123{Enter}',
+    )
+    await waitFor(() => expect(args.onSubmit).toHaveBeenCalledTimes(1))
   },
 }
 

@@ -52,13 +52,10 @@
     "optional": "(optional)",
     "privacyTitle": "Privacy & visibility",
     "privacyDescription": "Control what customers can see on your public profile.",
-    "profileIsPrivate": "Your profile is private",
-    "profileIsPublic": "Your profile is public",
     "profilePrivateHint": "Only you can view your full profile.",
     "profilePublicHint": "Customers can find and view your public worker profile.",
     "contactStaysPrivate": "Contact info stays private",
     "contactStaysPrivateHint": "Email, phone, and exact address never appear in the preview.",
-    "manageAccountPrivacy": "Manage account privacy",
     "editor": {
       "photoTitle": "Edit profile photo",
       "photoDescription": "Upload a clear photo that represents you.",
@@ -82,7 +79,9 @@
       "editPhoto": "Edit profile photo",
       "joined": "Joined {date}",
       "viewPublicProfile": "View public profile"
-    }
+    },
+    "privateProfile": "Private profile",
+    "privacyError": "Couldn't save that. Try again."
   },
   "zh_hk": {
     "metadata": {
@@ -137,13 +136,10 @@
     "optional": "（可選）",
     "privacyTitle": "私隱與可見度",
     "privacyDescription": "控制顧客在你的公開個人檔案上可以看到甚麼。",
-    "profileIsPrivate": "你的個人檔案為私人",
-    "profileIsPublic": "你的個人檔案為公開",
     "profilePrivateHint": "只有你可以查看完整個人檔案。",
     "profilePublicHint": "顧客可以找到並查看你的公開工作者個人檔案。",
     "contactStaysPrivate": "聯絡資料保持私人",
     "contactStaysPrivateHint": "電郵、電話和詳細地址絕不會出現在預覽中。",
-    "manageAccountPrivacy": "管理帳戶私隱",
     "editor": {
       "photoTitle": "編輯個人照片",
       "photoDescription": "上載一張清晰、能代表你的照片。",
@@ -167,6 +163,8 @@
       "editPhoto": "編輯個人照片",
       "joined": "{date} 加入",
       "viewPublicProfile": "查看公開檔案"
-    }
+    },
+    "privateProfile": "私人個人檔案",
+    "privacyError": "未能儲存，請再試一次。"
   }
 }

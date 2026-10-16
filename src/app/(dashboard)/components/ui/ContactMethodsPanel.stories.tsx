@@ -74,7 +74,7 @@ export const NoPhoneSaved: Story = {
     await expect(
       await canvas.findByRole('button', { name: 'Add phone' }),
     ).toBeVisible()
-    await expect(canvas.getByText('No number saved')).toBeVisible()
+    await expect(canvas.getByText('No number yet')).toBeVisible()
   },
 }
 
@@ -91,7 +91,7 @@ export const EmailChangePending: Story = {
   ],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText('sam.new@example.com')).toBeVisible()
+    await expect(await canvas.findByText(/sam.new@example.com/)).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Resend link' }),
     ).toBeVisible()

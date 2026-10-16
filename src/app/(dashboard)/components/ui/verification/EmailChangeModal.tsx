@@ -7,13 +7,14 @@ import { useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import RequestEmailChange from '@/app/(dashboard)/account/graphql/RequestEmailChange.gql'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
-import {
-  getFriendlyErrorMessage,
-  getGraphQLErrorCode,
-} from '@/utils/graphqlErrors'
 import { FormField, Input, Modal } from '@ui'
+
+import bag from './i11n.json'
+import { verificationErrorText } from './verificationError'
 
 type EmailChangeModalProps = {
   open: boolean
@@ -30,6 +31,7 @@ export function EmailChangeModal({
   onOpenChange,
   onRequested,
 }: EmailChangeModalProps) {
+  const { cancel, change: t, errors } = useI11n(bag)
   const me = useUserStore((s) => s.me)
   const getUser = useUserStore((s) => s.getUser)
   const [newEmail, setNewEmail] = useState('')
@@ -51,15 +53,15 @@ export function EmailChangeModal({
   const submit = async () => {
     const email = newEmail.trim().toLowerCase()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Enter a valid email address.')
+      setError(t.invalidEmail)
       return
     }
     if (email === me?.email.trim().toLowerCase()) {
-      setError("That's already your email.")
+      setError(t.sameEmail)
       return
     }
     if (!password) {
-      setError('Enter your current password.')
+      setError(t.needPassword)
       return
     }
 
@@ -68,14 +70,12 @@ export function EmailChangeModal({
       const result = await requestEmailChange({
         variables: { newEmail: email, password },
       })
-      if (!result.data?.requestEmailChange) {
-        throw new Error('Could not start the email change.')
-      }
+      if (!result.data?.requestEmailChange) throw new Error(t.failed)
       await getUser()
       trackFlowSucceeded(EVENTS.email_change_request_success)
       showAppToast({
-        title: 'Check your new inbox',
-        description: `We sent a link to ${email}. Your email changes once you open it.`,
+        title: t.sentTitle,
+        description: formatMessage(t.sentBody, { email }),
         type: 'success',
       })
       onRequested?.()
@@ -86,35 +86,32 @@ export function EmailChangeModal({
         action: 'requestEmailChange',
         operation: 'RequestEmailChange',
       })
-      setError(
-        getGraphQLErrorCode(e) === 'INVALID_CREDENTIALS'
-          ? 'That password is incorrect.'
-          : getFriendlyErrorMessage(e, 'Could not start the email change.'),
-      )
+      setError(verificationErrorText(errors, e, t.failed))
     }
   }
 
   if (!me) return null
 
+  const [before, after = ''] = t.body.split('{email}')
+
   return (
     <Modal
       open={open}
       onOpenChange={handleOpenChange}
-      title="Change email"
-      cancelLabel="Cancel"
-      submitLabel="Send link"
+      title={t.title}
+      cancelLabel={cancel}
+      submitLabel={t.submit}
       onSubmit={() => void submit()}
       submitLoading={loading}
     >
       <Text fontSize="sm" color="text.muted" lineHeight="tall">
-        We&apos;ll email a link to your new address.{' '}
+        {before}
         <Text as="span" fontWeight={600} color="text.default">
           {me.email}
-        </Text>{' '}
-        stays on your account until you open it, and we&apos;ll let that address
-        know about the change.
+        </Text>
+        {after}
       </Text>
-      <FormField label="New email">
+      <FormField label={t.newEmail}>
         <Input
           type="email"
           autoComplete="email"
@@ -122,7 +119,7 @@ export function EmailChangeModal({
           onChange={(e) => setNewEmail(e.target.value)}
         />
       </FormField>
-      <FormField label="Current password">
+      <FormField label={t.currentPassword}>
         <Input
           type="password"
           autoComplete="current-password"

@@ -12,8 +12,9 @@ import {
   DialogTitle,
   HStack,
   Stack,
+  chakra,
 } from '@chakra-ui/react'
-import type { ReactNode } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
@@ -37,6 +38,7 @@ import bag from './i11n.json'
  * - Transitions use `sdlMotion`; the scrim/content animation honours reduced motion.
  *
  * Public props/API unchanged. `size` keeps its legacy `sm | md | lg` names.
+ * With `onSubmit`, the body and footer are a form, so Enter in a field submits.
  */
 
 const modalPaddingX = { base: 5, md: 6 } as const
@@ -104,6 +106,61 @@ export function Modal({
     else handleCancel()
   }
 
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    if (!submitDisabled && !submitLoading) onSubmit?.()
+  }
+
+  const bodyAndFooter = (
+    <>
+      <DialogBody px={modalPaddingX} py={6}>
+        <Stack gap={6} fontSize="md" color="text.muted" lineHeight="1.625">
+          {children}
+        </Stack>
+      </DialogBody>
+
+      {showFooter ? (
+        <DialogFooter
+          px={modalPaddingX}
+          py={4}
+          borderTopWidth="1px"
+          borderColor="border.default"
+          gap={3}
+          justifyContent="flex-end"
+        >
+          {footer ?? (
+            <HStack gap={3} w="full" justify="flex-end">
+              {backLabel ? (
+                <Button type="button" variant="secondary" onClick={handleBack}>
+                  {backLabel}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleCancel}
+                >
+                  {cancelLabel}
+                </Button>
+              )}
+              {submitLabel ? (
+                <Button
+                  type={onSubmit ? 'submit' : 'button'}
+                  variant="primary"
+                  loading={submitLoading}
+                  disabled={submitDisabled}
+                  minW="120px"
+                >
+                  {submitLabel}
+                </Button>
+              ) : null}
+            </HStack>
+          )}
+        </DialogFooter>
+      ) : null}
+    </>
+  )
+
   const overlay = (
     <>
       {/* Scrim: dim + blur the canvas behind the dialog, using the SDL
@@ -167,56 +224,13 @@ export function Modal({
             </HStack>
           </DialogHeader>
 
-          <DialogBody px={modalPaddingX} py={6}>
-            <Stack gap={6} fontSize="md" color="text.muted" lineHeight="1.625">
-              {children}
-            </Stack>
-          </DialogBody>
-
-          {showFooter ? (
-            <DialogFooter
-              px={modalPaddingX}
-              py={4}
-              borderTopWidth="1px"
-              borderColor="border.default"
-              gap={3}
-              justifyContent="flex-end"
-            >
-              {footer ?? (
-                <HStack gap={3} w="full" justify="flex-end">
-                  {backLabel ? (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleBack}
-                    >
-                      {backLabel}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleCancel}
-                    >
-                      {cancelLabel}
-                    </Button>
-                  )}
-                  {submitLabel ? (
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={onSubmit}
-                      loading={submitLoading}
-                      disabled={submitDisabled}
-                      minW="120px"
-                    >
-                      {submitLabel}
-                    </Button>
-                  ) : null}
-                </HStack>
-              )}
-            </DialogFooter>
-          ) : null}
+          {onSubmit ? (
+            <chakra.form display="contents" noValidate onSubmit={handleSubmit}>
+              {bodyAndFooter}
+            </chakra.form>
+          ) : (
+            bodyAndFooter
+          )}
         </DialogContent>
       </DialogPositioner>
     </>

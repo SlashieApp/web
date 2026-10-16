@@ -1,5 +1,5 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, waitFor, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { StorySeed, withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 
@@ -16,10 +16,12 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * Stands in for a browser's push support: either no Notifications API at all,
- * or notifications already allowed with a live subscription.
+ * Stands in for a browser's push support: no Notifications API at all,
+ * notifications already allowed with a live subscription, or blocked.
  */
-function withBrowserPush(mode: 'unsupported' | 'subscribed'): Decorator {
+function withBrowserPush(
+  mode: 'unsupported' | 'subscribed' | 'denied',
+): Decorator {
   let restore = () => {}
   const apply = () => {
     restore()
@@ -28,6 +30,14 @@ function withBrowserPush(mode: 'unsupported' | 'subscribed'): Decorator {
       Reflect.deleteProperty(window, 'Notification')
       restore = () => {
         window.Notification = original
+      }
+      return
+    }
+    if (mode === 'denied') {
+      const request = Notification.requestPermission
+      Notification.requestPermission = async () => 'denied'
+      restore = () => {
+        Notification.requestPermission = request
       }
       return
     }
@@ -122,5 +132,24 @@ export const BrowserUnsupported: Story = {
       await canvas.findByText('This browser does not support notifications.'),
     ).toBeVisible()
     await expect(await toggle(canvas)).toBeDisabled()
+  },
+}
+
+/** Turning it on when the browser blocks notifications: says how to allow them. */
+export const DeniedByBrowser: Story = {
+  decorators: [
+    withBrowserPush('denied'),
+    withSession({ seed: seedVapidKey(STORY_VAPID_KEY) }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await waitFor(async () => expect(await toggle(canvas)).toBeEnabled())
+    await userEvent.click(await toggle(canvas))
+    await expect(
+      await canvas.findByText(
+        'Notifications stay off until you allow them in the browser.',
+      ),
+    ).toBeVisible()
+    await expect(await toggle(canvas)).not.toBeChecked()
   },
 }

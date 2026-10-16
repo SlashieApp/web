@@ -20,15 +20,18 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import SendPhoneVerification from '@/app/(dashboard)/account/graphql/SendPhoneVerification.gql'
 import VerifyPhone from '@/app/(dashboard)/account/graphql/VerifyPhone.gql'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import {
   formatPhoneForDisplay,
   maskPhoneForDisplay,
   toE164ForApi,
 } from '@/utils/phoneNormalize'
 import { FormField, Modal, OtpInput, PhoneInput } from '@ui'
+
+import bag from './i11n.json'
+import { verificationErrorText } from './verificationError'
 
 type PhoneVerificationModalProps = {
   open: boolean
@@ -43,6 +46,7 @@ export function PhoneVerificationModal({
   onOpenChange,
   onVerified,
 }: PhoneVerificationModalProps) {
+  const { cancel, phone: t, errors } = useI11n(bag)
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
   const getUser = useUserStore((s) => s.getUser)
@@ -100,7 +104,7 @@ export function PhoneVerificationModal({
   const saveAndSendCode = async () => {
     const trimmed = phoneDraft.trim()
     if (!trimmed) {
-      setError('Enter your mobile number.')
+      setError(t.needPhone)
       return
     }
 
@@ -108,12 +112,12 @@ export function PhoneVerificationModal({
     try {
       e164 = toE164ForApi(trimmed)
     } catch {
-      setError('Enter a valid UK mobile number (+44).')
+      setError(t.invalidPhone)
       return
     }
 
     if (changing && isSamePhone(e164, savedPhone)) {
-      setError("That's already your verified number.")
+      setError(t.samePhone)
       return
     }
 
@@ -137,9 +141,7 @@ export function PhoneVerificationModal({
       const result = await sendPhoneVerification({
         variables: { phone: e164 },
       })
-      if (!result.data?.sendPhoneVerification) {
-        throw new Error('Could not send verification code.')
-      }
+      if (!result.data?.sendPhoneVerification) throw new Error(t.sendFailed)
 
       if (changing) patchMe({ pendingPhone: e164 })
       setActivePhone(e164)
@@ -157,7 +159,7 @@ export function PhoneVerificationModal({
       if (isPhoneVerificationRateLimited(e)) {
         setRateLimited(true)
       }
-      setError(getFriendlyErrorMessage(e, 'Could not send verification code.'))
+      setError(verificationErrorText(errors, e, t.sendFailed))
     }
   }
 
@@ -166,7 +168,7 @@ export function PhoneVerificationModal({
 
     const trimmed = (submittedCode ?? code).trim()
     if (!/^\d{6}$/.test(trimmed)) {
-      setError('Enter the 6-digit code from your SMS.')
+      setError(t.needCode)
       return
     }
 
@@ -177,16 +179,12 @@ export function PhoneVerificationModal({
     setError(null)
     try {
       const result = await verifyPhone({ variables: { code: trimmed } })
-      if (!result.data?.verifyPhone) {
-        throw new Error('Could not verify your phone number.')
-      }
+      if (!result.data?.verifyPhone) throw new Error(t.verifyFailed)
       await getUser()
       trackFlowSucceeded(EVENTS.phone_verify_success, { change: changing })
       showAppToast({
-        title: changing ? 'Phone number changed' : 'Phone verified',
-        description: changing
-          ? 'Your new number is verified and now on your account.'
-          : 'Your phone number is now verified on your account.',
+        title: changing ? t.changedTitle : t.verifiedTitle,
+        description: changing ? t.changedBody : t.verifiedBody,
         type: 'success',
       })
       onVerified?.()
@@ -198,7 +196,7 @@ export function PhoneVerificationModal({
         operation: 'VerifyPhone',
         extra: { change: changing },
       })
-      setError(getFriendlyErrorMessage(e, 'That code did not work. Try again.'))
+      setError(verificationErrorText(errors, e, t.verifyFailed))
     }
   }
 
@@ -209,7 +207,8 @@ export function PhoneVerificationModal({
 
   if (!me) return null
 
-  const title = changing ? 'Change phone number' : 'Add contact phone number'
+  const title = changing ? t.titleChange : t.titleAdd
+  const [codeBefore, codeAfter = ''] = t.codeIntro.split('{phone}')
 
   return (
     <div ref={onModalRef}>
@@ -218,27 +217,24 @@ export function PhoneVerificationModal({
           open={open}
           onOpenChange={handleOpenChange}
           title={title}
-          cancelLabel="Cancel"
-          submitLabel="Submit"
+          cancelLabel={cancel}
+          submitLabel={t.sendCode}
           onSubmit={() => void saveAndSendCode()}
           submitLoading={saving || sending}
           submitDisabled={rateLimited}
         >
           <Text fontSize="sm" color="text.muted" lineHeight="tall">
-            {changing
-              ? 'Enter your new mobile number. Your current number stays on your account until you confirm the new one with the code we text you.'
-              : 'Enter your contact phone number. We only confirm we can reach this number. It is not an identity, DBS, or safety check.'}
+            {changing ? t.introChange : t.introAdd}
           </Text>
-          <FormField label="Mobile number">
+          <FormField label={t.mobileNumber}>
             <PhoneInput
               value={phoneDraft}
               onChange={setPhoneDraft}
-              aria-label="Mobile number"
+              aria-label={t.mobileNumber}
             />
           </FormField>
           <Text fontSize="xs" color="text.muted" lineHeight="tall">
-            UK mobile numbers only (+44). We&apos;ll text you a 6-digit code to
-            confirm this number on your account.
+            {t.ukOnly}
           </Text>
           {error ? (
             <Text color="status.danger.fg" fontSize="sm">
@@ -251,22 +247,22 @@ export function PhoneVerificationModal({
           open={open}
           onOpenChange={handleOpenChange}
           title={title}
-          backLabel="Back"
+          backLabel={t.back}
           onBack={() => {
             setStep('phone')
             setCode('')
             setError(null)
           }}
-          submitLabel="Submit"
+          submitLabel={t.verify}
           onSubmit={() => void confirmCode()}
           submitLoading={verifying}
         >
           <Text fontSize="sm" color="text.muted" lineHeight="tall">
-            To verify this mobile number, enter the 6-digit code we sent to{' '}
+            {codeBefore}
             <Text as="span" fontWeight={600} color="text.default">
               {maskedPhone}
             </Text>
-            .
+            {codeAfter}
           </Text>
           <Stack gap={2} align="center">
             <OtpInput
@@ -282,7 +278,7 @@ export function PhoneVerificationModal({
             />
           </Stack>
           <Text fontSize="xs" color="text.muted" lineHeight="tall">
-            Codes are valid for 10 minutes. Didn&apos;t receive one?{' '}
+            {t.codeHelp}{' '}
             <button
               type="button"
               style={{
@@ -298,9 +294,8 @@ export function PhoneVerificationModal({
                 if (!rateLimited && !sending) void saveAndSendCode()
               }}
             >
-              Request a resend
+              {t.resendCode}
             </button>
-            .
           </Text>
           {error ? (
             <Text color="status.danger.fg" fontSize="sm">
