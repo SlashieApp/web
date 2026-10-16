@@ -35,7 +35,7 @@
         "heading": "Help around the corner.",
         "body": "Trusted local workers. Clear quotes. No platform cut of the job.",
         "searchPlaceholder": "What do you need help with?",
-        "searchSubmit": "Get quotes",
+        "searchSubmit": "Search",
         "searchAriaLabel": "What do you need help with?",
         "trustChips": ["No job fee", "Local workers", "Pay directly"]
       },
@@ -321,7 +321,7 @@
         "heading": "幫手就在街角。",
         "body": "可信本地工作者。清楚報價。不抽取任務費用。",
         "searchPlaceholder": "你需要什麼幫忙？",
-        "searchSubmit": "取得報價",
+        "searchSubmit": "搜尋",
         "searchAriaLabel": "你需要什麼幫忙？",
         "trustChips": ["不抽任務費", "本地工作者", "直接付款"]
       },

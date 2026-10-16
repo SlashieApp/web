@@ -82,8 +82,7 @@ export default async function MarketingHomePage() {
       count: freeQuotes,
     }),
   }
-  // Same shape as `buildRegisterHandoffPath` (that module pulls in client
-  // hooks, so this server page can't import it).
+  // Register first, then on to the page the CTA is for.
   const registerThen = (next: string) =>
     withLocale(locale, `/register?next=${encodeURIComponent(next)}`)
   const hrefs = {

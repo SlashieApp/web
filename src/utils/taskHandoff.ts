@@ -5,29 +5,12 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 
 import { APP_HOME } from './appRoutes'
 
-/** Max chars accepted from hero/search intent into the create-task draft title. */
+/** Max chars accepted from a `/tasks/create?title=` link into the draft title. */
 export const TASK_DRAFT_TITLE_MAX = 120
-
-/**
- * Build the post-task create path, optionally carrying typed intent as a
- * `title` query param for the create flow to prefill.
- */
-export function buildCreateTaskHandoffPath(query: string): string {
-  const trimmed = query.trim().slice(0, TASK_DRAFT_TITLE_MAX)
-  if (!trimmed) return '/tasks/create'
-  return `/tasks/create?title=${encodeURIComponent(trimmed)}`
-}
 
 /** Create a new task prefilled from one of the poster's earlier tasks. */
 export function repostTaskHref(taskId: string): string {
   return `/tasks/create?repost=${encodeURIComponent(taskId)}`
-}
-
-/**
- * Guest handoff: register first, then land on the create flow (with intent).
- */
-export function buildRegisterHandoffPath(createPath: string): string {
-  return `/register?next=${encodeURIComponent(createPath)}`
 }
 
 export type MapCentre = { lat: number; lng: number }

@@ -7,13 +7,9 @@ import { LuArrowRight, LuSearch } from 'react-icons/lu'
 
 const HeroSearchForm = chakra('form')
 
+import { buildSearchUrl } from '@/app/(task)/search/helpers/searchQueryParams'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { sdlCard } from '@/theme/styles'
-import { getAuthToken } from '@/utils/auth'
-import {
-  buildCreateTaskHandoffPath,
-  buildRegisterHandoffPath,
-} from '@/utils/taskHandoff'
 import { Button, Input } from '@ui'
 
 type HeroSearchCtaProps = {
@@ -22,10 +18,7 @@ type HeroSearchCtaProps = {
   ariaLabel: string
 }
 
-/**
- * Primary hero conversion control: a search bar that hands the typed intent
- * into the post-task funnel (create when signed in, register→create when guest).
- */
+/** Hero search: opens /search with the typed text as its query (`?q=`). */
 export function HeroSearchCta({
   placeholder,
   submitLabel,
@@ -37,11 +30,8 @@ export function HeroSearchCta({
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const createPath = buildCreateTaskHandoffPath(query)
-    const target = getAuthToken()
-      ? createPath
-      : buildRegisterHandoffPath(createPath)
-    router.push(localize(target))
+    const taskSearchText = query.trim() || undefined
+    router.push(localize(buildSearchUrl({ taskSearchText })))
   }
 
   return (
