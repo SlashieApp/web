@@ -24,7 +24,23 @@ import {
 
 type CardFramed = boolean | { base?: boolean; md?: boolean; lg?: boolean }
 
-function unframedCss(framed?: CardFramed): SystemStyleObject | undefined {
+/** Sections sit on the page below `lg` (phones, tablets) and are cards above. */
+const SECTION_FRAMED: CardFramed = { base: false, lg: true }
+
+/** Without boxes, a hairline keeps one flush section apart from the next. */
+const SECTION_DIVIDER: SystemStyleObject = {
+  '&:not(:first-child)': {
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: 'border.default',
+    paddingTop: 4,
+  },
+}
+
+function unframedCss(
+  framed?: CardFramed,
+  divided = false,
+): SystemStyleObject | undefined {
   if (framed === true || framed == null) return undefined
   const flush: SystemStyleObject = {
     bg: 'transparent',
@@ -38,7 +54,9 @@ function unframedCss(framed?: CardFramed): SystemStyleObject | undefined {
   const webFlush = framed.lg === false
   if (mobileFlush && framed.lg !== false) {
     return {
-      '@media screen and (max-width: 1023px)': flush,
+      '@media screen and (max-width: 1023px)': divided
+        ? { ...flush, ...SECTION_DIVIDER }
+        : flush,
     }
   }
   if (webFlush && !mobileFlush) {
@@ -74,8 +92,9 @@ export type CardProps = BoxProps & {
   /** Clickable card — adds hover surface + keyboard focus per SDL cards. */
   interactive?: boolean
   /**
-   * `section` — dashboard / task-detail block with optional eyebrow + heading
-   * and stacked body (`bodyGap`). Default card is a plain wrapper.
+   * `section` — a titled page block with optional eyebrow + heading and a
+   * stacked body (`bodyGap`). Below `lg` it drops its frame and sits on the
+   * page; pass `framed` to keep the box. Default card is a plain wrapper.
    */
   layout?: 'default' | 'section'
   /** Small uppercase label above the heading (`layout="section"`). */
@@ -99,7 +118,8 @@ export type CardProps = BoxProps & {
   density?: 'default' | 'compact'
   /**
    * When false, drop surface chrome (padding, border, fill, radius).
-   * Accepts a breakpoint map so tab bodies can go flush on compact.
+   * Accepts a breakpoint map. Defaults to `{ base: false, lg: true }` for
+   * non-interactive sections and `true` for everything else.
    */
   framed?: boolean | { base?: boolean; md?: boolean; lg?: boolean }
 }
@@ -188,7 +208,7 @@ function CardTitleBlock({
   )
 }
 
-/** Generic card wrapper; use `layout="section"` for titled dashboard blocks. */
+/** Generic card wrapper; use `layout="section"` for titled page sections. */
 export function Card({
   children,
   isActive = false,
@@ -204,7 +224,7 @@ export function Card({
   metric,
   bodyGap,
   density = 'default',
-  framed = true,
+  framed,
   p,
   maxW,
   borderRadius,
@@ -229,7 +249,10 @@ export function Card({
   }
   const layers = [
     frame,
-    unframedCss(framed),
+    unframedCss(
+      framed ?? (isSection && !interactive ? SECTION_FRAMED : true),
+      isSection,
+    ),
     ...(Array.isArray(css) ? css : [css]),
   ].filter((layer): layer is SystemStyleObject => layer != null)
   // One merged object: passing `css` as an array broke SSR hydration ids.

@@ -15,10 +15,7 @@ export const TASK_DETAIL_TAB_BODY_MIN_H = {
   lg: `calc(100dvh - ${TASK_DETAIL_DESKTOP_MAP_SPACER})`,
 } as const
 
-/** In-flow tab cards keep the framed card chrome on every viewport. */
-export const TASK_DETAIL_SECTION_FRAMED = true as const
-
+/** Task detail blocks: cards on desktop, flush on the page below `lg`. */
 export const TASK_DETAIL_SECTION_CARD = {
   layout: 'section',
-  framed: TASK_DETAIL_SECTION_FRAMED,
 } as const

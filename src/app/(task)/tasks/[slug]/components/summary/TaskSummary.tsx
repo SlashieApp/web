@@ -117,7 +117,6 @@ export function TaskSummary() {
   return (
     <Card
       {...TASK_DETAIL_SECTION_CARD}
-      framed={{ base: false, lg: true }}
       id={TASK_ORDER_SECTION_ID}
       scrollMarginTop="140px"
       aria-busy={headline ? undefined : true}

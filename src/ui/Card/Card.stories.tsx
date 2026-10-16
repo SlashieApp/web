@@ -1,6 +1,7 @@
 import { HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuClipboardList } from 'react-icons/lu'
+import { expect } from 'storybook/test'
 
 import { Badge } from '@/ui/Badge'
 import { Card } from './Card'
@@ -58,9 +59,74 @@ export const Default: Story = {
   ),
 }
 
-/** Titled dashboard / task-detail block. */
+/** Titled page section. Desktop and wide tablets: a card. */
 export const Section: Story = {
-  args: { layout: 'section' },
+  args: { layout: 'section', id: 'story-card' },
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector('#story-card') as HTMLElement
+    await expect(getComputedStyle(card).borderTopWidth).toBe('1px')
+  },
+}
+
+/** Phones (below `lg`): a section drops its frame and sits on the page. */
+export const SectionOnPhone: Story = {
+  args: { layout: 'section', id: 'story-card' },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const style = getComputedStyle(
+      canvasElement.querySelector('#story-card') as HTMLElement,
+    )
+    await expect(style.borderTopWidth).toBe('0px')
+    await expect(style.paddingTop).toBe('0px')
+    await expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)')
+  },
+}
+
+/** Phones: consecutive flush sections get a hairline between them. */
+export const SectionsOnPhone: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: () => (
+    <Stack gap={4}>
+      <Card layout="section" heading="About" id="first-section">
+        <Text fontSize="sm">I take on small repairs and flat-pack builds.</Text>
+      </Card>
+      <Card layout="section" heading="Skills" id="second-section">
+        <Text fontSize="sm">Furniture assembly, shelving, TV mounting.</Text>
+      </Card>
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    const first = canvasElement.querySelector('#first-section') as HTMLElement
+    const second = canvasElement.querySelector('#second-section') as HTMLElement
+    await expect(getComputedStyle(first).borderTopWidth).toBe('0px')
+    await expect(getComputedStyle(second).borderTopWidth).toBe('1px')
+    await expect(getComputedStyle(second).borderLeftWidth).toBe('0px')
+  },
+}
+
+/** `framed` keeps the box on phones (a section that brings its own colour). */
+export const SectionFramedOnPhone: Story = {
+  args: { layout: 'section', id: 'story-card', framed: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector('#story-card') as HTMLElement
+    await expect(getComputedStyle(card).borderTopWidth).toBe('1px')
+  },
+}
+
+/** Plain cards (list rows, pins, popups) keep their frame on phones. */
+export const DefaultOnPhone: Story = {
+  args: {
+    layout: 'default',
+    id: 'story-card',
+    eyebrow: undefined,
+    heading: undefined,
+  },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector('#story-card') as HTMLElement
+    await expect(getComputedStyle(card).borderTopWidth).toBe('1px')
+  },
 }
 
 /** Section title plus muted description and a primary figure. */

@@ -42,6 +42,7 @@ export function ProfileIdentityHero({
   return (
     <Card
       layout="section"
+      framed
       p={{ base: 4, md: 5 }}
       bg="status.success.soft"
       borderColor="status.success.border"

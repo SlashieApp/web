@@ -79,7 +79,8 @@ export function TaskCardWorkerQuote({
   const toggleExpanded = () => setExpanded((open) => !open)
 
   return (
-    <Card layout="section" p={0} overflow="hidden">
+    // A list row, so it keeps its box on phones too.
+    <Card layout="section" framed p={0} overflow="hidden">
       <Box p={5}>
         <HStack align="flex-start" gap={3}>
           <Box

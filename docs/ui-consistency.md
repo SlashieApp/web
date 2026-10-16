@@ -57,6 +57,11 @@ Page shells use **`<Container>`** with no `maxW` override. Do not invent `7xl` /
   **rest `e1`** · **raised `e2`** · **map overlay `e3`**. Hairline `border.default` + rest
   shadow together (see Foundations/Elevation). Do not use raw `box-shadow` strings or
   the leftover Chakra `sm`/`md`/`card` aliases in feature code.
+- Sections on phones and tablets (FE-312): `Card layout="section"` drops its frame below
+  `lg` (1024px) and sits on the page, with a hairline between consecutive sections. Desktop
+  keeps the card. Plain cards (list rows, map pins, popups, heroes) and interactive cards keep
+  their frame. Pass `framed` to keep a section's box on every width, for example when it brings
+  its own colour.
 
 ---
 

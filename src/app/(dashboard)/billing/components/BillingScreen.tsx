@@ -119,7 +119,7 @@ export function BillingScreen() {
         actionLoading={checkoutLoading || portalLoading}
         onAction={onAction}
       />
-      <Stack gap={2} px={1}>
+      <Stack gap={2}>
         <Text fontSize="sm" color="text.muted">
           {t.paymentNote}
         </Text>
