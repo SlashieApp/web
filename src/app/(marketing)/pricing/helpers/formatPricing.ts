@@ -41,9 +41,3 @@ export function pricingTrialLength(
 export function pricingDisplayPrice(pricing: PricingRecord): string {
   return formatPricingAmount(pricing.priceAmount, pricing.priceCurrency)
 }
-
-export function pricingAfterTrialLine(pricing: PricingRecord): string {
-  const price = pricingDisplayPrice(pricing)
-  const interval = formatPricingInterval(pricing.priceInterval)
-  return `${price} / ${interval} after trial`
-}

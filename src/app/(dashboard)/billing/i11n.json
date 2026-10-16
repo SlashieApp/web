@@ -2,97 +2,175 @@
   "en": {
     "metadata": {
       "title": "Plan & billing | Slashie",
-      "description": "Manage Slashie worker membership billing, quote access, checkout, and plan status."
+      "description": "Your Slashie plan, what it costs and what happens next."
     },
     "title": "Plan & billing",
-    "description": "Manage your Slashie Unlimited subscription and monthly quote allowance.",
-    "descriptionNonWorker": "Manage your Slashie Unlimited subscription and quote allowance.",
-    "nonWorker": {
-      "title": "Become a worker to manage billing",
-      "description": "Slashie Unlimited is for workers who send quotes on tasks.",
-      "body": "Set up your worker profile first, then return here to start a free trial or manage your subscription.",
-      "cta": "Set up worker profile"
+    "description": "Your plan, what it costs and what happens next.",
+    "views": {
+      "titles": {
+        "workersOnly": "Plans are for workers",
+        "finishSetup": "Finish setup first",
+        "free": "Free",
+        "unlimited": "Slashie Unlimited"
+      },
+      "badges": {
+        "free": "Free",
+        "trial": "Trial",
+        "active": "Active",
+        "ending": "Ending",
+        "paymentProblem": "Payment problem",
+        "paused": "Paused",
+        "notFinished": "Not finished",
+        "activating": "Activating"
+      },
+      "bodies": {
+        "customer": "Slashie Unlimited gives workers unlimited quotes. Set up a worker profile to see your plan.",
+        "workerSetup": "Plans start once your worker profile is set up.",
+        "free": "Quote on {count} new tasks a month, or go unlimited.",
+        "priceUnavailable": "We couldn't load the price right now.",
+        "lapsed": "Your Slashie Unlimited ended on {date}. You're on the free plan.",
+        "lapsedNoDate": "Your Slashie Unlimited ended. You're on the free plan.",
+        "trialing": "Free until {date}.",
+        "trialingNoDate": "You're on the free trial.",
+        "subscribed": "Renews on {date}.",
+        "subscribedNoDate": "Unlimited quotes.",
+        "cancelling": "Unlimited quotes until {date}.",
+        "cancellingNoDate": "Unlimited quotes until the end of this period.",
+        "paymentProblem": "Your last payment failed. Quoting is paused until it's fixed.",
+        "paused": "Your plan is paused. Open Manage billing to resume it.",
+        "incomplete": "Your checkout didn't finish. If you paid, it can take a few minutes to show here.",
+        "activating": "Activating your plan. This usually takes a few seconds.",
+        "activationDelayed": "This is taking longer than usual. Check again in a minute."
+      },
+      "actions": {
+        "becomeWorker": "Become a worker",
+        "finishSetup": "Finish setup",
+        "startTrial": "Start free trial",
+        "resubscribe": "Resubscribe",
+        "manageBilling": "Manage billing",
+        "keepUnlimited": "Keep Slashie Unlimited",
+        "fixPayment": "Fix payment",
+        "checkAgain": "Check again",
+        "retryPricing": "Try again"
+      },
+      "price": {
+        "trialThenPrice": "{trial}, then {price} / {interval}",
+        "thenPrice": "Then {price} / {interval}",
+        "price": "{price} / {interval}"
+      },
+      "trial": {
+        "days": "{count} days free",
+        "month": "1 month free",
+        "months": "{count} months free"
+      },
+      "intervals": {
+        "month": "month",
+        "year": "year"
+      },
+      "cancelAnytime": "Cancel anytime in Manage billing."
     },
     "meter": {
-      "label": "Tasks quoted this month (UTC)",
-      "reset": "Resets at the start of each UTC calendar month.",
-      "aria": "{used} of {total} free tasks quoted this month"
+      "label": "Free quotes this month",
+      "used": "{used} of {total} used",
+      "resets": "Resets on {date}.",
+      "aria": "{used} of {total} free quotes used this month"
     },
-    "aboutTitle": "About platform billing",
-    "aboutDescription": "Separate from job payments.",
-    "aboutBody": "Job payments are arranged directly with customers. This subscription is for platform access only — Slashie does not process task payments.",
-    "relatedTitle": "Related",
-    "relatedDescription": "Other worker account tools.",
-    "relatedEarnings": "Earnings log →",
-    "relatedWorkerProfile": "Worker profile →",
-    "relatedAccount": "Account & security →",
-    "checkoutActivatingTitle": "Activating your subscription…",
-    "checkoutActivatingBody": "This usually takes a few seconds after checkout.",
-    "checkoutActiveTitle": "Slashie Unlimited is active.",
-    "checkoutCancelledTitle": "Checkout cancelled — you can try again anytime.",
-    "billingErrorTitle": "Could not load billing details. Refresh the page or try again shortly.",
-    "usageTitle": "Free tier usage",
-    "usageDescription": "Quote up to {count} different tasks per UTC month on the free plan. Editing a quote you've sent is always free.",
-    "usageExhausted": "You've quoted all your free tasks this month. You can still edit those quotes. Upgrade to quote more tasks.",
-    "planFallbackName": "Slashie Unlimited",
-    "thenPrice": "Then {price} per {interval} unless you cancel",
-    "paymentPastDue": "Payment issue — update your payment method to keep unlimited quotes.",
-    "paymentUnpaid": "Payment required — update billing to restore unlimited quotes.",
-    "featureUnlimited": "Unlimited quotes while subscribed",
-    "featureBrowse": "Browse tasks without a monthly quote cap",
-    "featurePriceWithTrial": "{trial}, then {price}/{interval}",
-    "featurePrice": "{price}/{interval}",
-    "startTrial": "Start 6-month free trial",
-    "resubscribe": "Resubscribe to Slashie Unlimited",
-    "fixPayment": "Fix payment",
-    "manageBilling": "Manage billing"
+    "paymentNote": "Job payments are arranged directly between customer and worker. Slashie never handles them.",
+    "comparePlans": "Compare plans",
+    "toasts": {
+      "checkoutCancelledTitle": "Checkout cancelled",
+      "checkoutCancelledBody": "You can start again anytime from this page.",
+      "activatedTitle": "Slashie Unlimited is active",
+      "checkoutFailedTitle": "Couldn't start checkout",
+      "portalFailedTitle": "Couldn't open billing",
+      "tryAgainShortly": "Try again shortly."
+    }
   },
   "zh_hk": {
     "metadata": {
       "title": "方案與帳單 | Slashie",
-      "description": "管理 Slashie 工作者會員帳單、報價權限、結帳和方案狀態。"
+      "description": "你的 Slashie 方案、費用和接下來的安排。"
     },
     "title": "方案與帳單",
-    "description": "管理你的 Slashie Unlimited 訂閱和每月報價額度。",
-    "descriptionNonWorker": "管理你的 Slashie Unlimited 訂閱和報價額度。",
-    "nonWorker": {
-      "title": "成為工作者以管理帳單",
-      "description": "Slashie Unlimited 供傳送任務報價的工作者使用。",
-      "body": "請先設定工作者個人檔案，然後返回此處開始免費試用或管理訂閱。",
-      "cta": "設定工作者個人檔案"
+    "description": "你的方案、費用和接下來的安排。",
+    "views": {
+      "titles": {
+        "workersOnly": "方案只適用於工作者",
+        "finishSetup": "請先完成設定",
+        "free": "免費",
+        "unlimited": "Slashie Unlimited"
+      },
+      "badges": {
+        "free": "免費",
+        "trial": "試用中",
+        "active": "生效中",
+        "ending": "即將結束",
+        "paymentProblem": "付款問題",
+        "paused": "已暫停",
+        "notFinished": "未完成",
+        "activating": "啟用中"
+      },
+      "bodies": {
+        "customer": "Slashie Unlimited 讓工作者無限次報價。設定工作者個人檔案後即可查看你的方案。",
+        "workerSetup": "完成工作者個人檔案設定後，方案便會開始。",
+        "free": "每月可為 {count} 個新任務報價，或升級為無限報價。",
+        "priceUnavailable": "暫時未能載入價格。",
+        "lapsed": "你的 Slashie Unlimited 已於 {date} 結束，你現在使用免費方案。",
+        "lapsedNoDate": "你的 Slashie Unlimited 已結束，你現在使用免費方案。",
+        "trialing": "免費試用至 {date}。",
+        "trialingNoDate": "你正在免費試用。",
+        "subscribed": "將於 {date} 續期。",
+        "subscribedNoDate": "無限次報價。",
+        "cancelling": "無限次報價至 {date}。",
+        "cancellingNoDate": "無限次報價至本期結束。",
+        "paymentProblem": "你上次的付款未能成功。處理好之前，報價功能會暫停。",
+        "paused": "你的方案已暫停。打開「管理帳單」即可恢復。",
+        "incomplete": "你的結帳未完成。如你已付款，可能需要幾分鐘才會在這裡顯示。",
+        "activating": "正在啟用你的方案，通常只需幾秒。",
+        "activationDelayed": "需時比平常長，請一分鐘後再檢查。"
+      },
+      "actions": {
+        "becomeWorker": "成為工作者",
+        "finishSetup": "完成設定",
+        "startTrial": "開始免費試用",
+        "resubscribe": "重新訂閱",
+        "manageBilling": "管理帳單",
+        "keepUnlimited": "保留 Slashie Unlimited",
+        "fixPayment": "處理付款",
+        "checkAgain": "再檢查一次",
+        "retryPricing": "再試一次"
+      },
+      "price": {
+        "trialThenPrice": "{trial}，之後 {price} / {interval}",
+        "thenPrice": "之後 {price} / {interval}",
+        "price": "{price} / {interval}"
+      },
+      "trial": {
+        "days": "免費 {count} 日",
+        "month": "免費 1 個月",
+        "months": "免費 {count} 個月"
+      },
+      "intervals": {
+        "month": "月",
+        "year": "年"
+      },
+      "cancelAnytime": "可隨時在「管理帳單」取消。"
     },
     "meter": {
-      "label": "本月已報價任務（UTC）",
-      "reset": "於每個 UTC 曆月開始時重設。",
-      "aria": "本月已報價 {used} / {total} 個免費任務"
+      "label": "本月免費報價",
+      "used": "已用 {used} / {total}",
+      "resets": "於 {date} 重設。",
+      "aria": "本月已使用 {used} / {total} 次免費報價"
     },
-    "aboutTitle": "關於平台帳單",
-    "aboutDescription": "與工作款項分開。",
-    "aboutBody": "工作款項由你與顧客直接安排。此訂閱只用於平台使用權 — Slashie 不會處理任務付款。",
-    "relatedTitle": "相關",
-    "relatedDescription": "其他工作者帳戶工具。",
-    "relatedEarnings": "收入記錄 →",
-    "relatedWorkerProfile": "工作者個人檔案 →",
-    "relatedAccount": "帳戶與安全 →",
-    "checkoutActivatingTitle": "正在啟用你的訂閱…",
-    "checkoutActivatingBody": "結帳後通常只需數秒。",
-    "checkoutActiveTitle": "Slashie Unlimited 已啟用。",
-    "checkoutCancelledTitle": "已取消結帳 — 你可以隨時再試。",
-    "billingErrorTitle": "未能載入帳單詳情。請重新整理頁面或稍後再試。",
-    "usageTitle": "免費方案用量",
-    "usageDescription": "免費方案每月（UTC）可為最多 {count} 個不同任務報價。編輯已傳送的報價一律免費。",
-    "usageExhausted": "你已用完本月的免費任務報價，但仍可編輯這些報價。升級即可為更多任務報價。",
-    "planFallbackName": "Slashie Unlimited",
-    "thenPrice": "其後每{interval} {price}，除非你取消",
-    "paymentPastDue": "付款出現問題 — 請更新付款方式以繼續無限報價。",
-    "paymentUnpaid": "需要付款 — 請更新帳單以恢復無限報價。",
-    "featureUnlimited": "訂閱期間無限報價",
-    "featureBrowse": "瀏覽任務不受每月報價上限限制",
-    "featurePriceWithTrial": "{trial}，其後 {price}/{interval}",
-    "featurePrice": "{price}/{interval}",
-    "startTrial": "開始 6 個月免費試用",
-    "resubscribe": "重新訂閱 Slashie Unlimited",
-    "fixPayment": "修正付款",
-    "manageBilling": "管理帳單"
+    "paymentNote": "工作款項由顧客與工作者直接安排，Slashie 絕不經手。",
+    "comparePlans": "比較方案",
+    "toasts": {
+      "checkoutCancelledTitle": "已取消結帳",
+      "checkoutCancelledBody": "你可隨時在此頁重新開始。",
+      "activatedTitle": "Slashie Unlimited 已啟用",
+      "checkoutFailedTitle": "未能開始結帳",
+      "portalFailedTitle": "未能打開帳單",
+      "tryAgainShortly": "請稍後再試。"
+    }
   }
 }

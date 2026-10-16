@@ -1,21 +1,15 @@
-export function billingPath(): string {
-  return '/billing'
-}
+import type { AppLocale } from '@/i18n/locales'
+import { withLocale } from '@/i18n/navigation'
 
-export function billingAbsoluteUrl(origin?: string): string {
-  const base =
-    origin ?? (typeof window !== 'undefined' ? window.location.origin : '')
-  return `${base}${billingPath()}`
-}
-
-export function checkoutSuccessUrl(origin?: string): string {
-  return `${billingAbsoluteUrl(origin)}?checkout=success`
-}
-
-export function checkoutCancelUrl(origin?: string): string {
-  return billingAbsoluteUrl(origin)
-}
-
-export function billingPortalReturnUrl(origin?: string): string {
-  return billingAbsoluteUrl(origin)
+/**
+ * Where Stripe sends people back: /billing in their language, with
+ * `?checkout=` saying how Checkout ended. The API checks the origin only.
+ */
+export function billingReturnUrl(
+  origin: string,
+  locale: AppLocale,
+  checkout?: 'success' | 'cancelled',
+): string {
+  const path = checkout ? `/billing?checkout=${checkout}` : '/billing'
+  return `${origin}${withLocale(locale, path)}`
 }

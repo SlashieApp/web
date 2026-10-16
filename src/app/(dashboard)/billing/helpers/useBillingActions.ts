@@ -9,16 +9,13 @@ import { useCallback, useState } from 'react'
 
 import CreateWorkerBillingPortal from '@/app/(dashboard)/billing/graphql/CreateWorkerBillingPortal.gql'
 import CreateWorkerSubscriptionCheckout from '@/app/(dashboard)/billing/graphql/CreateWorkerSubscriptionCheckout.gql'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, capture } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { getStripe } from '@/utils/stripe'
 
-import {
-  billingPortalReturnUrl,
-  checkoutCancelUrl,
-  checkoutSuccessUrl,
-} from './billingUrls'
+import bag from '../i11n.json'
+import { billingReturnUrl } from './billingUrls'
 
 export type BillingCheckoutSource =
   | 'billing'
@@ -28,12 +25,18 @@ export type BillingCheckoutSource =
 
 type UseBillingActionsResult = {
   startCheckout: (source?: BillingCheckoutSource) => Promise<void>
-  openBillingPortal: (returnUrl?: string) => Promise<void>
+  openBillingPortal: () => Promise<void>
   checkoutLoading: boolean
   portalLoading: boolean
 }
 
+/**
+ * Hosted Stripe Checkout and the billing portal. Both redirect away; on
+ * failure the button comes back and a toast says to try again.
+ */
 export function useBillingActions(): UseBillingActionsResult {
+  const t = useI11n(bag).toasts
+  const locale = useLocale()
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
 
@@ -50,66 +53,51 @@ export function useBillingActions(): UseBillingActionsResult {
       if (checkoutLoading) return
       setCheckoutLoading(true)
       try {
-        await getStripe()
         capture(EVENTS.checkout_start, { source })
+        const origin = window.location.origin
         const result = await createCheckout({
           variables: {
-            successUrl: checkoutSuccessUrl(),
-            cancelUrl: checkoutCancelUrl(),
+            successUrl: billingReturnUrl(origin, locale, 'success'),
+            cancelUrl: billingReturnUrl(origin, locale, 'cancelled'),
           },
         })
         const url = result.data?.createWorkerSubscriptionCheckout?.url?.trim()
-        if (!url) {
-          throw new Error('Checkout could not be started. Please try again.')
-        }
+        if (!url) throw new Error('No checkout URL')
         window.location.href = url
-      } catch (error: unknown) {
+      } catch {
         setCheckoutLoading(false)
         showAppToast({
-          title: 'Could not start checkout',
-          description: getFriendlyErrorMessage(
-            error,
-            'Checkout is unavailable right now. Try again shortly.',
-          ),
+          title: t.checkoutFailedTitle,
+          description: t.tryAgainShortly,
           type: 'error',
         })
       }
     },
-    [checkoutLoading, createCheckout],
+    [checkoutLoading, createCheckout, locale, t],
   )
 
-  const openBillingPortal = useCallback(
-    async (returnUrl?: string) => {
-      if (portalLoading) return
-      setPortalLoading(true)
-      try {
-        capture(EVENTS.billing_portal_open, { source: 'billing' })
-        const result = await createPortal({
-          variables: {
-            returnUrl: returnUrl ?? billingPortalReturnUrl(),
-          },
-        })
-        const url = result.data?.createWorkerBillingPortal?.url?.trim()
-        if (!url) {
-          throw new Error(
-            'Billing portal could not be opened. Please try again.',
-          )
-        }
-        window.location.href = url
-      } catch (error: unknown) {
-        setPortalLoading(false)
-        showAppToast({
-          title: 'Could not open billing portal',
-          description: getFriendlyErrorMessage(
-            error,
-            'Subscription management is unavailable right now.',
-          ),
-          type: 'error',
-        })
-      }
-    },
-    [createPortal, portalLoading],
-  )
+  const openBillingPortal = useCallback(async () => {
+    if (portalLoading) return
+    setPortalLoading(true)
+    try {
+      capture(EVENTS.billing_portal_open, { source: 'billing' })
+      const result = await createPortal({
+        variables: {
+          returnUrl: billingReturnUrl(window.location.origin, locale),
+        },
+      })
+      const url = result.data?.createWorkerBillingPortal?.url?.trim()
+      if (!url) throw new Error('No portal URL')
+      window.location.href = url
+    } catch {
+      setPortalLoading(false)
+      showAppToast({
+        title: t.portalFailedTitle,
+        description: t.tryAgainShortly,
+        type: 'error',
+      })
+    }
+  }, [createPortal, locale, portalLoading, t])
 
   return {
     startCheckout,

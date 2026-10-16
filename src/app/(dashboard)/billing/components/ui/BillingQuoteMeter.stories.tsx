@@ -13,14 +13,13 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** One of three free quotes used. */
+/** One of three free quotes used, with the reset date. */
 export const Partial: Story = {
+  args: { resetsOn: '1 Nov 2026' },
   play: async ({ canvasElement }) => {
-    await expect(
-      await within(canvasElement).findByRole('progressbar', {
-        name: '1 of 3 free tasks quoted this month',
-      }),
-    ).toBeVisible()
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('1 of 3 used')).toBeVisible()
+    await expect(canvas.getByText('Resets on 1 Nov 2026.')).toBeVisible()
   },
 }
 
