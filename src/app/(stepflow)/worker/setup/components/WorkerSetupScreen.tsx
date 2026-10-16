@@ -4,14 +4,13 @@ import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { StatusScreen } from '@/app/StatusScreen'
 import { useI11n } from '@/i18n/useI11n'
 import { BrandLoading } from '@/ui/BrandLoading/BrandLoading'
-import { Button, Link, StepFlowLayout } from '@ui'
+import { Button, Link, StepFlowHeader, StepFlowLayout } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
 import bag from '../i11n.json'
 import { WorkerSetupMobileAccordion } from './layout/steppers/WorkerSetupMobileAccordion'
 import { WorkerSetupProgressBar } from './layout/steppers/WorkerSetupProgressBar'
 import { WorkerSetupStepper } from './layout/steppers/WorkerSetupStepper'
-import { WorkerSetupHeader } from './ui/shared/WorkerSetupHeader'
 import { WorkerSetupStepContent } from './ui/steps/WorkerSetupStepContent'
 
 export function WorkerSetupScreen() {
@@ -61,7 +60,13 @@ export function WorkerSetupScreen() {
   return (
     <StepFlowLayout
       banner={<AppStatusBanners />}
-      header={<WorkerSetupHeader exitHref={exitHref} />}
+      header={
+        <StepFlowHeader
+          title={t.title}
+          exitHref={exitHref}
+          closeLabel={t.closeLabel}
+        />
+      }
       progress={<WorkerSetupProgressBar />}
       stepper={<WorkerSetupStepper />}
       mobileBody={<WorkerSetupMobileAccordion />}

@@ -1,10 +1,9 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, HStack, IconButton, Stack, Text } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
-import { LuX } from 'react-icons/lu'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
@@ -18,12 +17,11 @@ import {
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import reviewBag from '@/ui/ReviewForm/i11n.json'
 import { EVENTS, capture } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Logo, StepFlowLayout, StepFlowProgress, Stepper } from '@ui'
+import { StepFlowHeader, StepFlowLayout, StepFlowProgress, Stepper } from '@ui'
 
 import {
   REVIEW_STEP_IDS,
@@ -39,55 +37,6 @@ import { TaskReviewStep } from './ui/TaskReviewStep'
 type ReviewMutation = {
   createReview?: { id: string } | null
   updateReview?: { id: string } | null
-}
-
-function ReviewHeader({ exitHref }: { exitHref: string }) {
-  const router = useRouter()
-  const localize = useLocalizedHref()
-  const t = useI11n(bag)
-
-  return (
-    <Box
-      as="header"
-      bg="bg.surface"
-      borderBottomWidth="1px"
-      borderColor="border.default"
-      minH={{ base: '56px', md: '64px' }}
-      display="flex"
-      alignItems="center"
-    >
-      <HStack
-        gap={{ base: 3, md: 4 }}
-        w="full"
-        maxW={PAGE_CONTAINER_MAX_W}
-        mx="auto"
-        px={PAGE_GUTTER_X}
-        minH={{ base: '56px', md: '64px' }}
-        align="center"
-      >
-        <IconButton
-          aria-label={t.closeLabel}
-          variant="ghost"
-          size="sm"
-          minW="44px"
-          minH="44px"
-          onClick={() => router.push(localize(exitHref))}
-        >
-          <LuX size={20} aria-hidden />
-        </IconButton>
-        <Logo containerProps={{ flexShrink: 0 }} />
-        <Text
-          fontSize={{ base: 'sm', md: 'md' }}
-          fontWeight={600}
-          color="text.default"
-          flex={1}
-          truncate
-        >
-          {t.eyebrow}
-        </Text>
-      </HStack>
-    </Box>
-  )
 }
 
 function TaskReviewFlow({
@@ -216,7 +165,13 @@ function TaskReviewFlow({
   return (
     <StepFlowLayout
       banner={<AppStatusBanners />}
-      header={<ReviewHeader exitHref={taskHref} />}
+      header={
+        <StepFlowHeader
+          title={t.eyebrow}
+          exitHref={taskHref}
+          closeLabel={t.closeLabel}
+        />
+      }
       progress={
         <StepFlowProgress
           value={reviewProgressPercent(step)}
@@ -284,7 +239,13 @@ function MessageScreen({
   const t = useI11n(bag)
   return (
     <StepFlowLayout
-      header={<ReviewHeader exitHref={exitHref} />}
+      header={
+        <StepFlowHeader
+          title={t.eyebrow}
+          exitHref={exitHref}
+          closeLabel={t.closeLabel}
+        />
+      }
       stepper={
         <Stepper
           steps={[{ id: 'review', label: t.eyebrow }]}

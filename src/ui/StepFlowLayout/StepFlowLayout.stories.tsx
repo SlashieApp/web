@@ -1,15 +1,14 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { LuCheck, LuX } from 'react-icons/lu'
+import { LuCheck } from 'react-icons/lu'
 import { expect, waitFor, within } from 'storybook/test'
 
 import { FormField } from '../FormField'
-import { IconButton } from '../IconButton/IconButton'
 import { Input } from '../Input/Input'
-import { Logo } from '../Logo/Logo'
 import { Textarea } from '../Textarea/Textarea'
 import {
   StepFlowActions,
+  StepFlowHeader,
   StepFlowHeading,
   StepFlowLayout,
   StepFlowProgress,
@@ -133,40 +132,13 @@ const demoFields = (
   </Stack>
 )
 
-/** Demo flow header: exit button, logo and flow name (real flows bring their own). */
+/** The flow header every step flow uses. */
 const demoHeader = (
-  <Box
-    as="header"
-    bg="bg.surface"
-    borderBottomWidth="1px"
-    borderColor="border.default"
-    minH="56px"
-    display="flex"
-    alignItems="center"
-    px={4}
-  >
-    <HStack gap={3} w="full" align="center">
-      <IconButton
-        aria-label="Close"
-        variant="ghost"
-        size="sm"
-        minW="44px"
-        minH="44px"
-      >
-        <LuX size={20} aria-hidden />
-      </IconButton>
-      <Logo containerProps={{ flexShrink: 0 }} />
-      <Text
-        fontSize="sm"
-        fontWeight={600}
-        color="text.default"
-        flex={1}
-        truncate
-      >
-        Send a quote
-      </Text>
-    </HStack>
-  </Box>
+  <StepFlowHeader
+    title="Send a quote"
+    exitHref="/tasks/demo"
+    closeLabel="Close"
+  />
 )
 
 /** Demo full-width strip above everything (the email verification banner). */
@@ -353,10 +325,30 @@ export const FinalStep: Story = {
   },
 }
 
-/** Flow header: an exit and logo bar above the stepper rail and panel. */
+/** Flow header: Close (a link), the logo and the flow's name above the stepper rail and panel. */
 export const WithHeader: Story = {
   args: { ...TwoColumn.args },
   render: (args) => <StepFlowLayout {...args} header={demoHeader} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('link', { name: 'Close' })).toHaveAttribute(
+      'href',
+      '/tasks/demo',
+    )
+    await expect(canvas.getByText('Send a quote')).toBeVisible()
+  },
+}
+
+/** Phones: the header drops the logo so the flow's name fits beside Close. */
+export const MobileWithHeader: Story = {
+  args: { ...TwoColumn.args },
+  globals: { viewport: { value: 'mobile1' } },
+  render: (args) => <StepFlowLayout {...args} header={demoHeader} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Send a quote')).toBeVisible()
+    await expect(canvasElement.querySelector('header img')).not.toBeVisible()
+  },
 }
 
 /** Banner: a full-width strip above the header (email verification). */

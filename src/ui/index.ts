@@ -119,6 +119,7 @@ export { SlideToConfirm } from './SlideToConfirm'
 export { SpotIllustration } from './SpotIllustration/SpotIllustration'
 export {
   StepFlowActions,
+  StepFlowHeader,
   StepFlowHeading,
   StepFlowLayout,
   StepFlowProgress,
@@ -222,6 +223,7 @@ export type {
 } from './SpotIllustration/SpotIllustration'
 export type {
   StepFlowActionsProps,
+  StepFlowHeaderProps,
   StepFlowHeadingProps,
   StepFlowLayoutProps,
   StepFlowProgressProps,

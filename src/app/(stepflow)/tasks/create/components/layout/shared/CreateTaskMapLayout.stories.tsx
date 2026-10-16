@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import { townOnly } from '@/utils/taskLocationDisplay'
-import { StepFlowProgress } from '@ui'
+import { StepFlowHeader, StepFlowProgress } from '@ui'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
 import {
   CREATE_TASK_STEP_COPY,
@@ -18,7 +18,6 @@ import { CreateTaskBasicsSection } from '../../ui/sections/CreateTaskBasicsSecti
 import { CreateTaskContactSection } from '../../ui/sections/CreateTaskContactSection'
 import { CreateTaskLocationSection } from '../../ui/sections/CreateTaskLocationSection'
 import { CreateTaskLocationMap } from '../map/CreateTaskLocationMap'
-import { CreateTaskHeader } from './CreateTaskHeader'
 import { CreateTaskMapLayout } from './CreateTaskMapLayout'
 import { CreateTaskStepper } from './CreateTaskStepper'
 
@@ -61,7 +60,13 @@ function CreateTaskMapDemo({
 
   return (
     <CreateTaskMapLayout
-      header={<CreateTaskHeader />}
+      header={
+        <StepFlowHeader
+          title="Post a task"
+          exitHref="/search"
+          closeLabel="Close task creation"
+        />
+      }
       progress={
         <StepFlowProgress
           value={createTaskProgressPercent(step)}

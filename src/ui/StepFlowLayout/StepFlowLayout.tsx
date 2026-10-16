@@ -10,11 +10,14 @@ import {
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react'
-import { LuArrowLeft, LuArrowRight } from 'react-icons/lu'
+import { LuArrowLeft, LuArrowRight, LuX } from 'react-icons/lu'
 
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 
 import { Button } from '../Button/Button'
+import { IconButton } from '../IconButton/IconButton'
+import { Link } from '../Link/Link'
+import { Logo } from '../Logo/Logo'
 import { ProgressBar } from '../ProgressBar'
 
 /**
@@ -33,6 +36,73 @@ import { ProgressBar } from '../ProgressBar'
  * stay in each flow's context/config. Compose the flow's own stepper and
  * progress data through the slots.
  */
+
+export type StepFlowHeaderProps = {
+  /** The flow's name, e.g. "Post a task". */
+  title: string
+  /** Where Close goes (localised like every internal link). */
+  exitHref: string
+  /** Accessible name for Close. */
+  closeLabel: string
+}
+
+/**
+ * The flow's top bar: Close, the logo and the flow's name. Phones drop the
+ * logo so the name fits. Close is a link, so leaving keeps the locale and
+ * works without JS.
+ */
+export function StepFlowHeader({
+  title,
+  exitHref,
+  closeLabel,
+}: StepFlowHeaderProps) {
+  return (
+    <Box
+      as="header"
+      bg="bg.surface"
+      borderBottomWidth="1px"
+      borderColor="border.default"
+    >
+      <HStack
+        gap={{ base: 2, md: 4 }}
+        w="full"
+        maxW={PAGE_CONTAINER_MAX_W}
+        mx="auto"
+        px={PAGE_GUTTER_X}
+        minH={{ base: '56px', md: '64px' }}
+      >
+        <IconButton asChild aria-label={closeLabel} variant="ghost">
+          <Link href={exitHref}>
+            <LuX size={20} aria-hidden />
+          </Link>
+        </IconButton>
+        <Logo
+          containerProps={{
+            flexShrink: 0,
+            display: { base: 'none', md: 'flex' },
+          }}
+        />
+        <Text
+          flex={1}
+          minW={0}
+          fontSize="md"
+          fontWeight={600}
+          color="text.default"
+          textAlign={{ base: 'left', md: 'center' }}
+          truncate
+        >
+          {title}
+        </Text>
+        <Box
+          display={{ base: 'none', md: 'block' }}
+          w="44px"
+          flexShrink={0}
+          aria-hidden
+        />
+      </HStack>
+    </Box>
+  )
+}
 
 export type StepFlowHeadingProps = {
   title: string

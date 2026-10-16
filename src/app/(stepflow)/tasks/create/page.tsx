@@ -52,13 +52,13 @@ import { mapboxReverseGeocode } from '@/utils/mapboxGeocode'
 import { TASK_DRAFT_TITLE_MAX } from '@/utils/taskHandoff'
 import { uploadTaskImagesWithPresign } from '@/utils/taskImageUpload'
 import { townOnly } from '@/utils/taskLocationDisplay'
-import { StepFlowProgress } from '@ui'
+import { StepFlowHeader, StepFlowProgress } from '@ui'
 
+import { APP_HOME } from '@/utils/appRoutes'
 import {
   CreateTaskBasicsSection,
   CreateTaskBudgetSection,
   CreateTaskContactSection,
-  CreateTaskHeader,
   CreateTaskLocationMap,
   CreateTaskLocationSection,
   CreateTaskMapLayout,
@@ -820,7 +820,13 @@ function CreateTaskFormBody({
   return (
     <CreateTaskMapLayout
       banner={<AppStatusBanners />}
-      header={<CreateTaskHeader />}
+      header={
+        <StepFlowHeader
+          title={t.eyebrow}
+          exitHref={APP_HOME}
+          closeLabel={t.closeLabel}
+        />
+      }
       progress={
         <StepFlowProgress
           value={createTaskProgressPercent(activeSubStep)}

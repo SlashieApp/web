@@ -6,7 +6,7 @@ import { type ReactNode, useCallback, useState } from 'react'
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { useI11n } from '@/i18n/useI11n'
 import { validateTimeSlotDrafts } from '@/utils/timeSlots'
-import { StepFlowLayout } from '@ui'
+import { StepFlowHeader, StepFlowLayout } from '@ui'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
@@ -18,7 +18,6 @@ import {
   taskQuotePreviousSubStep,
   taskQuoteProgressPercent,
 } from '../helpers/taskQuoteSteps.config'
-import { TaskQuoteHeader } from './layout/TaskQuoteHeader'
 import { TaskQuoteProgressBar } from './layout/stepper/TaskQuoteProgressBar'
 import { TaskQuoteStepper } from './layout/stepper/TaskQuoteStepper'
 import { TaskQuoteTaskDetailPanel } from './ui/shared/TaskQuoteTaskDetailPanel'
@@ -209,7 +208,13 @@ export function TaskQuoteScreen({
   return (
     <StepFlowLayout
       banner={<AppStatusBanners />}
-      header={<TaskQuoteHeader exitHref={backToTask} />}
+      header={
+        <StepFlowHeader
+          title={flowCopy.eyebrow}
+          exitHref={backToTask}
+          closeLabel={flowCopy.closeLabel}
+        />
+      }
       mobileTop={
         <TaskQuoteTaskDetailPanel backHref={backToTask} variant="section" />
       }
