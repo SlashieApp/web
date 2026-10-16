@@ -303,7 +303,41 @@ export const AccountDrawerOpen: Story = {
   },
 }
 
-/** Language: the drawer's Language row opens the full-page locale list (known issue: it closes itself about 0.4 s later). */
+/**
+ * Taps an account drawer row that opens a dialog. The dialog outlives the
+ * drawer's exit (closing the drawer used to dismiss it with it), and closing
+ * the dialog then closes the drawer.
+ */
+async function rowDialogStaysOpen(
+  canvasElement: HTMLElement,
+  row: string,
+  dialogName: string,
+) {
+  const page = within(canvasElement.ownerDocument.body)
+  await userEvent.click(
+    within(canvasElement).getByRole('button', { name: 'Account' }),
+  )
+  const drawer = within(
+    await page.findByRole('dialog', { name: 'Account menu' }),
+  )
+  // The drawer hides the page one frame after opening. Tapping before that
+  // lets the late hide cover the new dialog too, so wait for it.
+  await waitFor(() =>
+    expect(canvasElement.closest('[aria-hidden="true"]')).not.toBeNull(),
+  )
+  await userEvent.click(drawer.getByRole('button', { name: row }))
+  await page.findByRole('dialog', { name: dialogName })
+  // Past the drawer's 0.45 s exit, the dialog is still on screen.
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  const dialog = page.getByRole('dialog', { name: dialogName })
+  await expect(dialog).toBeVisible()
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Close' }))
+  await waitFor(() => expect(page.queryByRole('dialog')).toBeNull(), {
+    timeout: 3000,
+  })
+}
+
+/** Language: the drawer's Language row opens the full-page locale list, which stays open until closed. */
 export const LanguageListOpen: Story = {
   decorators: [withMe(meWorker)],
   render: () => (
@@ -311,30 +345,20 @@ export const LanguageListOpen: Story = {
       <MobileBottomNav />
     </Screen>
   ),
-  play: async ({ canvasElement }) => {
-    const { body } = canvasElement.ownerDocument
-    const page = within(body)
-    // The list is taken down again about 0.4 s after it opens (the account
-    // drawer's exit closes it), so latch it on the DOM change: a timed query
-    // can run after it is gone on a busy machine.
-    let opened = false
-    const observer = new MutationObserver(() => {
-      opened ||= page.queryByRole('dialog', { name: 'Language' }) !== null
-    })
-    observer.observe(body, { childList: true, subtree: true, attributes: true })
-    try {
-      await userEvent.click(
-        within(canvasElement).getByRole('button', { name: 'Account' }),
-      )
-      const drawer = within(
-        await page.findByRole('dialog', { name: 'Account menu' }),
-      )
-      await userEvent.click(drawer.getByRole('button', { name: 'Language' }))
-      await waitFor(() => expect(opened).toBe(true), { timeout: 3000 })
-    } finally {
-      observer.disconnect()
-    }
-  },
+  play: ({ canvasElement }) =>
+    rowDialogStaysOpen(canvasElement, 'Language', 'Language'),
+}
+
+/** Feedback: the drawer's Send feedback row opens the feedback dialog, which stays open until closed. */
+export const FeedbackDialogOpen: Story = {
+  decorators: [withMe(meWorker)],
+  render: () => (
+    <Screen>
+      <MobileBottomNav />
+    </Screen>
+  ),
+  play: ({ canvasElement }) =>
+    rowDialogStaysOpen(canvasElement, 'Send feedback', 'Send feedback'),
 }
 
 /** Desktop: from `lg` up the dock is not rendered; the Header carries these links. */

@@ -253,6 +253,7 @@ export const LanguageRowCallsHandler: Story = {
     )
     await userEvent.click(drawer.getByRole('button', { name: 'Language' }))
     await expect(args.onOpenLanguage).toHaveBeenCalledTimes(1)
-    await expect(args.onOpenChange).toHaveBeenCalledWith(false)
+    // The close lands once React has rendered the tap (no dialog opened here).
+    await waitFor(() => expect(args.onOpenChange).toHaveBeenCalledWith(false))
   },
 }

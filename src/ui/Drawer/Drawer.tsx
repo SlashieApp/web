@@ -16,7 +16,14 @@ import {
   HStack,
   Stack,
 } from '@chakra-ui/react'
-import { type ReactNode, createContext, useContext } from 'react'
+import {
+  type ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
@@ -43,6 +50,49 @@ export function useInsideDrawer() {
 /** Close the nearest open `@ui` Drawer. No-op outside a drawer. */
 export function useDrawerClose() {
   return useContext(DrawerCloseContext) ?? (() => {})
+}
+
+const OPEN_DIALOG =
+  '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]'
+
+function openDialogs(): Element[] {
+  return [...document.querySelectorAll(OPEN_DIALOG)]
+}
+
+/**
+ * Close a drawer from one of its items. The item may open a dialog in the
+ * same tap: closing the drawer then would dismiss that dialog too (zag drops
+ * layers opened above a closing one). So once React has rendered the tap,
+ * wait for any dialog the tap opened to close first.
+ */
+export function useCloseFromItem(close: () => void) {
+  const watchRef = useRef<MutationObserver | null>(null)
+  useEffect(() => () => watchRef.current?.disconnect(), [])
+
+  return useCallback(() => {
+    // Dialogs open before the tap (this drawer, anything under it) don't count.
+    const before = new Set(openDialogs())
+    const tapOpenedDialog = () => openDialogs().some((el) => !before.has(el))
+    setTimeout(() => {
+      if (!tapOpenedDialog()) {
+        close()
+        return
+      }
+      watchRef.current?.disconnect()
+      const watch = new MutationObserver(() => {
+        if (tapOpenedDialog()) return
+        watch.disconnect()
+        close()
+      })
+      watchRef.current = watch
+      watch.observe(document.body, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['data-state'],
+      })
+    }, 0)
+  }, [close])
 }
 
 export const DRAWER_PANEL_MAX_W = 'lg' as const

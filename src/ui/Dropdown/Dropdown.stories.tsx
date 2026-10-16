@@ -532,7 +532,7 @@ export const MobileItemOpensDialog: Story = {
     )
     const item = await page.findByRole('menuitem', { name: 'Reschedule' })
     // The phone menu is a drawer (the case that used to drop the dialog).
-    await expect(item.closest('[data-dropdown-drawer]')).not.toBeNull()
+    await expect(item.closest('[role="dialog"]')).not.toBeNull()
     // The drawer hides the page behind it one frame after opening. Tapping
     // before that (throttled frames in parallel runs) lets the late hide cover
     // the dialog too, so wait for it like a person would.

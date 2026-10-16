@@ -38,7 +38,12 @@ export {
   statusScale,
 } from './_foundations/ColorSwatches'
 export { DetailRow } from './DetailRow'
-export { Drawer, useDrawerClose, useInsideDrawer } from './Drawer'
+export {
+  Drawer,
+  useCloseFromItem,
+  useDrawerClose,
+  useInsideDrawer,
+} from './Drawer'
 export { Dropdown, useDropdownClose } from './Dropdown'
 export { emptyTimeSlotDraft, TimeSlotPicker } from './TimeSlotPicker'
 export {

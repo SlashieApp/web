@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
 
-import { Drawer } from '../../Drawer'
+import { Drawer, useCloseFromItem } from '../../Drawer'
 
 import bag from '../i11n.json'
 import { AccountMenuContent } from './AccountMenuContent'
@@ -22,7 +22,10 @@ export function MobileNavDrawer({
   onOpenLanguage,
 }: MobileNavDrawerProps) {
   const t = useI11n(bag)
-  const close = useCallback(() => onOpenChange(false), [onOpenChange])
+  // Rows like Language and Send feedback open a dialog as the drawer closes.
+  const close = useCloseFromItem(
+    useCallback(() => onOpenChange(false), [onOpenChange]),
+  )
 
   return (
     <Drawer

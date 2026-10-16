@@ -24,7 +24,12 @@ import {
 
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
-import { Drawer, type DrawerPlacement, useInsideDrawer } from '../Drawer'
+import {
+  Drawer,
+  type DrawerPlacement,
+  useCloseFromItem,
+  useInsideDrawer,
+} from '../Drawer'
 
 /**
  * SDL popover surface. Reduced-motion safe: animates transform/opacity only and
@@ -44,20 +49,6 @@ const sdlPanelMotion = {
 
 /** How long the panel stays mounted while the exit transition plays. */
 const PANEL_EXIT_MS = 160
-
-/** Marks a dropdown's own phone drawer, so it isn't mistaken for a dialog. */
-const DROPDOWN_DRAWER = 'data-dropdown-drawer'
-const OPEN_DIALOG =
-  '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]'
-
-const DROPDOWN_DRAWER_MARK = { [DROPDOWN_DRAWER]: '' }
-
-/** A dialog other than a dropdown drawer is open. */
-function otherDialogOpen(): boolean {
-  return [...document.querySelectorAll(OPEN_DIALOG)].some(
-    (el) => !el.hasAttribute(DROPDOWN_DRAWER),
-  )
-}
 
 /**
  * Exit motion — mirrors the enter keyframes as a transition back to hidden.
@@ -319,10 +310,9 @@ function DropdownMobileDrawer({
       title={title}
       placement={drawerPlacement}
       size={placement === 'bottom' ? 'xs' : 'sm'}
-      contentProps={{
-        ...DROPDOWN_DRAWER_MARK,
-        ...(placement === 'bottom' ? { h: 'auto', maxH: '80dvh' } : {}),
-      }}
+      contentProps={
+        placement === 'bottom' ? { h: 'auto', maxH: '80dvh' } : undefined
+      }
     >
       {children}
     </Drawer>
@@ -361,40 +351,10 @@ function ClickDropdown({
 
   const close = useCallback(() => setOpenState(false), [setOpenState])
   const toggle = useCallback(() => setOpenState(!open), [open, setOpenState])
-  const dialogWatchRef = useRef<MutationObserver | null>(null)
-  useEffect(() => () => dialogWatchRef.current?.disconnect(), [])
-
-  /**
-   * Close from a menu item. On phones the menu is a drawer, and the item may
-   * open a dialog in the same tap: closing the drawer then would dismiss that
-   * dialog too (zag drops layers opened above a closing one). So once React
-   * has rendered the tap, wait for any such dialog to close first.
-   */
-  const closeFromItem = useCallback(() => {
-    if (!useDrawer) {
-      close()
-      return
-    }
-    setTimeout(() => {
-      if (!otherDialogOpen()) {
-        close()
-        return
-      }
-      dialogWatchRef.current?.disconnect()
-      const watch = new MutationObserver(() => {
-        if (otherDialogOpen()) return
-        watch.disconnect()
-        close()
-      })
-      dialogWatchRef.current = watch
-      watch.observe(document.body, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['data-state'],
-      })
-    }, 0)
-  }, [close, useDrawer])
+  // Only the phone drawer is a zag layer that would take an item's dialog
+  // down with it; the popover can close straight away.
+  const closeAfterDialogs = useCloseFromItem(close)
+  const closeFromItem = useDrawer ? closeAfterDialogs : close
 
   useEffect(() => {
     if (presentationRef.current === useDrawer) return

@@ -1,2 +1,7 @@
-export { Drawer, useDrawerClose, useInsideDrawer } from './Drawer'
+export {
+  Drawer,
+  useCloseFromItem,
+  useDrawerClose,
+  useInsideDrawer,
+} from './Drawer'
 export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'
