@@ -48,8 +48,8 @@ export type TaskListItem = {
     profile?: { name?: string | null; avatarUrl?: string | null } | null
   } | null
   /**
-   * Only present when the operation selects `quotes` (e.g. `tasksPosted`, `quotedTasks`).
-   * Public `tasks` browse does not fetch quotes.
+   * Hub lists (`tasksPosted`, `quotedTasks`) select full quotes; browse `tasks`
+   * selects `workerUserId` only (to mark the tasks you quoted on). Guests get [].
    */
   quotes?: TaskQuoteListItem[]
 }

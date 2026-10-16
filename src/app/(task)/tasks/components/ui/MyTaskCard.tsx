@@ -72,10 +72,8 @@ export function MyTaskCard({
 }) {
   const t = useI11n(bag)
   const locale = useLocale()
-  const tags = [
-    ...row.roles.map((role) => t.tags[role]),
-    ...(row.notSelected ? [t.tags.notSelected] : []),
-  ]
+  const viewerRole = row.roles.includes('hosted') ? 'hosted' : 'quoted'
+  const tags = row.notSelected ? [t.tags.notSelected] : []
   const live = row.section !== 'completed'
   const timingTone =
     live && row.timing.kind === 'overdue'
@@ -93,6 +91,7 @@ export function MyTaskCard({
         location: row.location,
         priceLabel: row.priceLabel,
         categories: taskCategoryLabels(row.categories),
+        viewerRole,
         distanceLabel: row.location,
         timingLabel: live ? timingLabel(row.timing, t, locale) : undefined,
         timingTone,
@@ -105,7 +104,7 @@ export function MyTaskCard({
       navigateOnActivate
       activateAriaLabel={formatMessage(t.openTask, {
         title: row.title,
-        tags: tags.join(', '),
+        tags: [t.tags[viewerRole], ...tags].join(', '),
       })}
     />
   )

@@ -2,8 +2,11 @@ import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { useUserStore } from '@/app/(auth)/store/user'
+
 import { withTaskBrowseStory } from '../../../helpers/taskBrowseStoryDecorator'
 import {
+  storyBrowseTask,
   storyBrowseTaskPage,
   storyBrowseTasks,
 } from '../../../helpers/taskBrowseStoryFixtures'
@@ -38,6 +41,52 @@ export const Results: Story = {
     await canvas.findByText(storyBrowseTasks[0].title)
     // Comes through the `Tasks` query shape, so a dropped field fails here.
     expect(canvas.getAllByText('4 jobs done').length).toBeGreaterThan(0)
+  },
+}
+
+/** Signed in: tasks you posted say Hosted, tasks you quoted on say Quoted. */
+export const SignedInRoles: Story = {
+  decorators: [
+    withTaskBrowseStory({
+      tasks: [
+        storyBrowseTask({
+          id: 'mine',
+          title: 'Hang three shelves',
+          poster: { id: 'viewer-1', hostedCompletedCount: 0 },
+        }),
+        storyBrowseTask({
+          id: 'quoted',
+          title: 'Assemble a standing desk',
+          quotes: [
+            {
+              id: 'q-1',
+              taskId: 'quoted',
+              workerUserId: 'viewer-1',
+              status: 'PENDING',
+              createdAt: '2026-10-14T09:00:00.000Z',
+            },
+          ],
+        }),
+        storyBrowseTask({ id: 'other', title: 'Clear a small garden' }),
+      ],
+    }),
+  ],
+  beforeEach: () => {
+    useUserStore.setState({
+      user: {
+        id: 'viewer-1',
+        email: 'sam@example.com',
+        createdAt: '2024-01-01T00:00:00.000Z',
+      },
+    })
+    return () => useUserStore.setState({ user: null })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Hang three shelves')
+    // Cards fade in one after another.
+    await waitFor(() => expect(canvas.getByText('Hosted')).toBeVisible())
+    await waitFor(() => expect(canvas.getByText('Quoted')).toBeVisible())
   },
 }
 

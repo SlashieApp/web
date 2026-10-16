@@ -10,7 +10,6 @@ import type { BrowseReferenceLocation } from './browseReferenceLocation'
 import {
   formatBudget,
   taskDistanceShortLabelFromReference,
-  taskQuotesCountLabel,
   taskScheduleCompactLabel,
 } from './taskBrowseHelpers'
 import { taskCategoryLabels } from './taskCategories'
@@ -23,10 +22,23 @@ export function taskTrustFromPoster(
   return count > 0 ? { kind: 'jobsDone', count } : undefined
 }
 
+/** Hosted when you posted it, Quoted when you've sent a quote; guests get neither. */
+export function taskViewerRole(
+  task: TaskListItem,
+  viewerId: string | null | undefined,
+): TaskCardTask['viewerRole'] {
+  if (!viewerId) return undefined
+  if (task.poster?.id === viewerId) return 'hosted'
+  return task.quotes?.some((quote) => quote.workerUserId === viewerId)
+    ? 'quoted'
+    : undefined
+}
+
 /** Browse-list view model for TaskCard + the listing→detail handoff. */
 export function toBrowseTaskCard(
   task: TaskListItem,
   referenceLocation: BrowseReferenceLocation,
+  viewerId?: string | null,
 ): TaskCardTask {
   const { main, hasBudget } = formatBudget(task)
   return {
@@ -36,10 +48,10 @@ export function toBrowseTaskCard(
     location: taskPublicLocationLabel(task).trim() || 'Location on request',
     priceLabel: hasBudget ? main : '',
     categories: taskCategoryLabels(task.categories),
+    viewerRole: taskViewerRole(task, viewerId),
     thumbnailSrc: task.images?.[0] ?? undefined,
     distanceLabel: taskDistanceShortLabelFromReference(task, referenceLocation),
     timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,
-    quotesLabel: taskQuotesCountLabel(task) ?? undefined,
     viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,
     trust: taskTrustFromPoster(task),
   }

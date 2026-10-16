@@ -57,6 +57,8 @@ export type TaskCardTask = {
   priceLabel: string
   /** Category labels, one pill each on a single row that fades at the end. */
   categories?: readonly string[]
+  /** You posted it, or you've quoted on it: a pill before the categories. */
+  viewerRole?: 'hosted' | 'quoted'
   distanceLabel?: string
   /** Compact schedule line, e.g. "Flexible" / "Tomorrow". */
   timingLabel?: string
@@ -100,7 +102,7 @@ type TaskCardShared = {
    */
   navigateOnActivate?: boolean
   onActivate?: () => void
-  /** Status pills before the categories, e.g. Hosted or Not selected (My Tasks). */
+  /** Status pills after the role pill, e.g. Not selected (My Tasks). */
   tags?: readonly string[]
   /** Replaces the default ⋮ menu (Report task). */
   menu?: ReactNode
@@ -196,6 +198,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     title,
     priceLabel,
     categories = [],
+    viewerRole,
     distanceLabel,
     timingLabel,
     timingTone,
@@ -293,7 +296,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             />
             <Stack flex={1} minW={0} gap={1.5}>
               <Stack gap={1} minW={0} align="flex-start">
-                {tags.length > 0 || categories.length > 0 ? (
+                {viewerRole || tags.length > 0 || categories.length > 0 ? (
                   <HStack
                     gap={1}
                     w="full"
@@ -302,6 +305,11 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                     flexWrap="nowrap"
                     css={BADGE_ROW_FADE}
                   >
+                    {viewerRole ? (
+                      <Badge shape="pill" variant="neutral" flexShrink={0}>
+                        {t.viewerRole[viewerRole]}
+                      </Badge>
+                    ) : null}
                     {tags.map((tag) => (
                       <Badge
                         key={`tag-${tag}`}

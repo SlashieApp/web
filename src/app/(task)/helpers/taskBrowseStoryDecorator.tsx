@@ -104,6 +104,10 @@ function tasksQueryData(tasks: readonly TaskListItem[]) {
         name: task.location?.name ?? null,
         address: task.location?.address ?? null,
       },
+      quotes: (task.quotes ?? []).map((quote) => ({
+        __typename: 'Quote',
+        workerUserId: quote.workerUserId,
+      })),
       poster: task.poster
         ? {
             __typename: 'User',

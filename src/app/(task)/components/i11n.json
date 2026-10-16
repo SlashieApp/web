@@ -32,7 +32,11 @@
     "loadMoreFailed": "Couldn't load more tasks. Try again.",
     "loadError": "Couldn't load tasks.",
     "retry": "Try again",
-    "updatingResults": "Updating results…"
+    "updatingResults": "Updating results…",
+    "viewerRole": {
+      "hosted": "Hosted",
+      "quoted": "Quoted"
+    }
   },
   "zh_hk": {
     "detailsCta": "查看任務",
@@ -67,6 +71,10 @@
     "loadMoreFailed": "未能載入更多任務，請再試。",
     "loadError": "未能載入任務。",
     "retry": "再試",
-    "updatingResults": "正在更新結果…"
+    "updatingResults": "正在更新結果…",
+    "viewerRole": {
+      "hosted": "我發布",
+      "quoted": "我報價"
+    }
   }
 }

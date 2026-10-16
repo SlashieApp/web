@@ -125,11 +125,28 @@ export const ManyCategories: Story = {
   },
 }
 
-/** My tasks: status pills (Quoted, Not selected) lead the category pills. */
+/** You quoted on it (search and My Tasks): the role pill leads the categories. */
+export const YouQuoted: Story = {
+  args: { task: { ...defaultTask, viewerRole: 'quoted' } },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText('Quoted')).toBeVisible()
+  },
+}
+
+/** You posted it. */
+export const YouHosted: Story = {
+  args: { task: { ...defaultTask, viewerRole: 'hosted' } },
+}
+
+/** My tasks: a lost quote adds Not selected after the role pill. */
 export const WithTags: Story = {
   args: {
-    tags: ['Quoted', 'Not selected'],
-    task: { ...defaultTask, categories: ['Tech setup', 'Handyman'] },
+    tags: ['Not selected'],
+    task: {
+      ...defaultTask,
+      viewerRole: 'quoted',
+      categories: ['Tech setup', 'Handyman'],
+    },
   },
 }
 

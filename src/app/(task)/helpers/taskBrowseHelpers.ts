@@ -194,12 +194,6 @@ export function taskScheduleCompactLabel(
 }
 
 /** "5 quotes" card label. Public `tasks` browse doesn't select quotes → null (row hidden). */
-export function taskQuotesCountLabel(task: TaskListItem): string | null {
-  const count = task.quotes?.length
-  if (!count) return null
-  return `${count} ${count === 1 ? 'quote' : 'quotes'}`
-}
-
 export function milesToKmRounded(miles: number): number {
   return Math.round(miles * 1.60934)
 }

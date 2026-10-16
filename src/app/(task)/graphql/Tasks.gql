@@ -24,6 +24,9 @@ query Tasks($filter: TaskFilter, $sort: TaskSort, $first: Int, $after: ID) {
       name
       address
     }
+    quotes {
+      workerUserId
+    }
     poster {
       id
       hostedCompletedCount

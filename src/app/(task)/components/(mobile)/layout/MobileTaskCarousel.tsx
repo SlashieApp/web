@@ -4,6 +4,7 @@ import { Box } from '@chakra-ui/react'
 import { motion } from 'motion/react'
 import { useMemo, useRef } from 'react'
 
+import { useUserStore } from '@/app/(auth)/store/user'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
 import { captureSearchCardImpression } from '@/app/(task)/search/components/analytics/searchCardImpression'
@@ -31,12 +32,15 @@ export function MobileTaskCarousel() {
     referenceLocation,
     isInitialTasksLoad,
   } = useTaskBrowseData()
+  const viewerId = useUserStore((state) => state.user?.id)
   const seenImpressionsRef = useRef(new Set<string>())
 
   const tasks = useMemo(
     () =>
-      filteredSorted.map((task) => toBrowseTaskCard(task, referenceLocation)),
-    [filteredSorted, referenceLocation],
+      filteredSorted.map((task) =>
+        toBrowseTaskCard(task, referenceLocation, viewerId),
+      ),
+    [filteredSorted, referenceLocation, viewerId],
   )
 
   if (isInitialTasksLoad) {
