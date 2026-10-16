@@ -91,7 +91,7 @@ export default function Layout({ children }) { return children }
 - **`ui/`** — Shared cards and panels. One file owns loading/empty (`<TaskCard loading />`), with a colocated `*.stories.tsx` (and `*.test.ts` when tests exist).
 - **`layout/`** — Shared layout chrome (no viewport group).
 - **`analytics/`** — ViewCapture / impression / trackers. No stories.
-- **Root of `components/`** — Public entry / screen orchestrator (e.g. `ProfileHub.tsx`, `SearchScreen.tsx`) + colocated `*.stories.tsx` for that entry; optional `index.ts` barrel.
+- **Root of `components/`** — Public entry / screen orchestrator (e.g. `ProfileScreen.tsx`, `SearchScreen.tsx`) + colocated `*.stories.tsx` for that entry; optional `index.ts` barrel.
 - **Other concern subfolders** when files cluster (`hero/`, `edit/`, `inputs/`, `steps/`). Prefer `layout/` / `ui/` / `analytics/` over a flat dump or overly granular one-file folders.
 - Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to `components/ui/`.
 - Do **not** story hooks, providers, GraphQL, or analytics adapters. Every remaining **UI file** gets a colocated story.
@@ -101,8 +101,8 @@ export default function Layout({ children }) { return children }
 ```text
 # profile
 profile/components/
-  ProfileHub.tsx
-  ProfileHub.stories.tsx
+  ProfileScreen.tsx
+  ProfileScreen.stories.tsx
   hero/
   cards/
   edit/

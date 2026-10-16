@@ -169,8 +169,8 @@ Example (profile):
 
 ```text
 src/app/(dashboard)/profile/components/
-  ProfileHub.tsx
-  ProfileHub.stories.tsx
+  ProfileScreen.tsx
+  ProfileScreen.stories.tsx
   hero/
   cards/
   edit/

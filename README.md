@@ -64,8 +64,8 @@ Slashie is **map-focused**: **map search and browse** are first-class so people 
 
 ## 4. Target audience
 
-- **Primary — task hunters / workers:** People looking for paid work; they land on `/` (and `/map`), filter tasks, open details, and **log in to submit a quote** (after worker setup in the dashboard). The **`/dashboard`** area is the **worker workspace** (quotes, earnings, history as a worker, worker registration).
-- **Primary — customers (task posters):** People who need a task done; they use **Post a task** (`/tasks/create`), **My tasks** (`/tasks`), and **Profile** (`/profile`)—all **without** the `/dashboard` prefix. They review quotes on their tasks and track posted work.
+- **Primary: task hunters / workers:** People looking for paid work; they land on `/` (and `/map`), filter tasks, open details, and **log in to submit a quote** (after worker setup). Their quotes and bookings live on **My tasks** (`/tasks`); their plan on **Plan & billing** (`/billing`).
+- **Primary: customers (task posters):** People who need a task done; they use **Post a task** (`/tasks/create`), **My tasks** (`/tasks`), **Profile** (`/profile`) and **Account** (`/account`). They review quotes on their tasks and track posted work.
 - **Secondary:** Internal team using Storybook and deployments for QA and design review.
 
 ## 5. Proposed solution / high-level scope
@@ -77,8 +77,8 @@ Web app (Next.js, Chakra UI, Apollo Client) talking to **Handyman Apollo** Graph
 - **Home (`/`):** Signed-in visitors go to map browse at `/search`. Guests go to `/home`.
 - **Map browse (`/map`):** Same data as the home list with a list + illustrative map column (real geocoding when the API supports it).
 - **Global nav:** **Post a task**, **Search** (`/search`), **My tasks** (`/tasks`). When signed in: account menu, **Profile**, **Log out**.
-- **My tasks (auth required):** `/tasks` — hosted tasks and quotes you sent, in Open, Booked / In progress, and Completed.
-- **Worker dashboard (auth required):** `/dashboard` — earnings, worker-side history, worker setup, messages. Posted tasks and sent quotes live on `/tasks`.
+- **My tasks (auth required):** `/tasks`: hosted tasks and quotes you sent, grouped Needs you, Booked / In progress, Open and Completed.
+- **Settings (auth required):** `/profile` (how others see you), `/account` (contact, sign-in, notifications) and `/billing` (Plan & billing). `/dashboard` and `/earnings` redirect to `/tasks`.
 - Task detail and **submit a quote** (auth + worker setup).
 - Auth: register, login, forgot/reset password, `me` query
 - Component library documentation in Storybook
