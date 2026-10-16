@@ -11,12 +11,11 @@ import PublicProfile from '../graphql/PublicProfile.gql'
 import ReviewableCompletedOrders from '../graphql/ReviewableCompletedOrders.gql'
 
 export function usePublicProfile(userId: string, excludeTaskId: string | null) {
-  const exclude = excludeTaskId?.trim() || null
   const { data, loading, error, refetch } = useQuery<
     PublicProfileQuery,
     PublicProfileQueryVariables
   >(PublicProfile, {
-    variables: { userId, excludeTaskId: exclude },
+    variables: { userId, excludeTaskId },
     skip: !userId,
     fetchPolicy: 'cache-and-network',
     errorPolicy: 'all',
@@ -25,12 +24,6 @@ export function usePublicProfile(userId: string, excludeTaskId: string | null) {
   return {
     profile: data?.publicProfile ?? null,
     pending: Boolean(userId) && loading && data == null,
-    missing:
-      Boolean(userId) &&
-      !loading &&
-      !error &&
-      data != null &&
-      !data.publicProfile,
     error: Boolean(error) && !data?.publicProfile,
     refetch,
   }

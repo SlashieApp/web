@@ -1,9 +1,10 @@
-import type { PublicProfileQuery } from '@codegen/schema'
-import {
-  PublicProfileUserType,
-  type PublicProfileWorkRole,
-  type WorkerContactAction,
+import type {
+  PublicProfileQuery,
+  PublicProfileWorkRole,
+  WorkerContactAction,
+  WorkerPrimaryCategory,
 } from '@codegen/schema'
+import { PublicProfileUserType, ReviewPartyRole } from '@codegen/schema'
 
 import { categoryLabelFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
@@ -12,10 +13,14 @@ import {
   type AchievementPanel,
   buildAchievementPanels,
 } from '@/app/(task)/tasks/helpers/taskAchievements'
-import type { WorkerCompletedJob } from '@/app/(worker)/workers/[slug]/components'
-import { formatCompletedMonth } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
 import { publicRatingAverage } from '@/content/reviews/reviewModel'
 import type { AppLocale } from '@/i18n/locales'
+
+import type {
+  PublicProfilePageConfig,
+  PublicProfileSection,
+  PublicProfileStat,
+} from '../views'
 import { toPublicUserTaskCard } from './publicProfileTaskCard'
 
 export type PublicProfileRecord = NonNullable<
@@ -33,11 +38,23 @@ export type PublicWorkHistoryItem = {
   completedAt: string
 }
 
+/** A finished job on a worker's profile. No link: only the two parties can open it. */
+export type PublicCompletedJob = {
+  id: string
+  title: string
+  category: string
+  areaLabel: string | null
+  completedLabel: string
+  rating: number | null
+}
+
 export type PublicProfileReview = {
   id: string
   stars: number
   comment: string | null
   createdLabel: string
+  /** Which side of the job wrote it. */
+  from: 'customer' | 'worker'
 }
 
 export type PublicProfileViewer = {
@@ -47,13 +64,16 @@ export type PublicProfileViewer = {
   relatedTaskId: string | null
 }
 
-export type PublicProfileView = {
+/** Display data for /profile/[userId]. The named view decides what shows. */
+export type PublicProfileModel = {
   id: string
   isSelf: boolean
-  userType: PublicProfileUserType
+  isWorker: boolean
+  /** Empty when the API has no name; renderers use the fallback copy. */
   name: string
   avatarUrl: string | null
-  memberSinceLabel: string | null
+  /** "Mar 2024" in the viewer's language. */
+  joinedLabel: string | null
   headline: string | null
   tagline: string | null
   serviceAreaLabel: string | null
@@ -65,11 +85,12 @@ export type PublicProfileView = {
   verified: boolean
   phoneVerified: boolean
   emailVerified: boolean
-  completedJobs: WorkerCompletedJob[]
+  completedJobs: PublicCompletedJob[]
   openTasks: TaskCardTask[]
   openTaskCount: number
   reviews: PublicProfileReview[]
   ratingCount: number
+  /** Null until there are 3 reviews (API rule). */
   ratingAverage: number | null
   reportTargetId: string
   workerId: string | null
@@ -80,97 +101,97 @@ export type PublicProfileView = {
   workHistory: PublicWorkHistoryItem[]
 }
 
-export type ReviewableOrder = {
-  id: string
-  taskId: string
-  workerUserId: string
-  closedAt?: string | null
-  createdAt?: string | null
-}
+/** One cell of the hero's stats strip. */
+export type StatCell =
+  | { id: 'rating'; average: number | null; count: number }
+  | { id: 'jobs'; count: number }
+  | { id: 'experience'; years: number }
+  | { id: 'openTasks'; count: number }
+  | { id: 'joined'; label: string }
 
 function cleanList(values: readonly string[]): string[] {
   return values.map((value) => value.trim()).filter(Boolean)
 }
 
-function memberSinceLabel(value: unknown, locale: AppLocale): string | null {
-  if (!value) return null
-  const date = new Date(String(value))
-  if (Number.isNaN(date.getTime())) return null
-  return date.toLocaleDateString(locale === 'zh-hk' ? 'zh-HK' : 'en-GB', {
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
-function reviewCreatedLabel(value: unknown, locale: AppLocale): string {
+function formatDate(
+  value: unknown,
+  locale: AppLocale,
+  options: Intl.DateTimeFormatOptions,
+): string {
   const date = new Date(String(value ?? ''))
   if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleDateString(locale === 'zh-hk' ? 'zh-HK' : 'en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-function workerHeadline(
-  worker: NonNullable<PublicProfileRecord['worker']>,
-): string | null {
-  const categoryLabel = categoryLabelFromEnum(worker.primaryCategory)
-  const skillParts = cleanList(worker.skills).slice(0, categoryLabel ? 1 : 2)
-  const parts = categoryLabel ? [categoryLabel, ...skillParts] : skillParts
-  return parts.length > 0 ? parts.join(' • ') : null
-}
-
-function timestamp(value: string | null | undefined): number {
-  if (!value) return 0
-  const time = new Date(value).getTime()
-  return Number.isNaN(time) ? 0 : time
-}
-
-/**
- * Most recent COMPLETED order where this profile user did the work.
- * `closedAt` wins; `createdAt` breaks ties.
- */
-export function pickReviewTarget(
-  profileUserId: string,
-  orders: readonly ReviewableOrder[],
-): { taskId: string; orderId: string } | null {
-  const matches = orders.filter(
-    (order) =>
-      order.workerUserId === profileUserId && order.taskId.trim() && order.id,
+  return date.toLocaleDateString(
+    locale === 'zh-hk' ? 'zh-HK' : 'en-GB',
+    options,
   )
-  matches.sort((a, b) => {
-    const closed = timestamp(b.closedAt) - timestamp(a.closedAt)
-    if (closed !== 0) return closed
-    return timestamp(b.createdAt) - timestamp(a.createdAt)
-  })
-  const picked = matches[0]
-  if (!picked) return null
-  return { taskId: picked.taskId, orderId: picked.id }
 }
 
-export function reviewFormPath(
-  taskId: string,
-  orderId?: string | null,
-): string {
-  const base = `/tasks/${taskId}/review`
-  const id = orderId?.trim()
-  if (!id) return base
-  return `${base}?orderId=${encodeURIComponent(id)}`
+/** "Handyman · Furniture assembly": the trade, then a skill or two. */
+export function workerHeadline(
+  primaryCategory: WorkerPrimaryCategory | null | undefined,
+  skills: readonly string[],
+): string | null {
+  const categoryLabel = categoryLabelFromEnum(primaryCategory)
+  const skillParts = cleanList(skills).slice(0, categoryLabel ? 1 : 2)
+  const parts = categoryLabel ? [categoryLabel, ...skillParts] : skillParts
+  return parts.length > 0 ? parts.join(' · ') : null
 }
 
-export function resolveReviewHref(input: {
-  canLeaveReview: boolean
-  profileUserId: string
-  relatedTaskId?: string | null
-  orders: readonly ReviewableOrder[]
-}): string | null {
-  if (!input.canLeaveReview) return null
-  const picked = pickReviewTarget(input.profileUserId, input.orders)
-  if (picked) return reviewFormPath(picked.taskId, picked.orderId)
-  const related = input.relatedTaskId?.trim()
-  if (related) return reviewFormPath(related)
-  return null
+/** Stats cells for a view, leaving out any without a value. */
+export function profileStats(
+  stats: readonly PublicProfileStat[],
+  model: Pick<
+    PublicProfileModel,
+    | 'ratingCount'
+    | 'ratingAverage'
+    | 'completedJobs'
+    | 'yearsExperience'
+    | 'openTaskCount'
+    | 'joinedLabel'
+  >,
+): StatCell[] {
+  const cells: StatCell[] = []
+  for (const id of stats) {
+    if (id === 'rating' && model.ratingCount > 0) {
+      cells.push({ id, average: model.ratingAverage, count: model.ratingCount })
+    }
+    if (id === 'jobs' && model.completedJobs.length > 0) {
+      cells.push({ id, count: model.completedJobs.length })
+    }
+    if (id === 'experience' && model.yearsExperience != null) {
+      cells.push({ id, years: model.yearsExperience })
+    }
+    if (id === 'openTasks' && model.openTaskCount > 0) {
+      cells.push({ id, count: model.openTaskCount })
+    }
+    if (id === 'joined' && model.joinedLabel) {
+      cells.push({ id, label: model.joinedLabel })
+    }
+  }
+  return cells
+}
+
+const HAS_CONTENT: Record<
+  PublicProfileSection,
+  (model: PublicProfileModel) => boolean
+> = {
+  about: (model) => Boolean(model.bio),
+  skills: (model) => model.skills.length + model.qualifications.length > 0,
+  work: (model) => model.completedJobs.length > 0,
+  reviews: (model) => model.reviews.length > 0,
+  photos: (model) => model.portfolioUrls.length > 0,
+  openTasks: (model) => model.openTasks.length > 0,
+}
+
+/** The view's sections in order, without empty ones it doesn't keep. */
+export function visibleSections(
+  config: Pick<PublicProfilePageConfig, 'sections' | 'keepEmpty'>,
+  model: PublicProfileModel,
+): PublicProfileSection[] {
+  return config.sections.filter(
+    (section) =>
+      config.keepEmpty.includes(section) || HAS_CONTENT[section](model),
+  )
 }
 
 export type ActivityRange = 'month' | 'lastMonth' | 'year'
@@ -220,14 +241,13 @@ export function filterWorkHistory(
 }
 
 /**
- * LinkedIn-style view model. Agreed totals, streaks, and the day calendar
- * stay empty unless `isSelf` — even if a payload accidentally includes them.
- * Open-task cards omit asking prices so the public shell has no £.
+ * API record to display data. Agreed totals, streaks and the day calendar stay
+ * empty unless `isSelf`, even if a payload included them.
  */
-export function toPublicProfileView(
+export function toPublicProfileModel(
   profile: PublicProfileRecord,
   locale: AppLocale,
-): PublicProfileView {
+): PublicProfileModel {
   const worker = profile.worker ?? null
   const achievements =
     profile.isSelf && profile.taskAchievements
@@ -260,11 +280,18 @@ export function toPublicProfileView(
   return {
     id: profile.id,
     isSelf: profile.isSelf,
-    userType: profile.userType,
+    isWorker:
+      profile.userType === PublicProfileUserType.Worker && worker != null,
     name: profile.profile.name?.trim() || '',
     avatarUrl: profile.profile.avatarUrl?.trim() || null,
-    memberSinceLabel: memberSinceLabel(profile.memberSince, locale),
-    headline: worker ? workerHeadline(worker) : null,
+    joinedLabel:
+      formatDate(profile.memberSince, locale, {
+        month: 'short',
+        year: 'numeric',
+      }) || null,
+    headline: worker
+      ? workerHeadline(worker.primaryCategory, worker.skills)
+      : null,
     tagline: worker?.tagline?.trim() || null,
     serviceAreaLabel: worker?.serviceAreaLabel?.trim() || null,
     bio: worker?.bio?.trim() || null,
@@ -283,21 +310,27 @@ export function toPublicProfileView(
           id: job.taskId,
           title: job.title,
           category: taskCategoriesSummary(job.categories, 2) ?? '',
-          areaLabel: job.areaLabel,
-          completedLabel: formatCompletedMonth(job.completedAt),
-          rating: job.rating,
+          areaLabel: job.areaLabel?.trim() || null,
+          completedLabel: formatDate(job.completedAt, locale, {
+            month: 'long',
+            year: 'numeric',
+          }),
+          rating: job.rating ?? null,
         }))
       : [],
-    openTasks: profile.openTasks.map((task) => ({
-      ...toPublicUserTaskCard(task),
-      priceLabel: '',
-    })),
+    openTasks: profile.openTasks.map(toPublicUserTaskCard),
     openTaskCount: profile.openTaskCount,
     reviews: profile.reviews.map((review) => ({
       id: review.id,
       stars: review.stars,
       comment: review.comment?.trim() || null,
-      createdLabel: reviewCreatedLabel(review.createdAt, locale),
+      createdLabel: formatDate(review.createdAt, locale, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }),
+      from:
+        review.authorRole === ReviewPartyRole.Worker ? 'worker' : 'customer',
     })),
     ratingCount: profile.ratingSummary.count,
     ratingAverage: publicRatingAverage(profile.ratingSummary),
@@ -314,8 +347,4 @@ export function toPublicProfileView(
     achievements,
     workHistory,
   }
-}
-
-export function isWorkerProfile(view: PublicProfileView): boolean {
-  return view.userType === PublicProfileUserType.Worker && view.workerId != null
 }

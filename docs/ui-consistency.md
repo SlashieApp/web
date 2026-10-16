@@ -71,7 +71,7 @@ Routes are already grouped by Next.js route groups, which align to shells:
 | `src/app/(task)` — `/search`, `/tasks` (My Tasks hub), `/tasks/[slug]` | Discovery / My Tasks / Task detail | Map browse on `/search`; hub list on `/tasks`; mobile bottom dock (4); detail = header + quote sidebar |
 | `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/worker/setup` | StepFlow | Own route-group `layout.tsx` — **`StepFlowLayout` only**, no app `Header` / `Dock` (FE-78) |
 | `src/app/(dashboard)`: `/profile`, `/account`, `/billing` | Settings | App header + bottom nav; sticky page header (h1 = menu label, Back on phones) |
-| `src/app/(worker)` — `/workers`, `/workers/[slug]` | App | Header chrome (setup lives under `(stepflow)`) |
+| `src/app/(worker)`: `/workers` (and the `/workers/[id]` redirect to `/profile/[userId]`) | App | Header chrome (setup lives under `(stepflow)`) |
 
 **Active-nav rule:** active state uses green accent; icon + label aligned.
 

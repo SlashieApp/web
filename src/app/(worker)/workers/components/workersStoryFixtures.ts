@@ -1,5 +1,10 @@
-import { storyPhoto } from '../[slug]/components/ui/shared/workerProfileStoryFixtures'
 import type { WorkerSearchItem } from '../helpers/workerSearchHelpers'
+
+/** A gradient "photo" as a data URI, so stories need no network. */
+export function storyPhoto(hue: number): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue} 55% 72%)"/><stop offset="1" stop-color="hsl(${(hue + 40) % 360} 60% 42%)"/></linearGradient></defs><rect width="640" height="480" fill="url(#g)"/><circle cx="470" cy="150" r="64" fill="white" fill-opacity=".35"/></svg>`
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}
 
 function storyWorker(
   id: string,

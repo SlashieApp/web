@@ -1,8 +1,8 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { storyPhoto } from '../../[slug]/components/ui/shared/workerProfileStoryFixtures'
 import { withStoryApollo } from '../storyApollo'
+import { storyPhoto } from '../workersStoryFixtures'
 import {
   WorkerSearchCard,
   type WorkerSearchCardProps,

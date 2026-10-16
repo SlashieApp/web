@@ -1,19 +1,16 @@
-import {
-  PublicProfileUserType,
-  PublicProfileWorkRole,
-  WorkerContactAction,
-} from '@codegen/schema'
+import { PublicProfileWorkRole, WorkerContactAction } from '@codegen/schema'
 
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { buildAchievementPanels } from '@/app/(task)/tasks/helpers/taskAchievements'
-import { storyPhoto } from '@/app/(worker)/workers/[slug]/components/ui/shared/workerProfileStoryFixtures'
+import { storyPhoto } from '@/app/(worker)/workers/components/workersStoryFixtures'
 
 import type {
-  PublicProfileView,
+  PublicProfileModel,
+  PublicProfileReview,
   PublicWorkHistoryItem,
 } from '../../helpers/publicProfileModel'
 
-const achievements = buildAchievementPanels({
+const workerAchievements = buildAchievementPanels({
   showWorker: true,
   showCustomer: false,
   quoteAllowance: { used: 1, cap: 3, unlimited: false },
@@ -30,6 +27,15 @@ const achievements = buildAchievementPanels({
   },
   customer: null,
 })
+
+const customerActivity = {
+  hasActivity: true,
+  hostedCompletedCount: 2,
+  categoryMix: [{ category: 'CLEANING', count: 2, percent: 100 }],
+  mostUsedLocation: { label: 'Islington', count: 2 },
+  quotesReceived: 7,
+  agreedTotalsOnCompletedJobs: [{ amount: 180, currency: 'GBP' }],
+}
 
 const bothRolesAchievements = buildAchievementPanels({
   showWorker: true,
@@ -49,14 +55,7 @@ const bothRolesAchievements = buildAchievementPanels({
     streakWeeks: 3,
     agreedTotalsOnCompletedJobs: [{ amount: 540, currency: 'GBP' }],
   },
-  customer: {
-    hasActivity: true,
-    hostedCompletedCount: 2,
-    categoryMix: [{ category: 'CLEANING', count: 2, percent: 100 }],
-    mostUsedLocation: { label: 'Islington', count: 2 },
-    quotesReceived: 7,
-    agreedTotalsOnCompletedJobs: [{ amount: 180, currency: 'GBP' }],
-  },
+  customer: customerActivity,
 })
 
 const customerAchievements = buildAchievementPanels({
@@ -64,17 +63,10 @@ const customerAchievements = buildAchievementPanels({
   showCustomer: true,
   quoteAllowance: { used: null, cap: null, unlimited: false },
   worker: null,
-  customer: {
-    hasActivity: true,
-    hostedCompletedCount: 2,
-    categoryMix: [{ category: 'CLEANING', count: 2, percent: 100 }],
-    mostUsedLocation: { label: 'Islington', count: 2 },
-    quotesReceived: 7,
-    agreedTotalsOnCompletedJobs: [{ amount: 180, currency: 'GBP' }],
-  },
+  customer: customerActivity,
 })
 
-/** Open tasks a customer (or worker) has posted. Public cards never carry a price. */
+/** Open tasks someone hosts, with the budget /search shows. */
 export const sampleOpenTasks: TaskCardTask[] = [
   {
     id: 'task-open-1',
@@ -82,7 +74,7 @@ export const sampleOpenTasks: TaskCardTask[] = [
     description:
       'A three-seater sofa from the van to a second-floor flat. Two people, about an hour.',
     location: 'Camden',
-    priceLabel: '',
+    priceLabel: '£60',
     categories: ['Removals'],
     timingLabel: 'Tomorrow',
     viewsLabel: '12 views',
@@ -93,7 +85,7 @@ export const sampleOpenTasks: TaskCardTask[] = [
     description:
       'Brick wall, bracket supplied. Would like the cables run behind the plaster.',
     location: 'Islington',
-    priceLabel: '',
+    priceLabel: '£85',
     categories: ['Mounting'],
     timingLabel: 'Flexible',
     viewsLabel: '7 views',
@@ -104,7 +96,7 @@ export const sampleOpenTasks: TaskCardTask[] = [
     title: 'Deep clean before a tenancy ends',
     description: 'Two-bed flat, oven and windows included.',
     location: 'Hackney',
-    priceLabel: '',
+    priceLabel: '£120',
     categories: ['Cleaning'],
     timingLabel: 'This weekend',
     viewsLabel: '4 views',
@@ -116,8 +108,7 @@ export const STORY_NOW = new Date(2026, 8, 20)
 
 /**
  * Completed work across months, both roles, so the calendar, year grid and
- * history all have rows. Dates are relative to `now`: pass `STORY_NOW` for
- * fixed stories, or leave it to follow the real clock.
+ * history all have rows. Dates are relative to `now`.
  */
 export function sampleWorkHistory(now = new Date()): PublicWorkHistoryItem[] {
   const at = (monthsAgo: number, day: number) =>
@@ -127,87 +118,82 @@ export function sampleWorkHistory(now = new Date()): PublicWorkHistoryItem[] {
       day,
       12,
     ).toISOString()
+  const row = (
+    id: number,
+    role: PublicProfileWorkRole,
+    title: string,
+    categoryLabel: string,
+    areaLabel: string | null,
+    completedAt: string,
+  ): PublicWorkHistoryItem => ({
+    orderId: `order-${id}`,
+    taskId: `task-${id}`,
+    role,
+    title,
+    category: categoryLabel,
+    categoryLabel,
+    areaLabel,
+    completedAt,
+  })
+  const worked = PublicProfileWorkRole.Worker
+  const hosted = PublicProfileWorkRole.Customer
   return [
-    {
-      orderId: 'order-1',
-      taskId: 'task-1',
-      role: PublicProfileWorkRole.Worker,
-      title: 'Assemble a wardrobe',
-      category: 'Handyman',
-      categoryLabel: 'Handyman',
-      areaLabel: 'Camden',
-      completedAt: at(0, 12),
-    },
-    {
-      orderId: 'order-2',
-      taskId: 'task-2',
-      role: PublicProfileWorkRole.Customer,
-      title: 'Deep clean before moving out',
-      category: 'Cleaning',
-      categoryLabel: 'Cleaning',
-      areaLabel: 'Islington',
-      completedAt: at(0, 3),
-    },
-    {
-      orderId: 'order-3',
-      taskId: 'task-3',
-      role: PublicProfileWorkRole.Worker,
-      title: 'Replace a kitchen tap',
-      category: 'Plumbing',
-      categoryLabel: 'Plumbing',
-      areaLabel: 'Camden',
-      completedAt: at(1, 21),
-    },
-    {
-      orderId: 'order-4',
-      taskId: 'task-4',
-      role: PublicProfileWorkRole.Worker,
-      title: 'Mount a TV and shelves',
-      category: 'Handyman',
-      categoryLabel: 'Handyman',
-      areaLabel: null,
-      completedAt: at(1, 5),
-    },
-    {
-      orderId: 'order-5',
-      taskId: 'task-5',
-      role: PublicProfileWorkRole.Worker,
-      title: 'Fit a flat-pack kitchen',
-      category: 'Handyman',
-      categoryLabel: 'Handyman',
-      areaLabel: 'Hackney',
-      completedAt: at(3, 17),
-    },
-    {
-      orderId: 'order-6',
-      taskId: 'task-6',
-      role: PublicProfileWorkRole.Customer,
-      title: 'Paint two bedrooms',
-      category: 'Painting',
-      categoryLabel: 'Painting',
-      areaLabel: 'Islington',
-      completedAt: at(6, 2),
-    },
+    row(1, worked, 'Assemble a wardrobe', 'Handyman', 'Camden', at(0, 12)),
+    row(
+      2,
+      hosted,
+      'Deep clean before moving out',
+      'Cleaning',
+      'Islington',
+      at(0, 3),
+    ),
+    row(3, worked, 'Replace a kitchen tap', 'Plumbing', 'Camden', at(1, 21)),
+    row(4, worked, 'Mount a TV and shelves', 'Handyman', null, at(1, 5)),
+    row(5, worked, 'Fit a flat-pack kitchen', 'Handyman', 'Hackney', at(3, 17)),
+    row(6, hosted, 'Paint two bedrooms', 'Painting', 'Islington', at(6, 2)),
   ]
 }
 
-export function samplePublicProfile(
-  overrides: Partial<PublicProfileView> = {},
-): PublicProfileView {
+const REVIEW_TEXT = [
+  'On time and tidy. Put the wardrobe together faster than the instructions said it would.',
+  'Good work on the shelves, ran a little late.',
+  null,
+  'Fixed the door in twenty minutes and explained what was wrong.',
+  'Friendly and careful with the floors.',
+  'Would book again.',
+  null,
+  'Brought the right tools first time.',
+]
+
+/** `count` reviews, newest first, mostly from customers. */
+export function sampleReviews(count: number): PublicProfileReview[] {
+  return Array.from({ length: count }, (_, index) => ({
+    id: `review-${index + 1}`,
+    stars: index % 3 === 1 ? 4 : 5,
+    comment: REVIEW_TEXT[index % REVIEW_TEXT.length] ?? null,
+    createdLabel: `${12 - index} Mar 2026`,
+    from: index === 2 ? 'worker' : 'customer',
+  }))
+}
+
+/** A worker seen by a signed-in visitor with no quote or job yet. */
+export function sampleWorker(
+  overrides: Partial<PublicProfileModel> = {},
+): PublicProfileModel {
   return {
     id: 'user-1',
     isSelf: false,
-    userType: PublicProfileUserType.Worker,
+    isWorker: true,
     name: 'Alex Morgan',
     avatarUrl: null,
-    memberSinceLabel: 'March 2024',
-    headline: 'Handyman • Furniture assembly',
+    joinedLabel: 'Mar 2024',
+    headline: 'Handyman · Furniture assembly',
     tagline: 'Careful work across north London.',
     serviceAreaLabel: 'Camden & Islington (~5 miles)',
-    bio: 'I take on small repairs and flat-pack builds.',
-    skills: ['Furniture assembly', 'Shelving'],
-    qualifications: [],
-    portfolioUrls: [],
+    bio: 'I take on small repairs and flat-pack builds of every size. I bring my own tools, put dust sheets down and take every offcut with me.',
+    skills: ['Furniture assembly', 'Shelving', 'TV mounting', 'Small repairs'],
+    qualifications: ['City & Guilds Level 2'],
+    portfolioUrls: [150, 30, 280].map(storyPhoto),
     yearsExperience: 6,
     verified: true,
     phoneVerified: true,
@@ -221,17 +207,26 @@ export function samplePublicProfile(
         completedLabel: 'March 2026',
         rating: 5,
       },
+      {
+        id: 'task-2',
+        title: 'Mount a 55 inch TV',
+        category: 'Mounting',
+        areaLabel: 'Islington',
+        completedLabel: 'February 2026',
+        rating: null,
+      },
+      {
+        id: 'task-3',
+        title: 'Fix a sticking door',
+        category: 'Handyman',
+        areaLabel: 'Camden',
+        completedLabel: 'January 2026',
+        rating: 4,
+      },
     ],
     openTasks: [],
     openTaskCount: 0,
-    reviews: [
-      {
-        id: 'review-1',
-        stars: 5,
-        comment: 'On time and tidy.',
-        createdLabel: '12 Mar 2026',
-      },
-    ],
+    reviews: sampleReviews(4),
     ratingCount: 4,
     ratingAverage: 4.8,
     reportTargetId: 'user-1',
@@ -248,91 +243,27 @@ export function samplePublicProfile(
   }
 }
 
-/** Worker with every section filled: long bio, many skills, credentials, photos, tasks, jobs and reviews. */
-export function sampleRichWorkerProfile(): PublicProfileView {
-  return samplePublicProfile({
-    avatarUrl: storyPhoto(30),
-    bio: 'I have been fitting kitchens, hanging doors and building furniture for twelve years.\nMost weeks I am on small jobs around north London: shelves, curtain poles, TV mounts, flat-pack wardrobes.\nI bring my own tools, put dust sheets down and take every offcut with me when I go.',
-    skills: [
-      'Furniture assembly',
-      'Shelving',
-      'TV mounting',
-      'Curtain poles',
-      'Door hanging',
-      'Flat-pack kitchens',
-      'Painting',
-      'Tiling',
-      'Plastering',
-      'Flooring',
-      'Skirting boards',
-    ],
-    qualifications: ['City & Guilds', 'NICEIC', 'Gas Safe'],
-    portfolioUrls: [150, 30, 280, 210].map(storyPhoto),
-    openTasks: sampleOpenTasks,
-    openTaskCount: sampleOpenTasks.length,
-    completedJobs: [
-      {
-        id: 'task-1',
-        title: 'Assemble a wardrobe',
-        category: 'Handyman',
-        areaLabel: 'Camden',
-        completedLabel: 'March 2026',
-        rating: 5,
-      },
-      {
-        id: 'task-3',
-        title: 'Replace a kitchen tap',
-        category: 'Plumbing',
-        areaLabel: 'Camden',
-        completedLabel: 'August 2026',
-        rating: null,
-      },
-      {
-        id: 'task-4',
-        title: 'Mount a TV and shelves',
-        category: 'Handyman',
-        areaLabel: null,
-        completedLabel: 'August 2026',
-        rating: 4,
-      },
-    ],
-    reviews: [
-      {
-        id: 'review-1',
-        stars: 5,
-        comment:
-          'On time and tidy. Put the wardrobe together faster than the instructions said it would take.',
-        createdLabel: '12 Mar 2026',
-      },
-      {
-        id: 'review-2',
-        stars: 4,
-        comment: 'Good work on the shelves, a little late.',
-        createdLabel: '2 Feb 2026',
-      },
-      {
-        id: 'review-3',
-        stars: 5,
-        comment: null,
-        createdLabel: '19 Jan 2026',
-      },
-    ],
-    ratingCount: 9,
-    ratingAverage: 4.7,
-  })
+/** The worker's contact state for one viewer. */
+export function sampleViewer(
+  contactAction: WorkerContactAction,
+  relatedTaskId: string | null = null,
+): PublicProfileModel['viewer'] {
+  return { isSaved: false, canLeaveReview: false, contactAction, relatedTaskId }
 }
 
-/** Worker on day one: nothing but a name, a trade and an area. No bio, skills, jobs or reviews. */
-export function sampleThinWorkerProfile(): PublicProfileView {
-  return samplePublicProfile({
-    memberSinceLabel: 'October 2026',
-    headline: null,
+/** A worker on day one: a name, a trade and an area, nothing else yet. */
+export function sampleDayOneWorker(): PublicProfileModel {
+  return sampleWorker({
+    joinedLabel: 'Oct 2026',
+    headline: 'Handyman',
     tagline: null,
     bio: null,
     skills: [],
+    qualifications: [],
+    portfolioUrls: [],
     yearsExperience: null,
     verified: false,
-    phoneVerified: false,
+    phoneVerified: true,
     emailVerified: false,
     completedJobs: [],
     reviews: [],
@@ -342,16 +273,21 @@ export function sampleThinWorkerProfile(): PublicProfileView {
   })
 }
 
-/** A customer: no worker section, sidebar or contact button, just their open tasks. */
-export function sampleCustomerProfile(): PublicProfileView {
-  return samplePublicProfile({
-    userType: PublicProfileUserType.Customer,
+/** A customer: open tasks and reviews, no worker block. */
+export function sampleCustomer(
+  overrides: Partial<PublicProfileModel> = {},
+): PublicProfileModel {
+  return sampleWorker({
+    id: 'user-2',
+    isWorker: false,
     name: 'Jordan Ellis',
     headline: null,
     tagline: null,
     serviceAreaLabel: null,
     bio: null,
     skills: [],
+    qualifications: [],
+    portfolioUrls: [],
     yearsExperience: null,
     verified: false,
     phoneVerified: false,
@@ -362,41 +298,35 @@ export function sampleCustomerProfile(): PublicProfileView {
     reviews: [],
     ratingCount: 0,
     ratingAverage: null,
+    reportTargetId: 'user-2',
     workerId: null,
     viewer: null,
+    ...overrides,
   })
 }
 
-/** The owner viewing their own profile. `now` dates the work history (default: the real clock). */
-export function sampleOwnerProfile(now = new Date()): PublicProfileView {
-  return samplePublicProfile({
+/** Your own worker profile. `now` dates the work history. */
+export function sampleOwner(now = new Date()): PublicProfileModel {
+  return sampleWorker({
     isSelf: true,
-    achievements,
+    achievements: workerAchievements,
     workHistory: sampleWorkHistory(now),
-    viewer: {
-      isSaved: false,
-      canLeaveReview: false,
-      contactAction: WorkerContactAction.None,
-      relatedTaskId: null,
-    },
+    viewer: sampleViewer(WorkerContactAction.None),
   })
 }
 
-/** Owner who both works and hosts: a worker panel and a customer panel. */
-export function sampleOwnerWithBothRoles(now = new Date()): PublicProfileView {
-  return { ...sampleOwnerProfile(now), achievements: bothRolesAchievements }
+/** Owner who both works and hosts: worker and customer panels. */
+export function sampleOwnerWithBothRoles(now = new Date()): PublicProfileModel {
+  return { ...sampleOwner(now), achievements: bothRolesAchievements }
 }
 
-/** A customer viewing their own profile: no worker block, with the private Your activity block. */
-export function sampleOwnerCustomerProfile(
-  now = new Date(),
-): PublicProfileView {
-  return {
-    ...sampleCustomerProfile(),
+/** Your own customer profile, with the private Your activity block. */
+export function sampleOwnerCustomer(now = new Date()): PublicProfileModel {
+  return sampleCustomer({
     isSelf: true,
     achievements: customerAchievements,
     workHistory: sampleWorkHistory(now).filter(
       (item) => item.role === PublicProfileWorkRole.Customer,
     ),
-  }
+  })
 }

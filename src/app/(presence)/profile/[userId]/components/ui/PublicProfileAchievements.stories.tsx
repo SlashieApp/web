@@ -4,7 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 import { PublicProfileAchievements } from './PublicProfileAchievements'
 import {
   STORY_NOW,
-  sampleOwnerProfile,
+  sampleOwner,
   sampleOwnerWithBothRoles,
 } from './publicProfileStoryFixture'
 
@@ -19,7 +19,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
   args: {
-    view: sampleOwnerProfile(STORY_NOW),
+    model: sampleOwner(STORY_NOW),
     now: STORY_NOW,
   },
 } satisfies Meta<typeof PublicProfileAchievements>
@@ -32,7 +32,7 @@ export const Default: Story = {}
 
 /** Worker and customer panels side by side for someone who works and hosts. */
 export const BothRoles: Story = {
-  args: { view: sampleOwnerWithBothRoles(STORY_NOW) },
+  args: { model: sampleOwnerWithBothRoles(STORY_NOW) },
 }
 
 /** "Last month" selected: the August calendar and its two jobs. */
@@ -76,8 +76,8 @@ export const NoMatches: Story = {
 /** New account with nothing completed: no activity panel and an empty history. */
 export const NoActivity: Story = {
   args: {
-    view: {
-      ...sampleOwnerProfile(STORY_NOW),
+    model: {
+      ...sampleOwner(STORY_NOW),
       achievements: [],
       workHistory: [],
     },

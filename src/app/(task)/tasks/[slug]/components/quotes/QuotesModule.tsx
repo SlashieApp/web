@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
 import { QuoteStatus } from '@codegen/schema'
 
-import { workerProfilePath } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
+import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -272,7 +272,9 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           canAct && sort === 'recommended' && index === 0 && rows.length > 1
         }
         workerProfileHref={
-          profileUserId ? workerProfilePath(profileUserId, task.id) : undefined
+          profileUserId
+            ? publicProfilePath(profileUserId, { fromTask: task.id })
+            : undefined
         }
         onAccept={canAct ? () => requestAccept(quote.id) : undefined}
         onDecline={canAct ? () => void onDeclineQuote(quote.id) : undefined}

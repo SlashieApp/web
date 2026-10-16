@@ -19,12 +19,12 @@ const meta: Meta<typeof WorkerSetupProfilePreview> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Nothing filled in: placeholder name, no headline, empty skills and bio. */
+/** Nothing filled in: the fallback name and the Worker label, with no headline, About or Skills. */
 export const Empty: Story = {
   decorators: [withWorkerSetup({ form: workerSetupStoryForm() })],
 }
 
-/** Name, trade and years only: a headline appears, the rest stays empty. */
+/** Name, trade and years only: the headline and the experience stat appear. */
 export const NameAndTrade: Story = {
   decorators: [
     withWorkerSetup({
@@ -38,7 +38,7 @@ export const NameAndTrade: Story = {
   ],
 }
 
-/** A finished profile: photo, headline, bio, service area and six skills. */
+/** A finished profile: photo, headline, area, About and Skills, as the public profile draws them. */
 export const Complete: Story = {
   decorators: [
     withWorkerSetup(
@@ -50,7 +50,7 @@ export const Complete: Story = {
   ],
 }
 
-/** A long bio: phones collapse it behind "Read more". */
+/** A long bio on a phone shows in full. */
 export const LongBio: Story = {
   decorators: [
     withWorkerSetup({

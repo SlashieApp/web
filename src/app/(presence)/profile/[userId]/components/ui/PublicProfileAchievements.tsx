@@ -3,6 +3,7 @@
 import { Box, HStack, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import { PublicProfileWorkRole } from '@codegen/schema'
 import { useCallback, useState } from 'react'
+import { LuLock } from 'react-icons/lu'
 
 import { MyTasksActivityDetails } from '@/app/(task)/tasks/components/ui/MyTasksActivityDetails'
 import { useLocale } from '@/i18n/LocaleProvider'
@@ -12,7 +13,7 @@ import { Badge, Card, Input, Link } from '@ui'
 
 import {
   type ActivityRange,
-  type PublicProfileView,
+  type PublicProfileModel,
   type PublicWorkHistoryItem,
   filterWorkHistory,
 } from '../../helpers/publicProfileModel'
@@ -38,7 +39,7 @@ function mondayIndex(date: Date): number {
 }
 
 export type PublicProfileAchievementsProps = {
-  view: PublicProfileView
+  model: PublicProfileModel
   now?: Date
 }
 
@@ -48,10 +49,10 @@ export type PublicProfileAchievementsProps = {
  * searchable completed-work history. Strangers never mount this.
  */
 export function PublicProfileAchievements({
-  view,
+  model,
   now,
 }: PublicProfileAchievementsProps) {
-  const t = useI11n(bag)
+  const t = useI11n(bag).activity
   const locale = useLocale()
   const onSectionRef = useCallback((node: HTMLDivElement | null) => {
     if (!node || window.location.hash !== '#achievements') return
@@ -60,7 +61,7 @@ export function PublicProfileAchievements({
   const [range, setRange] = useState<ActivityRange>('month')
   const [search, setSearch] = useState('')
   const clock = now ?? new Date()
-  const rows = filterWorkHistory(view.workHistory, range, clock, search)
+  const rows = filterWorkHistory(model.workHistory, range, clock, search)
   const counts = new Map<string, number>()
   for (const row of rows) {
     const at = new Date(row.completedAt)
@@ -85,22 +86,27 @@ export function PublicProfileAchievements({
     >
       <Stack gap={1}>
         <Text as="h2" fontSize="xl" fontWeight={700} color="text.default">
-          {t.achievementsHeading}
+          {t.heading}
         </Text>
-        <Text fontSize="sm" color="text.muted" maxW="40rem">
-          {t.achievementsIntro}
-        </Text>
+        <HStack gap={1.5} color="text.muted" align="flex-start">
+          <Box as="span" display="inline-flex" pt="3px" aria-hidden>
+            <LuLock size={13} />
+          </Box>
+          <Text fontSize="sm" maxW="40rem">
+            {t.intro}
+          </Text>
+        </HStack>
       </Stack>
-      {view.achievements.length > 0 ? (
-        <Card p={{ base: 4, md: 5 }}>
-          <MyTasksActivityDetails panels={view.achievements} />
+      {model.achievements.length > 0 ? (
+        <Card p={{ base: 4, md: 5 }} maxW="full">
+          <MyTasksActivityDetails panels={model.achievements} />
         </Card>
       ) : (
         <Text fontSize="sm" color="text.muted">
-          {t.achievementsEmpty}
+          {t.empty}
         </Text>
       )}
-      <Card layout="section" heading={t.calendarLabel}>
+      <Card layout="section" heading={t.calendarLabel} maxW="full">
         <Stack gap={4}>
           <HStack gap={2} flexWrap="wrap">
             {RANGES.map((value) => {

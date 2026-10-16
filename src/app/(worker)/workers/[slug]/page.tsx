@@ -1,11 +1,8 @@
 import { notFound, permanentRedirect } from 'next/navigation'
 
-import { PublicUserStatus } from '@/app/(presence)/profile/[userId]/components/ui/PublicUserStatus'
+import { PublicProfileStatus } from '@/app/(presence)/profile/[userId]/components/ui/PublicProfileStatus'
+import { loadError } from '@/app/(presence)/profile/[userId]/views/loadError'
 import { fetchWorkerProfileUserId } from '@/app/helpers/legacyProfileRedirect'
-import { getRequestLocale } from '@/i18n/getRequestLocale'
-import { loadPageI11n } from '@/i18n/loadPageI11n'
-
-import bag from './i11n.json'
 
 type Search = Record<string, string | string[] | undefined>
 
@@ -24,7 +21,7 @@ function searchString(search: Search): string {
 /**
  * Retired `/workers/[workerId]`. The segment is the worker document id.
  * `proxy` 301s when `workerProfileRedirect` resolves; this page is the
- * fallback (missing → 404, lookup error → retry).
+ * fallback (missing → 404, lookup error → the profile's error screen).
  */
 export default async function LegacyWorkerProfilePage({
   params,
@@ -41,13 +38,5 @@ export default async function LegacyWorkerProfilePage({
   }
   if (lookup.status === 'missing') notFound()
 
-  const locale = await getRequestLocale()
-  const copy = loadPageI11n(bag, locale)
-  return (
-    <PublicUserStatus
-      variant="error"
-      title={copy.errorTitle}
-      description={copy.errorDescription}
-    />
-  )
+  return <PublicProfileStatus config={loadError} />
 }

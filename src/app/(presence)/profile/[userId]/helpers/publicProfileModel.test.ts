@@ -1,107 +1,175 @@
-import { PublicProfileWorkRole } from '@codegen/schema'
+import {
+  Currency,
+  PublicProfileUserType,
+  PublicProfileWorkRole,
+  ReportTargetType,
+  ReviewPartyRole,
+  TaskBudgetType,
+  TaskPaymentMethod,
+  TaskStatus,
+} from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
+import { PUBLIC_PROFILE_VIEWS } from '../views'
+import type { PublicProfilePageConfig } from '../views'
 import {
+  type PublicProfileModel,
+  type PublicProfileRecord,
   type PublicWorkHistoryItem,
   activityRangeBounds,
   filterWorkHistory,
-  pickReviewTarget,
-  resolveReviewHref,
-  reviewFormPath,
+  profileStats,
+  toPublicProfileModel,
+  visibleSections,
 } from './publicProfileModel'
 
-describe('pickReviewTarget', () => {
-  const orders = [
-    {
-      id: 'order-old',
-      taskId: 'task-old',
-      workerUserId: 'user-1',
-      closedAt: '2026-01-01T00:00:00.000Z',
-      createdAt: '2025-12-01T00:00:00.000Z',
-    },
-    {
-      id: 'order-new',
-      taskId: 'task-new',
-      workerUserId: 'user-1',
-      closedAt: '2026-06-01T00:00:00.000Z',
-      createdAt: '2026-05-01T00:00:00.000Z',
-    },
-    {
-      id: 'order-other',
-      taskId: 'task-other',
-      workerUserId: 'user-2',
-      closedAt: '2026-08-01T00:00:00.000Z',
-      createdAt: '2026-08-01T00:00:00.000Z',
-    },
-  ]
+function pageConfig(name: keyof typeof PUBLIC_PROFILE_VIEWS) {
+  return PUBLIC_PROFILE_VIEWS[name] as PublicProfilePageConfig
+}
 
-  it('picks the most recently closed completed order with this worker', () => {
-    expect(pickReviewTarget('user-1', orders)).toEqual({
-      taskId: 'task-new',
-      orderId: 'order-new',
+function record(
+  overrides: Partial<PublicProfileRecord> = {},
+): PublicProfileRecord {
+  return {
+    id: 'user-1',
+    isSelf: false,
+    userType: PublicProfileUserType.Customer,
+    memberSince: '2024-03-05T10:00:00.000Z',
+    openTaskCount: 1,
+    profile: { name: 'Jordan Ellis', avatarUrl: null },
+    openTasks: [
+      {
+        id: 'task-1',
+        title: 'Help moving a sofa',
+        description: 'Up two flights',
+        categories: ['REMOVALS'],
+        status: TaskStatus.Open,
+        views: 3,
+        images: [],
+        budget: {
+          amount: 60,
+          currency: Currency.Gbp,
+          type: TaskBudgetType.OneOff,
+          paymentMethod: TaskPaymentMethod.Cash,
+        },
+        datetime: null,
+        location: { name: 'Camden' },
+      },
+    ],
+    reviews: [
+      {
+        id: 'review-1',
+        stars: 5,
+        comment: ' On time. ',
+        createdAt: '2026-03-12T10:00:00.000Z',
+        authorRole: ReviewPartyRole.Worker,
+      },
+    ],
+    ratingSummary: { average: null, count: 1 },
+    worker: null,
+    reportTarget: { targetType: ReportTargetType.User, targetId: 'user-1' },
+    taskAchievements: null,
+    workHistory: null,
+    ...overrides,
+  }
+}
+
+function model(
+  overrides: Partial<PublicProfileModel> = {},
+): PublicProfileModel {
+  return { ...toPublicProfileModel(record(), 'en'), ...overrides }
+}
+
+describe('toPublicProfileModel', () => {
+  it('keeps the budget on open-task cards, as /search shows it', () => {
+    expect(toPublicProfileModel(record(), 'en').openTasks[0]?.priceLabel).toBe(
+      '£60',
+    )
+  })
+
+  it('says who wrote each review', () => {
+    expect(toPublicProfileModel(record(), 'en').reviews[0]).toMatchObject({
+      comment: 'On time.',
+      from: 'worker',
     })
   })
 
-  it('breaks closedAt ties with createdAt', () => {
-    expect(
-      pickReviewTarget('user-1', [
-        {
-          id: 'a',
-          taskId: 'task-a',
-          workerUserId: 'user-1',
-          closedAt: '2026-06-01T00:00:00.000Z',
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-        {
-          id: 'b',
-          taskId: 'task-b',
-          workerUserId: 'user-1',
-          closedAt: '2026-06-01T00:00:00.000Z',
-          createdAt: '2026-05-01T00:00:00.000Z',
-        },
-      ]),
-    ).toEqual({ taskId: 'task-b', orderId: 'b' })
+  it('shows the join date as a short month in the viewer’s language', () => {
+    expect(toPublicProfileModel(record(), 'en').joinedLabel).toBe('Mar 2024')
+    expect(toPublicProfileModel(record(), 'zh-hk').joinedLabel).toBe(
+      '2024年3月',
+    )
   })
 })
 
-describe('resolveReviewHref', () => {
-  it('links the newest eligible order', () => {
+describe('profileStats', () => {
+  const worker = pageConfig('worker.visitor').stats
+
+  it('leaves out cells that have no value', () => {
     expect(
-      resolveReviewHref({
-        canLeaveReview: true,
-        profileUserId: 'user-1',
-        orders: [
-          {
-            id: 'order-1',
-            taskId: 'task 1',
-            workerUserId: 'user-1',
-            closedAt: '2026-04-01T00:00:00.000Z',
-          },
-        ],
-      }),
-    ).toBe(reviewFormPath('task 1', 'order-1'))
+      profileStats(
+        worker,
+        model({
+          ratingCount: 0,
+          completedJobs: [],
+          yearsExperience: null,
+        }),
+      ).map((cell) => cell.id),
+    ).toEqual(['joined'])
   })
 
-  it('falls back to the related task when no order row is loaded', () => {
+  it('shows the average once there are three reviews', () => {
     expect(
-      resolveReviewHref({
-        canLeaveReview: true,
-        profileUserId: 'user-1',
-        relatedTaskId: 'task-9',
-        orders: [],
-      }),
-    ).toBe('/tasks/task-9/review')
+      profileStats(worker, model({ ratingCount: 4, ratingAverage: 4.8 }))[0],
+    ).toEqual({ id: 'rating', average: 4.8, count: 4 })
   })
 
-  it('stays closed when the viewer cannot review', () => {
+  it('shows only the count below three reviews', () => {
     expect(
-      resolveReviewHref({
-        canLeaveReview: false,
-        profileUserId: 'user-1',
-        relatedTaskId: 'task-9',
-        orders: [],
-      }),
-    ).toBeNull()
+      profileStats(worker, model({ ratingCount: 2, ratingAverage: null }))[0],
+    ).toEqual({ id: 'rating', average: null, count: 2 })
+  })
+
+  it('counts open tasks on customer profiles', () => {
+    expect(
+      profileStats(pageConfig('customer.visitor').stats, model()).map(
+        (cell) => cell.id,
+      ),
+    ).toEqual(['rating', 'openTasks', 'joined'])
+  })
+})
+
+describe('visibleSections', () => {
+  const empty = model({
+    bio: null,
+    skills: [],
+    qualifications: [],
+    completedJobs: [],
+    reviews: [],
+    portfolioUrls: [],
+    openTasks: [],
+  })
+
+  it('hides empty worker sections from visitors but keeps Reviews', () => {
+    expect(visibleSections(pageConfig('worker.visitor'), empty)).toEqual([
+      'reviews',
+    ])
+  })
+
+  it('shows qualifications under Skills even without skills', () => {
+    expect(
+      visibleSections(
+        pageConfig('worker.visitor'),
+        model({ ...empty, qualifications: ['City & Guilds'] }),
+      ),
+    ).toEqual(['skills', 'reviews'])
+  })
+
+  it('keeps an empty open-task list on customer profiles', () => {
+    expect(visibleSections(pageConfig('customer.visitor'), empty)).toEqual([
+      'openTasks',
+      'reviews',
+    ])
   })
 })
 
