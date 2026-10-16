@@ -34,7 +34,7 @@ Canonical source: **`docs/coding-guidebook.md`** §12 (product-area grouping, FE
 | `src/app/(dashboard)/<section>/` | `Dashboard/<Section>/<Component>` (Account, Billing, Profile, Home, Earnings, Admin, Shared) |
 | `src/app/(messages)/` | `Messages/<Component>` |
 | `src/app/(auth)/` | `Auth/<Component>` |
-| `src/app/(presence)/`, `src/app/user/` | `Public profile/<Component>` |
+| `src/app/(presence)/` | `Public profile/<Component>` |
 | `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*`, `Marketing/About/*` |
 
 ## Rules

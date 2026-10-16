@@ -14,9 +14,9 @@ import {
 } from '@/app/(task)/tasks/helpers/taskAchievements'
 import type { WorkerCompletedJob } from '@/app/(worker)/workers/[slug]/components'
 import { formatCompletedMonth } from '@/app/(worker)/workers/[slug]/helpers/workerProfileHelpers'
-import { toPublicUserTaskCard } from '@/app/user/[id]/helpers/publicUserHelpers'
 import { publicRatingAverage } from '@/content/reviews/reviewModel'
 import type { AppLocale } from '@/i18n/locales'
+import { toPublicUserTaskCard } from './publicProfileTaskCard'
 
 export type PublicProfileRecord = NonNullable<
   PublicProfileQuery['publicProfile']

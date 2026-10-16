@@ -101,22 +101,6 @@ describe('proxy locale routing', async () => {
     expect(res.headers.get('set-cookie')).toBeNull()
   })
 
-  it('301s /user/[id] to /profile/[id] and keeps the query', async () => {
-    const res = await proxy(request('/user/abc?excludeTaskId=task%202'))
-    expect(res.status).toBe(301)
-    expect(res.headers.get('location')).toBe(
-      'https://slashie.app/profile/abc?excludeTaskId=task%202',
-    )
-  })
-
-  it('301s /zh-hk/user/[id] under the locale prefix', async () => {
-    const res = await proxy(request('/zh-hk/user/abc'))
-    expect(res.status).toBe(301)
-    expect(res.headers.get('location')).toBe(
-      'https://slashie.app/zh-hk/profile/abc',
-    )
-  })
-
   it('301s /workers/[workerId] after workerProfileRedirect', async () => {
     vi.stubEnv('NEXT_PUBLIC_GRAPHQL_URL', 'https://apollo.example')
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(

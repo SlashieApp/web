@@ -83,7 +83,6 @@ export const EVENTS = {
   profile_update_fail: 'profile_update_fail',
   review_submit_success: 'review_submit_success',
   review_submit_fail: 'review_submit_fail',
-  order_view: 'order_view',
 
   // Closure (mutual Done/Failed). `job_done_*` is the viewer's markOrderDone;
   // `order_confirm_success` fires when that Done completes the order.

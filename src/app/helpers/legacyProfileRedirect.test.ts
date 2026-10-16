@@ -1,42 +1,40 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  matchLegacyPublicProfile,
+  matchLegacyWorkerProfile,
   profileRedirectPath,
   userIdFromWorkerRedirectPayload,
 } from './legacyProfileRedirect'
 
-describe('matchLegacyPublicProfile', () => {
-  it('maps /user/[id] onto the same user id', () => {
-    expect(matchLegacyPublicProfile('/user/abc')).toEqual({
-      kind: 'user',
-      id: 'abc',
+describe('matchLegacyWorkerProfile', () => {
+  it('reads the worker id and keeps the zh-hk prefix', () => {
+    expect(matchLegacyWorkerProfile('/workers/worker-1')).toEqual({
+      workerId: 'worker-1',
       localePrefix: '',
     })
-    expect(profileRedirectPath('abc', '')).toBe('/profile/abc')
-  })
-
-  it('keeps the zh-hk prefix and collapses /en', () => {
-    expect(matchLegacyPublicProfile('/zh-hk/user/abc')).toEqual({
-      kind: 'user',
-      id: 'abc',
+    expect(matchLegacyWorkerProfile('/zh-hk/workers/worker-1')).toEqual({
+      workerId: 'worker-1',
       localePrefix: '/zh-hk',
-    })
-    expect(matchLegacyPublicProfile('/en/workers/worker-1')).toEqual({
-      kind: 'worker',
-      id: 'worker-1',
-      localePrefix: '',
     })
     expect(profileRedirectPath('user-9', '/zh-hk')).toBe(
       '/zh-hk/profile/user-9',
     )
   })
 
-  it('does not treat the workers directory as a profile', () => {
-    expect(matchLegacyPublicProfile('/workers')).toBeNull()
-    expect(matchLegacyPublicProfile('/zh-hk/workers')).toBeNull()
-    expect(matchLegacyPublicProfile('/workers/worker-1/extra')).toBeNull()
-    expect(matchLegacyPublicProfile('/profile/user-1')).toBeNull()
+  it('collapses /en to English', () => {
+    expect(matchLegacyWorkerProfile('/en/workers/worker-1')).toEqual({
+      workerId: 'worker-1',
+      localePrefix: '',
+    })
+    expect(profileRedirectPath('abc', '')).toBe('/profile/abc')
+  })
+
+  it('does not treat the workers directory, or other pages, as a profile', () => {
+    expect(matchLegacyWorkerProfile('/workers')).toBeNull()
+    expect(matchLegacyWorkerProfile('/zh-hk/workers')).toBeNull()
+    expect(matchLegacyWorkerProfile('/workers/worker-1/extra')).toBeNull()
+    expect(matchLegacyWorkerProfile('/profile/user-1')).toBeNull()
+    expect(matchLegacyWorkerProfile('/user/abc')).toBeNull()
   })
 })
 

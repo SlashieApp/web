@@ -313,7 +313,7 @@ Do **not** introduce `useEffect` by default. Prefer event-driven `useCallback` a
 | `src/app/(dashboard)/<section>/` | `Dashboard/<Section>/<Component>` (Account, Billing, Profile, Home, Earnings, Admin, Shared) |
 | `src/app/(messages)/` | `Messages/<Component>` |
 | `src/app/(auth)/` | `Auth/<Component>` |
-| `src/app/(presence)/`, `src/app/user/` | `Public profile/<Component>` |
+| `src/app/(presence)/` | `Public profile/<Component>` |
 | `src/app/(marketing)/` | `Marketing/Layout/*`, `Marketing/Landing/*`, `Marketing/Pricing/*`, `Marketing/About/*` |
 
 - Colocate `<Component>.stories.tsx` next to every component that renders visible UI.

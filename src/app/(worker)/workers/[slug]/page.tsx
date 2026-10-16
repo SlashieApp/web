@@ -1,7 +1,7 @@
 import { notFound, permanentRedirect } from 'next/navigation'
 
+import { PublicUserStatus } from '@/app/(presence)/profile/[userId]/components/ui/PublicUserStatus'
 import { fetchWorkerProfileUserId } from '@/app/helpers/legacyProfileRedirect'
-import { PublicUserStatus } from '@/app/user/[id]/components/ui/PublicUserStatus'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 

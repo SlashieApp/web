@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 import {
   fetchWorkerProfileUserId,
-  matchLegacyPublicProfile,
+  matchLegacyWorkerProfile,
   profileRedirectPath,
 } from '@/app/helpers/legacyProfileRedirect'
 import {
@@ -64,8 +64,8 @@ function applyLocale(response: NextResponse, locale: AppLocale): NextResponse {
 }
 
 /**
- * 301 `/user/[id]` (already a user id) and `/workers/[workerId]` (document id
- * mapped through `workerProfileRedirect`) onto `/profile/[userId]`.
+ * 301 `/workers/[workerId]` (document id mapped through
+ * `workerProfileRedirect`) onto `/profile/[userId]`.
  * A missing worker id is 404. A failed lookup falls through so the page can retry.
  */
 async function redirectLegacyWorker(
@@ -92,7 +92,7 @@ async function redirectLegacyWorker(
  * - Non-default (`zh-hk`) keeps `/zh-hk/...` and rewrites to the bare path.
  * - Explicit `/en` and `/en/...` permanently redirect to the unprefixed path.
  * - `/` and `/zh-hk` are auth-aware: signed-in → `/search`, guest → `/home`.
- * - Legacy public profiles 301 to `/profile/[userId]`.
+ * - Legacy `/workers/[workerId]` URLs 301 to `/profile/[userId]`.
  */
 export function proxy(
   request: NextRequest,
@@ -118,14 +118,9 @@ export function proxy(
     return NextResponse.next()
   }
 
-  const legacy = matchLegacyPublicProfile(pathname)
-  if (legacy?.kind === 'user') {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = profileRedirectPath(legacy.id, legacy.localePrefix)
-    return NextResponse.redirect(redirectUrl, 301)
-  }
-  if (legacy?.kind === 'worker') {
-    return redirectLegacyWorker(request, legacy.id, legacy.localePrefix)
+  const legacy = matchLegacyWorkerProfile(pathname)
+  if (legacy) {
+    return redirectLegacyWorker(request, legacy.workerId, legacy.localePrefix)
   }
 
   return localeProxy(request)

@@ -1,32 +1,24 @@
-export type LegacyProfileMatch = {
-  kind: 'user' | 'worker'
-  id: string
+export type LegacyWorkerProfileMatch = {
+  workerId: string
   /** Unprefixed English, or `/zh-hk`. Explicit `/en` collapses to English. */
   localePrefix: '' | '/zh-hk'
 }
 
-const LEGACY_PROFILE = /^\/(?:(en|zh-hk)\/)?(user|workers)\/([^/]+)\/?$/
+const LEGACY_WORKER_PROFILE = /^\/(?:(en|zh-hk)\/)?workers\/([^/]+)\/?$/
 
 /**
- * `/user/[id]` and `/workers/[workerId]` (one segment). The workers index
- * (`/workers`) does not match — there is no worker slug, the segment is the
- * worker document id.
+ * `/workers/[workerId]` (one segment: the worker document id). The workers
+ * index (`/workers`) does not match.
  */
-export function matchLegacyPublicProfile(
+export function matchLegacyWorkerProfile(
   pathname: string,
-): LegacyProfileMatch | null {
-  const match = pathname.match(LEGACY_PROFILE)
+): LegacyWorkerProfileMatch | null {
+  const match = pathname.match(LEGACY_WORKER_PROFILE)
   if (!match) return null
-  const locale = match[1]
-  const kind = match[2]
-  const id = match[3]?.trim()
-  if (!id || id === '.' || id === '..' || id.includes('\\')) return null
-  if (kind !== 'user' && kind !== 'workers') return null
-  return {
-    kind: kind === 'user' ? 'user' : 'worker',
-    id,
-    localePrefix: locale === 'zh-hk' ? '/zh-hk' : '',
-  }
+  const workerId = match[2]?.trim()
+  if (!workerId || workerId === '.' || workerId === '..') return null
+  if (workerId.includes('\\')) return null
+  return { workerId, localePrefix: match[1] === 'zh-hk' ? '/zh-hk' : '' }
 }
 
 export function profileRedirectPath(

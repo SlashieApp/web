@@ -23,7 +23,6 @@ const TARGET_PAGES = [
   'src/app/(dashboard)/admin/notifications/page.tsx',
   'src/app/(dashboard)/billing/page.tsx',
   'src/app/(dashboard)/dashboard/page.tsx',
-  'src/app/(dashboard)/dashboard/orders/[orderId]/page.tsx',
   'src/app/(dashboard)/earnings/page.tsx',
   'src/app/(dashboard)/profile/page.tsx',
   'src/app/(task)/search/page.tsx',
@@ -35,7 +34,6 @@ const TARGET_PAGES = [
   'src/app/(stepflow)/worker/setup/page.tsx',
   'src/app/(worker)/workers/page.tsx',
   'src/app/(worker)/workers/[slug]/page.tsx',
-  'src/app/user/[id]/page.tsx',
   'src/app/(presence)/profile/[userId]/page.tsx',
 ] as const
 
@@ -49,7 +47,7 @@ describe('per-page i11n coverage', () => {
     for (const segment of TARGET_PAGE_GLOBS) {
       expect(existsSync(path.join(root, segment))).toBe(true)
     }
-    expect(TARGET_PAGES).toHaveLength(25)
+    expect(TARGET_PAGES).toHaveLength(23)
   })
 
   it('requires en and zh_hk metadata beside every target page', () => {

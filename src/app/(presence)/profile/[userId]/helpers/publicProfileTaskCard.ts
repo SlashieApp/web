@@ -1,7 +1,5 @@
 import type { PublicProfileQuery } from '@codegen/schema'
 
-import { publicProfilePath } from '@/app/helpers/publicProfilePath'
-
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { taskScheduleCompactLabel } from '@/app/(task)/helpers/taskBrowseHelpers'
 import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
@@ -13,14 +11,6 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 export type PublicUserOpenTask = NonNullable<
   PublicProfileQuery['publicProfile']
 >['openTasks'][number]
-
-/** Public profile URL. `excludeTaskId` omits that task from the open-task list. */
-export function publicUserPath(
-  userId: string,
-  excludeTaskId?: string | null,
-): string {
-  return publicProfilePath(userId, { excludeTaskId })
-}
 
 /** Browse-card view model for one poster-owned open task. */
 export function toPublicUserTaskCard(task: PublicUserOpenTask): TaskCardTask {

@@ -25,7 +25,7 @@ import {
   LuUser,
 } from 'react-icons/lu'
 
-import { publicUserPath } from '@/app/user/[id]/helpers/publicUserHelpers'
+import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -574,7 +574,7 @@ export function PostedByFact() {
   return (
     <DetailRow icon={<LuUser />} label={t.details.postedBy}>
       <Link
-        href={publicUserPath(posterId, task.id)}
+        href={publicProfilePath(posterId, { excludeTaskId: task.id })}
         aria-label={formatMessage(t.details.viewProfile, { name })}
         display="inline-flex"
         alignItems="center"
