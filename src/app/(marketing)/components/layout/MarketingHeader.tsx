@@ -22,6 +22,7 @@ import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { useOpenFeedbackDialog } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
 import { HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from '@/ui/Header'
 import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
+import { openAppOnAndroid } from '@/utils/nativeApp'
 import { Button, Drawer, Link } from '@ui'
 
 import chromeMessages from '../../i11n.chrome.json'
@@ -257,14 +258,18 @@ function MarketingNavigation({
         </Button>
         <MarketingAuthButtons quiet={quiet} copy={copy} />
         {/* Mobile-Navigation-IA: on phones the header is the logo plus one
-            way into the app. */}
+            way into the app. Android tries the Slashie app first. */}
         <Button
           asChild
           size="sm"
           variant={quiet ? 'secondary' : 'primary'}
           display={{ base: 'inline-flex', md: 'none' }}
         >
-          <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
+          <Link
+            href={APP_HOME}
+            onClick={openAppOnAndroid}
+            _hover={{ textDecoration: 'none' }}
+          >
             {copy.openInApp}
           </Link>
         </Button>
