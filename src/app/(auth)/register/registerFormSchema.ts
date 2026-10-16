@@ -1,14 +1,11 @@
 import { z } from 'zod'
 
+/** Messages are keys into the page copy's `validation`. */
 export const registerFormSchema = z
   .object({
-    fullName: z.string().trim().min(1, 'Please enter your full name.'),
-    email: z
-      .string()
-      .trim()
-      .min(1, 'Enter your email.')
-      .email('Enter a valid email.'),
-    password: z.string().min(8, 'Use at least 8 characters.'),
+    fullName: z.string().trim().min(1, 'fullNameRequired'),
+    email: z.string().trim().min(1, 'emailRequired').email('emailInvalid'),
+    password: z.string().min(8, 'passwordTooShort'),
     confirmPassword: z.string(),
     isOver18: z.boolean(),
     agreedToTerms: z.boolean(),
@@ -19,24 +16,33 @@ export const registerFormSchema = z
     if (data.password !== data.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Passwords do not match.',
+        message: 'passwordsDontMatch',
         path: ['confirmPassword'],
       })
     }
     if (!data.isOver18) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'You must confirm you are 18 or over to use Slashie.',
+        message: 'over18Required',
         path: ['isOver18'],
       })
     }
     if (!data.agreedToTerms) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Please agree to the Terms of Service and Privacy Policy.',
+        message: 'termsRequired',
         path: ['agreedToTerms'],
       })
     }
   })
 
 export type RegisterFormValues = z.infer<typeof registerFormSchema>
+
+export type RegisterValidationKey =
+  | 'fullNameRequired'
+  | 'emailRequired'
+  | 'emailInvalid'
+  | 'passwordTooShort'
+  | 'passwordsDontMatch'
+  | 'over18Required'
+  | 'termsRequired'

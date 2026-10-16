@@ -4,27 +4,47 @@
       "title": "Reset password | Slashie",
       "description": "Set a new password for your Slashie account using your secure reset link."
     },
-    "loading": "Loading...",
     "missingTitle": "Reset link required",
     "missingDescription": "Open the password reset link from your email, or request a new one. Links expire after 1 hour.",
     "missingCta": "Request reset link",
-    "backToLogin": "Back to sign in",
     "title": "Create a new password",
-    "description": "Choose a strong password to secure your Slashie account.",
-    "submit": "Reset password"
+    "description": "Choose a new password for your Slashie account.",
+    "submit": "Reset password",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "validation": {
+      "tokenRequired": "Reset token is required.",
+      "passwordTooShort": "Use at least 8 characters.",
+      "passwordsDontMatch": "Passwords do not match."
+    },
+    "messages": {
+      "linkExpired": "This reset link is invalid or has expired. Request a new one.",
+      "weakPassword": "Use at least 8 characters.",
+      "failed": "Could not reset your password. Try again."
+    }
   },
   "zh_hk": {
     "metadata": {
       "title": "重設密碼 | Slashie",
       "description": "使用安全重設連結，為你的 Slashie 帳戶設定新密碼。"
     },
-    "loading": "載入中...",
     "missingTitle": "需要重設連結",
     "missingDescription": "請開啟電郵內的密碼重設連結，或重新索取。連結會於 1 小時後失效。",
     "missingCta": "索取重設連結",
-    "backToLogin": "返回登入",
     "title": "建立新密碼",
-    "description": "選擇一個高強度密碼，保護你的 Slashie 帳戶。",
-    "submit": "重設密碼"
+    "description": "為你的 Slashie 帳戶設定新密碼。",
+    "submit": "重設密碼",
+    "newPasswordLabel": "新密碼",
+    "confirmPasswordLabel": "確認新密碼",
+    "validation": {
+      "tokenRequired": "需要重設代碼。",
+      "passwordTooShort": "請使用最少 8 個字元。",
+      "passwordsDontMatch": "兩次輸入的密碼不一致。"
+    },
+    "messages": {
+      "linkExpired": "此重設連結無效或已過期，請重新索取。",
+      "weakPassword": "請使用最少 8 個字元。",
+      "failed": "未能重設密碼，請再試。"
+    }
   }
 }

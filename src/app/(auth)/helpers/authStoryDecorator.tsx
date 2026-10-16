@@ -85,7 +85,8 @@ function storyLink(responses: Record<string, StoryResponse> = {}) {
       return of({ errors: [error] })
     }
     return throwError(
-      () => new Error(response.message ?? 'Network request failed'),
+      // fetch rejects with a TypeError when the API can't be reached.
+      () => new TypeError(response.message ?? 'Network request failed'),
     )
   })
 }

@@ -4,14 +4,6 @@
       "title": "Create account | Slashie",
       "description": "Create a Slashie account to post tasks, compare quotes, or become a local worker."
     },
-    "asideBadge": "Join Slashie",
-    "asideTitle": "Create an account for local tasks and quotes.",
-    "asideDescription": "Post tasks, compare quotes from nearby workers, or set up your worker profile to find local work.",
-    "customerLabel": "For customers",
-    "customerText": "Post tasks and compare quotes",
-    "workerLabel": "For workers",
-    "workerText": "Find nearby tasks and send quotes",
-    "eyebrow": "Start with Slashie",
     "title": "Create your account",
     "description": "One account for posting tasks, comparing quotes, and earning as a worker.",
     "emailLabel": "Email",
@@ -29,21 +21,28 @@
     "submit": "Create account",
     "loginPrompt": "Already have an account?",
     "loginLink": "Log in",
-    "marketingOptIn": "Send me Slashie news and tips (optional). You can turn this off any time in Account settings."
+    "marketingOptIn": "Send me Slashie news and tips (optional). You can turn this off any time in Account settings.",
+    "namePlaceholder": "e.g. Alex Chen",
+    "validation": {
+      "fullNameRequired": "Enter your full name.",
+      "emailRequired": "Enter your email.",
+      "emailInvalid": "Enter a valid email.",
+      "passwordTooShort": "Use at least 8 characters.",
+      "passwordsDontMatch": "Passwords do not match.",
+      "over18Required": "You must confirm you are 18 or over to use Slashie.",
+      "termsRequired": "Please agree to the Terms of Service and Privacy Policy."
+    },
+    "messages": {
+      "emailTaken": "An account with this email already exists. Log in instead.",
+      "weakPassword": "Use at least 8 characters.",
+      "failed": "Registration failed."
+    }
   },
   "zh_hk": {
     "metadata": {
       "title": "建立帳戶 | Slashie",
       "description": "建立 Slashie 帳戶，發佈任務、比較報價，或成為本地 worker。"
     },
-    "asideBadge": "加入 Slashie",
-    "asideTitle": "為本地任務和報價建立帳戶。",
-    "asideDescription": "發佈任務、比較附近 worker 的報價，或設定 worker 個人檔案尋找本地工作。",
-    "customerLabel": "給 customers",
-    "customerText": "發佈任務並比較報價",
-    "workerLabel": "給 workers",
-    "workerText": "尋找附近任務並傳送報價",
-    "eyebrow": "開始使用 Slashie",
     "title": "建立你的帳戶",
     "description": "一個帳戶即可發佈任務、比較報價，並以 worker 身份賺取收入。",
     "emailLabel": "電郵",
@@ -61,6 +60,21 @@
     "submit": "建立帳戶",
     "loginPrompt": "已有帳戶？",
     "loginLink": "登入",
-    "marketingOptIn": "向我發送 Slashie 的最新消息和貼士（可選）。你可隨時在帳戶設定中關閉。"
+    "marketingOptIn": "向我發送 Slashie 的最新消息和貼士（可選）。你可隨時在帳戶設定中關閉。",
+    "namePlaceholder": "例如：陳大文",
+    "validation": {
+      "fullNameRequired": "請輸入你的全名。",
+      "emailRequired": "請輸入電郵。",
+      "emailInvalid": "請輸入有效的電郵。",
+      "passwordTooShort": "請使用最少 8 個字元。",
+      "passwordsDontMatch": "兩次輸入的密碼不一致。",
+      "over18Required": "你必須確認年滿 18 歲才可使用 Slashie。",
+      "termsRequired": "請同意服務條款及私隱政策。"
+    },
+    "messages": {
+      "emailTaken": "此電郵已有帳戶，請改為登入。",
+      "weakPassword": "請使用最少 8 個字元。",
+      "failed": "註冊失敗。"
+    }
   }
 }

@@ -1,35 +1,28 @@
 import { z } from 'zod'
 
-const numberOrSymbol = /[\d!@#$%^&*(),.?":{}|<>[\]\\/_+=-]/
-
+/**
+ * Messages are keys into the page copy's `validation`. The password rule is
+ * the API's (8+ characters), the same as register.
+ */
 export const resetPasswordFormSchema = z
   .object({
-    token: z.string().trim().min(1, 'Reset token is required.'),
-    newPassword: z.string().min(8, 'Use at least 8 characters.'),
+    token: z.string().trim().min(1, 'tokenRequired'),
+    newPassword: z.string().min(8, 'passwordTooShort'),
     confirmPassword: z.string(),
   })
   .superRefine((data, ctx) => {
-    if (!numberOrSymbol.test(data.newPassword)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Include a number or symbol.',
-        path: ['newPassword'],
-      })
-    }
-    if (!/[A-Z]/.test(data.newPassword)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Include one uppercase letter.',
-        path: ['newPassword'],
-      })
-    }
     if (data.newPassword !== data.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Passwords do not match.',
+        message: 'passwordsDontMatch',
         path: ['confirmPassword'],
       })
     }
   })
 
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
+
+export type ResetPasswordValidationKey =
+  | 'tokenRequired'
+  | 'passwordTooShort'
+  | 'passwordsDontMatch'

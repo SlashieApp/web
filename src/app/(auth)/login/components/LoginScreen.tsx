@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 
@@ -29,13 +29,11 @@ import {
   getLoginView,
   loginMessageFor,
 } from '../views'
-import { LoginAside } from './LoginAside'
 import { LoginPanel } from './LoginPanel'
 
 /**
  * /login: checks a saved session first (and leaves for `next` when it's
- * valid), otherwise shows the brand panel and the sign-in column for the
- * current view.
+ * valid), otherwise shows the sign-in card for the current view.
  */
 export function LoginScreen({ hasSession }: { hasSession: boolean }) {
   const router = useRouter()
@@ -101,25 +99,22 @@ export function LoginScreen({ hasSession }: { hasSession: boolean }) {
   }
 
   return (
-    <Box ref={onMountCheckSession} w="full" flex={1} display="flex" minH={0}>
+    <Box ref={onMountCheckSession} w="full">
       {LOGIN_VIEWS[view].form ? (
-        <HStack align="stretch" gap={{ base: 0, lg: 10 }} w="full" flex={1}>
-          <LoginAside />
-          <LoginPanel
-            view={view}
-            message={message}
-            notice={deletionNoticeFromParams(searchParams)}
-            retryInSeconds={retryInSeconds}
-            submitting={loading || leaving}
-            securitySolved={Boolean(captcha.token)}
-            securityResetSignal={captcha.resetSignal}
-            onSecurityToken={captcha.setToken}
-            next={next}
-            registerHref={authSwitchHref('/register', searchParams)}
-            defaultValues={autofill}
-            onSubmit={(values) => void onSubmit(values)}
-          />
-        </HStack>
+        <LoginPanel
+          view={view}
+          message={message}
+          notice={deletionNoticeFromParams(searchParams)}
+          retryInSeconds={retryInSeconds}
+          submitting={loading || leaving}
+          securitySolved={Boolean(captcha.token)}
+          securityResetSignal={captcha.resetSignal}
+          onSecurityToken={captcha.setToken}
+          next={next}
+          registerHref={authSwitchHref('/register', searchParams)}
+          defaultValues={autofill}
+          onSubmit={(values) => void onSubmit(values)}
+        />
       ) : (
         <SessionLoading />
       )}

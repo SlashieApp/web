@@ -56,11 +56,23 @@ export function GoogleAuthButton({
   const [buttonWidth, setButtonWidth] = useState(280)
   const [isClient, setIsClient] = useState(false)
   const clientReadyRef = useRef(false)
+  const resizeRef = useRef<ResizeObserver | null>(null)
 
+  // Google draws the button at a fixed pixel width (200 to 400), so follow
+  // the container: the auth card gains padding at the desktop breakpoint.
   const onContainerRef = useCallback((node: HTMLDivElement | null) => {
+    resizeRef.current?.disconnect()
+    resizeRef.current = null
     if (!node) return
-    const measured = Math.floor(node.getBoundingClientRect().width)
-    if (measured > 0) setButtonWidth(measured)
+    const measure = () => {
+      const measured = Math.floor(node.getBoundingClientRect().width)
+      if (measured > 0) setButtonWidth(Math.min(measured, 400))
+    }
+    measure()
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeRef.current = new ResizeObserver(measure)
+      resizeRef.current.observe(node)
+    }
     if (!clientReadyRef.current) {
       clientReadyRef.current = true
       setIsClient(true)

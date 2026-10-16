@@ -4,12 +4,10 @@
       "title": "Check your inbox | Slashie",
       "description": "Open the Slashie verification email or request a new verification link."
     },
-    "loading": "Loading...",
-    "redirecting": "Redirecting...",
     "title": "Check your inbox",
     "descriptionPrefix": "We sent a verification link to",
     "descriptionFallbackEmail": "your email address",
-    "descriptionSuffix": "Open the link to verify your account - you can keep browsing while you wait.",
+    "descriptionSuffix": "Open the link to verify your account. You can keep browsing while you wait.",
     "resend": "Resend verification email",
     "continue": "Continue",
     "loginPrompt": "Log in to resend the verification email.",
@@ -20,8 +18,6 @@
       "title": "查看收件箱 | Slashie",
       "description": "開啟 Slashie 驗證電郵，或重新索取驗證連結。"
     },
-    "loading": "載入中...",
-    "redirecting": "正在重新導向...",
     "title": "查看你的收件箱",
     "descriptionPrefix": "我們已傳送驗證連結至",
     "descriptionFallbackEmail": "你的電郵地址",

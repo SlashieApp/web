@@ -13,7 +13,7 @@ import { ForgotPasswordForm } from './ForgotPasswordForm'
 const EMAIL = 'sam.carter@example.com'
 
 const meta = {
-  title: 'Auth/ForgotPasswordForm',
+  title: 'Auth/Forgot password/ForgotPasswordForm',
   component: ForgotPasswordForm,
   parameters: { layout: 'padded' },
 } satisfies Meta<typeof ForgotPasswordForm>
@@ -99,10 +99,10 @@ export const CooldownActive: Story = {
     await waitFor(async () => expect(await sendButton(canvas)).toBeEnabled())
     await userEvent.click(await sendButton(canvas))
     await expect(await canvas.findByRole('alert')).toHaveTextContent(
-      /Please wait \d+ seconds/,
+      'Please wait before requesting another reset link.',
     )
     await expect(
-      canvas.getByRole('button', { name: /Send again in \d+s/ }),
+      canvas.getByRole('button', { name: /Try again in \d+s/ }),
     ).toBeDisabled()
   },
 }

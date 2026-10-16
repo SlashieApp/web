@@ -1,6 +1,4 @@
-import { ServerError, ServerParseError } from '@apollo/client/errors'
-
-import { parseAuthAbuseError } from '@/app/(auth)/helpers/authAbuseErrors'
+import { commonAuthMessage } from '@/app/(auth)/helpers/authMessages'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 
 import type { LoginMessage, LoginView } from './types'
@@ -28,20 +26,8 @@ export function getLoginView({
 
 /** The message a failed attempt shows. */
 export function loginMessageFor(error: unknown): LoginMessage {
-  const abuse = parseAuthAbuseError(error)
-  if (abuse.captchaFailed) return 'securityCheckFailed'
-  if (abuse.captchaRequired) return 'securityCheckRequired'
-  if (abuse.rateLimited) return 'rateLimited'
   if (getGraphQLErrorCode(error) === 'INVALID_CREDENTIALS') {
     return 'invalidCredentials'
   }
-  // fetch rejects with a TypeError when the API can't be reached.
-  if (
-    error instanceof TypeError ||
-    ServerError.is(error) ||
-    ServerParseError.is(error)
-  ) {
-    return 'networkError'
-  }
-  return 'failed'
+  return commonAuthMessage(error) ?? 'failed'
 }

@@ -13,7 +13,7 @@ import { ForgotPasswordSentPanel } from './ForgotPasswordSentPanel'
 const EMAIL = 'sam.carter@example.com'
 
 const meta = {
-  title: 'Auth/ForgotPasswordSentPanel',
+  title: 'Auth/Forgot password/ForgotPasswordSentPanel',
   component: ForgotPasswordSentPanel,
   parameters: { layout: 'padded' },
 } satisfies Meta<typeof ForgotPasswordSentPanel>
@@ -74,17 +74,17 @@ export const Resent: Story = {
       await canvas.findByText(/we sent a password reset link\.$/),
     ).toBeVisible()
     await expect(
-      canvas.getByRole('button', { name: /Resend in \d+s/ }),
+      canvas.getByRole('button', { name: /Try again in \d+s/ }),
     ).toBeDisabled()
   },
 }
 
-/** Opened directly, with no saved email: a loading line while it sends the visitor back to the form. */
+/** Opened directly, with no saved email: the session splash while it sends the visitor back to the form. */
 export const OpenedDirectly: Story = {
   decorators: [withResetEmail(''), withAuthWidgets(), withSession()],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText('Loading...')).toBeVisible()
+    await expect(await canvas.findByText('Just a moment…')).toBeVisible()
   },
 }
 

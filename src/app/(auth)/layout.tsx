@@ -1,17 +1,16 @@
 'use client'
 
-import { Box, Container, Stack } from '@chakra-ui/react'
-import { useSelectedLayoutSegment } from 'next/navigation'
+import { Box } from '@chakra-ui/react'
 import { useCallback, useRef } from 'react'
 
 import { AccountSuspendedBanner } from '@/app/(auth)/components/ui/AccountSuspendedBanner'
+import { AuthShell } from '@/app/(auth)/components/ui/AuthShell'
 import { markAuthSurfaceSession } from '@/utils/analytics'
 
+/** One layout for every auth page: suspended banner, then the auth shell. */
 export default function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const segment = useSelectedLayoutSegment()
-  const isLoginOrRegister = segment === 'login' || segment === 'register'
   const markedRef = useRef(false)
 
   const onAuthSurfaceRef = useCallback((node: HTMLDivElement | null) => {
@@ -31,31 +30,7 @@ export default function AuthLayout({
       w="full"
     >
       <AccountSuspendedBanner />
-      <Container
-        flex={1}
-        display="flex"
-        flexDirection="column"
-        minH="100dvh"
-        py={{ base: 10, md: 12 }}
-        overflow="visible"
-      >
-        <Box as="main" flex={1} minW={0} overflowX="clip">
-          {isLoginOrRegister ? (
-            children
-          ) : (
-            <Stack
-              flex={1}
-              justify="center"
-              maxW="md"
-              w="full"
-              mx="auto"
-              gap={8}
-            >
-              {children}
-            </Stack>
-          )}
-        </Box>
-      </Container>
+      <AuthShell>{children}</AuthShell>
     </Box>
   )
 }

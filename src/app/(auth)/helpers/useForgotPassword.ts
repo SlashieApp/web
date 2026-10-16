@@ -6,12 +6,9 @@ import { useCallback, useState } from 'react'
 
 import ForgotPassword from '@/app/(auth)/forgot-password/graphql/ForgotPassword.gql'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
-import {
-  getAuthAbuseFriendlyMessage,
-  parseAuthAbuseError,
-} from './authAbuseErrors'
+import { parseAuthAbuseError } from './authAbuseErrors'
+import { type AuthCommonMessage, commonAuthMessage } from './authMessages'
 import { captchaMutationContext } from './captchaMutationContext'
 import { useCooldownSeconds } from './useCooldownSeconds'
 
@@ -27,6 +24,16 @@ export type ForgotPasswordRequestOptions = {
   captchaToken?: string | null
 }
 
+/**
+ * What the last request shows (copy: forgot-password `messages`, or the
+ * shared auth `messages`). `sent` is the only success.
+ */
+export type ForgotPasswordMessage =
+  | 'sent'
+  | 'tooSoon'
+  | 'failed'
+  | AuthCommonMessage
+
 export function useForgotPassword() {
   const [forgotPasswordMutation, { loading }] =
     useMutation<ForgotPasswordMutation>(ForgotPassword)
@@ -35,7 +42,7 @@ export function useForgotPassword() {
     startCooldown,
     isActive,
   } = useCooldownSeconds()
-  const [message, setMessage] = useState<string | null>(null)
+  const [message, setMessage] = useState<ForgotPasswordMessage | null>(null)
 
   const requestReset = useCallback(
     async (
@@ -72,9 +79,7 @@ export function useForgotPassword() {
         }
 
         if (rateLimited) {
-          setMessage(
-            `Please wait ${cooldown} seconds before requesting another reset link.`,
-          )
+          setMessage('tooSoon')
           return {
             emailed: false,
             rateLimited: true,
@@ -82,9 +87,7 @@ export function useForgotPassword() {
           }
         }
 
-        setMessage(
-          'If an account exists for this email, we sent a password reset link.',
-        )
+        setMessage('sent')
 
         return {
           emailed: true,
@@ -107,15 +110,7 @@ export function useForgotPassword() {
             rate_limited: abuse.rateLimited,
           },
         })
-        setMessage(
-          getAuthAbuseFriendlyMessage(
-            error,
-            getFriendlyErrorMessage(
-              error,
-              'Could not start password reset process.',
-            ),
-          ),
-        )
+        setMessage(commonAuthMessage(error) ?? 'failed')
         return null
       }
     },

@@ -21,7 +21,9 @@ describe('registerFormSchema', () => {
     const result = registerFormSchema.safeParse({ ...valid, isOver18: false })
     expect(result.success).toBe(false)
     if (result.success) return
-    expect(result.error.flatten().fieldErrors.isOver18?.[0]).toMatch(/18/)
+    expect(result.error.flatten().fieldErrors.isOver18?.[0]).toBe(
+      'over18Required',
+    )
   })
 
   it('rejects missing Terms agreement', () => {
@@ -31,5 +33,17 @@ describe('registerFormSchema', () => {
       marketingOptIn: false,
     })
     expect(result.success).toBe(false)
+  })
+
+  it('asks for matching passwords', () => {
+    const result = registerFormSchema.safeParse({
+      ...valid,
+      confirmPassword: 'password2',
+    })
+    expect(result.success).toBe(false)
+    if (result.success) return
+    expect(result.error.flatten().fieldErrors.confirmPassword?.[0]).toBe(
+      'passwordsDontMatch',
+    )
   })
 })

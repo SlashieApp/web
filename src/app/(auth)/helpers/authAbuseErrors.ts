@@ -35,23 +35,3 @@ export function parseAuthAbuseError(error: unknown): AuthAbuseSignal {
     retryAfterSeconds: readRetryAfterSeconds(error),
   }
 }
-
-/**
- * Calm, non-enumerating recovery copy for register and forgot password
- * (login uses its own `messages` copy). Never implies whether an email exists.
- */
-export function getAuthAbuseFriendlyMessage(
-  error: unknown,
-  fallback: string,
-): string {
-  const signal = parseAuthAbuseError(error)
-  if (signal.captchaRequired) {
-    return 'Security check failed or expired. Complete it again and retry.'
-  }
-  if (signal.rateLimited) {
-    return signal.retryAfterSeconds
-      ? `Too many attempts. Please wait ${signal.retryAfterSeconds} seconds, then try again.`
-      : 'Too many attempts right now. Please wait a bit and try again.'
-  }
-  return fallback
-}

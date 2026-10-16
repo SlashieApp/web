@@ -11,9 +11,13 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 type ResendState = 'idle' | 'sending' | 'sent' | 'error'
 
+/** Why a resend failed, for pages that word it themselves (auth pages). */
+export type ResendFailure = 'tooSoon' | 'failed'
+
 export function useResendVerificationEmail() {
   const [state, setState] = useState<ResendState>('idle')
   const [message, setMessage] = useState<string | null>(null)
+  const [failure, setFailure] = useState<ResendFailure | null>(null)
 
   const [resendMutation] = useMutation<ResendVerificationEmailMutation>(
     ResendVerificationEmail,
@@ -22,6 +26,7 @@ export function useResendVerificationEmail() {
   const resend = useCallback(async () => {
     setState('sending')
     setMessage(null)
+    setFailure(null)
     try {
       const result = await resendMutation()
       if (!result.data?.resendVerificationEmail) {
@@ -38,7 +43,9 @@ export function useResendVerificationEmail() {
         operation: 'ResendVerificationEmail',
       })
       setState('error')
-      if (isResendVerificationRateLimitedError(error)) {
+      const tooSoon = isResendVerificationRateLimitedError(error)
+      setFailure(tooSoon ? 'tooSoon' : 'failed')
+      if (tooSoon) {
         setMessage(
           getFriendlyErrorMessage(
             error,
@@ -60,6 +67,7 @@ export function useResendVerificationEmail() {
   const reset = useCallback(() => {
     setState('idle')
     setMessage(null)
+    setFailure(null)
   }, [])
 
   return {
@@ -67,6 +75,7 @@ export function useResendVerificationEmail() {
     reset,
     state,
     message,
+    failure,
     isSending: state === 'sending',
     isSent: state === 'sent',
   }

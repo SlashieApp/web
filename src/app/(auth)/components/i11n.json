@@ -34,6 +34,33 @@
       "popupFailedDescription": "Allow pop-ups for this site, then try again.",
       "blockedTitle": "Confirm you are 18 or over",
       "blockedDescription": "Tick the confirmation boxes, then continue with Google."
+    },
+    "shell": {
+      "home": "Slashie home",
+      "legalAria": "Legal",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "contact": "Contact"
+    },
+    "fields": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "orEmail": "Or continue with email",
+      "emailPlaceholder": "you@example.com",
+      "passwordHint": "At least 8 characters."
+    },
+    "backToLogin": "Back to log in",
+    "tryAgainIn": "Try again in {seconds}s",
+    "messages": {
+      "securityCheckRequired": "Complete the security check to continue.",
+      "securityCheckFailed": "Security check failed or expired. Complete it again and retry.",
+      "rateLimited": "Too many attempts right now. Please wait a bit and try again.",
+      "networkError": "Can't reach Slashie. Check your connection and try again."
+    },
+    "resend": {
+      "sent": "Verification email sent. Check your inbox.",
+      "tooSoon": "Please wait 2 minutes before resending.",
+      "failed": "Could not send the verification email. Try again shortly."
     }
   },
   "zh_hk": {
@@ -71,6 +98,33 @@
       "popupFailedDescription": "請允許此網站的彈出視窗，然後再試。",
       "blockedTitle": "請確認你年滿 18 歲",
       "blockedDescription": "先勾選確認選項，再使用 Google 繼續。"
+    },
+    "shell": {
+      "home": "Slashie 主頁",
+      "legalAria": "法律資訊",
+      "terms": "條款",
+      "privacy": "私隱",
+      "contact": "聯絡我們"
+    },
+    "fields": {
+      "showPassword": "顯示密碼",
+      "hidePassword": "隱藏密碼",
+      "orEmail": "或使用電郵繼續",
+      "emailPlaceholder": "you@example.com",
+      "passwordHint": "最少 8 個字元。"
+    },
+    "backToLogin": "返回登入",
+    "tryAgainIn": "{seconds} 秒後再試",
+    "messages": {
+      "securityCheckRequired": "請先完成安全檢查。",
+      "securityCheckFailed": "安全檢查失敗或已逾時，請重新完成後再試。",
+      "rateLimited": "嘗試次數過多，請稍後再試。",
+      "networkError": "無法連接 Slashie，請檢查網絡連線後再試。"
+    },
+    "resend": {
+      "sent": "已傳送驗證電郵，請查看你的收件匣。",
+      "tooSoon": "請等候 2 分鐘再重新傳送。",
+      "failed": "未能傳送驗證電郵，請稍後再試。"
     }
   }
 }

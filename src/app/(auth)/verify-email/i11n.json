@@ -4,7 +4,6 @@
       "title": "Verify email | Slashie",
       "description": "Verify your email address to finish securing your Slashie account."
     },
-    "loading": "Loading...",
     "loadingTitle": "Verifying your email...",
     "loadingDescription": "Hang tight while we confirm your link.",
     "successTitle": "Email confirmed",
@@ -16,14 +15,18 @@
     "errorTitle": "Link expired or invalid",
     "errorDescription": "This verification link is invalid or has expired.",
     "resend": "Resend verification email",
-    "loginToResend": "Log in to resend"
+    "loginToResend": "Log in to resend",
+    "messages": {
+      "emailMismatch": "This link is no longer valid. Request a new verification email.",
+      "emailInUse": "This email is already registered to another account.",
+      "failed": "Could not verify your email."
+    }
   },
   "zh_hk": {
     "metadata": {
       "title": "驗證電郵 | Slashie",
       "description": "驗證你的電郵地址，以完成保護 Slashie 帳戶。"
     },
-    "loading": "載入中...",
     "loadingTitle": "正在驗證你的電郵...",
     "loadingDescription": "請稍候，我們正在確認你的連結。",
     "successTitle": "電郵已確認",
@@ -35,6 +38,11 @@
     "errorTitle": "連結已失效或無效",
     "errorDescription": "此驗證連結無效或已過期。",
     "resend": "重新傳送驗證電郵",
-    "loginToResend": "登入以重新傳送"
+    "loginToResend": "登入以重新傳送",
+    "messages": {
+      "emailMismatch": "此連結已失效，請重新索取驗證電郵。",
+      "emailInUse": "此電郵已登記於另一個帳戶。",
+      "failed": "未能驗證你的電郵。"
+    }
   }
 }
