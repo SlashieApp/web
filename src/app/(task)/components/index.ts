@@ -4,6 +4,11 @@
  */
 
 export { BrowseGeolocationInit } from './analytics/BrowseGeolocationInit'
+export {
+  FilterChip,
+  OptionButton,
+  TaskSearchFilters,
+} from './ui/TaskSearchFilters'
 export { MobileTaskCarousel } from './(mobile)/layout/MobileTaskCarousel'
 export { MobileTaskSearchSheet } from './(mobile)/layout/MobileTaskSearchSheet'
 export { SearchThisAreaButton } from './ui/SearchThisAreaButton'
@@ -14,7 +19,6 @@ export { TaskCardWorkerQuote } from './ui/TaskCardWorkerQuote'
 export { TaskEmptyState } from './ui/TaskEmptyState'
 export { TaskList } from './(web)/layout/TaskList'
 export { TaskSearch, TaskSearchBase } from './ui/TaskSearch'
-export { TaskSearchFilters } from './ui/TaskSearchFilters'
 export { TaskTag } from './ui/TaskTag'
 export type { SearchThisAreaButtonProps } from './ui/SearchThisAreaButton'
 export type {
