@@ -15,7 +15,10 @@ import {
 } from './taskBrowseHelpers'
 import { taskCategoriesSummary } from './taskCategories'
 
-/** Trust crumb for discovery cards — omitted when the API has no signal. */
+/**
+ * Trust crumb for discovery cards, omitted when the API has no signal.
+ * Dead until BE-85: public `tasks` has no poster trust signal (FE-307).
+ */
 export function taskTrustFromPoster(
   task: TaskListItem,
 ): TaskCardTrust | undefined {
