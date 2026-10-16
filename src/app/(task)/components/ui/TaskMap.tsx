@@ -33,6 +33,12 @@ export type TaskMapProps = {
   centerLat: number
   centerLng: number
   radiusMiles: number
+  /**
+   * How far the loaded results reach from the centre (miles); "Search this
+   * area" only offers beyond it. Infinity once everything is loaded, null
+   * while the first page loads. Without it, `radiusMiles` is the threshold.
+   */
+  searchCoverageMiles?: number | null
   tasks: TaskMapTask[]
   /**
    * When false, the map may be `display:none` (e.g. mobile list tab). Toggle to
@@ -176,6 +182,7 @@ export function TaskMap(props: TaskMapProps) {
     props.centerLat,
     props.centerLng,
     effectiveSearchRadiusMiles,
+    String(props.searchCoverageMiles),
     snapshot.themeMode,
     props.visible ?? true,
     props.tasksLoaded ?? true,

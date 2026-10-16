@@ -332,3 +332,30 @@ export function taskCardMetaParts(input: {
     ...shown.filter((part) => part.kind !== 'timing'),
   ]
 }
+
+/**
+ * How far from the sort centre the loaded results reach, in miles. Pages come
+ * nearest first, so they cover a circle out to the furthest loaded task; once
+ * every match is loaded (or there are none) the whole map is covered. Null
+ * before the first page arrives. "Search this area" only offers beyond it.
+ */
+export function browseCoverageMiles(
+  tasks: readonly TaskListItem[] | undefined,
+  hasMore: boolean,
+  centerLat: number,
+  centerLng: number,
+): number | null {
+  if (!tasks) return null
+  if (!hasMore) return Number.POSITIVE_INFINITY
+  let furthest = 0
+  for (const task of tasks) {
+    const lat = parseGeoCoord(task.location?.lat)
+    const lng = parseGeoCoord(task.location?.lng)
+    if (lat == null || lng == null) continue
+    furthest = Math.max(
+      furthest,
+      distanceMilesBetween(centerLat, centerLng, lat, lng),
+    )
+  }
+  return furthest
+}

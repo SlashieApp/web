@@ -46,6 +46,7 @@ import {
   type BrowseDateFilter,
   type BrowseFilterTag,
   DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
+  browseCoverageMiles,
   buildActiveBrowseFilterTags,
   formatBudget,
   parseBrowseBudget,
@@ -87,6 +88,12 @@ type TaskBrowseDataContextValue = {
   syncDraftFiltersFromSubmitted: () => void
   searchCenterLat: number
   searchCenterLng: number
+  /**
+   * How far the loaded results reach from the sort centre (miles): the
+   * furthest loaded task, Infinity once every match is loaded, null before
+   * the first page. The map offers "Search this area" only beyond it.
+   */
+  searchCoverageMiles: number | null
   confirmSearchThisAreaFromMap: (lat: number, lng: number, zoom: number) => void
 
   // --- Task search (FE-201): applied live, shared by map pins and list.
@@ -464,6 +471,17 @@ export function TaskBrowseProvider({
     loadedCount % TASKS_PAGE_SIZE === 0 &&
     exhaustedKey !== variablesKey
 
+  const searchCoverageMiles = useMemo(
+    () =>
+      browseCoverageMiles(
+        data?.tasks,
+        hasMoreTasks,
+        searchCenterLat,
+        searchCenterLng,
+      ),
+    [data, hasMoreTasks, searchCenterLat, searchCenterLng],
+  )
+
   const loadMoreTasks = useCallback(() => {
     const last = data?.tasks.at(-1)
     if (!last || loadingMoreTasks) return
@@ -727,6 +745,7 @@ export function TaskBrowseProvider({
       syncDraftFiltersFromSubmitted,
       searchCenterLat,
       searchCenterLng,
+      searchCoverageMiles,
       confirmSearchThisAreaFromMap,
       searchInput,
       setSearchInput,
@@ -804,6 +823,7 @@ export function TaskBrowseProvider({
       retryTasks,
       searchCenterLat,
       searchCenterLng,
+      searchCoverageMiles,
       searchInput,
       searchText,
       selectedTaskSelectionToken,
@@ -874,6 +894,7 @@ type SharedTaskMapBindings = Pick<
   | 'recenterToken'
   | 'onSelectTask'
   | 'onSearchThisAreaUiChange'
+  | 'searchCoverageMiles'
 >
 
 export function useTaskMapBindings(): SharedTaskMapBindings {
@@ -896,5 +917,6 @@ export function useTaskMapBindings(): SharedTaskMapBindings {
     recenterToken: data.recenterToken,
     onSelectTask: data.setSelectedTaskId,
     onSearchThisAreaUiChange: layout.setSearchThisAreaUi,
+    searchCoverageMiles: data.searchCoverageMiles,
   }
 }

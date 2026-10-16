@@ -123,6 +123,7 @@ export function createTaskMapController(args: {
   // --- interaction state (owned here, never round-tripped through React)
   let showSearchThisArea = false
   let pendingView: { lat: number; lng: number } | null = null
+  let lastSearchCoverage: number | null | undefined
   let programmaticMove = false
   let suppressSearchPromptUntil = 0
   let isNavRoutePresenting = false
@@ -221,6 +222,28 @@ export function createTaskMapController(args: {
     if (showSearchThisArea === visible) return
     showSearchThisArea = visible
     syncSearchUi()
+  }
+
+  /**
+   * Offer "Search this area" only when the map centre is beyond what's
+   * loaded (`searchCoverageMiles`; other maps fall back to the radius).
+   */
+  const evaluateSearchPrompt = () => {
+    if (!map) return
+    const p = getProps()
+    const coverage =
+      p.searchCoverageMiles === undefined
+        ? p.effectiveSearchRadiusMiles
+        : p.searchCoverageMiles
+    const c = map.getCenter()
+    const beyond =
+      p.cameraMode !== 'detail' &&
+      p.mapInteractions !== false &&
+      Date.now() >= suppressSearchPromptUntil &&
+      coverage != null &&
+      distanceMilesBetween(p.centerLat, p.centerLng, c.lat, c.lng) > coverage
+    pendingView = beyond ? { lat: c.lat, lng: c.lng } : null
+    setShowSearchThisArea(beyond)
   }
 
   const handleSearchThisAreaButtonClick = () => {
@@ -695,6 +718,11 @@ export function createTaskMapController(args: {
     syncClusterData()
     applyClusterView()
     syncSelectionFly()
+    // More pages (or a new search) change how far the loaded tasks reach.
+    if (p.searchCoverageMiles !== lastSearchCoverage) {
+      lastSearchCoverage = p.searchCoverageMiles
+      if (!programmaticMove) evaluateSearchPrompt()
+    }
     syncSearchUi()
   }
 
@@ -781,22 +809,7 @@ export function createTaskMapController(args: {
         if (moveEndDebounce) clearTimeout(moveEndDebounce)
         moveEndDebounce = setTimeout(() => {
           if (cancelled || programmaticMove || !map) return
-          if (Date.now() < suppressSearchPromptUntil) {
-            setShowSearchThisArea(false)
-            return
-          }
-          const c = map.getCenter()
-          const p = getProps()
-          const movedOutsideSearchArea =
-            distanceMilesBetween(p.centerLat, p.centerLng, c.lat, c.lng) >
-            p.effectiveSearchRadiusMiles
-          if (movedOutsideSearchArea) {
-            pendingView = { lat: c.lat, lng: c.lng }
-            setShowSearchThisArea(true)
-          } else {
-            pendingView = null
-            setShowSearchThisArea(false)
-          }
+          evaluateSearchPrompt()
         }, 400)
       }
       m.on('moveend', moveEndRun)

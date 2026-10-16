@@ -31,6 +31,8 @@ export type TaskMapPropsSnapshot = {
   centerLat: number
   centerLng: number
   radiusMiles: number
+  /** See `TaskMapProps.searchCoverageMiles`. */
+  searchCoverageMiles?: number | null
   tasks: TaskMapTask[]
   visible?: boolean
   tasksLoaded?: boolean

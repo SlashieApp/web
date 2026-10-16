@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { TaskListItem } from '@/graphql/tasks-query.types'
 
 import {
+  browseCoverageMiles,
   browseDatePresetRange,
   buildActiveBrowseFilterTags,
   formatBudget,
@@ -157,5 +158,33 @@ describe('taskCardMetaParts', () => {
       { kind: 'timing', label: 'Today 14:00' },
       { kind: 'budget', label: '£120' },
     ])
+  })
+})
+
+describe('browseCoverageMiles', () => {
+  const near = listTask({ location: { lat: 51.5, lng: -0.1 } })
+  const far = listTask({ id: 'far', location: { lat: 51.6, lng: -0.1 } })
+
+  it('is unknown before the first page', () => {
+    expect(browseCoverageMiles(undefined, true, 51.5, -0.1)).toBeNull()
+  })
+
+  it('covers the whole map once every match is loaded, or none exist', () => {
+    expect(browseCoverageMiles([near, far], false, 51.5, -0.1)).toBe(
+      Number.POSITIVE_INFINITY,
+    )
+    expect(browseCoverageMiles([], false, 51.5, -0.1)).toBe(
+      Number.POSITIVE_INFINITY,
+    )
+  })
+
+  it('reaches the furthest loaded task while more pages remain', () => {
+    const miles = browseCoverageMiles([near, far], true, 51.5, -0.1)
+    expect(miles).toBeCloseTo(6.9, 1)
+  })
+
+  it('skips tasks without a map point', () => {
+    const noPoint = listTask({ id: 'none', location: null })
+    expect(browseCoverageMiles([near, noPoint], true, 51.5, -0.1)).toBe(0)
   })
 })
