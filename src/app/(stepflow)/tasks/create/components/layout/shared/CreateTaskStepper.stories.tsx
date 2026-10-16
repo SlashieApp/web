@@ -1,64 +1,58 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
+import type { CreateTaskStepId } from '../../../views'
 import { CreateTaskStepper } from './CreateTaskStepper'
+
+const done = (...steps: CreateTaskStepId[]) => new Set(steps)
 
 const meta = {
   title: 'Create task/CreateTaskStepper',
   component: CreateTaskStepper,
-  parameters: {
-    layout: 'padded',
-  },
-  args: {
-    activeSubStep: 'details.location',
-    completedSubSteps: new Set<string>(),
-    onSelectSubStep: () => {},
-  },
+  parameters: { layout: 'padded' },
+  args: { active: 'location', done: done(), onSelect: fn() },
 } satisfies Meta<typeof CreateTaskStepper>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** First step: nothing complete, every later required step is locked. */
-export const Location: Story = {}
-
-/** Basics: the location is done, so it can be revisited. */
-export const Basics: Story = {
-  args: {
-    activeSubStep: 'details.basics',
-    completedSubSteps: new Set(['details.location']),
+/** First step: every later step is locked. */
+export const Location: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole('button', { name: /Details/ }),
+    ).toBeDisabled()
   },
 }
 
-/** Timing: location and basics are done. */
-export const Timing: Story = {
-  args: {
-    activeSubStep: 'details.timing',
-    completedSubSteps: new Set(['details.location', 'details.basics']),
+/** Details: the location is done, so it is a button back to the map. */
+export const Details: Story = {
+  args: { active: 'details', done: done('location') },
+  play: async ({ args, canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: /Location/ }),
+    )
+    await expect(args.onSelect).toHaveBeenCalledWith('location')
   },
 }
 
-/** Photos is optional, so the budget step after it is already reachable. */
-export const Photos: Story = {
+/** Review: every step before it is done and reachable. */
+export const Review: Story = {
   args: {
-    activeSubStep: 'publish.photos',
-    completedSubSteps: new Set([
-      'details.location',
-      'details.basics',
-      'details.timing',
-    ]),
+    active: 'review',
+    done: done('location', 'details', 'timing', 'budget'),
   },
 }
 
-/** Last step: everything before it is complete. */
-export const ContactAndPublish: Story = {
+/** Back on the map after finishing later steps: they keep their ticks. */
+export const RevisitingTheMap: Story = {
   args: {
-    activeSubStep: 'publish.contact',
-    completedSubSteps: new Set([
-      'details.location',
-      'details.basics',
-      'details.timing',
-      'publish.photos',
-      'publish.budget',
-    ]),
+    active: 'location',
+    done: done('location', 'details', 'timing'),
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole('button', { name: /Budget/ }),
+    ).toBeEnabled()
   },
 }

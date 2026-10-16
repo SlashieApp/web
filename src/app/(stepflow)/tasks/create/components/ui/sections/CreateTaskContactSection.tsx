@@ -1,208 +1,70 @@
 'use client'
 
-import { Checkbox, HStack, Stack, Text } from '@chakra-ui/react'
 import { TaskContactMethod } from '@codegen/schema'
-import { LuShieldAlert } from 'react-icons/lu'
 
 import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility'
 import { useI11n } from '@/i18n/useI11n'
-import { Button, FormField, InfoBar, Link } from '@ui'
+import { Button, Link, RadioButtonGroup } from '@ui'
 
 import bag from '../../../i11n.json'
 import { CreateTaskSection } from '../../layout/shared/CreateTaskSection'
 
 export type CreateTaskContactSectionProps = {
-  /** Bare mode for the stepped create flow (no Card/heading). */
+  /** Bare inside the create flow's step; a titled section on edit. */
   bare?: boolean
-  /** Card header text (card mode only). */
   sectionHeading?: string
   preferredContactMethod: TaskContactMethod
   onPreferredContactMethodChange: (value: TaskContactMethod) => void
+  /** Which methods this account can use (verified phone / email). */
   contactOptions: ContactOption[]
-  acceptedProhibitedUse?: boolean
-  onAcceptedProhibitedUseChange?: (value: boolean) => void
-  prohibitedError?: string
 }
 
-function contactButtonProps(
-  method: TaskContactMethod,
-  preferredContactMethod: TaskContactMethod,
-  enabled: boolean,
-) {
-  const selected = preferredContactMethod === method
-  return {
-    type: 'button' as const,
-    size: 'sm' as const,
-    variant: 'ghost' as const,
-    bg: selected && enabled ? 'action.primary' : 'bg.surface',
-    color:
-      selected && enabled
-        ? 'text.onGreen'
-        : enabled
-          ? 'text.default'
-          : 'text.muted',
-    boxShadow: 'none',
-    disabled: !enabled,
-    opacity: enabled ? 1 : 0.55,
-    title: enabled ? undefined : 'Verify this contact method in Account first',
-  }
-}
-
+/** How the accepted worker reaches you. Phone and email need verifying first. */
 export function CreateTaskContactSection({
   bare = false,
-  sectionHeading = '6. Preferred contact',
+  sectionHeading = '',
   preferredContactMethod,
   onPreferredContactMethodChange,
   contactOptions,
-  acceptedProhibitedUse,
-  onAcceptedProhibitedUseChange,
-  prohibitedError,
 }: CreateTaskContactSectionProps) {
-  const t = useI11n(bag)
-  const showProhibitedNotice = Boolean(onAcceptedProhibitedUseChange)
-  const optionByMethod = Object.fromEntries(
-    contactOptions.map((option) => [option.value, option]),
-  ) as Partial<Record<TaskContactMethod, ContactOption>>
-
-  const phoneOption = optionByMethod[TaskContactMethod.Phone]
-  const emailOption = optionByMethod[TaskContactMethod.Email]
+  const f = useI11n(bag).fields
+  const enabled = (method: TaskContactMethod) =>
+    method === TaskContactMethod.InApp ||
+    Boolean(contactOptions.find((option) => option.value === method)?.enabled)
   const needsPhoneVerify =
     preferredContactMethod === TaskContactMethod.Phone &&
-    phoneOption &&
-    !phoneOption.enabled
+    !enabled(TaskContactMethod.Phone)
 
   return (
-    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={4}>
-      <Text fontSize="sm" color="text.muted">
-        We prefill this from your Slashie profile default when you start a new
-        task. You can override it for this post. Update the default anytime in
-        your account profile.
-      </Text>
-
-      <FormField label="How should workers reach you?">
-        <HStack gap={2} flexWrap="wrap">
-          <Button
-            {...contactButtonProps(
-              TaskContactMethod.InApp,
-              preferredContactMethod,
-              true,
-            )}
-            onClick={() =>
-              onPreferredContactMethodChange(TaskContactMethod.InApp)
-            }
-          >
-            In-app chat
-          </Button>
-          <Button
-            {...contactButtonProps(
-              TaskContactMethod.Phone,
-              preferredContactMethod,
-              phoneOption?.enabled ?? false,
-            )}
-            onClick={() => {
-              if (phoneOption?.enabled) {
-                onPreferredContactMethodChange(TaskContactMethod.Phone)
-              }
-            }}
-          >
-            Phone
-          </Button>
-          <Button
-            {...contactButtonProps(
-              TaskContactMethod.Email,
-              preferredContactMethod,
-              emailOption?.enabled ?? false,
-            )}
-            onClick={() => {
-              if (emailOption?.enabled) {
-                onPreferredContactMethodChange(TaskContactMethod.Email)
-              }
-            }}
-          >
-            Email
-          </Button>
-        </HStack>
-      </FormField>
-
-      {phoneOption && !phoneOption.enabled ? (
-        <Text fontSize="sm" color="text.muted">
-          {phoneOption.disabledHint}
-        </Text>
-      ) : null}
-
-      {emailOption && !emailOption.enabled ? (
-        <Text fontSize="sm" color="text.muted">
-          {emailOption.disabledHint}
-        </Text>
-      ) : null}
+    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={5}>
+      <RadioButtonGroup
+        label={f.contact}
+        helperText={f.contactHelper}
+        value={preferredContactMethod}
+        options={[
+          { value: TaskContactMethod.InApp, label: f.inApp },
+          {
+            value: TaskContactMethod.Phone,
+            label: f.phone,
+            disabled: !enabled(TaskContactMethod.Phone),
+            disabledHint: f.phoneLocked,
+          },
+          {
+            value: TaskContactMethod.Email,
+            label: f.email,
+            disabled: !enabled(TaskContactMethod.Email),
+            disabledHint: f.emailLocked,
+          },
+        ]}
+        onChange={onPreferredContactMethodChange}
+      />
 
       {needsPhoneVerify ? (
-        <Stack gap={2}>
-          <Text fontSize="sm" color="text.muted">
-            Phone contact requires a verified mobile number on your account.
-          </Text>
-          <Button asChild size="sm" variant="secondary">
-            <Link
-              href="/account"
-              alignSelf="flex-start"
-              _hover={{ textDecoration: 'none' }}
-            >
-              Verify phone in Account
-            </Link>
-          </Button>
-        </Stack>
-      ) : null}
-
-      {showProhibitedNotice ? (
-        <Stack gap={3}>
-          <InfoBar
-            tone="warning"
-            icon={<LuShieldAlert size={20} />}
-            heading={t.prohibitedHeading}
-          >
-            {t.prohibitedBody}
-          </InfoBar>
-          <Stack gap={1}>
-            <Checkbox.Root
-              checked={Boolean(acceptedProhibitedUse)}
-              onCheckedChange={(detail) =>
-                onAcceptedProhibitedUseChange?.(Boolean(detail.checked))
-              }
-              colorPalette="blue"
-            >
-              <Checkbox.HiddenInput />
-              <HStack gap={3} align="flex-start">
-                <Checkbox.Control
-                  mt={0.5}
-                  borderRadius="md"
-                  borderWidth="1px"
-                  borderColor="border.default"
-                  bg="bg.surface"
-                  _checked={{
-                    bg: 'action.primary',
-                    borderColor: 'action.primary',
-                    color: 'text.onGreen',
-                  }}
-                >
-                  <Checkbox.Indicator color="inherit" />
-                </Checkbox.Control>
-                <Checkbox.Label
-                  fontSize="sm"
-                  fontWeight={500}
-                  color="text.default"
-                  lineHeight="1.5"
-                >
-                  {t.prohibitedConfirm}
-                </Checkbox.Label>
-              </HStack>
-            </Checkbox.Root>
-            {prohibitedError ? (
-              <Text color="status.danger.fg" fontSize="sm">
-                {prohibitedError}
-              </Text>
-            ) : null}
-          </Stack>
-        </Stack>
+        <Button asChild variant="secondary" alignSelf="flex-start">
+          <Link href="/account" _hover={{ textDecoration: 'none' }}>
+            {f.verifyPhone}
+          </Link>
+        </Button>
       ) : null}
     </CreateTaskSection>
   )

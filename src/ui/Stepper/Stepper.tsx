@@ -147,33 +147,73 @@ export function Stepper({
     <Stack as="nav" gap={1} w="full" {...rest}>
       {steps.map((major, majorIdx) => {
         const isActiveMajor = majorIdx === activeMajorIndex
-        const isCompleteMajor = majorIdx < activeMajorIndex
         const subSteps = major.subSteps ?? []
+        const flat = subSteps.length === 0
+        // A flat step is done when it was completed, wherever the reader is now.
+        const isCompleteMajor = flat
+          ? !isActiveMajor && completed.has(major.id)
+          : majorIdx < activeMajorIndex
+        const flatUnlocked = isSubStepUnlocked?.(major.id) ?? true
+        const row = (
+          <>
+            <StepNumber active={isActiveMajor} complete={isCompleteMajor}>
+              {majorIdx + 1}
+            </StepNumber>
+            <Text
+              flex={1}
+              fontSize="sm"
+              fontWeight={isActiveMajor ? 700 : 600}
+              color={isActiveMajor ? 'text.default' : 'text.muted'}
+            >
+              {major.label}
+            </Text>
+            {flat ? null : (
+              <Icon
+                as={isActiveMajor ? LuChevronDown : LuChevronRight}
+                boxSize="18px"
+                aria-hidden
+                color={isActiveMajor ? 'status.success.fg' : 'text.muted'}
+              />
+            )}
+          </>
+        )
 
         return (
           <Box key={major.id} w="full">
-            <HStack gap={3} align="center" py={2}>
-              <StepNumber active={isActiveMajor} complete={isCompleteMajor}>
-                {majorIdx + 1}
-              </StepNumber>
-              <Text
-                flex={1}
-                fontSize="sm"
-                fontWeight={isActiveMajor ? 700 : 600}
-                color={isActiveMajor ? 'text.default' : 'text.muted'}
+            {flat && onSelectSubStep ? (
+              <chakra.button
+                type="button"
+                display="flex"
+                alignItems="center"
+                gap={3}
+                w="full"
+                minH="44px"
+                px={1}
+                textAlign="left"
+                borderRadius="md"
+                bg="transparent"
+                cursor={flatUnlocked ? 'pointer' : 'not-allowed'}
+                opacity={flatUnlocked || isActiveMajor ? 1 : 0.45}
+                disabled={!flatUnlocked}
+                aria-current={isActiveMajor ? 'step' : undefined}
+                _hover={flatUnlocked ? { bg: 'bg.subtle' } : undefined}
+                _focusVisible={sdlFocusRing}
+                onClick={() => {
+                  if (flatUnlocked) onSelectSubStep(major.id)
+                }}
+              >
+                {row}
+              </chakra.button>
+            ) : (
+              <HStack
+                gap={3}
+                align="center"
+                py={2}
                 aria-current={isActiveMajor ? 'step' : undefined}
               >
-                {major.label}
-              </Text>
-              {subSteps.length > 0 ? (
-                <Icon
-                  as={isActiveMajor ? LuChevronDown : LuChevronRight}
-                  boxSize="18px"
-                  aria-hidden
-                  color={isActiveMajor ? 'status.success.fg' : 'text.muted'}
-                />
-              ) : null}
-            </HStack>
+                {row}
+              </HStack>
+            )}
 
             {isActiveMajor && subSteps.length > 0 ? (
               <Stack

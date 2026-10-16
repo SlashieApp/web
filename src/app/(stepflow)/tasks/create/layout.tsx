@@ -8,7 +8,12 @@ const PAGE_PATH = '/tasks/create'
 export async function generateMetadata() {
   const locale = await getRequestLocale()
   const copy = loadPageI11n(bag, locale)
-  return metadataFromI11n(copy.metadata, { locale, path: PAGE_PATH })
+  // Sign-in only, so nothing for search engines to index.
+  return metadataFromI11n(copy.metadata, {
+    locale,
+    path: PAGE_PATH,
+    noIndex: true,
+  })
 }
 
 export default function Layout({

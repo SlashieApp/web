@@ -4,8 +4,11 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
 import { LuLock, LuMapPin } from 'react-icons/lu'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Button, FormField, Input } from '@ui'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
+import { taskFieldError } from '../../../helpers/taskFieldError'
+import bag from '../../../i11n.json'
 import { CreateTaskSection } from '../shared/CreateTaskSection'
 import { TaskLocationMapPicker } from './TaskLocationMapPicker'
 
@@ -49,6 +52,7 @@ export function CreateTaskMapLocationPanel({
   locationError,
   onStreetAddressBlur,
 }: CreateTaskMapLocationPanelProps) {
+  const errorCopy = useI11n(bag).errors
   const canCopyPlace = Boolean(mapPlaceName.trim())
   const streetAddress = register('streetAddress')
 
@@ -108,7 +112,7 @@ export function CreateTaskMapLocationPanel({
           </HStack>
         }
         helperText="Shared only with the worker you accept, after you hire them."
-        errorText={streetAddressError}
+        errorText={taskFieldError(errorCopy, streetAddressError)}
       >
         <Stack gap={2}>
           <Input
@@ -140,7 +144,7 @@ export function CreateTaskMapLocationPanel({
 
       {locationError ? (
         <Text fontSize="sm" color="status.danger.fg">
-          {locationError}
+          {taskFieldError(errorCopy, locationError)}
         </Text>
       ) : null}
     </CreateTaskSection>

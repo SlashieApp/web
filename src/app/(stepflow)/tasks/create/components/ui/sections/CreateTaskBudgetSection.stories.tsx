@@ -2,6 +2,7 @@ import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { expect, userEvent, within } from 'storybook/test'
 
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
 import {
@@ -33,17 +34,15 @@ function CreateTaskBudgetSectionDemo({
   const { register } = useForm<CreateTaskFormFieldValues>({
     defaultValues: { ...emptyCreateTaskValues, budgetMajor },
   })
-  const [currency, setCurrency] = useState<Currency>(budgetCurrency)
   const [type, setType] = useState(budgetType)
   const [payment, setPayment] = useState(paymentMethod)
   return (
     <CreateTaskBudgetSection
       {...props}
       register={register}
-      budgetCurrency={currency}
+      budgetCurrency={budgetCurrency}
       budgetType={type}
       paymentMethod={payment}
-      onBudgetCurrencyChange={setCurrency}
       onBudgetTypeChange={setType}
       onPaymentMethodChange={setPayment}
     />
@@ -60,8 +59,21 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Defaults: GBP, one-off, cash, and no amount entered yet. */
+/** Defaults: one-off, cash, and no amount entered yet. */
 export const Default: Story = {}
+
+/** The amount's label follows the budget type, and choices are radio buttons. */
+export const TypeLabelsTheAmount: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByLabelText('Budget')).toBeVisible()
+    await userEvent.click(canvas.getByRole('radio', { name: 'Per hour' }))
+    await expect(
+      canvas.getByRole('radio', { name: 'Per hour' }),
+    ).toHaveAttribute('aria-checked', 'true')
+    await expect(canvas.getByLabelText('Budget per hour')).toBeVisible()
+  },
+}
 
 /** One-off budget of 120 pounds paid in cash. */
 export const OneOff: Story = {
@@ -86,7 +98,7 @@ export const BankTransfer: Story = {
   },
 }
 
-/** US dollars: the currency prefix inside the amount field changes. */
+/** An older task priced in dollars keeps its symbol (new tasks are in pounds). */
 export const UsDollars: Story = {
   args: { budgetMajor: '150', budgetCurrency: Currency.Usd },
 }

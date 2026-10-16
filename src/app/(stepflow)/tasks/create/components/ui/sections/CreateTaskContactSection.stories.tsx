@@ -1,11 +1,11 @@
 import { TaskContactMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, userEvent, within } from 'storybook/test'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 
-import { createTaskStoryErrors } from '../../createTaskStoryFixtures'
 import {
   CreateTaskContactSection,
   type CreateTaskContactSectionProps,
@@ -17,26 +17,19 @@ function options(emailVerified: boolean, phoneVerified: boolean) {
 
 type DemoProps = Omit<
   CreateTaskContactSectionProps,
-  'onPreferredContactMethodChange' | 'onAcceptedProhibitedUseChange'
-> & { withProhibitedNotice?: boolean }
+  'onPreferredContactMethodChange'
+>
 
 function CreateTaskContactSectionDemo({
   preferredContactMethod,
-  acceptedProhibitedUse = false,
-  withProhibitedNotice = true,
   ...props
 }: DemoProps) {
   const [method, setMethod] = useState(preferredContactMethod)
-  const [accepted, setAccepted] = useState(acceptedProhibitedUse)
   return (
     <CreateTaskContactSection
       {...props}
       preferredContactMethod={method}
       onPreferredContactMethodChange={setMethod}
-      acceptedProhibitedUse={accepted}
-      onAcceptedProhibitedUseChange={
-        withProhibitedNotice ? setAccepted : undefined
-      }
     />
   )
 }
@@ -55,30 +48,53 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Email and phone both verified: all three methods can be chosen. */
-export const AllVerified: Story = {}
+/** Email and phone both verified: all three can be chosen, as radio buttons. */
+export const AllVerified: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('radio', { name: 'Phone' }))
+    await expect(canvas.getByRole('radio', { name: 'Phone' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+  },
+}
 
-/** Phone chosen and verified: its button is the highlighted one. */
+/** Phone chosen and verified. */
 export const PhoneSelected: Story = {
   args: { preferredContactMethod: TaskContactMethod.Phone },
 }
 
-/** Email chosen and verified: its button is the highlighted one. */
+/** Email chosen and verified. */
 export const EmailSelected: Story = {
   args: { preferredContactMethod: TaskContactMethod.Email },
 }
 
-/** Phone chosen but not verified: it is disabled and links to verify it. */
+/** Phone chosen but not verified: disabled, with why and a link to verify. */
 export const PhoneNotVerified: Story = {
   args: {
     preferredContactMethod: TaskContactMethod.Phone,
     contactOptions: options(true, false),
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('radio', { name: 'Phone' })).toBeDisabled()
+    await expect(
+      canvas.getByRole('link', { name: 'Verify phone in Account' }),
+    ).toHaveAttribute('href', '/account')
+  },
 }
 
-/** Email not verified: it is disabled with a hint. */
+/** Email not verified: disabled, with why. */
 export const EmailNotVerified: Story = {
   args: { contactOptions: options(false, true) },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText(
+        'Verify your email in Account to use this.',
+      ),
+    ).toBeVisible()
+  },
 }
 
 /** Nothing verified: only in-app chat can be chosen. */
@@ -86,24 +102,7 @@ export const NothingVerified: Story = {
   args: { contactOptions: options(false, false) },
 }
 
-/** The allowed-tasks confirmation is ticked. */
-export const ProhibitedAccepted: Story = {
-  args: { acceptedProhibitedUse: true },
-}
-
-/** Publish pressed without the confirmation: the real message shows. */
-export const ProhibitedRequired: Story = {
-  args: {
-    prohibitedError: createTaskStoryErrors().acceptedProhibitedUse,
-  },
-}
-
-/** Edit flow: no allowed-tasks notice or confirmation. */
-export const WithoutProhibitedNotice: Story = {
-  args: { withProhibitedNotice: false },
-}
-
-/** Card mode (edit page): the fields sit in a titled section card. */
+/** Card mode (edit page): the fields sit in a titled section. */
 export const CardMode: Story = {
-  args: { bare: false, withProhibitedNotice: false },
+  args: { bare: false, sectionHeading: 'Preferred contact' },
 }

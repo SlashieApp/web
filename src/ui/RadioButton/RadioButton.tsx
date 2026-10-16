@@ -168,11 +168,14 @@ export function RadioButton({
   const sizing = radioSizes[sizeAlias[size]]
 
   const rowState = checked ? visual.rowChecked : visual.row
+  // Inside a RadioButtonGroup each row is a radio: checked, not pressed.
+  const isRadio = (rest as { role?: string }).role === 'radio'
 
   return (
     <RadioButtonShell
       type="button"
-      aria-pressed={checked}
+      aria-pressed={isRadio ? undefined : checked}
+      aria-checked={isRadio ? checked : undefined}
       aria-disabled={disabled || undefined}
       disabled={disabled}
       cursor={disabled ? 'not-allowed' : 'pointer'}

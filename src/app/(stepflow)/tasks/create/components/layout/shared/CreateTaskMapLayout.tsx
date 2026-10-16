@@ -17,7 +17,6 @@ import {
 } from 'react'
 
 import { marketplaceMapMotion } from '@/app/(task)/helpers/marketplaceMap/motion'
-import { COMPACT_DETAIL_HERO_H } from '@/app/(task)/helpers/marketplaceMap/overlay/config'
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '@/app/(task)/tasks/[slug]/helpers/taskDetailLayout'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
@@ -27,10 +26,13 @@ import {
   StepFlowHeading,
 } from '@ui'
 
-/** Task-detail map band: visible map above the form on later steps. */
+/**
+ * The map band above the form on later steps. Short on phones and tablets
+ * (FE-295) so the first field sits above the fold; desktop matches task detail.
+ */
 const MAP_BAND_H = {
-  base: COMPACT_DETAIL_HERO_H.base,
-  md: COMPACT_DETAIL_HERO_H.md,
+  base: '160px',
+  md: '220px',
   lg: TASK_DETAIL_DESKTOP_MAP_SPACER,
 } as const
 
@@ -72,6 +74,8 @@ export type CreateTaskMapLayoutProps = {
   map: ReactNode
   /** Location step: full-screen map + bottom card. Otherwise a top band. */
   mapExpanded: boolean
+  /** Over the band on later steps: the area, with a way back to the map. */
+  bandOverlay?: ReactNode
   title: string
   description?: string
   errorText?: string | null
@@ -93,6 +97,7 @@ export function CreateTaskMapLayout({
   stepper,
   map,
   mapExpanded,
+  bandOverlay,
   title,
   description,
   errorText,
@@ -134,6 +139,7 @@ export function CreateTaskMapLayout({
       <Box display={{ base: 'block', lg: 'none' }}>{progress}</Box>
 
       <Box
+        as="main"
         position="relative"
         flex={1}
         display="flex"
@@ -214,9 +220,23 @@ export function CreateTaskMapLayout({
             <Box
               h={MAP_BAND_H}
               flexShrink={0}
+              position="relative"
               pointerEvents="none"
-              aria-hidden
-            />
+            >
+              {bandOverlay ? (
+                // Top of the band, clear of the Mapbox logo and attribution.
+                <Box position="absolute" insetX={0} top={3} zIndex={2}>
+                  <Box
+                    maxW={PAGE_CONTAINER_MAX_W}
+                    mx="auto"
+                    px={PAGE_GUTTER_X}
+                    display="flex"
+                  >
+                    <Box pointerEvents="auto">{bandOverlay}</Box>
+                  </Box>
+                </Box>
+              ) : null}
+            </Box>
             <Grid
               position="relative"
               zIndex={1}

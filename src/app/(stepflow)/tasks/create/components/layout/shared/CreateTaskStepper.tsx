@@ -1,38 +1,37 @@
 'use client'
 
+import { useI11n } from '@/i18n/useI11n'
 import { Stepper } from '@ui'
 
-import {
-  CREATE_TASK_STEPPER_STEPS,
-  type CreateTaskSubStepId,
-  createTaskIsSubStepUnlocked,
-} from '../../../helpers/createTaskSteps.config'
+import { createTaskIsStepUnlocked } from '../../../helpers/createTaskSteps'
+import bag from '../../../i11n.json'
+import { CREATE_TASK_STEPS, type CreateTaskStepId } from '../../../views'
 
 type CreateTaskStepperProps = {
-  activeSubStep: CreateTaskSubStepId
-  completedSubSteps: ReadonlySet<string>
-  onSelectSubStep: (id: CreateTaskSubStepId) => void
+  active: CreateTaskStepId
+  done: ReadonlySet<CreateTaskStepId>
+  onSelect: (id: CreateTaskStepId) => void
 }
 
-/** Task-creation binding for the shared @ui Stepper rail. */
+/** The five create steps on the desktop rail; any step already reached is a button. */
 export function CreateTaskStepper({
-  activeSubStep,
-  completedSubSteps,
-  onSelectSubStep,
+  active,
+  done,
+  onSelect,
 }: CreateTaskStepperProps) {
+  const steps = useI11n(bag).steps
   return (
     <Stepper
-      steps={CREATE_TASK_STEPPER_STEPS}
-      activeSubStepId={activeSubStep}
-      completedSubStepIds={completedSubSteps}
+      steps={CREATE_TASK_STEPS.map(({ step }) => ({
+        id: step,
+        label: steps[step].label,
+      }))}
+      activeSubStepId={active}
+      completedSubStepIds={done}
       isSubStepUnlocked={(id) =>
-        createTaskIsSubStepUnlocked(
-          id as CreateTaskSubStepId,
-          activeSubStep,
-          completedSubSteps,
-        )
+        createTaskIsStepUnlocked(id as CreateTaskStepId, active, done)
       }
-      onSelectSubStep={(id) => onSelectSubStep(id as CreateTaskSubStepId)}
+      onSelectSubStep={(id) => onSelect(id as CreateTaskStepId)}
       maxW="320px"
     />
   )

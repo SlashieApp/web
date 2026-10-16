@@ -8,13 +8,11 @@ import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import { townOnly } from '@/utils/taskLocationDisplay'
 import { StepFlowHeader, StepFlowProgress } from '@ui'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
-import {
-  CREATE_TASK_STEP_COPY,
-  createTaskProgressPercent,
-  createTaskStepCaption,
-} from '../../../helpers/createTaskSteps.config'
+import { createTaskProgress } from '../../../helpers/createTaskSteps'
+import bag from '../../../i11n.json'
 import { withPopularCategories } from '../../createTaskStoryFixtures'
 import { CreateTaskBasicsSection } from '../../ui/sections/CreateTaskBasicsSection'
+import { CreateTaskConsentSection } from '../../ui/sections/CreateTaskConsentSection'
 import { CreateTaskContactSection } from '../../ui/sections/CreateTaskContactSection'
 import { CreateTaskLocationSection } from '../../ui/sections/CreateTaskLocationSection'
 import { CreateTaskLocationMap } from '../map/CreateTaskLocationMap'
@@ -51,12 +49,9 @@ function CreateTaskMapDemo({
   const [locationLat, setLocationLat] = useState(lat)
   const [locationLng, setLocationLng] = useState(lng)
   const { register } = useForm<CreateTaskFormFieldValues>()
-  const step = publishing
-    ? 'publish.contact'
-    : mapExpanded
-      ? 'details.location'
-      : 'details.basics'
-  const copy = CREATE_TASK_STEP_COPY[step]
+  const step = publishing ? 'review' : mapExpanded ? 'location' : 'details'
+  const copy = bag.en.steps[step]
+  const progress = createTaskProgress(step)
 
   return (
     <CreateTaskMapLayout
@@ -69,30 +64,24 @@ function CreateTaskMapDemo({
       }
       progress={
         <StepFlowProgress
-          value={createTaskProgressPercent(step)}
-          label={createTaskStepCaption(step)}
+          value={progress.percent}
+          label={`Step ${progress.index} of ${progress.total} · ${copy.label}`}
           trackLabel="Task creation progress"
         />
       }
       stepper={
         <CreateTaskStepper
-          activeSubStep={step}
-          completedSubSteps={
+          active={step}
+          done={
             new Set(
               publishing
-                ? [
-                    'details.location',
-                    'details.basics',
-                    'details.timing',
-                    'publish.photos',
-                    'publish.budget',
-                  ]
+                ? (['location', 'details', 'timing', 'budget'] as const)
                 : mapExpanded
                   ? []
-                  : ['details.location'],
+                  : (['location'] as const),
             )
           }
-          onSelectSubStep={(id) => setMapExpanded(id === 'details.location')}
+          onSelect={(id) => setMapExpanded(id === 'location')}
         />
       }
       map={
@@ -118,7 +107,7 @@ function CreateTaskMapDemo({
         onContinue: () => setMapExpanded(false),
         ...(publishing
           ? {
-              continueLabel: 'Publish task',
+              continueLabel: 'Post task',
               continueLoading: true,
               isFinal: true,
             }
@@ -126,17 +115,18 @@ function CreateTaskMapDemo({
       }}
     >
       {publishing ? (
-        <CreateTaskContactSection
-          bare
-          preferredContactMethod={TaskContactMethod.InApp}
-          onPreferredContactMethodChange={() => {}}
-          contactOptions={getContactOptions({
-            emailVerified: true,
-            phoneVerified: true,
-          } as MeSnapshot)}
-          acceptedProhibitedUse
-          onAcceptedProhibitedUseChange={() => {}}
-        />
+        <>
+          <CreateTaskContactSection
+            bare
+            preferredContactMethod={TaskContactMethod.InApp}
+            onPreferredContactMethodChange={() => {}}
+            contactOptions={getContactOptions({
+              emailVerified: true,
+              phoneVerified: true,
+            } as MeSnapshot)}
+          />
+          <CreateTaskConsentSection accepted onChange={() => {}} />
+        </>
       ) : mapExpanded ? (
         <CreateTaskLocationSection
           publicArea={townOnly(location) ?? ''}

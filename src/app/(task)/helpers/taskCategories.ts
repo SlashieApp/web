@@ -141,8 +141,10 @@ export function suggestedTaskCategories(
   return out
 }
 
-/** Form field: 1 to 10 categories, each up to 64 characters. */
+/** Form field: 1 to 10 categories, each up to 64 characters (copy keys). */
 export const taskCategoriesSchema = z
-  .array(z.string().trim().min(1).max(TASK_CATEGORY_MAX_CHARS))
-  .min(1, 'Add at least one category.')
-  .max(TASK_CATEGORIES_MAX, `Up to ${TASK_CATEGORIES_MAX} categories.`)
+  .array(
+    z.string().trim().min(1).max(TASK_CATEGORY_MAX_CHARS, 'categoryTooLong'),
+  )
+  .min(1, 'categoryRequired')
+  .max(TASK_CATEGORIES_MAX, 'tooManyCategories')

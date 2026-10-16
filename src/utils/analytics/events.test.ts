@@ -77,7 +77,9 @@ describe('canonical marketplace event catalogue', () => {
 
 describe('marketplace capture call sites', () => {
   it('create-task wizard emits task_create_success / fail', () => {
-    const src = readRepo('src/app/(stepflow)/tasks/create/page.tsx')
+    const src = readRepo(
+      'src/app/(stepflow)/tasks/create/components/CreateTaskScreen.tsx',
+    )
     expect(src).toContain('EVENTS.task_create_success')
     expect(src).toContain('EVENTS.task_create_fail')
     expect(src).not.toMatch(/['"]task_created['"]/)

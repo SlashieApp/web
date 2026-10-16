@@ -13,10 +13,14 @@ import {
   suggestedTaskCategories,
   taskCategoryDisplayLabel,
 } from '@/app/(task)/helpers/taskCategories'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 import { Button, FormField, Input, formControlRootProps } from '@ui'
 
 import PopularTaskCategories from '../../../graphql/PopularTaskCategories.gql'
+import { taskFieldError } from '../../../helpers/taskFieldError'
+import bag from '../../../i11n.json'
 
 export type CreateTaskCategoriesInputProps = {
   value: string[]
@@ -32,9 +36,10 @@ const chipTransition = {
 
 const ChipButton = chakra('button')
 
-const LIMIT_COPY = {
-  tooMany: `Up to ${TASK_CATEGORIES_MAX} categories.`,
-  tooLong: `Keep each category under ${TASK_CATEGORY_MAX_CHARS} characters.`,
+/** `addTaskCategories` limits → copy keys in `errors`. */
+const LIMIT_ERROR = {
+  tooMany: 'tooManyCategories',
+  tooLong: 'categoryTooLong',
 } as const
 
 /**
@@ -46,8 +51,10 @@ export function CreateTaskCategoriesInput({
   onChange,
   errorText,
 }: CreateTaskCategoriesInputProps) {
+  const t = useI11n(bag)
+  const f = t.fields
   const [draft, setDraft] = useState('')
-  const [limitError, setLimitError] = useState<keyof typeof LIMIT_COPY | null>(
+  const [limitError, setLimitError] = useState<keyof typeof LIMIT_ERROR | null>(
     null,
   )
   const { data } = useQuery<PopularTaskCategoriesQuery>(PopularTaskCategories, {
@@ -74,9 +81,13 @@ export function CreateTaskCategoriesInput({
 
   return (
     <FormField
-      label="Categories"
-      helperText={`Tap a suggestion or type your own. Up to ${TASK_CATEGORIES_MAX}.`}
-      errorText={(limitError ? LIMIT_COPY[limitError] : null) ?? errorText}
+      label={f.categories}
+      required
+      helperText={f.categoriesHelper}
+      errorText={taskFieldError(
+        t.errors,
+        limitError ? LIMIT_ERROR[limitError] : errorText,
+      )}
     >
       <Box w="full">
         {value.length > 0 ? (
@@ -99,7 +110,7 @@ export function CreateTaskCategoriesInput({
                 </Text>
                 <ChipButton
                   type="button"
-                  aria-label={`Remove ${category}`}
+                  aria-label={formatMessage(f.removeCategory, { category })}
                   onClick={() => {
                     setLimitError(null)
                     onChange(value.filter((c) => c !== category))
@@ -141,9 +152,11 @@ export function CreateTaskCategoriesInput({
               e.preventDefault()
               commitDraft()
             }}
-            placeholder="e.g. Plumbing"
+            // A half-typed category is kept, not dropped on Continue.
+            onBlur={commitDraft}
+            placeholder={f.categoryPlaceholder}
             disabled={atCap}
-            aria-label="Add a category"
+            aria-label={f.categoryInputLabel}
             rootProps={{ ...formControlRootProps, flex: 1 }}
           />
           <Button
@@ -153,21 +166,21 @@ export function CreateTaskCategoriesInput({
             disabled={atCap || !draft.trim()}
             flexShrink={0}
           >
-            Add
+            {f.addCategory}
           </Button>
         </HStack>
 
         {suggestions.length > 0 ? (
           <Box pt={3}>
             <Text fontSize="xs" fontWeight={600} color="text.muted" pb={1.5}>
-              Suggestions
+              {f.suggestions}
             </Text>
             <Wrap gap={1.5}>
               {suggestions.map((category) => (
                 <ChipButton
                   key={category.toLowerCase()}
                   type="button"
-                  aria-label={`Add ${category}`}
+                  aria-label={formatMessage(f.suggestCategory, { category })}
                   onClick={() => add(category)}
                   display="inline-flex"
                   alignItems="center"

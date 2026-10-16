@@ -1,23 +1,19 @@
 'use client'
 
-import type { ChangeEvent } from 'react'
-
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import { TaskDateTimeType } from '@codegen/schema'
-import { Button, FormField, Input, Select } from '@ui'
+
+import { useI11n } from '@/i18n/useI11n'
+import { FormField, Input, RadioButtonGroup } from '@ui'
+
+import { toYmd } from '../../../createTaskFormSchema'
+import { taskFieldError } from '../../../helpers/taskFieldError'
+import bag from '../../../i11n.json'
 import { CreateTaskSection } from '../../layout/shared/CreateTaskSection'
 
-function toYmd(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
-
 export type CreateTaskScheduleSectionProps = {
-  /** Bare mode for the stepped create flow (no Card/heading). */
+  /** Bare inside the create flow's step; a titled section on edit. */
   bare?: boolean
-  /** Card header text (card mode only). */
   sectionHeading?: string
   datetimeType: TaskDateTimeType
   onDatetimeTypeChange: (value: TaskDateTimeType) => void
@@ -25,15 +21,20 @@ export type CreateTaskScheduleSectionProps = {
   preferredTime: string
   onPreferredDateChange: (value: string) => void
   onPreferredTimeChange: (value: string) => void
+  /** Copy keys from the form schema. */
   fieldErrors?: {
     preferredDate?: string
     preferredTime?: string
   }
 }
 
+/**
+ * Flexible, before a date, or a date and time. The date is the device's own
+ * picker from today on, so any week is reachable and past days aren't.
+ */
 export function CreateTaskScheduleSection({
   bare = false,
-  sectionHeading = '3. Timing',
+  sectionHeading = '',
   datetimeType,
   onDatetimeTypeChange,
   preferredDate,
@@ -42,27 +43,12 @@ export function CreateTaskScheduleSection({
   onPreferredTimeChange,
   fieldErrors,
 }: CreateTaskScheduleSectionProps) {
-  const weekAnchor = preferredDate
-    ? new Date(`${preferredDate}T12:00:00`)
-    : new Date()
-  const monday = (() => {
-    const x = new Date(weekAnchor)
-    const day = x.getDay()
-    const diff = day === 0 ? -6 : 1 - day
-    x.setDate(x.getDate() + diff)
-    x.setHours(0, 0, 0, 0)
-    return x
-  })()
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday)
-    d.setDate(d.getDate() + i)
-    return d
-  })
-
-  const showDatePicker =
+  const t = useI11n(bag)
+  const f = t.fields
+  const showDate =
     datetimeType === TaskDateTimeType.Before ||
     datetimeType === TaskDateTimeType.Exact
-  const showTimePicker = datetimeType === TaskDateTimeType.Exact
+  const showTime = datetimeType === TaskDateTimeType.Exact
 
   return (
     <CreateTaskSection
@@ -71,93 +57,50 @@ export function CreateTaskScheduleSection({
       bodyGap={5}
       headingSubtext={
         <Text fontSize="sm" color="text.muted">
-          Tell workers when you need the work done. You can keep it flexible or
-          pin an exact slot.
+          {t.steps.timing.description}
         </Text>
       }
     >
-      <FormField label="When do you need this?">
-        <Select
-          rootProps={{ maxW: { base: 'full', md: '320px' } }}
-          value={datetimeType}
-          onChange={(e) =>
-            onDatetimeTypeChange(e.target.value as TaskDateTimeType)
-          }
-        >
-          <option value={TaskDateTimeType.Flexible}>Flexible</option>
-          <option value={TaskDateTimeType.Before}>Before a date</option>
-          <option value={TaskDateTimeType.Exact}>Exact date & time</option>
-        </Select>
-      </FormField>
+      <RadioButtonGroup
+        label={f.when}
+        value={datetimeType}
+        options={[
+          { value: TaskDateTimeType.Flexible, label: f.flexible },
+          { value: TaskDateTimeType.Before, label: f.before },
+          { value: TaskDateTimeType.Exact, label: f.exact },
+        ]}
+        onChange={onDatetimeTypeChange}
+      />
 
-      {showDatePicker ? (
-        <Stack gap={2}>
-          <Text fontSize="sm" fontWeight={700}>
-            Pick a week, then a day
-          </Text>
-          <HStack
-            gap={2}
-            overflowX="auto"
-            pb={1}
-            css={{ scrollbarWidth: 'thin' }}
-          >
-            {weekDays.map((d) => {
-              const ymd = toYmd(d)
-              const isSelected = preferredDate === ymd
-              const dayNum = d.getDate()
-              const dow = d.toLocaleDateString('en-GB', { weekday: 'short' })
-              return (
-                <Button
-                  key={ymd}
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  flexShrink={0}
-                  minW="56px"
-                  bg={isSelected ? 'action.primary' : 'bg.surface'}
-                  color={isSelected ? 'text.onGreen' : 'text.default'}
-                  boxShadow="none"
-                  onClick={() => onPreferredDateChange(ymd)}
-                >
-                  <Stack gap={0} align="center">
-                    <Text fontSize="xs" fontWeight={700}>
-                      {dow}
-                    </Text>
-                    <Text fontSize="sm" fontWeight={800}>
-                      {dayNum}
-                    </Text>
-                  </Stack>
-                </Button>
-              )
-            })}
-          </HStack>
-          {fieldErrors?.preferredDate ? (
-            <Text fontSize="sm" color="status.danger.fg" mt={1}>
-              {fieldErrors.preferredDate}
-            </Text>
-          ) : null}
-        </Stack>
+      {showDate ? (
+        <FormField
+          label={datetimeType === TaskDateTimeType.Before ? f.doneBy : f.date}
+          required
+          errorText={taskFieldError(t.errors, fieldErrors?.preferredDate)}
+        >
+          <Input
+            type="date"
+            min={toYmd(new Date())}
+            value={preferredDate}
+            onChange={(e) => onPreferredDateChange(e.target.value)}
+            rootProps={{ maxW: { base: 'full', md: '240px' } }}
+          />
+        </FormField>
       ) : null}
 
-      {showTimePicker ? (
-        <Box>
-          <Text fontSize="sm" fontWeight={700} mb={2}>
-            Preferred time
-          </Text>
+      {showTime ? (
+        <FormField
+          label={f.time}
+          required
+          errorText={taskFieldError(t.errors, fieldErrors?.preferredTime)}
+        >
           <Input
             type="time"
-            maxW={{ base: 'full', md: '240px' }}
             value={preferredTime}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              onPreferredTimeChange(e.target.value)
-            }
+            onChange={(e) => onPreferredTimeChange(e.target.value)}
+            rootProps={{ maxW: { base: 'full', md: '240px' } }}
           />
-          {fieldErrors?.preferredTime ? (
-            <Text fontSize="sm" color="status.danger.fg" mt={1}>
-              {fieldErrors.preferredTime}
-            </Text>
-          ) : null}
-        </Box>
+        </FormField>
       ) : null}
     </CreateTaskSection>
   )

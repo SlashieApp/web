@@ -2,20 +2,24 @@
 
 import type { UseFormRegister } from 'react-hook-form'
 
+import { useI11n } from '@/i18n/useI11n'
 import { FormField, Input, Textarea } from '@ui'
+
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
+import { taskFieldError } from '../../../helpers/taskFieldError'
+import bag from '../../../i11n.json'
 import { CreateTaskSection } from '../../layout/shared/CreateTaskSection'
 import { CreateTaskCategoriesInput } from './CreateTaskCategoriesInput'
 
 export type CreateTaskBasicsSectionProps = {
-  /** Bare mode for the stepped create flow (no Card/heading). */
+  /** Bare inside the create flow's step; a titled section on edit. */
   bare?: boolean
-  /** Card header text (card mode only). */
   sectionHeading?: string
   register: UseFormRegister<CreateTaskFormFieldValues>
   /** Tag-style categories (FE-211); not a registered input. */
   categories: string[]
   onCategoriesChange: (categories: string[]) => void
+  /** Copy keys from the form schema. */
   fieldErrors?: {
     title?: string
     categories?: string
@@ -23,21 +27,26 @@ export type CreateTaskBasicsSectionProps = {
   }
 }
 
+/** Title, categories and description. */
 export function CreateTaskBasicsSection({
   bare = false,
-  sectionHeading = '1. Task basics',
+  sectionHeading = '',
   register,
   categories,
   onCategoriesChange,
   fieldErrors,
 }: CreateTaskBasicsSectionProps) {
+  const t = useI11n(bag)
+  const f = t.fields
+
   return (
     <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={5}>
-      <FormField label="Task title" errorText={fieldErrors?.title}>
-        <Input
-          {...register('title')}
-          placeholder="e.g., Fix leaking pipe in master bathroom"
-        />
+      <FormField
+        label={f.title}
+        required
+        errorText={taskFieldError(t.errors, fieldErrors?.title)}
+      >
+        <Input {...register('title')} placeholder={f.titlePlaceholder} />
       </FormField>
 
       <CreateTaskCategoriesInput
@@ -46,10 +55,14 @@ export function CreateTaskBasicsSection({
         errorText={fieldErrors?.categories}
       />
 
-      <FormField label="Description" errorText={fieldErrors?.description}>
+      <FormField
+        label={f.description}
+        required
+        errorText={taskFieldError(t.errors, fieldErrors?.description)}
+      >
         <Textarea
           {...register('description')}
-          placeholder="Describe the specific problem or work needed..."
+          placeholder={f.descriptionPlaceholder}
           rows={4}
         />
       </FormField>

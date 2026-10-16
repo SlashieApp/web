@@ -8,6 +8,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, FormField, Input } from '@ui'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
+import { taskFieldError } from '../../../helpers/taskFieldError'
 import bag from '../../../i11n.json'
 
 export type CreateTaskLocationSectionProps = {
@@ -15,7 +16,7 @@ export type CreateTaskLocationSectionProps = {
   publicArea: string
   register: UseFormRegister<CreateTaskFormFieldValues>
   streetAddressError?: string
-  /** First relevant map/location validation message from the form. */
+  /** First map/location error (a copy key) from the form. */
   locationError?: string
   /** Current location was denied or unavailable. */
   locateUnavailable?: boolean
@@ -28,8 +29,8 @@ export type CreateTaskLocationSectionProps = {
 }
 
 /**
- * Location step body (FE-70): a privacy callout, the approximate area
- * workers see (public), and the exact address (private until accept).
+ * Location step body (FE-70): one privacy callout, the area workers see
+ * (public), and the exact address (private until you accept a worker).
  */
 export function CreateTaskLocationSection({
   publicArea,
@@ -41,7 +42,8 @@ export function CreateTaskLocationSection({
   pinAddress = '',
   onUsePinAddress,
 }: CreateTaskLocationSectionProps) {
-  const t = useI11n(bag).location
+  const copy = useI11n(bag)
+  const t = copy.location
   const streetAddress = register('streetAddress')
 
   return (
@@ -64,9 +66,6 @@ export function CreateTaskLocationSection({
       </HStack>
 
       <Stack gap={1.5}>
-        <Text fontSize="xs" fontWeight={600} color="text.muted">
-          {t.areaLabel}
-        </Text>
         <HStack
           gap={1.5}
           alignSelf="flex-start"
@@ -101,8 +100,9 @@ export function CreateTaskLocationSection({
             {t.addressLabel}
           </HStack>
         }
+        required
         helperText={t.addressHelper}
-        errorText={streetAddressError}
+        errorText={taskFieldError(copy.errors, streetAddressError)}
       >
         <Stack gap={2}>
           <Input
@@ -116,7 +116,6 @@ export function CreateTaskLocationSection({
           {onUsePinAddress ? (
             <Button
               type="button"
-              size="sm"
               variant="secondary"
               alignSelf="flex-start"
               disabled={!pinAddress.trim()}
@@ -130,8 +129,8 @@ export function CreateTaskLocationSection({
       </FormField>
 
       {locationError ? (
-        <Text fontSize="sm" color="status.danger.fg">
-          {locationError}
+        <Text fontSize="sm" color="status.danger.fg" role="alert">
+          {taskFieldError(copy.errors, locationError)}
         </Text>
       ) : null}
     </Stack>

@@ -7,9 +7,8 @@ import { Card } from '@ui'
 
 export type CreateTaskSectionProps = {
   /**
-   * Bare mode (stepped create flow): render only the field body, since
-   * StepFlowLayout already supplies the raised panel card and the step title.
-   * Default (edit page / long-form) wraps the body in a titled section Card.
+   * Bare mode (create flow): only the fields, since the step panel already
+   * has the title. Default (edit page) wraps them in a titled section Card.
    */
   bare?: boolean
   /** Section heading (card mode only; ignored when `bare`). */
@@ -21,9 +20,8 @@ export type CreateTaskSectionProps = {
 }
 
 /**
- * Wrapper shared by every task-create section so the field body can render
- * either inside a titled SDL Card (long-form/edit) or bare inside the shared
- * StepFlowLayout panel — with identical body spacing in both.
+ * Wrapper shared by every task section so the fields render either bare in a
+ * create step or inside a titled section Card on edit, with the same spacing.
  */
 export function CreateTaskSection({
   bare = false,

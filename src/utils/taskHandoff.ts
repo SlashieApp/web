@@ -5,9 +5,6 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 
 import { APP_HOME } from './appRoutes'
 
-/** Max chars accepted from a `/tasks/create?title=` link into the draft title. */
-export const TASK_DRAFT_TITLE_MAX = 120
-
 /** Create a new task prefilled from one of the poster's earlier tasks. */
 export function repostTaskHref(taskId: string): string {
   return `/tasks/create?repost=${encodeURIComponent(taskId)}`

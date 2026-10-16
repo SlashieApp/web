@@ -4,11 +4,10 @@ import { mapboxForwardGeocode } from '@/utils/mapboxGeocode'
 export const TASK_MAP_PREVIEW_LAT = 51.5074
 export const TASK_MAP_PREVIEW_LNG = -0.1278
 
-export const TASK_LOCATION_GEOCODE_ERROR =
-  "We couldn't find that place. Search for it on the map, or enter a clearer address."
+/** Copy keys in `i11n.json` → `errors`. */
+export const TASK_LOCATION_GEOCODE_ERROR = 'placeNotFound'
 
-export const TASK_LOCATION_MISSING_ERROR =
-  'Search or move the map to set your task area.'
+export const TASK_LOCATION_MISSING_ERROR = 'locationMissing'
 
 function finiteCoord(value: string): number | null {
   const n = Number.parseFloat(value.trim())

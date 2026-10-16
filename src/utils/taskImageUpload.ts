@@ -126,6 +126,27 @@ export async function uploadTaskImagesWithPresign(
   return urls
 }
 
+/**
+ * Uploads every photo even when one fails (create and edit: the task is
+ * already saved, so the rest should still land). Returns how many failed.
+ */
+export async function uploadTaskImagesSettled(
+  client: ApolloClient,
+  taskId: string,
+  files: File[],
+  startIndex = 0,
+): Promise<{ failed: number }> {
+  let failed = 0
+  for (let i = 0; i < files.length; i += 1) {
+    try {
+      await uploadTaskImageWithPresign(client, taskId, files[i], startIndex + i)
+    } catch {
+      failed += 1
+    }
+  }
+  return { failed }
+}
+
 /** Next S3 object index under `tasks/<taskId>/` from existing image URLs. */
 export function nextTaskImageUploadIndex(
   existingImageUrls: readonly string[],

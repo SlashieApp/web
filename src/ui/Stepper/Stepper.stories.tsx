@@ -1,6 +1,7 @@
 import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { Stepper, type StepperStep } from './Stepper'
 
@@ -153,6 +154,28 @@ export const FlatStepsLastActive: Story = {
     steps: flatSteps,
     activeSubStepId: 'done',
     completedSubStepIds: ['account', 'verify'],
+  },
+}
+
+/**
+ * Flat steps with navigation (create task): a done step is a button back to
+ * it; a step not reached yet is disabled.
+ */
+export const FlatStepsNavigable: Story = {
+  args: {
+    steps: flatSteps,
+    activeSubStepId: 'verify',
+    completedSubStepIds: ['account'],
+    isSubStepUnlocked: (id: string) => id !== 'done',
+    onSelectSubStep: fn(),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      canvas.getByRole('button', { name: /Create account/ }),
+    )
+    await expect(args.onSelectSubStep).toHaveBeenCalledWith('account')
+    await expect(canvas.getByRole('button', { name: /All set/ })).toBeDisabled()
   },
 }
 

@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+/**
+ * Validation messages are copy keys in `i11n.json` → `errors` (en + zh-HK),
+ * shown with `taskFieldError`.
+ */
+
 import {
   Currency,
   TaskBudgetType,
@@ -11,31 +16,25 @@ import {
 import { taskCategoriesSchema } from '@/app/(task)/helpers/taskCategories'
 
 export const taskDetailsFields = {
-  title: z.string().trim().min(1, 'Please add a task title.'),
+  title: z.string().trim().min(1, 'titleRequired'),
   categories: taskCategoriesSchema,
-  description: z
-    .string()
-    .trim()
-    .min(1, 'Please describe what needs to be done.'),
-  streetAddress: z.string().trim().min(1, 'Please add your property address.'),
-  mapPlaceName: z
-    .string()
-    .trim()
-    .min(1, 'Search or move the map to set your task area.'),
+  description: z.string().trim().min(1, 'descriptionRequired'),
+  streetAddress: z.string().trim().min(1, 'addressRequired'),
+  mapPlaceName: z.string().trim().min(1, 'areaRequired'),
   locationLat: z
     .string()
     .trim()
     .refine((s) => {
       const n = Number.parseFloat(s)
       return Number.isFinite(n) && !Number.isNaN(n)
-    }, 'Could not read map latitude. Try moving the map slightly.'),
+    }, 'mapUnreadable'),
   locationLng: z
     .string()
     .trim()
     .refine((s) => {
       const n = Number.parseFloat(s)
       return Number.isFinite(n) && !Number.isNaN(n)
-    }, 'Could not read map longitude. Try moving the map slightly.'),
+    }, 'mapUnreadable'),
   datetimeType: z.nativeEnum(TaskDateTimeType),
   preferredDate: z.string(),
   preferredTime: z.string(),
@@ -45,7 +44,7 @@ export const taskDetailsFields = {
     .refine((s) => {
       const n = Number.parseFloat(s)
       return Number.isFinite(n) && n > 0
-    }, 'Please provide a valid budget amount.'),
+    }, 'budgetRequired'),
   budgetCurrency: z.nativeEnum(Currency),
   budgetType: z.nativeEnum(TaskBudgetType),
   paymentMethod: z.nativeEnum(TaskPaymentMethod),
@@ -66,8 +65,14 @@ export function refineTaskSchedule(
   ) {
     if (!data.preferredDate.trim()) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please choose a date for this timing option.',
+        code: 'custom',
+        message: 'dateRequired',
+        path: ['preferredDate'],
+      })
+    } else if (data.preferredDate < toYmd(new Date())) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'dateInPast',
         path: ['preferredDate'],
       })
     }
@@ -75,27 +80,22 @@ export function refineTaskSchedule(
   if (data.datetimeType === TaskDateTimeType.Exact) {
     if (!data.preferredTime.trim()) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please choose a time for an exact slot.',
+        code: 'custom',
+        message: 'timeRequired',
         path: ['preferredTime'],
       })
     } else {
       const parsed = new Date(`${data.preferredDate}T${data.preferredTime}:00`)
       if (Number.isNaN(parsed.getTime())) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Please provide a valid date and time.',
+          code: 'custom',
+          message: 'timeInvalid',
           path: ['preferredTime'],
         })
       }
     }
   }
 }
-
-/** Shared create/edit fields. Create adds the prohibited-use acknowledgement. */
-export const taskDetailsFormSchema = z
-  .object(taskDetailsFields)
-  .superRefine(refineTaskSchedule)
 
 export const createTaskFormSchema = z
   .object({
@@ -106,8 +106,8 @@ export const createTaskFormSchema = z
     refineTaskSchedule(data, ctx)
     if (!data.acceptedProhibitedUse) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Confirm this task is allowed before publishing.',
+        code: 'custom',
+        message: 'consentRequired',
         path: ['acceptedProhibitedUse'],
       })
     }

@@ -466,12 +466,6 @@ function EditTaskFormBody({
             budgetCurrency={budgetCurrency}
             budgetType={budgetType}
             paymentMethod={paymentMethod}
-            onBudgetCurrencyChange={(currency) =>
-              setValue('budgetCurrency', currency, {
-                shouldValidate: true,
-                shouldDirty: true,
-              })
-            }
             onBudgetTypeChange={(t) =>
               setValue('budgetType', t, {
                 shouldValidate: true,

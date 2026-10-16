@@ -98,7 +98,7 @@ export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
 export { PhoneInput } from './PhoneInput'
 export { ProgressBar } from './ProgressBar'
-export { RadioButton } from './RadioButton'
+export { RadioButton, RadioButtonGroup } from './RadioButton'
 export { Rating, RatingStars } from './Rating'
 export {
   REPORT_REASON_VALUES,
@@ -190,6 +190,8 @@ export type {
   ProgressBarTone,
 } from './ProgressBar'
 export type {
+  RadioButtonGroupOption,
+  RadioButtonGroupProps,
   RadioButtonProps,
   UiRadioButtonSize,
   UiRadioButtonVariant,
