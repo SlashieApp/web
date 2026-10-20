@@ -2,7 +2,7 @@
   "en": {
     "title": "Cookie Policy",
     "description": "The cookies and similar storage Slashie uses, and how to control them.",
-    "lastUpdated": "8 July 2026",
+    "lastUpdated": "20 October 2026",
     "intro": [
       "Cookies are small pieces of data stored in your browser. Slashie also uses similar browser storage (localStorage). This page lists what we set and why, and how you can control it."
     ],
@@ -18,7 +18,7 @@
       {
         "heading": "2. Analytics cookies (optional)",
         "body": [
-          "If you choose \"Accept all\" in the cookie banner, we load PostHog, our product analytics tool. PostHog sets cookies and localStorage entries beginning with \"ph_\" to recognise your browser across visits and to record how the product is used: pages visited, device and browser type, and interactions such as posting a task or sending a quote.",
+          "If you choose \"Accept all\" in the cookie banner, we load PostHog, our product analytics tool. PostHog sets cookies and localStorage entries beginning with \"ph_\" to recognise your browser across visits and to measure how the product is used: pages visited, device and browser type, and actions such as posting a task or sending a quote. Slashie does not record your screen, your clicks, or what you type.",
           "We use this to understand what is working and to improve Slashie. Our PostHog data is hosted in the EU and we do not send your email address to it. If you choose \"Essential only\", PostHog is never loaded and no analytics cookies are set. Slashie works exactly the same either way."
         ]
       },
@@ -45,7 +45,7 @@
   "zh_hk": {
     "title": "Cookie 政策",
     "description": "Slashie 使用的 cookie 和類似儲存方式，以及你如何控制它們。",
-    "lastUpdated": "2026 年 7 月 8 日",
+    "lastUpdated": "2026 年 10 月 20 日",
     "lastUpdatedLabel": "最後更新",
     "intro": [
       "Cookie 是儲存在瀏覽器中的小型資料。Slashie 也使用類似的瀏覽器儲存方式（localStorage）。本頁列出我們設定的內容、原因，以及你可以如何控制。"
@@ -62,7 +62,7 @@
       {
         "heading": "2. 分析 cookie（可選）",
         "body": [
-          "如果你在 cookie 橫幅選擇「全部接受」，我們會載入 PostHog（我們的產品分析工具）來記錄產品使用情況，例如瀏覽頁面、裝置類型，以及發布任務或發送報價等互動。",
+          "如果你在 cookie 橫幅選擇「全部接受」，我們會載入 PostHog（我們的產品分析工具）來衡量產品使用情況，例如瀏覽頁面、裝置和瀏覽器類型，以及發布任務或發送報價等操作。Slashie 不會錄製你的畫面、點擊或輸入內容。",
           "我們使用這些資料改善 Slashie。PostHog 資料託管在歐盟，我們不會向它傳送你的電郵地址。如選擇「只限必要」，PostHog 不會載入。"
         ]
       },

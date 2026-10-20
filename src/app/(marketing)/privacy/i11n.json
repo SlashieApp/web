@@ -2,7 +2,7 @@
   "en": {
     "title": "Privacy Policy",
     "description": "How Slashie collects, uses, and protects your data on the map-first local task marketplace.",
-    "lastUpdated": "13 October 2026",
+    "lastUpdated": "20 October 2026",
     "intro": [
       "This policy explains how Slashie Ltd (\"Slashie\", \"we\", \"us\") collects and uses personal data when you use slashie.app and the Slashie apps. Slashie Ltd is the data controller, registered in England and Wales (company no. 17276315) at 66 Paul Street, London, EC2A 4NA. Contact us about privacy at admin@slashie.app."
     ],
@@ -15,7 +15,7 @@
           "Marketplace data: tasks you post (descriptions, photos, budget, timing, and location), quotes you send, orders, messages, and reviews.",
           "Location data: the location you give a task, and an approximate location from your browser or device when you allow it (used to show nearby tasks on the map).",
           "Billing data: for worker subscriptions, Stripe processes your payment and we hold billing metadata such as your Stripe customer id, plan, and subscription status. We never see or store full card details.",
-          "Usage data: with your consent, analytics about how you use the product (pages visited, device and browser type, interactions). We do not send your email address to our analytics tool."
+          "Usage data: with your consent, analytics about how you use the product (pages visited, device and browser type, and actions such as posting a task or sending a quote). We do not send your email address to our analytics tool. We do not record your screen, your clicks, or what you type."
         ]
       },
       {
@@ -68,7 +68,7 @@
       {
         "heading": "9. Cookies and analytics",
         "body": [
-          "We use essential cookies to keep you signed in and to remember your cookie choice. Analytics cookies (PostHog) are set only if you accept them in the cookie banner; if you decline, the product works exactly the same without analytics. See the Cookie Policy at slashie.app/cookies for the full list."
+          "We use essential cookies to keep you signed in and to remember your cookie choice. Analytics cookies (PostHog) are set only if you accept them in the cookie banner; if you decline, the product works exactly the same without analytics. Analytics does not include session recording. See the Cookie Policy at slashie.app/cookies for the full list."
         ]
       },
       {
@@ -99,7 +99,7 @@
   "zh_hk": {
     "title": "私隱政策",
     "description": "Slashie 如何在地圖優先的本地任務市場收集、使用和保護你的資料。",
-    "lastUpdated": "2026 年 10 月 13 日",
+    "lastUpdated": "2026 年 10 月 20 日",
     "lastUpdatedLabel": "最後更新",
     "intro": [
       "本政策說明 Slashie Ltd（「Slashie」、「我們」）在你使用 slashie.app 和 Slashie app 時如何收集和使用個人資料。如有私隱問題，請電郵 admin@slashie.app。"
@@ -113,7 +113,7 @@
           "市場資料：你發布的任務（描述、相片、預算、時間和地點）、你發送的報價、訂單、訊息和評價。",
           "位置資料：你為任務提供的位置，以及你允許時由瀏覽器或裝置提供的大約位置（用於在地圖上顯示附近任務）。",
           "帳單資料：工作者訂閱由 Stripe 處理付款，我們保存 Stripe 客戶 ID、方案和訂閱狀態等帳單中繼資料。我們不會查看或儲存完整卡資料。",
-          "使用資料：在你同意下，收集你如何使用產品的分析資料（瀏覽頁面、裝置和瀏覽器類型、互動）。我們不會把你的電郵地址傳送到分析工具。"
+          "使用資料：在你同意下，收集你如何使用產品的分析資料（瀏覽頁面、裝置和瀏覽器類型，以及發布任務或發送報價等操作）。我們不會把你的電郵地址傳送到分析工具。我們不會錄製你的畫面、點擊或輸入內容。"
         ]
       },
       {
@@ -166,7 +166,7 @@
       {
         "heading": "9. Cookie 和分析",
         "body": [
-          "我們使用必要 cookie 保持登入並記住你的 cookie 選擇。分析 cookie（PostHog）只會在你於 cookie 橫幅接受後設定；如你拒絕，產品仍會一樣運作。完整列表請見 slashie.app/cookies 的 Cookie 政策。"
+          "我們使用必要 cookie 保持登入並記住你的 cookie 選擇。分析 cookie（PostHog）只會在你於 cookie 橫幅接受後設定；如你拒絕，產品仍會一樣運作。分析不包括畫面錄製。完整列表請見 slashie.app/cookies 的 Cookie 政策。"
         ]
       },
       {

@@ -10,7 +10,7 @@
     "home": "Go to the home page",
     "cookieBanner": {
       "ariaLabel": "Cookie consent",
-      "body": "We use essential cookies to keep you signed in, and optional analytics cookies to understand how Slashie is used. See our {link}.",
+      "body": "We use essential cookies to keep you signed in, and optional analytics cookies to understand how Slashie is used. We do not record your screen. See our {link}.",
       "policy": "Cookie Policy",
       "essentialOnly": "Essential only",
       "acceptAll": "Accept all"
@@ -27,7 +27,7 @@
     "home": "返回主頁",
     "cookieBanner": {
       "ariaLabel": "Cookie 同意",
-      "body": "我們使用必要的 Cookie 讓你保持登入，並使用可選的分析 Cookie 了解 Slashie 的使用情況。詳情請參閱我們的{link}。",
+      "body": "我們使用必要的 Cookie 讓你保持登入，並使用可選的分析 Cookie 了解 Slashie 的使用情況。我們不會錄製你的畫面。詳情請參閱我們的{link}。",
       "policy": "Cookie 政策",
       "essentialOnly": "只使用必要 Cookie",
       "acceptAll": "全部接受"

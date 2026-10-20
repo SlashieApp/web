@@ -9,7 +9,7 @@ export const COOKIES_DOCUMENT: LegalDocument = {
   title: 'Cookie Policy',
   description:
     'The cookies and similar storage Slashie uses, and how to control them.',
-  lastUpdated: '8 July 2026',
+  lastUpdated: '20 October 2026',
   intro: [
     'Cookies are small pieces of data stored in your browser. Slashie also uses similar browser storage (localStorage). This page lists what we set and why, and how you can control it.',
   ],
@@ -25,7 +25,7 @@ export const COOKIES_DOCUMENT: LegalDocument = {
     {
       heading: '2. Analytics cookies (optional)',
       body: [
-        'If you choose "Accept all" in the cookie banner, we load PostHog, our product analytics tool. PostHog sets cookies and localStorage entries beginning with "ph_" to recognise your browser across visits and to record how the product is used: pages visited, device and browser type, and interactions such as posting a task or sending a quote.',
+        'If you choose "Accept all" in the cookie banner, we load PostHog, our product analytics tool. PostHog sets cookies and localStorage entries beginning with "ph_" to recognise your browser across visits and to measure how the product is used: pages visited, device and browser type, and actions such as posting a task or sending a quote. Slashie does not record your screen, your clicks, or what you type.',
         'We use this to understand what is working and to improve Slashie. Our PostHog data is hosted in the EU and we do not send your email address to it. If you choose "Essential only", PostHog is never loaded and no analytics cookies are set. Slashie works exactly the same either way.',
       ],
     },

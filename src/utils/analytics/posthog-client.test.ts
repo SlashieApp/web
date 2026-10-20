@@ -35,6 +35,10 @@ describe('applyCookieConsent', () => {
 
     applyCookieConsent('accepted')
     expect(ph.init).toHaveBeenCalledTimes(1)
+    expect(ph.init).toHaveBeenCalledWith(
+      'phc_test',
+      expect.objectContaining({ disable_session_recording: true }),
+    )
 
     applyCookieConsent('rejected')
     expect(ph.opt_out_capturing).toHaveBeenCalledTimes(1)

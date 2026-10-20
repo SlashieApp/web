@@ -14,7 +14,7 @@ export const PRIVACY_DOCUMENT: LegalDocument = {
   title: 'Privacy Policy',
   description:
     'How Slashie collects, uses, and protects your data on the map-first local task marketplace.',
-  lastUpdated: '8 July 2026',
+  lastUpdated: '20 October 2026',
   intro: [
     `This policy explains how ${COMPANY_LEGAL_NAME} ("Slashie", "we", "us") collects and uses personal data when you use slashie.app and the Slashie apps. Slashie Ltd is the data controller, registered in England and Wales (company no. ${COMPANY_NUMBER}) at ${COMPANY_REGISTERED_OFFICE}. Contact us about privacy at ${LEGAL_CONTACT_EMAIL}.`,
   ],
@@ -27,7 +27,7 @@ export const PRIVACY_DOCUMENT: LegalDocument = {
         'Marketplace data: tasks you post (descriptions, photos, budget, timing, and location), quotes you send, orders, messages, and reviews.',
         'Location data: the location you give a task, and an approximate location from your browser or device when you allow it (used to show nearby tasks on the map).',
         'Billing data: for worker subscriptions, Stripe processes your payment and we hold billing metadata such as your Stripe customer id, plan, and subscription status. We never see or store full card details.',
-        'Usage data: with your consent, analytics about how you use the product (pages visited, device and browser type, interactions). We do not send your email address to our analytics tool.',
+        'Usage data: with your consent, analytics about how you use the product (pages visited, device and browser type, and actions such as posting a task or sending a quote). We do not send your email address to our analytics tool. We do not record your screen, your clicks, or what you type.',
       ],
     },
     {
@@ -79,7 +79,7 @@ export const PRIVACY_DOCUMENT: LegalDocument = {
     {
       heading: '9. Cookies and analytics',
       body: [
-        'We use essential cookies to keep you signed in and to remember your cookie choice. Analytics cookies (PostHog) are set only if you accept them in the cookie banner; if you decline, the product works exactly the same without analytics. See the Cookie Policy at slashie.app/cookies for the full list.',
+        'We use essential cookies to keep you signed in and to remember your cookie choice. Analytics cookies (PostHog) are set only if you accept them in the cookie banner; if you decline, the product works exactly the same without analytics. Analytics does not include session recording. See the Cookie Policy at slashie.app/cookies for the full list.',
       ],
     },
     {

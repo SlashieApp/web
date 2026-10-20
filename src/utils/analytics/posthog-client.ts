@@ -64,6 +64,9 @@ export function initPostHogClient(): void {
     person_profiles: 'identified_only',
     capture_pageview: true,
     capture_exceptions: true,
+    // Session replay stays off in the client even if the PostHog project
+    // turns it back on. Cookie and privacy copy describe analytics only.
+    disable_session_recording: true,
     persistence: 'localStorage+cookie',
     // Reset / verification tokens and emails ride in query strings: strip
     // them from every URL property before anything is sent.
