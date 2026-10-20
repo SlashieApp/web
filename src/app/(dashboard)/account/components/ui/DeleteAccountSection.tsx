@@ -12,17 +12,23 @@ import { useI11n } from '@/i18n/useI11n'
 import { Button } from '@ui'
 
 import bag from '../../i11n.json'
-import { DeleteAccountDialog } from './DeleteAccountDialog'
+import {
+  DeleteAccountDialog,
+  type DeletionBlocker,
+} from './DeleteAccountDialog'
 
 /**
  * "Delete account" at the end of Account (FE-198). Coming back from the
  * Google / Apple re-auth (`?delete=confirm`) reopens the dialog ready to
- * confirm, then drops the query so a refresh doesn't reopen it.
+ * confirm, then drops the query so a refresh doesn't reopen it. Live
+ * bookings (`me.deletionBlockers`) turn the dialog into links to them.
  */
 export function DeleteAccountSection({
   enabledLoginMethods,
+  deletionBlockers = [],
 }: {
   enabledLoginMethods: readonly LoginMethod[]
+  deletionBlockers?: readonly DeletionBlocker[]
 }) {
   const t = useI11n(bag)
   const router = useRouter()
@@ -67,6 +73,7 @@ export function DeleteAccountSection({
         onOpenChange={setOpen}
         enabledLoginMethods={enabledLoginMethods}
         reauthed={reauthed}
+        deletionBlockers={deletionBlockers}
       />
     </DashboardSectionCard>
   )

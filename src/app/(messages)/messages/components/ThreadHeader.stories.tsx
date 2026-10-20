@@ -176,7 +176,13 @@ export const AwaitingWorker: Story = {
 export const DeletedUser: Story = {
   args: {
     thread: taskThread('owner', {
-      otherParty: { ...otherPartyFor('owner'), deleted: true },
+      otherParty: {
+        ...otherPartyFor('owner'),
+        deleted: true,
+        ratingSummary: { average: null, count: 0 },
+        hostedCompletedCount: 0,
+        completedJobsCount: 0,
+      },
       canSend: false,
     }),
   },

@@ -14,7 +14,7 @@
       "verifyPhone": "Verify",
       "changePhone": "Change"
     },
-    "locked": "Comes from your {provider} sign-in.",
+    "locked": "To change this email, add a password under Sign-in and security first.",
     "pendingEmail": "Waiting for you to open the link we sent to {email}. Your current email stays on your account until then.",
     "pendingPhone": "Waiting for the code we texted to {phone}. Your current number stays on your account until then.",
     "resendLink": "Resend link",
@@ -47,7 +47,7 @@
       "verifyPhone": "驗證",
       "changePhone": "更改"
     },
-    "locked": "來自你的 {provider} 登入。",
+    "locked": "如要更改此電郵，請先在「登入與安全」加入密碼。",
     "pendingEmail": "請打開我們傳送到 {email} 的連結。在此之前，你現有的電郵仍會保留在帳戶上。",
     "pendingPhone": "請輸入我們以短訊傳送到 {phone} 的驗證碼。在此之前，你現有的號碼仍會保留在帳戶上。",
     "resendLink": "重新傳送連結",

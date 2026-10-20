@@ -14,7 +14,7 @@ describe('getAccountView', () => {
     expect(view({ suspended: false, hasPassword: true })).toBe('password')
   })
 
-  it('drops the password row for a Google or Apple only account', () => {
+  it('offers to set a password to a Google or Apple only account', () => {
     expect(view({ suspended: false, hasPassword: false })).toBe('social')
   })
 
@@ -27,7 +27,9 @@ describe('getAccountView', () => {
     expect(ACCOUNT_VIEWS.suspended.editable).toBe(false)
     expect(ACCOUNT_VIEWS.suspended.showDelete).toBe(false)
     expect(ACCOUNT_VIEWS.password.editable).toBe(true)
-    expect(ACCOUNT_VIEWS.social.showPassword).toBe(false)
+    expect(ACCOUNT_VIEWS.password.passwordForm).toBe('change')
+    expect(ACCOUNT_VIEWS.social.passwordForm).toBe('set')
+    expect(ACCOUNT_VIEWS.suspended.passwordForm).toBeNull()
   })
 
   // Every registered view is reached by at least one test above.

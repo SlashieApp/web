@@ -10,17 +10,22 @@
     },
     "intervals": {
       "month": "month",
-      "year": "year"
+      "year": "year",
+      "months": "months",
+      "years": "years",
+      "perOne": "/ {interval}",
+      "perMany": "every {count} {interval}",
+      "priceOne": "{price} / {interval}",
+      "priceMany": "{price} every {count} {interval}"
     },
     "plans": {
       "yourPlan": "Your plan",
-      "perInterval": "/ {interval}",
       "trial": {
         "days": "{count} days free",
         "month": "1 month free",
         "months": "{count} months free"
       },
-      "thenPrice": "Then {price} / {interval}",
+      "thenPrice": "Then {priceLine}",
       "actions": {
         "getStarted": "Get started",
         "becomeWorker": "Become a worker",
@@ -74,7 +79,7 @@
       },
       "trial": {
         "question": "What happens after the free trial?",
-        "answer": "Slashie Unlimited continues at {price} / {interval} unless you cancel before the trial ends."
+        "answer": "Slashie Unlimited continues at {priceLine} unless you cancel before the trial ends."
       },
       "cancel": {
         "question": "Can I cancel?",
@@ -98,17 +103,22 @@
     },
     "intervals": {
       "month": "月",
-      "year": "年"
+      "year": "年",
+      "months": "個月",
+      "years": "年",
+      "perOne": "/ {interval}",
+      "perMany": "每 {count} {interval}",
+      "priceOne": "{price} / {interval}",
+      "priceMany": "每 {count} {interval} {price}"
     },
     "plans": {
       "yourPlan": "你的方案",
-      "perInterval": "/ {interval}",
       "trial": {
         "days": "免費 {count} 日",
         "month": "免費 1 個月",
         "months": "免費 {count} 個月"
       },
-      "thenPrice": "之後 {price} / {interval}",
+      "thenPrice": "之後 {priceLine}",
       "actions": {
         "getStarted": "開始使用",
         "becomeWorker": "成為工作者",
@@ -162,7 +172,7 @@
       },
       "trial": {
         "question": "免費試用結束後會怎樣？",
-        "answer": "除非你在試用期結束前取消，Slashie Unlimited 會以 {price} / {interval} 繼續。"
+        "answer": "除非你在試用期結束前取消，Slashie Unlimited 會以 {priceLine} 繼續。"
       },
       "cancel": {
         "question": "可以取消嗎？",

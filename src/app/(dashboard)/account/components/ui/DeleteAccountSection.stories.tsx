@@ -1,4 +1,4 @@
-import { LoginMethod } from '@codegen/schema'
+import { AccountDeletionBlockerKind, LoginMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
@@ -64,5 +64,31 @@ export const ReturnedFromReauth: Story = {
     await expect(
       await page(canvasElement).findByText(/You can confirm now/),
     ).toBeInTheDocument()
+  },
+}
+
+/** A live booking: Delete account opens the list of bookings to finish first. */
+export const BlockedByLiveBooking: Story = {
+  args: {
+    deletionBlockers: [
+      {
+        kind: AccountDeletionBlockerKind.LiveOrder,
+        orderId: 'order-1',
+        taskId: 'task-1',
+      },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', {
+        name: 'Delete account',
+      }),
+    )
+    await expect(
+      await page(canvasElement).findByRole('link', { name: 'Booking 1' }),
+    ).toBeInTheDocument()
+    await expect(
+      page(canvasElement).queryByLabelText('Your password'),
+    ).toBeNull()
   },
 }

@@ -4,7 +4,7 @@ import type { PublicProfilePageConfig } from './types'
 /** Your own worker profile: what visitors see, then Your activity. */
 export const workerOwner: PublicProfilePageConfig = {
   ...workerBody,
-  ownerBar: true,
+  ownerBar: 'public',
   heroActions: [],
   report: false,
   contact: null,

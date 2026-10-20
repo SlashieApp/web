@@ -195,11 +195,7 @@ export function messagesStory<TArgs>(
           ? { MessageThread: { kind: 'networkError' } }
           : threadRequest === 'forbidden'
             ? {
-                MessageThread: {
-                  kind: 'graphqlError',
-                  code: 'INTERNAL_SERVER_ERROR',
-                  message: 'FORBIDDEN',
-                },
+                MessageThread: { kind: 'graphqlError', code: 'FORBIDDEN' },
               }
             : undefined,
     }),

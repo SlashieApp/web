@@ -4,7 +4,7 @@ import { expect, within } from 'storybook/test'
 import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 
 import { PRICING_VIEWS } from '../../../views'
-import { storyPricing } from '../../pricingStoryFixtures'
+import { storyPricing, storyQuarterlyPricing } from '../../pricingStoryFixtures'
 import { PricingPlanCards } from './PricingPlanCards'
 
 const meta = {
@@ -41,6 +41,30 @@ export const Guest: Story = {
       'href',
       '/register?next=%2Fworker%2Fsetup%3Fnext%3D%2Fpricing',
     )
+  },
+}
+
+/** A plan billed every 3 months: "every 3 months", never "/ month"; Free stays per month. */
+export const EveryThreeMonths: Story = {
+  args: { pricing: storyQuarterlyPricing },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Then £54 every 3 months')).toBeVisible()
+    await expect(canvas.getByText('/ month')).toBeVisible()
+  },
+}
+
+/** zh-HK, every 3 months: "每 3 個月 £54". */
+export const EveryThreeMonthsZhHk: Story = {
+  args: {
+    pricing: storyQuarterlyPricing,
+    copy: pricingBag.zh_hk.plans,
+    intervals: pricingBag.zh_hk.intervals,
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText('之後 每 3 個月 £54'),
+    ).toBeVisible()
   },
 }
 

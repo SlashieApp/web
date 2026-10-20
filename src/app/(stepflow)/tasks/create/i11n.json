@@ -89,6 +89,7 @@
       "tooManyPhotos": "You can add up to {max} photos.",
       "photoTooLarge": "{name} is over {size} MB, so it wasn't added.",
       "notAPhoto": "{name} isn't a photo, so it wasn't added.",
+      "photoTypeUnsupported": "{name} wasn't added. Use a JPG, PNG, WebP, GIF, HEIC or AVIF photo.",
       "when": "When",
       "flexible": "Flexible",
       "before": "Before a date",
@@ -154,6 +155,7 @@
       "budgetRequired": "Enter a budget above zero.",
       "dateRequired": "Pick a date.",
       "dateInPast": "Pick today or a later date.",
+      "dateInvalid": "That date isn't valid. Pick another.",
       "timeRequired": "Pick a time.",
       "timeInvalid": "Pick a valid date and time.",
       "consentRequired": "Tick the box to confirm this task is allowed.",
@@ -169,6 +171,11 @@
       "photosFailed": "Your task is posted, but {count} photos didn't upload",
       "photoFailed": "Your task is posted, but 1 photo didn't upload",
       "photosFailedBody": "Add them from Edit task on your task."
+    },
+    "serverErrors": {
+      "DATE_REQUIRED": "Pick a date for this task.",
+      "INVALID_DATE": "That date isn't valid. Pick another.",
+      "DATE_IN_PAST": "That date has passed in the UK. Pick today or a later date."
     }
   },
   "zh_hk": {
@@ -261,6 +268,7 @@
       "tooManyPhotos": "最多可加入 {max} 張相片。",
       "photoTooLarge": "{name} 超過 {size} MB，未有加入。",
       "notAPhoto": "{name} 不是相片，未有加入。",
+      "photoTypeUnsupported": "{name} 未有加入。請使用 JPG、PNG、WebP、GIF、HEIC 或 AVIF 相片。",
       "when": "時間",
       "flexible": "彈性",
       "before": "在某日期前",
@@ -326,6 +334,7 @@
       "budgetRequired": "請輸入大於零的預算。",
       "dateRequired": "請揀選日期。",
       "dateInPast": "請揀選今日或之後的日期。",
+      "dateInvalid": "這個日期無效，請揀選另一日。",
       "timeRequired": "請揀選時間。",
       "timeInvalid": "請揀選有效的日期和時間。",
       "consentRequired": "請剔選方格，確認此任務屬於允許範圍。",
@@ -341,6 +350,11 @@
       "photosFailed": "任務已發佈，但有 {count} 張相片未能上載",
       "photoFailed": "任務已發佈，但有 1 張相片未能上載",
       "photosFailedBody": "請在任務頁按「編輯任務」再加入。"
+    },
+    "serverErrors": {
+      "DATE_REQUIRED": "請為這個任務揀選日期。",
+      "INVALID_DATE": "這個日期無效，請揀選另一日。",
+      "DATE_IN_PAST": "按英國時間，這個日期已過。請揀選今日或之後的日期。"
     }
   }
 }

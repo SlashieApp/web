@@ -15,20 +15,23 @@ const WORKER_VIEW_BY_CONTACT: Record<
 
 /**
  * The one place that decides what /profile/[userId] shows. Precedence:
- * query state, then no profile (hidden to its owner, empty shell to everyone
- * else), then your own profile, then customer, then the worker's contact
- * state for this viewer.
+ * query state, then no profile (the empty shell), then your own profile
+ * (with a hidden notice when it is private), then customer, then the
+ * worker's contact state for this viewer.
  */
 export function getPublicProfileView({
   query,
   profile,
-  ownProfileHidden,
 }: PublicProfileViewInput): PublicProfileViewName {
   if (query === 'loading') return 'loading'
   if (query === 'error') return 'loadError'
-  if (!profile) return ownProfileHidden ? 'ownerHidden' : 'unavailable'
-  if (profile.isSelf)
+  if (!profile) return 'unavailable'
+  if (profile.isSelf) {
+    if (profile.isHidden) {
+      return profile.isWorker ? 'worker.ownerHidden' : 'customer.ownerHidden'
+    }
     return profile.isWorker ? 'worker.owner' : 'customer.owner'
+  }
   if (!profile.isWorker) return 'customer.visitor'
 
   const contact = profile.contact

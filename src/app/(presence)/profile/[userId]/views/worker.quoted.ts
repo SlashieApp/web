@@ -4,7 +4,7 @@ import type { PublicProfilePageConfig } from './types'
 /** The worker quoted on one of your open tasks (`OPEN_QUOTE`). */
 export const workerQuoted: PublicProfilePageConfig = {
   ...workerBody,
-  ownerBar: false,
+  ownerBar: null,
   heroActions: ['save', 'review'],
   report: true,
   contact: { action: 'viewQuote', helper: 'quoted' },

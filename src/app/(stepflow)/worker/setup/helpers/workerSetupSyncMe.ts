@@ -60,6 +60,9 @@ export function mergeSaveWorkerSetupIntoMe(
     preferredLocation:
       saved.preferredLocation ?? currentWorker?.preferredLocation,
     setupProgress: saved.setupProgress ?? currentWorker?.setupProgress,
+    // Finishing setup turns DRAFT into PUBLISHED (or HIDDEN); /profile reads both.
+    publishState: saved.publishState ?? currentWorker?.publishState,
+    profileGaps: saved.profileGaps ?? currentWorker?.profileGaps ?? [],
     membership: currentWorker?.membership,
     earnings: currentWorker?.earnings,
     isVerified: currentWorker?.isVerified ?? false,

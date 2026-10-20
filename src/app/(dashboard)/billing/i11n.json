@@ -54,9 +54,9 @@
         "retryPricing": "Try again"
       },
       "price": {
-        "trialThenPrice": "{trial}, then {price} / {interval}",
-        "thenPrice": "Then {price} / {interval}",
-        "price": "{price} / {interval}"
+        "trialThenPrice": "{trial}, then {priceLine}",
+        "thenPrice": "Then {priceLine}",
+        "price": "{priceLine}"
       },
       "trial": {
         "days": "{count} days free",
@@ -65,7 +65,13 @@
       },
       "intervals": {
         "month": "month",
-        "year": "year"
+        "year": "year",
+        "months": "months",
+        "years": "years",
+        "perOne": "/ {interval}",
+        "perMany": "every {count} {interval}",
+        "priceOne": "{price} / {interval}",
+        "priceMany": "{price} every {count} {interval}"
       },
       "cancelAnytime": "Cancel anytime in Manage billing."
     },
@@ -141,9 +147,9 @@
         "retryPricing": "再試一次"
       },
       "price": {
-        "trialThenPrice": "{trial}，之後 {price} / {interval}",
-        "thenPrice": "之後 {price} / {interval}",
-        "price": "{price} / {interval}"
+        "trialThenPrice": "{trial}，之後 {priceLine}",
+        "thenPrice": "之後 {priceLine}",
+        "price": "{priceLine}"
       },
       "trial": {
         "days": "免費 {count} 日",
@@ -152,7 +158,13 @@
       },
       "intervals": {
         "month": "月",
-        "year": "年"
+        "year": "年",
+        "months": "個月",
+        "years": "年",
+        "perOne": "/ {interval}",
+        "perMany": "每 {count} {interval}",
+        "priceOne": "{price} / {interval}",
+        "priceMany": "每 {count} {interval} {price}"
       },
       "cancelAnytime": "可隨時在「管理帳單」取消。"
     },

@@ -50,7 +50,7 @@ export const Customer: Story = {
   },
 }
 
-/** Private profile: Hidden badge and no public link (there is no page to open). */
+/** Private profile: Hidden badge and "See what others see" (the owner preview). */
 export const Hidden: Story = {
   ...heroFor(
     storyMe({ settings: { isProfilePrivate: true } }),
@@ -62,6 +62,9 @@ export const Hidden: Story = {
     await expect(
       canvas.queryByRole('link', { name: /View public profile/ }),
     ).toBeNull()
+    await expect(
+      canvas.getByRole('link', { name: /See what others see/ }),
+    ).toBeVisible()
   },
 }
 

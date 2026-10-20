@@ -1,9 +1,9 @@
 import type { ProfileViewConfig } from './types'
 
-/** Finished worker, profile private: editable, but no public page to link to. */
+/** Finished worker, profile private: editable; only you can preview the page. */
 export const workerHidden: ProfileViewConfig = {
   badge: { label: 'hidden', tone: 'neutral' },
-  publicLink: false,
+  publicLink: 'preview',
   nextStep: null,
   workerCard: 'live',
 }

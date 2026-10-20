@@ -4,6 +4,7 @@ import { useMutation } from '@apollo/client/react'
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import {
   LoginMethod,
+  type MeQuery,
   type RequestAccountDeletionMutation,
   type RequestAccountDeletionMutationVariables,
 } from '@codegen/schema'
@@ -27,6 +28,7 @@ import {
   getFriendlyErrorMessage,
   getGraphQLErrorCode,
 } from '@/utils/graphqlErrors'
+import { taskOrderSectionHref } from '@/utils/orderHelpers'
 import { Button, FormField, Input, Link, Modal } from '@ui'
 
 import bag from '../../i11n.json'
@@ -36,21 +38,85 @@ export const DELETE_REAUTH_RETURN = '/account?delete=confirm'
 
 type DeleteError = 'password' | 'liveOrders' | 'reauth' | 'other'
 
+export type DeletionBlocker = MeQuery['me']['deletionBlockers'][number]
+
 export type DeleteAccountDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   enabledLoginMethods: readonly LoginMethod[]
   /** The user just signed in again (back from `DELETE_REAUTH_RETURN`). */
   reauthed: boolean
+  /** `me.deletionBlockers`: live bookings that stop the deletion. */
+  deletionBlockers?: readonly DeletionBlocker[]
 }
 
 /**
  * FE-198 / BE-74: confirm deleting the account. Password accounts confirm
  * with their password; Google / Apple-only accounts sign in again first (the
  * API only accepts it within 10 minutes of a fresh sign-in). On success the
- * user is signed out and told the deletion date.
+ * user is signed out and told the deletion date. While `me.deletionBlockers`
+ * lists live bookings, the dialog links to them instead and never asks the
+ * API (ACCOUNT_HAS_LIVE_ORDERS stays as the fallback).
  */
-export function DeleteAccountDialog({
+export function DeleteAccountDialog(props: DeleteAccountDialogProps) {
+  const { deletionBlockers = [], open, onOpenChange } = props
+  if (deletionBlockers.length > 0) {
+    return (
+      <DeleteBlockedDialog
+        open={open}
+        onOpenChange={onOpenChange}
+        blockers={deletionBlockers}
+      />
+    )
+  }
+  return <DeleteConfirmDialog {...props} />
+}
+
+/** Live bookings stop the deletion: one link per booking, no delete button. */
+function DeleteBlockedDialog({
+  open,
+  onOpenChange,
+  blockers,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  blockers: readonly DeletionBlocker[]
+}) {
+  const t = useI11n(bag)
+  return (
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t.deleteBlockedTitle}
+      footer={
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => onOpenChange(false)}
+        >
+          {t.deleteBlockedClose}
+        </Button>
+      }
+    >
+      <Text fontSize="sm">{t.deleteBlockedBody}</Text>
+      <Box as="ul" ps={5} listStyleType="disc" fontSize="sm">
+        {blockers.map((blocker, index) => (
+          <Box as="li" key={blocker.orderId} mb={1.5}>
+            <Link
+              href={taskOrderSectionHref(blocker.taskId)}
+              fontWeight={700}
+              color="text.link"
+            >
+              {formatMessage(t.deleteBlockedBooking, { number: index + 1 })}
+            </Link>
+          </Box>
+        ))}
+      </Box>
+    </Modal>
+  )
+}
+
+function DeleteConfirmDialog({
   open,
   onOpenChange,
   enabledLoginMethods,

@@ -2,7 +2,7 @@ import { ThreadItemType } from '@codegen/schema'
 import type { ThreadParty } from '@codegen/schema'
 
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
-import { pickGraphQLError } from '@/utils/graphqlErrors'
+import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 
 import type { ThreadQuery } from '../views'
 
@@ -22,7 +22,7 @@ export function threadQueryState({
   if (thread) return 'ready'
   if (loading) return 'loading'
   if (!error) return 'notFound'
-  return pickGraphQLError(error)?.message === 'FORBIDDEN' ? 'notFound' : 'error'
+  return getGraphQLErrorCode(error) === 'FORBIDDEN' ? 'notFound' : 'error'
 }
 
 type TimelineItem = {
@@ -100,18 +100,42 @@ export type PinPerson = {
   role: 'worker' | 'customer'
   /** Their public profile; none for a deleted account. */
   href: string | null
+  /** Reviews about them; `average` stays null below 3 (API rule). */
+  rating: { average: number | null; count: number }
+  /**
+   * Finished bookings on their side: jobs done for a worker, bookings
+   * completed for a customer.
+   */
+  completed: number
 }
+
+type PinParty = Pick<
+  ThreadParty,
+  | 'userId'
+  | 'name'
+  | 'avatarUrl'
+  | 'deleted'
+  | 'hostedCompletedCount'
+  | 'completedJobsCount'
+> & { ratingSummary: { average?: number | null; count: number } }
 
 /** The other person in a task thread, for the pinned card. */
 export function pinPerson(
-  party: ThreadParty | null | undefined,
+  party: PinParty | null | undefined,
   viewerIsOwner: boolean,
 ): PinPerson | null {
   if (!party) return null
+  const role = viewerIsOwner ? 'worker' : 'customer'
   return {
     name: party.name,
     avatarUrl: party.deleted ? null : (party.avatarUrl ?? null),
-    role: viewerIsOwner ? 'worker' : 'customer',
+    role,
     href: party.deleted ? null : publicProfilePath(party.userId),
+    rating: {
+      average: party.ratingSummary.average ?? null,
+      count: party.ratingSummary.count,
+    },
+    completed:
+      role === 'worker' ? party.completedJobsCount : party.hostedCompletedCount,
   }
 }

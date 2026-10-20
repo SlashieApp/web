@@ -1,10 +1,8 @@
 import { Box } from '@chakra-ui/react'
 
-import {
-  formatPricingInterval,
-  pricingDisplayPrice,
-} from '@/app/(marketing)/pricing/helpers/formatPricing'
+import { pricingPriceLine } from '@/app/(marketing)/pricing/helpers/formatPricing'
 import { getPricingForPage } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
+import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import {
   formatMessage,
@@ -60,7 +58,7 @@ export default async function MarketingHomePage() {
   // when the API reports none (or the fetch fails) — the card degrades to a
   // truthful generic line and /pricing carries the detail.
   const priceLine = pricing
-    ? `${pricingDisplayPrice(pricing)}/${formatPricingInterval(pricing.priceInterval)}`
+    ? pricingPriceLine(pricing, loadPageI11n(pricingBag, locale).intervals)
     : null
   const trialLabel = pricing?.trialLabel?.trim() || null
   const freeQuotes = pricing?.freeQuotesPerMonth ?? 3

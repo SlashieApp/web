@@ -298,7 +298,7 @@ export function ThreadHeader({ thread, onToggleBlock }: HeaderProps) {
         thread={thread}
         menu={<TaskThreadMenu thread={thread} onToggleBlock={onToggleBlock} />}
       />
-      <ThreadPin party={thread.otherParty} />
+      <ThreadPin party={thread.otherParty} attention={thread.attention} />
       <TaskActionError />
     </TaskDetailProvider>
   )

@@ -5,21 +5,27 @@ export type PublicProfileViewName =
   | 'loading'
   | 'loadError'
   | 'unavailable'
-  | 'ownerHidden'
   | 'worker.guest'
   | 'worker.visitor'
   | 'worker.quoted'
   | 'worker.booked'
   | 'worker.owner'
+  | 'worker.ownerHidden'
   | 'customer.visitor'
   | 'customer.owner'
+  | 'customer.ownerHidden'
 
 export type PublicProfileViewInput = {
   /** The PublicProfile query, before any data is cached. */
   query: 'loading' | 'error' | 'ready'
-  /** Null when the API has no public profile for this id. */
+  /**
+   * Null when the API has no public profile for this id (a private profile
+   * is null for everyone but its owner).
+   */
   profile: {
     isSelf: boolean
+    /** Private profile: the owner's preview of it. */
+    isHidden: boolean
     isWorker: boolean
     /** `worker.viewer` contact state; null when signed out or a customer. */
     contact: {
@@ -27,8 +33,6 @@ export type PublicProfileViewInput = {
       relatedTaskId: string | null
     } | null
   } | null
-  /** The signed-in viewer opened their own link and their profile is private. */
-  ownProfileHidden: boolean
 }
 
 /** Main-column blocks. */
@@ -44,6 +48,7 @@ export type PublicProfileSection =
 export type PublicProfileStat =
   | 'rating'
   | 'jobs'
+  | 'hosted'
   | 'experience'
   | 'openTasks'
   | 'joined'
@@ -65,17 +70,20 @@ export type PublicProfileSkeletonConfig = { layout: 'skeleton' }
 export type PublicProfileStatusConfig = {
   layout: 'status'
   /** Copy under `status.<copy>`. */
-  copy: 'error' | 'unavailable' | 'hidden'
+  copy: 'error' | 'unavailable'
   /** Copy under `status.actions`. */
-  action: 'retry' | 'search' | 'profileSettings'
+  action: 'retry' | 'search'
 }
 
 export type PublicProfilePageConfig = {
   layout: 'profile'
   /** Two columns with the contact sidebar, or one 720px column. */
   width: 'wide' | 'narrow'
-  /** "This is how others see you." above the hero. */
-  ownerBar: boolean
+  /**
+   * Above the hero: `public` says "This is how others see you."; `hidden`
+   * says only you can see it, with a link to the visibility switch.
+   */
+  ownerBar: 'public' | 'hidden' | null
   /** Hero buttons. `review` shows only when the viewer can review. */
   heroActions: readonly ('save' | 'review')[]
   /** Report in the hero's ⋯ menu. */

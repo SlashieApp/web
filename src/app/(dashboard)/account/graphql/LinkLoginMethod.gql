@@ -1,0 +1,10 @@
+# Adds Google or Apple to the signed-in account. The session and the account
+# email stay as they are.
+mutation LinkLoginMethod($input: LinkLoginMethodInput!) {
+  linkLoginMethod(input: $input) {
+    id
+    enabledLoginMethods
+    googleLoginEmail
+    appleLoginEmail
+  }
+}

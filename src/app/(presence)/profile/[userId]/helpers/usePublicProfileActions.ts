@@ -15,7 +15,6 @@ import UnsaveWorker from '../graphql/UnsaveWorker.gql'
 import bag from '../i11n.json'
 import { contactHref, resolveReviewHref } from './publicProfileLinks'
 import type { PublicProfileModel } from './publicProfileModel'
-import { useReviewableOrders } from './usePublicProfile'
 
 /** Save (optimistic, rolled back on failure), the review link and Back. */
 export function usePublicProfileActions(
@@ -28,18 +27,8 @@ export function usePublicProfileActions(
   const [saveOverride, setSaveOverride] = useState<boolean | null>(null)
   const [saveWorker] = useMutation<SaveWorkerMutation>(SaveWorker)
   const [unsaveWorker] = useMutation<UnsaveWorkerMutation>(UnsaveWorker)
-  const canLeaveReview = Boolean(model?.viewer?.canLeaveReview)
-  const reviewOrders = useReviewableOrders(canLeaveReview)
-
   const saved = saveOverride ?? Boolean(model?.viewer?.isSaved)
-  const reviewHref =
-    model && !reviewOrders.loading
-      ? resolveReviewHref({
-          canLeaveReview,
-          profileUserId: model.id,
-          orders: reviewOrders.orders,
-        })
-      : null
+  const reviewHref = resolveReviewHref(model?.viewer ?? null)
 
   const onSave = () => {
     if (!model?.workerId) return

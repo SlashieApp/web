@@ -15,7 +15,7 @@ import { LuAward } from 'react-icons/lu'
 import { TaskCard } from '@/app/(task)/components/ui/TaskCard'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Badge, Button, Card, RatingStars } from '@ui'
+import { Avatar, Badge, Button, Card, RatingStars } from '@ui'
 
 import type {
   PublicCompletedJob,
@@ -50,7 +50,12 @@ export function ProfileSection({
         />
       )
     case 'work':
-      return <ProfileWorkSection jobs={model.completedJobs} />
+      return (
+        <ProfileWorkSection
+          jobs={model.completedJobs}
+          total={model.completedJobsCount}
+        />
+      )
     case 'reviews':
       return <ProfileReviewsSection model={model} />
     case 'photos':
@@ -173,10 +178,18 @@ export function ProfileSkillsSection({
   )
 }
 
-function ProfileWorkSection({ jobs }: { jobs: readonly PublicCompletedJob[] }) {
+function ProfileWorkSection({
+  jobs,
+  total,
+}: {
+  jobs: readonly PublicCompletedJob[]
+  /** Every completed job; the list holds at most the newest 100. */
+  total: number
+}) {
   const t = useI11n(bag).sections
   const [all, setAll] = useState(false)
   const visible = all ? jobs : jobs.slice(0, LIST_LIMIT)
+  const count = Math.max(total, jobs.length)
 
   return (
     <Card
@@ -184,9 +197,7 @@ function ProfileWorkSection({ jobs }: { jobs: readonly PublicCompletedJob[] }) {
       heading={t.work}
       headingAccessory={
         <Text fontSize="sm" color="text.muted">
-          {jobs.length === 1
-            ? t.workCountOne
-            : formatMessage(t.workCount, { count: jobs.length })}
+          {count === 1 ? t.workCountOne : formatMessage(t.workCount, { count })}
         </Text>
       }
     >
@@ -276,19 +287,35 @@ function ProfileReviewsSection({ model }: { model: PublicProfileModel }) {
               borderTopWidth="1px"
               borderColor="border.default"
             >
-              <HStack justify="space-between" gap={2} flexWrap="wrap">
-                <HStack gap={1}>
+              <HStack gap={3} align="center">
+                <Avatar
+                  size="sm"
+                  name={review.authorName ?? t.anonymousAuthor}
+                  src={review.authorAvatarUrl ?? undefined}
+                  fallback={review.authorName ? 'initials' : 'icon'}
+                />
+                <Stack gap={0} flex="1" minW={0}>
+                  <Text fontSize="sm" fontWeight={600} color="text.default">
+                    {review.authorName ?? t.anonymousAuthor}
+                  </Text>
+                  <Text fontSize="xs" color="text.muted">
+                    {[
+                      review.from === 'worker' ? t.fromWorker : t.fromCustomer,
+                      review.createdLabel,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </Text>
+                </Stack>
+                <HStack gap={1} flexShrink={0}>
                   <Stars value={review.stars} />
                 </HStack>
-                <Text fontSize="xs" color="text.muted">
-                  {[
-                    review.from === 'worker' ? t.fromWorker : t.fromCustomer,
-                    review.createdLabel,
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </Text>
               </HStack>
+              {review.jobTitle ? (
+                <Text fontSize="xs" color="text.muted">
+                  {formatMessage(t.aboutJob, { job: review.jobTitle })}
+                </Text>
+              ) : null}
               {review.comment ? (
                 <Text fontSize="sm" color="text.default" whiteSpace="pre-line">
                   {review.comment}

@@ -13,6 +13,16 @@ query Me {
     createdAt
     deletionScheduledFor
     enabledLoginMethods
+    googleLoginEmail
+    appleLoginEmail
+    deletionBlockers {
+      kind
+      orderId
+      taskId
+    }
+    savedWorkers {
+      id
+    }
     profile {
       name
       contactNumber
@@ -54,6 +64,8 @@ query Me {
         completedSubSteps
         isComplete
       }
+      publishState
+      profileGaps
       membership {
         ...WorkerMembershipFields
       }

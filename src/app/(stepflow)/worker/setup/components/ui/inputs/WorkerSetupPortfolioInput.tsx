@@ -8,19 +8,13 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, FormField, IconButton, Input, formControlRootProps } from '@ui'
 
+import {
+  PORTFOLIO_URLS_MAX,
+  PORTFOLIO_URL_MAX_LENGTH,
+  portfolioUrlProblem,
+} from '../../../helpers/workerSetupPortfolio'
 import bag from '../../../i11n.json'
 import { WorkerSetupOptionalLabel } from '../shared/WorkerSetupOptionalBadge'
-
-const MAX_PORTFOLIO_ITEMS = 12
-
-/** https only: an http image is blocked or flagged on an https page. */
-function isHttpsLink(value: string): boolean {
-  try {
-    return new URL(value).protocol === 'https:'
-  } catch {
-    return false
-  }
-}
 
 /** Thumbnail that falls back to a glyph when the link isn't an image. */
 function PortfolioThumb({ url }: { url: string }) {
@@ -60,23 +54,31 @@ function PortfolioThumb({ url }: { url: string }) {
 export type WorkerSetupPortfolioInputProps = {
   value: string[]
   onChange: (urls: string[]) => void
+  /** A form-level error (e.g. a saved link the rules now refuse). */
+  errorText?: string
 }
 
 /** Optional links to photos of finished jobs (`portfolioUrls`). */
 export function WorkerSetupPortfolioInput({
   value,
   onChange,
+  errorText,
 }: WorkerSetupPortfolioInputProps) {
   const copy = useI11n(bag).portfolio
   const [draft, setDraft] = useState('')
   const [draftError, setDraftError] = useState<string | null>(null)
-  const atCap = value.length >= MAX_PORTFOLIO_ITEMS
+  const atCap = value.length >= PORTFOLIO_URLS_MAX
 
   const addDraft = () => {
     const url = draft.trim()
-    if (!url) return
-    if (!isHttpsLink(url)) {
-      setDraftError(copy.notALink)
+    if (!url || atCap) return
+    const problem = portfolioUrlProblem(url)
+    if (problem) {
+      setDraftError(
+        problem === 'tooLong'
+          ? formatMessage(copy.tooLong, { max: PORTFOLIO_URL_MAX_LENGTH })
+          : copy.notALink,
+      )
       return
     }
     if (value.includes(url)) {
@@ -93,10 +95,10 @@ export function WorkerSetupPortfolioInput({
       label={<WorkerSetupOptionalLabel>{copy.label}</WorkerSetupOptionalLabel>}
       helperText={
         atCap
-          ? formatMessage(copy.full, { max: MAX_PORTFOLIO_ITEMS })
+          ? formatMessage(copy.full, { max: PORTFOLIO_URLS_MAX })
           : copy.helper
       }
-      errorText={draftError ?? undefined}
+      errorText={draftError ?? errorText}
     >
       <Stack gap={3} w="full">
         {value.length > 0 ? (
@@ -151,6 +153,7 @@ export function WorkerSetupPortfolioInput({
               addDraft()
             }}
             placeholder={copy.placeholder}
+            maxLength={PORTFOLIO_URL_MAX_LENGTH}
             type="url"
             inputMode="url"
             disabled={atCap}

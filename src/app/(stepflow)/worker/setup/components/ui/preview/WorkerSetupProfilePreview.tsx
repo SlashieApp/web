@@ -33,7 +33,8 @@ export function WorkerSetupProfilePreview() {
   const stats = profileStats(['experience'], {
     ratingCount: 0,
     ratingAverage: null,
-    completedJobs: [],
+    completedJobsCount: 0,
+    hostedCompletedCount: 0,
     yearsExperience: Number.isInteger(years) && years > 0 ? years : null,
     openTaskCount: 0,
     joinedLabel: null,

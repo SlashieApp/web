@@ -6,6 +6,8 @@ import {
 const JWT = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/
 const STATE = /^[A-Za-z0-9_-]{8,128}$/
 const APPLE_ERROR = /^[a-z_]{1,64}$/
+/** Apple's one-time authorization code: URL-safe, never long. */
+const APPLE_CODE = /^[A-Za-z0-9._-]{1,1024}$/
 const NAME_MAX = 100
 
 type FormLike = { get(name: string): FormDataEntryValue | null }
@@ -32,7 +34,9 @@ function appleName(raw: string): { firstName: string; lastName: string } {
 /**
  * Deep link for Apple's `form_post` to the Expo app (Android Sign in with
  * Apple). Only well-formed values are passed on, and only to the fixed
- * `slashie://oauth-callback`.
+ * `slashie://oauth-callback`. The one-time `code` rides along with the token
+ * so the API can revoke Apple's grant on deletion; the nonce is not
+ * forwarded (the app keeps the raw one).
  */
 export function buildAppleMobileDeepLink(form: FormLike): string {
   const params = new URLSearchParams({ provider: 'apple' })
@@ -47,6 +51,8 @@ export function buildAppleMobileDeepLink(form: FormLike): string {
   }
 
   params.set('id_token', idToken)
+  const code = text(form, 'code')
+  if (APPLE_CODE.test(code)) params.set('code', code)
   const { firstName, lastName } = appleName(text(form, 'user'))
   if (firstName) params.set('first_name', firstName)
   if (lastName) params.set('last_name', lastName)

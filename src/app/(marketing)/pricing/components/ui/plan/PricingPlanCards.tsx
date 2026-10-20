@@ -17,7 +17,8 @@ import { Badge, Button, Link } from '@ui'
 import {
   formatPricingAmount,
   pricingDisplayPrice,
-  pricingIntervalLabel,
+  pricingPerInterval,
+  pricingPriceLine,
   pricingTrialLength,
 } from '../../../helpers/formatPricing'
 import type { PricingRecord } from '../../../helpers/getPricingForPage'
@@ -201,8 +202,12 @@ export function PricingPlanCards({
   copy: PricingPlansCopy
   intervals: PricingCopy['intervals']
 }) {
-  const interval = pricingIntervalLabel(pricing.priceInterval, intervals)
-  const perInterval = formatMessage(copy.perInterval, { interval })
+  // Free has no billing period of its own: it reads per one interval.
+  const freePerInterval = pricingPerInterval(
+    { priceInterval: pricing.priceInterval, priceIntervalCount: 1 },
+    intervals,
+  )
+  const perInterval = pricingPerInterval(pricing, intervals)
   const price = pricingDisplayPrice(pricing)
   const trial = config.trial ? pricingTrialLength(pricing.trialDays) : null
   const count = pricing.freeQuotesPerMonth
@@ -220,7 +225,7 @@ export function PricingPlanCards({
         title={copy.free.title}
         subtitle={copy.free.subtitle}
         amount={formatPricingAmount(0, pricing.priceCurrency)}
-        suffix={perInterval}
+        suffix={freePerInterval}
         features={copy.free.features.map((feature) =>
           formatMessage(feature, { count }),
         )}
@@ -241,7 +246,11 @@ export function PricingPlanCards({
         }
         suffix={trial ? undefined : perInterval}
         note={
-          trial ? formatMessage(copy.thenPrice, { price, interval }) : undefined
+          trial
+            ? formatMessage(copy.thenPrice, {
+                priceLine: pricingPriceLine(pricing, intervals),
+              })
+            : undefined
         }
         features={copy.unlimited.features}
         current={config.current === 'unlimited'}

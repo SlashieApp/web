@@ -25,7 +25,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** `password`: Contact, Sign-in with the Password row, Notifications, Delete. */
+/** `password`: Contact, Sign-in with Change password, Notifications, Delete. */
 export const Password: Story = {
   decorators: [session(storyMe())],
   play: async ({ canvasElement }) => {
@@ -44,9 +44,44 @@ export const Password: Story = {
       ).toBeVisible()
     }
     await expect(
-      canvas.getByRole('link', { name: 'Change password' }),
-    ).toHaveAttribute('href', '/forgot-password')
+      canvas.getByRole('button', { name: 'Change password' }),
+    ).toBeVisible()
     await expect(canvas.getByText('Email and password')).toBeVisible()
+    await expect(
+      canvas.getByText(
+        'Sign in with sam.carter@example.com and your password.',
+      ),
+    ).toBeVisible()
+    await expect(canvas.getAllByText('Not linked')).toHaveLength(2)
+  },
+}
+
+/** Password plus a linked Google and an Apple Hide My Email relay: both offer Unlink. */
+export const ProvidersLinked: Story = {
+  decorators: [
+    session(
+      storyMe({
+        enabledLoginMethods: [
+          LoginMethod.Password,
+          LoginMethod.Google,
+          LoginMethod.Apple,
+        ],
+        googleLoginEmail: 'sam.personal@gmail.com',
+        appleLoginEmail: 'x7k2p9@privaterelay.appleid.com',
+      }),
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('Linked as sam.personal@gmail.com'),
+    ).toBeVisible()
+    await expect(
+      canvas.getByText('Linked as x7k2p9@privaterelay.appleid.com'),
+    ).toBeVisible()
+    await expect(
+      canvas.getAllByRole('button', { name: 'Unlink' }),
+    ).toHaveLength(2)
   },
 }
 
@@ -61,17 +96,28 @@ export const Worker: Story = {
   },
 }
 
-/** `social`: Google only, so no Password row and the email can't change here. */
+/** `social`: Google only, so Set a password, and the email changes once there is one. */
 export const Social: Story = {
-  decorators: [session(storyMe({ enabledLoginMethods: [LoginMethod.Google] }))],
+  decorators: [
+    session(
+      storyMe({
+        enabledLoginMethods: [LoginMethod.Google],
+        googleLoginEmail: 'sam.carter@example.com',
+      }),
+    ),
+  ],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByText('Comes from your Google sign-in.'),
+      await canvas.findByText(/add a password under Sign-in and security/),
     ).toBeVisible()
     await expect(
-      canvas.queryByRole('link', { name: 'Change password' }),
+      canvas.queryByRole('button', { name: 'Change password' }),
     ).toBeNull()
+    await expect(
+      canvas.getByRole('button', { name: 'Set a password' }),
+    ).toBeVisible()
+    await expect(canvas.getByText('Not set yet.')).toBeVisible()
     await expect(canvas.getByText('Google')).toBeVisible()
   },
 }

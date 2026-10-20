@@ -4,11 +4,9 @@ import { useQuery } from '@apollo/client/react'
 import type {
   PublicProfileQuery,
   PublicProfileQueryVariables,
-  ReviewableCompletedOrdersQuery,
 } from '@codegen/schema'
 
 import PublicProfile from '../graphql/PublicProfile.gql'
-import ReviewableCompletedOrders from '../graphql/ReviewableCompletedOrders.gql'
 
 export function usePublicProfile(userId: string, excludeTaskId: string | null) {
   const { data, loading, error, refetch } = useQuery<
@@ -26,19 +24,5 @@ export function usePublicProfile(userId: string, excludeTaskId: string | null) {
     pending: Boolean(userId) && loading && data == null,
     error: Boolean(error) && !data?.publicProfile,
     refetch,
-  }
-}
-
-export function useReviewableOrders(enabled: boolean) {
-  const { data, loading } = useQuery<ReviewableCompletedOrdersQuery>(
-    ReviewableCompletedOrders,
-    {
-      skip: !enabled,
-      fetchPolicy: 'cache-and-network',
-    },
-  )
-  return {
-    orders: data?.me.orders ?? [],
-    loading: enabled && loading && !data,
   }
 }

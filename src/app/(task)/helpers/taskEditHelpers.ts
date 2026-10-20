@@ -9,7 +9,7 @@ import {
 
 import {
   type CreateTaskFormFieldValues,
-  toYmd,
+  londonToday,
 } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
 import { taskCategoryLabels } from './taskCategories'
 
@@ -47,7 +47,7 @@ export function taskToEditFormValues(
     locationLng:
       typeof lng === 'number' && Number.isFinite(lng) ? String(lng) : '',
     datetimeType,
-    preferredDate: dt?.date?.trim() || toYmd(new Date()),
+    preferredDate: dt?.date?.trim() || londonToday(),
     preferredTime: dt?.time?.trim() || '09:00',
     budgetMajor:
       typeof budgetAmount === 'number' && Number.isFinite(budgetAmount)

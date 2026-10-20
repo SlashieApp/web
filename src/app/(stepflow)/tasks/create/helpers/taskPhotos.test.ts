@@ -26,6 +26,18 @@ describe('acceptTaskPhotos', () => {
     ])
   })
 
+  it('turns down a picture type the API cannot store', () => {
+    const result = acceptTaskPhotos([photo('scan.bmp', 1, 'image/bmp')], 0)
+    expect(result.rejected).toEqual([
+      { reason: 'unsupportedType', name: 'scan.bmp' },
+    ])
+  })
+
+  it('takes a photo with no extension when its type is allowed', () => {
+    const result = acceptTaskPhotos([photo('IMG_0001', 1, 'image/heic')], 0)
+    expect(result.accepted.map((f) => f.name)).toEqual(['IMG_0001'])
+  })
+
   it('turns down a picture over 10 MB', () => {
     const result = acceptTaskPhotos([photo('huge.jpg', 11)], 0)
     expect(result.rejected).toEqual([{ reason: 'tooLarge', name: 'huge.jpg' }])

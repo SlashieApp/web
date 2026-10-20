@@ -36,7 +36,6 @@ import {
 import { APP_HOME } from '@/utils/appRoutes'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
-import { getTaskMutationErrorMessage } from '@/utils/graphqlErrors'
 import { uploadTaskImagesSettled } from '@/utils/taskImageUpload'
 import { townOnly } from '@/utils/taskLocationDisplay'
 import { Button, StepFlowHeader, StepFlowProgress } from '@ui'
@@ -46,7 +45,7 @@ import {
   type CreateTaskFormValues,
   buildDatetimePayload,
   createTaskFormSchema,
-  toYmd,
+  londonToday,
 } from '../createTaskFormSchema'
 import {
   clearCreateTaskDraft,
@@ -70,6 +69,7 @@ import {
   usePublicTaskArea,
 } from '../helpers/publicTaskArea'
 import { publishOnce } from '../helpers/publishOnce'
+import { taskServerError } from '../helpers/taskFieldError'
 import { useCreateTaskLocation } from '../helpers/useCreateTaskLocation'
 import { useTaskPhotos } from '../helpers/useTaskPhotos'
 import bag from '../i11n.json'
@@ -130,7 +130,7 @@ function defaultValues(
     locationLat: pinned ? startCentre.lat.toFixed(6) : '',
     locationLng: pinned ? startCentre.lng.toFixed(6) : '',
     datetimeType: TaskDateTimeType.Flexible,
-    preferredDate: toYmd(new Date()),
+    preferredDate: londonToday(),
     preferredTime: '09:00',
     budgetMajor: '',
     budgetCurrency: Currency.Gbp,
@@ -472,7 +472,7 @@ export function CreateTaskScreen({
 
       const { failed } = await uploadTaskImagesSettled(
         apollo,
-        taskId,
+        { id: taskId, status: res.data?.createTask?.status },
         photos.files,
       )
       if (failed > 0) {
@@ -499,7 +499,7 @@ export function CreateTaskScreen({
         operation: 'CreateTask',
         route: POST_TASK_PATH,
       })
-      setServerError(getTaskMutationErrorMessage(err, t.errors.postFailed))
+      setServerError(taskServerError(t.serverErrors, err, t.errors.postFailed))
       return false
     }
   }

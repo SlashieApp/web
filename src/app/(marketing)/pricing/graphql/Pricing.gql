@@ -4,6 +4,7 @@ query Pricing {
     priceAmount
     priceCurrency
     priceInterval
+    priceIntervalCount
     trialDays
     trialLabel
     freeQuotesPerMonth

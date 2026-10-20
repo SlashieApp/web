@@ -2,7 +2,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { storyMembership } from '@/app/(auth)/helpers/authStoryFixtures'
-import { storyPricing } from '@/app/(marketing)/pricing/components/pricingStoryFixtures'
+import {
+  storyPricing,
+  storyQuarterlyPricing,
+} from '@/app/(marketing)/pricing/components/pricingStoryFixtures'
 
 import { BILLING_VIEWS } from '../../views'
 import { BillingPlanCard } from './BillingPlanCard'
@@ -32,6 +35,16 @@ export const Free: Story = {
       within(canvasElement).getByRole('button', { name: 'Start free trial' }),
     )
     await expect(args.onAction).toHaveBeenCalledWith('startTrial')
+  },
+}
+
+/** A plan billed every 3 months: the price line says so. */
+export const EveryThreeMonths: Story = {
+  args: { pricing: storyQuarterlyPricing },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText('6 months free, then £54 every 3 months'),
+    ).toBeVisible()
   },
 }
 

@@ -3,6 +3,8 @@ import {
   LoginMethod,
   UserLanguage,
   WorkerPrimaryCategory,
+  WorkerProfileGap,
+  WorkerPublishState,
   WorkerSubscriptionStatus,
 } from '@codegen/schema'
 
@@ -202,6 +204,9 @@ export function storyWorker(overrides: Partial<StoryWorker> = {}): StoryWorker {
       ],
       isComplete: true,
     },
+    publishState: WorkerPublishState.Published,
+    // No photo on `storyMe` and no portfolio links.
+    profileGaps: [WorkerProfileGap.Photo, WorkerProfileGap.Portfolio],
     membership: storyMembership('free'),
     earnings: { pending: { amount: 0, currency: Currency.Gbp } },
     ...overrides,
@@ -220,6 +225,12 @@ export function storyWorkerDraft(
       completedSubSteps: ['profile.details', 'profile.bio'],
       isComplete: false,
     },
+    publishState: WorkerPublishState.Draft,
+    profileGaps: [
+      WorkerProfileGap.Photo,
+      WorkerProfileGap.Headline,
+      WorkerProfileGap.Portfolio,
+    ],
     ...overrides,
   })
 }
@@ -232,12 +243,19 @@ type StoryMeOverrides = Partial<Omit<MeSnapshot, 'profile' | 'settings'>> & {
 /**
  * A signed-in customer: verified email, no phone, no worker profile. Pass
  * `worker: storyWorker()` for a worker. `profile.*Verified` follows the
- * top-level flags unless overridden.
+ * top-level flags unless overridden, and a published worker on a private
+ * profile reads HIDDEN, as the API reports it.
  */
 export function storyMe(overrides: StoryMeOverrides = {}): MeSnapshot {
   const { profile, settings, ...rest } = overrides
   const emailVerified = rest.emailVerified ?? true
   const phoneVerified = rest.phoneVerified ?? false
+  const worker =
+    rest.worker &&
+    settings?.isProfilePrivate &&
+    rest.worker.publishState === WorkerPublishState.Published
+      ? { ...rest.worker, publishState: WorkerPublishState.Hidden }
+      : rest.worker
   return {
     id: 'user-story',
     email: 'sam.carter@example.com',
@@ -250,9 +268,13 @@ export function storyMe(overrides: StoryMeOverrides = {}): MeSnapshot {
     createdAt: '2026-06-01T12:00:00.000Z',
     deletionScheduledFor: null,
     enabledLoginMethods: [LoginMethod.Password],
+    googleLoginEmail: null,
+    appleLoginEmail: null,
+    deletionBlockers: [],
+    savedWorkers: [],
     workerEligibility: Boolean(rest.worker),
-    worker: null,
     ...rest,
+    worker: worker ?? null,
     profile: {
       name: 'Sam Carter',
       contactNumber: null,

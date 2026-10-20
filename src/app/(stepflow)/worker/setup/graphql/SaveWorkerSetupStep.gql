@@ -21,6 +21,8 @@ mutation SaveWorkerSetupStep($input: SaveWorkerSetupStepInput!) {
       completedSubSteps
       isComplete
     }
+    publishState
+    profileGaps
     profile {
       name
       avatarUrl

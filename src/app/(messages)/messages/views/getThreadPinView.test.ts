@@ -1,8 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest'
 
-import { TASK_DETAIL_VIEWS } from '@/app/(task)/tasks/[slug]/views'
 import type { TaskDetailViewName } from '@/app/(task)/tasks/[slug]/views/types'
-import { ASK_BY_VIEW } from '@/app/(task)/tasks/helpers/myTasksHub'
 
 import { PIN_VIEWS, type ThreadPinViewName, getThreadPinView } from '.'
 
@@ -71,14 +69,6 @@ describe('getThreadPinView', () => {
 
   it('shows no status while the task loads', () => {
     expect(pin('loading')).toBeNull()
-  })
-
-  it('needs you exactly when My tasks lists the job under Needs you', () => {
-    for (const name of Object.keys(TASK_DETAIL_VIEWS) as TaskDetailViewName[]) {
-      const view = getThreadPinView(name)
-      const asks = view ? PIN_VIEWS[view].ask : false
-      expect(asks, name).toBe(ASK_BY_VIEW[name] != null)
-    }
   })
 
   afterAll(() => {

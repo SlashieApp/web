@@ -1,5 +1,7 @@
 mutation LoginWithApple(
   $token: String!
+  $nonce: String
+  $authorizationCode: String
   $firstName: String
   $lastName: String
 ) {
@@ -7,6 +9,8 @@ mutation LoginWithApple(
     input: {
       method: APPLE
       oauthToken: $token
+      nonce: $nonce
+      authorizationCode: $authorizationCode
       firstName: $firstName
       lastName: $lastName
     }

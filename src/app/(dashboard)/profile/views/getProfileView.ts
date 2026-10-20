@@ -1,18 +1,19 @@
+import { WorkerPublishState } from '@codegen/schema'
+
 import type { ProfileView, ProfileViewInput } from './types'
 
 /**
- * Picks the Profile view. A worker's unfinished setup comes first (the draft
- * is private anyway), then a private profile, then the phone they still need
- * to verify before quoting.
+ * Picks the Profile view. A worker's state is the API's `publishState`:
+ * a draft (unfinished setup) comes first, then hidden, then the phone they
+ * still need to verify before quoting. Customers follow the private switch.
  */
 export function getProfileView({
-  hasWorker,
-  setupComplete,
+  workerPublishState,
   phoneVerified,
   isPrivate,
 }: ProfileViewInput): ProfileView {
-  if (!hasWorker) return isPrivate ? 'customerHidden' : 'customer'
-  if (!setupComplete) return 'workerSetup'
-  if (isPrivate) return 'workerHidden'
+  if (!workerPublishState) return isPrivate ? 'customerHidden' : 'customer'
+  if (workerPublishState === WorkerPublishState.Draft) return 'workerSetup'
+  if (workerPublishState === WorkerPublishState.Hidden) return 'workerHidden'
   return phoneVerified ? 'workerReady' : 'workerVerifyPhone'
 }

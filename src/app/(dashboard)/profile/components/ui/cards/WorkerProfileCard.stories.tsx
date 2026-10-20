@@ -1,3 +1,4 @@
+import { WorkerProfileGap } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
@@ -15,7 +16,10 @@ import { WorkerProfileCard } from './WorkerProfileCard'
 /** Photo and portfolio added, so nothing is left to do. */
 const complete = storyWorkerMe({
   profile: { avatarUrl: storyAvatarUrl('SC') },
-  worker: storyWorker({ portfolioUrls: [storyAvatarUrl('P1', '#b4533c')] }),
+  worker: storyWorker({
+    portfolioUrls: [storyAvatarUrl('P1', '#b4533c')],
+    profileGaps: [],
+  }),
 })
 
 const meta = {
@@ -82,12 +86,18 @@ export const LiveComplete: Story = {
   },
 }
 
-/** A 50 to 79 character bio still shows the 80+ to-do (the form's rule). */
+/** A short bio: the API reports a BIO gap, so the 80+ to-do shows. */
 export const ShortBio: Story = {
   args: {
     me: storyWorkerMe({
       worker: storyWorker({
         bio: 'Reliable handyman for shelves, mounting and flat-pack jobs.',
+        // The API's gaps for this profile: the bio is under 80 characters.
+        profileGaps: [
+          WorkerProfileGap.Photo,
+          WorkerProfileGap.Bio,
+          WorkerProfileGap.Portfolio,
+        ],
       }),
     }),
   },

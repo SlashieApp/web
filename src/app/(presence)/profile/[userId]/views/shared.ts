@@ -15,7 +15,7 @@ export const customerBody = {
   layout: 'profile',
   width: 'narrow',
   heroActions: [],
-  stats: ['rating', 'openTasks', 'joined'],
+  stats: ['rating', 'hosted', 'openTasks', 'joined'],
   sections: ['openTasks', 'reviews'],
   keepEmpty: ['openTasks', 'reviews'],
   contact: null,

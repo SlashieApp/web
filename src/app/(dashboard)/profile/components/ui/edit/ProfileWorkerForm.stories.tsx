@@ -11,7 +11,19 @@ const meta = {
   title: 'Dashboard/Profile/ProfileWorkerForm',
   component: ProfileWorkerForm,
   parameters: { layout: 'padded' },
-  decorators: [withSession({ me: storyWorkerMe() })],
+  // The API refuses every save with a plain `TAGLINE_TOO_LONG` (see ServerError).
+  decorators: [
+    withSession({
+      me: storyWorkerMe(),
+      responses: {
+        UpdateWorkerProfile: {
+          kind: 'graphqlError',
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'TAGLINE_TOO_LONG',
+        },
+      },
+    }),
+  ],
 } satisfies Meta<typeof ProfileWorkerForm>
 
 export default meta
@@ -38,6 +50,18 @@ export const ValidationError: Story = {
     await expect(
       await canvas.findByText(/Please enter your legal name/),
     ).toBeVisible()
+  },
+}
+
+/** The API refuses a field (a plain `TAGLINE_TOO_LONG`): its copy, not a generic error. */
+export const ServerError: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.type(await canvas.findByLabelText('Legal name'), ' Jr')
+    await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
+    await expect(await canvas.findByRole('alert')).toHaveTextContent(
+      'Keep your headline under 80 characters.',
+    )
   },
 }
 

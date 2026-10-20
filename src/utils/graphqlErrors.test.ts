@@ -48,6 +48,32 @@ describe('plain resolver errors', () => {
     )
   })
 
+  it('reads the FE-316 account, task and setup codes', () => {
+    for (const code of [
+      'LAST_LOGIN_METHOD',
+      'PASSWORD_UNCHANGED',
+      'PASSWORD_NOT_SET',
+      'PASSWORD_ALREADY_SET',
+      'LOGIN_METHOD_NOT_SUPPORTED',
+      'APPLE_EMAIL_REQUIRED',
+      'DATE_IN_PAST',
+      'DATE_REQUIRED',
+      'INVALID_DATE',
+      'INVALID_INDEX',
+      'FORBIDDEN_TASK_UPLOAD',
+      'TAGLINE_TOO_LONG',
+      'BIO_TOO_LONG',
+      'TOO_MANY_SKILLS',
+      'INVALID_SKILL',
+      'YEARS_EXPERIENCE_INVALID',
+      'TOO_MANY_PORTFOLIO_URLS',
+      'INVALID_PORTFOLIO_URL',
+      'WORKER_SETUP_INCOMPLETE',
+    ]) {
+      expect(getGraphQLErrorCode(internal(code))).toBe(code)
+    }
+  })
+
   it('keeps INTERNAL_SERVER_ERROR for unknown messages', () => {
     expect(getGraphQLErrorCode(internal('boom'))).toBe('INTERNAL_SERVER_ERROR')
   })

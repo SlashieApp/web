@@ -31,6 +31,9 @@
       "introChange": "Enter your new mobile number. Your current number stays on your account until you confirm the new one with the code we text you.",
       "mobileNumber": "Mobile number",
       "ukOnly": "UK mobile numbers only (+44). We'll text you a 6-digit code to confirm this number on your account.",
+      "currentPassword": "Current password",
+      "passwordHelp": "Enter your Slashie password to confirm it's you. We'll also text your current number about the change.",
+      "needPassword": "Enter your current password.",
       "sendCode": "Send code",
       "codeIntro": "To verify this mobile number, enter the 6-digit code we sent to {phone}.",
       "codeHelp": "Codes are valid for 10 minutes. Didn't receive one?",
@@ -53,7 +56,7 @@
       "INVALID_EMAIL": "Enter a valid email address.",
       "EMAIL_UNCHANGED": "That's already your email.",
       "EMAIL_OR_PHONE_IN_USE": "This is already registered to another account.",
-      "EMAIL_CHANGE_NOT_ALLOWED": "This account signs in with Google or Apple, so its email can only change there.",
+      "EMAIL_CHANGE_NOT_ALLOWED": "Add a password under Sign-in and security first, then you can change your email.",
       "RESEND_VERIFICATION_RATE_LIMITED": "Please wait 2 minutes before resending.",
       "INVALID_PHONE_NUMBER": "Enter a valid UK mobile number (07… or +44…).",
       "PHONE_VERIFICATION_RATE_LIMITED": "Too many attempts. Try again in about an hour.",
@@ -62,7 +65,8 @@
       "PHONE_CHANGE_REQUIRES_VERIFICATION": "To change a verified number, confirm the new one with the code we text you.",
       "INVALID_VERIFICATION_CODE": "Enter the 6-digit code from your SMS.",
       "INVALID_OR_EXPIRED_VERIFICATION": "That code is wrong or has expired. Request a new one.",
-      "PHONE_VERIFICATION_NOT_REQUESTED": "Request a code first."
+      "PHONE_VERIFICATION_NOT_REQUESTED": "Request a code first.",
+      "REAUTH_REQUIRED": "For your security, sign out and sign in again, then change your number within 10 minutes."
     }
   },
   "zh_hk": {
@@ -97,6 +101,9 @@
       "introChange": "輸入你的新手提電話號碼。在你以短訊驗證碼確認新號碼前，現有號碼仍會保留在帳戶上。",
       "mobileNumber": "手提電話號碼",
       "ukOnly": "只接受英國手提電話號碼（+44）。我們會以短訊傳送 6 位數驗證碼，以確認帳戶上的號碼。",
+      "currentPassword": "目前密碼",
+      "passwordHelp": "請輸入你的 Slashie 密碼以確認是你本人。我們亦會以短訊通知你現有的號碼。",
+      "needPassword": "請輸入目前密碼。",
       "sendCode": "傳送驗證碼",
       "codeIntro": "請輸入我們傳送到 {phone} 的 6 位數驗證碼，以驗證這個手提電話號碼。",
       "codeHelp": "驗證碼 10 分鐘內有效。沒有收到？",
@@ -119,7 +126,7 @@
       "INVALID_EMAIL": "請輸入有效的電郵地址。",
       "EMAIL_UNCHANGED": "這已經是你的電郵。",
       "EMAIL_OR_PHONE_IN_USE": "這已登記在另一個帳戶。",
-      "EMAIL_CHANGE_NOT_ALLOWED": "這個帳戶以 Google 或 Apple 登入，電郵只能在那裡更改。",
+      "EMAIL_CHANGE_NOT_ALLOWED": "請先在「登入與安全」加入密碼，然後便可更改電郵。",
       "RESEND_VERIFICATION_RATE_LIMITED": "請等候 2 分鐘再重新傳送。",
       "INVALID_PHONE_NUMBER": "請輸入有效的英國手提電話號碼（07… 或 +44…）。",
       "PHONE_VERIFICATION_RATE_LIMITED": "嘗試次數過多，請約一小時後再試。",
@@ -128,7 +135,8 @@
       "PHONE_CHANGE_REQUIRES_VERIFICATION": "要更改已驗證的號碼，請以我們傳送的短訊驗證碼確認新號碼。",
       "INVALID_VERIFICATION_CODE": "請輸入短訊中的 6 位數驗證碼。",
       "INVALID_OR_EXPIRED_VERIFICATION": "驗證碼錯誤或已過期，請重新索取。",
-      "PHONE_VERIFICATION_NOT_REQUESTED": "請先索取驗證碼。"
+      "PHONE_VERIFICATION_NOT_REQUESTED": "請先索取驗證碼。",
+      "REAUTH_REQUIRED": "為了你的帳戶安全，請登出後重新登入，然後在 10 分鐘內更改號碼。"
     }
   }
 }

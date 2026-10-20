@@ -10,6 +10,7 @@ import {
   STORY_NOW,
   sampleCustomer,
   sampleDayOneWorker,
+  sampleHiddenOwner,
   sampleOpenTasks,
   sampleOwner,
   sampleOwnerCustomer,
@@ -81,17 +82,36 @@ export const Unavailable: Story = {
   },
 }
 
-/** `ownerHidden`: you opened your own private profile. */
-export const OwnerHidden: Story = {
-  args: { view: 'ownerHidden', model: null },
+/** `worker.ownerHidden`: your own private worker profile, previewed under a hidden notice. */
+export const WorkerOwnerHidden: Story = {
+  args: { view: 'worker.ownerHidden', model: sampleHiddenOwner(STORY_NOW) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('heading', { name: 'Your profile is hidden' }),
+      await canvas.findByText('Your profile is hidden'),
     ).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: 'Profile settings' }),
     ).toHaveAttribute('href', '/profile?section=visibility')
+    await expect(canvas.queryByText('This is how others see you.')).toBeNull()
+    await expect(
+      canvas.getByRole('heading', { name: 'Work on Slashie' }),
+    ).toBeVisible()
+  },
+}
+
+/** `customer.ownerHidden`: your own private customer profile, the same notice. */
+export const CustomerOwnerHidden: Story = {
+  args: {
+    view: 'customer.ownerHidden',
+    model: { ...sampleOwnerCustomer(STORY_NOW), isHidden: true },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('Your profile is hidden'),
+    ).toBeVisible()
+    await expect(canvas.getByText('bookings completed')).toBeVisible()
   },
 }
 
@@ -257,6 +277,17 @@ export const NoReviews: Story = {
   },
 }
 
+/** Reviews name their author and job; a deleted author falls back to "A Slashie user". */
+export const ReviewAuthors: Story = {
+  args: { view: 'worker.visitor', model: sampleWorker() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Priya')).toBeVisible()
+    await expect(canvas.getByText('For Assemble a wardrobe')).toBeVisible()
+    await expect(canvas.getAllByText('A Slashie user')[0]).toBeVisible()
+  },
+}
+
 /** Two reviews: the count, and the average waits for a third. */
 export const BelowReviewThreshold: Story = {
   args: {
@@ -283,6 +314,7 @@ export const LongLists: Story = {
       reviews: sampleReviews(8),
       ratingCount: 8,
       ratingAverage: 4.7,
+      completedJobsCount: 7,
       completedJobs: Array.from({ length: 7 }, (_, index) => ({
         id: `job-${index + 1}`,
         title: `Flat-pack job ${index + 1}`,

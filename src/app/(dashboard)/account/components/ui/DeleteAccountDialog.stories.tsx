@@ -1,4 +1,4 @@
-import { LoginMethod } from '@codegen/schema'
+import { AccountDeletionBlockerKind, LoginMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
@@ -176,5 +176,38 @@ export const ReauthExpired: Story = {
     await expect(
       page(canvasElement).getByText(/sign in again first/),
     ).toBeInTheDocument()
+  },
+}
+
+/** Live bookings (`me.deletionBlockers`): links to each, no delete button, no API call. */
+export const BlockedByLiveBookings: Story = {
+  args: {
+    deletionBlockers: [
+      {
+        kind: AccountDeletionBlockerKind.LiveOrder,
+        orderId: 'order-1',
+        taskId: 'task-1',
+      },
+      {
+        kind: AccountDeletionBlockerKind.LiveOrder,
+        orderId: 'order-2',
+        taskId: 'task-2',
+      },
+    ],
+  },
+  decorators: [api()],
+  play: async ({ canvasElement }) => {
+    const dialog = await page(canvasElement).findByRole('dialog', {
+      name: 'Finish your live bookings first',
+    })
+    await expect(
+      within(dialog).getByRole('link', { name: 'Booking 1' }),
+    ).toHaveAttribute('href', '/tasks/task-1#task-order')
+    await expect(
+      within(dialog).getByRole('link', { name: 'Booking 2' }),
+    ).toHaveAttribute('href', '/tasks/task-2#task-order')
+    await expect(
+      within(dialog).queryByRole('button', { name: 'Delete my account' }),
+    ).toBeNull()
   },
 }

@@ -18,7 +18,7 @@ Copy lives in `../i11n.json` (en + zh-HK); form errors are copy keys in
 | `create.loadError` | The account didn't load | none | We couldn't load your account | Try again, Back to search |
 | `create.location` | Step 1 | Full screen, bottom card | Privacy callout, "Workers will see: {town}", exact address (private), Use pin address | Continue |
 | `create.details` | Step 2 | Band | Title, categories, description, photos (optional, up to 10, each up to 10 MB, public) | Continue |
-| `create.timing` | Step 3 | Band | Flexible / Before a date / On a date and time; the date is the device picker from today | Continue |
+| `create.timing` | Step 3 | Band | Flexible / Before a date / On a date and time; the date is the device picker from today in London (`londonToday`, as the API checks) | Continue |
 | `create.budget` | Step 4 | Band | Budget type first, then the amount for that unit (£), then how you'll pay | Continue |
 | `create.review` | Step 5 | Band | What workers will see (each row edits its step), the email check when unverified, how your worker reaches you, the allowed-tasks confirmation | Post task |
 
@@ -41,6 +41,14 @@ Copy lives in `../i11n.json` (en + zh-HK); form errors are copy keys in
 - **Errors:** checked on Continue and then as you fix them; focus moves to
   the first field with a problem. Post task re-checks everything and goes to
   the first step with a problem.
+- **Dates:** Before and On a date need a real day that is today or later in
+  London (`dateRequired`, `dateInvalid`, `dateInPast`); the API's
+  DATE_REQUIRED, INVALID_DATE and DATE_IN_PAST show `serverErrors` copy.
+- **Photos:** keys are one slot digit (0 to 9) and an allowed extension (jpg,
+  jpeg, png, webp, gif, heic, heif, avif), from the file name or else its type
+  (`utils/taskImageKeys.ts`); a picture of another type is refused when picked
+  ("Use a JPG, PNG, WebP, GIF, HEIC or AVIF photo"). Uploads only run while
+  the task is OPEN or DRAFT.
 - **Posting:** one at a time, and never twice (`publishOnce`). Photos upload
   after the task exists; any that fail are counted in a toast and the rest
   still upload. Then the task page replaces this one.

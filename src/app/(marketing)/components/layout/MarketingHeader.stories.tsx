@@ -20,6 +20,8 @@ const suspendedMe: MeSnapshot = {
   phoneVerified: true,
   createdAt: '2024-01-01T00:00:00.000Z',
   enabledLoginMethods: [LoginMethod.Password],
+  deletionBlockers: [],
+  savedWorkers: [],
   workerEligibility: false,
   profile: { name: 'Sam Carter', emailVerified: true, phoneVerified: true },
   settings: {

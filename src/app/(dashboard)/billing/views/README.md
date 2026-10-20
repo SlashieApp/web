@@ -13,8 +13,9 @@ paused, unfinished. Each view has one config file here; `index.ts` maps names
 to configs and `components/ui/BillingPlanCard.tsx` renders them.
 
 Copy lives in `../i11n.json` (en + zh-HK). Price and trial come from the
-Pricing query (`pricingTrialLength`, `pricingIntervalLabel`), never the API's
-English `trialLabel`.
+Pricing query (`pricingTrialLength`, `pricingPriceLine`), never the API's
+English `trialLabel`. A plan billed every few months (`priceIntervalCount` > 1)
+reads "£54 every 3 months" (zh-HK "每 3 個月 £54") in place of "/ month".
 
 | View | When | Badge | Body | Meter | Price line | Button |
 |---|---|---|---|---|---|---|

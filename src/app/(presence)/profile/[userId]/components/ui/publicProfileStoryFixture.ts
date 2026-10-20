@@ -154,6 +154,27 @@ export function sampleWorkHistory(now = new Date()): PublicWorkHistoryItem[] {
   ]
 }
 
+const REVIEW_AUTHORS = [
+  'Priya',
+  'Tom',
+  null,
+  'Grace',
+  'Omar',
+  'Lucy',
+  'Ben',
+  'Ana',
+]
+const REVIEW_JOBS = [
+  'Assemble a wardrobe',
+  'Put up three shelves',
+  null,
+  'Fix a sticking door',
+  'Lay a hallway runner',
+  'Hang a mirror',
+  'Assemble a bed frame',
+  'Fit a curtain pole',
+]
+
 const REVIEW_TEXT = [
   'On time and tidy. Put the wardrobe together faster than the instructions said it would.',
   'Good work on the shelves, ran a little late.',
@@ -165,7 +186,10 @@ const REVIEW_TEXT = [
   'Brought the right tools first time.',
 ]
 
-/** `count` reviews, newest first, mostly from customers. */
+/**
+ * `count` reviews, newest first, mostly from customers. The third has a
+ * deleted author with no name, photo or job title (the fallbacks).
+ */
 export function sampleReviews(count: number): PublicProfileReview[] {
   return Array.from({ length: count }, (_, index) => ({
     id: `review-${index + 1}`,
@@ -173,6 +197,9 @@ export function sampleReviews(count: number): PublicProfileReview[] {
     comment: REVIEW_TEXT[index % REVIEW_TEXT.length] ?? null,
     createdLabel: `${12 - index} Mar 2026`,
     from: index === 2 ? 'worker' : 'customer',
+    authorName: REVIEW_AUTHORS[index % REVIEW_AUTHORS.length] ?? null,
+    authorAvatarUrl: null,
+    jobTitle: REVIEW_JOBS[index % REVIEW_JOBS.length] ?? null,
   }))
 }
 
@@ -183,6 +210,7 @@ export function sampleWorker(
   return {
     id: 'user-1',
     isSelf: false,
+    isHidden: false,
     isWorker: true,
     name: 'Alex Morgan',
     avatarUrl: null,
@@ -224,6 +252,8 @@ export function sampleWorker(
         rating: 4,
       },
     ],
+    completedJobsCount: 3,
+    hostedCompletedCount: 0,
     openTasks: [],
     openTaskCount: 0,
     reviews: sampleReviews(4),
@@ -234,6 +264,8 @@ export function sampleWorker(
     viewer: {
       isSaved: false,
       canLeaveReview: true,
+      reviewOrderId: 'order-1',
+      reviewTaskId: 'task-1',
       contactAction: WorkerContactAction.AcceptQuoteFirst,
       relatedTaskId: null,
     },
@@ -248,7 +280,14 @@ export function sampleViewer(
   contactAction: WorkerContactAction,
   relatedTaskId: string | null = null,
 ): PublicProfileModel['viewer'] {
-  return { isSaved: false, canLeaveReview: false, contactAction, relatedTaskId }
+  return {
+    isSaved: false,
+    canLeaveReview: false,
+    reviewOrderId: null,
+    reviewTaskId: null,
+    contactAction,
+    relatedTaskId,
+  }
 }
 
 /** A worker on day one: a name, a trade and an area, nothing else yet. */
@@ -266,6 +305,7 @@ export function sampleDayOneWorker(): PublicProfileModel {
     phoneVerified: true,
     emailVerified: false,
     completedJobs: [],
+    completedJobsCount: 0,
     reviews: [],
     ratingCount: 0,
     ratingAverage: null,
@@ -293,6 +333,8 @@ export function sampleCustomer(
     phoneVerified: false,
     emailVerified: false,
     completedJobs: [],
+    completedJobsCount: 0,
+    hostedCompletedCount: 2,
     openTasks: sampleOpenTasks,
     openTaskCount: sampleOpenTasks.length,
     reviews: [],
@@ -313,6 +355,11 @@ export function sampleOwner(now = new Date()): PublicProfileModel {
     workHistory: sampleWorkHistory(now),
     viewer: sampleViewer(WorkerContactAction.None),
   })
+}
+
+/** Your own worker profile while it is private: the preview under a hidden notice. */
+export function sampleHiddenOwner(now = new Date()): PublicProfileModel {
+  return { ...sampleOwner(now), isHidden: true }
 }
 
 /** Owner who both works and hosts: worker and customer panels. */

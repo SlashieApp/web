@@ -47,7 +47,7 @@ export const Customer: Story = {
   },
 }
 
-/** `customerHidden`: private, so there is no public link. */
+/** `customerHidden`: private; only you can open the preview ("See what others see"). */
 export const CustomerHidden: Story = {
   ...screenFor(storyMe({ settings: { isProfilePrivate: true } })),
   play: async ({ canvasElement }) => {
@@ -56,6 +56,9 @@ export const CustomerHidden: Story = {
     await expect(
       canvas.queryByRole('link', { name: /View public profile/ }),
     ).toBeNull()
+    await expect(
+      canvas.getByRole('link', { name: /See what others see/ }),
+    ).toHaveAttribute('href', '/profile/user-story')
   },
 }
 
@@ -74,13 +77,17 @@ export const WorkerSetup: Story = {
   },
 }
 
-/** `workerHidden`: finished but private; editable, no public link. */
+/** `workerHidden`: the API says HIDDEN; editable, with the owner preview link. */
 export const WorkerHidden: Story = {
   ...screenFor(storyWorkerMe({ settings: { isProfilePrivate: true } })),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText('Hidden')).toBeVisible()
+    // The hero badge and the worker card's badge.
+    await expect(await canvas.findAllByText('Hidden')).toHaveLength(2)
     await expect(canvas.getByRole('button', { name: 'Edit' })).toBeVisible()
+    await expect(
+      canvas.getByRole('link', { name: /See what others see/ }),
+    ).toHaveAttribute('href', '/profile/user-story')
   },
 }
 

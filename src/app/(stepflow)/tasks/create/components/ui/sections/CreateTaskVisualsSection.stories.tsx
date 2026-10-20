@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, within } from 'storybook/test'
 
 import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
 
@@ -17,7 +18,7 @@ function photo(name: string, color: string) {
 
 type DemoProps = Pick<
   CreateTaskVisualsSectionProps,
-  'bare' | 'sectionHeading' | 'existingImageUrls'
+  'bare' | 'sectionHeading' | 'existingImageUrls' | 'rejected'
 > & { initial?: ReturnType<typeof photo>[] }
 
 function CreateTaskVisualsSectionDemo({ initial = [], ...props }: DemoProps) {
@@ -84,4 +85,21 @@ export const ExistingAndNewPhotos: Story = {
 /** Card mode (edit page): the upload area sits in a titled section card. */
 export const CardMode: Story = {
   args: { bare: false },
+}
+
+/** Picked files refused before upload: a PDF, and a BMP photo the API can't store. */
+export const Rejected: Story = {
+  args: {
+    rejected: [
+      { reason: 'notAPhoto', name: 'quote.pdf' },
+      { reason: 'unsupportedType', name: 'scan.bmp' },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText(
+        "scan.bmp wasn't added. Use a JPG, PNG, WebP, GIF, HEIC or AVIF photo.",
+      ),
+    ).toBeVisible()
+  },
 }

@@ -1,7 +1,7 @@
+import { WorkerProfileGap } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import {
-  storyAvatarUrl,
   storyMe,
   storyWorker,
   storyWorkerMe,
@@ -14,36 +14,37 @@ describe('workerProfileTodos', () => {
     expect(workerProfileTodos(storyMe())).toEqual([])
   })
 
-  it('lists what a finished worker could still add, portfolio last', () => {
+  it("lists the API's profile gaps in its order, portfolio last", () => {
     expect(workerProfileTodos(storyWorkerMe())).toEqual(['photo', 'portfolio'])
   })
 
-  it('counts a 50 to 79 character bio as not done (the form needs 80)', () => {
-    const me = storyWorkerMe({
-      profile: { avatarUrl: storyAvatarUrl('SC') },
-      worker: storyWorker({
-        bio: 'Reliable handyman for shelves, mounting and flat-pack jobs.',
-        portfolioUrls: ['https://example.com/p1.jpg'],
-      }),
-    })
-    expect(workerProfileTodos(me)).toEqual(['bio'])
-  })
-
-  it('asks for skills, headline and area when they are missing', () => {
+  it('maps every gap the API reports', () => {
     const me = storyWorkerMe({
       worker: storyWorker({
-        tagline: null,
-        skills: ['Handyman'],
-        preferredLocation: undefined,
-        locationAddress: null,
+        profileGaps: [
+          WorkerProfileGap.Photo,
+          WorkerProfileGap.Headline,
+          WorkerProfileGap.Bio,
+          WorkerProfileGap.Skills,
+          WorkerProfileGap.ServiceArea,
+          WorkerProfileGap.Portfolio,
+        ],
       }),
     })
     expect(workerProfileTodos(me)).toEqual([
       'photo',
       'headline',
+      'bio',
       'skills',
       'serviceArea',
       'portfolio',
     ])
+  })
+
+  it('trusts the API over the fields (no client rules)', () => {
+    const me = storyWorkerMe({
+      worker: storyWorker({ tagline: null, profileGaps: [] }),
+    })
+    expect(workerProfileTodos(me)).toEqual([])
   })
 })

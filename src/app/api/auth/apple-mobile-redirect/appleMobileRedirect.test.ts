@@ -26,6 +26,7 @@ describe('buildAppleMobileDeepLink', () => {
     const link = buildAppleMobileDeepLink(
       form({
         id_token: TOKEN,
+        code: 'c0de.1-AB_z',
         state: STATE,
         user: JSON.stringify({ name: { firstName: ' Sam ', lastName: 'Lee' } }),
       }),
@@ -33,9 +34,31 @@ describe('buildAppleMobileDeepLink', () => {
     const p = params(link)
     expect(p.get('provider')).toBe('apple')
     expect(p.get('id_token')).toBe(TOKEN)
+    expect(p.get('code')).toBe('c0de.1-AB_z')
     expect(p.get('state')).toBe(STATE)
     expect(p.get('first_name')).toBe('Sam')
     expect(p.get('last_name')).toBe('Lee')
+  })
+
+  it('signs in without a code, and drops an unsafe one', () => {
+    expect(
+      params(buildAppleMobileDeepLink(form({ id_token: TOKEN }))).get('code'),
+    ).toBeNull()
+    for (const code of ['a b', 'x&next=evil', '<b>', 'a'.repeat(1025)]) {
+      const p = params(
+        buildAppleMobileDeepLink(form({ id_token: TOKEN, code })),
+      )
+      expect(p.get('id_token')).toBe(TOKEN)
+      expect(p.get('code')).toBeNull()
+    }
+  })
+
+  it('never forwards a code with an error', () => {
+    const p = params(
+      buildAppleMobileDeepLink(form({ error: 'invalid_request', code: 'abc' })),
+    )
+    expect(p.get('error')).toBe('invalid_request')
+    expect(p.get('code')).toBeNull()
   })
 
   it('passes a cancel through as an error', () => {

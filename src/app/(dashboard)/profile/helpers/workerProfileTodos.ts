@@ -1,9 +1,8 @@
+import { WorkerProfileGap } from '@codegen/schema'
+
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { SKILLS_MIN } from '@/app/(stepflow)/worker/setup/helpers/workerSetupSkills'
-import {
-  BIO_MIN_CHARS,
-  HEADLINE_MIN_CHARS,
-} from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
+import { BIO_MIN_CHARS } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
 
 export type WorkerProfileTodo =
   | 'photo'
@@ -13,27 +12,25 @@ export type WorkerProfileTodo =
   | 'serviceArea'
   | 'portfolio'
 
+const TODO_BY_GAP: Record<WorkerProfileGap, WorkerProfileTodo> = {
+  [WorkerProfileGap.Photo]: 'photo',
+  [WorkerProfileGap.Headline]: 'headline',
+  [WorkerProfileGap.Bio]: 'bio',
+  [WorkerProfileGap.Skills]: 'skills',
+  [WorkerProfileGap.ServiceArea]: 'serviceArea',
+  [WorkerProfileGap.Portfolio]: 'portfolio',
+}
+
 /**
- * What a worker could still add to their profile, by the same floors as the
- * setup and edit forms. Portfolio is optional, so it comes last.
+ * What a worker could still add to their profile: the API's
+ * `worker.profileGaps`, which applies the same floors as the edit form and
+ * puts the optional portfolio last. No rules are worked out here.
  */
 export function workerProfileTodos(me: MeSnapshot): WorkerProfileTodo[] {
-  const worker = me.worker
-  if (!worker) return []
-  const serviceArea =
-    worker.preferredLocation?.name?.trim() ||
-    worker.preferredLocation?.address?.trim() ||
-    worker.locationAddress?.trim()
-  const todos: WorkerProfileTodo[] = []
-  if (!me.profile?.avatarUrl?.trim()) todos.push('photo')
-  if ((worker.tagline?.trim().length ?? 0) < HEADLINE_MIN_CHARS) {
-    todos.push('headline')
-  }
-  if ((worker.bio?.trim().length ?? 0) < BIO_MIN_CHARS) todos.push('bio')
-  if ((worker.skills?.length ?? 0) < SKILLS_MIN) todos.push('skills')
-  if (!serviceArea) todos.push('serviceArea')
-  if (!worker.portfolioUrls?.length) todos.push('portfolio')
-  return todos
+  return (me.worker?.profileGaps ?? []).flatMap((gap) => {
+    const todo = TODO_BY_GAP[gap]
+    return todo ? [todo] : []
+  })
 }
 
 /** The minimum a to-do names ("Write a bio of 80+ characters"). */

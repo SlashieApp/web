@@ -1,3 +1,4 @@
+import { LoginMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
@@ -21,7 +22,7 @@ type Story = StoryObj<typeof meta>
 const page = (canvasElement: HTMLElement) =>
   within(canvasElement.ownerDocument.body)
 
-/** No number saved: add one and get a code. */
+/** No number saved: add one and get a code (no password for a first number). */
 export const AddNumber: Story = {
   decorators: [withSession({ me: storyMe() })],
   play: async ({ canvasElement }) => {
@@ -33,6 +34,9 @@ export const AddNumber: Story = {
     await expect(
       page(canvasElement).getByLabelText('Mobile number'),
     ).toHaveValue('')
+    await expect(
+      page(canvasElement).queryByLabelText('Current password'),
+    ).toBeNull()
   },
 }
 
@@ -48,7 +52,7 @@ export const VerifySavedNumber: Story = {
   },
 }
 
-/** A verified number: changing it starts with a blank field. */
+/** A verified number on a password account: a blank field and the password to confirm. */
 export const ChangeVerifiedNumber: Story = {
   decorators: [
     withSession({
@@ -60,6 +64,64 @@ export const ChangeVerifiedNumber: Story = {
       await page(canvasElement).findByRole('dialog', {
         name: 'Change phone number',
       }),
+    ).toBeInTheDocument()
+    await expect(
+      page(canvasElement).getByLabelText('Current password'),
+    ).toBeInTheDocument()
+  },
+}
+
+/** Changing without the password: asks for it before anything is sent. */
+export const ChangeNeedsPassword: Story = {
+  decorators: [
+    withSession({
+      me: storyMe({ phoneVerified: true, profile: { contactNumber: PHONE } }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    await userEvent.type(
+      await page(canvasElement).findByLabelText('Mobile number'),
+      '7700900456',
+    )
+    await userEvent.click(
+      page(canvasElement).getByRole('button', { name: 'Send code' }),
+    )
+    await expect(
+      await page(canvasElement).findByText('Enter your current password.'),
+    ).toBeInTheDocument()
+  },
+}
+
+/** Google-only account changing a verified number: no password field (the API checks a recent sign-in). */
+export const ChangeWithoutPassword: Story = {
+  decorators: [
+    withSession({
+      me: storyMe({
+        phoneVerified: true,
+        enabledLoginMethods: [LoginMethod.Google],
+        profile: { contactNumber: PHONE },
+      }),
+      responses: {
+        SendPhoneVerification: {
+          kind: 'graphqlError',
+          code: 'REAUTH_REQUIRED',
+        },
+      },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    await userEvent.type(
+      await page(canvasElement).findByLabelText('Mobile number'),
+      '7700900456',
+    )
+    await expect(
+      page(canvasElement).queryByLabelText('Current password'),
+    ).toBeNull()
+    await userEvent.click(
+      page(canvasElement).getByRole('button', { name: 'Send code' }),
+    )
+    await expect(
+      await page(canvasElement).findByText(/sign out and sign in again/),
     ).toBeInTheDocument()
   },
 }

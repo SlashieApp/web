@@ -5,6 +5,7 @@ import {
   OrderStatus,
   QuoteStatus,
   TaskStatus,
+  ThreadAttentionKind,
 } from '@codegen/schema'
 import type { ThreadFieldsFragment } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -36,7 +37,7 @@ const meta = {
   title: 'Messages/ThreadPin',
   component: ThreadPin,
   parameters: { layout: 'fullscreen' },
-  args: { party: otherPartyFor('owner') },
+  args: { party: otherPartyFor('owner'), attention: null },
   render: (args) => (
     <TaskDetailProvider taskId={STORY_TASK_ID} captureView={false}>
       <ThreadPin {...args} />
@@ -110,13 +111,32 @@ function request(kind: OrderRequestKind, by: string): Partial<OrderItem> {
   } as Partial<OrderItem>
 }
 
+/**
+ * A pin story. `attention` is what the API says waits on the viewer
+ * (`thread.attention`): it tints the card; null leaves it plain.
+ */
 function pin(
   viewer: MessagesViewer,
   task: TaskDetailRecord | undefined,
   party: ThreadFieldsFragment['otherParty'] = otherPartyFor(viewer),
+  attention: ThreadFieldsFragment['attention'] = null,
 ): Story {
-  return { args: { party }, decorators: messagesStory({ viewer, task }) }
+  return {
+    args: { party, attention },
+    decorators: messagesStory({ viewer, task }),
+  }
 }
+
+const needs = (kind: ThreadAttentionKind, count: number | null = null) => ({
+  kind,
+  count,
+})
+
+/** True when the card is tinted as waiting on the viewer. */
+const tinted = (canvasElement: HTMLElement) =>
+  canvasElement
+    .querySelector('[data-thread-pin]')
+    ?.hasAttribute('data-needs-you')
 
 /** Waits for the task to load and the card to show the given pin view. */
 const card = (canvasElement: HTMLElement, view: string) =>
@@ -128,7 +148,12 @@ const card = (canvasElement: HTMLElement, view: string) =>
 
 /** pin.quotes: the owner's quotes are waiting; nobody is booked, so no person. */
 export const Quotes: Story = {
-  ...pin('owner', storyTaskDetail(), null),
+  ...pin(
+    'owner',
+    storyTaskDetail(),
+    null,
+    needs(ThreadAttentionKind.CompareQuotes, 2),
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await card(canvasElement, 'pin.quotes')
@@ -191,7 +216,9 @@ export const Booked: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await card(canvasElement, 'pin.booked')
+    await expect(tinted(canvasElement)).toBe(false)
     await expect(canvas.getByText(/£85 agreed/)).toBeVisible()
+    await expect(canvas.getByText(/23 jobs done/)).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: /Jordan Lee/ }),
     ).toHaveAttribute('href', `/profile/${STORY_WORKER_ID}`)
@@ -208,6 +235,9 @@ export const Waiting: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await card(canvasElement, 'pin.waiting')
+    await expect(
+      canvas.getByText('2 reviews · 3 bookings completed'),
+    ).toBeVisible()
     await expect(canvas.getByText('Reschedule requested')).toBeVisible()
     await expect(canvas.getByText(/Waiting for Alex Chen/)).toBeVisible()
   },
@@ -217,10 +247,16 @@ const answerTask = booked(request(OrderRequestKind.Reschedule, STORY_WORKER_ID))
 
 /** pin.answer: Jordan wants to move the booking: Alex answers in the card. */
 export const Answer: Story = {
-  ...pin('owner', answerTask),
+  ...pin(
+    'owner',
+    answerTask,
+    undefined,
+    needs(ThreadAttentionKind.AnswerReschedule),
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await card(canvasElement, 'pin.answer')
+    await expect(tinted(canvasElement)).toBe(true)
     await expect(
       canvas.getByText('Jordan Lee wants to move the booking'),
     ).toBeVisible()
@@ -235,7 +271,12 @@ export const Answer: Story = {
 
 /** pin.answer: Alex asked to cancel: Jordan accepts or keeps the booking. */
 export const AnswerCancel: Story = {
-  ...pin('worker', booked(request(OrderRequestKind.Cancel, STORY_OWNER_ID))),
+  ...pin(
+    'worker',
+    booked(request(OrderRequestKind.Cancel, STORY_OWNER_ID)),
+    undefined,
+    needs(ThreadAttentionKind.AnswerCancel),
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await card(canvasElement, 'pin.answer')
@@ -251,7 +292,7 @@ export const AnswerCancel: Story = {
 
 /** pin.close: the job time has started: when, the price, slide to mark Done. */
 export const Close: Story = {
-  ...pin('worker', booked()),
+  ...pin('worker', booked(), undefined, needs(ThreadAttentionKind.MarkDone)),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await card(canvasElement, 'pin.close')
@@ -272,6 +313,8 @@ export const Confirm: Story = {
       counterpartyCloseAction: done,
       autoDoneAt: '2026-10-22T10:00:00.000Z',
     }),
+    undefined,
+    needs(ThreadAttentionKind.ConfirmDone),
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -291,6 +334,8 @@ export const Conflict: Story = {
       myCloseAction: done,
       counterpartyCloseAction: failed,
     }),
+    undefined,
+    needs(ThreadAttentionKind.Conflict),
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -366,6 +411,9 @@ export const DeletedUser: Story = {
     ...otherPartyFor('owner'),
     name: 'Deleted user',
     deleted: true,
+    ratingSummary: { average: null, count: 0 },
+    hostedCompletedCount: 0,
+    completedJobsCount: 0,
   }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)

@@ -11,8 +11,7 @@ import {
 
 import type { WorkerMembershipSnapshot } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 import {
-  pricingDisplayPrice,
-  pricingIntervalLabel,
+  pricingPriceLine,
   pricingTrialLength,
 } from '@/app/(marketing)/pricing/helpers/formatPricing'
 import type { PricingRecord } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
@@ -58,10 +57,7 @@ function PriceLine({
   const t = useI11n(bag).views
   if (line === 'loading') return <Skeleton h="5" w="60%" borderRadius="md" />
   if (!pricing) return null
-  const vars = {
-    price: pricingDisplayPrice(pricing),
-    interval: pricingIntervalLabel(pricing.priceInterval, t.intervals),
-  }
+  const vars = { priceLine: pricingPriceLine(pricing, t.intervals) }
   const trial = pricingTrialLength(pricing.trialDays)
   const text =
     line === 'trialThenPrice' && trial

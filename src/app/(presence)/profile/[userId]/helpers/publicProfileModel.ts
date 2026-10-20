@@ -60,11 +60,19 @@ export type PublicProfileReview = {
   createdLabel: string
   /** Which side of the job wrote it. */
   from: 'customer' | 'worker'
+  /** Author's first name; null when deleted or unnamed (renderers fall back). */
+  authorName: string | null
+  authorAvatarUrl: string | null
+  /** The job it is about; null when the order had no title or category. */
+  jobTitle: string | null
 }
 
 export type PublicProfileViewer = {
   isSaved: boolean
   canLeaveReview: boolean
+  /** Newest unreviewed finished job together; null when there is none. */
+  reviewOrderId: string | null
+  reviewTaskId: string | null
   contactAction: WorkerContactAction
   relatedTaskId: string | null
 }
@@ -73,6 +81,8 @@ export type PublicProfileViewer = {
 export type PublicProfileModel = {
   id: string
   isSelf: boolean
+  /** Private profile; only its owner gets it, as a preview. */
+  isHidden: boolean
   isWorker: boolean
   /** Empty when the API has no name; renderers use the fallback copy. */
   name: string
@@ -90,7 +100,12 @@ export type PublicProfileModel = {
   verified: boolean
   phoneVerified: boolean
   emailVerified: boolean
+  /** The newest completed jobs (at most 100). */
   completedJobs: PublicCompletedJob[]
+  /** Every completed job as the worker, including rows past the list. */
+  completedJobsCount: number
+  /** Completed bookings this account posted. */
+  hostedCompletedCount: number
   openTasks: TaskCardTask[]
   openTaskCount: number
   reviews: PublicProfileReview[]
@@ -110,6 +125,7 @@ export type PublicProfileModel = {
 export type StatCell =
   | { id: 'rating'; average: number | null; count: number }
   | { id: 'jobs'; count: number }
+  | { id: 'hosted'; count: number }
   | { id: 'experience'; years: number }
   | { id: 'openTasks'; count: number }
   | { id: 'joined'; label: string }
@@ -150,7 +166,8 @@ export function profileStats(
     PublicProfileModel,
     | 'ratingCount'
     | 'ratingAverage'
-    | 'completedJobs'
+    | 'completedJobsCount'
+    | 'hostedCompletedCount'
     | 'yearsExperience'
     | 'openTaskCount'
     | 'joinedLabel'
@@ -161,8 +178,11 @@ export function profileStats(
     if (id === 'rating' && model.ratingCount > 0) {
       cells.push({ id, average: model.ratingAverage, count: model.ratingCount })
     }
-    if (id === 'jobs' && model.completedJobs.length > 0) {
-      cells.push({ id, count: model.completedJobs.length })
+    if (id === 'jobs' && model.completedJobsCount > 0) {
+      cells.push({ id, count: model.completedJobsCount })
+    }
+    if (id === 'hosted' && model.hostedCompletedCount > 0) {
+      cells.push({ id, count: model.hostedCompletedCount })
     }
     if (id === 'experience' && model.yearsExperience != null) {
       cells.push({ id, years: model.yearsExperience })
@@ -286,6 +306,7 @@ export function toPublicProfileModel(
   return {
     id: profile.id,
     isSelf: profile.isSelf,
+    isHidden: profile.isHidden,
     isWorker:
       profile.userType === PublicProfileUserType.Worker && worker != null,
     name: profile.profile.name?.trim() || '',
@@ -328,6 +349,8 @@ export function toPublicProfileModel(
           rating: job.rating ?? null,
         }))
       : [],
+    completedJobsCount: worker?.completedJobsCount ?? 0,
+    hostedCompletedCount: profile.hostedCompletedCount,
     openTasks: profile.openTasks.map(toPublicUserTaskCard),
     openTaskCount: profile.openTaskCount,
     reviews: profile.reviews.map((review) => ({
@@ -341,6 +364,9 @@ export function toPublicProfileModel(
       }),
       from:
         review.authorRole === ReviewPartyRole.Worker ? 'worker' : 'customer',
+      authorName: review.authorFirstName?.trim() || null,
+      authorAvatarUrl: review.authorAvatarUrl?.trim() || null,
+      jobTitle: review.jobTitle?.trim() || null,
     })),
     ratingCount: profile.ratingSummary.count,
     ratingAverage: publicRatingAverage(profile.ratingSummary),
@@ -350,6 +376,8 @@ export function toPublicProfileModel(
       ? {
           isSaved: worker.viewer.isSaved,
           canLeaveReview: worker.viewer.canLeaveReview,
+          reviewOrderId: worker.viewer.reviewOrderId ?? null,
+          reviewTaskId: worker.viewer.reviewTaskId ?? null,
           contactAction: worker.viewer.contactAction,
           relatedTaskId: worker.viewer.relatedTaskId ?? null,
         }

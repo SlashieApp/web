@@ -3,7 +3,6 @@
 import { Box } from '@chakra-ui/react'
 import { useParams, useSearchParams } from 'next/navigation'
 
-import { useMe } from '@/app/(auth)/store/user'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { Footer } from '@ui'
 
@@ -25,7 +24,6 @@ export default function PublicProfilePage() {
   const userId = routeParam(params.userId)
   const excludeTaskId = useSearchParams().get('excludeTaskId')?.trim() || null
   const locale = useLocale()
-  const me = useMe()
   const { profile, pending, error, refetch } = usePublicProfile(
     userId,
     excludeTaskId,
@@ -37,6 +35,7 @@ export default function PublicProfilePage() {
     profile: model
       ? {
           isSelf: model.isSelf,
+          isHidden: model.isHidden,
           isWorker: model.isWorker,
           contact: viewer
             ? {
@@ -46,10 +45,6 @@ export default function PublicProfilePage() {
             : null,
         }
       : null,
-    ownProfileHidden:
-      Boolean(userId) &&
-      me?.id === userId &&
-      Boolean(me?.settings.isProfilePrivate),
   })
   const actions = usePublicProfileActions(model, excludeTaskId)
 

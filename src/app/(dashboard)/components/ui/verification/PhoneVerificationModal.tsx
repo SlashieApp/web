@@ -2,10 +2,12 @@
 
 import { useMutation } from '@apollo/client/react'
 import { Stack, Text } from '@chakra-ui/react'
-import type {
-  SendPhoneVerificationMutation,
-  UpdateMyProfileMutation,
-  VerifyPhoneMutation,
+import {
+  LoginMethod,
+  type SendPhoneVerificationMutation,
+  type SendPhoneVerificationMutationVariables,
+  type UpdateMyProfileMutation,
+  type VerifyPhoneMutation,
 } from '@codegen/schema'
 import { useCallback, useState } from 'react'
 
@@ -28,7 +30,7 @@ import {
   maskPhoneForDisplay,
   toE164ForApi,
 } from '@/utils/phoneNormalize'
-import { FormField, Modal, OtpInput, PhoneInput } from '@ui'
+import { FormField, Input, Modal, OtpInput, PhoneInput } from '@ui'
 
 import bag from './i11n.json'
 import { verificationErrorText } from './verificationError'
@@ -55,6 +57,11 @@ export function PhoneVerificationModal({
   // A verified number is changed through a pending number: it stays live
   // until the new one's code is approved (BE-71).
   const changing = isPhoneVerified(me)
+  // Replacing a verified number re-auths: the password when the account has
+  // one, otherwise the API wants a recent sign-in (REAUTH_REQUIRED).
+  const needsPassword =
+    changing && (me?.enabledLoginMethods ?? []).includes(LoginMethod.Password)
+  const [password, setPassword] = useState('')
   const [step, setStep] = useState<Step>('phone')
   const [phoneDraft, setPhoneDraft] = useState('')
   const [activePhone, setActivePhone] = useState('')
@@ -64,8 +71,10 @@ export function PhoneVerificationModal({
 
   const [updateMyProfile, { loading: saving }] =
     useMutation<UpdateMyProfileMutation>(UpdateMyProfile)
-  const [sendPhoneVerification, { loading: sending }] =
-    useMutation<SendPhoneVerificationMutation>(SendPhoneVerification)
+  const [sendPhoneVerification, { loading: sending }] = useMutation<
+    SendPhoneVerificationMutation,
+    SendPhoneVerificationMutationVariables
+  >(SendPhoneVerification)
   const [verifyPhone, { loading: verifying }] =
     useMutation<VerifyPhoneMutation>(VerifyPhone)
 
@@ -74,6 +83,7 @@ export function PhoneVerificationModal({
     setPhoneDraft(savedPhone)
     setActivePhone('')
     setCode('')
+    setPassword('')
     setError(null)
     setRateLimited(false)
   }, [savedPhone])
@@ -120,6 +130,10 @@ export function PhoneVerificationModal({
       setError(t.samePhone)
       return
     }
+    if (needsPassword && !password) {
+      setError(t.needPassword)
+      return
+    }
 
     setError(null)
     try {
@@ -138,8 +152,9 @@ export function PhoneVerificationModal({
         }
       }
 
+      // First verification never sends a password.
       const result = await sendPhoneVerification({
-        variables: { phone: e164 },
+        variables: needsPassword ? { phone: e164, password } : { phone: e164 },
       })
       if (!result.data?.sendPhoneVerification) throw new Error(t.sendFailed)
 
@@ -236,6 +251,16 @@ export function PhoneVerificationModal({
           <Text fontSize="xs" color="text.muted" lineHeight="tall">
             {t.ukOnly}
           </Text>
+          {needsPassword ? (
+            <FormField label={t.currentPassword} helperText={t.passwordHelp}>
+              <Input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </FormField>
+          ) : null}
           {error ? (
             <Text color="status.danger.fg" fontSize="sm">
               {error}

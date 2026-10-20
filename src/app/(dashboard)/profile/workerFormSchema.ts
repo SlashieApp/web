@@ -2,6 +2,11 @@ import { z } from 'zod'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { categorySlugFromEnum } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import {
+  PORTFOLIO_URLS_MAX,
+  PORTFOLIO_URL_MAX_LENGTH,
+  portfolioUrlProblem,
+} from '@/app/(stepflow)/worker/setup/helpers/workerSetupPortfolio'
 import { QUALIFICATIONS_MAX } from '@/app/(stepflow)/worker/setup/helpers/workerSetupQualifications'
 import {
   SKILLS_MAX,
@@ -35,6 +40,8 @@ export type WorkerFormErrors = {
   yearsRange: string
   area: string
   radius: string
+  portfolioMany: string
+  portfolioUrl: string
 }
 
 /**
@@ -97,7 +104,14 @@ export function createWorkerFormSchema(errors: WorkerFormErrors) {
         (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) > 0),
         errors.radius,
       ),
-    portfolioUrls: z.array(z.string()),
+    // Same rules as worker setup and the API: https, 2,048 characters, 12 links.
+    portfolioUrls: z
+      .array(z.string())
+      .max(PORTFOLIO_URLS_MAX, count(errors.portfolioMany, PORTFOLIO_URLS_MAX))
+      .refine(
+        (urls) => urls.every((url) => portfolioUrlProblem(url) === null),
+        count(errors.portfolioUrl, PORTFOLIO_URL_MAX_LENGTH),
+      ),
   })
 }
 

@@ -35,6 +35,8 @@ query MeWorkerSetup {
         completedSubSteps
         isComplete
       }
+      publishState
+      profileGaps
     }
   }
 }

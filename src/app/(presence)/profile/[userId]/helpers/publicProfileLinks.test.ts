@@ -2,107 +2,32 @@ import { describe, expect, it } from 'vitest'
 
 import {
   contactHref,
-  pickReviewTarget,
   resolveReviewHref,
   reviewFormPath,
 } from './publicProfileLinks'
 
-describe('pickReviewTarget', () => {
-  const orders = [
-    {
-      id: 'order-old',
-      taskId: 'task-old',
-      workerUserId: 'user-1',
-      closedAt: '2026-01-01T00:00:00.000Z',
-      createdAt: '2025-12-01T00:00:00.000Z',
-    },
-    {
-      id: 'order-new',
-      taskId: 'task-new',
-      workerUserId: 'user-1',
-      closedAt: '2026-06-01T00:00:00.000Z',
-      createdAt: '2026-05-01T00:00:00.000Z',
-    },
-    {
-      id: 'order-other',
-      taskId: 'task-other',
-      workerUserId: 'user-2',
-      closedAt: '2026-08-01T00:00:00.000Z',
-      createdAt: '2026-08-01T00:00:00.000Z',
-    },
-  ]
-
-  it('picks the most recently closed completed order with this worker', () => {
-    expect(pickReviewTarget('user-1', orders)).toEqual({
-      taskId: 'task-new',
-      orderId: 'order-new',
-    })
-  })
-
-  it('breaks closedAt ties with createdAt', () => {
-    expect(
-      pickReviewTarget('user-1', [
-        {
-          id: 'a',
-          taskId: 'task-a',
-          workerUserId: 'user-1',
-          closedAt: '2026-06-01T00:00:00.000Z',
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-        {
-          id: 'b',
-          taskId: 'task-b',
-          workerUserId: 'user-1',
-          closedAt: '2026-06-01T00:00:00.000Z',
-          createdAt: '2026-05-01T00:00:00.000Z',
-        },
-      ]),
-    ).toEqual({ taskId: 'task-b', orderId: 'b' })
-  })
-})
-
 describe('resolveReviewHref', () => {
-  it('links the newest eligible order', () => {
-    expect(
-      resolveReviewHref({
-        canLeaveReview: true,
-        profileUserId: 'user-1',
-        orders: [
-          {
-            id: 'order-1',
-            taskId: 'task 1',
-            workerUserId: 'user-1',
-            closedAt: '2026-04-01T00:00:00.000Z',
-          },
-        ],
-      }),
-    ).toBe(reviewFormPath('task 1', 'order-1'))
+  const viewer = {
+    canLeaveReview: true,
+    reviewTaskId: 'task 1',
+    reviewOrderId: 'order-1',
+  }
+
+  it("links the API's newest unreviewed job together", () => {
+    expect(resolveReviewHref(viewer)).toBe(reviewFormPath('task 1', 'order-1'))
+    expect(resolveReviewHref(viewer)).toBe(
+      '/tasks/task 1/review?orderId=order-1',
+    )
   })
 
-  it('has no link until a finished order with this worker is loaded', () => {
-    expect(
-      resolveReviewHref({
-        canLeaveReview: true,
-        profileUserId: 'user-1',
-        orders: [],
-      }),
-    ).toBeNull()
+  it('has no link without both ids', () => {
+    expect(resolveReviewHref({ ...viewer, reviewOrderId: null })).toBeNull()
+    expect(resolveReviewHref({ ...viewer, reviewTaskId: ' ' })).toBeNull()
   })
 
-  it('stays closed when the viewer cannot review', () => {
-    expect(
-      resolveReviewHref({
-        canLeaveReview: false,
-        profileUserId: 'user-1',
-        orders: [
-          {
-            id: 'order-1',
-            taskId: 'task-1',
-            workerUserId: 'user-1',
-          },
-        ],
-      }),
-    ).toBeNull()
+  it('stays closed when the viewer cannot review or is signed out', () => {
+    expect(resolveReviewHref({ ...viewer, canLeaveReview: false })).toBeNull()
+    expect(resolveReviewHref(null)).toBeNull()
   })
 })
 

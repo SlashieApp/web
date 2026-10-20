@@ -1,8 +1,13 @@
 import type { ApolloClient } from '@apollo/client'
-import type { GetTaskS3UploadQuery } from '@codegen/schema'
+import type { GetTaskS3UploadQuery, TaskStatus } from '@codegen/schema'
 
 import GetTaskS3Upload from '@/app/(stepflow)/tasks/create/graphql/GetTaskS3Upload.gql'
 import { apiFetch } from '@/utils/analytics'
+import {
+  TASK_IMAGE_SLOTS,
+  canUploadTaskImages,
+  taskImageKey,
+} from '@/utils/taskImageKeys'
 
 function objectUrlFromPresignedPut(presignedUrl: string): string {
   try {
@@ -83,80 +88,46 @@ export async function putTaskImageToPresignedUrl(
   return objectUrlFromPresignedPut(presignedUrl)
 }
 
-/**
- * Presign via API, then upload one file. Prefer {@link uploadTaskImagesWithPresign} from UI submit handlers.
- */
+/** Presign via API (`getTaskS3Upload`, key `<slot>.<ext>`), then upload one file. */
 export async function uploadTaskImageWithPresign(
   client: ApolloClient,
   taskId: string,
   file: File,
-  index: number,
+  slot: number,
 ): Promise<string> {
-  const extension = file.name.split('.').pop()?.trim().toLowerCase()
-  const indexWithExtension = extension ? `${index}.${extension}` : `${index}`
   const presigned = await getS3PresignedPutUrlForTaskImage(
     client,
     taskId,
-    indexWithExtension,
+    taskImageKey(slot, file),
   )
   return putTaskImageToPresignedUrl(presigned, file)
 }
 
 /**
- * For each file: `getTaskS3Upload` → presigned PUT → object URL. Empty input returns `[]`.
- */
-export async function uploadTaskImagesWithPresign(
-  client: ApolloClient,
-  taskId: string,
-  files: File[],
-  startIndex = 0,
-): Promise<string[]> {
-  if (files.length === 0) return []
-  const urls: string[] = []
-  for (let i = 0; i < files.length; i += 1) {
-    urls.push(
-      await uploadTaskImageWithPresign(
-        client,
-        taskId,
-        files[i],
-        startIndex + i,
-      ),
-    )
-  }
-  return urls
-}
-
-/**
  * Uploads every photo even when one fails (create and edit: the task is
- * already saved, so the rest should still land). Returns how many failed.
+ * already saved, so the rest should still land). Each file takes the next
+ * free slot; a file with no slot left, or any file while the task is not open
+ * or a draft, is not sent and counts as failed. Returns how many failed.
  */
 export async function uploadTaskImagesSettled(
   client: ApolloClient,
-  taskId: string,
-  files: File[],
-  startIndex = 0,
+  task: { id: string; status: TaskStatus | null | undefined },
+  files: readonly File[],
+  slots: readonly number[] = TASK_IMAGE_SLOTS,
 ): Promise<{ failed: number }> {
+  if (!canUploadTaskImages(task.status)) return { failed: files.length }
   let failed = 0
   for (let i = 0; i < files.length; i += 1) {
+    const slot = slots[i]
+    if (slot === undefined) {
+      failed += 1
+      continue
+    }
     try {
-      await uploadTaskImageWithPresign(client, taskId, files[i], startIndex + i)
+      await uploadTaskImageWithPresign(client, task.id, files[i], slot)
     } catch {
       failed += 1
     }
   }
   return { failed }
-}
-
-/** Next S3 object index under `tasks/<taskId>/` from existing image URLs. */
-export function nextTaskImageUploadIndex(
-  existingImageUrls: readonly string[],
-): number {
-  let max = -1
-  for (const url of existingImageUrls) {
-    const match = url.match(/\/(\d+)(?:\.[a-z0-9]+)?(?:\?|#|$)/i)
-    if (!match) continue
-    const n = Number.parseInt(match[1], 10)
-    if (Number.isFinite(n)) max = Math.max(max, n)
-  }
-  return max + 1
 }

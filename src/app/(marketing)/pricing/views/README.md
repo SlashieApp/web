@@ -19,7 +19,10 @@ to configs.
 - Prices, the trial length (`trialDays`) and the free allowance
   (`freeQuotesPerMonth`) come from the `pricing` query; all words come from
   `../i11n.json` (en + zh-HK). The trial claim only shows when the config says
-  `trial` and the API reports a trial.
+  `trial` and the API reports a trial. The interval follows
+  `priceIntervalCount`: one is "/ month"; more is "every 3 months" (zh-HK
+  "每 3 個月"), in the cards, the FAQ, /billing and the /home teaser. Free
+  always reads per one interval.
 - `PricingPlanCards.stories.tsx` has a story per view; `PricingPlans.stories.tsx`
   covers the session wiring.
 

@@ -2,10 +2,9 @@
 
 import { useMutation } from '@apollo/client/react'
 import { HStack, Stack, Text } from '@chakra-ui/react'
-import {
-  type CancelEmailChangeMutation,
-  type CancelPhoneChangeMutation,
-  LoginMethod,
+import type {
+  CancelEmailChangeMutation,
+  CancelPhoneChangeMutation,
 } from '@codegen/schema'
 import { type ReactNode, useState } from 'react'
 
@@ -41,15 +40,6 @@ import bag from './i11n.json'
 type Dialog = 'verifyEmail' | 'changeEmail' | 'phone' | null
 
 const ROW_BUTTON = { size: 'sm', minH: '44px' } as const
-
-/** The provider a Google / Apple account's email comes from. */
-function providerName(me: MeSnapshot): string {
-  const methods = me.enabledLoginMethods ?? []
-  return methods.includes(LoginMethod.Apple) &&
-    !methods.includes(LoginMethod.Google)
-    ? 'Apple'
-    : 'Google'
-}
 
 /** A new email or phone waiting for its link or code; the old one stays live. */
 function PendingChange({
@@ -223,11 +213,7 @@ function EmailRow({
     <ContactRow
       config={config}
       value={me.email}
-      note={
-        config.locked
-          ? formatMessage(t.locked, { provider: providerName(me) })
-          : null
-      }
+      note={config.locked ? t.locked : null}
       readOnly={readOnly}
       onAction={(action) =>
         onOpen(action === 'changeEmail' ? 'changeEmail' : 'verifyEmail')

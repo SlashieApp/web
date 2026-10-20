@@ -4,9 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { pinPerson, threadQueryState, timelineRows } from './messagesThread'
 
 const forbidden = {
-  errors: [
-    { message: 'FORBIDDEN', extensions: { code: 'INTERNAL_SERVER_ERROR' } },
-  ],
+  errors: [{ message: 'FORBIDDEN', extensions: { code: 'FORBIDDEN' } }],
 }
 
 describe('threadQueryState', () => {
@@ -108,6 +106,9 @@ describe('pinPerson', () => {
     name: 'Jordan Lee',
     avatarUrl: 'https://img/jordan.png',
     deleted: false,
+    ratingSummary: { average: 4.8, count: 6 },
+    hostedCompletedCount: 2,
+    completedJobsCount: 14,
   }
 
   it('calls the other person the worker when you own the task', () => {
@@ -116,17 +117,32 @@ describe('pinPerson', () => {
       avatarUrl: 'https://img/jordan.png',
       role: 'worker',
       href: '/profile/u1',
+      rating: { average: 4.8, count: 6 },
+      completed: 14,
     })
   })
 
   it('calls the other person the customer when you are the worker', () => {
-    expect(pinPerson(party, false)?.role).toBe('customer')
+    expect(pinPerson(party, false)).toMatchObject({
+      role: 'customer',
+      completed: 2,
+    })
   })
 
   it('has no profile link or photo for a deleted account', () => {
     expect(
-      pinPerson({ ...party, name: 'Deleted user', deleted: true }, true),
-    ).toMatchObject({ avatarUrl: null, href: null })
+      pinPerson(
+        {
+          ...party,
+          name: 'Deleted user',
+          deleted: true,
+          ratingSummary: { average: null, count: 0 },
+          hostedCompletedCount: 0,
+          completedJobsCount: 0,
+        },
+        true,
+      ),
+    ).toMatchObject({ avatarUrl: null, href: null, completed: 0 })
   })
 
   it('has no person before anyone is booked', () => {

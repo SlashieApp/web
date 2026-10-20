@@ -26,7 +26,56 @@ import { PIN_VIEWS, type ThreadPinViewConfig, getThreadPinView } from '../views'
 
 const PIN_PX = { base: 4, lg: 5 } as const
 
-/** Photo, name and Worker or Customer; the row opens their profile. */
+/**
+ * "★ 4.8 · 14 jobs done": the rating once there are 3 reviews (else the
+ * count), then finished bookings on their side. Null when there is neither.
+ */
+function PersonStats({ person }: { person: PinPerson }) {
+  const t = useI11n(bag).pin
+  const { average, count } = person.rating
+  const jobs = person.completed
+  const rating =
+    average != null ? (
+      <>
+        <Text as="span" srOnly>
+          {formatMessage(t.ratingAria, { average: average.toFixed(1), count })}
+        </Text>
+        <span aria-hidden>★ {average.toFixed(1)}</span>
+      </>
+    ) : count > 0 ? (
+      count === 1 ? (
+        t.review
+      ) : (
+        formatMessage(t.reviews, { count })
+      )
+    ) : null
+  const done =
+    jobs > 0
+      ? person.role === 'worker'
+        ? jobs === 1
+          ? t.jobDone
+          : formatMessage(t.jobsDone, { count: jobs })
+        : jobs === 1
+          ? t.bookingDone
+          : formatMessage(t.bookingsDone, { count: jobs })
+      : null
+  if (!rating && !done) return null
+  return (
+    <Text
+      as="span"
+      fontSize="xs"
+      color="text.muted"
+      flexShrink={0}
+      display={{ base: 'none', sm: 'inline' }}
+    >
+      {rating}
+      {rating && done ? ' · ' : null}
+      {done}
+    </Text>
+  )
+}
+
+/** Photo, name, Worker or Customer and their track record; the row opens their profile. */
 function PersonRow({ person }: { person: PinPerson }) {
   const t = useI11n(bag).pin
   const who = (
@@ -42,6 +91,7 @@ function PersonRow({ person }: { person: PinPerson }) {
       <Text fontSize="xs" color="text.muted" flexShrink={0}>
         {t[person.role]}
       </Text>
+      <PersonStats person={person} />
     </>
   )
   if (!person.href) {
@@ -131,14 +181,17 @@ function PinSkeleton() {
 
 /**
  * The card pinned under a task thread's header (FE-291): the other person,
- * then where the task stands and the next step, from task detail's own view.
- * Tinted when something needs the viewer, with task detail's own controls.
+ * then where the task stands and the next step, from task detail's own view,
+ * with task detail's own controls. Tinted when the API says the thread waits
+ * on the viewer (`thread.attention`; null means nothing is waiting).
  * Renders inside the header's `TaskDetailProvider`.
  */
 export function ThreadPin({
   party,
+  attention,
 }: {
   party: ThreadFieldsFragment['otherParty']
+  attention: ThreadFieldsFragment['attention']
 }) {
   const { view, task, error, mainCta, permissions } = useTaskDetail()
   const t = useI11n(bag)
@@ -152,6 +205,7 @@ export function ThreadPin({
   if (!task || !config) return null
 
   const person = pinPerson(party, permissions.isOwner)
+  const needsYou = attention != null
   const headline = config.headline ? lines.headline : null
   const subline = config.subline ? lines.subline : null
   const pill =
@@ -179,13 +233,14 @@ export function ThreadPin({
   return (
     <Stack
       data-thread-pin={pinView}
+      data-needs-you={needsYou || undefined}
       gap={2}
       px={PIN_PX}
       py={3}
       // An ask with its answer buttons must not crowd out the conversation.
       maxH={{ base: '45dvh', lg: 'none' }}
       overflowY="auto"
-      bg={config.ask ? 'status.warning.soft' : 'bg.surface'}
+      bg={needsYou ? 'status.warning.soft' : 'bg.surface'}
       borderBottomWidth="1px"
       borderColor="border.default"
       aria-live="polite"
@@ -195,7 +250,7 @@ export function ThreadPin({
         <HStack columnGap={2} rowGap={1} flexWrap="wrap" minH="32px">
           {pill}
           {headline ? (
-            <Text fontSize="sm" fontWeight={config.ask ? 700 : 600}>
+            <Text fontSize="sm" fontWeight={needsYou ? 700 : 600}>
               {headline}
             </Text>
           ) : null}

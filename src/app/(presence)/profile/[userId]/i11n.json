@@ -29,6 +29,8 @@
       "averageAria": "{average} out of 5 from {count} reviews",
       "jobs": "jobs done",
       "job": "job done",
+      "hosted": "bookings completed",
+      "hostedOne": "booking completed",
       "years": "years' experience",
       "year": "year's experience",
       "openTasks": "open tasks",
@@ -52,6 +54,8 @@
       "reviewsEmpty": "No reviews yet. Reviews appear here after completed jobs.",
       "fromCustomer": "From a customer",
       "fromWorker": "From a worker",
+      "anonymousAuthor": "A Slashie user",
+      "aboutJob": "For {job}",
       "starsLabel": "{count} out of 5 stars",
       "showAllReviews": "Show all {count} reviews",
       "photos": "Photos of work",
@@ -86,7 +90,12 @@
     },
     "owner": {
       "bar": "This is how others see you.",
-      "edit": "Edit profile"
+      "edit": "Edit profile",
+      "hidden": {
+        "title": "Your profile is hidden",
+        "body": "Only you can see this page. Turn on profile visibility to let people find you."
+      },
+      "visibility": "Profile settings"
     },
     "status": {
       "error": {
@@ -97,14 +106,9 @@
         "title": "Profile unavailable",
         "body": "This profile is private or no longer available."
       },
-      "hidden": {
-        "title": "Your profile is hidden",
-        "body": "Only you can see this page. Turn on profile visibility to let people find you."
-      },
       "actions": {
         "retry": "Try again",
-        "search": "Back to search",
-        "profileSettings": "Profile settings"
+        "search": "Back to search"
       },
       "loading": "Loading profile"
     },
@@ -154,6 +158,8 @@
       "averageAria": "{count} 則評價，平均 {average} 分（滿分 5 分）",
       "jobs": "份完成工作",
       "job": "份完成工作",
+      "hosted": "個已完成預約",
+      "hostedOne": "個已完成預約",
       "years": "年經驗",
       "year": "年經驗",
       "openTasks": "個公開任務",
@@ -177,6 +183,8 @@
       "reviewsEmpty": "尚未有評價。完成工作後，評價會顯示喺呢度。",
       "fromCustomer": "來自客戶",
       "fromWorker": "來自工作者",
+      "anonymousAuthor": "一位 Slashie 用戶",
+      "aboutJob": "工作：{job}",
       "starsLabel": "5 星中的 {count} 星",
       "showAllReviews": "顯示全部 {count} 則評價",
       "photos": "工作相片",
@@ -211,7 +219,12 @@
     },
     "owner": {
       "bar": "其他人看到的就是這樣。",
-      "edit": "編輯檔案"
+      "edit": "編輯檔案",
+      "hidden": {
+        "title": "你的檔案已隱藏",
+        "body": "只有你睇到呢一頁。開啟檔案可見度，讓其他人搵到你。"
+      },
+      "visibility": "檔案設定"
     },
     "status": {
       "error": {
@@ -222,14 +235,9 @@
         "title": "無法查看此檔案",
         "body": "此檔案已設為私人，或已無法查看。"
       },
-      "hidden": {
-        "title": "你的檔案已隱藏",
-        "body": "只有你睇到呢一頁。開啟檔案可見度，讓其他人搵到你。"
-      },
       "actions": {
         "retry": "再試一次",
-        "search": "返回搜尋",
-        "profileSettings": "檔案設定"
+        "search": "返回搜尋"
       },
       "loading": "正在載入檔案"
     },

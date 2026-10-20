@@ -20,6 +20,15 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   OAUTH_LINK_REQUIRES_VERIFIED_EMAIL:
     'An account with this email already exists. Sign in with your password and verify your email first, then you can use Google or Apple.',
   WEAK_PASSWORD: 'Password must meet the minimum complexity requirements.',
+  PASSWORD_UNCHANGED: 'Choose a password you have not used here.',
+  PASSWORD_NOT_SET: 'This account has no password yet. Set one first.',
+  PASSWORD_ALREADY_SET:
+    'This account already has a password. Change it instead.',
+  LAST_LOGIN_METHOD:
+    'Set a password or keep your other sign-in before removing this one.',
+  LOGIN_METHOD_NOT_SUPPORTED: 'That sign-in method cannot be changed here.',
+  APPLE_EMAIL_REQUIRED:
+    'Apple did not share an email address. Try again and share your email.',
   INVALID_OR_EXPIRED_RESET_TOKEN: 'This reset link is invalid or has expired.',
   INVALID_OR_EXPIRED_VERIFICATION:
     'This verification code is invalid or has expired. Request a new one.',
@@ -54,6 +63,13 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   WORKER_QUOTE_LIMIT_REACHED:
     "You've quoted your free limit of new tasks this month (UTC). You can still edit quotes on tasks you've already quoted. Upgrade to Slashie Unlimited to quote more tasks, or wait until next month.",
   WORKER_SETUP_INCOMPLETE: 'Finish worker setup before quoting on tasks.',
+  TAGLINE_TOO_LONG: 'Keep your headline to 80 characters.',
+  BIO_TOO_LONG: 'Keep your bio to 300 characters.',
+  TOO_MANY_SKILLS: 'Use up to 12 skills.',
+  INVALID_SKILL: 'Each skill needs 2 to 30 characters.',
+  YEARS_EXPERIENCE_INVALID: 'Enter between 0 and 60 years.',
+  TOO_MANY_PORTFOLIO_URLS: 'Add up to 12 portfolio links.',
+  INVALID_PORTFOLIO_URL: 'Portfolio links must start with https://.',
   WORKER_PROFILE_INCOMPLETE:
     'Complete your profile requirements before finishing setup.',
   INVALID_SETUP_SUB_STEP:
@@ -69,6 +85,11 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   TASK_NOT_FOUND: 'This task could not be found.',
   TASK_NOT_EDITABLE:
     'This task can only be edited while it is open or still in draft.',
+  DATE_REQUIRED: 'Pick a date for this task.',
+  INVALID_DATE: 'That date is not valid. Pick another.',
+  DATE_IN_PAST: 'That date has passed. Pick today or a later date.',
+  INVALID_INDEX: 'That photo could not be added. Use up to 10 photos.',
+  FORBIDDEN_TASK_UPLOAD: 'Only the person who posted this task can add photos.',
   TITLE_REQUIRED: 'Please add a task title.',
   DESCRIPTION_REQUIRED: 'Please describe what needs to be done.',
   INVALID_BUDGET: 'Please provide a valid budget greater than zero.',

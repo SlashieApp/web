@@ -1,0 +1,8 @@
+mutation UnlinkLoginMethod($method: LoginMethod!) {
+  unlinkLoginMethod(method: $method) {
+    id
+    enabledLoginMethods
+    googleLoginEmail
+    appleLoginEmail
+  }
+}

@@ -6,7 +6,7 @@ import { TaskDateTimeType } from '@codegen/schema'
 import { useI11n } from '@/i18n/useI11n'
 import { FormField, Input, RadioButtonGroup } from '@ui'
 
-import { toYmd } from '../../../createTaskFormSchema'
+import { londonToday } from '../../../createTaskFormSchema'
 import { taskFieldError } from '../../../helpers/taskFieldError'
 import bag from '../../../i11n.json'
 import { CreateTaskSection } from '../../layout/shared/CreateTaskSection'
@@ -80,7 +80,7 @@ export function CreateTaskScheduleSection({
         >
           <Input
             type="date"
-            min={toYmd(new Date())}
+            min={londonToday()}
             value={preferredDate}
             onChange={(e) => onPreferredDateChange(e.target.value)}
             rootProps={{ maxW: { base: 'full', md: '240px' } }}

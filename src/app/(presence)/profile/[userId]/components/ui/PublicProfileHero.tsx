@@ -263,6 +263,13 @@ function StatContent({ cell }: { cell: StatCell }) {
           <StatLabel>{cell.count === 1 ? t.job : t.jobs}</StatLabel>
         </>
       )
+    case 'hosted':
+      return (
+        <>
+          <StatValue>{cell.count}</StatValue>
+          <StatLabel>{cell.count === 1 ? t.hostedOne : t.hosted}</StatLabel>
+        </>
+      )
     case 'experience':
       return (
         <>

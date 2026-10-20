@@ -1,3 +1,5 @@
+import type { WorkerPublishState } from '@codegen/schema'
+
 /** What /profile shows for the signed-in person (README.md). */
 export type ProfileView =
   | 'customer'
@@ -8,9 +10,11 @@ export type ProfileView =
   | 'workerReady'
 
 export type ProfileViewInput = {
-  hasWorker: boolean
-  /** Worker setup submitted (`setupProgress.isComplete`). */
-  setupComplete: boolean
+  /**
+   * `me.worker.publishState` (DRAFT, HIDDEN or PUBLISHED, from the API);
+   * null without a worker profile.
+   */
+  workerPublishState: WorkerPublishState | null
   phoneVerified: boolean
   /** `settings.isProfilePrivate`: nobody else can open the profile. */
   isPrivate: boolean
@@ -28,8 +32,12 @@ export type ProfileViewConfig = {
     label: ProfileBadge
     tone: 'neutral' | 'warning' | 'danger' | 'success'
   }
-  /** The hero's "View public profile": only when there's a page to open. */
-  publicLink: boolean
+  /**
+   * The hero's link to `/profile/{id}`: `view` ("View public profile") when
+   * others can open it, `preview` ("See what others see") when it is hidden
+   * and only you get the preview, null when there is nothing to open.
+   */
+  publicLink: 'view' | 'preview' | null
   /** The one thing to do next, or none. */
   nextStep: 'continueSetup' | 'verifyPhone' | null
   /** The worker card: an invitation, the saved draft, or the live profile. */

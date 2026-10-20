@@ -73,8 +73,6 @@ export type ThreadPinViewName =
   | 'pin.closed'
 
 export type ThreadPinViewConfig = {
-  /** Something needs the viewer (My tasks' Needs you): the card is tinted. */
-  ask: boolean
   /** Task detail's status pill, "Not selected" in its place, or none. */
   pill: 'task' | 'notSelected' | null
   /** Task detail's headline and sub-line for the view. */

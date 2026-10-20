@@ -1,8 +1,8 @@
 import type { AccountViewConfig } from './types'
 
-/** Google or Apple only: no password row, and the email stays the provider's. */
+/** Google or Apple only: the Password row sets a first password. */
 export const social: AccountViewConfig = {
   editable: true,
-  showPassword: false,
+  passwordForm: 'set',
   showDelete: true,
 }

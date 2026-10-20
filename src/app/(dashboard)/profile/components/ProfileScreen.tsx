@@ -7,7 +7,6 @@ import { useAccountSuspended } from '@/app/(auth)/helpers/accountDisabled'
 import { isPhoneVerified } from '@/app/(auth)/helpers/phoneVerification'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { DashboardPageLayout } from '@/app/(dashboard)/components/layout/DashboardPageLayout'
-import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
 import { useI11n } from '@/i18n/useI11n'
 import { Link } from '@ui'
 
@@ -67,8 +66,7 @@ export function ProfileScreen({
   const config =
     PROFILE_VIEWS[
       getProfileView({
-        hasWorker: Boolean(me.worker?.id),
-        setupComplete: isWorkerSetupComplete(me),
+        workerPublishState: me.worker?.id ? me.worker.publishState : null,
         phoneVerified: isPhoneVerified(me),
         isPrivate: me.settings.isProfilePrivate,
       })

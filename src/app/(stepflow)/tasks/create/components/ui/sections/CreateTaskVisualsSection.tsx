@@ -60,7 +60,9 @@ export function CreateTaskVisualsSection({
             name: item.name,
             size: TASK_PHOTO_MAX_MB,
           })
-        : formatMessage(f.notAPhoto, { name: item.name })
+        : item.reason === 'unsupportedType'
+          ? formatMessage(f.photoTypeUnsupported, { name: item.name })
+          : formatMessage(f.notAPhoto, { name: item.name })
 
   return (
     <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={3}>

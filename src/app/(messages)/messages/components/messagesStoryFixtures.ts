@@ -32,6 +32,9 @@ const worker = {
   name: 'Sample Worker',
   avatarUrl: null,
   deleted: false,
+  ratingSummary: { average: null, count: 0 },
+  hostedCompletedCount: 0,
+  completedJobsCount: 0,
 }
 
 type FlashQuote = NonNullable<ThreadItemFieldsFragment['quote']>
@@ -126,6 +129,7 @@ export const sampleThreads: ThreadFieldsFragment[] = [
     unreadCount: 2,
     canSend: true,
     blockedByMe: false,
+    attention: null,
     updatedAt: myMessage.createdAt,
     task: { id: 'task-1', title: 'Assemble a wardrobe' },
     otherParty: worker,
@@ -138,6 +142,7 @@ export const sampleThreads: ThreadFieldsFragment[] = [
     unreadCount: 0,
     canSend: true,
     blockedByMe: false,
+    attention: null,
     updatedAt: today(8, 0),
     task: { id: 'task-2', title: 'Garden tidy-up' },
     otherParty: null,
@@ -155,6 +160,7 @@ export const sampleThreads: ThreadFieldsFragment[] = [
     unreadCount: 0,
     canSend: false,
     blockedByMe: false,
+    attention: null,
     updatedAt: today(7, 30),
     task: null,
     otherParty: null,
@@ -193,17 +199,25 @@ export type MessagesViewer = 'owner' | 'worker'
 export const STORY_THREAD_ID = 't-booked'
 export const STORY_THREAD_TITLE = 'Mount bookshelf on living room wall'
 
+/** The customer: two reviews (no average yet) and three finished bookings. */
 const alex = {
   userId: STORY_OWNER_ID,
   name: 'Alex Chen',
   avatarUrl: null,
   deleted: false,
+  ratingSummary: { average: null, count: 2 },
+  hostedCompletedCount: 3,
+  completedJobsCount: 0,
 }
+/** The worker: rated 4.8 from 12 reviews, 23 jobs done. */
 const jordan = {
   userId: STORY_WORKER_ID,
   name: 'Jordan Lee',
   avatarUrl: null,
   deleted: false,
+  ratingSummary: { average: 4.8, count: 12 },
+  hostedCompletedCount: 0,
+  completedJobsCount: 23,
 }
 
 /** The other person in the conversation, as the viewer sees them. */
@@ -332,6 +346,7 @@ export function taskThread(
     unreadCount: 0,
     canSend: true,
     blockedByMe: false,
+    attention: null,
     updatedAt: items[0]?.createdAt ?? today(9, 42),
     task: { id: STORY_TASK_ID, title: STORY_THREAD_TITLE },
     otherParty: otherPartyFor(viewer),
@@ -352,6 +367,7 @@ export function systemThread(
     unreadCount: 0,
     canSend: false,
     blockedByMe: false,
+    attention: null,
     updatedAt: announcement.createdAt,
     task: null,
     otherParty: null,

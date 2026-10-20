@@ -26,6 +26,7 @@ import {
   resolvePublicAreaName,
   usePublicTaskArea,
 } from '@/app/(stepflow)/tasks/create/helpers/publicTaskArea'
+import { taskServerError } from '@/app/(stepflow)/tasks/create/helpers/taskFieldError'
 import { useTaskPhotos } from '@/app/(stepflow)/tasks/create/helpers/useTaskPhotos'
 import createBag from '@/app/(stepflow)/tasks/create/i11n.json'
 import {
@@ -39,14 +40,9 @@ import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
-import {
-  getTaskMutationErrorMessage,
-  isUnauthenticatedError,
-} from '@/utils/graphqlErrors'
-import {
-  nextTaskImageUploadIndex,
-  uploadTaskImagesSettled,
-} from '@/utils/taskImageUpload'
+import { isUnauthenticatedError } from '@/utils/graphqlErrors'
+import { freeTaskImageSlots } from '@/utils/taskImageKeys'
+import { uploadTaskImagesSettled } from '@/utils/taskImageUpload'
 import { townOnly } from '@/utils/taskLocationDisplay'
 import { InfoBar, Modal, StepFlowHeader, StepFlowLayout } from '@ui'
 
@@ -214,9 +210,9 @@ export function EditTaskScreen({
       }
       const { failed } = await uploadTaskImagesSettled(
         apollo,
-        task.id,
+        task,
         photos.files,
-        nextTaskImageUploadIndex(existing),
+        freeTaskImageSlots(existing),
       )
       showAppToast(
         failed > 0
@@ -249,7 +245,9 @@ export function EditTaskScreen({
         router.replace(loginHref)
         return
       }
-      setServerError(getTaskMutationErrorMessage(err, t.errors.saveFailed))
+      setServerError(
+        taskServerError(create.serverErrors, err, t.errors.saveFailed),
+      )
     } finally {
       if (!leaving) {
         saveLockRef.current = false

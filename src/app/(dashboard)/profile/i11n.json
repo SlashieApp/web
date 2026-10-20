@@ -12,7 +12,8 @@
       "editPhoto": "Edit profile photo",
       "editDetails": "Edit details",
       "joined": "Joined {date}",
-      "viewPublicProfile": "View public profile"
+      "viewPublicProfile": "View public profile",
+      "previewPublicProfile": "See what others see"
     },
     "badge": {
       "customer": "Customer",
@@ -41,6 +42,7 @@
       "becomeWorker": "Become a worker",
       "draftBody": "Saved so far. Finish setup to publish it.",
       "published": "Published",
+      "hidden": "Hidden",
       "notPublished": "Not published yet",
       "edit": "Edit",
       "headline": "Professional headline",
@@ -121,6 +123,7 @@
       "areaPlaceholder": "London or WD17 2AW",
       "saved": "Worker profile saved",
       "saveFailed": "Couldn't save your worker profile",
+      "setupIncomplete": "Finish worker setup first, then edit your profile here.",
       "errors": {
         "legalName": "Please enter your legal name as it should appear on your worker profile.",
         "headlineShort": "Add a professional headline of at least {count} characters.",
@@ -136,7 +139,9 @@
         "yearsMissing": "Enter your years of experience.",
         "yearsRange": "Enter a whole number between 0 and {count}.",
         "area": "Please add a service area.",
-        "radius": "Travel radius must be a positive number of miles."
+        "radius": "Travel radius must be a positive number of miles.",
+        "portfolioMany": "Keep it to {count} portfolio links.",
+        "portfolioUrl": "Each portfolio link must start with https:// and be up to {count} characters."
       }
     }
   },
@@ -153,7 +158,8 @@
       "editPhoto": "編輯個人頭像",
       "editDetails": "編輯資料",
       "joined": "{date} 加入",
-      "viewPublicProfile": "查看公開個人檔案"
+      "viewPublicProfile": "查看公開個人檔案",
+      "previewPublicProfile": "預覽其他人看到的檔案"
     },
     "badge": {
       "customer": "顧客",
@@ -182,6 +188,7 @@
       "becomeWorker": "成為工作者",
       "draftBody": "目前已儲存的內容。完成設定後即可發佈。",
       "published": "已發佈",
+      "hidden": "已隱藏",
       "notPublished": "尚未發佈",
       "edit": "編輯",
       "headline": "專業標題",
@@ -262,6 +269,7 @@
       "areaPlaceholder": "London 或 WD17 2AW",
       "saved": "工作者個人檔案已儲存",
       "saveFailed": "未能儲存你的工作者個人檔案",
+      "setupIncomplete": "請先完成工作者設定，然後再在這裡編輯檔案。",
       "errors": {
         "legalName": "請輸入應顯示在工作者個人檔案上的法定姓名。",
         "headlineShort": "請加入最少 {count} 個字元的專業標題。",
@@ -277,7 +285,9 @@
         "yearsMissing": "請輸入你的經驗年資。",
         "yearsRange": "請輸入 0 至 {count} 之間的整數。",
         "area": "請加入服務範圍。",
-        "radius": "服務距離必須為正數（英里）。"
+        "radius": "服務距離必須為正數（英里）。",
+        "portfolioMany": "最多只可加入 {count} 個作品連結。",
+        "portfolioUrl": "每個作品連結必須以 https:// 開頭，並且不超過 {count} 個字元。"
       }
     }
   }

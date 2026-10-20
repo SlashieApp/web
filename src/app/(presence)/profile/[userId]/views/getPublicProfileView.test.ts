@@ -15,19 +15,24 @@ const view = (input: Partial<PublicProfileViewInput> = {}) => {
   const result = getPublicProfileView({
     query: 'ready',
     profile: null,
-    ownProfileHidden: false,
     ...input,
   })
   seen.add(result)
   return result
 }
-const worker = (contact: Profile['contact'], isSelf = false): Profile => ({
+const worker = (
+  contact: Profile['contact'],
+  isSelf = false,
+  isHidden = false,
+): Profile => ({
   isSelf,
+  isHidden,
   isWorker: true,
   contact,
 })
-const customer = (isSelf = false): Profile => ({
+const customer = (isSelf = false, isHidden = false): Profile => ({
   isSelf,
+  isHidden,
   isWorker: false,
   contact: null,
 })
@@ -45,8 +50,11 @@ describe('getPublicProfileView', () => {
     expect(view({ profile: null })).toBe('unavailable')
   })
 
-  it('tells you your profile is hidden when you open your own private profile', () => {
-    expect(view({ profile: null, ownProfileHidden: true })).toBe('ownerHidden')
+  it('previews your own private profile under a hidden notice', () => {
+    expect(view({ profile: worker(null, true, true) })).toBe(
+      'worker.ownerHidden',
+    )
+    expect(view({ profile: customer(true, true) })).toBe('customer.ownerHidden')
   })
 
   it('asks a signed-out visitor to sign in before contacting a worker', () => {

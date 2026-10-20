@@ -5,12 +5,14 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
   publicProfile(userId: $userId) {
     id
     isSelf
+    isHidden
     userType
     profile {
       name
       avatarUrl
     }
     memberSince
+    hostedCompletedCount
     openTaskCount(excludeTaskId: $excludeTaskId)
     openTasks(first: 10, excludeTaskId: $excludeTaskId) {
       id
@@ -41,6 +43,9 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
       comment
       createdAt
       authorRole
+      authorFirstName
+      authorAvatarUrl
+      jobTitle
     }
     ratingSummary {
       average
@@ -59,7 +64,8 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
       isVerified
       phoneVerified
       emailVerified
-      completedJobs {
+      completedJobsCount
+      completedJobs(first: 100) {
         taskId
         title
         categories
@@ -70,6 +76,8 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
       viewer {
         isSaved
         canLeaveReview
+        reviewOrderId
+        reviewTaskId
         contactAction
         relatedTaskId
         relatedQuoteId

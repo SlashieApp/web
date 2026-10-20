@@ -111,7 +111,9 @@ export function ProfileIdentityHero({
                 href={publicProfilePath(me.id)}
                 _hover={{ textDecoration: 'none' }}
               >
-                {t.viewPublicProfile}
+                {config.publicLink === 'preview'
+                  ? t.previewPublicProfile
+                  : t.viewPublicProfile}
                 <LuExternalLink size={14} aria-hidden />
               </Link>
             </Button>

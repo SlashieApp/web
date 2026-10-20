@@ -37,8 +37,9 @@ Precedence: session, the query, no task, not the poster, then the status.
 - "Use pin address" appears once the pin has moved (before that the map's
   label is the stored town, not an address).
 - Save is locked while saving and while the task page loads. Photos upload
-  after the update; any that fail are counted in a toast and the rest still
-  upload. Then the task page replaces this one with "Changes saved".
+  after the update into the free slots (0 to 9, lowest first, never above 9);
+  any that fail are counted in a toast and the rest still upload. Date rules
+  and API date errors are create's. Then the task page replaces this one with "Changes saved".
 - Leaving with changes: Close asks "Discard your changes?"; a reload or
   closing the tab gets the browser's own question.
 - Desktop rail: status and quotes, View task, See it as workers do

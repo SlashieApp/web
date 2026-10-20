@@ -50,15 +50,24 @@ export function AccountScreen() {
       }
     >
       <AccountContactCard readOnly={!config.editable} />
-      <AccountSignInCard
-        email={me.email}
-        methods={methods}
-        showPassword={config.showPassword}
-      />
+      {/* Reads `?password=set` (back from a set-password re-auth). */}
+      <Suspense fallback={null}>
+        <AccountSignInCard
+          email={me.email}
+          methods={methods}
+          googleLoginEmail={me.googleLoginEmail}
+          appleLoginEmail={me.appleLoginEmail}
+          passwordForm={config.passwordForm}
+          editable={config.editable}
+        />
+      </Suspense>
       <AccountNotificationsCard editable={config.editable} />
       {config.showDelete ? (
         <Suspense fallback={null}>
-          <DeleteAccountSection enabledLoginMethods={methods} />
+          <DeleteAccountSection
+            enabledLoginMethods={methods}
+            deletionBlockers={me.deletionBlockers ?? []}
+          />
         </Suspense>
       ) : null}
     </DashboardPageLayout>

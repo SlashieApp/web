@@ -33,7 +33,7 @@ export const EmailVerifiedNoPhone: Story = {
   },
 }
 
-/** Google-only account: the email comes from Google, so there is no Change. */
+/** Google-only account: no password, so no Change until one is added. */
 export const EmailLocked: Story = {
   decorators: [
     withSession({ me: storyMe({ enabledLoginMethods: [LoginMethod.Google] }) }),
@@ -41,7 +41,7 @@ export const EmailLocked: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByText('Comes from your Google sign-in.'),
+      await canvas.findByText(/add a password under Sign-in and security/),
     ).toBeVisible()
     await expect(canvas.queryByRole('button', { name: 'Change' })).toBeNull()
   },

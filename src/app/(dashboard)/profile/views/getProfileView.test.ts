@@ -1,3 +1,4 @@
+import { WorkerPublishState } from '@codegen/schema'
 import { afterAll, describe, expect, it } from 'vitest'
 
 import {
@@ -8,8 +9,7 @@ import {
 } from '.'
 
 const ready: ProfileViewInput = {
-  hasWorker: true,
-  setupComplete: true,
+  workerPublishState: WorkerPublishState.Published,
   phoneVerified: true,
   isPrivate: false,
 }
@@ -22,22 +22,31 @@ const view = (input: Partial<ProfileViewInput>) => {
 
 describe('getProfileView', () => {
   it('shows a customer their public profile link and the worker invitation', () => {
-    expect(view({ hasWorker: false, setupComplete: false })).toBe('customer')
+    expect(view({ workerPublishState: null })).toBe('customer')
   })
 
   it('drops the public link for a customer whose profile is private', () => {
+    expect(view({ workerPublishState: null, isPrivate: true })).toBe(
+      'customerHidden',
+    )
+  })
+
+  it('asks a worker whose profile is a draft to continue setup', () => {
+    expect(view({ workerPublishState: WorkerPublishState.Draft })).toBe(
+      'workerSetup',
+    )
     expect(
-      view({ hasWorker: false, setupComplete: false, isPrivate: true }),
-    ).toBe('customerHidden')
+      view({ workerPublishState: WorkerPublishState.Draft, isPrivate: true }),
+    ).toBe('workerSetup')
   })
 
-  it('asks a worker with unfinished setup to continue it', () => {
-    expect(view({ setupComplete: false })).toBe('workerSetup')
-    expect(view({ setupComplete: false, isPrivate: true })).toBe('workerSetup')
-  })
-
-  it('treats a finished worker with a private profile as hidden', () => {
-    expect(view({ isPrivate: true, phoneVerified: false })).toBe('workerHidden')
+  it('follows the API when it says the worker profile is hidden', () => {
+    expect(
+      view({
+        workerPublishState: WorkerPublishState.Hidden,
+        phoneVerified: false,
+      }),
+    ).toBe('workerHidden')
   })
 
   it('asks a finished, public worker to verify their phone', () => {
@@ -48,11 +57,12 @@ describe('getProfileView', () => {
     expect(view({})).toBe('workerReady')
   })
 
-  it('links to the public profile only when there is one to open', () => {
-    expect(PROFILE_VIEWS.customerHidden.publicLink).toBe(false)
-    expect(PROFILE_VIEWS.workerSetup.publicLink).toBe(false)
-    expect(PROFILE_VIEWS.workerHidden.publicLink).toBe(false)
-    expect(PROFILE_VIEWS.workerReady.publicLink).toBe(true)
+  it('offers the owner preview of a hidden profile, and no link for a draft', () => {
+    expect(PROFILE_VIEWS.customerHidden.publicLink).toBe('preview')
+    expect(PROFILE_VIEWS.workerHidden.publicLink).toBe('preview')
+    expect(PROFILE_VIEWS.workerSetup.publicLink).toBeNull()
+    expect(PROFILE_VIEWS.workerReady.publicLink).toBe('view')
+    expect(PROFILE_VIEWS.customer.publicLink).toBe('view')
   })
 
   // Every registered view is reached by at least one test above.

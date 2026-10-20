@@ -10,12 +10,7 @@ import { Button, Card, Link } from '@ui'
 import bag from '../../i11n.json'
 import type { PublicProfileStatusConfig } from '../../views'
 
-const STATUS_HREF = {
-  search: APP_HOME,
-  profileSettings: '/profile?section=visibility',
-} as const
-
-/** Error, unavailable and hidden profiles. The copy never carries account data. */
+/** Error and unavailable profiles. The copy never carries account data. */
 export function PublicProfileStatus({
   config,
   onRetry,
@@ -39,17 +34,8 @@ export function PublicProfileStatus({
             </Button>
           ) : null
         ) : (
-          <Button
-            asChild
-            alignSelf="flex-start"
-            variant={
-              config.action === 'profileSettings' ? 'primary' : 'secondary'
-            }
-          >
-            <Link
-              href={STATUS_HREF[config.action]}
-              _hover={{ textDecoration: 'none' }}
-            >
+          <Button asChild alignSelf="flex-start" variant="secondary">
+            <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
               {label}
             </Link>
           </Button>

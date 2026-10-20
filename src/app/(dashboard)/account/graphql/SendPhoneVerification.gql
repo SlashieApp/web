@@ -1,3 +1,4 @@
-mutation SendPhoneVerification($phone: String!) {
-  sendPhoneVerification(phone: $phone)
+# `password` only when replacing a verified number on an account that has one.
+mutation SendPhoneVerification($phone: String!, $password: String) {
+  sendPhoneVerification(phone: $phone, password: $password)
 }

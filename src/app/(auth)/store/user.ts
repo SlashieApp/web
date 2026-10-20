@@ -17,6 +17,7 @@ import {
   markAccountDisabled,
   syncAccountDisabledFromMe,
 } from '@/app/(auth)/helpers/accountDisabled'
+import type { AppleCredential } from '@/app/(auth)/helpers/appleAuthConfig'
 import { parseAuthAbuseError } from '@/app/(auth)/helpers/authAbuseErrors'
 import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationContext'
 import Login from '@/app/(auth)/login/graphql/Login.gql'
@@ -78,11 +79,11 @@ type UserStore = {
   patchMe: (patch: Partial<MeSnapshot>) => void
   login: (input: LoginInput) => Promise<AuthUser | null>
   loginWithGoogle: (idToken: string) => Promise<AuthUser | null>
-  /** Apple identity token; `name` only on the first authorization. */
-  loginWithApple: (
-    idToken: string,
-    name?: { firstName?: string; lastName?: string },
-  ) => Promise<AuthUser | null>
+  /**
+   * Apple identity token with its raw nonce and one-time code; the name comes
+   * only on the first authorization.
+   */
+  loginWithApple: (credential: AppleCredential) => Promise<AuthUser | null>
   logout: () => void
   getUser: () => Promise<AuthUser | null>
 }
@@ -265,7 +266,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       throw error
     }
   },
-  loginWithApple: async (idToken, name) => {
+  loginWithApple: async ({ idToken, ...rest }) => {
     set({ isLoading: true })
     try {
       const result = await apolloClient.mutate<
@@ -273,7 +274,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         LoginWithAppleMutationVariables
       >({
         mutation: LoginWithApple,
-        variables: { token: idToken, ...name },
+        variables: { token: idToken, ...rest },
       })
 
       const token = result.data?.loginWithMethod?.token?.trim()

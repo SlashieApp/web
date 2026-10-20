@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, HStack, SimpleGrid, Stack, Text, Wrap } from '@chakra-ui/react'
+import { WorkerPublishState } from '@codegen/schema'
 import { LuBriefcaseBusiness, LuCircle } from 'react-icons/lu'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
@@ -189,6 +190,7 @@ export function WorkerProfileCard({
   }
 
   const draft = variant === 'draft'
+  const hidden = me.worker?.publishState === WorkerPublishState.Hidden
 
   return (
     <DashboardSectionCard
@@ -201,8 +203,12 @@ export function WorkerProfileCard({
     >
       <Stack gap={4}>
         <HStack>
-          <Badge variant={draft ? 'warning' : 'success'} dot shape="pill">
-            {draft ? t.notPublished : t.published}
+          <Badge
+            variant={draft ? 'warning' : hidden ? 'neutral' : 'success'}
+            dot
+            shape="pill"
+          >
+            {draft ? t.notPublished : hidden ? t.hidden : t.published}
           </Badge>
         </HStack>
         <WorkerFacts me={me} />

@@ -7,7 +7,11 @@ import {
 } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
-import { createTaskFormSchema, toYmd } from './createTaskFormSchema'
+import {
+  createTaskFormSchema,
+  isCalendarDate,
+  londonToday,
+} from './createTaskFormSchema'
 
 const valid = {
   title: 'Garden tidy',
@@ -36,10 +40,11 @@ const fieldError = (input: Partial<typeof valid>, field: string) => {
   )[field]?.[0]
 }
 
+/** A day relative to today in London, as the API counts days. */
 const daysFromToday = (days: number) => {
-  const d = new Date()
-  d.setDate(d.getDate() + days)
-  return toYmd(d)
+  const d = new Date(`${londonToday()}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().slice(0, 10)
 }
 
 describe('createTaskFormSchema', () => {
@@ -97,6 +102,36 @@ describe('createTaskFormSchema', () => {
     ).toBeUndefined()
   })
 
+  it('turns down a date that is not a real day', () => {
+    expect(
+      fieldError(
+        { datetimeType: TaskDateTimeType.Before, preferredDate: '2030-02-30' },
+        'preferredDate',
+      ),
+    ).toBe('dateInvalid')
+    expect(
+      fieldError(
+        { datetimeType: TaskDateTimeType.Exact, preferredDate: '30/01/2030' },
+        'preferredDate',
+      ),
+    ).toBe('dateInvalid')
+  })
+
+  it('needs a date for before and exact, but not for flexible', () => {
+    expect(
+      fieldError(
+        { datetimeType: TaskDateTimeType.Before, preferredDate: '' },
+        'preferredDate',
+      ),
+    ).toBe('dateRequired')
+    expect(
+      fieldError(
+        { datetimeType: TaskDateTimeType.Flexible, preferredDate: '' },
+        'preferredDate',
+      ),
+    ).toBeUndefined()
+  })
+
   it('needs a time for a date and time', () => {
     expect(
       fieldError(
@@ -108,5 +143,22 @@ describe('createTaskFormSchema', () => {
         'preferredTime',
       ),
     ).toBe('timeRequired')
+  })
+})
+
+describe('londonToday', () => {
+  it('is the date in London, not the device time zone', () => {
+    // 23:30 UTC on 20 October is 00:30 on the 21st in London (BST).
+    expect(londonToday(new Date('2026-10-20T23:30:00Z'))).toBe('2026-10-21')
+    // In winter London is on UTC.
+    expect(londonToday(new Date('2026-12-31T23:30:00Z'))).toBe('2026-12-31')
+  })
+})
+
+describe('isCalendarDate', () => {
+  it('takes real YYYY-MM-DD days only', () => {
+    expect(isCalendarDate('2028-02-29')).toBe(true)
+    expect(isCalendarDate('2027-02-29')).toBe(false)
+    expect(isCalendarDate('2027-1-05')).toBe(false)
   })
 })

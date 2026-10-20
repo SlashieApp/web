@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
+import bag from '../i11n.json'
 import {
   formatPricingAmount,
-  pricingIntervalLabel,
+  pricingIntervalCount,
+  pricingPerInterval,
+  pricingPriceLine,
   pricingTrialLength,
 } from './formatPricing'
+import type { PricingRecord } from './getPricingForPage'
 
 describe('formatPricingAmount', () => {
   it('shows pence only when there are some', () => {
@@ -14,13 +18,18 @@ describe('formatPricingAmount', () => {
   })
 })
 
-describe('pricingIntervalLabel', () => {
-  const labels = { month: '月', year: '年' }
-
+describe('pricingPerInterval', () => {
   it('translates month and year, and passes anything else through', () => {
-    expect(pricingIntervalLabel(' Month ', labels)).toBe('月')
-    expect(pricingIntervalLabel('year', labels)).toBe('年')
-    expect(pricingIntervalLabel('week', labels)).toBe('week')
+    const zh = bag.zh_hk.intervals
+    expect(
+      pricingPerInterval(
+        { priceInterval: ' Month ', priceIntervalCount: 1 },
+        zh,
+      ),
+    ).toBe('/ 月')
+    expect(
+      pricingPerInterval({ priceInterval: 'week', priceIntervalCount: 1 }, zh),
+    ).toBe('/ week')
   })
 })
 
@@ -37,5 +46,65 @@ describe('pricingTrialLength', () => {
   it('is null when there is no trial', () => {
     expect(pricingTrialLength(null)).toBeNull()
     expect(pricingTrialLength(0)).toBeNull()
+  })
+})
+
+/** £19.99 a month, as the live API returns it. */
+const storyPricing: PricingRecord = {
+  productName: 'Slashie Unlimited',
+  priceAmount: 1999,
+  priceCurrency: 'gbp',
+  priceInterval: 'month',
+  priceIntervalCount: 1,
+  trialDays: 180,
+  trialLabel: '6 months free',
+  freeQuotesPerMonth: 3,
+}
+
+describe('price per interval', () => {
+  const quarterly = {
+    ...storyPricing,
+    priceAmount: 5400,
+    priceIntervalCount: 3,
+  }
+
+  it('reads one interval as today', () => {
+    expect(pricingPerInterval(storyPricing, bag.en.intervals)).toBe('/ month')
+    expect(pricingPriceLine(storyPricing, bag.en.intervals)).toBe(
+      '£19.99 / month',
+    )
+    expect(pricingPriceLine(storyPricing, bag.zh_hk.intervals)).toBe(
+      '£19.99 / 月',
+    )
+  })
+
+  it('says every N months when it charges every few months', () => {
+    expect(pricingPerInterval(quarterly, bag.en.intervals)).toBe(
+      'every 3 months',
+    )
+    expect(pricingPriceLine(quarterly, bag.en.intervals)).toBe(
+      '£54 every 3 months',
+    )
+    expect(pricingPriceLine(quarterly, bag.zh_hk.intervals)).toBe(
+      '每 3 個月 £54',
+    )
+  })
+
+  it('pluralises years too', () => {
+    const biennial = {
+      ...storyPricing,
+      priceAmount: 30000,
+      priceInterval: 'year',
+      priceIntervalCount: 2,
+    }
+    expect(pricingPriceLine(biennial, bag.en.intervals)).toBe(
+      '£300 every 2 years',
+    )
+    expect(pricingPriceLine(biennial, bag.zh_hk.intervals)).toBe('每 2 年 £300')
+  })
+
+  it('treats a missing or odd count as one', () => {
+    expect(pricingIntervalCount({ priceIntervalCount: 0 })).toBe(1)
+    expect(pricingIntervalCount({ priceIntervalCount: 1 })).toBe(1)
   })
 })

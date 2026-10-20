@@ -69,7 +69,13 @@ export function refineTaskSchedule(
         message: 'dateRequired',
         path: ['preferredDate'],
       })
-    } else if (data.preferredDate < toYmd(new Date())) {
+    } else if (!isCalendarDate(data.preferredDate.trim())) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'dateInvalid',
+        path: ['preferredDate'],
+      })
+    } else if (data.preferredDate.trim() < londonToday()) {
       ctx.addIssue({
         code: 'custom',
         message: 'dateInPast',
@@ -117,11 +123,37 @@ export type CreateTaskFormValues = z.infer<typeof createTaskFormSchema>
 /** Values as held in the form (`react-hook-form` / field inputs) before Zod coercion. */
 export type CreateTaskFormFieldValues = z.input<typeof createTaskFormSchema>
 
-export function toYmd(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+/** The UK calendar the API checks BEFORE and EXACT dates against. */
+const LONDON_DAY = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/London',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+/**
+ * Today in London as YYYY-MM-DD: the earliest date the API takes
+ * (DATE_IN_PAST before it), whatever the device's own time zone.
+ */
+export function londonToday(now: Date = new Date()): string {
+  return LONDON_DAY.format(now)
+}
+
+/** A real YYYY-MM-DD day (the API's INVALID_DATE otherwise). */
+export function isCalendarDate(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  if (!match) return false
+  const [year, month, day] = match.slice(1).map(Number) as [
+    number,
+    number,
+    number,
+  ]
+  const utc = new Date(Date.UTC(year, month - 1, day))
+  return (
+    utc.getUTCFullYear() === year &&
+    utc.getUTCMonth() === month - 1 &&
+    utc.getUTCDate() === day
+  )
 }
 
 export function buildDatetimePayload(values: {

@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
-import { LuHeart } from 'react-icons/lu'
+import { LuEyeOff, LuHeart } from 'react-icons/lu'
 
 import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
@@ -196,7 +196,7 @@ function ProfilePage({
 
   return (
     <Page width={config.width} barSpace={Boolean(contactProps)}>
-      {config.ownerBar ? (
+      {config.ownerBar === 'public' ? (
         <HStack
           justify="space-between"
           gap={3}
@@ -214,6 +214,41 @@ function ProfilePage({
           <Button asChild size="sm" minH="44px" variant="secondary">
             <Link href="/profile" _hover={{ textDecoration: 'none' }}>
               {t.owner.edit}
+            </Link>
+          </Button>
+        </HStack>
+      ) : null}
+      {config.ownerBar === 'hidden' ? (
+        <HStack
+          justify="space-between"
+          gap={3}
+          flexWrap="wrap"
+          bg="status.warning.soft"
+          borderWidth="1px"
+          borderColor="border.default"
+          borderRadius="xl"
+          px={4}
+          py={3}
+        >
+          <HStack gap={2} align="flex-start" flex="1" minW="14rem">
+            <Box as="span" color="status.warning.fg" mt={0.5} aria-hidden>
+              <LuEyeOff size={18} />
+            </Box>
+            <Stack gap={0.5}>
+              <Text fontWeight={700} color="text.default">
+                {t.owner.hidden.title}
+              </Text>
+              <Text fontSize="sm" color="text.muted">
+                {t.owner.hidden.body}
+              </Text>
+            </Stack>
+          </HStack>
+          <Button asChild size="sm" minH="44px" variant="secondary">
+            <Link
+              href="/profile?section=visibility"
+              _hover={{ textDecoration: 'none' }}
+            >
+              {t.owner.visibility}
             </Link>
           </Button>
         </HStack>

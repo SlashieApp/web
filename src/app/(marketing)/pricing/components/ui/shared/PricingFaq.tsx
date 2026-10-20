@@ -4,8 +4,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { Link } from '@ui'
 
 import {
-  pricingDisplayPrice,
-  pricingIntervalLabel,
+  pricingPriceLine,
   pricingTrialLength,
 } from '../../../helpers/formatPricing'
 import type { PricingRecord } from '../../../helpers/getPricingForPage'
@@ -24,8 +23,7 @@ export function PricingFaq({
   intervals: PricingCopy['intervals']
 }) {
   const vars = {
-    price: pricingDisplayPrice(pricing),
-    interval: pricingIntervalLabel(pricing.priceInterval, intervals),
+    priceLine: pricingPriceLine(pricing, intervals),
     count: pricing.freeQuotesPerMonth,
   }
   const items = [

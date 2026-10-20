@@ -1,0 +1,27 @@
+# Edits a finished worker profile in one call. Drafts keep saving through
+# worker setup (`saveWorkerSetupStep`); here they are WORKER_SETUP_INCOMPLETE.
+mutation UpdateWorkerProfile($input: UpdateWorkerProfileInput!) {
+  updateWorkerProfile(input: $input) {
+    id
+    legalName
+    bio
+    tagline
+    primaryCategory
+    yearsExperience
+    skills
+    qualifications
+    travelRadiusMiles
+    portfolioUrls
+    locationAddress
+    locationLat
+    locationLng
+    preferredLocation {
+      address
+      lat
+      lng
+      name
+    }
+    publishState
+    profileGaps
+  }
+}

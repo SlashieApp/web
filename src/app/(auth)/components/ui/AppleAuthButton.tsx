@@ -2,16 +2,22 @@
 
 import { chakra } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { FaApple } from 'react-icons/fa'
 
 import {
-  appleFirstLoginName,
+  type AppleCredential,
+  type AppleSignInResponse,
+  appleCredentialFromResponse,
   appleScriptLocale,
   getAppleClientId,
   getAppleRedirectUri,
   isAppleAuthConfigured,
 } from '@/app/(auth)/helpers/appleAuthConfig'
+import {
+  type AppleNonce,
+  createAppleNonce,
+} from '@/app/(auth)/helpers/appleNonce'
 import {
   type AuthRedirectIntent,
   resolvePostAuthRedirect,
@@ -26,19 +32,19 @@ import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 import bag from '../i11n.json'
 
-type AppleSignInResponse = {
-  authorization?: { id_token?: string }
-  user?: { email?: string; name?: { firstName?: string; lastName?: string } }
+type AppleClientConfig = {
+  clientId: string
+  scope: string
+  redirectURI: string
+  usePopup: boolean
+  /** SHA-256 hex of the raw nonce; Apple copies it into the identity token. */
+  nonce?: string
 }
 
 type AppleIdAuth = {
-  init: (config: {
-    clientId: string
-    scope: string
-    redirectURI: string
-    usePopup: boolean
-  }) => void
-  signIn: () => Promise<AppleSignInResponse>
+  init: (config: AppleClientConfig) => void
+  /** A config here overrides `init` for this one sign-in. */
+  signIn: (config?: AppleClientConfig) => Promise<AppleSignInResponse>
 }
 
 declare global {
@@ -130,12 +136,21 @@ type AppleAuthButtonProps = {
   onBlocked?: () => void
   /** Runs after sign-in succeeds, before the redirect (e.g. sign-up opt-ins). */
   onSignedIn?: () => Promise<void> | void
+  /**
+   * Link mode: hands over Apple's credential instead of signing in, so the
+   * session and redirect stay as they are (Account → link Apple).
+   */
+  onToken?: (credential: AppleCredential) => Promise<void> | void
+  /** Hold the button while the caller is busy (link mode). */
+  busy?: boolean
 }
 
 /**
  * Sign in with Apple (FE-63): Apple JS popup → identity token →
  * `loginWithMethod(APPLE)`, then the same session + redirect as Google.
- * Hidden until `NEXT_PUBLIC_APPLE_CLIENT_ID` is set.
+ * Every attempt sends Apple the SHA-256 of a fresh nonce and the API the raw
+ * one, plus Apple's one-time code when there is one. With `onToken` it only
+ * hands the credential over. Hidden until `NEXT_PUBLIC_APPLE_CLIENT_ID` is set.
  */
 export function AppleAuthButton({
   intent = null,
@@ -144,6 +159,8 @@ export function AppleAuthButton({
   blocked = false,
   onBlocked,
   onSignedIn,
+  onToken,
+  busy = false,
 }: AppleAuthButtonProps) {
   const t = useI11n(bag).apple
   const locale = useLocale()
@@ -152,6 +169,19 @@ export function AppleAuthButton({
   const loading = useUserStore((s) => s.isLoading)
   const [ready, setReady] = useState(false)
   const configured = isAppleAuthConfigured()
+  // The next attempt's nonce, made ahead so the click can open Apple's popup
+  // straight away (an await before it can lose the click and get it blocked).
+  const nonceRef = useRef<AppleNonce | null>(null)
+  const prepareNonce = useCallback(() => {
+    nonceRef.current = null
+    void createAppleNonce()
+      .then((nonce) => {
+        nonceRef.current = nonce
+      })
+      .catch((error: unknown) => {
+        console.error('[apple-signin] nonce', error)
+      })
+  }, [])
 
   useEffect(() => {
     if (!configured) return
@@ -171,6 +201,7 @@ export function AppleAuthButton({
           redirectURI,
           usePopup: true,
         })
+        prepareNonce()
         setReady(true)
       })
       .catch((error: unknown) => {
@@ -179,7 +210,7 @@ export function AppleAuthButton({
     return () => {
       cancelled = true
     }
-  }, [configured, locale])
+  }, [configured, locale, prepareNonce])
 
   const onClick = useCallback(async () => {
     if (blocked) {
@@ -194,10 +225,20 @@ export function AppleAuthButton({
     const apple = window.AppleID
     if (!apple) return
 
+    // One nonce per attempt: use the prepared one and start the next.
+    const nonce = nonceRef.current ?? (await createAppleNonce())
+    prepareNonce()
+
     // signIn() runs inside the click so the popup is not blocked.
     let response: AppleSignInResponse
     try {
-      response = await apple.auth.signIn()
+      response = await apple.auth.signIn({
+        clientId: getAppleClientId(),
+        scope: 'name email',
+        redirectURI: getAppleRedirectUri(window.location.origin),
+        usePopup: true,
+        nonce: nonce.hashed,
+      })
     } catch (error) {
       const code = (error as { error?: string } | null)?.error
       if (
@@ -221,8 +262,8 @@ export function AppleAuthButton({
       return
     }
 
-    const idToken = response.authorization?.id_token
-    if (!idToken) {
+    const credential = appleCredentialFromResponse(response, nonce.raw)
+    if (!credential) {
       showAppToast({
         title: t.failedTitle,
         description: t.unavailable,
@@ -230,8 +271,12 @@ export function AppleAuthButton({
       })
       return
     }
+    if (onToken) {
+      await onToken(credential)
+      return
+    }
     try {
-      await loginWithApple(idToken, appleFirstLoginName(response.user?.name))
+      await loginWithApple(credential)
       await onSignedIn?.()
       const me = useUserStore.getState().me
       router.push(
@@ -257,6 +302,8 @@ export function AppleAuthButton({
     next,
     onBlocked,
     onSignedIn,
+    onToken,
+    prepareNonce,
     router,
     t,
   ])
@@ -266,7 +313,7 @@ export function AppleAuthButton({
   return (
     <AppleSignInButton
       label={t.continue}
-      disabled={!ready || loading}
+      disabled={!ready || loading || busy}
       onClick={() => void onClick()}
     />
   )

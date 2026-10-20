@@ -3,6 +3,7 @@ import {
   Currency,
   LoginMethod,
   UserLanguage,
+  WorkerPublishState,
   WorkerSubscriptionStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -27,6 +28,8 @@ const accountMenuMe: MeSnapshot = {
   createdAt: '2024-01-01T00:00:00.000Z',
   disabled: false,
   enabledLoginMethods: [LoginMethod.Password],
+  deletionBlockers: [],
+  savedWorkers: [],
   profile: {
     name: 'Sam Carter',
     contactNumber: '+447700900123',
@@ -62,6 +65,8 @@ const accountMenuMe: MeSnapshot = {
       completedSubSteps: ['review.submit'],
       isComplete: true,
     },
+    publishState: WorkerPublishState.Published,
+    profileGaps: [],
     isVerified: true,
     locationAddress: 'London',
     locationLat: 51.5074,

@@ -1,6 +1,8 @@
 'use client'
 
+import { useApolloClient } from '@apollo/client/react'
 import { HStack, Stack, Text } from '@chakra-ui/react'
+import { WorkerPublishState } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -14,15 +16,18 @@ import {
   WorkerSetupSkillsInput,
 } from '@/app/(stepflow)/worker/setup/components'
 import { categorySkills } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import { workerSetupErrorMessage } from '@/app/(stepflow)/worker/setup/helpers/workerSetupErrors'
 import { HEADLINE_MAX_CHARS } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
 import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
-import { apolloClient } from '@/utils/apolloClient'
 import { showAppToast } from '@/utils/appToast'
 import { Button, FormField, Input } from '@ui'
 
-import { saveWorkerProfileForm } from '../../../helpers/saveWorkerProfileForm'
+import {
+  WorkerProfileSaveError,
+  saveWorkerProfileForm,
+} from '../../../helpers/saveWorkerProfileForm'
 import bag from '../../../i11n.json'
 import {
   type WorkerFormValues,
@@ -42,10 +47,12 @@ export function ProfileWorkerForm({
   onSaved?: () => void
 }) {
   const { workerForm: t, editor } = useI11n(bag)
-  const trades = useI11n(setupBag).trades
+  const setup = useI11n(setupBag)
+  const trades = setup.trades
   const me = useUserStore((s) => s.me)
   const setMe = useUserStore((s) => s.setMe)
   const getUser = useUserStore((s) => s.getUser)
+  const client = useApolloClient()
   const [saving, setSaving] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const schema = useMemo(() => createWorkerFormSchema(t.errors), [t.errors])
@@ -73,7 +80,7 @@ export function ProfileWorkerForm({
     setSubmitError(null)
     setSaving(true)
     try {
-      await saveWorkerProfileForm(apolloClient, values, me, setMe)
+      await saveWorkerProfileForm(client, values, me, setMe)
       reset(values)
       await getUser()
       trackFlowSucceeded(EVENTS.profile_update_success, {
@@ -85,12 +92,28 @@ export function ProfileWorkerForm({
       trackFlowFailed(EVENTS.profile_update_fail, error, {
         flow: 'profile_update',
         action: 'saveWorkerProfileForm',
-        operation: 'SaveWorkerSetupStep',
+        operation:
+          me.worker?.publishState === WorkerPublishState.Draft
+            ? 'SaveWorkerSetupStep'
+            : 'UpdateWorkerProfile',
         route: '/profile',
         extra: { section: 'worker' },
       })
-      setSubmitError(t.saveFailed)
-      showAppToast({ title: t.saveFailed, type: 'error' })
+      // Each API code in this page's language (worker setup's copy); the
+      // editor's own line for a draft, and "couldn't save" for the rest.
+      const message =
+        error instanceof WorkerProfileSaveError
+          ? setup.serverErrors[error.code]
+          : workerSetupErrorMessage(error, {
+              ...setup,
+              saveFailed: t.saveFailed,
+              serverErrors: {
+                ...setup.serverErrors,
+                WORKER_SETUP_INCOMPLETE: t.setupIncomplete,
+              },
+            })
+      setSubmitError(message)
+      showAppToast({ title: message, type: 'error' })
     } finally {
       setSaving(false)
     }
@@ -227,6 +250,7 @@ export function ProfileWorkerForm({
         </FormField>
 
         <WorkerSetupPortfolioInput
+          errorText={errors.portfolioUrls?.message}
           value={watch('portfolioUrls')}
           onChange={(portfolioUrls) =>
             setValue('portfolioUrls', portfolioUrls, {

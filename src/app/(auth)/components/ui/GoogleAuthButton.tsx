@@ -36,6 +36,13 @@ type GoogleAuthButtonProps = {
   onBlocked?: () => void
   /** Runs after sign-in succeeds, before the redirect (e.g. sign-up opt-ins). */
   onSignedIn?: () => Promise<void> | void
+  /**
+   * Link mode: hands over Google's ID token instead of signing in, so the
+   * session and redirect stay as they are (Account → link Google).
+   */
+  onToken?: (idToken: string) => Promise<void> | void
+  /** Hold the widget while the caller is busy (link mode). */
+  busy?: boolean
 }
 
 export function GoogleAuthButton({
@@ -47,11 +54,13 @@ export function GoogleAuthButton({
   blockedDescription,
   onBlocked,
   onSignedIn,
+  onToken,
+  busy = false,
 }: GoogleAuthButtonProps) {
   const t = useI11n(bag).google
   const router = useRouter()
   const loginWithGoogle = useUserStore((s) => s.loginWithGoogle)
-  const loading = useUserStore((s) => s.isLoading)
+  const loading = useUserStore((s) => s.isLoading) || busy
   const clientId = getGoogleClientId()
   const [buttonWidth, setButtonWidth] = useState(280)
   const [isClient, setIsClient] = useState(false)
@@ -96,6 +105,10 @@ export function GoogleAuthButton({
       }
       const idToken = credentialResponse.credential
       if (!idToken) return
+      if (onToken) {
+        await onToken(idToken)
+        return
+      }
 
       try {
         await loginWithGoogle(idToken)
@@ -124,6 +137,7 @@ export function GoogleAuthButton({
       loginWithGoogle,
       next,
       onSignedIn,
+      onToken,
       router,
       showBlocked,
       t,

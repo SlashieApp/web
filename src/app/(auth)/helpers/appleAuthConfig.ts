@@ -41,3 +41,49 @@ export function appleFirstLoginName(
     ...(lastName ? { lastName } : {}),
   }
 }
+
+/** What Apple's JS hands back from `AppleID.auth.signIn()` in popup mode. */
+export type AppleSignInResponse = {
+  authorization?: { id_token?: string; code?: string }
+  user?: { email?: string; name?: { firstName?: string; lastName?: string } }
+}
+
+/** One Sign in with Apple result, ready for `loginWithMethod` or `linkLoginMethod`. */
+export type AppleCredential = {
+  idToken: string
+  /** The raw nonce; Apple got its SHA-256 hex. */
+  nonce?: string
+  /** One-time code the API swaps for a refresh token (so deletion can revoke it). */
+  authorizationCode?: string
+  firstName?: string
+  lastName?: string
+}
+
+/** Apple's authorization codes are short URL-safe strings; anything else is dropped. */
+const APPLE_CODE_PATTERN = /^[A-Za-z0-9._-]{1,1024}$/
+
+/** Apple's code when it looks like one, else undefined (sign-in works without it). */
+export function safeAppleAuthorizationCode(
+  code: string | null | undefined,
+): string | undefined {
+  const trimmed = code?.trim()
+  return trimmed && APPLE_CODE_PATTERN.test(trimmed) ? trimmed : undefined
+}
+
+/** The credential from Apple's response, or null when it has no identity token. */
+export function appleCredentialFromResponse(
+  response: AppleSignInResponse,
+  rawNonce: string,
+): AppleCredential | null {
+  const idToken = response.authorization?.id_token
+  if (!idToken) return null
+  const authorizationCode = safeAppleAuthorizationCode(
+    response.authorization?.code,
+  )
+  return {
+    idToken,
+    nonce: rawNonce,
+    ...(authorizationCode ? { authorizationCode } : {}),
+    ...appleFirstLoginName(response.user?.name),
+  }
+}

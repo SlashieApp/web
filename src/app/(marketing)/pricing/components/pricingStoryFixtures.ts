@@ -2,6 +2,7 @@ import {
   Currency,
   LoginMethod,
   UserLanguage,
+  WorkerPublishState,
   WorkerSubscriptionStatus,
 } from '@codegen/schema'
 
@@ -16,9 +17,17 @@ export const storyPricing: PricingRecord = {
   priceAmount: 1999,
   priceCurrency: 'gbp',
   priceInterval: 'month',
+  priceIntervalCount: 1,
   trialDays: 180,
   trialLabel: '6 months free',
   freeQuotesPerMonth: 3,
+}
+
+/** A plan billed every 3 months (£54 a quarter). */
+export const storyQuarterlyPricing: PricingRecord = {
+  ...storyPricing,
+  priceAmount: 5400,
+  priceIntervalCount: 3,
 }
 
 type Membership = NonNullable<MeSnapshot['worker']>['membership']
@@ -53,6 +62,8 @@ export function buildStoryMe(
     phoneVerified: true,
     createdAt: '2024-01-01T00:00:00.000Z',
     enabledLoginMethods: [LoginMethod.Password],
+    deletionBlockers: [],
+    savedWorkers: [],
     workerEligibility: worker !== null,
     profile: { name: 'Sam Carter', emailVerified: true, phoneVerified: true },
     settings: {
@@ -72,6 +83,8 @@ export function buildStoryMe(
         completedSubSteps: [],
         isComplete: worker.setupComplete,
       },
+      publishState: WorkerPublishState.Published,
+      profileGaps: [],
       membership: worker.membership,
       earnings: { pending: { amount: 0, currency: Currency.Gbp } },
     },
