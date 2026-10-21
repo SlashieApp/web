@@ -23,6 +23,7 @@ import { verificationErrorText } from '@/app/(dashboard)/components/ui/verificat
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
+import { duringTokenSwap, setAuthToken } from '@/utils/auth'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 import { FormField, Modal } from '@ui'
 
@@ -111,14 +112,20 @@ export function AccountPasswordDialog({
     try {
       const methods =
         mode === 'change'
-          ? (
-              await changePassword({
-                variables: {
-                  currentPassword: values.currentPassword,
-                  newPassword: values.newPassword,
-                },
-              })
-            ).data?.changePassword.enabledLoginMethods
+          ? // Every other session ends; this device keeps going on the
+            // new token (BE-102).
+            await duringTokenSwap(async () => {
+              const changed = (
+                await changePassword({
+                  variables: {
+                    currentPassword: values.currentPassword,
+                    newPassword: values.newPassword,
+                  },
+                })
+              ).data?.changePassword
+              if (changed) setAuthToken(changed.token)
+              return changed?.user.enabledLoginMethods
+            })
           : (
               await setPassword({
                 variables: { newPassword: values.newPassword },

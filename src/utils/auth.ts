@@ -44,3 +44,35 @@ export function clearAuthToken() {
 export function getAuthToken() {
   return readCookieValue(AUTH_COOKIE_NAME)
 }
+
+/** Password changes in flight (`duringTokenSwap`). */
+let tokenSwaps = 0
+
+/**
+ * Runs a password change, which ends every older token on the API and hands
+ * this device a new one to store (BE-102). Meanwhile, and for requests sent
+ * with the replaced token, a refusal must not sign this device out
+ * (`isReplacedSession`).
+ */
+export async function duringTokenSwap<T>(change: () => Promise<T>): Promise<T> {
+  tokenSwaps += 1
+  try {
+    return await change()
+  } finally {
+    tokenSwaps -= 1
+  }
+}
+
+/**
+ * Whether a request sent with `authorization` was refused only because a
+ * password change is replacing (or has replaced) this device's token.
+ */
+export function isReplacedSession(authorization: unknown): boolean {
+  if (tokenSwaps > 0) return true
+  const current = getAuthToken()
+  return (
+    typeof authorization === 'string' &&
+    current !== null &&
+    authorization !== `Bearer ${current}`
+  )
+}

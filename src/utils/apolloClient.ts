@@ -23,7 +23,7 @@ import {
 } from '@/utils/apiAvailability'
 
 import { markDeletionScheduled } from './accountDeletionState'
-import { clearAuthToken, getAuthToken } from './auth'
+import { clearAuthToken, getAuthToken, isReplacedSession } from './auth'
 import {
   isAccountDeletionScheduledError,
   isAccountDisabledError,
@@ -61,7 +61,13 @@ const errorLink = onError(({ error, operation }) => {
   }
 
   // A deleted account's session is worthless: drop it like an expired one.
-  if (isSessionEndedError(error)) clearAuthToken()
+  // Not when a password change just replaced the token it was sent with.
+  if (
+    isSessionEndedError(error) &&
+    !isReplacedSession(operation.getContext().headers?.authorization)
+  ) {
+    clearAuthToken()
+  }
 
   const operationName = operation?.operationName ?? 'unknown'
   const operationType = operation?.query.definitions.find(

@@ -53,6 +53,36 @@ async function save(
   await userEvent.click(body.getByRole('button', { name: 'Save password' }))
 }
 
+/**
+ * Saving a change ends every other session and hands this device a new token,
+ * which replaces the old one in the cookie (BE-102).
+ */
+export const ChangeKeepsThisDeviceSignedIn: Story = {
+  decorators: [
+    api({
+      ChangePassword: {
+        kind: 'data',
+        data: {
+          changePassword: {
+            token: 'story-token-after-change',
+            user: {
+              id: 'story-me',
+              enabledLoginMethods: [LoginMethod.Password],
+            },
+          },
+        },
+      },
+    }),
+  ],
+  play: async ({ canvasElement, args }) => {
+    await save(canvasElement, { current: 'old-password', next: 'new-password' })
+    await expect(args.onOpenChange).toHaveBeenCalledWith(false)
+    await expect(canvasElement.ownerDocument.cookie).toContain(
+      'auth=story-token-after-change',
+    )
+  },
+}
+
 /** Password account: current password, then the new one twice. */
 export const Change: Story = {
   decorators: [api()],
