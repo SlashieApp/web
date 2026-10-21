@@ -661,6 +661,9 @@ export function TaskDetailProvider({
           order_id: order.id,
         })
         refreshPageData()
+        // The new order lives on the viewer's Task query; router.refresh()
+        // only re-runs the server render, so refetch it too (FE-324).
+        void refetchClientTask()
         setActiveTab(TASK_DETAIL_TAB.overview, {
           hash: 'task-order',
           scrollId: 'task-order',
@@ -680,6 +683,7 @@ export function TaskDetailProvider({
     [
       acceptQuote,
       permissions.showAcceptDecline,
+      refetchClientTask,
       refreshPageData,
       setActiveTab,
       t.provider,

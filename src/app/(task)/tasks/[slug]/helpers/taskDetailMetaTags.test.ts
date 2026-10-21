@@ -88,6 +88,29 @@ describe('task detail meta tags', () => {
       ),
     ).toBe('Flexible')
   })
+
+  it('shows the booked day instead of the requested date (FE-324)', () => {
+    const task = storyTaskDetail({
+      datetime: {
+        date: '2026-11-05',
+        time: null,
+        type: TaskDateTimeType.Exact,
+      },
+    })
+    const now = new Date('2026-10-21T09:00:00')
+    expect(
+      taskDetailTimeTag(task, timeCopy, now, 'en-GB', '2026-10-21T19:00:00'),
+    ).toBe('Today')
+    expect(
+      taskDetailTimeTag(task, timeCopy, now, 'en-GB', '2026-10-28T19:00:00'),
+    ).toBe('Wed 28 Oct')
+    expect(taskDetailTimeTag(task, timeCopy, now, 'en-GB', null)).toBe(
+      'Thu 5 Nov',
+    )
+    expect(taskDetailTimeTag(task, timeCopy, now, 'en-GB', 'not a date')).toBe(
+      'Thu 5 Nov',
+    )
+  })
 })
 
 describe('task detail card chips (FE-258)', () => {

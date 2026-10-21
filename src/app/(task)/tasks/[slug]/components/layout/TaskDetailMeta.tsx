@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, HStack } from '@chakra-ui/react'
+import { OrderStatus } from '@codegen/schema'
 import type { ReactNode } from 'react'
 import {
   LuCalendar,
@@ -198,7 +199,15 @@ export function TaskDetailMeta() {
       showFullAddress: permissions.showFullAddress,
     }),
   })
-  const time = taskDetailTimeTag(task, t.meta, new Date(), DATE_LOCALE[locale])
+  const time = taskDetailTimeTag(
+    task,
+    t.meta,
+    new Date(),
+    DATE_LOCALE[locale],
+    myOrder && myOrder.status !== OrderStatus.Cancelled
+      ? String(myOrder.bookedStart)
+      : null,
+  )
   const duration = taskDetailDurationTag(task)
   const categories = taskDetailCategoryChips(task)
   const owner = taskDetailOwnerTag(task, t.details.ownerFallback)

@@ -74,13 +74,21 @@ export function taskDetailTimeTag(
   copy: TaskDetailTimeTagCopy,
   now = new Date(),
   locale = 'en-GB',
+  bookedStart?: string | null,
 ): string | null {
-  const datePart = task.datetime?.date?.trim()
-  if (!datePart) {
-    return task.datetime ? copy.flexible : null
+  // A booking's start wins over the requested date (FE-324).
+  const booked = bookedStart ? new Date(bookedStart) : null
+  let day: Date
+  if (booked && !Number.isNaN(booked.getTime())) {
+    day = booked
+  } else {
+    const datePart = task.datetime?.date?.trim()
+    if (!datePart) {
+      return task.datetime ? copy.flexible : null
+    }
+    day = new Date(`${datePart}T12:00:00`)
+    if (Number.isNaN(day.getTime())) return copy.flexible
   }
-  const day = new Date(`${datePart}T12:00:00`)
-  if (Number.isNaN(day.getTime())) return copy.flexible
 
   const dayMs = 24 * 60 * 60 * 1000
   const taskDay = startOfLocalDay(day)
