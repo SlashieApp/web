@@ -1,15 +1,16 @@
 import { QuoteStatus, TaskStatus } from '@codegen/schema'
-import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
 import { storyTaskQuote } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
-import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { TaskQuoteFlow } from './TaskQuoteFlow'
 import {
   LIMIT_REACHED_MEMBERSHIP,
+  QUOTE_ZH_HK,
   quoteStoryTask,
   withQuoteStory,
+  withQuoteZhHk,
 } from './taskQuoteStoryFixtures'
 
 const meta: Meta<typeof TaskQuoteFlow> = {
@@ -22,15 +23,6 @@ const meta: Meta<typeof TaskQuoteFlow> = {
 
 export default meta
 type Story = StoryObj<typeof meta>
-
-const ZH_HK = {
-  nextjs: { navigation: { pathname: '/zh-hk/tasks/task-1/quote' } },
-}
-const withZhHk: Decorator = (Story) => (
-  <LocaleProvider>
-    <Story />
-  </LocaleProvider>
-)
 
 /** Worker who has not quoted yet: empty steps, "Send quote". */
 export const Default: Story = {
@@ -73,8 +65,8 @@ export const SignedOut: Story = {
 
 /** Signed out, in zh-HK. */
 export const SignedOutZhHk: Story = {
-  parameters: ZH_HK,
-  decorators: [withQuoteStory({ viewer: 'visitor' }), withZhHk],
+  parameters: QUOTE_ZH_HK,
+  decorators: [withQuoteStory({ viewer: 'visitor' }), withQuoteZhHk],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
@@ -129,8 +121,8 @@ export const QuoteLimitReached: Story = {
 
 /** Out of free quotes, in zh-HK. */
 export const QuoteLimitReachedZhHk: Story = {
-  parameters: ZH_HK,
-  decorators: [withLimitReached, withZhHk],
+  parameters: QUOTE_ZH_HK,
+  decorators: [withLimitReached, withQuoteZhHk],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(

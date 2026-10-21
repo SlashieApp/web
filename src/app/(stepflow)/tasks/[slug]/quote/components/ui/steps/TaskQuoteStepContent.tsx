@@ -5,6 +5,8 @@ import type { ChangeEvent } from 'react'
 import { useRef } from 'react'
 import { LuPlus, LuX } from 'react-icons/lu'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { formatBudgetAmount } from '@/utils/price'
 import {
   FormField,
@@ -18,10 +20,8 @@ import {
 import type { TextareaProps } from '@ui'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
-import {
-  TASK_QUOTE_STEP_COPY,
-  type TaskQuoteSubStepId,
-} from '../../../helpers/taskQuoteSteps.config'
+import type { TaskQuoteSubStepId } from '../../../helpers/taskQuoteSteps.config'
+import bag from '../../../i11n.json'
 import { TaskQuotePrivateCallout } from '../shared/TaskQuotePrivateCallout'
 import { TaskQuoteSummaryCard } from '../shared/TaskQuoteSummaryCard'
 import { TaskQuoteReviewStep } from './TaskQuoteReviewStep'
@@ -41,11 +41,12 @@ type TaskQuoteStepContentProps = {
 }
 
 function TaskQuoteOptionalLabel({ children }: { children: string }) {
+  const optional = useI11n(bag).optional
   return (
     <HStack as="span" gap={2} display="inline-flex">
       <span>{children}</span>
       <Text as="span" fontSize="xs" fontWeight={500} color="text.muted">
-        Optional
+        {optional}
       </Text>
     </HStack>
   )
@@ -102,13 +103,17 @@ export function TaskQuoteStepContent({
     setQuoteMessageInput,
     setQuoteSlots,
   } = useTaskDetail()
+  const t = useI11n(bag)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   if (!task) return null
 
   const priceHelperText = task.budget
-    ? `Customer budget: ${formatBudgetAmount(task.budget)}. Enter the total price you'd like to charge.`
-    : "Enter the total price you'd like to charge."
+    ? formatMessage(t.price.helperWithBudget, {
+        budget: formatBudgetAmount(task.budget),
+      })
+    : t.price.helper
+  const [termsBefore, termsAfter = ''] = t.review.terms.split('{terms}')
 
   const showSummary =
     showTaskSummary &&
@@ -120,7 +125,7 @@ export function TaskQuoteStepContent({
         <Stack gap={6}>
           {showSummary ? <TaskQuoteSummaryCard /> : null}
           <FormField
-            label="Your quote"
+            label={t.price.label}
             helperText={priceHelperText}
             errorText={fieldError ?? undefined}
           >
@@ -144,8 +149,8 @@ export function TaskQuoteStepContent({
       return (
         <Stack gap={6}>
           <FormField
-            label="Message to customer"
-            helperText={TASK_QUOTE_STEP_COPY['quote.message'].description}
+            label={t.message.label}
+            helperText={t.steps['quote.message'].description}
             errorText={fieldError ?? undefined}
           >
             <TextareaWithCharCount
@@ -153,7 +158,7 @@ export function TaskQuoteStepContent({
               value={quoteMessageInput}
               maxLength={MESSAGE_MAX}
               onChange={(e) => setQuoteMessageInput(e.target.value)}
-              placeholder="Hi! I can help with…"
+              placeholder={t.message.placeholder}
             />
           </FormField>
         </Stack>
@@ -179,8 +184,10 @@ export function TaskQuoteStepContent({
       return (
         <Stack gap={6}>
           <FormField
-            label={<TaskQuoteOptionalLabel>Add photos</TaskQuoteOptionalLabel>}
-            helperText={TASK_QUOTE_STEP_COPY['quote.photos'].description}
+            label={
+              <TaskQuoteOptionalLabel>{t.photos.label}</TaskQuoteOptionalLabel>
+            }
+            helperText={t.steps['quote.photos'].description}
           >
             <input
               ref={fileInputRef}
@@ -199,7 +206,7 @@ export function TaskQuoteStepContent({
                   <Box w="full" h="full" rounded="lg" overflow="hidden">
                     <img
                       src={url}
-                      alt=""
+                      alt={formatMessage(t.photos.alt, { number: i + 1 })}
                       style={{
                         width: '100%',
                         height: '100%',
@@ -208,7 +215,9 @@ export function TaskQuoteStepContent({
                     />
                   </Box>
                   <IconButton
-                    aria-label="Remove photo"
+                    aria-label={formatMessage(t.photos.remove, {
+                      number: i + 1,
+                    })}
                     position="absolute"
                     top={1}
                     right={1}
@@ -221,7 +230,7 @@ export function TaskQuoteStepContent({
               ))}
               {photoUrls.length < 6 ? (
                 <IconButton
-                  aria-label="Add photo"
+                  aria-label={t.photos.add}
                   variant="outline"
                   w="72px"
                   h="72px"
@@ -250,12 +259,11 @@ export function TaskQuoteStepContent({
             </Text>
           ) : null}
           <Text fontSize="xs" color="text.muted" textAlign="center">
-            By sending, you agree to Slashie&apos;s{' '}
+            {termsBefore}
             <Link href="/terms" color="text.link" fontWeight={600}>
-              Terms of Service
+              {t.review.termsLink}
             </Link>
-            . Payment is arranged directly between you and the customer outside
-            Slashie.
+            {termsAfter}
           </Text>
         </Stack>
       )

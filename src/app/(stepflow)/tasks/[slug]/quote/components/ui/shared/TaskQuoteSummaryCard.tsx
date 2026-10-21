@@ -3,6 +3,7 @@
 import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { useState } from 'react'
 
+import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFocusRing } from '@/theme/styles'
@@ -10,10 +11,7 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { ImagePreview } from '@ui'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
-import {
-  budgetKindLabel,
-  taskAvailabilityRangeLabel,
-} from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
+import { taskAvailabilityRangeLabel } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import detailBag from '@/app/(task)/tasks/[slug]/i11n.json'
 
 import bag from '../../../i11n.json'
@@ -24,6 +22,7 @@ export function TaskQuoteSummaryCard() {
   const { task } = useTaskDetail()
   const t = useI11n(bag)
   const detail = useI11n(detailBag)
+  const dateLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   if (!task) return null
   const title = task.title?.trim() || detail.fallbackTask
@@ -37,8 +36,12 @@ export function TaskQuoteSummaryCard() {
     }))
   const thumb = photos[0]
   const locationLine = taskPublicLocationLabel(task)
-  const kind = budgetKindLabel(task.budget?.type)
-  const when = taskAvailabilityRangeLabel(task)
+  const budgetType = task.budget?.type
+  const kind = budgetType ? (t.summary.budgetKind[budgetType] ?? null) : null
+  const when = taskAvailabilityRangeLabel(task, {
+    locale: dateLocale,
+    typeLabels: t.summary.timing,
+  })
 
   return (
     <HStack

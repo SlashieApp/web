@@ -51,10 +51,10 @@ export const WithPhotos: Story = {
 /** No times proposed: the "Proposed times" section is left out. */
 export const NoTimes: Story = { decorators: review({ slots: [] }) }
 
-/** No message written: the message shows a dash. */
+/** No message written: the message reads "No message". */
 export const NoMessage: Story = { decorators: review({ message: '' }) }
 
-/** No price entered: the price shows a dash. */
+/** No price entered: the price reads "No price entered". */
 export const NoPrice: Story = { decorators: review({ amountPence: '' }) }
 
 /** A long message keeps its line breaks and wraps. */

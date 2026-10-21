@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { expect, within } from 'storybook/test'
+
+import { QUOTE_ZH_HK, withQuoteZhHk } from '../../taskQuoteStoryFixtures'
 import { TaskQuoteProgressBar } from './TaskQuoteProgressBar'
 
 const meta = {
@@ -38,4 +41,17 @@ export const Photos: Story = {
 /** Last sub-step, review and send: the caption moves to step 2 and the bar is full. */
 export const Review: Story = {
   args: { activeSubStep: 'review.check', progressPercent: 100 },
+}
+
+/** zh-HK, last sub-step: the caption and the track label in Chinese. */
+export const ReviewZhHk: Story = {
+  args: { activeSubStep: 'review.check', progressPercent: 100 },
+  parameters: QUOTE_ZH_HK,
+  decorators: [withQuoteZhHk],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('第 2 步，共 2 步 · 檢查'),
+    ).toBeVisible()
+  },
 }

@@ -6,7 +6,11 @@ import { TaskNotFoundCard } from '@/app/(task)/tasks/[slug]/components/ui/TaskNo
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { getTaskForTaskDetailPage } from '@/app/(task)/tasks/[slug]/helpers/getTaskForTaskDetailPage'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
-import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
+import {
+  formatMessage,
+  loadPageI11n,
+  metadataFromI11n,
+} from '@/i18n/loadPageI11n'
 import { TaskQuoteFlow } from './components/TaskQuoteFlow'
 import bag from './i11n.json'
 
@@ -31,10 +35,10 @@ export async function generateMetadata({
   const copy = loadPageI11n(bag, locale)
   const { task } = await getTaskForTaskDetailPage(slug)
   const title = task
-    ? `Send a quote · ${task.title} | Slashie`
+    ? formatMessage(copy.metadata.taskTitle, { title: task.title })
     : copy.metadata.title
   const description = task?.description?.trim()
-    ? `Review ${task.title} and send your quote on Slashie.`
+    ? formatMessage(copy.metadata.taskDescription, { title: task.title })
     : copy.metadata.description
   const canonicalPath = `/tasks/${slug}/quote`
   const base = metadataFromI11n(copy.metadata, { locale, path: canonicalPath })

@@ -1,11 +1,14 @@
 'use client'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { StepFlowProgress } from '@ui'
 
 import {
   type TaskQuoteSubStepId,
-  taskQuoteStepCaption,
+  taskQuoteStepPosition,
 } from '../../../helpers/taskQuoteSteps.config'
+import bag from '../../../i11n.json'
 
 type TaskQuoteProgressBarProps = {
   activeSubStep: TaskQuoteSubStepId
@@ -17,11 +20,15 @@ export function TaskQuoteProgressBar({
   activeSubStep,
   progressPercent,
 }: TaskQuoteProgressBarProps) {
+  const t = useI11n(bag)
   return (
     <StepFlowProgress
       value={progressPercent}
-      label={taskQuoteStepCaption(activeSubStep)}
-      trackLabel="Quote progress"
+      label={formatMessage(t.progress, {
+        ...taskQuoteStepPosition(activeSubStep),
+        label: t.steps[activeSubStep].label,
+      })}
+      trackLabel={t.progressTrack}
     />
   )
 }

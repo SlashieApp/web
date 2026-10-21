@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { type ReactNode, useCallback, useState } from 'react'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { validateTimeSlotDrafts } from '@/utils/timeSlots'
 import { StepFlowHeader, StepFlowLayout } from '@ui'
@@ -11,7 +12,6 @@ import { StepFlowHeader, StepFlowLayout } from '@ui'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
   TASK_QUOTE_FIRST_SUB_STEP,
-  TASK_QUOTE_STEP_COPY,
   type TaskQuoteSubStepId,
   taskQuoteIsSubStepUnlocked,
   taskQuoteNextSubStep,
@@ -31,7 +31,7 @@ type TaskQuoteScreenProps = {
   backToTask: string
   /** Prefill the price step (edit an existing quote). */
   initialPounds?: string
-  /** Final-step button label. Defaults to "Send quote". */
+  /** Final-step button label. Defaults to the bag's `submit` ("Send quote"). */
   submitLabel?: string
   /** Extra controls under every step (e.g. withdraw an existing quote). */
   footer?: ReactNode
@@ -40,7 +40,7 @@ type TaskQuoteScreenProps = {
 export function TaskQuoteScreen({
   backToTask,
   initialPounds = '',
-  submitLabel = 'Send quote',
+  submitLabel,
   footer,
 }: TaskQuoteScreenProps) {
   const router = useRouter()
@@ -65,10 +65,12 @@ export function TaskQuoteScreen({
   const [fieldError, setFieldError] = useState<string | null>(null)
 
   const progressPercent = taskQuoteProgressPercent(activeSubStep)
-  const copy = TASK_QUOTE_STEP_COPY[activeSubStep]
+  const copy = flowCopy.steps[activeSubStep]
   const isFirstStep = activeSubStep === TASK_QUOTE_FIRST_SUB_STEP
   const isReviewStep = activeSubStep === 'review.check'
-  const continueLabel = isReviewStep ? submitLabel : 'Continue'
+  const continueLabel = isReviewStep
+    ? (submitLabel ?? flowCopy.submit)
+    : flowCopy.continue
 
   const revokeUrl = useCallback((url: string) => {
     if (url.startsWith('blob:')) {
@@ -124,7 +126,7 @@ export function TaskQuoteScreen({
       const raw = poundsInput.trim().replace(/[£,\s]/g, '')
       const pounds = Number.parseFloat(raw)
       if (!Number.isFinite(pounds) || pounds <= 0) {
-        setFieldError('Enter a valid total price.')
+        setFieldError(flowCopy.price.invalid)
         return false
       }
       setQuoteAmountInput(String(Math.round(pounds * 100)))
@@ -134,7 +136,9 @@ export function TaskQuoteScreen({
     if (activeSubStep === 'quote.message') {
       const msg = quoteMessageInput.trim()
       if (msg.length > MESSAGE_MAX) {
-        setFieldError(`Message must be ${MESSAGE_MAX} characters or fewer.`)
+        setFieldError(
+          formatMessage(flowCopy.message.tooLong, { max: MESSAGE_MAX }),
+        )
         return false
       }
       return true
@@ -154,6 +158,8 @@ export function TaskQuoteScreen({
     return true
   }, [
     activeSubStep,
+    flowCopy.message.tooLong,
+    flowCopy.price.invalid,
     flowCopy.slotsInvalid,
     poundsInput,
     quoteMessageInput,
@@ -236,6 +242,7 @@ export function TaskQuoteScreen({
       description={copy.description}
       actions={{
         showBack: !isFirstStep,
+        backLabel: flowCopy.back,
         continueLabel,
         continueLoading: isReviewStep && quoting,
         isFinal: isReviewStep,

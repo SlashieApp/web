@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { expect, within } from 'storybook/test'
+
+import { QUOTE_ZH_HK, withQuoteZhHk } from '../../taskQuoteStoryFixtures'
 import { TaskQuoteStepper } from './TaskQuoteStepper'
 
 const meta = {
@@ -59,5 +62,18 @@ export const Review: Story = {
       'quote.availability',
       'quote.photos',
     ]),
+  },
+}
+
+/** zh-HK, first step: both step names and the sub-steps in Chinese. */
+export const PriceZhHk: Story = {
+  parameters: QUOTE_ZH_HK,
+  decorators: [withQuoteZhHk],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('你的報價')).toBeVisible()
+    await expect(canvas.getByText('檢查並傳送')).toBeVisible()
+    await expect(canvas.getByRole('button', { name: '你的價錢' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: '相片' })).toBeDisabled()
   },
 }

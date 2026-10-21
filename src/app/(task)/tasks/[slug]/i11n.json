@@ -300,7 +300,7 @@
     },
     "provider": {
       "taskNotLoaded": "Task details are not loaded yet.",
-      "quotesLoading": "Still loading quotes — one moment.",
+      "quotesLoading": "Still loading quotes. One moment.",
       "needWorkerProfile": "Create a worker profile before submitting quotes.",
       "notAcceptingQuotes": "This task is no longer accepting new quotes.",
       "verifyEmailBeforeQuote": "Verify your email before sending quotes. Check your inbox or resend from the banner.",
@@ -735,7 +735,7 @@
     },
     "provider": {
       "taskNotLoaded": "任務詳情尚未載入。",
-      "quotesLoading": "仍在載入報價 — 請稍候。",
+      "quotesLoading": "仍在載入報價，請稍候。",
       "needWorkerProfile": "提交報價前請先建立工作者檔案。",
       "notAcceptingQuotes": "此任務已不再接受新報價。",
       "verifyEmailBeforeQuote": "傳送報價前請先驗證電郵。請檢查收件匣或從橫幅重新傳送。",

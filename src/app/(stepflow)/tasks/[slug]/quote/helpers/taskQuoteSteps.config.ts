@@ -1,3 +1,8 @@
+/**
+ * Quote flow structure: step ids, order and which steps are optional.
+ * Labels, titles and descriptions live in `../i11n.json` under
+ * `majorSteps.<id>` and `steps.<id>`, looked up by these ids.
+ */
 export type TaskQuoteSubStepId =
   | 'quote.price'
   | 'quote.message'
@@ -9,31 +14,27 @@ export type TaskQuoteMajorStepId = 'quote' | 'review'
 
 export type TaskQuoteSubStepConfig = {
   id: TaskQuoteSubStepId
-  label: string
   optional?: boolean
 }
 
 export type TaskQuoteMajorStepConfig = {
   id: TaskQuoteMajorStepId
-  label: string
   subSteps: TaskQuoteSubStepConfig[]
 }
 
 export const TASK_QUOTE_MAJOR_STEPS: TaskQuoteMajorStepConfig[] = [
   {
     id: 'quote',
-    label: 'Your quote',
     subSteps: [
-      { id: 'quote.price', label: 'Your price' },
-      { id: 'quote.message', label: 'Message' },
-      { id: 'quote.availability', label: 'Times' },
-      { id: 'quote.photos', label: 'Photos', optional: true },
+      { id: 'quote.price' },
+      { id: 'quote.message' },
+      { id: 'quote.availability' },
+      { id: 'quote.photos', optional: true },
     ],
   },
   {
     id: 'review',
-    label: 'Review & send',
-    subSteps: [{ id: 'review.check', label: 'Review' }],
+    subSteps: [{ id: 'review.check' }],
   },
 ]
 
@@ -42,37 +43,6 @@ export const TASK_QUOTE_FLAT_STEPS: TaskQuoteSubStepConfig[] =
 
 export const TASK_QUOTE_FIRST_SUB_STEP: TaskQuoteSubStepId =
   TASK_QUOTE_FLAT_STEPS[0]?.id ?? 'quote.price'
-
-export const TASK_QUOTE_STEP_COPY: Record<
-  TaskQuoteSubStepId,
-  { title: string; description?: string }
-> = {
-  'quote.price': {
-    title: 'Your price',
-    description:
-      'Enter the total price you would like to charge for this task.',
-  },
-  'quote.message': {
-    title: 'Message to customer',
-    description:
-      'Introduce yourself and explain how you will complete the job.',
-  },
-  'quote.availability': {
-    title: 'When can you do the work?',
-    description:
-      'Offer one or two exact times. The customer picks one when they accept your quote.',
-  },
-  'quote.photos': {
-    title: 'Add photos',
-    description:
-      'Optional — add photos of your previous work. Uploads are not sent with the quote yet.',
-  },
-  'review.check': {
-    title: 'Review your quote',
-    description:
-      'Check your details before sending your quote to the customer.',
-  },
-}
 
 export function taskQuoteSubStepIndex(id: TaskQuoteSubStepId): number {
   return TASK_QUOTE_FLAT_STEPS.findIndex((step) => step.id === id)
@@ -102,12 +72,15 @@ export function taskQuoteProgressPercent(
   return Math.round(((index + 1) / total) * 100)
 }
 
-export function taskQuoteStepCaption(
-  activeSubStep: TaskQuoteSubStepId,
-): string {
-  const majorIndex = taskQuoteMajorIndexForSubStep(activeSubStep)
-  const sub = taskQuoteSubStepConfig(activeSubStep)
-  return `Step ${majorIndex + 1} of ${TASK_QUOTE_MAJOR_STEPS.length} · ${sub?.label ?? activeSubStep}`
+/** Major step number (1-based) and how many major steps there are. */
+export function taskQuoteStepPosition(activeSubStep: TaskQuoteSubStepId): {
+  step: number
+  total: number
+} {
+  return {
+    step: taskQuoteMajorIndexForSubStep(activeSubStep) + 1,
+    total: TASK_QUOTE_MAJOR_STEPS.length,
+  }
 }
 
 export function taskQuotePreviousSubStep(

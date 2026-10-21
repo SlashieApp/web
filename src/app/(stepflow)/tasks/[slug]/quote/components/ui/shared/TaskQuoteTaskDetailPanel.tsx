@@ -20,7 +20,7 @@ export function TaskQuoteTaskDetailPanel({
   variant = 'sidebar',
 }: TaskQuoteTaskDetailPanelProps) {
   const { task } = useTaskDetail()
-  const backLabel = useI11n(bag).gate.backToTask
+  const t = useI11n(bag)
   if (!task) return null
 
   const isSection = variant === 'section'
@@ -53,7 +53,7 @@ export function TaskQuoteTaskDetailPanel({
         _hover={{ textDecoration: 'none', color: 'text.link' }}
       >
         <LuArrowLeft size={16} aria-hidden />
-        {backLabel}
+        {t.gate.backToTask}
       </Link>
 
       <Stack gap={3}>
@@ -72,7 +72,7 @@ export function TaskQuoteTaskDetailPanel({
           </Text>
         ) : (
           <Text fontSize="sm" color="text.muted">
-            No description provided.
+            {t.noDescription}
           </Text>
         )}
       </Stack>

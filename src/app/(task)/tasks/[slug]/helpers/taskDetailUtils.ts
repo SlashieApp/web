@@ -169,19 +169,32 @@ export function taskOwnerPostedBudgetLine(task: TaskDetailRecord): string {
   return 'Open'
 }
 
-/** Short label for quick info from `datetime`. */
-export function taskAvailabilityRangeLabel(task: TaskDetailRecord): string {
+/**
+ * Short label for quick info from `datetime`. Pass the `Intl` locale and
+ * the caller's translated timing labels (keyed by `TaskDateTimeType`) to
+ * localise it; English is the fallback.
+ */
+export function taskAvailabilityRangeLabel(
+  task: TaskDetailRecord,
+  {
+    locale = 'en-GB',
+    typeLabels,
+  }: {
+    locale?: string
+    typeLabels?: Partial<Record<string, string>>
+  } = {},
+): string {
   const dt = task.datetime
-  if (!dt) return 'Flexible'
+  if (!dt) return typeLabels?.FLEXIBLE ?? 'Flexible'
   const datePart = dt.date?.trim()
   if (datePart) {
     const d = new Date(`${datePart}T12:00:00`)
     if (!Number.isNaN(d.getTime())) {
-      return d.toLocaleDateString('en-GB', { weekday: 'short' })
+      return d.toLocaleDateString(locale, { weekday: 'short' })
     }
     return datePart
   }
-  return formatTaskDateTimeType(dt.type)
+  return typeLabels?.[dt.type] ?? formatTaskDateTimeType(dt.type)
 }
 
 export type OwnerInterestLevel = 'low' | 'medium' | 'high'

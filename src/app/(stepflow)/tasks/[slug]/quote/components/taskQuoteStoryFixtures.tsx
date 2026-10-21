@@ -15,17 +15,32 @@ import {
   storyTaskDetail,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
+import { LocaleProvider } from '@/i18n/LocaleProvider'
 import type { TimeSlotDraft } from '@/utils/timeSlots'
 
 import {
   TASK_QUOTE_FIRST_SUB_STEP,
-  TASK_QUOTE_STEP_COPY,
   type TaskQuoteSubStepId,
   taskQuoteNextSubStep,
 } from '../helpers/taskQuoteSteps.config'
+import bag from '../i11n.json'
 
 /** Where the story flows exit to (the task the quote is for). */
 export const STORY_BACK_TO_TASK = '/tasks/task-detail-story-1'
+
+/** Story `parameters` for a zh-HK URL; pair with {@link withQuoteZhHk}. */
+export const QUOTE_ZH_HK = {
+  nextjs: {
+    navigation: { pathname: '/zh-hk/tasks/task-detail-story-1/quote' },
+  },
+}
+
+/** Reads the locale from the story URL (see {@link QUOTE_ZH_HK}). */
+export const withQuoteZhHk: Decorator = (Story) => (
+  <LocaleProvider>
+    <Story />
+  </LocaleProvider>
+)
 
 /** An open task nobody has quoted yet, with a placeholder photo. */
 export function quoteStoryTask(
@@ -155,6 +170,7 @@ export async function advanceQuoteTo(
   canvasElement: HTMLElement,
   target: TaskQuoteSubStepId,
   price = '85',
+  copy: typeof bag.en = bag.en,
 ) {
   const canvas = within(canvasElement)
   if (price) {
@@ -166,18 +182,14 @@ export async function advanceQuoteTo(
   let step: TaskQuoteSubStepId | null = TASK_QUOTE_FIRST_SUB_STEP
   while (step && step !== target) {
     await userEvent.click(
-      await canvas.findByRole(
-        'button',
-        { name: /^(continue|send quote|update quote)/i },
-        WAIT,
-      ),
+      await canvas.findByRole('button', { name: copy.continue }, WAIT),
     )
     step = taskQuoteNextSubStep(step)
     if (step) {
       await expect(
         await canvas.findByRole(
           'heading',
-          { name: TASK_QUOTE_STEP_COPY[step].title },
+          { name: copy.steps[step].title },
           WAIT,
         ),
       ).toBeVisible()

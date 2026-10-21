@@ -2,13 +2,20 @@
   "en": {
     "metadata": {
       "title": "Send quote | Slashie",
-      "description": "Send a clear quote for a Slashie task with price, message, and availability."
+      "description": "Send a clear quote for a Slashie task with price, message, and availability.",
+      "taskTitle": "Send a quote · {title} | Slashie",
+      "taskDescription": "Review {title} and send your quote on Slashie."
     },
     "eyebrow": "Send a quote",
     "closeLabel": "Close quote",
     "title": "Send a quote",
     "description": "Share your price, timing, and why you are a good fit for this task.",
-    "submit": "Submit quote",
+    "submit": "Send quote",
+    "back": "Back",
+    "continue": "Continue",
+    "optional": "Optional",
+    "progress": "Step {step} of {total} · {label}",
+    "progressTrack": "Quote progress",
     "loading": "Loading quote form...",
     "notFoundTitle": "Task not found",
     "notFoundDescription": "This task may have been removed or is no longer available for quotes.",
@@ -16,6 +23,80 @@
     "proposedTimes": "Proposed times",
     "locationNote": "Approximate area. The exact address is shared once a quote is accepted.",
     "notFoundBrowse": "Search tasks",
+    "noDescription": "No description provided.",
+    "majorSteps": {
+      "quote": "Your quote",
+      "review": "Review & send"
+    },
+    "steps": {
+      "quote.price": {
+        "label": "Your price",
+        "title": "Your price",
+        "description": "Enter the total price you would like to charge for this task."
+      },
+      "quote.message": {
+        "label": "Message",
+        "title": "Message to customer",
+        "description": "Introduce yourself and explain how you will complete the job."
+      },
+      "quote.availability": {
+        "label": "Times",
+        "title": "When can you do the work?",
+        "description": "Offer one or two exact times. The customer picks one when they accept your quote."
+      },
+      "quote.photos": {
+        "label": "Photos",
+        "title": "Add photos",
+        "description": "Optional. Add photos of your previous work. Uploads are not sent with the quote yet."
+      },
+      "review.check": {
+        "label": "Review",
+        "title": "Review your quote",
+        "description": "Check your details before sending your quote to the customer."
+      }
+    },
+    "price": {
+      "label": "Your quote",
+      "helper": "Enter the total price you'd like to charge.",
+      "helperWithBudget": "Customer budget: {budget}. Enter the total price you'd like to charge.",
+      "invalid": "Enter a valid total price."
+    },
+    "message": {
+      "label": "Message to customer",
+      "placeholder": "Hi! I can help with…",
+      "tooLong": "Message must be {max} characters or fewer."
+    },
+    "photos": {
+      "label": "Add photos",
+      "add": "Add photo",
+      "remove": "Remove photo {number}",
+      "alt": "Photo {number}"
+    },
+    "review": {
+      "price": "Your quote",
+      "message": "Message to customer",
+      "photos": "Photos",
+      "noPrice": "No price entered",
+      "noMessage": "No message",
+      "terms": "By sending, you agree to Slashie's {terms}. Payment is arranged directly between you and the customer outside Slashie.",
+      "termsLink": "Terms of Service"
+    },
+    "privateCallout": {
+      "title": "Quotes are private",
+      "body": "Your quote will be visible to the customer once you send it."
+    },
+    "summary": {
+      "budgetKind": {
+        "ONE_OFF": "Fixed price",
+        "PER_HOUR": "Per hour",
+        "PER_DAY": "Per day"
+      },
+      "timing": {
+        "EXACT": "Exact time",
+        "BEFORE": "Before",
+        "FLEXIBLE": "Flexible"
+      }
+    },
     "gate": {
       "backToTask": "Back to task",
       "signInBody": "Sign in to send a quote for this task.",
@@ -30,13 +111,20 @@
   "zh_hk": {
     "metadata": {
       "title": "傳送報價 | Slashie",
-      "description": "為 Slashie 任務傳送清晰報價，包括價錢、訊息和可提供時間。"
+      "description": "為 Slashie 任務傳送清晰報價，包括價錢、訊息和可提供時間。",
+      "taskTitle": "傳送報價 · {title} | Slashie",
+      "taskDescription": "查看「{title}」，然後在 Slashie 傳送你的報價。"
     },
     "eyebrow": "傳送報價",
     "closeLabel": "關閉報價",
     "title": "傳送報價",
     "description": "分享你的價錢、時間，以及為何適合這個任務。",
-    "submit": "提交報價",
+    "submit": "傳送報價",
+    "back": "返回",
+    "continue": "繼續",
+    "optional": "選填",
+    "progress": "第 {step} 步，共 {total} 步 · {label}",
+    "progressTrack": "報價進度",
     "loading": "正在載入報價表格...",
     "notFoundTitle": "找不到任務",
     "notFoundDescription": "此任務可能已移除，或已不再接受報價。",
@@ -44,6 +132,80 @@
     "proposedTimes": "建議時間",
     "locationNote": "大約位置。報價被接受後才會提供確實地址。",
     "notFoundBrowse": "搜尋任務",
+    "noDescription": "沒有提供描述。",
+    "majorSteps": {
+      "quote": "你的報價",
+      "review": "檢查並傳送"
+    },
+    "steps": {
+      "quote.price": {
+        "label": "你的價錢",
+        "title": "你的價錢",
+        "description": "輸入你為這個任務收取的總價錢。"
+      },
+      "quote.message": {
+        "label": "訊息",
+        "title": "給顧客的訊息",
+        "description": "介紹你自己，並說明你會如何完成這份工作。"
+      },
+      "quote.availability": {
+        "label": "時間",
+        "title": "你甚麼時候可以開工？",
+        "description": "提供一至兩個確實時間。顧客接受你的報價時會揀選其中一個。"
+      },
+      "quote.photos": {
+        "label": "相片",
+        "title": "加入相片",
+        "description": "選填。加入你過往工作的相片。上載的相片暫時不會隨報價一併傳送。"
+      },
+      "review.check": {
+        "label": "檢查",
+        "title": "檢查你的報價",
+        "description": "傳送報價給顧客前，請先檢查你的資料。"
+      }
+    },
+    "price": {
+      "label": "你的報價",
+      "helper": "輸入你想收取的總價錢。",
+      "helperWithBudget": "顧客預算：{budget}。輸入你想收取的總價錢。",
+      "invalid": "請輸入有效的總價錢。"
+    },
+    "message": {
+      "label": "給顧客的訊息",
+      "placeholder": "你好！我可以幫你…",
+      "tooLong": "訊息不可超過 {max} 個字。"
+    },
+    "photos": {
+      "label": "加入相片",
+      "add": "加入相片",
+      "remove": "移除第 {number} 張相片",
+      "alt": "第 {number} 張相片"
+    },
+    "review": {
+      "price": "你的報價",
+      "message": "給顧客的訊息",
+      "photos": "相片",
+      "noPrice": "未輸入價錢",
+      "noMessage": "沒有訊息",
+      "terms": "傳送即表示你同意 Slashie 的{terms}。付款由你與顧客在 Slashie 以外直接安排。",
+      "termsLink": "服務條款"
+    },
+    "privateCallout": {
+      "title": "報價不會公開",
+      "body": "你傳送報價後，顧客便會看到。"
+    },
+    "summary": {
+      "budgetKind": {
+        "ONE_OFF": "固定價",
+        "PER_HOUR": "按小時",
+        "PER_DAY": "按日"
+      },
+      "timing": {
+        "EXACT": "指定時間",
+        "BEFORE": "在某日期前",
+        "FLEXIBLE": "時間彈性"
+      }
+    },
     "gate": {
       "backToTask": "返回任務",
       "signInBody": "登入後即可為此任務傳送報價。",

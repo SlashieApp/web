@@ -3,13 +3,16 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { Button } from '@ui'
 
+import bag from '../i11n.json'
 import { TaskQuoteScreen } from './TaskQuoteScreen'
 import {
   QUOTE_STORY_MESSAGE,
+  QUOTE_ZH_HK,
   STORY_BACK_TO_TASK,
   advanceQuoteTo,
   quoteStorySlots,
   withQuoteStory,
+  withQuoteZhHk,
 } from './taskQuoteStoryFixtures'
 
 const meta = {
@@ -145,4 +148,36 @@ export const MobileReviewStep: Story = {
   decorators: filledForm,
   globals: { viewport: { value: 'mobile1' } },
   play: ({ canvasElement }) => advanceQuoteTo(canvasElement, 'review.check'),
+}
+
+/** zh-HK, step 1: heading, budget helper, Continue and the price error. */
+export const ZhHk: Story = {
+  parameters: QUOTE_ZH_HK,
+  decorators: [...emptyForm, withQuoteZhHk],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', { name: '你的價錢' }),
+    ).toBeVisible()
+    await expect(canvas.getByText(/^顧客預算：£\d/)).toBeVisible()
+    await expect(canvas.getByRole('button', { name: '繼續' })).toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: '繼續' }))
+    await expect(await canvas.findByText('請輸入有效的總價錢。')).toBeVisible()
+  },
+}
+
+/** zh-HK, review step: the read-back, the private note, terms and 傳送報價. */
+export const ReviewStepZhHk: Story = {
+  parameters: QUOTE_ZH_HK,
+  decorators: [...filledForm, withQuoteZhHk],
+  play: async ({ canvasElement }) => {
+    await advanceQuoteTo(canvasElement, 'review.check', '85', bag.zh_hk)
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('報價不會公開')).toBeVisible()
+    await expect(
+      canvas.getByRole('link', { name: '服務條款' }),
+    ).toHaveAttribute('href', '/zh-hk/terms')
+    await expect(canvas.getByRole('button', { name: '返回' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: '傳送報價' })).toBeVisible()
+  },
 }
