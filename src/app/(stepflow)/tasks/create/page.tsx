@@ -34,7 +34,9 @@ export default function CreateTaskPage() {
   const localize = useLocalizedHref()
   const [session, setSession] = useState<'guest' | 'ready' | null>(null)
   const gateRef = useRef(false)
-  if (!gateRef.current) {
+  // Browser only: the server has no session or `window`, so it renders the
+  // loading state and the gate runs on the client (FE-323).
+  if (!gateRef.current && typeof window !== 'undefined') {
     gateRef.current = true
     const signedIn = Boolean(getAuthToken())
     setSession(signedIn ? 'ready' : 'guest')

@@ -24,7 +24,9 @@ export default function EditTaskPage() {
   const { slug: taskId } = useParams<{ slug: string }>()
   const [session, setSession] = useState<'guest' | 'ready' | null>(null)
   const gateRef = useRef(false)
-  if (!gateRef.current) {
+  // Browser only: the server has no session, and `router.replace` needs
+  // `location`, so the server renders the loading state (FE-323).
+  if (!gateRef.current && typeof window !== 'undefined') {
     gateRef.current = true
     const signedIn = Boolean(getAuthToken())
     setSession(signedIn ? 'ready' : 'guest')
