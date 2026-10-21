@@ -46,14 +46,16 @@ describe('getThreadView', () => {
     expect(view({ query: 'error', thread: null })).toBe('thread.loadError')
   })
 
-  it('shows Slashie announcements read-only', () => {
-    expect(view({ thread: taskThread({ kind: ThreadKind.System }) })).toBe(
-      'thread.system',
-    )
+  it('shows Slashie announcements read-only, without pins', () => {
+    const name = view({ thread: taskThread({ kind: ThreadKind.System }) })
+    expect(name).toBe('thread.system')
+    expect(THREAD_VIEWS[name]).toMatchObject({ pins: false })
   })
 
-  it('opens the composer when you can send', () => {
-    expect(view({ thread: taskThread({ canSend: true }) })).toBe('thread.open')
+  it('opens the composer when you can send, between the pins', () => {
+    const name = view({ thread: taskThread({ canSend: true }) })
+    expect(name).toBe('thread.open')
+    expect(THREAD_VIEWS[name]).toMatchObject({ composer: 'open', pins: true })
   })
 
   it('explains that you blocked the other person', () => {

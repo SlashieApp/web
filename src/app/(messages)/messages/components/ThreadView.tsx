@@ -28,6 +28,7 @@ import MarkThreadRead from '@/app/(messages)/messages/graphql/MarkThreadRead.gql
 import MessageThread from '@/app/(messages)/messages/graphql/MessageThread.gql'
 import SendMessage from '@/app/(messages)/messages/graphql/SendMessage.gql'
 import UnblockUser from '@/app/(messages)/messages/graphql/UnblockUser.gql'
+import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -39,6 +40,7 @@ import { wasNotSelected } from '../helpers/messagesFormat'
 import { threadQueryState, timelineRows } from '../helpers/messagesThread'
 import bag from '../i11n.json'
 import { THREAD_VIEWS, getThreadView } from '../views'
+import { ThreadBottomPin } from './ThreadBottomPin'
 import { ThreadHeader } from './ThreadHeader'
 import { ThreadTimelineItem } from './ThreadTimelineItem'
 
@@ -133,6 +135,9 @@ const SKELETON_BUBBLES = [
   { mine: true, w: '30%' },
 ] as const
 
+/** Within this many pixels of the end counts as reading the newest item. */
+const AT_END_PX = 24
+
 /** First load: the header bar and a few bubbles. */
 function ThreadSkeleton({ label }: { label: string }) {
   return (
@@ -179,14 +184,18 @@ function Centered({ children }: { children: ReactNode }) {
 }
 
 /**
- * One conversation: header, timeline (oldest at the top) and composer. What
- * shows is the thread's named view (`getThreadView`, views/README.md).
+ * One conversation: header with the top pin, timeline (oldest at the top),
+ * the bottom pin when something needs the viewer, then the composer. Task
+ * threads run inside the task's `TaskDetailProvider`, so the menu and both
+ * pins share task detail's state and controls. What shows is the thread's
+ * named view (`getThreadView`, views/README.md).
  */
 export function ThreadView({ threadId }: { threadId: string | null }) {
   const t = useI11n(bag)
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const { refetchThreads } = useMessages()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const atEndRef = useRef(true)
   const [exhausted, setExhausted] = useState(false)
   const [loadingEarlier, setLoadingEarlier] = useState(false)
 
@@ -227,6 +236,18 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
     const el = scrollRef.current
     if (el) el.scrollTop = el.scrollHeight
   }, [newestId])
+
+  // The pins load with the task and change size; while the reader is at the
+  // newest item, keep it in view instead of letting them push it out.
+  const timelineRef = useCallback((node: HTMLDivElement | null) => {
+    scrollRef.current = node
+    if (!node) return
+    const observer = new ResizeObserver(() => {
+      if (atEndRef.current) node.scrollTop = node.scrollHeight
+    })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
 
   const loadEarlier = useCallback(async () => {
     const oldest = items.at(-1)
@@ -311,13 +332,19 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
   if (!thread) return null
   const name = thread.otherParty?.name ?? thread.title
   const rows = timelineRows([...items].reverse(), locale, t)
+  const pins = config.pins && thread.task != null
 
-  return (
+  const conversation = (
     <>
       <ThreadHeader thread={thread} onToggleBlock={() => void toggleBlock()} />
 
       <Box
-        ref={scrollRef}
+        ref={timelineRef}
+        onScroll={(e) => {
+          const el = e.currentTarget
+          atEndRef.current =
+            el.scrollHeight - el.scrollTop - el.clientHeight <= AT_END_PX
+        }}
         flex={1}
         minH={0}
         overflowY="auto"
@@ -363,6 +390,8 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
         </Stack>
       </Box>
 
+      {pins ? <ThreadBottomPin attention={thread.attention} /> : null}
+
       {config.composer === 'open' ? (
         <Composer threadId={thread.id} name={name} t={t} />
       ) : (
@@ -379,5 +408,12 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
         </Box>
       )}
     </>
+  )
+
+  if (!pins || !thread.task) return conversation
+  return (
+    <TaskDetailProvider taskId={thread.task.id} captureView={false}>
+      {conversation}
+    </TaskDetailProvider>
   )
 }

@@ -4,4 +4,5 @@ import type { ThreadViewConfig } from './types'
 export const threadOpen: ThreadViewConfig = {
   layout: 'conversation',
   composer: 'open',
+  pins: true,
 }

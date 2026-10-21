@@ -1,10 +1,8 @@
 import type { ThreadPinViewConfig } from './types'
 
-/** Owner's open task with no live quotes: the status only. */
+/** An open task with no live quote to show: the status only. */
 export const pinStatus: ThreadPinViewConfig = {
-  pill: 'task',
+  pill: true,
   headline: true,
-  subline: false,
   facts: null,
-  controls: null,
 }

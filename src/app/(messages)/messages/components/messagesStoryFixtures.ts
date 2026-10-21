@@ -1,7 +1,12 @@
 import {
   Currency,
   FlashKind,
+  OrderCloseKind,
+  OrderRequestKind,
+  OrderStatus,
   QuoteStatus,
+  TaskStatus,
+  ThreadAttentionKind,
   ThreadItemType,
   ThreadKind,
 } from '@codegen/schema'
@@ -14,7 +19,11 @@ import {
   STORY_OWNER_ID,
   STORY_TASK_ID,
   STORY_WORKER_ID,
+  storyTaskDetail,
+  storyTaskOrder,
+  storyTaskQuote,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import type { OrderItem } from '@/utils/orderHelpers'
 
 import type { MessagesContextValue } from '../context/MessagesProvider'
 
@@ -32,9 +41,6 @@ const worker = {
   name: 'Sample Worker',
   avatarUrl: null,
   deleted: false,
-  ratingSummary: { average: null, count: 0 },
-  hostedCompletedCount: 0,
-  completedJobsCount: 0,
 }
 
 type FlashQuote = NonNullable<ThreadItemFieldsFragment['quote']>
@@ -140,16 +146,17 @@ export const sampleThreads: ThreadFieldsFragment[] = [
     kind: ThreadKind.Task,
     title: 'Garden tidy-up',
     unreadCount: 0,
-    canSend: true,
+    canSend: false,
     blockedByMe: false,
-    attention: null,
+    attention: { kind: ThreadAttentionKind.CompareQuotes, count: 2 },
     updatedAt: today(8, 0),
     task: { id: 'task-2', title: 'Garden tidy-up' },
     otherParty: null,
     lastItem: {
-      ...myMessage,
+      ...quoteFlash,
       threadId: 't2',
       id: 'i9',
+      taskId: 'task-2',
       createdAt: today(8, 0),
     },
   },
@@ -199,25 +206,19 @@ export type MessagesViewer = 'owner' | 'worker'
 export const STORY_THREAD_ID = 't-booked'
 export const STORY_THREAD_TITLE = 'Mount bookshelf on living room wall'
 
-/** The customer: two reviews (no average yet) and three finished bookings. */
+/** The customer. */
 const alex = {
   userId: STORY_OWNER_ID,
   name: 'Alex Chen',
   avatarUrl: null,
   deleted: false,
-  ratingSummary: { average: null, count: 2 },
-  hostedCompletedCount: 3,
-  completedJobsCount: 0,
 }
-/** The worker: rated 4.8 from 12 reviews, 23 jobs done. */
+/** The worker. */
 const jordan = {
   userId: STORY_WORKER_ID,
   name: 'Jordan Lee',
   avatarUrl: null,
   deleted: false,
-  ratingSummary: { average: 4.8, count: 12 },
-  hostedCompletedCount: 0,
-  completedJobsCount: 23,
 }
 
 /** The other person in the conversation, as the viewer sees them. */
@@ -421,4 +422,115 @@ export function manyMessages(
       at(2 + Math.floor(index / 10), 18 - (index % 10), 0),
     )
   })
+}
+
+/* The task behind a thread's pins, in each state the pins show. Alex owns
+   the task; Jordan quoted £85 and Sam £95. */
+
+/** A booked slot far in the future (before the start: nothing to close). */
+export const FUTURE_START = '2030-06-10T14:00:00.000Z'
+export const FUTURE_END = '2030-06-10T16:00:00.000Z'
+const ACTED_AT = '2026-10-15T10:00:00.000Z'
+// The order query reads `failedReason` on your own close action.
+export const markedDone = {
+  kind: OrderCloseKind.Done,
+  at: ACTED_AT,
+  failedReason: null,
+}
+export const markedFailed = {
+  kind: OrderCloseKind.Failed,
+  at: ACTED_AT,
+  failedReason: null,
+}
+
+/** What `thread.attention` says waits on the viewer. */
+export const needs = (
+  kind: ThreadAttentionKind,
+  count: number | null = null,
+) => ({
+  kind,
+  count,
+})
+
+const sam = {
+  id: 'worker-detail-2',
+  profile: { name: 'Sam Taylor', avatarUrl: null },
+  worker: { id: 'worker-profile-2', isVerified: false },
+}
+
+/** Jordan's quote (when given, in `mine`) and Sam's (in `other`). */
+export function storyQuotes(mine: QuoteStatus | null, other: QuoteStatus) {
+  return [
+    ...(mine ? [storyTaskQuote({ status: mine })] : []),
+    storyTaskQuote({
+      id: 'quote-detail-2',
+      workerUserId: 'worker-detail-2',
+      status: other,
+      price: { amount: 95, currency: Currency.Gbp },
+      worker: sam,
+    }),
+  ]
+}
+
+/** `count` live quotes from different workers, cheapest last. */
+export function manyLiveQuotes(count: number) {
+  const names = [
+    'Jordan Lee',
+    'Sam Taylor',
+    'Priya Shah',
+    'Ben Okafor',
+    'Mia Wong',
+  ]
+  return Array.from({ length: count }, (_, index) =>
+    storyTaskQuote({
+      id: `quote-many-${index}`,
+      workerUserId: `worker-many-${index}`,
+      price: { amount: 120 - index * 10, currency: Currency.Gbp },
+      worker: {
+        id: `worker-many-${index}`,
+        profile: { name: names[index % names.length], avatarUrl: null },
+        worker: { id: `worker-profile-many-${index}`, isVerified: false },
+      },
+    }),
+  )
+}
+
+/** Jordan booked at £85 (cash); the order says where the booking stands. */
+export function bookedTask(order: Partial<OrderItem> = {}) {
+  return storyTaskDetail({
+    status: TaskStatus.Awarded,
+    quotes: storyQuotes(QuoteStatus.Accepted, QuoteStatus.NotSelected),
+    orders: [storyTaskOrder(order)],
+  })
+}
+
+/** A booking with a reschedule or cancellation waiting, asked by `by`. */
+export function requestedOrder(
+  kind: OrderRequestKind,
+  by: string,
+): Partial<OrderItem> {
+  return {
+    status:
+      kind === OrderRequestKind.Reschedule
+        ? OrderStatus.Rescheduling
+        : OrderStatus.CancelRequested,
+    bookedStart: FUTURE_START,
+    bookedEnd: FUTURE_END,
+    pendingRequest: {
+      kind,
+      requestedByUserId: by,
+      requestedAt: ACTED_AT,
+      proposedSlots:
+        kind === OrderRequestKind.Reschedule
+          ? [
+              {
+                id: 'slot-r1',
+                start: '2030-06-12T09:00:00.000Z',
+                end: '2030-06-12T11:00:00.000Z',
+              },
+              { id: 'slot-r2', start: '2030-06-13T14:00:00.000Z', end: null },
+            ]
+          : [],
+    },
+  } as Partial<OrderItem>
 }

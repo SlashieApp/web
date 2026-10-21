@@ -20,16 +20,11 @@ import { useI11n } from '@/i18n/useI11n'
 import { Avatar, Button, Link } from '@ui'
 
 import { formatMessageTime, threadPreviewText } from '../helpers/messagesFormat'
+import { threadTitle } from '../helpers/messagesThread'
 import bag from '../i11n.json'
 import { INBOX_VIEWS, getInboxView } from '../views'
 
 type Copy = (typeof bag)['en']
-
-/** Inbox subtitle: the other party; the Slashie thread names itself. */
-function threadSubtitle(thread: ThreadFieldsFragment, t: Copy): string {
-  if (thread.kind === ThreadKind.System) return t.systemSubtitle
-  return thread.otherParty?.name ?? t.awaitingWorker
-}
 
 function ThreadRow({
   thread,
@@ -70,14 +65,14 @@ function ThreadRow({
       <Stack gap={0.5} minW={0} flex={1}>
         <HStack justify="space-between" gap={2}>
           <Text fontWeight={unread ? 800 : 600} fontSize="sm" lineClamp={1}>
-            {thread.title}
+            {threadTitle(thread, t)}
           </Text>
           <Text fontSize="xs" color="text.muted" flexShrink={0}>
             {formatMessageTime(last?.createdAt ?? thread.updatedAt, locale, t)}
           </Text>
         </HStack>
         <Text fontSize="xs" color="text.muted" lineClamp={1}>
-          {threadSubtitle(thread, t)}
+          {system ? t.systemSubtitle : (thread.task?.title ?? thread.title)}
         </Text>
         <HStack justify="space-between" gap={2}>
           <Text
@@ -139,8 +134,10 @@ function InboxSkeleton({ label }: { label: string }) {
 }
 
 /**
- * Task threads and the Slashie thread, most recently active first. What
- * shows is the inbox's named view (`getInboxView`, views/README.md).
+ * Task threads and the Slashie thread, most recently active first: each row
+ * names the other person (or, for the poster before booking, how many
+ * workers quoted) over the task. What shows is the inbox's named view
+ * (`getInboxView`, views/README.md).
  */
 export function ThreadList({ selectedId }: { selectedId: string | null }) {
   const t = useI11n(bag)

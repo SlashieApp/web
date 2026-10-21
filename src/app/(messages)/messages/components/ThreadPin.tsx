@@ -1,165 +1,119 @@
 'use client'
 
-import { Box, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { QuoteStatus } from '@codegen/schema'
 import type { ThreadFieldsFragment } from '@codegen/schema'
-import type { ReactNode } from 'react'
-import { LuChevronRight } from 'react-icons/lu'
 
-import { MainCtaButton } from '@/app/(task)/tasks/[slug]/components/layout/TaskDetailMainCta'
-import { OrderCloseControls } from '@/app/(task)/tasks/[slug]/components/overview/OrderCloseControls'
 import { useSummaryLines } from '@/app/(task)/tasks/[slug]/components/summary/TaskSummary'
-import { RequestFact } from '@/app/(task)/tasks/[slug]/components/summary/facts/BookingActionFacts'
 import { useDateLocale } from '@/app/(task)/tasks/[slug]/components/summary/facts/TaskFacts'
 import { TaskStatusPill } from '@/app/(task)/tasks/[slug]/components/ui/TaskStatusPill'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import { formatTaskBudgetPaymentMethodLabel } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { TASK_DETAIL_VIEWS } from '@/app/(task)/tasks/[slug]/views'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { formatOrderAgreedPrice } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import { formatTimeSlotLabel } from '@/utils/timeSlots'
-import { Avatar, Button, Link } from '@ui'
 
-import { type PinPerson, pinPerson } from '../helpers/messagesThread'
 import bag from '../i11n.json'
-import { PIN_VIEWS, type ThreadPinViewConfig, getThreadPinView } from '../views'
+import { PIN_VIEWS, getBottomPinView, getThreadPinView } from '../views'
+import { QuoteStatusBadge } from './ThreadQuote'
 
 const PIN_PX = { base: 4, lg: 5 } as const
 
-/**
- * "★ 4.8 · 14 jobs done": the rating once there are 3 reviews (else the
- * count), then finished bookings on their side. Null when there is neither.
- */
-function PersonStats({ person }: { person: PinPerson }) {
-  const t = useI11n(bag).pin
-  const { average, count } = person.rating
-  const jobs = person.completed
-  const rating =
-    average != null ? (
-      <>
-        <Text as="span" srOnly>
-          {formatMessage(t.ratingAria, { average: average.toFixed(1), count })}
-        </Text>
-        <span aria-hidden>★ {average.toFixed(1)}</span>
-      </>
-    ) : count > 0 ? (
-      count === 1 ? (
-        t.review
-      ) : (
-        formatMessage(t.reviews, { count })
-      )
-    ) : null
-  const done =
-    jobs > 0
-      ? person.role === 'worker'
-        ? jobs === 1
-          ? t.jobDone
-          : formatMessage(t.jobsDone, { count: jobs })
-        : jobs === 1
-          ? t.bookingDone
-          : formatMessage(t.bookingsDone, { count: jobs })
-      : null
-  if (!rating && !done) return null
+/** Rows before "+N more", so the pin stays compact. */
+const QUOTE_ROWS = 3
+
+/** A price, lined up in a column. */
+function Price({ children }: { children: string }) {
   return (
     <Text
       as="span"
-      fontSize="xs"
-      color="text.muted"
+      fontSize="sm"
+      fontWeight={700}
       flexShrink={0}
-      display={{ base: 'none', sm: 'inline' }}
+      fontVariantNumeric="tabular-nums"
     >
-      {rating}
-      {rating && done ? ' · ' : null}
-      {done}
+      {children}
     </Text>
   )
 }
 
-/** Photo, name, Worker or Customer and their track record; the row opens their profile. */
-function PersonRow({ person }: { person: PinPerson }) {
-  const t = useI11n(bag).pin
-  const who = (
-    <>
-      <Avatar
-        name={person.name}
-        src={person.avatarUrl ?? undefined}
-        size="sm"
-      />
-      <Text fontSize="sm" fontWeight={700} lineClamp={1}>
-        {person.name}
-      </Text>
-      <Text fontSize="xs" color="text.muted" flexShrink={0}>
-        {t[person.role]}
-      </Text>
-      <PersonStats person={person} />
-    </>
-  )
-  if (!person.href) {
-    return (
-      <HStack gap={2} minW={0}>
-        {who}
-      </HStack>
-    )
-  }
+type LiveQuote = ReturnType<typeof useTaskDetail>['sortedQuotes'][number]
+
+/** The poster's live quotes, cheapest first: worker, price and status. */
+function LiveQuotes({ live }: { live: readonly LiveQuote[] }) {
+  const t = useI11n(bag)
+  const more = live.length - QUOTE_ROWS
   return (
-    <Link
-      href={person.href}
-      display="flex"
-      alignItems="center"
-      gap={2}
-      minW={0}
-      minH="32px"
-      color="text.default"
-      borderRadius="md"
-      _hover={{ textDecoration: 'none' }}
-    >
-      {who}
-      <HStack
-        as="span"
-        gap={0.5}
-        ml="auto"
-        flexShrink={0}
-        fontSize="sm"
-        fontWeight={600}
-        color="text.link"
-      >
-        <Box as="span" display={{ base: 'none', lg: 'inline' }}>
-          {t.viewProfile}
-        </Box>
-        <LuChevronRight aria-hidden />
-      </HStack>
-    </Link>
+    <Stack as="ul" gap={1} listStyleType="none">
+      {live.slice(0, QUOTE_ROWS).map((quote) => (
+        <HStack as="li" key={quote.id} gap={2} minH="24px">
+          <Text fontSize="sm" lineClamp={1} flex={1} minW={0}>
+            {quote.worker?.profile?.name?.trim() || t.quote.workerFallback}
+          </Text>
+          {quote.price ? <Price>{formatPrice(quote.price)}</Price> : null}
+          <QuoteStatusBadge status={quote.status} />
+        </HStack>
+      ))}
+      {more > 0 ? (
+        <Text as="li" fontSize="xs" color="text.muted">
+          {formatMessage(t.pin.more, { count: more })}
+        </Text>
+      ) : null}
+    </Stack>
   )
 }
 
-/** The agreed price, with the booked time first for `booking`. */
-function useFactLine(facts: ThreadPinViewConfig['facts']): string | null {
-  const { myOrder, myQuote } = useTaskDetail()
-  const t = useI11n(bag).pin
+/** The viewer's own quote: price, where it stands, then the times offered. */
+function MyQuote() {
+  const { myQuote } = useTaskDetail()
+  const t = useI11n(bag)
   const locale = useDateLocale()
-  if (facts === 'quote') {
-    return myQuote?.price ? formatPrice(myQuote.price) : null
-  }
-  if (!facts || !myOrder) return null
-  const agreed = formatMessage(t.agreed, {
-    price: formatOrderAgreedPrice(myOrder),
-  })
-  if (facts === 'price') return agreed
-  const when = formatTimeSlotLabel(
-    { start: myOrder.bookedStart, end: myOrder.bookedEnd },
-    locale,
+  if (!myQuote) return null
+  const times = myQuote.proposedSlots
+    .map((slot) => formatTimeSlotLabel(slot, locale))
+    .join(' · ')
+  return (
+    <Stack gap={0.5}>
+      <HStack gap={2} flexWrap="wrap">
+        <Text fontSize="sm" fontWeight={600}>
+          {t.pin.yourQuote}
+        </Text>
+        {myQuote.price ? <Price>{formatPrice(myQuote.price)}</Price> : null}
+        <QuoteStatusBadge status={myQuote.status} />
+      </HStack>
+      {times ? (
+        <Text fontSize="xs" color="text.muted">
+          {times}
+        </Text>
+      ) : null}
+    </Stack>
   )
-  return when ? `${when} · ${agreed}` : agreed
 }
 
-/** A link styled as a small button (Compare quotes, Open task). */
-function LinkButton({ href, children }: { href: string; children: ReactNode }) {
+/** The booked time, the agreed price and how they pay. */
+function Booking() {
+  const { myOrder } = useTaskDetail()
+  const t = useI11n(bag)
+  const locale = useDateLocale()
+  if (!myOrder) return null
+  const payment = myOrder.snapshot.paymentMethod?.trim()
+  const line = [
+    formatTimeSlotLabel(
+      { start: myOrder.bookedStart, end: myOrder.bookedEnd },
+      locale,
+    ),
+    formatMessage(t.pin.agreed, { price: formatOrderAgreedPrice(myOrder) }),
+    payment ? formatTaskBudgetPaymentMethodLabel(payment) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
   return (
-    <Button asChild size="sm" variant="primary">
-      <Link href={href} _hover={{ textDecoration: 'none' }}>
-        {children}
-      </Link>
-    </Button>
+    <Text fontSize="sm" color="text.muted">
+      {line}
+    </Text>
   )
 }
 
@@ -173,102 +127,83 @@ function PinSkeleton() {
       borderColor="border.default"
       aria-hidden
     >
-      <Skeleton boxSize="32px" borderRadius="full" />
+      <Skeleton h="22px" w="72px" borderRadius="full" />
       <Skeleton h="16px" w="40%" borderRadius="md" />
     </HStack>
   )
 }
 
 /**
- * The card pinned under a task thread's header (FE-291): the other person,
- * then where the task stands and the next step, from task detail's own view,
- * with task detail's own controls. Tinted when the API says the thread waits
- * on the viewer (`thread.attention`; null means nothing is waiting).
- * Renders inside the header's `TaskDetailProvider`.
+ * The top pin under a task thread's header (Thread screen v2): always the
+ * live quote(s) or the booking, information only. The poster sees the live
+ * quotes before booking, a worker their own quote, then both see the
+ * booking, and finally its last status. No buttons: answers live in the
+ * timeline's quote card and the bottom pin. Renders inside the thread's
+ * `TaskDetailProvider` and reads task detail's own view.
  */
 export function ThreadPin({
-  party,
   attention,
 }: {
-  party: ThreadFieldsFragment['otherParty']
   attention: ThreadFieldsFragment['attention']
 }) {
-  const { view, task, error, mainCta, permissions } = useTaskDetail()
+  const { view, task, error, sortedQuotes } = useTaskDetail()
   const t = useI11n(bag)
   const taskView = TASK_DETAIL_VIEWS[view]
   const lines = useSummaryLines(taskView)
   const pinView = getThreadPinView(view)
-  const config = pinView ? PIN_VIEWS[pinView] : null
-  const facts = useFactLine(config?.facts ?? null)
 
   if (view === 'loading') return error ? null : <PinSkeleton />
-  if (!task || !config) return null
+  if (!task || !pinView) return null
 
-  const person = pinPerson(party, permissions.isOwner)
-  const needsYou = attention != null
-  const headline = config.headline ? lines.headline : null
-  const subline = config.subline ? lines.subline : null
+  const config = PIN_VIEWS[pinView]
+  // The bottom pin says what needs you; don't say it twice.
+  const asking = getBottomPinView({ attention, view }) != null
+  const headline = config.headline && !asking ? lines.headline : null
+  // Task detail sorts the poster's quotes cheapest first.
+  const live = sortedQuotes.filter(
+    (quote) => quote.status === QuoteStatus.Pending,
+  )
+  const cheapest = live.length > 1 ? live[0].price : null
+  const summary =
+    config.facts === 'quotes'
+      ? [
+          t.pin.liveQuotes,
+          cheapest
+            ? formatMessage(t.pin.cheapest, { price: formatPrice(cheapest) })
+            : null,
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : headline
   const pill =
     config.pill && taskView.pill ? (
-      <TaskStatusPill
-        status={taskView.pill}
-        label={
-          config.pill === 'notSelected' ? t.quote.status.notSelected : undefined
-        }
-        size="sm"
-      />
+      <TaskStatusPill status={taskView.pill} size="sm" />
     ) : null
-  const inlineControl =
-    config.controls === 'compareQuotes' ? (
-      <LinkButton href={`/tasks/${task.id}#task-quotes`}>
-        {t.pin.compareQuotes}
-      </LinkButton>
-    ) : config.controls === 'openTask' ? (
-      <LinkButton href={`/tasks/${task.id}`}>{t.pin.openTask}</LinkButton>
-    ) : config.controls === 'mainCta' && mainCta ? (
-      <MainCtaButton model={mainCta} />
-    ) : null
-  const hasStatus = Boolean(pill || headline || facts || inlineControl)
 
   return (
     <Stack
       data-thread-pin={pinView}
-      data-needs-you={needsYou || undefined}
-      gap={2}
+      gap={1.5}
       px={PIN_PX}
-      py={3}
-      // An ask with its answer buttons must not crowd out the conversation.
-      maxH={{ base: '45dvh', lg: 'none' }}
-      overflowY="auto"
-      bg={needsYou ? 'status.warning.soft' : 'bg.surface'}
+      py={2.5}
+      bg="bg.surface"
       borderBottomWidth="1px"
       borderColor="border.default"
       aria-live="polite"
     >
-      {person ? <PersonRow person={person} /> : null}
-      {hasStatus ? (
-        <HStack columnGap={2} rowGap={1} flexWrap="wrap" minH="32px">
+      {pill || summary ? (
+        <HStack columnGap={2} rowGap={1} flexWrap="wrap">
           {pill}
-          {headline ? (
-            <Text fontSize="sm" fontWeight={needsYou ? 700 : 600}>
-              {headline}
+          {summary ? (
+            <Text fontSize="sm" fontWeight={600}>
+              {summary}
             </Text>
           ) : null}
-          {facts ? (
-            <Text fontSize="sm" color="text.muted">
-              {facts}
-            </Text>
-          ) : null}
-          {inlineControl ? <Box ml="auto">{inlineControl}</Box> : null}
         </HStack>
       ) : null}
-      {subline ? (
-        <Text fontSize="sm" color="text.muted">
-          {subline}
-        </Text>
-      ) : null}
-      {config.controls === 'request' ? <RequestFact /> : null}
-      {config.controls === 'close' ? <OrderCloseControls /> : null}
+      {config.facts === 'quotes' ? <LiveQuotes live={live} /> : null}
+      {config.facts === 'myQuote' ? <MyQuote /> : null}
+      {config.facts === 'booking' ? <Booking /> : null}
     </Stack>
   )
 }

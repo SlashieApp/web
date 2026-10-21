@@ -1,7 +1,6 @@
 'use client'
 
 import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
-import { ThreadKind } from '@codegen/schema'
 import type { ThreadFieldsFragment } from '@codegen/schema'
 import { type ReactNode, useState } from 'react'
 import { LuArrowLeft, LuEllipsis } from 'react-icons/lu'
@@ -11,16 +10,22 @@ import {
   OrderRescheduleDialog,
   useOrderRequestOptions,
 } from '@/app/(task)/tasks/[slug]/components/overview/OrderRequestDialogs'
-import {
-  TaskDetailProvider,
-  useTaskDetail,
-} from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { ReportControl } from '@/content/trust/ReportControl'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
+import {
+  Avatar,
+  Button,
+  Dropdown,
+  IconButton,
+  Link,
+  useDropdownClose,
+} from '@ui'
 
 import { threadMenuActions } from '../helpers/messagesFormat'
+import { threadTitle } from '../helpers/messagesThread'
 import bag from '../i11n.json'
 import { ThreadPin } from './ThreadPin'
 
@@ -209,6 +214,58 @@ function TaskActionError() {
   )
 }
 
+/** The title (a link to their profile when it names one person) over the task. */
+function HeaderTitle({ thread }: { thread: ThreadFieldsFragment }) {
+  const t = useI11n(bag)
+  const party = thread.otherParty
+  const title = threadTitle(thread, t)
+  const heading = (
+    <Heading as="h2" fontSize="md" fontWeight={700} lineClamp={1}>
+      {title}
+    </Heading>
+  )
+  return (
+    <Stack gap={0} flex={1} minW={0}>
+      {party && !party.deleted ? (
+        <Link
+          href={publicProfilePath(party.userId)}
+          aria-label={formatMessage(t.viewProfile, { name: party.name })}
+          display="block"
+          alignSelf="flex-start"
+          maxW="full"
+          color="text.default"
+          borderRadius="md"
+          _hover={{ textDecoration: 'none', opacity: 0.8 }}
+        >
+          {heading}
+        </Link>
+      ) : (
+        heading
+      )}
+      {thread.task ? (
+        <Link
+          href={`/tasks/${thread.task.id}`}
+          aria-label={formatMessage(t.openTask, { title: thread.task.title })}
+          display="block"
+          alignSelf="flex-start"
+          maxW="full"
+          fontSize="xs"
+          color="text.muted"
+          borderRadius="md"
+        >
+          <Text as="span" lineClamp={1}>
+            {thread.task.title}
+          </Text>
+        </Link>
+      ) : (
+        <Text fontSize="xs" color="text.muted" lineClamp={1}>
+          {t.systemSubtitle}
+        </Text>
+      )}
+    </Stack>
+  )
+}
+
 function HeaderBar({
   thread,
   menu,
@@ -217,20 +274,7 @@ function HeaderBar({
   menu: ReactNode
 }) {
   const t = useI11n(bag)
-  // Task threads name the other person in the pinned card (FE-291).
-  const title = (
-    <Stack gap={0} minW={0}>
-      <Heading as="h2" fontSize="md" fontWeight={700} lineClamp={1}>
-        {thread.title}
-      </Heading>
-      {thread.kind === ThreadKind.System ? (
-        <Text fontSize="xs" color="text.muted" lineClamp={1}>
-          {t.systemSubtitle}
-        </Text>
-      ) : null}
-    </Stack>
-  )
-
+  const party = thread.otherParty
   return (
     <HStack
       gap={2}
@@ -249,32 +293,25 @@ function HeaderBar({
           <LuArrowLeft aria-hidden />
         </Link>
       </IconButton>
-      {/* FE-267: the task title opens task detail. */}
-      {thread.task ? (
-        <Link
-          href={`/tasks/${thread.task.id}`}
-          aria-label={formatMessage(t.openTask, { title: thread.title })}
-          flex={1}
-          minW={0}
-          color="text.default"
-          borderRadius="md"
-          _hover={{ textDecoration: 'none', opacity: 0.8 }}
-        >
-          {title}
-        </Link>
-      ) : (
-        <Stack flex={1} minW={0}>
-          {title}
-        </Stack>
-      )}
+      {party ? (
+        <Avatar
+          name={party.name}
+          src={party.deleted ? undefined : (party.avatarUrl ?? undefined)}
+          size="sm"
+        />
+      ) : null}
+      <HeaderTitle thread={thread} />
       {menu}
     </HStack>
   )
 }
 
 /**
- * Thread header. Task threads load the task behind the menu and the pinned
- * card, so both match task detail; system threads only offer Block.
+ * Thread header (Thread screen v2): the other person's name (their profile)
+ * or, for the poster before booking, how many workers quoted; the task name
+ * under it (the task); and the menu. Task threads render inside the thread's
+ * `TaskDetailProvider`, so the menu and the top pin match task detail;
+ * Slashie threads only offer Block.
  */
 export function ThreadHeader({ thread, onToggleBlock }: HeaderProps) {
   if (!thread.task) {
@@ -293,13 +330,13 @@ export function ThreadHeader({ thread, onToggleBlock }: HeaderProps) {
     )
   }
   return (
-    <TaskDetailProvider taskId={thread.task.id} captureView={false}>
+    <>
       <HeaderBar
         thread={thread}
         menu={<TaskThreadMenu thread={thread} onToggleBlock={onToggleBlock} />}
       />
-      <ThreadPin party={thread.otherParty} attention={thread.attention} />
+      <ThreadPin attention={thread.attention} />
       <TaskActionError />
-    </TaskDetailProvider>
+    </>
   )
 }

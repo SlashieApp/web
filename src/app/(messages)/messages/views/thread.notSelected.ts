@@ -4,4 +4,5 @@ import type { ThreadViewConfig } from './types'
 export const threadNotSelected: ThreadViewConfig = {
   layout: 'conversation',
   composer: 'notSelectedNotice',
+  pins: true,
 }

@@ -1,7 +1,11 @@
-import { ThreadItemType } from '@codegen/schema'
+import {
+  ThreadAttentionKind,
+  ThreadItemType,
+  ThreadKind,
+} from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
-import { pinPerson, threadQueryState, timelineRows } from './messagesThread'
+import { threadQueryState, threadTitle, timelineRows } from './messagesThread'
 
 const forbidden = {
   errors: [{ message: 'FORBIDDEN', extensions: { code: 'FORBIDDEN' } }],
@@ -100,52 +104,51 @@ describe('timelineRows', () => {
   })
 })
 
-describe('pinPerson', () => {
-  const party = {
-    userId: 'u1',
-    name: 'Jordan Lee',
-    avatarUrl: 'https://img/jordan.png',
-    deleted: false,
-    ratingSummary: { average: 4.8, count: 6 },
-    hostedCompletedCount: 2,
-    completedJobsCount: 14,
+describe('threadTitle', () => {
+  const copy = {
+    workerQuoted: '1 worker quoted',
+    workersQuoted: '{count} workers quoted',
+    waitingForQuotes: 'Waiting for quotes',
   }
-
-  it('calls the other person the worker when you own the task', () => {
-    expect(pinPerson(party, true)).toEqual({
-      name: 'Jordan Lee',
-      avatarUrl: 'https://img/jordan.png',
-      role: 'worker',
-      href: '/profile/u1',
-      rating: { average: 4.8, count: 6 },
-      completed: 14,
-    })
+  const thread = {
+    kind: ThreadKind.Task,
+    title: 'Mount a bookshelf',
+    otherParty: null,
+    attention: null,
+  }
+  const quotes = (count: number | null) => ({
+    kind: ThreadAttentionKind.CompareQuotes,
+    count,
   })
 
-  it('calls the other person the customer when you are the worker', () => {
-    expect(pinPerson(party, false)).toMatchObject({
-      role: 'customer',
-      completed: 2,
-    })
-  })
-
-  it('has no profile link or photo for a deleted account', () => {
+  it('names the other person once there is one', () => {
     expect(
-      pinPerson(
-        {
-          ...party,
-          name: 'Deleted user',
-          deleted: true,
-          ratingSummary: { average: null, count: 0 },
-          hostedCompletedCount: 0,
-          completedJobsCount: 0,
-        },
-        true,
-      ),
-    ).toMatchObject({ avatarUrl: null, href: null, completed: 0 })
+      threadTitle({ ...thread, otherParty: { name: 'Jordan Lee' } }, copy),
+    ).toBe('Jordan Lee')
   })
 
-  it('has no person before anyone is booked', () => {
-    expect(pinPerson(null, true)).toBeNull()
+  it('counts the live quotes for the poster before anyone is booked', () => {
+    expect(threadTitle({ ...thread, attention: quotes(3) }, copy)).toBe(
+      '3 workers quoted',
+    )
+    expect(threadTitle({ ...thread, attention: quotes(1) }, copy)).toBe(
+      '1 worker quoted',
+    )
+  })
+
+  it('waits for quotes when none are live', () => {
+    expect(threadTitle(thread, copy)).toBe('Waiting for quotes')
+    expect(threadTitle({ ...thread, attention: quotes(null) }, copy)).toBe(
+      'Waiting for quotes',
+    )
+  })
+
+  it('keeps the Slashie thread title', () => {
+    expect(
+      threadTitle(
+        { ...thread, kind: ThreadKind.System, title: 'Slashie' },
+        copy,
+      ),
+    ).toBe('Slashie')
   })
 })

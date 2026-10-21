@@ -1,10 +1,8 @@
 import type { ThreadPinViewConfig } from './types'
 
-/** Cancelled or failed bookings and cancelled tasks: the headline only. */
+/** Completed, cancelled or didn't go ahead: the final status. */
 export const pinClosed: ThreadPinViewConfig = {
-  pill: 'task',
+  pill: true,
   headline: true,
-  subline: false,
   facts: null,
-  controls: null,
 }

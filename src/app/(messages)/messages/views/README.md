@@ -1,13 +1,33 @@
 # Messages views
 
 `/messages` and `/messages/[threadId]`: the inbox, the open conversation, and
-the card pinned under a task thread's header (FE-291). Product rules: wiki
-`01-Product/Messages.md`.
+a task thread's two pins: the top pin under the header (the live quotes or
+the booking, information only) and the bottom pin above the composer (what
+needs the viewer now, with its buttons). Thread screen v2 (FE-333, decided
+2026-10-21). Product rules: wiki `01-Product/Messages.md`.
 
 Each view has one config file here; `index.ts` maps names to configs
-(`INBOX_VIEWS`, `THREAD_VIEWS`, `PIN_VIEWS`) and the components only render
-them. Copy lives in `../i11n.json` (en + zh-HK); the pinned card reuses task
-detail's pills, headlines, sub-lines and controls.
+(`INBOX_VIEWS`, `THREAD_VIEWS`, `PIN_VIEWS`, `BOTTOM_PIN_VIEWS`) and the
+components only render them. Copy lives in `../i11n.json` (en + zh-HK); the
+pins reuse task detail's pills, headlines, sub-lines and controls.
+
+## Titles: `threadTitle(thread, copy)` (`../helpers/messagesThread.ts`)
+
+The inbox row and the thread header use the same title, with the task name
+under it (the header's opens the task).
+
+| Who | Title | In the header |
+|---|---|---|
+| Anyone with one other person (`otherParty`) | Their name ("Deleted user" from the API for a deleted account) | Opens their profile (not for a deleted account), with their photo |
+| The poster before a quote is accepted, with live quotes | "{count} workers quoted" / "1 worker quoted" | Plain text |
+| The poster before a quote is accepted, no live quotes | "Waiting for quotes" | Plain text |
+| The Slashie thread | Its own title (Slashie), "Updates from Slashie" under it | Plain text |
+
+The live-quote count is `thread.attention.count` when its kind is
+COMPARE_QUOTES: the API sets it for the poster of an OPEN task with pending
+quotes and no booking, with the number of pending quotes. Once a quote is
+accepted the API sends `otherParty` (the booked worker), so the title
+becomes their name.
 
 ## Inbox: `getInboxView({ query, threadCount })`
 
@@ -16,7 +36,7 @@ detail's pills, headlines, sub-lines and controls.
 | `inbox.loading` | First load, nothing cached | Skeleton rows |
 | `inbox.error` | Threads query failed, nothing cached | Couldn't load your messages · Try again |
 | `inbox.empty` | No conversations | No messages yet |
-| `inbox.list` | Otherwise | Task threads and the Slashie thread, most recent first |
+| `inbox.list` | Otherwise | Task threads and the Slashie thread, most recent first: title (above), task name, last item, time, unread count |
 
 ## Conversation: `getThreadView({ threadId, query, thread, notSelected })`
 
@@ -30,50 +50,66 @@ answers FORBIDDEN (`extensions.code`, or nothing) for a conversation you're not 
 | `thread.loading` | First load | Skeleton header and bubbles | none |
 | `thread.loadError` | Network or server error | Couldn't load your messages · Try again · Back to messages | none |
 | `thread.notFound` | Not your conversation, removed, or a bad id | This conversation isn't available · Back to messages | none |
-| `thread.system` | Slashie announcements | Header, timeline, no pinned card | You can't reply here |
-| `thread.open` | `canSend` | Header, pinned card, timeline | One-line composer (44px, grows to 160px) |
+| `thread.system` | Slashie announcements | Header, timeline, no pins (`pins: false`) | You can't reply here |
+| `thread.open` | `canSend` | Header, top pin, timeline, bottom pin when something needs you (`pins: true`) | One-line composer (44px, grows to 160px) |
 | `thread.blocked` | You blocked them | Same | Unblock them to send |
 | `thread.notSelected` | The task went to another worker | Same | This task went to another worker |
 | `thread.locked` | Before a quote is accepted | Same | You can message here once a quote is accepted |
 
 Precedence: nothing picked, the query, Slashie threads, then why you can or
-can't send. The timeline has Today / Yesterday / date dividers, and a run of
-messages from one side within five minutes shows one time (`timelineRows`).
+can't send. Task threads run inside the task's `TaskDetailProvider` (the
+header menu and both pins share task detail's state). The timeline has
+Today / Yesterday / date dividers, and a run of messages from one side within
+five minutes shows one time (`timelineRows`). While the reader is at the
+newest item it stays in view when the pins load or change size.
 
-## Pinned card: `getThreadPinView(taskDetailView)`
+### Timeline items
 
-The thread header mounts task detail's `TaskDetailProvider`, so the card reads
-task detail's own named view and maps it here. **Needs you** (a tinted card,
-bold headline) comes from the API: `thread.attention` (COMPARE_QUOTES,
-ANSWER_RESCHEDULE, ANSWER_CANCEL, MARK_DONE, CONFIRM_DONE, ANSWER_FAILED,
-CONFLICT); null means nothing waits on you. The inbox shows no needs-you
-badge or count. The rows marked "usually" below are where it shows up.
+| Item | Shows |
+|---|---|
+| Message | A bubble, mine on the right |
+| `QUOTE_RECEIVED` (the worker's "quote sent") | The full quote card: worker, price, proposed times, message, live status; the poster accepts (time picker + safety notice) or declines here |
+| `SYSTEM_ANNOUNCEMENT` (Slashie thread) | A card: picture, title, body |
+| Every other flash | One centred line: the flash's title (plus the quote's price on quote outcomes), time, then its body. No card, no buttons; `REVIEW_PROMPT` keeps its Leave a review link |
 
-Above the status: the other person (photo, name, Worker or Customer, their
-track record, View profile). The track record is small and hidden on the
-narrowest phones: "★ 4.8" once they have 3 reviews (else "2 reviews"), then
-jobs done for a worker or bookings completed for a customer, from
-`otherParty.ratingSummary`, `completedJobsCount` and `hostedCompletedCount`.
-The owner has no person before a quote is accepted: one thread holds every
-quote.
+## Top pin: `getThreadPinView(taskDetailView)`
 
-| Pin view | Task detail views | Status line | Controls |
-|---|---|---|---|
-| `pin.quotes` (usually needs you) | `owner.open.quotes` | Open · "{count} quotes - compare and accept" | Compare quotes (`#task-quotes`) |
-| `pin.status` | `owner.open.noQuotes` | Open · "Your task is live - reaching workers" | none |
-| `pin.quoting` | `worker.open.quoted` | Open · Quote sent · your price | Edit quote |
-| `pin.requote` | `worker.open.declined`, `worker.open.notQuoted` | Open · the headline | Send quote |
-| `pin.booked` | `*.booked.beforeStart` | Awarded · booked time · "{price} agreed" | none (no Message self-link) |
-| `pin.waiting` | `*.booked.rescheduleByMe`, `cancelByMe`, `iMarkedDone`, `iMarkedFailed` | Awarded · headline, then the sub-line ("Waiting for {name}…") | none (withdraw and change your mind are on task detail) |
-| `pin.answer` (usually needs you) | `*.booked.rescheduleByThem`, `cancelByThem` | The headline | Task detail's answer buttons (`RequestFact`) |
-| `pin.close` (usually needs you) | `*.booked.ready` | "Job time has started" · booked time · price | Slide to mark Done, Something went wrong |
-| `pin.confirm` (usually needs you) | `*.booked.theyMarkedDone`, `theyMarkedFailed` | The headline, then the sub-line (auto-complete date) | Slide to mark Done, Something went wrong |
-| `pin.conflict` (usually needs you) | `*.conflict.*` | "This booking needs resolving" | Open task |
-| `pin.done` | `*.completed` | Completed · "{price} agreed" | Review, then Get receipt |
-| `pin.notSelected` | `worker.notSelected` | Not selected (the composer area says why) | none |
-| `pin.closed` | `*.bookingCancelled`, `*.bookingFailed`, `owner.cancelled`, `worker.awarded.declined`, `visitor.*` | The pill and headline | none |
+Always the live quote(s) or the booking, information only: price, times or
+booked slot, status. No buttons (answers are on the quote card and in the
+bottom pin); the header's task name opens the task. It reads task detail's
+own named view and data (`sortedQuotes`, `myQuote`, `myOrder`). The person
+is in the header, not here.
 
-No card while the task loads (a placeholder row), for `customer.open` and
-`guest.open` (they can't be in a task thread), and on Slashie threads. On
-phones the card is capped at 45% of the screen and scrolls, so a request
-with its answer buttons never pushes the conversation off screen.
+| Pin view | Task detail views | Shows |
+|---|---|---|
+| `pin.quotes` | `owner.open.quotes` | Open · "Live quotes · cheapest {price}", then up to three live (PENDING) quotes, cheapest first: worker, price, status; "+N more" after three |
+| `pin.myQuote` | `worker.open.quoted`, `worker.open.declined`, `worker.awarded.declined`, `worker.notSelected` | "Your quote", price, its status (Awaiting reply, Declined, Not selected), the times offered |
+| `pin.booking` | `*.booked.*`, `*.conflict.*` | Awarded · task detail's headline (left out while the bottom pin shows), then booked time · "{price} agreed" · payment method |
+| `pin.status` | `owner.open.noQuotes`, `worker.open.notQuoted` | The pill and headline |
+| `pin.closed` | `*.completed`, `*.bookingCancelled`, `*.bookingFailed`, `owner.cancelled`, `visitor.*` | The final status: pill and headline |
+
+A placeholder row while the task loads; no pin for `customer.open` and
+`guest.open` (they can't be in a task thread) or on Slashie threads.
+
+## Bottom pin: `getBottomPinView({ attention, view })`
+
+The one thing that needs the viewer now, above the composer, with task
+detail's own controls. Shown only when the API's `thread.attention` and task
+detail's view agree, so it hides as soon as the viewer answers (task detail
+updates first) and never offers controls task detail wouldn't. COMPARE_QUOTES
+has no bottom pin (the quote cards handle it); nothing waiting means no pin;
+Slashie threads have none. Tinted, labelled "Needs you", task detail's
+headline first.
+
+| Bottom pin view | `attention.kind` | Task detail views | Sub-line | Controls |
+|---|---|---|---|---|
+| `bottomPin.reschedule` | ANSWER_RESCHEDULE | `*.booked.rescheduleByThem` | no | Their times with Use this time, Keep current time (`RequestFact`) |
+| `bottomPin.cancel` | ANSWER_CANCEL | `*.booked.cancelByThem` | no | Accept cancellation, Keep booking (`RequestFact`) |
+| `bottomPin.markDone` | MARK_DONE | `*.booked.ready` | no | Slide to mark Done, Something went wrong (`OrderCloseControls`) |
+| `bottomPin.confirmDone` | CONFIRM_DONE | `*.booked.theyMarkedDone` | yes (auto-complete date) | Slide to mark Done, Something went wrong |
+| `bottomPin.answerFailed` | ANSWER_FAILED | `*.booked.theyMarkedFailed` | yes | Slide to mark Done, Something went wrong |
+| `bottomPin.conflict` | CONFLICT | `*.conflict.*` | yes | Open task |
+
+It sits in the column's flow between the timeline and the composer, so it
+never covers either, and is capped at 45% of the screen height and scrolls,
+so on phones the conversation keeps room.

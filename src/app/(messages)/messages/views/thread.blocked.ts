@@ -4,4 +4,5 @@ import type { ThreadViewConfig } from './types'
 export const threadBlocked: ThreadViewConfig = {
   layout: 'conversation',
   composer: 'blockedNotice',
+  pins: true,
 }

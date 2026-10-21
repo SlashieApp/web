@@ -12,62 +12,38 @@ const pin = (view: TaskDetailViewName) => {
 }
 
 describe('getThreadPinView', () => {
-  it('asks the owner to compare the quotes waiting on their task', () => {
+  it('lists the live quotes for the poster before anyone is booked', () => {
     expect(pin('owner.open.quotes')).toBe('pin.quotes')
   })
 
-  it("shows an owner's open task without quotes as a plain status", () => {
+  it("shows a poster's open task without live quotes as a plain status", () => {
     expect(pin('owner.open.noQuotes')).toBe('pin.status')
   })
 
-  it('lets a worker edit their pending quote', () => {
-    expect(pin('worker.open.quoted')).toBe('pin.quoting')
+  it('shows a worker their own quote and where it stands', () => {
+    expect(pin('worker.open.quoted')).toBe('pin.myQuote')
+    expect(pin('worker.open.declined')).toBe('pin.myQuote')
+    expect(pin('worker.notSelected')).toBe('pin.myQuote')
   })
 
-  it('offers Send quote again after a declined quote', () => {
-    expect(pin('worker.open.declined')).toBe('pin.requote')
-    expect(pin('worker.open.notQuoted')).toBe('pin.requote')
+  it('shows a worker without a live quote the task status', () => {
+    expect(pin('worker.open.notQuoted')).toBe('pin.status')
   })
 
-  it("shows a booked job's time and agreed price", () => {
-    expect(pin('owner.booked.beforeStart')).toBe('pin.booked')
+  it('shows the booking to both sides once a quote is accepted', () => {
+    expect(pin('owner.booked.beforeStart')).toBe('pin.booking')
+    expect(pin('worker.booked.rescheduleByThem')).toBe('pin.booking')
+    expect(pin('owner.booked.ready')).toBe('pin.booking')
+    expect(pin('worker.conflict.iMarkedFailed')).toBe('pin.booking')
   })
 
-  it('says who you are waiting on after your own request', () => {
-    expect(pin('worker.booked.rescheduleByMe')).toBe('pin.waiting')
-  })
-
-  it('puts the answer buttons in front of you when they ask to move or cancel', () => {
-    expect(pin('owner.booked.rescheduleByThem')).toBe('pin.answer')
-    expect(pin('worker.booked.cancelByThem')).toBe('pin.answer')
-  })
-
-  it('asks you to mark it Done once the job time has started', () => {
-    expect(pin('worker.booked.ready')).toBe('pin.close')
-  })
-
-  it('asks you to mark it Done too when they marked it Done or Failed', () => {
-    expect(pin('owner.booked.theyMarkedDone')).toBe('pin.confirm')
-    expect(pin('worker.booked.theyMarkedFailed')).toBe('pin.confirm')
-  })
-
-  it('sends a conflict to the task', () => {
-    expect(pin('owner.conflict.iMarkedDone')).toBe('pin.conflict')
-  })
-
-  it('offers a review once the job is complete', () => {
-    expect(pin('worker.completed')).toBe('pin.done')
-  })
-
-  it('shows a worker who was not selected a Not selected pill', () => {
-    expect(pin('worker.notSelected')).toBe('pin.notSelected')
-  })
-
-  it('shows a cancelled booking as a closed status', () => {
+  it('shows the final status once the job or task is closed', () => {
+    expect(pin('worker.completed')).toBe('pin.closed')
     expect(pin('owner.bookingCancelled')).toBe('pin.closed')
+    expect(pin('owner.cancelled')).toBe('pin.closed')
   })
 
-  it('shows no status while the task loads', () => {
+  it('shows no pin while the task loads', () => {
     expect(pin('loading')).toBeNull()
   })
 

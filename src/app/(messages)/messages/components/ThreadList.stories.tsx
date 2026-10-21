@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react'
+import { ThreadAttentionKind } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
@@ -7,8 +8,10 @@ import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { MessagesContext } from '../context/MessagesProvider'
 import { ThreadList } from './ThreadList'
 import {
+  STORY_THREAD_TITLE,
   conversationMessage,
   messagesValue,
+  needs,
   sampleThreads,
   systemThread,
   taskThread,
@@ -62,10 +65,14 @@ const threadFrom = (id: string, title: string, days: number) => {
     'Thanks, that works for me.',
     daysAgo(days),
   )
-  return taskThread('owner', { id, title, updatedAt: last.createdAt }, [last])
+  return taskThread(
+    'owner',
+    { id, task: { id: `task-${id}`, title }, updatedAt: last.createdAt },
+    [last],
+  )
 }
 
-/** inbox.list: task threads with unread counts, one with no worker yet, and the Slashie thread. */
+/** inbox.list: a booked thread with unread messages, a poster's thread with quotes, and the Slashie thread. */
 export const Default: Story = {
   render: (args) => <Frame value={messagesValue()} {...args} />,
   play: async ({ canvasElement }) => {
@@ -74,7 +81,85 @@ export const Default: Story = {
       sampleThreads.length,
     )
     await expect(canvas.getByLabelText('2 unread')).toBeVisible()
+    await expect(canvas.getByText('2 workers quoted')).toBeVisible()
+    await expect(canvas.getByText('Garden tidy-up')).toBeVisible()
+    await expect(canvas.getByText('Updates from Slashie')).toBeVisible()
   },
+}
+
+/** One row on its own, as `viewer` sees the thread. */
+const oneRow = (thread: ReturnType<typeof taskThread>): Story => ({
+  args: { selectedId: null },
+  render: (args) => (
+    <Frame
+      value={messagesValue({ threads: [thread], unreadCount: 0 })}
+      {...args}
+    />
+  ),
+})
+
+/** Checks the row's title and the task name under it. */
+const row = async (canvasElement: HTMLElement, title: string) => {
+  const link = within(await within(canvasElement).findByRole('link'))
+  await expect(link.getByText(title)).toBeVisible()
+  await expect(link.getByText(STORY_THREAD_TITLE)).toBeVisible()
+}
+
+/** The poster before booking with three live quotes: "3 workers quoted" over the task. */
+export const PosterQuoted: Story = {
+  ...oneRow(
+    taskThread('owner', {
+      otherParty: null,
+      canSend: false,
+      attention: needs(ThreadAttentionKind.CompareQuotes, 3),
+    }),
+  ),
+  play: async ({ canvasElement }) => row(canvasElement, '3 workers quoted'),
+}
+
+/** The poster with one live quote: "1 worker quoted". */
+export const PosterOneQuote: Story = {
+  ...oneRow(
+    taskThread('owner', {
+      otherParty: null,
+      canSend: false,
+      attention: needs(ThreadAttentionKind.CompareQuotes, 1),
+    }),
+  ),
+  play: async ({ canvasElement }) => row(canvasElement, '1 worker quoted'),
+}
+
+/** The poster with no live quotes: Waiting for quotes. */
+export const PosterWaiting: Story = {
+  ...oneRow(taskThread('owner', { otherParty: null, canSend: false })),
+  play: async ({ canvasElement }) => row(canvasElement, 'Waiting for quotes'),
+}
+
+/** Booked, the poster's side: the worker's name over the task. */
+export const Booked: Story = {
+  ...oneRow(taskThread('owner')),
+  play: async ({ canvasElement }) => row(canvasElement, 'Jordan Lee'),
+}
+
+/** The worker's side: the customer's name over the task. */
+export const Worker: Story = {
+  ...oneRow(taskThread('worker')),
+  play: async ({ canvasElement }) => row(canvasElement, 'Alex Chen'),
+}
+
+/** The other person deleted their account: "Deleted user", no photo. */
+export const DeletedUser: Story = {
+  ...oneRow(
+    taskThread('owner', {
+      otherParty: {
+        userId: 'gone',
+        name: 'Deleted user',
+        avatarUrl: null,
+        deleted: true,
+      },
+    }),
+  ),
+  play: async ({ canvasElement }) => row(canvasElement, 'Deleted user'),
 }
 
 /** No thread is selected: no row is highlighted. */
@@ -137,6 +222,7 @@ export const ZhHk: Story = {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('訊息')).toBeVisible()
     await expect(canvas.getByText('Slashie 的更新')).toBeVisible()
+    await expect(canvas.getByText('已有 2 位師傅報價')).toBeVisible()
   },
 }
 
@@ -157,7 +243,7 @@ export const ManyUnread: Story = {
   },
 }
 
-/** Long titles and previews clamp to one line. */
+/** Long task names and previews clamp to one line. */
 export const LongText: Story = {
   args: { selectedId: null },
   render: (args) => (
@@ -165,8 +251,11 @@ export const LongText: Story = {
       value={messagesValue({
         threads: [
           taskThread('owner', {
-            title:
-              'Mount a very large floor-to-ceiling bookshelf on a plasterboard living room wall before the weekend',
+            task: {
+              id: 'task-long',
+              title:
+                'Mount a very large floor-to-ceiling bookshelf on a plasterboard living room wall before the weekend',
+            },
             unreadCount: 3,
           }),
         ],

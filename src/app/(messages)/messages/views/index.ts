@@ -1,20 +1,18 @@
+import { bottomPinAnswerFailed } from './bottomPin.answerFailed'
+import { bottomPinCancel } from './bottomPin.cancel'
+import { bottomPinConfirmDone } from './bottomPin.confirmDone'
+import { bottomPinConflict } from './bottomPin.conflict'
+import { bottomPinMarkDone } from './bottomPin.markDone'
+import { bottomPinReschedule } from './bottomPin.reschedule'
 import { inboxEmpty } from './inbox.empty'
 import { inboxError } from './inbox.error'
 import { inboxList } from './inbox.list'
 import { inboxLoading } from './inbox.loading'
-import { pinAnswer } from './pin.answer'
-import { pinBooked } from './pin.booked'
-import { pinClose } from './pin.close'
+import { pinBooking } from './pin.booking'
 import { pinClosed } from './pin.closed'
-import { pinConfirm } from './pin.confirm'
-import { pinConflict } from './pin.conflict'
-import { pinDone } from './pin.done'
-import { pinNotSelected } from './pin.notSelected'
+import { pinMyQuote } from './pin.myQuote'
 import { pinQuotes } from './pin.quotes'
-import { pinQuoting } from './pin.quoting'
-import { pinRequote } from './pin.requote'
 import { pinStatus } from './pin.status'
-import { pinWaiting } from './pin.waiting'
 import { threadBlocked } from './thread.blocked'
 import { threadLoadError } from './thread.loadError'
 import { threadLoading } from './thread.loading'
@@ -25,6 +23,8 @@ import { threadNotSelected } from './thread.notSelected'
 import { threadOpen } from './thread.open'
 import { threadSystem } from './thread.system'
 import type {
+  BottomPinViewConfig,
+  BottomPinViewName,
   InboxViewConfig,
   InboxViewName,
   ThreadPinViewConfig,
@@ -33,10 +33,14 @@ import type {
   ThreadViewName,
 } from './types'
 
+export { getBottomPinView } from './getBottomPinView'
 export { getInboxView } from './getInboxView'
 export { getThreadPinView } from './getThreadPinView'
 export { getThreadView } from './getThreadView'
 export type {
+  BottomPinViewConfig,
+  BottomPinViewInput,
+  BottomPinViewName,
   InboxViewConfig,
   InboxViewInput,
   InboxViewName,
@@ -68,18 +72,22 @@ export const THREAD_VIEWS: Record<ThreadViewName, ThreadViewConfig> = {
   'thread.blocked': threadBlocked,
 }
 
+/** The top pin: information only. */
 export const PIN_VIEWS: Record<ThreadPinViewName, ThreadPinViewConfig> = {
   'pin.quotes': pinQuotes,
+  'pin.myQuote': pinMyQuote,
+  'pin.booking': pinBooking,
   'pin.status': pinStatus,
-  'pin.quoting': pinQuoting,
-  'pin.requote': pinRequote,
-  'pin.booked': pinBooked,
-  'pin.waiting': pinWaiting,
-  'pin.answer': pinAnswer,
-  'pin.close': pinClose,
-  'pin.confirm': pinConfirm,
-  'pin.conflict': pinConflict,
-  'pin.done': pinDone,
-  'pin.notSelected': pinNotSelected,
   'pin.closed': pinClosed,
 }
+
+/** The bottom pin: what needs the viewer now, with its buttons. */
+export const BOTTOM_PIN_VIEWS: Record<BottomPinViewName, BottomPinViewConfig> =
+  {
+    'bottomPin.reschedule': bottomPinReschedule,
+    'bottomPin.cancel': bottomPinCancel,
+    'bottomPin.markDone': bottomPinMarkDone,
+    'bottomPin.confirmDone': bottomPinConfirmDone,
+    'bottomPin.answerFailed': bottomPinAnswerFailed,
+    'bottomPin.conflict': bottomPinConflict,
+  }

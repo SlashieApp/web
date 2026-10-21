@@ -17,12 +17,6 @@ fragment ThreadFields on Thread {
     name
     avatarUrl
     deleted
-    ratingSummary {
-      average
-      count
-    }
-    hostedCompletedCount
-    completedJobsCount
   }
   attention {
     kind

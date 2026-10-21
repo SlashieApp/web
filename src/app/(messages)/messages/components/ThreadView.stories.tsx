@@ -1,8 +1,15 @@
-import { FlashKind, QuoteStatus, TaskStatus } from '@codegen/schema'
+import {
+  FlashKind,
+  OrderRequestKind,
+  QuoteStatus,
+  TaskStatus,
+  ThreadAttentionKind,
+} from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { expect, waitFor, within } from 'storybook/test'
 
 import {
+  STORY_WORKER_ID,
   storyTaskDetail,
   storyTaskOrder,
   storyTaskQuote,
@@ -15,10 +22,14 @@ import { messagesStory } from './messagesStoryDecorator'
 import {
   STORY_THREAD_ID,
   bookedConversation,
+  bookedTask as bookedTaskWith,
   conversationFlash,
   conversationMessage,
   jordanQuote,
   manyMessages,
+  needs,
+  requestedOrder,
+  storyQuotes,
   systemAnnouncements,
   systemThread,
   taskThread,
@@ -29,7 +40,7 @@ const openTask = storyTaskDetail()
 
 const FRAME = { height: '640px', maxW: '720px', task: openTask } as const
 
-/** Jordan booked for a future slot: the pinned card shows the time and price. */
+/** Jordan booked for a future slot: the top pin shows the time and price. */
 const bookedTask = storyTaskDetail({
   status: TaskStatus.Awarded,
   quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
@@ -73,7 +84,7 @@ const pendingItems = [
 
 /**
  * thread.open: owner and worker chatting about a booked task. Day dividers,
- * the pinned card under the header, and a one-line composer.
+ * the top pin under the header, and a one-line composer.
  */
 export const Conversation: Story = {
   decorators: messagesStory({
@@ -139,26 +150,45 @@ export const AsWorker: Story = {
   },
 }
 
-/** thread.locked: owner with a pending quote: Accept and Decline on the card, no composer yet. */
+/**
+ * thread.locked: the poster before booking: "2 workers quoted", the live
+ * quotes in the top pin, Accept and Decline on the quote card, no composer
+ * and no bottom pin (the quote cards handle comparing).
+ */
 export const OwnerPendingQuote: Story = {
   decorators: messagesStory({
     viewer: 'owner',
-    thread: taskThread('owner', { canSend: false }, pendingItems),
+    thread: taskThread(
+      'owner',
+      {
+        canSend: false,
+        otherParty: null,
+        attention: needs(ThreadAttentionKind.CompareQuotes, 2),
+      },
+      pendingItems,
+    ),
     items: pendingItems,
     ...FRAME,
   }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
+      await canvas.findByRole('heading', { name: '2 workers quoted' }),
+    ).toBeVisible()
+    await expect(
       await canvas.findByRole('button', { name: 'Accept' }),
     ).toBeVisible()
+    await expect(
+      await canvas.findByText('Live quotes · cheapest £85'),
+    ).toBeVisible()
+    await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeNull()
     await expect(
       canvas.getByText('You can message here once a quote is accepted.'),
     ).toBeVisible()
   },
 }
 
-/** thread.locked: worker who has quoted and is waiting: the card says Awaiting reply. */
+/** thread.locked: worker who has quoted and is waiting: their quote pinned and on the card, Awaiting reply. */
 export const WorkerAwaitingReply: Story = {
   decorators: messagesStory({
     viewer: 'worker',
@@ -168,9 +198,87 @@ export const WorkerAwaitingReply: Story = {
   }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText('Awaiting reply')).toBeVisible()
+    const log = await canvas.findByRole('log')
+    await expect(within(log).getByText('Awaiting reply')).toBeVisible()
+    await expect(await canvas.findByText('Your quote')).toBeVisible()
     await expect(canvas.queryByRole('textbox')).toBeNull()
   },
+}
+
+const askedTask = bookedTaskWith(
+  requestedOrder(OrderRequestKind.Reschedule, STORY_WORKER_ID),
+)
+const askedItems = [
+  conversationFlash(
+    'a-1',
+    FlashKind.RescheduleRequested,
+    'New time proposed',
+    'The worker proposed a new time for "Mount bookshelf on living room wall".',
+    new Date().toISOString(),
+  ),
+  ...ownerItems,
+]
+const askedThread = taskThread(
+  'owner',
+  { attention: needs(ThreadAttentionKind.AnswerReschedule) },
+  askedItems,
+)
+
+/** The bottom pin sits between the timeline and the composer; the newest item stays in view. */
+async function checkBottomPinLayout(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement)
+  const pin = await canvas.findByRole('region', { name: 'Needs you' })
+  await expect(
+    within(pin).getByText('Jordan Lee wants to move the booking'),
+  ).toBeVisible()
+  await expect(
+    within(pin).getByRole('button', { name: 'Keep current time' }),
+  ).toBeVisible()
+  const composer = canvas.getByRole('textbox', { name: 'Message Jordan Lee' })
+  await expect(composer).toBeVisible()
+  await expect(pin.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    composer.getBoundingClientRect().top,
+  )
+  const log = canvas.getByRole('log')
+  const timeline = log.parentElement?.parentElement as HTMLElement
+  const newest = log.lastElementChild as HTMLElement
+  await waitFor(() =>
+    expect(newest.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      timeline.getBoundingClientRect().bottom + 1,
+    ),
+  )
+  await expect(timeline.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    pin.getBoundingClientRect().top + 1,
+  )
+}
+
+/**
+ * thread.open with something waiting: Jordan asked to move the booking. The
+ * timeline shows it as a line, the bottom pin holds the answer buttons above
+ * the composer, and the top pin keeps the booking facts.
+ */
+export const NeedsYou: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: askedThread,
+    items: askedItems,
+    ...FRAME,
+    task: askedTask,
+  }),
+  play: async ({ canvasElement }) => checkBottomPinLayout(canvasElement),
+}
+
+/** Phones: the same ask; the pin stays above the composer and the newest message stays in view. */
+export const PhoneNeedsYou: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: askedThread,
+    items: askedItems,
+    task: askedTask,
+    height: '560px',
+  }),
+  play: async ({ canvasElement }) => checkBottomPinLayout(canvasElement),
 }
 
 /** thread.notSelected: the owner chose another worker: the notice explains the thread is closed. */
@@ -194,14 +302,20 @@ export const NotSelected: Story = {
       thread: taskThread('worker', { canSend: false }, items),
       items,
       ...FRAME,
+      task: storyTaskDetail({
+        status: TaskStatus.Awarded,
+        quotes: storyQuotes(QuoteStatus.NotSelected, QuoteStatus.Accepted),
+      }),
     })
   })(),
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
     await expect(
-      await within(canvasElement).findByText(
+      await canvas.findByText(
         'This task went to another worker, so the conversation is closed to you.',
       ),
     ).toBeVisible()
+    await expect(await canvas.findByText('Your quote')).toBeVisible()
   },
 }
 
@@ -226,7 +340,7 @@ export const BlockedByMe: Story = {
   },
 }
 
-/** thread.system: the Slashie announcements thread: read-only, no pinned card. */
+/** thread.system: the Slashie announcements thread: read-only, no pins. */
 export const Announcements: Story = {
   args: { threadId: 't-system' },
   decorators: messagesStory({
@@ -241,10 +355,12 @@ export const Announcements: Story = {
         "Announcements from Slashie. You can't reply here.",
       ),
     ).toBeVisible()
+    await expect(canvasElement.querySelector('[data-thread-pin]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeNull()
   },
 }
 
-/** A review prompt after the job: the card links to the review. */
+/** A review prompt after the job: its line links to the review. */
 export const ReviewPrompt: Story = {
   decorators: (() => {
     const items = [

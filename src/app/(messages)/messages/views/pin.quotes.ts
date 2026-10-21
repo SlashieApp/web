@@ -1,10 +1,8 @@
 import type { ThreadPinViewConfig } from './types'
 
-/** Owner with quotes waiting: compare them on task detail. */
+/** The poster before anyone is booked: the live quotes, cheapest first. */
 export const pinQuotes: ThreadPinViewConfig = {
-  pill: 'task',
-  headline: true,
-  subline: false,
-  facts: null,
-  controls: 'compareQuotes',
+  pill: true,
+  headline: false,
+  facts: 'quotes',
 }

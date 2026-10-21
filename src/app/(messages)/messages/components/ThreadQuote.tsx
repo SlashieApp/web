@@ -5,6 +5,7 @@ import { HStack, Stack, Text } from '@chakra-ui/react'
 import type {
   AcceptQuoteMutation,
   DeclineQuoteMutation,
+  QuoteStatus,
   ThreadItemFieldsFragment,
 } from '@codegen/schema'
 
@@ -14,6 +15,7 @@ import MessageThread from '@/app/(messages)/messages/graphql/MessageThread.gql'
 import { useAcceptQuoteDialog } from '@/app/(task)/tasks/[slug]/components/quotes/useAcceptQuoteSafety'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
+import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
@@ -42,10 +44,21 @@ const STATUS_BADGE: Record<
   replaced: 'neutral',
 }
 
+/** Where a quote stands (Awaiting reply, Accepted, Not selected...). */
+export function QuoteStatusBadge({ status }: { status: QuoteStatus }) {
+  const label = useI11n(bag).quote.status
+  const value = quoteFlashStatus(status)
+  return (
+    <Badge variant={STATUS_BADGE[value]} size="sm" shape="pill" dot>
+      {label[value]}
+    </Badge>
+  )
+}
+
 /**
- * The quote on a quote flash (BE-81): worker, price, proposed times and its
- * live status. The task owner accepts (picking a time) or declines a
- * pending quote right here.
+ * The quote on the worker's "quote sent" flash (BE-81): worker, price,
+ * proposed times and its live status. The task owner accepts (picking a
+ * time, with the safety notice) or declines a pending quote right here.
  */
 export function ThreadQuote({
   quote,
@@ -58,7 +71,8 @@ export function ThreadQuote({
   const q = t.quote
   const meId = useUserStore((s) => s.me?.id ?? null)
   const messages = useMessagesOptional()
-  const refetchQueries = [MessageThread]
+  // The task behind the pins too, so the top pin shows the booking (FE-333).
+  const refetchQueries = [MessageThread, Task]
   const [accept, { loading: accepting }] = useMutation<AcceptQuoteMutation>(
     AcceptQuote,
     { refetchQueries },
@@ -165,9 +179,7 @@ export function ThreadQuote({
           </Text>
           {canAct ? null : (
             <HStack>
-              <Badge variant={STATUS_BADGE[status]} size="sm" shape="pill" dot>
-                {q.status[status]}
-              </Badge>
+              <QuoteStatusBadge status={quote.status} />
             </HStack>
           )}
         </Stack>

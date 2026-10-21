@@ -1,7 +1,10 @@
-import { ThreadItemType } from '@codegen/schema'
-import type { ThreadParty } from '@codegen/schema'
+import {
+  ThreadAttentionKind,
+  ThreadItemType,
+  ThreadKind,
+} from '@codegen/schema'
 
-import { publicProfilePath } from '@/app/helpers/publicProfilePath'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 
 import type { ThreadQuery } from '../views'
@@ -94,48 +97,37 @@ export function timelineRows<T extends TimelineItem>(
   return rows
 }
 
-export type PinPerson = {
-  name: string
-  avatarUrl: string | null
-  role: 'worker' | 'customer'
-  /** Their public profile; none for a deleted account. */
-  href: string | null
-  /** Reviews about them; `average` stays null below 3 (API rule). */
-  rating: { average: number | null; count: number }
-  /**
-   * Finished bookings on their side: jobs done for a worker, bookings
-   * completed for a customer.
-   */
-  completed: number
+type TitleThread = {
+  kind: ThreadKind
+  title: string
+  otherParty?: { name: string } | null
+  attention?: { kind: ThreadAttentionKind; count?: number | null } | null
 }
 
-type PinParty = Pick<
-  ThreadParty,
-  | 'userId'
-  | 'name'
-  | 'avatarUrl'
-  | 'deleted'
-  | 'hostedCompletedCount'
-  | 'completedJobsCount'
-> & { ratingSummary: { average?: number | null; count: number } }
-
-/** The other person in a task thread, for the pinned card. */
-export function pinPerson(
-  party: PinParty | null | undefined,
-  viewerIsOwner: boolean,
-): PinPerson | null {
-  if (!party) return null
-  const role = viewerIsOwner ? 'worker' : 'customer'
-  return {
-    name: party.name,
-    avatarUrl: party.deleted ? null : (party.avatarUrl ?? null),
-    role,
-    href: party.deleted ? null : publicProfilePath(party.userId),
-    rating: {
-      average: party.ratingSummary.average ?? null,
-      count: party.ratingSummary.count,
-    },
-    completed:
-      role === 'worker' ? party.completedJobsCount : party.hostedCompletedCount,
-  }
+/**
+ * What a thread is called in the inbox and its header (Thread screen v2):
+ * the other person ("Deleted user" comes from the API). Only the poster has
+ * nobody there before a quote is accepted; their title counts the workers
+ * whose quotes are live (`attention` COMPARE_QUOTES carries the count) or
+ * says Waiting for quotes. The Slashie thread keeps its own title.
+ */
+export function threadTitle(
+  thread: TitleThread,
+  copy: {
+    workerQuoted: string
+    workersQuoted: string
+    waitingForQuotes: string
+  },
+): string {
+  if (thread.kind === ThreadKind.System) return thread.title
+  if (thread.otherParty) return thread.otherParty.name
+  const attention = thread.attention
+  const count =
+    attention?.kind === ThreadAttentionKind.CompareQuotes
+      ? (attention.count ?? 0)
+      : 0
+  if (count === 0) return copy.waitingForQuotes
+  return count === 1
+    ? copy.workerQuoted
+    : formatMessage(copy.workersQuoted, { count })
 }

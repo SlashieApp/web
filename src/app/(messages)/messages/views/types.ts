@@ -1,4 +1,6 @@
-import type { ThreadKind } from '@codegen/schema'
+import type { ThreadAttentionKind, ThreadKind } from '@codegen/schema'
+
+import type { TaskDetailViewName } from '@/app/(task)/tasks/[slug]/views/types'
 
 /** The inbox list (README.md). */
 export type InboxViewName =
@@ -54,42 +56,60 @@ export type ThreadViewConfig =
       body: 'notFoundBody' | null
       retry: boolean
     }
-  | { layout: 'conversation'; composer: 'open' | ThreadComposerNotice }
+  | {
+      layout: 'conversation'
+      composer: 'open' | ThreadComposerNotice
+      /** The top and bottom pins (task threads only). */
+      pins: boolean
+    }
 
-/** The card pinned under a task thread's header (README.md). */
+/** The top pin under a task thread's header: information only (README.md). */
 export type ThreadPinViewName =
   | 'pin.quotes'
+  | 'pin.myQuote'
+  | 'pin.booking'
   | 'pin.status'
-  | 'pin.quoting'
-  | 'pin.requote'
-  | 'pin.booked'
-  | 'pin.waiting'
-  | 'pin.answer'
-  | 'pin.close'
-  | 'pin.confirm'
-  | 'pin.conflict'
-  | 'pin.done'
-  | 'pin.notSelected'
   | 'pin.closed'
 
 export type ThreadPinViewConfig = {
-  /** Task detail's status pill, "Not selected" in its place, or none. */
-  pill: 'task' | 'notSelected' | null
-  /** Task detail's headline and sub-line for the view. */
-  headline: boolean
-  subline: boolean
-  /** Booked time and agreed price, the agreed price, or the viewer's quote. */
-  facts: 'booking' | 'price' | 'quote' | null
+  /** Task detail's status pill. */
+  pill: boolean
   /**
-   * `mainCta`: task detail's main action as a button (Edit quote, Send quote,
-   * Review, Get receipt). `close`: its slide to mark Done. `request`: the
-   * answer buttons for a reschedule or cancellation.
+   * Task detail's headline, where the task or booking stands. Left out while
+   * the bottom pin shows, since that pin says it with its buttons.
    */
-  controls:
-    | 'compareQuotes'
-    | 'mainCta'
-    | 'close'
-    | 'request'
-    | 'openTask'
-    | null
+  headline: boolean
+  /**
+   * `quotes`: the live quotes (worker, price, status; three rows, then
+   * "+N more"). `myQuote`: the viewer's own quote (price, times, status).
+   * `booking`: booked time, agreed price and payment method.
+   */
+  facts: 'quotes' | 'myQuote' | 'booking' | null
+}
+
+/** The bottom pin above the composer: what needs the viewer now (README.md). */
+export type BottomPinViewName =
+  | 'bottomPin.reschedule'
+  | 'bottomPin.cancel'
+  | 'bottomPin.markDone'
+  | 'bottomPin.confirmDone'
+  | 'bottomPin.answerFailed'
+  | 'bottomPin.conflict'
+
+export type BottomPinViewInput = {
+  /** `thread.attention`: what the API says waits on the viewer. */
+  attention: { kind: ThreadAttentionKind } | null | undefined
+  /** Task detail's view, which supplies the copy and the controls. */
+  view: TaskDetailViewName
+}
+
+export type BottomPinViewConfig = {
+  /** Task detail's sub-line under the headline (who asked, the auto-Done date). */
+  subline: boolean
+  /**
+   * `request`: task detail's answer buttons for a reschedule or cancellation.
+   * `close`: its slide to mark Done and Something went wrong. `openTask`: a
+   * link to sort a conflict out on task detail.
+   */
+  controls: 'request' | 'close' | 'openTask'
 }
