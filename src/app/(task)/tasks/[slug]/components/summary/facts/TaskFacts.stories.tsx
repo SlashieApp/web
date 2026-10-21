@@ -515,6 +515,23 @@ export const PhotosFour: Story = fact(PhotosFact, {
   task: storyTaskDetail({ images: PHOTOS }),
 })
 
+/** Tapping a thumbnail opens that photo full screen, with the others a swipe away. */
+export const PhotosPreviewOpen: Story = {
+  ...PhotosFour,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', {
+        name: 'Mount bookshelf on living room wall photo 2',
+      }),
+    )
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Photo preview' },
+    )
+    await within(dialog).findByText('2 of 4')
+  },
+}
+
 /** One photo. */
 export const PhotosOne: Story = fact(PhotosFact, {
   ...visitor,

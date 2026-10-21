@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
 
@@ -57,7 +57,7 @@ type Story = StoryObj<typeof meta>
 /** No photos yet: just the dashed upload area and Upload button. */
 export const Empty: Story = {}
 
-/** Two photos picked: previews with a remove button on each. */
+/** Two photos picked: previews (tap to view) with a remove button on each. */
 export const WithPhotos: Story = {
   args: {
     initial: [
@@ -79,6 +79,39 @@ export const ExistingAndNewPhotos: Story = {
   args: {
     existingImageUrls: [storyImage('#7fcfa6', 176)],
     initial: [photo('new-angle.jpg', '#f0c987')],
+  },
+}
+
+/** Tapping a photo opens it full screen; saved and new photos page through together. */
+export const PreviewOpen: Story = {
+  args: ExistingAndNewPhotos.args,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Photo 2' }),
+    )
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Photo preview' },
+    )
+    await within(dialog).findByText('2 of 2')
+  },
+}
+
+/** The remove button beside a new photo still takes it out (no preview opens). */
+export const RemovePhoto: Story = {
+  args: WithPhotos.args,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Remove photo 1' }),
+    )
+    await waitFor(() =>
+      expect(canvas.queryByRole('button', { name: 'Photo 2' })).toBeNull(),
+    )
+    await expect(canvas.getByRole('button', { name: 'Photo 1' })).toBeVisible()
+    await expect(
+      within(canvasElement.ownerDocument.body).queryByRole('dialog'),
+    ).toBeNull()
   },
 }
 

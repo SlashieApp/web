@@ -1,0 +1,22 @@
+{
+  "en": {
+    "title": "Photo preview",
+    "close": "Close",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "counter": "{current} of {total}",
+    "unavailable": "Photo unavailable"
+  },
+  "zh_hk": {
+    "title": "相片預覽",
+    "close": "關閉",
+    "zoomIn": "放大",
+    "zoomOut": "縮小",
+    "previous": "上一張相片",
+    "next": "下一張相片",
+    "counter": "{current} / {total}",
+    "unavailable": "無法顯示相片"
+  }
+}

@@ -1,23 +1,41 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
+import { useState } from 'react'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlFocusRing } from '@/theme/styles'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
+import { ImagePreview } from '@ui'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
   budgetKindLabel,
   taskAvailabilityRangeLabel,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
+import detailBag from '@/app/(task)/tasks/[slug]/i11n.json'
 
 import bag from '../../../i11n.json'
+
+const PhotoButton = chakra('button')
 
 export function TaskQuoteSummaryCard() {
   const { task } = useTaskDetail()
   const t = useI11n(bag)
+  const detail = useI11n(detailBag)
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   if (!task) return null
-  const thumb = task.images?.[0]?.trim()
+  const title = task.title?.trim() || detail.fallbackTask
+  // The card shows the first photo; tapping it pages through all of them.
+  const photos = (task.images ?? [])
+    .map((src) => src?.trim())
+    .filter((src): src is string => Boolean(src))
+    .map((src, index) => ({
+      src,
+      alt: formatMessage(detail.details.photoAlt, { title, n: index + 1 }),
+    }))
+  const thumb = photos[0]
   const locationLine = taskPublicLocationLabel(task)
   const kind = budgetKindLabel(task.budget?.type)
   const when = taskAvailabilityRangeLabel(task)
@@ -34,13 +52,24 @@ export function TaskQuoteSummaryCard() {
       boxShadow="e1"
     >
       {thumb ? (
-        <Box w="72px" h="72px" rounded="lg" overflow="hidden" flexShrink={0}>
+        <PhotoButton
+          type="button"
+          onClick={() => setPreviewIndex(0)}
+          w="72px"
+          h="72px"
+          rounded="lg"
+          overflow="hidden"
+          flexShrink={0}
+          cursor="zoom-in"
+          _hover={{ opacity: 0.85 }}
+          _focusVisible={sdlFocusRing}
+        >
           <img
-            src={thumb}
-            alt=""
+            src={thumb.src}
+            alt={thumb.alt}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
-        </Box>
+        </PhotoButton>
       ) : (
         <Box
           w="72px"
@@ -72,6 +101,12 @@ export function TaskQuoteSummaryCard() {
           </Text>
         ) : null}
       </Stack>
+      <ImagePreview
+        items={photos}
+        index={previewIndex}
+        onIndexChange={setPreviewIndex}
+        onClose={() => setPreviewIndex(null)}
+      />
     </HStack>
   )
 }

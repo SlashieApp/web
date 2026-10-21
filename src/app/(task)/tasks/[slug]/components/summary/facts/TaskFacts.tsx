@@ -33,7 +33,7 @@ import { sdlFocusRing } from '@/theme/styles'
 import { orderBookedDatetime } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
-import { Avatar, Badge, Button, DetailRow, Link } from '@ui'
+import { Avatar, Badge, Button, DetailRow, ImagePreview, Link } from '@ui'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
 import { quoteBudgetComparison } from '../../../helpers/quoteBudgetComparison'
@@ -58,6 +58,7 @@ const DATE_LOCALE = { en: 'en-GB', 'zh-hk': 'zh-HK' } as const
 const MINUTE_MS = 60_000
 
 const HintButton = chakra('button')
+const PhotoButton = chakra('button')
 
 function subscribeMinute(onChange: () => void) {
   const id = window.setInterval(onChange, MINUTE_MS)
@@ -614,10 +615,11 @@ export function DescriptionFact() {
   )
 }
 
-/** Square thumbnails under the description; no title. */
+/** Square thumbnails under the description; no title. Each opens full screen. */
 export function PhotosFact() {
   const { task, seed } = useTaskDetail()
   const t = useI11n(bag)
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const seedImage = seed?.thumbnailSrc?.trim()
   const images = task
     ? task.images.filter((src): src is string => Boolean(src?.trim()))
@@ -626,12 +628,18 @@ export function PhotosFact() {
       : []
   if (images.length === 0) return null
   const title = (task ?? seed)?.title?.trim() || t.fallbackTask
+  const photos = images.map((src, index) => ({
+    src,
+    alt: formatMessage(t.details.photoAlt, { title, n: index + 1 }),
+  }))
 
   return (
     <Wrap gap={2} py={3} data-fact="photos">
-      {images.map((src, index) => (
-        <Box
-          key={src}
+      {photos.map((photo, index) => (
+        <PhotoButton
+          key={photo.src}
+          type="button"
+          onClick={() => setPreviewIndex(index)}
           boxSize={{ base: '84px', md: '96px' }}
           borderRadius="lg"
           overflow="hidden"
@@ -639,16 +647,25 @@ export function PhotosFact() {
           borderColor="border.default"
           bg="bg.subtle"
           flexShrink={0}
+          cursor="zoom-in"
+          _hover={{ opacity: 0.85 }}
+          _focusVisible={sdlFocusRing}
         >
           <Image
-            src={src}
-            alt={formatMessage(t.details.photoAlt, { title, n: index + 1 })}
+            src={photo.src}
+            alt={photo.alt}
             w="full"
             h="full"
             objectFit="cover"
           />
-        </Box>
+        </PhotoButton>
       ))}
+      <ImagePreview
+        items={photos}
+        index={previewIndex}
+        onIndexChange={setPreviewIndex}
+        onClose={() => setPreviewIndex(null)}
+      />
     </Wrap>
   )
 }

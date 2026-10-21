@@ -51,6 +51,6 @@ every form view.
 Email sign-in goes to `next` (validated, same-origin only) or /search. Google
 and Apple go through `resolvePostAuthRedirect` (unverified emails to
 /verify-email/sent) until FE-304 replaces that with the verification code
-popup (blocked by BE-84). A suspended account signs in and sees the suspended
+modal (blocked by BE-84). A suspended account signs in and sees the suspended
 banner; an account waiting for deletion signs in to the app-wide restore
 screen.

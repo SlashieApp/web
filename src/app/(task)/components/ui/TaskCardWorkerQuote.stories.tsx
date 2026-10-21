@@ -236,6 +236,35 @@ export const EndedTaskCancelled: Story = {
   },
 }
 
+const swatch = (color: string) =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><rect width="96" height="96" fill="${color}"/></svg>`,
+  )}`
+
+/** The photo is its own button: it opens the task's photos full screen, not the card. */
+export const PhotoPreviewOpen: Story = {
+  args: {
+    ...storyQuoteRow({
+      task: storyTask({ images: ['#7aa17a', '#a17a7a'].map(swatch) }),
+      quote: storyQuote({ status: 'PENDING' }),
+      workerOrder: null,
+    }),
+  },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', {
+        name: 'Mount bookshelf on living room wall photo 1',
+      }),
+    )
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Photo preview' },
+    )
+    await within(dialog).findByText('1 of 2')
+    expect(within(canvasElement).queryByText('Your message')).toBeNull()
+  },
+}
+
 /** The card toggles open and closed from its header. */
 export const TogglesOpen: Story = {
   play: async ({ canvasElement }) => {

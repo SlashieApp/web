@@ -5,6 +5,9 @@ import {
   TaskPaymentMethod,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { userEvent, within } from 'storybook/test'
+
+import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
 
 import { quoteStoryTask, withQuoteStory } from '../../taskQuoteStoryFixtures'
 import { TaskQuoteSummaryCard } from './TaskQuoteSummaryCard'
@@ -24,8 +27,27 @@ const card = (task: Parameters<typeof quoteStoryTask>[0] = {}) => [
   withQuoteStory({ task: quoteStoryTask(task) }, { maxWidth: '520px' }),
 ]
 
-/** Photo, town, the day it is wanted and a fixed price. */
+/** Photo (tap to view), town, the day it is wanted and a fixed price. */
 export const Default: Story = { decorators: card() }
+
+/** Tapping the photo opens all the task's photos full screen, from the first. */
+export const PhotoPreviewOpen: Story = {
+  decorators: card({
+    images: [storyImage('#9ec5e8', 144), storyImage('#f0c987', 144)],
+  }),
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', {
+        name: 'Mount bookshelf on living room wall photo 1',
+      }),
+    )
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Photo preview' },
+    )
+    await within(dialog).findByText('1 of 2')
+  },
+}
 
 /** No photo on the task: a soft green block stands in for the thumbnail. */
 export const NoPhoto: Story = { decorators: card({ images: [] }) }

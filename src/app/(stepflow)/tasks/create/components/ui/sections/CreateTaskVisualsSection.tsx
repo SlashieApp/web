@@ -1,12 +1,13 @@
 'use client'
 
-import { Box, HStack, Image, Stack, Text, Wrap } from '@chakra-ui/react'
-import { useRef } from 'react'
+import { Box, HStack, Image, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
+import { useRef, useState } from 'react'
 import { LuImagePlus, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Badge, Button, IconButton } from '@ui'
+import { sdlFocusRing } from '@/theme/styles'
+import { Badge, Button, IconButton, ImagePreview } from '@ui'
 
 import {
   TASK_PHOTOS_MAX,
@@ -35,6 +36,37 @@ export type CreateTaskVisualsSectionProps = {
 
 const THUMB = '88px'
 
+const PhotoButton = chakra('button')
+
+/** A thumbnail that opens the photo full screen. */
+function PhotoThumb({
+  src,
+  alt,
+  onOpen,
+}: { src: string; alt: string; onOpen: () => void }) {
+  return (
+    <PhotoButton
+      type="button"
+      onClick={onOpen}
+      display="block"
+      borderRadius="lg"
+      cursor="zoom-in"
+      _hover={{ opacity: 0.85 }}
+      _focusVisible={sdlFocusRing}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        boxSize={THUMB}
+        objectFit="cover"
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="border.default"
+      />
+    </PhotoButton>
+  )
+}
+
 /** Optional photos: public on the task, up to 10, each up to 10 MB. */
 export function CreateTaskVisualsSection({
   files,
@@ -49,8 +81,22 @@ export function CreateTaskVisualsSection({
 }: CreateTaskVisualsSectionProps) {
   const f = useI11n(bag).fields
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const count = existingImageUrls.length + previews.length
   const full = count >= TASK_PHOTOS_MAX
+  // Saved photos first, then the ones picked here, numbered as shown.
+  const photos = [
+    ...existingImageUrls.map((src, i) => ({
+      src,
+      alt: formatMessage(f.savedPhoto, { number: i + 1 }),
+    })),
+    ...previews.map((src, i) => ({
+      src,
+      alt: formatMessage(f.newPhoto, {
+        number: existingImageUrls.length + i + 1,
+      }),
+    })),
+  ]
 
   const rejection = (item: TaskPhotoRejection) =>
     item.reason === 'tooMany'
@@ -91,33 +137,26 @@ export function CreateTaskVisualsSection({
 
       <Wrap gap={3} align="flex-start" pt={1}>
         {existingImageUrls.map((src, i) => (
-          <Image
+          <PhotoThumb
             key={src}
             src={src}
-            alt={formatMessage(f.savedPhoto, { number: i + 1 })}
-            boxSize={THUMB}
-            objectFit="cover"
-            borderRadius="lg"
-            borderWidth="1px"
-            borderColor="border.default"
+            alt={photos[i].alt}
+            onOpen={() => setPreviewIndex(i)}
           />
         ))}
         {previews.map((src, i) => {
           const file = files[i]
-          const number = existingImageUrls.length + i + 1
+          const at = existingImageUrls.length + i
+          const number = at + 1
           return (
             <Box
               key={file ? `${file.name}-${file.lastModified}-${i}` : src}
               position="relative"
             >
-              <Image
+              <PhotoThumb
                 src={src}
-                alt=""
-                boxSize={THUMB}
-                objectFit="cover"
-                borderRadius="lg"
-                borderWidth="1px"
-                borderColor="border.default"
+                alt={photos[at].alt}
+                onOpen={() => setPreviewIndex(at)}
               />
               {/* 44px target hangs off the corner to cover less of the photo. */}
               <IconButton
@@ -154,6 +193,13 @@ export function CreateTaskVisualsSection({
           </Button>
         )}
       </Wrap>
+
+      <ImagePreview
+        items={photos}
+        index={previewIndex}
+        onIndexChange={setPreviewIndex}
+        onClose={() => setPreviewIndex(null)}
+      />
 
       <input
         ref={inputRef}

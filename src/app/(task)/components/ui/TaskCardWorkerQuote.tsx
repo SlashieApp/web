@@ -27,11 +27,14 @@ import {
 } from '@/app/(dashboard)/quotes/helpers/workerQuoteSchedule'
 import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import { budgetKindLabel } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
+import detailBag from '@/app/(task)/tasks/[slug]/i11n.json'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
 import { formatPounds, formatRelativePosted } from '@/utils/dashboardHelpers'
 import { isOrderClosed, taskOrderSectionHref } from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
-import { Badge, Button, Card, Link, Thumbnail } from '@ui'
+import { Badge, Button, Card, ImagePreview, Link, Thumbnail } from '@ui'
 
 import type { TaskCardWorkerQuoteProps } from './TaskCard'
 
@@ -50,8 +53,18 @@ export function TaskCardWorkerQuote({
   initialExpanded = false,
 }: TaskCardWorkerQuoteProps) {
   const [expanded, setExpanded] = useState(initialExpanded)
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null)
+  const detail = useI11n(detailBag)
   const stage = workerQuoteStage(task, quote, workerOrder)
-  const thumbnailSrc = task.images?.[0] ?? undefined
+  const photos = (task.images ?? [])
+    .filter((src): src is string => Boolean(src?.trim()))
+    .map((src, index) => ({
+      src,
+      alt: formatMessage(detail.details.photoAlt, {
+        title: task.title,
+        n: index + 1,
+      }),
+    }))
   const progressSteps = workerQuoteCardProgressSteps(task, quote, workerOrder)
   const quotePence = workerQuotePricePence(quote, workerOrder)
   const orderClosed = workerOrder ? isOrderClosed(workerOrder.status) : false
@@ -83,6 +96,12 @@ export function TaskCardWorkerQuote({
     <Card layout="section" framed p={0} overflow="hidden">
       <Box p={5}>
         <HStack align="flex-start" gap={3}>
+          {/* Outside the toggle: the photo opens full screen instead. */}
+          <Thumbnail
+            alt={photos[0]?.alt ?? `${task.title} thumbnail`}
+            src={photos[0]?.src}
+            onClick={photos.length > 0 ? () => setPreviewIndex(0) : undefined}
+          />
           <Box
             as="button"
             flex={1}
@@ -95,45 +114,40 @@ export function TaskCardWorkerQuote({
             onClick={toggleExpanded}
             aria-expanded={expanded}
           >
-            <HStack align="flex-start" gap={3}>
-              <Thumbnail alt={`${task.title} thumbnail`} src={thumbnailSrc} />
-              <Stack gap={2} minW={0} flex={1}>
-                {categoryLabel ? (
-                  <Badge variant="blue" size="sm" alignSelf="flex-start">
-                    {categoryLabel}
+            <Stack gap={2} minW={0} flex={1}>
+              {categoryLabel ? (
+                <Badge variant="blue" size="sm" alignSelf="flex-start">
+                  {categoryLabel}
+                </Badge>
+              ) : null}
+              <Heading size="sm" lineClamp={2}>
+                {task.title}
+              </Heading>
+              <HStack gap={2} flexWrap="wrap" align="center">
+                <MetaItem icon={<LuMapPin size={14} />}>
+                  {locationLabel}
+                </MetaItem>
+                <Text fontSize="sm" color="text.muted" aria-hidden>
+                  ·
+                </Text>
+                <MetaItem icon={<LuCalendar size={14} />}>{sentLabel}</MetaItem>
+              </HStack>
+              <HStack gap={2} flexWrap="wrap" align="center">
+                <MetaItem icon={<LuWallet size={14} />}>
+                  Your quote{' '}
+                  <Text as="span" fontWeight={700} color="text.default">
+                    {quotePence != null && quotePence > 0
+                      ? formatPounds(quotePence)
+                      : '—'}
+                  </Text>
+                </MetaItem>
+                {priceKindLabel ? (
+                  <Badge variant="success" size="sm">
+                    {priceKindLabel}
                   </Badge>
                 ) : null}
-                <Heading size="sm" lineClamp={2}>
-                  {task.title}
-                </Heading>
-                <HStack gap={2} flexWrap="wrap" align="center">
-                  <MetaItem icon={<LuMapPin size={14} />}>
-                    {locationLabel}
-                  </MetaItem>
-                  <Text fontSize="sm" color="text.muted" aria-hidden>
-                    ·
-                  </Text>
-                  <MetaItem icon={<LuCalendar size={14} />}>
-                    {sentLabel}
-                  </MetaItem>
-                </HStack>
-                <HStack gap={2} flexWrap="wrap" align="center">
-                  <MetaItem icon={<LuWallet size={14} />}>
-                    Your quote{' '}
-                    <Text as="span" fontWeight={700} color="text.default">
-                      {quotePence != null && quotePence > 0
-                        ? formatPounds(quotePence)
-                        : '—'}
-                    </Text>
-                  </MetaItem>
-                  {priceKindLabel ? (
-                    <Badge variant="success" size="sm">
-                      {priceKindLabel}
-                    </Badge>
-                  ) : null}
-                </HStack>
-              </Stack>
-            </HStack>
+              </HStack>
+            </Stack>
           </Box>
 
           <Stack align="flex-end" gap={2} flexShrink={0}>
@@ -251,6 +265,13 @@ export function TaskCardWorkerQuote({
           ) : null}
         </Stack>
       ) : null}
+
+      <ImagePreview
+        items={photos}
+        index={previewIndex}
+        onIndexChange={setPreviewIndex}
+        onClose={() => setPreviewIndex(null)}
+      />
     </Card>
   )
 }

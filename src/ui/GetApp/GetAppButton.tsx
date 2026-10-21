@@ -11,7 +11,7 @@ import bag from './i11n.json'
 
 /**
  * Get app: a phone or tablet tries the Slashie app and shows the coming-soon
- * popup if it doesn't open; a PC gets the popup with a QR code straight away.
+ * modal if it doesn't open; a PC gets the modal with a QR code straight away.
  */
 export function GetAppButton(props: Omit<UiButtonProps, 'onClick'>) {
   const t = useI11n(bag)

@@ -51,7 +51,7 @@ export const OnPhone: Story = {
   },
 }
 
-/** The button on a PC browser opens the popup with the QR code. */
+/** The button on a PC browser opens the modal with the QR code. */
 export const Button: Story = {
   args: { open: false },
   render: () => <GetAppButton variant="secondary" />,
