@@ -70,6 +70,30 @@ export function flashAction(item: ItemLike): FlashAction | null {
   return { kind: 'task', href: `/tasks/${task}` }
 }
 
+type SlotLike = { id: string; start: string; end?: string | null }
+
+/**
+ * The booked slot on a "Quote accepted" line, when the flash's own quote
+ * says it: its only proposed time, or else the proposed time the viewer's
+ * booking (`order`) still starts at. Null when it can't tell (the booking is
+ * for another quote, or moved since), so the line never shows a wrong time.
+ */
+export function flashSlot<Slot extends SlotLike>(
+  item: {
+    flashKind?: FlashKind | string | null
+    quote?: { id: string; proposedSlots: readonly Slot[] } | null
+  },
+  order: { quoteId: string; bookedStart: string } | null | undefined,
+): Slot | null {
+  const quote = item.quote
+  if (item.flashKind !== FlashKind.QuoteAccepted || !quote) return null
+  const slots = quote.proposedSlots
+  if (slots.length === 1) return slots[0] ?? null
+  if (order?.quoteId !== quote.id) return null
+  const booked = Date.parse(order.bookedStart)
+  return slots.find((slot) => Date.parse(slot.start) === booked) ?? null
+}
+
 /** A worker who was not picked sees the not-selected flash in the thread. */
 export function wasNotSelected(items: readonly ItemLike[]): boolean {
   return items.some((item) => item.flashKind === FlashKind.QuoteNotSelected)

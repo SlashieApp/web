@@ -2,13 +2,20 @@ import { Stack } from '@chakra-ui/react'
 import { FlashKind, QuoteStatus } from '@codegen/schema'
 import type { ThreadItemFieldsFragment } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import type { ReactNode } from 'react'
+import { expect, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyAvatarUrl, storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
+import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import { STORY_TASK_ID } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import { formatTimeSlotLabel } from '@/utils/timeSlots'
 
+import { clockTime } from '../helpers/messagesFormat'
 import { ThreadTimelineItem } from './ThreadTimelineItem'
+import { messagesStory } from './messagesStoryDecorator'
 import {
+  bookedTask,
   myMessage,
   quoteFlash,
   reviewFlash,
@@ -47,13 +54,48 @@ const event = (
   quote,
 })
 
+const ACCEPTED_BODY =
+  'The quote on "Assemble a wardrobe" was accepted. You can now message each other here.'
+
+/** The one time the worker offered, so the line can name it without a booking. */
+const onlySlot = {
+  id: 's-only',
+  start: '2030-10-22T11:00:00.000Z',
+  end: '2030-10-22T12:00:00.000Z',
+}
+
 const accepted = event(
   'line-accepted',
   FlashKind.QuoteAccepted,
   'Quote accepted',
-  'The quote on "Assemble a wardrobe" was accepted. You can now message each other here.',
-  storyFlashQuote({ status: QuoteStatus.Accepted }),
+  ACCEPTED_BODY,
+  storyFlashQuote({
+    status: QuoteStatus.Accepted,
+    proposedSlots: [onlySlot],
+  }),
 )
+
+/** A quote that offered two times: only the booking says which one was taken. */
+const twoSlotQuote = storyFlashQuote({ status: QuoteStatus.Accepted })
+const [, secondSlot] = twoSlotQuote.proposedSlots
+const acceptedTwoSlots = event(
+  'line-accepted-two-slots',
+  FlashKind.QuoteAccepted,
+  'Quote accepted',
+  ACCEPTED_BODY,
+  twoSlotQuote,
+)
+
+/** Quote accepted lines read the viewer's booking from the thread's task detail. */
+const inTaskThread = (children: ReactNode) => (
+  <TaskDetailProvider taskId={STORY_TASK_ID} captureView={false}>
+    {children}
+  </TaskDetailProvider>
+)
+
+/** The Quote accepted line's text: title, price, booked slot, time. */
+const acceptedText = (canvasElement: HTMLElement) =>
+  canvasElement.querySelector('[data-flash-line="QUOTE_ACCEPTED"] > p')
 
 /** An info line: no card and nothing to press. */
 const line = async (canvasElement: HTMLElement, kind: FlashKind) => {
@@ -66,16 +108,21 @@ const line = async (canvasElement: HTMLElement, kind: FlashKind) => {
 
 /** A thread's timeline: the quote card, an event line, bubbles left (them) and right (me), and a review prompt. */
 export const Timeline: Story = {
-  decorators: [asOwner],
-  render: (args) => (
-    <Stack gap={3} maxW="640px">
-      {[quoteFlash, accepted, theirMessage, myMessage, reviewFlash].map(
-        (item) => (
-          <ThreadTimelineItem key={item.id} item={item} locale={args.locale} />
-        ),
-      )}
-    </Stack>
-  ),
+  decorators: messagesStory({ viewer: 'owner' }),
+  render: (args) =>
+    inTaskThread(
+      <Stack gap={3} maxW="640px">
+        {[quoteFlash, accepted, theirMessage, myMessage, reviewFlash].map(
+          (item) => (
+            <ThreadTimelineItem
+              key={item.id}
+              item={item}
+              locale={args.locale}
+            />
+          ),
+        )}
+      </Stack>,
+    ),
 }
 
 /** The worker's "quote sent" flash, seen by the poster: the full quote card with Accept and Decline. */
@@ -104,13 +151,63 @@ export const QuoteSentWorker: Story = {
   },
 }
 
-/** Quote accepted: one line with the quote's price, no card. */
+/** Quote accepted: one line with the quote's price and the booked slot (the quote's only time), then the time of the message; no card. */
 export const QuoteAcceptedLine: Story = {
   args: { item: accepted },
-  decorators: [asOwner],
+  decorators: messagesStory({ viewer: 'owner' }),
+  render: (args) => inTaskThread(<ThreadTimelineItem {...args} />),
+  play: async ({ canvasElement, args }) => {
+    await line(canvasElement, FlashKind.QuoteAccepted)
+    await expect(acceptedText(canvasElement)).toHaveTextContent(
+      `Quote accepted · £80 · ${formatTimeSlotLabel(onlySlot, args.locale)} · ${clockTime(accepted.createdAt, args.locale)}`,
+    )
+  },
+}
+
+/** Quote accepted when the quote offered two times: the slot the booking starts at, from task detail's order. */
+export const QuoteAcceptedLineBookedSlot: Story = {
+  args: { item: acceptedTwoSlots },
+  decorators: messagesStory({
+    viewer: 'owner',
+    task: bookedTask({
+      quoteId: twoSlotQuote.id,
+      bookedStart: secondSlot.start,
+      bookedEnd: secondSlot.end,
+    }),
+  }),
+  render: (args) => inTaskThread(<ThreadTimelineItem {...args} />),
+  play: async ({ canvasElement, args }) => {
+    await waitFor(() =>
+      expect(acceptedText(canvasElement)).toHaveTextContent(
+        `Quote accepted · £80 · ${formatTimeSlotLabel(secondSlot, args.locale)} · ${clockTime(acceptedTwoSlots.createdAt, args.locale)}`,
+      ),
+    )
+  },
+}
+
+/** Quote accepted when the quote offered two times and the booking is not known to match: no slot, rather than a wrong one. */
+export const QuoteAcceptedLineNoSlot: Story = {
+  args: { item: acceptedTwoSlots },
+  decorators: messagesStory({ viewer: 'owner' }),
+  render: (args) => inTaskThread(<ThreadTimelineItem {...args} />),
   play: async ({ canvasElement }) => {
     await line(canvasElement, FlashKind.QuoteAccepted)
-    await expect(within(canvasElement).getByText(/· £80/)).toBeVisible()
+    await expect(acceptedText(canvasElement)).toHaveTextContent(
+      /^Quote accepted · £80 · \d{2}:\d{2}$/,
+    )
+  },
+}
+
+/** zh-HK: the booked slot is formatted for the viewer's locale. */
+export const QuoteAcceptedLineZhHk: Story = {
+  args: { item: accepted, locale: 'zh-HK' },
+  decorators: messagesStory({ viewer: 'owner' }),
+  render: (args) => inTaskThread(<ThreadTimelineItem {...args} />),
+  play: async ({ canvasElement }) => {
+    await line(canvasElement, FlashKind.QuoteAccepted)
+    await expect(acceptedText(canvasElement)).toHaveTextContent(
+      formatTimeSlotLabel(onlySlot, 'zh-HK'),
+    )
   },
 }
 

@@ -12,7 +12,10 @@ import type {
 } from '@codegen/schema'
 import type { Decorator } from '@storybook/nextjs-vite'
 
-import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
+import {
+  type StoryResponse,
+  withSession,
+} from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe, storyWorkerMe } from '@/app/(auth)/helpers/authStoryFixtures'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
 import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
@@ -47,6 +50,11 @@ export type MessagesStoryConfig = {
   threadRequest?: 'loaded' | 'loading' | 'failed' | 'forbidden'
   /** The thread's task, loaded behind the header menu. */
   task?: TaskDetailRecord
+  /**
+   * What the task's next fetch answers, for a view that changes while the
+   * thread is open: `task` is what shows first, then this.
+   */
+  taskNext?: TaskDetailRecord
   /** Fixed frame height for thread and screen stories. */
   height?: string
   maxW?: string
@@ -169,7 +177,28 @@ const bookedWorker = storyWorkerMe({
 export function messagesStory<TArgs>(
   config: MessagesStoryConfig = {},
 ): Decorator<TArgs>[] {
-  const { viewer = 'owner', inbox, height, maxW, threadRequest } = config
+  const {
+    viewer = 'owner',
+    inbox,
+    height,
+    maxW,
+    threadRequest,
+    taskNext,
+  } = config
+  const responses: Record<string, StoryResponse> = {
+    ...(threadRequest === 'failed' && {
+      MessageThread: { kind: 'networkError' },
+    }),
+    ...(threadRequest === 'forbidden' && {
+      MessageThread: { kind: 'graphqlError', code: 'FORBIDDEN' },
+    }),
+    ...(taskNext && {
+      Task: {
+        kind: 'data',
+        data: addTypenames({ task: forCache(taskNext) }),
+      },
+    }),
+  }
   const frame: Decorator<TArgs> = (Story) => (
     <MessagesContext.Provider value={messagesValue(inbox)}>
       <Box
@@ -190,14 +219,7 @@ export function messagesStory<TArgs>(
     withSession({
       me: viewer === 'owner' ? owner : bookedWorker,
       seed: (client) => seed(client, config),
-      responses:
-        threadRequest === 'failed'
-          ? { MessageThread: { kind: 'networkError' } }
-          : threadRequest === 'forbidden'
-            ? {
-                MessageThread: { kind: 'graphqlError', code: 'FORBIDDEN' },
-              }
-            : undefined,
+      responses,
     }),
   ]
 }

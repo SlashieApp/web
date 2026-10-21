@@ -17,6 +17,7 @@ import { ThreadHeader } from './ThreadHeader'
 import { messagesStory } from './messagesStoryDecorator'
 import {
   STORY_THREAD_TITLE,
+  cancelledTaskThread,
   needs,
   otherPartyFor,
   systemThread,
@@ -166,6 +167,22 @@ export const PosterWaiting: Story = {
   },
 }
 
+/** The poster's task was cancelled before anyone was booked: Task cancelled, not Waiting for quotes. */
+export const PosterTaskCancelled: Story = {
+  args: { thread: cancelledTaskThread() },
+  decorators: messagesStory({
+    viewer: 'owner',
+    task: storyTaskDetail({ status: TaskStatus.Cancelled, quotes: [] }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', { name: 'Task cancelled' }),
+    ).toBeVisible()
+    await expect(canvas.queryByText('Waiting for quotes')).toBeNull()
+  },
+}
+
 /** The thread's task is still loading: the title shows; the pin and the menu have not appeared. */
 export const TaskLoading: Story = {
   decorators: messagesStory({ viewer: 'owner' }),
@@ -290,6 +307,7 @@ export const LongTaskName: Story = {
         id: STORY_TASK_ID,
         title:
           'Mount a very large floor-to-ceiling bookshelf on a plasterboard living room wall before the weekend',
+        status: TaskStatus.Awarded,
       },
     }),
   },

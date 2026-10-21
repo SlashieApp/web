@@ -6,7 +6,7 @@ import {
   ThreadAttentionKind,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, waitFor, within } from 'storybook/test'
+import { expect, fn, waitFor, within } from 'storybook/test'
 
 import {
   STORY_WORKER_ID,
@@ -15,6 +15,7 @@ import {
   storyTaskQuote,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formatTimeSlotLabel } from '@/utils/timeSlots'
 
 import { ThreadView } from './ThreadView'
 
@@ -223,6 +224,46 @@ const askedThread = taskThread(
   { attention: needs(ThreadAttentionKind.AnswerReschedule) },
   askedItems,
 )
+
+const refetchThreads = fn()
+
+/** The booking after its start has passed (the fixture's default, in the past). */
+const startedOrder = storyTaskOrder()
+
+/**
+ * The booked start passes while the thread is open: task detail's view moves
+ * on (the cache says the booking is ahead, its next fetch says it has begun),
+ * so the threads are fetched again, once, for `attention` to catch up. The
+ * first view alone is not a change.
+ */
+export const BookedStartRefetchesThreads: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread('owner', {}, ownerItems),
+    items: ownerItems,
+    ...BOOKED,
+    taskNext: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
+      orders: [startedOrder],
+    }),
+    inbox: { refetchThreads },
+  }),
+  play: async ({ canvasElement }) => {
+    // The top pin shows the new booking once the view has moved on.
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('[data-thread-pin="pin.booking"]'),
+      ).toHaveTextContent(
+        formatTimeSlotLabel(
+          { start: startedOrder.bookedStart, end: startedOrder.bookedEnd },
+          'en-GB',
+        ),
+      ),
+    )
+    await expect(refetchThreads).toHaveBeenCalledTimes(1)
+  },
+}
 
 /** The bottom pin sits between the timeline and the composer; the newest item stays in view. */
 async function checkBottomPinLayout(canvasElement: HTMLElement) {

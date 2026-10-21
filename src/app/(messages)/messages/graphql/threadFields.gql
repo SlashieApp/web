@@ -11,6 +11,7 @@ fragment ThreadFields on Thread {
   task {
     id
     title
+    status
   }
   otherParty {
     userId

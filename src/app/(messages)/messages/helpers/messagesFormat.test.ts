@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   flashAction,
+  flashSlot,
   formatMessageTime,
   quoteFlashStatus,
   threadMenuActions,
@@ -152,5 +153,74 @@ describe('threadMenuActions (FE-272)', () => {
         booking: { canReschedule: false, canCancel: false },
       }),
     ).toEqual([])
+  })
+})
+
+describe('flashSlot', () => {
+  type Slot = { id: string; start: string; end: string | null }
+  const morning: Slot = {
+    id: 's1',
+    start: '2030-10-22T11:00:00.000Z',
+    end: '2030-10-22T12:00:00.000Z',
+  }
+  const afternoon: Slot = {
+    id: 's2',
+    start: '2030-10-23T14:00:00.000Z',
+    end: null,
+  }
+  const accepted = (...proposedSlots: Slot[]) => ({
+    flashKind: FlashKind.QuoteAccepted,
+    quote: { id: 'q1', proposedSlots },
+  })
+  const booking = (bookedStart: string, quoteId = 'q1') => ({
+    quoteId,
+    bookedStart,
+  })
+
+  it('uses the only proposed slot, with or without a booking', () => {
+    expect(flashSlot(accepted(morning), null)).toBe(morning)
+    expect(flashSlot(accepted(morning), undefined)).toBe(morning)
+    expect(flashSlot(accepted(morning), booking(afternoon.start, 'q2'))).toBe(
+      morning,
+    )
+  })
+
+  it('picks the proposed slot the booking starts at when there are two', () => {
+    const item = accepted(morning, afternoon)
+    expect(flashSlot(item, booking(afternoon.start))).toBe(afternoon)
+    expect(flashSlot(item, booking(morning.start))).toBe(morning)
+  })
+
+  it('compares instants, not how the start is written', () => {
+    expect(
+      flashSlot(
+        accepted(morning, afternoon),
+        booking('2030-10-23T15:00:00+01:00'),
+      ),
+    ).toBe(afternoon)
+  })
+
+  it('shows no slot when it cannot tell which of two was booked', () => {
+    const item = accepted(morning, afternoon)
+    expect(flashSlot(item, null)).toBeNull()
+    expect(flashSlot(item, undefined)).toBeNull()
+    expect(flashSlot(item, booking(afternoon.start, 'q2'))).toBeNull()
+    expect(flashSlot(item, booking('2030-10-25T09:00:00.000Z'))).toBeNull()
+  })
+
+  it('shows no slot when the quote proposed none', () => {
+    expect(flashSlot(accepted(), booking(morning.start))).toBeNull()
+  })
+
+  it('is only for the Quote accepted line', () => {
+    const received = {
+      flashKind: FlashKind.QuoteReceived,
+      quote: { id: 'q1', proposedSlots: [morning] },
+    }
+    expect(flashSlot(received, null)).toBeNull()
+    expect(flashSlot({ flashKind: FlashKind.QuoteAccepted }, null)).toBeNull()
+    expect(
+      flashSlot({ flashKind: FlashKind.QuoteAccepted, quote: null }, null),
+    ).toBeNull()
   })
 })

@@ -137,7 +137,11 @@ export const sampleThreads: ThreadFieldsFragment[] = [
     blockedByMe: false,
     attention: null,
     updatedAt: myMessage.createdAt,
-    task: { id: 'task-1', title: 'Assemble a wardrobe' },
+    task: {
+      id: 'task-1',
+      title: 'Assemble a wardrobe',
+      status: TaskStatus.Awarded,
+    },
     otherParty: worker,
     lastItem: theirMessage,
   },
@@ -150,7 +154,11 @@ export const sampleThreads: ThreadFieldsFragment[] = [
     blockedByMe: false,
     attention: { kind: ThreadAttentionKind.CompareQuotes, count: 2 },
     updatedAt: today(8, 0),
-    task: { id: 'task-2', title: 'Garden tidy-up' },
+    task: {
+      id: 'task-2',
+      title: 'Garden tidy-up',
+      status: TaskStatus.Open,
+    },
     otherParty: null,
     lastItem: {
       ...quoteFlash,
@@ -334,7 +342,10 @@ export function bookedConversation(
   ]
 }
 
-/** A task thread between Alex and Jordan; `lastItem` follows `items`. */
+/**
+ * A task thread between Alex and Jordan; `lastItem` follows `items`. The task
+ * is booked, unless the thread has nobody else (the poster before booking).
+ */
 export function taskThread(
   viewer: MessagesViewer = 'owner',
   overrides: Partial<ThreadFieldsFragment> = {},
@@ -349,11 +360,29 @@ export function taskThread(
     blockedByMe: false,
     attention: null,
     updatedAt: items[0]?.createdAt ?? today(9, 42),
-    task: { id: STORY_TASK_ID, title: STORY_THREAD_TITLE },
+    task: {
+      id: STORY_TASK_ID,
+      title: STORY_THREAD_TITLE,
+      status:
+        overrides.otherParty === null ? TaskStatus.Open : TaskStatus.Awarded,
+    },
     otherParty: otherPartyFor(viewer),
     lastItem: items[0] ?? null,
     ...overrides,
   }
+}
+
+/** The poster's thread for a task cancelled before anyone was booked. */
+export function cancelledTaskThread(): ThreadFieldsFragment {
+  return taskThread('owner', {
+    otherParty: null,
+    canSend: false,
+    task: {
+      id: STORY_TASK_ID,
+      title: STORY_THREAD_TITLE,
+      status: TaskStatus.Cancelled,
+    },
+  })
 }
 
 /** The Slashie announcements thread: no task, no reply. */

@@ -5,11 +5,13 @@ import { FlashKind, ThreadItemType } from '@codegen/schema'
 import type { ThreadItemFieldsFragment } from '@codegen/schema'
 import type { ReactNode } from 'react'
 
+import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { formatPrice } from '@/utils/price'
+import { formatTimeSlotLabel } from '@/utils/timeSlots'
 import { Link } from '@ui'
 
-import { clockTime, flashAction } from '../helpers/messagesFormat'
+import { clockTime, flashAction, flashSlot } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
 import { ThreadQuote } from './ThreadQuote'
 
@@ -75,10 +77,20 @@ const QUOTE_OUTCOMES: ReadonlySet<FlashKind> = new Set([
 
 /**
  * Any other event as one short centred line: the flash's own title (with
- * the quote's price on quote outcomes), its time, then its body. No card
- * and no buttons; a review prompt keeps its Leave a review link.
+ * the quote's price on quote outcomes, and the booked slot on Quote
+ * accepted), its time, then its body. No card and no buttons; a review
+ * prompt keeps its Leave a review link.
  */
-function FlashLine({ item, time }: { item: Item; time: string }) {
+function FlashLine({
+  item,
+  time,
+  slot,
+}: {
+  item: Item
+  time: string
+  /** The booked slot, already formatted. */
+  slot?: string | null
+}) {
   const t = useI11n(bag)
   const action = flashAction(item)
   const price =
@@ -102,6 +114,7 @@ function FlashLine({ item, time }: { item: Item; time: string }) {
           {item.title}
         </Text>
         {price ? ` · ${price}` : null}
+        {slot ? ` · ${slot}` : null}
         {time ? ` · ${time}` : null}
       </Text>
       {item.body ? (
@@ -115,6 +128,31 @@ function FlashLine({ item, time }: { item: Item; time: string }) {
         </Link>
       ) : null}
     </Stack>
+  )
+}
+
+/**
+ * Quote accepted also says when the job is booked: the quote's own slot, or
+ * the one the viewer's booking in task detail starts at (`flashSlot`), in
+ * the same format as the top pin's booking.
+ */
+function AcceptedLine({
+  item,
+  time,
+  locale,
+}: {
+  item: Item
+  time: string
+  locale: string
+}) {
+  const { myOrder } = useTaskDetail()
+  const slot = flashSlot(item, myOrder)
+  return (
+    <FlashLine
+      item={item}
+      time={time}
+      slot={slot ? formatTimeSlotLabel(slot, locale) : null}
+    />
   )
 }
 
@@ -146,6 +184,9 @@ export function ThreadTimelineItem({
     }
     if (item.flashKind === FlashKind.SystemAnnouncement) {
       return <FlashCard item={item} time={time} />
+    }
+    if (item.flashKind === FlashKind.QuoteAccepted) {
+      return <AcceptedLine item={item} time={time} locale={locale} />
     }
     return <FlashLine item={item} time={time} />
   }

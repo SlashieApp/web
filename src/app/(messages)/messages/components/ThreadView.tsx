@@ -40,6 +40,7 @@ import { wasNotSelected } from '../helpers/messagesFormat'
 import { threadQueryState, timelineRows } from '../helpers/messagesThread'
 import bag from '../i11n.json'
 import { THREAD_VIEWS, getThreadView } from '../views'
+import { ThreadAttentionRefresh } from './ThreadAttentionRefresh'
 import { ThreadBottomPin } from './ThreadBottomPin'
 import { ThreadHeader } from './ThreadHeader'
 import { ThreadTimelineItem } from './ThreadTimelineItem'
@@ -336,6 +337,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
 
   const conversation = (
     <>
+      {pins ? <ThreadAttentionRefresh key={thread.task?.id} /> : null}
       <ThreadHeader thread={thread} onToggleBlock={() => void toggleBlock()} />
 
       <Box

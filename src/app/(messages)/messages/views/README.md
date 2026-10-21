@@ -19,9 +19,14 @@ under it (the header's opens the task).
 | Who | Title | In the header |
 |---|---|---|
 | Anyone with one other person (`otherParty`) | Their name ("Deleted user" from the API for a deleted account) | Opens their profile (not for a deleted account), with their photo |
+| The poster before a quote is accepted, task cancelled (`task.status` CANCELLED) | "Task cancelled" | Plain text |
 | The poster before a quote is accepted, with live quotes | "{count} workers quoted" / "1 worker quoted" | Plain text |
 | The poster before a quote is accepted, no live quotes | "Waiting for quotes" | Plain text |
 | The Slashie thread | Its own title (Slashie), "Updates from Slashie" under it | Plain text |
+
+A task cancelled before anyone was booked has no `attention`, so without its
+status the poster's title would wrongly read "Waiting for quotes"; cancelled
+wins over the quote count too.
 
 The live-quote count is `thread.attention.count` when its kind is
 COMPARE_QUOTES: the API sets it for the poster of an OPEN task with pending
@@ -113,3 +118,9 @@ headline first.
 It sits in the column's flow between the timeline and the composer, so it
 never covers either, and is capped at 45% of the screen height and scrolls,
 so on phones the conversation keeps room.
+
+The API works out `attention` when it sends the thread, but task detail
+polls and moves on (for example to `*.booked.ready` at the booked start)
+with no new item, so `ThreadAttentionRefresh` refetches the threads whenever
+task detail's view changes, not for the first view. That query rewrites the
+same cached `Thread` the conversation reads.

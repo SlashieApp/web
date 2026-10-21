@@ -1,9 +1,11 @@
 import {
+  TaskStatus,
   ThreadAttentionKind,
   ThreadItemType,
   ThreadKind,
 } from '@codegen/schema'
 
+import type { TaskDetailViewName } from '@/app/(task)/tasks/[slug]/views/types'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 
@@ -26,6 +28,21 @@ export function threadQueryState({
   if (loading) return 'loading'
   if (!error) return 'notFound'
   return getGraphQLErrorCode(error) === 'FORBIDDEN' ? 'notFound' : 'error'
+}
+
+/**
+ * Whether the threads need fetching again as task detail goes from
+ * `previous` (the last view it settled on, null before the first) to `next`.
+ * The API works out `thread.attention` when it sends the thread, but task
+ * detail moves on without a fetch (it polls, and opens Done at the booked
+ * start), so a real change refetches. `loading` is not a view, and the
+ * first view needs nothing: the thread was just fetched.
+ */
+export function shouldRefetchThreads(
+  previous: TaskDetailViewName | null,
+  next: TaskDetailViewName,
+): boolean {
+  return previous !== null && next !== 'loading' && next !== previous
 }
 
 type TimelineItem = {
@@ -102,14 +119,16 @@ type TitleThread = {
   title: string
   otherParty?: { name: string } | null
   attention?: { kind: ThreadAttentionKind; count?: number | null } | null
+  task?: { status: TaskStatus } | null
 }
 
 /**
  * What a thread is called in the inbox and its header (Thread screen v2):
  * the other person ("Deleted user" comes from the API). Only the poster has
- * nobody there before a quote is accepted; their title counts the workers
- * whose quotes are live (`attention` COMPARE_QUOTES carries the count) or
- * says Waiting for quotes. The Slashie thread keeps its own title.
+ * nobody there before a quote is accepted; their title says Task cancelled
+ * when the task was cancelled first, otherwise counts the workers whose
+ * quotes are live (`attention` COMPARE_QUOTES carries the count) or says
+ * Waiting for quotes. The Slashie thread keeps its own title.
  */
 export function threadTitle(
   thread: TitleThread,
@@ -117,10 +136,12 @@ export function threadTitle(
     workerQuoted: string
     workersQuoted: string
     waitingForQuotes: string
+    taskCancelled: string
   },
 ): string {
   if (thread.kind === ThreadKind.System) return thread.title
   if (thread.otherParty) return thread.otherParty.name
+  if (thread.task?.status === TaskStatus.Cancelled) return copy.taskCancelled
   const attention = thread.attention
   const count =
     attention?.kind === ThreadAttentionKind.CompareQuotes

@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { ThreadAttentionKind } from '@codegen/schema'
+import { TaskStatus, ThreadAttentionKind } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
@@ -9,6 +9,7 @@ import { MessagesContext } from '../context/MessagesProvider'
 import { ThreadList } from './ThreadList'
 import {
   STORY_THREAD_TITLE,
+  cancelledTaskThread,
   conversationMessage,
   messagesValue,
   needs,
@@ -67,7 +68,11 @@ const threadFrom = (id: string, title: string, days: number) => {
   )
   return taskThread(
     'owner',
-    { id, task: { id: `task-${id}`, title }, updatedAt: last.createdAt },
+    {
+      id,
+      task: { id: `task-${id}`, title, status: TaskStatus.Awarded },
+      updatedAt: last.createdAt,
+    },
     [last],
   )
 }
@@ -133,6 +138,12 @@ export const PosterOneQuote: Story = {
 export const PosterWaiting: Story = {
   ...oneRow(taskThread('owner', { otherParty: null, canSend: false })),
   play: async ({ canvasElement }) => row(canvasElement, 'Waiting for quotes'),
+}
+
+/** The poster's task was cancelled before anyone was booked: Task cancelled. */
+export const PosterTaskCancelled: Story = {
+  ...oneRow(cancelledTaskThread()),
+  play: async ({ canvasElement }) => row(canvasElement, 'Task cancelled'),
 }
 
 /** Booked, the poster's side: the worker's name over the task. */
@@ -255,6 +266,7 @@ export const LongText: Story = {
               id: 'task-long',
               title:
                 'Mount a very large floor-to-ceiling bookshelf on a plasterboard living room wall before the weekend',
+              status: TaskStatus.Awarded,
             },
             unreadCount: 3,
           }),

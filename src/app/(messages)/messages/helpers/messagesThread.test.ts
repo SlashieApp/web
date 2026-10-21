@@ -1,11 +1,17 @@
 import {
+  TaskStatus,
   ThreadAttentionKind,
   ThreadItemType,
   ThreadKind,
 } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
-import { threadQueryState, threadTitle, timelineRows } from './messagesThread'
+import {
+  shouldRefetchThreads,
+  threadQueryState,
+  threadTitle,
+  timelineRows,
+} from './messagesThread'
 
 const forbidden = {
   errors: [{ message: 'FORBIDDEN', extensions: { code: 'FORBIDDEN' } }],
@@ -44,6 +50,29 @@ describe('threadQueryState', () => {
         error: new Error('Failed to fetch'),
       }),
     ).toBe('error')
+  })
+})
+
+describe('shouldRefetchThreads', () => {
+  it('refetches when task detail moves to another view', () => {
+    expect(
+      shouldRefetchThreads('owner.booked.beforeStart', 'owner.booked.ready'),
+    ).toBe(true)
+    expect(
+      shouldRefetchThreads('worker.booked.ready', 'worker.booked.iMarkedDone'),
+    ).toBe(true)
+  })
+
+  it('does not refetch for the first view, which the thread fetch covers', () => {
+    expect(shouldRefetchThreads(null, 'owner.booked.ready')).toBe(false)
+  })
+
+  it('does not refetch while loading, or when the view stays the same', () => {
+    expect(shouldRefetchThreads('owner.booked.ready', 'loading')).toBe(false)
+    expect(shouldRefetchThreads(null, 'loading')).toBe(false)
+    expect(
+      shouldRefetchThreads('owner.booked.ready', 'owner.booked.ready'),
+    ).toBe(false)
   })
 })
 
@@ -109,13 +138,16 @@ describe('threadTitle', () => {
     workerQuoted: '1 worker quoted',
     workersQuoted: '{count} workers quoted',
     waitingForQuotes: 'Waiting for quotes',
+    taskCancelled: 'Task cancelled',
   }
   const thread = {
     kind: ThreadKind.Task,
     title: 'Mount a bookshelf',
     otherParty: null,
     attention: null,
+    task: { status: TaskStatus.Open },
   }
+  const cancelled = { status: TaskStatus.Cancelled }
   const quotes = (count: number | null) => ({
     kind: ThreadAttentionKind.CompareQuotes,
     count,
@@ -141,6 +173,24 @@ describe('threadTitle', () => {
     expect(threadTitle({ ...thread, attention: quotes(null) }, copy)).toBe(
       'Waiting for quotes',
     )
+  })
+
+  it('says the task is cancelled for the poster when it was cancelled before booking', () => {
+    expect(threadTitle({ ...thread, task: cancelled }, copy)).toBe(
+      'Task cancelled',
+    )
+    expect(
+      threadTitle({ ...thread, task: cancelled, attention: quotes(2) }, copy),
+    ).toBe('Task cancelled')
+  })
+
+  it('keeps naming the other person when the task is cancelled after booking', () => {
+    expect(
+      threadTitle(
+        { ...thread, task: cancelled, otherParty: { name: 'Jordan Lee' } },
+        copy,
+      ),
+    ).toBe('Jordan Lee')
   })
 
   it('keeps the Slashie thread title', () => {
