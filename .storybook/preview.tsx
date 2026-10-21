@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client/core'
 import { ApolloProvider } from '@apollo/client/react'
 import { Observable } from '@apollo/client/utilities'
-import { ChakraProvider } from '@chakra-ui/react'
+import { Box, ChakraProvider } from '@chakra-ui/react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import type { Preview } from '@storybook/nextjs-vite'
 import type { CSSProperties } from 'react'
@@ -32,6 +32,13 @@ const storybookFontRootStyle = {
   '--font-inter': '"Inter", ui-sans-serif, system-ui, sans-serif',
 } as CSSProperties
 
+/**
+ * A desktop browser never matches `(hover: none) and (pointer: coarse)`, so
+ * the Touch toolbar (or a story's `globals: { touch: 'on' }`) shows controls
+ * marked `data-touch-only`, such as `useTakePhoto` triggers, as a phone would.
+ */
+const touchScreenCss = { '& [data-touch-only]': { display: 'inline-flex' } }
+
 const preview: Preview = {
   globalTypes: {
     theme: {
@@ -43,6 +50,19 @@ const preview: Preview = {
         items: [
           { value: 'light', title: 'Light' },
           { value: 'dark', title: 'Dark' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+    touch: {
+      name: 'Touch',
+      description: 'Show controls meant for phones and tablets only',
+      defaultValue: 'off',
+      toolbar: {
+        icon: 'mobile',
+        items: [
+          { value: 'off', title: 'Mouse' },
+          { value: 'on', title: 'Touch screen' },
         ],
         dynamicTitle: true,
       },
@@ -60,7 +80,13 @@ const preview: Preview = {
             value={context.globals.theme === 'dark' ? darkSystem : lightSystem}
           >
             <div style={storybookFontRootStyle}>
-              <Story />
+              {context.globals.touch === 'on' ? (
+                <Box css={touchScreenCss}>
+                  <Story />
+                </Box>
+              ) : (
+                <Story />
+              )}
             </div>
           </ChakraProvider>
         </ThemeProvider>

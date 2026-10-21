@@ -1,6 +1,7 @@
 import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
 
@@ -164,10 +165,43 @@ export const AvailabilityInvalid: Story = {
   decorators: step(),
 }
 
-/** quote.photos: optional, nothing added yet. */
+/** quote.photos: optional, nothing added yet; with a mouse, just the add tile. */
 export const PhotosEmpty: Story = {
   args: { activeSubStep: 'quote.photos' },
   decorators: step(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('button', { name: 'Add photo' }),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Take photo' }),
+    ).toBeNull()
+  },
+}
+
+/** quote.photos on a phone or tablet: Take photo opens the back camera; its shot is added. */
+export const PhotosTouchScreen: Story = {
+  args: { activeSubStep: 'quote.photos' },
+  decorators: step(),
+  globals: { touch: 'on', viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('button', { name: 'Take photo' }),
+    ).toBeVisible()
+    const camera =
+      canvasElement.querySelector<HTMLInputElement>('input[capture]')
+    if (!camera) throw new Error('No camera input')
+    await expect(camera).toHaveAttribute('capture', 'environment')
+    await userEvent.upload(
+      camera,
+      new File(['shot'], 'camera.jpg', { type: 'image/jpeg' }),
+    )
+    await expect(
+      await canvas.findByRole('button', { name: 'Remove photo 1' }),
+    ).toBeVisible()
+  },
 }
 
 /** quote.photos: three photos added, each removable. */

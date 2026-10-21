@@ -23,6 +23,7 @@ import {
   Input,
   RadioButtonGroup,
   formControlRootProps,
+  useTakePhoto,
 } from '@ui'
 
 import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
@@ -168,6 +169,11 @@ function PhotoSection() {
       setUploading(false)
     }
   }
+  // Phones and tablets: the front camera, for a selfie.
+  const camera = useTakePhoto({
+    capture: 'user',
+    onFiles: (files) => void upload(files[0]),
+  })
 
   return (
     <FormField
@@ -201,17 +207,30 @@ function PhotoSection() {
               <span aria-hidden>{initial}</span>
             )}
           </Box>
-          <Button
-            id={field.controlId}
-            type="button"
-            variant="secondary"
-            minH="44px"
-            loading={uploading}
-            aria-describedby={field.describedBy}
-            onClick={() => inputRef.current?.click()}
-          >
-            {account.avatarUrl ? t.fields.changePhoto : t.fields.uploadPhoto}
-          </Button>
+          <HStack gap={3} flexWrap="wrap">
+            <Button
+              id={field.controlId}
+              type="button"
+              variant="secondary"
+              minH="44px"
+              loading={uploading}
+              aria-describedby={field.describedBy}
+              onClick={() => inputRef.current?.click()}
+            >
+              {account.avatarUrl ? t.fields.changePhoto : t.fields.uploadPhoto}
+            </Button>
+            <Button
+              {...camera.triggerProps}
+              type="button"
+              variant="secondary"
+              minH="44px"
+              disabled={uploading}
+              aria-describedby={field.describedBy}
+              onClick={camera.open}
+            >
+              {t.fields.takePhoto}
+            </Button>
+          </HStack>
           {/* The API converts every listed type (HEIC too) to JPEG. */}
           <input
             ref={inputRef}
@@ -224,6 +243,7 @@ function PhotoSection() {
               void upload(file)
             }}
           />
+          <input {...camera.inputProps} />
         </HStack>
       )}
     </FormField>

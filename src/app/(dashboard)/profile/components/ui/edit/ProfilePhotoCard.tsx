@@ -20,7 +20,7 @@ import {
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
-import { Button, Card } from '@ui'
+import { Button, Card, useTakePhoto } from '@ui'
 
 import bag from '../../../i11n.json'
 import { displayNameFromMe } from '../../../profileDisplayHelpers'
@@ -33,14 +33,19 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Phones and tablets: the front camera, for a selfie.
+  const camera = useTakePhoto({
+    capture: 'user',
+    onFiles: (files) => void handleFile(files[0]),
+  })
 
   if (!me) return null
 
   const currentAvatar = me.profile?.avatarUrl?.trim() || null
 
-  const handlePick = () => {
+  const handlePick = (open: () => void) => {
     setError(null)
-    inputRef.current?.click()
+    open()
   }
 
   const handleFile = async (file: File | undefined) => {
@@ -117,10 +122,20 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
                 size="sm"
                 minH="44px"
                 variant="secondary"
-                onClick={handlePick}
+                onClick={() => handlePick(() => inputRef.current?.click())}
                 loading={uploading}
               >
                 {currentAvatar ? t.replace : t.upload}
+              </Button>
+              <Button
+                {...camera.triggerProps}
+                size="sm"
+                minH="44px"
+                variant="secondary"
+                onClick={() => handlePick(camera.open)}
+                disabled={uploading}
+              >
+                {t.takePhoto}
               </Button>
             </HStack>
             <Text fontSize="xs" color="text.muted">
@@ -145,6 +160,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
             event.target.value = ''
           }}
         />
+        <input {...camera.inputProps} />
       </Stack>
     </Card>
   )

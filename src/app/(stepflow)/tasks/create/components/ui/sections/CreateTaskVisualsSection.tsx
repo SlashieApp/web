@@ -1,13 +1,13 @@
 'use client'
 
 import { Box, HStack, Image, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
-import { LuImagePlus, LuX } from 'react-icons/lu'
+import { type ComponentProps, type ReactNode, useRef, useState } from 'react'
+import { LuCamera, LuImagePlus, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFocusRing } from '@/theme/styles'
-import { Badge, Button, IconButton, ImagePreview } from '@ui'
+import { Badge, Button, IconButton, ImagePreview, useTakePhoto } from '@ui'
 
 import {
   TASK_PHOTOS_MAX,
@@ -67,6 +67,32 @@ function PhotoThumb({
   )
 }
 
+/** A dashed tile after the photos that adds more. */
+function AddPhotoTile({
+  icon,
+  label,
+  ...props
+}: ComponentProps<typeof Button> & { icon: ReactNode; label: string }) {
+  return (
+    <Button
+      type="button"
+      variant="secondary"
+      h={THUMB}
+      minW={THUMB}
+      borderStyle="dashed"
+      borderWidth="2px"
+      {...props}
+    >
+      <Stack gap={1} align="center">
+        {icon}
+        <Text as="span" fontSize="sm">
+          {label}
+        </Text>
+      </Stack>
+    </Button>
+  )
+}
+
 /** Optional photos: public on the task, up to 10, each up to 10 MB. */
 export function CreateTaskVisualsSection({
   files,
@@ -81,6 +107,8 @@ export function CreateTaskVisualsSection({
 }: CreateTaskVisualsSectionProps) {
   const f = useI11n(bag).fields
   const inputRef = useRef<HTMLInputElement | null>(null)
+  // Phones and tablets: the back camera, for the job itself.
+  const camera = useTakePhoto({ capture: 'environment', onFiles: onFilesAdded })
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const count = existingImageUrls.length + previews.length
   const full = count >= TASK_PHOTOS_MAX
@@ -175,22 +203,19 @@ export function CreateTaskVisualsSection({
           )
         })}
         {full ? null : (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => inputRef.current?.click()}
-            h={THUMB}
-            minW={THUMB}
-            borderStyle="dashed"
-            borderWidth="2px"
-          >
-            <Stack gap={1} align="center">
-              <LuImagePlus size={20} aria-hidden />
-              <Text as="span" fontSize="sm">
-                {f.addPhotos}
-              </Text>
-            </Stack>
-          </Button>
+          <>
+            <AddPhotoTile
+              icon={<LuImagePlus size={20} aria-hidden />}
+              label={f.addPhotos}
+              onClick={() => inputRef.current?.click()}
+            />
+            <AddPhotoTile
+              {...camera.triggerProps}
+              icon={<LuCamera size={20} aria-hidden />}
+              label={f.takePhoto}
+              onClick={camera.open}
+            />
+          </>
         )}
       </Wrap>
 
@@ -213,6 +238,7 @@ export function CreateTaskVisualsSection({
           if (picked.length > 0) onFilesAdded(picked)
         }}
       />
+      <input {...camera.inputProps} />
 
       {rejected.length > 0 ? (
         <Stack gap={1} role="alert">

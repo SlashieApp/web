@@ -90,11 +90,11 @@ export function TaskQuoteScreen({
     [revokeUrl],
   )
 
-  const onPhotoFiles = useCallback((list: FileList | null) => {
-    if (!list?.length) return
+  const onPhotoFiles = useCallback((files: File[]) => {
+    if (!files.length) return
     setPhotoUrls((prev) => {
       const next = [...prev]
-      for (const file of Array.from(list)) {
+      for (const file of files) {
         if (next.length >= 6) break
         if (!file.type.startsWith('image/')) continue
         next.push(URL.createObjectURL(file))

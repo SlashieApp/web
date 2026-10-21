@@ -15,21 +15,53 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Picks a file through the hidden input, as the browser file picker would. */
-function pickFile(canvasElement: HTMLElement, file: File) {
-  const input = canvasElement.querySelector('input[type="file"]')
+/** Picks a file through a hidden input, as the file picker (or camera) would. */
+function pickFile(
+  canvasElement: HTMLElement,
+  file: File,
+  selector = 'input[type="file"]:not([capture])',
+) {
+  const input = canvasElement.querySelector(selector)
   if (!input) throw new Error('File input not found')
   fireEvent.change(input, { target: { files: [file] } })
 }
 
-/** No photo yet: initials and an Upload photo button. */
+/** No photo yet, with a mouse: initials and an Upload photo button only. */
 export const NoPhoto: Story = {
   decorators: [withSession({ me: storyMe() })],
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
     await expect(
-      await within(canvasElement).findByRole('button', {
-        name: 'Upload photo',
+      await canvas.findByRole('button', { name: 'Upload photo' }),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Take photo' }),
+    ).toBeNull()
+  },
+}
+
+/** Phones and tablets: Take photo opens the front camera; its shot is checked like a picked file. */
+export const TouchScreen: Story = {
+  decorators: [withSession({ me: storyMe() })],
+  globals: { touch: 'on', viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('button', { name: 'Take photo' }),
+    ).toBeVisible()
+    await expect(canvasElement.querySelector('input[capture]')).toHaveAttribute(
+      'capture',
+      'user',
+    )
+    pickFile(
+      canvasElement,
+      new File([new ArrayBuffer(5 * 1024 * 1024 + 1)], 'selfie.jpg', {
+        type: 'image/jpeg',
       }),
+      'input[capture]',
+    )
+    await expect(
+      await canvas.findByText('Image must be 5MB or smaller.'),
     ).toBeVisible()
   },
 }

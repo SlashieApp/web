@@ -69,6 +69,7 @@
     "photos": {
       "label": "Add photos",
       "add": "Add photo",
+      "take": "Take photo",
       "remove": "Remove photo {number}",
       "alt": "Photo {number}"
     },
@@ -178,6 +179,7 @@
     "photos": {
       "label": "加入相片",
       "add": "加入相片",
+      "take": "拍照",
       "remove": "移除第 {number} 張相片",
       "alt": "第 {number} 張相片"
     },

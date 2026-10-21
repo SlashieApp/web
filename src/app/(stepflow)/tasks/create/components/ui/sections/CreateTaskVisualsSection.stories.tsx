@@ -54,8 +54,41 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** No photos yet: just the dashed upload area and Upload button. */
-export const Empty: Story = {}
+/** No photos yet, with a mouse: just the dashed Add photos tile (no Take photo). */
+export const Empty: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('button', { name: 'Add photos' }),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Take photo' }),
+    ).toBeNull()
+  },
+}
+
+/** Phones and tablets: a Take photo tile opens the back camera; its shot joins the photos. */
+export const TouchScreen: Story = {
+  globals: { touch: 'on', viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('button', { name: 'Take photo' }),
+    ).toBeVisible()
+    const camera =
+      canvasElement.querySelector<HTMLInputElement>('input[capture]')
+    if (!camera) throw new Error('No camera input')
+    await expect(camera).toHaveAttribute('capture', 'environment')
+    await expect(camera).toHaveAttribute('accept', 'image/*')
+    await userEvent.upload(
+      camera,
+      new File(['shot'], 'camera.jpg', { type: 'image/jpeg' }),
+    )
+    await expect(
+      await canvas.findByRole('button', { name: 'Photo 1' }),
+    ).toBeVisible()
+  },
+}
 
 /** Two photos picked: previews (tap to view) with a remove button on each. */
 export const WithPhotos: Story = {
