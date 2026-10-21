@@ -9,6 +9,10 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { apolloClient } from '@/utils/apolloClient'
 import {
+  type ImageUploadErrorCode,
+  imageUploadErrorCode,
+} from '@/utils/graphqlErrors'
+import {
   AVATAR_ACCEPTED_TYPES,
   uploadProfileAvatar,
   validateAvatarFile,
@@ -108,7 +112,26 @@ function DateOfBirthSection() {
   )
 }
 
-type PhotoProblem = 'photoWrongType' | 'photoTooLarge' | 'photoUploadFailed'
+/** A pick check, or the API's reason it refused the image. */
+type PhotoProblem =
+  | 'photoWrongType'
+  | 'photoTooLarge'
+  | 'photoUploadFailed'
+  | ImageUploadErrorCode
+
+function photoProblemText(
+  t: (typeof bag)['en'],
+  problem: PhotoProblem,
+): string {
+  switch (problem) {
+    case 'photoWrongType':
+    case 'photoTooLarge':
+    case 'photoUploadFailed':
+      return t.fields[problem]
+    default:
+      return t.serverErrors[problem]
+  }
+}
 
 function PhotoSection() {
   const { t, form, account, clearErrors, error } = useSetupField()
@@ -130,12 +153,17 @@ function PhotoSection() {
     setUploading(true)
     setProblem(null)
     try {
-      const url = await uploadProfileAvatar(apolloClient, file)
-      // Saved to the account with this screen's Continue.
-      if (me) patchMe({ profile: { ...me.profile, avatarUrl: url } })
+      // Saved here by `finalizeAvatarUpload`; Continue only checks it is set.
+      const saved = await uploadProfileAvatar(apolloClient, file)
+      if (me) {
+        patchMe({
+          profile: { ...me.profile, avatarUrl: saved.profile.avatarUrl },
+          workerEligibility: saved.workerEligibility,
+        })
+      }
       clearErrors(['avatar'])
-    } catch {
-      setProblem('photoUploadFailed')
+    } catch (failure) {
+      setProblem(imageUploadErrorCode(failure) ?? 'photoUploadFailed')
     } finally {
       setUploading(false)
     }
@@ -145,7 +173,7 @@ function PhotoSection() {
     <FormField
       label={t.fields.photo}
       helperText={t.fields.photoHelper}
-      errorText={problem ? t.fields[problem] : error('avatar')}
+      errorText={problem ? photoProblemText(t, problem) : error('avatar')}
     >
       {(field) => (
         <HStack gap={4} align="center">
@@ -184,7 +212,7 @@ function PhotoSection() {
           >
             {account.avatarUrl ? t.fields.changePhoto : t.fields.uploadPhoto}
           </Button>
-          {/* Listing the types makes iPhones send HEIC photos as JPEG. */}
+          {/* The API converts every listed type (HEIC too) to JPEG. */}
           <input
             ref={inputRef}
             type="file"

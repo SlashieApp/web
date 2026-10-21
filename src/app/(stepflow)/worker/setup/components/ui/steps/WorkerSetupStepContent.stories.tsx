@@ -96,7 +96,9 @@ export const PhotoWrongType: Story = {
       new File(['gif'], 'cat.gif', { type: 'image/gif' }),
     )
     await expect(
-      await within(canvasElement).findByText('Use a JPG, PNG or WebP photo.'),
+      await within(canvasElement).findByText(
+        'Use a JPG, PNG, WebP, HEIC or AVIF photo.',
+      ),
     ).toBeVisible()
   },
 }

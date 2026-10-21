@@ -1,0 +1,6 @@
+mutation CreateImageUpload {
+  createImageUpload {
+    url
+    uploadKey
+  }
+}

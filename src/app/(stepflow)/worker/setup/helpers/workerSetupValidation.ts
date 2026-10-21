@@ -159,7 +159,6 @@ export function workerSetupErrorText(
 export function buildSavePayload(
   subStepId: WorkerSetupSubStepId,
   form: WorkerSetupFormState,
-  avatarUrl?: string | null,
 ): Record<string, unknown> {
   switch (subStepId) {
     case 'profile.details':
@@ -174,7 +173,8 @@ export function buildSavePayload(
               ).toISOString(),
       }
     case 'profile.photo':
-      return avatarUrl?.trim() ? { avatarUrl: avatarUrl.trim() } : {}
+      // `finalizeAvatarUpload` saved the photo; the API only checks it is set.
+      return {}
     case 'profile.bio':
       return {
         tagline: form.tagline.trim(),

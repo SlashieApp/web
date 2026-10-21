@@ -5,13 +5,12 @@ export const TASK_IMAGE_SLOTS: readonly number[] = [
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 ]
 
-/** File extensions the API takes on a photo key. */
+/** Photo types the API converts to JPEG, by file extension (not GIF). */
 export const TASK_IMAGE_EXTENSIONS = [
   'jpg',
   'jpeg',
   'png',
   'webp',
-  'gif',
   'heic',
   'heif',
   'avif',
@@ -25,7 +24,6 @@ const EXTENSION_BY_MIME: Record<string, TaskImageExtension> = {
   'image/pjpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
-  'image/gif': 'gif',
   'image/heic': 'heic',
   'image/heic-sequence': 'heic',
   'image/heif': 'heif',
@@ -38,9 +36,9 @@ function isTaskImageExtension(value: string): value is TaskImageExtension {
 }
 
 /**
- * The key's extension: the file name's when the API takes it, otherwise one
- * from the MIME type. Null when neither gives an allowed type (the photo is
- * refused before upload).
+ * The photo's type: the file name's extension when the API takes it,
+ * otherwise one from the MIME type. Null when neither gives an allowed type
+ * (the photo is refused before upload).
  */
 export function taskImageExtension(
   file: Pick<File, 'name' | 'type'>,
@@ -57,17 +55,21 @@ export function taskImageExtension(
   return EXTENSION_BY_MIME[file.type.trim().toLowerCase()] ?? null
 }
 
-/** `3.jpg`: the slot, then the extension. Throws for a slot outside 0 to 9 or an unknown type. */
-export function taskImageKey(
+/**
+ * The `index` for `finalizeTaskImage`: the slot. Throws for a slot outside 0
+ * to 9 or an unknown type, before anything uploads.
+ */
+export function taskImageIndex(
   slot: number,
   file: Pick<File, 'name' | 'type'>,
-): string {
+): number {
   if (!Number.isInteger(slot) || slot < 0 || slot > 9) {
     throw new Error(`Task photo slot ${slot} is outside 0 to 9.`)
   }
-  const extension = taskImageExtension(file)
-  if (!extension) throw new Error(`${file.name} is not a supported photo type.`)
-  return `${slot}.${extension}`
+  if (!taskImageExtension(file)) {
+    throw new Error(`${file.name} is not a supported photo type.`)
+  }
+  return slot
 }
 
 /** Photos can be added only while the task is open or a draft (else TASK_NOT_EDITABLE). */

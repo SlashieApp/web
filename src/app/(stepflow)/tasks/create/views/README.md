@@ -44,11 +44,13 @@ Copy lives in `../i11n.json` (en + zh-HK); form errors are copy keys in
 - **Dates:** Before and On a date need a real day that is today or later in
   London (`dateRequired`, `dateInvalid`, `dateInPast`); the API's
   DATE_REQUIRED, INVALID_DATE and DATE_IN_PAST show `serverErrors` copy.
-- **Photos:** keys are one slot digit (0 to 9) and an allowed extension (jpg,
-  jpeg, png, webp, gif, heic, heif, avif), from the file name or else its type
-  (`utils/taskImageKeys.ts`); a picture of another type is refused when picked
-  ("Use a JPG, PNG, WebP, GIF, HEIC or AVIF photo"). Uploads only run while
-  the task is OPEN or DRAFT.
+- **Photos:** each takes a slot (0 to 9) and must be an allowed type (jpg,
+  jpeg, png, webp, heic, heif, avif), from the file name or else its type
+  (`utils/taskImageKeys.ts`); a picture of another type, GIF included, is
+  refused when picked ("Use a JPG, PNG, WebP, HEIC or AVIF photo"). Each
+  upload is `createImageUpload`, a PUT, then `finalizeTaskImage`, which stores
+  the slot as a metadata-free JPEG. Uploads only run while the task is OPEN
+  or DRAFT.
 - **Posting:** one at a time, and never twice (`publishOnce`). Photos upload
   after the task exists; any that fail are counted in a toast and the rest
   still upload. Then the task page replaces this one.

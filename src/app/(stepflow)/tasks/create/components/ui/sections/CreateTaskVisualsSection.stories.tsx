@@ -98,7 +98,7 @@ export const Rejected: Story = {
   play: async ({ canvasElement }) => {
     await expect(
       within(canvasElement).getByText(
-        "scan.bmp wasn't added. Use a JPG, PNG, WebP, GIF, HEIC or AVIF photo.",
+        "scan.bmp wasn't added. Use a JPG, PNG, WebP, HEIC or AVIF photo.",
       ),
     ).toBeVisible()
   },

@@ -50,7 +50,7 @@ export const WithPhoto: Story = {
   },
 }
 
-/** A file that is not JPG, PNG or WebP is refused before any upload. */
+/** A file that is not a supported image type is refused before any upload. */
 export const WrongFileType: Story = {
   decorators: [withSession({ me: storyMe() })],
   play: async ({ canvasElement }) => {
@@ -60,7 +60,9 @@ export const WrongFileType: Story = {
       new File(['not an image'], 'cv.pdf', { type: 'application/pdf' }),
     )
     await expect(
-      await within(canvasElement).findByText('Use a JPG, PNG, or WebP image.'),
+      await within(canvasElement).findByText(
+        'Use a JPG, PNG, WebP, HEIC, or AVIF image.',
+      ),
     ).toBeVisible()
   },
 }

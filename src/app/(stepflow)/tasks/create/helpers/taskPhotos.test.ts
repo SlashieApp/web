@@ -26,10 +26,14 @@ describe('acceptTaskPhotos', () => {
     ])
   })
 
-  it('turns down a picture type the API cannot store', () => {
-    const result = acceptTaskPhotos([photo('scan.bmp', 1, 'image/bmp')], 0)
+  it('turns down a picture type the API cannot convert', () => {
+    const result = acceptTaskPhotos(
+      [photo('scan.bmp', 1, 'image/bmp'), photo('cat.gif', 1, 'image/gif')],
+      0,
+    )
     expect(result.rejected).toEqual([
       { reason: 'unsupportedType', name: 'scan.bmp' },
+      { reason: 'unsupportedType', name: 'cat.gif' },
     ])
   })
 

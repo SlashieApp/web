@@ -1,13 +1,10 @@
 'use client'
 
-import { useMutation } from '@apollo/client/react'
 import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
-import type { UpdateMyProfileMutation } from '@codegen/schema'
 import { useRef, useState } from 'react'
 
 import { MeAvatar } from '@/app/(auth)/components/ui/MeAvatar'
 import { useUserStore } from '@/app/(auth)/store/user'
-import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
 import { useI11n } from '@/i18n/useI11n'
 import {
   EVENTS,
@@ -17,7 +14,9 @@ import {
 } from '@/utils/analytics'
 import { apolloClient } from '@/utils/apolloClient'
 import { showAppToast } from '@/utils/appToast'
+import { imageUploadErrorCode } from '@/utils/graphqlErrors'
 import {
+  AVATAR_ACCEPTED_TYPES,
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
@@ -34,9 +33,6 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const [updateMyProfile] =
-    useMutation<UpdateMyProfileMutation>(UpdateMyProfile)
 
   if (!me) return null
 
@@ -61,15 +57,12 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
     setError(null)
 
     try {
-      const avatarUrl = await uploadProfileAvatar(apolloClient, file)
-      const result = await updateMyProfile({
-        variables: { input: { avatarUrl } },
-      })
-      const updated = result.data?.updateMyProfile
-      if (updated?.profile && me.profile) {
+      // `finalizeAvatarUpload` saves the photo; this only refreshes `me`.
+      const saved = await uploadProfileAvatar(apolloClient, file)
+      if (me.profile) {
         patchMe({
-          profile: { ...me.profile, avatarUrl: updated.profile.avatarUrl },
-          workerEligibility: updated.workerEligibility,
+          profile: { ...me.profile, avatarUrl: saved.profile.avatarUrl },
+          workerEligibility: saved.workerEligibility,
         })
       }
       trackFlowSucceeded(EVENTS.profile_update_success, { section: 'avatar' })
@@ -80,18 +73,19 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
         flow: 'profile_update',
         action: 'uploadProfileAvatar',
         source: 'upload',
-        url_or_operation: 'GetProfileAvatarUpload',
+        url_or_operation: 'FinalizeAvatarUpload',
         route: '/profile',
         report_global: false,
       })
       trackFlowFailed(EVENTS.profile_update_fail, uploadError, {
         flow: 'profile_update',
         action: 'uploadProfileAvatar',
-        operation: 'UpdateMyProfile',
+        operation: 'FinalizeAvatarUpload',
         route: '/profile',
         extra: { section: 'avatar' },
       })
-      setError(t.failed)
+      const code = imageUploadErrorCode(uploadError)
+      setError(code ? t.serverErrors[code] : t.failed)
       setPreviewUrl(null)
     } finally {
       setUploading(false)
@@ -144,7 +138,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept={AVATAR_ACCEPTED_TYPES.join(',')}
           hidden
           onChange={(event) => {
             void handleFile(event.target.files?.[0])

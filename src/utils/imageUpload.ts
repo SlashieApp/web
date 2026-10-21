@@ -1,0 +1,54 @@
+import type { ApolloClient } from '@apollo/client'
+import type { CreateImageUploadMutation } from '@codegen/schema'
+
+import CreateImageUpload from '@/graphql/CreateImageUpload.gql'
+import { apiFetch } from '@/utils/analytics'
+
+/**
+ * Creates a private upload (`createImageUpload`) and PUTs `file` to it.
+ * Returns the `uploadKey` for `finalizeTaskImage` or `finalizeAvatarUpload`,
+ * which turn it into a metadata-free JPEG. An upload never finalized is
+ * deleted by the API after about an hour.
+ */
+export async function uploadImageBytes(
+  client: ApolloClient,
+  file: File,
+  context: { flow: string; action: string; url_or_operation: string },
+): Promise<string> {
+  const { data } = await client.mutate<CreateImageUploadMutation>({
+    mutation: CreateImageUpload,
+  })
+  const upload = data?.createImageUpload
+  if (!upload?.url.trim() || !upload.uploadKey.trim()) {
+    throw new Error('Could not get an upload URL. Please try again.')
+  }
+
+  let putRes: Response
+  try {
+    putRes = await apiFetch(
+      upload.url,
+      {
+        method: 'PUT',
+        // Content-Type only: no ACL header, so the upload stays private.
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      },
+      { ...context, source: 'upload' },
+    )
+  } catch {
+    throw new Error(
+      'Upload failed before reaching storage. Check storage CORS for PUT from this origin and try again.',
+    )
+  }
+
+  if (!putRes.ok) {
+    const responseText = await putRes.text().catch(() => '')
+    throw new Error(
+      `Upload failed (${putRes.status}). ${
+        responseText || 'Please check storage permissions/CORS and try again.'
+      }`,
+    )
+  }
+
+  return upload.uploadKey
+}

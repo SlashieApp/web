@@ -6,7 +6,7 @@ import {
   freeTaskImageSlots,
   nextTaskImageUploadIndex,
   taskImageExtension,
-  taskImageKey,
+  taskImageIndex,
 } from './taskImageKeys'
 
 const file = (name: string, type: string) => ({ name, type })
@@ -24,19 +24,22 @@ describe('taskImageExtension', () => {
 
   it('has none for a type the API does not take', () => {
     expect(taskImageExtension(file('scan.bmp', 'image/bmp'))).toBeNull()
+    expect(taskImageExtension(file('cat.gif', 'image/gif'))).toBeNull()
     expect(taskImageExtension(file('notes', ''))).toBeNull()
   })
 })
 
-describe('taskImageKey', () => {
-  it('is one digit and an allowed extension', () => {
-    expect(taskImageKey(0, file('a.png', 'image/png'))).toBe('0.png')
-    expect(taskImageKey(9, file('b', 'image/webp'))).toBe('9.webp')
+describe('taskImageIndex', () => {
+  it('is the slot, whatever the allowed type', () => {
+    expect(taskImageIndex(0, file('a.png', 'image/png'))).toBe(0)
+    expect(taskImageIndex(9, file('b', 'image/heic'))).toBe(9)
   })
 
   it('never goes past slot 9 or sends an unknown type', () => {
-    expect(() => taskImageKey(10, file('a.png', 'image/png'))).toThrow()
-    expect(() => taskImageKey(1, file('a.bmp', 'image/bmp'))).toThrow()
+    expect(() => taskImageIndex(10, file('a.png', 'image/png'))).toThrow()
+    expect(() => taskImageIndex(1.5, file('a.png', 'image/png'))).toThrow()
+    expect(() => taskImageIndex(1, file('a.bmp', 'image/bmp'))).toThrow()
+    expect(() => taskImageIndex(1, file('a.gif', 'image/gif'))).toThrow()
   })
 })
 

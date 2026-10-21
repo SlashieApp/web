@@ -279,7 +279,7 @@ export function WorkerSetupProvider({ children }: { children: ReactNode }) {
           variables: {
             input: {
               subStep: step,
-              ...buildSavePayload(step, formForSave, account.avatarUrl),
+              ...buildSavePayload(step, formForSave),
             } as SaveWorkerSetupStepInput,
           },
         })

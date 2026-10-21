@@ -1,106 +1,45 @@
 import type { ApolloClient } from '@apollo/client'
-import type { GetTaskS3UploadQuery, TaskStatus } from '@codegen/schema'
+import type {
+  FinalizeTaskImageMutation,
+  FinalizeTaskImageMutationVariables,
+  TaskStatus,
+} from '@codegen/schema'
 
-import GetTaskS3Upload from '@/app/(stepflow)/tasks/create/graphql/GetTaskS3Upload.gql'
-import { apiFetch } from '@/utils/analytics'
+import FinalizeTaskImage from '@/app/(stepflow)/tasks/create/graphql/FinalizeTaskImage.gql'
+import { uploadImageBytes } from '@/utils/imageUpload'
 import {
   TASK_IMAGE_SLOTS,
   canUploadTaskImages,
-  taskImageKey,
+  taskImageIndex,
 } from '@/utils/taskImageKeys'
 
-function objectUrlFromPresignedPut(presignedUrl: string): string {
-  try {
-    const u = new URL(presignedUrl)
-    return `${u.origin}${u.pathname}`
-  } catch {
-    return presignedUrl.split('?')[0] ?? presignedUrl
-  }
-}
-
 /**
- * Calls `getTaskS3Upload` and returns a presigned PUT URL (or throws).
+ * Uploads one photo into `slot` (0 to 9): `createImageUpload`, PUT, then
+ * `finalizeTaskImage`, which stores it as `tasks/<taskId>/<slot>.jpg` and
+ * replaces any earlier photo in that slot. Returns the photo's public URL.
  */
-export async function getS3PresignedPutUrlForTaskImage(
-  client: ApolloClient,
-  taskId: string,
-  index: string,
-): Promise<string> {
-  const { data, error } = await client.query<GetTaskS3UploadQuery>({
-    query: GetTaskS3Upload,
-    variables: { taskId, index },
-    fetchPolicy: 'network-only',
-  })
-
-  if (error) throw error
-
-  const rows = data?.getTaskS3Upload ?? []
-  const presigned = rows.map((r) => r.url).find((u) => Boolean(u?.trim())) ?? ''
-  if (!presigned.trim()) {
-    throw new Error('Could not get upload URL. Please try again.')
-  }
-
-  return presigned
-}
-
-/**
- * PUTs `file` to a presigned URL. Returns the stable object URL (no query string).
- */
-export async function putTaskImageToPresignedUrl(
-  presignedUrl: string,
-  file: File,
-): Promise<string> {
-  let putRes: Response
-  try {
-    putRes = await apiFetch(
-      presignedUrl,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type || 'application/octet-stream',
-          'Cache-Control': 'public,max-age=31536000,immutable',
-          'x-amz-acl': 'public-read',
-        },
-        body: file,
-      },
-      {
-        flow: 'task_create',
-        action: 'putTaskImageToPresignedUrl',
-        source: 'upload',
-        url_or_operation: 'task_image_put',
-      },
-    )
-  } catch {
-    throw new Error(
-      'Upload failed before reaching storage. Check storage CORS for PUT from this origin and try again.',
-    )
-  }
-
-  if (!putRes.ok) {
-    const responseText = await putRes.text().catch(() => '')
-    throw new Error(
-      `Upload failed (${putRes.status}). ${
-        responseText || 'Please check storage permissions/CORS and try again.'
-      }`,
-    )
-  }
-
-  return objectUrlFromPresignedPut(presignedUrl)
-}
-
-/** Presign via API (`getTaskS3Upload`, key `<slot>.<ext>`), then upload one file. */
-export async function uploadTaskImageWithPresign(
+export async function uploadTaskImage(
   client: ApolloClient,
   taskId: string,
   file: File,
   slot: number,
 ): Promise<string> {
-  const presigned = await getS3PresignedPutUrlForTaskImage(
-    client,
-    taskId,
-    taskImageKey(slot, file),
-  )
-  return putTaskImageToPresignedUrl(presigned, file)
+  const index = taskImageIndex(slot, file)
+  const uploadKey = await uploadImageBytes(client, file, {
+    flow: 'task_create',
+    action: 'uploadTaskImage',
+    url_or_operation: 'task_image_put',
+  })
+  const { data } = await client.mutate<
+    FinalizeTaskImageMutation,
+    FinalizeTaskImageMutationVariables
+  >({
+    mutation: FinalizeTaskImage,
+    variables: { taskId, index, uploadKey },
+  })
+  const url = data?.finalizeTaskImage?.trim()
+  if (!url) throw new Error('Could not save the photo. Please try again.')
+  return url
 }
 
 /**
@@ -124,7 +63,7 @@ export async function uploadTaskImagesSettled(
       continue
     }
     try {
-      await uploadTaskImageWithPresign(client, task.id, files[i], slot)
+      await uploadTaskImage(client, task.id, files[i], slot)
     } catch {
       failed += 1
     }

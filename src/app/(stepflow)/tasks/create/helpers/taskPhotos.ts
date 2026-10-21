@@ -24,7 +24,7 @@ export function acceptTaskPhotos(
     if (!file.type.startsWith('image/')) {
       rejected.push({ reason: 'notAPhoto', name: file.name })
     } else if (!taskImageExtension(file)) {
-      // A picture the API can't store (e.g. BMP or TIFF).
+      // A picture the API can't convert (e.g. GIF, BMP or TIFF).
       rejected.push({ reason: 'unsupportedType', name: file.name })
     } else if (file.size > TASK_PHOTO_MAX_MB * 1024 * 1024) {
       rejected.push({ reason: 'tooLarge', name: file.name })

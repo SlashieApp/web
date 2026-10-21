@@ -235,6 +235,10 @@ describe('buildSavePayload', () => {
     })
   })
 
+  it('sends no photo: finalizeAvatarUpload already saved it', () => {
+    expect(buildSavePayload('profile.photo', form({}))).toEqual({})
+  })
+
   it('sends the travel distance as a number, or nothing', () => {
     expect(
       buildSavePayload('area.travel', form({ travelRadiusMiles: '10' })),

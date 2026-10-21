@@ -100,11 +100,16 @@
       "body": "A clear photo helps customers and workers trust your profile.",
       "upload": "Upload photo",
       "replace": "Replace photo",
-      "hint": "JPG, PNG, or WebP. Up to 5MB.",
+      "hint": "JPG, PNG, WebP, HEIC, or AVIF. Up to 5MB.",
       "updated": "Profile photo updated",
       "failed": "Couldn't upload your photo. Please try again.",
-      "wrongType": "Use a JPG, PNG, or WebP image.",
-      "tooBig": "Image must be 5MB or smaller."
+      "wrongType": "Use a JPG, PNG, WebP, HEIC, or AVIF image.",
+      "tooBig": "Image must be 5MB or smaller.",
+      "serverErrors": {
+        "UPLOAD_NOT_FOUND": "Your photo didn't finish uploading. Please try again.",
+        "IMAGE_TOO_LARGE": "That image is too large. Try a smaller photo.",
+        "UNSUPPORTED_IMAGE": "We couldn't read that image. Try a different photo."
+      }
     },
     "workerForm": {
       "legalName": "Legal name",
@@ -246,11 +251,16 @@
       "body": "清晰的相片有助顧客和工作者信任你的個人檔案。",
       "upload": "上載相片",
       "replace": "更換相片",
-      "hint": "JPG、PNG 或 WebP，最大 5MB。",
+      "hint": "JPG、PNG、WebP、HEIC 或 AVIF，最大 5MB。",
       "updated": "個人頭像已更新",
       "failed": "未能上載你的相片，請再試一次。",
-      "wrongType": "請使用 JPG、PNG 或 WebP 圖片。",
-      "tooBig": "圖片必須為 5MB 或以下。"
+      "wrongType": "請使用 JPG、PNG、WebP、HEIC 或 AVIF 圖片。",
+      "tooBig": "圖片必須為 5MB 或以下。",
+      "serverErrors": {
+        "UPLOAD_NOT_FOUND": "你的相片未能完成上載，請再試一次。",
+        "IMAGE_TOO_LARGE": "圖片太大，請改用較小的相片。",
+        "UNSUPPORTED_IMAGE": "未能讀取這張圖片，請改用另一張相片。"
+      }
     },
     "workerForm": {
       "legalName": "法定姓名",

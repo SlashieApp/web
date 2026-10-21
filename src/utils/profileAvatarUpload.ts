@@ -1,14 +1,20 @@
 import type { ApolloClient } from '@apollo/client'
-import type { GetProfileAvatarUploadQuery } from '@codegen/schema'
+import type {
+  FinalizeAvatarUploadMutation,
+  FinalizeAvatarUploadMutationVariables,
+} from '@codegen/schema'
 
-import GetProfileAvatarUpload from '@/app/(dashboard)/profile/graphql/GetProfileAvatarUpload.gql'
-import { apiFetch } from '@/utils/analytics'
+import FinalizeAvatarUpload from '@/app/(dashboard)/profile/graphql/FinalizeAvatarUpload.gql'
+import { uploadImageBytes } from '@/utils/imageUpload'
 
 export const AVATAR_MAX_BYTES = 5 * 1024 * 1024
 export const AVATAR_ACCEPTED_TYPES = [
   'image/jpeg',
   'image/png',
   'image/webp',
+  'image/heic',
+  'image/heif',
+  'image/avif',
 ] as const
 
 export type AvatarFileProblem = 'type' | 'size'
@@ -20,77 +26,30 @@ export function validateAvatarFile(file: File): AvatarFileProblem | null {
   return null
 }
 
-function fallbackObjectUrl(presignedUrl: string): string {
-  try {
-    const u = new URL(presignedUrl)
-    return `${u.origin}${u.pathname}`
-  } catch {
-    return presignedUrl.split('?')[0] ?? presignedUrl
-  }
-}
-
-function avatarFilename(file: File): string {
-  const extension = file.name.split('.').pop()?.trim().toLowerCase()
-  return extension ? `avatar.${extension}` : 'avatar'
-}
+export type SavedAvatar = FinalizeAvatarUploadMutation['finalizeAvatarUpload']
 
 /**
- * Presign via `getProfileAvatarUpload`, PUT the file to object storage, and
- * return the stable public URL to persist via `updateMyProfile`. Mirrors the
- * task-image presigned upload flow.
+ * Uploads `file` (`createImageUpload`, then a PUT) and makes it the signed-in
+ * user's avatar with `finalizeAvatarUpload`, which converts it to a
+ * metadata-free JPEG and saves `avatarUrl`. Returns the updated user.
  */
 export async function uploadProfileAvatar(
   client: ApolloClient,
   file: File,
-): Promise<string> {
-  const { data, error } = await client.query<GetProfileAvatarUploadQuery>({
-    query: GetProfileAvatarUpload,
-    variables: { filename: avatarFilename(file) },
-    fetchPolicy: 'network-only',
+): Promise<SavedAvatar> {
+  const uploadKey = await uploadImageBytes(client, file, {
+    flow: 'profile_update',
+    action: 'uploadProfileAvatar',
+    url_or_operation: 'profile_avatar_put',
   })
-
-  if (error) throw error
-
-  const slot = data?.getProfileAvatarUpload
-  const presignedUrl = slot?.url?.trim()
-  if (!presignedUrl) {
-    throw new Error('Could not get an upload URL. Please try again.')
-  }
-
-  let putRes: Response
-  try {
-    putRes = await apiFetch(
-      presignedUrl,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type || 'application/octet-stream',
-          'Cache-Control': 'public,max-age=31536000,immutable',
-          'x-amz-acl': 'public-read',
-        },
-        body: file,
-      },
-      {
-        flow: 'profile_update',
-        action: 'uploadProfileAvatar',
-        source: 'upload',
-        url_or_operation: 'profile_avatar_put',
-      },
-    )
-  } catch {
-    throw new Error(
-      'Upload failed before reaching storage. Check storage CORS for PUT from this origin and try again.',
-    )
-  }
-
-  if (!putRes.ok) {
-    const responseText = await putRes.text().catch(() => '')
-    throw new Error(
-      `Upload failed (${putRes.status}). ${
-        responseText || 'Please check storage permissions/CORS and try again.'
-      }`,
-    )
-  }
-
-  return slot?.publicUrl?.trim() || fallbackObjectUrl(presignedUrl)
+  const { data } = await client.mutate<
+    FinalizeAvatarUploadMutation,
+    FinalizeAvatarUploadMutationVariables
+  >({
+    mutation: FinalizeAvatarUpload,
+    variables: { uploadKey },
+  })
+  const saved = data?.finalizeAvatarUpload
+  if (!saved) throw new Error('Could not save your photo. Please try again.')
+  return saved
 }

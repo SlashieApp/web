@@ -1,0 +1,9 @@
+mutation FinalizeAvatarUpload($uploadKey: String!) {
+  finalizeAvatarUpload(uploadKey: $uploadKey) {
+    id
+    profile {
+      avatarUrl
+    }
+    workerEligibility
+  }
+}

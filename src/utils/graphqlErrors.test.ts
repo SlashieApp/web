@@ -4,6 +4,7 @@ import {
   ACCOUNT_DISABLED_ERROR_CODE,
   getFriendlyErrorMessage,
   getGraphQLErrorCode,
+  imageUploadErrorCode,
   isAccountDeletedError,
   isAccountDeletionScheduledError,
   isAccountDisabledError,
@@ -76,6 +77,24 @@ describe('plain resolver errors', () => {
 
   it('keeps INTERNAL_SERVER_ERROR for unknown messages', () => {
     expect(getGraphQLErrorCode(internal('boom'))).toBe('INTERNAL_SERVER_ERROR')
+  })
+})
+
+describe('image uploads (BE-83)', () => {
+  it('reads why an image was refused, with copy for each', () => {
+    for (const code of [
+      'UPLOAD_NOT_FOUND',
+      'IMAGE_TOO_LARGE',
+      'UNSUPPORTED_IMAGE',
+    ] as const) {
+      expect(imageUploadErrorCode(gqlError(code))).toBe(code)
+      expect(getFriendlyErrorMessage(gqlError(code), 'fallback')).not.toBe(code)
+    }
+  })
+
+  it('has no reason for any other failure', () => {
+    expect(imageUploadErrorCode(gqlError('TASK_NOT_EDITABLE'))).toBeNull()
+    expect(imageUploadErrorCode(new Error('Upload failed (403).'))).toBeNull()
   })
 })
 

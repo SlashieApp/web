@@ -1,0 +1,3 @@
+mutation FinalizeTaskImage($taskId: ID!, $index: Int!, $uploadKey: String!) {
+  finalizeTaskImage(taskId: $taskId, index: $index, uploadKey: $uploadKey)
+}

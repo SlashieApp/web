@@ -90,6 +90,10 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   DATE_IN_PAST: 'That date has passed. Pick today or a later date.',
   INVALID_INDEX: 'That photo could not be added. Use up to 10 photos.',
   FORBIDDEN_TASK_UPLOAD: 'Only the person who posted this task can add photos.',
+  UPLOAD_NOT_FOUND: "That photo didn't finish uploading. Please try again.",
+  IMAGE_TOO_LARGE: 'That photo is too large. Try a smaller one.',
+  UNSUPPORTED_IMAGE:
+    "That photo couldn't be read. Use a JPG, PNG, WebP, HEIC or AVIF photo.",
   TITLE_REQUIRED: 'Please add a task title.',
   DESCRIPTION_REQUIRED: 'Please describe what needs to be done.',
   INVALID_BUDGET: 'Please provide a valid budget greater than zero.',
@@ -261,6 +265,23 @@ export function isAccountDeletedError(error: unknown) {
 /** The API rejected the session: drop it. Network or server trouble keeps it. */
 export function isSessionEndedError(error: unknown) {
   return isUnauthenticatedError(error) || isAccountDeletedError(error)
+}
+
+/** Codes `finalizeTaskImage` and `finalizeAvatarUpload` send for a refused image. */
+export const IMAGE_UPLOAD_ERROR_CODES = [
+  'UPLOAD_NOT_FOUND',
+  'IMAGE_TOO_LARGE',
+  'UNSUPPORTED_IMAGE',
+] as const
+
+export type ImageUploadErrorCode = (typeof IMAGE_UPLOAD_ERROR_CODES)[number]
+
+/** Why the API refused an uploaded image, or null for any other failure. */
+export function imageUploadErrorCode(
+  error: unknown,
+): ImageUploadErrorCode | null {
+  const code = getGraphQLErrorCode(error)
+  return IMAGE_UPLOAD_ERROR_CODES.find((known) => known === code) ?? null
 }
 
 export function getGraphQLErrorCode(error: unknown): string | undefined {
