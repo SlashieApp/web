@@ -355,6 +355,7 @@ bun run lint          # Biome --write
 bun run test:unit
 bun run storybook     # port 6006
 npx vitest run --project storybook   # render every story as a test
+npx vitest run --project browser     # *.browser.test.ts in real Chromium
 bun run dev           # runs exports-gen then Next on 3000
 ```
 

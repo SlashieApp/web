@@ -3,18 +3,23 @@ import type { CreateImageUploadMutation } from '@codegen/schema'
 
 import CreateImageUpload from '@/graphql/CreateImageUpload.gql'
 import { apiFetch } from '@/utils/analytics'
+import { shrinkPhoto } from '@/utils/shrinkPhoto'
 
 /**
- * Creates a private upload (`createImageUpload`) and PUTs `file` to it.
- * Returns the `uploadKey` for `finalizeTaskImage` or `finalizeAvatarUpload`,
- * which turn it into a metadata-free JPEG. An upload never finalized is
- * deleted by the API after about an hour.
+ * Shrinks `file` to a JPEG with a long edge of at most `maxEdge` px
+ * (`shrinkPhoto`; the original when this browser can't decode it), creates a
+ * private upload (`createImageUpload`) and PUTs the photo to it. Returns the
+ * `uploadKey` for `finalizeTaskImage` or `finalizeAvatarUpload`, which save
+ * it as a metadata-free JPEG. An upload never finalized is deleted by the API
+ * after about an hour.
  */
 export async function uploadImageBytes(
   client: ApolloClient,
   file: File,
+  maxEdge: number,
   context: { flow: string; action: string; url_or_operation: string },
 ): Promise<string> {
+  const photo = await shrinkPhoto(file, maxEdge)
   const { data } = await client.mutate<CreateImageUploadMutation>({
     mutation: CreateImageUpload,
   })
@@ -30,8 +35,8 @@ export async function uploadImageBytes(
       {
         method: 'PUT',
         // Content-Type only: no ACL header, so the upload stays private.
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file,
+        headers: { 'Content-Type': photo.type || 'application/octet-stream' },
+        body: photo,
       },
       { ...context, source: 'upload' },
     )

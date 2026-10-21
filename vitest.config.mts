@@ -36,6 +36,19 @@ export default defineConfig({
           setupFiles: ['.storybook/vitest.setup.ts'],
         },
       },
+      {
+        // Plain tests that need a real browser (canvas, image decoding).
+        test: {
+          name: 'browser',
+          include: ['src/**/*.browser.test.ts'],
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright({}),
+            instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
     ],
   },
 })

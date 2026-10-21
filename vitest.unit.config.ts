@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 const dirname =
   typeof __dirname !== 'undefined'
@@ -18,5 +18,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Real-browser tests run with `vitest.config.mts`.
+    exclude: [...configDefaults.exclude, 'src/**/*.browser.test.ts'],
   },
 })

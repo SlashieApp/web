@@ -8,6 +8,8 @@ import FinalizeAvatarUpload from '@/app/(dashboard)/profile/graphql/FinalizeAvat
 import { uploadImageBytes } from '@/utils/imageUpload'
 
 export const AVATAR_MAX_BYTES = 5 * 1024 * 1024
+/** Long edge, in px, of a stored profile photo (the API's size). */
+export const AVATAR_MAX_EDGE = 1024
 export const AVATAR_ACCEPTED_TYPES = [
   'image/jpeg',
   'image/png',
@@ -29,15 +31,16 @@ export function validateAvatarFile(file: File): AvatarFileProblem | null {
 export type SavedAvatar = FinalizeAvatarUploadMutation['finalizeAvatarUpload']
 
 /**
- * Uploads `file` (`createImageUpload`, then a PUT) and makes it the signed-in
- * user's avatar with `finalizeAvatarUpload`, which converts it to a
- * metadata-free JPEG and saves `avatarUrl`. Returns the updated user.
+ * Uploads `file` (shrunk to a JPEG, then `createImageUpload` and a PUT) and
+ * makes it the signed-in user's avatar with `finalizeAvatarUpload`, which
+ * saves it as a metadata-free JPEG and sets `avatarUrl`. Returns the updated
+ * user.
  */
 export async function uploadProfileAvatar(
   client: ApolloClient,
   file: File,
 ): Promise<SavedAvatar> {
-  const uploadKey = await uploadImageBytes(client, file, {
+  const uploadKey = await uploadImageBytes(client, file, AVATAR_MAX_EDGE, {
     flow: 'profile_update',
     action: 'uploadProfileAvatar',
     url_or_operation: 'profile_avatar_put',

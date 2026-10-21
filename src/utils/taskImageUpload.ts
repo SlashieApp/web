@@ -13,10 +13,14 @@ import {
   taskImageIndex,
 } from '@/utils/taskImageKeys'
 
+/** Long edge, in px, of a stored task photo (the API's size). */
+export const TASK_PHOTO_MAX_EDGE = 2048
+
 /**
- * Uploads one photo into `slot` (0 to 9): `createImageUpload`, PUT, then
- * `finalizeTaskImage`, which stores it as `tasks/<taskId>/<slot>.jpg` and
- * replaces any earlier photo in that slot. Returns the photo's public URL.
+ * Uploads one photo into `slot` (0 to 9): shrunk to a JPEG, then
+ * `createImageUpload`, PUT and `finalizeTaskImage`, which stores it as
+ * `tasks/<taskId>/<slot>.jpg` and replaces any earlier photo in that slot.
+ * Returns the photo's public URL.
  */
 export async function uploadTaskImage(
   client: ApolloClient,
@@ -25,7 +29,7 @@ export async function uploadTaskImage(
   slot: number,
 ): Promise<string> {
   const index = taskImageIndex(slot, file)
-  const uploadKey = await uploadImageBytes(client, file, {
+  const uploadKey = await uploadImageBytes(client, file, TASK_PHOTO_MAX_EDGE, {
     flow: 'task_create',
     action: 'uploadTaskImage',
     url_or_operation: 'task_image_put',
@@ -43,8 +47,9 @@ export async function uploadTaskImage(
 }
 
 /**
- * Uploads every photo even when one fails (create and edit: the task is
- * already saved, so the rest should still land). Each file takes the next
+ * Uploads every photo, one at a time (each is decoded in memory to shrink
+ * it), even when one fails (create and edit: the task is already saved, so
+ * the rest should still land). Each file takes the next
  * free slot; a file with no slot left, or any file while the task is not open
  * or a draft, is not sent and counts as failed. Returns how many failed.
  */
