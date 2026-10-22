@@ -185,9 +185,32 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Open, worker on trial: full-height account drawer with unlimited-quotes header and links. */
+/** Left edge of the text inside `element` (its box has padding of its own). */
+const textLeft = (element: Element) => {
+  const range = document.createRange()
+  range.selectNodeContents(element)
+  return range.getBoundingClientRect().left
+}
+
+/** Open, worker on trial: full-height account drawer with unlimited-quotes header and links. The labels start on the title's left edge, Button rows (Language) and link rows (About) alike. */
 export const OpenWorkerOnTrial: Story = {
   decorators: [withMe(meTrial)],
+  play: async ({ canvasElement }) => {
+    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Account menu' },
+    )
+    const title = within(drawer).getByRole('heading', { name: 'Account menu' })
+    const rows = [
+      within(drawer).getByRole('link', { name: 'Search' }),
+      within(drawer).getByRole('link', { name: 'About' }),
+      within(drawer).getByRole('button', { name: 'Language' }),
+      within(drawer).getByRole('button', { name: 'Send feedback' }),
+    ]
+    for (const row of rows) {
+      expect(Math.abs(textLeft(row) - textLeft(title))).toBeLessThanOrEqual(0.5)
+    }
+  },
 }
 
 /** Open, free plan: the header shows the quote-usage meter and Upgrade. */

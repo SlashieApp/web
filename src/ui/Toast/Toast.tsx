@@ -54,6 +54,14 @@ export type UiToastProps = ToastRootProps & {
   toast: UiToastData
 }
 
+/**
+ * The height of one line of text, and of the leading icon's box (Chakra's
+ * indicator and the `md` spinner are both 20px). So the icon sits on the first
+ * line of the title (of the description when there is no title), however many
+ * lines the toast wraps to, and the close button is centred on that line too.
+ */
+const FIRST_LINE = '20px'
+
 function toToastType(value: string | undefined): UiToastType {
   return value && value in familyByType ? (value as UiToastType) : 'info'
 }
@@ -81,28 +89,32 @@ export function Toast({ toast, ...rootProps }: UiToastProps) {
     >
       {type === 'loading' ? (
         <Spinner
-          size="sm"
+          size="md"
           color={`status.${family}.solid`}
           borderWidth="2px"
-          mt="0.5"
+          flexShrink={0}
         />
       ) : (
-        <ChakraToast.Indicator color={`status.${family}.solid`} mt="0.5" />
+        <ChakraToast.Indicator color={`status.${family}.solid`} />
       )}
 
-      <Stack gap="1" flex="1" maxWidth="100%">
+      <Stack gap="1" flex="1" minWidth={0}>
         {toast.title ? (
           <ChakraToast.Title
             color="text.default"
             fontSize="sm"
             fontWeight={600}
-            lineHeight="1.35"
+            lineHeight={FIRST_LINE}
           >
             {toast.title}
           </ChakraToast.Title>
         ) : null}
         {toast.description ? (
-          <ChakraToast.Description color="text.muted" fontSize="sm">
+          <ChakraToast.Description
+            color="text.muted"
+            fontSize="sm"
+            lineHeight={FIRST_LINE}
+          >
             {toast.description}
           </ChakraToast.Description>
         ) : null}
@@ -121,6 +133,11 @@ export function Toast({ toast, ...rootProps }: UiToastProps) {
       {toast.closable ? (
         <ChakraToast.CloseTrigger
           aria-label={t.dismiss}
+          // In the row, so long text wraps before it (Chakra floats it over
+          // the corner). Its 24px box is 4px taller than the first line.
+          position="static"
+          flexShrink={0}
+          mt="-0.5"
           color="text.muted"
           borderRadius="md"
           _hover={{ color: 'text.default', bg: 'bg.subtle' }}

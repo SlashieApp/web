@@ -66,10 +66,19 @@ function SkipLink({ label }: { label: string }) {
   )
 }
 
+/**
+ * One row of the phone menu. Links and the Feedback button share these, so
+ * they have the same height and the same left edge: a flex row (a block
+ * button centres its label), and no border (a Button's 1px one pushes it in).
+ */
 const drawerLinkProps = {
-  display: 'block',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-start',
+  minH: '44px',
   px: 3,
   py: 2,
+  borderWidth: 0,
   borderRadius: 'md',
   fontSize: 'sm',
   fontWeight: 600,
@@ -294,7 +303,9 @@ function MarketingNavigation({
         placement="end"
         size="xs"
       >
-        <Stack as="nav" align="stretch" gap={0} flex={1}>
+        {/* The rows pad their own text 12px in: pull them out to the gutter so
+            the labels line up with the title. */}
+        <Stack as="nav" align="stretch" gap={0} flex={1} mx={-3}>
           {MARKETING_NAV_LINKS.map((link) => {
             const active = isNavActive(routePathname, link.href)
             return (
@@ -314,10 +325,8 @@ function MarketingNavigation({
           <Button
             type="button"
             variant="ghost"
-            justifyContent="flex-start"
             w="full"
             h="auto"
-            minH="44px"
             {...drawerLinkProps}
             onClick={() => {
               openFeedback()

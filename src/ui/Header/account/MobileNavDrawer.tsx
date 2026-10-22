@@ -1,5 +1,6 @@
 'use client'
 
+import { Box } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
@@ -35,7 +36,12 @@ export function MobileNavDrawer({
       placement="end"
       size="full"
     >
-      <AccountMenuContent onClose={close} onOpenLanguage={onOpenLanguage} />
+      {/* The rows pad their own text 12px in (the desktop popover frames them
+          with 4px): pull them out to the gutter so the labels line up with the
+          title. */}
+      <Box mx={-3}>
+        <AccountMenuContent onClose={close} onOpenLanguage={onOpenLanguage} />
+      </Box>
     </Drawer>
   )
 }

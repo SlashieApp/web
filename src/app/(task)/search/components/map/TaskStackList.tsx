@@ -1,6 +1,6 @@
 'use client'
 
-import { Stack, Text, chakra } from '@chakra-ui/react'
+import { Box, Stack, Text, chakra } from '@chakra-ui/react'
 import { type ReactNode, useEffect, useRef } from 'react'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -85,7 +85,9 @@ export function TaskStackList({
         title={title}
         placement="bottom"
       >
-        {list}
+        {/* The rows pad their own text 12px in: pull them out to the gutter so
+            the labels line up with the title. */}
+        <Box mx={-3}>{list}</Box>
       </Drawer>
     )
   }

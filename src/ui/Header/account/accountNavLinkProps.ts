@@ -13,6 +13,9 @@ export const accountNavLinkRowProps = {
   minH: '44px',
   px: 3,
   py: 2,
+  // Link rows and Button rows share these props, and a Button has a 1px
+  // border that a Link doesn't: without this its label sits 1px further in.
+  borderWidth: 0,
   borderRadius: 'md',
   fontSize: 'sm',
   fontWeight: 600,

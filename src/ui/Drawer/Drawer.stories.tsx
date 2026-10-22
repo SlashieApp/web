@@ -110,10 +110,44 @@ const controlled = {
   children: null,
 } as const
 
+/** The dialog of an open story, once it is on screen without any interaction. */
+async function findOpenDialog(canvasElement: HTMLElement, name: string) {
+  const page = within(canvasElement.ownerDocument.body)
+  const dialog = await page.findByRole('dialog', { name })
+  await expect(dialog).toBeVisible()
+  return dialog
+}
+
 /** Play for open stories: the dialog is on screen without any interaction. */
 async function expectOpen(canvasElement: HTMLElement, name: string) {
-  const page = within(canvasElement.ownerDocument.body)
-  await expect(await page.findByRole('dialog', { name })).toBeVisible()
+  await findOpenDialog(canvasElement, name)
+}
+
+const middle = (element: Element) => {
+  const { left, top, width, height } = element.getBoundingClientRect()
+  return { x: left + width / 2, y: top + height / 2 }
+}
+
+/**
+ * Where things sit in an open drawer, to half a pixel: the close button is
+ * centred on the title, a bottom sheet's handle is over the middle of the
+ * panel, and the body starts on the title's left edge.
+ */
+function expectAligned(dialog: HTMLElement, { handle = false } = {}) {
+  const title = within(dialog).getByRole('heading')
+  const close = within(dialog).getByRole('button', { name: 'Close' })
+  expect(Math.abs(middle(close).y - middle(title).y)).toBeLessThanOrEqual(0.5)
+  if (handle) {
+    const grip = dialog.querySelector('[data-sheet-handle]')
+    if (!grip) throw new Error('No handle on the sheet')
+    expect(Math.abs(middle(grip).x - middle(dialog).x)).toBeLessThanOrEqual(0.5)
+  }
+  const body = within(dialog).getByText('Drawer body content goes here.')
+  expect(
+    Math.abs(
+      body.getBoundingClientRect().left - title.getBoundingClientRect().left,
+    ),
+  ).toBeLessThanOrEqual(0.5)
 }
 
 /** Default: closed with a trigger; opens from the start edge with a footer action. */
@@ -169,8 +203,14 @@ export const OpenEnd: Story = {
     description: 'Changes show on your public profile.',
     primaryActionLabel: 'Save',
   },
-  render: (args) => <DrawerDemo {...args} initialOpen />,
-  play: ({ canvasElement }) => expectOpen(canvasElement, 'Edit profile'),
+  render: (args) => (
+    <DrawerDemo {...args} initialOpen>
+      <BodyCopy />
+    </DrawerDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    expectAligned(await findOpenDialog(canvasElement, 'Edit profile'))
+  },
 }
 
 /** Open, top edge: sheet that drops down and is as tall as its content. */
@@ -197,13 +237,51 @@ export const OpenBottomFull: Story = {
   play: ({ canvasElement }) => expectOpen(canvasElement, 'Filters'),
 }
 
-/** Open, phone: bottom sheet at phone width, as used by search and filters. */
+/** Open, phone: bottom sheet at phone width, as used by search and filters. The handle is over the middle and the close button is level with the title. */
 export const OpenBottomPhone: Story = {
   tags: ['!autodocs'],
   args: { ...controlled, placement: 'bottom' },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
-  render: (args) => <DrawerDemo {...args} initialOpen />,
-  play: ({ canvasElement }) => expectOpen(canvasElement, 'Filters'),
+  render: (args) => (
+    <DrawerDemo {...args} initialOpen>
+      <BodyCopy />
+    </DrawerDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    expectAligned(await findOpenDialog(canvasElement, 'Filters'), {
+      handle: true,
+    })
+  },
+}
+
+/** Open, a call site widens the panel (as the profile editor does): the body keeps the title's left edge and the same right gutter. */
+export const OpenWidePanel: Story = {
+  tags: ['!autodocs'],
+  args: {
+    ...controlled,
+    placement: 'end',
+    title: 'Edit profile',
+    contentProps: { w: 'min(640px, 100vw)', maxW: '640px' },
+  },
+  render: (args) => (
+    <DrawerDemo {...args} initialOpen>
+      <Button type="button" variant="secondary" w="full">
+        Full width
+      </Button>
+    </DrawerDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const dialog = await findOpenDialog(canvasElement, 'Edit profile')
+    const title = within(dialog).getByRole('heading').getBoundingClientRect()
+    const field = within(dialog)
+      .getByRole('button', { name: 'Full width' })
+      .getBoundingClientRect()
+    const panel = dialog.getBoundingClientRect()
+    expect(Math.abs(field.left - title.left)).toBeLessThanOrEqual(0.5)
+    expect(
+      Math.abs(panel.right - field.right - (title.left - panel.left)),
+    ).toBeLessThanOrEqual(0.5)
+  },
 }
 
 /** Open, phone: side panel fills the screen width, as in the account and site menus. */

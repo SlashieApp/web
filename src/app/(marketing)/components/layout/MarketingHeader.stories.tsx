@@ -145,7 +145,14 @@ export const Mobile: Story = {
   parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
 }
 
-/** Phone width with the menu drawer open: nav links, Feedback, Log in and Get started. */
+/** Left edge of the text inside `element` (its box has padding of its own). */
+const textLeft = (element: Element) => {
+  const range = document.createRange()
+  range.selectNodeContents(element)
+  return range.getBoundingClientRect().left
+}
+
+/** Phone width with the menu drawer open: nav links, Feedback, Log in and Get started, all starting on the title's left edge and 44px tall. */
 export const MobileMenuOpen: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
@@ -165,6 +172,19 @@ export const MobileMenuOpen: Story = {
     await expect(
       within(drawer).getByRole('link', { name: 'Get started' }),
     ).toBeVisible()
+
+    const title = within(drawer).getByRole('heading', { name: 'Menu' })
+    const rows = [
+      within(drawer).getByRole('link', { name: 'Pricing' }),
+      within(drawer).getByRole('link', { name: 'About' }),
+      within(drawer).getByRole('button', { name: 'Feedback' }),
+      within(drawer).getByRole('link', { name: 'Log in' }),
+      within(drawer).getByRole('link', { name: 'Get started' }),
+    ]
+    for (const row of rows) {
+      expect(Math.abs(textLeft(row) - textLeft(title))).toBeLessThanOrEqual(0.5)
+      expect(row.getBoundingClientRect().height).toBeGreaterThanOrEqual(44)
+    }
   },
 }
 

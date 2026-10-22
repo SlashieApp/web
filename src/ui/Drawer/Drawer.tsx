@@ -225,7 +225,9 @@ export function Drawer({
           }}
         >
           <DrawerHeader px={drawerGutterX} pt={4} pb={4} flexShrink={0}>
-            <Stack gap={description ? 2 : 0} align="stretch">
+            {/* The header is a flex row: without `w="full"` this column shrinks
+                to its text, and the handle centres over the title. */}
+            <Stack gap={0} align="stretch" w="full">
               {placement === 'bottom' ? <SheetHandle /> : null}
               <HStack align="center" justify="space-between" gap={3} minH={11}>
                 <DrawerTitle
@@ -239,13 +241,19 @@ export function Drawer({
                 >
                   {title}
                 </DrawerTitle>
-                <DrawerCloseTrigger asChild>
+                {/* Unstyled: Chakra floats the close button in the panel's
+                    corner, which puts it above the title. Here it is in the
+                    row, so the two centre on each other. */}
+                <DrawerCloseTrigger asChild unstyled>
                   <UiIconButton
                     aria-label={t.close}
                     variant="ghost"
                     flexShrink={0}
                     minW="44px"
                     minH="44px"
+                    // The 20px glyph sits on the content's right edge, as the
+                    // body's controls do; the 44px target reaches into the gutter.
+                    me={-3}
                   >
                     <LuX size={20} strokeWidth={2} aria-hidden />
                   </UiIconButton>
@@ -253,6 +261,7 @@ export function Drawer({
               </HStack>
               {description ? (
                 <DrawerDescription
+                  mt={2}
                   color="text.muted"
                   fontSize="sm"
                   lineHeight="tall"
@@ -274,10 +283,10 @@ export function Drawer({
             flexDirection="column"
             overscrollBehavior="contain"
           >
+            {/* As wide as the header, so the body lines up with the title
+                even when a call site widens the panel. */}
             <Box
               w="full"
-              maxW={DRAWER_PANEL_MAX_W}
-              mx="auto"
               flex={1}
               display="flex"
               flexDirection="column"

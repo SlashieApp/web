@@ -63,14 +63,24 @@ export const DesktopNearEdge: Story = {
   args: { stack: { taskIds: ['t1', 't2', 't3'], x: 24, y: 420 } },
 }
 
-/** Phone: the same list as a bottom sheet. */
+/** Phone: the same list as a bottom sheet, with the task titles starting on the sheet title's left edge. */
 export const Mobile: Story = {
   args: { isDesktop: false },
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const sheet = within(canvasElement.ownerDocument.body)
-    await sheet.findByRole('dialog')
-    await sheet.findByRole('button', { name: /Assemble a wardrobe/ })
+    const dialog = await sheet.findByRole('dialog')
+    const row = await sheet.findByRole('button', {
+      name: /Assemble a wardrobe/,
+    })
+    const title = within(dialog).getByRole('heading')
+    const taskTitle = within(row).getByText(/Assemble a wardrobe/)
+    expect(
+      Math.abs(
+        taskTitle.getBoundingClientRect().left -
+          title.getBoundingClientRect().left,
+      ),
+    ).toBeLessThanOrEqual(0.5)
   },
 }
 

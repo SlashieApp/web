@@ -260,6 +260,114 @@ export const Mobile: Story = {
   play: showsTitles(samples.info.title),
 }
 
+const centreY = (element: Element) => {
+  const { top, height } = element.getBoundingClientRect()
+  return top + height / 2
+}
+
+/**
+ * Waits for the toast to settle (it animates in), then checks that its icon
+ * (or spinner) and close button are centred on the first line of the title,
+ * to half a pixel, however many lines the toast wraps to.
+ */
+const centredOnFirstLine =
+  (title: string): Story['play'] =>
+  async ({ canvasElement }) => {
+    const text = await within(canvasElement).findByText(title)
+    const toast = text.closest<HTMLElement>('[data-part="root"]')
+    const icon = toast?.querySelector(':scope > svg, :scope > .chakra-spinner')
+    if (!toast || !icon) throw new Error('No toast with an icon')
+    const close = within(toast).getByRole('button', {
+      name: 'Dismiss notification',
+    })
+    await waitFor(
+      () => {
+        const firstLine =
+          text.getBoundingClientRect().top +
+          Number.parseFloat(getComputedStyle(text).lineHeight) / 2
+        expect(Math.abs(centreY(icon) - firstLine)).toBeLessThanOrEqual(0.5)
+        expect(Math.abs(centreY(close) - firstLine)).toBeLessThanOrEqual(0.5)
+      },
+      { timeout: 3000 },
+    )
+  }
+
+const phone = { viewport: { value: 'mobile1', isRotated: false } } as const
+
+const phoneTitleOnlyToasts: ShownToast[] = [
+  { type: 'success', closable: true, title: 'Task saved' },
+]
+
+/** Phone, title only on one line: the icon and the close button centre on it. */
+export const PhoneTitleOnly: Story = {
+  parameters: toastDocs,
+  globals: phone,
+  render: () => <ShownToasts toasts={phoneTitleOnlyToasts} />,
+  play: centredOnFirstLine('Task saved'),
+}
+
+const phoneTitleAndDescriptionToasts: ShownToast[] = [
+  {
+    type: 'error',
+    closable: true,
+    title: "Couldn't send",
+    description: 'Check your connection.',
+  },
+]
+
+/** Phone, title and description on one line each: both sit on the title's line. */
+export const PhoneTitleAndDescription: Story = {
+  parameters: toastDocs,
+  globals: phone,
+  render: () => <ShownToasts toasts={phoneTitleAndDescriptionToasts} />,
+  play: centredOnFirstLine("Couldn't send"),
+}
+
+const phoneTitleWrapsToasts: ShownToast[] = [
+  {
+    type: 'warning',
+    closable: true,
+    title: 'Your payment method needs updating before the next billing date',
+  },
+]
+
+/** Phone, a title that wraps to three lines with no description: the icon and the close button stay on the first line. */
+export const PhoneTitleWraps: Story = {
+  parameters: toastDocs,
+  globals: phone,
+  render: () => <ShownToasts toasts={phoneTitleWrapsToasts} />,
+  play: centredOnFirstLine(
+    'Your payment method needs updating before the next billing date',
+  ),
+}
+
+/** Phone, long title and description: the icon and the close button stay on the title's first line, and the text wraps before the close button. */
+export const PhoneLongContent: Story = {
+  parameters: toastDocs,
+  globals: phone,
+  render: () => <ShownToasts toasts={longToasts} />,
+  play: centredOnFirstLine(
+    'Your payment method needs updating before the next billing date',
+  ),
+}
+
+const phoneLoadingToasts: ShownToast[] = [
+  {
+    type: 'loading',
+    closable: true,
+    title: 'Sending quote…',
+    description: samples.loading.description,
+  },
+]
+
+/** Phone, loading: the spinner is the same size as the icons and sits on the title's line too. */
+export const PhoneLoading: Story = {
+  parameters: toastDocs,
+  globals: phone,
+  render: () => <ShownToasts toasts={phoneLoadingToasts} />,
+  play: centredOnFirstLine('Sending quote…'),
+}
+
 /** Dismiss: the close button removes the toast from the screen. */
 export const DismissRemovesToast: Story = {
   parameters: toastDocs,
