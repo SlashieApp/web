@@ -8,8 +8,13 @@ import {
 } from '.'
 
 const seen = new Set<InboxViewName>()
-const view = (query: InboxViewInput['query'], threadCount = 0) => {
-  const result = getInboxView({ query, threadCount })
+/** `matchCount` is every conversation unless the search or filter leaves fewer. */
+const view = (
+  query: InboxViewInput['query'],
+  threadCount = 0,
+  matchCount = threadCount,
+) => {
+  const result = getInboxView({ query, threadCount, matchCount })
   seen.add(result)
   return result
 }
@@ -29,6 +34,21 @@ describe('getInboxView', () => {
 
   it('lists the conversations once they load', () => {
     expect(view('ready', 3)).toBe('inbox.list')
+  })
+
+  it('lists what the search and filter leave', () => {
+    expect(view('ready', 3, 1)).toBe('inbox.list')
+  })
+
+  it('says nothing matches when the search and filter leave none', () => {
+    expect(view('ready', 3, 0)).toBe('inbox.noMatches')
+  })
+
+  it('shows the search box and filter button once there is something to search', () => {
+    const withSearch = Object.entries(INBOX_VIEWS)
+      .filter(([, config]) => config.search)
+      .map(([name]) => name)
+    expect(withSearch.sort()).toEqual(['inbox.list', 'inbox.noMatches'])
   })
 
   afterAll(() => {

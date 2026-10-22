@@ -26,6 +26,7 @@ import {
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 
+import { InboxSearchProvider } from '../context/InboxSearchProvider'
 import {
   MessagesContext,
   type MessagesContextValue,
@@ -170,9 +171,10 @@ const bookedWorker = storyWorkerMe({
 })
 
 /**
- * Story-only Messages: the real messages context with fixture threads, a
- * story-only Apollo client seeded with the open thread (and its task, for the
- * header menu), and the signed-in viewer. Nothing reaches the network.
+ * Story-only Messages: the real messages context with fixture threads, the
+ * inbox's search and filter state, a story-only Apollo client seeded with the
+ * open thread (and its task, for the header menu), and the signed-in viewer.
+ * Nothing reaches the network.
  */
 export function messagesStory<TArgs>(
   config: MessagesStoryConfig = {},
@@ -201,17 +203,19 @@ export function messagesStory<TArgs>(
   }
   const frame: Decorator<TArgs> = (Story) => (
     <MessagesContext.Provider value={messagesValue(inbox)}>
-      <Box
-        display="flex"
-        flexDirection="column"
-        w="full"
-        maxW={maxW}
-        h={height}
-        minH={0}
-        bg="bg.surface"
-      >
-        <Story />
-      </Box>
+      <InboxSearchProvider>
+        <Box
+          display="flex"
+          flexDirection="column"
+          w="full"
+          maxW={maxW}
+          h={height}
+          minH={0}
+          bg="bg.surface"
+        >
+          <Story />
+        </Box>
+      </InboxSearchProvider>
     </MessagesContext.Provider>
   )
   return [

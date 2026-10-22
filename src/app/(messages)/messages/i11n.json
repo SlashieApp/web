@@ -41,6 +41,22 @@
     "blockedNotice": "You blocked {name}. Unblock them to send messages.",
     "today": "Today",
     "yesterday": "Yesterday",
+    "inbox": {
+      "search": "Search messages",
+      "clearSearch": "Clear search",
+      "filter": "Filter",
+      "filterActive": "Filter, 1 active",
+      "filters": {
+        "all": "All",
+        "unread": "Unread",
+        "needsYou": "Needs you",
+        "posted": "Posted by you",
+        "working": "Working on",
+        "slashie": "Slashie updates"
+      },
+      "noMatchTitle": "No conversations match",
+      "clearSearchAndFilter": "Clear search and filter"
+    },
     "quote": {
       "accept": "Accept",
       "decline": "Decline",
@@ -119,6 +135,22 @@
     "blockedNotice": "你已封鎖 {name}。解除封鎖後才可傳送訊息。",
     "today": "今日",
     "yesterday": "昨日",
+    "inbox": {
+      "search": "搜尋訊息",
+      "clearSearch": "清除搜尋",
+      "filter": "篩選",
+      "filterActive": "篩選，已套用 1 項",
+      "filters": {
+        "all": "全部",
+        "unread": "未讀",
+        "needsYou": "待你處理",
+        "posted": "我發布的",
+        "working": "我接的工作",
+        "slashie": "Slashie 通知"
+      },
+      "noMatchTitle": "沒有相符的對話",
+      "clearSearchAndFilter": "清除搜尋和篩選"
+    },
     "quote": {
       "accept": "接受",
       "decline": "拒絕",

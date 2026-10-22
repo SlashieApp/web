@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { MessagesScreen } from './MessagesScreen'
@@ -51,6 +51,40 @@ export const ThreadOpen: Story = {
   }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await expect(await canvas.findByRole('log')).toBeVisible()
+    await expect(
+      canvas.getByRole('textbox', { name: 'Message Jordan Lee' }),
+    ).toBeVisible()
+  },
+}
+
+/**
+ * Desktop: a search that leaves the open conversation out of the list. The
+ * list drops its row, and the conversation stays open on the right.
+ */
+export const SearchLeavesOpenThreadOut: Story = {
+  args: { threadId: STORY_THREAD_ID },
+  decorators: messagesStory({
+    viewer: 'owner',
+    inbox,
+    thread: open,
+    items,
+    ...FRAME,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.type(
+      await canvas.findByRole('searchbox', { name: 'Search messages' }),
+      'garden',
+    )
+    // The list is the navigation; the conversation's header links to Jordan too.
+    const list = within(canvas.getByRole('navigation', { name: 'Messages' }))
+    await waitFor(() =>
+      expect(list.queryByRole('link', { name: /Jordan Lee/ })).toBeNull(),
+    )
+    await expect(
+      list.getByRole('link', { name: /2 workers quoted/ }),
+    ).toBeVisible()
     await expect(await canvas.findByRole('log')).toBeVisible()
     await expect(
       canvas.getByRole('textbox', { name: 'Message Jordan Lee' }),

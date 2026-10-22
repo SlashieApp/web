@@ -34,14 +34,58 @@ quotes and no booking, with the number of pending quotes. Once a quote is
 accepted the API sends `otherParty` (the booked worker), so the title
 becomes their name.
 
-## Inbox: `getInboxView({ query, threadCount })`
+## Inbox: `getInboxView({ query, threadCount, matchCount })`
 
-| View | When | Shows |
-|---|---|---|
-| `inbox.loading` | First load, nothing cached | Skeleton rows |
-| `inbox.error` | Threads query failed, nothing cached | Couldn't load your messages · Try again |
-| `inbox.empty` | No conversations | No messages yet |
-| `inbox.list` | Otherwise | Task threads and the Slashie thread, most recent first: title (above), task name, last item, time, unread count |
+`matchCount` is how many conversations the search text and filter leave
+(below); `threadCount` is how many there are.
+
+| View | When | Shows | Search and filter |
+|---|---|---|---|
+| `inbox.loading` | First load, nothing cached | Skeleton rows | Hidden |
+| `inbox.error` | Threads query failed, nothing cached | Couldn't load your messages · Try again | Hidden |
+| `inbox.empty` | No conversations | No messages yet | Hidden |
+| `inbox.noMatches` | Conversations, but the search and filter leave none | No conversations match · Clear search and filter | Shown |
+| `inbox.list` | Otherwise | Task threads and the Slashie thread, most recent first: title (above), task name, last item, time, unread count | Shown |
+
+### Search and filter (FE-362, decided 2026-10-22)
+
+A search box and a filter icon button sit under the Messages title, on phones
+and in the desktop left pane. `me.threads` already returns every conversation,
+so both work on the device, instantly, with no request. A conversation must
+pass both. `filterThreads` (`../helpers/messagesInbox.ts`) does the matching.
+
+**Search.** Every word typed must be found, in any order, in the other
+person's name, the thread's title (the task's, or Slashie for the Slashie
+thread) or the latest item's title or text (a message's text; a flash's title
+and text). Both sides are folded the same way: NFKD, the combining marks
+(U+0300 to U+036F) off, lower case, spaces collapsed. So "chloe" finds Chloé
+and full-width letters find plain ones. No text, or only spaces, keeps
+everything. The API's order is kept. Keep it the same as the Expo app's
+search (FE-363).
+
+**Filter.** The icon opens the `@ui` Drawer (a bottom sheet on phones, a side
+drawer from `lg`) with one choice. Picking it applies it and closes the
+drawer. While it isn't All, the icon has a dot and reads "Filter, 1 active".
+
+| Choice | Keeps |
+|---|---|
+| All | Everything |
+| Unread | `unreadCount > 0` |
+| Needs you | `attention` is set, of any kind (quotes to compare too) |
+| Posted by you | The task's `poster.id` is the signed-in user's id |
+| Working on | The task's poster is someone else (also a task you quoted on and lost: the thread stays) |
+| Slashie updates | `kind: SYSTEM` |
+
+A thread with no task (Slashie) is neither posted nor worked on, and neither
+is a task the API sent no poster for. The thread fragment asks for
+`task { poster { id } }` to tell them apart (the API cost of that is BE-104).
+
+**State.** The text and the filter are React state, not the URL, in
+`InboxSearchProvider` (`../context/`), mounted in `messages/layout.tsx`.
+They can't live in the list: opening a conversation swaps the page, and the
+list inside it remounts, which would clear them (the layout stays). Leaving
+Messages resets them. The open conversation comes from the URL, so a search
+that drops its row from the list doesn't close it on desktop.
 
 ## Conversation: `getThreadView({ threadId, query, thread, notSelected })`
 

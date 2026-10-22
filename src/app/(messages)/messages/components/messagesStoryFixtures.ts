@@ -141,6 +141,7 @@ export const sampleThreads: ThreadFieldsFragment[] = [
       id: 'task-1',
       title: 'Assemble a wardrobe',
       status: TaskStatus.Awarded,
+      poster: { id: STORY_OWNER_ID },
     },
     otherParty: worker,
     lastItem: theirMessage,
@@ -158,6 +159,7 @@ export const sampleThreads: ThreadFieldsFragment[] = [
       id: 'task-2',
       title: 'Garden tidy-up',
       status: TaskStatus.Open,
+      poster: { id: STORY_OWNER_ID },
     },
     otherParty: null,
     lastItem: {
@@ -365,6 +367,7 @@ export function taskThread(
       title: STORY_THREAD_TITLE,
       status:
         overrides.otherParty === null ? TaskStatus.Open : TaskStatus.Awarded,
+      poster: { id: STORY_OWNER_ID },
     },
     otherParty: otherPartyFor(viewer),
     lastItem: items[0] ?? null,
@@ -381,6 +384,7 @@ export function cancelledTaskThread(): ThreadFieldsFragment {
       id: STORY_TASK_ID,
       title: STORY_THREAD_TITLE,
       status: TaskStatus.Cancelled,
+      poster: { id: STORY_OWNER_ID },
     },
   })
 }
@@ -562,4 +566,117 @@ export function requestedOrder(
           : [],
     },
   } as Partial<OrderItem>
+}
+
+/** Sam posted a task Alex is doing. */
+const samParty = {
+  userId: 'user-sam',
+  name: 'Sam Taylor',
+  avatarUrl: null,
+  deleted: false,
+}
+/** Chloé posted a task Alex quoted on (an accent for the search to ignore). */
+const chloeParty = {
+  userId: 'user-chloe',
+  name: 'Chloé Martin',
+  avatarUrl: null,
+  deleted: false,
+}
+
+/**
+ * Alex's inbox with a conversation for each filter: two tasks he posted (a
+ * booked one with unread messages, an open one with quotes to compare), two
+ * he works on (one to mark Done, one he quoted on with an unread reply) and
+ * the Slashie thread. Most recent first; `unreadCount` of the context: 3.
+ */
+export function mixedInbox(): ThreadFieldsFragment[] {
+  /** The thread's title and its task share the task's title, as from the API. */
+  const forTask = (
+    id: string,
+    title: string,
+    status: TaskStatus,
+    poster: string,
+  ) => ({
+    title,
+    task: { id: `task-${id}`, title, status, poster: { id: poster } },
+  })
+  return [
+    taskThread('owner', { id: 'inbox-bookshelf', unreadCount: 2 }, [
+      conversationMessage(
+        'owner',
+        'worker',
+        'inbox-1',
+        'I will bring the drill and the spirit level. See you then.',
+        today(9, 42),
+      ),
+    ]),
+    taskThread(
+      'owner',
+      {
+        id: 'inbox-garden',
+        otherParty: null,
+        canSend: false,
+        attention: needs(ThreadAttentionKind.CompareQuotes, 2),
+        ...forTask('garden', 'Garden tidy-up', TaskStatus.Open, STORY_OWNER_ID),
+      },
+      [
+        conversationFlash(
+          'inbox-2',
+          FlashKind.QuoteReceived,
+          'New quote: £80',
+          'Sam can come on Saturday morning.',
+          today(8, 0),
+        ),
+      ],
+    ),
+    systemThread(),
+    taskThread(
+      'owner',
+      {
+        id: 'inbox-tap',
+        otherParty: samParty,
+        attention: needs(ThreadAttentionKind.MarkDone),
+        ...forTask(
+          'tap',
+          'Fix a leaking kitchen tap',
+          TaskStatus.Awarded,
+          samParty.userId,
+        ),
+      },
+      [
+        conversationMessage(
+          'owner',
+          'worker',
+          'inbox-3',
+          'The tap is fixed, thanks. Please mark it Done.',
+          at(1, 17, 5),
+        ),
+      ],
+    ),
+    taskThread(
+      'owner',
+      {
+        id: 'inbox-fence',
+        otherParty: chloeParty,
+        canSend: false,
+        unreadCount: 1,
+        ...forTask(
+          'fence',
+          'Paint the garden fence',
+          TaskStatus.Open,
+          chloeParty.userId,
+        ),
+      },
+      [
+        conversationFlash(
+          'inbox-4',
+          FlashKind.QuoteReceived,
+          'Quote sent: £60',
+          'You offered to paint the fence on Saturday.',
+          at(2, 10, 0),
+          { isMine: true },
+        ),
+      ],
+    ),
+  ]
 }

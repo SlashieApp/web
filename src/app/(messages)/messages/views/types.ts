@@ -7,15 +7,22 @@ export type InboxViewName =
   | 'inbox.loading'
   | 'inbox.error'
   | 'inbox.empty'
+  | 'inbox.noMatches'
   | 'inbox.list'
 
 export type InboxViewInput = {
   /** The threads query, before anything is cached. */
   query: 'loading' | 'error' | 'ready'
   threadCount: number
+  /** Conversations left once the search text and the filter are applied. */
+  matchCount: number
 }
 
-export type InboxViewConfig = { body: 'skeleton' | 'error' | 'empty' | 'list' }
+export type InboxViewConfig = {
+  /** The search box and filter button: shown once there is something to search. */
+  search: boolean
+  body: 'skeleton' | 'error' | 'empty' | 'noMatches' | 'list'
+}
 
 /** The open conversation (README.md). */
 export type ThreadViewName =

@@ -308,6 +308,7 @@ export const LongTaskName: Story = {
         title:
           'Mount a very large floor-to-ceiling bookshelf on a plasterboard living room wall before the weekend',
         status: TaskStatus.Awarded,
+        poster: { id: STORY_OWNER_ID },
       },
     }),
   },

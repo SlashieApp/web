@@ -1,4 +1,7 @@
 import type { InboxViewConfig } from './types'
 
 /** The threads query failed and nothing is cached: Try again. */
-export const inboxError: InboxViewConfig = { body: 'error' }
+export const inboxError: InboxViewConfig = {
+  search: false,
+  body: 'error',
+}

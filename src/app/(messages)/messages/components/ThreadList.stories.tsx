@@ -1,17 +1,21 @@
 import { Box } from '@chakra-ui/react'
 import { TaskStatus, ThreadAttentionKind } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { STORY_OWNER_ID } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 
+import { InboxSearchProvider } from '../context/InboxSearchProvider'
 import { MessagesContext } from '../context/MessagesProvider'
 import { ThreadList } from './ThreadList'
+import { messagesStory } from './messagesStoryDecorator'
 import {
   STORY_THREAD_TITLE,
   cancelledTaskThread,
   conversationMessage,
   messagesValue,
+  mixedInbox,
   needs,
   sampleThreads,
   systemThread,
@@ -37,15 +41,17 @@ function Frame({
 }) {
   return (
     <MessagesContext.Provider value={value}>
-      <Box
-        maxW="360px"
-        h="560px"
-        display="flex"
-        flexDirection="column"
-        bg="bg.surface"
-      >
-        <ThreadList selectedId={selectedId} />
-      </Box>
+      <InboxSearchProvider>
+        <Box
+          maxW="360px"
+          h="560px"
+          display="flex"
+          flexDirection="column"
+          bg="bg.surface"
+        >
+          <ThreadList selectedId={selectedId} />
+        </Box>
+      </InboxSearchProvider>
     </MessagesContext.Provider>
   )
 }
@@ -70,7 +76,12 @@ const threadFrom = (id: string, title: string, days: number) => {
     'owner',
     {
       id,
-      task: { id: `task-${id}`, title, status: TaskStatus.Awarded },
+      task: {
+        id: `task-${id}`,
+        title,
+        status: TaskStatus.Awarded,
+        poster: { id: STORY_OWNER_ID },
+      },
       updatedAt: last.createdAt,
     },
     [last],
@@ -267,6 +278,7 @@ export const LongText: Story = {
               title:
                 'Mount a very large floor-to-ceiling bookshelf on a plasterboard living room wall before the weekend',
               status: TaskStatus.Awarded,
+              poster: { id: STORY_OWNER_ID },
             },
             unreadCount: 3,
           }),
@@ -311,4 +323,257 @@ export const OnlyAnnouncements: Story = {
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
   render: (args) => <Frame value={messagesValue()} {...args} />,
+}
+
+/* Search and filter (FE-362). Alex is signed in, so the filters can tell the
+   tasks he posted from the ones he works on. */
+
+/** Alex's inbox with a conversation for each filter. */
+const mixedDecorators = messagesStory<{ selectedId: string | null }>({
+  viewer: 'owner',
+  inbox: { threads: mixedInbox(), unreadCount: 3 },
+  height: '560px',
+  maxW: '360px',
+})
+const mixed: Story = {
+  args: { selectedId: null },
+  decorators: mixedDecorators,
+}
+
+/** The rows of `mixedInbox`, by what each row says. */
+const rows = {
+  bookshelf: /Jordan Lee/,
+  garden: /2 workers quoted/,
+  slashie: /Updates from Slashie/,
+  tap: /Sam Taylor/,
+  fence: /Chloé Martin/,
+}
+const allRows = Object.values(rows)
+
+/** The list shows exactly these conversations. */
+async function expectRows(canvasElement: HTMLElement, names: RegExp[]) {
+  const canvas = within(canvasElement)
+  await waitFor(() =>
+    expect(canvas.queryAllByRole('link')).toHaveLength(names.length),
+  )
+  for (const name of names) {
+    await expect(canvas.getByRole('link', { name })).toBeVisible()
+  }
+}
+
+async function typeSearch(canvasElement: HTMLElement, text: string) {
+  await userEvent.type(
+    await within(canvasElement).findByRole('searchbox', {
+      name: 'Search messages',
+    }),
+    text,
+  )
+}
+
+/** Opens the filter drawer (it renders on the page, not in the story) and picks one. */
+async function pickFilter(canvasElement: HTMLElement, name: string) {
+  const page = within(canvasElement.ownerDocument.body)
+  await userEvent.click(
+    await within(canvasElement).findByRole('button', { name: /^Filter/ }),
+  )
+  const drawer = within(await page.findByRole('dialog', { name: 'Filter' }))
+  await userEvent.click(drawer.getByRole('radio', { name }))
+  await waitFor(() => expect(page.queryByRole('dialog')).toBeNull(), {
+    timeout: 3000,
+  })
+}
+
+/** Search text: "garden" is in two task titles. */
+export const SearchTaskTitle: Story = {
+  ...mixed,
+  play: async ({ canvasElement }) => {
+    await typeSearch(canvasElement, 'garden')
+    await expectRows(canvasElement, [rows.garden, rows.fence])
+  },
+}
+
+/** Search text: case and accents don't matter, so CHLOE finds Chloé Martin. */
+export const SearchPersonIgnoresAccents: Story = {
+  ...mixed,
+  play: async ({ canvasElement }) => {
+    await typeSearch(canvasElement, 'CHLOE')
+    await expectRows(canvasElement, [rows.fence])
+  },
+}
+
+/** Search text: the latest message is searched too, so "drill" finds Jordan's. */
+export const SearchLastMessage: Story = {
+  ...mixed,
+  play: async ({ canvasElement }) => {
+    await typeSearch(canvasElement, 'drill')
+    await expectRows(canvasElement, [rows.bookshelf])
+  },
+}
+
+/** The X in the search box clears the text and brings every conversation back. */
+export const ClearSearch: Story = {
+  ...mixed,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await typeSearch(canvasElement, 'garden')
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Clear search' }),
+    )
+    await expectRows(canvasElement, allRows)
+    await expect(canvas.getByRole('searchbox')).toHaveValue('')
+    await expect(canvas.getByRole('searchbox')).toHaveFocus()
+  },
+}
+
+/** One filter on: the drawer's choice is applied, and the button says so. */
+const filtered = (name: string, shown: RegExp[]): Story => ({
+  ...mixed,
+  play: async ({ canvasElement }) => {
+    await pickFilter(canvasElement, name)
+    await expectRows(canvasElement, shown)
+    await expect(
+      within(canvasElement).getByRole('button', {
+        name: 'Filter, 1 active',
+      }),
+    ).toBeVisible()
+  },
+})
+
+/** Filter Unread: only the conversations with something unread. */
+export const FilterUnread: Story = filtered('Unread', [
+  rows.bookshelf,
+  rows.fence,
+])
+
+/** Filter Needs you: quotes to compare, and a booking to mark Done. */
+export const FilterNeedsYou: Story = filtered('Needs you', [
+  rows.garden,
+  rows.tap,
+])
+
+/** Filter Posted by you: the tasks Alex posted. */
+export const FilterPostedByYou: Story = filtered('Posted by you', [
+  rows.bookshelf,
+  rows.garden,
+])
+
+/** Filter Working on: the tasks someone else posted. */
+export const FilterWorkingOn: Story = filtered('Working on', [
+  rows.tap,
+  rows.fence,
+])
+
+/** Filter Slashie updates: the Slashie thread only. */
+export const FilterSlashieUpdates: Story = filtered('Slashie updates', [
+  rows.slashie,
+])
+
+/** Search and filter together: "garden" among the tasks Alex posted. */
+export const SearchAndFilter: Story = {
+  ...mixed,
+  play: async ({ canvasElement }) => {
+    await pickFilter(canvasElement, 'Posted by you')
+    await typeSearch(canvasElement, 'garden')
+    await expectRows(canvasElement, [rows.garden])
+  },
+}
+
+/** inbox.noMatches: nothing matches, so the list says so and offers Clear search and filter. */
+export const NoResults: Story = {
+  ...mixed,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await typeSearch(canvasElement, 'plumber')
+    await expect(
+      await canvas.findByText('No conversations match'),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Clear search and filter' }),
+    ).toBeVisible()
+    await expectRows(canvasElement, [])
+  },
+}
+
+/** Clear search and filter: every conversation is back, the text is empty and the filter is off. */
+export const ClearSearchAndFilter: Story = {
+  ...mixed,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await pickFilter(canvasElement, 'Slashie updates')
+    await typeSearch(canvasElement, 'plumber')
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Clear search and filter' }),
+    )
+    await expectRows(canvasElement, allRows)
+    await expect(canvas.getByRole('searchbox')).toHaveValue('')
+    await expect(canvas.getByRole('button', { name: 'Filter' })).toBeVisible()
+  },
+}
+
+/** Phones: the filter button opens a bottom sheet with the six choices, the current one marked. */
+export const FilterDrawerPhone: Story = {
+  ...mixed,
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', { name: 'Filter' }),
+    )
+    const drawer = within(
+      await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+        name: 'Filter',
+      }),
+    )
+    for (const name of [
+      'All',
+      'Unread',
+      'Needs you',
+      'Posted by you',
+      'Working on',
+      'Slashie updates',
+    ]) {
+      await expect(drawer.getByRole('radio', { name })).toBeVisible()
+    }
+    await expect(drawer.getByRole('radio', { name: 'All' })).toBeChecked()
+  },
+}
+
+/** zh-HK: the search box, the filter button and its drawer in Traditional Chinese. */
+export const ZhHkSearchAndFilter: Story = {
+  ...mixed,
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/messages' } } },
+  decorators: [
+    ...mixedDecorators,
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const page = within(canvasElement.ownerDocument.body)
+    await expect(
+      await canvas.findByRole('searchbox', { name: '搜尋訊息' }),
+    ).toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: '篩選' }))
+    const drawer = within(await page.findByRole('dialog', { name: '篩選' }))
+    for (const name of [
+      '全部',
+      '未讀',
+      '需要你處理',
+      '我發布的',
+      '我接的工作',
+      'Slashie 通知',
+    ]) {
+      await expect(drawer.getByRole('radio', { name })).toBeVisible()
+    }
+    await userEvent.click(drawer.getByRole('radio', { name: '我接的工作' }))
+    await waitFor(() => expect(page.queryByRole('dialog')).toBeNull(), {
+      timeout: 3000,
+    })
+    await expectRows(canvasElement, [rows.tap, rows.fence])
+    await expect(
+      canvas.getByRole('button', { name: '篩選，已套用 1 項' }),
+    ).toBeVisible()
+  },
 }

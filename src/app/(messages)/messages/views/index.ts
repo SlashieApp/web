@@ -8,6 +8,7 @@ import { inboxEmpty } from './inbox.empty'
 import { inboxError } from './inbox.error'
 import { inboxList } from './inbox.list'
 import { inboxLoading } from './inbox.loading'
+import { inboxNoMatches } from './inbox.noMatches'
 import { pinBooking } from './pin.booking'
 import { pinClosed } from './pin.closed'
 import { pinMyQuote } from './pin.myQuote'
@@ -57,6 +58,7 @@ export const INBOX_VIEWS: Record<InboxViewName, InboxViewConfig> = {
   'inbox.loading': inboxLoading,
   'inbox.error': inboxError,
   'inbox.empty': inboxEmpty,
+  'inbox.noMatches': inboxNoMatches,
   'inbox.list': inboxList,
 }
 

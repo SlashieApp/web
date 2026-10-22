@@ -12,6 +12,10 @@ fragment ThreadFields on Thread {
     id
     title
     status
+    # FE-362: Posted by you / Working on in the inbox filter.
+    poster {
+      id
+    }
   }
   otherParty {
     userId
