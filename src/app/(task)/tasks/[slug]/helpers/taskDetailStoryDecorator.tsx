@@ -77,7 +77,7 @@ function TaskDetailStorySeed({
             timeline: (task.timeline ?? []).map((e) => ({
               __typename: 'TaskTimelineEvent',
               ...e,
-              actor: {
+              actor: e.actor && {
                 __typename: 'User',
                 ...e.actor,
                 profile: { __typename: 'Profile', ...e.actor.profile },

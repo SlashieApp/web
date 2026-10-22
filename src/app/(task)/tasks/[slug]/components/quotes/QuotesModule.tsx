@@ -174,7 +174,8 @@ function quoteCardBaseProps(
   const name = quote.worker?.profile?.name?.trim() || workerFallback
   return {
     name,
-    avatarLabel: workerNameInitials(name, quote.workerUserId),
+    // Another worker's quote has no worker id for non-owners (BE-105).
+    avatarLabel: workerNameInitials(name, quote.workerUserId ?? quote.id),
     avatarUrl: quote.worker?.profile?.avatarUrl,
     priceLabel: pence != null ? formatPoundsFromPence(pence) : '—',
     showPrice: pence != null,

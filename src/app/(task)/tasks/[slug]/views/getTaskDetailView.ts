@@ -10,8 +10,11 @@ import type { TaskDetailViewName } from './types'
 export type TaskDetailViewTask = {
   status: string
   posterId: string | null
-  /** `Task.quotes`: latest quote per worker (EXPIRED / WITHDRAWN omitted). */
-  quotes: readonly { workerUserId: string; status: string }[]
+  /**
+   * `Task.quotes`: latest quote per worker (EXPIRED / WITHDRAWN omitted).
+   * `workerUserId` is null on other workers' quotes for non-owners (BE-105).
+   */
+  quotes: readonly { workerUserId?: string | null; status: string }[]
 }
 
 export type TaskDetailViewOrder = {

@@ -86,7 +86,7 @@ export function ThreadQuote({
   // Only the owner and the quoting worker can see the quote.
   const canAct =
     status === 'pending' && meId != null && quote.workerUserId !== meId
-  const name = quote.worker.profile.name?.trim() || q.workerFallback
+  const name = quote.worker?.profile.name?.trim() || q.workerFallback
   const times = quote.proposedSlots
     .map((slot) => formatTimeSlotLabel(slot, locale))
     .join(' · ')
@@ -171,7 +171,7 @@ export function ThreadQuote({
         <Avatar
           size="sm"
           name={name}
-          src={quote.worker.profile.avatarUrl ?? undefined}
+          src={quote.worker?.profile.avatarUrl ?? undefined}
         />
         <Stack gap={0} flex={1} minW={0}>
           <Text fontWeight={600} fontSize="sm" truncate>

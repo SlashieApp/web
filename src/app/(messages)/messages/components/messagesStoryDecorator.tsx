@@ -121,7 +121,7 @@ function forCache(task: TaskDetailRecord) {
     },
     timeline: task.timeline.map((event) => ({
       ...event,
-      actor: {
+      actor: event.actor && {
         ...event.actor,
         profile: { ...event.actor.profile, avatarUrl: null },
       },
