@@ -6,25 +6,31 @@
 for is its button. A worker who can't quote right now sees a "Before you can
 quote" strip above the list. `getMyTasksView({ hasTasks, hasMatches,
 loading, failed, filtered })` picks what the list column shows; each view has
-one config file in this folder (filter button on or off, body, message,
-buttons) and `index.ts` maps names to configs.
+one config file in this folder (filters on or off, body, message, buttons)
+and `index.ts` maps names to configs.
 
 - `components/MyTasksScreen.tsx` runs the queries, keeps search, Category and
   Hosted / Quoted in the URL (`?q=&category=&role=`) and picks the view. One
-  centred column on every screen; the list / chart toggle swaps the list for
-  Your activity.
+  centred list column on every screen. From `lg` up the filters sit in a rail
+  to its left; below `lg` they are the icon by the title and its drawer.
 - `components/ui/MyTasksList.tsx` renders the config and the sections;
-  `MyTaskCard` is one task (a card or a compact row); `MyTasksFilters` is the
-  filter icon and its drawer.
+  `MyTaskCard` is one task (a card or a compact row).
+- Filters: `MyTasksFiltersRail` (desktop rail), `MyTasksFilters` (icon and
+  drawer below `lg`) and `MyTasksFilterFields` (the Search, Show and Category
+  controls both use).
 - Sections, order and buttons come from `helpers/myTasksHub.ts`
   (`buildMyTasksHub`).
 - The strip comes from `helpers/quoteBlocker.ts` (`MyTasksQuoteBlocker`).
-- Stories: `MyTasksList.stories.tsx` (one per view, plus the sections),
-  `MyTaskCard.stories.tsx`, `MyTasksFilters.stories.tsx`.
+- The Category choices come from `me.hubTaskCategories`
+  (`graphql/MyTaskCategories.gql`, `helpers/useMyTaskCategories.ts`).
+- Stories: `MyTasksScreen.stories.tsx` (the whole page at desktop, tablet and
+  phone width), `MyTasksList.stories.tsx` (one per view, plus the sections),
+  `MyTaskCard.stories.tsx`, `MyTasksFilters.stories.tsx`,
+  `MyTasksFiltersRail.stories.tsx`, `MyTasksFilterFields.stories.tsx`.
 
 Copy lives in `../i11n.json` (en + zh-HK).
 
-| View | When | Filter button | Shows | Buttons |
+| View | When | Filters | Shows | Buttons |
 |---|---|---|---|---|
 | `loading` | First load, nothing to show yet. | no | 3 card placeholders | none |
 | `searching` | New filters are loading and nothing matches yet. | yes | 3 card placeholders | none |
@@ -33,15 +39,20 @@ Copy lives in `../i11n.json` (en + zh-HK).
 | `noMatches` | Search or filters leave nothing. | yes | "No matching tasks" | Clear filters |
 | `list` | There are rows to show (a failed refresh keeps them, with Try again above). | yes | The sections | none |
 
+"Filters: no" hides the icon and the rail until there is something to
+search. On desktop the list column keeps the rail's room during `loading`, so
+it doesn't jump right when the rail appears; `empty` and `error` have no rail
+and use the full width.
+
 ## Who sees what
 
 Guests never reach the page: `AccountAuthGate` sends them to log in.
 
-| Viewer | Rows | Filters | Your activity |
-|---|---|---|---|
-| Customer only | Hosted rows | Search, Category | Customer panel |
-| Worker only | Quoted rows | Search, Category | Worker panel |
-| Posts and quotes | Both | Search, Show (posted or quoted), Category | Both panels |
+| Viewer | Rows | Filters |
+|---|---|---|
+| Customer only | Hosted rows | Search, Category |
+| Worker only | Quoted rows | Search, Category |
+| Posts and quotes | Both | Search, Show (posted or quoted), Category |
 
 ## The sections
 
@@ -84,10 +95,26 @@ task.
 
 ## Filters
 
-The filter icon next to the title ("Filters, 2 active" when filters are on)
-opens a drawer: a bottom sheet on phones and tablets, a side panel on
-desktop. It has Search (title, description and place), Show (All tasks,
-Posted by you, Quoted by you; only with both kinds of task) and Category
-(All categories, then `me.hubTaskCategories`), then Clear and Apply.
-Changes wait for Apply (or Enter in the search); Clear turns every filter
-off at once. Copy matches Expo's hub (FE-361).
+Search (title, description and place), Show (All tasks, Posted by you, Quoted
+by you; only with both kinds of task) and Category (All categories, then
+`me.hubTaskCategories`) are the same controls and copy in both layouts, and
+one state: `MyTasksScreen` keeps them in the URL (`?q=&category=&role=`), so
+resizing the window keeps them. Each layout hides itself with CSS (no flash on
+first paint). Copy matches Expo's hub (FE-361).
+
+| Screen | Where | When a change applies |
+|---|---|---|
+| Phones and tablets (below `lg`) | The filter icon next to the title ("Filters, 2 active" when filters are on) opens a bottom sheet. | On Apply, or Enter in the search. Clear turns every filter off at once. |
+| Desktop (`lg` and up) | A rail left of the list, always open. No icon and no sheet. | At once. A chip when pressed. The search 300 ms after typing stops (`helpers/searchDebounce.ts`) or on Enter; the X in the field clears it at once. A chip pressed while typing sends the typed search with it. |
+
+The rail shows Clear filters (a text button by its title) only while a filter
+is on, and it clears all of them. The list's own Clear filters (in
+`noMatches`) clears the rail too.
+
+## Your activity
+
+My tasks no longer has Your activity (FE-377): no list / chart toggle, no stat
+panels, no `me.taskAchievements` query. The owner's own public profile still
+shows it (`PublicProfileAchievements`), so `components/ui/MyTasksActivityDetails.tsx`,
+`helpers/taskAchievements.ts` and the `achievements` copy in `../i11n.json`
+stay for the profile. Don't delete them as dead code.

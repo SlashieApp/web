@@ -39,9 +39,19 @@ export function myTasksQueryString(query: MyTasksQuery): string {
   return text ? `?${text}` : ''
 }
 
-/** How many of search, category and Hosted / Quoted are set (the filter button's count). */
+/**
+ * How many of search, category and Hosted / Quoted are set: the filter
+ * button's count, and the rail's Clear filters shows while it is above 0.
+ */
 export function activeFilterCount(query: MyTasksQuery): number {
   return [query.q.trim(), query.category, query.role].filter(Boolean).length
+}
+
+/** Whether two queries would show the same tasks (the search compared trimmed). */
+export function sameMyTasksQuery(a: MyTasksQuery, b: MyTasksQuery): boolean {
+  return (
+    a.q.trim() === b.q.trim() && a.category === b.category && a.role === b.role
+  )
 }
 
 /** Keeps the rows with this role in every section. */

@@ -76,22 +76,6 @@ export type AchievementPanel = {
   sparse: boolean
 }
 
-export function achievementRoleVisibility(input: {
-  hasWorkerProfile: boolean
-  sentQuoteCount: number
-  postedTaskCount: number
-  workerHasActivity?: boolean | null
-  customerHasActivity?: boolean | null
-}): { worker: boolean; customer: boolean } {
-  return {
-    worker:
-      input.hasWorkerProfile ||
-      input.sentQuoteCount > 0 ||
-      input.workerHasActivity === true,
-    customer: input.postedTaskCount > 0 || input.customerHasActivity === true,
-  }
-}
-
 export function formatAgreedTotal(amount: number, currency: string): string {
   const code = currency.trim() || 'GBP'
   try {
@@ -178,9 +162,9 @@ export type CategoryMixShare = {
 }
 
 /**
- * Integer shares of the mix that sum to 100. Used by the in-hub pie.
- * Compact cards still read `AchievementCategoryMix.percent`, which stays null
- * until `CATEGORY_MIX_PERCENT_MIN` completed jobs.
+ * Integer shares of the mix that sum to 100, for the category pie on the
+ * owner's profile. `AchievementCategoryMix.percent` stays null until
+ * `CATEGORY_MIX_PERCENT_MIN` completed jobs.
  */
 export function categoryMixShares(
   mix: readonly AchievementCategoryMix[],

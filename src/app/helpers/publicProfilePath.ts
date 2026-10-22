@@ -16,8 +16,3 @@ export function publicProfilePath(
   if (fromTask) params.push(`fromTask=${encodeURIComponent(fromTask)}`)
   return params.length > 0 ? `${base}?${params.join('&')}` : base
 }
-
-/** Owner achievements anchor on the public profile. */
-export function publicProfileAchievementsPath(userId: string): string {
-  return `${publicProfilePath(userId)}#achievements`
-}

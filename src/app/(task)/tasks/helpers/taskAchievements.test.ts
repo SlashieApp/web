@@ -3,43 +3,9 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  achievementRoleVisibility,
-  buildAchievementPanels,
-  categoryMixShares,
-} from './taskAchievements'
+import { buildAchievementPanels, categoryMixShares } from './taskAchievements'
 
 const allowance = { used: 1, cap: 3, unlimited: false }
-
-describe('achievementRoleVisibility', () => {
-  it('hides a role the viewer does not use', () => {
-    expect(
-      achievementRoleVisibility({
-        hasWorkerProfile: false,
-        sentQuoteCount: 0,
-        postedTaskCount: 2,
-      }),
-    ).toEqual({ worker: false, customer: true })
-    expect(
-      achievementRoleVisibility({
-        hasWorkerProfile: true,
-        sentQuoteCount: 0,
-        postedTaskCount: 0,
-      }),
-    ).toEqual({ worker: true, customer: false })
-  })
-
-  it('shows a role when the achievements API reports activity', () => {
-    expect(
-      achievementRoleVisibility({
-        hasWorkerProfile: false,
-        sentQuoteCount: 0,
-        postedTaskCount: 0,
-        workerHasActivity: true,
-      }),
-    ).toEqual({ worker: true, customer: false })
-  })
-})
 
 describe('buildAchievementPanels', () => {
   it('keeps worker and customer panels separate and labels agreed totals', () => {

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import type { MyTaskHubRow, MyTaskHubSection } from './myTasksHub'
 import {
+  EMPTY_MY_TASKS_QUERY,
+  type MyTasksQuery,
   activeFilterCount,
   countHubRows,
   filterHubByRole,
@@ -9,6 +11,7 @@ import {
   hubHasBothRoles,
   myTasksQueryString,
   parseMyTasksQuery,
+  sameMyTasksQuery,
 } from './myTasksHubFilters'
 
 function row(
@@ -71,6 +74,21 @@ describe('My Tasks query', () => {
     expect(
       activeFilterCount({ q: 'tap', category: 'MOVING', role: 'hosted' }),
     ).toBe(3)
+  })
+
+  it('tells when two queries show the same tasks, ignoring spaces round the search', () => {
+    const base: MyTasksQuery = { q: 'tap', category: 'MOVING', role: 'hosted' }
+    expect(sameMyTasksQuery(base, { ...base, q: ' tap ' })).toBe(true)
+    expect(sameMyTasksQuery(base, { ...base, q: 'tape' })).toBe(false)
+    expect(sameMyTasksQuery(base, { ...base, category: '' })).toBe(false)
+    expect(sameMyTasksQuery(base, { ...base, role: 'quoted' })).toBe(false)
+    expect(
+      sameMyTasksQuery(EMPTY_MY_TASKS_QUERY, {
+        q: '  ',
+        category: '',
+        role: '',
+      }),
+    ).toBe(true)
   })
 })
 

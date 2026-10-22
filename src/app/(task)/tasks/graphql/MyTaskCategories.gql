@@ -1,0 +1,8 @@
+# The Category choices on My tasks: every category on the tasks you posted or
+# quoted on. The API does not narrow it by search or filters, so the choices do
+# not shrink while you filter.
+query MyTaskCategories {
+  me {
+    hubTaskCategories
+  }
+}

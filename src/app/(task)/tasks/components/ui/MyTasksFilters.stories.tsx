@@ -14,11 +14,17 @@ const categories = [
 
 const active: MyTasksQuery = { q: 'tap', category: 'HANDYMAN', role: 'hosted' }
 
+/**
+ * Phones and tablets (below `lg`): the filter icon by the My Tasks title and
+ * the bottom sheet it opens. From `lg` up the icon is hidden and the
+ * always-open rail (`MyTasksFiltersRail`) takes over.
+ */
 const meta = {
   title: 'My tasks/MyTasksFilters',
   component: MyTasksFilters,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
   args: {
     query: { q: '', category: '', role: '' },
     categories,
@@ -202,19 +208,46 @@ export const OneRole: Story = {
 export const Phone: Story = {
   tags: ['!autodocs'],
   args: { query: active },
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
-    await openDrawer(canvasElement, 'Filters, 3 active')
+    const page = await openDrawer(canvasElement, 'Filters, 3 active')
+    const dialog = page.getByRole('dialog', { name: 'Filter tasks' })
+    const view = canvasElement.ownerDocument.defaultView
+    await waitFor(() =>
+      expect(Math.round(dialog.getBoundingClientRect().bottom)).toBe(
+        view?.innerHeight,
+      ),
+    )
   },
 }
 
-/** Desktop: the drawer is a side panel. */
+/** Tablet (below `lg`): still the icon and a bottom sheet, not the rail. */
+export const Tablet: Story = {
+  tags: ['!autodocs'],
+  args: { query: active },
+  globals: { viewport: { value: 'tablet', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const page = await openDrawer(canvasElement, 'Filters, 3 active')
+    const dialog = page.getByRole('dialog', { name: 'Filter tasks' })
+    const view = canvasElement.ownerDocument.defaultView
+    await waitFor(() =>
+      expect(Math.round(dialog.getBoundingClientRect().bottom)).toBe(
+        view?.innerHeight,
+      ),
+    )
+  },
+}
+
+/** Desktop (`lg` and up): no filter icon, so no drawer. The rail has the filters. */
 export const Desktop: Story = {
   tags: ['!autodocs'],
   args: { query: active },
   globals: { viewport: { value: 'desktop' } },
   play: async ({ canvasElement }) => {
-    await openDrawer(canvasElement, 'Filters, 3 active')
+    const canvas = within(canvasElement)
+    await expect(canvas.queryByRole('button', { name: /^Filters/ })).toBeNull()
+    await expect(
+      canvas.getByRole('button', { name: 'Filters, 3 active', hidden: true }),
+    ).not.toBeVisible()
   },
 }
 

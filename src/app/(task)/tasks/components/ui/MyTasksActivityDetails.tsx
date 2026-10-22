@@ -134,7 +134,7 @@ function statTiles(
   ]
 }
 
-export function ActivityStatGrid({ panel }: { panel: AchievementPanel }) {
+function ActivityStatGrid({ panel }: { panel: AchievementPanel }) {
   const t = useI11n(bag)
   const tiles = statTiles(panel, t.achievements)
   return (
@@ -169,78 +169,6 @@ export function ActivityStatGrid({ panel }: { panel: AchievementPanel }) {
         </Stack>
       ))}
     </SimpleGrid>
-  )
-}
-
-export function ActivityCategoryMix({
-  panel,
-  showSharePercent,
-}: {
-  panel: AchievementPanel
-  /** Detail view prints a share even when the compact percent is withheld. */
-  showSharePercent?: boolean
-}) {
-  const t = useI11n(bag)
-  const shares = categoryMixShares(panel.categoryMix)
-  const shareByCategory = new Map(
-    shares.map((share) => [share.category, share]),
-  )
-  if (panel.categoryMix.length === 0) return null
-
-  return (
-    <Stack gap={3}>
-      <Text fontSize="sm" fontWeight={700} color="text.default">
-        {t.achievements.categoryMix}
-      </Text>
-      {panel.categoryMix.map((item) => {
-        const share = shareByCategory.get(item.category)
-        const width = share?.percent ?? item.percent ?? 0
-        const percent = showSharePercent
-          ? (share?.percent ?? item.percent)
-          : item.percent
-        const active = (item.count ?? 0) > 0 || (percent ?? 0) > 0
-        return (
-          <Stack key={item.category} gap={1.5}>
-            <HStack justify="space-between" gap={3} minW={0}>
-              <HStack gap={2} minW={0}>
-                <Box
-                  aria-hidden
-                  boxSize="8px"
-                  borderRadius="full"
-                  flexShrink={0}
-                  bg={active ? 'action.primary' : 'border.strong'}
-                />
-                <Text fontSize="sm" color="text.default" lineClamp={1}>
-                  {item.label}
-                </Text>
-              </HStack>
-              <HStack
-                gap={3}
-                flexShrink={0}
-                color="text.muted"
-                fontSize="sm"
-                fontVariantNumeric="tabular-nums"
-              >
-                {item.count != null ? <Text>{item.count}</Text> : null}
-                {percent != null ? (
-                  <Text minW="2.5rem" textAlign="end">
-                    {percent}%
-                  </Text>
-                ) : null}
-              </HStack>
-            </HStack>
-            <Box h="6px" borderRadius="full" bg="bg.subtle" aria-hidden>
-              <Box
-                h="full"
-                w={`${Math.max(0, Math.min(100, width))}%`}
-                borderRadius="full"
-                bg={active ? 'action.primary' : 'transparent'}
-              />
-            </Box>
-          </Stack>
-        )
-      })}
-    </Stack>
   )
 }
 
@@ -302,8 +230,10 @@ export type MyTasksActivityDetailsProps = {
 }
 
 /**
- * Owner activity detail. The My Tasks hub links here from
- * `/profile/[ownUserId]#achievements` instead of opening this in a sheet.
+ * Owner activity detail: stats, category pie, place, streak and agreed totals
+ * per role. Only the owner's public profile shows it
+ * (`PublicProfileAchievements`, `/profile/[ownUserId]#achievements`); My tasks
+ * no longer has a Your activity view.
  */
 export function MyTasksActivityDetails({
   panels,

@@ -1,28 +1,20 @@
 'use client'
 
-import {
-  Box,
-  HStack,
-  Stack,
-  chakra,
-  useBreakpointValue,
-} from '@chakra-ui/react'
-import { type ReactNode, useRef, useState } from 'react'
+import { Box, HStack, Stack } from '@chakra-ui/react'
+import { useRef, useState } from 'react'
 import { LuSlidersHorizontal } from 'react-icons/lu'
 
-import { TaskSearchBase } from '@/app/(task)/components/ui/TaskSearch'
-import { OptionButton } from '@/app/(task)/components/ui/TaskSearchFilters'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Drawer, IconButton } from '@ui'
 
-import type { MyTaskRole } from '../../helpers/myTasksHub'
 import {
   EMPTY_MY_TASKS_QUERY,
   type MyTasksQuery,
   activeFilterCount,
 } from '../../helpers/myTasksHubFilters'
 import bag from '../../i11n.json'
+import { MyTasksFilterFields } from './MyTasksFilterFields'
 
 export type MyTasksFiltersProps = {
   /** The filters in use (from the URL). */
@@ -33,29 +25,13 @@ export type MyTasksFiltersProps = {
   onApply: (query: MyTasksQuery) => void
 }
 
-function Group({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <chakra.fieldset m={0} p={0} borderWidth={0} minW={0}>
-      <chakra.legend
-        p={0}
-        mb={2}
-        fontSize="sm"
-        fontWeight={700}
-        color="text.default"
-      >
-        {label}
-      </chakra.legend>
-      {children}
-    </chakra.fieldset>
-  )
-}
-
 /**
- * The filter icon next to the My Tasks title, with a count when filters are
- * on. It opens a drawer (a bottom sheet on phones and tablets, a side panel
- * on desktop): Search, Show (posted or quoted), Category, then Clear and
- * Apply. Changes wait for Apply (or Enter in the search); Clear turns every
- * filter off.
+ * Phones and tablets (below `lg`): the filter icon next to the My Tasks
+ * title, with a count when filters are on. It opens a bottom sheet with
+ * Search, Show (posted or quoted) and Category, then Clear and Apply. Changes
+ * wait for Apply (or Enter in the search); Clear turns every filter off. From
+ * `lg` up the icon is hidden: `MyTasksFiltersRail` shows the same fields,
+ * always open.
  */
 export function MyTasksFilters({
   query,
@@ -67,16 +43,7 @@ export function MyTasksFilters({
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState(query)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const placement =
-    useBreakpointValue({ base: 'bottom', lg: 'end' } as const, {
-      fallback: 'base',
-    }) ?? 'bottom'
   const count = activeFilterCount(query)
-  const roles: readonly [MyTaskRole | '', string][] = [
-    ['', f.roleAll],
-    ['hosted', f.roleHosted],
-    ['quoted', f.roleQuoted],
-  ]
   const finish = (next: MyTasksQuery) => {
     onApply(next)
     setOpen(false)
@@ -85,7 +52,11 @@ export function MyTasksFilters({
 
   return (
     <>
-      <Box position="relative" flexShrink={0}>
+      <Box
+        position="relative"
+        flexShrink={0}
+        display={{ base: 'block', lg: 'none' }}
+      >
         <IconButton
           ref={buttonRef}
           type="button"
@@ -132,57 +103,20 @@ export function MyTasksFilters({
         open={open}
         onOpenChange={setOpen}
         title={f.title}
-        placement={placement}
+        placement="bottom"
         finalFocusEl={() => buttonRef.current}
       >
         <Stack gap={6} flex={1}>
-          <Group label={f.searchLabel}>
-            <TaskSearchBase
-              mode="input"
-              value={draft.q}
-              onValueChange={(q) => setDraft({ ...draft, q })}
-              onCommit={apply}
-              onClear={() => setDraft({ ...draft, q: '' })}
-              copy={{
-                placeholder: f.searchPlaceholder,
-                clearSearch: f.clearSearch,
-              }}
-            />
-          </Group>
-          {showRole ? (
-            <Group label={f.roleLabel}>
-              <HStack gap={2} flexWrap="wrap">
-                {roles.map(([role, label]) => (
-                  <OptionButton
-                    key={label}
-                    pressed={draft.role === role}
-                    onPress={() => setDraft({ ...draft, role })}
-                  >
-                    {label}
-                  </OptionButton>
-                ))}
-              </HStack>
-            </Group>
-          ) : null}
-          {categories.length > 0 ? (
-            <Group label={f.categoryLabel}>
-              <HStack gap={2} flexWrap="wrap">
-                {[{ category: '', label: f.categoryAll }, ...categories].map(
-                  (option) => (
-                    <OptionButton
-                      key={option.category || 'all'}
-                      pressed={draft.category === option.category}
-                      onPress={() =>
-                        setDraft({ ...draft, category: option.category })
-                      }
-                    >
-                      {option.label}
-                    </OptionButton>
-                  ),
-                )}
-              </HStack>
-            </Group>
-          ) : null}
+          <MyTasksFilterFields
+            query={draft}
+            categories={categories}
+            showRole={showRole}
+            onSearchChange={(q) => setDraft({ ...draft, q })}
+            onSearchCommit={apply}
+            onSearchClear={() => setDraft({ ...draft, q: '' })}
+            onRoleChange={(role) => setDraft({ ...draft, role })}
+            onCategoryChange={(category) => setDraft({ ...draft, category })}
+          />
           <HStack
             gap={3}
             mt="auto"
