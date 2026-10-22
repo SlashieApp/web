@@ -3,10 +3,12 @@
 import type { MapOptions, Map as MapboxMap } from 'mapbox-gl'
 import { useCallback, useRef, useState } from 'react'
 
+import { currentPosition } from '@/app/(stepflow)/tasks/create/helpers/currentPosition'
 import {
   TASK_MAP_PREVIEW_LAT,
   TASK_MAP_PREVIEW_LNG,
 } from '@/app/(stepflow)/tasks/create/helpers/resolveTaskLocation'
+import { useColorMode } from '@/ui/color-mode'
 import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import {
   mapboxForwardGeocode,
@@ -14,6 +16,19 @@ import {
 } from '@/utils/mapboxGeocode'
 
 type MapboxModule = typeof import('mapbox-gl').default
+
+/** Mapbox's own streets style, when no `/search` style is set. */
+const STREETS_STYLE = 'mapbox://styles/mapbox/streets-v12'
+
+/**
+ * The task location maps' Mapbox style (create's map and Edit task's,
+ * FE-356): the muted `/search` style for the light or dark theme.
+ */
+export function taskLocationMapStyle(mode: 'light' | 'dark'): string {
+  const light = process.env.NEXT_PUBLIC_MAPBOX_STYLE_LIGHT?.trim()
+  const dark = process.env.NEXT_PUBLIC_MAPBOX_STYLE_DARK?.trim()
+  return (mode === 'dark' ? dark : light) || STREETS_STYLE
+}
 
 function bumpMapResize(map: MapboxMap) {
   map.resize()
@@ -38,16 +53,20 @@ export type UseTaskLocationMapInput = {
   onLocationChange: (value: string) => void
   onLocationLatChange: (value: string) => void
   onLocationLngChange: (value: string) => void
-  /** Extra Mapbox options (style, logo corner). Read once per map. */
+  /** Locate-me couldn't tell where the poster is (denied, off, or too slow). */
+  onLocateFailed?: () => void
+  /** Extra Mapbox options (e.g. cooperative gestures). Read once per map. */
   mapOptions?: Partial<MapOptions>
-  /** Add controls/overlays to a new map (they live in its container). */
+  /** Add overlays to a new map (they live in its container). */
   onMapCreated?: (map: MapboxMap, mapboxgl: MapboxModule) => void
 }
 
 /**
  * Centre-pin location map: the map moves under a fixed pin. Dragging commits
  * the centre (then reverse geocodes a label); typing a place forward
- * geocodes and moves the map. Shared by the create stage and the edit card.
+ * geocodes and moves the map; locate-me commits the poster's position as a
+ * drag would. Shared by the create stage and the edit card, so both have the
+ * same style, logo corner and zoom buttons (top right).
  */
 export function useTaskLocationMap({
   accessToken,
@@ -57,12 +76,15 @@ export function useTaskLocationMap({
   onLocationChange,
   onLocationLatChange,
   onLocationLngChange,
+  onLocateFailed,
   mapOptions,
   onMapCreated,
 }: UseTaskLocationMapInput) {
+  const { colorMode } = useColorMode()
   const mapRef = useRef<MapboxMap | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const [mapReady, setMapReady] = useState(false)
+  const [locating, setLocating] = useState(false)
   const skipNextMoveEndRef = useRef(false)
   /** Drag commits the pin. The opening camera must not. */
   const pinDraggedRef = useRef(false)
@@ -71,10 +93,15 @@ export function useTaskLocationMap({
 
   const accessTokenRef = useRef(accessToken)
   accessTokenRef.current = accessToken
+  const mapStyle = taskLocationMapStyle(colorMode === 'dark' ? 'dark' : 'light')
+  const mapStyleRef = useRef(mapStyle)
+  mapStyleRef.current = mapStyle
   const mapOptionsRef = useRef(mapOptions)
   mapOptionsRef.current = mapOptions
   const onMapCreatedRef = useRef(onMapCreated)
   onMapCreatedRef.current = onMapCreated
+  const onLocateFailedRef = useRef(onLocateFailed)
+  onLocateFailedRef.current = onLocateFailed
 
   const locationLatRef = useRef(locationLat)
   const locationLngRef = useRef(locationLng)
@@ -105,102 +132,113 @@ export function useTaskLocationMap({
     [],
   )
 
-  const attachMapContainer = useCallback((el: HTMLDivElement | null) => {
-    resizeObserverRef.current?.disconnect()
-    resizeObserverRef.current = null
-    if (locationGeocodeTimerRef.current) {
-      window.clearTimeout(locationGeocodeTimerRef.current)
-      locationGeocodeTimerRef.current = null
-    }
-    if (moveDebounceRef.current) {
-      window.clearTimeout(moveDebounceRef.current)
-      moveDebounceRef.current = null
-    }
-    mapRef.current?.remove()
-    mapRef.current = null
-    skipNextMoveEndRef.current = false
-    setMapReady(false)
-
-    if (!el) return
-
+  /** The pin's new place, as a drag leaves it: the point, then its label. */
+  const commitPin = useCallback((lat: number, lng: number) => {
+    onLocationLatChangeRef.current(lat.toFixed(6))
+    onLocationLngChangeRef.current(lng.toFixed(6))
     const token = accessTokenRef.current?.trim()
     if (!token) return
+    void mapboxReverseGeocode(lat, lng, token)
+      .then((name) => {
+        if (name) onLocationChangeRef.current(name)
+      })
+      .catch(() => undefined)
+  }, [])
 
-    void Promise.all([ensureMapboxStyles(), import('mapbox-gl')]).then(
-      ([, mapboxgl]) => {
-        if (!el.isConnected) return
-        mapboxgl.default.accessToken = token
+  const attachMapContainer = useCallback(
+    (el: HTMLDivElement | null) => {
+      resizeObserverRef.current?.disconnect()
+      resizeObserverRef.current = null
+      if (locationGeocodeTimerRef.current) {
+        window.clearTimeout(locationGeocodeTimerRef.current)
+        locationGeocodeTimerRef.current = null
+      }
+      if (moveDebounceRef.current) {
+        window.clearTimeout(moveDebounceRef.current)
+        moveDebounceRef.current = null
+      }
+      mapRef.current?.remove()
+      mapRef.current = null
+      skipNextMoveEndRef.current = false
+      setMapReady(false)
 
-        const lat =
-          parseCoordString(locationLatRef.current) ?? TASK_MAP_PREVIEW_LAT
-        const lng =
-          parseCoordString(locationLngRef.current) ?? TASK_MAP_PREVIEW_LNG
+      if (!el) return
 
-        const map = new mapboxgl.default.Map({
-          container: el,
-          style: 'mapbox://styles/mapbox/streets-v12',
-          center: [lng, lat],
-          zoom: 12,
-          ...mapOptionsRef.current,
-        })
+      const token = accessTokenRef.current?.trim()
+      if (!token) return
 
-        onMapCreatedRef.current?.(map, mapboxgl.default)
-        mapRef.current = map
+      const style = mapStyleRef.current
+      // Which style the map wears, readable from the page (stories check it).
+      el.dataset.mapStyle = style
 
-        const resizeObserver = new ResizeObserver(() => {
-          mapRef.current?.resize()
-        })
-        resizeObserver.observe(el)
-        resizeObserverRef.current = resizeObserver
+      void Promise.all([ensureMapboxStyles(), import('mapbox-gl')]).then(
+        ([, mapboxgl]) => {
+          if (!el.isConnected) return
+          mapboxgl.default.accessToken = token
 
-        map.on('dragstart', () => {
-          pinDraggedRef.current = true
-        })
+          const lat =
+            parseCoordString(locationLatRef.current) ?? TASK_MAP_PREVIEW_LAT
+          const lng =
+            parseCoordString(locationLngRef.current) ?? TASK_MAP_PREVIEW_LNG
 
-        const onMoveEnd = () => {
-          if (skipNextMoveEndRef.current) {
-            skipNextMoveEndRef.current = false
-            return
-          }
-          if (!pinDraggedRef.current) return
-          if (moveDebounceRef.current)
-            window.clearTimeout(moveDebounceRef.current)
-          moveDebounceRef.current = window.setTimeout(() => {
-            const c = map.getCenter()
-            const latStr = c.lat.toFixed(6)
-            const lngStr = c.lng.toFixed(6)
-            // Resizes, zooms in place, and the camera arriving at a searched
-            // place also end a move. The pin is already committed there.
-            if (
-              latStr === locationLatRef.current &&
-              lngStr === locationLngRef.current
-            ) {
+          const map = new mapboxgl.default.Map({
+            container: el,
+            style,
+            center: [lng, lat],
+            zoom: 12,
+            logoPosition: 'bottom-right',
+            ...mapOptionsRef.current,
+          })
+          map.addControl(new mapboxgl.default.NavigationControl(), 'top-right')
+
+          onMapCreatedRef.current?.(map, mapboxgl.default)
+          mapRef.current = map
+
+          const resizeObserver = new ResizeObserver(() => {
+            mapRef.current?.resize()
+          })
+          resizeObserver.observe(el)
+          resizeObserverRef.current = resizeObserver
+
+          map.on('dragstart', () => {
+            pinDraggedRef.current = true
+          })
+
+          const onMoveEnd = () => {
+            if (skipNextMoveEndRef.current) {
+              skipNextMoveEndRef.current = false
               return
             }
-            onLocationLatChangeRef.current(latStr)
-            onLocationLngChangeRef.current(lngStr)
+            if (!pinDraggedRef.current) return
+            if (moveDebounceRef.current)
+              window.clearTimeout(moveDebounceRef.current)
+            moveDebounceRef.current = window.setTimeout(() => {
+              const c = map.getCenter()
+              // Resizes, zooms in place, and the camera arriving at a searched
+              // place also end a move. The pin is already committed there.
+              if (
+                c.lat.toFixed(6) === locationLatRef.current &&
+                c.lng.toFixed(6) === locationLngRef.current
+              ) {
+                return
+              }
+              commitPin(c.lat, c.lng)
+            }, 350)
+          }
 
-            const geocodeToken = accessTokenRef.current?.trim()
-            if (!geocodeToken) return
-            void mapboxReverseGeocode(c.lat, c.lng, geocodeToken).then(
-              (name) => {
-                if (name) onLocationChangeRef.current(name)
-              },
-            )
-          }, 350)
-        }
+          map.on('moveend', onMoveEnd)
 
-        map.on('moveend', onMoveEnd)
-
-        map.on('load', () => {
-          if (!el.isConnected) return
-          skipNextMoveEndRef.current = true
-          bumpMapResize(map)
-          setMapReady(true)
-        })
-      },
-    )
-  }, [])
+          map.on('load', () => {
+            if (!el.isConnected) return
+            skipNextMoveEndRef.current = true
+            bumpMapResize(map)
+            setMapReady(true)
+          })
+        },
+      )
+    },
+    [commitPin],
+  )
 
   const prevCoordsKeyRef = useRef<string | null>(null)
   const coordsKey = `${locationLat}|${locationLng}`
@@ -256,11 +294,25 @@ export function useTaskLocationMap({
   const commitLocationQuery = () =>
     suggestFromLocationQuery(locationRef.current)
 
+  /**
+   * Locate-me (the search bar's button): the poster's position becomes the
+   * pin and its label, as a drag would make them.
+   */
+  const locate = async () => {
+    setLocating(true)
+    const found = await currentPosition(true)
+    setLocating(false)
+    if (found) commitPin(found.lat, found.lng)
+    else onLocateFailedRef.current?.()
+  }
+
   return {
     attachMapContainer,
     mapRef,
     mapReady,
     onLocationInputChange,
     commitLocationQuery,
+    locate,
+    locating,
   }
 }

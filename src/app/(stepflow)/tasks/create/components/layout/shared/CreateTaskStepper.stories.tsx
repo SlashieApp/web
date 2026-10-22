@@ -20,6 +20,7 @@ type Story = StoryObj<typeof meta>
 export const Location: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await expect(canvas.getAllByRole('button')).toHaveLength(7)
     await expect(canvas.getByRole('button', { name: /Address/ })).toBeDisabled()
     await expect(canvas.getByRole('button', { name: /Details/ })).toBeDisabled()
   },
@@ -46,11 +47,24 @@ export const Details: Story = {
   },
 }
 
+/** Photos (FE-355): after the timing; the budget waits until it is passed. */
+export const Photos: Story = {
+  args: {
+    active: 'photos',
+    done: done('location', 'address', 'details', 'timing'),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('button', { name: /Timing/ })).toBeEnabled()
+    await expect(canvas.getByRole('button', { name: /Budget/ })).toBeDisabled()
+  },
+}
+
 /** Review: every step before it is done and reachable. */
 export const Review: Story = {
   args: {
     active: 'review',
-    done: done('location', 'address', 'details', 'timing', 'budget'),
+    done: done('location', 'address', 'details', 'timing', 'photos', 'budget'),
   },
 }
 
@@ -58,7 +72,7 @@ export const Review: Story = {
 export const RevisitingTheMap: Story = {
   args: {
     active: 'location',
-    done: done('location', 'address', 'details', 'timing'),
+    done: done('location', 'address', 'details', 'timing', 'photos'),
   },
   play: async ({ canvasElement }) => {
     await expect(

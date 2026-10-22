@@ -1,5 +1,5 @@
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
-import type { CreateTaskStepId } from '../views'
+import { CREATE_TASK_STEPS, type CreateTaskStepId } from '../views'
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
@@ -45,6 +45,8 @@ export function readCreateTaskDraft(
     if (draft?.v !== 1 || typeof draft.savedAt !== 'number') return null
     if (now - draft.savedAt > DRAFT_MAX_AGE_MS) return null
     if (!draft.values || typeof draft.values !== 'object') return null
+    // A step the flow no longer has can't be reopened.
+    if (!CREATE_TASK_STEPS.some((view) => view.step === draft.step)) return null
     return draft
   } catch {
     return null

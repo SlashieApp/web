@@ -43,6 +43,11 @@
         "title": "When do you need it?",
         "description": "Keep it flexible or pick a date. You agree the final time with your worker."
       },
+      "photos": {
+        "label": "Photos",
+        "title": "Add photos",
+        "description": "Optional. Photos help workers quote. They're public on your task, so leave out house numbers and faces."
+      },
       "budget": {
         "label": "Budget",
         "title": "What's your budget?",
@@ -233,6 +238,11 @@
         "label": "時間",
         "title": "你甚麼時候需要？",
         "description": "可以保持彈性，或揀一個日期。最終時間會與工作者再商量。"
+      },
+      "photos": {
+        "label": "相片",
+        "title": "加入相片",
+        "description": "選填。相片有助工作者報價。相片會在任務中公開，請避免拍到門牌號碼和人臉。"
       },
       "budget": {
         "label": "預算",

@@ -39,12 +39,26 @@ describe('getCreateTaskView', () => {
     expect(view({ step: 'address' })).toBe('create.address')
   })
 
-  it('asks what needs doing, with photos, after the address', () => {
+  it('asks what needs doing after the address, without the photos', () => {
     expect(view({ step: 'details' })).toBe('create.details')
+    expect(CREATE_TASK_VIEWS['create.details']).toMatchObject({
+      sections: ['basics'],
+      fields: ['title', 'categories', 'description'],
+    })
   })
 
   it('asks when the job is needed', () => {
     expect(view({ step: 'timing' })).toBe('create.timing')
+  })
+
+  it('asks for photos on their own step, with nothing to check', () => {
+    expect(view({ step: 'photos' })).toBe('create.photos')
+    expect(CREATE_TASK_VIEWS['create.photos']).toMatchObject({
+      step: 'photos',
+      sections: ['photos'],
+      fields: [],
+      primary: 'continue',
+    })
   })
 
   it('asks for the budget', () => {
@@ -76,6 +90,18 @@ describe('getCreateTaskView', () => {
     expect(
       steps.filter((config) => config.map === 'full').map((c) => c.step),
     ).toEqual(['location'])
+  })
+
+  it('gives phones the whole screen for the form from the details step on', () => {
+    const steps = Object.values(CREATE_TASK_VIEWS).filter(
+      (config) => config.layout === 'step',
+    )
+    expect(
+      steps.filter((config) => config.map === 'band').map((c) => c.step),
+    ).toEqual(['address'])
+    expect(
+      steps.filter((config) => config.map === 'desktopBand').map((c) => c.step),
+    ).toEqual(['details', 'timing', 'photos', 'budget', 'review'])
   })
 
   it('posts only from the review step', () => {

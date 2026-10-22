@@ -9,6 +9,7 @@ const VIEW_BY_STEP: Record<CreateTaskStepId, CreateTaskViewName> = {
   address: 'create.address',
   details: 'create.details',
   timing: 'create.timing',
+  photos: 'create.photos',
   budget: 'create.budget',
   review: 'create.review',
 }

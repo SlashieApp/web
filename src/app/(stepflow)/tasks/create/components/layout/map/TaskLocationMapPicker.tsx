@@ -1,14 +1,24 @@
 'use client'
 
 import { Box, Text } from '@chakra-ui/react'
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react'
+import { LuLocateFixed, LuSearch } from 'react-icons/lu'
 
+import { overlayWatermarkCss } from '@/app/(task)/helpers/marketplaceMap/overlay/overlay'
+import { useIsTouchMobileDevice } from '@/app/(task)/helpers/touchMobileDevice'
 import { useI11n } from '@/i18n/useI11n'
 import { BRAND_MAP_PIN, BRAND_MAP_PIN_STROKE } from '@/theme/brand'
-import { Input } from '@ui'
+import { sdlFocusRing } from '@/theme/styles'
+import { Button, Input } from '@ui'
 
 import bag from '../../../i11n.json'
 import { useTaskLocationMap } from './useTaskLocationMap'
+
+/**
+ * Room above the zoom buttons when they sit under the floating search bar
+ * (12px from the top, then the bar).
+ */
+export const BELOW_TASK_LOCATION_SEARCH = '64px'
 
 /**
  * Soft circle behind the centre pin (FE-70): workers see an approximate
@@ -70,6 +80,83 @@ export function TaskLocationCentrePin() {
   )
 }
 
+export type TaskLocationSearchBarProps = {
+  value: string
+  onChange: (value: string) => void
+  /** Search for what was typed: on blur, and on Enter. */
+  onSearch: () => void
+  /** Locate-me: move the pin to where the poster is. */
+  onLocate: () => void
+  locating?: boolean
+}
+
+/**
+ * The floating search field over a task location map (create and Edit
+ * task): search a street, area or postcode, or locate-me. Enter searches and
+ * closes the keyboard.
+ */
+export function TaskLocationSearchBar({
+  value,
+  onChange,
+  onSearch,
+  onLocate,
+  locating = false,
+}: TaskLocationSearchBarProps) {
+  const t = useI11n(bag).location
+  return (
+    <Input
+      value={value}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+      onBlur={onSearch}
+      onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key !== 'Enter') return
+        e.preventDefault()
+        e.currentTarget.blur()
+      }}
+      type="text"
+      inputMode="search"
+      autoComplete="off"
+      placeholder={t.searchPlaceholder}
+      aria-label={t.searchLabel}
+      rootProps={{ bg: 'bg.surface', boxShadow: 'e2' }}
+      startElement={
+        <Box as="span" aria-hidden display="inline-flex">
+          <LuSearch size={18} strokeWidth={2} />
+        </Box>
+      }
+      endElement={
+        <Button
+          type="button"
+          aria-label={t.locateLabel}
+          title={t.locateLabel}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          minW={0}
+          w={8}
+          h={8}
+          px={0}
+          py={0}
+          borderRadius="lg"
+          variant="ghost"
+          color="text.muted"
+          loading={locating}
+          _hover={{ bg: 'bg.subtle', color: 'text.default' }}
+          _focusVisible={sdlFocusRing}
+          // Keep focus in the field so blur does not geocode the
+          // half-typed query before the locate result lands.
+          onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
+            e.preventDefault()
+          }}
+          onClick={onLocate}
+        >
+          <LuLocateFixed size={18} strokeWidth={2} aria-hidden />
+        </Button>
+      }
+    />
+  )
+}
+
 export type TaskLocationMapPickerProps = {
   accessToken: string | undefined
   location: string
@@ -78,8 +165,16 @@ export type TaskLocationMapPickerProps = {
   onLocationChange: (value: string) => void
   onLocationLatChange: (value: string) => void
   onLocationLngChange: (value: string) => void
+  /** Locate-me couldn't tell where the poster is (denied, off, or too slow). */
+  onLocateFailed?: () => void
 }
 
+/**
+ * Edit task's map (FE-356): create's map in a card, with the same Mapbox
+ * style, centre pin and area halo, floating search bar and locate-me, logo
+ * and zoom buttons. Inside a scrolling page, one finger scrolls the page and
+ * two move the map.
+ */
 export function TaskLocationMapPicker({
   accessToken,
   location,
@@ -88,23 +183,27 @@ export function TaskLocationMapPicker({
   onLocationChange,
   onLocationLatChange,
   onLocationLngChange,
+  onLocateFailed,
 }: TaskLocationMapPickerProps) {
   const t = useI11n(bag).location
-  const { attachMapContainer, onLocationInputChange, commitLocationQuery } =
-    useTaskLocationMap({
-      accessToken,
-      location,
-      locationLat,
-      locationLng,
-      onLocationChange,
-      onLocationLatChange,
-      onLocationLngChange,
-      // Inside a scrolling page: one finger scrolls the page, two move the map.
-      mapOptions: { cooperativeGestures: true },
-      onMapCreated: (map, mapboxgl) => {
-        map.addControl(new mapboxgl.NavigationControl(), 'bottom-right')
-      },
-    })
+  const hideZoomControls = useIsTouchMobileDevice()
+  const {
+    attachMapContainer,
+    onLocationInputChange,
+    commitLocationQuery,
+    locate,
+    locating,
+  } = useTaskLocationMap({
+    accessToken,
+    location,
+    locationLat,
+    locationLng,
+    onLocationChange,
+    onLocationLatChange,
+    onLocationLngChange,
+    onLocateFailed,
+    mapOptions: { cooperativeGestures: true },
+  })
 
   const token = accessToken?.trim()
 
@@ -118,6 +217,15 @@ export function TaskLocationMapPicker({
       borderColor="border.default"
       h={{ base: '240px', md: '320px' }}
       bg="bg.surface"
+      css={{
+        ...overlayWatermarkCss(),
+        // The search bar spans the card, so the zoom buttons go under it;
+        // phones pinch instead.
+        '& .mapboxgl-ctrl-top-right': {
+          top: BELOW_TASK_LOCATION_SEARCH,
+          display: hideZoomControls ? 'none' : undefined,
+        },
+      }}
     >
       {token ? (
         <>
@@ -130,30 +238,17 @@ export function TaskLocationMapPicker({
             h="full"
             aria-hidden
           />
-          <Box position="absolute" left={3} right={3} top={3} zIndex={2}>
-            <Input
-              value={location}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                onLocationInputChange(e.target.value)
-              }
-              onBlur={commitLocationQuery}
-              onKeyDown={(e) => {
-                if (e.key !== 'Enter') return
-                e.preventDefault()
-                e.currentTarget.blur()
-              }}
-              placeholder={t.searchPlaceholder}
-              aria-label={t.searchLabel}
-              rootProps={{
-                bg: 'whiteAlpha.950',
-                backdropFilter: 'blur(8px)',
-                borderColor: 'border.default',
-                boxShadow: 'sm',
-              }}
-            />
-          </Box>
           <TaskLocationAreaHalo />
           <TaskLocationCentrePin />
+          <Box position="absolute" left={3} right={3} top={3} zIndex={2}>
+            <TaskLocationSearchBar
+              value={location}
+              onChange={onLocationInputChange}
+              onSearch={commitLocationQuery}
+              onLocate={() => void locate()}
+              locating={locating}
+            />
+          </Box>
         </>
       ) : (
         <Box

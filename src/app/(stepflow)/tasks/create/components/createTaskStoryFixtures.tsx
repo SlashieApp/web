@@ -103,26 +103,36 @@ export const CREATE_TASK_PHONE_VIEWPORTS = {
 } as const
 
 /**
- * The map that shows above the location step's card, in px: from the top of
+ * The box holding the step's heading and its Continue (`continueName`, for
+ * another language): the location step's card, or a later step's form.
+ */
+export function storyStepCard(
+  canvasElement: HTMLElement,
+  continueName: RegExp = /Continue/,
+): HTMLElement {
+  const canvas = within(canvasElement)
+  const next = canvas.getByRole('button', { name: continueName })
+  let card = canvas.getByRole('heading', { level: 1 }).parentElement
+  while (card && !card.contains(next)) card = card.parentElement
+  if (!card) throw new Error('No step card')
+  return card
+}
+
+/**
+ * The map that shows above the step's card or form, in px: from the top of
  * the page's `main` to the card's top edge, once the card has stopped
- * moving. The card is the box holding the step's heading and its Continue
- * (`continueName`, for another language).
+ * moving. On phones it is 0 from the details step on (FE-355).
  */
 export async function storyVisibleMapHeight(
   canvasElement: HTMLElement,
   continueName: RegExp = /Continue/,
 ): Promise<number> {
-  const canvas = within(canvasElement)
   const main = canvasElement.querySelector('main')
   if (!main) throw new Error('No main')
-  const next = canvas.getByRole('button', { name: continueName })
-  let card = canvas.getByRole('heading', { level: 1 }).parentElement
-  while (card && !card.contains(next)) card = card.parentElement
-  if (!card) throw new Error('No location card')
-  const found = card
   const measure = () =>
     Math.round(
-      found.getBoundingClientRect().top - main.getBoundingClientRect().top,
+      storyStepCard(canvasElement, continueName).getBoundingClientRect().top -
+        main.getBoundingClientRect().top,
     )
   // Same reading three times running, 300 ms apart: the card has settled.
   let readings = [measure()]

@@ -24,7 +24,12 @@ function photo(key: string, color: string): TaskPhotoTile {
 
 type DemoProps = Pick<
   CreateTaskVisualsSectionProps,
-  'bare' | 'sectionHeading' | 'existingImageUrls' | 'rejected'
+  | 'bare'
+  | 'sectionHeading'
+  | 'existingImageUrls'
+  | 'rejected'
+  | 'labelled'
+  | 'helper'
 > & { initial?: TaskPhotoTile[] }
 
 /** Tiles in a given state; photos picked here show straight away. */
@@ -116,6 +121,27 @@ export const TouchScreen: Story = {
 export const WithPhotos: Story = {
   args: {
     initial: [photo('pipe', '#9ec5e8'), photo('sink', '#f0c987')],
+  },
+}
+
+/**
+ * Create's photos step (FE-355): its heading says "Add photos" and what
+ * photos are for, so the section shows only the count and the tiles.
+ */
+export const PhotosStep: Story = {
+  args: {
+    labelled: false,
+    helper: false,
+    initial: [photo('pipe', '#9ec5e8')],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('1 of 10')).toBeVisible()
+    await expect(canvas.queryByText('Optional')).toBeNull()
+    await expect(canvas.queryByText(/Photos help workers quote/)).toBeNull()
+    await expect(
+      canvas.getByRole('button', { name: 'Add photos' }),
+    ).toBeVisible()
   },
 }
 

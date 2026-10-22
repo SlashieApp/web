@@ -4,6 +4,7 @@ import { createDetails } from './create.details'
 import { createLoadError } from './create.loadError'
 import { createLoading } from './create.loading'
 import { createLocation } from './create.location'
+import { createPhotos } from './create.photos'
 import { createReview } from './create.review'
 import { createSignIn } from './create.signIn'
 import { createTiming } from './create.timing'
@@ -16,6 +17,7 @@ import type {
 
 export { getCreateTaskView } from './getCreateTaskView'
 export type {
+  CreateTaskMapMode,
   CreateTaskSection,
   CreateTaskStepId,
   CreateTaskStepView,
@@ -35,6 +37,7 @@ export const CREATE_TASK_VIEWS: Record<
   'create.address': createAddress,
   'create.details': createDetails,
   'create.timing': createTiming,
+  'create.photos': createPhotos,
   'create.budget': createBudget,
   'create.review': createReview,
 }
@@ -45,6 +48,7 @@ export const CREATE_TASK_STEPS: readonly CreateTaskStepView[] = [
   createAddress,
   createDetails,
   createTiming,
+  createPhotos,
   createBudget,
   createReview,
 ] as CreateTaskStepView[]

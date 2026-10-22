@@ -143,6 +143,8 @@ export function EditTaskScreen({
   // "Use pin address" only once the pin has moved: before that, the label is
   // the stored town, not an address.
   const [pinMoved, setPinMoved] = useState(false)
+  // Locate-me found nothing: create's hint, until the pin moves (FE-356).
+  const [locateUnavailable, setLocateUnavailable] = useState(false)
   const [saving, setSaving] = useState(false)
   const [photoProgress, setPhotoProgress] =
     useState<PhotoUploadProgress | null>(null)
@@ -349,9 +351,11 @@ export function EditTaskScreen({
             onLocationChange={(v) => setValue('mapPlaceName', v, UPDATE)}
             onLocationLatChange={(v) => {
               setPinMoved(true)
+              setLocateUnavailable(false)
               setValue('locationLat', v, UPDATE)
             }}
             onLocationLngChange={(v) => setValue('locationLng', v, UPDATE)}
+            onLocateFailed={() => setLocateUnavailable(true)}
           />
           <CreateTaskLocationSection
             privacyCallout
@@ -361,6 +365,7 @@ export function EditTaskScreen({
               errors.locationLat?.message ??
               errors.locationLng?.message
             }
+            locateUnavailable={locateUnavailable}
           />
           <CreateTaskAddressSection
             register={sharedRegister}

@@ -9,6 +9,7 @@ import {
   storyHeicPhoto,
 } from '@/app/(stepflow)/stepflowStoryHelpers'
 import { withPopularCategories } from '@/app/(stepflow)/tasks/create/components/createTaskStoryFixtures'
+import { taskLocationMapStyle } from '@/app/(stepflow)/tasks/create/components/layout/map/useTaskLocationMap'
 import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 
@@ -77,6 +78,62 @@ export const OpenLocation: Story = {
     await expect(
       canvas.getByText(
         /^(Workers will see: .+|Move the map to set the area\.)$/,
+      ),
+    ).toBeVisible()
+  },
+}
+
+/**
+ * The map looks and works like create's (FE-356): the same Mapbox style
+ * (not Mapbox's colourful streets), the floating search bar and locate-me.
+ */
+export const OpenMapLikeCreate: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('textbox', {
+        name: 'Search for your task location',
+      }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Use current location' }),
+    ).toBeVisible()
+    await waitFor(() =>
+      expect(canvasElement.querySelector('[data-map-style]')).toHaveAttribute(
+        'data-map-style',
+        taskLocationMapStyle('light'),
+      ),
+    )
+    canvasElement
+      .querySelector('[data-map-style]')
+      ?.scrollIntoView({ block: 'center' })
+  },
+}
+
+/** Location denied: locate-me says so under the map, as create does. */
+export const LocateUnavailable: Story = {
+  beforeEach: () => {
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        getCurrentPosition: (
+          _found: PositionCallback,
+          failed: PositionErrorCallback,
+        ) => failed({ code: 1 } as GeolocationPositionError),
+      },
+    })
+    return () => {
+      Reflect.deleteProperty(navigator, 'geolocation')
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Use current location' }),
+    )
+    await expect(
+      await canvas.findByText(
+        "We couldn't get your location. Search or drag the map instead.",
       ),
     ).toBeVisible()
   },

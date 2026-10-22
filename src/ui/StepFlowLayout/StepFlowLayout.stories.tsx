@@ -475,12 +475,35 @@ export const ActionsFirstStep: PartStory = {
   render: () => <StepFlowActions onContinue={() => {}} />,
 }
 
-/** Actions with Back: a link-style Back on the left, Continue on the right. */
+/** Actions with Back: the arrow alone on the left (44px, named Back), Continue on the right. */
 export const ActionsWithBack: PartStory = {
   parameters: partParameters,
   render: () => (
     <StepFlowActions showBack onBack={() => {}} onContinue={() => {}} />
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const back = canvas.getByRole('button', { name: 'Back' })
+    await expect(back).toBeVisible()
+    await expect(back).toHaveTextContent('')
+    const { width, height } = back.getBoundingClientRect()
+    await expect(width).toBeGreaterThanOrEqual(44)
+    await expect(height).toBeGreaterThanOrEqual(44)
+  },
+}
+
+/** Phone, actions with Back: the arrow alone, so Continue takes the rest of the bar. */
+export const MobileActionsWithBack: PartStory = {
+  parameters: partParameters,
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: () => (
+    <StepFlowActions showBack onBack={() => {}} onContinue={() => {}} />
+  ),
+  play: async ({ canvasElement }) => {
+    const back = within(canvasElement).getByRole('button', { name: 'Back' })
+    await expect(back).toHaveTextContent('')
+    await expect(back.getBoundingClientRect().width).toBeGreaterThanOrEqual(44)
+  },
 }
 
 /** Actions, final step: the submit label drops the trailing arrow. */
@@ -553,7 +576,7 @@ export const ActionsStatusIdle: PartStory = {
   },
 }
 
-/** Actions, custom labels: Back and Continue read "Previous" and "Save". */
+/** Actions, custom labels: Back is named "Previous" (still just the arrow); Continue reads "Save and continue". */
 export const ActionsCustomLabels: PartStory = {
   parameters: partParameters,
   render: () => (
@@ -565,6 +588,14 @@ export const ActionsCustomLabels: PartStory = {
       onContinue={() => {}}
     />
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('button', { name: 'Previous' })).toBeVisible()
+    await expect(canvas.queryByText('Previous')).toBeNull()
+    await expect(
+      canvas.getByRole('button', { name: 'Save and continue' }),
+    ).toBeVisible()
+  },
 }
 
 /** Actions, sticky: the bar pins to the bottom edge of a scrolling pane. */

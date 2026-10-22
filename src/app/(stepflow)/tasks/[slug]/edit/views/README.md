@@ -32,6 +32,11 @@ Precedence: session, the query, no task, not the poster, then the status.
   chip and exact address, with "Shared only with the worker you accept."
   under the field), Budget, Photos (saved ones plus new, up to 10 in all),
   Contact.
+- The map looks and works like create's (FE-356): the same Mapbox style
+  (light or dark), centre pin and area halo, floating search bar with
+  locate-me, logo and zoom buttons (`useTaskLocationMap`,
+  `TaskLocationSearchBar`). When locate-me can't get a location, create's
+  "We couldn't get your location…" shows under the map until the pin moves.
 - **Only what changed is saved** (`buildEditTaskInput`): the API keeps the
   rest, the timeline lists real changes, and the contact method (which the
   API doesn't tell us) stays unless a new one is picked.

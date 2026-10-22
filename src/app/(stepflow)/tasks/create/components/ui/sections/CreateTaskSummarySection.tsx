@@ -201,8 +201,8 @@ export function CreateTaskSummarySection({
       </Row>
       <Row
         label={s.photos}
-        editLabel={editLabel('details')}
-        onEdit={() => onEdit('details')}
+        editLabel={editLabel('photos')}
+        onEdit={() => onEdit('photos')}
       >
         {photos}
       </Row>

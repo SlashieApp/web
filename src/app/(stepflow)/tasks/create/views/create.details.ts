@@ -1,11 +1,11 @@
 import type { CreateTaskViewConfig } from './types'
 
-/** Title, categories, description and optional photos. */
+/** Title, categories and description. */
 export const createDetails: CreateTaskViewConfig = {
   layout: 'step',
   step: 'details',
-  map: 'band',
-  sections: ['basics', 'photos'],
+  map: 'desktopBand',
+  sections: ['basics'],
   fields: ['title', 'categories', 'description'],
   primary: 'continue',
 }

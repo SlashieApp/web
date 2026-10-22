@@ -7,32 +7,11 @@ import { mapboxReverseGeocode } from '@/utils/mapboxGeocode'
 
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 import {
-  type CreateTaskLatLng,
   type CreateTaskStartCentre,
   resolveCreateTaskStartCentre,
 } from './createTaskStartCentre'
+import { currentPosition } from './currentPosition'
 import { resolveSubmittedTaskLocation } from './resolveTaskLocation'
-
-/** Browser location, or null when denied, unavailable, or too slow. */
-function currentPosition(
-  highAccuracy: boolean,
-): Promise<CreateTaskLatLng | null> {
-  return new Promise((resolve) => {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      resolve(null)
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) =>
-        resolve({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        }),
-      () => resolve(null),
-      { enableHighAccuracy: highAccuracy, timeout: 12_000, maximumAge: 60_000 },
-    )
-  })
-}
 
 const UPDATE = { shouldValidate: true, shouldDirty: true } as const
 
@@ -40,6 +19,8 @@ const UPDATE = { shouldValidate: true, shouldDirty: true } as const
  * The location step's map and address (FE-194, FE-70): the starting centre,
  * current location, the pin and its label, "Use pin address", and turning
  * the pin or the typed address into coordinates before leaving the step.
+ * The map's own locate-me button moves the pin through
+ * `onLocationLatChange`, or says it failed with `onLocateFailed` (FE-356).
  */
 export function useCreateTaskLocation({
   form,
@@ -67,7 +48,6 @@ export function useCreateTaskLocation({
   const pinChosenRef = useRef(
     startCentre.source !== 'default' || initialPinChosen,
   )
-  const [locating, setLocating] = useState(false)
   const [locateUnavailable, setLocateUnavailable] = useState(false)
 
   const onMapPlaceNameChange = useCallback(
@@ -98,15 +78,14 @@ export function useCreateTaskLocation({
     if (name) setValue('streetAddress', name, UPDATE)
   }, [getValues, setValue])
 
-  /** Reverse geocode a label. Keeps one the poster already has unless `replace`. */
+  /** Reverse geocode a label for the starting pin, keeping one the poster already has. */
   const labelPin = useCallback(
-    (lat: number, lng: number, replace: boolean) => {
+    (lat: number, lng: number) => {
       const token = accessToken?.trim()
       if (!token) return
       void mapboxReverseGeocode(lat, lng, token)
         .then((name) => {
-          if (!name) return
-          if (!replace && getValues('mapPlaceName').trim()) return
+          if (!name || getValues('mapPlaceName').trim()) return
           setValue('mapPlaceName', name, UPDATE)
         })
         .catch(() => undefined)
@@ -115,12 +94,12 @@ export function useCreateTaskLocation({
   )
 
   const placePin = useCallback(
-    (lat: number, lng: number, replaceLabel: boolean) => {
+    (lat: number, lng: number) => {
       pinChosenRef.current = true
       setLocateUnavailable(false)
       setValue('locationLat', lat.toFixed(6), UPDATE)
       setValue('locationLng', lng.toFixed(6), UPDATE)
-      labelPin(lat, lng, replaceLabel)
+      labelPin(lat, lng)
     },
     [labelPin, setValue],
   )
@@ -130,7 +109,7 @@ export function useCreateTaskLocation({
   // unless the poster has already dragged, searched, or typed.
   useEffect(() => {
     if (startCentre.source !== 'default') {
-      labelPin(startCentre.lat, startCentre.lng, false)
+      labelPin(startCentre.lat, startCentre.lng)
       return
     }
     if (skipGeolocation) return
@@ -145,21 +124,15 @@ export function useCreateTaskLocation({
       }
       if (touched) return
       const start = resolveCreateTaskStartCentre({ search: '', geolocated })
-      if (start.source === 'geolocation') placePin(start.lat, start.lng, false)
+      if (start.source === 'geolocation') placePin(start.lat, start.lng)
     })
     return () => {
       cancelled = true
     }
   }, [getValues, labelPin, placePin, skipGeolocation, startCentre])
 
-  const onLocate = useCallback(() => {
-    setLocating(true)
-    void currentPosition(true).then((geolocated) => {
-      setLocating(false)
-      if (geolocated) placePin(geolocated.lat, geolocated.lng, true)
-      else setLocateUnavailable(true)
-    })
-  }, [placePin])
+  /** Locate-me couldn't tell where the poster is: the hint says so. */
+  const onLocateFailed = useCallback(() => setLocateUnavailable(true), [])
 
   /** Pin or typed address → coordinates. False (with an error) when it can't. */
   const applyResolvedLocation = useCallback(async (): Promise<boolean> => {
@@ -194,13 +167,12 @@ export function useCreateTaskLocation({
 
   return {
     pinChosenRef,
-    locating,
     locateUnavailable,
     onMapPlaceNameChange,
     onLocationLatChange,
     onLocationLngChange,
     onUsePinAddress,
-    onLocate,
+    onLocateFailed,
     applyResolvedLocation,
   }
 }

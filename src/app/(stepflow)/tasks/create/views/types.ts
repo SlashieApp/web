@@ -6,6 +6,7 @@ export type CreateTaskStepId =
   | 'address'
   | 'details'
   | 'timing'
+  | 'photos'
   | 'budget'
   | 'review'
 
@@ -17,6 +18,7 @@ export type CreateTaskViewName =
   | 'create.address'
   | 'create.details'
   | 'create.timing'
+  | 'create.photos'
   | 'create.budget'
   | 'create.review'
 
@@ -39,11 +41,17 @@ export type CreateTaskSection =
   | 'contact'
   | 'consent'
 
+/**
+ * Where the map sits: full screen behind a short card (location), the band
+ * above the form (address), or the band on desktop only, while phones and
+ * tablets give the form the whole screen (details onward, FE-355).
+ */
+export type CreateTaskMapMode = 'full' | 'band' | 'desktopBand'
+
 export type CreateTaskStepView = {
   layout: 'step'
   step: CreateTaskStepId
-  /** Full-screen map with a short bottom card, or the band above the form. */
-  map: 'full' | 'band'
+  map: CreateTaskMapMode
   sections: readonly CreateTaskSection[]
   /** Fields checked before leaving the step. */
   fields: readonly (keyof CreateTaskFormFieldValues)[]

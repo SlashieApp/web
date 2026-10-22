@@ -4,7 +4,7 @@ import type { CreateTaskViewConfig } from './types'
 export const createBudget: CreateTaskViewConfig = {
   layout: 'step',
   step: 'budget',
-  map: 'band',
+  map: 'desktopBand',
   sections: ['budget'],
   fields: ['budgetType', 'budgetMajor', 'budgetCurrency', 'paymentMethod'],
   primary: 'continue',

@@ -19,6 +19,7 @@ import {
 
 import { marketplaceMapMotion } from '@/app/(task)/helpers/marketplaceMap/motion'
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '@/app/(task)/tasks/[slug]/helpers/taskDetailLayout'
+import { WEB_MIN_PX } from '@/theme/breakpoints'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 import {
@@ -26,6 +27,8 @@ import {
   type StepFlowActionsProps,
   StepFlowHeading,
 } from '@ui'
+
+import type { CreateTaskMapMode } from '../../../views'
 
 /**
  * Room the sticky Continue bar takes at the bottom of the screen, so a field
@@ -63,8 +66,8 @@ function keepFocusedFieldInView(event: FocusEvent<HTMLDivElement>) {
 }
 
 /**
- * The map band above the form on later steps. Short on phones and tablets
- * (FE-295) so the first field sits above the fold; desktop matches task detail.
+ * The map band above the form. Short on phones and tablets (FE-295) so the
+ * first field sits above the fold; desktop matches task detail.
  */
 const MAP_BAND_H = {
   base: '160px',
@@ -98,6 +101,50 @@ const stageEnterCss = {
   },
 } as SystemStyleObject
 
+/** Phones and tablets: the compact shell, below `lg`. */
+const COMPACT_MQ = `@media screen and (max-width: ${WEB_MIN_PX - 0.02}px)`
+
+/** The same screens, when the device allows motion. */
+const COMPACT_MOTION_MQ = `${COMPACT_MQ} and (prefers-reduced-motion: no-preference)`
+
+/**
+ * How long the phone form takes to slide over or off the map band (FE-355):
+ * the SDL `slow` duration, with the standard easing.
+ */
+export const CREATE_TASK_SHEET_MS = Number.parseInt(sdlMotion.duration.slow, 10)
+
+/** Address step to details on phones: the form slides up from the bottom over the band. */
+const formRisesCss = {
+  [COMPACT_MOTION_MQ]: {
+    animationName: 'slide-from-bottom-full',
+    animationDuration: sdlMotion.duration.slow,
+    animationTimingFunction: sdlMotion.easing.standard,
+  },
+} as SystemStyleObject
+
+/** Back to the address step on phones: the band opens again, sliding the form down. */
+const bandOpensCss = {
+  [COMPACT_MOTION_MQ]: {
+    transitionProperty: 'height',
+    transitionDuration: sdlMotion.duration.slow,
+    transitionTimingFunction: sdlMotion.easing.standard,
+  },
+} as SystemStyleObject
+
+/**
+ * Phones, full-screen form: the map behind it hides once the form has slid
+ * over it, or at once (reduced motion, a saved draft opening on a later
+ * step), so it never shows through while the form fades in.
+ */
+const mapCoveredCss = {
+  [COMPACT_MQ]: { visibility: 'hidden' },
+  [COMPACT_MOTION_MQ]: {
+    transitionProperty: 'height, visibility',
+    transitionDuration: `${marketplaceMapMotion.duration}, 0s`,
+    transitionDelay: `0s, ${sdlMotion.duration.slow}`,
+  },
+} as SystemStyleObject
+
 export type CreateTaskMapLayoutProps = {
   /** Full-width strip above everything (e.g. email-verification banner). */
   banner?: ReactNode
@@ -108,9 +155,13 @@ export type CreateTaskMapLayoutProps = {
   stepper: ReactNode
   /** The one location map. Rendered once so it never remounts. */
   map: ReactNode
-  /** Location step: full-screen map + bottom card. Otherwise a top band. */
-  mapExpanded: boolean
-  /** Over the band on later steps: the area, with a way back to the map. */
+  /**
+   * `full`: the location step's full-screen map and short card. `band`: the
+   * map band above the form. `desktopBand`: the band on desktop only; below
+   * `lg` the form takes the whole screen (FE-355).
+   */
+  mapMode: CreateTaskMapMode
+  /** Over the band: the area, with a way back to the map. */
   bandOverlay?: ReactNode
   title: string
   description?: string
@@ -129,6 +180,13 @@ export type CreateTaskMapLayoutProps = {
  * Location step on phones and tablets (FE-352): a short card at the bottom,
  * and the map box sized to the space above it, so Mapbox keeps the pin in
  * the middle of the map that shows.
+ *
+ * From the details step on, phones and tablets give the form the whole
+ * screen (FE-355): the header and progress strip, the step heading, the
+ * fields and the sticky Back and Continue. Leaving the address step, the
+ * form slides up from the bottom over the band; Back to it slides the form
+ * down to open the band again. Between full-screen steps only the content
+ * changes. Reduced motion: no slide. Desktop keeps the band.
  */
 export function CreateTaskMapLayout({
   banner,
@@ -136,7 +194,7 @@ export function CreateTaskMapLayout({
   progress,
   stepper,
   map,
-  mapExpanded,
+  mapMode,
   bandOverlay,
   title,
   description,
@@ -147,6 +205,13 @@ export function CreateTaskMapLayout({
 }: CreateTaskMapLayoutProps) {
   const [cardH, setCardH] = useState(0)
   const cardObserverRef = useRef<ResizeObserver | null>(null)
+  // The previous step's map mode: the form rises over the band only when it
+  // leaves the address step, not when a saved draft opens on a later step.
+  const [modes, setModes] = useState({ now: mapMode, before: mapMode })
+  if (modes.now !== mapMode) setModes({ now: mapMode, before: modes.now })
+  const mapFull = mapMode === 'full'
+  const formFullScreen = mapMode === 'desktopBand'
+  const formRises = formFullScreen && modes.before === 'band'
 
   const cardRef = useCallback((node: HTMLDivElement | null) => {
     cardObserverRef.current?.disconnect()
@@ -162,7 +227,7 @@ export function CreateTaskMapLayout({
       <StepFlowHeading
         title={title}
         description={description}
-        compact={mapExpanded}
+        compact={mapFull}
       />
     </Box>
   )
@@ -193,7 +258,7 @@ export function CreateTaskMapLayout({
           right={0}
           zIndex={0}
           h={
-            mapExpanded
+            mapFull
               ? {
                   base: 'calc(100% - var(--create-task-card-cover))',
                   lg: '100%',
@@ -208,21 +273,24 @@ export function CreateTaskMapLayout({
           transitionProperty="height"
           transitionDuration={marketplaceMapMotion.duration}
           transitionTimingFunction={marketplaceMapMotion.easing}
-          css={{
-            '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
-            // Keep the Mapbox logo/attribution clear of the card's rounded top.
-            '& .mapboxgl-ctrl-bottom-left, & .mapboxgl-ctrl-bottom-right': {
-              bottom: {
-                base: mapExpanded ? `${CARD_MAP_OVERLAP_PX}px` : 0,
-                lg: 0,
+          css={[
+            {
+              '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
+              // Keep the Mapbox logo/attribution clear of the card's rounded top.
+              '& .mapboxgl-ctrl-bottom-left, & .mapboxgl-ctrl-bottom-right': {
+                bottom: {
+                  base: mapFull ? `${CARD_MAP_OVERLAP_PX}px` : 0,
+                  lg: 0,
+                },
               },
             },
-          }}
+            formFullScreen ? mapCoveredCss : {},
+          ]}
         >
           {map}
         </Box>
 
-        {mapExpanded ? (
+        {mapFull ? (
           <Box
             position="relative"
             zIndex={1}
@@ -264,14 +332,26 @@ export function CreateTaskMapLayout({
         ) : (
           <>
             <Box
-              h={MAP_BAND_H}
+              // Room for the band and its overlay. Phones and tablets close
+              // it from the details step on: the form takes the whole screen.
+              h={formFullScreen ? { base: 0, lg: MAP_BAND_H.lg } : MAP_BAND_H}
               flexShrink={0}
               position="relative"
               pointerEvents="none"
+              css={formFullScreen ? undefined : bandOpensCss}
             >
               {bandOverlay ? (
-                // Top of the band, clear of the Mapbox logo and attribution.
-                <Box position="absolute" insetX={0} top={3} zIndex={2}>
+                // Top of the band, clear of the Mapbox logo and attribution,
+                // and under the form, which slides over and off it on phones.
+                <Box
+                  position="absolute"
+                  insetX={0}
+                  top={3}
+                  zIndex={1}
+                  display={
+                    formFullScreen ? { base: 'none', lg: 'block' } : 'block'
+                  }
+                >
                   <Box
                     maxW={PAGE_CONTAINER_MAX_W}
                     mx="auto"
@@ -319,6 +399,7 @@ export function CreateTaskMapLayout({
                 flexDirection="column"
                 minW={0}
                 overflow="clip"
+                css={formRises ? formRisesCss : undefined}
               >
                 <Stack
                   gap={6}

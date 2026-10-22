@@ -16,7 +16,7 @@ export function createTaskPreviousStep(
   return ORDER[ORDER.indexOf(id) - 1] ?? null
 }
 
-/** 1-based position, for the progress strip ("Step 2 of 6"). */
+/** 1-based position, for the progress strip ("Step 2 of 7"). */
 export function createTaskProgress(id: CreateTaskStepId) {
   const index = ORDER.indexOf(id) + 1
   return {

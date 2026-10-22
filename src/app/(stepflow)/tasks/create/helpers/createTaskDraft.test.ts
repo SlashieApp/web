@@ -62,6 +62,35 @@ describe('create task draft', () => {
     })
   })
 
+  it('reopens on the photos step, without the photos (they are never kept)', () => {
+    const storage = memoryStorage()
+    const done = ['location', 'address', 'details', 'timing'] as const
+    saveCreateTaskDraft(
+      storage,
+      KEY,
+      { step: 'photos', done: [...done], values },
+      NOW,
+    )
+    const draft = readCreateTaskDraft(storage, KEY, NOW)
+    expect(draft).toMatchObject({ step: 'photos', done: [...done] })
+    expect(Object.keys(draft?.values ?? {})).not.toContain('photos')
+  })
+
+  it('ignores a draft on a step the flow no longer has', () => {
+    const storage = memoryStorage()
+    storage.setItem(
+      KEY,
+      JSON.stringify({
+        v: 1,
+        savedAt: NOW,
+        step: 'contact',
+        done: ['location'],
+        values,
+      }),
+    )
+    expect(readCreateTaskDraft(storage, KEY, NOW)).toBeNull()
+  })
+
   it('never keeps the allowed-tasks confirmation', () => {
     const storage = memoryStorage()
     saveCreateTaskDraft(storage, KEY, { step: 'review', done: [], values }, NOW)

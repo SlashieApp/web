@@ -1,9 +1,7 @@
 'use client'
 
 import { Box, Text } from '@chakra-ui/react'
-import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react'
 import { useEffect } from 'react'
-import { LuLocateFixed, LuSearch } from 'react-icons/lu'
 
 import { marketplaceMapMotion } from '@/app/(task)/helpers/marketplaceMap/motion'
 import {
@@ -15,30 +13,15 @@ import {
   overlayWatermarkCss,
 } from '@/app/(task)/helpers/marketplaceMap/overlay/overlay'
 import { useIsTouchMobileDevice } from '@/app/(task)/helpers/touchMobileDevice'
-import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { sdlFocusRing } from '@/theme/styles'
-import { useColorMode } from '@/ui/color-mode'
-import { Button, Input } from '@ui'
 
-import bag from '../../../i11n.json'
 import {
+  BELOW_TASK_LOCATION_SEARCH,
   TaskLocationAreaHalo,
   TaskLocationCentrePin,
+  TaskLocationSearchBar,
 } from './TaskLocationMapPicker'
 import { useTaskLocationMap } from './useTaskLocationMap'
-
-const DEFAULT_STYLE = 'mapbox://styles/mapbox/streets-v12'
-
-/** Same light/dark Mapbox styles as the `/search` marketplace map. */
-function styleUrlForMode(mode: 'light' | 'dark'): string {
-  const light = process.env.NEXT_PUBLIC_MAPBOX_STYLE_LIGHT?.trim()
-  const dark = process.env.NEXT_PUBLIC_MAPBOX_STYLE_DARK?.trim()
-  return (mode === 'dark' ? dark : light) || DEFAULT_STYLE
-}
-
-/** Zoom buttons sit under the floating search field on phone/tablet. */
-const CTRL_TOP_BELOW_SEARCH = '64px'
 
 export type CreateTaskLocationMapProps = {
   accessToken: string | undefined
@@ -50,16 +33,16 @@ export type CreateTaskLocationMapProps = {
   onLocationLngChange: (value: string) => void
   /** Later steps: a non-interactive band behind the form. */
   collapsed: boolean
-  /** Locate-me: move the pin to the poster's current location. */
-  onLocate: () => void
-  locating?: boolean
+  /** Locate-me couldn't tell where the poster is (denied, off, or too slow). */
+  onLocateFailed?: () => void
 }
 
 /**
  * Create-task location map. Fills its parent (the layout animates the
  * parent between full screen and a top band), so the one Mapbox instance
  * survives every step. Full screen wears the `/search` look; collapsed
- * wears the task-detail fade and stops taking gestures.
+ * wears the task-detail fade and stops taking gestures. The style, pin,
+ * halo, search bar and locate-me are shared with Edit task's map (FE-356).
  */
 export function CreateTaskLocationMap({
   accessToken,
@@ -70,11 +53,8 @@ export function CreateTaskLocationMap({
   onLocationLatChange,
   onLocationLngChange,
   collapsed,
-  onLocate,
-  locating = false,
+  onLocateFailed,
 }: CreateTaskLocationMapProps) {
-  const t = useI11n(bag).location
-  const { colorMode } = useColorMode()
   const hideZoomControls = useIsTouchMobileDevice()
 
   const {
@@ -83,6 +63,8 @@ export function CreateTaskLocationMap({
     mapReady,
     onLocationInputChange,
     commitLocationQuery,
+    locate,
+    locating,
   } = useTaskLocationMap({
     accessToken,
     location,
@@ -91,12 +73,8 @@ export function CreateTaskLocationMap({
     onLocationChange,
     onLocationLatChange,
     onLocationLngChange,
-    mapOptions: {
-      style: styleUrlForMode(colorMode === 'dark' ? 'dark' : 'light'),
-      logoPosition: 'bottom-right',
-    },
-    onMapCreated: (map, mapboxgl) => {
-      map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+    onLocateFailed,
+    onMapCreated: (map) => {
       mountMapFadeOverlay(map.getContainer())
     },
   })
@@ -155,8 +133,9 @@ export function CreateTaskLocationMap({
       css={{
         ...mapFadeOverlayCss(collapsed ? 'taskDetail' : 'search'),
         ...overlayWatermarkCss(),
+        // Zoom buttons sit under the floating search field on phone/tablet.
         '& .mapboxgl-ctrl-top-right': {
-          top: { base: CTRL_TOP_BELOW_SEARCH, lg: 0 },
+          top: { base: BELOW_TASK_LOCATION_SEARCH, lg: 0 },
           display: collapsed || hideZoomControls ? 'none' : undefined,
         },
       }}
@@ -212,57 +191,12 @@ export function CreateTaskLocationMap({
             px={{ base: 3, lg: PAGE_GUTTER_X.lg }}
           >
             <Box maxW={{ lg: '420px' }} pointerEvents="auto">
-              <Input
+              <TaskLocationSearchBar
                 value={location}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  onLocationInputChange(e.target.value)
-                }
-                onBlur={commitLocationQuery}
-                onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
-                  if (e.key !== 'Enter') return
-                  e.preventDefault()
-                  e.currentTarget.blur()
-                }}
-                type="text"
-                inputMode="search"
-                autoComplete="off"
-                placeholder={t.searchPlaceholder}
-                aria-label={t.searchLabel}
-                rootProps={{ bg: 'bg.surface', boxShadow: 'e2' }}
-                startElement={
-                  <Box as="span" aria-hidden display="inline-flex">
-                    <LuSearch size={18} strokeWidth={2} />
-                  </Box>
-                }
-                endElement={
-                  <Button
-                    type="button"
-                    aria-label={t.locateLabel}
-                    title={t.locateLabel}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    minW={0}
-                    w={8}
-                    h={8}
-                    px={0}
-                    py={0}
-                    borderRadius="lg"
-                    variant="ghost"
-                    color="text.muted"
-                    loading={locating}
-                    _hover={{ bg: 'bg.subtle', color: 'text.default' }}
-                    _focusVisible={sdlFocusRing}
-                    // Keep focus in the field so blur does not geocode the
-                    // half-typed query before the locate result lands.
-                    onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.preventDefault()
-                    }}
-                    onClick={onLocate}
-                  >
-                    <LuLocateFixed size={18} strokeWidth={2} aria-hidden />
-                  </Button>
-                }
+                onChange={onLocationInputChange}
+                onSearch={commitLocationQuery}
+                onLocate={() => void locate()}
+                locating={locating}
               />
             </Box>
           </Box>

@@ -149,6 +149,7 @@ export function StepFlowHeading({
 
 export type StepFlowActionsProps = {
   showBack?: boolean
+  /** Back's accessible name: the button shows only the arrow. */
   backLabel?: string
   continueLabel?: string
   continueLoading?: boolean
@@ -165,7 +166,10 @@ export type StepFlowActionsProps = {
   sticky?: boolean
 }
 
-/** Back / Continue bar. Sticky on mobile; static inside the desktop panel. */
+/**
+ * Back / Continue bar. Sticky on mobile; static inside the desktop panel.
+ * Back is the arrow alone (44px), named by `backLabel`.
+ */
 export function StepFlowActions({
   showBack = false,
   backLabel = 'Back',
@@ -192,26 +196,21 @@ export function StepFlowActions({
     >
       <HStack justify="space-between" gap={3} w="full" align="center">
         {showBack ? (
-          <Button
+          <IconButton
             type="button"
-            variant="ghost"
+            aria-label={backLabel}
             color="text.link"
-            fontWeight={600}
-            px={0}
-            minH="44px"
+            flexShrink={0}
             onClick={onBack}
-            _hover={{ bg: 'transparent', color: 'text.link' }}
           >
-            <HStack gap={2}>
-              <LuArrowLeft size={18} aria-hidden />
-              <span>{backLabel}</span>
-            </HStack>
-          </Button>
+            <LuArrowLeft size={20} aria-hidden />
+          </IconButton>
         ) : (
-          // Desktop only: a zero-width spacer would still take the 12px gap.
+          // Desktop only: holds Back's place (a zero-width spacer would
+          // still take the 12px gap).
           <Box
             flexShrink={0}
-            w="88px"
+            w="44px"
             display={{ base: 'none', lg: 'block' }}
           />
         )}

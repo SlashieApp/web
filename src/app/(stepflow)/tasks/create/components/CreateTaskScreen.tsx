@@ -82,10 +82,14 @@ import {
   type CreateTaskSection,
   type CreateTaskStepId,
   type CreateTaskStepView,
+  createTaskStep,
   getCreateTaskView,
 } from '../views'
 import { CreateTaskLocationMap } from './layout/map/CreateTaskLocationMap'
-import { CreateTaskMapLayout } from './layout/shared/CreateTaskMapLayout'
+import {
+  CREATE_TASK_SHEET_MS,
+  CreateTaskMapLayout,
+} from './layout/shared/CreateTaskMapLayout'
 import { CreateTaskStepper } from './layout/shared/CreateTaskStepper'
 import { CreateTaskAddressSection } from './ui/sections/CreateTaskAddressSection'
 import { CreateTaskBasicsSection } from './ui/sections/CreateTaskBasicsSection'
@@ -158,10 +162,11 @@ export type CreateTaskScreenProps = {
 
 /**
  * /tasks/create (FE-295). Pick the spot on the full-screen map, then the
- * exact address (FE-352), details, timing and budget over the map band, then
- * review what workers will see and post. What each step shows comes from its
- * named view (views/README.md). Answers are kept as a draft on this browser
- * until the task is posted.
+ * exact address (FE-352) under the map band, then details, timing, photos
+ * (optional, FE-355) and budget, then review what workers will see and
+ * post. From the details step on, phones give the form the whole screen.
+ * What each step shows comes from its named view (views/README.md). Answers
+ * are kept as a draft on this browser until the task is posted.
  */
 export function CreateTaskScreen({
   userId,
@@ -304,18 +309,24 @@ export function CreateTaskScreen({
     }
   }, [draftKey, getValues, watch])
 
-  // Move focus to the new step's title, after the map finishes resizing when
-  // the step swaps between the full-screen map and the band.
+  // Move focus to the new step's title once it has stopped moving: after the
+  // map resizes between full screen and the band, or after the phone form
+  // slides over or off the band (FE-355). Sooner, focus would scroll the
+  // page to where the title still is on its way in.
   const prevStepRef = useRef(step)
   useEffect(() => {
     const prev = prevStepRef.current
     if (prev === step) return
     prevStepRef.current = step
-    const mapResized = (prev === 'location') !== (step === 'location')
-    const timer = window.setTimeout(
-      () => headingRef.current?.focus(),
-      mapResized && !reducedMotion ? MARKETPLACE_MAP_MOTION_MS : 0,
-    )
+    const from = createTaskStep(prev).map
+    const to = createTaskStep(step).map
+    const wait =
+      reducedMotion || from === to
+        ? 0
+        : from === 'full' || to === 'full'
+          ? MARKETPLACE_MAP_MOTION_MS
+          : CREATE_TASK_SHEET_MS
+    const timer = window.setTimeout(() => headingRef.current?.focus(), wait)
     return () => window.clearTimeout(timer)
   }, [step, reducedMotion])
 
@@ -557,9 +568,12 @@ export function CreateTaskScreen({
           />
         )
       case 'photos':
+        // The step's heading and description already say what photos are for.
         return (
           <CreateTaskVisualsSection
             bare
+            labelled={false}
+            helper={false}
             photos={photos.tiles}
             rejected={photos.rejected}
             onFilesAdded={photos.add}
@@ -685,12 +699,11 @@ export function CreateTaskScreen({
           onLocationChange={location.onMapPlaceNameChange}
           onLocationLatChange={location.onLocationLatChange}
           onLocationLngChange={location.onLocationLngChange}
-          collapsed={view.map === 'band'}
-          onLocate={location.onLocate}
-          locating={location.locating}
+          collapsed={view.map !== 'full'}
+          onLocateFailed={location.onLocateFailed}
         />
       }
-      mapExpanded={view.map === 'full'}
+      mapMode={view.map}
       bandOverlay={
         <HStack
           gap={1}

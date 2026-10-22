@@ -37,8 +37,10 @@ export type CreateTaskVisualsSectionProps = {
   /** Bare inside the create flow's step; a titled section on edit. */
   bare?: boolean
   sectionHeading?: string
-  /** False when a heading above already says "Photos" (edit). */
+  /** False when a heading above already says "Photos" (edit, create's photos step). */
   labelled?: boolean
+  /** False when the step's description already says what photos are for (create's photos step). */
+  helper?: boolean
 }
 
 const THUMB = '88px'
@@ -110,6 +112,7 @@ export function CreateTaskVisualsSection({
   bare = false,
   sectionHeading = '',
   labelled = true,
+  helper = true,
 }: CreateTaskVisualsSectionProps) {
   const f = useI11n(bag).fields
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
@@ -152,28 +155,37 @@ export function CreateTaskVisualsSection({
 
   return (
     <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={3}>
-      <HStack gap={2} justify="space-between">
-        {labelled ? (
-          <HStack gap={2}>
-            <Text fontSize="14px" fontWeight={500} color="text.default" px={1}>
-              {f.photos}
+      {labelled || count > 0 ? (
+        <HStack gap={2} justify="space-between">
+          {labelled ? (
+            <HStack gap={2}>
+              <Text
+                fontSize="14px"
+                fontWeight={500}
+                color="text.default"
+                px={1}
+              >
+                {f.photos}
+              </Text>
+              <Badge variant="neutral" shape="pill">
+                {f.optional}
+              </Badge>
+            </HStack>
+          ) : (
+            <span />
+          )}
+          {count > 0 ? (
+            <Text fontSize="sm" color="text.muted">
+              {formatMessage(f.photoCount, { count, max: TASK_PHOTOS_MAX })}
             </Text>
-            <Badge variant="neutral" shape="pill">
-              {f.optional}
-            </Badge>
-          </HStack>
-        ) : (
-          <span />
-        )}
-        {count > 0 ? (
-          <Text fontSize="sm" color="text.muted">
-            {formatMessage(f.photoCount, { count, max: TASK_PHOTOS_MAX })}
-          </Text>
-        ) : null}
-      </HStack>
-      <Text fontSize="sm" color="text.muted" px={1}>
-        {f.photosHelper}
-      </Text>
+          ) : null}
+        </HStack>
+      ) : null}
+      {helper ? (
+        <Text fontSize="sm" color="text.muted" px={1}>
+          {f.photosHelper}
+        </Text>
+      ) : null}
 
       <Wrap gap={3} align="flex-start" pt={1}>
         {existingImageUrls.map((src, i) => (

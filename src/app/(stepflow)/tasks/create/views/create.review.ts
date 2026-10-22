@@ -8,7 +8,7 @@ import type { CreateTaskViewConfig } from './types'
 export const createReview: CreateTaskViewConfig = {
   layout: 'step',
   step: 'review',
-  map: 'band',
+  map: 'desktopBand',
   sections: ['summary', 'verifyEmail', 'contact', 'consent'],
   fields: ['preferredContactMethod', 'acceptedProhibitedUse'],
   primary: 'post',

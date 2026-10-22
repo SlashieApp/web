@@ -23,6 +23,7 @@ import type { CreateTaskStepId } from '../views'
 import { CreateTaskScreen } from './CreateTaskScreen'
 import {
   CREATE_TASK_PHONE_VIEWPORTS,
+  storyStepCard,
   storyVisibleMapHeight,
   withPopularCategories,
 } from './createTaskStoryFixtures'
@@ -33,6 +34,7 @@ const ORDER: CreateTaskStepId[] = [
   'address',
   'details',
   'timing',
+  'photos',
   'budget',
   'review',
 ]
@@ -79,6 +81,38 @@ function atStep(
 /** On the address step with the pin set but no exact address yet. */
 const addressToAdd = atStep('address', { ...answers, streetAddress: '' })
 
+/** A small PNG, as the photo library hands it over. */
+async function storyPng(name: string, color: string): Promise<File> {
+  const canvas = document.createElement('canvas')
+  canvas.width = 120
+  canvas.height = 90
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('No 2D canvas')
+  context.fillStyle = color
+  context.fillRect(0, 0, 120, 90)
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, 'image/png'),
+  )
+  if (!blob) throw new Error('No PNG')
+  return new File([blob], name, { type: 'image/png' })
+}
+
+/** The photo button's library input (not the camera's). */
+function photoLibrary(canvasElement: HTMLElement): HTMLInputElement {
+  const library = canvasElement.querySelector<HTMLInputElement>(
+    'input[type="file"]:not([capture])',
+  )
+  if (!library) throw new Error('No library input')
+  return library
+}
+
+/** The band's map, hidden on phones once the form has the whole screen. */
+function bandMap(canvasElement: HTMLElement): Element {
+  const map = canvasElement.querySelector('[data-map-style]')
+  if (!map) throw new Error('No map')
+  return map
+}
+
 /**
  * The browser shares its location at once, as it does for most posters, so
  * the pin starts there (no "couldn't get your location" hint). The real
@@ -117,7 +151,7 @@ function phoneLocation(
       await canvas.findByRole('heading', { name: 'Where is the task?' })
       await expect(`${window.innerWidth}px`).toBe(width)
       await expect(`${window.innerHeight}px`).toBe(height)
-      await expect(canvas.getByText('Step 1 of 6 · Location')).toBeVisible()
+      await expect(canvas.getByText('Step 1 of 7 · Location')).toBeVisible()
       await expect(
         canvas.getByText(
           'Move the map so the pin sits near the job. Workers only see this approximate area, not your address.',
@@ -276,7 +310,7 @@ export const AddressUsePinAddress: Story = {
   },
 }
 
-/** Phones: the band, the address form, and "Step 2 of 6". */
+/** Phones: the band, the address form, and "Step 2 of 7". */
 export const AddressPhone: Story = {
   decorators: [addressToAdd],
   globals: { viewport: { value: 'iphoneSe2' } },
@@ -285,7 +319,7 @@ export const AddressPhone: Story = {
     await expect(
       await canvas.findByRole('heading', { name: "What's the exact address?" }),
     ).toBeVisible()
-    await expect(canvas.getByText('Step 2 of 6 · Address')).toBeVisible()
+    await expect(canvas.getByText('Step 2 of 7 · Address')).toBeVisible()
     await expect(canvas.getByLabelText(/Exact address/)).toBeVisible()
     await expect(canvas.getByRole('button', { name: /Continue/ })).toBeVisible()
   },
@@ -306,7 +340,7 @@ export const AddressZhHk: Story = {
   },
 }
 
-/** create.details: title, categories, description and optional photos under the map band. */
+/** create.details (desktop): title, categories and description under the map band; photos have their own step. */
 export const Details: Story = {
   decorators: [atStep('details')],
   play: async ({ canvasElement }) => {
@@ -314,7 +348,10 @@ export const Details: Story = {
     await expect(
       await canvas.findByRole('heading', { name: 'What needs doing?' }),
     ).toBeVisible()
-    await expect(canvas.getByText('Optional')).toBeVisible()
+    await expect(canvas.getByLabelText(/Task title/)).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Add photos' }),
+    ).toBeNull()
     await expect(
       canvas.getByRole('button', { name: 'Change the task location' }),
     ).toBeVisible()
@@ -324,30 +361,98 @@ export const Details: Story = {
   },
 }
 
-/** A HEIC photo converting: Continue waits, saying why, then the photo shows. */
-export const DetailsConvertingPhoto: Story = {
+/** Phones, details onward (FE-355): the form has the whole screen, with no band or area chip. */
+export const DetailsPhone: Story = {
+  globals: { viewport: { value: 'mobile1' } },
   decorators: [atStep('details')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', { name: 'What needs doing?' })
-    const library = canvasElement.querySelector<HTMLInputElement>(
-      'input[type="file"]:not([capture])',
-    )
-    if (!library) throw new Error('No library input')
-    await userEvent.upload(library, await storyHeicPhoto())
     await expect(
-      await canvas.findByRole('button', { name: 'Converting photos…' }),
-    ).toBeDisabled()
-    await expect(
-      await canvas.findByRole(
-        'button',
-        { name: 'Photo 1' },
-        { timeout: 15_000 },
-      ),
+      await canvas.findByRole('heading', { name: 'What needs doing?' }),
     ).toBeVisible()
+    await expect(canvas.getByText('Step 3 of 7 · Details')).toBeVisible()
+    await expect(await storyVisibleMapHeight(canvasElement)).toBe(0)
+    await expect(bandMap(canvasElement)).not.toBeVisible()
     await expect(
-      await canvas.findByRole('button', { name: 'Continue' }),
-    ).toBeEnabled()
+      canvas.queryByRole('button', { name: 'Change the task location' }),
+    ).toBeNull()
+    await expect(canvas.getByRole('button', { name: 'Back' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: /Continue/ })).toBeVisible()
+  },
+}
+
+/**
+ * Phones: Continue on the address step slides the form up from the bottom
+ * over the band; then it has the whole screen and the band is gone. The
+ * title takes focus once the form has stopped, without scrolling the page.
+ */
+export const AddressToDetailsPhone: Story = {
+  decorators: [atStep('address')],
+  globals: { viewport: { value: 'iphoneSe2' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: "What's the exact address?" })
+    await expect(await storyVisibleMapHeight(canvasElement)).toBe(160)
+    await expect(bandMap(canvasElement)).toBeVisible()
+
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    const heading = await canvas.findByRole('heading', {
+      name: 'What needs doing?',
+    })
+    await expect(
+      getComputedStyle(storyStepCard(canvasElement)).animationName,
+    ).toBe('slide-from-bottom-full')
+    await expect(await storyVisibleMapHeight(canvasElement)).toBe(0)
+    await expect(bandMap(canvasElement)).not.toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Change the task location' }),
+    ).toBeNull()
+    await expect(canvas.getByText('Step 3 of 7 · Details')).toBeVisible()
+    await waitFor(() =>
+      expect(heading.closest('[tabindex="-1"]')).toHaveFocus(),
+    )
+    await expect(window.scrollY).toBe(0)
+  },
+}
+
+/** Phones: Back from the details slides the form down, and the band opens again. */
+export const DetailsBackToAddressPhone: Story = {
+  decorators: [atStep('details')],
+  globals: { viewport: { value: 'iphoneSe2' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'What needs doing?' })
+    await expect(await storyVisibleMapHeight(canvasElement)).toBe(0)
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Back' }))
+    await canvas.findByRole('heading', { name: "What's the exact address?" })
+    await expect(await storyVisibleMapHeight(canvasElement)).toBe(160)
+    await expect(bandMap(canvasElement)).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Change the task location' }),
+    ).toBeVisible()
+  },
+}
+
+/** Desktop is unchanged: the details step keeps the band and its area chip, with no slide. */
+export const AddressToDetailsDesktop: Story = {
+  decorators: [atStep('address')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: "What's the exact address?" })
+    const band = await storyVisibleMapHeight(canvasElement)
+    await expect(band).toBeGreaterThan(90)
+
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    await canvas.findByRole('heading', { name: 'What needs doing?' })
+    await expect(
+      getComputedStyle(storyStepCard(canvasElement)).animationName,
+    ).toBe('none')
+    await expect(await storyVisibleMapHeight(canvasElement)).toBe(band)
+    await expect(bandMap(canvasElement)).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Change the task location' }),
+    ).toBeVisible()
   },
 }
 
@@ -381,6 +486,91 @@ export const DateInThePast: Story = {
     await expect(
       await canvas.findByText('Pick today or a later date.'),
     ).toBeVisible()
+  },
+}
+
+/**
+ * create.photos (FE-355): "Add photos", optional, with what photos are for;
+ * no photos yet, and Continue works without any.
+ */
+export const Photos: Story = {
+  decorators: [atStep('photos')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', { name: 'Add photos' }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByText(
+        "Optional. Photos help workers quote. They're public on your task, so leave out house numbers and faces.",
+      ),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Add photos' }),
+    ).toBeVisible()
+    await expect(canvas.queryByText(/of 10$/)).toBeNull()
+  },
+}
+
+/** No photos: Continue goes straight on to the budget. */
+export const PhotosContinueWithout: Story = {
+  decorators: [atStep('photos')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Add photos' })
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    await expect(
+      await canvas.findByRole('heading', { name: "What's your budget?" }),
+    ).toBeVisible()
+  },
+}
+
+/** Phones: two photos picked, each with a preview and a remove button; "Step 5 of 7". */
+export const PhotosWithPhotos: Story = {
+  decorators: [atStep('photos')],
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Add photos' })
+    await expect(canvas.getByText('Step 5 of 7 · Photos')).toBeVisible()
+    await expect(await storyVisibleMapHeight(canvasElement)).toBe(0)
+    await userEvent.upload(photoLibrary(canvasElement), [
+      await storyPng('tap.png', '#9ec5e8'),
+      await storyPng('sink.png', '#f0c987'),
+    ])
+    await expect(
+      await canvas.findByRole('button', { name: 'Photo 2' }),
+    ).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Photo 1' })).toBeVisible()
+    await expect(canvas.getByText('2 of 10')).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Remove photo 2' }),
+    ).toBeVisible()
+    await expect(canvas.getByRole('button', { name: /Continue/ })).toBeEnabled()
+  },
+}
+
+/** A HEIC photo converting: Continue waits, saying why, then the photo shows. */
+export const PhotosConvertingPhoto: Story = {
+  decorators: [atStep('photos')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Add photos' })
+    await userEvent.upload(photoLibrary(canvasElement), await storyHeicPhoto())
+    await expect(await canvas.findByText('Converting photo…')).toBeVisible()
+    await expect(
+      await canvas.findByRole('button', { name: 'Converting photos…' }),
+    ).toBeDisabled()
+    await expect(
+      await canvas.findByRole(
+        'button',
+        { name: 'Photo 1' },
+        { timeout: 15_000 },
+      ),
+    ).toBeVisible()
+    await expect(
+      await canvas.findByRole('button', { name: 'Continue' }),
+    ).toBeEnabled()
   },
 }
 
@@ -439,6 +629,19 @@ export const ReviewEditAddress: Story = {
       await canvas.findByRole('heading', { name: "What's the exact address?" }),
     ).toBeVisible()
     await expect(canvas.getByLabelText(/Exact address/)).toHaveValue(ADDRESS)
+  },
+}
+
+/** The photos row's Edit opens the photos step. */
+export const ReviewEditPhotos: Story = {
+  decorators: [atStep('review')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('No photos')).toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: 'Edit Photos' }))
+    await expect(
+      await canvas.findByRole('heading', { name: 'Add photos' }),
+    ).toBeVisible()
   },
 }
 
@@ -545,19 +748,6 @@ export const ZhHk: Story = {
       await canvas.findByRole('heading', { name: '檢查並發佈' }),
     ).toBeVisible()
     await expect(canvas.getByRole('button', { name: '發佈任務' })).toBeVisible()
-  },
-}
-
-/** Phones: the short map band, then the form, with Back and Continue at the bottom. */
-export const Phone: Story = {
-  globals: { viewport: { value: 'mobile1' } },
-  decorators: [atStep('details')],
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(
-      await canvas.findByRole('heading', { name: 'What needs doing?' }),
-    ).toBeVisible()
-    await expect(canvas.getByRole('button', { name: /Continue/ })).toBeVisible()
   },
 }
 

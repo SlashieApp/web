@@ -4,7 +4,7 @@ import type { CreateTaskViewConfig } from './types'
 export const createTiming: CreateTaskViewConfig = {
   layout: 'step',
   step: 'timing',
-  map: 'band',
+  map: 'desktopBand',
   sections: ['timing'],
   fields: ['datetimeType', 'preferredDate', 'preferredTime'],
   primary: 'continue',
