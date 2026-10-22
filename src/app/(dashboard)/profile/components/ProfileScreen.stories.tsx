@@ -155,7 +155,7 @@ export const Phone: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('button', { name: 'Back' }),
+      await canvas.findByRole('button', { name: 'Go back' }),
     ).toBeVisible()
     const steps = canvas.getAllByText('Your next step')
     await expect(steps.some((step) => step.checkVisibility())).toBe(true)

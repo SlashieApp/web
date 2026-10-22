@@ -69,7 +69,6 @@ export function DashboardPageLayout({
         description={description}
         action={action}
         onBack={onBack}
-        backLabel={t.page.back}
         backAriaLabel={t.page.backAria}
         hideBackFrom="lg"
       />

@@ -60,7 +60,7 @@ export const Default: Story = {
     await expect(
       canvas.getByRole('heading', { level: 1, name: 'Account' }),
     ).toBeVisible()
-    await expect(canvas.queryByRole('button', { name: 'Back' })).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Go back' })).toBeNull()
   },
 }
 
@@ -90,7 +90,7 @@ export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByRole('button', { name: 'Back' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Go back' })).toBeVisible()
   },
 }
 

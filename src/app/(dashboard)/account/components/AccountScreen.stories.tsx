@@ -177,7 +177,7 @@ export const Phone: Story = {
   decorators: [session(storyMe())],
   play: async ({ canvasElement }) => {
     await expect(
-      await within(canvasElement).findByRole('button', { name: 'Back' }),
+      await within(canvasElement).findByRole('button', { name: 'Go back' }),
     ).toBeVisible()
   },
 }

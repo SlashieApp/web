@@ -237,7 +237,7 @@ export const Phone: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('button', { name: 'Back' }),
+      await canvas.findByRole('button', { name: 'Go back' }),
     ).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Start free trial' }),

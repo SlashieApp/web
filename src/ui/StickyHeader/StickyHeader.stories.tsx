@@ -13,7 +13,6 @@ const meta: Meta<typeof StickyHeader> = {
     title: 'Edit task',
     description:
       'Update your task details below. Changes are visible to nearby workers right away.',
-    backLabel: 'Back',
     backAriaLabel: 'Go back',
     onBack: () => {},
     action: ({ isStuck }) => (

@@ -7,7 +7,6 @@ import { LuArrowLeft } from 'react-icons/lu'
 import { sdlMotion } from '@/theme/styles'
 import { findScrollParent } from '@/utils/findScrollParent'
 
-import { Button } from '../Button/Button'
 import { IconButton } from '../IconButton/IconButton'
 
 export type StickyHeaderProps = {
@@ -15,9 +14,7 @@ export type StickyHeaderProps = {
   description?: ReactNode
   /** Shows the back control when set. */
   onBack?: () => void
-  /** Text for the open-state back button. */
-  backLabel?: string
-  /** Accessible label for the compact icon back button. */
+  /** Accessible label for the icon back button (it has no visible text). */
   backAriaLabel?: string
   /** Hide the back controls from this breakpoint up (the app header covers it). */
   hideBackFrom?: 'md' | 'lg'
@@ -41,7 +38,6 @@ export function StickyHeader({
   title,
   description,
   onBack,
-  backLabel,
   backAriaLabel,
   hideBackFrom,
   action,
@@ -105,27 +101,25 @@ export function StickyHeader({
         >
           <Stack gap={isStuck ? 0 : 2} flex="1 1 auto" minW={0}>
             {onBack && !isStuck ? (
-              <Button
+              <IconButton
                 type="button"
                 variant="ghost"
-                size="sm"
-                minH="44px"
+                aria-label={backAriaLabel ?? 'Back'}
                 display={backDisplay}
                 alignSelf="flex-start"
-                ml={-3}
+                ml={-2}
                 color="text.muted"
                 onClick={onBack}
               >
                 <LuArrowLeft />
-                {backLabel}
-              </Button>
+              </IconButton>
             ) : null}
             <HStack gap={2} minW={0} align="center">
               {onBack && isStuck ? (
                 <IconButton
                   type="button"
                   variant="ghost"
-                  aria-label={backAriaLabel ?? backLabel ?? 'Back'}
+                  aria-label={backAriaLabel ?? 'Back'}
                   display={backDisplay}
                   flexShrink={0}
                   ml={-2}
