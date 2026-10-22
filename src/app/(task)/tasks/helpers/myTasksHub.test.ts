@@ -1,23 +1,25 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  type MyTaskHubSection,
   type MyTaskOrderSource,
   type MyTaskSource,
   buildMyTasksHub,
 } from './myTasksHub'
 
-const NOW = new Date(2026, 8, 23, 15, 0, 0)
+/** Thursday 22 October 2026, 15:00 local time. */
+const NOW = new Date(2026, 9, 22, 15, 0, 0)
 const ME = 'me'
+
+function local(month: number, day: number, hour = 0, minute = 0): string {
+  return new Date(2026, month - 1, day, hour, minute).toISOString()
+}
 
 function task(
   partial: Partial<MyTaskSource> &
     Pick<MyTaskSource, 'id' | 'title' | 'status'>,
 ): MyTaskSource {
-  return {
-    description: '',
-    categories: ['HANDYMAN'],
-    ...partial,
-  }
+  return { categories: ['HANDYMAN'], ...partial }
 }
 
 function order(
@@ -25,476 +27,588 @@ function order(
     Pick<MyTaskOrderSource, 'taskId' | 'status'>,
 ): MyTaskOrderSource {
   return {
+    id: `order-${partial.taskId}`,
     customerUserId: 'customer',
     workerUserId: 'worker',
+    bookedStart: null,
     ...partial,
   }
 }
 
-describe('buildMyTasksHub', () => {
-  it('groups hosted open tasks and pending quotes into Open, with both role tags', () => {
+function idsIn(sections: MyTaskHubSection[], id: MyTaskHubSection['id']) {
+  return sections.find((section) => section.id === id)?.rows.map((r) => r.id)
+}
+
+function rowFor(sections: MyTaskHubSection[], taskId: string) {
+  return sections
+    .flatMap((section) => section.rows)
+    .find((r) => r.id === taskId)
+}
+
+/** A hosted, booked task with one order from the worker `w`. */
+function hostedBooking(
+  id: string,
+  booking: Partial<MyTaskOrderSource>,
+): { posted: MyTaskSource; order: MyTaskOrderSource } {
+  return {
+    posted: task({
+      id,
+      title: id,
+      status: 'AWARDED',
+      quotes: [{ id: `q-${id}`, workerUserId: 'w', status: 'ACCEPTED' }],
+    }),
+    order: order({
+      taskId: id,
+      status: 'ACTIVE',
+      customerUserId: ME,
+      workerUserId: 'w',
+      bookedStart: local(10, 25, 10),
+      ...booking,
+    }),
+  }
+}
+
+function hubOf(...bookings: ReturnType<typeof hostedBooking>[]) {
+  return buildMyTasksHub({
+    now: NOW,
+    userId: ME,
+    posted: bookings.map((b) => b.posted),
+    sentQuotes: [],
+    orders: bookings.map((b) => b.order),
+  })
+}
+
+describe('buildMyTasksHub sections', () => {
+  it('puts booked work in Upcoming, open tasks and pending quotes in Open, and ended work in Past', () => {
     const sections = buildMyTasksHub({
       now: NOW,
       userId: ME,
-      orders: [],
       posted: [
+        task({ id: 'hosted-open', title: 'Hosted open', status: 'OPEN' }),
+        task({ id: 'draft', title: 'Draft', status: 'DRAFT' }),
         task({
-          id: 'hosted-open',
-          title: 'Hosted open',
-          status: 'OPEN',
-          datetime: { type: 'FLEXIBLE' },
+          id: 'hosted-booked',
+          title: 'Hosted booked',
+          status: 'AWARDED',
         }),
-        task({
-          id: 'dual',
-          title: 'Dual role',
-          status: 'OPEN',
-          quotes: [
-            {
-              id: 'q-me',
-              workerUserId: ME,
-              status: 'PENDING',
-            },
-          ],
-        }),
+        task({ id: 'hosted-done', title: 'Hosted done', status: 'AWARDED' }),
+        task({ id: 'cancelled', title: 'Cancelled task', status: 'CANCELLED' }),
       ],
       sentQuotes: [
         {
           task: task({
-            id: 'quoted',
-            title: 'Quoted pending',
+            id: 'quoted-open',
+            title: 'Quoted open',
             status: 'OPEN',
-            datetime: { type: 'EXACT', date: '2026-09-24', time: '09:00' },
+            datetime: { type: 'EXACT', date: '2026-10-25', time: '09:00' },
           }),
           quote: { id: 'q1', workerUserId: ME, status: 'PENDING' },
         },
         {
+          task: task({ id: 'quoted-won', title: 'Won', status: 'AWARDED' }),
+          quote: { id: 'q2', workerUserId: ME, status: 'ACCEPTED' },
+        },
+        {
+          task: task({ id: 'conflict', title: 'Conflict', status: 'AWARDED' }),
+          quote: { id: 'q3', workerUserId: ME, status: 'ACCEPTED' },
+        },
+        {
+          task: task({ id: 'lost', title: 'Lost quote', status: 'AWARDED' }),
+          quote: { id: 'q4', workerUserId: ME, status: 'NOT_SELECTED' },
+        },
+        {
           task: task({
-            id: 'dual',
-            title: 'Dual role',
+            id: 'declined',
+            title: 'Declined quote',
             status: 'OPEN',
           }),
-          quote: { id: 'q-me', workerUserId: ME, status: 'PENDING' },
+          quote: { id: 'q5', workerUserId: ME, status: 'DECLINED' },
         },
       ],
-    })
-
-    const open = sections.find((section) => section.id === 'open')
-    expect(open?.rows.map((row) => row.id)).toEqual([
-      'quoted',
-      'dual',
-      'hosted-open',
-    ])
-    expect(open?.rows.find((row) => row.id === 'hosted-open')?.roles).toEqual([
-      'hosted',
-    ])
-    expect(open?.rows.find((row) => row.id === 'quoted')?.roles).toEqual([
-      'quoted',
-    ])
-    expect(open?.rows.find((row) => row.id === 'dual')?.roles).toEqual([
-      'hosted',
-      'quoted',
-    ])
-  })
-
-  it('sorts a section overdue, then soonest upcoming, then flexible, then completed', () => {
-    const sections = buildMyTasksHub({
-      now: NOW,
-      userId: ME,
       orders: [
         order({
-          taskId: 'done-old',
+          taskId: 'hosted-booked',
+          status: 'ACTIVE',
+          customerUserId: ME,
+          bookedStart: local(10, 24, 10),
+        }),
+        order({
+          taskId: 'hosted-done',
           status: 'COMPLETED',
           customerUserId: ME,
-          closedAt: '2026-09-01T12:00:00',
+          closedAt: local(10, 20, 12),
         }),
         order({
-          taskId: 'done-new',
-          status: 'CANCELLED',
-          customerUserId: ME,
-          closedAt: '2026-09-20T12:00:00',
-        }),
-      ],
-      posted: [
-        task({
-          id: 'overdue',
-          title: 'Overdue',
-          status: 'OPEN',
-          datetime: { type: 'EXACT', date: '2026-09-20', time: '09:00' },
-        }),
-        task({
-          id: 'later',
-          title: 'Later',
-          status: 'OPEN',
-          datetime: { type: 'EXACT', date: '2026-10-01', time: '09:00' },
-        }),
-        task({
-          id: 'soon',
-          title: 'Soon',
-          status: 'OPEN',
-          datetime: { type: 'EXACT', date: '2026-09-24', time: '09:00' },
-        }),
-        task({
-          id: 'today',
-          title: 'Today',
-          status: 'OPEN',
-          datetime: { type: 'EXACT', date: '2026-09-23', time: '18:00' },
-        }),
-        task({
-          id: 'flex',
-          title: 'Flex',
-          status: 'OPEN',
-          datetime: { type: 'FLEXIBLE' },
-        }),
-        task({
-          id: 'before',
-          title: 'Before past',
-          status: 'OPEN',
-          datetime: { type: 'BEFORE', date: '2026-09-18' },
-        }),
-        task({
-          id: 'done-old',
-          title: 'Done old',
-          status: 'AWARDED',
-        }),
-        task({
-          id: 'done-new',
-          title: 'Done new',
-          status: 'AWARDED',
-        }),
-      ],
-      sentQuotes: [],
-    })
-
-    expect(sections.map((section) => section.id)).toEqual(['open', 'completed'])
-    expect(sections[0]?.rows.map((row) => row.id)).toEqual([
-      'before',
-      'overdue',
-      'today',
-      'soon',
-      'later',
-      'flex',
-    ])
-    expect(sections[0]?.rows.map((row) => row.timing.kind)).toEqual([
-      'overdue',
-      'overdue',
-      'today',
-      'tomorrow',
-      'scheduled',
-      'flexible',
-    ])
-    expect(sections[1]?.rows.map((row) => row.id)).toEqual([
-      'done-new',
-      'done-old',
-    ])
-  })
-
-  it('puts booked work ahead of ended quotes and keeps a single accepted worker', () => {
-    const sections = buildMyTasksHub({
-      now: NOW,
-      userId: ME,
-      orders: [
-        order({
-          taskId: 'active',
+          taskId: 'quoted-won',
           status: 'ACTIVE',
           workerUserId: ME,
-          customerUserId: 'host',
+          bookedStart: local(10, 23, 9),
         }),
-      ],
-      posted: [
-        task({
-          id: 'awarded',
-          title: 'Awarded',
-          status: 'AWARDED',
-          quotes: [
-            {
-              id: 'w1',
-              workerUserId: 'worker-a',
-              status: 'ACCEPTED',
-              worker: { profile: { name: 'Alex' } },
-            },
-            {
-              id: 'w2',
-              workerUserId: 'worker-b',
-              status: 'ACCEPTED',
-              worker: { profile: { name: 'Blair' } },
-            },
-          ],
-        }),
-        task({
-          id: 'cancelled',
-          title: 'Cancelled',
-          status: 'CANCELLED',
-        }),
-        task({
-          id: 'draft',
-          title: 'Draft',
-          status: 'DRAFT',
-          datetime: { type: 'FLEXIBLE' },
-        }),
-      ],
-      sentQuotes: [
-        {
-          task: task({
-            id: 'active',
-            title: 'My booking',
-            status: 'AWARDED',
-          }),
-          quote: { id: 'mine', workerUserId: ME, status: 'ACCEPTED' },
-        },
-        {
-          task: task({
-            id: 'lost',
-            title: 'Lost bid',
-            status: 'AWARDED',
-          }),
-          quote: { id: 'lost', workerUserId: ME, status: 'DECLINED' },
-        },
-        {
-          task: task({
-            id: 'beaten',
-            title: 'Someone else got it',
-            status: 'AWARDED',
-          }),
-          quote: { id: 'beaten', workerUserId: ME, status: 'NOT_SELECTED' },
-        },
-      ],
-    })
-
-    const booked = sections.find((section) => section.id === 'booked')
-    const completed = sections.find((section) => section.id === 'completed')
-    const open = sections.find((section) => section.id === 'open')
-
-    expect(open?.rows.map((row) => row.id)).toEqual(['draft'])
-    expect(booked?.rows.map((row) => row.id)).toEqual(['awarded', 'active'])
-    expect(booked?.rows.find((row) => row.id === 'active')?.roles).toEqual([
-      'quoted',
-    ])
-    expect(
-      booked?.rows.find((row) => row.id === 'awarded')?.acceptedWorkerName,
-    ).toBe('Alex')
-    expect(completed?.rows.map((row) => row.id)).toEqual([
-      'cancelled',
-      'lost',
-      'beaten',
-    ])
-    expect(
-      completed?.rows.filter((row) => row.notSelected).map((row) => row.id),
-    ).toEqual(['beaten'])
-    expect(sections.map((section) => section.id)).toEqual([
-      'booked',
-      'open',
-      'completed',
-    ])
-  })
-
-  it('files cancelled bookings as Completed, keeps CONFLICT booked, and dates booked rows from the booking', () => {
-    const sections = buildMyTasksHub({
-      now: NOW,
-      userId: ME,
-      orders: [
-        order({
-          taskId: 'cancelled-booking',
-          status: 'CANCELLED',
-          customerUserId: ME,
-          closedAt: '2026-09-21T12:00:00',
-        }),
+        // A CONFLICT still needs both sides: it stays Upcoming.
         order({
           taskId: 'conflict',
           status: 'CONFLICT',
-          customerUserId: ME,
-        }),
-        order({
-          taskId: 'booked',
-          status: 'ACTIVE',
-          customerUserId: ME,
-          bookedStart: new Date('2026-09-23T18:00:00').toISOString(),
+          workerUserId: ME,
+          bookedStart: local(10, 21, 9),
         }),
       ],
-      posted: [
-        task({
-          id: 'cancelled-booking',
-          title: 'Cancelled',
-          status: 'AWARDED',
-        }),
-        task({ id: 'conflict', title: 'Conflict', status: 'AWARDED' }),
-        task({
-          id: 'booked',
-          title: 'Booked',
-          status: 'AWARDED',
-          datetime: { type: 'FLEXIBLE' },
-        }),
-      ],
-      sentQuotes: [],
     })
 
-    const ids = (id: string) =>
-      sections.find((section) => section.id === id)?.rows.map((row) => row.id)
-    expect(ids('completed')).toEqual(['cancelled-booking'])
-    expect(ids('booked')).toEqual(['booked'])
-    // A CONFLICT booking still counts as booked, and it waits on you.
-    const conflict = sections
-      .find((section) => section.id === 'needsYou')
-      ?.rows.find((row) => row.id === 'conflict')
-    expect(conflict?.section).toBe('booked')
-    expect(conflict?.ask).toBe('conflict')
-    expect(
-      sections
-        .find((section) => section.id === 'booked')
-        ?.rows.find((row) => row.id === 'booked')?.timing.kind,
-    ).toBe('today')
+    expect(sections.map((section) => section.id)).toEqual([
+      'upcoming',
+      'open',
+      'past',
+    ])
+    // Soonest first.
+    expect(idsIn(sections, 'upcoming')).toEqual([
+      'conflict',
+      'quoted-won',
+      'hosted-booked',
+    ])
+    // Soonest first; untimed last, by title.
+    expect(idsIn(sections, 'open')).toEqual([
+      'quoted-open',
+      'draft',
+      'hosted-open',
+    ])
+    // Newest first; rows without an end date last, by title.
+    expect(idsIn(sections, 'past')).toEqual([
+      'hosted-done',
+      'cancelled',
+      'declined',
+      'lost',
+    ])
   })
 
-  it('files a COMPLETED order under Completed and leaves legacy CLOSED booked', () => {
+  it('returns the three sections, empty, before the user is known', () => {
+    expect(
+      buildMyTasksHub({ userId: null, posted: [], sentQuotes: [], orders: [] }),
+    ).toEqual([
+      { id: 'upcoming', rows: [] },
+      { id: 'open', rows: [] },
+      { id: 'past', rows: [] },
+    ])
+  })
+
+  it('keeps one row per task, with both roles when you posted it and quoted on it', () => {
+    const dual = task({
+      id: 'dual',
+      title: 'Dual',
+      status: 'OPEN',
+      quotes: [{ id: 'mine', workerUserId: ME, status: 'PENDING' }],
+    })
     const sections = buildMyTasksHub({
       now: NOW,
       userId: ME,
-      orders: [
-        order({
-          taskId: 'done',
-          status: 'COMPLETED',
-          customerUserId: ME,
-          closedAt: '2026-09-20T12:00:00',
-        }),
-        order({
-          taskId: 'legacy',
-          status: 'CLOSED',
-          customerUserId: ME,
-          closedAt: '2026-09-19T12:00:00',
-        }),
+      posted: [dual],
+      sentQuotes: [
+        {
+          task: dual,
+          quote: { id: 'mine', workerUserId: ME, status: 'PENDING' },
+        },
       ],
-      posted: [
-        task({
-          id: 'done',
-          title: 'Done order',
-          status: 'AWARDED',
-        }),
-        task({
-          id: 'legacy',
-          title: 'Legacy closed',
-          status: 'AWARDED',
-        }),
-      ],
+      orders: [],
+    })
+    const row = rowFor(sections, 'dual')
+    expect(idsIn(sections, 'open')).toEqual(['dual'])
+    expect(row?.roles).toEqual(['hosted', 'quoted'])
+    // Your own quote is nothing to compare.
+    expect(row?.liveQuoteCount).toBe(0)
+    expect(row?.action).toBeNull()
+  })
+})
+
+describe('buildMyTasksHub Upcoming day', () => {
+  it('reads Overdue, Today, Tomorrow, a weekday this week, else the date; untimed jobs go last', () => {
+    const untimed = task({
+      id: 'untimed',
+      title: 'Untimed',
+      status: 'AWARDED',
+      datetime: { type: 'FLEXIBLE' },
+      quotes: [{ id: 'q', workerUserId: 'w', status: 'ACCEPTED' }],
+    })
+    const bookings = [
+      hostedBooking('next-week', { bookedStart: local(10, 29, 9) }),
+      hostedBooking('tuesday', { bookedStart: local(10, 27, 16, 25) }),
+      hostedBooking('tomorrow', { bookedStart: local(10, 23, 8) }),
+      hostedBooking('today', { bookedStart: local(10, 22, 18) }),
+      hostedBooking('last-week', { bookedStart: local(10, 15, 9) }),
+    ]
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [untimed, ...bookings.map((b) => b.posted)],
       sentQuotes: [],
+      orders: bookings.map((b) => b.order),
     })
 
-    expect(
-      sections
-        .find((section) => section.id === 'completed')
-        ?.rows.map((row) => row.id),
-    ).toEqual(['done'])
-    expect(
-      sections
-        .find((section) => section.id === 'booked')
-        ?.rows.map((row) => row.id),
-    ).toEqual(['legacy'])
+    const upcoming = sections.find((section) => section.id === 'upcoming')
+    expect(upcoming?.rows.map((row) => [row.id, row.when])).toEqual([
+      ['last-week', { day: 'overdue', at: local(10, 15, 9), time: true }],
+      ['today', { day: 'today', at: local(10, 22, 18), time: true }],
+      ['tomorrow', { day: 'tomorrow', at: local(10, 23, 8), time: true }],
+      ['tuesday', { day: 'weekday', at: local(10, 27, 16, 25), time: true }],
+      ['next-week', { day: 'date', at: local(10, 29, 9), time: true }],
+      ['untimed', { day: 'flexible' }],
+    ])
   })
 
-  it('files what waits on you under Needs you, using task detail views', () => {
+  it("dates a booked job by the booking, not the poster's first preference", () => {
+    const booking = hostedBooking('moved', { bookedStart: local(10, 23, 11) })
+    booking.posted = {
+      ...booking.posted,
+      datetime: { type: 'EXACT', date: '2026-10-30', time: '09:00' },
+    }
+    expect(rowFor(hubOf(booking), 'moved')?.when).toEqual({
+      day: 'tomorrow',
+      at: local(10, 23, 11),
+      time: true,
+    })
+  })
+
+  it('reads a Before date without a booking as Before, or Overdue once it has passed', () => {
+    const awarded = (id: string, date: string) =>
+      task({
+        id,
+        title: id,
+        status: 'AWARDED',
+        datetime: { type: 'BEFORE', date },
+        quotes: [{ id: `q-${id}`, workerUserId: 'w', status: 'ACCEPTED' }],
+      })
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [awarded('soon', '2026-10-24'), awarded('late', '2026-10-20')],
+      sentQuotes: [],
+      orders: [],
+    })
+    expect(rowFor(sections, 'soon')?.when).toEqual({
+      day: 'before',
+      at: new Date(2026, 9, 24, 23, 59, 59).toISOString(),
+      time: false,
+    })
+    expect(rowFor(sections, 'late')?.when).toMatchObject({ day: 'overdue' })
+  })
+})
+
+describe('buildMyTasksHub buttons', () => {
+  it.each([
+    [
+      'answerReschedule',
+      { pendingRequest: { kind: 'RESCHEDULE', requestedByUserId: 'w' } },
+    ],
+    [
+      'answerCancel',
+      {
+        status: 'CANCEL_REQUESTED',
+        pendingRequest: { kind: 'CANCEL', requestedByUserId: 'w' },
+      },
+    ],
+    ['markDone', { bookedStart: local(10, 22, 9) }],
+    [
+      'confirmDone',
+      {
+        bookedStart: local(10, 22, 9),
+        counterpartyCloseAction: { kind: 'DONE' },
+      },
+    ],
+    [
+      'answerFailed',
+      {
+        bookedStart: local(10, 22, 9),
+        counterpartyCloseAction: { kind: 'FAILED' },
+      },
+    ],
+    [
+      'conflict',
+      {
+        status: 'CONFLICT',
+        myCloseAction: { kind: 'DONE' },
+        counterpartyCloseAction: { kind: 'FAILED' },
+      },
+    ],
+  ] as const)(
+    'shows %s when task detail waits on you for it',
+    (action, booking) => {
+      const hub = hubOf(
+        hostedBooking('job', booking as Partial<MyTaskOrderSource>),
+      )
+      expect(rowFor(hub, 'job')?.action).toBe(action)
+    },
+  )
+
+  it.each([
+    ['before the job time', {}],
+    [
+      'after you marked it Done',
+      { bookedStart: local(10, 22, 9), myCloseAction: { kind: 'DONE' } },
+    ],
+    [
+      'while your own reschedule waits',
+      { pendingRequest: { kind: 'RESCHEDULE', requestedByUserId: ME } },
+    ],
+  ] as const)('shows the ⋮ menu (no button) %s', (_label, booking) => {
+    const hub = hubOf(
+      hostedBooking('job', booking as Partial<MyTaskOrderSource>),
+    )
+    expect(rowFor(hub, 'job')?.action).toBeNull()
+  })
+
+  it('asks you to compare live quotes on your open task, and not on a quote you sent', () => {
     const sections = buildMyTasksHub({
       now: NOW,
       userId: ME,
       posted: [
         task({
           id: 'compare',
-          title: 'Quotes to compare',
+          title: 'Compare',
           status: 'OPEN',
           quotes: [
-            { id: 'q1', workerUserId: 'w1', status: 'PENDING' },
-            { id: 'q2', workerUserId: 'w2', status: 'PENDING' },
-            { id: 'q3', workerUserId: 'w3', status: 'DECLINED' },
+            { id: 'a', workerUserId: 'w1', status: 'PENDING' },
+            { id: 'b', workerUserId: 'w2', status: 'PENDING' },
+            { id: 'c', workerUserId: 'w3', status: 'DECLINED' },
           ],
         }),
-        task({ id: 'calm', title: 'No quotes yet', status: 'OPEN' }),
         task({
-          id: 'moving',
-          title: 'Asked to move',
-          status: 'AWARDED',
-          quotes: [
-            {
-              id: 'qa',
-              workerUserId: 'worker',
-              status: 'ACCEPTED',
-              worker: { profile: { name: 'Alex Kim' } },
-            },
-          ],
+          id: 'all-declined',
+          title: 'All declined',
+          status: 'OPEN',
+          quotes: [{ id: 'd', workerUserId: 'w1', status: 'DECLINED' }],
         }),
       ],
       sentQuotes: [
         {
           task: task({
-            id: 'started',
-            title: 'Job time has started',
-            status: 'AWARDED',
-            poster: { id: 'customer', profile: { name: 'Priya Shah' } },
+            id: 'sent',
+            title: 'Sent',
+            status: 'OPEN',
+            quotes: [{ id: 'e', workerUserId: 'w4', status: 'PENDING' }],
           }),
-          quote: { id: 'mine', workerUserId: ME, status: 'ACCEPTED' },
+          quote: { id: 'mine', workerUserId: ME, status: 'PENDING' },
         },
       ],
-      orders: [
-        order({
-          taskId: 'moving',
-          status: 'ACTIVE',
-          customerUserId: ME,
-          bookedStart: '2026-09-30T10:00:00.000Z',
-          pendingRequest: { kind: 'RESCHEDULE', requestedByUserId: 'worker' },
-        }),
-        order({
-          taskId: 'started',
-          status: 'ACTIVE',
-          workerUserId: ME,
-          bookedStart: '2026-09-23T09:00:00.000Z',
-        }),
-      ],
+      orders: [],
     })
-
-    const needsYou = sections.find((section) => section.id === 'needsYou')
-    expect(
-      needsYou?.rows.map((row) => [row.id, row.ask, row.counterpartyName]),
-    ).toEqual([
-      ['started', 'markDone', 'Priya Shah'],
-      ['moving', 'answerReschedule', 'Alex Kim'],
-      ['compare', 'compareQuotes', null],
-    ])
-    expect(
-      needsYou?.rows.find((row) => row.id === 'compare')?.liveQuoteCount,
-    ).toBe(2)
-    // Rows keep their status and leave their old group.
-    expect(needsYou?.rows.map((row) => row.section)).toEqual([
-      'booked',
-      'booked',
-      'open',
-    ])
-    expect(
-      sections
-        .find((section) => section.id === 'open')
-        ?.rows.map((row) => row.id),
-    ).toEqual(['calm'])
-    expect(sections.find((section) => section.id === 'booked')).toBeUndefined()
+    expect(rowFor(sections, 'compare')).toMatchObject({
+      action: 'compareQuotes',
+      liveQuoteCount: 2,
+    })
+    expect(rowFor(sections, 'all-declined')?.action).toBeNull()
+    expect(rowFor(sections, 'sent')).toMatchObject({
+      action: null,
+      liveQuoteCount: 0,
+    })
   })
 
-  it('shows the agreed price on booked work instead of the budget', () => {
+  it('offers Review on a completed job only while order.reviewState says you can review', () => {
+    const done = (canSubmit: boolean | null) =>
+      hostedBooking(`done-${canSubmit}`, {
+        status: 'COMPLETED',
+        closedAt: local(10, 20, 12),
+        reviewState: canSubmit === null ? undefined : { canSubmit },
+      })
+    const cancelled = hostedBooking('cancelled', {
+      status: 'CANCELLED',
+      reviewState: { canSubmit: true },
+    })
+    const hub = hubOf(done(true), done(false), done(null), cancelled)
+
+    expect(rowFor(hub, 'done-true')).toMatchObject({
+      section: 'past',
+      action: 'review',
+      orderId: 'order-done-true',
+    })
+    expect(rowFor(hub, 'done-false')?.action).toBeNull()
+    // No reviewState: no Review (nothing is guessed).
+    expect(rowFor(hub, 'done-null')?.action).toBeNull()
+    expect(rowFor(hub, 'cancelled')?.action).toBeNull()
+  })
+})
+
+describe('buildMyTasksHub Past', () => {
+  it('says how it ended and when, newest first', () => {
     const sections = buildMyTasksHub({
       now: NOW,
       userId: ME,
       posted: [
+        task({ id: 'completed', title: 'Completed', status: 'AWARDED' }),
         task({
-          id: 'booked',
-          title: 'Booked',
+          id: 'cancelled',
+          title: 'Booking cancelled',
           status: 'AWARDED',
-          budget: { amount: 80 },
+        }),
+        task({ id: 'failed', title: 'Failed', status: 'AWARDED' }),
+        task({
+          id: 'task-cancelled',
+          title: 'Task cancelled',
+          status: 'CANCELLED',
         }),
       ],
-      sentQuotes: [],
+      sentQuotes: [
+        {
+          task: task({
+            id: 'not-selected',
+            title: 'Not selected',
+            status: 'AWARDED',
+          }),
+          quote: { id: 'q1', workerUserId: ME, status: 'NOT_SELECTED' },
+        },
+        {
+          // Still PENDING, but another worker won.
+          task: task({
+            id: 'beaten',
+            title: 'Beaten',
+            status: 'AWARDED',
+            quotes: [{ id: 'q9', workerUserId: 'w', status: 'ACCEPTED' }],
+          }),
+          quote: { id: 'q2', workerUserId: ME, status: 'PENDING' },
+        },
+        {
+          task: task({ id: 'declined', title: 'Declined', status: 'AWARDED' }),
+          quote: { id: 'q3', workerUserId: ME, status: 'DECLINED' },
+        },
+      ],
       orders: [
         order({
-          taskId: 'booked',
-          status: 'ACTIVE',
+          taskId: 'completed',
+          status: 'COMPLETED',
           customerUserId: ME,
-          bookedStart: '2026-09-30T10:00:00.000Z',
-          agreedPrice: { amount: 95 },
+          closedAt: local(10, 1, 12),
+        }),
+        order({
+          taskId: 'cancelled',
+          status: 'CANCELLED',
+          customerUserId: ME,
+          closedAt: local(10, 20, 12),
+          myCloseAction: { kind: 'FAILED' },
+        }),
+        order({
+          taskId: 'failed',
+          status: 'CANCELLED',
+          customerUserId: ME,
+          closedAt: local(10, 10, 12),
+          myCloseAction: { kind: 'FAILED' },
+          counterpartyCloseAction: { kind: 'FAILED' },
         }),
       ],
     })
-    expect(sections[0]?.rows[0]?.priceLabel).toBe('£95')
+
+    const past = sections.find((section) => section.id === 'past')
+    expect(past?.rows.map((row) => [row.id, row.outcome, row.endedAt])).toEqual(
+      [
+        ['cancelled', 'cancelled', local(10, 20, 12)],
+        ['failed', 'failed', local(10, 10, 12)],
+        ['completed', 'completed', local(10, 1, 12)],
+        // No end date in the hub's data: last, by title.
+        ['beaten', 'notSelected', null],
+        ['declined', 'declined', null],
+        ['not-selected', 'notSelected', null],
+        ['task-cancelled', 'cancelled', null],
+      ],
+    )
+    expect(past?.rows.every((row) => row.when === null)).toBe(true)
+  })
+
+  it('sorts Past without an end time by when you quoted, else when you posted it', () => {
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [
+        task({ id: 'closed', title: 'Closed', status: 'AWARDED' }),
+        task({
+          id: 'posted',
+          title: 'Posted',
+          status: 'CANCELLED',
+          createdAt: local(10, 1, 9),
+        }),
+      ],
+      sentQuotes: [
+        {
+          task: task({
+            id: 'quoted-late',
+            title: 'Quoted late',
+            status: 'AWARDED',
+          }),
+          quote: {
+            id: 'q1',
+            workerUserId: ME,
+            status: 'NOT_SELECTED',
+            createdAt: local(10, 21, 9),
+          },
+        },
+        {
+          task: task({
+            id: 'quoted-early',
+            title: 'Quoted early',
+            status: 'AWARDED',
+            createdAt: local(10, 30, 9),
+          }),
+          quote: {
+            id: 'q2',
+            workerUserId: ME,
+            status: 'DECLINED',
+            createdAt: local(9, 15, 9),
+          },
+        },
+      ],
+      orders: [
+        order({
+          taskId: 'closed',
+          status: 'COMPLETED',
+          customerUserId: ME,
+          closedAt: local(10, 20, 12),
+        }),
+      ],
+    })
+    const past = sections.find((section) => section.id === 'past')
+    // Your quote's time wins over the task's for a task you quoted.
+    expect(past?.rows.map((row) => [row.id, row.endedAt])).toEqual([
+      ['quoted-late', null],
+      ['closed', local(10, 20, 12)],
+      ['posted', null],
+      ['quoted-early', null],
+    ])
+  })
+})
+
+describe('buildMyTasksHub prices', () => {
+  it('shows the agreed price once booked, your quote on a quote you sent, else the budget', () => {
+    const booked = hostedBooking('booked', { agreedPrice: { amount: 95 } })
+    booked.posted = { ...booked.posted, budget: { amount: 80 } }
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [
+        booked.posted,
+        task({
+          id: 'budget',
+          title: 'Budget',
+          status: 'OPEN',
+          budget: { amount: 60 },
+        }),
+        task({ id: 'none', title: 'None', status: 'OPEN' }),
+      ],
+      sentQuotes: [
+        {
+          task: task({
+            id: 'sent',
+            title: 'Sent',
+            status: 'OPEN',
+            budget: { amount: 80 },
+          }),
+          quote: {
+            id: 'mine',
+            workerUserId: ME,
+            status: 'PENDING',
+            price: { amount: 75 },
+          },
+        },
+      ],
+      orders: [booked.order],
+    })
+    expect(rowFor(sections, 'booked')?.priceLabel).toBe('£95')
+    expect(rowFor(sections, 'sent')?.priceLabel).toBe('£75')
+    expect(rowFor(sections, 'budget')?.priceLabel).toBe('£60')
+    expect(rowFor(sections, 'none')?.priceLabel).toBe('')
   })
 })

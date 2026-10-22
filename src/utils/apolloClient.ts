@@ -198,6 +198,9 @@ export const apolloClient = new ApolloClient({
       // Profile has no id: combine partial loads (e.g. name + avatar) with the
       // full one instead of replacing it, which dropped phone and date of birth.
       Profile: { merge: true },
+      // Same for an order's review state: My tasks loads `canSubmit` only,
+      // task detail the reviews too. Replacing would drop one or the other.
+      OrderReviewState: { merge: true },
     },
   }),
 })

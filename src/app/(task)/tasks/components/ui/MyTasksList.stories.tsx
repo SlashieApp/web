@@ -1,14 +1,11 @@
+import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { MY_TASKS_VIEWS } from '../../views'
-import {
-  customerSections,
-  dualRoleSections,
-  workerSections,
-} from '../myTasksStoryFixtures'
+import { allSections, emptySections } from '../myTasksStoryFixtures'
 import { MyTasksList } from './MyTasksList'
 
 const meta = {
@@ -16,14 +13,21 @@ const meta = {
   component: MyTasksList,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  // The page's centred column.
+  decorators: [
+    (Story) => (
+      <Box maxW="2xl" mx="auto">
+        <Story />
+      </Box>
+    ),
+  ],
   args: {
     config: MY_TASKS_VIEWS.list,
-    sections: dualRoleSections,
+    sections: allSections,
     filtered: false,
     errorMessage: null,
     onRetry: fn(),
     onClearFilters: fn(),
-    onOpen: fn(),
   },
 } satisfies Meta<typeof MyTasksList>
 
@@ -36,64 +40,74 @@ function headings(canvasElement: HTMLElement) {
     .map((heading) => heading.textContent)
 }
 
-/** `list`, posts and quotes: Needs you first, then Booked / In progress; Completed shows 3 of 5. */
-export const DualRole: Story = {
-  play: async ({ canvasElement, args }) => {
+/** `list`, posts and quotes: Upcoming cards (Overdue first), Open rows, Past led by a card; Past shows 3 of 5 until Show all. */
+export const AllSections: Story = {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(headings(canvasElement)).toEqual([
-      'Needs you (3)',
-      'Booked / In progress (2)',
-      'Open (2)',
-      'Completed (5)',
-    ])
-    const completed = canvas.getByRole('region', { name: 'Completed' })
+    await expect(headings(canvasElement)).toEqual(['Upcoming', 'Open', 'Past'])
+
+    const upcoming = within(canvas.getByRole('region', { name: 'Upcoming' }))
+    await expect(upcoming.getAllByRole('listitem')).toHaveLength(5)
+    await expect(upcoming.getByText('Overdue')).toBeVisible()
+    await expect(upcoming.getByText('On Wednesday')).toBeVisible()
     await expect(
-      within(completed).getAllByRole('button', { name: /Open task/ }),
-    ).toHaveLength(3)
+      upcoming.getByRole('link', { name: /^Mark done: / }),
+    ).toBeVisible()
+
+    const open = within(canvas.getByRole('region', { name: 'Open' }))
+    await expect(
+      open.getByRole('link', { name: /^Compare quotes: / }),
+    ).toBeVisible()
+    // Rows without a button have the ⋮ menu.
+    await expect(
+      open.getAllByRole('button', { name: /^Options for / }),
+    ).toHaveLength(2)
+
+    const past = within(canvas.getByRole('region', { name: 'Past' }))
+    await expect(past.getAllByRole('listitem')).toHaveLength(3)
+    await expect(past.getByRole('link', { name: /^Review: / })).toBeVisible()
     await userEvent.click(canvas.getByRole('button', { name: 'Show all (5)' }))
+    await expect(past.getAllByRole('listitem')).toHaveLength(5)
+  },
+}
+
+/** `list` with empty sections: Upcoming and Past say so in plain words. */
+export const EmptySections: Story = {
+  args: { sections: emptySections },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(headings(canvasElement)).toEqual(['Upcoming', 'Open', 'Past'])
     await expect(
-      within(completed).getAllByRole('button', { name: /Open task/ }),
-    ).toHaveLength(5)
-    await userEvent.click(
-      canvas.getByRole('button', { name: /^Mount a 55-inch TV/ }),
-    )
-    await expect(args.onOpen).toHaveBeenCalledWith('booked-today')
+      canvas.getByText(
+        'No booked jobs yet. A job shows here once a quote is accepted.',
+      ),
+    ).toBeVisible()
+    await expect(
+      canvas.getByText(
+        'Nothing finished yet. Completed and cancelled tasks show here.',
+      ),
+    ).toBeVisible()
   },
 }
 
-/** `list`, posts only: every card says Hosted; the booked time leads. */
-export const CustomerOnly: Story = {
-  args: { sections: customerSections },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(canvas.getAllByText('Hosted')).toHaveLength(3)
-    await expect(canvas.getByText('Today 14:00')).toBeVisible()
-    await expect(canvas.getAllByText('With Alex Kim')).toHaveLength(2)
-  },
-}
-
-/** `list`, quotes only: Quoted, Overdue in red on the booked job, Not selected on a lost quote. */
-export const WorkerOnly: Story = {
-  args: { sections: workerSections },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(canvas.getByText('Not selected')).toBeVisible()
-    await expect(canvas.getByText('Overdue')).toBeVisible()
-    await expect(canvas.getByText('Hosted by Jordan Lee')).toBeVisible()
-  },
-}
-
-/** A search is on: Completed shows every match. */
+/** Filters on: a section with no matches is left out, and Past shows every match. */
 export const Filtered: Story = {
-  args: { filtered: true },
+  args: {
+    filtered: true,
+    sections: [
+      { id: 'upcoming', rows: [] },
+      ...allSections.filter((section) => section.id !== 'upcoming'),
+    ],
+  },
   play: async ({ canvasElement }) => {
+    await expect(headings(canvasElement)).toEqual(['Open', 'Past'])
     await expect(
       within(canvasElement).queryByRole('button', { name: /Show all/ }),
     ).toBeNull()
   },
 }
 
-/** A refresh failed with tasks still on screen: the note and Try again above the groups. */
+/** A refresh failed with tasks still on screen: the note and Try again above the sections. */
 export const RefreshFailed: Story = {
   args: { errorMessage: "Can't reach Slashie. Check your connection." },
   play: async ({ canvasElement, args }) => {
@@ -104,12 +118,12 @@ export const RefreshFailed: Story = {
   },
 }
 
-/** `loading`: card placeholders on the first load. */
+/** `loading`: placeholders on the first load. */
 export const Loading: Story = {
   args: { config: MY_TASKS_VIEWS.loading, sections: [] },
 }
 
-/** `searching`: placeholders while a new search loads. */
+/** `searching`: placeholders while new filters load. */
 export const Searching: Story = {
   args: { config: MY_TASKS_VIEWS.searching, sections: [], filtered: true },
 }
@@ -128,7 +142,7 @@ export const LoadFailed: Story = {
   },
 }
 
-/** `empty`: a new user; Post a task or Browse tasks. */
+/** `empty`: a new user with no tasks at all; Post a task or Browse tasks. */
 export const Empty: Story = {
   args: { config: MY_TASKS_VIEWS.empty, sections: [] },
   play: async ({ canvasElement }) => {
@@ -142,7 +156,7 @@ export const Empty: Story = {
   },
 }
 
-/** `noMatches`: the search leaves nothing; Clear filters. */
+/** `noMatches`: the filters leave nothing; Clear filters. */
 export const NoMatches: Story = {
   args: { config: MY_TASKS_VIEWS.noMatches, sections: [], filtered: true },
   play: async ({ canvasElement, args }) => {
@@ -153,9 +167,14 @@ export const NoMatches: Story = {
   },
 }
 
-/** Phone width: one column of cards. */
-export const Mobile: Story = {
+/** Phone width: one column, cards then rows. */
+export const Phone: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/** Desktop: the same single column, centred. */
+export const Desktop: Story = {
+  globals: { viewport: { value: 'desktop' } },
 }
 
 /** Traditional Chinese copy (from the `/zh-hk` URL prefix). */
@@ -169,9 +188,10 @@ export const TraditionalChinese: Story = {
     ),
   ],
   play: async ({ canvasElement }) => {
-    await expect(headings(canvasElement).slice(0, 2)).toEqual([
-      '需要你處理 (3)',
-      '已預約 / 進行中 (2)',
+    await expect(headings(canvasElement)).toEqual([
+      '即將進行',
+      '開放中',
+      '過往',
     ])
   },
 }

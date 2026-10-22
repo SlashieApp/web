@@ -1,9 +1,16 @@
 #import "./orderFields.gql"
 
+# My tasks (the only user). `reviewState.canSubmit` puts Review on a finished
+# job you haven't reviewed. It is a subset of task detail's OrderReviewState
+# fields; `OrderReviewState: { merge: true }` (utils/apolloClient.ts) keeps the
+# two from overwriting each other.
 query MyOrders($filter: MyOrdersFilter) {
   me {
     orders(filter: $filter) {
       ...OrderFields
+      reviewState {
+        canSubmit
+      }
     }
   }
 }

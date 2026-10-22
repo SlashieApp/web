@@ -18,9 +18,9 @@ export type MyTasksAction =
   | 'clearFilters'
 
 export type MyTasksViewConfig = {
-  /** The search bar and filter chips; hidden until there's something to search. */
+  /** The filter button (search and filters); hidden until there's something to search. */
   search: boolean
-  /** Card placeholders, a message with buttons, or the status groups. */
+  /** Card placeholders, a message with buttons, or the sections. */
   body: 'skeleton' | 'message' | 'groups'
   /** The message's copy (`views.<message>`) for `message` bodies. */
   message: 'error' | 'empty' | 'noMatches' | null

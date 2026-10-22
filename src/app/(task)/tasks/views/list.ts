@@ -1,6 +1,6 @@
 import type { MyTasksViewConfig } from './types'
 
-/** Tasks grouped Booked / In progress, Open, Completed. */
+/** Tasks in Upcoming, Open and Past. */
 export const list: MyTasksViewConfig = {
   search: true,
   body: 'groups',

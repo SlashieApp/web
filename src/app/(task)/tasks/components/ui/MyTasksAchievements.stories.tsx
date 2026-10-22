@@ -33,7 +33,7 @@ const dual = buildAchievementPanels({
   customer,
 })
 
-/** The Your activity rail (desktop) and the achievements tab on phones. */
+/** Your activity, shown by the list / chart toggle on My Tasks. */
 const meta = {
   title: 'My tasks/MyTasksAchievements',
   component: MyTasksAchievements,
@@ -164,7 +164,7 @@ export const NoPanels: Story = {
   },
 }
 
-/** Phone width: the achievements tab. */
+/** Phone width: Your activity in place of the list. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
 }

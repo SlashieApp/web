@@ -12,6 +12,12 @@ export type MyTasksQuery = {
   role: MyTaskRole | ''
 }
 
+export const EMPTY_MY_TASKS_QUERY: MyTasksQuery = {
+  q: '',
+  category: '',
+  role: '',
+}
+
 export function parseMyTasksQuery(params: {
   get(name: string): string | null
 }): MyTasksQuery {
@@ -33,20 +39,21 @@ export function myTasksQueryString(query: MyTasksQuery): string {
   return text ? `?${text}` : ''
 }
 
-export function isMyTasksQueryActive(query: MyTasksQuery): boolean {
-  return Boolean(query.q.trim() || query.category || query.role)
+/** How many of search, category and Hosted / Quoted are set (the filter button's count). */
+export function activeFilterCount(query: MyTasksQuery): number {
+  return [query.q.trim(), query.category, query.role].filter(Boolean).length
 }
 
-/** Keeps the rows with this role and drops sections it empties. */
+/** Keeps the rows with this role in every section. */
 export function filterHubByRole(
   sections: readonly MyTaskHubSection[],
   role: MyTaskRole | '',
 ): MyTaskHubSection[] {
   if (!role) return [...sections]
-  return sections.flatMap((section) => {
-    const rows = section.rows.filter((row) => row.roles.includes(role))
-    return rows.length > 0 ? [{ ...section, rows }] : []
-  })
+  return sections.map((section) => ({
+    ...section,
+    rows: section.rows.filter((row) => row.roles.includes(role)),
+  }))
 }
 
 /** The Hosted / Quoted filter only helps someone with both kinds of task. */

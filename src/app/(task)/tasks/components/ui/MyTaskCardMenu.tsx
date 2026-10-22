@@ -5,6 +5,7 @@ import { LuEllipsisVertical, LuPencil, LuShare2 } from 'react-icons/lu'
 
 import { ReportControl } from '@/content/trust/ReportControl'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
 
@@ -65,18 +66,20 @@ function MenuItems({ row }: { row: MyTaskHubRow }) {
 
 /**
  * A My Tasks card's ⋮ menu: Share task for every row, Edit task on your own
- * open tasks, Report task only on other people's tasks.
+ * open tasks, Report task only on other people's tasks. Its name says which
+ * task, since many rows have one.
  */
 export function MyTaskCardMenu({ row }: { row: MyTaskHubRow }) {
   const t = useI11n(bag)
+  const label = formatMessage(t.menu.aria, { title: row.title })
   return (
     <Dropdown
-      contentLabel={t.menu.aria}
+      contentLabel={label}
       mobilePlacement="bottom"
       align="end"
       width="max-content"
       trigger={
-        <IconButton type="button" variant="ghost" aria-label={t.menu.aria}>
+        <IconButton type="button" variant="ghost" aria-label={label}>
           <LuEllipsisVertical />
         </IconButton>
       }

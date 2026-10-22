@@ -3,171 +3,209 @@ import type { MyTaskHubRow, MyTaskHubSection } from '../helpers/myTasksHub'
 const PHOTO =
   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop'
 
+/** A local date and time in 2026, as the hub's ISO instants. */
+function at(month: number, day: number, hour = 0, minute = 0): string {
+  return new Date(2026, month - 1, day, hour, minute).toISOString()
+}
+
 function row(
   base: Pick<MyTaskHubRow, 'id' | 'title' | 'section'> & Partial<MyTaskHubRow>,
 ): MyTaskHubRow {
   return {
-    description: '',
     location: 'Islington',
     priceLabel: '£80',
     categories: ['Handyman'],
-    ownerName: 'Sam Carter',
     roles: ['hosted'],
-    timing: { kind: 'flexible' },
-    quoteCount: 0,
-    acceptedWorkerName: null,
-    notSelected: false,
-    ask: null,
+    when: null,
     liveQuoteCount: 0,
-    counterpartyName: null,
+    outcome: null,
+    endedAt: null,
+    action: null,
+    orderId: null,
     ...base,
   }
 }
 
-/** One of each kind of My Tasks row. */
+/** One of each kind of My Tasks row, posted (Hosted) and quoted. */
 export const storyRows = {
-  bookedToday: row({
-    id: 'booked-today',
-    title: 'Mount a 55-inch TV',
-    section: 'booked',
-    timing: { kind: 'today', time: '14:00' },
-    acceptedWorkerName: 'Alex Kim',
-    categories: ['Tech setup', 'Handyman'],
-    priceLabel: '£120',
-    location: 'Southwark',
-    thumbnailSrc: PHOTO,
-  }),
-  bookedOverdue: row({
-    id: 'booked-overdue',
-    title: 'Paint a bedroom wall',
-    section: 'booked',
-    roles: ['quoted'],
-    timing: { kind: 'overdue' },
-    ownerName: 'Priya Shah',
-    categories: ['Painting'],
+  /** Your booked job from yesterday, not marked yet: Overdue, Mark done. */
+  upcomingOverdue: row({
+    id: 'upcoming-overdue',
+    title: 'Replace a light fitting',
+    section: 'upcoming',
+    when: { day: 'overdue', at: at(10, 21, 9, 0), time: true },
     priceLabel: '£150',
-    location: 'Hackney',
+    categories: ['Electrical'],
+    action: 'markDone',
+    orderId: 'order-overdue',
   }),
-  openHosted: row({
-    id: 'open-hosted',
+  /** A job you won today; the customer marked it Done: Confirm done. */
+  upcomingToday: row({
+    id: 'upcoming-today',
+    title: 'Deep-clean an oven',
+    section: 'upcoming',
+    roles: ['quoted'],
+    when: { day: 'today', at: at(10, 22, 9, 0), time: true },
+    location: 'Hackney',
+    priceLabel: '£65',
+    categories: ['Cleaning'],
+    action: 'confirmDone',
+    orderId: 'order-today',
+  }),
+  /** A job you won; the customer asked to move it. */
+  upcomingReschedule: row({
+    id: 'upcoming-reschedule',
+    title: 'Hang a mirror in the hall',
+    section: 'upcoming',
+    roles: ['quoted'],
+    when: { day: 'tomorrow', at: at(10, 23, 10, 0), time: true },
+    location: 'Hackney',
+    priceLabel: '£120',
+    action: 'answerReschedule',
+    orderId: 'order-reschedule',
+  }),
+  /** Your booked job later this week: nothing to do, so the ⋮ menu. */
+  upcomingWeekday: row({
+    id: 'upcoming-weekday',
+    title: 'Mount a 55-inch TV',
+    section: 'upcoming',
+    when: { day: 'weekday', at: at(10, 28, 16, 25), time: true },
+    location: 'Southwark',
+    priceLabel: '£120',
+    categories: ['Tech setup'],
+    thumbnailSrc: PHOTO,
+    orderId: 'order-weekday',
+  }),
+  /** A job you won, more than a week out. */
+  upcomingDate: row({
+    id: 'upcoming-date',
+    title: 'Paint a bedroom wall',
+    section: 'upcoming',
+    roles: ['quoted'],
+    when: { day: 'date', at: at(11, 3, 9, 30), time: true },
+    location: 'Camden',
+    priceLabel: '£150',
+    categories: ['Painting'],
+    orderId: 'order-date',
+  }),
+  /** Your open task with quotes in: Compare quotes. */
+  openCompare: row({
+    id: 'open-compare',
     title: 'Fix a leaking kitchen tap',
     section: 'open',
-    timing: { kind: 'before', date: '20 Oct' },
-    quoteCount: 3,
-    categories: ['Plumbing', 'Handyman', 'Repairs', 'Kitchen', 'Same day'],
+    liveQuoteCount: 3,
+    categories: ['Plumbing', 'Kitchen'],
+    thumbnailSrc: PHOTO,
+    action: 'compareQuotes',
   }),
-  openQuoted: row({
-    id: 'open-quoted',
+  /** Your open task, no quotes yet, no photo (the category icon). */
+  openNoQuotes: row({
+    id: 'open-no-quotes',
+    title: 'Clear out a garage',
+    section: 'open',
+    priceLabel: '£60',
+    categories: ['Moving'],
+  }),
+  /** A quote you sent, waiting for an answer. */
+  openQuoteSent: row({
+    id: 'open-quote-sent',
     title: 'Assemble a standing desk',
     section: 'open',
     roles: ['quoted'],
-    ownerName: 'Jordan Lee',
-    categories: ['Assembly'],
-    priceLabel: '£60',
     location: 'Camden',
+    priceLabel: '£75',
+    categories: ['Assembly'],
   }),
-  notSelected: row({
-    id: 'not-selected',
-    title: 'Clear a small garden',
-    section: 'completed',
-    roles: ['quoted'],
-    notSelected: true,
-    ownerName: 'Mia Wong',
-    categories: ['Gardening'],
-    priceLabel: '£90',
-  }),
-  quotedDone: row({
-    id: 'quoted-done',
+  /** Completed and not reviewed yet: Review. */
+  pastReview: row({
+    id: 'past-review',
     title: 'Deep-clean a studio flat',
-    section: 'completed',
-    roles: ['quoted'],
-    ownerName: 'Chris Patel',
+    section: 'past',
+    outcome: 'completed',
+    endedAt: at(10, 20, 17, 0),
+    priceLabel: '£95',
     categories: ['Cleaning'],
-    priceLabel: '£110',
+    action: 'review',
+    orderId: 'order-review',
   }),
-  hostedDone: (n: number) =>
-    row({
-      id: `hosted-done-${n}`,
-      title: ['Move two boxes', 'Hang three shelves', 'Fix a door hinge'][
-        n % 3
-      ] as string,
-      section: 'completed',
-      acceptedWorkerName: 'Alex Kim',
-      categories: ['Moving'],
-    }),
-}
-
-/** Rows waiting on you, one per kind of ask. */
-export const needsYouRows = {
-  compareQuotes: row({
-    id: 'needs-compare',
-    title: 'Unblock a bathroom sink',
-    section: 'open',
-    timing: { kind: 'before', date: '20 Oct' },
-    quoteCount: 3,
-    liveQuoteCount: 3,
-    ask: 'compareQuotes',
-    categories: ['Plumbing'],
-  }),
-  answerReschedule: row({
-    id: 'needs-reschedule',
-    title: 'Hang a mirror in the hall',
-    section: 'booked',
+  /** Completed and already reviewed: the ⋮ menu. */
+  pastCompleted: row({
+    id: 'past-completed',
+    title: 'Hang three shelves',
+    section: 'past',
     roles: ['quoted'],
-    timing: { kind: 'tomorrow', time: '10:00' },
-    ownerName: 'Priya Shah',
-    counterpartyName: 'Priya Shah',
-    ask: 'answerReschedule',
-    categories: ['Tech setup'],
-    priceLabel: '£120',
+    outcome: 'completed',
+    endedAt: at(9, 28, 12, 0),
+    priceLabel: '£70',
+    orderId: 'order-completed',
   }),
-  markDone: row({
-    id: 'needs-done',
-    title: 'Replace a light fitting',
-    section: 'booked',
-    timing: { kind: 'overdue' },
-    acceptedWorkerName: 'Alex Kim',
-    counterpartyName: 'Alex Kim',
-    ask: 'markDone',
-    categories: ['Painting'],
-    priceLabel: '£150',
+  pastCancelled: row({
+    id: 'past-cancelled',
+    title: 'Move two boxes',
+    section: 'past',
+    outcome: 'cancelled',
+    endedAt: at(10, 12, 9, 0),
+    priceLabel: '£40',
+    categories: ['Moving'],
+    orderId: 'order-cancelled',
+  }),
+  pastFailed: row({
+    id: 'past-failed',
+    title: 'Fix a door hinge',
+    section: 'past',
+    roles: ['quoted'],
+    outcome: 'failed',
+    endedAt: at(10, 2, 15, 0),
+    priceLabel: '£50',
+    orderId: 'order-failed',
+  }),
+  /** Someone else got the job: no end date in the hub's data. */
+  pastNotSelected: row({
+    id: 'past-not-selected',
+    title: 'Clear a small garden',
+    section: 'past',
+    roles: ['quoted'],
+    outcome: 'notSelected',
+    priceLabel: '£90',
+    categories: ['Gardening'],
   }),
 }
 
-/** Posts tasks, no worker profile. */
-export const customerSections: MyTaskHubSection[] = [
-  { id: 'booked', rows: [storyRows.bookedToday] },
-  { id: 'open', rows: [storyRows.openHosted] },
-  { id: 'completed', rows: [storyRows.hostedDone(0)] },
-]
-
-/** Quotes on other people's tasks only. */
-export const workerSections: MyTaskHubSection[] = [
-  { id: 'booked', rows: [storyRows.bookedOverdue] },
-  { id: 'open', rows: [storyRows.openQuoted] },
-  { id: 'completed', rows: [storyRows.notSelected, storyRows.quotedDone] },
-]
-
-/** Posts and quotes; five completed rows, so Completed starts collapsed. */
-export const dualRoleSections: MyTaskHubSection[] = [
+/** Posts and quotes in every section; five Past tasks, so Past starts collapsed. */
+export const allSections: MyTaskHubSection[] = [
   {
-    id: 'needsYou',
+    id: 'upcoming',
     rows: [
-      needsYouRows.compareQuotes,
-      needsYouRows.answerReschedule,
-      needsYouRows.markDone,
+      storyRows.upcomingOverdue,
+      storyRows.upcomingToday,
+      storyRows.upcomingReschedule,
+      storyRows.upcomingWeekday,
+      storyRows.upcomingDate,
     ],
   },
-  { id: 'booked', rows: [storyRows.bookedToday, storyRows.bookedOverdue] },
-  { id: 'open', rows: [storyRows.openHosted, storyRows.openQuoted] },
   {
-    id: 'completed',
+    id: 'open',
     rows: [
-      storyRows.hostedDone(0),
-      storyRows.hostedDone(1),
-      storyRows.notSelected,
-      storyRows.hostedDone(2),
-      storyRows.quotedDone,
+      storyRows.openCompare,
+      storyRows.openNoQuotes,
+      storyRows.openQuoteSent,
     ],
   },
+  {
+    id: 'past',
+    rows: [
+      storyRows.pastReview,
+      storyRows.pastCancelled,
+      storyRows.pastFailed,
+      storyRows.pastCompleted,
+      storyRows.pastNotSelected,
+    ],
+  },
+]
+
+/** A new poster with one open task: Upcoming and Past are empty. */
+export const emptySections: MyTaskHubSection[] = [
+  { id: 'upcoming', rows: [] },
+  { id: 'open', rows: [storyRows.openCompare] },
+  { id: 'past', rows: [] },
 ]

@@ -1,81 +1,46 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildMyTasksHub } from './myTasksHub'
-import type { MyTaskHubSection } from './myTasksHub'
+import type { MyTaskHubRow, MyTaskHubSection } from './myTasksHub'
 import {
+  activeFilterCount,
   countHubRows,
   filterHubByRole,
   hubCategoryOptions,
   hubHasBothRoles,
-  isMyTasksQueryActive,
   myTasksQueryString,
   parseMyTasksQuery,
 } from './myTasksHubFilters'
 
+function row(
+  base: Pick<MyTaskHubRow, 'id' | 'section' | 'roles'>,
+): MyTaskHubRow {
+  return {
+    title: base.id,
+    location: 'Islington',
+    priceLabel: '£80',
+    categories: ['HANDYMAN'],
+    when: null,
+    liveQuoteCount: 0,
+    outcome: null,
+    endedAt: null,
+    action: null,
+    orderId: null,
+    ...base,
+  }
+}
+
 const sections: MyTaskHubSection[] = [
+  { id: 'upcoming', rows: [] },
   {
     id: 'open',
     rows: [
-      {
-        id: 'hosted',
-        title: 'Fix a leaking kitchen tap',
-        description: 'Water pools inside the cabinet under the sink.',
-        location: 'Mong Kok',
-        priceLabel: '£80',
-        categories: ['HANDYMAN'],
-        ownerName: 'Sam',
-        roles: ['hosted'],
-        section: 'open',
-        timing: { kind: 'flexible' },
-        quoteCount: 1,
-        acceptedWorkerName: null,
-        notSelected: false,
-        ask: null,
-        liveQuoteCount: 0,
-        counterpartyName: null,
-      },
-      {
-        id: 'quoted',
-        title: 'Assemble a standing desk',
-        description: 'Flat pack in the spare room.',
-        location: 'Central',
-        priceLabel: '£60',
-        categories: ['HANDYMAN'],
-        ownerName: 'Alex',
-        roles: ['quoted'],
-        section: 'open',
-        timing: { kind: 'flexible' },
-        quoteCount: 0,
-        acceptedWorkerName: null,
-        notSelected: false,
-        ask: null,
-        liveQuoteCount: 0,
-        counterpartyName: null,
-      },
+      row({ id: 'hosted', section: 'open', roles: ['hosted'] }),
+      row({ id: 'quoted', section: 'open', roles: ['quoted'] }),
     ],
   },
   {
-    id: 'completed',
-    rows: [
-      {
-        id: 'done',
-        title: 'Deep-clean a studio',
-        description: 'Finished last week.',
-        location: 'Sai Ying Pun',
-        priceLabel: '£150',
-        categories: ['CLEANING'],
-        ownerName: null,
-        roles: ['quoted'],
-        section: 'completed',
-        timing: { kind: 'flexible' },
-        quoteCount: 0,
-        acceptedWorkerName: null,
-        notSelected: false,
-        ask: null,
-        liveQuoteCount: 0,
-        counterpartyName: null,
-      },
-    ],
+    id: 'past',
+    rows: [row({ id: 'done', section: 'past', roles: ['quoted'] })],
   },
 ]
 
@@ -98,17 +63,25 @@ describe('My Tasks query', () => {
       myTasksQueryString({ q: ' tap ', category: '', role: 'hosted' }),
     ).toBe('?q=tap&role=hosted')
     expect(myTasksQueryString({ q: '', category: '', role: '' })).toBe('')
-    expect(isMyTasksQueryActive({ q: ' ', category: '', role: '' })).toBe(false)
-    expect(isMyTasksQueryActive({ q: '', category: 'MOVING', role: '' })).toBe(
-      true,
-    )
+  })
+
+  it('counts the filters that are on, for the filter button', () => {
+    expect(activeFilterCount({ q: ' ', category: '', role: '' })).toBe(0)
+    expect(activeFilterCount({ q: '', category: 'MOVING', role: '' })).toBe(1)
+    expect(
+      activeFilterCount({ q: 'tap', category: 'MOVING', role: 'hosted' }),
+    ).toBe(3)
   })
 })
 
 describe('hub role filter', () => {
-  it('keeps the rows with the role and drops sections it empties', () => {
+  it('keeps the rows with the role and keeps every section', () => {
     const hosted = filterHubByRole(sections, 'hosted')
-    expect(hosted.map((section) => section.id)).toEqual(['open'])
+    expect(hosted.map((section) => section.id)).toEqual([
+      'upcoming',
+      'open',
+      'past',
+    ])
     expect(countHubRows(hosted)).toBe(1)
     expect(countHubRows(filterHubByRole(sections, 'quoted'))).toBe(2)
     expect(countHubRows(filterHubByRole(sections, ''))).toBe(3)
@@ -126,51 +99,5 @@ describe('hub category options', () => {
       { category: 'CLEANING', label: 'Cleaning' },
       { category: 'MOVING', label: 'Moving' },
     ])
-  })
-})
-
-describe('buildMyTasksHub poster and category', () => {
-  it("keeps the raw categories and the poster's name", () => {
-    const hub = buildMyTasksHub({
-      now: new Date(2026, 8, 23, 15, 0, 0),
-      userId: 'me',
-      orders: [],
-      posted: [
-        {
-          id: 'hosted-open',
-          title: 'Hosted open',
-          description: 'Bring a screwdriver',
-          status: 'OPEN',
-          categories: ['TECH_SETUP'],
-          poster: { id: 'me', profile: { name: 'Sam' } },
-          datetime: { type: 'FLEXIBLE' },
-        },
-      ],
-      sentQuotes: [
-        {
-          task: {
-            id: 'quoted',
-            title: 'Quoted pending',
-            description: 'Need a van',
-            status: 'OPEN',
-            categories: ['MOVING'],
-            poster: { id: 'alex', profile: { name: 'Alex' } },
-            datetime: { type: 'FLEXIBLE' },
-          },
-          quote: { id: 'q1', workerUserId: 'me', status: 'PENDING' },
-        },
-      ],
-    })
-    const rows = hub.flatMap((section) => section.rows)
-    expect(rows.find((row) => row.id === 'hosted-open')).toMatchObject({
-      categories: ['TECH_SETUP'],
-      ownerName: 'Sam',
-      description: 'Bring a screwdriver',
-    })
-    expect(rows.find((row) => row.id === 'quoted')).toMatchObject({
-      categories: ['MOVING'],
-      ownerName: 'Alex',
-      roles: ['quoted'],
-    })
   })
 })

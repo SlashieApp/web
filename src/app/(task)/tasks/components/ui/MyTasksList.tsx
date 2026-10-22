@@ -13,18 +13,18 @@ import bag from '../../i11n.json'
 import type { MyTasksAction, MyTasksViewConfig } from '../../views'
 import { MyTaskCard } from './MyTaskCard'
 
-/** Completed shows the newest few until asked for the rest. */
-const COMPLETED_PREVIEW = 3
+/** Past shows the newest few until asked for the rest. */
+const PAST_PREVIEW = 3
 
 export type MyTasksListProps = {
   config: MyTasksViewConfig
+  /** Upcoming, Open and Past, in that order. */
   sections: readonly MyTaskHubSection[]
-  /** Search, a category or Hosted / Quoted is set: Completed shows in full. */
+  /** Search, a category or Hosted / Quoted is set: only sections with matches show, Past in full. */
   filtered: boolean
   errorMessage: string | null
   onRetry: () => void
   onClearFilters: () => void
-  onOpen: (taskId: string) => void
 }
 
 function ActionButton({
@@ -64,40 +64,59 @@ function ActionButton({
   )
 }
 
-function SectionGroup({
+/**
+ * One section. Upcoming is all cards; Open is all rows; Past leads with a
+ * card for the newest, then rows, collapsed to the newest few unless
+ * filtering. An empty section says so.
+ */
+function Section({
   section,
-  collapsible,
-  onOpen,
+  filtered,
 }: {
   section: MyTaskHubSection
-  collapsible: boolean
-  onOpen: (taskId: string) => void
+  filtered: boolean
 }) {
   const t = useI11n(bag)
   const [showAll, setShowAll] = useState(false)
-  const collapsed =
-    collapsible && !showAll && section.rows.length > COMPLETED_PREVIEW
-  const rows = collapsed
-    ? section.rows.slice(0, COMPLETED_PREVIEW)
-    : section.rows
+  const label = t.sections[section.id]
+  const collapsible =
+    section.id === 'past' && !filtered && section.rows.length > PAST_PREVIEW
+  const rows =
+    collapsible && !showAll ? section.rows.slice(0, PAST_PREVIEW) : section.rows
 
   return (
-    <Stack as="section" gap={3} aria-label={t.sections[section.id]}>
+    <Stack as="section" gap={3} aria-label={label}>
       <Heading
         as="h2"
-        fontSize="md"
+        fontSize="lg"
         fontWeight={700}
         color="text.default"
         letterSpacing="-0.01em"
       >
-        {t.sections[section.id]} ({section.rows.length})
+        {label}
       </Heading>
-      <Stack gap={3}>
-        {rows.map((row) => (
-          <MyTaskCard key={row.id} row={row} onOpen={onOpen} />
-        ))}
-      </Stack>
-      {collapsible && section.rows.length > COMPLETED_PREVIEW ? (
+      {rows.length === 0 ? (
+        <Text fontSize="sm" color="text.muted">
+          {t.sectionEmpty[section.id]}
+        </Text>
+      ) : (
+        <Stack as="ul" gap={2} listStyleType="none" m={0} p={0}>
+          {rows.map((row, index) => (
+            <li key={row.id}>
+              <MyTaskCard
+                row={row}
+                layout={
+                  section.id === 'upcoming' ||
+                  (section.id === 'past' && index === 0)
+                    ? 'card'
+                    : 'row'
+                }
+              />
+            </li>
+          ))}
+        </Stack>
+      )}
+      {collapsible ? (
         <Button
           type="button"
           variant="ghost"
@@ -114,10 +133,10 @@ function SectionGroup({
 }
 
 /**
- * The list column of My Tasks, rendered from the view config: card
- * placeholders, a message with its buttons, or the status groups (Booked /
- * In progress, Open, Completed). No status logic here; `getMyTasksView`
- * picks the config.
+ * The list column of My Tasks, rendered from the view config: placeholders,
+ * a message with its buttons, or the sections (Upcoming, Open, Past). No
+ * status logic here; `getMyTasksView` picks the config and
+ * `buildMyTasksHub` the sections.
  */
 export function MyTasksList({
   config,
@@ -126,7 +145,6 @@ export function MyTasksList({
   errorMessage,
   onRetry,
   onClearFilters,
-  onOpen,
 }: MyTasksListProps) {
   const t = useI11n(bag)
 
@@ -181,6 +199,11 @@ export function MyTasksList({
     )
   }
 
+  // While filtering, a section with no matches is left out.
+  const shown = filtered
+    ? sections.filter((section) => section.rows.length > 0)
+    : sections
+
   return (
     <Stack gap={8}>
       {errorMessage ? (
@@ -199,13 +222,8 @@ export function MyTasksList({
           </Button>
         </HStack>
       ) : null}
-      {sections.map((section) => (
-        <SectionGroup
-          key={section.id}
-          section={section}
-          collapsible={section.id === 'completed' && !filtered}
-          onOpen={onOpen}
-        />
+      {shown.map((section) => (
+        <Section key={section.id} section={section} filtered={filtered} />
       ))}
       <Box aria-hidden h={1} />
     </Stack>

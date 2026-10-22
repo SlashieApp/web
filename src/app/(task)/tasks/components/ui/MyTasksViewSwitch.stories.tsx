@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
-import { type MyTasksMobileView, MyTasksViewSwitch } from './MyTasksViewSwitch'
+import { type MyTasksTab, MyTasksViewSwitch } from './MyTasksViewSwitch'
 
 /**
- * Compact corner control that swaps the task list and the activity summary on
- * phones and tablets. Desktop shows both at once, so it is hidden from `lg` up.
+ * The list / chart control beside the My Tasks title: it swaps the task list
+ * and Your activity, on every screen size.
  */
 const meta = {
   title: 'My tasks/MyTasksViewSwitch',
@@ -51,7 +51,7 @@ export const ActivitySelected: Story = {
 /** Pressing a button asks for that view, and the pressed state follows. */
 export const Interactive: Story = {
   render: function SwitchDemo() {
-    const [view, setView] = useState<MyTasksMobileView>('tasks')
+    const [view, setView] = useState<MyTasksTab>('tasks')
     return <MyTasksViewSwitch view={view} onChange={setView} />
   },
   play: async ({ canvasElement }) => {
@@ -67,14 +67,12 @@ export const Interactive: Story = {
   },
 }
 
-/** Desktop: both views are on screen already, so the switch is hidden. */
-export const HiddenOnDesktop: Story = {
+/** Desktop: the same switch (one column on every screen). */
+export const Desktop: Story = {
   globals: { viewport: { value: 'desktop' } },
   play: async ({ canvasElement }) => {
-    await waitFor(() =>
-      expect(
-        within(canvasElement).queryByRole('button', { name: 'Show tasks' }),
-      ).toBeNull(),
-    )
+    expect(
+      await within(canvasElement).findByRole('button', { name: 'Show tasks' }),
+    ).toBeVisible()
   },
 }

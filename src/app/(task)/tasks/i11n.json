@@ -2,43 +2,71 @@
   "en": {
     "metadata": {
       "title": "My tasks | Slashie",
-      "description": "Tasks you posted and tasks you quoted: booked, open and completed."
+      "description": "Tasks you posted and tasks you quoted: upcoming, open and past."
     },
     "title": "My tasks",
     "description": "View and manage the tasks you've posted and quoted, along with their progress and status.",
     "loading": "Loading your tasks…",
-    "openTask": "{title}. {tags}. Open task",
-    "withWorker": "With {name}",
-    "quoteCountOne": "1 quote",
-    "quoteCount": "{count} quotes",
-    "hostedBy": "Hosted by {name}",
     "sections": {
-      "needsYou": "Needs you",
+      "upcoming": "Upcoming",
       "open": "Open",
-      "booked": "Booked / In progress",
-      "completed": "Completed"
+      "past": "Past"
     },
-    "tags": {
-      "hosted": "Hosted",
-      "quoted": "Quoted",
-      "notSelected": "Not selected"
+    "sectionEmpty": {
+      "upcoming": "No booked jobs yet. A job shows here once a quote is accepted.",
+      "open": "Nothing waiting for quotes. Tasks you post and quotes you send show here.",
+      "past": "Nothing finished yet. Completed and cancelled tasks show here."
     },
-    "timing": {
-      "overdue": "Overdue",
+    "when": {
       "today": "Today",
       "tomorrow": "Tomorrow",
+      "weekday": "On {weekday}",
+      "overdue": "Overdue",
       "flexible": "Flexible",
       "before": "Before {date}",
-      "todayAt": "Today {time}",
-      "tomorrowAt": "Tomorrow {time}"
+      "dateTime": "{date}, {time}"
+    },
+    "line": {
+      "quotes": "{count} quotes",
+      "quoteOne": "1 quote",
+      "noQuotes": "No quotes yet",
+      "quoteSent": "Quote sent"
+    },
+    "outcomes": {
+      "completed": "Completed",
+      "failed": "Didn't go ahead",
+      "cancelled": "Cancelled",
+      "notSelected": "Not selected",
+      "declined": "Quote declined",
+      "closed": "Closed"
+    },
+    "actions": {
+      "compareQuotes": "Compare quotes",
+      "answerReschedule": "Answer reschedule",
+      "answerCancel": "Answer cancellation",
+      "markDone": "Mark done",
+      "confirmDone": "Confirm done",
+      "answerFailed": "Answer failed",
+      "conflict": "Sort out conflict",
+      "review": "Review",
+      "label": "{action}: {title}"
     },
     "filters": {
-      "searchPlaceholder": "Search by task name, location or keyword…",
+      "button": "Filters",
+      "buttonActiveOne": "Filters, 1 active",
+      "buttonActive": "Filters, {count} active",
+      "title": "Filter tasks",
+      "searchLabel": "Search",
+      "searchPlaceholder": "Task name, place or keyword",
       "clearSearch": "Clear search",
-      "categoryChip": "Category",
-      "roleChip": "Hosted / Quoted",
-      "removeFilter": "Remove {label} filter",
-      "clearAll": "Clear all",
+      "roleLabel": "Show",
+      "roleAll": "All tasks",
+      "roleHosted": "Posted by you",
+      "roleQuoted": "Quoted by you",
+      "categoryLabel": "Category",
+      "categoryAll": "All categories",
+      "clear": "Clear",
+      "apply": "Apply",
       "resultCountOne": "1 task",
       "resultCount": "{count} tasks"
     },
@@ -52,7 +80,7 @@
       },
       "noMatches": {
         "title": "No matching tasks",
-        "description": "Try a different search, category, or Hosted / Quoted."
+        "description": "Try a different search, or clear some filters."
       },
       "actions": {
         "postTask": "Post a task",
@@ -64,7 +92,7 @@
     "showAll": "Show all ({count})",
     "showFewer": "Show fewer",
     "menu": {
-      "aria": "Task options",
+      "aria": "Options for {title}",
       "share": "Share task",
       "edit": "Edit task"
     },
@@ -98,31 +126,6 @@
       "streakWeeks": "{count} weeks",
       "agreedTotals": "Agreed totals on completed jobs"
     },
-    "needsYou": {
-      "asks": {
-        "compareQuotes": "{count} quotes to compare",
-        "compareQuotesOne": "1 quote to compare",
-        "answerReschedule": "{name} wants to move the booking",
-        "answerRescheduleNoName": "They want to move the booking",
-        "answerCancel": "{name} asked to cancel",
-        "answerCancelNoName": "They asked to cancel",
-        "markDone": "Job time has started",
-        "confirmDone": "{name} marked it Done",
-        "confirmDoneNoName": "They marked it Done",
-        "answerFailed": "{name} marked it Failed",
-        "answerFailedNoName": "They marked it Failed",
-        "conflict": "This booking needs resolving"
-      },
-      "actions": {
-        "compareQuotes": "Compare",
-        "answerReschedule": "Respond",
-        "answerCancel": "Respond",
-        "markDone": "Mark done",
-        "confirmDone": "Mark done",
-        "answerFailed": "Respond",
-        "conflict": "View"
-      }
-    },
     "blocker": {
       "lead": "Before you can quote:",
       "reasons": {
@@ -140,43 +143,71 @@
   "zh_hk": {
     "metadata": {
       "title": "我的任務 | Slashie",
-      "description": "你發布的任務同你報過價的任務：已預約、進行中同已完成。"
+      "description": "你發布的任務同你報過價的任務：即將進行、開放中同過往。"
     },
     "title": "我的任務",
     "description": "查看同管理你發布同報價過的任務，包括進度同狀態。",
     "loading": "正在載入你的任務…",
-    "openTask": "{title}。{tags}。開啟任務",
-    "withWorker": "工作者：{name}",
-    "quoteCountOne": "1 個報價",
-    "quoteCount": "{count} 個報價",
-    "hostedBy": "發布者：{name}",
     "sections": {
-      "needsYou": "需要你處理",
+      "upcoming": "即將進行",
       "open": "開放中",
-      "booked": "已預約 / 進行中",
-      "completed": "已完成"
+      "past": "過往"
     },
-    "tags": {
-      "hosted": "我發布",
-      "quoted": "我報價",
-      "notSelected": "未獲選"
+    "sectionEmpty": {
+      "upcoming": "暫時沒有已預約的工作。報價獲接受後，工作會在這裡顯示。",
+      "open": "暫時沒有等待報價的任務。你發布的任務同送出的報價會在這裡顯示。",
+      "past": "暫時沒有已結束的任務。已完成同已取消的任務會在這裡顯示。"
     },
-    "timing": {
-      "overdue": "已過期",
+    "when": {
       "today": "今天",
       "tomorrow": "明天",
+      "weekday": "{weekday}",
+      "overdue": "已過期",
       "flexible": "時間彈性",
       "before": "{date} 之前",
-      "todayAt": "今天 {time}",
-      "tomorrowAt": "明天 {time}"
+      "dateTime": "{date} {time}"
+    },
+    "line": {
+      "quotes": "{count} 個報價",
+      "quoteOne": "1 個報價",
+      "noQuotes": "暫時未有報價",
+      "quoteSent": "已送出報價"
+    },
+    "outcomes": {
+      "completed": "已完成",
+      "failed": "未能進行",
+      "cancelled": "已取消",
+      "notSelected": "未獲選",
+      "declined": "報價被拒絕",
+      "closed": "已結束"
+    },
+    "actions": {
+      "compareQuotes": "比較報價",
+      "answerReschedule": "回應改期",
+      "answerCancel": "回應取消",
+      "markDone": "標記完成",
+      "confirmDone": "確認完成",
+      "answerFailed": "回應未完成",
+      "conflict": "處理爭議",
+      "review": "評價",
+      "label": "{action}：{title}"
     },
     "filters": {
-      "searchPlaceholder": "搜尋任務名稱、地點或關鍵字…",
+      "button": "篩選",
+      "buttonActiveOne": "篩選，已套用 1 項",
+      "buttonActive": "篩選，已套用 {count} 項",
+      "title": "篩選任務",
+      "searchLabel": "搜尋",
+      "searchPlaceholder": "任務名稱、地點或關鍵字",
       "clearSearch": "清除搜尋",
-      "categoryChip": "類別",
-      "roleChip": "我發布 / 我報價",
-      "removeFilter": "移除{label}篩選",
-      "clearAll": "全部清除",
+      "roleLabel": "顯示",
+      "roleAll": "全部任務",
+      "roleHosted": "我發布的",
+      "roleQuoted": "我報價的",
+      "categoryLabel": "類別",
+      "categoryAll": "所有類別",
+      "clear": "清除",
+      "apply": "套用",
       "resultCountOne": "1 個任務",
       "resultCount": "{count} 個任務"
     },
@@ -190,7 +221,7 @@
       },
       "noMatches": {
         "title": "沒有符合的任務",
-        "description": "試下其他搜尋、類別，或我發布 / 我報價。"
+        "description": "試下其他搜尋，或清除部分篩選。"
       },
       "actions": {
         "postTask": "發布任務",
@@ -202,7 +233,7 @@
     "showAll": "顯示全部（{count}）",
     "showFewer": "顯示較少",
     "menu": {
-      "aria": "任務選項",
+      "aria": "{title} 的選項",
       "share": "分享任務",
       "edit": "編輯任務"
     },
@@ -235,31 +266,6 @@
       "streak": "連續週數",
       "streakWeeks": "{count} 週",
       "agreedTotals": "已完成工作的協定總額"
-    },
-    "needsYou": {
-      "asks": {
-        "compareQuotes": "{count} 個報價待比較",
-        "compareQuotesOne": "1 個報價待比較",
-        "answerReschedule": "{name} 想更改預約時間",
-        "answerRescheduleNoName": "對方想更改預約時間",
-        "answerCancel": "{name} 要求取消",
-        "answerCancelNoName": "對方要求取消",
-        "markDone": "工作時間已開始",
-        "confirmDone": "{name} 已標記為完成",
-        "confirmDoneNoName": "對方已標記為完成",
-        "answerFailed": "{name} 已標記為未完成",
-        "answerFailedNoName": "對方已標記為未完成",
-        "conflict": "這個預約需要處理"
-      },
-      "actions": {
-        "compareQuotes": "比較",
-        "answerReschedule": "回應",
-        "answerCancel": "回應",
-        "markDone": "標記完成",
-        "confirmDone": "標記完成",
-        "answerFailed": "回應",
-        "conflict": "查看"
-      }
     },
     "blocker": {
       "lead": "報價前：",

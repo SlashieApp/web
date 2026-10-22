@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
@@ -9,24 +9,23 @@ import { AccountAuthGate } from '@/app/(dashboard)/components/layout/AccountAuth
 import { useAccountOrders } from '@/app/(dashboard)/helpers/useAccountOrders'
 import { useMyQuotes } from '@/app/(dashboard)/helpers/useMyQuotes'
 import { useMyRequests } from '@/app/(dashboard)/helpers/useMyRequests'
-import { taskDetailHrefFromMyTasks } from '@/app/(task)/helpers/openTaskDetailFromBrowse'
 import { publicProfileAchievementsPath } from '@/app/helpers/publicProfilePath'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
+import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { EVENTS, capture } from '@/utils/analytics'
 import { buildTaskFilter } from '@/utils/taskListQuery'
 
 import { buildMyTasksHub } from '../helpers/myTasksHub'
 import {
+  EMPTY_MY_TASKS_QUERY,
   type MyTasksQuery,
+  activeFilterCount,
   countHubRows,
   filterHubByRole,
   hubCategoryOptions,
   hubHasBothRoles,
-  isMyTasksQueryActive,
   myTasksQueryString,
   parseMyTasksQuery,
 } from '../helpers/myTasksHubFilters'
@@ -39,23 +38,18 @@ import { useMyTaskAchievements } from '../helpers/useMyTaskAchievements'
 import bag from '../i11n.json'
 import { MY_TASKS_VIEWS, getMyTasksView } from '../views'
 import { MyTasksAchievements } from './ui/MyTasksAchievements'
+import { MyTasksFilters } from './ui/MyTasksFilters'
 import { MyTasksList } from './ui/MyTasksList'
 import { MyTasksQuoteBlocker } from './ui/MyTasksQuoteBlocker'
-import { MyTasksSearch } from './ui/MyTasksSearch'
-import {
-  type MyTasksMobileView,
-  MyTasksViewSwitch,
-} from './ui/MyTasksViewSwitch'
-
-/** Typed search applies after this pause (Enter applies at once). */
-const SEARCH_PAUSE_MS = 400
+import { type MyTasksTab, MyTasksViewSwitch } from './ui/MyTasksViewSwitch'
 
 /**
- * My Tasks hub at `/tasks` (views/README.md): your posted tasks and quotes,
- * grouped Needs you, Booked / In progress, Open, Completed, under a "Before
- * you can quote" strip when something blocks a worker from quoting. Search, Category and
- * Hosted / Quoted live in the URL (`?q=&category=&role=`) like /search.
- * Your activity sits in the desktop rail; phones switch to it in the corner.
+ * My Tasks hub at `/tasks` (views/README.md), like Uber's Activity screen:
+ * your posted tasks and quotes in Upcoming, Open and Past, under a "Before
+ * you can quote" strip when something blocks a worker from quoting. The
+ * filter icon by the title opens search, Hosted / Quoted and Category, kept
+ * in the URL (`?q=&category=&role=`). The list / chart toggle swaps the
+ * list for Your activity. One centred column on every screen.
  */
 export function MyTasksScreen() {
   const t = useI11n(bag)
@@ -63,20 +57,14 @@ export function MyTasksScreen() {
   const localize = useLocalizedHref()
   const searchParams = useSearchParams()
   const trackedRef = useRef(false)
-  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [query, setQuery] = useState<MyTasksQuery>(() =>
     parseMyTasksQuery(searchParams),
   )
-  const queryRef = useRef(query)
-  const [searchInput, setSearchInput] = useState(query.q)
-  const [mobileView, setMobileView] = useState<MyTasksMobileView>('tasks')
+  const [tab, setTab] = useState<MyTasksTab>('tasks')
 
   const applyQuery = useCallback(
-    (patch: Partial<MyTasksQuery>) => {
-      if (searchTimer.current) clearTimeout(searchTimer.current)
-      const next = { ...queryRef.current, ...patch }
-      queryRef.current = next
+    (next: MyTasksQuery) => {
       setQuery(next)
       router.replace(`${localize('/tasks')}${myTasksQueryString(next)}`, {
         scroll: false,
@@ -146,7 +134,7 @@ export function MyTasksScreen() {
     (listVariables
       ? filteredRequests.errorMessage || filteredQuotes.errorMessage
       : null)
-  const filtered = isMyTasksQueryActive(query)
+  const filtered = activeFilterCount(query) > 0
   const config =
     MY_TASKS_VIEWS[
       getMyTasksView({
@@ -187,7 +175,7 @@ export function MyTasksScreen() {
     ],
   )
   const showAchievements = achievements.loading || panels.length > 0
-  const achievementsView = showAchievements && mobileView === 'achievements'
+  const achievementsShown = showAchievements && tab === 'achievements'
   const moreHref = userId ? publicProfileAchievementsPath(userId) : null
 
   const onMountRef = useCallback((node: HTMLDivElement | null) => {
@@ -205,28 +193,10 @@ export function MyTasksScreen() {
     void achievements.refetch()
   }, [achievements, filteredQuotes, filteredRequests, orders, quotes, requests])
 
-  const onOpen = useCallback(
-    (taskId: string) => {
-      router.push(localize(taskDetailHrefFromMyTasks(taskId)))
-    },
-    [localize, router],
-  )
-
-  const onSearchChange = useCallback(
-    (value: string) => {
-      setSearchInput(value)
-      if (searchTimer.current) clearTimeout(searchTimer.current)
-      searchTimer.current = setTimeout(() => {
-        applyQuery({ q: value.trim() })
-      }, SEARCH_PAUSE_MS)
-    },
+  const clearAll = useCallback(
+    () => applyQuery(EMPTY_MY_TASKS_QUERY),
     [applyQuery],
   )
-
-  const clearAll = useCallback(() => {
-    setSearchInput('')
-    applyQuery({ q: '', category: '', role: '' })
-  }, [applyQuery])
 
   return (
     <AccountAuthGate>
@@ -234,64 +204,45 @@ export function MyTasksScreen() {
         <Stack
           gap={4}
           w="full"
-          maxW={PAGE_CONTAINER_MAX_W}
+          maxW="2xl"
           mx="auto"
           px={PAGE_GUTTER_X}
           py={{ base: 4, md: 6 }}
         >
-          <Stack
-            direction="row"
-            justify="space-between"
-            align="flex-start"
-            gap={3}
-          >
-            <Stack gap={1} minW={0}>
-              <Heading as="h1" size="lg" color="text.default">
+          <Stack gap={1}>
+            <HStack justify="space-between" align="center" gap={3}>
+              <Heading as="h1" size="lg" color="text.default" minW={0}>
                 {t.title}
               </Heading>
-              <Text fontSize="sm" color="text.muted" lineHeight="1.5">
-                {t.description}
-              </Text>
-            </Stack>
-            {showAchievements ? (
-              <MyTasksViewSwitch view={mobileView} onChange={setMobileView} />
-            ) : null}
+              <HStack gap={1} flexShrink={0}>
+                {config.search && !achievementsShown ? (
+                  <MyTasksFilters
+                    query={query}
+                    categories={categories}
+                    showRole={hubHasBothRoles(allSections)}
+                    onApply={applyQuery}
+                  />
+                ) : null}
+                {showAchievements ? (
+                  <MyTasksViewSwitch view={tab} onChange={setTab} />
+                ) : null}
+              </HStack>
+            </HStack>
+            <Text fontSize="sm" color="text.muted" lineHeight="1.5">
+              {t.description}
+            </Text>
           </Stack>
 
           {blocker ? <MyTasksQuoteBlocker blocker={blocker} /> : null}
 
-          <Box
-            display={{
-              base: achievementsView ? 'none' : 'grid',
-              lg: 'grid',
-            }}
-            gridTemplateColumns={{
-              base: '1fr',
-              lg: 'minmax(0, 1fr) minmax(18rem, 22rem)',
-            }}
-            gap={{ base: 4, lg: 6 }}
-            alignItems="start"
-          >
+          {achievementsShown ? (
+            <MyTasksAchievements
+              panels={panels}
+              loading={achievements.loading}
+              moreHref={moreHref}
+            />
+          ) : (
             <Stack gap={4} minW={0}>
-              {config.search ? (
-                <MyTasksSearch
-                  value={searchInput}
-                  pending={searchInput.trim() !== query.q || searchLoading}
-                  onValueChange={onSearchChange}
-                  onCommit={() => applyQuery({ q: searchInput.trim() })}
-                  onClearSearch={() => {
-                    setSearchInput('')
-                    applyQuery({ q: '' })
-                  }}
-                  category={query.category}
-                  categories={categories}
-                  onCategoryChange={(category) => applyQuery({ category })}
-                  role={query.role}
-                  showRole={hubHasBothRoles(allSections)}
-                  onRoleChange={(role) => applyQuery({ role })}
-                  onClearAll={clearAll}
-                />
-              ) : null}
               {config.body === 'groups' ? (
                 <Text srOnly aria-live="polite">
                   {formatMessage(
@@ -309,40 +260,9 @@ export function MyTasksScreen() {
                 errorMessage={errorMessage}
                 onRetry={onRetry}
                 onClearFilters={clearAll}
-                onOpen={onOpen}
               />
             </Stack>
-            {showAchievements ? (
-              <Box
-                display={{ base: 'none', lg: 'block' }}
-                position="sticky"
-                top={`calc(${HEADER_MIN_HEIGHT.md} + 1rem)`}
-                alignSelf="start"
-                zIndex={1}
-              >
-                <MyTasksAchievements
-                  panels={panels}
-                  loading={achievements.loading}
-                  moreHref={moreHref}
-                />
-              </Box>
-            ) : null}
-          </Box>
-
-          {showAchievements ? (
-            <Box
-              display={{
-                base: achievementsView ? 'block' : 'none',
-                lg: 'none',
-              }}
-            >
-              <MyTasksAchievements
-                panels={panels}
-                loading={achievements.loading}
-                moreHref={moreHref}
-              />
-            </Box>
-          ) : null}
+          )}
         </Stack>
       </Box>
     </AccountAuthGate>

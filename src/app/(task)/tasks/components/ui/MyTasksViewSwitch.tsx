@@ -9,17 +9,15 @@ import { IconButton } from '@ui'
 
 import bag from '../../i11n.json'
 
-export type MyTasksMobileView = 'tasks' | 'achievements'
+/** What the My Tasks column shows: the task list or Your activity. */
+export type MyTasksTab = 'tasks' | 'achievements'
 
 export type MyTasksViewSwitchProps = {
-  view: MyTasksMobileView
-  onChange: (view: MyTasksMobileView) => void
+  view: MyTasksTab
+  onChange: (view: MyTasksTab) => void
 }
 
-/**
- * Compact corner control. Desktop keeps the achievements rail visible, so
- * this switch is hidden from `lg` up.
- */
+/** The list / chart control beside the My Tasks title, on every screen size. */
 export function MyTasksViewSwitch({ view, onChange }: MyTasksViewSwitchProps) {
   const t = useI11n(bag)
   const tasksSelected = view === 'tasks'
@@ -36,7 +34,7 @@ export function MyTasksViewSwitch({ view, onChange }: MyTasksViewSwitchProps) {
       p={0}
       m={0}
       minW={0}
-      display={{ base: 'flex', lg: 'none' }}
+      display="flex"
       flexShrink={0}
     >
       <Box as="legend" srOnly>

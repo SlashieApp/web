@@ -5,6 +5,7 @@ query MyRequests($filter: TaskFilter, $sort: TaskSort) {
       title
       description
       categories
+      createdAt
       budget {
         amount
         currency

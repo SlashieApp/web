@@ -24,9 +24,9 @@ function roleLabel(
 }
 
 /**
- * Sticky Your activity rail (desktop) and the mobile achievements tab.
- * More leaves `/tasks` for `/profile/[ownUserId]#achievements`.
- * The corner switch still toggles the compact list and this summary.
+ * Your activity summary on My Tasks; the list / chart toggle by the title
+ * swaps it with the task list. More leaves `/tasks` for
+ * `/profile/[ownUserId]#achievements`.
  */
 export function MyTasksAchievements({
   panels,
