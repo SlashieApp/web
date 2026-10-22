@@ -6,7 +6,7 @@ import { LuBadgeCheck, LuMessageCircle } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Badge, Button, IconButton, Link } from '@ui'
+import { Avatar, Badge, Button, IconButton, Link } from '@ui'
 
 import bag from '../../i11n.json'
 
@@ -14,12 +14,17 @@ export type QuoteRowStatus = 'accepted' | 'declined' | 'notSelected'
 
 export type QuoteRowProps = {
   name: string
-  avatarLabel: string
+  /**
+   * Another worker's quote seen by anyone but the owner (FE-370): a plain
+   * placeholder avatar, and never a photo, profile link or verified mark.
+   */
+  anonymous?: boolean
+  /** Initials for the avatar when there is no photo. */
+  avatarLabel?: string
   avatarUrl?: string | null
   workerProfileHref?: string
-  priceLabel: string
-  /** False for visitors (the API omits amounts). */
-  showPrice?: boolean
+  /** The quoted amount. Every quote has one; nothing shows if it's missing. */
+  priceLabel?: string | null
   message?: string | null
   availabilityLabel?: string | null
   respondedLabel?: string | null
@@ -46,11 +51,11 @@ const STATUS_VARIANT = {
  */
 export function QuoteRow({
   name,
-  avatarLabel,
+  anonymous = false,
+  avatarLabel = '',
   avatarUrl,
   workerProfileHref,
   priceLabel,
-  showPrice = true,
   message,
   availabilityLabel,
   respondedLabel,
@@ -74,7 +79,12 @@ export function QuoteRow({
       }[status]
     : null
   const meta = [availabilityLabel, respondedLabel].filter(Boolean).join(' · ')
-  const avatar = (
+  // Never who sent another worker's quote, whatever is passed in.
+  const profileHref = anonymous ? undefined : workerProfileHref
+  const verified = !anonymous && showVerified
+  const avatar = anonymous ? (
+    <Avatar name={name} size="lg" fallback="icon" />
+  ) : (
     <QuoteAvatar
       name={name}
       avatarLabel={avatarLabel}
@@ -92,9 +102,9 @@ export function QuoteRow({
       borderColor="border.default"
     >
       <HStack align="flex-start" gap={3}>
-        {workerProfileHref ? (
+        {profileHref ? (
           <Link
-            href={workerProfileHref}
+            href={profileHref}
             aria-label={formatMessage(card.viewProfileFor, { name })}
             flexShrink={0}
             borderRadius="full"
@@ -107,9 +117,9 @@ export function QuoteRow({
         )}
         <Stack gap={0.5} flex={1} minW={0}>
           <HStack gap={1.5} flexWrap="wrap" align="center">
-            {workerProfileHref ? (
+            {profileHref ? (
               <Link
-                href={workerProfileHref}
+                href={profileHref}
                 fontWeight={600}
                 color="text.default"
                 truncate
@@ -121,7 +131,7 @@ export function QuoteRow({
                 {name}
               </Text>
             )}
-            {showVerified ? (
+            {verified ? (
               <HStack
                 as="span"
                 gap={0}
@@ -149,7 +159,7 @@ export function QuoteRow({
             </Text>
           ) : null}
         </Stack>
-        {showPrice ? (
+        {priceLabel ? (
           <Text
             flexShrink={0}
             fontWeight={700}

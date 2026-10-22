@@ -37,7 +37,7 @@
       "quote.message": {
         "label": "Message",
         "title": "Message to customer",
-        "description": "Introduce yourself and explain how you will complete the job."
+        "description": "Say how you'd do the job and what's included."
       },
       "quote.availability": {
         "label": "Times",
@@ -64,7 +64,8 @@
     "message": {
       "label": "Message to customer",
       "placeholder": "Hi! I can help with…",
-      "tooLong": "Message must be {max} characters or fewer."
+      "tooLong": "Message must be {max} characters or fewer.",
+      "visibilityNote": "Your message, price and times will be public. Don't include your name or contact details."
     },
     "photos": {
       "label": "Add photos",
@@ -81,9 +82,9 @@
       "terms": "By sending, you agree to Slashie's {terms}. Payment is arranged directly between you and the customer outside Slashie.",
       "termsLink": "Terms of Service"
     },
-    "privateCallout": {
-      "title": "Quotes are private",
-      "body": "Your quote will be visible to the customer once you send it."
+    "visibilityCallout": {
+      "title": "Who sees your quote",
+      "body": "Once you send it, anyone can see your price, times and message. Only the customer sees your name and profile."
     },
     "summary": {
       "budgetKind": {
@@ -146,7 +147,7 @@
       "quote.message": {
         "label": "訊息",
         "title": "給顧客的訊息",
-        "description": "介紹你自己，並說明你會如何完成這份工作。"
+        "description": "說明你會點樣完成工作，以及報價包括甚麼。"
       },
       "quote.availability": {
         "label": "時間",
@@ -173,7 +174,8 @@
     "message": {
       "label": "給顧客的訊息",
       "placeholder": "你好！我可以幫你…",
-      "tooLong": "訊息不可超過 {max} 個字。"
+      "tooLong": "訊息不可超過 {max} 個字。",
+      "visibilityNote": "你的留言、價錢和時間會公開。請不要加入你的名字或聯絡資料。"
     },
     "photos": {
       "label": "加入相片",
@@ -190,9 +192,9 @@
       "terms": "傳送即表示你同意 Slashie 的{terms}。付款由你與顧客在 Slashie 以外直接安排。",
       "termsLink": "服務條款"
     },
-    "privateCallout": {
-      "title": "報價不會公開",
-      "body": "你傳送報價後，顧客便會看到。"
+    "visibilityCallout": {
+      "title": "誰會看到你的報價",
+      "body": "送出後，任何人都可以看到你的價錢、時間和留言。只有顧客會看到你的名字和個人檔案。"
     },
     "summary": {
       "budgetKind": {

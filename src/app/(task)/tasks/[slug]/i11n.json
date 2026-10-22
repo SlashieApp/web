@@ -91,18 +91,115 @@
     "activity": {
       "heading": "Activity",
       "empty": "Nothing has happened on this task yet.",
-      "posted": "Task posted",
-      "postedDetail": "Live on Slashie",
-      "waitingQuotes": "Waiting for quotes",
-      "quotesOne": "1 quote received",
-      "quotesMany": "{count} quotes received",
-      "quotesDetail": "Compare and accept a worker",
-      "quotesReceived": "Quotes received",
-      "booked": "Worker booked",
-      "bookedNamed": "Booked · {name}",
-      "bookedActive": "Job in progress",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
+      "loading": "Loading activity",
+      "someone": "Someone",
+      "fields": {
+        "TITLE": "title",
+        "DESCRIPTION": "description",
+        "CATEGORIES": "categories",
+        "BUDGET": "budget",
+        "LOCATION": "location",
+        "DATETIME": "timing",
+        "CONTACT_METHOD": "contact method",
+        "STATUS": "status",
+        "HIDDEN": "visibility"
+      },
+      "fieldsSeparator": ", ",
+      "fieldsLastSeparator": " and ",
+      "events": {
+        "TASK_CREATED": {
+          "you": "You posted the task",
+          "named": "{name} posted the task",
+          "anon": "Task posted"
+        },
+        "TASK_UPDATED": {
+          "you": "You edited the task",
+          "named": "{name} edited the task",
+          "anon": "The task was edited",
+          "youFields": "You edited the task: {fields}",
+          "namedFields": "{name} edited the task: {fields}",
+          "anonFields": "The task was edited: {fields}"
+        },
+        "TASK_CANCELLED": {
+          "you": "You cancelled the task",
+          "named": "{name} cancelled the task",
+          "anon": "The task was cancelled"
+        },
+        "QUOTE_SENT": {
+          "you": "You sent a quote",
+          "named": "{name} sent a quote",
+          "anon": "A worker sent a quote"
+        },
+        "QUOTE_UPDATED": {
+          "you": "You updated your quote",
+          "named": "{name} updated their quote",
+          "anon": "A worker updated their quote"
+        },
+        "QUOTE_WITHDRAWN": {
+          "you": "You withdrew your quote",
+          "named": "{name} withdrew their quote",
+          "anon": "A worker withdrew their quote"
+        },
+        "QUOTE_DECLINED": {
+          "owner": "You declined {worker}'s quote",
+          "own": "{name} declined your quote",
+          "anon": "A quote was declined"
+        },
+        "QUOTE_ACCEPTED": {
+          "owner": "You booked {worker}",
+          "own": "{name} accepted your quote",
+          "anon": "A worker was booked"
+        },
+        "QUOTE_NOT_SELECTED": {
+          "owner": "{worker}'s quote wasn't selected",
+          "own": "Your quote wasn't selected",
+          "anon": "A quote wasn't selected"
+        },
+        "RESCHEDULE_REQUESTED": {
+          "you": "You asked for a new time",
+          "named": "{name} asked for a new time"
+        },
+        "RESCHEDULE_CONFIRMED": {
+          "you": "You accepted the new time",
+          "named": "{name} accepted the new time"
+        },
+        "RESCHEDULE_DECLINED": {
+          "you": "You declined the new time",
+          "named": "{name} declined the new time"
+        },
+        "RESCHEDULE_WITHDRAWN": {
+          "you": "You withdrew your request for a new time",
+          "named": "{name} withdrew their request for a new time"
+        },
+        "CANCELLATION_REQUESTED": {
+          "you": "You asked to cancel the booking",
+          "named": "{name} asked to cancel the booking"
+        },
+        "CANCELLATION_DECLINED": {
+          "you": "You declined the request to cancel",
+          "named": "{name} declined the request to cancel"
+        },
+        "CANCELLATION_WITHDRAWN": {
+          "you": "You withdrew your request to cancel",
+          "named": "{name} withdrew their request to cancel"
+        },
+        "CANCELLATION_LAPSED": "The request to cancel lapsed at the booked time",
+        "ORDER_CANCELLED": "The booking was cancelled",
+        "ORDER_MARKED_DONE": {
+          "you": "You marked the job done",
+          "named": "{name} marked the job done"
+        },
+        "ORDER_MARKED_FAILED": {
+          "you": "You marked the job as not done",
+          "named": "{name} marked the job as not done"
+        },
+        "ORDER_CONFLICT": "Done and not done were both marked. Sort it out on the booking.",
+        "ORDER_COMPLETED": "Job completed",
+        "REVIEW_LEFT": {
+          "you": "You left a review",
+          "named": "{name} left a review"
+        }
+      }
     },
     "statusPill": {
       "OPEN": "Open",
@@ -526,18 +623,115 @@
     "activity": {
       "heading": "動態",
       "empty": "此任務尚未有動態。",
-      "posted": "任務已發佈",
-      "postedDetail": "已在 Slashie 上線",
-      "waitingQuotes": "等待報價",
-      "quotesOne": "已收到 1 個報價",
-      "quotesMany": "已收到 {count} 個報價",
-      "quotesDetail": "比較並接受一位工作者",
-      "quotesReceived": "已收到報價",
-      "booked": "已預訂工作者",
-      "bookedNamed": "已預訂 · {name}",
-      "bookedActive": "工作進行中",
-      "completed": "已完成",
-      "cancelled": "已取消"
+      "loading": "正在載入動態",
+      "someone": "有人",
+      "fields": {
+        "TITLE": "標題",
+        "DESCRIPTION": "描述",
+        "CATEGORIES": "類別",
+        "BUDGET": "預算",
+        "LOCATION": "地點",
+        "DATETIME": "時間",
+        "CONTACT_METHOD": "聯絡方式",
+        "STATUS": "狀態",
+        "HIDDEN": "可見度"
+      },
+      "fieldsSeparator": "、",
+      "fieldsLastSeparator": "、",
+      "events": {
+        "TASK_CREATED": {
+          "you": "你發布了這個任務",
+          "named": "{name} 發布了這個任務",
+          "anon": "任務已發布"
+        },
+        "TASK_UPDATED": {
+          "you": "你修改了任務",
+          "named": "{name} 修改了任務",
+          "anon": "任務已修改",
+          "youFields": "你修改了任務：{fields}",
+          "namedFields": "{name} 修改了任務：{fields}",
+          "anonFields": "任務已修改：{fields}"
+        },
+        "TASK_CANCELLED": {
+          "you": "你取消了這個任務",
+          "named": "{name} 取消了這個任務",
+          "anon": "任務已取消"
+        },
+        "QUOTE_SENT": {
+          "you": "你送出了報價",
+          "named": "{name} 送出了報價",
+          "anon": "一位工作者送出了報價"
+        },
+        "QUOTE_UPDATED": {
+          "you": "你更新了報價",
+          "named": "{name} 更新了報價",
+          "anon": "一位工作者更新了報價"
+        },
+        "QUOTE_WITHDRAWN": {
+          "you": "你撤回了報價",
+          "named": "{name} 撤回了報價",
+          "anon": "一位工作者撤回了報價"
+        },
+        "QUOTE_DECLINED": {
+          "owner": "你拒絕了 {worker} 的報價",
+          "own": "{name} 拒絕了你的報價",
+          "anon": "一個報價被拒絕"
+        },
+        "QUOTE_ACCEPTED": {
+          "owner": "你預約了 {worker}",
+          "own": "{name} 接受了你的報價",
+          "anon": "已預約一位工作者"
+        },
+        "QUOTE_NOT_SELECTED": {
+          "owner": "{worker} 的報價未獲選",
+          "own": "你的報價未獲選",
+          "anon": "一個報價未獲選"
+        },
+        "RESCHEDULE_REQUESTED": {
+          "you": "你要求改期",
+          "named": "{name} 要求改期"
+        },
+        "RESCHEDULE_CONFIRMED": {
+          "you": "你接受了新時間",
+          "named": "{name} 接受了新時間"
+        },
+        "RESCHEDULE_DECLINED": {
+          "you": "你拒絕了新時間",
+          "named": "{name} 拒絕了新時間"
+        },
+        "RESCHEDULE_WITHDRAWN": {
+          "you": "你撤回了改期要求",
+          "named": "{name} 撤回了改期要求"
+        },
+        "CANCELLATION_REQUESTED": {
+          "you": "你要求取消預約",
+          "named": "{name} 要求取消預約"
+        },
+        "CANCELLATION_DECLINED": {
+          "you": "你拒絕了取消要求",
+          "named": "{name} 拒絕了取消要求"
+        },
+        "CANCELLATION_WITHDRAWN": {
+          "you": "你撤回了取消要求",
+          "named": "{name} 撤回了取消要求"
+        },
+        "CANCELLATION_LAPSED": "取消要求在預約時間到時失效",
+        "ORDER_CANCELLED": "預約已取消",
+        "ORDER_MARKED_DONE": {
+          "you": "你標記工作為完成",
+          "named": "{name} 標記工作為完成"
+        },
+        "ORDER_MARKED_FAILED": {
+          "you": "你標記工作為未完成",
+          "named": "{name} 標記工作為未完成"
+        },
+        "ORDER_CONFLICT": "雙方的標記不一致，請在預約中處理。",
+        "ORDER_COMPLETED": "工作已完成",
+        "REVIEW_LEFT": {
+          "you": "你留下了評價",
+          "named": "{name} 留下了評價"
+        }
+      }
     },
     "statusPill": {
       "OPEN": "開放中",

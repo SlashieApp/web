@@ -1,8 +1,8 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import type { ChangeEvent } from 'react'
-import { LuPlus, LuX } from 'react-icons/lu'
+import { type ChangeEvent, useId } from 'react'
+import { LuEye, LuPlus, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -22,8 +22,8 @@ import type { TextareaProps } from '@ui'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import type { TaskQuoteSubStepId } from '../../../helpers/taskQuoteSteps.config'
 import bag from '../../../i11n.json'
-import { TaskQuotePrivateCallout } from '../shared/TaskQuotePrivateCallout'
 import { TaskQuoteSummaryCard } from '../shared/TaskQuoteSummaryCard'
+import { TaskQuoteVisibilityCallout } from '../shared/TaskQuoteVisibilityCallout'
 import { TaskQuoteReviewStep } from './TaskQuoteReviewStep'
 
 const MESSAGE_MAX = 250
@@ -104,6 +104,7 @@ export function TaskQuoteStepContent({
     setQuoteSlots,
   } = useTaskDetail()
   const t = useI11n(bag)
+  const visibilityNoteId = useId()
 
   if (!task) return null
 
@@ -146,10 +147,9 @@ export function TaskQuoteStepContent({
 
     case 'quote.message':
       return (
-        <Stack gap={6}>
+        <Stack gap={3}>
           <FormField
             label={t.message.label}
-            helperText={t.steps['quote.message'].description}
             errorText={fieldError ?? undefined}
           >
             <TextareaWithCharCount
@@ -158,8 +158,26 @@ export function TaskQuoteStepContent({
               maxLength={MESSAGE_MAX}
               onChange={(e) => setQuoteMessageInput(e.target.value)}
               placeholder={t.message.placeholder}
+              aria-describedby={visibilityNoteId}
             />
           </FormField>
+          {/* FE-370: anyone can read a live quote, but not who sent it. A warning, not a block. */}
+          <HStack
+            id={visibilityNoteId}
+            align="flex-start"
+            gap={2.5}
+            px={3}
+            py={2.5}
+            rounded="lg"
+            bg="bg.subtle"
+          >
+            <Box color="text.muted" mt={0.5} flexShrink={0}>
+              <LuEye size={16} aria-hidden />
+            </Box>
+            <Text fontSize="sm" color="text.muted">
+              {t.message.visibilityNote}
+            </Text>
+          </HStack>
         </Stack>
       )
 
@@ -249,7 +267,7 @@ export function TaskQuoteStepContent({
         <Stack gap={6}>
           {showSummary ? <TaskQuoteSummaryCard /> : null}
           <TaskQuoteReviewStep photoUrls={photoUrls} />
-          <TaskQuotePrivateCallout />
+          <TaskQuoteVisibilityCallout />
           {quoteError || fieldError ? (
             <Text fontSize="sm" color="status.danger.fg" role="alert">
               {quoteError ?? fieldError}

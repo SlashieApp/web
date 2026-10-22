@@ -1,16 +1,23 @@
 import { OrderStatus, QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
+import { withTaskDetailPending } from '../../helpers/taskDetailStoryExtras'
 import {
+  storyOwnerTimeline,
+  storyPublicQuote,
+  storyPublicTimeline,
   storyTaskDetail,
   storyTaskOrder,
   storyTaskQuote,
 } from '../../helpers/taskDetailStoryFixtures'
 import { TaskActivityTrigger } from './TaskActivityTrigger'
 
-/** Phones only: the Overview card that opens the lifecycle in a bottom sheet. */
+/**
+ * Phones only: the Overview card that opens the Activity log in a bottom
+ * sheet, with the latest line as its summary.
+ */
 const meta = {
   title: 'Task detail/Layout/TaskActivityTrigger',
   component: TaskActivityTrigger,
@@ -21,86 +28,119 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-const bookedTask = storyTaskDetail({
+const finishedJob = storyTaskDetail({
   status: TaskStatus.Awarded,
   quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
+  timeline: storyOwnerTimeline(),
 })
 
-/** Task just posted, no quotes yet: the summary line is the first step. */
-export const Posted: Story = {
+/** The sheet the card opens (it portals to the page). */
+const sheet = (canvasElement: HTMLElement) =>
+  within(canvasElement.ownerDocument.body)
+
+/** The owner of a finished job: the summary is the latest line. */
+export const Owner: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'owner',
-      task: storyTaskDetail({ quotes: [] }),
-    }),
-  ],
-  play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Task posted')
-  },
-}
-
-/** Quotes are in: the line counts them. */
-export const QuotesReceived: Story = {
-  decorators: [withTaskDetailStory({ viewer: 'owner' })],
-  play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('2 quotes received')
-  },
-}
-
-/** A worker is booked and the job is under way. */
-export const Booked: Story = {
-  decorators: [
-    withTaskDetailStory({
-      viewer: 'owner',
-      task: bookedTask,
-      order: storyTaskOrder(),
-    }),
-  ],
-  play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Booked · Jordan Lee')
-  },
-}
-
-/** Job finished: the last step reads Completed. */
-export const Completed: Story = {
-  decorators: [
-    withTaskDetailStory({
-      viewer: 'owner',
-      task: bookedTask,
+      task: finishedJob,
       order: storyTaskOrder({
         status: OrderStatus.Completed,
-        closedAt: '2026-06-10T17:00:00.000Z',
+        closedAt: '2026-06-10T19:10:00.000Z',
       }),
     }),
   ],
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Completed')
+    const card = await within(canvasElement).findByRole('button', {
+      name: /Activity/,
+    })
+    await expect(card).toHaveTextContent('You left a review')
   },
 }
 
-/** Task cancelled: the last step reads Cancelled. */
-export const Cancelled: Story = {
+/** Signed out, task open: the latest unnamed quote line. */
+export const Visitor: Story = {
   decorators: [
     withTaskDetailStory({
-      viewer: 'owner',
-      task: storyTaskDetail({ status: TaskStatus.Cancelled }),
+      viewer: 'visitor',
+      task: storyTaskDetail({
+        quotes: [storyPublicQuote()],
+        timeline: storyPublicTimeline(),
+      }),
     }),
   ],
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Cancelled')
+    const card = await within(canvasElement).findByRole('button', {
+      name: /Activity/,
+    })
+    await expect(card).toHaveTextContent('A worker withdrew their quote')
   },
 }
 
-/** Tapping the card opens the sheet with every step. */
-export const SheetOpen: Story = {
-  decorators: [withTaskDetailStory({ viewer: 'owner' })],
+/** Nothing recorded yet: the summary says so. */
+export const Empty: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'visitor',
+      task: storyTaskDetail({ timeline: [] }),
+    }),
+  ],
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await userEvent.click(
-      await canvas.findByRole('button', { name: /Activity/ }),
+    const card = await within(canvasElement).findByRole('button', {
+      name: /Activity/,
+    })
+    await expect(card).toHaveTextContent(
+      'Nothing has happened on this task yet.',
     )
-    const sheet = within(canvasElement.ownerDocument.body)
-    await sheet.findByRole('dialog')
-    await sheet.findByText('Task posted')
+  },
+}
+
+/** The viewer's history is still loading: no summary yet, placeholders in the sheet. */
+export const HistoryLoading: Story = {
+  decorators: [withTaskDetailPending('viewerLoading')],
+  play: async ({ canvasElement }) => {
+    const card = await within(canvasElement).findByRole('button', {
+      name: /Activity/,
+    })
+    await expect(card).toHaveTextContent(/^Activity$/)
+    await userEvent.click(card)
+    const dialog = await sheet(canvasElement).findByRole('dialog')
+    await waitFor(() =>
+      expect(dialog.querySelector('[aria-busy]')).not.toBeNull(),
+    )
+  },
+}
+
+/** The task itself hasn't loaded: no card yet. */
+export const TaskLoading: Story = {
+  decorators: [withTaskDetailPending('loading')],
+  play: async ({ canvasElement }) => {
+    expect(
+      within(canvasElement).queryByRole('button', { name: /Activity/ }),
+    ).toBeNull()
+  },
+}
+
+/** Tapping the card opens the sheet with every line, oldest first. */
+export const SheetOpen: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'owner',
+      task: finishedJob,
+      order: storyTaskOrder({
+        status: OrderStatus.Completed,
+        closedAt: '2026-06-10T19:10:00.000Z',
+      }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', { name: /Activity/ }),
+    )
+    const dialog = within(await sheet(canvasElement).findByRole('dialog'))
+    const items = await dialog.findAllByRole('listitem')
+    await expect(items).toHaveLength(13)
+    await expect(items[0]).toHaveTextContent('You posted the task')
+    await expect(items.at(-1)).toHaveTextContent('You left a review')
   },
 }

@@ -1,10 +1,11 @@
 import { QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
   STORY_WORKER_ID,
+  storyPublicQuote,
   storyTaskDetail,
   storyTaskQuote,
 } from '../../helpers/taskDetailStoryFixtures'
@@ -14,6 +15,8 @@ import { QuotesModule } from './QuotesModule'
  * The 12-state task-detail Quotes module (approved contact sheet v2).
  * C1–C4 = customer/owner states, W1–W8 = visitor/worker states. State derives
  * from `getTaskDetailPermissions` + quote data seeded by the story decorator.
+ * Anyone but the owner sees the other live quotes without who sent them
+ * (FE-370).
  */
 const meta = {
   title: 'Task detail/Quotes/QuotesModule',
@@ -66,6 +69,42 @@ const myPendingQuote = storyTaskQuote({
   status: QuoteStatus.Pending,
 })
 
+/** competitorA and B as anyone but the owner gets them: no worker (BE-105). */
+const publicA = storyPublicQuote({
+  id: 'quote-a',
+  price: competitorA.price,
+  message: competitorA.message,
+})
+const publicB = storyPublicQuote({
+  id: 'quote-b',
+  price: competitorB.price,
+  message: competitorB.message,
+})
+
+/**
+ * The other quotes, read-only and anonymous: "Worker" with a placeholder,
+ * the price, times and message, and no name, photo or profile link.
+ */
+async function expectAnonymousRows(
+  canvasElement: HTMLElement,
+  prices: string[],
+) {
+  const canvas = within(canvasElement)
+  await canvas.findByText('Quotes')
+  await waitFor(() =>
+    expect(canvas.getAllByText('Worker')).toHaveLength(prices.length),
+  )
+  for (const price of prices) await canvas.findByText(price)
+  // The proposed times and when it was sent, on each row.
+  await expect(canvas.getAllByText(/ Jun, \d{2}:\d{2}.* ago$/)).toHaveLength(
+    prices.length,
+  )
+  expect(canvas.queryByRole('link')).toBeNull()
+  expect(canvas.queryByRole('img')).toBeNull()
+  expect(canvas.queryByText(/Jordan Lee|Maria L\.|Sam K\./)).toBeNull()
+  expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+}
+
 // ------------------------------------------------------------- customer
 
 /** C1 · owner, no quotes: the section is hidden (renders nothing). */
@@ -78,7 +117,7 @@ export const C1CustomerEmpty: Story = {
   ],
 }
 
-/** C2 · owner, quotes: sort + list + Accept/Decline per pending card. */
+/** C2 · owner, quotes: sort + list + Accept/Decline per pending card, with who sent each. */
 export const C2CustomerList: Story = {
   decorators: [
     withTaskDetailStory(
@@ -91,6 +130,14 @@ export const C2CustomerList: Story = {
       QUOTE_LIST,
     ),
   ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: 'Maria L.' })
+    await canvas.findByRole('link', { name: 'Sam K.' })
+    await expect(
+      canvas.getAllByRole('button', { name: 'Accept' }),
+    ).toHaveLength(3)
+  },
 }
 
 /** C3 · owner, partial cap: slots strip + mixed accepted/pending cards. */
@@ -135,7 +182,7 @@ export const C4CustomerAwarded: Story = {
 
 // -------------------------------------------------------- visitor/worker
 
-/** W1 · visitor: lock + Get started / Log in. */
+/** W1 · visitor, no quotes yet: nothing to list, so no section. */
 export const W1Visitor: Story = {
   decorators: [
     withTaskDetailStory(
@@ -143,9 +190,29 @@ export const W1Visitor: Story = {
       SIDEBAR,
     ),
   ],
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(within(canvasElement).queryByText('Quotes')).toBeNull(),
+    )
+  },
 }
 
-/** W2 · signed in, no worker profile: skeleton preview + set up CTA. */
+/** W1 · visitor, task open with quotes: every live quote, without who sent it. */
+export const W1VisitorSeesQuotes: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'visitor',
+        task: storyTaskDetail({ quotes: [publicA, publicB] }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: ({ canvasElement }) =>
+    expectAnonymousRows(canvasElement, ['£95', '£85']),
+}
+
+/** W2 · signed in, no worker profile: the live quotes, without who sent them. */
 export const W2NoWorkerProfile: Story = {
   decorators: [
     withTaskDetailStory(
@@ -159,12 +226,14 @@ export const W2NoWorkerProfile: Story = {
             email: 'other@example.com',
             profile: { name: 'Sam Poster', avatarUrl: null },
           } as never,
-          quotes: [competitorA, competitorB],
+          quotes: [publicA, publicB],
         }),
       },
       SIDEBAR,
     ),
   ],
+  play: ({ canvasElement }) =>
+    expectAnonymousRows(canvasElement, ['£95', '£85']),
 }
 
 /** W3 · worker, no quotes yet: empty + Send a quote. */
@@ -177,32 +246,53 @@ export const W3WorkerEmpty: Story = {
   ],
 }
 
-/** W4 · worker, competitors exist: read-only cards + Send a quote. */
+/** W4 · worker, competitors exist: their quotes read-only, without who sent them. */
 export const W4WorkerCompeting: Story = {
   decorators: [
     withTaskDetailStory(
       {
         viewer: 'worker',
-        task: storyTaskDetail({ quotes: [competitorA, competitorB] }),
+        task: storyTaskDetail({ quotes: [publicA, publicB] }),
       },
       QUOTE_LIST,
     ),
   ],
+  play: ({ canvasElement }) =>
+    expectAnonymousRows(canvasElement, ['£95', '£85']),
 }
 
-/** W5 · worker, own quote pending: pinned "Your quote" + others + edit. */
+/** W4 · even if a payload ever carried who sent them, the rows stay anonymous. */
+export const W4NamesNeverShown: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'worker',
+        task: storyTaskDetail({ quotes: [competitorB, competitorC] }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: ({ canvasElement }) =>
+    expectAnonymousRows(canvasElement, ['£85', '£110']),
+}
+
+/** W5 · worker, own quote pending: the others listed; theirs is in the summary, not here. */
 export const W5WorkerQuotePending: Story = {
   decorators: [
     withTaskDetailStory(
       {
         viewer: 'worker',
         task: storyTaskDetail({
-          quotes: [myPendingQuote, competitorA, competitorB],
+          quotes: [myPendingQuote, publicA, publicB],
         }),
       },
       QUOTE_LIST,
     ),
   ],
+  play: async ({ canvasElement }) => {
+    await expectAnonymousRows(canvasElement, ['£95', '£85'])
+    expect(within(canvasElement).queryByText('£90')).toBeNull()
+  },
 }
 
 /** W6 · worker, quote accepted: agreement lives on Booking, not this tab. */
@@ -219,36 +309,76 @@ export const W6WorkerAccepted: Story = {
       SIDEBAR,
     ),
   ],
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(within(canvasElement).queryByText('Quotes')).toBeNull(),
+    )
+  },
 }
 
-/** W7 · worker, quote declined: declined card + browse other tasks. */
+/** W7 · worker, quote declined, task still open: the other live quotes, not theirs. */
 export const W7WorkerDeclined: Story = {
   decorators: [
     withTaskDetailStory(
       {
         viewer: 'worker',
         task: storyTaskDetail({
-          quotes: [{ ...myPendingQuote, status: QuoteStatus.Declined }],
+          quotes: [
+            { ...myPendingQuote, status: QuoteStatus.Declined },
+            publicA,
+          ],
         }),
       },
       SIDEBAR,
     ),
   ],
+  play: async ({ canvasElement }) => {
+    await expectAnonymousRows(canvasElement, ['£95'])
+    expect(within(canvasElement).queryByText('Declined')).toBeNull()
+  },
 }
 
-/** W8 · worker, cap full: no send CTA + accepted worker avatars. */
+/**
+ * W8 · someone else was booked: the API sends only the worker's own quote,
+ * so the section goes, with no empty heading or count.
+ */
 export const W8WorkerTaskFull: Story = {
   decorators: [
     withTaskDetailStory(
       {
         viewer: 'worker',
         task: storyTaskDetail({
-          quotes: [{ ...competitorA, status: QuoteStatus.Accepted }],
+          status: TaskStatus.Awarded,
+          quotes: [{ ...myPendingQuote, status: QuoteStatus.NotSelected }],
         }),
       },
       SIDEBAR,
     ),
   ],
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(within(canvasElement).queryByText('Quotes')).toBeNull(),
+    )
+    expect(within(canvasElement).queryByText('0')).toBeNull()
+  },
+}
+
+/** Signed out, task no longer open: no quotes come back, so no section. */
+export const VisitorTaskBooked: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'visitor',
+        task: storyTaskDetail({ status: TaskStatus.Awarded, quotes: [] }),
+      },
+      SIDEBAR,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(within(canvasElement).queryByText('Quotes')).toBeNull(),
+    )
+  },
 }
 
 // ------------------------------------------------------------ accept flow

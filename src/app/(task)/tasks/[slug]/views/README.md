@@ -77,5 +77,11 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 - `Task.quotes` omits WITHDRAWN and EXPIRED quotes, so a worker who withdrew
   sees `worker.open.notQuoted` and can quote again. A declined worker can
   quote again while the task is OPEN (`worker.open.declined`).
+- Only the owner learns who sent a quote (BE-105). Anyone else, guests
+  included, gets the other PENDING quotes with no `workerUserId` or
+  `worker` while the task is OPEN, plus their own quote at any status; once
+  it isn't OPEN, only their own. The Quotes section lists the others as
+  "Worker" with the price, times, message and when it was sent (FE-370);
+  the viewer's own quote stays in the summary.
 - API contract: an AWARDED task returns the order for its poster and booked
   worker. Without it the owner falls back to `visitor.awarded`.

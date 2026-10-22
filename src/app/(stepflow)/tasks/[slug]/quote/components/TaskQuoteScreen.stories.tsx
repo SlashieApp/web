@@ -57,10 +57,17 @@ export const PriceRequired: Story = {
   },
 }
 
-/** Step 2, the message to the customer. */
+/** Step 2, the message to the customer, with the note that it will be public. */
 export const MessageStep: Story = {
   decorators: emptyForm,
-  play: ({ canvasElement }) => advanceQuoteTo(canvasElement, 'quote.message'),
+  play: async ({ canvasElement }) => {
+    await advanceQuoteTo(canvasElement, 'quote.message')
+    await expect(
+      within(canvasElement).getByText(
+        "Your message, price and times will be public. Don't include your name or contact details.",
+      ),
+    ).toBeVisible()
+  },
 }
 
 /** Step 3, proposed times: one empty slot to fill in. */
@@ -166,14 +173,18 @@ export const ZhHk: Story = {
   },
 }
 
-/** zh-HK, review step: the read-back, the private note, terms and 傳送報價. */
+/** zh-HK, review step: the read-back, who will see the quote, terms and 傳送報價. */
 export const ReviewStepZhHk: Story = {
   parameters: QUOTE_ZH_HK,
   decorators: [...filledForm, withQuoteZhHk],
   play: async ({ canvasElement }) => {
     await advanceQuoteTo(canvasElement, 'review.check', '85', bag.zh_hk)
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('報價不會公開')).toBeVisible()
+    await expect(
+      canvas.getByText(
+        '送出後，任何人都可以看到你的價錢、時間和留言。只有顧客會看到你的名字和個人檔案。',
+      ),
+    ).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: '服務條款' }),
     ).toHaveAttribute('href', '/zh-hk/terms')

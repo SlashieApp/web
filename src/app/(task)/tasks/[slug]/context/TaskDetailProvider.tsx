@@ -52,6 +52,7 @@ import TaskCore from '@/app/(task)/tasks/[slug]/graphql/TaskCore.gql'
 import WithdrawOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/WithdrawOrderCancellation.gql'
 import WithdrawQuote from '@/app/(task)/tasks/[slug]/graphql/WithdrawQuote.gql'
 import { getTaskDetailPermissions } from '@/app/(task)/tasks/[slug]/helpers/getTaskDetailPermissions'
+import { taskTimelineAsGuest } from '@/app/(task)/tasks/[slug]/helpers/taskActivityLog'
 import { buildTaskDetailMainCta } from '@/app/(task)/tasks/[slug]/helpers/taskDetailMainCtaModel'
 import {
   TASK_DETAIL_TAB,
@@ -358,7 +359,10 @@ export function TaskDetailProvider({
       ...publicTask,
       status: clientTask?.status ?? publicTask.status,
       quotes,
-      timeline: viewerTask?.timeline ?? [],
+      // The owner's guest preview reads the Activity log as a guest would.
+      timeline: asGuest
+        ? taskTimelineAsGuest(clientTask?.timeline, publicTask.poster?.id)
+        : (viewerTask?.timeline ?? []),
       orders: viewerTask?.orders ?? [],
       location:
         viewerTask?.location ??
@@ -377,7 +381,7 @@ export function TaskDetailProvider({
             }
           : null),
     } as TaskDetailRecord
-  }, [publicTask, clientTask, viewerTask, quotes])
+  }, [publicTask, clientTask, viewerTask, quotes, asGuest])
 
   const refetch = useCallback(() => {
     if (!skipCore) void refetchCore()
@@ -712,6 +716,8 @@ export function TaskDetailProvider({
           quote_id: quoteId,
         })
         refreshPageData()
+        // The new Activity line (FE-372) is on the viewer's Task query too.
+        void refetchClientTask()
       } catch (error: unknown) {
         trackFlowFailed(EVENTS.quote_decline_fail, error, {
           flow: 'quote_decline',
@@ -727,6 +733,7 @@ export function TaskDetailProvider({
     [
       declineQuote,
       permissions.showAcceptDecline,
+      refetchClientTask,
       refreshPageData,
       t.provider,
       task,
@@ -795,6 +802,8 @@ export function TaskDetailProvider({
                       : r.updatedToast
         showAppToast({ title, type: 'success' })
         refreshPageData()
+        // The Activity log (FE-372): the poll stops once the order closes.
+        void refetchClientTask()
         return true
       } catch (error: unknown) {
         trackFlowFailed(failEvent, error, {
@@ -841,12 +850,15 @@ export function TaskDetailProvider({
         throw new Error(p.cancelFailed)
       }
       refreshPageData()
+      // The "cancelled the task" Activity line (FE-372).
+      void refetchClientTask()
     } catch (error: unknown) {
       setCancelError(getFriendlyErrorMessage(error, p.cancelFailed))
     }
   }, [
     cancelTask,
     permissions.canCancelTask,
+    refetchClientTask,
     refreshPageData,
     t.actions.cancelConfirm,
     t.provider,

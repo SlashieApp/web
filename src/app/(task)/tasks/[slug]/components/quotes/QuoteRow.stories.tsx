@@ -35,7 +35,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Read-only row (how a worker sees the other quotes): initials, price, message. */
+/** Read-only row with the worker's initials, price, times and message. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -131,11 +131,49 @@ export const NotSelected: Story = {
   },
 }
 
-/** Visitors do not see amounts: the price column is gone. */
-export const HiddenPrice: Story = {
-  args: { showPrice: false },
+/**
+ * Another worker's quote, as anyone but the owner sees it (FE-370): "Worker",
+ * a plain placeholder avatar, the price, times and message, and no photo,
+ * profile link or verified mark even when they are passed in.
+ */
+export const Anonymous: Story = {
+  args: {
+    name: 'Worker',
+    anonymous: true,
+    avatarUrl: PHOTO,
+    workerProfileHref: '/workers/worker-detail-1',
+    showVerified: true,
+  },
   play: async ({ canvasElement }) => {
-    expect(within(canvasElement).queryByText('£85')).toBeNull()
+    const canvas = within(canvasElement)
+    await canvas.findByText('Worker')
+    await canvas.findByText('£85')
+    await canvas.findByText('I can do this Saturday morning with my own tools.')
+    await canvas.findByText('Sat 14 Jun, 09:00 · Responded 2 hours ago')
+    expect(canvas.queryByRole('link')).toBeNull()
+    expect(canvas.queryByRole('img')).toBeNull()
+    expect(canvas.queryByLabelText('Identity verified')).toBeNull()
+    expect(canvas.queryByText('JL')).toBeNull()
+  },
+}
+
+/** Phone width, another worker's quote: the placeholder beside "Worker". */
+export const AnonymousPhone: Story = {
+  args: { name: 'Worker', anonymous: true },
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText('Worker')
+  },
+}
+
+/** Should a quote come back without a price: the column is left out, no placeholder. */
+export const NoPrice: Story = {
+  args: { priceLabel: null },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Jordan Lee')
+    expect(canvas.queryByText('£85')).toBeNull()
+    expect(canvas.queryByText('—')).toBeNull()
   },
 }
 

@@ -21,17 +21,26 @@ query Task($id: ID!) {
         contactNumber
       }
     }
+    # The Activity log (FE-372), oldest first and already filtered for this
+    # viewer: `actor` is null when they may not know who (or nobody acted),
+    # `worker` is only there for the owner and that worker.
     timeline {
       type
       timestamp
+      byViewer
+      changedFields
       actor {
         id
         profile {
           name
-          avatarUrl
         }
       }
-      data
+      worker {
+        id
+        profile {
+          name
+        }
+      }
     }
     orders {
       ...TaskDetailOrderFields

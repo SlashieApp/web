@@ -5,6 +5,7 @@ import { expect, waitFor, within } from 'storybook/test'
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withTaskDetailPending } from '../../helpers/taskDetailStoryExtras'
 import {
+  storyPublicQuote,
   storyTaskDetail,
   storyTaskQuote,
 } from '../../helpers/taskDetailStoryFixtures'
@@ -22,15 +23,10 @@ type Story = StoryObj<typeof meta>
 
 const wide = { maxWidth: '720px' }
 
-const competitorQuote = storyTaskQuote({
+/** Another worker's live quote, as anyone but the owner gets it. */
+const competitorQuote = storyPublicQuote({
   id: 'quote-detail-2',
-  workerUserId: 'worker-detail-2',
   price: { amount: 95, currency: Currency.Gbp },
-  worker: {
-    id: 'worker-detail-2',
-    profile: { name: 'Sam Taylor', avatarUrl: null },
-    worker: { id: 'worker-profile-2', isVerified: false },
-  } as never,
 })
 
 /** Owner with two quotes: sortable list with Accept and Decline. */
@@ -59,7 +55,7 @@ export const OwnerNoQuotes: Story = {
   },
 }
 
-/** Worker who has not quoted: the other quotes, read-only. */
+/** Worker who has not quoted: the other quotes, read-only and without who sent them. */
 export const WorkerSeesOtherQuotes: Story = {
   decorators: [
     withTaskDetailStory(
@@ -72,7 +68,9 @@ export const WorkerSeesOtherQuotes: Story = {
   ],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByText('Sam Taylor')
+    await canvas.findByText('Worker')
+    await canvas.findByText('£95')
+    expect(canvas.queryByRole('link')).toBeNull()
     expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
   },
 }

@@ -4,6 +4,7 @@ import {
   OrderStatus,
   QuoteStatus,
   TaskContactMethod,
+  TaskEditableField,
   TaskTimelineEventType,
   UserLanguage,
 } from '@codegen/schema'
@@ -92,20 +93,216 @@ export function storyTaskDetail(
       },
     },
     timeline: [
-      {
+      storyTimelineEvent({
         type: TaskTimelineEventType.TaskCreated,
         timestamp: '2026-05-28T10:00:00.000Z',
-        actor: {
-          id: STORY_OWNER_ID,
-          profile: { name: 'Alex Chen', avatarUrl: STORY_AVATAR },
-        },
-        data: {},
-      },
+        actor: STORY_ALEX,
+      }),
     ],
     orders: [],
     quotes: baseQuotes,
     ...overrides,
   } as TaskDetailRecord
+}
+
+type StoryTimelineEvent = TaskDetailRecord['timeline'][number]
+
+/** The poster and the worker as Activity names them. */
+export const STORY_ALEX = { id: STORY_OWNER_ID, profile: { name: 'Alex Chen' } }
+export const STORY_JORDAN = {
+  id: STORY_WORKER_ID,
+  profile: { name: 'Jordan Lee' },
+}
+const STORY_SAM = { id: 'worker-detail-2', profile: { name: 'Sam Taylor' } }
+
+/** One Activity event; nobody acted unless `actor` says who. */
+export function storyTimelineEvent(
+  overrides: Partial<StoryTimelineEvent> & Pick<StoryTimelineEvent, 'type'>,
+): StoryTimelineEvent {
+  return {
+    timestamp: '2026-05-28T10:00:00.000Z',
+    byViewer: false,
+    changedFields: [],
+    actor: null,
+    worker: null,
+    ...overrides,
+  }
+}
+
+const at = (day: number, time: string) =>
+  `2026-06-${String(day).padStart(2, '0')}T${time}:00.000Z`
+
+/**
+ * A job from post to review, as the owner (Alex) reads it: every line, with
+ * names. Jordan was booked over Sam.
+ */
+export function storyOwnerTimeline(): StoryTimelineEvent[] {
+  const E = TaskTimelineEventType
+  const mine = { byViewer: true, actor: STORY_ALEX }
+  return [
+    storyTimelineEvent({
+      type: E.TaskCreated,
+      timestamp: at(1, '09:00'),
+      ...mine,
+    }),
+    storyTimelineEvent({
+      type: E.TaskUpdated,
+      timestamp: at(1, '09:30'),
+      changedFields: [TaskEditableField.Budget, TaskEditableField.Datetime],
+      ...mine,
+    }),
+    storyTimelineEvent({
+      type: E.QuoteSent,
+      timestamp: at(1, '11:15'),
+      actor: STORY_JORDAN,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.QuoteSent,
+      timestamp: at(1, '12:40'),
+      actor: STORY_SAM,
+      worker: STORY_SAM,
+    }),
+    storyTimelineEvent({
+      type: E.QuoteUpdated,
+      timestamp: at(1, '13:05'),
+      actor: STORY_JORDAN,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.QuoteAccepted,
+      timestamp: at(2, '08:20'),
+      ...mine,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.QuoteNotSelected,
+      timestamp: at(2, '08:20'),
+      worker: STORY_SAM,
+    }),
+    storyTimelineEvent({
+      type: E.RescheduleRequested,
+      timestamp: at(3, '17:45'),
+      actor: STORY_JORDAN,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.RescheduleConfirmed,
+      timestamp: at(3, '18:02'),
+      ...mine,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.OrderMarkedDone,
+      timestamp: at(10, '16:30'),
+      actor: STORY_JORDAN,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.OrderMarkedDone,
+      timestamp: at(10, '19:10'),
+      ...mine,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.OrderCompleted,
+      timestamp: at(10, '19:10'),
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.ReviewLeft,
+      timestamp: at(11, '10:00'),
+      ...mine,
+      worker: STORY_JORDAN,
+    }),
+  ]
+}
+
+/** The same job as the booked worker (Jordan) reads it: Sam's quote has no name. */
+export function storyWorkerTimeline(): StoryTimelineEvent[] {
+  const E = TaskTimelineEventType
+  const mine = { byViewer: true, actor: STORY_JORDAN, worker: STORY_JORDAN }
+  return [
+    storyTimelineEvent({
+      type: E.TaskCreated,
+      timestamp: at(1, '09:00'),
+      actor: STORY_ALEX,
+    }),
+    storyTimelineEvent({
+      type: E.TaskUpdated,
+      timestamp: at(1, '09:30'),
+      changedFields: [TaskEditableField.Budget, TaskEditableField.Datetime],
+      actor: STORY_ALEX,
+    }),
+    storyTimelineEvent({
+      type: E.QuoteSent,
+      timestamp: at(1, '11:15'),
+      ...mine,
+    }),
+    storyTimelineEvent({ type: E.QuoteSent, timestamp: at(1, '12:40') }),
+    storyTimelineEvent({
+      type: E.QuoteUpdated,
+      timestamp: at(1, '13:05'),
+      ...mine,
+    }),
+    storyTimelineEvent({
+      type: E.QuoteAccepted,
+      timestamp: at(2, '08:20'),
+      actor: STORY_ALEX,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.RescheduleRequested,
+      timestamp: at(3, '17:45'),
+      ...mine,
+    }),
+    storyTimelineEvent({
+      type: E.RescheduleConfirmed,
+      timestamp: at(3, '18:02'),
+      actor: STORY_ALEX,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.OrderMarkedDone,
+      timestamp: at(10, '16:30'),
+      ...mine,
+    }),
+    storyTimelineEvent({
+      type: E.OrderMarkedDone,
+      timestamp: at(10, '19:10'),
+      actor: STORY_ALEX,
+      worker: STORY_JORDAN,
+    }),
+    storyTimelineEvent({
+      type: E.OrderCompleted,
+      timestamp: at(10, '19:10'),
+      worker: STORY_JORDAN,
+    }),
+  ]
+}
+
+/**
+ * An open task as a guest or another worker reads it: the poster's lines,
+ * and quotes with no name on them.
+ */
+export function storyPublicTimeline(): StoryTimelineEvent[] {
+  const E = TaskTimelineEventType
+  return [
+    storyTimelineEvent({
+      type: E.TaskCreated,
+      timestamp: at(1, '09:00'),
+      actor: STORY_ALEX,
+    }),
+    storyTimelineEvent({
+      type: E.TaskUpdated,
+      timestamp: at(1, '09:30'),
+      changedFields: [TaskEditableField.Budget],
+      actor: STORY_ALEX,
+    }),
+    storyTimelineEvent({ type: E.QuoteSent, timestamp: at(1, '11:15') }),
+    storyTimelineEvent({ type: E.QuoteSent, timestamp: at(1, '12:40') }),
+    storyTimelineEvent({ type: E.QuoteWithdrawn, timestamp: at(1, '15:00') }),
+  ]
 }
 
 export function storyTaskQuote(
@@ -135,6 +332,22 @@ export function storyTaskQuote(
     },
     ...overrides,
   } as TaskDetailRecord['quotes'][number]
+}
+
+/**
+ * Another worker's live quote as anyone but the owner gets it (BE-105): the
+ * price, times and message, with no worker id and no worker.
+ */
+export function storyPublicQuote(
+  overrides: Partial<TaskDetailRecord['quotes'][number]> = {},
+): TaskDetailRecord['quotes'][number] {
+  return storyTaskQuote({
+    id: 'quote-public-1',
+    workerUserId: null,
+    worker: null,
+    status: QuoteStatus.Pending,
+    ...overrides,
+  })
 }
 
 export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
@@ -249,6 +462,8 @@ export type TaskDetailStoryConfig = {
   viewer: TaskDetailStoryViewer
   task?: TaskDetailRecord
   order?: OrderItem | null
+  /** The owner's preview: the page as a signed-out visitor gets it. */
+  viewAs?: 'guest'
 }
 
 export function defaultTaskDetailStoryConfig(

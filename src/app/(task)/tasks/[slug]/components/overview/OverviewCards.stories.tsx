@@ -5,6 +5,7 @@ import { expect, within } from 'storybook/test'
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withTaskDetailPending } from '../../helpers/taskDetailStoryExtras'
 import {
+  storyPublicQuote,
   storyTaskDetail,
   storyTaskOrder,
   storyTaskQuote,
@@ -27,15 +28,10 @@ type Story = StoryObj<typeof meta>
 const wide = { maxWidth: '720px' }
 const phone = { globals: { viewport: { value: 'mobile1' } } } as const
 
-const competitorQuote = storyTaskQuote({
+/** Another worker's live quote, as anyone but the owner gets it. */
+const competitorQuote = storyPublicQuote({
   id: 'quote-detail-2',
-  workerUserId: 'worker-detail-2',
   price: { amount: 95, currency: Currency.Gbp },
-  worker: {
-    id: 'worker-detail-2',
-    profile: { name: 'Sam Taylor', avatarUrl: null },
-    worker: { id: 'worker-profile-2', isVerified: false },
-  } as never,
 })
 
 const bookedTask = storyTaskDetail({
@@ -78,7 +74,7 @@ export const OwnerNoQuotes: Story = {
   },
 }
 
-/** Worker who has not quoted: the summary and what the other workers sent. */
+/** Worker who has not quoted: the summary and what the other workers sent, without names. */
 export const WorkerSeesOtherQuotes: Story = {
   decorators: [
     withTaskDetailStory(
@@ -91,7 +87,29 @@ export const WorkerSeesOtherQuotes: Story = {
   ],
   play: async ({ canvasElement }) => {
     await expectView(canvasElement, 'Open for quotes - 1 so far')
-    await within(canvasElement).findByText('Sam Taylor')
+    const canvas = within(canvasElement)
+    await canvas.findByText('Quotes')
+    await canvas.findByText('Worker')
+    await canvas.findByText('£95')
+  },
+}
+
+/** Signed out, task open with quotes: the live quotes, without names. */
+export const VisitorSeesQuotes: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'visitor',
+        task: storyTaskDetail({ quotes: [competitorQuote] }),
+      },
+      wide,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await expectView(canvasElement, /You can earn/)
+    const canvas = within(canvasElement)
+    await canvas.findByText('Worker')
+    await canvas.findByText('£95')
   },
 }
 
@@ -109,7 +127,7 @@ export const WorkerBooked: Story = {
   },
 }
 
-/** Signed out: the summary with the earn line, no Quotes section for them. */
+/** Signed out, no quotes yet: the summary with the earn line, and no Quotes section. */
 export const Visitor: Story = {
   decorators: [
     withTaskDetailStory(

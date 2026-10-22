@@ -14,16 +14,16 @@ describe('TaskDetailSideRail', () => {
       src.indexOf('<AnalyticsCards />'),
     )
     expect(src.indexOf('<AnalyticsCards />')).toBeLessThan(
-      src.indexOf('<TaskActivitySections />'),
+      src.indexOf('<TaskActivityCard />'),
     )
     expect(src).toContain('<TaskHelpCard />')
-    expect(src).toContain('<TaskActivitySections />')
+    expect(src).toContain('<TaskActivityCard />')
     expect(src).not.toContain('TaskDetailMainCta')
   })
 })
 
 describe('TaskActivityTrigger', () => {
-  it('opens Activity in a bottom sheet from a section card, like Analytics', () => {
+  it('opens the Activity log in a bottom sheet from a section card, like Analytics', () => {
     const src = readFileSync(join(dir, 'TaskActivityTrigger.tsx'), 'utf8')
     const analytics = readFileSync(
       join(dir, '../analytics/AnalyticsCards.tsx'),
@@ -31,7 +31,7 @@ describe('TaskActivityTrigger', () => {
     )
     expect(src).toContain('LuHistory')
     expect(src).toContain('<TaskSectionSheet')
-    expect(src).toContain('<ActivitySteps')
+    expect(src).toContain('<TaskActivityLog')
     expect(analytics).toContain('<TaskSectionSheet')
   })
 })

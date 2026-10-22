@@ -4,6 +4,7 @@ import { expect, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
+  storyOwnerTimeline,
   storyTaskDetail,
   storyTaskOrder,
   storyTaskQuote,
@@ -71,12 +72,12 @@ export const BookedWorker: Story = {
   },
 }
 
-/** Owner of a finished job: Repost this task, and the Activity strip is done. */
+/** Owner of a finished job: Repost this task, and the Activity log to the review. */
 export const OwnerFinishedJob: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'owner',
-      task: bookedTask,
+      task: { ...bookedTask, timeline: storyOwnerTimeline() },
       order: storyTaskOrder({
         status: OrderStatus.Completed,
         closedAt: '2026-06-10T17:00:00.000Z',
@@ -84,6 +85,9 @@ export const OwnerFinishedJob: Story = {
     }),
   ],
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByRole('link', { name: /Repost this task/ })
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: /Repost this task/ })
+    await canvas.findByText('Job completed')
+    await canvas.findByText('You left a review')
   },
 }

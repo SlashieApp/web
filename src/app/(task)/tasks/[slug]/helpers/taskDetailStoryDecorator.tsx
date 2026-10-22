@@ -46,7 +46,7 @@ function TaskDetailStorySeed({
   config: TaskDetailStoryConfig
   children: ReactNode
 }) {
-  const { viewer, task, order } = config
+  const { viewer, task, order, viewAs } = config
   const taskId = task?.id ?? STORY_TASK_ID
 
   useEffect(() => {
@@ -77,11 +77,20 @@ function TaskDetailStorySeed({
             timeline: (task.timeline ?? []).map((e) => ({
               __typename: 'TaskTimelineEvent',
               ...e,
-              actor: e.actor && {
-                __typename: 'User',
-                ...e.actor,
-                profile: { __typename: 'Profile', ...e.actor.profile },
-              },
+              actor: e.actor
+                ? {
+                    __typename: 'User',
+                    ...e.actor,
+                    profile: { __typename: 'Profile', ...e.actor.profile },
+                  }
+                : null,
+              worker: e.worker
+                ? {
+                    __typename: 'User',
+                    ...e.worker,
+                    profile: { __typename: 'Profile', ...e.worker.profile },
+                  }
+                : null,
             })),
             orders: (order ? [order] : (task.orders ?? [])).map((o) => ({
               __typename: 'Order',
@@ -178,7 +187,11 @@ function TaskDetailStorySeed({
   }, [viewer, task, order, taskId])
 
   return (
-    <TaskDetailProvider taskId={taskId} initialTask={task ?? null}>
+    <TaskDetailProvider
+      taskId={taskId}
+      initialTask={task ?? null}
+      viewAs={viewAs}
+    >
       {children}
     </TaskDetailProvider>
   )

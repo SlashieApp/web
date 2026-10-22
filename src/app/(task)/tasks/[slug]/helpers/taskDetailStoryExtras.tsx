@@ -13,7 +13,7 @@ import { setTaskHandoff } from '@/app/(task)/helpers/taskCardHandoff'
 import { TaskDetailProvider } from '../context/TaskDetailProvider'
 import OrderReviewState from '../graphql/OrderReviewState.gql'
 import TaskCore from '../graphql/TaskCore.gql'
-import { STORY_TASK_ID } from './taskDetailStoryFixtures'
+import { STORY_TASK_ID, storyTaskDetail } from './taskDetailStoryFixtures'
 import type { TaskDetailRecord } from './taskDetailUtils'
 
 /**
@@ -61,8 +61,14 @@ export const storyListingSeed: TaskCardTask = {
  * - `error`: the request fails (error card with Try again).
  * - `listingSeed`: in flight, but the listing card seeds title, price,
  *   place and photo, as when a task opens from /search.
+ * - `viewerLoading`: the public task is in, but the viewer's slice (Task:
+ *   quotes, Activity, bookings) is still in flight.
  */
-export type TaskDetailPendingMode = 'loading' | 'error' | 'listingSeed'
+export type TaskDetailPendingMode =
+  | 'loading'
+  | 'error'
+  | 'listingSeed'
+  | 'viewerLoading'
 
 function TaskDetailPendingRoot({
   mode,
@@ -77,7 +83,7 @@ function TaskDetailPendingRoot({
     useUserStore.getState().setMe(null)
     useUserStore.getState().setUser(null)
     setTaskHandoff(mode === 'listingSeed' ? storyListingSeed : NO_HANDOFF)
-    return new ApolloClient({
+    const apollo = new ApolloClient({
       link: new ApolloLink((operation) =>
         mode === 'error' && operation.operationName === 'TaskCore'
           ? new Observable<ApolloLink.Result>((subscriber) => {
@@ -87,6 +93,14 @@ function TaskDetailPendingRoot({
       ),
       cache: new InMemoryCache(),
     })
+    if (mode === 'viewerLoading') {
+      apollo.writeQuery({
+        query: TaskCore,
+        variables: { id: STORY_TASK_ID },
+        data: taskCoreData(storyTaskDetail()),
+      })
+    }
+    return apollo
   })
 
   // Drop the card so a later story does not paint it.

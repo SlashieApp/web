@@ -37,8 +37,9 @@ export type TaskDetailRecord = Omit<TaskCoreRecord, 'location' | 'poster'> & {
 }
 
 /**
- * Task creation time, derived from the TASK_CREATED timeline event. Null for
- * viewers whose timeline is empty (public/guest) since the field was removed.
+ * Task creation time, from the TASK_CREATED Activity event (every viewer gets
+ * it, guests included). Null while the timeline hasn't loaded, and in the
+ * owner's guest preview, which has none.
  */
 export function taskCreatedAtIso(
   task: Pick<TaskDetailRecord, 'timeline'>,
@@ -79,8 +80,9 @@ export function formatTaskDateTimeType(type: string): string {
 }
 
 /**
- * Hero budget line: quote range when prices are visible, else posted budget.
- * Quote `price` is owner-only; visitors only see their own quote amounts.
+ * Hero budget line: the owner's quote range (e.g. "£85–£95"), else the
+ * posted budget. Anyone else sees the budget unless they quoted, then their
+ * own price; other workers' prices are in the quotes list, not here.
  */
 export function taskBudgetDisplayLine(
   task: TaskDetailRecord,
@@ -104,7 +106,7 @@ export function taskBudgetDisplayLine(
     const min = Math.min(...prices)
     const max = Math.max(...prices)
     if (min === max) return formatPoundsFromPence(min)
-    return `${formatPoundsFromPence(min)} — ${formatPoundsFromPence(max)}`
+    return `${formatPoundsFromPence(min)}–${formatPoundsFromPence(max)}`
   }
   if (task.budget) return formatBudgetAmount(task.budget)
   return 'Open'

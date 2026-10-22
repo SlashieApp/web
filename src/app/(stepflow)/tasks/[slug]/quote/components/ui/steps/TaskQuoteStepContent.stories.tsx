@@ -10,9 +10,11 @@ import {
 
 import {
   QUOTE_STORY_MESSAGE,
+  QUOTE_ZH_HK,
   quoteStorySlots,
   quoteStoryTask,
   withQuoteStory,
+  withQuoteZhHk,
 } from '../../taskQuoteStoryFixtures'
 import { TaskQuoteStepContent } from './TaskQuoteStepContent'
 
@@ -119,10 +121,44 @@ export const PriceWithSummary: Story = {
   decorators: step(),
 }
 
-/** quote.message: empty, with the 0 / 250 counter. */
+/** quote.message: empty, with the 0 / 250 counter and the note that the quote will be public. */
 export const Message: Story = {
   args: { activeSubStep: 'quote.message' },
   decorators: step(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    // The step heading carries the description; the field doesn't repeat it.
+    await expect(
+      canvas.queryByText("Say how you'd do the job and what's included."),
+    ).toBeNull()
+    const note = canvas.getByText(
+      "Your message, price and times will be public. Don't include your name or contact details.",
+    )
+    await expect(note).toBeVisible()
+    // Read out with the field, so it is heard before typing.
+    const field = canvas.getByRole('textbox', { name: 'Message to customer' })
+    const noteId = note.parentElement?.id ?? ''
+    await expect(noteId).not.toBe('')
+    await expect(field.getAttribute('aria-describedby')).toContain(noteId)
+  },
+}
+
+/** quote.message in zh-HK: the helper and the public note. */
+export const MessageZhHk: Story = {
+  args: { activeSubStep: 'quote.message' },
+  parameters: QUOTE_ZH_HK,
+  decorators: [...step(), withQuoteZhHk],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText(
+        '你的留言、價錢和時間會公開。請不要加入你的名字或聯絡資料。',
+      ),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByText('說明你會點樣完成工作，以及報價包括甚麼。'),
+    ).toBeNull()
+  },
 }
 
 /** quote.message: a message written. */
@@ -216,10 +252,17 @@ export const PhotosAtLimit: Story = {
   decorators: step(),
 }
 
-/** review.check: the read-back, the private-quote note and the terms line. */
+/** review.check: the read-back, who will see the quote, and the terms line. */
 export const Review: Story = {
   args: { activeSubStep: 'review.check', photoUrls: photos(2) },
   decorators: step({}, form),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText(
+        'Once you send it, anyone can see your price, times and message. Only the customer sees your name and profile.',
+      ),
+    ).toBeVisible()
+  },
 }
 
 /** review.check: phones also show the task summary card above the read-back. */

@@ -16,6 +16,7 @@ import { Badge, Card } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
+import { taskDetailQuoteRows } from '../../helpers/taskDetailQuoteRows'
 import type { TaskDetailRecord } from '../../helpers/taskDetailUtils'
 import {
   formatPoundsFromPence,
@@ -164,24 +165,37 @@ function proposedTimesLabel(
     .join(' · ')
 }
 
-function quoteCardBaseProps(
+/** What every row shows: the price, the times, the message and when it was sent. */
+function quoteRowContent(
   quote: TaskQuote,
-  workerFallback: string,
   quotesCopy: QuotesCopy,
   locale: string,
 ) {
   const pence = priceToPence(quote.price)
-  const name = quote.worker?.profile?.name?.trim() || workerFallback
   return {
-    name,
-    // Another worker's quote has no worker id for non-owners (BE-105).
-    avatarLabel: workerNameInitials(name, quote.workerUserId ?? quote.id),
-    avatarUrl: quote.worker?.profile?.avatarUrl,
-    priceLabel: pence != null ? formatPoundsFromPence(pence) : '—',
-    showPrice: pence != null,
+    priceLabel: pence != null ? formatPoundsFromPence(pence) : null,
     message: quote.message?.trim() || null,
     availabilityLabel: proposedTimesLabel(quote, quotesCopy, locale),
+    respondedLabel: formatRespondedAgo(quote.createdAt, quotesCopy),
+  }
+}
+
+/** Who sent the quote. Only the owner's rows say. */
+function quoteRowWorker(
+  quote: TaskQuote,
+  workerFallback: string,
+  taskId: string,
+) {
+  const name = quote.worker?.profile?.name?.trim() || workerFallback
+  const profileUserId = quote.worker?.id
+  return {
+    name,
+    avatarLabel: workerNameInitials(name, quote.workerUserId ?? quote.id),
+    avatarUrl: quote.worker?.profile?.avatarUrl,
     showVerified: Boolean(quote.worker?.worker?.isVerified),
+    workerProfileHref: profileUserId
+      ? publicProfilePath(profileUserId, { fromTask: taskId })
+      : undefined,
   }
 }
 
@@ -204,9 +218,11 @@ function rowStatus(status: QuoteStatus | string): QuoteRowStatus | null {
 
 /**
  * Overview Quotes section (FE-258): every quote as a row, replacing the old
- * Quotes tab. Owners sort and accept or decline; workers see the other
- * quotes read-only (their own is in the Task summary). Hidden until there is
- * a quote to list; sign-in, worker setup and Send quote stay on the main CTA.
+ * Quotes tab. Owners sort and accept or decline. Anyone else, guests
+ * included, sees the other live quotes read-only while the task is open,
+ * never who sent them (FE-370); their own quote is in the Task summary.
+ * Hidden until there is a quote to list; sign-in, worker setup and Send
+ * quote stay on the main CTA.
  */
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const t = useI11n(bag)
@@ -252,37 +268,46 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   const isOwner = permissions.isOwner
   // A worker's own quote is in the Task summary (FE-274); list the others.
-  const rows = isOwner
-    ? displayQuotes
-    : quotes.filter((qq) => qq.id !== myQuote?.id)
+  const rows = taskDetailQuoteRows(isOwner ? displayQuotes : quotes, {
+    isOwner,
+    isOpen: permissions.isOpen,
+    myQuoteId: myQuote?.id ?? null,
+  })
   if (rows.length === 0) return null
 
   const quoteRow = (quote: TaskQuote, index: number) => {
+    const content = quoteRowContent(quote, q, intlLocale)
+    const withDivider = index < rows.length - 1
+    if (!isOwner) {
+      // Another worker's quote: the neutral label and a placeholder avatar,
+      // whatever the payload holds (FE-370).
+      return (
+        <QuoteRow
+          key={quote.id}
+          {...content}
+          name={fallbackWorker}
+          anonymous
+          withDivider={withDivider}
+        />
+      )
+    }
     const canAct =
-      isOwner &&
-      quote.status === QuoteStatus.Pending &&
-      permissions.showAcceptDecline
-    const profileUserId = quote.worker?.id
+      quote.status === QuoteStatus.Pending && permissions.showAcceptDecline
     return (
       <QuoteRow
         key={quote.id}
-        {...quoteCardBaseProps(quote, fallbackWorker, q, intlLocale)}
-        respondedLabel={formatRespondedAgo(quote.createdAt, q)}
+        {...content}
+        {...quoteRowWorker(quote, fallbackWorker, task.id)}
         status={rowStatus(quote.status)}
         isBestMatch={
           canAct && sort === 'recommended' && index === 0 && rows.length > 1
-        }
-        workerProfileHref={
-          profileUserId
-            ? publicProfilePath(profileUserId, { fromTask: task.id })
-            : undefined
         }
         onAccept={canAct ? () => requestAccept(quote.id) : undefined}
         onDecline={canAct ? () => void onDeclineQuote(quote.id) : undefined}
         messageHref={canAct ? taskThreadHref : undefined}
         acceptLoading={acceptingQuoteId === quote.id}
         declineLoading={decliningQuoteId === quote.id}
-        withDivider={index < rows.length - 1}
+        withDivider={withDivider}
       />
     )
   }
