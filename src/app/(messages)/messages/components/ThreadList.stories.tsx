@@ -244,7 +244,7 @@ export const ZhHk: Story = {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('訊息')).toBeVisible()
     await expect(canvas.getByText('Slashie 的更新')).toBeVisible()
-    await expect(canvas.getByText('已有 2 位師傅報價')).toBeVisible()
+    await expect(canvas.getByText('已有 2 位工作者報價')).toBeVisible()
   },
 }
 

@@ -330,7 +330,7 @@ export const ZhHk: Story = {
   play: async ({ canvasElement }) => {
     await expect(
       await within(canvasElement).findByRole('heading', {
-        name: '已有 2 位師傅報價',
+        name: '已有 2 位工作者報價',
       }),
     ).toBeVisible()
   },
