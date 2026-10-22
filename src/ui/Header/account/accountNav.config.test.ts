@@ -48,6 +48,20 @@ describe('account nav destinations', () => {
     expect(shown).toBe(true)
   })
 
+  it('keeps Terms, Privacy and Cookie settings in the menu, since the app has no footer', () => {
+    const items = resolveAccountNavItems(false)
+    const terms = items.find((item) => item.id === 'terms')
+    const privacy = items.find((item) => item.id === 'privacy')
+    const cookies = items.find((item) => item.id === 'cookie-settings')
+    expect(terms?.href).toBe('/terms')
+    expect(privacy?.href).toBe('/privacy')
+    expect(cookies?.kind).toBe('action')
+    expect(cookies?.action).toBe('cookieSettings')
+    expect(
+      [terms, privacy, cookies].every((item) => item?.section === 'more'),
+    ).toBe(true)
+  })
+
   it('includes a Send feedback action for signed-in users', () => {
     const feedback = ACCOUNT_NAV_ITEMS.find((item) => item.id === 'feedback')
     expect(feedback?.kind).toBe('action')

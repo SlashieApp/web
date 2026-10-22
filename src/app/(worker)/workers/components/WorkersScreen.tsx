@@ -5,7 +5,6 @@ import { useRef } from 'react'
 
 import { BrowseGeolocationInit } from '@/app/(task)/components/analytics/BrowseGeolocationInit'
 import { TaskBrowseProvider } from '@/app/(task)/context/TaskBrowseProvider'
-import { Footer } from '@ui'
 
 import {
   type WorkerSearchInitialState,
@@ -46,7 +45,6 @@ function WorkersDirectory() {
           <Container pt={{ base: 4, md: 6 }} pb={{ base: 8, md: 10 }}>
             <WorkersResultsGrid />
           </Container>
-          <Footer />
         </Box>
       </Box>
     </Box>

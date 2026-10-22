@@ -2,7 +2,6 @@ import { Box, Container } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { AppShell } from '@/ui/AppShell'
-import { Footer } from '@ui'
 
 type AccountShellProps = {
   children: ReactNode
@@ -24,8 +23,6 @@ export function AccountShell({
         <Container flex="1" w="full">
           {children}
         </Container>
-        {/* Legal strip stays at the end of the scrolling content. */}
-        <Footer variant="minimal" mt={{ base: 8, md: 10 }} bg="transparent" />
       </Box>
     </AppShell>
   )

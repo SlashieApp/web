@@ -1,7 +1,7 @@
 import { Box, Container, Stack, Text } from '@chakra-ui/react'
 
 import { APP_HOME } from '@/utils/appRoutes'
-import { Button, Card, Footer, Link } from '@ui'
+import { Button, Card, Link } from '@ui'
 
 import { TaskNotFoundTracker } from '../analytics/TaskNotFoundTracker'
 
@@ -41,7 +41,6 @@ export function TaskNotFoundCard({
             </Stack>
           </Container>
         </Box>
-        <Footer />
       </Stack>
     </Box>
   )

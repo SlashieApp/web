@@ -4,7 +4,6 @@ import { Box } from '@chakra-ui/react'
 import { useParams, useSearchParams } from 'next/navigation'
 
 import { useLocale } from '@/i18n/LocaleProvider'
-import { Footer } from '@ui'
 
 import { PublicProfileScreen } from './components/PublicProfileScreen'
 import { PublicProfileViewCapture } from './components/analytics/PublicProfileViewCapture'
@@ -58,7 +57,6 @@ export default function PublicProfilePage() {
         {...actions}
       />
       {model ? <PublicProfileViewCapture model={model} /> : null}
-      <Footer />
     </Box>
   )
 }

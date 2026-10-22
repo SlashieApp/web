@@ -1,6 +1,7 @@
 'use client'
 
 import { useI11n } from '@/i18n/useI11n'
+import { openCookieSettings } from '@/utils/analytics'
 import { isPrimaryNavHrefActive } from '@/utils/appRoutes'
 import { Box } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
@@ -75,6 +76,24 @@ function AccountNavRow({
           minH="44px"
           onClick={() => {
             openFeedback()
+            close()
+          }}
+        >
+          {label}
+        </Button>
+      )
+    }
+    if (item.action === 'cookieSettings') {
+      return (
+        <Button
+          type="button"
+          variant="ghost"
+          {...accountNavLinkRowProps}
+          justifyContent="flex-start"
+          h="auto"
+          minH="44px"
+          onClick={() => {
+            openCookieSettings()
             close()
           }}
         >

@@ -7,7 +7,6 @@ import {
   PAGE_CONTAINER_MAX_W_CSS,
   PAGE_GUTTER_X,
 } from '@/theme/pageContainer'
-import { Footer } from '@ui'
 
 import { TASK_DETAIL_STUCK_ROW_TOP } from '../../helpers/taskDetailHeaderCollapse'
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '../../helpers/taskDetailLayout'
@@ -95,7 +94,6 @@ export function TaskDetailView() {
           </Box>
         </Box>
         <Box pointerEvents="auto">
-          <Footer />
           <Box
             display={{ base: 'block', lg: 'none' }}
             bg="status.success.soft"

@@ -4,7 +4,11 @@ import type bag from '../i11n.json'
 
 export type AccountNavAudience = 'all' | 'worker' | 'non-worker' | 'admin'
 
-export type AccountNavAction = 'logout' | 'feedback' | 'language'
+export type AccountNavAction =
+  | 'logout'
+  | 'feedback'
+  | 'language'
+  | 'cookieSettings'
 
 export type AccountNavSection = 'main' | 'settings' | 'more'
 
@@ -125,6 +129,31 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     label: 'Paying & meeting safely',
     href: SAFETY_HREF,
     kind: 'link',
+    section: 'more',
+    audience: 'all',
+  },
+  // The app has no footer (FE-368), so the legal pages and cookie choices live here.
+  {
+    id: 'terms',
+    label: 'Terms',
+    href: '/terms',
+    kind: 'link',
+    section: 'more',
+    audience: 'all',
+  },
+  {
+    id: 'privacy',
+    label: 'Privacy',
+    href: '/privacy',
+    kind: 'link',
+    section: 'more',
+    audience: 'all',
+  },
+  {
+    id: 'cookie-settings',
+    label: 'Cookie settings',
+    kind: 'action',
+    action: 'cookieSettings',
     section: 'more',
     audience: 'all',
   },

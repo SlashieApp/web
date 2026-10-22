@@ -25,6 +25,9 @@
       "about": "About",
       "feedback": "Send feedback",
       "safety": "Paying & meeting safely",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "cookie-settings": "Cookie settings",
       "admin-notifications": "Send an announcement",
       "logout": "Log out"
     },
@@ -56,6 +59,9 @@
       "about": "關於",
       "feedback": "傳送意見",
       "safety": "付款與安全見面",
+      "terms": "條款",
+      "privacy": "私隱",
+      "cookie-settings": "Cookie 設定",
       "admin-notifications": "發送公告",
       "logout": "登出"
     },
