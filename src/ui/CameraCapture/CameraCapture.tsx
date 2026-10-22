@@ -24,7 +24,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { createPortal } from 'react-dom'
+import { createPortal, flushSync } from 'react-dom'
 import { LuCameraOff, LuSwitchCamera, LuX } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
@@ -37,9 +37,12 @@ import {
   CAMERA_JPEG_QUALITY,
   type CameraFacing,
   type CameraFailure,
+  type CameraPermission,
   cameraConstraints,
   cameraFailure,
   cameraFileName,
+  needsSiteSettings,
+  watchCameraPermission,
 } from './camera'
 import bag from './i11n.json'
 
@@ -131,7 +134,7 @@ function CameraSession({
   closeRef,
 }: Omit<CameraCaptureProps, 'open' | 'onOpenChange'> & {
   close: () => void
-  /** The step's main control: Take photo, Use photo, or the first fallback. */
+  /** The step's main control: Take photo, Use photo, Allow camera or the first fallback. */
   mainRef: RefObject<HTMLButtonElement | null>
   closeRef: RefObject<HTMLButtonElement | null>
 }) {
@@ -140,6 +143,8 @@ function CameraSession({
   const [facing, setFacing] = useState(initialFacing)
   const [step, setStep] = useState<CameraStep>('starting')
   const [photo, setPhoto] = useState<File | null>(null)
+  const [permission, setPermission] = useState<CameraPermission>('unknown')
+  const [askedAgain, setAskedAgain] = useState(false)
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   // The camera runs while the viewfinder is on screen: it opens as the video
@@ -189,6 +194,36 @@ function CameraSession({
     [photo],
   )
 
+  // Opens the camera again from the blocked screen. The viewfinder mounts
+  // before this returns, so the camera is asked for inside a tap, and focus
+  // moves to the shutter by hand: the focus trap only follows a focused
+  // control that is removed on its own, not one that goes with its screen.
+  const reopen = useCallback(() => {
+    flushSync(() => setStep('starting'))
+    mainRef.current?.focus()
+  }, [mainRef])
+
+  // While the blocked screen is up, the camera permission picks its message,
+  // and the camera opens straight away if it becomes allowed (in the site
+  // settings, say). Only a change opens it: a permission that was already
+  // allowed would otherwise loop when the camera still fails for another reason.
+  const blockedRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (!node) return
+      return watchCameraPermission(navigator.permissions, (state, changed) => {
+        setPermission(state)
+        if (changed && state === 'granted') reopen()
+      })
+    },
+    [reopen],
+  )
+
+  // Allow camera asks the browser again, and it prompts if it still can.
+  const allowCamera = () => {
+    setAskedAgain(true)
+    reopen()
+  }
+
   const retake = () => {
     setPhoto(null)
     setStep('starting')
@@ -216,8 +251,13 @@ function CameraSession({
 
   const viewing = step === 'starting' || step === 'live'
   const failed = step === 'blocked' || step === 'busy' || step === 'unavailable'
+  const failure = !failed
+    ? ''
+    : step === 'blocked' && needsSiteSettings(permission, askedAgain)
+      ? t.failures.blockedInSettings
+      : t.failures[step]
   const status = failed
-    ? t.failures[step]
+    ? failure
     : { starting: t.starting, live: t.ready, review: photo ? t.taken : '' }[
         step
       ]
@@ -278,24 +318,40 @@ function CameraSession({
           )
         ) : null}
         {failed ? (
-          <Stack align="center" gap={5} px={6} maxW="sm" textAlign="center">
+          <Stack
+            ref={step === 'blocked' ? blockedRef : undefined}
+            align="center"
+            gap={5}
+            px={6}
+            maxW="sm"
+            textAlign="center"
+          >
             <LuCameraOff size={40} aria-hidden />
-            <Text fontWeight={600}>{t.failures[step]}</Text>
+            <Text fontWeight={600}>{failure}</Text>
             <Stack w="full" gap={3}>
-              {fallbackActions.map((action, index) => (
-                <Button
-                  key={action.label}
-                  ref={index === 0 ? mainRef : undefined}
-                  variant={index === 0 ? 'primary' : 'secondary'}
-                  size="lg"
-                  onClick={() => {
-                    action.onSelect()
-                    close()
-                  }}
-                >
-                  {action.label}
+              {step === 'blocked' ? (
+                <Button ref={mainRef} size="lg" onClick={allowCamera}>
+                  {t.allowCamera}
                 </Button>
-              ))}
+              ) : null}
+              {fallbackActions.map((action, index) => {
+                // Allow camera is the main action when it is there.
+                const main = step !== 'blocked' && index === 0
+                return (
+                  <Button
+                    key={action.label}
+                    ref={main ? mainRef : undefined}
+                    variant={main ? 'primary' : 'secondary'}
+                    size="lg"
+                    onClick={() => {
+                      action.onSelect()
+                      close()
+                    }}
+                  >
+                    {action.label}
+                  </Button>
+                )
+              })}
             </Stack>
           </Stack>
         ) : null}
@@ -373,7 +429,11 @@ function CameraSession({
  *   Use photo hands over one JPEG `File` at the camera's full size.
  * - Every track stops whenever the viewfinder goes: after a shot, on Switch
  *   camera (before the other camera opens), on close and on unmount.
- * - Blocked, in use or no camera: a short reason and `fallbackActions`.
+ * - Blocked: Allow camera asks the browser again, from the tap. Where the
+ *   browser says it won't ask (the camera permission is `denied`) the screen
+ *   explains how to allow it in the site settings instead, and the camera
+ *   opens as soon as the permission becomes allowed. `fallbackActions` stay.
+ * - In use or no camera: a short reason and `fallbackActions`.
  */
 export function CameraCapture({
   open,

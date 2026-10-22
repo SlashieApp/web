@@ -6,12 +6,14 @@
     "close": "Close camera",
     "retake": "Retake",
     "usePhoto": "Use photo",
+    "allowCamera": "Allow camera",
     "starting": "Starting camera…",
     "ready": "Camera ready",
     "taken": "Photo taken",
     "photoAlt": "The photo you took",
     "failures": {
-      "blocked": "Camera access is blocked. You can allow it in your browser's site settings.",
+      "blocked": "We need your camera to take a photo. Tap Allow camera, then choose Allow when your browser asks.",
+      "blockedInSettings": "Camera access is blocked for this site. Tap the lock or site info icon next to the address, open site settings, allow Camera, then tap Allow camera.",
       "busy": "Another app is using the camera.",
       "unavailable": "The camera isn't available in this browser."
     }
@@ -23,12 +25,14 @@
     "close": "關閉相機",
     "retake": "重拍",
     "usePhoto": "使用相片",
+    "allowCamera": "允許使用相機",
     "starting": "正在開啟相機…",
     "ready": "相機已準備好",
     "taken": "已拍下相片",
     "photoAlt": "你拍的相片",
     "failures": {
-      "blocked": "相機存取已被封鎖。你可以在瀏覽器的網站設定中允許存取。",
+      "blocked": "我們需要使用你的相機來拍照。請按「允許使用相機」，並在瀏覽器詢問時選擇「允許」。",
+      "blockedInSettings": "此網站的相機存取已被封鎖。請按網址旁的鎖頭或網站資訊圖示，開啟網站設定，允許使用相機，然後按「允許使用相機」。",
       "busy": "另一個應用程式正在使用相機。",
       "unavailable": "此瀏覽器無法使用相機。"
     }

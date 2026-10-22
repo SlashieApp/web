@@ -122,6 +122,61 @@ describe('CameraCapture', () => {
     expect(camera.streams.every(ended)).toBe(true)
   })
 
+  /**
+   * A browser that refuses the first request (the camera is not allowed yet)
+   * and opens the camera once it is asked again. Notes whether the browser
+   * saw a tap at each request.
+   */
+  function refuseFirstRequest() {
+    const media = navigator.mediaDevices
+    const open = media.getUserMedia.bind(media)
+    const tapped: boolean[] = []
+    const spy = vi
+      .spyOn(media, 'getUserMedia')
+      .mockImplementation(async (constraints) => {
+        tapped.push(navigator.userActivation.isActive)
+        if (tapped.length === 1) {
+          throw new DOMException('Permission dismissed', 'NotAllowedError')
+        }
+        return open(constraints)
+      })
+    return { spy, tapped }
+  }
+
+  it('asks again from the tap on Allow camera, and opens the camera', async () => {
+    const camera = refuseFirstRequest()
+    showCamera('environment')
+    const allow = page.getByRole('button', { name: 'Allow camera' })
+    await expect.element(allow).toBeVisible()
+    expect(camera.spy).toHaveBeenCalledTimes(1)
+
+    await allow.click()
+    await live()
+    expect(camera.spy).toHaveBeenCalledTimes(2)
+    expect(camera.spy).toHaveBeenLastCalledWith(
+      cameraConstraints('environment'),
+    )
+    expect(camera.tapped[1]).toBe(true)
+    await expect.element(allow).not.toBeInTheDocument()
+  })
+
+  it('opens the camera, with no tap, once the permission becomes allowed', async () => {
+    const camera = refuseFirstRequest()
+    const status = Object.assign(new EventTarget(), { state: 'denied' })
+    vi.spyOn(navigator.permissions, 'query').mockResolvedValue(
+      status as unknown as PermissionStatus,
+    )
+    showCamera('environment')
+    await expect
+      .element(page.getByRole('paragraph'))
+      .toHaveTextContent(/blocked for this site/)
+
+    status.state = 'granted'
+    status.dispatchEvent(new Event('change'))
+    await live()
+    expect(camera.spy).toHaveBeenCalledTimes(2)
+  })
+
   it('stops the back camera before it opens the front one', async () => {
     const camera = watchCamera()
     showCamera('environment')
