@@ -42,6 +42,8 @@ export type UseTaskLocationMapInput = {
   mapOptions?: Partial<MapOptions>
   /** Add controls/overlays to a new map (they live in its container). */
   onMapCreated?: (map: MapboxMap, mapboxgl: MapboxModule) => void
+  /** The poster starts moving the map (drag, pinch, wheel, keys); not flyTo. */
+  onUserMoveStart?: () => void
 }
 
 /**
@@ -59,6 +61,7 @@ export function useTaskLocationMap({
   onLocationLngChange,
   mapOptions,
   onMapCreated,
+  onUserMoveStart,
 }: UseTaskLocationMapInput) {
   const mapRef = useRef<MapboxMap | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
@@ -75,6 +78,8 @@ export function useTaskLocationMap({
   mapOptionsRef.current = mapOptions
   const onMapCreatedRef = useRef(onMapCreated)
   onMapCreatedRef.current = onMapCreated
+  const onUserMoveStartRef = useRef(onUserMoveStart)
+  onUserMoveStartRef.current = onUserMoveStart
 
   const locationLatRef = useRef(locationLat)
   const locationLngRef = useRef(locationLng)
@@ -155,6 +160,11 @@ export function useTaskLocationMap({
 
         map.on('dragstart', () => {
           pinDraggedRef.current = true
+        })
+
+        // Gestures carry their input event; flyTo, jumpTo and resize don't.
+        map.on('movestart', (event) => {
+          if (event.originalEvent) onUserMoveStartRef.current?.()
         })
 
         const onMoveEnd = () => {

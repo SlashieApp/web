@@ -2,7 +2,7 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { UseFormRegister } from 'react-hook-form'
-import { LuLock, LuMapPin } from 'react-icons/lu'
+import { LuLock, LuMapPin, LuPencil, LuPlus } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -26,6 +26,17 @@ export type CreateTaskLocationSectionProps = {
   pinAddress?: string
   /** Copy the pin's address into Exact address (FE-209). */
   onUsePinAddress?: () => void
+  /**
+   * Phones and tablets, compact panel (FE-349): only the area line and an
+   * Add exact address row, so the map keeps the room.
+   */
+  compact?: boolean
+  /** The exact address so far; the compact row shows it once there is one. */
+  streetAddress?: string
+  /** The compact row: open the panel at the address field. */
+  onAddAddress?: () => void
+  /** The address field took focus (the phone panel opens for it). */
+  onStreetAddressFocus?: () => void
 }
 
 /**
@@ -41,10 +52,71 @@ export function CreateTaskLocationSection({
   onStreetAddressBlur,
   pinAddress = '',
   onUsePinAddress,
+  compact = false,
+  streetAddress = '',
+  onAddAddress,
+  onStreetAddressFocus,
 }: CreateTaskLocationSectionProps) {
   const copy = useI11n(bag)
   const t = copy.location
-  const streetAddress = register('streetAddress')
+  const areaText = publicArea
+    ? formatMessage(t.workersWillSee, { area: publicArea })
+    : t.areaPending
+  const locationErrorText = locationError ? (
+    <Text fontSize="sm" color="status.danger.fg" role="alert">
+      {taskFieldError(copy.errors, locationError)}
+    </Text>
+  ) : null
+
+  if (compact) {
+    const address = streetAddress.trim()
+    return (
+      <Stack gap={2.5}>
+        <Stack gap={1}>
+          <HStack gap={1.5} aria-live="polite">
+            <Box color="action.primary" flexShrink={0} aria-hidden>
+              <LuMapPin size={14} />
+            </Box>
+            <Text fontSize="sm" fontWeight={600} lineClamp={1}>
+              {areaText}
+            </Text>
+          </HStack>
+          {locationErrorText}
+        </Stack>
+        <Stack gap={1}>
+          <Button
+            type="button"
+            variant="secondary"
+            w="full"
+            justifyContent="flex-start"
+            aria-label={
+              address
+                ? formatMessage(t.editAddressLabel, { address })
+                : undefined
+            }
+            onClick={onAddAddress}
+          >
+            <LuLock size={16} aria-hidden />
+            <Text as="span" flex={1} minW={0} textAlign="start" truncate>
+              {address || t.addAddress}
+            </Text>
+            {address ? (
+              <LuPencil size={16} aria-hidden />
+            ) : (
+              <LuPlus size={16} aria-hidden />
+            )}
+          </Button>
+          {streetAddressError ? (
+            <Text fontSize="sm" color="status.danger.fg">
+              {taskFieldError(copy.errors, streetAddressError)}
+            </Text>
+          ) : null}
+        </Stack>
+      </Stack>
+    )
+  }
+
+  const streetAddressField = register('streetAddress')
 
   return (
     <Stack gap={4}>
@@ -80,9 +152,7 @@ export function CreateTaskLocationSection({
             <LuMapPin size={14} />
           </Box>
           <Text fontSize="sm" fontWeight={600} lineClamp={1}>
-            {publicArea
-              ? formatMessage(t.workersWillSee, { area: publicArea })
-              : t.areaPending}
+            {areaText}
           </Text>
         </HStack>
       </Stack>
@@ -106,10 +176,11 @@ export function CreateTaskLocationSection({
       >
         <Stack gap={2}>
           <Input
-            {...streetAddress}
+            {...streetAddressField}
             placeholder={t.addressPlaceholder}
+            onFocus={onStreetAddressFocus}
             onBlur={(event) => {
-              streetAddress.onBlur(event)
+              streetAddressField.onBlur(event)
               onStreetAddressBlur?.()
             }}
           />
@@ -128,11 +199,7 @@ export function CreateTaskLocationSection({
         </Stack>
       </FormField>
 
-      {locationError ? (
-        <Text fontSize="sm" color="status.danger.fg" role="alert">
-          {taskFieldError(copy.errors, locationError)}
-        </Text>
-      ) : null}
+      {locationErrorText}
     </Stack>
   )
 }

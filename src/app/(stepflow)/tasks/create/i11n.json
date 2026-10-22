@@ -61,7 +61,13 @@
       "areaPending": "Move the map to set the area.",
       "addressHelper": "Shared only with the worker you accept.",
       "usePinAddress": "Use pin address",
-      "mapUnavailable": "The map isn't available right now. Type the address instead."
+      "mapUnavailable": "The map isn't available right now. Type the address instead.",
+      "addAddress": "Add exact address",
+      "editAddressLabel": "Edit exact address: {address}",
+      "showDetails": "Show address details",
+      "hideDetails": "Hide address details",
+      "detailsShown": "Address details shown.",
+      "detailsHidden": "Address details hidden."
     },
     "band": {
       "near": "Near {area}",
@@ -247,7 +253,13 @@
       "areaPending": "移動地圖以設定地區。",
       "addressHelper": "只會分享給你接受的工作者。",
       "usePinAddress": "使用地圖位置的地址",
-      "mapUnavailable": "地圖暫時未能使用，請直接輸入地址。"
+      "mapUnavailable": "地圖暫時未能使用，請直接輸入地址。",
+      "addAddress": "加入詳細地址",
+      "editAddressLabel": "編輯詳細地址：{address}",
+      "showDetails": "顯示地址詳情",
+      "hideDetails": "隱藏地址詳情",
+      "detailsShown": "已顯示地址詳情。",
+      "detailsHidden": "已隱藏地址詳情。"
     },
     "band": {
       "near": "{area}附近",

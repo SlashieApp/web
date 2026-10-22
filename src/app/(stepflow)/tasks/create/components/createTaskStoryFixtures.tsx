@@ -6,6 +6,7 @@ import {
   TaskDateTimeType,
   TaskPaymentMethod,
 } from '@codegen/schema'
+import { within } from 'storybook/test'
 
 import {
   createStoryApolloClient,
@@ -77,4 +78,53 @@ export function withPopularCategories(
     data: { popularTaskCategories: categories },
   })
   return withStoryApollo(createStoryApolloClient({ cache }))
+}
+
+/**
+ * Phones the location panel is checked on (FE-349). Pass as
+ * `parameters.viewport.options`, then pick one with `globals.viewport`.
+ */
+export const CREATE_TASK_PHONE_VIEWPORTS = {
+  iphoneSe1: {
+    name: 'iPhone SE (1st gen)',
+    styles: { width: '320px', height: '568px' },
+    type: 'mobile',
+  },
+  iphoneSe2: {
+    name: 'iPhone SE (2nd and 3rd gen)',
+    styles: { width: '375px', height: '667px' },
+    type: 'mobile',
+  },
+  iphone15: {
+    name: 'iPhone 15',
+    styles: { width: '393px', height: '852px' },
+    type: 'mobile',
+  },
+} as const
+
+/**
+ * The map that shows above the location card, in px: from the top of the
+ * page's `main` to the card's top edge (its handle on phones), once the card
+ * has stopped moving.
+ */
+export async function storyVisibleMapHeight(
+  canvasElement: HTMLElement,
+): Promise<number> {
+  const main = canvasElement.querySelector('main')
+  const handle = within(canvasElement).getByRole('button', {
+    name: /address details/,
+  })
+  if (!main) throw new Error('No main')
+  const measure = () =>
+    Math.round(
+      handle.getBoundingClientRect().top - main.getBoundingClientRect().top,
+    )
+  // Same reading three times running, 300 ms apart: the card has settled.
+  let readings = [measure()]
+  while (readings.length < 3 || new Set(readings.slice(-3)).size > 1) {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    readings = [...readings, measure()]
+    if (readings.length > 20) throw new Error('The card never settled')
+  }
+  return readings[readings.length - 1] ?? 0
 }
