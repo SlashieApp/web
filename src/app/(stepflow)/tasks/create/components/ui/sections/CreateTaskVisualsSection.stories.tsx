@@ -1,45 +1,68 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
-import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
+import {
+  storyHeicPhoto,
+  storyImage,
+} from '@/app/(stepflow)/stepflowStoryHelpers'
 
+import {
+  type TaskPhotoTile,
+  useTaskPhotos,
+} from '../../../helpers/useTaskPhotos'
 import {
   CreateTaskVisualsSection,
   type CreateTaskVisualsSectionProps,
 } from './CreateTaskVisualsSection'
 
-function photo(name: string, color: string) {
-  return {
-    file: new File([name], name, { type: 'image/jpeg' }),
-    preview: storyImage(color, 176),
-  }
+/** A picked photo already showing its preview. */
+function photo(key: string, color: string): TaskPhotoTile {
+  return { key, state: 'ready', src: storyImage(color, 176) }
 }
 
 type DemoProps = Pick<
   CreateTaskVisualsSectionProps,
   'bare' | 'sectionHeading' | 'existingImageUrls' | 'rejected'
-> & { initial?: ReturnType<typeof photo>[] }
+> & { initial?: TaskPhotoTile[] }
 
+/** Tiles in a given state; photos picked here show straight away. */
 function CreateTaskVisualsSectionDemo({ initial = [], ...props }: DemoProps) {
   const [photos, setPhotos] = useState(initial)
+  const nextRef = useRef(0)
   return (
     <CreateTaskVisualsSection
       {...props}
-      files={photos.map((p) => p.file)}
-      previews={photos.map((p) => p.preview)}
+      photos={photos}
       onFilesAdded={(added) =>
         setPhotos((prev) => [
           ...prev,
-          ...added.map((file) => ({
-            file,
-            preview: URL.createObjectURL(file),
-          })),
+          ...added.map(
+            (file): TaskPhotoTile => ({
+              key: `picked-${nextRef.current++}`,
+              state: 'ready',
+              src: URL.createObjectURL(file),
+            }),
+          ),
         ])
       }
       onRemoveFile={(index) =>
         setPhotos((prev) => prev.filter((_, i) => i !== index))
       }
+    />
+  )
+}
+
+/** The section on the real `useTaskPhotos`, which converts HEIC photos. */
+function LiveTaskPhotos() {
+  const photos = useTaskPhotos()
+  return (
+    <CreateTaskVisualsSection
+      bare
+      photos={photos.tiles}
+      rejected={photos.rejected}
+      onFilesAdded={photos.add}
+      onRemoveFile={photos.remove}
     />
   )
 }
@@ -54,7 +77,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** No photos yet, with a mouse: just the dashed Add photos tile (no Take photo). */
+/** No photos yet, with a mouse: one dashed Add photos tile that opens the file picker. */
 export const Empty: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -67,19 +90,29 @@ export const Empty: Story = {
   },
 }
 
-/** Phones and tablets: a Take photo tile opens the back camera; its shot joins the photos. */
+/** Phones and tablets: Add photos offers the back camera or the library; a shot joins the photos. */
 export const TouchScreen: Story = {
-  globals: { touch: 'on', viewport: { value: 'mobile1' } },
+  parameters: { touchScreen: true },
+  globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Add photos' }))
+    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Add a photo' },
+    )
     await expect(
-      canvas.getByRole('button', { name: 'Take photo' }),
+      within(drawer).getByRole('button', { name: 'Take photo' }),
     ).toBeVisible()
+    await userEvent.click(
+      within(drawer).getByRole('button', { name: 'Take photo' }),
+    )
+    // The camera has the screen now; the drawer has gone by the time it's back.
+    await waitFor(() => expect(drawer).not.toBeInTheDocument())
     const camera =
       canvasElement.querySelector<HTMLInputElement>('input[capture]')
     if (!camera) throw new Error('No camera input')
     await expect(camera).toHaveAttribute('capture', 'environment')
-    await expect(camera).toHaveAttribute('accept', 'image/*')
     await userEvent.upload(
       camera,
       new File(['shot'], 'camera.jpg', { type: 'image/jpeg' }),
@@ -93,10 +126,75 @@ export const TouchScreen: Story = {
 /** Two photos picked: previews (tap to view) with a remove button on each. */
 export const WithPhotos: Story = {
   args: {
+    initial: [photo('pipe', '#9ec5e8'), photo('sink', '#f0c987')],
+  },
+}
+
+/** A HEIC photo converting: its tile says so (busy) until the preview is ready. */
+export const ConvertingPhoto: Story = {
+  args: {
     initial: [
-      photo('leaking-pipe.jpg', '#9ec5e8'),
-      photo('under-the-sink.jpg', '#f0c987'),
+      photo('pipe', '#9ec5e8'),
+      { key: 'heic', state: 'converting', src: null },
     ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const text = canvas.getByText('Converting photo…')
+    await expect(text).toBeVisible()
+    await expect(text.closest('[aria-busy="true"]')).toHaveTextContent(
+      'Photo 2',
+    )
+    await expect(
+      canvas.getByRole('button', { name: 'Remove photo 2' }),
+    ).toBeVisible()
+  },
+}
+
+/** A HEIC this browser couldn't convert: no preview, but it still uploads. */
+export const PreviewNotAvailable: Story = {
+  args: {
+    initial: [
+      { key: 'heic', state: 'unavailable', src: null },
+      photo('sink', '#f0c987'),
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const text = canvas.getByText('Preview not available')
+    await expect(text).toBeVisible()
+    await expect(text.parentElement).toHaveTextContent('Photo 1')
+    // Full screen pages through the photos it can show.
+    await userEvent.click(canvas.getByRole('button', { name: 'Photo 2' }))
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Photo preview' },
+    )
+    const shown = await within(dialog).findByRole('img', { name: 'Photo 2' })
+    await waitFor(() => expect(shown).toBeVisible())
+  },
+}
+
+/** A real HEIC picked in Chromium: "Converting photo…", then its preview. */
+export const HeicConverts: Story = {
+  render: () => <LiveTaskPhotos />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const library = canvasElement.querySelector<HTMLInputElement>(
+      'input[type="file"]:not([capture])',
+    )
+    if (!library) throw new Error('No library input')
+    await userEvent.upload(library, await storyHeicPhoto())
+    await expect(await canvas.findByText('Converting photo…')).toBeVisible()
+    const preview = await canvas.findByRole(
+      'img',
+      { name: 'Photo 1' },
+      { timeout: 15_000 },
+    )
+    await waitFor(() =>
+      expect((preview as HTMLImageElement).naturalWidth).toBe(240),
+    )
+    await expect(canvas.queryByText('Converting photo…')).toBeNull()
   },
 }
 
@@ -111,7 +209,7 @@ export const ExistingPhotos: Story = {
 export const ExistingAndNewPhotos: Story = {
   args: {
     existingImageUrls: [storyImage('#7fcfa6', 176)],
-    initial: [photo('new-angle.jpg', '#f0c987')],
+    initial: [photo('angle', '#f0c987')],
   },
 }
 

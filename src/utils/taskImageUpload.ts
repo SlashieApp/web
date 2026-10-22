@@ -7,6 +7,10 @@ import type {
 
 import FinalizeTaskImage from '@/app/(stepflow)/tasks/create/graphql/FinalizeTaskImage.gql'
 import { uploadImageBytes } from '@/utils/imageUpload'
+import type {
+  PhotoUploadPhase,
+  PhotoUploadProgress,
+} from '@/utils/photoUploadProgress'
 import {
   TASK_IMAGE_SLOTS,
   canUploadTaskImages,
@@ -20,20 +24,27 @@ export const TASK_PHOTO_MAX_EDGE = 2048
  * Uploads one photo into `slot` (0 to 9): shrunk to a JPEG, then
  * `createImageUpload`, PUT and `finalizeTaskImage`, which stores it as
  * `tasks/<taskId>/<slot>.jpg` and replaces any earlier photo in that slot.
- * Returns the photo's public URL.
+ * `onPhase` hears `preparing` and `uploading`. Returns the photo's public URL.
  */
 export async function uploadTaskImage(
   client: ApolloClient,
   taskId: string,
   file: File,
   slot: number,
+  onPhase?: (phase: PhotoUploadPhase) => void,
 ): Promise<string> {
   const index = taskImageIndex(slot, file)
-  const uploadKey = await uploadImageBytes(client, file, TASK_PHOTO_MAX_EDGE, {
-    flow: 'task_create',
-    action: 'uploadTaskImage',
-    url_or_operation: 'task_image_put',
-  })
+  const uploadKey = await uploadImageBytes(
+    client,
+    file,
+    TASK_PHOTO_MAX_EDGE,
+    {
+      flow: 'task_create',
+      action: 'uploadTaskImage',
+      url_or_operation: 'task_image_put',
+    },
+    onPhase,
+  )
   const { data } = await client.mutate<
     FinalizeTaskImageMutation,
     FinalizeTaskImageMutationVariables
@@ -50,14 +61,22 @@ export async function uploadTaskImage(
  * Uploads every photo, one at a time (each is decoded in memory to shrink
  * it), even when one fails (create and edit: the task is already saved, so
  * the rest should still land). Each file takes the next
- * free slot; a file with no slot left, or any file while the task is not open
- * or a draft, is not sent and counts as failed. Returns how many failed.
+ * free slot (`slots`, 0 to 9 by default); a file with no slot left, or any
+ * file while the task is not open or a draft, is not sent and counts as
+ * failed. `onProgress` hears each photo's `preparing` and `uploading` step,
+ * counting photos from 1. Returns how many failed.
  */
 export async function uploadTaskImagesSettled(
   client: ApolloClient,
   task: { id: string; status: TaskStatus | null | undefined },
   files: readonly File[],
-  slots: readonly number[] = TASK_IMAGE_SLOTS,
+  {
+    slots = TASK_IMAGE_SLOTS,
+    onProgress,
+  }: {
+    slots?: readonly number[]
+    onProgress?: (progress: PhotoUploadProgress) => void
+  } = {},
 ): Promise<{ failed: number }> {
   if (!canUploadTaskImages(task.status)) return { failed: files.length }
   let failed = 0
@@ -68,7 +87,9 @@ export async function uploadTaskImagesSettled(
       continue
     }
     try {
-      await uploadTaskImage(client, task.id, files[i], slot)
+      await uploadTaskImage(client, task.id, files[i], slot, (phase) =>
+        onProgress?.({ phase, index: i + 1, total: files.length }),
+      )
     } catch {
       failed += 1
     }

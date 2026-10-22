@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
-import { type ComponentType, useRef, useState } from 'react'
+import { type ComponentType, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { ContactMethodsPanel } from '@/app/(dashboard)/components/ui/ContactMethodsPanel'
@@ -12,6 +12,7 @@ import {
   type ImageUploadErrorCode,
   imageUploadErrorCode,
 } from '@/utils/graphqlErrors'
+import { isHeicFile, viewablePhoto } from '@/utils/heicPhoto'
 import {
   AVATAR_ACCEPTED_TYPES,
   uploadProfileAvatar,
@@ -21,9 +22,11 @@ import {
   Button,
   FormField,
   Input,
+  PhotoSourcePicker,
+  PhotoTile,
+  type PhotoTileState,
   RadioButtonGroup,
   formControlRootProps,
-  useTakePhoto,
 } from '@ui'
 
 import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
@@ -135,24 +138,35 @@ function photoProblemText(
 }
 
 function PhotoSection() {
-  const { t, form, account, clearErrors, error } = useSetupField()
+  const { t, form, account, clearErrors, error, photoStage, setPhotoStage } =
+    useSetupField()
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [uploading, setUploading] = useState(false)
+  // Shown instead of the photo while a HEIC converts, or when it can't be.
+  const [tile, setTile] = useState<Exclude<PhotoTileState, 'ready'> | null>(
+    null,
+  )
   const [problem, setProblem] = useState<PhotoProblem | null>(null)
   const initial =
     `${form.firstName}${form.lastName}`.trim().charAt(0).toUpperCase() || '?'
 
-  const upload = async (file: File | undefined) => {
-    if (!file) return
-    const invalid = validateAvatarFile(file)
+  const upload = async (picked: File | undefined) => {
+    if (!picked) return
+    const invalid = validateAvatarFile(picked)
     if (invalid) {
       setProblem(invalid === 'type' ? 'photoWrongType' : 'photoTooLarge')
       return
     }
-    setUploading(true)
     setProblem(null)
+    // A HEIC this browser can't show becomes a JPEG first; if that fails
+    // the original goes up and the API converts it.
+    if (isHeicFile(picked)) {
+      setPhotoStage('converting')
+      setTile('converting')
+    }
+    const { file, viewable } = await viewablePhoto(picked)
+    setTile(viewable ? null : 'unavailable')
+    setPhotoStage('uploading')
     try {
       // Saved here by `finalizeAvatarUpload`; Continue only checks it is set.
       const saved = await uploadProfileAvatar(apolloClient, file)
@@ -166,14 +180,10 @@ function PhotoSection() {
     } catch (failure) {
       setProblem(imageUploadErrorCode(failure) ?? 'photoUploadFailed')
     } finally {
-      setUploading(false)
+      setPhotoStage(null)
+      setTile(null)
     }
   }
-  // Phones and tablets: the front camera, for a selfie.
-  const camera = useTakePhoto({
-    capture: 'user',
-    onFiles: (files) => void upload(files[0]),
-  })
 
   return (
     <FormField
@@ -183,67 +193,57 @@ function PhotoSection() {
     >
       {(field) => (
         <HStack gap={4} align="center">
-          <Box
-            boxSize="88px"
-            borderRadius="full"
-            bg="status.success.soft"
-            color="status.success.fg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            fontWeight={800}
-            fontSize="2xl"
-            overflow="hidden"
-            flexShrink={0}
-          >
-            {account.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={account.avatarUrl}
-                alt={t.fields.photoAlt}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <span aria-hidden>{initial}</span>
-            )}
-          </Box>
-          <HStack gap={3} flexWrap="wrap">
-            <Button
-              id={field.controlId}
-              type="button"
-              variant="secondary"
-              minH="44px"
-              loading={uploading}
-              aria-describedby={field.describedBy}
-              onClick={() => inputRef.current?.click()}
+          {tile ? (
+            <PhotoTile state={tile} alt={t.fields.photoAlt} size="88px" round />
+          ) : (
+            <Box
+              boxSize="88px"
+              borderRadius="full"
+              bg="status.success.soft"
+              color="status.success.fg"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              fontWeight={800}
+              fontSize="2xl"
+              overflow="hidden"
+              flexShrink={0}
             >
-              {account.avatarUrl ? t.fields.changePhoto : t.fields.uploadPhoto}
-            </Button>
-            <Button
-              {...camera.triggerProps}
-              type="button"
-              variant="secondary"
-              minH="44px"
-              disabled={uploading}
-              aria-describedby={field.describedBy}
-              onClick={camera.open}
-            >
-              {t.fields.takePhoto}
-            </Button>
-          </HStack>
-          {/* The API converts every listed type (HEIC too) to JPEG. */}
-          <input
-            ref={inputRef}
-            type="file"
+              {account.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={account.avatarUrl}
+                  alt={t.fields.photoAlt}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <span aria-hidden>{initial}</span>
+              )}
+            </Box>
+          )}
+          {/* The front camera, for a selfie. The API converts every listed
+              type (HEIC too) to JPEG. */}
+          <PhotoSourcePicker
+            camera="user"
             accept={AVATAR_ACCEPTED_TYPES.join(',')}
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              e.target.value = ''
-              void upload(file)
-            }}
-          />
-          <input {...camera.inputProps} />
+            onFiles={(files) => void upload(files[0])}
+          >
+            {(trigger) => (
+              <Button
+                {...trigger}
+                id={field.controlId}
+                type="button"
+                variant="secondary"
+                minH="44px"
+                loading={photoStage !== null}
+                aria-describedby={field.describedBy}
+              >
+                {account.avatarUrl
+                  ? t.fields.changePhoto
+                  : t.fields.uploadPhoto}
+              </Button>
+            )}
+          </PhotoSourcePicker>
         </HStack>
       )}
     </FormField>

@@ -2,8 +2,7 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { ChangeEvent } from 'react'
-import { useRef } from 'react'
-import { LuCamera, LuPlus, LuX } from 'react-icons/lu'
+import { LuPlus, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -13,10 +12,10 @@ import {
   IconButton,
   Input,
   Link,
+  PhotoSourcePicker,
   Textarea,
   TimeSlotPicker,
   formControlRootProps,
-  useTakePhoto,
 } from '@ui'
 import type { TextareaProps } from '@ui'
 
@@ -105,9 +104,6 @@ export function TaskQuoteStepContent({
     setQuoteSlots,
   } = useTaskDetail()
   const t = useI11n(bag)
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
-  // Phones and tablets: the back camera, for the job itself.
-  const camera = useTakePhoto({ capture: 'environment', onFiles: onPhotoFiles })
 
   if (!task) return null
 
@@ -192,19 +188,6 @@ export function TaskQuoteStepContent({
             }
             helperText={t.steps['quote.photos'].description}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              onChange={(e) => {
-                // Copy first: clearing the input empties its FileList.
-                onPhotoFiles(Array.from(e.target.files ?? []))
-                e.target.value = ''
-              }}
-            />
-            <input {...camera.inputProps} />
             <HStack gap={2} flexWrap="wrap">
               {photoUrls.map((url, i) => (
                 <Box key={url} position="relative" w="72px" h="72px">
@@ -234,33 +217,27 @@ export function TaskQuoteStepContent({
                 </Box>
               ))}
               {photoUrls.length < 6 ? (
-                <>
-                  <IconButton
-                    aria-label={t.photos.add}
-                    variant="outline"
-                    w="72px"
-                    h="72px"
-                    minW="72px"
-                    minH="72px"
-                    rounded="lg"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <LuPlus size={22} />
-                  </IconButton>
-                  <IconButton
-                    {...camera.triggerProps}
-                    aria-label={t.photos.take}
-                    variant="outline"
-                    w="72px"
-                    h="72px"
-                    minW="72px"
-                    minH="72px"
-                    rounded="lg"
-                    onClick={camera.open}
-                  >
-                    <LuCamera size={22} />
-                  </IconButton>
-                </>
+                // The back camera, for the job itself.
+                <PhotoSourcePicker
+                  camera="environment"
+                  multiple
+                  onFiles={onPhotoFiles}
+                >
+                  {(trigger) => (
+                    <IconButton
+                      {...trigger}
+                      aria-label={t.photos.add}
+                      variant="outline"
+                      w="72px"
+                      h="72px"
+                      minW="72px"
+                      minH="72px"
+                      rounded="lg"
+                    >
+                      <LuPlus size={22} />
+                    </IconButton>
+                  )}
+                </PhotoSourcePicker>
               ) : null}
             </HStack>
           </FormField>

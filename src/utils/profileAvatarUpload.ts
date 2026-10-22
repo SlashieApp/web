@@ -5,6 +5,7 @@ import type {
 } from '@codegen/schema'
 
 import FinalizeAvatarUpload from '@/app/(dashboard)/profile/graphql/FinalizeAvatarUpload.gql'
+import { isHeicFile } from '@/utils/heicPhoto'
 import { uploadImageBytes } from '@/utils/imageUpload'
 
 export const AVATAR_MAX_BYTES = 5 * 1024 * 1024
@@ -21,9 +22,17 @@ export const AVATAR_ACCEPTED_TYPES = [
 
 export type AvatarFileProblem = 'type' | 'size'
 
-/** Why a picked file can't be a profile photo (callers word it), or null. */
+/**
+ * Why a picked file can't be a profile photo (callers word it), or null. A
+ * HEIC counts by its name too, since some browsers leave its type empty.
+ */
 export function validateAvatarFile(file: File): AvatarFileProblem | null {
-  if (!AVATAR_ACCEPTED_TYPES.includes(file.type as never)) return 'type'
+  if (
+    !AVATAR_ACCEPTED_TYPES.includes(file.type as never) &&
+    !isHeicFile(file)
+  ) {
+    return 'type'
+  }
   if (file.size > AVATAR_MAX_BYTES) return 'size'
   return null
 }

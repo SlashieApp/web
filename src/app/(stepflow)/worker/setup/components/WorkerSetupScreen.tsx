@@ -6,6 +6,7 @@ import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import { StatusScreen } from '@/app/StatusScreen'
 import { useI11n } from '@/i18n/useI11n'
 import { BrandLoading } from '@/ui/BrandLoading/BrandLoading'
+import photoTileBag from '@/ui/PhotoTile/i11n.json'
 import { Button, Link, StepFlowHeader, StepFlowLayout } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
@@ -19,12 +20,14 @@ import { WorkerSetupStepContent } from './ui/steps/WorkerSetupStepContent'
 /** /worker/setup for a signed-in user: what `getWorkerSetupView` picks. */
 export function WorkerSetupScreen() {
   const t = useI11n(bag)
+  const photoTile = useI11n(photoTileBag)
   const {
     status,
     screen,
     exitHref,
     goBack,
     isSaving,
+    photoStage,
     retryLoad,
     saveAndContinue,
     saveError,
@@ -80,7 +83,14 @@ export function WorkerSetupScreen() {
         showBack: previousScreen(view.screen) !== null,
         backLabel: t.back,
         continueLabel: finish ? t.finish : t.continue,
-        continueLoading: isSaving,
+        // Continue waits for the profile photo (FE-341), and says so.
+        continueLoading: isSaving || photoStage !== null,
+        continueLoadingText:
+          photoStage === 'converting'
+            ? photoTile.converting
+            : photoStage === 'uploading'
+              ? t.fields.photoUploading
+              : undefined,
         isFinal: finish,
         onBack: goBack,
         onContinue: () => void saveAndContinue(),

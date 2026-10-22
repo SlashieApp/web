@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fireEvent, within } from 'storybook/test'
+import { expect, fireEvent, userEvent, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyAvatarUrl, storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
@@ -26,7 +26,7 @@ function pickFile(
   fireEvent.change(input, { target: { files: [file] } })
 }
 
-/** No photo yet, with a mouse: initials and an Upload photo button only. */
+/** No photo yet, with a mouse: initials and one Upload photo button that opens the file picker. */
 export const NoPhoto: Story = {
   decorators: [withSession({ me: storyMe() })],
   play: async ({ canvasElement }) => {
@@ -40,15 +40,23 @@ export const NoPhoto: Story = {
   },
 }
 
-/** Phones and tablets: Take photo opens the front camera; its shot is checked like a picked file. */
+/** Phones and tablets: Upload photo offers the front camera; its shot is checked like a picked file. */
 export const TouchScreen: Story = {
   decorators: [withSession({ me: storyMe() })],
-  globals: { touch: 'on', viewport: { value: 'mobile1' } },
+  parameters: { touchScreen: true },
+  globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      await canvas.findByRole('button', { name: 'Take photo' }),
-    ).toBeVisible()
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Upload photo' }),
+    )
+    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Add a photo' },
+    )
+    await userEvent.click(
+      within(drawer).getByRole('button', { name: 'Take photo' }),
+    )
     await expect(canvasElement.querySelector('input[capture]')).toHaveAttribute(
       'capture',
       'user',

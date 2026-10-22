@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import type { WorkerSetupContextValue } from '../../../context/WorkerSetupProvider'
 import { type WorkerSetupScreenId, workerSetupScreen } from '../../../views'
@@ -50,7 +50,7 @@ const pick = async (
   await userEvent.setup({ applyAccept: false }).upload(input, file)
 }
 
-/** About you: names prefilled from the account, no photo yet (a mouse: no Take photo). */
+/** About you: names prefilled from the account, no photo yet (a mouse: Upload photo opens the file picker). */
 export const About: Story = {
   ...onScreen('about'),
   play: async ({ canvasElement }) => {
@@ -62,14 +62,22 @@ export const About: Story = {
   },
 }
 
-/** Phones and tablets: Take photo opens the front camera; its shot is checked like a picked file. */
+/** Phones and tablets: Upload photo offers the front camera; its shot is checked like a picked file. */
 export const PhotoTouchScreen: Story = {
   ...onScreen('about'),
-  globals: { touch: 'on', viewport: { value: 'mobile1' } },
+  parameters: { touchScreen: true },
+  globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole('button', { name: 'Take photo' }),
-    ).toBeVisible()
+    await userEvent.click(within(canvasElement).getByText('Upload photo'))
+    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Add a photo' },
+    )
+    await userEvent.click(
+      within(drawer).getByRole('button', { name: 'Take photo' }),
+    )
+    // The camera has the screen now; the drawer has gone by the time it's back.
+    await waitFor(() => expect(drawer).not.toBeInTheDocument())
     await expect(canvasElement.querySelector('input[capture]')).toHaveAttribute(
       'capture',
       'user',

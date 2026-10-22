@@ -3,6 +3,7 @@ import type { CreateImageUploadMutation } from '@codegen/schema'
 
 import CreateImageUpload from '@/graphql/CreateImageUpload.gql'
 import { apiFetch } from '@/utils/analytics'
+import type { PhotoUploadPhase } from '@/utils/photoUploadProgress'
 import { shrinkPhoto } from '@/utils/shrinkPhoto'
 
 /**
@@ -11,15 +12,19 @@ import { shrinkPhoto } from '@/utils/shrinkPhoto'
  * private upload (`createImageUpload`) and PUTs the photo to it. Returns the
  * `uploadKey` for `finalizeTaskImage` or `finalizeAvatarUpload`, which save
  * it as a metadata-free JPEG. An upload never finalized is deleted by the API
- * after about an hour.
+ * after about an hour. `onPhase` hears `preparing` (the shrink) and then
+ * `uploading`.
  */
 export async function uploadImageBytes(
   client: ApolloClient,
   file: File,
   maxEdge: number,
   context: { flow: string; action: string; url_or_operation: string },
+  onPhase?: (phase: PhotoUploadPhase) => void,
 ): Promise<string> {
+  onPhase?.('preparing')
   const photo = await shrinkPhoto(file, maxEdge)
+  onPhase?.('uploading')
   const { data } = await client.mutate<CreateImageUploadMutation>({
     mutation: CreateImageUpload,
   })

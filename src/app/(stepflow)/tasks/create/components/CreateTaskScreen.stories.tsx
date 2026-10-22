@@ -8,7 +8,10 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
-import { storyDateInDays } from '@/app/(stepflow)/stepflowStoryHelpers'
+import {
+  storyDateInDays,
+  storyHeicPhoto,
+} from '@/app/(stepflow)/stepflowStoryHelpers'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import {
@@ -126,6 +129,33 @@ export const Details: Story = {
     await expect(
       canvas.getByText('We kept your unfinished task.'),
     ).toBeVisible()
+  },
+}
+
+/** A HEIC photo converting: Continue waits, saying why, then the photo shows. */
+export const DetailsConvertingPhoto: Story = {
+  decorators: [atStep('details')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'What needs doing?' })
+    const library = canvasElement.querySelector<HTMLInputElement>(
+      'input[type="file"]:not([capture])',
+    )
+    if (!library) throw new Error('No library input')
+    await userEvent.upload(library, await storyHeicPhoto())
+    await expect(
+      await canvas.findByRole('button', { name: 'Converting photos…' }),
+    ).toBeDisabled()
+    await expect(
+      await canvas.findByRole(
+        'button',
+        { name: 'Photo 1' },
+        { timeout: 15_000 },
+      ),
+    ).toBeVisible()
+    await expect(
+      await canvas.findByRole('button', { name: 'Continue' }),
+    ).toBeEnabled()
   },
 }
 

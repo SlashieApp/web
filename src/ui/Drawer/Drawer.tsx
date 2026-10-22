@@ -114,6 +114,11 @@ export type DrawerProps = {
   onPrimaryAction?: () => void
   /** Optional responsive panel overrides for feature drawers/sheets. */
   contentProps?: DrawerContentProps
+  /**
+   * Where focus goes on close. Defaults to whatever had focus on open; pass
+   * the opening button when a tap may not focus it (Safari on iPhone).
+   */
+  finalFocusEl?: () => HTMLElement | null
 }
 
 const sheetMotionCss = {
@@ -158,6 +163,7 @@ export function Drawer({
   primaryActionLabel,
   onPrimaryAction,
   contentProps,
+  finalFocusEl,
 }: DrawerProps) {
   const t = useI11n(bag)
   const radius = drawerPanelRadius(placement)
@@ -315,6 +321,7 @@ export function Drawer({
           onOpenChange={(d: { open: boolean }) => onOpenChange(d.open)}
           placement={placement}
           size={size}
+          finalFocusEl={finalFocusEl}
           lazyMount
           unmountOnExit
         >

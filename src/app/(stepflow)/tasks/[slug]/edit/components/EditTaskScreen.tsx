@@ -41,6 +41,10 @@ import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
 import { isUnauthenticatedError } from '@/utils/graphqlErrors'
+import {
+  type PhotoUploadProgress,
+  photoProgressLabel,
+} from '@/utils/photoUploadProgress'
 import { freeTaskImageSlots } from '@/utils/taskImageKeys'
 import { uploadTaskImagesSettled } from '@/utils/taskImageUpload'
 import { townOnly } from '@/utils/taskLocationDisplay'
@@ -139,6 +143,8 @@ export function EditTaskScreen({
   // the stored town, not an address.
   const [pinMoved, setPinMoved] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [photoProgress, setPhotoProgress] =
+    useState<PhotoUploadProgress | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
   const [discardOpen, setDiscardOpen] = useState(false)
   const saveLockRef = useRef(false)
@@ -168,9 +174,11 @@ export function EditTaskScreen({
 
   /** One save at a time; the lock stays while the task page loads. */
   async function save() {
-    if (saveLockRef.current) return
+    // A HEIC photo still converting: Save waits for it (FE-341).
+    if (saveLockRef.current || photos.converting) return
     saveLockRef.current = true
     setSaving(true)
+    setPhotoProgress(null)
     setServerError(null)
     let leaving = false
     try {
@@ -212,7 +220,7 @@ export function EditTaskScreen({
         apollo,
         task,
         photos.files,
-        freeTaskImageSlots(existing),
+        { slots: freeTaskImageSlots(existing), onProgress: setPhotoProgress },
       )
       showAppToast(
         failed > 0
@@ -282,7 +290,13 @@ export function EditTaskScreen({
         actions={{
           showBack: false,
           continueLabel: t.save,
-          continueLoading: saving,
+          continueLoading: saving || photos.converting,
+          // Save says which photo it's on; before the photos it just spins.
+          continueLoadingText: saving
+            ? photoProgressLabel(photoProgress, create.photoProgress)
+            : photos.converting
+              ? create.photoProgress.converting
+              : undefined,
           isFinal: true,
           onContinue: () => void save(),
         }}
@@ -377,8 +391,7 @@ export function EditTaskScreen({
             bare
             labelled={false}
             existingImageUrls={existing}
-            files={photos.files}
-            previews={photos.previews}
+            photos={photos.tiles}
             rejected={photos.rejected}
             onFilesAdded={photos.add}
             onRemoveFile={photos.remove}

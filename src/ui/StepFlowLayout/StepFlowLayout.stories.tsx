@@ -395,6 +395,23 @@ export const MobileFinalStep: Story = {
   args: { ...FinalStep.args },
 }
 
+/** Phone, posting with photos: the busy button says which photo is going up. */
+export const MobilePostingPhotos: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  args: {
+    ...TwoColumn.args,
+    actions: {
+      showBack: true,
+      isFinal: true,
+      continueLabel: 'Post task',
+      continueLoading: true,
+      continueLoadingText: 'Preparing photo 1 of 3',
+      onBack: () => {},
+      onContinue: () => {},
+    },
+  },
+}
+
 /** Phone, continue loading: the primary action shows a spinner. */
 export const MobileContinueLoading: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -491,6 +508,49 @@ export const ActionsLoading: PartStory = {
       onContinue={() => {}}
     />
   ),
+}
+
+/** Actions, busy with a label: Post says which photo it's on, read out politely. */
+export const ActionsLoadingWithLabel: PartStory = {
+  parameters: partParameters,
+  render: () => (
+    <StepFlowActions
+      showBack
+      isFinal
+      continueLabel="Post task"
+      continueLoading
+      continueLoadingText="Uploading photo 2 of 3"
+      onBack={() => {}}
+      onContinue={() => {}}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('button', { name: 'Uploading photo 2 of 3' }),
+    ).toBeDisabled()
+    await expect(
+      canvasElement.querySelector('[aria-live="polite"]'),
+    ).toHaveTextContent('Uploading photo 2 of 3')
+  },
+}
+
+/** Actions, idle: the polite status stays in the page, empty, until Continue is busy. */
+export const ActionsStatusIdle: PartStory = {
+  parameters: partParameters,
+  render: () => (
+    <StepFlowActions
+      continueLoadingText="Uploading photo 1 of 3"
+      onContinue={() => {}}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvasElement.querySelector('[aria-live="polite"]'),
+    ).toBeEmptyDOMElement()
+    await expect(canvas.getByRole('button', { name: 'Continue' })).toBeEnabled()
+  },
 }
 
 /** Actions, custom labels: Back and Continue read "Previous" and "Save". */

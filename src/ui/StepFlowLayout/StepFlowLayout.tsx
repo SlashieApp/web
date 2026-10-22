@@ -8,6 +8,7 @@ import {
   HStack,
   Stack,
   Text,
+  VisuallyHidden,
   useBreakpointValue,
 } from '@chakra-ui/react'
 import { LuArrowLeft, LuArrowRight, LuX } from 'react-icons/lu'
@@ -151,6 +152,12 @@ export type StepFlowActionsProps = {
   backLabel?: string
   continueLabel?: string
   continueLoading?: boolean
+  /**
+   * What the busy Continue is doing, such as "Uploading photo 2 of 3": shown
+   * beside the spinner and read out politely as it changes. Without it the
+   * button only spins.
+   */
+  continueLoadingText?: string
   /** Final submit action: drops the trailing arrow. */
   isFinal?: boolean
   onBack?: () => void
@@ -164,6 +171,7 @@ export function StepFlowActions({
   backLabel = 'Back',
   continueLabel = 'Continue',
   continueLoading = false,
+  continueLoadingText,
   isFinal = false,
   onBack,
   onContinue,
@@ -212,6 +220,11 @@ export function StepFlowActions({
           variant="primary"
           onClick={onContinue}
           loading={continueLoading}
+          loadingText={continueLoadingText}
+          // A busy label such as "正在上載第 2 張相片（共 3 張）" may take two
+          // lines on a narrow phone rather than spill out of the button.
+          whiteSpace="normal"
+          h="auto"
           minH="44px"
           // minW 0, not full: flex fills the row without overflowing it.
           minW={{ base: 0, lg: 'auto' }}
@@ -226,6 +239,10 @@ export function StepFlowActions({
           </HStack>
         </Button>
       </HStack>
+      {/* Always in the page, so each new step is announced (politely, once). */}
+      <VisuallyHidden aria-live="polite" aria-atomic="true">
+        {continueLoading ? continueLoadingText : null}
+      </VisuallyHidden>
     </Box>
   )
 }

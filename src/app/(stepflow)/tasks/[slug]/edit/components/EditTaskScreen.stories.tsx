@@ -4,7 +4,10 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
-import { storyDateInDays } from '@/app/(stepflow)/stepflowStoryHelpers'
+import {
+  storyDateInDays,
+  storyHeicPhoto,
+} from '@/app/(stepflow)/stepflowStoryHelpers'
 import { withPopularCategories } from '@/app/(stepflow)/tasks/create/components/createTaskStoryFixtures'
 import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
@@ -71,6 +74,32 @@ export const OpenWithQuotes: Story = {
         "2 workers have already quoted. They won't be told about your changes, so message them if something important changes.",
       ),
     ).toBeVisible()
+  },
+}
+
+/** A HEIC photo converting: Save waits, saying why, then the photo shows. */
+export const SaveWaitsForPhoto: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('button', { name: 'Save changes' })
+    const library = canvasElement.querySelector<HTMLInputElement>(
+      'input[type="file"]:not([capture])',
+    )
+    if (!library) throw new Error('No library input')
+    await userEvent.upload(library, await storyHeicPhoto())
+    await expect(
+      await canvas.findByRole('button', { name: 'Converting photos…' }),
+    ).toBeDisabled()
+    await expect(
+      await canvas.findByRole(
+        'button',
+        { name: 'Photo 1' },
+        { timeout: 15_000 },
+      ),
+    ).toBeVisible()
+    await expect(
+      await canvas.findByRole('button', { name: 'Save changes' }),
+    ).toBeEnabled()
   },
 }
 

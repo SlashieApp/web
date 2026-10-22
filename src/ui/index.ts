@@ -98,6 +98,8 @@ export { MobileCarousel } from './MobileCarousel/MobileCarousel'
 export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
 export { PhoneInput } from './PhoneInput'
+export { PhotoSourcePicker } from './PhotoSourcePicker'
+export { PhotoTile } from './PhotoTile'
 export { ProgressBar } from './ProgressBar'
 export { RadioButton, RadioButtonGroup } from './RadioButton'
 export { Rating, RatingStars } from './Rating'
@@ -131,7 +133,6 @@ export { Tabs } from './Tabs'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail'
 export { Toast } from './Toast'
-export { useTakePhoto } from './TakePhoto'
 export { ViewTransition } from './ViewTransition'
 export * from './Footer'
 export type { AppShellProps } from './AppShell'
@@ -188,6 +189,11 @@ export type { ModalProps, ModalSize } from './Modal'
 export type { OtpInputProps, OtpInputSize } from './OtpInput'
 export type { PhoneInputProps } from './PhoneInput'
 export type {
+  PhotoSourcePickerProps,
+  PhotoSourceTrigger,
+} from './PhotoSourcePicker'
+export type { PhotoTileProps, PhotoTileState } from './PhotoTile'
+export type {
   ProgressBarProps,
   ProgressBarSize,
   ProgressBarTone,
@@ -236,7 +242,6 @@ export type {
 export type { StepperProps, StepperStep, StepperSubStep } from './Stepper'
 export type { StickyHeaderProps } from './StickyHeader'
 export type { TabItem, TabPanelProps, TabsProps } from './Tabs'
-export type { TakePhotoOptions } from './TakePhoto'
 export type { TextareaProps } from './Textarea'
 export type { ThumbnailProps, ThumbnailSize } from './Thumbnail'
 export type { TimeSlotPickerProps } from './TimeSlotPicker'

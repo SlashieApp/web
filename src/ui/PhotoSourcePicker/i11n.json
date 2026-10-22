@@ -1,0 +1,12 @@
+{
+  "en": {
+    "title": "Add a photo",
+    "takePhoto": "Take photo",
+    "chooseFromLibrary": "Choose from library"
+  },
+  "zh_hk": {
+    "title": "加入相片",
+    "takePhoto": "拍照",
+    "chooseFromLibrary": "從相簿選擇"
+  }
+}

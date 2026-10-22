@@ -58,6 +58,9 @@ import { type WorkerSetupScreenId, workerSetupScreen } from '../views'
 /** Loading the setup record, it failed, the worker already finished, or setting up. */
 export type WorkerSetupStatus = 'loading' | 'error' | 'complete' | 'ready'
 
+/** The profile photo on its way: a HEIC being converted, then the upload. */
+export type WorkerSetupPhotoStage = 'converting' | 'uploading'
+
 /** What the signed-in account has already (photo, verified phone and email). */
 export type WorkerSetupAccountState = {
   avatarUrl: string | null
@@ -74,6 +77,9 @@ export type WorkerSetupContextValue = {
   /** Saved API sub-steps. */
   completed: ReadonlySet<string>
   isSaving: boolean
+  /** The photo is converting or uploading: Continue waits for it. */
+  photoStage: WorkerSetupPhotoStage | null
+  setPhotoStage: (stage: WorkerSetupPhotoStage | null) => void
   fieldErrors: WorkerSetupFieldErrors
   saveError: string | null
   /** Edits clear that field's error only. */
@@ -140,6 +146,9 @@ export function WorkerSetupProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false)
   const [complete, setComplete] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [photoStage, setPhotoStage] = useState<WorkerSetupPhotoStage | null>(
+    null,
+  )
   const [fieldErrors, setFieldErrors] = useState<WorkerSetupFieldErrors>({})
   const [saveError, setSaveError] = useState<string | null>(null)
   const [problemCount, setProblemCount] = useState(0)
@@ -248,7 +257,7 @@ export function WorkerSetupProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const saveAndContinue = useCallback(async () => {
-    if (savingRef.current) return
+    if (savingRef.current || photoStage) return
     const errors = validateWorkerSetupScreen(screen, form, account)
     if (Object.keys(errors).length > 0) {
       showProblems(errors)
@@ -329,6 +338,7 @@ export function WorkerSetupProvider({ children }: { children: ReactNode }) {
     form,
     localize,
     me,
+    photoStage,
     router,
     saveStep,
     screen,
@@ -373,6 +383,8 @@ export function WorkerSetupProvider({ children }: { children: ReactNode }) {
       screen,
       completed,
       isSaving,
+      photoStage,
+      setPhotoStage,
       fieldErrors,
       saveError,
       patchForm,
@@ -399,6 +411,7 @@ export function WorkerSetupProvider({ children }: { children: ReactNode }) {
       headingRef,
       isSaving,
       patchForm,
+      photoStage,
       retryLoad,
       saveAndContinue,
       saveError,

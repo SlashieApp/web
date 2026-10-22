@@ -15,6 +15,17 @@ export function storyImage(color: string, size = 200): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
+/**
+ * A real HEIC photo (240 x 160, four coloured quarters), the one the HEIC
+ * converter's browser test uses. Chromium can't decode HEIC, so picking it
+ * in a story runs the conversion.
+ */
+export async function storyHeicPhoto(name = 'IMG_0001.HEIC'): Promise<File> {
+  const url = new URL('../../utils/heicPhoto.fixture.heic', import.meta.url)
+  const bytes = await (await fetch(url)).arrayBuffer()
+  return new File([bytes], name, { type: 'image/heic' })
+}
+
 /** A date inside the picker's year-long window, as `YYYY-MM-DD`. */
 export function storyDateInDays(days: number): string {
   const d = new Date(Date.now() + days * 86_400_000)

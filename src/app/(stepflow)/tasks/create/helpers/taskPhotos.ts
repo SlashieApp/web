@@ -1,3 +1,4 @@
+import { isHeicFile } from '@/utils/heicPhoto'
 import { taskImageExtension } from '@/utils/taskImageKeys'
 
 /** Photos per task (slots 0 to 9): workers see them on the task page. */
@@ -21,7 +22,8 @@ export function acceptTaskPhotos(
   const rejected: TaskPhotoRejection[] = []
   let overLimit = false
   for (const file of picked) {
-    if (!file.type.startsWith('image/')) {
+    // A HEIC can come with no type (the browser doesn't know the format).
+    if (!file.type.startsWith('image/') && !isHeicFile(file)) {
       rejected.push({ reason: 'notAPhoto', name: file.name })
     } else if (!taskImageExtension(file)) {
       // A picture the API can't convert (e.g. GIF, BMP or TIFF).

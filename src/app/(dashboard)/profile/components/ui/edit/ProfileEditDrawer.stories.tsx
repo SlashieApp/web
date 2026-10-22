@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fn, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import {
@@ -52,6 +52,35 @@ export const Photo: Story = {
         name: 'Edit profile photo',
       }),
     ).toBeInTheDocument()
+  },
+}
+
+/** Phone: Replace photo opens the camera-or-library sheet over the drawer; closing it keeps the drawer. */
+export const PhotoSourceOnPhone: Story = {
+  args: { section: 'photo' },
+  parameters: { touchScreen: true },
+  globals: { viewport: { value: 'mobile1' } },
+  decorators: [
+    withSession({
+      me: storyMe({ profile: { avatarUrl: storyAvatarUrl('SC') } }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const body = drawer(canvasElement)
+    const editor = await body.findByRole('dialog', {
+      name: 'Edit profile photo',
+    })
+    const replace = within(editor).getByRole('button', {
+      name: 'Replace photo',
+    })
+    await userEvent.click(replace)
+    const sheet = await body.findByRole('dialog', { name: 'Add a photo' })
+    await userEvent.click(
+      within(sheet).getByRole('button', { name: 'Take photo' }),
+    )
+    await waitFor(() => expect(sheet).not.toBeInTheDocument())
+    await expect(editor).toBeInTheDocument()
+    await waitFor(() => expect(replace).toHaveFocus())
   },
 }
 

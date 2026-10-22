@@ -9,6 +9,12 @@
     "back": "Back",
     "continue": "Continue",
     "post": "Post task",
+    "photoProgress": {
+      "posting": "Posting task",
+      "preparing": "Preparing photo {index} of {total}",
+      "uploading": "Uploading photo {index} of {total}",
+      "converting": "Converting photos…"
+    },
     "progress": "Step {step} of {total} · {label}",
     "progressTrack": "Task creation progress",
     "missingDetails": "Some details are missing. We've taken you to the first one.",
@@ -83,7 +89,6 @@
       "optional": "Optional",
       "photosHelper": "Photos help workers quote. They're public on your task, so leave out house numbers and faces.",
       "addPhotos": "Add photos",
-      "takePhoto": "Take photo",
       "photoCount": "{count} of {max}",
       "removePhoto": "Remove photo {number}",
       "savedPhoto": "Saved photo {number}",
@@ -190,6 +195,12 @@
     "back": "返回",
     "continue": "繼續",
     "post": "發佈任務",
+    "photoProgress": {
+      "posting": "正在發佈任務",
+      "preparing": "正在準備第 {index} 張相片（共 {total} 張）",
+      "uploading": "正在上載第 {index} 張相片（共 {total} 張）",
+      "converting": "正在轉換相片…"
+    },
     "progress": "第 {step} 步，共 {total} 步 · {label}",
     "progressTrack": "建立任務進度",
     "missingDetails": "部分資料未填好，已帶你到第一項。",
@@ -264,7 +275,6 @@
       "optional": "選填",
       "photosHelper": "相片有助工作者報價。相片會在任務中公開，請避免拍到門牌號碼和人臉。",
       "addPhotos": "加入相片",
-      "takePhoto": "拍照",
       "photoCount": "{count} / {max}",
       "removePhoto": "移除第 {number} 張相片",
       "savedPhoto": "已儲存的第 {number} 張相片",

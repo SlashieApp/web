@@ -95,6 +95,8 @@ export function workerSetupStoryValue(
     screen,
     completed,
     isSaving: false,
+    photoStage: null,
+    setPhotoStage: () => {},
     fieldErrors: {},
     saveError: null,
     patchForm: () => {},

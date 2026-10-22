@@ -42,6 +42,12 @@ describe('acceptTaskPhotos', () => {
     expect(result.accepted.map((f) => f.name)).toEqual(['IMG_0001'])
   })
 
+  it('takes a HEIC that came with no type, known by its name', () => {
+    const result = acceptTaskPhotos([photo('IMG_0002.HEIC', 1, '')], 0)
+    expect(result.accepted.map((f) => f.name)).toEqual(['IMG_0002.HEIC'])
+    expect(result.rejected).toEqual([])
+  })
+
   it('turns down a picture over 10 MB', () => {
     const result = acceptTaskPhotos([photo('huge.jpg', 11)], 0)
     expect(result.rejected).toEqual([{ reason: 'tooLarge', name: 'huge.jpg' }])

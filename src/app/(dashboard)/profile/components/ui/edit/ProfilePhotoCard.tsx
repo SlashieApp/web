@@ -1,7 +1,7 @@
 'use client'
 
 import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { MeAvatar } from '@/app/(auth)/components/ui/MeAvatar'
 import { useUserStore } from '@/app/(auth)/store/user'
@@ -15,12 +15,19 @@ import {
 import { apolloClient } from '@/utils/apolloClient'
 import { showAppToast } from '@/utils/appToast'
 import { imageUploadErrorCode } from '@/utils/graphqlErrors'
+import { isHeicFile, viewablePhoto } from '@/utils/heicPhoto'
 import {
   AVATAR_ACCEPTED_TYPES,
   uploadProfileAvatar,
   validateAvatarFile,
 } from '@/utils/profileAvatarUpload'
-import { Button, Card, useTakePhoto } from '@ui'
+import {
+  Button,
+  Card,
+  PhotoSourcePicker,
+  PhotoTile,
+  type PhotoTileState,
+} from '@ui'
 
 import bag from '../../../i11n.json'
 import { displayNameFromMe } from '../../../profileDisplayHelpers'
@@ -29,37 +36,35 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
   const t = useI11n(bag).photo
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
-  const inputRef = useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  // Instead of the avatar while a HEIC converts, or when it can't be shown.
+  const [tile, setTile] = useState<Exclude<PhotoTileState, 'ready'> | null>(
+    null,
+  )
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Phones and tablets: the front camera, for a selfie.
-  const camera = useTakePhoto({
-    capture: 'user',
-    onFiles: (files) => void handleFile(files[0]),
-  })
 
   if (!me) return null
 
   const currentAvatar = me.profile?.avatarUrl?.trim() || null
 
-  const handlePick = (open: () => void) => {
-    setError(null)
-    open()
-  }
-
-  const handleFile = async (file: File | undefined) => {
-    if (!file) return
-    const problem = validateAvatarFile(file)
+  const handleFile = async (picked: File | undefined) => {
+    if (!picked) return
+    const problem = validateAvatarFile(picked)
     if (problem) {
       setError(problem === 'type' ? t.wrongType : t.tooBig)
       return
     }
 
-    const localPreview = URL.createObjectURL(file)
-    setPreviewUrl(localPreview)
     setUploading(true)
     setError(null)
+    // A HEIC this browser can't show becomes a JPEG first; if that fails
+    // the original goes up and the API converts it.
+    if (isHeicFile(picked)) setTile('converting')
+    const { file, viewable } = await viewablePhoto(picked)
+    setTile(viewable ? null : 'unavailable')
+    const localPreview = viewable ? URL.createObjectURL(file) : null
+    setPreviewUrl(localPreview)
 
     try {
       // `finalizeAvatarUpload` saves the photo; this only refreshes `me`.
@@ -94,7 +99,8 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
       setPreviewUrl(null)
     } finally {
       setUploading(false)
-      URL.revokeObjectURL(localPreview)
+      setTile(null)
+      if (localPreview) URL.revokeObjectURL(localPreview)
     }
   }
 
@@ -109,35 +115,41 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
         </Stack>
 
         <HStack gap={4} align="center" flexWrap="wrap">
-          <MeAvatar
-            size="xl"
-            name={displayNameFromMe(me)}
-            avatarUrl={previewUrl ?? currentAvatar}
-            rootProps={{ opacity: uploading ? 0.6 : 1 }}
-          />
+          {tile ? (
+            <PhotoTile state={tile} alt={t.heading} size="96px" round />
+          ) : (
+            <MeAvatar
+              size="xl"
+              name={displayNameFromMe(me)}
+              avatarUrl={previewUrl ?? currentAvatar}
+              rootProps={{ opacity: uploading ? 0.6 : 1 }}
+            />
+          )}
 
           <Stack gap={2}>
-            <HStack gap={3} flexWrap="wrap">
-              <Button
-                size="sm"
-                minH="44px"
-                variant="secondary"
-                onClick={() => handlePick(() => inputRef.current?.click())}
-                loading={uploading}
-              >
-                {currentAvatar ? t.replace : t.upload}
-              </Button>
-              <Button
-                {...camera.triggerProps}
-                size="sm"
-                minH="44px"
-                variant="secondary"
-                onClick={() => handlePick(camera.open)}
-                disabled={uploading}
-              >
-                {t.takePhoto}
-              </Button>
-            </HStack>
+            {/* The front camera, for a selfie. */}
+            <PhotoSourcePicker
+              camera="user"
+              accept={AVATAR_ACCEPTED_TYPES.join(',')}
+              onFiles={(files) => void handleFile(files[0])}
+            >
+              {(trigger) => (
+                <Button
+                  {...trigger}
+                  size="sm"
+                  minH="44px"
+                  variant="secondary"
+                  alignSelf="flex-start"
+                  onClick={() => {
+                    setError(null)
+                    trigger.onClick()
+                  }}
+                  loading={uploading}
+                >
+                  {currentAvatar ? t.replace : t.upload}
+                </Button>
+              )}
+            </PhotoSourcePicker>
             <Text fontSize="xs" color="text.muted">
               {t.hint}
             </Text>
@@ -149,18 +161,6 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
             {error}
           </Text>
         ) : null}
-
-        <input
-          ref={inputRef}
-          type="file"
-          accept={AVATAR_ACCEPTED_TYPES.join(',')}
-          hidden
-          onChange={(event) => {
-            void handleFile(event.target.files?.[0])
-            event.target.value = ''
-          }}
-        />
-        <input {...camera.inputProps} />
       </Stack>
     </Card>
   )

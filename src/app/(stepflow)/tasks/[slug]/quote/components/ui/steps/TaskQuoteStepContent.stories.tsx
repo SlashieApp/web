@@ -1,7 +1,7 @@
 import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
 
@@ -165,7 +165,7 @@ export const AvailabilityInvalid: Story = {
   decorators: step(),
 }
 
-/** quote.photos: optional, nothing added yet; with a mouse, just the add tile. */
+/** quote.photos: optional, nothing added yet; with a mouse, one add tile that opens the file picker. */
 export const PhotosEmpty: Story = {
   args: { activeSubStep: 'quote.photos' },
   decorators: step(),
@@ -180,16 +180,24 @@ export const PhotosEmpty: Story = {
   },
 }
 
-/** quote.photos on a phone or tablet: Take photo opens the back camera; its shot is added. */
+/** quote.photos on a phone or tablet: Add photo offers the back camera or the library; a shot is added. */
 export const PhotosTouchScreen: Story = {
   args: { activeSubStep: 'quote.photos' },
   decorators: step(),
-  globals: { touch: 'on', viewport: { value: 'mobile1' } },
+  parameters: { touchScreen: true },
+  globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      canvas.getByRole('button', { name: 'Take photo' }),
-    ).toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: 'Add photo' }))
+    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Add a photo' },
+    )
+    await userEvent.click(
+      within(drawer).getByRole('button', { name: 'Take photo' }),
+    )
+    // The camera has the screen now; the drawer has gone by the time it's back.
+    await waitFor(() => expect(drawer).not.toBeInTheDocument())
     const camera =
       canvasElement.querySelector<HTMLInputElement>('input[capture]')
     if (!camera) throw new Error('No camera input')

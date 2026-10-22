@@ -36,6 +36,10 @@ import {
 import { APP_HOME } from '@/utils/appRoutes'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
+import {
+  type PhotoUploadProgress,
+  photoProgressLabel,
+} from '@/utils/photoUploadProgress'
 import { uploadTaskImagesSettled } from '@/utils/taskImageUpload'
 import { townOnly } from '@/utils/taskLocationDisplay'
 import { Button, StepFlowHeader, StepFlowProgress } from '@ui'
@@ -202,6 +206,8 @@ export function CreateTaskScreen({
   const [serverError, setServerError] = useState<string | null>(null)
   const [advancing, setAdvancing] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [photoProgress, setPhotoProgress] =
+    useState<PhotoUploadProgress | null>(null)
   const [checkingEmail, setCheckingEmail] = useState(false)
   const [stillUnverified, setStillUnverified] = useState(false)
   const headingRef = useRef<HTMLDivElement>(null)
@@ -319,6 +325,10 @@ export function CreateTaskScreen({
   const view = CREATE_TASK_VIEWS[
     getCreateTaskView({ session: 'ready', step })
   ] as CreateTaskStepView
+  // A HEIC photo is still converting: its step and Post wait (FE-341).
+  const waitingForPhotos =
+    photos.converting &&
+    (view.primary === 'post' || view.sections.includes('photos'))
 
   const go = (next: CreateTaskStepId) => {
     setServerError(null)
@@ -353,6 +363,7 @@ export function CreateTaskScreen({
   }
 
   async function continueStep() {
+    if (waitingForPhotos) return
     if (view.primary === 'post') {
       await publishOnce(publishLockRef, publish)
       return
@@ -375,6 +386,7 @@ export function CreateTaskScreen({
   /** Review step: check everything, then create. True once the task exists. */
   async function publish(): Promise<boolean> {
     setServerError(null)
+    setPhotoProgress(null)
     setPublishing(true)
     let created = false
     try {
@@ -474,6 +486,7 @@ export function CreateTaskScreen({
         apollo,
         { id: taskId, status: res.data?.createTask?.status },
         photos.files,
+        { onProgress: setPhotoProgress },
       )
       if (failed > 0) {
         showAppToast({
@@ -541,8 +554,7 @@ export function CreateTaskScreen({
         return (
           <CreateTaskVisualsSection
             bare
-            files={photos.files}
-            previews={photos.previews}
+            photos={photos.tiles}
             rejected={photos.rejected}
             onFilesAdded={photos.add}
             onRemoveFile={photos.remove}
@@ -631,6 +643,7 @@ export function CreateTaskScreen({
   const progress = createTaskProgress(step)
   const copy = t.steps[step]
   const posting = view.primary === 'post'
+  const postBusy = posting && (publishing || creating)
 
   return (
     <CreateTaskMapLayout
@@ -709,7 +722,17 @@ export function CreateTaskScreen({
         showBack: step !== 'location',
         backLabel: t.back,
         continueLabel: posting ? t.post : t.continue,
-        continueLoading: advancing || (posting && (publishing || creating)),
+        continueLoading: advancing || postBusy || waitingForPhotos,
+        // Post says what it's doing: the task, then each photo (FE-341).
+        continueLoadingText: postBusy
+          ? photoProgressLabel(
+              photoProgress,
+              t.photoProgress,
+              t.photoProgress.posting,
+            )
+          : waitingForPhotos
+            ? t.photoProgress.converting
+            : undefined,
         isFinal: posting,
         onBack: goBack,
         onContinue: () => void continueStep(),

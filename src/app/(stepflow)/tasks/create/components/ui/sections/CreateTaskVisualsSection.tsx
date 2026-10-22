@@ -1,26 +1,33 @@
 'use client'
 
 import { Box, HStack, Image, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
-import { type ComponentProps, type ReactNode, useRef, useState } from 'react'
-import { LuCamera, LuImagePlus, LuX } from 'react-icons/lu'
+import { type ComponentProps, type ReactNode, useState } from 'react'
+import { LuImagePlus, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFocusRing } from '@/theme/styles'
-import { Badge, Button, IconButton, ImagePreview, useTakePhoto } from '@ui'
+import {
+  Badge,
+  Button,
+  IconButton,
+  ImagePreview,
+  PhotoSourcePicker,
+  PhotoTile,
+} from '@ui'
 
 import {
   TASK_PHOTOS_MAX,
   TASK_PHOTO_MAX_MB,
   type TaskPhotoRejection,
 } from '../../../helpers/taskPhotos'
+import type { TaskPhotoTile } from '../../../helpers/useTaskPhotos'
 import bag from '../../../i11n.json'
 import { CreateTaskSection } from '../../layout/shared/CreateTaskSection'
 
 export type CreateTaskVisualsSectionProps = {
-  files: File[]
-  previews: string[]
-  /** Snapshot `File[]` in the change handler before clearing the input (mobile-safe). */
+  /** Photos picked here, as their tiles show them (`useTaskPhotos`). */
+  photos: TaskPhotoTile[]
   onFilesAdded: (files: File[]) => void
   onRemoveFile: (index: number) => void
   /** Files the last pick turned away, and why. */
@@ -67,7 +74,7 @@ function PhotoThumb({
   )
 }
 
-/** A dashed tile after the photos that adds more. */
+/** A dashed tile after the photos that adds more (camera or library on touch screens). */
 function AddPhotoTile({
   icon,
   label,
@@ -95,8 +102,7 @@ function AddPhotoTile({
 
 /** Optional photos: public on the task, up to 10, each up to 10 MB. */
 export function CreateTaskVisualsSection({
-  files,
-  previews,
+  photos,
   onFilesAdded,
   onRemoveFile,
   rejected = [],
@@ -106,25 +112,31 @@ export function CreateTaskVisualsSection({
   labelled = true,
 }: CreateTaskVisualsSectionProps) {
   const f = useI11n(bag).fields
-  const inputRef = useRef<HTMLInputElement | null>(null)
-  // Phones and tablets: the back camera, for the job itself.
-  const camera = useTakePhoto({ capture: 'environment', onFiles: onFilesAdded })
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
-  const count = existingImageUrls.length + previews.length
+  const count = existingImageUrls.length + photos.length
   const full = count >= TASK_PHOTOS_MAX
-  // Saved photos first, then the ones picked here, numbered as shown.
-  const photos = [
+  // Full screen pages through the photos that can be shown: saved ones
+  // first, then the ones picked here, numbered as the tiles are.
+  const viewable = [
     ...existingImageUrls.map((src, i) => ({
       src,
       alt: formatMessage(f.savedPhoto, { number: i + 1 }),
     })),
-    ...previews.map((src, i) => ({
-      src,
-      alt: formatMessage(f.newPhoto, {
-        number: existingImageUrls.length + i + 1,
-      }),
-    })),
+    ...photos.flatMap((photo, i) =>
+      photo.src
+        ? [
+            {
+              src: photo.src,
+              alt: formatMessage(f.newPhoto, {
+                number: existingImageUrls.length + i + 1,
+              }),
+            },
+          ]
+        : [],
+    ),
   ]
+  const viewIndex = (src: string) =>
+    viewable.findIndex((item) => item.src === src)
 
   const rejection = (item: TaskPhotoRejection) =>
     item.reason === 'tooMany'
@@ -168,24 +180,25 @@ export function CreateTaskVisualsSection({
           <PhotoThumb
             key={src}
             src={src}
-            alt={photos[i].alt}
+            alt={viewable[i].alt}
             onOpen={() => setPreviewIndex(i)}
           />
         ))}
-        {previews.map((src, i) => {
-          const file = files[i]
-          const at = existingImageUrls.length + i
-          const number = at + 1
+        {photos.map((photo, i) => {
+          const number = existingImageUrls.length + i + 1
+          const alt = formatMessage(f.newPhoto, { number })
+          const { src } = photo
           return (
-            <Box
-              key={file ? `${file.name}-${file.lastModified}-${i}` : src}
-              position="relative"
-            >
-              <PhotoThumb
-                src={src}
-                alt={photos[at].alt}
-                onOpen={() => setPreviewIndex(at)}
-              />
+            <Box key={photo.key} position="relative">
+              {src ? (
+                <PhotoThumb
+                  src={src}
+                  alt={alt}
+                  onOpen={() => setPreviewIndex(viewIndex(src))}
+                />
+              ) : (
+                <PhotoTile state={photo.state} alt={alt} size={THUMB} />
+              )}
               {/* 44px target hangs off the corner to cover less of the photo. */}
               <IconButton
                 type="button"
@@ -203,42 +216,29 @@ export function CreateTaskVisualsSection({
           )
         })}
         {full ? null : (
-          <>
-            <AddPhotoTile
-              icon={<LuImagePlus size={20} aria-hidden />}
-              label={f.addPhotos}
-              onClick={() => inputRef.current?.click()}
-            />
-            <AddPhotoTile
-              {...camera.triggerProps}
-              icon={<LuCamera size={20} aria-hidden />}
-              label={f.takePhoto}
-              onClick={camera.open}
-            />
-          </>
+          // The back camera, for the job itself.
+          <PhotoSourcePicker
+            camera="environment"
+            multiple
+            onFiles={onFilesAdded}
+          >
+            {(trigger) => (
+              <AddPhotoTile
+                {...trigger}
+                icon={<LuImagePlus size={20} aria-hidden />}
+                label={f.addPhotos}
+              />
+            )}
+          </PhotoSourcePicker>
         )}
       </Wrap>
 
       <ImagePreview
-        items={photos}
+        items={viewable}
         index={previewIndex}
         onIndexChange={setPreviewIndex}
         onClose={() => setPreviewIndex(null)}
       />
-
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        hidden
-        onChange={(e) => {
-          const picked = e.target.files ? Array.from(e.target.files) : []
-          e.target.value = ''
-          if (picked.length > 0) onFilesAdded(picked)
-        }}
-      />
-      <input {...camera.inputProps} />
 
       {rejected.length > 0 ? (
         <Stack gap={1} role="alert">
