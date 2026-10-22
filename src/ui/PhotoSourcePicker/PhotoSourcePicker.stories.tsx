@@ -35,16 +35,16 @@ function PhotoSourcePickerDemo(props: DemoProps) {
 
 /**
  * Records which hidden input a tap clicks instead of opening the browser's
- * picker, and whether the drawer was still open at that moment (the click
- * has to happen inside the tap, not after the drawer animates away).
+ * picker, and whether a dialog (the drawer or the camera) was still open at
+ * that moment (the click has to happen inside the tap, not after it closes).
  */
 function watchInputClicks() {
-  const clicks: { input: HTMLInputElement; drawerOpen: boolean }[] = []
+  const clicks: { input: HTMLInputElement; dialogOpen: boolean }[] = []
   const spy = spyOn(HTMLInputElement.prototype, 'click').mockImplementation(
     function (this: HTMLInputElement) {
       clicks.push({
         input: this,
-        drawerOpen: Boolean(
+        dialogOpen: Boolean(
           document.querySelector('[role="dialog"][data-state="open"]'),
         ),
       })
@@ -53,13 +53,27 @@ function watchInputClicks() {
   return { clicks, restore: () => spy.mockRestore() }
 }
 
+/** Taps the button, then the drawer's Take photo; returns the camera dialog. */
+async function openCamera(canvasElement: HTMLElement) {
+  const body = within(canvasElement.ownerDocument.body)
+  await userEvent.click(
+    within(canvasElement).getByRole('button', { name: 'Add photos' }),
+  )
+  const drawer = await body.findByRole('dialog', { name: 'Add a photo' })
+  await userEvent.click(
+    within(drawer).getByRole('button', { name: 'Take photo' }),
+  )
+  return body.findByRole('dialog', { name: 'Take a photo' })
+}
+
 /**
  * SDL PhotoSourcePicker: one photo button. On a phone or tablet it opens a
- * bottom drawer offering Take photo (the camera, through an input with
- * `capture`) and Choose from library; with a mouse it opens the file picker
- * straight away. The place renders its own button with the trigger props.
+ * bottom drawer offering Take photo (our own camera, `UI/CameraCapture`)
+ * and Choose from library; with a mouse it opens the file picker straight
+ * away. The place renders its own button with the trigger props.
  * `parameters: { touchScreen: true }` makes a desktop story answer the
- * touch-screen query as a phone does.
+ * touch-screen query as a phone does; the preview's stand-in camera answers
+ * Take photo (`parameters: { camera }`).
  */
 const meta = {
   title: 'UI/PhotoSourcePicker',
@@ -121,25 +135,62 @@ export const TouchScreen: Story = {
   },
 }
 
-/** Take photo clicks the back-camera input inside the tap, closes, and returns focus. */
+/** Take photo opens our back camera (no input); Use photo hands the shot over, then focus returns. */
 export const TouchTakePhoto: Story = {
   tags: ['!autodocs'],
   parameters: { touchScreen: true },
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body)
-    const trigger = within(canvasElement).getByRole('button', {
-      name: 'Add photos',
-    })
-    await userEvent.click(trigger)
-    const drawer = await body.findByRole('dialog', { name: 'Add a photo' })
+    const watch = watchInputClicks()
+    try {
+      const camera = await openCamera(canvasElement)
+      await expect(
+        getComputedStyle(camera.querySelector('video') as HTMLElement)
+          .transform,
+      ).toBe('none')
+      const shutter = within(camera).getByRole('button', { name: 'Take photo' })
+      await waitFor(() => expect(shutter).not.toHaveAttribute('aria-disabled'))
+      await userEvent.click(shutter)
+      const use = within(camera).getByRole('button', { name: 'Use photo' })
+      await waitFor(() => expect(use).not.toHaveAttribute('aria-disabled'))
+      await userEvent.click(use)
+      await expect(watch.clicks).toHaveLength(0)
+    } finally {
+      watch.restore()
+    }
+    await expect(
+      await within(canvasElement).findByText(/^Picked: camera-\d+\.jpg$/),
+    ).toBeVisible()
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByRole('button', { name: 'Add photos' }),
+      ).toHaveFocus(),
+    )
+  },
+}
+
+/** Camera blocked: "Use your browser's camera" clicks the back-camera input inside the tap. */
+export const TouchCameraBlocked: Story = {
+  tags: ['!autodocs'],
+  parameters: { touchScreen: true, camera: 'blocked' },
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+    const camera = await openCamera(canvasElement)
+    await expect(
+      within(camera).getByRole('button', { name: 'Choose from library' }),
+    ).toBeVisible()
     const watch = watchInputClicks()
     try {
       await userEvent.click(
-        within(drawer).getByRole('button', { name: 'Take photo' }),
+        await within(camera).findByRole('button', {
+          name: "Use your browser's camera",
+        }),
       )
       await expect(watch.clicks).toHaveLength(1)
-      await expect(watch.clicks[0].drawerOpen).toBe(true)
+      await expect(watch.clicks[0].dialogOpen).toBe(true)
       await expect(watch.clicks[0].input).toHaveAttribute(
         'capture',
         'environment',
@@ -149,7 +200,11 @@ export const TouchTakePhoto: Story = {
       watch.restore()
     }
     await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
-    await waitFor(() => expect(trigger).toHaveFocus())
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByRole('button', { name: 'Add photos' }),
+      ).toHaveFocus(),
+    )
   },
 }
 
@@ -172,7 +227,7 @@ export const TouchChooseFromLibrary: Story = {
         within(drawer).getByRole('button', { name: 'Choose from library' }),
       )
       await expect(watch.clicks).toHaveLength(1)
-      await expect(watch.clicks[0].drawerOpen).toBe(true)
+      await expect(watch.clicks[0].dialogOpen).toBe(true)
       await expect(watch.clicks[0].input).not.toHaveAttribute('capture')
       await expect(watch.clicks[0].input).toHaveAttribute('multiple')
     } finally {
@@ -199,7 +254,7 @@ export const TouchEscapeCloses: Story = {
   },
 }
 
-/** Profile and worker setup: the front camera for a selfie, one photo at a time. */
+/** Profile and worker setup: the front camera for a selfie (and its fallback input), one photo at a time. */
 export const FrontCamera: Story = {
   args: { camera: 'user', multiple: false },
   play: async ({ canvasElement }) => {
@@ -211,7 +266,7 @@ export const FrontCamera: Story = {
   },
 }
 
-/** A photo from the camera comes back through the same handler as the library. */
+/** A photo from the browser's camera (the fallback) comes back through the same handler as the library. */
 export const PhotoTaken: Story = {
   play: async ({ canvasElement }) => {
     const camera =

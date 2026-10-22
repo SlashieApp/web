@@ -3,7 +3,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
-import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
+import {
+  storyImage,
+  takeStoryPhoto,
+} from '@/app/(stepflow)/stepflowStoryHelpers'
 
 import {
   QUOTE_STORY_MESSAGE,
@@ -180,7 +183,7 @@ export const PhotosEmpty: Story = {
   },
 }
 
-/** quote.photos on a phone or tablet: Add photo offers the back camera or the library; a shot is added. */
+/** quote.photos on a phone or tablet: Add photo offers our camera or the library; a shot is added. */
 export const PhotosTouchScreen: Story = {
   args: { activeSubStep: 'quote.photos' },
   decorators: step(),
@@ -188,24 +191,13 @@ export const PhotosTouchScreen: Story = {
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
     await userEvent.click(canvas.getByRole('button', { name: 'Add photo' }))
-    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
-      'dialog',
-      { name: 'Add a photo' },
+    await takeStoryPhoto(
+      await body.findByRole('dialog', { name: 'Add a photo' }),
     )
-    await userEvent.click(
-      within(drawer).getByRole('button', { name: 'Take photo' }),
-    )
-    // The camera has the screen now; the drawer has gone by the time it's back.
-    await waitFor(() => expect(drawer).not.toBeInTheDocument())
-    const camera =
-      canvasElement.querySelector<HTMLInputElement>('input[capture]')
-    if (!camera) throw new Error('No camera input')
-    await expect(camera).toHaveAttribute('capture', 'environment')
-    await userEvent.upload(
-      camera,
-      new File(['shot'], 'camera.jpg', { type: 'image/jpeg' }),
-    )
+    // The camera and the drawer under it have closed.
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
     await expect(
       await canvas.findByRole('button', { name: 'Remove photo 1' }),
     ).toBeVisible()

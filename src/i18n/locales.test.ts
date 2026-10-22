@@ -75,6 +75,7 @@ describe('marketing page dictionaries', () => {
     'src/app/(marketing)/terms/i11n.json',
     'src/app/(marketing)/help/safety/i11n.json',
     'src/ui/ReportDialog/i11n.json',
+    'src/ui/CameraCapture/i11n.json',
     'src/ui/ImagePreview/i11n.json',
     'src/ui/PhotoSourcePicker/i11n.json',
     'src/ui/PhotoTile/i11n.json',

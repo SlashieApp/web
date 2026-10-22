@@ -1,0 +1,36 @@
+{
+  "en": {
+    "title": "Take a photo",
+    "shutter": "Take photo",
+    "switchCamera": "Switch camera",
+    "close": "Close camera",
+    "retake": "Retake",
+    "usePhoto": "Use photo",
+    "starting": "Starting camera…",
+    "ready": "Camera ready",
+    "taken": "Photo taken",
+    "photoAlt": "The photo you took",
+    "failures": {
+      "blocked": "Camera access is blocked. You can allow it in your browser's site settings.",
+      "busy": "Another app is using the camera.",
+      "unavailable": "The camera isn't available in this browser."
+    }
+  },
+  "zh_hk": {
+    "title": "拍照",
+    "shutter": "拍照",
+    "switchCamera": "切換鏡頭",
+    "close": "關閉相機",
+    "retake": "重拍",
+    "usePhoto": "使用相片",
+    "starting": "正在開啟相機…",
+    "ready": "相機已準備好",
+    "taken": "已拍下相片",
+    "photoAlt": "你拍的相片",
+    "failures": {
+      "blocked": "相機存取已被封鎖。你可以在瀏覽器的網站設定中允許存取。",
+      "busy": "另一個應用程式正在使用相機。",
+      "unavailable": "此瀏覽器無法使用相機。"
+    }
+  }
+}

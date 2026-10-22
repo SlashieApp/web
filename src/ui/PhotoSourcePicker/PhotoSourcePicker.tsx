@@ -5,6 +5,7 @@ import {
   type ChangeEvent,
   type ReactNode,
   type RefObject,
+  useCallback,
   useRef,
   useState,
 } from 'react'
@@ -13,7 +14,8 @@ import { LuCamera, LuImages } from 'react-icons/lu'
 import { useI11n } from '@/i18n/useI11n'
 
 import { Button } from '../Button/Button'
-import { Drawer } from '../Drawer/Drawer'
+import { CameraCapture } from '../CameraCapture/CameraCapture'
+import { Drawer, useCloseFromItem } from '../Drawer/Drawer'
 import bag from './i11n.json'
 import { offersCamera } from './photoSource'
 
@@ -39,14 +41,18 @@ export type PhotoSourcePickerProps = {
 /**
  * SDL PhotoSourcePicker: one photo button. On a touch screen (phones and
  * tablets, checked at tap time) it opens a bottom drawer with Take photo
- * (the camera) and Choose from library; with a mouse it opens the file
- * picker straight away, as desktop browsers have no camera to offer.
+ * and Choose from library; with a mouse it opens the file picker straight
+ * away, as desktop browsers have no camera to offer.
  *
- * Two hidden inputs: the camera one carries `capture`, which is what makes
- * phones open the camera instead of the library. They sit outside the drawer
- * so closing it never unmounts the input that is waiting for the photo, and
- * each drawer item clicks its input inside the tap itself (browsers only
- * open a picker during a user gesture), then closes the drawer.
+ * Take photo always opens our own camera (`CameraCapture`) over the drawer,
+ * which closes once the camera has: some browsers (Arc, Samsung Internet,
+ * in-app browsers) ignore an input's `capture` and show a library instead.
+ *
+ * Two hidden inputs: the library one, and one with `capture` that the
+ * camera offers as "Use your browser's camera" when it can't open. They sit
+ * outside the drawer and the camera so closing those never unmounts the
+ * input that is waiting for the photo, and each action clicks its input
+ * inside the tap itself (browsers only open a picker during a user gesture).
  */
 export function PhotoSourcePicker({
   camera,
@@ -57,6 +63,10 @@ export function PhotoSourcePicker({
 }: PhotoSourcePickerProps) {
   const t = useI11n(bag)
   const [open, setOpen] = useState(false)
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const closeUnderCamera = useCloseFromItem(
+    useCallback(() => setOpen(false), []),
+  )
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   const libraryRef = useRef<HTMLInputElement>(null)
@@ -69,6 +79,11 @@ export function PhotoSourcePicker({
   const choose = (input: HTMLInputElement | null) => {
     input?.click()
     setOpen(false)
+  }
+
+  const takePhoto = () => {
+    setCameraOpen(true)
+    closeUnderCamera()
   }
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -109,7 +124,7 @@ export function PhotoSourcePicker({
             variant="secondary"
             size="lg"
             justifyContent="flex-start"
-            onClick={() => choose(cameraRef.current)}
+            onClick={takePhoto}
           >
             <LuCamera size={20} aria-hidden />
             {t.takePhoto}
@@ -125,6 +140,22 @@ export function PhotoSourcePicker({
           </Button>
         </Stack>
       </Drawer>
+      <CameraCapture
+        open={cameraOpen}
+        onOpenChange={setCameraOpen}
+        facing={camera}
+        onPhoto={(file) => onFiles([file])}
+        fallbackActions={[
+          {
+            label: t.useBrowserCamera,
+            onSelect: () => cameraRef.current?.click(),
+          },
+          {
+            label: t.chooseFromLibrary,
+            onSelect: () => libraryRef.current?.click(),
+          },
+        ]}
+      />
     </>
   )
 }

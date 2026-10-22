@@ -2,6 +2,7 @@ import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client/core'
 import { ApolloProvider } from '@apollo/client/react'
 import type { Decorator } from '@storybook/nextjs-vite'
 import { NEVER, throwError } from 'rxjs'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 /**
  * Story-only helpers shared by the step-flow stories (create task, quote,
@@ -24,6 +25,25 @@ export async function storyHeicPhoto(name = 'IMG_0001.HEIC'): Promise<File> {
   const url = new URL('../../utils/heicPhoto.fixture.heic', import.meta.url)
   const bytes = await (await fetch(url)).arrayBuffer()
   return new File([bytes], name, { type: 'image/heic' })
+}
+
+/**
+ * Phones and tablets: taps Take photo in the photo button's drawer, takes a
+ * photo with the preview's stand-in camera and taps Use photo.
+ */
+export async function takeStoryPhoto(drawer: HTMLElement): Promise<void> {
+  await userEvent.click(
+    within(drawer).getByRole('button', { name: 'Take photo' }),
+  )
+  const camera = await within(document.body).findByRole('dialog', {
+    name: 'Take a photo',
+  })
+  const shutter = within(camera).getByRole('button', { name: 'Take photo' })
+  await waitFor(() => expect(shutter).not.toHaveAttribute('aria-disabled'))
+  await userEvent.click(shutter)
+  const use = within(camera).getByRole('button', { name: 'Use photo' })
+  await waitFor(() => expect(use).not.toHaveAttribute('aria-disabled'))
+  await userEvent.click(use)
 }
 
 /** A date inside the picker's year-long window, as `YYYY-MM-DD`. */

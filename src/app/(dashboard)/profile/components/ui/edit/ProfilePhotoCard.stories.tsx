@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fireEvent, userEvent, within } from 'storybook/test'
+import { expect, fireEvent, userEvent, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyAvatarUrl, storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
@@ -40,22 +40,66 @@ export const NoPhoto: Story = {
   },
 }
 
-/** Phones and tablets: Upload photo offers the front camera; its shot is checked like a picked file. */
+/** Taps Upload photo, then the drawer's Take photo; returns the camera dialog. */
+async function openCamera(canvasElement: HTMLElement) {
+  const body = within(canvasElement.ownerDocument.body)
+  await userEvent.click(
+    await within(canvasElement).findByRole('button', { name: 'Upload photo' }),
+  )
+  const drawer = await body.findByRole('dialog', { name: 'Add a photo' })
+  await userEvent.click(
+    within(drawer).getByRole('button', { name: 'Take photo' }),
+  )
+  return body.findByRole('dialog', { name: 'Take a photo' })
+}
+
+/** Phones and tablets: Upload photo opens our front camera (mirrored); closing it goes back to the button. */
 export const TouchScreen: Story = {
   decorators: [withSession({ me: storyMe() })],
   parameters: { touchScreen: true },
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await userEvent.click(
-      await canvas.findByRole('button', { name: 'Upload photo' }),
+    const camera = await openCamera(canvasElement)
+    await waitFor(() =>
+      expect(
+        within(camera).getByRole('button', { name: 'Take photo' }),
+      ).not.toHaveAttribute('aria-disabled'),
     )
-    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
-      'dialog',
-      { name: 'Add a photo' },
-    )
+    await expect(
+      getComputedStyle(camera.querySelector('video') as HTMLElement).transform,
+    ).toBe('matrix(-1, 0, 0, 1, 0, 0)')
     await userEvent.click(
-      within(drawer).getByRole('button', { name: 'Take photo' }),
+      within(camera).getByRole('button', { name: 'Close camera' }),
+    )
+    await waitFor(() =>
+      expect(
+        within(canvasElement.ownerDocument.body).queryByRole('dialog'),
+      ).toBeNull(),
+    )
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByRole('button', { name: 'Upload photo' }),
+      ).toHaveFocus(),
+    )
+  },
+}
+
+/** Camera blocked: the browser's own front camera is offered; its shot is checked like a picked file. */
+export const TouchBrowserCamera: Story = {
+  decorators: [withSession({ me: storyMe() })],
+  parameters: { touchScreen: true, camera: 'blocked' },
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const camera = await openCamera(canvasElement)
+    await userEvent.click(
+      await within(camera).findByRole('button', {
+        name: "Use your browser's camera",
+      }),
+    )
+    await waitFor(() =>
+      expect(
+        within(canvasElement.ownerDocument.body).queryByRole('dialog'),
+      ).toBeNull(),
     )
     await expect(canvasElement.querySelector('input[capture]')).toHaveAttribute(
       'capture',
@@ -69,7 +113,7 @@ export const TouchScreen: Story = {
       'input[capture]',
     )
     await expect(
-      await canvas.findByText('Image must be 5MB or smaller.'),
+      await within(canvasElement).findByText('Image must be 5MB or smaller.'),
     ).toBeVisible()
   },
 }

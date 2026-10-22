@@ -14,6 +14,7 @@ export {
 export { Badge } from './Badge'
 export { BrandLoading } from './BrandLoading'
 export { Button } from './Button'
+export { CameraCapture, CameraSourceContext } from './CameraCapture'
 export { Card } from './Card'
 export {
   ColorModeButton,
@@ -145,6 +146,12 @@ export type {
   UiAvatarStatus,
 } from './Avatar'
 export type { BrandLoadingProps } from './BrandLoading'
+export type {
+  CameraCaptureProps,
+  CameraFacing,
+  CameraFallbackAction,
+  OpenCamera,
+} from './CameraCapture'
 export type { CardProps } from './Card'
 export type {
   ClickDropdownProps,

@@ -62,22 +62,66 @@ export const About: Story = {
   },
 }
 
-/** Phones and tablets: Upload photo offers the front camera; its shot is checked like a picked file. */
+/** Taps Upload photo, then the drawer's Take photo; returns the camera dialog. */
+const openCamera = async (canvasElement: HTMLElement) => {
+  const body = within(canvasElement.ownerDocument.body)
+  await userEvent.click(within(canvasElement).getByText('Upload photo'))
+  const drawer = await body.findByRole('dialog', { name: 'Add a photo' })
+  await userEvent.click(
+    within(drawer).getByRole('button', { name: 'Take photo' }),
+  )
+  return body.findByRole('dialog', { name: 'Take a photo' })
+}
+
+/** Phones and tablets: Upload photo opens our front camera (mirrored); closing it goes back to the button. */
 export const PhotoTouchScreen: Story = {
   ...onScreen('about'),
   parameters: { touchScreen: true },
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByText('Upload photo'))
-    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
-      'dialog',
-      { name: 'Add a photo' },
+    const camera = await openCamera(canvasElement)
+    await waitFor(() =>
+      expect(
+        within(camera).getByRole('button', { name: 'Take photo' }),
+      ).not.toHaveAttribute('aria-disabled'),
     )
+    await expect(
+      getComputedStyle(camera.querySelector('video') as HTMLElement).transform,
+    ).toBe('matrix(-1, 0, 0, 1, 0, 0)')
     await userEvent.click(
-      within(drawer).getByRole('button', { name: 'Take photo' }),
+      within(camera).getByRole('button', { name: 'Close camera' }),
     )
-    // The camera has the screen now; the drawer has gone by the time it's back.
-    await waitFor(() => expect(drawer).not.toBeInTheDocument())
+    await waitFor(() =>
+      expect(
+        within(canvasElement.ownerDocument.body).queryByRole('dialog'),
+      ).toBeNull(),
+    )
+    // The field's label names the button, so find it by its text.
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByText('Upload photo').closest('button'),
+      ).toHaveFocus(),
+    )
+  },
+}
+
+/** Camera blocked: the browser's own front camera is offered; its shot is checked like a picked file. */
+export const PhotoBrowserCamera: Story = {
+  ...onScreen('about'),
+  parameters: { touchScreen: true, camera: 'blocked' },
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const camera = await openCamera(canvasElement)
+    await userEvent.click(
+      await within(camera).findByRole('button', {
+        name: "Use your browser's camera",
+      }),
+    )
+    await waitFor(() =>
+      expect(
+        within(canvasElement.ownerDocument.body).queryByRole('dialog'),
+      ).toBeNull(),
+    )
     await expect(canvasElement.querySelector('input[capture]')).toHaveAttribute(
       'capture',
       'user',

@@ -55,7 +55,7 @@ export const Photo: Story = {
   },
 }
 
-/** Phone: Replace photo opens the camera-or-library sheet over the drawer; closing it keeps the drawer. */
+/** Phone: Replace photo opens the camera-or-library sheet over the drawer, Take photo the camera over both; closing it keeps the drawer. */
 export const PhotoSourceOnPhone: Story = {
   args: { section: 'photo' },
   parameters: { touchScreen: true },
@@ -78,6 +78,11 @@ export const PhotoSourceOnPhone: Story = {
     await userEvent.click(
       within(sheet).getByRole('button', { name: 'Take photo' }),
     )
+    const camera = await body.findByRole('dialog', { name: 'Take a photo' })
+    await userEvent.click(
+      within(camera).getByRole('button', { name: 'Close camera' }),
+    )
+    await waitFor(() => expect(camera).not.toBeInTheDocument())
     await waitFor(() => expect(sheet).not.toBeInTheDocument())
     await expect(editor).toBeInTheDocument()
     await waitFor(() => expect(replace).toHaveFocus())

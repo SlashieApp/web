@@ -2,11 +2,13 @@
   "en": {
     "title": "Add a photo",
     "takePhoto": "Take photo",
-    "chooseFromLibrary": "Choose from library"
+    "chooseFromLibrary": "Choose from library",
+    "useBrowserCamera": "Use your browser's camera"
   },
   "zh_hk": {
     "title": "加入相片",
     "takePhoto": "拍照",
-    "chooseFromLibrary": "從相簿選擇"
+    "chooseFromLibrary": "從相簿選擇",
+    "useBrowserCamera": "使用瀏覽器的相機"
   }
 }

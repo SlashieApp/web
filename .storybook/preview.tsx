@@ -10,6 +10,10 @@ import type React from 'react'
 import { ThemeProvider } from 'next-themes'
 
 import { darkSystem, lightSystem } from '../src/theme/chakraSystem'
+import {
+  CameraSourceContext,
+  type OpenCamera,
+} from '../src/ui/CameraCapture/CameraCapture'
 import { TOUCH_SCREEN_QUERY } from '../src/ui/PhotoSourcePicker/photoSource'
 
 /**
@@ -47,6 +51,63 @@ function matchingQuery(media: string): MediaQueryList {
   }
 }
 
+/**
+ * A stand-in camera: a canvas, redrawn every frame until its track stops,
+ * saying which camera was asked for (a dot circles so the preview moves).
+ */
+const openStoryCamera: OpenCamera = async (facing) => {
+  const canvas = document.createElement('canvas')
+  canvas.width = 1280
+  canvas.height = 960
+  const context = canvas.getContext('2d')
+  if (!context) throw new DOMException('No 2D canvas', 'NotReadableError')
+  const stream = canvas.captureStream()
+  const [track] = stream.getVideoTracks()
+  const draw = (time: number) => {
+    if (track.readyState === 'ended') return
+    context.fillStyle = facing === 'user' ? '#8a3f6b' : '#2f6f9f'
+    context.fillRect(0, 0, 1280, 960)
+    context.fillStyle = '#ffffff'
+    context.font = '600 72px sans-serif'
+    context.textAlign = 'center'
+    context.fillText(
+      facing === 'user' ? 'Front camera' : 'Back camera',
+      640,
+      500,
+    )
+    context.beginPath()
+    context.arc(
+      640 + 320 * Math.cos(time / 600),
+      480 + 320 * Math.sin(time / 600),
+      28,
+      0,
+      2 * Math.PI,
+    )
+    context.fill()
+    requestAnimationFrame(draw)
+  }
+  requestAnimationFrame(draw)
+  return stream
+}
+
+/**
+ * The camera a story gets (`parameters: { camera }`), so no story opens a
+ * real one: `live` (the default) or a camera that never starts or fails.
+ */
+const storyCameras: Record<string, OpenCamera> = {
+  live: openStoryCamera,
+  starting: () => new Promise(() => {}),
+  blocked: async () => {
+    throw new DOMException('Permission denied', 'NotAllowedError')
+  },
+  busy: async () => {
+    throw new DOMException('Could not start video source', 'NotReadableError')
+  },
+  unavailable: async () => {
+    throw new DOMException('Requested device not found', 'NotFoundError')
+  },
+}
+
 const preview: Preview = {
   globalTypes: {
     theme: {
@@ -74,9 +135,13 @@ const preview: Preview = {
           <ChakraProvider
             value={context.globals.theme === 'dark' ? darkSystem : lightSystem}
           >
-            <div style={storybookFontRootStyle}>
-              <Story />
-            </div>
+            <CameraSourceContext.Provider
+              value={storyCameras[context.parameters.camera ?? 'live']}
+            >
+              <div style={storybookFontRootStyle}>
+                <Story />
+              </div>
+            </CameraSourceContext.Provider>
           </ChakraProvider>
         </ThemeProvider>
       </ApolloProvider>

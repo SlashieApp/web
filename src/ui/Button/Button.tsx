@@ -5,6 +5,7 @@ import {
   Button as ChakraButton,
   type SystemStyleObject,
 } from '@chakra-ui/react'
+import type { Ref } from 'react'
 
 import {
   mergeSdlPressCss,
@@ -38,6 +39,8 @@ export type UiButtonSize = 'sm' | 'md' | 'lg' | 'xs' | 'xl'
 export type UiButtonProps = Omit<ButtonProps, 'variant' | 'size'> & {
   variant?: UiButtonVariant
   size?: UiButtonSize
+  /** Reaches the `<button>` (React 19 passes `ref` as a prop). */
+  ref?: Ref<HTMLButtonElement>
 }
 
 type SdlVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'premium'

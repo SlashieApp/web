@@ -5,6 +5,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 import {
   storyHeicPhoto,
   storyImage,
+  takeStoryPhoto,
 } from '@/app/(stepflow)/stepflowStoryHelpers'
 
 import {
@@ -90,33 +91,21 @@ export const Empty: Story = {
   },
 }
 
-/** Phones and tablets: Add photos offers the back camera or the library; a shot joins the photos. */
+/** Phones and tablets: Add photos offers our camera or the library; a shot joins the photos. */
 export const TouchScreen: Story = {
   parameters: { touchScreen: true },
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
     await userEvent.click(canvas.getByRole('button', { name: 'Add photos' }))
-    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
-      'dialog',
-      { name: 'Add a photo' },
-    )
+    const drawer = await body.findByRole('dialog', { name: 'Add a photo' })
     await expect(
-      within(drawer).getByRole('button', { name: 'Take photo' }),
+      within(drawer).getByRole('button', { name: 'Choose from library' }),
     ).toBeVisible()
-    await userEvent.click(
-      within(drawer).getByRole('button', { name: 'Take photo' }),
-    )
-    // The camera has the screen now; the drawer has gone by the time it's back.
-    await waitFor(() => expect(drawer).not.toBeInTheDocument())
-    const camera =
-      canvasElement.querySelector<HTMLInputElement>('input[capture]')
-    if (!camera) throw new Error('No camera input')
-    await expect(camera).toHaveAttribute('capture', 'environment')
-    await userEvent.upload(
-      camera,
-      new File(['shot'], 'camera.jpg', { type: 'image/jpeg' }),
-    )
+    await takeStoryPhoto(drawer)
+    // The camera and the drawer under it have closed.
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
     await expect(
       await canvas.findByRole('button', { name: 'Photo 1' }),
     ).toBeVisible()

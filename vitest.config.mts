@@ -37,14 +37,23 @@ export default defineConfig({
         },
       },
       {
-        // Plain tests that need a real browser (canvas, image decoding).
+        // Plain tests that need a real browser (canvas, image decoding, a camera).
+        resolve: { alias: { '@': path.join(dirname, 'src') } },
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.ts'],
           browser: {
             enabled: true,
             headless: true,
-            provider: playwright({}),
+            // Chromium's fake camera, allowed without a prompt.
+            provider: playwright({
+              launchOptions: {
+                args: [
+                  '--use-fake-ui-for-media-stream',
+                  '--use-fake-device-for-media-stream',
+                ],
+              },
+            }),
             instances: [{ browser: 'chromium' }],
           },
         },
