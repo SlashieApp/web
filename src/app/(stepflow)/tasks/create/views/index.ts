@@ -1,3 +1,4 @@
+import { createAddress } from './create.address'
 import { createBudget } from './create.budget'
 import { createDetails } from './create.details'
 import { createLoadError } from './create.loadError'
@@ -31,6 +32,7 @@ export const CREATE_TASK_VIEWS: Record<
   'create.loading': createLoading,
   'create.loadError': createLoadError,
   'create.location': createLocation,
+  'create.address': createAddress,
   'create.details': createDetails,
   'create.timing': createTiming,
   'create.budget': createBudget,
@@ -40,6 +42,7 @@ export const CREATE_TASK_VIEWS: Record<
 /** Step screens in flow order. */
 export const CREATE_TASK_STEPS: readonly CreateTaskStepView[] = [
   createLocation,
+  createAddress,
   createDetails,
   createTiming,
   createBudget,

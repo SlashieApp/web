@@ -81,7 +81,7 @@ export function withPopularCategories(
 }
 
 /**
- * Phones the location panel is checked on (FE-349). Pass as
+ * Phones the location card is checked on (FE-349, FE-352). Pass as
  * `parameters.viewport.options`, then pick one with `globals.viewport`.
  */
 export const CREATE_TASK_PHONE_VIEWPORTS = {
@@ -103,21 +103,26 @@ export const CREATE_TASK_PHONE_VIEWPORTS = {
 } as const
 
 /**
- * The map that shows above the location card, in px: from the top of the
- * page's `main` to the card's top edge (its handle on phones), once the card
- * has stopped moving.
+ * The map that shows above the location step's card, in px: from the top of
+ * the page's `main` to the card's top edge, once the card has stopped
+ * moving. The card is the box holding the step's heading and its Continue
+ * (`continueName`, for another language).
  */
 export async function storyVisibleMapHeight(
   canvasElement: HTMLElement,
+  continueName: RegExp = /Continue/,
 ): Promise<number> {
+  const canvas = within(canvasElement)
   const main = canvasElement.querySelector('main')
-  const handle = within(canvasElement).getByRole('button', {
-    name: /address details/,
-  })
   if (!main) throw new Error('No main')
+  const next = canvas.getByRole('button', { name: continueName })
+  let card = canvas.getByRole('heading', { level: 1 }).parentElement
+  while (card && !card.contains(next)) card = card.parentElement
+  if (!card) throw new Error('No location card')
+  const found = card
   const measure = () =>
     Math.round(
-      handle.getBoundingClientRect().top - main.getBoundingClientRect().top,
+      found.getBoundingClientRect().top - main.getBoundingClientRect().top,
     )
   // Same reading three times running, 300 ms apart: the card has settled.
   let readings = [measure()]

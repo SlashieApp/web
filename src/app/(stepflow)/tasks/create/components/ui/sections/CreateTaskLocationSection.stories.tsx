@@ -1,47 +1,42 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { useForm } from 'react-hook-form'
 import { expect, within } from 'storybook/test'
 
-import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
-import {
-  CreateTaskLocationSection,
-  type CreateTaskLocationSectionProps,
-} from './CreateTaskLocationSection'
+import { CreateTaskLocationSection } from './CreateTaskLocationSection'
 
-function CreateTaskLocationSectionDemo(
-  props: Omit<CreateTaskLocationSectionProps, 'register' | 'onUsePinAddress'>,
-) {
-  const { register, setValue } = useForm<CreateTaskFormFieldValues>()
-  return (
-    <CreateTaskLocationSection
-      {...props}
-      register={register}
-      onUsePinAddress={() => setValue('streetAddress', props.pinAddress ?? '')}
-    />
-  )
-}
-
+/**
+ * The pin's public side: the area chip on the location step's card (and on
+ * edit, under the small map). The exact address is
+ * `Create task/CreateTaskAddressSection`.
+ */
 const meta = {
   title: 'Create task/CreateTaskLocationSection',
-  component: CreateTaskLocationSectionDemo,
+  component: CreateTaskLocationSection,
   parameters: { layout: 'padded' },
   args: {
     publicArea: 'Watford',
   },
-} satisfies Meta<typeof CreateTaskLocationSectionDemo>
+} satisfies Meta<typeof CreateTaskLocationSection>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Area known: workers see the town, the exact address is still to enter. */
-export const Default: Story = {}
+/** Area known: the chip says what workers will see. No address field here. */
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Workers will see: Watford')).toBeVisible()
+    await expect(canvas.queryByLabelText(/Exact address/)).toBeNull()
+  },
+}
 
-/** The area is still being looked up: the pill reads "Move the map". */
-export const AreaLookingUp: Story = { args: { publicArea: '' } }
-
-/** FE-209: copy the pin's street address into Exact address. */
-export const WithPinAddress: Story = {
-  args: { pinAddress: '12 Clarendon Road, Watford WD17 1JJ, United Kingdom' },
+/** The area is still being looked up: the chip says to move the map. */
+export const AreaLookingUp: Story = {
+  args: { publicArea: '' },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText('Move the map to set the area.'),
+    ).toBeVisible()
+  },
 }
 
 /** Current location denied or unavailable: a hint says to search or drag. */
@@ -49,57 +44,21 @@ export const LocateUnavailable: Story = {
   args: { publicArea: '', locateUnavailable: true },
 }
 
-/** Continue pressed without an address or a pin: both messages show. */
-export const WithErrors: Story = {
-  args: {
-    publicArea: '',
-    streetAddressError: 'Enter your exact address.',
-    locationError: 'Search or move the map to set your task area.',
-  },
-}
-
-/** Phones, compact panel: the area and an Add exact address row. */
-export const Compact: Story = {
-  args: { compact: true },
+/** A searched place the map can't find: search again or move the map. */
+export const PlaceNotFound: Story = {
+  args: { publicArea: '', locationError: 'placeNotFound' },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(canvas.getByText('Workers will see: Watford')).toBeVisible()
-    await expect(
-      canvas.getByRole('button', { name: 'Add exact address' }),
-    ).toBeVisible()
+    await expect(within(canvasElement).getByRole('alert')).toHaveTextContent(
+      "We couldn't find that place. Search again or move the map to set the pin.",
+    )
   },
 }
 
-/** Compact, area still being looked up. */
-export const CompactAreaLookingUp: Story = {
-  args: { compact: true, publicArea: '' },
-}
-
-/** Compact with an address typed: the row shows it, with an edit pencil. */
-export const CompactWithAddress: Story = {
-  args: { compact: true, streetAddress: '12 QA Test Street' },
+/** Continue pressed with no pin or place: the area message shows. */
+export const WithError: Story = {
+  args: { publicArea: '', locationError: 'locationMissing' },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(
-      canvas.getByRole('button', {
-        name: 'Edit exact address: 12 QA Test Street',
-      }),
-    ).toHaveTextContent('12 QA Test Street')
-  },
-}
-
-/** Compact after Continue without an address or a pin: both messages show. */
-export const CompactWithErrors: Story = {
-  args: {
-    compact: true,
-    publicArea: '',
-    streetAddressError: 'addressRequired',
-    locationError: 'locationMissing',
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(canvas.getByText('Add the exact address.')).toBeVisible()
-    await expect(canvas.getByRole('alert')).toHaveTextContent(
+    await expect(within(canvasElement).getByRole('alert')).toHaveTextContent(
       'Search or move the map to set the area.',
     )
   },

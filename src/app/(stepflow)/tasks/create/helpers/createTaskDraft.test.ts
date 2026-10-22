@@ -47,6 +47,21 @@ describe('create task draft', () => {
     })
   })
 
+  it('reopens on the address step with the exact address', () => {
+    const storage = memoryStorage()
+    saveCreateTaskDraft(
+      storage,
+      KEY,
+      { step: 'address', done: ['location'], values },
+      NOW,
+    )
+    expect(readCreateTaskDraft(storage, KEY, NOW)).toMatchObject({
+      step: 'address',
+      done: ['location'],
+      values: { streetAddress: '12 Example Street' },
+    })
+  })
+
   it('never keeps the allowed-tasks confirmation', () => {
     const storage = memoryStorage()
     saveCreateTaskDraft(storage, KEY, { step: 'review', done: [], values }, NOW)

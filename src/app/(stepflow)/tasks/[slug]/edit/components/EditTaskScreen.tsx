@@ -15,6 +15,7 @@ import { type UseFormRegister, useForm } from 'react-hook-form'
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility'
 import { TaskLocationMapPicker } from '@/app/(stepflow)/tasks/create/components/layout/map/TaskLocationMapPicker'
+import { CreateTaskAddressSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskAddressSection'
 import { CreateTaskBasicsSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskBasicsSection'
 import { CreateTaskBudgetSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskBudgetSection'
 import { CreateTaskContactSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskContactSection'
@@ -353,14 +354,18 @@ export function EditTaskScreen({
             onLocationLngChange={(v) => setValue('locationLng', v, UPDATE)}
           />
           <CreateTaskLocationSection
+            privacyCallout
             publicArea={townOnly(publicArea) ?? ''}
-            register={sharedRegister}
-            streetAddressError={errors.streetAddress?.message}
             locationError={
               errors.mapPlaceName?.message ??
               errors.locationLat?.message ??
               errors.locationLng?.message
             }
+          />
+          <CreateTaskAddressSection
+            register={sharedRegister}
+            privacyHint
+            streetAddressError={errors.streetAddress?.message}
             pinAddress={values.mapPlaceName}
             onUsePinAddress={
               pinMoved

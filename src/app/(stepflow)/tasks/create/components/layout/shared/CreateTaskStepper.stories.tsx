@@ -19,15 +19,25 @@ type Story = StoryObj<typeof meta>
 /** First step: every later step is locked. */
 export const Location: Story = {
   play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole('button', { name: /Details/ }),
-    ).toBeDisabled()
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('button', { name: /Address/ })).toBeDisabled()
+    await expect(canvas.getByRole('button', { name: /Details/ })).toBeDisabled()
   },
 }
 
-/** Details: the location is done, so it is a button back to the map. */
+/** Address: the pin is set, so the map is a button back; Details waits. */
+export const Address: Story = {
+  args: { active: 'address', done: done('location') },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('button', { name: /Location/ })).toBeEnabled()
+    await expect(canvas.getByRole('button', { name: /Details/ })).toBeDisabled()
+  },
+}
+
+/** Details: the location and address are done, so they are buttons back. */
 export const Details: Story = {
-  args: { active: 'details', done: done('location') },
+  args: { active: 'details', done: done('location', 'address') },
   play: async ({ args, canvasElement }) => {
     await userEvent.click(
       within(canvasElement).getByRole('button', { name: /Location/ }),
@@ -40,7 +50,7 @@ export const Details: Story = {
 export const Review: Story = {
   args: {
     active: 'review',
-    done: done('location', 'details', 'timing', 'budget'),
+    done: done('location', 'address', 'details', 'timing', 'budget'),
   },
 }
 
@@ -48,7 +58,7 @@ export const Review: Story = {
 export const RevisitingTheMap: Story = {
   args: {
     active: 'location',
-    done: done('location', 'details', 'timing'),
+    done: done('location', 'address', 'details', 'timing'),
   },
   play: async ({ canvasElement }) => {
     await expect(

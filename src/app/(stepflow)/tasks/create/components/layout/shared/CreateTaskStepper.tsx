@@ -13,7 +13,7 @@ type CreateTaskStepperProps = {
   onSelect: (id: CreateTaskStepId) => void
 }
 
-/** The five create steps on the desktop rail; any step already reached is a button. */
+/** The six create steps on the desktop rail; any step already reached is a button. */
 export function CreateTaskStepper({
   active,
   done,

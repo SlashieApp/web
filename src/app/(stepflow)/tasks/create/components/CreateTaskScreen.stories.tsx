@@ -30,18 +30,21 @@ import {
 const USER = 'story-poster'
 const ORDER: CreateTaskStepId[] = [
   'location',
+  'address',
   'details',
   'timing',
   'budget',
   'review',
 ]
 
+const ADDRESS = '12 Example Street, London SW1A 1AA'
+
 const answers: CreateTaskDraftValues = {
   title: 'Fix a leaking kitchen tap',
   description:
     'The cold tap drips all the time. The washer probably needs replacing.',
   categories: ['Plumbing'],
-  streetAddress: '12 Example Street, London SW1A 1AA',
+  streetAddress: ADDRESS,
   mapPlaceName: 'Westminster, London',
   locationLat: '51.501000',
   locationLng: '-0.141000',
@@ -73,12 +76,32 @@ function atStep(
   }
 }
 
-/** Back on the map with the pin set but no exact address yet. */
-const pinnedNoAddress = atStep('location', { ...answers, streetAddress: '' })
+/** On the address step with the pin set but no exact address yet. */
+const addressToAdd = atStep('address', { ...answers, streetAddress: '' })
 
 /**
- * Phones, location step (FE-349): the compact panel and how much of the
- * screen the map keeps. Fresh visits, so no draft notice takes room.
+ * The browser shares its location at once, as it does for most posters, so
+ * the pin starts there (no "couldn't get your location" hint). The real
+ * geolocation comes back after the story.
+ */
+function shareLocation() {
+  Object.defineProperty(navigator, 'geolocation', {
+    configurable: true,
+    value: {
+      getCurrentPosition: (found: PositionCallback) =>
+        found({
+          coords: { latitude: 51.501, longitude: -0.141 },
+        } as GeolocationPosition),
+    },
+  })
+  return () => {
+    Reflect.deleteProperty(navigator, 'geolocation')
+  }
+}
+
+/**
+ * Phones, location step (FE-352): the short card and how much of the screen
+ * the map keeps above it. Fresh visits, so no draft notice takes room.
  */
 function phoneLocation(
   viewport: keyof typeof CREATE_TASK_PHONE_VIEWPORTS,
@@ -87,44 +110,31 @@ function phoneLocation(
   const { width, height } = CREATE_TASK_PHONE_VIEWPORTS[viewport].styles
   return {
     decorators: [fresh],
+    beforeEach: shareLocation,
     globals: { viewport: { value: viewport } },
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement)
       await canvas.findByRole('heading', { name: 'Where is the task?' })
       await expect(`${window.innerWidth}px`).toBe(width)
       await expect(`${window.innerHeight}px`).toBe(height)
+      await expect(canvas.getByText('Step 1 of 6 · Location')).toBeVisible()
       await expect(
-        canvas.getByRole('button', { name: 'Show address details' }),
-      ).toHaveAttribute('aria-expanded', 'false')
-      await expect(
-        canvas.getByRole('button', { name: 'Add exact address' }),
+        canvas.getByText(
+          'Move the map so the pin sits near the job. Workers only see this approximate area, not your address.',
+        ),
       ).toBeVisible()
-      await expect(canvas.getByLabelText(/Exact address/)).not.toBeVisible()
+      // The town once the lookup answers; until then, move the map.
+      await expect(
+        canvas.getByText(
+          /^(Workers will see: .+|Move the map to set the area\.)$/,
+        ),
+      ).toBeVisible()
+      await expect(
+        canvas.getByRole('button', { name: /Continue/ }),
+      ).toBeVisible()
+      await expect(canvas.queryByLabelText(/Exact address/)).toBeNull()
       const map = await storyVisibleMapHeight(canvasElement)
       await expect(map / window.innerHeight).toBeGreaterThanOrEqual(minMapShare)
-    },
-  }
-}
-
-/** Phones: Add exact address opens the panel at the field; map still shows. */
-function phoneLocationOpen(
-  viewport: keyof typeof CREATE_TASK_PHONE_VIEWPORTS,
-): Story {
-  return {
-    decorators: [fresh],
-    globals: { viewport: { value: viewport } },
-    play: async ({ canvasElement }) => {
-      const canvas = within(canvasElement)
-      await userEvent.click(
-        await canvas.findByRole('button', { name: 'Add exact address' }),
-      )
-      await expect(
-        canvas.getByRole('button', { name: 'Hide address details' }),
-      ).toHaveAttribute('aria-expanded', 'true')
-      await expect(canvas.getByLabelText(/Exact address/)).toHaveFocus()
-      await expect(
-        await storyVisibleMapHeight(canvasElement),
-      ).toBeGreaterThanOrEqual(0.15 * window.innerHeight)
     },
   }
 }
@@ -164,7 +174,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** create.location: the full-screen map; the first step has no Back. */
+/** create.location: the full-screen map and a short card; no address, no Back. */
 export const Location: Story = {
   decorators: [fresh],
   play: async ({ canvasElement }) => {
@@ -172,8 +182,127 @@ export const Location: Story = {
     await expect(
       await canvas.findByRole('heading', { name: 'Where is the task?' }),
     ).toBeVisible()
-    await expect(canvas.getByLabelText(/Exact address/)).toBeVisible()
+    await expect(
+      canvas.getByText(/Workers only see this approximate area/),
+    ).toBeVisible()
+    await expect(canvas.queryByLabelText(/Exact address/)).toBeNull()
     await expect(canvas.queryByRole('button', { name: /Back/ })).toBeNull()
+  },
+}
+
+/** Continue on the map, with the pin set, goes to the exact address. */
+export const LocationContinue: Story = {
+  decorators: [atStep('location')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Where is the task?' })
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    // The map shrinks to the band and the form fades in.
+    const heading = await canvas.findByRole('heading', {
+      name: "What's the exact address?",
+    })
+    await waitFor(() => expect(heading).toBeVisible())
+  },
+}
+
+/** create.address: the exact address under the map band, and why it's safe. */
+export const Address: Story = {
+  decorators: [addressToAdd],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', { name: "What's the exact address?" }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByText(
+        'Only shared with the worker you accept, after you accept their quote.',
+      ),
+    ).toBeVisible()
+    const field = canvas.getByLabelText(/Exact address/)
+    await expect(field).toHaveValue('')
+    await expect(field).not.toHaveAccessibleDescription()
+    await expect(
+      canvas.queryByText('Shared only with the worker you accept.'),
+    ).toBeNull()
+    await expect(
+      canvas.getByRole('button', { name: 'Use pin address' }),
+    ).toBeEnabled()
+    await expect(
+      canvas.getByRole('button', { name: 'Change the task location' }),
+    ).toBeVisible()
+    await expect(canvas.getByRole('button', { name: /Back/ })).toBeVisible()
+  },
+}
+
+/** A draft with an address restores it here; Continue goes on to the details. */
+export const AddressFilled: Story = {
+  decorators: [atStep('address')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByLabelText(/Exact address/)).toHaveValue(
+      ADDRESS,
+    )
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    await expect(
+      await canvas.findByRole('heading', { name: 'What needs doing?' }),
+    ).toBeVisible()
+  },
+}
+
+/** Continue with no address: the field says what's missing and takes focus. */
+export const AddressMissing: Story = {
+  decorators: [addressToAdd],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: "What's the exact address?" })
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    const field = canvas.getByLabelText(/Exact address/)
+    await waitFor(() => expect(field).toHaveFocus())
+    await expect(field).toHaveAccessibleDescription(/Add the exact address\./)
+  },
+}
+
+/** Use pin address fills the field from the pin, only when tapped. */
+export const AddressUsePinAddress: Story = {
+  decorators: [addressToAdd],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const field = await canvas.findByLabelText(/Exact address/)
+    await expect(field).toHaveValue('')
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Use pin address' }),
+    )
+    await expect(field).toHaveValue('Westminster, London')
+  },
+}
+
+/** Phones: the band, the address form, and "Step 2 of 6". */
+export const AddressPhone: Story = {
+  decorators: [addressToAdd],
+  globals: { viewport: { value: 'iphoneSe2' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', { name: "What's the exact address?" }),
+    ).toBeVisible()
+    await expect(canvas.getByText('Step 2 of 6 · Address')).toBeVisible()
+    await expect(canvas.getByLabelText(/Exact address/)).toBeVisible()
+    await expect(canvas.getByRole('button', { name: /Continue/ })).toBeVisible()
+  },
+}
+
+/** zh-HK: the address step in Traditional Chinese. */
+export const AddressZhHk: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/tasks/create' } } },
+  decorators: [addressToAdd, zhHk],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', { name: '工作的詳細地址是？' }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByText('只會在你接受報價後，分享給你選擇的工作者。'),
+    ).toBeVisible()
   },
 }
 
@@ -267,7 +396,7 @@ export const Budget: Story = {
   },
 }
 
-/** create.review: what workers will see, contact, the confirmation and Post task. */
+/** create.review: what workers will see, the private address, contact, the confirmation and Post task. */
 export const Review: Story = {
   decorators: [atStep('review')],
   play: async ({ canvasElement }) => {
@@ -276,6 +405,7 @@ export const Review: Story = {
       await canvas.findByRole('heading', { name: 'What workers will see' }),
     ).toBeVisible()
     await expect(canvas.getByText('Fix a leaking kitchen tap')).toBeVisible()
+    await expect(canvas.getByText(ADDRESS)).toBeVisible()
     await expect(canvas.getByText('£80 · Cash')).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Post task' }),
@@ -294,6 +424,62 @@ export const ReviewEditGoesBack: Story = {
     await expect(
       await canvas.findByRole('heading', { name: 'When do you need it?' }),
     ).toBeVisible()
+  },
+}
+
+/** The exact address row's Edit goes to the address step, address kept. */
+export const ReviewEditAddress: Story = {
+  decorators: [atStep('review')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Edit Address' }),
+    )
+    await expect(
+      await canvas.findByRole('heading', { name: "What's the exact address?" }),
+    ).toBeVisible()
+    await expect(canvas.getByLabelText(/Exact address/)).toHaveValue(ADDRESS)
+  },
+}
+
+/** The area row's Edit goes back to the map. */
+export const ReviewEditArea: Story = {
+  decorators: [atStep('review')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Edit Location' }),
+    )
+    // The map grows back to full screen and the card fades in.
+    const heading = await canvas.findByRole('heading', {
+      name: 'Where is the task?',
+    })
+    await waitFor(() => expect(heading).toBeVisible())
+  },
+}
+
+/** Post task with no exact address: back to the address step, saying why. */
+export const ReviewMissingAddress: Story = {
+  decorators: [atStep('review', { ...answers, streetAddress: '' })],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('checkbox', {
+        name: /I confirm this task is legal/,
+      }),
+    )
+    await userEvent.click(canvas.getByRole('button', { name: 'Post task' }))
+    await expect(
+      await canvas.findByRole('heading', { name: "What's the exact address?" }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByText(
+        "Some details are missing. We've taken you to the first one.",
+      ),
+    ).toBeVisible()
+    await expect(
+      canvas.getByLabelText(/Exact address/),
+    ).toHaveAccessibleDescription(/Add the exact address\./)
   },
 }
 
@@ -329,7 +515,7 @@ export const ReviewNeedsConfirmation: Story = {
   },
 }
 
-/** Start over clears the draft and goes back to the map. */
+/** Start over clears the draft and goes back to an unset map. */
 export const StartOver: Story = {
   decorators: [atStep('budget')],
   play: async ({ canvasElement }) => {
@@ -342,7 +528,10 @@ export const StartOver: Story = {
       name: 'Where is the task?',
     })
     await waitFor(() => expect(heading).toBeVisible())
-    await expect(canvas.getByLabelText(/Exact address/)).toHaveValue('')
+    await expect(
+      canvas.getByText('Move the map to set the area.'),
+    ).toBeVisible()
+    await expect(canvas.queryByText('We kept your unfinished task.')).toBeNull()
   },
 }
 
@@ -372,77 +561,32 @@ export const Phone: Story = {
   },
 }
 
-/** iPhone SE (2nd and 3rd gen): the compact panel leaves the map half the screen. */
-export const LocationPhone: Story = phoneLocation('iphoneSe2', 0.45)
+/** iPhone SE (2nd and 3rd gen): the short card leaves the map half the screen. */
+export const LocationPhone: Story = phoneLocation('iphoneSe2', 0.5)
 
-/** iPhone SE (2nd and 3rd gen), Add exact address: the panel opens at the field. */
-export const LocationPhoneOpen: Story = phoneLocationOpen('iphoneSe2')
+/** iPhone SE (1st gen): the short card still leaves the map 40% of the screen. */
+export const LocationSmallPhone: Story = phoneLocation('iphoneSe1', 0.4)
 
-/** iPhone SE (1st gen): the compact panel still leaves over a third for the map. */
-export const LocationSmallPhone: Story = phoneLocation('iphoneSe1', 0.35)
+/** iPhone 15: the short card. */
+export const LocationLargePhone: Story = phoneLocation('iphone15', 0.5)
 
-/** iPhone SE (1st gen), Add exact address: open, with a strip of map above. */
-export const LocationSmallPhoneOpen: Story = phoneLocationOpen('iphoneSe1')
-
-/** iPhone 15: the compact panel. */
-export const LocationLargePhone: Story = phoneLocation('iphone15', 0.45)
-
-/** iPhone 15, Add exact address: the panel opens at the field. */
-export const LocationLargePhoneOpen: Story = phoneLocationOpen('iphone15')
-
-/** Continue with no exact address: the panel opens at the field, saying why. */
-export const LocationPhoneContinueWithoutAddress: Story = {
-  decorators: [pinnedNoAddress],
-  globals: { viewport: { value: 'iphoneSe2' } },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const handle = await canvas.findByRole('button', {
-      name: 'Show address details',
-    })
-    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
-    await waitFor(() => expect(handle).toHaveAttribute('aria-expanded', 'true'))
-    const field = canvas.getByLabelText(/Exact address/)
-    await expect(field).toHaveFocus()
-    await expect(field).toHaveAccessibleDescription(/Add the exact address\./)
-  },
-}
-
-/** An address typed, then the panel closed: the row shows it to edit. */
-export const LocationPhoneAddressAdded: Story = {
-  decorators: [pinnedNoAddress],
-  globals: { viewport: { value: 'iphoneSe2' } },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await userEvent.click(
-      await canvas.findByRole('button', { name: 'Add exact address' }),
-    )
-    await userEvent.type(
-      canvas.getByLabelText(/Exact address/),
-      '12 QA Test Street',
-    )
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Hide address details' }),
-    )
-    await expect(
-      canvas.getByRole('button', {
-        name: 'Edit exact address: 12 QA Test Street',
-      }),
-    ).toBeVisible()
-  },
-}
-
-/** zh-HK, phones: the compact panel in Traditional Chinese. */
+/** zh-HK, iPhone SE (2nd and 3rd gen): the short card, still half the screen of map. */
 export const LocationPhoneZhHk: Story = {
   parameters: { nextjs: { navigation: { pathname: '/zh-hk/tasks/create' } } },
   decorators: [fresh, zhHk],
+  beforeEach: shareLocation,
   globals: { viewport: { value: 'iphoneSe2' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('button', { name: '加入詳細地址' }),
+      await canvas.findByRole('heading', { name: '任務在哪裡？' }),
     ).toBeVisible()
     await expect(
-      canvas.getByRole('button', { name: '顯示地址詳情' }),
-    ).toHaveAttribute('aria-expanded', 'false')
+      canvas.getByText(
+        '移動地圖，把圖釘放在工作地點附近。工作者只會看到這個大約位置，不會看到你的地址。',
+      ),
+    ).toBeVisible()
+    const map = await storyVisibleMapHeight(canvasElement, /繼續/)
+    await expect(map / window.innerHeight).toBeGreaterThanOrEqual(0.5)
   },
 }

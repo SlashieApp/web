@@ -23,6 +23,8 @@ export type CreateTaskSummary = {
   categories: string[]
   /** The town workers see (empty while it is looked up). */
   area: string
+  /** Private: only the worker the poster accepts gets it. */
+  streetAddress: string
   datetimeType: TaskDateTimeType
   preferredDate: string
   preferredTime: string
@@ -92,7 +94,8 @@ function Row({
 }
 
 /**
- * Review step (FE-295): what workers will see, one row per answer. Each row
+ * Review step (FE-295): what workers will see, one row per answer, and the
+ * exact address marked as shared only with the worker you accept. Each row
  * goes back to the step that asks for it.
  */
 export function CreateTaskSummarySection({
@@ -173,6 +176,14 @@ export function CreateTaskSummarySection({
         onEdit={() => onEdit('location')}
       >
         {summary.area || t.location.areaPending}
+      </Row>
+      <Row
+        label={t.location.addressLabel}
+        editLabel={editLabel('address')}
+        onEdit={() => onEdit('address')}
+      >
+        <Text>{summary.streetAddress}</Text>
+        <Text color="text.muted">{t.location.addressHelper}</Text>
       </Row>
       <Row
         label={s.when}

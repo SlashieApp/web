@@ -28,8 +28,9 @@ Precedence: session, the query, no task, not the poster, then the status.
 ## The form
 
 - Sections in order: Details (title, categories, description), Timing,
-  Location (a small map, two fingers to move it on touch, then create's
-  location card), Budget, Photos (saved ones plus new, up to 10 in all),
+  Location (a small map, two fingers to move it on touch, then create's area
+  chip and exact address, with "Shared only with the worker you accept."
+  under the field), Budget, Photos (saved ones plus new, up to 10 in all),
   Contact.
 - **Only what changed is saved** (`buildEditTaskInput`): the API keeps the
   rest, the timeline lists real changes, and the contact method (which the

@@ -53,8 +53,6 @@ export type CreateTaskLocationMapProps = {
   /** Locate-me: move the pin to the poster's current location. */
   onLocate: () => void
   locating?: boolean
-  /** The poster starts moving the map themselves (not a search or locate). */
-  onUserMove?: () => void
 }
 
 /**
@@ -74,7 +72,6 @@ export function CreateTaskLocationMap({
   collapsed,
   onLocate,
   locating = false,
-  onUserMove,
 }: CreateTaskLocationMapProps) {
   const t = useI11n(bag).location
   const { colorMode } = useColorMode()
@@ -102,7 +99,6 @@ export function CreateTaskLocationMap({
       map.addControl(new mapboxgl.NavigationControl(), 'top-right')
       mountMapFadeOverlay(map.getContainer())
     },
-    onUserMoveStart: onUserMove,
   })
 
   useEffect(() => {

@@ -6,37 +6,61 @@ import {
   Stack,
   type SystemStyleObject,
   Text,
-  VisuallyHidden,
-  chakra,
 } from '@chakra-ui/react'
 import {
   type CSSProperties,
-  type MouseEvent,
-  type PointerEvent,
+  type FocusEvent,
   type ReactNode,
   type Ref,
   useCallback,
-  useId,
   useRef,
   useState,
 } from 'react'
 
 import { marketplaceMapMotion } from '@/app/(task)/helpers/marketplaceMap/motion'
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '@/app/(task)/tasks/[slug]/helpers/taskDetailLayout'
-import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
-import { SHEET_SLOP_PX, velocityFromSamples } from '@/ui/Drawer/sheetMotion'
+import { sdlMotion } from '@/theme/styles'
 import {
   StepFlowActions,
   type StepFlowActionsProps,
   StepFlowHeading,
 } from '@ui'
-import {
-  type LocationPanelState,
-  resolveLocationPanelSnap,
-} from '../../../helpers/locationPanel'
-import bag from '../../../i11n.json'
+
+/**
+ * Room the sticky Continue bar takes at the bottom of the screen, so a field
+ * the browser scrolls into view stops above the bar instead of under it.
+ */
+const fieldsClearStickyBarCss = {
+  '& input, & textarea, & select': { scrollMarginBottom: '112px' },
+} as SystemStyleObject
+
+/**
+ * Some Android browsers (Arc, in-app browsers) shrink the window for the
+ * keyboard, and the sticky Continue bar rises with it over the focused
+ * field. While a field has focus, bring it to the middle of the screen
+ * whenever the window or the visual viewport resizes (FE-352).
+ */
+function keepFocusedFieldInView(event: FocusEvent<HTMLDivElement>) {
+  const field = event.target
+  if (
+    !(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)
+  ) {
+    return
+  }
+  const reveal = () => field.scrollIntoView({ block: 'center' })
+  const viewport = window.visualViewport
+  window.addEventListener('resize', reveal)
+  viewport?.addEventListener('resize', reveal)
+  field.addEventListener(
+    'blur',
+    () => {
+      window.removeEventListener('resize', reveal)
+      viewport?.removeEventListener('resize', reveal)
+    },
+    { once: true },
+  )
+}
 
 /**
  * The map band above the form on later steps. Short on phones and tablets
@@ -53,27 +77,6 @@ const CARD_MAP_OVERLAP_PX = 16
 
 /** Desktop floating location card (matches the `/search` list column feel). */
 const DESKTOP_LOCATION_CARD_W = '420px'
-
-/**
- * The phone card stops at this share of the map area (below the header and
- * progress strip), so a strip of map and the pin show above the open panel.
- */
-const PANEL_MAX_SHARE = 0.75
-
-/** A drag's release also clicks the handle; that click must not toggle. */
-const CLICK_AFTER_DRAG_MS = 400
-
-/** One drag of the panel handle, from pointer down to up. */
-type PanelDrag = {
-  pointerId: number
-  startY: number
-  /** Panel body height (px) when the finger landed. */
-  startH: number
-  /** Past the slop: the panel follows the finger. */
-  dragging: boolean
-  height: number
-  samples: { t: number; offset: number }[]
-}
 
 /** Card/panel rises in on stage change. Reduced motion: crossfade only. */
 const stageEnterCss = {
@@ -95,17 +98,6 @@ const stageEnterCss = {
   },
 } as SystemStyleObject
 
-/**
- * Phones and tablets, location step (FE-349): the bottom card is a panel
- * that starts compact and pulls up to the full address form.
- */
-export type CreateTaskLocationPanel = {
-  state: LocationPanelState
-  onStateChange: (next: LocationPanelState) => void
-  /** What the compact panel shows in place of `children`. */
-  compact: ReactNode
-}
-
 export type CreateTaskMapLayoutProps = {
   /** Full-width strip above everything (e.g. email-verification banner). */
   banner?: ReactNode
@@ -118,8 +110,6 @@ export type CreateTaskMapLayoutProps = {
   map: ReactNode
   /** Location step: full-screen map + bottom card. Otherwise a top band. */
   mapExpanded: boolean
-  /** The location step's bottom card on phones and tablets. */
-  panel: CreateTaskLocationPanel
   /** Over the band on later steps: the area, with a way back to the map. */
   bandOverlay?: ReactNode
   title: string
@@ -136,11 +126,9 @@ export type CreateTaskMapLayoutProps = {
  * step) and the task-detail band behind the later steps; the Mapbox canvas
  * inside it is the same instance throughout, so the camera never jumps.
  *
- * Phones and tablets, location step (FE-349): the card is a pull-up panel.
- * Its body takes an explicit height (what the shown state's content
- * measures, or the finger while dragging) and the map box is sized to the
- * space above the card with the same transition, so Mapbox keeps the pin's
- * spot in the middle of the map that shows.
+ * Location step on phones and tablets (FE-352): a short card at the bottom,
+ * and the map box sized to the space above it, so Mapbox keeps the pin in
+ * the middle of the map that shows.
  */
 export function CreateTaskMapLayout({
   banner,
@@ -149,7 +137,6 @@ export function CreateTaskMapLayout({
   stepper,
   map,
   mapExpanded,
-  panel,
   bandOverlay,
   title,
   description,
@@ -158,151 +145,25 @@ export function CreateTaskMapLayout({
   headingRef,
   children,
 }: CreateTaskMapLayoutProps) {
-  const t = useI11n(bag).location
-  const bodyId = useId()
-  /** The map area: `main`, under the header and progress strip. */
-  const [mainH, setMainH] = useState(0)
-  /** The card without its body: the handle and the action bar. */
-  const [chromeH, setChromeH] = useState(0)
-  /** Body height each panel state's content needs (0 until measured). */
-  const [contentH, setContentH] = useState<Record<LocationPanelState, number>>({
-    compact: 0,
-    expanded: 0,
-  })
-  const [dragH, setDragH] = useState<number | null>(null)
-  const [seenState, setSeenState] = useState(panel.state)
-  const [announcement, setAnnouncement] = useState('')
-  const bodyRef = useRef<HTMLDivElement | null>(null)
-  const contentRef = useRef<HTMLDivElement | null>(null)
-  const observerRef = useRef<ResizeObserver | null>(null)
-  const dragRef = useRef<PanelDrag | null>(null)
-  const dragEndRef = useRef(Number.NEGATIVE_INFINITY)
+  const [cardH, setCardH] = useState(0)
+  const cardObserverRef = useRef<ResizeObserver | null>(null)
 
-  // Say when the panel opens or closes, whatever moved it.
-  if (panel.state !== seenState) {
-    setSeenState(panel.state)
-    setAnnouncement(
-      !mapExpanded
-        ? ''
-        : panel.state === 'expanded'
-          ? t.detailsShown
-          : t.detailsHidden,
-    )
-  }
-
-  const expanded = panel.state === 'expanded'
-  const dragging = dragH !== null
-  // A drag shows the full content, whichever way the finger goes.
-  const shown: LocationPanelState =
-    expanded || dragging ? 'expanded' : 'compact'
-  /** The tallest the body may be; the open content scrolls inside it. */
-  const capH = mainH
-    ? mainH * PANEL_MAX_SHARE - chromeH
-    : Number.POSITIVE_INFINITY
-  const openH = Math.min(contentH.expanded || capH, capH)
-  // Until the shown content is measured, hold the other state's height.
-  const bodyH = Math.min(
-    dragH ?? (contentH[shown] || Math.max(contentH.compact, contentH.expanded)),
-    capH,
-  )
-
-  // Child refs attach first, so the body and content are there to measure.
-  const cardRef = useCallback((card: HTMLDivElement | null) => {
-    observerRef.current?.disconnect()
-    observerRef.current = null
-    if (!card) {
-      // The step changed: a drag in progress can no longer get its pointerup.
-      dragRef.current = null
-      setDragH(null)
-      return
-    }
-    const main = card.closest('main')
-    const body = bodyRef.current
-    const content = contentRef.current
-    if (!main || !body || !content) return
-    const observer = new ResizeObserver(() => {
-      setMainH(main.offsetHeight)
-      setChromeH(card.offsetHeight - body.offsetHeight)
-      const state = content.dataset.panel as LocationPanelState
-      const height = content.offsetHeight
-      setContentH((prev) =>
-        prev[state] === height ? prev : { ...prev, [state]: height },
-      )
-    })
-    observer.observe(main)
-    observer.observe(card)
-    observer.observe(content)
-    observerRef.current = observer
+  const cardRef = useCallback((node: HTMLDivElement | null) => {
+    cardObserverRef.current?.disconnect()
+    cardObserverRef.current = null
+    if (!node) return
+    const observer = new ResizeObserver(() => setCardH(node.offsetHeight))
+    observer.observe(node)
+    cardObserverRef.current = observer
   }, [])
-
-  const onHandlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
-    const body = bodyRef.current
-    if (!event.isPrimary || event.button !== 0 || !body) return
-    try {
-      // Moves keep coming to the handle when the finger slides off it.
-      event.currentTarget.setPointerCapture(event.pointerId)
-    } catch {
-      // The pointer may already be gone.
-    }
-    dragRef.current = {
-      pointerId: event.pointerId,
-      startY: event.clientY,
-      startH: body.offsetHeight,
-      dragging: false,
-      height: body.offsetHeight,
-      samples: [],
-    }
-  }
-
-  const onHandlePointerMove = (event: PointerEvent<HTMLButtonElement>) => {
-    const drag = dragRef.current
-    if (!drag || drag.pointerId !== event.pointerId) return
-    const pulled = drag.startY - event.clientY
-    if (!drag.dragging && Math.abs(pulled) < SHEET_SLOP_PX) return
-    drag.dragging = true
-    drag.height = Math.min(
-      Math.max(drag.startH + pulled, contentH.compact),
-      openH,
-    )
-    drag.samples = [
-      ...drag.samples.slice(-7),
-      { t: event.timeStamp, offset: drag.height },
-    ]
-    setDragH(drag.height)
-  }
-
-  const onHandlePointerEnd = (event: PointerEvent<HTMLButtonElement>) => {
-    const drag = dragRef.current
-    if (!drag || drag.pointerId !== event.pointerId) return
-    dragRef.current = null
-    if (!drag.dragging) return
-    dragEndRef.current = event.timeStamp
-    setDragH(null)
-    panel.onStateChange(
-      resolveLocationPanelSnap({
-        height: drag.height,
-        compact: contentH.compact,
-        expanded: openH,
-        velocity: velocityFromSamples(drag.samples),
-      }),
-    )
-  }
-
-  const onHandleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    if (event.timeStamp - dragEndRef.current < CLICK_AFTER_DRAG_MS) return
-    panel.onStateChange(expanded ? 'compact' : 'expanded')
-  }
-
-  const motion = {
-    transitionProperty: 'height',
-    // The finger moves the panel and the map directly.
-    transitionDuration: dragging ? '0ms' : marketplaceMapMotion.duration,
-    transitionTimingFunction: marketplaceMapMotion.easing,
-  } as const
 
   const heading = (
     <Box ref={headingRef} tabIndex={-1} outline="none">
-      <StepFlowHeading title={title} description={description} />
+      <StepFlowHeading
+        title={title}
+        description={description}
+        compact={mapExpanded}
+      />
     </Box>
   )
   const error = errorText ? (
@@ -331,22 +192,22 @@ export function CreateTaskMapLayout({
           left={0}
           right={0}
           zIndex={0}
-          // The space above the card, which the panel body's target height
-          // (not its mid-animation one) decides, so both move together.
           h={
             mapExpanded
               ? {
-                  base: `calc(100% - max(0px, var(--create-task-card-h) - ${CARD_MAP_OVERLAP_PX}px))`,
+                  base: 'calc(100% - var(--create-task-card-cover))',
                   lg: '100%',
                 }
               : MAP_BAND_H
           }
           style={
             {
-              '--create-task-card-h': `${chromeH + bodyH}px`,
+              '--create-task-card-cover': `${Math.max(0, cardH - CARD_MAP_OVERLAP_PX)}px`,
             } as CSSProperties
           }
-          {...motion}
+          transitionProperty="height"
+          transitionDuration={marketplaceMapMotion.duration}
+          transitionTimingFunction={marketplaceMapMotion.easing}
           css={{
             '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
             // Keep the Mapbox logo/attribution clear of the card's rounded top.
@@ -375,8 +236,6 @@ export function CreateTaskMapLayout({
           >
             <Box
               ref={cardRef}
-              display="flex"
-              flexDirection="column"
               maxW={{ lg: DESKTOP_LOCATION_CARD_W }}
               bg="bg.surface"
               borderTopRadius="2xl"
@@ -388,107 +247,18 @@ export function CreateTaskMapLayout({
               pointerEvents="auto"
               css={stageEnterCss}
             >
-              <chakra.button
-                type="button"
-                display={{ base: 'flex', lg: 'none' }}
-                alignItems="center"
-                justifyContent="center"
-                flexShrink={0}
-                w="full"
-                h={6}
-                cursor={dragging ? 'grabbing' : 'grab'}
-                touchAction="none"
-                userSelect="none"
-                borderTopRadius="2xl"
-                _focusVisible={{ ...sdlFocusRing, outlineOffset: '-2px' }}
-                aria-expanded={expanded}
-                aria-controls={bodyId}
-                aria-label={expanded ? t.hideDetails : t.showDetails}
-                onPointerDown={onHandlePointerDown}
-                onPointerMove={onHandlePointerMove}
-                onPointerUp={onHandlePointerEnd}
-                onPointerCancel={onHandlePointerEnd}
-                onClick={onHandleClick}
+              {/* Tighter on phones, so the map keeps half the screen. */}
+              <Stack
+                gap={{ base: 2, lg: 4 }}
+                px={{ base: 4, md: 8, lg: 6 }}
+                pt={{ base: 2, lg: 5 }}
+                pb={{ base: 2, lg: 4 }}
               >
-                <Box
-                  w="36px"
-                  h="4px"
-                  borderRadius="full"
-                  bg="border.strong"
-                  aria-hidden
-                />
-              </chakra.button>
-              <Box
-                ref={bodyRef}
-                id={bodyId}
-                h={{ base: 'var(--create-task-panel-h, auto)', lg: 'auto' }}
-                style={
-                  bodyH
-                    ? ({
-                        '--create-task-panel-h': `${bodyH}px`,
-                      } as CSSProperties)
-                    : undefined
-                }
-                overflowY={dragging ? 'hidden' : 'auto'}
-                overscrollBehavior="contain"
-                {...motion}
-                css={{
-                  '@media (prefers-reduced-motion: reduce)': {
-                    transition: 'none',
-                  },
-                }}
-              >
-                <Stack
-                  ref={contentRef}
-                  data-panel={shown}
-                  // Compact: the area line reads as the title's subtitle.
-                  gap={{ base: shown === 'compact' ? 1 : 4, lg: 4 }}
-                  px={{ base: 4, md: 8, lg: 6 }}
-                  pt={{ base: 0, lg: 5 }}
-                  pb={{ base: shown === 'compact' ? 3 : 4, lg: 4 }}
-                >
-                  <Box ref={headingRef} tabIndex={-1} outline="none">
-                    <Stack gap={1}>
-                      <StepFlowHeading title={title} compact />
-                      {description ? (
-                        <Text
-                          display={{
-                            base: shown === 'expanded' ? 'block' : 'none',
-                            lg: 'block',
-                          }}
-                          fontSize="sm"
-                          color="text.muted"
-                          lineHeight="tall"
-                        >
-                          {description}
-                        </Text>
-                      ) : null}
-                    </Stack>
-                  </Box>
-                  {error}
-                  <Box
-                    display={{
-                      base: shown === 'compact' ? 'block' : 'none',
-                      lg: 'none',
-                    }}
-                  >
-                    {panel.compact}
-                  </Box>
-                  <Stack
-                    gap={4}
-                    display={{
-                      base: shown === 'expanded' ? 'flex' : 'none',
-                      lg: 'flex',
-                    }}
-                  >
-                    {children}
-                  </Stack>
-                </Stack>
-              </Box>
+                {heading}
+                {error}
+                {children}
+              </Stack>
               <StepFlowActions {...actions} sticky />
-              <VisuallyHidden aria-live="polite" display={{ lg: 'none' }}>
-                {announcement}
-              </VisuallyHidden>
             </Box>
           </Box>
         ) : (
@@ -556,6 +326,8 @@ export function CreateTaskMapLayout({
                   px={{ base: 4, md: 8, lg: 10 }}
                   pt={{ base: 5, md: 8 }}
                   pb={{ base: 4, md: 8 }}
+                  css={fieldsClearStickyBarCss}
+                  onFocus={keepFocusedFieldInView}
                 >
                   {heading}
                   {error}

@@ -6,6 +6,7 @@ import type {
 
 const VIEW_BY_STEP: Record<CreateTaskStepId, CreateTaskViewName> = {
   location: 'create.location',
+  address: 'create.address',
   details: 'create.details',
   timing: 'create.timing',
   budget: 'create.budget',

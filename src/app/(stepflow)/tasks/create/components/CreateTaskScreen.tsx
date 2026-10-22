@@ -1,7 +1,7 @@
 'use client'
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
-import { HStack, Stack, Text } from '@chakra-ui/react'
+import { HStack, Text } from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
@@ -15,7 +15,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useReducedMotion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { LuMapPin } from 'react-icons/lu'
 
@@ -70,10 +69,6 @@ import {
   createTaskProgress,
 } from '../helpers/createTaskSteps'
 import {
-  type LocationPanelState,
-  initialLocationPanel,
-} from '../helpers/locationPanel'
-import {
   resolvePublicAreaName,
   usePublicTaskArea,
 } from '../helpers/publicTaskArea'
@@ -92,6 +87,7 @@ import {
 import { CreateTaskLocationMap } from './layout/map/CreateTaskLocationMap'
 import { CreateTaskMapLayout } from './layout/shared/CreateTaskMapLayout'
 import { CreateTaskStepper } from './layout/shared/CreateTaskStepper'
+import { CreateTaskAddressSection } from './ui/sections/CreateTaskAddressSection'
 import { CreateTaskBasicsSection } from './ui/sections/CreateTaskBasicsSection'
 import { CreateTaskBudgetSection } from './ui/sections/CreateTaskBudgetSection'
 import { CreateTaskConsentSection } from './ui/sections/CreateTaskConsentSection'
@@ -161,10 +157,11 @@ export type CreateTaskScreenProps = {
 }
 
 /**
- * /tasks/create (FE-295). Pick the spot on the full-screen map, then details,
- * timing and budget over the map band, then review what workers will see and
- * post. What each step shows comes from its named view (views/README.md).
- * Answers are kept as a draft on this browser until the task is posted.
+ * /tasks/create (FE-295). Pick the spot on the full-screen map, then the
+ * exact address (FE-352), details, timing and budget over the map band, then
+ * review what workers will see and post. What each step shows comes from its
+ * named view (views/README.md). Answers are kept as a draft on this browser
+ * until the task is posted.
  */
 export function CreateTaskScreen({
   userId,
@@ -207,16 +204,6 @@ export function CreateTaskScreen({
   const [done, setDone] = useState<Set<CreateTaskStepId>>(
     () => new Set(draft?.done ?? []),
   )
-  // Phones and tablets: the location step's pull-up panel (FE-349), set
-  // afresh on each visit to the step.
-  const [locationPanel, setLocationPanel] = useState<LocationPanelState>(() =>
-    initialLocationPanel(errors.streetAddress?.message),
-  )
-  const [panelStep, setPanelStep] = useState(step)
-  if (panelStep !== step) {
-    setPanelStep(step)
-    setLocationPanel(initialLocationPanel(errors.streetAddress?.message))
-  }
   const [draftNotice, setDraftNotice] = useState(Boolean(draft))
   const [serverError, setServerError] = useState<string | null>(null)
   const [advancing, setAdvancing] = useState(false)
@@ -358,13 +345,6 @@ export function CreateTaskScreen({
     if (prev) go(prev)
   }
 
-  /** Open the location panel with the cursor in Exact address. */
-  const openAddress = () => {
-    // Rendered open first: the field can't take focus while it is hidden.
-    flushSync(() => setLocationPanel('expanded'))
-    form.setFocus('streetAddress')
-  }
-
   const startOver = () => {
     const storage = draftStorage()
     if (storage) clearCreateTaskDraft(storage, draftKey)
@@ -396,16 +376,7 @@ export function CreateTaskScreen({
       if (step === 'location' && !(await location.applyResolvedLocation())) {
         return
       }
-      if (!(await trigger([...view.fields], { shouldFocus: true }))) {
-        // On phones the address field may be in the closed panel.
-        if (
-          step === 'location' &&
-          form.getFieldState('streetAddress').invalid
-        ) {
-          openAddress()
-        }
-        return
-      }
+      if (!(await trigger([...view.fields], { shouldFocus: true }))) return
       setDone((prev) => new Set(prev).add(step))
       const next = createTaskNextStep(step)
       if (next) go(next)
@@ -548,56 +519,29 @@ export function CreateTaskScreen({
     }
   }
 
-  /** The location step's body: full, or the compact panel's on phones. */
-  const locationSection = (compact: boolean) => (
-    <CreateTaskLocationSection
-      compact={compact}
-      publicArea={area}
-      register={register}
-      streetAddress={values.streetAddress}
-      streetAddressError={errors.streetAddress?.message}
-      locationError={
-        errors.mapPlaceName?.message ??
-        errors.locationLat?.message ??
-        errors.locationLng?.message
-      }
-      locateUnavailable={location.locateUnavailable}
-      onAddAddress={openAddress}
-      onStreetAddressFocus={() => setLocationPanel('expanded')}
-      onStreetAddressBlur={() => void location.applyResolvedLocation()}
-      pinAddress={values.mapPlaceName}
-      onUsePinAddress={location.onUsePinAddress}
-    />
-  )
-
-  const draftBanner = draftNotice ? (
-    <HStack
-      justify="space-between"
-      gap={3}
-      pl={4}
-      pr={1}
-      borderRadius="lg"
-      bg="status.info.soft"
-    >
-      <Text fontSize="sm" color="text.default">
-        {t.draft.restored}
-      </Text>
-      <Button
-        type="button"
-        variant="ghost"
-        minH="44px"
-        color="text.link"
-        onClick={startOver}
-      >
-        {t.draft.startOver}
-      </Button>
-    </HStack>
-  ) : null
-
   const section = (id: CreateTaskSection) => {
     switch (id) {
       case 'location':
-        return locationSection(false)
+        return (
+          <CreateTaskLocationSection
+            publicArea={area}
+            locationError={
+              errors.mapPlaceName?.message ??
+              errors.locationLat?.message ??
+              errors.locationLng?.message
+            }
+            locateUnavailable={location.locateUnavailable}
+          />
+        )
+      case 'address':
+        return (
+          <CreateTaskAddressSection
+            register={register}
+            streetAddressError={errors.streetAddress?.message}
+            pinAddress={values.mapPlaceName}
+            onUsePinAddress={location.onUsePinAddress}
+          />
+        )
       case 'basics':
         return (
           <CreateTaskBasicsSection
@@ -659,6 +603,7 @@ export function CreateTaskScreen({
               description: values.description,
               categories: values.categories,
               area,
+              streetAddress: values.streetAddress,
               datetimeType: values.datetimeType,
               preferredDate: values.preferredDate,
               preferredTime: values.preferredTime,
@@ -743,20 +688,9 @@ export function CreateTaskScreen({
           collapsed={view.map === 'band'}
           onLocate={location.onLocate}
           locating={location.locating}
-          onUserMove={() => setLocationPanel('compact')}
         />
       }
       mapExpanded={view.map === 'full'}
-      panel={{
-        state: locationPanel,
-        onStateChange: setLocationPanel,
-        compact: (
-          <Stack gap={3}>
-            {draftBanner}
-            {locationSection(true)}
-          </Stack>
-        ),
-      }}
       bandOverlay={
         <HStack
           gap={1}
@@ -811,7 +745,29 @@ export function CreateTaskScreen({
         onContinue: () => void continueStep(),
       }}
     >
-      {draftBanner}
+      {draftNotice ? (
+        <HStack
+          justify="space-between"
+          gap={3}
+          pl={4}
+          pr={1}
+          borderRadius="lg"
+          bg="status.info.soft"
+        >
+          <Text fontSize="sm" color="text.default">
+            {t.draft.restored}
+          </Text>
+          <Button
+            type="button"
+            variant="ghost"
+            minH="44px"
+            color="text.link"
+            onClick={startOver}
+          >
+            {t.draft.startOver}
+          </Button>
+        </HStack>
+      ) : null}
       {view.sections.map((id) => (
         <Fragment key={id}>{section(id)}</Fragment>
       ))}

@@ -65,6 +65,23 @@ export const Open: Story = {
   },
 }
 
+/** Location: the area workers see, then the private exact address with its hint. */
+export const OpenLocation: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const address = await canvas.findByLabelText(/Exact address/)
+    await expect(address).toHaveValue('12 Example Street, London SW1A 1AA')
+    await expect(address).toHaveAccessibleDescription(
+      'Shared only with the worker you accept.',
+    )
+    await expect(
+      canvas.getByText(
+        /^(Workers will see: .+|Move the map to set the area\.)$/,
+      ),
+    ).toBeVisible()
+  },
+}
+
 /** edit.openWithQuotes: workers who quoted aren't told about changes. */
 export const OpenWithQuotes: Story = {
   args: { liveQuotes: 2, quotesWarning: true },

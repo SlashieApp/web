@@ -3,6 +3,7 @@ import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 /** The screens of the create flow, in order (README.md). */
 export type CreateTaskStepId =
   | 'location'
+  | 'address'
   | 'details'
   | 'timing'
   | 'budget'
@@ -13,6 +14,7 @@ export type CreateTaskViewName =
   | 'create.loading'
   | 'create.loadError'
   | 'create.location'
+  | 'create.address'
   | 'create.details'
   | 'create.timing'
   | 'create.budget'
@@ -27,6 +29,7 @@ export type CreateTaskViewInput = {
 /** Blocks a step renders, in order. */
 export type CreateTaskSection =
   | 'location'
+  | 'address'
   | 'basics'
   | 'photos'
   | 'timing'
@@ -39,7 +42,7 @@ export type CreateTaskSection =
 export type CreateTaskStepView = {
   layout: 'step'
   step: CreateTaskStepId
-  /** Full-screen map with a bottom card, or the band above the form. */
+  /** Full-screen map with a short bottom card, or the band above the form. */
   map: 'full' | 'band'
   sections: readonly CreateTaskSection[]
   /** Fields checked before leaving the step. */

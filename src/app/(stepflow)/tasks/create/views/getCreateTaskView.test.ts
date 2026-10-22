@@ -35,7 +35,11 @@ describe('getCreateTaskView', () => {
     expect(view()).toBe('create.location')
   })
 
-  it('asks what needs doing, with photos, after the map', () => {
+  it('asks for the exact address after the map', () => {
+    expect(view({ step: 'address' })).toBe('create.address')
+  })
+
+  it('asks what needs doing, with photos, after the address', () => {
     expect(view({ step: 'details' })).toBe('create.details')
   })
 
@@ -49,6 +53,20 @@ describe('getCreateTaskView', () => {
 
   it('ends on a review of what workers will see, with Post task', () => {
     expect(view({ step: 'review' })).toBe('create.review')
+  })
+
+  it('keeps the exact address off the map, on its own step under the band', () => {
+    expect(CREATE_TASK_VIEWS['create.location']).toMatchObject({
+      map: 'full',
+      sections: ['location'],
+      fields: ['mapPlaceName', 'locationLat', 'locationLng'],
+    })
+    expect(CREATE_TASK_VIEWS['create.address']).toMatchObject({
+      map: 'band',
+      sections: ['address'],
+      fields: ['streetAddress'],
+      primary: 'continue',
+    })
   })
 
   it('keeps the map full screen only on the location step', () => {
