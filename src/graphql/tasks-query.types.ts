@@ -43,8 +43,6 @@ export type TaskListItem = {
   images?: string[]
   poster?: {
     id: string
-    /** Completed orders as customer; public on browse `tasks` (BE-85). */
-    hostedCompletedCount?: number | null
     profile?: { name?: string | null; avatarUrl?: string | null } | null
   } | null
   /**

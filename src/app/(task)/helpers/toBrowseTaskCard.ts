@@ -1,7 +1,4 @@
-import type {
-  TaskCardTask,
-  TaskCardTrust,
-} from '@/app/(task)/components/ui/TaskCard'
+import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { taskPublicViewsLabel } from '@/app/(task)/helpers/taskViewLabels'
 import type { TaskListItem } from '@/graphql/tasks-query.types'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
@@ -13,14 +10,6 @@ import {
   taskScheduleCompactLabel,
 } from './taskBrowseHelpers'
 import { taskCategoryLabels } from './taskCategories'
-
-/** "{n} jobs done" crumb from the poster's completed orders; omitted at 0. */
-export function taskTrustFromPoster(
-  task: TaskListItem,
-): TaskCardTrust | undefined {
-  const count = task.poster?.hostedCompletedCount ?? 0
-  return count > 0 ? { kind: 'jobsDone', count } : undefined
-}
 
 /** Hosted when you posted it, Quoted when you've sent a quote; guests get neither. */
 export function taskViewerRole(
@@ -53,6 +42,5 @@ export function toBrowseTaskCard(
     distanceLabel: taskDistanceShortLabelFromReference(task, referenceLocation),
     timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,
     viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,
-    trust: taskTrustFromPoster(task),
   }
 }

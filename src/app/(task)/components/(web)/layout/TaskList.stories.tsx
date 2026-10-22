@@ -33,14 +33,14 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Results nearest first, nothing selected; the poster's completed jobs show as a crumb. */
+/** Results nearest first, nothing selected. Cards have no "jobs done" line (FE-369). */
 export const Results: Story = {
   decorators: [withTaskBrowseStory()],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByText(storyBrowseTasks[0].title)
     // Comes through the `Tasks` query shape, so a dropped field fails here.
-    expect(canvas.getAllByText('4 jobs done').length).toBeGreaterThan(0)
+    await canvas.findByText(storyBrowseTasks[0].title)
+    expect(canvas.queryByText(/jobs done/i)).toBeNull()
   },
 }
 
@@ -52,7 +52,7 @@ export const SignedInRoles: Story = {
         storyBrowseTask({
           id: 'mine',
           title: 'Hang three shelves',
-          poster: { id: 'viewer-1', hostedCompletedCount: 0 },
+          poster: { id: 'viewer-1' },
         }),
         storyBrowseTask({
           id: 'quoted',

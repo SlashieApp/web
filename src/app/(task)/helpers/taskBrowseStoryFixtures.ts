@@ -35,7 +35,6 @@ export function storyBrowseTask(
     location: { lat: 51.5035, lng: -0.0948, name: 'Southwark', address: null },
     poster: {
       id: 'poster-1',
-      hostedCompletedCount: 4,
       profile: { name: 'Alex Chen', avatarUrl: null },
     },
     ...overrides,

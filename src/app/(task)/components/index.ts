@@ -31,7 +31,6 @@ export type { TaskBrowseSearchThisAreaButtonProps } from './ui/TaskBrowseSearchT
 export type {
   TaskCardProps,
   TaskCardTask,
-  TaskCardTrust,
   TaskCardWorkerQuoteProps,
 } from './ui/TaskCard'
 export type { TaskSearchBaseProps } from './ui/TaskSearch'

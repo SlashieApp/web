@@ -3,7 +3,7 @@
 import { Box, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { MouseEvent, ReactNode } from 'react'
 import { Fragment } from 'react'
-import { LuBookmark, LuChevronRight, LuCircleCheck } from 'react-icons/lu'
+import { LuBookmark, LuChevronRight } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
 import { ReportControl } from '@/content/trust/ReportControl'
@@ -20,9 +20,6 @@ import {
 import { setTaskHandoff } from '../../helpers/taskCardHandoff'
 import bag from '../i11n.json'
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
-
-/** Discovery trust crumb: the poster's completed jobs, shown only when above 0. */
-export type TaskCardTrust = { kind: 'jobsDone'; count: number }
 
 /** One row of pills; anything past the edge fades out before the ⋮ button. */
 const BADGE_ROW_FADE = {
@@ -71,7 +68,6 @@ export type TaskCardTask = {
   /** Public views line from GraphQL (`task.views`); fallback when quotes are unavailable. */
   viewsLabel?: string
   thumbnailSrc?: string
-  trust?: TaskCardTrust
 }
 
 type TaskCardShared = {
@@ -209,7 +205,6 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     quotesLabel,
     askLabel,
     thumbnailSrc,
-    trust,
   } = cardTask
 
   const seedHandoff = () => {
@@ -232,9 +227,6 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     timingLabel,
     timingFirst: Boolean(timingTone),
   })
-  const trustLabel = trust
-    ? formatMessage(t.trustJobsDone, { count: trust.count })
-    : null
 
   const handleToggleSave = onToggleSave
     ? (e: MouseEvent<HTMLButtonElement>) => {
@@ -394,22 +386,6 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                 >
                   {quotesLabel}
                 </Text>
-              ) : null}
-
-              {trustLabel ? (
-                <HStack gap={1} color="text.muted" minW={0}>
-                  <Box
-                    as="span"
-                    aria-hidden
-                    display="inline-flex"
-                    flexShrink={0}
-                  >
-                    <LuCircleCheck size={14} strokeWidth={2.25} />
-                  </Box>
-                  <Text fontSize="xs" fontWeight={600} lineClamp={1}>
-                    {trustLabel}
-                  </Text>
-                </HStack>
               ) : null}
             </Stack>
           </HStack>

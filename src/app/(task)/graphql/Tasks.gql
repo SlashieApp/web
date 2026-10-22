@@ -29,7 +29,6 @@ query Tasks($filter: TaskFilter, $sort: TaskSort, $first: Int, $after: ID) {
     }
     poster {
       id
-      hostedCompletedCount
       profile {
         name
         avatarUrl

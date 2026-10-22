@@ -30,7 +30,6 @@ const defaultTask: TaskCardTask = {
   timingLabel: 'Flexible',
   thumbnailSrc:
     'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
-  trust: { kind: 'jobsDone', count: 12 },
 }
 
 const meta = {
@@ -55,10 +54,12 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-/** Poster with completed jobs: badge, budget, distance and timing, jobs-done crumb. */
+/** Badge, budget, distance and timing. No "jobs done" line (removed in FE-369). */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByText('12 jobs done')).toBeVisible()
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(defaultTask.title)).toBeVisible()
+    await expect(canvas.queryByText(/jobs done/i)).toBeNull()
   },
 }
 
@@ -85,11 +86,6 @@ export const LongTitle: Story = {
 /** No budget: the pound amount is left out of the meta line. */
 export const MissingBudget: Story = {
   args: { task: { ...defaultTask, priceLabel: '' } },
-}
-
-/** Poster has no completed jobs yet: the crumb is omitted. */
-export const EmptyTrust: Story = {
-  args: { task: { ...defaultTask, trust: undefined } },
 }
 
 /** No photo: the thumbnail falls back to its placeholder. */

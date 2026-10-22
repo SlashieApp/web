@@ -3,11 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { TaskListItem } from '@/graphql/tasks-query.types'
 
 import type { BrowseReferenceLocation } from './browseReferenceLocation'
-import {
-  taskTrustFromPoster,
-  taskViewerRole,
-  toBrowseTaskCard,
-} from './toBrowseTaskCard'
+import { taskViewerRole, toBrowseTaskCard } from './toBrowseTaskCard'
 
 const reference: BrowseReferenceLocation = {
   lat: 51.5014,
@@ -33,45 +29,21 @@ function listTask(overrides: Partial<TaskListItem> = {}): TaskListItem {
   }
 }
 
-describe('taskTrustFromPoster', () => {
-  it('returns jobs done when the poster has completed jobs', () => {
-    expect(
-      taskTrustFromPoster(
-        listTask({
-          poster: { id: 'user-1', hostedCompletedCount: 4 },
-        }),
-      ),
-    ).toEqual({ kind: 'jobsDone', count: 4 })
-  })
-
-  it('is empty when the poster has no completed jobs', () => {
-    expect(taskTrustFromPoster(listTask())).toBeUndefined()
-    expect(
-      taskTrustFromPoster(
-        listTask({ poster: { id: 'user-1', hostedCompletedCount: 0 } }),
-      ),
-    ).toBeUndefined()
-  })
-})
-
 describe('toBrowseTaskCard', () => {
   it('omits price when the task has no budget', () => {
     const card = toBrowseTaskCard(listTask({ budget: null }), reference)
     expect(card.priceLabel).toBe('')
     expect(card.categories).toEqual(['Tech setup'])
-    expect(card.trust).toBeUndefined()
   })
 
-  it("maps a fixed budget and the poster's completed jobs onto the scan card", () => {
+  it('maps a fixed budget onto the scan card', () => {
     const card = toBrowseTaskCard(
       listTask({
         budget: { amount: 85, currency: 'GBP' } as TaskListItem['budget'],
-        poster: { id: 'user-1', hostedCompletedCount: 2 },
       }),
       reference,
     )
     expect(card.priceLabel).toBe('£85')
-    expect(card.trust).toEqual({ kind: 'jobsDone', count: 2 })
   })
 })
 
