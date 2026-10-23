@@ -12,6 +12,11 @@ import { useI11n } from '@/i18n/useI11n'
 import { Badge, Card, IconButton, Link, Thumbnail } from '@ui'
 
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import {
+  taskCardLayout,
+  taskCardMetaMinHeight,
+  taskCardTitleMinHeight,
+} from '@/theme/taskCard'
 
 import {
   type TaskCardMetaPart,
@@ -293,80 +298,91 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             />
             <Stack flex={1} minW={0} gap={1.5}>
               <Stack gap={1} minW={0} align="flex-start">
-                {viewerRole || tags.length > 0 || categories.length > 0 ? (
-                  <HStack
-                    gap={1}
-                    w="full"
-                    minW={0}
-                    overflow="hidden"
-                    flexWrap="nowrap"
-                    css={BADGE_ROW_FADE}
-                  >
-                    {viewerRole ? (
-                      <Badge shape="pill" variant="neutral" flexShrink={0}>
-                        {t.viewerRole[viewerRole]}
-                      </Badge>
-                    ) : null}
-                    {tags.map((tag) => (
-                      <Badge
-                        key={`tag-${tag}`}
-                        shape="pill"
-                        variant="neutral"
-                        flexShrink={0}
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                    {categories.map((category) => (
-                      <Badge key={category} shape="pill" flexShrink={0}>
-                        {category}
-                      </Badge>
-                    ))}
-                  </HStack>
-                ) : null}
+                <HStack
+                  gap={1}
+                  w="full"
+                  minW={0}
+                  minH={taskCardLayout.badgeRowMinHeight}
+                  overflow="hidden"
+                  flexWrap="nowrap"
+                  align="center"
+                  css={
+                    viewerRole || tags.length > 0 || categories.length > 0
+                      ? BADGE_ROW_FADE
+                      : undefined
+                  }
+                >
+                  {viewerRole ? (
+                    <Badge shape="pill" variant="neutral" flexShrink={0}>
+                      {t.viewerRole[viewerRole]}
+                    </Badge>
+                  ) : null}
+                  {tags.map((tag) => (
+                    <Badge
+                      key={`tag-${tag}`}
+                      shape="pill"
+                      variant="neutral"
+                      flexShrink={0}
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                  {categories.map((category) => (
+                    <Badge key={category} shape="pill" flexShrink={0}>
+                      {category}
+                    </Badge>
+                  ))}
+                </HStack>
                 <Text
                   fontSize="md"
                   fontWeight={700}
                   color="text.default"
-                  lineHeight="1.3"
-                  lineClamp={2}
+                  lineHeight={taskCardLayout.titleLineHeight}
+                  lineClamp={taskCardLayout.titleLines}
+                  minH={taskCardTitleMinHeight}
                   maxW="full"
                 >
                   {title}
                 </Text>
               </Stack>
 
-              {metaParts.length > 0 ? (
-                <HStack gap={1} minW={0} flexWrap="wrap" align="baseline">
-                  {metaParts.map((part, index) => {
-                    const isFirst = index === 0
-                    const label = (
-                      <Text
-                        fontSize="sm"
-                        lineClamp={1}
-                        {...META_PART_STYLE[metaPartStyle(part, timingTone)]}
-                      >
-                        {part.label}
-                      </Text>
-                    )
-                    return (
-                      <Fragment key={part.kind}>
-                        {isFirst ? null : (
-                          <Text
-                            as="span"
-                            color="text.muted"
-                            fontSize="xs"
-                            aria-hidden
-                          >
-                            ·
-                          </Text>
-                        )}
-                        {label}
-                      </Fragment>
-                    )
-                  })}
-                </HStack>
-              ) : null}
+              <HStack
+                gap={1}
+                minW={0}
+                minH={taskCardMetaMinHeight}
+                flexWrap="wrap"
+                align="center"
+                fontSize="sm"
+                lineHeight={taskCardLayout.metaLineHeight}
+              >
+                {metaParts.map((part, index) => {
+                  const isFirst = index === 0
+                  const label = (
+                    <Text
+                      fontSize="sm"
+                      lineClamp={1}
+                      {...META_PART_STYLE[metaPartStyle(part, timingTone)]}
+                    >
+                      {part.label}
+                    </Text>
+                  )
+                  return (
+                    <Fragment key={part.kind}>
+                      {isFirst ? null : (
+                        <Text
+                          as="span"
+                          color="text.muted"
+                          fontSize="xs"
+                          aria-hidden
+                        >
+                          ·
+                        </Text>
+                      )}
+                      {label}
+                    </Fragment>
+                  )
+                })}
+              </HStack>
 
               {askLabel ? (
                 <Text
