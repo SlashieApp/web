@@ -305,7 +305,7 @@ function ReviewBlock({
  * the API returns it.
  */
 export function ReviewsFact() {
-  const { task, myOrder, orderReview, viewerHasSubmittedReview } =
+  const { task, myOrder, orderReview, viewerHasSubmittedReview, permissions } =
     useTaskDetail()
   const r = useI11n(bag).reviews
   if (!task || !myOrder) return null
@@ -321,7 +321,9 @@ export function ReviewsFact() {
           label={r.yours}
           review={viewerReview}
           action={
-            reviewCanEdit(viewerReview) ? (
+            // A frozen booking's review can't be edited (BE-108), though its
+            // window may still be open.
+            permissions.isFrozen ? null : reviewCanEdit(viewerReview) ? (
               <Button
                 asChild
                 size="sm"

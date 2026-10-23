@@ -140,6 +140,63 @@ export const C2CustomerList: Story = {
   },
 }
 
+/**
+ * C2 · owner, one quote from a suspended worker (BE-108): "Account
+ * suspended", Accept and Decline off, and never Best match though it is the
+ * cheapest. The other quotes stay as they were.
+ */
+export const C2CustomerSuspendedWorkerQuote: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [
+            { ...competitorB, workerSuspended: true },
+            competitorA,
+            competitorC,
+          ],
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Account suspended')
+    const accepts = canvas.getAllByRole('button', { name: 'Accept' })
+    const declines = canvas.getAllByRole('button', { name: 'Decline' })
+    // Cheapest first: the suspended worker's £85 quote leads the list.
+    await expect(accepts[0]).toBeDisabled()
+    await expect(declines[0]).toBeDisabled()
+    await expect(accepts[1]).toBeEnabled()
+    await expect(declines[1]).toBeEnabled()
+    await expect(canvas.queryByText('Best match')).toBeNull()
+  },
+}
+
+/** Owner of a suspended task (BE-108): the quotes read-only, no Accept or Decline. */
+export const C2CustomerTaskSuspended: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [competitorA, competitorB],
+          suspension: { bySlashie: true, posterSuspended: false },
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: 'Maria L.' })
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
+  },
+}
+
 /** C3 · owner, partial cap: slots strip + mixed accepted/pending cards. */
 export const C3CustomerSlotsFilled: Story = {
   render: () => <QuotesModule slotsCap={3} />,

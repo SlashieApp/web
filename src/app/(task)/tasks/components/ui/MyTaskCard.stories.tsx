@@ -162,6 +162,29 @@ export const OpenNoQuotes: Story = {
   },
 }
 
+/**
+ * Open, your task Slashie suspended (BE-108): still listed, with quotes in
+ * but no Compare quotes button, and the ⋮ menu has Share but no Edit task.
+ */
+export const OpenSuspended: Story = {
+  args: {
+    row: {
+      ...storyRows.openCompare,
+      id: 'open-suspended',
+      action: null,
+      suspended: true,
+    },
+    layout: 'row',
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).queryByRole('link', { name: /Compare quotes/ }),
+    ).toBeNull()
+    const menu = await openMenu(canvasElement, 'Fix a leaking kitchen tap')
+    await expect(menu.queryByRole('link', { name: 'Edit task' })).toBeNull()
+  },
+}
+
 /** Open, a quote you sent: "Quote sent · £75"; the ⋮ menu has Share and Report. */
 export const OpenQuoteSent: Story = {
   args: { row: storyRows.openQuoteSent, layout: 'row' },

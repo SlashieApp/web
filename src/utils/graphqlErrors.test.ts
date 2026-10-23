@@ -125,6 +125,31 @@ describe('account deletion (BE-74)', () => {
   })
 })
 
+describe('suspensions and reopening (BE-108)', () => {
+  it('has copy for each code, read from the message too', () => {
+    const copy = {
+      TASK_SUSPENDED: "This task is suspended, so it can't be changed.",
+      COUNTERPARTY_SUSPENDED:
+        "The other person's account is suspended, so this can't be done right now.",
+      TASK_ALREADY_OPEN: 'This task is already open.',
+      TASK_NOT_REOPENABLE: "This task can't be reopened.",
+      WORKER_NOT_SUSPENDED:
+        "This booking can't be reopened because the worker's account is active.",
+      TASK_CHANGED: 'This task just changed. Refresh and try again.',
+    }
+    for (const [code, text] of Object.entries(copy)) {
+      expect(getFriendlyErrorMessage(gqlError(code), 'fallback')).toBe(text)
+      expect(
+        getGraphQLErrorCode({
+          errors: [
+            { message: code, extensions: { code: 'INTERNAL_SERVER_ERROR' } },
+          ],
+        }),
+      ).toBe(code)
+    }
+  })
+})
+
 describe('when a failed request ends the session', () => {
   it('ends it when the API rejects the token or the account is gone', () => {
     expect(isSessionEndedError(gqlError('UNAUTHENTICATED'))).toBe(true)

@@ -52,6 +52,18 @@ function cta(
 }
 
 describe('buildTaskDetailMainCta', () => {
+  it('owner of a cancelled task gets Reopen task, which goes nowhere until confirmed', () => {
+    const model = cta('reopen', { isOwner: true })
+    expect(model).toEqual({
+      action: 'reopen',
+      presentation: 'button',
+      buttonLabel: 'Reopen task',
+    })
+    expect(cta('reopen', { isOwner: true, copy: bag.zh_hk })?.buttonLabel).toBe(
+      '重新開放任務',
+    )
+  })
+
   it('owner of an open task gets a Preview button', () => {
     expect(cta('preview', { isOwner: true })).toMatchObject({
       presentation: 'button',

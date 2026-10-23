@@ -133,6 +133,17 @@ describe('threadMenuActions (FE-272)', () => {
     ])
   })
 
+  it('offers nothing while the task or booking is frozen by a suspension (BE-108)', () => {
+    expect(
+      threadMenuActions({
+        hasPendingQuote: true,
+        canCancelTask: true,
+        booking: { canReschedule: true, canCancel: true },
+        frozen: true,
+      }),
+    ).toEqual([])
+  })
+
   it('offers reschedule and cancel booking once booked, as task detail allows', () => {
     expect(
       threadMenuActions({

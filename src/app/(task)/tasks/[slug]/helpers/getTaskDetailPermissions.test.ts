@@ -1,4 +1,10 @@
-import { Currency, OrderStatus, QuoteStatus, TaskStatus } from '@codegen/schema'
+import {
+  Currency,
+  OrderPartyRole,
+  OrderStatus,
+  QuoteStatus,
+  TaskStatus,
+} from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import type { OrderItem } from '@/utils/orderHelpers'
@@ -290,5 +296,121 @@ describe('getTaskDetailPermissions', () => {
 
     expect(permissions.canSubmitQuote).toBe(false)
     expect(permissions.showFullAddress).toBe(false)
+  })
+})
+
+describe('getTaskDetailPermissions while suspended (BE-108)', () => {
+  const BY_SLASHIE = { bySlashie: true, posterSuspended: false }
+  const pendingQuote = {
+    id: 'q1',
+    taskId: 'task-1',
+    workerUserId: WORKER_ID,
+    status: QuoteStatus.Pending,
+  } as TaskDetailRecord['quotes'][number]
+
+  it('owner of a suspended open task: no accept, edit or cancel', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open, suspension: BY_SLASHIE }),
+      myOrder: null,
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+    expect(permissions).toMatchObject({
+      isSuspended: true,
+      isFrozen: true,
+      reopen: null,
+      showAcceptDecline: false,
+      canCancelTask: false,
+      canEditTask: false,
+    })
+  })
+
+  it('a suspended task can still be posted again (a new task)', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Cancelled, suspension: BY_SLASHIE }),
+      myOrder: null,
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+    expect(permissions.canRepostTask).toBe(true)
+    expect(permissions.reopen).toBeNull()
+  })
+
+  it('worker with a pending quote on a suspended task can no longer edit it', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({
+        status: TaskStatus.Open,
+        quotes: [pendingQuote],
+        suspension: { bySlashie: false, posterSuspended: true },
+      }),
+      myOrder: null,
+      me: workerMe(),
+      myQuote: pendingQuote,
+      isAuthenticated: true,
+    })
+    expect(permissions).toMatchObject({
+      hasPendingQuote: true,
+      canSubmitQuote: false,
+      isFrozen: true,
+    })
+  })
+
+  it('a booking whose other party is suspended is frozen for both sides', () => {
+    for (const [me, role] of [
+      [{ id: OWNER_ID, worker: null } as never, OrderPartyRole.Worker],
+      [workerMe(), OrderPartyRole.Customer],
+    ] as const) {
+      const permissions = getTaskDetailPermissions({
+        task: baseTask({ status: TaskStatus.Awarded }),
+        myOrder: baseOrder({
+          counterpartySuspension: {
+            role,
+            name: 'Someone',
+            canReopen: role === OrderPartyRole.Worker,
+          },
+        }),
+        me,
+        myQuote: null,
+        isAuthenticated: true,
+      })
+      expect(permissions.isSuspended).toBe(false)
+      expect(permissions.isFrozen).toBe(true)
+      expect(permissions.showOrderActions).toBe(false)
+      expect(permissions.reopen).toBe(
+        role === OrderPartyRole.Worker ? 'booking' : null,
+      )
+    }
+  })
+
+  it('the owner can reopen a cancelled task, unless it is suspended', () => {
+    const owner = { id: OWNER_ID, worker: null } as never
+    const reopen = (suspension: TaskDetailRecord['suspension']) =>
+      getTaskDetailPermissions({
+        task: baseTask({ status: TaskStatus.Cancelled, suspension }),
+        myOrder: null,
+        me: owner,
+        myQuote: null,
+        isAuthenticated: true,
+      }).reopen
+    expect(reopen(null)).toBe('cancelled')
+    expect(reopen(BY_SLASHIE)).toBeNull()
+  })
+
+  it('nothing is frozen without a suspension', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Awarded, suspension: null }),
+      myOrder: baseOrder({ counterpartySuspension: null }),
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+    expect(permissions).toMatchObject({
+      isSuspended: false,
+      isFrozen: false,
+      reopen: null,
+      showOrderActions: true,
+    })
   })
 })

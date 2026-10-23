@@ -34,6 +34,33 @@ type Story = StoryObj<typeof meta>
 const page = (canvasElement: HTMLElement) =>
   within(canvasElement.ownerDocument.body)
 
+/**
+ * Owner on a pending quote from a suspended worker (BE-108): "Account
+ * suspended", Accept and Decline off, as on task detail.
+ */
+export const OwnerWorkerSuspended: Story = {
+  args: { quote: jordanQuote({ workerSuspended: true }) },
+  decorators: [asOwner],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Account suspended')
+    await expect(canvas.getByRole('button', { name: 'Accept' })).toBeDisabled()
+    await expect(canvas.getByRole('button', { name: 'Decline' })).toBeDisabled()
+  },
+}
+
+/** Owner of a suspended task (BE-108): the quote's status, no Accept or Decline. */
+export const OwnerTaskSuspended: Story = {
+  args: { taskSuspended: true },
+  decorators: [asOwner],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Awaiting reply')
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
+  },
+}
+
 /** Owner on a pending quote: Accept and Decline sit under the details. */
 export const OwnerPending: Story = {
   decorators: [asOwner],

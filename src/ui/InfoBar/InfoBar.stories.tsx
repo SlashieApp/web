@@ -2,6 +2,9 @@ import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuShieldCheck } from 'react-icons/lu'
 
+import { expect, fn, within } from 'storybook/test'
+
+import { Button } from '../Button'
 import { InfoBar, type UiInfoBarTone } from './InfoBar'
 
 const TONES: UiInfoBarTone[] = ['info', 'success', 'warning', 'danger']
@@ -19,6 +22,7 @@ const meta = {
     children: { control: 'text' },
     linkLabel: { control: 'text' },
     linkHref: { control: 'text' },
+    action: { control: false },
     hideBadge: { control: 'boolean' },
   },
   args: {
@@ -78,6 +82,30 @@ export const Danger: Story = {
 /** Without link: heading, badge and body, no call to action. */
 export const WithoutLink: Story = {
   args: { linkLabel: undefined, linkHref: undefined },
+}
+
+/** With an action: a button under the body (here one that opens a dialog). */
+export const WithAction: Story = {
+  args: {
+    tone: 'warning',
+    hideBadge: true,
+    heading: 'This booking is on hold',
+    children: 'Choose what happens next before the job day.',
+    linkLabel: undefined,
+    linkHref: undefined,
+    action: (
+      <Button size="sm" variant="primary" onClick={fn()}>
+        Choose
+      </Button>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('heading', { name: 'This booking is on hold' }),
+    ).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Choose' })).toBeEnabled()
+  },
 }
 
 /** Heading only: no body copy and no link. */

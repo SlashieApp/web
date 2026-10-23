@@ -2,6 +2,7 @@ import {
   OrderStatus,
   QuoteStatus,
   TaskStatus,
+  TaskSuspensionReason,
   TaskTimelineEventType,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -261,6 +262,137 @@ export const NoNamesAndUnknownTypes: Story = {
       'Task posted',
       'The task was edited',
       'The task was cancelled',
+    ]),
+}
+
+/**
+ * BE-108 lines: cancelled and reopened by the owner, suspended by Slashie
+ * and lifted, then suspended because the poster's account was. No line says
+ * who suspended it.
+ */
+const suspensionTimeline = [
+  storyTimelineEvent({
+    type: E.TaskCreated,
+    timestamp: '2026-06-01T09:00:00.000Z',
+    byViewer: true,
+    actor: STORY_ALEX,
+  }),
+  storyTimelineEvent({
+    type: E.TaskCancelled,
+    timestamp: '2026-06-02T09:00:00.000Z',
+    byViewer: true,
+    actor: STORY_ALEX,
+  }),
+  storyTimelineEvent({
+    type: E.TaskReopened,
+    timestamp: '2026-06-03T09:00:00.000Z',
+    byViewer: true,
+    actor: STORY_ALEX,
+  }),
+  storyTimelineEvent({
+    type: E.TaskSuspended,
+    timestamp: '2026-06-04T09:00:00.000Z',
+    suspensionReason: TaskSuspensionReason.Slashie,
+  }),
+  storyTimelineEvent({
+    type: E.TaskUnsuspended,
+    timestamp: '2026-06-05T09:00:00.000Z',
+    suspensionReason: TaskSuspensionReason.Slashie,
+  }),
+  storyTimelineEvent({
+    type: E.TaskSuspended,
+    timestamp: '2026-06-06T09:00:00.000Z',
+    suspensionReason: TaskSuspensionReason.PosterSuspended,
+  }),
+]
+
+/** The owner reads the reopen as "you", and every suspension line. */
+export const SuspendedAndReopened: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'owner',
+      task: storyTaskDetail({
+        timeline: suspensionTimeline,
+        suspension: { bySlashie: false, posterSuspended: true },
+      }),
+    }),
+  ],
+  play: ({ canvasElement }) =>
+    expectLines(canvasElement, [
+      'You posted the task',
+      'You cancelled the task',
+      'You reopened the task',
+      'Slashie suspended the task',
+      'The task is no longer suspended',
+      "The task was suspended because the poster's account is suspended",
+    ]),
+}
+
+/** A worker on the task reads the reopen with the poster's name. */
+export const SuspendedAndReopenedWorker: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'worker',
+      task: storyTaskDetail({
+        timeline: suspensionTimeline.map((event) => ({
+          ...event,
+          byViewer: false,
+        })),
+      }),
+    }),
+  ],
+  play: ({ canvasElement }) =>
+    expectLines(canvasElement, [
+      'Alex Chen posted the task',
+      'Alex Chen cancelled the task',
+      'Alex Chen reopened the task',
+      'Slashie suspended the task',
+      'The task is no longer suspended',
+      "The task was suspended because the poster's account is suspended",
+    ]),
+}
+
+/** The owner's guest preview leaves the suspension lines out (guests never get them). */
+export const SuspendedGuestPreview: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'owner',
+      viewAs: 'guest',
+      task: storyTaskDetail({ timeline: suspensionTimeline }),
+    }),
+  ],
+  play: ({ canvasElement }) =>
+    expectLines(canvasElement, [
+      'Alex Chen posted the task',
+      'Alex Chen cancelled the task',
+      'Alex Chen reopened the task',
+    ]),
+}
+
+/** zh-HK: the reopen and suspension lines in Chinese. */
+export const ZhHkSuspendedAndReopened: Story = {
+  parameters: {
+    nextjs: { navigation: { pathname: '/zh-hk/tasks/task-detail-story-1' } },
+  },
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'owner',
+      task: storyTaskDetail({ timeline: suspensionTimeline }),
+    }),
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: ({ canvasElement }) =>
+    expectLines(canvasElement, [
+      '你發布了這個任務',
+      '你取消了這個任務',
+      '你重新開放了任務',
+      'Slashie 暫停了此任務',
+      '此任務已恢復',
+      '因發布者帳戶被暫停，此任務已暫停',
     ]),
 }
 

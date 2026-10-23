@@ -125,6 +125,16 @@
           "named": "{name} cancelled the task",
           "anon": "The task was cancelled"
         },
+        "TASK_REOPENED": {
+          "you": "You reopened the task",
+          "named": "{name} reopened the task",
+          "anon": "The task was reopened"
+        },
+        "TASK_SUSPENDED": {
+          "SLASHIE": "Slashie suspended the task",
+          "POSTER_SUSPENDED": "The task was suspended because the poster's account is suspended"
+        },
+        "TASK_UNSUSPENDED": "The task is no longer suspended",
         "QUOTE_SENT": {
           "you": "You sent a quote",
           "named": "{name} sent a quote",
@@ -371,7 +381,8 @@
         "messages": "Messages",
         "verified": "Identity verified",
         "avatarAlt": "{name} avatar",
-        "notSelected": "Not selected"
+        "notSelected": "Not selected",
+        "accountSuspended": "Account suspended"
       },
       "respondedJustNow": "Responded just now",
       "respondedMinutes": "Responded {count} min ago",
@@ -465,6 +476,34 @@
       "help": "Safety and help",
       "askToCancel": "Ask to cancel"
     },
+    "notice": {
+      "taskSuspendedTitle": "This task is suspended",
+      "taskSuspendedBody": "Slashie has suspended this task, so no one can quote, book or message on it. Contact support if you think this is a mistake.",
+      "workerTaskSuspendedBody": "Slashie has suspended this task. Your quote and any booking are on hold until it's restored.",
+      "contactSupport": "Contact support",
+      "accountSuspendedTitle": "{name}'s account has been suspended",
+      "bookingOnHoldBody": "This booking is on hold. You can't message, reschedule or mark it done while their account is suspended.",
+      "bookingOnHoldReopenBody": "This booking is on hold. Reopen the task to cancel it and choose another quote.",
+      "quoteOnHoldBody": "Your quote is on hold while their account is suspended."
+    },
+    "reopen": {
+      "action": "Reopen task",
+      "title": "Reopen this task?",
+      "bookingBody": "Your booking with {name} will be cancelled and the task will be open for quotes again. You can accept another quote.",
+      "cancelledBody": "It will be open for quotes again, and workers with pending quotes will be told.",
+      "confirm": "Reopen task",
+      "dismiss": "Not now",
+      "toast": "Task reopened"
+    },
+    "serverErrors": {
+      "TASK_SUSPENDED": "This task is suspended, so it can't be changed.",
+      "COUNTERPARTY_SUSPENDED": "The other person's account is suspended, so this can't be done right now.",
+      "TASK_ALREADY_OPEN": "This task is already open.",
+      "TASK_NOT_REOPENABLE": "This task can't be reopened.",
+      "WORKER_NOT_SUSPENDED": "This booking can't be reopened because the worker's account is active.",
+      "TASK_CHANGED": "This task just changed. Refresh and try again.",
+      "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake."
+    },
     "summary": {
       "ownerLiveHeadline": "Your task is live - reaching workers",
       "ownerLiveSubline": "Nearby workers can see your task. Share it to get quotes faster.",
@@ -479,8 +518,10 @@
       "readySubline": "Mark it Done once the work is finished and paid for, or tell us if something went wrong.",
       "iMarkedDoneHeadline": "You marked it Done",
       "iMarkedDoneSubline": "Waiting for {name}. If there's no reply, it completes automatically on {date}.",
+      "iMarkedDoneFrozenSubline": "Waiting for {name}.",
       "theyMarkedDoneHeadline": "{name} marked it Done",
       "theyMarkedDoneSubline": "Mark it Done too to complete the job. If you don't reply, it completes automatically on {date}.",
+      "theyMarkedDoneFrozenSubline": "You can mark it Done too once the booking is no longer on hold.",
       "iMarkedFailedHeadline": "You marked it Failed",
       "iMarkedFailedSubline": "Waiting for {name}.",
       "theyMarkedFailedHeadline": "{name} marked it Failed",
@@ -657,6 +698,16 @@
           "named": "{name} 取消了這個任務",
           "anon": "任務已取消"
         },
+        "TASK_REOPENED": {
+          "you": "你重新開放了任務",
+          "named": "{name} 重新開放了任務",
+          "anon": "任務已重新開放"
+        },
+        "TASK_SUSPENDED": {
+          "SLASHIE": "Slashie 暫停了此任務",
+          "POSTER_SUSPENDED": "因發布者帳戶被暫停，此任務已暫停"
+        },
+        "TASK_UNSUSPENDED": "此任務已恢復",
         "QUOTE_SENT": {
           "you": "你送出了報價",
           "named": "{name} 送出了報價",
@@ -903,7 +954,8 @@
         "messages": "訊息",
         "verified": "已核對身分",
         "avatarAlt": "{name} 的頭像",
-        "notSelected": "未獲選"
+        "notSelected": "未獲選",
+        "accountSuspended": "帳戶已暫停"
       },
       "respondedJustNow": "剛剛回覆",
       "respondedMinutes": "{count} 分鐘前回覆",
@@ -997,6 +1049,34 @@
       "help": "安全與協助",
       "askToCancel": "要求取消"
     },
+    "notice": {
+      "taskSuspendedTitle": "此任務已被暫停",
+      "taskSuspendedBody": "Slashie 已暫停此任務，任何人都不能報價、預約或傳送訊息。如你認為有誤，請聯絡客服。",
+      "workerTaskSuspendedBody": "Slashie 已暫停此任務。恢復之前，你的報價和預約都會暫停。",
+      "contactSupport": "聯絡客服",
+      "accountSuspendedTitle": "{name} 的帳戶已被暫停",
+      "bookingOnHoldBody": "此預約已暫停。對方帳戶暫停期間，你不能傳送訊息、改期或標記完成。",
+      "bookingOnHoldReopenBody": "此預約已暫停。重新開放任務即可取消此預約並選擇其他報價。",
+      "quoteOnHoldBody": "對方帳戶暫停期間，你的報價會暫停。"
+    },
+    "reopen": {
+      "action": "重新開放任務",
+      "title": "重新開放此任務？",
+      "bookingBody": "你與 {name} 的預約會被取消，任務會再次接受報價。你可以接受其他報價。",
+      "cancelledBody": "任務會再次接受報價，並會通知有待處理報價的工作者。",
+      "confirm": "重新開放任務",
+      "dismiss": "暫時不要",
+      "toast": "任務已重新開放"
+    },
+    "serverErrors": {
+      "TASK_SUSPENDED": "此任務已暫停，無法更改。",
+      "COUNTERPARTY_SUSPENDED": "對方帳戶已暫停，目前無法進行此操作。",
+      "TASK_ALREADY_OPEN": "此任務已經開放。",
+      "TASK_NOT_REOPENABLE": "此任務無法重新開放。",
+      "WORKER_NOT_SUSPENDED": "工作者帳戶仍然有效，無法重新開放此預約。",
+      "TASK_CHANGED": "此任務剛剛有變更，請重新整理再試。",
+      "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。"
+    },
     "summary": {
       "ownerLiveHeadline": "你的任務已上線，正在觸達工作者",
       "ownerLiveSubline": "附近工作者可以看到你的任務。分享可更快收到報價。",
@@ -1011,8 +1091,10 @@
       "readySubline": "工作完成並已付款後，請標記為完成；如有問題，請告訴我們。",
       "iMarkedDoneHeadline": "你已標記為完成",
       "iMarkedDoneSubline": "正在等待 {name}。如對方沒有回應，將於 {date} 自動完成。",
+      "iMarkedDoneFrozenSubline": "正在等待 {name}。",
       "theyMarkedDoneHeadline": "{name} 已標記為完成",
       "theyMarkedDoneSubline": "你也標記為完成即可完成這份工作。如你沒有回應，將於 {date} 自動完成。",
+      "theyMarkedDoneFrozenSubline": "預約恢復後，你也可以標記為完成。",
       "iMarkedFailedHeadline": "你已標記為未完成",
       "iMarkedFailedSubline": "正在等待 {name}。",
       "theyMarkedFailedHeadline": "{name} 已標記為未完成",

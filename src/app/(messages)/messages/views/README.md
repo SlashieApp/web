@@ -87,7 +87,7 @@ list inside it remounts, which would clear them (the layout stays). Leaving
 Messages resets them. The open conversation comes from the URL, so a search
 that drops its row from the list doesn't close it on desktop.
 
-## Conversation: `getThreadView({ threadId, query, thread, notSelected })`
+## Conversation: `getThreadView({ threadId, query, thread, notSelected, suspended })`
 
 `query` comes from `threadQueryState` (`helpers/messagesThread.ts`): the API
 answers FORBIDDEN (`extensions.code`, or nothing) for a conversation you're not in, which is
@@ -103,10 +103,15 @@ answers FORBIDDEN (`extensions.code`, or nothing) for a conversation you're not 
 | `thread.open` | `canSend` | Header, top pin, timeline, bottom pin when something needs you (`pins: true`) | One-line composer (44px, grows to 160px) |
 | `thread.blocked` | You blocked them | Same | Unblock them to send |
 | `thread.notSelected` | The task went to another worker | Same | This task went to another worker |
+| `thread.suspended` | The task or booking is frozen by a suspension (task detail's `permissions.isFrozen`, BE-108) | Same | Messaging is paused while this account or task is suspended. |
 | `thread.locked` | Before a quote is accepted | Same | You can message here once a quote is accepted |
 
 Precedence: nothing picked, the query, Slashie threads, then why you can or
-can't send. Task threads run inside the task's `TaskDetailProvider` (the
+can't send: `canSend`, blocked, not selected, suspended, then locked (a
+suspension never reads as "once a quote is accepted"). The API gives the
+thread no reason for `canSend` being false, so `suspended` comes from the
+task's `TaskDetailProvider` (`ThreadComposerArea` in `ThreadView.tsx`): the
+task's `suspension`, or the booking's `counterpartySuspension`. Task threads run inside the task's `TaskDetailProvider` (the
 header menu and both pins share task detail's state). The timeline has
 Today / Yesterday / date dividers, and a run of messages from one side within
 five minutes shows one time (`timelineRows`). While the reader is at the
@@ -117,9 +122,9 @@ newest item it stays in view when the pins load or change size.
 | Item | Shows |
 |---|---|
 | Message | A bubble, mine on the right |
-| `QUOTE_RECEIVED` (the worker's "quote sent") | The full quote card: worker, price, proposed times, message, live status; the poster accepts (time picker + safety notice) or declines here |
+| `QUOTE_RECEIVED` (the worker's "quote sent") | The full quote card: worker, price, proposed times, message, live status; the poster accepts (time picker + safety notice) or declines here, not while the task is suspended; a suspended worker's quote shows "Account suspended" with both buttons off (BE-108) |
 | `SYSTEM_ANNOUNCEMENT` (Slashie thread) | A card: picture, title, body |
-| Every other flash | One centred line: the flash's title (plus the quote's price on quote outcomes), time, then its body. No card, no buttons; `REVIEW_PROMPT` keeps its Leave a review link |
+| Every other flash | One centred line: the flash's title (plus the quote's price on quote outcomes), time, then its body. No card, no buttons; `REVIEW_PROMPT` keeps its Leave a review link. The worker's `TASK_CANCELLED` and `TASK_REOPENED` (BE-108, title and body from the API) are lines too, without the price |
 
 ## Top pin: `getThreadPinView(taskDetailView)`
 
@@ -158,6 +163,11 @@ headline first.
 | `bottomPin.confirmDone` | CONFIRM_DONE | `*.booked.theyMarkedDone` | yes (auto-complete date) | Slide to mark Done, Something went wrong |
 | `bottomPin.answerFailed` | ANSWER_FAILED | `*.booked.theyMarkedFailed` | yes | Slide to mark Done, Something went wrong |
 | `bottomPin.conflict` | CONFLICT | `*.conflict.*` | yes | Open task |
+
+While frozen by a suspension the API sends no `attention`, so there is no
+bottom pin, the header menu keeps only Report and Block
+(`threadMenuActions({ frozen })`), and the pins' sub-lines leave out the
+auto-Done date as task detail does.
 
 It sits in the column's flow between the timeline and the composer, so it
 never covers either, and is capped at 45% of the screen height and scrolls,

@@ -9,6 +9,7 @@ import type {
   CancelTaskMutation,
   DeclineQuoteMutation,
   MeQuery,
+  ReopenTaskMutation,
   TaskCoreQuery,
   TaskQuery,
   WithdrawQuoteMutation,
@@ -32,6 +33,7 @@ import {
   hasUnlimitedQuoting,
   isQuoteLimitReached,
 } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
+import { taskServerError } from '@/app/(stepflow)/tasks/create/helpers/taskFieldError'
 import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
 import AcceptOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/AcceptOrderCancellation.gql'
@@ -45,6 +47,7 @@ import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
 import DeclineReschedule from '@/app/(task)/tasks/[slug]/graphql/DeclineReschedule.gql'
 import MarkOrderDone from '@/app/(task)/tasks/[slug]/graphql/MarkOrderDone.gql'
 import MarkOrderFailed from '@/app/(task)/tasks/[slug]/graphql/MarkOrderFailed.gql'
+import ReopenTask from '@/app/(task)/tasks/[slug]/graphql/ReopenTask.gql'
 import RequestOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/RequestOrderCancellation.gql'
 import RequestReschedule from '@/app/(task)/tasks/[slug]/graphql/RequestReschedule.gql'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
@@ -63,6 +66,7 @@ import {
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
+import { availablePrimaryAction } from '@/app/(task)/tasks/[slug]/helpers/taskSuspension'
 import {
   TASK_DETAIL_VIEWS,
   getTaskDetailView,
@@ -77,13 +81,13 @@ import {
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
 import {
-  getFriendlyErrorMessage,
   getGraphQLErrorCode,
   isWorkerQuoteLimitError,
 } from '@/utils/graphqlErrors'
 import { isGraphqlTaskNotFound } from '@/utils/graphqlResponse'
 import {
   type OrderItem,
+  currentTaskOrder,
   isOrderClosed,
   orderCloseView,
 } from '@/utils/orderHelpers'
@@ -103,6 +107,21 @@ import { TaskDetailViewCapture } from '../components/analytics/TaskDetailViewCap
 import { type OrderAction, TaskDetailContext } from './TaskDetailContext'
 
 const ORDER_POLL_MS = 30_000
+
+/**
+ * Codes that mean the task or booking changed under the viewer (BE-108 adds
+ * the suspensions): read it again so the page shows where it stands.
+ */
+const STALE_TASK_CODES = new Set([
+  'ORDER_CHANGED',
+  'TASK_CHANGED',
+  'TASK_SUSPENDED',
+  'COUNTERPARTY_SUSPENDED',
+])
+
+function isStaleTaskError(error: unknown): boolean {
+  return STALE_TASK_CODES.has(getGraphQLErrorCode(error) ?? '')
+}
 
 /** setTimeout's ceiling (~24.8 days); longer waits re-arm on the next render. */
 const MAX_TIMER_MS = 2_147_000_000
@@ -230,6 +249,12 @@ export function TaskDetailProvider({
   const router = useRouter()
   const pathname = usePathname()
   const t = useI11n(bag)
+  // A failed request in the reader's language where this bag has the code.
+  const serverError = useCallback(
+    (error: unknown, fallback: string) =>
+      taskServerError(t.serverErrors, error, fallback),
+    [t.serverErrors],
+  )
   const [seed] = useState(() => taskHandoffFor(taskId))
   const [quoteAmountInput, setQuoteAmountInput] = useState('')
   const [quoteMessageInput, setQuoteMessageInput] = useState('')
@@ -336,7 +361,12 @@ export function TaskDetailProvider({
   // what the public (signed-out) response exposes: status and quotes.
   const viewerTask = asGuest ? null : clientTask
 
-  const liveOrder = (viewerTask?.orders?.[0] ?? null) as OrderItem | null
+  // A reopened task (BE-108) keeps its old, cancelled booking: use the
+  // current one, or none while it is open again.
+  const liveOrder: OrderItem | null = currentTaskOrder(
+    viewerTask?.orders ?? [],
+    viewerTask?.status,
+  )
   const shouldPollLiveOrder = Boolean(
     isAuthenticated && liveOrder && !isOrderClosed(liveOrder.status),
   )
@@ -364,6 +394,7 @@ export function TaskDetailProvider({
         ? taskTimelineAsGuest(clientTask?.timeline, publicTask.poster?.id)
         : (viewerTask?.timeline ?? []),
       orders: viewerTask?.orders ?? [],
+      suspension: viewerTask?.suspension ?? null,
       location:
         viewerTask?.location ??
         (publicTask.location
@@ -487,7 +518,10 @@ export function TaskDetailProvider({
   const [declineQuote] = useMutation<DeclineQuoteMutation>(DeclineQuote)
   const [withdrawQuote, { loading: withdrawingQuote }] =
     useMutation<WithdrawQuoteMutation>(WithdrawQuote)
+  const [reopenTask, { loading: reopeningTask }] =
+    useMutation<ReopenTaskMutation>(ReopenTask)
   const apollo = useApolloClient()
+  const messages = useMessagesOptional()
 
   const onSubmitQuote = useCallback(async () => {
     setQuoteError(null)
@@ -595,7 +629,7 @@ export function TaskDetailProvider({
         route: pathname,
         extra: { task_id: taskId },
       })
-      const message = getFriendlyErrorMessage(error, p.quoteFailedShort)
+      const message = serverError(error, p.quoteFailedShort)
       setQuoteError(message)
       const code = getGraphQLErrorCode(error)
       if (isWorkerQuoteLimitError(error)) {
@@ -634,6 +668,7 @@ export function TaskDetailProvider({
     quotesLoading,
     refreshPageData,
     router,
+    serverError,
     t.provider,
     task,
     taskId,
@@ -679,7 +714,9 @@ export function TaskDetailProvider({
           operation: 'AcceptQuote',
           extra: { task_id: task?.id, quote_id: quoteId },
         })
-        setAcceptError(getFriendlyErrorMessage(error, p.acceptFailed))
+        setAcceptError(serverError(error, p.acceptFailed))
+        // Suspended meanwhile (BE-108): show the frozen quote or task.
+        if (isStaleTaskError(error)) void refetchClientTask()
       } finally {
         setAcceptingQuoteId(null)
       }
@@ -689,6 +726,7 @@ export function TaskDetailProvider({
       permissions.showAcceptDecline,
       refetchClientTask,
       refreshPageData,
+      serverError,
       setActiveTab,
       t.provider,
       task,
@@ -725,7 +763,8 @@ export function TaskDetailProvider({
           operation: 'DeclineQuote',
           extra: { task_id: task?.id, quote_id: quoteId },
         })
-        setAcceptError(getFriendlyErrorMessage(error, p.declineFailed))
+        setAcceptError(serverError(error, p.declineFailed))
+        if (isStaleTaskError(error)) void refetchClientTask()
       } finally {
         setDecliningQuoteId(null)
       }
@@ -735,6 +774,7 @@ export function TaskDetailProvider({
       permissions.showAcceptDecline,
       refetchClientTask,
       refreshPageData,
+      serverError,
       t.provider,
       task,
     ],
@@ -812,13 +852,12 @@ export function TaskDetailProvider({
           operation: spec.field,
           extra: { order_id: myOrder.id, task_id: taskId },
         })
-        const message = getFriendlyErrorMessage(error, c.actionFailed)
+        const message = serverError(error, c.actionFailed)
         setJobActionError(message)
         showAppToast({ title: message, type: 'error' })
-        // Someone else changed the order first: show its latest state.
-        if (getGraphQLErrorCode(error) === 'ORDER_CHANGED') {
-          void refetchClientTask()
-        }
+        // Someone else changed the order first, or it was frozen by a
+        // suspension: show its latest state.
+        if (isStaleTaskError(error)) void refetchClientTask()
         return false
       } finally {
         setOrderActionPending(null)
@@ -830,6 +869,7 @@ export function TaskDetailProvider({
       permissions.showOrderActions,
       refetchClientTask,
       refreshPageData,
+      serverError,
       t.close,
       t.requests,
       taskId,
@@ -853,20 +893,65 @@ export function TaskDetailProvider({
       // The "cancelled the task" Activity line (FE-372).
       void refetchClientTask()
     } catch (error: unknown) {
-      setCancelError(getFriendlyErrorMessage(error, p.cancelFailed))
+      setCancelError(serverError(error, p.cancelFailed))
+      if (isStaleTaskError(error)) void refetchClientTask()
     }
   }, [
     cancelTask,
     permissions.canCancelTask,
     refetchClientTask,
     refreshPageData,
+    serverError,
     t.actions.cancelConfirm,
     t.provider,
     task,
   ])
 
+  // Reopen for quotes (BE-108): a cancelled task, or a booking whose worker
+  // is suspended (the API cancels that booking). The dialogs confirm first.
+  const onReopenTask = useCallback(async () => {
+    if (!task || !permissions.reopen) return false
+    try {
+      const result = await reopenTask({
+        variables: { taskId: task.id },
+        // My tasks lists it under Open again.
+        refetchQueries: ['MyRequests', 'MyOrders'],
+      })
+      if (!result.data?.reopenTask?.id) throw new Error(t.close.actionFailed)
+      showAppToast({ title: t.reopen.toast, type: 'success' })
+      refreshPageData()
+      // Status, the quotes back on offer, the old booking and the Activity
+      // line; then the Messages inbox, whose threads name the task's state.
+      refetch()
+      messages?.refetchThreads()
+      return true
+    } catch (error: unknown) {
+      showAppToast({
+        title: serverError(error, t.close.actionFailed),
+        type: 'error',
+      })
+      // Whatever stopped it (a suspension, already open), show it as it is.
+      void refetchClientTask()
+      return false
+    }
+  }, [
+    messages,
+    permissions.reopen,
+    refetch,
+    refetchClientTask,
+    refreshPageData,
+    reopenTask,
+    serverError,
+    t.close.actionFailed,
+    t.reopen.toast,
+    task,
+  ])
+
   const onWithdrawQuote = useCallback(async () => {
-    if (!myQuote || !permissions.hasPendingQuote) return false
+    // Nothing on a suspended task can change (BE-108).
+    if (!myQuote || !permissions.hasPendingQuote || permissions.isSuspended) {
+      return false
+    }
     const p = t.provider
 
     setQuoteError(null)
@@ -889,13 +974,15 @@ export function TaskDetailProvider({
       void refetchClientTask()
       return true
     } catch (error: unknown) {
-      setQuoteError(getFriendlyErrorMessage(error, p.withdrawQuoteFailed))
+      setQuoteError(serverError(error, p.withdrawQuoteFailed))
       return false
     }
   }, [
     myQuote,
     permissions.hasPendingQuote,
+    permissions.isSuspended,
     refetchClientTask,
+    serverError,
     t.actions.withdrawQuoteConfirm,
     t.provider,
     withdrawQuote,
@@ -919,7 +1006,7 @@ export function TaskDetailProvider({
   const activeTab = resolvedTab
 
   // One Messages thread per task (BE-81); the inbox until it is known.
-  const messageThreads = useMessagesOptional()?.threads
+  const messageThreads = messages?.threads
   const taskThreadHref = useMemo(() => {
     const thread = task
       ? messageThreads?.find((row) => row.task?.id === task.id)
@@ -950,7 +1037,15 @@ export function TaskDetailProvider({
     () =>
       task
         ? buildTaskDetailMainCta({
-            action: TASK_DETAIL_VIEWS[view].primaryAction,
+            // Not one a suspension would refuse (BE-108).
+            action: availablePrimaryAction(
+              TASK_DETAIL_VIEWS[view].primaryAction,
+              {
+                isSuspended: permissions.isSuspended,
+                isFrozen: permissions.isFrozen,
+                viewerHasSubmittedReview,
+              },
+            ),
             task,
             order: myOrder,
             myQuote,
@@ -966,6 +1061,8 @@ export function TaskDetailProvider({
       myOrder,
       myQuote,
       permissions.isOwner,
+      permissions.isSuspended,
+      permissions.isFrozen,
       viewerHasSubmittedReview,
       taskThreadHref,
       t,
@@ -1024,6 +1121,8 @@ export function TaskDetailProvider({
       onDeclineQuote,
       runOrderAction,
       onCancelTask,
+      onReopenTask,
+      reopeningTask,
       onWithdrawQuote,
       withdrawingQuote,
       scrollToQuoteForm,
@@ -1077,6 +1176,8 @@ export function TaskDetailProvider({
       onDeclineQuote,
       runOrderAction,
       onCancelTask,
+      onReopenTask,
+      reopeningTask,
       onWithdrawQuote,
       withdrawingQuote,
       scrollToQuoteForm,

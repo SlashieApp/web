@@ -94,6 +94,12 @@ export type TaskDetailActions = {
   /** Resolves true when the order action succeeded. */
   runOrderAction: (action: OrderAction) => Promise<boolean>
   onCancelTask: () => Promise<void>
+  /**
+   * Reopen the task for quotes (`permissions.reopen`, BE-108), once the
+   * owner confirmed. Resolves true once reopened.
+   */
+  onReopenTask: () => Promise<boolean>
+  reopeningTask: boolean
   /** Withdraw the viewer's pending quote. Resolves true once withdrawn. */
   onWithdrawQuote: () => Promise<boolean>
   withdrawingQuote: boolean

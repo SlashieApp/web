@@ -1,6 +1,6 @@
 import type { TaskDetailViewConfig } from './types'
 
-/** Owner, task CANCELLED. */
+/** Owner, task CANCELLED: it can be reopened for quotes (BE-108). */
 export const ownerCancelled: TaskDetailViewConfig = {
   pill: 'CANCELLED',
   headline: 'cancelledHeadline',
@@ -13,5 +13,5 @@ export const ownerCancelled: TaskDetailViewConfig = {
     'description',
     'photos',
   ],
-  primaryAction: 'repost',
+  primaryAction: 'reopen',
 }

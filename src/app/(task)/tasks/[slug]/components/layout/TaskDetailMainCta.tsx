@@ -1,9 +1,10 @@
 'use client'
 
 import { Box, Stack, type SystemStyleObject, Text } from '@chakra-ui/react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { IconType } from 'react-icons'
-import { LuEye, LuLogIn, LuRepeat, LuSearch } from 'react-icons/lu'
+import { LuEye, LuLogIn, LuRepeat, LuRotateCcw, LuSearch } from 'react-icons/lu'
 
 import { WEB_MQ } from '@/theme/breakpoints'
 import { useIsBrowser } from '@/utils/useIsBrowser'
@@ -18,6 +19,7 @@ import type { TaskDetailMainCtaModel } from '../../helpers/taskDetailMainCtaMode
 import bag from '../../i11n.json'
 import type { TaskDetailPrimaryAction } from '../../views'
 import { OrderCloseControls } from '../overview/OrderCloseControls'
+import { ReopenTaskDialog } from '../overview/ReopenTaskDialog'
 import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
 import { Reveal } from './Reveal'
 
@@ -66,6 +68,7 @@ const BUTTON_ICONS: Partial<Record<TaskDetailPrimaryAction, IconType>> = {
   preview: LuEye,
   signInToQuote: LuLogIn,
   repost: LuRepeat,
+  reopen: LuRotateCcw,
   browseTasks: LuSearch,
 }
 
@@ -114,9 +117,12 @@ export function MainCtaButton({ model }: { model: TaskDetailMainCtaModel }) {
 function MainCtaControl({
   model,
   fill,
+  onReopen,
 }: {
   model: TaskDetailMainCtaModel
   fill: boolean
+  /** Opens the Reopen task confirm, which the page holds once. */
+  onReopen: () => void
 }) {
   const onReceipt = useReceiptDownload()
 
@@ -148,6 +154,20 @@ function MainCtaControl({
 
   if (isButtonOnlyMainCta(model) || !model.content) {
     const Icon = BUTTON_ICONS[model.action]
+    if (model.action === 'reopen') {
+      return (
+        <Button
+          type="button"
+          variant="primary"
+          boxShadow="e3"
+          w={fill ? 'full' : undefined}
+          onClick={onReopen}
+        >
+          {Icon ? <Icon aria-hidden /> : null}
+          {model.buttonLabel}
+        </Button>
+      )
+    }
     return (
       <Button
         asChild
@@ -180,16 +200,21 @@ function MainCtaControl({
 
 /**
  * The view's primary action. Compact (phone + tablet): fixed to the viewport
- * bottom. Web: right end of the title row.
+ * bottom. Web: right end of the title row. Reopen task asks first, in one
+ * dialog for both.
  */
 export function TaskDetailMainCta() {
   const { mainCta } = useTaskDetail()
   const isBrowser = useIsBrowser()
+  const [reopenOpen, setReopenOpen] = useState(false)
 
   if (!mainCta) return null
 
-  const webControl = <MainCtaControl model={mainCta} fill={false} />
-  const pinControl = <MainCtaControl model={mainCta} fill />
+  const onReopen = () => setReopenOpen(true)
+  const webControl = (
+    <MainCtaControl model={mainCta} fill={false} onReopen={onReopen} />
+  )
+  const pinControl = <MainCtaControl model={mainCta} fill onReopen={onReopen} />
 
   const compactPin = (
     <Box
@@ -242,6 +267,9 @@ export function TaskDetailMainCta() {
         {webControl}
       </Box>
       {isBrowser ? createPortal(compactPin, document.body) : compactPin}
+      {mainCta.action === 'reopen' ? (
+        <ReopenTaskDialog open={reopenOpen} onOpenChange={setReopenOpen} />
+      ) : null}
     </>
   )
 }

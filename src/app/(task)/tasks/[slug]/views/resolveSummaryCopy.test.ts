@@ -4,6 +4,7 @@ import bag from '../i11n.json'
 import { TASK_DETAIL_VIEWS } from './index'
 import {
   type TaskSummaryCopyParams,
+  frozenSubline,
   resolveSummaryCopy,
   summaryBudgetType,
 } from './resolveSummaryCopy'
@@ -65,6 +66,46 @@ describe('resolveSummaryCopy', () => {
   })
 })
 
+describe('frozenSubline (BE-108)', () => {
+  const line = (
+    name: keyof typeof TASK_DETAIL_VIEWS,
+    locale: 'en' | 'zh_hk' = 'en',
+  ) =>
+    resolveSummaryCopy(
+      frozenSubline(TASK_DETAIL_VIEWS[name].subline),
+      params,
+      bag[locale].summary,
+    )
+
+  it('drops the auto-Done date while frozen (the API pauses it)', () => {
+    expect(line('owner.booked.iMarkedDone')).toBe('Waiting for Jordan.')
+    expect(line('worker.booked.theyMarkedDone')).toBe(
+      'You can mark it Done too once the booking is no longer on hold.',
+    )
+    expect(line('worker.booked.iMarkedDone', 'zh_hk')).toBe('正在等待 Jordan。')
+    expect(line('owner.booked.theyMarkedDone', 'zh_hk')).toBe(
+      '預約恢復後，你也可以標記為完成。',
+    )
+  })
+
+  it('keeps every other sub-line, and none stays none', () => {
+    for (const [name, view] of Object.entries(TASK_DETAIL_VIEWS)) {
+      if (/\.(iMarkedDone|theyMarkedDone)$/.test(name)) continue
+      expect(frozenSubline(view.subline), name).toBe(view.subline)
+    }
+    expect(frozenSubline(null)).toBeNull()
+  })
+
+  it('leaves no auto-Done date in any sub-line while frozen', () => {
+    for (const view of Object.values(TASK_DETAIL_VIEWS)) {
+      for (const key of keysOf(frozenSubline(view.subline))) {
+        expect(bag.en.summary[key]).not.toContain('{date}')
+        expect(bag.zh_hk.summary[key]).not.toContain('{date}')
+      }
+    }
+  })
+})
+
 describe('summaryBudgetType', () => {
   it('reads hourly and daily budgets, and no amount as no budget', () => {
     expect(summaryBudgetType('PER_HOUR', '£20')).toBe('hourly')
@@ -79,6 +120,7 @@ describe('summary copy', () => {
     const used = Object.values(TASK_DETAIL_VIEWS).flatMap((view) => [
       ...keysOf(view.headline),
       ...keysOf(view.subline),
+      ...keysOf(frozenSubline(view.subline)),
     ])
     for (const key of new Set(used)) {
       expect(bag.en.summary[key], `en.summary.${key}`).toEqual(

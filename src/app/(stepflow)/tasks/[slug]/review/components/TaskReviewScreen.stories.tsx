@@ -27,6 +27,37 @@ const newReview = [withReviewStory()]
 /** Step 1, the star rating of a new review. */
 export const NewReview: Story = { decorators: newReview }
 
+/**
+ * The task is suspended (BE-108): the API refuses reviews, so the page says
+ * why instead of the form, with Back to task.
+ */
+export const TaskSuspended: Story = {
+  decorators: [withReviewStory({ suspended: 'task' })],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', {
+        name: "This task is suspended, so it can't be changed.",
+      }),
+    ).toBeVisible()
+    await expect(canvas.queryByRole('radio')).toBeNull()
+  },
+}
+
+/** The other person's account is suspended (BE-108): the same, with its reason. */
+export const CounterpartySuspended: Story = {
+  decorators: [withReviewStory({ suspended: 'counterparty' })],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', {
+        name: "The other person's account is suspended, so this can't be done right now.",
+      }),
+    ).toBeVisible()
+    await expect(canvas.queryByRole('radio')).toBeNull()
+  },
+}
+
 /** The worker reviewing the customer: the same flow as the customer's. */
 export const AsWorker: Story = {
   decorators: [withReviewStory({ viewer: 'worker' })],

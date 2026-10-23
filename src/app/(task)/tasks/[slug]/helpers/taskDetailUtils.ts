@@ -33,7 +33,10 @@ export type TaskDetailRecord = Omit<TaskCoreRecord, 'location' | 'poster'> & {
   location: TaskClientRecord['location']
   poster: TaskClientRecord['poster']
   timeline: TaskClientRecord['timeline']
+  /** Every booking the viewer has had on it; `currentTaskOrder` picks theirs. */
   orders: TaskClientRecord['orders']
+  /** Why it is suspended (BE-108), for its owner and parties; else null. */
+  suspension: TaskClientRecord['suspension']
 }
 
 /**

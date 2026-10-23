@@ -29,6 +29,8 @@ query Task($id: ID!) {
       timestamp
       byViewer
       changedFields
+      # TASK_SUSPENDED / TASK_UNSUSPENDED: which suspension (BE-108).
+      suspensionReason
       actor {
         id
         profile {
@@ -42,6 +44,13 @@ query Task($id: ID!) {
         }
       }
     }
+    # Why the task is suspended (BE-108), for its owner and parties; null
+    # when it isn't. Everything on a suspended task is frozen.
+    suspension {
+      bySlashie
+      posterSuspended
+    }
+    # Newest first; a reopened task keeps its old, cancelled booking.
     orders {
       ...TaskDetailOrderFields
     }
@@ -62,6 +71,8 @@ query Task($id: ID!) {
       }
       status
       createdAt
+      # The quoting worker's account is suspended: the quote is frozen.
+      workerSuspended
       worker {
         id
         profile {

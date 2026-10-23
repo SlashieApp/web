@@ -45,6 +45,24 @@ export const Default: Story = {
   },
 }
 
+/**
+ * The worker's account is suspended (BE-108): "Account suspended", and
+ * Accept and Decline stay off.
+ */
+export const AccountSuspended: Story = {
+  args: {
+    onAccept: fn(),
+    onDecline: fn(),
+    accountSuspended: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Account suspended')
+    await expect(canvas.getByRole('button', { name: 'Accept' })).toBeDisabled()
+    await expect(canvas.getByRole('button', { name: 'Decline' })).toBeDisabled()
+  },
+}
+
 /** Owner with a pending quote: Message, Decline and Accept. */
 export const OwnerActions: Story = {
   args: {

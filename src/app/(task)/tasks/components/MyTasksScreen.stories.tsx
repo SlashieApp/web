@@ -85,6 +85,7 @@ function task(base: {
     },
     images: [],
     status: base.status ?? 'OPEN',
+    suspension: null,
     location: {
       __typename: 'TaskLocation' as const,
       lat: 51.54,

@@ -1,0 +1,8 @@
+# Reopen your task for quotes (BE-108): a cancelled task, or a booking whose
+# worker's account is suspended (that booking is cancelled).
+mutation ReopenTask($taskId: ID!) {
+  reopenTask(taskId: $taskId) {
+    id
+    status
+  }
+}

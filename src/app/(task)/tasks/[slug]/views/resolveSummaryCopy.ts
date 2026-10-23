@@ -28,6 +28,27 @@ export function summaryBudgetType(
   return 'fixed'
 }
 
+/**
+ * Sub-lines that promise the auto-Done date, which waits while the task or
+ * booking is frozen (BE-108). Their stand-ins say the same without it.
+ */
+const FROZEN_SUBLINES: Partial<Record<TaskSummaryCopyKey, TaskSummaryCopyKey>> =
+  {
+    iMarkedDoneSubline: 'iMarkedDoneFrozenSubline',
+    theyMarkedDoneSubline: 'theyMarkedDoneFrozenSubline',
+  }
+
+/**
+ * A view's sub-line while the task or booking is frozen: without the
+ * auto-Done date. Every other sub-line is unchanged. The same swap as the
+ * Expo app's `frozenSubline`.
+ */
+export function frozenSubline(
+  ref: TaskSummaryCopy | null,
+): TaskSummaryCopy | null {
+  return typeof ref === 'string' ? (FROZEN_SUBLINES[ref] ?? ref) : ref
+}
+
 /** A view's headline or sub-line as text, with its values filled in. */
 export function resolveSummaryCopy(
   ref: TaskSummaryCopy | null,

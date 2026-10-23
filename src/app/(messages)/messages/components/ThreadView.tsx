@@ -14,6 +14,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
   useCallback,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -28,18 +29,19 @@ import MarkThreadRead from '@/app/(messages)/messages/graphql/MarkThreadRead.gql
 import MessageThread from '@/app/(messages)/messages/graphql/MessageThread.gql'
 import SendMessage from '@/app/(messages)/messages/graphql/SendMessage.gql'
 import UnblockUser from '@/app/(messages)/messages/graphql/UnblockUser.gql'
+import { taskServerError } from '@/app/(stepflow)/tasks/create/helpers/taskFieldError'
+import { TaskDetailContext } from '@/app/(task)/tasks/[slug]/context/TaskDetailContext'
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { Button, Link, Textarea } from '@ui'
 
 import { wasNotSelected } from '../helpers/messagesFormat'
 import { threadQueryState, timelineRows } from '../helpers/messagesThread'
 import bag from '../i11n.json'
-import { THREAD_VIEWS, getThreadView } from '../views'
+import { THREAD_VIEWS, type ThreadViewInput, getThreadView } from '../views'
 import { ThreadAttentionRefresh } from './ThreadAttentionRefresh'
 import { ThreadBottomPin } from './ThreadBottomPin'
 import { ThreadHeader } from './ThreadHeader'
@@ -85,7 +87,7 @@ function Composer({
       refetchThreads()
     } catch (error) {
       showAppToast({
-        title: getFriendlyErrorMessage(error, t.sendFailed),
+        title: taskServerError(t.serverErrors, error, t.sendFailed),
         type: 'error',
       })
     }
@@ -126,6 +128,45 @@ function Composer({
         {t.send}
       </Button>
     </HStack>
+  )
+}
+
+/**
+ * Under the timeline: the composer, or the line that says why you can't
+ * send. A task thread runs inside its `TaskDetailProvider`, whose
+ * `permissions.isFrozen` (BE-108) turns the "once a quote is accepted" line
+ * into "Messaging is paused" (`thread.suspended`).
+ */
+function ThreadComposerArea({
+  view,
+  threadId,
+  name,
+  t,
+}: {
+  view: Omit<ThreadViewInput, 'suspended'>
+  threadId: string
+  name: string
+  t: Copy
+}) {
+  const suspended = Boolean(useContext(TaskDetailContext)?.permissions.isFrozen)
+  const config = THREAD_VIEWS[getThreadView({ ...view, suspended })]
+  if (config.layout !== 'conversation') return null
+
+  if (config.composer === 'open') {
+    return <Composer threadId={threadId} name={name} t={t} />
+  }
+  return (
+    <Box
+      px={4}
+      py={3}
+      borderTopWidth="1px"
+      borderColor="border.default"
+      bg="bg.subtle"
+    >
+      <Text fontSize="sm" color="text.muted">
+        {formatMessage(t[config.composer], { name })}
+      </Text>
+    </Box>
   )
 }
 
@@ -213,15 +254,15 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
   const thread = data?.thread ?? null
   const items = data?.threadItems ?? []
   const newestId = items[0]?.id
-  const config =
-    THREAD_VIEWS[
-      getThreadView({
-        threadId,
-        query: threadQueryState({ loading, thread, error }),
-        thread,
-        notSelected: wasNotSelected(items),
-      })
-    ]
+  const view = {
+    threadId,
+    query: threadQueryState({ loading, thread, error }),
+    thread,
+    notSelected: wasNotSelected(items),
+  }
+  // Layout and pins; a suspension only changes the composer line, which
+  // `ThreadComposerArea` works out inside the task's provider.
+  const config = THREAD_VIEWS[getThreadView({ ...view, suspended: false })]
 
   // Opening the thread, and each new item while it is open, marks it read.
   useEffect(() => {
@@ -285,7 +326,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
       void refetch()
     } catch (err) {
       showAppToast({
-        title: getFriendlyErrorMessage(err, t.blockFailed),
+        title: taskServerError(t.serverErrors, err, t.blockFailed),
         type: 'error',
       })
     }
@@ -394,21 +435,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
 
       {pins ? <ThreadBottomPin attention={thread.attention} /> : null}
 
-      {config.composer === 'open' ? (
-        <Composer threadId={thread.id} name={name} t={t} />
-      ) : (
-        <Box
-          px={4}
-          py={3}
-          borderTopWidth="1px"
-          borderColor="border.default"
-          bg="bg.subtle"
-        >
-          <Text fontSize="sm" color="text.muted">
-            {formatMessage(t[config.composer], { name })}
-          </Text>
-        </Box>
-      )}
+      <ThreadComposerArea view={view} threadId={thread.id} name={name} t={t} />
     </>
   )
 

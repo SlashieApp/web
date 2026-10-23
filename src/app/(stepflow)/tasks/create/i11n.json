@@ -192,7 +192,9 @@
     "serverErrors": {
       "DATE_REQUIRED": "Pick a date for this task.",
       "INVALID_DATE": "That date isn't valid. Pick another.",
-      "DATE_IN_PAST": "That date has passed in the UK. Pick today or a later date."
+      "DATE_IN_PAST": "That date has passed in the UK. Pick today or a later date.",
+      "TASK_SUSPENDED": "This task is suspended, so it can't be changed.",
+      "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake."
     }
   },
   "zh_hk": {
@@ -388,7 +390,9 @@
     "serverErrors": {
       "DATE_REQUIRED": "請為這個任務揀選日期。",
       "INVALID_DATE": "這個日期無效，請揀選另一日。",
-      "DATE_IN_PAST": "按英國時間，這個日期已過。請揀選今日或之後的日期。"
+      "DATE_IN_PAST": "按英國時間，這個日期已過。請揀選今日或之後的日期。",
+      "TASK_SUSPENDED": "此任務已暫停，無法更改。",
+      "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。"
     }
   }
 }

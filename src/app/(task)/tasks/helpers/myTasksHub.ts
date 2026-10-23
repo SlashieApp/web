@@ -3,7 +3,7 @@ import {
   liveQuoteCount,
 } from '@/app/(task)/tasks/[slug]/views/getTaskDetailView'
 import type { TaskDetailViewName } from '@/app/(task)/tasks/[slug]/views/types'
-import { orderBookedDatetime } from '@/utils/orderHelpers'
+import { currentTaskOrder, orderBookedDatetime } from '@/utils/orderHelpers'
 import { formatGbpMajor, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
@@ -93,6 +93,8 @@ export type MyTaskSource = {
   budget?: { amount: number } | null
   poster?: { id: string } | null
   quotes?: readonly MyTaskQuoteSource[] | null
+  /** Set while it is suspended (BE-108): still listed, but frozen. */
+  suspension?: { bySlashie: boolean; posterSuspended: boolean } | null
 }
 
 export type MyTaskSentQuote = {
@@ -110,6 +112,8 @@ export type MyTaskOrderSource = {
   bookedStart: unknown
   /** When the order reached COMPLETED or CANCELLED. */
   closedAt?: unknown
+  /** When it was booked: a reopened task keeps older, cancelled orders. */
+  createdAt?: unknown
   /** The price both sides agreed (major units). */
   agreedPrice?: { amount: number } | null
   myCloseAction?: { kind: string } | null
@@ -117,6 +121,8 @@ export type MyTaskOrderSource = {
   pendingRequest?: { kind: string; requestedByUserId: string } | null
   /** `canSubmit`: the order is COMPLETED and this viewer hasn't reviewed it. */
   reviewState?: { canSubmit: boolean } | null
+  /** The other party's account is suspended (BE-108): the booking is frozen. */
+  counterpartySuspension?: { role: string } | null
 }
 
 export type MyTaskHubRow = {
@@ -144,6 +150,11 @@ export type MyTaskHubRow = {
   action: MyTaskAction | null
   /** Your order on the task (Review opens its review form). */
   orderId: string | null
+  /**
+   * The task is suspended (BE-108). It stays in your list, with no button
+   * and no Edit task, since the API would refuse them.
+   */
+  suspended: boolean
 }
 
 export type MyTaskHubSection = {
@@ -231,21 +242,22 @@ function scheduleOf(datetime: MyTaskSource['datetime'], now: Date): Schedule {
   }
 }
 
+/**
+ * Your current booking on the task, as task detail picks it
+ * (`currentTaskOrder`): a reopened task (BE-108) keeps its old, cancelled
+ * booking, which isn't the one to show once it is open or booked again.
+ */
 function orderForTask(
   orders: readonly MyTaskOrderSource[],
-  taskId: string,
+  task: MyTaskSource,
   userId: string,
   hosted: boolean,
 ): MyTaskOrderSource | null {
-  const related = orders.filter((order) => order.taskId === taskId)
-  if (hosted) {
-    return (
-      related.find((order) => order.customerUserId === userId) ??
-      related.find((order) => order.workerUserId === userId) ??
-      null
-    )
-  }
-  return related.find((order) => order.workerUserId === userId) ?? null
+  const related = orders.filter((order) => order.taskId === task.id)
+  const asCustomer = related.filter((order) => order.customerUserId === userId)
+  const asWorker = related.filter((order) => order.workerUserId === userId)
+  const mine = hosted && asCustomer.length > 0 ? asCustomer : asWorker
+  return currentTaskOrder(mine, task.status)
 }
 
 type Facts = {
@@ -329,7 +341,8 @@ function priceLabel(
 
 /**
  * Review on a completed job you can still review; otherwise what task
- * detail's view waits on you for (Past has nothing else to ask).
+ * detail's view waits on you for (Past has nothing else to ask). Nothing on
+ * a suspended task or a frozen booking (BE-108): the API would refuse it.
  */
 function actionFor(input: {
   task: MyTaskSource
@@ -342,6 +355,7 @@ function actionFor(input: {
   now: Date
 }): MyTaskAction | null {
   const { task, order, hosted, userId } = input
+  if (task.suspension || order?.counterpartySuspension) return null
   if (input.section === 'past') {
     return input.outcome === 'completed' &&
       order?.reviewState?.canSubmit === true
@@ -426,7 +440,7 @@ export function buildMyTasksHub(input: {
     const othersQuotes = (task.quotes ?? []).filter(
       (quote) => quote.workerUserId !== userId,
     )
-    const order = orderForTask(input.orders, task.id, userId, hosted)
+    const order = orderForTask(input.orders, task, userId, hosted)
     const facts: Facts = {
       hosted,
       taskStatus: normHubStatus(task.status),
@@ -474,6 +488,7 @@ export function buildMyTasksHub(input: {
         now,
       }),
       orderId: order?.id ?? null,
+      suspended: Boolean(task.suspension),
       // Past: no end time in the data means when you quoted, else posted it.
       sortMs:
         section === 'past'

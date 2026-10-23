@@ -30,6 +30,11 @@ export type QuoteRowProps = {
   respondedLabel?: string | null
   showVerified?: boolean
   status?: QuoteRowStatus | null
+  /**
+   * The worker's account is suspended (BE-108): an "Account suspended" pill,
+   * and Accept and Decline stay off (the API refuses them).
+   */
+  accountSuspended?: boolean
   isBestMatch?: boolean
   onAccept?: () => void
   onDecline?: () => void
@@ -61,6 +66,7 @@ export function QuoteRow({
   respondedLabel,
   showVerified = false,
   status,
+  accountSuspended = false,
   isBestMatch = false,
   onAccept,
   onDecline,
@@ -93,6 +99,7 @@ export function QuoteRow({
     />
   )
   const busy = acceptLoading || declineLoading
+  const off = busy || accountSuspended
 
   return (
     <Stack
@@ -152,6 +159,11 @@ export function QuoteRow({
                 {statusLabel}
               </Badge>
             ) : null}
+            {accountSuspended ? (
+              <Badge variant="danger" size="sm" shape="pill">
+                {card.accountSuspended}
+              </Badge>
+            ) : null}
           </HStack>
           {meta ? (
             <Text fontSize="xs" color="text.muted">
@@ -196,7 +208,7 @@ export function QuoteRow({
             <Button
               variant="ghost"
               loading={declineLoading}
-              disabled={busy}
+              disabled={off}
               onClick={onDecline}
             >
               {card.decline}
@@ -206,7 +218,7 @@ export function QuoteRow({
             <Button
               variant="primary"
               loading={acceptLoading}
-              disabled={busy}
+              disabled={off}
               onClick={onAccept}
             >
               {card.accept}

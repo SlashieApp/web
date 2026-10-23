@@ -1,4 +1,8 @@
-import { TaskEditableField, TaskTimelineEventType } from '@codegen/schema'
+import {
+  TaskEditableField,
+  TaskSuspensionReason,
+  TaskTimelineEventType,
+} from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import bag from '../i11n.json'
@@ -69,6 +73,15 @@ describe('taskActivityLines: you, named or anon', () => {
       ['你取消了這個任務', 'Alex Chen 取消了這個任務', '任務已取消'],
     ],
     [
+      T.TaskReopened,
+      [
+        'You reopened the task',
+        'Alex Chen reopened the task',
+        'The task was reopened',
+      ],
+      ['你重新開放了任務', 'Alex Chen 重新開放了任務', '任務已重新開放'],
+    ],
+    [
       T.QuoteSent,
       ['You sent a quote', 'Alex Chen sent a quote', 'A worker sent a quote'],
       ['你送出了報價', 'Alex Chen 送出了報價', '一位工作者送出了報價'],
@@ -119,6 +132,56 @@ describe('taskActivityLines: you, named or anon', () => {
     expect(say({ type: T.QuoteSent, actor: nameless }, OWNER, 'zh_hk')).toBe(
       '有人 送出了報價',
     )
+  })
+})
+
+describe('taskActivityLines: suspensions (BE-108)', () => {
+  const R = TaskSuspensionReason
+
+  it('says which suspension was set, to the owner and the parties alike', () => {
+    for (const viewer of [OWNER, JORDAN_VIEWING]) {
+      expect(
+        say({ type: T.TaskSuspended, suspensionReason: R.Slashie }, viewer),
+      ).toBe('Slashie suspended the task')
+      expect(
+        say(
+          { type: T.TaskSuspended, suspensionReason: R.PosterSuspended },
+          viewer,
+        ),
+      ).toBe("The task was suspended because the poster's account is suspended")
+      expect(
+        say(
+          { type: T.TaskSuspended, suspensionReason: R.Slashie },
+          viewer,
+          'zh_hk',
+        ),
+      ).toBe('Slashie 暫停了此任務')
+      expect(
+        say(
+          { type: T.TaskSuspended, suspensionReason: R.PosterSuspended },
+          viewer,
+          'zh_hk',
+        ),
+      ).toBe('因發布者帳戶被暫停，此任務已暫停')
+    }
+  })
+
+  it('reads a lifted suspension the same for either reason', () => {
+    for (const suspensionReason of [R.Slashie, R.PosterSuspended]) {
+      expect(say({ type: T.TaskUnsuspended, suspensionReason }, OWNER)).toBe(
+        'The task is no longer suspended',
+      )
+      expect(
+        say({ type: T.TaskUnsuspended, suspensionReason }, OWNER, 'zh_hk'),
+      ).toBe('此任務已恢復')
+    }
+  })
+
+  it('leaves out a suspension line that says no reason', () => {
+    expect(say({ type: T.TaskSuspended }, OWNER)).toBeNull()
+    expect(
+      say({ type: T.TaskSuspended, suspensionReason: 'ANOTHER' }, OWNER),
+    ).toBeNull()
   })
 })
 
@@ -476,13 +539,20 @@ describe('taskActivityLines: the log', () => {
     const kinds = Object.fromEntries(
       Object.values(T).map((type) => [
         type,
-        taskActivityLines([event({ type })], OWNER, bag.en.activity)[0]?.kind,
+        taskActivityLines(
+          [event({ type, suspensionReason: TaskSuspensionReason.Slashie })],
+          OWNER,
+          bag.en.activity,
+        )[0]?.kind,
       ]),
     )
     expect(kinds).toEqual({
       TASK_CREATED: 'task',
       TASK_UPDATED: 'task',
       TASK_CANCELLED: 'task',
+      TASK_REOPENED: 'task',
+      TASK_SUSPENDED: 'task',
+      TASK_UNSUSPENDED: 'task',
       QUOTE_SENT: 'quote',
       QUOTE_UPDATED: 'quote',
       QUOTE_WITHDRAWN: 'quote',
@@ -508,10 +578,19 @@ describe('taskActivityLines: the log', () => {
 
   it('reads every type, from every side, with no placeholder or em dash left', () => {
     const shapes: Partial<TaskActivityEvent>[] = [
-      { byViewer: true, actor: ALEX, worker: JORDAN },
-      { actor: ALEX, worker: JORDAN },
-      { actor: ALEX },
-      {},
+      {
+        byViewer: true,
+        actor: ALEX,
+        worker: JORDAN,
+        suspensionReason: TaskSuspensionReason.Slashie,
+      },
+      {
+        actor: ALEX,
+        worker: JORDAN,
+        suspensionReason: TaskSuspensionReason.PosterSuspended,
+      },
+      { actor: ALEX, suspensionReason: TaskSuspensionReason.Slashie },
+      { suspensionReason: TaskSuspensionReason.PosterSuspended },
     ]
     const viewers = [OWNER, JORDAN_VIEWING, OTHER_WORKER, GUEST]
     for (const locale of ['en', 'zh_hk'] as const) {
@@ -545,6 +624,16 @@ describe('taskTimelineAsGuest', () => {
       event({ type: T.OrderCompleted, worker: JORDAN }),
       event({ type: T.ReviewLeft, byViewer: true, actor: ALEX }),
       event({ type: 'QUOTE_PINNED' }),
+      // BE-108: guests never get the suspension lines; a reopen they do.
+      event({
+        type: T.TaskSuspended,
+        suspensionReason: TaskSuspensionReason.Slashie,
+      }),
+      event({
+        type: T.TaskUnsuspended,
+        suspensionReason: TaskSuspensionReason.Slashie,
+      }),
+      event({ type: T.TaskReopened, byViewer: true, actor: ALEX }),
     ]
     const guests = taskTimelineAsGuest(owners, ALEX.id)
     expect(guests).toEqual([
@@ -552,6 +641,7 @@ describe('taskTimelineAsGuest', () => {
       owners[1],
       { ...owners[2], actor: null, worker: null },
       { ...owners[3], byViewer: false, actor: null, worker: null },
+      { ...owners[10], byViewer: false },
     ])
     expect(
       taskActivityLines(guests, GUEST, bag.en.activity).map((l) => l.text),
@@ -560,6 +650,7 @@ describe('taskTimelineAsGuest', () => {
       'The task was edited: budget',
       'A worker sent a quote',
       'A worker was booked',
+      'Alex Chen reopened the task',
     ])
   })
 

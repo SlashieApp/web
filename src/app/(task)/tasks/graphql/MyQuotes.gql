@@ -19,6 +19,11 @@ query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
         }
         images
         status
+        # Suspended (BE-108): still listed for its owner and parties, but frozen.
+        suspension {
+          bySlashie
+          posterSuspended
+        }
         location {
           lat
           lng

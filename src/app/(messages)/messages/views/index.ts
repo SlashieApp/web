@@ -22,6 +22,7 @@ import { threadNone } from './thread.none'
 import { threadNotFound } from './thread.notFound'
 import { threadNotSelected } from './thread.notSelected'
 import { threadOpen } from './thread.open'
+import { threadSuspended } from './thread.suspended'
 import { threadSystem } from './thread.system'
 import type {
   BottomPinViewConfig,
@@ -72,6 +73,7 @@ export const THREAD_VIEWS: Record<ThreadViewName, ThreadViewConfig> = {
   'thread.locked': threadLocked,
   'thread.notSelected': threadNotSelected,
   'thread.blocked': threadBlocked,
+  'thread.suspended': threadSuspended,
 }
 
 /** The top pin: information only. */

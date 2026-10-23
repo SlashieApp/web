@@ -40,13 +40,14 @@ function SlideDone({ onMarked }: { onMarked?: () => void }) {
  * Mutual close on the main button once the booked time has started and the
  * viewer hasn't acted: slide Done, or "something went wrong". Switching after
  * acting is in Help & actions (`OrderDoneDialog`, `OrderFailedDialog`).
+ * Nothing while the booking is frozen by a suspension (BE-108).
  */
 export function OrderCloseControls() {
-  const { orderClose, orderActionPending } = useTaskDetail()
+  const { orderClose, orderActionPending, permissions } = useTaskDetail()
   const c = useI11n(bag).close
   const [failedOpen, setFailedOpen] = useState(false)
 
-  if (!orderClose?.canClose) return null
+  if (!orderClose?.canClose || !permissions.showOrderActions) return null
 
   return (
     <Stack gap={2} w="full">

@@ -23,6 +23,8 @@ fragment ThreadItemFields on ThreadItem {
     taskId
     workerUserId
     status
+    # BE-108: the quoting worker's account is suspended, so it can't be answered.
+    workerSuspended
     message
     price {
       amount

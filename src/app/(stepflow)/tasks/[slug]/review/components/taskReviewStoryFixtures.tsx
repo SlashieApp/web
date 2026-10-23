@@ -1,5 +1,5 @@
 import { ApolloProvider } from '@apollo/client/react'
-import { OrderStatus } from '@codegen/schema'
+import { OrderPartyRole, OrderStatus } from '@codegen/schema'
 import type { Decorator } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
@@ -25,6 +25,11 @@ export type ReviewStoryConfig = {
   orderReview?: Partial<TaskDetailContextValue['orderReview']>
   /** Make sending fail with this message instead of hanging. */
   failSubmitWith?: string
+  /**
+   * Frozen by a suspension (BE-108): the task is suspended, or the other
+   * person on the booking is.
+   */
+  suspended?: 'task' | 'counterparty'
 }
 
 const HOUR_MS = 60 * 60 * 1000
@@ -54,10 +59,26 @@ function reviewStoryContext({
   orderStatus = OrderStatus.Completed,
   pending = false,
   orderReview = {},
+  suspended,
 }: ReviewStoryConfig): TaskDetailContextValue {
-  const task = storyTaskDetail()
+  const task = storyTaskDetail({
+    suspension:
+      suspended === 'task' ? { bySlashie: true, posterSuspended: false } : null,
+  })
   const me = viewer === 'visitor' ? null : storyMe(viewer)
-  const myOrder = orderStatus ? storyTaskOrder({ status: orderStatus }) : null
+  const myOrder = orderStatus
+    ? storyTaskOrder({
+        status: orderStatus,
+        counterpartySuspension:
+          suspended === 'counterparty'
+            ? {
+                role: OrderPartyRole.Worker,
+                name: 'Jordan Lee',
+                canReopen: false,
+              }
+            : null,
+      })
+    : null
   const isAuthenticated = viewer !== 'visitor'
   return {
     taskId: task.id,

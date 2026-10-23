@@ -10,6 +10,7 @@ import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvi
 import CreateReview from '@/app/(task)/tasks/[slug]/graphql/CreateReview.gql'
 import UpdateReview from '@/app/(task)/tasks/[slug]/graphql/UpdateReview.gql'
 import { canReviewCompletedOrder } from '@/app/(task)/tasks/[slug]/helpers/reviewEligibility'
+import taskBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import {
   REVIEW_COMMENT_MAX,
   reviewCanEdit,
@@ -232,7 +233,8 @@ function MessageScreen({
 }: {
   exitHref: string
   title: string
-  body: string
+  /** Optional: a refusal's error copy says it all in the title. */
+  body?: string
   actionLabel: string
   onAction: () => void
 }) {
@@ -274,6 +276,7 @@ export function TaskReviewScreen({
   const router = useRouter()
   const localize = useLocalizedHref()
   const t = useI11n(bag)
+  const serverErrors = useI11n(taskBag).serverErrors
   const {
     taskId: routeTaskId,
     task,
@@ -338,6 +341,23 @@ export function TaskReviewScreen({
         exitHref={taskHref}
         title={t.ineligibleTitle}
         body={t.unavailable}
+        actionLabel={t.backToTask}
+        onAction={() => router.push(localize(taskHref))}
+      />
+    )
+  }
+
+  // Frozen by a suspension (BE-108): the API refuses reviews and edits until
+  // it is lifted, so say why instead of the form (as the Expo app does).
+  if (permissions.isFrozen) {
+    return (
+      <MessageScreen
+        exitHref={taskHref}
+        title={
+          permissions.isSuspended
+            ? serverErrors.TASK_SUSPENDED
+            : serverErrors.COUNTERPARTY_SUSPENDED
+        }
         actionLabel={t.backToTask}
         onAction={() => router.push(localize(taskHref))}
       />

@@ -1,12 +1,13 @@
 import {
   Currency,
   OrderCloseKind,
+  OrderPartyRole,
   OrderStatus,
   QuoteStatus,
   TaskStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { within } from 'storybook/test'
+import { expect, within } from 'storybook/test'
 
 import { TaskDetailProvider } from '../../context/TaskDetailProvider'
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
@@ -224,7 +225,7 @@ export const OwnerCompleted: Story = {
   play: async ({ canvasElement }) => expectView(canvasElement, 'Job complete'),
 }
 
-/** Owner of a cancelled task: Repost this task. */
+/** Owner of a cancelled task: Reopen task; Repost stays in Help & actions. */
 export const OwnerCancelled: Story = {
   ...desktop,
   ...page({
@@ -233,6 +234,122 @@ export const OwnerCancelled: Story = {
   }),
   play: async ({ canvasElement }) =>
     expectView(canvasElement, 'Task cancelled'),
+}
+
+// ------------------------------------------------- suspensions (BE-108)
+
+/** The notice sits above the Task summary: it comes first on the page. */
+async function expectNoticeFirst(
+  canvasElement: HTMLElement,
+  notice: string,
+  headline: string | RegExp,
+) {
+  const canvas = within(canvasElement)
+  const noticeHeading = await canvas.findByRole(
+    'heading',
+    { name: notice },
+    { timeout: 4000 },
+  )
+  const summary = await canvas.findByRole('heading', {
+    level: 2,
+    name: headline,
+  })
+  await expect(
+    noticeHeading.compareDocumentPosition(summary) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy()
+}
+
+/**
+ * Owner of an open task Slashie suspended: the notice, and Help & actions
+ * without Edit or Cancel task (Share and Repost stay). Preview stays.
+ */
+export const OwnerTaskSuspended: Story = {
+  ...desktop,
+  ...page({
+    viewer: 'owner',
+    task: storyTaskDetail({
+      suspension: { bySlashie: true, posterSuspended: false },
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await expectNoticeFirst(
+      canvasElement,
+      'This task is suspended',
+      /quotes? - compare and accept/,
+    )
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: 'Contact support' })
+    await canvas.findByRole('button', { name: 'Share task' })
+    await expect(canvas.queryByRole('link', { name: 'Edit task' })).toBeNull()
+    await expect(
+      canvas.queryByRole('button', { name: 'Cancel task' }),
+    ).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
+}
+
+/**
+ * Customer of a suspended worker: the notice with Reopen task, Message
+ * stays, and no Reschedule or Cancel booking.
+ */
+export const CustomerWorkerSuspended: Story = {
+  ...desktop,
+  ...page({
+    viewer: 'owner',
+    task: bookedTask,
+    order: storyTaskOrder({
+      bookedStart: '2030-06-10T09:00:00.000Z',
+      bookedEnd: '2030-06-10T11:00:00.000Z',
+      counterpartySuspension: {
+        role: OrderPartyRole.Worker,
+        name: 'Jordan Lee',
+        canReopen: true,
+      },
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await expectNoticeFirst(
+      canvasElement,
+      "Jordan Lee's account has been suspended",
+      'Worker booked',
+    )
+    const canvas = within(canvasElement)
+    await canvas.findByRole('button', { name: 'Reopen task' })
+    await expect(
+      canvas.queryByRole('button', { name: 'Reschedule' }),
+    ).toBeNull()
+    await expect(
+      canvas.queryByRole('button', { name: 'Cancel booking' }),
+    ).toBeNull()
+  },
+}
+
+/** Booked worker whose customer is suspended: the on-hold notice only. */
+export const WorkerCustomerSuspended: Story = {
+  ...phone,
+  ...page({
+    viewer: 'worker',
+    task: {
+      ...bookedTask,
+      suspension: { bySlashie: false, posterSuspended: true },
+    },
+    order: storyTaskOrder({
+      bookedStart: '2030-06-10T09:00:00.000Z',
+      bookedEnd: '2030-06-10T11:00:00.000Z',
+      counterpartySuspension: {
+        role: OrderPartyRole.Customer,
+        name: 'Alex Chen',
+        canReopen: false,
+      },
+    }),
+  }),
+  play: ({ canvasElement }) =>
+    expectNoticeFirst(
+      canvasElement,
+      "Alex Chen's account has been suspended",
+      'You are booked for this job',
+    ),
 }
 
 /** Anyone not on the booking, task awarded: read-only, no main button. */

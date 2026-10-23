@@ -34,6 +34,7 @@ export type TaskDetailMainCtaModel = {
   action: TaskDetailPrimaryAction
   presentation: 'button' | 'quoted' | 'close'
   buttonLabel: string
+  /** Where it goes. None for Reopen task, which asks first in a dialog. */
   href?: string
   /** Download the receipt in place (completed job, once reviewed). */
   receipt?: boolean
@@ -113,6 +114,8 @@ export function buildTaskDetailMainCta(input: {
       )
     case 'repost':
       return button(copy.actions.repostTask, repostTaskHref(task.id))
+    case 'reopen':
+      return { action, presentation: 'button', buttonLabel: copy.reopen.action }
     case 'browseTasks':
       return button(copy.cta.browseTasks, '/search')
     case 'sendQuote':

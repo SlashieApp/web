@@ -93,6 +93,16 @@ Share task on every row; Edit task on your own open tasks; Report task only
 on other people's tasks. Tapping anywhere else on a card or row opens the
 task.
 
+## Suspensions and reopened tasks (BE-108)
+
+A suspended task stays in your list (in its section, with its words; the
+API only leaves it out for other people), but its row has no button and no
+Edit task (`suspended`); a booking whose other party is suspended has no
+button either. Share task stays. The booking a row follows is task
+detail's `currentTaskOrder`, so a reopened task sits in Open, not Past, a
+rebooked one follows its new booking, and the worker whose booking a reopen
+cancelled reads "Declined" in Past. The same rules as the Expo hub.
+
 ## Filters
 
 Search (title, description and place), Show (All tasks, Posted by you, Quoted

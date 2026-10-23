@@ -110,6 +110,8 @@ export type TaskDetailPrimaryAction =
   /** Review, then Get receipt once the viewer has reviewed. */
   | 'review'
   | 'repost'
+  /** Reopen a cancelled task for quotes, after a confirm (BE-108). */
+  | 'reopen'
   | 'browseTasks'
 
 export type TaskSummaryCopyKey = keyof (typeof bag)['en']['summary']
@@ -146,4 +148,32 @@ export type TaskDetailViewConfig = {
   primaryAction: TaskDetailPrimaryAction | null
   /** Booking actions in Help & actions, before the task-level ones. */
   actions?: readonly TaskDetailAction[]
+}
+
+/**
+ * The notice card above the summary while a suspension freezes the task or
+ * the booking (BE-108). Worked out in one place (`getTaskNoticeView`); the
+ * same names as the Expo app.
+ */
+export type TaskNoticeViewName =
+  /** Owner of a task Slashie suspended: contact support, no reopen. */
+  | 'notice.owner.taskSuspended'
+  /** Customer whose booked worker is suspended, and the API lets them reopen. */
+  | 'notice.owner.workerSuspended'
+  /** Customer whose booked worker is suspended, and reopening isn't open to them. */
+  | 'notice.owner.workerSuspendedOnHold'
+  /** Booked worker whose customer is suspended: a notice only. */
+  | 'notice.worker.customerSuspended'
+  /** Booked or quoting worker on a task Slashie suspended. */
+  | 'notice.worker.taskSuspended'
+  /** Quoting worker (no booking) whose poster is suspended. */
+  | 'notice.worker.posterSuspended'
+
+export type TaskNoticeCopyKey = keyof (typeof bag)['en']['notice']
+
+export type TaskNoticeConfig = {
+  title: TaskNoticeCopyKey
+  body: TaskNoticeCopyKey
+  /** The one action under the body: mail support, or reopen the task (after a confirm). */
+  action: 'contactSupport' | 'reopen' | null
 }

@@ -247,6 +247,49 @@ export const RescheduleRequestedLine: Story = {
   },
 }
 
+/**
+ * The owner cancelled the task (BE-108): the worker's line, with the API's
+ * title and body. It carries their still-pending quote but is no quote card,
+ * and leaves the price out.
+ */
+export const TaskCancelledLine: Story = {
+  args: {
+    item: event(
+      'line-task-cancelled',
+      FlashKind.TaskCancelled,
+      'Task cancelled',
+      'The customer cancelled "Assemble a wardrobe". If they reopen it, your quote comes back.',
+      storyFlashQuote({ status: QuoteStatus.Pending }),
+    ),
+  },
+  decorators: [asWorker],
+  play: async ({ canvasElement }) => {
+    await line(canvasElement, FlashKind.TaskCancelled)
+    await expect(
+      within(canvasElement).getByText('Task cancelled'),
+    ).toBeVisible()
+    await expect(within(canvasElement).queryByText(/£/)).toBeNull()
+  },
+}
+
+/** The owner reopened the task (BE-108): the worker's line; their quote is live again. */
+export const TaskReopenedLine: Story = {
+  args: {
+    item: event(
+      'line-task-reopened',
+      FlashKind.TaskReopened,
+      'Task reopened',
+      'The customer reopened "Assemble a wardrobe". Your quote is live again.',
+      storyFlashQuote({ status: QuoteStatus.Pending }),
+    ),
+  },
+  decorators: [asWorker],
+  play: async ({ canvasElement }) => {
+    await line(canvasElement, FlashKind.TaskReopened)
+    await expect(within(canvasElement).getByText('Task reopened')).toBeVisible()
+  },
+}
+
 /** Marked as done by the other side: a line; confirming is in the bottom pin. */
 export const MarkedDoneLine: Story = {
   args: {

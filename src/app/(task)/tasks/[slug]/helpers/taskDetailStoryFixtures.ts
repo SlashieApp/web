@@ -10,6 +10,7 @@ import {
 } from '@codegen/schema'
 import type { MeQuery } from '@codegen/schema'
 
+import type { StoryResponse } from '@/app/(auth)/helpers/authStoryDecorator'
 import type { OrderItem } from '@/utils/orderHelpers'
 
 import type { TaskDetailRecord } from './taskDetailUtils'
@@ -100,6 +101,7 @@ export function storyTaskDetail(
       }),
     ],
     orders: [],
+    suspension: null,
     quotes: baseQuotes,
     ...overrides,
   } as TaskDetailRecord
@@ -123,6 +125,7 @@ export function storyTimelineEvent(
     timestamp: '2026-05-28T10:00:00.000Z',
     byViewer: false,
     changedFields: [],
+    suspensionReason: null,
     actor: null,
     worker: null,
     ...overrides,
@@ -316,6 +319,7 @@ export function storyTaskQuote(
     message: 'I can do this Saturday morning with my own tools.',
     status: QuoteStatus.Pending,
     createdAt: '2026-05-29T14:30:00.000Z',
+    workerSuspended: false,
     // Far-future so the accept dialog can pick them in stories.
     proposedSlots: [
       {
@@ -384,6 +388,7 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
     autoDoneAt: null,
     createdAt: '2026-06-01T09:00:00.000Z',
     closedAt: null,
+    counterpartySuspension: null,
     ...overrides,
   } as OrderItem
 }
@@ -464,6 +469,11 @@ export type TaskDetailStoryConfig = {
   order?: OrderItem | null
   /** The owner's preview: the page as a signed-out visitor gets it. */
   viewAs?: 'guest'
+  /**
+   * Canned answers by operation name (a mutation such as `ReopenTask`);
+   * anything else never resolves.
+   */
+  responses?: Record<string, StoryResponse>
 }
 
 export function defaultTaskDetailStoryConfig(

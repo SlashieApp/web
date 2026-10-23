@@ -51,6 +51,7 @@ const baseQuote: FlashQuote = {
   taskId: 'task-1',
   workerUserId: 'u-worker',
   status: QuoteStatus.Pending,
+  workerSuspended: false,
   message: 'I can come on Saturday morning with my own tools.',
   price: { amount: 80, currency: Currency.Gbp },
   proposedSlots: [

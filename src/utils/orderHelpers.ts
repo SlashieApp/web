@@ -90,6 +90,40 @@ export function isOrderLive(status: OrderStatus | string): boolean {
   )
 }
 
+function createdMs(order: { createdAt?: unknown }): number {
+  const ms = Date.parse(String(order.createdAt ?? ''))
+  return Number.isNaN(ms) ? Number.NEGATIVE_INFINITY : ms
+}
+
+/** The newest by `createdAt`; on a tie, the first (the API sends newest first). */
+function newestOrder<O extends { createdAt?: unknown }>(
+  orders: readonly O[],
+): O | null {
+  return orders.reduce<O | null>(
+    (newest, order) =>
+      !newest || createdMs(order) > createdMs(newest) ? order : newest,
+    null,
+  )
+}
+
+/**
+ * The viewer's current booking on a task, from the orders the API sends them
+ * (`Task.orders`, or their `me.orders` for that task). A reopened task
+ * (BE-108) keeps its old, cancelled booking, so: a live one (not COMPLETED
+ * or CANCELLED; CONFLICT counts) wins, else the newest by `createdAt`. An
+ * OPEN or DRAFT task has none, so a reopened task never shows its old
+ * booking. The same rule as the Expo app's `currentOrder`.
+ */
+export function currentTaskOrder<
+  O extends { status: OrderStatus | string; createdAt?: unknown },
+>(orders: readonly O[], taskStatus: string | null | undefined): O | null {
+  const live = orders.filter((order) => !isOrderClosed(order.status))
+  if (live.length > 0) return newestOrder(live)
+  const status = (taskStatus ?? '').trim().toUpperCase()
+  if (status === 'OPEN' || status === 'DRAFT') return null
+  return newestOrder(orders)
+}
+
 export type OrderPartyRole = 'customer' | 'worker'
 
 export function orderPartyRole(

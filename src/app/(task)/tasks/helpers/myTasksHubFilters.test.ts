@@ -28,6 +28,7 @@ function row(
     endedAt: null,
     action: null,
     orderId: null,
+    suspended: false,
     ...base,
   }
 }

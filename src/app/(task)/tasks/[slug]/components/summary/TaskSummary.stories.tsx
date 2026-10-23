@@ -2,12 +2,14 @@ import { Box, Grid, Stack } from '@chakra-ui/react'
 import {
   Currency,
   OrderCloseKind,
+  OrderPartyRole,
   OrderRequestKind,
   OrderStatus,
   QuoteStatus,
   TaskStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
 import type { OrderItem } from '@/utils/orderHelpers'
 
@@ -306,3 +308,87 @@ export const VisitorCancelled = view({
   viewer: 'visitor',
   task: cancelledTask,
 })
+
+// Frozen by a suspension (BE-108): the summary reads the same, without the
+// actions the API would refuse, the auto-Done date or the lapse note.
+
+const workerSuspended = {
+  role: OrderPartyRole.Worker,
+  name: 'Jordan Lee',
+  canReopen: true,
+}
+const customerSuspended = {
+  role: OrderPartyRole.Customer,
+  name: 'Alex Chen',
+  canReopen: false,
+}
+
+/** Owner marked it Done, worker suspended: no auto-Done date, no switch to Failed. */
+export const OwnerFrozenIMarkedDone: Story = {
+  ...owner({
+    ...ownerOrders.iMarkedDone,
+    counterpartySuspension: workerSuspended,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Waiting for Jordan Lee.')
+    await expect(canvas.queryByText(/completes automatically/)).toBeNull()
+    await expect(
+      canvas.queryByRole('button', { name: 'Something went wrong?' }),
+    ).toBeNull()
+  },
+}
+
+/** The owner marked it Done, the worker's customer suspended: no slide, no date. */
+export const WorkerFrozenTheyMarkedDone: Story = {
+  ...worker({
+    ...workerOrders.theyMarkedDone,
+    counterpartySuspension: customerSuspended,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText(
+      'You can mark it Done too once the booking is no longer on hold.',
+    )
+    await expect(canvas.queryByText(/completes automatically/)).toBeNull()
+    await expect(canvas.queryByText('Slide to mark Done')).toBeNull()
+  },
+}
+
+/** The worker asked to cancel, then was suspended: no answer buttons, no lapse note. */
+export const OwnerFrozenCancelByThem: Story = {
+  ...owner({
+    ...ownerOrders.cancelByThem,
+    counterpartySuspension: workerSuspended,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Jordan Lee asked to cancel' })
+    await expect(
+      canvas.queryByRole('button', { name: 'Accept cancellation' }),
+    ).toBeNull()
+    await expect(
+      canvas.queryByRole('button', { name: 'Keep booking' }),
+    ).toBeNull()
+    await expect(canvas.queryByText(/the request lapses/)).toBeNull()
+  },
+}
+
+/** Booked before the start, worker suspended: Message stays; no Reschedule or Cancel booking. */
+export const OwnerFrozenBeforeStart: Story = {
+  ...owner({
+    ...ownerOrders.beforeStart,
+    counterpartySuspension: workerSuspended,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Worker booked' })
+    await canvas.findByRole('link', { name: /Message/ })
+    await expect(
+      canvas.queryByRole('button', { name: 'Reschedule' }),
+    ).toBeNull()
+    await expect(
+      canvas.queryByRole('button', { name: 'Cancel booking' }),
+    ).toBeNull()
+  },
+}

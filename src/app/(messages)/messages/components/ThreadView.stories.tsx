@@ -1,5 +1,6 @@
 import {
   FlashKind,
+  OrderPartyRole,
   OrderRequestKind,
   QuoteStatus,
   TaskStatus,
@@ -378,6 +379,151 @@ export const BlockedByMe: Story = {
         'You blocked Jordan Lee. Unblock them to send messages.',
       ),
     ).toBeVisible()
+  },
+}
+
+const PAUSED = 'Messaging is paused while this account or task is suspended.'
+
+/** Jordan's account is suspended: the booking is frozen (BE-108). */
+const frozenBooking = bookedTaskWith({
+  bookedStart: '2030-06-10T14:00:00.000Z',
+  bookedEnd: '2030-06-10T16:00:00.000Z',
+  counterpartySuspension: {
+    role: OrderPartyRole.Worker,
+    name: 'Jordan Lee',
+    canReopen: true,
+  },
+})
+
+/**
+ * thread.suspended: the booked worker's account is suspended, so `canSend`
+ * is false and nothing needs the owner: the composer says messaging is
+ * paused (not "once a quote is accepted"), and the menu has no booking
+ * actions.
+ */
+export const SuspendedBooking: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread('owner', { canSend: false }, ownerItems),
+    items: ownerItems,
+    ...FRAME,
+    task: frozenBooking,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText(PAUSED)).toBeVisible()
+    await expect(canvas.queryByRole('textbox')).toBeNull()
+    await expect(
+      canvas.queryByText('You can message here once a quote is accepted.'),
+    ).toBeNull()
+    await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeNull()
+  },
+}
+
+/**
+ * thread.suspended before a booking: the owner's task Slashie suspended.
+ * The quote card shows its status, with no Accept or Decline.
+ */
+export const SuspendedOpenTask: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread(
+      'owner',
+      { canSend: false, otherParty: null, attention: null },
+      pendingItems,
+    ),
+    items: pendingItems,
+    ...FRAME,
+    task: storyTaskDetail({
+      suspension: { bySlashie: true, posterSuspended: false },
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText(PAUSED)).toBeVisible()
+    const log = await canvas.findByRole('log')
+    await expect(within(log).getByText('Awaiting reply')).toBeVisible()
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
+  },
+}
+
+/** zh-HK: messaging paused while suspended. */
+export const ZhHkSuspended: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/messages' } } },
+  decorators: [
+    ...messagesStory({
+      viewer: 'owner',
+      thread: taskThread('owner', { canSend: false }, ownerItems),
+      items: ownerItems,
+      ...FRAME,
+      task: frozenBooking,
+    }),
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText(
+        '帳戶或任務暫停期間，訊息功能會暫停。',
+      ),
+    ).toBeVisible()
+  },
+}
+
+/**
+ * A worker's Task cancelled and Task reopened flashes (BE-108) are plain
+ * centred lines with the API's title and body, not cards.
+ */
+export const TaskCancelledAndReopenedLines: Story = {
+  decorators: (() => {
+    const quote = jordanQuote({ status: QuoteStatus.Pending })
+    const items = [
+      conversationFlash(
+        'tr-2',
+        FlashKind.TaskReopened,
+        'Task reopened',
+        'Alex reopened "Mount bookshelf on living room wall". Your quote is live again.',
+        new Date().toISOString(),
+        { quoteId: quote.id, quote },
+      ),
+      conversationFlash(
+        'tc-1',
+        FlashKind.TaskCancelled,
+        'Task cancelled',
+        'Alex cancelled "Mount bookshelf on living room wall".',
+        new Date(Date.now() - 60_000).toISOString(),
+        { quoteId: quote.id, quote },
+      ),
+      ...pendingItems,
+    ]
+    return messagesStory({
+      viewer: 'worker',
+      thread: taskThread('worker', { canSend: false }, items),
+      items,
+      ...FRAME,
+    })
+  })(),
+  play: async ({ canvasElement }) => {
+    const log = within(await within(canvasElement).findByRole('log'))
+    for (const kind of [FlashKind.TaskCancelled, FlashKind.TaskReopened]) {
+      await expect(
+        canvasElement.querySelector(`[data-flash-line="${kind}"]`),
+      ).not.toBeNull()
+      await expect(
+        canvasElement.querySelector(`[data-flash-card="${kind}"]`),
+      ).toBeNull()
+    }
+    await expect(log.getByText('Task reopened')).toBeVisible()
+    await expect(
+      log.getByText(
+        'Alex reopened "Mount bookshelf on living room wall". Your quote is live again.',
+      ),
+    ).toBeVisible()
+    await expect(log.getByText('Task cancelled')).toBeVisible()
   },
 }
 

@@ -37,7 +37,7 @@ function MenuItems({ row }: { row: MyTaskHubRow }) {
         <LuShare2 aria-hidden />
         {t.menu.share}
       </Button>
-      {hosted && row.section === 'open' ? (
+      {hosted && row.section === 'open' && !row.suspended ? (
         <Button asChild variant="ghost" justifyContent="flex-start" w="full">
           <Link
             href={`/tasks/${row.id}/edit`}
@@ -66,7 +66,7 @@ function MenuItems({ row }: { row: MyTaskHubRow }) {
 
 /**
  * A My Tasks card's ⋮ menu: Share task for every row, Edit task on your own
- * open tasks, Report task only on other people's tasks. Its name says which
+ * open tasks (not while suspended), Report task only on other people's tasks. Its name says which
  * task, since many rows have one.
  */
 export function MyTaskCardMenu({ row }: { row: MyTaskHubRow }) {

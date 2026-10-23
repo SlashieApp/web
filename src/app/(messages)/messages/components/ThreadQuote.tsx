@@ -12,14 +12,15 @@ import type {
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useMessagesOptional } from '@/app/(messages)/messages/context/MessagesProvider'
 import MessageThread from '@/app/(messages)/messages/graphql/MessageThread.gql'
+import { taskServerError } from '@/app/(stepflow)/tasks/create/helpers/taskFieldError'
 import { useAcceptQuoteDialog } from '@/app/(task)/tasks/[slug]/components/quotes/useAcceptQuoteSafety'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
 import Task from '@/app/(task)/tasks/[slug]/graphql/Task.gql'
+import taskBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { formatPrice } from '@/utils/price'
 import { formatTimeSlotLabel } from '@/utils/timeSlots'
 import { Avatar, Badge, Button } from '@ui'
@@ -58,17 +59,23 @@ export function QuoteStatusBadge({ status }: { status: QuoteStatus }) {
 /**
  * The quote on the worker's "quote sent" flash (BE-81): worker, price,
  * proposed times and its live status. The task owner accepts (picking a
- * time, with the safety notice) or declines a pending quote right here.
+ * time, with the safety notice) or declines a pending quote right here, not
+ * while the task is suspended; a suspended worker's quote shows "Account
+ * suspended" with both buttons off, as on task detail (BE-108).
  */
 export function ThreadQuote({
   quote,
   locale,
+  taskSuspended = false,
 }: {
   quote: FlashQuote
   locale: string
+  /** The task is suspended (BE-108): the quote can't be answered. */
+  taskSuspended?: boolean
 }) {
   const t = useI11n(bag)
   const q = t.quote
+  const taskCopy = useI11n(taskBag)
   const meId = useUserStore((s) => s.me?.id ?? null)
   const messages = useMessagesOptional()
   // The task behind the pins too, so the top pin shows the booking (FE-333).
@@ -85,7 +92,12 @@ export function ThreadQuote({
   const status = quoteFlashStatus(quote.status)
   // Only the owner and the quoting worker can see the quote.
   const canAct =
-    status === 'pending' && meId != null && quote.workerUserId !== meId
+    status === 'pending' &&
+    meId != null &&
+    quote.workerUserId !== meId &&
+    !taskSuspended
+  // The owner's pill, as on task detail's quote list.
+  const workerSuspended = quote.workerSuspended && quote.workerUserId !== meId
   const name = quote.worker?.profile.name?.trim() || q.workerFallback
   const times = quote.proposedSlots
     .map((slot) => formatTimeSlotLabel(slot, locale))
@@ -121,7 +133,7 @@ export function ThreadQuote({
         extra,
       })
       showAppToast({
-        title: getFriendlyErrorMessage(error, q.acceptFailed),
+        title: taskServerError(taskCopy.serverErrors, error, q.acceptFailed),
         type: 'error',
       })
     }
@@ -146,7 +158,7 @@ export function ThreadQuote({
         extra,
       })
       showAppToast({
-        title: getFriendlyErrorMessage(error, q.declineFailed),
+        title: taskServerError(taskCopy.serverErrors, error, q.declineFailed),
         type: 'error',
       })
     }
@@ -177,9 +189,14 @@ export function ThreadQuote({
           <Text fontWeight={600} fontSize="sm" truncate>
             {name}
           </Text>
-          {canAct ? null : (
-            <HStack>
-              <QuoteStatusBadge status={quote.status} />
+          {canAct && !workerSuspended ? null : (
+            <HStack gap={1.5} flexWrap="wrap">
+              {canAct ? null : <QuoteStatusBadge status={quote.status} />}
+              {workerSuspended ? (
+                <Badge variant="danger" size="sm" shape="pill">
+                  {taskCopy.quotes.card.accountSuspended}
+                </Badge>
+              ) : null}
             </HStack>
           )}
         </Stack>
@@ -209,7 +226,7 @@ export function ThreadQuote({
           <Button
             variant="ghost"
             loading={declining}
-            disabled={accepting || declining}
+            disabled={accepting || declining || workerSuspended}
             onClick={() => void onDecline()}
           >
             {q.decline}
@@ -217,7 +234,7 @@ export function ThreadQuote({
           <Button
             variant="primary"
             loading={accepting}
-            disabled={accepting || declining}
+            disabled={accepting || declining || workerSuspended}
             onClick={() => requestAccept(quote.id)}
           >
             {q.accept}

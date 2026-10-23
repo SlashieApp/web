@@ -293,14 +293,21 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     }
     const canAct =
       quote.status === QuoteStatus.Pending && permissions.showAcceptDecline
+    // BE-108: a suspended worker's quote is frozen; it is never Best match.
+    const suspended = quote.workerSuspended
     return (
       <QuoteRow
         key={quote.id}
         {...content}
         {...quoteRowWorker(quote, fallbackWorker, task.id)}
         status={rowStatus(quote.status)}
+        accountSuspended={suspended}
         isBestMatch={
-          canAct && sort === 'recommended' && index === 0 && rows.length > 1
+          canAct &&
+          !suspended &&
+          sort === 'recommended' &&
+          index === 0 &&
+          rows.length > 1
         }
         onAccept={canAct ? () => requestAccept(quote.id) : undefined}
         onDecline={canAct ? () => void onDeclineQuote(quote.id) : undefined}

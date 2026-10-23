@@ -35,6 +35,7 @@ export type ThreadViewName =
   | 'thread.locked'
   | 'thread.notSelected'
   | 'thread.blocked'
+  | 'thread.suspended'
 
 /** Where the thread query is (`threadQueryState`). */
 export type ThreadQuery = 'loading' | 'notFound' | 'error' | 'ready'
@@ -45,6 +46,12 @@ export type ThreadViewInput = {
   thread: { kind: ThreadKind; canSend: boolean; blockedByMe: boolean } | null
   /** The viewer's quote lost to another worker's. */
   notSelected: boolean
+  /**
+   * The task or the booking is frozen by a suspension (task detail's
+   * `permissions.isFrozen`, BE-108): the API's `canSend` is false until it
+   * is lifted.
+   */
+  suspended: boolean
 }
 
 /** Copy keys in ../i11n.json for the line shown instead of the composer. */
@@ -53,6 +60,7 @@ export type ThreadComposerNotice =
   | 'lockedNotice'
   | 'notSelectedNotice'
   | 'blockedNotice'
+  | 'suspendedNotice'
 
 export type ThreadViewConfig =
   | { layout: 'pick' }

@@ -39,7 +39,7 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `owner.completed` | Owner, booking COMPLETED (both marked Done, or the 7-day auto-Done). | Completed | Job complete | The details below are your record of the work. | record, otherParty, agreedPrice, bookedTime, reviews, description, photos | - | Review, then Get receipt |
 | `owner.bookingCancelled` | Owner, booking CANCELLED (a cancel request was accepted). | Cancelled | Booking cancelled | The booking with {name} was cancelled. Post the task again if you still need help. | record, otherParty, agreedPrice | - | Repost this task |
 | `owner.bookingFailed` | Owner, booking CANCELLED because both sides marked it Failed. | Cancelled | Booking didn't go ahead | You and {name} both marked it Failed. Post the task again if you still need help. | record, otherParty, agreedPrice | - | Repost this task |
-| `owner.cancelled` | Owner, task CANCELLED. | Cancelled | Task cancelled | Post it again if you still need help. | budget, preferredTime, location, categories, description, photos | - | Repost this task |
+| `owner.cancelled` | Owner, task CANCELLED. | Cancelled | Task cancelled | Post it again if you still need help. | budget, preferredTime, location, categories, description, photos | - | Reopen task (asks first; Repost stays in Help & actions) |
 | `worker.booked.beforeStart` | Booked worker, booking ACTIVE, before the booked start. | Awarded | You are booked for this job | Coordinate the job and get paid directly. When it is done, you both mark it Done here. | bookedTime, otherParty, agreedPrice, location, description, photos | Reschedule, Cancel booking | Message |
 | `worker.booked.ready` | Booked worker, start time passed, nobody has marked it yet. | Awarded | Job time has started | Mark it Done once the work is finished and paid for, or tell us if something went wrong. | location, otherParty, agreedPrice, bookedTime, description, photos | - | Slide to mark Done |
 | `worker.booked.iMarkedDone` | Booked worker marked it Done; waiting for the owner (auto-completes after 7 days). | Awarded | You marked it Done | Waiting for {name}. If there's no reply, it completes automatically on {date}. | otherParty, agreedPrice, bookedTime, description, photos | Something went wrong? | Message |
@@ -85,3 +85,89 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
   the viewer's own quote stays in the summary.
 - API contract: an AWARDED task returns the order for its poster and booked
   worker. Without it the owner falls back to `visitor.awarded`.
+- A reopened task (BE-108) can have more than one order, the old ones
+  CANCELLED. The booking the page is about is `currentTaskOrder`
+  (`src/utils/orderHelpers.ts`): a live one (booked or CONFLICT), else the
+  newest by `createdAt`, and none while the task is OPEN or DRAFT, so a
+  reopened task reads as `owner.open.*`, not its old booking. My tasks picks
+  it the same way (the Expo app's `currentOrder`).
+
+## Suspensions (BE-108)
+
+Ops can suspend a task, and suspending a user suspends the tasks they
+posted and freezes their quotes and bookings. Nothing is deleted; lifting it
+restores everything. Copy is shared with the Expo app word for word (en +
+zh-HK), and so are the names and rules below.
+
+### The notice: `getTaskNoticeView({ suspension, order, viewer })`
+
+A notice card at the top of the Overview, above the summary
+(`../components/overview/TaskSuspensionNotice.tsx`, an `@ui` InfoBar). Each
+name has one config file here (`notice.*.ts`, `TASK_NOTICE_VIEWS`); copy is
+under `notice` and `reopen` in `../i11n.json`. `{name}` is
+`Order.counterpartySuspension.name`, else the poster's name
+(`taskNoticePersonName`).
+
+| Notice | Who / when | Title | Body | Action |
+|---|---|---|---|---|
+| `notice.owner.taskSuspended` | Owner, `Task.suspension.bySlashie`. | This task is suspended | Slashie has suspended this task, so no one can quote, book or message on it. Contact support if you think this is a mistake. | Contact support (`mailto:` the app's contact address, admin@slashie.app) |
+| `notice.owner.workerSuspended` | Customer, live booking (or CONFLICT), `counterpartySuspension.role` WORKER and `canReopen`. | {name}'s account has been suspended | This booking is on hold. Reopen the task to cancel it and choose another quote. | Reopen task |
+| `notice.owner.workerSuspendedOnHold` | The same with `canReopen` false. | {name}'s account has been suspended | This booking is on hold. You can't message, reschedule or mark it done while their account is suspended. | none |
+| `notice.worker.customerSuspended` | Booked worker, live booking (or CONFLICT), `counterpartySuspension.role` CUSTOMER or `Task.suspension.posterSuspended`. | {name}'s account has been suspended | This booking is on hold. You can't message, reschedule or mark it done while their account is suspended. | none |
+| `notice.worker.taskSuspended` | Booked worker (live booking or CONFLICT) or quoting worker (own quote PENDING), `Task.suspension.bySlashie`. Wins over the poster's suspension. | This task is suspended | Slashie has suspended this task. Your quote and any booking are on hold until it's restored. | none |
+| `notice.worker.posterSuspended` | Quoting worker with no booking, `Task.suspension.posterSuspended`; {name} is the poster. | {name}'s account has been suspended | Your quote is on hold while their account is suspended. | none |
+
+No notice once the booking has finished, for a declined or not-selected
+quote, for anyone not on the booking or quoting, or for an owner whose own
+account is suspended (the app-wide banner says so).
+
+### Reopen task
+
+`permissions.reopen` (`../helpers/taskSuspension.ts`): `cancelled` for the
+owner of a CANCELLED task, `booking` when the API sets `canReopen` on the
+owner's booking with a suspended worker; never on a suspended task. The
+cancelled task's main button and the `notice.owner.workerSuspended` action
+both open `ReopenTaskDialog` ("Reopen this task?", Reopen task / Not now;
+the body says the booking with {name} is cancelled, or that workers with
+pending quotes will be told), then call `reopenTask`. On success the task
+refetches (status, quotes, orders, Activity), as do My tasks
+(`MyRequests`, `MyOrders`) and the Messages inbox, and "Task reopened"
+shows. A refusal shows its copy (`serverErrors`: TASK_SUSPENDED,
+COUNTERPARTY_SUSPENDED, TASK_ALREADY_OPEN, TASK_NOT_REOPENABLE,
+WORKER_NOT_SUSPENDED, TASK_CHANGED, ACCOUNT_DISABLED; anything else falls
+back to the shared error copy) as a toast, keeps the dialog open and
+reloads the task.
+
+### Frozen
+
+`permissions.isSuspended`: the task is suspended (for any reason).
+`permissions.isFrozen`: that, or the current booking's other party is
+suspended. The summary reads the same, but nothing the API would refuse is
+offered:
+
+- Help & actions: no booking actions (only Report profile on a conflict),
+  no Edit or Cancel task on a suspended task. Share, Repost, safety and
+  Report task stay.
+- Main button (`availablePrimaryAction`): no Send quote, Edit quote, slide to
+  mark Done, Reopen (on a suspended task) or Review; Get receipt stays once
+  the viewer has reviewed. Message, Preview, Repost and Browse stay.
+- Request answers, the request "lapses" note and review Edit are hidden. The
+  two sub-lines with the auto-Done `{date}` swap to versions without it
+  (`frozenSubline`: "Waiting for {name}." and "You can mark it Done too once
+  the booking is no longer on hold."); Messages' pins read the same.
+- The Quotes section: no Accept or Decline on a suspended task; a quote
+  whose worker is suspended (`Quote.workerSuspended`) shows "Account
+  suspended" with Accept and Decline off, and is never Best match.
+- The review page says why (`serverErrors.TASK_SUSPENDED` /
+  `COUNTERPARTY_SUSPENDED`) instead of the form.
+- Messages pauses its composer (`../../../../(messages)/messages/views/README.md`).
+- A request refused with TASK_SUSPENDED, COUNTERPARTY_SUSPENDED, TASK_CHANGED
+  or ORDER_CHANGED reloads the task, so the page catches up.
+
+The Activity log has lines for TASK_REOPENED (you / named / anon), and
+TASK_SUSPENDED by `suspensionReason` (SLASHIE, POSTER_SUSPENDED) and
+TASK_UNSUSPENDED, which the owner's guest preview leaves out (guests never
+get them).
+
+A non-party opening a suspended task gets NOT_FOUND from `task(id)`; the
+page shows the existing "Task not found" card.

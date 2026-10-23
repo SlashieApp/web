@@ -35,10 +35,16 @@
     "send": "Send",
     "sendFailed": "Couldn't send your message.",
     "blockFailed": "Couldn't update that. Try again.",
+    "serverErrors": {
+      "TASK_SUSPENDED": "This task is suspended, so it can't be changed.",
+      "COUNTERPARTY_SUSPENDED": "The other person's account is suspended, so this can't be done right now.",
+      "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake."
+    },
     "lockedNotice": "You can message here once a quote is accepted.",
     "notSelectedNotice": "This task went to another worker, so the conversation is closed to you.",
     "systemNotice": "Announcements from Slashie. You can't reply here.",
     "blockedNotice": "You blocked {name}. Unblock them to send messages.",
+    "suspendedNotice": "Messaging is paused while this account or task is suspended.",
     "today": "Today",
     "yesterday": "Yesterday",
     "inbox": {
@@ -129,10 +135,16 @@
     "send": "傳送",
     "sendFailed": "未能傳送訊息。",
     "blockFailed": "未能更新，請再試一次。",
+    "serverErrors": {
+      "TASK_SUSPENDED": "此任務已暫停，無法更改。",
+      "COUNTERPARTY_SUSPENDED": "對方帳戶已暫停，目前無法進行此操作。",
+      "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。"
+    },
     "lockedNotice": "報價被接受後，你就可以在這裡傳送訊息。",
     "notSelectedNotice": "此任務已交給另一位工作者，你無法再參與這段對話。",
     "systemNotice": "這是 Slashie 的公告，你無法在此回覆。",
     "blockedNotice": "你已封鎖 {name}。解除封鎖後才可傳送訊息。",
+    "suspendedNotice": "帳戶或任務暫停期間，訊息功能會暫停。",
     "today": "今日",
     "yesterday": "昨日",
     "inbox": {

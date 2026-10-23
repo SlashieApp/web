@@ -49,6 +49,7 @@ query TaskForEdit($id: ID!) {
       }
       status
       createdAt
+      workerSuspended
       worker {
         id
         profile {

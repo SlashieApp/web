@@ -425,6 +425,163 @@ describe('buildMyTasksHub buttons', () => {
   })
 })
 
+describe('buildMyTasksHub reopened and suspended tasks (BE-108)', () => {
+  const pendingQuotes = [
+    { id: 'q-a', workerUserId: 'w2', status: 'PENDING' },
+    { id: 'q-b', workerUserId: 'w3', status: 'PENDING' },
+    { id: 'q-w', workerUserId: 'w', status: 'DECLINED' },
+  ]
+  const oldBooking = order({
+    id: 'order-old',
+    taskId: 'reopened',
+    status: 'CANCELLED',
+    customerUserId: ME,
+    workerUserId: 'w',
+    bookedStart: local(10, 20, 10),
+    closedAt: local(10, 21, 9),
+    createdAt: local(10, 19, 9),
+  })
+
+  it('lists a reopened task under Open, not the cancelled booking it had', () => {
+    const hub = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [
+        task({
+          id: 'reopened',
+          title: 'Reopened',
+          status: 'OPEN',
+          quotes: pendingQuotes,
+        }),
+      ],
+      sentQuotes: [],
+      orders: [oldBooking],
+    })
+    expect(rowFor(hub, 'reopened')).toMatchObject({
+      section: 'open',
+      action: 'compareQuotes',
+      liveQuoteCount: 2,
+      outcome: null,
+      orderId: null,
+    })
+  })
+
+  it('reads a reopened task booked again by its new booking', () => {
+    const hub = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [
+        task({
+          id: 'reopened',
+          title: 'Reopened',
+          status: 'AWARDED',
+          quotes: [{ id: 'q-a', workerUserId: 'w2', status: 'ACCEPTED' }],
+        }),
+      ],
+      sentQuotes: [],
+      // The old one second, as `me.orders` may send it.
+      orders: [
+        order({
+          id: 'order-new',
+          taskId: 'reopened',
+          status: 'ACTIVE',
+          customerUserId: ME,
+          workerUserId: 'w2',
+          bookedStart: local(10, 22, 9),
+          createdAt: local(10, 22, 8),
+        }),
+        oldBooking,
+      ],
+    })
+    expect(rowFor(hub, 'reopened')).toMatchObject({
+      section: 'upcoming',
+      action: 'markDone',
+      orderId: 'order-new',
+    })
+  })
+
+  it('puts the worker whose booking a reopen cancelled under Past, as declined', () => {
+    const hub = buildMyTasksHub({
+      now: NOW,
+      userId: 'w',
+      posted: [],
+      sentQuotes: [
+        {
+          task: task({
+            id: 'reopened',
+            title: 'Reopened',
+            status: 'OPEN',
+            poster: { id: ME },
+          }),
+          quote: { id: 'q-w', workerUserId: 'w', status: 'DECLINED' },
+        },
+      ],
+      orders: [oldBooking],
+    })
+    expect(rowFor(hub, 'reopened')).toMatchObject({
+      section: 'past',
+      outcome: 'declined',
+      orderId: null,
+    })
+  })
+
+  it('keeps a suspended task in your list, with no button and no Edit task', () => {
+    const suspension = { bySlashie: true, posterSuspended: false }
+    const hub = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [
+        task({
+          id: 'suspended',
+          title: 'Suspended',
+          status: 'OPEN',
+          quotes: pendingQuotes,
+          suspension,
+        }),
+        task({
+          id: 'live',
+          title: 'Live',
+          status: 'OPEN',
+          quotes: pendingQuotes,
+          suspension: null,
+        }),
+      ],
+      sentQuotes: [],
+      orders: [],
+    })
+    expect(rowFor(hub, 'suspended')).toMatchObject({
+      section: 'open',
+      action: null,
+      liveQuoteCount: 2,
+      suspended: true,
+    })
+    expect(rowFor(hub, 'live')).toMatchObject({
+      action: 'compareQuotes',
+      suspended: false,
+    })
+  })
+
+  it('offers nothing on a booking whose other party is suspended', () => {
+    const frozen = hostedBooking('frozen', {
+      bookedStart: local(10, 22, 9),
+      counterpartySuspension: { role: 'WORKER' },
+    })
+    const done = hostedBooking('done', {
+      status: 'COMPLETED',
+      closedAt: local(10, 20, 12),
+      reviewState: { canSubmit: true },
+      counterpartySuspension: { role: 'WORKER' },
+    })
+    const hub = hubOf(frozen, done)
+    expect(rowFor(hub, 'frozen')).toMatchObject({
+      section: 'upcoming',
+      action: null,
+      suspended: false,
+    })
+    expect(rowFor(hub, 'done')?.action).toBeNull()
+  })
+})
+
 describe('buildMyTasksHub Past', () => {
   it('says how it ended and when, newest first', () => {
     const sections = buildMyTasksHub({

@@ -13,6 +13,7 @@ import {
 } from './mapTaskStatus'
 import { isTaskDetailJobCompleted } from './taskDetailCompleted'
 import type { TaskDetailRecord } from './taskDetailUtils'
+import { type TaskReopenKind, taskReopenKind } from './taskSuspension'
 
 export type TaskDetailPermissionsInput = {
   task: TaskDetailRecord | null
@@ -49,21 +50,43 @@ export type TaskDetailPermissions = {
   /** Accepted-worker cap reached for this task. */
   atCap: boolean
   /**
+   * The task is suspended (`Task.suspension`, BE-108): by Slashie, or with
+   * its poster's account. Nothing on it can change (`TASK_SUSPENDED`).
+   */
+  isSuspended: boolean
+  /**
+   * The viewer's task or booking is frozen: the task is suspended, or the
+   * other party on the viewer's booking is (`COUNTERPARTY_SUSPENDED`).
+   */
+  isFrozen: boolean
+  /**
+   * What the owner can reopen (`reopenTask`): a booking whose worker is
+   * suspended, a cancelled task, or nothing. Never on a suspended task.
+   */
+  reopen: TaskReopenKind | null
+  /**
    * Worker (not the owner) can send a quote on this OPEN task, edit their
    * pending one, or send a new one after a decline. Blocked once any quote
-   * is accepted.
+   * is accepted, and while the task is suspended.
    */
   canSubmitQuote: boolean
   /** Viewer's own quote on this OPEN task is sent and awaiting the owner. */
   hasPendingQuote: boolean
   showOwnerQuoteList: boolean
+  /** Owner on an OPEN task that isn't suspended: accept or decline quotes. */
   showAcceptDecline: boolean
-  /** Either party on a live or CONFLICT order: booking status and actions. */
+  /**
+   * Either party on a live or CONFLICT order that isn't frozen: booking
+   * status and actions.
+   */
   showOrderActions: boolean
   showFullAddress: boolean
   canCancelTask: boolean
   canEditTask: boolean
-  /** Owner on a finished job, cancelled booking, or cancelled task: post it again. */
+  /**
+   * Owner on a finished job, cancelled booking, or cancelled task: post it
+   * again (a new task, so a suspension doesn't stop it).
+   */
   canRepostTask: boolean
 }
 
@@ -115,12 +138,23 @@ export function getTaskDetailPermissions(
 
   const atCap = input.atCap ?? (task ? isAtAcceptedWorkerCap(task) : false)
 
+  const isSuspended = Boolean(task?.suspension)
+  const isFrozen = isSuspended || Boolean(myOrder?.counterpartySuspension)
+
+  const reopen = taskReopenKind({
+    isOwner,
+    taskStatus: task?.status,
+    suspension: task?.suspension,
+    order: myOrder,
+  })
+
   const canSubmitQuote = Boolean(
     task &&
       me &&
       isAuthenticated &&
       !isOwner &&
       isOpen &&
+      !isSuspended &&
       hasWorkerProfile &&
       !atCap &&
       workerCanSubmitOnOpenTask(task, me),
@@ -132,17 +166,20 @@ export function getTaskDetailPermissions(
 
   const showOwnerQuoteList = Boolean(isOwner && (isOpen || isAwarded))
 
-  const showAcceptDecline = Boolean(isOwner && isOpen)
+  const showAcceptDecline = Boolean(isOwner && isOpen && !isSuspended)
 
   const showOrderActions = Boolean(
-    myOrder && (isOwner || isOrderWorker) && (isOrderActive || isOrderConflict),
+    myOrder &&
+      (isOwner || isOrderWorker) &&
+      (isOrderActive || isOrderConflict) &&
+      !isFrozen,
   )
 
   const showFullAddress = Boolean(isOwner || isOrderWorker)
 
-  const canCancelTask = Boolean(isOwner && isOpen)
+  const canCancelTask = Boolean(isOwner && isOpen && !isSuspended)
 
-  const canEditTask = Boolean(isOwner && isOpen)
+  const canEditTask = Boolean(isOwner && isOpen && !isSuspended)
 
   const canRepostTask = Boolean(
     isOwner &&
@@ -164,6 +201,9 @@ export function getTaskDetailPermissions(
     isOrderConflict,
     hasWorkerProfile,
     atCap,
+    isSuspended,
+    isFrozen,
+    reopen,
     canSubmitQuote,
     hasPendingQuote,
     showOwnerQuoteList,

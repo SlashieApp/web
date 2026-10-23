@@ -6,8 +6,9 @@ import type { Decorator } from '@storybook/nextjs-vite'
 import { type ReactNode, useEffect } from 'react'
 
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client/core'
-import { NEVER } from 'rxjs'
+import { NEVER, of, throwError } from 'rxjs'
 
+import type { StoryResponse } from '@/app/(auth)/helpers/authStoryDecorator'
 import { useUserStore } from '@/app/(auth)/store/user'
 import Me from '@/graphql/Me.gql'
 import { clearAuthToken, setAuthToken } from '@/utils/auth'
@@ -27,15 +28,38 @@ import {
 // render before the effect below stubs it: stub it at import instead.
 useUserStore.setState({ getUser: async () => useUserStore.getState().user })
 
+/** The story on screen's canned answers, by operation name (`responses`). */
+let storyResponses: Record<string, StoryResponse> = {}
+
+function storyAnswer(operationName: string | undefined) {
+  const response = operationName ? storyResponses[operationName] : undefined
+  if (!response) return NEVER
+  if (response.kind === 'data') return of({ data: response.data })
+  if (response.kind === 'graphqlError') {
+    return of({
+      errors: [
+        {
+          message: response.message ?? response.code,
+          extensions: { code: response.code },
+        },
+      ],
+    })
+  }
+  return throwError(
+    () => new TypeError(response.message ?? 'Network request failed'),
+  )
+}
+
 /**
- * Story-only Apollo client: all data comes from the seeded cache and network
- * requests never resolve. Using the real app client would hit the live API,
- * whose UNAUTHENTICATED response for the fake story token makes the error
- * link clear the auth cookie — collapsing every authed story to the
- * visitor state.
+ * Story-only Apollo client: all data comes from the seeded cache, and
+ * network requests never resolve unless the story gives a canned answer
+ * (`responses`, e.g. a mutation). Using the real app client would hit the
+ * live API, whose UNAUTHENTICATED response for the fake story token makes
+ * the error link clear the auth cookie, collapsing every authed story to
+ * the visitor state.
  */
 const apolloClient = new ApolloClient({
-  link: new ApolloLink(() => NEVER),
+  link: new ApolloLink((operation) => storyAnswer(operation.operationName)),
   cache: new InMemoryCache(),
 })
 
@@ -74,8 +98,12 @@ function TaskDetailStorySeed({
                   },
                 }
               : null,
+            suspension: task.suspension
+              ? { __typename: 'TaskSuspension', ...task.suspension }
+              : null,
             timeline: (task.timeline ?? []).map((e) => ({
               __typename: 'TaskTimelineEvent',
+              suspensionReason: null,
               ...e,
               actor: e.actor
                 ? {
@@ -95,6 +123,12 @@ function TaskDetailStorySeed({
             orders: (order ? [order] : (task.orders ?? [])).map((o) => ({
               __typename: 'Order',
               ...o,
+              counterpartySuspension: o.counterpartySuspension
+                ? {
+                    __typename: 'OrderCounterpartySuspension',
+                    ...o.counterpartySuspension,
+                  }
+                : null,
               agreedPrice: o.agreedPrice
                 ? { __typename: 'OrderAgreedPrice', ...o.agreedPrice }
                 : o.agreedPrice,
@@ -203,13 +237,16 @@ export function withTaskDetailStory(
 ): Decorator {
   const config = defaultTaskDetailStoryConfig(configOverrides)
 
-  return (Story) => (
-    <ApolloProvider client={apolloClient}>
-      <TaskDetailStorySeed config={config}>
-        <Box maxW={options?.maxWidth ?? '520px'} w="full">
-          <Story />
-        </Box>
-      </TaskDetailStorySeed>
-    </ApolloProvider>
-  )
+  return (Story) => {
+    storyResponses = config.responses ?? {}
+    return (
+      <ApolloProvider client={apolloClient}>
+        <TaskDetailStorySeed config={config}>
+          <Box maxW={options?.maxWidth ?? '520px'} w="full">
+            <Story />
+          </Box>
+        </TaskDetailStorySeed>
+      </ApolloProvider>
+    )
+  }
 }

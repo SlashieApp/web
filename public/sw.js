@@ -56,6 +56,9 @@ function textField(value) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+/** Flashes about the task itself open the task, not the conversation (BE-108). */
+const TASK_FLASHES = ['TASK_CANCELLED', 'TASK_REOPENED']
+
 /** In-app path only: every route is built here, never taken from the payload. */
 function pushPath(input) {
   const taskId = input.taskId
@@ -63,6 +66,9 @@ function pushPath(input) {
     return input.orderId
       ? `/tasks/${encodeURIComponent(taskId)}/review?orderId=${encodeURIComponent(input.orderId)}`
       : `/tasks/${encodeURIComponent(taskId)}/review`
+  }
+  if (TASK_FLASHES.includes(input.flashKind) && taskId) {
+    return `/tasks/${encodeURIComponent(taskId)}`
   }
   if (input.threadId) return `/messages/${encodeURIComponent(input.threadId)}`
   return '/messages'

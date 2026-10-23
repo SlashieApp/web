@@ -55,4 +55,10 @@ fragment OrderFields on Order {
   autoDoneAt
   createdAt
   closedAt
+  # The other party's account is suspended (BE-108): the booking is frozen.
+  counterpartySuspension {
+    role
+    name
+    canReopen
+  }
 }

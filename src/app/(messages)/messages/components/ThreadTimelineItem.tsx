@@ -3,8 +3,9 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { FlashKind, ThreadItemType } from '@codegen/schema'
 import type { ThreadItemFieldsFragment } from '@codegen/schema'
-import type { ReactNode } from 'react'
+import { type ReactNode, useContext } from 'react'
 
+import { TaskDetailContext } from '@/app/(task)/tasks/[slug]/context/TaskDetailContext'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { formatPrice } from '@/utils/price'
@@ -160,7 +161,8 @@ function AcceptedLine({
  * One timeline entry: a chat bubble (mine on the right) or a flash. Only the
  * worker's "quote sent" flash is a full quote card, where the poster accepts
  * or declines; Slashie announcements stay cards; every other event is a
- * short line (Thread screen v2). Day dividers carry the date, so times are
+ * short line (Thread screen v2), the worker's Task cancelled and Task
+ * reopened (BE-108) included. Day dividers carry the date, so times are
  * clock times; a run of messages shows one (FE-291).
  */
 export function ThreadTimelineItem({
@@ -173,12 +175,21 @@ export function ThreadTimelineItem({
   showTime?: boolean
 }) {
   const time = clockTime(item.createdAt, locale)
+  // A task thread runs inside its task's provider: a suspended task's quote
+  // can't be answered (BE-108).
+  const taskSuspended = Boolean(
+    useContext(TaskDetailContext)?.permissions.isSuspended,
+  )
 
   if (item.type === ThreadItemType.Flash) {
     if (item.flashKind === FlashKind.QuoteReceived && item.quote) {
       return (
         <FlashCard item={item} time={time}>
-          <ThreadQuote quote={item.quote} locale={locale} />
+          <ThreadQuote
+            quote={item.quote}
+            locale={locale}
+            taskSuspended={taskSuspended}
+          />
         </FlashCard>
       )
     }

@@ -182,6 +182,15 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   CANNOT_BLOCK_SELF: "You can't block yourself.",
   ORDER_CHANGED:
     'This booking just changed. We have loaded the latest, so check it and try again.',
+  // BE-108: suspended tasks and accounts, and reopening a task.
+  TASK_SUSPENDED: "This task is suspended, so it can't be changed.",
+  COUNTERPARTY_SUSPENDED:
+    "The other person's account is suspended, so this can't be done right now.",
+  TASK_ALREADY_OPEN: 'This task is already open.',
+  TASK_NOT_REOPENABLE: "This task can't be reopened.",
+  WORKER_NOT_SUSPENDED:
+    "This booking can't be reopened because the worker's account is active.",
+  TASK_CHANGED: 'This task just changed. Refresh and try again.',
 }
 
 export const MONTHLY_CONNECTION_LIMIT_ERROR_CODE =

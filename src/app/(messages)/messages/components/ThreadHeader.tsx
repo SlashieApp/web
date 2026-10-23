@@ -150,6 +150,7 @@ function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
     hasPendingQuote: permissions.hasPendingQuote,
     canCancelTask: permissions.canCancelTask,
     booking,
+    frozen: permissions.isFrozen,
   })
 
   return (

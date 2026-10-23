@@ -1,6 +1,12 @@
 import { customerOpen } from './customer.open'
 import { guestOpen } from './guest.open'
 import { loading } from './loading'
+import { noticeOwnerTaskSuspended } from './notice.owner.taskSuspended'
+import { noticeOwnerWorkerSuspended } from './notice.owner.workerSuspended'
+import { noticeOwnerWorkerSuspendedOnHold } from './notice.owner.workerSuspendedOnHold'
+import { noticeWorkerCustomerSuspended } from './notice.worker.customerSuspended'
+import { noticeWorkerPosterSuspended } from './notice.worker.posterSuspended'
+import { noticeWorkerTaskSuspended } from './notice.worker.taskSuspended'
 import { ownerBookedBeforeStart } from './owner.booked.beforeStart'
 import { ownerBookedCancelByMe } from './owner.booked.cancelByMe'
 import { ownerBookedCancelByThem } from './owner.booked.cancelByThem'
@@ -19,7 +25,12 @@ import { ownerConflictIMarkedDone } from './owner.conflict.iMarkedDone'
 import { ownerConflictIMarkedFailed } from './owner.conflict.iMarkedFailed'
 import { ownerOpenNoQuotes } from './owner.open.noQuotes'
 import { ownerOpenQuotes } from './owner.open.quotes'
-import type { TaskDetailViewConfig, TaskDetailViewName } from './types'
+import type {
+  TaskDetailViewConfig,
+  TaskDetailViewName,
+  TaskNoticeConfig,
+  TaskNoticeViewName,
+} from './types'
 import { visitorAwarded } from './visitor.awarded'
 import { visitorCancelled } from './visitor.cancelled'
 import { workerAwardedDeclined } from './worker.awarded.declined'
@@ -93,7 +104,23 @@ export const TASK_DETAIL_VIEWS: Record<
   'visitor.cancelled': visitorCancelled,
 }
 
+/** Every suspension notice's config, by name. `getTaskNoticeView` picks the name. */
+export const TASK_NOTICE_VIEWS: Record<TaskNoticeViewName, TaskNoticeConfig> = {
+  'notice.owner.taskSuspended': noticeOwnerTaskSuspended,
+  'notice.owner.workerSuspended': noticeOwnerWorkerSuspended,
+  'notice.owner.workerSuspendedOnHold': noticeOwnerWorkerSuspendedOnHold,
+  'notice.worker.customerSuspended': noticeWorkerCustomerSuspended,
+  'notice.worker.taskSuspended': noticeWorkerTaskSuspended,
+  'notice.worker.posterSuspended': noticeWorkerPosterSuspended,
+}
+
 export { getTaskDetailView, liveQuoteCount } from './getTaskDetailView'
+export { getTaskNoticeView, taskNoticePersonName } from './getTaskNoticeView'
+export type {
+  TaskNoticeCounterparty,
+  TaskNoticeInput,
+  TaskNoticeSuspension,
+} from './getTaskNoticeView'
 export type {
   TaskDetailViewOrder,
   TaskDetailViewTask,
@@ -104,6 +131,9 @@ export type {
   TaskDetailPrimaryAction,
   TaskDetailViewConfig,
   TaskDetailViewName,
+  TaskNoticeConfig,
+  TaskNoticeCopyKey,
+  TaskNoticeViewName,
   TaskSummaryCopy,
   TaskSummaryCopyKey,
   TaskSummaryFact,

@@ -25,6 +25,7 @@ import { repostTaskHref } from '@/utils/taskHandoff'
 import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { orderCounterpart } from '../../helpers/taskDetailUtils'
 import { TASK_DETAIL_VIEWS, type TaskDetailAction } from '../../views'
 import { OrderDoneDialog } from '../overview/OrderCloseControls'
 import { OrderFailedDialog } from '../overview/OrderFailedDialog'
@@ -145,7 +146,11 @@ function MenuAction({
   )
 }
 
-/** The view's booking actions (Reschedule, Cancel booking, ...), listed first. */
+/**
+ * The view's booking actions (Reschedule, Cancel booking, ...), listed
+ * first. A frozen booking (BE-108) refuses every change, so only reporting
+ * the other person is left.
+ */
 function BookingActions({
   onDone,
   onOpenDialog,
@@ -153,11 +158,26 @@ function BookingActions({
   onDone: () => void
   onOpenDialog: (dialog: BookingDialog) => void
 }) {
-  const { view, myOrder, me, permissions, runOrderAction, orderActionPending } =
-    useTaskDetail()
+  const {
+    view,
+    task,
+    myOrder,
+    me,
+    permissions,
+    runOrderAction,
+    orderActionPending,
+  } = useTaskDetail()
   const t = useI11n(bag)
-  const options = useOrderRequestOptions()
-  if (!myOrder || !options) return null
+  if (!task || !myOrder) return null
+  const actions = (TASK_DETAIL_VIEWS[view].actions ?? []).filter(
+    (action) => permissions.showOrderActions || action === 'reportOtherParty',
+  )
+  const counterpartName = orderCounterpart(
+    task,
+    myOrder,
+    permissions.isOwner,
+    t,
+  ).name
   const request = orderRequestView(myOrder, me?.id)
   const withdraw =
     request?.kind === 'RESCHEDULE'
@@ -174,7 +194,7 @@ function BookingActions({
 
   return (
     <>
-      {(TASK_DETAIL_VIEWS[view].actions ?? []).map((action) =>
+      {actions.map((action) =>
         action === 'reportOtherParty' ? (
           <ReportControl
             key={action}
@@ -184,7 +204,7 @@ function BookingActions({
                 ? myOrder.workerUserId
                 : myOrder.customerUserId
             }
-            targetTitle={options.counterpartName}
+            targetTitle={counterpartName}
             variant="menu"
             onOpened={onDone}
           />

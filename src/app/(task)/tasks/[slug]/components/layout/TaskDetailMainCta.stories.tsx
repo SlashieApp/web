@@ -1,6 +1,14 @@
-import { Currency, OrderStatus, QuoteStatus, TaskStatus } from '@codegen/schema'
+import {
+  Currency,
+  OrderPartyRole,
+  OrderStatus,
+  QuoteStatus,
+  TaskStatus,
+} from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, waitFor, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
+
+import { AppToastHost } from '@/utils/appToast'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withOrderReviewSeed } from '../../helpers/taskDetailStoryExtras'
@@ -175,15 +183,149 @@ export const CompletedGetReceipt: Story = {
   },
 }
 
-/** Owner of a cancelled task: Repost this task. */
-export const OwnerRepost: Story = {
+const cancelledTask = storyTaskDetail({ status: TaskStatus.Cancelled })
+
+/**
+ * Owner of a cancelled task (BE-108): Reopen task, which asks first. Not now
+ * closes the dialog; Repost stays under Help & actions.
+ */
+export const OwnerReopen: Story = {
+  ...desktop,
+  ...cta({ viewer: 'owner', task: cancelledTask }),
+  play: async ({ canvasElement }) => {
+    const body = pin(canvasElement)
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', { name: 'Reopen task' }),
+    )
+    const dialog = within(
+      await body.findByRole('dialog', { name: 'Reopen this task?' }),
+    )
+    await dialog.findByText(
+      'It will be open for quotes again, and workers with pending quotes will be told.',
+    )
+    await userEvent.click(dialog.getByRole('button', { name: 'Not now' }))
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
+  },
+}
+
+/**
+ * Reopen task confirmed: "Task reopened", and the task is open again, so
+ * the main button becomes Preview.
+ */
+export const OwnerReopened: Story = {
+  ...desktop,
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        <AppToastHost />
+      </>
+    ),
+    withTaskDetailStory({
+      viewer: 'owner',
+      task: cancelledTask,
+      responses: {
+        ReopenTask: {
+          kind: 'data',
+          data: {
+            reopenTask: {
+              __typename: 'Task',
+              id: cancelledTask.id,
+              status: TaskStatus.Open,
+            },
+          },
+        },
+      },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const body = pin(canvasElement)
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', { name: 'Reopen task' }),
+    )
+    const dialog = within(
+      await body.findByRole('dialog', { name: 'Reopen this task?' }),
+    )
+    await userEvent.click(dialog.getByRole('button', { name: 'Reopen task' }))
+    await body.findByText('Task reopened')
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
+    await within(canvasElement).findByRole('link', { name: 'Preview' })
+  },
+}
+
+/** Reopen refused by the API: its error copy as a toast; the dialog stays. */
+export const OwnerReopenRefused: Story = {
+  ...desktop,
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        <AppToastHost />
+      </>
+    ),
+    withTaskDetailStory({
+      viewer: 'owner',
+      task: cancelledTask,
+      responses: {
+        ReopenTask: { kind: 'graphqlError', code: 'TASK_NOT_REOPENABLE' },
+      },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const body = pin(canvasElement)
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', { name: 'Reopen task' }),
+    )
+    const dialog = within(
+      await body.findByRole('dialog', { name: 'Reopen this task?' }),
+    )
+    await userEvent.click(dialog.getByRole('button', { name: 'Reopen task' }))
+    await body.findByText("This task can't be reopened.")
+    await expect(body.getByRole('dialog')).toBeVisible()
+  },
+}
+
+/** A cancelled task Slashie suspended can't be reopened: no main button. */
+export const OwnerCancelledSuspended: Story = {
   ...desktop,
   ...cta({
     viewer: 'owner',
-    task: storyTaskDetail({ status: TaskStatus.Cancelled }),
+    task: storyTaskDetail({
+      status: TaskStatus.Cancelled,
+      suspension: { bySlashie: true, posterSuspended: false },
+    }),
   }),
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByRole('link', { name: 'Repost this task' })
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    await expect(
+      within(canvasElement).queryByRole('button', { name: 'Reopen task' }),
+    ).toBeNull()
+  },
+}
+
+/**
+ * Booked worker suspended (BE-108), job time started: the booking is frozen,
+ * so there is no slide to mark Done.
+ */
+export const OwnerFrozenNoMarkDone: Story = {
+  ...desktop,
+  ...cta({
+    viewer: 'owner',
+    task: bookedTask,
+    order: storyTaskOrder({
+      counterpartySuspension: {
+        role: OrderPartyRole.Worker,
+        name: 'Jordan Lee',
+        canReopen: true,
+      },
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    await expect(within(canvasElement).queryByRole('slider')).toBeNull()
+    await expect(
+      within(canvasElement).queryByText('Slide to mark Done'),
+    ).toBeNull()
   },
 }
 

@@ -19,6 +19,7 @@ import {
   liveQuoteCount,
 } from '../../views'
 import {
+  frozenSubline,
   resolveSummaryCopy,
   summaryBudgetType,
 } from '../../views/resolveSummaryCopy'
@@ -74,7 +75,11 @@ const FACT_DIVIDERS = {
   },
 } as const
 
-/** The view's headline and sub-line, with counts, names and dates filled in. */
+/**
+ * The view's headline and sub-line, with counts, names and dates filled in.
+ * While the task or booking is frozen (BE-108) the sub-line leaves out the
+ * auto-Done date, which waits too; Messages' pins read the same.
+ */
 export function useSummaryLines(config: TaskDetailViewConfig) {
   const { task, myOrder, orderClose, permissions } = useTaskDetail()
   const t = useI11n(bag)
@@ -96,9 +101,12 @@ export function useSummaryLines(config: TaskDetailViewConfig) {
         month: 'short',
       }) ?? '',
   }
+  const subline = permissions.isFrozen
+    ? frozenSubline(config.subline)
+    : config.subline
   return {
     headline: resolveSummaryCopy(config.headline, params, t.summary),
-    subline: resolveSummaryCopy(config.subline, params, t.summary),
+    subline: resolveSummaryCopy(subline, params, t.summary),
   }
 }
 

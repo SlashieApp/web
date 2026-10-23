@@ -15,16 +15,19 @@ import { useDateLocale } from './TaskFacts'
 /**
  * A pending reschedule or cancellation. The headline already says who asked;
  * this shows the proposed times and, for the other side, the answer buttons.
- * Withdrawing your own request is in Help & actions.
+ * While the booking is frozen by a suspension (BE-108) nobody can answer and
+ * the lapse note goes. Withdrawing your own request is in Help & actions.
  */
 export function RequestFact() {
-  const { myOrder, me, runOrderAction, orderActionPending } = useTaskDetail()
+  const { myOrder, me, permissions, runOrderAction, orderActionPending } =
+    useTaskDetail()
   const t = useI11n(bag)
   const locale = useDateLocale()
   const request = myOrder ? orderRequestView(myOrder, me?.id) : null
   if (!myOrder || !request) return null
   const r = t.requests
   const busy = orderActionPending != null
+  const canAnswer = !request.mine && permissions.showOrderActions
 
   if (request.kind === 'RESCHEDULE') {
     return (
@@ -49,7 +52,7 @@ export function RequestFact() {
                 {formatTimeSlotLabel(slot, locale)}
                 {past ? ` · ${t.quotes.pastSlot}` : ''}
               </Text>
-              {request.mine ? null : (
+              {canAnswer ? (
                 <Button
                   type="button"
                   size="sm"
@@ -65,11 +68,11 @@ export function RequestFact() {
                 >
                   {r.confirmSlot}
                 </Button>
-              )}
+              ) : null}
             </HStack>
           )
         })}
-        {request.mine ? null : (
+        {canAnswer ? (
           <Box>
             <Button
               type="button"
@@ -81,13 +84,15 @@ export function RequestFact() {
               {r.declineReschedule}
             </Button>
           </Box>
-        )}
+        ) : null}
       </Stack>
     )
   }
 
-  const lapse = myOrder.status !== OrderStatus.Conflict
-  if (request.mine && !lapse) return null
+  // A cancel request lapses at the booked time, except in CONFLICT and
+  // while frozen (the lapse waits until the suspension is lifted).
+  const lapse = myOrder.status !== OrderStatus.Conflict && !permissions.isFrozen
+  if (!canAnswer && !lapse) return null
 
   return (
     <Stack gap={2} py={3}>
@@ -96,7 +101,7 @@ export function RequestFact() {
           {r.lapseNote}
         </Text>
       ) : null}
-      {request.mine ? null : (
+      {canAnswer ? (
         <HStack gap={2} flexWrap="wrap">
           <Button
             type="button"
@@ -118,7 +123,7 @@ export function RequestFact() {
             {r.declineCancel}
           </Button>
         </HStack>
-      )}
+      ) : null}
     </Stack>
   )
 }

@@ -136,13 +136,17 @@ export type ThreadMenuAction =
  * Quote / booking actions the thread menu offers (FE-272). Worker before
  * acceptance: withdraw the quote; owner before acceptance: cancel the task.
  * Either party once booked: reschedule or cancel, when task detail allows it.
+ * None while the task or booking is frozen by a suspension: the API refuses
+ * them all (BE-108). Report and Block stay.
  */
 export function threadMenuActions(input: {
   hasPendingQuote: boolean
   canCancelTask: boolean
   booking: { canReschedule: boolean; canCancel: boolean } | null
+  frozen?: boolean
 }): ThreadMenuAction[] {
   const actions: ThreadMenuAction[] = []
+  if (input.frozen) return actions
   if (input.hasPendingQuote) actions.push('withdrawQuote')
   if (input.canCancelTask) actions.push('cancelTask')
   if (input.booking?.canReschedule) actions.push('reschedule')

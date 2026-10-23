@@ -69,6 +69,8 @@ export type UiInfoBarProps = Omit<BoxProps, 'title'> & {
   linkLabel?: string
   /** Destination for the optional link. */
   linkHref?: string
+  /** Optional action under the body, such as a button that opens a dialog. */
+  action?: ReactNode
   /** Hide the status Badge (the pod still carries the tone). */
   hideBadge?: boolean
 }
@@ -81,6 +83,7 @@ export function InfoBar({
   children,
   linkLabel,
   linkHref,
+  action,
   hideBadge = false,
   ...rest
 }: UiInfoBarProps) {
@@ -154,6 +157,8 @@ export function InfoBar({
               </Link>
             </Box>
           ) : null}
+
+          {action ? <Box pt={1}>{action}</Box> : null}
         </Stack>
       </HStack>
     </Card>

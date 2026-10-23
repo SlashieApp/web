@@ -1,4 +1,7 @@
-import { TaskTimelineEventType as Type } from '@codegen/schema'
+import {
+  TaskSuspensionReason,
+  TaskTimelineEventType as Type,
+} from '@codegen/schema'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 
@@ -27,6 +30,8 @@ export type TaskActivityEvent = {
   worker?: ActivityPerson | null
   /** `TASK_UPDATED` only. */
   changedFields?: readonly string[] | null
+  /** `TASK_SUSPENDED` and `TASK_UNSUSPENDED` only: which suspension. */
+  suspensionReason?: string | null
 }
 
 /** Who is reading the log. */
@@ -48,11 +53,17 @@ export type TaskActivityLine = {
 
 type EventLine = {
   kind: TaskActivityKind
+  /** Null leaves the line out (a suspension line with no reason). */
   text: (
     event: TaskActivityEvent,
     viewer: TaskActivityViewer,
     copy: TaskActivityCopy,
-  ) => string
+  ) => string | null
+  /**
+   * Only the owner and the task's parties get it (BE-108's suspension
+   * lines), so the owner's guest preview leaves it out.
+   */
+  partiesOnly?: true
 }
 
 /** The person's profile name, or "Someone" when it's empty. */
@@ -150,6 +161,28 @@ const EVENT_LINES: Partial<Record<Type, EventLine>> = {
   [Type.TaskCancelled]: {
     kind: 'task',
     text: (e, _, c) => byActor(c.events.TASK_CANCELLED, e, c),
+  },
+  [Type.TaskReopened]: {
+    kind: 'task',
+    text: (e, _, c) => byActor(c.events.TASK_REOPENED, e, c),
+  },
+  [Type.TaskSuspended]: {
+    kind: 'task',
+    partiesOnly: true,
+    text: (e, _, c) => {
+      if (e.suspensionReason === TaskSuspensionReason.Slashie) {
+        return c.events.TASK_SUSPENDED.SLASHIE
+      }
+      if (e.suspensionReason === TaskSuspensionReason.PosterSuspended) {
+        return c.events.TASK_SUSPENDED.POSTER_SUSPENDED
+      }
+      return null
+    },
+  },
+  [Type.TaskUnsuspended]: {
+    kind: 'task',
+    partiesOnly: true,
+    text: (_, __, c) => c.events.TASK_UNSUSPENDED,
   },
   [Type.QuoteSent]: {
     kind: 'quote',
@@ -253,11 +286,12 @@ export function taskActivityLines(
   const lines: TaskActivityLine[] = []
   for (const event of events) {
     const line = eventLine(event.type)
-    if (!line) continue
+    const text = line?.text(event, viewer, copy)
+    if (!line || !text) continue
     lines.push({
       key: `${lines.length}:${event.type}:${event.timestamp}`,
       kind: line.kind,
-      text: line.text(event, viewer, copy),
+      text,
       at: event.timestamp,
     })
   }
@@ -267,14 +301,16 @@ export function taskActivityLines(
 /**
  * The owner's guest preview: the timeline as a signed-out visitor gets it
  * from the API (BE-106). Task lines keep the poster as who did it, quote
- * lines lose who, and booking lines and reviews go.
+ * lines lose who, and booking lines, reviews and suspension lines go.
  */
 export function taskTimelineAsGuest<T extends TaskActivityEvent>(
   events: readonly T[] | null | undefined,
   posterId: string | null | undefined,
 ): T[] {
   return (events ?? []).flatMap((event) => {
-    const kind = eventLine(event.type)?.kind
+    const line = eventLine(event.type)
+    if (line?.partiesOnly) return []
+    const kind = line?.kind
     if (kind === 'task') {
       const byPoster = Boolean(posterId && event.actor?.id === posterId)
       const actor = byPoster ? event.actor : null
