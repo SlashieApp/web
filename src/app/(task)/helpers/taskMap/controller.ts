@@ -149,6 +149,8 @@ export function createTaskMapController(args: {
   let referenceMarker: Marker | null = null
   let moveEndDebounce: ReturnType<typeof setTimeout> | null = null
   let resizeFrameRequested = false
+  /** A sync was asked for while the style was busy; `idle` runs it. */
+  let syncDeferred = false
 
   let moveEndRun: (() => void) | null = null
   let mapClickRun: ((e: MapMouseEvent) => void) | null = null
@@ -697,8 +699,15 @@ export function createTaskMapController(args: {
 
   const sync = () => {
     if (cancelled || !map) return
-    // Not ready yet — the `load` / `style.load` handlers re-schedule.
-    if (!map.isStyleLoaded()) return
+    // Not ready yet: `load` / `style.load` re-schedule, and `idle` catches a
+    // sync asked for while tiles loading mid-fly made the style read busy
+    // (else a selection made then, like the carousel's first card, never
+    // shows on its pin).
+    if (!map.isStyleLoaded()) {
+      syncDeferred = true
+      return
+    }
+    syncDeferred = false
 
     flushReady()
 
@@ -780,7 +789,10 @@ export function createTaskMapController(args: {
       // Flush route applies deferred while the style was busy (tiles loading
       // mid-fly make `isStyleLoaded()` flicker false — the route would
       // otherwise silently never draw). No-op unless a deferral is pending.
-      idleRun = () => navRoute.flushWhenReady()
+      idleRun = () => {
+        navRoute.flushWhenReady()
+        if (syncDeferred) scheduleSync()
+      }
       m.on('idle', idleRun)
 
       // Clusters split and merge as the zoom changes, frame by frame.

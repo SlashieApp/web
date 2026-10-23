@@ -18,11 +18,15 @@ export function pinMilesText(task: TaskMapTask): string | null {
   return task.distanceLabel?.trim() || null
 }
 
-/** Accessible label for a task pin. Clicking the pin opens task detail. */
-export function pinAriaLabel(task: TaskMapTask): string {
+/**
+ * Accessible label for a task pin. The first tap on a pin selects its task, so
+ * the label only says what the pin is. Once the task is selected another tap
+ * opens it, and the label says so.
+ */
+export function pinAriaLabel(task: TaskMapTask, selected = false): string {
   const miles = pinMilesText(task)
   const summary = miles ? `${pinPriceText(task)}, ${miles}` : pinPriceText(task)
-  return `${summary}. View task details.`
+  return selected ? `${summary}. View task details.` : summary
 }
 
 /** Initials for `person` pin avatar fallback (from the pin title). */

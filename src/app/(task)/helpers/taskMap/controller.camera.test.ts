@@ -32,4 +32,11 @@ describe('task map camera', () => {
     expect(src).toContain('applySelectionVisuals')
     expect(src).toContain('syncSelection(true)')
   })
+
+  it('runs a sync skipped while the style was busy once the map is idle', () => {
+    const src = readFileSync(join(dir, 'controller.ts'), 'utf8')
+    expect(src).toContain('syncDeferred = true')
+    expect(src).toContain('if (syncDeferred) scheduleSync()')
+    expect(src).toMatch(/m\.on\('idle', idleRun\)/)
+  })
 })

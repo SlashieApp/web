@@ -182,7 +182,12 @@ function createHoverPeek(
   return { onEnter, onLeave, clearTimers }
 }
 
-function wireSelection(dom: PinDom, task: TaskMapTask, onSelect: () => void) {
+/**
+ * The pill, the dot and the popup (`popupReveal`: the hover preview and the
+ * selected card) all report the same tap. The page decides whether it selects
+ * the task or opens it (FE-401), so no part of the pin opens a task on its own.
+ */
+function wireSelection(dom: PinDom, onSelect: () => void) {
   const stopAndSelect = (e: Event) => {
     e.stopPropagation()
     e.preventDefault()
@@ -195,11 +200,9 @@ function wireSelection(dom: PinDom, task: TaskMapTask, onSelect: () => void) {
     onSelect()
   }
 
-  const label = pinAriaLabel(task)
-
+  // The aria-label follows the selection, so `render` sets it.
   dom.pricePill.setAttribute('role', 'button')
   dom.pricePill.tabIndex = 0
-  dom.pricePill.setAttribute('aria-label', label)
   dom.pricePill.addEventListener('click', stopAndSelect)
   dom.pricePill.addEventListener('keydown', onKeySelect)
   dom.pinDot.addEventListener('click', stopAndSelect)
@@ -219,13 +222,14 @@ export function taskMarkerElement(
   let wasExpanded = false
 
   mountPinStaticStyles(dom, motion)
-  wireSelection(dom, task, onSelect)
+  wireSelection(dom, onSelect)
 
   const render = () => {
     const state = pinVisualState(isSelected, expanded)
     const opening = state.expanded && !wasExpanded
 
     applyPinVisualState(dom, state, motion)
+    dom.pricePill.setAttribute('aria-label', pinAriaLabel(task, isSelected))
     if (opening) pulsePinDot(dom.pinDot, motion)
     wasExpanded = state.expanded
   }

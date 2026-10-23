@@ -25,8 +25,8 @@ type TaskStackListProps = {
 
 /**
  * Tasks at one spot that never split into pins (FE-200): a bottom sheet on
- * mobile, a small card at the cluster on desktop. A row opens the task, the
- * same as tapping its pin.
+ * mobile, a small card at the cluster on desktop. A row opens the task
+ * straight away: unlike a standalone pin, it does not select the task first.
  */
 export function TaskStackList({
   stack,

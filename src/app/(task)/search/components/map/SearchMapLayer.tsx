@@ -14,7 +14,10 @@ import {
   overlayCtrlBottomOffsetForMobile,
 } from '../../../helpers/marketplaceMap'
 import type { TaskMapStack } from '../../../helpers/taskMap'
-import { useSelectBrowseTaskFromMap } from '../../../helpers/useSelectBrowseTaskFromMap'
+import {
+  useOpenBrowseTaskFromMap,
+  useSelectBrowseTaskFromMap,
+} from '../../../helpers/useSelectBrowseTaskFromMap'
 import {
   SEARCH_CTRL_TOP,
   SEARCH_TOUCH_CTRL_TOP,
@@ -34,6 +37,7 @@ export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
   const { windowOffsetWidth } = useTaskBrowseLayout()
   const { onNavRoutePresentingChange } = useTaskBrowseData()
   const selectFromMap = useSelectBrowseTaskFromMap()
+  const openFromMap = useOpenBrowseTaskFromMap()
   // A state setter: stable, since the published layer ignores callback changes.
   const [stack, setStack] = useState<TaskMapStack | null>(null)
   const closeStack = useCallback(() => setStack(null), [])
@@ -80,7 +84,7 @@ export function SearchMapLayer({ isDesktop }: { isDesktop: boolean }) {
       stack={stack}
       tasks={mapBindings.tasks}
       isDesktop={isDesktop}
-      onSelect={selectFromMap}
+      onSelect={openFromMap}
       onClose={closeStack}
     />
   )

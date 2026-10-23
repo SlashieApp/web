@@ -70,6 +70,11 @@ export type TaskMapProps = {
   selectedTaskSelectionToken?: number
   /** Bumps to fly back to the search centre even when it has not changed. */
   recenterToken?: number
+  /**
+   * A standalone pin was tapped or clicked (its task id), or the bare map
+   * (null). The page decides what a pin does: on /search the first tap selects
+   * the task and a tap on the selected one opens it.
+   */
   onSelectTask?: (taskId: string | null) => void
   /** Opens (or, with null, closes) the list for a cluster that cannot split. */
   onOpenTaskStack?: (stack: TaskMapStack | null) => void

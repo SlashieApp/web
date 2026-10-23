@@ -49,6 +49,7 @@ export type TaskMapPropsSnapshot = {
   selectedTaskSelectionToken?: number
   /** Bumps to fly back to the search centre even when it has not changed. */
   recenterToken?: number
+  /** See `TaskMapProps.onSelectTask`. */
   onSelectTask?: (taskId: string | null) => void
   /** Opens (or, with null, closes) the list for a cluster that cannot split. */
   onOpenTaskStack?: (stack: TaskMapStack | null) => void
