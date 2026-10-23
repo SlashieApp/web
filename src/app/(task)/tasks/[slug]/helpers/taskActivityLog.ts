@@ -123,7 +123,8 @@ function changedFieldsLabel(
   return `${words.slice(0, -1).join(copy.fieldsSeparator)}${copy.fieldsLastSeparator}${words.at(-1)}`
 }
 
-const EVENT_LINES: Record<Type, EventLine> = {
+// Partial: a type the API adds before this file knows it is skipped, and doesn't break the build.
+const EVENT_LINES: Partial<Record<Type, EventLine>> = {
   [Type.TaskCreated]: {
     kind: 'task',
     text: (e, _, c) => byActor(c.events.TASK_CREATED, e, c),
@@ -234,7 +235,9 @@ const EVENT_LINES: Record<Type, EventLine> = {
 
 /** How a type reads, or null for one this build doesn't know. */
 function eventLine(type: string): EventLine | null {
-  return Object.hasOwn(EVENT_LINES, type) ? EVENT_LINES[type as Type] : null
+  return Object.hasOwn(EVENT_LINES, type)
+    ? (EVENT_LINES[type as Type] ?? null)
+    : null
 }
 
 /**
