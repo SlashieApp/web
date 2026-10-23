@@ -1,12 +1,14 @@
 /**
- * Search task cards keep one height (FE-382, same rule as Expo FE-381).
+ * Search task cards keep one narrow height (FE-384, same rule as Expo).
+ * One title line, and a reserved badge and price row.
  * Line counts are unitless. Heights are CSS lengths.
  */
 export const taskCardLayout = {
-  titleLines: 2,
+  titleLines: 1,
   titleLineHeight: 1.3,
   metaLineHeight: 1.25,
   badgeRowMinHeight: '1.5rem',
+  thumb: '48px',
 } as const
 
 export const taskCardTitleMinHeight = `${taskCardLayout.titleLines * taskCardLayout.titleLineHeight}em`

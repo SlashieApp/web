@@ -166,8 +166,8 @@ function TaskCardLoading() {
     <Card p={3} maxW="full" aria-hidden>
       <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
         <Skeleton
-          minW={{ base: '72px', md: '80px' }}
-          h={{ base: '72px', md: '80px' }}
+          minW={taskCardLayout.thumb}
+          h={taskCardLayout.thumb}
           borderRadius="lg"
           flexShrink={0}
         />
@@ -293,7 +293,8 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               alt={`${title} thumbnail`}
               src={thumbnailSrc}
               size="sm"
-              minW={{ base: '72px', md: '80px' }}
+              minW={taskCardLayout.thumb}
+              h={taskCardLayout.thumb}
               alignSelf="flex-start"
             />
             <Stack flex={1} minW={0} gap={1.5}>
