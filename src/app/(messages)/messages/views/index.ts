@@ -20,7 +20,6 @@ import { threadLoading } from './thread.loading'
 import { threadLocked } from './thread.locked'
 import { threadNone } from './thread.none'
 import { threadNotFound } from './thread.notFound'
-import { threadNotSelected } from './thread.notSelected'
 import { threadOpen } from './thread.open'
 import { threadSuspended } from './thread.suspended'
 import { threadSystem } from './thread.system'
@@ -71,7 +70,6 @@ export const THREAD_VIEWS: Record<ThreadViewName, ThreadViewConfig> = {
   'thread.system': threadSystem,
   'thread.open': threadOpen,
   'thread.locked': threadLocked,
-  'thread.notSelected': threadNotSelected,
   'thread.blocked': threadBlocked,
   'thread.suspended': threadSuspended,
 }

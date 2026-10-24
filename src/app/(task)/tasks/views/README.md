@@ -60,7 +60,7 @@ Guests never reach the page: `AccountAuthGate` sends them to log in.
 |---|---|---|---|
 | Upcoming | Hosted tasks with a booking, and quotes that won, not finished (a CONFLICT still counts) | Soonest first by the booked start; untimed last | Cards: the day ("Today", "Tomorrow", "On Wednesday" for 2 to 6 days out, "Thu 5 Nov", "Overdue" in red once the day has passed, "Before 5 Nov" or "Flexible"), the title, then "28 Oct, 16:25 · area · price" |
 | Open | Your open tasks, and your pending quotes on open tasks nobody else won | Soonest first by the task's time; flexible last | Rows: photo (or a category icon), the title, "3 quotes · £60" or "Quote sent · £75" |
-| Past | Completed, cancelled, didn't go ahead (both marked Failed), not selected, declined | Newest first by when the booking closed, else when you quoted, else when you posted it | The newest is a card with no photo (title, date and price, how it ended); the rest are rows ("Completed · 28 Oct · £95"). The newest 3, then "Show all (n)" (all of them while filtering) |
+| Past | Completed, cancelled, didn't go ahead (both marked Failed), and anything else that is over (Closed: your quote closed, or the job went to someone else) | Newest first by when the booking closed, else when you quoted, else when you posted it | The newest is a card with no photo (title, date and price, how it ended); the rest are rows ("Completed · 28 Oct · £95"). The newest 3, then "Show all (n)" (all of them while filtering) |
 
 Without filters every section shows, with a line when it is empty. While
 filtering, a section with no matches is left out.
@@ -101,7 +101,8 @@ Edit task (`suspended`); a booking whose other party is suspended has no
 button either. Share task stays. The booking a row follows is task
 detail's `currentTaskOrder`, so a reopened task sits in Open, not Past, a
 rebooked one follows its new booking, and the worker whose booking a reopen
-cancelled reads "Declined" in Past. The same rules as the Expo hub.
+cancelled (their quote is CLOSED) reads "Closed" in Past. The same rules as
+the Expo hub.
 
 ## Filters
 

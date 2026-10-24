@@ -533,7 +533,8 @@ export function manyLiveQuotes(count: number) {
 export function bookedTask(order: Partial<OrderItem> = {}) {
   return storyTaskDetail({
     status: TaskStatus.Awarded,
-    quotes: storyQuotes(QuoteStatus.Accepted, QuoteStatus.NotSelected),
+    // The other quotes stay PENDING once someone is booked (BE-113).
+    quotes: storyQuotes(QuoteStatus.Accepted, QuoteStatus.Pending),
     orders: [storyTaskOrder(order)],
   })
 }

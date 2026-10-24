@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
+  STORY_CLOSED_STATUS,
   STORY_WORKER_ID,
   storyPublicQuote,
   storyTaskDetail,
@@ -12,9 +13,10 @@ import {
 import { QuotesModule } from './QuotesModule'
 
 /**
- * The 12-state task-detail Quotes module (approved contact sheet v2).
- * C1–C4 = customer/owner states, W1–W8 = visitor/worker states. State derives
- * from `getTaskDetailPermissions` + quote data seeded by the story decorator.
+ * The task-detail Quotes module's states (approved contact sheet v2).
+ * C1–C4 = customer/owner states, W1–W8 = visitor/worker states, less W7
+ * (declined), which went with the Decline action (BE-113). State derives from
+ * `getTaskDetailPermissions` + quote data seeded by the story decorator.
  * Anyone but the owner sees the other live quotes without who sent them
  * (FE-370).
  */
@@ -117,7 +119,7 @@ export const C1CustomerEmpty: Story = {
   ],
 }
 
-/** C2 · owner, quotes: sort + list + Accept/Decline per pending card, with who sent each. */
+/** C2 · owner, quotes: sort + list + Accept per pending card, with who sent each. */
 export const C2CustomerList: Story = {
   decorators: [
     withTaskDetailStory(
@@ -137,13 +139,45 @@ export const C2CustomerList: Story = {
     await expect(
       canvas.getAllByRole('button', { name: 'Accept' }),
     ).toHaveLength(3)
+    // Accept is the owner's only answer to a quote.
+    expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
+  },
+}
+
+/**
+ * C2 · owner, one quote closed (the booking ended early and the task is open
+ * again): a neutral "Closed", no Accept for it, and the pending ones keep
+ * theirs.
+ */
+export const C2CustomerClosedQuote: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [
+            { ...competitorB, status: STORY_CLOSED_STATUS },
+            competitorA,
+          ],
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Closed')
+    await expect(
+      canvas.getAllByRole('button', { name: 'Accept' }),
+    ).toHaveLength(1)
+    expect(canvas.queryByText('CLOSED')).toBeNull()
   },
 }
 
 /**
  * C2 · owner, one quote from a suspended worker (BE-108): "Account
- * suspended", Accept and Decline off, and never Best match though it is the
- * cheapest. The other quotes stay as they were.
+ * suspended", Accept off, and never Best match though it is the cheapest.
+ * The other quotes stay as they were.
  */
 export const C2CustomerSuspendedWorkerQuote: Story = {
   decorators: [
@@ -165,17 +199,14 @@ export const C2CustomerSuspendedWorkerQuote: Story = {
     const canvas = within(canvasElement)
     await canvas.findByText('Account suspended')
     const accepts = canvas.getAllByRole('button', { name: 'Accept' })
-    const declines = canvas.getAllByRole('button', { name: 'Decline' })
     // Cheapest first: the suspended worker's £85 quote leads the list.
     await expect(accepts[0]).toBeDisabled()
-    await expect(declines[0]).toBeDisabled()
     await expect(accepts[1]).toBeEnabled()
-    await expect(declines[1]).toBeEnabled()
     await expect(canvas.queryByText('Best match')).toBeNull()
   },
 }
 
-/** Owner of a suspended task (BE-108): the quotes read-only, no Accept or Decline. */
+/** Owner of a suspended task (BE-108): the quotes read-only, no Accept. */
 export const C2CustomerTaskSuspended: Story = {
   decorators: [
     withTaskDetailStory(
@@ -193,7 +224,6 @@ export const C2CustomerTaskSuspended: Story = {
     const canvas = within(canvasElement)
     await canvas.findByRole('link', { name: 'Maria L.' })
     await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
-    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
   },
 }
 
@@ -217,7 +247,10 @@ export const C3CustomerSlotsFilled: Story = {
   ],
 }
 
-/** C4 · owner, awarded: primary accepted card + collapsed other quotes. */
+/**
+ * C4 · owner, awarded: the booked quote says Accepted, and the others stay
+ * PENDING (BE-113) with nothing to accept: only an open task can take a quote.
+ */
 export const C4CustomerAwarded: Story = {
   decorators: [
     withTaskDetailStory(
@@ -235,6 +268,11 @@ export const C4CustomerAwarded: Story = {
       SIDEBAR,
     ),
   ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Accepted')
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
 }
 
 // -------------------------------------------------------- visitor/worker
@@ -373,17 +411,17 @@ export const W6WorkerAccepted: Story = {
   },
 }
 
-/** W7 · worker, quote declined, task still open: the other live quotes, not theirs. */
-export const W7WorkerDeclined: Story = {
+/**
+ * W4 · worker whose quote is closed (the booking ended early and the task is
+ * open again): the other live quotes, not theirs, and no status text.
+ */
+export const W4WorkerQuoteClosed: Story = {
   decorators: [
     withTaskDetailStory(
       {
         viewer: 'worker',
         task: storyTaskDetail({
-          quotes: [
-            { ...myPendingQuote, status: QuoteStatus.Declined },
-            publicA,
-          ],
+          quotes: [{ ...myPendingQuote, status: STORY_CLOSED_STATUS }, publicA],
         }),
       },
       SIDEBAR,
@@ -391,13 +429,15 @@ export const W7WorkerDeclined: Story = {
   ],
   play: async ({ canvasElement }) => {
     await expectAnonymousRows(canvasElement, ['£95'])
-    expect(within(canvasElement).queryByText('Declined')).toBeNull()
+    expect(within(canvasElement).queryByText('Closed')).toBeNull()
+    expect(within(canvasElement).queryByText('CLOSED')).toBeNull()
   },
 }
 
 /**
- * W8 · someone else was booked: the API sends only the worker's own quote,
- * so the section goes, with no empty heading or count.
+ * W8 · someone else was booked: the worker's quote stays PENDING (BE-113) and
+ * the API sends only their own, so the section goes, with no empty heading or
+ * count.
  */
 export const W8WorkerTaskFull: Story = {
   decorators: [
@@ -406,7 +446,7 @@ export const W8WorkerTaskFull: Story = {
         viewer: 'worker',
         task: storyTaskDetail({
           status: TaskStatus.Awarded,
-          quotes: [{ ...myPendingQuote, status: QuoteStatus.NotSelected }],
+          quotes: [myPendingQuote],
         }),
       },
       SIDEBAR,

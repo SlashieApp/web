@@ -41,7 +41,6 @@
       "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake."
     },
     "lockedNotice": "You can message here once a quote is accepted.",
-    "notSelectedNotice": "This task went to another worker, so the conversation is closed to you.",
     "systemNotice": "Announcements from Slashie. You can't reply here.",
     "blockedNotice": "You blocked {name}. Unblock them to send messages.",
     "suspendedNotice": "Messaging is paused while this account or task is suspended.",
@@ -65,20 +64,15 @@
     },
     "quote": {
       "accept": "Accept",
-      "decline": "Decline",
       "acceptedToast": "Quote accepted",
       "acceptedToastHint": "The booking is on the task page.",
-      "declinedToast": "Quote declined",
-      "declinedToastHint": "The worker will be notified.",
       "acceptFailed": "Couldn't accept this quote.",
-      "declineFailed": "Couldn't decline this quote.",
       "status": {
         "pending": "Awaiting reply",
         "accepted": "Accepted",
-        "declined": "Declined",
-        "notSelected": "Not selected",
         "withdrawn": "Withdrawn",
-        "replaced": "Replaced by a newer quote"
+        "replaced": "Replaced by a newer quote",
+        "closed": "Closed"
       },
       "workerFallback": "Worker"
     },
@@ -141,7 +135,6 @@
       "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。"
     },
     "lockedNotice": "報價被接受後，你就可以在這裡傳送訊息。",
-    "notSelectedNotice": "此任務已交給另一位工作者，你無法再參與這段對話。",
     "systemNotice": "這是 Slashie 的公告，你無法在此回覆。",
     "blockedNotice": "你已封鎖 {name}。解除封鎖後才可傳送訊息。",
     "suspendedNotice": "帳戶或任務暫停期間，訊息功能會暫停。",
@@ -165,20 +158,15 @@
     },
     "quote": {
       "accept": "接受",
-      "decline": "拒絕",
       "acceptedToast": "報價已接受",
       "acceptedToastHint": "預約詳情在任務頁面。",
-      "declinedToast": "報價已拒絕",
-      "declinedToastHint": "將通知工作者。",
       "acceptFailed": "無法接受此報價。",
-      "declineFailed": "無法拒絕此報價。",
       "status": {
         "pending": "等待回覆",
         "accepted": "已接受",
-        "declined": "已拒絕",
-        "notSelected": "未獲選",
         "withdrawn": "已撤回",
-        "replaced": "已由較新的報價取代"
+        "replaced": "已由較新的報價取代",
+        "closed": "已結束"
       },
       "workerFallback": "工作者"
     },

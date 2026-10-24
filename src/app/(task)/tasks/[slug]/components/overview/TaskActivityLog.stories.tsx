@@ -92,7 +92,6 @@ export const Owner: Story = {
       'Sam Taylor sent a quote',
       'Jordan Lee updated their quote',
       'You booked Jordan Lee',
-      "Sam Taylor's quote wasn't selected",
       'Jordan Lee asked for a new time',
       'You accepted the new time',
       'Jordan Lee marked the job done',
@@ -132,14 +131,17 @@ export const BookedWorker: Story = {
   },
 }
 
-/** A worker who wasn't chosen: their quote's outcome, and an unnamed booking. */
-export const WorkerNotSelected: Story = {
+/**
+ * A worker who wasn't booked: nothing is logged about their own quote (it
+ * stays PENDING, BE-113), just an unnamed booking.
+ */
+export const WorkerNotBooked: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'worker',
       task: storyTaskDetail({
         status: TaskStatus.Awarded,
-        quotes: [storyTaskQuote({ status: QuoteStatus.NotSelected })],
+        quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
         timeline: [
           storyTimelineEvent({
             type: E.TaskCreated,
@@ -161,11 +163,6 @@ export const WorkerNotSelected: Story = {
             type: E.QuoteAccepted,
             timestamp: '2026-06-02T08:20:00.000Z',
           }),
-          storyTimelineEvent({
-            type: E.QuoteNotSelected,
-            timestamp: '2026-06-02T08:20:00.000Z',
-            worker: STORY_JORDAN,
-          }),
         ],
       }),
     }),
@@ -176,7 +173,6 @@ export const WorkerNotSelected: Story = {
       'You sent a quote',
       'A worker sent a quote',
       'A worker was booked',
-      "Your quote wasn't selected",
     ]),
 }
 
@@ -225,7 +221,6 @@ export const OwnerGuestPreview: Story = {
       'A worker sent a quote',
       'A worker updated their quote',
       'A worker was booked',
-      "A quote wasn't selected",
     ]),
 }
 
@@ -459,7 +454,6 @@ export const ZhHk: Story = {
       '你修改了任務：預算、時間',
       'Jordan Lee 送出了報價',
       '你預約了 Jordan Lee',
-      'Sam Taylor 的報價未獲選',
       'Jordan Lee 要求改期',
       '工作已完成',
       '你留下了評價',

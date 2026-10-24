@@ -150,20 +150,10 @@
           "named": "{name} withdrew their quote",
           "anon": "A worker withdrew their quote"
         },
-        "QUOTE_DECLINED": {
-          "owner": "You declined {worker}'s quote",
-          "own": "{name} declined your quote",
-          "anon": "A quote was declined"
-        },
         "QUOTE_ACCEPTED": {
           "owner": "You booked {worker}",
           "own": "{name} accepted your quote",
           "anon": "A worker was booked"
-        },
-        "QUOTE_NOT_SELECTED": {
-          "owner": "{worker}'s quote wasn't selected",
-          "own": "Your quote wasn't selected",
-          "anon": "A quote wasn't selected"
         },
         "RESCHEDULE_REQUESTED": {
           "you": "You asked for a new time",
@@ -317,7 +307,6 @@
         "W4": "See what others are bidding — then send yours.",
         "W5": "Customer is reviewing quotes.",
         "W6": "Your quote has been accepted.",
-        "W7": "This quote was not selected.",
         "W8": "This task is not accepting new quotes."
       },
       "pillFull": "Full",
@@ -352,8 +341,6 @@
       "customerLabel": "Customer",
       "seeJobBanner": "See job banner for address & code.",
       "openJobDetails": "Open job details",
-      "declined": "Declined",
-      "choseAnother": "Customer chose another worker for this task.",
       "thanksOffer": "Thanks for your offer.",
       "browseOtherTasks": "Browse other tasks",
       "allSlotsFilled": "All worker slots filled.",
@@ -364,10 +351,9 @@
       "noReviewsYet": "No reviews yet",
       "card": {
         "accepted": "Accepted",
-        "declined": "Declined",
+        "closed": "Closed",
         "accept": "Accept",
         "acceptQuote": "Accept quote",
-        "decline": "Decline",
         "message": "Message",
         "bestMatch": "Best match",
         "fixedPrice": "Fixed price",
@@ -381,7 +367,6 @@
         "messages": "Messages",
         "verified": "Identity verified",
         "avatarAlt": "{name} avatar",
-        "notSelected": "Not selected",
         "accountSuspended": "Account suspended"
       },
       "respondedJustNow": "Responded just now",
@@ -421,9 +406,6 @@
       "quoteLimitTitle": "Monthly quote limit reached",
       "acceptFailed": "Could not accept this quote.",
       "quoteAcceptedTitle": "Quote accepted",
-      "declineFailed": "Could not decline this quote.",
-      "quoteDeclinedTitle": "Quote declined",
-      "quoteDeclinedDescription": "The worker will be notified.",
       "cancelFailed": "Could not cancel this task.",
       "withdrawQuoteFailed": "Could not withdraw your quote.",
       "quoteWithdrawnTitle": "Quote withdrawn",
@@ -553,11 +535,6 @@
       "openQuotesSubline": "Send your price and availability to win this job.",
       "quoteSentHeadline": "Quote sent",
       "quoteSentSubline": "The customer has your quote. We will notify you of any response.",
-      "declinedHeadline": "Quote declined",
-      "declinedOpenSubline": "The customer went with another option. You can send a new quote.",
-      "declinedClosedSubline": "The customer went with another option. Browse other tasks nearby.",
-      "notSelectedHeadline": "You weren't selected",
-      "notSelectedSubline": "The customer chose another worker. Browse other tasks nearby.",
       "earnHeadline": "You can earn {amount}",
       "earnHourlyHeadline": "You can earn {amount} an hour",
       "earnDailyHeadline": "You can earn {amount} a day",
@@ -723,20 +700,10 @@
           "named": "{name} 撤回了報價",
           "anon": "一位工作者撤回了報價"
         },
-        "QUOTE_DECLINED": {
-          "owner": "你拒絕了 {worker} 的報價",
-          "own": "{name} 拒絕了你的報價",
-          "anon": "一個報價被拒絕"
-        },
         "QUOTE_ACCEPTED": {
           "owner": "你預約了 {worker}",
           "own": "{name} 接受了你的報價",
           "anon": "已預約一位工作者"
-        },
-        "QUOTE_NOT_SELECTED": {
-          "owner": "{worker} 的報價未獲選",
-          "own": "你的報價未獲選",
-          "anon": "一個報價未獲選"
         },
         "RESCHEDULE_REQUESTED": {
           "you": "你要求改期",
@@ -890,7 +857,6 @@
         "W4": "先看看其他人的出價 — 再送出你的。",
         "W5": "顧客正在審核報價。",
         "W6": "你的報價已被接受。",
-        "W7": "此報價未被選中。",
         "W8": "此任務已不再接受新報價。"
       },
       "pillFull": "額滿",
@@ -925,8 +891,6 @@
       "customerLabel": "顧客",
       "seeJobBanner": "請查看工作橫幅以取得地址與驗證碼。",
       "openJobDetails": "開啟工作詳情",
-      "declined": "已拒絕",
-      "choseAnother": "顧客為此任務選擇了另一位工作者。",
       "thanksOffer": "謝謝你的報價。",
       "browseOtherTasks": "瀏覽其他任務",
       "allSlotsFilled": "工作者名額已滿。",
@@ -937,10 +901,9 @@
       "noReviewsYet": "暫時未有評價",
       "card": {
         "accepted": "已接受",
-        "declined": "已拒絕",
+        "closed": "已結束",
         "accept": "接受",
         "acceptQuote": "接受報價",
-        "decline": "拒絕",
         "message": "訊息",
         "bestMatch": "最佳配對",
         "fixedPrice": "固定價",
@@ -954,7 +917,6 @@
         "messages": "訊息",
         "verified": "已核對身分",
         "avatarAlt": "{name} 的頭像",
-        "notSelected": "未獲選",
         "accountSuspended": "帳戶已暫停"
       },
       "respondedJustNow": "剛剛回覆",
@@ -994,9 +956,6 @@
       "quoteLimitTitle": "已達每月報價上限",
       "acceptFailed": "無法接受此報價。",
       "quoteAcceptedTitle": "報價已接受",
-      "declineFailed": "無法拒絕此報價。",
-      "quoteDeclinedTitle": "報價已拒絕",
-      "quoteDeclinedDescription": "將通知工作者。",
       "cancelFailed": "無法取消此任務。",
       "withdrawQuoteFailed": "無法撤回你的報價。",
       "quoteWithdrawnTitle": "已撤回報價",
@@ -1126,11 +1085,6 @@
       "openQuotesSubline": "送出你的價格與檔期以爭取此工作。",
       "quoteSentHeadline": "報價已送出",
       "quoteSentSubline": "顧客已收到你的報價。有回覆時我們會通知你。",
-      "declinedHeadline": "報價被拒絕",
-      "declinedOpenSubline": "顧客選擇了其他方案。你可以重新送出報價。",
-      "declinedClosedSubline": "顧客選擇了其他方案。瀏覽附近其他任務。",
-      "notSelectedHeadline": "你未獲選",
-      "notSelectedSubline": "顧客選擇了其他工作者。瀏覽附近其他任務。",
       "earnHeadline": "你可賺取 {amount}",
       "earnHourlyHeadline": "你可賺取每小時 {amount}",
       "earnDailyHeadline": "你可賺取每日 {amount}",

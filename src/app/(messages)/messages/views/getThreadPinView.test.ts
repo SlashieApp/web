@@ -22,8 +22,6 @@ describe('getThreadPinView', () => {
 
   it('shows a worker their own quote and where it stands', () => {
     expect(pin('worker.open.quoted')).toBe('pin.myQuote')
-    expect(pin('worker.open.declined')).toBe('pin.myQuote')
-    expect(pin('worker.notSelected')).toBe('pin.myQuote')
   })
 
   it('shows a worker without a live quote the task status', () => {

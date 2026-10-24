@@ -55,14 +55,11 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `worker.completed` | Booked worker, booking COMPLETED. | Completed | Job complete | The details below are your record of the work. | record, otherParty, agreedPrice, bookedTime, reviews, description, photos | - | Review, then Get receipt |
 | `worker.bookingCancelled` | Booked worker, booking CANCELLED (a cancel request was accepted). | Cancelled | Booking cancelled | The booking with {name} was cancelled. Browse other tasks nearby. | record, otherParty, agreedPrice | - | Browse other tasks |
 | `worker.bookingFailed` | Booked worker, booking CANCELLED because both sides marked it Failed. | Cancelled | Booking didn't go ahead | You and {name} both marked it Failed. Browse other tasks nearby. | record, otherParty, agreedPrice | - | Browse other tasks |
-| `worker.open.notQuoted` | Worker (profile set up), task OPEN, no live quote from them (a withdrawn quote reads the same: they can quote again). | Open | Open for quotes / Open for quotes - {count} so far | Send your price and availability to win this job. | budget, preferredTime, location, categories, postedBy, description, photos | - | Send quote |
+| `worker.open.notQuoted` | Worker (profile set up), task OPEN, no live quote from them (a withdrawn or closed quote reads the same: they can quote again). | Open | Open for quotes / Open for quotes - {count} so far | Send your price and availability to win this job. | budget, preferredTime, location, categories, postedBy, description, photos | - | Send quote |
 | `worker.open.quoted` | Worker, task OPEN, their quote is PENDING. | Open | Quote sent | The customer has your quote. We will notify you of any response. | myQuote, preferredTime, location, categories, postedBy, description, photos | - | Edit quote |
-| `worker.open.declined` | Worker, task OPEN, their quote was DECLINED (or REJECTED): they can send a new one. | Open | Quote declined | The customer went with another option. You can send a new quote. | budget, preferredTime, location, categories, postedBy, description, photos | - | Send quote |
-| `worker.awarded.declined` | Worker, task AWARDED to someone else, their quote was DECLINED (or REJECTED). | Awarded | Quote declined | The customer went with another option. Browse other tasks nearby. | preferredTime, location, categories, postedBy, description, photos | - | Browse other tasks |
-| `worker.notSelected` | Worker, task AWARDED to someone else, their quote is NOT_SELECTED. | Awarded | You weren't selected | The customer chose another worker. Browse other tasks nearby. | location, categories, postedBy, description, photos | - | Browse other tasks |
 | `customer.open` | Signed in without a worker profile, task OPEN. | Open | You can earn {amount} (an hour / a day; no budget: Open for quotes) | Become a worker to quote on this task. | payment, preferredTime, location, categories, postedBy, description, photos | - | Become a worker |
 | `guest.open` | Signed out, task OPEN. | Open | You can earn {amount} (an hour / a day; no budget: Open for quotes) | Sign in as a worker to send a quote. | payment, preferredTime, location, categories, postedBy, description, photos | - | Sign in to quote |
-| `visitor.awarded` | Anyone not on the booking (guest, customer, worker without a quote) on an AWARDED task. | Awarded | Worker booked | This task has been awarded to a worker. | location, categories, postedBy, description, photos | - | none |
+| `visitor.awarded` | Anyone not on the booking (guest, customer, a worker without a quote or whose quote wasn't accepted) on an AWARDED task. | Awarded | Worker booked | This task has been awarded to a worker. | location, categories, postedBy, description, photos | - | none |
 | `visitor.cancelled` | Anyone except the owner on a CANCELLED task. | Cancelled | Task cancelled | This task is no longer active. | location, categories, postedBy, description, photos | - | none |
 
 ## Rules worth knowing
@@ -75,8 +72,24 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 - A pending request wins over CONFLICT, so a cancel asked during a conflict
   shows the `cancelByMe` / `cancelByThem` view.
 - `Task.quotes` omits WITHDRAWN and EXPIRED quotes, so a worker who withdrew
-  sees `worker.open.notQuoted` and can quote again. A declined worker can
-  quote again while the task is OPEN (`worker.open.declined`).
+  sees `worker.open.notQuoted` and can quote again.
+- The owner can't decline a quote (BE-113, decided 24 Oct): one quote per
+  task, and Accept is the only answer. Accepting leaves the other quotes
+  PENDING, with no flash, push or log line for their workers, so a reopen
+  can bring them back. When a booking ends early and the owner reopens the
+  task, the booked worker's quote becomes CLOSED and the others can be
+  accepted again.
+- Only a worker's own PENDING quote changes their view. A quote in any other
+  status (withdrawn, CLOSED, or one web doesn't know yet) reads like no quote:
+  `worker.open.notQuoted` on an OPEN task, so they can quote again, and
+  `visitor.awarded` once the task is booked. So does a quote that stayed
+  PENDING while someone else was booked; its worker isn't told who. The
+  Quotes section's badge says Accepted, or a neutral Closed for any other
+  finished status, and never raw status text.
+- Accept shows only on a PENDING quote of an OPEN task (`canAcceptQuote`).
+  Edit quote needs an OPEN task too (`hasPendingQuote`); Withdraw stays on
+  any PENDING quote (`canWithdrawQuote`), booked task or not, and is in the
+  quote page and the Messages thread menu.
 - Only the owner learns who sent a quote (BE-105). Anyone else, guests
   included, gets the other PENDING quotes with no `workerUserId` or
   `worker` while the task is OPEN, plus their own quote at any status; once
@@ -117,9 +130,9 @@ under `notice` and `reopen` in `../i11n.json`. `{name}` is
 | `notice.worker.taskSuspended` | Booked worker (live booking or CONFLICT) or quoting worker (own quote PENDING), `Task.suspension.bySlashie`. Wins over the poster's suspension. | This task is suspended | Slashie has suspended this task. Your quote and any booking are on hold until it's restored. | none |
 | `notice.worker.posterSuspended` | Quoting worker with no booking, `Task.suspension.posterSuspended`; {name} is the poster. | {name}'s account has been suspended | Your quote is on hold while their account is suspended. | none |
 
-No notice once the booking has finished, for a declined or not-selected
-quote, for anyone not on the booking or quoting, or for an owner whose own
-account is suspended (the app-wide banner says so).
+No notice once the booking has finished, for a quote that isn't pending, for
+anyone not on the booking or quoting, or for an owner whose own account is
+suspended (the app-wide banner says so).
 
 ### Reopen task
 
@@ -155,9 +168,9 @@ offered:
   two sub-lines with the auto-Done `{date}` swap to versions without it
   (`frozenSubline`: "Waiting for {name}." and "You can mark it Done too once
   the booking is no longer on hold."); Messages' pins read the same.
-- The Quotes section: no Accept or Decline on a suspended task; a quote
-  whose worker is suspended (`Quote.workerSuspended`) shows "Account
-  suspended" with Accept and Decline off, and is never Best match.
+- The Quotes section: no Accept on a suspended task; a quote whose worker is
+  suspended (`Quote.workerSuspended`) shows "Account suspended" with Accept
+  off, and is never Best match.
 - The review page says why (`serverErrors.TASK_SUSPENDED` /
   `COUNTERPARTY_SUSPENDED`) instead of the form.
 - Messages pauses its composer (`../../../../(messages)/messages/views/README.md`).

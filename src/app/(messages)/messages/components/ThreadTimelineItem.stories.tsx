@@ -125,7 +125,7 @@ export const Timeline: Story = {
     ),
 }
 
-/** The worker's "quote sent" flash, seen by the poster: the full quote card with Accept and Decline. */
+/** The worker's "quote sent" flash, seen by the poster: the full quote card with Accept, the only answer. */
 export const QuoteSentPoster: Story = {
   decorators: [asOwner],
   play: async ({ canvasElement }) => {
@@ -133,7 +133,7 @@ export const QuoteSentPoster: Story = {
     await expect(
       await canvas.findByRole('button', { name: 'Accept' }),
     ).toBeVisible()
-    await expect(canvas.getByRole('button', { name: 'Decline' })).toBeVisible()
+    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
     await expect(
       canvasElement.querySelector('[data-flash-card="QUOTE_RECEIVED"]'),
     ).toBeVisible()
@@ -209,22 +209,6 @@ export const QuoteAcceptedLineZhHk: Story = {
       formatTimeSlotLabel(onlySlot, 'zh-HK'),
     )
   },
-}
-
-/** Another worker was picked: a line, not the quote card. */
-export const NotSelectedLine: Story = {
-  args: {
-    item: event(
-      'line-not-selected',
-      FlashKind.QuoteNotSelected,
-      'Not selected',
-      'The customer chose another worker for "Assemble a wardrobe".',
-      storyFlashQuote({ status: QuoteStatus.NotSelected }),
-    ),
-  },
-  decorators: [asWorker],
-  play: async ({ canvasElement }) =>
-    line(canvasElement, FlashKind.QuoteNotSelected),
 }
 
 /**

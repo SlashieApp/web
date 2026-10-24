@@ -1,4 +1,4 @@
-import { OrderStatus } from '@codegen/schema'
+import { OrderStatus, QuoteStatus } from '@codegen/schema'
 
 import { normaliseTaskStatusForBadge } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import {
@@ -82,8 +82,9 @@ export function workerQuotePricePence(
   return fromQuote
 }
 
-function isQuoteDeclined(status: string): boolean {
-  return /declin|reject/i.test(status.trim())
+/** Only a PENDING quote is still in play; any other status (withdrawn, closed, or one this build doesn't know) is over. */
+function isQuoteLive(status: string): boolean {
+  return status.trim().toUpperCase() === QuoteStatus.Pending
 }
 
 function anotherWorkerBooked(task: TaskItem, myQuoteId: string): boolean {
@@ -102,7 +103,7 @@ export function workerQuoteStage(
     return 'booked'
   }
   if (isQuoteAwarded(quote.status)) return 'booked'
-  if (isQuoteDeclined(quote.status)) return 'ended'
+  if (!isQuoteLive(quote.status)) return 'ended'
   if (anotherWorkerBooked(task, quote.id)) return 'ended'
   if (isTaskCompleted(task.status)) return 'ended'
   if (task.status.toUpperCase() === 'CANCELLED') return 'ended'
@@ -221,8 +222,8 @@ export function workerQuoteTimelineSteps(
         ? 'You were selected for this job'
         : anotherWorkerBooked(task, quote.id)
           ? 'Another pro was booked'
-          : isQuoteDeclined(quote.status)
-            ? 'Quote not selected'
+          : !isQuoteLive(quote.status)
+            ? 'Quote closed'
             : 'Waiting for the customer to decide',
       done: awarded || stage === 'ended',
       current: stage === 'pending',

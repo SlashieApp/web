@@ -96,7 +96,7 @@ export function isTaskCompleted(status: string) {
   )
 }
 
-/** Exactly ACCEPTED: NOT_SELECTED means someone else got the job. */
+/** Exactly ACCEPTED: any other status means the quote did not win. */
 export function isQuoteAwarded(status: string) {
   return status.trim().toUpperCase() === QuoteStatus.Accepted
 }

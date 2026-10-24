@@ -151,7 +151,7 @@ export function storyQuoteRowsMixed(): WorkerQuoteRow[] {
       quote: storyQuote({
         id: 'quote-ended',
         taskId: 'task-ended',
-        status: 'DECLINED',
+        status: 'CLOSED',
         message: null,
       }),
     }),

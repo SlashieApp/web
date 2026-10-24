@@ -105,7 +105,7 @@ type TaskCardShared = {
    */
   navigateOnActivate?: boolean
   onActivate?: () => void
-  /** Status pills after the role pill, e.g. Not selected (My Tasks). */
+  /** Status pills after the role pill, e.g. Closed (My Tasks). */
   tags?: readonly string[]
   /** Replaces the default ⋮ menu (Report task). */
   menu?: ReactNode

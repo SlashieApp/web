@@ -192,11 +192,11 @@ export const CompletedExpanded: Story = {
   },
 }
 
-/** The customer declined this quote: "Closed". */
-export const EndedDeclined: Story = {
+/** The quote is over (its booking ended and the task reopened): "Closed". */
+export const EndedQuoteClosed: Story = {
   args: {
     ...storyQuoteRow({
-      quote: storyQuote({ status: 'DECLINED' }),
+      quote: storyQuote({ status: 'CLOSED' }),
       workerOrder: null,
     }),
   },

@@ -97,10 +97,10 @@ function byActor(
 }
 
 /**
- * The owner's decision on one worker's quote. The owner reads that worker's
- * name, the worker reads "your quote", and everyone else the anon form. A
- * line that would need a name nobody sent reads like anyone else's (the same
- * choices as the Expo app).
+ * The owner booking one worker's quote. The owner reads that worker's name,
+ * the worker reads "your quote", and everyone else the anon form. A line that
+ * would need a name nobody sent reads like anyone else's (the same choices as
+ * the Expo app).
  */
 function aboutQuote(
   forms: { owner: string; own: string; anon: string },
@@ -115,7 +115,6 @@ function aboutQuote(
   }
   const ownQuote = Boolean(viewer.userId && worker?.id === viewer.userId)
   if (!ownQuote) return forms.anon
-  if (!forms.own.includes('{name}')) return forms.own
   return actor
     ? formatMessage(forms.own, { name: nameOf(actor, copy) })
     : forms.anon
@@ -134,7 +133,7 @@ function changedFieldsLabel(
   return `${words.slice(0, -1).join(copy.fieldsSeparator)}${copy.fieldsLastSeparator}${words.at(-1)}`
 }
 
-// Partial: a type the API adds before this file knows it is skipped, and doesn't break the build.
+// Partial: a type the API adds before this file knows it, or has dropped since, is skipped and doesn't break the build.
 const EVENT_LINES: Partial<Record<Type, EventLine>> = {
   [Type.TaskCreated]: {
     kind: 'task',
@@ -196,17 +195,9 @@ const EVENT_LINES: Partial<Record<Type, EventLine>> = {
     kind: 'quote',
     text: (e, _, c) => byActor(c.events.QUOTE_WITHDRAWN, e, c),
   },
-  [Type.QuoteDeclined]: {
-    kind: 'quote',
-    text: (e, v, c) => aboutQuote(c.events.QUOTE_DECLINED, e, v, c),
-  },
   [Type.QuoteAccepted]: {
     kind: 'quote',
     text: (e, v, c) => aboutQuote(c.events.QUOTE_ACCEPTED, e, v, c),
-  },
-  [Type.QuoteNotSelected]: {
-    kind: 'quote',
-    text: (e, v, c) => aboutQuote(c.events.QUOTE_NOT_SELECTED, e, v, c),
   },
   [Type.RescheduleRequested]: {
     kind: 'booking',

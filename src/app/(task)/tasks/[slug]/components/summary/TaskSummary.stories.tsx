@@ -15,6 +15,7 @@ import type { OrderItem } from '@/utils/orderHelpers'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
+  STORY_CLOSED_STATUS,
   STORY_OWNER_ID,
   STORY_WORKER_ID,
   type TaskDetailStoryConfig,
@@ -93,7 +94,8 @@ function quotes(mine: QuoteStatus | null, other: QuoteStatus) {
 const openTask = storyTaskDetail()
 const bookedTask = storyTaskDetail({
   status: TaskStatus.Awarded,
-  quotes: quotes(QuoteStatus.Accepted, QuoteStatus.NotSelected),
+  // The other quotes stay PENDING once someone is booked (BE-113).
+  quotes: quotes(QuoteStatus.Accepted, QuoteStatus.Pending),
 })
 const cancelledTask = storyTaskDetail({ status: TaskStatus.Cancelled })
 
@@ -272,27 +274,25 @@ export const WorkerOpenNotQuoted = view({
 })
 /** Worker whose quote is pending: their price against the budget. */
 export const WorkerOpenQuoted = view({ viewer: 'worker', task: openTask })
-/** Worker whose quote was declined on a task still open: they can quote again. */
-export const WorkerOpenDeclined = view({
+/**
+ * Worker whose quote closed (the booking ended and the task is open again):
+ * the same summary as no quote, so they can quote again.
+ */
+export const WorkerOpenQuoteClosed = view({
   viewer: 'worker',
   task: storyTaskDetail({
-    quotes: quotes(QuoteStatus.Declined, QuoteStatus.Pending),
+    quotes: quotes(STORY_CLOSED_STATUS, QuoteStatus.Pending),
   }),
 })
-/** Worker declined, and the task went to someone else. */
-export const WorkerAwardedDeclined = view({
+/**
+ * Worker whose quote stayed pending while someone else was booked (BE-113):
+ * the plain "booked" summary, with nothing to do.
+ */
+export const WorkerQuotePendingBookedElsewhere = view({
   viewer: 'worker',
   task: storyTaskDetail({
     status: TaskStatus.Awarded,
-    quotes: quotes(QuoteStatus.Declined, QuoteStatus.Accepted),
-  }),
-})
-/** Worker not selected: the customer chose another worker. */
-export const WorkerNotSelected = view({
-  viewer: 'worker',
-  task: storyTaskDetail({
-    status: TaskStatus.Awarded,
-    quotes: quotes(QuoteStatus.NotSelected, QuoteStatus.Accepted),
+    quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
   }),
 })
 

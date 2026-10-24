@@ -1,6 +1,6 @@
 import { QuoteStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, userEvent, waitFor, within } from 'storybook/test'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import {
@@ -9,6 +9,7 @@ import {
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
 import {
+  STORY_CLOSED_STATUS,
   STORY_OWNER_ID,
   STORY_WORKER_ID,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
@@ -16,7 +17,7 @@ import {
 import { ThreadQuote } from './ThreadQuote'
 import { jordanQuote } from './messagesStoryFixtures'
 
-/** The task owner, who can accept or decline. */
+/** The task owner, who can accept. */
 const asOwner = withSession({ me: storyMe({ id: STORY_OWNER_ID }) })
 /** The quoting worker, who can only watch the status. */
 const asWorker = withSession({ me: storyWorkerMe({ id: STORY_WORKER_ID }) })
@@ -36,7 +37,7 @@ const page = (canvasElement: HTMLElement) =>
 
 /**
  * Owner on a pending quote from a suspended worker (BE-108): "Account
- * suspended", Accept and Decline off, as on task detail.
+ * suspended", Accept off, as on task detail.
  */
 export const OwnerWorkerSuspended: Story = {
   args: { quote: jordanQuote({ workerSuspended: true }) },
@@ -45,11 +46,10 @@ export const OwnerWorkerSuspended: Story = {
     const canvas = within(canvasElement)
     await canvas.findByText('Account suspended')
     await expect(canvas.getByRole('button', { name: 'Accept' })).toBeDisabled()
-    await expect(canvas.getByRole('button', { name: 'Decline' })).toBeDisabled()
   },
 }
 
-/** Owner of a suspended task (BE-108): the quote's status, no Accept or Decline. */
+/** Owner of a suspended task (BE-108): the quote's status, no Accept. */
 export const OwnerTaskSuspended: Story = {
   args: { taskSuspended: true },
   decorators: [asOwner],
@@ -57,11 +57,24 @@ export const OwnerTaskSuspended: Story = {
     const canvas = within(canvasElement)
     await canvas.findByText('Awaiting reply')
     await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
-    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
   },
 }
 
-/** Owner on a pending quote: Accept and Decline sit under the details. */
+/**
+ * Owner of a task someone else was booked on (BE-113): this quote stays
+ * PENDING, but only an open task can accept one, so no Accept.
+ */
+export const OwnerTaskBooked: Story = {
+  args: { taskOpen: false },
+  decorators: [asOwner],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Awaiting reply')
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
+}
+
+/** Owner on a pending quote: Accept sits under the details, and it is the only answer. */
 export const OwnerPending: Story = {
   decorators: [asOwner],
   play: async ({ canvasElement }) => {
@@ -69,7 +82,7 @@ export const OwnerPending: Story = {
     await expect(
       await canvas.findByRole('button', { name: 'Accept' }),
     ).toBeEnabled()
-    await expect(canvas.getByRole('button', { name: 'Decline' })).toBeEnabled()
+    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
     await expect(canvas.queryByText('Awaiting reply')).toBeNull()
   },
 }
@@ -89,23 +102,6 @@ export const OwnerPicksATime: Story = {
     await expect(
       within(dialog).getByRole('button', { name: 'Accept quote' }),
     ).toBeDisabled()
-  },
-}
-
-/** Decline pressed and the API has not answered: Decline is busy, Accept is disabled. */
-export const OwnerDeclining: Story = {
-  decorators: [asOwner],
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await userEvent.click(
-      await canvas.findByRole('button', { name: 'Decline' }),
-    )
-    await waitFor(() =>
-      expect(
-        canvasElement.querySelector('button[data-loading]'),
-      ).toBeDisabled(),
-    )
-    await expect(canvas.getByRole('button', { name: 'Accept' })).toBeDisabled()
   },
 }
 
@@ -130,25 +126,14 @@ export const Accepted: Story = {
   },
 }
 
-/** Declined by the owner. */
-export const Declined: Story = {
-  args: { quote: jordanQuote({ status: QuoteStatus.Declined }) },
+/** Over without being accepted (the booking ended early and the task reopened): a neutral "Closed". */
+export const Closed: Story = {
+  args: { quote: jordanQuote({ status: STORY_CLOSED_STATUS }) },
   decorators: [asWorker],
   play: async ({ canvasElement }) => {
-    await expect(
-      await within(canvasElement).findByText('Declined'),
-    ).toBeVisible()
-  },
-}
-
-/** The owner picked another worker. */
-export const NotSelected: Story = {
-  args: { quote: jordanQuote({ status: QuoteStatus.NotSelected }) },
-  decorators: [asWorker],
-  play: async ({ canvasElement }) => {
-    await expect(
-      await within(canvasElement).findByText('Not selected'),
-    ).toBeVisible()
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Closed')).toBeVisible()
+    await expect(canvas.queryByText('CLOSED')).toBeNull()
   },
 }
 

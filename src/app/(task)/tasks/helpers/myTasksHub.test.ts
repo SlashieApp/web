@@ -113,16 +113,18 @@ describe('buildMyTasksHub sections', () => {
           quote: { id: 'q3', workerUserId: ME, status: 'ACCEPTED' },
         },
         {
+          // Someone else was booked: your quote stays PENDING (BE-113).
           task: task({ id: 'lost', title: 'Lost quote', status: 'AWARDED' }),
-          quote: { id: 'q4', workerUserId: ME, status: 'NOT_SELECTED' },
+          quote: { id: 'q4', workerUserId: ME, status: 'PENDING' },
         },
         {
+          // Reopened after the booking ended: the booked quote is closed.
           task: task({
-            id: 'declined',
-            title: 'Declined quote',
+            id: 'closed-quote',
+            title: 'Closed quote',
             status: 'OPEN',
           }),
-          quote: { id: 'q5', workerUserId: ME, status: 'DECLINED' },
+          quote: { id: 'q5', workerUserId: ME, status: 'CLOSED' },
         },
       ],
       orders: [
@@ -175,7 +177,7 @@ describe('buildMyTasksHub sections', () => {
     expect(idsIn(sections, 'past')).toEqual([
       'hosted-done',
       'cancelled',
-      'declined',
+      'closed-quote',
       'lost',
     ])
   })
@@ -366,14 +368,14 @@ describe('buildMyTasksHub buttons', () => {
           quotes: [
             { id: 'a', workerUserId: 'w1', status: 'PENDING' },
             { id: 'b', workerUserId: 'w2', status: 'PENDING' },
-            { id: 'c', workerUserId: 'w3', status: 'DECLINED' },
+            { id: 'c', workerUserId: 'w3', status: 'CLOSED' },
           ],
         }),
         task({
-          id: 'all-declined',
-          title: 'All declined',
+          id: 'all-closed',
+          title: 'All closed',
           status: 'OPEN',
-          quotes: [{ id: 'd', workerUserId: 'w1', status: 'DECLINED' }],
+          quotes: [{ id: 'd', workerUserId: 'w1', status: 'CLOSED' }],
         }),
       ],
       sentQuotes: [
@@ -393,7 +395,7 @@ describe('buildMyTasksHub buttons', () => {
       action: 'compareQuotes',
       liveQuoteCount: 2,
     })
-    expect(rowFor(sections, 'all-declined')?.action).toBeNull()
+    expect(rowFor(sections, 'all-closed')?.action).toBeNull()
     expect(rowFor(sections, 'sent')).toMatchObject({
       action: null,
       liveQuoteCount: 0,
@@ -429,7 +431,8 @@ describe('buildMyTasksHub reopened and suspended tasks (BE-108)', () => {
   const pendingQuotes = [
     { id: 'q-a', workerUserId: 'w2', status: 'PENDING' },
     { id: 'q-b', workerUserId: 'w3', status: 'PENDING' },
-    { id: 'q-w', workerUserId: 'w', status: 'DECLINED' },
+    // The worker whose booking was cancelled: the reopen closed their quote.
+    { id: 'q-w', workerUserId: 'w', status: 'CLOSED' },
   ]
   const oldBooking = order({
     id: 'order-old',
@@ -500,7 +503,7 @@ describe('buildMyTasksHub reopened and suspended tasks (BE-108)', () => {
     })
   })
 
-  it('puts the worker whose booking a reopen cancelled under Past, as declined', () => {
+  it('puts the worker whose booking a reopen cancelled under Past, as closed', () => {
     const hub = buildMyTasksHub({
       now: NOW,
       userId: 'w',
@@ -513,14 +516,14 @@ describe('buildMyTasksHub reopened and suspended tasks (BE-108)', () => {
             status: 'OPEN',
             poster: { id: ME },
           }),
-          quote: { id: 'q-w', workerUserId: 'w', status: 'DECLINED' },
+          quote: { id: 'q-w', workerUserId: 'w', status: 'CLOSED' },
         },
       ],
       orders: [oldBooking],
     })
     expect(rowFor(hub, 'reopened')).toMatchObject({
       section: 'past',
-      outcome: 'declined',
+      outcome: 'closed',
       orderId: null,
     })
   })
@@ -604,11 +607,11 @@ describe('buildMyTasksHub Past', () => {
       sentQuotes: [
         {
           task: task({
-            id: 'not-selected',
-            title: 'Not selected',
-            status: 'AWARDED',
+            id: 'closed-quote',
+            title: 'Closed quote',
+            status: 'OPEN',
           }),
-          quote: { id: 'q1', workerUserId: ME, status: 'NOT_SELECTED' },
+          quote: { id: 'q1', workerUserId: ME, status: 'CLOSED' },
         },
         {
           // Still PENDING, but another worker won.
@@ -619,10 +622,6 @@ describe('buildMyTasksHub Past', () => {
             quotes: [{ id: 'q9', workerUserId: 'w', status: 'ACCEPTED' }],
           }),
           quote: { id: 'q2', workerUserId: ME, status: 'PENDING' },
-        },
-        {
-          task: task({ id: 'declined', title: 'Declined', status: 'AWARDED' }),
-          quote: { id: 'q3', workerUserId: ME, status: 'DECLINED' },
         },
       ],
       orders: [
@@ -657,9 +656,8 @@ describe('buildMyTasksHub Past', () => {
         ['failed', 'failed', local(10, 10, 12)],
         ['completed', 'completed', local(10, 1, 12)],
         // No end date in the hub's data: last, by title.
-        ['beaten', 'notSelected', null],
-        ['declined', 'declined', null],
-        ['not-selected', 'notSelected', null],
+        ['beaten', 'closed', null],
+        ['closed-quote', 'closed', null],
         ['task-cancelled', 'cancelled', null],
       ],
     )
@@ -689,7 +687,7 @@ describe('buildMyTasksHub Past', () => {
           quote: {
             id: 'q1',
             workerUserId: ME,
-            status: 'NOT_SELECTED',
+            status: 'PENDING',
             createdAt: local(10, 21, 9),
           },
         },
@@ -703,7 +701,7 @@ describe('buildMyTasksHub Past', () => {
           quote: {
             id: 'q2',
             workerUserId: ME,
-            status: 'DECLINED',
+            status: 'CLOSED',
             createdAt: local(9, 15, 9),
           },
         },

@@ -94,35 +94,32 @@ export function flashSlot<Slot extends SlotLike>(
   return slots.find((slot) => Date.parse(slot.start) === booked) ?? null
 }
 
-/** A worker who was not picked sees the not-selected flash in the thread. */
-export function wasNotSelected(items: readonly ItemLike[]): boolean {
-  return items.some((item) => item.flashKind === FlashKind.QuoteNotSelected)
-}
-
 export type QuoteFlashStatus =
   | 'pending'
   | 'accepted'
-  | 'declined'
-  | 'notSelected'
   | 'withdrawn'
   | 'replaced'
+  /** Over without being accepted, for any other reason. */
+  | 'closed'
 
-/** Where a flash's quote stands now (BE-81 resolves `status` live). */
-export function quoteFlashStatus(status: QuoteStatus): QuoteFlashStatus {
+/**
+ * Where a flash's quote stands now (BE-81 resolves `status` live). Any status
+ * this build doesn't know reads as the neutral `closed`, never as raw text.
+ */
+export function quoteFlashStatus(
+  status: QuoteStatus | string,
+): QuoteFlashStatus {
   switch (status) {
     case QuoteStatus.Accepted:
       return 'accepted'
-    case QuoteStatus.Declined:
-    case QuoteStatus.Rejected:
-      return 'declined'
-    case QuoteStatus.NotSelected:
-      return 'notSelected'
     case QuoteStatus.Withdrawn:
       return 'withdrawn'
     case QuoteStatus.Expired:
       return 'replaced'
     case QuoteStatus.Pending:
       return 'pending'
+    default:
+      return 'closed'
   }
 }
 
@@ -133,9 +130,10 @@ export type ThreadMenuAction =
   | 'cancelBooking'
 
 /**
- * Quote / booking actions the thread menu offers (FE-272). Worker before
- * acceptance: withdraw the quote; owner before acceptance: cancel the task.
- * Either party once booked: reschedule or cancel, when task detail allows it.
+ * Quote / booking actions the thread menu offers (FE-272). Worker with a
+ * pending quote: withdraw it, even once someone else is booked (it stays
+ * PENDING, BE-113); owner before acceptance: cancel the task. Either party
+ * once booked: reschedule or cancel, when task detail allows it.
  * None while the task or booking is frozen by a suspension: the API refuses
  * them all (BE-108). Report and Block stay.
  */

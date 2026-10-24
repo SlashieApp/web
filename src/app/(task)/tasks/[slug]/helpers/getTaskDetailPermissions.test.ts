@@ -40,6 +40,20 @@ function baseTask(overrides: Partial<TaskDetailRecord> = {}): TaskDetailRecord {
   } as TaskDetailRecord
 }
 
+/** A quote of `workerUserId`'s in any status, a string so the API's newer ones fit. */
+function quote(
+  id: string,
+  workerUserId: string,
+  status: string,
+): TaskDetailRecord['quotes'][number] {
+  return {
+    id,
+    taskId: 'task-1',
+    workerUserId,
+    status,
+  } as TaskDetailRecord['quotes'][number]
+}
+
 function baseOrder(overrides: Partial<OrderItem> = {}): OrderItem {
   return {
     id: 'order-1',
@@ -77,9 +91,30 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.isOwner).toBe(true)
     expect(permissions.isOpen).toBe(true)
     expect(permissions.showOwnerQuoteList).toBe(true)
-    expect(permissions.showAcceptDecline).toBe(true)
+    expect(permissions.canAcceptQuote).toBe(true)
     expect(permissions.canCancelTask).toBe(true)
     expect(permissions.canSubmitQuote).toBe(false)
+  })
+
+  // BE-113: accepting one quote leaves the others PENDING, but only an open
+  // task can accept one.
+  it('owner of a booked task sees the quotes that stayed pending but cannot accept them', () => {
+    const permissions = getTaskDetailPermissions({
+      task: baseTask({
+        status: TaskStatus.Awarded,
+        quotes: [
+          quote('q2', WORKER_ID, QuoteStatus.Accepted),
+          quote('q3', 'worker-3', QuoteStatus.Pending),
+        ],
+      }),
+      myOrder: baseOrder(),
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+
+    expect(permissions.showOwnerQuoteList).toBe(true)
+    expect(permissions.canAcceptQuote).toBe(false)
   })
 
   it('worker with profile on OPEN task can submit quote', () => {
@@ -114,16 +149,56 @@ describe('getTaskDetailPermissions', () => {
 
     expect(permissions.canSubmitQuote).toBe(true)
     expect(permissions.hasPendingQuote).toBe(true)
+    expect(permissions.canWithdrawQuote).toBe(true)
   })
 
-  // FE-274: a decline doesn't stop a new quote while the task is open.
-  it('declined worker on an OPEN task can quote again', () => {
-    for (const status of [QuoteStatus.Declined, QuoteStatus.Rejected]) {
-      const myQuote = {
-        id: 'q1',
-        workerUserId: WORKER_ID,
-        status,
-      } as TaskDetailRecord['quotes'][number]
+  // BE-113: when someone else is booked the quote stays PENDING. Editing it
+  // needs an open task; withdrawing it doesn't.
+  it('worker with a pending quote on a task that is no longer open can withdraw it, not edit it', () => {
+    for (const status of [TaskStatus.Awarded, TaskStatus.Cancelled]) {
+      const myQuote = quote('q1', WORKER_ID, QuoteStatus.Pending)
+      const permissions = getTaskDetailPermissions({
+        task: baseTask({ status, quotes: [myQuote] }),
+        myOrder: null,
+        me: workerMe(),
+        myQuote,
+        isAuthenticated: true,
+      })
+      expect(permissions.hasPendingQuote).toBe(false)
+      expect(permissions.canSubmitQuote).toBe(false)
+      expect(permissions.canWithdrawQuote).toBe(true)
+    }
+  })
+
+  it('only the worker whose quote is still pending can withdraw it', () => {
+    const pending = quote('q1', WORKER_ID, QuoteStatus.Pending)
+    const owner = getTaskDetailPermissions({
+      task: baseTask({ status: TaskStatus.Open, quotes: [pending] }),
+      myOrder: null,
+      me: { id: OWNER_ID, worker: null } as never,
+      myQuote: null,
+      isAuthenticated: true,
+    })
+    expect(owner.canWithdrawQuote).toBe(false)
+
+    // Withdrawn, or any status this build doesn't know (the API's CLOSED).
+    for (const status of [QuoteStatus.Withdrawn, 'CLOSED']) {
+      const over = quote('q1', WORKER_ID, status)
+      const worker = getTaskDetailPermissions({
+        task: baseTask({ status: TaskStatus.Open, quotes: [over] }),
+        myOrder: null,
+        me: workerMe(),
+        myQuote: over,
+        isAuthenticated: true,
+      })
+      expect(worker.canWithdrawQuote).toBe(false)
+    }
+  })
+
+  // FE-274: a quote that is over doesn't stop a new one while the task is open.
+  it('worker whose quote was withdrawn or closed can quote again on an OPEN task', () => {
+    for (const status of [QuoteStatus.Withdrawn, 'CLOSED']) {
+      const myQuote = quote('q1', WORKER_ID, status)
       const permissions = getTaskDetailPermissions({
         task: baseTask({ status: TaskStatus.Open, quotes: [myQuote] }),
         myOrder: null,
@@ -150,6 +225,30 @@ describe('getTaskDetailPermissions', () => {
       isAuthenticated: true,
     })
     expect(permissions.canSubmitQuote).toBe(false)
+  })
+
+  it('a quote that did not win never makes the task full', () => {
+    // NOT_SELECTED (sent by the API until BE-113) contains "select": only
+    // ACCEPTED counts as accepted.
+    for (const status of [
+      QuoteStatus.Pending,
+      QuoteStatus.Withdrawn,
+      'NOT_SELECTED',
+      'CLOSED',
+    ]) {
+      const permissions = getTaskDetailPermissions({
+        task: baseTask({
+          status: TaskStatus.Open,
+          quotes: [quote('q2', 'worker-2', status)],
+        }),
+        myOrder: null,
+        me: workerMe(),
+        myQuote: null,
+        isAuthenticated: true,
+      })
+      expect(permissions.atCap).toBe(false)
+      expect(permissions.canSubmitQuote).toBe(true)
+    }
   })
 
   it('order worker with ACTIVE order sees worker job tools', () => {
@@ -210,7 +309,7 @@ describe('getTaskDetailPermissions', () => {
     })
 
     expect(permissions.isJobCompleted).toBe(true)
-    expect(permissions.showAcceptDecline).toBe(false)
+    expect(permissions.canAcceptQuote).toBe(false)
     expect(permissions.canCancelTask).toBe(false)
     expect(permissions.showOrderActions).toBe(false)
     expect(permissions.canRepostTask).toBe(true)
@@ -320,7 +419,7 @@ describe('getTaskDetailPermissions while suspended (BE-108)', () => {
       isSuspended: true,
       isFrozen: true,
       reopen: null,
-      showAcceptDecline: false,
+      canAcceptQuote: false,
       canCancelTask: false,
       canEditTask: false,
     })
@@ -353,6 +452,7 @@ describe('getTaskDetailPermissions while suspended (BE-108)', () => {
     expect(permissions).toMatchObject({
       hasPendingQuote: true,
       canSubmitQuote: false,
+      canWithdrawQuote: false,
       isFrozen: true,
     })
   })

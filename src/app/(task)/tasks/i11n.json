@@ -36,8 +36,6 @@
       "completed": "Completed",
       "failed": "Didn't go ahead",
       "cancelled": "Cancelled",
-      "notSelected": "Not selected",
-      "declined": "Quote declined",
       "closed": "Closed"
     },
     "actions": {
@@ -169,8 +167,6 @@
       "completed": "已完成",
       "failed": "未能進行",
       "cancelled": "已取消",
-      "notSelected": "未獲選",
-      "declined": "報價被拒絕",
       "closed": "已結束"
     },
     "actions": {

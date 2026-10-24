@@ -151,7 +151,7 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   SLOT_NOT_FOUND: 'That time is no longer available. Refresh and pick again.',
   QUOTE_NOT_FOUND: 'This quote could not be found. It may have been withdrawn.',
   QUOTE_NOT_PENDING:
-    'This quote has already been accepted, declined or withdrawn. Refresh to see the latest.',
+    'This quote has already been accepted, withdrawn or closed. Refresh to see the latest.',
   QUOTE_ALREADY_EXISTS:
     "You've already quoted on this task. Edit your quote instead.",
   INVALID_QUOTE_AMOUNT: 'Enter a price greater than zero.',

@@ -17,6 +17,15 @@ import {
 const T = TaskTimelineEventType
 type Locale = 'en' | 'zh_hk'
 
+/**
+ * Types the API drops in BE-113. It still sends them until that is deployed,
+ * so the schema web is built against may or may not list them, and web has no
+ * line for them either way: they are skipped like any type it doesn't know.
+ */
+const DROPPED = ['QUOTE_DECLINED', 'QUOTE_NOT_SELECTED']
+/** Every type the schema lists that web has a line for. */
+const KNOWN_TYPES = Object.values(T).filter((type) => !DROPPED.includes(type))
+
 const ALEX = { id: 'owner-1', profile: { name: 'Alex Chen' } }
 const JORDAN = { id: 'worker-1', profile: { name: 'Jordan Lee' } }
 
@@ -273,25 +282,12 @@ describe('taskActivityLines: you or named only', () => {
   })
 })
 
-describe('taskActivityLines: a decision on one quote', () => {
+describe('taskActivityLines: the owner booking one quote', () => {
   const cases: [
     TaskTimelineEventType,
     { owner: string; own: string; anon: string },
     { owner: string; own: string; anon: string },
   ][] = [
-    [
-      T.QuoteDeclined,
-      {
-        owner: "You declined Jordan Lee's quote",
-        own: 'Alex Chen declined your quote',
-        anon: 'A quote was declined',
-      },
-      {
-        owner: '你拒絕了 Jordan Lee 的報價',
-        own: 'Alex Chen 拒絕了你的報價',
-        anon: '一個報價被拒絕',
-      },
-    ],
     [
       T.QuoteAccepted,
       {
@@ -330,32 +326,13 @@ describe('taskActivityLines: a decision on one quote', () => {
     }
   })
 
-  it('QUOTE_NOT_SELECTED (nobody acted)', () => {
-    const type = T.QuoteNotSelected
-    expect(say({ type, worker: JORDAN }, OWNER)).toBe(
-      "Jordan Lee's quote wasn't selected",
-    )
-    expect(say({ type, worker: JORDAN }, JORDAN_VIEWING)).toBe(
-      "Your quote wasn't selected",
-    )
-    expect(say({ type }, OTHER_WORKER)).toBe("A quote wasn't selected")
-    expect(say({ type }, GUEST)).toBe("A quote wasn't selected")
-    expect(say({ type, worker: JORDAN }, OWNER, 'zh_hk')).toBe(
-      'Jordan Lee 的報價未獲選',
-    )
-    expect(say({ type, worker: JORDAN }, JORDAN_VIEWING, 'zh_hk')).toBe(
-      '你的報價未獲選',
-    )
-    expect(say({ type }, GUEST, 'zh_hk')).toBe('一個報價未獲選')
-  })
-
   it('never names a worker for anyone but the owner and that worker', () => {
     // Should the API ever send another worker's `worker`, it stays anon.
     expect(
       say({ type: T.QuoteAccepted, actor: ALEX, worker: JORDAN }, OTHER_WORKER),
     ).toBe('A worker was booked')
-    expect(say({ type: T.QuoteDeclined, worker: JORDAN }, GUEST)).toBe(
-      'A quote was declined',
+    expect(say({ type: T.QuoteAccepted, worker: JORDAN }, GUEST)).toBe(
+      'A worker was booked',
     )
   })
 
@@ -366,13 +343,13 @@ describe('taskActivityLines: a decision on one quote', () => {
     )
     expect(
       say(
-        { type: T.QuoteDeclined, worker: { id: JORDAN.id, profile: null } },
+        { type: T.QuoteAccepted, worker: { id: JORDAN.id, profile: null } },
         OWNER,
       ),
-    ).toBe('A quote was declined')
+    ).toBe('A worker was booked')
     // The quote's worker, when the API leaves out who answered.
-    expect(say({ type: T.QuoteDeclined, worker: JORDAN }, JORDAN_VIEWING)).toBe(
-      'A quote was declined',
+    expect(say({ type: T.QuoteAccepted, worker: JORDAN }, JORDAN_VIEWING)).toBe(
+      'A worker was booked',
     )
     expect(
       say({ type: T.QuoteAccepted, worker: JORDAN }, JORDAN_VIEWING, 'zh_hk'),
@@ -381,14 +358,22 @@ describe('taskActivityLines: a decision on one quote', () => {
     expect(
       say(
         {
-          type: T.QuoteDeclined,
+          type: T.QuoteAccepted,
           actor: { id: ALEX.id, profile: { name: '' } },
           worker: JORDAN,
         },
         JORDAN_VIEWING,
         'zh_hk',
       ),
-    ).toBe('有人 拒絕了你的報價')
+    ).toBe('有人 接受了你的報價')
+  })
+
+  it('has no line for the decisions the API dropped, for anyone', () => {
+    for (const type of DROPPED) {
+      for (const viewer of [OWNER, JORDAN_VIEWING, OTHER_WORKER, GUEST]) {
+        expect(say({ type, worker: JORDAN }, viewer)).toBeNull()
+      }
+    }
   })
 })
 
@@ -537,7 +522,7 @@ describe('taskActivityLines: the log', () => {
 
   it('files every type under task, quote, booking or review', () => {
     const kinds = Object.fromEntries(
-      Object.values(T).map((type) => [
+      KNOWN_TYPES.map((type) => [
         type,
         taskActivityLines(
           [event({ type, suspensionReason: TaskSuspensionReason.Slashie })],
@@ -556,9 +541,7 @@ describe('taskActivityLines: the log', () => {
       QUOTE_SENT: 'quote',
       QUOTE_UPDATED: 'quote',
       QUOTE_WITHDRAWN: 'quote',
-      QUOTE_DECLINED: 'quote',
       QUOTE_ACCEPTED: 'quote',
-      QUOTE_NOT_SELECTED: 'quote',
       RESCHEDULE_REQUESTED: 'booking',
       RESCHEDULE_CONFIRMED: 'booking',
       RESCHEDULE_DECLINED: 'booking',
@@ -594,7 +577,7 @@ describe('taskActivityLines: the log', () => {
     ]
     const viewers = [OWNER, JORDAN_VIEWING, OTHER_WORKER, GUEST]
     for (const locale of ['en', 'zh_hk'] as const) {
-      for (const type of Object.values(T)) {
+      for (const type of KNOWN_TYPES) {
         for (const shape of shapes) {
           for (const viewer of viewers) {
             const text = say({ type, ...shape }, viewer, locale)

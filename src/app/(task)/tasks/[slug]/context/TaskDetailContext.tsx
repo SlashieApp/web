@@ -83,14 +83,12 @@ export type TaskDetailActions = {
   /** Last failed order action, shown in the booking panel. */
   jobActionError: string | null
   acceptingQuoteId: string | null
-  decliningQuoteId: string | null
   quoting: boolean
   cancelingTask: boolean
   /** The order action in flight, if any. */
   orderActionPending: OrderAction['type'] | null
   onSubmitQuote: () => Promise<boolean>
   onAcceptQuote: (quoteId: string, selectedSlotId: string) => Promise<void>
-  onDeclineQuote: (quoteId: string) => Promise<void>
   /** Resolves true when the order action succeeded. */
   runOrderAction: (action: OrderAction) => Promise<boolean>
   onCancelTask: () => Promise<void>
@@ -100,7 +98,10 @@ export type TaskDetailActions = {
    */
   onReopenTask: () => Promise<boolean>
   reopeningTask: boolean
-  /** Withdraw the viewer's pending quote. Resolves true once withdrawn. */
+  /**
+   * Withdraw the viewer's pending quote (`permissions.canWithdrawQuote`).
+   * Resolves true once withdrawn.
+   */
   onWithdrawQuote: () => Promise<boolean>
   withdrawingQuote: boolean
   scrollToQuoteForm: () => void

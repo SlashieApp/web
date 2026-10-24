@@ -11,7 +11,6 @@ export function getThreadView({
   threadId,
   query,
   thread,
-  notSelected,
   suspended,
 }: ThreadViewInput): ThreadViewName {
   if (!threadId) return 'thread.none'
@@ -21,6 +20,5 @@ export function getThreadView({
   if (thread.kind === ThreadKind.System) return 'thread.system'
   if (thread.canSend) return 'thread.open'
   if (thread.blockedByMe) return 'thread.blocked'
-  if (notSelected) return 'thread.notSelected'
   return suspended ? 'thread.suspended' : 'thread.locked'
 }

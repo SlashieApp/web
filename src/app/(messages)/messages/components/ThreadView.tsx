@@ -38,7 +38,6 @@ import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
 import { Button, Link, Textarea } from '@ui'
 
-import { wasNotSelected } from '../helpers/messagesFormat'
 import { threadQueryState, timelineRows } from '../helpers/messagesThread'
 import bag from '../i11n.json'
 import { THREAD_VIEWS, type ThreadViewInput, getThreadView } from '../views'
@@ -258,7 +257,6 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
     threadId,
     query: threadQueryState({ loading, thread, error }),
     thread,
-    notSelected: wasNotSelected(items),
   }
   // Layout and pins; a suspension only changes the composer line, which
   // `ThreadComposerArea` works out inside the task's provider.

@@ -147,7 +147,7 @@ function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
 
   if (!task) return null
   const actions = threadMenuActions({
-    hasPendingQuote: permissions.hasPendingQuote,
+    hasPendingQuote: permissions.canWithdrawQuote,
     canCancelTask: permissions.canCancelTask,
     booking,
     frozen: permissions.isFrozen,

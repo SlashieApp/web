@@ -139,7 +139,7 @@ export const SheetOpen: Story = {
     )
     const dialog = within(await sheet(canvasElement).findByRole('dialog'))
     const items = await dialog.findAllByRole('listitem')
-    await expect(items).toHaveLength(13)
+    await expect(items).toHaveLength(12)
     await expect(items[0]).toHaveTextContent('You posted the task')
     await expect(items.at(-1)).toHaveTextContent('You left a review')
   },

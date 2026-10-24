@@ -29,7 +29,7 @@ const competitorQuote = storyPublicQuote({
   price: { amount: 95, currency: Currency.Gbp },
 })
 
-/** Owner with two quotes: sortable list with Accept and Decline. */
+/** Owner with two quotes: sortable list with Accept. */
 export const OwnerWithQuotes: Story = {
   decorators: [withTaskDetailStory({ viewer: 'owner' }, wide)],
   play: async ({ canvasElement }) => {

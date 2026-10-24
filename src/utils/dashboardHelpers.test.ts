@@ -8,9 +8,9 @@ describe('isQuoteAwarded', () => {
     expect(isQuoteAwarded(' accepted ')).toBe(true)
   })
 
-  it('treats a quote that lost as not awarded', () => {
-    expect(isQuoteAwarded('NOT_SELECTED')).toBe(false)
-    expect(isQuoteAwarded('PENDING')).toBe(false)
-    expect(isQuoteAwarded('DECLINED')).toBe(false)
+  it('treats a quote that did not win as not awarded', () => {
+    for (const status of ['PENDING', 'WITHDRAWN', 'EXPIRED', 'CLOSED']) {
+      expect(isQuoteAwarded(status)).toBe(false)
+    }
   })
 })

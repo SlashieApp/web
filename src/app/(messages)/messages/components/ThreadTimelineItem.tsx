@@ -71,8 +71,6 @@ function FlashCard({
 /** Lines that name the quote's price; others (a reschedule, say) carry the quote but not about its price. */
 const QUOTE_OUTCOMES: ReadonlySet<FlashKind> = new Set([
   FlashKind.QuoteAccepted,
-  FlashKind.QuoteDeclined,
-  FlashKind.QuoteNotSelected,
   FlashKind.QuoteWithdrawn,
 ])
 
@@ -159,11 +157,11 @@ function AcceptedLine({
 
 /**
  * One timeline entry: a chat bubble (mine on the right) or a flash. Only the
- * worker's "quote sent" flash is a full quote card, where the poster accepts
- * or declines; Slashie announcements stay cards; every other event is a
- * short line (Thread screen v2), the worker's Task cancelled and Task
- * reopened (BE-108) included. Day dividers carry the date, so times are
- * clock times; a run of messages shows one (FE-291).
+ * worker's "quote sent" flash is a full quote card, where the poster accepts;
+ * Slashie announcements stay cards; every other event is a short line
+ * (Thread screen v2), the worker's Task cancelled and Task reopened (BE-108)
+ * included. Day dividers carry the date, so times are clock times; a run of
+ * messages shows one (FE-291).
  */
 export function ThreadTimelineItem({
   item,
@@ -176,10 +174,14 @@ export function ThreadTimelineItem({
 }) {
   const time = clockTime(item.createdAt, locale)
   // A task thread runs inside its task's provider: a suspended task's quote
-  // can't be answered (BE-108).
-  const taskSuspended = Boolean(
-    useContext(TaskDetailContext)?.permissions.isSuspended,
-  )
+  // can't be answered (BE-108), and once someone is booked the other quotes
+  // stay PENDING but only an open task can accept one (BE-113). Until the
+  // task has loaded nothing is accepted.
+  const detail = useContext(TaskDetailContext)
+  const taskSuspended = Boolean(detail?.permissions.isSuspended)
+  const taskOpen = detail
+    ? Boolean(detail.task) && detail.permissions.isOpen
+    : true
 
   if (item.type === ThreadItemType.Flash) {
     if (item.flashKind === FlashKind.QuoteReceived && item.quote) {
@@ -189,6 +191,7 @@ export function ThreadTimelineItem({
             quote={item.quote}
             locale={locale}
             taskSuspended={taskSuspended}
+            taskOpen={taskOpen}
           />
         </FlashCard>
       )

@@ -154,8 +154,8 @@ export const AsWorker: Story = {
 
 /**
  * thread.locked: the poster before booking: "2 workers quoted", the live
- * quotes in the top pin, Accept and Decline on the quote card, no composer
- * and no bottom pin (the quote cards handle comparing).
+ * quotes in the top pin, Accept on the quote card, no composer and no bottom
+ * pin (the quote cards handle comparing).
  */
 export const OwnerPendingQuote: Story = {
   decorators: messagesStory({
@@ -323,41 +323,56 @@ export const PhoneNeedsYou: Story = {
   play: async ({ canvasElement }) => checkBottomPinLayout(canvasElement),
 }
 
-/** thread.notSelected: the owner chose another worker: the notice explains the thread is closed. */
-export const NotSelected: Story = {
-  decorators: (() => {
-    const items = [
-      conversationFlash(
-        'n-1',
-        FlashKind.QuoteNotSelected,
-        'Task went to someone else',
-        'Alex chose another worker for this task.',
-        new Date().toISOString(),
-        {
-          quoteId: 'q-jordan',
-          quote: jordanQuote({ status: QuoteStatus.NotSelected }),
-        },
-      ),
-    ]
-    return messagesStory({
-      viewer: 'worker',
-      thread: taskThread('worker', { canSend: false }, items),
-      items,
-      ...FRAME,
-      task: storyTaskDetail({
-        status: TaskStatus.Awarded,
-        quotes: storyQuotes(QuoteStatus.NotSelected, QuoteStatus.Accepted),
-      }),
-    })
-  })(),
+/**
+ * thread.locked: someone else was booked (BE-113). The worker's quote stays
+ * pending, so the card still says Awaiting reply and the composer line is the
+ * usual one; the top pin gives the task's plain "booked" status.
+ */
+export const WorkerBookedElsewhere: Story = {
+  decorators: messagesStory({
+    viewer: 'worker',
+    thread: taskThread('worker', { canSend: false }, pendingItems),
+    items: pendingItems,
+    ...FRAME,
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Worker booked')).toBeVisible()
     await expect(
-      await canvas.findByText(
-        'This task went to another worker, so the conversation is closed to you.',
-      ),
+      within(await canvas.findByRole('log')).getByText('Awaiting reply'),
     ).toBeVisible()
-    await expect(await canvas.findByText('Your quote')).toBeVisible()
+    await expect(
+      canvas.getByText('You can message here once a quote is accepted.'),
+    ).toBeVisible()
+    await expect(canvas.queryByRole('textbox')).toBeNull()
+  },
+}
+
+/**
+ * thread.locked: the poster's side once someone is booked (BE-113): this
+ * worker's quote stays pending, but only an open task can accept one, so the
+ * card has no Accept.
+ */
+export const OwnerBookedElsewhere: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread('owner', { canSend: false }, pendingItems),
+    items: pendingItems,
+    ...FRAME,
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      quotes: storyQuotes(QuoteStatus.Pending, QuoteStatus.Accepted),
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await within(await canvas.findByRole('log')).findByText('Awaiting reply')
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+    await expect(canvas.queryByRole('textbox')).toBeNull()
   },
 }
 
@@ -422,7 +437,7 @@ export const SuspendedBooking: Story = {
 
 /**
  * thread.suspended before a booking: the owner's task Slashie suspended.
- * The quote card shows its status, with no Accept or Decline.
+ * The quote card shows its status, with no Accept.
  */
 export const SuspendedOpenTask: Story = {
   decorators: messagesStory({
@@ -444,7 +459,6 @@ export const SuspendedOpenTask: Story = {
     const log = await canvas.findByRole('log')
     await expect(within(log).getByText('Awaiting reply')).toBeVisible()
     await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
-    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
   },
 }
 

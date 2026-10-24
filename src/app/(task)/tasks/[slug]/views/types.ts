@@ -45,9 +45,6 @@ export type TaskDetailViewName =
   // Worker not on the booking
   | 'worker.open.notQuoted'
   | 'worker.open.quoted'
-  | 'worker.open.declined'
-  | 'worker.awarded.declined'
-  | 'worker.notSelected'
   // Everyone else
   | 'customer.open'
   | 'guest.open'

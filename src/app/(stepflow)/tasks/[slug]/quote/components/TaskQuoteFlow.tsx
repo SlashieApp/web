@@ -60,7 +60,8 @@ export function TaskQuoteFlow() {
     task &&
       !quoteSuccess &&
       (isOwner ||
-        // A declined worker can send a new quote (FE-274).
+        // Has a quote but can neither edit it (pending, on an open task) nor
+        // send a new one (FE-274): a worker whose quote is over still can.
         (myQuote && !hasPendingQuote && !canSubmitQuote) ||
         (isAuthenticated &&
           !meLoading &&

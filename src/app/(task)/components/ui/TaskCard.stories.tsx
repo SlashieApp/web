@@ -134,10 +134,10 @@ export const YouHosted: Story = {
   args: { task: { ...defaultTask, viewerRole: 'hosted' } },
 }
 
-/** My tasks: a lost quote adds Not selected after the role pill. */
+/** My tasks: a quote that is over adds Closed after the role pill. */
 export const WithTags: Story = {
   args: {
-    tags: ['Not selected'],
+    tags: ['Closed'],
     task: {
       ...defaultTask,
       viewerRole: 'quoted',

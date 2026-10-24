@@ -30,7 +30,10 @@ type TaskQuote = TaskDetailRecord['quotes'][number]
 type TaskDetailI11n = (typeof bag)['en']
 type QuotesCopy = TaskDetailI11n['quotes']
 
-/** The approved 12-state quotes-module matrix (contact sheet v2). */
+/**
+ * The approved quotes-module matrix (contact sheet v2). W7 (declined) went
+ * with the Decline action (BE-113); the other names keep their numbers.
+ */
 export type QuotesModuleState =
   | 'C1' // customer · no quotes
   | 'C2' // customer · list + accept
@@ -42,7 +45,6 @@ export type QuotesModuleState =
   | 'W4' // worker · competing
   | 'W5' // worker · own quote pending
   | 'W6' // worker · accepted
-  | 'W7' // worker · declined
   | 'W8' // worker · task full
 
 type QuoteSort = 'recommended' | 'price_low' | 'recent'
@@ -104,7 +106,6 @@ export function deriveQuotesModuleState(input: {
   }
 
   if (myQuoteStatus && isAcceptedQuoteStatus(myQuoteStatus)) return 'W6'
-  if (myQuoteStatus === QuoteStatus.Declined) return 'W7'
   if (myQuoteStatus === QuoteStatus.Pending) return 'W5'
   if (!isAuthenticated) return 'W1'
   if (!hasWorkerProfile) return 'W2'
@@ -209,20 +210,24 @@ export type QuotesModuleProps = {
   slotsCap?: number
 }
 
+/**
+ * The badge a row wears: none while the quote is live (PENDING), "Accepted"
+ * once it won, and a neutral "Closed" for any other status, so one this build
+ * doesn't know yet never shows as raw text.
+ */
 function rowStatus(status: QuoteStatus | string): QuoteRowStatus | null {
-  if (isAcceptedQuoteStatus(status)) return 'accepted'
-  if (status === QuoteStatus.Declined) return 'declined'
-  if (status === QuoteStatus.NotSelected) return 'notSelected'
-  return null
+  if (status === QuoteStatus.Pending) return null
+  return isAcceptedQuoteStatus(status) ? 'accepted' : 'closed'
 }
 
 /**
  * Overview Quotes section (FE-258): every quote as a row, replacing the old
- * Quotes tab. Owners sort and accept or decline. Anyone else, guests
- * included, sees the other live quotes read-only while the task is open,
- * never who sent them (FE-370); their own quote is in the Task summary.
- * Hidden until there is a quote to list; sign-in, worker setup and Send
- * quote stay on the main CTA.
+ * Quotes tab. Owners sort and accept a pending quote while the task is open;
+ * once someone is booked the others stay PENDING but can't be accepted
+ * (BE-113). Anyone else, guests included, sees the other live quotes
+ * read-only while the task is open, never who sent them (FE-370); their own
+ * quote is in the Task summary. Hidden until there is a quote to list;
+ * sign-in, worker setup and Send quote stay on the main CTA.
  */
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const t = useI11n(bag)
@@ -236,8 +241,6 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     sortedQuotes,
     acceptError,
     acceptingQuoteId,
-    decliningQuoteId,
-    onDeclineQuote,
     taskThreadHref,
   } = useTaskDetail()
   const { requestAccept, dialog: acceptSafetyDialog } = useAcceptQuoteSafety()
@@ -292,7 +295,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       )
     }
     const canAct =
-      quote.status === QuoteStatus.Pending && permissions.showAcceptDecline
+      quote.status === QuoteStatus.Pending && permissions.canAcceptQuote
     // BE-108: a suspended worker's quote is frozen; it is never Best match.
     const suspended = quote.workerSuspended
     return (
@@ -310,10 +313,8 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           rows.length > 1
         }
         onAccept={canAct ? () => requestAccept(quote.id) : undefined}
-        onDecline={canAct ? () => void onDeclineQuote(quote.id) : undefined}
         messageHref={canAct ? taskThreadHref : undefined}
         acceptLoading={acceptingQuoteId === quote.id}
-        declineLoading={decliningQuoteId === quote.id}
         withDivider={withDivider}
       />
     )

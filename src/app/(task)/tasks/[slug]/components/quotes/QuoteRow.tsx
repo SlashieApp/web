@@ -10,7 +10,11 @@ import { Avatar, Badge, Button, IconButton, Link } from '@ui'
 
 import bag from '../../i11n.json'
 
-export type QuoteRowStatus = 'accepted' | 'declined' | 'notSelected'
+/**
+ * `closed`: the quote is over without being accepted, whatever the reason.
+ * One neutral label, so a status this build doesn't know never shows as text.
+ */
+export type QuoteRowStatus = 'accepted' | 'closed'
 
 export type QuoteRowProps = {
   name: string
@@ -32,27 +36,24 @@ export type QuoteRowProps = {
   status?: QuoteRowStatus | null
   /**
    * The worker's account is suspended (BE-108): an "Account suspended" pill,
-   * and Accept and Decline stay off (the API refuses them).
+   * and Accept stays off (the API refuses it).
    */
   accountSuspended?: boolean
   isBestMatch?: boolean
   onAccept?: () => void
-  onDecline?: () => void
   acceptLoading?: boolean
-  declineLoading?: boolean
   messageHref?: string
   withDivider?: boolean
 }
 
 const STATUS_VARIANT = {
   accepted: 'success',
-  declined: 'neutral',
-  notSelected: 'neutral',
+  closed: 'neutral',
 } as const
 
 /**
  * One quote as a list row (FE-258): avatar, name and times on the left,
- * price on the right, the message under it, and owner actions last.
+ * price on the right, the message under it, and the owner's Accept last.
  */
 export function QuoteRow({
   name,
@@ -69,20 +70,14 @@ export function QuoteRow({
   accountSuspended = false,
   isBestMatch = false,
   onAccept,
-  onDecline,
   acceptLoading = false,
-  declineLoading = false,
   messageHref,
   withDivider = true,
 }: QuoteRowProps) {
   const { quotes: q } = useI11n(bag)
   const card = q.card
   const statusLabel = status
-    ? {
-        accepted: card.accepted,
-        declined: card.declined,
-        notSelected: card.notSelected,
-      }[status]
+    ? { accepted: card.accepted, closed: card.closed }[status]
     : null
   const meta = [availabilityLabel, respondedLabel].filter(Boolean).join(' · ')
   // Never who sent another worker's quote, whatever is passed in.
@@ -98,8 +93,7 @@ export function QuoteRow({
       size="40px"
     />
   )
-  const busy = acceptLoading || declineLoading
-  const off = busy || accountSuspended
+  const off = acceptLoading || accountSuspended
 
   return (
     <Stack
@@ -195,7 +189,7 @@ export function QuoteRow({
           {message}
         </Text>
       ) : null}
-      {onAccept || onDecline || messageHref ? (
+      {onAccept || messageHref ? (
         <HStack gap={2} justify="flex-end">
           {messageHref ? (
             <IconButton asChild aria-label={card.message} variant="ghost">
@@ -203,16 +197,6 @@ export function QuoteRow({
                 <LuMessageCircle size={18} aria-hidden />
               </Link>
             </IconButton>
-          ) : null}
-          {onDecline ? (
-            <Button
-              variant="ghost"
-              loading={declineLoading}
-              disabled={off}
-              onClick={onDecline}
-            >
-              {card.decline}
-            </Button>
           ) : null}
           {onAccept ? (
             <Button

@@ -60,7 +60,7 @@ describe('getTaskDetailView', () => {
     it("owner of an open task with no live quotes sees 'reaching workers'", () => {
       expectView(
         'owner.open.noQuotes',
-        task('OPEN', [{ workerUserId: 'w1', status: 'DECLINED' }]),
+        task('OPEN', [{ workerUserId: 'w1', status: 'CLOSED' }]),
         null,
         OWNER,
         NOW,
@@ -410,35 +410,31 @@ describe('getTaskDetailView', () => {
         NOW,
       )
     })
-    it("declined worker on an open task can quote again, not 'This task is full'", () => {
-      expectView(
-        'worker.open.declined',
-        task('OPEN', [{ workerUserId: 'worker', status: 'REJECTED' }]),
-        null,
-        WORKER,
-        NOW,
-      )
+    it('worker whose quote is over on an open task can quote again', () => {
+      // CLOSED is the API's newest status, and no typed value exists for it
+      // here; a status this build has never seen reads the same.
+      for (const status of ['CLOSED', 'WITHDRAWN', 'A_STATUS_FOR_LATER']) {
+        expectView(
+          'worker.open.notQuoted',
+          task('OPEN', [{ workerUserId: 'worker', status }]),
+          null,
+          WORKER,
+          NOW,
+        )
+      }
     })
-    it('declined worker on a task given to someone else is pointed to other tasks', () => {
-      expectView(
-        'worker.awarded.declined',
-        task('AWARDED', [{ workerUserId: 'worker', status: 'DECLINED' }]),
-        null,
-        WORKER,
-        NOW,
-      )
-    })
-    it("worker who wasn't picked sees 'You weren't selected'", () => {
-      expectView(
-        'worker.notSelected',
-        task('AWARDED', [
-          { workerUserId: 'other', status: 'ACCEPTED' },
-          { workerUserId: 'worker', status: 'NOT_SELECTED' },
-        ]),
-        null,
-        WORKER,
-        NOW,
-      )
+    // BE-113: the other quotes stay PENDING once someone is booked, and the
+    // API sends a non-owner only their own on a task that isn't open.
+    it("worker who wasn't booked sees 'Worker booked', whatever their quote's status", () => {
+      for (const status of ['PENDING', 'CLOSED', 'A_STATUS_FOR_LATER']) {
+        expectView(
+          'visitor.awarded',
+          task('AWARDED', [{ workerUserId: 'worker', status }]),
+          null,
+          WORKER,
+          NOW,
+        )
+      }
     })
     it('signed-in customer without a worker profile is asked to become a worker', () => {
       expectView('customer.open', task('OPEN'), null, CUSTOMER, NOW)
@@ -470,8 +466,8 @@ describe('liveQuoteCount', () => {
     expect(
       liveQuoteCount([
         { status: 'PENDING' },
-        { status: 'DECLINED' },
-        { status: 'NOT_SELECTED' },
+        { status: 'CLOSED' },
+        { status: 'WITHDRAWN' },
         { status: 'PENDING' },
       ]),
     ).toBe(2)

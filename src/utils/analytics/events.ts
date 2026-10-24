@@ -60,8 +60,6 @@ export const EVENTS = {
   task_create_fail: 'task_create_fail',
   quote_accept_success: 'quote_accept_success',
   quote_accept_fail: 'quote_accept_fail',
-  quote_decline_success: 'quote_decline_success',
-  quote_decline_fail: 'quote_decline_fail',
   requests_view: 'requests_view',
   my_tasks_view: 'my_tasks_view',
 

@@ -22,7 +22,6 @@ const view = (input: Partial<ThreadViewInput> = {}) => {
     threadId: 'thread-1',
     query: 'ready',
     thread: taskThread(),
-    notSelected: false,
     suspended: false,
     ...input,
   })
@@ -65,10 +64,6 @@ describe('getThreadView', () => {
     )
   })
 
-  it('tells a worker who was not selected that the conversation is closed', () => {
-    expect(view({ notSelected: true })).toBe('thread.notSelected')
-  })
-
   it('waits for a quote to be accepted before messages open', () => {
     expect(view()).toBe('thread.locked')
   })
@@ -82,13 +77,10 @@ describe('getThreadView', () => {
     })
   })
 
-  it('keeps the blocked and not-selected lines over a suspension, and the composer when the API allows it', () => {
+  it('keeps the blocked line over a suspension, and the composer when the API allows it', () => {
     expect(
       view({ suspended: true, thread: taskThread({ blockedByMe: true }) }),
     ).toBe('thread.blocked')
-    expect(view({ suspended: true, notSelected: true })).toBe(
-      'thread.notSelected',
-    )
     expect(
       view({ suspended: true, thread: taskThread({ canSend: true }) }),
     ).toBe('thread.open')

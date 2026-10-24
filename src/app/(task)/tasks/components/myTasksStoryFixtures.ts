@@ -160,13 +160,13 @@ export const storyRows = {
     priceLabel: '£50',
     orderId: 'order-failed',
   }),
-  /** Someone else got the job: no end date in the hub's data. */
-  pastNotSelected: row({
-    id: 'past-not-selected',
+  /** A quote that is over (someone else got the job, say): no end date in the hub's data. */
+  pastClosed: row({
+    id: 'past-closed',
     title: 'Clear a small garden',
     section: 'past',
     roles: ['quoted'],
-    outcome: 'notSelected',
+    outcome: 'closed',
     priceLabel: '£90',
     categories: ['Gardening'],
   }),
@@ -199,7 +199,7 @@ export const allSections: MyTaskHubSection[] = [
       storyRows.pastCancelled,
       storyRows.pastFailed,
       storyRows.pastCompleted,
-      storyRows.pastNotSelected,
+      storyRows.pastClosed,
     ],
   },
 ]

@@ -33,7 +33,6 @@ import type {
 } from './types'
 import { visitorAwarded } from './visitor.awarded'
 import { visitorCancelled } from './visitor.cancelled'
-import { workerAwardedDeclined } from './worker.awarded.declined'
 import { workerBookedBeforeStart } from './worker.booked.beforeStart'
 import { workerBookedCancelByMe } from './worker.booked.cancelByMe'
 import { workerBookedCancelByThem } from './worker.booked.cancelByThem'
@@ -49,8 +48,6 @@ import { workerBookingFailed } from './worker.bookingFailed'
 import { workerCompleted } from './worker.completed'
 import { workerConflictIMarkedDone } from './worker.conflict.iMarkedDone'
 import { workerConflictIMarkedFailed } from './worker.conflict.iMarkedFailed'
-import { workerNotSelected } from './worker.notSelected'
-import { workerOpenDeclined } from './worker.open.declined'
 import { workerOpenNotQuoted } from './worker.open.notQuoted'
 import { workerOpenQuoted } from './worker.open.quoted'
 
@@ -95,9 +92,6 @@ export const TASK_DETAIL_VIEWS: Record<
   'worker.bookingFailed': workerBookingFailed,
   'worker.open.notQuoted': workerOpenNotQuoted,
   'worker.open.quoted': workerOpenQuoted,
-  'worker.open.declined': workerOpenDeclined,
-  'worker.awarded.declined': workerAwardedDeclined,
-  'worker.notSelected': workerNotSelected,
   'customer.open': customerOpen,
   'guest.open': guestOpen,
   'visitor.awarded': visitorAwarded,

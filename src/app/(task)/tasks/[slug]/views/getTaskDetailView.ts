@@ -81,13 +81,14 @@ function bookingView(
     : `${party}.booked.beforeStart`
 }
 
-function isDeclined(status: string | undefined): boolean {
-  return status === QuoteStatus.Declined || status === QuoteStatus.Rejected
-}
-
 /**
  * The one place that decides what this viewer sees. `task` is null until
  * the viewer-scoped task (and its order) has loaded.
+ *
+ * Only a PENDING quote of the viewer's own changes anything: a quote in any
+ * other status (withdrawn, closed, or one this build doesn't know) reads like
+ * no quote, so they can quote again while the task is open and see the
+ * plain "booked" summary once it isn't.
  */
 export function getTaskDetailView(
   task: TaskDetailViewTask | null,
@@ -117,22 +118,15 @@ export function getTaskDetailView(
     return live.length > 0 ? 'owner.open.quotes' : 'owner.open.noQuotes'
   }
 
-  const myQuote = viewer
-    ? task.quotes.find((q) => q.workerUserId === viewer.userId)
-    : undefined
-
-  if (status === 'AWARDED') {
-    if (myQuote?.status === QuoteStatus.NotSelected) return 'worker.notSelected'
-    if (isDeclined(myQuote?.status)) return 'worker.awarded.declined'
-    return 'visitor.awarded'
-  }
+  if (status === 'AWARDED') return 'visitor.awarded'
 
   // OPEN (DRAFT reads as OPEN for its owner).
   if (!viewer) return 'guest.open'
   if (!viewer.hasWorkerProfile) return 'customer.open'
-  if (myQuote?.status === QuoteStatus.Pending) return 'worker.open.quoted'
-  if (isDeclined(myQuote?.status)) return 'worker.open.declined'
-  return 'worker.open.notQuoted'
+  const myQuote = task.quotes.find((q) => q.workerUserId === viewer.userId)
+  return myQuote?.status === QuoteStatus.Pending
+    ? 'worker.open.quoted'
+    : 'worker.open.notQuoted'
 }
 
 /** Live (PENDING) quotes: what headlines count. */

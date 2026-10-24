@@ -66,15 +66,29 @@ export type TaskDetailPermissions = {
   reopen: TaskReopenKind | null
   /**
    * Worker (not the owner) can send a quote on this OPEN task, edit their
-   * pending one, or send a new one after a decline. Blocked once any quote
+   * pending one, or send a new one after withdrawing. Blocked once any quote
    * is accepted, and while the task is suspended.
    */
   canSubmitQuote: boolean
-  /** Viewer's own quote on this OPEN task is sent and awaiting the owner. */
+  /**
+   * Viewer's own quote on this OPEN task is sent and awaiting the owner: it
+   * can be edited. Once someone else is booked it stays PENDING (BE-113) but
+   * can't be edited, so this is false then.
+   */
   hasPendingQuote: boolean
+  /**
+   * Viewer's own quote is still PENDING, whatever the task is doing (it
+   * stays PENDING while someone else is booked, BE-113): it can be
+   * withdrawn. Not on a suspended task.
+   */
+  canWithdrawQuote: boolean
   showOwnerQuoteList: boolean
-  /** Owner on an OPEN task that isn't suspended: accept or decline quotes. */
-  showAcceptDecline: boolean
+  /**
+   * Owner on an OPEN task that isn't suspended: accept a pending quote. The
+   * other quotes stay PENDING once someone is booked (BE-113), but only an
+   * open task can take one.
+   */
+  canAcceptQuote: boolean
   /**
    * Either party on a live or CONFLICT order that isn't frozen: booking
    * status and actions.
@@ -164,9 +178,13 @@ export function getTaskDetailPermissions(
     isOpen && !isOwner && myQuote?.status === QuoteStatus.Pending,
   )
 
+  const canWithdrawQuote = Boolean(
+    !isOwner && !isSuspended && myQuote?.status === QuoteStatus.Pending,
+  )
+
   const showOwnerQuoteList = Boolean(isOwner && (isOpen || isAwarded))
 
-  const showAcceptDecline = Boolean(isOwner && isOpen && !isSuspended)
+  const canAcceptQuote = Boolean(isOwner && isOpen && !isSuspended)
 
   const showOrderActions = Boolean(
     myOrder &&
@@ -206,8 +224,9 @@ export function getTaskDetailPermissions(
     reopen,
     canSubmitQuote,
     hasPendingQuote,
+    canWithdrawQuote,
     showOwnerQuoteList,
-    showAcceptDecline,
+    canAcceptQuote,
     showOrderActions,
     showFullAddress,
     canCancelTask,

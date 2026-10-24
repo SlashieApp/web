@@ -91,8 +91,9 @@ export function workerOnSitePhase(
   return 'complete'
 }
 
+/** Exactly ACCEPTED: no other status means the quote won. */
 export function isAcceptedQuoteStatus(status: string): boolean {
-  return status === QuoteStatus.Accepted || /accept|award|select/i.test(status)
+  return status.trim().toUpperCase() === QuoteStatus.Accepted
 }
 
 export function isJobClosedStatus(status: string): boolean {

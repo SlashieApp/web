@@ -6,7 +6,7 @@ import { taskDetailQuoteRows } from './taskDetailQuoteRows'
 const quotes = [
   { id: 'mine', status: QuoteStatus.Pending },
   { id: 'live-1', status: QuoteStatus.Pending },
-  { id: 'declined', status: QuoteStatus.Declined },
+  { id: 'closed', status: 'CLOSED' },
   { id: 'live-2', status: QuoteStatus.Pending },
   { id: 'accepted', status: QuoteStatus.Accepted },
 ]
@@ -23,7 +23,7 @@ describe('taskDetailQuoteRows', () => {
             myQuoteId: null,
           }),
         ),
-      ).toEqual(['mine', 'live-1', 'declined', 'live-2', 'accepted'])
+      ).toEqual(['mine', 'live-1', 'closed', 'live-2', 'accepted'])
     }
   })
 

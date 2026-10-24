@@ -73,7 +73,7 @@ drawer. While it isn't All, the icon has a dot and reads "Filter, 1 active".
 | Unread | `unreadCount > 0` |
 | Needs you | `attention` is set, of any kind (quotes to compare too) |
 | Posted by you | The task's `poster.id` is the signed-in user's id |
-| Working on | The task's poster is someone else (also a task you quoted on and lost: the thread stays) |
+| Working on | The task's poster is someone else (also a task you quoted on that went to someone else: the thread stays) |
 | Slashie updates | `kind: SYSTEM` |
 
 A thread with no task (Slashie) is neither posted nor worked on, and neither
@@ -87,7 +87,7 @@ list inside it remounts, which would clear them (the layout stays). Leaving
 Messages resets them. The open conversation comes from the URL, so a search
 that drops its row from the list doesn't close it on desktop.
 
-## Conversation: `getThreadView({ threadId, query, thread, notSelected, suspended })`
+## Conversation: `getThreadView({ threadId, query, thread, suspended })`
 
 `query` comes from `threadQueryState` (`helpers/messagesThread.ts`): the API
 answers FORBIDDEN (`extensions.code`, or nothing) for a conversation you're not in, which is
@@ -102,13 +102,14 @@ answers FORBIDDEN (`extensions.code`, or nothing) for a conversation you're not 
 | `thread.system` | Slashie announcements | Header, timeline, no pins (`pins: false`) | You can't reply here |
 | `thread.open` | `canSend` | Header, top pin, timeline, bottom pin when something needs you (`pins: true`) | One-line composer (44px, grows to 160px) |
 | `thread.blocked` | You blocked them | Same | Unblock them to send |
-| `thread.notSelected` | The task went to another worker | Same | This task went to another worker |
 | `thread.suspended` | The task or booking is frozen by a suspension (task detail's `permissions.isFrozen`, BE-108) | Same | Messaging is paused while this account or task is suspended. |
 | `thread.locked` | Before a quote is accepted | Same | You can message here once a quote is accepted |
 
 Precedence: nothing picked, the query, Slashie threads, then why you can or
-can't send: `canSend`, blocked, not selected, suspended, then locked (a
-suspension never reads as "once a quote is accepted"). The API gives the
+can't send: `canSend`, blocked, suspended, then locked (a suspension never
+reads as "once a quote is accepted"). A worker whose task went to someone
+else reads locked too: their quote stays PENDING (BE-113) and no message
+tells them otherwise. The API gives the
 thread no reason for `canSend` being false, so `suspended` comes from the
 task's `TaskDetailProvider` (`ThreadComposerArea` in `ThreadView.tsx`): the
 task's `suspension`, or the booking's `counterpartySuspension`. Task threads run inside the task's `TaskDetailProvider` (the
@@ -122,9 +123,15 @@ newest item it stays in view when the pins load or change size.
 | Item | Shows |
 |---|---|
 | Message | A bubble, mine on the right |
-| `QUOTE_RECEIVED` (the worker's "quote sent") | The full quote card: worker, price, proposed times, message, live status; the poster accepts (time picker + safety notice) or declines here, not while the task is suspended; a suspended worker's quote shows "Account suspended" with both buttons off (BE-108) |
+| `QUOTE_RECEIVED` (the worker's "quote sent") | The full quote card: worker, price, proposed times, message, live status; the poster accepts here (time picker + safety notice), the only answer there is, and only while the task is OPEN and not suspended: once someone is booked the other quotes stay PENDING but can't be accepted (BE-113); a suspended worker's quote shows "Account suspended" with Accept off (BE-108) |
 | `SYSTEM_ANNOUNCEMENT` (Slashie thread) | A card: picture, title, body |
 | Every other flash | One centred line: the flash's title (plus the quote's price on quote outcomes), time, then its body. No card, no buttons; `REVIEW_PROMPT` keeps its Leave a review link. The worker's `TASK_CANCELLED` and `TASK_REOPENED` (BE-108, title and body from the API) are lines too, without the price |
+
+A quote's status reads Awaiting reply (PENDING), Accepted, Withdrawn,
+Replaced by a newer quote, or a neutral Closed for any other status, so one
+web doesn't know yet is never shown as raw text (`quoteFlashStatus`). The
+header menu offers Withdraw quote on any PENDING quote of the viewer's, even
+once someone else is booked (BE-113), but not while the task is suspended.
 
 ## Top pin: `getThreadPinView(taskDetailView)`
 
@@ -137,7 +144,7 @@ is in the header, not here.
 | Pin view | Task detail views | Shows |
 |---|---|---|
 | `pin.quotes` | `owner.open.quotes` | Open · "Live quotes · cheapest {price}", then up to three live (PENDING) quotes, cheapest first: worker, price, status; "+N more" after three |
-| `pin.myQuote` | `worker.open.quoted`, `worker.open.declined`, `worker.awarded.declined`, `worker.notSelected` | "Your quote", price, its status (Awaiting reply, Declined, Not selected), the times offered |
+| `pin.myQuote` | `worker.open.quoted` | "Your quote", price, its status (Awaiting reply), the times offered |
 | `pin.booking` | `*.booked.*`, `*.conflict.*` | Awarded · task detail's headline (left out while the bottom pin shows), then booked time · "{price} agreed" · payment method |
 | `pin.status` | `owner.open.noQuotes`, `worker.open.notQuoted` | The pill and headline |
 | `pin.closed` | `*.completed`, `*.bookingCancelled`, `*.bookingFailed`, `owner.cancelled`, `visitor.*` | The final status: pill and headline |

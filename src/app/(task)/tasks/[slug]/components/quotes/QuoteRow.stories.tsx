@@ -47,44 +47,38 @@ export const Default: Story = {
 
 /**
  * The worker's account is suspended (BE-108): "Account suspended", and
- * Accept and Decline stay off.
+ * Accept stays off.
  */
 export const AccountSuspended: Story = {
   args: {
     onAccept: fn(),
-    onDecline: fn(),
     accountSuspended: true,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await canvas.findByText('Account suspended')
     await expect(canvas.getByRole('button', { name: 'Accept' })).toBeDisabled()
-    await expect(canvas.getByRole('button', { name: 'Decline' })).toBeDisabled()
   },
 }
 
-/** Owner with a pending quote: Message, Decline and Accept. */
+/** Owner with a pending quote: Message and Accept, and nothing else to answer with. */
 export const OwnerActions: Story = {
   args: {
     onAccept: fn(),
-    onDecline: fn(),
     messageHref: '/messages',
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement)
     await canvas.findByRole('link', { name: 'Message' })
-    await userEvent.click(
-      await canvas.findByRole('button', { name: 'Decline' }),
-    )
-    await expect(args.onDecline).toHaveBeenCalledOnce()
-    await userEvent.click(canvas.getByRole('button', { name: 'Accept' }))
+    expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
+    await userEvent.click(await canvas.findByRole('button', { name: 'Accept' }))
     await expect(args.onAccept).toHaveBeenCalledOnce()
   },
 }
 
 /** The cheapest recent quote among several: a "Best match" badge. */
 export const BestMatch: Story = {
-  args: { isBestMatch: true, onAccept: fn(), onDecline: fn() },
+  args: { isBestMatch: true, onAccept: fn() },
   play: async ({ canvasElement }) => {
     await within(canvasElement).findByText('Best match')
   },
@@ -133,19 +127,11 @@ export const Accepted: Story = {
   },
 }
 
-/** Declined by the owner. */
-export const Declined: Story = {
-  args: { status: 'declined' },
+/** Over without being accepted, for any reason: one neutral "Closed". */
+export const Closed: Story = {
+  args: { status: 'closed' },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Declined')
-  },
-}
-
-/** Another worker was chosen. */
-export const NotSelected: Story = {
-  args: { status: 'notSelected' },
-  play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Not selected')
+    await within(canvasElement).findByText('Closed')
   },
 }
 
@@ -202,7 +188,6 @@ export const NoMessage: Story = {
     availabilityLabel: null,
     respondedLabel: null,
     onAccept: fn(),
-    onDecline: fn(),
   },
 }
 
@@ -224,27 +209,13 @@ export const LongName: Story = {
   },
 }
 
-/** Accept in progress: both buttons disabled, Accept shows its spinner. */
+/** Accept in progress: the button is disabled and shows its spinner. */
 export const AcceptLoading: Story = {
-  args: { onAccept: fn(), onDecline: fn(), acceptLoading: true },
+  args: { onAccept: fn(), acceptLoading: true },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
     await expect(
       canvasElement.querySelector('button[data-loading]'),
     ).toBeDisabled()
-    expect(canvas.getByRole('button', { name: 'Decline' })).toBeDisabled()
-  },
-}
-
-/** Decline in progress: both buttons disabled, Decline shows its spinner. */
-export const DeclineLoading: Story = {
-  args: { onAccept: fn(), onDecline: fn(), declineLoading: true },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(
-      canvasElement.querySelector('button[data-loading]'),
-    ).toBeDisabled()
-    expect(canvas.getByRole('button', { name: 'Accept' })).toBeDisabled()
   },
 }
 
@@ -255,6 +226,6 @@ export const WithDivider: Story = {
 
 /** Phone width: the message lines up under the name instead of the avatar gutter. */
 export const Phone: Story = {
-  args: { onAccept: fn(), onDecline: fn(), showVerified: true },
+  args: { onAccept: fn(), showVerified: true },
   globals: { viewport: { value: 'mobile1' } },
 }

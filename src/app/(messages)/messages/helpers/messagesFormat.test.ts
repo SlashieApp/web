@@ -8,7 +8,6 @@ import {
   quoteFlashStatus,
   threadMenuActions,
   threadPreviewText,
-  wasNotSelected,
 } from './messagesFormat'
 
 const copy = { yesterday: 'Yesterday' }
@@ -95,29 +94,19 @@ describe('flashAction', () => {
   })
 })
 
-describe('wasNotSelected', () => {
-  it('spots the not-selected flash', () => {
-    expect(
-      wasNotSelected([
-        {
-          type: ThreadItemType.Flash,
-          flashKind: FlashKind.QuoteNotSelected,
-          body: '',
-        },
-      ]),
-    ).toBe(true)
-    expect(wasNotSelected([])).toBe(false)
-  })
-})
-
 describe('quoteFlashStatus (BE-81)', () => {
-  it('maps live quote statuses, including the new ones', () => {
+  it('maps live quote statuses', () => {
     expect(quoteFlashStatus(QuoteStatus.Pending)).toBe('pending')
     expect(quoteFlashStatus(QuoteStatus.Accepted)).toBe('accepted')
-    expect(quoteFlashStatus(QuoteStatus.Declined)).toBe('declined')
-    expect(quoteFlashStatus(QuoteStatus.NotSelected)).toBe('notSelected')
     expect(quoteFlashStatus(QuoteStatus.Withdrawn)).toBe('withdrawn')
     expect(quoteFlashStatus(QuoteStatus.Expired)).toBe('replaced')
+  })
+
+  it('reads any other status as closed, never as raw text', () => {
+    // CLOSED is the API's newest status and has no typed value here; the
+    // second is one nobody has sent yet.
+    expect(quoteFlashStatus('CLOSED')).toBe('closed')
+    expect(quoteFlashStatus('A_STATUS_FOR_LATER')).toBe('closed')
   })
 })
 

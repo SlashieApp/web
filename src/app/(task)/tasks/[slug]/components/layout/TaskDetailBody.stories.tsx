@@ -57,7 +57,8 @@ const bookedTask = storyTaskDetail({
   status: TaskStatus.Awarded,
   quotes: [
     storyTaskQuote({ status: QuoteStatus.Accepted }),
-    { ...competitorQuote, status: QuoteStatus.NotSelected },
+    // The other quotes stay PENDING once someone is booked (BE-113).
+    competitorQuote,
   ],
 })
 
@@ -173,7 +174,7 @@ export const OwnerOpenNoQuotes: Story = {
     expectView(canvasElement, 'Your task is live - reaching workers'),
 }
 
-/** Owner with quotes: compare, accept or decline each one. */
+/** Owner with quotes: compare them and accept one. */
 export const OwnerOpenWithQuotes: Story = {
   ...desktop,
   ...page({ viewer: 'owner', task: openTask }),

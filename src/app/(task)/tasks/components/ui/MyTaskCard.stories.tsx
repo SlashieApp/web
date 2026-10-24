@@ -226,10 +226,10 @@ export const PastCardMenu: Story = {
 
 /** Past row: how it ended and the price in the line (no end date known), with the ⋮ menu. */
 export const PastRow: Story = {
-  args: { row: storyRows.pastNotSelected, layout: 'row' },
+  args: { row: storyRows.pastClosed, layout: 'row' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Not selected · £90')).toBeVisible()
+    await expect(canvas.getByText('Closed · £90')).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Options for Clear a small garden' }),
     ).toBeVisible()

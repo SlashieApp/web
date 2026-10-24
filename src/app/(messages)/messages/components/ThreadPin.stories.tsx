@@ -11,9 +11,11 @@ import { expect, waitFor, within } from 'storybook/test'
 
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
+  STORY_CLOSED_STATUS,
   STORY_TASK_ID,
   STORY_WORKER_ID,
   storyTaskDetail,
+  storyTaskQuote,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
@@ -133,18 +135,24 @@ export const WorkerQuote: Story = {
   },
 }
 
-/** pin.myQuote: Alex booked Sam, so Jordan's quote reads Not selected. */
-export const WorkerNotSelected: Story = {
+/**
+ * pin.closed: Alex booked Sam (BE-113). Jordan's quote stays pending, so the
+ * pin is the task's plain "booked" status, not his quote.
+ */
+export const WorkerBookedElsewhere: Story = {
   ...pin(
     'worker',
     storyTaskDetail({
       status: TaskStatus.Awarded,
-      quotes: storyQuotes(QuoteStatus.NotSelected, QuoteStatus.Accepted),
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
     }),
   ),
   play: async ({ canvasElement }) => {
-    await shows(canvasElement, 'pin.myQuote')
-    await expect(within(canvasElement).getByText('Not selected')).toBeVisible()
+    const canvas = within(canvasElement)
+    await shows(canvasElement, 'pin.closed')
+    await expect(canvas.getByText('Awarded')).toBeVisible()
+    await expect(canvas.getByText('Worker booked')).toBeVisible()
+    await noButtons(canvasElement)
   },
 }
 
@@ -268,12 +276,12 @@ export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
 }
 
-/** pin.quotes: Sam's quote was declined, so it isn't live: only Jordan's shows. */
-export const PosterDeclinedOne: Story = {
+/** pin.quotes: Sam's quote is closed, so it isn't live: only Jordan's shows. */
+export const PosterOneQuoteClosed: Story = {
   ...pin(
     'owner',
     storyTaskDetail({
-      quotes: storyQuotes(QuoteStatus.Pending, QuoteStatus.Declined),
+      quotes: storyQuotes(QuoteStatus.Pending, STORY_CLOSED_STATUS),
     }),
     needs(ThreadAttentionKind.CompareQuotes, 1),
   ),

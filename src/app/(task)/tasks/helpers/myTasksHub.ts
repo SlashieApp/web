@@ -64,8 +64,7 @@ export type MyTaskOutcome =
   | 'cancelled'
   /** Both sides marked it Failed: the booking didn't go ahead. */
   | 'failed'
-  | 'notSelected'
-  | 'declined'
+  /** Anything else that is over: a quote that closed, or the job went to someone else. */
   | 'closed'
 
 export type MyTaskQuoteSource = {
@@ -296,7 +295,10 @@ function sectionFor(facts: Facts): MyTaskSectionId {
   return 'past'
 }
 
-/** In task detail's order: a cancelled task first, then the booking, then your quote. */
+/**
+ * In task detail's order: a cancelled task first, then the booking. Anything
+ * else that is over reads as closed, whatever your quote's status was.
+ */
 function outcomeFor(
   facts: Facts,
   order: MyTaskOrderSource | null,
@@ -310,14 +312,6 @@ function outcomeFor(
       failed(order?.counterpartyCloseAction)
       ? 'failed'
       : 'cancelled'
-  }
-  if (!facts.hosted) {
-    if (facts.quoteStatus === 'DECLINED' || facts.quoteStatus === 'REJECTED') {
-      return 'declined'
-    }
-    if (facts.quoteStatus === 'NOT_SELECTED' || facts.someoneElseAwarded) {
-      return 'notSelected'
-    }
   }
   return 'closed'
 }

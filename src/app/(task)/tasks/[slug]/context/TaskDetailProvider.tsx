@@ -7,7 +7,6 @@ import type {
   AcceptQuoteMutation,
   AddQuoteMutation,
   CancelTaskMutation,
-  DeclineQuoteMutation,
   MeQuery,
   ReopenTaskMutation,
   TaskCoreQuery,
@@ -43,7 +42,6 @@ import CancelRescheduleRequest from '@/app/(task)/tasks/[slug]/graphql/CancelRes
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
 import ConfirmReschedule from '@/app/(task)/tasks/[slug]/graphql/ConfirmReschedule.gql'
 import DeclineOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/DeclineOrderCancellation.gql'
-import DeclineQuote from '@/app/(task)/tasks/[slug]/graphql/DeclineQuote.gql'
 import DeclineReschedule from '@/app/(task)/tasks/[slug]/graphql/DeclineReschedule.gql'
 import MarkOrderDone from '@/app/(task)/tasks/[slug]/graphql/MarkOrderDone.gql'
 import MarkOrderFailed from '@/app/(task)/tasks/[slug]/graphql/MarkOrderFailed.gql'
@@ -268,7 +266,6 @@ export function TaskDetailProvider({
   const [orderActionPending, setOrderActionPending] = useState<
     OrderAction['type'] | null
   >(null)
-  const [decliningQuoteId, setDecliningQuoteId] = useState<string | null>(null)
   const [explicitTab, setExplicitTab] = useState<TaskDetailTab | null>(() => {
     const hash = readTaskDetailHash()
     return hash ? resolveTaskDetailTab(hash, TASK_DETAIL_TAB.overview) : null
@@ -515,7 +512,6 @@ export function TaskDetailProvider({
   const [acceptQuote] = useMutation<AcceptQuoteMutation>(AcceptQuote)
   const [cancelTask, { loading: cancelingTask }] =
     useMutation<CancelTaskMutation>(CancelTask)
-  const [declineQuote] = useMutation<DeclineQuoteMutation>(DeclineQuote)
   const [withdrawQuote, { loading: withdrawingQuote }] =
     useMutation<WithdrawQuoteMutation>(WithdrawQuote)
   const [reopenTask, { loading: reopeningTask }] =
@@ -676,7 +672,7 @@ export function TaskDetailProvider({
 
   const onAcceptQuote = useCallback(
     async (quoteId: string, selectedSlotId: string) => {
-      if (!task || !permissions.showAcceptDecline) return
+      if (!task || !permissions.canAcceptQuote) return
       const p = t.provider
 
       setAcceptError(null)
@@ -723,58 +719,11 @@ export function TaskDetailProvider({
     },
     [
       acceptQuote,
-      permissions.showAcceptDecline,
+      permissions.canAcceptQuote,
       refetchClientTask,
       refreshPageData,
       serverError,
       setActiveTab,
-      t.provider,
-      task,
-    ],
-  )
-
-  const onDeclineQuote = useCallback(
-    async (quoteId: string) => {
-      if (!task || !permissions.showAcceptDecline) return
-      const p = t.provider
-      setAcceptError(null)
-      setDecliningQuoteId(quoteId)
-      try {
-        const result = await declineQuote({ variables: { quoteId } })
-        if (!result.data?.declineQuote?.id) {
-          throw new Error(p.declineFailed)
-        }
-        showAppToast({
-          title: p.quoteDeclinedTitle,
-          description: p.quoteDeclinedDescription,
-          type: 'info',
-        })
-        trackFlowSucceeded(EVENTS.quote_decline_success, {
-          task_id: task.id,
-          quote_id: quoteId,
-        })
-        refreshPageData()
-        // The new Activity line (FE-372) is on the viewer's Task query too.
-        void refetchClientTask()
-      } catch (error: unknown) {
-        trackFlowFailed(EVENTS.quote_decline_fail, error, {
-          flow: 'quote_decline',
-          action: 'onDeclineQuote',
-          operation: 'DeclineQuote',
-          extra: { task_id: task?.id, quote_id: quoteId },
-        })
-        setAcceptError(serverError(error, p.declineFailed))
-        if (isStaleTaskError(error)) void refetchClientTask()
-      } finally {
-        setDecliningQuoteId(null)
-      }
-    },
-    [
-      declineQuote,
-      permissions.showAcceptDecline,
-      refetchClientTask,
-      refreshPageData,
-      serverError,
       t.provider,
       task,
     ],
@@ -948,10 +897,9 @@ export function TaskDetailProvider({
   ])
 
   const onWithdrawQuote = useCallback(async () => {
-    // Nothing on a suspended task can change (BE-108).
-    if (!myQuote || !permissions.hasPendingQuote || permissions.isSuspended) {
-      return false
-    }
+    // Any pending quote can go, even once someone else is booked (BE-113),
+    // but nothing on a suspended task can change (BE-108).
+    if (!myQuote || !permissions.canWithdrawQuote) return false
     const p = t.provider
 
     setQuoteError(null)
@@ -979,8 +927,7 @@ export function TaskDetailProvider({
     }
   }, [
     myQuote,
-    permissions.hasPendingQuote,
-    permissions.isSuspended,
+    permissions.canWithdrawQuote,
     refetchClientTask,
     serverError,
     t.actions.withdrawQuoteConfirm,
@@ -1112,13 +1059,11 @@ export function TaskDetailProvider({
       cancelError,
       jobActionError,
       acceptingQuoteId,
-      decliningQuoteId,
       quoting,
       cancelingTask,
       orderActionPending,
       onSubmitQuote,
       onAcceptQuote,
-      onDeclineQuote,
       runOrderAction,
       onCancelTask,
       onReopenTask,
@@ -1167,13 +1112,11 @@ export function TaskDetailProvider({
       cancelError,
       jobActionError,
       acceptingQuoteId,
-      decliningQuoteId,
       quoting,
       cancelingTask,
       orderActionPending,
       onSubmitQuote,
       onAcceptQuote,
-      onDeclineQuote,
       runOrderAction,
       onCancelTask,
       onReopenTask,
