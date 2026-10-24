@@ -67,41 +67,45 @@ export function ForgotPasswordForm() {
         </Link>
       }
     >
-      <Box as="form" onSubmit={onSubmit} w="full">
-        <Stack gap={4}>
-          <FormField label={t.emailLabel}>
-            <EmailInput
-              value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-              autoComplete="email"
-              required
-            />
-          </FormField>
+      <Box asChild w="full">
+        <form method="post" onSubmit={onSubmit}>
+          <Stack gap={4}>
+            <FormField label={t.emailLabel}>
+              <EmailInput
+                value={email}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEmail(e.target.value)
+                }
+                autoComplete="email"
+                required
+              />
+            </FormField>
 
-          {captcha.requiresCaptcha ? (
-            <TurnstileField
-              onTokenChange={captcha.setToken}
-              resetSignal={captcha.resetSignal}
-            />
-          ) : null}
+            {captcha.requiresCaptcha ? (
+              <TurnstileField
+                onTokenChange={captcha.setToken}
+                resetSignal={captcha.resetSignal}
+              />
+            ) : null}
 
-          {alert ? <AuthAlert tone={alert.tone}>{alert.text}</AuthAlert> : null}
+            {alert ? (
+              <AuthAlert tone={alert.tone}>{alert.text}</AuthAlert>
+            ) : null}
 
-          <Button
-            type="submit"
-            loading={loading}
-            disabled={submitDisabled}
-            w="full"
-            size="lg"
-            minH="48px"
-          >
-            {cooldownSeconds > 0
-              ? formatMessage(shared.tryAgainIn, { seconds: cooldownSeconds })
-              : t.submit}
-          </Button>
-        </Stack>
+            <Button
+              type="submit"
+              loading={loading}
+              disabled={submitDisabled}
+              w="full"
+              size="lg"
+              minH="48px"
+            >
+              {cooldownSeconds > 0
+                ? formatMessage(shared.tryAgainIn, { seconds: cooldownSeconds })
+                : t.submit}
+            </Button>
+          </Stack>
+        </form>
       </Box>
     </AuthCard>
   )

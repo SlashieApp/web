@@ -157,7 +157,7 @@ export function ResetPasswordScreen() {
       footer={<BackToLogin />}
     >
       <Box asChild w="full">
-        <form onSubmit={handleSubmit(onValid)} noValidate>
+        <form method="post" onSubmit={handleSubmit(onValid)} noValidate>
           <Stack gap={4}>
             {/* Dev only: paste a token when testing without the email link. */}
             {isDev && (showTokenField || !tokenWatch) ? (

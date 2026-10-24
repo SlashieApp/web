@@ -131,6 +131,7 @@ export function LoginPanel({
       <AuthDivider />
       <Box asChild w="full">
         <form
+          method="post"
           onSubmit={handleSubmit((values) => {
             if (!disabled) onSubmit(values)
           })}
