@@ -28,7 +28,7 @@
     },
     "landing": {
       "metadata": {
-        "title": "Slashie — Help around the corner",
+        "title": "Slashie | Help around the corner",
         "description": "Trusted local workers. Clear quotes. No platform cut of the job. Post a task and pay the worker directly."
       },
       "hero": {
@@ -50,7 +50,7 @@
       "pricingTeaser": {
         "heading": "Simple pricing",
         "body": "Customers use Slashie for free. Workers get free quotes each month, then can subscribe for unlimited quoting.",
-        "freePlanLabel": "Workers — Free",
+        "freePlanLabel": "Workers: Free",
         "freeHeadline": "{count} quotes a month",
         "freeBody": "Browse tasks and send quotes on the free tier.",
         "unlimitedHeadlineFallback": "Unlimited quotes",
@@ -314,7 +314,7 @@
     },
     "landing": {
       "metadata": {
-        "title": "Slashie — 幫手就在街角",
+        "title": "Slashie | 幫手就在街角",
         "description": "可信本地工作者。清楚報價。不抽取任務費用。發布任務，直接向工作者付款。"
       },
       "hero": {
@@ -336,7 +336,7 @@
       "pricingTeaser": {
         "heading": "簡單收費",
         "body": "客戶免費使用 Slashie。工作者每月有免費報價額度，需要更多時可訂閱無限報價。",
-        "freePlanLabel": "工作者 — 免費",
+        "freePlanLabel": "工作者：免費",
         "freeHeadline": "每月 {count} 個報價",
         "freeBody": "用免費方案瀏覽任務並發送報價。",
         "unlimitedHeadlineFallback": "無限報價",

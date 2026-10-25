@@ -50,7 +50,7 @@ export function formatTaskScheduleLabel(
 ): string | null {
   if (!datetime) return null
   if (datetime.type === TaskDateTimeType.Flexible) {
-    return 'Flexible timing — agree with the other party'
+    return 'Flexible timing: agree with the other party'
   }
   if (datetime.type === TaskDateTimeType.Before) {
     const date = datetime.date?.trim()

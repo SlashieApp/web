@@ -56,7 +56,7 @@ export function formatBudget(task: TaskListItem): {
     }
   }
   return {
-    main: `${formatGbpMajor(min / 100)} — ${formatGbpMajor(max / 100)}`,
+    main: `${formatGbpMajor(min / 100)} – ${formatGbpMajor(max / 100)}`,
     sub: 'Estimated budget',
     hasBudget: true,
   }

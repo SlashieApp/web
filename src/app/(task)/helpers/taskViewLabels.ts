@@ -2,7 +2,7 @@ import type { TaskCoreQuery } from '@codegen/schema'
 
 type TaskViewsRecord = Pick<NonNullable<TaskCoreQuery['task']>, 'views'>
 
-const COLD_START_VIEWS_LABEL = 'New — reaching workers'
+const COLD_START_VIEWS_LABEL = 'New: reaching workers'
 
 /** Public `task.views` line for non-owners (null = cold-start copy; hidden below threshold). */
 export function taskPublicViewsLabel(

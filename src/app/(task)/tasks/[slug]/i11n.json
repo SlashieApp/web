@@ -239,7 +239,7 @@
       "photoAlt": "{title} photo {n}",
       "ownerFallback": "Task owner",
       "viewProfile": "View {name}'s profile",
-      "viewsColdStart": "New — reaching workers",
+      "viewsColdStart": "New: reaching workers",
       "viewsOne": "{count} view",
       "viewsMany": "{count} views",
       "locationApproxNote": "Approximate area. The exact address is shared once a quote is accepted.",
@@ -255,7 +255,7 @@
       "heading": "Analytics",
       "views": "Views",
       "viewsHint": "Times workers opened this task.",
-      "viewsColdStart": "New — reaching workers",
+      "viewsColdStart": "New: reaching workers",
       "viewsOne": "{count}",
       "viewsMany": "{count}",
       "quotes": "Quotes",
@@ -270,9 +270,9 @@
         "high": "High"
       },
       "interestHint": {
-        "low": "Still early — share the task to get more quotes.",
+        "low": "Still early. Share the task to get more quotes.",
         "medium": "Workers are quoting. Compare and accept one.",
-        "high": "Strong interest — several quotes are in."
+        "high": "Strong interest. Several quotes are in."
       },
       "timeToQuote": {
         "heading": "Time to quote",
@@ -303,8 +303,8 @@
         "C4": "Workers can send quotes while your task is open.",
         "W1": "Sign in to send a quote.",
         "W2": "Become a worker to compete on this task.",
-        "W3": "Be the first to quote — customers compare price and availability.",
-        "W4": "See what others are bidding — then send yours.",
+        "W3": "Be the first to quote. Customers compare price and availability.",
+        "W4": "See what others are bidding, then send yours.",
         "W5": "Customer is reviewing quotes.",
         "W6": "Your quote has been accepted.",
         "W8": "This task is not accepting new quotes."
@@ -797,7 +797,7 @@
       "photoAlt": "{title} 照片 {n}",
       "ownerFallback": "任務發佈者",
       "viewProfile": "查看 {name} 的公開檔案",
-      "viewsColdStart": "新任務 — 正在觸達工作者",
+      "viewsColdStart": "新任務：正在觸達工作者",
       "viewsOne": "{count} 次瀏覽",
       "viewsMany": "{count} 次瀏覽",
       "locationApproxNote": "大約位置。報價被接受後才會提供確實地址。",
@@ -813,7 +813,7 @@
       "heading": "數據分析",
       "views": "瀏覽次數",
       "viewsHint": "工作者打開此任務的次數。",
-      "viewsColdStart": "新任務 — 正在觸達工作者",
+      "viewsColdStart": "新任務：正在觸達工作者",
       "viewsOne": "{count}",
       "viewsMany": "{count}",
       "quotes": "報價",
@@ -828,9 +828,9 @@
         "high": "高"
       },
       "interestHint": {
-        "low": "仍屬早期 — 分享任務可吸引更多報價。",
+        "low": "仍屬早期。分享任務可吸引更多報價。",
         "medium": "已有工作者報價。比較後接受一位。",
-        "high": "興趣很高 — 已收到多個報價。"
+        "high": "興趣很高，已收到多個報價。"
       },
       "timeToQuote": {
         "heading": "報價時間",
@@ -861,8 +861,8 @@
         "C4": "任務開放期間，工作者可以傳送報價。",
         "W1": "登入以傳送報價。",
         "W2": "成為工作者即可競投此任務。",
-        "W3": "成為第一個報價 — 顧客會比較價格與檔期。",
-        "W4": "先看看其他人的出價 — 再送出你的。",
+        "W3": "成為第一個報價。顧客會比較價格與檔期。",
+        "W4": "先看看其他人的出價，再送出你的。",
         "W5": "顧客正在審核報價。",
         "W6": "你的報價已被接受。",
         "W8": "此任務已不再接受新報價。"
