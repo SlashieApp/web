@@ -63,8 +63,13 @@ function familyStyles(family: SdlFamily): SystemStyleObject {
   }
 }
 
+/**
+ * `sm` is the app's Badge box (FE-442): 8px sides, 3px above and below, and
+ * the 12/18 caption line, so 26px tall with the 1px border. The font stays
+ * the web `xs`.
+ */
 const badgeSizes: Record<UiBadgeSize, SystemStyleObject> = {
-  sm: { fontSize: 'xs', px: 2, py: 0.5, gap: 1.5 },
+  sm: { fontSize: 'xs', px: 2, py: '3px', gap: 1.5, lineHeight: '1.5' },
   lg: { fontSize: 'sm', px: 2.5, py: 1, gap: 2 },
 }
 

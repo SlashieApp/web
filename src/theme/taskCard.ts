@@ -7,7 +7,9 @@ export const taskCardLayout = {
   titleLines: 1,
   titleLineHeight: 1.3,
   metaLineHeight: 1.25,
-  badgeRowMinHeight: '1.5rem',
+  // The small Badge's height (FE-442): 26px, so a card with a badge is no
+  // taller than one without.
+  badgeRowMinHeight: '1.625rem',
   thumb: '48px',
 } as const
 

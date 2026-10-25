@@ -1,5 +1,6 @@
 import { HStack, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
 import { Badge, type UiBadgeVariant } from './Badge'
 
@@ -59,6 +60,27 @@ export const Neutral: Story = {
 
 /** Small (`sm`, the default): 12px text for dense rows. */
 export const Small: Story = { args: { size: 'sm' } }
+
+/** Small is the app's Badge box (FE-442): 26px tall, with or without the dot. */
+export const SmallHeight: Story = {
+  render: () => (
+    <HStack gap={2} alignItems="center">
+      <Badge variant="info" size="sm" dot>
+        With dot
+      </Badge>
+      <Badge variant="neutral" size="sm" shape="pill">
+        No dot
+      </Badge>
+    </HStack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    for (const label of ['With dot', 'No dot']) {
+      const badge = canvas.getByText(label)
+      await expect(badge.getBoundingClientRect().height).toBeCloseTo(26, 0)
+    }
+  },
+}
 
 /** Large (`lg`): 14px text for headers and detail panels. */
 export const Large: Story = { args: { size: 'lg' } }
