@@ -1,8 +1,9 @@
 # Pricing views
 
-`/pricing` shows the header, the two plan cards (Free and Slashie Unlimited)
-and the FAQ. The cards depend on who's looking, so they come from one view at
-a time. `getPricingView({ available, session, worker })` picks it, each view
+`/pricing` shows the title bar (FE-420: Back and "Membership", as the app's
+Membership screen has it), the header, the two plan cards (Free and Slashie
+Unlimited) and the FAQ. The cards depend on who's looking, so they come from
+one view at a time. `getPricingView({ available, session, worker })` picks it, each view
 has one config file in this folder (which card is "Your plan", whether
 Unlimited leads with the trial, each card's button), and `index.ts` maps names
 to configs.
