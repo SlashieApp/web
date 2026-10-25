@@ -1,6 +1,7 @@
 {
   "en": {
     "skipToContent": "Skip to content",
+    "goBack": "Go back",
     "menu": "Menu",
     "language": "Language",
     "pricing": "Pricing",
@@ -12,6 +13,7 @@
   },
   "zh_hk": {
     "skipToContent": "跳到主要內容",
+    "goBack": "返回上一頁",
     "menu": "選單",
     "language": "語言",
     "pricing": "收費",

@@ -19,8 +19,14 @@ export type DashboardPageLayoutProps = {
   title: string
   /** One short line under the title. */
   description?: ReactNode
-  /** At most one button beside the title. */
+  /** At most one button beside the title (the compact header only). */
   action?: ReactNode
+  /**
+   * `largeTitle`: the app's iPhone title bar (FE-420), with Back at every
+   * width. `compact` (default): the title block that sticks and shrinks, with
+   * Back on phones only.
+   */
+  headerVariant?: 'compact' | 'largeTitle'
   /** Between the header and the body (hero, notices). */
   afterHeader?: ReactNode
   /** `narrow`: one readable column. `wide`: the page width, with an optional rail. */
@@ -35,13 +41,15 @@ export type DashboardPageLayoutProps = {
 
 /**
  * Page contract for the signed-in dashboard pages: a sticky header whose h1
- * matches the menu label, a back control on phones (no app header there),
- * then the body in one readable column or with a rail.
+ * matches the menu label, a back control (on phones only, where there is no
+ * app header, unless `headerVariant` is `largeTitle`), then the body in one
+ * readable column or with a rail.
  */
 export function DashboardPageLayout({
   title,
   description,
   action,
+  headerVariant = 'compact',
   afterHeader,
   width = 'narrow',
   sidebar,
@@ -71,6 +79,7 @@ export function DashboardPageLayout({
         onBack={onBack}
         backAriaLabel={t.page.backAria}
         hideBackFrom="lg"
+        variant={headerVariant}
       />
       <Stack gap={{ base: 4, md: 5 }}>
         {afterHeader}

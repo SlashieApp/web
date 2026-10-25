@@ -1,7 +1,8 @@
-import { Stack, Text } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import type { ReactNode } from 'react'
 import { LuInfo, LuUser } from 'react-icons/lu'
-import { expect, within } from 'storybook/test'
+import { expect, waitFor, within } from 'storybook/test'
 
 import { Button, Link } from '@ui'
 
@@ -98,4 +99,90 @@ export const Phone: Story = {
 export const PhoneSidebarStacked: Story = {
   globals: { viewport: { value: 'mobile1' } },
   args: { width: 'wide', title: 'Profile', sidebar },
+}
+
+/** Story-only scroll pane, as the app shell's `main`; `scrolled` starts it past the title. */
+function Pane({
+  scrolled = false,
+  children,
+}: {
+  scrolled?: boolean
+  children: ReactNode
+}) {
+  return (
+    <Box
+      ref={(node: HTMLDivElement | null) => {
+        if (!node || !scrolled) return
+        requestAnimationFrame(() => {
+          node.scrollTop = 200
+        })
+      }}
+      h="420px"
+      overflowY="auto"
+      overflowX="clip"
+      bg="bg.subtle"
+      px={6}
+    >
+      {children}
+      <Box h="1200px" />
+    </Box>
+  )
+}
+
+/** The bar's small title: the one copy of the title that is not the h1. */
+const barTitle = (canvasElement: HTMLElement) =>
+  within(canvasElement).getByText('Account', { selector: 'p' })
+
+/**
+ * Account and Billing (FE-420): the iPhone title bar with Back at every
+ * width, the large title is the h1, the description under it.
+ */
+export const LargeTitle: Story = {
+  args: { headerVariant: 'largeTitle' },
+  render: (args) => (
+    <Pane>
+      <DashboardPageLayout {...args} />
+    </Pane>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('heading', { level: 1, name: 'Account' }),
+    ).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Go back' })).toBeVisible()
+    await expect(
+      barTitle(canvasElement).closest('[aria-hidden="true"]'),
+    ).not.toBeNull()
+  },
+}
+
+/** Scrolled: the large title is under the bar, so the small title shows in it. */
+export const LargeTitleScrolled: Story = {
+  args: { headerVariant: 'largeTitle' },
+  render: (args) => (
+    <Pane scrolled>
+      <DashboardPageLayout {...args} />
+    </Pane>
+  ),
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(
+        barTitle(canvasElement).closest('[aria-hidden="true"]'),
+      ).toBeNull(),
+    )
+    await expect(
+      within(canvasElement).getByRole('button', { name: 'Go back' }),
+    ).toBeVisible()
+  },
+}
+
+/** Phones: the same bar, the title wraps in the one column. */
+export const LargeTitlePhone: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+  args: { headerVariant: 'largeTitle' },
+  render: (args) => (
+    <Pane>
+      <DashboardPageLayout {...args} />
+    </Pane>
+  ),
 }

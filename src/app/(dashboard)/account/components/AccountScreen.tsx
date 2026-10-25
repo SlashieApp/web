@@ -39,6 +39,7 @@ export function AccountScreen() {
   return (
     <DashboardPageLayout
       title={t.title}
+      headerVariant="largeTitle"
       description={
         <>
           {t.descriptionBefore}

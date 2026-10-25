@@ -4,6 +4,8 @@ import type { ReactNode } from 'react'
 import type { LegalDocument } from '@/content/legal/types'
 import { Link } from '@/ui'
 
+import { MarketingPageHeader } from './MarketingPageHeader'
+
 const EMAIL_PATTERN = /([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/gi
 
 /**
@@ -29,10 +31,10 @@ function linkifyEmails(paragraph: string): ReactNode[] {
 }
 
 /**
- * Shared prose shell for the public legal pages (/terms, /privacy, /cookies).
- * Page `<Container>` plus an inner readable measure, left-aligned to the
- * column. Copy comes from `src/content/legal/*` so it can change without
- * touching UI.
+ * Shared prose shell for the public legal pages (/terms, /privacy, /cookies,
+ * /help/safety). The title is the iPhone title bar (FE-420), then the page
+ * `<Container>` with an inner readable measure, left-aligned to the column.
+ * Copy comes from `src/content/legal/*` so it can change without touching UI.
  */
 export function LegalPageLayout({
   document,
@@ -40,18 +42,15 @@ export function LegalPageLayout({
   document: LegalDocument & { lastUpdatedLabel?: string }
 }) {
   return (
-    <Box py={{ base: 10, md: 14 }}>
+    <Box pb={{ base: 10, md: 14 }}>
       <Container>
+        <MarketingPageHeader
+          variant="largeTitle"
+          title={document.title}
+          description={`${document.lastUpdatedLabel ?? 'Last updated'}: ${document.lastUpdated}`}
+          contentMaxW="45rem"
+        />
         <Stack gap={8} maxW="45rem">
-          <Stack gap={2}>
-            <Heading as="h1" size="xl">
-              {document.title}
-            </Heading>
-            <Text fontSize="sm" color="text.muted">
-              {document.lastUpdatedLabel ?? 'Last updated'}:{' '}
-              {document.lastUpdated}
-            </Text>
-          </Stack>
           {document.intro?.map((paragraph) => (
             <Text
               key={paragraph.slice(0, 32)}
@@ -66,7 +65,9 @@ export function LegalPageLayout({
               key={section.heading}
               id={section.id}
               gap={3}
-              scrollMarginTop="96px"
+              // Clears the marketing header (58 / 66px with its borders), the
+              // 44px title bar under it, and 16px.
+              scrollMarginTop={{ base: '118px', md: '126px' }}
             >
               <Heading as="h2" size="md">
                 {section.heading}
