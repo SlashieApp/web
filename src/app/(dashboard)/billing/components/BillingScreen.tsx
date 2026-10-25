@@ -20,6 +20,7 @@ import { useBillingActions } from '../helpers/useBillingActions'
 import { useCheckoutReturn } from '../helpers/useCheckoutReturn'
 import bag from '../i11n.json'
 import { BILLING_VIEWS, type BillingAction, getBillingView } from '../views'
+import { billingActionFor, keepUnlimitedOpens } from '../views/billingAction'
 import { BillingViewCapture } from './analytics/BillingViewCapture'
 import { BillingPlanCard } from './ui/BillingPlanCard'
 
@@ -89,8 +90,15 @@ export function BillingScreen() {
       case 'resubscribe':
         void startCheckout('billing')
         return
-      case 'manageBilling':
       case 'keepUnlimited':
+        // Unlimited given by Slashie has no Stripe plan to resume (BE-119).
+        if (keepUnlimitedOpens(worker?.membership ?? null) === 'checkout') {
+          void startCheckout('billing')
+          return
+        }
+        void openBillingPortal()
+        return
+      case 'manageBilling':
       case 'fixPayment':
         void openBillingPortal()
         return
@@ -112,7 +120,10 @@ export function BillingScreen() {
       <MembershipRefreshOnMount />
       <BillingViewCapture />
       <BillingPlanCard
-        config={config}
+        config={{
+          ...config,
+          action: billingActionFor(config.action, worker?.membership ?? null),
+        }}
         membership={worker?.membership ?? null}
         pricing={pricing}
         formatDate={formatDate}

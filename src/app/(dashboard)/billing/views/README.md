@@ -53,3 +53,7 @@ price, then free vs lapsed.
 `components/BillingScreen.stories.tsx`: every view the screen reaches with
 canned data, zh-HK and phone. `BillingPlanCard.stories.tsx`: the Checkout
 states and missing dates.
+
+## Unlimited given by Slashie (BE-119)
+
+A plan given in admin reads like a paid one but has no Stripe plan (`canManageBilling` false), so `billingActionFor` adjusts the button: with an end date, Keep Slashie Unlimited starts Checkout (`canUpgrade`; the first charge is on that date); with no end, Manage billing is hidden.

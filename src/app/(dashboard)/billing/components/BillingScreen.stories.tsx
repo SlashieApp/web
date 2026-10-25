@@ -180,6 +180,53 @@ export const Cancelling: Story = {
   },
 }
 
+/**
+ * `cancelling` for Unlimited given by Slashie until a date (BE-119): no Stripe
+ * plan, so Keep starts Checkout (the first charge is on the end date).
+ */
+export const GivenUntilDate: Story = {
+  ...screenFor(
+    storyWorkerMe({
+      worker: storyWorker({
+        membership: storyMembership('activeCancelling', {
+          canManageBilling: false,
+          canUpgrade: true,
+        }),
+      }),
+    }),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Ending')).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Keep Slashie Unlimited' }),
+    ).toBeVisible()
+  },
+}
+
+/** Unlimited given by Slashie with no end (BE-119): nothing to manage, no button. */
+export const GivenNoEnd: Story = {
+  ...screenFor(
+    storyWorkerMe({
+      worker: storyWorker({
+        membership: storyMembership('active', {
+          canManageBilling: false,
+          canUpgrade: false,
+          currentPeriodEnd: null,
+          statusDescription: null,
+        }),
+      }),
+    }),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Active')).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Manage billing' }),
+    ).toBeNull()
+  },
+}
+
 /** `paymentProblem`: Fix payment, and no free quota meter. */
 export const PaymentProblem: Story = {
   ...screenFor(worker('pastDue')),
