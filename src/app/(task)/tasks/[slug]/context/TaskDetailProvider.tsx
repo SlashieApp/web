@@ -64,7 +64,10 @@ import {
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
-import { availablePrimaryAction } from '@/app/(task)/tasks/[slug]/helpers/taskSuspension'
+import {
+  availablePrimaryAction,
+  taskReopenFrom,
+} from '@/app/(task)/tasks/[slug]/helpers/taskSuspension'
 import {
   TASK_DETAIL_VIEWS,
   getTaskDetailView,
@@ -866,6 +869,7 @@ export function TaskDetailProvider({
   // dialogs confirm first.
   const onReopenTask = useCallback(async () => {
     if (!task || !permissions.canReopen) return false
+    const from = taskReopenFrom({ taskStatus: task.status, order: myOrder })
     try {
       const result = await reopenTask({
         variables: { taskId: task.id },
@@ -873,6 +877,7 @@ export function TaskDetailProvider({
         refetchQueries: ['MyRequests', 'MyOrders'],
       })
       if (!result.data?.reopenTask?.id) throw new Error(t.close.actionFailed)
+      trackFlowSucceeded(EVENTS.task_reopened, { task_id: task.id, from })
       showAppToast({ title: t.reopen.toast, type: 'success' })
       refreshPageData()
       // Status, the quotes back on offer, the old booking and the Activity
@@ -881,6 +886,16 @@ export function TaskDetailProvider({
       messages?.refetchThreads()
       return true
     } catch (error: unknown) {
+      trackFlowFailed(EVENTS.task_reopen_fail, error, {
+        flow: 'task_reopen',
+        action: 'onReopenTask',
+        operation: 'ReopenTask',
+        extra: {
+          task_id: task.id,
+          from,
+          error_code: getGraphQLErrorCode(error) ?? 'unknown',
+        },
+      })
       showAppToast({
         title: serverError(error, t.close.actionFailed),
         type: 'error',
@@ -891,6 +906,7 @@ export function TaskDetailProvider({
     }
   }, [
     messages,
+    myOrder,
     permissions.canReopen,
     refetch,
     refetchClientTask,

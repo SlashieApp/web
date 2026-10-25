@@ -68,6 +68,8 @@ export type MyTaskOutcome =
   | 'bookedByOther'
   /** Your quote is still pending, and someone else's job is complete (BE-113). */
   | 'taskCompleted'
+  /** Your quote is still pending; the booking ended and the task isn't reopened (BE-116). */
+  | 'otherBookingEnded'
   /** Anything else that is over, such as a quote that closed. */
   | 'closed'
 
@@ -310,8 +312,9 @@ function sectionFor(facts: Facts): MyTaskSectionId {
 /**
  * In task detail's order: a cancelled task first, then your booking, then a
  * quote of yours that is still PENDING while someone else is booked or done
- * (BE-113). Anything else that is over reads as closed, whatever your quote's
- * status was.
+ * (BE-113), or after the booking ended on a task the owner hasn't reopened
+ * (AWARDED with `bookingStatus` NONE, BE-116). Anything else that is over
+ * reads as closed, whatever your quote's status was.
  */
 function outcomeFor(
   facts: Facts,
@@ -330,6 +333,9 @@ function outcomeFor(
   if (!facts.hosted && facts.quoteStatus === 'PENDING') {
     if (facts.bookingStatus === 'BOOKED') return 'bookedByOther'
     if (facts.bookingStatus === 'COMPLETED') return 'taskCompleted'
+    if (facts.bookingStatus === 'NONE' && facts.taskStatus === 'AWARDED') {
+      return 'otherBookingEnded'
+    }
   }
   return 'closed'
 }

@@ -14,6 +14,7 @@ import { Link } from '@ui'
 
 import { clockTime, flashAction, flashSlot } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
+import { threadOtherBooking } from '../views'
 import { ThreadQuote } from './ThreadQuote'
 
 type Item = ThreadItemFieldsFragment
@@ -176,12 +177,14 @@ export function ThreadTimelineItem({
   // A task thread runs inside its task's provider: a suspended task's quote
   // can't be answered (BE-108), and once someone is booked the other quotes
   // stay PENDING but only an open task can accept one (BE-113). Until the
-  // task has loaded nothing is accepted.
+  // task has loaded nothing is accepted. The worker's own pending quote says
+  // what the task is doing instead of "Awaiting reply" (BE-116).
   const detail = useContext(TaskDetailContext)
   const taskSuspended = Boolean(detail?.permissions.isSuspended)
   const taskOpen = detail
     ? Boolean(detail.task) && detail.permissions.isOpen
     : true
+  const otherBooking = detail ? threadOtherBooking(detail.view) : null
 
   if (item.type === ThreadItemType.Flash) {
     if (item.flashKind === FlashKind.QuoteReceived && item.quote) {
@@ -192,6 +195,7 @@ export function ThreadTimelineItem({
             locale={locale}
             taskSuspended={taskSuspended}
             taskOpen={taskOpen}
+            otherBooking={otherBooking}
           />
         </FlashCard>
       )

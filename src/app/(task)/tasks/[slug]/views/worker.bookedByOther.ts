@@ -17,4 +17,5 @@ export const workerBookedByOther: TaskDetailViewConfig = {
     'photos',
   ],
   primaryAction: 'browseTasks',
+  actions: ['withdrawQuote'],
 }

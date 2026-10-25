@@ -1,5 +1,7 @@
 import { FlashKind, QuoteStatus, ThreadItemType } from '@codegen/schema'
 
+import type { ThreadViewInput } from '../views/types'
+
 type ItemLike = {
   type: ThreadItemType | string
   flashKind?: FlashKind | string | null
@@ -121,6 +123,48 @@ export function quoteFlashStatus(
     default:
       return 'closed'
   }
+}
+
+/**
+ * Task detail's summary copy keys for the status a worker's own pending
+ * quote card shows instead of "Awaiting reply".
+ */
+export type QuoteCardTaskStatus =
+  | 'bookedByOtherHeadline'
+  | 'taskCompletedHeadline'
+  | 'bookingCancelledHeadline'
+
+const TASK_STATUS_BY_OTHER_BOOKING = {
+  booked: 'bookedByOtherHeadline',
+  completed: 'taskCompletedHeadline',
+  ended: 'bookingCancelledHeadline',
+} as const satisfies Record<
+  NonNullable<ThreadViewInput['otherBooking']>,
+  QuoteCardTaskStatus
+>
+
+/**
+ * A worker's own quote stays PENDING while someone else is booked, or after
+ * the booking ended until the owner reopens the task (BE-113, BE-116), and
+ * "Awaiting reply" would be wrong: the card says what the task is doing
+ * instead ("Booked by someone else", "Task completed", "Booking cancelled"),
+ * from task detail's view (`threadOtherBooking`). Null for any other card,
+ * or a quote that isn't pending.
+ */
+export function quoteCardTaskStatus(input: {
+  quoteStatus: QuoteStatus | string
+  /** The quote is the viewer's own (the worker's side of the card). */
+  isMine: boolean
+  otherBooking: ThreadViewInput['otherBooking']
+}): QuoteCardTaskStatus | null {
+  if (
+    !input.isMine ||
+    !input.otherBooking ||
+    quoteFlashStatus(input.quoteStatus) !== 'pending'
+  ) {
+    return null
+  }
+  return TASK_STATUS_BY_OTHER_BOOKING[input.otherBooking]
 }
 
 export type ThreadMenuAction =

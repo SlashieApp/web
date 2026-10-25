@@ -25,9 +25,11 @@ import { Avatar, Badge, Button } from '@ui'
 
 import {
   type QuoteFlashStatus,
+  quoteCardTaskStatus,
   quoteFlashStatus,
 } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
+import type { ThreadViewInput } from '../views'
 
 type FlashQuote = NonNullable<ThreadItemFieldsFragment['quote']>
 
@@ -58,13 +60,16 @@ export function QuoteStatusBadge({ status }: { status: QuoteStatus }) {
  * proposed times and its live status. The task owner accepts a pending quote
  * right here (picking a time, with the safety notice), while the task is open
  * and not suspended; a suspended worker's quote shows "Account suspended"
- * with Accept off, as on task detail (BE-108).
+ * with Accept off, as on task detail (BE-108). The worker's own pending quote
+ * says what the task is doing once someone else is booked or the booking
+ * ended (BE-113, BE-116), not "Awaiting reply".
  */
 export function ThreadQuote({
   quote,
   locale,
   taskSuspended = false,
   taskOpen = true,
+  otherBooking = null,
 }: {
   quote: FlashQuote
   locale: string
@@ -75,6 +80,8 @@ export function ThreadQuote({
    * PENDING (BE-113), but only an open task can accept one.
    */
   taskOpen?: boolean
+  /** Task detail's view says the viewer's pending quote lost the task (`threadOtherBooking`). */
+  otherBooking?: ThreadViewInput['otherBooking']
 }) {
   const t = useI11n(bag)
   const q = t.quote
@@ -96,6 +103,11 @@ export function ThreadQuote({
     quote.workerUserId !== meId &&
     !taskSuspended &&
     taskOpen
+  const taskStatus = quoteCardTaskStatus({
+    quoteStatus: quote.status,
+    isMine: meId != null && quote.workerUserId === meId,
+    otherBooking,
+  })
   // The owner's pill, as on task detail's quote list.
   const workerSuspended = quote.workerSuspended && quote.workerUserId !== meId
   const name = quote.worker?.profile.name?.trim() || q.workerFallback
@@ -166,7 +178,13 @@ export function ThreadQuote({
           </Text>
           {canAct && !workerSuspended ? null : (
             <HStack gap={1.5} flexWrap="wrap">
-              {canAct ? null : <QuoteStatusBadge status={quote.status} />}
+              {canAct ? null : taskStatus ? (
+                <Badge variant="neutral" size="sm" shape="pill" dot>
+                  {taskCopy.summary[taskStatus]}
+                </Badge>
+              ) : (
+                <QuoteStatusBadge status={quote.status} />
+              )}
               {workerSuspended ? (
                 <Badge variant="danger" size="sm" shape="pill">
                   {taskCopy.quotes.card.accountSuspended}

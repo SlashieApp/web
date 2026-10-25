@@ -581,6 +581,33 @@ describe('buildMyTasksHub reopened and suspended tasks (BE-108)', () => {
       })
     })
 
+    // BE-116: the booking was cancelled or failed and the owner hasn't
+    // reopened the task, so it is AWARDED with nobody booked.
+    it('reads Booking cancelled under Past once the booking ended and the task is not reopened, with no button', () => {
+      expect(rowFor(hubOfQuotes(quoted('t1', 'NONE')), 't1')).toMatchObject({
+        section: 'past',
+        outcome: 'otherBookingEnded',
+        action: null,
+        orderId: null,
+      })
+    })
+
+    it('reads Closed, not Booking cancelled, when nothing says the task is AWARDED', () => {
+      for (const status of ['CLOSED', 'EXPIRED', 'A_STATUS_FOR_LATER']) {
+        expect(
+          rowFor(hubOfQuotes(quoted('t1', 'NONE', 'PENDING', status)), 't1'),
+        ).toMatchObject({ section: 'past', outcome: 'closed' })
+      }
+    })
+
+    it('reads a quote that is not pending as Closed when the booking ended', () => {
+      for (const quoteStatus of ['CLOSED', 'WITHDRAWN']) {
+        expect(
+          rowFor(hubOfQuotes(quoted('t1', 'NONE', quoteStatus)), 't1'),
+        ).toMatchObject({ section: 'past', outcome: 'closed' })
+      }
+    })
+
     it('leaves a pending quote on an open task in Open', () => {
       expect(
         rowFor(hubOfQuotes(quoted('t1', 'NONE', 'PENDING', 'OPEN')), 't1'),

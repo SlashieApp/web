@@ -10,4 +10,5 @@ export const workerCompletedByOther: TaskDetailViewConfig = {
   subline: 'browseSubline',
   facts: ['location', 'categories', 'postedBy', 'description', 'photos'],
   primaryAction: 'browseTasks',
+  actions: ['withdrawQuote'],
 }

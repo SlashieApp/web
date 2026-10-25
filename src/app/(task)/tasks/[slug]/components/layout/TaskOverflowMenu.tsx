@@ -25,8 +25,9 @@ import { repostTaskHref } from '@/utils/taskHandoff'
 import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
+import { availableActions } from '../../helpers/taskDetailActions'
 import { orderCounterpart } from '../../helpers/taskDetailUtils'
-import { TASK_DETAIL_VIEWS, type TaskDetailAction } from '../../views'
+import type { TaskDetailAction } from '../../views'
 import { OrderDoneDialog } from '../overview/OrderCloseControls'
 import { OrderFailedDialog } from '../overview/OrderFailedDialog'
 import {
@@ -77,7 +78,10 @@ export function useBookingDialogs() {
 }
 
 const ACTION_DIALOG: Record<
-  Exclude<TaskDetailAction, 'reportOtherParty' | 'withdrawRequest'>,
+  Exclude<
+    TaskDetailAction,
+    'reportOtherParty' | 'withdrawRequest' | 'withdrawQuote'
+  >,
   BookingDialog
 > = {
   reschedule: 'reschedule',
@@ -95,6 +99,7 @@ const BOOKING_ICONS: Record<
   cancelBooking: <LuCalendarX />,
   askToCancel: <LuCalendarX />,
   withdrawRequest: <LuUndo2 />,
+  withdrawQuote: <LuUndo2 />,
   switchToFailed: <LuCircleAlert />,
   switchToDone: <LuCircleCheck />,
 }
@@ -147,9 +152,11 @@ function MenuAction({
 }
 
 /**
- * The view's booking actions (Reschedule, Cancel booking, ...), listed
- * first. A frozen booking (BE-108) refuses every change, so only reporting
- * the other person is left.
+ * The view's actions (Reschedule, Cancel booking, Withdraw quote, ...),
+ * listed first. A frozen booking (BE-108) refuses every change, so only
+ * reporting the other person is left. Withdraw quote has no booking behind
+ * it: it is for a worker whose quote is still pending once someone else is
+ * booked or the booking ended (BE-116).
  */
 function BookingActions({
   onDone,
@@ -166,19 +173,15 @@ function BookingActions({
     permissions,
     runOrderAction,
     orderActionPending,
+    onWithdrawQuote,
   } = useTaskDetail()
   const t = useI11n(bag)
-  if (!task || !myOrder) return null
-  const actions = (TASK_DETAIL_VIEWS[view].actions ?? []).filter(
-    (action) => permissions.showOrderActions || action === 'reportOtherParty',
-  )
-  const counterpartName = orderCounterpart(
-    task,
-    myOrder,
-    permissions.isOwner,
-    t,
-  ).name
-  const request = orderRequestView(myOrder, me?.id)
+  if (!task) return null
+  const actions = availableActions(view, permissions)
+  const counterpartName = myOrder
+    ? orderCounterpart(task, myOrder, permissions.isOwner, t).name
+    : ''
+  const request = myOrder ? orderRequestView(myOrder, me?.id) : null
   const withdraw =
     request?.kind === 'RESCHEDULE'
       ? 'cancelRescheduleRequest'
@@ -188,6 +191,7 @@ function BookingActions({
     cancelBooking: t.requests.cancelBooking,
     askToCancel: t.conflict.askToCancel,
     withdrawRequest: t.requests.withdraw,
+    withdrawQuote: t.actions.withdrawQuote,
     switchToFailed: t.close.switchToFailed,
     switchToDone: t.close.switchToDone,
   }
@@ -196,24 +200,30 @@ function BookingActions({
     <>
       {actions.map((action) =>
         action === 'reportOtherParty' ? (
-          <ReportControl
-            key={action}
-            kind="user"
-            targetId={
-              permissions.isOwner
-                ? myOrder.workerUserId
-                : myOrder.customerUserId
-            }
-            targetTitle={counterpartName}
-            variant="menu"
-            onOpened={onDone}
-          />
+          myOrder ? (
+            <ReportControl
+              key={action}
+              kind="user"
+              targetId={
+                permissions.isOwner
+                  ? myOrder.workerUserId
+                  : myOrder.customerUserId
+              }
+              targetTitle={counterpartName}
+              variant="menu"
+              onOpened={onDone}
+            />
+          ) : null
         ) : (
           <MenuAction
             key={action}
             icon={BOOKING_ICONS[action]}
             label={labels[action]}
-            danger={action === 'cancelBooking' || action === 'askToCancel'}
+            danger={
+              action === 'cancelBooking' ||
+              action === 'askToCancel' ||
+              action === 'withdrawQuote'
+            }
             loading={
               action === 'withdrawRequest' && orderActionPending === withdraw
             }
@@ -221,6 +231,9 @@ function BookingActions({
               onDone()
               if (action === 'withdrawRequest') {
                 void runOrderAction({ type: withdraw })
+              } else if (action === 'withdrawQuote') {
+                // Confirms before it mutates, as the Messages menu does.
+                void onWithdrawQuote()
               } else onOpenDialog(ACTION_DIALOG[action])
             }}
           />

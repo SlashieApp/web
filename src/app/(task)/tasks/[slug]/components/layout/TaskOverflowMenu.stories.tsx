@@ -4,6 +4,7 @@ import {
   OrderRequestKind,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
   TaskStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -191,6 +192,94 @@ export const Conflict: Story = {
     const panel = await openMenu(canvasElement)
     await panel.findByRole('button', { name: 'Ask to cancel' })
     await panel.findByRole('button', { name: 'Report profile' })
+  },
+}
+
+/**
+ * A worker whose quote is still pending once someone else is booked, or the
+ * booking ended (BE-116): there is no booking to change, so Withdraw quote
+ * comes first, then the task ones. Nothing is pressed: it would send it.
+ */
+function notOnTheBooking(
+  bookingStatus: TaskBookingStatus,
+  over: Partial<Parameters<typeof storyTaskDetail>[0]> = {},
+) {
+  return menu({
+    viewer: 'worker',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+      ...over,
+    }),
+  })
+}
+
+/** Booked by someone else: Withdraw quote, and no booking actions. */
+export const WorkerBookedByOther: Story = {
+  ...desktop,
+  ...notOnTheBooking(TaskBookingStatus.Booked),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    await panel.findByRole('button', { name: 'Withdraw quote' })
+    await panel.findByRole('button', { name: 'Share task' })
+    await panel.findByRole('button', { name: 'Report task' })
+    expect(panel.queryByRole('button', { name: 'Reschedule' })).toBeNull()
+    expect(panel.queryByRole('button', { name: 'Cancel booking' })).toBeNull()
+  },
+}
+
+/** Someone else's job is complete: Withdraw quote. */
+export const WorkerCompletedByOther: Story = {
+  ...desktop,
+  ...notOnTheBooking(TaskBookingStatus.Completed),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    await panel.findByRole('button', { name: 'Withdraw quote' })
+  },
+}
+
+/** The booking ended and the task isn't reopened: Withdraw quote. */
+export const WorkerOtherBookingEnded: Story = {
+  ...desktop,
+  ...notOnTheBooking(TaskBookingStatus.None),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    await panel.findByRole('button', { name: 'Withdraw quote' })
+  },
+}
+
+/** Phone: Withdraw quote is in the sheet too. */
+export const PhoneWorkerBookedByOther: Story = {
+  ...phone,
+  ...notOnTheBooking(TaskBookingStatus.Booked),
+  play: async ({ canvasElement }) => {
+    const sheet = await openMenu(canvasElement, true)
+    await sheet.findByRole('button', { name: 'Withdraw quote' })
+  },
+}
+
+/** A suspended task changes nothing, so there is nothing to withdraw (BE-108). */
+export const WorkerBookedByOtherSuspended: Story = {
+  ...desktop,
+  ...notOnTheBooking(TaskBookingStatus.Booked, {
+    suspension: { bySlashie: true, posterSuspended: false },
+  }),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    await panel.findByRole('button', { name: 'Share task' })
+    expect(panel.queryByRole('button', { name: 'Withdraw quote' })).toBeNull()
+  },
+}
+
+/** A visitor with no quote of their own has nothing to withdraw. */
+export const VisitorBookedTask: Story = {
+  ...desktop,
+  ...menu({ viewer: 'visitor', task: bookedTask }),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    await panel.findByRole('button', { name: 'Share task' })
+    expect(panel.queryByRole('button', { name: 'Withdraw quote' })).toBeNull()
   },
 }
 

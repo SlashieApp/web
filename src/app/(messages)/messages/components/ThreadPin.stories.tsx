@@ -177,6 +177,29 @@ export const WorkerCompletedByOther: Story = {
   },
 }
 
+/**
+ * pin.closed: the booking was cancelled and the owner hasn't reopened the
+ * task (BE-116). Jordan's quote stays pending: "Booking cancelled", not his quote.
+ */
+export const WorkerOtherBookingEnded: Story = {
+  ...pin(
+    'worker',
+    storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.None,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await shows(canvasElement, 'pin.closed')
+    await expect(canvas.getAllByText('Cancelled').length).toBeGreaterThan(0)
+    await expect(canvas.getByText('Booking cancelled')).toBeVisible()
+    await expect(canvas.queryByText('Your quote')).toBeNull()
+    await noButtons(canvasElement)
+  },
+}
+
 /** pin.status: Jordan's quote closed with its booking and the task is open again (BE-113). */
 export const WorkerQuoteClosed: Story = {
   ...pin(

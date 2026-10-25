@@ -48,6 +48,7 @@ export type TaskDetailViewName =
   | 'worker.open.closed'
   | 'worker.bookedByOther'
   | 'worker.completedByOther'
+  | 'worker.otherBookingEnded'
   // Everyone else
   | 'customer.open'
   | 'guest.open'
@@ -98,6 +99,8 @@ export type TaskDetailAction =
   | 'switchToFailed'
   /** After marking Failed: "Changed your mind? Mark it Done". */
   | 'switchToDone'
+  /** Withdraw the viewer's own pending quote, once someone else is booked (BE-116). */
+  | 'withdrawQuote'
 
 /** The one main button for the view (the page CTA). */
 export type TaskDetailPrimaryAction =

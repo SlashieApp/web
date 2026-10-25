@@ -5,6 +5,7 @@ import { TASK_DETAIL_VIEWS } from './index'
 import {
   type TaskSummaryCopyParams,
   frozenSubline,
+  reopenSubline,
   resolveSummaryCopy,
   summaryBudgetType,
 } from './resolveSummaryCopy'
@@ -106,6 +107,63 @@ describe('frozenSubline (BE-108)', () => {
   })
 })
 
+describe('reopenSubline (BE-113)', () => {
+  const line = (
+    name: keyof typeof TASK_DETAIL_VIEWS,
+    canReopen: boolean,
+    locale: 'en' | 'zh_hk' = 'en',
+  ) =>
+    resolveSummaryCopy(
+      reopenSubline(TASK_DETAIL_VIEWS[name].subline, canReopen),
+      params,
+      bag[locale].summary,
+    )
+
+  it('points the owner at Reopen task when they can reopen', () => {
+    expect(line('owner.bookingCancelled', true)).toBe(
+      'The booking with Jordan was cancelled. Reopen the task to take quotes again.',
+    )
+    expect(line('owner.bookingCancelled', true, 'zh_hk')).toBe(
+      '與 Jordan 的預約已取消。重新開放任務即可再次接受報價。',
+    )
+  })
+
+  it('keeps the Post it again line when Repost is the main button', () => {
+    expect(line('owner.bookingCancelled', false)).toBe(
+      'The booking with Jordan was cancelled. Post the task again if you still need help.',
+    )
+    expect(line('owner.bookingCancelled', false, 'zh_hk')).toBe(
+      '與 Jordan 的預約已取消。如仍需要幫手，可以重新發佈任務。',
+    )
+  })
+
+  it('leaves owner.bookingFailed alone either way (its reopen copy is undecided)', () => {
+    for (const canReopen of [true, false]) {
+      expect(line('owner.bookingFailed', canReopen)).toBe(
+        'You and Jordan both marked it Failed. Post the task again if you still need help.',
+      )
+    }
+  })
+
+  it('changes no other sub-line, and none stays none', () => {
+    for (const [name, view] of Object.entries(TASK_DETAIL_VIEWS)) {
+      if (name === 'owner.bookingCancelled') continue
+      expect(reopenSubline(view.subline, true), name).toBe(view.subline)
+      expect(reopenSubline(view.subline, false), name).toBe(view.subline)
+    }
+    expect(reopenSubline(null, true)).toBeNull()
+  })
+
+  it('says the owner may reopen, and that the quote still counts, to a worker in the dark', () => {
+    expect(line('worker.otherBookingEnded', false)).toBe(
+      'The owner may reopen this task. Your quote still counts.',
+    )
+    expect(line('worker.otherBookingEnded', false, 'zh_hk')).toBe(
+      '任務發佈者可能會重新開放此任務，你的報價仍然有效。',
+    )
+  })
+})
+
 describe('summaryBudgetType', () => {
   it('reads hourly and daily budgets, and no amount as no budget', () => {
     expect(summaryBudgetType('PER_HOUR', '£20')).toBe('hourly')
@@ -121,6 +179,7 @@ describe('summary copy', () => {
       ...keysOf(view.headline),
       ...keysOf(view.subline),
       ...keysOf(frozenSubline(view.subline)),
+      ...keysOf(reopenSubline(view.subline, true)),
     ])
     for (const key of new Set(used)) {
       expect(bag.en.summary[key], `en.summary.${key}`).toEqual(

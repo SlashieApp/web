@@ -461,19 +461,63 @@ describe('getTaskDetailView', () => {
           NOW,
         )
       })
+      // BE-116: the booking was cancelled (or both marked it Failed) and the
+      // task stays AWARDED, with no booking, until the owner reopens it.
+      it("reads 'Booking cancelled' once the booking ended and the task isn't reopened", () => {
+        expectView(
+          'worker.otherBookingEnded',
+          task('AWARDED', pending, TaskBookingStatus.None),
+          null,
+          WORKER,
+          NOW,
+        )
+      })
       it('reads the plain booked summary for a status it does not expect', () => {
-        for (const bookingStatus of [
-          TaskBookingStatus.None,
-          'A_STATUS_FOR_LATER',
-        ]) {
-          expectView(
-            'visitor.awarded',
-            task('AWARDED', pending, bookingStatus),
-            null,
-            WORKER,
-            NOW,
+        expectView(
+          'visitor.awarded',
+          task('AWARDED', pending, 'A_STATUS_FOR_LATER'),
+          null,
+          WORKER,
+          NOW,
+        )
+      })
+      it('offers Withdraw quote and Browse other tasks, and nothing else, on all three', () => {
+        for (const name of [
+          'worker.bookedByOther',
+          'worker.completedByOther',
+          'worker.otherBookingEnded',
+        ] as const) {
+          expect(TASK_DETAIL_VIEWS[name].actions, name).toEqual([
+            'withdrawQuote',
+          ])
+          expect(TASK_DETAIL_VIEWS[name].primaryAction, name).toBe(
+            'browseTasks',
           )
         }
+      })
+      it("shows 'Booking cancelled' like the booking-cancelled views, with its own sub-line", () => {
+        const view = TASK_DETAIL_VIEWS['worker.otherBookingEnded']
+        expect(view.pill).toBe('CANCELLED')
+        expect(view.headline).toBe(
+          TASK_DETAIL_VIEWS['worker.bookingCancelled'].headline,
+        )
+        expect(view.subline).toBe('otherBookingEndedSubline')
+        // The facts of worker.bookedByOther, their quote first.
+        expect(view.facts).toEqual(
+          TASK_DETAIL_VIEWS['worker.bookedByOther'].facts,
+        )
+        expect(view.facts[0]).toBe('myQuote')
+      })
+      it('does not offer Withdraw quote on any other view', () => {
+        const withWithdraw = Object.entries(TASK_DETAIL_VIEWS)
+          .filter(([, view]) => view.actions?.includes('withdrawQuote'))
+          .map(([name]) => name)
+          .sort()
+        expect(withWithdraw).toEqual([
+          'worker.bookedByOther',
+          'worker.completedByOther',
+          'worker.otherBookingEnded',
+        ])
       })
     })
     it("worker whose quote is over sees the plain 'Worker booked' or 'Task completed'", () => {
@@ -497,6 +541,20 @@ describe('getTaskDetailView', () => {
           WORKER,
           NOW,
         )
+        // Booking over, task not reopened: only a pending quote reads it.
+        expectView(
+          'visitor.awarded',
+          task('AWARDED', mine, TaskBookingStatus.None),
+          null,
+          WORKER,
+          NOW,
+        )
+      }
+    })
+    it("anyone without a pending quote on a task whose booking ended still sees 'Worker booked'", () => {
+      const ended = task('AWARDED', [], TaskBookingStatus.None)
+      for (const viewer of [null, CUSTOMER, OTHER_WORKER, OWNER]) {
+        expectView('visitor.awarded', ended, null, viewer, NOW)
       }
     })
     it('signed-in customer without a worker profile is asked to become a worker', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { TaskDetailPrimaryAction } from '../views/types'
-import { availablePrimaryAction } from './taskSuspension'
+import { availablePrimaryAction, taskReopenFrom } from './taskSuspension'
 
 describe('availablePrimaryAction', () => {
   const free = {
@@ -85,5 +85,74 @@ describe('availablePrimaryAction', () => {
     for (const action of all.filter((a) => a !== 'reopen' && a !== 'repost')) {
       expect(availablePrimaryAction(action, reopenable)).toBe(action)
     }
+  })
+})
+
+// The `from` on the task_reopened and task_reopen_fail events.
+describe('taskReopenFrom', () => {
+  const suspendedWorker = { canReopen: true }
+
+  it('is booking when the worker on a live booking is suspended', () => {
+    expect(
+      taskReopenFrom({
+        taskStatus: 'AWARDED',
+        order: { status: 'ACTIVE', counterpartySuspension: suspendedWorker },
+      }),
+    ).toBe('booking')
+  })
+
+  it('is bookingEnded once the booking was cancelled, or both marked it Failed', () => {
+    // A failed booking is a CANCELLED order too (there is no FAILED status).
+    expect(
+      taskReopenFrom({
+        taskStatus: 'AWARDED',
+        order: { status: 'CANCELLED' },
+      }),
+    ).toBe('bookingEnded')
+    expect(
+      taskReopenFrom({
+        taskStatus: 'AWARDED',
+        order: { status: 'CANCELLED', counterpartySuspension: null },
+      }),
+    ).toBe('bookingEnded')
+  })
+
+  it('is booking, not bookingEnded, when a suspended worker is why it is reopened', () => {
+    expect(
+      taskReopenFrom({
+        taskStatus: 'AWARDED',
+        order: {
+          status: 'CANCELLED',
+          counterpartySuspension: suspendedWorker,
+        },
+      }),
+    ).toBe('booking')
+  })
+
+  it('is cancelled for a cancelled task, whatever an earlier booking did', () => {
+    expect(taskReopenFrom({ taskStatus: 'CANCELLED', order: null })).toBe(
+      'cancelled',
+    )
+    expect(
+      taskReopenFrom({
+        taskStatus: 'cancelled',
+        order: { status: 'CANCELLED' },
+      }),
+    ).toBe('cancelled')
+  })
+
+  it('is cancelled when there is no booking behind it, or a suspension that cannot reopen', () => {
+    expect(taskReopenFrom({ taskStatus: 'AWARDED', order: null })).toBe(
+      'cancelled',
+    )
+    expect(
+      taskReopenFrom({
+        taskStatus: 'AWARDED',
+        order: {
+          status: 'ACTIVE',
+          counterpartySuspension: { canReopen: false },
+        },
+      }),
+    ).toBe('cancelled')
   })
 })

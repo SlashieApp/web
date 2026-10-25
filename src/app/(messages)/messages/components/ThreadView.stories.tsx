@@ -329,7 +329,8 @@ export const PhoneNeedsYou: Story = {
  * thread.bookedByOther: someone else was booked (BE-113). The worker's quote
  * stays pending and no message tells them, so the thread says so quietly: the
  * top pin says "Booked by someone else", and the composer line replaces "You
- * can message here once a quote is accepted". No new line in the log.
+ * can message here once a quote is accepted". No new line in the log; the
+ * worker's own quote card there says it too, not "Awaiting reply" (BE-116).
  */
 export const WorkerBookedByOther: Story = {
   decorators: messagesStory({
@@ -345,9 +346,7 @@ export const WorkerBookedByOther: Story = {
   }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      await canvas.findByText('Booked by someone else'),
-    ).toBeVisible()
+    const log = await canvas.findByRole('log')
     await expect(
       await canvas.findByText(
         "Booked by someone else. You can't message here.",
@@ -356,15 +355,19 @@ export const WorkerBookedByOther: Story = {
     await expect(
       canvas.queryByText('You can message here once a quote is accepted.'),
     ).toBeNull()
-    // Quiet: the log holds only the quote the worker sent, nothing about the booking.
-    await expect(canvas.getByRole('log')).not.toHaveTextContent('someone else')
+    // The top pin's headline and the quote card's status.
+    await expect(canvas.getAllByText('Booked by someone else')).toHaveLength(2)
+    // Quiet: the log holds only the quote the worker sent, and nothing new.
+    await expect(within(log).getByText('Booked by someone else')).toBeVisible()
+    await expect(within(log).queryByText('Awaiting reply')).toBeNull()
+    await expect(log.querySelectorAll('[data-flash-line]')).toHaveLength(0)
     await expect(canvas.queryByRole('textbox')).toBeNull()
   },
 }
 
 /**
  * thread.completedByOther: someone else's job was completed (BE-113). The
- * pin says "Task completed" and so does the composer line.
+ * pin says "Task completed", and so do the quote card and the composer line.
  */
 export const WorkerTaskCompleted: Story = {
   decorators: messagesStory({
@@ -383,7 +386,79 @@ export const WorkerTaskCompleted: Story = {
     await expect(
       await canvas.findByText("Task completed. You can't message here."),
     ).toBeVisible()
-    await expect(canvas.getAllByText('Task completed')).toHaveLength(1)
+    // The top pin's headline and the quote card's status.
+    await expect(canvas.getAllByText('Task completed')).toHaveLength(2)
+    await expect(
+      within(await canvas.findByRole('log')).queryByText('Awaiting reply'),
+    ).toBeNull()
+    await expect(canvas.queryByRole('textbox')).toBeNull()
+  },
+}
+
+/**
+ * thread.otherBookingEnded: the booking was cancelled and the owner hasn't
+ * reopened the task (BE-116). The worker's quote stays pending and counts if
+ * it is reopened, so the pin, the quote card and the composer line say
+ * "Booking cancelled", and nothing new is added to the log.
+ */
+export const WorkerOtherBookingEnded: Story = {
+  decorators: messagesStory({
+    viewer: 'worker',
+    thread: taskThread('worker', { canSend: false }, pendingItems),
+    items: pendingItems,
+    ...FRAME,
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.None,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const log = await canvas.findByRole('log')
+    await expect(
+      await canvas.findByText(
+        "Booking cancelled. You can't message here for now.",
+      ),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByText('You can message here once a quote is accepted.'),
+    ).toBeNull()
+    // The top pin's headline and the quote card's status.
+    await expect(canvas.getAllByText('Booking cancelled')).toHaveLength(2)
+    await expect(within(log).getByText('Booking cancelled')).toBeVisible()
+    await expect(within(log).queryByText('Awaiting reply')).toBeNull()
+    await expect(log.querySelectorAll('[data-flash-line]')).toHaveLength(0)
+    await expect(canvas.queryByRole('textbox')).toBeNull()
+  },
+}
+
+/** zh-HK: the same line once the booking ended. */
+export const ZhHkWorkerOtherBookingEnded: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/messages' } } },
+  decorators: [
+    ...messagesStory({
+      viewer: 'worker',
+      thread: taskThread('worker', { canSend: false }, pendingItems),
+      items: pendingItems,
+      ...FRAME,
+      task: storyTaskDetail({
+        status: TaskStatus.Awarded,
+        bookingStatus: TaskBookingStatus.None,
+        quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+      }),
+    }),
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('預約已取消。你暫時無法在此傳送訊息。'),
+    ).toBeVisible()
     await expect(canvas.queryByRole('textbox')).toBeNull()
   },
 }

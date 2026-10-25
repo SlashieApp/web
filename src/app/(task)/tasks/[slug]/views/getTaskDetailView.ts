@@ -90,8 +90,10 @@ function bookingView(
 /**
  * A booked task, for anyone who isn't on the booking. A worker whose quote
  * is still PENDING (it stays PENDING while someone else is booked, BE-113)
- * gets the status as "Booked by someone else" or "Task completed"; everyone
- * else gets the plain one. Both read `Task.bookingStatus`, never who.
+ * gets the status as "Booked by someone else", "Task completed" or, once the
+ * booking ended and the owner hasn't reopened the task (`bookingStatus`
+ * NONE on an AWARDED task, BE-116), "Booking cancelled"; everyone else gets
+ * the plain one. All read `Task.bookingStatus`, never who.
  */
 function bookedView(
   bookingStatus: string,
@@ -100,8 +102,10 @@ function bookedView(
   if (bookingStatus === TaskBookingStatus.Completed) {
     return hasPendingQuote ? 'worker.completedByOther' : 'visitor.completed'
   }
-  return hasPendingQuote && bookingStatus === TaskBookingStatus.Booked
-    ? 'worker.bookedByOther'
+  if (!hasPendingQuote) return 'visitor.awarded'
+  if (bookingStatus === TaskBookingStatus.Booked) return 'worker.bookedByOther'
+  return bookingStatus === TaskBookingStatus.None
+    ? 'worker.otherBookingEnded'
     : 'visitor.awarded'
 }
 

@@ -10,6 +10,7 @@ import {
   getThreadView,
   threadOtherBooking,
 } from '.'
+import bag from '../i11n.json'
 
 type Thread = NonNullable<ThreadViewInput['thread']>
 
@@ -112,15 +113,39 @@ describe('getThreadView', () => {
     })
   })
 
-  it('keeps blocked and suspended over the booked line, and the composer when the API allows it', () => {
-    const booked = { otherBooking: 'booked' } as const
-    expect(view({ ...booked, thread: taskThread({ blockedByMe: true }) })).toBe(
-      'thread.blocked',
-    )
-    expect(view({ ...booked, suspended: true })).toBe('thread.suspended')
-    expect(view({ ...booked, thread: taskThread({ canSend: true }) })).toBe(
-      'thread.open',
-    )
+  // BE-116: the booking ended and the owner hasn't reopened the task, so the
+  // quote still counts but nobody can message for now.
+  it("says the booking was cancelled, and that messaging is off for now, once someone else's booking ended", () => {
+    const name = view({ otherBooking: 'ended' })
+    expect(name).toBe('thread.otherBookingEnded')
+    expect(THREAD_VIEWS[name]).toMatchObject({
+      layout: 'conversation',
+      composer: 'otherBookingEndedNotice',
+      pins: true,
+    })
+  })
+
+  it('keeps blocked and suspended over the booked, completed and ended lines, and the composer when the API allows it', () => {
+    for (const otherBooking of ['booked', 'completed', 'ended'] as const) {
+      expect(
+        view({ otherBooking, thread: taskThread({ blockedByMe: true }) }),
+      ).toBe('thread.blocked')
+      expect(view({ otherBooking, suspended: true })).toBe('thread.suspended')
+      expect(
+        view({ otherBooking, thread: taskThread({ canSend: true }) }),
+      ).toBe('thread.open')
+    }
+  })
+
+  it('keeps Slashie threads and a thread that did not load above all three lines', () => {
+    for (const otherBooking of ['booked', 'completed', 'ended'] as const) {
+      expect(
+        view({ otherBooking, thread: taskThread({ kind: ThreadKind.System }) }),
+      ).toBe('thread.system')
+      expect(view({ otherBooking, query: 'error', thread: null })).toBe(
+        'thread.loadError',
+      )
+    }
   })
 
   afterAll(() => {
@@ -128,16 +153,46 @@ describe('getThreadView', () => {
   })
 })
 
+describe('thread copy', () => {
+  it('has the line under every conversation view, in English and Traditional Chinese', () => {
+    for (const config of Object.values(THREAD_VIEWS)) {
+      if (config.layout !== 'conversation' || config.composer === 'open') {
+        continue
+      }
+      expect(bag.en[config.composer], config.composer).toEqual(
+        expect.any(String),
+      )
+      expect(bag.zh_hk[config.composer], config.composer).toEqual(
+        expect.any(String),
+      )
+    }
+  })
+
+  it('says the booking was cancelled, as decided, with no em dash', () => {
+    expect(bag.en.otherBookingEndedNotice).toBe(
+      "Booking cancelled. You can't message here for now.",
+    )
+    expect(bag.zh_hk.otherBookingEndedNotice).toBe(
+      '預約已取消。你暫時無法在此傳送訊息。',
+    )
+    expect(JSON.stringify(bag)).not.toContain('—')
+  })
+})
+
 describe('threadOtherBooking', () => {
   it("reads task detail's booked-by-someone-else views, and nothing else", () => {
     expect(threadOtherBooking('worker.bookedByOther')).toBe('booked')
     expect(threadOtherBooking('worker.completedByOther')).toBe('completed')
+    expect(threadOtherBooking('worker.otherBookingEnded')).toBe('ended')
     const others: TaskDetailViewName[] = [
       'loading',
       'worker.open.quoted',
       'worker.open.closed',
       'worker.booked.beforeStart',
       'worker.completed',
+      'worker.bookingCancelled',
+      'worker.bookingFailed',
+      'owner.bookingCancelled',
       'owner.open.quotes',
       'owner.booked.beforeStart',
       'visitor.awarded',

@@ -20,6 +20,7 @@ import {
 } from '../../views'
 import {
   frozenSubline,
+  reopenSubline,
   resolveSummaryCopy,
   summaryBudgetType,
 } from '../../views/resolveSummaryCopy'
@@ -78,7 +79,8 @@ const FACT_DIVIDERS = {
 /**
  * The view's headline and sub-line, with counts, names and dates filled in.
  * While the task or booking is frozen (BE-108) the sub-line leaves out the
- * auto-Done date, which waits too; Messages' pins read the same.
+ * auto-Done date, which waits too; and when the owner can reopen the task
+ * (BE-113) it points at Reopen task, not Repost. Messages' pins read the same.
  */
 export function useSummaryLines(config: TaskDetailViewConfig) {
   const { task, myOrder, orderClose, permissions } = useTaskDetail()
@@ -101,9 +103,10 @@ export function useSummaryLines(config: TaskDetailViewConfig) {
         month: 'short',
       }) ?? '',
   }
-  const subline = permissions.isFrozen
-    ? frozenSubline(config.subline)
-    : config.subline
+  const subline = reopenSubline(
+    permissions.isFrozen ? frozenSubline(config.subline) : config.subline,
+    permissions.canReopen,
+  )
   return {
     headline: resolveSummaryCopy(config.headline, params, t.summary),
     subline: resolveSummaryCopy(subline, params, t.summary),

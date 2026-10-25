@@ -410,6 +410,32 @@ export const WorkerBookedByOther: Story = {
     await within(canvasElement).findByRole('link', {
       name: 'Browse other tasks',
     })
+    await within(canvasElement).findByRole('button', {
+      name: 'Withdraw quote',
+    })
+  },
+}
+
+/**
+ * Worker whose quote stayed pending after the booking was cancelled and the
+ * owner hasn't reopened the task (BE-116): "Booking cancelled", Browse other
+ * tasks, and Withdraw quote in Help & actions.
+ */
+export const WorkerOtherBookingEnded: Story = {
+  ...desktop,
+  ...page({
+    viewer: 'worker',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.None,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await expectView(canvasElement, 'Booking cancelled')
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: 'Browse other tasks' })
+    await canvas.findByRole('button', { name: 'Withdraw quote' })
   },
 }
 

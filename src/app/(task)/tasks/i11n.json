@@ -38,7 +38,8 @@
       "cancelled": "Cancelled",
       "closed": "Closed",
       "bookedByOther": "Booked by someone else",
-      "taskCompleted": "Task completed"
+      "taskCompleted": "Task completed",
+      "otherBookingEnded": "Booking cancelled"
     },
     "actions": {
       "compareQuotes": "Compare quotes",
@@ -171,7 +172,8 @@
       "cancelled": "已取消",
       "closed": "已結束",
       "bookedByOther": "已由其他人預訂",
-      "taskCompleted": "任務已完成"
+      "taskCompleted": "任務已完成",
+      "otherBookingEnded": "預約已取消"
     },
     "actions": {
       "compareQuotes": "比較報價",

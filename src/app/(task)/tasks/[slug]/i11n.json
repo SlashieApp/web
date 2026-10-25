@@ -523,6 +523,7 @@
       "completedSubline": "The details below are your record of the work.",
       "bookingCancelledHeadline": "Booking cancelled",
       "bookingCancelledOwnerSubline": "The booking with {name} was cancelled. Post the task again if you still need help.",
+      "bookingCancelledOwnerReopenSubline": "The booking with {name} was cancelled. Reopen the task to take quotes again.",
       "bookingCancelledWorkerSubline": "The booking with {name} was cancelled. Browse other tasks nearby.",
       "bookingFailedHeadline": "Booking didn't go ahead",
       "bookingFailedOwnerSubline": "You and {name} both marked it Failed. Post the task again if you still need help.",
@@ -546,6 +547,7 @@
       "taskCompletedSubline": "This task is no longer taking quotes.",
       "bookedByOtherHeadline": "Booked by someone else",
       "browseSubline": "Browse other tasks nearby.",
+      "otherBookingEndedSubline": "The owner may reopen this task. Your quote still counts.",
       "quoteClosedHeadline": "Quote closed",
       "quoteClosedSubline": "Your booking ended. You can send a new quote."
     },
@@ -1079,6 +1081,7 @@
       "completedSubline": "以下是這份工作的紀錄。",
       "bookingCancelledHeadline": "預約已取消",
       "bookingCancelledOwnerSubline": "與 {name} 的預約已取消。如仍需要幫手，可以重新發佈任務。",
+      "bookingCancelledOwnerReopenSubline": "與 {name} 的預約已取消。重新開放任務即可再次接受報價。",
       "bookingCancelledWorkerSubline": "與 {name} 的預約已取消。瀏覽附近其他任務。",
       "bookingFailedHeadline": "預約未能進行",
       "bookingFailedOwnerSubline": "你和 {name} 都標記為未完成。如仍需要幫手，可以重新發佈任務。",
@@ -1102,6 +1105,7 @@
       "taskCompletedSubline": "此任務已不再接受報價。",
       "bookedByOtherHeadline": "已由其他人預訂",
       "browseSubline": "瀏覽附近其他任務。",
+      "otherBookingEndedSubline": "任務發佈者可能會重新開放此任務，你的報價仍然有效。",
       "quoteClosedHeadline": "報價已結束",
       "quoteClosedSubline": "你的預約已結束。你可以傳送新的報價。"
     },

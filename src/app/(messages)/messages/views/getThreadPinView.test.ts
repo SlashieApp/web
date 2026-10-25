@@ -47,6 +47,8 @@ describe('getThreadPinView', () => {
   it("shows a worker whose quote lost to someone else's booking the task's status, not their quote", () => {
     expect(pin('worker.bookedByOther')).toBe('pin.closed')
     expect(pin('worker.completedByOther')).toBe('pin.closed')
+    // BE-116: the same once the booking ended and the task isn't reopened.
+    expect(pin('worker.otherBookingEnded')).toBe('pin.closed')
     expect(pin('visitor.awarded')).toBe('pin.closed')
     expect(pin('visitor.completed')).toBe('pin.closed')
   })

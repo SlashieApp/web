@@ -1,10 +1,13 @@
 import { FlashKind, QuoteStatus, ThreadItemType } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
+import taskBag from '@/app/(task)/tasks/[slug]/i11n.json'
+
 import {
   flashAction,
   flashSlot,
   formatMessageTime,
+  quoteCardTaskStatus,
   quoteFlashStatus,
   threadMenuActions,
   threadPreviewText,
@@ -106,6 +109,52 @@ describe('quoteFlashStatus (BE-81)', () => {
     // CLOSED, and a status nobody has sent yet.
     expect(quoteFlashStatus(QuoteStatus.Closed)).toBe('closed')
     expect(quoteFlashStatus('A_STATUS_FOR_LATER')).toBe('closed')
+  })
+})
+
+describe('quoteCardTaskStatus (BE-116)', () => {
+  const mine = { quoteStatus: QuoteStatus.Pending, isMine: true }
+
+  it("shows the task's status on the worker's own pending quote, from task detail's view", () => {
+    expect(quoteCardTaskStatus({ ...mine, otherBooking: 'booked' })).toBe(
+      'bookedByOtherHeadline',
+    )
+    expect(quoteCardTaskStatus({ ...mine, otherBooking: 'completed' })).toBe(
+      'taskCompletedHeadline',
+    )
+    expect(quoteCardTaskStatus({ ...mine, otherBooking: 'ended' })).toBe(
+      'bookingCancelledHeadline',
+    )
+  })
+
+  it('keeps Awaiting reply when nobody else is booked', () => {
+    expect(quoteCardTaskStatus({ ...mine, otherBooking: null })).toBeNull()
+  })
+
+  it("leaves the owner's card, and a quote that isn't pending, alone", () => {
+    expect(
+      quoteCardTaskStatus({ ...mine, isMine: false, otherBooking: 'booked' }),
+    ).toBeNull()
+    for (const quoteStatus of [
+      QuoteStatus.Accepted,
+      QuoteStatus.Withdrawn,
+      QuoteStatus.Closed,
+      QuoteStatus.Expired,
+      'A_STATUS_FOR_LATER',
+    ]) {
+      expect(
+        quoteCardTaskStatus({ ...mine, quoteStatus, otherBooking: 'ended' }),
+      ).toBeNull()
+    }
+  })
+
+  it("uses task detail's own words, in both languages", () => {
+    const en = taskBag.en.summary
+    const zh = taskBag.zh_hk.summary
+    expect(en.bookedByOtherHeadline).toBe('Booked by someone else')
+    expect(en.taskCompletedHeadline).toBe('Task completed')
+    expect(en.bookingCancelledHeadline).toBe('Booking cancelled')
+    expect(zh.bookingCancelledHeadline).toBe('預約已取消')
   })
 })
 

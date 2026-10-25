@@ -54,6 +54,7 @@ import { workerConflictIMarkedFailed } from './worker.conflict.iMarkedFailed'
 import { workerOpenClosed } from './worker.open.closed'
 import { workerOpenNotQuoted } from './worker.open.notQuoted'
 import { workerOpenQuoted } from './worker.open.quoted'
+import { workerOtherBookingEnded } from './worker.otherBookingEnded'
 
 /** Every view's config, by name. `getTaskDetailView` picks the name. */
 export const TASK_DETAIL_VIEWS: Record<
@@ -99,6 +100,7 @@ export const TASK_DETAIL_VIEWS: Record<
   'worker.open.closed': workerOpenClosed,
   'worker.bookedByOther': workerBookedByOther,
   'worker.completedByOther': workerCompletedByOther,
+  'worker.otherBookingEnded': workerOtherBookingEnded,
   'customer.open': customerOpen,
   'guest.open': guestOpen,
   'visitor.awarded': visitorAwarded,

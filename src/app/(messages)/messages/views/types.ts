@@ -35,6 +35,7 @@ export type ThreadViewName =
   | 'thread.locked'
   | 'thread.bookedByOther'
   | 'thread.completedByOther'
+  | 'thread.otherBookingEnded'
   | 'thread.blocked'
   | 'thread.suspended'
 
@@ -52,12 +53,14 @@ export type ThreadViewInput = {
    */
   suspended: boolean
   /**
-   * The task is booked or done and the viewer's quote isn't the one (BE-113):
-   * their quote stays PENDING and nothing tells them, so the thread says so
+   * The task is booked or done and the viewer's quote isn't the one (BE-113),
+   * or its booking ended and the owner hasn't reopened it (BE-116): their
+   * quote stays PENDING and nothing tells them, so the thread says so
    * quietly. Task detail's `worker.bookedByOther` / `worker.completedByOther`
-   * (`threadOtherBooking`); null for everyone else.
+   * / `worker.otherBookingEnded` (`threadOtherBooking`: `booked`,
+   * `completed`, `ended`); null for everyone else.
    */
-  otherBooking: 'booked' | 'completed' | null
+  otherBooking: 'booked' | 'completed' | 'ended' | null
 }
 
 /** Copy keys in ../i11n.json for the line shown instead of the composer. */
@@ -66,6 +69,7 @@ export type ThreadComposerNotice =
   | 'lockedNotice'
   | 'bookedByOtherNotice'
   | 'completedNotice'
+  | 'otherBookingEndedNotice'
   | 'blockedNotice'
   | 'suspendedNotice'
 

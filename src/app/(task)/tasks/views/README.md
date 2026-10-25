@@ -99,13 +99,15 @@ your booking, then a quote of yours that is still pending:
 | `failed` | Your booking was cancelled with both sides marked Failed | Didn't go ahead |
 | `bookedByOther` | A quote of yours is still PENDING and the task's `bookingStatus` is BOOKED (BE-113) | Booked by someone else |
 | `taskCompleted` | The same, with `bookingStatus` COMPLETED | Task completed |
+| `otherBookingEnded` | The same, with the task AWARDED and `bookingStatus` NONE: the booking was cancelled or failed and the owner hasn't reopened the task (BE-116) | Booking cancelled |
 | `closed` | Anything else that is over, such as a quote that closed with its booking | Closed |
 
 Your quote stays PENDING while someone else is booked, and nothing tells you,
 so `MyQuotes` selects `bookingStatus` and the row says it. Those rows have no
 button, only the ⋮ menu. A CLOSED quote reads Closed even when the task is
-booked again. The same words as task detail's `worker.bookedByOther` and
-`worker.completedByOther`, and the Expo hub.
+booked again, and so does any other task that isn't AWARDED. The same words
+as task detail's `worker.bookedByOther`, `worker.completedByOther` and
+`worker.otherBookingEnded`, and the Expo hub.
 
 ## The ⋮ menu
 

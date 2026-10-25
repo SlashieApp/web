@@ -190,6 +190,16 @@ export const storyRows = {
     priceLabel: '£140',
     categories: ['Tiling'],
   }),
+  /** Your quote is still pending; the booking ended and the task isn't reopened (BE-116): no button. */
+  pastOtherBookingEnded: row({
+    id: 'past-other-booking-ended',
+    title: 'Fit a curtain rail',
+    section: 'past',
+    roles: ['quoted'],
+    outcome: 'otherBookingEnded',
+    priceLabel: '£60',
+    categories: ['Handyman'],
+  }),
 }
 
 /** Posts and quotes in every section; five Past tasks, so Past starts collapsed. */

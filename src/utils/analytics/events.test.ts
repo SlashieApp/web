@@ -109,6 +109,23 @@ describe('marketplace capture call sites', () => {
     expect(src).not.toMatch(/['"]quote_submitted['"]/)
   })
 
+  // The same names and properties as the Expo app's useReopenTask.
+  it('reopen task emits task_reopened / task_reopen_fail with task_id and from', () => {
+    const src = readRepo(
+      'src/app/(task)/tasks/[slug]/context/TaskDetailProvider.tsx',
+    )
+    expect(EVENTS.task_reopened).toBe('task_reopened')
+    expect(EVENTS.task_reopen_fail).toBe('task_reopen_fail')
+    expect(isCanonicalAnalyticsEvent('task_reopened')).toBe(true)
+    expect(isCanonicalAnalyticsEvent('task_reopen_fail')).toBe(true)
+    expect(resolveAnalyticsEvent('task_reopened')).toBe('task_reopened')
+    expect(src).toContain('EVENTS.task_reopened, { task_id: task.id, from }')
+    expect(src).toContain('EVENTS.task_reopen_fail')
+    expect(src).toMatch(
+      /extra: \{\s*task_id: task\.id,\s*from,\s*error_code: getGraphQLErrorCode\(error\) \?\? 'unknown',/,
+    )
+  })
+
   it('product feedback uses canonical success names', () => {
     const src = readRepo('src/content/feedback/FeedbackProvider.tsx')
     expect(src).toContain('EVENTS.feedback_submit_success')

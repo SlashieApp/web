@@ -114,6 +114,59 @@ export const WorkerPending: Story = {
   },
 }
 
+/**
+ * The worker's own pending quote once someone else is booked (BE-113): the
+ * task's status, not "Awaiting reply".
+ */
+export const WorkerBookedByOther: Story = {
+  args: { otherBooking: 'booked' },
+  decorators: [asWorker],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('Booked by someone else'),
+    ).toBeVisible()
+    await expect(canvas.queryByText('Awaiting reply')).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
+}
+
+/** Someone else's job is complete: "Task completed". */
+export const WorkerTaskCompleted: Story = {
+  args: { otherBooking: 'completed' },
+  decorators: [asWorker],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Task completed')).toBeVisible()
+    await expect(canvas.queryByText('Awaiting reply')).toBeNull()
+  },
+}
+
+/** The booking ended and the task isn't reopened (BE-116): "Booking cancelled". */
+export const WorkerOtherBookingEnded: Story = {
+  args: { otherBooking: 'ended' },
+  decorators: [asWorker],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Booking cancelled')).toBeVisible()
+    await expect(canvas.queryByText('Awaiting reply')).toBeNull()
+  },
+}
+
+/** A quote that is no longer pending keeps its own status, whatever the task says. */
+export const WorkerWithdrawnKeepsItsStatus: Story = {
+  args: {
+    quote: jordanQuote({ status: QuoteStatus.Withdrawn }),
+    otherBooking: 'ended',
+  },
+  decorators: [asWorker],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('Withdrawn')).toBeVisible()
+    await expect(canvas.queryByText('Booking cancelled')).toBeNull()
+  },
+}
+
 /** Accepted: the quote is now the booking. */
 export const Accepted: Story = {
   args: { quote: jordanQuote({ status: QuoteStatus.Accepted }) },

@@ -23,6 +23,7 @@ import { threadLocked } from './thread.locked'
 import { threadNone } from './thread.none'
 import { threadNotFound } from './thread.notFound'
 import { threadOpen } from './thread.open'
+import { threadOtherBookingEnded } from './thread.otherBookingEnded'
 import { threadSuspended } from './thread.suspended'
 import { threadSystem } from './thread.system'
 import type {
@@ -74,6 +75,7 @@ export const THREAD_VIEWS: Record<ThreadViewName, ThreadViewConfig> = {
   'thread.locked': threadLocked,
   'thread.bookedByOther': threadBookedByOther,
   'thread.completedByOther': threadCompletedByOther,
+  'thread.otherBookingEnded': threadOtherBookingEnded,
   'thread.blocked': threadBlocked,
   'thread.suspended': threadSuspended,
 }

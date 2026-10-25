@@ -37,7 +37,7 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `owner.conflict.iMarkedDone` | CONFLICT: the owner marked it Done, the worker marked it Failed. | Awarded | This booking needs resolving | You marked it Done and {name} marked it Failed. Message them to sort it out, or ask to cancel if it shouldn't stand. | otherParty, agreedPrice, bookedTime, description, photos | Ask to cancel, Report profile | Message |
 | `owner.conflict.iMarkedFailed` | CONFLICT: the owner marked it Failed, the worker marked it Done. | Awarded | This booking needs resolving | You marked it Failed and {name} marked it Done. Message them to sort it out, or ask to cancel if it shouldn't stand. | otherParty, agreedPrice, bookedTime, description, photos | Ask to cancel, Report profile | Message |
 | `owner.completed` | Owner, booking COMPLETED (both marked Done, or the 7-day auto-Done). | Completed | Job complete | The details below are your record of the work. | record, otherParty, agreedPrice, bookedTime, reviews, description, photos | - | Review, then Get receipt |
-| `owner.bookingCancelled` | Owner, booking CANCELLED (a cancel request was accepted). The task stays AWARDED. | Cancelled | Booking cancelled | The booking with {name} was cancelled. Post the task again if you still need help. | record, otherParty, agreedPrice | - | Reopen task when the API says the owner can (`canReopen`, asks first; Repost stays in Help & actions), else Repost this task |
+| `owner.bookingCancelled` | Owner, booking CANCELLED (a cancel request was accepted). The task stays AWARDED. | Cancelled | Booking cancelled | When Reopen task is the main button (`canReopen`): The booking with {name} was cancelled. Reopen the task to take quotes again. Otherwise (Repost is): The booking with {name} was cancelled. Post the task again if you still need help. | record, otherParty, agreedPrice | - | Reopen task when the API says the owner can (`canReopen`, asks first; Repost stays in Help & actions), else Repost this task |
 | `owner.bookingFailed` | Owner, booking CANCELLED because both sides marked it Failed. The task stays AWARDED. | Cancelled | Booking didn't go ahead | You and {name} both marked it Failed. Post the task again if you still need help. | record, otherParty, agreedPrice | - | Reopen task when the API says the owner can (`canReopen`, asks first; Repost stays in Help & actions), else Repost this task |
 | `owner.cancelled` | Owner, task CANCELLED. | Cancelled | Task cancelled | Post it again if you still need help. | budget, preferredTime, location, categories, description, photos | - | Reopen task when the API says the owner can (`canReopen`, asks first; Repost stays in Help & actions) |
 | `worker.booked.beforeStart` | Booked worker, booking ACTIVE, before the booked start. | Awarded | You are booked for this job | Coordinate the job and get paid directly. When it is done, you both mark it Done here. | bookedTime, otherParty, agreedPrice, location, description, photos | Reschedule, Cancel booking | Message |
@@ -58,8 +58,9 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `worker.open.notQuoted` | Worker (profile set up), task OPEN, no live quote from them (a withdrawn quote reads the same: they can quote again; a closed one is `worker.open.closed`). | Open | Open for quotes / Open for quotes - {count} so far | Send your price and availability to win this job. | budget, preferredTime, location, categories, postedBy, description, photos | - | Send quote |
 | `worker.open.quoted` | Worker, task OPEN, their quote is PENDING. | Open | Quote sent | The customer has your quote. We will notify you of any response. | myQuote, preferredTime, location, categories, postedBy, description, photos | - | Edit quote |
 | `worker.open.closed` | Worker, task OPEN, their quote is CLOSED: the booking it won ended early and the owner reopened the task (BE-113). It never comes back; they can send a new one. | Open | Quote closed | Your booking ended. You can send a new quote. | budget, preferredTime, location, categories, postedBy, description, photos | - | Send quote |
-| `worker.bookedByOther` | Worker whose own quote is still PENDING, task AWARDED, `bookingStatus` BOOKED (BE-113). Status only: nobody told them, and they never learn who. | Awarded | Booked by someone else | Browse other tasks nearby. | myQuote, location, categories, postedBy, description, photos | - | Browse other tasks |
-| `worker.completedByOther` | The same, `bookingStatus` COMPLETED. | Completed | Task completed | Browse other tasks nearby. | location, categories, postedBy, description, photos | - | Browse other tasks |
+| `worker.bookedByOther` | Worker whose own quote is still PENDING, task AWARDED, `bookingStatus` BOOKED (BE-113). Status only: nobody told them, and they never learn who. | Awarded | Booked by someone else | Browse other tasks nearby. | myQuote, location, categories, postedBy, description, photos | Withdraw quote | Browse other tasks |
+| `worker.completedByOther` | The same, `bookingStatus` COMPLETED. | Completed | Task completed | Browse other tasks nearby. | location, categories, postedBy, description, photos | Withdraw quote | Browse other tasks |
+| `worker.otherBookingEnded` | The same, `bookingStatus` NONE: the booking was cancelled (or both marked it Failed) and the owner hasn't reopened the task (BE-116). Their quote still counts if it is. | Cancelled | Booking cancelled | The owner may reopen this task. Your quote still counts. | myQuote, location, categories, postedBy, description, photos | Withdraw quote | Browse other tasks |
 | `customer.open` | Signed in without a worker profile, task OPEN. | Open | You can earn {amount} (an hour / a day; no budget: Open for quotes) | Become a worker to quote on this task. | payment, preferredTime, location, categories, postedBy, description, photos | - | Become a worker |
 | `guest.open` | Signed out, task OPEN. | Open | You can earn {amount} (an hour / a day; no budget: Open for quotes) | Sign in as a worker to send a quote. | payment, preferredTime, location, categories, postedBy, description, photos | - | Sign in to quote |
 | `visitor.awarded` | Anyone not on the booking (guest, customer, a worker without a live quote) on a booked task: AWARDED with `bookingStatus` BOOKED, or one this build doesn't expect. | Awarded | Worker booked | This task has been awarded to a worker. | location, categories, postedBy, description, photos | - | none |
@@ -93,12 +94,16 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 - A worker's own quote changes their view only while it is PENDING, or CLOSED
   on an open task. On an AWARDED task a PENDING quote reads from
   `bookingStatus`: BOOKED is `worker.bookedByOther`, COMPLETED is
-  `worker.completedByOther`. Any other status (withdrawn, one web doesn't
+  `worker.completedByOther`, NONE (the booking was cancelled or failed and
+  the owner hasn't reopened the task, BE-116) is `worker.otherBookingEnded`.
+  Since BE-116 a worker with a quote on the task can open it in that state.
+  Any other status (withdrawn, one web doesn't
   know yet) reads like no quote: `worker.open.notQuoted` while the task is
   open, so they can quote again, and `visitor.awarded` / `visitor.completed`
-  once it is booked. So does a CLOSED quote on a task that is booked again.
-  A `bookingStatus` web doesn't expect on an AWARDED task reads
-  `visitor.awarded`. The Quotes section's badge says Accepted, or a neutral
+  once it is booked. So does a CLOSED quote on a task that is booked again,
+  or whose booking ended. A `bookingStatus` web doesn't expect on an AWARDED
+  task reads `visitor.awarded`, and so does NONE for anyone without a pending
+  quote. The Quotes section's badge says Accepted, or a neutral
   Closed for any other finished status, and never raw status text.
 - A reopen closes the booked worker's quote (`worker.open.closed`) and leaves
   the others PENDING, so any of them can be accepted. Workers with a pending
@@ -108,8 +113,12 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
   Edit quote needs an OPEN task too (`hasPendingQuote`). Withdraw stays on
   any PENDING quote (`canWithdrawQuote`), booked task or not: the quote page
   has it while the task is open, and the Messages thread menu has it always.
-  Once the task is booked the quote page sends the worker back to the task,
-  so there the thread menu is the only way to withdraw.
+  Once the task is booked, or its booking ended, the quote page sends the
+  worker back to the task, where Help & actions has Withdraw quote on
+  `worker.bookedByOther`, `worker.completedByOther` and
+  `worker.otherBookingEnded` (`availableActions`; the same confirm and
+  mutation as the thread menu, and the API no longer tells the owner, BE-116).
+  Not on a suspended task.
 - Only the owner learns who sent a quote (BE-105). Anyone else, guests
   included, gets the other PENDING quotes with no `workerUserId` or
   `worker` while the task is OPEN, plus their own quote at any status; once
@@ -162,6 +171,22 @@ CANCELLED task, an AWARDED task whose booking was cancelled (both agreed, or
 both marked it Failed) with nothing live or completed, and a live booking
 whose worker is suspended; never a suspended task or a completed booking.
 Web keeps no reopen rules of its own, so it follows the API.
+
+The sub-line next to Reopen task: on `owner.bookingCancelled`, while
+`canReopen` is true, it reads "The booking with {name} was cancelled. Reopen
+the task to take quotes again." (`reopenSubline`, the swap of
+`bookingCancelledOwnerSubline` for `bookingCancelledOwnerReopenSubline`);
+when Repost is the main button it stays "Post the task again if you still
+need help." `owner.bookingFailed` still says Post the task again beside
+Reopen task: its reopen copy isn't decided.
+
+Analytics: a successful reopen sends `task_reopened` (`task_id`, `from`) and a
+refused one `task_reopen_fail` (`task_id`, `from`, `error_code`, "unknown"
+when the API gave none), after cookie consent, as the Expo app does.
+`from` is `booking` (a live booking whose worker is suspended), `bookingEnded`
+(the order is CANCELLED, a booking both sides marked Failed included, and
+the task itself isn't cancelled) or `cancelled` (the task was cancelled, or
+there is no booking behind it); `taskReopenFrom`.
 
 Where it shows: the main button of `owner.cancelled`, and of
 `owner.bookingCancelled` / `owner.bookingFailed` in place of Repost

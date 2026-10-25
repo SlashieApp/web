@@ -62,6 +62,10 @@ export const EVENTS = {
   quote_accept_fail: 'quote_accept_fail',
   requests_view: 'requests_view',
   my_tasks_view: 'my_tasks_view',
+  // Owner reopens a cancelled task or booking (`from`: booking / bookingEnded
+  // / cancelled). The same names as the Expo app.
+  task_reopened: 'task_reopened',
+  task_reopen_fail: 'task_reopen_fail',
 
   // Worker
   quote_send_success: 'quote_send_success',

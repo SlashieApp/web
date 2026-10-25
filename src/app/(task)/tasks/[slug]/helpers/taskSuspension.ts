@@ -1,4 +1,7 @@
+import { OrderStatus } from '@codegen/schema'
+
 import type { TaskDetailPrimaryAction } from '../views/types'
+import { isCancelledTaskStatus } from './mapTaskStatus'
 
 /**
  * Suspensions on task detail (BE-108). A suspended task, or a booking whose
@@ -45,4 +48,28 @@ export function availablePrimaryAction(
     default:
       return action
   }
+}
+
+/**
+ * What the owner is reopening, as the `from` property on the `task_reopened`
+ * and `task_reopen_fail` events: `booking` is a live booking whose worker is
+ * suspended (the API cancels it), `bookingEnded` a booking that was cancelled
+ * or that both sides marked Failed (its order is CANCELLED and the task stays
+ * AWARDED), `cancelled` a cancelled task. A task the owner cancelled after an
+ * earlier booking ended is still `cancelled`. The same names as the Expo app.
+ */
+export type TaskReopenFrom = 'booking' | 'bookingEnded' | 'cancelled'
+
+export function taskReopenFrom(input: {
+  taskStatus: string | null | undefined
+  order: {
+    status: string
+    counterpartySuspension?: { canReopen?: boolean | null } | null
+  } | null
+}): TaskReopenFrom {
+  const { taskStatus, order } = input
+  // The API sets `canReopen` on a suspension only for a live booking.
+  if (order?.counterpartySuspension?.canReopen) return 'booking'
+  if (isCancelledTaskStatus(taskStatus)) return 'cancelled'
+  return order?.status === OrderStatus.Cancelled ? 'bookingEnded' : 'cancelled'
 }

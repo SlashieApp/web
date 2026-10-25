@@ -49,6 +49,32 @@ export function frozenSubline(
   return typeof ref === 'string' ? (FROZEN_SUBLINES[ref] ?? ref) : ref
 }
 
+/**
+ * Sub-lines that send the owner to Post the task again, which isn't the main
+ * button when the API lets them reopen it (`Task.canReopen`, BE-113): Reopen
+ * task is, so the line says that. Their stand-ins read the same otherwise.
+ * `bookingFailedOwnerSubline` isn't here yet: its reopen copy is undecided.
+ */
+const REOPEN_SUBLINES: Partial<Record<TaskSummaryCopyKey, TaskSummaryCopyKey>> =
+  {
+    bookingCancelledOwnerSubline: 'bookingCancelledOwnerReopenSubline',
+  }
+
+/**
+ * A view's sub-line for an owner who can reopen the task (`canReopen`): the
+ * one that points at Reopen task, not at Repost. Every other sub-line, and
+ * one for an owner who can't reopen, is unchanged. The same swap as the Expo
+ * app's `reopenSubline`.
+ */
+export function reopenSubline(
+  ref: TaskSummaryCopy | null,
+  canReopen: boolean,
+): TaskSummaryCopy | null {
+  return canReopen && typeof ref === 'string'
+    ? (REOPEN_SUBLINES[ref] ?? ref)
+    : ref
+}
+
 /** A view's headline or sub-line as text, with its values filled in. */
 export function resolveSummaryCopy(
   ref: TaskSummaryCopy | null,

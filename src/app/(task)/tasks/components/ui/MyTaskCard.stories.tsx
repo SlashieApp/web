@@ -266,6 +266,24 @@ export const PastRowTaskCompleted: Story = {
   },
 }
 
+/**
+ * Past row: your quote is still pending, the booking ended and the owner
+ * hasn't reopened the task (BE-116). No button, only the ⋮ menu.
+ */
+export const PastRowOtherBookingEnded: Story = {
+  args: { row: storyRows.pastOtherBookingEnded, layout: 'row' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Booking cancelled · £60')).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Options for Fit a curtain rail' }),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByRole('link', { name: /: Fit a curtain rail$/ }),
+    ).toBeNull()
+  },
+}
+
 /** The newest Past task as a card: the status as a neutral badge, no button (BE-113). */
 export const PastCardBookedByOther: Story = {
   args: { row: storyRows.pastBookedByOther },

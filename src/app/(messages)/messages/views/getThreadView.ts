@@ -6,13 +6,15 @@ import type { ThreadViewInput, ThreadViewName } from './types'
 
 /**
  * Whether the viewer's still-pending quote lost the task to someone else's
- * booking (BE-113), from task detail's view: booked, completed, or neither.
+ * booking (BE-113), from task detail's view: booked, completed, ended (the
+ * booking was cancelled and the task isn't reopened yet, BE-116), or none.
  */
 export function threadOtherBooking(
   view: TaskDetailViewName,
 ): ThreadViewInput['otherBooking'] {
   if (view === 'worker.bookedByOther') return 'booked'
   if (view === 'worker.completedByOther') return 'completed'
+  if (view === 'worker.otherBookingEnded') return 'ended'
   return null
 }
 
@@ -20,7 +22,8 @@ export function threadOtherBooking(
  * The one place that decides what the open conversation shows. Precedence:
  * nothing picked, the query, Slashie threads, then why you can or can't send
  * (a suspension says messaging is paused, never "once a quote is accepted",
- * and a task someone else booked says so, never that either).
+ * and a task someone else booked, or whose booking ended, says so, never that
+ * either).
  */
 export function getThreadView({
   threadId,
@@ -39,5 +42,6 @@ export function getThreadView({
   if (suspended) return 'thread.suspended'
   if (otherBooking === 'booked') return 'thread.bookedByOther'
   if (otherBooking === 'completed') return 'thread.completedByOther'
+  if (otherBooking === 'ended') return 'thread.otherBookingEnded'
   return 'thread.locked'
 }

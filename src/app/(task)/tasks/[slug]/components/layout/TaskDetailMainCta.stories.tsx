@@ -472,6 +472,30 @@ export const WorkerBookedByOtherBrowse: Story = {
   },
 }
 
+/**
+ * Worker whose quote stayed pending after the booking ended and the owner
+ * hasn't reopened the task (BE-116): Browse other tasks, and nothing to edit.
+ */
+export const WorkerOtherBookingEndedBrowse: Story = {
+  ...desktop,
+  ...cta({
+    viewer: 'worker',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.None,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('link', {
+      name: 'Browse other tasks',
+    })
+    await expect(
+      within(canvasElement).queryByRole('link', { name: 'Edit quote' }),
+    ).toBeNull()
+  },
+}
+
 /** Anyone not on an awarded booking: there is no main button. */
 export const NoMainButton: Story = {
   ...desktop,
