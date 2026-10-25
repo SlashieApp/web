@@ -11,8 +11,10 @@ to configs.
   on the server (`hasSession`), then the signed-in profile (`me`). With a
   session, buttons are placeholders until the profile loads, so a worker never
   sees a customer's button first.
-- `components/ui/plan/PricingPlanCards.tsx` only renders the config.
-  `PricingCheckoutButton` is the one client island that starts Checkout.
+- `components/ui/plan/PricingPlanCards.tsx` only renders the config, plus the
+  store purchases note under the cards (`plans.purchasesNote`), the same in
+  every view. `PricingCheckoutButton` is the one client island that starts
+  Checkout.
 - Membership comes from the API's flags (`hasUnlimitedQuotes`, `canUpgrade`,
   `canStartTrial`), never the Stripe status, so pricing offers exactly what
   /billing would.

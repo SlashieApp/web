@@ -189,7 +189,8 @@ function PlanCard({
 /**
  * Free and Slashie Unlimited side by side (stacked on phones), rendered from
  * the view's config: which card is "Your plan", whether Unlimited leads with
- * the trial, and each card's button. Prices and trial come from the API.
+ * the trial, and each card's button. Prices and trial come from the API. The
+ * store purchases note sits under the cards, the same for every view.
  */
 export function PricingPlanCards({
   pricing,
@@ -213,51 +214,50 @@ export function PricingPlanCards({
   const count = pricing.freeQuotesPerMonth
 
   return (
-    <Grid
-      templateColumns={{ base: '1fr', md: '1fr 1fr' }}
-      gap={5}
-      w="full"
-      maxW="4xl"
-      mx="auto"
-    >
-      <PlanCard
-        icon={<LuBriefcase size={22} />}
-        title={copy.free.title}
-        subtitle={copy.free.subtitle}
-        amount={formatPricingAmount(0, pricing.priceCurrency)}
-        suffix={freePerInterval}
-        features={copy.free.features.map((feature) =>
-          formatMessage(feature, { count }),
-        )}
-        current={config.current === 'free'}
-        yourPlan={copy.yourPlan}
-        action={config.free}
-        labels={copy.actions}
-      />
-      <PlanCard
-        featured
-        icon={<LuZap size={22} />}
-        title={pricing.productName}
-        subtitle={copy.unlimited.subtitle}
-        amount={
-          trial
-            ? formatMessage(copy.trial[trial.unit], { count: trial.count })
-            : price
-        }
-        suffix={trial ? undefined : perInterval}
-        note={
-          trial
-            ? formatMessage(copy.thenPrice, {
-                priceLine: pricingPriceLine(pricing, intervals),
-              })
-            : undefined
-        }
-        features={copy.unlimited.features}
-        current={config.current === 'unlimited'}
-        yourPlan={copy.yourPlan}
-        action={config.unlimited}
-        labels={copy.actions}
-      />
-    </Grid>
+    <Stack gap={4} w="full" maxW="4xl" mx="auto">
+      <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={5} w="full">
+        <PlanCard
+          icon={<LuBriefcase size={22} />}
+          title={copy.free.title}
+          subtitle={copy.free.subtitle}
+          amount={formatPricingAmount(0, pricing.priceCurrency)}
+          suffix={freePerInterval}
+          features={copy.free.features.map((feature) =>
+            formatMessage(feature, { count }),
+          )}
+          current={config.current === 'free'}
+          yourPlan={copy.yourPlan}
+          action={config.free}
+          labels={copy.actions}
+        />
+        <PlanCard
+          featured
+          icon={<LuZap size={22} />}
+          title={pricing.productName}
+          subtitle={copy.unlimited.subtitle}
+          amount={
+            trial
+              ? formatMessage(copy.trial[trial.unit], { count: trial.count })
+              : price
+          }
+          suffix={trial ? undefined : perInterval}
+          note={
+            trial
+              ? formatMessage(copy.thenPrice, {
+                  priceLine: pricingPriceLine(pricing, intervals),
+                })
+              : undefined
+          }
+          features={copy.unlimited.features}
+          current={config.current === 'unlimited'}
+          yourPlan={copy.yourPlan}
+          action={config.unlimited}
+          labels={copy.actions}
+        />
+      </Grid>
+      <Text fontSize="sm" color="text.muted">
+        {copy.purchasesNote}
+      </Text>
+    </Stack>
   )
 }

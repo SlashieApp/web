@@ -51,7 +51,8 @@
           "Everything in Free",
           "Cancel anytime from Billing"
         ]
-      }
+      },
+      "purchasesNote": "Purchases are processed securely. On iOS and Android, subscription management may open your platform billing settings when available."
     },
     "unavailable": {
       "heading": "Pricing isn't loading",
@@ -144,7 +145,8 @@
           "包含免費方案的所有功能",
           "可隨時在帳單頁取消"
         ]
-      }
+      },
+      "purchasesNote": "購買會安全處理。在 iOS 和 Android 上，訂閱管理可能會開啟平台帳單設定（如適用）。"
     },
     "unavailable": {
       "heading": "暫時無法載入收費",

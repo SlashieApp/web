@@ -41,6 +41,11 @@ export const Guest: Story = {
       'href',
       '/register?next=%2Fworker%2Fsetup%3Fnext%3D%2Fpricing',
     )
+    await expect(
+      canvas.getByText(
+        'Purchases are processed securely. On iOS and Android, subscription management may open your platform billing settings when available.',
+      ),
+    ).toBeVisible()
   },
 }
 
@@ -140,6 +145,11 @@ export const WorkerUnlimited: Story = {
       'href',
       '/billing',
     )
+    await expect(
+      canvas.getByText(
+        'Purchases are processed securely. On iOS and Android, subscription management may open your platform billing settings when available.',
+      ),
+    ).toBeVisible()
   },
 }
 
@@ -190,5 +200,10 @@ export const TraditionalChinese: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('免費 6 個月')).toBeVisible()
     await expect(canvas.getByText('之後 £19.99 / 月')).toBeVisible()
+    await expect(
+      canvas.getByText(
+        '購買會安全處理。在 iOS 和 Android 上，訂閱管理可能會開啟平台帳單設定（如適用）。',
+      ),
+    ).toBeVisible()
   },
 }
