@@ -2,10 +2,7 @@ import { QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
-import {
-  STORY_CLOSED_STATUS,
-  storyTaskQuote,
-} from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import { storyTaskQuote } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 
 import { TaskQuoteFlow } from './TaskQuoteFlow'
 import {
@@ -48,7 +45,7 @@ export const QuoteClosed: Story = {
     withQuoteStory({
       viewer: 'worker',
       task: quoteStoryTask({
-        quotes: [storyTaskQuote({ status: STORY_CLOSED_STATUS })],
+        quotes: [storyTaskQuote({ status: QuoteStatus.Closed })],
       }),
     }),
   ],

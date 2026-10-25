@@ -541,7 +541,13 @@
       "customerSubline": "Become a worker to quote on this task.",
       "guestSubline": "Sign in as a worker to send a quote.",
       "awardedHeadline": "Worker booked",
-      "awardedSubline": "This task has been awarded to a worker."
+      "awardedSubline": "This task has been awarded to a worker.",
+      "taskCompletedHeadline": "Task completed",
+      "taskCompletedSubline": "This task is no longer taking quotes.",
+      "bookedByOtherHeadline": "Booked by someone else",
+      "browseSubline": "Browse other tasks nearby.",
+      "quoteClosedHeadline": "Quote closed",
+      "quoteClosedSubline": "Your booking ended. You can send a new quote."
     },
     "quoteLimit": {
       "heading": "Slashie Unlimited",
@@ -1091,7 +1097,13 @@
       "customerSubline": "成為工作者即可為此任務報價。",
       "guestSubline": "請以工作者身分登入以傳送報價。",
       "awardedHeadline": "已預訂工作者",
-      "awardedSubline": "此任務已選定工作者。"
+      "awardedSubline": "此任務已選定工作者。",
+      "taskCompletedHeadline": "任務已完成",
+      "taskCompletedSubline": "此任務已不再接受報價。",
+      "bookedByOtherHeadline": "已由其他人預訂",
+      "browseSubline": "瀏覽附近其他任務。",
+      "quoteClosedHeadline": "報價已結束",
+      "quoteClosedSubline": "你的預約已結束。你可以傳送新的報價。"
     },
     "quoteLimit": {
       "heading": "Slashie Unlimited",

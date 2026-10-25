@@ -1,10 +1,9 @@
-import { QuoteStatus, TaskStatus } from '@codegen/schema'
+import { QuoteStatus, TaskBookingStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
-  STORY_CLOSED_STATUS,
   STORY_WORKER_ID,
   storyPublicQuote,
   storyTaskDetail,
@@ -155,10 +154,7 @@ export const C2CustomerClosedQuote: Story = {
       {
         viewer: 'owner',
         task: storyTaskDetail({
-          quotes: [
-            { ...competitorB, status: STORY_CLOSED_STATUS },
-            competitorA,
-          ],
+          quotes: [{ ...competitorB, status: QuoteStatus.Closed }, competitorA],
         }),
       },
       QUOTE_LIST,
@@ -421,7 +417,7 @@ export const W4WorkerQuoteClosed: Story = {
       {
         viewer: 'worker',
         task: storyTaskDetail({
-          quotes: [{ ...myPendingQuote, status: STORY_CLOSED_STATUS }, publicA],
+          quotes: [{ ...myPendingQuote, status: QuoteStatus.Closed }, publicA],
         }),
       },
       SIDEBAR,
@@ -446,6 +442,7 @@ export const W8WorkerTaskFull: Story = {
         viewer: 'worker',
         task: storyTaskDetail({
           status: TaskStatus.Awarded,
+          bookingStatus: TaskBookingStatus.Booked,
           quotes: [myPendingQuote],
         }),
       },
@@ -466,7 +463,11 @@ export const VisitorTaskBooked: Story = {
     withTaskDetailStory(
       {
         viewer: 'visitor',
-        task: storyTaskDetail({ status: TaskStatus.Awarded, quotes: [] }),
+        task: storyTaskDetail({
+          status: TaskStatus.Awarded,
+          bookingStatus: TaskBookingStatus.Booked,
+          quotes: [],
+        }),
       },
       SIDEBAR,
     ),

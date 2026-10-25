@@ -60,7 +60,7 @@ Guests never reach the page: `AccountAuthGate` sends them to log in.
 |---|---|---|---|
 | Upcoming | Hosted tasks with a booking, and quotes that won, not finished (a CONFLICT still counts) | Soonest first by the booked start; untimed last | Cards: the day ("Today", "Tomorrow", "On Wednesday" for 2 to 6 days out, "Thu 5 Nov", "Overdue" in red once the day has passed, "Before 5 Nov" or "Flexible"), the title, then "28 Oct, 16:25 · area · price" |
 | Open | Your open tasks, and your pending quotes on open tasks nobody else won | Soonest first by the task's time; flexible last | Rows: photo (or a category icon), the title, "3 quotes · £60" or "Quote sent · £75" |
-| Past | Completed, cancelled, didn't go ahead (both marked Failed), and anything else that is over (Closed: your quote closed, or the job went to someone else) | Newest first by when the booking closed, else when you quoted, else when you posted it | The newest is a card with no photo (title, date and price, how it ended); the rest are rows ("Completed · 28 Oct · £95"). The newest 3, then "Show all (n)" (all of them while filtering) |
+| Past | Completed, cancelled, didn't go ahead (both marked Failed), your pending quote on a task someone else booked or finished (Booked by someone else, Task completed), and anything else that is over (Closed: your quote closed) | Newest first by when the booking closed, else when you quoted, else when you posted it | The newest is a card with no photo (title, date and price, how it ended); the rest are rows ("Completed · 28 Oct · £95"). The newest 3, then "Show all (n)" (all of them while filtering) |
 
 Without filters every section shows, with a line when it is empty. While
 filtering, a section with no matches is left out.
@@ -86,6 +86,26 @@ Past rows get **Review** (the review form, `/tasks/[id]/review?orderId=`)
 when the order is COMPLETED and `Order.reviewState.canSubmit` is true
 (`MyOrders` selects it; `OrderReviewState: { merge: true }` in
 `utils/apolloClient.ts` keeps it from overwriting task detail's reviews).
+
+### How a Past row ended
+
+`outcome` on a Past row. `outcomeFor` checks a cancelled task first, then
+your booking, then a quote of yours that is still pending:
+
+| Outcome | When | Badge or line |
+|---|---|---|
+| `cancelled` | The task was cancelled, or your booking was cancelled | Cancelled |
+| `completed` | Your booking is COMPLETED | Completed (green) |
+| `failed` | Your booking was cancelled with both sides marked Failed | Didn't go ahead |
+| `bookedByOther` | A quote of yours is still PENDING and the task's `bookingStatus` is BOOKED (BE-113) | Booked by someone else |
+| `taskCompleted` | The same, with `bookingStatus` COMPLETED | Task completed |
+| `closed` | Anything else that is over, such as a quote that closed with its booking | Closed |
+
+Your quote stays PENDING while someone else is booked, and nothing tells you,
+so `MyQuotes` selects `bookingStatus` and the row says it. Those rows have no
+button, only the ⋮ menu. A CLOSED quote reads Closed even when the task is
+booked again. The same words as task detail's `worker.bookedByOther` and
+`worker.completedByOther`, and the Expo hub.
 
 ## The ⋮ menu
 

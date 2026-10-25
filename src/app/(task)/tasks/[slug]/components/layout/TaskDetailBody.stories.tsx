@@ -4,6 +4,7 @@ import {
   OrderPartyRole,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
   TaskStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -55,6 +56,7 @@ const competitorQuote = storyTaskQuote({
 const openTask = storyTaskDetail()
 const bookedTask = storyTaskDetail({
   status: TaskStatus.Awarded,
+  bookingStatus: TaskBookingStatus.Booked,
   quotes: [
     storyTaskQuote({ status: QuoteStatus.Accepted }),
     // The other quotes stay PENDING once someone is booked (BE-113).
@@ -231,10 +233,45 @@ export const OwnerCancelled: Story = {
   ...desktop,
   ...page({
     viewer: 'owner',
-    task: storyTaskDetail({ status: TaskStatus.Cancelled }),
+    task: storyTaskDetail({ status: TaskStatus.Cancelled, canReopen: true }),
   }),
-  play: async ({ canvasElement }) =>
-    expectView(canvasElement, 'Task cancelled'),
+  play: async ({ canvasElement }) => {
+    await expectView(canvasElement, 'Task cancelled')
+    const canvas = within(canvasElement)
+    await canvas.findByRole('button', { name: 'Reopen task' })
+    await canvas.findByRole('link', { name: 'Repost this task' })
+  },
+}
+
+/**
+ * Owner of a booked task whose booking was cancelled (BE-113): the task stays
+ * AWARDED, and the API says it can be reopened. Reopen task is the main
+ * button; Repost stays in Help & actions.
+ */
+export const OwnerBookingCancelledReopen: Story = {
+  ...desktop,
+  ...page({
+    viewer: 'owner',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.None,
+      canReopen: true,
+      quotes: [
+        storyTaskQuote({ status: QuoteStatus.Accepted }),
+        competitorQuote,
+      ],
+    }),
+    order: storyTaskOrder({
+      status: OrderStatus.Cancelled,
+      closedAt: '2026-10-15T10:00:00.000Z',
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await expectView(canvasElement, 'Booking cancelled')
+    const canvas = within(canvasElement)
+    await canvas.findByRole('button', { name: 'Reopen task' })
+    await canvas.findByRole('link', { name: 'Repost this task' })
+  },
 }
 
 // ------------------------------------------------- suspensions (BE-108)
@@ -298,7 +335,8 @@ export const CustomerWorkerSuspended: Story = {
   ...desktop,
   ...page({
     viewer: 'owner',
-    task: bookedTask,
+    // The API offers the owner the reopen (`Task.canReopen`).
+    task: { ...bookedTask, canReopen: true },
     order: storyTaskOrder({
       bookedStart: '2030-06-10T09:00:00.000Z',
       bookedEnd: '2030-06-10T11:00:00.000Z',
@@ -353,11 +391,48 @@ export const WorkerCustomerSuspended: Story = {
     ),
 }
 
-/** Anyone not on the booking, task awarded: read-only, no main button. */
+/**
+ * Worker whose quote stayed pending while someone else is booked (BE-113):
+ * the page says "Booked by someone else", and nothing else about it.
+ */
+export const WorkerBookedByOther: Story = {
+  ...desktop,
+  ...page({
+    viewer: 'worker',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Booked,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await expectView(canvasElement, 'Booked by someone else')
+    await within(canvasElement).findByRole('link', {
+      name: 'Browse other tasks',
+    })
+  },
+}
+
+/** Anyone not on the booking, task booked: read-only, no main button. */
 export const VisitorAwarded: Story = {
   ...desktop,
   ...page({ viewer: 'visitor', task: bookedTask }),
   play: async ({ canvasElement }) => expectView(canvasElement, 'Worker booked'),
+}
+
+/** Anyone not on the booking, job complete (BE-113): read-only, no main button. */
+export const VisitorCompleted: Story = {
+  ...desktop,
+  ...page({
+    viewer: 'visitor',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Completed,
+      quotes: [],
+    }),
+  }),
+  play: async ({ canvasElement }) =>
+    expectView(canvasElement, 'Task completed'),
 }
 
 /** Owner preview: the page exactly as a signed-out visitor sees it. */

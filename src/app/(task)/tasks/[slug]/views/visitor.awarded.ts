@@ -1,6 +1,6 @@
 import type { TaskDetailViewConfig } from './types'
 
-/** Anyone not on the booking (guest, customer, worker without a quote) on an AWARDED task. */
+/** Anyone not on the booking (guest, customer, worker without a live quote) on a task that is booked. */
 export const visitorAwarded: TaskDetailViewConfig = {
   pill: 'AWARDED',
   headline: 'awardedHeadline',

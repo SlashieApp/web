@@ -1,4 +1,9 @@
-import type { Price, TaskBudget, TaskDateTime } from '@codegen/schema'
+import type {
+  Price,
+  TaskBookingStatus,
+  TaskBudget,
+  TaskDateTime,
+} from '@codegen/schema'
 
 /**
  * Types for task list operations. Prefer `@codegen/schema` once codegen runs.
@@ -32,6 +37,11 @@ export type TaskListItem = {
   categories: string[]
   location?: TaskMapLocationFields | null
   status: string
+  /**
+   * Where the task's booking stands (BE-113). `quotedTasks` selects it, since
+   * your PENDING quote stays PENDING while someone else is booked.
+   */
+  bookingStatus?: TaskBookingStatus
   /** Public view count; null during cold-start. Browse `tasks` only. */
   views?: number | null
   createdAt: unknown

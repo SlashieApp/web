@@ -3,6 +3,7 @@ import {
   LoginMethod,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
   TaskContactMethod,
   TaskEditableField,
   TaskTimelineEventType,
@@ -20,13 +21,6 @@ export const STORY_OWNER_ID = 'owner-detail-1'
 export const STORY_WORKER_ID = 'worker-detail-1'
 /** Signed in, no worker profile, not the poster. */
 export const STORY_VIEWER_ID = 'viewer-detail-3'
-/**
- * A quote status this build has no typed value for: the API's CLOSED, the
- * booked worker's quote once a booking ends early and the owner reopens the
- * task. Stories use it to show the neutral "Closed" state.
- */
-export const STORY_CLOSED_STATUS = 'CLOSED' as QuoteStatus
-
 const STORY_THUMBNAIL =
   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop'
 
@@ -108,6 +102,9 @@ export function storyTaskDetail(
     ],
     orders: [],
     suspension: null,
+    // Nobody is booked yet, and only the owner of a reopenable task can reopen it.
+    bookingStatus: TaskBookingStatus.None,
+    canReopen: false,
     quotes: baseQuotes,
     ...overrides,
   } as TaskDetailRecord

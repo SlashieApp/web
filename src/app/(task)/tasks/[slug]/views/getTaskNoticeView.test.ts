@@ -153,7 +153,7 @@ describe('getTaskNoticeView: a quoting worker', () => {
   })
 
   it('gets none for a quote that is not pending, or with nothing suspended', () => {
-    for (const status of [QuoteStatus.Withdrawn, 'CLOSED']) {
+    for (const status of [QuoteStatus.Withdrawn, QuoteStatus.Closed]) {
       expect(notice({ viewer: quoting(status), suspension: BOTH })).toBeNull()
     }
     expect(notice({ viewer: quoting(QuoteStatus.Pending) })).toBeNull()

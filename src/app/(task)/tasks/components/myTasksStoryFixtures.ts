@@ -160,7 +160,7 @@ export const storyRows = {
     priceLabel: '£50',
     orderId: 'order-failed',
   }),
-  /** A quote that is over (someone else got the job, say): no end date in the hub's data. */
+  /** A quote that closed with its booking (BE-113): no end date in the hub's data. */
   pastClosed: row({
     id: 'past-closed',
     title: 'Clear a small garden',
@@ -169,6 +169,26 @@ export const storyRows = {
     outcome: 'closed',
     priceLabel: '£90',
     categories: ['Gardening'],
+  }),
+  /** Your quote is still pending while someone else is booked (BE-113): no button. */
+  pastBookedByOther: row({
+    id: 'past-booked-by-other',
+    title: 'Paint a fence',
+    section: 'past',
+    roles: ['quoted'],
+    outcome: 'bookedByOther',
+    priceLabel: '£80',
+    categories: ['Painting'],
+  }),
+  /** Your quote is still pending, and someone else's job is complete (BE-113): no button. */
+  pastTaskCompleted: row({
+    id: 'past-task-completed',
+    title: 'Tile a bathroom wall',
+    section: 'past',
+    roles: ['quoted'],
+    outcome: 'taskCompleted',
+    priceLabel: '£140',
+    categories: ['Tiling'],
   }),
 }
 

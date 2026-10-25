@@ -1,3 +1,4 @@
+import { QuoteStatus } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import { isQuoteAwarded } from './dashboardHelpers'
@@ -9,7 +10,12 @@ describe('isQuoteAwarded', () => {
   })
 
   it('treats a quote that did not win as not awarded', () => {
-    for (const status of ['PENDING', 'WITHDRAWN', 'EXPIRED', 'CLOSED']) {
+    for (const status of [
+      QuoteStatus.Pending,
+      QuoteStatus.Withdrawn,
+      QuoteStatus.Expired,
+      QuoteStatus.Closed,
+    ]) {
       expect(isQuoteAwarded(status)).toBe(false)
     }
   })

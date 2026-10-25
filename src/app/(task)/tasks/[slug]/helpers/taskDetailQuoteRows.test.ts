@@ -6,7 +6,7 @@ import { taskDetailQuoteRows } from './taskDetailQuoteRows'
 const quotes = [
   { id: 'mine', status: QuoteStatus.Pending },
   { id: 'live-1', status: QuoteStatus.Pending },
-  { id: 'closed', status: 'CLOSED' },
+  { id: 'closed', status: QuoteStatus.Closed },
   { id: 'live-2', status: QuoteStatus.Pending },
   { id: 'accepted', status: QuoteStatus.Accepted },
 ]

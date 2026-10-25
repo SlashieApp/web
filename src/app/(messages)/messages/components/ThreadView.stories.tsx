@@ -3,6 +3,7 @@ import {
   OrderPartyRole,
   OrderRequestKind,
   QuoteStatus,
+  TaskBookingStatus,
   TaskStatus,
   ThreadAttentionKind,
 } from '@codegen/schema'
@@ -45,6 +46,7 @@ const FRAME = { height: '640px', maxW: '720px', task: openTask } as const
 /** Jordan booked for a future slot: the top pin shows the time and price. */
 const bookedTask = storyTaskDetail({
   status: TaskStatus.Awarded,
+  bookingStatus: TaskBookingStatus.Booked,
   quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
   orders: [
     storyTaskOrder({
@@ -324,11 +326,12 @@ export const PhoneNeedsYou: Story = {
 }
 
 /**
- * thread.locked: someone else was booked (BE-113). The worker's quote stays
- * pending, so the card still says Awaiting reply and the composer line is the
- * usual one; the top pin gives the task's plain "booked" status.
+ * thread.bookedByOther: someone else was booked (BE-113). The worker's quote
+ * stays pending and no message tells them, so the thread says so quietly: the
+ * top pin says "Booked by someone else", and the composer line replaces "You
+ * can message here once a quote is accepted". No new line in the log.
  */
-export const WorkerBookedElsewhere: Story = {
+export const WorkerBookedByOther: Story = {
   decorators: messagesStory({
     viewer: 'worker',
     thread: taskThread('worker', { canSend: false }, pendingItems),
@@ -336,17 +339,80 @@ export const WorkerBookedElsewhere: Story = {
     ...FRAME,
     task: storyTaskDetail({
       status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Booked,
       quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
     }),
   }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText('Worker booked')).toBeVisible()
     await expect(
-      within(await canvas.findByRole('log')).getByText('Awaiting reply'),
+      await canvas.findByText('Booked by someone else'),
     ).toBeVisible()
     await expect(
-      canvas.getByText('You can message here once a quote is accepted.'),
+      await canvas.findByText(
+        "Booked by someone else. You can't message here.",
+      ),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByText('You can message here once a quote is accepted.'),
+    ).toBeNull()
+    // Quiet: the log holds only the quote the worker sent, nothing about the booking.
+    await expect(canvas.getByRole('log')).not.toHaveTextContent('someone else')
+    await expect(canvas.queryByRole('textbox')).toBeNull()
+  },
+}
+
+/**
+ * thread.completedByOther: someone else's job was completed (BE-113). The
+ * pin says "Task completed" and so does the composer line.
+ */
+export const WorkerTaskCompleted: Story = {
+  decorators: messagesStory({
+    viewer: 'worker',
+    thread: taskThread('worker', { canSend: false }, pendingItems),
+    items: pendingItems,
+    ...FRAME,
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Completed,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText("Task completed. You can't message here."),
+    ).toBeVisible()
+    await expect(canvas.getAllByText('Task completed')).toHaveLength(1)
+    await expect(canvas.queryByRole('textbox')).toBeNull()
+  },
+}
+
+/** zh-HK: the same line when someone else is booked. */
+export const ZhHkWorkerBookedByOther: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/messages' } } },
+  decorators: [
+    ...messagesStory({
+      viewer: 'worker',
+      thread: taskThread('worker', { canSend: false }, pendingItems),
+      items: pendingItems,
+      ...FRAME,
+      task: storyTaskDetail({
+        status: TaskStatus.Awarded,
+        bookingStatus: TaskBookingStatus.Booked,
+        quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+      }),
+    }),
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('已由其他人預訂。你無法在此傳送訊息。'),
     ).toBeVisible()
     await expect(canvas.queryByRole('textbox')).toBeNull()
   },

@@ -6,16 +6,16 @@ import {
   OrderRequestKind,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
   TaskStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, within } from 'storybook/test'
 
 import type { OrderItem } from '@/utils/orderHelpers'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
-  STORY_CLOSED_STATUS,
   STORY_OWNER_ID,
   STORY_WORKER_ID,
   type TaskDetailStoryConfig,
@@ -94,10 +94,25 @@ function quotes(mine: QuoteStatus | null, other: QuoteStatus) {
 const openTask = storyTaskDetail()
 const bookedTask = storyTaskDetail({
   status: TaskStatus.Awarded,
+  bookingStatus: TaskBookingStatus.Booked,
   // The other quotes stay PENDING once someone is booked (BE-113).
   quotes: quotes(QuoteStatus.Accepted, QuoteStatus.Pending),
 })
-const cancelledTask = storyTaskDetail({ status: TaskStatus.Cancelled })
+/** The API says the owner can reopen a cancelled task (`Task.canReopen`). */
+const cancelledTask = storyTaskDetail({
+  status: TaskStatus.Cancelled,
+  canReopen: true,
+})
+/**
+ * A booking that was cancelled leaves the task AWARDED with nobody booked.
+ * The owner can reopen it (BE-113), unless it is suspended.
+ */
+const bookingCancelledTask = storyTaskDetail({
+  status: TaskStatus.Awarded,
+  bookingStatus: TaskBookingStatus.None,
+  canReopen: true,
+  quotes: quotes(QuoteStatus.Accepted, QuoteStatus.Pending),
+})
 
 function order(over: Partial<OrderItem> = {}) {
   return storyTaskOrder(over)
@@ -178,8 +193,11 @@ function view(config: Partial<TaskDetailStoryConfig>): Story {
   return { decorators: [withTaskDetailStory(config, { maxWidth: '1200px' })] }
 }
 
-function owner(o: OrderItem): Story {
-  return view({ viewer: 'owner', task: bookedTask, order: o })
+function owner(
+  o: OrderItem,
+  task: TaskDetailStoryConfig['task'] = bookedTask,
+): Story {
+  return view({ viewer: 'owner', task, order: o })
 }
 
 function worker(o: OrderItem): Story {
@@ -223,12 +241,60 @@ export const OwnerConflictIMarkedDone = owner(ownerOrders.conflictDone)
 export const OwnerConflictIMarkedFailed = owner(ownerOrders.conflictFailed)
 /** Finished job, owner side: the record, reviews and receipt. */
 export const OwnerCompleted = owner(ownerOrders.completed)
-/** A cancel request was accepted: booking cancelled, repost offered. */
-export const OwnerBookingCancelled = owner(ownerOrders.cancelled)
-/** Both sides marked Failed: the booking did not go ahead. */
-export const OwnerBookingFailed = owner(ownerOrders.failed)
-/** The owner cancelled the task. */
-export const OwnerCancelled = view({ viewer: 'owner', task: cancelledTask })
+/**
+ * A cancel request was accepted: booking cancelled. The API says the owner
+ * can reopen the task (BE-113), so Reopen task is the main button and Repost
+ * stays in Help & actions.
+ */
+export const OwnerBookingCancelled: Story = {
+  ...owner(ownerOrders.cancelled, bookingCancelledTask),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Booking cancelled' })
+    await canvas.findByRole('button', { name: 'Reopen task' })
+    await canvas.findByRole('link', { name: 'Repost this task' })
+  },
+}
+/** The same, with the task suspended: nothing to reopen, so Repost is the main button. */
+export const OwnerBookingCancelledRepost: Story = {
+  ...owner(
+    ownerOrders.cancelled,
+    storyTaskDetail({
+      ...bookingCancelledTask,
+      canReopen: false,
+      suspension: { bySlashie: true, posterSuspended: false },
+    }),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Booking cancelled' })
+    const repost = await canvas.findAllByRole('link', {
+      name: 'Repost this task',
+    })
+    await expect(repost.length).toBeGreaterThan(0)
+    await expect(
+      canvas.queryByRole('button', { name: 'Reopen task' }),
+    ).toBeNull()
+  },
+}
+/** Both sides marked Failed: the booking did not go ahead, and the owner can reopen the task. */
+export const OwnerBookingFailed = owner(
+  ownerOrders.failed,
+  bookingCancelledTask,
+)
+/** The owner cancelled the task: Reopen task (it asks first). */
+export const OwnerCancelled: Story = {
+  ...view({ viewer: 'owner', task: cancelledTask }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Reopen task' }),
+    )
+    await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+      name: 'Reopen this task?',
+    })
+  },
+}
 
 // Booked worker
 /** Booked worker before the start: coordinate, reschedule or cancel. */
@@ -275,34 +341,95 @@ export const WorkerOpenNotQuoted = view({
 /** Worker whose quote is pending: their price against the budget. */
 export const WorkerOpenQuoted = view({ viewer: 'worker', task: openTask })
 /**
- * Worker whose quote closed (the booking ended and the task is open again):
- * the same summary as no quote, so they can quote again.
+ * Worker whose quote closed (the booking ended and the task is open again,
+ * BE-113): it says so, and they can send a new one.
  */
-export const WorkerOpenQuoteClosed = view({
-  viewer: 'worker',
-  task: storyTaskDetail({
-    quotes: quotes(STORY_CLOSED_STATUS, QuoteStatus.Pending),
+export const WorkerOpenClosed: Story = {
+  ...view({
+    viewer: 'worker',
+    task: storyTaskDetail({
+      quotes: quotes(QuoteStatus.Closed, QuoteStatus.Pending),
+    }),
   }),
-})
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Quote closed' })
+    await canvas.findByText('Your booking ended. You can send a new quote.')
+    await canvas.findByRole('link', { name: 'Send quote' })
+  },
+}
 /**
- * Worker whose quote stayed pending while someone else was booked (BE-113):
- * the plain "booked" summary, with nothing to do.
+ * Worker whose quote stayed pending while someone else is booked (BE-113):
+ * "Booked by someone else", status only, with their own quote under it and
+ * Browse other tasks.
  */
-export const WorkerQuotePendingBookedElsewhere = view({
-  viewer: 'worker',
-  task: storyTaskDetail({
-    status: TaskStatus.Awarded,
-    quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+export const WorkerBookedByOther: Story = {
+  ...view({
+    viewer: 'worker',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Booked,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
   }),
-})
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Booked by someone else' })
+    await canvas.findByText('Browse other tasks nearby.')
+    await canvas.findByRole('link', { name: 'Browse other tasks' })
+    await expect(canvas.queryByRole('link', { name: 'Edit quote' })).toBeNull()
+  },
+}
+/**
+ * Worker whose quote stayed pending after someone else's job was completed
+ * (BE-113): "Task completed", with Browse other tasks.
+ */
+export const WorkerCompletedByOther: Story = {
+  ...view({
+    viewer: 'worker',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Completed,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Task completed' })
+    await canvas.findByRole('link', { name: 'Browse other tasks' })
+  },
+}
 
 // Everyone else
 /** Signed in without a worker profile: become a worker to quote. */
 export const CustomerOpen = view({ viewer: 'nonWorker', task: openTask })
 /** Signed out on an open task: sign in as a worker to quote. */
 export const GuestOpen = view({ viewer: 'visitor', task: openTask })
-/** Anyone not on the booking, task awarded: read-only. */
-export const VisitorAwarded = view({ viewer: 'visitor', task: bookedTask })
+/** Anyone not on the booking, task booked (BE-113): read-only, never who. */
+export const VisitorAwarded: Story = {
+  ...view({ viewer: 'visitor', task: bookedTask }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Worker booked' })
+    await expect(canvas.queryByRole('link', { name: /quote/i })).toBeNull()
+  },
+}
+/** Anyone not on the booking, job complete (BE-113): read-only. */
+export const VisitorCompleted: Story = {
+  ...view({
+    viewer: 'visitor',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Completed,
+      quotes: [],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Task completed' })
+    await canvas.findByText('This task is no longer taking quotes.')
+  },
+}
 /** Anyone except the owner, task cancelled: no longer active. */
 export const VisitorCancelled = view({
   viewer: 'visitor',

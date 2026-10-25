@@ -26,6 +26,7 @@ describe('getThreadPinView', () => {
 
   it('shows a worker without a live quote the task status', () => {
     expect(pin('worker.open.notQuoted')).toBe('pin.status')
+    expect(pin('worker.open.closed')).toBe('pin.status')
   })
 
   it('shows the booking to both sides once a quote is accepted', () => {
@@ -39,6 +40,15 @@ describe('getThreadPinView', () => {
     expect(pin('worker.completed')).toBe('pin.closed')
     expect(pin('owner.bookingCancelled')).toBe('pin.closed')
     expect(pin('owner.cancelled')).toBe('pin.closed')
+  })
+
+  // BE-113: the worker's quote stays pending, so the pin carries the status
+  // ("Booked by someone else", "Task completed") rather than the quote.
+  it("shows a worker whose quote lost to someone else's booking the task's status, not their quote", () => {
+    expect(pin('worker.bookedByOther')).toBe('pin.closed')
+    expect(pin('worker.completedByOther')).toBe('pin.closed')
+    expect(pin('visitor.awarded')).toBe('pin.closed')
+    expect(pin('visitor.completed')).toBe('pin.closed')
   })
 
   it('shows no pin while the task loads', () => {

@@ -13,7 +13,6 @@ import {
 } from './mapTaskStatus'
 import { isTaskDetailJobCompleted } from './taskDetailCompleted'
 import type { TaskDetailRecord } from './taskDetailUtils'
-import { type TaskReopenKind, taskReopenKind } from './taskSuspension'
 
 export type TaskDetailPermissionsInput = {
   task: TaskDetailRecord | null
@@ -60,10 +59,12 @@ export type TaskDetailPermissions = {
    */
   isFrozen: boolean
   /**
-   * What the owner can reopen (`reopenTask`): a booking whose worker is
-   * suspended, a cancelled task, or nothing. Never on a suspended task.
+   * The owner can reopen the task for quotes (`reopenTask`): the API's own
+   * answer (`Task.canReopen`, BE-113). That is a cancelled task, a booking
+   * that was cancelled (the task stays AWARDED), or a live booking whose
+   * worker is suspended; never a suspended task or a completed booking.
    */
-  reopen: TaskReopenKind | null
+  canReopen: boolean
   /**
    * Worker (not the owner) can send a quote on this OPEN task, edit their
    * pending one, or send a new one after withdrawing. Blocked once any quote
@@ -155,12 +156,9 @@ export function getTaskDetailPermissions(
   const isSuspended = Boolean(task?.suspension)
   const isFrozen = isSuspended || Boolean(myOrder?.counterpartySuspension)
 
-  const reopen = taskReopenKind({
-    isOwner,
-    taskStatus: task?.status,
-    suspension: task?.suspension,
-    order: myOrder,
-  })
+  // The API says when `reopenTask` would work. `isOwner` only guards against
+  // an owner's answer cached for someone else.
+  const canReopen = Boolean(isOwner && task?.canReopen)
 
   const canSubmitQuote = Boolean(
     task &&
@@ -221,7 +219,7 @@ export function getTaskDetailPermissions(
     atCap,
     isSuspended,
     isFrozen,
-    reopen,
+    canReopen,
     canSubmitQuote,
     hasPendingQuote,
     canWithdrawQuote,

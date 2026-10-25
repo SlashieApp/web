@@ -2,6 +2,7 @@ import {
   OrderPartyRole,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
   TaskStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -38,9 +39,15 @@ const WITH_POSTER = { bySlashie: false, posterSuspended: true }
 const openTask = (suspension: typeof BY_SLASHIE | null) =>
   storyTaskDetail({ suspension })
 
-const bookedTask = (suspension: typeof BY_SLASHIE | null = null) =>
+/** `canReopen`: the API offers the customer a reopen (`Task.canReopen`). */
+const bookedTask = (
+  suspension: typeof BY_SLASHIE | null = null,
+  canReopen = false,
+) =>
   storyTaskDetail({
     status: TaskStatus.Awarded,
+    bookingStatus: TaskBookingStatus.Booked,
+    canReopen,
     quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
     suspension,
   })
@@ -105,7 +112,7 @@ export const CustomerWorkerSuspended: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'owner',
-      task: bookedTask(),
+      task: bookedTask(null, true),
       order: workerSuspended(true),
     }),
   ],
@@ -243,7 +250,7 @@ export const ZhHk: Story = {
   decorators: [
     withTaskDetailStory({
       viewer: 'owner',
-      task: bookedTask(),
+      task: bookedTask(null, true),
       order: workerSuspended(true),
     }),
     (Story) => (

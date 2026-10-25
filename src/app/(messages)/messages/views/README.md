@@ -87,7 +87,7 @@ list inside it remounts, which would clear them (the layout stays). Leaving
 Messages resets them. The open conversation comes from the URL, so a search
 that drops its row from the list doesn't close it on desktop.
 
-## Conversation: `getThreadView({ threadId, query, thread, suspended })`
+## Conversation: `getThreadView({ threadId, query, thread, suspended, otherBooking })`
 
 `query` comes from `threadQueryState` (`helpers/messagesThread.ts`): the API
 answers FORBIDDEN (`extensions.code`, or nothing) for a conversation you're not in, which is
@@ -103,16 +103,23 @@ answers FORBIDDEN (`extensions.code`, or nothing) for a conversation you're not 
 | `thread.open` | `canSend` | Header, top pin, timeline, bottom pin when something needs you (`pins: true`) | One-line composer (44px, grows to 160px) |
 | `thread.blocked` | You blocked them | Same | Unblock them to send |
 | `thread.suspended` | The task or booking is frozen by a suspension (task detail's `permissions.isFrozen`, BE-108) | Same | Messaging is paused while this account or task is suspended. |
+| `thread.bookedByOther` | The viewer's quote is still PENDING while someone else is booked (task detail's `worker.bookedByOther`, BE-113) | Same | Booked by someone else. You can't message here. |
+| `thread.completedByOther` | The same, once that booking is complete (`worker.completedByOther`) | Same | Task completed. You can't message here. |
 | `thread.locked` | Before a quote is accepted | Same | You can message here once a quote is accepted |
 
 Precedence: nothing picked, the query, Slashie threads, then why you can or
-can't send: `canSend`, blocked, suspended, then locked (a suspension never
-reads as "once a quote is accepted"). A worker whose task went to someone
-else reads locked too: their quote stays PENDING (BE-113) and no message
-tells them otherwise. The API gives the
-thread no reason for `canSend` being false, so `suspended` comes from the
-task's `TaskDetailProvider` (`ThreadComposerArea` in `ThreadView.tsx`): the
-task's `suspension`, or the booking's `counterpartySuspension`. Task threads run inside the task's `TaskDetailProvider` (the
+can't send: `canSend`, blocked, suspended, booked or completed by someone
+else, then locked (a suspension never reads as "once a quote is accepted",
+and neither does someone else's booking). A worker whose task went to
+someone else keeps a PENDING quote (BE-113) and nothing tells them, so the
+thread says it quietly: no new item in the log, only the composer line and
+the top pin (`pin.closed`: the pill and "Booked by someone else" or "Task
+completed", from task detail's own view). If the owner reopens the task the
+view changes, and the line is the usual one again. The API gives the
+thread no reason for `canSend` being false, so `suspended` and
+`otherBooking` come from the task's `TaskDetailProvider` (`ThreadComposerArea`
+in `ThreadView.tsx`): the task's `suspension`, or the booking's
+`counterpartySuspension`, and task detail's view (`threadOtherBooking`). Task threads run inside the task's `TaskDetailProvider` (the
 header menu and both pins share task detail's state). The timeline has
 Today / Yesterday / date dividers, and a run of messages from one side within
 five minutes shows one time (`timelineRows`). While the reader is at the
@@ -146,8 +153,8 @@ is in the header, not here.
 | `pin.quotes` | `owner.open.quotes` | Open · "Live quotes · cheapest {price}", then up to three live (PENDING) quotes, cheapest first: worker, price, status; "+N more" after three |
 | `pin.myQuote` | `worker.open.quoted` | "Your quote", price, its status (Awaiting reply), the times offered |
 | `pin.booking` | `*.booked.*`, `*.conflict.*` | Awarded · task detail's headline (left out while the bottom pin shows), then booked time · "{price} agreed" · payment method |
-| `pin.status` | `owner.open.noQuotes`, `worker.open.notQuoted` | The pill and headline |
-| `pin.closed` | `*.completed`, `*.bookingCancelled`, `*.bookingFailed`, `owner.cancelled`, `visitor.*` | The final status: pill and headline |
+| `pin.status` | `owner.open.noQuotes`, `worker.open.notQuoted`, `worker.open.closed` | The pill and headline |
+| `pin.closed` | `*.completed`, `*.bookingCancelled`, `*.bookingFailed`, `owner.cancelled`, `worker.bookedByOther`, `worker.completedByOther`, `visitor.*` | The status: pill and headline ("Booked by someone else", "Task completed" for a worker whose quote is still pending) |
 
 A placeholder row while the task loads; no pin for `customer.open` and
 `guest.open` (they can't be in a task thread) or on Slashie threads.

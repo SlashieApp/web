@@ -37,6 +37,13 @@ export type TaskDetailRecord = Omit<TaskCoreRecord, 'location' | 'poster'> & {
   orders: TaskClientRecord['orders']
   /** Why it is suspended (BE-108), for its owner and parties; else null. */
   suspension: TaskClientRecord['suspension']
+  /**
+   * Where the booking stands (BE-113): the same for every viewer, and it
+   * never says who is booked.
+   */
+  bookingStatus: TaskClientRecord['bookingStatus']
+  /** The owner only: `reopenTask` would succeed (BE-113). False for everyone else. */
+  canReopen: TaskClientRecord['canReopen']
 }
 
 /**

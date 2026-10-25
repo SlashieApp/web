@@ -84,6 +84,8 @@ function TaskDetailStorySeed({
             __typename: 'Task',
             id: task.id,
             status: task.status,
+            bookingStatus: task.bookingStatus,
+            canReopen: task.canReopen,
             location: task.location
               ? { __typename: 'TaskLocation', ...task.location }
               : null,

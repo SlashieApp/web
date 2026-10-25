@@ -17,14 +17,8 @@ import {
 const T = TaskTimelineEventType
 type Locale = 'en' | 'zh_hk'
 
-/**
- * Types the API drops in BE-113. It still sends them until that is deployed,
- * so the schema web is built against may or may not list them, and web has no
- * line for them either way: they are skipped like any type it doesn't know.
- */
-const DROPPED = ['QUOTE_DECLINED', 'QUOTE_NOT_SELECTED']
-/** Every type the schema lists that web has a line for. */
-const KNOWN_TYPES = Object.values(T).filter((type) => !DROPPED.includes(type))
+/** Every type the schema lists: web has a line for each. */
+const KNOWN_TYPES = Object.values(T)
 
 const ALEX = { id: 'owner-1', profile: { name: 'Alex Chen' } }
 const JORDAN = { id: 'worker-1', profile: { name: 'Jordan Lee' } }
@@ -366,14 +360,6 @@ describe('taskActivityLines: the owner booking one quote', () => {
         'zh_hk',
       ),
     ).toBe('有人 接受了你的報價')
-  })
-
-  it('has no line for the decisions the API dropped, for anyone', () => {
-    for (const type of DROPPED) {
-      for (const viewer of [OWNER, JORDAN_VIEWING, OTHER_WORKER, GUEST]) {
-        expect(say({ type, worker: JORDAN }, viewer)).toBeNull()
-      }
-    }
   })
 })
 

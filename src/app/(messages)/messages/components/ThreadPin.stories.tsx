@@ -2,6 +2,7 @@ import {
   OrderRequestKind,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
   TaskStatus,
   ThreadAttentionKind,
 } from '@codegen/schema'
@@ -11,7 +12,6 @@ import { expect, waitFor, within } from 'storybook/test'
 
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
-  STORY_CLOSED_STATUS,
   STORY_TASK_ID,
   STORY_WORKER_ID,
   storyTaskDetail,
@@ -137,13 +137,14 @@ export const WorkerQuote: Story = {
 
 /**
  * pin.closed: Alex booked Sam (BE-113). Jordan's quote stays pending, so the
- * pin is the task's plain "booked" status, not his quote.
+ * pin is the task's status, "Booked by someone else", not his quote.
  */
-export const WorkerBookedElsewhere: Story = {
+export const WorkerBookedByOther: Story = {
   ...pin(
     'worker',
     storyTaskDetail({
       status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Booked,
       quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
     }),
   ),
@@ -151,7 +152,44 @@ export const WorkerBookedElsewhere: Story = {
     const canvas = within(canvasElement)
     await shows(canvasElement, 'pin.closed')
     await expect(canvas.getByText('Awarded')).toBeVisible()
-    await expect(canvas.getByText('Worker booked')).toBeVisible()
+    await expect(canvas.getByText('Booked by someone else')).toBeVisible()
+    await expect(canvas.queryByText('Your quote')).toBeNull()
+    await noButtons(canvasElement)
+  },
+}
+
+/** pin.closed: Sam's job was completed (BE-113). Jordan's quote stays pending: "Task completed". */
+export const WorkerCompletedByOther: Story = {
+  ...pin(
+    'worker',
+    storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Completed,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await shows(canvasElement, 'pin.closed')
+    await expect(canvas.getByText('Completed')).toBeVisible()
+    await expect(canvas.getByText('Task completed')).toBeVisible()
+    await noButtons(canvasElement)
+  },
+}
+
+/** pin.status: Jordan's quote closed with its booking and the task is open again (BE-113). */
+export const WorkerQuoteClosed: Story = {
+  ...pin(
+    'worker',
+    storyTaskDetail({
+      quotes: [storyTaskQuote({ status: QuoteStatus.Closed })],
+    }),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await shows(canvasElement, 'pin.status')
+    await expect(canvas.getByText('Open')).toBeVisible()
+    await expect(canvas.getByText('Quote closed')).toBeVisible()
     await noButtons(canvasElement)
   },
 }
@@ -281,7 +319,7 @@ export const PosterOneQuoteClosed: Story = {
   ...pin(
     'owner',
     storyTaskDetail({
-      quotes: storyQuotes(QuoteStatus.Pending, STORY_CLOSED_STATUS),
+      quotes: storyQuotes(QuoteStatus.Pending, QuoteStatus.Closed),
     }),
     needs(ThreadAttentionKind.CompareQuotes, 1),
   ),

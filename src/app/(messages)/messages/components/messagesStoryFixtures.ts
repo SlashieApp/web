@@ -5,6 +5,7 @@ import {
   OrderRequestKind,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
   TaskStatus,
   ThreadAttentionKind,
   ThreadItemType,
@@ -533,6 +534,7 @@ export function manyLiveQuotes(count: number) {
 export function bookedTask(order: Partial<OrderItem> = {}) {
   return storyTaskDetail({
     status: TaskStatus.Awarded,
+    bookingStatus: TaskBookingStatus.Booked,
     // The other quotes stay PENDING once someone is booked (BE-113).
     quotes: storyQuotes(QuoteStatus.Accepted, QuoteStatus.Pending),
     orders: [storyTaskOrder(order)],

@@ -9,7 +9,6 @@ import {
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
 import {
-  STORY_CLOSED_STATUS,
   STORY_OWNER_ID,
   STORY_WORKER_ID,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
@@ -128,7 +127,7 @@ export const Accepted: Story = {
 
 /** Over without being accepted (the booking ended early and the task reopened): a neutral "Closed". */
 export const Closed: Story = {
-  args: { quote: jordanQuote({ status: STORY_CLOSED_STATUS }) },
+  args: { quote: jordanQuote({ status: QuoteStatus.Closed }) },
   decorators: [asWorker],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)

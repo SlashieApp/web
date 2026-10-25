@@ -49,7 +49,7 @@ export function TaskSuspensionNotice() {
     task.poster?.profile?.name,
     t.fallbackCustomer,
   )
-  const reopen = config.action === 'reopen' && permissions.reopen === 'booking'
+  const reopen = config.action === 'reopen' && permissions.canReopen
 
   const action =
     config.action === 'contactSupport' ? (

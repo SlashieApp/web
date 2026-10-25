@@ -40,7 +40,12 @@ import { Button, Link, Textarea } from '@ui'
 
 import { threadQueryState, timelineRows } from '../helpers/messagesThread'
 import bag from '../i11n.json'
-import { THREAD_VIEWS, type ThreadViewInput, getThreadView } from '../views'
+import {
+  THREAD_VIEWS,
+  type ThreadViewInput,
+  getThreadView,
+  threadOtherBooking,
+} from '../views'
 import { ThreadAttentionRefresh } from './ThreadAttentionRefresh'
 import { ThreadBottomPin } from './ThreadBottomPin'
 import { ThreadHeader } from './ThreadHeader'
@@ -132,9 +137,10 @@ function Composer({
 
 /**
  * Under the timeline: the composer, or the line that says why you can't
- * send. A task thread runs inside its `TaskDetailProvider`, whose
+ * send. A task thread runs inside its `TaskDetailProvider`: its
  * `permissions.isFrozen` (BE-108) turns the "once a quote is accepted" line
- * into "Messaging is paused" (`thread.suspended`).
+ * into "Messaging is paused" (`thread.suspended`), and its view says when
+ * someone else is booked or done (BE-113), so the line says that instead.
  */
 function ThreadComposerArea({
   view,
@@ -142,13 +148,16 @@ function ThreadComposerArea({
   name,
   t,
 }: {
-  view: Omit<ThreadViewInput, 'suspended'>
+  view: Omit<ThreadViewInput, 'suspended' | 'otherBooking'>
   threadId: string
   name: string
   t: Copy
 }) {
-  const suspended = Boolean(useContext(TaskDetailContext)?.permissions.isFrozen)
-  const config = THREAD_VIEWS[getThreadView({ ...view, suspended })]
+  const detail = useContext(TaskDetailContext)
+  const suspended = Boolean(detail?.permissions.isFrozen)
+  const otherBooking = detail ? threadOtherBooking(detail.view) : null
+  const config =
+    THREAD_VIEWS[getThreadView({ ...view, suspended, otherBooking })]
   if (config.layout !== 'conversation') return null
 
   if (config.composer === 'open') {
@@ -258,9 +267,13 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
     query: threadQueryState({ loading, thread, error }),
     thread,
   }
-  // Layout and pins; a suspension only changes the composer line, which
-  // `ThreadComposerArea` works out inside the task's provider.
-  const config = THREAD_VIEWS[getThreadView({ ...view, suspended: false })]
+  // Layout and pins; a suspension or someone else's booking only changes the
+  // composer line, which `ThreadComposerArea` works out inside the task's
+  // provider.
+  const config =
+    THREAD_VIEWS[
+      getThreadView({ ...view, suspended: false, otherBooking: null })
+    ]
 
   // Opening the thread, and each new item while it is open, marks it read.
   useEffect(() => {

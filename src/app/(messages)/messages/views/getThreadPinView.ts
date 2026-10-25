@@ -43,9 +43,13 @@ const PIN_BY_TASK_VIEW: Record<TaskDetailViewName, ThreadPinViewName | null> = {
   'worker.bookingFailed': 'pin.closed',
   'worker.open.notQuoted': 'pin.status',
   'worker.open.quoted': 'pin.myQuote',
+  'worker.open.closed': 'pin.status',
+  'worker.bookedByOther': 'pin.closed',
+  'worker.completedByOther': 'pin.closed',
   'customer.open': null,
   'guest.open': null,
   'visitor.awarded': 'pin.closed',
+  'visitor.completed': 'pin.closed',
   'visitor.cancelled': 'pin.closed',
 }
 

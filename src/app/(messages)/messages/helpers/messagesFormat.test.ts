@@ -103,9 +103,8 @@ describe('quoteFlashStatus (BE-81)', () => {
   })
 
   it('reads any other status as closed, never as raw text', () => {
-    // CLOSED is the API's newest status and has no typed value here; the
-    // second is one nobody has sent yet.
-    expect(quoteFlashStatus('CLOSED')).toBe('closed')
+    // CLOSED, and a status nobody has sent yet.
+    expect(quoteFlashStatus(QuoteStatus.Closed)).toBe('closed')
     expect(quoteFlashStatus('A_STATUS_FOR_LATER')).toBe('closed')
   })
 })

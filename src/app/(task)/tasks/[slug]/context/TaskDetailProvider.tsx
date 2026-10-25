@@ -13,7 +13,7 @@ import type {
   TaskQuery,
   WithdrawQuoteMutation,
 } from '@codegen/schema'
-import { Currency, OrderStatus } from '@codegen/schema'
+import { Currency, OrderStatus, TaskBookingStatus } from '@codegen/schema'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   useCallback,
@@ -392,6 +392,10 @@ export function TaskDetailProvider({
         : (viewerTask?.timeline ?? []),
       orders: viewerTask?.orders ?? [],
       suspension: viewerTask?.suspension ?? null,
+      // Public, so the owner's guest preview reads it too; Reopen is the
+      // owner's alone, so the preview never gets it.
+      bookingStatus: clientTask?.bookingStatus ?? TaskBookingStatus.None,
+      canReopen: viewerTask?.canReopen ?? false,
       location:
         viewerTask?.location ??
         (publicTask.location
@@ -856,10 +860,12 @@ export function TaskDetailProvider({
     task,
   ])
 
-  // Reopen for quotes (BE-108): a cancelled task, or a booking whose worker
-  // is suspended (the API cancels that booking). The dialogs confirm first.
+  // Reopen for quotes (BE-108, BE-113) when the API says it would work
+  // (`Task.canReopen`): a cancelled task, a booking that was cancelled, or a
+  // booking whose worker is suspended (the API cancels that booking). The
+  // dialogs confirm first.
   const onReopenTask = useCallback(async () => {
-    if (!task || !permissions.reopen) return false
+    if (!task || !permissions.canReopen) return false
     try {
       const result = await reopenTask({
         variables: { taskId: task.id },
@@ -885,7 +891,7 @@ export function TaskDetailProvider({
     }
   }, [
     messages,
-    permissions.reopen,
+    permissions.canReopen,
     refetch,
     refetchClientTask,
     refreshPageData,
@@ -967,6 +973,7 @@ export function TaskDetailProvider({
         statusReady && task
           ? {
               status: task.status,
+              bookingStatus: task.bookingStatus,
               posterId: task.poster?.id ?? null,
               quotes: task.quotes,
             }
@@ -984,12 +991,14 @@ export function TaskDetailProvider({
     () =>
       task
         ? buildTaskDetailMainCta({
-            // Not one a suspension would refuse (BE-108).
+            // Not one the API would refuse: a suspension (BE-108), or a
+            // reopen it doesn't offer (BE-113).
             action: availablePrimaryAction(
               TASK_DETAIL_VIEWS[view].primaryAction,
               {
                 isSuspended: permissions.isSuspended,
                 isFrozen: permissions.isFrozen,
+                canReopen: permissions.canReopen,
                 viewerHasSubmittedReview,
               },
             ),
@@ -1010,6 +1019,7 @@ export function TaskDetailProvider({
       permissions.isOwner,
       permissions.isSuspended,
       permissions.isFrozen,
+      permissions.canReopen,
       viewerHasSubmittedReview,
       taskThreadHref,
       t,

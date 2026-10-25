@@ -1,6 +1,6 @@
 import type { ThreadPinViewConfig } from './types'
 
-/** Completed, cancelled or didn't go ahead: the final status. */
+/** Completed, cancelled, didn't go ahead, or booked by someone else: the status. */
 export const pinClosed: ThreadPinViewConfig = {
   pill: true,
   headline: true,

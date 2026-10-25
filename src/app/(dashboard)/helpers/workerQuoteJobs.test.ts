@@ -1,3 +1,4 @@
+import { QuoteStatus } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import type { TaskItem, TaskQuoteItem } from '@/utils/dashboardHelpers'
@@ -19,9 +20,12 @@ describe('workerQuoteStage', () => {
   })
 
   it('reads any quote that is not pending as ended, even one this build does not know', () => {
-    // CLOSED is the API's newest status and has no typed value here; the
-    // second is one nobody has sent yet.
-    for (const status of ['WITHDRAWN', 'CLOSED', 'A_STATUS_FOR_LATER']) {
+    // Withdrawn, closed with its booking, and a status nobody has sent yet.
+    for (const status of [
+      QuoteStatus.Withdrawn,
+      QuoteStatus.Closed,
+      'A_STATUS_FOR_LATER',
+    ]) {
       expect(workerQuoteStage(task(), quote(status), null)).toBe('ended')
     }
   })

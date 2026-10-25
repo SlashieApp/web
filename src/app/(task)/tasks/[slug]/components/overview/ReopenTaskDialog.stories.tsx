@@ -1,4 +1,10 @@
-import { OrderPartyRole, QuoteStatus, TaskStatus } from '@codegen/schema'
+import {
+  OrderPartyRole,
+  OrderStatus,
+  QuoteStatus,
+  TaskBookingStatus,
+  TaskStatus,
+} from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, within } from 'storybook/test'
 
@@ -11,9 +17,9 @@ import {
 import { ReopenTaskDialog } from './ReopenTaskDialog'
 
 /**
- * Asks before the owner reopens the task for quotes (BE-108). Opened by the
- * cancelled task's main button, or by the notice on a booking whose worker
- * is suspended.
+ * Asks before the owner reopens the task for quotes (BE-108, BE-113). Opened
+ * by the main button (a cancelled task, or a booking that was cancelled), or
+ * by the notice on a booking whose worker is suspended.
  */
 const meta = {
   title: 'Task detail/Overview/ReopenTaskDialog',
@@ -31,7 +37,7 @@ const page = (canvasElement: HTMLElement) =>
 
 const cancelled = withTaskDetailStory({
   viewer: 'owner',
-  task: storyTaskDetail({ status: TaskStatus.Cancelled }),
+  task: storyTaskDetail({ status: TaskStatus.Cancelled, canReopen: true }),
 })
 
 /** A cancelled task: it takes quotes again, and the quoting workers are told. */
@@ -62,6 +68,8 @@ export const BookingWithSuspendedWorker: Story = {
       viewer: 'owner',
       task: storyTaskDetail({
         status: TaskStatus.Awarded,
+        bookingStatus: TaskBookingStatus.Booked,
+        canReopen: true,
         quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
       }),
       order: storyTaskOrder({
@@ -83,6 +91,39 @@ export const BookingWithSuspendedWorker: Story = {
     await dialog.findByText(
       'Your booking with Jordan Lee will be cancelled and the task will be open for quotes again. You can accept another quote.',
     )
+  },
+}
+
+/**
+ * A booking that was cancelled (BE-113): it is already cancelled, so the
+ * dialog doesn't say it will be. The task takes quotes again.
+ */
+export const BookingCancelled: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'owner',
+      task: storyTaskDetail({
+        status: TaskStatus.Awarded,
+        bookingStatus: TaskBookingStatus.None,
+        canReopen: true,
+        quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
+      }),
+      order: storyTaskOrder({
+        status: OrderStatus.Cancelled,
+        closedAt: '2026-06-10T17:00:00.000Z',
+      }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const dialog = within(
+      await page(canvasElement).findByRole('dialog', {
+        name: 'Reopen this task?',
+      }),
+    )
+    await dialog.findByText(
+      'It will be open for quotes again, and workers with pending quotes will be told.',
+    )
+    await expect(dialog.queryByText(/will be cancelled/)).toBeNull()
   },
 }
 

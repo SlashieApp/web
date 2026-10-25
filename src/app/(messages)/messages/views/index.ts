@@ -15,6 +15,8 @@ import { pinMyQuote } from './pin.myQuote'
 import { pinQuotes } from './pin.quotes'
 import { pinStatus } from './pin.status'
 import { threadBlocked } from './thread.blocked'
+import { threadBookedByOther } from './thread.bookedByOther'
+import { threadCompletedByOther } from './thread.completedByOther'
 import { threadLoadError } from './thread.loadError'
 import { threadLoading } from './thread.loading'
 import { threadLocked } from './thread.locked'
@@ -37,7 +39,7 @@ import type {
 export { getBottomPinView } from './getBottomPinView'
 export { getInboxView } from './getInboxView'
 export { getThreadPinView } from './getThreadPinView'
-export { getThreadView } from './getThreadView'
+export { getThreadView, threadOtherBooking } from './getThreadView'
 export type {
   BottomPinViewConfig,
   BottomPinViewInput,
@@ -70,6 +72,8 @@ export const THREAD_VIEWS: Record<ThreadViewName, ThreadViewConfig> = {
   'thread.system': threadSystem,
   'thread.open': threadOpen,
   'thread.locked': threadLocked,
+  'thread.bookedByOther': threadBookedByOther,
+  'thread.completedByOther': threadCompletedByOther,
   'thread.blocked': threadBlocked,
   'thread.suspended': threadSuspended,
 }

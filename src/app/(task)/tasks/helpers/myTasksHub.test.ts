@@ -114,7 +114,12 @@ describe('buildMyTasksHub sections', () => {
         },
         {
           // Someone else was booked: your quote stays PENDING (BE-113).
-          task: task({ id: 'lost', title: 'Lost quote', status: 'AWARDED' }),
+          task: task({
+            id: 'lost',
+            title: 'Lost quote',
+            status: 'AWARDED',
+            bookingStatus: 'BOOKED',
+          }),
           quote: { id: 'q4', workerUserId: ME, status: 'PENDING' },
         },
         {
@@ -528,6 +533,76 @@ describe('buildMyTasksHub reopened and suspended tasks (BE-108)', () => {
     })
   })
 
+  // BE-113: your quote stays PENDING while someone else is booked, and the
+  // task's bookingStatus says so.
+  describe('a quote of yours on a task someone else booked', () => {
+    function quoted(
+      id: string,
+      bookingStatus: string,
+      quoteStatus = 'PENDING',
+      status = 'AWARDED',
+    ) {
+      return {
+        task: task({
+          id,
+          title: id,
+          status,
+          bookingStatus,
+          poster: { id: 'owner' },
+        }),
+        quote: { id: `q-${id}`, workerUserId: ME, status: quoteStatus },
+      }
+    }
+    const hubOfQuotes = (...sentQuotes: ReturnType<typeof quoted>[]) =>
+      buildMyTasksHub({
+        now: NOW,
+        userId: ME,
+        posted: [],
+        sentQuotes,
+        orders: [],
+      })
+
+    it('reads Booked by someone else under Past, with no button', () => {
+      expect(rowFor(hubOfQuotes(quoted('t1', 'BOOKED')), 't1')).toMatchObject({
+        section: 'past',
+        outcome: 'bookedByOther',
+        action: null,
+        orderId: null,
+      })
+    })
+
+    it('reads Task completed under Past once that booking is complete, with no button', () => {
+      expect(
+        rowFor(hubOfQuotes(quoted('t1', 'COMPLETED')), 't1'),
+      ).toMatchObject({
+        section: 'past',
+        outcome: 'taskCompleted',
+        action: null,
+      })
+    })
+
+    it('leaves a pending quote on an open task in Open', () => {
+      expect(
+        rowFor(hubOfQuotes(quoted('t1', 'NONE', 'PENDING', 'OPEN')), 't1'),
+      ).toMatchObject({ section: 'open', outcome: null })
+    })
+
+    it('reads a quote that closed as Closed, even once the task is booked again', () => {
+      expect(
+        rowFor(hubOfQuotes(quoted('t1', 'BOOKED', 'CLOSED')), 't1'),
+      ).toMatchObject({ section: 'past', outcome: 'closed' })
+    })
+
+    it('reads Closed when the list did not say how the booking stands', () => {
+      const sent = quoted('t1', 'BOOKED')
+      sent.task.bookingStatus = undefined
+      expect(rowFor(hubOfQuotes(sent), 't1')).toMatchObject({
+        section: 'past',
+        outcome: 'closed',
+      })
+    })
+  })
+
   it('keeps a suspended task in your list, with no button and no Edit task', () => {
     const suspension = { bySlashie: true, posterSuspended: false }
     const hub = buildMyTasksHub({
@@ -614,14 +689,24 @@ describe('buildMyTasksHub Past', () => {
           quote: { id: 'q1', workerUserId: ME, status: 'CLOSED' },
         },
         {
-          // Still PENDING, but another worker won.
+          // Still PENDING while another worker is booked (BE-113).
           task: task({
-            id: 'beaten',
-            title: 'Beaten',
+            id: 'booked-by-other',
+            title: 'Booked by other',
             status: 'AWARDED',
-            quotes: [{ id: 'q9', workerUserId: 'w', status: 'ACCEPTED' }],
+            bookingStatus: 'BOOKED',
           }),
           quote: { id: 'q2', workerUserId: ME, status: 'PENDING' },
+        },
+        {
+          // Still PENDING after another worker's job was completed.
+          task: task({
+            id: 'completed-by-other',
+            title: 'Completed by other',
+            status: 'AWARDED',
+            bookingStatus: 'COMPLETED',
+          }),
+          quote: { id: 'q3', workerUserId: ME, status: 'PENDING' },
         },
       ],
       orders: [
@@ -656,8 +741,9 @@ describe('buildMyTasksHub Past', () => {
         ['failed', 'failed', local(10, 10, 12)],
         ['completed', 'completed', local(10, 1, 12)],
         // No end date in the hub's data: last, by title.
-        ['beaten', 'closed', null],
+        ['booked-by-other', 'bookedByOther', null],
         ['closed-quote', 'closed', null],
+        ['completed-by-other', 'taskCompleted', null],
         ['task-cancelled', 'cancelled', null],
       ],
     )

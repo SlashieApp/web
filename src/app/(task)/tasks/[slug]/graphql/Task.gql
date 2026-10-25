@@ -6,6 +6,13 @@ query Task($id: ID!) {
   task(id: $id) {
     id
     status
+    # Where the booking stands (BE-113): the same for every viewer, and it
+    # never says who is booked. A worker whose quote is still PENDING reads
+    # BOOKED as "Booked by someone else" and COMPLETED as "Task completed".
+    bookingStatus
+    # The owner only: reopenTask would succeed (a cancelled task, a booking
+    # that was cancelled, or a booking whose worker is suspended).
+    canReopen
     location {
       lat
       lng

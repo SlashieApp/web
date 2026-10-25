@@ -1,3 +1,4 @@
+import { QuoteStatus, TaskBookingStatus } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -20,8 +21,9 @@ const AFTER = '2026-10-15T09:00:00Z'
 function task(
   status: string,
   quotes: TaskDetailViewTask['quotes'] = [],
+  bookingStatus: string = TaskBookingStatus.None,
 ): TaskDetailViewTask {
-  return { status, posterId: 'owner', quotes }
+  return { status, bookingStatus, posterId: 'owner', quotes }
 }
 
 function order(over: Partial<TaskDetailViewOrder> = {}): TaskDetailViewOrder {
@@ -38,9 +40,11 @@ function order(over: Partial<TaskDetailViewOrder> = {}): TaskDetailViewOrder {
 
 const done = { kind: 'DONE' }
 const failed = { kind: 'FAILED' }
-const awarded = task('AWARDED', [
-  { workerUserId: 'worker', status: 'ACCEPTED' },
-])
+const awarded = task(
+  'AWARDED',
+  [{ workerUserId: 'worker', status: 'ACCEPTED' }],
+  TaskBookingStatus.Booked,
+)
 const seen = new Set<TaskDetailViewName>()
 
 function expectView(
@@ -60,7 +64,7 @@ describe('getTaskDetailView', () => {
     it("owner of an open task with no live quotes sees 'reaching workers'", () => {
       expectView(
         'owner.open.noQuotes',
-        task('OPEN', [{ workerUserId: 'w1', status: 'CLOSED' }]),
+        task('OPEN', [{ workerUserId: 'w1', status: QuoteStatus.Closed }]),
         null,
         OWNER,
         NOW,
@@ -410,10 +414,8 @@ describe('getTaskDetailView', () => {
         NOW,
       )
     })
-    it('worker whose quote is over on an open task can quote again', () => {
-      // CLOSED is the API's newest status, and no typed value exists for it
-      // here; a status this build has never seen reads the same.
-      for (const status of ['CLOSED', 'WITHDRAWN', 'A_STATUS_FOR_LATER']) {
+    it('worker whose quote was withdrawn, or has a status this build does not know, can quote again', () => {
+      for (const status of [QuoteStatus.Withdrawn, 'A_STATUS_FOR_LATER']) {
         expectView(
           'worker.open.notQuoted',
           task('OPEN', [{ workerUserId: 'worker', status }]),
@@ -423,13 +425,74 @@ describe('getTaskDetailView', () => {
         )
       }
     })
+    // BE-113: the booked worker's quote closes when the booking ends early
+    // and the owner reopens the task. It never comes back; a new one can.
+    it("worker whose quote closed sees 'Quote closed' and can send a new one", () => {
+      expectView(
+        'worker.open.closed',
+        task('OPEN', [{ workerUserId: 'worker', status: QuoteStatus.Closed }]),
+        null,
+        WORKER,
+        NOW,
+      )
+      expect(TASK_DETAIL_VIEWS['worker.open.closed'].primaryAction).toBe(
+        'sendQuote',
+      )
+    })
     // BE-113: the other quotes stay PENDING once someone is booked, and the
     // API sends a non-owner only their own on a task that isn't open.
-    it("worker who wasn't booked sees 'Worker booked', whatever their quote's status", () => {
-      for (const status of ['PENDING', 'CLOSED', 'A_STATUS_FOR_LATER']) {
+    describe('a quote that stayed pending while someone else is booked', () => {
+      const pending = [{ workerUserId: 'worker', status: QuoteStatus.Pending }]
+      it("reads 'Booked by someone else' while the booking is on", () => {
+        expectView(
+          'worker.bookedByOther',
+          task('AWARDED', pending, TaskBookingStatus.Booked),
+          null,
+          WORKER,
+          NOW,
+        )
+      })
+      it("reads 'Task completed' once that booking is complete", () => {
+        expectView(
+          'worker.completedByOther',
+          task('AWARDED', pending, TaskBookingStatus.Completed),
+          null,
+          WORKER,
+          NOW,
+        )
+      })
+      it('reads the plain booked summary for a status it does not expect', () => {
+        for (const bookingStatus of [
+          TaskBookingStatus.None,
+          'A_STATUS_FOR_LATER',
+        ]) {
+          expectView(
+            'visitor.awarded',
+            task('AWARDED', pending, bookingStatus),
+            null,
+            WORKER,
+            NOW,
+          )
+        }
+      })
+    })
+    it("worker whose quote is over sees the plain 'Worker booked' or 'Task completed'", () => {
+      for (const status of [
+        QuoteStatus.Closed,
+        QuoteStatus.Withdrawn,
+        'A_STATUS_FOR_LATER',
+      ]) {
+        const mine = [{ workerUserId: 'worker', status }]
         expectView(
           'visitor.awarded',
-          task('AWARDED', [{ workerUserId: 'worker', status }]),
+          task('AWARDED', mine, TaskBookingStatus.Booked),
+          null,
+          WORKER,
+          NOW,
+        )
+        expectView(
+          'visitor.completed',
+          task('AWARDED', mine, TaskBookingStatus.Completed),
           null,
           WORKER,
           NOW,
@@ -442,8 +505,26 @@ describe('getTaskDetailView', () => {
     it('guest is asked to sign in, not to become a worker', () => {
       expectView('guest.open', task('OPEN'), null, null, NOW)
     })
-    it("anyone else on an awarded task sees 'Worker booked'", () => {
-      expectView('visitor.awarded', awarded, null, OTHER_WORKER, NOW)
+    it("anyone else on a booked task sees 'Worker booked'", () => {
+      for (const viewer of [null, CUSTOMER, OTHER_WORKER]) {
+        expectView('visitor.awarded', awarded, null, viewer, NOW)
+      }
+    })
+    it("anyone else on a task whose job is complete sees 'Task completed'", () => {
+      const completed = task('AWARDED', [], TaskBookingStatus.Completed)
+      for (const viewer of [null, CUSTOMER, OTHER_WORKER]) {
+        expectView('visitor.completed', completed, null, viewer, NOW)
+      }
+    })
+    it("the owner with no order loaded reads the task's booking, never a worker's view", () => {
+      expectView('visitor.awarded', awarded, null, OWNER, NOW)
+      expectView(
+        'visitor.completed',
+        task('AWARDED', [], TaskBookingStatus.Completed),
+        null,
+        OWNER,
+        NOW,
+      )
     })
     it('anyone but the owner sees a cancelled task as cancelled', () => {
       expectView(
@@ -465,10 +546,10 @@ describe('liveQuoteCount', () => {
   it('counts pending quotes only', () => {
     expect(
       liveQuoteCount([
-        { status: 'PENDING' },
-        { status: 'CLOSED' },
-        { status: 'WITHDRAWN' },
-        { status: 'PENDING' },
+        { status: QuoteStatus.Pending },
+        { status: QuoteStatus.Closed },
+        { status: QuoteStatus.Withdrawn },
+        { status: QuoteStatus.Pending },
       ]),
     ).toBe(2)
   })

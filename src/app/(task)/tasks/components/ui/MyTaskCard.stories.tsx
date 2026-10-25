@@ -236,6 +236,48 @@ export const PastRow: Story = {
   },
 }
 
+/**
+ * Past row: your quote is still pending while someone else is booked (BE-113).
+ * The status is in the line, and there is no button, only the ⋮ menu.
+ */
+export const PastRowBookedByOther: Story = {
+  args: { row: storyRows.pastBookedByOther, layout: 'row' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Booked by someone else · £80')).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Options for Paint a fence' }),
+    ).toBeVisible()
+    await expect(
+      canvas.queryByRole('link', { name: /: Paint a fence$/ }),
+    ).toBeNull()
+  },
+}
+
+/** Past row: your quote is still pending and someone else's job is complete (BE-113). */
+export const PastRowTaskCompleted: Story = {
+  args: { row: storyRows.pastTaskCompleted, layout: 'row' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Task completed · £140')).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Options for Tile a bathroom wall' }),
+    ).toBeVisible()
+  },
+}
+
+/** The newest Past task as a card: the status as a neutral badge, no button (BE-113). */
+export const PastCardBookedByOther: Story = {
+  args: { row: storyRows.pastBookedByOther },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Booked by someone else')).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Options for Paint a fence' }),
+    ).toBeVisible()
+  },
+}
+
 /** Phone width: a row with its button. */
 export const Phone: Story = {
   args: { row: storyRows.openCompare, layout: 'row' },

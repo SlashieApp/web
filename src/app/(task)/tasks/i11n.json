@@ -36,7 +36,9 @@
       "completed": "Completed",
       "failed": "Didn't go ahead",
       "cancelled": "Cancelled",
-      "closed": "Closed"
+      "closed": "Closed",
+      "bookedByOther": "Booked by someone else",
+      "taskCompleted": "Task completed"
     },
     "actions": {
       "compareQuotes": "Compare quotes",
@@ -167,7 +169,9 @@
       "completed": "已完成",
       "failed": "未能進行",
       "cancelled": "已取消",
-      "closed": "已結束"
+      "closed": "已結束",
+      "bookedByOther": "已由其他人預訂",
+      "taskCompleted": "任務已完成"
     },
     "actions": {
       "compareQuotes": "比較報價",

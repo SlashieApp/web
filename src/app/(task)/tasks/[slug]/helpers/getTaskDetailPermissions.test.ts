@@ -40,11 +40,11 @@ function baseTask(overrides: Partial<TaskDetailRecord> = {}): TaskDetailRecord {
   } as TaskDetailRecord
 }
 
-/** A quote of `workerUserId`'s in any status, a string so the API's newer ones fit. */
+/** A quote of `workerUserId`'s in any status. */
 function quote(
   id: string,
   workerUserId: string,
-  status: string,
+  status: QuoteStatus,
 ): TaskDetailRecord['quotes'][number] {
   return {
     id,
@@ -181,8 +181,8 @@ describe('getTaskDetailPermissions', () => {
     })
     expect(owner.canWithdrawQuote).toBe(false)
 
-    // Withdrawn, or any status this build doesn't know (the API's CLOSED).
-    for (const status of [QuoteStatus.Withdrawn, 'CLOSED']) {
+    // Withdrawn, or closed once a booking ended and the task reopened.
+    for (const status of [QuoteStatus.Withdrawn, QuoteStatus.Closed]) {
       const over = quote('q1', WORKER_ID, status)
       const worker = getTaskDetailPermissions({
         task: baseTask({ status: TaskStatus.Open, quotes: [over] }),
@@ -197,7 +197,7 @@ describe('getTaskDetailPermissions', () => {
 
   // FE-274: a quote that is over doesn't stop a new one while the task is open.
   it('worker whose quote was withdrawn or closed can quote again on an OPEN task', () => {
-    for (const status of [QuoteStatus.Withdrawn, 'CLOSED']) {
+    for (const status of [QuoteStatus.Withdrawn, QuoteStatus.Closed]) {
       const myQuote = quote('q1', WORKER_ID, status)
       const permissions = getTaskDetailPermissions({
         task: baseTask({ status: TaskStatus.Open, quotes: [myQuote] }),
@@ -228,13 +228,11 @@ describe('getTaskDetailPermissions', () => {
   })
 
   it('a quote that did not win never makes the task full', () => {
-    // NOT_SELECTED (sent by the API until BE-113) contains "select": only
-    // ACCEPTED counts as accepted.
+    // Only ACCEPTED counts as accepted.
     for (const status of [
       QuoteStatus.Pending,
       QuoteStatus.Withdrawn,
-      'NOT_SELECTED',
-      'CLOSED',
+      QuoteStatus.Closed,
     ]) {
       const permissions = getTaskDetailPermissions({
         task: baseTask({
@@ -418,7 +416,7 @@ describe('getTaskDetailPermissions while suspended (BE-108)', () => {
     expect(permissions).toMatchObject({
       isSuspended: true,
       isFrozen: true,
-      reopen: null,
+      canReopen: false,
       canAcceptQuote: false,
       canCancelTask: false,
       canEditTask: false,
@@ -434,7 +432,7 @@ describe('getTaskDetailPermissions while suspended (BE-108)', () => {
       isAuthenticated: true,
     })
     expect(permissions.canRepostTask).toBe(true)
-    expect(permissions.reopen).toBeNull()
+    expect(permissions.canReopen).toBe(false)
   })
 
   it('worker with a pending quote on a suspended task can no longer edit it', () => {
@@ -463,7 +461,11 @@ describe('getTaskDetailPermissions while suspended (BE-108)', () => {
       [workerMe(), OrderPartyRole.Customer],
     ] as const) {
       const permissions = getTaskDetailPermissions({
-        task: baseTask({ status: TaskStatus.Awarded }),
+        // The API offers the reopen to the customer of a suspended worker.
+        task: baseTask({
+          status: TaskStatus.Awarded,
+          canReopen: role === OrderPartyRole.Worker,
+        }),
         myOrder: baseOrder({
           counterpartySuspension: {
             role,
@@ -478,24 +480,8 @@ describe('getTaskDetailPermissions while suspended (BE-108)', () => {
       expect(permissions.isSuspended).toBe(false)
       expect(permissions.isFrozen).toBe(true)
       expect(permissions.showOrderActions).toBe(false)
-      expect(permissions.reopen).toBe(
-        role === OrderPartyRole.Worker ? 'booking' : null,
-      )
+      expect(permissions.canReopen).toBe(role === OrderPartyRole.Worker)
     }
-  })
-
-  it('the owner can reopen a cancelled task, unless it is suspended', () => {
-    const owner = { id: OWNER_ID, worker: null } as never
-    const reopen = (suspension: TaskDetailRecord['suspension']) =>
-      getTaskDetailPermissions({
-        task: baseTask({ status: TaskStatus.Cancelled, suspension }),
-        myOrder: null,
-        me: owner,
-        myQuote: null,
-        isAuthenticated: true,
-      }).reopen
-    expect(reopen(null)).toBe('cancelled')
-    expect(reopen(BY_SLASHIE)).toBeNull()
   })
 
   it('nothing is frozen without a suspension', () => {
@@ -509,8 +495,63 @@ describe('getTaskDetailPermissions while suspended (BE-108)', () => {
     expect(permissions).toMatchObject({
       isSuspended: false,
       isFrozen: false,
-      reopen: null,
+      canReopen: false,
       showOrderActions: true,
     })
+  })
+})
+
+// BE-113: the API says when `reopenTask` would work (`Task.canReopen`), for a
+// cancelled task, a booking that was cancelled (the task stays AWARDED) or a
+// booking whose worker is suspended. The client keeps no rules of its own.
+describe('getTaskDetailPermissions: canReopen (BE-113)', () => {
+  const owner = { id: OWNER_ID, worker: null } as never
+
+  const reopen = (
+    task: Partial<TaskDetailRecord>,
+    me: unknown = owner,
+    myOrder: OrderItem | null = null,
+  ) =>
+    getTaskDetailPermissions({
+      task: baseTask(task),
+      myOrder,
+      me: me as never,
+      myQuote: null,
+      isAuthenticated: true,
+    }).canReopen
+
+  it('follows the API for the owner, whatever the task looks like', () => {
+    expect(reopen({ status: TaskStatus.Cancelled, canReopen: true })).toBe(true)
+    expect(reopen({ status: TaskStatus.Cancelled, canReopen: false })).toBe(
+      false,
+    )
+  })
+
+  it('offers it on a booked task whose booking was cancelled', () => {
+    const cancelled = baseOrder({ status: OrderStatus.Cancelled })
+    expect(
+      reopen({ status: TaskStatus.Awarded, canReopen: true }, owner, cancelled),
+    ).toBe(true)
+    // A completed booking can't be reopened: the API says no.
+    expect(
+      reopen(
+        { status: TaskStatus.Awarded, canReopen: false },
+        owner,
+        baseOrder({ status: OrderStatus.Completed }),
+      ),
+    ).toBe(false)
+  })
+
+  it('is never offered to anyone but the owner', () => {
+    expect(
+      reopen({ status: TaskStatus.Cancelled, canReopen: true }, workerMe()),
+    ).toBe(false)
+    expect(
+      reopen({ status: TaskStatus.Cancelled, canReopen: true }, null),
+    ).toBe(false)
+  })
+
+  it('is off until the API has answered', () => {
+    expect(reopen({ status: TaskStatus.Cancelled })).toBe(false)
   })
 })

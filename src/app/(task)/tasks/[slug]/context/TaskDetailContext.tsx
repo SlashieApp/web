@@ -93,7 +93,7 @@ export type TaskDetailActions = {
   runOrderAction: (action: OrderAction) => Promise<boolean>
   onCancelTask: () => Promise<void>
   /**
-   * Reopen the task for quotes (`permissions.reopen`, BE-108), once the
+   * Reopen the task for quotes (`permissions.canReopen`, BE-108), once the
    * owner confirmed. Resolves true once reopened.
    */
   onReopenTask: () => Promise<boolean>

@@ -3,12 +3,18 @@ import {
   OrderRequestKind,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
 } from '@codegen/schema'
 
 import type { TaskDetailViewName } from './types'
 
 export type TaskDetailViewTask = {
   status: string
+  /**
+   * `Task.bookingStatus` (BE-113): where the booking stands, the same for
+   * every viewer; it never says who is booked.
+   */
+  bookingStatus: string
   posterId: string | null
   /**
    * `Task.quotes`: latest quote per worker (EXPIRED / WITHDRAWN omitted).
@@ -82,13 +88,31 @@ function bookingView(
 }
 
 /**
+ * A booked task, for anyone who isn't on the booking. A worker whose quote
+ * is still PENDING (it stays PENDING while someone else is booked, BE-113)
+ * gets the status as "Booked by someone else" or "Task completed"; everyone
+ * else gets the plain one. Both read `Task.bookingStatus`, never who.
+ */
+function bookedView(
+  bookingStatus: string,
+  hasPendingQuote: boolean,
+): TaskDetailViewName {
+  if (bookingStatus === TaskBookingStatus.Completed) {
+    return hasPendingQuote ? 'worker.completedByOther' : 'visitor.completed'
+  }
+  return hasPendingQuote && bookingStatus === TaskBookingStatus.Booked
+    ? 'worker.bookedByOther'
+    : 'visitor.awarded'
+}
+
+/**
  * The one place that decides what this viewer sees. `task` is null until
  * the viewer-scoped task (and its order) has loaded.
  *
- * Only a PENDING quote of the viewer's own changes anything: a quote in any
- * other status (withdrawn, closed, or one this build doesn't know) reads like
- * no quote, so they can quote again while the task is open and see the
- * plain "booked" summary once it isn't.
+ * Only a worker's own quote can change their view, and only while it is
+ * PENDING or (on an open task) CLOSED. A WITHDRAWN quote, or a status this
+ * build doesn't know, reads like no quote: they can quote again while the
+ * task is open and see the plain booked summary once it isn't.
  */
 export function getTaskDetailView(
   task: TaskDetailViewTask | null,
@@ -113,20 +137,29 @@ export function getTaskDetailView(
   }
 
   if (isOwner) {
-    if (status === 'AWARDED') return 'visitor.awarded'
+    if (status === 'AWARDED') return bookedView(task.bookingStatus, false)
     const live = task.quotes.filter((q) => q.status === QuoteStatus.Pending)
     return live.length > 0 ? 'owner.open.quotes' : 'owner.open.noQuotes'
   }
 
-  if (status === 'AWARDED') return 'visitor.awarded'
+  // The API sends a non-owner their own quote only, once the task isn't open.
+  const myQuote = viewer
+    ? task.quotes.find((q) => q.workerUserId === viewer.userId)
+    : undefined
+
+  if (status === 'AWARDED') {
+    return bookedView(
+      task.bookingStatus,
+      myQuote?.status === QuoteStatus.Pending,
+    )
+  }
 
   // OPEN (DRAFT reads as OPEN for its owner).
   if (!viewer) return 'guest.open'
   if (!viewer.hasWorkerProfile) return 'customer.open'
-  const myQuote = task.quotes.find((q) => q.workerUserId === viewer.userId)
-  return myQuote?.status === QuoteStatus.Pending
-    ? 'worker.open.quoted'
-    : 'worker.open.notQuoted'
+  if (myQuote?.status === QuoteStatus.Pending) return 'worker.open.quoted'
+  if (myQuote?.status === QuoteStatus.Closed) return 'worker.open.closed'
+  return 'worker.open.notQuoted'
 }
 
 /** Live (PENDING) quotes: what headlines count. */

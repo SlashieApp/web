@@ -10,10 +10,11 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
 
 /**
- * Asks before the owner reopens the task for quotes (BE-108). The body says
- * what happens: a booking with a suspended worker is cancelled, or a
- * cancelled task takes quotes again and the quoting workers are told.
- * It closes once reopened; a failure shows a toast and keeps it open.
+ * Asks before the owner reopens the task for quotes (BE-108, BE-113). The
+ * body says what happens: a live booking with a suspended worker is
+ * cancelled, or the task (cancelled, or booked with a booking that was
+ * cancelled) takes quotes again and the workers with pending quotes are
+ * told. It closes once reopened; a failure shows a toast and keeps it open.
  */
 export function ReopenTaskDialog({
   open,
@@ -22,14 +23,15 @@ export function ReopenTaskDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const { permissions, myOrder, onReopenTask, reopeningTask } = useTaskDetail()
+  const { myOrder, onReopenTask, reopeningTask } = useTaskDetail()
   const r = useI11n(bag).reopen
-  const body =
-    permissions.reopen === 'booking'
-      ? formatMessage(r.bookingBody, {
-          name: myOrder?.counterpartySuspension?.name ?? '',
-        })
-      : r.cancelledBody
+  // Only a live booking with a suspended worker is cancelled by reopening:
+  // the API sets `canReopen` there, and nowhere else on an order.
+  const body = myOrder?.counterpartySuspension?.canReopen
+    ? formatMessage(r.bookingBody, {
+        name: myOrder.counterpartySuspension.name,
+      })
+    : r.cancelledBody
 
   return (
     <Modal

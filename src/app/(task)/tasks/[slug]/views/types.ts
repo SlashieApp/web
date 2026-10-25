@@ -45,10 +45,14 @@ export type TaskDetailViewName =
   // Worker not on the booking
   | 'worker.open.notQuoted'
   | 'worker.open.quoted'
+  | 'worker.open.closed'
+  | 'worker.bookedByOther'
+  | 'worker.completedByOther'
   // Everyone else
   | 'customer.open'
   | 'guest.open'
   | 'visitor.awarded'
+  | 'visitor.completed'
   | 'visitor.cancelled'
 
 /** Facts the summary can show, in the order a view lists them. */

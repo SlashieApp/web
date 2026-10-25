@@ -41,6 +41,8 @@
       "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake."
     },
     "lockedNotice": "You can message here once a quote is accepted.",
+    "bookedByOtherNotice": "Booked by someone else. You can't message here.",
+    "completedNotice": "Task completed. You can't message here.",
     "systemNotice": "Announcements from Slashie. You can't reply here.",
     "blockedNotice": "You blocked {name}. Unblock them to send messages.",
     "suspendedNotice": "Messaging is paused while this account or task is suspended.",
@@ -135,6 +137,8 @@
       "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。"
     },
     "lockedNotice": "報價被接受後，你就可以在這裡傳送訊息。",
+    "bookedByOtherNotice": "已由其他人預訂。你無法在此傳送訊息。",
+    "completedNotice": "任務已完成。你無法在此傳送訊息。",
     "systemNotice": "這是 Slashie 的公告，你無法在此回覆。",
     "blockedNotice": "你已封鎖 {name}。解除封鎖後才可傳送訊息。",
     "suspendedNotice": "帳戶或任務暫停期間，訊息功能會暫停。",

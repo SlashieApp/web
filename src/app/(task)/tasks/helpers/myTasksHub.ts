@@ -64,7 +64,11 @@ export type MyTaskOutcome =
   | 'cancelled'
   /** Both sides marked it Failed: the booking didn't go ahead. */
   | 'failed'
-  /** Anything else that is over: a quote that closed, or the job went to someone else. */
+  /** Your quote is still pending while someone else is booked (BE-113). */
+  | 'bookedByOther'
+  /** Your quote is still pending, and someone else's job is complete (BE-113). */
+  | 'taskCompleted'
+  /** Anything else that is over, such as a quote that closed. */
   | 'closed'
 
 export type MyTaskQuoteSource = {
@@ -92,6 +96,11 @@ export type MyTaskSource = {
   budget?: { amount: number } | null
   poster?: { id: string } | null
   quotes?: readonly MyTaskQuoteSource[] | null
+  /**
+   * `Task.bookingStatus` (BE-113), on the quotes you sent: your PENDING quote
+   * stays PENDING while someone else is booked, and this says so.
+   */
+  bookingStatus?: string | null
   /** Set while it is suspended (BE-108): still listed, but frozen. */
   suspension?: { bySlashie: boolean; posterSuspended: boolean } | null
 }
@@ -262,6 +271,8 @@ function orderForTask(
 type Facts = {
   hosted: boolean
   taskStatus: string
+  /** `Task.bookingStatus`, normalised; empty when the list didn't ask. */
+  bookingStatus: string
   quoteStatus: string | null
   orderStatus: string | null
   /** Another worker's quote on the task was accepted. */
@@ -271,7 +282,8 @@ type Facts = {
 /**
  * Upcoming: booked and not finished (a CONFLICT still needs both sides).
  * Open: your open task, or your pending quote on an open task. Past:
- * everything that ended.
+ * everything that ended, including a pending quote on a task someone else
+ * booked (BE-113): the task isn't open, so it never reads as Open.
  */
 function sectionFor(facts: Facts): MyTaskSectionId {
   const { hosted, taskStatus, quoteStatus, orderStatus } = facts
@@ -296,8 +308,10 @@ function sectionFor(facts: Facts): MyTaskSectionId {
 }
 
 /**
- * In task detail's order: a cancelled task first, then the booking. Anything
- * else that is over reads as closed, whatever your quote's status was.
+ * In task detail's order: a cancelled task first, then your booking, then a
+ * quote of yours that is still PENDING while someone else is booked or done
+ * (BE-113). Anything else that is over reads as closed, whatever your quote's
+ * status was.
  */
 function outcomeFor(
   facts: Facts,
@@ -312,6 +326,10 @@ function outcomeFor(
       failed(order?.counterpartyCloseAction)
       ? 'failed'
       : 'cancelled'
+  }
+  if (!facts.hosted && facts.quoteStatus === 'PENDING') {
+    if (facts.bookingStatus === 'BOOKED') return 'bookedByOther'
+    if (facts.bookingStatus === 'COMPLETED') return 'taskCompleted'
   }
   return 'closed'
 }
@@ -359,6 +377,7 @@ function actionFor(input: {
   const view = getTaskDetailView(
     {
       status: task.status,
+      bookingStatus: task.bookingStatus ?? '',
       posterId: hosted ? userId : (task.poster?.id ?? null),
       quotes: hosted ? input.othersQuotes : (task.quotes ?? []),
     },
@@ -438,6 +457,7 @@ export function buildMyTasksHub(input: {
     const facts: Facts = {
       hosted,
       taskStatus: normHubStatus(task.status),
+      bookingStatus: normHubStatus(task.bookingStatus ?? ''),
       quoteStatus: myQuote ? normHubStatus(myQuote.status) : null,
       orderStatus: order ? normHubStatus(order.status) : null,
       someoneElseAwarded: othersQuotes.some(

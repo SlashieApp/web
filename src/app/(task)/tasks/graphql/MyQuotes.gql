@@ -19,6 +19,9 @@ query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
         }
         images
         status
+        # Booked or completed (BE-113): a PENDING quote of yours stays PENDING
+        # while someone else is booked, and this says so.
+        bookingStatus
         # Suspended (BE-108): still listed for its owner and parties, but frozen.
         suspension {
           bySlashie

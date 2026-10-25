@@ -3,6 +3,7 @@ import {
   OrderPartyRole,
   OrderStatus,
   QuoteStatus,
+  TaskBookingStatus,
   TaskStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -55,6 +56,7 @@ const competitorQuote = storyTaskQuote({
 
 const bookedTask = storyTaskDetail({
   status: TaskStatus.Awarded,
+  bookingStatus: TaskBookingStatus.Booked,
   quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
 })
 
@@ -183,7 +185,11 @@ export const CompletedGetReceipt: Story = {
   },
 }
 
-const cancelledTask = storyTaskDetail({ status: TaskStatus.Cancelled })
+/** The API says the owner can reopen a cancelled task (`Task.canReopen`). */
+const cancelledTask = storyTaskDetail({
+  status: TaskStatus.Cancelled,
+  canReopen: true,
+})
 
 /**
  * Owner of a cancelled task (BE-108): Reopen task, which asks first. Not now
@@ -285,6 +291,101 @@ export const OwnerReopenRefused: Story = {
   },
 }
 
+/**
+ * A booked task whose booking was cancelled (BE-113): the task stays AWARDED
+ * and the API says it can be reopened, so the main button is Reopen task,
+ * not Repost. The dialog says the task takes quotes again; it doesn't say a
+ * booking will be cancelled, since it already was.
+ */
+export const OwnerReopenAfterCancelledBooking: Story = {
+  ...desktop,
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        <AppToastHost />
+      </>
+    ),
+    withTaskDetailStory({
+      viewer: 'owner',
+      task: storyTaskDetail({
+        status: TaskStatus.Awarded,
+        bookingStatus: TaskBookingStatus.None,
+        canReopen: true,
+        quotes: [
+          storyTaskQuote({ status: QuoteStatus.Accepted }),
+          competitorQuote,
+        ],
+      }),
+      order: storyTaskOrder({
+        status: OrderStatus.Cancelled,
+        closedAt: '2026-06-10T17:00:00.000Z',
+      }),
+      responses: {
+        ReopenTask: {
+          kind: 'data',
+          data: {
+            reopenTask: {
+              __typename: 'Task',
+              id: bookedTask.id,
+              status: TaskStatus.Open,
+            },
+          },
+        },
+      },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const body = pin(canvasElement)
+    const reopen = await within(canvasElement).findByRole('button', {
+      name: 'Reopen task',
+    })
+    await expect(
+      within(canvasElement).queryByRole('link', { name: 'Repost this task' }),
+    ).toBeNull()
+    await userEvent.click(reopen)
+    const dialog = within(
+      await body.findByRole('dialog', { name: 'Reopen this task?' }),
+    )
+    await dialog.findByText(
+      'It will be open for quotes again, and workers with pending quotes will be told.',
+    )
+    await expect(dialog.queryByText(/will be cancelled/)).toBeNull()
+    await userEvent.click(dialog.getByRole('button', { name: 'Reopen task' }))
+    // The dialog closes only once reopened, and the task is open again.
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
+    await within(canvasElement).findByRole('link', { name: 'Preview' })
+  },
+}
+
+/**
+ * A booking that was cancelled on a suspended task: the API doesn't offer a
+ * reopen (`canReopen` false), so Repost stays the main button.
+ */
+export const OwnerBookingCancelledRepost: Story = {
+  ...desktop,
+  ...cta({
+    viewer: 'owner',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.None,
+      canReopen: false,
+      suspension: { bySlashie: true, posterSuspended: false },
+      quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
+    }),
+    order: storyTaskOrder({
+      status: OrderStatus.Cancelled,
+      closedAt: '2026-06-10T17:00:00.000Z',
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('link', { name: 'Repost this task' })
+    await expect(
+      within(canvasElement).queryByRole('button', { name: 'Reopen task' }),
+    ).toBeNull()
+  },
+}
+
 /** A cancelled task Slashie suspended can't be reopened: no main button. */
 export const OwnerCancelledSuspended: Story = {
   ...desktop,
@@ -344,6 +445,30 @@ export const WorkerBrowseTasks: Story = {
     await within(canvasElement).findByRole('link', {
       name: 'Browse other tasks',
     })
+  },
+}
+
+/**
+ * Worker whose quote stayed pending while someone else is booked (BE-113):
+ * Browse other tasks, and nothing to edit.
+ */
+export const WorkerBookedByOtherBrowse: Story = {
+  ...desktop,
+  ...cta({
+    viewer: 'worker',
+    task: storyTaskDetail({
+      status: TaskStatus.Awarded,
+      bookingStatus: TaskBookingStatus.Booked,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Pending })],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('link', {
+      name: 'Browse other tasks',
+    })
+    await expect(
+      within(canvasElement).queryByRole('link', { name: 'Edit quote' }),
+    ).toBeNull()
   },
 }
 
