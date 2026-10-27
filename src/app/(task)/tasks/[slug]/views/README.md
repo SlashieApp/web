@@ -38,7 +38,7 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `owner.conflict.iMarkedFailed` | CONFLICT: the owner marked it Failed, the worker marked it Done. | Awarded | This booking needs resolving | You marked it Failed and {name} marked it Done. Message them to sort it out, or ask to cancel if it shouldn't stand. | otherParty, agreedPrice, bookedTime, description, photos | Ask to cancel, Report profile | Message |
 | `owner.completed` | Owner, booking COMPLETED (both marked Done, or the 7-day auto-Done). | Completed | Job complete | The details below are your record of the work. | record, otherParty, agreedPrice, bookedTime, reviews, description, photos | - | Review, then Get receipt |
 | `owner.bookingCancelled` | Owner, booking CANCELLED (a cancel request was accepted). The task stays AWARDED. | Cancelled | Booking cancelled | When Reopen task is the main button (`canReopen`): The booking with {name} was cancelled. Reopen the task to take quotes again. Otherwise (Repost is): The booking with {name} was cancelled. Post the task again if you still need help. | record, otherParty, agreedPrice | - | Reopen task when the API says the owner can (`canReopen`, asks first; Repost stays in Help & actions), else Repost this task |
-| `owner.bookingFailed` | Owner, booking CANCELLED because both sides marked it Failed. The task stays AWARDED. | Cancelled | Booking didn't go ahead | You and {name} both marked it Failed. Post the task again if you still need help. | record, otherParty, agreedPrice | - | Reopen task when the API says the owner can (`canReopen`, asks first; Repost stays in Help & actions), else Repost this task |
+| `owner.bookingFailed` | Owner, booking CANCELLED because both sides marked it Failed. The task stays AWARDED. | Cancelled | Booking didn't go ahead | When Reopen task is the main button (`canReopen`): You and {name} both marked it Failed. Reopen the task to take quotes again. Otherwise (Repost is): You and {name} both marked it Failed. Post the task again if you still need help. | record, otherParty, agreedPrice | - | Reopen task when the API says the owner can (`canReopen`, asks first; Repost stays in Help & actions), else Repost this task |
 | `owner.cancelled` | Owner, task CANCELLED. | Cancelled | Task cancelled | Post it again if you still need help. | budget, preferredTime, location, categories, description, photos | - | Reopen task when the API says the owner can (`canReopen`, asks first; Repost stays in Help & actions) |
 | `worker.booked.beforeStart` | Booked worker, booking ACTIVE, before the booked start. | Awarded | You are booked for this job | Coordinate the job and get paid directly. When it is done, you both mark it Done here. | bookedTime, otherParty, agreedPrice, location, description, photos | Reschedule, Cancel booking | Message |
 | `worker.booked.ready` | Booked worker, start time passed, nobody has marked it yet. | Awarded | Job time has started | Mark it Done once the work is finished and paid for, or tell us if something went wrong. | location, otherParty, agreedPrice, bookedTime, description, photos | - | Slide to mark Done |
@@ -175,10 +175,11 @@ Web keeps no reopen rules of its own, so it follows the API.
 The sub-line next to Reopen task: on `owner.bookingCancelled`, while
 `canReopen` is true, it reads "The booking with {name} was cancelled. Reopen
 the task to take quotes again." (`reopenSubline`, the swap of
-`bookingCancelledOwnerSubline` for `bookingCancelledOwnerReopenSubline`);
-when Repost is the main button it stays "Post the task again if you still
-need help." `owner.bookingFailed` still says Post the task again beside
-Reopen task: its reopen copy isn't decided.
+`bookingCancelledOwnerSubline` for `bookingCancelledOwnerReopenSubline`); on
+`owner.bookingFailed` it reads "You and {name} both marked it Failed. Reopen
+the task to take quotes again." (`bookingFailedOwnerSubline` for
+`bookingFailedOwnerReopenSubline`, FE-448). When Repost is the main button
+both stay "Post the task again if you still need help."
 
 Analytics: a successful reopen sends `task_reopened` (`task_id`, `from`) and a
 refused one `task_reopen_fail` (`task_id`, `from`, `error_code`, "unknown"

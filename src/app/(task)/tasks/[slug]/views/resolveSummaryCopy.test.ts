@@ -137,17 +137,37 @@ describe('reopenSubline (BE-113)', () => {
     )
   })
 
-  it('leaves owner.bookingFailed alone either way (its reopen copy is undecided)', () => {
+  it('points the owner at Reopen task on a failed booking too', () => {
+    expect(line('owner.bookingFailed', true)).toBe(
+      'You and Jordan both marked it Failed. Reopen the task to take quotes again.',
+    )
+    expect(line('owner.bookingFailed', true, 'zh_hk')).toBe(
+      '你和 Jordan 都標記為未完成。重新開放任務即可再次接受報價。',
+    )
+  })
+
+  it('keeps the Post the task again line on a failed booking when Repost is the main button', () => {
+    expect(line('owner.bookingFailed', false)).toBe(
+      'You and Jordan both marked it Failed. Post the task again if you still need help.',
+    )
+    expect(line('owner.bookingFailed', false, 'zh_hk')).toBe(
+      '你和 Jordan 都標記為未完成。如仍需要幫手，可以重新發佈任務。',
+    )
+  })
+
+  it("leaves the worker's failed-booking line alone either way", () => {
     for (const canReopen of [true, false]) {
-      expect(line('owner.bookingFailed', canReopen)).toBe(
-        'You and Jordan both marked it Failed. Post the task again if you still need help.',
+      expect(line('worker.bookingFailed', canReopen)).toBe(
+        'You and Jordan both marked it Failed. Browse other tasks nearby.',
       )
     }
   })
 
   it('changes no other sub-line, and none stays none', () => {
     for (const [name, view] of Object.entries(TASK_DETAIL_VIEWS)) {
-      if (name === 'owner.bookingCancelled') continue
+      if (name === 'owner.bookingCancelled' || name === 'owner.bookingFailed') {
+        continue
+      }
       expect(reopenSubline(view.subline, true), name).toBe(view.subline)
       expect(reopenSubline(view.subline, false), name).toBe(view.subline)
     }

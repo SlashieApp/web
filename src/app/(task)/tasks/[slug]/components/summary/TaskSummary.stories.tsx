@@ -284,11 +284,49 @@ export const OwnerBookingCancelledRepost: Story = {
     ).toBeNull()
   },
 }
-/** Both sides marked Failed: the booking did not go ahead, and the owner can reopen the task. */
-export const OwnerBookingFailed = owner(
-  ownerOrders.failed,
-  bookingCancelledTask,
-)
+/**
+ * Both sides marked Failed: the booking did not go ahead. The API says the
+ * owner can reopen the task (BE-113), so Reopen task is the main button, the
+ * sub-line points at it, and Repost stays in Help & actions.
+ */
+export const OwnerBookingFailed: Story = {
+  ...owner(ownerOrders.failed, bookingCancelledTask),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: "Booking didn't go ahead" })
+    await canvas.findByText(
+      'You and Jordan Lee both marked it Failed. Reopen the task to take quotes again.',
+    )
+    await expect(canvas.queryByText(/Post the task again/)).toBeNull()
+    await canvas.findByRole('button', { name: 'Reopen task' })
+    await canvas.findByRole('link', { name: 'Repost this task' })
+  },
+}
+/**
+ * The same, with the task suspended: nothing to reopen, so Repost is the main
+ * button and the sub-line is the Post it again one.
+ */
+export const OwnerBookingFailedRepost: Story = {
+  ...owner(
+    ownerOrders.failed,
+    storyTaskDetail({
+      ...bookingCancelledTask,
+      canReopen: false,
+      suspension: { bySlashie: true, posterSuspended: false },
+    }),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: "Booking didn't go ahead" })
+    await canvas.findByText(
+      'You and Jordan Lee both marked it Failed. Post the task again if you still need help.',
+    )
+    await expect(canvas.queryByText(/Reopen the task to take/)).toBeNull()
+    await expect(
+      canvas.queryByRole('button', { name: 'Reopen task' }),
+    ).toBeNull()
+  },
+}
 /** The owner cancelled the task: Reopen task (it asks first). */
 export const OwnerCancelled: Story = {
   ...view({ viewer: 'owner', task: cancelledTask }),

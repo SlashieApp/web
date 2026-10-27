@@ -53,11 +53,11 @@ export function frozenSubline(
  * Sub-lines that send the owner to Post the task again, which isn't the main
  * button when the API lets them reopen it (`Task.canReopen`, BE-113): Reopen
  * task is, so the line says that. Their stand-ins read the same otherwise.
- * `bookingFailedOwnerSubline` isn't here yet: its reopen copy is undecided.
  */
 const REOPEN_SUBLINES: Partial<Record<TaskSummaryCopyKey, TaskSummaryCopyKey>> =
   {
     bookingCancelledOwnerSubline: 'bookingCancelledOwnerReopenSubline',
+    bookingFailedOwnerSubline: 'bookingFailedOwnerReopenSubline',
   }
 
 /**
