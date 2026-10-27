@@ -22,5 +22,6 @@ export function getCreateTaskView({
   if (session === 'guest') return 'create.signIn'
   if (session === 'loading') return 'create.loading'
   if (session === 'error') return 'create.loadError'
+  if (session === 'unverified') return 'create.verifyEmail'
   return VIEW_BY_STEP[step]
 }

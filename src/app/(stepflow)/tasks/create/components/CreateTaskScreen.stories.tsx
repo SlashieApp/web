@@ -194,14 +194,12 @@ const meta = {
   decorators: [withPopularCategories()],
   args: {
     userId: USER,
-    email: 'alex@example.com',
     emailVerified: true,
     preferredContactDefault: TaskContactMethod.InApp,
     contactOptions: getContactOptions({
       emailVerified: true,
       phoneVerified: true,
     } as MeSnapshot),
-    recheckEmail: async (): Promise<boolean> => true,
   },
 } satisfies Meta<typeof CreateTaskScreen>
 
@@ -686,21 +684,26 @@ export const ReviewMissingAddress: Story = {
   },
 }
 
-/** Unverified email: the review says so before Post task, with a re-check. */
+/**
+ * The email is checked before the first step (`create.verifyEmail`), so the
+ * review has no email section of its own, even for an unverified account.
+ * Post task still stops one (a guard in `submit`).
+ */
 export const ReviewEmailNotVerified: Story = {
   decorators: [atStep('review')],
-  args: { emailVerified: false, recheckEmail: async () => false },
+  args: { emailVerified: false },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByText('Verify your email to post'),
+      await canvas.findByRole('heading', { name: 'What workers will see' }),
     ).toBeVisible()
-    await userEvent.click(canvas.getByRole('button', { name: "I've verified" }))
+    await expect(canvas.queryByText('Verify your email to post')).toBeNull()
     await expect(
-      await canvas.findByText(
-        "Your email isn't verified yet. Check your inbox and spam folder.",
-      ),
-    ).toBeVisible()
+      canvas.queryByRole('button', { name: "I've verified" }),
+    ).toBeNull()
+    await expect(
+      canvas.getByRole('button', { name: 'Post task' }),
+    ).toBeEnabled()
   },
 }
 

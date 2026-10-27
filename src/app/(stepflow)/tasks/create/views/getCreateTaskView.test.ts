@@ -31,6 +31,13 @@ describe('getCreateTaskView', () => {
     expect(view({ session: 'error' })).toBe('create.loadError')
   })
 
+  it('asks an unverified email to be verified before the first step', () => {
+    expect(view({ session: 'unverified' })).toBe('create.verifyEmail')
+    expect(CREATE_TASK_VIEWS['create.verifyEmail']).toEqual({
+      layout: 'verifyEmail',
+    })
+  })
+
   it('starts on the full-screen map', () => {
     expect(view()).toBe('create.location')
   })
@@ -67,6 +74,12 @@ describe('getCreateTaskView', () => {
 
   it('ends on a review of what workers will see, with Post task', () => {
     expect(view({ step: 'review' })).toBe('create.review')
+  })
+
+  it('checks the email once, before the flow, not at the review', () => {
+    expect(CREATE_TASK_VIEWS['create.review']).toMatchObject({
+      sections: ['summary', 'contact', 'consent'],
+    })
   })
 
   it('keeps the exact address off the map, on its own step under the band', () => {

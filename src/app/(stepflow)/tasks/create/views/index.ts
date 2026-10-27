@@ -8,6 +8,7 @@ import { createPhotos } from './create.photos'
 import { createReview } from './create.review'
 import { createSignIn } from './create.signIn'
 import { createTiming } from './create.timing'
+import { createVerifyEmail } from './create.verifyEmail'
 import type {
   CreateTaskStepId,
   CreateTaskStepView,
@@ -33,6 +34,7 @@ export const CREATE_TASK_VIEWS: Record<
   'create.signIn': createSignIn,
   'create.loading': createLoading,
   'create.loadError': createLoadError,
+  'create.verifyEmail': createVerifyEmail,
   'create.location': createLocation,
   'create.address': createAddress,
   'create.details': createDetails,

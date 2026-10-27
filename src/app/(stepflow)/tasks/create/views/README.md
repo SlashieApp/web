@@ -17,13 +17,14 @@ Copy lives in `../i11n.json` (en + zh-HK); form errors are copy keys in
 | `create.signIn` | Signed out | none | none: log in, then back here with the query kept | none |
 | `create.loading` | The account is loading | none | Splash | none |
 | `create.loadError` | The account didn't load | none | We couldn't load your account | Try again, Back to search |
+| `create.verifyEmail` | Signed in, email not verified (FE-447) | none | "Verify your email to post", "Verify your email before you post.", and "Confirm {email} before posting a task." | Verify email (goes to `/verify-email/sent?next=` this page, so Continue there comes back to Post a task) |
 | `create.location` | Step 1 | Full screen, short card | "Where is the task?", that workers only see this approximate area, "Workers will see: {town}" (or "Move the map to set the area."); fields: the pin and its area | Continue |
 | `create.address` | Step 2 | Band | "What's the exact address?", shared only with the worker you accept, after you accept their quote; exact address (required, private), Use pin address | Continue |
 | `create.details` | Step 3 | Band on desktop; phones: none | Title, categories, description | Continue |
 | `create.timing` | Step 4 | Band on desktop; phones: none | Flexible / Before a date / On a date and time; the date is the device picker from today in London (`londonToday`, as the API checks) | Continue |
 | `create.photos` | Step 5 | Band on desktop; phones: none | "Add photos", "Optional. Photos help workers quote…" (public, so no house numbers or faces); photos (up to 10, each up to 10 MB), nothing to check | Continue (waits while a HEIC converts) |
 | `create.budget` | Step 6 | Band on desktop; phones: none | Budget type first, then the amount for that unit (£), then how you'll pay | Continue |
-| `create.review` | Step 7 | Band on desktop; phones: none | What workers will see (each row edits its step), the exact address marked private, the email check when unverified, how your worker reaches you, the allowed-tasks confirmation | Post task |
+| `create.review` | Step 7 | Band on desktop; phones: none | What workers will see (each row edits its step), the exact address marked private, how your worker reaches you, the allowed-tasks confirmation | Post task |
 
 ## Across steps
 
@@ -51,6 +52,14 @@ Copy lives in `../i11n.json` (en + zh-HK); form errors are copy keys in
   only when tapped (FE-209).
 - **Start centre:** a `/search` centre, else current location, else London
   (camera only, never a chosen pin).
+- **Email check** (FE-447): an account with an unverified email gets
+  `create.verifyEmail` before the first step, as in the app, so it never fills
+  in the flow to be stopped at Review. Verify email opens
+  `/verify-email/sent?next=` this page (the app's `/auth/verify-email?sent=1`;
+  web's `/verify-email` only takes the emailed `token`). The screen re-reads
+  the account once when it shows, in case the email was verified in another
+  tab. `submit` still checks `emailVerified` and says "Verify your email
+  before you post." as a guard.
 - **Draft:** answers and the step are kept on this browser for 7 days
   (`createTaskDraft`), restored with "We kept your unfinished task · Start
   over"; a saved address comes back on the address step, and a draft saved

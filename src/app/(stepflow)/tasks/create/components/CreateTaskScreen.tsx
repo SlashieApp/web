@@ -99,7 +99,6 @@ import { CreateTaskContactSection } from './ui/sections/CreateTaskContactSection
 import { CreateTaskLocationSection } from './ui/sections/CreateTaskLocationSection'
 import { CreateTaskScheduleSection } from './ui/sections/CreateTaskScheduleSection'
 import { CreateTaskSummarySection } from './ui/sections/CreateTaskSummarySection'
-import { CreateTaskVerifyEmailSection } from './ui/sections/CreateTaskVerifyEmailSection'
 import { CreateTaskVisualsSection } from './ui/sections/CreateTaskVisualsSection'
 
 const POST_TASK_PATH = '/tasks/create'
@@ -152,12 +151,13 @@ function defaultValues(
 
 export type CreateTaskScreenProps = {
   userId: string
-  email: string
+  /**
+   * The page shows the email check (`create.verifyEmail`) before this screen,
+   * so this is true there; Post task still checks it as a guard.
+   */
   emailVerified: boolean
   preferredContactDefault: TaskContactMethod
   contactOptions: ContactOption[]
-  /** Re-reads the account; resolves true once the email is verified. */
-  recheckEmail: () => Promise<boolean>
 }
 
 /**
@@ -170,11 +170,9 @@ export type CreateTaskScreenProps = {
  */
 export function CreateTaskScreen({
   userId,
-  email,
   emailVerified,
   preferredContactDefault,
   contactOptions,
-  recheckEmail,
 }: CreateTaskScreenProps) {
   const t = useI11n(bag)
   const router = useRouter()
@@ -215,8 +213,6 @@ export function CreateTaskScreen({
   const [publishing, setPublishing] = useState(false)
   const [photoProgress, setPhotoProgress] =
     useState<PhotoUploadProgress | null>(null)
-  const [checkingEmail, setCheckingEmail] = useState(false)
-  const [stillUnverified, setStillUnverified] = useState(false)
   const headingRef = useRef<HTMLDivElement>(null)
   // One publish at a time, and none after a success (FE-213).
   const publishLockRef = useRef(false)
@@ -330,11 +326,6 @@ export function CreateTaskScreen({
     return () => window.clearTimeout(timer)
   }, [step, reducedMotion])
 
-  // Verified in another tab? Re-read the account when the review opens.
-  useEffect(() => {
-    if (step === 'review' && !emailVerified) void recheckEmail()
-  }, [step, emailVerified, recheckEmail])
-
   const view = CREATE_TASK_VIEWS[
     getCreateTaskView({ session: 'ready', step })
   ] as CreateTaskStepView
@@ -365,14 +356,6 @@ export function CreateTaskScreen({
     setDraftNotice(false)
     setServerError(null)
     setStep('location')
-  }
-
-  const checkEmail = async () => {
-    setCheckingEmail(true)
-    const verified = await recheckEmail()
-    setCheckingEmail(false)
-    setStillUnverified(!verified)
-    return verified
   }
 
   async function continueStep() {
@@ -628,15 +611,6 @@ export function CreateTaskScreen({
               photoCount: photos.files.length,
             }}
             onEdit={goToStep}
-          />
-        )
-      case 'verifyEmail':
-        return emailVerified ? null : (
-          <CreateTaskVerifyEmailSection
-            email={email}
-            onCheck={checkEmail}
-            checking={checkingEmail}
-            stillUnverified={stillUnverified}
           />
         )
       case 'contact':

@@ -14,6 +14,7 @@ export type CreateTaskViewName =
   | 'create.signIn'
   | 'create.loading'
   | 'create.loadError'
+  | 'create.verifyEmail'
   | 'create.location'
   | 'create.address'
   | 'create.details'
@@ -23,8 +24,11 @@ export type CreateTaskViewName =
   | 'create.review'
 
 export type CreateTaskViewInput = {
-  /** No session: log in first. Loading: the account isn't known yet. Error: it failed to load. */
-  session: 'guest' | 'loading' | 'error' | 'ready'
+  /**
+   * No session: log in first. Loading: the account isn't known yet. Error: it
+   * failed to load. Unverified: the email isn't verified, so posting waits.
+   */
+  session: 'guest' | 'loading' | 'error' | 'unverified' | 'ready'
   step: CreateTaskStepId
 }
 
@@ -37,7 +41,6 @@ export type CreateTaskSection =
   | 'timing'
   | 'budget'
   | 'summary'
-  | 'verifyEmail'
   | 'contact'
   | 'consent'
 
@@ -62,4 +65,5 @@ export type CreateTaskViewConfig =
   | { layout: 'redirect'; to: 'login' }
   | { layout: 'splash' }
   | { layout: 'error' }
+  | { layout: 'verifyEmail' }
   | CreateTaskStepView

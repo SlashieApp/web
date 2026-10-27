@@ -158,10 +158,9 @@
     },
     "verify": {
       "title": "Verify your email to post",
-      "body": "Open the link we sent to {email}, then tap I've verified.",
-      "resend": "Resend email",
-      "verified": "I've verified",
-      "notYet": "Your email isn't verified yet. Check your inbox and spam folder."
+      "subtitle": "Verify your email before you post.",
+      "body": "Confirm {email} before posting a task.",
+      "cta": "Verify email"
     },
     "errors": {
       "titleRequired": "Add a title.",
@@ -356,10 +355,9 @@
     },
     "verify": {
       "title": "請先驗證電郵才可發佈",
-      "body": "打開我們寄到 {email} 的連結，然後按「我已驗證」。",
-      "resend": "重新寄出電郵",
-      "verified": "我已驗證",
-      "notYet": "你的電郵尚未驗證，請檢查收件匣和垃圾郵件。"
+      "subtitle": "發佈前請先驗證電郵。",
+      "body": "發佈任務前請先確認 {email}。",
+      "cta": "驗證電郵"
     },
     "errors": {
       "titleRequired": "請加入標題。",

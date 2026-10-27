@@ -18,6 +18,7 @@ import { getAuthToken } from '@/utils/auth'
 import { Button, Link } from '@ui'
 
 import { CreateTaskScreen } from './components/CreateTaskScreen'
+import { CreateTaskVerifyEmailGate } from './components/layout/shared/CreateTaskVerifyEmailGate'
 import bag from './i11n.json'
 import { CREATE_TASK_VIEWS, getCreateTaskView } from './views'
 
@@ -53,9 +54,9 @@ export default function CreateTaskPage() {
   })
   const me = data?.me
 
-  const recheckEmail = useCallback(async () => {
-    const result = await refetch().catch(() => null)
-    return isEmailVerified(result?.data?.me)
+  // Verified in another tab? Re-read the account when the email check shows.
+  const recheckEmail = useCallback(() => {
+    void refetch().catch(() => null)
   }, [refetch])
 
   const config =
@@ -68,7 +69,9 @@ export default function CreateTaskPage() {
               ? 'loading'
               : !me && error
                 ? 'error'
-                : 'ready',
+                : me && !isEmailVerified(me)
+                  ? 'unverified'
+                  : 'ready',
         step: 'location',
       })
     ]
@@ -91,18 +94,25 @@ export default function CreateTaskPage() {
       />
     )
   }
+  if (config.layout === 'verifyEmail' && me) {
+    return (
+      <CreateTaskVerifyEmailGate
+        email={me.email ?? ''}
+        verifyHref={`/verify-email/sent?next=${encodeURIComponent(returnPath())}`}
+        onShown={recheckEmail}
+      />
+    )
+  }
   if (config.layout !== 'step' || !me) return <SessionLoading minH="50vh" />
 
   return (
     <CreateTaskScreen
       userId={me.id}
-      email={me.email ?? ''}
       emailVerified={isEmailVerified(me)}
       preferredContactDefault={
         me.profile?.defaultPreferredContactMethod ?? TaskContactMethod.InApp
       }
       contactOptions={getContactOptions(me)}
-      recheckEmail={recheckEmail}
     />
   )
 }
