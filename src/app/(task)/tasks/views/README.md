@@ -11,8 +11,10 @@ and `index.ts` maps names to configs.
 
 - `components/MyTasksScreen.tsx` runs the queries, keeps search, Category and
   Hosted / Quoted in the URL (`?q=&category=&role=`) and picks the view. One
-  centred list column on every screen. From `lg` up the filters sit in a rail
-  to its left; below `lg` they are the icon by the title and its drawer.
+  list column in the page container (the header's width, `PAGE_CONTAINER_MAX_W`,
+  FE-453). From `lg` up the filters sit in a rail to its left, at its own
+  width, and the list takes the rest; below `lg` they are the icon by the
+  title and its drawer, and the list fills the container.
 - `components/ui/MyTasksList.tsx` renders the config and the sections;
   `MyTaskCard` is one task (a card or a compact row).
 - Filters: `MyTasksFiltersRail` (desktop rail), `MyTasksFilters` (icon and
@@ -42,7 +44,7 @@ Copy lives in `../i11n.json` (en + zh-HK).
 "Filters: no" hides the icon and the rail until there is something to
 search. On desktop the list column keeps the rail's room during `loading`, so
 it doesn't jump right when the rail appears; `empty` and `error` have no rail
-and use the full width.
+and use the whole container.
 
 ## Who sees what
 

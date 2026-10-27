@@ -77,7 +77,7 @@ export type PublicProfileStatusConfig = {
 
 export type PublicProfilePageConfig = {
   layout: 'profile'
-  /** Two columns with the contact sidebar, or one 720px column. */
+  /** Two columns with the contact sidebar, or one column; both in the page container (FE-453). */
   width: 'wide' | 'narrow'
   /**
    * Above the hero: `public` says "This is how others see you."; `hidden`

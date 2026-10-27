@@ -12,7 +12,7 @@ import { useMyRequests } from '@/app/(dashboard)/helpers/useMyRequests'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { EVENTS, capture } from '@/utils/analytics'
 import { buildTaskFilter } from '@/utils/taskListQuery'
 
@@ -37,22 +37,13 @@ import { MY_TASKS_RAIL_W, MyTasksFiltersRail } from './ui/MyTasksFiltersRail'
 import { MyTasksList } from './ui/MyTasksList'
 import { MyTasksQuoteBlocker } from './ui/MyTasksQuoteBlocker'
 
-/** The list column's width (Chakra `2xl`), and the gap between it and the rail. */
-const LIST_W = '42rem'
+/** The gap between the rail and the list. */
 const RAIL_GAP = '2rem'
 
 /**
- * One centred column, as wide as the list. From `lg` up it also holds the rail
- * and the gap, so the list keeps the width it had before the rail.
- */
-const PAGE_MAX_W = {
-  base: LIST_W,
-  lg: `calc(${MY_TASKS_RAIL_W} + ${RAIL_GAP} + ${LIST_W})`,
-} as const
-
-/**
  * My Tasks hub at `/tasks` (views/README.md), like Uber's Activity screen:
- * your posted tasks and quotes in Upcoming, Open and Past, under a "Before
+ * your posted tasks and quotes in Upcoming, Open and Past, in the page
+ * container (the header's width, FE-453), under a "Before
  * you can quote" strip when something blocks a worker from quoting. Search,
  * Show (posted or quoted) and Category are kept in the URL
  * (`?q=&category=&role=`) and shared by both filter layouts: from `lg` up an
@@ -197,7 +188,7 @@ export function MyTasksScreen() {
         <Stack
           gap={4}
           w="full"
-          maxW={PAGE_MAX_W}
+          maxW={PAGE_CONTAINER_MAX_W}
           mx="auto"
           px={PAGE_GUTTER_X}
           py={{ base: 4, md: 6 }}
@@ -242,7 +233,7 @@ export function MyTasksScreen() {
               />
             ) : null}
 
-            <Stack gap={4} flex={{ lg: 1 }} minW={0} maxW={{ lg: LIST_W }}>
+            <Stack gap={4} flex={{ lg: 1 }} minW={0}>
               {blocker ? <MyTasksQuoteBlocker blocker={blocker} /> : null}
 
               {config.body === 'groups' ? (

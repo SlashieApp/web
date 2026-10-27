@@ -1,11 +1,11 @@
 'use client'
 
-import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Container, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuEyeOff, LuHeart } from 'react-icons/lu'
 
 import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 import { Button, Link } from '@ui'
 
@@ -35,7 +35,6 @@ import {
   PublicProfileStatus,
 } from './ui/PublicProfileStatus'
 
-const WIDTH = { wide: '1080px', narrow: '720px' } as const
 const GAP = { base: 4, md: 6 } as const
 
 export type PublicProfileScreenProps = {
@@ -72,10 +71,10 @@ export function PublicProfileScreen({
     return (
       <>
         {onBack ? (
-          <Box px={PAGE_GUTTER_X} pt={{ base: 4, md: 8 }}>
-            <Box maxW={WIDTH.wide} mx="auto">
+          <Box pt={{ base: 4, md: 8 }}>
+            <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X}>
               <PublicProfileBack onBack={onBack} placement="page" />
-            </Box>
+            </Container>
           </Box>
         ) : null}
         <PublicProfileStatus config={config} onRetry={onRetry} />
@@ -84,7 +83,7 @@ export function PublicProfileScreen({
   }
   if (config.layout === 'skeleton' || !model) {
     return (
-      <Page width="wide">
+      <Page>
         {onBack ? <PublicProfileBack onBack={onBack} placement="page" /> : null}
         <PublicProfileSkeleton />
       </Page>
@@ -105,25 +104,23 @@ export function PublicProfileScreen({
   )
 }
 
+/** The page container (the header's width) for every view, wide or narrow. */
 function Page({
-  width,
   barSpace = false,
   children,
 }: {
-  width: PublicProfilePageConfig['width']
   /** Room under the content for the phone contact bar. */
   barSpace?: boolean
   children: React.ReactNode
 }) {
   return (
     <Box
-      px={PAGE_GUTTER_X}
       pt={{ base: 4, md: 8 }}
       pb={barSpace ? { base: 44, lg: 12 } : { base: 10, lg: 12 }}
     >
-      <Stack gap={GAP} maxW={WIDTH[width]} mx="auto">
-        {children}
-      </Stack>
+      <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X}>
+        <Stack gap={GAP}>{children}</Stack>
+      </Container>
     </Box>
   )
 }
@@ -209,7 +206,7 @@ function ProfilePage({
     ) : null
 
   return (
-    <Page width={config.width} barSpace={Boolean(contactProps)}>
+    <Page barSpace={Boolean(contactProps)}>
       {config.ownerBar === 'public' ? (
         <HStack
           justify="space-between"

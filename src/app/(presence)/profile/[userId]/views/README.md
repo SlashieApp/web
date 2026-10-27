@@ -24,7 +24,7 @@ one config file here; `index.ts` maps names to configs and
 | `worker.booked` | You have a booked job with them (`OPEN_TASK`) | Same | Open your job |
 | `worker.owner` | Your own worker profile | Owner bar, the visitor body without Save, review, contact or Report, then Your activity | Edit profile (owner bar) |
 | `worker.ownerHidden` | Your own worker profile while it is private (`isHidden`) | `worker.owner` under a hidden notice ("Your profile is hidden") instead of the owner bar | Profile settings (`/profile?section=visibility`) |
-| `customer.visitor` | Anyone else, customer profile | Hero, stats, Open tasks (with budget), Reviews; 720px column | none (task cards) |
+| `customer.visitor` | Anyone else, customer profile | Hero, stats, Open tasks (with budget), Reviews; one column | none (task cards) |
 | `customer.owner` | Your own customer profile (or a worker before setup is done) | Owner bar, the visitor body, then Your activity | Edit profile (owner bar) |
 | `customer.ownerHidden` | Your own customer profile while it is private | `customer.owner` under the hidden notice | Profile settings |
 
