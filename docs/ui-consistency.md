@@ -72,13 +72,15 @@ Routes are already grouped by Next.js route groups, which align to shells:
 | Route group | Shell | Chrome |
 | --- | --- | --- |
 | `src/app/(marketing)` — `/`, `/about`, `/pricing` | Marketing | Header only, footer; no sidebar/dock |
-| `src/app/(auth)` — `/login`, `/register`, verify | Marketing (auth) | Header only, centered card |
+| `src/app/(auth)`: `/login`, `/register`, verify | Marketing (auth) | Logo row with a back arrow (Log in only when something is behind it), centered card, legal links |
 | `src/app/(task)` — `/search`, `/tasks` (My Tasks hub), `/tasks/[slug]` | Discovery / My Tasks / Task detail | Map browse on `/search`; hub list on `/tasks`; mobile bottom dock (4); detail = header + quote sidebar |
 | `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/tasks/[slug]/review`, `/worker/setup` | StepFlow | Own route-group `layout.tsx`, no app `Header` / `Dock` (FE-78). Every flow uses `StepFlowHeader`; quote, review, edit and worker setup (six screens, the standard phone body, FE-296) use `StepFlowLayout`; create uses its map variant `CreateTaskMapLayout` (full-screen map, then the band) with the same heading, progress and action bar (FE-295) |
-| `src/app/(dashboard)`: `/profile`, `/account`, `/billing` | Settings | App header + bottom nav; sticky page header (h1 = menu label, Back on phones) |
-| `src/app/(worker)`: `/workers` (and the `/workers/[id]` redirect to `/profile/[userId]`) | App | Header chrome (setup lives under `(stepflow)`) |
+| `src/app/(dashboard)`: `/profile`, `/account`, `/billing` | Settings | App header, no bottom nav; sticky page header (h1 = menu label, Back on phones) |
+| `src/app/(worker)`: `/workers` (and the `/workers/[id]` redirect to `/profile/[userId]`) | App | Header chrome; below lg no bottom nav and a back arrow over the map (setup lives under `(stepflow)`) |
 
 **Active-nav rule:** active state uses green accent; icon + label aligned.
+
+**Nav-page rule (FE-445):** below lg the bottom nav shows on its own pages only: Search, My tasks and Messages. Every other page has a back arrow (Close on a step flow) and no bottom nav (`shouldHideMobileNav`). The public pages (Pricing, Terms, Privacy, Cookies, Safety) keep the website header and its back arrow. Back goes to the page before, or with nothing behind it to Search signed in and the home page for a visitor (`useGoBack`).
 
 ---
 
