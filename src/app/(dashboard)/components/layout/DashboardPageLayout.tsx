@@ -1,12 +1,10 @@
 'use client'
 
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { type ReactNode, type Ref, useCallback } from 'react'
+import type { ReactNode, Ref } from 'react'
 
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
-import { APP_HOME } from '@/utils/appRoutes'
+import { useGoBack } from '@/utils/goBack'
 import { StickyHeader } from '@ui'
 
 import bag from '../../i11n.json'
@@ -58,12 +56,7 @@ export function DashboardPageLayout({
   children,
 }: DashboardPageLayoutProps) {
   const t = useI11n(bag)
-  const router = useRouter()
-  const localize = useLocalizedHref()
-  const onBack = useCallback(() => {
-    if (window.history.length > 1) router.back()
-    else router.push(localize(APP_HOME))
-  }, [localize, router])
+  const onBack = useGoBack()
 
   return (
     <Box

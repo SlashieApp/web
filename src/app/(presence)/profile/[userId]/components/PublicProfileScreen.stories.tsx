@@ -419,6 +419,28 @@ export const Phone: Story = {
   },
 }
 
+/** Phone, profile unavailable: no hero, so the way back sits above the message (FE-445). */
+export const PhoneUnavailable: Story = {
+  ...Unavailable,
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(await canvas.findByRole('button', { name: 'Back' }))
+    await expect(args.onBack).toHaveBeenCalled()
+  },
+}
+
+/** Phone, still loading: the way back sits above the outline. */
+export const PhoneLoading: Story = {
+  ...Loading,
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByRole('button', { name: 'Back' }),
+    ).toBeVisible()
+  },
+}
+
 /** Phone, customer profile: one column of task cards. */
 export const PhoneCustomer: Story = {
   ...CustomerVisitor,

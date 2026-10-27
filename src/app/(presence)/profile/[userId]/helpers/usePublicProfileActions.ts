@@ -7,8 +7,8 @@ import { useState } from 'react'
 
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
-import { APP_HOME } from '@/utils/appRoutes'
 import { showAppToast } from '@/utils/appToast'
+import { useGoBack } from '@/utils/goBack'
 
 import SaveWorker from '../graphql/SaveWorker.gql'
 import UnsaveWorker from '../graphql/UnsaveWorker.gql'
@@ -24,6 +24,7 @@ export function usePublicProfileActions(
   const t = useI11n(bag).hero
   const router = useRouter()
   const localize = useLocalizedHref()
+  const onBack = useGoBack()
   const [saveOverride, setSaveOverride] = useState<boolean | null>(null)
   const [saveWorker] = useMutation<SaveWorkerMutation>(SaveWorker)
   const [unsaveWorker] = useMutation<UnsaveWorkerMutation>(UnsaveWorker)
@@ -48,11 +49,6 @@ export function usePublicProfileActions(
       setSaveOverride(!next)
       showAppToast({ title: t.saveFailed, type: 'error' })
     })
-  }
-
-  const onBack = () => {
-    if (window.history.length > 1) router.back()
-    else router.push(localize(APP_HOME))
   }
 
   return { saved, reviewHref, onSave, onBack }

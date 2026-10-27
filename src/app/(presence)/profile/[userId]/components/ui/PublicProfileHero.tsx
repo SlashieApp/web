@@ -10,18 +10,19 @@ import {
   chakra,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { LuArrowLeft, LuCheck, LuMapPin } from 'react-icons/lu'
+import { LuCheck, LuMapPin } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFocusRing } from '@/theme/styles'
-import { Avatar, Badge, Card, IconButton } from '@ui'
+import { Avatar, Badge, Card } from '@ui'
 
 import type {
   PublicProfileModel,
   StatCell,
 } from '../../helpers/publicProfileModel'
 import bag from '../../i11n.json'
+import { PublicProfileBack } from './PublicProfileBack'
 
 const COVER =
   'linear-gradient(115deg, var(--chakra-colors-status-success-soft) 0%, var(--chakra-colors-status-success-border) 58%, var(--chakra-colors-status-success-soft) 100%)'
@@ -65,20 +66,7 @@ export function PublicProfileHero({
         bgImage={COVER}
       >
         {onBack ? (
-          <IconButton
-            type="button"
-            aria-label={t.back}
-            variant="outline"
-            bg="bg.surface"
-            borderRadius="full"
-            display={{ base: 'inline-flex', lg: 'none' }}
-            position="absolute"
-            top={3}
-            left={3}
-            onClick={onBack}
-          >
-            <LuArrowLeft aria-hidden />
-          </IconButton>
+          <PublicProfileBack onBack={onBack} placement="cover" />
         ) : null}
       </Box>
       <Stack gap={1} px={{ base: 4, md: 6 }} pb={{ base: 4, md: 5 }}>

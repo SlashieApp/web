@@ -12,6 +12,8 @@ import {
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
+import { getAuthToken } from '@/utils/auth'
+import { backFallbackHref } from '@/utils/goBack'
 import { IconButton } from '@ui'
 
 import bag from '../../i11n.json'
@@ -29,7 +31,8 @@ type OverlayChipProps = {
 
 /**
  * Back control for task detail. Ghost on solid chrome; frosted over the map.
- * Only ever goes to My Tasks or search (FE-210), never browser history.
+ * Only ever goes to My Tasks or search (FE-210), never browser history; a
+ * visitor with nothing to say where they came from goes to the home page.
  */
 export function TaskBackButton({ overlay = false }: OverlayChipProps) {
   const router = useRouter()
@@ -52,6 +55,7 @@ export function TaskBackButton({ overlay = false }: OverlayChipProps) {
         const href = taskDetailBackHref(
           window.location.search,
           readRememberedSearchHref(),
+          backFallbackHref(Boolean(getAuthToken())),
         )
         if (isSearchBrowsePath(href)) mapSession?.prepareBrowse()
         router.push(localize(href))

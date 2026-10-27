@@ -1,11 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useCallback } from 'react'
-
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
-import { MARKETING_HOME } from '@/utils/appRoutes'
+import { useGoBack } from '@/utils/goBack'
 import { StickyHeader, type StickyHeaderProps } from '@ui'
 
 import chromeMessages from '../../i11n.chrome.json'
@@ -23,8 +19,8 @@ type MarketingPageHeaderProps = Pick<
 
 /**
  * The iPhone title bar (FE-420) for the public pages: it sticks under the
- * marketing header. Back goes to the page before, or to the marketing home
- * when this page was opened straight away.
+ * marketing header. Back goes to the page before, or when this page was opened
+ * straight away to Search (signed in) or the marketing home (a visitor).
  */
 export function MarketingPageHeader({
   title,
@@ -33,12 +29,7 @@ export function MarketingPageHeader({
   variant,
 }: MarketingPageHeaderProps) {
   const t = useI11n(chromeMessages)
-  const router = useRouter()
-  const localize = useLocalizedHref()
-  const onBack = useCallback(() => {
-    if (window.history.length > 1) router.back()
-    else router.push(localize(MARKETING_HOME))
-  }, [localize, router])
+  const onBack = useGoBack()
 
   return (
     <StickyHeader

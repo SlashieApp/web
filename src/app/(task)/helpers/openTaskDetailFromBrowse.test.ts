@@ -120,4 +120,12 @@ describe('taskDetailBackHref (FE-210)', () => {
     // Never anywhere but search, even if storage holds something else.
     expect(taskDetailBackHref('?from=search', '/tasks/t9/edit')).toBe('/search')
   })
+
+  it('lands on the fallback a visitor gets when nothing says where they came from', () => {
+    expect(taskDetailBackHref('', null, '/home')).toBe('/home')
+    expect(taskDetailBackHref('?from=tasks', null, '/home')).toBe('/tasks')
+    expect(taskDetailBackHref('?from=search', '/search?q=paint', '/home')).toBe(
+      '/search?q=paint',
+    )
+  })
 })

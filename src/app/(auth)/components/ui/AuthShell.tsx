@@ -1,6 +1,6 @@
 'use client'
 
-import { HStack, Stack } from '@chakra-ui/react'
+import { Box, HStack, Stack } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { LEGAL_CONTACT_EMAIL } from '@/content/legal/company'
@@ -9,8 +9,9 @@ import { MARKETING_HOME } from '@/utils/appRoutes'
 import { Link, Logo } from '@ui'
 
 import bag from '../i11n.json'
+import { AuthBackButton } from './AuthBackButton'
 
-/** Every auth page: the logo, one centred column, and the legal links. */
+/** Every auth page: the logo with a way back, one centred column, and the legal links. */
 export function AuthShell({ children }: { children: ReactNode }) {
   const t = useI11n(bag).shell
 
@@ -24,14 +25,16 @@ export function AuthShell({ children }: { children: ReactNode }) {
       py={{ base: 8, md: 12 }}
       gap={{ base: 6, lg: 8 }}
     >
-      <Link
-        href={MARKETING_HOME}
-        aria-label={t.home}
-        alignSelf="center"
-        _hover={{ opacity: 0.92 }}
-      >
-        <Logo h="36px" />
-      </Link>
+      <Box position="relative" display="flex" justifyContent="center">
+        <AuthBackButton />
+        <Link
+          href={MARKETING_HOME}
+          aria-label={t.home}
+          _hover={{ opacity: 0.92 }}
+        >
+          <Logo h="36px" />
+        </Link>
+      </Box>
       <Stack as="main" flex={1} justify="center" w="full" minW={0}>
         {children}
       </Stack>

@@ -83,11 +83,13 @@ export function readRememberedSearchHref(): string | null {
  * Where task detail's back goes (FE-210): only ever My Tasks or search.
  * From My Tasks it returns there; from search it returns to the search view
  * the poster left (query and map centre); every other entry (direct link,
- * message, after create, edit or quote) lands on /search.
+ * message, after create, edit or quote) lands on /search, or on the home page
+ * for a visitor (`fallback`, FE-445).
  */
 export function taskDetailBackHref(
   locationSearch: string,
   rememberedSearchHref: string | null,
+  fallback: string = APP_HOME,
 ): string {
   const from = new URLSearchParams(locationSearch).get('from')
   if (from === 'tasks') return MY_TASKS_HREF
@@ -98,5 +100,5 @@ export function taskDetailBackHref(
   ) {
     return rememberedSearchHref
   }
-  return APP_HOME
+  return fallback
 }

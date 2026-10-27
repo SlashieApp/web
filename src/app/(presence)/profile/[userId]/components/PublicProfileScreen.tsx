@@ -22,6 +22,7 @@ import {
   type PublicProfileViewName,
 } from '../views'
 import { PublicProfileAchievements } from './ui/PublicProfileAchievements'
+import { PublicProfileBack } from './ui/PublicProfileBack'
 import {
   ProfileContactBar,
   ProfileContactCard,
@@ -66,12 +67,25 @@ export function PublicProfileScreen({
 }: PublicProfileScreenProps) {
   const config = PUBLIC_PROFILE_VIEWS[view]
 
+  // These have no hero, so no cover to carry the way back: it sits above the page.
   if (config.layout === 'status') {
-    return <PublicProfileStatus config={config} onRetry={onRetry} />
+    return (
+      <>
+        {onBack ? (
+          <Box px={PAGE_GUTTER_X} pt={{ base: 4, md: 8 }}>
+            <Box maxW={WIDTH.wide} mx="auto">
+              <PublicProfileBack onBack={onBack} placement="page" />
+            </Box>
+          </Box>
+        ) : null}
+        <PublicProfileStatus config={config} onRetry={onRetry} />
+      </>
+    )
   }
   if (config.layout === 'skeleton' || !model) {
     return (
       <Page width="wide">
+        {onBack ? <PublicProfileBack onBack={onBack} placement="page" /> : null}
         <PublicProfileSkeleton />
       </Page>
     )

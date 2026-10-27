@@ -29,13 +29,20 @@ export const Desktop: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     expect(canvas.getByRole('link', { name: 'Slashie home' })).toBeVisible()
+    // Not Log in's page, so there is always a way back (FE-445).
+    expect(canvas.getByRole('button', { name: 'Back' })).toBeVisible()
     await canvas.findByRole('link', { name: 'Terms' })
     await canvas.findByRole('link', { name: 'Privacy' })
     await canvas.findByRole('link', { name: 'Contact' })
   },
 }
 
-/** Phone: the same column, edge to edge with page gutters. */
+/** Phone: the same column, edge to edge with page gutters, and the way back at the logo's left. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    expect(
+      within(canvasElement).getByRole('button', { name: 'Back' }),
+    ).toBeVisible()
+  },
 }

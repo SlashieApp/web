@@ -16,6 +16,7 @@ import {
 } from '../helpers/workersQueryParams'
 import { WorkersUrlSync } from './WorkersUrlSync'
 import { WorkersAreaMap } from './layout/WorkersAreaMap'
+import { WorkersBackButton } from './layout/WorkersBackButton'
 import { WorkersResultsGrid } from './layout/WorkersResultsGrid'
 import { WorkersStickySearch } from './layout/WorkersStickySearch'
 
@@ -35,6 +36,7 @@ function WorkersDirectory() {
                 'linear-gradient(to bottom, transparent 45%, rgba(247, 249, 248, 0.72) 78%, var(--chakra-colors-bg-canvas, #F7F9F8) 100%)',
             }}
           />
+          <WorkersBackButton />
         </Box>
         <Box
           mt={{ base: '-40px', md: '-3.5rem' }}

@@ -50,10 +50,15 @@ export const SharedFilters: Story = {
   ],
 }
 
-/** Phone: compact search bar under the map, two-column results. */
+/** Phone: compact search bar under the map, two-column results, and a way back over the map (FE-445). */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
   decorators: [withWorkersApollo()],
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByRole('button', { name: 'Back' }),
+    ).toBeVisible()
+  },
 }
 
 /** Search still loading: skeleton title and cards under the map. */

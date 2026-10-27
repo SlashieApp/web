@@ -26,7 +26,8 @@
     "openFiltersWithCount": "Open filters, {count} active",
     "emptyTitle": "No workers here yet",
     "emptyDescription": "No workers cover {area} with these filters. Try a wider area or different skills. New workers join Slashie every week.",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "backAria": "Back"
   },
   "zh_hk": {
     "metadata": {
@@ -55,6 +56,7 @@
     "openFiltersWithCount": "開啟篩選，{count} 項生效",
     "emptyTitle": "這裏還沒有工作者",
     "emptyDescription": "沒有工作者以這些篩選覆蓋 {area}。試試擴大範圍或更換技能，每週都有新工作者加入 Slashie。",
-    "clearFilters": "清除篩選"
+    "clearFilters": "清除篩選",
+    "backAria": "返回"
   }
 }

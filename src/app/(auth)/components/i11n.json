@@ -37,6 +37,7 @@
     },
     "shell": {
       "home": "Slashie home",
+      "back": "Back",
       "legalAria": "Legal",
       "terms": "Terms",
       "privacy": "Privacy",
@@ -101,6 +102,7 @@
     },
     "shell": {
       "home": "Slashie 主頁",
+      "back": "返回",
       "legalAria": "法律資訊",
       "terms": "條款",
       "privacy": "私隱",
