@@ -20,7 +20,6 @@ const meta = {
     nextjs: { navigation: { pathname: '/terms' } },
   },
   args: {
-    variant: 'largeTitle',
     title: 'Terms of Service',
     description: 'Last updated: 8 July 2026',
     contentMaxW: '45rem',
@@ -103,7 +102,6 @@ export const LargeTitleScrolled: Story = {
 /** Pricing (FE-449): a large "Membership" (the h1), then the page's own centred heading as an h2. */
 export const PricingLargeTitle: Story = {
   args: {
-    variant: 'largeTitle',
     title: 'Membership',
     description: undefined,
     contentMaxW: undefined,
@@ -135,35 +133,6 @@ export const PricingLargeTitle: Story = {
     await expect(
       isHiddenFromReaders(barTitle(canvasElement, 'Membership')),
     ).toBe(true)
-  },
-}
-
-/** A page that draws its own h1: no large title, the bar's title always shows. */
-export const InlineTitle: Story = {
-  args: {
-    variant: 'inlineTitle',
-    title: 'Membership',
-    description: undefined,
-    contentMaxW: undefined,
-  },
-  parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
-  decorators: [
-    (Story) => (
-      <>
-        <Story />
-        <Heading as="h1" size="2xl" textAlign="center" pt={8}>
-          Simple plans. Clear quotes.
-        </Heading>
-      </>
-    ),
-  ],
-  play: async ({ canvasElement }) => {
-    await expect(
-      isHiddenFromReaders(barTitle(canvasElement, 'Membership')),
-    ).toBe(false)
-    await expect(
-      within(canvasElement).getAllByRole('heading', { level: 1 }),
-    ).toHaveLength(1)
   },
 }
 

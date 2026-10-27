@@ -45,7 +45,6 @@ export function LegalPageLayout({
     <Box pb={{ base: 10, md: 14 }}>
       <Container>
         <MarketingPageHeader
-          variant="largeTitle"
           title={document.title}
           description={`${document.lastUpdatedLabel ?? 'Last updated'}: ${document.lastUpdated}`}
           contentMaxW="45rem"

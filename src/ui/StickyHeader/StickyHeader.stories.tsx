@@ -1,4 +1,4 @@
-import { Box, Heading, Text } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import type { ReactNode } from 'react'
 import { expect, waitFor, within } from 'storybook/test'
@@ -294,26 +294,5 @@ export const LargeTitleBelowHeader: Story = {
         false,
       ),
     )
-  },
-}
-
-/** The bar for a page that draws its own heading: the title always shows. */
-export const InlineTitle: Story = {
-  args: { ...BAR_ARGS, variant: 'inlineTitle', title: 'Membership' },
-  render: (args) => (
-    <Pane bg="bg.subtle">
-      <StickyHeader {...args} />
-      <Heading as="h1" size="xl" textAlign="center" pt={8}>
-        Simple plans. Clear quotes.
-      </Heading>
-    </Pane>
-  ),
-  play: async ({ canvasElement }) => {
-    await expect(
-      isHiddenFromReaders(barTitle(canvasElement, 'Membership')),
-    ).toBe(false)
-    await expect(
-      within(canvasElement).getAllByRole('heading', { level: 1 }),
-    ).toHaveLength(1)
   },
 }

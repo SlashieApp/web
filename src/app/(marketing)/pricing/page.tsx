@@ -37,7 +37,7 @@ export default async function PricingPage() {
   return (
     <>
       <Container as="section" pb={{ base: 8, md: 12 }}>
-        <MarketingPageHeader variant="largeTitle" title={copy.title} />
+        <MarketingPageHeader title={copy.title} />
         <Stack gap={{ base: 8, md: 10 }} pt={{ base: 8, md: 12 }}>
           <PricingHeader copy={copy.header} />
           <PricingPlans

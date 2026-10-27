@@ -31,11 +31,10 @@ export type StickyHeaderProps = {
    * `compact` (default): the title block sticks and shrinks. `largeTitle`:
    * the iPhone title bar (FE-420): a sticky bar with the back control and a
    * small title that fades in once the large title in the page has scrolled
-   * under it. `inlineTitle`: the same bar with its title always showing, for
-   * a page that draws its own heading. `hideBackFrom` and `action` are for
-   * `compact` only; the bar shows Back at every width.
+   * under it. `hideBackFrom` and `action` are for `compact` only; the bar
+   * shows Back at every width.
    */
-  variant?: 'compact' | 'largeTitle' | 'inlineTitle'
+  variant?: 'compact' | 'largeTitle'
   /** Bar variants: where the bar sticks when a sticky header sits above it. */
   stickyTop?: BoxProps['top']
   /** Bar variants: the width of the bar's row and of the large title, left aligned. */
@@ -54,8 +53,8 @@ const MOTION = {
  * title, action centred on the right. The scroll pane should clip x-overflow
  * (the app shell `main` does) so the full-bleed bar adds no scrollbar.
  *
- * The `largeTitle` and `inlineTitle` variants are the app's iPhone title bar
- * instead (see `TitleBarHeader`).
+ * The `largeTitle` variant is the app's iPhone title bar instead (see
+ * `TitleBarHeader`).
  */
 export function StickyHeader({
   variant = 'compact',
@@ -67,7 +66,6 @@ export function StickyHeader({
   return (
     <TitleBarHeader
       {...props}
-      large={variant === 'largeTitle'}
       stickyTop={stickyTop}
       contentMaxW={contentMaxW}
     />
@@ -218,26 +216,21 @@ const BAR_TITLE_FADE_CSS = {
 /**
  * The iPhone title bar (FE-420), at every width, as the app's native header
  * draws it (`headerLargeTitle`): a bar that sticks with the icon-only Back on
- * the left and the small title centred. `largeTitle` also draws the page's
- * one h1 under the bar; it scrolls up beneath the bar, and once it has gone
- * the small title fades in. The small title is `aria-hidden` while the large
- * one shows, so a screen reader hears the title once. `inlineTitle` has no
- * large title (the page brings its own heading), so the small one always
- * shows. The bar is the page's own colour with no rule under it, as in the
- * app. It scrolls with the page, so it must sit in a column as tall as the
- * page for `position: sticky` to hold.
+ * the left and the small title centred, and the page's one h1 under the
+ * bar; it scrolls up beneath the bar, and once it has gone the small title
+ * fades in. The small title is `aria-hidden` while the large one shows, so a
+ * screen reader hears the title once. The bar is the page's own colour with
+ * no rule under it, as in the app. It scrolls with the page, so it must sit
+ * in a column as tall as the page for `position: sticky` to hold.
  */
 function TitleBarHeader({
   title,
   description,
   onBack,
   backAriaLabel,
-  large,
   stickyTop = 0,
   contentMaxW,
-}: Omit<StickyHeaderProps, 'variant' | 'hideBackFrom' | 'action'> & {
-  large: boolean
-}) {
+}: Omit<StickyHeaderProps, 'variant' | 'hideBackFrom' | 'action'>) {
   const barRef = useRef<HTMLDivElement>(null)
   const detachRef = useRef<(() => void) | null>(null)
   const [largeTitleShows, setLargeTitleShows] = useState(true)
@@ -267,7 +260,7 @@ function TitleBarHeader({
     }
   }, [])
 
-  const smallTitleShows = !large || !largeTitleShows
+  const smallTitleShows = !largeTitleShows
 
   return (
     <>
@@ -328,26 +321,24 @@ function TitleBarHeader({
           </Box>
         </Box>
       </Box>
-      {large ? (
-        <Stack gap={2} pt={1} pb={{ base: 4, md: 6 }} maxW={contentMaxW}>
-          <Heading
-            ref={titleRef}
-            as="h1"
-            fontFamily="heading"
-            fontSize={LARGE_TITLE_SIZE}
-            fontWeight={700}
-            lineHeight="1.2"
-            color="text.default"
-          >
-            {title}
-          </Heading>
-          {description ? (
-            <Text fontSize="sm" color="text.muted" maxW="3xl">
-              {description}
-            </Text>
-          ) : null}
-        </Stack>
-      ) : null}
+      <Stack gap={2} pt={1} pb={{ base: 4, md: 6 }} maxW={contentMaxW}>
+        <Heading
+          ref={titleRef}
+          as="h1"
+          fontFamily="heading"
+          fontSize={LARGE_TITLE_SIZE}
+          fontWeight={700}
+          lineHeight="1.2"
+          color="text.default"
+        >
+          {title}
+        </Heading>
+        {description ? (
+          <Text fontSize="sm" color="text.muted" maxW="3xl">
+            {description}
+          </Text>
+        ) : null}
+      </Stack>
     </>
   )
 }
