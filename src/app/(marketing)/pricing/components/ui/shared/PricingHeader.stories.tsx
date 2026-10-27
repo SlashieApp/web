@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
 import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 
@@ -19,8 +20,19 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Centred page heading with one line of supporting copy. */
-export const Default: Story = {}
+/** Centred page heading (an h2: the large "Membership" title is the h1) with one line of supporting copy. */
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('heading', {
+        level: 2,
+        name: 'Simple plans. Clear quotes.',
+      }),
+    ).toBeVisible()
+    await expect(canvas.queryByRole('heading', { level: 1 })).toBeNull()
+  },
+}
 
 /** Long heading and body: both wrap inside the 40rem measure and stay centred. */
 export const LongCopy: Story = {

@@ -21,8 +21,10 @@ export async function generateMetadata() {
 }
 
 /**
- * /pricing: the title bar (FE-420, as the app's Membership screen: its title
- * stays in the bar), header, the viewer's plans (see views/README.md), FAQ.
+ * /pricing: the title bar with a large "Membership" (FE-420, FE-449: it
+ * shrinks into the bar on scroll, as Account and Plan & billing do; it is the
+ * page's h1), the page's own heading, the viewer's plans (see
+ * views/README.md), FAQ.
  */
 export default async function PricingPage() {
   const locale = await getRequestLocale()
@@ -35,7 +37,7 @@ export default async function PricingPage() {
   return (
     <>
       <Container as="section" pb={{ base: 8, md: 12 }}>
-        <MarketingPageHeader variant="inlineTitle" title={copy.title} />
+        <MarketingPageHeader variant="largeTitle" title={copy.title} />
         <Stack gap={{ base: 8, md: 10 }} pt={{ base: 8, md: 12 }}>
           <PricingHeader copy={copy.header} />
           <PricingPlans

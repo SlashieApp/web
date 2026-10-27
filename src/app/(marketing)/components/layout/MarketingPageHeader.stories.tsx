@@ -100,7 +100,45 @@ export const LargeTitleScrolled: Story = {
   },
 }
 
-/** Pricing (the app's Membership screen): no large title, the bar's title stays. */
+/** Pricing (FE-449): a large "Membership" (the h1), then the page's own centred heading as an h2. */
+export const PricingLargeTitle: Story = {
+  args: {
+    variant: 'largeTitle',
+    title: 'Membership',
+    description: undefined,
+    contentMaxW: undefined,
+  },
+  parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        <Heading as="h2" size="2xl" textAlign="center" pt={8}>
+          Simple plans. Clear quotes.
+        </Heading>
+      </>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('heading', { level: 1, name: 'Membership' }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('heading', {
+        level: 2,
+        name: 'Simple plans. Clear quotes.',
+      }),
+    ).toBeVisible()
+    await expect(canvas.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+    // The small title in the bar is hidden from readers while the large one shows.
+    await expect(
+      isHiddenFromReaders(barTitle(canvasElement, 'Membership')),
+    ).toBe(true)
+  },
+}
+
+/** A page that draws its own h1: no large title, the bar's title always shows. */
 export const InlineTitle: Story = {
   args: {
     variant: 'inlineTitle',

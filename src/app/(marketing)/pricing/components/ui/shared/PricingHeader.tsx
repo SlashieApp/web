@@ -1,5 +1,9 @@
 import { Heading, Stack, Text } from '@chakra-ui/react'
 
+/**
+ * The page's own heading under the large "Membership" title, which is the
+ * page's h1 (FE-449): an h2 at the size it always had.
+ */
 export function PricingHeader({
   copy,
 }: {
@@ -8,7 +12,7 @@ export function PricingHeader({
   return (
     <Stack gap={3} align="center" textAlign="center" maxW="40rem" mx="auto">
       <Heading
-        as="h1"
+        as="h2"
         size={{ base: 'xl', md: '2xl' }}
         letterSpacing="-0.02em"
         fontFamily="display"
