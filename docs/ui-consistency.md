@@ -43,7 +43,7 @@ White text on green = 1.82:1 (**fails** — never use white text on green).
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `sizes.page` | `90rem` (Chakra `8xl`) | Default `<Container>` max width. Worker detail is the reference. |
+| `sizes.page` | `80rem` (Chakra `8xl`) | Default `<Container>` max width, the header's width (`PAGE_CONTAINER_MAX_W`). Every page's content container uses it (FE-453); full-width maps, bands and backgrounds stay edge to edge. |
 | `PAGE_CONTAINER_MAX_W` | `'page'` | Box/Grid overlays that cannot be a `<Container>`. |
 | `PAGE_GUTTER_X` | `{ base: 4, md: 6, lg: 8 }` | Same gutters as `<Container>`. |
 
