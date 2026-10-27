@@ -62,6 +62,8 @@ export type ModalProps = {
   onCancel?: () => void
   /** Primary footer action (right). */
   submitLabel?: string
+  /** `danger` is the red button, for an action that cancels or removes. */
+  submitVariant?: 'primary' | 'danger'
   onSubmit?: () => void
   submitLoading?: boolean
   submitDisabled?: boolean
@@ -82,6 +84,7 @@ export function Modal({
   cancelLabel = 'Cancel',
   onCancel,
   submitLabel,
+  submitVariant = 'primary',
   onSubmit,
   submitLoading = false,
   submitDisabled = false,
@@ -146,7 +149,7 @@ export function Modal({
               {submitLabel ? (
                 <Button
                   type={onSubmit ? 'submit' : 'button'}
-                  variant="primary"
+                  variant={submitVariant}
                   loading={submitLoading}
                   disabled={submitDisabled}
                   minW="120px"

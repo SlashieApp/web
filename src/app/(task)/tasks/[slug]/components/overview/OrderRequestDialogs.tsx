@@ -15,6 +15,7 @@ import { Modal, TimeSlotPicker } from '@ui'
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { orderCounterpart } from '../../helpers/taskDetailUtils'
 import bag from '../../i11n.json'
+import { ConfirmDialog } from './TaskConfirmDialogs'
 
 /**
  * Who the booking is with, and whether a reschedule or cancellation can be
@@ -124,23 +125,15 @@ export function OrderCancelDialog({
   const r = useI11n(bag).requests
 
   return (
-    <Modal
+    <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
       title={r.cancelTitle}
-      size="sm"
-      cancelLabel={r.keepBooking}
-      submitLabel={r.cancelSubmit}
-      submitLoading={orderActionPending === 'requestCancellation'}
-      onSubmit={() => {
-        void runOrderAction({ type: 'requestCancellation' }).then((ok) => {
-          if (ok) onOpenChange(false)
-        })
-      }}
-    >
-      <Text fontSize="sm" color="text.muted">
-        {formatMessage(r.cancelBody, { name: counterpartName })}
-      </Text>
-    </Modal>
+      body={formatMessage(r.cancelBody, { name: counterpartName })}
+      keepLabel={r.keepBooking}
+      confirmLabel={r.cancelSubmit}
+      busy={orderActionPending === 'requestCancellation'}
+      onConfirm={() => runOrderAction({ type: 'requestCancellation' })}
+    />
   )
 }

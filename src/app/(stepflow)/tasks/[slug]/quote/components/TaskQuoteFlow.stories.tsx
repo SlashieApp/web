@@ -1,6 +1,6 @@
 import { QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { storyTaskQuote } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 
@@ -37,6 +37,32 @@ export const ExistingQuote: Story = {
       task: quoteStoryTask({ quotes: [storyTaskQuote()] }),
     }),
   ],
+}
+
+/** Withdraw asks first, in the dialog task detail uses: nothing is withdrawn yet. */
+export const WithdrawAsks: Story = {
+  decorators: [
+    withQuoteStory({
+      viewer: 'worker',
+      task: quoteStoryTask({ quotes: [storyTaskQuote()] }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', {
+        name: 'Withdraw quote',
+      }),
+    )
+    const dialog = within(
+      await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+        name: 'Withdraw quote',
+      }),
+    )
+    await dialog.findByText(
+      'Withdraw your quote? The customer will no longer see it.',
+    )
+    await dialog.findByRole('button', { name: 'Keep' })
+  },
 }
 
 /** Worker whose earlier quote closed (the booking ended and the task is open again): they can send a new one. */

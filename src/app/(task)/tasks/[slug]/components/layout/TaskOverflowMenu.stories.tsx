@@ -301,6 +301,40 @@ export const CancelBookingOpensDialog: Story = {
   },
 }
 
+/** Cancel task closes the menu and asks first: nothing is cancelled yet. */
+export const CancelTaskOpensDialog: Story = {
+  ...desktop,
+  ...menu({ viewer: 'owner' }),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    await userEvent.click(
+      await panel.findByRole('button', { name: 'Cancel task' }),
+    )
+    const page = within(canvasElement.ownerDocument.body)
+    const dialog = within(
+      await page.findByRole('dialog', { name: 'Cancel task' }),
+    )
+    await dialog.findByRole('button', { name: 'Keep' })
+  },
+}
+
+/** Withdraw quote closes the menu and asks first: nothing is withdrawn yet. */
+export const WithdrawQuoteOpensDialog: Story = {
+  ...desktop,
+  ...notOnTheBooking(TaskBookingStatus.Booked),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    await userEvent.click(
+      await panel.findByRole('button', { name: 'Withdraw quote' }),
+    )
+    const page = within(canvasElement.ownerDocument.body)
+    const dialog = within(
+      await page.findByRole('dialog', { name: 'Withdraw quote' }),
+    )
+    await dialog.findByRole('button', { name: 'Keep' })
+  },
+}
+
 /** Phone: the same menu as a bottom sheet. */
 export const PhoneOwnerOpenTask: Story = {
   ...phone,

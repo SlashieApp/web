@@ -10,6 +10,10 @@ import {
   OrderRescheduleDialog,
   useOrderRequestOptions,
 } from '@/app/(task)/tasks/[slug]/components/overview/OrderRequestDialogs'
+import {
+  CancelTaskDialog,
+  WithdrawQuoteDialog,
+} from '@/app/(task)/tasks/[slug]/components/overview/TaskConfirmDialogs'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { ReportControl } from '@/content/trust/ReportControl'
@@ -140,10 +144,12 @@ function ReportItem({
 function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
   const t = useI11n(bag)
   const m = t.menu
-  const { task, permissions, onWithdrawQuote, onCancelTask } = useTaskDetail()
+  const { task, permissions } = useTaskDetail()
   const booking = useOrderRequestOptions()
   const [rescheduleOpen, setRescheduleOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
+  const [withdrawQuoteOpen, setWithdrawQuoteOpen] = useState(false)
+  const [cancelTaskOpen, setCancelTaskOpen] = useState(false)
 
   if (!task) return null
   const actions = threadMenuActions({
@@ -162,8 +168,8 @@ function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
             label={m[action]}
             danger={action !== 'reschedule'}
             onSelect={() => {
-              if (action === 'withdrawQuote') void onWithdrawQuote()
-              else if (action === 'cancelTask') void onCancelTask()
+              if (action === 'withdrawQuote') setWithdrawQuoteOpen(true)
+              else if (action === 'cancelTask') setCancelTaskOpen(true)
               else if (action === 'reschedule') setRescheduleOpen(true)
               else setCancelOpen(true)
             }}
@@ -177,6 +183,14 @@ function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
         />
         <BlockItem thread={thread} onToggleBlock={onToggleBlock} />
       </ThreadMenu>
+      <WithdrawQuoteDialog
+        open={withdrawQuoteOpen}
+        onOpenChange={setWithdrawQuoteOpen}
+      />
+      <CancelTaskDialog
+        open={cancelTaskOpen}
+        onOpenChange={setCancelTaskOpen}
+      />
       {booking ? (
         <>
           <OrderRescheduleDialog

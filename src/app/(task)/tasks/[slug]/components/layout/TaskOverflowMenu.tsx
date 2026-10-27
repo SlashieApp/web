@@ -35,58 +35,79 @@ import {
   OrderRescheduleDialog,
   useOrderRequestOptions,
 } from '../overview/OrderRequestDialogs'
+import {
+  CancelTaskDialog,
+  WithdrawQuoteDialog,
+} from '../overview/TaskConfirmDialogs'
 import { useShareTask } from '../overview/shareTask'
 import { TaskReportControl } from '../ui/TaskReportControl'
 
-type BookingDialog = 'reschedule' | 'cancel' | 'failed' | 'done'
+type TaskDialog =
+  | 'reschedule'
+  | 'cancel'
+  | 'failed'
+  | 'done'
+  | 'cancelTask'
+  | 'withdrawQuote'
 
 /**
- * The dialogs behind the booking actions. They live outside the menu, so
- * they stay open after the phone menu (a drawer) closes.
+ * The dialogs behind the menu's actions: the booking ones, then Cancel task
+ * and Withdraw quote, which have no booking behind them. They live outside
+ * the menu, so they stay open after the phone menu (a drawer) closes.
  */
-export function useBookingDialogs() {
+export function useTaskDialogs() {
   const options = useOrderRequestOptions()
-  const [dialog, setDialog] = useState<BookingDialog | null>(null)
-  const toggle = (kind: BookingDialog) => (open: boolean) =>
+  const [dialog, setDialog] = useState<TaskDialog | null>(null)
+  const toggle = (kind: TaskDialog) => (open: boolean) =>
     setDialog(open ? kind : null)
 
   return {
     openDialog: setDialog,
-    dialogs: options ? (
+    dialogs: (
       <>
-        <OrderRescheduleDialog
-          open={dialog === 'reschedule'}
-          onOpenChange={toggle('reschedule')}
-          counterpartName={options.counterpartName}
+        {options ? (
+          <>
+            <OrderRescheduleDialog
+              open={dialog === 'reschedule'}
+              onOpenChange={toggle('reschedule')}
+              counterpartName={options.counterpartName}
+            />
+            <OrderCancelDialog
+              open={dialog === 'cancel'}
+              onOpenChange={toggle('cancel')}
+              counterpartName={options.counterpartName}
+            />
+            <OrderFailedDialog
+              open={dialog === 'failed'}
+              onOpenChange={toggle('failed')}
+            />
+            <OrderDoneDialog
+              open={dialog === 'done'}
+              onOpenChange={toggle('done')}
+            />
+          </>
+        ) : null}
+        <CancelTaskDialog
+          open={dialog === 'cancelTask'}
+          onOpenChange={toggle('cancelTask')}
         />
-        <OrderCancelDialog
-          open={dialog === 'cancel'}
-          onOpenChange={toggle('cancel')}
-          counterpartName={options.counterpartName}
-        />
-        <OrderFailedDialog
-          open={dialog === 'failed'}
-          onOpenChange={toggle('failed')}
-        />
-        <OrderDoneDialog
-          open={dialog === 'done'}
-          onOpenChange={toggle('done')}
+        <WithdrawQuoteDialog
+          open={dialog === 'withdrawQuote'}
+          onOpenChange={toggle('withdrawQuote')}
         />
       </>
-    ) : null,
+    ),
   }
 }
 
 const ACTION_DIALOG: Record<
-  Exclude<
-    TaskDetailAction,
-    'reportOtherParty' | 'withdrawRequest' | 'withdrawQuote'
-  >,
-  BookingDialog
+  Exclude<TaskDetailAction, 'reportOtherParty' | 'withdrawRequest'>,
+  TaskDialog
 > = {
   reschedule: 'reschedule',
   cancelBooking: 'cancel',
   askToCancel: 'cancel',
+  withdrawQuote: 'withdrawQuote',
   switchToFailed: 'failed',
   switchToDone: 'done',
 }
@@ -163,7 +184,7 @@ function BookingActions({
   onOpenDialog,
 }: {
   onDone: () => void
-  onOpenDialog: (dialog: BookingDialog) => void
+  onOpenDialog: (dialog: TaskDialog) => void
 }) {
   const {
     view,
@@ -173,7 +194,6 @@ function BookingActions({
     permissions,
     runOrderAction,
     orderActionPending,
-    onWithdrawQuote,
   } = useTaskDetail()
   const t = useI11n(bag)
   if (!task) return null
@@ -231,9 +251,6 @@ function BookingActions({
               onDone()
               if (action === 'withdrawRequest') {
                 void runOrderAction({ type: withdraw })
-              } else if (action === 'withdrawQuote') {
-                // Confirms before it mutates, as the Messages menu does.
-                void onWithdrawQuote()
               } else onOpenDialog(ACTION_DIALOG[action])
             }}
           />
@@ -249,14 +266,13 @@ export function TaskOverflowActions({
   packed = false,
 }: {
   onDone?: () => void
-  /** Opens a booking dialog held outside the menu (`useBookingDialogs`). */
-  onOpenDialog: (dialog: BookingDialog) => void
+  /** Opens a dialog held outside the menu (`useTaskDialogs`). */
+  onOpenDialog: (dialog: TaskDialog) => void
   packed?: boolean
 }) {
   const close = onDone ?? (() => {})
   const t = useI11n(bag)
-  const { task, permissions, onCancelTask, cancelingTask, cancelError } =
-    useTaskDetail()
+  const { task, permissions, cancelError } = useTaskDetail()
   const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
 
   if (!task) return null
@@ -308,12 +324,10 @@ export function TaskOverflowActions({
             icon={<LuTrash2 />}
             label={t.actions.cancelTask}
             danger
-            loading={cancelingTask}
             onClick={() => {
-              // `onCancelTask` confirms before mutating; keep the menu open
-              // state out of the way first.
+              // The dialog asks before anything is cancelled.
               close()
-              void onCancelTask()
+              onOpenDialog('cancelTask')
             }}
           />
           {cancelError ? (
@@ -334,7 +348,7 @@ export function TaskOverflowActions({
 export function TaskOverflowMenu({
   onOpenDialog,
 }: {
-  onOpenDialog: (dialog: BookingDialog) => void
+  onOpenDialog: (dialog: TaskDialog) => void
 }) {
   const close = useDropdownClose()
   return (
@@ -347,7 +361,7 @@ export function TaskOverflowMenu({
  */
 export function TaskHelpOverflowTrigger() {
   const t = useI11n(bag)
-  const { openDialog, dialogs } = useBookingDialogs()
+  const { openDialog, dialogs } = useTaskDialogs()
 
   return (
     <>

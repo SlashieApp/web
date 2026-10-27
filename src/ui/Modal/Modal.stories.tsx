@@ -31,6 +31,12 @@ const meta = {
       description: 'Max-width preset.',
     },
     submitLabel: { control: 'text' },
+    submitVariant: {
+      control: 'inline-radio',
+      options: ['primary', 'danger'],
+      description:
+        'The primary button: green, or red for a destructive action.',
+    },
     cancelLabel: { control: 'text' },
     backLabel: { control: 'text' },
     submitLoading: { control: 'boolean' },
@@ -455,33 +461,36 @@ export const OpenNoFooter: Story = {
   ),
 }
 
-/** Open, destructive: a custom footer swaps in a danger button. */
+/** Open, destructive: `submitVariant="danger"` makes the action button red. */
 export const OpenDestructive: Story = {
   parameters: overlayDocs,
-  args: { title: 'Delete this task?' },
+  args: {
+    title: 'Delete this task?',
+    cancelLabel: 'Keep task',
+    submitLabel: 'Delete task',
+    submitVariant: 'danger',
+  },
   render: (args) => (
-    <ModalDemo
-      {...args}
-      initialOpen
-      triggerLabel="Delete task"
-      triggerVariant="danger"
-      footer={
-        <HStack gap={3} w="full" justify="flex-end">
-          <Button type="button" variant="secondary">
-            Keep task
-          </Button>
-          <Button type="button" variant="danger">
-            Delete task
-          </Button>
-        </HStack>
-      }
-    >
+    <ModalDemo {...args} initialOpen triggerLabel="Delete task">
       <Text fontSize="sm" color="text.muted" lineHeight="tall">
         Workers who have already quoted will be told it was removed. This cannot
         be undone.
       </Text>
     </ModalDemo>
   ),
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body)
+    const dialog = await page.findByRole('dialog', {
+      name: 'Delete this task?',
+    })
+    await waitFor(() => expect(dialog).toBeVisible(), { timeout: 3000 })
+    await expect(
+      within(dialog).getByRole('button', { name: 'Keep task' }),
+    ).toBeVisible()
+    await expect(
+      within(dialog).getByRole('button', { name: 'Delete task' }),
+    ).toBeVisible()
+  },
 }
 
 const houseRules = [

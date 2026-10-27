@@ -5,10 +5,7 @@ import { Card } from '@ui'
 
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import bag from '../../i11n.json'
-import {
-  TaskOverflowActions,
-  useBookingDialogs,
-} from '../layout/TaskOverflowMenu'
+import { TaskOverflowActions, useTaskDialogs } from '../layout/TaskOverflowMenu'
 
 /**
  * Desktop Help & actions card: the view's booking actions, then the task
@@ -16,7 +13,7 @@ import {
  */
 export function TaskHelpCard() {
   const t = useI11n(bag)
-  const { openDialog, dialogs } = useBookingDialogs()
+  const { openDialog, dialogs } = useTaskDialogs()
 
   return (
     <Card {...TASK_DETAIL_SECTION_CARD} eyebrow={t.actions.helpHeading}>

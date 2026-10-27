@@ -832,14 +832,13 @@ export function TaskDetailProvider({
     ],
   )
 
+  // Cancel the task, once `CancelTaskDialog` has asked. Resolves true once
+  // cancelled; a failure shows in a toast and keeps the dialog open.
   const onCancelTask = useCallback(async () => {
-    if (!task || !permissions.canCancelTask) return
+    if (!task || !permissions.canCancelTask) return false
     const p = t.provider
 
     setCancelError(null)
-    const confirmed = window.confirm(t.actions.cancelConfirm)
-    if (!confirmed) return
-
     try {
       const result = await cancelTask({ variables: { taskId: task.id } })
       if (!result.data?.cancelTask?.id) {
@@ -848,9 +847,13 @@ export function TaskDetailProvider({
       refreshPageData()
       // The "cancelled the task" Activity line (FE-372).
       void refetchClientTask()
+      return true
     } catch (error: unknown) {
-      setCancelError(serverError(error, p.cancelFailed))
+      const message = serverError(error, p.cancelFailed)
+      setCancelError(message)
+      showAppToast({ title: message, type: 'error' })
       if (isStaleTaskError(error)) void refetchClientTask()
+      return false
     }
   }, [
     cancelTask,
@@ -858,7 +861,6 @@ export function TaskDetailProvider({
     refetchClientTask,
     refreshPageData,
     serverError,
-    t.actions.cancelConfirm,
     t.provider,
     task,
   ])
@@ -918,6 +920,8 @@ export function TaskDetailProvider({
     task,
   ])
 
+  // Withdraw the viewer's quote, once `WithdrawQuoteDialog` has asked. Resolves
+  // true once withdrawn; a failure shows in a toast and keeps the dialog open.
   const onWithdrawQuote = useCallback(async () => {
     // Any pending quote can go, even once someone else is booked (BE-113),
     // but nothing on a suspended task can change (BE-108).
@@ -925,9 +929,6 @@ export function TaskDetailProvider({
     const p = t.provider
 
     setQuoteError(null)
-    const confirmed = window.confirm(t.actions.withdrawQuoteConfirm)
-    if (!confirmed) return false
-
     try {
       const result = await withdrawQuote({
         variables: { quoteId: myQuote.id },
@@ -944,7 +945,9 @@ export function TaskDetailProvider({
       void refetchClientTask()
       return true
     } catch (error: unknown) {
-      setQuoteError(serverError(error, p.withdrawQuoteFailed))
+      const message = serverError(error, p.withdrawQuoteFailed)
+      setQuoteError(message)
+      showAppToast({ title: message, type: 'error' })
       return false
     }
   }, [
@@ -952,7 +955,6 @@ export function TaskDetailProvider({
     permissions.canWithdrawQuote,
     refetchClientTask,
     serverError,
-    t.actions.withdrawQuoteConfirm,
     t.provider,
     withdrawQuote,
   ])

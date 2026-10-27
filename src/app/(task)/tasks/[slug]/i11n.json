@@ -225,6 +225,7 @@
       "cancelConfirm": "Cancel this task? Workers will no longer be able to send quotes.",
       "withdrawQuote": "Withdraw quote",
       "withdrawQuoteConfirm": "Withdraw your quote? The customer will no longer see it.",
+      "keep": "Keep",
       "repostTask": "Repost this task"
     },
     "details": {
@@ -783,6 +784,7 @@
       "cancelConfirm": "取消此任務？工作者將無法再傳送報價。",
       "withdrawQuote": "撤回報價",
       "withdrawQuoteConfirm": "撤回你的報價？顧客將不會再看到此報價。",
+      "keep": "保留",
       "repostTask": "重新發佈這個任務"
     },
     "details": {

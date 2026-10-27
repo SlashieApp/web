@@ -91,7 +91,11 @@ export type TaskDetailActions = {
   onAcceptQuote: (quoteId: string, selectedSlotId: string) => Promise<void>
   /** Resolves true when the order action succeeded. */
   runOrderAction: (action: OrderAction) => Promise<boolean>
-  onCancelTask: () => Promise<void>
+  /**
+   * Cancel the task (`permissions.canCancelTask`), once the owner confirmed in
+   * `CancelTaskDialog`. Resolves true once cancelled.
+   */
+  onCancelTask: () => Promise<boolean>
   /**
    * Reopen the task for quotes (`permissions.canReopen`, BE-108), once the
    * owner confirmed. Resolves true once reopened.
@@ -99,8 +103,8 @@ export type TaskDetailActions = {
   onReopenTask: () => Promise<boolean>
   reopeningTask: boolean
   /**
-   * Withdraw the viewer's pending quote (`permissions.canWithdrawQuote`).
-   * Resolves true once withdrawn.
+   * Withdraw the viewer's pending quote (`permissions.canWithdrawQuote`), once
+   * they confirmed in `WithdrawQuoteDialog`. Resolves true once withdrawn.
    */
   onWithdrawQuote: () => Promise<boolean>
   withdrawingQuote: boolean

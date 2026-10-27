@@ -233,6 +233,37 @@ export const WorkerMenu: Story = {
   },
 }
 
+/** Cancel task asks first, in the dialog task detail uses: nothing is cancelled yet. */
+export const OwnerCancelTaskAsks: Story = {
+  decorators: messagesStory({ viewer: 'owner', task: openTask }),
+  play: async ({ canvasElement }) => {
+    const menu = await openMenu(canvasElement)
+    await userEvent.click(
+      await menu.findByRole('button', { name: 'Cancel task' }),
+    )
+    const dialog = within(
+      await menu.findByRole('dialog', { name: 'Cancel task' }),
+    )
+    await dialog.findByRole('button', { name: 'Keep' })
+  },
+}
+
+/** Withdraw quote asks first, in the dialog task detail uses: nothing is withdrawn yet. */
+export const WorkerWithdrawQuoteAsks: Story = {
+  args: { thread: workerThread },
+  decorators: messagesStory({ viewer: 'worker', task: openTask }),
+  play: async ({ canvasElement }) => {
+    const menu = await openMenu(canvasElement)
+    await userEvent.click(
+      await menu.findByRole('button', { name: 'Withdraw quote' }),
+    )
+    const dialog = within(
+      await menu.findByRole('dialog', { name: 'Withdraw quote' }),
+    )
+    await dialog.findByRole('button', { name: 'Keep' })
+  },
+}
+
 /** Booked and not started: reschedule or cancel the booking. */
 export const BookedMenu: Story = {
   decorators: messagesStory({ viewer: 'owner', task: bookedTask }),

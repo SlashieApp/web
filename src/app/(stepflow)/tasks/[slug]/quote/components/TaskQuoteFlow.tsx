@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { LuUndo2 } from 'react-icons/lu'
 
 import taskDetailBag from '@/app/(task)/tasks/[slug]/i11n.json'
@@ -16,6 +16,7 @@ import { SessionLoading } from '@/app/(auth)/components/ui/SessionLoading'
 
 import { Button, Link } from '@ui'
 
+import { WithdrawQuoteDialog } from '@/app/(task)/tasks/[slug]/components/overview/TaskConfirmDialogs'
 import { QuoteLimitPaywall } from '@/app/(task)/tasks/[slug]/components/quotes/QuoteLimitPaywall'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import quoteBag from '../i11n.json'
@@ -40,7 +41,6 @@ export function TaskQuoteFlow() {
     quoteSuccess,
     setQuoteMessageInput,
     setQuoteSlots,
-    onWithdrawQuote,
     withdrawingQuote,
   } = useTaskDetail()
   const t = useI11n(taskDetailBag)
@@ -48,6 +48,7 @@ export function TaskQuoteFlow() {
 
   const redirectedRef = useRef(false)
   const prefilledRef = useRef(false)
+  const [withdrawOpen, setWithdrawOpen] = useState(false)
 
   const { isOwner, hasWorkerProfile, canSubmitQuote, hasPendingQuote } =
     permissions
@@ -105,11 +106,6 @@ export function TaskQuoteFlow() {
     },
     [existingQuote, setQuoteMessageInput, setQuoteSlots],
   )
-
-  const withdrawExistingQuote = useCallback(async () => {
-    const withdrawn = await onWithdrawQuote()
-    if (withdrawn) router.replace(backToTask)
-  }, [backToTask, onWithdrawQuote, router])
 
   if (!task) return null
 
@@ -225,12 +221,17 @@ export function TaskQuoteFlow() {
             mt={6}
             px={0}
             loading={withdrawingQuote}
-            onClick={() => void withdrawExistingQuote()}
+            onClick={() => setWithdrawOpen(true)}
           >
             <LuUndo2 />
             {t.actions.withdrawQuote}
           </Button>
         }
+      />
+      <WithdrawQuoteDialog
+        open={withdrawOpen}
+        onOpenChange={setWithdrawOpen}
+        onWithdrawn={() => router.replace(backToTask)}
       />
     </Box>
   )
