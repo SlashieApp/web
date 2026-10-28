@@ -15,8 +15,9 @@ export function useTaskTitle(): string {
 /**
  * The task title, the page's one h1: under the map with the chips under it. It
  * scrolls with the page and collapses into the page header's bar (FE-458),
- * where Back and the Help & actions menu are. The status badge is the Task
- * summary's eyebrow.
+ * where Back and the Help & actions menu are. The header clamps it to 3 lines
+ * (`TASK_TITLE_MAX_LINES`): a longer title is a toggle in the heading that
+ * shows all of it (FE-465). The status badge is the Task summary's eyebrow.
  */
 export function TaskTitle() {
   const { task, pending, seed } = useTaskDetail()

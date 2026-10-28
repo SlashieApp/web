@@ -15,6 +15,12 @@ export const TASK_DETAIL_TAB_BODY_MIN_H = {
   lg: `calc(100dvh - ${TASK_DETAIL_DESKTOP_MAP_SPACER})`,
 } as const
 
+/**
+ * The big task title shows this many lines; a longer one ends with an
+ * ellipsis and is a toggle that shows all of it (FE-465).
+ */
+export const TASK_TITLE_MAX_LINES = 3
+
 /** Task detail blocks: cards on desktop, flush on the page below `lg`. */
 export const TASK_DETAIL_SECTION_CARD = {
   layout: 'section',

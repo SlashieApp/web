@@ -160,41 +160,128 @@ export const PhoneScrolled: Story = {
 const LONG_TITLE =
   'Mount a floating bookshelf, three picture rails and a TV bracket across the living room and hallway before the weekend'
 
-/** Phone, a long title: it wraps under the map, then ends as one line with an ellipsis in the bar. */
+/** The big title's line: 34px at 1.2. */
+const TITLE_LINE = 34 * 1.2
+
+/** The first link under the title: the page's content moves with the title's height. */
+const linkBelow = (canvasElement: HTMLElement, h1: HTMLElement) =>
+  within(canvasElement)
+    .getAllByRole('link')
+    .find((link) =>
+      Boolean(
+        h1.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ),
+    ) as HTMLElement
+
+/** The bar's copy once the title has collapsed into it: one line, cut off with an ellipsis. */
+async function expectBarCopyCutOff(canvasElement: HTMLElement) {
+  window.scrollTo(0, 2000)
+  await waitFor(() =>
+    expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('1'),
+  )
+  const copy = barTitle(canvasElement)
+  await expect(getComputedStyle(copy).textOverflow).toBe('ellipsis')
+  await expect(copy.scrollWidth).toBeGreaterThan(copy.clientWidth)
+  // It stops 8px short of the options chip.
+  const options = within(canvasElement).getByRole('button', {
+    name: 'Task options',
+  })
+  await expect(
+    Math.abs(
+      copy.getBoundingClientRect().right -
+        (options.getBoundingClientRect().left - 8),
+    ),
+  ).toBeLessThan(1)
+}
+
+const longTitleDecorators = [
+  withTaskDetailStory(
+    { viewer: 'owner', task: storyTaskDetail({ title: LONG_TITLE }) },
+    { maxWidth: '100%' },
+  ),
+]
+
+/**
+ * Phone, a long title: three lines under the map with an ellipsis (the heading
+ * still holds the whole title and is a toggle), then one line with an ellipsis
+ * in the bar. A tap opens it and another folds it back.
+ */
 export const PhoneLongTitle: Story = {
   globals: { viewport: { value: 'mobile1' } },
-  decorators: [
-    withTaskDetailStory(
-      { viewer: 'owner', task: storyTaskDetail({ title: LONG_TITLE }) },
-      { maxWidth: '100%' },
-    ),
-  ],
+  decorators: longTitleDecorators,
   play: async ({ canvasElement }) => {
-    const h1 = await within(canvasElement).findByRole(
+    const canvas = within(canvasElement)
+    const h1 = await canvas.findByRole(
       'heading',
       { level: 1, name: LONG_TITLE },
       { timeout: 4000 },
     )
-    // Several lines at the top...
-    await expect(h1.getBoundingClientRect().height).toBeGreaterThan(
-      34 * 1.2 * 2,
-    )
+    // Three lines at the top, closed.
+    const toggle = await within(h1).findByRole('button')
+    await expect(
+      Math.abs(h1.getBoundingClientRect().height - 3 * TITLE_LINE),
+    ).toBeLessThan(1)
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await expect(h1).toHaveTextContent(LONG_TITLE)
+    await expect(canvas.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     await expectBar(canvasElement)
-    // ...and one line, cut off, once it has collapsed into the bar.
-    window.scrollTo(0, 2000)
+
+    // A tap opens it, and a second folds it back to three lines.
+    const shut = h1.getBoundingClientRect().height
+    await userEvent.click(toggle)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'true'))
+    await expect(h1.getBoundingClientRect().height).toBeGreaterThan(shut)
+    await userEvent.click(toggle)
     await waitFor(() =>
-      expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('1'),
+      expect(toggle).toHaveAttribute('aria-expanded', 'false'),
     )
-    const copy = barTitle(canvasElement)
-    await expect(getComputedStyle(copy).textOverflow).toBe('ellipsis')
-    await expect(copy.scrollWidth).toBeGreaterThan(copy.clientWidth)
-    // It stops short of the options button.
-    const options = within(canvasElement).getByRole('button', {
-      name: 'Task options',
-    })
-    await expect(copy.getBoundingClientRect().right).toBeLessThanOrEqual(
-      options.getBoundingClientRect().left - 7,
+    await expect(
+      Math.abs(h1.getBoundingClientRect().height - shut),
+    ).toBeLessThan(1)
+
+    // Once it has collapsed into the bar it is one line, cut off.
+    await expectBarCopyCutOff(canvasElement)
+  },
+}
+
+/**
+ * Phone, a long title opened with a tap: the whole title shows and the page
+ * under it moves down. It is still the one h1, the bar's copy is still one
+ * line, and it stays open for when the page is back at the top.
+ */
+export const PhoneLongTitleExpanded: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+  decorators: longTitleDecorators,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const h1 = await canvas.findByRole(
+      'heading',
+      { level: 1, name: LONG_TITLE },
+      { timeout: 4000 },
     )
+    const toggle = await within(h1).findByRole('button')
+    const below = linkBelow(canvasElement, h1)
+    const shut = h1.getBoundingClientRect().height
+    const belowTop = below.getBoundingClientRect().top
+
+    await userEvent.click(toggle)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'true'))
+    const open = h1.getBoundingClientRect().height
+    await expect(open).toBeGreaterThan(shut + TITLE_LINE - 1)
+    await expect(
+      Math.abs(below.getBoundingClientRect().top - (belowTop + open - shut)),
+    ).toBeLessThan(1.5)
+    await expect(h1).toHaveTextContent(LONG_TITLE)
+    await expect(canvas.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+
+    // Collapsed into the bar the title is one line either way.
+    await expectBarCopyCutOff(canvasElement)
+    window.scrollTo(0, 0)
+    await waitFor(() =>
+      expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('0'),
+    )
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(h1.getBoundingClientRect().height).toBeGreaterThan(shut)
   },
 }
 

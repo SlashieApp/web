@@ -6,9 +6,20 @@ import {
   Heading,
   type HeadingProps,
   Text,
+  chakra,
 } from '@chakra-ui/react'
-import { type ReactNode, useCallback, useRef } from 'react'
+import {
+  type ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { LuArrowLeft } from 'react-icons/lu'
+
+import { sdlFocusRing } from '@/theme/styles'
 
 import { IconButton } from '../IconButton/IconButton'
 import { attachHeaderCollapse } from './attachHeaderCollapse'
@@ -72,16 +83,25 @@ export type StickyHeaderProps = {
    * down, with `StickyHeaderTitle`.
    */
   overMedia?: boolean
+  /**
+   * The big title shows at most this many lines and ends with an ellipsis. A
+   * title longer than that is a toggle (click, Enter or Space, with
+   * `aria-expanded`) that shows all of it, and back. The h1 always holds the
+   * whole title, and the copy moving into the bar follows what is shown.
+   */
+  titleMaxLines?: number
   /** The page. It scrolls under the bar, which sticks to the top of it. */
   children?: ReactNode
 }
+
+const TITLE_LINE_HEIGHT = 1.2
 
 /** The big title's look, for the h1 and for the copy that moves into the bar. */
 const TITLE_STYLE = {
   fontFamily: 'heading',
   fontSize: `${TITLE_PX}px`,
   fontWeight: 700,
-  lineHeight: '1.2',
+  lineHeight: String(TITLE_LINE_HEIGHT),
   color: 'text.default',
   overflowWrap: 'anywhere',
 } as const
@@ -122,20 +142,102 @@ function topFor(stickyTop: StickyTop, extra = 0): BoxProps['top'] {
   ) as BoxProps['top']
 }
 
+/** What the header tells its big title about `titleMaxLines`. */
+type TitleClamp = {
+  maxLines?: number
+  /** All of a clamped title shows. */
+  expanded: boolean
+  setExpanded: (expanded: boolean) => void
+}
+
+const TitleClampContext = createContext<TitleClamp>({
+  expanded: false,
+  setExpanded: () => {},
+})
+
 /**
  * The page's one h1, in the big title's look (34px, bold). `StickyHeader`
  * draws it itself on an ordinary page; a page whose title rests lower (task
  * details, a public profile) renders it where it belongs, and the header
  * finds it there to collapse it into the bar. On its own it is a plain
  * heading.
+ *
+ * With the header's `titleMaxLines` the title is clamped to that many lines.
+ * One that is longer is a button inside the heading (so it is still the one
+ * h1, holding the whole title) that shows all of it and back; a short one is
+ * plain text.
  */
 export function StickyHeaderTitle({
   children,
   ...rest
 }: Omit<HeadingProps, 'as'>) {
+  const { maxLines, expanded, setExpanded } = useContext(TitleClampContext)
+  const [overflows, setOverflows] = useState(false)
+  // Whether the title needs more lines than it may show, as its width changes
+  // or its font loads.
+  const measure = useCallback(
+    (node: HTMLElement | null) => {
+      if (!node || !maxLines) return
+      const check = () => {
+        if (!node.isConnected) return
+        const lineHeight =
+          Number.parseFloat(getComputedStyle(node).lineHeight) ||
+          TITLE_PX * TITLE_LINE_HEIGHT
+        setOverflows(node.scrollHeight > lineHeight * maxLines + 1)
+      }
+      check()
+      document.fonts?.ready.then(check)
+      const observer = new ResizeObserver(check)
+      observer.observe(node)
+      return () => observer.disconnect()
+    },
+    [maxLines],
+  )
+
+  // Only a title's text is clamped; a skeleton stands in as it is.
+  let content: ReactNode = children
+  if (maxLines && typeof children === 'string') {
+    const lineClamp = expanded ? undefined : maxLines
+    // A new title is a new element (the key), so it is measured afresh.
+    content = overflows ? (
+      <chakra.button
+        key={children}
+        ref={measure}
+        type="button"
+        data-sticky-header-title-toggle=""
+        aria-expanded={expanded}
+        display={lineClamp ? undefined : 'block'}
+        lineClamp={lineClamp}
+        w="full"
+        m={0}
+        p={0}
+        border="0"
+        bg="transparent"
+        textAlign="left"
+        cursor="pointer"
+        font="inherit"
+        color="inherit"
+        letterSpacing="inherit"
+        _focusVisible={sdlFocusRing}
+        onClick={() => setExpanded(!expanded)}
+      >
+        {children}
+      </chakra.button>
+    ) : (
+      <chakra.span
+        key={children}
+        ref={measure}
+        display={lineClamp ? undefined : 'block'}
+        lineClamp={lineClamp}
+      >
+        {children}
+      </chakra.span>
+    )
+  }
+
   return (
     <Heading as="h1" data-sticky-header-title="" {...TITLE_STYLE} {...rest}>
-      {children}
+      {content}
     </Heading>
   )
 }
@@ -202,6 +304,7 @@ export function StickyHeader({
   contentMaxW,
   contentPx,
   overMedia = false,
+  titleMaxLines,
   children,
 }: StickyHeaderProps) {
   const detachRef = useRef<(() => void) | null>(null)
@@ -218,6 +321,18 @@ export function StickyHeader({
   // on the content's edges and the boxes start outside them.
   const chips = overMedia
   const outset = `${-buttonOutset(chips)}px`
+
+  // Which title is open: a different title starts clamped again.
+  const [openTitle, setOpenTitle] = useState<string | null>(null)
+  const expanded = hasTitle && openTitle === title
+  const clamp = useMemo<TitleClamp>(
+    () => ({
+      maxLines: titleMaxLines,
+      expanded,
+      setExpanded: (open) => setOpenTitle(open && hasTitle ? title : null),
+    }),
+    [titleMaxLines, expanded, hasTitle, title],
+  )
 
   return (
     <Box
@@ -328,23 +443,25 @@ export function StickyHeader({
       ) : null}
 
       <Box gridArea="1 / 1" minW={0} pt={overMedia ? 0 : `${BAR_H}px`}>
-        {hasTitle && !overMedia ? (
-          <Box
-            pt={`${TITLE_GAP}px`}
-            pb={{ base: 4, md: 6 }}
-            maxW={contentMaxW}
-            px={contentPx}
-            mx={contentPx == null ? undefined : 'auto'}
-          >
-            <StickyHeaderTitle>{title}</StickyHeaderTitle>
-            {description ? (
-              <Text mt={2} fontSize="sm" color="text.muted" maxW="3xl">
-                {description}
-              </Text>
-            ) : null}
-          </Box>
-        ) : null}
-        {children}
+        <TitleClampContext.Provider value={clamp}>
+          {hasTitle && !overMedia ? (
+            <Box
+              pt={`${TITLE_GAP}px`}
+              pb={{ base: 4, md: 6 }}
+              maxW={contentMaxW}
+              px={contentPx}
+              mx={contentPx == null ? undefined : 'auto'}
+            >
+              <StickyHeaderTitle>{title}</StickyHeaderTitle>
+              {description ? (
+                <Text mt={2} fontSize="sm" color="text.muted" maxW="3xl">
+                  {description}
+                </Text>
+              ) : null}
+            </Box>
+          ) : null}
+          {children}
+        </TitleClampContext.Provider>
       </Box>
 
       {/* The title once it has reached the bar: it sticks, so the scroll
@@ -363,6 +480,8 @@ export function StickyHeader({
           opacity={0}
           pointerEvents="none"
           transformOrigin="0 0"
+          // The same lines as the heading shows.
+          lineClamp={expanded ? undefined : titleMaxLines}
           {...TITLE_STYLE}
         >
           {title}

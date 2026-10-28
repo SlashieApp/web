@@ -10,7 +10,10 @@ import {
 } from '@/theme/pageContainer'
 import { StickyHeader } from '@ui'
 
-import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '../../helpers/taskDetailLayout'
+import {
+  TASK_DETAIL_DESKTOP_MAP_SPACER,
+  TASK_TITLE_MAX_LINES,
+} from '../../helpers/taskDetailLayout'
 import { TASK_DETAIL_PIN_CLEARANCE } from '../../helpers/taskDetailPinClearance'
 import { useTaskBack } from '../../helpers/useTaskBack'
 import bag from '../../i11n.json'
@@ -33,7 +36,8 @@ const BODY_GUTTER_X = { base: 4, lg: PAGE_GUTTER_X.lg } as const
  *
  * The page header's bar (FE-458) floats over the map at every width, with Back
  * and the options menu in it; the task title stays under the map and
- * collapses into the bar as the page scrolls.
+ * collapses into the bar as the page scrolls. A long title shows 3 lines and
+ * opens on a tap (FE-465).
  *
  * `<lg`: map hero, fitted-style sticky chrome, role-aware bottom pin.
  * `lg+`: full page column (`sizes.page` / 90rem) over the map background —
@@ -54,6 +58,7 @@ export function TaskDetailView() {
       option={<TaskHelpOverflowTrigger overlay />}
       contentMaxW={PAGE_CONTAINER_MAX_W}
       contentPx={BODY_GUTTER_X}
+      titleMaxLines={TASK_TITLE_MAX_LINES}
     >
       <Box position="relative" bg="transparent" w="full" minW={0}>
         <Box

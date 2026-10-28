@@ -510,7 +510,14 @@ const MAP =
 const MAP_H = 300
 
 /** What task details and a public profile do: a map under the bar, the title lower down. */
-function MediaPage({ title }: { title: string }) {
+function MediaPage({
+  title,
+  narrow = false,
+}: {
+  title: string
+  /** A phone-width column, so a long title wraps on many lines. */
+  narrow?: boolean
+}) {
   return (
     <Box>
       <Box
@@ -520,7 +527,7 @@ function MediaPage({ title }: { title: string }) {
         backgroundSize="cover"
         backgroundPosition="center"
       />
-      <Box pt={4} pb={10}>
+      <Box pt={4} pb={10} maxW={narrow ? '22rem' : undefined}>
         <StickyHeaderTitle>{title}</StickyHeaderTitle>
         <ChakraLink href="#page" color="text.link">
           A link in the page
@@ -733,5 +740,204 @@ export const OverMapPhone: Story = {
         within(canvasElement).getByRole('button', { name: 'Go back' }),
       ).toBeVisible(),
     )
+  },
+}
+
+// ---------------------------------------------------- long titles (FE-465)
+
+/** The big title's line: 34px at 1.2. */
+const TITLE_LINE = 34 * 1.2
+
+const CLAMP_TITLE =
+  'Mount a floating bookshelf, three picture rails and a TV bracket across the living room and hallway before the weekend'
+
+const CLAMP_ARGS = {
+  ...MEDIA_ARGS,
+  title: CLAMP_TITLE,
+  titleMaxLines: 3,
+  // A phone-width column for the bar's row too (the page's is `narrow`).
+  contentMaxW: '22rem',
+} as const
+
+const clampRender: Story['render'] = (args) => (
+  <StickyHeader {...args}>
+    <MediaPage title={args.title ?? ''} narrow />
+  </StickyHeader>
+)
+
+/** The clamp the heading's text carries: the line count, or `none`. */
+const clampOf = (el: HTMLElement) =>
+  getComputedStyle(el).getPropertyValue('-webkit-line-clamp')
+
+/** The toggle inside the page's one h1, once the heading has measured itself. */
+const titleToggle = (root: HTMLElement) =>
+  within(heading(root)).findByRole('button')
+
+/**
+ * A long title (`titleMaxLines` 3, as on task details): three lines with an
+ * ellipsis, under the map. The h1 still holds the whole title, and it is a
+ * toggle.
+ */
+export const LongTitleClamped: Story = {
+  args: CLAMP_ARGS,
+  decorators: [withPane()],
+  render: clampRender,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const h1 = heading(canvasElement)
+    const toggle = await titleToggle(canvasElement)
+    // Three lines, cut off with an ellipsis; the heading's text is still whole.
+    near(h1.getBoundingClientRect().height, 3 * TITLE_LINE)
+    expect(clampOf(toggle)).toBe('3')
+    expect(toggle.scrollHeight).toBeGreaterThan(toggle.clientHeight)
+    await expect(h1).toHaveTextContent(CLAMP_TITLE)
+    await expect(toggle).toHaveTextContent(CLAMP_TITLE)
+    // Still the one h1, in the title's look.
+    await expect(canvas.getAllByRole('heading')).toHaveLength(1)
+    expect(getComputedStyle(toggle).fontSize).toBe('34px')
+    expect(getComputedStyle(toggle).fontWeight).toBe('700')
+    near(Number.parseFloat(getComputedStyle(toggle).lineHeight), TITLE_LINE)
+    // A toggle that is closed.
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await expect(toggle).toHaveAccessibleName(CLAMP_TITLE)
+  },
+}
+
+/**
+ * A tap, Enter or Space shows the whole title; the same again folds it back to
+ * three lines. What is under it moves down and back, and focus stays on the
+ * toggle. It ends open.
+ */
+export const LongTitleExpanded: Story = {
+  args: CLAMP_ARGS,
+  decorators: [withPane()],
+  render: clampRender,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const h1 = heading(canvasElement)
+    const toggle = await titleToggle(canvasElement)
+    const link = canvas.getByRole('link', { name: 'A link in the page' })
+    const shut = h1.getBoundingClientRect().height
+    const linkTop = link.getBoundingClientRect().top
+
+    // A click opens it: all of the title, and the page under it moves down.
+    await userEvent.click(toggle)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'true'))
+    const open = h1.getBoundingClientRect().height
+    expect(open).toBeGreaterThan(shut + TITLE_LINE - 1)
+    expect(clampOf(toggle)).toBe('none')
+    expect(toggle.scrollHeight).toBeLessThanOrEqual(toggle.clientHeight + 1)
+    near(link.getBoundingClientRect().top, linkTop + (open - shut))
+    await expect(h1).toHaveTextContent(CLAMP_TITLE)
+    await expect(canvas.getAllByRole('heading')).toHaveLength(1)
+
+    // A second click folds it back to three lines, the page back up.
+    await userEvent.click(toggle)
+    await waitFor(() =>
+      expect(toggle).toHaveAttribute('aria-expanded', 'false'),
+    )
+    near(h1.getBoundingClientRect().height, shut)
+    near(link.getBoundingClientRect().top, linkTop)
+    expect(clampOf(toggle)).toBe('3')
+
+    // The keyboard does the same: Enter opens, Space folds. It is the same
+    // button throughout, so focus never leaves it.
+    toggle.focus()
+    await userEvent.keyboard('{Enter}')
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'true'))
+    expect(document.activeElement).toBe(toggle)
+    near(h1.getBoundingClientRect().height, open)
+    await userEvent.keyboard(' ')
+    await waitFor(() =>
+      expect(toggle).toHaveAttribute('aria-expanded', 'false'),
+    )
+    expect(document.activeElement).toBe(toggle)
+    near(h1.getBoundingClientRect().height, shut)
+    expect(within(h1).getAllByRole('button')).toHaveLength(1)
+
+    // Left open, to show it so.
+    await userEvent.click(toggle)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'true'))
+    near(h1.getBoundingClientRect().height, open)
+  },
+}
+
+/**
+ * The title moving into the bar follows what is shown: three lines with an
+ * ellipsis while the heading is clamped, the whole title once it is open. The
+ * bar's own copy is one line with an ellipsis either way.
+ */
+export const LongTitleCollapsing: Story = {
+  args: CLAMP_ARGS,
+  decorators: [withPane()],
+  render: clampRender,
+  play: async ({ canvasElement }) => {
+    const h1 = heading(canvasElement)
+    const bar = part(canvasElement, 'bar')
+    const toggle = await titleToggle(canvasElement)
+    // The start depends on the title's top, not its height.
+    const start = Math.round(
+      h1.getBoundingClientRect().top -
+        (bar.getBoundingClientRect().bottom + TITLE_GAP),
+    )
+    const midway = async () => {
+      await scrollTo(canvasElement, start + 24)
+      return part(canvasElement, 'traveller')
+    }
+
+    // Clamped: the moving copy is three lines, as tall as the heading, scaled.
+    const shut = h1.getBoundingClientRect().height
+    let moving = await midway()
+    expect(clampOf(moving)).toBe('3')
+    near(moving.getBoundingClientRect().height, shut * titleScale(0.5), 2)
+    await scrollTo(canvasElement, 0)
+
+    // Open: the same start, and the moving copy is the whole title.
+    await userEvent.click(toggle)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'true'))
+    const open = h1.getBoundingClientRect().height
+    expect(open).toBeGreaterThan(shut)
+    near(
+      h1.getBoundingClientRect().top -
+        (bar.getBoundingClientRect().bottom + TITLE_GAP),
+      start,
+    )
+    moving = await midway()
+    expect(clampOf(moving)).toBe('none')
+    near(moving.getBoundingClientRect().height, open * titleScale(0.5), 2)
+    expect(getComputedStyle(moving).opacity).toBe('1')
+
+    // Collapsed into the bar: one line with an ellipsis, open or shut.
+    await scrollTo(canvasElement, start + 400)
+    const barTitle = part(canvasElement, 'bar-title')
+    expect(getComputedStyle(barTitle).opacity).toBe('1')
+    expect(getComputedStyle(barTitle).textOverflow).toBe('ellipsis')
+    expect(barTitle.scrollWidth).toBeGreaterThan(barTitle.clientWidth)
+    near(barTitle.getBoundingClientRect().height, 24)
+    await expect(barTitle).toHaveTextContent(CLAMP_TITLE)
+    await expect(within(canvasElement).getAllByRole('heading')).toHaveLength(1)
+  },
+}
+
+/** A title that fits in three lines is plain text: no toggle, no `aria-expanded`. */
+export const ShortTitlePlain: Story = {
+  args: { ...CLAMP_ARGS, title: 'Mount bookshelf on living room wall' },
+  decorators: [withPane()],
+  render: clampRender,
+  play: async ({ canvasElement, args }) => {
+    await settle()
+    const canvas = within(canvasElement)
+    const h1 = await canvas.findByRole('heading', {
+      level: 1,
+      name: args.title,
+    })
+    // Give the heading's measure a moment: it must not turn into a button.
+    await settle()
+    expect(within(h1).queryByRole('button')).toBeNull()
+    expect(h1.querySelector('[aria-expanded]')).toBeNull()
+    expect(h1.getBoundingClientRect().height).toBeLessThanOrEqual(
+      3 * TITLE_LINE + 1,
+    )
+    await expect(canvas.getAllByRole('heading')).toHaveLength(1)
   },
 }
