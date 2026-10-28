@@ -2,6 +2,7 @@ import {
   type MarketplaceMapViewport,
   marketplaceMapViewport,
 } from '../viewport'
+import { APPROX_PILL_ONE_LINE_PX, approxCircleFrame } from './approxFrame'
 import {
   OFFSET_MOBILE,
   OFFSET_TABLET,
@@ -69,7 +70,12 @@ export function offsetPaddingForViewport(
   width: number,
   height: number,
   variant: OffsetMapVariant = 'exact',
+  pillHeight: number = APPROX_PILL_ONE_LINE_PX,
 ): OffsetPadding {
+  // The privacy circle has its own window, beside its pill (FE-472).
+  if (variant === 'approximate') {
+    return approxCircleFrame({ viewport, width, height, pillHeight }).padding
+  }
   if (viewport === 'web') return offsetPaddingForWeb(width, height, variant)
   if (viewport === 'tablet') return offsetPaddingForTablet(width, height)
   return offsetPaddingForMobile(width, height)
@@ -79,6 +85,8 @@ export function marketplaceMapViewPadding(
   width: number,
   height: number,
   variant: OffsetMapVariant,
+  /** The approximate pill's measured height; one line until measured. */
+  pillHeight?: number,
 ): OffsetPadding | undefined {
   if (width <= 0 || height <= 0) return undefined
   return offsetPaddingForViewport(
@@ -86,5 +94,6 @@ export function marketplaceMapViewPadding(
     width,
     height,
     variant,
+    pillHeight,
   )
 }

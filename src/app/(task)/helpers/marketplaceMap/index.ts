@@ -14,6 +14,14 @@ export {
 } from './motion'
 
 export {
+  APPROX_CIRCLE_MAX_DIAMETER_PX,
+  APPROX_PILL_ONE_LINE_PX,
+  approxCircleFrame,
+  approxCircleZoom,
+} from './offset/approxFrame'
+export type { ApproxFrame } from './offset/approxFrame'
+
+export {
   marketplaceMapViewPadding,
   offsetPaddingForMobile,
   offsetPaddingForTablet,

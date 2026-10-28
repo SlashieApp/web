@@ -5,8 +5,9 @@
  * inset. Compact (phone + tablet) uses a top hero band; web view pushes the
  * pin into the top-right quadrant beside the content column.
  *
- * `approximate` adds extra bottom inset for the privacy zone on detail.
- * Search selected markers must stay `exact` (pin, not zone).
+ * `approximate` frames the privacy circle in its own window beside its pill
+ * (`approxFrame.ts`, FE-472). Search selected markers must stay `exact` (pin,
+ * not zone).
  */
 
 import { COMPACT_DETAIL_HERO_H } from '../overlay/config'
