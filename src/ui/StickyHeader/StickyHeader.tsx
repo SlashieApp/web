@@ -14,15 +14,15 @@ import { IconButton } from '../IconButton/IconButton'
 import { attachHeaderCollapse } from './attachHeaderCollapse'
 import {
   BAR_H,
-  BAR_TITLE_INSET,
   BAR_TITLE_PX,
   BAR_TITLE_TOP,
   BUTTON_BOX,
-  BUTTON_OVERHANG,
   GLYPH_PX,
-  OPTION_GAP,
   TITLE_GAP,
   TITLE_PX,
+  barTitleLeft,
+  barTitleRight,
+  buttonOutset,
 } from './headerCollapse'
 
 type Length = string | number
@@ -66,7 +66,9 @@ export type StickyHeaderProps = {
   /**
    * A map or cover sits behind the bar (task details, a public profile): the
    * bar floats over it and is transparent until the title collapses into it,
-   * then fades to `background`. The page then draws its own big title lower
+   * then fades to `background`. Back and the option button are round chips
+   * inside the margin, their outer edges on the content's, and the bar copy
+   * starts after Back's chip. The page then draws its own big title lower
    * down, with `StickyHeaderTitle`.
    */
   overMedia?: boolean
@@ -94,8 +96,8 @@ export const HEADER_ICON_BUTTON = {
 } as const
 
 /**
- * The same over a map or cover: the frosted white chip task details always
- * had, for Back and the option button.
+ * The same over a map or cover: the frosted white round chip task details
+ * always had, for Back and the option button.
  */
 export const HEADER_OVERLAY_BUTTON = {
   ...HEADER_ICON_BUTTON,
@@ -211,8 +213,11 @@ export function StickyHeader({
   const hasTitle = title !== undefined
   const column = { maxW: contentMaxW, px: contentPx }
   const buttonTop = `${(BAR_H - BUTTON_BOX) / 2}px`
-  const overhang = `-${BUTTON_OVERHANG}px`
-  const optionClearance = BUTTON_BOX - BUTTON_OVERHANG + OPTION_GAP
+  // Over a map or cover Back and the option button are round chips inside the
+  // margin, their outer edges on the content's; on a plain bar the glyphs sit
+  // on the content's edges and the boxes start outside them.
+  const chips = overMedia
+  const outset = `${-buttonOutset(chips)}px`
 
   return (
     <Box
@@ -258,7 +263,7 @@ export function StickyHeader({
               aria-label={backAriaLabel ?? 'Back'}
               position="absolute"
               top={buttonTop}
-              left={overhang}
+              left={outset}
               boxSize={`${BUTTON_BOX}px`}
               color="text.default"
               pointerEvents="auto"
@@ -274,8 +279,8 @@ export function StickyHeader({
               data-sticky-header-bar-title=""
               position="absolute"
               top={`${BAR_TITLE_TOP}px`}
-              left={`${BAR_TITLE_INSET}px`}
-              right={option ? `${optionClearance}px` : 0}
+              left={`${barTitleLeft(chips)}px`}
+              right={`${barTitleRight(chips, Boolean(option))}px`}
               fontFamily="heading"
               fontSize={`${BAR_TITLE_PX}px`}
               fontWeight={600}
@@ -309,7 +314,7 @@ export function StickyHeader({
             <Box
               position="absolute"
               top={buttonTop}
-              right={overhang}
+              right={outset}
               boxSize={`${BUTTON_BOX}px`}
               display="flex"
               alignItems="center"

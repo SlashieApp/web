@@ -14,6 +14,7 @@ import {
 import {
   BAR_H,
   BAR_TITLE_INSET,
+  BAR_TITLE_INSET_CHIP,
   BUTTON_OVERHANG,
   GLYPH_PX as HEADER_GLYPH_PX,
   TITLE_GAP,
@@ -583,6 +584,16 @@ export const OverMap: Story = {
     expect(getComputedStyle(option).backgroundColor).not.toBe(
       'rgba(0, 0, 0, 0)',
     )
+    // Round 44px chips inside the margin: their outer edges are the content's,
+    // and Back's glyph is centred in its chip (10px in).
+    const content = pane(canvasElement).getBoundingClientRect()
+    const backBox = back.getBoundingClientRect()
+    near(backBox.width, 44)
+    near(backBox.height, 44)
+    near(backBox.left, content.left + GUTTER)
+    near(option.getBoundingClientRect().right, content.right - GUTTER)
+    const glyph = back.querySelector('svg') as SVGElement
+    near(glyph.getBoundingClientRect().left, backBox.left + BUTTON_OVERHANG)
     // The page's one h1 is under the map.
     const h1 = canvas.getByRole('heading', { level: 1, name: args.title })
     expect(h1.getBoundingClientRect().top).toBeGreaterThan(
@@ -625,6 +636,17 @@ export const OverMapPartWay: Story = {
       h1.getBoundingClientRect().width * titleScale(0.5),
       2,
     )
+    // It drifts right towards content left + 52, after Back's chip.
+    const contentLeft =
+      pane(canvasElement).getBoundingClientRect().left + GUTTER
+    near(
+      moving.getBoundingClientRect().left,
+      titlePosition(
+        0.5,
+        { x: h1.getBoundingClientRect().left, y: 0 },
+        { contentLeft, rowTop: 0, chips: true },
+      ).x,
+    )
   },
 }
 
@@ -649,6 +671,31 @@ export const OverMapCollapsed: Story = {
       .getByRole('button', { name: 'Task options' })
       .getBoundingClientRect()
     near(option.top, row.top + 6)
+    // The bar copy starts after Back's chip (content left + 52) and ends 8px
+    // before the option chip.
+    const content = pane(canvasElement).getBoundingClientRect()
+    const copy = part(canvasElement, 'bar-title').getBoundingClientRect()
+    near(copy.left, content.left + GUTTER + BAR_TITLE_INSET_CHIP)
+    near(copy.right, option.left - 8)
+  },
+}
+
+/** Over a map with no option button: the bar copy runs on to the content's right edge. */
+export const OverMapNoOption: Story = {
+  ...OverMap,
+  args: { ...MEDIA_ARGS, option: undefined },
+  decorators: [withPane(700)],
+  play: async ({ canvasElement }) => {
+    await settle()
+    await scrollTo(canvasElement, 700)
+    const content = pane(canvasElement).getBoundingClientRect()
+    const back = within(canvasElement)
+      .getByRole('button', { name: 'Go back' })
+      .getBoundingClientRect()
+    near(back.left, content.left + GUTTER)
+    const copy = part(canvasElement, 'bar-title').getBoundingClientRect()
+    near(copy.left, content.left + GUTTER + BAR_TITLE_INSET_CHIP)
+    near(copy.right, content.right - GUTTER)
   },
 }
 

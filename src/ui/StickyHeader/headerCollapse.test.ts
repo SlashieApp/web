@@ -2,13 +2,19 @@ import { describe, expect, it } from 'vitest'
 
 import {
   BAR_H,
+  BAR_TITLE_GAP,
   BAR_TITLE_INSET,
+  BAR_TITLE_INSET_CHIP,
   BAR_TITLE_PX,
   BAR_TITLE_TOP,
+  BUTTON_BOX,
   BUTTON_OVERHANG,
   COLLAPSE_DISTANCE,
   TITLE_GAP,
   TITLE_PX,
+  barTitleLeft,
+  barTitleRight,
+  buttonOutset,
   clamp01,
   collapseFrame,
   collapseProgress,
@@ -28,6 +34,38 @@ describe('header numbers', () => {
     expect(TITLE_PX).toBe(34)
     expect(BAR_TITLE_PX).toBe(18)
     expect(BUTTON_OVERHANG).toBe(10)
+    expect(BAR_TITLE_GAP).toBe(8)
+    expect(BAR_TITLE_INSET_CHIP).toBe(52)
+  })
+})
+
+describe('chips inside the margin', () => {
+  it('puts a chip on the content edge and a plain arrow box 10px outside it', () => {
+    expect(buttonOutset(true)).toBe(0)
+    expect(buttonOutset(false)).toBe(10)
+  })
+
+  it('starts the bar copy 40 in after a plain arrow, 52 in after a chip', () => {
+    expect(barTitleLeft(false)).toBe(40)
+    expect(barTitleLeft(true)).toBe(52)
+    // The 44px chip, then 8px.
+    expect(barTitleLeft(true)).toBe(BUTTON_BOX + BAR_TITLE_GAP)
+  })
+
+  it('ends it on the content edge when there is no option button', () => {
+    expect(barTitleRight(false, false)).toBe(0)
+    expect(barTitleRight(true, false)).toBe(0)
+  })
+
+  it('ends it 8px before the option button', () => {
+    // A plain box starts 34px in from the edge (44 less its 10px overhang).
+    expect(barTitleRight(false, true)).toBe(42)
+    // A chip is 44px wide and ends on the edge.
+    expect(barTitleRight(true, true)).toBe(52)
+  })
+
+  it('leaves a chip bar the same room either side', () => {
+    expect(barTitleLeft(true)).toBe(barTitleRight(true, true))
   })
 })
 
@@ -140,6 +178,46 @@ describe('titlePosition', () => {
   it('counts the row top, so a bar under a sticky header lines up', () => {
     const lower = { contentLeft: 24, rowTop: 58 }
     expect(titlePosition(1, { x: 24, y: 122 }, lower)).toEqual({ x: 64, y: 74 })
+  })
+
+  describe('with chips (over a map or cover)', () => {
+    const chipBar = { contentLeft: 16, rowTop: 0, chips: true }
+
+    it('starts where it rests', () => {
+      expect(titlePosition(0, rest, chipBar)).toEqual({ x: 16, y: 64 })
+    })
+
+    it('ends 52px in, after Back chip, and 16px into the row', () => {
+      expect(titlePosition(1, rest, chipBar)).toEqual({ x: 68, y: 16 })
+    })
+
+    it('is halfway at p 0.5', () => {
+      expect(titlePosition(0.5, rest, chipBar)).toEqual({ x: 42, y: 40 })
+    })
+
+    it('moves up exactly as a plain bar does: only the end x differs', () => {
+      for (const p of [0, 0.25, 0.5, 1]) {
+        expect(titlePosition(p, rest, chipBar).y).toBe(
+          titlePosition(p, rest, bar).y,
+        )
+      }
+      expect(titlePosition(1, rest, chipBar).x).toBe(
+        titlePosition(1, rest, bar).x + 12,
+      )
+    })
+
+    it('lands at the same x from a title that rests inset (a cover card)', () => {
+      const inset = { x: 33, y: 183 }
+      expect(titlePosition(1, inset, chipBar)).toEqual({ x: 68, y: 16 })
+    })
+
+    it('counts the content left and the row top', () => {
+      const wide = { contentLeft: 75, rowTop: 66, chips: true }
+      expect(titlePosition(1, { x: 75, y: 340 }, wide)).toEqual({
+        x: 127,
+        y: 82,
+      })
+    })
   })
 })
 

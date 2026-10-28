@@ -168,6 +168,10 @@ const headerBar = (canvasElement: HTMLElement) =>
 const barTitle = (canvasElement: HTMLElement) =>
   canvasElement.querySelector('[data-sticky-header-bar-title]') as HTMLElement
 
+/** The bar's row: its edges are the page's content edges, the hero card's too. */
+const barRow = (canvasElement: HTMLElement) =>
+  canvasElement.querySelector('[data-sticky-header-row]') as HTMLElement
+
 /** A control sits on the bar's row, at the top of the page. */
 async function expectInBar(canvasElement: HTMLElement, control: HTMLElement) {
   const bar = headerBar(canvasElement).getBoundingClientRect()
@@ -189,6 +193,18 @@ export const HeaderOverCover: Story = {
     const more = canvas.getByRole('button', { name: 'More actions' })
     await expectInBar(canvasElement, back)
     await expectInBar(canvasElement, more)
+    // Round 44px chips inside the margin: Back's outer edge is the content's
+    // left, the ⋯ menu's its right. Nothing sticks out past the cover card.
+    const row = barRow(canvasElement).getBoundingClientRect()
+    await expect(
+      Math.abs(back.getBoundingClientRect().width - 44),
+    ).toBeLessThan(0.5)
+    await expect(
+      Math.abs(back.getBoundingClientRect().left - row.left),
+    ).toBeLessThan(1)
+    await expect(
+      Math.abs(more.getBoundingClientRect().right - row.right),
+    ).toBeLessThan(1)
     // Save stays beside the photo, below the bar.
     const save = canvas.getByRole('button', { name: 'Save this worker' })
     await expect(save.getBoundingClientRect().top).toBeGreaterThanOrEqual(
@@ -248,6 +264,14 @@ export const NameInBar: Story = {
     await expect(
       Math.abs(headerBar(canvasElement).getBoundingClientRect().top),
     ).toBeLessThan(2)
+    // The bar copy starts 52px in, after Back's chip, and ends 8px before the ⋯ chip.
+    const row = barRow(canvasElement).getBoundingClientRect()
+    const copy = barTitle(canvasElement).getBoundingClientRect()
+    const more = canvas
+      .getByRole('button', { name: 'More actions' })
+      .getBoundingClientRect()
+    await expect(Math.abs(copy.left - (row.left + 52))).toBeLessThan(1)
+    await expect(Math.abs(copy.right - (more.left - 8))).toBeLessThan(1)
   },
 }
 
@@ -530,9 +554,19 @@ export const PhoneLoading: Story = {
   ...Loading,
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
+    const back = await within(canvasElement).findByRole('button', {
+      name: 'Back',
+    })
+    await expect(back).toBeVisible()
+    // The loading bar floats over the outline's cover too: Back is a round chip
+    // inside the margin, its outer edge on the content's left.
+    const row = barRow(canvasElement).getBoundingClientRect()
     await expect(
-      await within(canvasElement).findByRole('button', { name: 'Back' }),
-    ).toBeVisible()
+      Math.abs(back.getBoundingClientRect().left - row.left),
+    ).toBeLessThan(1)
+    await expect(
+      Math.abs(back.getBoundingClientRect().width - 44),
+    ).toBeLessThan(0.5)
   },
 }
 

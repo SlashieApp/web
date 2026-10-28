@@ -14,19 +14,28 @@ export const TITLE_GAP = 8
 export const TITLE_PX = 34
 export const BAR_TITLE_PX = 18
 
-/** The bar copy's left edge, from the content's left edge. */
-export const BAR_TITLE_INSET = 40
-
 /** The bar copy's top, from the row's top (a 24px line centred in the row). */
 export const BAR_TITLE_TOP = 16
 
-/** The icon buttons are 44px boxes holding a 24px glyph, which sits on the content edge. */
+/** The icon buttons are 44px boxes holding a 24px glyph. */
 export const BUTTON_BOX = 44
 export const GLYPH_PX = 24
+
+/** On a plain bar the glyph sits on the content edge, so the box starts this far outside it. */
 export const BUTTON_OVERHANG = (BUTTON_BOX - GLYPH_PX) / 2
 
-/** The bar copy ends this far before the option button's box. */
-export const OPTION_GAP = 8
+/** The bar copy keeps this far from the button beside it. */
+export const BAR_TITLE_GAP = 8
+
+/** On a plain bar the bar copy starts at this, from the content's left edge (after Back's glyph). */
+export const BAR_TITLE_INSET = 40
+
+/**
+ * Over a map or cover Back and the option button are round 44px chips inside
+ * the margin (the chip's outer edge on the content edge), so the bar copy
+ * starts after Back's chip and its gap.
+ */
+export const BAR_TITLE_INSET_CHIP = BUTTON_BOX + BAR_TITLE_GAP
 
 /**
  * Scroll distance of the collapse: from the title's resting top (bar + 8) to
@@ -66,6 +75,29 @@ export function collapseProgress(scrollY: number, start: number): number {
   return clamp01((scrollY - start) / COLLAPSE_DISTANCE)
 }
 
+/**
+ * How far a button's box sits outside the content edge: a plain bar puts the
+ * 24px glyph on the edge, so the box starts `BUTTON_OVERHANG` outside it; a
+ * chip (over a map or cover) has its outer edge on the content edge.
+ */
+export function buttonOutset(chips: boolean): number {
+  return chips ? 0 : BUTTON_OVERHANG
+}
+
+/** The bar copy's left edge, and where the moving title ends, from the content's left edge. */
+export function barTitleLeft(chips: boolean): number {
+  return chips ? BAR_TITLE_INSET_CHIP : BAR_TITLE_INSET
+}
+
+/**
+ * How far in from the content's right edge the bar copy ends: 0 with no option
+ * button, else `BAR_TITLE_GAP` before its box.
+ */
+export function barTitleRight(chips: boolean, hasOption: boolean): number {
+  if (!hasOption) return 0
+  return BUTTON_BOX - buttonOutset(chips) + BAR_TITLE_GAP
+}
+
 /** The moving title's scale: 34px down to 18px, linear in p, from its top left. */
 export function titleScale(p: number): number {
   return 1 - clamp01(p) * (1 - BAR_TITLE_PX / TITLE_PX)
@@ -73,17 +105,18 @@ export function titleScale(p: number): number {
 
 /**
  * Where the moving title's top left is at p: from its rest (`rest`) to the bar
- * copy's place, `BAR_TITLE_INSET` right of the content's left edge and
+ * copy's place, `barTitleLeft` right of the content's left edge and
  * `BAR_TITLE_TOP` under the row's top. On an ordinary page that is from
- * (content left, bar bottom + 8) to (content left + 40, row top + 16).
+ * (content left, bar bottom + 8) to (content left + 40, row top + 16); over a
+ * map or cover (`chips`) it ends at content left + 52, after Back's chip.
  */
 export function titlePosition(
   p: number,
   rest: { x: number; y: number },
-  bar: { contentLeft: number; rowTop: number },
+  bar: { contentLeft: number; rowTop: number; chips?: boolean },
 ): { x: number; y: number } {
   const q = clamp01(p)
-  const x = bar.contentLeft + BAR_TITLE_INSET
+  const x = bar.contentLeft + barTitleLeft(bar.chips ?? false)
   const y = bar.rowTop + BAR_TITLE_TOP
   return { x: rest.x + (x - rest.x) * q, y: rest.y + (y - rest.y) * q }
 }

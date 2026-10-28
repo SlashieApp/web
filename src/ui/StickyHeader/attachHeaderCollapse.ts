@@ -109,6 +109,8 @@ export function attachHeaderCollapse(frame: HTMLElement): () => void {
     const to = titlePosition(state.p, rest, {
       contentLeft: rects.row.left,
       rowTop: rects.barTop,
+      // Over a map or cover Back is a chip inside the margin: the copy lands after it.
+      chips: frame.hasAttribute('data-over-media'),
     })
     // Start the copy exactly on the heading: same place, same width.
     const top = rects.title.top - rects.frame.top

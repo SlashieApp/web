@@ -41,6 +41,10 @@ const bar = (canvasElement: HTMLElement) =>
 const barTitle = (canvasElement: HTMLElement) =>
   canvasElement.querySelector('[data-sticky-header-bar-title]') as HTMLElement
 
+/** The bar's row: its edges are the page's content edges. */
+const barRow = (canvasElement: HTMLElement) =>
+  canvasElement.querySelector('[data-sticky-header-row]') as HTMLElement
+
 /** Back and the options menu are in the bar, at the very top, over the map. */
 async function expectBar(canvasElement: HTMLElement) {
   const canvas = within(canvasElement)
@@ -55,6 +59,13 @@ async function expectBar(canvasElement: HTMLElement) {
     await expect(box.top).toBeGreaterThanOrEqual(top)
     await expect(box.bottom).toBeLessThanOrEqual(top + 56)
   }
+  // Round 44px chips inside the margin: their outer edges are the content's.
+  const row = barRow(canvasElement).getBoundingClientRect()
+  const backBox = back.getBoundingClientRect()
+  const optionsBox = options.getBoundingClientRect()
+  await expect(Math.abs(backBox.width - 44)).toBeLessThan(0.5)
+  await expect(Math.abs(backBox.left - row.left)).toBeLessThan(1)
+  await expect(Math.abs(optionsBox.right - row.right)).toBeLessThan(1)
 }
 
 /** Focus and reading order follow the bar's row: Back, the options menu, then the page and its title. */
@@ -84,6 +95,14 @@ async function expectCollapsed(canvasElement: HTMLElement) {
   await expect(
     within(canvasElement).getAllByRole('heading', { level: 1 }),
   ).toHaveLength(1)
+  // The bar copy starts 52px in, after Back's chip, and ends 8px before the options chip.
+  const row = barRow(canvasElement).getBoundingClientRect()
+  const copy = barTitle(canvasElement).getBoundingClientRect()
+  const options = within(canvasElement)
+    .getByRole('button', { name: 'Task options' })
+    .getBoundingClientRect()
+  await expect(Math.abs(copy.left - (row.left + 52))).toBeLessThan(1)
+  await expect(Math.abs(copy.right - (options.left - 8))).toBeLessThan(1)
 }
 
 /** Desktop: Back and the options menu in the bar over the map band, title, tabs, cards and the rail. */
