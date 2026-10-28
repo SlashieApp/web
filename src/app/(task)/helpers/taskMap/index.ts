@@ -1,4 +1,5 @@
 export type {
+  TaskMapApproxZone,
   TaskMapPropsSnapshot,
   TaskMapStack,
   TaskMapTask,

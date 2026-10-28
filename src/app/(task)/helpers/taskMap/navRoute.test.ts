@@ -48,4 +48,32 @@ describe('nav route clear', () => {
     route.flushWhenReady()
     expect(setData).toHaveBeenCalledTimes(1)
   })
+
+  it('clears a line that must not stay now, even while tiles load (FE-472)', () => {
+    const { map, setData } = fakeMap()
+    const route = controllerFor(map)
+    map.styleLoaded = false
+    route.clearRoute({ force: true })
+    expect(setData).toHaveBeenCalledTimes(1)
+
+    // Nothing is left waiting for the idle.
+    map.styleLoaded = true
+    route.flushWhenReady()
+    expect(setData).toHaveBeenCalledTimes(1)
+  })
+
+  it('falls back to the next idle when a forced clear throws', () => {
+    const { map, setData } = fakeMap()
+    const route = controllerFor(map)
+    map.styleLoaded = false
+    setData.mockImplementationOnce(() => {
+      throw new Error('Style is not done loading')
+    })
+    route.clearRoute({ force: true })
+    expect(setData).toHaveBeenCalledTimes(1)
+
+    map.styleLoaded = true
+    route.flushWhenReady()
+    expect(setData).toHaveBeenCalledTimes(2)
+  })
 })

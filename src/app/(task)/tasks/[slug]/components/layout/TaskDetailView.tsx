@@ -20,6 +20,7 @@ import bag from '../../i11n.json'
 import { Reveal } from './Reveal'
 import { StatusHeader } from './StatusHeader'
 import { TaskDetailMapBinder } from './TaskDetailMapBinder'
+import { TaskDetailMapPill } from './TaskDetailMapPill'
 import { TaskDetailTabs } from './TaskDetailTabs'
 import { TaskHelpOverflowTrigger } from './TaskOverflowMenu'
 import { useTaskTitle } from './TaskTitle'
@@ -79,6 +80,7 @@ export function TaskDetailView() {
           minW={0}
           mt={{ base: MOBILE_MAP_CHROME_OVERLAP, lg: 0 }}
         >
+          <TaskDetailMapPill />
           <Box
             display={{ base: 'none', lg: 'block' }}
             h={TASK_DETAIL_DESKTOP_MAP_SPACER}

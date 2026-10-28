@@ -5,7 +5,8 @@ import { BRAND_MAP_RADIUS } from '@/theme/brand'
 /**
  * Approximate-area radius for **privacy** maps (task-detail approximate,
  * worker service area). `/search` browse selection must not call
- * `syncZoneCircle` — selected search chrome is a pin on lat/lng.
+ * `syncZoneCircle` — selected search chrome is a pin on lat/lng. The shared
+ * controller draws it only for an `approxZone` (task detail, FE-472).
  */
 export const TASK_ZONE_RADIUS_M = 400
 
@@ -13,6 +14,23 @@ export type ZoneCircleLayerIds = {
   source: string
   fill: string
   line: string
+}
+
+export type ZoneCirclePaint = {
+  fillColor: string
+  fillOpacity: number
+  lineColor: string
+  lineOpacity: number
+  lineWidth: number
+}
+
+/** The worker service-area look; task detail's approximate circle passes its own. */
+export const ZONE_CIRCLE_PAINT: ZoneCirclePaint = {
+  fillColor: BRAND_MAP_RADIUS,
+  fillOpacity: 0.16,
+  lineColor: BRAND_MAP_RADIUS,
+  lineOpacity: 0.55,
+  lineWidth: 2.5,
 }
 
 /** Circle polygon approximation around a lat/lng (Mapbox has no native circle-by-meters). */
@@ -49,6 +67,7 @@ export function syncZoneCircle(
   ids: ZoneCircleLayerIds,
   center: { lat: number; lng: number } | null,
   radiusMeters: number = TASK_ZONE_RADIUS_M,
+  paint: ZoneCirclePaint = ZONE_CIRCLE_PAINT,
 ) {
   const data = {
     type: 'FeatureCollection' as const,
@@ -66,11 +85,14 @@ export function syncZoneCircle(
       id: ids.fill,
       type: 'fill',
       source: ids.source,
-      paint: { 'fill-color': BRAND_MAP_RADIUS, 'fill-opacity': 0.16 },
+      paint: {
+        'fill-color': paint.fillColor,
+        'fill-opacity': paint.fillOpacity,
+      },
     })
   } else {
-    map.setPaintProperty(ids.fill, 'fill-color', BRAND_MAP_RADIUS)
-    map.setPaintProperty(ids.fill, 'fill-opacity', 0.16)
+    map.setPaintProperty(ids.fill, 'fill-color', paint.fillColor)
+    map.setPaintProperty(ids.fill, 'fill-opacity', paint.fillOpacity)
   }
 
   if (!map.getLayer(ids.line)) {
@@ -79,14 +101,14 @@ export function syncZoneCircle(
       type: 'line',
       source: ids.source,
       paint: {
-        'line-color': BRAND_MAP_RADIUS,
-        'line-width': 2.5,
-        'line-opacity': 0.55,
+        'line-color': paint.lineColor,
+        'line-width': paint.lineWidth,
+        'line-opacity': paint.lineOpacity,
       },
     })
   } else {
-    map.setPaintProperty(ids.line, 'line-color', BRAND_MAP_RADIUS)
-    map.setPaintProperty(ids.line, 'line-width', 2.5)
-    map.setPaintProperty(ids.line, 'line-opacity', 0.55)
+    map.setPaintProperty(ids.line, 'line-color', paint.lineColor)
+    map.setPaintProperty(ids.line, 'line-width', paint.lineWidth)
+    map.setPaintProperty(ids.line, 'line-opacity', paint.lineOpacity)
   }
 }

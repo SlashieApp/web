@@ -13,6 +13,7 @@ import {
 } from '../../context/TaskBrowseProvider'
 import {
   MAX_SEARCH_RADIUS_MILES,
+  type TaskMapApproxZone,
   type TaskMapController,
   type TaskMapPropsSnapshot,
   type TaskMapStack,
@@ -20,6 +21,7 @@ import {
   createTaskMapController,
   tasksMarkerSig,
 } from '../../helpers/taskMap'
+import { approxZoneKey } from '../../helpers/taskMap/approxZone'
 import { COMPASS_CONTROL_CLASS } from '../../helpers/taskMap/compass'
 import { useIsTouchMobileDevice } from '../../helpers/touchMobileDevice'
 import { useSelectBrowseTaskFromMap } from '../../helpers/useSelectBrowseTaskFromMap'
@@ -134,6 +136,11 @@ export type TaskMapProps = {
    * (task-detail handoff). Defaults to true.
    */
   mapInteractions?: boolean
+  /**
+   * Task detail, approximate viewers: a circle around the task's public point
+   * with its fit zoom, instead of a pin (see `TaskMapApproxZone`).
+   */
+  approxZone?: TaskMapApproxZone | null
 }
 
 /**
@@ -209,6 +216,8 @@ export function TaskMap(props: TaskMapProps) {
     props.taskPinMode ?? 'all',
     props.showReferenceMarker ?? true,
     props.mapInteractions ?? true,
+    approxZoneKey(props.approxZone),
+    props.approxZone?.zoom ?? '',
     props.viewPadding
       ? `${props.viewPadding.top ?? 0},${props.viewPadding.right ?? 0},${props.viewPadding.bottom ?? 0},${props.viewPadding.left ?? 0}`
       : '',

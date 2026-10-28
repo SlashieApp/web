@@ -5,6 +5,9 @@ import type { TaskMapProps } from '../../components/ui/TaskMap'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
 import {
   type MarketplaceMapPublishedLayer,
+  type TaskLocationMapAccess,
+  confirmedTaskLocationAccess,
+  publishedMarketplaceLayerSig,
   resolveMarketplaceMapLayer,
   shouldKeepBrowseMarketplaceMap,
 } from './layer'
@@ -143,6 +146,247 @@ describe('resolveMarketplaceMapLayer', () => {
     })
     expect(resolved?.taskPinMode).toBe('none')
     expect(resolved?.cameraMode).toBe('detail')
+  })
+})
+
+const APPROX_LABEL = 'Approximate area. Exact address after booking.'
+
+const approxAccess: TaskLocationMapAccess = {
+  taskId: 'task-1',
+  access: 'approximate',
+  center: { lat: 51.5081, lng: -0.1269 },
+  approxLabel: APPROX_LABEL,
+}
+
+const exactAccess: TaskLocationMapAccess = {
+  ...approxAccess,
+  access: 'exact',
+}
+
+const detailLayer = (
+  variant: 'exact' | 'approximate',
+  overrides: Partial<TaskMapProps> = {},
+): MarketplaceMapPublishedLayer => ({
+  source: 'detail',
+  cameraMode: 'detail',
+  variant,
+  props: {
+    ...browseProps,
+    tasks: variant === 'exact' ? [browseTask] : [],
+    selectedTaskId: variant === 'exact' ? 'task-1' : null,
+    navRouteEnabled: variant === 'exact',
+    showReferenceMarker: variant === 'exact',
+    ...overrides,
+  },
+})
+
+describe('resolveMarketplaceMapLayer, default deny on task detail (FE-472)', () => {
+  const onDetail = {
+    focusTaskId: 'task-1',
+    viewport: 'mobile' as const,
+    onDetailPath: true,
+    approxZoom: 12.57,
+  }
+
+  const draws = (resolved: TaskMapProps | null) => ({
+    pins: resolved?.tasks.length ?? 0,
+    pinMode: resolved?.taskPinMode,
+    selected: resolved?.selectedTaskId,
+    route: resolved?.navRouteEnabled,
+    you: resolved?.showReferenceMarker,
+    zone: resolved?.approxZone ?? null,
+  })
+
+  it('draws no pin, no other pins, no route and no You marker until the viewer is known', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      ...onDetail,
+      published: browseLayer,
+      locationAccess: null,
+    })
+    expect(draws(resolved)).toEqual({
+      pins: 0,
+      pinMode: 'none',
+      selected: null,
+      route: false,
+      you: false,
+      zone: null,
+    })
+    expect(resolved?.cameraMode).toBe('detail')
+  })
+
+  it('treats a pending viewer the same: nothing, and no circle', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      ...onDetail,
+      published: browseLayer,
+      locationAccess: { ...approxAccess, access: 'pending' },
+    })
+    expect(draws(resolved).pins).toBe(0)
+    expect(draws(resolved).zone).toBeNull()
+  })
+
+  it('never lets a confirmation for another task unlock this one', () => {
+    for (const published of [browseLayer, detailLayer('exact')]) {
+      const resolved = resolveMarketplaceMapLayer({
+        ...onDetail,
+        published,
+        locationAccess: { ...exactAccess, taskId: 'task-9' },
+      })
+      expect(draws(resolved).pins).toBe(0)
+      expect(draws(resolved).route).toBe(false)
+      expect(draws(resolved).you).toBe(false)
+    }
+  })
+
+  it('opened from /search, an approximate viewer gets the circle and nothing else', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      ...onDetail,
+      published: browseLayer,
+      locationAccess: approxAccess,
+    })
+    expect(draws(resolved)).toEqual({
+      pins: 0,
+      pinMode: 'none',
+      selected: null,
+      route: false,
+      you: false,
+      zone: {
+        taskId: 'task-1',
+        lat: 51.5081,
+        lng: -0.1269,
+        radiusM: 400,
+        zoom: 12.57,
+      },
+    })
+    expect(resolved?.mapAriaLabel).toBe(APPROX_LABEL)
+    expect(resolved?.mapInteractions).toBe(false)
+  })
+
+  it('centres the circle on the location the binder confirmed, never on a browse pin', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      ...onDetail,
+      published: browseLayer,
+      locationAccess: approxAccess,
+    })
+    expect(resolved?.approxZone?.lat).not.toBe(browseTask.locationLat)
+    expect(resolved?.approxZone?.lat).toBe(approxAccess.center?.lat)
+  })
+
+  it('draws no circle without a centre or a window to fit it in', () => {
+    expect(
+      resolveMarketplaceMapLayer({
+        ...onDetail,
+        published: browseLayer,
+        locationAccess: { ...approxAccess, center: null },
+      })?.approxZone,
+    ).toBeNull()
+    expect(
+      resolveMarketplaceMapLayer({
+        ...onDetail,
+        approxZoom: undefined,
+        published: browseLayer,
+        locationAccess: approxAccess,
+      })?.approxZone,
+    ).toBeNull()
+  })
+
+  it('an approximate cold load (a detail layer) is the circle with no pin', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      ...onDetail,
+      focusTaskId: 'task-1',
+      published: detailLayer('approximate'),
+      locationAccess: approxAccess,
+    })
+    expect(draws(resolved)).toMatchObject({
+      pins: 0,
+      pinMode: 'none',
+      route: false,
+      you: false,
+    })
+    expect(resolved?.approxZone?.taskId).toBe('task-1')
+  })
+
+  it('never draws a browse pin for an exact viewer: they get the binder’s detail layer', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      ...onDetail,
+      published: browseLayer,
+      locationAccess: exactAccess,
+    })
+    expect(draws(resolved).pins).toBe(0)
+    expect(draws(resolved).zone).toBeNull()
+  })
+
+  it('draws an exact viewer’s solo pin as it always did, route and You marker included', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      ...onDetail,
+      published: detailLayer('exact'),
+      locationAccess: exactAccess,
+    })
+    expect(draws(resolved)).toEqual({
+      pins: 1,
+      pinMode: 'solo',
+      selected: 'task-1',
+      route: true,
+      you: true,
+      zone: null,
+    })
+    expect(resolved?.approxZone).toBeUndefined()
+  })
+
+  it('leaves /search and a bare focus alone: only the detail path denies', () => {
+    for (const onDetailPath of [false, undefined]) {
+      const resolved = resolveMarketplaceMapLayer({
+        published: browseLayer,
+        focusTaskId: 'task-1',
+        viewport: 'mobile',
+        onDetailPath,
+        locationAccess: null,
+      })
+      expect(resolved?.tasks).toHaveLength(2)
+      expect(resolved?.taskPinMode).toBe('all')
+      expect(resolved?.approxZone).toBeUndefined()
+    }
+  })
+
+  it('draws a leftover task confirmation on /search as nothing', () => {
+    const resolved = resolveMarketplaceMapLayer({
+      published: browseLayer,
+      focusTaskId: null,
+      viewport: 'web',
+      onDetailPath: false,
+      locationAccess: approxAccess,
+    })
+    expect(resolved?.tasks).toHaveLength(2)
+    expect(resolved?.approxZone).toBeUndefined()
+    expect(resolved?.taskPinMode).toBe('all')
+  })
+
+  it('keeps the exact and approximate detail layers apart in the publish signature', () => {
+    expect(publishedMarketplaceLayerSig(detailLayer('exact'))).not.toBe(
+      publishedMarketplaceLayerSig(detailLayer('approximate')),
+    )
+  })
+})
+
+describe('confirmedTaskLocationAccess', () => {
+  it('confirms only on the detail path and only for the framed task', () => {
+    const base = {
+      onDetailPath: true,
+      framingTaskId: 'task-1',
+      locationAccess: exactAccess,
+    }
+    expect(confirmedTaskLocationAccess(base)).toBe(exactAccess)
+    expect(
+      confirmedTaskLocationAccess({ ...base, onDetailPath: false }),
+    ).toBeNull()
+    expect(
+      confirmedTaskLocationAccess({ ...base, framingTaskId: 'task-2' }),
+    ).toBeNull()
+    expect(
+      confirmedTaskLocationAccess({ ...base, framingTaskId: null }),
+    ).toBeNull()
+    expect(
+      confirmedTaskLocationAccess({ ...base, locationAccess: null }),
+    ).toBeNull()
   })
 })
 

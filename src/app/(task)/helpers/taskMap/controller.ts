@@ -11,6 +11,12 @@ import { distanceMilesBetween } from '@/utils/geoDistance'
 import { MARKETPLACE_MAP_MOTION_MS } from '../marketplaceMap/motion'
 import { mountMapFadeOverlay } from '../marketplaceMap/overlay/overlay'
 import {
+  APPROX_ZONE_LAYERS,
+  APPROX_ZONE_PAINT,
+  approxZoneCameraKey,
+  approxZoneKey,
+} from './approxZone'
+import {
   CLUSTER_SOURCE_ID,
   TASK_STACK_LIMIT,
   type TaskCluster,
@@ -32,6 +38,7 @@ import {
 } from './pin'
 import { pinMotionEnabled } from './pin/animation'
 import type { TaskMapPropsSnapshot, TaskMapTask } from './types'
+import { syncZoneCircle } from './zoneCircle'
 
 const MAP_MIN_ZOOM = 10
 const MAP_MAX_ZOOM = 17
@@ -136,6 +143,8 @@ export function createTaskMapController(args: {
   let lastSelectedId: string | null = null
   let lastRouteKey = ''
   let lastSelectionFlyKey = ''
+  let lastZoneKey = ''
+  let lastZoneCameraKey = ''
   let lastSearchUiSig = ''
   let didInitialCamera = false
   let prevVisible = false
@@ -281,7 +290,8 @@ export function createTaskMapController(args: {
   const syncReferenceMarker = () => {
     if (!map || !mapboxMod) return
     const p = getProps()
-    if (p.showReferenceMarker === false) {
+    // An approximate zone never shows the viewer's search centre beside it.
+    if (p.showReferenceMarker === false || p.approxZone) {
       referenceMarker?.remove()
       referenceMarker = null
       return
@@ -305,9 +315,12 @@ export function createTaskMapController(args: {
     zoom: number
     offset: [number, number]
     padding: { top: number; right: number; bottom: number; left: number }
+    /** False (reduced motion) jumps there in no time. Defaults to true. */
+    animate?: boolean
   }) => {
     if (!map) return
-    const duration = didInitialCamera ? CAMERA_FLY_MS : 0
+    const duration =
+      didInitialCamera && args.animate !== false ? CAMERA_FLY_MS : 0
     didInitialCamera = true
     map.stop()
     beginProgrammaticMove(duration + 400)
@@ -425,6 +438,8 @@ export function createTaskMapController(args: {
     const selectedIdForPins = p.selectedTaskId ?? null
     return p.tasks.flatMap((task) => {
       if (pinMode === 'none') return []
+      // The zone's task is a circle, never a pin (browse handoff included).
+      if (p.approxZone && task.id === p.approxZone.taskId) return []
       if (pinMode === 'solo' && task.id !== selectedIdForPins) return []
       const ll = taskLngLat(task)
       return ll ? [{ task, ...ll }] : []
@@ -656,8 +671,9 @@ export function createTaskMapController(args: {
     const ll = task ? taskLngLat(task) : null
     const token = p.selectedTaskSelectionToken ?? 0
 
-    // Approximate-location pins (worker mode) never draw a driving route.
-    const routeEnabled = p.navRouteEnabled ?? true
+    // Approximate-location pins (worker mode) and an approximate zone never
+    // draw a driving route.
+    const routeEnabled = (p.navRouteEnabled ?? true) && !p.approxZone
     const routeKey =
       selectedId && ll && routeEnabled ? `${selectedId}|${token}` : ''
     if (routeKey !== lastRouteKey) {
@@ -695,7 +711,81 @@ export function createTaskMapController(args: {
     })
   }
 
+  // ----------------------------------------------------------- approx zone
+
+  /**
+   * Task detail's approximate area (FE-472): the circle, and the camera that
+   * fits it in the padding window. Draws only for an `approxZone` on the
+   * detail camera, so `/search` never adds the layers. The circle swaps in and
+   * out instantly; only the camera pans (the first camera is instant, and with
+   * reduced motion every one is).
+   */
+  const syncApproxZone = () => {
+    if (!map) return
+    const p = getProps()
+    const zone = p.cameraMode === 'detail' ? (p.approxZone ?? null) : null
+
+    const zoneKey = approxZoneKey(zone)
+    if (zoneKey !== lastZoneKey) {
+      const hadZone = lastZoneKey !== ''
+      try {
+        if (zone) {
+          syncZoneCircle(
+            map,
+            APPROX_ZONE_LAYERS,
+            { lat: zone.lat, lng: zone.lng },
+            zone.radiusM,
+            APPROX_ZONE_PAINT,
+          )
+        } else if (hadZone) {
+          syncZoneCircle(map, APPROX_ZONE_LAYERS, null)
+        }
+        lastZoneKey = zoneKey
+      } catch {
+        // The style is not done loading: the next sync (or style.load) retries.
+      }
+    }
+
+    const cameraKey = approxZoneCameraKey(zone, viewPaddingSig(p.viewPadding))
+    if (cameraKey === lastZoneCameraKey) return
+    lastZoneCameraKey = cameraKey
+    if (!zone) return
+
+    const pad = p.viewPadding ?? zeroPadding()
+    setShowSearchThisArea(false)
+    flyCamera({
+      center: [zone.lng, zone.lat],
+      zoom: Math.min(MAP_MAX_ZOOM, Math.max(MAP_MIN_ZOOM, zone.zoom)),
+      offset: [0, 0],
+      padding: {
+        top: pad.top ?? 0,
+        right: pad.right ?? 0,
+        bottom: pad.bottom ?? 0,
+        left: pad.left ?? 0,
+      },
+      animate: pinMotionEnabled(),
+    })
+  }
+
   // ------------------------------------------------------------------ sync
+
+  /**
+   * No pins at all on the detail camera (an approximate viewer, or one not
+   * known yet, FE-472) must not wait for the style: pins, the You marker and a
+   * route are things a stale browse layer left on screen, and a wait for
+   * `idle` (tiles loading after a fly) is how long they would stay. Markers
+   * are DOM, so they go now; the circle and its camera do not need the tiles
+   * either.
+   */
+  const syncNoPinsNow = () => {
+    syncReferenceMarker()
+    syncMarkers()
+    if (lastRouteKey !== '') {
+      lastRouteKey = ''
+      navRoute.clearRoute({ force: true })
+    }
+    syncApproxZone()
+  }
 
   const sync = () => {
     if (cancelled || !map) return
@@ -704,6 +794,13 @@ export function createTaskMapController(args: {
     // (else a selection made then, like the carousel's first card, never
     // shows on its pin).
     if (!map.isStyleLoaded()) {
+      const early = getProps()
+      if (
+        early.cameraMode === 'detail' &&
+        (early.taskPinMode ?? 'all') === 'none'
+      ) {
+        syncNoPinsNow()
+      }
       syncDeferred = true
       return
     }
@@ -727,6 +824,7 @@ export function createTaskMapController(args: {
     syncClusterData()
     applyClusterView()
     syncSelectionFly()
+    syncApproxZone()
     // More pages (or a new search) change how far the loaded tasks reach.
     if (p.searchCoverageMiles !== lastSearchCoverage) {
       lastSearchCoverage = p.searchCoverageMiles
@@ -779,6 +877,8 @@ export function createTaskMapController(args: {
         // Style reload drops the cluster source; re-add it on the next sync.
         lastClusterDataSig = null
         lastClusterViewSig = ''
+        // ...and the approximate circle (a theme switch reloads the style).
+        lastZoneKey = ''
         // Style reload drops GeoJSON layers — re-sync the nav route.
         navRoute.onStyleReload()
         navRoute.flushWhenReady()

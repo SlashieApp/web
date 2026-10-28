@@ -145,7 +145,12 @@ export type TaskMapNavRouteController = {
   refreshForSearchCenter: () => void
   onStyleReload: () => void
   flushWhenReady: () => void
-  clearRoute: () => void
+  /**
+   * Clear the line. While tiles load it waits for the next idle, unless
+   * `force`: a line that must not stay (an approximate viewer's task page,
+   * FE-472) is cleared now, and falls back to the idle if that throws.
+   */
+  clearRoute: (options?: { force?: boolean }) => void
   destroy: () => void
 }
 
@@ -226,7 +231,7 @@ export function createTaskMapNavRouteController(args: {
     animFrame = requestAnimationFrame(tick)
   }
 
-  const clearRoute = () => {
+  const clearRoute = (options?: { force?: boolean }) => {
     routeRequestId += 1
     abort?.abort()
     abort = null
@@ -241,7 +246,14 @@ export function createTaskMapNavRouteController(args: {
     // Tiles loading mid-fly make the style read as busy. Clear on the next
     // idle (flushWhenReady) instead of leaving the old line drawn.
     needsFlushWhenReady = drawn && busy
-    if (map && drawn && !busy) clearTaskMapNavRouteData(map)
+    if (map && drawn && (!busy || options?.force)) {
+      try {
+        clearTaskMapNavRouteData(map)
+        needsFlushWhenReady = false
+      } catch {
+        needsFlushWhenReady = true
+      }
+    }
   }
 
   const applyRoute = (
@@ -394,6 +406,6 @@ export function createTaskMapNavRouteController(args: {
     },
     flushWhenReady,
     clearRoute,
-    destroy: clearRoute,
+    destroy: () => clearRoute(),
   }
 }

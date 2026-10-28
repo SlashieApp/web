@@ -23,6 +23,19 @@ export type TaskMapTask = {
   avatarUrl?: string | null
 }
 
+/**
+ * The approximate area of one task on the detail map (FE-472): a circle of
+ * `radiusM` metres around the task's `location` as the API returned it (the
+ * fixed public point), and the zoom that fits it in its window. No pin.
+ */
+export type TaskMapApproxZone = {
+  taskId: string
+  lat: number
+  lng: number
+  radiusM: number
+  zoom: number
+}
+
 /** Tasks at one spot that cannot split; `x`/`y` are map-container px. */
 export type TaskMapStack = { taskIds: string[]; x: number; y: number }
 
@@ -89,4 +102,10 @@ export type TaskMapPropsSnapshot = {
    * (task-detail handoff). Defaults to true.
    */
   mapInteractions?: boolean
+  /**
+   * Task detail, approximate viewers: draw a circle (and frame it) instead of
+   * a pin. Only on `cameraMode: 'detail'`; it never draws a route, the You
+   * marker or a pin for that task.
+   */
+  approxZone?: TaskMapApproxZone | null
 }

@@ -71,6 +71,7 @@ export type {
 } from './pinsPath/pinsPath'
 
 export {
+  confirmedTaskLocationAccess,
   publishedMarketplaceLayerSig,
   resolveMarketplaceMapLayer,
   shouldKeepBrowseMarketplaceMap,
@@ -78,4 +79,5 @@ export {
 export type {
   MarketplaceMapCameraMode,
   MarketplaceMapPublishedLayer,
+  TaskLocationMapAccess,
 } from './layer'

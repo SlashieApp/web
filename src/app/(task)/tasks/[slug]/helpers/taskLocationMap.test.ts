@@ -34,8 +34,13 @@ describe('task detail Mapbox chrome', () => {
     expect(binder).toContain('shouldKeepBrowseMarketplaceMap')
     expect(binder).toContain('taskDetailSearchRouteOriginFromLocationSearch')
     expect(binder).toContain('buildTaskDetailMapPinTask')
+    // The layer follows what the viewer may see (FE-472): the pin for the
+    // exact viewers, the circle with no pin for everyone else.
     expect(binder).toContain("variant: 'exact'")
+    expect(binder).toContain("variant: 'approximate'")
     expect(binder).toContain('selectedTaskId: task.id')
+    expect(binder).toContain('locationAccess')
+    expect(binder).toContain('usePublishTaskLocationAccess')
     expect(binder).not.toContain('taskDetailShowsExactLocation')
     expect(binder).toContain('origin')
     expect(binder).toContain('showReferenceMarker')
@@ -46,6 +51,41 @@ describe('task detail Mapbox chrome', () => {
     expect(host).toContain('heldPropsRef')
     expect(host).toContain('framingTaskId')
     expect(binder).toContain('keepBrowse')
+  })
+
+  it('gives an approximate viewer no pin, no route, no You marker, and no search origin', () => {
+    const binder = readFileSync(
+      join(dir, '../components/layout/TaskDetailMapBinder.tsx'),
+      'utf8',
+    )
+    const start = binder.indexOf("if (locationAccess === 'approximate') {")
+    const end = binder.indexOf('const origin', start)
+    expect(start).toBeGreaterThan(-1)
+    expect(end).toBeGreaterThan(start)
+    const approximate = binder.slice(start, end)
+    expect(approximate).toContain("variant: 'approximate'")
+    expect(approximate).toContain('tasks: []')
+    expect(approximate).toContain('selectedTaskId: null')
+    expect(approximate).toContain('showReferenceMarker: false')
+    expect(approximate).toContain('navRouteEnabled: false')
+    // Centred on `location`: never the search origin, the order or a pin.
+    expect(approximate).toContain('centerLat: lat')
+    expect(approximate).not.toContain('origin')
+    expect(approximate).not.toContain('myOrder')
+    expect(approximate).not.toContain('buildTaskDetailMapPinTask')
+    // Nothing is published before the viewer is known.
+    expect(binder).toContain("if (locationAccess === 'pending') return null")
+  })
+
+  it('takes the order snapshot only inside the exact branch', () => {
+    const binder = readFileSync(
+      join(dir, '../components/layout/TaskDetailMapBinder.tsx'),
+      'utf8',
+    )
+    expect(binder).toContain("locationAccess === 'exact'")
+    expect(binder).toMatch(
+      /taskDetailMapCoordinates\(\s*task,\s*myOrder,\s*locationAccess === 'exact'/,
+    )
   })
 
   it('keeps the camera on the task pin and only routes from a search-page origin', () => {
