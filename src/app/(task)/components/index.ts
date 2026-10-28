@@ -3,6 +3,7 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
+export { ApproximateAreaPill } from './ui/ApproximateAreaPill'
 export { BrowseGeolocationInit } from './analytics/BrowseGeolocationInit'
 export {
   FilterChip,

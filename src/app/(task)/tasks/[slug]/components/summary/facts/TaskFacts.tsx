@@ -3,10 +3,7 @@
 import {
   Box,
   Grid,
-  HStack,
   Image,
-  Popover,
-  Portal,
   Skeleton,
   Stack,
   Text,
@@ -19,7 +16,6 @@ import {
   LuCalendarCheck,
   LuCalendarClock,
   LuCreditCard,
-  LuInfo,
   LuMapPin,
   LuTag,
   LuUser,
@@ -56,7 +52,6 @@ const DESCRIPTION_LINES = 6
 const DATE_LOCALE = { en: 'en-GB', 'zh-hk': 'zh-HK' } as const
 const MINUTE_MS = 60_000
 
-const HintButton = chakra('button')
 const PhotoButton = chakra('button')
 
 function subscribeMinute(onChange: () => void) {
@@ -108,58 +103,6 @@ function TimeBadges({
         </Badge>
       ) : null}
     </Wrap>
-  )
-}
-
-/** Info icon next to an approximate address: shows the note on hover or tap. */
-function LocationHint({ label, note }: { label: string; note: string }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <Popover.Root
-      open={open}
-      onOpenChange={(e) => setOpen(e.open)}
-      positioning={{ placement: 'top', gutter: 6 }}
-    >
-      <Popover.Trigger asChild>
-        <HintButton
-          type="button"
-          aria-label={label}
-          display="inline-flex"
-          alignItems="center"
-          justifyContent="center"
-          boxSize="28px"
-          m="-4px"
-          borderRadius="full"
-          color="text.muted"
-          cursor="pointer"
-          verticalAlign="middle"
-          _hover={{ color: 'text.default' }}
-          _focusVisible={sdlFocusRing}
-          onPointerEnter={(e) => {
-            if (e.pointerType === 'mouse') setOpen(true)
-          }}
-          onPointerLeave={(e) => {
-            if (e.pointerType === 'mouse') setOpen(false)
-          }}
-        >
-          <LuInfo size={16} aria-hidden />
-        </HintButton>
-      </Popover.Trigger>
-      <Portal>
-        <Popover.Positioner>
-          <Popover.Content maxW="280px" borderRadius="xl" boxShadow="e3">
-            <Popover.Body
-              p={3}
-              fontSize="sm"
-              fontWeight={400}
-              color="text.default"
-            >
-              {note}
-            </Popover.Body>
-          </Popover.Content>
-        </Popover.Positioner>
-      </Portal>
-    </Popover.Root>
   )
 }
 
@@ -459,8 +402,9 @@ function mapsDirectionsUrl(lat: number, lng: number): string {
 }
 
 /**
- * "Near {town}" with an info icon for everyone else; the exact address for
- * the poster and the booked worker (who also gets Open in Maps).
+ * "Near {town}" for everyone else (the map shows the approximate area and
+ * says so); the exact address for the poster and the booked worker (who also
+ * gets Open in Maps).
  */
 export function LocationFact() {
   const { task, seed, myOrder, permissions, locationAccess } = useTaskDetail()
@@ -500,17 +444,11 @@ export function LocationFact() {
           ) : null}
         </Stack>
       ) : (
-        <HStack as="span" gap={1.5} display="inline-flex" flexWrap="wrap">
-          <span>
-            {formatMessage(t.details.nearTown, {
-              town: taskDetailLocationTown(label),
-            })}
-          </span>
-          <LocationHint
-            label={t.details.locationHint}
-            note={t.details.locationApproxNote}
-          />
-        </HStack>
+        <span>
+          {formatMessage(t.details.nearTown, {
+            town: taskDetailLocationTown(label),
+          })}
+        </span>
       )}
     </DetailRow>
   )

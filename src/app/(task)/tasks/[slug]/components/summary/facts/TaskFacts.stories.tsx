@@ -12,6 +12,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import type { ComponentType } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { Card } from '@ui'
 
 import { withTaskDetailStory } from '../../../helpers/taskDetailStoryDecorator'
@@ -341,26 +342,49 @@ export const BookedStarted: Story = fact(BookedTimeFact, {
 
 // -------------------------------------------------------------- location
 
-/** A visitor sees "Near" the town, with an info icon explaining why. */
+/**
+ * A visitor sees "Near" the town and nothing else: no info icon, no popover.
+ * The map says it is approximate (the pill and the circle).
+ */
 export const LocationApproximate: Story = {
   ...fact(LocationFact, { ...visitor }),
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Near Westminster')
+    const canvas = within(canvasElement)
+    await canvas.findByText('Near Westminster')
+    // The row has no button, no hint text and no popover to open.
+    await expect(canvas.queryByRole('button')).toBeNull()
+    await expect(canvas.queryByText(/About this location/)).toBeNull()
+    await expect(canvas.queryByText(/Approximate area/)).toBeNull()
   },
 }
 
-/** Hovering the info icon opens the note about the approximate area. */
-export const LocationHintOpen: Story = {
+/** The same row in Traditional Chinese, from the `/zh-hk` prefix. */
+export const LocationApproximateZhHk: Story = {
   ...fact(LocationFact, { ...visitor }),
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/tasks/task-1' } } },
+  decorators: [
+    withTaskDetailStory(visitor, { maxWidth: '640px' }),
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
   play: async ({ canvasElement }) => {
-    await userEvent.hover(
-      await within(canvasElement).findByRole('button', {
-        name: 'About this location',
-      }),
-    )
-    await within(canvasElement.ownerDocument.body).findByText(
-      /Approximate area/,
-    )
+    const canvas = within(canvasElement)
+    await canvas.findByText('Westminster附近')
+    await expect(canvas.queryByRole('button')).toBeNull()
+  },
+}
+
+/** A worker whose quote is still pending sees the town too, never the address. */
+export const LocationPendingQuote: Story = {
+  ...fact(LocationFact, { viewer: 'worker' }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Near Westminster')
+    await expect(canvas.queryByText(/12 Example Street/)).toBeNull()
+    await expect(canvas.queryByRole('button')).toBeNull()
   },
 }
 
