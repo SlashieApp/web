@@ -387,7 +387,7 @@ function ProgressConnector({ done }: { done: boolean }) {
       mx={-1}
       borderTopWidth="2px"
       borderTopStyle={done ? 'solid' : 'dashed'}
-      borderTopColor={done ? 'action.primary' : 'neutral.300'}
+      borderTopColor={done ? 'accent.active' : 'border.strong'}
       aria-hidden
     />
   )

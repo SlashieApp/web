@@ -20,6 +20,11 @@ export const PIN = {
   greenBright: BRAND_PRIMARY_HOVER,
   greenSoft: brandPrimary[400],
   greenPale: BRAND_PRIMARY_SOFT_BG,
+  /**
+   * Price text on a white pin: green 800 (6.9:1, `text.link`). Green 400 is
+   * 1.8:1 on white, a fill only (FE-469), so it stays on the dot and ring.
+   */
+  greenText: brandPrimary[800],
   /* Raw Mapbox/DOM consumer — hexes match `text.muted` / `border.default`. */
   textMuted: '#52525B',
   border: '#E4E4E7',
@@ -90,7 +95,7 @@ export function mountPersonAvatarStyles(
     borderRadius: '50%',
     overflow: 'hidden',
     background: BRAND_PRIMARY_SOFT_BG,
-    color: PIN.green,
+    color: PIN.greenText,
     fontSize: '9px',
     fontWeight: '600',
     lineHeight: '1',
@@ -170,7 +175,7 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
     fontWeight: '600',
     fontVariantNumeric: 'tabular-nums',
     lineHeight: '1.1',
-    color: PIN.green,
+    color: PIN.greenText,
     marginBottom: dom.milesEl ? '2px' : '0',
     whiteSpace: 'nowrap',
   })
@@ -259,7 +264,7 @@ export function applyPinVisualState(
     fontWeight: '600',
     fontVariantNumeric: 'tabular-nums',
     lineHeight: '1.2',
-    color: PIN.green,
+    color: PIN.greenText,
     whiteSpace: 'nowrap',
     textAlign: 'center',
   })

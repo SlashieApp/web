@@ -149,7 +149,7 @@ export const WithTags: Story = {
   },
 }
 
-/** A booked job: the time leads the meta line in bold. */
+/** A booked job: the time leads the meta line as a figure (600, tabular, ink). */
 export const BookedTimeLeads: Story = {
   args: {
     task: { ...defaultTask, timingLabel: 'Today 14:00', timingTone: 'lead' },
@@ -168,7 +168,7 @@ export const WithQuotesLabel: Story = {
   args: { task: { ...defaultTask, quotesLabel: '5 quotes' } },
 }
 
-/** My tasks' Needs you: the ask in bold in place of the quote line, and one button. */
+/** My tasks' Needs you: the ask in ink, in place of the quote line, and one button. */
 export const WithAskAndAction: Story = {
   args: {
     task: {

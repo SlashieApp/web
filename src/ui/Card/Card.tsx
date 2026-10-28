@@ -75,7 +75,8 @@ function unframedCss(
  * Interactive cards (clickable rows) are keyboard-focusable and show the SDL
  * focus ring; surface hover uses `bg.subtle`. Pointer-down scales the card
  * ~0.97 in 100ms (no scale when reduced motion is on). Active/selected cards
- * highlight the border with `action.primary`.
+ * highlight the border with `accent.active` (green 600: a thin line is never
+ * green 400, which is 1.8:1 on white).
  */
 const cardSurface: SystemStyleObject = sdlCardSurface
 
@@ -205,7 +206,7 @@ function CardTitleBlock({
 export function Card({
   children,
   isActive = false,
-  activeBorderColor = 'action.primary',
+  activeBorderColor = 'accent.active',
   interactive = false,
   layout = 'default',
   eyebrow,

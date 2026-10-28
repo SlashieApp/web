@@ -228,7 +228,7 @@ export const UnreadOver99: Story = {
   },
 }
 
-/** My tasks active: on /tasks the My tasks item turns green and is the current page. */
+/** My tasks active: on /tasks the My tasks item is ink (inactive items are text.subtle) and is the current page. The Post task button is the only green. */
 export const MyTasksActive: Story = {
   parameters: { nextjs: { navigation: { pathname: '/tasks' } } },
   render: () => (
@@ -237,9 +237,16 @@ export const MyTasksActive: Story = {
     </Screen>
   ),
   play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole('link', { name: 'My tasks' }),
-    ).toHaveAttribute('aria-current', 'page')
+    const active = within(canvasElement).getByRole('link', { name: 'My tasks' })
+    await expect(active).toHaveAttribute('aria-current', 'page')
+    // The active tab is ink and the others text.subtle: no green on the bar
+    // but the Post task button.
+    await expect(getComputedStyle(active).color).toBe('rgb(10, 21, 18)')
+    const inactive = within(canvasElement).getByRole('link', { name: 'Search' })
+    await expect(getComputedStyle(inactive).color).toBe('rgb(107, 107, 116)')
+    const label = active.querySelector('p')
+    if (!label) throw new Error('No tab label')
+    await expect(getComputedStyle(label).fontWeight).toBe('500')
   },
 }
 
@@ -258,7 +265,7 @@ export const PostTaskActive: Story = {
   },
 }
 
-/** Messages active: on /messages the Messages item turns green and is the current page. */
+/** Messages active: on /messages the Messages item turns ink and is the current page. */
 export const MessagesActive: Story = {
   parameters: { nextjs: { navigation: { pathname: '/messages' } } },
   render: () => (

@@ -41,7 +41,11 @@ Light roles (FE-469): `text.muted` `#52525B`, `text.subtle` `#6B6B74` (5.1:1 on 
 `border.default` `#E4E4E7`, `border.strong` `#D4D4D8`, `border.hover` `#A1A1AA`. Tags take a 1px border
 from their family (`status.<family>.border`); categories are neutral. Green does a job (the main
 action, links, focus, active bars, state, map pins, selected states), never decoration: see
-Foundations/Color.
+Foundations/Color. Three rules follow from it (FE-469): a hover or press tint is `bg.subtle`, never
+mint (mint stays on a selected chip, row or tile); green 400 is a fill, so an active or selected
+border, a connector and the spinner arc are `accent.active` (green 600) and the price on a white map
+pin is green 800 (`#05683F`); and the mobile bottom nav's active tab is ink (`text.default`, 500)
+with the others `text.subtle`, so the Post task button is its only green.
 
 **Deprecated:** template blue `#1447E6` — never a primary CTA. Currently **0 usages** in `src/`.
 

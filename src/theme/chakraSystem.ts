@@ -343,7 +343,13 @@ export const darkSemanticColors = {
   bg: {
     canvas: { value: { base: '#0C1310' } },
     surface: { value: { base: '#121A16' } },
-    subtle: { value: { base: '#18221E' } },
+    /**
+     * `_light` and `_dark` as well as `base`, as in the light system: Chakra's
+     * own `bg.subtle` (gray.50, gray.950) is kept beside ours and wins on
+     * `<html class="dark">`, so `base` alone renders gray.950 (FE-469). The
+     * value is unchanged in Train 1.
+     */
+    subtle: { value: { base: '#18221E', _light: '#18221E', _dark: '#18221E' } },
     raised: { value: { base: '#1F2A25' } },
     /** Scrim behind modals/drawers - deeper wash for dark surfaces. */
     overlay: { value: { base: 'rgba(4, 8, 6, 0.7)' } },

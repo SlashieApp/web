@@ -5,6 +5,7 @@ import {
   PIN_Z_INDEX,
   type PinDom,
   applyPinVisualState,
+  mountPinStaticStyles,
   pinDotVisual,
   pinStackZIndex,
 } from './styles'
@@ -84,5 +85,25 @@ describe('applyPinVisualState', () => {
     expect(dom.pinDot.style.opacity).toBe('1')
     expect(dom.popupShell.style.maxHeight).toBe('0px')
     expect(dom.pricePillWrap.style.opacity).toBe('1')
+  })
+})
+
+describe('price text on a white pin', () => {
+  it('is green 800, because green 400 is 1.8:1 on white (a fill only)', () => {
+    expect(PIN.greenText).toBe('#05683F')
+    expect(PIN.greenText).not.toBe(PIN.green)
+
+    const dom = mockPinDom()
+    mountPinStaticStyles(dom, false)
+    applyPinVisualState(
+      dom,
+      { selected: true, expanded: true, showPill: true },
+      false,
+    )
+    expect(dom.priceEl.style.color).toBe(PIN.greenText)
+    expect(dom.pricePill.style.color).toBe(PIN.greenText)
+    // The pill stays white, selected or not; the dot keeps the green fill.
+    expect(dom.pricePillWrap.style.background).toBe(PIN.white)
+    expect(dom.pinDot.style.background).toBe(PIN.greenBright)
   })
 })

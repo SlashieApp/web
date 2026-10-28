@@ -187,8 +187,8 @@ function PriceColumn({
       textAlign="center"
       borderRadius="lg"
       borderWidth="1px"
-      borderColor={highlight ? 'status.success.solid' : 'border.default'}
-      bg={highlight ? 'status.success.soft' : 'bg.subtle'}
+      borderColor={highlight ? 'accent.active' : 'border.default'}
+      bg={highlight ? 'bg.surface' : 'bg.subtle'}
     >
       <Text {...sdlEyebrow}>{label}</Text>
       <Text

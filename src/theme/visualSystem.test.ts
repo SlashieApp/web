@@ -2,7 +2,12 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { darkSemanticColors, lightSemanticColors, system } from './chakraSystem'
+import {
+  darkSemanticColors,
+  darkSystem,
+  lightSemanticColors,
+  system,
+} from './chakraSystem'
 import {
   sdlCard,
   sdlCardSurface,
@@ -209,6 +214,10 @@ describe('tone refresh tokens (Train 1)', () => {
     }
   })
 
+  it('keeps no green-tinted neutral: muted text on dark surfaces is zinc 300', () => {
+    expect(sdlTextAa.invertedMuted).toBe(system.token('colors.neutral.300'))
+  })
+
   it('sets the light roles', () => {
     expect(light('bg', 'canvas')).toBe('#FAFAFA')
     expect(light('bg', 'surface')).toBe('#FFFFFF')
@@ -287,6 +296,14 @@ describe('light roles render as declared', () => {
     const conditions = system.tokens.getByName('colors.bg.subtle')?.extensions
       .conditions as Record<string, string>
     expect(conditions._light).toBe('#F4F4F5')
+  })
+
+  it('renders the dark bg.subtle as #18221E, not Chakra gray.950 (dark values are unchanged)', () => {
+    const conditions = darkSystem.tokens.getByName('colors.bg.subtle')
+      ?.extensions.conditions as Record<string, string>
+    expect(conditions.base).toBe('#18221E')
+    expect(conditions._dark).toBe('#18221E')
+    expect(conditions._light).toBe('#18221E')
   })
 })
 
@@ -526,6 +543,7 @@ describe('decorative washes', () => {
     'src/app/(task)/components/ui/TaskCardWorkerQuote.tsx',
     'src/app/(task)/tasks/[slug]/components/layout/TaskDetailView.tsx',
     'src/app/(task)/tasks/[slug]/components/summary/facts/BookingFacts.tsx',
+    'src/app/(task)/tasks/[slug]/components/summary/facts/TaskFacts.tsx',
     'src/app/(task)/tasks/[slug]/components/ui/TaskSectionSheet.tsx',
   ]
 
@@ -552,6 +570,131 @@ describe('decorative washes', () => {
       'utf8',
     )
     expect(verified).toContain('tone="success"')
+  })
+})
+
+describe('shape: sheets and dialogs keep their corners (FE-469 D4)', () => {
+  // The spec's Shape table says "20 (unchanged)", but the website's dialogs and
+  // sheets were 12px (`lg`) before the tone refresh and the app matches them.
+  // Ryan decided on 28 Oct to keep the current radius, so the two apps agree.
+  it('is 12px: the Modal dialog and every Drawer placement use radii.lg', () => {
+    expect(system.token('radii.lg')).toBe('12px')
+    const modal = readFileSync(
+      join(process.cwd(), 'src/ui/Modal/Modal.tsx'),
+      'utf8',
+    )
+    expect(modal).toMatch(
+      /<DialogContent[^>]*\n\s*bg="bg.surface"\n\s*borderRadius="lg"/,
+    )
+    const drawer = readFileSync(
+      join(process.cwd(), 'src/ui/Drawer/Drawer.tsx'),
+      'utf8',
+    )
+    for (const side of [
+      'borderLeftRadius',
+      'borderRightRadius',
+      'borderTopRadius',
+      'borderBottomRadius',
+    ]) {
+      expect(drawer).toContain(`{ ${side}: 'lg' }`)
+    }
+  })
+})
+
+describe('green 400 is a fill, never a thin line (FE-469 D5)', () => {
+  // Green 400 is 1.8:1 on white. Active and selected borders, connectors and
+  // the spinner arc are green 600 (`accent.active`, 3.2:1 for UI). A border that
+  // sits on a green 400 fill (a checked box, a selected date) is part of that
+  // fill and stays.
+  const LINES = [
+    'src/ui/Card/Card.tsx',
+    'src/ui/SlideToConfirm/SlideToConfirm.tsx',
+    'src/ui/LanguageSwitcher/LanguageSwitcher.tsx',
+    'src/ui/RadioButton/RadioButton.tsx',
+    'src/app/(stepflow)/worker/setup/components/ui/inputs/WorkerSetupCategoryTiles.tsx',
+    'src/app/(task)/components/ui/TaskCardWorkerQuote.tsx',
+    'src/app/(task)/tasks/[slug]/components/summary/facts/TaskFacts.tsx',
+  ]
+
+  it('draws those lines in accent.active', () => {
+    for (const file of LINES) {
+      const source = readFileSync(join(process.cwd(), file), 'utf8')
+      expect(source, file).toContain('accent.active')
+      expect(source, file).not.toMatch(
+        /border\w*Color[=:][^\n]*(action\.primary|status\.success\.solid)/i,
+      )
+    }
+  })
+
+  it('draws the search spinner arc in accent.active', () => {
+    const search = readFileSync(
+      join(process.cwd(), 'src/app/(task)/components/ui/TaskSearch.tsx'),
+      'utf8',
+    )
+    expect(search).toContain('<Spinner size="xs" color="accent.active"')
+  })
+
+  it('has no price text in green 400 on the white map pin: it is green 800', () => {
+    const styles = readFileSync(
+      join(process.cwd(), 'src/app/(task)/helpers/taskMap/pin/styles.ts'),
+      'utf8',
+    )
+    expect(styles).not.toMatch(/color: PIN\.green,/)
+    expect(styles.match(/color: PIN\.greenText,/g)).toHaveLength(3)
+  })
+
+  it('reads the quote timeline from semantic roles, not the neutral primitive (D6)', () => {
+    const quote = readFileSync(
+      join(
+        process.cwd(),
+        'src/app/(task)/components/ui/TaskCardWorkerQuote.tsx',
+      ),
+      'utf8',
+    )
+    expect(quote).toContain("'border.strong'")
+    expect(quote).not.toMatch(/['"]neutral\.\d+['"]/)
+  })
+})
+
+describe('neutral hover and press tints (FE-469 D3)', () => {
+  // A hover or press tint is `bg.subtle`, not mint. Mint is for state: a
+  // selected chip, row or tile keeps `status.success.soft`.
+  const HOVERS = [
+    'src/ui/Header/Header.tsx',
+    'src/ui/IconButton/IconButton.tsx',
+    'src/ui/RadioButton/RadioButton.tsx',
+    'src/ui/MobileBottomNav/MobileBottomNav.tsx',
+    'src/ui/FeedbackDialog/StarRatingInput.tsx',
+    'src/app/(marketing)/components/layout/MarketingHeader.tsx',
+    'src/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskCategoriesInput.tsx',
+    'src/app/(stepflow)/worker/setup/components/ui/inputs/WorkerSetupChipsField.tsx',
+    'src/app/(stepflow)/worker/setup/components/ui/inputs/WorkerSetupBioComposer.tsx',
+  ]
+
+  it('has no mint in a hover style', () => {
+    for (const file of HOVERS) {
+      const source = readFileSync(join(process.cwd(), file), 'utf8')
+      const bodies = [
+        ...source.matchAll(
+          /(?:_hover|rowHover|ghostSurfaceHover)\s*[=:]\s*\{\{?([^}]*)\}/g,
+        ),
+      ].map((match) => match[1])
+      expect(bodies.length, file).toBeGreaterThan(0)
+      for (const body of bodies) {
+        expect(body, file).not.toContain('status.success.soft')
+      }
+    }
+  })
+
+  it('keeps the bottom nav neutral: the Post task button is its only green', () => {
+    const nav = readFileSync(
+      join(process.cwd(), 'src/ui/MobileBottomNav/MobileBottomNav.tsx'),
+      'utf8',
+    )
+    // The active tab is ink and the others text.subtle.
+    expect(nav).toContain("active ? 'text.default' : 'text.subtle'")
+    expect(nav).not.toMatch(/status\.success\.(fg|soft)/)
+    expect(nav).not.toContain("'text.muted'")
   })
 })
 

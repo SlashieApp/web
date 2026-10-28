@@ -50,7 +50,7 @@ Core principle: clarity over decoration.
 
 - Primary logo: green rounded square with white slash/dollar-style mark.
 - Wordmark: lowercase `slashie`.
-- Brand accent: green. It marks the main action, links, focus rings, map pins and success, never a background wash or decoration.
+- Brand accent: green. It marks the main action, links, focus rings, map pins and success, never a background wash or decoration. Green 400 (`#00DC82`) is a fill only: a thin line (active or selected border, connector, spinner arc) is green 600 (`accent.active`), text is green 800 (`text.link`), and a hover or press tint is `bg.subtle`, not mint.
 - Tone: practical, local, clean, confident, money-aware.
 
 Use the slash motif where meaningful, but do not over-decorate the interface.

@@ -85,9 +85,9 @@ export function WorkerSetupBioComposer({
               transitionDuration={sdlMotion.duration.base}
               transitionTimingFunction={sdlMotion.easing.standard}
               _hover={{
-                bg: 'status.success.soft',
-                borderColor: 'status.success.border',
-                color: 'status.success.fg',
+                bg: 'bg.subtle',
+                borderColor: 'border.hover',
+                color: 'text.default',
               }}
               _focusVisible={sdlFocusRing}
             >

@@ -93,7 +93,7 @@ function DesktopPrimaryNav({ signedIn }: { signedIn: boolean }) {
     px: 2,
     py: 1,
     borderRadius: 'md',
-    _hover: { textDecoration: 'none', bg: 'status.success.soft' },
+    _hover: { textDecoration: 'none', bg: 'bg.subtle' },
   } as const
 
   const items = [

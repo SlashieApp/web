@@ -32,8 +32,8 @@ const TITLE = 'Mount bookshelf on living room wall'
 const LONG_TITLE =
   'Mount a floating bookshelf, three picture rails and a TV bracket across the living room and hallway before the weekend'
 
-/** The title's line: 34px at 1.2. */
-const LINE = 34 * 1.2
+/** The title's line: heading-xl is 34/41. */
+const LINE = 41
 
 /** What task details puts around the title: the page header, clamping it to 3 lines. */
 function TitleInHeader({ children }: { children: ReactNode }) {

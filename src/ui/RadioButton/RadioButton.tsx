@@ -134,7 +134,8 @@ function variantVisual(variant: SdlVariant): RadioVisual {
       dotBg: 'text.default',
     }
   }
-  // primary: SDL success tint when selected, green ink (status.success.fg).
+  // primary: SDL success tint when selected, green ink (status.success.fg). The
+  // lines (row border, ring) are green 600; green 400 is the dot's fill only.
   return {
     row: {
       bg: 'transparent',
@@ -144,11 +145,11 @@ function variantVisual(variant: SdlVariant): RadioVisual {
     rowChecked: {
       bg: 'status.success.soft',
       color: 'status.success.fg',
-      borderColor: 'status.success.solid',
+      borderColor: 'accent.active',
     },
-    rowHover: { bg: 'status.success.soft' },
+    rowHover: { bg: 'bg.subtle' },
     indicatorBorder: 'border.default',
-    indicatorBorderChecked: 'status.success.solid',
+    indicatorBorderChecked: 'accent.active',
     dotBg: 'status.success.solid',
   }
 }
@@ -193,7 +194,7 @@ export function RadioButton({
       transitionProperty="color, background-color, border-color, box-shadow"
       transitionDuration={sdlMotion.duration.moderate}
       transitionTimingFunction={sdlMotion.easing.standard}
-      _hover={disabled ? undefined : visual.rowHover}
+      _hover={disabled || checked ? undefined : visual.rowHover}
       _focusVisible={sdlFocusRing}
       _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
       {...sizing.row}

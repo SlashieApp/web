@@ -95,7 +95,7 @@ export function EmailVerificationModal({
               fontSize="sm"
               fontWeight={500}
               color="text.link"
-              _hover={{ textDecoration: 'none', color: 'action.primaryHover' }}
+              _hover={{ textDecoration: 'none', color: 'text.link' }}
             >
               {t.checkInbox}
             </Link>

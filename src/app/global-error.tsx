@@ -45,7 +45,7 @@ export default function GlobalError({
           placeItems: 'center',
           padding: '48px 16px',
           background: '#FAFAFA',
-          color: '#111816',
+          color: '#0A1512',
           fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
         }}
       >

@@ -82,7 +82,7 @@ type Story = StoryObj<typeof meta>
 /** Solid header on a marketing page with no nav item active. */
 export const Default: Story = {}
 
-/** On `/pricing`: the Pricing link is current (bold, link colour, aria-current). */
+/** On `/pricing`: the Pricing link is current (semibold, link colour, aria-current). */
 export const PricingActive: Story = {
   parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
   play: async ({ canvasElement }) => {

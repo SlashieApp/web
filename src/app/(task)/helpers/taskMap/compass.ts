@@ -31,7 +31,7 @@ function mountCompassStyles() {
 /** Red north / grey south needle; it turns with the map so it points north. */
 const NEEDLE_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="transition:none">
 <path d="M12 2 L16 12 L8 12 Z" fill="#E5484D"/>
-<path d="M12 22 L8 12 L16 12 Z" fill="#8B9592"/>
+<path d="M12 22 L8 12 L16 12 Z" fill="#A1A1AA"/>
 </svg>`
 
 /**

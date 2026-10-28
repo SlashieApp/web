@@ -76,7 +76,7 @@ const legalHrefs = {
 } as const
 
 const linkMotion = {
-  transitionProperty: 'color, background-color',
+  transitionProperty: 'color, background-color, border-color',
   transitionDuration: sdlMotion.duration.moderate,
   transitionTimingFunction: sdlMotion.easing.standard,
 } as const
@@ -280,7 +280,7 @@ export function Footer({
                         alignItems="center"
                         justifyContent="center"
                         boxSize="44px"
-                        borderRadius="md"
+                        borderRadius="full"
                         color="text.muted"
                         _hover={{ color: 'text.link', bg: 'bg.surface' }}
                         {...linkMotion}
@@ -474,15 +474,15 @@ function FooterLanguageButton({
       alignSelf="flex-start"
       minH="44px"
       px={3}
-      borderRadius="md"
+      borderRadius="full"
       borderWidth="1px"
-      borderColor="border.default"
+      borderColor="border.strong"
       bg="bg.surface"
       fontSize="sm"
       fontWeight={500}
       color="text.default"
       cursor="pointer"
-      _hover={{ bg: 'bg.subtle' }}
+      _hover={{ bg: 'bg.subtle', borderColor: 'border.hover' }}
       _focusVisible={sdlFocusRing}
       {...linkMotion}
     >

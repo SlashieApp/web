@@ -25,7 +25,8 @@ import { Link } from '../Link'
  *
  * Two shapes, one public API (unchanged):
  * - **Nav** (`href` + `icon`, optional `caption`): route link with an
- *   active surface. Surfaces use `status.success.*` (the SDL green-tint family).
+ *   active surface. Hover and active are neutral: `bg.subtle` with ink, like
+ *   the mobile bottom nav (green is for the main action, not for state tints).
  * - **Default**: Chakra `IconButton` for ghost actions / `asChild` / drawer close.
  *   Every default IconButton keeps its `aria-label` and meets the 44px touch target.
  *
@@ -51,7 +52,7 @@ export type IconButtonProps = NavIconButtonProps | ChakraIconButtonProps
 
 /** Ghost action hover surface (default shape). */
 const ghostSurfaceHover = {
-  bg: 'status.success.soft',
+  bg: 'bg.subtle',
   color: 'text.default',
 } satisfies SystemStyleObject
 
@@ -63,8 +64,8 @@ const outlineHover = { borderColor: 'border.hover' } satisfies SystemStyleObject
 
 function navIconSurfaceInteraction(active: boolean) {
   const surface = {
-    bg: 'status.success.soft',
-    color: active ? 'status.success.fg' : 'text.default',
+    bg: 'bg.subtle',
+    color: 'text.default',
   } satisfies SystemStyleObject
   return {
     _hover: surface,
@@ -117,8 +118,8 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
             display="flex"
             alignItems="center"
             justifyContent="center"
-            bg={active ? 'status.success.soft' : 'transparent'}
-            color={active ? 'status.success.fg' : 'text.muted'}
+            bg={active ? 'bg.subtle' : 'transparent'}
+            color={active ? 'text.default' : 'text.muted'}
             py={1.5}
             px={1}
             flexShrink={0}
@@ -149,7 +150,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
                   w="full"
                   fontSize="xs"
                   fontWeight={500}
-                  color={active ? 'status.success.fg' : 'text.muted'}
+                  color={active ? 'text.default' : 'text.muted'}
                   textAlign="center"
                   lineHeight="short"
                   whiteSpace="nowrap"

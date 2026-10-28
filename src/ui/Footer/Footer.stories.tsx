@@ -45,7 +45,19 @@ type Story = StoryObj<typeof meta>
 export const Playground: Story = {}
 
 /** Full footer: brand block, primary nav, and legal row. */
-export const Default: Story = { args: { variant: 'default' } }
+export const Default: Story = {
+  args: { variant: 'default' },
+  play: async ({ canvasElement }) => {
+    // The language button is a pill with a 1px border.strong outline, like
+    // every secondary button.
+    const style = getComputedStyle(
+      within(canvasElement).getByRole('button', { name: /^Language:/ }),
+    )
+    await expect(style.borderTopLeftRadius).toBe('9999px')
+    await expect(style.borderTopWidth).toBe('1px')
+    await expect(style.borderTopColor).toBe('rgb(212, 212, 216)')
+  },
+}
 
 /** Compact single-row footer (meta + legal only). */
 export const Minimal: Story = { args: { variant: 'minimal' } }

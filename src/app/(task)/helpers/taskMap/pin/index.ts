@@ -79,7 +79,7 @@ export function referenceMarkerElement(): HTMLDivElement {
     borderRadius: '50%',
     background: BRAND_MAP_PIN,
     border: '3px solid #ffffff',
-    boxShadow: '0 0 0 2px rgba(0,220,130,0.35), 0 2px 8px rgba(15,23,42,0.25)',
+    boxShadow: '0 0 0 2px rgba(0,220,130,0.35), 0 2px 8px rgba(10,21,18,0.25)',
   })
 
   // Same pill chrome as the task price pill, inverted: green fill, white text.

@@ -21,6 +21,11 @@ export type TaskDetailSplitCtaProps = {
 /**
  * Two-part main CTA: a white text half joined to the primary action, read
  * as one control. Used when the pricing card is the main CTA.
+ *
+ * The primary half is square on purpose (`borderRadius={0}`): it is flush with
+ * the panel, whose `overflow="hidden"` and 16px corners give the pair its
+ * outline. A pill would break the fused shape, so this is the one button that
+ * is not a standalone pill (FE-469 review, kept).
  */
 export function TaskDetailSplitCta({
   eyebrow,

@@ -48,7 +48,7 @@ export function StarRatingInput({
             _hover={
               disabled
                 ? undefined
-                : { bg: 'status.success.soft', color: 'action.primary' }
+                : { bg: 'bg.subtle', color: 'action.primary' }
             }
             _focusWithin={sdlFocusRing}
           >

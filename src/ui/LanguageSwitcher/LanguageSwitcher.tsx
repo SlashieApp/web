@@ -144,7 +144,7 @@ export function LanguageSwitcher({
                       borderRadius="lg"
                       borderWidth="1px"
                       borderColor={
-                        selected ? 'action.primary' : 'border.default'
+                        selected ? 'accent.active' : 'border.default'
                       }
                       bg={selected ? 'status.success.soft' : 'bg.surface'}
                       cursor="pointer"

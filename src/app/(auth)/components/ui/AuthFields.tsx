@@ -98,7 +98,7 @@ export function AuthCheckbox({
             mt={0.5}
             borderRadius="md"
             borderWidth="1px"
-            borderColor="border.default"
+            borderColor="border.strong"
             bg="bg.surface"
             _checked={{
               bg: 'action.primary',

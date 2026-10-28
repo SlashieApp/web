@@ -136,7 +136,7 @@ export function SlideToConfirm({
       borderRadius="full"
       bg="status.success.soft"
       borderWidth={armed ? '2px' : '1px'}
-      borderColor={armed ? 'action.primary' : 'border.default'}
+      borderColor={armed ? 'accent.active' : 'border.default'}
       opacity={disabled ? 0.5 : 1}
       userSelect="none"
       overflow="hidden"

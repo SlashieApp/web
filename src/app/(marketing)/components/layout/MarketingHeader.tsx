@@ -82,7 +82,7 @@ const drawerLinkProps = {
   fontSize: 'sm',
   fontWeight: 500,
   color: 'text.default',
-  _hover: { bg: 'status.success.soft', textDecoration: 'none' },
+  _hover: { bg: 'bg.subtle', textDecoration: 'none' },
 } as const
 
 /**

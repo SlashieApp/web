@@ -196,9 +196,9 @@ export function CreateTaskCategoriesInput({
                   fontWeight={500}
                   cursor="pointer"
                   _hover={{
-                    bg: 'status.success.soft',
-                    borderColor: 'status.success.border',
-                    color: 'status.success.fg',
+                    bg: 'bg.subtle',
+                    borderColor: 'border.hover',
+                    color: 'text.default',
                   }}
                   _focusVisible={sdlFocusRing}
                   {...chipTransition}

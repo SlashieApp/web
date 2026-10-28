@@ -141,12 +141,12 @@ export const Top: Story = {
     const bar = part(canvasElement, 'bar')
     const h1 = heading(canvasElement)
     near(bar.getBoundingClientRect().height, BAR_H)
-    // The big title: 34px, 500, -0.03em, 8px under the bar, on the content's left edge.
+    // The big title: 34/41, 500, -0.03em, 8px under the bar, on the content's left edge.
     const style = getComputedStyle(h1)
     expect(style.fontSize).toBe('34px')
     expect(style.fontWeight).toBe('500')
     near(Number.parseFloat(style.letterSpacing), 34 * -0.03)
-    near(Number.parseFloat(style.lineHeight), 34 * 1.2)
+    expect(style.lineHeight).toBe('41px')
     near(
       h1.getBoundingClientRect().top,
       bar.getBoundingClientRect().bottom + TITLE_GAP,
@@ -281,7 +281,7 @@ export const LongWrappingTitle: Story = {
       name: args.title,
     })
     // Several lines at the top, in the column.
-    expect(h1.getBoundingClientRect().height).toBeGreaterThan(34 * 1.2 * 3)
+    expect(h1.getBoundingClientRect().height).toBeGreaterThan(41 * 3)
     near(h1.getBoundingClientRect().width, 22 * 16, 1)
     // The moving copy wraps on the same lines as the heading.
     await scrollTo(canvasElement, 12)
@@ -747,8 +747,8 @@ export const OverMapPhone: Story = {
 
 // ---------------------------------------------------- long titles (FE-465)
 
-/** The big title's line: 34px at 1.2. */
-const TITLE_LINE = 34 * 1.2
+/** The big title's line: heading-xl is 34/41. */
+const TITLE_LINE = 41
 
 const CLAMP_TITLE =
   'Mount a floating bookshelf, three picture rails and a TV bracket across the living room and hallway before the weekend'

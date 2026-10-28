@@ -100,7 +100,7 @@ export function TaskSearchBase({
   const endElement = (
     <HStack gap={0.5}>
       {pending ? (
-        <Spinner size="xs" color="action.primary" aria-hidden mx={1} />
+        <Spinner size="xs" color="accent.active" aria-hidden mx={1} />
       ) : null}
       {value && mode === 'input' ? (
         <SearchFieldButton label={copy.clearSearch} onPress={onClear}>

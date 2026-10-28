@@ -333,7 +333,7 @@ export function MobileBottomNav() {
                   <Text
                     fontSize="10px"
                     fontWeight={500}
-                    color={active ? 'status.success.fg' : 'text.muted'}
+                    color={active ? 'text.default' : 'text.subtle'}
                     lineHeight="short"
                     whiteSpace="nowrap"
                     overflow="hidden"
@@ -363,14 +363,14 @@ export function MobileBottomNav() {
               py: 1,
               px: 0.5,
               borderRadius: 'lg',
-              color: active ? 'status.success.fg' : 'text.muted',
+              color: active ? 'text.default' : 'text.subtle',
               textDecoration: 'none',
               ...sdlTransitionWithPress('color, background-color'),
               css: sdlPressActiveCss(),
               _hover: {
                 textDecoration: 'none',
-                color: 'status.success.fg',
-                bg: 'status.success.soft',
+                color: 'text.default',
+                bg: 'bg.subtle',
               },
               _focus: { outline: 'none' },
               _focusVisible: sdlFocusRing,

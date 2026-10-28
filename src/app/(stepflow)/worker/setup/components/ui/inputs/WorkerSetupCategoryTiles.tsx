@@ -105,7 +105,7 @@ export function WorkerSetupCategoryTiles({
               minH="72px"
               borderRadius="lg"
               borderWidth="2px"
-              borderColor={selected ? 'action.primary' : 'border.default'}
+              borderColor={selected ? 'accent.active' : 'border.default'}
               bg={selected ? 'status.success.soft' : 'bg.surface'}
               color={selected ? 'status.success.fg' : 'text.default'}
               cursor="pointer"

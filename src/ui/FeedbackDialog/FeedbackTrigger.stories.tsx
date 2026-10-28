@@ -48,7 +48,7 @@ export const Nav: Story = {
   ),
 }
 
-/** Footer: bold text link in a footer link column. */
+/** Footer: medium-weight text link in a footer link column. */
 export const Footer: Story = { args: { variant: 'footer' } }
 
 /** Footer meta: muted text link in the footer legal row. */

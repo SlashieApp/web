@@ -160,8 +160,8 @@ export const PhoneScrolled: Story = {
 const LONG_TITLE =
   'Mount a floating bookshelf, three picture rails and a TV bracket across the living room and hallway before the weekend'
 
-/** The big title's line: 34px at 1.2. */
-const TITLE_LINE = 34 * 1.2
+/** The big title's line: heading-xl is 34/41. */
+const TITLE_LINE = 41
 
 /** The first link under the title: the page's content moves with the title's height. */
 const linkBelow = (canvasElement: HTMLElement, h1: HTMLElement) =>

@@ -194,9 +194,9 @@ export function WorkerSetupChipsField({
                   color="text.muted"
                   fontWeight={500}
                   _hover={{
-                    bg: 'status.success.soft',
-                    borderColor: 'status.success.border',
-                    color: 'status.success.fg',
+                    bg: 'bg.subtle',
+                    borderColor: 'border.hover',
+                    color: 'text.default',
                   }}
                 >
                   <LuPlus size={14} strokeWidth={2.5} aria-hidden />

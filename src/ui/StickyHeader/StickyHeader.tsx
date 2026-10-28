@@ -94,7 +94,8 @@ export type StickyHeaderProps = {
   children?: ReactNode
 }
 
-const TITLE_LINE_HEIGHT = 1.2
+/** `heading-xl` is 34/41, so the title's line is 41px (the app's PAGE_TITLE_LINE_HEIGHT). */
+const TITLE_LINE_HEIGHT_PX = 41
 
 /** The big title's look, for the h1 and for the copy that moves into the bar. */
 const TITLE_STYLE = {
@@ -102,7 +103,7 @@ const TITLE_STYLE = {
   fontSize: `${TITLE_PX}px`,
   fontWeight: 500,
   letterSpacing: '-0.03em',
-  lineHeight: String(TITLE_LINE_HEIGHT),
+  lineHeight: `${TITLE_LINE_HEIGHT_PX}px`,
   color: 'text.default',
   overflowWrap: 'anywhere',
 } as const
@@ -183,7 +184,7 @@ export function StickyHeaderTitle({
         if (!node.isConnected) return
         const lineHeight =
           Number.parseFloat(getComputedStyle(node).lineHeight) ||
-          TITLE_PX * TITLE_LINE_HEIGHT
+          TITLE_LINE_HEIGHT_PX
         setOverflows(node.scrollHeight > lineHeight * maxLines + 1)
       }
       check()

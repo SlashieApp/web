@@ -249,7 +249,7 @@ export const sdlEyebrow = {
  */
 export const sdlTextAa = {
   /** ≥4.5:1 on `bg.inverted` / `bg.invertedSurface`. */
-  invertedMuted: '#C7CECB',
+  invertedMuted: '#D4D4D8',
   onBrandMuted: 'rgba(255, 255, 255, 0.88)',
   onBrandSubtle: 'rgba(255, 255, 255, 0.82)',
 } as const
