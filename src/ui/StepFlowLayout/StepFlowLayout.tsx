@@ -366,7 +366,7 @@ export function StepFlowLayout({
     useBreakpointValue({ base: false, lg: true }, { fallback: 'base' }) ?? false
 
   return (
-    <Stack gap={0} flex={1} minH="100dvh" bg="bg.subtle">
+    <Stack gap={0} flex={1} minH="100dvh" bg="bg.canvas">
       {banner}
       {header}
 

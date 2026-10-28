@@ -23,7 +23,7 @@ export default function AuthLayout({
     <Box
       ref={onAuthSurfaceRef}
       flex={1}
-      bg="bg.subtle"
+      bg="bg.canvas"
       display="flex"
       flexDirection="column"
       minH="100dvh"

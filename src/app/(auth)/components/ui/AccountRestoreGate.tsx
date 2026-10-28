@@ -73,7 +73,7 @@ export function AccountRestoreScreen({
       justifyContent="center"
       px={4}
       py={10}
-      bg="bg.subtle"
+      bg="bg.canvas"
     >
       <Stack
         as="section"

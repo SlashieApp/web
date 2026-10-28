@@ -10,7 +10,7 @@ export default function StepFlowLayoutRoute({
   children: React.ReactNode
 }>) {
   return (
-    <Box minH="100dvh" bg="bg.subtle" display="flex" flexDirection="column">
+    <Box minH="100dvh" bg="bg.canvas" display="flex" flexDirection="column">
       {children}
     </Box>
   )

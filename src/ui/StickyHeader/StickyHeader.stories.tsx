@@ -46,7 +46,7 @@ const GUTTER = 24
 /** Story-only scroll pane, as the app shell's `main`; `scrollTop` starts it scrolled. */
 function Pane({
   scrollTop = 0,
-  bg = 'bg.subtle',
+  bg = 'bg.canvas',
   children,
 }: {
   scrollTop?: number

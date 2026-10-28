@@ -475,6 +475,38 @@ describe('elevation aliases in feature chrome', () => {
   })
 })
 
+describe('page shells', () => {
+  // `bg.canvas` is the page; `bg.subtle` is a fill (tags, hovers, placeholders).
+  // The shells used `bg.subtle` while Chakra's gray.50 shadowed it (FE-469), so
+  // they only looked like the canvas by accident.
+  const SHELLS = [
+    'src/app/(auth)/layout.tsx',
+    'src/app/(marketing)/layout.tsx',
+    'src/app/(messages)/layout.tsx',
+    'src/app/(stepflow)/layout.tsx',
+    'src/app/(dashboard)/components/layout/AccountShell.tsx',
+    'src/app/(stepflow)/tasks/[slug]/quote/components/TaskQuoteFlow.tsx',
+    'src/app/StatusScreen.tsx',
+    'src/ui/StepFlowLayout/StepFlowLayout.tsx',
+  ]
+
+  it('paint bg.canvas, not bg.subtle', () => {
+    for (const file of SHELLS) {
+      const source = readFileSync(join(process.cwd(), file), 'utf8')
+      expect(source, file).toContain('bg="bg.canvas"')
+      expect(source, file).not.toContain('bg="bg.subtle"')
+    }
+  })
+
+  it('has a page header that defaults to the canvas', () => {
+    const header = readFileSync(
+      join(process.cwd(), 'src/ui/StickyHeader/StickyHeader.tsx'),
+      'utf8',
+    )
+    expect(header).toContain("background = 'bg.canvas'")
+  })
+})
+
 describe('no heavy weights in src', () => {
   /** Every .ts, .tsx, .mdx and .css file under `dir`, but not this test. */
   function sourceFiles(dir: string): string[] {

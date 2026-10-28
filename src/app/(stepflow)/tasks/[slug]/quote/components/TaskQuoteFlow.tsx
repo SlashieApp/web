@@ -121,7 +121,7 @@ export function TaskQuoteFlow() {
 
   if (!isAuthenticated) {
     return (
-      <Box minH="100dvh" bg="bg.subtle">
+      <Box minH="100dvh" bg="bg.canvas">
         <TaskQuoteGateView
           title={t.cta.sendQuote}
           description={gate.signInBody}
@@ -140,7 +140,7 @@ export function TaskQuoteFlow() {
 
   if (!hasWorkerProfile) {
     return (
-      <Box minH="100dvh" bg="bg.subtle">
+      <Box minH="100dvh" bg="bg.canvas">
         <TaskQuoteGateView
           title={t.cta.sendQuote}
           description={gate.workerProfileBody}
@@ -163,7 +163,7 @@ export function TaskQuoteFlow() {
   // The monthly limit caps distinct tasks; edits on a quoted task are unlimited.
   if (quoteLimitReached && !existingQuote) {
     return (
-      <Box minH="100dvh" bg="bg.subtle">
+      <Box minH="100dvh" bg="bg.canvas">
         <TaskQuoteGateView
           title={t.cta.sendQuote}
           description={gate.limitBody}
@@ -178,7 +178,7 @@ export function TaskQuoteFlow() {
 
   if (me && !isEmailVerified(me)) {
     return (
-      <Box minH="100dvh" bg="bg.subtle">
+      <Box minH="100dvh" bg="bg.canvas">
         <TaskQuoteGateView
           title={gate.verifyEmailTitle}
           description={t.provider.verifyEmailBeforeQuote}

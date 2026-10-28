@@ -50,7 +50,7 @@ export function CreateTaskVerifyEmailGate({
       as="main"
       ref={shown}
       minH="100dvh"
-      bg="bg.subtle"
+      bg="bg.canvas"
       display="flex"
       flexDirection="column"
     >

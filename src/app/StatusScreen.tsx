@@ -25,7 +25,7 @@ export function StatusScreen({
       justifyContent="center"
       px={4}
       py={12}
-      bg="bg.subtle"
+      bg="bg.canvas"
     >
       <Stack
         w="full"

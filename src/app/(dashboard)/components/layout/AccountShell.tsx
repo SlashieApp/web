@@ -17,7 +17,7 @@ export function AccountShell({
   hasSession = false,
 }: AccountShellProps) {
   return (
-    <AppShell hasSession={hasSession} bg="bg.subtle" color="text.default">
+    <AppShell hasSession={hasSession} bg="bg.canvas" color="text.default">
       {/* The page's sticky header brings its own top spacing. */}
       <Box pb={{ base: 5, md: 6 }} display="flex" flexDirection="column">
         <Container flex="1" w="full">

@@ -16,7 +16,7 @@ export default async function MessagesGroupLayout({
   const hasSession = await getHasAuthSession()
   return (
     <AccountAuthGate>
-      <AppShell hasSession={hasSession} bg="bg.subtle" color="text.default">
+      <AppShell hasSession={hasSession} bg="bg.canvas" color="text.default">
         {children}
       </AppShell>
     </AccountAuthGate>

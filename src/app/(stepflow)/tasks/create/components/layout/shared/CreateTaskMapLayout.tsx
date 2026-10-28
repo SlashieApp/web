@@ -238,7 +238,7 @@ export function CreateTaskMapLayout({
   ) : null
 
   return (
-    <Stack gap={0} flex={1} minH="100dvh" bg="bg.subtle">
+    <Stack gap={0} flex={1} minH="100dvh" bg="bg.canvas">
       {banner}
       {header}
       <Box display={{ base: 'block', lg: 'none' }}>{progress}</Box>

@@ -300,7 +300,7 @@ export function StickyHeader({
   onBack,
   backAriaLabel,
   option,
-  background = 'bg.subtle',
+  background = 'bg.canvas',
   stickyTop = 0,
   contentMaxW,
   contentPx,
