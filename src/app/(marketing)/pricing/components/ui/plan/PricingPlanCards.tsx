@@ -96,8 +96,8 @@ function PlanCard({
         <Box
           boxSize="44px"
           borderRadius="full"
-          bg="status.success.soft"
-          color="status.success.fg"
+          bg="bg.subtle"
+          color="text.muted"
           display="flex"
           alignItems="center"
           justifyContent="center"

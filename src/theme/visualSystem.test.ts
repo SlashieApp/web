@@ -507,6 +507,54 @@ describe('page shells', () => {
   })
 })
 
+describe('decorative washes', () => {
+  // Green stops at washes, bands, icon tiles and placeholders (spec: "Where
+  // green goes, and where it stops"). Status tints, selected states and map
+  // pins keep their colours, so only the decorative surfaces are listed.
+  const NEUTRAL = [
+    'src/ui/Footer/Footer.tsx',
+    'src/ui/Card/Card.tsx',
+    'src/app/(dashboard)/profile/components/ui/hero/ProfileIdentityHero.tsx',
+    'src/app/(dashboard)/components/layout/DashboardSectionCard.tsx',
+    'src/app/(marketing)/about/components/AboutScreen.tsx',
+    'src/app/(marketing)/pricing/components/ui/plan/PricingPlanCards.tsx',
+    'src/app/(presence)/profile/[userId]/components/ui/PublicProfileHero.tsx',
+    'src/app/(stepflow)/tasks/[slug]/quote/components/ui/shared/TaskQuoteSummaryCard.tsx',
+    'src/app/(stepflow)/tasks/[slug]/quote/components/ui/shared/TaskQuoteVisibilityCallout.tsx',
+    'src/app/(stepflow)/worker/setup/components/ui/steps/WorkerSetupStepContent.tsx',
+    'src/app/(auth)/components/ui/EmailVerificationBanner.tsx',
+    'src/app/(task)/components/ui/TaskCardWorkerQuote.tsx',
+    'src/app/(task)/tasks/[slug]/components/layout/TaskDetailView.tsx',
+    'src/app/(task)/tasks/[slug]/components/summary/facts/BookingFacts.tsx',
+    'src/app/(task)/tasks/[slug]/components/ui/TaskSectionSheet.tsx',
+  ]
+
+  it('has no mint tint or border on a decorative surface', () => {
+    for (const file of NEUTRAL) {
+      const source = readFileSync(join(process.cwd(), file), 'utf8')
+      expect(source, file).not.toMatch(/status\.success\.(soft|border)/)
+      expect(source, file).not.toMatch(/rgba\(0, ?220, ?130/)
+    }
+  })
+
+  it('keeps green on the verified status page only', () => {
+    const card = readFileSync(
+      join(process.cwd(), 'src/app/(auth)/components/ui/AuthCard.tsx'),
+      'utf8',
+    )
+    expect(card).toContain("tone = 'neutral'")
+    expect(card).toContain("neutral: { bg: 'bg.subtle', color: 'text.muted' }")
+    const verified = readFileSync(
+      join(
+        process.cwd(),
+        'src/app/(auth)/verify-email/components/VerifyEmailScreen.tsx',
+      ),
+      'utf8',
+    )
+    expect(verified).toContain('tone="success"')
+  })
+})
+
 describe('no heavy weights in src', () => {
   /** Every .ts, .tsx, .mdx and .css file under `dir`, but not this test. */
   function sourceFiles(dir: string): string[] {

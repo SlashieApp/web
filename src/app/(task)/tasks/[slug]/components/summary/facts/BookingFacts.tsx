@@ -194,7 +194,7 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
                   transform="translateX(-50%)"
                   w="2px"
                   h="50%"
-                  bg="status.success.soft"
+                  bg="border.default"
                   aria-hidden
                 />
               ) : null}
@@ -206,7 +206,7 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
                   transform="translateX(-50%)"
                   w="2px"
                   h="50%"
-                  bg="status.success.soft"
+                  bg="border.default"
                   aria-hidden
                 />
               ) : null}
@@ -233,8 +233,8 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
               align="center"
               justify="center"
               borderRadius="full"
-              bg="status.success.soft"
-              color="status.success.fg"
+              bg="bg.subtle"
+              color="text.muted"
               flexShrink={0}
             >
               <StepIcon />

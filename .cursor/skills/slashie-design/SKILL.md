@@ -33,7 +33,7 @@ The design direction is:
 - Map-native
 - High-legibility
 - Clean and trustworthy
-- Green/mint-led, not blue or amber
+- Calm and neutral, with green only where it does a job, not blue or amber
 
 ## 2. Design north star
 
@@ -50,7 +50,7 @@ Core principle: clarity over decoration.
 
 - Primary logo: green rounded square with white slash/dollar-style mark.
 - Wordmark: lowercase `slashie`.
-- Brand accent: green/mint.
+- Brand accent: green. It marks the main action, links, focus rings, map pins and success, never a background wash or decoration.
 - Tone: practical, local, clean, confident, money-aware.
 
 Use the slash motif where meaningful, but do not over-decorate the interface.

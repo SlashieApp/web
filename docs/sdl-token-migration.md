@@ -36,8 +36,8 @@ Authoritative, deterministic mapping from the **old TypeUI-overlay tokens** to t
 | `cardFg` / `cardStrongFg` | `text.default` |
 | `cardMutedFg` | `text.muted` |
 | `cardAccentFg` | `text.link` |
-| `cardIconPodBg` | `status.success.soft` |
-| `cardIconPodFg` | `status.success.fg` |
+| `cardIconPodBg` | `bg.subtle` (neutral since the tone refresh) |
+| `cardIconPodFg` | `text.muted` (neutral since the tone refresh) |
 | `cardAvatarEmpty` / `cardAvatarMore` | `bg.subtle` |
 
 ## Form control tokens

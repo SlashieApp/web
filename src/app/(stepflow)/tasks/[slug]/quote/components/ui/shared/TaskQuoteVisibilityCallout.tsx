@@ -15,12 +15,12 @@ import bag from '../../../i11n.json'
 export function TaskQuoteVisibilityCallout() {
   const t = useI11n(bag).visibilityCallout
   return (
-    <HStack align="start" gap={3} p={4} rounded="xl" bg="status.success.soft">
-      <Box color="status.success.fg" mt={0.5} flexShrink={0}>
+    <HStack align="start" gap={3} p={4} rounded="xl" bg="bg.subtle">
+      <Box color="text.muted" mt={0.5} flexShrink={0}>
         <LuEye size={20} aria-hidden />
       </Box>
       <Stack gap={1}>
-        <Text fontSize="sm" fontWeight={500} color="status.success.fg">
+        <Text fontSize="sm" fontWeight={500} color="text.default">
           {t.title}
         </Text>
         <Text fontSize="sm" color="text.muted">

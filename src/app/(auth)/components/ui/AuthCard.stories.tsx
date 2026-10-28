@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { LuLink2Off, LuMailCheck, LuTriangleAlert } from 'react-icons/lu'
+import {
+  LuCircleCheck,
+  LuLink2Off,
+  LuMailCheck,
+  LuTriangleAlert,
+} from 'react-icons/lu'
 import { expect, within } from 'storybook/test'
 
 import { Button, Link } from '@ui'
@@ -66,6 +71,32 @@ export const Status: Story = {
         Resend reset link
       </Button>
     ),
+  },
+  play: async ({ canvasElement }) => {
+    const icon = canvasElement.querySelector('svg')?.parentElement
+    if (!icon) throw new Error('No status icon')
+    // The default status icon sits on the neutral tile, not a mint wash.
+    await expect(getComputedStyle(icon).backgroundColor).toBe(
+      'rgb(244, 244, 245)',
+    )
+  },
+}
+
+/** A success status (email verified): the one status icon that is green. */
+export const StatusSuccess: Story = {
+  args: {
+    icon: LuCircleCheck,
+    tone: 'success',
+    title: 'Email verified',
+    description: 'You can now post tasks and send quotes.',
+  },
+  play: async ({ canvasElement }) => {
+    const icon = canvasElement.querySelector('svg')?.parentElement
+    if (!icon) throw new Error('No status icon')
+    // Neutral is the default tone; success alone carries the green tint.
+    await expect(getComputedStyle(icon).backgroundColor).toBe(
+      'rgb(231, 251, 240)',
+    )
   },
 }
 

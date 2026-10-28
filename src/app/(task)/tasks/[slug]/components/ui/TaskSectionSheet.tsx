@@ -58,8 +58,8 @@ export function TaskSectionSheet({
           boxSize="36px"
           flexShrink={0}
           borderRadius="lg"
-          bg="status.success.soft"
-          color="status.success.fg"
+          bg="bg.subtle"
+          color="text.muted"
         >
           {icon}
         </Box>

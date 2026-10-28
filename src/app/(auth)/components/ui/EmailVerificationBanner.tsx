@@ -15,9 +15,9 @@ export function EmailVerificationBanner() {
 
   return (
     <Box
-      bg="status.success.soft"
+      bg="bg.subtle"
       borderBottomWidth="1px"
-      borderColor="status.success.border"
+      borderColor="border.default"
       px={{ base: 3, lg: 4 }}
       py={2}
     >
@@ -28,7 +28,7 @@ export function EmailVerificationBanner() {
         align="center"
         maxW="full"
       >
-        <Text fontSize="sm" color="status.success.fg" fontWeight={500}>
+        <Text fontSize="sm" color="text.default" fontWeight={500}>
           Verify your email to post tasks and send quotes.
         </Text>
         <HStack gap={2} flexWrap="wrap" align="center">

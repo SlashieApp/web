@@ -6,10 +6,12 @@ import type { IconType } from 'react-icons'
 
 import { Card } from '@ui'
 
-export type AuthCardTone = 'brand' | 'warning' | 'danger'
+export type AuthCardTone = 'neutral' | 'success' | 'warning' | 'danger'
 
+/** Neutral is the default: a status page's icon is not a mint wash. Green is for success. */
 const TONE = {
-  brand: { bg: 'status.success.soft', color: 'status.success.fg' },
+  neutral: { bg: 'bg.subtle', color: 'text.muted' },
+  success: { bg: 'status.success.soft', color: 'status.success.fg' },
   warning: { bg: 'status.warning.soft', color: 'status.warning.fg' },
   danger: { bg: 'status.danger.soft', color: 'status.danger.fg' },
 } as const
@@ -36,7 +38,7 @@ export function AuthCard({
   title,
   description,
   icon: Icon,
-  tone = 'brand',
+  tone = 'neutral',
   notice,
   children,
   footer,

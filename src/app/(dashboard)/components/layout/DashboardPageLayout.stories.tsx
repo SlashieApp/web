@@ -74,7 +74,7 @@ export const WideWithSidebar: Story = {
 export const WithAfterHeader: Story = {
   args: {
     afterHeader: (
-      <Text fontSize="sm" p={4} bg="status.success.soft" borderRadius="lg">
+      <Text fontSize="sm" p={4} bg="bg.subtle" borderRadius="lg">
         Content between the header and the body (hero, notices).
       </Text>
     ),

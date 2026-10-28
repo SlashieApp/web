@@ -187,8 +187,8 @@ function CardTitleBlock({
         flexShrink={0}
         boxSize="40px"
         borderRadius="lg"
-        bg="status.success.soft"
-        color="status.success.fg"
+        bg="bg.subtle"
+        color="text.muted"
         fontSize="20px"
         lineHeight="1"
       >

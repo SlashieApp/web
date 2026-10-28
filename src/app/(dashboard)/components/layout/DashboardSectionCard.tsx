@@ -45,8 +45,8 @@ export function DashboardSectionCard({
               flexShrink={0}
               boxSize="40px"
               borderRadius="lg"
-              bg={danger ? 'status.danger.soft' : 'status.success.soft'}
-              color={danger ? 'status.danger.fg' : 'status.success.fg'}
+              bg={danger ? 'status.danger.soft' : 'bg.subtle'}
+              color={danger ? 'status.danger.fg' : 'text.muted'}
               fontSize="20px"
               lineHeight="1"
             >

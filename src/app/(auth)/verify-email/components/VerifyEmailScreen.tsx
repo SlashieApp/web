@@ -146,6 +146,7 @@ export function VerifyEmailScreen() {
       ) : state === 'verified' ? (
         <AuthCard
           icon={LuCircleCheck}
+          tone="success"
           title={t.successTitle}
           description={t.successDescription}
         />
