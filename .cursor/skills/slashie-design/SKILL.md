@@ -66,11 +66,13 @@ Use current Slashie tokens.
 | `green.500` | `#53D388` | Secondary highlights, map pins |
 | `green.300` | `#92E7B7` | Soft fills, progress backgrounds |
 | `green.100` | `#D9F4E5` | Pale success/brand containers |
-| `neutral.900` | `#0B1714` | Primary text, dark nav, strong icons |
-| `neutral.700` | `#3F4B45` | Secondary text |
-| `neutral.500` | `#6B7370` | Metadata, placeholders |
-| `neutral.300` | `#D1D5D4` | Subtle separators and input strokes |
-| `neutral.100` | `#F7F9F8` | Page background |
+| `neutral.900` | `#0A1512` | Primary text, dark nav, strong icons |
+| `neutral.600` | `#52525B` | Secondary text (`text.muted`) |
+| `text.subtle` | `#6B6B74` | Metadata, placeholders, eyebrows |
+| `neutral.300` | `#D4D4D8` | Input and button strokes (`border.strong`) |
+| `neutral.200` | `#E4E4E7` | Hairlines (`border.default`) |
+| `neutral.100` | `#F4F4F5` | Subtle fills |
+| `neutral.50` | `#FAFAFA` | Page background |
 | `white` | `#FFFFFF` | Cards and elevated surfaces |
 
 ## 5. Theme guidance
@@ -98,12 +100,12 @@ Prefer tonal layering over heavy borders:
 - `surface-container-highest`
 - `primary-container`
 
-Avoid 1px borders as the main sectioning method. Use whitespace, radius, tonal shifts, and compact shadows first.
+Use whitespace and tonal shifts first, then a 1px hairline (`border.default`), then the least shadow that does the job. Cards sit on a hairline and `e1`; `e3` and `e4` carry their own ring, so those surfaces take no border.
 
 ## 7. Typography
 
-- **Plus Jakarta Sans**: display, hero, and headline moments.
-- **Inter**: product UI, labels, dense body content, metadata.
+- **Geist**: display, headlines, product UI, labels, dense body content, metadata. Headings are weight 500 with tight tracking by size; prices, counts and other figures are 600 with tabular figures; never 700 or 800.
+- **Geist Mono**: codes and one-time-password fields.
 
 Use strong hierarchy:
 
