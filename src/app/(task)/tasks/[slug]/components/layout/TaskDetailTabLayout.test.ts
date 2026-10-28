@@ -7,24 +7,23 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 
 describe('TaskDetailTabLayout slots', () => {
-  it('snaps the sticky header, paints it white, and fades compact chrome over the map', () => {
+  it('scrolls the title with the page, sticks the tabs under the bar, and fades compact chrome over the map', () => {
     const src = readFileSync(join(dir, 'TaskDetailTabLayout.tsx'), 'utf8')
-    expect(src).toContain('stickyBg="transparent"')
-    expect(src).toContain('StuckHeaderBg')
-    expect(src).toContain('#FFFFFF')
-    expect(src).toContain('data-task-detail-stuck-bg')
-    expect(src).toContain('animate={{ opacity: isStuck ? 1 : 0 }}')
-    expect(src).toContain('initial={false}')
-    expect(src).toContain('title({ isStuck })')
-    expect(src).toContain('TASK_DETAIL_STUCK_TOP_PADDING')
-    expect(src).toContain('stickyTop={`-${TASK_DETAIL_STUCK_TOP_PADDING}`}')
-    expect(src).toContain('data-task-detail-stuck')
-    expect(src).toContain("rootMargin: '0px'")
-    expect(src).toContain('threshold: 0')
+    // The title is the page header's to collapse (FE-458): it no longer sits in
+    // the sticky chrome, and nothing is docked on the old 2px inset.
+    expect(src).toContain('{title}')
+    expect(src).not.toContain('title({ isStuck })')
+    expect(src).not.toContain('TASK_DETAIL_STUCK')
+    expect(src).not.toContain('data-task-detail-stuck')
+    expect(src).not.toContain('IntersectionObserver')
+    expect(src).toContain('stickyTop={`${HEADER_BAR_H}px`}')
+    expect(src).toContain(
+      "stickyBg={tabs.length > 1 ? 'bg.canvas' : 'transparent'}",
+    )
     expect(src).not.toContain('TASK_DETAIL_STICKY_SNAP_OFFSET_PX')
     expect(src).toContain("panelBg={{ base: 'bg.canvas', lg: 'transparent' }}")
     expect(src).toContain('MAP_FADE_BOTTOM')
-    expect(src).toContain('COMPACT_HEADER_FADE_CSS')
+    expect(src).toContain('COMPACT_TITLE_FADE_CSS')
     expect(src).toContain("width: '100vw'")
     expect(src).toContain('&::before')
     expect(src).toContain('fadeTabListBorder')
@@ -34,8 +33,8 @@ describe('TaskDetailTabLayout slots', () => {
     expect(src).not.toContain('tabListAside')
     expect(src).toContain('rail')
     // FE-274: the status intro moved into the Task summary. The web CTA sits
-    // beside the title (bottom-aligned with the chips) but only the title
-    // sticks: chips and CTA render in the content and scroll away.
+    // beside the title (bottom-aligned with the chips); the title scrolls away
+    // with the chips and the CTA, which render in the content.
     expect(src).not.toContain('tabTitle')
     expect(src).not.toContain('TabIntro')
     expect(src).toContain('WEB_MAIN_CTA_W')

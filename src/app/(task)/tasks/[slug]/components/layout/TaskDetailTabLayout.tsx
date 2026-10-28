@@ -2,8 +2,7 @@
 
 import type { BoxProps } from '@chakra-ui/react'
 import { Box, Grid, HStack, Stack } from '@chakra-ui/react'
-import { motion, useReducedMotion } from 'motion/react'
-import { type ReactNode, useCallback, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 
 import {
   COMPACT_DETAIL_HERO_H,
@@ -11,10 +10,8 @@ import {
   MAP_FADE_EDGE,
 } from '@/app/(task)/helpers/marketplaceMap'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
-import { findScrollParent } from '@/utils/findScrollParent'
-import { MOBILE_BOTTOM_NAV_MAX_W, Tabs } from '@ui'
+import { HEADER_BAR_H, MOBILE_BOTTOM_NAV_MAX_W, Tabs } from '@ui'
 
-import { TASK_DETAIL_STUCK_TOP_PADDING } from '../../helpers/taskDetailHeaderCollapse'
 import { TASK_DETAIL_TAB_BODY_MIN_H } from '../../helpers/taskDetailLayout'
 import type { TaskDetailTab } from '../../helpers/taskDetailTabs'
 
@@ -26,7 +23,8 @@ export type TaskDetailTabSlot = {
 }
 
 export type TaskDetailTabLayoutProps = {
-  title: ReactNode | ((ctx: { isStuck: boolean }) => ReactNode)
+  /** The task title. It scrolls with the page and collapses into the page header's bar. */
+  title: ReactNode
   tabs: TaskDetailTabSlot[]
   value: TaskDetailTab
   onChange: (key: TaskDetailTab) => void
@@ -36,7 +34,7 @@ export type TaskDetailTabLayoutProps = {
   px?: BoxProps['px']
   /** Desktop right rail (Help & actions, Analytics, Activity). Hidden below `lg`. */
   rail?: ReactNode
-  /** Row under the sticky title (chips). Scrolls away with the page. */
+  /** Row under the title (chips). Scrolls away with the page. */
   meta?: ReactNode
   /** Desktop main CTA beside the title, bottom-aligned with `meta`; scrolls away. Hidden below `lg`. */
   mainCta?: ReactNode
@@ -56,13 +54,14 @@ const WEB_MAIN_CTA_W = `min(${MOBILE_BOTTOM_NAV_MAX_W}, calc((100% - 1.5rem) / 2
 const BESIDE_CTA_MAX_W = `calc(100% - ${WEB_MAIN_CTA_W} - 1.5rem)`
 
 /**
- * Compact (phone + tablet) wash sits on the sticky title/tab chrome and
- * fades up into the map — not on the Mapbox canvas.
+ * Compact (phone + tablet) wash sits under the title and fades up into the
+ * map, not on the Mapbox canvas. It travels with the title as the page
+ * scrolls.
  */
-const COMPACT_HEADER_FADE_CSS = {
+const COMPACT_TITLE_FADE_CSS = {
   isolation: 'isolate',
   overflow: 'visible',
-  '& > *:not([data-task-detail-stuck-bg])': {
+  '& > *': {
     position: 'relative',
     zIndex: 1,
   },
@@ -111,41 +110,13 @@ const COMPACT_META_BAND_CSS = {
   },
 } as const
 
-const STUCK_SURFACE = 'var(--chakra-colors-bg-surface, #FFFFFF)'
-
-function StuckHeaderBg({ isStuck }: { isStuck: boolean }) {
-  const reducedMotion = useReducedMotion() ?? false
-
-  return (
-    <motion.div
-      aria-hidden
-      data-task-detail-stuck-bg
-      initial={false}
-      animate={{ opacity: isStuck ? 1 : 0 }}
-      transition={{
-        duration: reducedMotion ? 0 : 0.2,
-        ease: [0.2, 0, 0, 1],
-      }}
-      style={{
-        position: 'absolute',
-        top: `-${TASK_DETAIL_STUCK_TOP_PADDING}`,
-        bottom: 0,
-        left: '50%',
-        width: '100vw',
-        transform: 'translateX(-50%)',
-        background: STUCK_SURFACE,
-        pointerEvents: 'none',
-        zIndex: 0,
-      }}
-    />
-  )
-}
-
 /**
- * Task-detail tab chrome: only the title (+ tab headers) sticks. The chips and
- * the web main CTA sit under and beside it (CTA bottom-aligned with the chips)
- * and scroll away, then the cards and the desktop rail share a top edge in the
- * 2:1 grid. The compact pin lives in TaskDetailMainCta.
+ * Task-detail tab layout: the title scrolls with the page and collapses into
+ * the page header's bar (FE-458), so only the tab headers stick, under the
+ * bar. The chips and the web main CTA sit under and beside the title (CTA
+ * bottom-aligned with the chips) and scroll away, then the cards and the
+ * desktop rail share a top edge in the 2:1 grid. The compact pin lives in
+ * TaskDetailMainCta.
  */
 export function TaskDetailTabLayout({
   title,
@@ -161,37 +132,6 @@ export function TaskDetailTabLayout({
   mainCta,
   mainCtaFit = false,
 }: TaskDetailTabLayoutProps) {
-  const [isStuck, setIsStuck] = useState(false)
-  const sentinelObserverRef = useRef<IntersectionObserver | null>(null)
-
-  const stickySentinelRef = useCallback((node: HTMLDivElement | null) => {
-    sentinelObserverRef.current?.disconnect()
-    sentinelObserverRef.current = null
-    if (!node) {
-      document.documentElement.removeAttribute('data-task-detail-stuck')
-      return
-    }
-    const scroller = findScrollParent(node)
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const stuck = !entry.isIntersecting
-        setIsStuck(stuck)
-        document.documentElement.toggleAttribute(
-          'data-task-detail-stuck',
-          stuck,
-        )
-      },
-      {
-        root: scroller,
-        threshold: 0,
-        rootMargin: '0px',
-      },
-    )
-    observer.observe(node)
-    sentinelObserverRef.current = observer
-  }, [])
-
-  const titleNode = typeof title === 'function' ? title({ isStuck }) : title
   // A card CTA rises beside the title (out of flow); a lone button sits in the chip row.
   const cardCta = mainCta != null && !mainCtaFit
   const besideCtaMaxW = {
@@ -204,17 +144,23 @@ export function TaskDetailTabLayout({
 
   return (
     <>
-      <Box ref={stickySentinelRef} h="1px" w="full" aria-hidden />
+      {/* Phones and tablets: the wash fades the map under the title. */}
+      <Box
+        position="relative"
+        px={px}
+        pt={2}
+        pb={1}
+        css={COMPACT_TITLE_FADE_CSS}
+      >
+        <Box maxW={besideCtaMaxW}>{title}</Box>
+      </Box>
       <Tabs
         fitted={fitted}
         fittedBelowLg={fittedBelowLg}
         sticky
-        stickyTop={`-${TASK_DETAIL_STUCK_TOP_PADDING}`}
-        stickyBg="transparent"
-        stickyChromeProps={{
-          borderTopRadius: 0,
-          css: COMPACT_HEADER_FADE_CSS,
-        }}
+        stickyTop={`${HEADER_BAR_H}px`}
+        stickyBg={tabs.length > 1 ? 'bg.canvas' : 'transparent'}
+        stickyChromeProps={{ borderTopRadius: 0 }}
         panelBg={{ base: 'bg.canvas', lg: 'transparent' }}
         fadeTabListBorder
         hideTabList={tabs.length < 2}
@@ -226,12 +172,6 @@ export function TaskDetailTabLayout({
           const next = tabs.find((tab) => tab.key === key)
           if (next) onChange(next.key)
         }}
-        stickyHeader={
-          <>
-            <StuckHeaderBg isStuck={isStuck} />
-            <Box maxW={isStuck ? 'none' : besideCtaMaxW}>{titleNode}</Box>
-          </>
-        }
         tabs={tabs.map((tab) => ({
           key: tab.key,
           label: tab.label,
@@ -251,14 +191,14 @@ export function TaskDetailTabLayout({
               ) : null}
             </HStack>
             {cardCta ? (
-              // Above the clear title chrome until it docks, then under it.
+              // Above the tab chrome that sticks over the title's row.
               <Box
                 display={{ base: 'none', lg: 'block' }}
                 position="absolute"
                 right={0}
                 bottom={4}
                 w={WEB_MAIN_CTA_W}
-                zIndex={isStuck ? undefined : 6}
+                zIndex={6}
               >
                 {mainCta}
               </Box>

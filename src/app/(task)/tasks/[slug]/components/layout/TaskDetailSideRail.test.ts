@@ -36,15 +36,18 @@ describe('TaskActivityTrigger', () => {
   })
 })
 
-describe('TaskTitle compact actions', () => {
-  it('shows the options icon on compact, not on web; no status badge (it is the summary eyebrow)', () => {
+describe('TaskTitle', () => {
+  it('is the page h1 only: Back and the options menu are in the bar (FE-458); no status badge (it is the summary eyebrow)', () => {
     const src = readFileSync(join(dir, 'TaskTitle.tsx'), 'utf8')
     expect(src).not.toContain('TaskActivityTrigger')
     expect(src).not.toContain('TaskStatusPill')
-    expect(src).toContain('TaskHelpOverflowTrigger')
-    expect(src).toContain("display={{ base: 'flex', lg: 'none' }}")
-    // The chips scroll away under the sticky title (TaskDetailTabs `meta`).
+    expect(src).toContain('StickyHeaderTitle')
+    expect(src).not.toContain('TaskHelpOverflowTrigger')
+    expect(src).not.toContain('TaskBackButton')
+    expect(src).not.toContain('isStuck')
+    // The chips scroll away under the title (TaskDetailTabs `meta`).
     expect(src).not.toContain('TaskDetailMeta')
-    expect(src).toContain('flex="0 1 auto"')
+    const view = readFileSync(join(dir, 'TaskDetailView.tsx'), 'utf8')
+    expect(view).toContain('TaskHelpOverflowTrigger')
   })
 })

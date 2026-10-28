@@ -22,7 +22,14 @@ import { ReportControl } from '@/content/trust/ReportControl'
 import { SAFETY_HREF } from '@/utils/appRoutes'
 import { orderRequestView } from '@/utils/orderHelpers'
 import { repostTaskHref } from '@/utils/taskHandoff'
-import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
+import {
+  Button,
+  Dropdown,
+  HEADER_OVERLAY_BUTTON,
+  IconButton,
+  Link,
+  useDropdownClose,
+} from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { availableActions } from '../../helpers/taskDetailActions'
@@ -357,9 +364,15 @@ export function TaskOverflowMenu({
 }
 
 /**
- * Compact overflow: three-dots on the right of the sticky task title.
+ * The options menu's three-dots button: the page header's option button on
+ * the right of the bar (FE-458). `overlay`: floating over the map, as the
+ * bar's buttons do.
  */
-export function TaskHelpOverflowTrigger() {
+export function TaskHelpOverflowTrigger({
+  overlay = false,
+}: {
+  overlay?: boolean
+}) {
   const t = useI11n(bag)
   const { openDialog, dialogs } = useTaskDialogs()
 
@@ -374,6 +387,7 @@ export function TaskHelpOverflowTrigger() {
             type="button"
             variant="ghost"
             aria-label={t.nav.taskOptionsAria}
+            {...(overlay ? HEADER_OVERLAY_BUTTON : {})}
           >
             <LuEllipsisVertical />
           </IconButton>

@@ -261,10 +261,7 @@ describe('overlayCss', () => {
     expect(host).toContain('mapFadeOverlayCss(overlaySurface)')
     expect(host).toContain('prepareBrowse')
     const back = readFileSync(
-      join(
-        dir,
-        '../../../tasks/[slug]/components/layout/TaskHeaderControls.tsx',
-      ),
+      join(dir, '../../../tasks/[slug]/helpers/useTaskBack.ts'),
       'utf8',
     )
     expect(back).toContain('prepareBrowse')
@@ -292,6 +289,6 @@ describe('overlayCss', () => {
       'utf8',
     )
     expect(tabLayout).toContain('MAP_FADE_BOTTOM')
-    expect(tabLayout).toContain('COMPACT_HEADER_FADE_CSS')
+    expect(tabLayout).toContain('COMPACT_TITLE_FADE_CSS')
   })
 })

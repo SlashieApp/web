@@ -304,11 +304,6 @@ export function Header({
         alignItems="center"
         position="sticky"
         top={0}
-        css={{
-          '[data-task-detail-stuck] &': {
-            borderBottomColor: '{colors.bg.surface}',
-          },
-        }}
         {...props}
       >
         <Container

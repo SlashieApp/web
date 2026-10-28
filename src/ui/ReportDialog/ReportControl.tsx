@@ -1,5 +1,6 @@
 'use client'
 
+import type { IconButtonProps as ChakraIconButtonProps } from '@chakra-ui/react'
 import { useState } from 'react'
 import { LuEllipsisVertical, LuFlag } from 'react-icons/lu'
 
@@ -22,6 +23,11 @@ export type ReportControlProps = {
   targetMeta?: string
   targetImageSrc?: string
   variant?: ReportControlVariant
+  /**
+   * The `overflow` variant's ⋯ button: its size and look, for a page that
+   * places it as its own icon button (the page header's option button).
+   */
+  overflowTriggerProps?: Omit<ChakraIconButtonProps, 'aria-label'>
   /** Called after the trigger opens the dialog (e.g. close a parent menu). */
   onOpened?: () => void
   /** Return false to block opening (e.g. redirect to login). */
@@ -90,6 +96,7 @@ function ReportTrigger({
 export function ReportControl({
   kind,
   variant = 'button',
+  overflowTriggerProps,
   targetTitle,
   targetMeta,
   targetImageSrc,
@@ -145,6 +152,7 @@ export function ReportControl({
               type="button"
               aria-label={t.moreActionsAria}
               variant="ghost"
+              {...overflowTriggerProps}
             >
               <LuEllipsisVertical />
             </IconButton>

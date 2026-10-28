@@ -21,10 +21,9 @@ export async function generateMetadata() {
 }
 
 /**
- * /pricing: the title bar with a large "Membership" (FE-420, FE-449: it
- * shrinks into the bar on scroll, as Account and Plan & billing do; it is the
- * page's h1), the page's own heading, the viewer's plans (see
- * views/README.md), FAQ.
+ * /pricing: the page header with a large "Membership" (FE-458: it shrinks
+ * into the bar on scroll, as on Account and Plan & billing; it is the page's
+ * h1), the page's own heading, the viewer's plans (see views/README.md), FAQ.
  */
 export default async function PricingPage() {
   const locale = await getRequestLocale()
@@ -37,26 +36,27 @@ export default async function PricingPage() {
   return (
     <>
       <Container as="section" pb={{ base: 8, md: 12 }}>
-        <MarketingPageHeader title={copy.title} />
-        <Stack gap={{ base: 8, md: 10 }} pt={{ base: 8, md: 12 }}>
-          <PricingHeader copy={copy.header} />
-          <PricingPlans
-            pricing={pricing}
-            hasSession={hasSession}
-            copy={{
-              plans: copy.plans,
-              intervals: copy.intervals,
-              unavailable: copy.unavailable,
-            }}
-          />
-          {pricing ? (
-            <PricingFaq
+        <MarketingPageHeader title={copy.title}>
+          <Stack gap={{ base: 8, md: 10 }} pt={{ base: 8, md: 12 }}>
+            <PricingHeader copy={copy.header} />
+            <PricingPlans
               pricing={pricing}
-              copy={copy.faq}
-              intervals={copy.intervals}
+              hasSession={hasSession}
+              copy={{
+                plans: copy.plans,
+                intervals: copy.intervals,
+                unavailable: copy.unavailable,
+              }}
             />
-          ) : null}
-        </Stack>
+            {pricing ? (
+              <PricingFaq
+                pricing={pricing}
+                copy={copy.faq}
+                intervals={copy.intervals}
+              />
+            ) : null}
+          </Stack>
+        </MarketingPageHeader>
       </Container>
       <Footer />
       <PricingViewCapture />

@@ -13,6 +13,8 @@ import {
   useState,
 } from 'react'
 
+import { HEADER_BAR_H } from '@/ui/StickyHeader'
+
 import { TaskMap, type TaskMapProps } from '../components/ui/TaskMap'
 import {
   type MarketplaceMapPublishedLayer,
@@ -179,6 +181,9 @@ function PersistentTaskMap() {
         mobileCtrlBottomOffset={overlayCtrlBottomOffset(viewport, {
           inDetail: onDetailPath || publishedDetail,
         })}
+        // Task detail's page header floats over the map's top: the zoom and
+        // compass controls start below it.
+        ctrlTopClearance={onDetailPath ? `${HEADER_BAR_H}px` : undefined}
       />
     </Box>
   )

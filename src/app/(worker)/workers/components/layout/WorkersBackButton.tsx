@@ -3,7 +3,6 @@
 import { Box } from '@chakra-ui/react'
 import { LuArrowLeft } from 'react-icons/lu'
 
-import { TASK_DETAIL_STUCK_ROW_TOP } from '@/app/(task)/tasks/[slug]/helpers/taskDetailHeaderCollapse'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
@@ -11,6 +10,9 @@ import { useGoBack } from '@/utils/goBack'
 import { IconButton } from '@ui'
 
 import bag from '../../i11n.json'
+
+/** The button's top, level with where task detail's own back button sat (0.5rem less 2px). */
+const BACK_TOP = 'calc(0.5rem - 2px)'
 
 /**
  * Workers is not a nav page (FE-445): below lg, where the bottom nav is gone,
@@ -26,7 +28,7 @@ export function WorkersBackButton() {
       display={{ base: 'block', lg: 'none' }}
       position="absolute"
       insetX={0}
-      top={TASK_DETAIL_STUCK_ROW_TOP}
+      top={BACK_TOP}
       zIndex={2}
       pointerEvents="none"
     >

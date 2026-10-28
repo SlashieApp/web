@@ -1,19 +1,17 @@
-import { OrderStatus, QuoteStatus, TaskStatus } from '@codegen/schema'
+import { TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withTaskDetailPending } from '../../helpers/taskDetailStoryExtras'
-import {
-  storyTaskDetail,
-  storyTaskOrder,
-  storyTaskQuote,
-} from '../../helpers/taskDetailStoryFixtures'
+import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { TaskTitle } from './TaskTitle'
 
 /**
- * Sticky title: back control (phones), title and the phones' Help & actions
- * menu. Chips scroll away under it; the status badge lives on the Task summary.
+ * The task title, the page's one h1 (34px): under the map with the chips under
+ * it. It scrolls with the page and collapses into the page header's bar (see
+ * Task detail/Page), where Back and the options menu are. The status badge
+ * lives on the Task summary.
  */
 const meta = {
   title: 'Task detail/Layout/TaskTitle',
@@ -32,14 +30,14 @@ const LONG_TITLE =
 export const Default: Story = {
   decorators: [withTaskDetailStory({ viewer: 'owner' })],
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByRole('heading', { level: 1, name: TITLE })
+    const h1 = await within(canvasElement).findByRole('heading', {
+      level: 1,
+      name: TITLE,
+    })
+    const style = getComputedStyle(h1)
+    expect(style.fontSize).toBe('34px')
+    expect(style.fontWeight).toBe('700')
   },
-}
-
-/** Docked: compact one-line title once the chrome sticks. */
-export const Stuck: Story = {
-  args: { isStuck: true },
-  decorators: [withTaskDetailStory({ viewer: 'owner' })],
 }
 
 /** A long title wraps over several lines. */
@@ -58,45 +56,21 @@ export const LongTitle: Story = {
   },
 }
 
-/** A long title once docked: one line, cut off with an ellipsis. */
-export const LongTitleStuck: Story = {
-  args: { isStuck: true },
-  decorators: [
-    withTaskDetailStory({
-      viewer: 'owner',
-      task: storyTaskDetail({ title: LONG_TITLE }),
-    }),
-  ],
-}
-
-/** Phone: the back button on the left and the options menu on the right. */
+/** Phone: the title wraps in the one column. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
-  decorators: [withTaskDetailStory({ viewer: 'visitor' })],
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await canvas.findByRole('button', { name: 'Go back' })
-    await canvas.findByRole('button', { name: 'Task options' })
-  },
-}
-
-/** Phones: the menu adds the booking actions (Reschedule, Cancel booking). */
-export const PhoneMenuBooked: Story = {
-  globals: { viewport: { value: 'mobile1' } },
   decorators: [
     withTaskDetailStory({
-      viewer: 'worker',
-      task: storyTaskDetail({
-        status: TaskStatus.Awarded,
-        quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
-      }),
-      order: storyTaskOrder({
-        status: OrderStatus.Active,
-        bookedStart: '2030-06-10T14:00:00.000Z',
-        bookedEnd: '2030-06-10T16:00:00.000Z',
-      }),
+      viewer: 'visitor',
+      task: storyTaskDetail({ status: TaskStatus.Open, title: LONG_TITLE }),
     }),
   ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', {
+      level: 1,
+      name: LONG_TITLE,
+    })
+  },
 }
 
 /** Direct load: a skeleton bar stands in for the title. */

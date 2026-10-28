@@ -15,14 +15,13 @@ import { LuCheck, LuMapPin } from 'react-icons/lu'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFocusRing } from '@/theme/styles'
-import { Avatar, Badge, Card } from '@ui'
+import { Avatar, Badge, Card, StickyHeaderTitle } from '@ui'
 
 import type {
   PublicProfileModel,
   StatCell,
 } from '../../helpers/publicProfileModel'
 import bag from '../../i11n.json'
-import { PublicProfileBack } from './PublicProfileBack'
 
 const COVER =
   'linear-gradient(115deg, var(--chakra-colors-status-success-soft) 0%, var(--chakra-colors-status-success-border) 58%, var(--chakra-colors-status-success-soft) 100%)'
@@ -39,20 +38,23 @@ export type PublicProfileHeroProps = {
     | 'serviceAreaLabel'
   >
   stats: readonly StatCell[]
-  /** Save, Leave a review and the ⋯ menu, beside the photo. */
+  /** Save and Leave a review, beside the photo (the ⋯ menu is in the page header's bar). */
   actions?: ReactNode
-  /** Phones have no app header, so the cover carries a way back. */
-  onBack?: () => void
-  /** `h3` when the hero is a preview inside another page. */
+  /**
+   * `h1` (default): the page's title, under the page header, which collapses
+   * it into its bar. `h3` when the hero is a preview inside another page.
+   */
   nameAs?: 'h1' | 'h3'
 }
 
-/** Cover band, photo, name, headline, area and one stats strip. */
+/**
+ * Cover band, photo, name, headline, area and one stats strip. The page
+ * header's bar (Back and the ⋯ menu) floats over the cover.
+ */
 export function PublicProfileHero({
   model,
   stats,
   actions,
-  onBack,
   nameAs = 'h1',
 }: PublicProfileHeroProps) {
   const t = useI11n(bag)
@@ -60,18 +62,9 @@ export function PublicProfileHero({
 
   return (
     <Card p={0} overflow="hidden" maxW="full">
-      <Box
-        h={{ base: '104px', md: '120px' }}
-        position="relative"
-        bgImage={COVER}
-      >
-        {onBack ? (
-          <PublicProfileBack onBack={onBack} placement="cover" />
-        ) : null}
-      </Box>
+      <Box h={{ base: '104px', md: '120px' }} bgImage={COVER} />
       <Stack gap={1} px={{ base: 4, md: 6 }} pb={{ base: 4, md: 5 }}>
         <HStack justify="space-between" align="flex-end" gap={3}>
-          {/* Clears the phone back button above it. */}
           <Box
             mt={{ base: '-40px', md: '-60px' }}
             p="4px"
@@ -90,17 +83,21 @@ export function PublicProfileHero({
           ) : null}
         </HStack>
         <HStack gap={2} flexWrap="wrap" mt={2} rowGap={1}>
-          <Heading
-            as={nameAs}
-            fontSize={{ base: '2xl', md: '3xl' }}
-            fontWeight={700}
-            lineHeight="1.2"
-            letterSpacing="-0.01em"
-            color="text.default"
-            overflowWrap="anywhere"
-          >
-            {name}
-          </Heading>
+          {nameAs === 'h1' ? (
+            <StickyHeaderTitle>{name}</StickyHeaderTitle>
+          ) : (
+            <Heading
+              as={nameAs}
+              fontSize={{ base: '2xl', md: '3xl' }}
+              fontWeight={700}
+              lineHeight="1.2"
+              letterSpacing="-0.01em"
+              color="text.default"
+              overflowWrap="anywhere"
+            >
+              {name}
+            </Heading>
+          )}
           {model.verified ? (
             <Box
               as="span"

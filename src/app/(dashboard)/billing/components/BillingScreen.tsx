@@ -114,7 +114,6 @@ export function BillingScreen() {
     <DashboardPageLayout
       rootRef={rootRef}
       title={t.title}
-      headerVariant="largeTitle"
       description={t.description}
     >
       <MembershipRefreshOnMount />

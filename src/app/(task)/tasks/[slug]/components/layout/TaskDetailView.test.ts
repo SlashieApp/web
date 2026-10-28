@@ -31,14 +31,26 @@ describe('TaskDetailView desktop column', () => {
     expect(src).toContain('position="sticky"')
     expect(src).toContain('MOBILE_MAP_CHROME_OVERLAP')
     expect(src).toContain('-9.25rem')
-    expect(src).toContain('TaskBackButton')
-    // The desktop back button pins at the docked title row's top.
-    expect(src).toContain('top={TASK_DETAIL_STUCK_ROW_TOP}')
     expect(src).toContain("display={{ base: 'block', lg: 'none' }}")
     expect(src).toContain('TASK_DETAIL_DESKTOP_MAP_SPACER')
     expect(src).toContain('TASK_DETAIL_PIN_CLEARANCE')
     expect(src).toContain('<Reveal>')
     expect(src).toContain('TaskDetailTabs')
     expect(src).not.toContain('TaskDetailMainCta')
+  })
+
+  it('puts Back and the options menu in the page header bar over the map, at every width', () => {
+    const src = readFileSync(join(dir, 'TaskDetailView.tsx'), 'utf8')
+    expect(src).toContain('<StickyHeader')
+    expect(src).toContain('overMedia')
+    expect(src).toContain('onBack={onBack}')
+    expect(src).toContain('useTaskBack')
+    expect(src).toContain('option={<TaskHelpOverflowTrigger overlay />}')
+    // The bar lines up with the page body's gutters and column.
+    expect(src).toContain('contentMaxW={PAGE_CONTAINER_MAX_W}')
+    expect(src).toContain('contentPx={BODY_GUTTER_X}')
+    // Nothing is pinned at the old docked title row any more.
+    expect(src).not.toContain('TaskBackButton')
+    expect(src).not.toContain('TASK_DETAIL_STUCK')
   })
 })

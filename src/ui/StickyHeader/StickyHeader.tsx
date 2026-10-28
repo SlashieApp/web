@@ -3,342 +3,362 @@
 import {
   Box,
   type BoxProps,
-  HStack,
   Heading,
-  Stack,
+  type HeadingProps,
   Text,
 } from '@chakra-ui/react'
-import { type ReactNode, useCallback, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useRef } from 'react'
 import { LuArrowLeft } from 'react-icons/lu'
 
-import { sdlMotion } from '@/theme/styles'
-import { findScrollParent } from '@/utils/findScrollParent'
-
 import { IconButton } from '../IconButton/IconButton'
+import { attachHeaderCollapse } from './attachHeaderCollapse'
+import {
+  BAR_H,
+  BAR_TITLE_INSET,
+  BAR_TITLE_PX,
+  BAR_TITLE_TOP,
+  BUTTON_BOX,
+  BUTTON_OVERHANG,
+  GLYPH_PX,
+  OPTION_GAP,
+  TITLE_GAP,
+  TITLE_PX,
+} from './headerCollapse'
+
+type Length = string | number
+
+/** A CSS length (a number is px), or one per breakpoint. */
+type StickyTop =
+  | Length
+  | Partial<Record<'base' | 'sm' | 'md' | 'lg' | 'xl' | '2xl', Length>>
 
 export type StickyHeaderProps = {
-  title: string
+  /**
+   * The page's title: the big h1 under the bar, and the bar's one-line copy
+   * once it has collapsed. Leave it out for a bar with just Back.
+   */
+  title?: string
+  /** One line under the big title (not with `overMedia`). */
   description?: ReactNode
-  /** Shows the back control when set. */
+  /** Shows the back button, in the bar's left, when set. */
   onBack?: () => void
   /** Accessible label for the icon back button (it has no visible text). */
   backAriaLabel?: string
-  /** Hide the back controls from this breakpoint up (the app header covers it). */
-  hideBackFrom?: 'md' | 'lg'
-  /** Primary action pinned to the right. Receives `isStuck` to compact itself. */
-  action?: ReactNode | ((ctx: { isStuck: boolean }) => ReactNode)
   /**
-   * `compact` (default): the title block sticks and shrinks. `largeTitle`:
-   * the iPhone title bar (FE-420): a sticky bar with the back control and a
-   * small title that fades in once the large title in the page has scrolled
-   * under it. `hideBackFrom` and `action` are for `compact` only; the bar
-   * shows Back at every width.
+   * The page's own icon button for the bar's right (such as the task options).
+   * It is a 44px box; spread `HEADER_ICON_BUTTON` (or `HEADER_OVERLAY_BUTTON`
+   * over a map) onto it for its 24px glyph and look.
    */
-  variant?: 'compact' | 'largeTitle'
-  /** Bar variants: where the bar sticks when a sticky header sits above it. */
-  stickyTop?: BoxProps['top']
-  /** Bar variants: the width of the bar's row and of the large title, left aligned. */
+  option?: ReactNode
+  /** The page's own background colour, which the bar is painted in. */
+  background?: BoxProps['bg']
+  /** Where the bar sticks: 0, or under a sticky site header. */
+  stickyTop?: StickyTop
+  /** The page's column: the widest the bar's row and the big title get. */
   contentMaxW?: BoxProps['maxW']
+  /**
+   * Gutters for a header that is not inside the page's `<Container>`: the
+   * bar's row then brings them and centres its column. Inside a Container
+   * leave it out, the Container has them.
+   */
+  contentPx?: BoxProps['px']
+  /**
+   * A map or cover sits behind the bar (task details, a public profile): the
+   * bar floats over it and is transparent until the title collapses into it,
+   * then fades to `background`. The page then draws its own big title lower
+   * down, with `StickyHeaderTitle`.
+   */
+  overMedia?: boolean
+  /** The page. It scrolls under the bar, which sticks to the top of it. */
+  children?: ReactNode
 }
 
-const MOTION = {
-  transitionDuration: sdlMotion.duration.moderate,
-  transitionTimingFunction: sdlMotion.easing.standard,
+/** The big title's look, for the h1 and for the copy that moves into the bar. */
+const TITLE_STYLE = {
+  fontFamily: 'heading',
+  fontSize: `${TITLE_PX}px`,
+  fontWeight: 700,
+  lineHeight: '1.2',
+  color: 'text.default',
+  overflowWrap: 'anywhere',
 } as const
 
 /**
- * Page header that sticks to the top of the scroll pane. Open: back link,
- * large title, description, action aligned to the block's end. Once stuck
- * it compacts: white full-bleed bar, icon back button inline with a smaller
- * title, action centred on the right. The scroll pane should clip x-overflow
- * (the app shell `main` does) so the full-bleed bar adds no scrollbar.
+ * The bar's icon buttons hold a 24px glyph. Chakra sizes an icon button's svg
+ * itself, so it has to be said in css. The bar gives it to its own back
+ * button; a page spreads it onto the option button it passes.
+ */
+export const HEADER_ICON_BUTTON = {
+  css: { '& svg': { width: `${GLYPH_PX}px`, height: `${GLYPH_PX}px` } },
+} as const
+
+/**
+ * The same over a map or cover: the frosted white chip task details always
+ * had, for Back and the option button.
+ */
+export const HEADER_OVERLAY_BUTTON = {
+  ...HEADER_ICON_BUTTON,
+  bg: 'whiteAlpha.700',
+  _hover: { bg: 'whiteAlpha.900', color: 'text.default' },
+} as const
+
+const cssLength = (value: Length) =>
+  typeof value === 'number' ? `${value}px` : value
+
+/** `stickyTop` as CSS lengths, `extra` px further down. */
+function topFor(stickyTop: StickyTop, extra = 0): BoxProps['top'] {
+  const at = (value: Length) =>
+    extra ? `calc(${cssLength(value)} + ${extra}px)` : cssLength(value)
+  if (typeof stickyTop === 'string' || typeof stickyTop === 'number') {
+    return at(stickyTop)
+  }
+  return Object.fromEntries(
+    Object.entries(stickyTop).flatMap(([breakpoint, value]) =>
+      value === undefined ? [] : [[breakpoint, at(value)]],
+    ),
+  ) as BoxProps['top']
+}
+
+/**
+ * The page's one h1, in the big title's look (34px, bold). `StickyHeader`
+ * draws it itself on an ordinary page; a page whose title rests lower (task
+ * details, a public profile) renders it where it belongs, and the header
+ * finds it there to collapse it into the bar. On its own it is a plain
+ * heading.
+ */
+export function StickyHeaderTitle({
+  children,
+  ...rest
+}: Omit<HeadingProps, 'as'>) {
+  return (
+    <Heading as="h1" data-sticky-header-title="" {...TITLE_STYLE} {...rest}>
+      {children}
+    </Heading>
+  )
+}
+
+/**
+ * The bar's row in the page's column: the bar's own box is as wide as the
+ * page, the row is as wide as its content (`position: relative` for what it
+ * holds).
+ */
+function BarRow({
+  maxW,
+  px,
+  main = false,
+  children,
+}: {
+  maxW?: BoxProps['maxW']
+  px?: BoxProps['px']
+  /** The row the scroll listener measures. */
+  main?: boolean
+  children?: ReactNode
+}) {
+  return (
+    <Box
+      h="full"
+      w="full"
+      maxW={maxW}
+      px={px}
+      mx={px == null ? undefined : 'auto'}
+    >
+      <Box
+        position="relative"
+        h="full"
+        data-sticky-header-row={main ? '' : undefined}
+      >
+        {children}
+      </Box>
+    </Box>
+  )
+}
+
+/**
+ * The page header (FE-458), one for every page: a bar one row (56px) tall that
+ * sticks to the top of the page, and under it the big title, which collapses
+ * into the bar as the page scrolls. It wraps the page, so that Back comes
+ * first in the tab order, the page next and the option button last, and so
+ * that the column its bar sticks in is as tall as the page.
  *
- * The `largeTitle` variant is the app's iPhone title bar instead (see
- * `TitleBarHeader`).
+ * Open: Back alone in the bar, the 34px h1 under it, then the description.
+ * Scrolled: the title shrinks to 18px and moves up beside Back (see
+ * `headerCollapse.ts` for the numbers and `attachHeaderCollapse.ts` for how
+ * the scroll drives it). The bar is the page's own colour with no rule or
+ * shadow, Back shows at every width, and the bar's copy is hidden from screen
+ * readers: the h1 is the only heading.
  */
 export function StickyHeader({
-  variant = 'compact',
-  stickyTop,
-  contentMaxW,
-  ...props
-}: StickyHeaderProps) {
-  if (variant === 'compact') return <CompactHeader {...props} />
-  return (
-    <TitleBarHeader
-      {...props}
-      stickyTop={stickyTop}
-      contentMaxW={contentMaxW}
-    />
-  )
-}
-
-function CompactHeader({
   title,
   description,
   onBack,
   backAriaLabel,
-  hideBackFrom,
-  action,
-}: Omit<StickyHeaderProps, 'variant' | 'stickyTop' | 'contentMaxW'>) {
-  const [isStuck, setIsStuck] = useState(false)
-  const observerRef = useRef<IntersectionObserver | null>(null)
-
-  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
-    observerRef.current?.disconnect()
-    observerRef.current = null
-    if (!node) return
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsStuck(!entry.isIntersecting),
-      { root: findScrollParent(node), threshold: 0 },
-    )
-    observer.observe(node)
-    observerRef.current = observer
-  }, [])
-
-  const actionNode = typeof action === 'function' ? action({ isStuck }) : action
-  const backDisplay = hideBackFrom
-    ? { base: 'inline-flex', [hideBackFrom]: 'none' }
-    : undefined
-
-  return (
-    <>
-      <Box ref={sentinelRef} h="1px" w="full" aria-hidden />
-      <Box
-        position="sticky"
-        top={0}
-        zIndex={10}
-        w="full"
-        py={isStuck ? 3 : { base: 4, md: 6 }}
-        transitionProperty="padding"
-        {...MOTION}
-        data-stuck={isStuck ? '' : undefined}
-      >
-        <Box
-          aria-hidden
-          position="absolute"
-          top={0}
-          bottom={0}
-          left="50%"
-          w="100vw"
-          transform="translateX(-50%)"
-          bg="bg.surface"
-          borderBottomWidth="1px"
-          borderColor="border.default"
-          opacity={isStuck ? 1 : 0}
-          pointerEvents="none"
-          transitionProperty="opacity"
-          {...MOTION}
-        />
-        <HStack
-          position="relative"
-          gap={4}
-          w="full"
-          minW={0}
-          align={isStuck ? 'center' : 'flex-end'}
-          justify="space-between"
-        >
-          <Stack gap={isStuck ? 0 : 2} flex="1 1 auto" minW={0}>
-            {onBack && !isStuck ? (
-              <IconButton
-                type="button"
-                variant="ghost"
-                aria-label={backAriaLabel ?? 'Back'}
-                display={backDisplay}
-                alignSelf="flex-start"
-                ml={-2}
-                color="text.muted"
-                onClick={onBack}
-              >
-                <LuArrowLeft />
-              </IconButton>
-            ) : null}
-            <HStack gap={2} minW={0} align="center">
-              {onBack && isStuck ? (
-                <IconButton
-                  type="button"
-                  variant="ghost"
-                  aria-label={backAriaLabel ?? 'Back'}
-                  display={backDisplay}
-                  flexShrink={0}
-                  ml={-2}
-                  onClick={onBack}
-                >
-                  <LuArrowLeft />
-                </IconButton>
-              ) : null}
-              <Heading
-                as="h1"
-                minW={0}
-                fontFamily="heading"
-                fontSize={
-                  isStuck
-                    ? { base: 'md', md: 'lg' }
-                    : { base: '2xl', md: '3xl' }
-                }
-                fontWeight={isStuck ? 600 : 700}
-                lineHeight={isStuck ? '1.3' : '1.15'}
-                color="text.default"
-                truncate={isStuck}
-                transitionProperty="font-size, font-weight, line-height"
-                {...MOTION}
-              >
-                {title}
-              </Heading>
-            </HStack>
-            {isStuck || !description ? null : (
-              <Text fontSize="sm" color="text.muted" maxW="3xl">
-                {description}
-              </Text>
-            )}
-          </Stack>
-          {actionNode ? <Box flexShrink={0}>{actionNode}</Box> : null}
-        </HStack>
-      </Box>
-    </>
-  )
-}
-
-/** The bar's height: iOS's 44pt navigation bar, and the 44px touch target. */
-const BAR_H = '44px'
-
-/** iOS's large title is 34pt bold. */
-const LARGE_TITLE_SIZE = '34px'
-
-const BAR_TITLE_FADE_CSS = {
-  transitionProperty: 'opacity',
-  transitionDuration: sdlMotion.duration.moderate,
-  transitionTimingFunction: sdlMotion.easing.standard,
-  '@media (prefers-reduced-motion: reduce)': {
-    transitionDuration: '0ms',
-  },
-} as const
-
-/**
- * The iPhone title bar (FE-420), at every width, as the app's native header
- * draws it (`headerLargeTitle`): a bar that sticks with the icon-only Back on
- * the left and the small title centred, and the page's one h1 under the
- * bar; it scrolls up beneath the bar, and once it has gone the small title
- * fades in. The small title is `aria-hidden` while the large one shows, so a
- * screen reader hears the title once. The bar is the page's own colour with
- * no rule under it, as in the app. It scrolls with the page, so it must sit
- * in a column as tall as the page for `position: sticky` to hold.
- */
-function TitleBarHeader({
-  title,
-  description,
-  onBack,
-  backAriaLabel,
+  option,
+  background = 'bg.subtle',
   stickyTop = 0,
   contentMaxW,
-}: Omit<StickyHeaderProps, 'variant' | 'hideBackFrom' | 'action'>) {
-  const barRef = useRef<HTMLDivElement>(null)
+  contentPx,
+  overMedia = false,
+  children,
+}: StickyHeaderProps) {
   const detachRef = useRef<(() => void) | null>(null)
-  const [largeTitleShows, setLargeTitleShows] = useState(true)
-
-  // The large title has gone once its bottom edge is under the bar's. Both
-  // edges are read from the page, so a bar that sticks lower (below the
-  // marketing header) needs no offset here.
-  const titleRef = useCallback((node: HTMLHeadingElement | null) => {
+  const frameRef = useCallback((node: HTMLDivElement | null) => {
     detachRef.current?.()
-    detachRef.current = null
-    if (!node) return
-    const scroller: HTMLElement | Window = findScrollParent(node) ?? window
-    const update = () => {
-      const bar = barRef.current
-      if (!bar) return
-      setLargeTitleShows(
-        node.getBoundingClientRect().bottom >
-          bar.getBoundingClientRect().bottom,
-      )
-    }
-    update()
-    scroller.addEventListener('scroll', update, { passive: true })
-    window.addEventListener('resize', update)
-    detachRef.current = () => {
-      scroller.removeEventListener('scroll', update)
-      window.removeEventListener('resize', update)
-    }
+    detachRef.current = node ? attachHeaderCollapse(node) : null
   }, [])
 
-  const smallTitleShows = !largeTitleShows
+  const hasTitle = title !== undefined
+  const column = { maxW: contentMaxW, px: contentPx }
+  const buttonTop = `${(BAR_H - BUTTON_BOX) / 2}px`
+  const overhang = `-${BUTTON_OVERHANG}px`
+  const optionClearance = BUTTON_BOX - BUTTON_OVERHANG + OPTION_GAP
 
   return (
-    <>
+    <Box
+      ref={frameRef}
+      data-sticky-header=""
+      data-over-media={overMedia ? '' : undefined}
+      display="grid"
+      gridTemplateColumns="minmax(0, 1fr)"
+      w="full"
+    >
+      {/* Everything sits in one cell: the bar over the top of the page. */}
       <Box
-        ref={barRef}
+        data-sticky-header-bar=""
+        gridArea="1 / 1"
+        alignSelf="start"
         position="sticky"
-        top={stickyTop}
+        top={topFor(stickyTop)}
         zIndex={10}
+        h={`${BAR_H}px`}
         w="full"
-        h={BAR_H}
+        // Over a map the bar lets it through; its buttons take their own clicks.
+        pointerEvents={overMedia ? 'none' : undefined}
       >
         <Box
           aria-hidden
+          data-sticky-header-bar-bg=""
           position="absolute"
           top={0}
           bottom={0}
           left="50%"
           w="100vw"
           transform="translateX(-50%)"
-          bg="bg.subtle"
-          pointerEvents="none"
+          bg={background}
+          opacity={overMedia ? 0 : 1}
+          pointerEvents={overMedia ? 'none' : 'auto'}
         />
-        <Box position="relative" h="full" maxW={contentMaxW}>
+        <BarRow {...column} main>
           {onBack ? (
             <IconButton
               type="button"
               variant="ghost"
+              data-sticky-header-back=""
               aria-label={backAriaLabel ?? 'Back'}
+              position="absolute"
+              top={buttonTop}
+              left={overhang}
+              boxSize={`${BUTTON_BOX}px`}
               color="text.default"
-              ml={-2}
+              pointerEvents="auto"
+              {...(overMedia ? HEADER_OVERLAY_BUTTON : HEADER_ICON_BUTTON)}
               onClick={onBack}
             >
               <LuArrowLeft />
             </IconButton>
           ) : null}
-          <Box
-            aria-hidden={smallTitleShows ? undefined : true}
-            position="absolute"
-            inset={0}
-            px={BAR_H}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            pointerEvents="none"
-            opacity={smallTitleShows ? 1 : 0}
-            css={BAR_TITLE_FADE_CSS}
-          >
+          {hasTitle ? (
             <Text
+              aria-hidden
+              data-sticky-header-bar-title=""
+              position="absolute"
+              top={`${BAR_TITLE_TOP}px`}
+              left={`${BAR_TITLE_INSET}px`}
+              right={option ? `${optionClearance}px` : 0}
               fontFamily="heading"
-              fontSize="17px"
+              fontSize={`${BAR_TITLE_PX}px`}
               fontWeight={600}
-              lineHeight="1.3"
+              lineHeight="24px"
               color="text.default"
               truncate
+              opacity={0}
+              pointerEvents="none"
             >
               {title}
             </Text>
-          </Box>
-        </Box>
+          ) : null}
+        </BarRow>
       </Box>
-      <Stack gap={2} pt={1} pb={{ base: 4, md: 6 }} maxW={contentMaxW}>
-        <Heading
-          ref={titleRef}
-          as="h1"
-          fontFamily="heading"
-          fontSize={LARGE_TITLE_SIZE}
-          fontWeight={700}
-          lineHeight="1.2"
-          color="text.default"
+
+      <Box gridArea="1 / 1" minW={0} pt={overMedia ? 0 : `${BAR_H}px`}>
+        {hasTitle && !overMedia ? (
+          <Box
+            pt={`${TITLE_GAP}px`}
+            pb={{ base: 4, md: 6 }}
+            maxW={contentMaxW}
+            px={contentPx}
+            mx={contentPx == null ? undefined : 'auto'}
+          >
+            <StickyHeaderTitle>{title}</StickyHeaderTitle>
+            {description ? (
+              <Text mt={2} fontSize="sm" color="text.muted" maxW="3xl">
+                {description}
+              </Text>
+            ) : null}
+          </Box>
+        ) : null}
+        {children}
+      </Box>
+
+      {/* The title once it has reached the bar: it sticks, so the scroll
+          carries it up to the bar copy's place. Hidden until then. */}
+      {hasTitle ? (
+        <Box
+          aria-hidden
+          data-sticky-header-traveller=""
+          gridArea="1 / 1"
+          alignSelf="start"
+          justifySelf="start"
+          position="sticky"
+          top={topFor(stickyTop, BAR_TITLE_TOP)}
+          zIndex={12}
+          maxW="full"
+          opacity={0}
+          pointerEvents="none"
+          transformOrigin="0 0"
+          {...TITLE_STYLE}
         >
           {title}
-        </Heading>
-        {description ? (
-          <Text fontSize="sm" color="text.muted" maxW="3xl">
-            {description}
-          </Text>
-        ) : null}
-      </Stack>
-    </>
+        </Box>
+      ) : null}
+
+      {/* The option button comes after the page in the tab order. */}
+      {option ? (
+        <Box
+          gridArea="1 / 1"
+          alignSelf="start"
+          position="sticky"
+          top={topFor(stickyTop)}
+          zIndex={13}
+          h={`${BAR_H}px`}
+          w="full"
+          pointerEvents="none"
+        >
+          <BarRow {...column}>
+            <Box
+              position="absolute"
+              top={buttonTop}
+              right={overhang}
+              boxSize={`${BUTTON_BOX}px`}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              pointerEvents="auto"
+            >
+              {option}
+            </Box>
+          </BarRow>
+        </Box>
+      ) : null}
+    </Box>
   )
 }

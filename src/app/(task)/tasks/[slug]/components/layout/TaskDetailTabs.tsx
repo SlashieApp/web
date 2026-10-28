@@ -48,7 +48,7 @@ export function TaskDetailTabs({
       px={px}
       onChange={setActiveTab}
       ariaLabel={t.nav.taskSectionsAria}
-      title={({ isStuck }) => <TaskTitle isStuck={isStuck} />}
+      title={<TaskTitle />}
       tabs={tabs}
       value={
         tabs.some((tab) => tab.key === activeTab)

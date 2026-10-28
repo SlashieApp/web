@@ -105,6 +105,11 @@ export type TaskMapProps = {
    */
   compactCtrlTopOffset?: string
   /**
+   * Extra CSS length that moves the top-right controls down at every width,
+   * clear of a bar that floats over the map (task detail's page header).
+   */
+  ctrlTopClearance?: string
+  /**
    * Browse keeps the search-center camera + list offset. Detail frames the
    * selected task with `viewPadding` (top-right on desktop).
    */
@@ -217,6 +222,23 @@ export function TaskMap(props: TaskMapProps) {
     controllerRef.current?.scheduleSync()
   }, [syncDriver])
 
+  const ctrlTopBase =
+    hideZoomControls && props.touchCtrlTopOffset
+      ? {
+          base: props.touchCtrlTopOffset,
+          lg: `calc(${HEADER_MIN_HEIGHT.md} + ${props.touchCtrlTopOffset})`,
+        }
+      : {
+          base: props.compactCtrlTopOffset ?? '0px',
+          lg: HEADER_MIN_HEIGHT.md,
+        }
+  const ctrlTop = props.ctrlTopClearance
+    ? {
+        base: `calc(${ctrlTopBase.base} + ${props.ctrlTopClearance})`,
+        lg: `calc(${ctrlTopBase.lg} + ${props.ctrlTopClearance})`,
+      }
+    : ctrlTopBase
+
   if (!accessToken) {
     return (
       <Box
@@ -253,16 +275,7 @@ export function TaskMap(props: TaskMapProps) {
         // there is no mobile header). Keep the controls below that header
         // and any touch overlay.
         '& .mapboxgl-ctrl-top-right': {
-          top:
-            hideZoomControls && props.touchCtrlTopOffset
-              ? {
-                  base: props.touchCtrlTopOffset,
-                  lg: `calc(${HEADER_MIN_HEIGHT.md} + ${props.touchCtrlTopOffset})`,
-                }
-              : {
-                  base: props.compactCtrlTopOffset ?? '0px',
-                  lg: HEADER_MIN_HEIGHT.md,
-                },
+          top: ctrlTop,
         },
         // Touch phones pinch to zoom: hide the zoom buttons, keep the compass.
         ...(hideZoomControls

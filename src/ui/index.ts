@@ -74,6 +74,13 @@ export {
 export { GetAppButton } from './GetApp/GetAppButton'
 export { GetAppDialog } from './GetApp/GetAppDialog'
 export {
+  HEADER_BAR_H,
+  HEADER_ICON_BUTTON,
+  HEADER_OVERLAY_BUTTON,
+  StickyHeader,
+  StickyHeaderTitle,
+} from './StickyHeader'
+export {
   Header,
   HEADER_MIN_HEIGHT,
   HEADER_PADDING_X,
@@ -129,7 +136,6 @@ export {
   StepFlowProgress,
 } from './StepFlowLayout'
 export { Stepper } from './Stepper'
-export { StickyHeader } from './StickyHeader'
 export { Tabs } from './Tabs'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail'

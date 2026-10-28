@@ -32,9 +32,9 @@ function linkifyEmails(paragraph: string): ReactNode[] {
 
 /**
  * Shared prose shell for the public legal pages (/terms, /privacy, /cookies,
- * /help/safety). The title is the iPhone title bar (FE-420), then the page
- * `<Container>` with an inner readable measure, left-aligned to the column.
- * Copy comes from `src/content/legal/*` so it can change without touching UI.
+ * /help/safety). The page header (FE-458) with the title, then the policy in
+ * an inner readable measure, left-aligned to the page `<Container>`. Copy
+ * comes from `src/content/legal/*` so it can change without touching UI.
  */
 export function LegalPageLayout({
   document,
@@ -48,41 +48,42 @@ export function LegalPageLayout({
           title={document.title}
           description={`${document.lastUpdatedLabel ?? 'Last updated'}: ${document.lastUpdated}`}
           contentMaxW="45rem"
-        />
-        <Stack gap={8} maxW="45rem">
-          {document.intro?.map((paragraph) => (
-            <Text
-              key={paragraph.slice(0, 32)}
-              color="text.default"
-              lineHeight="tall"
-            >
-              {linkifyEmails(paragraph)}
-            </Text>
-          ))}
-          {document.sections.map((section) => (
-            <Stack
-              key={section.heading}
-              id={section.id}
-              gap={3}
-              // Clears the marketing header (58 / 66px with its borders), the
-              // 44px title bar under it, and 16px.
-              scrollMarginTop={{ base: '118px', md: '126px' }}
-            >
-              <Heading as="h2" size="md">
-                {section.heading}
-              </Heading>
-              {section.body.map((paragraph) => (
-                <Text
-                  key={paragraph.slice(0, 32)}
-                  color="text.muted"
-                  lineHeight="tall"
-                >
-                  {linkifyEmails(paragraph)}
-                </Text>
-              ))}
-            </Stack>
-          ))}
-        </Stack>
+        >
+          <Stack gap={8} maxW="45rem">
+            {document.intro?.map((paragraph) => (
+              <Text
+                key={paragraph.slice(0, 32)}
+                color="text.default"
+                lineHeight="tall"
+              >
+                {linkifyEmails(paragraph)}
+              </Text>
+            ))}
+            {document.sections.map((section) => (
+              <Stack
+                key={section.heading}
+                id={section.id}
+                gap={3}
+                // Clears the marketing header (58 / 66px with its borders), the
+                // 56px bar under it, and 16px.
+                scrollMarginTop={{ base: '130px', md: '138px' }}
+              >
+                <Heading as="h2" size="md">
+                  {section.heading}
+                </Heading>
+                {section.body.map((paragraph) => (
+                  <Text
+                    key={paragraph.slice(0, 32)}
+                    color="text.muted"
+                    lineHeight="tall"
+                  >
+                    {linkifyEmails(paragraph)}
+                  </Text>
+                ))}
+              </Stack>
+            ))}
+          </Stack>
+        </MarketingPageHeader>
       </Container>
     </Box>
   )

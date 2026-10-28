@@ -17,14 +17,6 @@ export type DashboardPageLayoutProps = {
   title: string
   /** One short line under the title. */
   description?: ReactNode
-  /** At most one button beside the title (the compact header only). */
-  action?: ReactNode
-  /**
-   * `largeTitle`: the app's iPhone title bar (FE-420), with Back at every
-   * width. `compact` (default): the title block that sticks and shrinks, with
-   * Back on phones only.
-   */
-  headerVariant?: 'compact' | 'largeTitle'
   /** Between the header and the body (hero, notices). */
   afterHeader?: ReactNode
   /** `narrow`: one readable column. `wide`: the page width, with an optional rail. */
@@ -38,16 +30,14 @@ export type DashboardPageLayoutProps = {
 }
 
 /**
- * Page contract for the signed-in dashboard pages: a sticky header whose h1
- * matches the menu label, a back control (on phones only, where there is no
- * app header, unless `headerVariant` is `largeTitle`), then the body in one
+ * Page contract for the signed-in dashboard pages: the page header (FE-458),
+ * whose big title is the h1 and matches the menu label, with Back at every
+ * width and the title collapsing into the bar on scroll, then the body in one
  * readable column or with a rail.
  */
 export function DashboardPageLayout({
   title,
   description,
-  action,
-  headerVariant = 'compact',
   afterHeader,
   width = 'narrow',
   sidebar,
@@ -68,40 +58,41 @@ export function DashboardPageLayout({
       <StickyHeader
         title={title}
         description={description}
-        action={action}
         onBack={onBack}
         backAriaLabel={t.page.backAria}
-        hideBackFrom="lg"
-        variant={headerVariant}
-      />
-      <Stack gap={{ base: 4, md: 5 }}>
-        {afterHeader}
-        {sidebar ? (
-          <Grid
-            templateColumns={{
-              base: '1fr',
-              lg: 'minmax(0, 1.85fr) minmax(280px, 1fr)',
-            }}
-            gap={6}
-            alignItems="start"
-          >
+      >
+        <Stack gap={{ base: 4, md: 5 }}>
+          {afterHeader}
+          {sidebar ? (
+            <Grid
+              templateColumns={{
+                base: '1fr',
+                lg: 'minmax(0, 1.85fr) minmax(280px, 1fr)',
+              }}
+              gap={6}
+              alignItems="start"
+            >
+              <Stack gap={4} minW={0}>
+                {children}
+              </Stack>
+              <Stack
+                gap={4}
+                minW={0}
+                display={{
+                  base: sidebarOnMobile ? 'flex' : 'none',
+                  lg: 'flex',
+                }}
+              >
+                {sidebar}
+              </Stack>
+            </Grid>
+          ) : (
             <Stack gap={4} minW={0}>
               {children}
             </Stack>
-            <Stack
-              gap={4}
-              minW={0}
-              display={{ base: sidebarOnMobile ? 'flex' : 'none', lg: 'flex' }}
-            >
-              {sidebar}
-            </Stack>
-          </Grid>
-        ) : (
-          <Stack gap={4} minW={0}>
-            {children}
-          </Stack>
-        )}
-      </Stack>
+          )}
+        </Stack>
+      </StickyHeader>
     </Box>
   )
 }

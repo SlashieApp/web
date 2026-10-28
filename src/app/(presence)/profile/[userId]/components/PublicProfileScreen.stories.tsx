@@ -1,6 +1,6 @@
 import { WorkerContactAction } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { withStoryApollo } from '@/app/(worker)/workers/components/storyApollo'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
@@ -160,6 +160,91 @@ export const WorkerVisitor: Story = {
   },
 }
 
+/** The page header's bar, over the top of the cover. */
+const headerBar = (canvasElement: HTMLElement) =>
+  canvasElement.querySelector('[data-sticky-header-bar]') as HTMLElement
+
+/** The bar's one-line copy: the one copy of the name that is not the h1. */
+const barTitle = (canvasElement: HTMLElement) =>
+  canvasElement.querySelector('[data-sticky-header-bar-title]') as HTMLElement
+
+/** A control sits on the bar's row, at the top of the page. */
+async function expectInBar(canvasElement: HTMLElement, control: HTMLElement) {
+  const bar = headerBar(canvasElement).getBoundingClientRect()
+  const box = control.getBoundingClientRect()
+  await expect(box.top).toBeGreaterThanOrEqual(bar.top)
+  await expect(box.bottom).toBeLessThanOrEqual(bar.bottom)
+}
+
+/**
+ * The page header (FE-458): Back and the ⋯ menu are in the bar from the start,
+ * floating over the cover; Save stays in the hero; the name is the h1 and the
+ * bar's copy of it is hidden from screen readers.
+ */
+export const HeaderOverCover: Story = {
+  args: { view: 'worker.visitor', model: sampleWorker() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const back = await canvas.findByRole('button', { name: 'Back' })
+    const more = canvas.getByRole('button', { name: 'More actions' })
+    await expectInBar(canvasElement, back)
+    await expectInBar(canvasElement, more)
+    // Save stays beside the photo, below the bar.
+    const save = canvas.getByRole('button', { name: 'Save this worker' })
+    await expect(save.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      headerBar(canvasElement).getBoundingClientRect().bottom,
+    )
+    // The page starts at the top: the bar floats over the hero's cover.
+    await expect(
+      Math.abs(headerBar(canvasElement).getBoundingClientRect().top),
+    ).toBeLessThan(2)
+    await expect(
+      canvas.getByRole('heading', { name: 'Alex Morgan', level: 1 }),
+    ).toBeVisible()
+    await expect(
+      barTitle(canvasElement).closest('[aria-hidden="true"]'),
+    ).not.toBeNull()
+    await expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('0')
+    // Focus order: Back, then the page, then the ⋯ menu.
+    back.focus()
+    const stops: Element[] = []
+    for (let step = 0; step < 40; step += 1) {
+      await userEvent.tab()
+      if (document.activeElement) stops.push(document.activeElement)
+      if (document.activeElement === more) break
+    }
+    await expect(stops.at(-1)).toBe(more)
+    await expect(stops.length).toBeGreaterThan(2)
+  },
+}
+
+/** Scrolled: the name has collapsed into the bar, still with Back and the ⋯ menu; it is the one h1. */
+export const NameInBar: Story = {
+  args: { view: 'worker.visitor', model: sampleWorker() },
+  beforeEach: () => () => window.scrollTo(0, 0),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { level: 1 })
+    window.scrollTo(0, 2000)
+    await waitFor(() =>
+      expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('1'),
+    )
+    await expect(barTitle(canvasElement)).toHaveTextContent('Alex Morgan')
+    await expect(canvas.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+    await expectInBar(
+      canvasElement,
+      canvas.getByRole('button', { name: 'Back' }),
+    )
+    await expectInBar(
+      canvasElement,
+      canvas.getByRole('button', { name: 'More actions' }),
+    )
+    await expect(
+      Math.abs(headerBar(canvasElement).getBoundingClientRect().top),
+    ).toBeLessThan(2)
+  },
+}
+
 /** `worker.quoted`: they quoted on your open task. */
 export const WorkerQuoted: Story = {
   args: {
@@ -208,6 +293,10 @@ export const WorkerOwner: Story = {
       canvas.queryByRole('button', { name: 'Save this worker' }),
     ).toBeNull()
     await expect(canvas.queryByText('Get in touch')).toBeNull()
+    // Your own profile has no report menu, so the bar holds Back alone.
+    await expect(
+      canvas.queryByRole('button', { name: 'More actions' }),
+    ).toBeNull()
     await expect(
       canvas.getByRole('heading', { name: 'Your activity' }),
     ).toBeVisible()

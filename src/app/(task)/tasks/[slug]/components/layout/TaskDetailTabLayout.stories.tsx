@@ -36,12 +36,10 @@ const meta = {
   component: TaskDetailTabLayout,
   parameters: { layout: 'padded' },
   args: {
-    title: ({ isStuck }) => (
-      <Box pt={2} pb={4}>
-        <Heading as="h1" fontSize={isStuck ? 'lg' : '3xl'}>
-          Mount bookshelf on living room wall
-        </Heading>
-      </Box>
+    title: (
+      <Heading as="h1" fontSize="3xl">
+        Mount bookshelf on living room wall
+      </Heading>
     ),
     tabs: [{ key: TASK_DETAIL_TAB.overview, label: 'Overview', cards: cards }],
     value: TASK_DETAIL_TAB.overview,

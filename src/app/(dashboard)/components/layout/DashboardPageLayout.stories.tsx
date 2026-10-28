@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { LuInfo, LuUser } from 'react-icons/lu'
 import { expect, waitFor, within } from 'storybook/test'
 
-import { Button, Link } from '@ui'
+import { Link } from '@ui'
 
 import { DashboardPageLayout } from './DashboardPageLayout'
 import { DashboardSectionCard } from './DashboardSectionCard'
@@ -54,20 +54,15 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Desktop: one readable column, the title is the h1 and there is no back button. */
+/** Desktop: one readable column, the title is the h1, with Back above it at every width. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
       canvas.getByRole('heading', { level: 1, name: 'Account' }),
     ).toBeVisible()
-    await expect(canvas.queryByRole('button', { name: 'Go back' })).toBeNull()
+    await expect(canvas.getByRole('button', { name: 'Go back' })).toBeVisible()
   },
-}
-
-/** One button beside the title. */
-export const WithAction: Story = {
-  args: { action: <Button size="sm">Edit profile</Button> },
 }
 
 /** A wide page with a rail beside the body. */
@@ -86,7 +81,7 @@ export const WithAfterHeader: Story = {
   },
 }
 
-/** Phones: there is no app header, so the page header has Back. */
+/** Phones: the same bar, with Back. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
@@ -129,16 +124,16 @@ function Pane({
   )
 }
 
-/** The bar's small title: the one copy of the title that is not the h1. */
+/** The bar's one-line copy: the one copy of the title that is not the h1. */
 const barTitle = (canvasElement: HTMLElement) =>
-  within(canvasElement).getByText('Account', { selector: 'p' })
+  canvasElement.querySelector('[data-sticky-header-bar-title]') as HTMLElement
 
 /**
- * Account and Billing (FE-420): the iPhone title bar with Back at every
- * width, the large title is the h1, the description under it.
+ * Account and Billing: the page header, Back in the bar at every width, the
+ * big title is the h1 and the description is under it. The bar's copy is
+ * hidden from screen readers and from sight.
  */
-export const LargeTitle: Story = {
-  args: { headerVariant: 'largeTitle' },
+export const Header: Story = {
   render: (args) => (
     <Pane>
       <DashboardPageLayout {...args} />
@@ -149,16 +144,17 @@ export const LargeTitle: Story = {
     await expect(
       canvas.getByRole('heading', { level: 1, name: 'Account' }),
     ).toBeVisible()
+    await expect(canvas.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     await expect(canvas.getByRole('button', { name: 'Go back' })).toBeVisible()
     await expect(
       barTitle(canvasElement).closest('[aria-hidden="true"]'),
     ).not.toBeNull()
+    await expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('0')
   },
 }
 
-/** Scrolled: the large title is under the bar, so the small title shows in it. */
-export const LargeTitleScrolled: Story = {
-  args: { headerVariant: 'largeTitle' },
+/** Scrolled: the title has collapsed into the bar, beside Back. */
+export const HeaderScrolled: Story = {
   render: (args) => (
     <Pane scrolled>
       <DashboardPageLayout {...args} />
@@ -166,20 +162,20 @@ export const LargeTitleScrolled: Story = {
   ),
   play: async ({ canvasElement }) => {
     await waitFor(() =>
-      expect(
-        barTitle(canvasElement).closest('[aria-hidden="true"]'),
-      ).toBeNull(),
+      expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('1'),
     )
     await expect(
       within(canvasElement).getByRole('button', { name: 'Go back' }),
     ).toBeVisible()
+    await expect(
+      within(canvasElement).getAllByRole('heading', { level: 1 }),
+    ).toHaveLength(1)
   },
 }
 
 /** Phones: the same bar, the title wraps in the one column. */
-export const LargeTitlePhone: Story = {
+export const HeaderPhone: Story = {
   globals: { viewport: { value: 'mobile1' } },
-  args: { headerVariant: 'largeTitle' },
   render: (args) => (
     <Pane>
       <DashboardPageLayout {...args} />
